@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 
-import { Bot, ChevronDown, History, Plus, Send, Settings, StopCircle, User, X } from "lucide-react"
+import { Bot, ChevronDown, History, Plus, Send, Settings, StopCircle, User } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"

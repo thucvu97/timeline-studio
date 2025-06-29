@@ -7,6 +7,7 @@ import { EventEmitter } from "events"
 
 import { MidiClock } from "./midi-clock"
 import { MidiFile } from "./midi-file"
+import { MidiRouter } from "./midi-router"
 import { MidiSequencer } from "./midi-sequencer"
 
 export interface MidiDevice {
@@ -54,6 +55,7 @@ export class MidiEngine extends EventEmitter {
   // Дополнительные компоненты
   public readonly clock: MidiClock
   public readonly sequencer: MidiSequencer
+  public router: MidiRouter | null = null
 
   constructor() {
     super()

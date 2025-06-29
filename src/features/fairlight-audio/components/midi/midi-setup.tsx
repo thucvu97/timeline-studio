@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import { MidiLearnDialog } from "./midi-learn-dialog"
 import { MidiMappingEditor } from "./midi-mapping-editor"
+import { MidiRouterView } from "./midi-router-view"
 import { useMidi } from "../../hooks/use-midi"
 import { MidiDevice } from "../../services/midi/midi-engine"
 
@@ -59,9 +60,10 @@ export function MidiSetup() {
   return (
     <div className="space-y-6">
       <Tabs defaultValue="devices" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="devices">Devices</TabsTrigger>
           <TabsTrigger value="mappings">Mappings</TabsTrigger>
+          <TabsTrigger value="router">Router</TabsTrigger>
         </TabsList>
 
         <TabsContent value="devices" className="space-y-4">
@@ -183,6 +185,10 @@ export function MidiSetup() {
               ))}
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="router" className="p-0">
+          <MidiRouterView />
         </TabsContent>
       </Tabs>
 
