@@ -346,6 +346,70 @@
         "socialNetworks": "โซเชียลเน็ตเวิร์ก",
         "development": "การพัฒนา",
         "performance": "ประสิทธิภาพ"
+      },
+      "apiKeys": "คีย์ API",
+      "apiKeysDescription": "กำหนดค่าคีย์ API สำหรับบริการ AI",
+      "apiKeyProvider": "ผู้ให้บริการ",
+      "apiKeyValue": "คีย์ API",
+      "apiKeyStatus": "สถานะ",
+      "apiKeyActions": "การดำเนินการ",
+      "addApiKey": "เพิ่มคีย์ API",
+      "editApiKey": "แก้ไขคีย์ API",
+      "deleteApiKey": "ลบคีย์ API",
+      "testApiKey": "ทดสอบคีย์ API",
+      "apiKeyValid": "ใช้ได้",
+      "apiKeyInvalid": "ใช้ไม่ได้",
+      "apiKeyUntested": "ยังไม่ได้ทดสอบ",
+      "apiKeyTesting": "กำลังทดสอบ...",
+      "apiKeyTestSuccess": "คีย์ API ใช้ได้",
+      "apiKeyTestFailure": "คีย์ API ใช้ไม่ได้หรือหมดอายุ",
+      "apiKeyTestError": "เกิดข้อผิดพลาดในการทดสอบคีย์ API",
+      "apiKeyDeleteConfirm": "คุณแน่ใจหรือไม่ที่จะลบคีย์ API นี้?",
+      "apiKeyProviders": {
+        "openai": "OpenAI",
+        "claude": "Claude (Anthropic)",
+        "gemini": "Google Gemini",
+        "custom": "กำหนดเอง"
+      },
+      "apiKeyPlaceholder": "ป้อนคีย์ API ของคุณ...",
+      "apiKeyMasked": "••••••••••••••••••••",
+      "noApiKeys": "ไม่มีคีย์ API ที่กำหนดค่า",
+      "status": {
+        "notSet": "ไม่ได้กำหนดค่า",
+        "testing": "กำลังทดสอบ...",
+        "invalid": "ข้อผิดพลาด",
+        "valid": "ทำงานได้"
+      },
+      "show": "แสดง",
+      "hide": "ซ่อน",
+      "test": "ทดสอบ",
+      "clear": "ล้าง",
+      "optional": "ไม่บังคับ",
+      "connectionStatus": "สถานะการเชื่อมต่อ",
+      "authorize": "อนุญาต",
+      "setupInstructions": "คำแนะนำการตั้งค่า",
+      "step1": "สร้างแอปพลิเคชัน OAuth ในคอนโซลนักพัฒนา",
+      "step2": "คัดลอก Client ID และ Client Secret",
+      "step3": "ป้อนข้อมูลรับรองในช่องด้านบน",
+      "step4": "คลิก 'อนุญาต' เพื่อรับโทเค็นการเข้าถึง",
+      "connectionSuccess": "กำหนดค่าการเชื่อมต่อสำเร็จ คุณสามารถเผยแพร่เนื้อหาได้",
+      "connectionError": "ข้อผิดพลาดในการเชื่อมต่อ ตรวจสอบข้อมูลรับรองและลองอนุญาตอีกครั้ง",
+      "aiServices": {
+        "title": "บริการ AI",
+        "description": "กำหนดค่าคีย์ API สำหรับบริการ AI ที่ใช้ใน Timeline Studio",
+        "securityNote": "คีย์ API จะถูกเก็บไว้อย่างปลอดภัยบนอุปกรณ์ของคุณและไม่มีการแชร์",
+        "openai": {
+          "title": "OpenAI",
+          "description": "จำเป็นสำหรับโมเดล GPT ในแชท AI",
+          "placeholder": "sk-...",
+          "getKey": "รับคีย์ API"
+        },
+        "claude": {
+          "title": "Claude (Anthropic)",
+          "description": "จำเป็นสำหรับโมเดล Claude ในแชท AI",
+          "placeholder": "sk-ant-...",
+          "getKey": "รับคีย์ API"
+        }
       }
     },
     "export": {

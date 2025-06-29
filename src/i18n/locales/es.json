@@ -323,6 +323,70 @@
         "socialNetworks": "Redes Sociales",
         "development": "Desarrollo",
         "performance": "Rendimiento"
+      },
+      "apiKeys": "Claves API",
+      "apiKeysDescription": "Configurar claves API para servicios de IA",
+      "apiKeyProvider": "Proveedor",
+      "apiKeyValue": "Clave API",
+      "apiKeyStatus": "Estado",
+      "apiKeyActions": "Acciones",
+      "addApiKey": "Añadir clave API",
+      "editApiKey": "Editar clave API",
+      "deleteApiKey": "Eliminar clave API",
+      "testApiKey": "Probar clave API",
+      "apiKeyValid": "Válida",
+      "apiKeyInvalid": "Inválida",
+      "apiKeyUntested": "Sin probar",
+      "apiKeyTesting": "Probando...",
+      "apiKeyTestSuccess": "La clave API es válida",
+      "apiKeyTestFailure": "La clave API es inválida o ha expirado",
+      "apiKeyTestError": "Error al probar la clave API",
+      "apiKeyDeleteConfirm": "¿Está seguro de que desea eliminar esta clave API?",
+      "apiKeyProviders": {
+        "openai": "OpenAI",
+        "claude": "Claude (Anthropic)",
+        "gemini": "Google Gemini",
+        "custom": "Personalizado"
+      },
+      "apiKeyPlaceholder": "Introduzca su clave API...",
+      "apiKeyMasked": "••••••••••••••••••••",
+      "noApiKeys": "No hay claves API configuradas",
+      "status": {
+        "notSet": "No configurado",
+        "testing": "Probando...",
+        "invalid": "Error",
+        "valid": "Funcionando"
+      },
+      "show": "Mostrar",
+      "hide": "Ocultar",
+      "test": "Probar",
+      "clear": "Borrar",
+      "optional": "opcional",
+      "connectionStatus": "Estado de conexión",
+      "authorize": "Autorizar",
+      "setupInstructions": "Instrucciones de configuración",
+      "step1": "Crear aplicación OAuth en la consola de desarrollador",
+      "step2": "Copiar Client ID y Client Secret",
+      "step3": "Introducir credenciales en los campos anteriores",
+      "step4": "Hacer clic en 'Autorizar' para obtener token de acceso",
+      "connectionSuccess": "Conexión configurada con éxito. Puede publicar contenido.",
+      "connectionError": "Error de conexión. Verifique las credenciales y repita la autorización.",
+      "aiServices": {
+        "title": "Servicios de IA",
+        "description": "Configure las claves API para los servicios de IA utilizados en Timeline Studio",
+        "securityNote": "Las claves API se almacenan de forma segura en su dispositivo y nunca se comparten.",
+        "openai": {
+          "title": "OpenAI",
+          "description": "Necesario para modelos GPT en el chat de IA",
+          "placeholder": "sk-...",
+          "getKey": "Obtener clave API"
+        },
+        "claude": {
+          "title": "Claude (Anthropic)",
+          "description": "Necesario para modelos Claude en el chat de IA",
+          "placeholder": "sk-ant-...",
+          "getKey": "Obtener clave API"
+        }
       }
     },
     "projectSettings": {

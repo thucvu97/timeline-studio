@@ -346,6 +346,70 @@
         "socialNetworks": "소셜 네트워크",
         "development": "개발",
         "performance": "성능"
+      },
+      "apiKeys": "API 키",
+      "apiKeysDescription": "AI 서비스용 API 키 구성",
+      "apiKeyProvider": "제공자",
+      "apiKeyValue": "API 키",
+      "apiKeyStatus": "상태",
+      "apiKeyActions": "작업",
+      "addApiKey": "API 키 추가",
+      "editApiKey": "API 키 편집",
+      "deleteApiKey": "API 키 삭제",
+      "testApiKey": "API 키 테스트",
+      "apiKeyValid": "유효함",
+      "apiKeyInvalid": "유효하지 않음",
+      "apiKeyUntested": "테스트되지 않음",
+      "apiKeyTesting": "테스트 중...",
+      "apiKeyTestSuccess": "API 키가 유효합니다",
+      "apiKeyTestFailure": "API 키가 유효하지 않거나 만료되었습니다",
+      "apiKeyTestError": "API 키 테스트 중 오류 발생",
+      "apiKeyDeleteConfirm": "이 API 키를 삭제하시겠습니까?",
+      "apiKeyProviders": {
+        "openai": "OpenAI",
+        "claude": "Claude (Anthropic)",
+        "gemini": "Google Gemini",
+        "custom": "사용자 정의"
+      },
+      "apiKeyPlaceholder": "API 키를 입력하세요...",
+      "apiKeyMasked": "••••••••••••••••••••",
+      "noApiKeys": "구성된 API 키가 없습니다",
+      "status": {
+        "notSet": "구성되지 않음",
+        "testing": "테스트 중...",
+        "invalid": "오류",
+        "valid": "작동 중"
+      },
+      "show": "표시",
+      "hide": "숨기기",
+      "test": "테스트",
+      "clear": "지우기",
+      "optional": "선택 사항",
+      "connectionStatus": "연결 상태",
+      "authorize": "인증",
+      "setupInstructions": "설정 지침",
+      "step1": "개발자 콘솔에서 OAuth 애플리케이션 생성",
+      "step2": "Client ID와 Client Secret 복사",
+      "step3": "위 필드에 자격 증명 입력",
+      "step4": "'인증'을 클릭하여 액세스 토큰 획득",
+      "connectionSuccess": "연결이 성공적으로 구성되었습니다. 콘텐츠를 게시할 수 있습니다.",
+      "connectionError": "연결 오류. 자격 증명을 확인하고 인증을 다시 시도하세요.",
+      "aiServices": {
+        "title": "AI 서비스",
+        "description": "Timeline Studio에서 사용되는 AI 서비스의 API 키 구성",
+        "securityNote": "API 키는 장치에 안전하게 저장되며 절대 공유되지 않습니다.",
+        "openai": {
+          "title": "OpenAI",
+          "description": "AI 채팅의 GPT 모델에 필요",
+          "placeholder": "sk-...",
+          "getKey": "API 키 받기"
+        },
+        "claude": {
+          "title": "Claude (Anthropic)",
+          "description": "AI 채팅의 Claude 모델에 필요",
+          "placeholder": "sk-ant-...",
+          "getKey": "API 키 받기"
+        }
       }
     },
     "export": {

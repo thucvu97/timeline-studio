@@ -346,6 +346,70 @@
         "socialNetworks": "ソーシャルネットワーク",
         "development": "開発",
         "performance": "パフォーマンス"
+      },
+      "apiKeys": "APIキー",
+      "apiKeysDescription": "AIサービス用のAPIキーを設定",
+      "apiKeyProvider": "プロバイダー",
+      "apiKeyValue": "APIキー",
+      "apiKeyStatus": "ステータス",
+      "apiKeyActions": "アクション",
+      "addApiKey": "APIキーを追加",
+      "editApiKey": "APIキーを編集",
+      "deleteApiKey": "APIキーを削除",
+      "testApiKey": "APIキーをテスト",
+      "apiKeyValid": "有効",
+      "apiKeyInvalid": "無効",
+      "apiKeyUntested": "未テスト",
+      "apiKeyTesting": "テスト中...",
+      "apiKeyTestSuccess": "APIキーは有効です",
+      "apiKeyTestFailure": "APIキーが無効または期限切れです",
+      "apiKeyTestError": "APIキーのテスト中にエラーが発生しました",
+      "apiKeyDeleteConfirm": "このAPIキーを削除してもよろしいですか？",
+      "apiKeyProviders": {
+        "openai": "OpenAI",
+        "claude": "Claude (Anthropic)",
+        "gemini": "Google Gemini",
+        "custom": "カスタム"
+      },
+      "apiKeyPlaceholder": "APIキーを入力してください...",
+      "apiKeyMasked": "••••••••••••••••••••",
+      "noApiKeys": "APIキーが設定されていません",
+      "status": {
+        "notSet": "未設定",
+        "testing": "テスト中...",
+        "invalid": "エラー",
+        "valid": "動作中"
+      },
+      "show": "表示",
+      "hide": "非表示",
+      "test": "テスト",
+      "clear": "クリア",
+      "optional": "オプション",
+      "connectionStatus": "接続ステータス",
+      "authorize": "認証",
+      "setupInstructions": "セットアップ手順",
+      "step1": "開発者コンソールでOAuthアプリケーションを作成",
+      "step2": "Client IDとClient Secretをコピー",
+      "step3": "上記のフィールドに認証情報を入力",
+      "step4": "「認証」をクリックしてアクセストークンを取得",
+      "connectionSuccess": "接続が正常に設定されました。コンテンツを公開できます。",
+      "connectionError": "接続エラー。認証情報を確認して、再度認証してください。",
+      "aiServices": {
+        "title": "AIサービス",
+        "description": "Timeline Studioで使用されるAIサービスのAPIキーを設定",
+        "securityNote": "APIキーはお使いのデバイスに安全に保存され、共有されることはありません。",
+        "openai": {
+          "title": "OpenAI",
+          "description": "AIチャットのGPTモデルに必要",
+          "placeholder": "sk-...",
+          "getKey": "APIキーを取得"
+        },
+        "claude": {
+          "title": "Claude (Anthropic)",
+          "description": "AIチャットのClaudeモデルに必要",
+          "placeholder": "sk-ant-...",
+          "getKey": "APIキーを取得"
+        }
       }
     },
     "export": {

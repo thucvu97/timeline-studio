@@ -115,7 +115,7 @@ describe("GeneralSettingsTab", () => {
     expect(screen.getByText("dialogs.userSettings.interfaceLanguage")).toBeInTheDocument()
     expect(screen.getByText("dialogs.userSettings.screenshotsPath")).toBeInTheDocument()
     expect(screen.getByText("Путь для сохранения скриншотов видеоплеера")).toBeInTheDocument()
-    expect(screen.getByText("Производительность")).toBeInTheDocument()
+    expect(screen.getByText("dialogs.userSettings.performance.title")).toBeInTheDocument()
     expect(screen.getByText("Статистика кэша")).toBeInTheDocument()
     expect(screen.getByText("Настройки кэша")).toBeInTheDocument()
   })

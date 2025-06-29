@@ -346,6 +346,70 @@
         "socialNetworks": "Sosyal Ağlar",
         "development": "Geliştirme",
         "performance": "Performans"
+      },
+      "apiKeys": "API Anahtarları",
+      "apiKeysDescription": "AI hizmetleri için API anahtarlarını yapılandırın",
+      "apiKeyProvider": "Sağlayıcı",
+      "apiKeyValue": "API Anahtarı",
+      "apiKeyStatus": "Durum",
+      "apiKeyActions": "İşlemler",
+      "addApiKey": "API Anahtarı Ekle",
+      "editApiKey": "API Anahtarını Düzenle",
+      "deleteApiKey": "API Anahtarını Sil",
+      "testApiKey": "API Anahtarını Test Et",
+      "apiKeyValid": "Geçerli",
+      "apiKeyInvalid": "Geçersiz",
+      "apiKeyUntested": "Test edilmemiş",
+      "apiKeyTesting": "Test ediliyor...",
+      "apiKeyTestSuccess": "API anahtarı geçerli",
+      "apiKeyTestFailure": "API anahtarı geçersiz veya süresi dolmuş",
+      "apiKeyTestError": "API anahtarı test edilirken hata oluştu",
+      "apiKeyDeleteConfirm": "Bu API anahtarını silmek istediğinizden emin misiniz?",
+      "apiKeyProviders": {
+        "openai": "OpenAI",
+        "claude": "Claude (Anthropic)",
+        "gemini": "Google Gemini",
+        "custom": "Özel"
+      },
+      "apiKeyPlaceholder": "API anahtarınızı girin...",
+      "apiKeyMasked": "••••••••••••••••••••",
+      "noApiKeys": "Yapılandırılmış API anahtarı yok",
+      "status": {
+        "notSet": "Yapılandırılmamış",
+        "testing": "Test ediliyor...",
+        "invalid": "Hata",
+        "valid": "Çalışıyor"
+      },
+      "show": "Göster",
+      "hide": "Gizle",
+      "test": "Test",
+      "clear": "Temizle",
+      "optional": "isteğe bağlı",
+      "connectionStatus": "Bağlantı durumu",
+      "authorize": "Yetkilendir",
+      "setupInstructions": "Kurulum talimatları",
+      "step1": "Geliştirici konsolunda OAuth uygulaması oluşturun",
+      "step2": "Client ID ve Client Secret'i kopyalayın",
+      "step3": "Yukarıdaki alanlara kimlik bilgilerini girin",
+      "step4": "Erişim belirteci almak için 'Yetkilendir'e tıklayın",
+      "connectionSuccess": "Bağlantı başarıyla yapılandırıldı. İçerik yayınlayabilirsiniz.",
+      "connectionError": "Bağlantı hatası. Kimlik bilgilerini kontrol edin ve yetkilendirmeyi tekrarlayın.",
+      "aiServices": {
+        "title": "AI Hizmetleri",
+        "description": "Timeline Studio'da kullanılan AI hizmetleri için API anahtarlarını yapılandırın",
+        "securityNote": "API anahtarları cihazınızda güvenli bir şekilde saklanır ve asla paylaşılmaz.",
+        "openai": {
+          "title": "OpenAI",
+          "description": "AI Sohbet'teki GPT modelleri için gerekli",
+          "placeholder": "sk-...",
+          "getKey": "API Anahtarını Al"
+        },
+        "claude": {
+          "title": "Claude (Anthropic)",
+          "description": "AI Sohbet'teki Claude modelleri için gerekli",
+          "placeholder": "sk-ant-...",
+          "getKey": "API Anahtarını Al"
+        }
       }
     },
     "export": {

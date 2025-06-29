@@ -346,6 +346,70 @@
         "socialNetworks": "社交网络",
         "development": "开发",
         "performance": "性能"
+      },
+      "apiKeys": "API 密钥",
+      "apiKeysDescription": "配置 AI 服务的 API 密钥",
+      "apiKeyProvider": "提供商",
+      "apiKeyValue": "API 密钥",
+      "apiKeyStatus": "状态",
+      "apiKeyActions": "操作",
+      "addApiKey": "添加 API 密钥",
+      "editApiKey": "编辑 API 密钥",
+      "deleteApiKey": "删除 API 密钥",
+      "testApiKey": "测试 API 密钥",
+      "apiKeyValid": "有效",
+      "apiKeyInvalid": "无效",
+      "apiKeyUntested": "未测试",
+      "apiKeyTesting": "测试中...",
+      "apiKeyTestSuccess": "API 密钥有效",
+      "apiKeyTestFailure": "API 密钥无效或已过期",
+      "apiKeyTestError": "测试 API 密钥时出错",
+      "apiKeyDeleteConfirm": "您确定要删除此 API 密钥吗？",
+      "apiKeyProviders": {
+        "openai": "OpenAI",
+        "claude": "Claude (Anthropic)",
+        "gemini": "Google Gemini",
+        "custom": "自定义"
+      },
+      "apiKeyPlaceholder": "输入您的 API 密钥...",
+      "apiKeyMasked": "••••••••••••••••••••",
+      "noApiKeys": "未配置 API 密钥",
+      "status": {
+        "notSet": "未配置",
+        "testing": "测试中...",
+        "invalid": "错误",
+        "valid": "正常工作"
+      },
+      "show": "显示",
+      "hide": "隐藏",
+      "test": "测试",
+      "clear": "清除",
+      "optional": "可选",
+      "connectionStatus": "连接状态",
+      "authorize": "授权",
+      "setupInstructions": "设置说明",
+      "step1": "在开发者控制台创建 OAuth 应用程序",
+      "step2": "复制 Client ID 和 Client Secret",
+      "step3": "在上面的字段中输入凭据",
+      "step4": "点击'授权'获取访问令牌",
+      "connectionSuccess": "连接配置成功。您可以发布内容。",
+      "connectionError": "连接错误。检查凭据并重新授权。",
+      "aiServices": {
+        "title": "AI 服务",
+        "description": "配置 Timeline Studio 中使用的 AI 服务的 API 密钥",
+        "securityNote": "API 密钥安全地存储在您的设备上，绝不会共享。",
+        "openai": {
+          "title": "OpenAI",
+          "description": "AI 聊天中的 GPT 模型需要",
+          "placeholder": "sk-...",
+          "getKey": "获取 API 密钥"
+        },
+        "claude": {
+          "title": "Claude (Anthropic)",
+          "description": "AI 聊天中的 Claude 模型需要",
+          "placeholder": "sk-ant-...",
+          "getKey": "获取 API 密钥"
+        }
       }
     },
     "export": {

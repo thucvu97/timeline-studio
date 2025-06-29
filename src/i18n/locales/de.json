@@ -635,6 +635,70 @@
         "socialNetworks": "Soziale Netzwerke",
         "development": "Entwicklung",
         "performance": "Leistung"
+      },
+      "apiKeys": "API-Schlüssel",
+      "apiKeysDescription": "API-Schlüssel für KI-Dienste konfigurieren",
+      "apiKeyProvider": "Anbieter",
+      "apiKeyValue": "API-Schlüssel",
+      "apiKeyStatus": "Status",
+      "apiKeyActions": "Aktionen",
+      "addApiKey": "API-Schlüssel hinzufügen",
+      "editApiKey": "API-Schlüssel bearbeiten",
+      "deleteApiKey": "API-Schlüssel löschen",
+      "testApiKey": "API-Schlüssel testen",
+      "apiKeyValid": "Gültig",
+      "apiKeyInvalid": "Ungültig",
+      "apiKeyUntested": "Ungetestet",
+      "apiKeyTesting": "Teste...",
+      "apiKeyTestSuccess": "API-Schlüssel ist gültig",
+      "apiKeyTestFailure": "API-Schlüssel ist ungültig oder abgelaufen",
+      "apiKeyTestError": "Fehler beim Testen des API-Schlüssels",
+      "apiKeyDeleteConfirm": "Möchten Sie diesen API-Schlüssel wirklich löschen?",
+      "apiKeyProviders": {
+        "openai": "OpenAI",
+        "claude": "Claude (Anthropic)",
+        "gemini": "Google Gemini",
+        "custom": "Benutzerdefiniert"
+      },
+      "apiKeyPlaceholder": "Geben Sie Ihren API-Schlüssel ein...",
+      "apiKeyMasked": "••••••••••••••••••••",
+      "noApiKeys": "Keine API-Schlüssel konfiguriert",
+      "status": {
+        "notSet": "Nicht konfiguriert",
+        "testing": "Teste...",
+        "invalid": "Fehler",
+        "valid": "Funktioniert"
+      },
+      "show": "Anzeigen",
+      "hide": "Verbergen",
+      "test": "Testen",
+      "clear": "Löschen",
+      "optional": "optional",
+      "connectionStatus": "Verbindungsstatus",
+      "authorize": "Autorisieren",
+      "setupInstructions": "Einrichtungsanleitung",
+      "step1": "OAuth-Anwendung in der Entwicklerkonsole erstellen",
+      "step2": "Client ID und Client Secret kopieren",
+      "step3": "Anmeldedaten in die obigen Felder eingeben",
+      "step4": "Auf 'Autorisieren' klicken, um Zugriffstoken zu erhalten",
+      "connectionSuccess": "Verbindung erfolgreich konfiguriert. Sie können Inhalte veröffentlichen.",
+      "connectionError": "Verbindungsfehler. Überprüfen Sie die Anmeldedaten und wiederholen Sie die Autorisierung.",
+      "aiServices": {
+        "title": "KI-Dienste",
+        "description": "API-Schlüssel für KI-Dienste in Timeline Studio konfigurieren",
+        "securityNote": "API-Schlüssel werden sicher auf Ihrem Gerät gespeichert und niemals geteilt.",
+        "openai": {
+          "title": "OpenAI",
+          "description": "Erforderlich für GPT-Modelle im KI-Chat",
+          "placeholder": "sk-...",
+          "getKey": "API-Schlüssel erhalten"
+        },
+        "claude": {
+          "title": "Claude (Anthropic)",
+          "description": "Erforderlich für Claude-Modelle im KI-Chat",
+          "placeholder": "sk-ant-...",
+          "getKey": "API-Schlüssel erhalten"
+        }
       }
     },
     "keyboardShortcuts": {
