@@ -34,6 +34,8 @@ export { MasterSection } from "./components/mixer/master-section"
 // Components - Mixer
 export { MixerConsole } from "./components/mixer/mixer-console"
 export { MixerWithRouting } from "./components/mixer/mixer-with-routing"
+export type { SurroundFormat } from "./components/mixer/surround-panner"
+export { SurroundPanner } from "./components/mixer/surround-panner"
 export { GroupStrip } from "./components/routing/group-strip"
 // Components - Routing
 export { SendPanel } from "./components/routing/send-panel"
@@ -94,6 +96,8 @@ export type {
   NoiseReductionConfig,
 } from "./services/noise-reduction/noise-reduction-engine"
 export { NoiseReductionEngine } from "./services/noise-reduction/noise-reduction-engine"
+export type { SurroundPosition } from "./services/surround/surround-processor"
+export { SurroundAudioProcessor } from "./services/surround/surround-processor"
 export * from "./services/timeline-sync-service"
 
 // Types

@@ -1,5 +1,6 @@
 import { AudioClipEditor } from "./audio-clip-editor"
 import { EqualizerProcessor } from "./effects/equalizer-processor"
+import { SurroundAudioProcessor, SurroundFormat, SurroundPosition } from "./surround/surround-processor"
 
 export interface ChannelNode {
   id: string
@@ -9,6 +10,7 @@ export interface ChannelNode {
   analyser: AnalyserNode
   effects: AudioNode[]
   equalizer?: EqualizerProcessor
+  surround?: SurroundAudioProcessor
   isMuted: boolean
   isSolo: boolean
 }
@@ -19,6 +21,7 @@ export class AudioEngine {
   private masterLimiter: DynamicsCompressorNode
   private channels = new Map<string, ChannelNode>()
   private soloChannels = new Set<string>()
+  private masterSurroundFormat: SurroundFormat = 'stereo'
   public clipEditor: AudioClipEditor
 
   constructor() {
@@ -256,6 +259,99 @@ export class AudioEngine {
     return this.channels.get(channelId)
   }
 
+  // Surround Sound Support
+  setSurroundFormat(format: SurroundFormat): void {
+    this.masterSurroundFormat = format
+    
+    // Update existing channels that have surround processors
+    this.channels.forEach((channel) => {
+      if (channel.surround) {
+        channel.surround.setFormat(format)
+      }
+    })
+  }
+
+  getMasterSurroundFormat(): SurroundFormat {
+    return this.masterSurroundFormat
+  }
+
+  enableSurround(channelId: string, format?: SurroundFormat): void {
+    const channel = this.channels.get(channelId)
+    if (!channel) return
+
+    const surroundFormat = format || this.masterSurroundFormat
+
+    // Create surround processor if not exists
+    if (!channel.surround) {
+      channel.surround = new SurroundAudioProcessor(this.context, surroundFormat)
+      
+      // Disconnect current chain and route through surround processor
+      this.disconnectEffectChain(channel)
+      
+      // Insert surround processor between pan and effects
+      channel.panNode.disconnect()
+      channel.panNode.connect(channel.surround.getInputNode())
+      
+      // Reconnect effect chain from surround output
+      this.connectSurroundEffectChain(channel)
+    }
+  }
+
+  disableSurround(channelId: string): void {
+    const channel = this.channels.get(channelId)
+    if (!channel || !channel.surround) return
+
+    // Disconnect surround processor
+    this.disconnectEffectChain(channel)
+    channel.surround.disconnect()
+    channel.surround = undefined
+
+    // Restore normal stereo routing
+    this.connectEffectChain(channel)
+  }
+
+  setSurroundPosition(channelId: string, position: SurroundPosition): void {
+    const channel = this.channels.get(channelId)
+    if (!channel || !channel.surround) return
+
+    channel.surround.setPosition(position)
+  }
+
+  getSurroundPosition(channelId: string): SurroundPosition | null {
+    const channel = this.channels.get(channelId)
+    if (!channel || !channel.surround) return null
+
+    return channel.surround.getPosition()
+  }
+
+  getSurroundChannelLevels(channelId: string): Record<string, number> | null {
+    const channel = this.channels.get(channelId)
+    if (!channel || !channel.surround) return null
+
+    return channel.surround.getChannelLevels()
+  }
+
+  private connectSurroundEffectChain(channel: ChannelNode): void {
+    if (!channel.surround) {
+      this.connectEffectChain(channel)
+      return
+    }
+
+    let lastNode: AudioNode = channel.surround.getOutputNode()
+
+    // Connect effects in series after surround processor
+    channel.effects.forEach((effect) => {
+      lastNode.connect(effect)
+      lastNode = effect
+    })
+
+    // For surround, we might want to create a stereo downmix for monitoring
+    // while sending full surround to the master output
+    const stereoDownmix = channel.surround.createStereoDownmix()
+    lastNode.connect(stereoDownmix)
+    stereoDownmix.connect(channel.analyser)
+  }
+
   dispose() {
     // Clean up all channels
     this.channels.forEach((channel) => {
@@ -266,6 +362,11 @@ export class AudioEngine {
       channel.panNode.disconnect()
       channel.analyser.disconnect()
       channel.effects.forEach((effect) => effect.disconnect())
+      
+      // Clean up surround processors
+      if (channel.surround) {
+        channel.surround.disconnect()
+      }
     })
 
     this.channels.clear()
