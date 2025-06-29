@@ -175,20 +175,51 @@ jobs:
           [ -f "/usr/include/libswscale/swscale.h" ] && echo "✅ /usr/include/libswscale/swscale.h exists" || echo "❌ /usr/include/libswscale/swscale.h missing"
           [ -f "/usr/include/libavutil/avutil.h" ] && echo "✅ /usr/include/libavutil/avutil.h exists" || echo "❌ /usr/include/libavutil/avutil.h missing"
           
-          # Try to find swscale.h if it's missing
+          # Try to find and fix swscale.h if it's missing
           if [ ! -f "/usr/include/libswscale/swscale.h" ]; then
             echo "Searching for swscale.h in system..."
-            find /usr -name "swscale.h" 2>/dev/null | head -5
-            # Try to create missing symlinks
-            SWSCALE_ACTUAL=$(find /usr -name "swscale.h" 2>/dev/null | head -1)
-            if [ -n "$SWSCALE_ACTUAL" ]; then
-              SWSCALE_DIR=$(dirname "$SWSCALE_ACTUAL")
-              echo "Found swscale.h at: $SWSCALE_ACTUAL"
-              echo "Directory: $SWSCALE_DIR"
-              # Try to create symlink
-              sudo mkdir -p /usr/include/libswscale 2>/dev/null || true
-              sudo ln -sf "$SWSCALE_ACTUAL" /usr/include/libswscale/swscale.h 2>/dev/null || true
+            find /usr -name "swscale.h" 2>/dev/null | head -10
+            
+            # Try multiple potential locations
+            SWSCALE_LOCATIONS=(
+              "/usr/include/x86_64-linux-gnu/libswscale/swscale.h"
+              "/usr/include/ffmpeg/libswscale/swscale.h"
+              "/usr/local/include/libswscale/swscale.h"
+            )
+            
+            SWSCALE_FOUND=""
+            for location in "${SWSCALE_LOCATIONS[@]}"; do
+              if [ -f "$location" ]; then
+                SWSCALE_FOUND="$location"
+                echo "Found swscale.h at: $SWSCALE_FOUND"
+                break
+              fi
+            done
+            
+            # If not found in common locations, search the entire system
+            if [ -z "$SWSCALE_FOUND" ]; then
+              SWSCALE_FOUND=$(find /usr -name "swscale.h" -type f 2>/dev/null | head -1)
             fi
+            
+            if [ -n "$SWSCALE_FOUND" ]; then
+              echo "Creating symlink from $SWSCALE_FOUND to /usr/include/libswscale/swscale.h"
+              sudo mkdir -p /usr/include/libswscale 2>/dev/null || true
+              sudo ln -sf "$SWSCALE_FOUND" /usr/include/libswscale/swscale.h 2>/dev/null || true
+              
+              # Also copy the entire directory structure
+              SWSCALE_DIR=$(dirname "$SWSCALE_FOUND")
+              if [ "$SWSCALE_DIR" != "/usr/include/libswscale" ]; then
+                sudo mkdir -p /usr/include/libswscale 2>/dev/null || true
+                sudo cp -r "$SWSCALE_DIR"/* /usr/include/libswscale/ 2>/dev/null || true
+              fi
+              
+              echo "✅ Fixed libswscale/swscale.h"
+            else
+              echo "❌ Could not find swscale.h anywhere!"
+              exit 1
+            fi
+          else
+            echo "✅ libswscale/swscale.h already exists"
           fi
             
       # macOS dependencies  
@@ -449,16 +480,97 @@ jobs:
           echo "FFMPEG_USE_PKG_CONFIG=1" >> $GITHUB_ENV
           
           # Verify critical files exist and create symlinks if needed
+          echo "Checking for FFmpeg headers..."
           if [ ! -f "/usr/include/libswscale/swscale.h" ]; then
             echo "❌ libswscale/swscale.h not found, trying to locate and fix..."
-            find /usr -name "swscale.h" 2>/dev/null | head -5
-            SWSCALE_ACTUAL=$(find /usr -name "swscale.h" 2>/dev/null | head -1)
-            if [ -n "$SWSCALE_ACTUAL" ]; then
-              echo "Found swscale.h at: $SWSCALE_ACTUAL"
+            find /usr -name "swscale.h" 2>/dev/null | head -10
+            
+            # Try multiple potential locations
+            SWSCALE_LOCATIONS=(
+              "/usr/include/x86_64-linux-gnu/libswscale/swscale.h"
+              "/usr/include/ffmpeg/libswscale/swscale.h"
+              "/usr/local/include/libswscale/swscale.h"
+            )
+            
+            SWSCALE_FOUND=""
+            for location in "${SWSCALE_LOCATIONS[@]}"; do
+              if [ -f "$location" ]; then
+                SWSCALE_FOUND="$location"
+                echo "Found swscale.h at: $SWSCALE_FOUND"
+                break
+              fi
+            done
+            
+            # If not found in common locations, search the entire system
+            if [ -z "$SWSCALE_FOUND" ]; then
+              SWSCALE_FOUND=$(find /usr -name "swscale.h" -type f 2>/dev/null | head -1)
+            fi
+            
+            if [ -n "$SWSCALE_FOUND" ]; then
+              echo "Creating symlink from $SWSCALE_FOUND to /usr/include/libswscale/swscale.h"
               sudo mkdir -p /usr/include/libswscale 2>/dev/null || true
-              sudo ln -sf "$SWSCALE_ACTUAL" /usr/include/libswscale/swscale.h 2>/dev/null || true
+              sudo ln -sf "$SWSCALE_FOUND" /usr/include/libswscale/swscale.h 2>/dev/null || true
+              
+              # Also create the directory structure if it doesn't exist
+              SWSCALE_DIR=$(dirname "$SWSCALE_FOUND")
+              if [ "$SWSCALE_DIR" != "/usr/include/libswscale" ]; then
+                sudo mkdir -p /usr/include/libswscale 2>/dev/null || true
+                sudo cp -r "$SWSCALE_DIR"/* /usr/include/libswscale/ 2>/dev/null || true
+              fi
+            else
+              echo "❌ Could not find swscale.h anywhere on the system!"
+              echo "Listing all libswscale related files:"
+              find /usr -name "*swscale*" 2>/dev/null | head -20
+            fi
+          else
+            echo "✅ libswscale/swscale.h found"
+          fi
+          
+          # Do the same for other critical headers
+          if [ ! -f "/usr/include/libavutil/avutil.h" ]; then
+            echo "❌ libavutil/avutil.h not found, trying to locate and fix..."
+            AVUTIL_FOUND=$(find /usr -name "avutil.h" -path "*/libavutil/*" 2>/dev/null | head -1)
+            if [ -n "$AVUTIL_FOUND" ]; then
+              echo "Found avutil.h at: $AVUTIL_FOUND"
+              AVUTIL_DIR=$(dirname "$AVUTIL_FOUND")
+              sudo mkdir -p /usr/include/libavutil 2>/dev/null || true
+              sudo cp -r "$AVUTIL_DIR"/* /usr/include/libavutil/ 2>/dev/null || true
             fi
           fi
+          
+          # Create symlinks for all FFmpeg libraries
+          echo "Creating comprehensive FFmpeg header structure..."
+          FFMPEG_LIBS=("libavcodec" "libavformat" "libavutil" "libavfilter" "libavdevice" "libswscale" "libswresample" "libpostproc")
+          
+          for lib in "${FFMPEG_LIBS[@]}"; do
+            if [ ! -d "/usr/include/$lib" ]; then
+              # Try to find the library in architecture-specific paths
+              if [ -d "/usr/include/x86_64-linux-gnu/$lib" ]; then
+                echo "Creating symlink for $lib from x86_64-linux-gnu"
+                sudo ln -sf "/usr/include/x86_64-linux-gnu/$lib" "/usr/include/$lib"
+              elif [ -d "/usr/include/ffmpeg/$lib" ]; then
+                echo "Creating symlink for $lib from ffmpeg directory"
+                sudo ln -sf "/usr/include/ffmpeg/$lib" "/usr/include/$lib"
+              else
+                # Search for the library directory
+                LIB_PATH=$(find /usr/include -name "$lib" -type d 2>/dev/null | head -1)
+                if [ -n "$LIB_PATH" ]; then
+                  echo "Creating symlink for $lib from $LIB_PATH"
+                  sudo ln -sf "$LIB_PATH" "/usr/include/$lib"
+                fi
+              fi
+            fi
+          done
+          
+          # Verify all critical headers are now accessible
+          echo "Final verification of FFmpeg headers:"
+          for lib in "${FFMPEG_LIBS[@]}"; do
+            if [ -d "/usr/include/$lib" ]; then
+              echo "✅ $lib directory exists"
+            else
+              echo "❌ $lib directory missing"
+            fi
+          done
           
           # Try main FFmpeg setup script
           if ! bash scripts/setup-ffmpeg-linux.sh; then
