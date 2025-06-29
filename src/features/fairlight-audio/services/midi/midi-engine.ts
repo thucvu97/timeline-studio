@@ -90,7 +90,9 @@ export class MidiEngine extends EventEmitter {
     try {
       // Check if Web MIDI API is available
       if (!navigator.requestMIDIAccess) {
-        throw new Error("Web MIDI API is not supported in this browser")
+        console.warn("Web MIDI API is not supported in this browser")
+        this.emit("initialized") // Still emit initialized but with no devices
+        return
       }
 
       this.midiAccess = await navigator.requestMIDIAccess({ sysex: false })
@@ -105,7 +107,8 @@ export class MidiEngine extends EventEmitter {
       this.emit("initialized")
     } catch (error) {
       console.error("Failed to initialize MIDI:", error)
-      throw error
+      // Don't throw, just log the error and emit initialized
+      this.emit("initialized")
     }
   }
 
@@ -361,6 +364,10 @@ export class MidiEngine extends EventEmitter {
 
   // Public API
 
+  static isSupported(): boolean {
+    return typeof navigator !== "undefined" && "requestMIDIAccess" in navigator
+  }
+
   getDevices(): MidiDevice[] {
     return Array.from(this.devices.values())
   }
@@ -415,12 +422,14 @@ export class MidiEngine extends EventEmitter {
   // Send MIDI message
   async sendMessage(deviceId: string, message: number[]): Promise<void> {
     if (!this.midiAccess) {
-      throw new Error("MIDI not initialized")
+      console.warn("MIDI not initialized or not supported")
+      return
     }
 
     const output = this.midiAccess.outputs.get(deviceId)
     if (!output) {
-      throw new Error(`MIDI output device ${deviceId} not found`)
+      console.warn(`MIDI output device ${deviceId} not found`)
+      return
     }
 
     output.send(message)

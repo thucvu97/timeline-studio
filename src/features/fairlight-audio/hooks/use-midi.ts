@@ -54,13 +54,22 @@ export function useMidi() {
       setState((prev) => ({ ...prev, isLearning: false }))
     })
 
-    // Initialize MIDI
-    void engine.initialize().catch((error: unknown) => {
+    // Check if MIDI is supported before initializing
+    if (!MidiEngine.isSupported()) {
       setState((prev) => ({
         ...prev,
-        error: error instanceof Error ? error.message : "Failed to initialize MIDI",
+        isInitialized: true,
+        error: "Web MIDI API is not supported in this browser",
       }))
-    })
+    } else {
+      // Initialize MIDI
+      void engine.initialize().catch((error: unknown) => {
+        setState((prev) => ({
+          ...prev,
+          error: error instanceof Error ? error.message : "Failed to initialize MIDI",
+        }))
+      })
+    }
 
     return () => {
       engine.dispose()
