@@ -146,7 +146,7 @@ export class MidiClock extends EventEmitter {
           this.setPosition(position)
         }
         break
-        
+
       default:
         // Ignore other MIDI messages
         break

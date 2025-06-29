@@ -198,7 +198,7 @@ export function MidiSequencerView() {
     const engine = (midi as any).engineRef?.current
     if (!engine) return
 
-    const trackId = engine.sequencer.createTrack(`Track ${tracks.length + 1}`, (tracks.length + 1))
+    const trackId = engine.sequencer.createTrack(`Track ${tracks.length + 1}`, tracks.length + 1)
     setSelectedTrack(trackId)
   }, [tracks.length, midi])
 
