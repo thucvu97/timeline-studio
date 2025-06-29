@@ -41,6 +41,7 @@ impl CommandRegistry for VideoCompilerCommandRegistry {
       clear_project_previews,
       clear_render_cache,
       configure_cache,
+      get_cache_stats,
       // Prerender commands
       prerender_segment,
       get_prerender_cache_info,
