@@ -40,14 +40,35 @@ jobs:
             
       - name: Setup FFmpeg for Linux
         run: |
-          echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig" >> $GITHUB_ENV
+          # Debug FFmpeg installation
+          echo "Checking FFmpeg installation..."
+          which ffmpeg || echo "ffmpeg not in PATH"
+          ffmpeg -version || echo "ffmpeg version check failed"
+          pkg-config --version || echo "pkg-config not found"
+          
+          # Find FFmpeg headers
+          echo "Looking for FFmpeg headers..."
+          find /usr -name "libavutil" -type d 2>/dev/null | head -10
+          find /usr -name "libswscale" -type d 2>/dev/null | head -10
+          find /usr -name "avutil.h" 2>/dev/null | head -10
+          find /usr -name "swscale.h" 2>/dev/null | head -10
+          
+          # Set comprehensive PKG_CONFIG_PATH
+          echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig:/usr/local/lib/pkgconfig" >> $GITHUB_ENV
           echo "PKG_CONFIG_ALLOW_SYSTEM_LIBS=1" >> $GITHUB_ENV
           echo "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS=1" >> $GITHUB_ENV
           
-          # Set FFmpeg environment variables explicitly
+          # Test pkg-config with FFmpeg
+          echo "Testing pkg-config with libavutil..."
+          PKG_CONFIG_PATH="/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig" pkg-config --exists libavutil && echo "libavutil found" || echo "libavutil not found"
+          PKG_CONFIG_PATH="/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig" pkg-config --exists libswscale && echo "libswscale found" || echo "libswscale not found"
+          
+          # Set FFmpeg environment variables
           echo "FFMPEG_DIR=/usr" >> $GITHUB_ENV
           echo "FFMPEG_INCLUDE_DIR=/usr/include" >> $GITHUB_ENV
           echo "FFMPEG_LIB_DIR=/usr/lib/x86_64-linux-gnu" >> $GITHUB_ENV
+          
+          # Set individual library paths
           echo "FFMPEG_AVCODEC_INCLUDE_DIR=/usr/include" >> $GITHUB_ENV
           echo "FFMPEG_AVFORMAT_INCLUDE_DIR=/usr/include" >> $GITHUB_ENV
           echo "FFMPEG_AVUTIL_INCLUDE_DIR=/usr/include" >> $GITHUB_ENV
@@ -56,10 +77,33 @@ jobs:
           echo "FFMPEG_SWSCALE_INCLUDE_DIR=/usr/include" >> $GITHUB_ENV
           echo "FFMPEG_SWRESAMPLE_INCLUDE_DIR=/usr/include" >> $GITHUB_ENV
           
+          # For bindgen - add comprehensive include paths
+          echo "BINDGEN_EXTRA_CLANG_ARGS=-I/usr/include -I/usr/include/x86_64-linux-gnu" >> $GITHUB_ENV
+          
+          # Additional environment variables that ffmpeg-sys-next might need
+          echo "FFMPEG_PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig" >> $GITHUB_ENV
+          echo "LIBCLANG_PATH=/usr/lib/llvm-14/lib" >> $GITHUB_ENV
+          
+          # Force ffmpeg-sys-next to use pkg-config instead of manual header search
+          echo "FFMPEG_NO_MANUAL_HEADER_SEARCH=1" >> $GITHUB_ENV
+          echo "FFMPEG_USE_PKG_CONFIG=1" >> $GITHUB_ENV
+          
+          # Verify critical files exist
+          if [ -f "/usr/include/libswscale/swscale.h" ]; then
+            echo "✅ libswscale/swscale.h found"
+          else
+            echo "❌ libswscale/swscale.h not found, trying to locate..."
+            find /usr -name "swscale.h" 2>/dev/null | head -5
+          fi
+          
           # Try main FFmpeg setup script
           if ! bash scripts/setup-ffmpeg-linux.sh; then
               echo "Main setup failed, trying pkg-config approach..."
-              bash scripts/setup-ffmpeg-pkg-config.sh
+              if [ -f "scripts/setup-ffmpeg-pkg-config.sh" ]; then
+                bash scripts/setup-ffmpeg-pkg-config.sh
+              else
+                echo "Fallback script not found, continuing with basic setup..."
+              fi
           fi
           
       - name: Cache Rust dependencies
@@ -84,6 +128,34 @@ jobs:
       - name: Create dist directory for tauri context
         run: mkdir -p dist
         
+      - name: Verify FFmpeg before clippy
+        run: |
+          echo "Final verification before clippy check..."
+          echo "Environment variables:"
+          echo "  FFMPEG_INCLUDE_DIR=$FFMPEG_INCLUDE_DIR"
+          echo "  BINDGEN_EXTRA_CLANG_ARGS=$BINDGEN_EXTRA_CLANG_ARGS"
+          echo "  PKG_CONFIG_PATH=$PKG_CONFIG_PATH"
+          
+          echo "Critical files check:"
+          [ -f "/usr/include/libswscale/swscale.h" ] && echo "✅ /usr/include/libswscale/swscale.h exists" || echo "❌ /usr/include/libswscale/swscale.h missing"
+          [ -f "/usr/include/libavutil/avutil.h" ] && echo "✅ /usr/include/libavutil/avutil.h exists" || echo "❌ /usr/include/libavutil/avutil.h missing"
+          
+          # Try to find swscale.h if it's missing
+          if [ ! -f "/usr/include/libswscale/swscale.h" ]; then
+            echo "Searching for swscale.h in system..."
+            find /usr -name "swscale.h" 2>/dev/null | head -5
+            # Try to create missing symlinks
+            SWSCALE_ACTUAL=$(find /usr -name "swscale.h" 2>/dev/null | head -1)
+            if [ -n "$SWSCALE_ACTUAL" ]; then
+              SWSCALE_DIR=$(dirname "$SWSCALE_ACTUAL")
+              echo "Found swscale.h at: $SWSCALE_ACTUAL"
+              echo "Directory: $SWSCALE_DIR"
+              # Try to create symlink
+              sudo mkdir -p /usr/include/libswscale 2>/dev/null || true
+              sudo ln -sf "$SWSCALE_ACTUAL" /usr/include/libswscale/swscale.h 2>/dev/null || true
+            fi
+          fi
+          
       - name: Backend clippy check
         working-directory: src-tauri
         run: cargo clippy --lib -- -D warnings
