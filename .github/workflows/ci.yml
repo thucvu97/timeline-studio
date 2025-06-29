@@ -93,12 +93,15 @@ jobs:
             libpango1.0-dev \
             libgdk-pixbuf2.0-dev
             
-      - name: Set Linux FFmpeg environment variables
+      - name: Setup FFmpeg for Linux
         if: runner.os == 'Linux'
         run: |
           echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig" >> $GITHUB_ENV
           echo "PKG_CONFIG_ALLOW_SYSTEM_LIBS=1" >> $GITHUB_ENV
           echo "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS=1" >> $GITHUB_ENV
+          
+          # Run FFmpeg setup script
+          bash scripts/setup-ffmpeg-linux.sh
             
       - name: Verify FFmpeg installation
         if: runner.os == 'Linux'
@@ -225,54 +228,12 @@ jobs:
             exit 1
           }
           
-      - name: Configure Windows build environment
+      - name: Setup FFmpeg for Windows
         if: runner.os == 'Windows'
         shell: powershell
         run: |
-          Write-Host "Creating symbolic links for Unix-style paths..."
-          
-          # Create /usr/include structure on Windows
-          New-Item -ItemType Directory -Force -Path "C:\usr\include"
-          
-          # Create symbolic links to FFmpeg includes
-          if (Test-Path "C:\ffmpeg\include\libavcodec") {
-            New-Item -ItemType SymbolicLink -Force -Path "C:\usr\include\libavcodec" -Target "C:\ffmpeg\include\libavcodec"
-            Write-Host "✅ Created symlink for libavcodec"
-          }
-          if (Test-Path "C:\ffmpeg\include\libavformat") {
-            New-Item -ItemType SymbolicLink -Force -Path "C:\usr\include\libavformat" -Target "C:\ffmpeg\include\libavformat"
-            Write-Host "✅ Created symlink for libavformat"
-          }
-          if (Test-Path "C:\ffmpeg\include\libavutil") {
-            New-Item -ItemType SymbolicLink -Force -Path "C:\usr\include\libavutil" -Target "C:\ffmpeg\include\libavutil"
-            Write-Host "✅ Created symlink for libavutil"
-          }
-          if (Test-Path "C:\ffmpeg\include\libavfilter") {
-            New-Item -ItemType SymbolicLink -Force -Path "C:\usr\include\libavfilter" -Target "C:\ffmpeg\include\libavfilter"
-            Write-Host "✅ Created symlink for libavfilter"
-          }
-          if (Test-Path "C:\ffmpeg\include\libavdevice") {
-            New-Item -ItemType SymbolicLink -Force -Path "C:\usr\include\libavdevice" -Target "C:\ffmpeg\include\libavdevice"
-            Write-Host "✅ Created symlink for libavdevice"
-          }
-          if (Test-Path "C:\ffmpeg\include\libswscale") {
-            New-Item -ItemType SymbolicLink -Force -Path "C:\usr\include\libswscale" -Target "C:\ffmpeg\include\libswscale"
-            Write-Host "✅ Created symlink for libswscale"
-          }
-          if (Test-Path "C:\ffmpeg\include\libswresample") {
-            New-Item -ItemType SymbolicLink -Force -Path "C:\usr\include\libswresample" -Target "C:\ffmpeg\include\libswresample"
-            Write-Host "✅ Created symlink for libswresample"
-          }
-          
-          # Verify avfft.h is accessible
-          if (Test-Path "C:\usr\include\libavcodec\avfft.h") {
-            Write-Host "✅ avfft.h is now accessible via Unix path"
-          } else {
-            Write-Host "⚠️ avfft.h still not found at expected path"
-          }
-          
-          # Also update BINDGEN_EXTRA_CLANG_ARGS to include both paths
-          echo "BINDGEN_EXTRA_CLANG_ARGS=-IC:\ffmpeg\include -IC:/ffmpeg/include -I/usr/include" >> $env:GITHUB_ENV
+          # Run FFmpeg setup script
+          .\scripts\setup-ffmpeg-windows.ps1
           
       - name: Install frontend dependencies
         run: bun install
@@ -355,12 +316,15 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ffmpeg libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libswscale-dev libswresample-dev pkg-config libgtk-3-dev libwebkit2gtk-4.1-dev build-essential curl wget file libssl-dev libayatana-appindicator3-dev librsvg2-dev libglib2.0-dev libcairo2-dev libpango1.0-dev libgdk-pixbuf2.0-dev
           
-      - name: Set Linux FFmpeg environment variables
+      - name: Setup FFmpeg for Linux
         if: runner.os == 'Linux'
         run: |
           echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig" >> $GITHUB_ENV
           echo "PKG_CONFIG_ALLOW_SYSTEM_LIBS=1" >> $GITHUB_ENV
           echo "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS=1" >> $GITHUB_ENV
+          
+          # Run FFmpeg setup script
+          bash scripts/setup-ffmpeg-linux.sh
           
       - name: Install macOS dependencies
         if: runner.os == 'macOS'
