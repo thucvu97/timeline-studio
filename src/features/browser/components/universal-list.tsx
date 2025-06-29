@@ -151,6 +151,7 @@ export function UniversalList<T extends ListItem>({
             title={group.title}
             items={group.items}
             viewMode={viewMode}
+            getItemKey={(item) => item.id}
             renderItem={(item) => (
               <adapter.PreviewComponent
                 item={item}

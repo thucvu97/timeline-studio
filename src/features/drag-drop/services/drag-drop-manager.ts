@@ -205,6 +205,11 @@ export class DragDropManager extends EventEmitter {
   }
 
   private setupGlobalListeners() {
+    // Skip setup during SSR when document is not available
+    if (typeof document === "undefined") {
+      return
+    }
+
     // Глобальные обработчики для отслеживания drag операций
     document.addEventListener("dragover", (e) => {
       e.preventDefault()
@@ -237,6 +242,8 @@ export class DragDropManager extends EventEmitter {
   }
 
   private findDropTargetAtPoint(x: number, y: number): DropTarget | null {
+    if (typeof document === "undefined") return null
+    
     const element = document.elementFromPoint(x, y)
     if (!element) return null
 
@@ -251,6 +258,8 @@ export class DragDropManager extends EventEmitter {
   }
 
   private createGhostImage(preview: { url?: string; width?: number; height?: number }) {
+    if (typeof document === "undefined") return
+    
     this.ghostElement = document.createElement("div")
     this.ghostElement.style.position = "absolute"
     this.ghostElement.style.top = "-1000px"
@@ -275,7 +284,7 @@ export class DragDropManager extends EventEmitter {
     }
 
     // Удаляем ghost element
-    if (this.ghostElement) {
+    if (this.ghostElement && typeof document !== "undefined") {
       document.body.removeChild(this.ghostElement)
       this.ghostElement = null
     }
@@ -285,5 +294,5 @@ export class DragDropManager extends EventEmitter {
   }
 }
 
-// Singleton экспорт
-export const dragDropManager = DragDropManager.getInstance()
+// Lazy singleton экспорт для SSR совместимости
+export const getDragDropManager = () => DragDropManager.getInstance()

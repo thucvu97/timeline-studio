@@ -18,6 +18,8 @@ interface ContentGroupProps<T> {
   viewMode?: "list" | "grid" | "thumbnails"
   /** Функция рендеринга элемента */
   renderItem: (item: T, index: number) => React.ReactNode
+  /** Функция для получения уникального ключа элемента */
+  getItemKey?: (item: T, index: number) => string | number
   /** Функция для добавления всех элементов группы */
   onAddAll?: (items: T[]) => void
   /** Проверка, все ли элементы добавлены */
@@ -43,6 +45,7 @@ export function ContentGroup<T>({
   items,
   viewMode = "thumbnails",
   renderItem,
+  getItemKey,
   onAddAll,
   areAllItemsAdded,
   addButtonText,
@@ -82,7 +85,11 @@ export function ContentGroup<T>({
   if (!title || title === "") {
     return (
       <div key="ungrouped" className={getItemsContainerClasses()} style={itemsContainerStyle}>
-        {items.map((item, index) => renderItem(item, index))}
+        {items.map((item, index) => (
+          <React.Fragment key={getItemKey ? getItemKey(item, index) : index}>
+            {renderItem(item, index)}
+          </React.Fragment>
+        ))}
       </div>
     )
   }
@@ -111,7 +118,11 @@ export function ContentGroup<T>({
         )}
       </div>
       <div className={getItemsContainerClasses()} style={itemsContainerStyle}>
-        {items.map((item, index) => renderItem(item, index))}
+        {items.map((item, index) => (
+          <React.Fragment key={getItemKey ? getItemKey(item, index) : index}>
+            {renderItem(item, index)}
+          </React.Fragment>
+        ))}
       </div>
     </div>
   )

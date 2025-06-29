@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 
-import { DraggableItem, DraggableType, DropTarget, dragDropManager } from "../services/drag-drop-manager"
+import { DraggableItem, DraggableType, DropTarget, getDragDropManager } from "../services/drag-drop-manager"
 
 /**
  * Хук для элементов которые можно перетаскивать
@@ -8,13 +8,16 @@ import { DraggableItem, DraggableType, DropTarget, dragDropManager } from "../se
 export function useDraggable(type: DraggableType, getData: () => any, getPreview?: () => any) {
   const handleDragStart = useCallback(
     (event: React.DragEvent) => {
+      // Skip during SSR
+      if (typeof window === "undefined") return
+
       const item: DraggableItem = {
         type,
         data: getData(),
         preview: getPreview?.(),
       }
 
-      dragDropManager.startDrag(item, event.nativeEvent)
+      getDragDropManager().startDrag(item, event.nativeEvent)
     },
     [type, getData, getPreview],
   )
@@ -24,7 +27,7 @@ export function useDraggable(type: DraggableType, getData: () => any, getPreview
   }, [])
 
   return {
-    draggable: true,
+    draggable: typeof window !== "undefined",
     onDragStart: handleDragStart,
     onDragEnd: handleDragEnd,
   }
@@ -42,7 +45,8 @@ export function useDropZone(
   const dropTargetRef = useRef<DropTarget | undefined>(undefined)
 
   useEffect(() => {
-    if (!elementRef.current) return
+    // Skip during SSR
+    if (typeof window === "undefined" || !elementRef.current) return
 
     dropTargetRef.current = {
       id,
@@ -62,7 +66,7 @@ export function useDropZone(
       },
     }
 
-    const unregister = dragDropManager.registerDropTarget(dropTargetRef.current)
+    const unregister = getDragDropManager().registerDropTarget(dropTargetRef.current)
 
     return () => {
       unregister()
@@ -94,17 +98,21 @@ export function useDragDropState() {
   const [currentDrag, setCurrentDrag] = useState<DraggableItem | null>(null)
 
   useEffect(() => {
+    // Skip during SSR
+    if (typeof window === "undefined") return
+
     const handleDragStart = (item: DraggableItem) => setCurrentDrag(item)
     const handleDragEnd = () => setCurrentDrag(null)
 
-    dragDropManager.on("dragStart", handleDragStart)
-    dragDropManager.on("dragEnd", handleDragEnd)
-    dragDropManager.on("dragCancel", handleDragEnd)
+    const manager = getDragDropManager()
+    manager.on("dragStart", handleDragStart)
+    manager.on("dragEnd", handleDragEnd)
+    manager.on("dragCancel", handleDragEnd)
 
     return () => {
-      dragDropManager.off("dragStart", handleDragStart)
-      dragDropManager.off("dragEnd", handleDragEnd)
-      dragDropManager.off("dragCancel", handleDragEnd)
+      manager.off("dragStart", handleDragStart)
+      manager.off("dragEnd", handleDragEnd)
+      manager.off("dragCancel", handleDragEnd)
     }
   }, [])
 
