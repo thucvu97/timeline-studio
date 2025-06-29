@@ -10,6 +10,8 @@ HEADER_LOCATIONS=(
     "/usr/include/x86_64-linux-gnu"
     "/usr/include/aarch64-linux-gnu"
     "/usr/local/include"
+    "/usr/include/ffmpeg"
+    "/usr/local/include/ffmpeg"
 )
 
 # Debug: show what's in /usr/include
@@ -30,10 +32,23 @@ for loc in "${HEADER_LOCATIONS[@]}"; do
 done
 
 if [ -z "$FFMPEG_INCLUDE_DIR" ]; then
-    echo "ERROR: FFmpeg headers not found in standard locations!"
-    echo "Searched in: ${HEADER_LOCATIONS[*]}"
-    echo "Please install FFmpeg development packages"
-    exit 1
+    echo "FFmpeg headers not found in standard locations!"
+    echo "Searching for FFmpeg headers in system..."
+    
+    # Try to find FFmpeg headers anywhere in the system
+    AVCODEC_PATH=$(find /usr -name "avcodec.h" -path "*/libavcodec/*" 2>/dev/null | head -1)
+    SWSCALE_PATH=$(find /usr -name "swscale.h" -path "*/libswscale/*" 2>/dev/null | head -1)
+    
+    if [ -n "$AVCODEC_PATH" ] && [ -n "$SWSCALE_PATH" ]; then
+        # Extract the base directory (parent of libavcodec/libswscale)
+        FFMPEG_INCLUDE_DIR=$(dirname $(dirname "$AVCODEC_PATH"))
+        echo "Found FFmpeg headers in: $FFMPEG_INCLUDE_DIR"
+    else
+        echo "ERROR: FFmpeg headers not found anywhere in the system!"
+        echo "Please install FFmpeg development packages:"
+        echo "  sudo apt-get install libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libswscale-dev libswresample-dev"
+        exit 1
+    fi
 fi
 
 # Always create symlinks if headers are not in /usr/include

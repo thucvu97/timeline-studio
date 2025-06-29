@@ -5,8 +5,19 @@ echo "Setting up FFmpeg using pkg-config..."
 
 # Check if pkg-config can find FFmpeg
 if ! pkg-config --exists libavcodec libavformat libavutil libswscale; then
-    echo "ERROR: FFmpeg libraries not found via pkg-config"
-    exit 1
+    echo "WARNING: FFmpeg libraries not found via pkg-config"
+    echo "Trying to set up manually..."
+    
+    # Set PKG_CONFIG_PATH to common locations
+    export PKG_CONFIG_PATH="/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig:/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"
+    
+    # Try again
+    if ! pkg-config --exists libavcodec libavformat libavutil libswscale; then
+        echo "ERROR: FFmpeg libraries still not found via pkg-config"
+        echo "Checking what's available:"
+        find /usr -name "*.pc" -path "*pkgconfig*" | grep -E "(libav|libsw)" | head -20
+        exit 1
+    fi
 fi
 
 # Get include paths from pkg-config
@@ -47,12 +58,30 @@ CLANG_ARGS="$CLANG_ARGS -I/usr/include -I/usr/include/x86_64-linux-gnu"
 echo ""
 echo "Setting BINDGEN_EXTRA_CLANG_ARGS=$CLANG_ARGS"
 
+# Find the actual include directory containing FFmpeg headers
+FFMPEG_BASE_INCLUDE=""
+for dir in $INCLUDE_DIRS /usr/include /usr/include/x86_64-linux-gnu; do
+    if [ -f "$dir/libavcodec/avcodec.h" ]; then
+        FFMPEG_BASE_INCLUDE="$dir"
+        break
+    fi
+done
+
+if [ -z "$FFMPEG_BASE_INCLUDE" ]; then
+    FFMPEG_BASE_INCLUDE="/usr/include"
+fi
+
+echo "Using FFmpeg base include directory: $FFMPEG_BASE_INCLUDE"
+
 # Export for GitHub Actions
 if [ -n "$GITHUB_ENV" ]; then
     echo "BINDGEN_EXTRA_CLANG_ARGS=$CLANG_ARGS" >> "$GITHUB_ENV"
     # Also set individual library paths
-    echo "FFMPEG_AVCODEC_INCLUDE_DIR=/usr/include" >> "$GITHUB_ENV"
-    echo "FFMPEG_AVFORMAT_INCLUDE_DIR=/usr/include" >> "$GITHUB_ENV"
-    echo "FFMPEG_AVUTIL_INCLUDE_DIR=/usr/include" >> "$GITHUB_ENV"
-    echo "FFMPEG_SWSCALE_INCLUDE_DIR=/usr/include" >> "$GITHUB_ENV"
+    echo "FFMPEG_AVCODEC_INCLUDE_DIR=$FFMPEG_BASE_INCLUDE" >> "$GITHUB_ENV"
+    echo "FFMPEG_AVFORMAT_INCLUDE_DIR=$FFMPEG_BASE_INCLUDE" >> "$GITHUB_ENV"
+    echo "FFMPEG_AVUTIL_INCLUDE_DIR=$FFMPEG_BASE_INCLUDE" >> "$GITHUB_ENV"
+    echo "FFMPEG_SWSCALE_INCLUDE_DIR=$FFMPEG_BASE_INCLUDE" >> "$GITHUB_ENV"
+    echo "FFMPEG_SWRESAMPLE_INCLUDE_DIR=$FFMPEG_BASE_INCLUDE" >> "$GITHUB_ENV"
+    echo "FFMPEG_AVFILTER_INCLUDE_DIR=$FFMPEG_BASE_INCLUDE" >> "$GITHUB_ENV"
+    echo "FFMPEG_AVDEVICE_INCLUDE_DIR=$FFMPEG_BASE_INCLUDE" >> "$GITHUB_ENV"
 fi
