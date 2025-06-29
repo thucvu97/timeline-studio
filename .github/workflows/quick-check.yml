@@ -63,6 +63,9 @@ jobs:
         working-directory: src-tauri
         run: cargo fmt -- --check
         
+      - name: Create dist directory for tauri context
+        run: mkdir -p dist
+        
       - name: Backend clippy check
         working-directory: src-tauri
         run: cargo clippy --lib -- -D warnings
