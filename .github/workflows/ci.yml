@@ -150,6 +150,7 @@ jobs:
         run: |
           # Install chocolatey packages
           choco install pkgconfiglite -y --no-progress
+          choco install llvm -y --no-progress
           
           # Download and setup prebuilt FFmpeg (much faster than vcpkg)
           try {
@@ -185,22 +186,49 @@ jobs:
           echo "FFMPEG_LIB_DIR=C:\ffmpeg\lib" >> $env:GITHUB_ENV
           echo "FFMPEG_LINK_TYPE=dynamic" >> $env:GITHUB_ENV
           echo "FFMPEG_NO_PKG_CONFIG=1" >> $env:GITHUB_ENV
-          echo "BINDGEN_EXTRA_CLANG_ARGS=-IC:/ffmpeg/include" >> $env:GITHUB_ENV
+          echo "BINDGEN_EXTRA_CLANG_ARGS=-IC:\ffmpeg\include -IC:/ffmpeg/include" >> $env:GITHUB_ENV
           echo "LIBCLANG_PATH=C:\Program Files\LLVM\bin" >> $env:GITHUB_ENV
           echo "FFMPEG_PKG_CONFIG_PATH=C:\ffmpeg\lib\pkgconfig" >> $env:GITHUB_ENV
+          
+          # Additional paths for ffmpeg-sys-next
+          echo "FFMPEG_AVCODEC_INCLUDE_DIR=C:\ffmpeg\include" >> $env:GITHUB_ENV
+          echo "FFMPEG_AVFORMAT_INCLUDE_DIR=C:\ffmpeg\include" >> $env:GITHUB_ENV
+          echo "FFMPEG_AVUTIL_INCLUDE_DIR=C:\ffmpeg\include" >> $env:GITHUB_ENV
+          echo "FFMPEG_AVDEVICE_INCLUDE_DIR=C:\ffmpeg\include" >> $env:GITHUB_ENV
+          echo "FFMPEG_AVFILTER_INCLUDE_DIR=C:\ffmpeg\include" >> $env:GITHUB_ENV
+          echo "FFMPEG_SWSCALE_INCLUDE_DIR=C:\ffmpeg\include" >> $env:GITHUB_ENV
+          echo "FFMPEG_SWRESAMPLE_INCLUDE_DIR=C:\ffmpeg\include" >> $env:GITHUB_ENV
           
           # Verify critical components
           if (Test-Path "C:\ffmpeg\bin\ffmpeg.exe") {
             Write-Host "✅ FFmpeg executable found"
             if (Test-Path "C:\ffmpeg\include\libavcodec\avcodec.h") {
               Write-Host "✅ FFmpeg development headers found"
+              # Check for the specific file that's causing issues
+              if (Test-Path "C:\ffmpeg\include\libavcodec\avfft.h") {
+                Write-Host "✅ avfft.h found"
+              } else {
+                Write-Host "⚠️ avfft.h not found - checking alternatives..."
+                Get-ChildItem -Path "C:\ffmpeg\include" -Recurse -Filter "avfft.h" | ForEach-Object { Write-Host "Found at: $_" }
+              }
             } else {
-              Write-Host "❌ FFmpeg headers missing - build may fail"
+              Write-Host "❌ FFmpeg headers missing - build will fail"
+              Write-Host "Checking what's in include directory:"
+              Get-ChildItem -Path "C:\ffmpeg\include" -Recurse | Select-Object -First 20
             }
           } else {
             Write-Host "❌ FFmpeg not found - build will fail"
             exit 1
           }
+          
+      - name: Configure Windows build environment
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: |
+          echo Setting Windows-specific FFmpeg paths...
+          set FFMPEG_DIR=C:\ffmpeg
+          set FFMPEG_INCLUDE_DIR=C:\ffmpeg\include
+          set FFMPEG_LIB_DIR=C:\ffmpeg\lib
           
       - name: Install frontend dependencies
         run: bun install
@@ -214,10 +242,23 @@ jobs:
         run: |
           cargo test --lib -- --test-threads=1
           
-      - name: Run backend tests (non-Linux)
-        if: runner.os != 'Linux'
+      - name: Run backend tests (macOS)
+        if: runner.os == 'macOS'
         working-directory: src-tauri
         run: |
+          cargo test --lib -- --test-threads=1
+          
+      - name: Run backend tests (Windows)
+        if: runner.os == 'Windows'
+        working-directory: src-tauri
+        shell: cmd
+        run: |
+          echo Current environment:
+          echo FFMPEG_DIR=%FFMPEG_DIR%
+          echo FFMPEG_INCLUDE_DIR=%FFMPEG_INCLUDE_DIR%
+          echo FFMPEG_LIB_DIR=%FFMPEG_LIB_DIR%
+          echo.
+          echo Running tests...
           cargo test --lib -- --test-threads=1
           
       - name: Run clippy (Linux)
@@ -304,6 +345,7 @@ jobs:
         timeout-minutes: 15
         run: |
           choco install pkgconfiglite -y --no-progress
+          choco install llvm -y --no-progress
           
           try {
             $ffmpegUrl = "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip"
@@ -331,9 +373,18 @@ jobs:
           echo "FFMPEG_LIB_DIR=C:\ffmpeg\lib" >> $env:GITHUB_ENV
           echo "FFMPEG_LINK_TYPE=dynamic" >> $env:GITHUB_ENV
           echo "FFMPEG_NO_PKG_CONFIG=1" >> $env:GITHUB_ENV
-          echo "BINDGEN_EXTRA_CLANG_ARGS=-IC:/ffmpeg/include" >> $env:GITHUB_ENV
+          echo "BINDGEN_EXTRA_CLANG_ARGS=-IC:\ffmpeg\include -IC:/ffmpeg/include" >> $env:GITHUB_ENV
           echo "LIBCLANG_PATH=C:\Program Files\LLVM\bin" >> $env:GITHUB_ENV
           echo "FFMPEG_PKG_CONFIG_PATH=C:\ffmpeg\lib\pkgconfig" >> $env:GITHUB_ENV
+          
+          # Additional paths for ffmpeg-sys-next
+          echo "FFMPEG_AVCODEC_INCLUDE_DIR=C:\ffmpeg\include" >> $env:GITHUB_ENV
+          echo "FFMPEG_AVFORMAT_INCLUDE_DIR=C:\ffmpeg\include" >> $env:GITHUB_ENV
+          echo "FFMPEG_AVUTIL_INCLUDE_DIR=C:\ffmpeg\include" >> $env:GITHUB_ENV
+          echo "FFMPEG_AVDEVICE_INCLUDE_DIR=C:\ffmpeg\include" >> $env:GITHUB_ENV
+          echo "FFMPEG_AVFILTER_INCLUDE_DIR=C:\ffmpeg\include" >> $env:GITHUB_ENV
+          echo "FFMPEG_SWSCALE_INCLUDE_DIR=C:\ffmpeg\include" >> $env:GITHUB_ENV
+          echo "FFMPEG_SWRESAMPLE_INCLUDE_DIR=C:\ffmpeg\include" >> $env:GITHUB_ENV
           
       - name: Install frontend dependencies
         run: bun install
