@@ -43,18 +43,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+          
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         
-      - name: Cache Rust dependencies
+      - name: Cache dependencies
         uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
             src-tauri/target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+            node_modules
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('**/bun.lockb') }}
           restore-keys: |
+            ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-
             ${{ runner.os }}-cargo-
             
       # Linux dependencies
@@ -170,6 +177,12 @@ jobs:
             Write-Host "❌ FFmpeg not found - build will fail"
             exit 1
           }
+          
+      - name: Install frontend dependencies
+        run: bun install
+        
+      - name: Build frontend
+        run: bun run build
           
       - name: Run backend tests (Linux)
         if: runner.os == 'Linux'
