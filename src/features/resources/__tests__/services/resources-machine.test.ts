@@ -1028,7 +1028,7 @@ describe("resourcesMachine", () => {
       },
       {
         id: "res-5",
-        type: "style-template" as const,
+        type: "styleTemplate" as const,
         resourceId: "style-1",
         params: { animation: true },
         createdAt: new Date(),

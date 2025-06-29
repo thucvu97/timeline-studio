@@ -90,7 +90,7 @@ describe("ResourcesPanel", () => {
     styleTemplateResources: [
       {
         id: "style-1",
-        type: "style-template",
+        type: "styleTemplate",
         name: "modernIntro",
         resourceId: "modern-1",
         addedAt: Date.now(),

@@ -496,16 +496,6 @@ export function AiChat() {
             >
               <Settings className="h-4 w-4" />
             </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              className="h-8 w-8 text-muted-foreground hover:text-white"
-              onClick={() => {
-                // Close chat panel
-              }}
-            >
-              <X className="h-4 w-4" />
-            </Button>
           </div>
         </div>
 
