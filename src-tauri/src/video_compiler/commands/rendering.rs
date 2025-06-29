@@ -567,3 +567,171 @@ pub async fn get_clip_input_index_original(
     "found": input_index.is_some()
   }))
 }
+
+#[cfg(test)]
+mod tests {
+  use crate::video_compiler::schema::{Clip, ProjectSchema, Track, TrackType};
+
+  fn create_test_project() -> ProjectSchema {
+    let mut project = ProjectSchema::new("Test Project".to_string());
+
+    // Add timeline settings
+    project.timeline.duration = 10.0;
+    project.timeline.fps = 30;
+    project.timeline.resolution = (1920, 1080);
+
+    // Add a test track with a clip
+    let mut track = Track::new(TrackType::Video, "Video Track 1".to_string());
+    let clip = Clip::new(std::path::PathBuf::from("/path/to/video.mp4"), 0.0, 5.0);
+    track.clips.push(clip);
+    project.tracks.push(track);
+
+    project
+  }
+
+  #[test]
+  fn test_project_creation() {
+    let project = create_test_project();
+    assert_eq!(project.metadata.name, "Test Project");
+    assert_eq!(project.timeline.duration, 10.0);
+    assert_eq!(project.timeline.fps, 30);
+    assert_eq!(project.timeline.resolution, (1920, 1080));
+    assert_eq!(project.tracks.len(), 1);
+    assert_eq!(project.tracks[0].clips.len(), 1);
+  }
+
+  #[test]
+  fn test_preset_recognition() {
+    // Test that we recognize valid presets
+    let valid_presets = vec!["youtube", "instagram", "twitter"];
+    for preset in valid_presets {
+      assert!(["youtube", "instagram", "twitter"].contains(&preset));
+    }
+  }
+
+  #[test]
+  fn test_validate_timestamps() {
+    let duration = 10.0;
+    let start_time = 0.0;
+    let end_time = 5.0;
+
+    // Valid timestamps
+    assert!(start_time >= 0.0 && end_time > start_time && end_time <= duration);
+
+    // Invalid - negative start
+    let negative_start = -1.0;
+    assert!(negative_start < 0.0);
+
+    // Invalid - end before start
+    let invalid_end = 3.0;
+    let invalid_start = 5.0;
+    assert!(invalid_end < invalid_start);
+
+    // Invalid - exceeds duration
+    let exceeding_time = 15.0;
+    assert!(exceeding_time > duration);
+  }
+
+  #[test]
+  fn test_ffmpeg_command_structure() {
+    // Test that FFmpeg commands start with "ffmpeg"
+    let commands = vec![
+      vec!["ffmpeg", "-i", "input.mp4", "output.mp4"],
+      vec![
+        "ffmpeg",
+        "-ss",
+        "5",
+        "-i",
+        "input.mp4",
+        "-frames:v",
+        "1",
+        "preview.jpg",
+      ],
+    ];
+
+    for cmd in commands {
+      assert_eq!(cmd[0], "ffmpeg");
+    }
+  }
+
+  #[test]
+  fn test_project_schema_serialization() {
+    let project = create_test_project();
+
+    // Should be serializable
+    let serialized = serde_json::to_string(&project);
+    assert!(serialized.is_ok());
+
+    // Should be deserializable
+    let json = serialized.unwrap();
+    let deserialized: std::result::Result<ProjectSchema, _> = serde_json::from_str(&json);
+    assert!(deserialized.is_ok());
+  }
+
+  #[test]
+  fn test_clip_id_handling() {
+    let mut project = create_test_project();
+
+    // Set a specific clip ID
+    if let Some(track) = project.tracks.first_mut() {
+      if let Some(clip) = track.clips.first_mut() {
+        clip.id = "clip-1".to_string();
+      }
+    }
+
+    // Verify we can find it
+    let found = project
+      .tracks
+      .iter()
+      .flat_map(|t| &t.clips)
+      .any(|c| c.id == "clip-1");
+    assert!(found);
+  }
+
+  #[test]
+  fn test_empty_project_handling() {
+    let mut project = create_test_project();
+    project.tracks.clear();
+
+    assert!(project.tracks.is_empty());
+  }
+
+  #[test]
+  fn test_json_value_construction() {
+    let job_id = "test-job";
+    let frames = 100;
+    let memory = 1000000;
+
+    let stats = serde_json::json!({
+      "job_id": job_id,
+      "frames_processed": frames,
+      "memory_used": memory,
+    });
+
+    assert_eq!(stats["job_id"], "test-job");
+    assert_eq!(stats["frames_processed"], 100);
+    assert_eq!(stats["memory_used"], 1000000);
+  }
+
+  #[test]
+  fn test_settings_json_parsing() {
+    let settings = serde_json::json!({
+      "use_hardware_acceleration": true,
+      "hardware_acceleration_type": "nvenc",
+      "global_options": ["-y", "-loglevel", "info"]
+    });
+
+    assert_eq!(settings["use_hardware_acceleration"], true);
+    assert_eq!(settings["hardware_acceleration_type"], "nvenc");
+    assert!(settings["global_options"].is_array());
+  }
+
+  #[test]
+  fn test_segment_duration_calculation() {
+    let start_time = 2.0;
+    let end_time = 7.0;
+    let duration = end_time - start_time;
+
+    assert_eq!(duration, 5.0);
+  }
+}

@@ -483,197 +483,441 @@ mod tests {
     assert!(subs.contains_key(&TypeId::of::<CounterEvent>()));
   }
 
-  // TODO: Реализовать поддержку приоритетов и отмены событий в EventBus
-  // Текущая архитектура требует EventHandler trait для всех обработчиков
-
-  /*
   #[tokio::test]
-  async fn test_event_priority() {
-    // Тест для приоритетов событий
+  async fn test_media_events() {
     let event_bus = EventBus::new();
-    let execution_order = Arc::new(Mutex::new(Vec::new()));
 
-    // Обработчик с высоким приоритетом
-    let order1 = execution_order.clone();
-    event_bus
-      .subscribe(move |event: &AppEvent| {
-        if matches!(event, AppEvent::SystemStartup { .. }) {
-          order1.lock().unwrap().push(1);
-        }
-        Ok(())
-      })
-      .await
-      .unwrap();
+    let events = vec![
+      AppEvent::MediaImported {
+        media_id: "media-123".to_string(),
+        path: "/path/to/media.mp4".to_string(),
+      },
+      AppEvent::MediaProcessed {
+        media_id: "media-123".to_string(),
+      },
+      AppEvent::ThumbnailGenerated {
+        media_id: "media-123".to_string(),
+        thumbnail_path: "/path/to/thumbnail.jpg".to_string(),
+      },
+      AppEvent::EffectApplied {
+        media_id: "media-123".to_string(),
+        effect_type: "blur".to_string(),
+        parameters: "{\"radius\": 5}".to_string(),
+      },
+    ];
 
-    // Обработчик с обычным приоритетом (добавлен позже, но должен выполниться вторым)
-    let order2 = execution_order.clone();
-    event_bus
-      .subscribe(move |event: &AppEvent| {
-        if matches!(event, AppEvent::SystemStartup { .. }) {
-          order2.lock().unwrap().push(2);
-        }
-        Ok(())
-      })
-      .await
-      .unwrap();
-
-    // Публикуем событие
-    event_bus
-      .publish_app_event(AppEvent::SystemStartup {
-        timestamp: chrono::Utc::now(),
-      })
-      .await
-      .unwrap();
-
-    // Даем время обработчикам выполниться
-    tokio::time::sleep(std::time::Duration::from_millis(50)).await;
-
-    // Проверяем порядок выполнения
-    let order = execution_order.lock().unwrap();
-    // В текущей реализации приоритеты не поддерживаются,
-    // поэтому порядок будет в соответствии с регистрацией
-    assert_eq!(order.len(), 2);
+    for event in events {
+      assert!(event_bus.publish_app_event(event).await.is_ok());
+    }
   }
 
   #[tokio::test]
-  async fn test_event_cancellation() {
-    // Тест для отмены событий
-    #[derive(Debug, Clone)]
-    struct CancellableEvent {
-      cancelled: Arc<AtomicBool>,
-      data: String,
-    }
-
+  async fn test_recognition_events() {
     let event_bus = EventBus::new();
-    let processed_count = Arc::new(AtomicUsize::new(0));
 
-    // Первый обработчик - отменяет событие
-    let cancelled = Arc::new(AtomicBool::new(false));
-    let cancelled_clone = cancelled.clone();
-    event_bus
-      .subscribe(move |event: &CancellableEvent| {
-        event.cancelled.store(true, Ordering::SeqCst);
-        cancelled_clone.store(true, Ordering::SeqCst);
-        Ok(())
-      })
-      .await
-      .unwrap();
-
-    // Второй обработчик - не должен выполниться если событие отменено
-    let count = processed_count.clone();
-    let cancelled_check = cancelled.clone();
-    event_bus
-      .subscribe(move |_event: &CancellableEvent| {
-        if !cancelled_check.load(Ordering::SeqCst) {
-          count.fetch_add(1, Ordering::SeqCst);
-        }
-        Ok(())
-      })
-      .await
-      .unwrap();
-
-    // Публикуем событие
-    let event = CancellableEvent {
-      cancelled: Arc::new(AtomicBool::new(false)),
-      data: "test".to_string(),
+    let start_event = AppEvent::RecognitionStarted {
+      media_id: "media-456".to_string(),
+      model: "yolo-v8".to_string(),
     };
 
-    event_bus.publish(event).await.unwrap();
+    let complete_event = AppEvent::RecognitionCompleted {
+      media_id: "media-456".to_string(),
+      results: serde_json::json!({
+        "objects": [
+          {"class": "person", "confidence": 0.95},
+          {"class": "car", "confidence": 0.87}
+        ]
+      }),
+    };
 
-    // Даем время обработчикам
-    tokio::time::sleep(std::time::Duration::from_millis(50)).await;
-
-    // Проверяем что событие было отменено
-    assert!(cancelled.load(Ordering::SeqCst));
-    // В текущей реализации отмена не поддерживается,
-    // поэтому второй обработчик все равно выполнится
-    // assert_eq!(processed_count.load(Ordering::SeqCst), 0);
+    assert!(event_bus.publish_app_event(start_event).await.is_ok());
+    assert!(event_bus.publish_app_event(complete_event).await.is_ok());
   }
 
   #[tokio::test]
-  async fn test_event_handler_error_propagation() {
-    // Тест для обработки ошибок в обработчиках
-    #[derive(Debug, Clone)]
-    struct ErrorEvent {
-      should_fail: bool,
+  async fn test_project_events() {
+    let event_bus = EventBus::new();
+
+    let events = vec![
+      AppEvent::ProjectCreated {
+        project_id: "proj-789".to_string(),
+      },
+      AppEvent::ProjectOpened {
+        project_id: "proj-789".to_string(),
+        path: "/path/to/project.tls".to_string(),
+      },
+      AppEvent::ProjectSaved {
+        project_id: "proj-789".to_string(),
+      },
+      AppEvent::ProjectClosed {
+        project_id: "proj-789".to_string(),
+      },
+    ];
+
+    for event in events {
+      assert!(event_bus.publish_app_event(event).await.is_ok());
+    }
+  }
+
+  #[tokio::test]
+  async fn test_render_events() {
+    let event_bus = EventBus::new();
+
+    let events = vec![
+      AppEvent::RenderStarted {
+        job_id: "render-001".to_string(),
+        project_id: "proj-123".to_string(),
+      },
+      AppEvent::RenderProgress {
+        job_id: "render-001".to_string(),
+        progress: 0.25,
+      },
+      AppEvent::RenderProgress {
+        job_id: "render-001".to_string(),
+        progress: 0.75,
+      },
+      AppEvent::RenderCompleted {
+        job_id: "render-001".to_string(),
+        output_path: "/output/final.mp4".to_string(),
+      },
+    ];
+
+    for event in events {
+      assert!(event_bus.publish_app_event(event).await.is_ok());
+    }
+
+    // Test render failure
+    let fail_event = AppEvent::RenderFailed {
+      job_id: "render-002".to_string(),
+      error: "Insufficient memory".to_string(),
+    };
+    assert!(event_bus.publish_app_event(fail_event).await.is_ok());
+  }
+
+  #[tokio::test]
+  async fn test_system_events() {
+    let event_bus = EventBus::new();
+
+    let events = vec![
+      AppEvent::SystemStartup,
+      AppEvent::SystemHealthCheck {
+        timestamp: chrono::Utc::now(),
+      },
+      AppEvent::ConfigChanged {
+        key: "theme".to_string(),
+        value: serde_json::json!("dark"),
+      },
+      AppEvent::MemoryWarning {
+        usage_percent: 90.5,
+      },
+      AppEvent::SystemShutdown,
+    ];
+
+    for event in events {
+      assert!(event_bus.publish_app_event(event).await.is_ok());
+    }
+  }
+
+  #[tokio::test]
+  async fn test_event_bus_default() {
+    let event_bus = EventBus::default();
+
+    // Verify default instance works
+    assert!(event_bus
+      .publish_app_event(AppEvent::SystemStartup)
+      .await
+      .is_ok());
+  }
+
+  #[tokio::test]
+  async fn test_event_serialization() {
+    // Test that all events can be serialized/deserialized
+    let events = vec![
+      AppEvent::ProjectCreated {
+        project_id: "test".to_string(),
+      },
+      AppEvent::RenderProgress {
+        job_id: "job".to_string(),
+        progress: 0.5,
+      },
+      AppEvent::RecognitionCompleted {
+        media_id: "media".to_string(),
+        results: serde_json::json!({"test": true}),
+      },
+    ];
+
+    for event in events {
+      let serialized = serde_json::to_string(&event).unwrap();
+      let deserialized: AppEvent = serde_json::from_str(&serialized).unwrap();
+
+      // Verify round-trip works
+      let re_serialized = serde_json::to_string(&deserialized).unwrap();
+      assert_eq!(serialized, re_serialized);
+    }
+  }
+
+  #[derive(Clone)]
+  struct PanicHandler;
+
+  #[async_trait]
+  impl EventHandler for PanicHandler {
+    type Event = TestEvent;
+
+    async fn handle(&self, _event: Self::Event) -> Result<()> {
+      panic!("Handler panicked!");
+    }
+
+    fn name(&self) -> &'static str {
+      "PanicHandler"
+    }
+  }
+
+  #[tokio::test]
+  async fn test_handler_panic_isolation() {
+    let event_bus = EventBus::new();
+    let handler = PanicHandler;
+
+    // Subscribe should work even with panic-prone handler
+    assert!(event_bus.subscribe(handler).await.is_ok());
+
+    // Publishing should not panic the bus
+    let event = TestEvent {
+      message: "test".to_string(),
+    };
+
+    // The publish itself doesn't execute handlers, so it should succeed
+    assert!(event_bus.publish(event).await.is_ok());
+  }
+
+  #[tokio::test]
+  async fn test_multiple_event_types() {
+    #[derive(Clone)]
+    struct EventTypeA {
+      #[allow(dead_code)]
+      value: i32,
+    }
+
+    #[derive(Clone)]
+    struct EventTypeB {
+      #[allow(dead_code)]
+      text: String,
+    }
+
+    struct HandlerA;
+    struct HandlerB;
+
+    #[async_trait]
+    impl EventHandler for HandlerA {
+      type Event = EventTypeA;
+
+      async fn handle(&self, _event: Self::Event) -> Result<()> {
+        Ok(())
+      }
+
+      fn name(&self) -> &'static str {
+        "HandlerA"
+      }
+    }
+
+    #[async_trait]
+    impl EventHandler for HandlerB {
+      type Event = EventTypeB;
+
+      async fn handle(&self, _event: Self::Event) -> Result<()> {
+        Ok(())
+      }
+
+      fn name(&self) -> &'static str {
+        "HandlerB"
+      }
     }
 
     let event_bus = EventBus::new();
 
-    // Обработчик который может вернуть ошибку
-    event_bus
-      .subscribe(move |event: &ErrorEvent| {
-        if event.should_fail {
-          Err(VideoCompilerError::InternalError(
-            "Handler failed".to_string(),
-          ))
-        } else {
-          Ok(())
-        }
-      })
-      .await
-      .unwrap();
+    // Subscribe different handlers for different event types
+    event_bus.subscribe(HandlerA).await.unwrap();
+    event_bus.subscribe(HandlerB).await.unwrap();
 
-    // Событие которое должно пройти успешно
-    let success_event = ErrorEvent { should_fail: false };
-    let result = event_bus.publish(success_event).await;
-    assert!(result.is_ok());
-
-    // Событие которое должно вернуть ошибку
-    let error_event = ErrorEvent { should_fail: true };
-    let result = event_bus.publish(error_event).await;
-    // В текущей реализации ошибки логируются, но не прерывают обработку
-    assert!(result.is_ok());
+    // Verify subscriptions
+    let subs = event_bus.subscriptions.read().await;
+    assert_eq!(subs.len(), 2);
+    assert!(subs.contains_key(&TypeId::of::<EventTypeA>()));
+    assert!(subs.contains_key(&TypeId::of::<EventTypeB>()));
   }
 
   #[tokio::test]
-  async fn test_event_handler_async_execution() {
-    // Тест для проверки асинхронного выполнения обработчиков
+  async fn test_config_change_event_variations() {
     let event_bus = EventBus::new();
-    let execution_times = Arc::new(Mutex::new(Vec::new()));
 
-    // Медленный обработчик
-    let times1 = execution_times.clone();
-    event_bus
-      .subscribe(move |_event: &AppEvent| {
-        let start = std::time::Instant::now();
-        std::thread::sleep(std::time::Duration::from_millis(100));
-        times1.lock().unwrap().push(start.elapsed());
-        Ok(())
-      })
-      .await
-      .unwrap();
+    let config_events = vec![
+      AppEvent::ConfigChanged {
+        key: "language".to_string(),
+        value: serde_json::json!("en-US"),
+      },
+      AppEvent::ConfigChanged {
+        key: "auto_save".to_string(),
+        value: serde_json::json!(true),
+      },
+      AppEvent::ConfigChanged {
+        key: "render_quality".to_string(),
+        value: serde_json::json!(1080),
+      },
+      AppEvent::ConfigChanged {
+        key: "export_settings".to_string(),
+        value: serde_json::json!({
+          "format": "mp4",
+          "codec": "h264",
+          "bitrate": 8000000
+        }),
+      },
+    ];
 
-    // Быстрый обработчик
-    let times2 = execution_times.clone();
-    event_bus
-      .subscribe(move |_event: &AppEvent| {
-        let start = std::time::Instant::now();
-        times2.lock().unwrap().push(start.elapsed());
-        Ok(())
-      })
-      .await
-      .unwrap();
-
-    // Публикуем событие
-    let start = std::time::Instant::now();
-    event_bus
-      .publish_app_event(AppEvent::SystemStartup {
-        timestamp: chrono::Utc::now(),
-      })
-      .await
-      .unwrap();
-    let publish_time = start.elapsed();
-
-    // Ждем завершения всех обработчиков
-    tokio::time::sleep(std::time::Duration::from_millis(200)).await;
-
-    // Проверяем что publish не блокировался
-    assert!(publish_time.as_millis() < 50); // Должен вернуться быстро
-
-    // Проверяем что оба обработчика выполнились
-    let times = execution_times.lock().unwrap();
-    assert_eq!(times.len(), 2);
+    for event in config_events {
+      assert!(event_bus.publish_app_event(event).await.is_ok());
+    }
   }
-  */
+
+  #[tokio::test]
+  async fn test_concurrent_subscriptions() {
+    let event_bus = Arc::new(EventBus::new());
+    let mut handles = vec![];
+
+    // Create multiple handlers concurrently
+    for i in 0..5 {
+      let bus = event_bus.clone();
+      let handle = tokio::spawn(async move {
+        struct UniqueHandler {
+          #[allow(dead_code)]
+          id: usize,
+        }
+
+        #[async_trait]
+        impl EventHandler for UniqueHandler {
+          type Event = TestEvent;
+
+          async fn handle(&self, _event: Self::Event) -> Result<()> {
+            Ok(())
+          }
+
+          fn name(&self) -> &'static str {
+            "UniqueHandler"
+          }
+        }
+
+        let handler = UniqueHandler { id: i };
+        bus.subscribe(handler).await
+      });
+      handles.push(handle);
+    }
+
+    // Wait for all subscriptions
+    for handle in handles {
+      assert!(handle.await.unwrap().is_ok());
+    }
+
+    // Verify all subscriptions were added
+    let subs = event_bus.subscriptions.read().await;
+    let handlers = subs.get(&TypeId::of::<TestEvent>()).unwrap();
+    assert_eq!(handlers.len(), 5);
+  }
+
+  #[tokio::test]
+  async fn test_event_processor_lifecycle() {
+    let event_bus = EventBus::new();
+
+    // Start processor multiple times (should be idempotent)
+    event_bus.start_app_event_processor().await;
+    event_bus.start_app_event_processor().await;
+
+    // Publish events while processor is running
+    for i in 0..5 {
+      event_bus
+        .publish_app_event(AppEvent::ProjectCreated {
+          project_id: format!("test-{i}"),
+        })
+        .await
+        .unwrap();
+    }
+
+    // Give processor time to handle
+    tokio::time::sleep(tokio::time::Duration::from_millis(50)).await;
+  }
+
+  #[tokio::test]
+  async fn test_error_event_publishing() {
+    let event_bus = EventBus::new();
+
+    // Simulate channel closed scenario by dropping the receiver
+    {
+      let mut receiver = event_bus.app_event_receiver.write().await;
+      receiver.close();
+    }
+
+    // Publishing should now fail
+    let result = event_bus.publish_app_event(AppEvent::SystemStartup).await;
+    assert!(result.is_err());
+  }
+
+  #[tokio::test]
+  async fn test_handler_name_uniqueness() {
+    struct NamedHandler(&'static str);
+
+    #[async_trait]
+    impl EventHandler for NamedHandler {
+      type Event = TestEvent;
+
+      async fn handle(&self, _event: Self::Event) -> Result<()> {
+        Ok(())
+      }
+
+      fn name(&self) -> &'static str {
+        self.0
+      }
+    }
+
+    let event_bus = EventBus::new();
+
+    // Subscribe handlers with different names
+    event_bus.subscribe(NamedHandler("Handler1")).await.unwrap();
+    event_bus.subscribe(NamedHandler("Handler2")).await.unwrap();
+    event_bus.subscribe(NamedHandler("Handler3")).await.unwrap();
+
+    let subs = event_bus.subscriptions.read().await;
+    let handlers = subs.get(&TypeId::of::<TestEvent>()).unwrap();
+
+    // Verify all handlers were added with their names
+    assert_eq!(handlers.len(), 3);
+    assert_eq!(handlers[0].name, "Handler1");
+    assert_eq!(handlers[1].name, "Handler2");
+    assert_eq!(handlers[2].name, "Handler3");
+  }
+
+  #[tokio::test]
+  async fn test_large_event_payload() {
+    let event_bus = EventBus::new();
+
+    // Create a large recognition result
+    let mut objects = Vec::new();
+    for i in 0..1000 {
+      objects.push(serde_json::json!({
+        "id": i,
+        "class": "object",
+        "confidence": 0.95,
+        "bbox": [100, 200, 300, 400],
+        "attributes": {
+          "color": "red",
+          "size": "large",
+          "quality": "high"
+        }
+      }));
+    }
+
+    let large_event = AppEvent::RecognitionCompleted {
+      media_id: "large-media".to_string(),
+      results: serde_json::json!({ "objects": objects }),
+    };
+
+    // Should handle large payloads
+    assert!(event_bus.publish_app_event(large_event).await.is_ok());
+  }
 }
