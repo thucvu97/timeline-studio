@@ -1,6 +1,7 @@
 import React from "react"
 
 import { useFavorites } from "@/features/app-state"
+import { useDraggable } from "@/features/drag-drop"
 import { FilterPreview } from "@/features/filters/components/filter-preview"
 import { useFilters } from "@/features/filters/hooks/use-filters"
 import { VideoFilter } from "@/features/filters/types/filters"
@@ -21,9 +22,16 @@ const FilterPreviewWrapper: React.FC<PreviewComponentProps<VideoFilter>> = ({
     onClick?.(filter)
   }
 
-  const handleDragStart = (e: React.DragEvent) => {
-    onDragStart?.(filter, e)
-  }
+  // Используем DragDropManager для перетаскивания
+  const dragProps = useDraggable(
+    "filter",
+    () => filter,
+    () => ({
+      url: `/filters/${filter.type}.png`, // Preview URL if available
+      width: 120,
+      height: 80,
+    }),
+  )
 
   // Для фильтров FilterPreview ожидает другие пропсы
   const previewSize = typeof size === "number" ? size : size.width
@@ -35,8 +43,7 @@ const FilterPreviewWrapper: React.FC<PreviewComponentProps<VideoFilter>> = ({
       <div
         className="flex items-center gap-3 p-2 rounded-lg border cursor-pointer transition-colors hover:bg-accent/50"
         onClick={handleClick}
-        onDragStart={handleDragStart}
-        draggable
+        {...dragProps}
       >
         {/* Filter preview thumbnail */}
         <div className="flex-shrink-0 w-12 h-9 bg-gray-200 rounded overflow-hidden">

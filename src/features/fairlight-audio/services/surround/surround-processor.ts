@@ -3,7 +3,7 @@
  * Supports stereo, 5.1, and 7.1 surround formats using Web Audio API
  */
 
-export type SurroundFormat = 'stereo' | '5.1' | '7.1'
+export type SurroundFormat = "stereo" | "5.1" | "7.1"
 
 export interface SurroundPosition {
   x: number // 0-100 (left to right)
@@ -11,16 +11,16 @@ export interface SurroundPosition {
 }
 
 export interface SurroundChannelMapping {
-  stereo: ['L', 'R']
-  '5.1': ['L', 'R', 'C', 'LFE', 'LS', 'RS']
-  '7.1': ['L', 'R', 'C', 'LFE', 'LS', 'RS', 'LR', 'RR']
+  stereo: ["L", "R"]
+  "5.1": ["L", "R", "C", "LFE", "LS", "RS"]
+  "7.1": ["L", "R", "C", "LFE", "LS", "RS", "LR", "RR"]
 }
 
 // Speaker angles in degrees for positioning calculations
 const SPEAKER_ANGLES = {
   stereo: { L: -30, R: 30 },
-  '5.1': { L: -30, R: 30, C: 0, LFE: 0, LS: -110, RS: 110 },
-  '7.1': { L: -30, R: 30, C: 0, LFE: 0, LS: -110, RS: 110, LR: -135, RR: 135 },
+  "5.1": { L: -30, R: 30, C: 0, LFE: 0, LS: -110, RS: 110 },
+  "7.1": { L: -30, R: 30, C: 0, LFE: 0, LS: -110, RS: 110, LR: -135, RR: 135 },
 }
 
 export class SurroundAudioProcessor {
@@ -31,7 +31,7 @@ export class SurroundAudioProcessor {
   private channelGains: Map<string, GainNode>
   private position: SurroundPosition
 
-  constructor(context: AudioContext, format: SurroundFormat = 'stereo') {
+  constructor(context: AudioContext, format: SurroundFormat = "stereo") {
     this.context = context
     this.format = format
     this.position = { x: 50, y: 50 } // Center position
@@ -46,11 +46,11 @@ export class SurroundAudioProcessor {
 
   private getChannelCount(): number {
     switch (this.format) {
-      case 'stereo':
+      case "stereo":
         return 2
-      case '5.1':
+      case "5.1":
         return 6
-      case '7.1':
+      case "7.1":
         return 8
       default:
         return 2
@@ -59,9 +59,9 @@ export class SurroundAudioProcessor {
 
   private getChannelNames(): string[] {
     const mapping: SurroundChannelMapping = {
-      stereo: ['L', 'R'],
-      '5.1': ['L', 'R', 'C', 'LFE', 'LS', 'RS'],
-      '7.1': ['L', 'R', 'C', 'LFE', 'LS', 'RS', 'LR', 'RR'],
+      stereo: ["L", "R"],
+      "5.1": ["L", "R", "C", "LFE", "LS", "RS"],
+      "7.1": ["L", "R", "C", "LFE", "LS", "RS", "LR", "RR"],
     }
     return mapping[this.format]
   }
@@ -73,13 +73,13 @@ export class SurroundAudioProcessor {
     channels.forEach((channel, index) => {
       const gainNode = this.context.createGain()
       gainNode.gain.value = 0
-      
+
       // Connect input to each channel gain
       this.inputNode.connect(gainNode)
-      
+
       // Connect channel gain to output splitter
       gainNode.connect(this.outputNode, 0, index)
-      
+
       this.channelGains.set(channel, gainNode)
     })
 
@@ -119,7 +119,7 @@ export class SurroundAudioProcessor {
       if (!gainNode) return
 
       const gain = this.calculateChannelGain(channel, angles[channel as keyof typeof angles])
-      
+
       // Smooth gain changes to avoid clicks
       gainNode.gain.cancelScheduledValues(this.context.currentTime)
       gainNode.gain.setTargetAtTime(gain, this.context.currentTime, 0.01)
@@ -130,10 +130,10 @@ export class SurroundAudioProcessor {
     // Convert position to polar coordinates
     const centerX = 50
     const centerY = 30 // Front is at 30% from top
-    
+
     const dx = this.position.x - centerX
     const dy = centerY - this.position.y // Invert Y for front/back
-    
+
     const distance = Math.sqrt(dx * dx + dy * dy)
     const angle = Math.atan2(dx, dy) * (180 / Math.PI)
 
@@ -153,19 +153,18 @@ export class SurroundAudioProcessor {
     let gain = distanceAttenuation * angleAttenuation
 
     // LFE channel gets constant low-frequency content
-    if (channel === 'LFE') {
+    if (channel === "LFE") {
       gain = Math.min(0.3, distanceAttenuation * 0.5)
     }
 
     // Center channel gets enhanced signal when positioned front-center
-    if (channel === 'C') {
-      const frontCenterBoost = Math.max(0, 1 - Math.abs(dx) / 30) * 
-                               Math.max(0, 1 - Math.max(0, dy) / 20)
+    if (channel === "C") {
+      const frontCenterBoost = Math.max(0, 1 - Math.abs(dx) / 30) * Math.max(0, 1 - Math.max(0, dy) / 20)
       gain = Math.max(gain, frontCenterBoost * 0.8)
     }
 
     // Apply gentle curve to make transitions smoother
-    gain = Math.pow(gain, 0.7)
+    gain **= 0.7
 
     return Math.max(0, Math.min(1, gain))
   }
@@ -177,7 +176,7 @@ export class SurroundAudioProcessor {
   public disconnect(): void {
     this.inputNode.disconnect()
     this.outputNode.disconnect()
-    this.channelGains.forEach(gainNode => gainNode.disconnect())
+    this.channelGains.forEach((gainNode) => gainNode.disconnect())
   }
 
   public getInputNode(): AudioNode {
@@ -191,19 +190,19 @@ export class SurroundAudioProcessor {
   public getChannelOutput(channel: string): AudioNode | null {
     const channelNames = this.getChannelNames()
     const index = channelNames.indexOf(channel)
-    
+
     if (index === -1) return null
 
     // Create a gain node connected to the specific output channel
     const channelOutput = this.context.createGain()
     this.outputNode.connect(channelOutput, index)
-    
+
     return channelOutput
   }
 
   public getChannelLevels(): Record<string, number> {
     const levels: Record<string, number> = {}
-    
+
     this.channelGains.forEach((gainNode, channel) => {
       levels[channel] = gainNode.gain.value
     })
@@ -221,31 +220,31 @@ export class SurroundAudioProcessor {
 
     // Downmix matrix for stereo compatibility
     const channels = this.getChannelNames()
-    
+
     channels.forEach((channel, index) => {
       const channelGain = this.context.createGain()
       this.outputNode.connect(channelGain, index)
 
       // Simple downmix coefficients
       switch (channel) {
-        case 'L':
-        case 'LS':
-        case 'LR':
+        case "L":
+        case "LS":
+        case "LR":
           channelGain.gain.value = 1.0
           channelGain.connect(leftGain)
           break
-        case 'R':
-        case 'RS':
-        case 'RR':
+        case "R":
+        case "RS":
+        case "RR":
           channelGain.gain.value = 1.0
           channelGain.connect(rightGain)
           break
-        case 'C':
-          channelGain.gain.value = 0.707 // -3dB for center
+        case "C":
+          channelGain.gain.value = Math.SQRT1_2 // -3dB for center
           channelGain.connect(leftGain)
           channelGain.connect(rightGain)
           break
-        case 'LFE':
+        case "LFE":
           // LFE typically not included in stereo downmix
           channelGain.gain.value = 0
           break

@@ -273,12 +273,7 @@ export class SpectralSubtraction {
   private subtractFactor: number
   private spectralFloor: number
 
-  constructor(
-    fftSize = 2048,
-    sampleRate = 48000,
-    subtractFactor = 1.0,
-    spectralFloor = 0.1,
-  ) {
+  constructor(fftSize = 2048, sampleRate = 48000, subtractFactor = 1.0, spectralFloor = 0.1) {
     this.fftProcessor = new FFTProcessor(fftSize, sampleRate)
     this.subtractFactor = subtractFactor
     this.spectralFloor = spectralFloor

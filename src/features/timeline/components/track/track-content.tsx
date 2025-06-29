@@ -4,9 +4,11 @@
 
 import { useDroppable } from "@dnd-kit/core"
 
+import { useDropZone } from "@/features/drag-drop"
 import { cn } from "@/lib/utils"
 
 import { useDragDropTimeline } from "../../hooks/use-drag-drop-timeline"
+import { useTimeline } from "../../hooks/use-timeline"
 import { TimelineTrack } from "../../types"
 import { Clip } from "../clip/clip"
 
@@ -19,14 +21,39 @@ interface TrackContentProps {
 
 export function TrackContent({ track, timeScale, currentTime, onUpdate }: TrackContentProps) {
   const { dragState, isValidDropTarget } = useDragDropTimeline()
+  const { addClip } = useTimeline()
 
-  // Setup droppable functionality
+  // Setup droppable functionality for @dnd-kit
   const { isOver, setNodeRef } = useDroppable({
     id: `track-${track.id}`,
     data: {
       trackId: track.id,
       trackType: track.type,
     },
+  })
+
+  // Register as drop zone for global DragDropManager
+  const acceptedTypes = track.type === "video" ? ["media"] : track.type === "audio" ? ["media", "music"] : []
+
+  const { ref: dropZoneRef } = useDropZone(`track-${track.id}`, acceptedTypes, (item, event) => {
+    // Calculate drop position based on mouse position
+    const rect = dropZoneRef.current?.getBoundingClientRect()
+    if (!rect) return
+
+    const x = event.clientX - rect.left
+    const dropTime = x / timeScale
+
+    // Add clip to timeline
+    if (item.type === "media" || item.type === "music") {
+      addClip({
+        id: `clip-${Date.now()}`,
+        name: item.data.name,
+        trackId: track.id,
+        startTime: dropTime,
+        duration: item.data.duration || 5,
+        mediaFile: item.data,
+      })
+    }
   })
 
   // Check if this track is a valid drop target
@@ -50,7 +77,12 @@ export function TrackContent({ track, timeScale, currentTime, onUpdate }: TrackC
 
   return (
     <div
-      ref={setNodeRef}
+      ref={(el) => {
+        setNodeRef(el)
+        if (dropZoneRef.current !== el) {
+          dropZoneRef.current = el
+        }
+      }}
       data-track-id={track.id}
       data-testid={`track-container-${track.id}`}
       className={cn(

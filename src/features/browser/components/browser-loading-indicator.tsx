@@ -13,8 +13,8 @@ export function BrowserLoadingIndicator() {
   const loadingState = useLoadingState()
   const stats = useResourcesStats()
 
-  // Не показываем индикатор, если загрузка завершена и нет ошибок
-  if (!loadingState.isLoading && !loadingState.error && loadingState.loadedSources.size > 0) {
+  // Показываем индикатор только если идет загрузка или есть ошибка
+  if (!loadingState.isLoading && !loadingState.error) {
     return null
   }
 

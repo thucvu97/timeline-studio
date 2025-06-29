@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import { useFavorites, useMusicFiles } from "@/features/app-state"
 import { parseDuration, parseFileSize } from "@/features/browser/utils"
+import { useDraggable } from "@/features/drag-drop"
 import { MediaFile } from "@/features/media/types/media"
 import { useMusicImport } from "@/features/music/hooks/use-music-import"
 import { useResources } from "@/features/resources"
@@ -56,6 +57,17 @@ const MusicPreviewWrapper: React.FC<PreviewComponentProps<MediaFile>> = ({
   const title = String(file.probeData?.format.tags?.title || file.name)
   const isAdded = isMusicAdded(file)
 
+  // Используем DragDropManager для перетаскивания
+  const dragProps = useDraggable(
+    "music",
+    () => file,
+    () => ({
+      url: file.thumbnail || file.path,
+      width: 120,
+      height: 80,
+    }),
+  )
+
   if (viewMode === "list") {
     return (
       <div
@@ -66,8 +78,7 @@ const MusicPreviewWrapper: React.FC<PreviewComponentProps<MediaFile>> = ({
           isAdded && "border-green-500",
         )}
         onClick={() => onClick?.(file)}
-        onDragStart={(e) => onDragStart?.(file, e)}
-        draggable
+        {...dragProps}
       >
         {/* Play/Pause Button */}
         <button
@@ -103,8 +114,7 @@ const MusicPreviewWrapper: React.FC<PreviewComponentProps<MediaFile>> = ({
       )}
       style={{ width: typeof size === "number" ? size : size.width }}
       onClick={() => onClick?.(file)}
-      onDragStart={(e) => onDragStart?.(file, e)}
-      draggable
+      {...dragProps}
     >
       {/* Play/Pause Button */}
       <button

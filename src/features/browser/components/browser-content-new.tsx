@@ -166,42 +166,7 @@ export function BrowserContentNew() {
     }
   }
 
-  const handleItemDragStart = (item: any, event: React.DragEvent) => {
-    // Устанавливаем данные для drag-and-drop в зависимости от типа
-    const dragData = {
-      type: activeTab,
-      item: item,
-    }
-
-    switch (activeTab) {
-      case "media":
-        event.dataTransfer.setData("mediaFile", JSON.stringify(item))
-        break
-      case "music":
-        event.dataTransfer.setData("musicFile", JSON.stringify(item))
-        break
-      case "effects":
-        event.dataTransfer.setData("effect", JSON.stringify(item))
-        break
-      case "filters":
-        event.dataTransfer.setData("filter", JSON.stringify(item))
-        break
-      case "transitions":
-        event.dataTransfer.setData("transition", JSON.stringify(item))
-        break
-      case "subtitles":
-        event.dataTransfer.setData("subtitleStyle", JSON.stringify(item))
-        break
-      case "templates":
-        event.dataTransfer.setData("template", JSON.stringify(item))
-        break
-      case "style-templates":
-        event.dataTransfer.setData("styleTemplate", JSON.stringify(item))
-        break
-      default:
-        event.dataTransfer.setData("browserItem", JSON.stringify(dragData))
-    }
-  }
+  // Удаляем старый обработчик, так как теперь drag обрабатывается через DragDropManager в UniversalList
 
   return (
     <>
@@ -250,7 +215,7 @@ export function BrowserContentNew() {
       {/* Контент с использованием UniversalList для всех типов */}
       {adapter ? (
         <TabsContent value={activeTab} className={contentClassName}>
-          <UniversalList adapter={adapter} onItemSelect={handleItemSelect} onItemDragStart={handleItemDragStart} />
+          <UniversalList adapter={adapter} onItemSelect={handleItemSelect} />
         </TabsContent>
       ) : (
         // Показываем сообщение если адаптер не найден

@@ -54,19 +54,19 @@ export class NoiseReductionEngine extends EventEmitter {
     try {
       await Promise.all([
         this.context.audioWorklet.addModule(
-          '/src/features/fairlight-audio/services/noise-reduction/worklets/spectral-gate-processor.js'
+          "/src/features/fairlight-audio/services/noise-reduction/worklets/spectral-gate-processor.js",
         ),
         this.context.audioWorklet.addModule(
-          '/src/features/fairlight-audio/services/noise-reduction/worklets/wiener-filter-processor.js'
+          "/src/features/fairlight-audio/services/noise-reduction/worklets/wiener-filter-processor.js",
         ),
         this.context.audioWorklet.addModule(
-          '/src/features/fairlight-audio/services/noise-reduction/worklets/adaptive-noise-processor.js'
-        )
+          "/src/features/fairlight-audio/services/noise-reduction/worklets/adaptive-noise-processor.js",
+        ),
       ])
-      this.emit('workletsLoaded')
+      this.emit("workletsLoaded")
     } catch (error) {
-      console.error('Failed to load AudioWorklet modules:', error)
-      throw new Error('AudioWorklet is required for noise reduction')
+      console.error("Failed to load AudioWorklet modules:", error)
+      throw new Error("AudioWorklet is required for noise reduction")
     }
   }
 
@@ -217,7 +217,6 @@ export class NoiseReductionEngine extends EventEmitter {
     return analyzer.analyze(audioBuffer)
   }
 
-
   private async createOfflineAIProcessor(
     context: OfflineAudioContext,
     _config: NoiseReductionConfig,
@@ -243,23 +242,23 @@ class SpectralNoiseGate {
   constructor(private context: AudioContext) {}
 
   createNode(config: any): AudioWorkletNode {
-    const node = new AudioWorkletNode(this.context, 'spectral-gate-processor')
-    
+    const node = new AudioWorkletNode(this.context, "spectral-gate-processor")
+
     // Set initial parameters
-    node.parameters.get('threshold')?.setValueAtTime(config.threshold, this.context.currentTime)
-    node.parameters.get('strength')?.setValueAtTime(config.strength, this.context.currentTime)
-    node.parameters.get('smoothing')?.setValueAtTime(config.smoothing, this.context.currentTime)
-    node.parameters.get('attack')?.setValueAtTime(config.attack / 1000, this.context.currentTime)
-    node.parameters.get('release')?.setValueAtTime(config.release / 1000, this.context.currentTime)
-    
+    node.parameters.get("threshold")?.setValueAtTime(config.threshold, this.context.currentTime)
+    node.parameters.get("strength")?.setValueAtTime(config.strength, this.context.currentTime)
+    node.parameters.get("smoothing")?.setValueAtTime(config.smoothing, this.context.currentTime)
+    node.parameters.get("attack")?.setValueAtTime(config.attack / 1000, this.context.currentTime)
+    node.parameters.get("release")?.setValueAtTime(config.release / 1000, this.context.currentTime)
+
     // Send additional config through message port
     node.port.postMessage({
-      type: 'updateParams',
+      type: "updateParams",
       params: {
-        preserveVoice: config.preserveVoice
-      }
+        preserveVoice: config.preserveVoice,
+      },
     })
-    
+
     return node
   }
 
@@ -275,13 +274,13 @@ class WienerFilter {
   constructor(private context: AudioContext) {}
 
   createNode(config: any): AudioWorkletNode {
-    const node = new AudioWorkletNode(this.context, 'wiener-filter-processor')
-    
+    const node = new AudioWorkletNode(this.context, "wiener-filter-processor")
+
     // Set initial parameters
-    node.parameters.get('noiseFloor')?.setValueAtTime(config.noiseFloor, this.context.currentTime)
-    node.parameters.get('strength')?.setValueAtTime(config.strength, this.context.currentTime)
-    node.parameters.get('smoothing')?.setValueAtTime(config.smoothing, this.context.currentTime)
-    
+    node.parameters.get("noiseFloor")?.setValueAtTime(config.noiseFloor, this.context.currentTime)
+    node.parameters.get("strength")?.setValueAtTime(config.strength, this.context.currentTime)
+    node.parameters.get("smoothing")?.setValueAtTime(config.smoothing, this.context.currentTime)
+
     return node
   }
 
@@ -311,22 +310,22 @@ class AdaptiveNoiseReduction {
   constructor(private context: AudioContext) {}
 
   createNode(config: any): AudioWorkletNode {
-    const node = new AudioWorkletNode(this.context, 'adaptive-noise-processor')
-    
+    const node = new AudioWorkletNode(this.context, "adaptive-noise-processor")
+
     // Set initial parameters
-    node.parameters.get('strength')?.setValueAtTime(config.strength, this.context.currentTime)
-    node.parameters.get('spectralWeight')?.setValueAtTime(config.spectralWeight, this.context.currentTime)
-    node.parameters.get('wienerWeight')?.setValueAtTime(config.wienerWeight, this.context.currentTime)
-    node.parameters.get('adaptationRate')?.setValueAtTime(config.adaptationRate, this.context.currentTime)
-    
+    node.parameters.get("strength")?.setValueAtTime(config.strength, this.context.currentTime)
+    node.parameters.get("spectralWeight")?.setValueAtTime(config.spectralWeight, this.context.currentTime)
+    node.parameters.get("wienerWeight")?.setValueAtTime(config.wienerWeight, this.context.currentTime)
+    node.parameters.get("adaptationRate")?.setValueAtTime(config.adaptationRate, this.context.currentTime)
+
     // Send additional config through message port
     node.port.postMessage({
-      type: 'updateParams',
+      type: "updateParams",
       params: {
-        aiWeight: config.aiWeight
-      }
+        aiWeight: config.aiWeight,
+      },
     })
-    
+
     return node
   }
 }

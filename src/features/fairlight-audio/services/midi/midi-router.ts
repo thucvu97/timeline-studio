@@ -163,7 +163,6 @@ export class TransformProcessor extends BaseMidiProcessor {
           case "logarithmic":
             velocity = Math.log(velocity + 1) / Math.log(2)
             break
-          case "linear":
           default:
             // No transformation needed
             break

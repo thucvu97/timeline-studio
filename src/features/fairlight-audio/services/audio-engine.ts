@@ -21,7 +21,7 @@ export class AudioEngine {
   private masterLimiter: DynamicsCompressorNode
   private channels = new Map<string, ChannelNode>()
   private soloChannels = new Set<string>()
-  private masterSurroundFormat: SurroundFormat = 'stereo'
+  private masterSurroundFormat: SurroundFormat = "stereo"
   public clipEditor: AudioClipEditor
 
   constructor() {
@@ -262,7 +262,7 @@ export class AudioEngine {
   // Surround Sound Support
   setSurroundFormat(format: SurroundFormat): void {
     this.masterSurroundFormat = format
-    
+
     // Update existing channels that have surround processors
     this.channels.forEach((channel) => {
       if (channel.surround) {
@@ -284,14 +284,14 @@ export class AudioEngine {
     // Create surround processor if not exists
     if (!channel.surround) {
       channel.surround = new SurroundAudioProcessor(this.context, surroundFormat)
-      
+
       // Disconnect current chain and route through surround processor
       this.disconnectEffectChain(channel)
-      
+
       // Insert surround processor between pan and effects
       channel.panNode.disconnect()
       channel.panNode.connect(channel.surround.getInputNode())
-      
+
       // Reconnect effect chain from surround output
       this.connectSurroundEffectChain(channel)
     }
@@ -362,7 +362,7 @@ export class AudioEngine {
       channel.panNode.disconnect()
       channel.analyser.disconnect()
       channel.effects.forEach((effect) => effect.disconnect())
-      
+
       // Clean up surround processors
       if (channel.surround) {
         channel.surround.disconnect()

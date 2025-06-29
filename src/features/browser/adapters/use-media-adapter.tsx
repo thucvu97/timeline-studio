@@ -3,6 +3,7 @@ import React from "react"
 import { useAppSettings, useFavorites } from "@/features/app-state"
 import { MediaPreview } from "@/features/browser/components/preview/media-preview"
 import { parseDuration, parseFileSize } from "@/features/browser/utils"
+import { useDraggable } from "@/features/drag-drop"
 import { getFileType } from "@/features/media"
 import { useMediaImport } from "@/features/media/hooks/use-media-import"
 import { MediaFile } from "@/features/media/types/media"
@@ -26,13 +27,19 @@ const MediaPreviewWrapper: React.FC<PreviewComponentProps<MediaFile>> = ({
   onToggleFavorite,
   onAddToTimeline,
 }) => {
+  // Используем DragDropManager для перетаскивания
+  const dragProps = useDraggable(
+    "media",
+    () => file,
+    () => ({
+      url: file.thumbnail || file.path,
+      width: 120,
+      height: 80,
+    }),
+  )
+
   return (
-    <div
-      onClick={() => onClick?.(file)}
-      onDragStart={(e) => onDragStart?.(file, e)}
-      draggable
-      className="cursor-pointer"
-    >
+    <div onClick={() => onClick?.(file)} {...dragProps} className="cursor-pointer">
       <MediaPreview
         file={file}
         size={typeof size === "number" ? size : size.width}

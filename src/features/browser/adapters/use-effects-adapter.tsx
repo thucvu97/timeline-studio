@@ -1,6 +1,7 @@
 import React from "react"
 
 import { useFavorites } from "@/features/app-state"
+import { useDraggable } from "@/features/drag-drop"
 import { EffectPreview } from "@/features/effects/components/effect-preview"
 import { useEffects } from "@/features/effects/hooks/use-effects"
 import { VideoEffect } from "@/features/effects/types"
@@ -21,9 +22,16 @@ const EffectPreviewWrapper: React.FC<PreviewComponentProps<VideoEffect>> = ({
     onClick?.(effect)
   }
 
-  const handleDragStart = (e: React.DragEvent) => {
-    onDragStart?.(effect, e)
-  }
+  // Используем DragDropManager для перетаскивания
+  const dragProps = useDraggable(
+    "effect",
+    () => effect,
+    () => ({
+      url: `/effects/${effect.type}.png`, // Preview URL if available
+      width: 120,
+      height: 80,
+    }),
+  )
 
   // Для эффектов EffectPreview ожидает другие пропсы
   const previewSize = typeof size === "number" ? size : size.width
@@ -35,8 +43,7 @@ const EffectPreviewWrapper: React.FC<PreviewComponentProps<VideoEffect>> = ({
       <div
         className="flex items-center gap-3 p-2 rounded-lg border cursor-pointer transition-colors hover:bg-accent/50"
         onClick={handleClick}
-        onDragStart={handleDragStart}
-        draggable
+        {...dragProps}
       >
         {/* Effect Preview */}
         <div className="flex-shrink-0">
@@ -66,8 +73,7 @@ const EffectPreviewWrapper: React.FC<PreviewComponentProps<VideoEffect>> = ({
       className="flex flex-col items-center p-3 rounded-lg border cursor-pointer transition-colors hover:bg-accent/50"
       style={{ width: previewWidth }}
       onClick={handleClick}
-      onDragStart={handleDragStart}
-      draggable
+      {...dragProps}
     >
       {/* Effect Preview */}
       <EffectPreview
