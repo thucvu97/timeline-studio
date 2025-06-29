@@ -8,7 +8,8 @@
 
 | Задача | Приоритет | Прогресс | Ответственный | Дедлайн |
 |--------|-----------|----------|---------------|---------|
-| [Fairlight Audio](./fairlight-audio.md) | 🔴 Высокий | 65% | Frontend Team | 15 июля 2025 |
+| [Timeline Full Integration](./timeline-full-integration.md) | 🔴 Высокий | 85% | Frontend Team | 30 июня 2025 |
+| [Fairlight Audio](./fairlight-audio.md) | 🔴 Высокий | 95% | Frontend Team | 15 июля 2025 |
 | [Advanced Timeline Features](./advanced-timeline-features.md) | 🟡 Средний | 10% | Frontend Team | 20 июля 2025 |
 
 ## Описание задач

@@ -63,11 +63,35 @@ jobs:
             libjavascriptcoregtk-4.1-dev \
             pkg-config \
             build-essential
+            
+      - name: Set Linux FFmpeg environment variables
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig" >> $GITHUB_ENV
+          echo "PKG_CONFIG_ALLOW_SYSTEM_LIBS=1" >> $GITHUB_ENV
+          echo "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS=1" >> $GITHUB_ENV
 
       - name: Install system dependencies (macOS)
         if: matrix.os == 'macos-latest'
         run: |
-          brew install ffmpeg pkg-config
+          brew install ffmpeg pkg-config onnxruntime
+          
+      - name: Set macOS environment variables
+        if: matrix.os == 'macos-latest'
+        run: |
+          echo "Setting up ONNX Runtime for macOS..."
+          # Check which path exists
+          if [ -f "/opt/homebrew/lib/libonnxruntime.dylib" ]; then
+            echo "Found ONNX Runtime at /opt/homebrew/lib/libonnxruntime.dylib (Apple Silicon)"
+            echo "ORT_DYLIB_PATH=/opt/homebrew/lib/libonnxruntime.dylib" >> $GITHUB_ENV
+          elif [ -f "/usr/local/lib/libonnxruntime.dylib" ]; then
+            echo "Found ONNX Runtime at /usr/local/lib/libonnxruntime.dylib (Intel Mac)"
+            echo "ORT_DYLIB_PATH=/usr/local/lib/libonnxruntime.dylib" >> $GITHUB_ENV
+          else
+            echo "Warning: ONNX Runtime library not found!"
+            find /opt/homebrew -name "libonnxruntime*.dylib" 2>/dev/null || echo "Not in /opt/homebrew"
+            find /usr/local -name "libonnxruntime*.dylib" 2>/dev/null || echo "Not in /usr/local"
+          fi
 
       - name: Install system dependencies (Windows)
         if: matrix.os == 'windows-latest'
