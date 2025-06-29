@@ -108,10 +108,15 @@ pub async fn create_batch_job(params: CreateBatchJobParams) -> Result<String, St
   {
     let mut jobs = BATCH_JOBS
       .lock()
-      .or_else(|poisoned| {
-        log::warn!("BATCH_JOBS mutex was poisoned, recovering data");
-        Ok(poisoned.into_inner())
-      })
+      .or_else(
+        |poisoned| -> Result<
+          std::sync::MutexGuard<HashMap<String, BatchJobInfo>>,
+          std::sync::PoisonError<std::sync::MutexGuard<HashMap<String, BatchJobInfo>>>,
+        > {
+          log::warn!("BATCH_JOBS mutex was poisoned, recovering data");
+          Ok(poisoned.into_inner())
+        },
+      )
       .map_err(|e| format!("Ошибка доступа к заданиям: {e}"))?;
     jobs.insert(job_id.clone(), job_info);
   }
@@ -131,10 +136,15 @@ pub async fn create_batch_job(params: CreateBatchJobParams) -> Result<String, St
 pub async fn get_batch_job_info(job_id: String) -> Result<BatchJobInfo, String> {
   let jobs = BATCH_JOBS
     .lock()
-    .or_else(|poisoned| {
-      log::warn!("BATCH_JOBS mutex was poisoned, recovering data");
-      Ok(poisoned.into_inner())
-    })
+    .or_else(
+      |poisoned| -> Result<
+        std::sync::MutexGuard<HashMap<String, BatchJobInfo>>,
+        std::sync::PoisonError<std::sync::MutexGuard<HashMap<String, BatchJobInfo>>>,
+      > {
+        log::warn!("BATCH_JOBS mutex was poisoned, recovering data");
+        Ok(poisoned.into_inner())
+      },
+    )
     .map_err(|e| format!("Ошибка доступа к заданиям: {e}"))?;
 
   jobs
@@ -148,10 +158,15 @@ pub async fn get_batch_job_info(job_id: String) -> Result<BatchJobInfo, String> 
 pub async fn cancel_batch_job(job_id: String) -> Result<bool, String> {
   let mut jobs = BATCH_JOBS
     .lock()
-    .or_else(|poisoned| {
-      log::warn!("BATCH_JOBS mutex was poisoned, recovering data");
-      Ok(poisoned.into_inner())
-    })
+    .or_else(
+      |poisoned| -> Result<
+        std::sync::MutexGuard<HashMap<String, BatchJobInfo>>,
+        std::sync::PoisonError<std::sync::MutexGuard<HashMap<String, BatchJobInfo>>>,
+      > {
+        log::warn!("BATCH_JOBS mutex was poisoned, recovering data");
+        Ok(poisoned.into_inner())
+      },
+    )
     .map_err(|e| format!("Ошибка доступа к заданиям: {e}"))?;
 
   if let Some(job_info) = jobs.get_mut(&job_id) {
@@ -176,10 +191,15 @@ pub async fn cancel_batch_job(job_id: String) -> Result<bool, String> {
 pub async fn list_batch_jobs(limit: Option<usize>) -> Result<Vec<BatchJobInfo>, String> {
   let jobs = BATCH_JOBS
     .lock()
-    .or_else(|poisoned| {
-      log::warn!("BATCH_JOBS mutex was poisoned, recovering data");
-      Ok(poisoned.into_inner())
-    })
+    .or_else(
+      |poisoned| -> Result<
+        std::sync::MutexGuard<HashMap<String, BatchJobInfo>>,
+        std::sync::PoisonError<std::sync::MutexGuard<HashMap<String, BatchJobInfo>>>,
+      > {
+        log::warn!("BATCH_JOBS mutex was poisoned, recovering data");
+        Ok(poisoned.into_inner())
+      },
+    )
     .map_err(|e| format!("Ошибка доступа к заданиям: {e}"))?;
 
   let mut job_list: Vec<BatchJobInfo> = jobs.values().cloned().collect();
@@ -197,10 +217,15 @@ pub async fn list_batch_jobs(limit: Option<usize>) -> Result<Vec<BatchJobInfo>, 
 pub async fn get_batch_processing_stats() -> Result<BatchProcessingStats, String> {
   let jobs = BATCH_JOBS
     .lock()
-    .or_else(|poisoned| {
-      log::warn!("BATCH_JOBS mutex was poisoned, recovering data");
-      Ok(poisoned.into_inner())
-    })
+    .or_else(
+      |poisoned| -> Result<
+        std::sync::MutexGuard<HashMap<String, BatchJobInfo>>,
+        std::sync::PoisonError<std::sync::MutexGuard<HashMap<String, BatchJobInfo>>>,
+      > {
+        log::warn!("BATCH_JOBS mutex was poisoned, recovering data");
+        Ok(poisoned.into_inner())
+      },
+    )
     .map_err(|e| format!("Ошибка доступа к заданиям: {e}"))?;
 
   let total_jobs = jobs.len();
@@ -257,10 +282,15 @@ pub async fn update_batch_clip_result(
 ) -> Result<(), String> {
   let mut jobs = BATCH_JOBS
     .lock()
-    .or_else(|poisoned| {
-      log::warn!("BATCH_JOBS mutex was poisoned, recovering data");
-      Ok(poisoned.into_inner())
-    })
+    .or_else(
+      |poisoned| -> Result<
+        std::sync::MutexGuard<HashMap<String, BatchJobInfo>>,
+        std::sync::PoisonError<std::sync::MutexGuard<HashMap<String, BatchJobInfo>>>,
+      > {
+        log::warn!("BATCH_JOBS mutex was poisoned, recovering data");
+        Ok(poisoned.into_inner())
+      },
+    )
     .map_err(|e| format!("Ошибка доступа к заданиям: {e}"))?;
 
   if let Some(job_info) = jobs.get_mut(&job_id) {
@@ -298,10 +328,15 @@ pub async fn update_batch_clip_result(
 pub async fn cleanup_batch_jobs(older_than_hours: Option<u64>) -> Result<usize, String> {
   let mut jobs = BATCH_JOBS
     .lock()
-    .or_else(|poisoned| {
-      log::warn!("BATCH_JOBS mutex was poisoned, recovering data");
-      Ok(poisoned.into_inner())
-    })
+    .or_else(
+      |poisoned| -> Result<
+        std::sync::MutexGuard<HashMap<String, BatchJobInfo>>,
+        std::sync::PoisonError<std::sync::MutexGuard<HashMap<String, BatchJobInfo>>>,
+      > {
+        log::warn!("BATCH_JOBS mutex was poisoned, recovering data");
+        Ok(poisoned.into_inner())
+      },
+    )
     .map_err(|e| format!("Ошибка доступа к заданиям: {e}"))?;
 
   let threshold_hours = older_than_hours.unwrap_or(24); // По умолчанию удаляем задания старше 24 часов
@@ -336,10 +371,15 @@ pub async fn cleanup_batch_jobs(older_than_hours: Option<u64>) -> Result<usize, 
 pub async fn set_batch_job_status(job_id: String, status: BatchJobStatus) -> Result<(), String> {
   let mut jobs = BATCH_JOBS
     .lock()
-    .or_else(|poisoned| {
-      log::warn!("BATCH_JOBS mutex was poisoned, recovering data");
-      Ok(poisoned.into_inner())
-    })
+    .or_else(
+      |poisoned| -> Result<
+        std::sync::MutexGuard<HashMap<String, BatchJobInfo>>,
+        std::sync::PoisonError<std::sync::MutexGuard<HashMap<String, BatchJobInfo>>>,
+      > {
+        log::warn!("BATCH_JOBS mutex was poisoned, recovering data");
+        Ok(poisoned.into_inner())
+      },
+    )
     .map_err(|e| format!("Ошибка доступа к заданиям: {e}"))?;
 
   if let Some(job_info) = jobs.get_mut(&job_id) {
