@@ -7,12 +7,10 @@
 [![npm version](https://img.shields.io/npm/v/timeline-studio.svg?style=flat-square)](https://www.npmjs.com/package/timeline-studio)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/chatman-media/timeline-studio/build.yml?style=flat-square&label=build)](https://github.com/chatman-media/timeline-studio/actions/workflows/build.yml)
 [![Tests](https://img.shields.io/github/actions/workflow/status/chatman-media/timeline-studio/test-and-coverage.yml?style=flat-square&label=tests)](https://github.com/chatman-media/timeline-studio/actions/workflows/test-and-coverage.yml)
-[![Frontend Coverage](https://img.shields.io/codecov/c/github/chatman-media/timeline-studio?style=flat-square&label=frontend&flag=frontend)](https://codecov.io/gh/chatman-media/timeline-studio)
-[![Backend Coverage](https://img.shields.io/codecov/c/github/chatman-media/timeline-studio?style=flat-square&label=backend&flag=rust)](https://codecov.io/gh/chatman-media/timeline-studio)
-[![GitHub commits](https://img.shields.io/github/commit-activity/m/chatman-media/timeline-studio?style=flat-square&label=commits)](https://github.com/chatman-media/timeline-studio/graphs/commit-activity)
-[![Last Commit](https://img.shields.io/github/last-commit/chatman-media/timeline-studio?style=flat-square&label=last%20commit)](https://github.com/chatman-media/timeline-studio/commits/main)
 [![GitHub stars](https://img.shields.io/github/stars/chatman-media/timeline-studio?style=flat-square)](https://github.com/chatman-media/timeline-studio/stargazers)
-[![npm downloads](https://img.shields.io/npm/dm/timeline-studio?style=flat-square&label=npm%20downloads)](https://www.npmjs.com/package/timeline-studio)
+[![Last Commit](https://img.shields.io/github/last-commit/chatman-media/timeline-studio?style=flat-square&label=last%20commit)](https://github.com/chatman-media/timeline-studio/commits/main)
+[![GitHub commits](https://img.shields.io/github/commit-activity/m/chatman-media/timeline-studio?style=flat-square&label=commits)](https://github.com/chatman-media/timeline-studio/graphs/commit-activity)
+[![npm downloads](https://img.shields.io/npm/dm/timeline-studio?style=flat-square&label=downloads)](https://www.npmjs.com/package/timeline-studio)
 [![Documentation](https://img.shields.io/badge/read-docs-blue?style=flat-square)](https://chatman-media.github.io/timeline-studio/api-docs/)
 [![Website](https://img.shields.io/badge/visit-website-brightgreen?style=flat-square&logo=globe&logoColor=white)](https://chatman-media.github.io/timeline-studio/)
 
@@ -20,6 +18,9 @@
 [![Discord](https://img.shields.io/badge/Chat-on%20Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/gwJUYxck)
 [![X](https://img.shields.io/badge/Follow-@chatman-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/chatman_media)
 [![YouTube](https://img.shields.io/badge/Subscribe-YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/@chatman-media)
+
+<!-- [![Frontend Coverage](https://img.shields.io/codecov/c/github/chatman-media/timeline-studio?style=flat-square&label=frontend&flag=frontend)](https://codecov.io/gh/chatman-media/timeline-studio)
+[![Backend Coverage](https://img.shields.io/codecov/c/github/chatman-media/timeline-studio?style=flat-square&label=backend&flag=rust)](https://codecov.io/gh/chatman-media/timeline-studio) -->
 
 </div>
 
