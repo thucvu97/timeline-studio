@@ -916,11 +916,11 @@ mod tests {
     if !metrics_text.is_empty() {
       // Если метрики экспортированы, проверяем что они содержат хотя бы какие-то данные
       assert!(
-        metrics_text.contains("pipeline_requests_total") 
-          || metrics_text.contains("# TYPE") 
+        metrics_text.contains("pipeline_requests_total")
+          || metrics_text.contains("# TYPE")
           || metrics_text.contains("# HELP")
           || metrics_text.lines().any(|line| line.contains("{")), // Prometheus labels
-        "Exported metrics should contain valid Prometheus format, got: {}", 
+        "Exported metrics should contain valid Prometheus format, got: {}",
         &metrics_text[..metrics_text.len().min(500)] // Show first 500 chars for debugging
       );
     }
