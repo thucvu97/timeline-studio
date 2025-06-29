@@ -473,7 +473,11 @@
       "fps": "fps",
       "kbps": "kbps",
       "sdr": "SDR - Rec.709",
-      "otherNetworks": "其他社交网络"
+      "otherNetworks": "其他社交网络",
+      "sections": {
+        "exportMode": "导出模式",
+        "exportModeDescription": "选择如何将项目分割成多个部分"
+      }
     },
     "keyboardShortcuts": {
       "title": "键盘快捷键",

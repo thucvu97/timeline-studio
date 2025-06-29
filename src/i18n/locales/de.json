@@ -534,7 +534,11 @@
       "fps": "FPS",
       "kbps": "kbps",
       "sdr": "SDR - Rec.709",
-      "otherNetworks": "Andere soziale Netzwerke"
+      "otherNetworks": "Andere soziale Netzwerke",
+      "sections": {
+        "exportMode": "Exportmodus",
+        "exportModeDescription": "Wählen Sie, wie Sie Ihr Projekt in Abschnitte unterteilen möchten"
+      }
     },
     "projectSettings": {
       "title": "Projekteinstellungen",
@@ -1483,8 +1487,6 @@
     "custom7_4": "7 Bildschirme: groß oben rechts",
     "split_3_1_right": "3 links + 1 rechts",
     "screens": {
-      "single": "{{count}} Bildschirm",
-      "multiple": "{{count}} Bildschirme",
       "2": "2 Bildschirme",
       "3": "3 Bildschirme",
       "4": "4 Bildschirme",
@@ -1493,7 +1495,9 @@
       "9": "9 Bildschirme",
       "12": "12 Bildschirme",
       "16": "16 Bildschirme",
-      "25": "25 Bildschirme"
+      "25": "25 Bildschirme",
+      "single": "{{count}} Bildschirm",
+      "multiple": "{{count}} Bildschirme"
     },
     "templateLabels": {
       "split-vertical-landscape": "2 Bildschirme vertikal",

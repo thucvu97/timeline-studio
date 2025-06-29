@@ -54,7 +54,7 @@ export function ModalContainer() {
       case "project-settings":
         return "h-[450px] w-[500px]"
       case "user-settings":
-        return "h-[650px] w-[500px]"
+        return "h-[700px] w-[600px]"
       case "keyboard-shortcuts":
         return "h-[max(600px,min(70vh,1000px))] w-[1200px]"
       case "cache-settings":

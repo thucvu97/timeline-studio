@@ -316,7 +316,11 @@
       "fps": "ips",
       "kbps": "kbps",
       "sdr": "SDR - Rec.709",
-      "otherNetworks": "Autres réseaux sociaux"
+      "otherNetworks": "Autres réseaux sociaux",
+      "sections": {
+        "exportMode": "Mode d'exportation",
+        "exportModeDescription": "Choisissez comment diviser votre projet en sections"
+      }
     },
     "projectSettings": {
       "title": "Paramètres du projet",

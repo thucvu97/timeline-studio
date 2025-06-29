@@ -473,7 +473,11 @@
       "fps": "fps",
       "kbps": "kbps",
       "sdr": "SDR - Rec.709",
-      "otherNetworks": "Diğer sosyal ağlar"
+      "otherNetworks": "Diğer sosyal ağlar",
+      "sections": {
+        "exportMode": "Dışa aktarma modu",
+        "exportModeDescription": "Projenizi bölümlere nasıl ayıracağınızı seçin"
+      }
     },
     "keyboardShortcuts": {
       "title": "Klavye Kısayolları",
@@ -1691,13 +1695,13 @@
       "autoKeyframes": "Otomatik Anahtar Kareler",
       "maxSpeed": "Maksimum Hız",
       "speeds": {
+        "1": "1x (Normal)",
+        "2": "2x (Çok hızlı)",
         "0_25": "0.25x (Çok yavaş)",
         "0_5": "0.5x (Yavaş)",
         "0_75": "0.75x (Biraz yavaş)",
-        "1": "1x (Normal)",
         "1_25": "1.25x (Biraz hızlı)",
         "1_5": "1.5x (Hızlı)",
-        "2": "2x (Çok hızlı)",
         "custom": "Özel"
       }
     },

@@ -513,7 +513,7 @@ export function AiChat() {
         <div className="flex flex-1 flex-col overflow-hidden">
           {/* Input area - positioned at top when no messages */}
           {chatMessages.length === 0 && (
-            <div className="border-b border-border p-4">
+            <div className="p-4">
               <div className="relative">
                 <textarea
                   ref={inputRef}

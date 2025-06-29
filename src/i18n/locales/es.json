@@ -475,7 +475,11 @@
       "fps": "fps",
       "kbps": "kbps",
       "sdr": "SDR - Rec.709",
-      "otherNetworks": "Otras redes sociales"
+      "otherNetworks": "Otras redes sociales",
+      "sections": {
+        "exportMode": "Modo de exportación",
+        "exportModeDescription": "Elija cómo dividir su proyecto en secciones"
+      }
     },
     "keyboardShortcuts": {
       "title": "Atajos de teclado",
@@ -1663,13 +1667,13 @@
         "high": "Alto"
       },
       "speeds": {
+        "1": "1x (Normal)",
+        "2": "2x (Muy rápido)",
         "0_25": "0.25x (Muy lento)",
         "0_5": "0.5x (Lento)",
         "0_75": "0.75x (Ligeramente lento)",
-        "1": "1x (Normal)",
         "1_25": "1.25x (Ligeramente rápido)",
         "1_5": "1.5x (Rápido)",
-        "2": "2x (Muy rápido)",
         "custom": "Personalizado"
       }
     },

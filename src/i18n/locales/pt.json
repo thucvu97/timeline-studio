@@ -656,7 +656,11 @@
       "fps": "fps",
       "kbps": "kbps",
       "sdr": "SDR - Rec.709",
-      "otherNetworks": "Outras redes sociais"
+      "otherNetworks": "Outras redes sociais",
+      "sections": {
+        "exportMode": "Modo de exportação",
+        "exportModeDescription": "Escolha como dividir seu projeto em seções"
+      }
     }
   },
   "language": {

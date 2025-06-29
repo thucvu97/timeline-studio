@@ -473,7 +473,11 @@
       "fps": "fps",
       "kbps": "kbps",
       "sdr": "SDR - Rec.709",
-      "otherNetworks": "その他のソーシャルネットワーク"
+      "otherNetworks": "その他のソーシャルネットワーク",
+      "sections": {
+        "exportMode": "エクスポートモード",
+        "exportModeDescription": "プロジェクトをセクションに分割する方法を選択"
+      }
     },
     "keyboardShortcuts": {
       "title": "キーボードショートカット",
