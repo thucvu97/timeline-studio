@@ -64,16 +64,12 @@ You upload your videos - AI finds story arcs, crises, resolutions, emotional pea
 
 ## 🏗️ Project Status
 
-**Overall readiness: 78.2%** (weighted progress considering module complexity)  
+**Overall readiness: 78.2%** 
 **🚀 Alpha version: 88.2% ready** 🎯
 
 ✅ **Completed**: 48 modules (100% ready) - 27 frontend + 21 backend (including Fairlight Audio)  
-🔄 **In progress**: 4 modules partially implemented - Plugins (70%), Scene Analyzer (30%), Script Generator (20%), Person ID (0%)  
+🔄 **In progress**: 3 modules partially implemented - Plugins (70%), Scene Analyzer (30%), Script Generator (20%)
 📋 **Planned**: 9 modules (0% ready) for future versions
-
-**Alpha includes**: Core professional tools + basic AI automation  
-**Remaining for Alpha**: Scene Analyzer (70%), Person ID (100%), Script Generator (80%), Smart Montage Planner (100%) = 21.9 weight units  
-**Excluded from Alpha**: Advanced Timeline Features, Plugin System WASM, Cloud Rendering, Telegram Mini App, Effects Library Extension, AI Multi-Platform Generator, Performance Optimization, Project Version Control
 
 [→ Detailed Roadmap](docs-ru/10-roadmap/README.md)
 
