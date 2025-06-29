@@ -98,7 +98,7 @@ export function ModalContainer() {
     <Dialog open={isOpen} onOpenChange={(open) => !open && closeModal()}>
       <DialogContent
         aria-describedby="modal"
-        className={`${dialogClass} bg-[#dfdfdf] dark:bg-[#1e1e1e] [&>button]:cursor-pointer px-4 py-2 flex flex-col`}
+        className={`${dialogClass} bg-[#dfdfdf] dark:bg-[#1e1e1e] [&>button]:cursor-pointer p-4 flex flex-col`}
       >
         <DialogHeader className="flex-shrink-0 h-[50px] flex items-center justify-center">
           <DialogTitle className="text-center">{getModalTitle()}</DialogTitle>
