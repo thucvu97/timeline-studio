@@ -73,8 +73,59 @@
   if: runner.os == 'Linux'
   run: |
     sudo apt-get update
-    sudo apt-get install -y ffmpeg libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libswscale-dev libswresample-dev pkg-config
+    sudo apt-get install -y \
+      ffmpeg \
+      libavcodec-dev \
+      libavformat-dev \
+      libavutil-dev \
+      libavfilter-dev \
+      libavdevice-dev \
+      libswscale-dev \
+      libswresample-dev \
+      pkg-config \
+      libgtk-3-dev \
+      libwebkit2gtk-4.1-dev \
+      build-essential \
+      libssl-dev \
+      libayatana-appindicator3-dev \
+      librsvg2-dev
+
+# ВАЖНО: Для корректной работы ffmpeg-sys-next необходимо установить переменные окружения
+- name: Настройка Rust с FFmpeg (Linux)
+  if: runner.os == 'Linux'
+  env:
+    PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig
+    PKG_CONFIG_ALLOW_SYSTEM_LIBS: 1
+    PKG_CONFIG_ALLOW_SYSTEM_CFLAGS: 1
+  run: |
+    cargo build
 ```
+
+### Проблема с pkg-config в Linux
+
+При сборке на Linux часто возникает ошибка:
+```
+The system library `libavutil` required by crate `ffmpeg-sys-next` was not found.
+```
+
+Это происходит из-за того, что pkg-config не может найти файлы `.pc` для библиотек FFmpeg. Решение:
+
+1. **Установите все переменные окружения для каждой команды Rust:**
+   ```yaml
+   env:
+     PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig
+     PKG_CONFIG_ALLOW_SYSTEM_LIBS: 1
+     PKG_CONFIG_ALLOW_SYSTEM_CFLAGS: 1
+   ```
+
+2. **Проверка установки FFmpeg:**
+   ```bash
+   # Найти файлы .pc
+   find /usr -name "libavutil.pc" 2>/dev/null
+   
+   # Проверить работу pkg-config
+   PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig pkg-config --libs --cflags libavutil
+   ```
 
 ## Полный пример GitHub Actions Workflow
 
@@ -112,7 +163,22 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
-        sudo apt-get install -y ffmpeg libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libswscale-dev libswresample-dev pkg-config
+        sudo apt-get install -y \
+          ffmpeg \
+          libavcodec-dev \
+          libavformat-dev \
+          libavutil-dev \
+          libavfilter-dev \
+          libavdevice-dev \
+          libswscale-dev \
+          libswresample-dev \
+          pkg-config \
+          libgtk-3-dev \
+          libwebkit2gtk-4.1-dev \
+          build-essential \
+          libssl-dev \
+          libayatana-appindicator3-dev \
+          librsvg2-dev
 
     - name: Установка FFmpeg (macOS)
       if: runner.os == 'macOS'
@@ -136,9 +202,26 @@ jobs:
     - name: Запуск тестов
       run: bun run test
 
+    - name: Запуск тестов Rust (Linux)
+      if: runner.os == 'Linux'
+      working-directory: src-tauri
+      env:
+        PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig
+        PKG_CONFIG_ALLOW_SYSTEM_LIBS: 1
+        PKG_CONFIG_ALLOW_SYSTEM_CFLAGS: 1
+      run: cargo test
+
+    - name: Запуск тестов Rust (не Linux)
+      if: runner.os != 'Linux'
+      working-directory: src-tauri
+      run: cargo test
+
     - name: Сборка приложения
       env:
         VCPKG_ROOT: ${{ runner.os == 'Windows' && 'C:\vcpkg' || '' }}
+        PKG_CONFIG_PATH: ${{ runner.os == 'Linux' && '/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig' || '' }}
+        PKG_CONFIG_ALLOW_SYSTEM_LIBS: ${{ runner.os == 'Linux' && '1' || '' }}
+        PKG_CONFIG_ALLOW_SYSTEM_CFLAGS: ${{ runner.os == 'Linux' && '1' || '' }}
       run: bun run tauri build
 ```
 
@@ -170,22 +253,33 @@ RUN bun install && bun run tauri build
 
 ## Устранение проблем CI
 
-### 1. "ffmpeg-sys-next build failed"
+### 1. "ffmpeg-sys-next build failed" на Linux
+- **Проблема**: pkg-config не может найти файлы `.pc` для FFmpeg
+- **Решение**: Установите переменные окружения для всех команд Rust:
+  ```yaml
+  env:
+    PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig
+    PKG_CONFIG_ALLOW_SYSTEM_LIBS: 1
+    PKG_CONFIG_ALLOW_SYSTEM_CFLAGS: 1
+  ```
+- **Проверка**: Выполните `pkg-config --libs --cflags libavutil` для диагностики
+
+### 2. "ffmpeg-sys-next build failed" на Windows
 - Убедитесь, что vcpkg правильно интегрирован
 - Проверьте, что переменные окружения установлены корректно
 - Убедитесь, что pkg-config в PATH
 
-### 2. "Could not find Vcpkg tree"
+### 3. "Could not find Vcpkg tree"
 - Установите переменную окружения VCPKG_ROOT
 - Выполните vcpkg integrate install
 - Перезапустите сборку
 
-### 3. "pkg-config command could not be found"
+### 4. "pkg-config command could not be found"
 - Установите pkgconfiglite на Windows
 - Добавьте pkg-config в PATH
 - Установите PKG_CONFIG_PATH для библиотек FFmpeg
 
-### 4. Таймаут сборки
+### 5. Таймаут сборки
 - Рассмотрите использование предсобранного FFmpeg вместо vcpkg
 - Кешируйте установку vcpkg между сборками
 - Используйте matrix стратегию для параллельных сборок

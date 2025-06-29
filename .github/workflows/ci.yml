@@ -86,12 +86,15 @@ jobs:
             libpango1.0-dev \
             libgdk-pixbuf2.0-dev
             
-      - name: Set Linux environment variables
+      - name: Verify FFmpeg installation
         if: runner.os == 'Linux'
         run: |
-          echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig" >> $GITHUB_ENV
-          echo "PKG_CONFIG_ALLOW_SYSTEM_LIBS=1" >> $GITHUB_ENV
-          echo "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS=1" >> $GITHUB_ENV
+          echo "Verifying FFmpeg installation..."
+          pkg-config --version
+          echo "Looking for libavutil.pc..."
+          find /usr -name "libavutil.pc" 2>/dev/null || echo "libavutil.pc not found"
+          echo "Testing pkg-config with libavutil..."
+          PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig pkg-config --libs --cflags libavutil || echo "pkg-config failed"
             
       # macOS dependencies  
       - name: Install macOS dependencies
@@ -161,11 +164,19 @@ jobs:
           
       - name: Run backend tests
         working-directory: src-tauri
+        env:
+          PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig
+          PKG_CONFIG_ALLOW_SYSTEM_LIBS: 1
+          PKG_CONFIG_ALLOW_SYSTEM_CFLAGS: 1
         run: |
           cargo test --lib -- --test-threads=1
           
       - name: Run clippy
         working-directory: src-tauri
+        env:
+          PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig
+          PKG_CONFIG_ALLOW_SYSTEM_LIBS: 1
+          PKG_CONFIG_ALLOW_SYSTEM_CFLAGS: 1
         run: cargo clippy --all-targets --all-features -- -D warnings
         
       - name: Check formatting
@@ -207,13 +218,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libswscale-dev libswresample-dev pkg-config libgtk-3-dev libwebkit2gtk-4.1-dev build-essential curl wget file libssl-dev libayatana-appindicator3-dev librsvg2-dev libglib2.0-dev libcairo2-dev libpango1.0-dev libgdk-pixbuf2.0-dev
-          
-      - name: Set Linux environment variables
-        if: runner.os == 'Linux'
-        run: |
-          echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig" >> $GITHUB_ENV
-          echo "PKG_CONFIG_ALLOW_SYSTEM_LIBS=1" >> $GITHUB_ENV
-          echo "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS=1" >> $GITHUB_ENV
           
       - name: Install macOS dependencies
         if: runner.os == 'macOS'
@@ -264,6 +268,10 @@ jobs:
         
       - name: Build Tauri application
         working-directory: src-tauri
+        env:
+          PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig
+          PKG_CONFIG_ALLOW_SYSTEM_LIBS: 1
+          PKG_CONFIG_ALLOW_SYSTEM_CFLAGS: 1
         run: cargo tauri build
         
       - name: Upload artifacts
