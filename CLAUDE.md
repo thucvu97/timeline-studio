@@ -48,6 +48,22 @@ Before working with this codebase, ensure you have the following dependencies in
   set -gx ORT_DYLIB_PATH /opt/homebrew/lib/libonnxruntime.dylib
   ```
 
+### macOS Development Setup
+
+For local development on macOS, you need to set FFmpeg environment variables:
+
+```bash
+# Option 1: Source the environment file before running
+source .env.macos
+bun run tauri dev
+
+# Option 2: Run the setup script
+source scripts/setup-ffmpeg-macos.sh
+bun run tauri dev
+```
+
+The `.env.macos` file contains all necessary FFmpeg and ONNX Runtime environment variables for macOS development.
+
 ### Platform-specific Tools
 - **macOS**: Xcode Command Line Tools
 - **Windows**: 
