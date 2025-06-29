@@ -91,7 +91,7 @@ export function SocialExportTab({
   // Функция для получения статуса валидации
   const getValidationStatus = () => {
     if (validation.valid) {
-      return validation.warnings?.length > 0 || validation.suggestions?.length > 0 ? "warning" : "success"
+      return (validation.warnings?.length ?? 0) > 0 || (validation.suggestions?.length ?? 0) > 0 ? "warning" : "success"
     }
     return "error"
   }
