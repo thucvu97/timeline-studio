@@ -88,7 +88,10 @@ mod real_data_tests {
     let duration = start.elapsed();
 
     println!("Metadata extraction took: {duration:?}");
-    assert!(duration.as_secs() < 5, "Metadata extraction took too long");
+    assert!(
+      duration.as_secs() < super::super::performance_limits::PerformanceLimits::METADATA_EXTRACTION_LIMIT,
+      "Metadata extraction took too long: {duration:?}"
+    );
 
     assert!(result.is_ok());
 
@@ -136,10 +139,10 @@ mod real_data_tests {
     // Очищаем после теста
     let _ = std::fs::remove_file(&output_path);
 
-    // Проверяем производительность - для 4K видео допускаем до 10 секунд
-    // (может быть медленнее на некоторых системах)
+    // Проверяем производительность - для 4K видео
+    // (может быть медленнее на некоторых системах, особенно на ноутбуках)
     assert!(
-      duration.as_secs() < 10,
+      duration.as_secs() < super::super::performance_limits::PerformanceLimits::THUMBNAIL_4K_LIMIT,
       "Thumbnail generation too slow for 4K video: {duration:?}"
     );
   }
@@ -281,7 +284,7 @@ mod real_data_tests {
     // Проверяем, что параллельная обработка быстрее последовательной
     // (приблизительная оценка)
     assert!(
-      duration.as_secs() < (files.len() as u64 * 2),
+      duration.as_secs() < (files.len() as u64 * super::super::performance_limits::PerformanceLimits::BATCH_PROCESSING_PER_FILE),
       "Parallel processing seems too slow"
     );
   }
@@ -409,7 +412,7 @@ mod real_data_tests {
 
     // Проверяем, что обработка не занимает слишком много времени
     assert!(
-      duration.as_secs() < 10,
+      duration.as_secs() < super::super::performance_limits::PerformanceLimits::LARGE_FILE_PROCESSING_LIMIT,
       "Processing large file took too long: {duration:?}"
     );
 
@@ -613,9 +616,9 @@ mod real_data_tests {
     assert!(result.is_ok(), "Failed to extract metadata from large file");
     println!("Metadata extraction for 256MB file took: {metadata_duration:?}");
 
-    // Для больших файлов допускаем до 5 секунд на извлечение метаданных
+    // Для больших файлов допускаем больше времени на извлечение метаданных
     assert!(
-      metadata_duration.as_secs() < 5,
+      metadata_duration.as_secs() < super::super::performance_limits::PerformanceLimits::METADATA_EXTRACTION_LIMIT,
       "Metadata extraction too slow for large file: {metadata_duration:?}"
     );
   }

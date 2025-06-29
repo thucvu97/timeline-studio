@@ -19,6 +19,10 @@ pub mod media_analyzer;
 pub mod metadata_extractor;
 pub mod thumbnail_generator;
 
+// Performance configuration for tests
+#[cfg(test)]
+pub mod performance_limits;
+
 // Реэкспортируем основные типы для удобства использования
 pub use processor::{MediaProcessor, ThumbnailOptions};
 
