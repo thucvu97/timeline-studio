@@ -118,6 +118,23 @@ jobs:
         run: |
           brew install ffmpeg onnxruntime
           
+      - name: Set macOS environment variables
+        if: runner.os == 'macOS'
+        run: |
+          echo "Setting up ONNX Runtime for macOS..."
+          # Check which path exists
+          if [ -f "/opt/homebrew/lib/libonnxruntime.dylib" ]; then
+            echo "Found ONNX Runtime at /opt/homebrew/lib/libonnxruntime.dylib (Apple Silicon)"
+            echo "ORT_DYLIB_PATH=/opt/homebrew/lib/libonnxruntime.dylib" >> $GITHUB_ENV
+          elif [ -f "/usr/local/lib/libonnxruntime.dylib" ]; then
+            echo "Found ONNX Runtime at /usr/local/lib/libonnxruntime.dylib (Intel Mac)"
+            echo "ORT_DYLIB_PATH=/usr/local/lib/libonnxruntime.dylib" >> $GITHUB_ENV
+          else
+            echo "Warning: ONNX Runtime library not found!"
+            find /opt/homebrew -name "libonnxruntime*.dylib" 2>/dev/null || echo "Not in /opt/homebrew"
+            find /usr/local -name "libonnxruntime*.dylib" 2>/dev/null || echo "Not in /usr/local"
+          fi
+          
       # Windows dependencies - optimized approach
       - name: Setup Windows dependencies
         if: runner.os == 'Windows'
@@ -257,6 +274,23 @@ jobs:
       - name: Install macOS dependencies
         if: runner.os == 'macOS'
         run: brew install ffmpeg onnxruntime
+        
+      - name: Set macOS environment variables
+        if: runner.os == 'macOS'  
+        run: |
+          echo "Setting up ONNX Runtime for macOS..."
+          # Check which path exists
+          if [ -f "/opt/homebrew/lib/libonnxruntime.dylib" ]; then
+            echo "Found ONNX Runtime at /opt/homebrew/lib/libonnxruntime.dylib (Apple Silicon)"
+            echo "ORT_DYLIB_PATH=/opt/homebrew/lib/libonnxruntime.dylib" >> $GITHUB_ENV
+          elif [ -f "/usr/local/lib/libonnxruntime.dylib" ]; then
+            echo "Found ONNX Runtime at /usr/local/lib/libonnxruntime.dylib (Intel Mac)"
+            echo "ORT_DYLIB_PATH=/usr/local/lib/libonnxruntime.dylib" >> $GITHUB_ENV
+          else
+            echo "Warning: ONNX Runtime library not found!"
+            find /opt/homebrew -name "libonnxruntime*.dylib" 2>/dev/null || echo "Not in /opt/homebrew"
+            find /usr/local -name "libonnxruntime*.dylib" 2>/dev/null || echo "Not in /usr/local"
+          fi
         
       - name: Setup Windows dependencies
         if: runner.os == 'Windows'
