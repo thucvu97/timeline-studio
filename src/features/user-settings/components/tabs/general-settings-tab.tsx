@@ -178,7 +178,7 @@ export function GeneralSettingsTab() {
 
       {/* Раздел производительности */}
       <div className="space-y-3">
-        <Label className="text-sm font-medium">{t("dialogs.userSettings.performance", "Производительность")}</Label>
+        <Label className="text-sm font-medium">{t("dialogs.userSettings.performance.title")}</Label>
         <div className="flex gap-2 flex-wrap">
           <Button
             variant="outline"
