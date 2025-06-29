@@ -44,8 +44,11 @@ jobs:
           echo "PKG_CONFIG_ALLOW_SYSTEM_LIBS=1" >> $GITHUB_ENV
           echo "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS=1" >> $GITHUB_ENV
           
-          # Run FFmpeg setup script
-          bash scripts/setup-ffmpeg-linux.sh
+          # Try main FFmpeg setup script
+          if ! bash scripts/setup-ffmpeg-linux.sh; then
+              echo "Main setup failed, trying pkg-config approach..."
+              bash scripts/setup-ffmpeg-pkg-config.sh
+          fi
           
       - name: Cache Rust dependencies
         uses: actions/cache@v4

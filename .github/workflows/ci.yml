@@ -101,7 +101,10 @@ jobs:
           echo "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS=1" >> $GITHUB_ENV
           
           # Run FFmpeg setup script
-          bash scripts/setup-ffmpeg-linux.sh
+          if ! bash scripts/setup-ffmpeg-linux.sh; then
+              echo "Main setup failed, trying pkg-config approach..."
+              bash scripts/setup-ffmpeg-pkg-config.sh
+          fi
             
       - name: Verify FFmpeg installation
         if: runner.os == 'Linux'
@@ -324,7 +327,10 @@ jobs:
           echo "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS=1" >> $GITHUB_ENV
           
           # Run FFmpeg setup script
-          bash scripts/setup-ffmpeg-linux.sh
+          if ! bash scripts/setup-ffmpeg-linux.sh; then
+              echo "Main setup failed, trying pkg-config approach..."
+              bash scripts/setup-ffmpeg-pkg-config.sh
+          fi
           
       - name: Install macOS dependencies
         if: runner.os == 'macOS'
