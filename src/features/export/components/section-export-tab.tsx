@@ -313,7 +313,7 @@ export function SectionExportTab({ defaultSettings, onExport, onPreviewSection }
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>{t("export.sections.sections")}</CardTitle>
+                <CardTitle>{t("export.sections.sectionsTitle")}</CardTitle>
                 <CardDescription>
                   {t("export.sections.selectedCount", { selected: selectedCount, total: sections.length })}
                 </CardDescription>

@@ -193,7 +193,7 @@ export function SocialExportTab({
   return (
     <div className="space-y-6" data-testid="social-export-tab">
       {/* Выбор социальной сети */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {SOCIAL_NETWORKS.map((network) => {
           const isLoggedIn = loginStates[network.id] || false
           const isSelected = selectedNetwork === network.id
