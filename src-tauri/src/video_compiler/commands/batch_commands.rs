@@ -80,6 +80,8 @@ pub struct CreateBatchJobParams {
 use once_cell::sync::Lazy;
 use std::sync::Mutex;
 
+// Note: This global static mutex can cause issues during test execution
+// TODO: Replace with Tauri state management for better test isolation
 static BATCH_JOBS: Lazy<Mutex<HashMap<String, BatchJobInfo>>> =
   Lazy::new(|| Mutex::new(HashMap::new()));
 
@@ -106,6 +108,10 @@ pub async fn create_batch_job(params: CreateBatchJobParams) -> Result<String, St
   {
     let mut jobs = BATCH_JOBS
       .lock()
+      .or_else(|poisoned| {
+        log::warn!("BATCH_JOBS mutex was poisoned, recovering data");
+        Ok(poisoned.into_inner())
+      })
       .map_err(|e| format!("Ошибка доступа к заданиям: {e}"))?;
     jobs.insert(job_id.clone(), job_info);
   }
@@ -125,6 +131,10 @@ pub async fn create_batch_job(params: CreateBatchJobParams) -> Result<String, St
 pub async fn get_batch_job_info(job_id: String) -> Result<BatchJobInfo, String> {
   let jobs = BATCH_JOBS
     .lock()
+    .or_else(|poisoned| {
+      log::warn!("BATCH_JOBS mutex was poisoned, recovering data");
+      Ok(poisoned.into_inner())
+    })
     .map_err(|e| format!("Ошибка доступа к заданиям: {e}"))?;
 
   jobs
@@ -138,6 +148,10 @@ pub async fn get_batch_job_info(job_id: String) -> Result<BatchJobInfo, String> 
 pub async fn cancel_batch_job(job_id: String) -> Result<bool, String> {
   let mut jobs = BATCH_JOBS
     .lock()
+    .or_else(|poisoned| {
+      log::warn!("BATCH_JOBS mutex was poisoned, recovering data");
+      Ok(poisoned.into_inner())
+    })
     .map_err(|e| format!("Ошибка доступа к заданиям: {e}"))?;
 
   if let Some(job_info) = jobs.get_mut(&job_id) {
@@ -162,6 +176,10 @@ pub async fn cancel_batch_job(job_id: String) -> Result<bool, String> {
 pub async fn list_batch_jobs(limit: Option<usize>) -> Result<Vec<BatchJobInfo>, String> {
   let jobs = BATCH_JOBS
     .lock()
+    .or_else(|poisoned| {
+      log::warn!("BATCH_JOBS mutex was poisoned, recovering data");
+      Ok(poisoned.into_inner())
+    })
     .map_err(|e| format!("Ошибка доступа к заданиям: {e}"))?;
 
   let mut job_list: Vec<BatchJobInfo> = jobs.values().cloned().collect();
@@ -179,6 +197,10 @@ pub async fn list_batch_jobs(limit: Option<usize>) -> Result<Vec<BatchJobInfo>, 
 pub async fn get_batch_processing_stats() -> Result<BatchProcessingStats, String> {
   let jobs = BATCH_JOBS
     .lock()
+    .or_else(|poisoned| {
+      log::warn!("BATCH_JOBS mutex was poisoned, recovering data");
+      Ok(poisoned.into_inner())
+    })
     .map_err(|e| format!("Ошибка доступа к заданиям: {e}"))?;
 
   let total_jobs = jobs.len();
@@ -235,6 +257,10 @@ pub async fn update_batch_clip_result(
 ) -> Result<(), String> {
   let mut jobs = BATCH_JOBS
     .lock()
+    .or_else(|poisoned| {
+      log::warn!("BATCH_JOBS mutex was poisoned, recovering data");
+      Ok(poisoned.into_inner())
+    })
     .map_err(|e| format!("Ошибка доступа к заданиям: {e}"))?;
 
   if let Some(job_info) = jobs.get_mut(&job_id) {
@@ -272,6 +298,10 @@ pub async fn update_batch_clip_result(
 pub async fn cleanup_batch_jobs(older_than_hours: Option<u64>) -> Result<usize, String> {
   let mut jobs = BATCH_JOBS
     .lock()
+    .or_else(|poisoned| {
+      log::warn!("BATCH_JOBS mutex was poisoned, recovering data");
+      Ok(poisoned.into_inner())
+    })
     .map_err(|e| format!("Ошибка доступа к заданиям: {e}"))?;
 
   let threshold_hours = older_than_hours.unwrap_or(24); // По умолчанию удаляем задания старше 24 часов
@@ -306,6 +336,10 @@ pub async fn cleanup_batch_jobs(older_than_hours: Option<u64>) -> Result<usize, 
 pub async fn set_batch_job_status(job_id: String, status: BatchJobStatus) -> Result<(), String> {
   let mut jobs = BATCH_JOBS
     .lock()
+    .or_else(|poisoned| {
+      log::warn!("BATCH_JOBS mutex was poisoned, recovering data");
+      Ok(poisoned.into_inner())
+    })
     .map_err(|e| format!("Ошибка доступа к заданиям: {e}"))?;
 
   if let Some(job_info) = jobs.get_mut(&job_id) {
@@ -331,8 +365,27 @@ mod tests {
 
   /// Помощник для очистки состояния между тестами
   fn cleanup_jobs() {
-    if let Ok(mut jobs) = BATCH_JOBS.lock() {
-      jobs.clear();
+    // Use timeout to avoid blocking indefinitely if mutex is in bad state
+    let timeout = std::time::Duration::from_millis(100);
+    
+    // Try to clean up, but don't panic if mutex is poisoned or inaccessible
+    if let Ok(result) = std::panic::catch_unwind(|| {
+      if let Ok(mut jobs) = BATCH_JOBS.try_lock() {
+        jobs.clear();
+        true
+      } else {
+        // Mutex is locked or poisoned, skip cleanup
+        eprintln!("Warning: Could not acquire BATCH_JOBS lock for cleanup");
+        false
+      }
+    }) {
+      if !result {
+        // If we couldn't clean up, wait a bit and continue
+        std::thread::sleep(std::time::Duration::from_millis(10));
+      }
+    } else {
+      // Panic occurred during cleanup, continue anyway
+      eprintln!("Warning: Panic occurred during batch jobs cleanup");
     }
   }
 

@@ -325,8 +325,21 @@ jobs:
       - name: Run backend tests (macOS)
         if: runner.os == 'macOS'
         working-directory: src-tauri
+        timeout-minutes: 15
         run: |
-          cargo test --lib -- --test-threads=1
+          # Set environment variables to help with macOS mutex issues
+          export RUST_TEST_THREADS=1
+          export RUST_TEST_TIME_UNIT=60000
+          export RUST_TEST_TIME_INTEGRATION=60000
+          export RUST_BACKTRACE=1
+          
+          # Run tests with additional flags for stability on macOS
+          # Use timeout to prevent hanging on mutex issues
+          timeout 900 cargo test --lib -- --test-threads=1 --nocapture || {
+            echo "Tests timed out or failed, checking for hanging processes..."
+            ps aux | grep -E "(cargo|rust)" || true
+            exit 1
+          }
           
       - name: Run backend tests (Windows)
         if: runner.os == 'Windows'

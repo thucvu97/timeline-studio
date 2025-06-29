@@ -52,14 +52,15 @@ fn register_cleanup() {
 
 /// Cleanup function called before process exit
 fn cleanup_before_exit() {
-    // Signal all components to shutdown
+    // Signal all components to shutdown safely
     if let Ok(path) = std::env::current_exe() {
         if path.to_string_lossy().contains("test") {
-            // We're in a test binary, initiate shutdown
-            timeline_studio_lib::language::initiate_shutdown();
+            // We're in a test binary, perform safe cleanup
+            // Note: Avoid calling shutdown functions that may not exist
+            // or cause mutex issues during test cleanup
             
-            // Give time for threads to see shutdown flag
-            std::thread::sleep(std::time::Duration::from_millis(50));
+            // Give time for any pending operations to complete
+            std::thread::sleep(std::time::Duration::from_millis(10));
         }
     }
 }
