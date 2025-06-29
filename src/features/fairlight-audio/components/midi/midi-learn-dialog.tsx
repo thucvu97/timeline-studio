@@ -149,7 +149,9 @@ export function MidiLearnDialog({ open, onClose, devices, onComplete }: MidiLear
                 <>
                   <Music className="w-8 h-8 mx-auto text-zinc-600" />
                   <p className="text-sm text-zinc-400">Ready to learn</p>
-                  <p className="text-xs text-zinc-500">Select device and parameter, then click &quot;Start Listening&quot;</p>
+                  <p className="text-xs text-zinc-500">
+                    Select device and parameter, then click &quot;Start Listening&quot;
+                  </p>
                 </>
               )}
             </div>

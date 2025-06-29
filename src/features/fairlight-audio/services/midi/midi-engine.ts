@@ -5,6 +5,10 @@
 
 import { EventEmitter } from "events"
 
+import { MidiClock } from "./midi-clock"
+import { MidiFile } from "./midi-file"
+import { MidiSequencer } from "./midi-sequencer"
+
 export interface MidiDevice {
   id: string
   name: string
@@ -46,6 +50,39 @@ export class MidiEngine extends EventEmitter {
   private isInitialized = false
   private learningMode = false
   private learningCallback: ((message: MidiMessage) => void) | null = null
+
+  // Дополнительные компоненты
+  public readonly clock: MidiClock
+  public readonly sequencer: MidiSequencer
+
+  constructor() {
+    super()
+
+    // Инициализируем компоненты
+    this.clock = new MidiClock()
+    this.sequencer = new MidiSequencer(this.clock)
+
+    // Подключаем обработчики
+    this.setupComponentHandlers()
+  }
+
+  private setupComponentHandlers(): void {
+    // Передаем MIDI out сообщения от clock
+    this.clock.on("midiOut", (data) => {
+      if (data.message) {
+        this.sendMessageToAll(data.message)
+      }
+    })
+
+    // Передаем MIDI out сообщения от sequencer
+    this.sequencer.on("midiOut", (data) => {
+      if (data.deviceId && data.message) {
+        void this.sendMessage(data.deviceId, data.message)
+      } else if (data.message) {
+        this.sendMessageToAll(data.message)
+      }
+    })
+  }
 
   async initialize(): Promise<void> {
     if (this.isInitialized) return
@@ -112,7 +149,7 @@ export class MidiEngine extends EventEmitter {
   private handleStateChange(event: MIDIConnectionEvent): void {
     const port = event.port
     if (!port) return // Guard against null port
-    
+
     const deviceId = port.id || ""
 
     if (port.type === "input" && port.state === "connected") {
@@ -209,6 +246,17 @@ export class MidiEngine extends EventEmitter {
     // Emit raw message event
     this.emit("midiMessage", { deviceId, message })
 
+    // Передаем в clock для синхронизации
+    const midiData = this.messageToMidiData(message)
+    if (midiData.length > 0) {
+      this.clock.handleMidiMessage(midiData)
+    }
+
+    // Записываем в sequencer если идет запись
+    if (this.sequencer.getState().isRecording) {
+      this.sequencer.recordMidiMessage(message)
+    }
+
     // Handle learning mode
     if (this.learningMode && this.learningCallback) {
       this.learningCallback(message)
@@ -234,6 +282,29 @@ export class MidiEngine extends EventEmitter {
       if (matches) {
         this.applyMapping(mapping, message)
       }
+    }
+  }
+
+  private messageToMidiData(message: MidiMessage): number[] {
+    const channel = (message.channel - 1) & 0x0f
+
+    switch (message.type) {
+      case "noteon":
+        return [0x90 | channel, message.data.note || 60, message.data.velocity || 64]
+      case "noteoff":
+        return [0x80 | channel, message.data.note || 60, message.data.velocity || 0]
+      case "cc":
+        return [0xb0 | channel, message.data.controller || 0, message.data.value || 0]
+      case "pitchbend": {
+        const value = message.data.value || 8192
+        return [0xe0 | channel, value & 0x7f, (value >> 7) & 0x7f]
+      }
+      case "programchange":
+        return [0xc0 | channel, message.data.program || 0]
+      case "aftertouch":
+        return [0xd0 | channel, message.data.value || 0]
+      default:
+        return []
     }
   }
 
@@ -355,8 +426,52 @@ export class MidiEngine extends EventEmitter {
     output.send(message)
   }
 
+  // Send MIDI message to all outputs
+  private sendMessageToAll(message: number[]): void {
+    if (!this.midiAccess) return
+
+    for (const output of this.midiAccess.outputs.values()) {
+      try {
+        output.send(message)
+      } catch (error) {
+        console.error("Failed to send MIDI message to output:", error)
+      }
+    }
+  }
+
+  // MIDI файлы
+  async importMidiFile(buffer: ArrayBuffer): Promise<string[]> {
+    const midiFile = new MidiFile()
+    await midiFile.parse(buffer)
+
+    const tracks = midiFile.toSequencerTracks()
+    const trackIds: string[] = []
+
+    for (const track of tracks) {
+      const id = this.sequencer.createTrack(track.name, track.channel)
+      const sequencerTrack = this.sequencer.getTrack(id)
+
+      if (sequencerTrack) {
+        // Копируем события
+        sequencerTrack.events = track.events
+        trackIds.push(id)
+      }
+    }
+
+    return trackIds
+  }
+
+  exportMidiFile(): ArrayBuffer {
+    const tracks = this.sequencer.getTracks()
+    return MidiFile.fromSequencerTracks(tracks)
+  }
+
   // Cleanup
   dispose(): void {
+    // Останавливаем компоненты
+    this.clock.dispose()
+    this.sequencer.dispose()
+
     // Remove all input handlers
     for (const [deviceId] of this.inputHandlers) {
       const input = this.midiAccess?.inputs.get(deviceId)
