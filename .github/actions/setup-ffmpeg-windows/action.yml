@@ -1,0 +1,112 @@
+name: 'Setup FFmpeg for Windows'
+description: 'Install and configure FFmpeg development environment for Windows builds'
+inputs:
+  use-cache:
+    description: 'Whether to use cached FFmpeg installation'
+    required: false
+    default: 'true'
+outputs:
+  ffmpeg-dir:
+    description: 'FFmpeg installation directory'
+    value: ${{ steps.setup.outputs.ffmpeg-dir }}
+  libclang-path:
+    description: 'LLVM/Clang installation path'
+    value: ${{ steps.setup.outputs.libclang-path }}
+
+runs:
+  using: composite
+  steps:
+    - name: Cache FFmpeg
+      if: inputs.use-cache == 'true'
+      uses: actions/cache@v4
+      id: cache-ffmpeg
+      with:
+        path: C:\ffmpeg
+        key: windows-ffmpeg-prebuilt-v2
+
+    - name: Install dependencies
+      shell: powershell
+      run: |
+        choco install pkgconfiglite -y --no-progress
+        choco install llvm -y --no-progress
+
+    - name: Setup prebuilt FFmpeg
+      if: steps.cache-ffmpeg.outputs.cache-hit != 'true'
+      shell: powershell
+      timeout-minutes: 10
+      run: |
+        Write-Host "Setting up prebuilt FFmpeg..."
+        
+        try {
+          $ffmpegUrl = "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip"
+          Write-Host "Downloading FFmpeg from GitHub releases..."
+          Invoke-WebRequest -Uri $ffmpegUrl -OutFile "ffmpeg.zip" -TimeoutSec 300
+          
+          Expand-Archive -Path "ffmpeg.zip" -DestinationPath "C:\" -Force
+          $ffmpegExtracted = Get-ChildItem "C:\ffmpeg-*" | Select-Object -First 1
+          if ($ffmpegExtracted) {
+            Rename-Item $ffmpegExtracted.FullName "C:\ffmpeg" -Force
+            Write-Host "✅ FFmpeg setup successful"
+          }
+        }
+        catch {
+          Write-Host "GitHub method failed, trying Gyan.dev..."
+          $ffmpegUrl = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full-shared.7z"
+          Invoke-WebRequest -Uri $ffmpegUrl -OutFile "ffmpeg.7z" -TimeoutSec 600
+          7z x ffmpeg.7z -o"C:\" -y
+          $ffmpegDir = Get-ChildItem "C:\ffmpeg-*" | Select-Object -First 1
+          if ($ffmpegDir) {
+            Rename-Item $ffmpegDir.FullName "C:\ffmpeg" -Force
+            Write-Host "✅ FFmpeg setup successful"
+          }
+        }
+
+    - name: Configure environment
+      id: setup
+      shell: powershell
+      run: |
+        # Basic FFmpeg paths
+        echo "FFMPEG_DIR=C:\ffmpeg" >> $env:GITHUB_ENV
+        echo "PKG_CONFIG_PATH=C:\ffmpeg\lib\pkgconfig" >> $env:GITHUB_ENV
+        echo "C:\ffmpeg\bin" >> $env:GITHUB_PATH
+        
+        # Configure ffmpeg-sys-next crate
+        echo "FFMPEG_INCLUDE_DIR=C:\ffmpeg\include" >> $env:GITHUB_ENV
+        echo "FFMPEG_LIB_DIR=C:\ffmpeg\lib" >> $env:GITHUB_ENV
+        echo "FFMPEG_LINK_TYPE=dynamic" >> $env:GITHUB_ENV
+        echo "FFMPEG_NO_PKG_CONFIG=1" >> $env:GITHUB_ENV
+        echo "BINDGEN_EXTRA_CLANG_ARGS=-IC:\ffmpeg\include" >> $env:GITHUB_ENV
+        
+        # Find LLVM/Clang installation
+        $llvmPaths = @(
+          "C:\Program Files\LLVM\bin",
+          "C:\Program Files (x86)\LLVM\bin", 
+          "C:\LLVM\bin",
+          "C:\tools\LLVM\bin"
+        )
+        
+        $foundLLVM = $false
+        foreach ($path in $llvmPaths) {
+          if (Test-Path "$path\clang.exe") {
+            echo "LIBCLANG_PATH=$path" >> $env:GITHUB_ENV
+            echo "libclang-path=$path" >> $env:GITHUB_OUTPUT
+            Write-Host "✅ Found LLVM at: $path"
+            $foundLLVM = $true
+            break
+          }
+        }
+        
+        if (-not $foundLLVM) {
+          Write-Host "⚠️ LLVM not found in standard locations"
+        }
+        
+        # Set outputs
+        echo "ffmpeg-dir=C:\ffmpeg" >> $env:GITHUB_OUTPUT
+        
+        # Verify installation
+        if (Test-Path "C:\ffmpeg\bin\ffmpeg.exe") {
+          Write-Host "✅ FFmpeg installation verified"
+        } else {
+          Write-Host "❌ FFmpeg installation failed"
+          exit 1
+        }

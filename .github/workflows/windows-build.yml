@@ -29,8 +29,9 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             src-tauri/target
-          key: windows-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: windows-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('src-tauri/build.rs') }}
           restore-keys: |
+            windows-cargo-${{ hashFiles('**/Cargo.lock') }}-
             windows-cargo-
             
       - name: Cache FFmpeg
@@ -38,7 +39,16 @@ jobs:
         id: cache-ffmpeg
         with:
           path: C:\ffmpeg
-          key: windows-ffmpeg-prebuilt-v1
+          key: windows-ffmpeg-prebuilt-v2
+          
+      - name: Cache LLVM
+        uses: actions/cache@v4
+        id: cache-llvm
+        with:
+          path: |
+            C:\Program Files\LLVM
+            C:\tools\LLVM
+          key: windows-llvm-${{ runner.os }}-v1
           
       - name: Setup prebuilt FFmpeg (fast method)
         if: steps.cache-ffmpeg.outputs.cache-hit != 'true'
@@ -100,10 +110,12 @@ jobs:
             }
           }
           
-      - name: Install pkg-config
+      - name: Install pkg-config and LLVM
+        if: steps.cache-llvm.outputs.cache-hit != 'true'
         shell: powershell
         run: |
           choco install pkgconfiglite -y --no-progress
+          choco install llvm -y --no-progress
           
       - name: Set FFmpeg environment variables
         shell: powershell
@@ -124,8 +136,42 @@ jobs:
           # Force Windows-style paths for bindgen
           echo "BINDGEN_EXTRA_CLANG_ARGS=-IC:/ffmpeg/include" >> $env:GITHUB_ENV
           
-          # Additional fix for ffmpeg-sys-next looking for Unix paths
-          echo "LIBCLANG_PATH=C:\Program Files\LLVM\bin" >> $env:GITHUB_ENV
+          # Dynamically find LLVM/Clang installation path
+          $llvmPaths = @(
+            "C:\Program Files\LLVM\bin",
+            "C:\Program Files (x86)\LLVM\bin", 
+            "C:\LLVM\bin",
+            "C:\tools\LLVM\bin"
+          )
+          
+          $foundLLVM = $false
+          foreach ($path in $llvmPaths) {
+            if (Test-Path "$path\clang.exe") {
+              echo "LIBCLANG_PATH=$path" >> $env:GITHUB_ENV
+              Write-Host "✅ Found LLVM at: $path"
+              $foundLLVM = $true
+              break
+            }
+          }
+          
+          if (-not $foundLLVM) {
+            Write-Host "⚠️ LLVM not found in standard locations, trying to install..."
+            try {
+              choco install llvm -y --no-progress
+              # Check again after installation
+              foreach ($path in $llvmPaths) {
+                if (Test-Path "$path\clang.exe") {
+                  echo "LIBCLANG_PATH=$path" >> $env:GITHUB_ENV
+                  Write-Host "✅ Found LLVM after installation at: $path"
+                  $foundLLVM = $true
+                  break
+                }
+              }
+            }
+            catch {
+              Write-Host "❌ Failed to install LLVM via Chocolatey"
+            }
+          }
           echo "FFMPEG_PKG_CONFIG_PATH=C:\ffmpeg\lib\pkgconfig" >> $env:GITHUB_ENV
           
           # Verify FFmpeg installation

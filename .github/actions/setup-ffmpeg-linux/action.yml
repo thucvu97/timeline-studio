@@ -1,0 +1,81 @@
+name: 'Setup FFmpeg for Linux'
+description: 'Install and configure FFmpeg development environment for Linux builds'
+inputs:
+  install-packages:
+    description: 'Whether to install FFmpeg packages via apt'
+    required: false
+    default: 'true'
+outputs:
+  ffmpeg-include-dir:
+    description: 'FFmpeg include directory path'
+    value: ${{ steps.setup.outputs.ffmpeg-include-dir }}
+  libclang-path:
+    description: 'libclang library path'  
+    value: ${{ steps.setup.outputs.libclang-path }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install FFmpeg packages
+      if: inputs.install-packages == 'true'
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          ffmpeg \
+          libavcodec-dev \
+          libavformat-dev \
+          libavutil-dev \
+          libavfilter-dev \
+          libavdevice-dev \
+          libswscale-dev \
+          libswresample-dev \
+          pkg-config \
+          clang \
+          libclang-dev
+
+    - name: Setup FFmpeg environment
+      id: setup
+      shell: bash
+      run: |
+        # Set comprehensive PKG_CONFIG_PATH
+        echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig:/usr/local/lib/pkgconfig" >> $GITHUB_ENV
+        echo "PKG_CONFIG_ALLOW_SYSTEM_LIBS=1" >> $GITHUB_ENV
+        echo "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS=1" >> $GITHUB_ENV
+        
+        # Dynamically find libclang path
+        LIBCLANG_PATH=""
+        for llvm_version in 16 15 14 13 12; do
+          if [ -d "/usr/lib/llvm-${llvm_version}/lib" ] && [ -f "/usr/lib/llvm-${llvm_version}/lib/libclang.so" ]; then
+            LIBCLANG_PATH="/usr/lib/llvm-${llvm_version}/lib"
+            echo "Found libclang at LLVM version ${llvm_version}: $LIBCLANG_PATH"
+            break
+          fi
+        done
+        
+        # Fallback to system lib directories
+        if [ -z "$LIBCLANG_PATH" ]; then
+          for lib_path in "/usr/lib/x86_64-linux-gnu" "/usr/lib" "/lib/x86_64-linux-gnu"; do
+            if [ -f "${lib_path}/libclang.so" ] || [ -f "${lib_path}/libclang.so.1" ]; then
+              LIBCLANG_PATH="$lib_path"
+              echo "Found libclang at system path: $LIBCLANG_PATH"
+              break
+            fi
+          done
+        fi
+        
+        if [ -n "$LIBCLANG_PATH" ]; then
+          echo "LIBCLANG_PATH=$LIBCLANG_PATH" >> $GITHUB_ENV
+          echo "libclang-path=$LIBCLANG_PATH" >> $GITHUB_OUTPUT
+        else
+          echo "ERROR: libclang not found"
+          exit 1
+        fi
+        
+        # Run FFmpeg setup script
+        if [ -f "scripts/setup-ffmpeg-linux.sh" ]; then
+          bash scripts/setup-ffmpeg-linux.sh
+        fi
+        
+        # Set output
+        echo "ffmpeg-include-dir=${FFMPEG_INCLUDE_DIR:-/usr/include}" >> $GITHUB_OUTPUT

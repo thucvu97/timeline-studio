@@ -571,4 +571,391 @@ mod tests {
     assert!(result.is_err());
     assert!(result.unwrap_err().to_string().contains("permission"));
   }
+
+  #[tokio::test]
+  async fn test_info_dialog() {
+    let service_container = Arc::new(ServiceContainer::new());
+    let permissions = Arc::new(SecurityLevel::Full.permissions());
+    let app_handle = create_mock_app_handle();
+
+    let bridge = UIBridge::new(
+      service_container,
+      permissions,
+      "test-plugin".to_string(),
+      app_handle,
+    );
+
+    // Тест с полными параметрами
+    let options = serde_json::json!({
+      "title": "Test Info",
+      "message": "This is a test info dialog"
+    });
+
+    let result = bridge.show_dialog("info", options).await;
+    assert!(result.is_ok());
+
+    let response = result.unwrap();
+    assert_eq!(response["result"], "ok");
+    assert_eq!(response["action"], "dismissed");
+
+    // Тест с пустыми параметрами (проверяем дефолтные значения)
+    let result = bridge.show_dialog("info", serde_json::json!({})).await;
+    assert!(result.is_ok());
+  }
+
+  #[tokio::test]
+  async fn test_warning_dialog() {
+    let service_container = Arc::new(ServiceContainer::new());
+    let permissions = Arc::new(SecurityLevel::Full.permissions());
+    let app_handle = create_mock_app_handle();
+
+    let bridge = UIBridge::new(
+      service_container,
+      permissions,
+      "test-plugin".to_string(),
+      app_handle,
+    );
+
+    let options = serde_json::json!({
+      "title": "Test Warning",
+      "message": "This is a warning message"
+    });
+
+    let result = bridge.show_dialog("warning", options).await;
+    assert!(result.is_ok());
+
+    let response = result.unwrap();
+    assert_eq!(response["result"], "ok");
+    assert_eq!(response["action"], "dismissed");
+  }
+
+  #[tokio::test]
+  async fn test_error_dialog() {
+    let service_container = Arc::new(ServiceContainer::new());
+    let permissions = Arc::new(SecurityLevel::Full.permissions());
+    let app_handle = create_mock_app_handle();
+
+    let bridge = UIBridge::new(
+      service_container,
+      permissions,
+      "test-plugin".to_string(),
+      app_handle,
+    );
+
+    let options = serde_json::json!({
+      "title": "Test Error",
+      "message": "This is an error message"
+    });
+
+    let result = bridge.show_dialog("error", options).await;
+    assert!(result.is_ok());
+
+    let response = result.unwrap();
+    assert_eq!(response["result"], "ok");
+    assert_eq!(response["action"], "dismissed");
+  }
+
+  #[tokio::test]
+  async fn test_confirm_dialog() {
+    let service_container = Arc::new(ServiceContainer::new());
+    let permissions = Arc::new(SecurityLevel::Full.permissions());
+    let app_handle = create_mock_app_handle();
+
+    let bridge = UIBridge::new(
+      service_container,
+      permissions,
+      "test-plugin".to_string(),
+      app_handle,
+    );
+
+    let options = serde_json::json!({
+      "title": "Confirm Action",
+      "message": "Are you sure you want to proceed?"
+    });
+
+    let result = bridge.show_dialog("confirm", options).await;
+    assert!(result.is_ok());
+
+    let response = result.unwrap();
+    assert_eq!(response["result"], "ok");
+    assert_eq!(response["action"], "confirmed");
+    assert_eq!(response["value"], true);
+  }
+
+  #[tokio::test]
+  async fn test_input_dialog() {
+    let service_container = Arc::new(ServiceContainer::new());
+    let permissions = Arc::new(SecurityLevel::Full.permissions());
+    let app_handle = create_mock_app_handle();
+
+    let bridge = UIBridge::new(
+      service_container,
+      permissions,
+      "test-plugin".to_string(),
+      app_handle,
+    );
+
+    let options = serde_json::json!({
+      "title": "Enter Value",
+      "message": "Please enter a value:",
+      "default": "default_text"
+    });
+
+    let result = bridge.show_dialog("input", options).await;
+    assert!(result.is_ok());
+
+    let response = result.unwrap();
+    assert_eq!(response["result"], "ok");
+    assert_eq!(response["action"], "submitted");
+    assert_eq!(response["value"], "default_text");
+
+    // Тест без default значения
+    let result = bridge.show_dialog("input", serde_json::json!({})).await;
+    assert!(result.is_ok());
+    let response = result.unwrap();
+    assert_eq!(response["value"], "");
+  }
+
+  #[tokio::test]
+  async fn test_file_picker_dialog_single() {
+    let service_container = Arc::new(ServiceContainer::new());
+    let permissions = Arc::new(SecurityLevel::Full.permissions());
+    let app_handle = create_mock_app_handle();
+
+    let bridge = UIBridge::new(
+      service_container,
+      permissions,
+      "test-plugin".to_string(),
+      app_handle,
+    );
+
+    let options = serde_json::json!({
+      "title": "Select File",
+      "multiple": false,
+      "directory": false,
+      "filters": [{"name": "Videos", "extensions": ["mp4", "avi"]}]
+    });
+
+    let result = bridge.show_dialog("file_picker", options).await;
+    assert!(result.is_ok());
+
+    let response = result.unwrap();
+    assert_eq!(response["result"], "ok");
+    assert_eq!(response["action"], "selected");
+
+    let files = response["files"].as_array().unwrap();
+    assert_eq!(files.len(), 1);
+    assert_eq!(files[0], "/path/to/selected_file.mp4");
+  }
+
+  #[tokio::test]
+  async fn test_file_picker_dialog_multiple() {
+    let service_container = Arc::new(ServiceContainer::new());
+    let permissions = Arc::new(SecurityLevel::Full.permissions());
+    let app_handle = create_mock_app_handle();
+
+    let bridge = UIBridge::new(
+      service_container,
+      permissions,
+      "test-plugin".to_string(),
+      app_handle,
+    );
+
+    let options = serde_json::json!({
+      "title": "Select Files",
+      "multiple": true,
+      "directory": false
+    });
+
+    let result = bridge.show_dialog("file_picker", options).await;
+    assert!(result.is_ok());
+
+    let response = result.unwrap();
+    let files = response["files"].as_array().unwrap();
+    assert_eq!(files.len(), 2);
+  }
+
+  #[tokio::test]
+  async fn test_file_picker_dialog_directory() {
+    let service_container = Arc::new(ServiceContainer::new());
+    let permissions = Arc::new(SecurityLevel::Full.permissions());
+    let app_handle = create_mock_app_handle();
+
+    let bridge = UIBridge::new(
+      service_container,
+      permissions,
+      "test-plugin".to_string(),
+      app_handle,
+    );
+
+    let options = serde_json::json!({
+      "title": "Select Directory",
+      "directory": true
+    });
+
+    let result = bridge.show_dialog("file_picker", options).await;
+    assert!(result.is_ok());
+
+    let response = result.unwrap();
+    let files = response["files"].as_array().unwrap();
+    assert_eq!(files.len(), 1);
+    assert_eq!(files[0], "/path/to/selected_directory");
+  }
+
+  #[tokio::test]
+  async fn test_add_menu_item_validation() {
+    let service_container = Arc::new(ServiceContainer::new());
+    let permissions = Arc::new(SecurityLevel::Full.permissions());
+    let app_handle = create_mock_app_handle();
+
+    let bridge = UIBridge::new(
+      service_container,
+      permissions,
+      "test-plugin".to_string(),
+      app_handle,
+    );
+
+    // Тест без label (должен быть ошибка)
+    let config_without_label = serde_json::json!({
+      "action": "test_action"
+    });
+
+    let result = bridge
+      .add_menu_item("plugins/test", config_without_label)
+      .await;
+    assert!(result.is_err());
+    assert!(result
+      .unwrap_err()
+      .to_string()
+      .contains("must have a label"));
+
+    // Тест с пустым путем
+    let valid_config = serde_json::json!({
+      "label": "Test Action",
+      "action": "test_action"
+    });
+
+    let result = bridge.add_menu_item("", valid_config).await;
+    assert!(result.is_err());
+    assert!(result.unwrap_err().to_string().contains("cannot be empty"));
+  }
+
+  #[tokio::test]
+  async fn test_remove_menu_item_validation() {
+    let service_container = Arc::new(ServiceContainer::new());
+    let permissions = Arc::new(SecurityLevel::Full.permissions());
+    let app_handle = create_mock_app_handle();
+
+    let bridge = UIBridge::new(
+      service_container,
+      permissions,
+      "test-plugin".to_string(),
+      app_handle,
+    );
+
+    // Тест с пустым ID
+    let result = bridge.remove_menu_item("").await;
+    assert!(result.is_err());
+    assert!(result.unwrap_err().to_string().contains("cannot be empty"));
+
+    // Тест с валидным ID
+    let result = bridge.remove_menu_item("valid_menu_id").await;
+    assert!(result.is_ok());
+  }
+
+  #[tokio::test]
+  async fn test_ui_bridge_creation() {
+    let service_container = Arc::new(ServiceContainer::new());
+    let permissions = Arc::new(SecurityLevel::Full.permissions());
+    let app_handle = create_mock_app_handle();
+
+    let bridge = UIBridge::new(
+      service_container,
+      permissions,
+      "test-plugin".to_string(),
+      app_handle,
+    );
+
+    // Проверяем что bridge создался
+    assert_eq!(bridge.plugin_id, "test-plugin");
+  }
+
+  #[tokio::test]
+  async fn test_all_permissions_blocked() {
+    let service_container = Arc::new(ServiceContainer::new());
+    let minimal_permissions = Arc::new(SecurityLevel::Minimal.permissions());
+    let app_handle = create_mock_app_handle();
+
+    let bridge = UIBridge::new(
+      service_container,
+      minimal_permissions,
+      "test-plugin".to_string(),
+      app_handle,
+    );
+
+    // Все UI операции должны быть заблокированы с minimal permissions
+
+    // Dialog
+    let result = bridge.show_dialog("info", serde_json::json!({})).await;
+    assert!(result.is_err());
+
+    // Menu
+    let result = bridge
+      .add_menu_item("test", serde_json::json!({"label": "test"}))
+      .await;
+    assert!(result.is_err());
+
+    let result = bridge.remove_menu_item("test").await;
+    assert!(result.is_err());
+
+    // Notification
+    let result = bridge.show_notification("title", "message", "info").await;
+    assert!(result.is_err());
+
+    // Progress
+    let result = bridge.update_progress("op", 0.5, None).await;
+    assert!(result.is_err());
+  }
+
+  #[tokio::test]
+  async fn test_progress_edge_cases() {
+    let service_container = Arc::new(ServiceContainer::new());
+    let permissions = Arc::new(SecurityLevel::Full.permissions());
+    let app_handle = create_mock_app_handle();
+
+    let bridge = UIBridge::new(
+      service_container,
+      permissions,
+      "test-plugin".to_string(),
+      app_handle,
+    );
+
+    // Тест с граничными значениями
+    let result = bridge.update_progress("test", 0.0, Some("Starting")).await;
+    assert!(result.is_ok());
+
+    let result = bridge.update_progress("test", 1.0, Some("Complete")).await;
+    assert!(result.is_ok());
+
+    // Тест без сообщения
+    let result = bridge.update_progress("test", 0.5, None).await;
+    assert!(result.is_ok());
+  }
+
+  #[tokio::test]
+  async fn test_notification_with_app_handle() {
+    let service_container = Arc::new(ServiceContainer::new());
+    let permissions = Arc::new(SecurityLevel::Full.permissions());
+
+    // Тест поведения с None app_handle
+    let bridge = UIBridge::new(
+      service_container,
+      permissions,
+      "test-plugin".to_string(),
+      None,
+    );
+
+    let result = bridge.show_notification("Test", "Message", "info").await;
+    assert!(result.is_ok());
+  }
 }

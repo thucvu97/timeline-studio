@@ -1,0 +1,52 @@
+name: 'Setup FFmpeg for macOS'
+description: 'Install and configure FFmpeg development environment for macOS builds'
+inputs:
+  install-packages:
+    description: 'Whether to install FFmpeg packages via Homebrew'
+    required: false
+    default: 'true'
+outputs:
+  ffmpeg-dir:
+    description: 'FFmpeg installation directory'
+    value: ${{ steps.setup.outputs.ffmpeg-dir }}
+  onnx-runtime-path:
+    description: 'ONNX Runtime library path'
+    value: ${{ steps.setup.outputs.onnx-runtime-path }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install FFmpeg and ONNX Runtime
+      if: inputs.install-packages == 'true'
+      shell: bash
+      run: |
+        brew install ffmpeg onnxruntime
+
+    - name: Setup FFmpeg environment
+      id: setup
+      shell: bash
+      run: |
+        # Run macOS FFmpeg setup script if available
+        if [ -f "scripts/setup-ffmpeg-macos.sh" ]; then
+          bash scripts/setup-ffmpeg-macos.sh
+        fi
+        
+        # Detect FFmpeg installation path
+        FFMPEG_DIR=$(brew --prefix ffmpeg 2>/dev/null || echo "/opt/homebrew")
+        echo "ffmpeg-dir=$FFMPEG_DIR" >> $GITHUB_OUTPUT
+        
+        # Setup ONNX Runtime
+        echo "Setting up ONNX Runtime for macOS..."
+        if [ -f "/opt/homebrew/lib/libonnxruntime.dylib" ]; then
+          echo "Found ONNX Runtime at /opt/homebrew/lib/libonnxruntime.dylib (Apple Silicon)"
+          echo "ORT_DYLIB_PATH=/opt/homebrew/lib/libonnxruntime.dylib" >> $GITHUB_ENV
+          echo "onnx-runtime-path=/opt/homebrew/lib/libonnxruntime.dylib" >> $GITHUB_OUTPUT
+        elif [ -f "/usr/local/lib/libonnxruntime.dylib" ]; then
+          echo "Found ONNX Runtime at /usr/local/lib/libonnxruntime.dylib (Intel Mac)"
+          echo "ORT_DYLIB_PATH=/usr/local/lib/libonnxruntime.dylib" >> $GITHUB_ENV
+          echo "onnx-runtime-path=/usr/local/lib/libonnxruntime.dylib" >> $GITHUB_OUTPUT
+        else
+          echo "Warning: ONNX Runtime library not found!"
+          find /opt/homebrew -name "libonnxruntime*.dylib" 2>/dev/null || echo "Not in /opt/homebrew"
+          find /usr/local -name "libonnxruntime*.dylib" 2>/dev/null || echo "Not in /usr/local"
+        fi

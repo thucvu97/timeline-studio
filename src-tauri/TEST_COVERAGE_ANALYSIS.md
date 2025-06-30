@@ -51,11 +51,11 @@
 
 | Файл | Функции | Приоритет | Статус |
 |------|---------|-----------|--------|
-| `src/core/telemetry/tracer.rs` | 21 | СРЕДНИЙ | ❌ Требуется |
+| `src/core/telemetry/tracer.rs` | 21 | СРЕДНИЙ | ✅ Завершен (+17 тестов) |
 | `src/video_compiler/core/renderer.rs` | 19 | ВЫСОКИЙ | ✅ Завершен (+12 тестов) |
-| `src/core/plugins/services/ui_bridge.rs` | 18 | СРЕДНИЙ | ❌ Требуется |
-| `src/video_compiler/services/monitoring.rs` | 17 | СРЕДНИЙ | ❌ Требуется |
-| `src/video_compiler/core/stages/composition.rs` | 17 | ВЫСОКИЙ | ❌ Требуется |
+| `src/core/plugins/services/ui_bridge.rs` | 18 | СРЕДНИЙ | ✅ Завершен (+13 тестов) |
+| `src/video_compiler/services/monitoring.rs` | 17 | СРЕДНИЙ | ✅ Завершен (+18 тестов) |
+| `src/video_compiler/core/stages/composition.rs` | 17 | ВЫСОКИЙ | ✅ Завершен (+21 тестов) |
 | `src/core/telemetry/mod.rs` | 15 | СРЕДНИЙ | ❌ Требуется |
 | `src/core/plugins/commands.rs` | 14 | СРЕДНИЙ | ❌ Требуется |
 | `src/core/plugins/services/timeline_bridge.rs` | 11 | СРЕДНИЙ | ❌ Требуется |
@@ -116,15 +116,17 @@
 - `preview.rs`: +20 тестов (preview generation, FFmpeg commands, JSON parsing)
 
 ### День 6: Phase 3 и frontend тесты
-- `composition.rs`: +17 тестов (все методы композиции, обработка эффектов, слоев)
-- `tracer.rs`: +21 тест (трассировка, spans, атрибуты, concurrent access)
+- `composition.rs`: +21 тест (все методы композиции, обработка эффектов, слоев)
+- `tracer.rs`: +17 тестов (трассировка, spans, атрибуты, concurrent access)
+- `ui_bridge.rs`: +13 тестов (UI операции плагинов, диалоги, уведомления)
+- `monitoring.rs`: +18 тестов (метрики операций, registry, Prometheus export)
 - Frontend: Добавлены тесты для Fairlight Audio модуля
   - `surround-panner.test.tsx`: UI компонент для surround позиционирования
   - `surround-processor.test.ts`: Сервис обработки surround звука
   - `audio-engine.test.ts`: Основной аудио движок с поддержкой surround
 
 ### Общий прогресс
-- **Добавлено тестов**: 681 за 6 дней (+38 backend, +3 frontend модуля)
+- **Добавлено тестов**: 750 за 6 дней (+69 backend, +3 frontend модуля)
 - **Покрытие**: 61% → 78% (+17%)
 - **Файлы с тестами**: 90 → 124 (+34 файла)
 
