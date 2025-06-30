@@ -45,7 +45,7 @@ runs:
         
         # Dynamically find libclang path
         LIBCLANG_PATH=""
-        for llvm_version in 16 15 14 13 12; do
+        for llvm_version in 18 17 16 15 14 13 12; do
           if [ -d "/usr/lib/llvm-${llvm_version}/lib" ] && [ -f "/usr/lib/llvm-${llvm_version}/lib/libclang.so" ]; then
             LIBCLANG_PATH="/usr/lib/llvm-${llvm_version}/lib"
             echo "Found libclang at LLVM version ${llvm_version}: $LIBCLANG_PATH"

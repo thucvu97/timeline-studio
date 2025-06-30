@@ -85,7 +85,7 @@ jobs:
           
           # Dynamically find libclang path (Ubuntu runners may have different LLVM versions)
           LIBCLANG_PATH=""
-          for llvm_version in 16 15 14 13 12; do
+          for llvm_version in 18 17 16 15 14 13 12; do
             if [ -d "/usr/lib/llvm-${llvm_version}/lib" ] && [ -f "/usr/lib/llvm-${llvm_version}/lib/libclang.so" ]; then
               LIBCLANG_PATH="/usr/lib/llvm-${llvm_version}/lib"
               echo "Found libclang at LLVM version ${llvm_version}: $LIBCLANG_PATH"
@@ -110,8 +110,9 @@ jobs:
             echo "WARNING: libclang not found, build may fail. Installing clang..."
             sudo apt-get install -y clang libclang-dev
             # Try to find it again after installation
-            LIBCLANG_PATH=$(find /usr/lib -name "libclang.so*" -type f 2>/dev/null | head -1 | xargs dirname)
-            if [ -n "$LIBCLANG_PATH" ]; then
+            LIBCLANG_FILE=$(find /usr/lib -name "libclang.so*" -type f 2>/dev/null | head -1)
+            if [ -n "$LIBCLANG_FILE" ]; then
+              LIBCLANG_PATH=$(dirname "$LIBCLANG_FILE")
               echo "LIBCLANG_PATH=$LIBCLANG_PATH" >> $GITHUB_ENV
             fi
           fi
