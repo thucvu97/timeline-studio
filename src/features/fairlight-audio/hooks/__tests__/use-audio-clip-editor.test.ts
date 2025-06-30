@@ -5,7 +5,6 @@ import { useAudioClipEditor } from "../use-audio-clip-editor"
 
 import type { AudioClip, FadeOptions } from "../../services/audio-clip-editor"
 
-
 // Mock dependencies using vi.hoisted
 const { mockUseAudioEngine, mockAudioEngine, mockClipEditor } = vi.hoisted(() => ({
   mockUseAudioEngine: vi.fn(),

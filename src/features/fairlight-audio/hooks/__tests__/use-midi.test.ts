@@ -97,9 +97,12 @@ describe("useMidi", () => {
       const { result } = renderHook(() => useMidi())
 
       // Wait for the promise to resolve and state to update
-      await vi.waitFor(() => {
-        expect(result.current.error).toBe("MIDI initialization failed")
-      }, { timeout: 1000 })
+      await vi.waitFor(
+        () => {
+          expect(result.current.error).toBe("MIDI initialization failed")
+        },
+        { timeout: 1000 },
+      )
     })
   })
 
