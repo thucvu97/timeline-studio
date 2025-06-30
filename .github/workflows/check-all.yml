@@ -66,13 +66,10 @@ jobs:
             clang \
             llvm-dev \
             libclang-dev
-            
-      - name: Set Linux FFmpeg environment variables
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig" >> $GITHUB_ENV
-          echo "PKG_CONFIG_ALLOW_SYSTEM_LIBS=1" >> $GITHUB_ENV
-          echo "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS=1" >> $GITHUB_ENV
+          
+          # Run the setup script to handle FFmpeg configuration
+          chmod +x scripts/setup-ffmpeg-linux.sh
+          ./scripts/setup-ffmpeg-linux.sh
 
       - name: Install system dependencies (macOS)
         if: matrix.os == 'macos-latest'

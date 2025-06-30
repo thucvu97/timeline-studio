@@ -9,6 +9,9 @@ verify_pkgconfig() {
     local libs=("libavcodec" "libavformat" "libavutil" "libswscale" "libavfilter" "libavdevice" "libswresample")
     local all_found=true
     
+    # Set PKG_CONFIG_PATH to include common locations
+    export PKG_CONFIG_PATH="/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/aarch64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig:/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"
+    
     for lib in "${libs[@]}"; do
         if ! pkg-config --exists "$lib" 2>/dev/null; then
             echo "❌ pkg-config cannot find $lib"
@@ -112,8 +115,13 @@ if verify_pkgconfig; then
     
     # For GitHub Actions
     if [ -n "$GITHUB_ENV" ]; then
+        echo "Setting environment variables for GitHub Actions..."
+        echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> "$GITHUB_ENV"
         echo "FFMPEG_USE_PKG_CONFIG=1" >> "$GITHUB_ENV"
         echo "FFMPEG_NO_MANUAL_HEADER_SEARCH=1" >> "$GITHUB_ENV"
+        echo "PKG_CONFIG_ALLOW_SYSTEM_LIBS=1" >> "$GITHUB_ENV"
+        echo "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS=1" >> "$GITHUB_ENV"
+        echo "✅ Environment variables exported to GitHub Actions"
     fi
 else
     # Check key headers manually
@@ -142,8 +150,15 @@ else
     
     # Export manual path configuration
     if [ -n "$GITHUB_ENV" ]; then
+        echo "Setting manual FFmpeg paths for GitHub Actions..."
+        echo "PKG_CONFIG_PATH=$PKG_CONFIG_PATH" >> "$GITHUB_ENV"
         echo "FFMPEG_INCLUDE_DIR=$FFMPEG_INCLUDE_DIR" >> "$GITHUB_ENV" 
         echo "BINDGEN_EXTRA_CLANG_ARGS=-I$FFMPEG_INCLUDE_DIR" >> "$GITHUB_ENV"
+        echo "C_INCLUDE_PATH=$FFMPEG_INCLUDE_DIR" >> "$GITHUB_ENV"
+        echo "CPLUS_INCLUDE_PATH=$FFMPEG_INCLUDE_DIR" >> "$GITHUB_ENV"
+        echo "PKG_CONFIG_ALLOW_SYSTEM_LIBS=1" >> "$GITHUB_ENV"
+        echo "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS=1" >> "$GITHUB_ENV"
+        echo "✅ Manual environment variables exported to GitHub Actions"
     fi
 fi
 
