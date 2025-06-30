@@ -405,9 +405,6 @@ mod tests {
 
   /// Помощник для очистки состояния между тестами
   fn cleanup_jobs() {
-    // Use timeout to avoid blocking indefinitely if mutex is in bad state
-    let timeout = std::time::Duration::from_millis(100);
-
     // Try to clean up, but don't panic if mutex is poisoned or inaccessible
     if let Ok(result) = std::panic::catch_unwind(|| {
       if let Ok(mut jobs) = BATCH_JOBS.try_lock() {
