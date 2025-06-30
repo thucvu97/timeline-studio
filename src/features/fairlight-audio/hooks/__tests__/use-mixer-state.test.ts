@@ -30,7 +30,7 @@ describe("useMixerState", () => {
 
     it("has correct initial channel properties", () => {
       const { channels } = result.result.current
-      
+
       // Channel 1 (ch1)
       expect(channels[0]).toMatchObject({
         id: "ch1",
@@ -43,7 +43,7 @@ describe("useMixerState", () => {
         armed: false,
       })
 
-      // Channel 2 (ch2) 
+      // Channel 2 (ch2)
       expect(channels[1]).toMatchObject({
         id: "ch2",
         name: "Track 2",
@@ -83,7 +83,7 @@ describe("useMixerState", () => {
         result.result.current.updateChannel("ch1", { volume: 90, name: "Updated Track" })
       })
 
-      const channel = result.result.current.channels.find(ch => ch.id === "ch1")
+      const channel = result.result.current.channels.find((ch) => ch.id === "ch1")
       expect(channel?.volume).toBe(90)
       expect(channel?.name).toBe("Updated Track")
       // Other properties should remain unchanged
@@ -207,10 +207,10 @@ describe("useMixerState", () => {
   describe("updateMaster", () => {
     it("updates master properties", () => {
       act(() => {
-        result.result.current.updateMaster({ 
-          volume: 90, 
-          muted: true, 
-          limiterThreshold: -6 
+        result.result.current.updateMaster({
+          volume: 90,
+          muted: true,
+          limiterThreshold: -6,
         })
       })
 
@@ -266,7 +266,7 @@ describe("useMixerState", () => {
       })
 
       expect(result.result.current.channels).toHaveLength(2)
-      expect(result.result.current.channels.find(ch => ch.id === "ch2")).toBeUndefined()
+      expect(result.result.current.channels.find((ch) => ch.id === "ch2")).toBeUndefined()
       expect(result.result.current.channels[0].id).toBe("ch1")
       expect(result.result.current.channels[1].id).toBe("ch3")
     })
@@ -393,9 +393,9 @@ describe("useMixerState", () => {
   describe("function stability", () => {
     it("returns stable function references", () => {
       const firstRender = result.result.current
-      
+
       result.rerender()
-      
+
       const secondRender = result.result.current
 
       // Functions should be the same reference (stable)

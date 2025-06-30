@@ -367,4 +367,238 @@ mod tests {
     // 6. Завершаем корректно
     manager.shutdown().await.unwrap();
   }
+
+  #[tokio::test]
+  async fn test_telemetry_manager_partial_system_health_setup() {
+    // Тест setup с частичными компонентами
+    let config = TelemetryConfig::default();
+    let manager = TelemetryManager::new(config).await.unwrap();
+
+    // Тест только с event_bus
+    let event_bus = Arc::new(crate::core::EventBus::new());
+    let result = manager
+      .setup_system_health_checks(Some(event_bus), None)
+      .await;
+    assert!(result.is_ok());
+
+    // Тест только с plugin_manager
+    let service_container = Arc::new(crate::core::ServiceContainer::new());
+    let app_version = crate::core::plugins::plugin::Version::new(1, 0, 0);
+    let event_bus2 = Arc::new(crate::core::EventBus::new());
+    let plugin_manager = Arc::new(crate::core::PluginManager::new(
+      app_version,
+      event_bus2,
+      service_container,
+    ));
+
+    let result2 = manager
+      .setup_system_health_checks(None, Some(plugin_manager))
+      .await;
+    assert!(result2.is_ok());
+
+    // Тест без компонентов
+    let result3 = manager.setup_system_health_checks(None, None).await;
+    assert!(result3.is_ok());
+  }
+
+  #[tokio::test]
+  async fn test_telemetry_manager_arc_cloning() {
+    // Тест клонирования Arc компонентов
+    let config = TelemetryConfig::default();
+    let manager = TelemetryManager::new(config).await.unwrap();
+
+    let tracer1 = manager.tracer();
+    let tracer2 = manager.tracer();
+    let metrics1 = manager.metrics();
+    let metrics2 = manager.metrics();
+    let health1 = manager.health();
+    let health2 = manager.health();
+
+    // Проверяем что Arc ссылаются на одни и те же объекты
+    assert!(Arc::ptr_eq(&tracer1, &tracer2));
+    assert!(Arc::ptr_eq(&metrics1, &metrics2));
+    assert!(Arc::ptr_eq(&health1, &health2));
+  }
+
+  #[tokio::test]
+  async fn test_telemetry_manager_config_variations() {
+    // Тест различных конфигураций
+    let configs = vec![
+      TelemetryConfig {
+        enabled: true,
+        service_name: "test-service-1".to_string(),
+        ..Default::default()
+      },
+      TelemetryConfig {
+        enabled: false,
+        service_name: "test-service-2".to_string(),
+        ..Default::default()
+      },
+      TelemetryConfig {
+        enabled: true,
+        service_name: "test-service-3".to_string(),
+        environment: "test".to_string(),
+        ..Default::default()
+      },
+    ];
+
+    for config in configs {
+      let service_name = config.service_name.clone();
+      let result = TelemetryManager::new(config).await;
+      assert!(
+        result.is_ok(),
+        "Failed to create manager for {}",
+        service_name
+      );
+
+      let manager = result.unwrap();
+      // Просто проверяем что tracer существует и можно выполнить операцию
+      let tracer = manager.tracer();
+      let _ = tracer.current_context(); // Проверяем что tracer работает
+    }
+  }
+
+  #[tokio::test]
+  async fn test_telemetry_manager_concurrent_access() {
+    // Тест конкурентного доступа к компонентам
+    let config = TelemetryConfig::default();
+    let manager = Arc::new(TelemetryManager::new(config).await.unwrap());
+
+    let mut handles = vec![];
+
+    // Запускаем несколько задач параллельно
+    for i in 0..10 {
+      let manager_clone = Arc::clone(&manager);
+      let handle = tokio::spawn(async move {
+        let tracer = manager_clone.tracer();
+        let _metrics = manager_clone.metrics();
+        let health = manager_clone.health();
+
+        // Выполняем операции трассировки
+        let result = tracer
+          .trace(&format!("concurrent_operation_{i}"), async {
+            tokio::time::sleep(std::time::Duration::from_millis(1)).await;
+            Ok::<i32, crate::video_compiler::error::VideoCompilerError>(i)
+          })
+          .await;
+
+        assert!(result.is_ok());
+
+        // Проверяем health checks
+        let checks = health.list_checks().await;
+        assert!(!checks.is_empty());
+
+        i
+      });
+      handles.push(handle);
+    }
+
+    // Ждем завершения всех задач
+    let mut results = Vec::new();
+    for handle in handles {
+      let result = handle.await.unwrap();
+      results.push(result);
+    }
+
+    // Проверяем что все операции завершились корректно
+    results.sort();
+    assert_eq!(results, (0..10).collect::<Vec<_>>());
+  }
+
+  #[tokio::test]
+  async fn test_telemetry_manager_error_handling() {
+    // Тест обработки ошибок
+    let config = TelemetryConfig::default();
+    let manager = TelemetryManager::new(config).await.unwrap();
+
+    // Тест обновления конфигурации с невалидными данными
+    let invalid_config = TelemetryConfig {
+      service_name: "".to_string(), // Пустое имя может быть проблематично
+      ..Default::default()
+    };
+
+    let result = manager.update_config(invalid_config).await;
+    assert!(result.is_ok()); // Update_config принимает любые данные
+
+    // Тест множественных shutdown вызовов
+    let result1 = manager.shutdown().await;
+    assert!(result1.is_ok());
+
+    let result2 = manager.shutdown().await;
+    assert!(result2.is_ok()); // Повторный shutdown должен быть безопасен
+  }
+
+  #[tokio::test]
+  async fn test_telemetry_manager_memory_usage() {
+    // Тест управления памятью
+    let config = TelemetryConfig::default();
+    let manager = TelemetryManager::new(config).await.unwrap();
+
+    // Получаем начальные счетчики Arc
+    let initial_tracer_count = Arc::strong_count(&manager.tracer);
+    let initial_metrics_count = Arc::strong_count(&manager.metrics);
+    let initial_health_count = Arc::strong_count(&manager.health);
+
+    {
+      // Создаем локальные копии Arc
+      let _tracer = manager.tracer();
+      let _metrics = manager.metrics();
+      let _health = manager.health();
+
+      // Счетчики должны увеличиться
+      assert!(Arc::strong_count(&manager.tracer) > initial_tracer_count);
+      assert!(Arc::strong_count(&manager.metrics) > initial_metrics_count);
+      assert!(Arc::strong_count(&manager.health) > initial_health_count);
+    }
+
+    // После выхода из области видимости счетчики должны вернуться
+    assert_eq!(Arc::strong_count(&manager.tracer), initial_tracer_count);
+    assert_eq!(Arc::strong_count(&manager.metrics), initial_metrics_count);
+    assert_eq!(Arc::strong_count(&manager.health), initial_health_count);
+  }
+
+  #[tokio::test]
+  async fn test_telemetry_manager_configuration_persistence() {
+    // Тест сохранения конфигурации
+    let original_config = TelemetryConfig {
+      service_name: "original-service".to_string(),
+      environment: "development".to_string(),
+      ..Default::default()
+    };
+
+    let manager = TelemetryManager::new(original_config.clone())
+      .await
+      .unwrap();
+
+    // Проверяем исходную конфигурацию
+    {
+      let current_config = manager.config.read().await;
+      assert_eq!(current_config.service_name, "original-service");
+      assert_eq!(current_config.environment, "development");
+    }
+
+    // Обновляем конфигурацию
+    let updated_config = TelemetryConfig {
+      service_name: "updated-service".to_string(),
+      environment: "production".to_string(),
+      ..Default::default()
+    };
+
+    manager.update_config(updated_config).await.unwrap();
+
+    // Проверяем обновленную конфигурацию
+    {
+      let current_config = manager.config.read().await;
+      assert_eq!(current_config.service_name, "updated-service");
+      assert_eq!(current_config.environment, "production");
+    }
+
+    // Проверяем что конфигурация персистентна
+    tokio::time::sleep(std::time::Duration::from_millis(10)).await;
+    {
+      let current_config = manager.config.read().await;
+      assert_eq!(current_config.service_name, "updated-service");
+      assert_eq!(current_config.environment, "production");
+    }
+  }
 }

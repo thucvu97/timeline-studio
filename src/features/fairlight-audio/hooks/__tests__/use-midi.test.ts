@@ -1,6 +1,8 @@
 import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { useMidi } from "../use-midi"
+
 import type { MidiDevice, MidiMapping } from "../../services/midi/midi-engine"
 
 // Mock the MidiEngine service using vi.hoisted
@@ -21,7 +23,7 @@ const { mockMidiEngine, mockIsSupported, MockMidiEngine } = vi.hoisted(() => {
 
   const mockIsSupported = vi.fn()
 
-  const MockMidiEngine = vi.fn(() => mockMidiEngine)
+  const MockMidiEngine = vi.fn(() => mockMidiEngine) as any
   MockMidiEngine.isSupported = mockIsSupported
 
   return { mockMidiEngine, mockIsSupported, MockMidiEngine }
@@ -31,12 +33,10 @@ vi.mock("../../services/midi/midi-engine", () => ({
   MidiEngine: MockMidiEngine,
 }))
 
-import { useMidi } from "../use-midi"
-
 describe("useMidi", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     // Default mocks
     mockIsSupported.mockReturnValue(true)
     mockMidiEngine.initialize.mockResolvedValue(undefined)
@@ -108,9 +108,7 @@ describe("useMidi", () => {
       const { result } = renderHook(() => useMidi())
 
       // Get the initialized event handler
-      const initializedHandler = mockMidiEngine.on.mock.calls.find(
-        call => call[0] === "initialized"
-      )?.[1]
+      const initializedHandler = mockMidiEngine.on.mock.calls.find((call) => call[0] === "initialized")?.[1]
 
       act(() => {
         initializedHandler()
@@ -129,9 +127,7 @@ describe("useMidi", () => {
       ]
 
       // Get the devicesChanged event handler
-      const devicesChangedHandler = mockMidiEngine.on.mock.calls.find(
-        call => call[0] === "devicesChanged"
-      )?.[1]
+      const devicesChangedHandler = mockMidiEngine.on.mock.calls.find((call) => call[0] === "devicesChanged")?.[1]
 
       act(() => {
         devicesChangedHandler(mockDevices)
@@ -162,9 +158,7 @@ describe("useMidi", () => {
       mockMidiEngine.getMappings.mockReturnValue(mockMappings)
 
       // Get the mappingAdded event handler
-      const mappingAddedHandler = mockMidiEngine.on.mock.calls.find(
-        call => call[0] === "mappingAdded"
-      )?.[1]
+      const mappingAddedHandler = mockMidiEngine.on.mock.calls.find((call) => call[0] === "mappingAdded")?.[1]
 
       act(() => {
         mappingAddedHandler()
@@ -177,12 +171,8 @@ describe("useMidi", () => {
       const { result } = renderHook(() => useMidi())
 
       // Get event handlers
-      const learningStartedHandler = mockMidiEngine.on.mock.calls.find(
-        call => call[0] === "learningStarted"
-      )?.[1]
-      const learningStoppedHandler = mockMidiEngine.on.mock.calls.find(
-        call => call[0] === "learningStopped"
-      )?.[1]
+      const learningStartedHandler = mockMidiEngine.on.mock.calls.find((call) => call[0] === "learningStarted")?.[1]
+      const learningStoppedHandler = mockMidiEngine.on.mock.calls.find((call) => call[0] === "learningStopped")?.[1]
 
       act(() => {
         learningStartedHandler()
@@ -227,7 +217,7 @@ describe("useMidi", () => {
     it("returns null when engine is not available", () => {
       // Create hook but don't initialize engine
       const { result } = renderHook(() => useMidi())
-      
+
       // Reset the mock to return null instead of throwing
       mockMidiEngine.addMapping.mockReturnValue(null)
 
@@ -301,7 +291,7 @@ describe("useMidi", () => {
 
       // Simulate engine not being available
       const hookInstance = result.current
-      
+
       const mockCallback = vi.fn()
 
       let cleanup: (() => void) | undefined
@@ -387,9 +377,7 @@ describe("useMidi", () => {
       ]
 
       // Simulate devices changed event
-      const devicesChangedHandler = mockMidiEngine.on.mock.calls.find(
-        call => call[0] === "devicesChanged"
-      )?.[1]
+      const devicesChangedHandler = mockMidiEngine.on.mock.calls.find((call) => call[0] === "devicesChanged")?.[1]
 
       act(() => {
         devicesChangedHandler(mockDevices)
@@ -407,9 +395,9 @@ describe("useMidi", () => {
       const { result, rerender } = renderHook(() => useMidi())
 
       const firstRender = result.current
-      
+
       rerender()
-      
+
       const secondRender = result.current
 
       // Functions should be the same reference (stable)

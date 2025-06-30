@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { setupAudioTestEnvironment } from "@/test/utils/tauri-audio-test-utils"
 
+import { useAudioEngine } from "../use-audio-engine"
+
 // Mock the AudioEngine service using vi.hoisted
 const { mockAudioEngine } = vi.hoisted(() => ({
   mockAudioEngine: {
@@ -26,15 +28,13 @@ vi.mock("../services/audio-engine", () => ({
   AudioEngine: vi.fn(() => mockAudioEngine),
 }))
 
-import { useAudioEngine } from "../use-audio-engine"
-
 describe.skip("useAudioEngine", () => {
   let testEnv: ReturnType<typeof setupAudioTestEnvironment>
 
   beforeEach(() => {
     testEnv = setupAudioTestEnvironment()
     vi.clearAllMocks()
-    
+
     // Setup default mock returns
     mockAudioEngine.initialize.mockResolvedValue(undefined)
     mockAudioEngine.createChannel.mockReturnValue({ id: "test-channel" })
@@ -402,9 +402,9 @@ describe.skip("useAudioEngine", () => {
       })
 
       const firstRender = result.current
-      
+
       rerender()
-      
+
       const secondRender = result.current
 
       // Functions should be the same reference (stable)
@@ -425,11 +425,11 @@ describe.skip("useAudioEngine", () => {
   describe("error handling", () => {
     it("handles initialization errors gracefully", async () => {
       mockAudioEngine.initialize.mockRejectedValue(new Error("Audio context error"))
-      
+
       const { result } = renderHook(() => useAudioEngine())
 
       // Should not throw and remain uninitialized
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
       expect(result.current.isInitialized).toBe(false)
     })
   })

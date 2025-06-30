@@ -90,7 +90,7 @@ const mockAudioElement = {
 describe.skip("useChannelAudio", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     // Reset mock return values
     mockUseTimeline.mockReturnValue(mockTimeline)
     mockUseAudioEngine.mockReturnValue({
@@ -101,7 +101,7 @@ describe.skip("useChannelAudio", () => {
       element: mockAudioElement,
       id: "loaded-audio",
     })
-    
+
     // Reset audio element mocks
     mockAudioElement.currentTime = 0
     vi.mocked(mockAudioElement.play).mockResolvedValue(undefined)
@@ -147,10 +147,7 @@ describe.skip("useChannelAudio", () => {
       const { result } = renderHook(() => useChannelAudio("ch1", "track1"))
 
       await waitFor(() => {
-        expect(mockAudioFileManager.loadAudioFile).toHaveBeenCalledWith(
-          "media1",
-          "/path/to/audio1.mp3"
-        )
+        expect(mockAudioFileManager.loadAudioFile).toHaveBeenCalledWith("media1", "/path/to/audio1.mp3")
       })
 
       await waitFor(() => {
@@ -263,9 +260,7 @@ describe.skip("useChannelAudio", () => {
       renderHook(() => useChannelAudio("ch1", "track1"))
 
       await waitFor(() => {
-        expect(consoleSpy).toHaveBeenCalledWith(
-          "[AudioLoader] Media file media3 is not marked as audio"
-        )
+        expect(consoleSpy).toHaveBeenCalledWith("[AudioLoader] Media file media3 is not marked as audio")
       })
 
       consoleSpy.mockRestore()
@@ -310,10 +305,9 @@ describe.skip("useChannelAudio", () => {
     })
 
     it("unloads audio when trackId changes", async () => {
-      const { rerender } = renderHook(
-        ({ trackId }) => useChannelAudio("ch1", trackId),
-        { initialProps: { trackId: "track1" } }
-      )
+      const { rerender } = renderHook(({ trackId }) => useChannelAudio("ch1", trackId), {
+        initialProps: { trackId: "track1" },
+      })
 
       await waitFor(() => {
         expect(mockAudioFileManager.loadAudioFile).toHaveBeenCalled()
@@ -340,7 +334,7 @@ describe.skip("useChannelAudio", () => {
     beforeEach(async () => {
       // Setup audio element for playback tests
       const { result } = renderHook(() => useChannelAudio("ch1", "track1"))
-      
+
       await waitFor(() => {
         expect(result.current.audioElement).toBe(mockAudioElement)
       })
@@ -541,9 +535,9 @@ describe.skip("useChannelAudio", () => {
       })
 
       const firstRender = result.current
-      
+
       rerender()
-      
+
       const secondRender = result.current
 
       // Functions should be the same reference (stable)
@@ -585,15 +579,11 @@ describe.skip("useChannelAudio", () => {
               tracks: [
                 {
                   id: "track1",
-                  clips: [
-                    { id: "clip1", mediaId: "media1", startTime: 0 },
-                  ],
+                  clips: [{ id: "clip1", mediaId: "media1", startTime: 0 }],
                 },
                 {
                   id: "track2",
-                  clips: [
-                    { id: "clip2", mediaId: "media2", startTime: 0 },
-                  ],
+                  clips: [{ id: "clip2", mediaId: "media2", startTime: 0 }],
                 },
               ],
             },
@@ -604,10 +594,7 @@ describe.skip("useChannelAudio", () => {
       renderHook(() => useChannelAudio("ch1", "track2"))
 
       await waitFor(() => {
-        expect(mockAudioFileManager.loadAudioFile).toHaveBeenCalledWith(
-          "media2",
-          "/path/to/audio2.mp3"
-        )
+        expect(mockAudioFileManager.loadAudioFile).toHaveBeenCalledWith("media2", "/path/to/audio2.mp3")
       })
     })
 
@@ -637,10 +624,7 @@ describe.skip("useChannelAudio", () => {
       renderHook(() => useChannelAudio("ch1", "track1"))
 
       await waitFor(() => {
-        expect(mockAudioFileManager.loadAudioFile).toHaveBeenCalledWith(
-          "media1",
-          "/path/to/audio1.mp3"
-        )
+        expect(mockAudioFileManager.loadAudioFile).toHaveBeenCalledWith("media1", "/path/to/audio1.mp3")
       })
     })
   })

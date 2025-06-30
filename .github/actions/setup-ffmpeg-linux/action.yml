@@ -43,6 +43,9 @@ runs:
         echo "PKG_CONFIG_ALLOW_SYSTEM_LIBS=1" >> $GITHUB_ENV
         echo "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS=1" >> $GITHUB_ENV
         
+        # Set comprehensive include paths for bindgen
+        echo "BINDGEN_EXTRA_CLANG_ARGS=-I/usr/include -I/usr/include/x86_64-linux-gnu -I/usr/local/include" >> $GITHUB_ENV
+        
         # Dynamically find libclang path
         LIBCLANG_PATH=""
         for llvm_version in 18 17 16 15 14 13 12; do
@@ -76,6 +79,16 @@ runs:
         if [ -f "scripts/setup-ffmpeg-linux.sh" ]; then
           bash scripts/setup-ffmpeg-linux.sh
         fi
+        
+        # Set additional FFmpeg environment variables for ffmpeg-sys-next
+        echo "FFMPEG_DIR=/usr" >> $GITHUB_ENV
+        echo "FFMPEG_INCLUDE_DIR=/usr/include" >> $GITHUB_ENV
+        echo "FFMPEG_LIB_DIR=/usr/lib/x86_64-linux-gnu" >> $GITHUB_ENV
+        echo "FFMPEG_PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig" >> $GITHUB_ENV
+        
+        # Force ffmpeg-sys-next to use pkg-config
+        echo "FFMPEG_USE_PKG_CONFIG=1" >> $GITHUB_ENV
+        echo "FFMPEG_NO_MANUAL_HEADER_SEARCH=1" >> $GITHUB_ENV
         
         # Set output
         echo "ffmpeg-include-dir=${FFMPEG_INCLUDE_DIR:-/usr/include}" >> $GITHUB_OUTPUT
