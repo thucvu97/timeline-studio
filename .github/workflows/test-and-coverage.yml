@@ -83,6 +83,8 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
+          
+          # Install base dependencies first
           sudo apt-get install -y \
             libgtk-3-dev \
             libwebkit2gtk-4.1-dev \
@@ -91,6 +93,23 @@ jobs:
             libpango1.0-dev \
             libsoup-3.0-dev \
             libjavascriptcoregtk-4.1-dev \
+            pkg-config \
+            build-essential \
+            clang \
+            llvm-dev \
+            libclang-dev \
+            wget \
+            yasm \
+            nasm
+
+      - name: Install FFmpeg from universe repository
+        run: |
+          # Enable universe repository explicitly
+          sudo add-apt-repository universe -y
+          sudo apt-get update
+          
+          # Try installing FFmpeg with all dev packages
+          sudo apt-get install -y \
             ffmpeg \
             libavcodec-dev \
             libavformat-dev \
@@ -99,54 +118,111 @@ jobs:
             libavdevice-dev \
             libswscale-dev \
             libswresample-dev \
-            pkg-config \
-            build-essential \
-            clang \
-            llvm-dev \
-            libclang-dev
+            libpostproc-dev
+            
+          # If that fails, try from PPA
+          if [ ! -f "/usr/include/libswscale/swscale.h" ]; then
+            echo "Standard packages failed, trying PPA..."
+            sudo add-apt-repository ppa:savoury1/ffmpeg4 -y
+            sudo apt-get update
+            sudo apt-get install -y \
+              ffmpeg \
+              libavcodec-dev \
+              libavformat-dev \
+              libavutil-dev \
+              libavfilter-dev \
+              libavdevice-dev \
+              libswscale-dev \
+              libswresample-dev \
+              libpostproc-dev
+          fi
 
-      - name: Verify FFmpeg headers
+      - name: Verify FFmpeg headers or build from source
         run: |
           echo "=== Checking FFmpeg headers ==="
           find /usr/include -name "swscale.h" -type f 2>/dev/null || echo "swscale.h not found in /usr/include"
           find /usr/include -name "libswscale" -type d 2>/dev/null || echo "libswscale directory not found"
           ls -la /usr/include/libav* 2>/dev/null || echo "No libav* directories found"
           
-          echo "=== Installing additional FFmpeg dev packages ==="
-          sudo apt-get install -y \
-            libavcodec-extra \
-            libavformat-extra \
-            libavfilter-extra \
-            libavdevice-extra || echo "Extra packages not available"
-          
-          echo "=== Final header check ==="
           if [ ! -f "/usr/include/libswscale/swscale.h" ]; then
-            echo "swscale.h still not found, searching system..."
-            find /usr -name "swscale.h" -type f 2>/dev/null || echo "swscale.h not found anywhere"
+            echo "=== Headers not found, building FFmpeg from source ==="
+            cd /tmp
             
-            echo "Available libswscale packages:"
-            apt-cache search libswscale
+            # Download FFmpeg source
+            wget -q https://ffmpeg.org/releases/ffmpeg-6.1.tar.xz
+            tar -xf ffmpeg-6.1.tar.xz
+            cd ffmpeg-6.1
             
-            echo "Trying to install all libswscale packages..."
-            sudo apt-get install -y $(apt-cache search libswscale | grep -E '^libswscale[0-9]+-dev' | cut -d' ' -f1) || echo "Failed to install additional packages"
+            # Configure with minimal features for faster build
+            ./configure \
+              --prefix=/usr/local \
+              --enable-shared \
+              --enable-static \
+              --disable-doc \
+              --disable-programs \
+              --disable-avdevice \
+              --disable-avfilter \
+              --disable-postproc \
+              --disable-network \
+              --disable-protocols \
+              --disable-filters \
+              --disable-encoders \
+              --disable-muxers \
+              --enable-decoder=h264 \
+              --enable-decoder=hevc \
+              --enable-decoder=av1 \
+              --enable-decoder=vp9 \
+              --enable-decoder=vp8
+            
+            # Build and install
+            make -j$(nproc)
+            sudo make install
+            sudo ldconfig
+            
+            # Update pkg-config path
+            echo "PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig" >> $GITHUB_ENV
+            echo "FFMPEG_INCLUDE_DIR=/usr/local/include" >> $GITHUB_ENV
+            echo "FFMPEG_LIB_DIR=/usr/local/lib" >> $GITHUB_ENV
           else
             echo "✅ swscale.h found at /usr/include/libswscale/swscale.h"
+            echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig" >> $GITHUB_ENV
+            echo "FFMPEG_INCLUDE_DIR=/usr/include" >> $GITHUB_ENV
+            echo "FFMPEG_LIB_DIR=/usr/lib/x86_64-linux-gnu" >> $GITHUB_ENV
           fi
 
-      - name: Set FFmpeg environment variables
+      - name: Final FFmpeg verification and environment setup
         run: |
-          echo "=== Setting FFmpeg environment variables ==="
-          echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig" >> $GITHUB_ENV
-          echo "FFMPEG_INCLUDE_DIR=/usr/include" >> $GITHUB_ENV
-          echo "FFMPEG_LIB_DIR=/usr/lib/x86_64-linux-gnu" >> $GITHUB_ENV
-          echo "C_INCLUDE_PATH=/usr/include" >> $GITHUB_ENV
-          echo "CPLUS_INCLUDE_PATH=/usr/include" >> $GITHUB_ENV
-          echo "BINDGEN_EXTRA_CLANG_ARGS=-I/usr/include" >> $GITHUB_ENV
+          echo "=== Setting additional environment variables ==="
+          echo "C_INCLUDE_PATH=${FFMPEG_INCLUDE_DIR}" >> $GITHUB_ENV
+          echo "CPLUS_INCLUDE_PATH=${FFMPEG_INCLUDE_DIR}" >> $GITHUB_ENV
+          echo "BINDGEN_EXTRA_CLANG_ARGS=-I${FFMPEG_INCLUDE_DIR}" >> $GITHUB_ENV
           
           echo "=== Final verification ==="
-          pkg-config --exists --print-errors libavcodec libavformat libavutil libswscale || echo "pkg-config verification failed"
-          pkg-config --cflags libswscale || echo "pkg-config cflags failed"
-          pkg-config --libs libswscale || echo "pkg-config libs failed"
+          export PKG_CONFIG_PATH="${PKG_CONFIG_PATH}"
+          
+          # Check if pkg-config can find FFmpeg libraries
+          echo "Testing pkg-config for FFmpeg libraries:"
+          pkg-config --exists libavcodec && echo "✅ libavcodec found" || echo "❌ libavcodec not found"
+          pkg-config --exists libavformat && echo "✅ libavformat found" || echo "❌ libavformat not found" 
+          pkg-config --exists libavutil && echo "✅ libavutil found" || echo "❌ libavutil not found"
+          pkg-config --exists libswscale && echo "✅ libswscale found" || echo "❌ libswscale not found"
+          pkg-config --exists libswresample && echo "✅ libswresample found" || echo "❌ libswresample not found"
+          
+          # Show paths for debugging
+          echo "Include paths:"
+          pkg-config --cflags libswscale || echo "No cflags for libswscale"
+          echo "Library paths:"
+          pkg-config --libs libswscale || echo "No libs for libswscale"
+          
+          # Final header check
+          if [ -f "/usr/include/libswscale/swscale.h" ]; then
+            echo "✅ Found swscale.h at /usr/include/libswscale/swscale.h"
+          elif [ -f "/usr/local/include/libswscale/swscale.h" ]; then
+            echo "✅ Found swscale.h at /usr/local/include/libswscale/swscale.h"
+          else
+            echo "❌ swscale.h still not found!"
+            find /usr -name "swscale.h" -type f 2>/dev/null || echo "No swscale.h files found"
+          fi
 
       - name: Install ONNX Runtime
         run: |
@@ -168,9 +244,15 @@ jobs:
       - name: Run Rust tests with coverage
         run: |
           cd src-tauri
-          # Set additional environment variables for Rust build
-          export PKG_CONFIG_PATH="/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig"
-          export BINDGEN_EXTRA_CLANG_ARGS="-I/usr/include"
+          
+          # Set all environment variables for Rust build
+          export PKG_CONFIG_PATH="${PKG_CONFIG_PATH}"
+          export FFMPEG_INCLUDE_DIR="${FFMPEG_INCLUDE_DIR}"
+          export FFMPEG_LIB_DIR="${FFMPEG_LIB_DIR}"
+          export C_INCLUDE_PATH="${C_INCLUDE_PATH}"
+          export CPLUS_INCLUDE_PATH="${CPLUS_INCLUDE_PATH}"
+          export BINDGEN_EXTRA_CLANG_ARGS="${BINDGEN_EXTRA_CLANG_ARGS}"
+          
           # Try to find LLVM path dynamically
           LLVM_PATHS=(
             "/usr/lib/llvm-18/lib"
@@ -190,11 +272,26 @@ jobs:
             fi
           done
           
-          # Debug FFmpeg detection
-          echo "=== Debug FFmpeg detection ==="
-          pkg-config --exists libswscale && echo "✅ pkg-config can find libswscale" || echo "❌ pkg-config cannot find libswscale"
-          ls -la /usr/include/libswscale/ || echo "libswscale headers not found"
+          # Debug FFmpeg detection before building
+          echo "=== Final debug before Rust build ==="
+          echo "PKG_CONFIG_PATH: $PKG_CONFIG_PATH"
+          echo "FFMPEG_INCLUDE_DIR: $FFMPEG_INCLUDE_DIR"
+          echo "BINDGEN_EXTRA_CLANG_ARGS: $BINDGEN_EXTRA_CLANG_ARGS"
+          echo "LIBCLANG_PATH: $LIBCLANG_PATH"
           
+          # Test that all required libraries can be found
+          pkg-config --exists libswscale && echo "✅ libswscale detected" || echo "❌ libswscale NOT detected"
+          
+          # Check if the critical header file exists
+          if [ -f "${FFMPEG_INCLUDE_DIR}/libswscale/swscale.h" ]; then
+            echo "✅ swscale.h found at ${FFMPEG_INCLUDE_DIR}/libswscale/swscale.h"
+          else
+            echo "❌ swscale.h NOT found at ${FFMPEG_INCLUDE_DIR}/libswscale/swscale.h"
+            echo "Searching for swscale.h..."
+            find /usr -name "swscale.h" -type f 2>/dev/null || echo "No swscale.h found anywhere"
+          fi
+          
+          # Run the actual build
           cargo llvm-cov --lcov --output-path coverage.info
         continue-on-error: true
 
