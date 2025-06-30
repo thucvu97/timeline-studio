@@ -7,12 +7,9 @@ const compat = new FlatCompat({
 })
 
 const eslintConfig = tseslint.config(
-  {
-    ignores: ["**/*.js"], // Ignore JavaScript files from TypeScript rules
-  },
   eslint.configs.recommended,
-  tseslint.configs.strictTypeChecked,
-  tseslint.configs.stylisticTypeChecked,
+  ...tseslint.configs.strictTypeChecked,
+  ...tseslint.configs.stylisticTypeChecked,
   ...compat.extends("next/core-web-vitals"),
   ...compat.extends("plugin:import/recommended"),
   ...compat.extends("plugin:import/typescript"),
@@ -129,12 +126,22 @@ const eslintConfig = tseslint.config(
   {
     files: ["**/*.js"],
     rules: {
-      // Basic JavaScript rules only, no TypeScript type checking
-      "no-unused-vars": "warn",
-      "no-undef": "off", // AudioWorkletProcessor is a global
+      // Disable TypeScript-specific rules for JS files
       "@typescript-eslint/await-thenable": "off",
       "@typescript-eslint/no-misused-promises": "off",
       "@typescript-eslint/require-await": "off",
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-member-access": "off",
+      "@typescript-eslint/no-unsafe-return": "off",
+      "@typescript-eslint/no-unsafe-call": "off",
+      "@typescript-eslint/no-unsafe-argument": "off",
+      "@typescript-eslint/unbound-method": "off",
+      "@typescript-eslint/prefer-nullish-coalescing": "off",
+      "@typescript-eslint/no-unnecessary-condition": "off",
+      "@typescript-eslint/restrict-template-expressions": "off",
+      // Basic JavaScript rules only
+      "no-unused-vars": "warn",
+      "no-undef": "off", // AudioWorkletProcessor is a global
     },
     languageOptions: {
       globals: {
