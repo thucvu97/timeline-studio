@@ -31,6 +31,16 @@ jobs:
             clang \
             llvm-dev \
             libclang-dev
+          
+          # Verify headers and set environment variables
+          echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig" >> $GITHUB_ENV
+          echo "BINDGEN_EXTRA_CLANG_ARGS=-I/usr/include" >> $GITHUB_ENV
+          
+          # Check if headers exist
+          if [ ! -f "/usr/include/libswscale/swscale.h" ]; then
+            echo "Installing additional FFmpeg packages..."
+            sudo apt-get install -y $(apt-cache search libswscale | grep -E '^libswscale[0-9]+-dev' | cut -d' ' -f1) || true
+          fi
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

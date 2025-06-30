@@ -105,6 +105,49 @@ jobs:
             llvm-dev \
             libclang-dev
 
+      - name: Verify FFmpeg headers
+        run: |
+          echo "=== Checking FFmpeg headers ==="
+          find /usr/include -name "swscale.h" -type f 2>/dev/null || echo "swscale.h not found in /usr/include"
+          find /usr/include -name "libswscale" -type d 2>/dev/null || echo "libswscale directory not found"
+          ls -la /usr/include/libav* 2>/dev/null || echo "No libav* directories found"
+          
+          echo "=== Installing additional FFmpeg dev packages ==="
+          sudo apt-get install -y \
+            libavcodec-extra \
+            libavformat-extra \
+            libavfilter-extra \
+            libavdevice-extra || echo "Extra packages not available"
+          
+          echo "=== Final header check ==="
+          if [ ! -f "/usr/include/libswscale/swscale.h" ]; then
+            echo "swscale.h still not found, searching system..."
+            find /usr -name "swscale.h" -type f 2>/dev/null || echo "swscale.h not found anywhere"
+            
+            echo "Available libswscale packages:"
+            apt-cache search libswscale
+            
+            echo "Trying to install all libswscale packages..."
+            sudo apt-get install -y $(apt-cache search libswscale | grep -E '^libswscale[0-9]+-dev' | cut -d' ' -f1) || echo "Failed to install additional packages"
+          else
+            echo "✅ swscale.h found at /usr/include/libswscale/swscale.h"
+          fi
+
+      - name: Set FFmpeg environment variables
+        run: |
+          echo "=== Setting FFmpeg environment variables ==="
+          echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig" >> $GITHUB_ENV
+          echo "FFMPEG_INCLUDE_DIR=/usr/include" >> $GITHUB_ENV
+          echo "FFMPEG_LIB_DIR=/usr/lib/x86_64-linux-gnu" >> $GITHUB_ENV
+          echo "C_INCLUDE_PATH=/usr/include" >> $GITHUB_ENV
+          echo "CPLUS_INCLUDE_PATH=/usr/include" >> $GITHUB_ENV
+          echo "BINDGEN_EXTRA_CLANG_ARGS=-I/usr/include" >> $GITHUB_ENV
+          
+          echo "=== Final verification ==="
+          pkg-config --exists --print-errors libavcodec libavformat libavutil libswscale || echo "pkg-config verification failed"
+          pkg-config --cflags libswscale || echo "pkg-config cflags failed"
+          pkg-config --libs libswscale || echo "pkg-config libs failed"
+
       - name: Install ONNX Runtime
         run: |
           wget https://github.com/microsoft/onnxruntime/releases/download/v1.22.0/onnxruntime-linux-x64-1.22.0.tgz
@@ -125,6 +168,33 @@ jobs:
       - name: Run Rust tests with coverage
         run: |
           cd src-tauri
+          # Set additional environment variables for Rust build
+          export PKG_CONFIG_PATH="/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig"
+          export BINDGEN_EXTRA_CLANG_ARGS="-I/usr/include"
+          # Try to find LLVM path dynamically
+          LLVM_PATHS=(
+            "/usr/lib/llvm-18/lib"
+            "/usr/lib/llvm-17/lib" 
+            "/usr/lib/llvm-16/lib"
+            "/usr/lib/llvm-15/lib"
+            "/usr/lib/llvm-14/lib"
+            "/usr/lib/llvm-13/lib"
+            "/usr/lib/x86_64-linux-gnu"
+          )
+          
+          for path in "${LLVM_PATHS[@]}"; do
+            if [ -d "$path" ] && [ -f "$path/libclang.so" -o -f "$path/libclang.so.1" ]; then
+              export LIBCLANG_PATH="$path"
+              echo "✅ Found LIBCLANG_PATH: $path"
+              break
+            fi
+          done
+          
+          # Debug FFmpeg detection
+          echo "=== Debug FFmpeg detection ==="
+          pkg-config --exists libswscale && echo "✅ pkg-config can find libswscale" || echo "❌ pkg-config cannot find libswscale"
+          ls -la /usr/include/libswscale/ || echo "libswscale headers not found"
+          
           cargo llvm-cov --lcov --output-path coverage.info
         continue-on-error: true
 
