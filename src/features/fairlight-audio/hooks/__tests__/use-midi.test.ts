@@ -90,16 +90,16 @@ describe("useMidi", () => {
       expect(mockMidiEngine.initialize).not.toHaveBeenCalled()
     })
 
-    it("handles initialization errors", () => {
+    it("handles initialization errors", async () => {
       const initError = new Error("MIDI initialization failed")
       mockMidiEngine.initialize.mockRejectedValue(initError)
 
       const { result } = renderHook(() => useMidi())
 
-      // Give time for the promise to resolve
-      setTimeout(() => {
+      // Wait for the promise to resolve and state to update
+      await vi.waitFor(() => {
         expect(result.current.error).toBe("MIDI initialization failed")
-      }, 100)
+      }, { timeout: 1000 })
     })
   })
 
