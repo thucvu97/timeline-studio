@@ -99,8 +99,12 @@ jobs:
             libavdevice-dev \
             libswscale-dev \
             libswresample-dev \
+            libavresample-dev \
             pkg-config \
-            build-essential
+            build-essential \
+            clang \
+            llvm-dev \
+            libclang-dev
 
       - name: Install ONNX Runtime
         run: |

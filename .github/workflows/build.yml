@@ -18,7 +18,20 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y ffmpeg libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libswscale-dev libswresample-dev pkg-config
+          sudo apt-get install -y \
+            ffmpeg \
+            libavcodec-dev \
+            libavformat-dev \
+            libavutil-dev \
+            libavfilter-dev \
+            libavdevice-dev \
+            libswscale-dev \
+            libswresample-dev \
+            libavresample-dev \
+            pkg-config \
+            clang \
+            llvm-dev \
+            libclang-dev
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

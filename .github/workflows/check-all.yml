@@ -56,13 +56,17 @@ jobs:
             libavdevice-dev \
             libswscale-dev \
             libswresample-dev \
+            libavresample-dev \
             libglib2.0-dev \
             libcairo2-dev \
             libpango1.0-dev \
             libsoup-3.0-dev \
             libjavascriptcoregtk-4.1-dev \
             pkg-config \
-            build-essential
+            build-essential \
+            clang \
+            llvm-dev \
+            libclang-dev
             
       - name: Set Linux FFmpeg environment variables
         if: matrix.os == 'ubuntu-latest'
