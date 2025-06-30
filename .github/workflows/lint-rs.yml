@@ -1,0 +1,102 @@
+# Installs Rust and checks formatting + linting
+
+name: Lint Rust
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    paths-ignore:
+      - "src/**"
+      - "package.json"
+      - "package-lock.json"
+      - "bun.lock"
+      - "pnpm-lock.yaml"
+      - "README.md"
+
+jobs:
+  build:
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Disable git core.autocrlf on Windows
+        if: matrix.os == 'windows-latest'
+        run: git config --global core.autocrlf false
+
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Install Linux dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev ffmpeg libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libswscale-dev libswresample-dev pkg-config
+
+      - name: Install macOS dependencies
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew install ffmpeg pkg-config
+          echo "PKG_CONFIG_PATH=/opt/homebrew/lib/pkgconfig:/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
+
+      - name: Install Windows dependencies
+        if: matrix.os == 'windows-latest'
+        run: |
+          # Install pkg-config
+          choco install pkgconfiglite -y
+          
+          # Install vcpkg
+          git clone https://github.com/Microsoft/vcpkg.git C:\vcpkg
+          C:\vcpkg\bootstrap-vcpkg.bat
+          C:\vcpkg\vcpkg integrate install
+          
+          # Install FFmpeg via vcpkg
+          C:\vcpkg\vcpkg install ffmpeg:x64-windows
+          
+          # Set environment variables
+          echo "VCPKG_ROOT=C:\vcpkg" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=C:\vcpkg\installed\x64-windows\lib\pkgconfig" >> $GITHUB_ENV
+          echo "C:\vcpkg\installed\x64-windows\bin" >> $GITHUB_PATH
+
+      - name: Create empty 'dist' directory
+        run: mkdir dist
+
+      - name: Set up Node.js v22
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: "npm"
+
+      - name: Install dependencies on Unix
+        if: runner.os != 'Windows'
+        run: |
+          npm config set fetch-timeout 300000
+          npm config set fetch-retries 5
+          npm ci --prefer-offline --no-audit --no-fund
+
+      - name: Install dependencies on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./scripts/windows-npm-install.ps1
+
+      - name: Run rustfmt check
+        run: npm run format:rust:check
+        env:
+          PKG_CONFIG_PATH: ${{ matrix.os == 'macos-latest' && '/opt/homebrew/lib/pkgconfig:/usr/local/lib/pkgconfig' || (matrix.os == 'windows-latest' && 'C:\vcpkg\installed\x64-windows\lib\pkgconfig' || '') }}
+          VCPKG_ROOT: ${{ matrix.os == 'windows-latest' && 'C:\vcpkg' || '' }}
+
+      - name: Run clippy check and deny warnings
+        run: npm run lint:rust
+        env:
+          PKG_CONFIG_PATH: ${{ matrix.os == 'macos-latest' && '/opt/homebrew/lib/pkgconfig:/usr/local/lib/pkgconfig' || (matrix.os == 'windows-latest' && 'C:\vcpkg\installed\x64-windows\lib\pkgconfig' || '') }}
+          VCPKG_ROOT: ${{ matrix.os == 'windows-latest' && 'C:\vcpkg' || '' }}

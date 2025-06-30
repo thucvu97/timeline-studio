@@ -1,0 +1,169 @@
+name: Test Coverage
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test-coverage:
+    name: Test and Upload Coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Create test results directory
+        run: mkdir -p test-results
+
+      - name: Run tests with coverage
+        run: bun run test:coverage
+        env:
+          CI: true
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./test-results/junit.xml
+          flags: frontend
+          name: frontend-tests
+          fail_ci_if_error: false
+          verbose: true
+
+      - name: Upload coverage to Codecov (with plugin)
+        if: always()
+        run: bun run test:coverage
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          CODECOV_STATIC_TOKEN: ${{ secrets.CODECOV_STATIC_TOKEN }}
+          CI: true
+
+      - name: Upload coverage reports to Codecov (fallback)
+        if: always()
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info
+          flags: frontend
+          name: frontend-coverage
+          fail_ci_if_error: false
+          verbose: true
+          slug: chatman-media/timeline-studio
+
+  test-rust-coverage:
+    name: Rust Test Coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: llvm-tools-preview
+
+      - name: Cache cargo-llvm-cov
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin/cargo-llvm-cov
+          key: ${{ runner.os }}-cargo-llvm-cov-0.5.39
+
+      - name: Install cargo-llvm-cov
+        run: |
+          if ! command -v cargo-llvm-cov &> /dev/null; then
+            cargo install cargo-llvm-cov --locked
+          fi
+
+      - name: Install cargo2junit
+        run: |
+          if ! command -v cargo2junit &> /dev/null; then
+            cargo install cargo2junit --locked
+          fi
+
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev ffmpeg libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libswscale-dev libswresample-dev pkg-config
+          
+      - name: Install ONNX Runtime
+        run: |
+          # Download ONNX Runtime 1.22.0 for Linux x64 (compatible with ort 2.0.0-rc.10)
+          wget https://github.com/microsoft/onnxruntime/releases/download/v1.22.0/onnxruntime-linux-x64-1.22.0.tgz
+          tar -xzf onnxruntime-linux-x64-1.22.0.tgz
+          # Copy only library files to system path
+          sudo cp onnxruntime-linux-x64-1.22.0/lib/*.so* /usr/local/lib/
+          # Update library cache
+          sudo ldconfig
+          # Set environment variable for dynamic loading
+          echo "ORT_DYLIB_PATH=/usr/local/lib/libonnxruntime.so" >> $GITHUB_ENV
+
+      - name: Create empty dist directory
+        run: mkdir dist
+
+      - name: Create test results directory
+        run: mkdir -p test-results
+
+      - name: Run Rust tests with coverage
+        run: |
+          cd src-tauri
+          # Run all tests normally first to ensure they pass
+          cargo test --lib --bins --tests
+          # Generate JUnit report (if cargo2junit is available)
+          if command -v cargo2junit &> /dev/null; then
+            cargo test --lib --bins --tests --no-fail-fast --message-format json 2>/dev/null | cargo2junit > ../test-results/rust-junit.xml || echo "cargo2junit failed, but tests passed"
+          else
+            echo "cargo2junit not found, skipping JUnit report generation"
+          fi
+          cd ..
+          # Also run coverage tests
+          bun run test:coverage:rust
+        env:
+          RUSTFLAGS: -Cinstrument-coverage
+          LLVM_PROFILE_FILE: timeline-studio-%p-%m.profraw
+
+      - name: Upload Rust test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./test-results/rust-junit.xml
+          flags: rust
+          name: rust-tests
+          fail_ci_if_error: false
+          verbose: true
+
+      - name: Upload Rust coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./src-tauri/coverage.info
+          flags: rust
+          name: rust-coverage
+          fail_ci_if_error: false
+          verbose: true
+          slug: chatman-media/timeline-studio

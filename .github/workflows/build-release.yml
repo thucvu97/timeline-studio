@@ -154,14 +154,14 @@ jobs:
           pkg-config --modversion libavcodec || echo "libavcodec not found"
           pkg-config --modversion libavformat || echo "libavformat not found"
 
-      - name: Cache FFmpeg and ONNX (Windows only)
+      - name: Cache vcpkg (Windows only)
         if: matrix.platform == 'windows-latest'
         uses: actions/cache@v3
         with:
           path: |
-            C:\ffmpeg
+            C:\vcpkg
             C:\onnxruntime
-          key: windows-ffmpeg-onnx-v4
+          key: windows-vcpkg-ffmpeg-onnx-v3
 
       - name: Install dependencies (Windows only)
         if: matrix.platform == 'windows-latest'
@@ -169,17 +169,26 @@ jobs:
           # Install pkg-config for Windows
           choco install pkgconfiglite
           
-          # Check if FFmpeg exists from cache
-          if (-Not (Test-Path "C:\ffmpeg")) {
-            # Use existing setup script
-            powershell -ExecutionPolicy Bypass -File scripts\setup-ffmpeg-windows.ps1
+          # Check if vcpkg exists from cache
+          if (-Not (Test-Path "C:\vcpkg")) {
+            # Install vcpkg for FFmpeg development libraries
+            git clone https://github.com/Microsoft/vcpkg.git C:\vcpkg
+            cd C:\vcpkg
+            .\bootstrap-vcpkg.bat
+            .\vcpkg integrate install
+            
+            # Install FFmpeg with development libraries
+            .\vcpkg install ffmpeg:x64-windows
           } else {
-            Write-Host "Using cached FFmpeg installation"
-            # Set environment variables from cache
-            echo "FFMPEG_DIR=C:\ffmpeg" >> $env:GITHUB_ENV
-            echo "PKG_CONFIG_PATH=C:\ffmpeg\lib\pkgconfig" >> $env:GITHUB_ENV
-            echo "C:\ffmpeg\bin" >> $env:GITHUB_PATH
+            echo "Using cached vcpkg installation"
+            cd C:\vcpkg
+            .\vcpkg integrate install
           }
+          
+          # Set environment variables for FFmpeg
+          echo "VCPKG_ROOT=C:\vcpkg" >> $env:GITHUB_ENV
+          echo "PKG_CONFIG_PATH=C:\vcpkg\installed\x64-windows\lib\pkgconfig" >> $env:GITHUB_ENV
+          echo "C:\vcpkg\installed\x64-windows\bin" >> $env:GITHUB_PATH
           
           # Check if ONNX Runtime exists from cache
           $ONNX_VERSION = "1.19.2"
@@ -188,7 +197,7 @@ jobs:
             Invoke-WebRequest -Uri "https://github.com/microsoft/onnxruntime/releases/download/v$ONNX_VERSION/onnxruntime-win-x64-$ONNX_VERSION.zip" -OutFile "onnxruntime.zip"
             Expand-Archive -Path "onnxruntime.zip" -DestinationPath "C:\onnxruntime"
           } else {
-            Write-Host "Using cached ONNX Runtime installation"
+            echo "Using cached ONNX Runtime installation"
           }
           
           echo "C:\onnxruntime\onnxruntime-win-x64-$ONNX_VERSION\lib" >> $env:GITHUB_PATH
@@ -204,10 +213,10 @@ jobs:
 
           if [[ "$UBUNTU_VERSION" == "24.04" ]]; then
             # Ubuntu 24.04 (Noble)
-            sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf ffmpeg libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libswscale-dev libswresample-dev pkg-config clang llvm-dev libclang-dev
+            sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf ffmpeg libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libswscale-dev libswresample-dev pkg-config
           else
             # Ubuntu 22.04 (Jammy) и более старые versii
-            sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf ffmpeg libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libswscale-dev libswresample-dev pkg-config clang llvm-dev libclang-dev
+            sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf ffmpeg libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libswscale-dev libswresample-dev pkg-config
           fi
           
           # Install ONNX Runtime for Ubuntu
@@ -293,8 +302,8 @@ jobs:
         uses: tauri-apps/tauri-action@v0.5.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          FFMPEG_DIR: C:\ffmpeg
-          PKG_CONFIG_PATH: C:\ffmpeg\lib\pkgconfig
+          VCPKG_ROOT: C:\vcpkg
+          PKG_CONFIG_PATH: C:\vcpkg\installed\x64-windows\lib\pkgconfig
           ORT_DYLIB_PATH: C:\onnxruntime\onnxruntime-win-x64-1.19.2\lib\onnxruntime.dll
           RUST_BACKTRACE: 1
           CARGO_PROFILE_RELEASE_BUILD_OVERRIDE_DEBUG: false

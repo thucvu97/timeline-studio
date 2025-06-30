@@ -1,144 +1,144 @@
+# Runs all checks: JS/TS linting and Rust linting
+
 name: Check All
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
-    branches: [main]
 
 jobs:
-  lint:
-    name: Lint
-    uses: ./.github/workflows/lint.yml
-    secrets: inherit
-
-  test-coverage:
-    name: Test and Coverage
-    uses: ./.github/workflows/test-and-coverage.yml
-    secrets: inherit
-
-  build:
-    name: Build Check
-    needs: [lint]
-    runs-on: ${{ matrix.os }}
+  check-js:
+    name: Check JavaScript/TypeScript
+    timeout-minutes: 15
     strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
       fail-fast: false
-    timeout-minutes: 20
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Checkout repository
+      - name: Disable git core.autocrlf on Windows
+        if: matrix.os == 'windows-latest'
+        run: git config --global core.autocrlf false
+
+      - name: Checkout repository code
         uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          bun-version: latest
+          node-version: '20.10.0'
+          cache: "npm"
 
-      - name: Setup Rust
+      - name: Install dependencies on Unix
+        if: runner.os != 'Windows'
+        run: |
+          npm config set fetch-timeout 300000
+          npm config set fetch-retries 5
+          npm ci --prefer-offline --no-audit --no-fund
+
+      - name: Install dependencies on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./scripts/windows-npm-install.ps1
+
+      - name: Run lint step on Unix
+        if: runner.os != 'Windows'
+        run: npm run lint
+
+      - name: Run lint step on Windows
+        if: runner.os == 'Windows'
+        run: npm run lint:windows
+
+      - name: Check import order on Unix
+        if: runner.os != 'Windows'
+        run: npm run format:imports
+
+      # Temporarily disabled due to Windows performance issues
+      # - name: Check import order on Windows
+      #   if: runner.os == 'Windows'
+      #   run: npm run format:imports:windows
+
+  check-rust:
+    name: Check Rust
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Disable git core.autocrlf on Windows
+        if: matrix.os == 'windows-latest'
+        run: git config --global core.autocrlf false
+
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
 
-      - name: Install system dependencies (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Install Linux dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            libgtk-3-dev \
-            libwebkit2gtk-4.1-dev \
-            libayatana-appindicator3-dev \
-            librsvg2-dev \
-            ffmpeg \
-            libavcodec-dev \
-            libavformat-dev \
-            libavutil-dev \
-            libavfilter-dev \
-            libavdevice-dev \
-            libswscale-dev \
-            libswresample-dev \
-            libglib2.0-dev \
-            libcairo2-dev \
-            libpango1.0-dev \
-            libsoup-3.0-dev \
-            libjavascriptcoregtk-4.1-dev \
-            pkg-config \
-            build-essential \
-            clang \
-            llvm-dev \
-            libclang-dev
-          
-          # Run the setup script to handle FFmpeg configuration
-          chmod +x scripts/setup-ffmpeg-linux.sh
-          ./scripts/setup-ffmpeg-linux.sh
+          sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev ffmpeg libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libswscale-dev libswresample-dev pkg-config
 
-      - name: Install system dependencies (macOS)
-        if: matrix.os == 'macos-latest'
-        run: |
-          brew install ffmpeg pkg-config onnxruntime
-          
-      - name: Set macOS environment variables
-        if: matrix.os == 'macos-latest'
-        run: |
-          echo "Setting up ONNX Runtime for macOS..."
-          # Check which path exists
-          if [ -f "/opt/homebrew/lib/libonnxruntime.dylib" ]; then
-            echo "Found ONNX Runtime at /opt/homebrew/lib/libonnxruntime.dylib (Apple Silicon)"
-            echo "ORT_DYLIB_PATH=/opt/homebrew/lib/libonnxruntime.dylib" >> $GITHUB_ENV
-          elif [ -f "/usr/local/lib/libonnxruntime.dylib" ]; then
-            echo "Found ONNX Runtime at /usr/local/lib/libonnxruntime.dylib (Intel Mac)"
-            echo "ORT_DYLIB_PATH=/usr/local/lib/libonnxruntime.dylib" >> $GITHUB_ENV
-          else
-            echo "Warning: ONNX Runtime library not found!"
-            find /opt/homebrew -name "libonnxruntime*.dylib" 2>/dev/null || echo "Not in /opt/homebrew"
-            find /usr/local -name "libonnxruntime*.dylib" 2>/dev/null || echo "Not in /usr/local"
-          fi
+      - name: Create empty 'dist' directory
+        run: mkdir dist
 
-      - name: Install system dependencies (Windows)
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: "npm"
+
+      - name: Install dependencies from lockfile
+        run: |
+          npm config set fetch-timeout 300000
+          npm config set fetch-retries 5
+          npm ci --prefer-offline --no-audit --no-fund
+
+      - name: Run rustfmt check
+        run: npm run format:rust:check
+
+      - name: Run clippy check and deny warnings
+        run: npm run lint:rust
+
+  check-tests:
+    name: Run Tests
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Disable git core.autocrlf on Windows
         if: matrix.os == 'windows-latest'
-        shell: powershell
-        run: |
-          # Install pkg-config first
-          choco install pkgconfiglite -y
-          
-          # Install vcpkg for FFmpeg
-          git clone https://github.com/Microsoft/vcpkg.git C:\vcpkg
-          C:\vcpkg\bootstrap-vcpkg.bat
-          C:\vcpkg\vcpkg integrate install
-          C:\vcpkg\vcpkg install ffmpeg:x64-windows
-          
-          # Set environment variables for GitHub Actions
-          echo "VCPKG_ROOT=C:\vcpkg" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          echo "PKG_CONFIG_PATH=C:\vcpkg\installed\x64-windows\lib\pkgconfig" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          echo "C:\vcpkg\installed\x64-windows\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          
-          # Also set for current session
-          $env:VCPKG_ROOT = "C:\vcpkg"
-          $env:PKG_CONFIG_PATH = "C:\vcpkg\installed\x64-windows\lib\pkgconfig"
-          $env:PATH = "C:\vcpkg\installed\x64-windows\bin;$env:PATH"
+        run: git config --global core.autocrlf false
+
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: "npm"
 
       - name: Install dependencies
-        run: bun install
-
-      - name: Build frontend
-        run: bun run build
-
-      - name: Build Tauri app
         run: |
-          cd src-tauri
-          cargo build --release --no-default-features
+          rm -rf node_modules
+          npm install
 
-  all-checks-passed:
-    name: All Checks Passed
-    needs: [lint, test-coverage, build]
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-      - name: Check results
-        run: |
-          if [ "${{ needs.lint.result }}" != "success" ] || 
-             [ "${{ needs.test-coverage.result }}" != "success" ] || 
-             [ "${{ needs.build.result }}" != "success" ]; then
-            echo "One or more checks failed"
-            exit 1
-          fi
-          echo "All checks passed!"
+      - name: Run tests
+        run: npm test

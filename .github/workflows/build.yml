@@ -18,23 +18,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            ffmpeg \
-            libavcodec-dev \
-            libavformat-dev \
-            libavutil-dev \
-            libavfilter-dev \
-            libavdevice-dev \
-            libswscale-dev \
-            libswresample-dev \
-            pkg-config \
-            clang \
-            llvm-dev \
-            libclang-dev
-          
-          # Run the setup script to handle configuration
-          chmod +x scripts/setup-ffmpeg-linux.sh
-          ./scripts/setup-ffmpeg-linux.sh
+          sudo apt-get install -y ffmpeg libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libswscale-dev libswresample-dev pkg-config
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
