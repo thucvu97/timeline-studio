@@ -67,7 +67,7 @@ You upload your videos - AI finds story arcs, crises, resolutions, emotional pea
 **Overall readiness: 78.2%** 
 **🚀 Alpha version: 91.0% ready** 🎯
 
-✅ **Completed**: 48 modules (100% ready) - 27 frontend + 21 backend (including Fairlight Audio)  
+✅ **Completed**: 51 modules (100% ready) - 30 frontend + 21 backend (including Fairlight Audio, Color Grading, AI Chat)  
 🔄 **In progress**: 3 modules for Alpha - Scene Analyzer (30%), Script Generator (20%), Person ID (0%)
 📋 **Remaining for Alpha**: Smart Montage Planner + completing 3 AI modules = 28.9 weight units
 📋 **Planned**: 9 modules (0% ready) for future versions (excluding plugins)
@@ -88,12 +88,13 @@ You upload your videos - AI finds story arcs, crises, resolutions, emotional pea
 - 📱 Device presets (iPhone, iPad, Android) for optimized exports
 - 🌐 Internationalization support (13 languages)
 - 🎨 Modern UI using Tailwind CSS v4, shadcn-ui
-- 📚 Complete documentation with more than 7,000 tests and over 70% code coverage
+- 📚 Complete documentation with more than 9,000 tests and over 80% code coverage
 - 🧠 **NEW: Full AI Platform** - 82 Claude AI tools for video automation
 - 🎤 **NEW: Whisper transcription** - Speech-to-text with OpenAI/local models
 - 📱 **NEW: Platform optimization** - Auto-adapt for 4 social platforms
 - 🤖 **NEW: Workflow automation** - 10 pre-built processes for quick editing
 - 🎨 **NEW: Advanced Color Grading** - Professional color correction with wheels, curves, LUT, scopes
+- 🎧 **NEW: Fairlight Audio** - Professional audio mixing and mastering system
 
 ## Getting Started
 
@@ -127,11 +128,7 @@ bun run tauri dev
 - 🧪 [Development Guide](docs-ru/05-development/README.md) - Testing and development
 - 🚀 [Deployment Guide](docs-ru/06-deployment/README.md) - Build and deployment
 - 📋 [User Guides](docs-ru/07-guides/README.md) - Performance and best practices
-
-### 📋 Project Documentation
-
 - **`src/features/README.md`** - overview of all features with priorities and status
-- **Language versions**: Available in 15 languages via the switcher above
 
 ## Development
 
