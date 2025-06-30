@@ -8,6 +8,8 @@
 # testing
 /coverage
 /test-results
+*.profraw
+*.profdata
 
 # next.js
 /.next/

@@ -648,6 +648,9 @@ EMPTY_LINE_ABOVE=value
     assert_eq!(key.value, "deepseek_test_123");
 
     // Test with non-existing key
+    // First ensure the env var is not set
+    env::remove_var("CODECOV_TOKEN");
+    
     let result = importer.import_api_key(ApiKeyType::Codecov);
     assert!(result.is_ok());
     assert!(result.unwrap().is_none());
