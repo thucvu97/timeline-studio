@@ -112,6 +112,9 @@ jobs:
           # Set environment variables
           echo "VCPKG_ROOT=C:\vcpkg" >> $GITHUB_ENV
           echo "PKG_CONFIG_PATH=C:\vcpkg\installed\x64-windows\lib\pkgconfig" >> $GITHUB_ENV
+          echo "FFMPEG_DIR=C:\vcpkg\installed\x64-windows" >> $GITHUB_ENV
+          echo "FFMPEG_INCLUDE_DIR=C:\vcpkg\installed\x64-windows\include" >> $GITHUB_ENV
+          echo "FFMPEG_LIB_DIR=C:\vcpkg\installed\x64-windows\lib" >> $GITHUB_ENV
           echo "C:\vcpkg\installed\x64-windows\bin" >> $GITHUB_PATH
 
       - name: Create empty 'dist' directory
@@ -154,15 +157,15 @@ jobs:
         env:
           PKG_CONFIG_PATH: ${{ matrix.os == 'macos-latest' && '/opt/homebrew/lib/pkgconfig:/usr/local/lib/pkgconfig' || (matrix.os == 'windows-latest' && 'C:\vcpkg\installed\x64-windows\lib\pkgconfig' || '') }}
           VCPKG_ROOT: ${{ matrix.os == 'windows-latest' && 'C:\vcpkg' || '' }}
-          FFMPEG_DIR: ${{ matrix.os == 'macos-latest' && '/opt/homebrew/opt/ffmpeg' || '' }}
-          FFMPEG_INCLUDE_DIR: ${{ matrix.os == 'macos-latest' && '/opt/homebrew/opt/ffmpeg/include' || '' }}
-          FFMPEG_LIB_DIR: ${{ matrix.os == 'macos-latest' && '/opt/homebrew/opt/ffmpeg/lib' || '' }}
+          FFMPEG_DIR: ${{ matrix.os == 'macos-latest' && '/opt/homebrew/opt/ffmpeg' || (matrix.os == 'windows-latest' && 'C:\vcpkg\installed\x64-windows' || '') }}
+          FFMPEG_INCLUDE_DIR: ${{ matrix.os == 'macos-latest' && '/opt/homebrew/opt/ffmpeg/include' || (matrix.os == 'windows-latest' && 'C:\vcpkg\installed\x64-windows\include' || '') }}
+          FFMPEG_LIB_DIR: ${{ matrix.os == 'macos-latest' && '/opt/homebrew/opt/ffmpeg/lib' || (matrix.os == 'windows-latest' && 'C:\vcpkg\installed\x64-windows\lib' || '') }}
 
       - name: Run clippy check and deny warnings
         run: npm run lint:rust
         env:
           PKG_CONFIG_PATH: ${{ matrix.os == 'macos-latest' && '/opt/homebrew/lib/pkgconfig:/usr/local/lib/pkgconfig' || (matrix.os == 'windows-latest' && 'C:\vcpkg\installed\x64-windows\lib\pkgconfig' || '') }}
           VCPKG_ROOT: ${{ matrix.os == 'windows-latest' && 'C:\vcpkg' || '' }}
-          FFMPEG_DIR: ${{ matrix.os == 'macos-latest' && '/opt/homebrew/opt/ffmpeg' || '' }}
-          FFMPEG_INCLUDE_DIR: ${{ matrix.os == 'macos-latest' && '/opt/homebrew/opt/ffmpeg/include' || '' }}
-          FFMPEG_LIB_DIR: ${{ matrix.os == 'macos-latest' && '/opt/homebrew/opt/ffmpeg/lib' || '' }}
+          FFMPEG_DIR: ${{ matrix.os == 'macos-latest' && '/opt/homebrew/opt/ffmpeg' || (matrix.os == 'windows-latest' && 'C:\vcpkg\installed\x64-windows' || '') }}
+          FFMPEG_INCLUDE_DIR: ${{ matrix.os == 'macos-latest' && '/opt/homebrew/opt/ffmpeg/include' || (matrix.os == 'windows-latest' && 'C:\vcpkg\installed\x64-windows\include' || '') }}
+          FFMPEG_LIB_DIR: ${{ matrix.os == 'macos-latest' && '/opt/homebrew/opt/ffmpeg/lib' || (matrix.os == 'windows-latest' && 'C:\vcpkg\installed\x64-windows\lib' || '') }}
