@@ -138,6 +138,11 @@ mod env_importer_tests {
 
   #[test]
   fn test_import_vimeo_with_access_token() {
+    // Cleanup any existing Vimeo variables first
+    env::remove_var("VIMEO_CLIENT_ID");
+    env::remove_var("VIMEO_CLIENT_SECRET");
+    env::remove_var("VIMEO_ACCESS_TOKEN");
+
     let importer = EnvImporter::new();
 
     // Set Vimeo environment variables including access token
