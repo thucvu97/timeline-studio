@@ -2056,5 +2056,598 @@
       "conflictResolution": "Разрешение конфликтов файлов",
       "conflictResolutionDescription": "Что делать, если файл уже существует"
     }
+  },
+  "fairlightAudio": {
+    "surround": {
+      "panner": {
+        "stereo": "STEREO панорамирование",
+        "5.1": "5.1 панорамирование",
+        "7.1": "7.1 панорамирование",
+        "position": "Позиция: X:{{x}}% Y:{{y}}%",
+        "source": "Источник"
+      },
+      "speakers": {
+        "left": "Левый",
+        "right": "Правый",
+        "center": "Центр",
+        "lfe": "НЧ",
+        "leftSurround": "Левый окружающий",
+        "rightSurround": "Правый окружающий",
+        "leftRear": "Левый задний",
+        "rightRear": "Правый задний"
+      },
+      "channels": {
+        "L": "Л",
+        "R": "П",
+        "C": "Ц",
+        "LFE": "НЧ",
+        "LS": "ЛО",
+        "RS": "ПО",
+        "LR": "ЛЗ",
+        "RR": "ПЗ"
+      }
+    },
+    "audioEngine": {
+      "initialization": "создаёт аудио контекст с правильными настройками",
+      "masterChain": "настраивает мастер-цепь правильно",
+      "limiter": "настраивает лимитер с правильными настройками",
+      "resumeSuspended": "возобновляет приостановленный аудио контекст",
+      "channelManagement": {
+        "createNew": "создаёт новый канал с правильной конфигурацией",
+        "returnExisting": "возвращает существующий канал, если уже создан",
+        "connectMedia": "подключает медиа элемент к каналу",
+        "disconnectExisting": "отключает существующий источник при подключении нового"
+      },
+      "volumePan": {
+        "updateVolume": "обновляет громкость канала правильно",
+        "updatePan": "обновляет панорамирование канала правильно",
+        "handleNonExistent": "обрабатывает операции с несуществующими каналами"
+      },
+      "muteSolo": {
+        "muteChannel": "отключает звук канала правильно",
+        "unmuteChannel": "включает звук канала правильно",
+        "soloChannel": "солирует канал и отключает другие",
+        "multipleSolo": "обрабатывает несколько соло каналов"
+      },
+      "master": {
+        "updateVolume": "обновляет мастер громкость",
+        "enableLimiter": "включает лимитер",
+        "disableLimiter": "отключает лимитер",
+        "setThreshold": "устанавливает порог лимитера"
+      },
+      "analyser": {
+        "returnChannel": "возвращает анализатор канала",
+        "returnNull": "возвращает null для несуществующего анализатора канала",
+        "createMaster": "создаёт и возвращает мастер анализатор"
+      },
+      "effects": {
+        "addEffect": "добавляет эффект к каналу",
+        "insertAt": "вставляет эффект в определённую позицию",
+        "removeEffect": "удаляет эффект из канала"
+      },
+      "surround": {
+        "setFormat": "устанавливает мастер формат окружающего звука",
+        "enableChannel": "включает окружающий звук для канала",
+        "useMasterFormat": "использует мастер формат при включении без указания формата",
+        "disableChannel": "отключает окружающий звук для канала",
+        "setPosition": "устанавливает позицию окружающего звука",
+        "returnNullPosition": "возвращает null для позиции без включённого окружающего звука",
+        "getChannelLevels": "получает уровни каналов окружающего звука",
+        "returnNullLevels": "возвращает null для уровней каналов без окружающего звука"
+      },
+      "cleanup": {
+        "disposeResources": "освобождает все ресурсы",
+        "clearCollections": "очищает все коллекции при завершении"
+      },
+      "edgeCases": {
+        "handleNonExistent": "корректно обрабатывает операции с несуществующими каналами",
+        "invalidEffectIndex": "обрабатывает неверный индекс эффекта",
+        "alreadyEnabled": "обрабатывает включение уже включённого окружающего звука"
+      }
+    },
+    "surroundProcessor": {
+      "initialization": {
+        "defaultStereo": "создаёт процессор со стандартным стерео форматом",
+        "5.1Format": "создаёт процессор с форматом 5.1",
+        "7.1Format": "создаёт процессор с форматом 7.1"
+      },
+      "position": {
+        "setGet": "устанавливает и получает позицию правильно",
+        "updateGains": "обновляет усиление каналов при изменении позиции",
+        "returnCopy": "возвращает копию позиции для предотвращения внешних изменений"
+      },
+      "format": {
+        "switchTo5.1": "переключается со стерео на 5.1",
+        "sameFormat": "ничего не делает при установке того же формата"
+      },
+      "channelGains": {
+        "calculateCloser": "рассчитывает большее усиление для ближних динамиков",
+        "levels5.1": "возвращает правильные уровни каналов для 5.1",
+        "levels7.1": "возвращает правильные уровни каналов для 7.1"
+      },
+      "routing": {
+        "connectDestination": "подключается к узлу назначения",
+        "disconnectAll": "отключает все узлы",
+        "returnInput": "возвращает входной узел",
+        "returnOutput": "возвращает выходной узел"
+      },
+      "channelOutput": {
+        "returnValid": "возвращает выход канала для валидного канала",
+        "returnNull": "возвращает null для невалидного канала"
+      },
+      "stereoDownmix": {
+        "createMonitoring": "создаёт стерео микс для мониторинга",
+        "applyCoefficients": "применяет правильные коэффициенты микширования",
+        "handle7.1": "правильно обрабатывает микширование 7.1"
+      },
+      "edgeCases": {
+        "extremeValues": "обрабатывает экстремальные значения позиции",
+        "speakerLocations": "обрабатывает позицию в местах расположения динамиков",
+        "rapidChanges": "обрабатывает быстрые изменения позиции"
+      },
+      "formatSpecific": {
+        "lfeChannel": "обрабатывает канал НЧ в 5.1",
+        "centerBoost": "обрабатывает усиление центрального канала при фронтальной позиции"
+      },
+      "cleanup": {
+        "switchFormats": "правильно очищает ресурсы при переключении форматов"
+      }
+    },
+    "tests": {
+      "describe": "описание",
+      "it": "тест",
+      "rendering": "рендеринг",
+      "interaction": "взаимодействие",
+      "speakerVisualization": "визуализация динамиков",
+      "channelLevels": "уровни каналов",
+      "referenceElements": "опорные элементы",
+      "edgeCases": "граничные случаи"
+    },
+    "effects": {
+      "compressor": {
+        "title": "Компрессор",
+        "reset": "Сброс",
+        "gainReduction": "ПУ",
+        "threshold": "Порог",
+        "ratio": "Степень",
+        "attack": "Атака",
+        "release": "Спад",
+        "knee": "Колено",
+        "makeup": "Компенсация",
+        "presets": {
+          "gentle": "Мягкий",
+          "vocal": "Вокал",
+          "drums": "Ударные",
+          "master": "Мастер"
+        }
+      },
+      "equalizer": {
+        "title": "7-полосный эквалайзер",
+        "reset": "Сброс",
+        "band": "Полоса",
+        "resetBand": "Сбросить полосу",
+        "frequency": "Частота",
+        "quality": "Добротность"
+      },
+      "reverb": {
+        "title": "Реверберация",
+        "reset": "Сброс",
+        "roomSize": "Размер помещения",
+        "decay": "Затухание",
+        "damping": "Демпфирование",
+        "preDelay": "Предзадержка",
+        "mixLevels": "Уровни микса",
+        "dry": "Сухой",
+        "wet": "Обработанный",
+        "early": "Ранние",
+        "late": "Поздние",
+        "presets": {
+          "room": "Комната",
+          "hall": "Зал",
+          "plate": "Пластина",
+          "spring": "Пружина",
+          "cathedral": "Собор"
+        }
+      },
+      "noiseReduction": {
+        "title": "Шумоподавление",
+        "enable": "Включить шумоподавление",
+        "algorithm": "Алгоритм",
+        "algorithms": {
+          "spectralGate": {
+            "name": "Спектральный гейт",
+            "description": "Частотное гейтирование шума"
+          },
+          "wienerFilter": {
+            "name": "Фильтр Винера",
+            "description": "Статистическая оценка шума"
+          },
+          "aiDenoising": {
+            "name": "ИИ шумоподавление",
+            "description": "Удаление на основе нейросети"
+          },
+          "adaptive": {
+            "name": "Адаптивный",
+            "description": "Гибридный мультиалгоритм"
+          }
+        },
+        "mode": {
+          "basic": "Базовый",
+          "advanced": "Расширенный",
+          "analysis": "Анализ"
+        },
+        "parameters": {
+          "reductionStrength": "Сила подавления",
+          "preserveVoice": "Сохранить голос",
+          "noiseProfile": "Профиль шума",
+          "selectProfile": "Выберите профиль...",
+          "noneAutoDetect": "Нет (Автоопределение)",
+          "stopLearning": "Остановить обучение",
+          "learnNoiseProfile": "Изучить профиль шума",
+          "attackTime": "Время атаки",
+          "releaseTime": "Время спада",
+          "frequencySmoothing": "Частотное сглаживание",
+          "noiseFloor": "Уровень шума",
+          "gateThreshold": "Порог гейта"
+        },
+        "analysis": {
+          "analyzing": "Анализ...",
+          "analyzeAudio": "Анализировать аудио",
+          "snr": "С/Ш",
+          "noiseLevel": "Уровень шума",
+          "voiceDetection": "Определение голоса",
+          "detected": "Обнаружен",
+          "notDetected": "Не обнаружен",
+          "confidence": "Уверенность",
+          "dominantFrequencies": "Доминирующие частоты"
+        },
+        "recommendations": {
+          "highNoise": "Обнаружен высокий шум. Рекомендуется использовать ИИ шумоподавление.",
+          "voiceDetected": "Обнаружен голос. Включите 'Сохранить голос' для оптимального качества.",
+          "noVoice": "Голос не обнаружен. Можно использовать более агрессивное подавление."
+        },
+        "preview": "Предпросмотр",
+        "channelStrip": {
+          "nr": "ШП",
+          "noiseReduction": "Шумоподавление",
+          "strength": "Сила",
+          "advancedSettings": "Расширенные настройки",
+          "voice": "Голос"
+        }
+      }
+    },
+    "mixer": {
+      "channelStrip": {
+        "eq": "ЭКВ",
+        "send1": "Посыл 1",
+        "send2": "Посыл 2",
+        "pan": "ПАН",
+        "right": "П",
+        "outputs": {
+          "main": "Основной",
+          "bus1": "Шина 1",
+          "bus2": "Шина 2"
+        }
+      },
+      "masterSection": {
+        "bus1": "Шина 1",
+        "bus2": "Шина 2",
+        "limiter": "Лимитер",
+        "threshold": "Порог:",
+        "master": "МАСТЕР"
+      },
+      "fader": {
+        "solo": "С",
+        "mute": "М",
+        "dbMarkers": {
+          "zero": "0",
+          "minus6": "-6",
+          "minus12": "-12",
+          "minus24": "-24",
+          "infinity": "-∞"
+        }
+      }
+    },
+    "midi": {
+      "configuration": {
+        "title": "Настройка MIDI",
+        "description": "Настройка MIDI устройств и привязок для Fairlight Audio"
+      },
+      "setup": {
+        "initializing": "Инициализация MIDI...",
+        "error": "Ошибка MIDI",
+        "tabs": {
+          "devices": "Устройства",
+          "mappings": "Привязки",
+          "router": "Маршрутизатор"
+        },
+        "devices": {
+          "inputDevices": "MIDI устройства ввода",
+          "noInputDevices": "MIDI устройства ввода не обнаружены",
+          "outputDevices": "MIDI устройства вывода",
+          "noOutputDevices": "MIDI устройства вывода не обнаружены",
+          "defaultDevices": "Устройства по умолчанию",
+          "defaultInput": "Ввод по умолчанию",
+          "selectInputDevice": "Выберите устройство ввода",
+          "defaultOutput": "Вывод по умолчанию",
+          "selectOutputDevice": "Выберите устройство вывода",
+          "unknownDevice": "Неизвестное устройство"
+        },
+        "mappings": {
+          "title": "MIDI привязки",
+          "addMapping": "Добавить привязку",
+          "noMappings": "MIDI привязки не настроены",
+          "addFirstMapping": "Нажмите \"Добавить привязку\" для создания первого MIDI управления"
+        },
+        "mappingEditor": {
+          "title": "Редактировать MIDI привязку",
+          "minimumValue": "Минимальное значение",
+          "maximumValue": "Максимальное значение",
+          "responseCurve": "Кривая отклика",
+          "curves": {
+            "linear": "Линейная",
+            "exponential": "Экспоненциальная",
+            "logarithmic": "Логарифмическая"
+          },
+          "responseCurvePreview": "Предпросмотр кривой отклика",
+          "cancel": "Отмена",
+          "saveChanges": "Сохранить изменения"
+        },
+        "learnDialog": {
+          "title": "MIDI обучение",
+          "description": "Выберите устройство и параметр, затем переместите регулятор на вашем MIDI устройстве",
+          "midiDevice": "MIDI устройство",
+          "selectMidiDevice": "Выберите MIDI устройство",
+          "targetParameter": "Целевой параметр",
+          "selectParameter": "Выберите параметр для управления",
+          "parameters": {
+            "channel1Volume": "Канал 1 - Громкость",
+            "channel1Pan": "Канал 1 - Панорама",
+            "channel2Volume": "Канал 2 - Громкость",
+            "channel2Pan": "Канал 2 - Панорама",
+            "channel3Volume": "Канал 3 - Громкость",
+            "channel3Pan": "Канал 3 - Панорама",
+            "channel4Volume": "Канал 4 - Громкость",
+            "channel4Pan": "Канал 4 - Панорама",
+            "masterVolume": "Мастер - Громкость",
+            "masterLimiterThreshold": "Мастер - Порог лимитера"
+          },
+          "status": {
+            "listening": "Ожидание MIDI ввода...",
+            "listeningHint": "Переместите регулятор на вашем MIDI устройстве",
+            "received": "MIDI сигнал получен!",
+            "ready": "Готов к обучению",
+            "readyHint": "Выберите устройство и параметр, затем нажмите \"Начать прослушивание\""
+          },
+          "info": {
+            "type": "Тип:",
+            "controller": "Контроллер: CC",
+            "channel": "Канал:"
+          },
+          "buttons": {
+            "cancel": "Отмена",
+            "startListening": "Начать прослушивание",
+            "listening": "Прослушивание...",
+            "saveMapping": "Сохранить привязку"
+          }
+        }
+      },
+      "sequencer": {
+        "title": "MIDI Секвенсор",
+        "bpm": "BPM",
+        "sync": "Синхронизация",
+        "syncModes": {
+          "internal": "Внутренняя",
+          "external": "Внешняя"
+        },
+        "loop": "Цикл",
+        "tracks": "Дорожки",
+        "track": "Дорожка",
+        "channel": "Кан",
+        "events": "событий",
+        "mute": "М",
+        "solo": "С",
+        "deleteTrack": "Удалить дорожку",
+        "importMidi": "Импорт MIDI",
+        "exportMidi": "Экспорт MIDI",
+        "defaultFileName": "sequence.mid"
+      },
+      "router": {
+        "title": "MIDI Маршрутизатор",
+        "engineNotInitialized": "MIDI движок не инициализирован",
+        "createFromPreset": "Создать из пресета...",
+        "create": "Создать",
+        "presets": {
+          "keyboardSplit": "Разделение клавиатуры",
+          "channelFilter": "Фильтр каналов",
+          "ccRemap": "Переназначение CC"
+        },
+        "tabs": {
+          "routes": "Маршруты",
+          "matrixView": "Матричный вид",
+          "monitor": "Монитор"
+        },
+        "route": {
+          "enableRoute": "Включить маршрут",
+          "active": "Активен",
+          "inactive": "Неактивен",
+          "editRoute": "Редактировать маршрут",
+          "duplicate": "Дублировать",
+          "delete": "Удалить"
+        },
+        "source": {
+          "from": "От:",
+          "anyDevice": "Любое устройство",
+          "channel": "Кан"
+        },
+        "destination": {
+          "to": "К:",
+          "channel": "Канал",
+          "virtual": "Виртуальный:",
+          "functionCallback": "Функция обратного вызова",
+          "unknown": "Неизвестно"
+        },
+        "processors": "Процессоры:",
+        "noRoutes": "MIDI маршруты не настроены",
+        "createFirstRoute": "Создайте маршрут используя меню пресетов выше",
+        "matrixViewComingSoon": "Матричный вид скоро появится",
+        "matrixDescription": "Визуальная матрица маршрутизации для сложных настроек",
+        "monitorComingSoon": "Монитор маршрутов скоро появится",
+        "monitorDescription": "Визуализация MIDI потока в реальном времени"
+      }
+    },
+    "automation": {
+      "parameters": {
+        "volume": "Громкость",
+        "pan": "Панорама",
+        "eqLow": "НЧ эквалайзер",
+        "eqMid": "СЧ эквалайзер",
+        "eqHigh": "ВЧ эквалайзер",
+        "compThreshold": "Порог компрессора",
+        "compRatio": "Степень компрессии",
+        "reverbWet": "Уровень реверберации"
+      },
+      "modes": {
+        "off": {
+          "name": "Выкл",
+          "description": "Без автоматизации"
+        },
+        "read": {
+          "name": "Чтение",
+          "description": "Читать существующую автоматизацию"
+        },
+        "write": {
+          "name": "Запись",
+          "description": "Перезаписывать автоматизацию при записи"
+        },
+        "touch": {
+          "name": "Касание",
+          "description": "Записывать только при касании"
+        },
+        "latch": {
+          "name": "Защёлка",
+          "description": "Продолжать запись после отпускания"
+        }
+      },
+      "controls": {
+        "mode": "Режим:",
+        "stop": "Стоп",
+        "record": "Запись",
+        "channel": "Канал",
+        "parameter": "Параметр"
+      },
+      "status": {
+        "lanes": "{{count}} дорожек автоматизации",
+        "mode": "Режим: {{mode}}",
+        "recording": "Запись",
+        "reading": "Чтение данных автоматизации",
+        "willOverwrite": "Будет перезаписывать автоматизацию при записи",
+        "touchToStart": "Коснитесь регулятора для начала автоматизации",
+        "touchToLatch": "Коснитесь регулятора для защёлкивания автоматизации"
+      }
+    },
+    "audioClipEditor": {
+      "title": "Редактор аудиоклипов",
+      "fadeTypes": {
+        "linear": "Линейное",
+        "exponential": "Экспоненциальное",
+        "logarithmic": "Логарифмическое",
+        "cosine": "Косинусное"
+      },
+      "fadeIn": "Нарастание",
+      "fadeOut": "Затухание",
+      "apply": "Применить",
+      "splitPosition": "Позиция разделения",
+      "split": "Разделить",
+      "normalizeTo": "Нормализовать до -3дБ",
+      "normalize": "Нормализовать"
+    },
+    "mixerWithRouting": {
+      "tabs": {
+        "mixer": "Микшер",
+        "routing": "Маршрутизация",
+        "groups": "Группы",
+        "sends": "Посылы"
+      },
+      "groups": {
+        "title": "Группы",
+        "channelGroups": "Группы каналов",
+        "manageGroups": "Управление группами",
+        "noGroupsCreated": "Группы не созданы",
+        "noGroupsDescription": "Группы помогают организовывать и управлять несколькими каналами вместе",
+        "createGroup": "Создать группу",
+        "channels": "Каналы:",
+        "bus": "Шина:"
+      },
+      "sends": {
+        "title": "Матрица посылов",
+        "closePanel": "Закрыть панель",
+        "channels": "Каналы",
+        "sends": "посылов",
+        "selectChannel": "Выберите канал для управления посылами"
+      }
+    },
+    "effectsRack": {
+      "title": "Эффекты",
+      "addEffect": "Добавить эффект",
+      "noEffectsAdded": "Эффекты не добавлены",
+      "effects": {
+        "eq": "Эквалайзер",
+        "compressor": "Компрессор",
+        "reverb": "Реверберация"
+      }
+    },
+    "automationView": {
+      "noLanesVisible": "Нет видимых дорожек автоматизации",
+      "addLanePrompt": "Добавьте дорожку с помощью элементов управления выше",
+      "status": {
+        "automation": "Автоматизация:",
+        "lanes": "Дорожки:",
+        "total": "всего",
+        "visible": "видимо",
+        "time": "Время:",
+        "recording": "ЗАПИСЬ"
+      }
+    },
+    "routingMatrix": {
+      "title": "Аудио маршрутизация",
+      "sendsButton": "Посылы",
+      "audioBuses": "Аудио шины",
+      "busName": "Название шины",
+      "types": {
+        "stereo": "Стерео",
+        "mono": "Моно",
+        "surround": "5.1"
+      },
+      "channelGroups": "Группы каналов",
+      "groupName": "Название группы",
+      "selectChannels": "Выберите каналы:",
+      "createGroup": "Создать группу",
+      "sendMatrix": "Матрица посылов",
+      "channel": "Канал",
+      "channelBusAssignment": "Назначение шин каналов",
+      "selectBus": "Выберите шину",
+      "sendsCount": "Посылы:"
+    },
+    "sendPanel": {
+      "title": "Посылы",
+      "active": "активных",
+      "unknown": "неизвестно",
+      "level": "Уровень",
+      "preFader": "До фейдера",
+      "postFader": "После фейдера",
+      "preFaderSend": "Посыл до фейдера",
+      "postFaderSend": "Посыл после фейдера",
+      "enabled": "Включено",
+      "disabled": "Выключено",
+      "deleteSend": "Удалить посыл",
+      "addSend": "Добавить посыл",
+      "selectDestinationBus": "Выберите шину назначения",
+      "levelPercent": "Уровень:",
+      "pre": "ПРЕ",
+      "post": "ПОСТ",
+      "noAvailableBuses": "Нет доступных шин для посылов",
+      "createBusesFirst": "Сначала создайте дополнительные шины"
+    }
   }
 }

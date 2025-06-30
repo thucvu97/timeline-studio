@@ -1,5 +1,7 @@
 import { useState } from "react"
 
+import { useTranslation } from "react-i18next"
+
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
@@ -15,6 +17,7 @@ interface MidiMappingEditorProps {
 }
 
 export function MidiMappingEditor({ mapping, onSave, onClose }: MidiMappingEditorProps) {
+  const { t } = useTranslation()
   const [min, setMin] = useState(mapping.min)
   const [max, setMax] = useState(mapping.max)
   const [curve, setCurve] = useState(mapping.curve)
@@ -31,7 +34,7 @@ export function MidiMappingEditor({ mapping, onSave, onClose }: MidiMappingEdito
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Edit MIDI Mapping</DialogTitle>
+          <DialogTitle>{t("fairlightAudio.midi.mappingEditor.title")}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
@@ -48,7 +51,7 @@ export function MidiMappingEditor({ mapping, onSave, onClose }: MidiMappingEdito
           {/* Min Value */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label className="text-xs text-zinc-400">Minimum Value</Label>
+              <Label className="text-xs text-zinc-400">{t("fairlightAudio.midi.mappingEditor.minimumValue")}</Label>
               <span className="text-xs text-zinc-500">{min.toFixed(2)}</span>
             </div>
             <Slider value={[min]} onValueChange={([v]) => setMin(v)} min={0} max={1} step={0.01} className="w-full" />
@@ -57,7 +60,7 @@ export function MidiMappingEditor({ mapping, onSave, onClose }: MidiMappingEdito
           {/* Max Value */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label className="text-xs text-zinc-400">Maximum Value</Label>
+              <Label className="text-xs text-zinc-400">{t("fairlightAudio.midi.mappingEditor.maximumValue")}</Label>
               <span className="text-xs text-zinc-500">{max.toFixed(2)}</span>
             </div>
             <Slider value={[max]} onValueChange={([v]) => setMax(v)} min={0} max={1} step={0.01} className="w-full" />
@@ -66,16 +69,16 @@ export function MidiMappingEditor({ mapping, onSave, onClose }: MidiMappingEdito
           {/* Curve Type */}
           <div>
             <Label htmlFor="curve-type" className="text-xs text-zinc-400">
-              Response Curve
+              {t("fairlightAudio.midi.mappingEditor.responseCurve")}
             </Label>
             <Select value={curve} onValueChange={(v) => setCurve(v as typeof curve)}>
               <SelectTrigger id="curve-type" className="mt-1">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="linear">Linear</SelectItem>
-                <SelectItem value="exponential">Exponential</SelectItem>
-                <SelectItem value="logarithmic">Logarithmic</SelectItem>
+                <SelectItem value="linear">{t("fairlightAudio.midi.mappingEditor.curves.linear")}</SelectItem>
+                <SelectItem value="exponential">{t("fairlightAudio.midi.mappingEditor.curves.exponential")}</SelectItem>
+                <SelectItem value="logarithmic">{t("fairlightAudio.midi.mappingEditor.curves.logarithmic")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -98,15 +101,17 @@ export function MidiMappingEditor({ mapping, onSave, onClose }: MidiMappingEdito
                 <circle cx="100" cy={100 - max * 100} r="3" fill="rgb(59, 130, 246)" />
               </svg>
             </div>
-            <p className="text-xs text-zinc-500 text-center mt-2">Response Curve Preview</p>
+            <p className="text-xs text-zinc-500 text-center mt-2">
+              {t("fairlightAudio.midi.mappingEditor.responseCurvePreview")}
+            </p>
           </div>
         </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            {t("fairlightAudio.midi.mappingEditor.cancel")}
           </Button>
-          <Button onClick={handleSave}>Save Changes</Button>
+          <Button onClick={handleSave}>{t("fairlightAudio.midi.mappingEditor.saveChanges")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

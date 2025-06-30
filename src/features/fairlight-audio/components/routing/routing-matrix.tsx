@@ -1,6 +1,7 @@
 import { useState } from "react"
 
 import { Minus, Plus, Radio, Settings, Users, Volume2, VolumeX } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -45,6 +46,7 @@ export function RoutingMatrix({
   onDeleteBus,
   onDeleteGroup,
 }: RoutingMatrixProps) {
+  const { t } = useTranslation()
   const [newBusName, setNewBusName] = useState("")
   const [newBusType, setNewBusType] = useState<AudioBus["type"]>("stereo")
   const [newGroupName, setNewGroupName] = useState("")
@@ -75,11 +77,11 @@ export function RoutingMatrix({
       {/* Header */}
       <div className="bg-zinc-900 border-b border-zinc-800 p-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-zinc-100">Audio Routing</h2>
+          <h2 className="text-lg font-semibold text-zinc-100">{t("fairlightAudio.routingMatrix.title")}</h2>
           <div className="flex items-center gap-2">
             <Button size="sm" variant={showSends ? "default" : "secondary"} onClick={() => setShowSends(!showSends)}>
               <Radio className="w-4 h-4 mr-1" />
-              Sends
+              {t("fairlightAudio.routingMatrix.sendsButton")}
             </Button>
             <Button size="sm" variant="secondary">
               <Settings className="w-4 h-4" />
@@ -93,13 +95,13 @@ export function RoutingMatrix({
         <div className="w-80 bg-zinc-900 border-r border-zinc-800 flex flex-col">
           {/* Buses Section */}
           <div className="p-4 border-b border-zinc-800">
-            <h3 className="text-sm font-semibold text-zinc-300 mb-3">Audio Buses</h3>
+            <h3 className="text-sm font-semibold text-zinc-300 mb-3">{t("fairlightAudio.routingMatrix.audioBuses")}</h3>
 
             {/* Create Bus */}
             <div className="space-y-2 mb-4">
               <div className="flex gap-2">
                 <Input
-                  placeholder="Bus name"
+                  placeholder={t("fairlightAudio.routingMatrix.busName")}
                   value={newBusName}
                   onChange={(e) => setNewBusName(e.target.value)}
                   className="h-8"
@@ -109,9 +111,9 @@ export function RoutingMatrix({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="stereo">Stereo</SelectItem>
-                    <SelectItem value="mono">Mono</SelectItem>
-                    <SelectItem value="surround">5.1</SelectItem>
+                    <SelectItem value="stereo">{t("fairlightAudio.routingMatrix.types.stereo")}</SelectItem>
+                    <SelectItem value="mono">{t("fairlightAudio.routingMatrix.types.mono")}</SelectItem>
+                    <SelectItem value="surround">{t("fairlightAudio.routingMatrix.types.surround")}</SelectItem>
                   </SelectContent>
                 </Select>
                 <Button size="sm" onClick={handleCreateBus} className="h-8 px-2">
@@ -170,19 +172,21 @@ export function RoutingMatrix({
 
           {/* Groups Section */}
           <div className="p-4 flex-1 overflow-y-auto">
-            <h3 className="text-sm font-semibold text-zinc-300 mb-3">Channel Groups</h3>
+            <h3 className="text-sm font-semibold text-zinc-300 mb-3">
+              {t("fairlightAudio.routingMatrix.channelGroups")}
+            </h3>
 
             {/* Create Group */}
             <div className="space-y-2 mb-4">
               <Input
-                placeholder="Group name"
+                placeholder={t("fairlightAudio.routingMatrix.groupName")}
                 value={newGroupName}
                 onChange={(e) => setNewGroupName(e.target.value)}
                 className="h-8"
               />
 
               <div className="space-y-1">
-                <div className="text-xs text-zinc-500">Select channels:</div>
+                <div className="text-xs text-zinc-500">{t("fairlightAudio.routingMatrix.selectChannels")}</div>
                 <div className="max-h-20 overflow-y-auto space-y-1">
                   {channelIds.map((channelId) => (
                     <label key={channelId} className="flex items-center gap-2 text-sm">
@@ -211,7 +215,7 @@ export function RoutingMatrix({
                 className="w-full h-8"
               >
                 <Users className="w-3 h-3 mr-1" />
-                Create Group
+                {t("fairlightAudio.routingMatrix.createGroup")}
               </Button>
             </div>
 
@@ -267,13 +271,17 @@ export function RoutingMatrix({
           {showSends ? (
             /* Sends Matrix */
             <div className="p-4">
-              <h3 className="text-lg font-semibold text-zinc-200 mb-4">Send Matrix</h3>
+              <h3 className="text-lg font-semibold text-zinc-200 mb-4">
+                {t("fairlightAudio.routingMatrix.sendMatrix")}
+              </h3>
 
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
                   <thead>
                     <tr>
-                      <th className="text-left p-2 text-zinc-400 border-b border-zinc-800">Channel</th>
+                      <th className="text-left p-2 text-zinc-400 border-b border-zinc-800">
+                        {t("fairlightAudio.routingMatrix.channel")}
+                      </th>
                       {buses
                         .filter((bus) => bus.id !== "master")
                         .map((bus) => (
@@ -330,7 +338,9 @@ export function RoutingMatrix({
           ) : (
             /* Channel Assignment Matrix */
             <div className="p-4">
-              <h3 className="text-lg font-semibold text-zinc-200 mb-4">Channel Bus Assignment</h3>
+              <h3 className="text-lg font-semibold text-zinc-200 mb-4">
+                {t("fairlightAudio.routingMatrix.channelBusAssignment")}
+              </h3>
 
               <div className="grid gap-3">
                 {channelIds.map((channelId) => (
@@ -339,7 +349,7 @@ export function RoutingMatrix({
                     <div className="flex-1">
                       <Select onValueChange={(busId) => onAssignChannelToBus(channelId, busId)}>
                         <SelectTrigger className="w-48">
-                          <SelectValue placeholder="Select bus" />
+                          <SelectValue placeholder={t("fairlightAudio.routingMatrix.selectBus")} />
                         </SelectTrigger>
                         <SelectContent>
                           {buses.map((bus) => (
@@ -350,7 +360,9 @@ export function RoutingMatrix({
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="text-sm text-zinc-500">Sends: {getChannelSends(channelId).length}</div>
+                    <div className="text-sm text-zinc-500">
+                      {t("fairlightAudio.routingMatrix.sendsCount")} {getChannelSends(channelId).length}
+                    </div>
                   </div>
                 ))}
               </div>

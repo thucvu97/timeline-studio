@@ -6,6 +6,7 @@
 import { useCallback, useEffect, useState } from "react"
 
 import { ArrowRight, Filter, GitBranch, Keyboard, Music, Plus, Settings, Shuffle, Zap } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -28,6 +29,7 @@ interface RouteItemProps {
 }
 
 function RouteItem({ route, onUpdate, onDelete, devices }: RouteItemProps) {
+  const { t } = useTranslation()
   const getRouteIcon = () => {
     if (route.processors.some((p) => p.type === "split")) return <GitBranch className="w-4 h-4" />
     if (route.processors.some((p) => p.type === "filter")) return <Filter className="w-4 h-4" />
@@ -41,11 +43,11 @@ function RouteItem({ route, onUpdate, onDelete, devices }: RouteItemProps) {
       const device = devices.find((d) => d.id === route.sourceDevice)
       parts.push(device?.name || route.sourceDevice)
     } else {
-      parts.push("Any Device")
+      parts.push(t("fairlightAudio.midi.router.source.anyDevice"))
     }
 
     if (route.sourceChannel) {
-      parts.push(`Ch ${route.sourceChannel}`)
+      parts.push(`${t("fairlightAudio.midi.router.source.channel")} ${route.sourceChannel}`)
     }
 
     if (route.sourceType?.length) {
@@ -61,13 +63,13 @@ function RouteItem({ route, onUpdate, onDelete, devices }: RouteItemProps) {
         const device = devices.find((d) => d.id === dest.deviceId)
         return device?.name || dest.deviceId || "Unknown"
       case "channel":
-        return `Channel ${dest.targetChannel}`
+        return `${t("fairlightAudio.midi.router.destination.channel")} ${dest.targetChannel}`
       case "virtual":
-        return `Virtual: ${dest.virtualId}`
+        return `${t("fairlightAudio.midi.router.destination.virtual")} ${dest.virtualId}`
       case "function":
-        return "Function Callback"
+        return t("fairlightAudio.midi.router.destination.functionCallback")
       default:
-        return "Unknown"
+        return t("fairlightAudio.midi.router.destination.unknown")
     }
   }
 
@@ -78,7 +80,7 @@ function RouteItem({ route, onUpdate, onDelete, devices }: RouteItemProps) {
           <Switch
             checked={route.enabled}
             onCheckedChange={(enabled) => onUpdate({ enabled })}
-            aria-label="Enable route"
+            aria-label={t("fairlightAudio.midi.router.route.enableRoute")}
           />
           <div className="flex items-center gap-2">
             {getRouteIcon()}
@@ -86,7 +88,11 @@ function RouteItem({ route, onUpdate, onDelete, devices }: RouteItemProps) {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant={route.enabled ? "default" : "secondary"}>{route.enabled ? "Active" : "Inactive"}</Badge>
+          <Badge variant={route.enabled ? "default" : "secondary"}>
+            {route.enabled
+              ? t("fairlightAudio.midi.router.route.active")
+              : t("fairlightAudio.midi.router.route.inactive")}
+          </Badge>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
@@ -94,10 +100,10 @@ function RouteItem({ route, onUpdate, onDelete, devices }: RouteItemProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem>Edit Route</DropdownMenuItem>
-              <DropdownMenuItem>Duplicate</DropdownMenuItem>
+              <DropdownMenuItem>{t("fairlightAudio.midi.router.route.editRoute")}</DropdownMenuItem>
+              <DropdownMenuItem>{t("fairlightAudio.midi.router.route.duplicate")}</DropdownMenuItem>
               <DropdownMenuItem onClick={onDelete} className="text-red-600">
-                Delete
+                {t("fairlightAudio.midi.router.route.delete")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -106,11 +112,11 @@ function RouteItem({ route, onUpdate, onDelete, devices }: RouteItemProps) {
 
       <div className="text-sm text-muted-foreground space-y-1">
         <div className="flex items-center gap-2">
-          <span className="font-medium">From:</span>
+          <span className="font-medium">{t("fairlightAudio.midi.router.source.from")}</span>
           <span>{getSourceLabel()}</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="font-medium">To:</span>
+          <span className="font-medium">{t("fairlightAudio.midi.router.destination.to")}</span>
           <div className="flex flex-wrap gap-2">
             {route.destinations.map((dest, idx) => (
               <Badge key={idx} variant="outline">
@@ -121,7 +127,7 @@ function RouteItem({ route, onUpdate, onDelete, devices }: RouteItemProps) {
         </div>
         {route.processors.length > 0 && (
           <div className="flex items-center gap-2">
-            <span className="font-medium">Processors:</span>
+            <span className="font-medium">{t("fairlightAudio.midi.router.processors")}</span>
             <div className="flex gap-1">
               {route.processors.map((proc, idx) => (
                 <Badge key={idx} variant="secondary" className="text-xs">
@@ -137,6 +143,7 @@ function RouteItem({ route, onUpdate, onDelete, devices }: RouteItemProps) {
 }
 
 export function MidiRouterView() {
+  const { t } = useTranslation()
   const { engine, devices } = useMidiEngine()
   const [routes, setRoutes] = useState<MidiRoute[]>([])
   const [selectedPreset, setSelectedPreset] = useState<string>("")
@@ -218,10 +225,10 @@ export function MidiRouterView() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>MIDI Router</CardTitle>
+          <CardTitle>{t("fairlightAudio.midi.router.title")}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">MIDI engine not initialized</p>
+          <p className="text-muted-foreground">{t("fairlightAudio.midi.router.engineNotInitialized")}</p>
         </CardContent>
       </Card>
     )
@@ -232,46 +239,46 @@ export function MidiRouterView() {
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="flex items-center gap-2">
           <Zap className="w-5 h-5" />
-          MIDI Router
+          {t("fairlightAudio.midi.router.title")}
         </CardTitle>
         <div className="flex items-center gap-2">
           <Select value={selectedPreset} onValueChange={setSelectedPreset}>
             <SelectTrigger className="w-48">
-              <SelectValue placeholder="Create from preset..." />
+              <SelectValue placeholder={t("fairlightAudio.midi.router.createFromPreset")} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="keyboard-split">
                 <div className="flex items-center gap-2">
                   <Keyboard className="w-4 h-4" />
-                  <span>Keyboard Split</span>
+                  <span>{t("fairlightAudio.midi.router.presets.keyboardSplit")}</span>
                 </div>
               </SelectItem>
               <SelectItem value="channel-filter">
                 <div className="flex items-center gap-2">
                   <Filter className="w-4 h-4" />
-                  <span>Channel Filter</span>
+                  <span>{t("fairlightAudio.midi.router.presets.channelFilter")}</span>
                 </div>
               </SelectItem>
               <SelectItem value="cc-remap">
                 <div className="flex items-center gap-2">
                   <Shuffle className="w-4 h-4" />
-                  <span>CC Remap</span>
+                  <span>{t("fairlightAudio.midi.router.presets.ccRemap")}</span>
                 </div>
               </SelectItem>
             </SelectContent>
           </Select>
           <Button onClick={handleCreatePreset} disabled={!selectedPreset} size="sm">
             <Plus className="w-4 h-4 mr-1" />
-            Create
+            {t("fairlightAudio.midi.router.create")}
           </Button>
         </div>
       </CardHeader>
       <CardContent className="p-0">
         <Tabs defaultValue="routes" className="h-full">
           <TabsList className="w-full justify-start rounded-none border-b">
-            <TabsTrigger value="routes">Routes</TabsTrigger>
-            <TabsTrigger value="matrix">Matrix View</TabsTrigger>
-            <TabsTrigger value="monitor">Monitor</TabsTrigger>
+            <TabsTrigger value="routes">{t("fairlightAudio.midi.router.tabs.routes")}</TabsTrigger>
+            <TabsTrigger value="matrix">{t("fairlightAudio.midi.router.tabs.matrixView")}</TabsTrigger>
+            <TabsTrigger value="monitor">{t("fairlightAudio.midi.router.tabs.monitor")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="routes" className="p-4">
@@ -279,8 +286,8 @@ export function MidiRouterView() {
               {routes.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <Music className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                  <p>No MIDI routes configured</p>
-                  <p className="text-sm mt-1">Create a route using the preset menu above</p>
+                  <p>{t("fairlightAudio.midi.router.noRoutes")}</p>
+                  <p className="text-sm mt-1">{t("fairlightAudio.midi.router.createFirstRoute")}</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -301,16 +308,16 @@ export function MidiRouterView() {
           <TabsContent value="matrix" className="p-4">
             <div className="text-center py-8 text-muted-foreground">
               <GitBranch className="w-12 h-12 mx-auto mb-3 opacity-30" />
-              <p>Matrix view coming soon</p>
-              <p className="text-sm mt-1">Visual routing matrix for complex setups</p>
+              <p>{t("fairlightAudio.midi.router.matrixViewComingSoon")}</p>
+              <p className="text-sm mt-1">{t("fairlightAudio.midi.router.matrixDescription")}</p>
             </div>
           </TabsContent>
 
           <TabsContent value="monitor" className="p-4">
             <div className="text-center py-8 text-muted-foreground">
               <Zap className="w-12 h-12 mx-auto mb-3 opacity-30" />
-              <p>Route monitor coming soon</p>
-              <p className="text-sm mt-1">Real-time visualization of MIDI flow</p>
+              <p>{t("fairlightAudio.midi.router.monitorComingSoon")}</p>
+              <p className="text-sm mt-1">{t("fairlightAudio.midi.router.monitorDescription")}</p>
             </div>
           </TabsContent>
         </Tabs>

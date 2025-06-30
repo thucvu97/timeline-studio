@@ -65,7 +65,10 @@ export class FFTProcessor {
     for (let i = 0; i < n; i++) {
       const j = this.reverseBits(i, bits)
       if (j > i) {
-        ;[real[i], real[j]] = [real[j], real[i]][(imag[i], imag[j])] = [imag[j], imag[i]]
+        // Swap real values
+        ;[real[i], real[j]] = [real[j], real[i]]
+        // Swap imaginary values
+        ;[imag[i], imag[j]] = [imag[j], imag[i]]
       }
     }
 
@@ -262,6 +265,13 @@ export class FFTProcessor {
   get frequencyResolution(): number {
     return this.sampleRate / this.fftSize
   }
+
+  /**
+   * Get FFT size
+   */
+  get size(): number {
+    return this.fftSize
+  }
 }
 
 /**
@@ -286,10 +296,10 @@ export class SpectralSubtraction {
     const numFrames = 10 // Average over multiple frames
     const hopSize = Math.floor(noiseSample.length / numFrames)
 
-    this.noiseProfile = new Float32Array(this.fftProcessor.fftSize / 2)
+    this.noiseProfile = new Float32Array(this.fftProcessor.size / 2)
 
     for (let i = 0; i < numFrames; i++) {
-      const frame = noiseSample.slice(i * hopSize, i * hopSize + this.fftProcessor.fftSize)
+      const frame = noiseSample.slice(i * hopSize, i * hopSize + this.fftProcessor.size)
       const windowed = this.fftProcessor.applyWindow(frame)
       const spectrum = this.fftProcessor.forward(windowed)
       const magnitude = this.fftProcessor.getMagnitudeSpectrum(spectrum.real, spectrum.imag)
@@ -322,7 +332,7 @@ export class SpectralSubtraction {
       // Spectral subtraction
       for (let i = 0; i < magnitude.length; i++) {
         magnitude[i] = Math.max(
-          magnitude[i] - this.subtractFactor * this.noiseProfile[i],
+          magnitude[i] - this.subtractFactor * this.noiseProfile![i],
           this.spectralFloor * magnitude[i],
         )
       }

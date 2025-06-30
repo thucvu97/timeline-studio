@@ -6,6 +6,7 @@
 import { useCallback, useState } from "react"
 
 import { Mic, MicOff } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -32,6 +33,7 @@ export function ChannelNoiseReduction({
   onStrengthChange,
   onOpenAdvanced,
 }: ChannelNoiseReductionProps) {
+  const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
 
   return (
@@ -41,19 +43,25 @@ export function ChannelNoiseReduction({
           <PopoverTrigger asChild>
             <Button variant="ghost" size="sm" className={`h-6 px-2 ${enabled ? "text-green-400" : "text-zinc-500"}`}>
               {enabled ? <Mic className="w-3 h-3" /> : <MicOff className="w-3 h-3" />}
-              <span className="ml-1 text-xs">NR</span>
+              <span className="ml-1 text-xs">{t("fairlightAudio.effects.noiseReduction.channelStrip.nr")}</span>
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-56" align="start">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label className="text-xs font-medium">Noise Reduction</Label>
-                <Switch checked={enabled} onCheckedChange={onToggle} aria-label="Enable noise reduction" />
+                <Label className="text-xs font-medium">
+                  {t("fairlightAudio.effects.noiseReduction.channelStrip.noiseReduction")}
+                </Label>
+                <Switch
+                  checked={enabled}
+                  onCheckedChange={onToggle}
+                  aria-label={t("fairlightAudio.effects.noiseReduction.enable")}
+                />
               </div>
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label className="text-xs">Strength</Label>
+                  <Label className="text-xs">{t("fairlightAudio.effects.noiseReduction.channelStrip.strength")}</Label>
                   <span className="text-xs text-muted-foreground">{strength}%</span>
                 </div>
                 <Slider
@@ -77,7 +85,7 @@ export function ChannelNoiseReduction({
                     onOpenAdvanced()
                   }}
                 >
-                  Advanced Settings
+                  {t("fairlightAudio.effects.noiseReduction.channelStrip.advancedSettings")}
                 </Button>
               )}
             </div>
@@ -102,6 +110,7 @@ interface NoiseReductionStripProps {
 }
 
 export function NoiseReductionStrip({ enabled, config, onToggle, onConfigChange }: NoiseReductionStripProps) {
+  const { t } = useTranslation()
   const handleStrengthChange = useCallback(
     (strength: number) => {
       onConfigChange({
@@ -134,7 +143,7 @@ export function NoiseReductionStrip({ enabled, config, onToggle, onConfigChange 
           >
             {enabled ? <Mic className="w-3 h-3" /> : <MicOff className="w-3 h-3" />}
           </Button>
-          <Label className="text-xs">Noise Reduction</Label>
+          <Label className="text-xs">{t("fairlightAudio.effects.noiseReduction.channelStrip.noiseReduction")}</Label>
         </div>
         <span className="text-xs text-zinc-500">{config.algorithm === "ai" ? "AI" : config.algorithm}</span>
       </div>
@@ -143,7 +152,9 @@ export function NoiseReductionStrip({ enabled, config, onToggle, onConfigChange 
         <>
           <div className="space-y-1">
             <div className="flex items-center justify-between">
-              <Label className="text-xs text-zinc-400">Strength</Label>
+              <Label className="text-xs text-zinc-400">
+                {t("fairlightAudio.effects.noiseReduction.channelStrip.strength")}
+              </Label>
               <span className="text-xs text-zinc-500">{config.strength}%</span>
             </div>
             <Slider
@@ -158,7 +169,9 @@ export function NoiseReductionStrip({ enabled, config, onToggle, onConfigChange 
 
           {(config.algorithm === "ai" || config.algorithm === "adaptive") && (
             <div className="flex items-center justify-between">
-              <Label className="text-xs text-zinc-400">Voice</Label>
+              <Label className="text-xs text-zinc-400">
+                {t("fairlightAudio.effects.noiseReduction.channelStrip.voice")}
+              </Label>
               <Switch checked={config.preserveVoice} onCheckedChange={handlePreserveVoiceToggle} className="h-4 w-7" />
             </div>
           )}

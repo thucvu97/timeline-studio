@@ -1,6 +1,7 @@
 import { useState } from "react"
 
 import { Info, Loader2, Music, Plus, Settings, Trash2 } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -15,6 +16,7 @@ import { useMidi } from "../../hooks/use-midi"
 import { MidiDevice } from "../../services/midi/midi-engine"
 
 export function MidiSetup() {
+  const { t } = useTranslation()
   const {
     devices,
     inputDevices,
@@ -37,7 +39,7 @@ export function MidiSetup() {
       <div className="flex items-center justify-center p-8">
         <div className="text-center space-y-2">
           <Loader2 className="w-8 h-8 animate-spin mx-auto text-zinc-400" />
-          <p className="text-sm text-zinc-400">Initializing MIDI...</p>
+          <p className="text-sm text-zinc-400">{t("fairlightAudio.midi.setup.initializing")}</p>
         </div>
       </div>
     )
@@ -49,7 +51,7 @@ export function MidiSetup() {
         <div className="flex items-start gap-2">
           <Info className="w-4 h-4 text-red-400 mt-0.5" />
           <div>
-            <p className="text-sm font-medium text-red-400">MIDI Error</p>
+            <p className="text-sm font-medium text-red-400">{t("fairlightAudio.midi.setup.error")}</p>
             <p className="text-xs text-zinc-400 mt-1">{error}</p>
           </div>
         </div>
@@ -61,18 +63,20 @@ export function MidiSetup() {
     <div className="space-y-6">
       <Tabs defaultValue="devices" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="devices">Devices</TabsTrigger>
-          <TabsTrigger value="mappings">Mappings</TabsTrigger>
-          <TabsTrigger value="router">Router</TabsTrigger>
+          <TabsTrigger value="devices">{t("fairlightAudio.midi.setup.tabs.devices")}</TabsTrigger>
+          <TabsTrigger value="mappings">{t("fairlightAudio.midi.setup.tabs.mappings")}</TabsTrigger>
+          <TabsTrigger value="router">{t("fairlightAudio.midi.setup.tabs.router")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="devices" className="space-y-4">
           {/* Input Devices */}
           <Card className="p-4">
-            <h3 className="text-sm font-semibold text-zinc-100 mb-3">MIDI Input Devices</h3>
+            <h3 className="text-sm font-semibold text-zinc-100 mb-3">
+              {t("fairlightAudio.midi.setup.devices.inputDevices")}
+            </h3>
 
             {inputDevices.length === 0 ? (
-              <p className="text-sm text-zinc-500">No MIDI input devices detected</p>
+              <p className="text-sm text-zinc-500">{t("fairlightAudio.midi.setup.devices.noInputDevices")}</p>
             ) : (
               <div className="space-y-2">
                 {inputDevices.map((device) => (
@@ -84,10 +88,12 @@ export function MidiSetup() {
 
           {/* Output Devices */}
           <Card className="p-4">
-            <h3 className="text-sm font-semibold text-zinc-100 mb-3">MIDI Output Devices</h3>
+            <h3 className="text-sm font-semibold text-zinc-100 mb-3">
+              {t("fairlightAudio.midi.setup.devices.outputDevices")}
+            </h3>
 
             {outputDevices.length === 0 ? (
-              <p className="text-sm text-zinc-500">No MIDI output devices detected</p>
+              <p className="text-sm text-zinc-500">{t("fairlightAudio.midi.setup.devices.noOutputDevices")}</p>
             ) : (
               <div className="space-y-2">
                 {outputDevices.map((device) => (
@@ -99,16 +105,18 @@ export function MidiSetup() {
 
           {/* Default Device Selection */}
           <Card className="p-4">
-            <h3 className="text-sm font-semibold text-zinc-100 mb-3">Default Devices</h3>
+            <h3 className="text-sm font-semibold text-zinc-100 mb-3">
+              {t("fairlightAudio.midi.setup.devices.defaultDevices")}
+            </h3>
 
             <div className="space-y-3">
               <div>
                 <Label htmlFor="default-input" className="text-xs text-zinc-400">
-                  Default Input
+                  {t("fairlightAudio.midi.setup.devices.defaultInput")}
                 </Label>
                 <Select value={selectedInput} onValueChange={setSelectedInput}>
                   <SelectTrigger id="default-input" className="h-8 mt-1">
-                    <SelectValue placeholder="Select input device" />
+                    <SelectValue placeholder={t("fairlightAudio.midi.setup.devices.selectInputDevice")} />
                   </SelectTrigger>
                   <SelectContent>
                     {inputDevices.map((device) => (
@@ -122,11 +130,11 @@ export function MidiSetup() {
 
               <div>
                 <Label htmlFor="default-output" className="text-xs text-zinc-400">
-                  Default Output
+                  {t("fairlightAudio.midi.setup.devices.defaultOutput")}
                 </Label>
                 <Select value={selectedOutput} onValueChange={setSelectedOutput}>
                   <SelectTrigger id="default-output" className="h-8 mt-1">
-                    <SelectValue placeholder="Select output device" />
+                    <SelectValue placeholder={t("fairlightAudio.midi.setup.devices.selectOutputDevice")} />
                   </SelectTrigger>
                   <SelectContent>
                     {outputDevices.map((device) => (
@@ -143,10 +151,10 @@ export function MidiSetup() {
 
         <TabsContent value="mappings" className="space-y-4">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-sm font-semibold text-zinc-100">MIDI Mappings</h3>
+            <h3 className="text-sm font-semibold text-zinc-100">{t("fairlightAudio.midi.setup.mappings.title")}</h3>
             <Button size="sm" onClick={() => setIsLearnDialogOpen(true)} disabled={inputDevices.length === 0}>
               <Plus className="w-3 h-3 mr-1" />
-              Add Mapping
+              {t("fairlightAudio.midi.setup.mappings.addMapping")}
             </Button>
           </div>
 
@@ -154,8 +162,8 @@ export function MidiSetup() {
             <Card className="p-8">
               <div className="text-center space-y-2">
                 <Music className="w-12 h-12 text-zinc-600 mx-auto" />
-                <p className="text-sm text-zinc-400">No MIDI mappings configured</p>
-                <p className="text-xs text-zinc-500">Click &quot;Add Mapping&quot; to create your first MIDI control</p>
+                <p className="text-sm text-zinc-400">{t("fairlightAudio.midi.setup.mappings.noMappings")}</p>
+                <p className="text-xs text-zinc-500">{t("fairlightAudio.midi.setup.mappings.addFirstMapping")}</p>
               </div>
             </Card>
           ) : (
@@ -166,8 +174,9 @@ export function MidiSetup() {
                     <div className="flex-1">
                       <p className="text-sm font-medium text-zinc-100">{mapping.targetParameter}</p>
                       <p className="text-xs text-zinc-500">
-                        {devices.find((d) => d.id === mapping.deviceId)?.name || "Unknown Device"} •
-                        {mapping.messageType.toUpperCase()}
+                        {devices.find((d) => d.id === mapping.deviceId)?.name ||
+                          t("fairlightAudio.midi.setup.devices.unknownDevice")}{" "}
+                        •{mapping.messageType.toUpperCase()}
                         {mapping.controller !== undefined && ` CC${mapping.controller}`}
                         {mapping.channel && ` CH${mapping.channel}`}
                       </p>

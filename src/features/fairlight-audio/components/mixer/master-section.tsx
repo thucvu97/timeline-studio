@@ -14,11 +14,11 @@ export function MasterSection() {
       {/* Bus section (placeholder for now) */}
       <div className="flex-1 space-y-2 mb-4">
         <div className="p-3 bg-zinc-800 rounded">
-          <div className="text-xs text-zinc-500 mb-1">Bus 1</div>
+          <div className="text-xs text-zinc-500 mb-1">{t("fairlightAudio.mixer.masterSection.bus1")}</div>
           <div className="h-2 bg-zinc-700 rounded" />
         </div>
         <div className="p-3 bg-zinc-800 rounded">
-          <div className="text-xs text-zinc-500 mb-1">Bus 2</div>
+          <div className="text-xs text-zinc-500 mb-1">{t("fairlightAudio.mixer.masterSection.bus2")}</div>
           <div className="h-2 bg-zinc-700 rounded" />
         </div>
       </div>
@@ -34,11 +34,13 @@ export function MasterSection() {
               onChange={(e) => updateMaster({ limiterEnabled: e.target.checked })}
               className="rounded border-zinc-600"
             />
-            <span>Limiter</span>
+            <span>{t("fairlightAudio.mixer.masterSection.limiter")}</span>
           </label>
           {master.limiterEnabled && (
             <div className="mt-2">
-              <div className="text-[10px] text-zinc-500 mb-1">Threshold: {master.limiterThreshold} dB</div>
+              <div className="text-[10px] text-zinc-500 mb-1">
+                {t("fairlightAudio.mixer.masterSection.threshold")} {master.limiterThreshold} dB
+              </div>
               <input
                 type="range"
                 min="-20"
@@ -58,7 +60,7 @@ export function MasterSection() {
             onChange={(value) => updateMaster({ volume: value })}
             muted={master.muted}
             onMute={() => updateMaster({ muted: !master.muted })}
-            label="MASTER"
+            label={t("fairlightAudio.mixer.masterSection.master")}
             className="scale-110"
           />
         </div>

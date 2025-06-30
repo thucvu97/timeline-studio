@@ -1,5 +1,7 @@
 import { useState } from "react"
 
+import { useTranslation } from "react-i18next"
+
 import { Slider } from "@/components/ui/slider"
 import { cn } from "@/lib/utils"
 
@@ -31,6 +33,7 @@ const DEFAULT_SETTINGS: ReverbSettings = {
 }
 
 export function Reverb({ onParameterChange, className }: ReverbProps) {
+  const { t } = useTranslation()
   const [settings, setSettings] = useState<ReverbSettings>(DEFAULT_SETTINGS)
 
   const handleParameterChange = (param: keyof ReverbSettings, value: number) => {
@@ -48,9 +51,9 @@ export function Reverb({ onParameterChange, className }: ReverbProps) {
   return (
     <div className={cn("bg-zinc-900 rounded-lg p-4 space-y-4", className)}>
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-zinc-300">Reverb</h3>
+        <h3 className="text-sm font-medium text-zinc-300">{t("fairlightAudio.effects.reverb.title")}</h3>
         <button onClick={reset} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors">
-          Reset
+          {t("fairlightAudio.effects.reverb.reset")}
         </button>
       </div>
 
@@ -97,7 +100,7 @@ export function Reverb({ onParameterChange, className }: ReverbProps) {
         {/* Room Size */}
         <div className="space-y-1">
           <div className="flex justify-between text-xs">
-            <span className="text-zinc-400">Room Size</span>
+            <span className="text-zinc-400">{t("fairlightAudio.effects.reverb.roomSize")}</span>
             <span className="text-zinc-500">{settings.roomSize.toFixed(0)}%</span>
           </div>
           <Slider
@@ -113,7 +116,7 @@ export function Reverb({ onParameterChange, className }: ReverbProps) {
         {/* Decay Time */}
         <div className="space-y-1">
           <div className="flex justify-between text-xs">
-            <span className="text-zinc-400">Decay</span>
+            <span className="text-zinc-400">{t("fairlightAudio.effects.reverb.decay")}</span>
             <span className="text-zinc-500">{settings.decay.toFixed(1)}s</span>
           </div>
           <Slider
@@ -129,7 +132,7 @@ export function Reverb({ onParameterChange, className }: ReverbProps) {
         {/* Damping */}
         <div className="space-y-1">
           <div className="flex justify-between text-xs">
-            <span className="text-zinc-400">Damping</span>
+            <span className="text-zinc-400">{t("fairlightAudio.effects.reverb.damping")}</span>
             <span className="text-zinc-500">{settings.damping.toFixed(0)}%</span>
           </div>
           <Slider
@@ -145,7 +148,7 @@ export function Reverb({ onParameterChange, className }: ReverbProps) {
         {/* Pre-delay */}
         <div className="space-y-1">
           <div className="flex justify-between text-xs">
-            <span className="text-zinc-400">Pre-delay</span>
+            <span className="text-zinc-400">{t("fairlightAudio.effects.reverb.preDelay")}</span>
             <span className="text-zinc-500">{settings.predelay.toFixed(0)}ms</span>
           </div>
           <Slider
@@ -161,13 +164,13 @@ export function Reverb({ onParameterChange, className }: ReverbProps) {
 
       {/* Mix Controls */}
       <div className="space-y-2 pt-2 border-t border-zinc-800">
-        <div className="text-xs text-zinc-400 mb-2">Mix Levels</div>
+        <div className="text-xs text-zinc-400 mb-2">{t("fairlightAudio.effects.reverb.mixLevels")}</div>
 
         <div className="grid grid-cols-2 gap-4">
           {/* Dry Level */}
           <div className="space-y-1">
             <div className="flex justify-between text-xs">
-              <span className="text-zinc-400">Dry</span>
+              <span className="text-zinc-400">{t("fairlightAudio.effects.reverb.dry")}</span>
               <span className="text-zinc-500">{settings.dryLevel.toFixed(0)}%</span>
             </div>
             <Slider
@@ -183,7 +186,7 @@ export function Reverb({ onParameterChange, className }: ReverbProps) {
           {/* Wet Level */}
           <div className="space-y-1">
             <div className="flex justify-between text-xs">
-              <span className="text-zinc-400">Wet</span>
+              <span className="text-zinc-400">{t("fairlightAudio.effects.reverb.wet")}</span>
               <span className="text-zinc-500">{settings.wetLevel.toFixed(0)}%</span>
             </div>
             <Slider
@@ -199,7 +202,7 @@ export function Reverb({ onParameterChange, className }: ReverbProps) {
           {/* Early Reflections */}
           <div className="space-y-1">
             <div className="flex justify-between text-xs">
-              <span className="text-zinc-400">Early</span>
+              <span className="text-zinc-400">{t("fairlightAudio.effects.reverb.early")}</span>
               <span className="text-zinc-500">{settings.earlyLevel.toFixed(0)}%</span>
             </div>
             <Slider
@@ -215,7 +218,7 @@ export function Reverb({ onParameterChange, className }: ReverbProps) {
           {/* Late Reflections */}
           <div className="space-y-1">
             <div className="flex justify-between text-xs">
-              <span className="text-zinc-400">Late</span>
+              <span className="text-zinc-400">{t("fairlightAudio.effects.reverb.late")}</span>
               <span className="text-zinc-500">{settings.lateLevel.toFixed(0)}%</span>
             </div>
             <Slider
@@ -236,31 +239,31 @@ export function Reverb({ onParameterChange, className }: ReverbProps) {
           onClick={() => applyPreset("room")}
           className="text-xs px-2 py-1 bg-zinc-800 hover:bg-zinc-700 rounded transition-colors"
         >
-          Room
+          {t("fairlightAudio.effects.reverb.presets.room")}
         </button>
         <button
           onClick={() => applyPreset("hall")}
           className="text-xs px-2 py-1 bg-zinc-800 hover:bg-zinc-700 rounded transition-colors"
         >
-          Hall
+          {t("fairlightAudio.effects.reverb.presets.hall")}
         </button>
         <button
           onClick={() => applyPreset("plate")}
           className="text-xs px-2 py-1 bg-zinc-800 hover:bg-zinc-700 rounded transition-colors"
         >
-          Plate
+          {t("fairlightAudio.effects.reverb.presets.plate")}
         </button>
         <button
           onClick={() => applyPreset("spring")}
           className="text-xs px-2 py-1 bg-zinc-800 hover:bg-zinc-700 rounded transition-colors"
         >
-          Spring
+          {t("fairlightAudio.effects.reverb.presets.spring")}
         </button>
         <button
           onClick={() => applyPreset("cathedral")}
           className="text-xs px-2 py-1 bg-zinc-800 hover:bg-zinc-700 rounded transition-colors"
         >
-          Cathedral
+          {t("fairlightAudio.effects.reverb.presets.cathedral")}
         </button>
       </div>
     </div>

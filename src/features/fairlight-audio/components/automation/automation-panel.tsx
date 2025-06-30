@@ -1,6 +1,7 @@
 import { useState } from "react"
 
 import { Circle, Hand, Lock, Play, Plus, Square } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -31,50 +32,51 @@ export function AutomationPanel({
   onClearLane,
   className,
 }: AutomationPanelProps) {
+  const { t } = useTranslation()
   const [selectedChannel, setSelectedChannel] = useState("")
   const [selectedParameter, setSelectedParameter] = useState("")
 
   const availableParameters = [
-    { id: "volume", name: "Volume" },
-    { id: "pan", name: "Pan" },
-    { id: "eq.lowGain", name: "EQ Low" },
-    { id: "eq.midGain", name: "EQ Mid" },
-    { id: "eq.highGain", name: "EQ High" },
-    { id: "compressor.threshold", name: "Comp Threshold" },
-    { id: "compressor.ratio", name: "Comp Ratio" },
-    { id: "reverb.wetLevel", name: "Reverb Wet" },
+    { id: "volume", name: t("fairlightAudio.automation.parameters.volume") },
+    { id: "pan", name: t("fairlightAudio.automation.parameters.pan") },
+    { id: "eq.lowGain", name: t("fairlightAudio.automation.parameters.eqLow") },
+    { id: "eq.midGain", name: t("fairlightAudio.automation.parameters.eqMid") },
+    { id: "eq.highGain", name: t("fairlightAudio.automation.parameters.eqHigh") },
+    { id: "compressor.threshold", name: t("fairlightAudio.automation.parameters.compThreshold") },
+    { id: "compressor.ratio", name: t("fairlightAudio.automation.parameters.compRatio") },
+    { id: "reverb.wetLevel", name: t("fairlightAudio.automation.parameters.reverbWet") },
   ]
 
   const modeButtons = [
     {
       mode: "off" as const,
       icon: Square,
-      label: "Off",
-      description: "No automation",
+      label: t("fairlightAudio.automation.modes.off.name"),
+      description: t("fairlightAudio.automation.modes.off.description"),
     },
     {
       mode: "read" as const,
       icon: Play,
-      label: "Read",
-      description: "Read existing automation",
+      label: t("fairlightAudio.automation.modes.read.name"),
+      description: t("fairlightAudio.automation.modes.read.description"),
     },
     {
       mode: "write" as const,
       icon: Circle,
-      label: "Write",
-      description: "Overwrite automation while recording",
+      label: t("fairlightAudio.automation.modes.write.name"),
+      description: t("fairlightAudio.automation.modes.write.description"),
     },
     {
       mode: "touch" as const,
       icon: Hand,
-      label: "Touch",
-      description: "Write only when touching control",
+      label: t("fairlightAudio.automation.modes.touch.name"),
+      description: t("fairlightAudio.automation.modes.touch.description"),
     },
     {
       mode: "latch" as const,
       icon: Lock,
-      label: "Latch",
-      description: "Continue writing after release",
+      label: t("fairlightAudio.automation.modes.latch.name"),
+      description: t("fairlightAudio.automation.modes.latch.description"),
     },
   ]
 
@@ -92,7 +94,7 @@ export function AutomationPanel({
       <div className="flex items-center gap-4">
         {/* Automation Mode Buttons */}
         <div className="flex items-center gap-1">
-          <span className="text-xs text-zinc-400 mr-2">Mode:</span>
+          <span className="text-xs text-zinc-400 mr-2">{t("fairlightAudio.automation.controls.mode")}</span>
           {modeButtons.map(({ mode: buttonMode, icon: Icon, label }) => (
             <Button
               key={buttonMode}
@@ -113,7 +115,7 @@ export function AutomationPanel({
           {isRecording ? (
             <Button size="sm" variant="destructive" onClick={onStopRecording} className="h-8">
               <Square className="w-3 h-3 mr-1 fill-current" />
-              Stop
+              {t("fairlightAudio.automation.controls.stop")}
             </Button>
           ) : (
             <Button
@@ -124,7 +126,7 @@ export function AutomationPanel({
               className="h-8 bg-red-600 hover:bg-red-700"
             >
               <Circle className="w-3 h-3 mr-1 fill-current" />
-              Record
+              {t("fairlightAudio.automation.controls.record")}
             </Button>
           )}
         </div>
@@ -133,7 +135,7 @@ export function AutomationPanel({
         <div className="flex items-center gap-2 ml-auto">
           <Select value={selectedChannel} onValueChange={setSelectedChannel}>
             <SelectTrigger className="w-32 h-8">
-              <SelectValue placeholder="Channel" />
+              <SelectValue placeholder={t("fairlightAudio.automation.controls.channel")} />
             </SelectTrigger>
             <SelectContent>
               {uniqueChannels.map((channelId) => (
@@ -146,7 +148,7 @@ export function AutomationPanel({
 
           <Select value={selectedParameter} onValueChange={setSelectedParameter}>
             <SelectTrigger className="w-32 h-8">
-              <SelectValue placeholder="Parameter" />
+              <SelectValue placeholder={t("fairlightAudio.automation.controls.parameter")} />
             </SelectTrigger>
             <SelectContent>
               {availableParameters.map((param) => (
@@ -172,16 +174,17 @@ export function AutomationPanel({
       {/* Status Bar */}
       <div className="flex items-center justify-between mt-2 text-xs text-zinc-500">
         <span>
-          {lanes.length} automation lanes • Mode: {mode}
-          {isRecording && " • Recording"}
+          {t("fairlightAudio.automation.status.lanes", { count: lanes.length })} •{" "}
+          {t("fairlightAudio.automation.status.mode", { mode })}
+          {isRecording && ` • ${t("fairlightAudio.automation.status.recording")}`}
         </span>
 
         {mode !== "off" && (
           <span>
-            {mode === "read" && "Reading automation data"}
-            {mode === "write" && "Will overwrite automation while recording"}
-            {mode === "touch" && "Touch a control to start automation"}
-            {mode === "latch" && "Touch a control to latch automation"}
+            {mode === "read" && t("fairlightAudio.automation.status.reading")}
+            {mode === "write" && t("fairlightAudio.automation.status.willOverwrite")}
+            {mode === "touch" && t("fairlightAudio.automation.status.touchToStart")}
+            {mode === "latch" && t("fairlightAudio.automation.status.touchToLatch")}
           </span>
         )}
       </div>

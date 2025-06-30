@@ -123,6 +123,35 @@ export function useMixerState() {
     }))
   }, [])
 
+  // Convenience methods for MIDI integration
+  const setChannelVolume = useCallback((channelIndex: number, volume: number) => {
+    setState((prev) => ({
+      ...prev,
+      channels: prev.channels.map((ch, index) => (index === channelIndex ? { ...ch, volume: volume * 100 } : ch)),
+    }))
+  }, [])
+
+  const setChannelPan = useCallback((channelIndex: number, pan: number) => {
+    setState((prev) => ({
+      ...prev,
+      channels: prev.channels.map((ch, index) => (index === channelIndex ? { ...ch, pan: pan * 100 } : ch)),
+    }))
+  }, [])
+
+  const setMasterVolume = useCallback((volume: number) => {
+    setState((prev) => ({
+      ...prev,
+      master: { ...prev.master, volume: volume * 100 },
+    }))
+  }, [])
+
+  const setMasterLimiterThreshold = useCallback((threshold: number) => {
+    setState((prev) => ({
+      ...prev,
+      master: { ...prev.master, limiterThreshold: threshold },
+    }))
+  }, [])
+
   return {
     ...state,
     updateChannel,
@@ -133,5 +162,10 @@ export function useMixerState() {
     addChannel,
     removeChannel,
     setChannels,
+    // MIDI integration methods
+    setChannelVolume,
+    setChannelPan,
+    setMasterVolume,
+    setMasterLimiterThreshold,
   }
 }

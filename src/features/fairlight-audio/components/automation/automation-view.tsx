@@ -1,5 +1,7 @@
 import { useMemo } from "react"
 
+import { useTranslation } from "react-i18next"
+
 import { AutomationLaneComponent } from "./automation-lane"
 import { AutomationPanel } from "./automation-panel"
 import { AutomationEngine, AutomationMode } from "../../services/automation-engine"
@@ -19,6 +21,7 @@ export function AutomationView({
   laneHeight = 60,
   totalWidth = 2000,
 }: AutomationViewProps) {
+  const { t } = useTranslation()
   const state = automationEngine.getState()
   const visibleLanes = useMemo(() => Array.from(state.lanes.values()).filter((lane) => lane.isVisible), [state.lanes])
 
@@ -107,8 +110,8 @@ export function AutomationView({
         {visibleLanes.length === 0 ? (
           <div className="flex items-center justify-center h-32 text-zinc-500">
             <div className="text-center">
-              <p className="mb-2">No automation lanes visible</p>
-              <p className="text-sm">Add a lane using the controls above</p>
+              <p className="mb-2">{t("fairlightAudio.automationView.noLanesVisible")}</p>
+              <p className="text-sm">{t("fairlightAudio.automationView.addLanePrompt")}</p>
             </div>
           </div>
         ) : (
@@ -132,8 +135,11 @@ export function AutomationView({
       {/* Status Info */}
       <div className="h-8 bg-zinc-900 border-t border-zinc-800 flex items-center px-3 text-xs text-zinc-500">
         <span>
-          Automation: {state.mode} • Lanes: {state.lanes.size} total, {visibleLanes.length} visible • Time:{" "}
-          {currentTime.toFixed(2)}s{state.isRecording && " • RECORDING"}
+          {t("fairlightAudio.automationView.status.automation")} {state.mode} •{" "}
+          {t("fairlightAudio.automationView.status.lanes")} {state.lanes.size}{" "}
+          {t("fairlightAudio.automationView.status.total")}, {visibleLanes.length}{" "}
+          {t("fairlightAudio.automationView.status.visible")} • {t("fairlightAudio.automationView.status.time")}{" "}
+          {currentTime.toFixed(2)}s{state.isRecording && ` • ${t("fairlightAudio.automationView.status.recording")}`}
         </span>
       </div>
     </div>

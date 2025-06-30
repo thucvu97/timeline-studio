@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 
 import { Circle, Clock, Download, Play, Plus, Square, Trash2, Upload } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -15,6 +16,7 @@ import { useMidi } from "../../hooks/use-midi"
 import type { MidiTrack } from "../../services/midi/midi-sequencer"
 
 export function MidiSequencerView() {
+  const { t } = useTranslation()
   const { devices } = useMidi()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [tracks, setTracks] = useState<MidiTrack[]>([])
@@ -198,9 +200,12 @@ export function MidiSequencerView() {
     const engine = (midi as any).engineRef?.current
     if (!engine) return
 
-    const trackId = engine.sequencer.createTrack(`Track ${tracks.length + 1}`, tracks.length + 1)
+    const trackId = engine.sequencer.createTrack(
+      `${t("fairlightAudio.midi.sequencer.track")} ${tracks.length + 1}`,
+      tracks.length + 1,
+    )
     setSelectedTrack(trackId)
-  }, [tracks.length, midi])
+  }, [tracks.length, midi, t])
 
   const handleDeleteTrack = useCallback(() => {
     const engine = (midi as any).engineRef?.current
@@ -311,21 +316,21 @@ export function MidiSequencerView() {
 
       const a = document.createElement("a")
       a.href = url
-      a.download = "sequence.mid"
+      a.download = t("fairlightAudio.midi.sequencer.defaultFileName")
       a.click()
 
       URL.revokeObjectURL(url)
     } catch (error) {
       console.error("Failed to export MIDI file:", error)
     }
-  }, [midi])
+  }, [midi, t])
 
   return (
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Clock className="w-5 h-5" />
-          MIDI Sequencer
+          {t("fairlightAudio.midi.sequencer.title")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -349,7 +354,7 @@ export function MidiSequencerView() {
           </Button>
 
           <div className="flex items-center gap-2 ml-4">
-            <Label>BPM</Label>
+            <Label>{t("fairlightAudio.midi.sequencer.bpm")}</Label>
             <Slider
               value={[bpm]}
               onValueChange={handleBpmChange}
@@ -363,21 +368,21 @@ export function MidiSequencerView() {
           </div>
 
           <div className="flex items-center gap-2 ml-4">
-            <Label>Sync</Label>
+            <Label>{t("fairlightAudio.midi.sequencer.sync")}</Label>
             <Select value={syncMode} onValueChange={handleSyncModeChange}>
               <SelectTrigger className="w-32">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="internal">Internal</SelectItem>
-                <SelectItem value="external">External</SelectItem>
+                <SelectItem value="internal">{t("fairlightAudio.midi.sequencer.syncModes.internal")}</SelectItem>
+                <SelectItem value="external">{t("fairlightAudio.midi.sequencer.syncModes.external")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="flex items-center gap-2 ml-4">
             <Switch checked={loopEnabled} onCheckedChange={handleLoopToggle} />
-            <Label>Loop</Label>
+            <Label>{t("fairlightAudio.midi.sequencer.loop")}</Label>
           </div>
         </div>
 
@@ -385,7 +390,7 @@ export function MidiSequencerView() {
         <div className="flex gap-4">
           <div className="w-48 space-y-2">
             <div className="flex justify-between items-center mb-2">
-              <h4 className="text-sm font-medium">Tracks</h4>
+              <h4 className="text-sm font-medium">{t("fairlightAudio.midi.sequencer.tracks")}</h4>
               <Button size="icon" variant="ghost" onClick={handleAddTrack}>
                 <Plus className="w-4 h-4" />
               </Button>
@@ -413,7 +418,7 @@ export function MidiSequencerView() {
                             handleTrackMute(track.id, !track.muted)
                           }}
                         >
-                          {track.muted ? "M" : ""}
+                          {track.muted ? t("fairlightAudio.midi.sequencer.mute") : ""}
                         </Button>
                         <Button
                           size="icon"
@@ -424,12 +429,13 @@ export function MidiSequencerView() {
                             handleTrackSolo(track.id, !track.solo)
                           }}
                         >
-                          {track.solo ? "S" : ""}
+                          {track.solo ? t("fairlightAudio.midi.sequencer.solo") : ""}
                         </Button>
                       </div>
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      Ch {track.channel} • {track.events.length} events
+                      {t("fairlightAudio.midi.sequencer.channel")} {track.channel} • {track.events.length}{" "}
+                      {t("fairlightAudio.midi.sequencer.events")}
                     </div>
                   </div>
                 ))}
@@ -439,7 +445,7 @@ export function MidiSequencerView() {
             {selectedTrack && (
               <Button size="sm" variant="destructive" onClick={handleDeleteTrack} className="w-full">
                 <Trash2 className="w-4 h-4 mr-2" />
-                Delete Track
+                {t("fairlightAudio.midi.sequencer.deleteTrack")}
               </Button>
             )}
           </div>
@@ -454,12 +460,12 @@ export function MidiSequencerView() {
         <div className="flex gap-2">
           <Button size="sm" variant="outline" onClick={handleImport}>
             <Upload className="w-4 h-4 mr-2" />
-            Import MIDI
+            {t("fairlightAudio.midi.sequencer.importMidi")}
           </Button>
 
           <Button size="sm" variant="outline" onClick={handleExport} disabled={tracks.length === 0}>
             <Download className="w-4 h-4 mr-2" />
-            Export MIDI
+            {t("fairlightAudio.midi.sequencer.exportMidi")}
           </Button>
 
           <input ref={fileInputRef} type="file" accept=".mid,.midi" onChange={handleFileSelect} className="hidden" />

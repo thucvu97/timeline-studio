@@ -1,6 +1,7 @@
 import { useState } from "react"
 
 import { Plus, RotateCcw, RotateCw, Volume2, VolumeX, X } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -32,6 +33,7 @@ export function SendPanel({
   onDeleteSend,
   className,
 }: SendPanelProps) {
+  const { t } = useTranslation()
   const [newSendBusId, setNewSendBusId] = useState("")
   const [newSendLevel, setNewSendLevel] = useState(50)
   const [newSendIsPre, setNewSendIsPre] = useState(false)
@@ -58,8 +60,12 @@ export function SendPanel({
   return (
     <div className={cn("bg-zinc-900 border border-zinc-800 rounded p-3", className)}>
       <div className="flex items-center justify-between mb-3">
-        <h4 className="text-sm font-semibold text-zinc-200">Sends - {channelId}</h4>
-        <span className="text-xs text-zinc-500">{sends.length} active</span>
+        <h4 className="text-sm font-semibold text-zinc-200">
+          {t("fairlightAudio.sendPanel.title")} - {channelId}
+        </h4>
+        <span className="text-xs text-zinc-500">
+          {sends.length} {t("fairlightAudio.sendPanel.active")}
+        </span>
       </div>
 
       {/* Existing Sends */}
@@ -79,7 +85,7 @@ export function SendPanel({
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-zinc-200">→ {bus?.name || send.destinationBusId}</span>
-                  <span className="text-xs text-zinc-500">({bus?.type || "unknown"})</span>
+                  <span className="text-xs text-zinc-500">({bus?.type || t("fairlightAudio.sendPanel.unknown")})</span>
                 </div>
 
                 <div className="flex items-center gap-1">
@@ -89,7 +95,11 @@ export function SendPanel({
                     variant={send.isPre ? "default" : "secondary"}
                     onClick={() => onToggleSendPre(send.id, !send.isPre)}
                     className="h-6 px-2"
-                    title={send.isPre ? "Pre-fader send" : "Post-fader send"}
+                    title={
+                      send.isPre
+                        ? t("fairlightAudio.sendPanel.preFaderSend")
+                        : t("fairlightAudio.sendPanel.postFaderSend")
+                    }
                   >
                     {send.isPre ? <RotateCcw className="w-3 h-3" /> : <RotateCw className="w-3 h-3" />}
                   </Button>
@@ -100,7 +110,9 @@ export function SendPanel({
                     variant={send.isEnabled ? "default" : "secondary"}
                     onClick={() => onToggleSendEnabled(send.id, !send.isEnabled)}
                     className="h-6 w-6 p-0"
-                    title={send.isEnabled ? "Enabled" : "Disabled"}
+                    title={
+                      send.isEnabled ? t("fairlightAudio.sendPanel.enabled") : t("fairlightAudio.sendPanel.disabled")
+                    }
                   >
                     {send.isEnabled ? <Volume2 className="w-3 h-3" /> : <VolumeX className="w-3 h-3" />}
                   </Button>
@@ -111,7 +123,7 @@ export function SendPanel({
                     variant="ghost"
                     onClick={() => onDeleteSend(send.id)}
                     className="h-6 w-6 p-0 text-red-400 hover:text-red-300"
-                    title="Delete send"
+                    title={t("fairlightAudio.sendPanel.deleteSend")}
                   >
                     <X className="w-3 h-3" />
                   </Button>
@@ -121,7 +133,7 @@ export function SendPanel({
               {/* Send Level Control */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-zinc-400">Level</span>
+                  <span className="text-xs text-zinc-400">{t("fairlightAudio.sendPanel.level")}</span>
                   <span className="text-xs text-zinc-300">{convertToDb(send.level)}</span>
                 </div>
 
@@ -143,7 +155,10 @@ export function SendPanel({
 
               {/* Send Info */}
               <div className="mt-2 text-xs text-zinc-500">
-                {send.isPre ? "Pre-fader" : "Post-fader"} •{send.isEnabled ? " Active" : " Disabled"}
+                {send.isPre ? t("fairlightAudio.sendPanel.preFader") : t("fairlightAudio.sendPanel.postFader")} •
+                {send.isEnabled
+                  ? ` ${t("fairlightAudio.sendPanel.enabled")}`
+                  : ` ${t("fairlightAudio.sendPanel.disabled")}`}
               </div>
             </div>
           )
@@ -153,13 +168,13 @@ export function SendPanel({
       {/* Add New Send */}
       {availableForSend.length > 0 && (
         <div className="border-t border-zinc-800 pt-3">
-          <div className="text-sm font-medium text-zinc-300 mb-2">Add Send</div>
+          <div className="text-sm font-medium text-zinc-300 mb-2">{t("fairlightAudio.sendPanel.addSend")}</div>
 
           <div className="space-y-2">
             {/* Bus Selection */}
             <Select value={newSendBusId} onValueChange={setNewSendBusId}>
               <SelectTrigger className="h-8">
-                <SelectValue placeholder="Select destination bus" />
+                <SelectValue placeholder={t("fairlightAudio.sendPanel.selectDestinationBus")} />
               </SelectTrigger>
               <SelectContent>
                 {availableForSend.map((bus) => (
@@ -173,7 +188,9 @@ export function SendPanel({
             {/* Level and Pre/Post */}
             <div className="flex items-center gap-2">
               <div className="flex-1">
-                <div className="text-xs text-zinc-400 mb-1">Level: {newSendLevel}%</div>
+                <div className="text-xs text-zinc-400 mb-1">
+                  {t("fairlightAudio.sendPanel.levelPercent")} {newSendLevel}%
+                </div>
                 <Slider
                   value={[newSendLevel]}
                   onValueChange={([value]) => setNewSendLevel(value)}
@@ -189,16 +206,16 @@ export function SendPanel({
                 variant={newSendIsPre ? "default" : "secondary"}
                 onClick={() => setNewSendIsPre(!newSendIsPre)}
                 className="h-8 px-3"
-                title={newSendIsPre ? "Pre-fader" : "Post-fader"}
+                title={newSendIsPre ? t("fairlightAudio.sendPanel.preFader") : t("fairlightAudio.sendPanel.postFader")}
               >
-                {newSendIsPre ? "PRE" : "POST"}
+                {newSendIsPre ? t("fairlightAudio.sendPanel.pre") : t("fairlightAudio.sendPanel.post")}
               </Button>
             </div>
 
             {/* Create Button */}
             <Button size="sm" onClick={handleCreateSend} disabled={!newSendBusId} className="w-full h-8">
               <Plus className="w-3 h-3 mr-1" />
-              Add Send
+              {t("fairlightAudio.sendPanel.addSend")}
             </Button>
           </div>
         </div>
@@ -207,8 +224,8 @@ export function SendPanel({
       {/* No Available Buses */}
       {availableForSend.length === 0 && sends.length === 0 && (
         <div className="text-center py-4 text-zinc-500">
-          <div className="text-sm">No buses available for sends</div>
-          <div className="text-xs mt-1">Create additional buses first</div>
+          <div className="text-sm">{t("fairlightAudio.sendPanel.noAvailableBuses")}</div>
+          <div className="text-xs mt-1">{t("fairlightAudio.sendPanel.createBusesFirst")}</div>
         </div>
       )}
     </div>

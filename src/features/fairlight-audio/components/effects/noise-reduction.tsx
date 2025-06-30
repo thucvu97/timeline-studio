@@ -6,6 +6,7 @@
 import { useCallback, useState } from "react"
 
 import { Activity, AlertCircle, Brain, Mic, MicOff, Volume2, Waves, Zap } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
@@ -47,6 +48,7 @@ export function NoiseReduction({
   analysisResult,
   noiseProfiles = [],
 }: NoiseReductionProps) {
+  const { t } = useTranslation()
   const [isLearning, setIsLearning] = useState(false)
   const [previewEnabled, setPreviewEnabled] = useState(false)
 
@@ -93,26 +95,26 @@ export function NoiseReduction({
       case "spectral":
         return {
           icon: <Waves className="w-4 h-4" />,
-          name: "Spectral Gate",
-          description: "Frequency-based noise gating",
+          name: t("fairlightAudio.effects.noiseReduction.algorithms.spectralGate.name"),
+          description: t("fairlightAudio.effects.noiseReduction.algorithms.spectralGate.description"),
         }
       case "wiener":
         return {
           icon: <Activity className="w-4 h-4" />,
-          name: "Wiener Filter",
-          description: "Statistical noise estimation",
+          name: t("fairlightAudio.effects.noiseReduction.algorithms.wienerFilter.name"),
+          description: t("fairlightAudio.effects.noiseReduction.algorithms.wienerFilter.description"),
         }
       case "ai":
         return {
           icon: <Brain className="w-4 h-4" />,
-          name: "AI Denoising",
-          description: "Neural network-based removal",
+          name: t("fairlightAudio.effects.noiseReduction.algorithms.aiDenoising.name"),
+          description: t("fairlightAudio.effects.noiseReduction.algorithms.aiDenoising.description"),
         }
       case "adaptive":
         return {
           icon: <Zap className="w-4 h-4" />,
-          name: "Adaptive",
-          description: "Multi-algorithm hybrid approach",
+          name: t("fairlightAudio.effects.noiseReduction.algorithms.adaptive.name"),
+          description: t("fairlightAudio.effects.noiseReduction.algorithms.adaptive.description"),
         }
       default:
         return null
@@ -337,7 +339,7 @@ export function NoiseReduction({
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="floor" className="text-xs">
-                    Noise Floor
+                    {t("fairlightAudio.effects.noiseReduction.parameters.noiseFloor")}
                   </Label>
                   <span className="text-xs text-muted-foreground">{settings.config.noiseFloor}dB</span>
                 </div>
@@ -358,7 +360,7 @@ export function NoiseReduction({
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="threshold" className="text-xs">
-                    Gate Threshold
+                    {t("fairlightAudio.effects.noiseReduction.parameters.gateThreshold")}
                   </Label>
                   <span className="text-xs text-muted-foreground">{settings.config.gateThreshold}dB</span>
                 </div>
@@ -440,10 +442,10 @@ export function NoiseReduction({
                   <AlertCircle className="h-3 w-3" />
                   <AlertDescription className="text-xs">
                     {analysisResult.snr < 10
-                      ? "High noise detected. Consider using AI denoising for best results."
+                      ? t("fairlightAudio.effects.noiseReduction.recommendations.highNoise")
                       : analysisResult.voiceDetected
-                        ? "Voice detected. Enable 'Preserve Voice' for optimal quality."
-                        : "No voice detected. You can use more aggressive noise reduction."}
+                        ? t("fairlightAudio.effects.noiseReduction.recommendations.voiceDetected")
+                        : t("fairlightAudio.effects.noiseReduction.recommendations.noVoice")}
                   </AlertDescription>
                 </Alert>
               </div>
@@ -454,7 +456,7 @@ export function NoiseReduction({
         {/* Preview Toggle */}
         <div className="flex items-center justify-between pt-2 border-t">
           <Label htmlFor="preview" className="text-xs">
-            Preview
+            {t("fairlightAudio.effects.noiseReduction.preview")}
           </Label>
           <div className="flex items-center gap-2">
             <Switch

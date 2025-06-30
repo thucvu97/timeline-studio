@@ -1,6 +1,7 @@
 import { useState } from "react"
 
 import { ChevronDown, ChevronRight, GripVertical, Plus, Power, X } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { cn } from "@/lib/utils"
 
@@ -26,12 +27,6 @@ interface EffectsRackProps {
   className?: string
 }
 
-const AVAILABLE_EFFECTS: { type: EffectType; label: string }[] = [
-  { type: "equalizer", label: "EQ" },
-  { type: "compressor", label: "Compressor" },
-  { type: "reverb", label: "Reverb" },
-]
-
 export function EffectsRack({
   channelId,
   onEffectAdd,
@@ -40,8 +35,15 @@ export function EffectsRack({
   onEffectParameterChange,
   className,
 }: EffectsRackProps) {
+  const { t } = useTranslation()
   const [effects, setEffects] = useState<Effect[]>([])
   const [showAddMenu, setShowAddMenu] = useState(false)
+
+  const AVAILABLE_EFFECTS: { type: EffectType; label: string }[] = [
+    { type: "equalizer", label: t("fairlightAudio.effectsRack.effects.eq") },
+    { type: "compressor", label: t("fairlightAudio.effectsRack.effects.compressor") },
+    { type: "reverb", label: t("fairlightAudio.effectsRack.effects.reverb") },
+  ]
 
   const addEffect = (type: EffectType) => {
     const newEffect: Effect = {
@@ -145,14 +147,14 @@ export function EffectsRack({
   return (
     <div className={cn("space-y-2", className)}>
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-medium text-zinc-400">Effects</h3>
+        <h3 className="text-sm font-medium text-zinc-400">{t("fairlightAudio.effectsRack.title")}</h3>
         <div className="relative">
           <button
             onClick={() => setShowAddMenu(!showAddMenu)}
             className="flex items-center gap-1 text-xs px-2 py-1 bg-zinc-800 hover:bg-zinc-700 rounded transition-colors"
           >
             <Plus className="w-3 h-3" />
-            Add Effect
+            {t("fairlightAudio.effectsRack.addEffect")}
           </button>
 
           {showAddMenu && (
@@ -176,7 +178,7 @@ export function EffectsRack({
 
       {/* Effects List */}
       {effects.length === 0 ? (
-        <div className="text-center py-8 text-zinc-600 text-sm">No effects added</div>
+        <div className="text-center py-8 text-zinc-600 text-sm">{t("fairlightAudio.effectsRack.noEffectsAdded")}</div>
       ) : (
         <div className="space-y-2">{effects.map(renderEffect)}</div>
       )}

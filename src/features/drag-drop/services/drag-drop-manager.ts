@@ -243,7 +243,7 @@ export class DragDropManager extends EventEmitter {
 
   private findDropTargetAtPoint(x: number, y: number): DropTarget | null {
     if (typeof document === "undefined") return null
-    
+
     const element = document.elementFromPoint(x, y)
     if (!element) return null
 
@@ -259,7 +259,7 @@ export class DragDropManager extends EventEmitter {
 
   private createGhostImage(preview: { url?: string; width?: number; height?: number }) {
     if (typeof document === "undefined") return
-    
+
     this.ghostElement = document.createElement("div")
     this.ghostElement.style.position = "absolute"
     this.ghostElement.style.top = "-1000px"

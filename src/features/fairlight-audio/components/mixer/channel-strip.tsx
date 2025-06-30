@@ -1,6 +1,7 @@
 import { useState } from "react"
 
 import { Settings } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { cn } from "@/lib/utils"
 
@@ -45,6 +46,7 @@ export function ChannelStrip({
   analyser,
   className,
 }: ChannelStripProps) {
+  const { t } = useTranslation()
   const [showEq, setShowEq] = useState(false)
 
   return (
@@ -77,19 +79,23 @@ export function ChannelStrip({
           onClick={() => setShowEq(!showEq)}
           className="w-full h-full flex items-center justify-center text-xs text-zinc-500 hover:text-zinc-300"
         >
-          EQ
+          {t("fairlightAudio.mixer.channelStrip.eq")}
         </button>
       </div>
 
       {/* Effects sends (placeholder) */}
       <div className="flex flex-col gap-1 mb-2">
-        <div className="h-6 bg-zinc-800 rounded text-[10px] text-zinc-500 flex items-center justify-center">Send 1</div>
-        <div className="h-6 bg-zinc-800 rounded text-[10px] text-zinc-500 flex items-center justify-center">Send 2</div>
+        <div className="h-6 bg-zinc-800 rounded text-[10px] text-zinc-500 flex items-center justify-center">
+          {t("fairlightAudio.mixer.channelStrip.send1")}
+        </div>
+        <div className="h-6 bg-zinc-800 rounded text-[10px] text-zinc-500 flex items-center justify-center">
+          {t("fairlightAudio.mixer.channelStrip.send2")}
+        </div>
       </div>
 
       {/* Pan control */}
       <div className="mb-2">
-        <div className="text-[10px] text-zinc-500 text-center mb-1">PAN</div>
+        <div className="text-[10px] text-zinc-500 text-center mb-1">{t("fairlightAudio.mixer.channelStrip.pan")}</div>
         <div className="relative h-6 bg-zinc-800 rounded">
           <input
             type="range"
@@ -114,7 +120,7 @@ export function ChannelStrip({
           armed ? "bg-red-600 text-white hover:bg-red-700" : "bg-zinc-800 text-zinc-500 hover:bg-zinc-700",
         )}
       >
-        R
+        {t("fairlightAudio.mixer.channelStrip.right")}
       </button>
 
       {/* Fader section with level meter */}
@@ -142,9 +148,9 @@ export function ChannelStrip({
       {/* Output routing (placeholder) */}
       <div className="mt-2 pt-2 border-t border-zinc-800">
         <select className="w-full text-[10px] bg-zinc-800 text-zinc-400 rounded px-1 py-0.5">
-          <option>Main</option>
-          <option>Bus 1</option>
-          <option>Bus 2</option>
+          <option>{t("fairlightAudio.mixer.channelStrip.outputs.main")}</option>
+          <option>{t("fairlightAudio.mixer.channelStrip.outputs.bus1")}</option>
+          <option>{t("fairlightAudio.mixer.channelStrip.outputs.bus2")}</option>
         </select>
       </div>
     </div>

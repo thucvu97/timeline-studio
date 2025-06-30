@@ -1,5 +1,7 @@
 import { useState } from "react"
 
+import { useTranslation } from "react-i18next"
+
 import { Slider } from "@/components/ui/slider"
 import { cn } from "@/lib/utils"
 
@@ -27,6 +29,7 @@ const DEFAULT_SETTINGS: CompressorSettings = {
 }
 
 export function Compressor({ onParameterChange, className }: CompressorProps) {
+  const { t } = useTranslation()
   const [settings, setSettings] = useState<CompressorSettings>(DEFAULT_SETTINGS)
   const [gainReduction] = useState(0) // TODO: connect to actual gain reduction from processor
 
@@ -50,9 +53,9 @@ export function Compressor({ onParameterChange, className }: CompressorProps) {
   return (
     <div className={cn("bg-zinc-900 rounded-lg p-4 space-y-4", className)}>
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-zinc-300">Compressor</h3>
+        <h3 className="text-sm font-medium text-zinc-300">{t("fairlightAudio.effects.compressor.title")}</h3>
         <button onClick={reset} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors">
-          Reset
+          {t("fairlightAudio.effects.compressor.reset")}
         </button>
       </div>
 
@@ -121,7 +124,9 @@ export function Compressor({ onParameterChange, className }: CompressorProps) {
         </div>
 
         {/* GR label */}
-        <div className="absolute right-1 bottom-1 text-xs text-zinc-500">GR</div>
+        <div className="absolute right-1 bottom-1 text-xs text-zinc-500">
+          {t("fairlightAudio.effects.compressor.gainReduction")}
+        </div>
       </div>
 
       {/* Controls */}
@@ -129,7 +134,7 @@ export function Compressor({ onParameterChange, className }: CompressorProps) {
         {/* Threshold */}
         <div className="space-y-1">
           <div className="flex justify-between text-xs">
-            <span className="text-zinc-400">Threshold</span>
+            <span className="text-zinc-400">{t("fairlightAudio.effects.compressor.threshold")}</span>
             <span className="text-zinc-500">{settings.threshold.toFixed(1)} dB</span>
           </div>
           <Slider
@@ -145,7 +150,7 @@ export function Compressor({ onParameterChange, className }: CompressorProps) {
         {/* Ratio */}
         <div className="space-y-1">
           <div className="flex justify-between text-xs">
-            <span className="text-zinc-400">Ratio</span>
+            <span className="text-zinc-400">{t("fairlightAudio.effects.compressor.ratio")}</span>
             <span className="text-zinc-500">{formatRatio(settings.ratio)}</span>
           </div>
           <Slider
@@ -161,7 +166,7 @@ export function Compressor({ onParameterChange, className }: CompressorProps) {
         {/* Attack */}
         <div className="space-y-1">
           <div className="flex justify-between text-xs">
-            <span className="text-zinc-400">Attack</span>
+            <span className="text-zinc-400">{t("fairlightAudio.effects.compressor.attack")}</span>
             <span className="text-zinc-500">{settings.attack.toFixed(1)} ms</span>
           </div>
           <Slider
@@ -177,7 +182,7 @@ export function Compressor({ onParameterChange, className }: CompressorProps) {
         {/* Release */}
         <div className="space-y-1">
           <div className="flex justify-between text-xs">
-            <span className="text-zinc-400">Release</span>
+            <span className="text-zinc-400">{t("fairlightAudio.effects.compressor.release")}</span>
             <span className="text-zinc-500">{settings.release.toFixed(0)} ms</span>
           </div>
           <Slider
@@ -193,7 +198,7 @@ export function Compressor({ onParameterChange, className }: CompressorProps) {
         {/* Knee */}
         <div className="space-y-1">
           <div className="flex justify-between text-xs">
-            <span className="text-zinc-400">Knee</span>
+            <span className="text-zinc-400">{t("fairlightAudio.effects.compressor.knee")}</span>
             <span className="text-zinc-500">{settings.knee.toFixed(1)} dB</span>
           </div>
           <Slider
@@ -209,7 +214,7 @@ export function Compressor({ onParameterChange, className }: CompressorProps) {
         {/* Makeup Gain */}
         <div className="space-y-1">
           <div className="flex justify-between text-xs">
-            <span className="text-zinc-400">Makeup</span>
+            <span className="text-zinc-400">{t("fairlightAudio.effects.compressor.makeup")}</span>
             <span className="text-zinc-500">{settings.makeup.toFixed(1)} dB</span>
           </div>
           <Slider
@@ -229,25 +234,25 @@ export function Compressor({ onParameterChange, className }: CompressorProps) {
           onClick={() => applyPreset("gentle")}
           className="text-xs px-2 py-1 bg-zinc-800 hover:bg-zinc-700 rounded transition-colors"
         >
-          Gentle
+          {t("fairlightAudio.effects.compressor.presets.gentle")}
         </button>
         <button
           onClick={() => applyPreset("vocal")}
           className="text-xs px-2 py-1 bg-zinc-800 hover:bg-zinc-700 rounded transition-colors"
         >
-          Vocal
+          {t("fairlightAudio.effects.compressor.presets.vocal")}
         </button>
         <button
           onClick={() => applyPreset("drums")}
           className="text-xs px-2 py-1 bg-zinc-800 hover:bg-zinc-700 rounded transition-colors"
         >
-          Drums
+          {t("fairlightAudio.effects.compressor.presets.drums")}
         </button>
         <button
           onClick={() => applyPreset("master")}
           className="text-xs px-2 py-1 bg-zinc-800 hover:bg-zinc-700 rounded transition-colors"
         >
-          Master
+          {t("fairlightAudio.effects.compressor.presets.master")}
         </button>
       </div>
     </div>

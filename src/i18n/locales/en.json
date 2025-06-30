@@ -2353,5 +2353,598 @@
       "conflictResolution": "File Conflict Resolution",
       "conflictResolutionDescription": "What to do when a file already exists"
     }
+  },
+  "fairlightAudio": {
+    "surround": {
+      "panner": {
+        "stereo": "STEREO Surround Panner",
+        "5.1": "5.1 Surround Panner",
+        "7.1": "7.1 Surround Panner",
+        "position": "Position: X:{{x}}% Y:{{y}}%",
+        "source": "Source"
+      },
+      "speakers": {
+        "left": "Left",
+        "right": "Right",
+        "center": "Center",
+        "lfe": "LFE",
+        "leftSurround": "Left Surround",
+        "rightSurround": "Right Surround",
+        "leftRear": "Left Rear",
+        "rightRear": "Right Rear"
+      },
+      "channels": {
+        "L": "L",
+        "R": "R",
+        "C": "C",
+        "LFE": "LFE",
+        "LS": "LS",
+        "RS": "RS",
+        "LR": "LR",
+        "RR": "RR"
+      }
+    },
+    "audioEngine": {
+      "initialization": "creates audio context with correct settings",
+      "masterChain": "sets up master chain correctly",
+      "limiter": "configures limiter with correct settings",
+      "resumeSuspended": "resumes suspended audio context",
+      "channelManagement": {
+        "createNew": "creates new channel with correct configuration",
+        "returnExisting": "returns existing channel if already created",
+        "connectMedia": "connects media element to channel",
+        "disconnectExisting": "disconnects existing source when connecting new one"
+      },
+      "volumePan": {
+        "updateVolume": "updates channel volume correctly",
+        "updatePan": "updates channel pan correctly",
+        "handleNonExistent": "handles operations on non-existent channels"
+      },
+      "muteSolo": {
+        "muteChannel": "mutes channel correctly",
+        "unmuteChannel": "unmutes channel correctly",
+        "soloChannel": "solos channel and mutes others",
+        "multipleSolo": "handles multiple solo channels"
+      },
+      "master": {
+        "updateVolume": "updates master volume",
+        "enableLimiter": "enables limiter",
+        "disableLimiter": "disables limiter",
+        "setThreshold": "sets limiter threshold"
+      },
+      "analyser": {
+        "returnChannel": "returns channel analyser",
+        "returnNull": "returns null for non-existent channel analyser",
+        "createMaster": "creates and returns master analyser"
+      },
+      "effects": {
+        "addEffect": "adds effect to channel",
+        "insertAt": "inserts effect at specific index",
+        "removeEffect": "removes effect from channel"
+      },
+      "surround": {
+        "setFormat": "sets master surround format",
+        "enableChannel": "enables surround for channel",
+        "useMasterFormat": "uses master format when enabling surround without format",
+        "disableChannel": "disables surround for channel",
+        "setPosition": "sets surround position",
+        "returnNullPosition": "returns null for surround position without surround enabled",
+        "getChannelLevels": "gets surround channel levels",
+        "returnNullLevels": "returns null for channel levels without surround"
+      },
+      "cleanup": {
+        "disposeResources": "disposes all resources",
+        "clearCollections": "clears all collections on dispose"
+      },
+      "edgeCases": {
+        "handleNonExistent": "handles operations on non-existent channels gracefully",
+        "invalidEffectIndex": "handles invalid effect index",
+        "alreadyEnabled": "handles enabling surround when already enabled"
+      }
+    },
+    "surroundProcessor": {
+      "initialization": {
+        "defaultStereo": "creates processor with default stereo format",
+        "5.1Format": "creates processor with 5.1 format",
+        "7.1Format": "creates processor with 7.1 format"
+      },
+      "position": {
+        "setGet": "sets and gets position correctly",
+        "updateGains": "updates channel gains when position changes",
+        "returnCopy": "returns a copy of position to prevent external mutation"
+      },
+      "format": {
+        "switchTo5.1": "switches from stereo to 5.1",
+        "sameFormat": "does nothing when setting same format"
+      },
+      "channelGains": {
+        "calculateCloser": "calculates higher gain for closer speakers",
+        "levels5.1": "returns correct channel levels for 5.1",
+        "levels7.1": "returns correct channel levels for 7.1"
+      },
+      "routing": {
+        "connectDestination": "connects to destination node",
+        "disconnectAll": "disconnects all nodes",
+        "returnInput": "returns input node",
+        "returnOutput": "returns output node"
+      },
+      "channelOutput": {
+        "returnValid": "returns channel output for valid channel",
+        "returnNull": "returns null for invalid channel"
+      },
+      "stereoDownmix": {
+        "createMonitoring": "creates stereo downmix for monitoring",
+        "applyCoefficients": "applies correct downmix coefficients",
+        "handle7.1": "handles 7.1 downmix correctly"
+      },
+      "edgeCases": {
+        "extremeValues": "handles extreme position values",
+        "speakerLocations": "handles position at speaker locations",
+        "rapidChanges": "handles rapid position changes"
+      },
+      "formatSpecific": {
+        "lfeChannel": "handles LFE channel in 5.1",
+        "centerBoost": "handles center channel boost when positioned front-center"
+      },
+      "cleanup": {
+        "switchFormats": "properly cleans up when switching formats"
+      }
+    },
+    "tests": {
+      "describe": "describe",
+      "it": "it",
+      "rendering": "rendering",
+      "interaction": "interaction",
+      "speakerVisualization": "speaker visualization",
+      "channelLevels": "channel levels",
+      "referenceElements": "reference elements",
+      "edgeCases": "edge cases"
+    },
+    "effects": {
+      "compressor": {
+        "title": "Compressor",
+        "reset": "Reset",
+        "gainReduction": "GR",
+        "threshold": "Threshold",
+        "ratio": "Ratio",
+        "attack": "Attack",
+        "release": "Release",
+        "knee": "Knee",
+        "makeup": "Makeup",
+        "presets": {
+          "gentle": "Gentle",
+          "vocal": "Vocal",
+          "drums": "Drums",
+          "master": "Master"
+        }
+      },
+      "equalizer": {
+        "title": "7-Band EQ",
+        "reset": "Reset",
+        "band": "Band",
+        "resetBand": "Reset Band",
+        "frequency": "Freq",
+        "quality": "Q"
+      },
+      "reverb": {
+        "title": "Reverb",
+        "reset": "Reset",
+        "roomSize": "Room Size",
+        "decay": "Decay",
+        "damping": "Damping",
+        "preDelay": "Pre-delay",
+        "mixLevels": "Mix Levels",
+        "dry": "Dry",
+        "wet": "Wet",
+        "early": "Early",
+        "late": "Late",
+        "presets": {
+          "room": "Room",
+          "hall": "Hall",
+          "plate": "Plate",
+          "spring": "Spring",
+          "cathedral": "Cathedral"
+        }
+      },
+      "noiseReduction": {
+        "title": "Noise Reduction",
+        "enable": "Enable noise reduction",
+        "algorithm": "Algorithm",
+        "algorithms": {
+          "spectralGate": {
+            "name": "Spectral Gate",
+            "description": "Frequency-based noise gating"
+          },
+          "wienerFilter": {
+            "name": "Wiener Filter",
+            "description": "Statistical noise estimation"
+          },
+          "aiDenoising": {
+            "name": "AI Denoising",
+            "description": "Neural network-based removal"
+          },
+          "adaptive": {
+            "name": "Adaptive",
+            "description": "Multi-algorithm hybrid approach"
+          }
+        },
+        "mode": {
+          "basic": "Basic",
+          "advanced": "Advanced",
+          "analysis": "Analysis"
+        },
+        "parameters": {
+          "reductionStrength": "Reduction Strength",
+          "preserveVoice": "Preserve Voice",
+          "noiseProfile": "Noise Profile",
+          "selectProfile": "Select profile...",
+          "noneAutoDetect": "None (Auto-detect)",
+          "stopLearning": "Stop Learning",
+          "learnNoiseProfile": "Learn Noise Profile",
+          "attackTime": "Attack Time",
+          "releaseTime": "Release Time",
+          "frequencySmoothing": "Frequency Smoothing",
+          "noiseFloor": "Noise Floor",
+          "gateThreshold": "Gate Threshold"
+        },
+        "analysis": {
+          "analyzing": "Analyzing...",
+          "analyzeAudio": "Analyze Audio",
+          "snr": "SNR",
+          "noiseLevel": "Noise Level",
+          "voiceDetection": "Voice Detection",
+          "detected": "Detected",
+          "notDetected": "Not Detected",
+          "confidence": "Confidence",
+          "dominantFrequencies": "Dominant Frequencies"
+        },
+        "recommendations": {
+          "highNoise": "High noise detected. Consider using AI denoising for best results.",
+          "voiceDetected": "Voice detected. Enable 'Preserve Voice' for optimal quality.",
+          "noVoice": "No voice detected. You can use more aggressive noise reduction."
+        },
+        "preview": "Preview",
+        "channelStrip": {
+          "nr": "NR",
+          "noiseReduction": "Noise Reduction",
+          "strength": "Strength",
+          "advancedSettings": "Advanced Settings",
+          "voice": "Voice"
+        }
+      }
+    },
+    "mixer": {
+      "channelStrip": {
+        "eq": "EQ",
+        "send1": "Send 1",
+        "send2": "Send 2",
+        "pan": "PAN",
+        "right": "R",
+        "outputs": {
+          "main": "Main",
+          "bus1": "Bus 1",
+          "bus2": "Bus 2"
+        }
+      },
+      "masterSection": {
+        "bus1": "Bus 1",
+        "bus2": "Bus 2",
+        "limiter": "Limiter",
+        "threshold": "Threshold:",
+        "master": "MASTER"
+      },
+      "fader": {
+        "solo": "S",
+        "mute": "M",
+        "dbMarkers": {
+          "zero": "0",
+          "minus6": "-6",
+          "minus12": "-12",
+          "minus24": "-24",
+          "infinity": "-∞"
+        }
+      }
+    },
+    "midi": {
+      "configuration": {
+        "title": "MIDI Configuration",
+        "description": "Configure MIDI devices and mappings for Fairlight Audio"
+      },
+      "setup": {
+        "initializing": "Initializing MIDI...",
+        "error": "MIDI Error",
+        "tabs": {
+          "devices": "Devices",
+          "mappings": "Mappings",
+          "router": "Router"
+        },
+        "devices": {
+          "inputDevices": "MIDI Input Devices",
+          "noInputDevices": "No MIDI input devices detected",
+          "outputDevices": "MIDI Output Devices",
+          "noOutputDevices": "No MIDI output devices detected",
+          "defaultDevices": "Default Devices",
+          "defaultInput": "Default Input",
+          "selectInputDevice": "Select input device",
+          "defaultOutput": "Default Output",
+          "selectOutputDevice": "Select output device",
+          "unknownDevice": "Unknown Device"
+        },
+        "mappings": {
+          "title": "MIDI Mappings",
+          "addMapping": "Add Mapping",
+          "noMappings": "No MIDI mappings configured",
+          "addFirstMapping": "Click \"Add Mapping\" to create your first MIDI control"
+        },
+        "mappingEditor": {
+          "title": "Edit MIDI Mapping",
+          "minimumValue": "Minimum Value",
+          "maximumValue": "Maximum Value",
+          "responseCurve": "Response Curve",
+          "curves": {
+            "linear": "Linear",
+            "exponential": "Exponential",
+            "logarithmic": "Logarithmic"
+          },
+          "responseCurvePreview": "Response Curve Preview",
+          "cancel": "Cancel",
+          "saveChanges": "Save Changes"
+        },
+        "learnDialog": {
+          "title": "MIDI Learn",
+          "description": "Select a device and parameter, then move a control on your MIDI device",
+          "midiDevice": "MIDI Device",
+          "selectMidiDevice": "Select MIDI device",
+          "targetParameter": "Target Parameter",
+          "selectParameter": "Select parameter to control",
+          "parameters": {
+            "channel1Volume": "Channel 1 - Volume",
+            "channel1Pan": "Channel 1 - Pan",
+            "channel2Volume": "Channel 2 - Volume",
+            "channel2Pan": "Channel 2 - Pan",
+            "channel3Volume": "Channel 3 - Volume",
+            "channel3Pan": "Channel 3 - Pan",
+            "channel4Volume": "Channel 4 - Volume",
+            "channel4Pan": "Channel 4 - Pan",
+            "masterVolume": "Master - Volume",
+            "masterLimiterThreshold": "Master - Limiter Threshold"
+          },
+          "status": {
+            "listening": "Listening for MIDI input...",
+            "listeningHint": "Move a control on your MIDI device",
+            "received": "MIDI signal received!",
+            "ready": "Ready to learn",
+            "readyHint": "Select device and parameter, then click \"Start Listening\""
+          },
+          "info": {
+            "type": "Type:",
+            "controller": "Controller: CC",
+            "channel": "Channel:"
+          },
+          "buttons": {
+            "cancel": "Cancel",
+            "startListening": "Start Listening",
+            "listening": "Listening...",
+            "saveMapping": "Save Mapping"
+          }
+        }
+      },
+      "sequencer": {
+        "title": "MIDI Sequencer",
+        "bpm": "BPM",
+        "sync": "Sync",
+        "syncModes": {
+          "internal": "Internal",
+          "external": "External"
+        },
+        "loop": "Loop",
+        "tracks": "Tracks",
+        "track": "Track",
+        "channel": "Ch",
+        "events": "events",
+        "mute": "M",
+        "solo": "S",
+        "deleteTrack": "Delete Track",
+        "importMidi": "Import MIDI",
+        "exportMidi": "Export MIDI",
+        "defaultFileName": "sequence.mid"
+      },
+      "router": {
+        "title": "MIDI Router",
+        "engineNotInitialized": "MIDI engine not initialized",
+        "createFromPreset": "Create from preset...",
+        "create": "Create",
+        "presets": {
+          "keyboardSplit": "Keyboard Split",
+          "channelFilter": "Channel Filter",
+          "ccRemap": "CC Remap"
+        },
+        "tabs": {
+          "routes": "Routes",
+          "matrixView": "Matrix View",
+          "monitor": "Monitor"
+        },
+        "route": {
+          "enableRoute": "Enable route",
+          "active": "Active",
+          "inactive": "Inactive",
+          "editRoute": "Edit Route",
+          "duplicate": "Duplicate",
+          "delete": "Delete"
+        },
+        "source": {
+          "from": "From:",
+          "anyDevice": "Any Device",
+          "channel": "Ch"
+        },
+        "destination": {
+          "to": "To:",
+          "channel": "Channel",
+          "virtual": "Virtual:",
+          "functionCallback": "Function Callback",
+          "unknown": "Unknown"
+        },
+        "processors": "Processors:",
+        "noRoutes": "No MIDI routes configured",
+        "createFirstRoute": "Create a route using the preset menu above",
+        "matrixViewComingSoon": "Matrix view coming soon",
+        "matrixDescription": "Visual routing matrix for complex setups",
+        "monitorComingSoon": "Route monitor coming soon",
+        "monitorDescription": "Real-time visualization of MIDI flow"
+      }
+    },
+    "automation": {
+      "parameters": {
+        "volume": "Volume",
+        "pan": "Pan",
+        "eqLow": "EQ Low",
+        "eqMid": "EQ Mid",
+        "eqHigh": "EQ High",
+        "compThreshold": "Comp Threshold",
+        "compRatio": "Comp Ratio",
+        "reverbWet": "Reverb Wet"
+      },
+      "modes": {
+        "off": {
+          "name": "Off",
+          "description": "No automation"
+        },
+        "read": {
+          "name": "Read",
+          "description": "Read existing automation"
+        },
+        "write": {
+          "name": "Write",
+          "description": "Overwrite automation while recording"
+        },
+        "touch": {
+          "name": "Touch",
+          "description": "Write only when touching control"
+        },
+        "latch": {
+          "name": "Latch",
+          "description": "Continue writing after release"
+        }
+      },
+      "controls": {
+        "mode": "Mode:",
+        "stop": "Stop",
+        "record": "Record",
+        "channel": "Channel",
+        "parameter": "Parameter"
+      },
+      "status": {
+        "lanes": "{{count}} automation lanes",
+        "mode": "Mode: {{mode}}",
+        "recording": "Recording",
+        "reading": "Reading automation data",
+        "willOverwrite": "Will overwrite automation while recording",
+        "touchToStart": "Touch a control to start automation",
+        "touchToLatch": "Touch a control to latch automation"
+      }
+    },
+    "audioClipEditor": {
+      "title": "Audio Clip Editor",
+      "fadeTypes": {
+        "linear": "Linear",
+        "exponential": "Exponential",
+        "logarithmic": "Logarithmic",
+        "cosine": "Cosine"
+      },
+      "fadeIn": "Fade In",
+      "fadeOut": "Fade Out",
+      "apply": "Apply",
+      "splitPosition": "Split Position",
+      "split": "Split",
+      "normalizeTo": "Normalize to -3dB",
+      "normalize": "Normalize"
+    },
+    "mixerWithRouting": {
+      "tabs": {
+        "mixer": "Mixer",
+        "routing": "Routing",
+        "groups": "Groups",
+        "sends": "Sends"
+      },
+      "groups": {
+        "title": "Groups",
+        "channelGroups": "Channel Groups",
+        "manageGroups": "Manage Groups",
+        "noGroupsCreated": "No groups created",
+        "noGroupsDescription": "Groups help organize and control multiple channels together",
+        "createGroup": "Create Group",
+        "channels": "Channels:",
+        "bus": "Bus:"
+      },
+      "sends": {
+        "title": "Send Matrix",
+        "closePanel": "Close Panel",
+        "channels": "Channels",
+        "sends": "sends",
+        "selectChannel": "Select a channel to manage sends"
+      }
+    },
+    "effectsRack": {
+      "title": "Effects",
+      "addEffect": "Add Effect",
+      "noEffectsAdded": "No effects added",
+      "effects": {
+        "eq": "EQ",
+        "compressor": "Compressor",
+        "reverb": "Reverb"
+      }
+    },
+    "automationView": {
+      "noLanesVisible": "No automation lanes visible",
+      "addLaneHint": "Add a lane using the controls above",
+      "status": {
+        "automation": "Automation:",
+        "lanes": "Lanes:",
+        "total": "total",
+        "visible": "visible",
+        "time": "Time:",
+        "recording": "RECORDING"
+      }
+    },
+    "routingMatrix": {
+      "title": "Audio Routing",
+      "sendsButton": "Sends",
+      "audioBuses": "Audio Buses",
+      "busName": "Bus name",
+      "types": {
+        "stereo": "Stereo",
+        "mono": "Mono",
+        "surround": "5.1"
+      },
+      "channelGroups": "Channel Groups",
+      "groupName": "Group name",
+      "selectChannels": "Select channels:",
+      "createGroup": "Create Group",
+      "sendMatrix": "Send Matrix",
+      "channel": "Channel",
+      "channelBusAssignment": "Channel Bus Assignment",
+      "selectBus": "Select bus",
+      "sendsCount": "Sends:"
+    },
+    "sendPanel": {
+      "title": "Sends",
+      "active": "active",
+      "unknown": "unknown",
+      "level": "Level",
+      "preFader": "Pre-fader",
+      "postFader": "Post-fader",
+      "preFaderSend": "Pre-fader send",
+      "postFaderSend": "Post-fader send",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "deleteSend": "Delete send",
+      "addSend": "Add Send",
+      "selectDestinationBus": "Select destination bus",
+      "levelPercent": "Level:",
+      "pre": "PRE",
+      "post": "POST",
+      "noAvailableBuses": "No buses available for sends",
+      "createBusesFirst": "Create additional buses first"
+    }
   }
 }

@@ -1,5 +1,7 @@
 import React, { useCallback, useState } from "react"
 
+import { useTranslation } from "react-i18next"
+
 import { cn } from "@/lib/utils"
 
 // Surround sound formats
@@ -8,26 +10,26 @@ export type SurroundFormat = "stereo" | "5.1" | "7.1"
 // Speaker positions for different formats
 const SPEAKER_POSITIONS = {
   stereo: [
-    { id: "L", label: "Left", x: 30, y: 50, angle: -30 },
-    { id: "R", label: "Right", x: 70, y: 50, angle: 30 },
+    { id: "L", labelKey: "left", x: 30, y: 50, angle: -30 },
+    { id: "R", labelKey: "right", x: 70, y: 50, angle: 30 },
   ],
   "5.1": [
-    { id: "L", label: "Left", x: 20, y: 60, angle: -30 },
-    { id: "R", label: "Right", x: 80, y: 60, angle: 30 },
-    { id: "C", label: "Center", x: 50, y: 20, angle: 0 },
-    { id: "LFE", label: "LFE", x: 50, y: 85, angle: 0 },
-    { id: "LS", label: "Left Surround", x: 15, y: 80, angle: -110 },
-    { id: "RS", label: "Right Surround", x: 85, y: 80, angle: 110 },
+    { id: "L", labelKey: "left", x: 20, y: 60, angle: -30 },
+    { id: "R", labelKey: "right", x: 80, y: 60, angle: 30 },
+    { id: "C", labelKey: "center", x: 50, y: 20, angle: 0 },
+    { id: "LFE", labelKey: "lfe", x: 50, y: 85, angle: 0 },
+    { id: "LS", labelKey: "leftSurround", x: 15, y: 80, angle: -110 },
+    { id: "RS", labelKey: "rightSurround", x: 85, y: 80, angle: 110 },
   ],
   "7.1": [
-    { id: "L", label: "Left", x: 20, y: 60, angle: -30 },
-    { id: "R", label: "Right", x: 80, y: 60, angle: 30 },
-    { id: "C", label: "Center", x: 50, y: 20, angle: 0 },
-    { id: "LFE", label: "LFE", x: 50, y: 85, angle: 0 },
-    { id: "LS", label: "Left Surround", x: 10, y: 75, angle: -110 },
-    { id: "RS", label: "Right Surround", x: 90, y: 75, angle: 110 },
-    { id: "LR", label: "Left Rear", x: 25, y: 90, angle: -135 },
-    { id: "RR", label: "Right Rear", x: 75, y: 90, angle: 135 },
+    { id: "L", labelKey: "left", x: 20, y: 60, angle: -30 },
+    { id: "R", labelKey: "right", x: 80, y: 60, angle: 30 },
+    { id: "C", labelKey: "center", x: 50, y: 20, angle: 0 },
+    { id: "LFE", labelKey: "lfe", x: 50, y: 85, angle: 0 },
+    { id: "LS", labelKey: "leftSurround", x: 10, y: 75, angle: -110 },
+    { id: "RS", labelKey: "rightSurround", x: 90, y: 75, angle: 110 },
+    { id: "LR", labelKey: "leftRear", x: 25, y: 90, angle: -135 },
+    { id: "RR", labelKey: "rightRear", x: 75, y: 90, angle: 135 },
   ],
 }
 
@@ -39,6 +41,7 @@ interface SurroundPannerProps {
 }
 
 export function SurroundPanner({ format, position, onPositionChange, className }: SurroundPannerProps) {
+  const { t } = useTranslation()
   const [isDragging, setIsDragging] = useState(false)
   const speakers = SPEAKER_POSITIONS[format]
 
@@ -79,9 +82,9 @@ export function SurroundPanner({ format, position, onPositionChange, className }
     <div className={cn("relative bg-muted rounded-lg p-4", className)}>
       {/* Format selector */}
       <div className="mb-4">
-        <div className="text-sm font-medium text-foreground mb-2">{format.toUpperCase()} Surround Panner</div>
+        <div className="text-sm font-medium text-foreground mb-2">{t(`fairlightAudio.surround.panner.${format}`)}</div>
         <div className="text-xs text-muted-foreground">
-          Position: X:{position.x.toFixed(0)}% Y:{position.y.toFixed(0)}%
+          {t("fairlightAudio.surround.panner.position", { x: position.x.toFixed(0), y: position.y.toFixed(0) })}
         </div>
       </div>
 
@@ -120,7 +123,7 @@ export function SurroundPanner({ format, position, onPositionChange, className }
               />
               {/* Speaker label */}
               <div className="absolute top-5 left-1/2 transform -translate-x-1/2 text-xs text-muted-foreground whitespace-nowrap">
-                {speaker.label}
+                {t(`fairlightAudio.surround.speakers.${speaker.labelKey}`)}
               </div>
             </div>
           )
@@ -142,7 +145,7 @@ export function SurroundPanner({ format, position, onPositionChange, className }
           />
           {/* Position indicator */}
           <div className="absolute top-4 left-1/2 transform -translate-x-1/2 text-xs text-accent-foreground font-medium">
-            Source
+            {t("fairlightAudio.surround.panner.source")}
           </div>
         </div>
 
@@ -167,7 +170,7 @@ export function SurroundPanner({ format, position, onPositionChange, className }
 
           return (
             <div key={speaker.id} className="flex items-center gap-2">
-              <span className="w-8 text-muted-foreground">{speaker.id}:</span>
+              <span className="w-8 text-muted-foreground">{t(`fairlightAudio.surround.channels.${speaker.id}`)}:</span>
               <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
                 <div className="h-full bg-primary transition-all" style={{ width: `${level * 100}%` }} />
               </div>

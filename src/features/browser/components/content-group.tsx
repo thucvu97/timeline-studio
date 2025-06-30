@@ -86,9 +86,7 @@ export function ContentGroup<T>({
     return (
       <div key="ungrouped" className={getItemsContainerClasses()} style={itemsContainerStyle}>
         {items.map((item, index) => (
-          <React.Fragment key={getItemKey ? getItemKey(item, index) : index}>
-            {renderItem(item, index)}
-          </React.Fragment>
+          <React.Fragment key={getItemKey ? getItemKey(item, index) : index}>{renderItem(item, index)}</React.Fragment>
         ))}
       </div>
     )
@@ -119,9 +117,7 @@ export function ContentGroup<T>({
       </div>
       <div className={getItemsContainerClasses()} style={itemsContainerStyle}>
         {items.map((item, index) => (
-          <React.Fragment key={getItemKey ? getItemKey(item, index) : index}>
-            {renderItem(item, index)}
-          </React.Fragment>
+          <React.Fragment key={getItemKey ? getItemKey(item, index) : index}>{renderItem(item, index)}</React.Fragment>
         ))}
       </div>
     </div>

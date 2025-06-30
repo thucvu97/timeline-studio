@@ -15,7 +15,10 @@ vi.mock("@dnd-kit/core", () => ({
 }))
 
 // Мокаем хук drag-drop
-const mockDragState = {
+const mockDragState: {
+  isDragging: boolean
+  dropPosition: { trackId: string; startTime: number } | null
+} = {
   isDragging: false,
   dropPosition: null,
 }
@@ -92,7 +95,6 @@ describe("TrackContent", () => {
     isMuted: false,
     isHidden: false,
     volume: 1,
-    opacity: 1,
     clips: [],
     order: 0,
     isSolo: false,
@@ -308,7 +310,7 @@ describe("TrackContent", () => {
       renderWithProviders(<TrackContent track={baseTrack} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
 
       const dropZone = screen.getByText("Drop here").parentElement?.parentElement
-      expect(dropZone).toHaveClass("absolute", "inset-0", "pointer-events-none", "z-30")
+      expect(dropZone).toHaveClass("absolute inset-0 pointer-events-none z-30")
     })
   })
 

@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 
+import { useTranslation } from "react-i18next"
+
 import { cn } from "@/lib/utils"
 
 import { useAutomation } from "../../hooks/use-automation"
@@ -31,6 +33,7 @@ export function Fader({
   channelId,
   parameterId = "volume",
 }: FaderProps) {
+  const { t } = useTranslation()
   const [isDragging, setIsDragging] = useState(false)
   const faderRef = useRef<HTMLDivElement>(null)
   const { writeParameter, touchParameter, releaseParameter } = useAutomation()
@@ -118,7 +121,7 @@ export function Fader({
             solo ? "bg-yellow-500 text-black hover:bg-yellow-600" : "bg-zinc-700 text-zinc-400 hover:bg-zinc-600",
           )}
         >
-          S
+          {t("fairlightAudio.mixer.fader.solo")}
         </button>
         <button
           onClick={onMute}
@@ -127,7 +130,7 @@ export function Fader({
             muted ? "bg-red-500 text-white hover:bg-red-600" : "bg-zinc-700 text-zinc-400 hover:bg-zinc-600",
           )}
         >
-          M
+          {t("fairlightAudio.mixer.fader.mute")}
         </button>
       </div>
 
@@ -157,11 +160,11 @@ export function Fader({
         {/* dB scale marks */}
         {dbScale && (
           <div className="absolute inset-y-2 -left-8 w-6 text-[10px] text-zinc-500">
-            <div className="absolute top-0">0</div>
-            <div className="absolute top-1/4">-6</div>
-            <div className="absolute top-1/2">-12</div>
-            <div className="absolute top-3/4">-24</div>
-            <div className="absolute bottom-0">-∞</div>
+            <div className="absolute top-0">{t("fairlightAudio.mixer.fader.dbMarkers.zero")}</div>
+            <div className="absolute top-1/4">{t("fairlightAudio.mixer.fader.dbMarkers.minus6")}</div>
+            <div className="absolute top-1/2">{t("fairlightAudio.mixer.fader.dbMarkers.minus12")}</div>
+            <div className="absolute top-3/4">{t("fairlightAudio.mixer.fader.dbMarkers.minus24")}</div>
+            <div className="absolute bottom-0">{t("fairlightAudio.mixer.fader.dbMarkers.infinity")}</div>
           </div>
         )}
       </div>

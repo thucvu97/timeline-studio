@@ -1,6 +1,7 @@
 import { useState } from "react"
 
 import { Scissors, TrendingDown, TrendingUp, Volume2, Zap } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -16,6 +17,7 @@ interface AudioClipEditorProps {
 }
 
 export function AudioClipEditorComponent({ clip, onUpdate, onSplit }: AudioClipEditorProps) {
+  const { t } = useTranslation()
   const { engine: audioEngine } = useAudioEngine()
   const [fadeInDuration, setFadeInDuration] = useState(clip.fadeIn || 0)
   const [fadeOutDuration, setFadeOutDuration] = useState(clip.fadeOut || 0)
@@ -64,7 +66,7 @@ export function AudioClipEditorComponent({ clip, onUpdate, onSplit }: AudioClipE
 
   return (
     <div className="p-4 space-y-4 bg-zinc-900 rounded-lg">
-      <h3 className="text-sm font-semibold text-zinc-100">Audio Clip Editor</h3>
+      <h3 className="text-sm font-semibold text-zinc-100">{t("fairlightAudio.audioClipEditor.title")}</h3>
 
       {/* Fade Controls */}
       <div className="space-y-3">
@@ -74,10 +76,10 @@ export function AudioClipEditorComponent({ clip, onUpdate, onSplit }: AudioClipE
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="linear">Linear</SelectItem>
-              <SelectItem value="exponential">Exponential</SelectItem>
-              <SelectItem value="logarithmic">Logarithmic</SelectItem>
-              <SelectItem value="cosine">Cosine</SelectItem>
+              <SelectItem value="linear">{t("fairlightAudio.audioClipEditor.fadeTypes.linear")}</SelectItem>
+              <SelectItem value="exponential">{t("fairlightAudio.audioClipEditor.fadeTypes.exponential")}</SelectItem>
+              <SelectItem value="logarithmic">{t("fairlightAudio.audioClipEditor.fadeTypes.logarithmic")}</SelectItem>
+              <SelectItem value="cosine">{t("fairlightAudio.audioClipEditor.fadeTypes.cosine")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -87,7 +89,7 @@ export function AudioClipEditorComponent({ clip, onUpdate, onSplit }: AudioClipE
           <div className="flex items-center justify-between">
             <label className="text-xs text-zinc-400 flex items-center gap-1">
               <TrendingUp className="w-3 h-3" />
-              Fade In
+              {t("fairlightAudio.audioClipEditor.fadeIn")}
             </label>
             <span className="text-xs text-zinc-500">{fadeInDuration.toFixed(1)}s</span>
           </div>
@@ -101,7 +103,7 @@ export function AudioClipEditorComponent({ clip, onUpdate, onSplit }: AudioClipE
               className="flex-1"
             />
             <Button size="sm" variant="secondary" onClick={handleFadeIn} className="h-7 px-2">
-              Apply
+              {t("fairlightAudio.audioClipEditor.apply")}
             </Button>
           </div>
         </div>
@@ -111,7 +113,7 @@ export function AudioClipEditorComponent({ clip, onUpdate, onSplit }: AudioClipE
           <div className="flex items-center justify-between">
             <label className="text-xs text-zinc-400 flex items-center gap-1">
               <TrendingDown className="w-3 h-3" />
-              Fade Out
+              {t("fairlightAudio.audioClipEditor.fadeOut")}
             </label>
             <span className="text-xs text-zinc-500">{fadeOutDuration.toFixed(1)}s</span>
           </div>
@@ -125,7 +127,7 @@ export function AudioClipEditorComponent({ clip, onUpdate, onSplit }: AudioClipE
               className="flex-1"
             />
             <Button size="sm" variant="secondary" onClick={handleFadeOut} className="h-7 px-2">
-              Apply
+              {t("fairlightAudio.audioClipEditor.apply")}
             </Button>
           </div>
         </div>
@@ -136,7 +138,7 @@ export function AudioClipEditorComponent({ clip, onUpdate, onSplit }: AudioClipE
         <div className="flex items-center justify-between">
           <label className="text-xs text-zinc-400 flex items-center gap-1">
             <Scissors className="w-3 h-3" />
-            Split Position
+            {t("fairlightAudio.audioClipEditor.splitPosition")}
           </label>
           <span className="text-xs text-zinc-500">{splitPosition}%</span>
         </div>
@@ -150,7 +152,7 @@ export function AudioClipEditorComponent({ clip, onUpdate, onSplit }: AudioClipE
             className="flex-1"
           />
           <Button size="sm" variant="secondary" onClick={handleSplit} className="h-7 px-2">
-            Split
+            {t("fairlightAudio.audioClipEditor.split")}
           </Button>
         </div>
       </div>
@@ -159,10 +161,10 @@ export function AudioClipEditorComponent({ clip, onUpdate, onSplit }: AudioClipE
       <div className="flex items-center justify-between pt-2 border-t border-zinc-800">
         <div className="flex items-center gap-2">
           <Volume2 className="w-4 h-4 text-zinc-400" />
-          <span className="text-xs text-zinc-400">Normalize to -3dB</span>
+          <span className="text-xs text-zinc-400">{t("fairlightAudio.audioClipEditor.normalizeTo")}</span>
         </div>
         <Button size="sm" variant="secondary" onClick={handleNormalize} disabled={isNormalizing} className="h-7 px-3">
-          {isNormalizing ? <Zap className="w-3 h-3 animate-pulse" /> : "Normalize"}
+          {isNormalizing ? <Zap className="w-3 h-3 animate-pulse" /> : t("fairlightAudio.audioClipEditor.normalize")}
         </Button>
       </div>
     </div>

@@ -1,5 +1,7 @@
 import { useState } from "react"
 
+import { useTranslation } from "react-i18next"
+
 import { Slider } from "@/components/ui/slider"
 import { cn } from "@/lib/utils"
 
@@ -33,6 +35,7 @@ function formatFrequency(freq: number): string {
 }
 
 export function Equalizer({ onBandChange, className }: EqualizerProps) {
+  const { t } = useTranslation()
   const [bands, setBands] = useState<EQBand[]>(DEFAULT_BANDS)
   const [selectedBand, setSelectedBand] = useState<number | null>(null)
 
@@ -74,9 +77,9 @@ export function Equalizer({ onBandChange, className }: EqualizerProps) {
   return (
     <div className={cn("bg-zinc-900 rounded-lg p-4", className)}>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-medium text-zinc-300">7-Band EQ</h3>
+        <h3 className="text-sm font-medium text-zinc-300">{t("fairlightAudio.effects.equalizer.title")}</h3>
         <button onClick={resetAll} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors">
-          Reset
+          {t("fairlightAudio.effects.equalizer.reset")}
         </button>
       </div>
 
@@ -177,16 +180,17 @@ export function Equalizer({ onBandChange, className }: EqualizerProps) {
         <div className="mt-4 p-3 bg-zinc-800 rounded space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-xs text-zinc-400">
-              Band {selectedBand + 1} - {formatFrequency(bands[selectedBand].frequency)}Hz
+              {t("fairlightAudio.effects.equalizer.band")} {selectedBand + 1} -{" "}
+              {formatFrequency(bands[selectedBand].frequency)}Hz
             </span>
             <button onClick={() => resetBand(selectedBand)} className="text-xs text-zinc-500 hover:text-zinc-300">
-              Reset Band
+              {t("fairlightAudio.effects.equalizer.resetBand")}
             </button>
           </div>
 
           {/* Frequency control */}
           <div className="flex items-center gap-2">
-            <span className="text-xs text-zinc-500 w-12">Freq</span>
+            <span className="text-xs text-zinc-500 w-12">{t("fairlightAudio.effects.equalizer.frequency")}</span>
             <Slider
               value={[Math.log10(bands[selectedBand].frequency)]}
               onValueChange={([value]) => handleFrequencyChange(selectedBand, 10 ** value)}
@@ -202,7 +206,7 @@ export function Equalizer({ onBandChange, className }: EqualizerProps) {
 
           {/* Q control */}
           <div className="flex items-center gap-2">
-            <span className="text-xs text-zinc-500 w-12">Q</span>
+            <span className="text-xs text-zinc-500 w-12">{t("fairlightAudio.effects.equalizer.quality")}</span>
             <Slider
               value={[bands[selectedBand].q]}
               onValueChange={([value]) => handleQChange(selectedBand, value)}
