@@ -27,7 +27,6 @@ jobs:
             libavdevice-dev \
             libswscale-dev \
             libswresample-dev \
-            libavresample-dev \
             pkg-config \
             clang \
             llvm-dev \
