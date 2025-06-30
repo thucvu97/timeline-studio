@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { SurroundAudioProcessor } from "../surround-processor"
+import { SurroundAudioProcessor } from "../../surround/surround-processor"
 
 // Mock Web Audio API
 const mockAudioContext = {

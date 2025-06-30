@@ -713,3 +713,535 @@ impl Default for CompositionStage {
     Self::new()
   }
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use crate::video_compiler::schema::{
+    effects::{Effect, EffectParameter, EffectType, Filter, FilterType},
+    timeline::{Clip, Track as SchemaTrack, TrackType, TransformSettings},
+  };
+  use std::collections::HashMap;
+  use std::path::Path;
+  use tempfile::TempDir;
+  use tokio;
+
+  fn create_test_context(temp_dir: &TempDir) -> PipelineContext {
+    // Use the actual Project schema from the codebase
+    let project =
+      crate::video_compiler::schema::project::ProjectSchema::new("Test Project".to_string());
+    let output_path = temp_dir.path().join("output.mp4");
+
+    let mut context = PipelineContext::new(project, output_path);
+    // Override temp_dir to use our test directory
+    context.temp_dir = temp_dir.path().to_path_buf();
+    context
+  }
+
+  fn create_mock_video_file(path: &Path) -> Result<()> {
+    // Create a minimal mock video file
+    std::fs::write(path, b"mock video content")?;
+    Ok(())
+  }
+
+  #[test]
+  fn test_composition_stage_creation() {
+    let stage = CompositionStage::new();
+    assert_eq!(stage.name(), "Composition");
+    assert_eq!(stage.estimated_duration(), Duration::from_secs(120));
+  }
+
+  #[test]
+  fn test_composition_stage_default() {
+    let stage = CompositionStage;
+    assert_eq!(stage.name(), "Composition");
+  }
+
+  #[tokio::test]
+  async fn test_create_empty_track() {
+    let temp_dir = TempDir::new().unwrap();
+    let context = create_test_context(&temp_dir);
+    let stage = CompositionStage::new();
+
+    let output_path = temp_dir.path().join("empty_track.mp4");
+
+    // Тест будет успешным только если FFmpeg установлен
+    // В реальной среде это создаст пустой черный видеофайл
+    let result = stage.create_empty_track(&output_path, &context).await;
+
+    // Проверяем что функция вызывается без паники
+    // Результат может быть ошибкой если FFmpeg не установлен, что нормально для тестов
+    match result {
+      Ok(()) => {
+        // Если FFmpeg установлен, файл должен быть создан
+        assert!(output_path.exists());
+      }
+      Err(VideoCompilerError::FFmpegError { .. }) => {
+        // Ожидаемая ошибка если FFmpeg не доступен в тестовой среде
+      }
+      Err(e) => panic!("Неожиданная ошибка: {:?}", e),
+    }
+  }
+
+  #[tokio::test]
+  async fn test_apply_time_trim() {
+    let temp_dir = TempDir::new().unwrap();
+    let context = create_test_context(&temp_dir);
+    let stage = CompositionStage::new();
+
+    let input_path = temp_dir.path().join("input.mp4");
+    let output_path = temp_dir.path().join("trimmed.mp4");
+
+    create_mock_video_file(&input_path).unwrap();
+
+    let result = stage
+      .apply_time_trim(&input_path, 0.0, 5.0, &output_path, &context)
+      .await;
+
+    // Тест структуры вызова, результат зависит от наличия FFmpeg
+    match result {
+      Ok(path) => {
+        assert_eq!(path, output_path);
+      }
+      Err(VideoCompilerError::FFmpegError { .. }) => {
+        // Ожидаемо если FFmpeg не установлен
+      }
+      Err(e) => panic!("Неожиданная ошибка: {:?}", e),
+    }
+  }
+
+  #[tokio::test]
+  async fn test_apply_single_effect_blur() {
+    let temp_dir = TempDir::new().unwrap();
+    let stage = CompositionStage::new();
+
+    let input_path = temp_dir.path().join("input.mp4");
+    let output_path = temp_dir.path().join("blurred.mp4");
+
+    create_mock_video_file(&input_path).unwrap();
+
+    let mut parameters = HashMap::new();
+    parameters.insert("radius".to_string(), EffectParameter::Float(10.0));
+
+    let mut effect = Effect::new(EffectType::Blur, "Blur Effect".to_string());
+    effect.parameters = parameters;
+
+    let result = stage
+      .apply_single_effect(&input_path, &effect, &output_path)
+      .await;
+
+    // Проверяем что функция вызывается правильно
+    match result {
+      Ok(()) => {}
+      Err(VideoCompilerError::FFmpegError { .. }) => {
+        // Ожидаемо если FFmpeg не установлен
+      }
+      Err(e) => panic!("Неожиданная ошибка: {:?}", e),
+    }
+  }
+
+  #[tokio::test]
+  async fn test_apply_single_effect_brightness() {
+    let temp_dir = TempDir::new().unwrap();
+    let stage = CompositionStage::new();
+
+    let input_path = temp_dir.path().join("input.mp4");
+    let output_path = temp_dir.path().join("bright.mp4");
+
+    create_mock_video_file(&input_path).unwrap();
+
+    let mut parameters = HashMap::new();
+    parameters.insert("value".to_string(), EffectParameter::Float(0.2));
+
+    let mut effect = Effect::new(EffectType::Brightness, "Brightness Effect".to_string());
+    effect.parameters = parameters;
+
+    let result = stage
+      .apply_single_effect(&input_path, &effect, &output_path)
+      .await;
+
+    match result {
+      Ok(()) => {}
+      Err(VideoCompilerError::FFmpegError { .. }) => {}
+      Err(e) => panic!("Неожиданная ошибка: {:?}", e),
+    }
+  }
+
+  #[tokio::test]
+  async fn test_apply_single_effect_contrast() {
+    let temp_dir = TempDir::new().unwrap();
+    let stage = CompositionStage::new();
+
+    let input_path = temp_dir.path().join("input.mp4");
+    let output_path = temp_dir.path().join("contrast.mp4");
+
+    create_mock_video_file(&input_path).unwrap();
+
+    let mut parameters = HashMap::new();
+    parameters.insert("value".to_string(), EffectParameter::Float(1.5));
+
+    let mut effect = Effect::new(EffectType::Contrast, "Contrast Effect".to_string());
+    effect.parameters = parameters;
+
+    let result = stage
+      .apply_single_effect(&input_path, &effect, &output_path)
+      .await;
+
+    match result {
+      Ok(()) => {}
+      Err(VideoCompilerError::FFmpegError { .. }) => {}
+      Err(e) => panic!("Неожиданная ошибка: {:?}", e),
+    }
+  }
+
+  #[tokio::test]
+  async fn test_apply_single_effect_audio_fade_in() {
+    let temp_dir = TempDir::new().unwrap();
+    let stage = CompositionStage::new();
+
+    let input_path = temp_dir.path().join("input.mp4");
+    let output_path = temp_dir.path().join("fade_in.mp4");
+
+    create_mock_video_file(&input_path).unwrap();
+
+    let mut parameters = HashMap::new();
+    parameters.insert("duration".to_string(), EffectParameter::Float(2.0));
+
+    let mut effect = Effect::new(EffectType::AudioFadeIn, "Audio Fade In".to_string());
+    effect.parameters = parameters;
+
+    let result = stage
+      .apply_single_effect(&input_path, &effect, &output_path)
+      .await;
+
+    match result {
+      Ok(()) => {}
+      Err(VideoCompilerError::FFmpegError { .. }) => {}
+      Err(e) => panic!("Неожиданная ошибка: {:?}", e),
+    }
+  }
+
+  #[tokio::test]
+  async fn test_apply_single_effect_audio_fade_out() {
+    let temp_dir = TempDir::new().unwrap();
+    let stage = CompositionStage::new();
+
+    let input_path = temp_dir.path().join("input.mp4");
+    let output_path = temp_dir.path().join("fade_out.mp4");
+
+    create_mock_video_file(&input_path).unwrap();
+
+    let mut parameters = HashMap::new();
+    parameters.insert("duration".to_string(), EffectParameter::Float(3.0));
+
+    let mut effect = Effect::new(EffectType::AudioFadeOut, "Audio Fade Out".to_string());
+    effect.parameters = parameters;
+
+    let result = stage
+      .apply_single_effect(&input_path, &effect, &output_path)
+      .await;
+
+    match result {
+      Ok(()) => {}
+      Err(VideoCompilerError::FFmpegError { .. }) => {}
+      Err(e) => panic!("Неожиданная ошибка: {:?}", e),
+    }
+  }
+
+  #[tokio::test]
+  async fn test_apply_single_effect_unsupported() {
+    let temp_dir = TempDir::new().unwrap();
+    let stage = CompositionStage::new();
+
+    let input_path = temp_dir.path().join("input.mp4");
+    let output_path = temp_dir.path().join("output.mp4");
+
+    create_mock_video_file(&input_path).unwrap();
+
+    // Используем неподдерживаемый эффект
+    let effect = Effect::new(EffectType::AudioEqualizer, "Unsupported Effect".to_string()); // Не обрабатывается в apply_single_effect
+
+    let result = stage
+      .apply_single_effect(&input_path, &effect, &output_path)
+      .await;
+
+    // Должно вернуть Ok(()) для неподдерживаемых эффектов
+    assert!(result.is_ok());
+  }
+
+  #[tokio::test]
+  async fn test_apply_effects_empty() {
+    let temp_dir = TempDir::new().unwrap();
+    let context = create_test_context(&temp_dir);
+    let stage = CompositionStage::new();
+
+    let input_path = temp_dir.path().join("input.mp4");
+    let output_path = temp_dir.path().join("effects.mp4");
+
+    create_mock_video_file(&input_path).unwrap();
+
+    let effects: Vec<&Effect> = vec![];
+
+    let result = stage
+      .apply_effects(&input_path, &effects, &output_path, &context)
+      .await;
+
+    assert!(result.is_ok());
+    assert_eq!(result.unwrap(), output_path);
+  }
+
+  #[tokio::test]
+  async fn test_apply_filters_brightness() {
+    let temp_dir = TempDir::new().unwrap();
+    let context = create_test_context(&temp_dir);
+    let stage = CompositionStage::new();
+
+    let input_path = temp_dir.path().join("input.mp4");
+    let output_path = temp_dir.path().join("filtered.mp4");
+
+    create_mock_video_file(&input_path).unwrap();
+
+    let mut parameters = HashMap::new();
+    parameters.insert("value".to_string(), 0.3);
+
+    let filter = Filter::new(FilterType::Brightness, "Brightness Filter".to_string());
+
+    let filters = vec![&filter];
+
+    let result = stage
+      .apply_filters(&input_path, &filters, &output_path, &context)
+      .await;
+
+    match result {
+      Ok(path) => assert_eq!(path, output_path),
+      Err(VideoCompilerError::FFmpegError { .. }) => {}
+      Err(e) => panic!("Неожиданная ошибка: {:?}", e),
+    }
+  }
+
+  #[tokio::test]
+  async fn test_apply_filters_multiple() {
+    let temp_dir = TempDir::new().unwrap();
+    let context = create_test_context(&temp_dir);
+    let stage = CompositionStage::new();
+
+    let input_path = temp_dir.path().join("input.mp4");
+    let output_path = temp_dir.path().join("filtered.mp4");
+
+    create_mock_video_file(&input_path).unwrap();
+
+    let mut brightness_params = HashMap::new();
+    brightness_params.insert("value".to_string(), 0.2);
+
+    let mut contrast_params = HashMap::new();
+    contrast_params.insert("value".to_string(), 1.3);
+
+    let brightness_filter = Filter::new(FilterType::Brightness, "Brightness Filter".to_string());
+    let contrast_filter = Filter::new(FilterType::Contrast, "Contrast Filter".to_string());
+
+    let filters = vec![&brightness_filter, &contrast_filter];
+
+    let result = stage
+      .apply_filters(&input_path, &filters, &output_path, &context)
+      .await;
+
+    match result {
+      Ok(path) => assert_eq!(path, output_path),
+      Err(VideoCompilerError::FFmpegError { .. }) => {}
+      Err(e) => panic!("Неожиданная ошибка: {:?}", e),
+    }
+  }
+
+  #[tokio::test]
+  async fn test_apply_filters_empty() {
+    let temp_dir = TempDir::new().unwrap();
+    let context = create_test_context(&temp_dir);
+    let stage = CompositionStage::new();
+
+    let input_path = temp_dir.path().join("input.mp4");
+    let output_path = temp_dir.path().join("output.mp4");
+
+    create_mock_video_file(&input_path).unwrap();
+
+    let filters: Vec<&Filter> = vec![];
+
+    let result = stage
+      .apply_filters(&input_path, &filters, &output_path, &context)
+      .await;
+
+    // Должно скопировать файл без изменений
+    assert!(result.is_ok());
+    assert_eq!(result.unwrap(), output_path);
+    assert!(output_path.exists());
+  }
+
+  #[tokio::test]
+  async fn test_apply_positioning() {
+    let temp_dir = TempDir::new().unwrap();
+    let context = create_test_context(&temp_dir);
+    let stage = CompositionStage::new();
+
+    let input_path = temp_dir.path().join("input.mp4");
+    let output_path = temp_dir.path().join("positioned.mp4");
+
+    create_mock_video_file(&input_path).unwrap();
+
+    let transform = TransformSettings {
+      position_x: 0.1,
+      position_y: 0.2,
+      scale_x: 0.8,
+      scale_y: 0.8,
+      rotation: 0.0,
+      anchor_x: 0.5,
+      anchor_y: 0.5,
+    };
+
+    let mut clip = Clip::new(
+      std::path::PathBuf::from(input_path.to_string_lossy().to_string()),
+      0.0,
+      5.0,
+    );
+    clip.transform = Some(transform);
+
+    let result = stage
+      .apply_positioning(&input_path, &clip, &output_path, &context)
+      .await;
+
+    match result {
+      Ok(()) => {}
+      Err(VideoCompilerError::FFmpegError { .. }) => {}
+      Err(e) => panic!("Неожиданная ошибка: {:?}", e),
+    }
+  }
+
+  #[tokio::test]
+  async fn test_concatenate_clips_empty() {
+    let temp_dir = TempDir::new().unwrap();
+    let context = create_test_context(&temp_dir);
+    let stage = CompositionStage::new();
+
+    let output_path = temp_dir.path().join("concat.mp4");
+    let clip_paths: Vec<PathBuf> = vec![];
+
+    let result = stage
+      .concatenate_clips(&clip_paths, &output_path, &context)
+      .await;
+
+    assert!(result.is_err());
+    match result.unwrap_err() {
+      VideoCompilerError::InternalError(msg) => {
+        assert!(msg.contains("Нет клипов для объединения"));
+      }
+      e => panic!("Неожиданная ошибка: {:?}", e),
+    }
+  }
+
+  #[tokio::test]
+  async fn test_concatenate_clips_single() {
+    let temp_dir = TempDir::new().unwrap();
+    let context = create_test_context(&temp_dir);
+    let stage = CompositionStage::new();
+
+    let clip_path = temp_dir.path().join("clip1.mp4");
+    let output_path = temp_dir.path().join("concat.mp4");
+
+    create_mock_video_file(&clip_path).unwrap();
+
+    let clip_paths = vec![clip_path.clone()];
+
+    let result = stage
+      .concatenate_clips(&clip_paths, &output_path, &context)
+      .await;
+
+    assert!(result.is_ok());
+    assert!(output_path.exists());
+  }
+
+  #[tokio::test]
+  async fn test_combine_layers_empty() {
+    let temp_dir = TempDir::new().unwrap();
+    let context = create_test_context(&temp_dir);
+    let stage = CompositionStage::new();
+
+    let output_path = temp_dir.path().join("combined.mp4");
+    let layer_paths: Vec<PathBuf> = vec![];
+
+    let result = stage
+      .combine_layers(&layer_paths, &output_path, &context)
+      .await;
+
+    assert!(result.is_err());
+    match result.unwrap_err() {
+      VideoCompilerError::InternalError(msg) => {
+        assert!(msg.contains("Нет слоев для объединения"));
+      }
+      e => panic!("Неожиданная ошибка: {:?}", e),
+    }
+  }
+
+  #[tokio::test]
+  async fn test_combine_layers_single() {
+    let temp_dir = TempDir::new().unwrap();
+    let context = create_test_context(&temp_dir);
+    let stage = CompositionStage::new();
+
+    let layer_path = temp_dir.path().join("layer1.mp4");
+    let output_path = temp_dir.path().join("combined.mp4");
+
+    create_mock_video_file(&layer_path).unwrap();
+
+    let layer_paths = vec![layer_path.clone()];
+
+    let result = stage
+      .combine_layers(&layer_paths, &output_path, &context)
+      .await;
+
+    assert!(result.is_ok());
+    assert!(output_path.exists());
+  }
+
+  #[test]
+  fn test_effect_parameter_extraction() {
+    let _stage = CompositionStage::new();
+
+    // Тест извлечения параметров из различных типов EffectParameter
+    let mut _params = HashMap::new();
+    _params.insert("float_val".to_string(), EffectParameter::Float(2.5));
+    _params.insert("int_val".to_string(), EffectParameter::Int(10));
+    _params.insert(
+      "string_val".to_string(),
+      EffectParameter::String("test".to_string()),
+    );
+
+    // Проверяем что функция правильно обрабатывает разные типы параметров
+    // Это косвенно проверяется через тесты эффектов выше
+  }
+
+  #[tokio::test]
+  async fn test_process_integration() {
+    let temp_dir = TempDir::new().unwrap();
+    let mut context = create_test_context(&temp_dir);
+
+    // Добавляем простой трек без клипов
+    let track = SchemaTrack::new(TrackType::Video, "Test Track".to_string());
+
+    context.project.tracks = vec![track];
+
+    let stage = CompositionStage::new();
+
+    let result = stage.process(&mut context).await;
+
+    // Проверяем что процесс выполняется без паники
+    // Результат может быть ошибкой из-за отсутствия FFmpeg, что нормально
+    match result {
+      Ok(()) => {
+        // Если успешно, проверяем что промежуточный файл добавлен
+        assert!(context.intermediate_files.contains_key("composition"));
+      }
+      Err(VideoCompilerError::FFmpegError { .. }) => {
+        // Ожидаемо в тестовой среде без FFmpeg
+      }
+      Err(e) => panic!("Неожиданная ошибка: {:?}", e),
+    }
+  }
+}

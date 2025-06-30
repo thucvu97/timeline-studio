@@ -101,11 +101,46 @@ export function createWebAudioMocks() {
       stream: new MediaStream(),
     }
 
+    const mockAnalyser = {
+      frequencyBinCount: 1024,
+      getByteFrequencyData: vi.fn(),
+      getByteTimeDomainData: vi.fn(),
+      getFloatTimeDomainData: vi.fn(),
+      getFloatFrequencyData: vi.fn(),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+    }
+
     return {
       createMediaElementSource: vi.fn().mockReturnValue(mockSource),
       createMediaStreamDestination: vi.fn().mockReturnValue(mockDestination),
+      createAnalyser: vi.fn().mockReturnValue(mockAnalyser),
+      createGain: vi.fn().mockReturnValue({
+        gain: { value: 1 },
+        connect: vi.fn(),
+        disconnect: vi.fn(),
+      }),
+      createDynamicsCompressor: vi.fn().mockReturnValue({
+        threshold: { value: -24 },
+        knee: { value: 30 },
+        ratio: { value: 12 },
+        attack: { value: 0.003 },
+        release: { value: 0.25 },
+        connect: vi.fn(),
+        disconnect: vi.fn(),
+      }),
+      createBiquadFilter: vi.fn().mockReturnValue({
+        type: "lowpass",
+        frequency: { value: 350 },
+        Q: { value: 1 },
+        gain: { value: 0 },
+        connect: vi.fn(),
+        disconnect: vi.fn(),
+      }),
       destination: {},
       close: vi.fn().mockResolvedValue(undefined),
+      resume: vi.fn().mockResolvedValue(undefined),
+      suspend: vi.fn().mockResolvedValue(undefined),
       state: "running",
       sampleRate: 44100,
     }

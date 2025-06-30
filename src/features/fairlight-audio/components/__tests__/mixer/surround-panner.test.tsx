@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { mockUseTranslation } from "@/test/mocks/libraries/i18n"
 import { renderWithProviders } from "@/test/test-utils"
 
-import { SurroundPanner } from "../surround-panner"
+import { SurroundPanner } from "../../mixer/surround-panner"
 
 describe("SurroundPanner", () => {
   const mockOnPositionChange = vi.fn()
