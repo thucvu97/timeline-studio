@@ -47,14 +47,9 @@ const nextConfig: NextConfig = {
     // Limit parallelism to reduce memory usage
     config.parallelism = 1;
     
-    // Disable source maps completely in production
-    if (process.env.NODE_ENV === "production") {
-      config.devtool = false;
-    }
-    
     // Limit memory usage for terser
     if (config.optimization.minimizer) {
-      config.optimization.minimizer.forEach((minimizer) => {
+      config.optimization.minimizer.forEach((minimizer: any) => {
         if (minimizer.constructor.name === 'TerserPlugin') {
           minimizer.options.parallel = 1;
           minimizer.options.terserOptions = {
@@ -66,12 +61,6 @@ const nextConfig: NextConfig = {
           };
         }
       });
-    }
-    // Disable source maps in production to reduce memory usage
-    if (!isServer && process.env.NODE_ENV === "production") {
-      config.devtool = false
-    } else if (!isServer) {
-      config.devtool = "source-map"
     }
 
     // Generate webpack stats for bundle analysis

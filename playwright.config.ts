@@ -66,8 +66,6 @@ export default defineConfig({
     timeout: 120000,
     stdout: "pipe",
     stderr: "pipe",
-    // Добавляем больше времени для ожидания запуска сервера
-    waitUntil: "networkidle",
   },
 
   // Глобальный setup/teardown
