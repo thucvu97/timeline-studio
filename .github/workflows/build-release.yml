@@ -219,6 +219,23 @@ jobs:
             sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf ffmpeg libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libswscale-dev libswresample-dev pkg-config
           fi
           
+          # Fix FFmpeg headers location for Ubuntu 24.04
+          if [ ! -f "/usr/include/libswscale/swscale.h" ]; then
+            echo "Fixing FFmpeg headers location..."
+            SWSCALE_PATHS=$(find /usr -name "swscale.h" 2>/dev/null)
+            MAIN_SWSCALE=$(echo "$SWSCALE_PATHS" | grep "libswscale/swscale.h" | head -1)
+            
+            if [ -n "$MAIN_SWSCALE" ]; then
+              BASE_DIR=$(dirname $(dirname "$MAIN_SWSCALE"))
+              FFMPEG_LIBS=("libavcodec" "libavformat" "libavutil" "libswscale" "libavfilter" "libavdevice" "libswresample")
+              for lib in "${FFMPEG_LIBS[@]}"; do
+                if [ -d "$BASE_DIR/$lib" ] && [ ! -L "/usr/include/$lib" ]; then
+                  sudo ln -sfn "$BASE_DIR/$lib" "/usr/include/$lib"
+                fi
+              done
+            fi
+          fi
+          
           # Install ONNX Runtime for Ubuntu
           ONNX_VERSION="1.19.2"
           wget https://github.com/microsoft/onnxruntime/releases/download/v${ONNX_VERSION}/onnxruntime-linux-x64-${ONNX_VERSION}.tgz
@@ -282,6 +299,18 @@ jobs:
           PKG_CONFIG_SYSROOT_DIR_x86_64_apple_darwin: /
           PKG_CONFIG_PATH_aarch64_apple_darwin: /opt/homebrew/lib/pkgconfig
           PKG_CONFIG_SYSROOT_DIR_aarch64_apple_darwin: /
+          # FFmpeg paths for both architectures
+          FFMPEG_DIR: /opt/homebrew/opt/ffmpeg
+          FFMPEG_INCLUDE_DIR: /opt/homebrew/opt/ffmpeg/include
+          FFMPEG_LIB_DIR: /opt/homebrew/opt/ffmpeg/lib
+          # Additional FFmpeg paths for x86_64
+          FFMPEG_DIR_x86_64_apple_darwin: /usr/local/opt/ffmpeg
+          FFMPEG_INCLUDE_DIR_x86_64_apple_darwin: /usr/local/opt/ffmpeg/include
+          FFMPEG_LIB_DIR_x86_64_apple_darwin: /usr/local/opt/ffmpeg/lib
+          # Additional FFmpeg paths for aarch64
+          FFMPEG_DIR_aarch64_apple_darwin: /opt/homebrew/opt/ffmpeg
+          FFMPEG_INCLUDE_DIR_aarch64_apple_darwin: /opt/homebrew/opt/ffmpeg/include
+          FFMPEG_LIB_DIR_aarch64_apple_darwin: /opt/homebrew/opt/ffmpeg/lib
           RUST_BACKTRACE: 1
           CARGO_PROFILE_RELEASE_BUILD_OVERRIDE_DEBUG: false
         with:
@@ -304,6 +333,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VCPKG_ROOT: C:\vcpkg
           PKG_CONFIG_PATH: C:\vcpkg\installed\x64-windows\lib\pkgconfig
+          FFMPEG_DIR: C:\vcpkg\installed\x64-windows
+          FFMPEG_INCLUDE_DIR: C:\vcpkg\installed\x64-windows\include
+          FFMPEG_LIB_DIR: C:\vcpkg\installed\x64-windows\lib
           ORT_DYLIB_PATH: C:\onnxruntime\onnxruntime-win-x64-1.19.2\lib\onnxruntime.dll
           RUST_BACKTRACE: 1
           CARGO_PROFILE_RELEASE_BUILD_OVERRIDE_DEBUG: false
