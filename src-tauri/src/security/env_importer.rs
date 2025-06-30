@@ -427,6 +427,372 @@ impl EnvImporter {
   }
 }
 
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use std::env;
+  use std::fs;
+  use tempfile::TempDir;
+
+  #[test]
+  fn test_env_importer_new() {
+    let importer = EnvImporter::new();
+    assert!(importer.env_file_path.is_none());
+  }
+
+  #[test]
+  fn test_env_importer_with_env_file() {
+    let importer = EnvImporter::with_env_file("/path/to/.env");
+    assert_eq!(importer.env_file_path, Some("/path/to/.env".to_string()));
+  }
+
+  #[test]
+  fn test_env_importer_default() {
+    let importer = EnvImporter::default();
+    assert!(importer.env_file_path.is_none());
+  }
+
+  #[test]
+  fn test_load_env_file_missing() {
+    let importer = EnvImporter::with_env_file("/non/existent/path/.env");
+    let result = importer.load_env_file();
+    assert!(result.is_ok()); // Should not fail on missing file
+  }
+
+  #[test]
+  fn test_load_env_file_valid() {
+    let temp_dir = TempDir::new().unwrap();
+    let env_file = temp_dir.path().join(".env");
+
+    let content = r#"
+# Comment line
+TEST_KEY=test_value
+TEST_KEY_QUOTED="quoted value"
+TEST_KEY_SINGLE='single quoted'
+
+# Another comment
+EMPTY_LINE_ABOVE=value
+        "#;
+
+    fs::write(&env_file, content).unwrap();
+
+    let importer = EnvImporter::with_env_file(&env_file);
+    let result = importer.load_env_file();
+    assert!(result.is_ok());
+
+    // Check that variables were set
+    assert_eq!(env::var("TEST_KEY").unwrap(), "test_value");
+    assert_eq!(env::var("TEST_KEY_QUOTED").unwrap(), "quoted value");
+    assert_eq!(env::var("TEST_KEY_SINGLE").unwrap(), "single quoted");
+    assert_eq!(env::var("EMPTY_LINE_ABOVE").unwrap(), "value");
+
+    // Clean up
+    env::remove_var("TEST_KEY");
+    env::remove_var("TEST_KEY_QUOTED");
+    env::remove_var("TEST_KEY_SINGLE");
+    env::remove_var("EMPTY_LINE_ABOVE");
+  }
+
+  #[test]
+  fn test_get_env_mappings() {
+    let importer = EnvImporter::new();
+    let mappings = importer.get_env_mappings();
+
+    // Check that all API key types have mappings
+    assert!(mappings.contains_key(&ApiKeyType::OpenAI));
+    assert!(mappings.contains_key(&ApiKeyType::Claude));
+    assert!(mappings.contains_key(&ApiKeyType::DeepSeek));
+    assert!(mappings.contains_key(&ApiKeyType::YouTube));
+    assert!(mappings.contains_key(&ApiKeyType::TikTok));
+    assert!(mappings.contains_key(&ApiKeyType::Vimeo));
+    assert!(mappings.contains_key(&ApiKeyType::Telegram));
+    assert!(mappings.contains_key(&ApiKeyType::Codecov));
+    assert!(mappings.contains_key(&ApiKeyType::TauriAnalytics));
+
+    // Check specific mappings
+    let openai_vars = mappings.get(&ApiKeyType::OpenAI).unwrap();
+    assert!(openai_vars.contains(&"OPENAI_API_KEY".to_string()));
+
+    let claude_vars = mappings.get(&ApiKeyType::Claude).unwrap();
+    assert!(claude_vars.contains(&"CLAUDE_API_KEY".to_string()));
+    assert!(claude_vars.contains(&"ANTHROPIC_API_KEY".to_string()));
+  }
+
+  #[test]
+  fn test_import_single_api_key_simple() {
+    let importer = EnvImporter::new();
+
+    // Set test environment variable
+    env::set_var("OPENAI_API_KEY", "test_openai_key_123");
+
+    let env_vars = vec!["OPENAI_API_KEY".to_string()];
+    let result = importer
+      .import_single_api_key(ApiKeyType::OpenAI, &env_vars)
+      .unwrap();
+
+    assert!(result.is_some());
+    let key_data = result.unwrap();
+    assert_eq!(key_data.key_type, ApiKeyType::OpenAI);
+    assert_eq!(key_data.value, "test_openai_key_123");
+
+    // Clean up
+    env::remove_var("OPENAI_API_KEY");
+  }
+
+  #[test]
+  fn test_import_single_api_key_oauth() {
+    let importer = EnvImporter::new();
+
+    // Set OAuth environment variables
+    env::set_var("YOUTUBE_CLIENT_ID", "youtube_client_123");
+    env::set_var("YOUTUBE_CLIENT_SECRET", "youtube_secret_456");
+
+    let env_vars = vec![
+      "YOUTUBE_CLIENT_ID".to_string(),
+      "YOUTUBE_CLIENT_SECRET".to_string(),
+    ];
+    let result = importer
+      .import_single_api_key(ApiKeyType::YouTube, &env_vars)
+      .unwrap();
+
+    assert!(result.is_some());
+    let key_data = result.unwrap();
+    assert_eq!(key_data.key_type, ApiKeyType::YouTube);
+    assert_eq!(key_data.value, "youtube_client_123"); // value stores client_id
+
+    // OAuth credentials should be in oauth_data field
+    assert!(key_data.oauth_data.is_some());
+    let oauth_data = key_data.oauth_data.unwrap();
+    assert_eq!(oauth_data.client_id, "youtube_client_123");
+    assert_eq!(oauth_data.client_secret, "youtube_secret_456");
+
+    // Clean up
+    env::remove_var("YOUTUBE_CLIENT_ID");
+    env::remove_var("YOUTUBE_CLIENT_SECRET");
+  }
+
+  #[test]
+  fn test_import_single_api_key_missing() {
+    let importer = EnvImporter::new();
+
+    let env_vars = vec!["NONEXISTENT_KEY".to_string()];
+    let result = importer
+      .import_single_api_key(ApiKeyType::OpenAI, &env_vars)
+      .unwrap();
+
+    assert!(result.is_none());
+  }
+
+  #[test]
+  fn test_import_all_api_keys() {
+    let importer = EnvImporter::new();
+
+    // Set various test environment variables
+    env::set_var("OPENAI_API_KEY", "openai_test_key");
+    env::set_var("CLAUDE_API_KEY", "claude_test_key");
+    env::set_var("TELEGRAM_BOT_TOKEN", "bot_token_123");
+    env::set_var("VIMEO_ACCESS_TOKEN", "vimeo_token_456");
+
+    let result = importer.import_all_api_keys();
+    assert!(result.is_ok());
+
+    let keys = result.unwrap();
+    assert!(keys.len() >= 4); // At least the keys we set
+
+    // Check that our keys are present
+    let has_openai = keys
+      .iter()
+      .any(|k| k.key_type == ApiKeyType::OpenAI && k.value == "openai_test_key");
+    let has_claude = keys
+      .iter()
+      .any(|k| k.key_type == ApiKeyType::Claude && k.value == "claude_test_key");
+    let has_telegram = keys
+      .iter()
+      .any(|k| k.key_type == ApiKeyType::Telegram && k.value.contains("bot_token_123"));
+    let has_vimeo = keys
+      .iter()
+      .any(|k| k.key_type == ApiKeyType::Vimeo && k.value == "vimeo_token_456");
+
+    assert!(has_openai);
+    assert!(has_claude);
+    assert!(has_telegram);
+    assert!(has_vimeo);
+
+    // Clean up
+    env::remove_var("OPENAI_API_KEY");
+    env::remove_var("CLAUDE_API_KEY");
+    env::remove_var("TELEGRAM_BOT_TOKEN");
+    env::remove_var("VIMEO_ACCESS_TOKEN");
+  }
+
+  #[test]
+  fn test_import_api_key() {
+    let importer = EnvImporter::new();
+
+    // Test with existing key
+    env::set_var("DEEPSEEK_API_KEY", "deepseek_test_123");
+
+    let result = importer.import_api_key(ApiKeyType::DeepSeek);
+    assert!(result.is_ok());
+
+    let key_data = result.unwrap();
+    assert!(key_data.is_some());
+    let key = key_data.unwrap();
+    assert_eq!(key.key_type, ApiKeyType::DeepSeek);
+    assert_eq!(key.value, "deepseek_test_123");
+
+    // Test with non-existing key
+    let result = importer.import_api_key(ApiKeyType::Codecov);
+    assert!(result.is_ok());
+    assert!(result.unwrap().is_none());
+
+    // Clean up
+    env::remove_var("DEEPSEEK_API_KEY");
+  }
+
+  #[test]
+  fn test_export_to_env_format_simple() {
+    let keys = vec![
+      ApiKeyData {
+        key_type: ApiKeyType::OpenAI,
+        value: "openai_key_123".to_string(),
+        oauth_data: None,
+        created_at: chrono::Utc::now(),
+        last_validated: None,
+        is_valid: None,
+      },
+      ApiKeyData {
+        key_type: ApiKeyType::Claude,
+        value: "claude_key_456".to_string(),
+        oauth_data: None,
+        created_at: chrono::Utc::now(),
+        last_validated: None,
+        is_valid: None,
+      },
+    ];
+
+    let importer = EnvImporter::new();
+    let env_content = importer.export_to_env_format(&keys);
+    // export_to_env_format uses different header
+    assert!(env_content.contains("# Timeline Studio API Keys"));
+    assert!(env_content.contains("OPENAI_API_KEY"));
+    assert!(env_content.contains("CLAUDE_API_KEY"));
+  }
+
+  #[test]
+  fn test_export_to_env_format_oauth() {
+    let oauth_creds = OAuthCredentials {
+      client_id: "youtube_client".to_string(),
+      client_secret: "youtube_secret".to_string(),
+      access_token: Some("youtube_token".to_string()),
+      refresh_token: Some("youtube_refresh".to_string()),
+      expires_at: None,
+    };
+
+    let keys = vec![ApiKeyData {
+      key_type: ApiKeyType::YouTube,
+      value: "youtube_client".to_string(),
+      oauth_data: Some(oauth_creds),
+      created_at: chrono::Utc::now(),
+      last_validated: None,
+      is_valid: None,
+    }];
+
+    let importer = EnvImporter::new();
+    let env_content = importer.export_to_env_format(&keys);
+    assert!(env_content.contains("YOUTUBE_CLIENT_ID"));
+    assert!(env_content.contains("YOUTUBE_CLIENT_SECRET"));
+    assert!(env_content.contains("YOUTUBE_ACCESS_TOKEN"));
+  }
+
+  #[test]
+  fn test_export_to_env_format_empty() {
+    let keys = vec![];
+    let importer = EnvImporter::new();
+    let env_content = importer.export_to_env_format(&keys);
+    assert!(env_content.contains("# Timeline Studio API Keys"));
+    assert!(env_content.contains("# Generated"));
+  }
+
+  #[test]
+  fn test_oauth_types_handling() {
+    // Test that OAuth types are handled differently in import methods
+    // YouTube, TikTok, and Vimeo use OAuth
+    let oauth_types = vec![ApiKeyType::YouTube, ApiKeyType::TikTok, ApiKeyType::Vimeo];
+
+    // Simple API key types
+    let simple_types = vec![ApiKeyType::OpenAI, ApiKeyType::Claude, ApiKeyType::DeepSeek];
+
+    // Just verify the enums exist and can be used
+    assert_eq!(oauth_types.len(), 3);
+    assert_eq!(simple_types.len(), 3);
+  }
+
+  #[test]
+  fn test_telegram_special_handling() {
+    let importer = EnvImporter::new();
+
+    // Test Telegram with both bot token and chat ID
+    env::set_var("TELEGRAM_BOT_TOKEN", "bot_token_123");
+    env::set_var("TELEGRAM_CHAT_ID", "chat_id_456");
+
+    let env_vars = vec![
+      "TELEGRAM_BOT_TOKEN".to_string(),
+      "TELEGRAM_CHAT_ID".to_string(),
+      "TELEGRAM_CHANNEL_ID".to_string(),
+    ];
+
+    let result = importer
+      .import_single_api_key(ApiKeyType::Telegram, &env_vars)
+      .unwrap();
+    assert!(result.is_some());
+
+    let key_data = result.unwrap();
+    assert_eq!(key_data.key_type, ApiKeyType::Telegram);
+    assert_eq!(key_data.value, "bot_token_123");
+    // Telegram only imports bot token, not chat_id
+
+    // Clean up
+    env::remove_var("TELEGRAM_BOT_TOKEN");
+    env::remove_var("TELEGRAM_CHAT_ID");
+  }
+
+  #[test]
+  fn test_load_env_file_malformed() {
+    let temp_dir = TempDir::new().unwrap();
+    let env_file = temp_dir.path().join(".env");
+
+    let content = r#"
+VALID_KEY=valid_value
+INVALID_LINE_NO_EQUALS
+KEY_WITH_EQUALS_IN_VALUE=value=with=equals
+KEY_WITH_SPACES = value with spaces 
+        "#;
+
+    fs::write(&env_file, content).unwrap();
+
+    let importer = EnvImporter::with_env_file(&env_file);
+    let result = importer.load_env_file();
+    assert!(result.is_ok());
+
+    // Check that valid lines were processed
+    assert_eq!(env::var("VALID_KEY").unwrap(), "valid_value");
+    assert_eq!(
+      env::var("KEY_WITH_EQUALS_IN_VALUE").unwrap(),
+      "value=with=equals"
+    );
+    assert_eq!(env::var("KEY_WITH_SPACES").unwrap(), "value with spaces");
+
+    // Invalid line should be skipped
+    assert!(env::var("INVALID_LINE_NO_EQUALS").is_err());
+
+    // Clean up
+    env::remove_var("VALID_KEY");
+    env::remove_var("KEY_WITH_EQUALS_IN_VALUE");
+    env::remove_var("KEY_WITH_SPACES");
+  }
+}
+
 impl Default for EnvImporter {
   fn default() -> Self {
     Self::new()

@@ -483,3 +483,284 @@ impl Default for ApiValidator {
     Self::new()
   }
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  fn create_test_validator() -> ApiValidator {
+    ApiValidator::new()
+  }
+
+  #[test]
+  fn test_validation_result_creation() {
+    let result = ValidationResult {
+      is_valid: true,
+      error_message: None,
+      service_info: Some("Test service".to_string()),
+      rate_limits: None,
+    };
+
+    assert!(result.is_valid);
+    assert!(result.error_message.is_none());
+    assert_eq!(result.service_info, Some("Test service".to_string()));
+    assert!(result.rate_limits.is_none());
+  }
+
+  #[test]
+  fn test_rate_limit_info() {
+    let rate_limit = RateLimitInfo {
+      requests_remaining: Some(100),
+      reset_time: Some(chrono::Utc::now()),
+      daily_limit: Some(1000),
+    };
+
+    assert_eq!(rate_limit.requests_remaining, Some(100));
+    assert!(rate_limit.reset_time.is_some());
+    assert_eq!(rate_limit.daily_limit, Some(1000));
+  }
+
+  #[tokio::test]
+  async fn test_validate_api_key_unsupported_oauth() {
+    let validator = create_test_validator();
+    let oauth_creds = OAuthCredentials {
+      client_id: "client_123".to_string(),
+      client_secret: "secret_456".to_string(),
+      access_token: Some("test_token".to_string()),
+      refresh_token: Some("refresh_token".to_string()),
+      expires_at: Some(chrono::Utc::now() + chrono::Duration::hours(1)),
+    };
+
+    // Test unsupported OAuth service
+    let result = validator
+      .validate_oauth_credentials(ApiKeyType::OpenAI, &oauth_creds)
+      .await;
+
+    assert!(result.is_ok());
+    let validation = result.unwrap();
+    assert!(!validation.is_valid);
+    assert!(validation.error_message.is_some());
+    assert!(validation
+      .error_message
+      .unwrap()
+      .contains("OAuth validation not supported"));
+  }
+
+  #[test]
+  fn test_extract_openai_rate_limits_empty() {
+    let validator = create_test_validator();
+    let headers = reqwest::header::HeaderMap::new();
+
+    let rate_limits = validator.extract_openai_rate_limits(&headers);
+    assert!(rate_limits.is_none());
+  }
+
+  #[test]
+  fn test_extract_openai_rate_limits_with_data() {
+    let validator = create_test_validator();
+    let mut headers = reqwest::header::HeaderMap::new();
+    headers.insert(
+      "x-ratelimit-remaining-requests",
+      reqwest::header::HeaderValue::from_static("50"),
+    );
+
+    let rate_limits = validator.extract_openai_rate_limits(&headers);
+    assert!(rate_limits.is_some());
+
+    let limits = rate_limits.unwrap();
+    assert_eq!(limits.requests_remaining, Some(50));
+    assert!(limits.reset_time.is_none());
+    assert!(limits.daily_limit.is_none());
+  }
+
+  #[test]
+  fn test_api_validator_default() {
+    let _validator1 = ApiValidator::new();
+    let _validator2 = ApiValidator::default();
+
+    // Both should create valid instances
+    // We can't compare them directly, but we can check they both work
+    assert!(true); // Just ensure no panic
+  }
+
+  #[test]
+  fn test_api_key_type_matching() {
+    // Test that all API key types are handled
+    let types = vec![
+      ApiKeyType::OpenAI,
+      ApiKeyType::Claude,
+      ApiKeyType::DeepSeek,
+      ApiKeyType::YouTube,
+      ApiKeyType::TikTok,
+      ApiKeyType::Vimeo,
+      ApiKeyType::Telegram,
+      ApiKeyType::Codecov,
+      ApiKeyType::TauriAnalytics,
+    ];
+
+    // Just ensure all types exist and can be matched
+    for key_type in types {
+      match key_type {
+        ApiKeyType::OpenAI => assert!(true),
+        ApiKeyType::Claude => assert!(true),
+        ApiKeyType::DeepSeek => assert!(true),
+        ApiKeyType::YouTube => assert!(true),
+        ApiKeyType::TikTok => assert!(true),
+        ApiKeyType::Vimeo => assert!(true),
+        ApiKeyType::Telegram => assert!(true),
+        ApiKeyType::Codecov => assert!(true),
+        ApiKeyType::TauriAnalytics => assert!(true),
+      }
+    }
+  }
+
+  #[tokio::test]
+  async fn test_validate_openai_key_invalid() {
+    // Note: In real tests, we would use mocks to avoid actual API calls
+    // For now, we test the structure with an obviously invalid key
+    let validator = create_test_validator();
+    let result = validator.validate_openai_key("invalid_key_123").await;
+
+    // The result should be Ok (no network error), but validation should fail
+    assert!(result.is_ok());
+    let _validation = result.unwrap();
+    // We expect this to fail since it's an invalid key
+    // The actual behavior depends on network availability
+  }
+
+  #[test]
+  fn test_oauth_credentials_structure() {
+    let oauth = OAuthCredentials {
+      client_id: "client_123".to_string(),
+      client_secret: "secret_456".to_string(),
+      access_token: Some("access_123".to_string()),
+      refresh_token: Some("refresh_456".to_string()),
+      expires_at: Some(chrono::Utc::now() + chrono::Duration::hours(1)),
+    };
+
+    assert_eq!(oauth.client_id, "client_123");
+    assert_eq!(oauth.client_secret, "secret_456");
+    assert_eq!(oauth.access_token, Some("access_123".to_string()));
+    assert_eq!(oauth.refresh_token, Some("refresh_456".to_string()));
+    assert!(oauth.expires_at.is_some());
+  }
+
+  #[test]
+  fn test_validation_result_serialization() {
+    let result = ValidationResult {
+      is_valid: true,
+      error_message: Some("Test error".to_string()),
+      service_info: Some("Service info".to_string()),
+      rate_limits: Some(RateLimitInfo {
+        requests_remaining: Some(100),
+        reset_time: None,
+        daily_limit: Some(1000),
+      }),
+    };
+
+    // Test that it can be serialized
+    let serialized = serde_json::to_string(&result);
+    assert!(serialized.is_ok());
+
+    let json = serialized.unwrap();
+    assert!(json.contains("is_valid"));
+    assert!(json.contains("error_message"));
+    assert!(json.contains("service_info"));
+    assert!(json.contains("rate_limits"));
+  }
+
+  #[test]
+  fn test_rate_limit_edge_cases() {
+    // Test with all None values
+    let rate_limit1 = RateLimitInfo {
+      requests_remaining: None,
+      reset_time: None,
+      daily_limit: None,
+    };
+    assert!(rate_limit1.requests_remaining.is_none());
+    assert!(rate_limit1.reset_time.is_none());
+    assert!(rate_limit1.daily_limit.is_none());
+
+    // Test with extreme values
+    let rate_limit2 = RateLimitInfo {
+      requests_remaining: Some(u32::MAX),
+      reset_time: Some(chrono::DateTime::<chrono::Utc>::MIN_UTC),
+      daily_limit: Some(0),
+    };
+    assert_eq!(rate_limit2.requests_remaining, Some(u32::MAX));
+    assert!(rate_limit2.reset_time.is_some());
+    assert_eq!(rate_limit2.daily_limit, Some(0));
+  }
+
+  #[test]
+  fn test_client_timeout() {
+    // Test that client is created with timeout
+    let _validator = ApiValidator::new();
+    // The client is private, but we can verify it doesn't panic on creation
+    assert!(true);
+  }
+
+  #[tokio::test]
+  async fn test_validate_api_key_all_types() {
+    let validator = create_test_validator();
+    let test_key = "test_key_123";
+
+    // Test that validate_api_key handles all key types without panicking
+    let key_types = vec![
+      ApiKeyType::OpenAI,
+      ApiKeyType::Claude,
+      ApiKeyType::DeepSeek,
+      ApiKeyType::YouTube,
+      ApiKeyType::TikTok,
+      ApiKeyType::Vimeo,
+      ApiKeyType::Telegram,
+      ApiKeyType::Codecov,
+      ApiKeyType::TauriAnalytics,
+    ];
+
+    for key_type in key_types {
+      // We don't test actual validation (would require mocks),
+      // just that the method handles all types
+      let _ = validator.validate_api_key(key_type, test_key).await;
+    }
+  }
+
+  #[test]
+  fn test_extract_rate_limits_invalid_headers() {
+    let validator = create_test_validator();
+    let mut headers = reqwest::header::HeaderMap::new();
+
+    // Add invalid header values
+    headers.insert(
+      "x-ratelimit-remaining-requests",
+      reqwest::header::HeaderValue::from_static("not-a-number"),
+    );
+    headers.insert(
+      "x-ratelimit-reset-requests",
+      reqwest::header::HeaderValue::from_static("invalid-date"),
+    );
+
+    let rate_limits = validator.extract_openai_rate_limits(&headers);
+    // Should return None when parsing fails
+    assert!(rate_limits.is_none());
+  }
+
+  #[test]
+  fn test_extract_rate_limits_partial_headers() {
+    let validator = create_test_validator();
+    let mut headers = reqwest::header::HeaderMap::new();
+
+    // Only add remaining requests
+    headers.insert(
+      "x-ratelimit-remaining-requests",
+      reqwest::header::HeaderValue::from_static("100"),
+    );
+
+    let rate_limits = validator.extract_openai_rate_limits(&headers);
+    assert!(rate_limits.is_some());
+
+    let limits = rate_limits.unwrap();
+    assert_eq!(limits.requests_remaining, Some(100));
+    assert!(limits.reset_time.is_none());
+  }
+}

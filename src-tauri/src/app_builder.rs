@@ -172,6 +172,13 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::video_compiler::commands::create_style_template,
     crate::video_compiler::commands::create_subtitle_animation_new,
     crate::video_compiler::commands::create_style_template_new,
+    crate::video_compiler::commands::get_cached_metadata,
+    crate::video_compiler::commands::get_cache_memory_usage,
+    crate::video_compiler::commands::get_current_gpu_info,
+    crate::video_compiler::commands::get_gpu_info,
+    crate::video_compiler::commands::get_recommended_gpu_encoder,
+    crate::video_compiler::commands::get_render_cache_info,
+    crate::video_compiler::commands::get_video_info,
     // Pipeline commands
     crate::video_compiler::commands::create_and_execute_pipeline,
     crate::video_compiler::commands::get_pipeline_info,

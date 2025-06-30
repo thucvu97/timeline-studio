@@ -308,6 +308,386 @@ impl OAuthHandler {
   }
 }
 
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  fn create_test_handler() -> OAuthHandler {
+    OAuthHandler::new()
+  }
+
+  #[test]
+  fn test_oauth_handler_new() {
+    let handler = OAuthHandler::new();
+    assert_eq!(handler.redirect_uri, "http://localhost:3000/oauth/callback");
+  }
+
+  #[test]
+  fn test_oauth_handler_with_redirect_uri() {
+    let custom_uri = "https://myapp.com/oauth/callback".to_string();
+    let handler = OAuthHandler::with_redirect_uri(custom_uri.clone());
+    assert_eq!(handler.redirect_uri, custom_uri);
+  }
+
+  #[test]
+  fn test_oauth_handler_default() {
+    let handler1 = OAuthHandler::new();
+    let handler2 = OAuthHandler::default();
+    assert_eq!(handler1.redirect_uri, handler2.redirect_uri);
+  }
+
+  #[test]
+  fn test_get_oauth_config_youtube() {
+    let handler = create_test_handler();
+    let config = handler.get_oauth_config(&ApiKeyType::YouTube);
+
+    assert!(config.is_some());
+    let cfg = config.unwrap();
+    assert_eq!(cfg.auth_url, "https://accounts.google.com/o/oauth2/v2/auth");
+    assert_eq!(cfg.token_url, "https://oauth2.googleapis.com/token");
+    assert_eq!(cfg.scopes.len(), 2);
+    assert!(cfg
+      .scopes
+      .contains(&"https://www.googleapis.com/auth/youtube.upload".to_string()));
+    assert!(cfg
+      .scopes
+      .contains(&"https://www.googleapis.com/auth/youtube".to_string()));
+    assert_eq!(cfg.redirect_uri, "http://localhost:3000/oauth/callback");
+  }
+
+  #[test]
+  fn test_get_oauth_config_tiktok() {
+    let handler = create_test_handler();
+    let config = handler.get_oauth_config(&ApiKeyType::TikTok);
+
+    assert!(config.is_some());
+    let cfg = config.unwrap();
+    assert_eq!(cfg.auth_url, "https://www.tiktok.com/auth/authorize/");
+    assert_eq!(
+      cfg.token_url,
+      "https://open-api.tiktok.com/oauth/access_token/"
+    );
+    assert_eq!(cfg.scopes.len(), 2);
+    assert!(cfg.scopes.contains(&"user.info.basic".to_string()));
+    assert!(cfg.scopes.contains(&"video.upload".to_string()));
+  }
+
+  #[test]
+  fn test_get_oauth_config_vimeo() {
+    let handler = create_test_handler();
+    let config = handler.get_oauth_config(&ApiKeyType::Vimeo);
+
+    assert!(config.is_some());
+    let cfg = config.unwrap();
+    assert_eq!(cfg.auth_url, "https://api.vimeo.com/oauth/authorize");
+    assert_eq!(cfg.token_url, "https://api.vimeo.com/oauth/access_token");
+    assert_eq!(cfg.scopes.len(), 3);
+    assert!(cfg.scopes.contains(&"public".to_string()));
+    assert!(cfg.scopes.contains(&"private".to_string()));
+    assert!(cfg.scopes.contains(&"upload".to_string()));
+  }
+
+  #[test]
+  fn test_get_oauth_config_unsupported() {
+    let handler = create_test_handler();
+    let config = handler.get_oauth_config(&ApiKeyType::OpenAI);
+    assert!(config.is_none());
+
+    let config = handler.get_oauth_config(&ApiKeyType::Claude);
+    assert!(config.is_none());
+
+    let config = handler.get_oauth_config(&ApiKeyType::Telegram);
+    assert!(config.is_none());
+  }
+
+  #[test]
+  fn test_generate_auth_url_basic() {
+    let handler = create_test_handler();
+    let url = handler.generate_auth_url(ApiKeyType::YouTube, "test_client_id", None);
+
+    assert!(url.is_ok());
+    let auth_url = url.unwrap();
+    assert!(auth_url.contains("https://accounts.google.com/o/oauth2/v2/auth"));
+    assert!(auth_url.contains("client_id=test_client_id"));
+    assert!(auth_url.contains("response_type=code"));
+    assert!(auth_url.contains("redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Foauth%2Fcallback"));
+    assert!(auth_url.contains("scope="));
+  }
+
+  #[test]
+  fn test_generate_auth_url_with_state() {
+    let handler = create_test_handler();
+    let url = handler.generate_auth_url(
+      ApiKeyType::YouTube,
+      "test_client_id",
+      Some("test_state_123"),
+    );
+
+    assert!(url.is_ok());
+    let auth_url = url.unwrap();
+    assert!(auth_url.contains("state=test_state_123"));
+  }
+
+  #[test]
+  fn test_generate_auth_url_youtube_specific() {
+    let handler = create_test_handler();
+    let url = handler.generate_auth_url(ApiKeyType::YouTube, "test_client_id", None);
+
+    assert!(url.is_ok());
+    let auth_url = url.unwrap();
+    assert!(auth_url.contains("access_type=offline"));
+    assert!(auth_url.contains("prompt=consent"));
+  }
+
+  #[test]
+  fn test_generate_auth_url_tiktok_specific() {
+    let handler = create_test_handler();
+    let url = handler.generate_auth_url(ApiKeyType::TikTok, "test_client_id", None);
+
+    assert!(url.is_ok());
+    let auth_url = url.unwrap();
+    // TikTok has response_type added twice (once in default, once in specific)
+    assert!(auth_url.contains("response_type=code"));
+  }
+
+  #[test]
+  fn test_generate_auth_url_unsupported_service() {
+    let handler = create_test_handler();
+    let url = handler.generate_auth_url(ApiKeyType::OpenAI, "test_client_id", None);
+
+    assert!(url.is_err());
+    assert!(url.unwrap_err().to_string().contains("OAuth not supported"));
+  }
+
+  #[test]
+  fn test_create_oauth_credentials() {
+    let handler = create_test_handler();
+    let oauth_result = OAuthResult {
+      access_token: "access_123".to_string(),
+      refresh_token: Some("refresh_456".to_string()),
+      expires_in: Some(3600),
+      token_type: "Bearer".to_string(),
+      scope: Some("read write".to_string()),
+    };
+
+    let creds = handler.create_oauth_credentials(
+      "client_id_123".to_string(),
+      "client_secret_456".to_string(),
+      oauth_result,
+    );
+
+    assert_eq!(creds.client_id, "client_id_123");
+    assert_eq!(creds.client_secret, "client_secret_456");
+    assert_eq!(creds.access_token, Some("access_123".to_string()));
+    assert_eq!(creds.refresh_token, Some("refresh_456".to_string()));
+    assert!(creds.expires_at.is_some());
+
+    // Check that expiration is approximately 1 hour from now
+    let expires_at = creds.expires_at.unwrap();
+    let now = chrono::Utc::now();
+    let duration = expires_at - now;
+    assert!(duration.num_seconds() > 3500 && duration.num_seconds() <= 3600);
+  }
+
+  #[test]
+  fn test_create_oauth_credentials_no_expiry() {
+    let handler = create_test_handler();
+    let oauth_result = OAuthResult {
+      access_token: "access_123".to_string(),
+      refresh_token: None,
+      expires_in: None,
+      token_type: "Bearer".to_string(),
+      scope: None,
+    };
+
+    let creds = handler.create_oauth_credentials(
+      "client_id".to_string(),
+      "client_secret".to_string(),
+      oauth_result,
+    );
+
+    assert!(creds.expires_at.is_none());
+    assert!(creds.refresh_token.is_none());
+  }
+
+  #[test]
+  fn test_needs_refresh() {
+    let handler = create_test_handler();
+
+    // Test with no expiration
+    let mut creds = OAuthCredentials {
+      client_id: "test".to_string(),
+      client_secret: "test".to_string(),
+      access_token: Some("token".to_string()),
+      refresh_token: None,
+      expires_at: None,
+    };
+    assert!(!handler.needs_refresh(&creds));
+
+    // Test with future expiration (more than 5 minutes)
+    creds.expires_at = Some(chrono::Utc::now() + chrono::Duration::hours(1));
+    assert!(!handler.needs_refresh(&creds));
+
+    // Test with expiration within 5 minutes
+    creds.expires_at = Some(chrono::Utc::now() + chrono::Duration::minutes(3));
+    assert!(handler.needs_refresh(&creds));
+
+    // Test with already expired
+    creds.expires_at = Some(chrono::Utc::now() - chrono::Duration::minutes(1));
+    assert!(handler.needs_refresh(&creds));
+  }
+
+  #[tokio::test]
+  async fn test_auto_refresh_if_needed_no_refresh_needed() {
+    let handler = create_test_handler();
+    let mut creds = OAuthCredentials {
+      client_id: "test".to_string(),
+      client_secret: "test".to_string(),
+      access_token: Some("token".to_string()),
+      refresh_token: Some("refresh".to_string()),
+      expires_at: Some(chrono::Utc::now() + chrono::Duration::hours(1)),
+    };
+
+    let result = handler
+      .auto_refresh_if_needed(ApiKeyType::YouTube, &mut creds)
+      .await;
+    assert!(result.is_ok());
+    assert!(!result.unwrap()); // No refresh was needed
+  }
+
+  #[tokio::test]
+  async fn test_auto_refresh_if_needed_no_refresh_token() {
+    let handler = create_test_handler();
+    let mut creds = OAuthCredentials {
+      client_id: "test".to_string(),
+      client_secret: "test".to_string(),
+      access_token: Some("token".to_string()),
+      refresh_token: None,
+      expires_at: Some(chrono::Utc::now() + chrono::Duration::minutes(1)),
+    };
+
+    let result = handler
+      .auto_refresh_if_needed(ApiKeyType::YouTube, &mut creds)
+      .await;
+    assert!(result.is_ok());
+    assert!(!result.unwrap()); // Can't refresh without refresh token
+  }
+
+  // Callback utils tests
+  #[test]
+  fn test_parse_callback_url_valid() {
+    let url = "http://localhost:3000/oauth/callback?code=auth_code_123&state=state_456";
+    let params = callback_utils::parse_callback_url(url);
+
+    assert!(params.is_ok());
+    let map = params.unwrap();
+    assert_eq!(map.get("code"), Some(&"auth_code_123".to_string()));
+    assert_eq!(map.get("state"), Some(&"state_456".to_string()));
+  }
+
+  #[test]
+  fn test_parse_callback_url_with_error() {
+    let url = "http://localhost:3000/oauth/callback?error=access_denied&error_description=User%20denied%20access";
+    let params = callback_utils::parse_callback_url(url);
+
+    assert!(params.is_ok());
+    let map = params.unwrap();
+    assert_eq!(map.get("error"), Some(&"access_denied".to_string()));
+    assert_eq!(
+      map.get("error_description"),
+      Some(&"User denied access".to_string())
+    );
+  }
+
+  #[test]
+  fn test_parse_callback_url_invalid() {
+    let url = "not a valid url";
+    let params = callback_utils::parse_callback_url(url);
+    assert!(params.is_err());
+  }
+
+  #[test]
+  fn test_extract_auth_code() {
+    let mut params = HashMap::new();
+    params.insert("code".to_string(), "auth_123".to_string());
+    params.insert("state".to_string(), "state_456".to_string());
+
+    let code = callback_utils::extract_auth_code(&params);
+    assert!(code.is_ok());
+    assert_eq!(code.unwrap(), "auth_123");
+  }
+
+  #[test]
+  fn test_extract_auth_code_missing() {
+    let params = HashMap::new();
+    let code = callback_utils::extract_auth_code(&params);
+    assert!(code.is_err());
+    assert!(code
+      .unwrap_err()
+      .to_string()
+      .contains("No authorization code"));
+  }
+
+  #[test]
+  fn test_extract_state() {
+    let mut params = HashMap::new();
+    params.insert("state".to_string(), "state_123".to_string());
+
+    let state = callback_utils::extract_state(&params);
+    assert_eq!(state, Some("state_123".to_string()));
+
+    let empty_params = HashMap::new();
+    let no_state = callback_utils::extract_state(&empty_params);
+    assert!(no_state.is_none());
+  }
+
+  #[test]
+  fn test_extract_error() {
+    let mut params = HashMap::new();
+    params.insert("error".to_string(), "access_denied".to_string());
+
+    let error = callback_utils::extract_error(&params);
+    assert_eq!(error, Some("access_denied".to_string()));
+
+    let empty_params = HashMap::new();
+    let no_error = callback_utils::extract_error(&empty_params);
+    assert!(no_error.is_none());
+  }
+
+  #[test]
+  fn test_oauth_result_structure() {
+    let result = OAuthResult {
+      access_token: "token".to_string(),
+      refresh_token: Some("refresh".to_string()),
+      expires_in: Some(7200),
+      token_type: "Bearer".to_string(),
+      scope: Some("read write upload".to_string()),
+    };
+
+    assert_eq!(result.access_token, "token");
+    assert_eq!(result.refresh_token, Some("refresh".to_string()));
+    assert_eq!(result.expires_in, Some(7200));
+    assert_eq!(result.token_type, "Bearer");
+    assert_eq!(result.scope, Some("read write upload".to_string()));
+  }
+
+  #[test]
+  fn test_oauth_config_clone() {
+    let config = OAuthConfig {
+      auth_url: "https://auth.example.com".to_string(),
+      token_url: "https://token.example.com".to_string(),
+      scopes: vec!["scope1".to_string(), "scope2".to_string()],
+      redirect_uri: "http://localhost:3000/callback".to_string(),
+    };
+
+    let cloned = config.clone();
+    assert_eq!(cloned.auth_url, config.auth_url);
+    assert_eq!(cloned.token_url, config.token_url);
+    assert_eq!(cloned.scopes, config.scopes);
+    assert_eq!(cloned.redirect_uri, config.redirect_uri);
+  }
+}
+
 impl Default for OAuthHandler {
   fn default() -> Self {
     Self::new()
