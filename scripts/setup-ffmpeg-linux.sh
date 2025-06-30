@@ -24,14 +24,62 @@ verify_pkgconfig() {
     return $([ "$all_found" = true ] && echo 0 || echo 1)
 }
 
+# Function to find actual header locations
+find_headers() {
+    echo "🔍 Searching for FFmpeg headers..."
+    
+    # Common locations where headers might be installed
+    local search_paths=(
+        "/usr/include"
+        "/usr/include/x86_64-linux-gnu" 
+        "/usr/include/aarch64-linux-gnu"
+        "/usr/local/include"
+        "/usr/include/ffmpeg"
+        "/usr/local/include/ffmpeg"
+    )
+    
+    for path in "${search_paths[@]}"; do
+        echo "  Checking $path..."
+        if [ -f "$path/libswscale/swscale.h" ]; then
+            echo "  ✅ Found libswscale/swscale.h in $path"
+        fi
+        if [ -f "$path/libavcodec/avcodec.h" ]; then
+            echo "  ✅ Found libavcodec/avcodec.h in $path"
+        fi
+    done
+    
+    # Also search system-wide
+    echo "  Performing system-wide search..."
+    find /usr -name "swscale.h" -path "*/libswscale/*" 2>/dev/null | head -5 | while read -r file; do
+        echo "  📍 Found: $file"
+    done
+}
+
+# Run diagnostics first
+find_headers
+
 # First check if pkg-config can find FFmpeg libraries
 echo "Checking pkg-config for FFmpeg libraries..."
 if verify_pkgconfig; then
-    echo "✅ All FFmpeg libraries found via pkg-config - no manual setup needed"
+    echo "✅ All FFmpeg libraries found via pkg-config"
     FFMPEG_INCLUDE_DIR=$(pkg-config --variable=includedir libavcodec 2>/dev/null || echo "/usr/include")
+    echo "pkg-config reports include directory: $FFMPEG_INCLUDE_DIR"
+    
+    # Verify the critical header actually exists where pkg-config says it should
+    if [ ! -f "$FFMPEG_INCLUDE_DIR/libswscale/swscale.h" ]; then
+        echo "⚠️  WARNING: pkg-config found libraries but swscale.h not at expected location: $FFMPEG_INCLUDE_DIR/libswscale/swscale.h"
+        echo "Falling back to manual detection..."
+        NEED_MANUAL_DETECTION=true
+    else
+        echo "✅ Verified swscale.h at: $FFMPEG_INCLUDE_DIR/libswscale/swscale.h"
+        NEED_MANUAL_DETECTION=false
+    fi
 else
     echo "❌ pkg-config setup incomplete, attempting manual header discovery..."
-    
+    NEED_MANUAL_DETECTION=true
+fi
+
+if [ "$NEED_MANUAL_DETECTION" = true ]; then
     # Common header locations
     HEADER_LOCATIONS=(
         "/usr/include"
@@ -72,8 +120,8 @@ else
     fi
 fi
 
-# Only create symlinks if headers are not in standard location and pkg-config failed
-if [ "$FFMPEG_INCLUDE_DIR" != "/usr/include" ] && [ -d "$FFMPEG_INCLUDE_DIR" ] && ! verify_pkgconfig; then
+# Only create symlinks if headers are not in standard location and manual detection was used
+if [ "$NEED_MANUAL_DETECTION" = true ] && [ "$FFMPEG_INCLUDE_DIR" != "/usr/include" ] && [ -d "$FFMPEG_INCLUDE_DIR" ]; then
     echo "Creating symlinks from $FFMPEG_INCLUDE_DIR to /usr/include..."
     
     # List of essential FFmpeg libraries (reduced to avoid unnecessary symlinks)
@@ -107,7 +155,7 @@ echo ""
 echo "Final verification..."
 
 # Check if we can use pkg-config (preferred) or direct header access
-if verify_pkgconfig; then
+if [ "$NEED_MANUAL_DETECTION" = false ] && verify_pkgconfig; then
     echo "✅ pkg-config setup successful - ffmpeg-sys-next will use pkg-config"
     # Set environment to force pkg-config usage
     export FFMPEG_USE_PKG_CONFIG=1
@@ -124,7 +172,7 @@ if verify_pkgconfig; then
         echo "✅ Environment variables exported to GitHub Actions"
     fi
 else
-    # Check key headers manually
+    # Check key headers manually and force symlinks if needed
     CRITICAL_HEADERS=(
         "/usr/include/libavcodec/avcodec.h"
         "/usr/include/libswscale/swscale.h"
@@ -141,8 +189,34 @@ else
         fi
     done
     
+    # If headers are missing from /usr/include but we found them elsewhere, create symlinks
+    if [ $MISSING_HEADERS -gt 0 ] && [ -n "$FFMPEG_INCLUDE_DIR" ] && [ "$FFMPEG_INCLUDE_DIR" != "/usr/include" ]; then
+        echo "🔧 Creating symlinks to fix header locations..."
+        
+        FFMPEG_LIBS=("libavcodec" "libavformat" "libavutil" "libswscale" "libavfilter" "libavdevice" "libswresample")
+        
+        for lib in "${FFMPEG_LIBS[@]}"; do
+            if [ -d "$FFMPEG_INCLUDE_DIR/$lib" ] && [ ! -L "/usr/include/$lib" ]; then
+                sudo ln -sfn "$FFMPEG_INCLUDE_DIR/$lib" "/usr/include/$lib"
+                echo "  ✓ Created symlink: /usr/include/$lib -> $FFMPEG_INCLUDE_DIR/$lib"
+            fi
+        done
+        
+        # Recheck after creating symlinks
+        echo "Rechecking after symlink creation..."
+        MISSING_HEADERS=0
+        for header in "${CRITICAL_HEADERS[@]}"; do
+            if [ -f "$header" ]; then
+                echo "✅ Now found: $header"
+            else
+                echo "❌ Still missing: $header"
+                MISSING_HEADERS=$((MISSING_HEADERS + 1))
+            fi
+        done
+    fi
+    
     if [ $MISSING_HEADERS -gt 0 ]; then
-        echo "❌ $MISSING_HEADERS critical headers missing - build may fail"
+        echo "❌ $MISSING_HEADERS critical headers still missing - build may fail"
         echo "Consider reinstalling FFmpeg development packages"
     else
         echo "✅ All critical headers found"
