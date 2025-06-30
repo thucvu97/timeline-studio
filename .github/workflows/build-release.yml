@@ -230,8 +230,8 @@ jobs:
         run: |
           # Создаем файл .npmrc, чтобы указать использование npm
           echo "engine-strict=false" > .npmrc
-          # Устанавливаем только production зависимости для сборки
-          npm ci --prefer-offline --no-audit --no-fund --production
+          # Устанавливаем все зависимости для сборки
+          npm ci --prefer-offline --no-audit --no-fund
 
       - name: Install Tauri CLI
         run: |
