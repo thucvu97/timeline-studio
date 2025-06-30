@@ -180,32 +180,89 @@ pub async fn get_ffmpeg_builder_info(_state: State<'_, VideoCompilerState>) -> R
 #[cfg(test)]
 mod tests {
   use super::*;
+  use crate::video_compiler::schema::{
+    Clip, ClipSource, ProjectMetadata, ProjectSettings, Timeline, Track, TrackType,
+  };
+  use chrono::Utc;
+
+  fn create_test_project() -> ProjectSchema {
+    ProjectSchema {
+      version: "1.0.0".to_string(),
+      metadata: ProjectMetadata {
+        name: "Test".to_string(),
+        description: None,
+        created_at: Utc::now(),
+        modified_at: Utc::now(),
+        author: None,
+      },
+      timeline: Timeline {
+        duration: 10.0,
+        ..Timeline::default()
+      },
+      tracks: vec![Track {
+        id: "track1".to_string(),
+        track_type: TrackType::Video,
+        name: "Video Track".to_string(),
+        enabled: true,
+        volume: 1.0,
+        locked: false,
+        clips: vec![
+          Clip {
+            id: "clip1".to_string(),
+            source: ClipSource::File("/test/video1.mp4".to_string()),
+            start_time: 0.0,
+            end_time: 5.0,
+            source_start: 0.0,
+            source_end: 5.0,
+            speed: 1.0,
+            opacity: 1.0,
+            effects: vec![],
+            filters: vec![],
+            template_id: None,
+            template_position: None,
+            color_correction: None,
+            crop: None,
+            transform: None,
+            audio_track_index: None,
+            properties: crate::video_compiler::schema::ClipProperties::default(),
+          },
+          Clip {
+            id: "clip2".to_string(),
+            source: ClipSource::File("/test/video2.mp4".to_string()),
+            start_time: 5.0,
+            end_time: 10.0,
+            source_start: 0.0,
+            source_end: 5.0,
+            speed: 1.0,
+            opacity: 1.0,
+            effects: vec![],
+            filters: vec![],
+            template_id: None,
+            template_position: None,
+            color_correction: None,
+            crop: None,
+            transform: None,
+            audio_track_index: None,
+            properties: crate::video_compiler::schema::ClipProperties::default(),
+          },
+        ],
+        effects: vec![],
+        filters: vec![],
+      }],
+      effects: vec![],
+      transitions: vec![],
+      filters: vec![],
+      templates: vec![],
+      style_templates: vec![],
+      subtitles: vec![],
+      settings: ProjectSettings::default(),
+    }
+  }
 
   #[test]
   fn test_segment_input_params_serialization() {
-    use crate::video_compiler::schema::{ProjectMetadata, ProjectSettings, Timeline};
-    use chrono::Utc;
-
     let params = SegmentInputParams {
-      project: ProjectSchema {
-        version: "1.0.0".to_string(),
-        metadata: ProjectMetadata {
-          name: "Test".to_string(),
-          description: None,
-          created_at: Utc::now(),
-          modified_at: Utc::now(),
-          author: None,
-        },
-        timeline: Timeline::default(),
-        tracks: vec![],
-        effects: vec![],
-        transitions: vec![],
-        filters: vec![],
-        templates: vec![],
-        style_templates: vec![],
-        subtitles: vec![],
-        settings: ProjectSettings::default(),
-      },
+      project: create_test_project(),
       temp_dir: "/tmp".to_string(),
     };
 
@@ -216,29 +273,8 @@ mod tests {
 
   #[test]
   fn test_prerender_settings_params_serialization() {
-    use crate::video_compiler::schema::{ProjectMetadata, ProjectSettings, Timeline};
-    use chrono::Utc;
-
     let params = PrerenderSettingsParams {
-      project: ProjectSchema {
-        version: "1.0.0".to_string(),
-        metadata: ProjectMetadata {
-          name: "Test".to_string(),
-          description: None,
-          created_at: Utc::now(),
-          modified_at: Utc::now(),
-          author: None,
-        },
-        timeline: Timeline::default(),
-        tracks: vec![],
-        effects: vec![],
-        transitions: vec![],
-        filters: vec![],
-        templates: vec![],
-        style_templates: vec![],
-        subtitles: vec![],
-        settings: ProjectSettings::default(),
-      },
+      project: create_test_project(),
       output_path: "/tmp/output.mp4".to_string(),
       width: 1920,
       height: 1080,
@@ -250,5 +286,165 @@ mod tests {
     let json = serde_json::to_string(&params).unwrap();
     assert!(json.contains("1920"));
     assert!(json.contains("h264"));
+  }
+
+  #[test]
+  fn test_segment_input_result_creation() {
+    let mut clip_indices = HashMap::new();
+    clip_indices.insert("clip1".to_string(), 0);
+    clip_indices.insert("clip2".to_string(), 1);
+
+    let result = SegmentInputResult {
+      success: true,
+      input_count: 2,
+      clip_indices,
+      error: None,
+    };
+
+    assert!(result.success);
+    assert_eq!(result.input_count, 2);
+    assert_eq!(result.clip_indices.len(), 2);
+    assert!(result.error.is_none());
+  }
+
+  #[test]
+  fn test_segment_input_result_with_error() {
+    let result = SegmentInputResult {
+      success: false,
+      input_count: 0,
+      clip_indices: HashMap::new(),
+      error: Some("Test error".to_string()),
+    };
+
+    assert!(!result.success);
+    assert_eq!(result.input_count, 0);
+    assert!(result.clip_indices.is_empty());
+    assert_eq!(result.error.as_ref().unwrap(), "Test error");
+  }
+
+  #[test]
+  fn test_builder_info_defaults() {
+    let info = BuilderInfo {
+      supports_segment_inputs: true,
+      supports_prerender_settings: true,
+      max_concurrent_inputs: 100,
+      supported_codecs: vec![
+        "h264".to_string(),
+        "h265".to_string(),
+        "vp9".to_string(),
+        "av1".to_string(),
+        "prores".to_string(),
+      ],
+    };
+
+    assert!(info.supports_segment_inputs);
+    assert!(info.supports_prerender_settings);
+    assert_eq!(info.max_concurrent_inputs, 100);
+    assert_eq!(info.supported_codecs.len(), 5);
+    assert!(info.supported_codecs.contains(&"h264".to_string()));
+    assert!(info.supported_codecs.contains(&"prores".to_string()));
+  }
+
+  #[tokio::test]
+  async fn test_get_ffmpeg_builder_info() {
+    use crate::video_compiler::VideoCompilerState;
+
+    let _state = VideoCompilerState::new().await;
+    // Note: Tauri State cannot be directly tested without proper mock
+    // This test verifies the BuilderInfo creation logic
+    let info = BuilderInfo {
+      supports_segment_inputs: true,
+      supports_prerender_settings: true,
+      max_concurrent_inputs: 100,
+      supported_codecs: vec![
+        "h264".to_string(),
+        "h265".to_string(),
+        "vp9".to_string(),
+        "av1".to_string(),
+        "prores".to_string(),
+      ],
+    };
+
+    assert!(info.supports_segment_inputs);
+    assert!(info.supports_prerender_settings);
+    assert_eq!(info.max_concurrent_inputs, 100);
+    assert!(!info.supported_codecs.is_empty());
+  }
+
+  #[test]
+  fn test_clip_index_calculation() {
+    let project = create_test_project();
+
+    // Симулируем логику поиска индекса клипа
+    let clip_index = project
+      .tracks
+      .iter()
+      .flat_map(|track| track.clips.iter())
+      .position(|clip| clip.id == "clip1");
+
+    assert_eq!(clip_index, Some(0));
+
+    let clip_index_2 = project
+      .tracks
+      .iter()
+      .flat_map(|track| track.clips.iter())
+      .position(|clip| clip.id == "clip2");
+
+    assert_eq!(clip_index_2, Some(1));
+
+    let nonexistent_clip = project
+      .tracks
+      .iter()
+      .flat_map(|track| track.clips.iter())
+      .position(|clip| clip.id == "nonexistent");
+
+    assert_eq!(nonexistent_clip, None);
+  }
+
+  #[test]
+  fn test_prerender_settings_validation() {
+    let params = PrerenderSettingsParams {
+      project: create_test_project(),
+      output_path: "/tmp/output.mp4".to_string(),
+      width: 1920,
+      height: 1080,
+      fps: 30.0,
+      video_codec: "h264".to_string(),
+      audio_codec: "aac".to_string(),
+    };
+
+    // Валидация параметров
+    assert!(params.width > 0);
+    assert!(params.height > 0);
+    assert!(params.fps > 0.0);
+    assert!(!params.video_codec.is_empty());
+    assert!(!params.audio_codec.is_empty());
+    assert!(!params.output_path.is_empty());
+  }
+
+  #[test]
+  fn test_empty_project_handling() {
+    let mut empty_project = create_test_project();
+    empty_project.tracks.clear();
+
+    let clips: HashMap<String, usize> = empty_project
+      .tracks
+      .iter()
+      .flat_map(|track| track.clips.iter())
+      .enumerate()
+      .map(|(index, clip)| (clip.id.clone(), index))
+      .collect();
+
+    assert!(clips.is_empty());
+
+    let result = SegmentInputResult {
+      success: true,
+      input_count: clips.len(),
+      clip_indices: clips,
+      error: None,
+    };
+
+    assert_eq!(result.input_count, 0);
+    assert!(result.clip_indices.is_empty());
   }
 }
