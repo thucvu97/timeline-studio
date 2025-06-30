@@ -110,18 +110,48 @@ jobs:
           sudo apt-get update
           sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev ffmpeg libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libswscale-dev libswresample-dev pkg-config
       
-      - name: Setup FFmpeg environment
+      - name: Setup FFmpeg environment and diagnostics
         run: |
+          echo "=== FFmpeg Diagnostics ==="
+          echo "Installed packages:"
+          dpkg -l | grep -E "(ffmpeg|libav|libsw)" | head -10
+          
+          echo ""
+          echo "Searching for FFmpeg headers system-wide..."
+          find /usr -name "swscale.h" 2>/dev/null | head -5 || echo "No swscale.h found"
+          find /usr -name "avcodec.h" 2>/dev/null | head -5 || echo "No avcodec.h found"
+          
+          echo ""
+          echo "Checking common include directories..."
+          ls -la /usr/include/ | grep -E "(libav|libsw|ffmpeg)" || echo "No FFmpeg directories in /usr/include"
+          ls -la /usr/include/x86_64-linux-gnu/ | grep -E "(libav|libsw|ffmpeg)" || echo "No FFmpeg directories in /usr/include/x86_64-linux-gnu"
+          
+          echo ""
+          echo "pkg-config status:"
+          export PKG_CONFIG_PATH="/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig"
+          pkg-config --exists libswscale && echo "✅ pkg-config finds libswscale" || echo "❌ pkg-config cannot find libswscale"
+          pkg-config --cflags libswscale 2>/dev/null || echo "No cflags for libswscale"
+          pkg-config --libs libswscale 2>/dev/null || echo "No libs for libswscale"
+          
+          echo ""
+          echo "=== Attempting to fix header locations ==="
+          
           # Check if headers are in expected location
           if [ ! -f "/usr/include/libswscale/swscale.h" ]; then
             echo "swscale.h not found in /usr/include, searching for actual location..."
             
-            # Find where the headers actually are
-            SWSCALE_PATH=$(find /usr -name "swscale.h" -path "*/libswscale/*" 2>/dev/null | head -1)
-            if [ -n "$SWSCALE_PATH" ]; then
+            # More comprehensive search
+            SWSCALE_PATHS=$(find /usr -name "swscale.h" 2>/dev/null)
+            echo "Found swscale.h files at:"
+            echo "$SWSCALE_PATHS"
+            
+            # Try to find the main one in libswscale directory
+            MAIN_SWSCALE=$(echo "$SWSCALE_PATHS" | grep "libswscale/swscale.h" | head -1)
+            
+            if [ -n "$MAIN_SWSCALE" ]; then
               # Extract base directory (parent of libswscale)
-              BASE_DIR=$(dirname $(dirname "$SWSCALE_PATH"))
-              echo "Found FFmpeg headers in: $BASE_DIR"
+              BASE_DIR=$(dirname $(dirname "$MAIN_SWSCALE"))
+              echo "Found main FFmpeg headers in: $BASE_DIR"
               
               # Create symlinks to standard location
               echo "Creating symlinks to /usr/include..."
@@ -129,15 +159,30 @@ jobs:
               for lib in "${FFMPEG_LIBS[@]}"; do
                 if [ -d "$BASE_DIR/$lib" ] && [ ! -L "/usr/include/$lib" ]; then
                   sudo ln -sfn "$BASE_DIR/$lib" "/usr/include/$lib"
-                  echo "Created symlink: /usr/include/$lib -> $BASE_DIR/$lib"
+                  echo "✅ Created symlink: /usr/include/$lib -> $BASE_DIR/$lib"
+                elif [ -L "/usr/include/$lib" ]; then
+                  echo "✅ Symlink already exists: /usr/include/$lib"
+                else
+                  echo "⚠️ Directory not found: $BASE_DIR/$lib"
                 fi
               done
+              
+              # Verify the symlinks worked
+              echo ""
+              echo "Verification after symlink creation:"
+              if [ -f "/usr/include/libswscale/swscale.h" ]; then
+                echo "✅ swscale.h now accessible at /usr/include/libswscale/swscale.h"
+              else
+                echo "❌ swscale.h still not found at /usr/include/libswscale/swscale.h"
+              fi
             else
-              echo "ERROR: swscale.h not found anywhere in system!"
+              echo "❌ ERROR: No libswscale/swscale.h found in any location!"
+              echo "All swscale.h locations:"
+              echo "$SWSCALE_PATHS"
               exit 1
             fi
           else
-            echo "✅ swscale.h found at /usr/include/libswscale/swscale.h"
+            echo "✅ swscale.h already found at /usr/include/libswscale/swscale.h"
           fi
           
           # Set environment variables for pkg-config
