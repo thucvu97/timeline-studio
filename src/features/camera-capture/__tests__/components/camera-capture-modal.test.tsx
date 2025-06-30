@@ -68,7 +68,7 @@ vi.mock("../../hooks/use-recording", () => ({
 
 // Мокируем компоненты
 vi.mock("../../components/camera-permission-request", () => ({
-  CameraPermissionRequest: ({ permissionStatus, errorMessage, onRequestPermissions }: any) => (
+  CameraPermissionRequest: ({ permissionStatus, errorMessage }: any) => (
     <div data-testid="camera-permission-request">
       Status: {permissionStatus}
       {errorMessage && <div>Error: {errorMessage}</div>}
