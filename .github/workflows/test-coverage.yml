@@ -109,6 +109,41 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev ffmpeg libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libswscale-dev libswresample-dev pkg-config
+      
+      - name: Setup FFmpeg environment
+        run: |
+          # Check if headers are in expected location
+          if [ ! -f "/usr/include/libswscale/swscale.h" ]; then
+            echo "swscale.h not found in /usr/include, searching for actual location..."
+            
+            # Find where the headers actually are
+            SWSCALE_PATH=$(find /usr -name "swscale.h" -path "*/libswscale/*" 2>/dev/null | head -1)
+            if [ -n "$SWSCALE_PATH" ]; then
+              # Extract base directory (parent of libswscale)
+              BASE_DIR=$(dirname $(dirname "$SWSCALE_PATH"))
+              echo "Found FFmpeg headers in: $BASE_DIR"
+              
+              # Create symlinks to standard location
+              echo "Creating symlinks to /usr/include..."
+              FFMPEG_LIBS=("libavcodec" "libavformat" "libavutil" "libswscale" "libavfilter" "libavdevice" "libswresample")
+              for lib in "${FFMPEG_LIBS[@]}"; do
+                if [ -d "$BASE_DIR/$lib" ] && [ ! -L "/usr/include/$lib" ]; then
+                  sudo ln -sfn "$BASE_DIR/$lib" "/usr/include/$lib"
+                  echo "Created symlink: /usr/include/$lib -> $BASE_DIR/$lib"
+                fi
+              done
+            else
+              echo "ERROR: swscale.h not found anywhere in system!"
+              exit 1
+            fi
+          else
+            echo "✅ swscale.h found at /usr/include/libswscale/swscale.h"
+          fi
+          
+          # Set environment variables for pkg-config
+          echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig" >> $GITHUB_ENV
+          echo "PKG_CONFIG_ALLOW_SYSTEM_LIBS=1" >> $GITHUB_ENV
+          echo "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS=1" >> $GITHUB_ENV
           
       - name: Install ONNX Runtime
         run: |

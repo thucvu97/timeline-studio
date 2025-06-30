@@ -10,7 +10,7 @@
     "build:analyze": "ANALYZE=true CODECOV_TOKEN=$CODECOV_TOKEN next build --no-lint",
     "start": "next start",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
-    "lint:windows": "eslint src --ext .ts,.tsx --cache --cache-location .eslintcache",
+    "lint:windows": "eslint \"src/**/*.{ts,tsx}\" --cache --cache-location .eslintcache",
     "lint:fix": "eslint --fix \"src/**/*.{ts,tsx}\"",
     "lint:fix:windows": "eslint --fix src/**/*.{ts,tsx}",
     "lint:css": "stylelint \"src/**/*.css\"",

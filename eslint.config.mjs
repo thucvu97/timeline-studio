@@ -7,6 +7,9 @@ const compat = new FlatCompat({
 })
 
 const eslintConfig = tseslint.config(
+  {
+    ignores: ["**/*.js"], // Ignore JavaScript files from TypeScript rules
+  },
   eslint.configs.recommended,
   tseslint.configs.strictTypeChecked,
   tseslint.configs.stylisticTypeChecked,
@@ -119,6 +122,25 @@ const eslintConfig = tseslint.config(
       parserOptions: {
         projectService: true,
         tsconfigRootDir: import.meta.dirname,
+      },
+    },
+  },
+  // Separate config for JavaScript files (AudioWorklets)
+  {
+    files: ["**/*.js"],
+    rules: {
+      // Basic JavaScript rules only, no TypeScript type checking
+      "no-unused-vars": "warn",
+      "no-undef": "off", // AudioWorkletProcessor is a global
+      "@typescript-eslint/await-thenable": "off",
+      "@typescript-eslint/no-misused-promises": "off",
+      "@typescript-eslint/require-await": "off",
+    },
+    languageOptions: {
+      globals: {
+        AudioWorkletProcessor: "readonly",
+        registerProcessor: "readonly",
+        sampleRate: "readonly",
       },
     },
   },
