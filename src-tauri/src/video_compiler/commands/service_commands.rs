@@ -319,3 +319,367 @@ pub async fn restart_service(
     ))),
   }
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use crate::video_compiler::commands::state::RenderJob;
+  use crate::video_compiler::schema::{
+    timeline::{Clip, ClipProperties, ClipSource, Track, TrackType},
+    ProjectSchema,
+  };
+
+  /// Helper function to create test VideoCompilerState
+  fn create_test_state() -> VideoCompilerState {
+    // Use Default implementation which creates a minimal valid state
+    VideoCompilerState::default()
+  }
+
+  /// Helper function to create a test render job
+  fn create_test_job(id: &str) -> RenderJob {
+    RenderJob {
+      id: id.to_string(),
+      project_name: "Test Project".to_string(),
+      output_path: "/tmp/test.mp4".to_string(),
+      status: crate::video_compiler::progress::RenderStatus::Processing,
+      created_at: chrono::Utc::now().to_rfc3339(),
+      progress: None,
+      error_message: None,
+    }
+  }
+
+  /// Helper function to create a test ActiveRenderJob (simplified for testing)
+  async fn create_test_active_job_async(
+    _id: &str,
+  ) -> crate::video_compiler::commands::state::ActiveRenderJob {
+    use crate::video_compiler::commands::state::{ActiveRenderJob, RenderJobMetadata};
+    use crate::video_compiler::renderer::VideoRenderer;
+    use crate::video_compiler::schema::ProjectSchema;
+    use std::sync::Arc;
+    use tokio::sync::mpsc;
+    use tokio::sync::RwLock;
+
+    let project = ProjectSchema::new("Test Project".to_string());
+    let settings = Arc::new(RwLock::new(
+      crate::video_compiler::CompilerSettings::default(),
+    ));
+    let cache = Arc::new(RwLock::new(crate::video_compiler::cache::RenderCache::new()));
+    let (tx, _rx) = mpsc::unbounded_channel();
+
+    let renderer = VideoRenderer::new(project, settings, cache, tx)
+      .await
+      .expect("Failed to create renderer");
+
+    ActiveRenderJob {
+      renderer,
+      metadata: RenderJobMetadata {
+        project_name: "Test Project".to_string(),
+        output_path: "/tmp/test.mp4".to_string(),
+        created_at: chrono::Utc::now().to_rfc3339(),
+      },
+    }
+  }
+
+  /// Helper function to create test project schema
+  fn create_test_project() -> ProjectSchema {
+    let mut project = ProjectSchema::new("Test Project".to_string());
+
+    // Create a track with some clips
+    let mut track = Track {
+      id: "track1".to_string(),
+      track_type: TrackType::Video,
+      name: "Video Track".to_string(),
+      enabled: true,
+      volume: 1.0,
+      locked: false,
+      clips: Vec::new(),
+      effects: Vec::new(),
+      filters: Vec::new(),
+    };
+
+    // Add clips with different sources
+    track.clips.push(Clip {
+      id: "clip1".to_string(),
+      source: ClipSource::File("/path/to/video1.mp4".to_string()),
+      start_time: 0.0,
+      end_time: 5.0,
+      source_start: 0.0,
+      source_end: 5.0,
+      speed: 1.0,
+      opacity: 1.0,
+      effects: Vec::new(),
+      filters: Vec::new(),
+      template_id: None,
+      template_position: None,
+      color_correction: None,
+      crop: None,
+      transform: None,
+      audio_track_index: None,
+      properties: ClipProperties::default(),
+    });
+
+    track.clips.push(Clip {
+      id: "clip2".to_string(),
+      source: ClipSource::File("/path/to/video2.mp4".to_string()),
+      start_time: 5.0,
+      end_time: 10.0,
+      source_start: 0.0,
+      source_end: 5.0,
+      speed: 1.0,
+      opacity: 1.0,
+      effects: Vec::new(),
+      filters: Vec::new(),
+      template_id: None,
+      template_position: None,
+      color_correction: None,
+      crop: None,
+      transform: None,
+      audio_track_index: None,
+      properties: ClipProperties::default(),
+    });
+
+    // Add clip with same source
+    track.clips.push(Clip {
+      id: "clip3".to_string(),
+      source: ClipSource::File("/path/to/video1.mp4".to_string()),
+      start_time: 10.0,
+      end_time: 15.0,
+      source_start: 0.0,
+      source_end: 5.0,
+      speed: 1.0,
+      opacity: 1.0,
+      effects: Vec::new(),
+      filters: Vec::new(),
+      template_id: None,
+      template_position: None,
+      color_correction: None,
+      crop: None,
+      transform: None,
+      audio_track_index: None,
+      properties: ClipProperties::default(),
+    });
+
+    project.tracks.push(track);
+    project
+  }
+
+  #[tokio::test]
+  async fn test_get_active_jobs_empty() {
+    let state = create_test_state();
+
+    // Create a mock State using the state reference
+    // Note: We can't easily create State::from() due to lifetime issues
+    // So we'll test the core logic instead
+    let active_jobs = state.active_jobs.read().await;
+    assert!(active_jobs.is_empty());
+  }
+
+  #[tokio::test]
+  async fn test_get_active_jobs_with_jobs() {
+    let state = create_test_state();
+
+    // Add some jobs using the correct ActiveRenderJob type
+    {
+      let mut active_jobs = state.active_jobs.write().await;
+      active_jobs.insert(
+        "job1".to_string(),
+        create_test_active_job_async("job1").await,
+      );
+      active_jobs.insert(
+        "job2".to_string(),
+        create_test_active_job_async("job2").await,
+      );
+    }
+
+    // Test that jobs were added correctly
+    let active_jobs = state.active_jobs.read().await;
+    assert_eq!(active_jobs.len(), 2);
+    assert!(active_jobs.contains_key("job1"));
+    assert!(active_jobs.contains_key("job2"));
+  }
+
+  #[tokio::test]
+  async fn test_render_progress_logic() {
+    let state = create_test_state();
+
+    // Test that we can access active_jobs directly for testing
+    let active_jobs = state.active_jobs.read().await;
+    assert!(active_jobs.is_empty());
+
+    // Test that services container exists
+    assert!(!std::ptr::addr_of!(state.services.render).is_null());
+  }
+
+  #[tokio::test]
+  async fn test_state_initialization() {
+    let state = create_test_state();
+
+    // Test that all required components are initialized
+    assert!(!std::ptr::addr_of!(state.services.render).is_null());
+    assert!(!std::ptr::addr_of!(state.services.cache).is_null());
+    assert!(!std::ptr::addr_of!(state.services.gpu).is_null());
+    assert!(!std::ptr::addr_of!(state.services.preview).is_null());
+    assert!(!std::ptr::addr_of!(state.services.project).is_null());
+    assert!(!std::ptr::addr_of!(state.services.ffmpeg).is_null());
+  }
+
+  #[tokio::test]
+  async fn test_render_job_creation() {
+    // Test that we can create render jobs correctly
+    let job = create_test_job("test-job");
+
+    assert_eq!(job.id, "test-job");
+    assert_eq!(job.project_name, "Test Project");
+    assert_eq!(job.output_path, "/tmp/test.mp4");
+    assert_eq!(
+      job.status,
+      crate::video_compiler::progress::RenderStatus::Processing
+    );
+    assert!(job.progress.is_none());
+    assert!(job.error_message.is_none());
+  }
+
+  #[tokio::test]
+  async fn test_active_job_management() {
+    let state = create_test_state();
+
+    // Test active job management directly (without calling commands)
+    let mut active_jobs = state.active_jobs.write().await;
+    let job = create_test_active_job_async("test").await;
+    active_jobs.insert("test".to_string(), job);
+
+    assert_eq!(active_jobs.len(), 1);
+    assert!(active_jobs.contains_key("test"));
+  }
+
+  #[tokio::test]
+  async fn test_get_input_sources_info() {
+    let project = create_test_project();
+
+    let result = get_input_sources_info(project).await;
+
+    assert!(result.is_ok());
+    let info = result.unwrap();
+
+    assert!(info["sources"].is_object());
+    assert_eq!(info["total_sources"], 2); // Two unique file sources
+
+    let sources = &info["sources"];
+    assert!(sources["/path/to/video1.mp4"]["clip_count"] == 2); // Used twice
+    assert!(sources["/path/to/video2.mp4"]["clip_count"] == 1); // Used once
+  }
+
+  #[tokio::test]
+  async fn test_get_input_sources_info_empty_project() {
+    let project = ProjectSchema::new("Empty Project".to_string());
+
+    let result = get_input_sources_info(project).await;
+
+    assert!(result.is_ok());
+    let info = result.unwrap();
+    assert_eq!(info["total_sources"], 0);
+    assert!(info["sources"].as_object().unwrap().is_empty());
+  }
+
+  #[tokio::test]
+  async fn test_project_schema_creation() {
+    let project = create_test_project();
+
+    assert_eq!(project.metadata.name, "Test Project");
+    assert_eq!(project.tracks.len(), 1);
+    assert_eq!(project.tracks[0].clips.len(), 3);
+  }
+
+  #[tokio::test]
+  async fn test_state_components() {
+    let state = create_test_state();
+
+    // Test that state has all required components
+    assert!(!std::ptr::addr_of!(state.services).is_null());
+    assert!(!std::ptr::addr_of!(state.active_jobs).is_null());
+    assert!(!std::ptr::addr_of!(state.active_pipelines).is_null());
+    assert!(!std::ptr::addr_of!(state.cache_manager).is_null());
+    assert!(!std::ptr::addr_of!(state.ffmpeg_path).is_null());
+    assert!(!std::ptr::addr_of!(state.settings).is_null());
+  }
+
+  #[tokio::test]
+  async fn test_multiple_active_jobs() {
+    let state = create_test_state();
+
+    // Test that we can manage multiple active jobs
+    let mut active_jobs = state.active_jobs.write().await;
+
+    let job1 = create_test_active_job_async("job1").await;
+    let job2 = create_test_active_job_async("job2").await;
+    let job3 = create_test_active_job_async("job3").await;
+
+    active_jobs.insert("job1".to_string(), job1);
+    active_jobs.insert("job2".to_string(), job2);
+    active_jobs.insert("job3".to_string(), job3);
+
+    assert_eq!(active_jobs.len(), 3);
+    assert!(active_jobs.contains_key("job1"));
+    assert!(active_jobs.contains_key("job2"));
+    assert!(active_jobs.contains_key("job3"));
+  }
+
+  #[tokio::test]
+  async fn test_ffmpeg_path_management() {
+    let state = create_test_state();
+
+    // Test ffmpeg path reading
+    let path = state.ffmpeg_path.read().await;
+    assert_eq!(*path, "ffmpeg");
+  }
+
+  #[tokio::test]
+  async fn test_service_container() {
+    let state = create_test_state();
+
+    // Test that all services are available
+    assert!(!std::ptr::addr_of!(state.services.render).is_null());
+    assert!(!std::ptr::addr_of!(state.services.cache).is_null());
+    assert!(!std::ptr::addr_of!(state.services.gpu).is_null());
+    assert!(!std::ptr::addr_of!(state.services.preview).is_null());
+    assert!(!std::ptr::addr_of!(state.services.project).is_null());
+    assert!(!std::ptr::addr_of!(state.services.ffmpeg).is_null());
+  }
+
+  #[test]
+  fn test_create_test_state() {
+    let state = create_test_state();
+
+    // Verify state is properly initialized
+    assert!(state.ffmpeg_path.try_read().is_ok());
+    assert!(state.active_jobs.try_read().is_ok());
+    assert!(state.cache_manager.try_read().is_ok());
+  }
+
+  #[test]
+  fn test_create_test_job() {
+    let job = create_test_job("test_job");
+
+    // Verify job is properly created
+    assert_eq!(job.id, "test_job");
+    assert_eq!(job.project_name, "Test Project");
+    assert_eq!(job.output_path, "/tmp/test.mp4");
+  }
+
+  #[test]
+  fn test_create_test_project() {
+    let project = create_test_project();
+
+    assert_eq!(project.metadata.name, "Test Project");
+    assert_eq!(project.tracks.len(), 1);
+    assert_eq!(project.tracks[0].clips.len(), 3);
+
+    // Verify clip sources
+    let clips = &project.tracks[0].clips;
+    if let ClipSource::File(path) = &clips[0].source {
+      assert_eq!(path, "/path/to/video1.mp4");
+    } else {
+      panic!("Expected File source");
+    }
+  }
+}

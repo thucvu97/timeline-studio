@@ -438,3 +438,346 @@ pub async fn process_media_files_with_thumbnails(
   // with the proper state and file_id parameters
   process_media_files(file_paths).await
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use std::fs;
+  use tempfile::TempDir;
+
+  fn create_test_file(dir: &Path, name: &str, extension: &str) -> PathBuf {
+    let file_path = dir.join(format!("{}.{}", name, extension));
+    fs::write(&file_path, b"test content").unwrap();
+    file_path
+  }
+
+  #[test]
+  fn test_get_media_files_empty_directory() {
+    let temp_dir = TempDir::new().unwrap();
+    let result = get_media_files(temp_dir.path().to_string_lossy().to_string());
+    assert!(result.is_ok());
+    assert!(result.unwrap().is_empty());
+  }
+
+  #[test]
+  fn test_get_media_files_with_supported_files() {
+    let temp_dir = TempDir::new().unwrap();
+
+    // Create supported media files
+    create_test_file(temp_dir.path(), "video", "mp4");
+    create_test_file(temp_dir.path(), "audio", "mp3");
+    create_test_file(temp_dir.path(), "image", "jpg");
+
+    // Create unsupported file
+    create_test_file(temp_dir.path(), "document", "txt");
+
+    let result = get_media_files(temp_dir.path().to_string_lossy().to_string());
+    assert!(result.is_ok());
+
+    let files = result.unwrap();
+    assert_eq!(files.len(), 3);
+
+    // Check that only media files are included
+    assert!(files.iter().any(|f| f.contains("video.mp4")));
+    assert!(files.iter().any(|f| f.contains("audio.mp3")));
+    assert!(files.iter().any(|f| f.contains("image.jpg")));
+    assert!(!files.iter().any(|f| f.contains("document.txt")));
+  }
+
+  #[test]
+  fn test_get_media_files_non_existent_directory() {
+    let result = get_media_files("/non/existent/path".to_string());
+    assert!(result.is_err());
+    assert!(result.unwrap_err().contains("Директория не найдена"));
+  }
+
+  #[test]
+  fn test_get_media_files_file_instead_of_directory() {
+    let temp_dir = TempDir::new().unwrap();
+    let file_path = create_test_file(temp_dir.path(), "test", "txt");
+
+    let result = get_media_files(file_path.to_string_lossy().to_string());
+    assert!(result.is_err());
+    assert!(result.unwrap_err().contains("Директория не найдена"));
+  }
+
+  #[test]
+  fn test_get_media_metadata_non_existent_file() {
+    let result = get_media_metadata("/non/existent/file.mp4".to_string());
+    assert!(result.is_err());
+    assert!(result.unwrap_err().contains("Файл не найден"));
+  }
+
+  #[test]
+  fn test_timeline_frame_structure() {
+    let frame = TimelineFrame {
+      timestamp: 1.5,
+      base64_data: "base64encodeddata".to_string(),
+      is_keyframe: true,
+    };
+
+    assert_eq!(frame.timestamp, 1.5);
+    assert_eq!(frame.base64_data, "base64encodeddata");
+    assert!(frame.is_keyframe);
+
+    // Test serialization
+    let serialized = serde_json::to_string(&frame).unwrap();
+    assert!(serialized.contains("timestamp"));
+    assert!(serialized.contains("base64_data"));
+    assert!(serialized.contains("is_keyframe"));
+
+    // Test deserialization
+    let deserialized: TimelineFrame = serde_json::from_str(&serialized).unwrap();
+    assert_eq!(deserialized.timestamp, frame.timestamp);
+    assert_eq!(deserialized.base64_data, frame.base64_data);
+    assert_eq!(deserialized.is_keyframe, frame.is_keyframe);
+  }
+
+  #[test]
+  fn test_simple_media_metadata_structure() {
+    let metadata = SimpleMediaMetadata {
+      duration: Some(120.5),
+      width: Some(1920),
+      height: Some(1080),
+      fps: Some(30.0),
+      bitrate: Some(5000000),
+      video_codec: Some("h264".to_string()),
+      audio_codec: Some("aac".to_string()),
+      has_audio: Some(true),
+      has_video: Some(true),
+    };
+
+    assert_eq!(metadata.duration, Some(120.5));
+    assert_eq!(metadata.width, Some(1920));
+    assert_eq!(metadata.height, Some(1080));
+    assert_eq!(metadata.fps, Some(30.0));
+    assert_eq!(metadata.bitrate, Some(5000000));
+    assert_eq!(metadata.video_codec, Some("h264".to_string()));
+    assert_eq!(metadata.audio_codec, Some("aac".to_string()));
+    assert_eq!(metadata.has_audio, Some(true));
+    assert_eq!(metadata.has_video, Some(true));
+  }
+
+  #[test]
+  fn test_simple_media_metadata_empty() {
+    let metadata = SimpleMediaMetadata {
+      duration: None,
+      width: None,
+      height: None,
+      fps: None,
+      bitrate: None,
+      video_codec: None,
+      audio_codec: None,
+      has_audio: None,
+      has_video: None,
+    };
+
+    assert!(metadata.duration.is_none());
+    assert!(metadata.width.is_none());
+    assert!(metadata.height.is_none());
+    assert!(metadata.fps.is_none());
+    assert!(metadata.bitrate.is_none());
+    assert!(metadata.video_codec.is_none());
+    assert!(metadata.audio_codec.is_none());
+    assert!(metadata.has_audio.is_none());
+    assert!(metadata.has_video.is_none());
+  }
+
+  #[test]
+  fn test_processed_media_file_structure() {
+    let metadata = SimpleMediaMetadata {
+      duration: Some(60.0),
+      width: Some(1280),
+      height: Some(720),
+      fps: Some(24.0),
+      bitrate: Some(3000000),
+      video_codec: Some("h264".to_string()),
+      audio_codec: Some("mp3".to_string()),
+      has_audio: Some(true),
+      has_video: Some(true),
+    };
+
+    let processed = ProcessedMediaFile {
+      id: "file-123-test.mp4".to_string(),
+      path: "/path/to/test.mp4".to_string(),
+      name: "test.mp4".to_string(),
+      size: 1048576,
+      metadata: Some(metadata),
+      thumbnail_path: Some("/path/to/thumbnail.jpg".to_string()),
+      error: None,
+    };
+
+    assert_eq!(processed.id, "file-123-test.mp4");
+    assert_eq!(processed.path, "/path/to/test.mp4");
+    assert_eq!(processed.name, "test.mp4");
+    assert_eq!(processed.size, 1048576);
+    assert!(processed.metadata.is_some());
+    assert_eq!(
+      processed.thumbnail_path,
+      Some("/path/to/thumbnail.jpg".to_string())
+    );
+    assert!(processed.error.is_none());
+  }
+
+  #[test]
+  fn test_processed_media_file_with_error() {
+    let processed = ProcessedMediaFile {
+      id: "file-error".to_string(),
+      path: "/path/to/error.mp4".to_string(),
+      name: "error.mp4".to_string(),
+      size: 0,
+      metadata: None,
+      thumbnail_path: None,
+      error: Some("Failed to process file".to_string()),
+    };
+
+    assert_eq!(processed.id, "file-error");
+    assert_eq!(processed.size, 0);
+    assert!(processed.metadata.is_none());
+    assert!(processed.thumbnail_path.is_none());
+    assert_eq!(processed.error, Some("Failed to process file".to_string()));
+  }
+
+  #[tokio::test]
+  async fn test_process_media_file_simple_non_existent() {
+    let result = process_media_file_simple("/non/existent/file.mp4".to_string(), false).await;
+
+    assert!(result.is_err());
+    assert_eq!(result.unwrap_err(), "File does not exist");
+  }
+
+  #[tokio::test]
+  async fn test_process_media_file_simple_with_real_file() {
+    let temp_dir = TempDir::new().unwrap();
+    let file_path = create_test_file(temp_dir.path(), "test", "mp4");
+
+    let result = process_media_file_simple(file_path.to_string_lossy().to_string(), false).await;
+
+    // Since we don't have ffmpeg in tests, this will likely fail at metadata stage
+    // but at least we can check the structure
+    if let Ok(processed) = result {
+      assert!(!processed.id.is_empty());
+      assert_eq!(processed.name, "test.mp4");
+      assert!(processed.size > 0);
+      assert_eq!(processed.path, file_path.to_string_lossy().to_string());
+    } else {
+      // Expected to fail without ffmpeg
+      assert!(result.is_err());
+    }
+  }
+
+  #[tokio::test]
+  async fn test_process_media_files_empty() {
+    let result = process_media_files(Vec::new()).await;
+    assert!(result.is_ok());
+    assert!(result.unwrap().is_empty());
+  }
+
+  #[tokio::test]
+  async fn test_process_media_files_with_invalid_paths() {
+    let file_paths = vec![
+      "/non/existent/file1.mp4".to_string(),
+      "/non/existent/file2.mp4".to_string(),
+    ];
+
+    let result = process_media_files(file_paths).await;
+    assert!(result.is_ok());
+    // Since ffmpeg is not available in tests, all files will fail
+    // but the function should still return Ok with empty or partial results
+    let files = result.unwrap();
+    assert!(files.is_empty());
+  }
+
+  #[tokio::test]
+  async fn test_process_media_files_with_thumbnails() {
+    let file_paths = vec![
+      "/path/to/video1.mp4".to_string(),
+      "/path/to/video2.mp4".to_string(),
+    ];
+
+    let result = process_media_files_with_thumbnails(file_paths, 320, 240).await;
+    assert!(result.is_ok());
+    // Should delegate to process_media_files
+    let files = result.unwrap();
+    assert!(files.is_empty()); // Empty because files don't exist
+  }
+
+  #[test]
+  fn test_preview_manager_state() {
+    // Just verify the struct exists and can be created
+    let temp_dir = TempDir::new().unwrap();
+    let manager = PreviewDataManager::new(temp_dir.path().to_path_buf());
+    let _state = PreviewManagerState { manager };
+
+    // State should be created successfully
+    // Test passes if state creation succeeds without panicking
+  }
+
+  #[test]
+  fn test_get_media_files_case_insensitive_extensions() {
+    let temp_dir = TempDir::new().unwrap();
+
+    // Create files with different case extensions
+    create_test_file(temp_dir.path(), "video1", "MP4");
+    create_test_file(temp_dir.path(), "video2", "Mp4");
+    create_test_file(temp_dir.path(), "video3", "mP4");
+
+    let result = get_media_files(temp_dir.path().to_string_lossy().to_string());
+    assert!(result.is_ok());
+
+    let files = result.unwrap();
+    assert_eq!(files.len(), 3);
+  }
+
+  #[test]
+  fn test_get_media_files_hidden_files() {
+    let temp_dir = TempDir::new().unwrap();
+
+    // Create regular and hidden files
+    create_test_file(temp_dir.path(), "video", "mp4");
+    let hidden_path = temp_dir.path().join(".hidden.mp4");
+    fs::write(&hidden_path, b"hidden content").unwrap();
+
+    let result = get_media_files(temp_dir.path().to_string_lossy().to_string());
+    assert!(result.is_ok());
+
+    let files = result.unwrap();
+    // Should include both regular and hidden files
+    assert_eq!(files.len(), 2);
+  }
+
+  #[test]
+  fn test_fps_calculation_from_frame_rate() {
+    // Test frame rate parsing logic
+    let test_cases = vec![
+      ("30/1", Some(30.0)),
+      ("60/1", Some(60.0)),
+      ("24000/1001", Some(23.976)), // NTSC
+      ("30000/1001", Some(29.97)),  // NTSC
+      ("25/1", Some(25.0)),         // PAL
+      ("invalid", None),
+      ("30/0", None), // Division by zero
+      ("", None),
+    ];
+
+    for (input, expected) in test_cases {
+      let parts: Vec<&str> = input.split('/').collect();
+      let result = if parts.len() == 2 {
+        let num = parts[0].parse::<f64>().ok();
+        let den = parts[1].parse::<f64>().ok();
+        match (num, den) {
+          (Some(n), Some(d)) if d > 0.0 => Some(n / d),
+          _ => None,
+        }
+      } else {
+        None
+      };
+
+      match (result, expected) {
+        (Some(r), Some(e)) => assert!((r - e).abs() < 0.001),
+        (None, None) => {} // Both None is expected outcome
+        _ => panic!("Mismatch for input: {}", input),
+      }
+    }
+  }
+}

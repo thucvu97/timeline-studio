@@ -319,7 +319,12 @@ describe("Drag Drop Integration", () => {
     function VideoDropZone() {
       const dropZone = useDropZone("timeline-video", ["media"], vi.fn())
       return (
-        <div ref={dropZone.ref as React.RefObject<HTMLDivElement>} onDragOver={dropZone.onDragOver} onDrop={dropZone.onDrop} data-testid="timeline-video">
+        <div
+          ref={dropZone.ref as React.RefObject<HTMLDivElement>}
+          onDragOver={dropZone.onDragOver}
+          onDrop={dropZone.onDrop}
+          data-testid="timeline-video"
+        >
           timeline-video
         </div>
       )
@@ -328,7 +333,12 @@ describe("Drag Drop Integration", () => {
     function AudioDropZone() {
       const dropZone = useDropZone("timeline-audio", ["music"], vi.fn())
       return (
-        <div ref={dropZone.ref as React.RefObject<HTMLDivElement>} onDragOver={dropZone.onDragOver} onDrop={dropZone.onDrop} data-testid="timeline-audio">
+        <div
+          ref={dropZone.ref as React.RefObject<HTMLDivElement>}
+          onDragOver={dropZone.onDragOver}
+          onDrop={dropZone.onDrop}
+          data-testid="timeline-audio"
+        >
           timeline-audio
         </div>
       )
@@ -337,7 +347,12 @@ describe("Drag Drop Integration", () => {
     function EffectsDropZone() {
       const dropZone = useDropZone("effects-panel", ["effect", "filter"], vi.fn())
       return (
-        <div ref={dropZone.ref as React.RefObject<HTMLDivElement>} onDragOver={dropZone.onDragOver} onDrop={dropZone.onDrop} data-testid="effects-panel">
+        <div
+          ref={dropZone.ref as React.RefObject<HTMLDivElement>}
+          onDragOver={dropZone.onDragOver}
+          onDrop={dropZone.onDrop}
+          data-testid="effects-panel"
+        >
           effects-panel
         </div>
       )
@@ -346,7 +361,12 @@ describe("Drag Drop Integration", () => {
     function UniversalDropZone() {
       const dropZone = useDropZone("universal-zone", ["media", "music", "effect", "filter", "transition"], vi.fn())
       return (
-        <div ref={dropZone.ref as React.RefObject<HTMLDivElement>} onDragOver={dropZone.onDragOver} onDrop={dropZone.onDrop} data-testid="universal-zone">
+        <div
+          ref={dropZone.ref as React.RefObject<HTMLDivElement>}
+          onDragOver={dropZone.onDragOver}
+          onDrop={dropZone.onDrop}
+          data-testid="universal-zone"
+        >
           universal-zone
         </div>
       )

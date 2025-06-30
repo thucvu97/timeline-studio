@@ -274,12 +274,12 @@ mod tests {
 
     for format in formats {
       match format {
-        OutputFormat::Mp4 => assert!(true),
-        OutputFormat::Avi => assert!(true),
-        OutputFormat::Mov => assert!(true),
-        OutputFormat::Mkv => assert!(true),
-        OutputFormat::WebM => assert!(true),
-        OutputFormat::Gif => assert!(true),
+        OutputFormat::Mp4 => {}  // Valid format variant,
+        OutputFormat::Avi => {}  // Valid format variant,
+        OutputFormat::Mov => {}  // Valid format variant,
+        OutputFormat::Mkv => {}  // Valid format variant,
+        OutputFormat::WebM => {} // Valid format variant,
+        OutputFormat::Gif => {}  // Valid format variant,
         OutputFormat::Custom(name) => assert_eq!(name, "custom_format"),
       }
     }
@@ -301,14 +301,15 @@ mod tests {
 
     for format in formats {
       match format {
-        PreviewFormat::Jpeg => assert!(true),
-        PreviewFormat::Png => assert!(true),
-        PreviewFormat::WebP => assert!(true),
+        PreviewFormat::Jpeg => {} // Valid format variant,
+        PreviewFormat::Png => {}  // Valid format variant,
+        PreviewFormat::WebP => {} // Valid format variant,
       }
     }
   }
 
   #[test]
+  #[allow(clippy::field_reassign_with_default)]
   fn test_export_settings_custom_values() {
     let mut settings = ExportSettings::default();
 
@@ -392,7 +393,7 @@ mod tests {
       settings.custom.get("watermark"),
       Some(&serde_json::json!(true))
     );
-    assert!(settings.custom.get("metadata").is_some());
+    assert!(settings.custom.contains_key("metadata"));
   }
 
   #[test]
@@ -413,6 +414,7 @@ mod tests {
   }
 
   #[test]
+  #[allow(clippy::field_reassign_with_default)]
   fn test_export_settings_edge_cases() {
     let mut settings = ExportSettings::default();
 
@@ -477,6 +479,7 @@ mod tests {
   }
 
   #[test]
+  #[allow(clippy::field_reassign_with_default)]
   fn test_output_settings_modifications() {
     let mut settings = OutputSettings::default();
 
@@ -548,6 +551,7 @@ mod tests {
   }
 
   #[test]
+  #[allow(clippy::field_reassign_with_default)]
   fn test_audio_normalization_settings() {
     let mut settings = ExportSettings::default();
 

@@ -252,10 +252,10 @@ mod tests {
       let serialized = serde_json::to_string(&mode).unwrap();
       let deserialized: FitMode = serde_json::from_str(&serialized).unwrap();
       match (mode, deserialized) {
-        (FitMode::Fill, FitMode::Fill) => assert!(true),
-        (FitMode::Fit, FitMode::Fit) => assert!(true),
-        (FitMode::Stretch, FitMode::Stretch) => assert!(true),
-        (FitMode::None, FitMode::None) => assert!(true),
+        (FitMode::Fill, FitMode::Fill) => {} // Valid enum variant comparison,
+        (FitMode::Fit, FitMode::Fit) => {}   // Valid enum variant comparison,
+        (FitMode::Stretch, FitMode::Stretch) => {} // Valid enum variant comparison,
+        (FitMode::None, FitMode::None) => {} // Valid enum variant comparison,
         _ => panic!("FitMode serialization mismatch"),
       }
     }
@@ -269,9 +269,9 @@ mod tests {
       let serialized = serde_json::to_string(&align).unwrap();
       let deserialized: AlignX = serde_json::from_str(&serialized).unwrap();
       match (align, deserialized) {
-        (AlignX::Left, AlignX::Left) => assert!(true),
-        (AlignX::Center, AlignX::Center) => assert!(true),
-        (AlignX::Right, AlignX::Right) => assert!(true),
+        (AlignX::Left, AlignX::Left) => {} // Valid enum variant comparison,
+        (AlignX::Center, AlignX::Center) => {} // Valid enum variant comparison,
+        (AlignX::Right, AlignX::Right) => {} // Valid enum variant comparison,
         _ => panic!("AlignX serialization mismatch"),
       }
     }
@@ -285,9 +285,9 @@ mod tests {
       let serialized = serde_json::to_string(&align).unwrap();
       let deserialized: AlignY = serde_json::from_str(&serialized).unwrap();
       match (align, deserialized) {
-        (AlignY::Top, AlignY::Top) => assert!(true),
-        (AlignY::Center, AlignY::Center) => assert!(true),
-        (AlignY::Bottom, AlignY::Bottom) => assert!(true),
+        (AlignY::Top, AlignY::Top) => {} // Valid enum variant comparison,
+        (AlignY::Center, AlignY::Center) => {} // Valid enum variant comparison,
+        (AlignY::Bottom, AlignY::Bottom) => {} // Valid enum variant comparison,
         _ => panic!("AlignY serialization mismatch"),
       }
     }

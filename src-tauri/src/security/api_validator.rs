@@ -580,7 +580,7 @@ mod tests {
 
     // Both should create valid instances
     // We can't compare them directly, but we can check they both work
-    assert!(true); // Just ensure no panic
+    // Test passes if validation completes without panicking
   }
 
   #[test]
@@ -601,15 +601,15 @@ mod tests {
     // Just ensure all types exist and can be matched
     for key_type in types {
       match key_type {
-        ApiKeyType::OpenAI => assert!(true),
-        ApiKeyType::Claude => assert!(true),
-        ApiKeyType::DeepSeek => assert!(true),
-        ApiKeyType::YouTube => assert!(true),
-        ApiKeyType::TikTok => assert!(true),
-        ApiKeyType::Vimeo => assert!(true),
-        ApiKeyType::Telegram => assert!(true),
-        ApiKeyType::Codecov => assert!(true),
-        ApiKeyType::TauriAnalytics => assert!(true),
+        ApiKeyType::OpenAI => {}         // Valid API key type variant,
+        ApiKeyType::Claude => {}         // Valid API key type variant,
+        ApiKeyType::DeepSeek => {}       // Valid API key type variant,
+        ApiKeyType::YouTube => {}        // Valid API key type variant,
+        ApiKeyType::TikTok => {}         // Valid API key type variant,
+        ApiKeyType::Vimeo => {}          // Valid API key type variant,
+        ApiKeyType::Telegram => {}       // Valid API key type variant,
+        ApiKeyType::Codecov => {}        // Valid API key type variant,
+        ApiKeyType::TauriAnalytics => {} // Valid API key type variant,
       }
     }
   }
@@ -697,7 +697,7 @@ mod tests {
     // Test that client is created with timeout
     let _validator = ApiValidator::new();
     // The client is private, but we can verify it doesn't panic on creation
-    assert!(true);
+    {} // Valid API key type variant;
   }
 
   #[tokio::test]

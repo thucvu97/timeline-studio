@@ -72,7 +72,7 @@ pub fn extract_frame(input_path: &str, output_path: &str, time_seconds: f64) -> 
     0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82, // IEND
   ];
 
-  std::fs::write(output_path, &png_data).map_err(|e| format!("Failed to write mock frame: {e}"))?;
+  std::fs::write(output_path, png_data).map_err(|e| format!("Failed to write mock frame: {e}"))?;
   Ok(())
 }
 

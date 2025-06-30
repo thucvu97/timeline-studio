@@ -86,15 +86,13 @@ vi.mock("../hooks/use-color-grading", () => ({
 // Test component that uses the context
 function TestComponent() {
   const context = useColorGradingContext()
-  
+
   return (
     <div>
       <div data-testid="temperature">{context.state.basicParameters.temperature}</div>
       <div data-testid="has-changes">{context.hasChanges.toString()}</div>
       <div data-testid="is-active">{context.isActive.toString()}</div>
-      <button onClick={() => context.updateBasicParameter("temperature", 1)}>
-        Update Temperature
-      </button>
+      <button onClick={() => context.updateBasicParameter("temperature", 1)}>Update Temperature</button>
       <button onClick={() => context.resetAll()}>Reset All</button>
     </div>
   )
@@ -105,7 +103,7 @@ describe("ColorGradingProvider", () => {
     render(
       <ColorGradingProvider>
         <TestComponent />
-      </ColorGradingProvider>
+      </ColorGradingProvider>,
     )
 
     expect(screen.getByTestId("temperature")).toHaveTextContent("0")
@@ -117,7 +115,7 @@ describe("ColorGradingProvider", () => {
     render(
       <ColorGradingProvider>
         <TestComponent />
-      </ColorGradingProvider>
+      </ColorGradingProvider>,
     )
 
     const updateButton = screen.getByText("Update Temperature")
@@ -131,7 +129,7 @@ describe("ColorGradingProvider", () => {
     render(
       <ColorGradingProvider>
         <TestComponent />
-      </ColorGradingProvider>
+      </ColorGradingProvider>,
     )
 
     const updateButton = screen.getByText("Update Temperature")
@@ -167,7 +165,7 @@ describe("useColorGradingContext", () => {
     render(
       <ColorGradingProvider>
         <ContextCapture />
-      </ColorGradingProvider>
+      </ColorGradingProvider>,
     )
 
     expect(contextValue).toBeDefined()
@@ -187,7 +185,7 @@ describe("useColorGradingContext", () => {
     render(
       <ColorGradingProvider>
         <ContextCapture />
-      </ColorGradingProvider>
+      </ColorGradingProvider>,
     )
 
     // Check that all required properties exist

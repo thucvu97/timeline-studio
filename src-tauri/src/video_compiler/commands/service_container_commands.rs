@@ -221,7 +221,7 @@ mod tests {
 
     // Тест десериализации
     let deserialized: ProjectServiceInfo = serde_json::from_str(&json).unwrap();
-    assert_eq!(deserialized.available, true);
+    assert!(deserialized.available);
     assert_eq!(deserialized.service_type, "ProjectService");
     assert_eq!(deserialized.status, "active");
     assert!(deserialized.error.is_none());

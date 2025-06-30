@@ -779,8 +779,10 @@ mod tests {
     let standard_permissions = Arc::new(standard_permissions);
 
     // Extended: has system_info or many allowed hosts
-    let mut extended_permissions = PluginPermissions::default();
-    extended_permissions.system_info = true;
+    let extended_permissions = PluginPermissions {
+      system_info: true,
+      ..Default::default()
+    };
     let extended_permissions = Arc::new(extended_permissions);
 
     // Full: write_all, read_all, and process_spawn

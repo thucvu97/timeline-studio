@@ -427,6 +427,12 @@ impl EnvImporter {
   }
 }
 
+impl Default for EnvImporter {
+  fn default() -> Self {
+    Self::new()
+  }
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -718,10 +724,10 @@ EMPTY_LINE_ABOVE=value
   fn test_oauth_types_handling() {
     // Test that OAuth types are handled differently in import methods
     // YouTube, TikTok, and Vimeo use OAuth
-    let oauth_types = vec![ApiKeyType::YouTube, ApiKeyType::TikTok, ApiKeyType::Vimeo];
+    let oauth_types = [ApiKeyType::YouTube, ApiKeyType::TikTok, ApiKeyType::Vimeo];
 
     // Simple API key types
-    let simple_types = vec![ApiKeyType::OpenAI, ApiKeyType::Claude, ApiKeyType::DeepSeek];
+    let simple_types = [ApiKeyType::OpenAI, ApiKeyType::Claude, ApiKeyType::DeepSeek];
 
     // Just verify the enums exist and can be used
     assert_eq!(oauth_types.len(), 3);
@@ -790,11 +796,5 @@ KEY_WITH_SPACES = value with spaces
     env::remove_var("VALID_KEY");
     env::remove_var("KEY_WITH_EQUALS_IN_VALUE");
     env::remove_var("KEY_WITH_SPACES");
-  }
-}
-
-impl Default for EnvImporter {
-  fn default() -> Self {
-    Self::new()
   }
 }

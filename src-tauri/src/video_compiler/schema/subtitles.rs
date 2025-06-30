@@ -678,6 +678,7 @@ mod tests {
   }
 
   #[test]
+  #[allow(clippy::field_reassign_with_default)]
   fn test_subtitle_complex_style() {
     let mut style = SubtitleStyle::default();
 

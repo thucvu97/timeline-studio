@@ -453,7 +453,7 @@ mod tests {
 
     let requests: Vec<PreviewRequest> = video_paths
       .into_iter()
-      .zip(timestamps.into_iter())
+      .zip(timestamps)
       .map(|(video_path, timestamp)| PreviewRequest {
         video_path,
         timestamp,
@@ -513,7 +513,7 @@ mod tests {
       };
 
       // В реальном приложении качество должно быть ограничено от 1 до 100
-      if quality >= 1 && quality <= 100 {
+      if (1..=100).contains(&quality) {
         assert!(options.quality >= 1 && options.quality <= 100);
       }
     }
