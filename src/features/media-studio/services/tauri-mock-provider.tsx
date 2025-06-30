@@ -121,6 +121,18 @@ export function TauriMockProvider({ children }: { children: React.ReactNode }) {
             case "process_media_files":
               // Возвращаем успешный результат
               return { success: true, processed: 0 }
+            case "list_api_keys":
+              // Возвращаем пустой массив для API ключей (согласно типу ApiKeyInfo[])
+              return []
+            case "get_api_key":
+              // Возвращаем null для отсутствующих ключей
+              return null
+            case "set_api_key":
+              // Возвращаем успешный результат
+              return { success: true }
+            case "delete_api_key":
+              // Возвращаем успешный результат
+              return { success: true }
             default:
               console.warn(`[TauriMock] Unhandled command: ${cmd}`, args)
               // Throw error for unhandled commands to see stack trace
