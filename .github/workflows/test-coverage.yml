@@ -71,6 +71,21 @@ jobs:
     timeout-minutes: 30
 
     steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: false
+          # all of these default to true, but feel free to set to
+          # "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -106,10 +121,12 @@ jobs:
       - name: Cache cargo build
         uses: actions/cache@v4
         with:
-          path: src-tauri/target
-          key: ${{ runner.os }}-cargo-build-${{ hashFiles('**/Cargo.lock') }}
+          path: |
+            src-tauri/target/debug/deps
+            src-tauri/target/debug/build
+          key: ${{ runner.os }}-cargo-build-deps-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
-            ${{ runner.os }}-cargo-build-
+            ${{ runner.os }}-cargo-build-deps-
 
       - name: Cache cargo-llvm-cov
         uses: actions/cache@v4
@@ -232,8 +249,18 @@ jobs:
       - name: Create empty dist directory
         run: mkdir dist
 
+      - name: Check disk space before tests
+        run: df -h
+
       - name: Create test results directory
         run: mkdir -p test-results
+
+      - name: Clean target directory before coverage
+        run: |
+          cd src-tauri
+          # Remove non-essential build artifacts to save space
+          cargo clean --release
+          cd ..
 
       - name: Run Rust tests with coverage
         run: |
@@ -249,7 +276,9 @@ jobs:
           # Generate coverage report using cargo-llvm-cov
           if command -v cargo-llvm-cov &> /dev/null; then
             echo "Generating coverage report with cargo-llvm-cov..."
-            cargo llvm-cov --lcov --output-path coverage.info --lib --bins --tests
+            # Use --no-clean to avoid rebuilding everything
+            # Only test lib to reduce compilation size
+            cargo llvm-cov --lcov --output-path coverage.info --lib --no-clean
           else
             echo "cargo-llvm-cov not found, skipping coverage generation"
           fi
@@ -257,6 +286,10 @@ jobs:
         env:
           RUSTFLAGS: -Cinstrument-coverage
           LLVM_PROFILE_FILE: timeline-studio-%p-%m.profraw
+
+      - name: Check disk space after tests
+        if: always()
+        run: df -h
 
       - name: Debug coverage files
         if: always()
