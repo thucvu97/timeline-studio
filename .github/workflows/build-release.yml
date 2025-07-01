@@ -250,7 +250,8 @@ jobs:
           # Используем npm install вместо ci из-за проблем с lock файлом
           npm install --no-audit --no-fund
 
-      - name: Install Tauri CLI
+      - name: Install Tauri CLI (Unix)
+        if: runner.os != 'Windows'
         run: |
           # Проверяем, установлен ли уже Tauri CLI
           if ! command -v cargo-tauri &> /dev/null; then
@@ -261,6 +262,23 @@ jobs:
           fi
 
           # Проверяем установку
+          cargo tauri --version
+
+      - name: Install Tauri CLI (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          # Check if Tauri CLI is already installed
+          $tauriInstalled = $false
+          try {
+            cargo tauri --version
+            $tauriInstalled = $true
+            Write-Host "Tauri CLI already installed"
+          } catch {
+            Write-Host "Installing Tauri CLI..."
+            cargo install tauri-cli --version "^2.0.0"
+          }
+
+          # Verify installation
           cargo tauri --version
 
       # Skip all tests in release builds to avoid compilation issues
