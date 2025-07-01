@@ -529,7 +529,7 @@ export const resourcesMachine = setup({
         if (event.type !== "UPDATE_RESOURCE") return context.resources
 
         return context.resources.map((resource) => {
-          if (resource.id === event.resourceId) {
+          if (resource.id === event.resourceId || resource.resourceId === event.resourceId) {
             return {
               ...resource,
               params: {
@@ -545,7 +545,7 @@ export const resourcesMachine = setup({
         if (event.type !== "UPDATE_RESOURCE") return context.effectResources
 
         return context.effectResources.map((resource) => {
-          if (resource.id === event.resourceId) {
+          if (resource.id === event.resourceId || resource.resourceId === event.resourceId) {
             return {
               ...resource,
               params: {
@@ -561,7 +561,7 @@ export const resourcesMachine = setup({
         if (event.type !== "UPDATE_RESOURCE") return context.filterResources
 
         return context.filterResources.map((resource) => {
-          if (resource.id === event.resourceId) {
+          if (resource.id === event.resourceId || resource.resourceId === event.resourceId) {
             return {
               ...resource,
               params: {
@@ -577,7 +577,7 @@ export const resourcesMachine = setup({
         if (event.type !== "UPDATE_RESOURCE") return context.transitionResources
 
         return context.transitionResources.map((resource) => {
-          if (resource.id === event.resourceId) {
+          if (resource.id === event.resourceId || resource.resourceId === event.resourceId) {
             return {
               ...resource,
               params: {
@@ -593,7 +593,7 @@ export const resourcesMachine = setup({
         if (event.type !== "UPDATE_RESOURCE") return context.templateResources
 
         return context.templateResources.map((resource) => {
-          if (resource.id === event.resourceId) {
+          if (resource.id === event.resourceId || resource.resourceId === event.resourceId) {
             return {
               ...resource,
               params: {
@@ -609,7 +609,7 @@ export const resourcesMachine = setup({
         if (event.type !== "UPDATE_RESOURCE") return context.styleTemplateResources
 
         return context.styleTemplateResources.map((resource) => {
-          if (resource.id === event.resourceId) {
+          if (resource.id === event.resourceId || resource.resourceId === event.resourceId) {
             return {
               ...resource,
               params: {
@@ -625,7 +625,7 @@ export const resourcesMachine = setup({
         if (event.type !== "UPDATE_RESOURCE") return context.musicResources
 
         return context.musicResources.map((resource) => {
-          if (resource.id === event.resourceId) {
+          if (resource.id === event.resourceId || resource.resourceId === event.resourceId) {
             return {
               ...resource,
               params: {
@@ -641,7 +641,7 @@ export const resourcesMachine = setup({
         if (event.type !== "UPDATE_RESOURCE") return context.subtitleResources
 
         return context.subtitleResources.map((resource) => {
-          if (resource.id === event.resourceId) {
+          if (resource.id === event.resourceId || resource.resourceId === event.resourceId) {
             return {
               ...resource,
               params: {
