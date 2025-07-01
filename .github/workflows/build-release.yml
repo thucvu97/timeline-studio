@@ -252,8 +252,13 @@ jobs:
 
       - name: Install Tauri CLI
         run: |
-          # Устанавливаем Tauri CLI через cargo для надежности
-          cargo install tauri-cli --version "^2.0.0"
+          # Проверяем, установлен ли уже Tauri CLI
+          if ! command -v cargo-tauri &> /dev/null; then
+            echo "Installing Tauri CLI..."
+            cargo install tauri-cli --version "^2.0.0"
+          else
+            echo "Tauri CLI already installed"
+          fi
 
           # Проверяем установку
           cargo tauri --version
