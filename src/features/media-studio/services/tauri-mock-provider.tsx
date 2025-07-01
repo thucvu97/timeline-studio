@@ -12,6 +12,22 @@ export function TauriMockProvider({ children }: { children: React.ReactNode }) {
     // Only mock in browser environment when Tauri is not available
     // This includes development server and E2E tests
     if (typeof window !== "undefined" && !isTauri()) {
+      // Track if temp project has been created
+      let tempProjectCreated = false
+
+      // Mock event plugin internals
+      ;(window as any).__TAURI_EVENT_PLUGIN_INTERNALS__ = {
+        listeners: new Map(),
+        emit: (event: string, payload?: any) => {
+          console.log(`[TauriMock] Event emit: ${event}`, payload)
+        },
+        unregisterListener: (id: string) => {
+          console.log(`[TauriMock] Unregister listener: ${id}`)
+          const listeners = (window as any).__TAURI_EVENT_PLUGIN_INTERNALS__.listeners
+          listeners.delete(id)
+        },
+      }
+
       ;(window as any).__TAURI_INTERNALS__ = {
         transformCallback: (callback: any, once: boolean) => {
           const id = Math.random().toString(36).slice(2)
@@ -31,7 +47,23 @@ export function TauriMockProvider({ children }: { children: React.ReactNode }) {
             case "get_file_stats":
               return { size: 0, lastModified: Date.now() }
             case "get_app_directories":
-              return { base_dir: "/Users/test/Movies/Timeline Studio" }
+              return {
+                base_dir: "/Users/test/Movies/Timeline Studio",
+                media_dir: "/Users/test/Movies/Timeline Studio/Media",
+                projects_dir: "/Users/test/Movies/Timeline Studio/Projects",
+                snapshot_dir: "/Users/test/Movies/Timeline Studio/Snapshots",
+                cinematic_dir: "/Users/test/Movies/Timeline Studio/Cinematic",
+                output_dir: "/Users/test/Movies/Timeline Studio/Output",
+                render_dir: "/Users/test/Movies/Timeline Studio/Render",
+                recognition_dir: "/Users/test/Movies/Timeline Studio/Recognition",
+                backup_dir: "/Users/test/Movies/Timeline Studio/Backup",
+                media_proxy_dir: "/Users/test/Movies/Timeline Studio/MediaProxy",
+                caches_dir: "/Users/test/Movies/Timeline Studio/Caches",
+                recorded_dir: "/Users/test/Movies/Timeline Studio/Recorded",
+                audio_dir: "/Users/test/Movies/Timeline Studio/Audio",
+                cloud_project_dir: "/Users/test/Movies/Timeline Studio/CloudProjects",
+                upload_dir: "/Users/test/Movies/Timeline Studio/Upload",
+              }
             case "get_active_jobs":
               return []
             case "load_store":
@@ -96,19 +128,102 @@ export function TauriMockProvider({ children }: { children: React.ReactNode }) {
             case "set_hardware_acceleration":
               return null
             case "get_prerender_cache_info":
-              return { file_count: 0, total_size_mb: 0, cache_path: "/tmp/cache" }
+              return { file_count: 0, total_size: 0, cache_path: "/tmp/cache", files: [] }
             case "plugin:event|listen":
               return { id: Math.random().toString(36).slice(2) }
             case "plugin:event|unlisten":
               return null
             case "plugin:store|load":
-              return {}
+              // Return a resource ID for the store
+              return Math.random().toString(36).slice(2)
+            case "plugin:store|get_store":
+              // Return a resource ID for the store
+              return Math.random().toString(36).slice(2)
             case "plugin:store|get":
-              return null
+              // Return [value, exists] tuple as expected by the store plugin
+              if (args?.key === "app-settings") {
+                return [
+                  {
+                    language: "en",
+                    theme: "light",
+                    autoSave: true,
+                    autoSaveInterval: 5,
+                    maxUndoSteps: 50,
+                    recentProjects: [],
+                  },
+                  true,
+                ]
+              }
+              if (args?.key === "user-settings") {
+                return [
+                  {
+                    language: "en",
+                    theme: "light",
+                  },
+                  true,
+                ]
+              }
+              return [null, false]
             case "plugin:fs|exists":
+              // Return true for temp project file only after it's been created
+              if (args?.path && args.path.includes("temp_project.tlsp")) {
+                return tempProjectCreated
+              }
               return false
+            case "plugin:fs|read_text_file":
+              // Return empty project file content as string
+              const projectData = {
+                name: "Temporary Project",
+                tracks: [],
+                clips: [],
+                settings: {},
+                timeline: {
+                  tracks: [],
+                  sections: [],
+                },
+                metadata: {
+                  version: "2.0.0", // Use v2 format
+                  createdAt: new Date().toISOString(),
+                  updatedAt: new Date().toISOString(),
+                },
+              }
+              const jsonString = JSON.stringify(projectData)
+              console.log(`[TauriMock] Returning project JSON: ${jsonString.substring(0, 50)}...`)
+              return jsonString
+            case "plugin:fs|write_text_file":
+              // Mock writing file
+              if (args?.path && args.path.includes("temp_project.tlsp")) {
+                tempProjectCreated = true
+              }
+              return null
+            case "plugin:path|join":
+              // Join path segments
+              const paths = args?.paths || []
+              return paths.join("/")
+            case "plugin:store|set":
+              // Mock storing values
+              return null
+            case "plugin:store|save":
+              // Mock saving store
+              return null
             case "create_app_directories":
-              return { base_dir: "/Users/test/Movies/Timeline Studio" }
+              return {
+                base_dir: "/Users/test/Movies/Timeline Studio",
+                media_dir: "/Users/test/Movies/Timeline Studio/Media",
+                projects_dir: "/Users/test/Movies/Timeline Studio/Projects",
+                snapshot_dir: "/Users/test/Movies/Timeline Studio/Snapshots",
+                cinematic_dir: "/Users/test/Movies/Timeline Studio/Cinematic",
+                output_dir: "/Users/test/Movies/Timeline Studio/Output",
+                render_dir: "/Users/test/Movies/Timeline Studio/Render",
+                recognition_dir: "/Users/test/Movies/Timeline Studio/Recognition",
+                backup_dir: "/Users/test/Movies/Timeline Studio/Backup",
+                media_proxy_dir: "/Users/test/Movies/Timeline Studio/MediaProxy",
+                caches_dir: "/Users/test/Movies/Timeline Studio/Caches",
+                recorded_dir: "/Users/test/Movies/Timeline Studio/Recorded",
+                audio_dir: "/Users/test/Movies/Timeline Studio/Audio",
+                cloud_project_dir: "/Users/test/Movies/Timeline Studio/CloudProjects",
+                upload_dir: "/Users/test/Movies/Timeline Studio/Upload",
+              }
             case "plugin:dialog|open_file":
               // Для тестов возвращаем пустой массив, если не переопределено
               return { paths: [] }
@@ -135,8 +250,11 @@ export function TauriMockProvider({ children }: { children: React.ReactNode }) {
               return { success: true }
             default:
               console.warn(`[TauriMock] Unhandled command: ${cmd}`, args)
-              // Throw error for unhandled commands to see stack trace
-              throw new Error(`Command ${cmd} not found`)
+              // Return sensible defaults for unknown commands instead of throwing
+              if (cmd.includes("store")) return null
+              if (cmd.includes("path")) return ""
+              if (cmd.includes("fs")) return false
+              return null
           }
         },
       }

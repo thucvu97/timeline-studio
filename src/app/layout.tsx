@@ -5,6 +5,13 @@ import "@/styles/globals.css"
 import { AppErrorBoundary } from "@/components/error-boundary"
 import { Providers } from "@/features/media-studio/services/providers"
 
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Timeline Studio",
+  description: "Professional video editing application",
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{

@@ -42,6 +42,10 @@ export class BrowserPage {
   async goto() {
     await this.page.goto("/")
     await this.page.waitForLoadState("networkidle")
+    
+    // Wait for tabs to be visible and i18n to initialize
+    await this.page.waitForSelector('[role="tablist"]', { timeout: 30000 })
+    await this.page.waitForTimeout(1000) // Give i18n time to load translations
   }
 
   async selectTab(tabName: "Media" | "Effects" | "Transitions" | "Templates") {

@@ -10,6 +10,12 @@ test.describe("Smoke Tests", () => {
       errors.push(error.message)
     })
 
+    // Clear localStorage before test
+    await page.goto("/")
+    await page.evaluate(() => {
+      localStorage.clear()
+    })
+    
     await page.goto("/")
     await page.waitForLoadState("networkidle")
 
@@ -35,6 +41,12 @@ test.describe("Smoke Tests", () => {
   })
 
   test("can see browser tabs", async ({ page }) => {
+    // Clear localStorage before test
+    await page.goto("/")
+    await page.evaluate(() => {
+      localStorage.clear()
+    })
+    
     await page.goto("/")
     await page.waitForLoadState("networkidle")
     

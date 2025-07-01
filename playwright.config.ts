@@ -8,6 +8,9 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 1,
   workers: process.env.CI ? 1 : 2,
   reporter: [["html"], ["list"], ["junit", { outputFile: "test-results/junit.xml" }]],
+  
+  // Глобальный таймаут для каждого теста
+  timeout: 60000,
 
   use: {
     baseURL: "http://localhost:3001",
@@ -16,8 +19,8 @@ export default defineConfig({
     video: "retain-on-failure",
 
     // Увеличиваем таймауты для стабильности
-    navigationTimeout: 30000,
-    actionTimeout: 15000,
+    navigationTimeout: 60000,
+    actionTimeout: 30000,
 
     // Размер окна браузера
     viewport: { width: 1920, height: 1080 },

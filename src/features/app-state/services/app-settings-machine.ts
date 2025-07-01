@@ -271,7 +271,7 @@ export const appSettingsMachine = createMachine({
           target: "idle",
           actions: assign({
             userSettings: ({ event }) => event.output.userSettings,
-            recentProjects: ({ event }) => event.output.recentProjects,
+            recentProjects: ({ event }) => event.output.recentProjects || [],
             favorites: ({ event }) => event.output.favorites,
             isLoading: false,
             error: null,

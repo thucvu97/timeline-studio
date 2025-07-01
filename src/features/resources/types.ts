@@ -155,7 +155,7 @@ export function createFilterResource(filter: VideoFilter): FilterResource {
     resourceId: filter.id,
     addedAt: Date.now(),
     filter,
-    params: { ...filter.params },
+    params: filter.params ? { ...filter.params } : {},
   }
 }
 

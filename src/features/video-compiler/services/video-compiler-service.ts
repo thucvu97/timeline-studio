@@ -183,7 +183,7 @@ export async function getPrerenderCacheInfo(): Promise<PrerenderCacheInfo> {
   const result = await invoke<{
     file_count: number
     total_size: number
-    files: Array<{
+    files?: Array<{
       path: string
       size: number
       created: number
@@ -193,9 +193,9 @@ export async function getPrerenderCacheInfo(): Promise<PrerenderCacheInfo> {
   }>("get_prerender_cache_info")
 
   return {
-    fileCount: result.file_count,
-    totalSize: result.total_size,
-    files: result.files.map((f) => ({
+    fileCount: result.file_count || 0,
+    totalSize: result.total_size || 0,
+    files: (result.files || []).map((f) => ({
       path: f.path,
       size: f.size,
       created: f.created,

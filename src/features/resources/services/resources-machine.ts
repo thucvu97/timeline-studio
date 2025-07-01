@@ -76,20 +76,41 @@ function loadResourcesFromStorage(): Partial<ResourcesMachineContext> {
     const stored = localStorage.getItem("timeline-studio-resources")
     if (stored) {
       const data = JSON.parse(stored)
-      return {
-        resources: data.resources || [],
-        mediaResources: data.mediaResources || [],
-        musicResources: data.musicResources || [],
-        subtitleResources: data.subtitleResources || [],
-        effectResources: data.effectResources || [],
-        filterResources: data.filterResources || [],
-        transitionResources: data.transitionResources || [],
-        templateResources: data.templateResources || [],
-        styleTemplateResources: data.styleTemplateResources || [],
+
+      // Validate that data has the expected structure
+      const validatedData = {
+        resources: Array.isArray(data.resources) ? data.resources : [],
+        mediaResources: Array.isArray(data.mediaResources) ? data.mediaResources : [],
+        musicResources: Array.isArray(data.musicResources) ? data.musicResources : [],
+        subtitleResources: Array.isArray(data.subtitleResources) ? data.subtitleResources : [],
+        effectResources: Array.isArray(data.effectResources) ? data.effectResources : [],
+        filterResources: Array.isArray(data.filterResources) ? data.filterResources : [],
+        transitionResources: Array.isArray(data.transitionResources) ? data.transitionResources : [],
+        templateResources: Array.isArray(data.templateResources) ? data.templateResources : [],
+        styleTemplateResources: Array.isArray(data.styleTemplateResources) ? data.styleTemplateResources : [],
       }
+
+      // Additional validation: ensure each resource has required properties
+      validatedData.effectResources = validatedData.effectResources.filter(
+        (resource: any) => resource && resource.effect && resource.resourceId,
+      )
+      validatedData.filterResources = validatedData.filterResources.filter(
+        (resource: any) => resource && resource.filter && resource.resourceId,
+      )
+      validatedData.transitionResources = validatedData.transitionResources.filter(
+        (resource: any) => resource && resource.transition && resource.resourceId,
+      )
+
+      return validatedData
     }
   } catch (error) {
-    console.warn("Failed to load resources from localStorage:", error)
+    console.warn("Failed to load resources from localStorage, clearing corrupted data:", error)
+    // Clear corrupted data
+    try {
+      localStorage.removeItem("timeline-studio-resources")
+    } catch (e) {
+      // Ignore error
+    }
   }
   return {}
 }
@@ -105,6 +126,12 @@ export const resourcesMachine = setup({
       resources: ({ context, event }) => {
         if (event.type !== "ADD_EFFECT") return context.resources
 
+        // Проверяем, что effect существует
+        if (!event.effect) {
+          console.warn("[ResourcesMachine] ADD_EFFECT event missing effect property")
+          return context.resources
+        }
+
         // Проверяем, есть ли уже такой эффект
         const existingResource = context.effectResources.find((resource) => resource.resourceId === event.effect.id)
 
@@ -117,6 +144,12 @@ export const resourcesMachine = setup({
       },
       effectResources: ({ context, event }) => {
         if (event.type !== "ADD_EFFECT") return context.effectResources
+
+        // Проверяем, что effect существует
+        if (!event.effect) {
+          console.warn("[ResourcesMachine] ADD_EFFECT event missing effect property")
+          return context.effectResources
+        }
 
         // Проверяем, есть ли уже такой эффект
         const existingResource = context.effectResources.find((resource) => resource.resourceId === event.effect.id)
@@ -135,6 +168,12 @@ export const resourcesMachine = setup({
       resources: ({ context, event }) => {
         if (event.type !== "ADD_FILTER") return context.resources
 
+        // Проверяем, что filter существует
+        if (!event.filter) {
+          console.warn("[ResourcesMachine] ADD_FILTER event missing filter property")
+          return context.resources
+        }
+
         // Проверяем, есть ли уже такой фильтр
         const existingResource = context.filterResources.find((resource) => resource.resourceId === event.filter.id)
 
@@ -147,6 +186,12 @@ export const resourcesMachine = setup({
       },
       filterResources: ({ context, event }) => {
         if (event.type !== "ADD_FILTER") return context.filterResources
+
+        // Проверяем, что filter существует
+        if (!event.filter) {
+          console.warn("[ResourcesMachine] ADD_FILTER event missing filter property")
+          return context.filterResources
+        }
 
         // Проверяем, есть ли уже такой фильтр
         const existingResource = context.filterResources.find((resource) => resource.resourceId === event.filter.id)
@@ -165,6 +210,12 @@ export const resourcesMachine = setup({
       resources: ({ context, event }) => {
         if (event.type !== "ADD_TRANSITION") return context.resources
 
+        // Проверяем, что transition существует
+        if (!event.transition) {
+          console.warn("[ResourcesMachine] ADD_TRANSITION event missing transition property")
+          return context.resources
+        }
+
         // Проверяем, есть ли уже такой переход
         const existingResource = context.transitionResources.find(
           (resource) => resource.resourceId === event.transition.id || resource.resourceId === event.transition.type,
@@ -179,6 +230,12 @@ export const resourcesMachine = setup({
       },
       transitionResources: ({ context, event }) => {
         if (event.type !== "ADD_TRANSITION") return context.transitionResources
+
+        // Проверяем, что transition существует
+        if (!event.transition) {
+          console.warn("[ResourcesMachine] ADD_TRANSITION event missing transition property")
+          return context.transitionResources
+        }
 
         // Проверяем, есть ли уже такой переход
         const existingResource = context.transitionResources.find(
