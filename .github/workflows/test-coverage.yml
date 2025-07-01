@@ -68,7 +68,7 @@ jobs:
   test-rust-coverage:
     name: Rust Test Coverage
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
 
     steps:
       - name: Checkout repository
@@ -87,6 +87,30 @@ jobs:
         with:
           components: llvm-tools-preview
 
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-registry-
+
+      - name: Cache cargo index
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-index-
+
+      - name: Cache cargo build
+        uses: actions/cache@v4
+        with:
+          path: src-tauri/target
+          key: ${{ runner.os }}-cargo-build-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-build-
+
       - name: Cache cargo-llvm-cov
         uses: actions/cache@v4
         with:
@@ -96,7 +120,10 @@ jobs:
       - name: Install cargo-llvm-cov
         run: |
           if ! command -v cargo-llvm-cov &> /dev/null; then
-            cargo install cargo-llvm-cov --locked
+            echo "Installing cargo-llvm-cov..."
+            cargo install cargo-llvm-cov --version 0.5.39 --locked
+          else
+            echo "cargo-llvm-cov already installed: $(cargo-llvm-cov --version)"
           fi
 
       - name: Install cargo2junit
@@ -219,15 +246,38 @@ jobs:
           else
             echo "cargo2junit not found, skipping JUnit report generation"
           fi
+          # Generate coverage report using cargo-llvm-cov
+          if command -v cargo-llvm-cov &> /dev/null; then
+            echo "Generating coverage report with cargo-llvm-cov..."
+            cargo llvm-cov --lcov --output-path coverage.info --lib --bins --tests
+          else
+            echo "cargo-llvm-cov not found, skipping coverage generation"
+          fi
           cd ..
-          # Also run coverage tests
-          bun run test:coverage:rust
         env:
           RUSTFLAGS: -Cinstrument-coverage
           LLVM_PROFILE_FILE: timeline-studio-%p-%m.profraw
 
+      - name: Debug coverage files
+        if: always()
+        run: |
+          echo "=== Coverage files debug ==="
+          echo "Current directory: $(pwd)"
+          echo "Files in src-tauri:"
+          ls -la src-tauri/coverage.* 2>/dev/null || echo "No coverage files in src-tauri"
+          echo "Files in test-results:"
+          ls -la test-results/ 2>/dev/null || echo "No files in test-results"
+          echo "Checking if coverage.info exists:"
+          if [ -f "src-tauri/coverage.info" ]; then
+            echo "✅ coverage.info found, size: $(stat -c%s src-tauri/coverage.info 2>/dev/null || stat -f%z src-tauri/coverage.info) bytes"
+            echo "First 10 lines:"
+            head -10 src-tauri/coverage.info
+          else
+            echo "❌ coverage.info not found"
+          fi
+
       - name: Upload Rust test results to Codecov
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && hashFiles('./test-results/rust-junit.xml') != '' }}
         uses: codecov/test-results-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -238,6 +288,7 @@ jobs:
           verbose: true
 
       - name: Upload Rust coverage to Codecov
+        if: ${{ always() && hashFiles('./src-tauri/coverage.info') != '' }}
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
