@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useState } from "react"
 
 import { convertFileSrc } from "@tauri-apps/api/core"
-import { readFile } from "@tauri-apps/api/fs"
+import { readFile } from "@tauri-apps/plugin-fs"
 import { Image } from "lucide-react"
 
 import { MediaFile } from "@/features/media/types/media"

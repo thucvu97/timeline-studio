@@ -1,5 +1,6 @@
 import { vi } from "vitest"
 
+// Create mock functions first
 export const mockFs = {
   readFile: vi.fn(),
   writeFile: vi.fn(),
@@ -12,9 +13,9 @@ export const mockFs = {
   copyFile: vi.fn(),
   readDir: vi.fn(),
   metadata: vi.fn(),
+  mkdir: vi.fn(),
+  remove: vi.fn(),
 }
-
-vi.mock("@tauri-apps/api/fs", () => mockFs)
 
 // Helper for simulating file system state
 export class MockFileSystem {
@@ -29,17 +30,18 @@ export class MockFileSystem {
     mockFs.readFile.mockImplementation(async (path: string) => {
       const content = this.files.get(path)
       if (!content) throw new Error(`File not found: ${path}`)
-      return content instanceof Uint8Array ? content : new TextEncoder().encode(content)
+      return content
+    })
+
+    mockFs.writeFile.mockImplementation(async (path: string, content: Uint8Array) => {
+      this.files.set(path, content)
     })
 
     mockFs.readTextFile.mockImplementation(async (path: string) => {
       const content = this.files.get(path)
       if (!content) throw new Error(`File not found: ${path}`)
-      return content.toString()
-    })
-
-    mockFs.writeFile.mockImplementation(async (path: string, content: Uint8Array) => {
-      this.files.set(path, content)
+      if (typeof content === "string") return content
+      return new TextDecoder().decode(content)
     })
 
     mockFs.writeTextFile.mockImplementation(async (path: string, content: string) => {
@@ -52,18 +54,39 @@ export class MockFileSystem {
 
     mockFs.createDir.mockImplementation(async (path: string) => {
       this.directories.add(path)
+      // Add parent directories
+      const parts = path.split("/")
+      for (let i = 1; i < parts.length; i++) {
+        this.directories.add(parts.slice(0, i).join("/"))
+      }
+    })
+
+    mockFs.mkdir.mockImplementation(async (path: string) => {
+      this.directories.add(path)
+      // Add parent directories
+      const parts = path.split("/")
+      for (let i = 1; i < parts.length; i++) {
+        this.directories.add(parts.slice(0, i).join("/"))
+      }
     })
 
     mockFs.removeFile.mockImplementation(async (path: string) => {
+      if (!this.files.has(path)) throw new Error(`File not found: ${path}`)
+      this.files.delete(path)
+    })
+
+    mockFs.remove.mockImplementation(async (path: string) => {
+      if (!this.files.has(path)) throw new Error(`File not found: ${path}`)
       this.files.delete(path)
     })
 
     mockFs.removeDir.mockImplementation(async (path: string) => {
+      if (!this.directories.has(path)) throw new Error(`Directory not found: ${path}`)
       this.directories.delete(path)
-      // Remove all files in directory
-      for (const filePath of this.files.keys()) {
-        if (filePath.startsWith(`${path}/`)) {
-          this.files.delete(filePath)
+      // Remove subdirectories
+      for (const dir of Array.from(this.directories)) {
+        if (dir.startsWith(`${path}/`)) {
+          this.directories.delete(dir)
         }
       }
     })
@@ -89,10 +112,10 @@ export class MockFileSystem {
       }
 
       // Add files
-      for (const filePath of this.files.keys()) {
-        if (filePath.startsWith(`${path}/`) && !filePath.substring(path.length + 1).includes("/")) {
+      for (const file of this.files.keys()) {
+        if (file.startsWith(`${path}/`) && !file.substring(path.length + 1).includes("/")) {
           entries.push({
-            name: filePath.substring(path.length + 1),
+            name: file.substring(path.length + 1),
             isDirectory: false,
             isFile: true,
           })
@@ -103,80 +126,58 @@ export class MockFileSystem {
     })
 
     mockFs.metadata.mockImplementation(async (path: string) => {
-      if (!this.files.has(path) && !this.directories.has(path)) {
-        throw new Error(`Path not found: ${path}`)
+      if (this.files.has(path)) {
+        const content = this.files.get(path)!
+        return {
+          isFile: true,
+          isDirectory: false,
+          size: typeof content === "string" ? content.length : content.length,
+        }
       }
-
-      const isFile = this.files.has(path)
-      const content = this.files.get(path)
-
-      return {
-        isFile,
-        isDirectory: !isFile,
-        size: isFile ? (content ? content.length : 0) : 0,
-        modifiedAt: new Date(),
-        accessedAt: new Date(),
-        createdAt: new Date(),
-        readonly: false,
+      if (this.directories.has(path)) {
+        return {
+          isFile: false,
+          isDirectory: true,
+          size: 0,
+        }
       }
+      throw new Error(`Path not found: ${path}`)
     })
   }
 
   addFile(path: string, content: string | Uint8Array) {
     this.files.set(path, content)
-    return this
-  }
-
-  addDirectory(path: string) {
-    this.directories.add(path)
-    return this
-  }
-
-  addJsonFile(path: string, data: any) {
-    this.files.set(path, JSON.stringify(data, null, 2))
-    return this
-  }
-
-  addBinaryFile(path: string, size = 1024) {
-    const content = new Uint8Array(size)
-    content.fill(0x42) // Fill with 'B' character
-    this.files.set(path, content)
-    return this
+    // Create parent directories
+    const parts = path.split("/")
+    for (let i = 1; i < parts.length; i++) {
+      this.directories.add(parts.slice(0, i).join("/"))
+    }
   }
 
   addAudioFile(path: string) {
-    // Create fake audio data for testing
-    const fakeAudioData = new Uint8Array([
-      0x49,
-      0x44,
-      0x33,
-      0x03,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00,
-      0x00, // ID3 header
-      0xff,
-      0xfb,
-      0x90,
-      0x00, // MP3 frame header
-      ...Array(100)
-        .fill(0)
-        .map(() => Math.floor(Math.random() * 256)),
+    // Create a minimal valid MP3 file (ID3v2 header + dummy data)
+    const mp3Header = new Uint8Array([
+      0x49, 0x44, 0x33, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // ID3v2.4 header
+      0xff, 0xfb, 0x90, 0x00, // MP3 frame header
     ])
-    this.files.set(path, fakeAudioData)
-    return this
+    this.addFile(path, mp3Header)
+  }
+
+  addImageFile(path: string) {
+    // Create a minimal valid PNG file
+    const pngHeader = new Uint8Array([
+      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, // PNG signature
+      0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52, // IHDR chunk
+    ])
+    this.addFile(path, pngHeader)
   }
 
   removeFile(path: string) {
     this.files.delete(path)
-    return this
   }
 
-  removeDirectory(path: string) {
-    this.directories.delete(path)
-    return this
+  createDirectory(path: string) {
+    this.directories.add(path)
   }
 
   reset() {
@@ -204,3 +205,36 @@ export class MockFileSystem {
 
 // Default instance for tests
 export const mockFileSystem = new MockFileSystem()
+
+// Export all functions from mockFs directly
+export const readFile = mockFs.readFile
+export const writeFile = mockFs.writeFile
+export const readTextFile = mockFs.readTextFile
+export const writeTextFile = mockFs.writeTextFile
+export const exists = mockFs.exists
+export const createDir = mockFs.createDir
+export const removeFile = mockFs.removeFile
+export const removeDir = mockFs.removeDir
+export const copyFile = mockFs.copyFile
+export const readDir = mockFs.readDir
+export const metadata = mockFs.metadata
+export const mkdir = mockFs.mkdir
+export const remove = mockFs.remove
+
+// Mock the module
+vi.mock("@tauri-apps/plugin-fs", () => ({
+  readFile: mockFs.readFile,
+  writeFile: mockFs.writeFile,
+  readTextFile: mockFs.readTextFile,
+  writeTextFile: mockFs.writeTextFile,
+  exists: mockFs.exists,
+  createDir: mockFs.createDir,
+  removeFile: mockFs.removeFile,
+  removeDir: mockFs.removeDir,
+  copyFile: mockFs.copyFile,
+  readDir: mockFs.readDir,
+  metadata: mockFs.metadata,
+  mkdir: mockFs.mkdir,
+  remove: mockFs.remove,
+  mockFileSystem
+}))

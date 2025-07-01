@@ -72,7 +72,7 @@ const createTauriMocks = () => {
 const { mockExists, mockReadDir, mockInvoke } = createTauriMocks()
 
 // Mock Tauri FS API
-vi.mock("@tauri-apps/api/fs", () => ({
+vi.mock("@tauri-apps/plugin-fs", () => ({
   exists: mockExists,
   readDir: mockReadDir,
 }))

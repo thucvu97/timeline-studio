@@ -2,7 +2,7 @@
  * Тесты для TimelineStudioProjectService
  */
 
-import { readTextFile, writeTextFile } from "@tauri-apps/api/fs"
+import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { DEFAULT_PROJECT_SETTINGS } from "@/features/project-settings/types/project"
@@ -11,7 +11,7 @@ import { TimelineStudioProject } from "@/features/project-settings/types/timelin
 import { TimelineStudioProjectService } from "../../services/timeline-studio-project-service"
 
 // Мокаем Tauri API
-vi.mock("@tauri-apps/api/fs", () => ({
+vi.mock("@tauri-apps/plugin-fs", () => ({
   readTextFile: vi.fn(),
   writeTextFile: vi.fn(),
 }))

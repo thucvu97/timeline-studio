@@ -76,7 +76,7 @@ export default defineConfig({
       // Mock Tauri dependencies during testing
       "@tauri-apps/plugin-os": path.resolve(__dirname, "./src/test/mocks/tauri/plugins/os.ts"),
       "@tauri-apps/api/app": path.resolve(__dirname, "./src/test/mocks/tauri/api/app.ts"),
-      "@tauri-apps/api/fs": path.resolve(__dirname, "./src/test/mocks/tauri/api/fs.ts"),
+      "@tauri-apps/plugin-fs": path.resolve(__dirname, "./src/test/mocks/tauri/fs.ts"),
     },
   },
 })

@@ -320,7 +320,7 @@ it('should handle tab switching', () => {
 ### Моки и утилиты
 ```typescript
 // Мок для файлового API
-vi.mock('@tauri-apps/api/fs', () => ({
+vi.mock('@tauri-apps/plugin-fs', () => ({
   readBinaryFile: vi.fn(),
   writeFile: vi.fn(),
 }))

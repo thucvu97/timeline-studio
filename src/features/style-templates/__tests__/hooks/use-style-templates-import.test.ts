@@ -1,5 +1,5 @@
 import { open } from "@tauri-apps/plugin-dialog"
-import { readTextFile } from "@tauri-apps/api/fs"
+import { readTextFile } from "@tauri-apps/plugin-fs"
 import { act, renderHook } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
@@ -13,7 +13,7 @@ vi.mock("@tauri-apps/plugin-dialog", () => ({
 }))
 
 // Мокаем Tauri fs API
-vi.mock("@tauri-apps/api/fs", () => ({
+vi.mock("@tauri-apps/plugin-fs", () => ({
   readTextFile: vi.fn(),
 }))
 

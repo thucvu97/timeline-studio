@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react"
 
 import { open } from "@tauri-apps/plugin-dialog"
-import { readTextFile } from "@tauri-apps/api/fs"
+import { readTextFile } from "@tauri-apps/plugin-fs"
 
 import { useResources } from "@/features/resources"
 

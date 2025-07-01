@@ -5,7 +5,7 @@ import { LocalChatStorageService } from "../../services/chat-storage-service"
 import type { ChatSession } from "../../types/chat"
 
 // Mock модули Tauri
-vi.mock("@tauri-apps/api/fs", () => ({
+vi.mock("@tauri-apps/plugin-fs", () => ({
   exists: vi.fn(),
   mkdir: vi.fn(),
   readTextFile: vi.fn(),

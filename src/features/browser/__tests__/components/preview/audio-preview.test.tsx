@@ -6,8 +6,6 @@ import { mockFileSystem } from "@/test/mocks/tauri/fs"
 
 import { AudioPreview } from "../../../components/preview/audio-preview"
 
-// Импортируем моки для Tauri FS
-
 // Мокаем компоненты, которые используются в AudioPreview
 vi.mock("../../../components/preview/preview-timeline", () => ({
   PreviewTimeline: ({ time, duration, videoRef }: any) => (

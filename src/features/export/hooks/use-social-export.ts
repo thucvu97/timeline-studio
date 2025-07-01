@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react"
 
-import { readFile } from "@tauri-apps/api/fs"
+import { readFile } from "@tauri-apps/plugin-fs"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 

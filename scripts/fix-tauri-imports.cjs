@@ -2,7 +2,7 @@
 
 /**
  * Скрипт для исправления импортов Tauri v2
- * Меняет @tauri-apps/plugin-fs на @tauri-apps/api/fs
+ * Меняет @tauri-apps/plugin-fs на @tauri-apps/plugin-fs
  */
 
 const fs = require('fs');
@@ -42,7 +42,7 @@ walkDir(path.join(__dirname, '..', 'src'), (file) => {
     // Заменяем импорт
     const updatedContent = content.replace(
       /@tauri-apps\/plugin-fs/g,
-      '@tauri-apps/api/fs'
+      '@tauri-apps/plugin-fs'
     );
     
     // Сохраняем файл

@@ -1,4 +1,4 @@
-import { readTextFile, writeTextFile } from "@tauri-apps/api/fs"
+import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { SavedMediaFile, SavedMusicFile } from "@/features/media/types/saved-media"
@@ -7,7 +7,7 @@ import { ProjectFile } from "@/features/project-settings/types/project"
 import { ProjectFileService } from "../../services/project-file-service"
 
 // Мокаем Tauri FS
-vi.mock("@tauri-apps/api/fs", () => ({
+vi.mock("@tauri-apps/plugin-fs", () => ({
   readTextFile: vi.fn(),
   writeTextFile: vi.fn(),
 }))

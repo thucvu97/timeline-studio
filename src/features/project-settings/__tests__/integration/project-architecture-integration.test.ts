@@ -3,7 +3,7 @@
  * Tests how Media Pool, Sequences, and Project Service work together
  */
 
-import { readTextFile, writeTextFile } from "@tauri-apps/api/fs"
+import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { TimelineStudioProjectService } from "@/features/app-state/services/timeline-studio-project-service"
@@ -19,7 +19,7 @@ import { Sequence } from "@/features/timeline/types/sequence"
 import { TimelineClip } from "@/features/timeline/types/timeline"
 
 // Mock Tauri API
-vi.mock("@tauri-apps/api/fs", () => ({
+vi.mock("@tauri-apps/plugin-fs", () => ({
   readTextFile: vi.fn(),
   writeTextFile: vi.fn(),
 }))
