@@ -135,6 +135,11 @@ export function createSubtitleResource(style: SubtitleStyle): SubtitleResource {
 
 // Функция для создания ресурса эффекта
 export function createEffectResource(effect: VideoEffect): EffectResource {
+  if (!effect || !effect.id || !effect.name) {
+    console.error("[createEffectResource] Invalid effect object:", effect)
+    throw new Error("Invalid effect object provided to createEffectResource")
+  }
+
   return {
     id: `effect-${effect.id}-${Date.now()}`,
     type: "effect",
@@ -148,6 +153,11 @@ export function createEffectResource(effect: VideoEffect): EffectResource {
 
 // Функция для создания ресурса фильтра
 export function createFilterResource(filter: VideoFilter): FilterResource {
+  if (!filter || !filter.id || !filter.name) {
+    console.error("[createFilterResource] Invalid filter object:", filter)
+    throw new Error("Invalid filter object provided to createFilterResource")
+  }
+
   return {
     id: `filter-${filter.id}-${Date.now()}`,
     type: "filter",
@@ -161,6 +171,11 @@ export function createFilterResource(filter: VideoFilter): FilterResource {
 
 // Функция для создания ресурса перехода
 export function createTransitionResource(transition: Transition): TransitionResource {
+  if (!transition || !transition.id) {
+    console.error("[createTransitionResource] Invalid transition object:", transition)
+    throw new Error("Invalid transition object provided to createTransitionResource")
+  }
+
   console.log("Creating transition resource from:", transition)
   const resource: TransitionResource = {
     id: `transition-${transition.id}-${Date.now()}`,

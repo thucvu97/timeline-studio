@@ -260,6 +260,10 @@ jobs:
           cd src-tauri
           # Remove non-essential build artifacts to save space
           cargo clean --release
+          # Also clean doc and example builds
+          rm -rf target/doc
+          rm -rf target/debug/examples
+          rm -rf target/debug/incremental
           cd ..
 
       - name: Run Rust tests with coverage
