@@ -1,4 +1,4 @@
-import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs"
+import { readTextFile, writeTextFile } from "@tauri-apps/api/fs"
 
 import { SavedMediaFile, SavedMusicFile } from "@/features/media/types/saved-media"
 import { ProjectFile } from "@/features/project-settings/types/project"

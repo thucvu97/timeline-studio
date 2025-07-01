@@ -3,7 +3,7 @@
  */
 
 import { getVersion } from "@tauri-apps/api/app"
-import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs"
+import { readTextFile, writeTextFile } from "@tauri-apps/api/fs"
 import { nanoid } from "nanoid"
 
 import { createEmptyMediaPool } from "@/features/media/utils/media-pool-utils"
