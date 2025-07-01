@@ -359,8 +359,11 @@ jobs:
         if: matrix.platform == 'macos-latest'
         run: |
           cd src-tauri
-          # Clean any stale build artifacts that might reference test_specta
-          cargo clean
+          # Remove any existing test_specta binaries from previous builds
+          find target -name "*test_specta*" -type f -delete 2>/dev/null || true
+          find target -name "test_specta" -type f -delete 2>/dev/null || true
+          # Remove bundle directory to ensure clean bundling
+          rm -rf target/release/bundle target/universal-apple-darwin/release/bundle
           cd ..
 
       - name: Build the app (macOS universal)
