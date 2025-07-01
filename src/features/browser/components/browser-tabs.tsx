@@ -1,4 +1,4 @@
-import { memo, useCallback } from "react"
+import { memo } from "react"
 
 import { Blend, Clapperboard, FlipHorizontal2, Music, Sparkles, Sticker, Type, Video } from "lucide-react"
 import { useTranslation } from "react-i18next"
@@ -14,29 +14,18 @@ export const TAB_TRIGGER_STYLES =
 
 interface BrowserTabsProps {
   activeTab: string
-  onTabChange: (value: string) => void
 }
 
-export const BrowserTabs = memo(({ activeTab, onTabChange }: BrowserTabsProps) => {
+export const BrowserTabs = memo(({ activeTab }: BrowserTabsProps) => {
   const { t } = useTranslation()
 
   console.log("BrowserTabs rendered, activeTab:", activeTab)
-
-  // Мемоизируем обработчики кликов
-  const handleTabChange = useCallback(
-    (tabValue: string) => {
-      onTabChange(tabValue)
-    },
-    [onTabChange],
-  )
 
   return (
     <TabsList className="h-[50px] flex-shrink-0 justify-start border-none rounded-none dark:bg-[#2D2D2D] m-0 p-0">
       <TabsTrigger
         value="media"
         className={TAB_TRIGGER_STYLES}
-        onClick={() => handleTabChange("media")}
-        data-state={activeTab === "media" ? "active" : "inactive"}
         data-testid="media-tab"
       >
         <Clapperboard className="h-4 w-4" />
@@ -45,8 +34,7 @@ export const BrowserTabs = memo(({ activeTab, onTabChange }: BrowserTabsProps) =
       <TabsTrigger
         value="music"
         className={TAB_TRIGGER_STYLES}
-        onClick={() => handleTabChange("music")}
-        data-state={activeTab === "music" ? "active" : "inactive"}
+        data-testid="music-tab"
       >
         <Music className="h-4 w-4" />
         <span>{t("browser.tabs.music")}</span>
@@ -54,8 +42,7 @@ export const BrowserTabs = memo(({ activeTab, onTabChange }: BrowserTabsProps) =
       <TabsTrigger
         value="subtitles"
         className={TAB_TRIGGER_STYLES}
-        onClick={() => handleTabChange("subtitles")}
-        data-state={activeTab === "subtitles" ? "active" : "inactive"}
+        data-testid="subtitles-tab"
       >
         <Type className="h-4 w-4" />
         <span>{t("browser.tabs.subtitles")}</span>
@@ -63,8 +50,7 @@ export const BrowserTabs = memo(({ activeTab, onTabChange }: BrowserTabsProps) =
       <TabsTrigger
         value="effects"
         className={TAB_TRIGGER_STYLES}
-        onClick={() => handleTabChange("effects")}
-        data-state={activeTab === "effects" ? "active" : "inactive"}
+        data-testid="effects-tab"
       >
         <Sparkles className="h-4 w-4" />
         <span>{t("browser.tabs.effects")}</span>
@@ -72,8 +58,7 @@ export const BrowserTabs = memo(({ activeTab, onTabChange }: BrowserTabsProps) =
       <TabsTrigger
         value="filters"
         className={TAB_TRIGGER_STYLES}
-        onClick={() => handleTabChange("filters")}
-        data-state={activeTab === "filters" ? "active" : "inactive"}
+        data-testid="filters-tab"
       >
         <Blend className="h-4 w-4" />
         <span>{t("browser.tabs.filters")}</span>
@@ -81,8 +66,7 @@ export const BrowserTabs = memo(({ activeTab, onTabChange }: BrowserTabsProps) =
       <TabsTrigger
         value="transitions"
         className={TAB_TRIGGER_STYLES}
-        onClick={() => handleTabChange("transitions")}
-        data-state={activeTab === "transitions" ? "active" : "inactive"}
+        data-testid="transitions-tab"
       >
         <FlipHorizontal2 className="h-4 w-4" />
         <span>{t("browser.tabs.transitions")}</span>
@@ -90,8 +74,7 @@ export const BrowserTabs = memo(({ activeTab, onTabChange }: BrowserTabsProps) =
       <TabsTrigger
         value="templates"
         className={TAB_TRIGGER_STYLES}
-        onClick={() => handleTabChange("templates")}
-        data-state={activeTab === "templates" ? "active" : "inactive"}
+        data-testid="templates-tab"
       >
         <Video className="h-4 w-4" />
         <span>{t("browser.tabs.templates")}</span>
@@ -99,8 +82,7 @@ export const BrowserTabs = memo(({ activeTab, onTabChange }: BrowserTabsProps) =
       <TabsTrigger
         value="style-templates"
         className={TAB_TRIGGER_STYLES}
-        onClick={() => handleTabChange("style-templates")}
-        data-state={activeTab === "style-templates" ? "active" : "inactive"}
+        data-testid="style-templates-tab"
       >
         <Sticker className="h-4 w-4" />
         <span>{t("browser.tabs.styleTemplates")}</span>

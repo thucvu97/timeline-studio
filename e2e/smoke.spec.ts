@@ -35,12 +35,15 @@ test.describe("Smoke Tests", () => {
     await page.waitForTimeout(2000)
 
     // Проверяем наличие основных элементов интерфейса
-    // TopBar должен быть виден
-    const topBar = page.locator("div").filter({ hasText: /Timeline Studio/i }).first()
+    // Проверяем заголовок страницы
+    await expect(page).toHaveTitle("Timeline Studio")
+    
+    // TopBar должен быть виден (проверяем по наличию кнопок)
+    const topBar = page.locator("div").filter({ has: page.locator('[data-testid="theme-toggle"]') }).first()
     await expect(topBar).toBeVisible({ timeout: 10000 })
   })
 
-  test("can see browser tabs", async ({ page }) => {
+  test("can interact with UI elements", async ({ page }) => {
     // Clear localStorage before test
     await page.goto("/")
     await page.evaluate(() => {
@@ -53,13 +56,34 @@ test.describe("Smoke Tests", () => {
     // Ждем загрузки интерфейса
     await page.waitForTimeout(2000)
 
-    // Проверяем, что есть контейнер с вкладками браузера
-    // Вкладки находятся в Browser компоненте
-    const browserSection = page.locator("section").filter({ has: page.locator('[role="tablist"]') }).first()
-    await expect(browserSection).toBeVisible({ timeout: 10000 })
-
-    // Проверяем наличие хотя бы одной вкладки
-    const anyTab = page.locator('[role="tab"]').first()
-    await expect(anyTab).toBeVisible({ timeout: 10000 })
+    // Проверяем наличие кнопок в TopBar
+    const themeToggle = page.locator('[data-testid="theme-toggle"]')
+    await expect(themeToggle).toBeVisible({ timeout: 10000 })
+    
+    // Проверяем кнопку keyboard shortcuts
+    const keyboardButton = page.locator('[data-testid="keyboard-shortcuts-button"]')
+    await expect(keyboardButton).toBeVisible({ timeout: 10000 })
+    
+    // Проверяем кнопку user settings
+    const userSettingsButton = page.locator('[data-testid="user-settings-button"]')
+    await expect(userSettingsButton).toBeVisible({ timeout: 10000 })
+    
+    // Проверяем кнопку export
+    const exportButton = page.locator('[data-testid="export-button"]')
+    await expect(exportButton).toBeVisible({ timeout: 10000 })
+    
+    // Проверяем, что нет ошибок в консоли
+    const errors: string[] = []
+    page.on("pageerror", (error) => {
+      if (!error.message.includes("ResizeObserver")) {
+        errors.push(error.message)
+      }
+    })
+    
+    // Даем время на загрузку
+    await page.waitForTimeout(1000)
+    
+    // Проверяем, что нет критических ошибок
+    expect(errors).toHaveLength(0)
   })
 })

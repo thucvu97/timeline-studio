@@ -29,19 +29,23 @@ test.describe("Browser Functionality", () => {
   test("should switch between different browser tabs", async ({ page }) => {
     // Переключаемся на Effects
     await browserPage.selectTab("Effects")
-    await expect(browserPage.effectsTab).toHaveAttribute("aria-selected", "true")
-
-    // Проверяем что контент изменился
-    const effectsContent = page.locator("text=/Effects|Эффекты/i").first()
-    await expect(effectsContent).toBeVisible()
+    // Ждем, пока вкладка станет активной
+    await page.waitForTimeout(500)
+    await expect(browserPage.effectsTab).toHaveAttribute("data-state", "active")
+    // Проверяем, что предыдущая вкладка неактивна
+    await expect(browserPage.mediaTab).toHaveAttribute("data-state", "inactive")
 
     // Переключаемся на Transitions
     await browserPage.selectTab("Transitions")
-    await expect(browserPage.transitionsTab).toHaveAttribute("aria-selected", "true")
+    await page.waitForTimeout(500)
+    await expect(browserPage.transitionsTab).toHaveAttribute("data-state", "active")
+    await expect(browserPage.effectsTab).toHaveAttribute("data-state", "inactive")
 
     // Переключаемся на Templates
     await browserPage.selectTab("Templates")
-    await expect(browserPage.templatesTab).toHaveAttribute("aria-selected", "true")
+    await page.waitForTimeout(500)
+    await expect(browserPage.templatesTab).toHaveAttribute("data-state", "active")
+    await expect(browserPage.transitionsTab).toHaveAttribute("data-state", "inactive")
   })
 
   test("should display effects in grid layout", async ({ page }) => {

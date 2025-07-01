@@ -21,7 +21,7 @@ function BrowserWithState() {
         defaultValue="media"
         className="flex h-full w-full flex-col gap-0 dark:bg-[#2D2D2D]"
       >
-        <BrowserTabs activeTab={activeTab} onTabChange={handleTabChange} />
+        <BrowserTabs activeTab={activeTab} />
         <BrowserContent />
       </Tabs>
     </div>

@@ -165,31 +165,132 @@ export function TauriMockProvider({ children }: { children: React.ReactNode }) {
               }
               return [null, false]
             case "plugin:fs|exists":
-              // Return true for temp project file only after it's been created
-              if (args?.path && args.path.includes("temp_project.tlsp")) {
-                return tempProjectCreated
+              // Return true for any project file
+              if (args?.path && args.path.includes(".tlsp")) {
+                return true
               }
               return false
             case "plugin:fs|read_text_file":
+              console.log(`[TauriMock] read_text_file called with path:`, args?.path)
               // Return empty project file content as string
-              const projectData = {
-                name: "Temporary Project",
-                tracks: [],
-                clips: [],
-                settings: {},
-                timeline: {
-                  tracks: [],
-                  sections: [],
-                },
-                metadata: {
-                  version: "2.0.0", // Use v2 format
-                  createdAt: new Date().toISOString(),
-                  updatedAt: new Date().toISOString(),
-                },
+              // Check if it's a project file
+              if (args?.path && args.path.includes(".tlsp")) {
+                // For any .tlsp file, return a valid v2.0.0 project structure
+                const projectId = Math.random().toString(36).slice(2)
+                const sequenceId = Math.random().toString(36).slice(2)
+                const now = new Date().toISOString()
+                
+                const projectData = {
+                  metadata: {
+                    id: projectId,
+                    name: args.path.includes("temp_project") ? "Temporary Project" : "Test Project",
+                    version: "2.0.0",
+                    created: now,
+                    modified: now,
+                    platform: "macos",
+                    appVersion: "1.0.0"
+                  },
+                  settings: {
+                    resolution: "1920x1080",
+                    frameRate: 30,
+                    aspectRatio: { value: { name: "16:9", ratio: 1.7778 } },
+                    audio: {
+                      sampleRate: 48000,
+                      bitDepth: 24,
+                      channels: 2,
+                      masterVolume: 1.0,
+                      panLaw: "-3dB"
+                    },
+                    preview: {
+                      resolution: "1/2",
+                      quality: "better",
+                      renderDuringPlayback: true,
+                      useGPU: true
+                    },
+                    exportPresets: []
+                  },
+                  mediaPool: {
+                    items: {},
+                    bins: {},
+                    stats: {
+                      totalItems: 0,
+                      totalSize: 0,
+                      unusedItems: 0
+                    }
+                  },
+                  sequences: {
+                    [sequenceId]: {
+                      id: sequenceId,
+                      name: "Sequence 1",
+                      type: "main",
+                      settings: {
+                        resolution: { width: 1920, height: 1080 },
+                        frameRate: 30,
+                        aspectRatio: "16:9",
+                        duration: 0,
+                        audio: {
+                          sampleRate: 48000,
+                          bitDepth: 24,
+                          channels: 2
+                        }
+                      },
+                      composition: {
+                        tracks: [],
+                        masterClips: []
+                      },
+                      resources: {
+                        effects: {},
+                        filters: {},
+                        transitions: {},
+                        colorGrades: {},
+                        titles: {},
+                        generators: {}
+                      },
+                      markers: [],
+                      history: [],
+                      historyPosition: -1,
+                      metadata: {
+                        created: now,
+                        modified: now
+                      }
+                    }
+                  },
+                  activeSequenceId: sequenceId,
+                  cache: {
+                    thumbnails: {},
+                    waveforms: {},
+                    proxies: {},
+                    sceneAnalysis: {},
+                    totalSize: 0
+                  },
+                  workspace: {
+                    layout: "edit",
+                    panels: {},
+                    recentTools: [],
+                    grid: {
+                      enabled: false,
+                      size: 10,
+                      snapToGrid: false,
+                      snapToClips: true,
+                      magneticTimeline: true
+                    }
+                  },
+                  backup: {
+                    autoSave: {
+                      enabled: true,
+                      interval: 5,
+                      keepVersions: 10
+                    },
+                    versions: [],
+                    lastSaved: now
+                  }
+                }
+                const jsonString = JSON.stringify(projectData)
+                console.log(`[TauriMock] Returning project JSON for: ${args.path}`)
+                return jsonString
               }
-              const jsonString = JSON.stringify(projectData)
-              console.log(`[TauriMock] Returning project JSON: ${jsonString.substring(0, 50)}...`)
-              return jsonString
+              // For other files, return empty string
+              return ""
             case "plugin:fs|write_text_file":
               // Mock writing file
               if (args?.path && args.path.includes("temp_project.tlsp")) {

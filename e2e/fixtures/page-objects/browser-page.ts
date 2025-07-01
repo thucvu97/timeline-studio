@@ -16,12 +16,12 @@ export class BrowserPage {
   constructor(page: Page) {
     this.page = page
 
-    // Вкладки браузера
+    // Вкладки браузера - используем data-testid
     this.tabList = page.locator('[role="tablist"]').first()
-    this.mediaTab = this.tabList.locator('[role="tab"]:has-text("Media")')
-    this.effectsTab = this.tabList.locator('[role="tab"]:has-text("Effects")')
-    this.transitionsTab = this.tabList.locator('[role="tab"]:has-text("Transitions")')
-    this.templatesTab = this.tabList.locator('[role="tab"]:has-text("Templates")')
+    this.mediaTab = page.locator('[data-testid="media-tab"]')
+    this.effectsTab = page.locator('[data-testid="effects-tab"]')
+    this.transitionsTab = page.locator('[data-testid="transitions-tab"]')
+    this.templatesTab = page.locator('[data-testid="templates-tab"]')
 
     // Элементы медиа браузера - используем гибкие селекторы
     this.emptyState = page.locator("text=/no media|empty|drag.*drop|import.*files/i").first()
@@ -49,7 +49,9 @@ export class BrowserPage {
   }
 
   async selectTab(tabName: "Media" | "Effects" | "Transitions" | "Templates") {
-    const tab = this.tabList.locator(`[role="tab"]:has-text("${tabName}")`)
+    // Используем data-testid для всех вкладок
+    const tabTestId = `${tabName.toLowerCase()}-tab`
+    const tab = this.page.locator(`[data-testid="${tabTestId}"]`)
     await tab.click()
     await this.page.waitForTimeout(300) // Ждем анимацию
   }
