@@ -52,6 +52,15 @@ function createFunctionFromTemplate(template: string | undefined | null) {
  * Обрабатывает сырые данные эффекта из JSON и преобразует их в VideoEffect
  */
 export function processEffect(rawEffect: RawEffectData): VideoEffect {
+  if (!rawEffect || typeof rawEffect !== "object") {
+    throw new Error("processEffect: Invalid effect data")
+  }
+
+  // Проверяем обязательные поля
+  if (!rawEffect.id || !rawEffect.name) {
+    throw new Error(`processEffect: Effect missing required fields - id: ${rawEffect.id}, name: ${rawEffect.name}`)
+  }
+
   const processedEffect: VideoEffect = {
     ...rawEffect,
     // Преобразуем строковые шаблоны в функции
@@ -66,7 +75,22 @@ export function processEffect(rawEffect: RawEffectData): VideoEffect {
  * Обрабатывает массив сырых эффектов из JSON
  */
 export function processEffects(rawEffects: RawEffectData[]): VideoEffect[] {
-  return rawEffects.map(processEffect)
+  if (!Array.isArray(rawEffects)) {
+    console.error("processEffects: rawEffects is not an array", rawEffects)
+    return []
+  }
+
+  return rawEffects
+    .filter((effect) => effect != null) // Фильтруем null и undefined
+    .map((effect) => {
+      try {
+        return processEffect(effect)
+      } catch (error) {
+        console.error("processEffects: Failed to process effect", effect, error)
+        return null
+      }
+    })
+    .filter((effect): effect is VideoEffect => effect !== null) // Убираем null результаты
 }
 
 /**
@@ -87,6 +111,7 @@ export function validateEffect(effect: any): effect is RawEffectData {
  */
 export function validateEffectsData(data: any): boolean {
   if (!data || !Array.isArray(data.effects)) {
+    console.error("validateEffectsData: Invalid data structure", data)
     return false
   }
 
@@ -97,7 +122,13 @@ export function validateEffectsData(data: any): boolean {
     )
   }
 
-  return data.effects.every(validateEffect)
+  // Фильтруем null/undefined элементы перед валидацией
+  const validEffects = data.effects.filter((effect: any) => effect != null)
+  if (validEffects.length !== data.effects.length) {
+    console.warn(`validateEffectsData: Found ${data.effects.length - validEffects.length} null/undefined effects`)
+  }
+
+  return validEffects.every(validateEffect)
 }
 
 /**

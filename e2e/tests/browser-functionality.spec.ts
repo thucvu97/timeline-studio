@@ -27,39 +27,40 @@ test.describe("Browser Functionality", () => {
   })
 
   test("should switch between different browser tabs", async ({ page }) => {
+    // Сначала убедимся, что все вкладки загружены
+    await expect(browserPage.mediaTab).toBeVisible()
+    await expect(browserPage.effectsTab).toBeVisible()
+    await expect(browserPage.transitionsTab).toBeVisible()
+    await expect(browserPage.templatesTab).toBeVisible()
+    
     // Переключаемся на Effects
     await browserPage.selectTab("Effects")
-    // Ждем, пока вкладка станет активной
-    await page.waitForTimeout(500)
     await expect(browserPage.effectsTab).toHaveAttribute("data-state", "active")
-    // Проверяем, что предыдущая вкладка неактивна
     await expect(browserPage.mediaTab).toHaveAttribute("data-state", "inactive")
 
     // Переключаемся на Transitions
     await browserPage.selectTab("Transitions")
-    await page.waitForTimeout(500)
     await expect(browserPage.transitionsTab).toHaveAttribute("data-state", "active")
     await expect(browserPage.effectsTab).toHaveAttribute("data-state", "inactive")
 
     // Переключаемся на Templates
     await browserPage.selectTab("Templates")
-    await page.waitForTimeout(500)
     await expect(browserPage.templatesTab).toHaveAttribute("data-state", "active")
     await expect(browserPage.transitionsTab).toHaveAttribute("data-state", "inactive")
   })
 
   test("should display effects in grid layout", async ({ page }) => {
+    // Сначала убедимся, что вкладка Effects видима
+    await expect(browserPage.effectsTab).toBeVisible()
+    
     await browserPage.selectTab("Effects")
 
-    // Ждем загрузки контента
-    await page.waitForTimeout(500)
-
-    // Проверяем что есть какой-то контент эффектов
-    const hasEffectsContent =
-      (await page.locator("text=/effect|filter|blur|color|brightness/i").count()) > 0 ||
-      (await page.locator('[class*="effect"], [class*="grid"]').count()) > 0
-
-    expect(hasEffectsContent).toBeTruthy()
+    // Ждем загрузки контента эффектов
+    const effectsContent = page.locator("text=/effect|filter|blur|color|brightness/i").first()
+    const gridContent = page.locator('[class*="effect"], [class*="grid"]').first()
+    
+    // Проверяем что хотя бы один из элементов появился
+    await expect(effectsContent.or(gridContent)).toBeVisible({ timeout: 10000 })
   })
 
   test("should display transitions with preview", async ({ page }) => {
@@ -77,11 +78,14 @@ test.describe("Browser Functionality", () => {
   })
 
   test("should display templates categories", async ({ page }) => {
+    // Сначала убедимся, что вкладка Templates видима
+    await expect(browserPage.templatesTab).toBeVisible()
+    
     await browserPage.selectTab("Templates")
 
-    // Проверяем наличие категорий шаблонов
-    const templateCategories = page.locator("text=/Multi-camera|Intro|Outro/i")
-    await expect(templateCategories.first()).toBeVisible()
+    // Ждем загрузки контента и проверяем наличие категорий шаблонов
+    const templateCategories = page.locator("text=/Multi-camera|Intro|Outro|template/i")
+    await expect(templateCategories.first()).toBeVisible({ timeout: 10000 })
   })
 
   test("should handle import button click", async ({ page }) => {

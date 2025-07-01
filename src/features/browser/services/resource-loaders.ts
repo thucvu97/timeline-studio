@@ -104,34 +104,48 @@ export async function loadTransitionsLazy(): Promise<LoadResult<Transition[]>> {
  * Обработка эффектов - преобразование строковых функций в настоящие функции
  */
 async function processEffects(effects: any[]): Promise<VideoEffect[]> {
-  return effects.map((effect) => {
-    // Если ffmpegCommand - строка, преобразуем в функцию
-    if (typeof effect.ffmpegCommand === "string") {
-      const commandTemplate = effect.ffmpegCommand
-      effect.ffmpegCommand = (params: any = {}) => {
-        // Простая замена плейсхолдеров в строке команды
-        let command = commandTemplate
-        Object.entries(params).forEach(([key, value]) => {
-          command = command.replace(new RegExp(`{${key}}`, "g"), String(value))
-        })
-        return command
-      }
-    }
+  if (!Array.isArray(effects)) {
+    console.warn("processEffects: effects is not an array", effects)
+    return []
+  }
 
-    // Аналогично для cssFilter
-    if (typeof effect.cssFilter === "string") {
-      const filterTemplate = effect.cssFilter
-      effect.cssFilter = (params: any = {}) => {
-        let filter = filterTemplate
-        Object.entries(params).forEach(([key, value]) => {
-          filter = filter.replace(new RegExp(`{${key}}`, "g"), String(value))
-        })
-        return filter
+  return effects
+    .filter((effect) => effect != null) // Фильтруем undefined и null элементы
+    .map((effect) => {
+      // Проверяем, что у effect есть обязательные свойства
+      if (!effect.id || !effect.name) {
+        console.warn("processEffects: effect missing required properties", effect)
+        return null
       }
-    }
 
-    return effect as VideoEffect
-  })
+      // Если ffmpegCommand - строка, преобразуем в функцию
+      if (typeof effect.ffmpegCommand === "string") {
+        const commandTemplate = effect.ffmpegCommand
+        effect.ffmpegCommand = (params: any = {}) => {
+          // Простая замена плейсхолдеров в строке команды
+          let command = commandTemplate
+          Object.entries(params).forEach(([key, value]) => {
+            command = command.replace(new RegExp(`{${key}}`, "g"), String(value))
+          })
+          return command
+        }
+      }
+
+      // Аналогично для cssFilter
+      if (typeof effect.cssFilter === "string") {
+        const filterTemplate = effect.cssFilter
+        effect.cssFilter = (params: any = {}) => {
+          let filter = filterTemplate
+          Object.entries(params).forEach(([key, value]) => {
+            filter = filter.replace(new RegExp(`{${key}}`, "g"), String(value))
+          })
+          return filter
+        }
+      }
+
+      return effect as VideoEffect
+    })
+    .filter((effect) => effect !== null) // Удаляем null значения
 }
 
 /**

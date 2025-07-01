@@ -43,7 +43,7 @@ describe("Project Architecture Integration", () => {
   describe("Media Pool and Sequences Integration", () => {
     it("should track media usage across sequences", () => {
       // Create project with media
-      const project = service.createProject("Multi-Sequence Project")
+      const project = service.createProjectSync("Multi-Sequence Project")
 
       // Add media to pool
       const mediaItem: MediaPoolItem = {
@@ -134,7 +134,7 @@ describe("Project Architecture Integration", () => {
     })
 
     it("should organize media in bins and find by search", () => {
-      const project = service.createProject("Organized Project")
+      const project = service.createProjectSync("Organized Project")
 
       // Create bins
       const interviewBin = createMediaBin("Interviews", "root")
@@ -190,7 +190,7 @@ describe("Project Architecture Integration", () => {
 
   describe("Sequence Resources and Effects", () => {
     it("should manage effects per sequence independently", () => {
-      const project = service.createProject("Effects Test")
+      const project = service.createProjectSync("Effects Test")
 
       // Get main sequence
       const mainSeq = project.sequences.get(project.activeSequenceId)!
@@ -261,7 +261,7 @@ describe("Project Architecture Integration", () => {
     })
 
     it("should support color grades and titles in sequences", () => {
-      const project = service.createProject("Grades and Titles")
+      const project = service.createProjectSync("Grades and Titles")
       const sequence = project.sequences.get(project.activeSequenceId)!
 
       // Add color grade
@@ -324,7 +324,7 @@ describe("Project Architecture Integration", () => {
 
   describe("Project Optimization", () => {
     it("should optimize project by removing unused media and cleaning cache", () => {
-      const project = service.createProject("Optimization Test")
+      const project = service.createProjectSync("Optimization Test")
 
       // Add multiple media items
       const usedMedia: MediaPoolItem = {
@@ -389,7 +389,7 @@ describe("Project Architecture Integration", () => {
 
   describe("Nested Sequences (Master Clips)", () => {
     it("should support nested sequences via master clips", () => {
-      const project = service.createProject("Nested Sequences")
+      const project = service.createProjectSync("Nested Sequences")
 
       // Create intro sequence
       const introSequence: Sequence = {
@@ -490,7 +490,7 @@ describe("Project Architecture Integration", () => {
 
   describe("Project Validation", () => {
     it("should validate complex project structures", () => {
-      const project = service.createProject("Complex Project")
+      const project = service.createProjectSync("Complex Project")
 
       // Add media with different statuses
       const onlineMedia: MediaPoolItem = {
@@ -568,7 +568,7 @@ describe("Project Architecture Integration", () => {
 
   describe("Save and Load Integration", () => {
     it("should properly serialize and deserialize complex projects", async () => {
-      const project = service.createProject("Serialization Test")
+      const project = service.createProjectSync("Serialization Test")
 
       // Add complex data
       const mediaItem: MediaPoolItem = {
@@ -623,7 +623,7 @@ describe("Project Architecture Integration", () => {
 
   describe("Collaboration and Backup", () => {
     it("should handle collaboration settings and backups", async () => {
-      const project = service.createProject("Collab Project")
+      const project = service.createProjectSync("Collab Project")
 
       // Set collaboration
       project.collaboration = {
@@ -667,7 +667,7 @@ describe("Project Architecture Integration", () => {
 
   describe("Performance and Memory", () => {
     it("should handle large projects efficiently", () => {
-      const project = service.createProject("Large Project")
+      const project = service.createProjectSync("Large Project")
 
       // Add 1000 media items
       for (let i = 0; i < 1000; i++) {

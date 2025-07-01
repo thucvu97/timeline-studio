@@ -256,6 +256,10 @@ export function createMediaBin(name: string, parentId: string | null = "root"): 
  * Добавление элемента в Media Pool
  */
 export function addItemToPool(pool: MediaPool, item: MediaPoolItem): MediaPool {
+  if (!pool || !pool.items) {
+    throw new Error("Invalid media pool: missing items map")
+  }
+
   const newPool = { ...pool }
   newPool.items = new Map(pool.items)
   newPool.items.set(item.id, item)

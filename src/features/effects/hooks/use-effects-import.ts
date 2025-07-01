@@ -87,13 +87,18 @@ export function useEffectsImport() {
         if (fileExtension === "effect") {
           // Пользовательский эффект
           const userEffect = await loadUserEffect(selected)
-          if (validateEffect(userEffect.effect)) {
+          if (userEffect && userEffect.effect && validateEffect(userEffect.effect)) {
             effects = [userEffect.effect]
           }
         } else if (fileExtension === "effects") {
           // Коллекция эффектов
           const collection = await loadEffectsCollection(selected)
-          effects = collection.effects.map((ue) => ue.effect).filter(validateEffect)
+          if (collection && collection.effects && Array.isArray(collection.effects)) {
+            effects = collection.effects
+              .filter((ue) => ue && ue.effect)
+              .map((ue) => ue.effect)
+              .filter(validateEffect)
+          }
         } else {
           // Обычный JSON
           const response = await fetch(`file://${selected}`)

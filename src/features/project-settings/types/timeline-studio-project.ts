@@ -273,7 +273,10 @@ export interface TimelineStudioProject {
  */
 export interface ProjectOperations {
   /** Создать новый проект */
-  createProject(name: string, settings?: Partial<ProjectSettings>): TimelineStudioProject
+  createProject(
+    name: string,
+    settings?: Partial<ProjectSettings>,
+  ): TimelineStudioProject | Promise<TimelineStudioProject>
 
   /** Открыть проект */
   openProject(path: string): Promise<TimelineStudioProject>

@@ -45,15 +45,37 @@ export class BrowserPage {
     
     // Wait for tabs to be visible and i18n to initialize
     await this.page.waitForSelector('[role="tablist"]', { timeout: 30000 })
-    await this.page.waitForTimeout(1000) // Give i18n time to load translations
+    
+    // Wait for at least one tab to be visible
+    await this.page.waitForSelector('[data-testid="media-tab"]', { timeout: 30000 })
+    
+    // Wait for translations to load
+    await this.page.waitForFunction(() => {
+      const tabs = document.querySelectorAll('[role="tab"]')
+      return tabs.length > 0 && Array.from(tabs).some(tab => tab.textContent && tab.textContent.trim().length > 0)
+    }, { timeout: 30000 })
   }
 
   async selectTab(tabName: "Media" | "Effects" | "Transitions" | "Templates") {
     // Используем data-testid для всех вкладок
     const tabTestId = `${tabName.toLowerCase()}-tab`
     const tab = this.page.locator(`[data-testid="${tabTestId}"]`)
+    
+    // Ждем, пока вкладка станет видимой
+    await tab.waitFor({ state: 'visible', timeout: 10000 })
+    
+    // Кликаем по вкладке
     await tab.click()
-    await this.page.waitForTimeout(300) // Ждем анимацию
+    
+    // Ждем, пока вкладка станет активной
+    await this.page.waitForFunction(
+      (testId) => {
+        const element = document.querySelector(`[data-testid="${testId}"]`)
+        return element && element.getAttribute('data-state') === 'active'
+      },
+      tabTestId,
+      { timeout: 5000 }
+    )
   }
 
   async waitForMediaLoaded() {

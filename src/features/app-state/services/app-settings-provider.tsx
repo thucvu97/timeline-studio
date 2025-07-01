@@ -140,7 +140,7 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
       const directories = await appDirectoriesService.getAppDirectories()
 
       // Создаем новый проект v2
-      const project = projectService.createProject(TEMP_PROJECT_NAME)
+      const project = await projectService.createProject(TEMP_PROJECT_NAME)
 
       // Формируем путь к временному файлу в папке бэкапов
       const tempPath = await join(directories.backup_dir, TEMP_PROJECT_FILENAME)
@@ -419,7 +419,7 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
           project.metadata.modified = new Date()
         } else {
           // Создаем новый проект
-          project = projectService.createProject(name)
+          project = await projectService.createProject(name)
         }
 
         // Сохраняем проект в новый файл

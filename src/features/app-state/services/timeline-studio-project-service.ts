@@ -2,6 +2,7 @@
  * Сервис для работы с новой структурой проекта Timeline Studio
  */
 
+import { getVersion } from "@tauri-apps/api/app"
 import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs"
 import { nanoid } from "nanoid"
 
@@ -30,9 +31,9 @@ export class TimelineStudioProjectService implements ProjectOperations {
   }
 
   /**
-   * Создать новый проект
+   * Создать новый проект (синхронная версия)
    */
-  createProject(name: string, settings?: Partial<ProjectSettings>): TimelineStudioProject {
+  createProjectSync(name: string, settings?: Partial<ProjectSettings>): TimelineStudioProject {
     const projectId = nanoid()
     const now = new Date()
 
@@ -44,7 +45,89 @@ export class TimelineStudioProjectService implements ProjectOperations {
       created: now,
       modified: now,
       platform: this.getPlatform(),
-      appVersion: "1.0.0", // TODO: Получить из package.json
+      appVersion: "1.0.0", // Используем заглушку для синхронной версии
+    }
+
+    // Создаем первую секвенцию
+    const mainSequence = this.createDefaultSequence(name, settings)
+    const sequences = new Map([[mainSequence.id, mainSequence]])
+
+    // Создаем проект
+    const project: TimelineStudioProject = {
+      metadata,
+      settings: {
+        ...DEFAULT_PROJECT_SETTINGS,
+        ...settings,
+        audio: {
+          sampleRate: 48000,
+          bitDepth: 24,
+          channels: 2,
+          masterVolume: 1.0,
+          panLaw: "-3dB",
+        },
+        preview: {
+          resolution: "1/2",
+          quality: "better",
+          renderDuringPlayback: true,
+          useGPU: true,
+        },
+        exportPresets: [],
+      },
+      mediaPool: createEmptyMediaPool(),
+      sequences,
+      activeSequenceId: mainSequence.id,
+      cache: {
+        thumbnails: new Map(),
+        waveforms: new Map(),
+        proxies: new Map(),
+        sceneAnalysis: new Map(),
+        totalSize: 0,
+      },
+      workspace: {
+        layout: "edit",
+        panels: {},
+        recentTools: [],
+        grid: {
+          enabled: false,
+          size: 10,
+          snapToGrid: false,
+          snapToClips: true,
+          magneticTimeline: true,
+        },
+      },
+      backup: {
+        autoSave: {
+          enabled: true,
+          interval: 5,
+          keepVersions: 10,
+        },
+        versions: [],
+        lastSaved: now,
+      },
+    }
+
+    return project
+  }
+
+  /**
+   * Создать новый проект (асинхронная версия)
+   */
+  async createProject(name: string, settings?: Partial<ProjectSettings>): Promise<TimelineStudioProject> {
+    const projectId = nanoid()
+    const now = new Date()
+
+    // Получаем актуальную версию приложения
+    const appVersion = await getVersion()
+
+    // Создаем метаданные
+    const metadata: ProjectMetadata = {
+      id: projectId,
+      name,
+      version: "2.0.0", // Новая версия формата
+      created: now,
+      modified: now,
+      platform: this.getPlatform(),
+      appVersion, // Используем актуальную версию
     }
 
     // Создаем первую секвенцию
@@ -316,6 +399,10 @@ export class TimelineStudioProjectService implements ProjectOperations {
    * Создать резервную копию
    */
   async createBackup(project: TimelineStudioProject): Promise<string> {
+    if (!project || !project.metadata || !project.metadata.name) {
+      throw new Error("Invalid project: missing metadata or name")
+    }
+
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-")
     const backupPath = `${project.metadata.name}_backup_${timestamp}.tlsp`
 

@@ -42,8 +42,8 @@ describe("TimelineStudioProjectService", () => {
   })
 
   describe("createProject", () => {
-    it("должен создавать новый проект с настройками по умолчанию", () => {
-      const project = service.createProject("My Project")
+    it("должен создавать новый проект с настройками по умолчанию", async () => {
+      const project = await service.createProject("My Project")
 
       expect(project.metadata.name).toBe("My Project")
       expect(project.metadata.version).toBe("2.0.0")
@@ -60,20 +60,20 @@ describe("TimelineStudioProjectService", () => {
       expect(project.settings.preview.useGPU).toBe(true)
     })
 
-    it("должен создавать проект с кастомными настройками", () => {
+    it("должен создавать проект с кастомными настройками", async () => {
       const customSettings = {
         resolution: "3840x2160",
         frameRate: "60" as const,
       }
 
-      const project = service.createProject("4K Project", customSettings)
+      const project = await service.createProject("4K Project", customSettings)
 
       expect(project.settings.resolution).toBe("3840x2160")
       expect(project.settings.frameRate).toBe("60")
     })
 
-    it("должен создавать первую секвенцию автоматически", () => {
-      const project = service.createProject("Test Project")
+    it("должен создавать первую секвенцию автоматически", async () => {
+      const project = await service.createProject("Test Project")
 
       expect(project.sequences.size).toBe(1)
 
@@ -85,8 +85,8 @@ describe("TimelineStudioProjectService", () => {
       expect(mainSequence?.settings.frameRate).toBe(30)
     })
 
-    it("должен инициализировать пустой Media Pool", () => {
-      const project = service.createProject("Test")
+    it("должен инициализировать пустой Media Pool", async () => {
+      const project = await service.createProject("Test")
 
       expect(project.mediaPool.items.size).toBe(0)
       expect(project.mediaPool.bins.size).toBe(1) // Только root bin
@@ -94,15 +94,15 @@ describe("TimelineStudioProjectService", () => {
       expect(project.mediaPool.stats.totalItems).toBe(0)
     })
 
-    it("должен устанавливать правильную платформу", () => {
-      const project = service.createProject("Test")
+    it("должен устанавливать правильную платформу", async () => {
+      const project = await service.createProject("Test")
 
       // Платформа зависит от окружения тестов
       expect(["windows", "macos", "linux"]).toContain(project.metadata.platform)
     })
 
-    it("должен настраивать автосохранение", () => {
-      const project = service.createProject("Test")
+    it("должен настраивать автосохранение", async () => {
+      const project = await service.createProject("Test")
 
       expect(project.backup.autoSave.enabled).toBe(true)
       expect(project.backup.autoSave.interval).toBe(5)
@@ -185,7 +185,7 @@ describe("TimelineStudioProjectService", () => {
 
   describe("saveProject", () => {
     it("должен сохранять проект и обновлять метаданные", async () => {
-      const project = service.createProject("Test")
+      const project = await service.createProject("Test")
       const originalModified = project.metadata.modified
       const originalLastSaved = project.backup.lastSaved
 
@@ -201,7 +201,7 @@ describe("TimelineStudioProjectService", () => {
     })
 
     it("должен сериализовать Map структуры в объекты", async () => {
-      const project = service.createProject("Test")
+      const project = await service.createProject("Test")
       project.mediaPool.items.set("item-1", { id: "item-1" } as any)
 
       await service.saveProject(project, "/test.tlsp")
@@ -218,7 +218,7 @@ describe("TimelineStudioProjectService", () => {
     })
 
     it("должен обрабатывать ошибки записи", async () => {
-      const project = service.createProject("Test")
+      const project = await service.createProject("Test")
       mockWriteTextFile.mockRejectedValueOnce(new Error("Write failed"))
 
       await expect(service.saveProject(project, "/readonly.tlsp")).rejects.toThrow("Failed to save project")
@@ -226,8 +226,8 @@ describe("TimelineStudioProjectService", () => {
   })
 
   describe("optimizeProject", () => {
-    it("должен удалять неиспользуемые медиа элементы", () => {
-      const project = service.createProject("Test")
+    it("должен удалять неиспользуемые медиа элементы", async () => {
+      const project = await service.createProject("Test")
 
       // Добавляем медиа элементы
       project.mediaPool.items.set("used-1", {
@@ -255,8 +255,8 @@ describe("TimelineStudioProjectService", () => {
       expect(project.mediaPool.items.has("unused-1")).toBe(false)
     })
 
-    it("должен очищать кэш для удаленных элементов", () => {
-      const project = service.createProject("Test")
+    it("должен очищать кэш для удаленных элементов", async () => {
+      const project = await service.createProject("Test")
 
       // Добавляем элемент и его кэш
       project.mediaPool.items.set("item-1", {
@@ -276,8 +276,8 @@ describe("TimelineStudioProjectService", () => {
   })
 
   describe("validateProject", () => {
-    it("должен валидировать корректный проект", () => {
-      const project = service.createProject("Valid Project")
+    it("должен валидировать корректный проект", async () => {
+      const project = await service.createProject("Valid Project")
 
       const result = service.validateProject(project)
 
@@ -287,8 +287,8 @@ describe("TimelineStudioProjectService", () => {
       expect(result.corruptedSequences).toHaveLength(0)
     })
 
-    it("должен находить проблемы с метаданными", () => {
-      const project = service.createProject("Test")
+    it("должен находить проблемы с метаданными", async () => {
+      const project = await service.createProject("Test")
       project.metadata.id = ""
 
       const result = service.validateProject(project)
@@ -297,8 +297,8 @@ describe("TimelineStudioProjectService", () => {
       expect(result.issues).toContain("Project metadata is incomplete")
     })
 
-    it("должен находить отсутствующие медиа файлы", () => {
-      const project = service.createProject("Test")
+    it("должен находить отсутствующие медиа файлы", async () => {
+      const project = await service.createProject("Test")
       project.mediaPool.items.set("missing-1", {
         id: "missing-1",
         status: "missing",
@@ -311,8 +311,8 @@ describe("TimelineStudioProjectService", () => {
       expect(result.missingMedia).toContain("/missing/file.mp4")
     })
 
-    it("должен проверять наличие секвенций", () => {
-      const project = service.createProject("Test")
+    it("должен проверять наличие секвенций", async () => {
+      const project = await service.createProject("Test")
       project.sequences.clear()
 
       const result = service.validateProject(project)
@@ -321,8 +321,8 @@ describe("TimelineStudioProjectService", () => {
       expect(result.issues).toContain("Project has no sequences")
     })
 
-    it("должен проверять активную секвенцию", () => {
-      const project = service.createProject("Test")
+    it("должен проверять активную секвенцию", async () => {
+      const project = await service.createProject("Test")
       project.activeSequenceId = "non-existent"
 
       const result = service.validateProject(project)
@@ -334,7 +334,7 @@ describe("TimelineStudioProjectService", () => {
 
   describe("createBackup", () => {
     it("должен создавать резервную копию проекта", async () => {
-      const project = service.createProject("Test")
+      const project = await service.createProject("Test")
       const originalVersionsCount = project.backup.versions.length
 
       const backupPath = await service.createBackup(project)
@@ -348,7 +348,7 @@ describe("TimelineStudioProjectService", () => {
     })
 
     it("должен ограничивать количество версий", async () => {
-      const project = service.createProject("Test")
+      const project = await service.createProject("Test")
       project.backup.autoSave.keepVersions = 3
 
       // Добавляем несколько версий
@@ -361,8 +361,8 @@ describe("TimelineStudioProjectService", () => {
   })
 
   describe("Export/Import Stubs", () => {
-    it("должен выбрасывать ошибку для неимплементированного экспорта", () => {
-      const project = service.createProject("Test")
+    it("должен выбрасывать ошибку для неимплементированного экспорта", async () => {
+      const project = await service.createProject("Test")
 
       expect(() => service.exportForExchange(project, "xml")).toThrow("not implemented")
       expect(() => service.exportForExchange(project, "aaf")).toThrow("not implemented")
