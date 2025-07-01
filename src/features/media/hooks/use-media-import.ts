@@ -203,15 +203,21 @@ export function useMediaImport() {
 
       // Если получили обработанные файлы, обновляем их в контексте
       if (processedFiles.length > 0) {
-        updateMediaFiles(processedFiles)
+        // Обновляем файлы, устанавливая isLoadingMetadata: false
+        const filesWithMetadata = processedFiles.map((file) => ({
+          ...file,
+          isLoadingMetadata: false,
+        }))
+        
+        updateMediaFiles(filesWithMetadata)
 
         // Добавляем обработанные файлы в ресурсы
-        processedFiles.forEach((file) => {
+        filesWithMetadata.forEach((file) => {
           addMedia(file)
         })
 
         // Сохраняем обработанные файлы в проект
-        await saveFilesToProject(processedFiles)
+        await saveFilesToProject(filesWithMetadata)
       } else {
         // Если обработка не удалась, сохраняем хотя бы базовые файлы
         await saveFilesToProject(basicFiles)
@@ -264,8 +270,22 @@ export function useMediaImport() {
           console.log(`Сканирование завершено. Обработано ${finalFiles.length} файлов`)
           setIsImporting(false)
 
+          // Убеждаемся, что isLoadingMetadata установлен в false для всех файлов
+          const filesWithMetadata = finalFiles.map((file) => ({
+            ...file,
+            isLoadingMetadata: false,
+          }))
+
+          // Обновляем файлы в контексте
+          updateMediaFiles(filesWithMetadata)
+
+          // Добавляем файлы в ресурсы
+          filesWithMetadata.forEach((file) => {
+            addMedia(file)
+          })
+
           // Сохраняем финальный список файлов в проект
-          void saveFilesToProject(finalFiles)
+          void saveFilesToProject(filesWithMetadata)
         })
         .catch((error: unknown) => {
           console.error("Ошибка сканирования папки:", error)
@@ -286,7 +306,7 @@ export function useMediaImport() {
         files: [],
       }
     }
-  }, [scanFolderWithThumbnails, saveFilesToProject, addMedia])
+  }, [scanFolderWithThumbnails, saveFilesToProject, updateMediaFiles, addMedia])
 
   return {
     importFile,
