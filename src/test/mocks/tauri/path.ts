@@ -10,6 +10,28 @@ export const mockPath = {
   relative: vi.fn(),
   extname: vi.fn(),
   sep: "/",
+  // Tauri-specific path functions
+  appDataDir: vi.fn(),
+  appConfigDir: vi.fn(),
+  appCacheDir: vi.fn(),
+  appLogDir: vi.fn(),
+  audioDir: vi.fn(),
+  cacheDir: vi.fn(),
+  configDir: vi.fn(),
+  dataDir: vi.fn(),
+  desktopDir: vi.fn(),
+  documentDir: vi.fn(),
+  downloadDir: vi.fn(),
+  executableDir: vi.fn(),
+  fontDir: vi.fn(),
+  homeDir: vi.fn(),
+  localDataDir: vi.fn(),
+  pictureDir: vi.fn(),
+  publicDir: vi.fn(),
+  resourceDir: vi.fn(),
+  runtimeDir: vi.fn(),
+  templateDir: vi.fn(),
+  videoDir: vi.fn(),
 }
 
 vi.mock("@tauri-apps/api/path", () => mockPath)
@@ -66,6 +88,29 @@ mockPath.extname.mockImplementation((path: string) => {
   return lastDot > lastSlash ? path.substring(lastDot) : ""
 })
 
+// Set default Tauri paths (all return promises)
+mockPath.appDataDir.mockResolvedValue("/Users/test/Library/Application Support/com.timeline-studio.app")
+mockPath.appConfigDir.mockResolvedValue("/Users/test/Library/Application Support/com.timeline-studio.app")
+mockPath.appCacheDir.mockResolvedValue("/Users/test/Library/Caches/com.timeline-studio.app")
+mockPath.appLogDir.mockResolvedValue("/Users/test/Library/Logs/com.timeline-studio.app")
+mockPath.audioDir.mockResolvedValue("/Users/test/Music")
+mockPath.cacheDir.mockResolvedValue("/Users/test/Library/Caches")
+mockPath.configDir.mockResolvedValue("/Users/test/Library/Application Support")
+mockPath.dataDir.mockResolvedValue("/Users/test/Library/Application Support")
+mockPath.desktopDir.mockResolvedValue("/Users/test/Desktop")
+mockPath.documentDir.mockResolvedValue("/Users/test/Documents")
+mockPath.downloadDir.mockResolvedValue("/Users/test/Downloads")
+mockPath.executableDir.mockResolvedValue("/Applications/Timeline Studio.app/Contents/MacOS")
+mockPath.fontDir.mockResolvedValue("/Users/test/Library/Fonts")
+mockPath.homeDir.mockResolvedValue("/Users/test")
+mockPath.localDataDir.mockResolvedValue("/Users/test/Library/Application Support")
+mockPath.pictureDir.mockResolvedValue("/Users/test/Pictures")
+mockPath.publicDir.mockResolvedValue("/Users/test/Public")
+mockPath.resourceDir.mockResolvedValue("/Applications/Timeline Studio.app/Contents/Resources")
+mockPath.runtimeDir.mockResolvedValue("/var/folders/xyz/runtime")
+mockPath.templateDir.mockResolvedValue("/Users/test/Library/Application Support/com.timeline-studio.app/templates")
+mockPath.videoDir.mockResolvedValue("/Users/test/Movies")
+
 // Helper functions for common path operations
 export const pathPresets = {
   unixPaths: () => {
@@ -100,4 +145,27 @@ export function resetPathMocks() {
 
   mockPath.basename.mockImplementation((path: string) => path.split("/").pop() || "")
   mockPath.join.mockImplementation((...paths: string[]) => paths.join("/"))
+
+  // Set default Tauri paths
+  mockPath.appDataDir.mockResolvedValue("/Users/test/Library/Application Support/com.timeline-studio.app")
+  mockPath.appConfigDir.mockResolvedValue("/Users/test/Library/Application Support/com.timeline-studio.app")
+  mockPath.appCacheDir.mockResolvedValue("/Users/test/Library/Caches/com.timeline-studio.app")
+  mockPath.appLogDir.mockResolvedValue("/Users/test/Library/Logs/com.timeline-studio.app")
+  mockPath.audioDir.mockResolvedValue("/Users/test/Music")
+  mockPath.cacheDir.mockResolvedValue("/Users/test/Library/Caches")
+  mockPath.configDir.mockResolvedValue("/Users/test/Library/Application Support")
+  mockPath.dataDir.mockResolvedValue("/Users/test/Library/Application Support")
+  mockPath.desktopDir.mockResolvedValue("/Users/test/Desktop")
+  mockPath.documentDir.mockResolvedValue("/Users/test/Documents")
+  mockPath.downloadDir.mockResolvedValue("/Users/test/Downloads")
+  mockPath.executableDir.mockResolvedValue("/Applications/Timeline Studio.app/Contents/MacOS")
+  mockPath.fontDir.mockResolvedValue("/Users/test/Library/Fonts")
+  mockPath.homeDir.mockResolvedValue("/Users/test")
+  mockPath.localDataDir.mockResolvedValue("/Users/test/Library/Application Support")
+  mockPath.pictureDir.mockResolvedValue("/Users/test/Pictures")
+  mockPath.publicDir.mockResolvedValue("/Users/test/Public")
+  mockPath.resourceDir.mockResolvedValue("/Applications/Timeline Studio.app/Contents/Resources")
+  mockPath.runtimeDir.mockResolvedValue("/var/folders/xyz/runtime")
+  mockPath.templateDir.mockResolvedValue("/Users/test/Library/Application Support/com.timeline-studio.app/templates")
+  mockPath.videoDir.mockResolvedValue("/Users/test/Movies")
 }

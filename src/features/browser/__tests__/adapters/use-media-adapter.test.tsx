@@ -141,12 +141,14 @@ describe("useMediaAdapter", () => {
 
     // Настраиваем моки по умолчанию
     mockUseAppSettings.mockReturnValue({
-      isLoading: false,
+      isLoading: vi.fn(() => false),
       getError: vi.fn(() => null),
       state: {
         context: {
           mediaFiles: {
             allFiles: createTestMediaFiles(),
+            isLoading: false,
+            error: null,
           },
         },
       },

@@ -338,6 +338,13 @@
       },
       "cacheStats": "Statistiche Cache",
       "cacheSettings": "Impostazioni Cache",
+      "autoSave": {
+        "title": "Salvataggio automatico del progetto",
+        "enable": "Abilita salvataggio automatico",
+        "interval": "Intervallo di salvataggio automatico (secondi)",
+        "intervalHint": "10-3600 secondi",
+        "description": "Il progetto verrà salvato automaticamente all'intervallo di tempo specificato"
+      },
       "cancel": "Annulla",
       "save": "OK",
       "tabs": {

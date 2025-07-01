@@ -39,6 +39,10 @@ export interface UserSettingsContextValue {
   proxyUsername: string
   proxyPassword: string
 
+  // Настройки автосохранения
+  autoSaveEnabled: boolean
+  autoSaveInterval: number
+
   // Методы для изменения настроек
   handleTabChange: (value: string) => void // Изменение активной вкладки
   handleLayoutChange: (value: LayoutMode) => void // Изменение макета интерфейса
@@ -66,6 +70,10 @@ export interface UserSettingsContextValue {
   handleProxyPortChange: (value: string) => void
   handleProxyUsernameChange: (value: string) => void
   handleProxyPasswordChange: (value: string) => void
+
+  // Методы для автосохранения
+  handleAutoSaveEnabledChange: (value: boolean) => void
+  handleAutoSaveIntervalChange: (value: number) => void
 }
 
 /**
@@ -123,6 +131,10 @@ export function UserSettingsProvider({ children }: { children: React.ReactNode }
     proxyPort: state.context.proxyPort,
     proxyUsername: state.context.proxyUsername,
     proxyPassword: state.context.proxyPassword,
+
+    // Настройки автосохранения
+    autoSaveEnabled: state.context.autoSaveEnabled,
+    autoSaveInterval: state.context.autoSaveInterval,
 
     /**
      * Обработчик изменения активной вкладки
@@ -350,6 +362,21 @@ export function UserSettingsProvider({ children }: { children: React.ReactNode }
       send({
         type: "UPDATE_PROXY_PASSWORD",
         password: value,
+      })
+    },
+
+    // Методы для автосохранения
+    handleAutoSaveEnabledChange: (value: boolean) => {
+      send({
+        type: "UPDATE_AUTO_SAVE_ENABLED",
+        enabled: value,
+      })
+    },
+
+    handleAutoSaveIntervalChange: (value: number) => {
+      send({
+        type: "UPDATE_AUTO_SAVE_INTERVAL",
+        interval: value,
       })
     },
   }

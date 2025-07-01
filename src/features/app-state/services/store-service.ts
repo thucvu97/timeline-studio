@@ -107,11 +107,27 @@ export class StoreService {
       this.store = await load(USER_SETTINGS_STORE_PATH, { autoSave: true })
       this.isInitialized = true
       console.log("[StoreService] Store initialized successfully")
+
+      // Проверяем, что хранилище действительно работает
+      const testRead = await this.store.get<any>("app-settings")
+      if (testRead !== undefined) {
+        console.log("[StoreService] Store is working correctly, found existing settings")
+      } else {
+        console.log("[StoreService] Store is empty, will use default settings")
+      }
     } catch (error) {
       console.error("[StoreService] Error initializing store:", error)
-      // Создаем новое хранилище, если не удалось загрузить существующее
-      this.store = null
-      this.isInitialized = true
+      // Попытаемся создать новое хранилище
+      try {
+        this.store = new Store(USER_SETTINGS_STORE_PATH)
+        await this.store.save()
+        this.isInitialized = true
+        console.log("[StoreService] Created new store after initialization error")
+      } catch (createError) {
+        console.error("[StoreService] Failed to create new store:", createError)
+        this.store = null
+        this.isInitialized = true
+      }
     }
   }
 

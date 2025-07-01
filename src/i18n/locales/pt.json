@@ -521,6 +521,13 @@
       },
       "cacheStats": "Estatísticas do cache",
       "cacheSettings": "Configurações do cache",
+      "autoSave": {
+        "title": "Salvamento automático do projeto",
+        "enable": "Ativar salvamento automático",
+        "interval": "Intervalo de salvamento automático (segundos)",
+        "intervalHint": "10-3600 segundos",
+        "description": "O projeto será salvo automaticamente no intervalo de tempo especificado"
+      },
       "cancel": "Cancelar",
       "save": "OK",
       "tabs": {

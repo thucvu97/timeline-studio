@@ -338,6 +338,13 @@
       },
       "cacheStats": "キャッシュ統計",
       "cacheSettings": "キャッシュ設定",
+      "autoSave": {
+        "title": "プロジェクトの自動保存",
+        "enable": "自動保存を有効にする",
+        "interval": "自動保存間隔（秒）",
+        "intervalHint": "10-3600 秒",
+        "description": "プロジェクトは指定された時間間隔で自動的に保存されます"
+      },
       "cancel": "キャンセル",
       "save": "OK",
       "tabs": {

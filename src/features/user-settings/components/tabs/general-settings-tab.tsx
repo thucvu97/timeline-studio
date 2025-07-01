@@ -1,7 +1,7 @@
 import { useState } from "react"
 
 import { open } from "@tauri-apps/plugin-dialog"
-import { Database, Folder, X } from "lucide-react"
+import { Database, Folder, Save, X } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
+import { Switch } from "@/components/ui/switch"
 import { useModal } from "@/features/modals/services/modal-provider"
 import { LanguageCode, SUPPORTED_LANGUAGES } from "@/i18n/constants"
 import { useLanguage } from "@/i18n/hooks/use-language"
@@ -20,8 +21,16 @@ import { useUserSettings } from "../../hooks/use-user-settings"
  * Содержит основные настройки: язык, пути, производительность
  */
 export function GeneralSettingsTab() {
-  const { screenshotsPath, playerScreenshotsPath, handlePlayerScreenshotsPathChange, handleScreenshotsPathChange } =
-    useUserSettings()
+  const {
+    screenshotsPath,
+    playerScreenshotsPath,
+    handlePlayerScreenshotsPathChange,
+    handleScreenshotsPathChange,
+    autoSaveEnabled,
+    autoSaveInterval,
+    handleAutoSaveEnabledChange,
+    handleAutoSaveIntervalChange,
+  } = useUserSettings()
 
   const { openModal } = useModal()
   const { t } = useTranslation()
@@ -199,6 +208,60 @@ export function GeneralSettingsTab() {
             {t("dialogs.userSettings.cacheSettings", "Настройки кэша")}
           </Button>
         </div>
+      </div>
+
+      <Separator />
+
+      {/* Настройки автосохранения */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <Save className="h-4 w-4" />
+          <Label className="text-sm font-medium">
+            {t("dialogs.userSettings.autoSave.title", "Автосохранение проекта")}
+          </Label>
+        </div>
+
+        {/* Переключатель автосохранения */}
+        <div className="flex items-center justify-between">
+          <Label htmlFor="auto-save-enabled" className="text-sm">
+            {t("dialogs.userSettings.autoSave.enable", "Включить автосохранение")}
+          </Label>
+          <Switch id="auto-save-enabled" checked={autoSaveEnabled} onCheckedChange={handleAutoSaveEnabledChange} />
+        </div>
+
+        {/* Интервал автосохранения */}
+        {autoSaveEnabled && (
+          <div className="space-y-2">
+            <Label htmlFor="auto-save-interval" className="text-sm">
+              {t("dialogs.userSettings.autoSave.interval", "Интервал автосохранения (секунды)")}
+            </Label>
+            <div className="flex items-center gap-2">
+              <Input
+                id="auto-save-interval"
+                type="number"
+                min="10"
+                max="3600"
+                value={autoSaveInterval}
+                onChange={(e) => {
+                  const value = Number.parseInt(e.target.value, 10)
+                  if (!Number.isNaN(value) && value >= 10 && value <= 3600) {
+                    handleAutoSaveIntervalChange(value)
+                  }
+                }}
+                className="w-32"
+              />
+              <span className="text-sm text-muted-foreground">
+                {t("dialogs.userSettings.autoSave.intervalHint", "10-3600 секунд")}
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {t(
+                "dialogs.userSettings.autoSave.description",
+                "Проект будет автоматически сохраняться через указанный интервал времени",
+              )}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )

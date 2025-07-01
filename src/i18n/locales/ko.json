@@ -338,6 +338,13 @@
       },
       "cacheStats": "캐시 통계",
       "cacheSettings": "캐시 설정",
+      "autoSave": {
+        "title": "프로젝트 자동 저장",
+        "enable": "자동 저장 활성화",
+        "interval": "자동 저장 간격 (초)",
+        "intervalHint": "10-3600 초",
+        "description": "프로젝트가 지정된 시간 간격으로 자동으로 저장됩니다"
+      },
       "cancel": "취소",
       "save": "확인",
       "tabs": {

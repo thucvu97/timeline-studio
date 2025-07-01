@@ -338,6 +338,13 @@
       },
       "cacheStats": "Önbellek İstatistikleri",
       "cacheSettings": "Önbellek Ayarları",
+      "autoSave": {
+        "title": "Proje Otomatik Kaydetme",
+        "enable": "Otomatik kaydetmeyi etkinleştir",
+        "interval": "Otomatik kaydetme aralığı (saniye)",
+        "intervalHint": "10-3600 saniye",
+        "description": "Proje belirtilen zaman aralığında otomatik olarak kaydedilecektir"
+      },
       "cancel": "İptal",
       "save": "Tamam",
       "tabs": {

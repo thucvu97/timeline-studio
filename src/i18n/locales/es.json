@@ -313,6 +313,13 @@
       },
       "cacheStats": "Estadísticas de caché",
       "cacheSettings": "Configuración de caché",
+      "autoSave": {
+        "title": "Guardado automático del proyecto",
+        "enable": "Habilitar guardado automático",
+        "interval": "Intervalo de guardado automático (segundos)",
+        "intervalHint": "10-3600 segundos",
+        "description": "El proyecto se guardará automáticamente en el intervalo de tiempo especificado"
+      },
       "cancel": "Cancelar",
       "save": "Guardar",
       "playerScreenshotsPath": "Ruta de guardado de capturas del reproductor",

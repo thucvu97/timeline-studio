@@ -18,7 +18,7 @@ const getDefaultProjectName = (): string => {
     return i18next.t("project.untitledProject", { number: 1 })
   }
 
-  return "Новый проект"
+  return "Untitled Project"
 }
 
 /**
@@ -96,18 +96,33 @@ export type AppSettingsEvent =
  */
 const loadSettings = fromPromise(async () => {
   try {
-    // Инициализируем хранилище
-    await storeService.initialize()
+    // Создаем промис с таймаутом
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error("Settings loading timeout")), 5000)
+    })
 
-    // Получаем настройки
-    const settings = await storeService.getSettings()
+    // Загружаем настройки с таймаутом
+    const loadPromise = (async () => {
+      // Инициализируем хранилище
+      await storeService.initialize()
 
-    if (settings) {
-      return settings
-    }
+      // Получаем настройки
+      const settings = await storeService.getSettings()
 
-    // Если настроек нет, возвращаем настройки по умолчанию
-    return getDefaultSettings()
+      if (settings) {
+        console.log("[AppSettingsMachine] Loaded settings from storage")
+        console.log(`[AppSettingsMachine] Media files count: ${settings.mediaFiles?.allFiles?.length || 0}`)
+        console.log(`[AppSettingsMachine] Music files count: ${settings.musicFiles?.allFiles?.length || 0}`)
+        return settings
+      }
+
+      // Если настроек нет, возвращаем настройки по умолчанию
+      console.log("[AppSettingsMachine] No settings found, using defaults")
+      return getDefaultSettings()
+    })()
+
+    // Ждем либо загрузку настроек, либо таймаут
+    return await Promise.race([loadPromise, timeoutPromise])
   } catch (error) {
     console.error("[AppSettingsMachine] Error loading settings:", error)
     // Возвращаем настройки по умолчанию вместо выброса ошибки
@@ -140,7 +155,21 @@ function getDefaultSettings(): AppSettings {
       telegramChatId: "",
       codecovToken: "",
       tauriAnalyticsKey: "",
+      gpuAccelerationEnabled: true,
+      preferredGpuEncoder: "auto",
+      maxConcurrentJobs: 2,
+      renderQuality: "high",
+      backgroundRenderingEnabled: true,
+      renderDelay: 0,
+      proxyEnabled: false,
+      proxyType: "http",
+      proxyHost: "",
+      proxyPort: "",
+      proxyUsername: "",
+      proxyPassword: "",
       apiKeysStatus: {},
+      autoSaveEnabled: true,
+      autoSaveInterval: 60,
       isBrowserVisible: true,
       isOptionsVisible: true,
       isTimelineVisible: true,
@@ -149,7 +178,7 @@ function getDefaultSettings(): AppSettings {
     recentProjects: [],
     currentProject: {
       path: null,
-      name: "Новый проект",
+      name: "Untitled Project",
       isDirty: false,
       isNew: true,
     },
@@ -218,7 +247,21 @@ export const appSettingsMachine = createMachine({
       telegramChatId: "",
       codecovToken: "",
       tauriAnalyticsKey: "",
+      gpuAccelerationEnabled: true,
+      preferredGpuEncoder: "auto",
+      maxConcurrentJobs: 2,
+      renderQuality: "high",
+      backgroundRenderingEnabled: true,
+      renderDelay: 0,
+      proxyEnabled: false,
+      proxyType: "http",
+      proxyHost: "",
+      proxyPort: "",
+      proxyUsername: "",
+      proxyPassword: "",
       apiKeysStatus: {},
+      autoSaveEnabled: true,
+      autoSaveInterval: 60,
       isBrowserVisible: true,
       isOptionsVisible: true,
       isTimelineVisible: true,
@@ -227,7 +270,7 @@ export const appSettingsMachine = createMachine({
     recentProjects: [],
     currentProject: {
       path: null,
-      name: "Новый проект",
+      name: "Untitled Project",
       isDirty: false,
       isNew: true,
     },
@@ -251,7 +294,7 @@ export const appSettingsMachine = createMachine({
       subtitle: [],
       styleTemplate: [],
     },
-    isLoading: true,
+    isLoading: false,
     error: null,
   } as AppSettingsContextType,
 
@@ -265,31 +308,49 @@ export const appSettingsMachine = createMachine({
   states: {
     // Загрузка настроек
     loading: {
+      entry: () => {
+        console.log("[AppSettingsMachine] Entering loading state")
+      },
       invoke: {
         src: loadSettings,
         onDone: {
           target: "idle",
-          actions: assign({
-            userSettings: ({ event }) => event.output.userSettings,
-            recentProjects: ({ event }) => event.output.recentProjects || [],
-            favorites: ({ event }) => event.output.favorites,
-            isLoading: false,
-            error: null,
-          }),
+          actions: [
+            () => {
+              console.log("[AppSettingsMachine] Settings loaded successfully, transitioning to idle")
+            },
+            assign({
+              userSettings: ({ event }) => event.output.userSettings,
+              recentProjects: ({ event }) => event.output.recentProjects || [],
+              favorites: ({ event }) => event.output.favorites,
+              mediaFiles: ({ event }) => event.output.mediaFiles || { allFiles: [], error: null, isLoading: false },
+              musicFiles: ({ event }) => event.output.musicFiles || { allFiles: [], error: null, isLoading: false },
+              isLoading: false,
+              error: null,
+            }),
+          ],
         },
         onError: {
           target: "error",
-          actions: assign({
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            error: ({ event }) => `Error loading settings: ${event.error}`,
-            isLoading: false,
-          }),
+          actions: [
+            ({ event }) => {
+              console.error("[AppSettingsMachine] Error loading settings:", event.error)
+            },
+            assign({
+              // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+              error: ({ event }) => `Error loading settings: ${event.error}`,
+              isLoading: false,
+            }),
+          ],
         },
       },
     },
 
     // Ошибка загрузки настроек
     error: {
+      entry: () => {
+        console.log("[AppSettingsMachine] Entering error state")
+      },
       on: {
         RELOAD_SETTINGS: "loading",
       },
@@ -297,6 +358,9 @@ export const appSettingsMachine = createMachine({
 
     // Ожидание событий
     idle: {
+      entry: () => {
+        console.log("[AppSettingsMachine] Entering idle state")
+      },
       on: {
         // Обновление пользовательских настроек
         UPDATE_USER_SETTINGS: {
@@ -528,6 +592,8 @@ export const appSettingsMachine = createMachine({
           actions: [
             assign({
               mediaFiles: ({ context, event }) => {
+                console.log(`[AppSettingsMachine] Updating media files. New files: ${event.files.length}`)
+
                 // Создаем Map для быстрого поиска существующих файлов по id
                 const existingFilesMap = new Map(context.mediaFiles.allFiles.map((file: any) => [file.id, file]))
 
@@ -538,6 +604,8 @@ export const appSettingsMachine = createMachine({
 
                 // Преобразуем обратно в массив
                 const updatedFiles = Array.from(existingFilesMap.values())
+
+                console.log(`[AppSettingsMachine] Total media files after update: ${updatedFiles.length}`)
 
                 return {
                   ...context.mediaFiles,

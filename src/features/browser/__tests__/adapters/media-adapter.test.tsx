@@ -8,7 +8,7 @@ import { useMediaAdapter } from "../../adapters/use-media-adapter"
 vi.mock("@/features/app-state", () => ({
   AppSettingsProvider: ({ children }: any) => children,
   useAppSettings: vi.fn(() => ({
-    isLoading: false,
+    isLoading: vi.fn(() => false),
     getError: vi.fn(() => null),
     state: {
       context: {
@@ -39,6 +39,8 @@ vi.mock("@/features/app-state", () => ({
               isImage: true,
             },
           ],
+          isLoading: false,
+          error: null,
         },
       },
     },

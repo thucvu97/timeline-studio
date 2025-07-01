@@ -50,11 +50,15 @@ export function useMediaAdapter(): ListAdapter<MediaFile> {
   const allMediaFiles = state.context.mediaFiles.allFiles || []
   const error = getError()
 
+  // Используем isLoading из mediaFiles, а не глобальный isLoading
+  // Показываем загрузку только если действительно загружаются настройки приложения (при старте)
+  const mediaLoading = isLoading() ? true : state.context.mediaFiles.isLoading
+
   return {
     // Хук для получения данных
     useData: () => ({
       items: allMediaFiles,
-      loading: isLoading,
+      loading: mediaLoading,
       error,
     }),
 

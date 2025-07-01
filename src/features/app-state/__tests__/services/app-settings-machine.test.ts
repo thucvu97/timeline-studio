@@ -54,12 +54,12 @@ describe("App Settings Machine", () => {
     expect(initialContext).toHaveProperty("error")
 
     // Проверяем значения по умолчанию
-    expect(initialContext.isLoading).toBe(true)
+    expect(initialContext.isLoading).toBe(false)
     expect(initialContext.error).toBeNull()
     expect(initialContext.recentProjects).toEqual([])
     expect(initialContext.currentProject).toEqual({
       path: null,
-      name: "Новый проект",
+      name: "Untitled Project",
       isDirty: false,
       isNew: true,
     })
@@ -175,7 +175,7 @@ describe("App Settings Machine", () => {
     expect(actor.getSnapshot().context.error).toBeNull()
     // Проверяем, что загружены настройки по умолчанию
     expect(actor.getSnapshot().context.userSettings.layoutMode).toBe("default")
-    expect(actor.getSnapshot().context.currentProject.name).toBe("Новый проект")
+    expect(actor.getSnapshot().context.currentProject.name).toBe("Untitled Project")
   })
 
   it("should handle UPDATE_USER_SETTINGS event", async () => {

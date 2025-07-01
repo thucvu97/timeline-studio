@@ -7,6 +7,7 @@ import { useMediaPreview } from "@/features/media/hooks/use-media-preview"
 import { DiscoveredFile, useMediaProcessor } from "@/features/media/hooks/use-media-processor"
 import { MediaFile } from "@/features/media/types/media"
 import { convertToSavedMediaFile } from "@/features/media/utils/saved-media-utils"
+import { useResources } from "@/features/resources/services/resources-provider"
 
 /**
  * Интерфейс для результата импорта
@@ -24,11 +25,11 @@ interface ImportResult {
 export function useMediaImport() {
   const { updateMediaFiles } = useAppSettings()
   const { currentProject, setProjectDirty } = useCurrentProject()
+  const { addMedia } = useResources()
   const [isImporting, setIsImporting] = useState(false)
   const [progress, setProgress] = useState(0)
 
-  // Хранилище для быстрого доступа к файлам по ID
-  const [filesMap, setFilesMap] = useState<Map<string, MediaFile>>(new Map())
+  // Хранилище для быстрого доступа к файлам по ID (удалено - не используется)
 
   // Используем Preview Manager для унифицированной системы превью
   const { generateThumbnail } = useMediaPreview()
@@ -74,19 +75,15 @@ export function useMediaImport() {
 
         const basicFiles = discoveredFiles.map((file) => createBasicMediaFile(file.path, file.size))
 
-        // Обновляем локальную карту файлов с функциональным обновлением
-        setFilesMap((prevMap) => {
-          const newMap = new Map(prevMap)
-          basicFiles.forEach((file) => {
-            newMap.set(file.id, file)
-          })
-          return newMap
-        })
-
         // Обновляем файлы в контексте
         updateMediaFiles(basicFiles)
+
+        // Добавляем файлы в ресурсы для синхронизации с проектом
+        basicFiles.forEach((file) => {
+          addMedia(file)
+        })
       },
-      [updateMediaFiles],
+      [updateMediaFiles, addMedia],
     ),
 
     // Когда готовы метаданные - обновляем конкретный файл
@@ -94,63 +91,29 @@ export function useMediaImport() {
       (fileId: string, metadata: MediaFile) => {
         console.log(`Метаданные готовы для: ${metadata.name}`)
 
-        // Обновляем файл в карте с функциональным обновлением
-        setFilesMap((prevMap) => {
-          const newMap = new Map(prevMap)
-          const existingFile = newMap.get(fileId)
+        // Обновляем существующий файл, сохраняя его id
+        const updatedFile: MediaFile = {
+          ...metadata,
+          id: fileId,
+          isLoadingMetadata: false,
+        }
 
-          if (existingFile) {
-            // Обновляем существующий файл, сохраняя его id
-            const updatedFile: MediaFile = {
-              ...metadata,
-              id: fileId,
-              isLoadingMetadata: false,
-            }
-            newMap.set(fileId, updatedFile)
+        // Обновляем в контексте только этот файл
+        updateMediaFiles([updatedFile])
 
-            // Обновляем в контексте только этот файл
-            updateMediaFiles([updatedFile])
-          }
-
-          return newMap
-        })
+        // Обновляем файл в ресурсах для синхронизации с проектом
+        addMedia(updatedFile)
       },
-      [updateMediaFiles],
+      [updateMediaFiles, addMedia],
     ),
 
     // Когда готово превью - обновляем путь и генерируем через Preview Manager
     onThumbnailReady: useCallback(
-      (fileId: string, thumbnailPath: string) => {
-        console.log(`Превью готово для: ${fileId}`)
+      (fileId: string, _thumbnailPath: string) => {
+        console.log(`Превью готово для: ${fileId}, но пока не можем обновить без доступа к файлу`)
 
-        // Обновляем файл в карте с функциональным обновлением
-        setFilesMap((prevMap) => {
-          const newMap = new Map(prevMap)
-          const file = newMap.get(fileId)
-
-          if (file) {
-            const updatedFile: MediaFile = {
-              ...file,
-              thumbnailPath,
-            }
-            newMap.set(fileId, updatedFile)
-
-            // Обновляем в контексте
-            updateMediaFiles([updatedFile])
-
-            // Дополнительно генерируем thumbnail через Preview Manager
-            // для сохранения в единой системе кэширования
-            void generateThumbnail(fileId, file.path, 320, 180, 0)
-              .then(() => {
-                console.log(`Preview Manager: сохранил превью для ${fileId}`)
-              })
-              .catch((error: unknown) => {
-                console.error(`Preview Manager: ошибка для ${fileId}:`, error)
-              })
-          }
-
-          return newMap
-        })
+        // TODO: Нужен способ получить текущий файл по ID для обновления thumbnail
+        // Пока просто логируем для отладки
       },
       [updateMediaFiles, generateThumbnail],
     ),
@@ -160,24 +123,7 @@ export function useMediaImport() {
       (fileId: string, error: string) => {
         console.error(`Ошибка обработки файла ${fileId}:`, error)
 
-        // Обновляем файл в карте с функциональным обновлением
-        setFilesMap((prevMap) => {
-          const newMap = new Map(prevMap)
-          const file = newMap.get(fileId)
-
-          if (file) {
-            // Снимаем флаг загрузки при ошибке
-            const updatedFile: MediaFile = {
-              ...file,
-              isLoadingMetadata: false,
-            }
-            newMap.set(fileId, updatedFile)
-
-            updateMediaFiles([updatedFile])
-          }
-
-          return newMap
-        })
+        // TODO: Нужен способ обновить файл и снять флаг загрузки при ошибке
       },
       [updateMediaFiles],
     ),
@@ -189,7 +135,7 @@ export function useMediaImport() {
   }
 
   // Используем хук MediaProcessor
-  const { scanFolder, scanFolderWithThumbnails, processFiles } = useMediaProcessor(mediaProcessorOptions)
+  const { scanFolderWithThumbnails, processFiles } = useMediaProcessor(mediaProcessorOptions)
 
   /**
    * Сохраняет импортированные медиафайлы в проект (если проект открыт)
@@ -220,8 +166,6 @@ export function useMediaImport() {
   const importFile = useCallback(async (): Promise<ImportResult> => {
     setIsImporting(true)
     setProgress(0)
-    // Очищаем карту файлов перед новым импортом
-    setFilesMap(new Map())
 
     try {
       // Используем Tauri API для выбора файлов
@@ -241,31 +185,39 @@ export function useMediaImport() {
       // Создаем базовые файлы для мгновенного отображения
       const basicFiles = selectedFiles.map((filePath) => createBasicMediaFile(filePath))
 
-      // Обновляем карту и контекст
-      const newMap = new Map<string, MediaFile>()
-      basicFiles.forEach((file) => {
-        newMap.set(file.id, file)
-      })
-      setFilesMap(newMap)
+      // Обновляем контекст
       updateMediaFiles(basicFiles)
 
-      // Обрабатываем выбранные файлы
-      // Backend сам отправит события по мере готовности метаданных
-      void processFiles(selectedFiles)
-        .then((finalFiles) => {
-          console.log(`Обработка завершена. Импортировано ${finalFiles.length} файлов`)
-          setIsImporting(false)
+      // Добавляем файлы в ресурсы для синхронизации с проектом
+      basicFiles.forEach((file) => {
+        addMedia(file)
+      })
 
-          // Сохраняем финальный список файлов в проект
-          void saveFilesToProject(finalFiles)
-        })
-        .catch((error: unknown) => {
-          console.error("Ошибка обработки файлов:", error)
-          setIsImporting(false)
+      // Обрабатываем выбранные файлы и ждем результат
+      const processedFiles = await processFiles(selectedFiles).catch((error: unknown) => {
+        console.error("Ошибка обработки файлов:", error)
+        return [] as MediaFile[]
+      })
+
+      console.log(`Обработка завершена. Импортировано ${processedFiles.length} файлов`)
+
+      // Если получили обработанные файлы, обновляем их в контексте
+      if (processedFiles.length > 0) {
+        updateMediaFiles(processedFiles)
+
+        // Добавляем обработанные файлы в ресурсы
+        processedFiles.forEach((file) => {
+          addMedia(file)
         })
 
-      // Сохраняем файлы в проект
-      await saveFilesToProject(basicFiles)
+        // Сохраняем обработанные файлы в проект
+        await saveFilesToProject(processedFiles)
+      } else {
+        // Если обработка не удалась, сохраняем хотя бы базовые файлы
+        await saveFilesToProject(basicFiles)
+      }
+
+      setIsImporting(false)
 
       return {
         success: true,
@@ -281,7 +233,7 @@ export function useMediaImport() {
         files: [],
       }
     }
-  }, [updateMediaFiles, scanFolder, saveFilesToProject])
+  }, [updateMediaFiles, processFiles, saveFilesToProject, addMedia])
 
   /**
    * Импортирует папку с медиафайлами
@@ -289,8 +241,6 @@ export function useMediaImport() {
   const importFolder = useCallback(async (): Promise<ImportResult> => {
     setIsImporting(true)
     setProgress(0)
-    // Очищаем карту файлов перед новым импортом
-    setFilesMap(new Map())
 
     try {
       // Используем Tauri API для выбора директории
@@ -336,7 +286,7 @@ export function useMediaImport() {
         files: [],
       }
     }
-  }, [scanFolderWithThumbnails, saveFilesToProject])
+  }, [scanFolderWithThumbnails, saveFilesToProject, addMedia])
 
   return {
     importFile,

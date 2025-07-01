@@ -468,6 +468,13 @@
       },
       "cacheStats": "Cache Statistics",
       "cacheSettings": "Cache Settings",
+      "autoSave": {
+        "title": "Project Auto-save",
+        "enable": "Enable auto-save",
+        "interval": "Auto-save interval (seconds)",
+        "intervalHint": "10-3600 seconds",
+        "description": "The project will be automatically saved at the specified time interval"
+      },
       "cancel": "Cancel",
       "save": "OK"
     },

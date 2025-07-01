@@ -84,6 +84,10 @@ export interface UserSettingsContextType {
   // Статусы подключений
   apiKeysStatus: Record<string, "not_set" | "testing" | "invalid" | "valid"> // Статус каждого API ключа
 
+  // Настройки автосохранения проекта
+  autoSaveEnabled: boolean // Включено ли автосохранение
+  autoSaveInterval: number // Интервал автосохранения в секундах (по умолчанию 60)
+
   isBrowserVisible: boolean // Флаг видимости браузера
   isTimelineVisible: boolean // Флаг видимости временной шкалы
   isOptionsVisible: boolean // Флаг видимости опций
@@ -150,6 +154,10 @@ const initialContext: UserSettingsContextType = {
     codecov: "not_set",
     tauri_analytics: "not_set",
   },
+
+  // Настройки автосохранения
+  autoSaveEnabled: true, // Автосохранение включено по умолчанию
+  autoSaveInterval: 60, // Интервал 60 секунд по умолчанию
 
   isBrowserVisible: true, // Браузер виден по умолчанию
   isTimelineVisible: true, // Временная шкала видна по умолчанию
@@ -324,6 +332,90 @@ interface TestApiKeyEvent {
 }
 
 /**
+ * GPU и производительность события
+ */
+interface UpdateGpuAccelerationEvent {
+  type: "UPDATE_GPU_ACCELERATION"
+  enabled: boolean
+}
+
+interface UpdatePreferredGpuEncoderEvent {
+  type: "UPDATE_PREFERRED_GPU_ENCODER"
+  encoder: string
+}
+
+interface UpdateMaxConcurrentJobsEvent {
+  type: "UPDATE_MAX_CONCURRENT_JOBS"
+  jobs: number
+}
+
+interface UpdateRenderQualityEvent {
+  type: "UPDATE_RENDER_QUALITY"
+  quality: string
+}
+
+interface UpdateBackgroundRenderingEvent {
+  type: "UPDATE_BACKGROUND_RENDERING"
+  enabled: boolean
+}
+
+interface UpdateRenderDelayEvent {
+  type: "UPDATE_RENDER_DELAY"
+  delay: number
+}
+
+/**
+ * Прокси события
+ */
+interface UpdateProxyEnabledEvent {
+  type: "UPDATE_PROXY_ENABLED"
+  enabled: boolean
+}
+
+interface UpdateProxyTypeEvent {
+  type: "UPDATE_PROXY_TYPE"
+  proxyType: string
+}
+
+interface UpdateProxyHostEvent {
+  type: "UPDATE_PROXY_HOST"
+  host: string
+}
+
+interface UpdateProxyPortEvent {
+  type: "UPDATE_PROXY_PORT"
+  port: string
+}
+
+interface UpdateProxyUsernameEvent {
+  type: "UPDATE_PROXY_USERNAME"
+  username: string
+}
+
+interface UpdateProxyPasswordEvent {
+  type: "UPDATE_PROXY_PASSWORD"
+  password: string
+}
+
+/**
+ * Интерфейс события обновления настроек автосохранения
+ * @interface UpdateAutoSaveEnabledEvent
+ */
+interface UpdateAutoSaveEnabledEvent {
+  type: "UPDATE_AUTO_SAVE_ENABLED"
+  enabled: boolean
+}
+
+/**
+ * Интерфейс события обновления интервала автосохранения
+ * @interface UpdateAutoSaveIntervalEvent
+ */
+interface UpdateAutoSaveIntervalEvent {
+  type: "UPDATE_AUTO_SAVE_INTERVAL"
+  interval: number // Интервал в секундах
+}
+
+/**
  * Объединенный тип всех событий пользовательских настроек
  * Используется для типизации событий машины состояний
  */
@@ -350,6 +442,23 @@ export type UserSettingsEvent =
   | UpdateTauriAnalyticsKeyEvent
   | UpdateApiKeyStatusEvent
   | TestApiKeyEvent
+  // GPU и производительность
+  | UpdateGpuAccelerationEvent
+  | UpdatePreferredGpuEncoderEvent
+  | UpdateMaxConcurrentJobsEvent
+  | UpdateRenderQualityEvent
+  | UpdateBackgroundRenderingEvent
+  | UpdateRenderDelayEvent
+  // Прокси
+  | UpdateProxyEnabledEvent
+  | UpdateProxyTypeEvent
+  | UpdateProxyHostEvent
+  | UpdateProxyPortEvent
+  | UpdateProxyUsernameEvent
+  | UpdateProxyPasswordEvent
+  // Автосохранение
+  | UpdateAutoSaveEnabledEvent
+  | UpdateAutoSaveIntervalEvent
 
 /**
  * Машина состояний для управления пользовательскими настройками
@@ -526,6 +635,15 @@ export const userSettingsMachine = createMachine(
 
           UPDATE_PROXY_PASSWORD: {
             actions: ["updateProxyPassword"],
+          },
+
+          // Автосохранение события
+          UPDATE_AUTO_SAVE_ENABLED: {
+            actions: ["updateAutoSaveEnabled"],
+          },
+
+          UPDATE_AUTO_SAVE_INTERVAL: {
+            actions: ["updateAutoSaveInterval"],
           },
         },
       },
@@ -916,6 +1034,32 @@ export const userSettingsMachine = createMachine(
         const typedEvent = event as { type: "UPDATE_PROXY_PASSWORD"; password: string }
         console.log("Updating proxy password:", "***")
         return { ...context, proxyPassword: typedEvent.password }
+      }),
+
+      /**
+       * Действие для обновления статуса автосохранения
+       * Включает или отключает автоматическое сохранение проекта
+       */
+      updateAutoSaveEnabled: assign(({ context, event }) => {
+        const typedEvent = event as UpdateAutoSaveEnabledEvent
+        console.log("Updating auto save enabled:", typedEvent.enabled)
+        return {
+          ...context,
+          autoSaveEnabled: typedEvent.enabled,
+        }
+      }),
+
+      /**
+       * Действие для обновления интервала автосохранения
+       * Устанавливает интервал между автоматическими сохранениями в секундах
+       */
+      updateAutoSaveInterval: assign(({ context, event }) => {
+        const typedEvent = event as UpdateAutoSaveIntervalEvent
+        console.log("Updating auto save interval:", typedEvent.interval)
+        return {
+          ...context,
+          autoSaveInterval: typedEvent.interval,
+        }
       }),
     },
   },

@@ -157,8 +157,20 @@ export class MockFileSystem {
   addAudioFile(path: string) {
     // Create a minimal valid MP3 file (ID3v2 header + dummy data)
     const mp3Header = new Uint8Array([
-      0x49, 0x44, 0x33, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // ID3v2.4 header
-      0xff, 0xfb, 0x90, 0x00, // MP3 frame header
+      0x49,
+      0x44,
+      0x33,
+      0x04,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x00, // ID3v2.4 header
+      0xff,
+      0xfb,
+      0x90,
+      0x00, // MP3 frame header
     ])
     this.addFile(path, mp3Header)
   }
@@ -166,8 +178,22 @@ export class MockFileSystem {
   addImageFile(path: string) {
     // Create a minimal valid PNG file
     const pngHeader = new Uint8Array([
-      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, // PNG signature
-      0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52, // IHDR chunk
+      0x89,
+      0x50,
+      0x4e,
+      0x47,
+      0x0d,
+      0x0a,
+      0x1a,
+      0x0a, // PNG signature
+      0x00,
+      0x00,
+      0x00,
+      0x0d,
+      0x49,
+      0x48,
+      0x44,
+      0x52, // IHDR chunk
     ])
     this.addFile(path, pngHeader)
   }
@@ -236,5 +262,5 @@ vi.mock("@tauri-apps/plugin-fs", () => ({
   metadata: mockFs.metadata,
   mkdir: mockFs.mkdir,
   remove: mockFs.remove,
-  mockFileSystem
+  mockFileSystem,
 }))

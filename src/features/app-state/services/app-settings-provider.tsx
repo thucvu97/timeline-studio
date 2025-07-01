@@ -1,4 +1,4 @@
-import { ReactNode, createContext, useEffect } from "react"
+import { ReactNode, createContext, useEffect, useRef } from "react"
 
 import { appDataDir, basename, join } from "@tauri-apps/api/path"
 import { open, save } from "@tauri-apps/plugin-dialog"
@@ -72,6 +72,9 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
   // Используем машину состояний
   const [state, send] = useMachine(appSettingsMachine)
 
+  // Ref для хранения интервала автосохранения
+  const autoSaveIntervalRef = useRef<NodeJS.Timeout | null>(null)
+
   // Хук для восстановления медиафайлов
   const {
     restoreProjectMedia,
@@ -91,6 +94,43 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
       })
     }
   }, [state.context.isLoading, state.context.currentProject.path, state.context.currentProject.isNew, send])
+
+  // Управление интервалом автосохранения
+  useEffect(() => {
+    // Очищаем предыдущий интервал
+    if (autoSaveIntervalRef.current) {
+      clearInterval(autoSaveIntervalRef.current)
+      autoSaveIntervalRef.current = null
+    }
+
+    // Проверяем, нужно ли включить автосохранение
+    const { autoSaveEnabled, autoSaveInterval } = state.context.userSettings
+    const { path, isDirty } = state.context.currentProject
+
+    if (autoSaveEnabled && path && isDirty) {
+      console.log(`[AppSettingsProvider] Starting auto-save interval: ${autoSaveInterval} seconds`)
+
+      // Создаем новый интервал
+      autoSaveIntervalRef.current = setInterval(() => {
+        console.log("[AppSettingsProvider] Auto-saving project...")
+        autoSaveProject().catch((error: unknown) => {
+          console.error("[AppSettingsProvider] Auto-save failed:", error)
+        })
+      }, autoSaveInterval * 1000) // Конвертируем секунды в миллисекунды
+    }
+
+    // Очистка при размонтировании
+    return () => {
+      if (autoSaveIntervalRef.current) {
+        clearInterval(autoSaveIntervalRef.current)
+      }
+    }
+  }, [
+    state.context.userSettings.autoSaveEnabled,
+    state.context.userSettings.autoSaveInterval,
+    state.context.currentProject.path,
+    state.context.currentProject.isDirty,
+  ])
 
   // Методы для работы с настройками
   const updateUserSettings = (settings: Partial<UserSettingsContextType>) => {
@@ -236,9 +276,8 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
           name: project.metadata.name,
         })
 
-        // Отмечаем как dirty
-        // Используем skipAutoSave=true чтобы избежать конфликта при загрузке
-        setProjectDirty(true, true)
+        // При загрузке существующего проекта не отмечаем его как dirty
+        // Проект становится dirty только когда пользователь вносит изменения
       } catch (loadError) {
         console.log("No existing temp project found, creating new one")
         // Если не удалось загрузить, создаем новый
@@ -368,8 +407,12 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
             project.metadata.modified = new Date()
           }
 
+          // Синхронизируем ресурсы из localStorage перед сохранением
+          const { mediaResources, musicResources } = getResourcesFromStorage()
+          const updatedProject = syncResourcesToProject(project, mediaResources, musicResources)
+
           // Сохраняем проект
-          await projectService.saveProject(project, currentProject.path)
+          await projectService.saveProject(updatedProject, currentProject.path)
 
           // Отправляем событие в машину состояний (очищает dirty флаг)
           send({ type: "SAVE_PROJECT", path: currentProject.path, name })
@@ -422,8 +465,12 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
           project = await projectService.createProject(name)
         }
 
+        // Синхронизируем ресурсы из localStorage перед сохранением
+        const { mediaResources, musicResources } = getResourcesFromStorage()
+        const updatedProject = syncResourcesToProject(project, mediaResources, musicResources)
+
         // Сохраняем проект в новый файл
-        await projectService.saveProject(project, path)
+        await projectService.saveProject(updatedProject, path)
 
         // Отправляем событие в машину состояний (очищает dirty флаг)
         send({ type: "SAVE_PROJECT", path, name })
@@ -477,6 +524,50 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.error("Failed to auto-save temp project:", error)
+      // Не выбрасываем ошибку дальше, чтобы не прерывать работу приложения
+    }
+  }
+
+  const autoSaveProject = async () => {
+    try {
+      const currentProject = getCurrentProject()
+
+      // Проверяем, что у проекта есть путь для сохранения
+      if (!currentProject.path) {
+        console.warn("[AppSettingsProvider] Cannot auto-save: no project path")
+        return
+      }
+
+      // Проверяем, что проект изменен
+      if (!currentProject.isDirty) {
+        console.log("[AppSettingsProvider] Skip auto-save: project is not dirty")
+        return
+      }
+
+      const projectService = TimelineStudioProjectService.getInstance()
+
+      // Загружаем текущий проект
+      const project = await projectService.openProject(currentProject.path)
+
+      // Обновляем метаданные
+      project.metadata.modified = new Date()
+
+      // Всегда синхронизируем ресурсы из localStorage перед сохранением
+      const { mediaResources, musicResources } = getResourcesFromStorage()
+      const updatedProject = syncResourcesToProject(project, mediaResources, musicResources)
+
+      // Сохраняем обновленный проект
+      await projectService.saveProject(updatedProject, currentProject.path)
+
+      const projectType = currentProject.path.includes(TEMP_PROJECT_FILENAME) ? "temp" : "regular"
+      console.log(
+        `[AppSettingsProvider] Auto-saved ${projectType} project with ${updatedProject.mediaPool.items.size} media items`,
+      )
+
+      // Сбрасываем флаг dirty после успешного сохранения
+      send({ type: "SET_PROJECT_DIRTY", isDirty: false })
+    } catch (error) {
+      console.error("[AppSettingsProvider] Auto-save failed:", error)
       // Не выбрасываем ошибку дальше, чтобы не прерывать работу приложения
     }
   }

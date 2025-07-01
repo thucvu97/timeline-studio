@@ -2,7 +2,7 @@ import { renderHook, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { selectMediaDirectory, selectMediaFile } from "@/features/media"
-import { ProvidersWrapper } from "@/test/test-utils"
+import { TimelineProviders } from "@/test/test-utils"
 
 import { useMediaImport } from "../../hooks/use-media-import"
 
@@ -12,22 +12,33 @@ import { useMediaImport } from "../../hooks/use-media-import"
 const mockUpdateMediaFiles = vi.fn()
 const mockSetProjectDirty = vi.fn()
 
-vi.mock("@/features/app-state", () => ({
-  useAppSettings: vi.fn(() => ({
-    updateMediaFiles: mockUpdateMediaFiles,
-  })),
-}))
-
-vi.mock("@/features/app-state/hooks/use-current-project", () => ({
-  useCurrentProject: vi.fn(() => ({
-    currentProject: { path: "/test/project" },
-    setProjectDirty: mockSetProjectDirty,
-  })),
-}))
+// Re-mock these functions with test-specific implementations
+vi.mock("@/features/app-state", async () => {
+  const actual = await vi.importActual("@/features/app-state")
+  return {
+    ...actual,
+    useAppSettings: vi.fn(() => ({
+      updateMediaFiles: mockUpdateMediaFiles,
+      getUserSettings: vi.fn(),
+      getCurrentProject: vi.fn(),
+    })),
+    useCurrentProject: vi.fn(() => ({
+      currentProject: { path: "/test/project", name: "Test", isDirty: false, isNew: false },
+      setProjectDirty: mockSetProjectDirty,
+    })),
+  }
+})
 
 vi.mock("../../hooks/use-media-preview", () => ({
   useMediaPreview: vi.fn(() => ({
     generateThumbnail: vi.fn().mockResolvedValue("thumbnail-data"),
+  })),
+}))
+
+vi.mock("@/features/resources/services/resources-provider", () => ({
+  ResourcesProvider: ({ children }: { children: React.ReactNode }) => children,
+  useResources: vi.fn(() => ({
+    addMedia: vi.fn(),
   })),
 }))
 
@@ -42,7 +53,7 @@ vi.mock("../../hooks/use-media-processor", () => ({
       // Симулируем обработку файлов с задержкой
       await new Promise((resolve) => setTimeout(resolve, 50)) // Небольшая задержка
 
-      files.forEach((file) => {
+      files.forEach((file: string) => {
         options.onFilesDiscovered?.([{ path: file, size: 1024 }])
         options.onMetadataReady?.(file, {
           id: file,
@@ -56,7 +67,7 @@ vi.mock("../../hooks/use-media-processor", () => ({
           isLoadingMetadata: false,
         })
       })
-      return files.map((f) => ({ id: f, path: f }))
+      return files.map((f: string) => ({ id: f, path: f }))
     }),
   })),
 }))
@@ -91,7 +102,7 @@ describe("useMediaImport", () => {
 
   it("should initialize with default values", () => {
     const { result } = renderHook(() => useMediaImport(), {
-      wrapper: ProvidersWrapper,
+      wrapper: TimelineProviders,
     })
 
     expect(result.current.isImporting).toBe(false)
@@ -106,7 +117,7 @@ describe("useMediaImport", () => {
     mockSelectMediaFile.mockResolvedValue(mockFiles)
 
     const { result } = renderHook(() => useMediaImport(), {
-      wrapper: ProvidersWrapper,
+      wrapper: TimelineProviders,
     })
 
     const importResult = await result.current.importFile()
@@ -146,7 +157,7 @@ describe("useMediaImport", () => {
     mockSelectMediaDirectory.mockResolvedValue(mockDirectory)
 
     const { result } = renderHook(() => useMediaImport(), {
-      wrapper: ProvidersWrapper,
+      wrapper: TimelineProviders,
     })
 
     const importResult = await result.current.importFolder()
@@ -161,7 +172,7 @@ describe("useMediaImport", () => {
     mockSelectMediaFile.mockResolvedValue(null)
 
     const { result } = renderHook(() => useMediaImport(), {
-      wrapper: ProvidersWrapper,
+      wrapper: TimelineProviders,
     })
 
     const importResult = await result.current.importFile()
@@ -175,7 +186,7 @@ describe("useMediaImport", () => {
     mockSelectMediaDirectory.mockResolvedValue(null)
 
     const { result } = renderHook(() => useMediaImport(), {
-      wrapper: ProvidersWrapper,
+      wrapper: TimelineProviders,
     })
 
     const importResult = await result.current.importFolder()
@@ -195,7 +206,7 @@ describe("useMediaImport", () => {
     })
 
     const { result } = renderHook(() => useMediaImport(), {
-      wrapper: ProvidersWrapper,
+      wrapper: TimelineProviders,
     })
 
     // Проверяем начальное состояние

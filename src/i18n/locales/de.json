@@ -624,6 +624,13 @@
       },
       "cacheStats": "Cache-Statistiken",
       "cacheSettings": "Cache-Einstellungen",
+      "autoSave": {
+        "title": "Automatisches Speichern des Projekts",
+        "enable": "Automatisches Speichern aktivieren",
+        "interval": "Automatisches Speichern Intervall (Sekunden)",
+        "intervalHint": "10-3600 Sekunden",
+        "description": "Das Projekt wird automatisch im angegebenen Zeitintervall gespeichert"
+      },
       "cancel": "Abbrechen",
       "save": "OK",
       "playerScreenshotsPath": "Pfad zum Speichern von Player-Screenshots",

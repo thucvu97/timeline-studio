@@ -49,6 +49,11 @@ vi.mock("lucide-react", () => ({
       Check
     </span>
   ),
+  Save: ({ className }: { className?: string }) => (
+    <span className={className} role="img" aria-hidden="true">
+      Save
+    </span>
+  ),
 }))
 
 vi.spyOn(console, "log").mockImplementation(() => {})

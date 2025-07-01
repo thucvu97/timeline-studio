@@ -407,6 +407,13 @@
       },
       "cacheStats": "Statistiques du cache",
       "cacheSettings": "Paramètres du cache",
+      "autoSave": {
+        "title": "Sauvegarde automatique du projet",
+        "enable": "Activer la sauvegarde automatique",
+        "interval": "Intervalle de sauvegarde automatique (secondes)",
+        "intervalHint": "10-3600 secondes",
+        "description": "Le projet sera automatiquement enregistré à l'intervalle de temps spécifié"
+      },
       "cancel": "Annuler",
       "save": "OK",
       "playerScreenshotsPath": "Chemin d'enregistrement des captures du lecteur",
