@@ -42,7 +42,7 @@ vi.mock("@/components/ui/dialog", () => ({
 
 vi.mock("@/components/ui/dropdown-menu", () => ({
   DropdownMenu: ({ children }: any) => <div>{children}</div>,
-  DropdownMenuTrigger: ({ children, asChild }: any) => <div data-testid="dropdown-trigger">{children}</div>,
+  DropdownMenuTrigger: ({ children }: any) => <div data-testid="dropdown-trigger">{children}</div>,
   DropdownMenuContent: ({ children }: any) => (
     <div data-testid="dropdown-content" data-state="open">
       {children}

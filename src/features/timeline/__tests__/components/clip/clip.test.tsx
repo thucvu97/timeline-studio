@@ -6,7 +6,7 @@ import { SubtitleClip, TimelineClip, TimelineTrack } from "../../../types"
 
 // Мокаем дочерние компоненты
 vi.mock("../../../components/clip/video-clip", () => ({
-  VideoClip: ({ clip, track, onUpdate, onRemove }: any) => (
+  VideoClip: ({ clip, track }: any) => (
     <div data-testid="video-clip" data-clip-id={clip.id} data-track-type={track.type}>
       Video Clip
     </div>
@@ -14,7 +14,7 @@ vi.mock("../../../components/clip/video-clip", () => ({
 }))
 
 vi.mock("../../../components/clip/audio-clip", () => ({
-  AudioClip: ({ clip, track, onUpdate, onRemove }: any) => (
+  AudioClip: ({ clip, track }: any) => (
     <div data-testid="audio-clip" data-clip-id={clip.id} data-track-type={track.type}>
       Audio Clip
     </div>

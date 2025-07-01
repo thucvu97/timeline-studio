@@ -16,7 +16,6 @@ const EffectPreviewWrapper: React.FC<PreviewComponentProps<VideoEffect>> = ({
   size,
   viewMode,
   onClick,
-  onDragStart,
 }) => {
   const handleClick = () => {
     onClick?.(effect)

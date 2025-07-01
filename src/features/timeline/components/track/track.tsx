@@ -34,8 +34,6 @@ export function Track({
   isSelected = false,
   onSelect,
   onUpdate,
-  onMuteToggle,
-  onLockToggle,
   onHeightChange,
   className,
   style,

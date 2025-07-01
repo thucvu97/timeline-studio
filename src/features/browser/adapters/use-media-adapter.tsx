@@ -16,17 +16,7 @@ import type { ListAdapter, PreviewComponentProps } from "../types/list"
 /**
  * Компонент превью для медиафайлов - адаптер для MediaPreview
  */
-const MediaPreviewWrapper: React.FC<PreviewComponentProps<MediaFile>> = ({
-  item: file,
-  size,
-  viewMode,
-  onClick,
-  onDragStart,
-  isSelected,
-  isFavorite,
-  onToggleFavorite,
-  onAddToTimeline,
-}) => {
+const MediaPreviewWrapper: React.FC<PreviewComponentProps<MediaFile>> = ({ item: file, size, viewMode, onClick }) => {
   // Используем DragDropManager для перетаскивания
   const dragProps = useDraggable(
     "media",

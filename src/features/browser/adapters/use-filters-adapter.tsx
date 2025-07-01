@@ -16,7 +16,6 @@ const FilterPreviewWrapper: React.FC<PreviewComponentProps<VideoFilter>> = ({
   size,
   viewMode,
   onClick,
-  onDragStart,
 }) => {
   const handleClick = () => {
     onClick?.(filter)

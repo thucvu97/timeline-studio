@@ -68,11 +68,11 @@ export const YoloDataVisualization = vi.fn(({ yoloData, width, height }) => {
   return `<div data-testid="yolo-data-visualization">Video: ${yoloData.videoName}, Size: ${width}x${height}</div>`
 })
 
-export const YoloGraphOverlay = vi.fn(({ yoloData, currentTime, onTimeChange }) => {
+export const YoloGraphOverlay = vi.fn(({ yoloData }) => {
   return `<div data-testid="yolo-graph-overlay" onClick={() => onTimeChange?.(10)}>Graph for ${yoloData.videoName}</div>`
 })
 
-export const YoloTrackOverlay = vi.fn(({ yoloData, currentTime, showTrajectories }) => {
+export const YoloTrackOverlay = vi.fn(({ showTrajectories }) => {
   return `<div data-testid="yolo-track-overlay">Tracks: ${showTrajectories ? "shown" : "hidden"}</div>`
 })
 

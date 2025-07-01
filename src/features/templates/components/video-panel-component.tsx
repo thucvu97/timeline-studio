@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { MediaFile } from "@/features/media/types/media"
-import { usePlayer } from "@/features/video-player/services/player-provider"
 
 interface VideoPanelProps {
   video: MediaFile
@@ -22,14 +21,12 @@ export function VideoPanelComponent({
   video,
   isActive,
   videoRefs,
-  index = 0,
   hideLabel = false,
   labelPosition = "center",
 }: VideoPanelProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
-  const [isReady, setIsReady] = useState(false)
+  const [isReady] = useState(false)
   const { t } = useTranslation()
-  const { isPlaying } = usePlayer()
 
   // Эффект для регистрации видео в videoRefs и обновления src при изменении источника
   useEffect(() => {

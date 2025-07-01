@@ -78,7 +78,7 @@ export function PreviewTimeline({ time, duration, videoRef }: PreviewTimelinePro
 
   // Защита от деления на ноль
   const positionPercent = duration > 0 ? (displayTime / duration) * 100 : 0
-  if (positionPercent === 0 || !isVisible) return <></>
+  if (positionPercent === 0 || !isVisible) return null
 
   return (
     <div

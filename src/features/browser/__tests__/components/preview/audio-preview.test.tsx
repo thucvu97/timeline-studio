@@ -63,7 +63,7 @@ vi.mock("lucide-react", () => ({
 }))
 
 vi.mock("react-audio-visualize", () => ({
-  LiveAudioVisualizer: ({ mediaRecorder, width, height, barWidth, gap, barColor, backgroundColor }: any) => (
+  LiveAudioVisualizer: ({ width, height, barWidth, gap, barColor, backgroundColor }: any) => (
     <div
       data-testid="audio-visualizer"
       data-width={width}

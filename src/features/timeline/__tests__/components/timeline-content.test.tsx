@@ -136,7 +136,7 @@ vi.mock("../../components/timeline-scale", () => ({
 }))
 
 vi.mock("../../components/track/track", () => ({
-  Track: ({ track, timeScale }: any) => (
+  Track: ({ track }: any) => (
     <div data-testid={`track-${track.id}`} data-track-type={track.type}>
       Track {track.name}
     </div>

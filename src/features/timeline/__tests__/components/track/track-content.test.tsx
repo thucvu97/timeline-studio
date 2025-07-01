@@ -57,7 +57,7 @@ vi.mock("@/features/drag-drop", () => ({
 
 // Мокаем компонент Clip
 vi.mock("../../../components/clip/clip", () => ({
-  Clip: ({ clip, track, timeScale, onUpdate, onRemove }: any) => (
+  Clip: ({ clip, timeScale }: any) => (
     <div
       data-testid={`clip-${clip.id}`}
       data-clip-id={clip.id}

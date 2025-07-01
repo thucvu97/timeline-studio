@@ -23,7 +23,7 @@ const mockOnRemove = vi.fn()
 const mockOnApply = vi.fn()
 
 vi.mock("@/features/browser/components/layout", () => ({
-  AddMediaButton: ({ resource, onAdd, onRemove }: any) => {
+  AddMediaButton: ({ resource, onAdd }: any) => {
     const handleClick = (e: any) => {
       e.stopPropagation?.()
       mockOnAdd(e, resource)

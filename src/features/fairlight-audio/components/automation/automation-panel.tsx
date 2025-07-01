@@ -29,7 +29,6 @@ export function AutomationPanel({
   onStartRecording,
   onStopRecording,
   onAddLane,
-  onClearLane,
   className,
 }: AutomationPanelProps) {
   const { t } = useTranslation()

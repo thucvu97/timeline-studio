@@ -77,7 +77,7 @@ vi.mock("../../components/camera-permission-request", () => ({
 }))
 
 vi.mock("../../components/camera-preview", () => ({
-  CameraPreview: ({ videoRef, isDeviceReady, showCountdown, countdown }: any) => (
+  CameraPreview: ({ isDeviceReady, showCountdown, countdown }: any) => (
     <div data-testid="camera-preview">
       Device ready: {isDeviceReady ? "yes" : "no"}
       {showCountdown && <div>Countdown: {countdown}</div>}

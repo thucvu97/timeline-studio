@@ -26,7 +26,6 @@ interface ChannelNoiseReductionProps {
 }
 
 export function ChannelNoiseReduction({
-  channelId,
   enabled,
   strength,
   onToggle,

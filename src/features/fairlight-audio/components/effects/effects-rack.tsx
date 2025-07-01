@@ -28,7 +28,6 @@ interface EffectsRackProps {
 }
 
 export function EffectsRack({
-  channelId,
   onEffectAdd,
   onEffectRemove,
   onEffectToggle,

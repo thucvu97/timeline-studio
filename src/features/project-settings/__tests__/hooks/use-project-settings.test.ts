@@ -7,7 +7,7 @@ import { useProjectSettings } from "../../hooks/use-project-settings"
 // Мокируем провайдер
 vi.mock("../../services/project-settings-provider", () => ({
   ProjectSettingsContext: {
-    Provider: ({ children, value }: { children: ReactNode; value: any }) =>
+    Provider: ({ children }: { children: ReactNode; value: any }) =>
       React.createElement("div", { "data-testid": "mock-provider" }, children),
   },
 }))

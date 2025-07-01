@@ -24,11 +24,7 @@ const MusicPreviewWrapper: React.FC<PreviewComponentProps<MediaFile>> = ({
   size,
   viewMode,
   onClick,
-  onDragStart,
   isSelected,
-  isFavorite,
-  onToggleFavorite,
-  onAddToTimeline,
 }) => {
   const { t } = useTranslation()
   const [isPlaying, setIsPlaying] = useState(false)

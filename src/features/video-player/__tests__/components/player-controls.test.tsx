@@ -54,7 +54,7 @@ vi.mock("../../components/prerender-controls", () => ({
 }))
 
 vi.mock("../../components/volume-slider", () => ({
-  VolumeSlider: ({ volume, volumeRef, onValueChange, onValueCommit }: any) => (
+  VolumeSlider: ({ volume, onValueChange, onValueCommit }: any) => (
     <div
       data-testid="volume-slider"
       data-volume={volume}

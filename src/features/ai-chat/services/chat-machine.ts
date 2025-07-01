@@ -64,7 +64,7 @@ export const chatMachine = setup({
     /**
      * Действие для логирования отправки сообщения
      */
-    logSendMessage: ({ context, event }) => {
+    logSendMessage: ({ event }) => {
       if (event.type === "SEND_CHAT_MESSAGE") {
         console.log(`[ChatMachine] Отправка сообщения: ${event.message}`)
       }
@@ -73,7 +73,7 @@ export const chatMachine = setup({
     /**
      * Действие для логирования получения сообщения
      */
-    logReceiveMessage: ({ context, event }) => {
+    logReceiveMessage: ({ event }) => {
       if (event.type === "RECEIVE_CHAT_MESSAGE") {
         console.log(
           `[ChatMachine] Получение сообщения от ${event.message.role}: ${event.message.content?.substring(0, 50) || ""}...`,
@@ -84,7 +84,7 @@ export const chatMachine = setup({
     /**
      * Действие для логирования выбора агента
      */
-    logSelectAgent: ({ context, event }) => {
+    logSelectAgent: ({ event }) => {
       if (event.type === "SELECT_AGENT") {
         console.log(`[ChatMachine] Выбран агент: ${event.agentId}`)
       }
