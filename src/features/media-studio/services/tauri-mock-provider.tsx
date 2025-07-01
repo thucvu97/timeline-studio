@@ -171,15 +171,14 @@ export function TauriMockProvider({ children }: { children: React.ReactNode }) {
               }
               return false
             case "plugin:fs|read_text_file":
-              console.log(`[TauriMock] read_text_file called with path:`, args?.path)
-              // Return empty project file content as string
+              console.log("[TauriMock] read_text_file called with path:", args?.path)
               // Check if it's a project file
               if (args?.path && args.path.includes(".tlsp")) {
                 // For any .tlsp file, return a valid v2.0.0 project structure
                 const projectId = Math.random().toString(36).slice(2)
                 const sequenceId = Math.random().toString(36).slice(2)
                 const now = new Date().toISOString()
-                
+
                 const projectData = {
                   metadata: {
                     id: projectId,
@@ -188,7 +187,7 @@ export function TauriMockProvider({ children }: { children: React.ReactNode }) {
                     created: now,
                     modified: now,
                     platform: "macos",
-                    appVersion: "1.0.0"
+                    appVersion: "1.0.0",
                   },
                   settings: {
                     resolution: "1920x1080",
@@ -199,15 +198,15 @@ export function TauriMockProvider({ children }: { children: React.ReactNode }) {
                       bitDepth: 24,
                       channels: 2,
                       masterVolume: 1.0,
-                      panLaw: "-3dB"
+                      panLaw: "-3dB",
                     },
                     preview: {
                       resolution: "1/2",
                       quality: "better",
                       renderDuringPlayback: true,
-                      useGPU: true
+                      useGPU: true,
                     },
-                    exportPresets: []
+                    exportPresets: [],
                   },
                   mediaPool: {
                     items: {},
@@ -215,8 +214,8 @@ export function TauriMockProvider({ children }: { children: React.ReactNode }) {
                     stats: {
                       totalItems: 0,
                       totalSize: 0,
-                      unusedItems: 0
-                    }
+                      unusedItems: 0,
+                    },
                   },
                   sequences: {
                     [sequenceId]: {
@@ -231,12 +230,12 @@ export function TauriMockProvider({ children }: { children: React.ReactNode }) {
                         audio: {
                           sampleRate: 48000,
                           bitDepth: 24,
-                          channels: 2
-                        }
+                          channels: 2,
+                        },
                       },
                       composition: {
                         tracks: [],
-                        masterClips: []
+                        masterClips: [],
                       },
                       resources: {
                         effects: {},
@@ -244,16 +243,16 @@ export function TauriMockProvider({ children }: { children: React.ReactNode }) {
                         transitions: {},
                         colorGrades: {},
                         titles: {},
-                        generators: {}
+                        generators: {},
                       },
                       markers: [],
                       history: [],
                       historyPosition: -1,
                       metadata: {
                         created: now,
-                        modified: now
-                      }
-                    }
+                        modified: now,
+                      },
+                    },
                   },
                   activeSequenceId: sequenceId,
                   cache: {
@@ -261,7 +260,7 @@ export function TauriMockProvider({ children }: { children: React.ReactNode }) {
                     waveforms: {},
                     proxies: {},
                     sceneAnalysis: {},
-                    totalSize: 0
+                    totalSize: 0,
                   },
                   workspace: {
                     layout: "edit",
@@ -272,24 +271,28 @@ export function TauriMockProvider({ children }: { children: React.ReactNode }) {
                       size: 10,
                       snapToGrid: false,
                       snapToClips: true,
-                      magneticTimeline: true
-                    }
+                      magneticTimeline: true,
+                    },
                   },
                   backup: {
                     autoSave: {
                       enabled: true,
                       interval: 5,
-                      keepVersions: 10
+                      keepVersions: 10,
                     },
                     versions: [],
-                    lastSaved: now
-                  }
+                    lastSaved: now,
+                  },
                 }
                 const jsonString = JSON.stringify(projectData)
                 console.log(`[TauriMock] Returning project JSON for: ${args.path}`)
                 return jsonString
               }
-              // For other files, return empty string
+              // For other files that expect JSON, return valid empty JSON
+              if (args?.path && (args.path.includes(".json") || args.path.includes("config"))) {
+                return "{}"
+              }
+              // For other text files, return empty string
               return ""
             case "plugin:fs|write_text_file":
               // Mock writing file

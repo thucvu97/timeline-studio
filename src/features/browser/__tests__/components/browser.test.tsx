@@ -5,17 +5,9 @@ import { Browser } from "../../components/browser"
 
 // Мокаем зависимости
 vi.mock("../../components/browser-tabs", () => ({
-  BrowserTabs: ({ activeTab, onTabChange }: any) => (
+  BrowserTabs: ({ activeTab }: any) => (
     <div data-testid="browser-tabs" data-active-tab={activeTab}>
-      <button onClick={() => onTabChange("media")} data-testid="tab-media">
-        Media
-      </button>
-      <button onClick={() => onTabChange("music")} data-testid="tab-music">
-        Music
-      </button>
-      <button onClick={() => onTabChange("effects")} data-testid="tab-effects">
-        Effects
-      </button>
+      Browser Tabs Mock - Active: {activeTab}
     </div>
   ),
 }))
@@ -27,9 +19,24 @@ vi.mock("../../components/browser-content-new", () => ({
 vi.mock("@/components/ui/tabs", () => ({
   Tabs: ({ children, value, onValueChange, className }: any) => (
     <div className={className} data-testid="tabs" data-value={value}>
-      {children}
+      <button onClick={() => onValueChange("media")} data-testid="tab-media">
+        Media
+      </button>
+      <button onClick={() => onValueChange("music")} data-testid="tab-music">
+        Music
+      </button>
+      <button onClick={() => onValueChange("effects")} data-testid="tab-effects">
+        Effects
+      </button>
       <button onClick={() => onValueChange("test")} data-testid="trigger-tab-change" />
+      {children}
     </div>
+  ),
+  TabsList: ({ children }: any) => <div>{children}</div>,
+  TabsTrigger: ({ children, value, ...props }: any) => (
+    <button data-value={value} {...props}>
+      {children}
+    </button>
   ),
 }))
 

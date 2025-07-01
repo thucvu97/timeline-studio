@@ -114,6 +114,12 @@ export class TimelineStudioProjectService implements ProjectOperations {
   async openProject(path: string): Promise<TimelineStudioProject> {
     try {
       const projectData = await readTextFile(path)
+
+      // Проверяем что файл не пустой
+      if (!projectData || projectData.trim() === "") {
+        throw new Error("Project file is empty")
+      }
+
       const parsed = JSON.parse(projectData)
 
       // Проверяем версию формата

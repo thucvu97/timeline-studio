@@ -23,67 +23,35 @@ export const BrowserTabs = memo(({ activeTab }: BrowserTabsProps) => {
 
   return (
     <TabsList className="h-[50px] flex-shrink-0 justify-start border-none rounded-none dark:bg-[#2D2D2D] m-0 p-0">
-      <TabsTrigger
-        value="media"
-        className={TAB_TRIGGER_STYLES}
-        data-testid="media-tab"
-      >
+      <TabsTrigger value="media" className={TAB_TRIGGER_STYLES} data-testid="media-tab">
         <Clapperboard className="h-4 w-4" />
         <span>{t("browser.tabs.media")}</span>
       </TabsTrigger>
-      <TabsTrigger
-        value="music"
-        className={TAB_TRIGGER_STYLES}
-        data-testid="music-tab"
-      >
+      <TabsTrigger value="music" className={TAB_TRIGGER_STYLES} data-testid="music-tab">
         <Music className="h-4 w-4" />
         <span>{t("browser.tabs.music")}</span>
       </TabsTrigger>
-      <TabsTrigger
-        value="subtitles"
-        className={TAB_TRIGGER_STYLES}
-        data-testid="subtitles-tab"
-      >
+      <TabsTrigger value="subtitles" className={TAB_TRIGGER_STYLES} data-testid="subtitles-tab">
         <Type className="h-4 w-4" />
         <span>{t("browser.tabs.subtitles")}</span>
       </TabsTrigger>
-      <TabsTrigger
-        value="effects"
-        className={TAB_TRIGGER_STYLES}
-        data-testid="effects-tab"
-      >
+      <TabsTrigger value="effects" className={TAB_TRIGGER_STYLES} data-testid="effects-tab">
         <Sparkles className="h-4 w-4" />
         <span>{t("browser.tabs.effects")}</span>
       </TabsTrigger>
-      <TabsTrigger
-        value="filters"
-        className={TAB_TRIGGER_STYLES}
-        data-testid="filters-tab"
-      >
+      <TabsTrigger value="filters" className={TAB_TRIGGER_STYLES} data-testid="filters-tab">
         <Blend className="h-4 w-4" />
         <span>{t("browser.tabs.filters")}</span>
       </TabsTrigger>
-      <TabsTrigger
-        value="transitions"
-        className={TAB_TRIGGER_STYLES}
-        data-testid="transitions-tab"
-      >
+      <TabsTrigger value="transitions" className={TAB_TRIGGER_STYLES} data-testid="transitions-tab">
         <FlipHorizontal2 className="h-4 w-4" />
         <span>{t("browser.tabs.transitions")}</span>
       </TabsTrigger>
-      <TabsTrigger
-        value="templates"
-        className={TAB_TRIGGER_STYLES}
-        data-testid="templates-tab"
-      >
+      <TabsTrigger value="templates" className={TAB_TRIGGER_STYLES} data-testid="templates-tab">
         <Video className="h-4 w-4" />
         <span>{t("browser.tabs.templates")}</span>
       </TabsTrigger>
-      <TabsTrigger
-        value="style-templates"
-        className={TAB_TRIGGER_STYLES}
-        data-testid="style-templates-tab"
-      >
+      <TabsTrigger value="style-templates" className={TAB_TRIGGER_STYLES} data-testid="style-templates-tab">
         <Sticker className="h-4 w-4" />
         <span>{t("browser.tabs.styleTemplates")}</span>
       </TabsTrigger>
