@@ -262,7 +262,7 @@ jobs:
           fi
 
           # Проверяем установку
-          cargo tauri --version
+          cargo-tauri --version
 
       - name: Install Tauri CLI (Windows)
         if: runner.os == 'Windows'
@@ -270,7 +270,7 @@ jobs:
           # Check if Tauri CLI is already installed
           $tauriInstalled = $false
           try {
-            cargo tauri --version
+            cargo-tauri --version
             $tauriInstalled = $true
             Write-Host "Tauri CLI already installed"
           } catch {
@@ -279,7 +279,7 @@ jobs:
           }
 
           # Verify installation
-          cargo tauri --version
+          cargo-tauri --version
 
       # Skip all tests in release builds to avoid compilation issues
       # Tests are run in separate CI workflows
@@ -347,7 +347,7 @@ jobs:
           includeDebug: false
           includeRelease: true
           includeUpdaterJson: true
-          tauriScript: "cargo tauri"
+          tauriScript: "cargo-tauri"
 
       - name: Build the app (Windows/Linux)
         if: matrix.platform != 'macos-latest'
@@ -372,7 +372,7 @@ jobs:
           includeDebug: false
           includeRelease: true
           includeUpdaterJson: true
-          tauriScript: "cargo tauri"
+          tauriScript: "cargo-tauri"
           args: --ci
 
   update-release-description:
