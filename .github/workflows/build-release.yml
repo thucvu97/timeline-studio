@@ -190,6 +190,19 @@ jobs:
           echo "PKG_CONFIG_PATH=C:\vcpkg\installed\x64-windows\lib\pkgconfig" >> $env:GITHUB_ENV
           echo "C:\vcpkg\installed\x64-windows\bin" >> $env:GITHUB_PATH
           
+          # Add additional paths that ffmpeg-sys-next might look for
+          echo "FFMPEG_DIR=C:\vcpkg\installed\x64-windows" >> $env:GITHUB_ENV
+          echo "FFMPEG_INCLUDE_DIR=C:\vcpkg\installed\x64-windows\include" >> $env:GITHUB_ENV
+          echo "FFMPEG_LIB_DIR=C:\vcpkg\installed\x64-windows\lib" >> $env:GITHUB_ENV
+          
+          # Verify FFmpeg installation
+          if (Test-Path "C:\vcpkg\installed\x64-windows\include\libavutil\avutil.h") {
+            echo "✅ FFmpeg headers found"
+          } else {
+            echo "❌ FFmpeg headers not found!"
+            ls "C:\vcpkg\installed\x64-windows\include" -Recurse | Select -First 20
+          }
+          
           # Check if ONNX Runtime exists from cache
           $ONNX_VERSION = "1.19.2"
           if (-Not (Test-Path "C:\onnxruntime")) {
@@ -303,6 +316,29 @@ jobs:
           # Заменяем пробелы на дефисы в имени продукта
           (Get-Content src-tauri/tauri.conf.json) -replace '"productName": "Timeline Studio"', '"productName": "timeline-studio"' | Set-Content src-tauri/tauri.conf.json
 
+      - name: Debug FFmpeg installation (Windows)
+        if: matrix.platform == 'windows-latest'
+        run: |
+          echo "=== FFmpeg Installation Debug ==="
+          echo "FFMPEG_DIR: $env:FFMPEG_DIR"
+          echo "FFMPEG_INCLUDE_DIR: $env:FFMPEG_INCLUDE_DIR"
+          echo "FFMPEG_LIB_DIR: $env:FFMPEG_LIB_DIR"
+          echo "PKG_CONFIG_PATH: $env:PKG_CONFIG_PATH"
+          
+          echo "`n=== Checking include files ==="
+          if (Test-Path "C:\vcpkg\installed\x64-windows\include\libavutil\avutil.h") {
+            echo "✅ avutil.h found"
+          } else {
+            echo "❌ avutil.h NOT found"
+          }
+          
+          echo "`n=== Checking lib files ==="
+          ls "C:\vcpkg\installed\x64-windows\lib\*.lib" | Select -First 10
+          
+          echo "`n=== pkg-config test ==="
+          pkg-config --cflags libavutil || echo "pkg-config failed for libavutil"
+          pkg-config --libs libavutil || echo "pkg-config failed for libavutil"
+
       - name: Install macOS targets
         if: matrix.platform == 'macos-latest'
         run: |
@@ -362,6 +398,9 @@ jobs:
           ORT_DYLIB_PATH: C:\onnxruntime\onnxruntime-win-x64-1.19.2\lib\onnxruntime.dll
           RUST_BACKTRACE: 1
           CARGO_PROFILE_RELEASE_BUILD_OVERRIDE_DEBUG: false
+          # Additional paths for Windows compilation
+          INCLUDE: C:\vcpkg\installed\x64-windows\include
+          LIB: C:\vcpkg\installed\x64-windows\lib
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
           tagName: v${{ needs.create-release.outputs.version }}
