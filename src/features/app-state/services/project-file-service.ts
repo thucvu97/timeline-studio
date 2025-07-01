@@ -15,14 +15,33 @@ export class ProjectFileService {
   static async loadProject(projectPath: string): Promise<ProjectFile> {
     try {
       const content = await readTextFile(projectPath)
-      const projectData = JSON.parse(content) as ProjectFile
+      
+      let projectData: any
+      try {
+        projectData = JSON.parse(content)
+      } catch (parseError) {
+        throw new Error(`Failed to parse project file: ${String(parseError)}`)
+      }
 
       // Валидируем структуру проекта
       ProjectFileService.validateProjectStructure(projectData)
 
-      return projectData
+      return projectData as ProjectFile
     } catch (error) {
       console.error(`Error loading project from ${projectPath}:`, error)
+      
+      // Если это уже наша ошибка валидации, пробрасываем её как есть
+      if (error instanceof Error && (
+        error.message.startsWith("Invalid project structure") ||
+        error.message.startsWith("Unsupported project version") ||
+        error.message.startsWith("Invalid media library") ||
+        error.message.startsWith("Invalid saved media file") ||
+        error.message.startsWith("Failed to parse project file")
+      )) {
+        throw error
+      }
+      
+      // Иначе оборачиваем в общую ошибку
       throw new Error(`Failed to load project: ${String(error)}`)
     }
   }

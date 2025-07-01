@@ -14,7 +14,7 @@ export const mockFs = {
   metadata: vi.fn(),
 }
 
-vi.mock("@tauri-apps/plugin-fs", () => mockFs)
+vi.mock("@tauri-apps/api/fs", () => mockFs)
 
 // Helper for simulating file system state
 export class MockFileSystem {

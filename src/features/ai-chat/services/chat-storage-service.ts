@@ -39,7 +39,7 @@ export class LocalChatStorageService implements ChatStorageService {
 
       // Создаем директорию для чатов если её нет
       if (typeof window !== "undefined" && window.__TAURI__) {
-        const { exists, mkdir } = await import("@tauri-apps/plugin-fs")
+        const { exists, mkdir } = await import("@tauri-apps/api/fs")
 
         if (!(await exists(this.chatsDir))) {
           await mkdir(this.chatsDir, { recursive: true })
@@ -80,7 +80,7 @@ export class LocalChatStorageService implements ChatStorageService {
 
     try {
       if (typeof window !== "undefined" && window.__TAURI__) {
-        const { readTextFile } = await import("@tauri-apps/plugin-fs")
+        const { readTextFile } = await import("@tauri-apps/api/fs")
         const filePath = `${this.chatsDir}/${id}.json`
 
         const content = await readTextFile(filePath)
@@ -129,7 +129,7 @@ export class LocalChatStorageService implements ChatStorageService {
       const sessions: ChatListItem[] = []
 
       if (typeof window !== "undefined" && window.__TAURI__) {
-        const { readDir } = await import("@tauri-apps/plugin-fs")
+        const { readDir } = await import("@tauri-apps/api/fs")
         const entries = await readDir(this.chatsDir!)
 
         for (const entry of entries) {
@@ -190,7 +190,7 @@ export class LocalChatStorageService implements ChatStorageService {
 
     try {
       if (typeof window !== "undefined" && window.__TAURI__) {
-        const { remove } = await import("@tauri-apps/plugin-fs")
+        const { remove } = await import("@tauri-apps/api/fs")
         const filePath = `${this.chatsDir}/${id}.json`
         await remove(filePath)
       } else {
@@ -326,7 +326,7 @@ export class LocalChatStorageService implements ChatStorageService {
       const data = JSON.stringify(session, null, 2)
 
       if (typeof window !== "undefined" && window.__TAURI__) {
-        const { writeTextFile } = await import("@tauri-apps/plugin-fs")
+        const { writeTextFile } = await import("@tauri-apps/api/fs")
         const filePath = `${this.chatsDir}/${session.id}.json`
         await writeTextFile(filePath, data)
       } else {

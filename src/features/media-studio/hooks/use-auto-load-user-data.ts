@@ -221,7 +221,7 @@ export function useAutoLoadUserData() {
       let jsonFiles: string[] = []
 
       try {
-        const { exists, readDir } = await import("@tauri-apps/plugin-fs")
+        const { exists, readDir } = await import("@tauri-apps/api/fs")
 
         const dirExists = await exists(dirPath)
         if (!dirExists) {

@@ -6,7 +6,7 @@ import { ReactNode } from "react"
 
 import { invoke } from "@tauri-apps/api/core"
 import { join } from "@tauri-apps/api/path"
-import { exists, readTextFile, writeTextFile } from "@tauri-apps/plugin-fs"
+import { exists, readTextFile, writeTextFile } from "@tauri-apps/api/fs"
 import { renderHook, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -14,7 +14,7 @@ import { useCurrentProject } from "../../hooks/use-current-project"
 import { AppSettingsProvider } from "../../services/app-settings-provider"
 
 // Mock Tauri APIs
-vi.mock("@tauri-apps/plugin-fs", () => ({
+vi.mock("@tauri-apps/api/fs", () => ({
   readTextFile: vi.fn(),
   writeTextFile: vi.fn(),
   exists: vi.fn(),

@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react"
 
 import { convertFileSrc } from "@tauri-apps/api/core"
-import { readFile } from "@tauri-apps/plugin-fs"
+import { readFile } from "@tauri-apps/api/fs"
 import { Music } from "lucide-react"
 import { LiveAudioVisualizer } from "react-audio-visualize"
 

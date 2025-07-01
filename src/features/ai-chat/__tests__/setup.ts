@@ -117,7 +117,7 @@ vi.mock("@/features/app-state", () => ({
 }))
 
 // Mock для Tauri APIs
-vi.mock("@tauri-apps/plugin-fs", () => ({
+vi.mock("@tauri-apps/api/fs", () => ({
   exists: vi.fn().mockResolvedValue(true),
   mkdir: vi.fn().mockResolvedValue(undefined),
   readTextFile: vi.fn().mockResolvedValue("{}"),
