@@ -2,6 +2,8 @@ import { createContext } from "react"
 
 import { useMachine } from "@xstate/react"
 
+import { useAppSettings } from "@/features/app-state"
+
 import { BrowserTab, LayoutMode, userSettingsMachine } from "./user-settings-machine"
 
 /**
@@ -95,12 +97,23 @@ export const UserSettingsContext = createContext<UserSettingsContextValue | unde
 export function UserSettingsProvider({ children }: { children: React.ReactNode }) {
   console.log("UserSettingsProvider rendering")
 
+  // Получаем доступ к app settings для сохранения пользовательских настроек
+  const { updateUserSettings: saveUserSettings } = useAppSettings()
+
   // Инициализируем машину состояний для управления пользовательскими настройками
   const [state, send] = useMachine(userSettingsMachine)
 
   // Отладочные логи
   console.log("UserSettingsProvider state:", state.context)
   console.log("UserSettingsProvider state status:", state.status)
+
+  // Хелпер для обновления настроек с сохранением
+  const updateSettingAndSave = (event: any, partialSettings: any) => {
+    // Обновляем локальное состояние
+    send(event)
+    // Сохраняем в persistent storage
+    saveUserSettings(partialSettings)
+  }
 
   // Создаем значение контекста, которое будет доступно через хук useUserSettings
   const value = {
@@ -144,11 +157,14 @@ export function UserSettingsProvider({ children }: { children: React.ReactNode }
       console.log("Tab change requested:", value)
       // Проверяем, что значение является допустимым BrowserTab
       if (["media", "music", "transitions", "effects", "filters", "templates"].includes(value)) {
-        // Отправляем событие в машину состояний
-        send({
-          type: "UPDATE_ACTIVE_TAB",
-          tab: value as BrowserTab,
-        })
+        // Обновляем состояние и сохраняем
+        updateSettingAndSave(
+          {
+            type: "UPDATE_ACTIVE_TAB",
+            tab: value as BrowserTab,
+          },
+          { activeTab: value as BrowserTab }
+        )
         console.log("Active tab updated:", value)
       } else {
         console.error("Invalid tab value:", value)
@@ -166,11 +182,14 @@ export function UserSettingsProvider({ children }: { children: React.ReactNode }
       // Проверяем, что значение является допустимым LayoutMode
       if (["default", "options", "vertical", "chat"].includes(value)) {
         console.log("Updating layoutMode:", value)
-        // Отправляем событие в машину состояний
-        send({
-          type: "UPDATE_LAYOUT",
-          layoutMode: value,
-        })
+        // Обновляем состояние и сохраняем
+        updateSettingAndSave(
+          {
+            type: "UPDATE_LAYOUT",
+            layoutMode: value,
+          },
+          { layoutMode: value }
+        )
       } else {
         console.error("Invalid layout value:", value)
       }
@@ -240,11 +259,14 @@ export function UserSettingsProvider({ children }: { children: React.ReactNode }
      */
     handlePlayerVolumeChange: (value: number) => {
       console.log("Player volume change requested:", value)
-      // Отправляем событие в машину состояний
-      send({
-        type: "UPDATE_PLAYER_VOLUME",
-        volume: value,
-      })
+      // Обновляем состояние и сохраняем
+      updateSettingAndSave(
+        {
+          type: "UPDATE_PLAYER_VOLUME",
+          volume: value,
+        },
+        { playerVolume: value }
+      )
       console.log("Player volume updated")
     },
 

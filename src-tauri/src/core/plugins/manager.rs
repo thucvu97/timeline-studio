@@ -1089,10 +1089,18 @@ mod tests {
     let manager = PluginManager::new(app_version, event_bus, service_container);
     let registry = manager.loader().registry();
 
+    // Используем уникальный ID для избежания конфликтов с другими тестами
+    let plugin_id = "test-plugin-suspend";
+
     // Регистрируем плагин
-    let plugin = TestPlugin::new();
+    let mut plugin = TestPlugin::new();
+    plugin.metadata.id = plugin_id.to_string();
     let metadata = plugin.metadata().clone();
-    let factory = Box::new(|| Box::new(TestPlugin::new()) as Box<dyn Plugin>);
+    let factory = Box::new(move || {
+      let mut p = TestPlugin::new();
+      p.metadata.id = plugin_id.to_string();
+      Box::new(p) as Box<dyn Plugin>
+    });
 
     registry
       .register(crate::core::plugins::loader::PluginRegistration { metadata, factory })
@@ -1102,20 +1110,20 @@ mod tests {
     // Загружаем плагин
     let permissions = PluginPermissions::default();
     manager
-      .load_plugin("test-plugin", permissions)
+      .load_plugin(plugin_id, permissions)
       .await
       .unwrap();
 
     // Сначала приостанавливаем плагин
-    manager.suspend_plugin("test-plugin").await.unwrap();
+    manager.suspend_plugin(plugin_id).await.unwrap();
 
     // Попытка приостановить уже приостановленный плагин
-    let result = manager.suspend_plugin("test-plugin").await;
+    let result = manager.suspend_plugin(plugin_id).await;
     assert!(result.is_err());
     assert!(result.unwrap_err().to_string().contains("not active"));
 
     // Очистка
-    let _ = manager.unload_plugin("test-plugin").await;
+    let _ = manager.unload_plugin(plugin_id).await;
   }
 
   #[tokio::test]

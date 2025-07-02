@@ -47,7 +47,10 @@ export function useMediaAdapter(): ListAdapter<MediaFile> {
   const { isItemFavorite } = useFavorites()
   const { importFile, importFolder, isImporting } = useMediaImport()
 
-  const allMediaFiles = state.context.mediaFiles.allFiles || []
+  const allMediaFiles = (state.context.mediaFiles.allFiles || []).map(file => ({
+    ...file,
+    isLoadingMetadata: false, // Force isLoadingMetadata to false for all files
+  }))
   const error = getError()
 
   // Используем isLoading из mediaFiles, а не глобальный isLoading
