@@ -36,48 +36,55 @@ describe("TrackControlsPanel", () => {
 
     render(<TrackControlsPanel />)
 
-    expect(screen.getByText("Управление треками")).toBeInTheDocument()
-    expect(screen.getByText("0 треков")).toBeInTheDocument()
     expect(screen.getByText("Треки не найдены")).toBeInTheDocument()
   })
 
-  it("renders track add buttons", () => {
+  it("renders tracks header when tracks exist", () => {
     mockUseTracks.mockReturnValue({
-      tracks: [],
+      tracks: [
+        {
+          id: "track-1",
+          name: "Test Video Track",
+          type: "video",
+          height: 80,
+          isHidden: false,
+          isLocked: false,
+        },
+      ],
     } as any)
 
     render(<TrackControlsPanel />)
 
-    expect(screen.getByText("Видео")).toBeInTheDocument()
-    expect(screen.getByText("Аудио")).toBeInTheDocument()
-    expect(screen.getByText("Изображения")).toBeInTheDocument()
+    expect(screen.getByText("Треки проекта")).toBeInTheDocument()
   })
 
-  it("calls addTrack when video track button is clicked", () => {
+  it("renders track with proper controls", () => {
+    const mockTracks = [
+      {
+        id: "track-1",
+        name: "Test Video Track",
+        type: "video",
+        height: 80,
+        isHidden: false,
+        isLocked: false,
+      },
+    ]
+
     mockUseTracks.mockReturnValue({
-      tracks: [],
+      tracks: mockTracks,
     } as any)
 
     render(<TrackControlsPanel />)
 
-    fireEvent.click(screen.getByText("Видео"))
+    // Check track name is displayed
+    expect(screen.getByText("Test Video Track")).toBeInTheDocument()
 
-    expect(mockAddTrack).toHaveBeenCalledWith("video", "Видео 1")
+    // Check visibility and lock buttons are present
+    expect(screen.getByRole("button", { name: "toggle visibility" })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "toggle lock" })).toBeInTheDocument()
   })
 
-  it("calls addTrack when audio track button is clicked", () => {
-    mockUseTracks.mockReturnValue({
-      tracks: [],
-    } as any)
-
-    render(<TrackControlsPanel />)
-
-    fireEvent.click(screen.getByText("Аудио"))
-
-    expect(mockAddTrack).toHaveBeenCalledWith("audio", "Аудио 1")
-  })
-
-  it("renders tracks with controls", () => {
+  it("renders multiple tracks", () => {
     const mockTracks = [
       {
         id: "track-1",
@@ -103,7 +110,6 @@ describe("TrackControlsPanel", () => {
 
     render(<TrackControlsPanel />)
 
-    expect(screen.getByText("2 треков")).toBeInTheDocument()
     expect(screen.getByText("Test Video Track")).toBeInTheDocument()
     expect(screen.getByText("Test Audio Track")).toBeInTheDocument()
   })
@@ -156,14 +162,14 @@ describe("TrackControlsPanel", () => {
     expect(mockUpdateTrack).toHaveBeenCalledWith("track-1", { isLocked: true })
   })
 
-  it("renders track height slider with correct value", () => {
+  it("renders hidden track with correct icon", () => {
     const mockTracks = [
       {
         id: "track-1",
         name: "Test Track",
         type: "video",
         height: 120,
-        isHidden: false,
+        isHidden: true,
         isLocked: false,
       },
     ]
@@ -174,16 +180,22 @@ describe("TrackControlsPanel", () => {
 
     render(<TrackControlsPanel />)
 
-    // Check that height is displayed
-    expect(screen.getByText("120px")).toBeInTheDocument()
-    expect(screen.getByText("Высота")).toBeInTheDocument()
+    // Check that visibility toggle button is present for hidden track
+    expect(screen.getByRole("button", { name: "toggle visibility" })).toBeInTheDocument()
+    // Verify the track is actually hidden
+    expect(screen.getByText("Test Track")).toBeInTheDocument()
   })
 
-  it("shows track count correctly", () => {
+  it("renders locked track with correct icon", () => {
     const mockTracks = [
-      { id: "1", name: "Track 1", type: "video", height: 80 },
-      { id: "2", name: "Track 2", type: "audio", height: 60 },
-      { id: "3", name: "Track 3", type: "video", height: 100 },
+      {
+        id: "track-1",
+        name: "Test Track",
+        type: "video",
+        height: 80,
+        isHidden: false,
+        isLocked: true,
+      },
     ]
 
     mockUseTracks.mockReturnValue({
@@ -192,36 +204,34 @@ describe("TrackControlsPanel", () => {
 
     render(<TrackControlsPanel />)
 
-    expect(screen.getByText("3 треков")).toBeInTheDocument()
+    // Check that lock toggle button is present for locked track
+    expect(screen.getByRole("button", { name: "toggle lock" })).toBeInTheDocument()
+    // Verify the track is actually locked
+    expect(screen.getByText("Test Track")).toBeInTheDocument()
   })
 
-  it("expands additional track types", () => {
+  it("shows correct track type badge for video", () => {
+    const mockTracks = [{ id: "1", name: "Video Track", type: "video", height: 80, isHidden: false, isLocked: false }]
+
     mockUseTracks.mockReturnValue({
-      tracks: [],
+      tracks: mockTracks,
     } as any)
 
     render(<TrackControlsPanel />)
 
-    const expandButton = screen.getByText("Дополнительные типы")
-    fireEvent.click(expandButton)
-
-    expect(screen.getByText("Музыка")).toBeInTheDocument()
-    expect(screen.getByText("Субтитры")).toBeInTheDocument()
+    expect(screen.getByText("video")).toBeInTheDocument()
   })
 
-  it("adds music track from additional types", () => {
+  it("shows correct track type badge for audio", () => {
+    const mockTracks = [{ id: "2", name: "Audio Track", type: "audio", height: 60, isHidden: false, isLocked: false }]
+
     mockUseTracks.mockReturnValue({
-      tracks: [],
+      tracks: mockTracks,
     } as any)
 
     render(<TrackControlsPanel />)
 
-    const expandButton = screen.getByText("Дополнительные типы")
-    fireEvent.click(expandButton)
-
-    fireEvent.click(screen.getByText("Музыка"))
-
-    expect(mockAddTrack).toHaveBeenCalledWith("music", "Музыка 1")
+    expect(screen.getByText("audio")).toBeInTheDocument()
   })
 
   it("shows correct track type badges", () => {

@@ -54,6 +54,7 @@ export const File = createMockIcon("File")
 export const FileAudio = createMockIcon("FileAudio")
 export const FileImage = createMockIcon("FileImage")
 export const FileText = createMockIcon("FileText")
+export const FilePlus = createMockIcon("FilePlus")
 export const FileVideo = createMockIcon("FileVideo")
 export const Film = createMockIcon("Film")
 export const Filter = createMockIcon("Filter")
@@ -173,6 +174,7 @@ vi.mock("lucide-react", () => ({
   File,
   FileAudio,
   FileImage,
+  FilePlus,
   FileText,
   FileVideo,
   Film,

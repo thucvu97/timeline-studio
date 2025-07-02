@@ -31,6 +31,18 @@ export function useDevices(
   const [selectedAudioDevice, setSelectedAudioDevice] = useState<string>("")
 
   const getDevices = useCallback(async () => {
+    // Проверяем доступность API mediaDevices
+    if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+      console.error("MediaDevices API недоступен")
+      setErrorMessage(
+        t(
+          "dialogs.cameraCapture.mediaDevicesNotSupported",
+          "Запись с камеры не поддерживается в данном приложении. Функция доступна только в веб-браузере.",
+        ),
+      )
+      return false
+    }
+
     try {
       const devices = await navigator.mediaDevices.enumerateDevices()
 

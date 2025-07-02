@@ -178,8 +178,9 @@ export const VideoPreview = memo(
 
     // Функция для получения URL видео без загрузки в память
     const loadVideoFile = useCallback(async (path: string) => {
-      // Используем собственную функцию для стриминга видео
+      // Используем asset протокол через convertToAssetUrl
       const assetUrl = convertToAssetUrl(path)
+      console.log(`[VideoPreview] Converting path ${path} to asset URL: ${assetUrl}`)
       return assetUrl
     }, [])
 
@@ -244,7 +245,47 @@ export const VideoPreview = memo(
               width: `${size * (16 / 9)}px`,
             }}
           >
-            <div className="group relative h-full w-full">
+            <div
+              className="group relative h-full w-full cursor-pointer"
+              style={{ backgroundColor: "#1a1a1a" }}
+              onClick={(e) => {
+                e.preventDefault()
+                const video = e.currentTarget.querySelector("video")
+                if (!video) return
+
+                const newPlayingState = !isPlaying
+
+                if (newPlayingState) {
+                  video.play().catch((err: unknown) => console.error("[VideoPreview] Ошибка воспроизведения:", err))
+                } else {
+                  video.pause()
+                }
+
+                setIsPlaying(newPlayingState)
+                console.log(
+                  `[VideoPreview] Видео ${newPlayingState ? "запущено" : "остановлено"} в плейсхолдере:`,
+                  file.name,
+                )
+              }}
+              onMouseMove={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect()
+                const x = e.clientX - rect.left
+                const percentage = x / rect.width
+                const newTime = percentage * (file.duration ?? 0)
+
+                setHoverTime(newTime)
+                const video = e.currentTarget.querySelector("video")
+                if (video) {
+                  video.currentTime = newTime
+                }
+              }}
+              onMouseLeave={() => {
+                setHoverTime(null)
+                if (isPlaying) {
+                  setIsPlaying(false)
+                }
+              }}
+            >
               <video
                 src={videoUrl || convertToAssetUrl(file.path)}
                 poster={
@@ -258,11 +299,10 @@ export const VideoPreview = memo(
                 autoPlay={false}
                 tabIndex={0}
                 playsInline
-                muted
-                className={cn("h-full w-full object-cover focus:outline-none", isAdded ? "opacity-50" : "")}
+                className={cn("h-full w-full object-cover focus:outline-none", isAdded ? "opacity-50" : "opacity-100")}
                 style={{
                   transition: "opacity 0.2s ease-in-out",
-                  backgroundColor: "transparent",
+                  backgroundColor: "black",
                   zIndex: 1,
                   objectFit: "cover",
                   visibility: "visible",
@@ -289,6 +329,21 @@ export const VideoPreview = memo(
                 onCanPlayThrough={() => {
                   console.log("[VideoPreview] Can play through for placeholder")
                 }}
+                onKeyDown={(e) => {
+                  if (e.code === "Space") {
+                    e.preventDefault()
+                    const video = e.currentTarget as HTMLVideoElement
+                    const newPlayingState = !isPlaying
+
+                    if (newPlayingState) {
+                      video.play().catch((err: unknown) => console.error("[VideoPreview] Ошибка воспроизведения:", err))
+                    } else {
+                      video.pause()
+                    }
+
+                    setIsPlaying(newPlayingState)
+                  }
+                }}
               />
 
               {/* Иконка видео для плейсхолдера */}
@@ -304,6 +359,23 @@ export const VideoPreview = memo(
               >
                 <Film size={size > 100 ? 16 : 12} />
               </div>
+
+              {/* Продолжительность видео для плейсхолдера */}
+              {file.duration && file.duration > 0 && (
+                <div
+                  className={cn(
+                    "pointer-events-none absolute rounded-xs bg-black/60 text-xs leading-[16px]",
+                    size > 100 ? "top-1 right-1 px-[4px] py-[2px]" : "top-0.5 right-0.5 px-[2px] py-0",
+                  )}
+                  style={{
+                    fontSize: size > 100 ? "13px" : "11px",
+                    color: "#ffffff",
+                    zIndex: 20,
+                  }}
+                >
+                  {formatDuration(file.duration, 0, true)}
+                </div>
+              )}
 
               {/* Кнопка избранного для плейсхолдера */}
               <FavoriteButton file={file} size={size} type="media" />
@@ -351,9 +423,10 @@ export const VideoPreview = memo(
                 onClick={(e) => handlePlayPause(e, stream)}
               >
                 <div
-                  className="group relative h-full w-full"
+                  className="group relative h-full w-full overflow-hidden"
                   onMouseMove={(e) => handleMouseMove(e, stream)}
                   onMouseLeave={handleMouseLeave}
+                  style={{ backgroundColor: "#1a1a1a" }}
                 >
                   <video
                     key={`${file.id}-${stream.index}`}
@@ -373,17 +446,17 @@ export const VideoPreview = memo(
                     tabIndex={0}
                     playsInline
                     muted={false} // Включаем звук в превью по запросу пользователя
-                    className={cn(
-                      "absolute inset-0 h-full w-full object-cover focus:outline-none",
-                      isAdded ? "opacity-50" : "",
-                    )}
+                    className={cn("h-full w-full object-cover focus:outline-none", isAdded ? "opacity-50" : "")}
                     style={{
                       transition: "opacity 0.2s ease-in-out",
-                      backgroundColor: "transparent",
+                      backgroundColor: "black",
                       zIndex: 1,
                       objectFit: "cover",
                       visibility: "visible",
                       display: "block",
+                      width: "100%",
+                      height: "100%",
+                      position: "relative",
                     }}
                     onEnded={() => {
                       console.log("Video ended for stream:", stream.index)
@@ -468,19 +541,21 @@ export const VideoPreview = memo(
                   />
 
                   {/* Продолжительность видео */}
-                  {!(isMultipleStreams && typeof stream.index !== "undefined" && stream.index === 0) && (
+                  {file.duration &&
+                    file.duration > 0 &&
+                    !(isMultipleStreams && typeof stream.index !== "undefined" && stream.index !== 0) && (
                     <div
                       className={cn(
                         "pointer-events-none absolute rounded-xs bg-black/60 text-xs leading-[16px]",
-                        "top-1 px-[4px] py-[2px]",
+                        size > 100 ? "top-1 right-1 px-[4px] py-[2px]" : "top-0.5 right-0.5 px-[2px] py-0",
                       )}
                       style={{
                         fontSize: size > 100 ? "13px" : "11px",
-                        right: size / 30 + 25,
                         color: "#ffffff", // Явно задаем чисто белый цвет для Tauri
+                        zIndex: 20,
                       }}
                     >
-                      {formatDuration(file.duration ?? 0, 0, true)}
+                      {formatDuration(file.duration, 0, true)}
                     </div>
                   )}
 
@@ -516,7 +591,7 @@ export const VideoPreview = memo(
                       style={{
                         fontSize: size > 100 ? "13px" : "11px",
                         color: "#ffffff", // Явно задаем чисто белый цвет для Tauri
-                        zIndex: 10,
+                        zIndex: 20,
                       }}
                     >
                       {formatResolution(stream.width ?? 0, stream.height ?? 0)}

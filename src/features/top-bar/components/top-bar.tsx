@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useId, useMemo, useState } from "react"
 
 import {
+  FilePlus,
   FolderOpen,
   Keyboard,
   LayoutTemplate,
@@ -26,6 +27,7 @@ import { useCurrentProject } from "@/features/app-state/hooks/use-current-projec
 import { LayoutPreviews } from "@/features/media-studio"
 import { ModalType } from "@/features/modals"
 import { useModal } from "@/features/modals/services/modal-provider"
+import { useTimeline } from "@/features/timeline/hooks/use-timeline"
 import { ThemeToggle } from "@/features/top-bar/components/theme/theme-toggle"
 import { useUserSettings } from "@/features/user-settings"
 import { GpuStatusBadge, RenderJobsDropdown } from "@/features/video-compiler"
@@ -39,7 +41,8 @@ const TopBarComponent = function TopBar() {
   const { isBrowserVisible, toggleBrowserVisibility } = useUserSettings()
   const { isTimelineVisible, toggleTimelineVisibility } = useUserSettings()
   const { isOptionsVisible, toggleOptionsVisibility } = useUserSettings()
-  const { currentProject, openProject, saveProject, setProjectDirty } = useCurrentProject()
+  const { currentProject, openProject, saveProject, setProjectDirty, createNewProject } = useCurrentProject()
+  const { createProject: createTimelineProject } = useTimeline()
   const [isEditing, setIsEditing] = useState(false)
   const [projectName, setProjectName] = useState(currentProject.name)
   const projectNameInputId = useId()
@@ -91,6 +94,21 @@ const TopBarComponent = function TopBar() {
     }
   }, [openProject])
 
+  const handleCreateNewProject = useCallback(() => {
+    try {
+      // Создаем новый проект с настройками по умолчанию
+      const projectName = "Untitled Project"
+      createNewProject(projectName)
+
+      // Также создаем timeline проект с теми же настройками
+      createTimelineProject(projectName)
+
+      console.log("New project created successfully")
+    } catch (error) {
+      console.error("[handleCreateNewProject] Error creating new project:", error)
+    }
+  }, [createNewProject, createTimelineProject])
+
   // Мемоизируем заголовки для кнопок
   const buttonTitles = useMemo(
     () => ({
@@ -101,6 +119,7 @@ const TopBarComponent = function TopBar() {
       userSettings: t("topBar.userSettings"),
       projectSettings: t("topBar.projectSettings"),
       openProject: t("topBar.openProject"),
+      newProject: t("topBar.newProject"),
       save: currentProject.isDirty ? t("topBar.saveChanges") : t("topBar.allChangesSaved"),
       cameraCapture: t("topBar.cameraCapture"),
       voiceRecording: t("topBar.voiceRecording"),
@@ -222,6 +241,16 @@ const TopBarComponent = function TopBar() {
             data-testid="project-settings-button"
           >
             <MonitorCog className="h-5 w-5" />
+          </Button>
+          <Button
+            className={TOP_BAR_BUTTON_CLASS}
+            variant="ghost"
+            size="icon"
+            title={buttonTitles.newProject}
+            onClick={handleCreateNewProject}
+            data-testid="new-project-button"
+          >
+            <FilePlus className="h-5 w-5" />
           </Button>
           <Button
             className={TOP_BAR_BUTTON_CLASS}

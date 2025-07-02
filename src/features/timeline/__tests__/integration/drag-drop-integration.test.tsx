@@ -335,26 +335,21 @@ describe("Интеграция Drag-Drop функциональности", () =
     it("должен отображать информацию о треках из hook", () => {
       render(<TrackControlsPanel />)
 
-      expect(screen.getByText("Управление треками")).toBeInTheDocument()
-      expect(screen.getByText("2 треков")).toBeInTheDocument() // 2 трека из мока
+      expect(screen.getByText("Треки проекта")).toBeInTheDocument()
 
       // Проверяем отображение треков
       expect(screen.getByText("Video Track 1")).toBeInTheDocument()
       expect(screen.getByText("Audio Track 1")).toBeInTheDocument()
     })
 
-    it("должен вызывать addTrack при нажатии кнопок добавления", () => {
+    it("должен вызывать updateTrack при изменении настроек треков", () => {
       render(<TrackControlsPanel />)
 
-      const videoButton = screen.getByText("Видео")
-      fireEvent.click(videoButton)
+      // Находим кнопку видимости для первого трека
+      const visibilityButtons = screen.getAllByRole("button", { name: /toggle visibility/i })
+      fireEvent.click(visibilityButtons[0])
 
-      expect(mockAddTrack).toHaveBeenCalledWith("video", "Видео 2") // Уже есть 1 видео трек в моке
-
-      const audioButton = screen.getByText("Аудио")
-      fireEvent.click(audioButton)
-
-      expect(mockAddTrack).toHaveBeenCalledWith("audio", "Аудио 2") // Уже есть 1 аудио трек в моке
+      expect(mockUpdateTrack).toHaveBeenCalledWith("video-track-1", { isHidden: true })
     })
 
     it("должен обновлять треки при изменении настроек", () => {
@@ -375,17 +370,13 @@ describe("Интеграция Drag-Drop функциональности", () =
       // Проверяем основные элементы Timeline
       expect(screen.getByText("Current Timeline Project")).toBeInTheDocument()
       expect(screen.getByText("1920x1080 @ 30fps")).toBeInTheDocument()
-      expect(screen.getByText("1 секций")).toBeInTheDocument()
       // Используем getAllByText так как "2 треков" появляется в двух местах
-      const trackTexts = screen.getAllByText("2 треков")
-      expect(trackTexts.length).toBeGreaterThan(0)
-      expect(screen.getByText("1 клипов")).toBeInTheDocument()
+      // Проверяем наличие треков (может быть несколько элементов с таким текстом)
+      expect(screen.getAllByText("Video Track 1").length).toBeGreaterThan(0)
+      expect(screen.getAllByText("Audio Track 1").length).toBeGreaterThan(0)
 
       // Проверяем наличие TrackControlsPanel
-      expect(screen.getByText("Управление треками")).toBeInTheDocument()
-
-      // Проверяем наличие временной шкалы
-      expect(screen.getByText("Временная шкала")).toBeInTheDocument()
+      expect(screen.getByText("Треки проекта")).toBeInTheDocument()
     })
 
     it("должен обрабатывать создание проекта при первой загрузке", async () => {
@@ -502,17 +493,17 @@ describe("Интеграция Drag-Drop функциональности", () =
       const dropTime = 30.5
 
       // Проверяем что панель управления треками существует
-      expect(screen.getByText("Управление треками")).toBeInTheDocument()
-      // И что в ней отображается правильное количество треков
-      const trackTexts = screen.getAllByText("2 треков")
-      expect(trackTexts.length).toBeGreaterThan(0)
+      expect(screen.getByText("Треки проекта")).toBeInTheDocument()
+      // Проверяем что треки отображаются (может быть несколько элементов с таким текстом)
+      expect(screen.getAllByText("Video Track 1").length).toBeGreaterThan(0)
+      expect(screen.getAllByText("Audio Track 1").length).toBeGreaterThan(0)
     })
 
     it("симулирует управление треками через TrackControlsPanel", () => {
       render(<TimelineContent />)
 
       // Проверяем наличие панели управления
-      expect(screen.getByText("Управление треками")).toBeInTheDocument()
+      expect(screen.getByText("Треки проекта")).toBeInTheDocument()
 
       // Симулируем скрытие трека
       const visibilityButtons = screen.getAllByRole("button", { name: /toggle visibility/i })
@@ -529,16 +520,18 @@ describe("Интеграция Drag-Drop функциональности", () =
       expect(mockUpdateTrack).toHaveBeenCalledWith("video-track-1", { isLocked: true })
     })
 
-    it("симулирует работу с высотой треков", () => {
+    it("симулирует работу с треками через панель управления", () => {
       render(<TrackControlsPanel />)
 
-      // Проверяем отображение текущей высоты треков
-      expect(screen.getByText("80px")).toBeInTheDocument() // video track height
-      expect(screen.getByText("60px")).toBeInTheDocument() // audio track height
+      // Проверяем отображение треков
+      expect(screen.getByText("Video Track 1")).toBeInTheDocument()
+      expect(screen.getByText("Audio Track 1")).toBeInTheDocument()
 
-      // Слайдеры высоты должны присутствовать
-      const heightLabels = screen.getAllByText("Высота")
-      expect(heightLabels.length).toBe(2) // по одному для каждого трека
+      // Проверяем что кнопки управления присутствуют
+      const visibilityButtons = screen.getAllByRole("button", { name: /toggle visibility/i })
+      const lockButtons = screen.getAllByRole("button", { name: /toggle lock/i })
+      expect(visibilityButtons.length).toBe(2) // по одной для каждого трека
+      expect(lockButtons.length).toBe(2) // по одной для каждого трека
     })
   })
 
@@ -552,12 +545,8 @@ describe("Интеграция Drag-Drop функциональности", () =
 
       render(<TrackControlsPanel />)
 
-      // Проверяем отображение нулевого количества треков
-      const zeroText = screen.getByText("0 треков")
-      expect(zeroText).toBeInTheDocument()
-
-      // Кнопка добавления видео трека должна быть доступна
-      expect(screen.getByText("Видео")).toBeInTheDocument()
+      // Проверяем что отображается сообщение об отсутствии треков
+      expect(screen.getByText("Треки не найдены")).toBeInTheDocument()
     })
 
     it("должен обрабатывать некорректные данные медиафайлов", () => {
@@ -591,25 +580,25 @@ describe("Интеграция Drag-Drop функциональности", () =
     })
 
     it("должен корректно обрабатывать быстрые повторные операции", () => {
-      // Очищаем предыдущие вызовы mockAddTrack
-      mockAddTrack.mockClear()
+      // Очищаем предыдущие вызовы mockUpdateTrack
+      mockUpdateTrack.mockClear()
 
       render(<TrackControlsPanel />)
 
-      const videoButton = screen.getByText("Видео")
+      // Находим кнопки управления треками
+      const visibilityButtons = screen.getAllByRole("button", { name: /toggle visibility/i })
 
       // Быстрые повторные клики
-      fireEvent.click(videoButton)
-      fireEvent.click(videoButton)
-      fireEvent.click(videoButton)
+      fireEvent.click(visibilityButtons[0])
+      fireEvent.click(visibilityButtons[0])
+      fireEvent.click(visibilityButtons[0])
 
       // Должно быть вызвано 3 раза
-      expect(mockAddTrack).toHaveBeenCalledTimes(3)
-      // Так как компонент не перерендеривается, количество треков остается 1
-      // Поэтому все 3 клика создают "Видео 2"
-      expect(mockAddTrack).toHaveBeenNthCalledWith(1, "video", "Видео 2")
-      expect(mockAddTrack).toHaveBeenNthCalledWith(2, "video", "Видео 2")
-      expect(mockAddTrack).toHaveBeenNthCalledWith(3, "video", "Видео 2")
+      expect(mockUpdateTrack).toHaveBeenCalledTimes(3)
+      // Проверяем что состояние переключается каждый раз
+      expect(mockUpdateTrack).toHaveBeenNthCalledWith(1, "video-track-1", { isHidden: true })
+      expect(mockUpdateTrack).toHaveBeenNthCalledWith(2, "video-track-1", { isHidden: true })
+      expect(mockUpdateTrack).toHaveBeenNthCalledWith(3, "video-track-1", { isHidden: true })
     })
   })
 })

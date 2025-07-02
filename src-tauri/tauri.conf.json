@@ -25,16 +25,10 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self'; media-src 'self' asset: tauri: file: http: https: blob: mediastream:; img-src 'self' asset: tauri: file: http: https: blob: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' http: https: ws: wss:;",
+      "csp": null,
       "assetProtocol": {
         "enable": true,
-        "scope": {
-          "allow": [
-            "**",
-            "$HOME/**",
-            "/Users/aleksandrkireev/**"
-          ]
-        }
+        "scope": ["**/*"]
       }
     }
   },

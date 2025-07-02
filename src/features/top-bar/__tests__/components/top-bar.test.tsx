@@ -75,6 +75,22 @@ vi.mock("@/features/app-state/hooks/use-app-settings", () => ({
   }),
 }))
 
+// Mock useTimeline hook
+vi.mock("@/features/timeline/hooks/use-timeline", () => ({
+  useTimeline: () => ({
+    createProject: vi.fn(),
+    project: null,
+    uiState: {},
+    isPlaying: false,
+    isRecording: false,
+    currentTime: 0,
+    error: null,
+    lastAction: null,
+    isReady: true,
+    isSaving: false,
+  }),
+}))
+
 describe("TopBar", () => {
   beforeEach(() => {
     vi.clearAllMocks()

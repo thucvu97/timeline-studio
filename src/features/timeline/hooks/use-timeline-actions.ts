@@ -57,7 +57,7 @@ function getTrackTypeForMediaFile(file: MediaFile): TrackType {
 }
 
 export function useTimelineActions(): UseTimelineActionsReturn {
-  const { project, addTrack, addClip } = useTimeline()
+  const { project, addTrack, addClip, createProject } = useTimeline()
   const { tracks, getTracksByType } = useTracks()
   const { getClipsByTrack } = useClips()
 
@@ -111,40 +111,55 @@ export function useTimelineActions(): UseTimelineActionsReturn {
 
   const addSingleMediaToTimeline = useCallback(
     (file: MediaFile, customTrackId?: string, customStartTime?: number) => {
+      // Если нет проекта, создаем новый
       if (!project) {
-        console.warn("No project available for adding media")
+        console.log("No timeline project found, creating new project...")
+        createProject("Untitled Project")
+
+        // Откладываем добавление медиафайла до создания проекта
+        setTimeout(() => {
+          addSingleMediaToTimeline(file, customTrackId, customStartTime)
+        }, 100)
         return
       }
 
       const trackType = getTrackTypeForMedia(file)
-      let targetTrackId = customTrackId || findBestTrackForMedia(file)
+      const targetTrackId = customTrackId || findBestTrackForMedia(file)
 
       // Если нет подходящего трека, создаем новый
       if (!targetTrackId) {
         const trackName = `${trackType.charAt(0).toUpperCase() + trackType.slice(1)} Track`
+
+        console.log(`Creating new ${trackType} track for file: ${file.name}`)
+
+        // Создаем трек
         addTrack(trackType, undefined, trackName)
 
-        // Находим только что созданный трек
-        const newTracks = getTracksByType(trackType)
-        if (newTracks.length > 0) {
-          targetTrackId = newTracks[newTracks.length - 1].id
-        }
-      }
+        // Для синхронной обработки используем рекурсивный вызов с задержкой
+        // Это позволит state machine обработать создание трека
+        setTimeout(() => {
+          // Пытаемся найти созданный трек
+          const newTargetTrackId = findBestTrackForMedia(file)
 
-      if (!targetTrackId) {
-        console.error("Failed to create or find track for media file")
+          if (newTargetTrackId) {
+            // Рекурсивно вызываем функцию с найденным треком
+            addSingleMediaToTimeline(file, newTargetTrackId, customStartTime)
+          } else {
+            console.error(`Failed to create ${trackType} track for media file: ${file.name}`)
+          }
+        }, 50) // Небольшая задержка для обработки state machine
+
         return
       }
 
-      // Вычисляем время начала клипа (используем переданное время или вычисляем автоматически)
+      // Если трек уже существует, добавляем клип сразу
       const startTime = customStartTime !== undefined ? customStartTime : calculateClipStartTime(targetTrackId)
+      const duration = file.duration || (file.isImage ? 5 : 10) // 5 секунд для изображений, 10 для видео/аудио без duration
 
-      // Добавляем клип на трек
-      addClip(targetTrackId, file, startTime, file.duration)
-
-      console.log(`Added ${file.name} to track ${targetTrackId} at time ${startTime}`)
+      addClip(targetTrackId, file, startTime, duration)
+      console.log(`Added ${file.name} to track ${targetTrackId} at time ${startTime} with duration ${duration}`)
     },
-    [project, getTrackTypeForMedia, findBestTrackForMedia, addTrack, getTracksByType, calculateClipStartTime, addClip],
+    [project, getTrackTypeForMedia, findBestTrackForMedia, addTrack, calculateClipStartTime, addClip, createProject],
   )
 
   const addMediaToTimeline = useCallback(

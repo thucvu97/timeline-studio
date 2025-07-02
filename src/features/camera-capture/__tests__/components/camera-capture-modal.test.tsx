@@ -4,6 +4,18 @@ import { renderWithBase, screen } from "@/test/test-utils"
 
 import { CameraCaptureModal } from "../../components/camera-capture-modal"
 
+// Mock navigator.mediaDevices
+beforeEach(() => {
+  Object.defineProperty(navigator, "mediaDevices", {
+    value: {
+      getUserMedia: vi.fn(),
+      enumerateDevices: vi.fn(),
+      getDisplayMedia: vi.fn(),
+    },
+    writable: true,
+  })
+})
+
 // Мокируем хуки
 vi.mock("../../hooks/camera-capture-hooks", () => ({
   useCameraPermissions: () => ({

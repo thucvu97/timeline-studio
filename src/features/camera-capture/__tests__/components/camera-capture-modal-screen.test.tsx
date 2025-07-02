@@ -5,6 +5,18 @@ import { ModalProvider } from "@/features/modals"
 
 import { CameraCaptureModal } from "../../components/camera-capture-modal"
 
+// Mock navigator.mediaDevices
+beforeEach(() => {
+  Object.defineProperty(navigator, "mediaDevices", {
+    value: {
+      getUserMedia: vi.fn(),
+      enumerateDevices: vi.fn(),
+      getDisplayMedia: vi.fn(),
+    },
+    writable: true,
+  })
+})
+
 // Мокаем хуки
 vi.mock("../../hooks", () => ({
   useCameraPermissions: vi.fn(() => ({

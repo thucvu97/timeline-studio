@@ -91,30 +91,10 @@ describe("TrackControlsPanel", () => {
   })
 
   describe("Component Rendering", () => {
-    it("should render the header correctly", () => {
+    it("should render the tracks section correctly", () => {
       render(<TrackControlsPanel />)
 
-      expect(screen.getByText("Управление треками")).toBeInTheDocument()
-      // Find the track count text using a custom matcher
-      const trackCountElement = screen.getByText((_content, element) => {
-        return element?.textContent === "3 треков"
-      })
-      expect(trackCountElement).toBeInTheDocument()
-    })
-
-    it("should render all quick add buttons", () => {
-      render(<TrackControlsPanel />)
-
-      expect(screen.getByText("Видео")).toBeInTheDocument()
-      expect(screen.getByText("Аудио")).toBeInTheDocument()
-      expect(screen.getByText("Изображения")).toBeInTheDocument()
-    })
-
-    it("should render additional track type buttons", () => {
-      render(<TrackControlsPanel />)
-
-      expect(screen.getByText("Музыка")).toBeInTheDocument()
-      expect(screen.getByText("Субтитры")).toBeInTheDocument()
+      expect(screen.getByText("Треки проекта")).toBeInTheDocument()
     })
 
     it("should display all tracks with correct information", () => {
@@ -150,56 +130,6 @@ describe("TrackControlsPanel", () => {
       const imageTrackItem = screen.getByText("Images").closest(".rounded-md")
       expect(within(imageTrackItem!).getByTestId("eye-icon")).toBeInTheDocument()
       expect(within(imageTrackItem!).getByTestId("lock-icon")).toBeInTheDocument()
-    })
-
-    it("should display track heights correctly", () => {
-      render(<TrackControlsPanel />)
-
-      expect(screen.getByText("80px")).toBeInTheDocument()
-      expect(screen.getByText("60px")).toBeInTheDocument()
-      expect(screen.getByText("100px")).toBeInTheDocument()
-    })
-  })
-
-  describe("Track Addition", () => {
-    it("should add video track when clicking video button", () => {
-      render(<TrackControlsPanel />)
-
-      fireEvent.click(screen.getByText("Видео"))
-
-      expect(mockAddTrack).toHaveBeenCalledWith("video", "Видео 2")
-    })
-
-    it("should add audio track when clicking audio button", () => {
-      render(<TrackControlsPanel />)
-
-      fireEvent.click(screen.getByText("Аудио"))
-
-      expect(mockAddTrack).toHaveBeenCalledWith("audio", "Аудио 2")
-    })
-
-    it("should add image track when clicking image button", () => {
-      render(<TrackControlsPanel />)
-
-      fireEvent.click(screen.getByText("Изображения"))
-
-      expect(mockAddTrack).toHaveBeenCalledWith("image", "Изображения 2")
-    })
-
-    it("should add music track when clicking music button", () => {
-      render(<TrackControlsPanel />)
-
-      fireEvent.click(screen.getByText("Музыка"))
-
-      expect(mockAddTrack).toHaveBeenCalledWith("music", "Музыка 1")
-    })
-
-    it("should add subtitle track when clicking subtitle button", () => {
-      render(<TrackControlsPanel />)
-
-      fireEvent.click(screen.getByText("Субтитры"))
-
-      expect(mockAddTrack).toHaveBeenCalledWith("subtitle", "Субтитры 1")
     })
   })
 
@@ -261,46 +191,6 @@ describe("TrackControlsPanel", () => {
 
       expect(mockUpdateTrack).toHaveBeenCalledWith("image-track-1", {
         isLocked: false,
-      })
-    })
-  })
-
-  describe("Track Height Adjustment", () => {
-    it("should render slider with correct initial value", () => {
-      render(<TrackControlsPanel />)
-
-      // Find sliders - they are role="slider"
-      const sliders = screen.getAllByRole("slider")
-
-      expect(sliders[0]).toHaveAttribute("aria-valuenow", "80")
-      expect(sliders[1]).toHaveAttribute("aria-valuenow", "60")
-      expect(sliders[2]).toHaveAttribute("aria-valuenow", "100")
-    })
-
-    it("should have sliders with correct properties", () => {
-      render(<TrackControlsPanel />)
-
-      const sliders = screen.getAllByRole("slider")
-
-      // Test that sliders exist and have correct properties
-      expect(sliders[0]).toBeInTheDocument()
-      expect(sliders[0]).toHaveAttribute("aria-valuenow", "80")
-      expect(sliders[0]).toHaveAttribute("aria-valuemin", "40")
-      expect(sliders[0]).toHaveAttribute("aria-valuemax", "300")
-
-      // Test that the slider is interactive (not disabled)
-      expect(sliders[0]).not.toBeDisabled()
-    })
-
-    it("should respect min and max values for slider", () => {
-      render(<TrackControlsPanel />)
-
-      const sliders = screen.getAllByRole("slider")
-
-      // All sliders should have min 40 and max 300
-      sliders.forEach((slider) => {
-        expect(slider).toHaveAttribute("aria-valuemin", "40")
-        expect(slider).toHaveAttribute("aria-valuemax", "300")
       })
     })
   })
@@ -383,8 +273,9 @@ describe("TrackControlsPanel", () => {
     it("should have scrollable container for tracks", () => {
       render(<TrackControlsPanel />)
 
-      // Find the tracks container
-      const tracksContainer = screen.getByText("Video Track 1").closest(".space-y-2")?.parentElement
+      // Find the tracks container - it's the parent of the div containing "Треки проекта"
+      const tracksSection = screen.getByText("Треки проекта").closest(".space-y-2")
+      const tracksContainer = tracksSection?.parentElement
 
       expect(tracksContainer).toHaveClass("flex-1", "overflow-auto")
     })

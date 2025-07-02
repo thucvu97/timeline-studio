@@ -13,6 +13,22 @@ vi.mock("@/features/modals/services/modal-provider", () => ({
   }),
 }))
 
+// Mock useTimeline hook
+vi.mock("@/features/timeline/hooks/use-timeline", () => ({
+  useTimeline: () => ({
+    createProject: vi.fn(),
+    project: null,
+    uiState: {},
+    isPlaying: false,
+    isRecording: false,
+    currentTime: 0,
+    error: null,
+    lastAction: null,
+    isReady: true,
+    isSaving: false,
+  }),
+}))
+
 vi.mock("@/features/media-studio", () => ({
   LayoutPreviews: () => <div data-testid="layout-previews">Layout Previews</div>,
 }))
@@ -26,6 +42,10 @@ vi.mock("@/features/user-settings", () => ({
   useUserSettings: () => ({
     isBrowserVisible: true,
     toggleBrowserVisibility: vi.fn(),
+    isTimelineVisible: true,
+    toggleTimelineVisibility: vi.fn(),
+    isOptionsVisible: true,
+    toggleOptionsVisibility: vi.fn(),
     activeTab: "media",
     layoutMode: "default",
     playerScreenshotsPath: "",
@@ -45,12 +65,15 @@ vi.mock("@/features/user-settings", () => ({
 vi.mock("@/features/app-state/hooks/use-current-project", () => ({
   useCurrentProject: () => ({
     currentProject: {
-      projectName: "Test Project",
-      projectPath: "/test/project.json",
+      name: "Test Project",
+      path: "/test/project.json",
+      isDirty: false,
     },
     setCurrentProject: vi.fn(),
     createNewProject: vi.fn(),
     saveProject: vi.fn(),
+    openProject: vi.fn(),
+    setProjectDirty: vi.fn(),
     saveProjectAs: vi.fn(),
     loadProject: vi.fn(),
   }),

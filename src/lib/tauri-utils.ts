@@ -26,6 +26,27 @@ export function convertToAssetUrl(filePath: string): string {
 }
 
 /**
+ * Преобразует путь к видео файлу для использования в Tauri v2
+ * Использует file:// протокол для обхода проблем с asset протоколом для видео
+ *
+ * @param filePath - Локальный путь к видео файлу
+ * @returns URL для использования в video элементах
+ */
+export function convertVideoSrc(filePath: string): string {
+  // Для видео в Tauri 2.0 лучше использовать file:// протокол
+  // так как asset протокол имеет известные проблемы с видео файлами
+  if (filePath.startsWith("file://")) {
+    return filePath
+  }
+
+  // На Windows нужно заменить обратные слеши
+  const normalizedPath = filePath.replace(/\\/g, "/")
+
+  // Добавляем file:// протокол
+  return `file://${normalizedPath}`
+}
+
+/**
  * Проверяет доступность файла через Tauri API
  * @param filePath - Путь к файлу
  * @returns Promise<boolean> - true если файл доступен

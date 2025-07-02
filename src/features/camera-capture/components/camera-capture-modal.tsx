@@ -28,6 +28,11 @@ export function CameraCaptureModal() {
   const [errorMessage, setErrorMessage] = useState<string>("")
   const [captureMode, setCaptureMode] = useState<"camera" | "screen">("camera")
 
+  // Проверяем поддержку MediaDevices API
+  const [isMediaDevicesSupported] = useState(() => {
+    return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
+  })
+
   // Получаем возможности устройства (разрешения, частоты кадров)
   const [selectedResolution, setSelectedResolution] = useState<string>("")
   const [frameRate, setFrameRate] = useState<number>(30)
@@ -216,6 +221,26 @@ export function CameraCaptureModal() {
         await initCamera()
       }
     }
+  }
+
+  // Если MediaDevices не поддерживается, показываем сообщение
+  if (!isMediaDevicesSupported) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 text-center">
+        <h3 className="text-lg font-semibold mb-4">
+          {t("dialogs.cameraCapture.notSupported", "Запись с камеры недоступна")}
+        </h3>
+        <p className="text-muted-foreground mb-6">
+          {t(
+            "dialogs.cameraCapture.notSupportedDescription",
+            "Запись с камеры не поддерживается в десктопном приложении. Эта функция доступна только при использовании Timeline Studio в веб-браузере.",
+          )}
+        </p>
+        <Button onClick={closeModal} variant="outline">
+          {t("common.close", "Закрыть")}
+        </Button>
+      </div>
+    )
   }
 
   return (

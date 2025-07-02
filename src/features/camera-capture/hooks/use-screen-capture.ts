@@ -24,6 +24,13 @@ export function useScreenCapture() {
   const streamRef = useRef<MediaStream | null>(null)
 
   const startScreenCapture = useCallback(async (options: ScreenCaptureOptions = {}) => {
+    // Проверяем доступность API getDisplayMedia
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+      const errorMsg = "Запись экрана не поддерживается в данном приложении. Функция доступна только в веб-браузере."
+      setError(errorMsg)
+      throw new Error(errorMsg)
+    }
+
     try {
       setError(null)
 

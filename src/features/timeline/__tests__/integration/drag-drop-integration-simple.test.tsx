@@ -103,27 +103,16 @@ describe("Drag-Drop Integration Tests", () => {
     it("displays track controls header", () => {
       render(<TrackControlsPanel />)
 
-      expect(screen.getByText("Управление треками")).toBeInTheDocument()
-      // The track count is displayed in a paragraph like "1 трек"
-      const trackCountElement = screen.getByText((_content, element) => {
-        return element?.textContent === "1 трек"
-      })
-      expect(trackCountElement).toBeInTheDocument()
-    })
-
-    it("displays add track buttons", () => {
-      render(<TrackControlsPanel />)
-
-      expect(screen.getByText("Видео")).toBeInTheDocument()
-      expect(screen.getByText("Аудио")).toBeInTheDocument()
-      expect(screen.getByText("Изображения")).toBeInTheDocument()
+      // Check for the new header text
+      expect(screen.getByText("Треки проекта")).toBeInTheDocument()
     })
 
     it("displays track information", () => {
       render(<TrackControlsPanel />)
 
+      // Check for track name
       expect(screen.getByText("Video Track 1")).toBeInTheDocument()
-      expect(screen.getByText("80px")).toBeInTheDocument()
+      // Height control was removed, so we don't check for "80px" anymore
     })
   })
 

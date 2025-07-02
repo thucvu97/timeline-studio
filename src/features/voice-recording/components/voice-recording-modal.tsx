@@ -19,6 +19,11 @@ export function VoiceRecordModal() {
   const [isMuted] = useState<boolean>(true)
   const { isOpen, closeModal } = useModal()
 
+  // Проверяем поддержку MediaDevices API
+  const [isMediaDevicesSupported] = useState(() => {
+    return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
+  })
+
   // Используем хук для управления разрешениями на доступ к микрофону
   const { permissionStatus, errorMessage, requestPermissions, setErrorMessage } = useAudioPermissions()
 
@@ -104,6 +109,26 @@ export function VoiceRecordModal() {
       void initAudio()
     }
   }, [isOpen, selectedAudioDevice, initAudio])
+
+  // Если MediaDevices не поддерживается, показываем сообщение
+  if (!isMediaDevicesSupported) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 text-center">
+        <h3 className="text-lg font-semibold mb-4">
+          {t("dialogs.voiceRecord.notSupported", "Запись звука недоступна")}
+        </h3>
+        <p className="text-muted-foreground mb-6">
+          {t(
+            "dialogs.voiceRecord.notSupportedDescription",
+            "Запись звука не поддерживается в десктопном приложении. Эта функция доступна только при использовании Timeline Studio в веб-браузере.",
+          )}
+        </p>
+        <Button onClick={closeModal} variant="outline">
+          {t("common.close", "Закрыть")}
+        </Button>
+      </div>
+    )
+  }
 
   return (
     <div className="p-6">

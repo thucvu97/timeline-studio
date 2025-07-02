@@ -35,6 +35,19 @@ export function useCameraStream(
       return
     }
 
+    // Проверяем доступность API mediaDevices
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      console.error("MediaDevices API недоступен")
+      setErrorMessage(
+        t(
+          "dialogs.cameraCapture.mediaDevicesNotSupported",
+          "Запись с камеры не поддерживается в данном приложении. Функция доступна только в веб-браузере.",
+        ),
+      )
+      setIsDeviceReady(false)
+      return
+    }
+
     try {
       console.log("Инициализация камеры с устройством:", selectedDevice)
 

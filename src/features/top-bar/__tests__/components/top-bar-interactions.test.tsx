@@ -12,10 +12,27 @@ const mockToggleOptionsVisibility = vi.fn()
 const mockSaveProject = vi.fn()
 const mockOpenProject = vi.fn()
 const mockSetProjectDirty = vi.fn()
+const mockCreateNewProject = vi.fn()
 
 vi.mock("@/features/modals/services/modal-provider", () => ({
   useModal: () => ({
     openModal: mockOpenModal,
+  }),
+}))
+
+// Mock useTimeline hook
+vi.mock("@/features/timeline/hooks/use-timeline", () => ({
+  useTimeline: () => ({
+    createProject: vi.fn(),
+    project: null,
+    uiState: {},
+    isPlaying: false,
+    isRecording: false,
+    currentTime: 0,
+    error: null,
+    lastAction: null,
+    isReady: true,
+    isSaving: false,
   }),
 }))
 
@@ -53,6 +70,7 @@ vi.mock("@/features/app-state/hooks/use-current-project", () => ({
     saveProject: mockSaveProject,
     openProject: mockOpenProject,
     setProjectDirty: mockSetProjectDirty,
+    createNewProject: mockCreateNewProject,
   }),
 }))
 
