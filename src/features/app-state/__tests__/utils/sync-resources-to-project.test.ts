@@ -211,17 +211,38 @@ describe("sync-resources-to-project", () => {
       expect(result.mediaPool.items.has("pool-item-2")).toBe(true)
     })
 
-    it("should clear existing media pool items before syncing", () => {
+    it("should update existing items when syncing resources with same ID", () => {
       const project = createMockProject()
-      project.mediaPool.items.set("existing-item", mockMediaPoolItem)
+      const existingItem = { ...mockMediaPoolItem, id: "pool-item-1", name: "old-name.mp4" }
+      project.mediaPool.items.set("pool-item-1", existingItem)
 
-      vi.mocked(convertMediaFileToPoolItem).mockReturnValueOnce(mockMediaPoolItem)
+      const updatedItem = { ...mockMediaPoolItem, id: "pool-item-1", name: "new-name.mp4" }
+      vi.mocked(convertMediaFileToPoolItem).mockReturnValueOnce(updatedItem)
 
       const result = syncResourcesToProject(project, [mockMediaResource], [])
 
+      // Should update the existing item
       expect(result.mediaPool.items.size).toBe(1)
-      expect(result.mediaPool.items.has("existing-item")).toBe(false)
       expect(result.mediaPool.items.has("pool-item-1")).toBe(true)
+      expect(result.mediaPool.items.get("pool-item-1")?.name).toBe("new-name.mp4")
+    })
+
+    it("should remove items that are not in localStorage resources", () => {
+      const project = createMockProject()
+      const existingItem1 = { ...mockMediaPoolItem, id: "existing-1" }
+      const existingItem2 = { ...mockMediaPoolItem, id: "existing-2" }
+      project.mediaPool.items.set("existing-1", existingItem1)
+      project.mediaPool.items.set("existing-2", existingItem2)
+
+      vi.mocked(convertMediaFileToPoolItem).mockReturnValueOnce({ ...mockMediaPoolItem, id: "existing-1" })
+
+      // Only pass resource for existing-1, not existing-2
+      const result = syncResourcesToProject(project, [mockMediaResource], [])
+
+      // Should only have the item that was in resources
+      expect(result.mediaPool.items.size).toBe(1)
+      expect(result.mediaPool.items.has("existing-1")).toBe(true)
+      expect(result.mediaPool.items.has("existing-2")).toBe(false)
     })
 
     it("should call convertMediaFileToPoolItem with correct parameters", () => {

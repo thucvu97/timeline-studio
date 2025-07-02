@@ -19,27 +19,41 @@ export function syncResourcesToProject(
     ...project,
     mediaPool: {
       ...project.mediaPool,
-      items: new Map(), // Создаем новую Map вместо очистки существующей
+      // Копируем существующие items вместо создания новой пустой Map
+      items: new Map(project.mediaPool.items),
       stats: { ...project.mediaPool.stats },
     },
     metadata: { ...project.metadata },
   }
 
-  // Добавляем медиа ресурсы
+  // Создаем Set с ID ресурсов из localStorage для быстрого поиска
+  const resourceIds = new Set<string>()
+  
+  // Добавляем или обновляем медиа ресурсы
   mediaResources.forEach((resource) => {
     if (resource.file) {
       const poolItem = convertMediaFileToPoolItem(resource.file)
       updatedProject.mediaPool.items.set(poolItem.id, poolItem)
+      resourceIds.add(poolItem.id)
     }
   })
 
-  // Добавляем музыкальные ресурсы в отдельную папку
+  // Добавляем или обновляем музыкальные ресурсы
   musicResources.forEach((resource) => {
     if (resource.file) {
       const poolItem = convertMediaFileToPoolItem(resource.file, "music")
       updatedProject.mediaPool.items.set(poolItem.id, poolItem)
+      resourceIds.add(poolItem.id)
     }
   })
+
+  // Удаляем items, которых больше нет в localStorage
+  // Это нужно для синхронизации удалений
+  for (const [id] of updatedProject.mediaPool.items) {
+    if (!resourceIds.has(id)) {
+      updatedProject.mediaPool.items.delete(id)
+    }
+  }
 
   // Обновляем статистику
   updatedProject.mediaPool.stats = {
