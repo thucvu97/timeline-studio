@@ -92,6 +92,19 @@ export type AppSettingsEvent =
   | { type: "UPDATE_MUSIC_FILES"; files: any[] }
 
 /**
+ * Обеспечивает, что медиафайлы имеют правильное состояние загрузки метаданных
+ */
+function ensureMediaFilesHaveMetadataState(files: any[]): any[] {
+  return files.map(file => ({
+    ...file,
+    // Если файл имеет probeData, значит метаданные загружены
+    isLoadingMetadata: file.isLoadingMetadata ?? false,
+    // Обеспечиваем наличие probeData
+    probeData: file.probeData || { streams: [], format: {} }
+  }))
+}
+
+/**
  * Загрузка настроек из хранилища
  */
 const loadSettings = fromPromise(async () => {
@@ -113,6 +126,15 @@ const loadSettings = fromPromise(async () => {
         console.log("[AppSettingsMachine] Loaded settings from storage")
         console.log(`[AppSettingsMachine] Media files count: ${settings.mediaFiles?.allFiles?.length || 0}`)
         console.log(`[AppSettingsMachine] Music files count: ${settings.musicFiles?.allFiles?.length || 0}`)
+        
+        // Обеспечиваем правильное состояние метаданных для медиафайлов
+        if (settings.mediaFiles?.allFiles) {
+          settings.mediaFiles.allFiles = ensureMediaFilesHaveMetadataState(settings.mediaFiles.allFiles)
+        }
+        if (settings.musicFiles?.allFiles) {
+          settings.musicFiles.allFiles = ensureMediaFilesHaveMetadataState(settings.musicFiles.allFiles)
+        }
+        
         return settings
       }
 
@@ -602,8 +624,8 @@ export const appSettingsMachine = createMachine({
                   existingFilesMap.set(file.id, file)
                 })
 
-                // Преобразуем обратно в массив
-                const updatedFiles = Array.from(existingFilesMap.values())
+                // Преобразуем обратно в массив и обеспечиваем правильное состояние метаданных
+                const updatedFiles = ensureMediaFilesHaveMetadataState(Array.from(existingFilesMap.values()))
 
                 console.log(`[AppSettingsMachine] Total media files after update: ${updatedFiles.length}`)
 
@@ -633,8 +655,8 @@ export const appSettingsMachine = createMachine({
                   existingFilesMap.set(file.id, file)
                 })
 
-                // Преобразуем обратно в массив
-                const updatedFiles = Array.from(existingFilesMap.values())
+                // Преобразуем обратно в массив и обеспечиваем правильное состояние метаданных
+                const updatedFiles = ensureMediaFilesHaveMetadataState(Array.from(existingFilesMap.values()))
 
                 return {
                   ...context.musicFiles,

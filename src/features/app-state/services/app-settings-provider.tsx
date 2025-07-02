@@ -104,7 +104,8 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
     }
 
     // Проверяем, нужно ли включить автосохранение
-    const { autoSaveEnabled, autoSaveInterval } = state.context.userSettings
+    const autoSaveEnabled = state.context.userSettings?.autoSaveEnabled ?? false
+    const autoSaveInterval = state.context.userSettings?.autoSaveInterval ?? 60
     const { path, isDirty } = state.context.currentProject
 
     if (autoSaveEnabled && path && isDirty) {
@@ -239,6 +240,9 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
                 isVideo: item.type === "video",
                 isAudio: item.type === "audio",
                 isImage: item.type === "image",
+                isLoadingMetadata: false,
+                probeData: { streams: [], format: {} },
+                duration: item.metadata.duration,
               },
               addedAt: item.metadata.importedDate.getTime(),
             }
@@ -267,6 +271,14 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
           console.log(
             `Loaded ${mediaResources.length} media and ${musicResources.length} music resources from temp project`,
           )
+          
+          // Обновляем медиафайлы в app state
+          if (mediaResources.length > 0) {
+            updateMediaFiles(mediaResources.map(r => r.file))
+          }
+          if (musicResources.length > 0) {
+            updateMusicFiles(musicResources.map(r => r.file))
+          }
         }
 
         // Обновляем состояние
