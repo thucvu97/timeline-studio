@@ -137,18 +137,28 @@ export function useTimelineActions(): UseTimelineActionsReturn {
 
         // Для синхронной обработки используем рекурсивный вызов с задержкой
         // Это позволит state machine обработать создание трека
-        setTimeout(() => {
+        let retryCount = 0
+        const maxRetries = 10
+        const retryDelay = 100 // Увеличиваем задержку
+
+        const checkForTrack = () => {
+          retryCount++
+          
           // Пытаемся найти созданный трек
           const newTargetTrackId = findBestTrackForMedia(file)
 
           if (newTargetTrackId) {
             // Рекурсивно вызываем функцию с найденным треком
             addSingleMediaToTimeline(file, newTargetTrackId, customStartTime)
+          } else if (retryCount < maxRetries) {
+            // Пробуем еще раз
+            setTimeout(checkForTrack, retryDelay)
           } else {
-            console.error(`Failed to create ${trackType} track for media file: ${file.name}`)
+            console.error(`Failed to create ${trackType} track for media file: ${file.name} after ${maxRetries} attempts`)
           }
-        }, 50) // Небольшая задержка для обработки state machine
+        }
 
+        setTimeout(checkForTrack, retryDelay)
         return
       }
 

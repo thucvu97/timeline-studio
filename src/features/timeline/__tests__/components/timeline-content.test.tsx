@@ -389,7 +389,7 @@ describe("TimelineContent", () => {
       const addTrackButton = screen.getByText("Добавить видео трек")
       fireEvent.click(addTrackButton)
 
-      expect(mockTimelineContext.addTrack).toHaveBeenCalledWith("video", "Видео трек")
+      expect(mockTimelineContext.addTrack).toHaveBeenCalledWith("video", undefined, "Видео трек")
     })
   })
 
