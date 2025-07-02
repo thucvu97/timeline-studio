@@ -1,7 +1,6 @@
-import { convertFileSrc } from "@tauri-apps/api/core"
-
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { useProjectSettings } from "@/features/project-settings"
+import { convertToAssetUrl } from "@/lib/tauri-utils"
 
 import { PlayerControls } from "./player-controls"
 import { usePlayer } from "../services/player-provider"
@@ -55,7 +54,7 @@ export function VideoPlayer() {
                     tabIndex={0}
                     playsInline
                     muted={false}
-                    className="absolute inset-0 h-full w-full focus:outline-none"
+                    className="absolute inset-0 h-full w-full object-cover focus:outline-none"
                     style={{
                       position: "absolute" as const,
                       top: "0",
@@ -63,6 +62,7 @@ export function VideoPlayer() {
                       width: "100%",
                       height: "100%",
                       display: "block",
+                      zIndex: 1,
                     }}
                   />
                 </div>
@@ -84,7 +84,7 @@ export function VideoPlayer() {
               <div className="relative h-full w-full">
                 <video
                   key={video.id || "no-video"}
-                  src={convertFileSrc(video.path)}
+                  src={convertToAssetUrl(video.path)}
                   controls={false}
                   autoPlay={false}
                   loop={false}
@@ -93,7 +93,7 @@ export function VideoPlayer() {
                   tabIndex={0}
                   playsInline
                   muted={false}
-                  className="absolute inset-0 h-full w-full focus:outline-none"
+                  className="absolute inset-0 h-full w-full object-cover focus:outline-none"
                   style={{
                     position: "absolute" as const,
                     top: "0",
@@ -101,6 +101,7 @@ export function VideoPlayer() {
                     width: "100%",
                     height: "100%",
                     display: "block",
+                    zIndex: 1,
                   }}
                 />
               </div>

@@ -7,6 +7,10 @@ const compat = new FlatCompat({
 })
 
 const eslintConfig = tseslint.config(
+  // Add ignores as first item
+  {
+    ignores: ["**/generated/**", "src/types/generated/**"],
+  },
   eslint.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
   ...tseslint.configs.stylisticTypeChecked,

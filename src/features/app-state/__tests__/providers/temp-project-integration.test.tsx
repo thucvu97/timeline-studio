@@ -2,7 +2,6 @@
  * Интеграционные тесты для автоматического создания и управления временным проектом
  */
 
-// Import Tauri modules - они автоматически мокаются через алиасы в vitest.config.ts
 import { ReactNode } from "react"
 
 import { invoke } from "@tauri-apps/api/core"
@@ -10,6 +9,7 @@ import { appDataDir, basename, join } from "@tauri-apps/api/path"
 import { open, save } from "@tauri-apps/plugin-dialog"
 import { exists, readTextFile, writeTextFile } from "@tauri-apps/plugin-fs"
 import { act, renderHook, waitFor } from "@testing-library/react"
+// Import Tauri modules - они автоматически мокаются через алиасы в vitest.config.ts
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { useCurrentProject } from "../../hooks/use-current-project"
@@ -209,13 +209,13 @@ describe("Temporary Project Integration", () => {
       console.log("Test: initial state", {
         path: result.current.currentProject.path,
         name: result.current.currentProject.name,
-        isNew: result.current.currentProject.isNew
+        isNew: result.current.currentProject.isNew,
       })
 
       // Wait for the async effect to complete
       await act(async () => {
         // Give time for the useEffect to trigger and loadOrCreateTempProject to run
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise((resolve) => setTimeout(resolve, 100))
       })
 
       // Ждем загрузки проекта - используем polling для проверки изменения состояния
@@ -225,7 +225,7 @@ describe("Temporary Project Integration", () => {
           const name = result.current.currentProject.name
           const isNew = result.current.currentProject.isNew
           console.log("Test: waiting for project load", { path, name, isNew })
-          
+
           // Проверяем, что проект загрузился (путь установлен и это не новый проект)
           expect(path).toBeTruthy()
           expect(path).toContain("temp_project.tlsp")

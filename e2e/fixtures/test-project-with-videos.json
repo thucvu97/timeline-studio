@@ -1,0 +1,209 @@
+{
+  "id": "test-project-video-playback",
+  "name": "Video Playback Test Project",
+  "description": "Test project for video playback e2e tests",
+  "version": "1.0.0",
+  "created": "2025-07-02T00:00:00.000Z",
+  "modified": "2025-07-02T00:00:00.000Z",
+  "settings": {
+    "aspectRatio": {
+      "value": {
+        "width": 1920,
+        "height": 1080
+      },
+      "label": "16:9"
+    },
+    "frameRate": 30,
+    "duration": 600
+  },
+  "timeline": {
+    "tracks": [
+      {
+        "id": "video-track-1",
+        "name": "Video Track 1",
+        "type": "video",
+        "clips": [
+          {
+            "id": "clip-1",
+            "name": "C0666.MP4",
+            "mediaFile": {
+              "id": "media-1",
+              "path": "test-data/C0666.MP4",
+              "name": "C0666.MP4",
+              "type": "video/mp4",
+              "size": 50000000,
+              "duration": 30.5,
+              "isLoadingMetadata": false,
+              "probeData": {
+                "streams": [
+                  {
+                    "index": 0,
+                    "codec_type": "video",
+                    "width": 1920,
+                    "height": 1080,
+                    "display_aspect_ratio": "16:9"
+                  }
+                ]
+              }
+            },
+            "startTime": 0,
+            "duration": 30.5,
+            "volume": 1.0,
+            "isSelected": false,
+            "isLocked": false,
+            "effects": [],
+            "filters": [],
+            "transitions": []
+          },
+          {
+            "id": "clip-2", 
+            "name": "Kate.mp4",
+            "mediaFile": {
+              "id": "media-2",
+              "path": "test-data/Kate.mp4",
+              "name": "Kate.mp4",
+              "type": "video/mp4",
+              "size": 25000000,
+              "duration": 15.2,
+              "isLoadingMetadata": false,
+              "probeData": {
+                "streams": [
+                  {
+                    "index": 0,
+                    "codec_type": "video", 
+                    "width": 1280,
+                    "height": 720,
+                    "display_aspect_ratio": "16:9"
+                  }
+                ]
+              }
+            },
+            "startTime": 35,
+            "duration": 15.2,
+            "volume": 1.0,
+            "isSelected": false,
+            "isLocked": false,
+            "effects": [],
+            "filters": [],
+            "transitions": []
+          },
+          {
+            "id": "clip-3",
+            "name": "проводка после лобби.mp4",
+            "mediaFile": {
+              "id": "media-3",
+              "path": "test-data/проводка после лобби.mp4",
+              "name": "проводка после лобби.mp4",
+              "type": "video/mp4",
+              "size": 75000000,
+              "duration": 45.8,
+              "isLoadingMetadata": false,
+              "probeData": {
+                "streams": [
+                  {
+                    "index": 0,
+                    "codec_type": "video",
+                    "width": 1920,
+                    "height": 1080,
+                    "display_aspect_ratio": "16:9"
+                  }
+                ]
+              }
+            },
+            "startTime": 55,
+            "duration": 45.8,
+            "volume": 1.0,
+            "isSelected": false,
+            "isLocked": false,
+            "effects": [],
+            "filters": [],
+            "transitions": []
+          }
+        ]
+      },
+      {
+        "id": "audio-track-1",
+        "name": "Audio Track 1",
+        "type": "audio",
+        "clips": [
+          {
+            "id": "audio-clip-1",
+            "name": "DJI_02_20250402_104352.WAV",
+            "mediaFile": {
+              "id": "media-4",
+              "path": "test-data/DJI_02_20250402_104352.WAV", 
+              "name": "DJI_02_20250402_104352.WAV",
+              "type": "audio/wav",
+              "size": 12000000,
+              "duration": 120.5,
+              "isLoadingMetadata": false,
+              "probeData": {
+                "streams": [
+                  {
+                    "index": 0,
+                    "codec_type": "audio",
+                    "sample_rate": "48000",
+                    "channels": 2
+                  }
+                ]
+              }
+            },
+            "startTime": 0,
+            "duration": 120.5,
+            "volume": 0.8,
+            "isSelected": false,
+            "isLocked": false,
+            "effects": [],
+            "filters": [],
+            "transitions": []
+          }
+        ]
+      }
+    ]
+  },
+  "resources": {
+    "media": [
+      {
+        "id": "media-1",
+        "path": "test-data/C0666.MP4",
+        "name": "C0666.MP4",
+        "type": "video/mp4",
+        "size": 50000000,
+        "duration": 30.5,
+        "isLoadingMetadata": false
+      },
+      {
+        "id": "media-2", 
+        "path": "test-data/Kate.mp4",
+        "name": "Kate.mp4",
+        "type": "video/mp4",
+        "size": 25000000,
+        "duration": 15.2,
+        "isLoadingMetadata": false
+      },
+      {
+        "id": "media-3",
+        "path": "test-data/проводка после лобби.mp4",
+        "name": "проводка после лобби.mp4",
+        "type": "video/mp4",
+        "size": 75000000,
+        "duration": 45.8,
+        "isLoadingMetadata": false
+      },
+      {
+        "id": "media-4",
+        "path": "test-data/DJI_02_20250402_104352.WAV",
+        "name": "DJI_02_20250402_104352.WAV",
+        "type": "audio/wav", 
+        "size": 12000000,
+        "duration": 120.5,
+        "isLoadingMetadata": false
+      }
+    ],
+    "effects": [],
+    "filters": [],
+    "transitions": [],
+    "templates": [],
+    "styleTemplates": []
+  }
+}

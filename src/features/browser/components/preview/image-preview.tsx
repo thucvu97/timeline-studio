@@ -1,11 +1,12 @@
+// import { convertFileSrc } from "@tauri-apps/api/core"
 import { memo, useCallback, useEffect, useState } from "react"
 
-import { convertFileSrc } from "@tauri-apps/api/core"
 import { readFile } from "@tauri-apps/plugin-fs"
 import { Image } from "lucide-react"
 
 import { MediaFile } from "@/features/media/types/media"
 import { TimelineResource } from "@/features/resources/types"
+import { convertToAssetUrl } from "@/lib/tauri-utils"
 
 import { AddMediaButton } from "../layout/add-media-button"
 import { FavoriteButton } from "../layout/favorite-button"
@@ -59,8 +60,8 @@ export const ImagePreview = memo(function ImagePreview({
       return url
     } catch (error) {
       console.error("[ImagePreview] Ошибка при загрузке изображения:", error)
-      // В случае ошибки используем convertFileSrc
-      const assetUrl = convertFileSrc(path)
+      // В случае ошибки используем convertToAssetUrl
+      const assetUrl = convertToAssetUrl(path)
       console.log("[ImagePreview] Используем asset URL:", assetUrl)
       return assetUrl
     }
@@ -104,7 +105,7 @@ export const ImagePreview = memo(function ImagePreview({
       <div className="flex h-full w-full items-center justify-center bg-gray-200 dark:bg-gray-700">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={imageUrl || convertFileSrc(file.path)}
+          src={imageUrl || convertToAssetUrl(file.path)}
           alt={file.name}
           className="h-full w-full object-contain"
           onError={(e) => {

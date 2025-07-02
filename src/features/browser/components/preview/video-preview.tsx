@@ -1,7 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { useDraggable } from "@dnd-kit/core"
-import { convertFileSrc } from "@tauri-apps/api/core"
 import { Film } from "lucide-react"
 
 import { useResources } from "@/features"
@@ -14,6 +13,7 @@ import { DragData } from "@/features/timeline/types/drag-drop"
 import { getTrackTypeForMediaFile } from "@/features/timeline/utils/drag-calculations"
 import { usePlayer } from "@/features/video-player"
 import { formatDuration } from "@/lib/date"
+import { checkFileAccess, convertToAssetUrl } from "@/lib/tauri-utils"
 import { cn, formatResolution } from "@/lib/utils"
 
 import { ApplyButton } from "../layout"
@@ -178,8 +178,8 @@ export const VideoPreview = memo(
 
     // Функция для получения URL видео без загрузки в память
     const loadVideoFile = useCallback(async (path: string) => {
-      // Используем только convertFileSrc для стриминга видео
-      const assetUrl = convertFileSrc(path)
+      // Используем собственную функцию для стриминга видео
+      const assetUrl = convertToAssetUrl(path)
       return assetUrl
     }, [])
 
@@ -190,10 +190,19 @@ export const VideoPreview = memo(
     useEffect(() => {
       let isMounted = true
 
-      void loadVideoFile(filePath).then((url) => {
-        if (isMounted) {
-          setVideoUrl(url)
+      // Проверяем доступ к файлу через Tauri API
+      void checkFileAccess(filePath).then((hasAccess) => {
+        if (!hasAccess) {
+          console.error(`[VideoPreview] No access to file: ${filePath}`)
+          return
         }
+
+        void loadVideoFile(filePath).then((url) => {
+          if (isMounted) {
+            console.log(`[VideoPreview] Video URL generated: ${url}`)
+            setVideoUrl(url)
+          }
+        })
       })
 
       // Очистка при размонтировании компонента
@@ -237,15 +246,16 @@ export const VideoPreview = memo(
           >
             <div className="group relative h-full w-full">
               <video
-                src={videoUrl || convertFileSrc(file.path)}
+                src={videoUrl || convertToAssetUrl(file.path)}
                 poster={
                   previewData
                     ? `data:image/jpeg;base64,${previewData}`
                     : file.thumbnailPath
-                      ? convertFileSrc(file.thumbnailPath)
+                      ? convertToAssetUrl(file.thumbnailPath)
                       : undefined
                 }
                 preload="auto"
+                autoPlay={false}
                 tabIndex={0}
                 playsInline
                 muted
@@ -253,19 +263,25 @@ export const VideoPreview = memo(
                 style={{
                   transition: "opacity 0.2s ease-in-out",
                   backgroundColor: "transparent",
+                  zIndex: 1,
+                  objectFit: "cover",
+                  visibility: "visible",
+                  display: "block",
                 }}
                 onLoadedData={(e) => {
                   console.log("Video loaded (placeholder)")
                   setIsLoaded(true)
-                  // Устанавливаем на первый кадр
+                  // Устанавливаем на первый кадр и останавливаем автопроигрывание
                   const video = e.currentTarget as HTMLVideoElement
-                  video.currentTime = 0.01
+                  video.currentTime = 0
+                  video.pause()
                 }}
                 onLoadedMetadata={(e) => {
                   const video = e.currentTarget as HTMLVideoElement
                   console.log(`[VideoPreview] Metadata loaded: ${video.videoWidth}x${video.videoHeight}`)
-                  // Устанавливаем на первый кадр
-                  video.currentTime = 0.01
+                  // Устанавливаем на первый кадр и останавливаем
+                  video.currentTime = 0
+                  video.pause()
                 }}
                 onLoadStart={() => {
                   console.log("[VideoPreview] Load start for placeholder")
@@ -283,6 +299,7 @@ export const VideoPreview = memo(
                 )}
                 style={{
                   color: "#ffffff",
+                  zIndex: 10,
                 }}
               >
                 <Film size={size > 100 ? 16 : 12} />
@@ -343,22 +360,30 @@ export const VideoPreview = memo(
                     ref={(el) => {
                       videoRefs.current[key] = el
                     }}
-                    src={videoUrl || convertFileSrc(file.path)}
+                    src={videoUrl || convertToAssetUrl(file.path)}
                     poster={
                       previewData
                         ? `data:image/jpeg;base64,${previewData}`
                         : file.thumbnailPath
-                          ? convertFileSrc(file.thumbnailPath)
+                          ? convertToAssetUrl(file.thumbnailPath)
                           : undefined
                     }
                     preload="auto"
+                    autoPlay={false}
                     tabIndex={0}
                     playsInline
                     muted={false} // Включаем звук в превью по запросу пользователя
-                    className={cn("absolute inset-0 h-full w-full focus:outline-none", isAdded ? "opacity-50" : "")}
+                    className={cn(
+                      "absolute inset-0 h-full w-full object-cover focus:outline-none",
+                      isAdded ? "opacity-50" : "",
+                    )}
                     style={{
                       transition: "opacity 0.2s ease-in-out",
                       backgroundColor: "transparent",
+                      zIndex: 1,
+                      objectFit: "cover",
+                      visibility: "visible",
+                      display: "block",
                     }}
                     onEnded={() => {
                       console.log("Video ended for stream:", stream.index)
@@ -418,9 +443,16 @@ export const VideoPreview = memo(
                       console.log("Video loaded for stream:", typeof stream.index !== "undefined" ? stream.index : key)
                       setIsLoaded(true)
 
-                      // Устанавливаем на первый кадр
+                      // Устанавливаем на первый кадр и останавливаем
                       const video = e.currentTarget as HTMLVideoElement
-                      video.currentTime = 0.01
+                      video.currentTime = 0
+                      video.pause()
+
+                      // Отладочная информация
+                      console.log(`[VideoPreview] Video dimensions: ${video.videoWidth}x${video.videoHeight}`)
+                      console.log(`[VideoPreview] Video src: ${video.src}`)
+                      console.log(`[VideoPreview] Video visibility: ${getComputedStyle(video).visibility}`)
+                      console.log(`[VideoPreview] Video display: ${getComputedStyle(video).display}`)
 
                       // Проверяем, есть ли у файла probeData и streams
                       if (!file.probeData?.streams || file.probeData.streams.length === 0) {
@@ -430,7 +462,8 @@ export const VideoPreview = memo(
                     onLoadedMetadata={(e) => {
                       // Устанавливаем на первый кадр при загрузке метаданных
                       const video = e.currentTarget as HTMLVideoElement
-                      video.currentTime = 0.01
+                      video.currentTime = 0
+                      video.pause()
                     }}
                   />
 
@@ -460,6 +493,7 @@ export const VideoPreview = memo(
                       )}
                       style={{
                         color: "#ffffff", // Явно задаем чисто белый цвет для Tauri
+                        zIndex: 10,
                       }}
                     >
                       <Film size={size > 100 ? 16 : 12} />
@@ -482,6 +516,7 @@ export const VideoPreview = memo(
                       style={{
                         fontSize: size > 100 ? "13px" : "11px",
                         color: "#ffffff", // Явно задаем чисто белый цвет для Tauri
+                        zIndex: 10,
                       }}
                     >
                       {formatResolution(stream.width ?? 0, stream.height ?? 0)}
@@ -500,6 +535,7 @@ export const VideoPreview = memo(
                       style={{
                         fontSize: size > 100 ? "12px" : "11px",
                         color: "#ffffff", // Явно задаем чисто белый цвет для Tauri
+                        zIndex: 10,
                       }}
                     >
                       {file.name}
@@ -547,12 +583,20 @@ export const VideoPreview = memo(
     const nextStreamsCount = nextProps.file.probeData?.streams?.length ?? 0
     const isSameStreamsCount = prevStreamsCount === nextStreamsCount
 
-    // Если метаданные уже загружены и количество потоков не изменилось - не перерендериваем
-    if (!nextProps.file.isLoadingMetadata && isSameStreamsCount && isSameFile && isSameProps && isSameThumbnail) {
-      return true
+    const shouldSkipRender =
+      !nextProps.file.isLoadingMetadata && isSameStreamsCount && isSameFile && isSameProps && isSameThumbnail
+
+    if (!shouldSkipRender) {
+      console.log(`[VideoPreview] Re-rendering ${nextProps.file.name}:`, {
+        isSameFile,
+        isSameMetadataState,
+        isSameThumbnail,
+        isSameProps,
+        isSameStreamsCount,
+        isLoadingMetadata: nextProps.file.isLoadingMetadata,
+      })
     }
 
-    // Перерендериваем только при изменении ключевых свойств
-    return isSameFile && isSameMetadataState && isSameProps && isSameStreamsCount && isSameThumbnail
+    return shouldSkipRender
   },
 )

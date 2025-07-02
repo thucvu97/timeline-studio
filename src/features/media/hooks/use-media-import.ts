@@ -208,7 +208,7 @@ export function useMediaImport() {
           ...file,
           isLoadingMetadata: false,
         }))
-        
+
         updateMediaFiles(filesWithMetadata)
 
         // Добавляем обработанные файлы в ресурсы

@@ -95,12 +95,12 @@ export type AppSettingsEvent =
  * Обеспечивает, что медиафайлы имеют правильное состояние загрузки метаданных
  */
 function ensureMediaFilesHaveMetadataState(files: any[]): any[] {
-  return files.map(file => ({
+  return files.map((file) => ({
     ...file,
     // Если файл имеет probeData, значит метаданные загружены
     isLoadingMetadata: file.isLoadingMetadata ?? false,
     // Обеспечиваем наличие probeData
-    probeData: file.probeData || { streams: [], format: {} }
+    probeData: file.probeData || { streams: [], format: {} },
   }))
 }
 
@@ -126,7 +126,7 @@ const loadSettings = fromPromise(async () => {
         console.log("[AppSettingsMachine] Loaded settings from storage")
         console.log(`[AppSettingsMachine] Media files count: ${settings.mediaFiles?.allFiles?.length || 0}`)
         console.log(`[AppSettingsMachine] Music files count: ${settings.musicFiles?.allFiles?.length || 0}`)
-        
+
         // Обеспечиваем правильное состояние метаданных для медиафайлов
         if (settings.mediaFiles?.allFiles) {
           settings.mediaFiles.allFiles = ensureMediaFilesHaveMetadataState(settings.mediaFiles.allFiles)
@@ -134,7 +134,7 @@ const loadSettings = fromPromise(async () => {
         if (settings.musicFiles?.allFiles) {
           settings.musicFiles.allFiles = ensureMediaFilesHaveMetadataState(settings.musicFiles.allFiles)
         }
-        
+
         return settings
       }
 

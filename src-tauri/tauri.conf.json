@@ -30,7 +30,9 @@
         "enable": true,
         "scope": {
           "allow": [
-            "**"
+            "**",
+            "$HOME/**",
+            "/Users/aleksandrkireev/**"
           ]
         }
       }

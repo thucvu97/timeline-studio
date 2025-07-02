@@ -271,13 +271,13 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
           console.log(
             `Loaded ${mediaResources.length} media and ${musicResources.length} music resources from temp project`,
           )
-          
+
           // Обновляем медиафайлы в app state
           if (mediaResources.length > 0) {
-            updateMediaFiles(mediaResources.map(r => r.file))
+            updateMediaFiles(mediaResources.map((r) => r.file))
           }
           if (musicResources.length > 0) {
-            updateMusicFiles(musicResources.map(r => r.file))
+            updateMusicFiles(musicResources.map((r) => r.file))
           }
         }
 

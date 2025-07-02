@@ -36,8 +36,8 @@ export function BrowserContentNew() {
     setPreviewSize,
   } = useBrowserState()
 
-  // Хук для добавления медиафайлов на таймлайн
-  const { addMediaToTimeline } = useTimelineActions()
+  // Хуки для добавления медиафайлов на таймлайн
+  const { addMediaToTimeline, addSingleMediaToTimeline } = useTimelineActions()
 
   // Получаем все адаптеры
   const mediaAdapter = useMediaAdapter()
@@ -131,7 +131,7 @@ export function BrowserContentNew() {
   const handleItemSelect = (item: any) => {
     switch (activeTab) {
       case "media":
-        addMediaToTimeline(item)
+        addSingleMediaToTimeline(item)
         break
       case "music":
         // Музыка добавляется через AddMediaButton в адаптере

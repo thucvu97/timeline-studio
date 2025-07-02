@@ -133,7 +133,7 @@ describe("StoreService", () => {
 
     // Создаем новый экземпляр mockStore для каждого теста
     mockStore = createMockStore()
-    
+
     // Настраиваем моки
     vi.mocked(load).mockResolvedValue(mockStore as unknown as Store)
     // @ts-expect-error - Store это конструктор
@@ -279,14 +279,14 @@ describe("StoreService", () => {
       // Сбрасываем singleton полностью
       // @ts-expect-error - обращаемся к приватному свойству для тестов
       StoreService.instance = null
-      
+
       // Оба способа создания store должны провалиться
       vi.mocked(load).mockRejectedValue(new Error("Failed to initialize"))
       // @ts-expect-error - Store это конструктор
       vi.mocked(Store).mockImplementation(() => {
         throw new Error("Failed to create store")
       })
-      
+
       const service = StoreService.getInstance()
       const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
 

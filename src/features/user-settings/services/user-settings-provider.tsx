@@ -163,7 +163,7 @@ export function UserSettingsProvider({ children }: { children: React.ReactNode }
             type: "UPDATE_ACTIVE_TAB",
             tab: value as BrowserTab,
           },
-          { activeTab: value as BrowserTab }
+          { activeTab: value as BrowserTab },
         )
         console.log("Active tab updated:", value)
       } else {
@@ -188,7 +188,7 @@ export function UserSettingsProvider({ children }: { children: React.ReactNode }
             type: "UPDATE_LAYOUT",
             layoutMode: value,
           },
-          { layoutMode: value }
+          { layoutMode: value },
         )
       } else {
         console.error("Invalid layout value:", value)
@@ -265,7 +265,7 @@ export function UserSettingsProvider({ children }: { children: React.ReactNode }
           type: "UPDATE_PLAYER_VOLUME",
           volume: value,
         },
-        { playerVolume: value }
+        { playerVolume: value },
       )
       console.log("Player volume updated")
     },

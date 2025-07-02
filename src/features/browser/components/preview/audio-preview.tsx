@@ -1,12 +1,12 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react"
 
-import { convertFileSrc } from "@tauri-apps/api/core"
 import { readFile } from "@tauri-apps/plugin-fs"
 import { Music } from "lucide-react"
 import { LiveAudioVisualizer } from "react-audio-visualize"
 
 import { MediaFile } from "@/features/media/types/media"
 import { TimelineResource } from "@/features/resources/types"
+import { convertToAssetUrl } from "@/lib/tauri-utils"
 
 import { AddMediaButton } from "../layout/add-media-button"
 import { FavoriteButton } from "../layout/favorite-button"
@@ -103,8 +103,8 @@ export const AudioPreview = memo(function AudioPreview({
       return url
     } catch (error) {
       console.error("[AudioPreview] Ошибка при загрузке аудио:", error)
-      // В случае ошибки используем convertFileSrc
-      const assetUrl = convertFileSrc(path)
+      // В случае ошибки используем convertToAssetUrl
+      const assetUrl = convertToAssetUrl(path)
       console.log("[AudioPreview] Используем asset URL:", assetUrl)
       return assetUrl
     }
@@ -181,7 +181,7 @@ export const AudioPreview = memo(function AudioPreview({
     >
       <audio
         ref={audioRef}
-        src={audioUrl || convertFileSrc(file.path)}
+        src={audioUrl || convertToAssetUrl(file.path)}
         preload="auto"
         tabIndex={0}
         className="pointer-events-none absolute inset-0 h-full w-full focus:outline-none"

@@ -1109,10 +1109,7 @@ mod tests {
 
     // Загружаем плагин
     let permissions = PluginPermissions::default();
-    manager
-      .load_plugin(plugin_id, permissions)
-      .await
-      .unwrap();
+    manager.load_plugin(plugin_id, permissions).await.unwrap();
 
     // Сначала приостанавливаем плагин
     manager.suspend_plugin(plugin_id).await.unwrap();

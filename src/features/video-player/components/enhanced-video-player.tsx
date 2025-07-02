@@ -4,7 +4,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 
-import { convertFileSrc } from "@tauri-apps/api/core"
 import { toast } from "sonner"
 
 import { AspectRatio } from "@/components/ui/aspect-ratio"
@@ -13,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useProjectSettings } from "@/features/project-settings"
 import { useTimeline } from "@/features/timeline/hooks/use-timeline"
 import { usePrerender, usePrerenderCache } from "@/features/video-compiler/hooks/use-prerender"
+import { convertToAssetUrl } from "@/lib/tauri-utils"
 
 import { PlayerControls } from "./player-controls"
 import { usePlayer } from "../services/player-provider"
@@ -145,9 +145,9 @@ export function EnhancedVideoPlayer() {
 
   // Определяем источник видео
   const videoSource = currentSegment?.filePath
-    ? convertFileSrc(currentSegment.filePath)
+    ? convertToAssetUrl(currentSegment.filePath)
     : video?.path
-      ? convertFileSrc(video.path)
+      ? convertToAssetUrl(video.path)
       : undefined
 
   if (!video?.path) {

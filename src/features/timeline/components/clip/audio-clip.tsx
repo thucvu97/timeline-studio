@@ -7,6 +7,7 @@ import React from "react"
 import { Copy, Music, Scissors, Sparkles, Trash2, Volume2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { convertToAssetUrl } from "@/lib/tauri-utils"
 import { cn } from "@/lib/utils"
 
 import { useClips } from "../../hooks"
@@ -110,7 +111,7 @@ export function AudioClip({ clip, track, onUpdate, onRemove }: AudioClipProps) {
   const audioUrl = React.useMemo(() => {
     if (!clip.mediaFile?.path) return null
     // Конвертируем локальный путь в asset URL для Tauri
-    return `asset://localhost/${encodeURIComponent(clip.mediaFile.path)}`
+    return convertToAssetUrl(clip.mediaFile.path)
   }, [clip.mediaFile?.path])
 
   return (

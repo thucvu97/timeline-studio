@@ -1,7 +1,13 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "asset-capability",
-  "description": "Capability for asset protocol",
+  "description": "Capability for asset protocol and video files access",
   "windows": ["main"],
-  "permissions": ["core:default"]
+  "permissions": [
+    "core:default",
+    "fs:allow-video-read",
+    "fs:allow-video-read-recursive",
+    "fs:allow-home-read",
+    "fs:allow-home-read-recursive"
+  ]
 }

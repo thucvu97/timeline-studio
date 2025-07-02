@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useMemo } from "react"
 
 import { useAppSettings, useFavorites } from "@/features/app-state"
 import { MediaPreview } from "@/features/browser/components/preview/media-preview"
@@ -47,10 +47,14 @@ export function useMediaAdapter(): ListAdapter<MediaFile> {
   const { isItemFavorite } = useFavorites()
   const { importFile, importFolder, isImporting } = useMediaImport()
 
-  const allMediaFiles = (state.context.mediaFiles.allFiles || []).map(file => ({
-    ...file,
-    isLoadingMetadata: false, // Force isLoadingMetadata to false for all files
-  }))
+  const allMediaFiles = useMemo(
+    () =>
+      (state.context.mediaFiles.allFiles || []).map((file) => ({
+        ...file,
+        isLoadingMetadata: false, // Force isLoadingMetadata to false for all files
+      })),
+    [state.context.mediaFiles.allFiles],
+  )
   const error = getError()
 
   // Используем isLoading из mediaFiles, а не глобальный isLoading
