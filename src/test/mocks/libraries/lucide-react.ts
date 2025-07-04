@@ -106,7 +106,6 @@ export const Save = createMockIcon("Save")
 export const Scissors = createMockIcon("Scissors")
 export const Search = createMockIcon("Search")
 export const Send = createMockIcon("Send")
-export const SendHorizonal = createMockIcon("SendHorizonal")
 export const Settings = createMockIcon("Settings")
 export const Settings2 = createMockIcon("Settings2")
 export const Sliders = createMockIcon("Sliders")
@@ -227,7 +226,6 @@ vi.mock("lucide-react", () => ({
   Scissors,
   Search,
   Send,
-  SendHorizonal,
   Settings,
   Settings2,
   Sliders,

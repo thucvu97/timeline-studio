@@ -16,11 +16,11 @@ interface TrackControlsProps {
   volume?: number // Глобальная громкость трека
   setVolume?: (volume: number) => void
   isSolo?: boolean
-  setisSolo?: (trackId: string, solo: boolean) => void
+  setIsSolo?: (trackId: string, solo: boolean) => void
   isHidden?: boolean
 
-  setisHidden?: (trackId: string, hidden: boolean) => void
-  setisLocked?: (trackId: string, locked: boolean) => void
+  setIsHidden?: (trackId: string, hidden: boolean) => void
+  setIsLocked?: (trackId: string, locked: boolean) => void
   setTrackVolume?: (trackId: string, volume: number) => void
   onVisibilityChange?: (visible: boolean) => void
   onLockChange?: (locked: boolean) => void
