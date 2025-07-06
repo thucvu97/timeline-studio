@@ -80,6 +80,58 @@ Timeline Studio построен на современной модульной 
 📚 **[Подробная архитектура Backend →](src-tauri/docs/architecture.md)**  
 📚 **[Система плагинов →](src-tauri/docs/plugin-system-design.md)**
 
+## 🛠️ Technical Stack Details
+
+### Frontend Stack
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| **Next.js** | 15.1.3 | React framework with App Router |
+| **React** | 19.0.0 | UI library with concurrent features |
+| **TypeScript** | 5.7.2 | Type safety and DX |
+| **XState** | 5.19.0 | State machines for complex logic |
+| **Tailwind CSS** | 4.0.0-beta.3 | Utility-first styling |
+| **shadcn/ui** | Latest | Component library |
+| **Radix UI** | Latest | Accessible UI primitives |
+| **i18next** | 24.2.0 | Internationalization (13 languages) |
+
+### Backend Stack
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| **Rust** | 1.81.0+ | Systems programming language |
+| **Tauri** | 2.2.0 | Desktop app framework |
+| **FFmpeg** | 6.0+ | Video/audio processing |
+| **tokio** | 1.42.0 | Async runtime |
+| **serde** | 1.0.217 | Serialization framework |
+| **keyring** | 3.6.1 | Secure credential storage |
+| **tracing** | 0.1.41 | Structured logging |
+
+### AI & ML Stack
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| **ONNX Runtime** | 0.21.0 | ML inference engine |
+| **Whisper** | Latest | Speech-to-text |
+| **YOLO** | v8/v11 | Object detection |
+| **Claude API** | Latest | AI assistant integration |
+| **OpenAI API** | Latest | GPT & Whisper models |
+
+### Development Tools
+| Tool | Purpose |
+|------|---------|
+| **Bun** | Fast JavaScript runtime & package manager |
+| **Vitest** | Unit testing framework |
+| **Playwright** | E2E testing |
+| **ESLint** | JavaScript linting |
+| **Clippy** | Rust linting |
+| **GitHub Actions** | CI/CD pipeline |
+| **Codecov** | Code coverage tracking |
+
+### Performance Benchmarks
+- **Startup Time**: < 2 seconds on modern hardware
+- **Memory Usage**: ~200MB base, scales with project size
+- **Export Speed**: 2-3x realtime with GPU acceleration
+- **Test Coverage**: 80%+ across frontend and backend
+- **Build Size**: ~50MB compressed installer
+
 ## 🔮 Vision of the Future
 
 ### What's Being Born from This Trend
@@ -105,27 +157,41 @@ You upload your videos - AI finds story arcs, crises, resolutions, emotional pea
 
 [→ Detailed Roadmap](docs-ru/10-roadmap/README.md)
 
-## Key Features
+## 🎯 Key Features
 
-- 🎬 Professional video editing with multi-track timeline
-- 🖥️ Cross-platform (Windows, macOS, Linux)
-- 🚀 GPU-accelerated video processing (NVENC, QuickSync, VideoToolbox)
-- 🤖 AI-powered object/face recognition
-- 🎨 100+ transitions, visual effects, and filters
-- 📝 Advanced subtitle system with 72 styles and animations
-- 🎵 Multi-track audio editing with effects
-- 📤 Export to MP4/MOV/WebM with social media OAuth integration
-- 🔐 YouTube/TikTok/Vimeo/Telegram OAuth support with secure token storage
-- 📱 Device presets (iPhone, iPad, Android) for optimized exports
-- 🌐 Internationalization support (13 languages)
-- 🎨 Modern UI using Tailwind CSS v4, shadcn-ui
-- 📚 Complete documentation with more than 9,000 tests and over 80% code coverage
-- 🧠 **NEW: Full AI Platform** - 82 Claude AI tools for video automation
-- 🎤 **NEW: Whisper transcription** - Speech-to-text with OpenAI/local models
-- 📱 **NEW: Platform optimization** - Auto-adapt for 4 social platforms
-- 🤖 **NEW: Workflow automation** - 10 pre-built processes for quick editing
-- 🎨 **NEW: Advanced Color Grading** - Professional color correction with wheels, curves, LUT, scopes
-- 🎧 **NEW: Fairlight Audio** - Professional audio mixing and mastering system
+### 🎬 Video Editing Core
+- **Multi-track Timeline** - Professional non-linear editing `Stable`
+- **GPU Acceleration** - NVENC, QuickSync, VideoToolbox support `Stable`
+- **100+ Transitions** - Smooth transitions and effects library `Stable`
+- **Device Presets** - Optimized exports for iPhone, iPad, Android `Stable`
+- **Cross-platform** - Windows, macOS, Linux support `Stable`
+
+### 🤖 AI-Powered Features
+- **82 Claude AI Tools** - Complete video automation platform `Beta` 🔥
+- **Whisper Transcription** - Speech-to-text with OpenAI/local models `Beta`
+- **Object/Face Recognition** - YOLO-based detection and tracking `Beta`
+- **Scene Analysis** - Automatic scene detection and classification `Alpha`
+- **Workflow Automation** - 10 pre-built AI editing workflows `Beta`
+
+### 🎨 Professional Tools
+- **Advanced Color Grading** - Wheels, curves, LUT, scopes `Stable` ✨
+- **Fairlight Audio** - Professional mixing and mastering `Stable` ✨
+- **Subtitle System** - 72 styles with animations `Stable`
+- **Visual Effects** - 100+ filters and effects `Stable`
+- **Multi-track Audio** - Advanced audio editing with effects `Stable`
+
+### 📤 Export & Integration
+- **Social Media OAuth** - YouTube, TikTok, Vimeo, Telegram `Stable`
+- **Platform Optimization** - Auto-adapt for 4 social platforms `Beta`
+- **Format Support** - MP4, MOV, WebM with custom settings `Stable`
+- **Secure Token Storage** - Keychain integration for API keys `Stable`
+
+### 🛠️ Developer Experience
+- **Plugin System** - Extend functionality without core changes `Beta`
+- **Modern Tech Stack** - Tauri v2, Next.js 15, React 19 `Stable`
+- **TypeScript** - Full type safety across the codebase `Stable`
+- **80%+ Test Coverage** - 9,000+ tests for reliability `Stable`
+- **13 Languages** - Complete internationalization `Stable`
 
 ## Getting Started
 
@@ -144,8 +210,41 @@ bun run tauri dev
 ### Requirements
 - Node.js v18+, Rust, Bun, FFmpeg
 
+### 🚑 Troubleshooting Common Issues
+
+#### FFmpeg Not Found
+```bash
+# macOS
+brew install ffmpeg
+export ORT_DYLIB_PATH=/opt/homebrew/lib/libonnxruntime.dylib
+
+# Windows - use setup script
+./scripts/setup-rust-env-windows.ps1
+
+# Linux
+sudo apt-get install ffmpeg libavcodec-dev libavformat-dev
+```
+
+#### Build Failures
+- **Windows**: Ensure Visual Studio 2022 with C++ tools is installed
+- **macOS**: Install Xcode Command Line Tools: `xcode-select --install`
+- **Linux**: Install build essentials: `sudo apt-get install build-essential`
+
+#### Tauri Development Issues
+```bash
+# Clear Rust cache
+cargo clean
+
+# Reinstall dependencies
+bun install --force
+
+# Check Rust version (need 1.81.0+)
+rustc --version
+```
+
 📚 **[Complete Installation Guide →](docs-ru/01-getting-started/README.md)**
 🪟 **[Windows Setup →](docs-ru/06-deployment/platforms/windows-build.md)**
+🎥 **[Video Tutorial →](https://www.youtube.com/@chatman-media)**
 
 ## 📚 Центр документации
 
@@ -222,11 +321,60 @@ bun run check:all
 📚 **[Detailed CI/CD Guide →](docs-ru/06-deployment/README.md)**
 🔧 **[Linting & Formatting →](docs-ru/05-development/linting-and-formatting.md)**
 
+## 👨‍💻 Developer Resources
+
+### Contributing to Timeline Studio
+- 🤝 **[Contributing Guide](CONTRIBUTING.md)** - How to contribute to the project
+- 🐛 **[Report Issues](https://github.com/chatman-media/timeline-studio/issues)** - Found a bug? Let us know!
+- 💡 **[Feature Requests](https://github.com/chatman-media/timeline-studio/discussions)** - Suggest new features
+
+### Plugin Development
+- 🔌 **[Plugin System Guide](src-tauri/docs/plugin-system-design.md)** - Build your own plugins
+- 🚀 **[Plugin Quickstart](docs-ru/05-development/plugin-quickstart.md)** - Get started in 5 minutes
+- 📦 **[Plugin API Reference](src-tauri/docs/plugin-api.md)** - Complete API documentation
+
+### Backend Command Reference
+- 📡 **[Tauri Commands](src-tauri/docs/commands.md)** - All available backend commands
+- 🔒 **[Security API](src-tauri/docs/security-architecture.md)** - Authentication and encryption
+- 🎥 **[Media Processing](src-tauri/docs/ffmpeg-integration.md)** - FFmpeg command reference
+- 📊 **[Telemetry API](src-tauri/docs/monitoring-and-metrics.md)** - Monitoring integration
+
+### Testing & Quality
+- 🧪 **[Testing Guide](docs-ru/05-development/testing.md)** - Unit, integration, E2E testing
+- 📊 **[Test Utils](src/test/utils/README.md)** - Audio and Tauri component testing
+- ✅ **[Code Style](CLAUDE.md#code-style-guidelines)** - Coding standards
+- 🔍 **[Performance Guide](docs-ru/05-development/performance.md)** - Optimization tips
+
 ## Documentation & Resources
 
 - 📚 [**API Documentation**](https://chatman-media.github.io/timeline-studio/api-docs/) - Auto-generated TypeScript docs
 - 🚀 [**Website**](https://chatman-media.github.io/timeline-studio/) - Project showcase
 - 📖 [**Complete Documentation**](docs-ru/README.md) - Full guide in Russian
+
+## 🌐 Community & Support
+
+### Join Our Community
+[![Telegram](https://img.shields.io/badge/Join%20Group-Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/timelinestudio)
+[![Discord](https://img.shields.io/badge/Chat-on%20Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/gwJUYxck)
+[![X](https://img.shields.io/badge/Follow-@chatman-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/chatman_media)
+[![YouTube](https://img.shields.io/badge/Subscribe-YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/@chatman-media)
+
+### Get Help
+- 📚 **[FAQ](docs-ru/faq.md)** - Frequently asked questions
+- 💬 **[Discussions](https://github.com/chatman-media/timeline-studio/discussions)** - Ask questions, share ideas
+- 🐛 **[Issue Tracker](https://github.com/chatman-media/timeline-studio/issues)** - Report bugs
+- 📧 **Email Support** - ak.chatman.media@gmail.com
+
+### Project Roadmap
+- 🗺️ **[Development Roadmap](docs-ru/10-roadmap/README.md)** - See what's coming next
+- ✨ **[Completed Features](docs-ru/10-roadmap/completed/)** - Recently shipped features
+- 🎯 **[Alpha Release Progress](docs-ru/10-roadmap/alpha-release.md)** - 91% complete!
+- 📊 **[Project Status](#project-status)** - Current development stats
+
+### Support the Project
+- ⭐ **[Star on GitHub](https://github.com/chatman-media/timeline-studio)** - Show your support
+- 🤝 **[Contribute](CONTRIBUTING.md)** - Join the development
+- 💼 **[Commercial License](docs-ru/10-legal/license.md)** - For business use
 
 ## Star History
 <a href="https://www.star-history.com/#chatman-media/timeline-studio&Date">

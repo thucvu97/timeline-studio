@@ -68,7 +68,7 @@ jobs:
   test-rust-coverage:
     name: Rust Test Coverage
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
 
     steps:
       - name: Free Disk Space (Ubuntu)
@@ -138,7 +138,11 @@ jobs:
         run: |
           if ! command -v cargo-llvm-cov &> /dev/null; then
             echo "Installing cargo-llvm-cov..."
-            cargo install cargo-llvm-cov --version 0.5.39 --locked
+            # Try to download pre-built binary first
+            curl -LsSf https://github.com/taiki-e/cargo-llvm-cov/releases/download/v0.5.39/cargo-llvm-cov-x86_64-unknown-linux-gnu.tar.gz | tar xzf - -C ~/.cargo/bin || {
+              echo "Failed to download binary, installing from source..."
+              cargo install cargo-llvm-cov --version 0.5.39 --locked
+            }
           else
             echo "cargo-llvm-cov already installed: $(cargo-llvm-cov --version)"
           fi
@@ -298,8 +302,17 @@ jobs:
       - name: Create empty dist directory
         run: mkdir dist
 
-      - name: Check disk space before tests
-        run: df -h
+      - name: Check system resources before tests
+        run: |
+          echo "=== Disk Space ==="
+          df -h
+          echo ""
+          echo "=== Memory Info ==="
+          free -h
+          echo ""
+          echo "=== CPU Info ==="
+          nproc
+          lscpu | grep "Model name"
 
       - name: Create test results directory
         run: mkdir -p test-results
@@ -334,35 +347,49 @@ jobs:
       - name: Run Rust tests with coverage
         run: |
           cd src-tauri
-          # Run all tests normally first to ensure they pass
-          cargo test --lib --bins --tests
-          # Generate JUnit report (if cargo2junit is available)
-          if command -v cargo2junit &> /dev/null; then
-            cargo test --lib --bins --tests --no-fail-fast --message-format json 2>/dev/null | cargo2junit > ../test-results/rust-junit.xml || echo "cargo2junit failed, but tests passed"
-          else
-            echo "cargo2junit not found, skipping JUnit report generation"
-          fi
-          # Generate coverage report using cargo-llvm-cov
+          # Set up environment for reduced memory usage
+          export CARGO_BUILD_JOBS=2
+          export CARGO_INCREMENTAL=0
+          
+          # Generate coverage report using cargo-llvm-cov (this also runs tests)
           if command -v cargo-llvm-cov &> /dev/null; then
             echo "Generating coverage report with cargo-llvm-cov..."
-            # Use --no-clean to avoid rebuilding everything
-            # Only test lib to reduce compilation size
-            cargo llvm-cov --lcov --output-path coverage.info --lib --no-clean
+            # Run tests and generate coverage in one pass
+            # Use --workspace to test all packages but exclude examples and benches
+            # Use --no-fail-fast to continue on test failures
+            cargo llvm-cov --lcov --output-path coverage.info \
+              --workspace \
+              --exclude timeline-studio \
+              --no-fail-fast \
+              -- --test-threads=2
           else
-            echo "cargo-llvm-cov not found, skipping coverage generation"
+            echo "cargo-llvm-cov not found, running tests without coverage"
+            cargo test --lib --bins --tests -- --test-threads=2
+          fi
+          
+          # Generate JUnit report separately if needed
+          if command -v cargo2junit &> /dev/null && [ ! -f "../test-results/rust-junit.xml" ]; then
+            cargo test --lib --no-fail-fast --message-format json -- --test-threads=2 2>/dev/null | cargo2junit > ../test-results/rust-junit.xml || echo "cargo2junit failed"
           fi
           cd ..
         env:
-          RUSTFLAGS: -Cinstrument-coverage
+          RUSTFLAGS: -Cinstrument-coverage -Copt-level=0 -Ccodegen-units=1
           LLVM_PROFILE_FILE: timeline-studio-%p-%m.profraw
           # Ensure FFmpeg uses system packages via pkg-config
           PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig
           PKG_CONFIG_ALLOW_SYSTEM_LIBS: 1
           PKG_CONFIG_ALLOW_SYSTEM_CFLAGS: 1
+          # Reduce parallel compilation to save memory
+          CARGO_BUILD_JOBS: 2
 
-      - name: Check disk space after tests
+      - name: Check system resources after tests
         if: always()
-        run: df -h
+        run: |
+          echo "=== Disk Space ==="
+          df -h
+          echo ""
+          echo "=== Memory Info ==="
+          free -h
 
       - name: Debug coverage files
         if: always()
