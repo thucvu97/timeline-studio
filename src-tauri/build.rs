@@ -11,12 +11,12 @@ fn main() {
     if cfg!(target_os = "linux") {
       std::env::set_var("PKG_CONFIG_ALLOW_SYSTEM_LIBS", "1");
       std::env::set_var("PKG_CONFIG_ALLOW_SYSTEM_CFLAGS", "1");
-      
+
       // Help bindgen find system headers
       if std::env::var("BINDGEN_EXTRA_CLANG_ARGS").is_err() {
         std::env::set_var(
           "BINDGEN_EXTRA_CLANG_ARGS",
-          "-I/usr/include -I/usr/include/x86_64-linux-gnu"
+          "-I/usr/include -I/usr/include/x86_64-linux-gnu",
         );
       }
     }
