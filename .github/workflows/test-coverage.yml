@@ -355,11 +355,12 @@ jobs:
           if command -v cargo-llvm-cov &> /dev/null; then
             echo "Generating coverage report with cargo-llvm-cov..."
             # Run tests and generate coverage in one pass
-            # Use --workspace to test all packages but exclude examples and benches
+            # Test only the library target to focus on actual code coverage
             # Use --no-fail-fast to continue on test failures
             cargo llvm-cov --lcov --output-path coverage.info \
-              --workspace \
-              --exclude timeline-studio \
+              --lib \
+              --bins \
+              --tests \
               --no-fail-fast \
               -- --test-threads=2
           else
