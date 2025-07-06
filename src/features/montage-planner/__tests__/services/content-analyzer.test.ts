@@ -5,6 +5,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { ContentAnalyzer } from "../../services/content-analyzer"
+import { CameraMovement, EmotionalTone, SceneType } from "../../types"
 import { mockAnalyzedContent, mockAudioAnalysis, mockMediaFile, mockMomentScore, mockVideoAnalysis } from "../test-utils"
 
 import type { AnalysisOptions, AnalyzedContent } from "../../types"

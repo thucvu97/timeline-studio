@@ -3,20 +3,24 @@
  * Identifies key moments and scores them for montage selection
  */
 
-import type {
-  AnalysisOptions,
-  AudioAnalysis,
+import {
   CameraMovement,
   EmotionalTone,
   LightingCondition,
   MomentCategory,
+  SceneType,
+} from "../types"
+
+import type {
+  AnalysisOptions,
+  AudioAnalysis,
   MomentCluster,
   MomentScore,
-  SceneType,
   TemporalDistribution,
   TimeGap,
   VideoAnalysis,
 } from "../types"
+
 
 export class MomentDetector {
   private static instance: MomentDetector
@@ -384,6 +388,8 @@ export class MomentDetector {
       return {
         ...moment,
         totalScore: Math.min(100, refinedScore),
+        weight: 1.0,
+        rank: index + 1, // Initial ranking by order
       }
     })
   }

@@ -58,6 +58,10 @@ export const mockMomentScore: MomentScore = {
     composition: 82,
   },
   totalScore: 84, // weighted average of all scores
+  visualScore: 85,
+  technicalScore: 88,
+  emotionalScore: 75,
+  relevanceScore: 80,
   weight: 1.0,
   rank: 1,
 }
@@ -109,6 +113,8 @@ export const mockVideoAnalysis: VideoAnalysis = {
     ],
     sceneType: SceneType.Outdoor,
     lighting: LightingCondition.Daylight,
+    compositionScore: 75,
+    aestheticScore: 80,
   },
   motion: {
     cameraMovement: CameraMovement.Pan,
@@ -130,7 +136,7 @@ export const mockAudioAnalysis: AudioAnalysis = {
     speechPresence: 75,
     musicPresence: 60,
     ambientLevel: 30,
-    emotionalTone: EmotionalTone.Exciting,
+    emotionalTone: EmotionalTone.Energetic,
   },
   music: {
     tempo: 120,

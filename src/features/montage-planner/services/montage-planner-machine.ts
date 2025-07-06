@@ -69,12 +69,16 @@ export type MontagePlannerEvent =
   | { type: "AUDIO_ANALYZED"; videoId: string; analysis: AudioAnalysis }
   | { type: "FRAGMENTS_DETECTED"; fragments: Fragment[] }
   | { type: "MOMENTS_SCORED"; scores: MomentScore[] }
+  | { type: "ANALYSIS_COMPLETE"; fragments: Fragment[]; videoAnalysis: any; audioAnalysis: any }
   | { type: "GENERATE_PLAN" }
   | { type: "PLAN_GENERATED"; plan: MontagePlan }
+  | { type: "GENERATION_COMPLETE"; plan: MontagePlan }
   | { type: "OPTIMIZE_PLAN" }
   | { type: "PLAN_OPTIMIZED"; plan: MontagePlan }
+  | { type: "OPTIMIZATION_COMPLETE"; plan: MontagePlan }
   | { type: "VALIDATE_PLAN" }
   | { type: "PLAN_VALIDATED"; validation: PlanValidation }
+  | { type: "VALIDATION_COMPLETE"; validation: PlanValidation }
   | { type: "CALCULATE_STATISTICS" }
   | { type: "STATISTICS_CALCULATED"; statistics: PlanStatistics }
   | { type: "APPLY_PLAN_TO_TIMELINE" }
@@ -96,10 +100,12 @@ export const montagePlannerMachine = setup({
     addVideo: assign({
       videoIds: ({ context, event }) => {
         if (event.type !== "ADD_VIDEO") return context.videoIds
+        if (context.videoIds.includes(event.videoId)) return context.videoIds
         return [...context.videoIds, event.videoId]
       },
       mediaFiles: ({ context, event }) => {
         if (event.type !== "ADD_VIDEO") return context.mediaFiles
+        if (context.mediaFiles.has(event.videoId)) return context.mediaFiles
         const newMap = new Map(context.mediaFiles)
         newMap.set(event.videoId, event.file)
         return newMap
@@ -208,11 +214,13 @@ export const montagePlannerMachine = setup({
 
     storePlan: assign({
       currentPlan: ({ event }) =>
-        event.type === "PLAN_GENERATED" || event.type === "PLAN_OPTIMIZED"
+        event.type === "PLAN_GENERATED" || event.type === "PLAN_OPTIMIZED" || 
+        event.type === "GENERATION_COMPLETE" || event.type === "OPTIMIZATION_COMPLETE"
           ? event.plan
           : null,
       planHistory: ({ context, event }) => {
-        if (event.type === "PLAN_GENERATED" || event.type === "PLAN_OPTIMIZED") {
+        if (event.type === "PLAN_GENERATED" || event.type === "PLAN_OPTIMIZED" ||
+            event.type === "GENERATION_COMPLETE" || event.type === "OPTIMIZATION_COMPLETE") {
           return [...context.planHistory, event.plan]
         }
         return context.planHistory
@@ -265,6 +273,10 @@ export const montagePlannerMachine = setup({
     // Error handling
     setError: assign({
       error: ({ event }) => (event.type === "ERROR" ? event.message : null),
+    }),
+
+    setInvokeError: assign({
+      error: ({ event }) => String(event.error || "Unknown error"),
     }),
 
     clearError: assign({
@@ -436,6 +448,10 @@ export const montagePlannerMachine = setup({
           target: "generating",
           guard: ({ context }) => context.fragments.length > 0,
         },
+        OPTIMIZE_PLAN: {
+          target: "optimizing",
+          guard: ({ context }) => context.currentPlan !== null,
+        },
         EDIT_FRAGMENT: {
           actions: "editFragment",
         },
@@ -444,6 +460,24 @@ export const montagePlannerMachine = setup({
         },
         RESET: {
           actions: "resetContext",
+        },
+        ANALYSIS_PROGRESS: {
+          actions: "updateProgress",
+        },
+        FRAGMENTS_DETECTED: {
+          actions: "storeFragments",
+        },
+        PLAN_GENERATED: {
+          actions: "storePlan",
+        },
+        GENERATION_COMPLETE: {
+          actions: "storePlan",
+        },
+        CLEAR_ERROR: {
+          actions: "clearError",
+        },
+        ERROR: {
+          actions: "setError",
         },
       },
     },
@@ -474,7 +508,7 @@ export const montagePlannerMachine = setup({
         },
         onError: {
           target: "error",
-          actions: ["setError"],
+          actions: ["setInvokeError"],
         },
       },
       on: {
@@ -519,7 +553,7 @@ export const montagePlannerMachine = setup({
         },
         onError: {
           target: "error",
-          actions: ["setError"],
+          actions: ["setInvokeError"],
         },
       },
     },
@@ -536,7 +570,7 @@ export const montagePlannerMachine = setup({
         },
         onError: {
           target: "error",
-          actions: ["setError"],
+          actions: ["setInvokeError"],
         },
       },
     },
@@ -553,7 +587,7 @@ export const montagePlannerMachine = setup({
         },
         onError: {
           target: "error",
-          actions: ["setError"],
+          actions: ["setInvokeError"],
         },
       },
     },
@@ -597,6 +631,12 @@ export const montagePlannerMachine = setup({
           target: "idle",
           actions: "resetContext",
         },
+        CLEAR_ERROR: {
+          actions: "clearError",
+        },
+        ERROR: {
+          actions: "setError",
+        },
       },
     },
 
@@ -615,7 +655,7 @@ export const montagePlannerMachine = setup({
         },
         onError: {
           target: "error",
-          actions: ["setError"],
+          actions: ["setInvokeError"],
         },
       },
     },

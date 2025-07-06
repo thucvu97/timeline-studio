@@ -278,6 +278,12 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::core::plugins::commands::get_violating_plugins,
     crate::core::plugins::commands::reset_plugin_violations,
     crate::core::plugins::commands::register_example_plugins,
+    // Smart Montage Planner commands
+    crate::montage_planner::commands::analyze_video_composition,
+    crate::montage_planner::commands::detect_key_moments,
+    crate::montage_planner::commands::generate_montage_plan,
+    crate::montage_planner::commands::get_analysis_progress,
+    crate::montage_planner::commands::update_composition_weights,
     // Misc commands
     crate::greet,
     crate::scan_media_folder,

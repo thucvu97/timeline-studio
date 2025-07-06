@@ -35,9 +35,13 @@ pub mod video_compiler;
 use video_compiler::VideoCompilerState;
 
 // Модуль распознавания (YOLO)
-mod recognition;
+pub mod recognition;
 use recognition::commands::yolo_commands::YoloProcessorState;
 use recognition::RecognitionState;
+
+// Модуль Smart Montage Planner
+pub mod montage_planner;
+use montage_planner::commands::MontageState;
 
 // Модуль безопасности и API ключей
 pub mod security;
@@ -183,6 +187,10 @@ pub fn run() {
       // Create YOLO Processor State
       let yolo_processor_state = YoloProcessorState::default();
       app.manage(yolo_processor_state);
+
+      // Create Montage Planner State
+      let montage_state = MontageState::new();
+      app.manage(montage_state);
 
       // Create Secure Storage for API keys
       match SecureStorage::new(app.handle().clone()) {

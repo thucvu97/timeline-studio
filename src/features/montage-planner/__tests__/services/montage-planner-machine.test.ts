@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { createActor } from "xstate"
 
 import { montagePlannerMachine } from "../../services/montage-planner-machine"
+import { AnalysisPhase } from "../../types"
 import { createMockFragments, mockFragment, mockMediaFile, mockMontagePlan } from "../test-utils"
 
 vi.mock("@tauri-apps/api/core", () => ({
@@ -23,43 +24,43 @@ describe("MontagePlannerMachine", () => {
   it("should start in idle state", () => {
     actor.start()
     expect(actor.getSnapshot().value).toBe("idle")
-    expect(actor.getSnapshot().context.videos).toHaveLength(0)
+    expect(actor.getSnapshot().context.videoIds).toHaveLength(0)
     expect(actor.getSnapshot().context.fragments).toHaveLength(0)
   })
 
   describe("Video Management", () => {
     it("should add video to context", () => {
       actor.start()
-      actor.send({ type: "ADD_VIDEO", video: mockMediaFile })
+      actor.send({ type: "ADD_VIDEO", videoId: mockMediaFile.id, file: mockMediaFile })
       
       const snapshot = actor.getSnapshot()
-      expect(snapshot.context.videos).toHaveLength(1)
-      expect(snapshot.context.videos[0]).toEqual(mockMediaFile)
+      expect(snapshot.context.videoIds).toHaveLength(1)
+      expect(snapshot.context.mediaFiles.get(mockMediaFile.id)).toEqual(mockMediaFile)
     })
 
     it("should remove video from context", () => {
       actor.start()
-      actor.send({ type: "ADD_VIDEO", video: mockMediaFile })
+      actor.send({ type: "ADD_VIDEO", videoId: mockMediaFile.id, file: mockMediaFile })
       actor.send({ type: "REMOVE_VIDEO", videoId: mockMediaFile.id })
       
       const snapshot = actor.getSnapshot()
-      expect(snapshot.context.videos).toHaveLength(0)
+      expect(snapshot.context.videoIds).toHaveLength(0)
     })
 
     it("should not add duplicate videos", () => {
       actor.start()
-      actor.send({ type: "ADD_VIDEO", video: mockMediaFile })
-      actor.send({ type: "ADD_VIDEO", video: mockMediaFile })
+      actor.send({ type: "ADD_VIDEO", videoId: mockMediaFile.id, file: mockMediaFile })
+      actor.send({ type: "ADD_VIDEO", videoId: mockMediaFile.id, file: mockMediaFile })
       
       const snapshot = actor.getSnapshot()
-      expect(snapshot.context.videos).toHaveLength(1)
+      expect(snapshot.context.videoIds).toHaveLength(1)
     })
   })
 
   describe("Analysis Flow", () => {
     it("should transition to analyzing state when starting analysis", () => {
       actor.start()
-      actor.send({ type: "ADD_VIDEO", video: mockMediaFile })
+      actor.send({ type: "ADD_VIDEO", videoId: mockMediaFile.id, file: mockMediaFile })
       actor.send({ type: "START_ANALYSIS" })
       
       expect(actor.getSnapshot().value).toBe("analyzing")
@@ -67,7 +68,7 @@ describe("MontagePlannerMachine", () => {
 
     it("should handle analysis complete event", () => {
       actor.start()
-      actor.send({ type: "ADD_VIDEO", video: mockMediaFile })
+      actor.send({ type: "ADD_VIDEO", videoId: mockMediaFile.id, file: mockMediaFile })
       actor.send({ type: "START_ANALYSIS" })
       
       const fragments = createMockFragments(10)
@@ -81,7 +82,6 @@ describe("MontagePlannerMachine", () => {
       const snapshot = actor.getSnapshot()
       expect(snapshot.value).toBe("idle")
       expect(snapshot.context.fragments).toHaveLength(10)
-      expect(snapshot.context.analysisComplete).toBe(true)
     })
 
     it("should handle analysis error", () => {
@@ -104,7 +104,7 @@ describe("MontagePlannerMachine", () => {
       
       // Setup context with fragments
       const fragments = createMockFragments(10)
-      actor.send({ type: "ADD_VIDEO", video: mockMediaFile })
+      actor.send({ type: "ADD_VIDEO", videoId: mockMediaFile.id, file: mockMediaFile })
       actor.send({ type: "START_ANALYSIS" })
       actor.send({ 
         type: "ANALYSIS_COMPLETE", 
@@ -145,7 +145,7 @@ describe("MontagePlannerMachine", () => {
       
       // Setup and generate
       const fragments = createMockFragments(10)
-      actor.send({ type: "ADD_VIDEO", video: mockMediaFile })
+      actor.send({ type: "ADD_VIDEO", videoId: mockMediaFile.id, file: mockMediaFile })
       actor.send({ type: "START_ANALYSIS" })
       actor.send({ 
         type: "ANALYSIS_COMPLETE", 
@@ -164,7 +164,7 @@ describe("MontagePlannerMachine", () => {
       const snapshot = actor.getSnapshot()
       expect(snapshot.value).toBe("ready")
       expect(snapshot.context.currentPlan).toEqual(mockMontagePlan)
-      expect(snapshot.context.plans).toHaveLength(1)
+      expect(snapshot.context.planHistory).toHaveLength(1)
     })
   })
 
@@ -173,7 +173,7 @@ describe("MontagePlannerMachine", () => {
       actor.start()
       
       // Setup with plan
-      actor.send({ type: "ADD_VIDEO", video: mockMediaFile })
+      actor.send({ type: "ADD_VIDEO", videoId: mockMediaFile.id, file: mockMediaFile })
       const fragments = createMockFragments(10)
       actor.send({ type: "START_ANALYSIS" })
       actor.send({ 
@@ -214,7 +214,7 @@ describe("MontagePlannerMachine", () => {
       actor.start()
       
       // Setup with plan
-      actor.send({ type: "ADD_VIDEO", video: mockMediaFile })
+      actor.send({ type: "ADD_VIDEO", videoId: mockMediaFile.id, file: mockMediaFile })
       const fragments = createMockFragments(10)
       actor.send({ type: "START_ANALYSIS" })
       actor.send({ 
@@ -253,31 +253,35 @@ describe("MontagePlannerMachine", () => {
   describe("Progress Updates", () => {
     it("should update analysis progress", () => {
       actor.start()
-      actor.send({ type: "ADD_VIDEO", video: mockMediaFile })
-      actor.send({ type: "START_ANALYSIS" })
       
+      // Simulate analyzing state by directly sending progress event
       actor.send({ 
-        type: "UPDATE_PROGRESS",
-        stage: "analysis",
-        progress: 50,
-        message: "Analyzing video quality...",
+        type: "ANALYSIS_PROGRESS",
+        progress: {
+          phase: AnalysisPhase.AnalyzingVideo,
+          progress: 50,
+          message: "Analyzing video quality...",
+        },
       })
       
       const snapshot = actor.getSnapshot()
-      expect(snapshot.context.progress.analysis).toBe(50)
+      expect(snapshot.context.progress.progress).toBe(50)
     })
 
     it("should update generation progress", () => {
       actor.start()
       actor.send({ 
-        type: "UPDATE_PROGRESS",
-        stage: "generation",
-        progress: 75,
-        message: "Creating sequences...",
+        type: "ANALYSIS_PROGRESS",
+        progress: {
+          phase: AnalysisPhase.GeneratingPlan,
+          progress: 75,
+          message: "Creating sequences...",
+        },
       })
       
       const snapshot = actor.getSnapshot()
-      expect(snapshot.context.progress.generation).toBe(75)
+      expect(snapshot.context.progress.progress).toBe(75)
+      expect(snapshot.context.progress.phase).toBe(AnalysisPhase.GeneratingPlan)
     })
   })
 

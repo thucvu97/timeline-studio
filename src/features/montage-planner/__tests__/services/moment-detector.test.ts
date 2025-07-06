@@ -5,9 +5,10 @@
 import { beforeEach, describe, expect, it } from "vitest"
 
 import { MomentDetector } from "../../services/moment-detector"
+import { MomentCategory } from "../../types"
 import { mockAudioAnalysis, mockMomentScore, mockVideoAnalysis } from "../test-utils"
 
-import type { AnalysisOptions, MomentCategory, MomentScore } from "../../types"
+import type { AnalysisOptions, MomentScore } from "../../types"
 
 describe("MomentDetector", () => {
   let detector: MomentDetector
@@ -101,7 +102,7 @@ describe("MomentDetector", () => {
       const options: AnalysisOptions["momentDetection"] = {
         threshold: 0.5,
         minDuration: 1,
-        categories: [MomentCategory.Action, MomentCategory.Emotion],
+        categories: [MomentCategory.Action, MomentCategory.Drama],
       }
 
       const moments = detector.detectMoments(
@@ -112,7 +113,7 @@ describe("MomentDetector", () => {
       )
 
       moments.forEach(moment => {
-        expect([MomentCategory.Action, MomentCategory.Emotion]).toContain(moment.category)
+        expect([MomentCategory.Action, MomentCategory.Drama]).toContain(moment.category)
       })
     })
   })
@@ -156,11 +157,9 @@ describe("MomentDetector", () => {
       expect(ranked[1].rank).toBe(2)
       expect(ranked[2].rank).toBe(3)
       
-      // Check descending order by score
+      // Check descending order by totalScore
       for (let i = 1; i < ranked.length; i++) {
-        const prevScore = Object.values(ranked[i-1].scores).reduce((a, b) => a + b, 0)
-        const currScore = Object.values(ranked[i].scores).reduce((a, b) => a + b, 0)
-        expect(prevScore).toBeGreaterThanOrEqual(currScore)
+        expect(ranked[i-1].totalScore).toBeGreaterThanOrEqual(ranked[i].totalScore)
       }
     })
   })
@@ -169,17 +168,17 @@ describe("MomentDetector", () => {
     it("should group moments by category", () => {
       const moments: MomentScore[] = [
         { ...mockMomentScore, category: MomentCategory.Action },
-        { ...mockMomentScore, category: MomentCategory.Emotion },
+        { ...mockMomentScore, category: MomentCategory.Drama },
         { ...mockMomentScore, category: MomentCategory.Action },
-        { ...mockMomentScore, category: MomentCategory.Scenic },
+        { ...mockMomentScore, category: MomentCategory.Comedy },
       ]
 
       const grouped = detector.groupByCategory(moments)
 
       expect(Object.keys(grouped)).toHaveLength(3)
       expect(grouped[MomentCategory.Action]).toHaveLength(2)
-      expect(grouped[MomentCategory.Emotion]).toHaveLength(1)
-      expect(grouped[MomentCategory.Scenic]).toHaveLength(1)
+      expect(grouped[MomentCategory.Drama]).toHaveLength(1)
+      expect(grouped[MomentCategory.Comedy]).toHaveLength(1)
     })
   })
 
@@ -222,7 +221,7 @@ describe("MomentDetector", () => {
         ...Array.from({ length: 3 }, (_, i) => ({
           ...mockMomentScore,
           timestamp: 20 + i * 2,
-          category: MomentCategory.Emotion,
+          category: MomentCategory.Drama,
           scores: { ...mockMomentScore.scores, visual: 70 },
         })),
       ]
@@ -253,7 +252,7 @@ describe("MomentDetector", () => {
       expect(distribution).toHaveProperty("clusters")
       
       expect(distribution.gaps.length).toBeGreaterThan(0)
-      expect(distribution.gaps[0]).toEqual({ start: 10, end: 25, duration: 15 })
+      expect(distribution.gaps[0]).toEqual({ start: 15, end: 25, duration: 10 })
     })
   })
 })

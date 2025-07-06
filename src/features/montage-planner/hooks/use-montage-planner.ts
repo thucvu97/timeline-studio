@@ -9,15 +9,16 @@ import type { MediaFile } from "@/features/media/types/media"
 import { formatTime } from "@/features/timeline/utils/utils"
 
 import { useMontagePlanner as useMontagePlannerContext } from "../services/montage-planner-provider"
+import { MONTAGE_STYLES } from "../types"
 
 import type {
   AnalysisOptions,
   ExportFormat,
   Fragment,
-  MONTAGE_STYLES,
   MontagePlan,
   PlanGenerationOptions,
 } from "../types"
+
 
 export function useMontagePlanner() {
   const {
@@ -185,6 +186,7 @@ export function useMontagePlanner() {
     // State
     state,
     context,
+    send, // Expose send for tests
     currentPlan: context.currentPlan,
     fragments: context.fragments,
     videos: Array.from(context.mediaFiles.values()),
@@ -203,6 +205,7 @@ export function useMontagePlanner() {
     canGeneratePlan,
     canOptimizePlan,
     isBusy: isAnalyzing || isGenerating || isOptimizing,
+    isReady: hasFragments && !isAnalyzing && !isGenerating && !isOptimizing,
 
     // Progress
     progress,

@@ -51,7 +51,7 @@ describe("QualityMeter", () => {
     expect(screen.getByText("Audio Analysis")).toBeInTheDocument()
     expect(screen.getByText("Sample Rate")).toBeInTheDocument()
     expect(screen.getByText("Speech Clarity")).toBeInTheDocument()
-    expect(screen.getByText(`${mockAudioAnalysis.content.speechPresence.toFixed(0)}%`)).toBeInTheDocument()
+    expect(screen.getByText(`${mockAudioAnalysis.quality.clarity.toFixed(0)}%`)).toBeInTheDocument()
   })
 
   it("should display moment score breakdown", () => {
