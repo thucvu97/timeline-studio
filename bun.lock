@@ -58,7 +58,7 @@
         "sonner": "^2.0.6",
         "tailwind-merge": "^3.3.1",
         "wavesurfer.js": "^7.9.9",
-        "xstate": "^5.20.0",
+        "xstate": "^5.20.1",
       },
       "devDependencies": {
         "@biomejs/biome": "2.0.6",
@@ -2041,7 +2041,7 @@
 
     "xmlchars": ["xmlchars@2.2.0", "", {}, "sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw=="],
 
-    "xstate": ["xstate@5.20.0", "", {}, "sha512-lFQ0fLwVa0OMZnjNP8zUkt2fwIS85ZBNPvxE41APVYhYj0++aTssgmsnTAiBHdKYbgnd6+L8DRTZ9jPZAFPuyw=="],
+    "xstate": ["xstate@5.20.1", "", {}, "sha512-i9ZpNnm/XhCOMUxae1suT8PjYNTStZWbhmuKt4xeTPaYG5TS0Fz0i+Ka5yxoNPpaHW3VW6JIowrwFgSTZONxig=="],
 
     "yallist": ["yallist@5.0.0", "", {}, "sha512-YgvUTfwqyc7UXVMrB+SImsVYSmTS8X/tSrtdNZMImM+n7+QTriRXyXim0mBrTXNeqzVF0KWGgHPeiyViFFrNDw=="],
 
