@@ -29,6 +29,7 @@ export const Blend = createMockIcon("Blend")
 export const Bot = createMockIcon("Bot")
 export const Camera = createMockIcon("Camera")
 export const Check = createMockIcon("Check")
+export const CheckCircle = createMockIcon("CheckCircle")
 export const CheckCircle2 = createMockIcon("CheckCircle2")
 export const CheckIcon = createMockIcon("CheckIcon")
 export const ChevronDown = createMockIcon("ChevronDown")
@@ -121,6 +122,8 @@ export const StopCircle = createMockIcon("StopCircle")
 export const Subtitles = createMockIcon("Subtitles")
 export const Sun = createMockIcon("Sun")
 export const Trash2 = createMockIcon("Trash2")
+export const TrendingDown = createMockIcon("TrendingDown")
+export const TrendingUp = createMockIcon("TrendingUp")
 export const Type = createMockIcon("Type")
 export const Undo2 = createMockIcon("Undo2")
 export const UnfoldHorizontal = createMockIcon("UnfoldHorizontal")
@@ -149,6 +152,7 @@ vi.mock("lucide-react", () => ({
   Bot,
   Camera,
   Check,
+  CheckCircle,
   CheckCircle2,
   CheckIcon,
   ChevronDown,
@@ -241,6 +245,8 @@ vi.mock("lucide-react", () => ({
   Subtitles,
   Sun,
   Trash2,
+  TrendingDown,
+  TrendingUp,
   Type,
   Undo2,
   UnfoldHorizontal,
