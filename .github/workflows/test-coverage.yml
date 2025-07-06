@@ -234,6 +234,21 @@ jobs:
           echo "PKG_CONFIG_ALLOW_SYSTEM_LIBS=1" >> $GITHUB_ENV
           echo "PKG_CONFIG_ALLOW_SYSTEM_CFLAGS=1" >> $GITHUB_ENV
           
+      - name: Ensure clean FFmpeg environment
+        run: |
+          # Clear any FFmpeg environment variables that might be set from .env files
+          unset FFMPEG_DIR
+          unset FFMPEG_INCLUDE_DIR
+          unset FFMPEG_LIB_DIR
+          unset BINDGEN_EXTRA_CLANG_ARGS
+          unset DYLD_FALLBACK_LIBRARY_PATH
+          
+          # Export clean environment
+          echo "FFMPEG_DIR=" >> $GITHUB_ENV
+          echo "FFMPEG_INCLUDE_DIR=" >> $GITHUB_ENV
+          echo "FFMPEG_LIB_DIR=" >> $GITHUB_ENV
+          echo "BINDGEN_EXTRA_CLANG_ARGS=" >> $GITHUB_ENV
+          
       - name: Install ONNX Runtime
         run: |
           # Download ONNX Runtime 1.22.0 for Linux x64 (compatible with ort 2.0.0-rc.10)
@@ -266,6 +281,22 @@ jobs:
           rm -rf target/debug/incremental
           cd ..
 
+      - name: Debug FFmpeg environment before tests
+        run: |
+          echo "=== FFmpeg Environment Debug ==="
+          echo "FFMPEG_DIR: $FFMPEG_DIR"
+          echo "FFMPEG_INCLUDE_DIR: $FFMPEG_INCLUDE_DIR"
+          echo "FFMPEG_LIB_DIR: $FFMPEG_LIB_DIR"
+          echo "PKG_CONFIG_PATH: $PKG_CONFIG_PATH"
+          echo ""
+          echo "=== All environment variables with FFMPEG ==="
+          env | grep -i ffmpeg || echo "No FFMPEG variables found"
+          echo ""
+          echo "=== pkg-config check ==="
+          pkg-config --exists libavcodec && echo "✅ libavcodec found" || echo "❌ libavcodec not found"
+          pkg-config --cflags libavcodec || echo "No cflags"
+          pkg-config --libs libavcodec || echo "No libs"
+          
       - name: Run Rust tests with coverage
         run: |
           cd src-tauri
@@ -290,6 +321,10 @@ jobs:
         env:
           RUSTFLAGS: -Cinstrument-coverage
           LLVM_PROFILE_FILE: timeline-studio-%p-%m.profraw
+          # Ensure FFmpeg uses system packages via pkg-config
+          PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig
+          PKG_CONFIG_ALLOW_SYSTEM_LIBS: 1
+          PKG_CONFIG_ALLOW_SYSTEM_CFLAGS: 1
 
       - name: Check disk space after tests
         if: always()

@@ -2,25 +2,34 @@
 # This file helps with FFmpeg library detection on Windows
 
 [target.'cfg(windows)']
-rustflags = ["-C", "link-arg=/LIBPATH:C:\\ffmpeg\\lib"]
+# Windows linker flags - paths should come from environment variables
+# rustflags will be set dynamically based on FFMPEG_LIB_DIR if needed
 
 [target.'cfg(target_os = "macos")']
 # Allow dynamic linking for macOS
 rustflags = ["-C", "link-arg=-undefined", "-C", "link-arg=dynamic_lookup"]
 
+# FFmpeg environment variables should be set per-platform
+# DO NOT set global FFmpeg paths here as they break cross-platform builds
+# Windows-specific FFmpeg paths should be set in CI or local environment only
+
 [env]
-# FFmpeg paths for Windows
-# Note: You may need to adjust these paths based on your FFmpeg installation
-FFMPEG_DIR = "C:\\ffmpeg"
-FFMPEG_INCLUDE_DIR = "C:\\ffmpeg\\include"
-FFMPEG_LIB_DIR = "C:\\ffmpeg\\lib"
-FFMPEG_NO_PKG_CONFIG = "1"
-BINDGEN_EXTRA_CLANG_ARGS = "-IC:\\ffmpeg\\include -I/usr/include"
 
 # Reduce log level for tests to hide expected FFmpeg errors
 # These errors occur because tests use fake media files
 RUST_TEST_LOG = "timeline_studio_lib=warn"
 
-# For developers: If you're getting "file not found" errors for FFmpeg headers,
-# you may need to create symbolic links or adjust the paths above.
-# See .github/workflows/ci.yml for the Windows setup process.
+# For developers: FFmpeg paths must be set in your environment, NOT in this file.
+# 
+# Windows: Set these environment variables:
+#   FFMPEG_DIR=C:\ffmpeg
+#   FFMPEG_INCLUDE_DIR=C:\ffmpeg\include
+#   FFMPEG_LIB_DIR=C:\ffmpeg\lib
+#
+# macOS: Use .env.local or export:
+#   export FFMPEG_DIR=/opt/homebrew/opt/ffmpeg
+#   export PKG_CONFIG_PATH=/opt/homebrew/opt/ffmpeg/lib/pkgconfig
+#
+# Linux: FFmpeg should be detected automatically via pkg-config
+#
+# See .github/workflows/ for CI setup examples.

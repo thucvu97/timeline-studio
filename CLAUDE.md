@@ -70,6 +70,21 @@ bun run tauri dev
 - No need to manually source files - variables load automatically
 - `.env.macos` file remains available as bash export alternative
 
+### Important FFmpeg Configuration Notes
+
+**⚠️ CRITICAL**: FFmpeg paths must NOT be set globally in `.cargo/config.toml` as this breaks cross-platform builds.
+
+**Platform-specific setup:**
+- **Windows**: Use `scripts/setup-rust-env-windows.ps1` before building
+- **macOS**: Use `.env.local` or export environment variables
+- **Linux**: FFmpeg is detected automatically via pkg-config
+- **CI/CD**: Each platform sets its own FFmpeg paths in GitHub Actions
+
+**Common issues:**
+- If you see Windows paths (`C:\ffmpeg`) in Linux builds, check `.cargo/config.toml`
+- Environment variables should be set per-platform, not globally
+- In CI, the build script clears incorrect FFmpeg variables automatically
+
 ### Platform-specific Tools
 - **macOS**: Xcode Command Line Tools
 - **Windows**: 

@@ -23,32 +23,62 @@
 
 </div>
 
-## 🎬 Project Overview
+## 🎬 О проекте
 
-**Timeline Studio** - AI-powered video editor that transforms your videos, music, and favorite effects into dozens of ready-to-publish clips and automatically uploads them to all your social media platforms!
+### Что такое Timeline Studio?
 
-### 🚀 Imagine the Possibilities
+**Timeline Studio** - это профессиональный видеоредактор нового поколения с AI-интеграцией, который автоматизирует создание контента для социальных сетей. Построенный на современных технологиях (Tauri + Next.js), он сочетает мощность десктопных приложений с удобством веб-интерфейсов.
 
-**Upload your videos, photos, music once** → get:
-- 📱 **TikTok** - vertical shorts with trending effects
-- 📺 **YouTube** - full films, short clips, Shorts
-- 📸 **Instagram** - Reels, Stories, posts of different lengths
-- ✈️ **Telegram** - optimized versions for channels and chats
+### 🎯 Ключевые преимущества
 
-AI assistant will create the right number of versions for each platform! 🤖
+- **🤖 82 AI-инструмента Claude** - полная автоматизация видеопроизводства
+- **⚡ GPU-ускорение** - аппаратное кодирование NVENC, QuickSync, VideoToolbox
+- **🔌 Система плагинов** - расширяйте функциональность без изменения кода
+- **🌐 13 языков интерфейса** - полная локализация для глобальной аудитории
+- **🔒 Локальная обработка** - ваш контент остается приватным
+- **📊 80%+ покрытие тестами** - надежность профессионального уровня
 
-### 💡 How It Works
+### 🚀 Решаемые задачи
 
-> *"Create a video about my trip to Asia for all social media" - and within minutes you have options ready: dynamic shorts for TikTok, atmospheric vlog for YouTube, vibrant Stories for Instagram. AI will select the best moments, sync with music, and adapt for each platform.*
+**Одна загрузка → десятки готовых версий:**
+- 📱 **TikTok** - вертикальные шортсы с трендовыми эффектами
+- 📺 **YouTube** - полные фильмы, короткие ролики, Shorts
+- 📸 **Instagram** - Reels, Stories, посты разной длительности
+- ✈️ **Telegram** - оптимизированные версии для каналов и чатов
 
-### ⚡ Why This Changes Everything
+### 💡 Как это работает
 
-- **10x time savings** - no more manual adaptation for each video
-- **AI understands trends** - knows what works on each social network
-- **Professional quality** - using the same tools as major studios
-- **Everything works locally** - your content stays private
+> *"Создай видео о моей поездке в Азию для всех соцсетей" - и через минуты у вас готовы варианты: динамичные шортсы для TikTok, атмосферный влог для YouTube, яркие Stories для Instagram. AI подберет лучшие моменты, синхронизирует с музыкой и адаптирует под каждую платформу.*
+
+### ⚡ Почему это меняет всё
+
+- **10x экономия времени** - больше никакой ручной адаптации под каждое видео
+- **AI понимает тренды** - знает, что работает в каждой социальной сети
+- **Профессиональное качество** - используем те же инструменты, что и крупные студии
+- **Модульная архитектура** - легко добавлять новые функции через плагины
+- **Open Source** - прозрачность и возможность участия в разработке
 
 ![Timeline Interface #1](/public/screen3.png)
+
+## 🏗️ Архитектура
+
+Timeline Studio построен на современной модульной архитектуре:
+
+### Frontend (Next.js 15 + React 19)
+- **Feature-based организация** - каждая функция в `/src/features/` самодостаточна
+- **State Management** - XState v5 для сложных состояний
+- **UI Components** - shadcn/ui + Radix UI + Tailwind CSS v4
+- **TypeScript** - строгая типизация и безопасность
+
+### Backend (Rust + Tauri v2)
+- **Модульная структура** - Core, Безопасность, Медиа, Компилятор, Плагины
+- **Сервисный слой** - DI контейнер, EventBus, Телеметрия
+- **FFmpeg интеграция** - продвинутая обработка видео
+- **Безопасность** - шифрование API ключей, OAuth, Keychain
+
+📚 **[Подробная архитектура Frontend →](docs-ru/02-architecture/frontend.md)**  
+📚 **[Подробная архитектура Backend →](src-tauri/docs/architecture.md)**  
+📚 **[Система плагинов →](src-tauri/docs/plugin-system-design.md)**
 
 ## 🔮 Vision of the Future
 
@@ -117,19 +147,52 @@ bun run tauri dev
 📚 **[Complete Installation Guide →](docs-ru/01-getting-started/README.md)**
 🪟 **[Windows Setup →](docs-ru/06-deployment/platforms/windows-build.md)**
 
-## Documentation
+## 📚 Центр документации
 
-### 📚 Main Documentation
+### 🚀 Начало работы
+- 📌 [Установка и настройка](docs-ru/01-getting-started/installation.md)
+- 🎬 [Первый проект](docs-ru/01-getting-started/first-project.md)
+- 🤔 [Структура проекта](docs-ru/01-getting-started/project-structure.md)
+- 🪟 [Настройка Windows](docs-ru/06-deployment/platforms/windows-build.md)
 
-- 📚 [Documentation Overview](docs-ru/README.md) - Complete documentation map
-- 🚀 [Getting Started](docs-ru/01-getting-started/README.md) - Installation and first steps
-- 🏗️ [Architecture Guide](docs-ru/02-architecture/README.md) - System architecture
-- 🎯 [Features Guide](docs-ru/03-features/README.md) - Feature overview and status
-- 📡 [API Reference](docs-ru/04-api-reference/README.md) - Tauri commands reference
-- 🧪 [Development Guide](docs-ru/05-development/README.md) - Testing and development
-- 🚀 [Deployment Guide](docs-ru/06-deployment/README.md) - Build and deployment
-- 📋 [User Guides](docs-ru/07-guides/README.md) - Performance and best practices
-- **`src/features/README.md`** - overview of all features with priorities and status
+### 🏗️ Архитектура
+- 📄 [Обзор архитектуры](docs-ru/02-architecture/README.md)
+- 🌐 [Frontend архитектура](docs-ru/02-architecture/frontend.md)
+- ⚙️ [Backend архитектура](src-tauri/docs/architecture.md)
+- 🔄 [State Management](docs-ru/02-architecture/state-management.md)
+- 📡 [Коммуникация](docs-ru/02-architecture/communication.md)
+
+### 🎯 Функции и возможности
+- 📈 [Обзор функций](docs-ru/03-features/README.md)
+- 📝 [Описание всех модулей](src/features/README.md)
+- 🎨 [Цветокоррекция](docs-ru/10-roadmap/completed/color-grading-system.md)
+- 🎧 [Fairlight Audio](docs-ru/10-roadmap/completed/fairlight-audio-completion.md)
+
+### 👨‍💻 Разработка
+- 🧪 [Руководство разработчика](docs-ru/05-development/README.md)
+- 🧪 [Тестирование](docs-ru/05-development/testing.md)
+- 📡 [API Reference](docs-ru/04-api-reference/README.md)
+- 🔌 [Система плагинов](src-tauri/docs/plugin-system-design.md)
+- 🔧 [Команды разработки](docs-ru/05-development/development-commands.md)
+
+### 🚀 Развертывание
+- 📦 [Сборка приложения](docs-ru/06-deployment/build.md)
+- 🤖 [CI/CD настройка](docs-ru/05-development/ci-cd-setup.md)
+- 🔐 [OAuth настройка](docs-ru/11-oauth-setup/oauth-setup-guide.md)
+- 📊 [Codecov интеграция](docs-ru/06-deployment/codecov-setup.md)
+
+### 🔧 Backend документация
+- 🔒 [Архитектура безопасности](src-tauri/docs/security-architecture.md)
+- 🎥 [FFmpeg интеграция](src-tauri/docs/ffmpeg-integration.md)
+- 🏭 [Сервисный слой](src-tauri/docs/service-layer.md)
+- 📊 [Мониторинг и метрики](src-tauri/docs/monitoring-and-metrics.md)
+- ⚠️ [Обработка ошибок](src-tauri/docs/error-handling-guide.md)
+
+### 📚 Дополнительные ресурсы
+- 🌟 [Полная документация](docs-ru/README.md)
+- 📊 [Прогресс разработки](docs-ru/10-roadmap/README.md)
+- 🌐 [API документация](https://chatman-media.github.io/timeline-studio/api-docs/)
+- 🌐 [Веб-сайт проекта](https://chatman-media.github.io/timeline-studio/)
 
 ## Development
 
