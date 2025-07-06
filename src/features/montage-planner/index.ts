@@ -8,18 +8,18 @@ export { MontagePlanner } from "./components"
 
 // Hooks
 export {
-  useMontagePlanner,
   useContentAnalysis,
+  useMontagePlanner,
   usePlanGenerator,
 } from "./hooks"
 
 // Services
 export {
-  MontagePlannerProvider,
   ContentAnalyzer,
   MomentDetector,
-  RhythmCalculator,
+  MontagePlannerProvider,
   PlanGenerator,
+  RhythmCalculator,
 } from "./services"
 
 // Types

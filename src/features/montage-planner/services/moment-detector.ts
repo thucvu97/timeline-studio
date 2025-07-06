@@ -3,13 +3,7 @@
  * Identifies key moments and scores them for montage selection
  */
 
-import {
-  CameraMovement,
-  EmotionalTone,
-  LightingCondition,
-  MomentCategory,
-  SceneType,
-} from "../types"
+import { CameraMovement, EmotionalTone, LightingCondition, MomentCategory, SceneType } from "../types"
 
 import type {
   AnalysisOptions,
@@ -20,7 +14,6 @@ import type {
   TimeGap,
   VideoAnalysis,
 } from "../types"
-
 
 export class MomentDetector {
   private static instance: MomentDetector
@@ -41,7 +34,7 @@ export class MomentDetector {
     videoAnalysis: VideoAnalysis,
     audioAnalysis: AudioAnalysis,
     duration: number,
-    options?: AnalysisOptions["momentDetection"]
+    options?: AnalysisOptions["momentDetection"],
   ): MomentScore[] {
     const moments: MomentScore[] = []
     const threshold = options?.threshold || 0.7
@@ -59,7 +52,7 @@ export class MomentDetector {
 
       if (totalScore >= threshold * 100) {
         const category = this.determineCategory(scores, videoAnalysis, audioAnalysis)
-        
+
         if (categories.includes(category)) {
           const moment: MomentScore = {
             timestamp,
@@ -83,24 +76,13 @@ export class MomentDetector {
   /**
    * Calculate individual score components
    */
-  private calculateScores(
-    videoAnalysis: VideoAnalysis,
-    audioAnalysis: AudioAnalysis,
-    timestamp: number
-  ) {
+  private calculateScores(videoAnalysis: VideoAnalysis, audioAnalysis: AudioAnalysis, _timestamp: number) {
     // Visual score based on quality and composition
     const visual =
-      (videoAnalysis.quality.sharpness +
-        videoAnalysis.quality.stability +
-        videoAnalysis.quality.colorGrading) /
-      3
+      (videoAnalysis.quality.sharpness + videoAnalysis.quality.stability + videoAnalysis.quality.colorGrading) / 3
 
     // Technical score based on overall quality
-    const technical =
-      (visual +
-        audioAnalysis.quality.clarity +
-        (100 - audioAnalysis.quality.noiseLevel)) /
-      3
+    const technical = (visual + audioAnalysis.quality.clarity + (100 - audioAnalysis.quality.noiseLevel)) / 3
 
     // Emotional score based on audio and visual cues
     const emotional = this.calculateEmotionalScore(audioAnalysis, videoAnalysis)
@@ -111,9 +93,7 @@ export class MomentDetector {
       (videoAnalysis.motion.cameraMovement !== CameraMovement.Static ? 40 : 0)
 
     // Action score based on motion and energy
-    const action =
-      videoAnalysis.content.actionLevel * 0.7 +
-      videoAnalysis.motion.subjectMovement * 0.3
+    const action = videoAnalysis.content.actionLevel * 0.7 + videoAnalysis.motion.subjectMovement * 0.3
 
     // Composition score based on detected objects and faces
     const composition = this.calculateCompositionScore(videoAnalysis)
@@ -159,7 +139,7 @@ export class MomentDetector {
   private determineCategory(
     scores: MomentScore["scores"],
     videoAnalysis: VideoAnalysis,
-    audioAnalysis: AudioAnalysis
+    audioAnalysis: AudioAnalysis,
   ): MomentCategory {
     // Action moments
     if (scores.action > 80) {
@@ -172,38 +152,22 @@ export class MomentDetector {
     }
 
     // Comedy moments (high action + specific audio patterns)
-    if (
-      scores.action > 60 &&
-      audioAnalysis.content.emotionalTone === EmotionalTone.Happy &&
-      scores.emotional > 60
-    ) {
+    if (scores.action > 60 && audioAnalysis.content.emotionalTone === EmotionalTone.Happy && scores.emotional > 60) {
       return MomentCategory.Comedy
     }
 
     // Opening moments (good composition, establishing shots)
-    if (
-      scores.composition > 80 &&
-      videoAnalysis.content.sceneType !== SceneType.Unknown &&
-      scores.visual > 70
-    ) {
+    if (scores.composition > 80 && videoAnalysis.content.sceneType !== SceneType.Unknown && scores.visual > 70) {
       return MomentCategory.Opening
     }
 
     // Closing moments (calm, resolving energy)
-    if (
-      scores.action < 30 &&
-      scores.emotional < 40 &&
-      scores.composition > 60
-    ) {
+    if (scores.action < 30 && scores.emotional < 40 && scores.composition > 60) {
       return MomentCategory.Closing
     }
 
     // B-roll (good quality, low action/narrative)
-    if (
-      scores.visual > 70 &&
-      scores.action < 40 &&
-      scores.narrative < 30
-    ) {
+    if (scores.visual > 70 && scores.action < 40 && scores.narrative < 30) {
       return MomentCategory.BRoll
     }
 
@@ -219,10 +183,7 @@ export class MomentDetector {
   /**
    * Calculate emotional score from audio and visual cues
    */
-  private calculateEmotionalScore(
-    audioAnalysis: AudioAnalysis,
-    videoAnalysis: VideoAnalysis
-  ): number {
+  private calculateEmotionalScore(audioAnalysis: AudioAnalysis, videoAnalysis: VideoAnalysis): number {
     let score = 0
 
     // Audio emotional indicators
@@ -281,8 +242,10 @@ export class MomentDetector {
     }
 
     // Good lighting improves composition
-    if (videoAnalysis.content.lighting === LightingCondition.Bright || 
-        videoAnalysis.content.lighting === LightingCondition.Normal) {
+    if (
+      videoAnalysis.content.lighting === LightingCondition.Bright ||
+      videoAnalysis.content.lighting === LightingCondition.Normal
+    ) {
       score += 10
     }
 
@@ -328,10 +291,7 @@ export class MomentDetector {
   /**
    * Average two score sets
    */
-  private averageScores(
-    scores1: MomentScore["scores"],
-    scores2: MomentScore["scores"]
-  ): MomentScore["scores"] {
+  private averageScores(scores1: MomentScore["scores"], scores2: MomentScore["scores"]): MomentScore["scores"] {
     return {
       visual: (scores1.visual + scores2.visual) / 2,
       technical: (scores1.technical + scores2.technical) / 2,
@@ -347,8 +307,8 @@ export class MomentDetector {
    */
   private refineScores(
     moments: MomentScore[],
-    videoAnalysis: VideoAnalysis,
-    audioAnalysis: AudioAnalysis
+    _videoAnalysis: VideoAnalysis,
+    audioAnalysis: AudioAnalysis,
   ): MomentScore[] {
     return moments.map((moment, index) => {
       let refinedScore = moment.totalScore
@@ -360,9 +320,7 @@ export class MomentDetector {
 
       // Boost score for moments with music beats (if available)
       if (audioAnalysis.music?.beatMarkers) {
-        const nearBeat = audioAnalysis.music.beatMarkers.some(
-          beat => Math.abs(beat - moment.timestamp) < 0.5
-        )
+        const nearBeat = audioAnalysis.music.beatMarkers.some((beat) => Math.abs(beat - moment.timestamp) < 0.5)
         if (nearBeat) {
           refinedScore *= 1.15
         }
@@ -401,7 +359,7 @@ export class MomentDetector {
     videoAnalysis: VideoAnalysis,
     audioAnalysis: AudioAnalysis,
     timestamp: number,
-    duration: number
+    duration: number,
   ): MomentScore {
     const scores = this.calculateScores(videoAnalysis, audioAnalysis, timestamp)
     const totalScore = this.calculateTotalScore(scores)
@@ -424,7 +382,7 @@ export class MomentDetector {
   public rankMoments(moments: MomentScore[]): MomentScore[] {
     // Sort by total score descending
     const sorted = [...moments].sort((a, b) => b.totalScore - a.totalScore)
-    
+
     // Assign ranks
     return sorted.map((moment, index) => ({
       ...moment,
@@ -436,14 +394,14 @@ export class MomentDetector {
    * Filter moments by minimum score
    */
   public filterByScore(moments: MomentScore[], minScore: number): MomentScore[] {
-    return moments.filter(moment => moment.totalScore >= minScore)
+    return moments.filter((moment) => moment.totalScore >= minScore)
   }
 
   /**
    * Filter moments by categories
    */
   public filterByCategory(moments: MomentScore[], categories: MomentCategory[]): MomentScore[] {
-    return moments.filter(moment => categories.includes(moment.category))
+    return moments.filter((moment) => categories.includes(moment.category))
   }
 
   /**
@@ -451,34 +409,31 @@ export class MomentDetector {
    */
   public groupByCategory(moments: MomentScore[]): Record<MomentCategory, MomentScore[]> {
     const groups: Partial<Record<MomentCategory, MomentScore[]>> = {}
-    
+
     for (const moment of moments) {
       if (!groups[moment.category]) {
         groups[moment.category] = []
       }
       groups[moment.category]!.push(moment)
     }
-    
+
     return groups as Record<MomentCategory, MomentScore[]>
   }
 
   /**
    * Analyze temporal distribution of moments
    */
-  public analyzeTemporalDistribution(
-    moments: MomentScore[],
-    videoDuration: number
-  ): TemporalDistribution {
+  public analyzeTemporalDistribution(moments: MomentScore[], videoDuration: number): TemporalDistribution {
     // Sort by timestamp
     const sorted = [...moments].sort((a, b) => a.timestamp - b.timestamp)
-    
+
     // Calculate density (moments per minute)
     const density = (moments.length / videoDuration) * 60
-    
+
     // Find gaps
     const gaps: TimeGap[] = []
     let lastEnd = 0
-    
+
     for (const moment of sorted) {
       if (moment.timestamp > lastEnd) {
         gaps.push({
@@ -489,7 +444,7 @@ export class MomentDetector {
       }
       lastEnd = moment.timestamp + moment.duration
     }
-    
+
     // Add final gap if exists
     if (lastEnd < videoDuration) {
       gaps.push({
@@ -498,19 +453,19 @@ export class MomentDetector {
         duration: videoDuration - lastEnd,
       })
     }
-    
+
     // Find clusters (groups of moments close together)
     const clusters: MomentCluster[] = []
     let currentCluster: MomentScore[] = []
     const clusterThreshold = 5 // seconds
-    
+
     for (const moment of sorted) {
       if (currentCluster.length === 0) {
         currentCluster.push(moment)
       } else {
         const lastMoment = currentCluster[currentCluster.length - 1]
         const gap = moment.timestamp - (lastMoment.timestamp + lastMoment.duration)
-        
+
         if (gap <= clusterThreshold) {
           currentCluster.push(moment)
         } else {
@@ -519,33 +474,36 @@ export class MomentDetector {
             clusters.push({
               moments: [...currentCluster],
               startTime: currentCluster[0].timestamp,
-              endTime: currentCluster[currentCluster.length - 1].timestamp + 
-                       currentCluster[currentCluster.length - 1].duration,
-              density: currentCluster.length / 
-                      ((currentCluster[currentCluster.length - 1].timestamp + 
-                        currentCluster[currentCluster.length - 1].duration) - 
-                       currentCluster[0].timestamp),
+              endTime:
+                currentCluster[currentCluster.length - 1].timestamp +
+                currentCluster[currentCluster.length - 1].duration,
+              density:
+                currentCluster.length /
+                (currentCluster[currentCluster.length - 1].timestamp +
+                  currentCluster[currentCluster.length - 1].duration -
+                  currentCluster[0].timestamp),
             })
           }
           currentCluster = [moment]
         }
       }
     }
-    
+
     // Don't forget the last cluster
     if (currentCluster.length > 1) {
       clusters.push({
         moments: currentCluster,
         startTime: currentCluster[0].timestamp,
-        endTime: currentCluster[currentCluster.length - 1].timestamp + 
-                 currentCluster[currentCluster.length - 1].duration,
-        density: currentCluster.length / 
-                ((currentCluster[currentCluster.length - 1].timestamp + 
-                  currentCluster[currentCluster.length - 1].duration) - 
-                 currentCluster[0].timestamp),
+        endTime:
+          currentCluster[currentCluster.length - 1].timestamp + currentCluster[currentCluster.length - 1].duration,
+        density:
+          currentCluster.length /
+          (currentCluster[currentCluster.length - 1].timestamp +
+            currentCluster[currentCluster.length - 1].duration -
+            currentCluster[0].timestamp),
       })
     }
-    
+
     return {
       density,
       gaps,
@@ -564,58 +522,58 @@ export class MomentDetector {
       diversityWeight?: number
       qualityThreshold?: number
       maxGap?: number
-    }
+    },
   ): MomentScore[] {
     const diversityWeight = options?.diversityWeight ?? 0.3
     const qualityThreshold = options?.qualityThreshold ?? 60
     const maxGap = options?.maxGap ?? 10
-    
+
     // Filter by quality threshold
     let candidates = this.filterByScore(moments, qualityThreshold)
-    
+
     // Sort by timestamp
     candidates = [...candidates].sort((a, b) => a.timestamp - b.timestamp)
-    
+
     // Dynamic programming approach
     const selected: MomentScore[] = []
     let currentDuration = 0
     let lastCategory: MomentCategory | null = null
     let lastEnd = 0
-    
+
     while (currentDuration < targetDuration && candidates.length > 0) {
       let bestMoment: MomentScore | null = null
       let bestScore = -1
       let bestIndex = -1
-      
+
       for (let i = 0; i < candidates.length; i++) {
         const moment = candidates[i]
-        
+
         // Skip if too close to last selected
         if (moment.timestamp < lastEnd) continue
-        
+
         // Skip if gap is too large
         if (lastEnd > 0 && moment.timestamp - lastEnd > maxGap) continue
-        
+
         // Calculate selection score
         let score = moment.totalScore
-        
+
         // Apply diversity bonus
         if (lastCategory && moment.category !== lastCategory) {
-          score *= (1 + diversityWeight)
+          score *= 1 + diversityWeight
         }
-        
+
         // Penalize if would exceed target duration
         if (currentDuration + moment.duration > targetDuration * 1.1) {
           score *= 0.5
         }
-        
+
         if (score > bestScore) {
           bestScore = score
           bestMoment = moment
           bestIndex = i
         }
       }
-      
+
       if (bestMoment && bestIndex >= 0) {
         selected.push(bestMoment)
         currentDuration += bestMoment.duration
@@ -627,7 +585,7 @@ export class MomentDetector {
         break
       }
     }
-    
+
     return selected
   }
 
@@ -639,30 +597,28 @@ export class MomentDetector {
     options?: {
       threshold?: number
       minDistance?: number
-    }
+    },
   ): MomentScore[] {
     const threshold = options?.threshold ?? 85
     const minDistance = options?.minDistance ?? 10
-    
+
     // Filter by threshold
     const highScoreMoments = this.filterByScore(moments, threshold)
-    
+
     // Sort by score descending
     const sorted = [...highScoreMoments].sort((a, b) => b.totalScore - a.totalScore)
-    
+
     const peaks: MomentScore[] = []
-    
+
     for (const moment of sorted) {
       // Check if far enough from existing peaks
-      const tooClose = peaks.some(peak => 
-        Math.abs(peak.timestamp - moment.timestamp) < minDistance
-      )
-      
+      const tooClose = peaks.some((peak) => Math.abs(peak.timestamp - moment.timestamp) < minDistance)
+
       if (!tooClose) {
         peaks.push(moment)
       }
     }
-    
+
     // Sort peaks by timestamp for chronological order
     return peaks.sort((a, b) => a.timestamp - b.timestamp)
   }

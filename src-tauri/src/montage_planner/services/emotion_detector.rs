@@ -102,16 +102,19 @@ impl EmotionDetector {
         bbox: face.bbox.clone(),
       });
 
+      // Clone emotion before use
+      let emotion_type = emotion.emotion.clone();
+
       // Accumulate for overall analysis
       total_intensity += emotion.intensity * emotion.confidence;
-      *emotion_counts.entry(emotion.emotion).or_insert(0.0) += emotion.confidence;
+      *emotion_counts.entry(emotion_type.clone()).or_insert(0.0) += emotion.confidence;
 
       // Update emotion history
       if let Some(face_id) = face.tracking_id {
         self.update_emotion_history(
           face_id,
           detection.timestamp,
-          emotion.emotion,
+          emotion_type,
           emotion.confidence,
         );
       }
@@ -151,7 +154,7 @@ impl EmotionDetector {
   }
 
   /// Analyze emotion for a single face
-  fn analyze_face_emotion(&self, face: &FaceDetection, timestamp: f64) -> FaceEmotionResult {
+  fn analyze_face_emotion(&self, face: &FaceDetection, _timestamp: f64) -> FaceEmotionResult {
     // For now, use the emotion already in the face detection
     let base_emotion = face.emotion.clone();
 

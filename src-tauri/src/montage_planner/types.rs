@@ -1,7 +1,11 @@
 //! Type definitions for Smart Montage Planner module
 
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+
+// Re-export composition analyzer types
+pub use crate::montage_planner::services::composition_analyzer::{
+  CompositionEnhancedDetection, CompositionWeights,
+};
 
 /// Enhanced detection result that includes montage-specific analysis
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -68,7 +72,7 @@ pub struct CompositionScore {
 }
 
 /// Emotional tone detected from faces or scene
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Hash, PartialEq, Eq)]
 pub enum EmotionalTone {
   Neutral,
   Happy,
@@ -151,7 +155,7 @@ pub struct DetectedMoment {
 }
 
 /// Categories of detected moments
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Hash, PartialEq, Eq)]
 pub enum MomentCategory {
   Action,
   Drama,

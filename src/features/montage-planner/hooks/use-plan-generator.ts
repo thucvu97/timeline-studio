@@ -7,7 +7,7 @@ import { useCallback, useMemo } from "react"
 
 import { useMontagePlanner } from "./use-montage-planner"
 
-import type { Fragment, MontagePlan, PlannedClip, Sequence } from "../types"
+import type { PlannedClip, Sequence } from "../types"
 
 export function usePlanGenerator() {
   const {
@@ -24,21 +24,21 @@ export function usePlanGenerator() {
   // Get sequence by ID
   const getSequence = useCallback(
     (sequenceId: string): Sequence | undefined => {
-      return currentPlan?.sequences.find(seq => seq.id === sequenceId)
+      return currentPlan?.sequences.find((seq) => seq.id === sequenceId)
     },
-    [currentPlan]
+    [currentPlan],
   )
 
   // Get clip by ID
   const getPlannedClip = useCallback(
     (clipId: string): PlannedClip | undefined => {
       for (const sequence of currentPlan?.sequences || []) {
-        const clip = sequence.clips.find(c => c.fragmentId === clipId)
+        const clip = sequence.clips.find((c) => c.fragmentId === clipId)
         if (clip) return clip
       }
       return undefined
     },
-    [currentPlan]
+    [currentPlan],
   )
 
   // Plan statistics
@@ -49,8 +49,8 @@ export function usePlanGenerator() {
     const totalClips = sequences.reduce((sum, seq) => Number(sum) + Number(seq.clips?.length || 0), 0)
     const averageSequenceDuration =
       sequences.reduce((sum, seq) => Number(sum) + Number(seq.duration || 0), 0) / (sequences.length || 1)
-    
-    const energyProfile = sequences.map(seq => ({
+
+    const energyProfile = sequences.map((seq) => ({
       sequenceId: seq.id,
       type: seq.type,
       energy: seq.energyLevel,
@@ -72,7 +72,7 @@ export function usePlanGenerator() {
   const sequenceBreakdown = useMemo(() => {
     if (!currentPlan) return []
 
-    return currentPlan.sequences.map(sequence => ({
+    return currentPlan.sequences.map((sequence) => ({
       id: sequence.id,
       type: sequence.type,
       duration: sequence.duration,
@@ -86,10 +86,10 @@ export function usePlanGenerator() {
   // Fragment usage analysis
   const fragmentUsage = useMemo(() => {
     const usage = new Map<string, number>()
-    
+
     if (currentPlan) {
-      currentPlan.sequences.forEach(sequence => {
-        sequence.clips.forEach(clip => {
+      currentPlan.sequences.forEach((sequence) => {
+        sequence.clips.forEach((clip) => {
           usage.set(clip.fragmentId, (usage.get(clip.fragmentId) || 0) + 1)
         })
       })
@@ -98,7 +98,7 @@ export function usePlanGenerator() {
     return {
       totalFragments: context.fragments.length,
       usedFragments: usage.size,
-      unusedFragments: context.fragments.filter(f => !usage.has(f.id)),
+      unusedFragments: context.fragments.filter((f) => !usage.has(f.id)),
       multiUseFragments: Array.from(usage.entries()).filter(([_, count]) => count > 1),
     }
   }, [currentPlan, context.fragments])
@@ -106,10 +106,10 @@ export function usePlanGenerator() {
   // Transition usage
   const transitionUsage = useMemo(() => {
     const usage = new Map<string, number>()
-    
+
     if (currentPlan) {
-      currentPlan.sequences.forEach(sequence => {
-        sequence.transitions.forEach(transition => {
+      currentPlan.sequences.forEach((sequence) => {
+        sequence.transitions.forEach((transition) => {
           usage.set(transition.transitionId, (usage.get(transition.transitionId) || 0) + 1)
         })
       })
@@ -124,7 +124,7 @@ export function usePlanGenerator() {
   const emotionalArc = useMemo(() => {
     if (!currentPlan) return []
 
-    return currentPlan.sequences.map(sequence => ({
+    return currentPlan.sequences.map((sequence) => ({
       sequenceId: sequence.id,
       startEnergy: sequence.emotionalArc.startEnergy,
       peakEnergy: sequence.emotionalArc.peakEnergy,
@@ -155,7 +155,7 @@ export function usePlanGenerator() {
           suggestions.push(
             planStats.totalDuration > context.targetDuration
               ? "Plan is too long - consider trimming some clips"
-              : "Plan is too short - add more content or extend key moments"
+              : "Plan is too short - add more content or extend key moments",
           )
         }
       }
@@ -175,17 +175,17 @@ export function usePlanGenerator() {
     isGenerating,
     isOptimizing,
     planHistory: context.planHistory,
-    
+
     // Actions
     generatePlan,
     optimizePlan,
     editFragment,
     reorderFragments,
-    
+
     // Helpers
     getSequence,
     getPlannedClip,
-    
+
     // Computed
     planStats,
     sequenceBreakdown,
@@ -193,7 +193,7 @@ export function usePlanGenerator() {
     transitionUsage,
     emotionalArc,
     improvementSuggestions,
-    
+
     // Generation options
     generationOptions: context.generationOptions,
     selectedStyle: context.selectedStyle,

@@ -26,24 +26,19 @@ describe("MomentDetector", () => {
         categories: Object.values(MomentCategory),
       }
 
-      const moments = detector.detectMoments(
-        mockVideoAnalysis,
-        mockAudioAnalysis,
-        duration,
-        options
-      )
+      const moments = detector.detectMoments(mockVideoAnalysis, mockAudioAnalysis, duration, options)
 
       expect(moments).toBeInstanceOf(Array)
       expect(moments.length).toBeGreaterThan(0)
-      
-      moments.forEach(moment => {
+
+      moments.forEach((moment) => {
         expect(moment).toHaveProperty("timestamp")
         expect(moment).toHaveProperty("duration")
         expect(moment).toHaveProperty("category")
         expect(moment).toHaveProperty("scores")
         expect(moment).toHaveProperty("weight")
         expect(moment).toHaveProperty("rank")
-        
+
         expect(moment.duration).toBeGreaterThanOrEqual(options.minDuration!)
         expect(moment.timestamp).toBeLessThan(duration)
       })
@@ -56,24 +51,14 @@ describe("MomentDetector", () => {
         minDuration: 1,
       }
 
-      const highThresholdMoments = detector.detectMoments(
-        mockVideoAnalysis,
-        mockAudioAnalysis,
-        duration,
-        highThreshold
-      )
+      const highThresholdMoments = detector.detectMoments(mockVideoAnalysis, mockAudioAnalysis, duration, highThreshold)
 
       const lowThreshold: AnalysisOptions["momentDetection"] = {
         threshold: 0.5,
         minDuration: 1,
       }
 
-      const lowThresholdMoments = detector.detectMoments(
-        mockVideoAnalysis,
-        mockAudioAnalysis,
-        duration,
-        lowThreshold
-      )
+      const lowThresholdMoments = detector.detectMoments(mockVideoAnalysis, mockAudioAnalysis, duration, lowThreshold)
 
       expect(lowThresholdMoments.length).toBeGreaterThanOrEqual(highThresholdMoments.length)
     })
@@ -85,14 +70,9 @@ describe("MomentDetector", () => {
         minDuration: 3,
       }
 
-      const moments = detector.detectMoments(
-        mockVideoAnalysis,
-        mockAudioAnalysis,
-        duration,
-        options
-      )
+      const moments = detector.detectMoments(mockVideoAnalysis, mockAudioAnalysis, duration, options)
 
-      moments.forEach(moment => {
+      moments.forEach((moment) => {
         expect(moment.duration).toBeGreaterThanOrEqual(3)
       })
     })
@@ -105,14 +85,9 @@ describe("MomentDetector", () => {
         categories: [MomentCategory.Action, MomentCategory.Drama],
       }
 
-      const moments = detector.detectMoments(
-        mockVideoAnalysis,
-        mockAudioAnalysis,
-        duration,
-        options
-      )
+      const moments = detector.detectMoments(mockVideoAnalysis, mockAudioAnalysis, duration, options)
 
-      moments.forEach(moment => {
+      moments.forEach((moment) => {
         expect([MomentCategory.Action, MomentCategory.Drama]).toContain(moment.category)
       })
     })
@@ -122,13 +97,8 @@ describe("MomentDetector", () => {
     it("should calculate comprehensive scores", () => {
       const timestamp = 10
       const duration = 2
-      
-      const score = detector.scoreMoment(
-        mockVideoAnalysis,
-        mockAudioAnalysis,
-        timestamp,
-        duration
-      )
+
+      const score = detector.scoreMoment(mockVideoAnalysis, mockAudioAnalysis, timestamp, duration)
 
       expect(score.scores).toHaveProperty("visual")
       expect(score.scores).toHaveProperty("action")
@@ -136,7 +106,7 @@ describe("MomentDetector", () => {
       expect(score.scores).toHaveProperty("narrative")
       expect(score.scores).toHaveProperty("technical")
 
-      Object.values(score.scores).forEach(s => {
+      Object.values(score.scores).forEach((s) => {
         expect(s).toBeGreaterThanOrEqual(0)
         expect(s).toBeLessThanOrEqual(100)
       })
@@ -156,10 +126,10 @@ describe("MomentDetector", () => {
       expect(ranked[0].rank).toBe(1)
       expect(ranked[1].rank).toBe(2)
       expect(ranked[2].rank).toBe(3)
-      
+
       // Check descending order by totalScore
       for (let i = 1; i < ranked.length; i++) {
-        expect(ranked[i-1].totalScore).toBeGreaterThanOrEqual(ranked[i].totalScore)
+        expect(ranked[i - 1].totalScore).toBeGreaterThanOrEqual(ranked[i].totalScore)
       }
     })
   })
@@ -199,10 +169,10 @@ describe("MomentDetector", () => {
 
       const totalDuration = selected.reduce((sum, m) => sum + m.duration, 0)
       expect(totalDuration).toBeLessThanOrEqual(targetDuration)
-      
+
       // Check that selected moments don't overlap
       for (let i = 1; i < selected.length; i++) {
-        const prevEnd = selected[i-1].timestamp + selected[i-1].duration
+        const prevEnd = selected[i - 1].timestamp + selected[i - 1].duration
         const currStart = selected[i].timestamp
         expect(currStart).toBeGreaterThanOrEqual(prevEnd)
       }
@@ -230,7 +200,7 @@ describe("MomentDetector", () => {
         diversityWeight: 0.8,
       })
 
-      const categories = new Set(selected.map(m => m.category))
+      const categories = new Set(selected.map((m) => m.category))
       expect(categories.size).toBeGreaterThan(1) // Should include multiple categories
     })
   })
@@ -250,7 +220,7 @@ describe("MomentDetector", () => {
       expect(distribution).toHaveProperty("density")
       expect(distribution).toHaveProperty("gaps")
       expect(distribution).toHaveProperty("clusters")
-      
+
       expect(distribution.gaps.length).toBeGreaterThan(0)
       expect(distribution.gaps[0]).toEqual({ start: 15, end: 25, duration: 10 })
     })

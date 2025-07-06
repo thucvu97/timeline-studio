@@ -143,7 +143,7 @@ export function useTimelineActions(): UseTimelineActionsReturn {
 
         const checkForTrack = () => {
           retryCount++
-          
+
           // Пытаемся найти созданный трек
           const newTargetTrackId = findBestTrackForMedia(file)
 
@@ -154,7 +154,9 @@ export function useTimelineActions(): UseTimelineActionsReturn {
             // Пробуем еще раз
             setTimeout(checkForTrack, retryDelay)
           } else {
-            console.error(`Failed to create ${trackType} track for media file: ${file.name} after ${maxRetries} attempts`)
+            console.error(
+              `Failed to create ${trackType} track for media file: ${file.name} after ${maxRetries} attempts`,
+            )
           }
         }
 

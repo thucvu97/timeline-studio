@@ -28,7 +28,7 @@ export function syncResourcesToProject(
 
   // Создаем Set с ID ресурсов из localStorage для быстрого поиска
   const resourceIds = new Set<string>()
-  
+
   // Добавляем или обновляем медиа ресурсы
   mediaResources.forEach((resource) => {
     if (resource.file) {

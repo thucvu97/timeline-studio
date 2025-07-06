@@ -3,8 +3,6 @@
  * Displays AI-generated recommendations for improving the montage plan
  */
 
-import React from "react"
-
 import { AlertTriangle, CheckCircle, Info, Lightbulb } from "lucide-react"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -40,11 +38,7 @@ export function Suggestions() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Suggestions & Insights</h3>
-        <Button
-          size="sm"
-          onClick={optimizePlan}
-          disabled={isOptimizing}
-        >
+        <Button size="sm" onClick={optimizePlan} disabled={isOptimizing}>
           Apply Optimizations
         </Button>
       </div>
@@ -57,9 +51,7 @@ export function Suggestions() {
               <Lightbulb className="h-5 w-5" />
               Improvement Suggestions
             </CardTitle>
-            <CardDescription>
-              Recommendations to enhance your montage
-            </CardDescription>
+            <CardDescription>Recommendations to enhance your montage</CardDescription>
           </CardHeader>
           <CardContent>
             {improvementSuggestions.length > 0 ? (
@@ -74,9 +66,7 @@ export function Suggestions() {
             ) : (
               <Alert>
                 <CheckCircle className="h-4 w-4" />
-                <AlertDescription>
-                  Your montage plan looks great! No major improvements needed.
-                </AlertDescription>
+                <AlertDescription>Your montage plan looks great! No major improvements needed.</AlertDescription>
               </Alert>
             )}
           </CardContent>
@@ -86,9 +76,7 @@ export function Suggestions() {
         <Card>
           <CardHeader>
             <CardTitle>Fragment Usage</CardTitle>
-            <CardDescription>
-              How your content is being utilized
-            </CardDescription>
+            <CardDescription>How your content is being utilized</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -136,17 +124,15 @@ export function Suggestions() {
       <Card>
         <CardHeader>
           <CardTitle>Style Tips</CardTitle>
-          <CardDescription>
-            Recommendations based on your selected montage style
-          </CardDescription>
+          <CardDescription>Recommendations based on your selected montage style</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
             <Alert>
               <Info className="h-4 w-4" />
               <AlertDescription>
-                <strong>Tip:</strong> For dynamic action montages, consider adding more quick cuts during{" "}
-                high-energy moments to maintain viewer engagement.
+                <strong>Tip:</strong> For dynamic action montages, consider adding more quick cuts during high-energy
+                moments to maintain viewer engagement.
               </AlertDescription>
             </Alert>
             <Alert>

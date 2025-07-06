@@ -3,8 +3,6 @@
  * Integrates all sub-components and provides the complete planning interface
  */
 
-import React from "react"
-
 import { MontagePlannerProvider } from "../services/montage-planner-provider"
 import { PlannerDashboard } from "./planner-dashboard/planner-dashboard"
 

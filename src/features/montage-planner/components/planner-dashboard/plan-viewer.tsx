@@ -3,9 +3,7 @@
  * Displays the generated montage plan with sequences and timeline visualization
  */
 
-import React from "react"
-
-import { Check, Clock, Layers, Sparkles, TrendingUp, X } from "lucide-react"
+import { Check, Layers, Sparkles, TrendingUp, X } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -17,20 +15,14 @@ import { formatTime } from "@/features/timeline/utils/utils"
 
 import { usePlanGenerator } from "../../hooks/use-plan-generator"
 
-import type { MontagePlan, Sequence, SequenceType } from "../../types"
+import type { MontagePlan, SequenceType } from "../../types"
 
 interface PlanViewerProps {
   plan: MontagePlan
 }
 
 export function PlanViewer({ plan }: PlanViewerProps) {
-  const {
-    planStats,
-    sequenceBreakdown,
-    emotionalArc,
-    transitionUsage,
-    planValidation,
-  } = usePlanGenerator()
+  const { planStats, sequenceBreakdown, emotionalArc, transitionUsage, planValidation } = usePlanGenerator()
 
   const getSequenceColor = (type: SequenceType) => {
     const colors = {
@@ -55,12 +47,8 @@ export function PlanViewer({ plan }: PlanViewerProps) {
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Montage Plan: {plan.name}</h3>
         <div className="flex gap-2">
-          <Badge variant="outline">
-            {plan.sequences.length} sequences
-          </Badge>
-          <Badge variant="outline">
-            {formatTime(plan.totalDuration)}
-          </Badge>
+          <Badge variant="outline">{plan.sequences.length} sequences</Badge>
+          <Badge variant="outline">{formatTime(plan.totalDuration)}</Badge>
         </div>
       </div>
 
@@ -122,9 +110,7 @@ export function PlanViewer({ plan }: PlanViewerProps) {
       <Card>
         <CardHeader>
           <CardTitle>Timeline Preview</CardTitle>
-          <CardDescription>
-            Visual representation of your montage structure
-          </CardDescription>
+          <CardDescription>Visual representation of your montage structure</CardDescription>
         </CardHeader>
         <CardContent>
           <ScrollArea className="w-full">
@@ -140,9 +126,7 @@ export function PlanViewer({ plan }: PlanViewerProps) {
                 >
                   <div className={`h-16 rounded ${getSequenceColor(sequence.type)} opacity-80`}>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-xs text-white font-medium capitalize">
-                        {sequence.type}
-                      </span>
+                      <span className="text-xs text-white font-medium capitalize">{sequence.type}</span>
                     </div>
                   </div>
                   <div className="absolute -bottom-6 left-0 right-0 text-xs text-center text-muted-foreground">
@@ -176,9 +160,7 @@ export function PlanViewer({ plan }: PlanViewerProps) {
           <Card>
             <CardHeader>
               <CardTitle>Sequence Details</CardTitle>
-              <CardDescription>
-                Breakdown of each sequence in your montage
-              </CardDescription>
+              <CardDescription>Breakdown of each sequence in your montage</CardDescription>
             </CardHeader>
             <CardContent>
               <ScrollArea className="h-[400px]">
@@ -222,16 +204,14 @@ export function PlanViewer({ plan }: PlanViewerProps) {
           <Card>
             <CardHeader>
               <CardTitle>Emotional Rhythm</CardTitle>
-              <CardDescription>
-                Energy flow throughout your montage
-              </CardDescription>
+              <CardDescription>Energy flow throughout your montage</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {/* Energy Graph */}
                 <div className="h-[200px] relative border rounded-lg p-4">
                   <div className="absolute inset-4 flex items-end justify-between gap-1">
-                    {emotionalArc.map((point, index) => (
+                    {emotionalArc.map((point, _index) => (
                       <div
                         key={point.sequenceId}
                         className="flex-1 bg-primary/20 rounded-t"
@@ -239,9 +219,7 @@ export function PlanViewer({ plan }: PlanViewerProps) {
                           height: `${point.peakEnergy}%`,
                         }}
                       >
-                        <div className="text-xs text-center mt-1">
-                          {Math.round(point.peakEnergy)}
-                        </div>
+                        <div className="text-xs text-center mt-1">{Math.round(point.peakEnergy)}</div>
                       </div>
                     ))}
                   </div>
@@ -256,15 +234,11 @@ export function PlanViewer({ plan }: PlanViewerProps) {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm font-medium">Pacing Type</p>
-                    <p className="text-sm text-muted-foreground capitalize">
-                      {plan.pacing.type.replace("-", " ")}
-                    </p>
+                    <p className="text-sm text-muted-foreground capitalize">{plan.pacing.type.replace("-", " ")}</p>
                   </div>
                   <div>
                     <p className="text-sm font-medium">Average Cut Duration</p>
-                    <p className="text-sm text-muted-foreground">
-                      {plan.pacing.averageCutDuration.toFixed(1)}s
-                    </p>
+                    <p className="text-sm text-muted-foreground">{plan.pacing.averageCutDuration.toFixed(1)}s</p>
                   </div>
                   <div>
                     <p className="text-sm font-medium">Cut Range</p>
@@ -274,9 +248,7 @@ export function PlanViewer({ plan }: PlanViewerProps) {
                   </div>
                   <div>
                     <p className="text-sm font-medium">Rhythm Complexity</p>
-                    <p className="text-sm text-muted-foreground">
-                      {plan.pacing.rhythmComplexity}%
-                    </p>
+                    <p className="text-sm text-muted-foreground">{plan.pacing.rhythmComplexity}%</p>
                   </div>
                 </div>
               </div>
@@ -289,9 +261,7 @@ export function PlanViewer({ plan }: PlanViewerProps) {
           <Card>
             <CardHeader>
               <CardTitle>Transition Usage</CardTitle>
-              <CardDescription>
-                Types and frequency of transitions in your montage
-              </CardDescription>
+              <CardDescription>Types and frequency of transitions in your montage</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
@@ -318,9 +288,7 @@ export function PlanViewer({ plan }: PlanViewerProps) {
           <Card>
             <CardHeader>
               <CardTitle>Plan Validation</CardTitle>
-              <CardDescription>
-                Quality checks and potential issues
-              </CardDescription>
+              <CardDescription>Quality checks and potential issues</CardDescription>
             </CardHeader>
             <CardContent>
               {planValidation ? (
@@ -338,12 +306,20 @@ export function PlanViewer({ plan }: PlanViewerProps) {
                       </>
                     )}
                   </div>
-                  
+
                   {planValidation.issues.length > 0 && (
                     <div className="space-y-2">
                       {planValidation.issues.map((issue, index) => (
                         <div key={index} className="flex items-start gap-2 text-sm">
-                          <Badge variant={issue.severity === "error" ? "destructive" : issue.severity === "warning" ? "secondary" : "outline"}>
+                          <Badge
+                            variant={
+                              issue.severity === "error"
+                                ? "destructive"
+                                : issue.severity === "warning"
+                                  ? "secondary"
+                                  : "outline"
+                            }
+                          >
                             {issue.severity}
                           </Badge>
                           <p className="flex-1">{issue.message}</p>
@@ -351,7 +327,7 @@ export function PlanViewer({ plan }: PlanViewerProps) {
                       ))}
                     </div>
                   )}
-                  
+
                   {planValidation.suggestions.length > 0 && (
                     <div className="space-y-2">
                       <p className="text-sm font-medium">Suggestions</p>

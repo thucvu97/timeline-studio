@@ -3,8 +3,6 @@
  * Visualizes detected key moments and their scores
  */
 
-import React from "react"
-
 import { Camera, Heart, Music, Sparkles, Target, Users, Zap } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -77,15 +75,16 @@ export function MomentDetector({ fragments, className }: MomentDetectorProps) {
   const topMoments = [...fragments].sort((a, b) => b.score.totalScore - a.score.totalScore).slice(0, 10)
 
   // Calculate statistics
-  const averageScore = fragments.length > 0
-    ? fragments.reduce((sum, f) => sum + f.score.totalScore, 0) / fragments.length
-    : 0
+  const averageScore =
+    fragments.length > 0 ? fragments.reduce((sum, f) => sum + f.score.totalScore, 0) / fragments.length : 0
 
-  const momentTypeCounts = Object.entries(fragmentsByType).map(([type, frags]) => ({
-    type: type as MomentType,
-    count: frags.length,
-    percentage: (frags.length / fragments.length) * 100,
-  })).sort((a, b) => b.count - a.count)
+  const momentTypeCounts = Object.entries(fragmentsByType)
+    .map(([type, frags]) => ({
+      type: type as MomentType,
+      count: frags.length,
+      percentage: (frags.length / fragments.length) * 100,
+    }))
+    .sort((a, b) => b.count - a.count)
 
   return (
     <Card className={cn("", className)}>
@@ -129,9 +128,7 @@ export function MomentDetector({ fragments, className }: MomentDetectorProps) {
               <div className="space-y-2">
                 {momentTypeCounts.map(({ type, count, percentage }) => (
                   <div key={type} className="flex items-center gap-2">
-                    <div className={cn("p-1 rounded", getMomentColor(type))}>
-                      {getMomentIcon(type)}
-                    </div>
+                    <div className={cn("p-1 rounded", getMomentColor(type))}>{getMomentIcon(type)}</div>
                     <span className="text-sm flex-1">{type}</span>
                     <Badge variant="secondary">{count}</Badge>
                     <Progress value={percentage} className="w-20 h-2" />
@@ -153,7 +150,7 @@ export function MomentDetector({ fragments, className }: MomentDetectorProps) {
                     <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted text-sm font-medium">
                       {index + 1}
                     </div>
-                    
+
                     <div className="flex-1 space-y-2">
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-2">
@@ -169,18 +166,16 @@ export function MomentDetector({ fragments, className }: MomentDetectorProps) {
                           {fragment.score.totalScore.toFixed(0)}
                         </Badge>
                       </div>
-                      
-                      {fragment.description && (
-                        <p className="text-sm text-muted-foreground">{fragment.description}</p>
-                      )}
-                      
+
+                      {fragment.description && <p className="text-sm text-muted-foreground">{fragment.description}</p>}
+
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <span>Visual: {fragment.score.visualScore.toFixed(0)}</span>
                         <span>Technical: {fragment.score.technicalScore.toFixed(0)}</span>
                         <span>Emotional: {fragment.score.emotionalScore.toFixed(0)}</span>
                         <span>Relevance: {fragment.score.relevanceScore.toFixed(0)}</span>
                       </div>
-                      
+
                       {fragment.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1">
                           {fragment.tags.map((tag) => (
@@ -205,17 +200,17 @@ export function MomentDetector({ fragments, className }: MomentDetectorProps) {
                   <p className="text-sm font-medium">{videoId}</p>
                   <div className="relative h-8 bg-muted rounded overflow-hidden">
                     {videoFragments.map((fragment) => {
-                      const videoDuration = Math.max(...videoFragments.map(f => f.endTime))
+                      const videoDuration = Math.max(...videoFragments.map((f) => f.endTime))
                       const left = (fragment.startTime / videoDuration) * 100
                       const width = (fragment.duration / videoDuration) * 100
-                      
+
                       return (
                         <div
                           key={fragment.id}
                           className={cn(
                             "absolute top-1 h-6 rounded",
                             getMomentColor(fragment.score.momentType),
-                            "opacity-80 hover:opacity-100 transition-opacity cursor-pointer"
+                            "opacity-80 hover:opacity-100 transition-opacity cursor-pointer",
                           )}
                           style={{
                             left: `${left}%`,
@@ -229,11 +224,11 @@ export function MomentDetector({ fragments, className }: MomentDetectorProps) {
                   </div>
                   <div className="flex justify-between text-xs text-muted-foreground">
                     <span>0:00</span>
-                    <span>{formatTime(Math.max(...videoFragments.map(f => f.endTime)))}</span>
+                    <span>{formatTime(Math.max(...videoFragments.map((f) => f.endTime)))}</span>
                   </div>
                 </div>
               ))}
-              
+
               {/* Legend */}
               <div className="flex flex-wrap gap-2 pt-4 border-t">
                 {Object.keys(fragmentsByType).map((type) => (

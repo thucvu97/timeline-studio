@@ -510,7 +510,7 @@ impl ActivityCalculator {
   }
 
   /// Get activity trend over time
-  pub fn get_activity_trend(&self, window_size: usize) -> Vec<f32> {
+  pub fn get_activity_trend(&self, _window_size: usize) -> Vec<f32> {
     // TODO: Implement activity trend calculation
     // This would track activity levels over a sliding window
     Vec::new()

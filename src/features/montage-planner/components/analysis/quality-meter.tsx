@@ -3,8 +3,6 @@
  * Displays real-time quality metrics for video fragments and overall plan
  */
 
-import React from "react"
-
 import { AlertTriangle, CheckCircle, Minus, TrendingDown, TrendingUp } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -21,12 +19,7 @@ interface QualityMeterProps {
   className?: string
 }
 
-export function QualityMeter({
-  videoAnalysis,
-  audioAnalysis,
-  momentScore,
-  className,
-}: QualityMeterProps) {
+export function QualityMeter({ videoAnalysis, audioAnalysis, momentScore, className }: QualityMeterProps) {
   const getQualityColor = (score: number) => {
     if (score >= 80) return "text-green-600"
     if (score >= 60) return "text-yellow-600"
@@ -54,9 +47,7 @@ export function QualityMeter({
     <Card className={cn("", className)}>
       <CardHeader>
         <CardTitle>Quality Metrics</CardTitle>
-        <CardDescription>
-          Real-time quality assessment of your content
-        </CardDescription>
+        <CardDescription>Real-time quality assessment of your content</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Overall Quality */}
@@ -84,12 +75,14 @@ export function QualityMeter({
                 <AlertTriangle className="h-4 w-4 text-yellow-600" />
               )}
             </h4>
-            
+
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div className="space-y-1">
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Resolution</span>
-                  <span className="font-medium">{videoAnalysis.quality?.resolution?.width || 0}x{videoAnalysis.quality?.resolution?.height || 0}</span>
+                  <span className="font-medium">
+                    {videoAnalysis.quality?.resolution?.width || 0}x{videoAnalysis.quality?.resolution?.height || 0}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Frame Rate</span>
@@ -97,10 +90,12 @@ export function QualityMeter({
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Bitrate</span>
-                  <span className="font-medium">{((videoAnalysis.quality?.bitrate || 0) / 1000000).toFixed(1)} Mbps</span>
+                  <span className="font-medium">
+                    {((videoAnalysis.quality?.bitrate || 0) / 1000000).toFixed(1)} Mbps
+                  </span>
                 </div>
               </div>
-              
+
               <div className="space-y-1">
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Sharpness</span>
@@ -164,7 +159,7 @@ export function QualityMeter({
                 <AlertTriangle className="h-4 w-4 text-yellow-600" />
               )}
             </h4>
-            
+
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div className="space-y-1">
                 <div className="flex justify-between items-center">
@@ -180,7 +175,7 @@ export function QualityMeter({
                   <span className="font-medium">{(audioAnalysis.quality?.noiseLevel || 0).toFixed(0)}%</span>
                 </div>
               </div>
-              
+
               <div className="space-y-1">
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Speech Clarity</span>

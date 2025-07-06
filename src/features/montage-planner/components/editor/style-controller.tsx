@@ -3,8 +3,6 @@
  * Manages montage style settings and visual preferences
  */
 
-import React from "react"
-
 import { Camera, Film, Heart, Mountain, Music, Palette, Sparkles, Zap } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -27,20 +25,16 @@ interface StyleControllerProps {
   className?: string
 }
 
-export function StyleController({
-  preferences,
-  onPreferencesChange,
-  className,
-}: StyleControllerProps) {
+export function StyleController({ preferences, onPreferencesChange, className }: StyleControllerProps) {
   const getStyleIcon = (style: MontageStyle) => {
     const icons = {
       "Dynamic Action": <Zap className="h-5 w-5" />,
       "Cinematic Drama": <Film className="h-5 w-5" />,
       "Music Video": <Music className="h-5 w-5" />,
-      "Documentary": <Camera className="h-5 w-5" />,
+      Documentary: <Camera className="h-5 w-5" />,
       "Emotional Journey": <Heart className="h-5 w-5" />,
       "Travel Montage": <Mountain className="h-5 w-5" />,
-      "Corporate": <Sparkles className="h-5 w-5" />,
+      Corporate: <Sparkles className="h-5 w-5" />,
       "Social Media": <Palette className="h-5 w-5" />,
     }
     return icons[style] || <Film className="h-5 w-5" />
@@ -70,9 +64,7 @@ export function StyleController({
     <Card className={cn("", className)}>
       <CardHeader>
         <CardTitle>Style & Visual Settings</CardTitle>
-        <CardDescription>
-          Control the creative direction and visual style of your montage
-        </CardDescription>
+        <CardDescription>Control the creative direction and visual style of your montage</CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="style" className="w-full">
@@ -89,32 +81,24 @@ export function StyleController({
               <Label>Montage Style</Label>
               <RadioGroup
                 value={preferences.style}
-                onValueChange={(value: MontageStyle) =>
-                  onPreferencesChange({ style: value })
-                }
+                onValueChange={(value: MontageStyle) => onPreferencesChange({ style: value })}
               >
                 <div className="grid gap-3">
                   {Object.entries(MONTAGE_STYLES).map(([style, config]) => (
                     <div key={style} className="relative">
-                      <RadioGroupItem
-                        value={style}
-                        id={style}
-                        className="peer sr-only"
-                      />
+                      <RadioGroupItem value={style} id={style} className="peer sr-only" />
                       <Label
                         htmlFor={style}
                         className={cn(
                           "flex items-start gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all",
                           "hover:bg-accent",
-                          "peer-checked:border-primary peer-checked:bg-accent"
+                          "peer-checked:border-primary peer-checked:bg-accent",
                         )}
                       >
                         <div className="mt-0.5">{getStyleIcon(style as MontageStyle)}</div>
                         <div className="flex-1 space-y-1">
                           <div className="font-medium">{style}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {config.description}
-                          </div>
+                          <div className="text-sm text-muted-foreground">{config.description}</div>
                           <div className="flex flex-wrap gap-1 mt-2">
                             <Badge variant="outline" className="text-xs">
                               Pace: {config.params.pacePreference}
@@ -137,7 +121,7 @@ export function StyleController({
             {/* Style Parameters */}
             <div className="space-y-4 pt-4 border-t">
               <h4 className="text-sm font-medium">Style Customization</h4>
-              
+
               {/* Energy Range */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -149,9 +133,7 @@ export function StyleController({
                 <div className="px-2">
                   <Slider
                     value={preferences.styleParameters.energyRange}
-                    onValueChange={(value) =>
-                      updateStyleParameters({ energyRange: value as [number, number] })
-                    }
+                    onValueChange={(value) => updateStyleParameters({ energyRange: value as [number, number] })}
                     min={0}
                     max={100}
                     step={5}
@@ -165,18 +147,13 @@ export function StyleController({
                 <Label>Cut Frequency</Label>
                 <RadioGroup
                   value={preferences.styleParameters.cutFrequency}
-                  onValueChange={(value) =>
-                    updateStyleParameters({ cutFrequency: value as any })
-                  }
+                  onValueChange={(value) => updateStyleParameters({ cutFrequency: value as any })}
                 >
                   <div className="grid grid-cols-4 gap-2">
                     {["slow", "medium", "fast", "mixed"].map((freq) => (
                       <div key={freq} className="flex items-center">
                         <RadioGroupItem value={freq} id={`freq-${freq}`} />
-                        <Label
-                          htmlFor={`freq-${freq}`}
-                          className="ml-2 text-sm capitalize cursor-pointer"
-                        >
+                        <Label htmlFor={`freq-${freq}`} className="ml-2 text-sm capitalize cursor-pointer">
                           {freq}
                         </Label>
                       </div>
@@ -189,15 +166,11 @@ export function StyleController({
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label>Emotion Focus</Label>
-                  <span className="text-sm text-muted-foreground">
-                    {preferences.styleParameters.emotionFocus}%
-                  </span>
+                  <span className="text-sm text-muted-foreground">{preferences.styleParameters.emotionFocus}%</span>
                 </div>
                 <Slider
                   value={[preferences.styleParameters.emotionFocus]}
-                  onValueChange={([value]) =>
-                    updateStyleParameters({ emotionFocus: value })
-                  }
+                  onValueChange={([value]) => updateStyleParameters({ emotionFocus: value })}
                   max={100}
                   step={5}
                   className="w-full"
@@ -213,18 +186,13 @@ export function StyleController({
               <Label>Color Grading Preference</Label>
               <RadioGroup
                 value={preferences.visualParameters.colorGrading}
-                onValueChange={(value) =>
-                  updateVisualParameters({ colorGrading: value })
-                }
+                onValueChange={(value) => updateVisualParameters({ colorGrading: value })}
               >
                 <div className="grid grid-cols-2 gap-3">
                   {["neutral", "warm", "cool", "vibrant", "muted", "cinematic"].map((grade) => (
                     <div key={grade} className="flex items-center">
                       <RadioGroupItem value={grade} id={`grade-${grade}`} />
-                      <Label
-                        htmlFor={`grade-${grade}`}
-                        className="ml-2 text-sm capitalize cursor-pointer"
-                      >
+                      <Label htmlFor={`grade-${grade}`} className="ml-2 text-sm capitalize cursor-pointer">
                         {grade}
                       </Label>
                     </div>
@@ -237,15 +205,11 @@ export function StyleController({
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label>Contrast Level</Label>
-                <span className="text-sm text-muted-foreground">
-                  {preferences.visualParameters.contrastLevel}%
-                </span>
+                <span className="text-sm text-muted-foreground">{preferences.visualParameters.contrastLevel}%</span>
               </div>
               <Slider
                 value={[preferences.visualParameters.contrastLevel]}
-                onValueChange={([value]) =>
-                  updateVisualParameters({ contrastLevel: value })
-                }
+                onValueChange={([value]) => updateVisualParameters({ contrastLevel: value })}
                 max={100}
                 step={5}
                 className="w-full"
@@ -256,15 +220,11 @@ export function StyleController({
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label>Saturation Level</Label>
-                <span className="text-sm text-muted-foreground">
-                  {preferences.visualParameters.saturationLevel}%
-                </span>
+                <span className="text-sm text-muted-foreground">{preferences.visualParameters.saturationLevel}%</span>
               </div>
               <Slider
                 value={[preferences.visualParameters.saturationLevel]}
-                onValueChange={([value]) =>
-                  updateVisualParameters({ saturationLevel: value })
-                }
+                onValueChange={([value]) => updateVisualParameters({ saturationLevel: value })}
                 max={100}
                 step={5}
                 className="w-full"
@@ -274,27 +234,23 @@ export function StyleController({
             {/* Visual Preferences */}
             <div className="space-y-3 pt-4 border-t">
               <h4 className="text-sm font-medium">Visual Preferences</h4>
-              
+
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="stabilization">Apply Stabilization</Label>
                   <Switch
                     id="stabilization"
                     checked={preferences.visualParameters.stabilization}
-                    onCheckedChange={(checked) =>
-                      updateVisualParameters({ stabilization: checked })
-                    }
+                    onCheckedChange={(checked) => updateVisualParameters({ stabilization: checked })}
                   />
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <Label htmlFor="grain">Add Film Grain</Label>
                   <Switch
                     id="grain"
                     checked={preferences.visualParameters.grainIntensity > 0}
-                    onCheckedChange={(checked) =>
-                      updateVisualParameters({ grainIntensity: checked ? 20 : 0 })
-                    }
+                    onCheckedChange={(checked) => updateVisualParameters({ grainIntensity: checked ? 20 : 0 })}
                   />
                 </div>
 
@@ -308,9 +264,7 @@ export function StyleController({
                     </div>
                     <Slider
                       value={[preferences.visualParameters.grainIntensity]}
-                      onValueChange={([value]) =>
-                        updateVisualParameters({ grainIntensity: value })
-                      }
+                      onValueChange={([value]) => updateVisualParameters({ grainIntensity: value })}
                       min={5}
                       max={50}
                       step={5}
@@ -327,19 +281,15 @@ export function StyleController({
             {/* Quality Settings */}
             <div className="space-y-3">
               <h4 className="text-sm font-medium">Quality Thresholds</h4>
-              
+
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label>Minimum Fragment Quality</Label>
-                  <span className="text-sm text-muted-foreground">
-                    {preferences.qualityThreshold}%
-                  </span>
+                  <span className="text-sm text-muted-foreground">{preferences.qualityThreshold}%</span>
                 </div>
                 <Slider
                   value={[preferences.qualityThreshold]}
-                  onValueChange={([value]) =>
-                    onPreferencesChange({ qualityThreshold: value })
-                  }
+                  onValueChange={([value]) => onPreferencesChange({ qualityThreshold: value })}
                   min={0}
                   max={100}
                   step={5}
@@ -350,15 +300,11 @@ export function StyleController({
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label>Target Duration</Label>
-                  <span className="text-sm text-muted-foreground">
-                    {preferences.targetDuration}s
-                  </span>
+                  <span className="text-sm text-muted-foreground">{preferences.targetDuration}s</span>
                 </div>
                 <Slider
                   value={[preferences.targetDuration]}
-                  onValueChange={([value]) =>
-                    onPreferencesChange({ targetDuration: value })
-                  }
+                  onValueChange={([value]) => onPreferencesChange({ targetDuration: value })}
                   min={10}
                   max={600}
                   step={10}
@@ -370,38 +316,32 @@ export function StyleController({
             {/* Optimization Preferences */}
             <div className="space-y-3 pt-4 border-t">
               <h4 className="text-sm font-medium">Optimization</h4>
-              
+
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="auto-balance">Auto-balance Sequences</Label>
                   <Switch
                     id="auto-balance"
                     checked={preferences.autoBalance ?? true}
-                    onCheckedChange={(checked) =>
-                      onPreferencesChange({ autoBalance: checked })
-                    }
+                    onCheckedChange={(checked) => onPreferencesChange({ autoBalance: checked })}
                   />
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <Label htmlFor="diversity">Maximize Fragment Diversity</Label>
                   <Switch
                     id="diversity"
                     checked={preferences.diversityBoost ?? false}
-                    onCheckedChange={(checked) =>
-                      onPreferencesChange({ diversityBoost: checked })
-                    }
+                    onCheckedChange={(checked) => onPreferencesChange({ diversityBoost: checked })}
                   />
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <Label htmlFor="coherence">Prioritize Narrative Coherence</Label>
                   <Switch
                     id="coherence"
                     checked={preferences.narrativeCoherence ?? true}
-                    onCheckedChange={(checked) =>
-                      onPreferencesChange({ narrativeCoherence: checked })
-                    }
+                    onCheckedChange={(checked) => onPreferencesChange({ narrativeCoherence: checked })}
                   />
                 </div>
               </div>

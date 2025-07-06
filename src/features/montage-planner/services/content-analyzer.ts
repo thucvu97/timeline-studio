@@ -5,23 +5,9 @@
 
 import type { MediaFile } from "@/features/media/types/media"
 
-import {
-  CameraMovement,
-  EmotionalTone,
-  FlowDirection,
-  LightingCondition,
-  MomentCategory,
-  SceneType,
-} from "../types"
+import { CameraMovement, EmotionalTone, FlowDirection, LightingCondition, SceneType } from "../types"
 
-import type {
-  AnalysisOptions,
-  AudioAnalysis,
-  Fragment,
-  MomentScore,
-  VideoAnalysis,
-} from "../types"
-
+import type { AnalysisOptions, AudioAnalysis, Fragment, MomentScore, VideoAnalysis } from "../types"
 
 export class ContentAnalyzer {
   private static instance: ContentAnalyzer
@@ -39,9 +25,9 @@ export class ContentAnalyzer {
    * Analyze video content for quality, motion, and composition
    */
   async analyzeVideo(
-    videoId: string,
+    _videoId: string,
     file: MediaFile,
-    options: AnalysisOptions["videoAnalysis"]
+    _options: AnalysisOptions["videoAnalysis"],
   ): Promise<VideoAnalysis> {
     // Simulated analysis - in real implementation, this would call Tauri commands
     const width = file.width || 1920
@@ -78,9 +64,9 @@ export class ContentAnalyzer {
    * Analyze audio content for quality, speech, and music
    */
   async analyzeAudio(
-    videoId: string,
+    _videoId: string,
     file: MediaFile,
-    options: AnalysisOptions["audioAnalysis"]
+    options: AnalysisOptions["audioAnalysis"],
   ): Promise<AudioAnalysis> {
     const hasAudio = file.hasAudio !== false
 
@@ -120,7 +106,7 @@ export class ContentAnalyzer {
     file: MediaFile,
     videoAnalysis: VideoAnalysis,
     audioAnalysis: AudioAnalysis,
-    momentScores: MomentScore[]
+    momentScores: MomentScore[],
   ): Fragment[] {
     const fragments: Fragment[] = []
     const duration = file.duration || 0
@@ -134,7 +120,7 @@ export class ContentAnalyzer {
         startTime: score.timestamp,
         endTime: Math.min(score.timestamp + score.duration, duration),
         duration: score.duration,
-        objects: videoAnalysis.content.objects.map(obj => obj.label),
+        objects: videoAnalysis.content.objects.map((obj) => obj.label),
         people: [], // Would be populated by person identification
         score,
         tags: this.generateTags(score, videoAnalysis, audioAnalysis),
@@ -149,10 +135,7 @@ export class ContentAnalyzer {
   /**
    * Calculate overall content quality score
    */
-  calculateQualityScore(
-    videoAnalysis: VideoAnalysis,
-    audioAnalysis: AudioAnalysis
-  ): number {
+  calculateQualityScore(videoAnalysis: VideoAnalysis, audioAnalysis: AudioAnalysis): number {
     const videoQuality =
       (videoAnalysis.quality.sharpness +
         videoAnalysis.quality.stability +
@@ -160,8 +143,7 @@ export class ContentAnalyzer {
         videoAnalysis.quality.colorGrading) /
       4
 
-    const audioQuality =
-      (audioAnalysis.quality.clarity + (100 - audioAnalysis.quality.noiseLevel)) / 2
+    const audioQuality = (audioAnalysis.quality.clarity + (100 - audioAnalysis.quality.noiseLevel)) / 2
 
     // Weight video quality more heavily
     return videoQuality * 0.7 + audioQuality * 0.3
@@ -178,12 +160,12 @@ export class ContentAnalyzer {
   private generateFaceDetections() {
     const count = Math.floor(Math.random() * 3)
     return Array.from({ length: count }, () => ({
-      box: [
-        Math.random() * 1920,
-        Math.random() * 1080,
-        200 + Math.random() * 100,
-        200 + Math.random() * 100,
-      ] as [number, number, number, number],
+      box: [Math.random() * 1920, Math.random() * 1080, 200 + Math.random() * 100, 200 + Math.random() * 100] as [
+        number,
+        number,
+        number,
+        number,
+      ],
       confidence: Math.random() * 0.3 + 0.7,
     }))
   }
@@ -194,12 +176,12 @@ export class ContentAnalyzer {
     return Array.from({ length: count }, () => ({
       label: objects[Math.floor(Math.random() * objects.length)],
       confidence: Math.random() * 0.3 + 0.7,
-      box: [
-        Math.random() * 1920,
-        Math.random() * 1080,
-        100 + Math.random() * 200,
-        100 + Math.random() * 200,
-      ] as [number, number, number, number],
+      box: [Math.random() * 1920, Math.random() * 1080, 100 + Math.random() * 200, 100 + Math.random() * 200] as [
+        number,
+        number,
+        number,
+        number,
+      ],
     }))
   }
 
@@ -232,19 +214,15 @@ export class ContentAnalyzer {
     const bpm = 120
     const beatInterval = 60 / bpm
     const markers: number[] = []
-    
+
     for (let time = 0; time < duration; time += beatInterval) {
       markers.push(time)
     }
-    
+
     return markers
   }
 
-  private generateTags(
-    score: MomentScore,
-    videoAnalysis: VideoAnalysis,
-    audioAnalysis: AudioAnalysis
-  ): string[] {
+  private generateTags(score: MomentScore, videoAnalysis: VideoAnalysis, audioAnalysis: AudioAnalysis): string[] {
     const tags: string[] = []
 
     // Add category tag
@@ -267,11 +245,7 @@ export class ContentAnalyzer {
     return tags
   }
 
-  private generateDescription(
-    score: MomentScore,
-    videoAnalysis: VideoAnalysis,
-    audioAnalysis: AudioAnalysis
-  ): string {
+  private generateDescription(score: MomentScore, videoAnalysis: VideoAnalysis, audioAnalysis: AudioAnalysis): string {
     const parts: string[] = []
 
     // Describe the scene

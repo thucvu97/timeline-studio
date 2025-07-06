@@ -3,16 +3,12 @@
  * Provides overview and control of the montage planning process
  */
 
-import React from "react"
-
 import { AlertCircle, Download, Play, Settings, Sparkles, Upload } from "lucide-react"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { formatTime } from "@/features/timeline/utils/utils"
 
 import { PlanViewer } from "./plan-viewer"
 import { ProjectAnalyzer } from "./project-analyzer"
@@ -29,7 +25,7 @@ export function PlannerDashboard() {
     selectedStyle,
     targetDuration,
     error,
-    
+
     // Status
     isAnalyzing,
     isGenerating,
@@ -40,18 +36,18 @@ export function PlannerDashboard() {
     canGeneratePlan,
     canOptimizePlan,
     isBusy,
-    
+
     // Progress
     progress,
     progressMessage,
-    
+
     // Statistics
     videoCount,
     fragmentCount,
     totalVideoDuration,
     planDuration,
     utilizationRate,
-    
+
     // Actions
     startAnalysis,
     generatePlan,
@@ -60,7 +56,7 @@ export function PlannerDashboard() {
     exportPlan,
     reset,
     clearError,
-    
+
     // Helpers
     formatDuration,
     getStyleName,
@@ -82,39 +78,22 @@ export function PlannerDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Smart Montage Planner</h2>
-          <p className="text-muted-foreground">
-            Automatically create optimal montage plans from your media
-          </p>
+          <p className="text-muted-foreground">Automatically create optimal montage plans from your media</p>
         </div>
         <div className="flex gap-2">
           {hasPlan && (
             <>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleExport}
-                disabled={isBusy}
-              >
+              <Button variant="outline" size="sm" onClick={handleExport} disabled={isBusy}>
                 <Download className="mr-2 h-4 w-4" />
                 Export
               </Button>
-              <Button
-                variant="default"
-                size="sm"
-                onClick={handleApplyToTimeline}
-                disabled={isBusy}
-              >
+              <Button variant="default" size="sm" onClick={handleApplyToTimeline} disabled={isBusy}>
                 <Play className="mr-2 h-4 w-4" />
                 Apply to Timeline
               </Button>
             </>
           )}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={reset}
-            disabled={isBusy}
-          >
+          <Button variant="outline" size="sm" onClick={reset} disabled={isBusy}>
             Reset
           </Button>
         </div>
@@ -188,9 +167,7 @@ export function PlannerDashboard() {
             <div className="space-y-4">
               <div>
                 <p className="font-medium">{getStyleName(selectedStyle)}</p>
-                <p className="text-sm text-muted-foreground">
-                  {(MONTAGE_STYLES as any)[selectedStyle]?.description}
-                </p>
+                <p className="text-sm text-muted-foreground">{(MONTAGE_STYLES as any)[selectedStyle]?.description}</p>
               </div>
               {targetDuration && (
                 <div className="flex justify-between text-sm">
@@ -201,11 +178,9 @@ export function PlannerDashboard() {
               {hasPlan && (
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Plan Duration</span>
-                  <span className={
-                    targetDuration && Math.abs(planDuration - targetDuration) > 10
-                      ? "text-yellow-600"
-                      : ""
-                  }>
+                  <span
+                    className={targetDuration && Math.abs(planDuration - targetDuration) > 10 ? "text-yellow-600" : ""}
+                  >
                     {formatDuration(planDuration)}
                   </span>
                 </div>
@@ -222,11 +197,7 @@ export function PlannerDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <Button
-                className="w-full"
-                onClick={startAnalysis}
-                disabled={!hasVideos || isBusy}
-              >
+              <Button className="w-full" onClick={startAnalysis} disabled={!hasVideos || isBusy}>
                 <Upload className="mr-2 h-4 w-4" />
                 Analyze Videos
               </Button>
@@ -239,12 +210,7 @@ export function PlannerDashboard() {
                 <Sparkles className="mr-2 h-4 w-4" />
                 Generate Plan
               </Button>
-              <Button
-                className="w-full"
-                onClick={optimizePlan}
-                disabled={!canOptimizePlan}
-                variant="outline"
-              >
+              <Button className="w-full" onClick={optimizePlan} disabled={!canOptimizePlan} variant="outline">
                 <Settings className="mr-2 h-4 w-4" />
                 Optimize Plan
               </Button>
@@ -254,19 +220,13 @@ export function PlannerDashboard() {
       </div>
 
       {/* Analysis Results */}
-      {hasFragments && (
-        <ProjectAnalyzer />
-      )}
+      {hasFragments && <ProjectAnalyzer />}
 
       {/* Plan Viewer */}
-      {hasPlan && currentPlan && (
-        <PlanViewer plan={currentPlan} />
-      )}
+      {hasPlan && currentPlan && <PlanViewer plan={currentPlan} />}
 
       {/* Suggestions */}
-      {hasPlan && (
-        <Suggestions />
-      )}
+      {hasPlan && <Suggestions />}
     </div>
   )
 }

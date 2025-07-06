@@ -5,7 +5,6 @@
 use crate::montage_planner::types::*;
 use rand::prelude::*;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 /// Service for generating optimized montage plans
 pub struct PlanGenerator {
@@ -24,6 +23,9 @@ pub struct PlanGenerationConfig {
   pub crossover_rate: f32,
   pub elite_percentage: f32,
   pub fitness_weights: FitnessWeights,
+  pub adaptive_mutation: bool,
+  pub local_search_iterations: usize,
+  pub diversity_preservation: f32,
 }
 
 /// Weights for fitness function components
@@ -42,6 +44,8 @@ struct Individual {
   genes: Vec<usize>, // Indices of selected moments
   fitness: f32,
   plan: Option<MontagePlan>,
+  age: usize, // Generation when created
+  diversity_contribution: f32,
 }
 
 /// Plan generation statistics
@@ -63,6 +67,9 @@ impl Default for PlanGenerationConfig {
       crossover_rate: 0.8,
       elite_percentage: 0.2,
       fitness_weights: FitnessWeights::default(),
+      adaptive_mutation: true,
+      local_search_iterations: 5,
+      diversity_preservation: 0.3,
     }
   }
 }
@@ -128,28 +135,68 @@ impl PlanGenerator {
 
     let mut generation_stats = Vec::new();
 
+    // Track best solution across generations
+    let mut global_best: Option<Individual> = None;
+    let mut stagnation_counter = 0;
+
     // Evolve population
     for generation in 0..self.config.generations {
+      // Apply adaptive mutation rate
+      let current_mutation_rate = if self.config.adaptive_mutation {
+        self.calculate_adaptive_mutation_rate(generation, &generation_stats)
+      } else {
+        self.config.mutation_rate
+      };
+
       // Selection, crossover, mutation
-      population = self.evolve_population(population, moments, config);
+      population = self.evolve_population(
+        population,
+        moments,
+        config,
+        generation,
+        current_mutation_rate,
+      );
+
+      // Apply local search to elite individuals
+      if generation % 10 == 0 {
+        self.apply_local_search(&mut population, moments, config);
+      }
 
       // Calculate generation statistics
       let stats = self.calculate_generation_stats(&population, generation);
+
+      // Update global best
+      let current_best = population
+        .iter()
+        .max_by(|a, b| a.fitness.partial_cmp(&b.fitness).unwrap())
+        .unwrap();
+      if global_best.is_none() || current_best.fitness > global_best.as_ref().unwrap().fitness {
+        global_best = Some(current_best.clone());
+        stagnation_counter = 0;
+      } else {
+        stagnation_counter += 1;
+      }
+
       generation_stats.push(stats);
 
-      // Early termination if converged
-      if generation > 10 && self.has_converged(&generation_stats) {
+      // Early termination conditions
+      if generation > 10 && (self.has_converged(&generation_stats) || stagnation_counter > 20) {
         break;
+      }
+
+      // Inject diversity if needed
+      if stagnation_counter > 10 {
+        self.inject_diversity(&mut population, moments, generation);
       }
     }
 
-    // Select best individual
-    let best_individual = population
-      .iter()
-      .max_by(|a, b| a.fitness.partial_cmp(&b.fitness).unwrap())
-      .ok_or_else(|| {
-        MontageError::PlanGenerationError("No valid individuals in final population".to_string())
-      })?;
+    // Select best individual (use global best if available)
+    let best_individual = global_best.as_ref().unwrap_or_else(|| {
+      population
+        .iter()
+        .max_by(|a, b| a.fitness.partial_cmp(&b.fitness).unwrap())
+        .unwrap()
+    });
 
     // Generate final plan from best individual
     self.create_montage_plan(best_individual, moments, config, source_files)
@@ -210,6 +257,8 @@ impl PlanGenerator {
         genes,
         fitness: 0.0,
         plan: None,
+        age: 0,
+        diversity_contribution: 0.0,
       });
     }
 
@@ -241,6 +290,8 @@ impl PlanGenerator {
     mut population: Vec<Individual>,
     moments: &[DetectedMoment],
     config: &MontageConfig,
+    generation: usize,
+    mutation_rate: f32,
   ) -> Vec<Individual> {
     // Sort by fitness
     population.sort_by(|a, b| b.fitness.partial_cmp(&a.fitness).unwrap());
@@ -253,24 +304,28 @@ impl PlanGenerator {
 
     // Generate offspring
     while new_population.len() < population.len() {
-      let parent1 = self.tournament_selection(&population);
-      let parent2 = self.tournament_selection(&population);
+      let parent1_idx = self.tournament_selection(&population);
+      let parent2_idx = self.tournament_selection(&population);
 
-      let mut child1 = parent1.clone();
-      let mut child2 = parent2.clone();
+      let mut child1 = population[parent1_idx].clone();
+      let mut child2 = population[parent2_idx].clone();
 
       // Crossover
       if self.rng.gen::<f32>() < self.config.crossover_rate {
         self.crossover(&mut child1, &mut child2, moments.len());
       }
 
-      // Mutation
-      if self.rng.gen::<f32>() < self.config.mutation_rate {
+      // Mutation with adaptive rate
+      if self.rng.gen::<f32>() < mutation_rate {
         self.mutate(&mut child1, moments.len());
       }
-      if self.rng.gen::<f32>() < self.config.mutation_rate {
+      if self.rng.gen::<f32>() < mutation_rate {
         self.mutate(&mut child2, moments.len());
       }
+
+      // Set age for new individuals
+      child1.age = generation;
+      child2.age = generation;
 
       // Evaluate fitness
       child1.fitness = self.calculate_fitness(&child1, moments, config);
@@ -282,22 +337,34 @@ impl PlanGenerator {
       }
     }
 
+    // Update diversity contributions
+    self.update_diversity_contributions(&mut new_population);
+
     new_population
   }
 
-  /// Tournament selection
-  fn tournament_selection(&mut self, population: &[Individual]) -> &Individual {
+  /// Tournament selection with diversity consideration
+  fn tournament_selection(&mut self, population: &[Individual]) -> usize {
     let tournament_size = 3;
-    let mut best_idx = self.rng.gen_range(0..population.len());
+    let mut candidates = Vec::new();
 
-    for _ in 1..tournament_size {
-      let candidate_idx = self.rng.gen_range(0..population.len());
-      if population[candidate_idx].fitness > population[best_idx].fitness {
-        best_idx = candidate_idx;
-      }
+    // Select random candidates
+    for _ in 0..tournament_size {
+      candidates.push(self.rng.gen_range(0..population.len()));
     }
 
-    &population[best_idx]
+    // Select based on fitness and diversity contribution
+
+    candidates
+      .into_iter()
+      .max_by(|&a, &b| {
+        let score_a = population[a].fitness
+          + self.config.diversity_preservation * population[a].diversity_contribution;
+        let score_b = population[b].fitness
+          + self.config.diversity_preservation * population[b].diversity_contribution;
+        score_a.partial_cmp(&score_b).unwrap()
+      })
+      .unwrap()
   }
 
   /// Crossover operation
@@ -305,7 +372,7 @@ impl PlanGenerator {
     &mut self,
     child1: &mut Individual,
     child2: &mut Individual,
-    max_moment_index: usize,
+    _max_moment_index: usize,
   ) {
     let len = child1.genes.len().min(child2.genes.len());
     if len < 2 {
@@ -335,30 +402,36 @@ impl PlanGenerator {
     child2.genes = new_genes2;
   }
 
-  /// Mutation operation
+  /// Enhanced mutation operation with more strategies
   fn mutate(&mut self, individual: &mut Individual, max_moment_index: usize) {
     if individual.genes.is_empty() {
       return;
     }
 
-    let mutation_type = self.rng.gen_range(0..3);
+    let mutation_type = self.rng.gen_range(0..5);
 
     match mutation_type {
       0 => {
         // Replace random gene
         let gene_idx = self.rng.gen_range(0..individual.genes.len());
         let mut new_gene = self.rng.gen_range(0..max_moment_index);
-        while individual.genes.contains(&new_gene) {
+        let mut attempts = 0;
+        while individual.genes.contains(&new_gene) && attempts < 10 {
           new_gene = self.rng.gen_range(0..max_moment_index);
+          attempts += 1;
         }
-        individual.genes[gene_idx] = new_gene;
+        if !individual.genes.contains(&new_gene) {
+          individual.genes[gene_idx] = new_gene;
+        }
       }
       1 => {
-        // Swap two genes
+        // Swap two genes (maintaining order)
         if individual.genes.len() > 1 {
           let idx1 = self.rng.gen_range(0..individual.genes.len());
           let idx2 = self.rng.gen_range(0..individual.genes.len());
-          individual.genes.swap(idx1, idx2);
+          if idx1 != idx2 {
+            individual.genes.swap(idx1, idx2);
+          }
         }
       }
       2 => {
@@ -370,11 +443,33 @@ impl PlanGenerator {
           }
         }
       }
+      3 => {
+        // Remove random gene if we have enough
+        if individual.genes.len() > 3 {
+          let idx = self.rng.gen_range(0..individual.genes.len());
+          individual.genes.remove(idx);
+        }
+      }
+      4 => {
+        // Shift segment - move a subsequence
+        if individual.genes.len() > 3 {
+          let start = self.rng.gen_range(0..individual.genes.len() - 1);
+          let end = self
+            .rng
+            .gen_range(start + 1..=individual.genes.len().min(start + 3));
+          let segment: Vec<_> = individual.genes.drain(start..end).collect();
+          let insert_pos = self.rng.gen_range(0..=individual.genes.len());
+          for (i, gene) in segment.into_iter().enumerate() {
+            individual.genes.insert(insert_pos + i, gene);
+          }
+        }
+      }
       _ => {}
     }
 
     // Maintain chronological order
     individual.genes.sort();
+    individual.genes.dedup(); // Remove any duplicates
   }
 
   /// Calculate fitness for an individual
@@ -459,7 +554,7 @@ impl PlanGenerator {
     }
 
     // Target rhythm based on style
-    let target_interval = match config.style {
+    let target_interval: f64 = match config.style {
       MontageStyle::DynamicAction => 2.0,
       MontageStyle::MusicVideo => 1.5,
       MontageStyle::SocialMedia => 3.0,
@@ -551,7 +646,7 @@ impl PlanGenerator {
       best_fitness,
       average_fitness,
       diversity_score,
-      convergence_rate: 0.0, // TODO: Calculate convergence rate
+      convergence_rate: self.calculate_convergence_rate(population),
     }
   }
 
@@ -646,6 +741,193 @@ impl PlanGenerator {
       engagement_score: individual.fitness * 0.9,
       created_at: chrono::Utc::now().to_rfc3339(),
     })
+  }
+
+  /// Calculate adaptive mutation rate based on convergence
+  fn calculate_adaptive_mutation_rate(&self, generation: usize, stats: &[GenerationStats]) -> f32 {
+    if stats.len() < 5 {
+      return self.config.mutation_rate;
+    }
+
+    // Check recent improvement
+    let recent_improvement =
+      stats[stats.len() - 1].best_fitness - stats[stats.len() - 5].best_fitness;
+
+    // If stuck, increase mutation
+    if recent_improvement < 1.0 {
+      (self.config.mutation_rate * 2.0).min(0.5)
+    } else {
+      // Gradually decrease mutation as we improve
+      let decay = 1.0 - (generation as f32 / self.config.generations as f32) * 0.5;
+      self.config.mutation_rate * decay
+    }
+  }
+
+  /// Apply local search to improve elite solutions
+  fn apply_local_search(
+    &mut self,
+    population: &mut [Individual],
+    moments: &[DetectedMoment],
+    config: &MontageConfig,
+  ) {
+    let elite_count = (self.config.elite_percentage * population.len() as f32) as usize;
+
+    for i in 0..elite_count {
+      let mut best_neighbor = population[i].clone();
+      let mut best_fitness = best_neighbor.fitness;
+
+      // Try local improvements
+      for _ in 0..self.config.local_search_iterations {
+        let mut neighbor = population[i].clone();
+
+        // Try different local moves
+        match self.rng.gen_range(0..3) {
+          0 => {
+            // Try swapping adjacent moments
+            if neighbor.genes.len() > 1 {
+              let idx = self.rng.gen_range(0..neighbor.genes.len() - 1);
+              neighbor.genes.swap(idx, idx + 1);
+            }
+          }
+          1 => {
+            // Try replacing worst moment with better one
+            if let Some((worst_idx, _)) = neighbor
+              .genes
+              .iter()
+              .enumerate()
+              .map(|(i, &g)| (i, moments[g].total_score))
+              .min_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap())
+            {
+              // Find a better moment not in current solution
+              for (mom_idx, moment) in moments.iter().enumerate() {
+                if !neighbor.genes.contains(&mom_idx)
+                  && moment.total_score > moments[neighbor.genes[worst_idx]].total_score
+                {
+                  neighbor.genes[worst_idx] = mom_idx;
+                  break;
+                }
+              }
+            }
+          }
+          _ => {
+            // Try adjusting clip boundaries
+            if neighbor.genes.len() > 2 {
+              let idx = self.rng.gen_range(1..neighbor.genes.len() - 1);
+              // Try nearby moments
+              let current = neighbor.genes[idx];
+              if current > 0 && !neighbor.genes.contains(&(current - 1)) {
+                neighbor.genes[idx] = current - 1;
+              } else if current < moments.len() - 1 && !neighbor.genes.contains(&(current + 1)) {
+                neighbor.genes[idx] = current + 1;
+              }
+            }
+          }
+        }
+
+        neighbor.genes.sort();
+        neighbor.genes.dedup();
+
+        // Evaluate neighbor
+        neighbor.fitness = self.calculate_fitness(&neighbor, moments, config);
+
+        if neighbor.fitness > best_fitness {
+          best_neighbor = neighbor;
+          best_fitness = best_neighbor.fitness;
+        }
+      }
+
+      // Update if improved
+      if best_fitness > population[i].fitness {
+        population[i] = best_neighbor;
+      }
+    }
+  }
+
+  /// Inject diversity when population stagnates
+  fn inject_diversity(
+    &mut self,
+    population: &mut Vec<Individual>,
+    moments: &[DetectedMoment],
+    generation: usize,
+  ) {
+    let inject_count = (population.len() as f32 * 0.2) as usize;
+    let start_idx = population.len() - inject_count;
+
+    // Replace worst individuals with new random ones
+    for i in start_idx..population.len() {
+      let mut genes = Vec::new();
+      let target_size = self.rng.gen_range(3..moments.len().min(20));
+
+      while genes.len() < target_size {
+        let idx = self.rng.gen_range(0..moments.len());
+        if !genes.contains(&idx) {
+          genes.push(idx);
+        }
+      }
+
+      genes.sort();
+
+      population[i] = Individual {
+        genes,
+        fitness: 0.0,
+        plan: None,
+        age: generation,
+        diversity_contribution: 0.0,
+      };
+    }
+  }
+
+  /// Calculate convergence rate of population
+  fn calculate_convergence_rate(&self, population: &[Individual]) -> f32 {
+    if population.is_empty() {
+      return 0.0;
+    }
+
+    let best_fitness = population
+      .iter()
+      .map(|i| i.fitness)
+      .fold(f32::NEG_INFINITY, f32::max);
+    let worst_fitness = population
+      .iter()
+      .map(|i| i.fitness)
+      .fold(f32::INFINITY, f32::min);
+
+    if best_fitness > worst_fitness {
+      1.0 - (best_fitness - worst_fitness) / best_fitness
+    } else {
+      1.0 // Fully converged
+    }
+  }
+
+  /// Calculate diversity contribution for each individual
+  fn update_diversity_contributions(&self, population: &mut [Individual]) {
+    for i in 0..population.len() {
+      let mut min_distance = f32::INFINITY;
+
+      for j in 0..population.len() {
+        if i != j {
+          let distance = self.calculate_gene_distance(&population[i].genes, &population[j].genes);
+          min_distance = min_distance.min(distance);
+        }
+      }
+
+      population[i].diversity_contribution = min_distance;
+    }
+  }
+
+  /// Calculate distance between two gene sequences
+  fn calculate_gene_distance(&self, genes1: &[usize], genes2: &[usize]) -> f32 {
+    let set1: std::collections::HashSet<_> = genes1.iter().collect();
+    let set2: std::collections::HashSet<_> = genes2.iter().collect();
+
+    let intersection = set1.intersection(&set2).count();
+    let union = set1.union(&set2).count();
+
+    if union > 0 {
+      1.0 - (intersection as f32 / union as f32)
+    } else {
+      1.0
+    }
   }
 }
 

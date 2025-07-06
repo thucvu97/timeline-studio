@@ -11,14 +11,7 @@ import { formatTime } from "@/features/timeline/utils/utils"
 import { useMontagePlanner as useMontagePlannerContext } from "../services/montage-planner-provider"
 import { MONTAGE_STYLES } from "../types"
 
-import type {
-  AnalysisOptions,
-  ExportFormat,
-  Fragment,
-  MontagePlan,
-  PlanGenerationOptions,
-} from "../types"
-
+import type { AnalysisOptions, ExportFormat, Fragment, PlanGenerationOptions } from "../types"
 
 export function useMontagePlanner() {
   const {
@@ -43,14 +36,14 @@ export function useMontagePlanner() {
     (videoId: string, file: MediaFile) => {
       send({ type: "ADD_VIDEO", videoId, file })
     },
-    [send]
+    [send],
   )
 
   const removeVideo = useCallback(
     (videoId: string) => {
       send({ type: "REMOVE_VIDEO", videoId })
     },
-    [send]
+    [send],
   )
 
   // Instructions and settings
@@ -58,35 +51,35 @@ export function useMontagePlanner() {
     (instructions: string) => {
       send({ type: "UPDATE_INSTRUCTIONS", instructions })
     },
-    [send]
+    [send],
   )
 
   const selectStyle = useCallback(
     (styleId: string) => {
       send({ type: "SELECT_STYLE", styleId })
     },
-    [send]
+    [send],
   )
 
   const setTargetDuration = useCallback(
     (duration: number) => {
       send({ type: "SET_TARGET_DURATION", duration })
     },
-    [send]
+    [send],
   )
 
   const updateAnalysisOptions = useCallback(
     (options: Partial<AnalysisOptions>) => {
       send({ type: "UPDATE_ANALYSIS_OPTIONS", options })
     },
-    [send]
+    [send],
   )
 
   const updateGenerationOptions = useCallback(
     (options: Partial<PlanGenerationOptions>) => {
       send({ type: "UPDATE_GENERATION_OPTIONS", options })
     },
-    [send]
+    [send],
   )
 
   // Analysis and generation
@@ -111,14 +104,14 @@ export function useMontagePlanner() {
     (fragmentId: string, updates: Partial<Fragment>) => {
       send({ type: "EDIT_FRAGMENT", fragmentId, updates })
     },
-    [send]
+    [send],
   )
 
   const reorderFragments = useCallback(
     (sourceIndex: number, targetIndex: number) => {
       send({ type: "REORDER_FRAGMENTS", sourceIndex, targetIndex })
     },
-    [send]
+    [send],
   )
 
   // Plan actions
@@ -130,7 +123,7 @@ export function useMontagePlanner() {
     (format: ExportFormat) => {
       send({ type: "EXPORT_PLAN", format: format as string })
     },
-    [send]
+    [send],
   )
 
   const validatePlan = useCallback(() => {
@@ -154,7 +147,7 @@ export function useMontagePlanner() {
   // Computed values
   const totalVideoDuration = useMemo(() => {
     return Array.from(context.mediaFiles.values()).reduce((total, file) => {
-      return Number(total) + Number(file.duration || 0)
+      return Number(total) + Number(file?.duration || 0)
     }, 0)
   }, [context.mediaFiles])
 

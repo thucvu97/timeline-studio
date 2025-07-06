@@ -14,6 +14,12 @@ pub struct RecognitionState {
   pub service: RecognitionService,
 }
 
+impl Default for RecognitionState {
+  fn default() -> Self {
+    Self::new()
+  }
+}
+
 impl RecognitionState {
   pub fn new() -> Self {
     let base_dir = dirs::cache_dir()

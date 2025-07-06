@@ -1,6 +1,8 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
+use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::Manager;
+use tokio::sync::RwLock;
 
 // Core infrastructure modules
 pub mod core;
@@ -188,8 +190,9 @@ pub fn run() {
       let yolo_processor_state = YoloProcessorState::default();
       app.manage(yolo_processor_state);
 
-      // Create Montage Planner State
-      let montage_state = MontageState::new();
+      // Create Montage Planner State with its own YoloProcessorState instance
+      let montage_yolo_state = Arc::new(RwLock::new(YoloProcessorState::default()));
+      let montage_state = MontageState::new(montage_yolo_state);
       app.manage(montage_state);
 
       // Create Secure Storage for API keys

@@ -5,10 +5,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { ContentAnalyzer } from "../../services/content-analyzer"
-import { CameraMovement, EmotionalTone, SceneType } from "../../types"
-import { mockAnalyzedContent, mockAudioAnalysis, mockMediaFile, mockMomentScore, mockVideoAnalysis } from "../test-utils"
+import { mockAudioAnalysis, mockMediaFile, mockMomentScore, mockVideoAnalysis } from "../test-utils"
 
-import type { AnalysisOptions, AnalyzedContent } from "../../types"
+import type { AnalysisOptions } from "../../types"
 
 vi.mock("@tauri-apps/api/core", () => ({
   invoke: vi.fn(),
@@ -53,7 +52,7 @@ describe("ContentAnalyzer", () => {
         mockMediaFile,
         mockVideoAnalysis,
         mockAudioAnalysis,
-        momentScores
+        momentScores,
       )
 
       expect(fragments).toHaveLength(3)

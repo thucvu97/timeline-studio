@@ -5,10 +5,10 @@
 use crate::command_registry::CommandRegistry;
 use crate::montage_planner::services::*;
 use crate::montage_planner::types::*;
-use crate::recognition::commands::run_yolo_detection;
+use crate::recognition::commands::yolo_commands::YoloProcessorState;
 use std::path::PathBuf;
 use std::sync::Arc;
-use tauri::{command, Builder, Runtime};
+use tauri::{command, Builder, Runtime, State};
 use tokio::sync::RwLock;
 
 /// Global state for montage planner services
@@ -20,10 +20,11 @@ pub struct MontageState {
   pub emotion_detector: Arc<RwLock<EmotionDetector>>,
   pub plan_generator: Arc<RwLock<PlanGenerator>>,
   pub audio_analyzer: Arc<RwLock<AudioAnalyzer>>,
+  pub video_processor: Arc<RwLock<VideoProcessor>>,
 }
 
 impl MontageState {
-  pub fn new() -> Self {
+  pub fn new(yolo_state: Arc<RwLock<YoloProcessorState>>) -> Self {
     Self {
       composition_analyzer: Arc::new(RwLock::new(CompositionAnalyzer::new())),
       moment_detector: Arc::new(RwLock::new(MomentDetector::new())),
@@ -32,6 +33,7 @@ impl MontageState {
       emotion_detector: Arc::new(RwLock::new(EmotionDetector::new())),
       plan_generator: Arc::new(RwLock::new(PlanGenerator::new())),
       audio_analyzer: Arc::new(RwLock::new(AudioAnalyzer::new())),
+      video_processor: Arc::new(RwLock::new(VideoProcessor::new(yolo_state))),
     }
   }
 }
@@ -41,7 +43,8 @@ impl MontageState {
 pub async fn analyze_video_composition(
   file_path: String,
   analysis_options: AnalysisOptions,
-  state: tauri::State<'_, MontageState>,
+  montage_state: State<'_, MontageState>,
+  _yolo_state: State<'_, YoloProcessorState>,
 ) -> Result<Vec<CompositionEnhancedDetection>, String> {
   let path = PathBuf::from(&file_path);
 
@@ -50,36 +53,65 @@ pub async fn analyze_video_composition(
     return Err(format!("File not found: {}", file_path));
   }
 
-  // Get frame dimensions (simplified - in real implementation would extract from video)
-  let frame_width = 1920.0; // TODO: Extract from video metadata
-  let frame_height = 1080.0;
+  // Check if composition analysis is enabled
+  if !analysis_options.enable_composition_analysis {
+    return Ok(Vec::new());
+  }
 
-  // Run YOLO detection first
-  let yolo_results = run_yolo_detection(
-    file_path.clone(),
-    analysis_options.enable_object_detection,
-    analysis_options.enable_face_detection,
-    None, // Use default confidence threshold
-  )
-  .await
-  .map_err(|e| format!("YOLO detection failed: {}", e))?;
+  let video_processor = montage_state.video_processor.read().await;
+  let composition_analyzer = montage_state.composition_analyzer.read().await;
 
-  // Enhance with composition analysis
-  let composition_analyzer = state.composition_analyzer.read().await;
+  // Step 1: Analyze video with YOLO processor
+  let yolo_detections = video_processor
+    .analyze_video(&path, &analysis_options)
+    .await
+    .map_err(|e| format!("Video analysis failed: {}", e))?;
+
+  // Step 2: Get video metadata for frame dimensions
+  let metadata = video_processor
+    .extract_metadata(&path)
+    .await
+    .map_err(|e| format!("Failed to extract metadata: {}", e))?;
+
+  let frame_width = metadata.width as f32;
+  let frame_height = metadata.height as f32;
+
+  // Step 3: Enhance YOLO results with composition analysis
   let mut enhanced_results = Vec::new();
 
-  for yolo_result in yolo_results {
-    match composition_analyzer.analyze_composition(&yolo_result, frame_width, frame_height) {
-      Ok(enhanced) => enhanced_results.push(enhanced),
-      Err(e) => {
-        eprintln!(
-          "Composition analysis failed for frame at {}: {:?}",
-          yolo_result.timestamp, e
-        );
-        // Continue processing other frames
+  for (timestamp, detections) in yolo_detections {
+    // Only analyze frames above quality threshold
+    let frame_quality = 85.0; // TODO: Get actual frame quality from metadata
+    if frame_quality >= analysis_options.quality_threshold {
+      match composition_analyzer.analyze_composition(
+        &detections,
+        timestamp,
+        frame_width,
+        frame_height,
+      ) {
+        Ok(enhanced) => enhanced_results.push(enhanced),
+        Err(e) => {
+          log::warn!(
+            "Composition analysis failed for frame at {}: {:?}",
+            timestamp,
+            e
+          );
+        }
       }
     }
   }
+
+  // Step 4: Sort by timestamp and limit if specified
+  enhanced_results.sort_by(|a, b| a.timestamp.partial_cmp(&b.timestamp).unwrap());
+
+  if let Some(max_moments) = analysis_options.max_moments {
+    enhanced_results.truncate(max_moments);
+  }
+
+  log::info!(
+    "Analyzed video: {} enhanced detections generated",
+    enhanced_results.len()
+  );
 
   Ok(enhanced_results)
 }
@@ -88,82 +120,54 @@ pub async fn analyze_video_composition(
 #[command]
 pub async fn detect_key_moments(
   enhanced_detections: Vec<CompositionEnhancedDetection>,
-  config: MontageConfig,
+  _config: MontageConfig,
   state: tauri::State<'_, MontageState>,
 ) -> Result<Vec<DetectedMoment>, String> {
   let moment_detector = state.moment_detector.read().await;
 
-  // Convert enhanced detections to moments
-  let mut moments = Vec::new();
+  // Convert enhanced detections to montage detections
+  let mut montage_detections = Vec::new();
 
-  for detection in enhanced_detections {
-    // Create moment from detection
-    let moment_scores = MomentScores {
-      visual: detection.composition_score.overall_score,
-      technical: detection
-        .original_detection
-        .v11_detections
-        .first()
-        .map(|d| match d {
-          crate::recognition::types::YoloV11Detection::Object(obj) => obj.confidence * 100.0,
-          crate::recognition::types::YoloV11Detection::Face(face) => face.confidence * 100.0,
-        })
-        .unwrap_or(0.0),
-      emotional: 50.0, // TODO: Implement emotion analysis
-      narrative: detection.visual_importance * 100.0,
-      action: detection.frame_dominance,
-      composition: detection.composition_score.overall_score,
-    };
-
-    let total_score = (moment_scores.visual * 0.3
-      + moment_scores.technical * 0.2
-      + moment_scores.emotional * 0.2
-      + moment_scores.narrative * 0.15
-      + moment_scores.action * 0.1
-      + moment_scores.composition * 0.05);
-
-    // Only include moments above quality threshold
-    if total_score >= config.quality_threshold {
-      let category = if detection.frame_dominance > 80.0 {
-        MomentCategory::Action
-      } else if !detection.original_detection.v11_detections.is_empty() {
-        MomentCategory::Highlight
+  for detection in &enhanced_detections {
+    // Create MontageDetection from CompositionEnhancedDetection
+    let montage_detection = MontageDetection {
+      timestamp: detection.timestamp,
+      detection_type: if detection.original_detections.is_empty() {
+        DetectionType::Scene
       } else {
-        MomentCategory::BRoll
-      };
-
-      moments.push(DetectedMoment {
-        timestamp: detection.original_detection.timestamp,
-        duration: 2.0, // Default 2-second moments
-        category,
-        scores: moment_scores,
-        total_score,
-        description: format!(
-          "Detected {} objects with {:.1}% composition score",
-          detection.original_detection.v11_detections.len()
-            + detection.original_detection.v8_detections.len(),
-          detection.composition_score.overall_score
-        ),
-        tags: vec![
-          format!(
-            "composition_{:.0}",
-            detection.composition_score.overall_score
-          ),
-          format!("activity_{:.0}", detection.frame_dominance),
-        ],
-      });
-    }
+        DetectionType::Combined
+      },
+      objects: detection
+        .original_detections
+        .iter()
+        .map(|yolo_det| ObjectDetection {
+          class: yolo_det.class.clone(),
+          confidence: yolo_det.confidence,
+          bbox: BoundingBox {
+            x: yolo_det.bbox.x,
+            y: yolo_det.bbox.y,
+            width: yolo_det.bbox.width,
+            height: yolo_det.bbox.height,
+          },
+          tracking_id: None,
+          movement_vector: None,
+          visual_importance: detection.visual_importance,
+        })
+        .collect(),
+      faces: Vec::new(), // TODO: Separate faces from objects
+      composition_score: detection.composition_score.clone(),
+      activity_level: detection.frame_dominance,
+      emotional_tone: EmotionalTone::Neutral,
+    };
+    montage_detections.push(montage_detection);
   }
 
-  // Sort by score and limit if specified
-  moments.sort_by(|a, b| b.total_score.partial_cmp(&a.total_score).unwrap());
+  // Use the moment detector to detect moments
+  let detected_moments = moment_detector
+    .detect_moments(&montage_detections)
+    .map_err(|e| format!("Moment detection failed: {:?}", e))?;
 
-  if let Some(max_moments) = config.max_cuts_per_minute {
-    let max_total = (config.target_duration / 60.0 * max_moments as f64) as usize;
-    moments.truncate(max_total);
-  }
-
-  Ok(moments)
+  Ok(detected_moments)
 }
 
 /// Generate montage plan from detected moments
@@ -174,82 +178,19 @@ pub async fn generate_montage_plan(
   source_files: Vec<String>,
   state: tauri::State<'_, MontageState>,
 ) -> Result<MontagePlan, String> {
-  let plan_generator = state.plan_generator.read().await;
+  let mut plan_generator = state.plan_generator.write().await;
 
-  // Generate clips from moments
-  let mut clips = Vec::new();
+  // Use the plan generator to create an optimized montage plan
+  let generated_plan = plan_generator
+    .generate_plan(&moments, &config, &source_files)
+    .map_err(|e| format!("Plan generation failed: {:?}", e))?;
 
-  for (index, moment) in moments.iter().enumerate() {
-    // Find corresponding source file (simplified)
-    let source_file = source_files.first().ok_or("No source files provided")?;
-
-    let clip = MontageClip {
-      id: format!("clip_{}", index),
-      source_file: source_file.clone(),
-      start_time: moment.timestamp,
-      end_time: moment.timestamp + moment.duration,
-      duration: moment.duration,
-      moment: moment.clone(),
-      adjustments: ClipAdjustments {
-        speed_multiplier: None,
-        color_correction: None,
-        stabilization: false,
-        crop: None,
-        fade_in: Some(0.2),
-        fade_out: Some(0.2),
-      },
-      order: index as u32,
-    };
-
-    clips.push(clip);
-  }
-
-  // Generate transitions
-  let mut transitions = Vec::new();
-
-  for i in 0..clips.len().saturating_sub(1) {
-    let transition = TransitionPlan {
-      from_clip: clips[i].id.clone(),
-      to_clip: clips[i + 1].id.clone(),
-      transition_type: match config.style {
-        MontageStyle::DynamicAction => TransitionType::Cut,
-        MontageStyle::CinematicDrama => TransitionType::Dissolve,
-        MontageStyle::MusicVideo => TransitionType::Cut,
-        _ => TransitionType::Fade,
-      },
-      duration: 0.5,
-      easing: EasingType::EaseInOut,
-    };
-
-    transitions.push(transition);
-  }
-
-  // Calculate plan statistics
-  let total_duration: f64 = clips.iter().map(|c| c.duration).sum();
-  let avg_score = if !moments.is_empty() {
-    moments.iter().map(|m| m.total_score).sum::<f32>() / moments.len() as f32
-  } else {
-    0.0
-  };
-
-  let plan = MontagePlan {
-    id: format!("plan_{}", chrono::Utc::now().timestamp()),
-    name: format!("{:?} Montage Plan", config.style),
-    style: config.style,
-    total_duration,
-    clips,
-    transitions,
-    quality_score: avg_score,
-    engagement_score: avg_score * 0.8, // Simplified calculation
-    created_at: chrono::Utc::now().to_rfc3339(),
-  };
-
-  Ok(plan)
+  Ok(generated_plan)
 }
 
 /// Get analysis progress for long-running operations
 #[command]
-pub async fn get_analysis_progress(operation_id: String) -> Result<AnalysisProgress, String> {
+pub async fn get_analysis_progress(_operation_id: String) -> Result<AnalysisProgress, String> {
   // TODO: Implement progress tracking
   Ok(AnalysisProgress {
     stage: "Analyzing composition".to_string(),

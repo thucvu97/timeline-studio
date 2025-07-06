@@ -115,7 +115,7 @@ export const montagePlannerMachine = setup({
     removeVideo: assign({
       videoIds: ({ context, event }) => {
         if (event.type !== "REMOVE_VIDEO") return context.videoIds
-        return context.videoIds.filter(id => id !== event.videoId)
+        return context.videoIds.filter((id) => id !== event.videoId)
       },
       mediaFiles: ({ context, event }) => {
         if (event.type !== "REMOVE_VIDEO") return context.mediaFiles
@@ -126,8 +126,7 @@ export const montagePlannerMachine = setup({
     }),
 
     updateInstructions: assign({
-      instructions: ({ event }) =>
-        event.type === "UPDATE_INSTRUCTIONS" ? event.instructions : "",
+      instructions: ({ event }) => (event.type === "UPDATE_INSTRUCTIONS" ? event.instructions : ""),
     }),
 
     selectStyle: assign({
@@ -135,8 +134,7 @@ export const montagePlannerMachine = setup({
     }),
 
     setTargetDuration: assign({
-      targetDuration: ({ event }) =>
-        event.type === "SET_TARGET_DURATION" ? event.duration : undefined,
+      targetDuration: ({ event }) => (event.type === "SET_TARGET_DURATION" ? event.duration : undefined),
     }),
 
     updateAnalysisOptions: assign({
@@ -169,9 +167,7 @@ export const montagePlannerMachine = setup({
 
     updateProgress: assign({
       progress: ({ event }) =>
-        event.type === "ANALYSIS_PROGRESS"
-          ? event.progress
-          : { phase: AnalysisPhase.Initializing, progress: 0 },
+        event.type === "ANALYSIS_PROGRESS" ? event.progress : { phase: AnalysisPhase.Initializing, progress: 0 },
     }),
 
     storeVideoAnalysis: assign({
@@ -193,13 +189,11 @@ export const montagePlannerMachine = setup({
     }),
 
     storeFragments: assign({
-      fragments: ({ event }) =>
-        event.type === "FRAGMENTS_DETECTED" ? event.fragments : [],
+      fragments: ({ event }) => (event.type === "FRAGMENTS_DETECTED" ? event.fragments : []),
     }),
 
     storeMomentScores: assign({
-      momentScores: ({ event }) =>
-        event.type === "MOMENTS_SCORED" ? event.scores : [],
+      momentScores: ({ event }) => (event.type === "MOMENTS_SCORED" ? event.scores : []),
     }),
 
     // Plan generation actions
@@ -214,13 +208,19 @@ export const montagePlannerMachine = setup({
 
     storePlan: assign({
       currentPlan: ({ event }) =>
-        event.type === "PLAN_GENERATED" || event.type === "PLAN_OPTIMIZED" || 
-        event.type === "GENERATION_COMPLETE" || event.type === "OPTIMIZATION_COMPLETE"
+        event.type === "PLAN_GENERATED" ||
+        event.type === "PLAN_OPTIMIZED" ||
+        event.type === "GENERATION_COMPLETE" ||
+        event.type === "OPTIMIZATION_COMPLETE"
           ? event.plan
           : null,
       planHistory: ({ context, event }) => {
-        if (event.type === "PLAN_GENERATED" || event.type === "PLAN_OPTIMIZED" ||
-            event.type === "GENERATION_COMPLETE" || event.type === "OPTIMIZATION_COMPLETE") {
+        if (
+          event.type === "PLAN_GENERATED" ||
+          event.type === "PLAN_OPTIMIZED" ||
+          event.type === "GENERATION_COMPLETE" ||
+          event.type === "OPTIMIZATION_COMPLETE"
+        ) {
           return [...context.planHistory, event.plan]
         }
         return context.planHistory
@@ -239,23 +239,19 @@ export const montagePlannerMachine = setup({
 
     // Validation and statistics
     storeValidation: assign({
-      planValidation: ({ event }) =>
-        event.type === "PLAN_VALIDATED" ? event.validation : null,
+      planValidation: ({ event }) => (event.type === "PLAN_VALIDATED" ? event.validation : null),
     }),
 
     storeStatistics: assign({
-      planStatistics: ({ event }) =>
-        event.type === "STATISTICS_CALCULATED" ? event.statistics : null,
+      planStatistics: ({ event }) => (event.type === "STATISTICS_CALCULATED" ? event.statistics : null),
     }),
 
     // Fragment editing
     editFragment: assign({
       fragments: ({ context, event }) => {
         if (event.type !== "EDIT_FRAGMENT") return context.fragments
-        return context.fragments.map(fragment =>
-          fragment.id === event.fragmentId
-            ? { ...fragment, ...event.updates }
-            : fragment
+        return context.fragments.map((fragment) =>
+          fragment.id === event.fragmentId ? { ...fragment, ...event.updates } : fragment,
         )
       },
     }),
@@ -467,11 +463,26 @@ export const montagePlannerMachine = setup({
         FRAGMENTS_DETECTED: {
           actions: "storeFragments",
         },
+        VIDEO_ANALYZED: {
+          actions: "storeVideoAnalysis",
+        },
+        AUDIO_ANALYZED: {
+          actions: "storeAudioAnalysis",
+        },
+        MOMENTS_SCORED: {
+          actions: "storeMomentScores",
+        },
         PLAN_GENERATED: {
+          actions: "storePlan",
+        },
+        PLAN_OPTIMIZED: {
           actions: "storePlan",
         },
         GENERATION_COMPLETE: {
           actions: "storePlan",
+        },
+        PLAN_VALIDATED: {
+          actions: "storeValidation",
         },
         CLEAR_ERROR: {
           actions: "clearError",

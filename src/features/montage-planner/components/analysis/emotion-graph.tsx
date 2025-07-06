@@ -12,7 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
 
-import type { EmotionalArc, MontagePlan, Sequence } from "../../types"
+import type { EmotionalArc, MontagePlan } from "../../types"
 
 interface EmotionGraphProps {
   plan?: MontagePlan
@@ -60,38 +60,33 @@ export function EmotionGraph({ plan, emotionalArc, className }: EmotionGraphProp
   }
 
   // Calculate emotional journey
-  const emotionalJourney = emotionalArc?.map((point, index) => {
-    const nextPoint = emotionalArc[index + 1]
-    const trend = nextPoint
-      ? nextPoint.peakEnergy > point.peakEnergy
-        ? "rising"
-        : nextPoint.peakEnergy < point.peakEnergy
-          ? "falling"
-          : "stable"
-      : "stable"
-    
-    return {
-      ...point,
-      trend,
-      emotionIntensity: Math.max(...Object.values(point.emotionalWeights)),
-      dominantEmotion: Object.entries(point.emotionalWeights).reduce((a, b) => 
-        a[1] > b[1] ? a : b
-      )[0],
-    }
-  }) || []
+  const emotionalJourney =
+    emotionalArc?.map((point, index) => {
+      const nextPoint = emotionalArc[index + 1]
+      const trend = nextPoint
+        ? nextPoint.peakEnergy > point.peakEnergy
+          ? "rising"
+          : nextPoint.peakEnergy < point.peakEnergy
+            ? "falling"
+            : "stable"
+        : "stable"
+
+      return {
+        ...point,
+        trend,
+        emotionIntensity: Math.max(...Object.values(point.emotionalWeights)),
+        dominantEmotion: Object.entries(point.emotionalWeights).reduce((a, b) => (a[1] > b[1] ? a : b))[0],
+      }
+    }) || []
 
   // Calculate pacing statistics
   const averageEnergy = emotionalArc
     ? emotionalArc.reduce((sum, point) => sum + point.emotionalIntensity, 0) / emotionalArc.length
     : 0
 
-  const peakEnergy = emotionalArc
-    ? Math.max(...emotionalArc.map(point => point.emotionalIntensity))
-    : 0
+  const peakEnergy = emotionalArc ? Math.max(...emotionalArc.map((point) => point.emotionalIntensity)) : 0
 
-  const valleyEnergy = emotionalArc
-    ? Math.min(...emotionalArc.map(point => point.emotionalIntensity))
-    : 0
+  const valleyEnergy = emotionalArc ? Math.min(...emotionalArc.map((point) => point.emotionalIntensity)) : 0
 
   const emotionalRange = peakEnergy - valleyEnergy
 
@@ -99,9 +94,7 @@ export function EmotionGraph({ plan, emotionalArc, className }: EmotionGraphProp
     <Card className={cn("", className)}>
       <CardHeader>
         <CardTitle>Emotional Arc</CardTitle>
-        <CardDescription>
-          Tracking emotional intensity and pacing throughout your montage
-        </CardDescription>
+        <CardDescription>Tracking emotional intensity and pacing throughout your montage</CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="graph" className="w-full">
@@ -136,21 +129,18 @@ export function EmotionGraph({ plan, emotionalArc, className }: EmotionGraphProp
                 {/* Energy bars */}
                 <div className="absolute inset-0 flex items-end justify-between gap-1">
                   {emotionalJourney.map((point, index) => (
-                    <div
-                      key={point.sequenceId}
-                      className="flex-1 relative group"
-                    >
+                    <div key={point.sequenceId} className="flex-1 relative group">
                       {/* Peak energy bar */}
                       <div
                         className={cn(
                           "absolute bottom-0 left-0 right-0 rounded-t transition-all",
                           "bg-gradient-to-t",
                           getEnergyGradient(point.peakEnergy),
-                          "opacity-80 group-hover:opacity-100"
+                          "opacity-80 group-hover:opacity-100",
                         )}
                         style={{ height: `${point.peakEnergy}%` }}
                       />
-                      
+
                       {/* Average energy line */}
                       <div
                         className="absolute left-0 right-0 h-0.5 bg-white/50"
@@ -183,21 +173,15 @@ export function EmotionGraph({ plan, emotionalArc, className }: EmotionGraphProp
             <div className="grid grid-cols-4 gap-4 text-sm">
               <div className="space-y-1">
                 <p className="text-muted-foreground">Average Energy</p>
-                <p className={cn("text-2xl font-bold", getEnergyColor(averageEnergy))}>
-                  {averageEnergy.toFixed(0)}%
-                </p>
+                <p className={cn("text-2xl font-bold", getEnergyColor(averageEnergy))}>{averageEnergy.toFixed(0)}%</p>
               </div>
               <div className="space-y-1">
                 <p className="text-muted-foreground">Peak Energy</p>
-                <p className={cn("text-2xl font-bold", getEnergyColor(peakEnergy))}>
-                  {peakEnergy}%
-                </p>
+                <p className={cn("text-2xl font-bold", getEnergyColor(peakEnergy))}>{peakEnergy}%</p>
               </div>
               <div className="space-y-1">
                 <p className="text-muted-foreground">Valley Energy</p>
-                <p className={cn("text-2xl font-bold", getEnergyColor(valleyEnergy))}>
-                  {valleyEnergy.toFixed(0)}%
-                </p>
+                <p className={cn("text-2xl font-bold", getEnergyColor(valleyEnergy))}>{valleyEnergy.toFixed(0)}%</p>
               </div>
               <div className="space-y-1">
                 <p className="text-muted-foreground">Dynamic Range</p>
@@ -214,17 +198,13 @@ export function EmotionGraph({ plan, emotionalArc, className }: EmotionGraphProp
               <div className="space-y-2">
                 {emotionalJourney.map((point, index) => (
                   <div key={point.sequenceId} className="flex items-center gap-2">
-                    <div className="w-12 text-sm text-muted-foreground">
-                      #{index + 1}
-                    </div>
+                    <div className="w-12 text-sm text-muted-foreground">#{index + 1}</div>
                     <div className={cn("p-1.5 rounded", getEmotionColor(point.dominantEmotion))}>
                       {getEmotionIcon(point.dominantEmotion)}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium capitalize">
-                          {point.dominantEmotion}
-                        </span>
+                        <span className="text-sm font-medium capitalize">{point.dominantEmotion}</span>
                         <Badge variant="outline" className="text-xs">
                           {(point.emotionIntensity * 100).toFixed(0)}%
                         </Badge>
@@ -244,26 +224,25 @@ export function EmotionGraph({ plan, emotionalArc, className }: EmotionGraphProp
             <div className="space-y-2">
               <p className="text-sm font-medium">Emotion Distribution</p>
               <div className="grid grid-cols-2 gap-2">
-                {emotionalArc && Object.entries(
-                  emotionalArc.reduce<Record<string, number>>((acc, point) => {
-                    // Group by category (using category as emotion type)
-                    const emotion = point.category
-                    acc[emotion] = (acc[emotion] || 0) + point.emotionalIntensity
-                    return acc
-                  }, {})
-                )
-                  .sort((a, b) => b[1] - a[1])
-                  .map(([emotion, totalWeight]) => (
-                    <div key={emotion} className="flex items-center gap-2 p-2 rounded border">
-                      <div className={cn("p-1 rounded", getEmotionColor(emotion))}>
-                        {getEmotionIcon(emotion)}
+                {emotionalArc &&
+                  Object.entries(
+                    emotionalArc.reduce<Record<string, number>>((acc, point) => {
+                      // Group by category (using category as emotion type)
+                      const emotion = point.category
+                      acc[emotion] = (acc[emotion] || 0) + point.emotionalIntensity
+                      return acc
+                    }, {}),
+                  )
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([emotion, totalWeight]) => (
+                      <div key={emotion} className="flex items-center gap-2 p-2 rounded border">
+                        <div className={cn("p-1 rounded", getEmotionColor(emotion))}>{getEmotionIcon(emotion)}</div>
+                        <span className="text-sm capitalize flex-1">{emotion}</span>
+                        <span className="text-sm font-medium">
+                          {((totalWeight / emotionalArc.length) * 100).toFixed(0)}%
+                        </span>
                       </div>
-                      <span className="text-sm capitalize flex-1">{emotion}</span>
-                      <span className="text-sm font-medium">
-                        {((totalWeight / emotionalArc.length) * 100).toFixed(0)}%
-                      </span>
-                    </div>
-                  ))}
+                    ))}
               </div>
             </div>
           </TabsContent>
@@ -321,7 +300,7 @@ export function EmotionGraph({ plan, emotionalArc, className }: EmotionGraphProp
                     </p>
                   </div>
                 )}
-                {plan && plan.sequences.some(s => s.energyLevel > 90) && (
+                {plan && plan.sequences.some((s) => s.energyLevel > 90) && (
                   <div className="p-3 rounded-lg bg-purple-100 dark:bg-purple-900/20 text-sm">
                     <p className="font-medium text-purple-900 dark:text-purple-100">Peak Moments</p>
                     <p className="text-purple-800 dark:text-purple-200">

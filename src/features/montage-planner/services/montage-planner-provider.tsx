@@ -3,7 +3,7 @@
  * Manages the XState machine and provides context to child components
  */
 
-import React, { createContext, useCallback, useContext, useEffect } from "react"
+import React, { createContext, useContext, useEffect } from "react"
 
 import { listen } from "@tauri-apps/api/event"
 import { useActor } from "@xstate/react"
@@ -11,6 +11,7 @@ import { useActor } from "@xstate/react"
 import { type MontagePlannerEvent, montagePlannerMachine } from "./montage-planner-machine"
 
 import type { AnalysisProgress } from "../types"
+
 
 // Context type
 interface MontagePlannerContextType {
@@ -51,47 +52,38 @@ export function MontagePlannerProvider({ children }: MontagePlannerProviderProps
     // Set up event listeners
     const setupListeners = async () => {
       // Progress updates
-      unsubscribeProgress = await listen<AnalysisProgress>("montage-analysis-progress", event => {
+      unsubscribeProgress = await listen<AnalysisProgress>("montage-analysis-progress", (event) => {
         send({ type: "ANALYSIS_PROGRESS", progress: event.payload })
       })
 
       // Video analysis results
-      unsubscribeVideoAnalyzed = await listen<{ videoId: string; analysis: any }>(
-        "montage-video-analyzed",
-        event => {
-          send({
-            type: "VIDEO_ANALYZED",
-            videoId: event.payload.videoId,
-            analysis: event.payload.analysis,
-          })
-        }
-      )
+      unsubscribeVideoAnalyzed = await listen<{ videoId: string; analysis: any }>("montage-video-analyzed", (event) => {
+        send({
+          type: "VIDEO_ANALYZED",
+          videoId: event.payload.videoId,
+          analysis: event.payload.analysis,
+        })
+      })
 
       // Audio analysis results
-      unsubscribeAudioAnalyzed = await listen<{ videoId: string; analysis: any }>(
-        "montage-audio-analyzed",
-        event => {
-          send({
-            type: "AUDIO_ANALYZED",
-            videoId: event.payload.videoId,
-            analysis: event.payload.analysis,
-          })
-        }
-      )
+      unsubscribeAudioAnalyzed = await listen<{ videoId: string; analysis: any }>("montage-audio-analyzed", (event) => {
+        send({
+          type: "AUDIO_ANALYZED",
+          videoId: event.payload.videoId,
+          analysis: event.payload.analysis,
+        })
+      })
 
       // Fragment detection results
-      unsubscribeFragments = await listen<{ fragments: any[] }>(
-        "montage-fragments-detected",
-        event => {
-          send({
-            type: "FRAGMENTS_DETECTED",
-            fragments: event.payload.fragments,
-          })
-        }
-      )
+      unsubscribeFragments = await listen<{ fragments: any[] }>("montage-fragments-detected", (event) => {
+        send({
+          type: "FRAGMENTS_DETECTED",
+          fragments: event.payload.fragments,
+        })
+      })
 
       // Moment scoring results
-      unsubscribeMoments = await listen<{ scores: any[] }>("montage-moments-scored", event => {
+      unsubscribeMoments = await listen<{ scores: any[] }>("montage-moments-scored", (event) => {
         send({
           type: "MOMENTS_SCORED",
           scores: event.payload.scores,

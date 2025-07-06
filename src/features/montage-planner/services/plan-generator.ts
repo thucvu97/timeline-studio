@@ -3,25 +3,40 @@
  * Creates optimized montage plans from analyzed fragments
  */
 
-import { v4 as uuidv4 } from "uuid"
+// Using crypto.randomUUID() instead of uuid package (native in modern browsers/Node.js)
+
+// Fallback UUID generator in case crypto.randomUUID is not available
+import {
+  ClipRole,
+  MONTAGE_STYLES,
+  SequencePurpose,
+  SequenceType,
+  TargetPlatform,
+} from "../types"
 
 import type {
-  ClipRole,
   EmotionalCurve,
   Fragment,
-  MONTAGE_STYLES,
-  MontagePlan,
   MontagePlan,
   PacingProfile,
   PlanGenerationOptions,
   PlanMetadata,
   PlannedClip,
   Sequence,
-  SequencePurpose,
-  SequenceType,
-  TargetPlatform,
   TransitionPlan,
 } from "../types"
+
+function generateUUID(): string {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID()
+  }
+  // Fallback for older environments (shouldn't be needed in Tauri)
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0
+    const v = c === 'x' ? r : (r & 0x3 | 0x8)
+    return v.toString(16)
+  })
+}
 
 export class PlanGenerator {
   private static instance: PlanGenerator
@@ -43,7 +58,7 @@ export class PlanGenerator {
     options: PlanGenerationOptions,
     pacing: PacingProfile
   ): MontagePlan {
-    const style = (MONTAGE_STYLES as any)[options.style] || (MONTAGE_STYLES as any)["dynamic-action"]
+    const style = MONTAGE_STYLES[options.style] || MONTAGE_STYLES["dynamic-action"]
     
     // Filter and sort fragments based on preferences
     const selectedFragments = this.selectFragments(fragments, options)
@@ -73,7 +88,7 @@ export class PlanGenerator {
     const coherenceScore = this.calculateCoherenceScore(sequences)
     
     return {
-      id: uuidv4(),
+      id: generateUUID(),
       name: `${style.name} Montage`,
       metadata,
       sequences: sequencesWithTransitions,
@@ -200,9 +215,9 @@ export class PlanGenerator {
     // Distribute fragments across sequences
     let fragmentIndex = 0
     
-    structure.forEach((seqDef, index) => {
+    structure.forEach((seqDef, _index) => {
       const sequence: Sequence = {
-        id: uuidv4(),
+        id: generateUUID(),
         type: seqDef.type,
         clips: [],
         duration: 0,
@@ -417,7 +432,7 @@ export class PlanGenerator {
     
     const energies = sequences.map(s => s.energyLevel)
     const avg = energies.reduce((a, b) => a + b, 0) / energies.length
-    const variance = energies.reduce((sum, e) => sum + Math.pow(e - avg, 2), 0) / energies.length
+    const variance = energies.reduce((sum, e) => sum + (e - avg) ** 2, 0) / energies.length
     
     return Math.sqrt(variance)
   }

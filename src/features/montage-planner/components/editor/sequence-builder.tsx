@@ -3,15 +3,14 @@
  * Allows visual construction and editing of montage sequences
  */
 
-import React, { useState } from "react"
+import { useState } from "react"
 
-import { ChevronDown, ChevronUp, Copy, Edit2, GripVertical, Plus, Trash2 } from "lucide-react"
+import { ChevronDown, ChevronUp, Copy, GripVertical, Plus, Trash2 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
@@ -20,7 +19,6 @@ import { cn } from "@/lib/utils"
 
 import type { Fragment, Sequence, SequenceType } from "../../types"
 
-
 interface SequenceBuilderProps {
   sequences: Sequence[]
   availableFragments: Fragment[]
@@ -28,17 +26,12 @@ interface SequenceBuilderProps {
   className?: string
 }
 
-export function SequenceBuilder({
-  sequences,
-  availableFragments,
-  onSequencesChange,
-  className,
-}: SequenceBuilderProps) {
+export function SequenceBuilder({ sequences, availableFragments, onSequencesChange, className }: SequenceBuilderProps) {
   const [expandedSequences, setExpandedSequences] = useState<Set<string>>(new Set())
   const [editingSequence, setEditingSequence] = useState<string | null>(null)
 
   const sequenceTypes: SequenceType[] = ["intro", "main", "climax", "resolution", "outro", "montage"]
-  
+
   const sequenceColors = {
     intro: "bg-blue-500",
     main: "bg-green-500",
@@ -71,11 +64,7 @@ export function SequenceBuilder({
   }
 
   const updateSequence = (sequenceId: string, updates: Partial<Sequence>) => {
-    onSequencesChange(
-      sequences.map((seq) =>
-        seq.id === sequenceId ? { ...seq, ...updates } : seq
-      )
-    )
+    onSequencesChange(sequences.map((seq) => (seq.id === sequenceId ? { ...seq, ...updates } : seq)))
   }
 
   const deleteSequence = (sequenceId: string) => {
@@ -98,7 +87,7 @@ export function SequenceBuilder({
     const newSequences = [...sequences]
     const newIndex = direction === "up" ? index - 1 : index + 1
     if (newIndex >= 0 && newIndex < sequences.length) {
-      [newSequences[index], newSequences[newIndex]] = [newSequences[newIndex], newSequences[index]]
+      ;[newSequences[index], newSequences[newIndex]] = [newSequences[newIndex], newSequences[index]]
       onSequencesChange(newSequences)
     }
   }
@@ -144,9 +133,7 @@ export function SequenceBuilder({
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>Sequence Builder</CardTitle>
-            <CardDescription>
-              Construct and arrange sequences for your montage
-            </CardDescription>
+            <CardDescription>Construct and arrange sequences for your montage</CardDescription>
           </div>
           <Button onClick={addSequence} size="sm">
             <Plus className="h-4 w-4 mr-2" />
@@ -166,17 +153,14 @@ export function SequenceBuilder({
               const isEditing = editingSequence === sequence.id
 
               return (
-                <div
-                  key={sequence.id}
-                  className="border rounded-lg overflow-hidden"
-                >
+                <div key={sequence.id} className="border rounded-lg overflow-hidden">
                   {/* Sequence Header */}
                   <div className="p-3 bg-muted/50">
                     <div className="flex items-center gap-2">
                       <GripVertical className="h-4 w-4 text-muted-foreground cursor-move" />
-                      
+
                       <div className={cn("w-3 h-3 rounded", sequenceColors[sequence.type])} />
-                      
+
                       {isEditing ? (
                         <Select
                           value={sequence.type}
@@ -208,10 +192,8 @@ export function SequenceBuilder({
                       <Badge variant="outline" className="ml-auto">
                         {sequence.clips.length} clips
                       </Badge>
-                      
-                      <span className="text-sm text-muted-foreground">
-                        {formatTime(sequence.duration)}
-                      </span>
+
+                      <span className="text-sm text-muted-foreground">{formatTime(sequence.duration)}</span>
 
                       <div className="flex items-center gap-1">
                         <Button
@@ -223,7 +205,7 @@ export function SequenceBuilder({
                         >
                           <ChevronUp className="h-4 w-4" />
                         </Button>
-                        
+
                         <Button
                           variant="ghost"
                           size="icon"
@@ -233,7 +215,7 @@ export function SequenceBuilder({
                         >
                           <ChevronDown className="h-4 w-4" />
                         </Button>
-                        
+
                         <Button
                           variant="ghost"
                           size="icon"
@@ -242,7 +224,7 @@ export function SequenceBuilder({
                         >
                           <Copy className="h-4 w-4" />
                         </Button>
-                        
+
                         <Button
                           variant="ghost"
                           size="icon"
@@ -260,11 +242,7 @@ export function SequenceBuilder({
                           className="h-8 w-8"
                           onClick={() => toggleSequenceExpanded(sequence.id)}
                         >
-                          {isExpanded ? (
-                            <ChevronUp className="h-4 w-4" />
-                          ) : (
-                            <ChevronDown className="h-4 w-4" />
-                          )}
+                          {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                         </Button>
                       </CollapsibleTrigger>
                     </div>
@@ -278,15 +256,11 @@ export function SequenceBuilder({
                         <div className="space-y-2">
                           <div className="flex items-center justify-between">
                             <Label>Energy Level</Label>
-                            <span className="text-sm text-muted-foreground">
-                              {sequence.energyLevel}%
-                            </span>
+                            <span className="text-sm text-muted-foreground">{sequence.energyLevel}%</span>
                           </div>
                           <Slider
                             value={[sequence.energyLevel]}
-                            onValueChange={([value]) =>
-                              updateSequence(sequence.id, { energyLevel: value })
-                            }
+                            onValueChange={([value]) => updateSequence(sequence.id, { energyLevel: value })}
                             max={100}
                             step={5}
                             className="w-full"
@@ -298,9 +272,7 @@ export function SequenceBuilder({
                           <Label>Purpose</Label>
                           <Select
                             value={sequence.purpose}
-                            onValueChange={(value) =>
-                              updateSequence(sequence.id, { purpose: value })
-                            }
+                            onValueChange={(value) => updateSequence(sequence.id, { purpose: value })}
                           >
                             <SelectTrigger>
                               <SelectValue />
@@ -308,9 +280,7 @@ export function SequenceBuilder({
                             <SelectContent>
                               <SelectItem value="hook">Hook</SelectItem>
                               <SelectItem value="setup">Setup</SelectItem>
-                              <SelectItem value="narrative-development">
-                                Narrative Development
-                              </SelectItem>
+                              <SelectItem value="narrative-development">Narrative Development</SelectItem>
                               <SelectItem value="emotional-peak">Emotional Peak</SelectItem>
                               <SelectItem value="resolution">Resolution</SelectItem>
                               <SelectItem value="call-to-action">Call to Action</SelectItem>
@@ -328,26 +298,18 @@ export function SequenceBuilder({
                           ) : (
                             <div className="space-y-1">
                               {sequence.clips.map((clip) => {
-                                const fragment = availableFragments.find(
-                                  (f) => f.id === clip.fragmentId
-                                )
+                                const fragment = availableFragments.find((f) => f.id === clip.fragmentId)
                                 return (
-                                  <div
-                                    key={clip.id}
-                                    className="flex items-center justify-between p-2 rounded border"
-                                  >
+                                  <div key={clip.id} className="flex items-center justify-between p-2 rounded border">
                                     <span className="text-sm">
-                                      {fragment?.videoId || "Unknown"} •{" "}
-                                      {formatTime(clip.startTime)} -{" "}
+                                      {fragment?.videoId || "Unknown"} • {formatTime(clip.startTime)} -{" "}
                                       {formatTime(Number(clip.startTime || 0) + Number(clip.duration || 0))}
                                     </span>
                                     <Button
                                       variant="ghost"
                                       size="icon"
                                       className="h-6 w-6"
-                                      onClick={() =>
-                                        removeClipFromSequence(sequence.id, clip.id)
-                                      }
+                                      onClick={() => removeClipFromSequence(sequence.id, clip.id)}
                                     >
                                       <Trash2 className="h-3 w-3" />
                                     </Button>
@@ -390,9 +352,7 @@ export function SequenceBuilder({
           <div className="pt-4 border-t">
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Total Duration</span>
-              <span className="font-medium">
-                {formatTime(sequences.reduce((sum, seq) => sum + seq.duration, 0))}
-              </span>
+              <span className="font-medium">{formatTime(sequences.reduce((sum, seq) => sum + seq.duration, 0))}</span>
             </div>
           </div>
         )}

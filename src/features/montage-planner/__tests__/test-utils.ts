@@ -229,9 +229,7 @@ export const mockAnalyzedContent: AnalyzedContent = {
     { time: 2, objects: ["car", "person"], confidence: 0.9 },
     { time: 7, objects: ["building"], confidence: 0.85 },
   ],
-  detectedPeople: [
-    { time: 3, people: [mockPerson], confidence: 0.95 },
-  ],
+  detectedPeople: [{ time: 3, people: [mockPerson], confidence: 0.95 }],
 }
 
 export const createMockFragments = (count: number): Fragment[] => {
@@ -256,7 +254,7 @@ export const createMockFragments = (count: number): Fragment[] => {
 
 export const createMockSequences = (count: number): Sequence[] => {
   const types: Sequence["type"][] = ["intro", "main", "climax", "resolution", "outro"]
-  
+
   return Array.from({ length: count }, (_, i) => ({
     id: `seq_${i + 1}`,
     type: types[i % types.length],

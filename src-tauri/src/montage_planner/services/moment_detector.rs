@@ -4,7 +4,6 @@
 
 use crate::montage_planner::types::*;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 /// Service for detecting key moments in video content
 pub struct MomentDetector {
@@ -107,7 +106,7 @@ impl MomentDetector {
         current_moment = Some(DetectedMoment {
           timestamp: detection.timestamp,
           duration: self.config.min_moment_duration,
-          category,
+          category: category.clone(),
           scores,
           total_score,
           description: self.generate_description(detection, &category),
@@ -290,7 +289,15 @@ impl MomentDetector {
       MomentCategory::Action
     } else if scores.emotional >= self.thresholds.drama_threshold {
       MomentCategory::Drama
-    } else if scores.total_score >= self.thresholds.highlight_threshold {
+    } else if (scores.visual
+      + scores.technical
+      + scores.emotional
+      + scores.narrative
+      + scores.action
+      + scores.composition)
+      / 6.0
+      >= self.thresholds.highlight_threshold
+    {
       MomentCategory::Highlight
     } else if detection.faces.len() > 1 {
       MomentCategory::Drama // Multiple faces suggest dialogue
@@ -315,7 +322,14 @@ impl MomentDetector {
 
     // Extend if categories match and scores are similar
     let category_match = self.classify_moment(scores, detection) == moment.category;
-    let score_diff = (scores.total_score - moment.total_score).abs();
+    let scores_total = (scores.visual
+      + scores.technical
+      + scores.emotional
+      + scores.narrative
+      + scores.action
+      + scores.composition)
+      / 6.0;
+    let score_diff = (scores_total - moment.total_score).abs();
 
     category_match && score_diff < 20.0 && time_diff < 5.0
   }

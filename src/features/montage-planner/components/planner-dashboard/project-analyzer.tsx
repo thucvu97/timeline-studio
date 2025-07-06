@@ -3,8 +3,6 @@
  * Displays results of content analysis including quality metrics and detected moments
  */
 
-import React from "react"
-
 import { Eye, Film, MessageSquare, Music, Star, Zap } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -17,14 +15,8 @@ import { useContentAnalysis } from "../../hooks/use-content-analysis"
 import { MomentCategory } from "../../types"
 
 export function ProjectAnalyzer() {
-  const {
-    contentStats,
-    averageVideoQuality,
-    averageAudioQuality,
-    topMoments,
-    momentCategoryCounts,
-    fragments,
-  } = useContentAnalysis()
+  const { contentStats, averageVideoQuality, averageAudioQuality, topMoments, momentCategoryCounts, fragments } =
+    useContentAnalysis()
 
   const getCategoryIcon = (category: MomentCategory) => {
     const icons = {
@@ -57,7 +49,7 @@ export function ProjectAnalyzer() {
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold">Content Analysis Results</h3>
-      
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {/* Video Quality */}
         <Card>
@@ -68,9 +60,7 @@ export function ProjectAnalyzer() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Film className="h-4 w-4 text-muted-foreground" />
-                <span className="text-2xl font-bold">
-                  {averageVideoQuality.toFixed(0)}%
-                </span>
+                <span className="text-2xl font-bold">{averageVideoQuality.toFixed(0)}%</span>
               </div>
               <Progress value={averageVideoQuality} className="h-2" />
             </div>
@@ -86,9 +76,7 @@ export function ProjectAnalyzer() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Music className="h-4 w-4 text-muted-foreground" />
-                <span className="text-2xl font-bold">
-                  {averageAudioQuality.toFixed(0)}%
-                </span>
+                <span className="text-2xl font-bold">{averageAudioQuality.toFixed(0)}%</span>
               </div>
               <Progress value={averageAudioQuality} className="h-2" />
             </div>
@@ -104,9 +92,7 @@ export function ProjectAnalyzer() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Zap className="h-4 w-4 text-muted-foreground" />
-                <span className="text-2xl font-bold">
-                  {contentStats.averageActionLevel.toFixed(0)}%
-                </span>
+                <span className="text-2xl font-bold">{contentStats.averageActionLevel.toFixed(0)}%</span>
               </div>
               <Progress value={contentStats.averageActionLevel} className="h-2" />
             </div>
@@ -122,9 +108,7 @@ export function ProjectAnalyzer() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <MessageSquare className="h-4 w-4 text-muted-foreground" />
-                <span className="text-2xl font-bold">
-                  {contentStats.speechPresence.toFixed(0)}%
-                </span>
+                <span className="text-2xl font-bold">{contentStats.speechPresence.toFixed(0)}%</span>
               </div>
               <Progress value={contentStats.speechPresence} className="h-2" />
             </div>
@@ -144,18 +128,13 @@ export function ProjectAnalyzer() {
           <Card>
             <CardHeader>
               <CardTitle>Top Moments</CardTitle>
-              <CardDescription>
-                Highest scoring moments detected in your content
-              </CardDescription>
+              <CardDescription>Highest scoring moments detected in your content</CardDescription>
             </CardHeader>
             <CardContent>
               <ScrollArea className="h-[300px]">
                 <div className="space-y-2">
                   {topMoments.map((moment, index) => (
-                    <div
-                      key={`moment-${index}`}
-                      className="flex items-center justify-between rounded-lg border p-3"
-                    >
+                    <div key={`moment-${index}`} className="flex items-center justify-between rounded-lg border p-3">
                       <div className="flex items-center gap-3">
                         <div className={`h-2 w-2 rounded-full ${getCategoryColor(moment.category)}`} />
                         <div>
@@ -163,15 +142,11 @@ export function ProjectAnalyzer() {
                             {Number(moment.timestamp || 0).toFixed(1)}s -{" "}
                             {(Number(moment.timestamp || 0) + Number(moment.duration || 0)).toFixed(1)}s
                           </p>
-                          <p className="text-sm text-muted-foreground">
-                            {moment.category}
-                          </p>
+                          <p className="text-sm text-muted-foreground">{moment.category}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Badge variant="secondary">
-                          {moment.totalScore.toFixed(0)}
-                        </Badge>
+                        <Badge variant="secondary">{moment.totalScore.toFixed(0)}</Badge>
                         {getCategoryIcon(moment.category)}
                       </div>
                     </div>
@@ -187,9 +162,7 @@ export function ProjectAnalyzer() {
           <Card>
             <CardHeader>
               <CardTitle>Moment Categories</CardTitle>
-              <CardDescription>
-                Distribution of detected moment types
-              </CardDescription>
+              <CardDescription>Distribution of detected moment types</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
@@ -200,10 +173,7 @@ export function ProjectAnalyzer() {
                       <span className="capitalize">{category.replace("-", " ")}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Progress 
-                        value={(count / contentStats.totalMoments) * 100} 
-                        className="w-[100px] h-2"
-                      />
+                      <Progress value={(count / contentStats.totalMoments) * 100} className="w-[100px] h-2" />
                       <span className="text-sm font-medium w-8 text-right">{count}</span>
                     </div>
                   </div>
@@ -218,22 +188,15 @@ export function ProjectAnalyzer() {
           <Card>
             <CardHeader>
               <CardTitle>All Fragments</CardTitle>
-              <CardDescription>
-                Complete list of detected video fragments
-              </CardDescription>
+              <CardDescription>Complete list of detected video fragments</CardDescription>
             </CardHeader>
             <CardContent>
               <ScrollArea className="h-[300px]">
                 <div className="space-y-2">
                   {fragments.map((fragment) => (
-                    <div
-                      key={fragment.id}
-                      className="flex items-center justify-between rounded-lg border p-3"
-                    >
+                    <div key={fragment.id} className="flex items-center justify-between rounded-lg border p-3">
                       <div className="flex-1">
-                        <p className="font-medium">
-                          {fragment.videoId}
-                        </p>
+                        <p className="font-medium">{fragment.videoId}</p>
                         <p className="text-sm text-muted-foreground">
                           {fragment.startTime.toFixed(1)}s - {fragment.endTime.toFixed(1)}s
                           {fragment.description && ` • ${fragment.description}`}
@@ -252,9 +215,7 @@ export function ProjectAnalyzer() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Badge>
-                          {fragment.score.totalScore.toFixed(0)}
-                        </Badge>
+                        <Badge>{fragment.score.totalScore.toFixed(0)}</Badge>
                       </div>
                     </div>
                   ))}

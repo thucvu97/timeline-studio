@@ -4,9 +4,8 @@
 //! Analyzes frame composition using object positions and provides scoring.
 
 use crate::montage_planner::types::*;
-use crate::recognition::yolo_processor::Detection as YoloDetection;
+use crate::recognition::frame_processor::Detection as YoloDetection;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 /// Analyzes frame composition based on YOLO detection results
 pub struct CompositionAnalyzer {
@@ -79,13 +78,14 @@ impl CompositionAnalyzer {
   /// Analyze composition based on YOLO detection results
   pub fn analyze_composition(
     &self,
-    detection_result: &YoloDetectionResult,
+    detections: &[YoloDetection],
+    timestamp: f64,
     frame_width: f32,
     frame_height: f32,
   ) -> Result<CompositionEnhancedDetection, MontageError> {
     // Convert YOLO detections to montage detections
     let montage_detection =
-      self.convert_yolo_to_montage(detection_result, frame_width, frame_height)?;
+      self.convert_yolo_to_montage(detections, timestamp, frame_width, frame_height)?;
 
     // Calculate composition score
     let composition_score = self.calculate_composition_score(
@@ -105,7 +105,8 @@ impl CompositionAnalyzer {
     );
 
     Ok(CompositionEnhancedDetection {
-      original_detection: detection_result.clone(),
+      original_detections: detections.to_vec(),
+      timestamp,
       composition_score,
       visual_importance,
       frame_dominance,
@@ -115,82 +116,48 @@ impl CompositionAnalyzer {
   /// Convert YOLO detection to montage detection format
   fn convert_yolo_to_montage(
     &self,
-    yolo_result: &YoloDetectionResult,
-    frame_width: f32,
-    frame_height: f32,
+    yolo_detections: &[YoloDetection],
+    timestamp: f64,
+    _frame_width: f32,
+    _frame_height: f32,
   ) -> Result<MontageDetection, MontageError> {
     let mut objects = Vec::new();
     let mut faces = Vec::new();
 
-    // Process V11 detections
-    for detection in &yolo_result.v11_detections {
-      match detection {
-        YoloV11Detection::Object(obj) => {
-          objects.push(ObjectDetection {
-            class: obj.class.clone(),
-            confidence: obj.confidence,
-            bbox: BoundingBox {
-              x: obj.bbox.0,
-              y: obj.bbox.1,
-              width: obj.bbox.2,
-              height: obj.bbox.3,
-            },
-            tracking_id: None,
-            movement_vector: None,
-            visual_importance: self.calculate_object_importance(&obj.class, obj.confidence),
-          });
-        }
-        YoloV11Detection::Face(face) => {
-          faces.push(FaceDetection {
-            confidence: face.confidence,
-            bbox: BoundingBox {
-              x: face.bbox.0,
-              y: face.bbox.1,
-              width: face.bbox.2,
-              height: face.bbox.3,
-            },
-            tracking_id: None,
-            emotion: EmotionalTone::Neutral, // TODO: Implement emotion detection
-            gaze_direction: None,
-            face_quality: face.confidence,
-          });
-        }
-      }
-    }
-
-    // Process V8 detections
-    for detection in &yolo_result.v8_detections {
-      match detection {
-        YoloV8Detection::Object(obj) => {
-          objects.push(ObjectDetection {
-            class: obj.class.clone(),
-            confidence: obj.confidence,
-            bbox: BoundingBox {
-              x: obj.bbox.0,
-              y: obj.bbox.1,
-              width: obj.bbox.2,
-              height: obj.bbox.3,
-            },
-            tracking_id: None,
-            movement_vector: None,
-            visual_importance: self.calculate_object_importance(&obj.class, obj.confidence),
-          });
-        }
-        YoloV8Detection::Face(face) => {
-          faces.push(FaceDetection {
-            confidence: face.confidence,
-            bbox: BoundingBox {
-              x: face.bbox.0,
-              y: face.bbox.1,
-              width: face.bbox.2,
-              height: face.bbox.3,
-            },
-            tracking_id: None,
-            emotion: EmotionalTone::Neutral,
-            gaze_direction: None,
-            face_quality: face.confidence,
-          });
-        }
+    // Process all detections
+    for detection in yolo_detections {
+      // Determine if this is a face or object based on class name
+      if detection.class.to_lowercase().contains("face")
+        || detection.class.to_lowercase().contains("person")
+      {
+        faces.push(FaceDetection {
+          confidence: detection.confidence,
+          bbox: BoundingBox {
+            x: detection.bbox.x,
+            y: detection.bbox.y,
+            width: detection.bbox.width,
+            height: detection.bbox.height,
+          },
+          tracking_id: None,
+          emotion: EmotionalTone::Neutral, // TODO: Implement emotion detection
+          gaze_direction: None,
+          face_quality: detection.confidence,
+        });
+      } else {
+        objects.push(ObjectDetection {
+          class: detection.class.clone(),
+          confidence: detection.confidence,
+          bbox: BoundingBox {
+            x: detection.bbox.x,
+            y: detection.bbox.y,
+            width: detection.bbox.width,
+            height: detection.bbox.height,
+          },
+          tracking_id: None,
+          movement_vector: None,
+          visual_importance: self
+            .calculate_object_importance(&detection.class, detection.confidence),
+        });
       }
     }
 
@@ -198,7 +165,7 @@ impl CompositionAnalyzer {
     let activity_level = self.calculate_activity_level(&objects, &faces);
 
     Ok(MontageDetection {
-      timestamp: yolo_result.timestamp,
+      timestamp,
       detection_type: if !objects.is_empty() && !faces.is_empty() {
         DetectionType::Combined
       } else if !faces.is_empty() {
@@ -308,7 +275,7 @@ impl CompositionAnalyzer {
     objects: &[ObjectDetection],
     faces: &[FaceDetection],
     frame_width: f32,
-    frame_height: f32,
+    _frame_height: f32,
   ) -> f32 {
     let mut left_weight = 0.0;
     let mut right_weight = 0.0;
@@ -356,8 +323,8 @@ impl CompositionAnalyzer {
     objects: &[ObjectDetection],
     faces: &[FaceDetection],
   ) -> f32 {
-    let mut max_confidence = 0.0;
-    let mut total_confidence = 0.0;
+    let mut max_confidence = 0.0_f32;
+    let mut total_confidence = 0.0_f32;
     let mut element_count = 0;
 
     // Check faces
@@ -436,7 +403,7 @@ impl CompositionAnalyzer {
       return 0.0;
     }
 
-    let mut max_alignment = 0.0;
+    let mut max_alignment = 0.0_f32;
 
     // Check for horizontal alignment
     for i in 0..objects.len() - 2 {
@@ -446,22 +413,22 @@ impl CompositionAnalyzer {
           let y2 = objects[j].bbox.y + objects[j].bbox.height / 2.0;
           let y3 = objects[k].bbox.y + objects[k].bbox.height / 2.0;
 
-          let alignment = 1.0 - ((y1 - y2).abs() + (y2 - y3).abs()) / 200.0;
-          max_alignment = max_alignment.max(alignment.max(0.0));
+          let alignment = 1.0_f32 - ((y1 - y2).abs() + (y2 - y3).abs()) / 200.0_f32;
+          max_alignment = max_alignment.max(alignment.max(0.0_f32));
         }
       }
     }
 
-    (max_alignment * 100.0).min(100.0)
+    (max_alignment * 100.0_f32).min(100.0_f32)
   }
 
   /// Calculate symmetry score
   fn calculate_symmetry_score(
     &self,
-    objects: &[ObjectDetection],
+    _objects: &[ObjectDetection],
     faces: &[FaceDetection],
     frame_width: f32,
-    frame_height: f32,
+    _frame_height: f32,
   ) -> f32 {
     let center_x = frame_width / 2.0;
     let mut symmetry_score = 0.0;
@@ -474,7 +441,7 @@ impl CompositionAnalyzer {
 
       // Look for corresponding face on the other side
       for other_face in faces {
-        if face as *const _ == other_face as *const _ {
+        if std::ptr::eq(face, other_face) {
           continue;
         }
 
@@ -560,6 +527,12 @@ impl CompositionAnalyzer {
     }
 
     ((total_coverage / frame_area) * 100.0).min(100.0)
+  }
+}
+
+impl Default for RuleOfThirdsGrid {
+  fn default() -> Self {
+    Self::new()
   }
 }
 
