@@ -1,0 +1,185 @@
+name: macOS Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., 0.1.0)'
+        required: true
+        default: ''
+      prerelease:
+        description: 'Is this a pre-release?'
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    outputs:
+      release_id: ${{ fromJSON(steps.create_release.outputs.result).id }}
+      upload_url: ${{ fromJSON(steps.create_release.outputs.result).upload_url }}
+      version: ${{ github.event.inputs.version }}
+
+    steps:
+      - name: Create or Get Release
+        id: create_release
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const tag = `v${{ github.event.inputs.version }}`;
+            const releaseName = `Timeline Studio v${{ github.event.inputs.version }}`;
+            const releaseBody = `Timeline Studio v${{ github.event.inputs.version }}
+
+            ## macOS Build
+
+            🍎 Сборка только для macOS (Universal Binary)
+
+            ## Изменения
+
+            - Новые возможности
+            - Исправления ошибок
+            - Улучшения производительности`;
+
+            try {
+              // Попробуем получить существующий релиз
+              const existingRelease = await github.rest.repos.getReleaseByTag({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                tag: tag
+              });
+
+              console.log(`Release ${tag} already exists, using existing release`);
+              return existingRelease.data;
+            } catch (error) {
+              if (error.status === 404) {
+                // Релиз не существует, создаем новый
+                console.log(`Creating new release ${tag}`);
+                const newRelease = await github.rest.repos.createRelease({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  tag_name: tag,
+                  name: releaseName,
+                  body: releaseBody,
+                  draft: false,
+                  prerelease: ${{ github.event.inputs.prerelease }}
+                });
+
+                return newRelease.data;
+              } else {
+                throw error;
+              }
+            }
+
+  build-macos:
+    needs: create-release
+    runs-on: macos-latest
+    timeout-minutes: 120
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies (macOS)
+        run: |
+          # Install FFmpeg
+          brew install ffmpeg
+          
+          # Install ONNX Runtime
+          brew install onnxruntime
+          
+          # Set environment variables
+          echo "ORT_DYLIB_PATH=/opt/homebrew/lib/libonnxruntime.dylib" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=/opt/homebrew/lib/pkgconfig:/usr/local/lib/pkgconfig" >> $GITHUB_ENV
+
+      - name: Install frontend dependencies
+        run: |
+          echo "engine-strict=false" > .npmrc
+          npm install --no-audit --no-fund
+
+      - name: Install Tauri CLI
+        run: |
+          if ! command -v cargo-tauri &> /dev/null; then
+            echo "Installing Tauri CLI..."
+            cargo install tauri-cli --version "^2.0.0"
+          else
+            echo "Tauri CLI already installed"
+          fi
+          cargo-tauri --version
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: Install macOS targets
+        run: |
+          rustup target add aarch64-apple-darwin
+          rustup target add x86_64-apple-darwin
+
+      - name: Clean target directory
+        run: |
+          cd src-tauri
+          # Remove any existing test_specta binaries from previous builds
+          find target -name "*test_specta*" -type f -delete 2>/dev/null || true
+          find target -name "test_specta" -type f -delete 2>/dev/null || true
+          # Remove bundle directory to ensure clean bundling
+          rm -rf target/release/bundle target/universal-apple-darwin/release/bundle
+          cd ..
+
+      - name: Build the app (macOS universal)
+        uses: tauri-apps/tauri-action@v0.5.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PKG_CONFIG_PATH: /opt/homebrew/lib/pkgconfig:/usr/local/lib/pkgconfig
+          ORT_DYLIB_PATH: /opt/homebrew/lib/libonnxruntime.dylib
+          PKG_CONFIG_ALLOW_CROSS: 1
+          PKG_CONFIG_SYSROOT_DIR: /
+          PKG_CONFIG_PATH_x86_64_apple_darwin: /usr/local/lib/pkgconfig
+          PKG_CONFIG_SYSROOT_DIR_x86_64_apple_darwin: /
+          PKG_CONFIG_PATH_aarch64_apple_darwin: /opt/homebrew/lib/pkgconfig
+          PKG_CONFIG_SYSROOT_DIR_aarch64_apple_darwin: /
+          # FFmpeg paths for both architectures
+          FFMPEG_DIR: /opt/homebrew/opt/ffmpeg
+          FFMPEG_INCLUDE_DIR: /opt/homebrew/opt/ffmpeg/include
+          FFMPEG_LIB_DIR: /opt/homebrew/opt/ffmpeg/lib
+          # Additional FFmpeg paths for x86_64
+          FFMPEG_DIR_x86_64_apple_darwin: /usr/local/opt/ffmpeg
+          FFMPEG_INCLUDE_DIR_x86_64_apple_darwin: /usr/local/opt/ffmpeg/include
+          FFMPEG_LIB_DIR_x86_64_apple_darwin: /usr/local/opt/ffmpeg/lib
+          # Additional FFmpeg paths for aarch64
+          FFMPEG_DIR_aarch64_apple_darwin: /opt/homebrew/opt/ffmpeg
+          FFMPEG_INCLUDE_DIR_aarch64_apple_darwin: /opt/homebrew/opt/ffmpeg/include
+          FFMPEG_LIB_DIR_aarch64_apple_darwin: /opt/homebrew/opt/ffmpeg/lib
+          RUST_BACKTRACE: 1
+          CARGO_PROFILE_RELEASE_BUILD_OVERRIDE_DEBUG: false
+        with:
+          releaseId: ${{ needs.create-release.outputs.release_id }}
+          tagName: v${{ needs.create-release.outputs.version }}
+          releaseName: "Timeline Studio v${{ needs.create-release.outputs.version }}"
+          args: --target universal-apple-darwin
+
+      - name: Post-build cleanup
+        run: |
+          cd src-tauri
+          # Final cleanup of any test_specta binaries that might have been created
+          find target -name "*test_specta*" -type f -delete 2>/dev/null || true
+          find target -name "test_specta" -type f -delete 2>/dev/null || true
+          cd ..
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: macos-build-artifacts
+          path: |
+            src-tauri/target/universal-apple-darwin/release/bundle/
+            src-tauri/target/release/bundle/
+          retention-days: 30
