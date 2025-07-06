@@ -152,7 +152,16 @@ jobs:
       - name: Install Linux dependencies
         run: |
           sudo apt-get update
-          sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev ffmpeg libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libswscale-dev libswresample-dev pkg-config
+          # Install essential build tools and C/C++ headers first
+          sudo apt-get install -y build-essential gcc g++ make cmake
+          # Install Clang and LLVM for bindgen
+          sudo apt-get install -y clang libclang-dev llvm-dev
+          # Install standard library headers
+          sudo apt-get install -y libc6-dev linux-libc-dev
+          # Install other required dependencies
+          sudo apt-get install -y libwebkit2gtk-4.1-dev curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+          # Install FFmpeg and development libraries
+          sudo apt-get install -y ffmpeg libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libswscale-dev libswresample-dev pkg-config
       
       - name: Setup FFmpeg environment and diagnostics
         run: |
@@ -247,7 +256,10 @@ jobs:
           echo "FFMPEG_DIR=" >> $GITHUB_ENV
           echo "FFMPEG_INCLUDE_DIR=" >> $GITHUB_ENV
           echo "FFMPEG_LIB_DIR=" >> $GITHUB_ENV
-          echo "BINDGEN_EXTRA_CLANG_ARGS=" >> $GITHUB_ENV
+          
+          # Set up bindgen to use system clang
+          echo "LIBCLANG_PATH=/usr/lib/llvm-14/lib" >> $GITHUB_ENV
+          echo "BINDGEN_EXTRA_CLANG_ARGS=-I/usr/include -I/usr/include/x86_64-linux-gnu" >> $GITHUB_ENV
           
       - name: Install ONNX Runtime
         run: |

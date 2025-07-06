@@ -18,7 +18,18 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
+          # Install essential build tools and C/C++ headers first
+          sudo apt-get install -y build-essential gcc g++ make cmake
+          # Install Clang and LLVM for bindgen
+          sudo apt-get install -y clang libclang-dev llvm-dev
+          # Install standard library headers
+          sudo apt-get install -y libc6-dev linux-libc-dev
+          # Install FFmpeg and development libraries
           sudo apt-get install -y ffmpeg libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libswscale-dev libswresample-dev pkg-config
+          
+          # Set up bindgen environment
+          echo "LIBCLANG_PATH=/usr/lib/llvm-14/lib" >> $GITHUB_ENV
+          echo "BINDGEN_EXTRA_CLANG_ARGS=-I/usr/include -I/usr/include/x86_64-linux-gnu" >> $GITHUB_ENV
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
