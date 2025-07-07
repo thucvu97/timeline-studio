@@ -581,51 +581,5 @@ pub async fn ffmpeg_quick_analysis(file_path: String) -> Result<serde_json::Valu
 }
 
 #[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn test_video_metadata_serialization() {
-    let metadata = VideoMetadata {
-      duration: 120.5,
-      width: 1920,
-      height: 1080,
-      fps: 30.0,
-      bitrate: 5000000,
-      codec: "h264".to_string(),
-      format: "mp4".to_string(),
-      has_audio: true,
-      audio_codec: Some("aac".to_string()),
-      audio_channels: Some(2),
-      audio_sample_rate: Some(48000),
-      file_size: 104857600,
-    };
-
-    let json = serde_json::to_string(&metadata).unwrap();
-    let deserialized: VideoMetadata = serde_json::from_str(&json).unwrap();
-
-    assert_eq!(metadata.duration, deserialized.duration);
-    assert_eq!(metadata.width, deserialized.width);
-    assert_eq!(metadata.codec, deserialized.codec);
-  }
-
-  #[test]
-  fn test_scene_detection_result_serialization() {
-    let result = SceneDetectionResult {
-      scenes: vec![Scene {
-        start_time: 0.0,
-        end_time: 10.0,
-        confidence: 0.8,
-        thumbnail_path: None,
-      }],
-      total_scenes: 1,
-      average_scene_length: 10.0,
-    };
-
-    let json = serde_json::to_string(&result).unwrap();
-    let deserialized: SceneDetectionResult = serde_json::from_str(&json).unwrap();
-
-    assert_eq!(result.total_scenes, deserialized.total_scenes);
-    assert_eq!(result.scenes.len(), deserialized.scenes.len());
-  }
-}
+#[path = "video_analysis_tests.rs"]
+mod video_analysis_tests;

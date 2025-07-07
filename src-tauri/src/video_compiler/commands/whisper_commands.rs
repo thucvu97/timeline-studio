@@ -556,37 +556,5 @@ fn parse_whisper_segments(whisper_json: &serde_json::Value) -> Vec<WhisperSegmen
 }
 
 #[cfg(test)]
-mod tests {
-  use super::*;
-
-  #[test]
-  fn test_whisper_model_path() {
-    let path = get_whisper_model_path("whisper-base").unwrap();
-    assert!(path.to_string_lossy().contains("ggml-base.bin"));
-  }
-
-  #[test]
-  fn test_parse_segments() {
-    let json_data = serde_json::json!({
-        "segments": [
-            {
-                "seek": 0,
-                "start": 0.0,
-                "end": 5.5,
-                "text": "Hello world",
-                "tokens": [1234, 5678],
-                "temperature": 0.0,
-                "avg_logprob": -0.5,
-                "compression_ratio": 1.2,
-                "no_speech_prob": 0.1
-            }
-        ]
-    });
-
-    let segments = parse_whisper_segments(&json_data);
-    assert_eq!(segments.len(), 1);
-    assert_eq!(segments[0].text, "Hello world");
-    assert_eq!(segments[0].start, 0.0);
-    assert_eq!(segments[0].end, 5.5);
-  }
-}
+#[path = "whisper_commands_tests.rs"]
+mod whisper_commands_tests;

@@ -273,15 +273,5 @@ pub async fn get_metrics_history(
 }
 
 #[cfg(test)]
-mod tests {
-  #[tokio::test]
-  async fn test_cache_performance_metrics() {
-    // Тестируем получение метрик производительности кэша
-    // В реальных тестах использовали бы моки
-  }
-
-  #[tokio::test]
-  async fn test_alert_thresholds() {
-    // Тестируем установку порогов алертов
-  }
-}
+#[path = "advanced_metrics_tests.rs"]
+mod advanced_metrics_tests;

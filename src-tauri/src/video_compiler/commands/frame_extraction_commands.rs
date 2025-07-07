@@ -297,4 +297,4 @@ pub async fn get_video_thumbnails(
 }
 
 #[cfg(test)]
-mod frame_extraction_commands_tests;
+pub mod frame_extraction_commands_tests;
