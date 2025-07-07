@@ -69,7 +69,7 @@ impl AudioAnalyzer {
 
     // Extract audio metadata first
     let _audio_metadata = self.extract_audio_metadata(path).await.map_err(|e| {
-      MontageError::AudioAnalysisError(format!("Failed to extract metadata: {}", e))
+      MontageError::AudioAnalysisError(format!("Failed to extract metadata: {e}"))
     })?;
 
     // Analyze various aspects using FFmpeg filters

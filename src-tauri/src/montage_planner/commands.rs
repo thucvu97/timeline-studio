@@ -50,7 +50,7 @@ pub async fn analyze_video_composition(
 
   // Validate file exists
   if !path.exists() {
-    return Err(format!("File not found: {}", file_path));
+    return Err(format!("File not found: {file_path}"));
   }
 
   // Check if composition analysis is enabled
@@ -65,13 +65,13 @@ pub async fn analyze_video_composition(
   let yolo_detections = video_processor
     .analyze_video(&path, &analysis_options)
     .await
-    .map_err(|e| format!("Video analysis failed: {}", e))?;
+    .map_err(|e| format!("Video analysis failed: {e}"))?;
 
   // Step 2: Get video metadata for frame dimensions
   let metadata = video_processor
     .extract_metadata(&path)
     .await
-    .map_err(|e| format!("Failed to extract metadata: {}", e))?;
+    .map_err(|e| format!("Failed to extract metadata: {e}"))?;
 
   let frame_width = metadata.width as f32;
   let frame_height = metadata.height as f32;
@@ -92,9 +92,7 @@ pub async fn analyze_video_composition(
         Ok(enhanced) => enhanced_results.push(enhanced),
         Err(e) => {
           log::warn!(
-            "Composition analysis failed for frame at {}: {:?}",
-            timestamp,
-            e
+            "Composition analysis failed for frame at {timestamp}: {e:?}"
           );
         }
       }
@@ -165,7 +163,7 @@ pub async fn detect_key_moments(
   // Use the moment detector to detect moments
   let detected_moments = moment_detector
     .detect_moments(&montage_detections)
-    .map_err(|e| format!("Moment detection failed: {:?}", e))?;
+    .map_err(|e| format!("Moment detection failed: {e:?}"))?;
 
   Ok(detected_moments)
 }
@@ -183,7 +181,7 @@ pub async fn generate_montage_plan(
   // Use the plan generator to create an optimized montage plan
   let generated_plan = plan_generator
     .generate_plan(&moments, &config, &source_files)
-    .map_err(|e| format!("Plan generation failed: {:?}", e))?;
+    .map_err(|e| format!("Plan generation failed: {e:?}"))?;
 
   Ok(generated_plan)
 }

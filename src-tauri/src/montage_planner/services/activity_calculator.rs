@@ -137,7 +137,7 @@ impl ActivityCalculator {
     for (i, object) in detection.objects.iter().enumerate() {
       let object_id = object
         .tracking_id
-        .map(|id| format!("obj_{}", id))
+        .map(|id| format!("obj_{id}"))
         .unwrap_or_else(|| format!("obj_{}_{}", detection.timestamp as u64, i));
 
       let center_x = object.bbox.x + object.bbox.width / 2.0;
@@ -156,7 +156,7 @@ impl ActivityCalculator {
     for (i, face) in detection.faces.iter().enumerate() {
       let face_id = face
         .tracking_id
-        .map(|id| format!("face_{}", id))
+        .map(|id| format!("face_{id}"))
         .unwrap_or_else(|| format!("face_{}_{}", detection.timestamp as u64, i));
 
       let center_x = face.bbox.x + face.bbox.width / 2.0;
@@ -232,7 +232,7 @@ impl ActivityCalculator {
     // Calculate motion from tracking data
     for object in &detection.objects {
       if let Some(tracking_id) = object.tracking_id {
-        let object_id = format!("obj_{}", tracking_id);
+        let object_id = format!("obj_{tracking_id}");
         if let Some(tracking_data) = self.object_tracker.get(&object_id) {
           if let Some(&velocity) = tracking_data.velocities.last() {
             let weight = self
@@ -286,7 +286,7 @@ impl ActivityCalculator {
         }
       } else if let Some(tracking_id) = object.tracking_id {
         // Check tracked velocity
-        let object_id = format!("obj_{}", tracking_id);
+        let object_id = format!("obj_{tracking_id}");
         if let Some(tracking_data) = self.object_tracker.get(&object_id) {
           if let Some(&velocity) = tracking_data.velocities.last() {
             if velocity > self.config.motion_threshold {
