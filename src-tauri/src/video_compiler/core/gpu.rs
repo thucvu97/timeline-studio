@@ -1686,7 +1686,7 @@ if "%*" == "-encoders" (
 )
 exit /b 0"#;
       std::fs::write(&mock_ffmpeg, script).unwrap();
-      
+
       // Give the filesystem time to sync in CI environments
       std::thread::sleep(std::time::Duration::from_millis(100));
     }
