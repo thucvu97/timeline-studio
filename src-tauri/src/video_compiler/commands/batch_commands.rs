@@ -385,24 +385,34 @@ mod tests {
 
   /// Помощник для очистки состояния между тестами
   fn cleanup_jobs() {
-    // Try to clean up, but don't panic if mutex is poisoned or inaccessible
-    if let Ok(result) = std::panic::catch_unwind(|| {
-      if let Ok(mut jobs) = BATCH_JOBS.try_lock() {
+    // Try multiple times to acquire the lock
+    for attempt in 0..5 {
+      if let Ok(result) = std::panic::catch_unwind(|| {
+        if let Ok(mut jobs) = BATCH_JOBS.try_lock() {
+          jobs.clear();
+          true
+        } else {
+          false
+        }
+      }) {
+        if result {
+          return; // Successfully cleaned up
+        }
+      }
+
+      // Wait a bit before retrying
+      std::thread::sleep(std::time::Duration::from_millis(50 * (attempt + 1)));
+    }
+
+    // Last resort: try with blocking lock
+    if std::panic::catch_unwind(|| {
+      if let Ok(mut jobs) = BATCH_JOBS.lock() {
         jobs.clear();
-        true
-      } else {
-        // Mutex is locked or poisoned, skip cleanup
-        eprintln!("Warning: Could not acquire BATCH_JOBS lock for cleanup");
-        false
       }
-    }) {
-      if !result {
-        // If we couldn't clean up, wait a bit and continue
-        std::thread::sleep(std::time::Duration::from_millis(10));
-      }
+    }).is_ok() {
+      // Success
     } else {
-      // Panic occurred during cleanup, continue anyway
-      eprintln!("Warning: Panic occurred during batch jobs cleanup");
+      eprintln!("Warning: Could not acquire BATCH_JOBS lock for cleanup after multiple attempts");
     }
   }
 
@@ -540,6 +550,18 @@ mod tests {
   async fn test_list_batch_jobs() {
     cleanup_jobs();
 
+    // Verify cleanup worked
+    let initial_jobs = list_batch_jobs(None).await.unwrap();
+    if !initial_jobs.is_empty() {
+      eprintln!(
+        "Warning: Found {} existing jobs after cleanup, cleaning again...",
+        initial_jobs.len()
+      );
+      cleanup_jobs();
+      // Give it a moment to settle
+      tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
+    }
+
     // Создаем несколько заданий
     for i in 0..3 {
       let params = CreateBatchJobParams {
@@ -554,11 +576,16 @@ mod tests {
 
     // Получаем список без лимита
     let jobs = list_batch_jobs(None).await.unwrap();
-    assert_eq!(jobs.len(), 3);
+    assert_eq!(jobs.len(), 3, "Expected 3 jobs, found {}", jobs.len());
 
     // Получаем список с лимитом
     let limited_jobs = list_batch_jobs(Some(2)).await.unwrap();
-    assert_eq!(limited_jobs.len(), 2);
+    assert_eq!(
+      limited_jobs.len(),
+      2,
+      "Expected 2 limited jobs, found {}",
+      limited_jobs.len()
+    );
   }
 
   #[tokio::test]
