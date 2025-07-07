@@ -33,37 +33,85 @@ fn cleanup_test_binaries() {
   use std::fs;
   use std::path::Path;
 
+  println!("🧹 Starting test binary cleanup in CI environment...");
+
   // List of test binaries to remove before bundling
   let test_binaries = [
     "test_specta",
     "test_specta.exe", // Windows
   ];
 
-  // Check common target directories
+  // Get current directory and check both relative and absolute paths
+  let current_dir = std::env::current_dir().unwrap_or_else(|_| Path::new(".").to_path_buf());
+  println!("📁 Current directory: {current_dir:?}");
+
+  // Check target directories (both relative and absolute paths)
   let target_dirs = [
     "target/debug",
-    "target/release",
+    "target/release", 
     "target/universal-apple-darwin/debug",
     "target/universal-apple-darwin/release",
     "target/x86_64-apple-darwin/debug",
     "target/x86_64-apple-darwin/release",
     "target/aarch64-apple-darwin/debug",
     "target/aarch64-apple-darwin/release",
+    // Also check absolute paths in case working directory is different
+    &format!("{}/target/debug", current_dir.display()),
+    &format!("{}/target/release", current_dir.display()),
+    &format!("{}/target/universal-apple-darwin/debug", current_dir.display()),
+    &format!("{}/target/universal-apple-darwin/release", current_dir.display()),
   ];
+
+  let mut removed_count = 0;
 
   for target_dir in &target_dirs {
     let target_path = Path::new(target_dir);
     if target_path.exists() {
+      println!("📂 Checking directory: {target_path:?}");
       for binary in &test_binaries {
         let binary_path = target_path.join(binary);
         if binary_path.exists() {
           if let Err(e) = fs::remove_file(&binary_path) {
-            eprintln!("Warning: Failed to remove test binary {binary_path:?}: {e}");
+            eprintln!("⚠️  Warning: Failed to remove test binary {binary_path:?}: {e}");
           } else {
-            println!("Removed test binary: {binary_path:?}");
+            println!("🗑️  Removed test binary: {binary_path:?}");
+            removed_count += 1;
           }
         }
       }
     }
+  }
+
+  // Also try to clean Cargo cache if we're in CI
+  if std::env::var("CI").is_ok() {
+    println!("🧹 Cleaning Cargo target in CI environment...");
+    
+    // Try to remove any .d files that might reference test_specta
+    for target_dir in &target_dirs {
+      let target_path = Path::new(target_dir);
+      if target_path.exists() {
+        if let Ok(entries) = fs::read_dir(target_path) {
+          for entry in entries.flatten() {
+            let path = entry.path();
+            if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
+              if name.contains("test_specta") && (name.ends_with(".d") || name.ends_with(".pdb")) {
+                if let Err(e) = fs::remove_file(&path) {
+                  eprintln!("⚠️  Warning: Failed to remove cache file {path:?}: {e}");
+                } else {
+                  println!("🗑️  Removed cache file: {path:?}");
+                  removed_count += 1;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if removed_count == 0 {
+    println!("✅ No test binaries found to clean");
+  } else {
+    println!("✅ Cleaned up {removed_count} test-related files");
   }
 }
