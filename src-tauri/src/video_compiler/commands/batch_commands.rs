@@ -409,7 +409,9 @@ mod tests {
       if let Ok(mut jobs) = BATCH_JOBS.lock() {
         jobs.clear();
       }
-    }).is_ok() {
+    })
+    .is_ok()
+    {
       // Success
     } else {
       eprintln!("Warning: Could not acquire BATCH_JOBS lock for cleanup after multiple attempts");
