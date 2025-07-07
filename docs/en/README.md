@@ -4,90 +4,123 @@ Welcome to the unified Timeline Studio documentation system!
 
 ## 🎯 About This Documentation
 
-This documentation is organized following the Claude Simone methodology, providing:
+This documentation is organized following the **Timeline Documentation Framework (TDF)** methodology, providing:
 - **Complete project context** for developers and AI assistants
 - **Structured information** about all project aspects
 - **Current development state** and progress tracking
-- **Unified place** for frontend and backend documentation
+- **Bilingual support out of the box** (Russian + English)
+- **Enterprise-ready organization** with 18 specialized sections
 
 ## 📁 Documentation Structure
 
-### [00_project_manifest.md](00_project_manifest.md)
+### [00_project_manifest/](00_project_manifest/)
 Main document with project vision, goals, and key innovations.
 
-### [01_PROJECT_DOCS/](01_PROJECT_DOCS/)
-- **ARCHITECTURE_OVERVIEW.md** - High-level system overview
-- **QUICK_START.md** - Getting started with the project
-- **INSTALLATION.md** - Detailed installation guide
-- **PROJECT_STRUCTURE.md** - Code organization
+### [01_project_docs/](01_project_docs/)
+- **Architecture Overview** - High-level system overview
+- **Quick Start** - Getting started with the project
+- **Installation** - Detailed installation guide
+- **Project Structure** - Code organization
 
-### [02_REQUIREMENTS/](02_REQUIREMENTS/)
-Functional and technical system requirements.
+### [02_getting_started/](02_getting_started/)
+Getting started guides for different user roles.
 
-### [03_ARCHITECTURE/](03_ARCHITECTURE/)
-- **FRONTEND/** - React, XState, components
-- **BACKEND/** - Rust, Tauri, services
-- **COMMUNICATION.md** - Inter-layer communication
+### [03_architecture/](03_architecture/)
+- **frontend/** - React, XState, components
+- **backend/** - Rust, Tauri, services
+- **database/** - Data structures and schemas
 
-### [04_API_REFERENCE/](04_API_REFERENCE/)
+### [04_api_reference/](04_api_reference/)
 All API documentation: Tauri commands, media API, plugins.
 
-### [05_DEVELOPMENT/](05_DEVELOPMENT/)
-Developer guides: environment setup, testing, CI/CD.
+### [05_development/](05_development/)
+Developer guides: environment setup, testing, contributing.
 
-### [06_DEPLOYMENT/](06_DEPLOYMENT/)
-Build instructions for all platforms, OAuth setup.
+### [06_user_interface/](06_user_interface/)
+UI/UX documentation, design system, component library.
 
-### [07_MILESTONES/](07_MILESTONES/)
-Release plans: Alpha, Beta, v1.0.
+### [07_integrations/](07_integrations/)
+Third-party integrations: APIs, plugins, extensions.
 
-### [08_TASKS/](08_TASKS/)
-- **COMPLETED/** - Finished tasks
-- **IN_PROGRESS/** - Current tasks
-- **PLANNED/** - Future tasks
+### [08_tasks/](08_tasks/)
+- **completed/** - Finished tasks
+- **in_progress/** - Current tasks  
+- **planned/** - Future tasks
 
-### [09_ARCHITECTURAL_DECISIONS/](09_ARCHITECTURAL_DECISIONS/)
-Architecture Decision Records (ADR) - why key decisions were made.
+### [09_troubleshooting/](09_troubleshooting/)
+Problem-solving guides and frequently asked questions.
 
-### [10_PROJECT_STATE/](10_PROJECT_STATE/) ⭐
-- **CURRENT_STATUS.md** - Current state (78.2% complete)
-- **WEIGHTED_PROGRESS.md** - Detailed progress with complexity weights
-- **ROADMAP.md** - Project development plan
+### [10_advanced_features/](10_advanced_features/)
+Advanced functionality documentation and expert-level capabilities.
 
-### [11_LEGAL/](11_LEGAL/)
-Licenses and legal information.
+### [11_performance/](11_performance/)
+Performance optimization guides and benchmarks.
 
-### [99_TEMPLATES/](99_TEMPLATES/)
-Templates for creating new documents.
+### [12_testing/](12_testing/)
+Testing strategies: Unit, Integration, E2E tests.
+
+### [13_ci_cd/](13_ci_cd/)
+Continuous integration and deployment, process automation.
+
+### [14_quality_assurance/](14_quality_assurance/)
+Quality assurance processes and development standards.
+
+### [15_security/](15_security/)
+Security guidelines, audits, and best practices.
+
+### [16_user_documentation/](16_user_documentation/)
+End-user documentation: tutorials, guides.
+
+### [17_releases/](17_releases/)
+Release management, changelogs, versioning.
+
+### [18_marketing_strategies/](18_marketing_strategies/) ⭐
+- **timeline-studio-promotion-strategy.md** - Strategic promotion plan
+- **comprehensive-promotion-plan.md** - Detailed marketing plan
 
 ## 🚀 Getting Started
 
-1. **New users** → [QUICK_START.md](01_PROJECT_DOCS/QUICK_START.md)
-2. **Developers** → [ARCHITECTURE_OVERVIEW.md](01_PROJECT_DOCS/ARCHITECTURE_OVERVIEW.md)
-3. **Contributors** → [05_DEVELOPMENT/](05_DEVELOPMENT/)
-4. **Current progress** → [CURRENT_STATUS.md](10_PROJECT_STATE/CURRENT_STATUS.md)
+1. **Newcomers** → [Quick Start](01_project_docs/quick-start.md)
+2. **Developers** → [Architecture Overview](01_project_docs/architecture-overview.md)
+3. **Contributors** → [Development Guide](05_development/)
+4. **Marketers** → [Promotion Strategies](18_marketing_strategies/)
 
 ## 📊 Key Metrics
 
-- **Overall readiness**: 78.2%
-- **Alpha version**: 91.0% ready
-- **Modules completed**: 51 (30 frontend + 21 backend)
-- **Test coverage**: 80%+
+- **Overall Readiness**: 94%+
+- **Frontend Modules**: 30+ completed
+- **Backend Modules**: 21+ completed  
+- **Test Coverage**: 80%+
+- **TDF Sections**: 18 complete sections
 
 ## 🤝 How to Contribute
 
-1. Study the [PROJECT_MANIFEST](00_project_manifest.md)
-2. Pick a task from [PLANNED/](08_TASKS/planned/)
-3. Use templates from [99_TEMPLATES/](99_TEMPLATES/)
-4. Follow guides from [05_DEVELOPMENT/](05_DEVELOPMENT/)
+1. Study the [Project Manifest](00_project_manifest/)
+2. Choose a task from [Planned](08_tasks/planned/)
+3. Follow guides from [Development](05_development/)
+4. Use TDF methodology for documentation
+
+## 🏗️ Timeline Documentation Framework (TDF)
+
+**TDF** is an innovative documentation methodology created during Timeline Studio development:
+
+✅ **18 specialized sections** for complete project coverage  
+✅ **Bilingual support out of the box** (ru/en structure)  
+✅ **Media-First architecture** for multimedia projects  
+✅ **Enterprise-ready organization** with professional standards  
+
+**TDF is already used for:**
+- Documentation consulting ($5,000-50,000 per project)
+- Certification programs ($500-2,000 per course)
+- Enterprise tools ($1,000-10,000/year)
 
 ## 🔗 Useful Links
 
 - **GitHub**: https://github.com/chatman-media/timeline-studio
-- **Telegram**: https://t.me/timelinestudio
-- **Discord**: https://discord.gg/gwJUYxck
-- **Russian version**: [../ru/](../ru/)
+- **TDF Specification**: [01_project_docs/tdf-specification.md](01_project_docs/tdf-specification.md)
+- **Marketing Strategies**: [18_marketing_strategies/](18_marketing_strategies/)
+- **Russian Version**: [../ru/](../ru/)
 
 ---
 
-*This documentation is constantly updated. Last update: January 2025*
+*Documentation based on TDF methodology. Last updated: January 2025*

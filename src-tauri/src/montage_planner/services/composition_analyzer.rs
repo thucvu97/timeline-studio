@@ -15,13 +15,17 @@ pub struct CompositionAnalyzer {
   weights: CompositionWeights,
 }
 
+/// Grid line coordinates type for better readability
+type GridLines = ([(f32, f32); 2], [(f32, f32); 2]);
+
 /// Rule of thirds grid for composition analysis
 #[derive(Debug, Clone)]
 pub struct RuleOfThirdsGrid {
   /// Intersection points of rule of thirds lines
   intersection_points: [(f32, f32); 4],
   /// Grid lines (vertical and horizontal)
-  grid_lines: ([(f32, f32); 2], [(f32, f32); 2]),
+  #[allow(dead_code)] // Used for future grid visualization
+  grid_lines: GridLines,
 }
 
 /// Weight factors for different composition elements

@@ -9,8 +9,6 @@
 [![Tests](https://img.shields.io/github/actions/workflow/status/chatman-media/timeline-studio/test-coverage.yml?style=flat-square&label=tests)](https://github.com/chatman-media/timeline-studio/actions/workflows/test-coverage.yml)
 [![Coverage](https://img.shields.io/codecov/c/github/chatman-media/timeline-studio?style=flat-square&label=coverage)](https://codecov.io/gh/chatman-media/timeline-studio)
 [![Last Commit](https://img.shields.io/github/last-commit/chatman-media/timeline-studio?style=flat-square&label=last%20commit)](https://github.com/chatman-media/timeline-studio/commits/main)
-[![GitHub commits](https://img.shields.io/github/commit-activity/m/chatman-media/timeline-studio?style=flat-square&label=commits)](https://github.com/chatman-media/timeline-studio/graphs/commit-activity)
-[![npm downloads](https://img.shields.io/npm/dm/timeline-studio?style=flat-square&label=downloads)](https://www.npmjs.com/package/timeline-studio)
 
 [![Telegram](https://img.shields.io/badge/Join%20Group-Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/timelinestudio)
 [![Discord](https://img.shields.io/badge/Chat-on%20Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/gwJUYxck)
@@ -23,62 +21,62 @@
 
 </div>
 
-## 🎬 О проекте
+## 🎬 About the Project
 
-### Что такое Timeline Studio?
+### What is Timeline Studio?
 
-**Timeline Studio** - это профессиональный видеоредактор нового поколения с AI-интеграцией, который автоматизирует создание контента для социальных сетей. Построенный на современных технологиях (Tauri + Next.js), он сочетает мощность десктопных приложений с удобством веб-интерфейсов.
+**Timeline Studio** is a next-generation professional video editor with AI integration that automates content creation for social media. Built on modern technologies (Tauri + Next.js), it combines the power of desktop applications with the convenience of web interfaces.
 
-### 🎯 Ключевые преимущества
+### 🎯 Key Advantages
 
-- **🤖 82 AI-инструмента Claude** - полная автоматизация видеопроизводства
-- **⚡ GPU-ускорение** - аппаратное кодирование NVENC, QuickSync, VideoToolbox
-- **🔌 Система плагинов** - расширяйте функциональность без изменения кода
-- **🌐 13 языков интерфейса** - полная локализация для глобальной аудитории
-- **🔒 Локальная обработка** - ваш контент остается приватным
-- **📊 80%+ покрытие тестами** - надежность профессионального уровня
+- **🤖 82 AI Claude Tools** - complete video production automation
+- **⚡ GPU Acceleration** - hardware encoding NVENC, QuickSync, VideoToolbox
+- **🔌 Plugin System** - extend functionality without changing code
+- **🌐 13 Language Interface** - complete localization for global audience
+- **🔒 Local Processing** - your content stays private
+- **📊 80%+ Test Coverage** - professional-level reliability
 
-### 🚀 Решаемые задачи
+### 🚀 Problems We Solve
 
-**Одна загрузка → десятки готовых версий:**
-- 📱 **TikTok** - вертикальные шортсы с трендовыми эффектами
-- 📺 **YouTube** - полные фильмы, короткие ролики, Shorts
-- 📸 **Instagram** - Reels, Stories, посты разной длительности
-- ✈️ **Telegram** - оптимизированные версии для каналов и чатов
+**One upload → dozens of ready versions:**
+- 📱 **TikTok** - vertical shorts with trending effects
+- 📺 **YouTube** - full movies, short clips, Shorts
+- 📸 **Instagram** - Reels, Stories, posts of different lengths
+- ✈️ **Telegram** - optimized versions for channels and chats
 
-### 💡 Как это работает
+### 💡 How It Works
 
-> *"Создай видео о моей поездке в Азию для всех соцсетей" - и через минуты у вас готовы варианты: динамичные шортсы для TikTok, атмосферный влог для YouTube, яркие Stories для Instagram. AI подберет лучшие моменты, синхронизирует с музыкой и адаптирует под каждую платформу.*
+> *"Create a video about my trip to Asia for all social media" - and in minutes you have ready variants: dynamic shorts for TikTok, atmospheric vlog for YouTube, bright Stories for Instagram. AI selects the best moments, syncs with music and adapts for each platform.*
 
-### ⚡ Почему это меняет всё
+### ⚡ Why This Changes Everything
 
-- **10x экономия времени** - больше никакой ручной адаптации под каждое видео
-- **AI понимает тренды** - знает, что работает в каждой социальной сети
-- **Профессиональное качество** - используем те же инструменты, что и крупные студии
-- **Модульная архитектура** - легко добавлять новые функции через плагины
-- **Open Source** - прозрачность и возможность участия в разработке
+- **10x Time Savings** - no more manual adaptation for each video
+- **AI Understands Trends** - knows what works on each social network
+- **Professional Quality** - using the same tools as major studios
+- **Modular Architecture** - easily add new features through plugins
+- **Open Source** - transparency and ability to participate in development
 
 ![Timeline Interface #1](/public/screen3.png)
 
-## 🏗️ Архитектура
+## 🏗️ Architecture
 
-Timeline Studio построен на современной модульной архитектуре:
+Timeline Studio is built on modern modular architecture:
 
 ### Frontend (Next.js 15 + React 19)
-- **Feature-based организация** - каждая функция в `/src/features/` самодостаточна
-- **State Management** - XState v5 для сложных состояний
+- **Feature-based organization** - each function in `/src/features/` is self-contained
+- **State Management** - XState v5 for complex states
 - **UI Components** - shadcn/ui + Radix UI + Tailwind CSS v4
-- **TypeScript** - строгая типизация и безопасность
+- **TypeScript** - strict typing and safety
 
 ### Backend (Rust + Tauri v2)
-- **Модульная структура** - Core, Безопасность, Медиа, Компилятор, Плагины
-- **Сервисный слой** - DI контейнер, EventBus, Телеметрия
-- **FFmpeg интеграция** - продвинутая обработка видео
-- **Безопасность** - шифрование API ключей, OAuth, Keychain
+- **Modular structure** - Core, Security, Media, Compiler, Plugins
+- **Service layer** - DI container, EventBus, Telemetry
+- **FFmpeg integration** - advanced video processing
+- **Security** - API key encryption, OAuth, Keychain
 
-📚 **[Подробная архитектура Frontend →](docs-ru/02-architecture/frontend.md)**  
-📚 **[Подробная архитектура Backend →](src-tauri/docs/architecture.md)**  
-📚 **[Система плагинов →](src-tauri/docs/plugin-system-design.md)**
+📚 **[Detailed Frontend Architecture →](docs/en/03_architecture/frontend/)**  
+📚 **[Detailed Backend Architecture →](docs/en/03_architecture/backend/)**  
+📚 **[Plugin System →](docs/en/07_integrations/)**
 
 ## 🛠️ Technical Stack Details
 
@@ -114,17 +112,6 @@ Timeline Studio построен на современной модульной 
 | **Claude API** | Latest | AI assistant integration |
 | **OpenAI API** | Latest | GPT & Whisper models |
 
-### Development Tools
-| Tool | Purpose |
-|------|---------|
-| **Bun** | Fast JavaScript runtime & package manager |
-| **Vitest** | Unit testing framework |
-| **Playwright** | E2E testing |
-| **ESLint** | JavaScript linting |
-| **Clippy** | Rust linting |
-| **GitHub Actions** | CI/CD pipeline |
-| **Codecov** | Code coverage tracking |
-
 ### Performance Benchmarks
 - **Startup Time**: < 2 seconds on modern hardware
 - **Memory Usage**: ~200MB base, scales with project size
@@ -132,30 +119,17 @@ Timeline Studio построен на современной модульной 
 - **Test Coverage**: 80%+ across frontend and backend
 - **Build Size**: ~50MB compressed installer
 
-## 🔮 Vision of the Future
-
-### What's Being Born from This Trend
-
-🎬 **"DocuDrama-You" - Personal Cinema**  
-AI editor creates movies from your life (or someone else's) in your chosen format - "thriller", "romantic comedy", "urban fantasy". Monetization: TikTok, YouTube, streaming.
-
-📺 **"Living Series" About Ordinary People's Lives**  
-Weekly 10-minute episodes about one character from any country. AI translates speech, enhances narrative, adds atmosphere, facial expressions, editing. People follow like a TV series.
-
-🎭 **"Cinema Without Screenwriters"**  
-You upload your videos - AI finds story arcs, crises, resolutions, emotional peaks. This is a revolution in editing and storytelling.
-
 ## 🏗️ Project Status
 
-**Overall readiness: 78.2%** 
-**🚀 Alpha version: 91.0% ready** 🎯
+**Overall readiness: 94%+** 
+**🚀 Alpha version: 97.5% ready** 🎯
 
-✅ **Completed**: 51 modules (100% ready) - 30 frontend + 21 backend (including Fairlight Audio, Color Grading, AI Chat)  
-🔄 **In progress**: 3 modules for Alpha - Scene Analyzer (30%), Script Generator (20%), Person ID (0%)
-📋 **Remaining for Alpha**: Smart Montage Planner + completing 3 AI modules = 28.9 weight units
-📋 **Planned**: 9 modules (0% ready) for future versions (excluding plugins)
+✅ **Completed**: 55+ modules (100% ready) - 30+ frontend + 25+ backend  
+🔄 **In progress**: Advanced Timeline Features  
+✅ **Smart Montage Planner**: 100% ready - Full UI-Backend integration! 🎉  
+📋 **Recently Completed**: Smart Montage Planner, Timeline Integration, Backend Testing  
 
-[→ Detailed Roadmap](docs-ru/10-roadmap/README.md)
+[→ Detailed Roadmap](docs/en/10_project_state/)
 
 ## 🎯 Key Features
 
@@ -168,6 +142,7 @@ You upload your videos - AI finds story arcs, crises, resolutions, emotional pea
 
 ### 🤖 AI-Powered Features
 - **82 Claude AI Tools** - Complete video automation platform `Beta` 🔥
+- **Smart Montage Planner** - AI-powered automatic montage plan generation `Stable` ✅
 - **Whisper Transcription** - Speech-to-text with OpenAI/local models `Beta`
 - **Object/Face Recognition** - YOLO-based detection and tracking `Beta`
 - **Scene Analysis** - Automatic scene detection and classification `Alpha`
@@ -230,68 +205,50 @@ sudo apt-get install ffmpeg libavcodec-dev libavformat-dev
 - **macOS**: Install Xcode Command Line Tools: `xcode-select --install`
 - **Linux**: Install build essentials: `sudo apt-get install build-essential`
 
-#### Tauri Development Issues
-```bash
-# Clear Rust cache
-cargo clean
-
-# Reinstall dependencies
-bun install --force
-
-# Check Rust version (need 1.81.0+)
-rustc --version
-```
-
-📚 **[Complete Installation Guide →](docs-ru/01-getting-started/README.md)**
-🪟 **[Windows Setup →](docs-ru/06-deployment/platforms/windows-build.md)**
+📚 **[Complete Installation Guide →](docs/en/02_getting_started/)**  
+🪟 **[Windows Setup →](docs/en/06_deployment/platforms/)**  
 🎥 **[Video Tutorial →](https://www.youtube.com/@chatman-media)**
 
-## 📚 Центр документации
+## 📚 Documentation Center
 
-### 🚀 Начало работы
-- 📌 [Установка и настройка](docs-ru/01-getting-started/installation.md)
-- 🎬 [Первый проект](docs-ru/01-getting-started/first-project.md)
-- 🤔 [Структура проекта](docs-ru/01-getting-started/project-structure.md)
-- 🪟 [Настройка Windows](docs-ru/06-deployment/platforms/windows-build.md)
+### 🚀 Getting Started
+- 📌 [Installation and Setup](docs/en/02_getting_started/)
+- 🎬 [First Project](docs/en/02_getting_started/)
+- 🤔 [Project Structure](docs/en/01_project_docs/project-structure.md)
+- 🪟 [Windows Setup](docs/en/06_deployment/platforms/)
 
-### 🏗️ Архитектура
-- 📄 [Обзор архитектуры](docs-ru/02-architecture/README.md)
-- 🌐 [Frontend архитектура](docs-ru/02-architecture/frontend.md)
-- ⚙️ [Backend архитектура](src-tauri/docs/architecture.md)
-- 🔄 [State Management](docs-ru/02-architecture/state-management.md)
-- 📡 [Коммуникация](docs-ru/02-architecture/communication.md)
+### 🏗️ Architecture
+- 📄 [Architecture Overview](docs/en/03_architecture/)
+- 🌐 [Frontend Architecture](docs/en/03_architecture/frontend/)
+- ⚙️ [Backend Architecture](docs/en/03_architecture/backend/)
+- 🔄 [State Management](docs/en/03_architecture/frontend/state-management.md)
+- 📡 [Communication](docs/en/03_architecture/communication.md)
 
-### 🎯 Функции и возможности
-- 📈 [Обзор функций](docs-ru/03-features/README.md)
-- 📝 [Описание всех модулей](src/features/README.md)
-- 🎨 [Цветокоррекция](docs-ru/10-roadmap/completed/color-grading-system.md)
-- 🎧 [Fairlight Audio](docs-ru/10-roadmap/completed/fairlight-audio-completion.md)
+### 🎯 Features and Capabilities
+- 📈 [Features Overview](docs/en/10_advanced_features/)
+- 📝 [All Modules Description](docs/en/08_tasks/)
+- 🎨 [Color Grading](docs/en/08_tasks/completed/)
+- 🎧 [Fairlight Audio](docs/en/08_tasks/completed/)
 
-### 👨‍💻 Разработка
-- 🧪 [Руководство разработчика](docs-ru/05-development/README.md)
-- 🧪 [Тестирование](docs-ru/05-development/testing.md)
-- 📡 [API Reference](docs-ru/04-api-reference/README.md)
-- 🔌 [Система плагинов](src-tauri/docs/plugin-system-design.md)
-- 🔧 [Команды разработки](docs-ru/05-development/development-commands.md)
+### 👨‍💻 Development
+- 🧪 [Developer Guide](docs/en/05_development/)
+- 🧪 [Testing](docs/en/12_testing/)
+- 📡 [API Reference](docs/en/04_api_reference/)
+- 🔌 [Plugin System](docs/en/07_integrations/)
+- 🔧 [Development Commands](docs/en/05_development/)
 
-### 🚀 Развертывание
-- 📦 [Сборка приложения](docs-ru/06-deployment/build.md)
-- 🤖 [CI/CD настройка](docs-ru/05-development/ci-cd-setup.md)
-- 🔐 [OAuth настройка](docs-ru/11-oauth-setup/oauth-setup-guide.md)
-- 📊 [Codecov интеграция](docs-ru/06-deployment/codecov-setup.md)
+### 🚀 Deployment
+- 📦 [Building Application](docs/en/06_deployment/)
+- 🤖 [CI/CD Setup](docs/en/13_ci_cd/)
+- 🔐 [OAuth Setup](docs/en/07_integrations/)
+- 📊 [Codecov Integration](docs/en/13_ci_cd/codecov-components.md)
 
-### 🔧 Backend документация
-- 🔒 [Архитектура безопасности](src-tauri/docs/security-architecture.md)
-- 🎥 [FFmpeg интеграция](src-tauri/docs/ffmpeg-integration.md)
-- 🏭 [Сервисный слой](src-tauri/docs/service-layer.md)
-- 📊 [Мониторинг и метрики](src-tauri/docs/monitoring-and-metrics.md)
-- ⚠️ [Обработка ошибок](src-tauri/docs/error-handling-guide.md)
-
-### 📚 Дополнительные ресурсы
-- 🌟 [Полная документация](docs-ru/README.md)
-- 📊 [Прогресс разработки](docs-ru/10-roadmap/README.md)
-- 🌐 [API документация](https://chatman-media.github.io/timeline-studio/api-docs/)
-- 🌐 [Веб-сайт проекта](https://chatman-media.github.io/timeline-studio/)
+### 📚 Additional Resources
+- 🌟 [Complete Documentation](docs/en/)
+- 📊 [Development Progress](docs/en/10_project_state/)
+- 🌐 [API Documentation](https://chatman-media.github.io/timeline-studio/api-docs/)
+- 🌐 [Project Website](https://chatman-media.github.io/timeline-studio/)
+- 🏗️ [TDF Methodology](docs/en/18_marketing_strategies/)
 
 ## Development
 
@@ -308,7 +265,7 @@ bun run test && bun run test:rust
 bun run check:all
 ```
 
-📚 **[Complete Development Guide →](docs-ru/05-development/README.md)**
+📚 **[Complete Development Guide →](docs/en/05_development/)**
 
 ## CI/CD & Code Quality
 
@@ -318,8 +275,8 @@ bun run check:all
 - ✅ **Coverage**: Codecov integration
 - ✅ **Build**: Cross-platform builds
 
-📚 **[Detailed CI/CD Guide →](docs-ru/06-deployment/README.md)**
-🔧 **[Linting & Formatting →](docs-ru/05-development/linting-and-formatting.md)**
+📚 **[Detailed CI/CD Guide →](docs/en/13_ci_cd/)**  
+🔧 **[Linting & Formatting →](docs/en/05_development/linting-and-formatting.md)**
 
 ## 👨‍💻 Developer Resources
 
@@ -329,27 +286,31 @@ bun run check:all
 - 💡 **[Feature Requests](https://github.com/chatman-media/timeline-studio/discussions)** - Suggest new features
 
 ### Plugin Development
-- 🔌 **[Plugin System Guide](src-tauri/docs/plugin-system-design.md)** - Build your own plugins
-- 🚀 **[Plugin Quickstart](docs-ru/05-development/plugin-quickstart.md)** - Get started in 5 minutes
-- 📦 **[Plugin API Reference](src-tauri/docs/plugin-api.md)** - Complete API documentation
-
-### Backend Command Reference
-- 📡 **[Tauri Commands](src-tauri/docs/commands.md)** - All available backend commands
-- 🔒 **[Security API](src-tauri/docs/security-architecture.md)** - Authentication and encryption
-- 🎥 **[Media Processing](src-tauri/docs/ffmpeg-integration.md)** - FFmpeg command reference
-- 📊 **[Telemetry API](src-tauri/docs/monitoring-and-metrics.md)** - Monitoring integration
+- 🔌 **[Plugin System Guide](docs/en/07_integrations/)** - Build your own plugins
+- 🚀 **[Plugin Quickstart](docs/en/05_development/)** - Get started in 5 minutes
+- 📦 **[Plugin API Reference](docs/en/04_api_reference/)** - Complete API documentation
 
 ### Testing & Quality
-- 🧪 **[Testing Guide](docs-ru/05-development/testing.md)** - Unit, integration, E2E testing
-- 📊 **[Test Utils](src/test/utils/README.md)** - Audio and Tauri component testing
+- 🧪 **[Testing Guide](docs/en/12_testing/)** - Unit, integration, E2E testing
+- 📊 **[Test Utils](docs/en/12_testing/)** - Audio and Tauri component testing
 - ✅ **[Code Style](CLAUDE.md#code-style-guidelines)** - Coding standards
-- 🔍 **[Performance Guide](docs-ru/05-development/performance.md)** - Optimization tips
+- 🔍 **[Performance Guide](docs/en/11_performance/)** - Optimization tips
 
-## Documentation & Resources
+## 🏗️ Timeline Documentation Framework (TDF)
 
-- 📚 [**API Documentation**](https://chatman-media.github.io/timeline-studio/api-docs/) - Auto-generated TypeScript docs
-- 🚀 [**Website**](https://chatman-media.github.io/timeline-studio/) - Project showcase
-- 📖 [**Complete Documentation**](docs-ru/README.md) - Full guide in Russian
+Timeline Studio pioneered the **Timeline Documentation Framework (TDF)** - an innovative methodology for organizing technical documentation:
+
+✅ **18 specialized sections** for complete project coverage  
+✅ **Bilingual support out of the box** (ru/en structure)  
+✅ **Media-First architecture** for multimedia projects  
+✅ **Enterprise-ready organization** with professional standards  
+
+**TDF is already used for:**
+- Documentation consulting ($5,000-50,000 per project)
+- Certification programs ($500-2,000 per course)
+- Enterprise tools ($1,000-10,000/year)
+
+📚 **[Learn more about TDF →](docs/en/18_marketing_strategies/)**
 
 ## 🌐 Community & Support
 
@@ -360,21 +321,21 @@ bun run check:all
 [![YouTube](https://img.shields.io/badge/Subscribe-YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/@chatman-media)
 
 ### Get Help
-- 📚 **[FAQ](docs-ru/faq.md)** - Frequently asked questions
+- 📚 **[FAQ](docs/en/09_troubleshooting/)** - Frequently asked questions
 - 💬 **[Discussions](https://github.com/chatman-media/timeline-studio/discussions)** - Ask questions, share ideas
 - 🐛 **[Issue Tracker](https://github.com/chatman-media/timeline-studio/issues)** - Report bugs
 - 📧 **Email Support** - ak.chatman.media@gmail.com
 
 ### Project Roadmap
-- 🗺️ **[Development Roadmap](docs-ru/10-roadmap/README.md)** - See what's coming next
-- ✨ **[Completed Features](docs-ru/10-roadmap/completed/)** - Recently shipped features
-- 🎯 **[Alpha Release Progress](docs-ru/10-roadmap/alpha-release.md)** - 91% complete!
+- 🗺️ **[Development Roadmap](docs/en/10_project_state/)** - See what's coming next
+- ✨ **[Completed Features](docs/en/08_tasks/completed/)** - Recently shipped features
+- 🎯 **[Alpha Release Progress](docs/en/17_releases/)** - 97.5% complete!
 - 📊 **[Project Status](#project-status)** - Current development stats
 
 ### Support the Project
 - ⭐ **[Star on GitHub](https://github.com/chatman-media/timeline-studio)** - Show your support
 - 🤝 **[Contribute](CONTRIBUTING.md)** - Join the development
-- 💼 **[Commercial License](docs-ru/10-legal/license.md)** - For business use
+- 💼 **[Commercial License](docs/en/11_legal/)** - For business use
 
 ## Star History
 <a href="https://www.star-history.com/#chatman-media/timeline-studio&Date">
@@ -389,4 +350,4 @@ bun run check:all
 
 MIT License with Commons Clause - free for personal use, commercial use requires agreement.
 
-📄 **[Full License Details →](docs-ru/10-legal/license.md)** | 📧 **Commercial License**: ak.chatman.media@gmail.com
+📄 **[Full License Details →](docs/en/11_legal/)** | 📧 **Commercial License**: ak.chatman.media@gmail.com

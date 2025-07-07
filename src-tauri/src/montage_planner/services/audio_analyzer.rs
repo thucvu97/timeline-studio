@@ -11,6 +11,7 @@ use tokio::process::Command as AsyncCommand;
 /// Service for analyzing audio content
 pub struct AudioAnalyzer {
   /// Configuration for audio analysis
+  #[allow(dead_code)] // Used for future configuration-based analysis
   config: AudioAnalysisConfig,
 }
 
@@ -243,9 +244,7 @@ impl AudioAnalyzer {
     let total_silence_duration: f64 = silence_periods.iter().map(|p| p.duration).sum();
 
     let speech_duration = metadata.duration - total_silence_duration;
-    let speech_percentage = (speech_duration / metadata.duration * 100.0)
-      .max(0.0)
-      .min(100.0) as f32;
+    let speech_percentage = (speech_duration / metadata.duration * 100.0).clamp(0.0, 100.0) as f32;
 
     Ok(speech_percentage)
   }
@@ -381,7 +380,7 @@ impl AudioAnalyzer {
           if let Ok(lra) = lra_str.parse::<f32>() {
             // LRA (Loudness Range) is already a good measure of dynamic range
             // Convert to 0-100 scale
-            dynamic_range = (lra * 5.0).min(100.0).max(0.0);
+            dynamic_range = (lra * 5.0).clamp(0.0, 100.0);
             break;
           }
         }
@@ -405,7 +404,7 @@ impl AudioAnalyzer {
         silence_periods.iter().map(|p| p.noise_level).sum::<f32>() / silence_periods.len() as f32;
 
       // Convert dB to 0-100 scale
-      let noise_percentage = ((avg_noise + 60.0) / 60.0 * 100.0).max(0.0).min(100.0);
+      let noise_percentage = ((avg_noise + 60.0) / 60.0 * 100.0).clamp(0.0, 100.0);
       Ok(noise_percentage)
     } else {
       // No silence detected, estimate from overall energy
@@ -611,7 +610,7 @@ impl AudioAnalyzer {
     }
 
     // Convert dB to 0-100 scale (-60dB to 0dB range)
-    let energy = ((mean_volume + 60.0) / 60.0 * 100.0).max(0.0).min(100.0);
+    let energy = ((mean_volume + 60.0) / 60.0 * 100.0).clamp(0.0, 100.0);
     Ok(energy)
   }
 
@@ -761,6 +760,7 @@ impl AudioAnalyzer {
   }
 
   /// Extract raw audio segment for detailed analysis
+  #[allow(dead_code)] // Used for future advanced audio processing
   async fn extract_audio_segment<P: AsRef<Path>>(
     &self,
     audio_path: P,
@@ -890,7 +890,9 @@ struct SpectralStats {
 /// Detected silence period
 #[derive(Debug, Clone)]
 struct SilencePeriod {
+  #[allow(dead_code)] // Used for future timeline features
   pub start_time: f64,
+  #[allow(dead_code)] // Used for future timeline features
   pub end_time: f64,
   pub duration: f64,
   pub noise_level: f32,

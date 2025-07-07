@@ -3,17 +3,20 @@
  * Displays the generated montage plan with sequences and timeline visualization
  */
 
-import { Check, Layers, Sparkles, TrendingUp, X } from "lucide-react"
+import { Check, Layers, Sparkles, TrendingUp, Wand2, X } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useMediaFiles } from "@/features/app-state/hooks/use-media-files"
 import { formatTime } from "@/features/timeline/utils/utils"
 
 import { usePlanGenerator } from "../../hooks/use-plan-generator"
+import { useTimelineIntegration } from "../../hooks/use-timeline-integration"
 
 import type { MontagePlan, SequenceType } from "../../types"
 
@@ -23,6 +26,16 @@ interface PlanViewerProps {
 
 export function PlanViewer({ plan }: PlanViewerProps) {
   const { planStats, sequenceBreakdown, emotionalArc, transitionUsage, planValidation } = usePlanGenerator()
+  const { mediaFiles } = useMediaFiles()
+  const { applyPlanToTimeline, isApplying, error, canApplyPlan } = useTimelineIntegration()
+
+  const handleApplyToTimeline = async () => {
+    await applyPlanToTimeline(plan, mediaFiles, {
+      createNewSection: true,
+      sectionName: plan.name,
+      applyTransitions: true,
+    })
+  }
 
   const getSequenceColor = (type: SequenceType) => {
     const colors = {
@@ -48,9 +61,19 @@ export function PlanViewer({ plan }: PlanViewerProps) {
         <h3 className="text-lg font-semibold">Montage Plan: {plan.name}</h3>
         <div className="flex gap-2">
           <Badge variant="outline">{plan.sequences.length} sequences</Badge>
-          <Badge variant="outline">{formatTime(plan.totalDuration)}</Badge>
+          <Badge variant="outline">{formatTime(plan.total_duration)}</Badge>
+          <Button onClick={handleApplyToTimeline} disabled={!canApplyPlan(plan) || isApplying} className="gap-2">
+            <Wand2 className="h-4 w-4" />
+            {isApplying ? "Applying..." : "Apply to Timeline"}
+          </Button>
         </div>
       </div>
+
+      {error && (
+        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 text-sm text-destructive">
+          {error}
+        </div>
+      )}
 
       {/* Plan Scores */}
       <div className="grid gap-4 md:grid-cols-3">
@@ -120,7 +143,7 @@ export function PlanViewer({ plan }: PlanViewerProps) {
                   key={sequence.id}
                   className="relative group"
                   style={{
-                    width: `${(sequence.duration / plan.totalDuration) * 100}%`,
+                    width: `${(sequence.duration / plan.total_duration) * 100}%`,
                     minWidth: "60px",
                   }}
                 >

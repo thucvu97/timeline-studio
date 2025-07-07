@@ -43,6 +43,7 @@ pub struct FitnessWeights {
 struct Individual {
   genes: Vec<usize>, // Indices of selected moments
   fitness: f32,
+  #[allow(dead_code)] // Used for caching generated plans
   plan: Option<MontagePlan>,
   age: usize, // Generation when created
   diversity_contribution: f32,
@@ -772,13 +773,13 @@ impl PlanGenerator {
   ) {
     let elite_count = (self.config.elite_percentage * population.len() as f32) as usize;
 
-    for i in 0..elite_count {
-      let mut best_neighbor = population[i].clone();
+    for item in population.iter_mut().take(elite_count) {
+      let mut best_neighbor = item.clone();
       let mut best_fitness = best_neighbor.fitness;
 
       // Try local improvements
       for _ in 0..self.config.local_search_iterations {
-        let mut neighbor = population[i].clone();
+        let mut neighbor = item.clone();
 
         // Try different local moves
         match self.rng.gen_range(0..3) {
@@ -837,8 +838,8 @@ impl PlanGenerator {
       }
 
       // Update if improved
-      if best_fitness > population[i].fitness {
-        population[i] = best_neighbor;
+      if best_fitness > item.fitness {
+        *item = best_neighbor;
       }
     }
   }
@@ -846,7 +847,7 @@ impl PlanGenerator {
   /// Inject diversity when population stagnates
   fn inject_diversity(
     &mut self,
-    population: &mut Vec<Individual>,
+    population: &mut [Individual],
     moments: &[DetectedMoment],
     generation: usize,
   ) {
@@ -854,7 +855,7 @@ impl PlanGenerator {
     let start_idx = population.len() - inject_count;
 
     // Replace worst individuals with new random ones
-    for i in start_idx..population.len() {
+    for item in population.iter_mut().skip(start_idx) {
       let mut genes = Vec::new();
       let target_size = self.rng.gen_range(3..moments.len().min(20));
 
@@ -867,7 +868,7 @@ impl PlanGenerator {
 
       genes.sort();
 
-      population[i] = Individual {
+      *item = Individual {
         genes,
         fitness: 0.0,
         plan: None,

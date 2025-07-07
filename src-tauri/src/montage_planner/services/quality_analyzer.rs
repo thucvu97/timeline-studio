@@ -11,6 +11,7 @@ use tokio::process::Command as AsyncCommand;
 /// Service for analyzing video quality
 pub struct VideoQualityAnalyzer {
   /// Configuration for quality analysis
+  #[allow(dead_code)] // Used for future configuration-based analysis
   config: QualityAnalysisConfig,
 }
 
@@ -165,7 +166,7 @@ impl VideoQualityAnalyzer {
     score += (100.0 - video_quality.noise_level) * 0.10;
     score += video_quality.dynamic_range * 0.05;
 
-    score.min(100.0).max(0.0)
+    score.clamp(0.0, 100.0)
   }
 
   /// Normalize brightness score (penalize over/under exposure)
@@ -562,7 +563,7 @@ impl VideoQualityAnalyzer {
             let luma_str = &stats_part[luma_match + 7..];
             if let Some(luma_end) = luma_str.find(' ') {
               if let Ok(luma) = luma_str[..luma_end].parse::<f32>() {
-                brightness = (luma / 255.0 * 100.0).max(0.0).min(100.0);
+                brightness = (luma / 255.0 * 100.0).clamp(0.0, 100.0);
               }
             }
           }
@@ -572,7 +573,7 @@ impl VideoQualityAnalyzer {
             let std_str = &stats_part[std_match + 8..];
             if let Some(std_end) = std_str.find(' ') {
               if let Ok(std_dev) = std_str[..std_end].parse::<f32>() {
-                contrast = (std_dev / 64.0 * 100.0).max(0.0).min(100.0);
+                contrast = (std_dev / 64.0 * 100.0).clamp(0.0, 100.0);
               }
             }
           }
@@ -617,7 +618,7 @@ impl VideoQualityAnalyzer {
       1.0
     };
 
-    (sharpness_base * brightness_factor).min(100.0).max(0.0)
+    (sharpness_base * brightness_factor).clamp(0.0, 100.0)
   }
 
   /// Estimate noise level based on contrast variation

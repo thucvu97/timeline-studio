@@ -29,6 +29,7 @@ struct ObjectTrackingData {
   positions: Vec<(f64, f32, f32)>, // (timestamp, x, y)
   velocities: Vec<f32>,
   last_seen: f64,
+  #[allow(dead_code)] // Used for debugging and future filtering
   object_class: String,
 }
 

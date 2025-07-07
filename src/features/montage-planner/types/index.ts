@@ -597,6 +597,101 @@ export interface PlanStatistics {
   }
 }
 
+// Backend-specific types for Tauri commands
+export interface MontageAnalysisConfig {
+  sample_rate?: number
+  quality_threshold?: number
+  enable_object_detection?: boolean
+  enable_face_detection?: boolean
+  enable_motion_analysis?: boolean
+}
+
+export interface VideoCompositionAnalysis {
+  quality_score: number
+  motion_level: number
+  faces_detected: number
+  objects_detected: Array<{
+    class_id: number
+    confidence: number
+    bbox: [number, number, number, number]
+  }>
+  moments?: MomentScore[]
+  frame_analysis: {
+    sharpness: number
+    brightness: number
+    contrast: number
+    saturation: number
+  }
+}
+
+export interface MontageQualityAnalysis {
+  quality_score: number
+  technical_score: number
+  visual_score: number
+  resolution: { width: number; height: number }
+  frame_rate: number
+  bitrate: number
+  codec: string
+  issues: string[]
+}
+
+export interface MontageVideoAnalysis {
+  timestamp: number
+  quality_metrics: {
+    sharpness: number
+    brightness: number
+    contrast: number
+    saturation: number
+    noise_level: number
+  }
+  composition_score: number
+  technical_score: number
+}
+
+export interface AudioContentAnalysis {
+  duration: number
+  sample_rate: number
+  channels: number
+  peak_amplitude: number
+  rms_level: number
+  silence_percentage: number
+  speech_presence: number
+  music_presence: number
+  tempo?: number
+  key?: string
+  emotional_tone: EmotionalTone
+}
+
+export interface PlanGeneratorConfig {
+  style: { name: string }
+  target_duration: number
+  max_clips: number
+  quality_threshold: number
+  use_audio_sync: boolean
+  genetic_algorithm: {
+    population_size: number
+    generations: number
+    mutation_rate: number
+    crossover_rate: number
+  }
+}
+
+export interface MomentDetectorConfig {
+  threshold: number
+  min_duration: number
+  max_duration: number
+  categories: MomentCategory[]
+}
+
+export interface MontageClipAdjustments {
+  speed_multiplier?: number
+  color_correction?: boolean
+  stabilization?: boolean
+  crop?: { x: number; y: number; width: number; height: number }
+  fade_in?: number
+  fade_out?: number
+}
+
 // Export formats
 export interface ExportOptions {
   format: ExportFormat
