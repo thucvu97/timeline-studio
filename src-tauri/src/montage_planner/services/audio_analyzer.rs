@@ -209,7 +209,7 @@ impl AudioAnalyzer {
     let spectral_stats = self
       .analyze_spectral_content(path.as_ref())
       .await
-      .map_err(|e| MontageError::AudioAnalysisError(format!("Spectral analysis failed: {}", e)))?;
+      .map_err(|e| MontageError::AudioAnalysisError(format!("Spectral analysis failed: {e}")))?;
 
     // Simple heuristic based on spectral characteristics
     if spectral_stats.speech_likelihood > 0.7 {
@@ -233,11 +233,11 @@ impl AudioAnalyzer {
     let silence_periods = self
       .detect_silence_periods(audio_path)
       .await
-      .map_err(|e| MontageError::AudioAnalysisError(format!("Silence detection failed: {}", e)))?;
+      .map_err(|e| MontageError::AudioAnalysisError(format!("Silence detection failed: {e}")))?;
 
     // Get total duration
     let metadata = self.extract_audio_metadata(audio_path).await.map_err(|e| {
-      MontageError::AudioAnalysisError(format!("Metadata extraction failed: {}", e))
+      MontageError::AudioAnalysisError(format!("Metadata extraction failed: {e}"))
     })?;
 
     // Calculate speech presence based on non-silent periods
@@ -254,10 +254,10 @@ impl AudioAnalyzer {
     let spectral_stats = self
       .analyze_spectral_content(path.as_ref())
       .await
-      .map_err(|e| MontageError::AudioAnalysisError(format!("Spectral analysis failed: {}", e)))?;
+      .map_err(|e| MontageError::AudioAnalysisError(format!("Spectral analysis failed: {e}")))?;
 
     // Music detection based on harmonic content and rhythm
-    let music_score = (spectral_stats.music_likelihood * 100.0).min(100.0) as f32;
+    let music_score = (spectral_stats.music_likelihood * 100.0).min(100.0);
     Ok(music_score)
   }
 
@@ -269,12 +269,12 @@ impl AudioAnalyzer {
     let energy = self
       .calculate_energy_level_ffmpeg(path.as_ref())
       .await
-      .map_err(|e| MontageError::AudioAnalysisError(format!("Energy calculation failed: {}", e)))?;
+      .map_err(|e| MontageError::AudioAnalysisError(format!("Energy calculation failed: {e}")))?;
 
     let spectral_stats = self
       .analyze_spectral_content(path.as_ref())
       .await
-      .map_err(|e| MontageError::AudioAnalysisError(format!("Spectral analysis failed: {}", e)))?;
+      .map_err(|e| MontageError::AudioAnalysisError(format!("Spectral analysis failed: {e}")))?;
 
     // Simple emotion heuristics based on audio features
     if energy > 80.0 && spectral_stats.mean_frequency > 2000.0 {
@@ -295,7 +295,7 @@ impl AudioAnalyzer {
     let tempo = self
       .detect_tempo_ffmpeg(path.as_ref())
       .await
-      .map_err(|e| MontageError::AudioAnalysisError(format!("Tempo detection failed: {}", e)))?;
+      .map_err(|e| MontageError::AudioAnalysisError(format!("Tempo detection failed: {e}")))?;
 
     Ok(tempo)
   }
@@ -306,7 +306,7 @@ impl AudioAnalyzer {
     let tempo_opt = self
       .detect_tempo_ffmpeg(path.as_ref())
       .await
-      .map_err(|e| MontageError::AudioAnalysisError(format!("Tempo detection failed: {}", e)))?;
+      .map_err(|e| MontageError::AudioAnalysisError(format!("Tempo detection failed: {e}")))?;
 
     if let Some(tempo) = tempo_opt {
       // Get audio duration
@@ -314,7 +314,7 @@ impl AudioAnalyzer {
         .extract_audio_metadata(path.as_ref())
         .await
         .map_err(|e| {
-          MontageError::AudioAnalysisError(format!("Metadata extraction failed: {}", e))
+          MontageError::AudioAnalysisError(format!("Metadata extraction failed: {e}"))
         })?;
 
       // Generate beat markers based on tempo
@@ -339,7 +339,7 @@ impl AudioAnalyzer {
     let energy = self
       .calculate_energy_level_ffmpeg(path.as_ref())
       .await
-      .map_err(|e| MontageError::AudioAnalysisError(format!("Energy calculation failed: {}", e)))?;
+      .map_err(|e| MontageError::AudioAnalysisError(format!("Energy calculation failed: {e}")))?;
 
     Ok(energy)
   }
@@ -363,7 +363,7 @@ impl AudioAnalyzer {
       ])
       .output()
       .await
-      .map_err(|e| MontageError::AudioAnalysisError(format!("FFmpeg failed: {}", e)))?;
+      .map_err(|e| MontageError::AudioAnalysisError(format!("FFmpeg failed: {e}")))?;
 
     let stderr = String::from_utf8_lossy(&output.stderr);
 
@@ -395,7 +395,7 @@ impl AudioAnalyzer {
     let silence_periods = self
       .detect_silence_periods(path.as_ref())
       .await
-      .map_err(|e| MontageError::AudioAnalysisError(format!("Silence detection failed: {}", e)))?;
+      .map_err(|e| MontageError::AudioAnalysisError(format!("Silence detection failed: {e}")))?;
 
     // Analyze noise floor from quiet periods
     if !silence_periods.is_empty() {
