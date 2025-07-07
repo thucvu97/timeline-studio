@@ -1,5 +1,5 @@
 #[cfg(test)]
-mod activity_calculator_deep_tests {
+mod tests {
   use crate::montage_planner::services::{
     activity_calculator::ActivityCalculationConfig, ActivityCalculator,
   };
@@ -183,7 +183,7 @@ mod activity_calculator_deep_tests {
 
     // Создаем разные уровни активности путем изменения количества движущихся объектов
     // и интенсивности их движения
-    let patterns = vec![
+    let patterns = [
       (1, 20.0), // Низкая активность
       (3, 40.0), // Средняя
       (5, 80.0), // Высокая
@@ -444,11 +444,11 @@ mod activity_calculator_deep_tests {
     let mut calculator = ActivityCalculator::new();
 
     // Симуляция экшн-сцены
-    let timestamps = vec![0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5];
-    let intensities = vec![
+    let timestamps = [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5];
+    let intensities = [
       20.0, 25.0, 150.0, 280.0, 320.0, 290.0, 250.0, 180.0, 100.0, 40.0,
     ];
-    let object_counts = vec![2, 3, 5, 8, 10, 9, 7, 5, 3, 2];
+    let object_counts = [2, 3, 5, 8, 10, 9, 7, 5, 3, 2];
 
     let mut peak_activity = 0.0;
 
@@ -599,7 +599,7 @@ mod activity_calculator_deep_tests {
     let mut detection = create_test_detection(0.0, 50.0, 0);
 
     // Разные классы объектов
-    let classes = vec!["person", "car", "bicycle", "dog", "truck", "bird"];
+    let classes = ["person", "car", "bicycle", "dog", "truck", "bird"];
     for (i, class) in classes.iter().enumerate() {
       detection.objects.push(ObjectDetection {
         class: class.to_string(),
@@ -630,7 +630,7 @@ mod activity_calculator_deep_tests {
     // Объекты с разной уверенностью
     let mut detection = create_test_detection(0.0, 30.0, 0);
 
-    let confidences = vec![0.99, 0.51, 0.95, 0.6, 0.88];
+    let confidences = [0.99, 0.51, 0.95, 0.6, 0.88];
     for (i, conf) in confidences.iter().enumerate() {
       detection.objects.push(ObjectDetection {
         class: "person".to_string(),

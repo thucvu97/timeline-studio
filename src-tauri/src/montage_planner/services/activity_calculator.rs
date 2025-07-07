@@ -12,6 +12,8 @@ pub struct ActivityCalculator {
   config: ActivityCalculationConfig,
   /// Tracking data for objects across frames
   object_tracker: HashMap<String, ObjectTrackingData>,
+  /// Recent activity history for trend analysis
+  activity_history: Vec<(f64, f32)>, // (timestamp, activity_level)
 }
 
 /// Configuration for activity calculation
@@ -83,6 +85,7 @@ impl ActivityCalculator {
     Self {
       config: ActivityCalculationConfig::default(),
       object_tracker: HashMap::new(),
+      activity_history: Vec::new(),
     }
   }
 
@@ -91,6 +94,7 @@ impl ActivityCalculator {
     Self {
       config,
       object_tracker: HashMap::new(),
+      activity_history: Vec::new(),
     }
   }
 
@@ -119,6 +123,16 @@ impl ActivityCalculator {
       moving_objects,
       scene_dynamics,
     );
+
+    // Store in activity history
+    self
+      .activity_history
+      .push((detection.timestamp, overall_activity));
+
+    // Keep only recent history (last 100 entries)
+    if self.activity_history.len() > 100 {
+      self.activity_history.remove(0);
+    }
 
     ActivityMetrics {
       timestamp: detection.timestamp,
@@ -511,15 +525,20 @@ impl ActivityCalculator {
   }
 
   /// Get activity trend over time
-  pub fn get_activity_trend(&self, _window_size: usize) -> Vec<f32> {
-    // TODO: Implement activity trend calculation
-    // This would track activity levels over a sliding window
-    Vec::new()
+  pub fn get_activity_trend(&self, window_size: usize) -> Vec<f32> {
+    // Return the last window_size activity levels
+    let start_idx = self.activity_history.len().saturating_sub(window_size);
+
+    self.activity_history[start_idx..]
+      .iter()
+      .map(|(_, activity)| *activity)
+      .collect()
   }
 
   /// Reset tracking data
   pub fn reset_tracking(&mut self) {
     self.object_tracker.clear();
+    self.activity_history.clear();
   }
 }
 

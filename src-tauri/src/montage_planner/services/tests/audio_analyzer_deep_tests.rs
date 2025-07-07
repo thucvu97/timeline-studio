@@ -1,5 +1,5 @@
 #[cfg(test)]
-mod audio_analyzer_deep_tests {
+mod tests {
   use crate::montage_planner::services::AudioAnalyzer;
   use crate::montage_planner::types::*;
   use std::fs;
@@ -102,8 +102,8 @@ mod audio_analyzer_deep_tests {
     let beat_interval = 60.0 / tempo;
     let expected_beats = (duration / beat_interval) as usize;
 
-    let mut beats = vec![];
-    let mut current_time = 0.0;
+    let mut beats: Vec<f64> = vec![];
+    let mut current_time = 0.0_f64;
     while current_time < duration {
       beats.push(current_time);
       current_time += beat_interval;
@@ -111,7 +111,8 @@ mod audio_analyzer_deep_tests {
 
     // Проверяем правильность расчета
     assert_eq!(beats.len(), expected_beats);
-    assert!(((beats[1] - beats[0] - beat_interval) as f64).abs() < 0.001_f64);
+    let diff = (beats[1] - beats[0] - beat_interval).abs();
+    assert!(diff < 0.001);
   }
 
   #[tokio::test]
@@ -342,11 +343,11 @@ mod audio_analyzer_deep_tests {
       let deserialized: AudioContentType = serde_json::from_str(&serialized).unwrap();
 
       match (content_type, deserialized) {
-        (AudioContentType::Speech, AudioContentType::Speech) => assert!(true),
-        (AudioContentType::Music, AudioContentType::Music) => assert!(true),
-        (AudioContentType::Ambient, AudioContentType::Ambient) => assert!(true),
-        (AudioContentType::Mixed, AudioContentType::Mixed) => assert!(true),
-        (AudioContentType::Silence, AudioContentType::Silence) => assert!(true),
+        (AudioContentType::Speech, AudioContentType::Speech) => {}
+        (AudioContentType::Music, AudioContentType::Music) => {}
+        (AudioContentType::Ambient, AudioContentType::Ambient) => {}
+        (AudioContentType::Mixed, AudioContentType::Mixed) => {}
+        (AudioContentType::Silence, AudioContentType::Silence) => {}
         _ => panic!("Serialization mismatch"),
       }
     }
@@ -355,7 +356,7 @@ mod audio_analyzer_deep_tests {
   #[test]
   fn test_emotional_tone_variety() {
     // Проверяем, что у нас есть разнообразие эмоциональных тонов
-    let tones = vec![
+    let tones = [
       EmotionalTone::Neutral,
       EmotionalTone::Happy,
       EmotionalTone::Sad,

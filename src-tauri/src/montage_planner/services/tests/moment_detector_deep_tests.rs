@@ -1,5 +1,5 @@
 #[cfg(test)]
-mod moment_detector_deep_tests {
+mod tests {
   use crate::montage_planner::services::MomentDetector;
   use crate::montage_planner::types::*;
 
@@ -142,11 +142,8 @@ mod moment_detector_deep_tests {
 
     // Проверяем, что эмоциональные тоны влияют на scores
     for moment in moments {
-      match moment.category {
-        MomentCategory::Drama => {
-          assert!(moment.scores.emotional >= 30.0);
-        }
-        _ => {}
+      if moment.category == MomentCategory::Drama {
+        assert!(moment.scores.emotional >= 30.0);
       }
     }
   }
