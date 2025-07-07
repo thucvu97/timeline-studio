@@ -58,12 +58,9 @@ fn cleanup_test_binaries() {
         let binary_path = target_path.join(binary);
         if binary_path.exists() {
           if let Err(e) = fs::remove_file(&binary_path) {
-            eprintln!(
-              "Warning: Failed to remove test binary {:?}: {}",
-              binary_path, e
-            );
+            eprintln!("Warning: Failed to remove test binary {binary_path:?}: {e}");
           } else {
-            println!("Removed test binary: {:?}", binary_path);
+            println!("Removed test binary: {binary_path:?}");
           }
         }
       }
