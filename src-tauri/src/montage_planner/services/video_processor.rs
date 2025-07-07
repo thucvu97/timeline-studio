@@ -44,10 +44,15 @@ impl VideoProcessor {
 
   /// Extract video metadata using FFmpeg
   pub async fn extract_metadata<P: AsRef<Path>>(&self, video_path: P) -> Result<VideoMetadata> {
-    let _path = video_path.as_ref();
+    let path = video_path.as_ref();
+
+    // Check if file exists first
+    if !path.exists() {
+      return Err(anyhow::anyhow!("Video file not found: {}", path.display()));
+    }
 
     // TODO: Implement actual FFmpeg metadata extraction
-    // For now, return mock data
+    // For now, return mock data for existing files
     Ok(VideoMetadata {
       duration: 120.0, // 2 minutes
       width: 1920,
@@ -235,50 +240,5 @@ impl VideoProcessor {
     }
 
     Ok(())
-  }
-}
-
-#[cfg(test)]
-mod tests {
-  use super::*;
-  use crate::recognition::commands::yolo_commands::YoloProcessorState;
-
-  #[tokio::test]
-  async fn test_video_metadata_extraction() {
-    let yolo_state = Arc::new(RwLock::new(YoloProcessorState::default()));
-    let processor = VideoProcessor::new(yolo_state);
-
-    // Test with mock video path
-    let result = processor.extract_metadata("/path/to/test.mp4").await;
-    assert!(result.is_ok());
-
-    let metadata = result.unwrap();
-    assert_eq!(metadata.width, 1920);
-    assert_eq!(metadata.height, 1080);
-    assert!(metadata.duration > 0.0);
-  }
-
-  #[tokio::test]
-  async fn test_frame_extraction() {
-    let yolo_state = Arc::new(RwLock::new(YoloProcessorState::default()));
-    let processor = VideoProcessor::new(yolo_state);
-
-    let frames = processor
-      .extract_frames(
-        "/path/to/test.mp4",
-        1.0, // 1 FPS
-        Some(0.0),
-        Some(10.0),
-      )
-      .await
-      .unwrap();
-
-    // Should extract roughly 10 frames for 10 seconds at 1 FPS
-    assert!(frames.len() >= 9 && frames.len() <= 11);
-
-    // Check timestamps are sequential
-    for i in 1..frames.len() {
-      assert!(frames[i].timestamp > frames[i - 1].timestamp);
-    }
   }
 }

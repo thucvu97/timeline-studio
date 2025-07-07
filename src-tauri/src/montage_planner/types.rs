@@ -190,7 +190,7 @@ pub struct MontageConfig {
 }
 
 /// Montage style presets
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum MontageStyle {
   DynamicAction,
   CinematicDrama,
@@ -301,6 +301,42 @@ pub struct AnalysisOptions {
   pub frame_sample_rate: f32,     // frames per second to analyze
   pub quality_threshold: f32,     // minimum quality for inclusion
   pub max_moments: Option<usize>, // limit number of detected moments
+  pub frame_sampling_rate: f32,   // frames per second sampling rate
+}
+
+/// Video quality analysis result
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VideoQualityResult {
+  pub overall_score: f32,
+  pub sharpness: f32,
+  pub noise_level: f32,
+  pub color_accuracy: f32,
+  pub stability: f32,
+  pub exposure: f32,
+  pub contrast: f32,
+  pub saturation: f32,
+  pub resolution_score: f32,
+  pub frame_rate_consistency: f32,
+}
+
+/// Video metadata information
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VideoMetadata {
+  pub duration: f64,
+  pub width: u32,
+  pub height: u32,
+  pub fps: f32,
+  pub total_frames: u64,
+}
+
+/// Extracted frame information
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ExtractedFrame {
+  pub timestamp: f64,
+  pub frame_number: u64,
+  pub image_path: String,
+  pub width: u32,
+  pub height: u32,
 }
 
 /// Progress information for long-running operations

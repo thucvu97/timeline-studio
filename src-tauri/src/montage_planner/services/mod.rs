@@ -11,6 +11,9 @@ pub mod plan_generator;
 pub mod quality_analyzer;
 pub mod video_processor;
 
+#[cfg(test)]
+pub mod tests;
+
 // Re-export main services
 pub use activity_calculator::ActivityCalculator;
 pub use audio_analyzer::AudioAnalyzer;
