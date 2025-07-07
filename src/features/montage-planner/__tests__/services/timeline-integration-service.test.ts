@@ -223,7 +223,7 @@ describe("TimelineIntegrationService", () => {
       expect(clip?.metadata?.montageMetadata).toBeDefined()
       expect(clip?.metadata?.montageMetadata?.momentCategory).toBe(MomentCategory.Action)
       expect(clip?.metadata?.montageMetadata?.momentScore).toBe(85)
-      expect(clip?.metadata?.montageMetadata?.emotionalTone).toBe(EmotionalTone.Exciting)
+      expect(clip?.metadata?.montageMetadata?.emotionalTone).toBe(EmotionalTone.Energetic)
     })
   })
 
@@ -267,7 +267,7 @@ describe("TimelineIntegrationService", () => {
         moment: {
           ...mockPlan.clips[0].moment,
           id: "moment2",
-          total_score: 50, // Below 80 threshold
+          totalScore: 50, // Below 80 threshold
         },
       })
 

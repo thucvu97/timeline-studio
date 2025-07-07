@@ -23,7 +23,7 @@ vi.mock("@tauri-apps/plugin-os", () => ({
 // Mock Tauri app API
 vi.mock("@tauri-apps/api/app", () => ({
   getName: vi.fn().mockResolvedValue("Timeline Studio"),
-  getVersion: vi.fn().mockResolvedValue("0.26.0"),
+  getVersion: vi.fn().mockResolvedValue("0.30.0"),
   getTauriVersion: vi.fn().mockResolvedValue("2.0.0"),
 }))
 

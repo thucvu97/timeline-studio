@@ -69,23 +69,23 @@ export function applyPlanToTimeline(
 
   if (createNewSection) {
     // Создаем новую секцию для монтажного плана
-    targetSection = createTimelineSection({
-      name: sectionName,
-      startTime: calculateSectionStartTime(updatedProject),
-      duration: plan.total_duration,
-      realStartTime: new Date(),
-    })
+    targetSection = createTimelineSection(
+      sectionName,
+      calculateSectionStartTime(updatedProject),
+      plan.totalDuration,
+      new Date()
+    )
 
     updatedProject.sections = [...updatedProject.sections, targetSection]
   } else {
     // Используем последнюю секцию или создаем, если нет
     targetSection = updatedProject.sections[updatedProject.sections.length - 1]
     if (!targetSection) {
-      targetSection = createTimelineSection({
-        name: "Main Section",
-        startTime: 0,
-        duration: plan.total_duration,
-      })
+      targetSection = createTimelineSection(
+        "Main Section",
+        0,
+        plan.totalDuration
+      )
       updatedProject.sections = [targetSection]
     }
   }
@@ -147,16 +147,17 @@ function createTimelineClips(
         return null
       }
 
-      const timelineClip = createTimelineClip({
-        id: `montage_clip_${montageClip.id}`,
-        name: `${mediaFile.name} - Moment ${index + 1}`,
+      const timelineClip = createTimelineClip(
+        mediaFile.id,
         trackId,
-        startTime: Number(montageClip.start_time) + Number(timeOffset),
-        duration: montageClip.duration,
-        mediaFileId: mediaFile.id,
-        sourceStartTime: montageClip.start_time,
-        sourceEndTime: montageClip.end_time,
-      })
+        Number(montageClip.start_time) + Number(timeOffset),
+        montageClip.duration,
+        montageClip.start_time
+      )
+      
+      // Устанавливаем дополнительные свойства
+      timelineClip.id = `montage_clip_${montageClip.id}`
+      timelineClip.name = `${mediaFile.name} - Moment ${index + 1}`
 
       // Применяем настройки из монтажного клипа
       if (montageClip.adjustments) {
@@ -199,9 +200,9 @@ function createTimelineClips(
         ...timelineClip.metadata,
         montageMetadata: {
           momentCategory: montageClip.moment.category,
-          momentScore: montageClip.moment.total_score,
+          momentScore: montageClip.moment.totalScore,
           compositionScore: montageClip.moment.scores.composition,
-          emotionalTone: montageClip.moment.emotional_tone,
+          emotionalTone: montageClip.moment.emotionalTone,
         },
       }
 
@@ -260,20 +261,14 @@ function getOrCreateTracks(
 
   // Создаем новые треки если нужно
   if (!videoTrack) {
-    videoTrack = createTimelineTrack({
-      name: "Montage Video",
-      type: "video" as TrackType,
-      order: section.tracks.length,
-    })
+    videoTrack = createTimelineTrack("Montage Video", "video" as TrackType)
+    videoTrack.order = section.tracks.length
     section.tracks.push(videoTrack)
   }
 
   if (!audioTrack) {
-    audioTrack = createTimelineTrack({
-      name: "Montage Audio",
-      type: "audio" as TrackType,
-      order: section.tracks.length,
-    })
+    audioTrack = createTimelineTrack("Montage Audio", "audio" as TrackType)
+    audioTrack.order = section.tracks.length
     section.tracks.push(audioTrack)
   }
 
@@ -351,14 +346,14 @@ export function createMarkersFromPlan(plan: MontagePlan, timeOffset = 0): Timeli
 
   // Маркеры для ключевых моментов
   plan.clips.forEach((clip, index) => {
-    if (clip.moment.total_score > 80) {
+    if (clip.moment.totalScore > 80) {
       markers.push({
         id: `moment_${clip.id}`,
         name: `Key Moment ${Number(index) + 1}`,
         time: Number(clip.start_time || 0) + Number(timeOffset),
         color: "#FF9800",
         type: "note",
-        description: `${clip.moment.category} - Score: ${clip.moment.total_score.toFixed(0)}`,
+        description: `${clip.moment.category} - Score: ${clip.moment.totalScore.toFixed(0)}`,
       })
     }
   })
@@ -367,7 +362,7 @@ export function createMarkersFromPlan(plan: MontagePlan, timeOffset = 0): Timeli
   markers.push({
     id: `montage_end_${plan.id}`,
     name: `${plan.name} - End`,
-    time: Number(plan.total_duration) + Number(timeOffset),
+    time: Number(plan.totalDuration) + Number(timeOffset),
     color: "#F44336",
     type: "section",
   })

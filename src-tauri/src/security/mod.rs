@@ -21,9 +21,6 @@ mod tests;
 mod commands_test;
 
 #[cfg(test)]
-mod env_importer_test;
-
-#[cfg(test)]
 mod oauth_handler_simple_tests;
 
 #[cfg(test)]

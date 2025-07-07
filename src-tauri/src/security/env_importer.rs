@@ -591,6 +591,25 @@ EMPTY_LINE_ABOVE=value
 
   #[test]
   fn test_import_all_api_keys() {
+    // Clear all environment variables first
+    env::remove_var("OPENAI_API_KEY");
+    env::remove_var("OPENAI_KEY");
+    env::remove_var("CLAUDE_API_KEY");
+    env::remove_var("ANTHROPIC_API_KEY");
+    env::remove_var("CLAUDE_KEY");
+    env::remove_var("DEEPSEEK_API_KEY");
+    env::remove_var("DEEPSEEK_KEY");
+    env::remove_var("YOUTUBE_CLIENT_ID");
+    env::remove_var("YOUTUBE_CLIENT_SECRET");
+    env::remove_var("TIKTOK_CLIENT_ID");
+    env::remove_var("TIKTOK_CLIENT_SECRET");
+    env::remove_var("VIMEO_CLIENT_ID");
+    env::remove_var("VIMEO_CLIENT_SECRET");
+    env::remove_var("VIMEO_ACCESS_TOKEN");
+    env::remove_var("TELEGRAM_BOT_TOKEN");
+    env::remove_var("CODECOV_TOKEN");
+    env::remove_var("TAURI_ANALYTICS_KEY");
+
     let importer = EnvImporter::new();
 
     // Set various test environment variables
@@ -603,7 +622,12 @@ EMPTY_LINE_ABOVE=value
     assert!(result.is_ok());
 
     let keys = result.unwrap();
-    assert!(keys.len() >= 4); // At least the keys we set
+    assert_eq!(
+      keys.len(),
+      4,
+      "Expected exactly 4 keys, found: {}",
+      keys.len()
+    ); // Exactly the keys we set
 
     // Check that our keys are present
     let has_openai = keys
@@ -624,11 +648,24 @@ EMPTY_LINE_ABOVE=value
     assert!(has_telegram);
     assert!(has_vimeo);
 
-    // Clean up
+    // Clean up - remove all test variables
     env::remove_var("OPENAI_API_KEY");
     env::remove_var("CLAUDE_API_KEY");
     env::remove_var("TELEGRAM_BOT_TOKEN");
     env::remove_var("VIMEO_ACCESS_TOKEN");
+    env::remove_var("OPENAI_KEY");
+    env::remove_var("ANTHROPIC_API_KEY");
+    env::remove_var("CLAUDE_KEY");
+    env::remove_var("DEEPSEEK_API_KEY");
+    env::remove_var("DEEPSEEK_KEY");
+    env::remove_var("YOUTUBE_CLIENT_ID");
+    env::remove_var("YOUTUBE_CLIENT_SECRET");
+    env::remove_var("TIKTOK_CLIENT_ID");
+    env::remove_var("TIKTOK_CLIENT_SECRET");
+    env::remove_var("VIMEO_CLIENT_ID");
+    env::remove_var("VIMEO_CLIENT_SECRET");
+    env::remove_var("CODECOV_TOKEN");
+    env::remove_var("TAURI_ANALYTICS_KEY");
   }
 
   #[test]
