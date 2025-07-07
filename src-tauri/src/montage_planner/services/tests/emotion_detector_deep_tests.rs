@@ -407,7 +407,7 @@ mod tests {
     let mut detector = create_detector();
 
     // Test stability through public interface
-    let emotions = vec![
+    let emotions = [
       EmotionalTone::Happy,
       EmotionalTone::Happy,
       EmotionalTone::Happy,
@@ -455,7 +455,7 @@ mod tests {
   fn test_all_emotion_types_via_detection() {
     let mut detector = create_detector();
 
-    let emotions = vec![
+    let emotions = [
       EmotionalTone::Happy,
       EmotionalTone::Excited,
       EmotionalTone::Sad,

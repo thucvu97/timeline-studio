@@ -178,7 +178,7 @@ mod tests {
 
     let score = analyzer.calculate_quality_score(&frame_quality, &video_quality);
 
-    assert!(score >= 0.0 && score <= 100.0);
+    assert!((0.0..=100.0).contains(&score));
     assert!(score > 50.0); // Should be high for good quality inputs
   }
 
@@ -193,7 +193,7 @@ mod tests {
     let video_quality = create_test_video_quality();
     let score = analyzer.calculate_quality_score(&frame_quality, &video_quality);
 
-    assert!(score >= 0.0 && score <= 100.0);
+    assert!((0.0..=100.0).contains(&score));
 
     // Compare with good quality score
     let good_frame = create_test_frame_quality(1.0);
@@ -599,7 +599,7 @@ mod tests {
     };
 
     let score = analyzer.calculate_quality_score(&extreme_frame, &extreme_video);
-    assert!(score >= 0.0 && score <= 100.0);
+    assert!((0.0..=100.0).contains(&score));
     assert!(score < 20.0); // Should be very low
   }
 
