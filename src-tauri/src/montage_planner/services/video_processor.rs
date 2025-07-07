@@ -82,7 +82,7 @@ impl VideoProcessor {
       let frame = ExtractedFrame {
         timestamp: current_time,
         frame_number,
-        image_path: format!("/tmp/frame_{:.3}.jpg", current_time),
+        image_path: format!("/tmp/frame_{current_time:.3}.jpg"),
         width: metadata.width,
         height: metadata.height,
       };
@@ -218,7 +218,7 @@ impl VideoProcessor {
     Ok(ExtractedFrame {
       timestamp,
       frame_number,
-      image_path: format!("/tmp/frame_{:.3}.jpg", timestamp),
+      image_path: format!("/tmp/frame_{timestamp:.3}.jpg"),
       width: metadata.width,
       height: metadata.height,
     })

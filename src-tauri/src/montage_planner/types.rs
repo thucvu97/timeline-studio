@@ -328,13 +328,13 @@ pub enum MontageError {
 impl std::fmt::Display for MontageError {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     match self {
-      MontageError::VideoAnalysisError(msg) => write!(f, "Video analysis error: {}", msg),
-      MontageError::AudioAnalysisError(msg) => write!(f, "Audio analysis error: {}", msg),
-      MontageError::YoloProcessingError(msg) => write!(f, "YOLO processing error: {}", msg),
-      MontageError::PlanGenerationError(msg) => write!(f, "Plan generation error: {}", msg),
-      MontageError::FileNotFound(msg) => write!(f, "File not found: {}", msg),
-      MontageError::InvalidConfiguration(msg) => write!(f, "Invalid configuration: {}", msg),
-      MontageError::InsufficientContent(msg) => write!(f, "Insufficient content: {}", msg),
+      MontageError::VideoAnalysisError(msg) => write!(f, "Video analysis error: {msg}"),
+      MontageError::AudioAnalysisError(msg) => write!(f, "Audio analysis error: {msg}"),
+      MontageError::YoloProcessingError(msg) => write!(f, "YOLO processing error: {msg}"),
+      MontageError::PlanGenerationError(msg) => write!(f, "Plan generation error: {msg}"),
+      MontageError::FileNotFound(msg) => write!(f, "File not found: {msg}"),
+      MontageError::InvalidConfiguration(msg) => write!(f, "Invalid configuration: {msg}"),
+      MontageError::InsufficientContent(msg) => write!(f, "Insufficient content: {msg}"),
     }
   }
 }

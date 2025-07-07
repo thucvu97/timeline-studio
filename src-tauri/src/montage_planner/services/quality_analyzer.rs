@@ -66,9 +66,10 @@ impl VideoQualityAnalyzer {
     }
 
     // Get basic video metadata using ffprobe
-    let metadata = self.extract_video_metadata(path).await.map_err(|e| {
-      MontageError::VideoAnalysisError(format!("Metadata extraction failed: {}", e))
-    })?;
+    let metadata = self
+      .extract_video_metadata(path)
+      .await
+      .map_err(|e| MontageError::VideoAnalysisError(format!("Metadata extraction failed: {e}")))?;
 
     // Analyze video quality using FFmpeg filters
     let sharpness = self.analyze_sharpness(path).await.unwrap_or(80.0);

@@ -699,7 +699,7 @@ impl PlanGenerator {
       })?;
 
       clips.push(MontageClip {
-        id: format!("clip_{}", i),
+        id: format!("clip_{i}"),
         source_file: source_file.clone(),
         start_time: moment.timestamp,
         end_time: moment.timestamp + moment.duration,

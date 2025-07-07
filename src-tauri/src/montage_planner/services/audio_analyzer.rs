@@ -68,9 +68,10 @@ impl AudioAnalyzer {
     }
 
     // Extract audio metadata first
-    let _audio_metadata = self.extract_audio_metadata(path).await.map_err(|e| {
-      MontageError::AudioAnalysisError(format!("Failed to extract metadata: {e}"))
-    })?;
+    let _audio_metadata = self
+      .extract_audio_metadata(path)
+      .await
+      .map_err(|e| MontageError::AudioAnalysisError(format!("Failed to extract metadata: {e}")))?;
 
     // Analyze various aspects using FFmpeg filters
     let content_type = self.detect_content_type(path).await?;
@@ -236,9 +237,10 @@ impl AudioAnalyzer {
       .map_err(|e| MontageError::AudioAnalysisError(format!("Silence detection failed: {e}")))?;
 
     // Get total duration
-    let metadata = self.extract_audio_metadata(audio_path).await.map_err(|e| {
-      MontageError::AudioAnalysisError(format!("Metadata extraction failed: {e}"))
-    })?;
+    let metadata = self
+      .extract_audio_metadata(audio_path)
+      .await
+      .map_err(|e| MontageError::AudioAnalysisError(format!("Metadata extraction failed: {e}")))?;
 
     // Calculate speech presence based on non-silent periods
     let total_silence_duration: f64 = silence_periods.iter().map(|p| p.duration).sum();

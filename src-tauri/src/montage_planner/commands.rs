@@ -91,9 +91,7 @@ pub async fn analyze_video_composition(
       ) {
         Ok(enhanced) => enhanced_results.push(enhanced),
         Err(e) => {
-          log::warn!(
-            "Composition analysis failed for frame at {timestamp}: {e:?}"
-          );
+          log::warn!("Composition analysis failed for frame at {timestamp}: {e:?}");
         }
       }
     }

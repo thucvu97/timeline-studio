@@ -369,36 +369,33 @@ impl MomentDetector {
 
     match category {
       MomentCategory::Action => {
-        format!(
-          "Action scene with {} objects and {} faces",
-          object_count, face_count
-        )
+        format!("Action scene with {object_count} objects and {face_count} faces")
       }
       MomentCategory::Drama => {
         if face_count > 1 {
-          format!("Dramatic scene with {} people", face_count)
+          format!("Dramatic scene with {face_count} people")
         } else {
           format!(
-            "Emotional moment with {} elements",
-            object_count + face_count
+            "Emotional moment with {elements} elements",
+            elements = object_count + face_count
           )
         }
       }
       MomentCategory::Highlight => {
         format!(
-          "Key highlight with {:.1}% composition score",
-          detection.composition_score.overall_score
+          "Key highlight with {score:.1}% composition score",
+          score = detection.composition_score.overall_score
         )
       }
       _ => {
-        format!("Scene with {} objects detected", object_count)
+        format!("Scene with {object_count} objects detected")
       }
     }
   }
 
   /// Generate tags for moment
   fn generate_tags(&self, detection: &MontageDetection, category: &MomentCategory) -> Vec<String> {
-    let mut tags = vec![format!("{:?}", category).to_lowercase()];
+    let mut tags = vec![format!("{category:?}").to_lowercase()];
 
     // Add object-based tags
     let unique_classes: std::collections::HashSet<_> = detection
