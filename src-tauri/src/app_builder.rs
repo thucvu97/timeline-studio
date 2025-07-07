@@ -137,6 +137,7 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::video_compiler::commands::clear_project_cache,
     crate::video_compiler::commands::clear_project_previews,
     crate::video_compiler::commands::clear_render_cache,
+    crate::video_compiler::commands::get_cache_stats,
     crate::video_compiler::commands::compile_video,
     crate::video_compiler::commands::cancel_render,
     crate::video_compiler::commands::build_preview_command,

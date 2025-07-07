@@ -183,17 +183,37 @@ jobs:
           .\vcpkg install ffmpeg:x64-windows
           
           # Set Windows SDK environment variables to include system headers
-          $VSInstallPath = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2022\BuildTools"
-          if (Test-Path "$VSInstallPath\Common7\Tools\VsDevCmd.bat") {
-            echo "Found Visual Studio Build Tools at: $VSInstallPath"
-            # Set up Windows SDK paths for system headers including errno.h
-            $WindowsSDKVersion = (Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\Include" | Sort-Object Name -Descending | Select-Object -First 1).Name
-            $WindowsSDKPath = "${env:ProgramFiles(x86)}\Windows Kits\10"
+          echo "Setting up Windows SDK environment..."
+          
+          # Find the latest Windows SDK version
+          $WindowsSDKPath = "${env:ProgramFiles(x86)}\Windows Kits\10"
+          if (Test-Path "$WindowsSDKPath\Include") {
+            $WindowsSDKVersion = (Get-ChildItem "$WindowsSDKPath\Include" | Where-Object {$_.Name -match '^\d+\.\d+\.\d+\.\d+$'} | Sort-Object Name -Descending | Select-Object -First 1).Name
+            echo "Found Windows SDK version: $WindowsSDKVersion"
             
-            echo "INCLUDE=${WindowsSDKPath}\Include\${WindowsSDKVersion}\ucrt;${WindowsSDKPath}\Include\${WindowsSDKVersion}\shared;${WindowsSDKPath}\Include\${WindowsSDKVersion}\um;C:\vcpkg\installed\x64-windows\include" >> $env:GITHUB_ENV
-            echo "LIB=${WindowsSDKPath}\Lib\${WindowsSDKVersion}\ucrt\x64;${WindowsSDKPath}\Lib\${WindowsSDKVersion}\um\x64;C:\vcpkg\installed\x64-windows\lib" >> $env:GITHUB_ENV
+            # Set up proper Windows SDK paths (not WDF)
+            $IncludePaths = @(
+              "$WindowsSDKPath\Include\$WindowsSDKVersion\ucrt",
+              "$WindowsSDKPath\Include\$WindowsSDKVersion\shared", 
+              "$WindowsSDKPath\Include\$WindowsSDKVersion\um",
+              "$WindowsSDKPath\Include\$WindowsSDKVersion\winrt",
+              "C:\vcpkg\installed\x64-windows\include"
+            )
+            
+            $LibPaths = @(
+              "$WindowsSDKPath\Lib\$WindowsSDKVersion\ucrt\x64",
+              "$WindowsSDKPath\Lib\$WindowsSDKVersion\um\x64",
+              "C:\vcpkg\installed\x64-windows\lib"
+            )
+            
+            echo "INCLUDE=$($IncludePaths -join ';')" >> $env:GITHUB_ENV
+            echo "LIB=$($LibPaths -join ';')" >> $env:GITHUB_ENV
+            
+            # Also set for MSVC compiler
+            echo "WindowsSdkDir=$WindowsSDKPath\" >> $env:GITHUB_ENV
+            echo "WindowsSDKVersion=$WindowsSDKVersion\" >> $env:GITHUB_ENV
           } else {
-            echo "Visual Studio Build Tools not found, using basic paths"
+            echo "Windows SDK not found, using basic paths"
             echo "INCLUDE=C:\vcpkg\installed\x64-windows\include" >> $env:GITHUB_ENV
             echo "LIB=C:\vcpkg\installed\x64-windows\lib" >> $env:GITHUB_ENV
           }
@@ -363,14 +383,26 @@ jobs:
           # Check for errno.h in Windows SDK
           $WindowsSDKPath = "${env:ProgramFiles(x86)}\Windows Kits\10"
           if (Test-Path $WindowsSDKPath) {
-            $WindowsSDKVersion = (Get-ChildItem "$WindowsSDKPath\Include" | Sort-Object Name -Descending | Select-Object -First 1).Name
+            $WindowsSDKVersion = (Get-ChildItem "$WindowsSDKPath\Include" | Where-Object {$_.Name -match '^\d+\.\d+\.\d+\.\d+$'} | Sort-Object Name -Descending | Select-Object -First 1).Name
+            echo "Using Windows SDK version: $WindowsSDKVersion"
+            
             $ErrornPath = "$WindowsSDKPath\Include\$WindowsSDKVersion\ucrt\errno.h"
             if (Test-Path $ErrornPath) {
               echo "✅ errno.h found at: $ErrornPath"
             } else {
               echo "❌ errno.h NOT found at expected path: $ErrornPath"
-              echo "Available ucrt headers:"
-              ls "$WindowsSDKPath\Include\$WindowsSDKVersion\ucrt" -ErrorAction SilentlyContinue | Select -First 10
+              echo "Available include directories:"
+              ls "$WindowsSDKPath\Include\$WindowsSDKVersion" -ErrorAction SilentlyContinue | Select -First 10
+              if (Test-Path "$WindowsSDKPath\Include\$WindowsSDKVersion\ucrt") {
+                echo "Available ucrt headers:"
+                ls "$WindowsSDKPath\Include\$WindowsSDKVersion\ucrt" -ErrorAction SilentlyContinue | Select -First 10
+              }
+            }
+            
+            # Check if WDF paths exist (these should NOT be used)
+            $WDFPath = "$WindowsSDKPath\Include\wdf"
+            if (Test-Path $WDFPath) {
+              echo "⚠️ WARNING: WDF headers found at $WDFPath - these should not be used"
             }
           } else {
             echo "❌ Windows SDK not found at: $WindowsSDKPath"
