@@ -164,6 +164,10 @@ jobs:
       - name: Install dependencies (Windows only)
         if: matrix.platform == 'windows-latest'
         run: |
+          # Install essential Windows build tools first
+          echo "Installing Visual Studio Build Tools..."
+          choco install visualstudio2022buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --includeOptional --passive"
+          
           # Install pkg-config for Windows
           choco install pkgconfiglite
           
@@ -177,6 +181,22 @@ jobs:
           # Install FFmpeg with development libraries
           echo "Installing FFmpeg..."
           .\vcpkg install ffmpeg:x64-windows
+          
+          # Set Windows SDK environment variables to include system headers
+          $VSInstallPath = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2022\BuildTools"
+          if (Test-Path "$VSInstallPath\Common7\Tools\VsDevCmd.bat") {
+            echo "Found Visual Studio Build Tools at: $VSInstallPath"
+            # Set up Windows SDK paths for system headers including errno.h
+            $WindowsSDKVersion = (Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\Include" | Sort-Object Name -Descending | Select-Object -First 1).Name
+            $WindowsSDKPath = "${env:ProgramFiles(x86)}\Windows Kits\10"
+            
+            echo "INCLUDE=${WindowsSDKPath}\Include\${WindowsSDKVersion}\ucrt;${WindowsSDKPath}\Include\${WindowsSDKVersion}\shared;${WindowsSDKPath}\Include\${WindowsSDKVersion}\um;C:\vcpkg\installed\x64-windows\include" >> $env:GITHUB_ENV
+            echo "LIB=${WindowsSDKPath}\Lib\${WindowsSDKVersion}\ucrt\x64;${WindowsSDKPath}\Lib\${WindowsSDKVersion}\um\x64;C:\vcpkg\installed\x64-windows\lib" >> $env:GITHUB_ENV
+          } else {
+            echo "Visual Studio Build Tools not found, using basic paths"
+            echo "INCLUDE=C:\vcpkg\installed\x64-windows\include" >> $env:GITHUB_ENV
+            echo "LIB=C:\vcpkg\installed\x64-windows\lib" >> $env:GITHUB_ENV
+          }
           
           # Set environment variables for FFmpeg
           echo "VCPKG_ROOT=C:\vcpkg" >> $env:GITHUB_ENV
@@ -329,12 +349,31 @@ jobs:
           echo "FFMPEG_INCLUDE_DIR: $env:FFMPEG_INCLUDE_DIR"
           echo "FFMPEG_LIB_DIR: $env:FFMPEG_LIB_DIR"
           echo "PKG_CONFIG_PATH: $env:PKG_CONFIG_PATH"
+          echo "INCLUDE: $env:INCLUDE"
+          echo "LIB: $env:LIB"
           
-          echo "`n=== Checking include files ==="
+          echo "`n=== Checking FFmpeg include files ==="
           if (Test-Path "C:\vcpkg\installed\x64-windows\include\libavutil\avutil.h") {
             echo "✅ avutil.h found"
           } else {
             echo "❌ avutil.h NOT found"
+          }
+          
+          echo "`n=== Checking system headers (errno.h) ==="
+          # Check for errno.h in Windows SDK
+          $WindowsSDKPath = "${env:ProgramFiles(x86)}\Windows Kits\10"
+          if (Test-Path $WindowsSDKPath) {
+            $WindowsSDKVersion = (Get-ChildItem "$WindowsSDKPath\Include" | Sort-Object Name -Descending | Select-Object -First 1).Name
+            $ErrornPath = "$WindowsSDKPath\Include\$WindowsSDKVersion\ucrt\errno.h"
+            if (Test-Path $ErrornPath) {
+              echo "✅ errno.h found at: $ErrornPath"
+            } else {
+              echo "❌ errno.h NOT found at expected path: $ErrornPath"
+              echo "Available ucrt headers:"
+              ls "$WindowsSDKPath\Include\$WindowsSDKVersion\ucrt" -ErrorAction SilentlyContinue | Select -First 10
+            }
+          } else {
+            echo "❌ Windows SDK not found at: $WindowsSDKPath"
           }
           
           echo "`n=== Checking lib files ==="
@@ -419,9 +458,8 @@ jobs:
           ORT_DYLIB_PATH: C:\onnxruntime\onnxruntime-win-x64-1.19.2\lib\onnxruntime.dll
           RUST_BACKTRACE: 1
           CARGO_PROFILE_RELEASE_BUILD_OVERRIDE_DEBUG: false
-          # Additional paths for Windows compilation
-          INCLUDE: C:\vcpkg\installed\x64-windows\include
-          LIB: C:\vcpkg\installed\x64-windows\lib
+          # Windows SDK and system headers paths (required for errno.h and other system headers)
+          # Note: These paths are set dynamically in the dependencies step above
         with:
           releaseId: ${{ needs.create-release.outputs.release_id }}
           tagName: v${{ needs.create-release.outputs.version }}
