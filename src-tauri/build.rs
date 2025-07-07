@@ -48,7 +48,7 @@ fn cleanup_test_binaries() {
   // Check target directories (both relative and absolute paths)
   let target_dirs = [
     "target/debug",
-    "target/release", 
+    "target/release",
     "target/universal-apple-darwin/debug",
     "target/universal-apple-darwin/release",
     "target/x86_64-apple-darwin/debug",
@@ -58,8 +58,14 @@ fn cleanup_test_binaries() {
     // Also check absolute paths in case working directory is different
     &format!("{}/target/debug", current_dir.display()),
     &format!("{}/target/release", current_dir.display()),
-    &format!("{}/target/universal-apple-darwin/debug", current_dir.display()),
-    &format!("{}/target/universal-apple-darwin/release", current_dir.display()),
+    &format!(
+      "{}/target/universal-apple-darwin/debug",
+      current_dir.display()
+    ),
+    &format!(
+      "{}/target/universal-apple-darwin/release",
+      current_dir.display()
+    ),
   ];
 
   let mut removed_count = 0;
@@ -85,7 +91,7 @@ fn cleanup_test_binaries() {
   // Also try to clean Cargo cache if we're in CI
   if std::env::var("CI").is_ok() {
     println!("🧹 Cleaning Cargo target in CI environment...");
-    
+
     // Try to remove any .d files that might reference test_specta
     for target_dir in &target_dirs {
       let target_path = Path::new(target_dir);
