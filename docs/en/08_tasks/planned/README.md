@@ -23,11 +23,12 @@ Timeline Studio aims to combine:
 ### 🤖 AI and Automation
 | Module | Priority | Complexity | Development Time | Status |
 |--------|----------|------------|------------------|--------|
-| [AI Multi-Platform Generator](ai-multiplatform-generator.md) | 🔴 High | ⭐⭐⭐⭐⭐ | 2 days | 📋 Planned |
-| [Scene Analyzer](scene-analyzer.md) | 🟡 Medium | ⭐⭐⭐⭐ | 1 day | 📋 Planned |
+| **[AI Content Intelligence Suite](ai-content-intelligence-epic.md)** 🆕 | 🔴 High | ⭐⭐⭐⭐⭐ | 7 weeks | 📋 Epic |
+| ├─ [Scene Analyzer](scene-analyzer.md) | 🟡 Medium | ⭐⭐⭐⭐ | Part of epic | 📋 In epic |
+| ├─ [Script Generator](script-generator.md) | 🟡 Medium | ⭐⭐⭐⭐ | Part of epic | 📋 In epic |
+| └─ [AI Multi-Platform Generator](ai-multiplatform-generator.md) | 🟡 Medium | ⭐⭐⭐⭐⭐ | Part of epic | 📋 In epic |
+| [AI Chat Integration](ai-chat-content-intelligence-integration.md) 🆕 | 🔴 High | ⭐⭐⭐ | 1 week | 📋 Planned |
 | [Person Identification](person-identification.md) | 🟡 Medium | ⭐⭐⭐⭐ | 1 day | 📋 Planned |
-| [Script Generator](script-generator.md) | 🟢 Low | ⭐⭐⭐⭐ | 5 days | 📋 Planned |
-| [Smart Montage Planner](smart-montage-planner.md) | 🟢 Low | ⭐⭐⭐⭐ | 4 days | 📋 Planned |
 
 ### 🏗️ System Architecture
 | Module | Priority | Complexity | Development Time | Status |
@@ -48,54 +49,48 @@ Timeline Studio aims to combine:
 
 ## 📈 Priority Roadmap
 
-### Phase 1: Professional Tools (2 days)
-**Goal:** Achieving professional editor level
-**Timeline:** June 29-30
+### Phase 1: AI and Automation (8 weeks)
+**Goal:** Superiority through unified AI platform
+**Timeline:** July 1 - August 26
 
-1. **Timeline full integration** - complete basic integration (drag & drop, module synchronization)
+1. **AI Chat Integration** - integration of existing 68 AI tools (1 week)
+2. **AI Content Intelligence Suite** - unified AI platform (7 weeks):
+   - Scene Analysis Engine (extends video-analysis-tools)
+   - Script Generation Engine (extends subtitle-tools)
+   - Multi-Platform Engine (extends timeline-ai-service)
+3. **Person Identification** - automatic person recognition (1 day)
+
+**Expected result:** Revolutionary AI ecosystem built on existing AI Chat
+
+### Phase 2: Professional Tools (2 days)
+**Goal:** Achieving professional editor level
+**Timeline:** August 27-28
+
+1. **Advanced Timeline Features** - advanced timeline features (multicam, compound clips, advanced trimming)
 2. **Effects Library Extension** - extended effects library
 3. **Project Version Control** - advanced version management
 
 **Expected result:** Timeline Studio at professional standards for core features
 
-### Phase 2: AI and Automation (3 days)
-**Goal:** Superiority through AI automation
-**Timeline:** July 1-5
-
-1. **AI Multi-Platform Generator** - key AI feature
-2. **Scene Analyzer** - intelligent content analysis
-3. **Person Identification** - automatic person recognition
-
-**Expected result:** Unique AI capabilities unavailable in other editors
-
 ### Phase 3: Optimization and Extensibility (6 days)
 **Goal:** Performance and modularity
-**Timeline:** July 6-11
+**Timeline:** August 29 - September 3
 
 1. **Performance Optimization** - optimization module (3 days)
 2. **Plugin System** - third-party extensibility (2 days)
 3. **EventBus API Extensions** - API extension (1 day)
 
-### Phase 4: Additional AI Capabilities (9 days)
-**Goal:** Innovative future features
-**Timeline:** July 12-20
-
-1. **Script Generator** - AI script creation (5 days)
-2. **Smart Montage Planner** - editing automation (4 days)
-
-**Expected result:** Complete set of AI tools for automation
-
-### Phase 5: Cloud Technologies (11 days)
+### Phase 4: Cloud Technologies (11 days)
 **Goal:** Scalability and cloud performance
-**Timeline:** July 21-31
+**Timeline:** September 4-14
 
 1. **Cloud Rendering** - distributed video processing in the cloud
 
 **Expected result:** Ability to process complex projects without local limitations
 
-### Phase 6: Ecosystem and Scaling (8 days)
+### Phase 5: Ecosystem and Scaling (8 days)
 **Goal:** Creating a complete ecosystem
-**Timeline:** August 1-8
+**Timeline:** September 15-22
 
 1. **Telegram Mini App** - mobile expansion (8 days)
 
@@ -104,17 +99,19 @@ Timeline Studio aims to combine:
 ## 📊 Planned Modules Statistics
 
 ### By Complexity:
-- ⭐⭐⭐⭐⭐ (Very High): 5 modules
-- ⭐⭐⭐⭐ (High): 5 modules
+- ⭐⭐⭐⭐⭐ (Very High): 3 modules + 1 epic
+- ⭐⭐⭐⭐ (High): 2 modules
 - ⭐⭐⭐ (Medium): 2 modules
 
 ### By Development Time:
-- **Total time:** 44 days for sequential development
+- **Total time:** 13 weeks (including AI Content Intelligence Suite + AI Chat)
+- **Savings from unification:** 11 weeks (46% of original plan)
+- **Additional savings from AI Chat:** 4 weeks
 
 ### By Priority:
-- 🔴 **High priority:** 5 modules (critically important)
-- 🟡 **Medium priority:** 6 modules (important for competitiveness)
-- 🟢 **Low priority:** 2 modules (additional features)
+- 🔴 **High priority:** 4 modules (including AI epic)
+- 🟡 **Medium priority:** 4 modules
+- 🟢 **Low priority:** 0 modules
 
 ## 🎯 Key Technologies
 

@@ -1,5 +1,9 @@
 # Script Generator - AI Script Generation
 
+> ⚡ **This module is now part of the unified epic [AI Content Intelligence Suite](ai-content-intelligence-epic.md)**
+> 
+> Script Generator will become the **Script Generation Engine** in the unified AI platform and will use Scene Analysis results for more intelligent script generation.
+
 ## 📋 Overview
 
 Script Generator is an intelligent module for automatic video script generation based on topics, keywords, or source materials. It uses advanced language models to create structured scripts considering the target audience and publishing platform.

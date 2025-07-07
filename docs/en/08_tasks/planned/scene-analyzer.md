@@ -1,5 +1,9 @@
 # Scene Analyzer - AI Scene Analysis and Segmentation
 
+> ⚡ **This module is now part of the unified epic [AI Content Intelligence Suite](ai-content-intelligence-epic.md)**
+> 
+> Scene Analyzer will become the **Scene Analysis Engine** in the unified AI platform and will share infrastructure with Script Generator and AI Multi-Platform Generator.
+
 ## 📋 Overview
 
 Scene Analyzer is an intelligent module for automatic video content analysis, scene boundary detection, content type classification, and smart segmentation to simplify editing. The module uses advanced computer vision and machine learning algorithms.

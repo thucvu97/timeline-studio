@@ -1,5 +1,9 @@
 # Person Identification - Person Recognition and Tracking
 
+> ⚡ **This module is integrated with [AI Content Intelligence Suite](ai-content-intelligence-epic.md) as an optional component**
+> 
+> Person Identification extends the base face detection from Scene Analysis Engine with specialized tracking, profiling, and privacy features. It enriches all three engines with person-specific data.
+
 ## 📋 Overview
 
 Person Identification is an advanced module for face detection, person identification, and tracking their appearance throughout the entire video. The module uses modern machine learning algorithms to create smart cataloging of persons in the project.

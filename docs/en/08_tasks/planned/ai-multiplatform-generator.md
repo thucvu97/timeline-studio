@@ -1,5 +1,9 @@
 # AI Multi-Platform Generator - Automatic Content Generation
 
+> ⚡ **This module is now part of the unified epic [AI Content Intelligence Suite](ai-content-intelligence-epic.md)**
+> 
+> AI Multi-Platform Generator will become the **Multi-Platform Engine** in the unified AI platform and will orchestrate both Scene Analysis and Script Generation engines for intelligent content adaptation.
+
 ## 📋 Overview
 
 AI Multi-Platform Generator is a revolutionary module for Timeline Studio that automatically creates a set of videos in different languages and optimized for various platforms from uploaded resources. Users simply add videos, music, and other materials, and AI generates ready-made content for YouTube, TikTok, Vimeo, Telegram, and other platforms.
