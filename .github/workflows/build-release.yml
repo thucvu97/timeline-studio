@@ -161,12 +161,16 @@ jobs:
           path: C:\onnxruntime
           key: windows-onnxruntime-1.19.2
 
+      - name: Setup MSVC (Windows only)
+        if: matrix.platform == 'windows-latest'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
       - name: Install dependencies (Windows only)
         if: matrix.platform == 'windows-latest'
         run: |
-          # Install essential Windows build tools first
-          echo "Installing Visual Studio Build Tools..."
-          choco install visualstudio2022buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --includeOptional --passive"
+          # MSVC is already set up by ilammy/msvc-dev-cmd action
           
           # Install pkg-config for Windows
           choco install pkgconfiglite
@@ -191,6 +195,27 @@ jobs:
             $WindowsSDKVersion = (Get-ChildItem "$WindowsSDKPath\Include" | Where-Object {$_.Name -match '^\d+\.\d+\.\d+\.\d+$'} | Sort-Object Name -Descending | Select-Object -First 1).Name
             echo "Found Windows SDK version: $WindowsSDKVersion"
             
+            # Find Visual Studio installation path  
+            $VSPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+            if (-not $VSPath) {
+              $VSPath = "${env:ProgramFiles}\Microsoft Visual Studio\2022\Enterprise"
+              if (-not (Test-Path $VSPath)) {
+                $VSPath = "${env:ProgramFiles}\Microsoft Visual Studio\2022\Community"
+              }
+            }
+            echo "Visual Studio path: $VSPath"
+            
+            # Find MSVC version
+            $MSVCPath = "$VSPath\VC\Tools\MSVC"
+            if (Test-Path $MSVCPath) {
+              $MSVCVersion = (Get-ChildItem $MSVCPath | Where-Object {$_.PSIsContainer} | Sort-Object Name -Descending | Select-Object -First 1).Name
+              echo "MSVC version: $MSVCVersion"
+              $MSVCIncludePath = "$MSVCPath\$MSVCVersion\include"
+            } else {
+              echo "WARNING: MSVC not found at expected path"
+              $MSVCIncludePath = ""
+            }
+            
             # Set up proper Windows SDK paths (not WDF)
             $IncludePaths = @(
               "$WindowsSDKPath\Include\$WindowsSDKVersion\ucrt",
@@ -200,11 +225,26 @@ jobs:
               "C:\vcpkg\installed\x64-windows\include"
             )
             
+            # Add MSVC include path if found
+            if ($MSVCIncludePath -and (Test-Path $MSVCIncludePath)) {
+              $IncludePaths = @($MSVCIncludePath) + $IncludePaths
+              echo "Added MSVC include path: $MSVCIncludePath"
+            }
+            
             $LibPaths = @(
               "$WindowsSDKPath\Lib\$WindowsSDKVersion\ucrt\x64",
               "$WindowsSDKPath\Lib\$WindowsSDKVersion\um\x64",
               "C:\vcpkg\installed\x64-windows\lib"
             )
+            
+            # Add MSVC lib path if found
+            if ($MSVCIncludePath) {
+              $MSVCLibPath = "$MSVCPath\$MSVCVersion\lib\x64"
+              if (Test-Path $MSVCLibPath) {
+                $LibPaths = @($MSVCLibPath) + $LibPaths
+                echo "Added MSVC lib path: $MSVCLibPath"
+              }
+            }
             
             echo "INCLUDE=$($IncludePaths -join ';')" >> $env:GITHUB_ENV
             echo "LIB=$($LibPaths -join ';')" >> $env:GITHUB_ENV
@@ -227,6 +267,26 @@ jobs:
           echo "FFMPEG_DIR=C:\vcpkg\installed\x64-windows" >> $env:GITHUB_ENV
           echo "FFMPEG_INCLUDE_DIR=C:\vcpkg\installed\x64-windows\include" >> $env:GITHUB_ENV
           echo "FFMPEG_LIB_DIR=C:\vcpkg\installed\x64-windows\lib" >> $env:GITHUB_ENV
+          
+          # Set up bindgen to find Windows headers
+          # The MSVC action already sets up correct paths, but we need to ensure bindgen uses them
+          $bindgenArgs = ""
+          
+          # Add MSVC include path from environment
+          if ($env:INCLUDE) {
+            $includePaths = $env:INCLUDE -split ';'
+            foreach ($path in $includePaths) {
+              if ($path -and (Test-Path $path)) {
+                $bindgenArgs += "-I`"$path`" "
+              }
+            }
+          }
+          
+          # Also explicitly add vcpkg include
+          $bindgenArgs += "-I`"C:\vcpkg\installed\x64-windows\include`""
+          
+          echo "BINDGEN_EXTRA_CLANG_ARGS=$bindgenArgs" >> $env:GITHUB_ENV
+          echo "Set BINDGEN_EXTRA_CLANG_ARGS: $bindgenArgs"
           
           # Verify FFmpeg installation
           if (Test-Path "C:\vcpkg\installed\x64-windows\include\libavutil\avutil.h") {
