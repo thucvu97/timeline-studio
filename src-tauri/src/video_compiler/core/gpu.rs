@@ -133,32 +133,51 @@ impl GpuDetector {
   async fn check_encoder_available(&self, codec: &str) -> Result<bool> {
     log::debug!("Checking encoder availability for: {codec}");
 
-    let output = tokio::process::Command::new(&self.ffmpeg_path)
-      .args(["-encoders"])
-      .output()
-      .await
-      .map_err(|e| VideoCompilerError::Io(format!("Failed to run ffmpeg: {e}")))?;
+    // In CI environments, retry a few times to avoid "Text file busy" errors
+    let mut last_error = None;
+    for attempt in 0..3 {
+      if attempt > 0 {
+        // Wait a bit before retrying
+        tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
+      }
 
-    if output.status.success() {
-      let stdout = String::from_utf8_lossy(&output.stdout);
-      let available = stdout.contains(codec);
-      log::debug!(
-        "Encoder {} is {}",
-        codec,
-        if available {
-          "available"
-        } else {
-          "not available"
+      match tokio::process::Command::new(&self.ffmpeg_path)
+        .args(["-encoders"])
+        .output()
+        .await
+      {
+        Ok(output) => {
+          if output.status.success() {
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            let available = stdout.contains(codec);
+            log::debug!(
+              "Encoder {} is {}",
+              codec,
+              if available {
+                "available"
+              } else {
+                "not available"
+              }
+            );
+            return Ok(available);
+          } else {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            log::error!("Failed to check encoders: {stderr}");
+            last_error = Some(format!("ffmpeg exited with non-zero status: {stderr}"));
+          }
         }
-      );
-      Ok(available)
-    } else {
-      log::error!(
-        "Failed to check encoders: {}",
-        String::from_utf8_lossy(&output.stderr)
-      );
-      Ok(false)
+        Err(e) => {
+          last_error = Some(format!("Failed to run ffmpeg: {e}"));
+          log::warn!("Attempt {}/{} failed: {e}", attempt + 1, 3);
+        }
+      }
     }
+
+    // If all attempts failed, return the last error
+    if let Some(err) = last_error {
+      log::error!("All attempts to check encoder failed: {err}");
+    }
+    Ok(false)
   }
 
   /// Получить рекомендуемый кодировщик для текущей платформы
@@ -1641,12 +1660,20 @@ case "$*" in
 esac
 exit 0"#;
       std::fs::write(&mock_ffmpeg, script).unwrap();
+
+      // Give the filesystem time to sync in CI environments
+      std::thread::sleep(std::time::Duration::from_millis(100));
+
       use std::os::unix::fs::PermissionsExt;
       std::fs::set_permissions(&mock_ffmpeg, std::fs::Permissions::from_mode(0o755)).unwrap();
+
+      // Another small delay to ensure permissions are applied
+      std::thread::sleep(std::time::Duration::from_millis(50));
     }
 
     #[cfg(windows)]
     {
+      let mock_ffmpeg = temp_dir.path().join("ffmpeg.bat");
       let script = r#"@echo off
 if "%*" == "-encoders" (
     echo Video:
@@ -1659,6 +1686,9 @@ if "%*" == "-encoders" (
 )
 exit /b 0"#;
       std::fs::write(&mock_ffmpeg, script).unwrap();
+      
+      // Give the filesystem time to sync in CI environments
+      std::thread::sleep(std::time::Duration::from_millis(100));
     }
 
     let detector = GpuDetector::new(mock_ffmpeg.to_string_lossy().to_string());
