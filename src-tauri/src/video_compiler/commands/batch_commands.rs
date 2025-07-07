@@ -824,6 +824,10 @@ mod tests {
   async fn test_concurrent_job_creation() {
     cleanup_jobs();
 
+    // Get initial job count in case cleanup didn't fully work
+    let initial_jobs = list_batch_jobs(None).await.unwrap();
+    let initial_count = initial_jobs.len();
+
     // Создаем несколько заданий параллельно
     let mut handles = vec![];
 
@@ -831,7 +835,7 @@ mod tests {
       let handle = tokio::spawn(async move {
         let params = CreateBatchJobParams {
           operation: BatchOperationType::VideoAnalysis,
-          clip_ids: vec![format!("clip{}", i)],
+          clip_ids: vec![format!("concurrent_test_clip{}", i)],
           options: HashMap::new(),
           max_concurrent: None,
           priority: None,
@@ -853,9 +857,9 @@ mod tests {
     let unique_ids: std::collections::HashSet<_> = results.iter().collect();
     assert_eq!(unique_ids.len(), 5);
 
-    // Проверяем, что все задания созданы
-    let jobs = list_batch_jobs(None).await.unwrap();
-    assert_eq!(jobs.len(), 5);
+    // Проверяем, что создалось именно 5 новых заданий
+    let final_jobs = list_batch_jobs(None).await.unwrap();
+    assert_eq!(final_jobs.len(), initial_count + 5);
   }
 
   #[tokio::test]
