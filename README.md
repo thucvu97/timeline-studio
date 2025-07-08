@@ -78,7 +78,7 @@ Timeline Studio is built on modern modular architecture:
 
 📚 **[Detailed Frontend Architecture →](docs/en/03_architecture/frontend/)**  
 📚 **[Detailed Backend Architecture →](docs/en/03_architecture/backend/)**  
-📚 **[Plugin System →](docs/en/07_integrations/)**  
+📚 **[Plugin System →](docs/en/08_tasks/planned/plugin-system.md)**  
 🛠️ **[Technical Stack Details →](docs/en/03_architecture/backend/rust-architecture.md#technology-overview)**
 
 ## 🏗️ Project Status
@@ -167,50 +167,10 @@ sudo apt-get install ffmpeg libavcodec-dev libavformat-dev
 - **macOS**: Install Xcode Command Line Tools: `xcode-select --install`
 - **Linux**: Install build essentials: `sudo apt-get install build-essential`
 
-📚 **[Complete Installation Guide →](docs/en/02_getting_started/)**  
+📚 **[Complete Installation Guide →](docs/en/02_requirements/)**  
 🪟 **[Windows Setup →](docs/en/06_deployment/platforms/)**  
-🎥 **[Video Tutorial →](https://www.youtube.com/@chatman-media)**
-
-## 📚 Documentation Center
-
-### 🚀 Getting Started
-- 📌 [Installation and Setup](docs/en/02_getting_started/)
-- 🎬 [First Project](docs/en/02_getting_started/)
-- 🤔 [Project Structure](docs/en/01_project_docs/project-structure.md)
-- 🪟 [Windows Setup](docs/en/06_deployment/platforms/)
-
-### 🏗️ Architecture
-- 📄 [Architecture Overview](docs/en/03_architecture/)
-- 🌐 [Frontend Architecture](docs/en/03_architecture/frontend/)
-- ⚙️ [Backend Architecture](docs/en/03_architecture/backend/)
-- 🔄 [State Management](docs/en/03_architecture/frontend/state-management.md)
-- 📡 [Communication](docs/en/03_architecture/communication.md)
-
-### 🎯 Features and Capabilities
-- 📈 [Features Overview](docs/en/10_advanced_features/)
-- 📝 [All Modules Description](docs/en/08_tasks/)
-- 🎨 [Color Grading](docs/en/08_tasks/completed/)
-- 🎧 [Fairlight Audio](docs/en/08_tasks/completed/)
-
-### 👨‍💻 Development
-- 🧪 [Developer Guide](docs/en/05_development/)
-- 🧪 [Testing](docs/en/12_testing/)
-- 📡 [API Reference](docs/en/04_api_reference/)
-- 🔌 [Plugin System](docs/en/07_integrations/)
-- 🔧 [Development Commands](docs/en/05_development/)
-
-### 🚀 Deployment
-- 📦 [Building Application](docs/en/06_deployment/)
-- 🤖 [CI/CD Setup](docs/en/13_ci_cd/)
-- 🔐 [OAuth Setup](docs/en/07_integrations/)
-- 📊 [Codecov Integration](docs/en/13_ci_cd/codecov-components.md)
-
-### 📚 Additional Resources
-- 🌟 [Complete Documentation](docs/en/)
-- 📊 [Development Progress](docs/en/10_project_state/)
-- 🌐 [API Documentation](https://chatman-media.github.io/timeline-studio/api-docs/)
-- 🌐 [Project Website](https://chatman-media.github.io/timeline-studio/)
-- 🏗️ [TDF Methodology](docs/en/18_marketing_strategies/)
+🎥 **[Video Tutorial →](https://www.youtube.com/@chatman-media)**  
+📖 **[Full Documentation →](docs/en/)** - Complete documentation with 18+ sections
 
 ## Development
 
@@ -248,7 +208,7 @@ bun run check:all
 - 💡 **[Feature Requests](https://github.com/chatman-media/timeline-studio/discussions)** - Suggest new features
 
 ### Plugin Development
-- 🔌 **[Plugin System Guide](docs/en/07_integrations/)** - Build your own plugins
+- 🔌 **[Plugin System Guide](docs/en/08_tasks/planned/plugin-system.md)** - Build your own plugins
 - 🚀 **[Plugin Quickstart](docs/en/05_development/)** - Get started in 5 minutes
 - 📦 **[Plugin API Reference](docs/en/04_api_reference/)** - Complete API documentation
 
@@ -256,7 +216,7 @@ bun run check:all
 - 🧪 **[Testing Guide](docs/en/12_testing/)** - Unit, integration, E2E testing
 - 📊 **[Test Utils](docs/en/12_testing/)** - Audio and Tauri component testing
 - ✅ **[Code Style](CLAUDE.md#code-style-guidelines)** - Coding standards
-- 🔍 **[Performance Guide](docs/en/11_performance/)** - Optimization tips
+- 🔍 **[Performance Guide](docs/en/08_tasks/planned/performance-optimization.md)** - Optimization tips
 
 ## 🌐 Community & Support
 
@@ -267,7 +227,7 @@ bun run check:all
 [![YouTube](https://img.shields.io/badge/Subscribe-YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/@chatman-media)
 
 ### Get Help
-- 📚 **[FAQ](docs/en/09_troubleshooting/)** - Frequently asked questions
+- 📚 **[FAQ](docs/en/09_architectural_decisions/)** - Frequently asked questions
 - 💬 **[Discussions](https://github.com/chatman-media/timeline-studio/discussions)** - Ask questions, share ideas
 - 🐛 **[Issue Tracker](https://github.com/chatman-media/timeline-studio/issues)** - Report bugs
 - 📧 **Email Support** - ak.chatman.media@gmail.com
