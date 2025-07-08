@@ -296,7 +296,7 @@ pub fn generate_keyframe_extraction_result(
   for i in 0..max_frames.min(10) {
     key_frames.push(KeyFrame {
       timestamp: i as f64 * interval,
-      image_path: format!("keyframe_{:03}.jpg", i),
+      image_path: format!("keyframe_{i:03}.jpg"),
       confidence: 0.8 + (i as f64 * 0.02),
       description: Some(format!("Ключевой кадр {}", i + 1)),
     });
