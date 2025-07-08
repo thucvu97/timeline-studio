@@ -1,6 +1,9 @@
 import { render, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
+// Import mocks before components
+import "../../../__mocks__/hooks"
+
 import { Clip } from "../../../components/clip/clip"
 import { SubtitleClip, TimelineClip, TimelineTrack } from "../../../types"
 
@@ -32,6 +35,19 @@ vi.mock("../../../components/clip/subtitle-clip", () => ({
       Subtitle Clip
     </div>
   ),
+}))
+
+// Мокаем компоненты редактирования
+vi.mock("../../../components/clip/clip-trim-handles", () => ({
+  ClipTrimHandles: () => null,
+}))
+
+vi.mock("../../../components/edit-tools/slip-slide-handles", () => ({
+  SlipSlideHandles: () => null,
+}))
+
+vi.mock("../../../components/edit-tools/rate-stretch-handle", () => ({
+  RateStretchHandle: () => null,
 }))
 
 describe("Clip", () => {

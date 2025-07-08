@@ -1,3 +1,5 @@
+import React from "react"
+
 import { vi } from "vitest"
 
 import { mockTimelineService } from "./services"
@@ -7,8 +9,16 @@ import type { TimelineClip, TimelineProject } from "../types"
 // Mock useTimeline hook
 export const mockUseTimeline = vi.fn(() => ({
   project: mockTimelineService.getProject(),
+  uiState: {
+    timeScale: 10,
+    selectedClipIds: [],
+    selectedTrackIds: [],
+    selectedSectionIds: [],
+  },
+  currentTime: 0,
   loading: false,
   error: null,
+  send: vi.fn(),
 
   // Project actions
   createNewProject: vi.fn((name?: string) => mockTimelineService.createProject(name)),
@@ -134,6 +144,25 @@ export const mockUseDragDropTimeline = vi.fn(() => ({
   isValidDropTargetForNewTrack: vi.fn(() => false),
 }))
 
+// Mock useEditModeContext hook
+export const mockUseEditModeContext = vi.fn(() => ({
+  editMode: "select",
+  setEditMode: vi.fn(),
+  isEditMode: vi.fn((mode: string) => mode === "select"),
+}))
+
+// Mock useClipEditing hook
+export const mockUseClipEditing = vi.fn(() => ({
+  isEditing: false,
+  preview: null,
+  handleTrimStart: vi.fn(),
+  handleTrimMove: vi.fn(),
+  handleTrimEnd: vi.fn(),
+  handleSplit: vi.fn(),
+  clip: null,
+  track: null,
+}))
+
 // Export all mocks for easy importing
 export const timelineHookMocks = {
   useTimeline: mockUseTimeline,
@@ -144,6 +173,8 @@ export const timelineHookMocks = {
   useClips: mockUseClips,
   useTracks: mockUseTracks,
   useDragDropTimeline: mockUseDragDropTimeline,
+  useEditModeContext: mockUseEditModeContext,
+  useClipEditing: mockUseClipEditing,
 }
 
 // Set up vi.mock calls
@@ -177,4 +208,51 @@ vi.mock("../hooks/use-tracks", () => ({
 
 vi.mock("../hooks/use-drag-drop-timeline", () => ({
   useDragDropTimeline: mockUseDragDropTimeline,
+}))
+
+vi.mock("../hooks/use-edit-mode", () => ({
+  useEditModeContext: mockUseEditModeContext,
+  EditModeProvider: ({ children }: { children: React.ReactNode }) => children,
+}))
+
+// Mock TimelineProvider - use a simple passthrough that doesn't cause re-renders
+export const MockTimelineProvider = ({ children }: { children: React.ReactNode }) => {
+  // Create a stable mock context value that doesn't change between renders
+  const mockContext = React.useMemo(() => ({
+    project: mockTimelineService.getProject(),
+    uiState: {
+      timeScale: 10,
+      selectedClipIds: [],
+      selectedTrackIds: [],
+      selectedSectionIds: [],
+    },
+    currentTime: 0,
+    loading: false,
+    error: null,
+    send: vi.fn(),
+    createNewProject: vi.fn(),
+    saveProject: vi.fn(),
+    loadProject: vi.fn(),
+    addSection: vi.fn(),
+    addTrack: vi.fn(),
+    removeTrack: vi.fn(),
+    addClip: vi.fn(),
+    removeClip: vi.fn(),
+    moveClip: vi.fn(),
+  }), [])
+
+  return React.createElement(
+    'div',
+    { 'data-testid': 'mock-timeline-provider' },
+    children
+  )
+}
+
+vi.mock("../services/timeline-provider", () => ({
+  TimelineProvider: MockTimelineProvider,
+  useTimeline: mockUseTimeline,
+}))
+
+vi.mock("../hooks/use-clip-editing", () => ({
+  useClipEditing: mockUseClipEditing,
 }))

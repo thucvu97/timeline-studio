@@ -199,7 +199,9 @@ export function QualityMeter({ videoAnalysis, audioAnalysis, momentScore, classN
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">{t("common.silenceRatio")}</span>
-                  <span className="font-medium">{(100 - audioAnalysis.content.speechPresence - audioAnalysis.content.musicPresence).toFixed(0)}%</span>
+                  <span className="font-medium">
+                    {(100 - audioAnalysis.content.speechPresence - audioAnalysis.content.musicPresence).toFixed(0)}%
+                  </span>
                 </div>
               </div>
             </div>

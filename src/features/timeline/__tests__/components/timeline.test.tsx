@@ -7,6 +7,12 @@ import React from "react"
 import { screen } from "@testing-library/react"
 import { describe, expect, it } from "vitest"
 
+// Import mocks before components
+import "../../__mocks__/hooks"
+import "@/test/mocks/libraries/lucide-react"
+import "@/test/mocks/libraries/resizable"
+import "@/test/mocks/timeline-components"
+
 import { ChatProvider } from "@/features/ai-chat/services/chat-provider"
 import { ModalProvider } from "@/features/modals"
 import { ProjectSettingsProvider } from "@/features/project-settings"

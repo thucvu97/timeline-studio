@@ -806,7 +806,13 @@ const actions = {
   }),
 
   rippleEdit: assign({
-    project: ({ context, event }: { context: TimelineContext; event: Extract<TimelineEvents, { type: "RIPPLE_EDIT" }> }) => {
+    project: ({
+      context,
+      event,
+    }: {
+      context: TimelineContext
+      event: Extract<TimelineEvents, { type: "RIPPLE_EDIT" }>
+    }) => {
       if (!context.project) return context.project
 
       const updateClips = (clips: TimelineClip[]) => {
@@ -891,7 +897,13 @@ const actions = {
   }),
 
   rollEdit: assign({
-    project: ({ context, event }: { context: TimelineContext; event: Extract<TimelineEvents, { type: "ROLL_EDIT" }> }) => {
+    project: ({
+      context,
+      event,
+    }: {
+      context: TimelineContext
+      event: Extract<TimelineEvents, { type: "ROLL_EDIT" }>
+    }) => {
       if (!context.project) return context.project
 
       const updateClips = (clips: TimelineClip[]) => {
@@ -900,18 +912,19 @@ const actions = {
             // Adjust the out point of the current clip
             const newDuration = clip.duration + event.delta
             if (newDuration <= 0) return clip // Invalid edit
-            
+
             return {
               ...clip,
               duration: newDuration,
             }
-          } else if (clip.id === event.adjacentClipId) {
+          }
+          if (clip.id === event.adjacentClipId) {
             // Adjust the in point of the adjacent clip
             const newStartTime = clip.startTime + event.delta
             const newDuration = clip.duration - event.delta
-            
+
             if (newDuration <= 0) return clip // Invalid edit
-            
+
             return {
               ...clip,
               startTime: newStartTime,
@@ -927,7 +940,7 @@ const actions = {
         tracks.map((track) => {
           // Check if this track contains both clips
           const hasClips = track.clips.some((c) => c.id === event.clipId || c.id === event.adjacentClipId)
-          
+
           return {
             ...track,
             clips: hasClips ? updateClips(track.clips) : track.clips,
@@ -952,7 +965,13 @@ const actions = {
   }),
 
   slipEdit: assign({
-    project: ({ context, event }: { context: TimelineContext; event: Extract<TimelineEvents, { type: "SLIP_EDIT" }> }) => {
+    project: ({
+      context,
+      event,
+    }: {
+      context: TimelineContext
+      event: Extract<TimelineEvents, { type: "SLIP_EDIT" }>
+    }) => {
       if (!context.project) return context.project
 
       const updateClips = (clips: TimelineClip[]) => {
@@ -960,11 +979,11 @@ const actions = {
           if (clip.id === event.clipId) {
             // Adjust the media offset without changing timeline position
             const newOffset = clip.offset + event.delta
-            
+
             // Ensure offset stays within bounds
             if (newOffset < 0) return clip
             if (clip.mediaDuration && newOffset + clip.duration > clip.mediaDuration) return clip
-            
+
             return {
               ...clip,
               offset: newOffset,
@@ -998,24 +1017,30 @@ const actions = {
   }),
 
   slideEdit: assign({
-    project: ({ context, event }: { context: TimelineContext; event: Extract<TimelineEvents, { type: "SLIDE_EDIT" }> }) => {
+    project: ({
+      context,
+      event,
+    }: {
+      context: TimelineContext
+      event: Extract<TimelineEvents, { type: "SLIDE_EDIT" }>
+    }) => {
       if (!context.project) return context.project
 
       const updateClips = (clips: TimelineClip[]) => {
         // Sort clips by start time for proper collision detection
         const sortedClips = [...clips].sort((a, b) => a.startTime - b.startTime)
-        
+
         return sortedClips.map((clip) => {
           if (clip.id === event.clipId) {
             const newStartTime = clip.startTime + event.delta
-            
+
             // Check for collisions with other clips
             const hasCollision = sortedClips.some((otherClip) => {
               if (otherClip.id === clip.id) return false
-              
+
               const otherEnd = otherClip.startTime + otherClip.duration
               const newEnd = newStartTime + clip.duration
-              
+
               // Check if clips would overlap
               return (
                 (newStartTime >= otherClip.startTime && newStartTime < otherEnd) ||
@@ -1023,9 +1048,9 @@ const actions = {
                 (newStartTime <= otherClip.startTime && newEnd >= otherEnd)
               )
             })
-            
+
             if (hasCollision || newStartTime < 0) return clip
-            
+
             return {
               ...clip,
               startTime: newStartTime,
@@ -1059,7 +1084,13 @@ const actions = {
   }),
 
   rateStretch: assign({
-    project: ({ context, event }: { context: TimelineContext; event: Extract<TimelineEvents, { type: "RATE_STRETCH" }> }) => {
+    project: ({
+      context,
+      event,
+    }: {
+      context: TimelineContext
+      event: Extract<TimelineEvents, { type: "RATE_STRETCH" }>
+    }) => {
       if (!context.project) return context.project
 
       const updateClips = (clips: TimelineClip[]) => {
@@ -1067,12 +1098,12 @@ const actions = {
           if (clip.id === event.clipId) {
             // Apply rate to duration
             const newDuration = clip.duration / event.rate
-            
+
             if (newDuration <= 0) return clip
-            
+
             // Check if we need to apply pitch compensation for audio
             const pitchCompensation = event.maintainPitch !== false // Default to true
-            
+
             return {
               ...clip,
               duration: newDuration,
@@ -1284,5 +1315,4 @@ export const timelineMachine = setup({
       },
     },
   },
-},
-)
+})

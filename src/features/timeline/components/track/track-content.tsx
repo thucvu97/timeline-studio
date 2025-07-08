@@ -9,6 +9,7 @@ import { useDroppable } from "@dnd-kit/core"
 import { useDropZone } from "@/features/drag-drop"
 import { cn } from "@/lib/utils"
 
+import { TrackRollHandles } from "./track-roll-handles"
 import { useDragDropTimeline } from "../../hooks/use-drag-drop-timeline"
 import { useTimeline } from "../../hooks/use-timeline"
 import { TimelineTrack } from "../../types"
@@ -160,6 +161,16 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
             onRemove={() => handleClipRemove(clip.id)}
           />
         ))}
+
+        {/* Roll edit handles between adjacent clips */}
+        <TrackRollHandles
+          track={track}
+          timeScale={timeScale}
+          onRollStart={(leftClipId, rightClipId, mouseX) => {
+            // This would typically trigger a roll edit operation
+            console.log("Roll edit started:", leftClipId, rightClipId, mouseX)
+          }}
+        />
       </div>
 
       {/* Область для добавления клипов (drop zone) */}

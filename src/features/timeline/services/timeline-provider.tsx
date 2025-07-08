@@ -83,7 +83,7 @@ export interface TimelineContextType {
 
   // Утилиты
   clearError: () => void
-  
+
   // Прямой доступ к send для расширенных операций
   send: (event: any) => void
 }

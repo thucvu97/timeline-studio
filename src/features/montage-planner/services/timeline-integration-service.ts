@@ -92,7 +92,7 @@ export function applyPlanToTimeline(
   // Собираем все клипы из последовательностей
   const allClips: PlannedClip[] = []
   const allTransitions: TransitionPlan[] = []
-  
+
   plan.sequences.forEach((sequence) => {
     allClips.push(...sequence.clips)
     allTransitions.push(...sequence.transitions)
@@ -140,7 +140,7 @@ export function applyPlanToTimeline(
 function createTimelineClips(
   montageClips: PlannedClip[],
   trackId: string,
-  mediaMap: Map<string, MediaFile>,
+  _mediaMap: Map<string, MediaFile>,
   timeOffset: number,
 ): TimelineClip[] {
   return montageClips

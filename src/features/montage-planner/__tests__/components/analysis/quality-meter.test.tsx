@@ -76,7 +76,11 @@ describe("QualityMeter", () => {
       totalScore: 40,
     }
 
-    rerender(<BaseProviders><QualityMeter momentScore={lowQualityScore} /></BaseProviders>)
+    rerender(
+      <BaseProviders>
+        <QualityMeter momentScore={lowQualityScore} />
+      </BaseProviders>,
+    )
 
     expect(screen.getByText("40%")).toHaveClass("text-red-600")
     expect(screen.getByText("montage-planner.quality.poor")).toBeInTheDocument()

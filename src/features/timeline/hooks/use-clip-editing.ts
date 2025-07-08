@@ -119,6 +119,10 @@ export function useClipEditing(clipId: string, options: UseClipEditingOptions = 
           const slideAmount = Math.max(slideBounds.min, Math.min(slideBounds.max, timeDelta))
           newStartTime = editStartRef.current.startTime + slideAmount
           break
+
+        default:
+          // No changes for other modes
+          break
       }
 
       // Apply snapping
@@ -185,6 +189,10 @@ export function useClipEditing(clipId: string, options: UseClipEditingOptions = 
               clipId,
               delta: preview.startTime - clip.startTime,
             })
+            break
+
+          default:
+            // No action for other modes
             break
         }
       }

@@ -1,10 +1,15 @@
+import { useDroppable } from "@dnd-kit/core"
 import { screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+// Import mocks before components
 import { renderWithProviders } from "@/test/test-utils"
 
+import { mockUseDragDropTimeline } from "../../../__mocks__/hooks"
 import { TrackContent } from "../../../components/track/track-content"
 import { TimelineClip, TimelineTrack } from "../../../types"
+
+// Import the global mock 
 
 // Мокаем dnd-kit
 vi.mock("@dnd-kit/core", () => ({
@@ -14,23 +19,20 @@ vi.mock("@dnd-kit/core", () => ({
   })),
 }))
 
-// Мокаем хук drag-drop
-const mockDragState: {
-  isDragging: boolean
-  dropPosition: { trackId: string; startTime: number } | null
-} = {
+// Мокаем TrackRollHandles компонент
+vi.mock("../../../components/track/track-roll-handles", () => ({
+  TrackRollHandles: () => null,
+}))
+
+// Create local references to the mocked drag state and function
+const mockDragState = {
   isDragging: false,
+  draggedItem: null,
+  dragOverTrack: null,
   dropPosition: null,
 }
 
 const mockIsValidDropTarget = vi.fn(() => true)
-
-vi.mock("../../../hooks/use-drag-drop-timeline", () => ({
-  useDragDropTimeline: () => ({
-    dragState: mockDragState,
-    isValidDropTarget: mockIsValidDropTarget,
-  }),
-}))
 
 // Мокаем useTimeline
 const mockAddClip = vi.fn()
@@ -110,6 +112,7 @@ describe("TrackContent", () => {
     name: "Test Clip",
     startTime: 5,
     duration: 10,
+    offset: 0,
     mediaStartTime: 0,
     mediaEndTime: 10,
     volume: 1,
@@ -130,6 +133,29 @@ describe("TrackContent", () => {
     mockDragState.isDragging = false
     mockDragState.dropPosition = null
     mockIsValidDropTarget.mockReturnValue(true)
+    
+    // Set up the global drag-drop mock to use our local state
+    mockUseDragDropTimeline.mockReturnValue({
+      dragState: {
+        ...mockDragState,
+        dropPosition: mockDragState.dropPosition as any,
+      },
+      isValidDropTarget: mockIsValidDropTarget,
+      handleDragStart: vi.fn(),
+      handleDragOver: vi.fn(),
+      handleDragEnd: vi.fn(),
+      isValidDropTargetForNewTrack: vi.fn(() => false),
+    })
+    
+    // Reset useDroppable mock to default state
+    vi.mocked(useDroppable).mockReturnValue({
+      isOver: false,
+      setNodeRef: vi.fn(),
+      active: null,
+      rect: { current: null },
+      node: { current: null },
+      over: null,
+    } as any)
   })
 
   describe("Рендеринг основного контента", () => {
@@ -189,12 +215,30 @@ describe("TrackContent", () => {
   })
 
   describe("Drag and Drop функциональность", () => {
-    it("должен показывать drop feedback при перетаскивании", async () => {
-      mockDragState.isDragging = true
-      const { useDroppable } = vi.mocked(await import("@dnd-kit/core"))
+    it("должен показывать drop feedback при перетаскивании", () => {
+      // Set up the mock to return the correct state before rendering
+      mockUseDragDropTimeline.mockReturnValue({
+        dragState: {
+          isDragging: true,
+          draggedItem: null,
+          dragOverTrack: null,
+          dropPosition: null,
+        },
+        isValidDropTarget: vi.fn(() => true),
+        handleDragStart: vi.fn(),
+        handleDragOver: vi.fn(),
+        handleDragEnd: vi.fn(),
+        isValidDropTargetForNewTrack: vi.fn(() => false),
+      })
+      
+      // Mock useDroppable to return isOver: true
       vi.mocked(useDroppable).mockReturnValue({
         isOver: true,
         setNodeRef: vi.fn(),
+        active: null,
+        rect: { current: null },
+        node: { current: null },
+        over: null,
       } as any)
 
       renderWithProviders(<TrackContent track={baseTrack} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
@@ -203,8 +247,19 @@ describe("TrackContent", () => {
     })
 
     it("должен применять стили для валидного drop target", () => {
-      mockDragState.isDragging = true
-      mockIsValidDropTarget.mockReturnValue(true)
+      mockUseDragDropTimeline.mockReturnValue({
+        dragState: {
+          isDragging: true,
+          draggedItem: null,
+          dragOverTrack: null,
+          dropPosition: null,
+        },
+        isValidDropTarget: vi.fn(() => true),
+        handleDragStart: vi.fn(),
+        handleDragOver: vi.fn(),
+        handleDragEnd: vi.fn(),
+        isValidDropTargetForNewTrack: vi.fn(() => false),
+      })
 
       renderWithProviders(<TrackContent track={baseTrack} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
 
@@ -214,8 +269,19 @@ describe("TrackContent", () => {
     })
 
     it("должен применять стили для невалидного drop target", () => {
-      mockDragState.isDragging = true
-      mockIsValidDropTarget.mockReturnValue(false)
+      mockUseDragDropTimeline.mockReturnValue({
+        dragState: {
+          isDragging: true,
+          draggedItem: null,
+          dragOverTrack: null,
+          dropPosition: null,
+        },
+        isValidDropTarget: vi.fn(() => false),
+        handleDragStart: vi.fn(),
+        handleDragOver: vi.fn(),
+        handleDragEnd: vi.fn(),
+        isValidDropTargetForNewTrack: vi.fn(() => false),
+      })
 
       renderWithProviders(<TrackContent track={baseTrack} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
 
@@ -224,10 +290,22 @@ describe("TrackContent", () => {
     })
 
     it("должен показывать insertion индикатор", () => {
-      mockDragState.dropPosition = {
-        trackId: "track-1",
-        startTime: 10,
-      }
+      mockUseDragDropTimeline.mockReturnValue({
+        dragState: {
+          isDragging: false,
+          draggedItem: null,
+          dragOverTrack: null,
+          dropPosition: {
+            trackId: "track-1",
+            startTime: 10,
+          },
+        },
+        isValidDropTarget: vi.fn(() => true),
+        handleDragStart: vi.fn(),
+        handleDragOver: vi.fn(),
+        handleDragEnd: vi.fn(),
+        isValidDropTargetForNewTrack: vi.fn(() => false),
+      })
 
       renderWithProviders(<TrackContent track={baseTrack} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
 
@@ -237,10 +315,22 @@ describe("TrackContent", () => {
     })
 
     it("не должен показывать insertion индикатор для другого трека", () => {
-      mockDragState.dropPosition = {
-        trackId: "track-2", // Другой трек
-        startTime: 10,
-      }
+      mockUseDragDropTimeline.mockReturnValue({
+        dragState: {
+          isDragging: false,
+          draggedItem: null,
+          dragOverTrack: null,
+          dropPosition: {
+            trackId: "track-2", // Другой трек
+            startTime: 10,
+          },
+        },
+        isValidDropTarget: vi.fn(() => true),
+        handleDragStart: vi.fn(),
+        handleDragOver: vi.fn(),
+        handleDragEnd: vi.fn(),
+        isValidDropTargetForNewTrack: vi.fn(() => false),
+      })
 
       renderWithProviders(<TrackContent track={baseTrack} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
 
@@ -299,18 +389,36 @@ describe("TrackContent", () => {
       expect(container.className).toMatch(/border-border/)
     })
 
-    it("должен показывать drop zone визуальный feedback", async () => {
-      mockDragState.isDragging = true
-      const { useDroppable } = vi.mocked(await import("@dnd-kit/core"))
+    it("должен показывать drop zone визуальный feedback", () => {
+      mockUseDragDropTimeline.mockReturnValue({
+        dragState: {
+          isDragging: true,
+          draggedItem: null,
+          dragOverTrack: null,
+          dropPosition: null,
+        },
+        isValidDropTarget: vi.fn(() => true),
+        handleDragStart: vi.fn(),
+        handleDragOver: vi.fn(),
+        handleDragEnd: vi.fn(),
+        isValidDropTargetForNewTrack: vi.fn(() => false),
+      })
+      
       vi.mocked(useDroppable).mockReturnValue({
         isOver: true,
         setNodeRef: vi.fn(),
+        active: null,
+        rect: { current: null },
+        node: { current: null },
+        over: null,
       } as any)
 
       renderWithProviders(<TrackContent track={baseTrack} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
 
-      const dropZone = screen.getByText("Drop here").parentElement?.parentElement
-      expect(dropZone).toHaveClass("absolute inset-0 pointer-events-none z-30")
+      const dropZone = screen.getByText("Drop here").closest('.absolute')
+      expect(dropZone).toHaveClass("absolute")
+      expect(dropZone).toHaveClass("inset-0")
+      expect(dropZone).toHaveClass("bg-primary/5")
     })
   })
 

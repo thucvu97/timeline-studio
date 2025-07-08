@@ -23,6 +23,7 @@ const createMockIcon = (name: string) => {
 export const Activity = createMockIcon("Activity")
 export const AlertCircle = createMockIcon("AlertCircle")
 export const AlertTriangle = createMockIcon("AlertTriangle")
+export const ArrowLeftRight = createMockIcon("ArrowLeftRight")
 export const ArrowRight = createMockIcon("ArrowRight")
 export const AudioLines = createMockIcon("AudioLines")
 export const Blend = createMockIcon("Blend")
@@ -36,6 +37,7 @@ export const ChevronDown = createMockIcon("ChevronDown")
 export const ChevronDownIcon = createMockIcon("ChevronDownIcon")
 export const ChevronFirst = createMockIcon("ChevronFirst")
 export const ChevronLast = createMockIcon("ChevronLast")
+export const ChevronLeft = createMockIcon("ChevronLeft")
 export const ChevronRight = createMockIcon("ChevronRight")
 export const ChevronRightIcon = createMockIcon("ChevronRightIcon")
 export const ChevronUpIcon = createMockIcon("ChevronUpIcon")
@@ -66,6 +68,7 @@ export const Gauge = createMockIcon("Gauge")
 export const Grid = createMockIcon("Grid")
 export const Grid2x2 = createMockIcon("Grid2x2")
 export const Grid2X2 = createMockIcon("Grid2X2")
+export const GripVertical = createMockIcon("GripVertical")
 export const GripVerticalIcon = createMockIcon("GripVerticalIcon")
 export const HardDrive = createMockIcon("HardDrive")
 export const History = createMockIcon("History")
@@ -82,9 +85,12 @@ export const Loader2 = createMockIcon("Loader2")
 export const Lock = createMockIcon("Lock")
 export const Maximize2 = createMockIcon("Maximize2")
 export const Mic = createMockIcon("Mic")
+export const Minimize2 = createMockIcon("Minimize2")
 export const Minus = createMockIcon("Minus")
 export const MonitorCog = createMockIcon("MonitorCog")
 export const Moon = createMockIcon("Moon")
+export const Move = createMockIcon("Move")
+export const MousePointer = createMockIcon("MousePointer")
 export const MoveHorizontal = createMockIcon("MoveHorizontal")
 export const Music = createMockIcon("Music")
 export const Music2 = createMockIcon("Music2")
@@ -112,6 +118,7 @@ export const Settings2 = createMockIcon("Settings2")
 export const Sliders = createMockIcon("Sliders")
 export const Circle = createMockIcon("Circle")
 export const Sparkles = createMockIcon("Sparkles")
+export const Split = createMockIcon("Split")
 export const Square = createMockIcon("Square")
 export const SquareMousePointer = createMockIcon("SquareMousePointer")
 export const Star = createMockIcon("Star")
@@ -146,6 +153,7 @@ vi.mock("lucide-react", () => ({
   Activity,
   AlertCircle,
   AlertTriangle,
+  ArrowLeftRight,
   ArrowRight,
   AudioLines,
   Blend,
@@ -159,6 +167,7 @@ vi.mock("lucide-react", () => ({
   ChevronDownIcon,
   ChevronFirst,
   ChevronLast,
+  ChevronLeft,
   ChevronRight,
   ChevronRightIcon,
   ChevronUpIcon,
@@ -189,6 +198,7 @@ vi.mock("lucide-react", () => ({
   Grid,
   Grid2x2,
   Grid2X2,
+  GripVertical,
   GripVerticalIcon,
   HardDrive,
   History,
@@ -205,9 +215,12 @@ vi.mock("lucide-react", () => ({
   Lock,
   Maximize2,
   Mic,
+  Minimize2,
   Minus,
   MonitorCog,
   Moon,
+  Move,
+  MousePointer,
   MoveHorizontal,
   Music,
   Music2,
@@ -235,6 +248,7 @@ vi.mock("lucide-react", () => ({
   Sliders,
   Circle,
   Sparkles,
+  Split,
   Square,
   SquareMousePointer,
   Star,

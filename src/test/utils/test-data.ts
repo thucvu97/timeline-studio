@@ -104,6 +104,7 @@ export const TEST_TIMELINE_DATA = {
     duration: 10,
     mediaStartTime: 0,
     mediaEndTime: 10,
+    offset: 0,
     effects: [],
     transitions: [],
     filters: [],
@@ -236,6 +237,7 @@ export const testUtils = {
       startTime: i * 10,
       duration: 10,
       mediaId: `test-media-${i + 1}`,
+      offset: 0,
     })),
 
   // Create project with content

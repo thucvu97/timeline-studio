@@ -237,7 +237,10 @@ export function validateEdit(
       }
       break
 
-    // Add more operation validations as needed
+    default:
+      // Unknown operation type
+      warnings.push(`Unknown operation type: ${operation}`)
+      break
   }
 
   return {

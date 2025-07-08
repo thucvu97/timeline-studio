@@ -1,8 +1,9 @@
-import React, { useMemo } from "react"
-import { TimelineTrack, TimelineClip } from "../../types"
-import { RollEditHandle } from "../edit-tools/roll-edit-handle"
+import { useMemo } from "react"
+
 import { useEditModeContext } from "../../hooks/use-edit-mode"
+import { TimelineClip, TimelineTrack } from "../../types"
 import { EDIT_MODES } from "../../types/edit-modes"
+import { RollEditHandle } from "../edit-tools/roll-edit-handle"
 
 interface TrackRollHandlesProps {
   track: TimelineTrack
@@ -13,11 +14,6 @@ interface TrackRollHandlesProps {
 export function TrackRollHandles({ track, timeScale, onRollStart }: TrackRollHandlesProps) {
   const { editMode } = useEditModeContext()
 
-  // Only render in roll mode
-  if (editMode !== EDIT_MODES.ROLL) {
-    return null
-  }
-
   // Find adjacent clip pairs
   const adjacentPairs = useMemo(() => {
     const sortedClips = [...track.clips].sort((a, b) => a.startTime - b.startTime)
@@ -26,7 +22,7 @@ export function TrackRollHandles({ track, timeScale, onRollStart }: TrackRollHan
     for (let i = 0; i < sortedClips.length - 1; i++) {
       const leftClip = sortedClips[i]
       const rightClip = sortedClips[i + 1]
-      
+
       // Check if clips are adjacent (small gap tolerance)
       const gap = Math.abs(rightClip.startTime - (leftClip.startTime + leftClip.duration))
       if (gap <= 0.001) {
@@ -36,6 +32,11 @@ export function TrackRollHandles({ track, timeScale, onRollStart }: TrackRollHan
 
     return pairs
   }, [track.clips])
+
+  // Only render in roll mode
+  if (editMode !== EDIT_MODES.ROLL) {
+    return null
+  }
 
   return (
     <>

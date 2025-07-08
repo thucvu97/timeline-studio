@@ -1,10 +1,11 @@
-import React from "react"
-import { cn } from "@/lib/utils"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { GripVertical } from "lucide-react"
+
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { cn } from "@/lib/utils"
+
 import { useEditModeContext } from "../../hooks/use-edit-mode"
-import { EDIT_MODES } from "../../types/edit-modes"
 import { TimelineClip } from "../../types"
+import { EDIT_MODES } from "../../types/edit-modes"
 
 interface RollEditHandleProps {
   leftClip: TimelineClip
@@ -78,16 +79,12 @@ export function RollEditHandle({
             {isActive && (
               <>
                 {/* Left clip indicator */}
-                <div 
-                  className="absolute top-1/2 -translate-y-1/2 right-full mr-1"
-                >
+                <div className="absolute top-1/2 -translate-y-1/2 right-full mr-1">
                   <div className="w-8 h-0.5 bg-purple-500/50" />
                 </div>
 
                 {/* Right clip indicator */}
-                <div 
-                  className="absolute top-1/2 -translate-y-1/2 left-full ml-1"
-                >
+                <div className="absolute top-1/2 -translate-y-1/2 left-full ml-1">
                   <div className="w-8 h-0.5 bg-purple-500/50" />
                 </div>
               </>

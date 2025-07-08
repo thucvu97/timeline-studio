@@ -6,7 +6,6 @@ import { useEditModeContext } from "../../hooks/use-edit-mode"
 import { EDIT_MODES } from "../../types/edit-modes"
 
 interface ClipTrimHandlesProps {
-  clipId: string
   onTrimStart: (edge: "start" | "end", initialX: number) => void
   onTrimMove: (deltaX: number) => void
   onTrimEnd: (committed: boolean) => void
@@ -16,7 +15,6 @@ interface ClipTrimHandlesProps {
 }
 
 export function ClipTrimHandles({
-  clipId,
   onTrimStart,
   onTrimMove,
   onTrimEnd,
@@ -24,7 +22,7 @@ export function ClipTrimHandles({
   disabled = false,
   className,
 }: ClipTrimHandlesProps) {
-  const { editMode, isEditMode } = useEditModeContext()
+  const { isEditMode } = useEditModeContext()
   const [isDragging, setIsDragging] = useState(false)
   const [dragEdge, setDragEdge] = useState<"start" | "end" | null>(null)
   const [dragStartX, setDragStartX] = useState(0)
@@ -171,8 +169,6 @@ export function RollHandles({
   const [isDragging, setIsDragging] = useState(false)
   const [dragStartX, setDragStartX] = useState(0)
 
-  if (!isEditMode(EDIT_MODES.ROLL) || !isActive) return null
-
   const handleMouseDown = (e: React.MouseEvent) => {
     if (disabled) return
 
@@ -206,6 +202,8 @@ export function RollHandles({
       document.removeEventListener("mouseup", handleMouseUp)
     }
   }, [isDragging, dragStartX, onRollMove, onRollEnd])
+
+  if (!isEditMode(EDIT_MODES.ROLL) || !isActive) return null
 
   return (
     <div

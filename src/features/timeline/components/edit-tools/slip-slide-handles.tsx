@@ -1,10 +1,11 @@
-import React from "react"
-import { cn } from "@/lib/utils"
+import { Maximize2, MoveHorizontal } from "lucide-react"
+
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { MoveHorizontal, Maximize2 } from "lucide-react"
+import { cn } from "@/lib/utils"
+
 import { useEditModeContext } from "../../hooks/use-edit-mode"
-import { EDIT_MODES } from "../../types/edit-modes"
 import { TimelineClip } from "../../types"
+import { EDIT_MODES } from "../../types/edit-modes"
 
 interface SlipSlideHandlesProps {
   clip: TimelineClip
@@ -50,12 +51,10 @@ export function SlipSlideHandles({
           }}
         >
           {/* Left media boundary */}
-          {offsetPixels > 0 && (
-            <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-blue-500/50" />
-          )}
-          
+          {offsetPixels > 0 && <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-blue-500/50" />}
+
           {/* Right media boundary */}
-          {(mediaDuration - clip.offset - clip.duration) > 0 && (
+          {mediaDuration - clip.offset - clip.duration > 0 && (
             <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-blue-500/50" />
           )}
 
@@ -111,19 +110,23 @@ export function SlipSlideHandles({
           {/* Left arrow */}
           <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full">
             <div className="w-8 h-0.5 bg-green-500/50" />
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0 h-0 
+            <div
+              className="absolute left-0 top-1/2 -translate-y-1/2 w-0 h-0 
               border-t-4 border-t-transparent
               border-r-4 border-r-green-500/50
-              border-b-4 border-b-transparent" />
+              border-b-4 border-b-transparent"
+            />
           </div>
 
           {/* Right arrow */}
           <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full">
             <div className="w-8 h-0.5 bg-green-500/50" />
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-0 h-0 
+            <div
+              className="absolute right-0 top-1/2 -translate-y-1/2 w-0 h-0 
               border-t-4 border-t-transparent
               border-l-4 border-l-green-500/50
-              border-b-4 border-b-transparent" />
+              border-b-4 border-b-transparent"
+            />
           </div>
         </div>
 
