@@ -63,7 +63,7 @@ MockAiChat.displayName = "MockAiChat"
 
 // Mock ResourcesProvider as well
 const MockResourcesProvider = ({ children }: { children: React.ReactNode }) => {
-  return React.createElement('div', { 'data-testid': 'mock-resources-provider' }, children)
+  return React.createElement("div", { "data-testid": "mock-resources-provider" }, children)
 }
 MockResourcesProvider.displayName = "MockResourcesProvider"
 

@@ -9,7 +9,7 @@ import { mockUseDragDropTimeline } from "../../../__mocks__/hooks"
 import { TrackContent } from "../../../components/track/track-content"
 import { TimelineClip, TimelineTrack } from "../../../types"
 
-// Import the global mock 
+// Import the global mock
 
 // Мокаем dnd-kit
 vi.mock("@dnd-kit/core", () => ({
@@ -133,7 +133,7 @@ describe("TrackContent", () => {
     mockDragState.isDragging = false
     mockDragState.dropPosition = null
     mockIsValidDropTarget.mockReturnValue(true)
-    
+
     // Set up the global drag-drop mock to use our local state
     mockUseDragDropTimeline.mockReturnValue({
       dragState: {
@@ -146,7 +146,7 @@ describe("TrackContent", () => {
       handleDragEnd: vi.fn(),
       isValidDropTargetForNewTrack: vi.fn(() => false),
     })
-    
+
     // Reset useDroppable mock to default state
     vi.mocked(useDroppable).mockReturnValue({
       isOver: false,
@@ -230,7 +230,7 @@ describe("TrackContent", () => {
         handleDragEnd: vi.fn(),
         isValidDropTargetForNewTrack: vi.fn(() => false),
       })
-      
+
       // Mock useDroppable to return isOver: true
       vi.mocked(useDroppable).mockReturnValue({
         isOver: true,
@@ -403,7 +403,7 @@ describe("TrackContent", () => {
         handleDragEnd: vi.fn(),
         isValidDropTargetForNewTrack: vi.fn(() => false),
       })
-      
+
       vi.mocked(useDroppable).mockReturnValue({
         isOver: true,
         setNodeRef: vi.fn(),
@@ -415,7 +415,7 @@ describe("TrackContent", () => {
 
       renderWithProviders(<TrackContent track={baseTrack} timeScale={10} currentTime={0} onUpdate={mockOnUpdate} />)
 
-      const dropZone = screen.getByText("Drop here").closest('.absolute')
+      const dropZone = screen.getByText("Drop here").closest(".absolute")
       expect(dropZone).toHaveClass("absolute")
       expect(dropZone).toHaveClass("inset-0")
       expect(dropZone).toHaveClass("bg-primary/5")

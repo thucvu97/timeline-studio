@@ -1,7 +1,7 @@
 //! Тесты для модуля рендеринга
 
 #[cfg(test)]
-mod tests {
+mod rendering_tests {
   use super::super::business_logic;
   use super::super::types::*;
   use crate::video_compiler::error::VideoCompilerError;

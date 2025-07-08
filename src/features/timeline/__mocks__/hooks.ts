@@ -218,34 +218,33 @@ vi.mock("../hooks/use-edit-mode", () => ({
 // Mock TimelineProvider - use a simple passthrough that doesn't cause re-renders
 export const MockTimelineProvider = ({ children }: { children: React.ReactNode }) => {
   // Create a stable mock context value that doesn't change between renders
-  const mockContext = React.useMemo(() => ({
-    project: mockTimelineService.getProject(),
-    uiState: {
-      timeScale: 10,
-      selectedClipIds: [],
-      selectedTrackIds: [],
-      selectedSectionIds: [],
-    },
-    currentTime: 0,
-    loading: false,
-    error: null,
-    send: vi.fn(),
-    createNewProject: vi.fn(),
-    saveProject: vi.fn(),
-    loadProject: vi.fn(),
-    addSection: vi.fn(),
-    addTrack: vi.fn(),
-    removeTrack: vi.fn(),
-    addClip: vi.fn(),
-    removeClip: vi.fn(),
-    moveClip: vi.fn(),
-  }), [])
-
-  return React.createElement(
-    'div',
-    { 'data-testid': 'mock-timeline-provider' },
-    children
+  const mockContext = React.useMemo(
+    () => ({
+      project: mockTimelineService.getProject(),
+      uiState: {
+        timeScale: 10,
+        selectedClipIds: [],
+        selectedTrackIds: [],
+        selectedSectionIds: [],
+      },
+      currentTime: 0,
+      loading: false,
+      error: null,
+      send: vi.fn(),
+      createNewProject: vi.fn(),
+      saveProject: vi.fn(),
+      loadProject: vi.fn(),
+      addSection: vi.fn(),
+      addTrack: vi.fn(),
+      removeTrack: vi.fn(),
+      addClip: vi.fn(),
+      removeClip: vi.fn(),
+      moveClip: vi.fn(),
+    }),
+    [],
   )
+
+  return React.createElement("div", { "data-testid": "mock-timeline-provider" }, children)
 }
 
 vi.mock("../services/timeline-provider", () => ({

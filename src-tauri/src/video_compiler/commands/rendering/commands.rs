@@ -533,8 +533,8 @@ pub async fn get_render_total_processing_time(
     )
   })?;
 
-  let render_stats = business_logic::create_render_statistics(
-    super::types::RenderStatisticsParams {
+  let render_stats =
+    business_logic::create_render_statistics(super::types::RenderStatisticsParams {
       job_id,
       frames_processed: stats.frames_processed,
       memory_used: stats.memory_used,
@@ -565,8 +565,7 @@ pub async fn get_render_total_processing_time(
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap()
         .as_secs(),
-    },
-  );
+    });
 
   Ok(business_logic::calculate_total_processing_time(
     &render_stats,
