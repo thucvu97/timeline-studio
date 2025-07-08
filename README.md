@@ -78,48 +78,8 @@ Timeline Studio is built on modern modular architecture:
 
 📚 **[Detailed Frontend Architecture →](docs/en/03_architecture/frontend/)**  
 📚 **[Detailed Backend Architecture →](docs/en/03_architecture/backend/)**  
-📚 **[Plugin System →](docs/en/07_integrations/)**
-
-## 🛠️ Technical Stack Details
-
-### Frontend Stack
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **Next.js** | 15.1.3 | React framework with App Router |
-| **React** | 19.0.0 | UI library with concurrent features |
-| **TypeScript** | 5.7.2 | Type safety and DX |
-| **XState** | 5.19.0 | State machines for complex logic |
-| **Tailwind CSS** | 4.0.0-beta.3 | Utility-first styling |
-| **shadcn/ui** | Latest | Component library |
-| **Radix UI** | Latest | Accessible UI primitives |
-| **i18next** | 24.2.0 | Internationalization (13 languages) |
-
-### Backend Stack
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **Rust** | 1.81.0+ | Systems programming language |
-| **Tauri** | 2.2.0 | Desktop app framework |
-| **FFmpeg** | 6.0+ | Video/audio processing |
-| **tokio** | 1.42.0 | Async runtime |
-| **serde** | 1.0.217 | Serialization framework |
-| **keyring** | 3.6.1 | Secure credential storage |
-| **tracing** | 0.1.41 | Structured logging |
-
-### AI & ML Stack
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **ONNX Runtime** | 0.21.0 | ML inference engine |
-| **Whisper** | Latest | Speech-to-text |
-| **YOLO** | v8/v11 | Object detection |
-| **Claude API** | Latest | AI assistant integration |
-| **OpenAI API** | Latest | GPT & Whisper models |
-
-### Performance Benchmarks
-- **Startup Time**: < 2 seconds on modern hardware
-- **Memory Usage**: ~200MB base, scales with project size
-- **Export Speed**: 2-3x realtime with GPU acceleration
-- **Test Coverage**: 80%+ across frontend and backend
-- **Build Size**: ~50MB compressed installer
+📚 **[Plugin System →](docs/en/07_integrations/)**  
+🛠️ **[Technical Stack Details →](docs/en/03_architecture/backend/rust-architecture.md#technology-overview)**
 
 ## 🏗️ Project Status
 
@@ -298,22 +258,6 @@ bun run check:all
 - ✅ **[Code Style](CLAUDE.md#code-style-guidelines)** - Coding standards
 - 🔍 **[Performance Guide](docs/en/11_performance/)** - Optimization tips
 
-## 🏗️ Timeline Documentation Framework (TDF)
-
-Timeline Studio pioneered the **Timeline Documentation Framework (TDF)** - an innovative methodology for organizing technical documentation:
-
-✅ **18 specialized sections** for complete project coverage  
-✅ **Bilingual support out of the box** (ru/en structure)  
-✅ **Media-First architecture** for multimedia projects  
-✅ **Enterprise-ready organization** with professional standards  
-
-**TDF is already used for:**
-- Documentation consulting ($5,000-50,000 per project)
-- Certification programs ($500-2,000 per course)
-- Enterprise tools ($1,000-10,000/year)
-
-📚 **[Learn more about TDF →](docs/en/18_marketing_strategies/)**
-
 ## 🌐 Community & Support
 
 ### Join Our Community
@@ -338,6 +282,37 @@ Timeline Studio pioneered the **Timeline Documentation Framework (TDF)** - an in
 - ⭐ **[Star on GitHub](https://github.com/chatman-media/timeline-studio)** - Show your support
 - 🤝 **[Contribute](CONTRIBUTING.md)** - Join the development
 - 💼 **[Commercial License](docs/en/11_legal/)** - For business use
+
+## 🤝 Contributors
+
+Thank you to all the amazing people who have contributed to Timeline Studio:
+
+<a href="https://github.com/chatman-media/timeline-studio/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=chatman-media/timeline-studio" />
+</a>
+
+## 💎 Sponsors
+
+Timeline Studio is supported by these amazing sponsors:
+
+<div align="center">
+
+[![Open Collective](https://img.shields.io/badge/Open%20Collective-Support%20Us-7FADF2?style=for-the-badge&logo=opencollective&logoColor=white)](https://opencollective.com/timeline-studio)
+
+### 🌟 Gold Sponsors
+
+<a href="https://github.com/alagiz">
+  <img src="https://github.com/alagiz.png" width="80" height="80" alt="alagiz" style="border-radius: 50%; margin: 10px;" />
+</a>
+<a href="https://github.com/alexk984">
+  <img src="https://github.com/alexk984.png" width="80" height="80" alt="alexk984" style="border-radius: 50%; margin: 10px;" />
+</a>
+
+Special thanks to our generous sponsors who have contributed $5,000+ to the project development!
+
+[Become a sponsor →](https://opencollective.com/timeline-studio)
+
+</div>
 
 ## Star History
 <a href="https://www.star-history.com/#chatman-media/timeline-studio&Date">
