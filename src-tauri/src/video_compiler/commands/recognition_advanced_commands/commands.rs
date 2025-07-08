@@ -27,7 +27,7 @@ pub async fn check_is_face_model(
     ));
   }
 
-  log::debug!("Проверка является ли модель face model: {}", model_path);
+  log::debug!("Проверка является ли модель face model: {model_path}");
 
   let is_face = is_face_model_by_path(&model_path);
   let model_type = if is_face {
@@ -51,10 +51,7 @@ pub async fn check_is_segmentation_model(
     ));
   }
 
-  log::debug!(
-    "Проверка является ли модель segmentation model: {}",
-    model_path
-  );
+  log::debug!("Проверка является ли модель segmentation model: {model_path}");
 
   Ok(
     model_path.to_lowercase().contains("seg") || model_path.to_lowercase().contains("segmentation"),
@@ -107,10 +104,7 @@ pub async fn get_recognition_results_by_class(
     ));
   }
 
-  log::debug!(
-    "Получение результатов распознавания для класса: {}",
-    class_name
-  );
+  log::debug!("Получение результатов распознавания для класса: {class_name}");
 
   // Определяем уверенность для разных классов
   let confidence = match class_name.as_str() {
@@ -146,8 +140,7 @@ pub async fn format_recognition_results_for_timeline(
   }
 
   log::debug!(
-    "Форматирование результатов для timeline с порогом уверенности: {}",
-    confidence_threshold
+    "Форматирование результатов для timeline с порогом уверенности: {confidence_threshold}"
   );
 
   // Генерируем мок результаты
@@ -177,7 +170,7 @@ pub async fn check_yolo_model_is_face_model(
     ));
   }
 
-  log::debug!("Проверка типа YOLO модели (face): {}", model_name);
+  log::debug!("Проверка типа YOLO модели (face): {model_name}");
 
   // Используем реальную логику распознавания типа модели
   use crate::recognition::model_manager::YoloModel;
@@ -212,7 +205,7 @@ pub async fn check_yolo_model_is_segmentation_model(
     ));
   }
 
-  log::debug!("Проверка типа YOLO модели (segmentation): {}", model_name);
+  log::debug!("Проверка типа YOLO модели (segmentation): {model_name}");
 
   // Используем реальную логику распознавания типа модели
   use crate::recognition::model_manager::YoloModel;
@@ -246,10 +239,7 @@ pub async fn get_yolo_model_info_extended(
     ));
   }
 
-  log::debug!(
-    "Получение расширенной информации о YOLO модели: {}",
-    model_name
-  );
+  log::debug!("Получение расширенной информации о YOLO модели: {model_name}");
 
   use crate::recognition::model_manager::YoloModel;
 
@@ -297,7 +287,7 @@ pub async fn get_model_session_info(model_type: String) -> Result<serde_json::Va
     ));
   }
 
-  log::debug!("Получение информации о сессии модели: {}", model_type);
+  log::debug!("Получение информации о сессии модели: {model_type}");
 
   // Создаем ModelManager для проверки
   use crate::recognition::model_manager::{ModelManager, YoloModel};
@@ -357,7 +347,7 @@ pub async fn get_loaded_model_type(model_type: String) -> Result<serde_json::Val
     ));
   }
 
-  log::debug!("Получение типа загруженной модели: {}", model_type);
+  log::debug!("Получение типа загруженной модели: {model_type}");
 
   // Создаем ModelManager для проверки
   use crate::recognition::model_manager::{ModelManager, YoloModel};
@@ -407,7 +397,7 @@ pub async fn check_model_is_loaded(model_type: String) -> Result<serde_json::Val
     ));
   }
 
-  log::debug!("Проверка загружена ли модель: {}", model_type);
+  log::debug!("Проверка загружена ли модель: {model_type}");
 
   // Создаем ModelManager для проверки
   use crate::recognition::model_manager::{ModelManager, YoloModel};

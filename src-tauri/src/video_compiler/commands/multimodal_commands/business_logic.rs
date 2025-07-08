@@ -91,7 +91,7 @@ pub fn get_video_path_by_clip_id(project: &ProjectSchema, clip_id: &str) -> Resu
       if clip.id == clip_id {
         return match &clip.source {
           crate::video_compiler::schema::timeline::ClipSource::File(path) => Ok(path.clone()),
-          _ => Err(format!("Клип '{}' не является файлом", clip_id)),
+          _ => Err(format!("Клип '{clip_id}' не является файлом")),
         };
       }
     }
