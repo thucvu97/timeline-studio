@@ -7,6 +7,7 @@ mod tests {
   use crate::video_compiler::schema::export::ProjectSettings;
   use crate::video_compiler::schema::project::ProjectSchema;
   use crate::video_compiler::schema::timeline::Timeline;
+  use crate::video_compiler::schema::Subtitle;
 
   fn create_test_project() -> ProjectSchema {
     ProjectSchema {
@@ -384,5 +385,260 @@ mod tests {
     if let Some(quality) = request.quality {
       assert!((1..=100).contains(&quality));
     }
+  }
+
+  #[test]
+  fn test_frame_intervals_calculation() {
+    // Тестируем расчёт интервалов для извлечения кадров
+    let duration = 60.0; // 60 секунд
+    let interval = 10.0; // каждые 10 секунд
+
+    let mut timestamps = Vec::new();
+    let mut timestamp = 0.0;
+
+    while timestamp <= duration {
+      timestamps.push(timestamp);
+      timestamp += interval;
+    }
+
+    assert_eq!(timestamps.len(), 7); // 0, 10, 20, 30, 40, 50, 60
+    assert_eq!(timestamps[0], 0.0);
+    assert_eq!(timestamps[6], 60.0);
+  }
+
+  #[test]
+  fn test_thumbnail_count_calculation() {
+    // Тестируем расчёт количества миниатюр
+    let video_duration = 120.0; // 2 минуты
+    let thumbnail_count = 6;
+
+    let interval = video_duration / (thumbnail_count as f64 + 1.0);
+    let mut timestamps = Vec::new();
+
+    for i in 1..=thumbnail_count {
+      timestamps.push(interval * i as f64);
+    }
+
+    assert_eq!(timestamps.len(), thumbnail_count);
+    assert!(timestamps[0] > 0.0); // Не с самого начала
+    assert!(timestamps.last().unwrap() < &video_duration); // Не в самом конце
+  }
+
+  #[test]
+  fn test_output_path_generation() {
+    let output_dir = "/tmp/frames";
+    let timestamps = [0.0, 5.5, 10.0, 15.25];
+
+    let frame_paths: Vec<String> = timestamps
+      .iter()
+      .map(|ts| format!("{}/frame_{:.2}.png", output_dir, ts))
+      .collect();
+
+    assert_eq!(frame_paths.len(), 4);
+    assert_eq!(frame_paths[0], "/tmp/frames/frame_0.00.png");
+    assert_eq!(frame_paths[1], "/tmp/frames/frame_5.50.png");
+    assert_eq!(frame_paths[2], "/tmp/frames/frame_10.00.png");
+    assert_eq!(frame_paths[3], "/tmp/frames/frame_15.25.png");
+  }
+
+  #[test]
+  fn test_subtitle_frame_path_generation() {
+    let mut subtitle1 = Subtitle::new("First subtitle".to_string(), 1.0, 3.0);
+    subtitle1.id = "sub_001".to_string();
+    let mut subtitle2 = Subtitle::new("Second subtitle".to_string(), 5.0, 7.0);
+    subtitle2.id = "sub_002".to_string();
+
+    let subtitles = vec![subtitle1, subtitle2];
+
+    let output_dir = "/tmp/subtitles";
+    let frame_paths: Vec<String> = subtitles
+      .iter()
+      .map(|sub| generate_subtitle_frame_path(output_dir, &sub.id))
+      .collect();
+
+    assert_eq!(frame_paths.len(), 2);
+    assert_eq!(frame_paths[0], "/tmp/subtitles/subtitle_sub_001.png");
+    assert_eq!(frame_paths[1], "/tmp/subtitles/subtitle_sub_002.png");
+  }
+
+  #[test]
+  fn test_preview_options_defaults() {
+    let request = PreviewRequest {
+      video_path: "/test.mp4".to_string(),
+      timestamp: 10.0,
+      resolution: None,
+      quality: None,
+    };
+
+    // Симулируем логику применения дефолтов
+    let width = request.resolution.map(|(w, _)| w).unwrap_or(1920);
+    let height = request.resolution.map(|(_, h)| h).unwrap_or(1080);
+    let quality = request.quality.unwrap_or(80);
+
+    assert_eq!(width, 1920);
+    assert_eq!(height, 1080);
+    assert_eq!(quality, 80);
+  }
+
+  #[test]
+  fn test_cache_info_structure() {
+    let project_id = "project_123";
+    let cache_info = generate_cache_info(project_id, 42, 1048576);
+
+    assert_eq!(cache_info["project_id"], project_id);
+    assert_eq!(cache_info["frame_count"], 42);
+    assert_eq!(cache_info["total_size"], 1048576);
+    assert!(cache_info["last_accessed"].is_string());
+  }
+
+  #[test]
+  fn test_calculate_frame_timestamps() {
+    let duration = 10.0;
+    let interval = 2.5;
+    let timestamps = calculate_frame_timestamps(duration, interval);
+
+    assert_eq!(timestamps, vec![0.0, 2.5, 5.0, 7.5, 10.0]);
+  }
+
+  #[test]
+  fn test_generate_frame_paths() {
+    let output_dir = "/tmp/frames";
+    let timestamps = vec![0.0, 1.5, 3.0];
+    let paths = generate_frame_paths(output_dir, &timestamps);
+
+    assert_eq!(paths.len(), 3);
+    assert_eq!(paths[0], "/tmp/frames/frame_0.00.png");
+    assert_eq!(paths[1], "/tmp/frames/frame_1.50.png");
+    assert_eq!(paths[2], "/tmp/frames/frame_3.00.png");
+  }
+
+  #[test]
+  fn test_generate_subtitle_frame_path() {
+    let output_dir = "/tmp/subtitles";
+    let subtitle_id = "sub_001";
+    let path = generate_subtitle_frame_path(output_dir, subtitle_id);
+
+    assert_eq!(path, "/tmp/subtitles/subtitle_sub_001.png");
+  }
+
+  #[test]
+  fn test_extract_preview_options() {
+    let settings = serde_json::json!({
+      "width": 1280,
+      "height": 720,
+      "quality": 85,
+      "format": "jpg"
+    });
+
+    let options = extract_preview_options(&settings);
+
+    assert_eq!(options.width, Some(1280));
+    assert_eq!(options.height, Some(720));
+    assert_eq!(options.quality, 85);
+    assert_eq!(options.format, "jpg");
+  }
+
+  #[test]
+  fn test_extract_preview_options_defaults() {
+    let settings = serde_json::json!({});
+
+    let options = extract_preview_options(&settings);
+
+    assert_eq!(options.width, Some(1920));
+    assert_eq!(options.height, Some(1080));
+    assert_eq!(options.quality, 80);
+    assert_eq!(options.format, "png");
+  }
+
+  #[test]
+  fn test_calculate_thumbnail_timestamps() {
+    let duration = 60.0;
+    let count = 5;
+    let result = calculate_thumbnail_timestamps(duration, count);
+
+    assert!(result.is_ok());
+    let timestamps = result.unwrap();
+
+    assert_eq!(timestamps.len(), 5);
+    assert_eq!(timestamps[0], 10.0);
+    assert_eq!(timestamps[1], 20.0);
+    assert_eq!(timestamps[2], 30.0);
+    assert_eq!(timestamps[3], 40.0);
+    assert_eq!(timestamps[4], 50.0);
+  }
+
+  #[test]
+  fn test_calculate_thumbnail_timestamps_zero_duration() {
+    let duration = 0.0;
+    let count = 5;
+    let result = calculate_thumbnail_timestamps(duration, count);
+
+    assert!(result.is_err());
+    assert!(result
+      .unwrap_err()
+      .to_string()
+      .contains("video duration is 0"));
+  }
+
+  #[test]
+  fn test_extract_video_duration() {
+    let video_info = serde_json::json!({
+      "format": {
+        "duration": "120.5"
+      }
+    });
+
+    let duration = extract_video_duration(&video_info);
+    assert_eq!(duration, 120.5);
+  }
+
+  #[test]
+  fn test_extract_video_duration_missing() {
+    let video_info = serde_json::json!({});
+
+    let duration = extract_video_duration(&video_info);
+    assert_eq!(duration, 0.0);
+  }
+
+  #[test]
+  fn test_ffmpeg_command_args() {
+    // Тестируем аргументы для FFmpeg команды извлечения кадра
+    let video_path = "/path/to/video.mp4";
+    let timestamp = 5.5;
+    let output_path = "/tmp/frame.png";
+
+    let timestamp_str = timestamp.to_string();
+    let args = [
+      "-ss",
+      &timestamp_str,
+      "-i",
+      video_path,
+      "-frames:v",
+      "1",
+      "-y",
+      output_path,
+    ];
+
+    assert_eq!(args.len(), 8);
+    assert_eq!(args[0], "-ss");
+    assert_eq!(args[1], "5.5");
+    assert_eq!(args[2], "-i");
+    assert_eq!(args[3], video_path);
+  }
+
+  #[test]
+  fn test_batch_frame_extraction_indices() {
+    let timestamps = [1.0, 2.5, 5.0, 7.5, 10.0];
+    let output_dir = "/tmp";
+
+    let paths: Vec<String> = timestamps
+      .iter()
+      .enumerate()
+      .map(|(index, _ts)| format!("{}/frame_{:04}.png", output_dir, index))
+      .collect();
+
+    assert_eq!(paths.len(), 5);
+    assert_eq!(paths[0], "/tmp/frame_0000.png");
+    assert_eq!(paths[4], "/tmp/frame_0004.png");
   }
 }

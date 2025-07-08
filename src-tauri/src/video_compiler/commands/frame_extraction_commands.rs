@@ -35,6 +35,36 @@ pub struct PreviewRequest {
   pub quality: Option<u8>,
 }
 
+// ============ Бизнес-логика (тестируемая) ============
+
+/// Рассчитать временные метки для извлечения кадров
+pub fn calculate_frame_timestamps(duration: f64, interval: f64) -> Vec<f64> {
+  let mut timestamps = Vec::new();
+  let mut timestamp = 0.0;
+
+  while timestamp <= duration {
+    timestamps.push(timestamp);
+    timestamp += interval;
+  }
+
+  timestamps
+}
+
+/// Генерировать пути для кадров
+pub fn generate_frame_paths(output_dir: &str, timestamps: &[f64]) -> Vec<String> {
+  timestamps
+    .iter()
+    .map(|ts| format!("{}/frame_{:.2}.png", output_dir, ts))
+    .collect()
+}
+
+/// Генерировать путь для кадра субтитра
+pub fn generate_subtitle_frame_path(output_dir: &str, subtitle_id: &str) -> String {
+  format!("{}/subtitle_{}.png", output_dir, subtitle_id)
+}
+
+// ============ Tauri команды (тонкие обёртки) ============
+
 /// Извлечь кадры таймлайна
 #[tauri::command]
 pub async fn extract_timeline_frames(
@@ -43,22 +73,17 @@ pub async fn extract_timeline_frames(
   output_dir: String,
   state: State<'_, VideoCompilerState>,
 ) -> Result<Vec<String>> {
-  let mut frame_paths = Vec::new();
   let duration = project_schema.timeline.duration;
-  let mut timestamp = 0.0;
+  let timestamps = calculate_frame_timestamps(duration, interval);
+  let frame_paths = generate_frame_paths(&output_dir, &timestamps);
 
-  while timestamp <= duration {
-    let frame_path = format!("{output_dir}/frame_{timestamp:.2}.png");
+  let ffmpeg_path = state.ffmpeg_path.read().await.clone();
+  let generator = PreviewGenerator::new_with_ffmpeg(ffmpeg_path);
 
-    // Генерируем кадр
-    let ffmpeg_path = state.ffmpeg_path.read().await.clone();
-    let generator = PreviewGenerator::new_with_ffmpeg(ffmpeg_path);
+  for (timestamp, frame_path) in timestamps.iter().zip(frame_paths.iter()) {
     generator
-      .generate_frame(&project_schema, timestamp, &frame_path, None)
+      .generate_frame(&project_schema, *timestamp, frame_path, None)
       .await?;
-
-    frame_paths.push(frame_path);
-    timestamp += interval;
   }
 
   Ok(frame_paths)
@@ -71,13 +96,13 @@ pub async fn extract_subtitle_frames(
   output_dir: String,
   _state: State<'_, VideoCompilerState>,
 ) -> Result<Vec<String>> {
-  let mut frame_paths = Vec::new();
+  let frame_paths: Vec<String> = project_schema
+    .subtitles
+    .iter()
+    .map(|subtitle| generate_subtitle_frame_path(&output_dir, &subtitle.id))
+    .collect();
 
-  for subtitle in &project_schema.subtitles {
-    let frame_path = format!("{}/subtitle_{}.png", output_dir, subtitle.id);
-    // Здесь должна быть логика генерации кадра с субтитром
-    frame_paths.push(frame_path);
-  }
+  // Здесь должна быть логика генерации кадра с субтитром
 
   Ok(frame_paths)
 }
@@ -122,19 +147,10 @@ pub async fn generate_preview_batch(
   Ok(paths)
 }
 
-/// Генерировать превью с настройками
-#[tauri::command]
-pub async fn generate_preview_with_settings(
-  project_schema: crate::video_compiler::schema::ProjectSchema,
-  timestamp: f64,
-  output_path: String,
-  settings: serde_json::Value,
-  state: State<'_, VideoCompilerState>,
-) -> Result<String> {
-  let ffmpeg_path = state.ffmpeg_path.read().await.clone();
-  let generator = PreviewGenerator::new_with_ffmpeg(ffmpeg_path);
-
-  // Извлекаем настройки
+/// Извлечь настройки превью из JSON
+pub fn extract_preview_options(
+  settings: &serde_json::Value,
+) -> crate::video_compiler::preview::PreviewOptions {
   let width = settings
     .get("width")
     .and_then(|v| v.as_u64())
@@ -147,19 +163,52 @@ pub async fn generate_preview_with_settings(
     .get("quality")
     .and_then(|v| v.as_u64())
     .unwrap_or(80) as u8;
+  let format = settings
+    .get("format")
+    .and_then(|v| v.as_str())
+    .unwrap_or("png")
+    .to_string();
 
-  let options = crate::video_compiler::preview::PreviewOptions {
+  crate::video_compiler::preview::PreviewOptions {
     width: Some(width),
     height: Some(height),
     quality,
-    format: "png".to_string(),
-  };
+    format,
+  }
+}
+
+/// Генерировать превью с настройками
+#[tauri::command]
+pub async fn generate_preview_with_settings(
+  project_schema: crate::video_compiler::schema::ProjectSchema,
+  timestamp: f64,
+  output_path: String,
+  settings: serde_json::Value,
+  state: State<'_, VideoCompilerState>,
+) -> Result<String> {
+  let ffmpeg_path = state.ffmpeg_path.read().await.clone();
+  let generator = PreviewGenerator::new_with_ffmpeg(ffmpeg_path);
+  let options = extract_preview_options(&settings);
 
   generator
     .generate_frame(&project_schema, timestamp, &output_path, Some(options))
     .await?;
 
   Ok(output_path)
+}
+
+/// Генерировать информацию о кэше кадров
+pub fn generate_cache_info(
+  project_id: &str,
+  frame_count: u64,
+  total_size: u64,
+) -> serde_json::Value {
+  serde_json::json!({
+      "project_id": project_id,
+      "frame_count": frame_count,
+      "total_size": total_size,
+      "last_accessed": chrono::Utc::now().to_rfc3339(),
+  })
 }
 
 /// Получить информацию о кэше извлечения кадров
@@ -170,14 +219,7 @@ pub async fn get_frame_extraction_cache_info(
 ) -> Result<serde_json::Value> {
   let _cache = state.cache_manager.read().await;
   // Заглушка для несуществующего метода
-  let _info = &project_id;
-
-  Ok(serde_json::json!({
-      "project_id": project_id,
-      "frame_count": 0,
-      "total_size": 0,
-      "last_accessed": chrono::Utc::now().to_rfc3339(),
-  }))
+  Ok(generate_cache_info(&project_id, 0, 0))
 }
 
 /// Очистить кэш кадров
@@ -258,6 +300,34 @@ pub async fn extract_video_frames_batch(
   Ok(frame_paths)
 }
 
+/// Рассчитать временные метки для миниатюр
+pub fn calculate_thumbnail_timestamps(duration: f64, count: usize) -> Result<Vec<f64>> {
+  if duration <= 0.0 {
+    return Err(VideoCompilerError::InvalidParameter(
+      "Cannot extract thumbnails: video duration is 0".to_string(),
+    ));
+  }
+
+  let mut timestamps = Vec::new();
+  let interval = duration / (count as f64 + 1.0);
+
+  for i in 1..=count {
+    timestamps.push(interval * i as f64);
+  }
+
+  Ok(timestamps)
+}
+
+/// Извлечь длительность видео из информации
+pub fn extract_video_duration(video_info: &serde_json::Value) -> f64 {
+  video_info
+    .get("format")
+    .and_then(|f| f.get("duration"))
+    .and_then(|d| d.as_str())
+    .and_then(|d| d.parse::<f64>().ok())
+    .unwrap_or(0.0)
+}
+
 /// Получить миниатюры видео
 #[tauri::command]
 pub async fn get_video_thumbnails(
@@ -271,26 +341,8 @@ pub async fn get_video_thumbnails(
     crate::video_compiler::commands::misc::get_video_info(video_path.clone(), state.clone())
       .await?;
 
-  let duration = video_info
-    .get("format")
-    .and_then(|f| f.get("duration"))
-    .and_then(|d| d.as_str())
-    .and_then(|d| d.parse::<f64>().ok())
-    .unwrap_or(0.0);
-
-  if duration <= 0.0 {
-    return Err(VideoCompilerError::InvalidParameter(
-      "Cannot extract thumbnails: video duration is 0".to_string(),
-    ));
-  }
-
-  // Генерируем timestamps равномерно распределенные по видео
-  let mut timestamps = Vec::new();
-  let interval = duration / (count as f64 + 1.0);
-
-  for i in 1..=count {
-    timestamps.push(interval * i as f64);
-  }
+  let duration = extract_video_duration(&video_info);
+  let timestamps = calculate_thumbnail_timestamps(duration, count)?;
 
   // Извлекаем кадры
   extract_video_frames_batch(video_path, timestamps, output_dir, state).await

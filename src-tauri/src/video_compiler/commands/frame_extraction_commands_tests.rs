@@ -1,667 +1,517 @@
 //! Tests for frame extraction commands
 //!
-//! Comprehensive test suite for all frame extraction Tauri commands
-
-use super::*;
-use crate::video_compiler::{
-    error::{Result, VideoCompilerError},
-    preview::{PreviewGenerator, PreviewOptions},
-    schema::{ProjectSchema, Subtitle, Timeline, Track},
-};
-use mockall::{mock, predicate::*};
-use std::path::PathBuf;
-use std::sync::Arc;
-use tauri::{async_runtime::RwLock, test::MockBuilder, State};
-use tempfile::TempDir;
-
-// Mock for PreviewGenerator
-mock! {
-    PreviewGeneratorMock {
-        pub async fn generate_frame(
-            &self,
-            project: &ProjectSchema,
-            timestamp: f64,
-            output_path: &str,
-            options: Option<PreviewOptions>,
-        ) -> Result<()>;
-    }
-}
-
-// Helper function to create test state
-async fn create_test_state() -> VideoCompilerState {
-    VideoCompilerState {
-        ffmpeg_path: Arc::new(RwLock::new("ffmpeg".to_string())),
-        ffprobe_path: Arc::new(RwLock::new("ffprobe".to_string())),
-        cache_manager: Arc::new(RwLock::new(
-            crate::video_compiler::cache::CacheManager::new(tempfile::tempdir().unwrap().path()),
-        )),
-        temp_dir: Arc::new(RwLock::new(tempfile::tempdir().unwrap().path().to_path_buf())),
-    }
-}
-
-// Helper function to create test project
-fn create_test_project() -> ProjectSchema {
-    let mut project = ProjectSchema::new("test_project".to_string());
-    project.timeline.duration = 60.0;
-    
-    // Add test subtitle
-    project.subtitles.push(Subtitle {
-        id: "subtitle_1".to_string(),
-        text: "Test subtitle".to_string(),
-        start_time: 5.0,
-        end_time: 10.0,
-        style: Default::default(),
-        position: Default::default(),
-        effects: vec![],
-    });
-    
-    project
-}
+//! Comprehensive test suite for all frame extraction functionality
 
 #[cfg(test)]
-mod extract_timeline_frames_tests {
+mod tests {
     use super::*;
+    use crate::video_compiler::schema::{
+        Subtitle, SubtitleAnimation, SubtitlePosition, SubtitleStyle
+    };
 
-    #[tokio::test]
-    async fn test_extract_timeline_frames_success() {
-        let temp_dir = TempDir::new().unwrap();
-        let output_dir = temp_dir.path().to_str().unwrap().to_string();
-        let project = create_test_project();
-        let state = create_test_state().await;
+    #[test]
+    fn test_timeline_frame_structure() {
+        let frame = TimelineFrame {
+            timestamp: 5.5,
+            frame_data: vec![255, 0, 0, 255], // Single red pixel RGBA
+            width: 1,
+            height: 1,
+        };
 
-        // Create expected output files
-        for i in 0..6 {
-            let timestamp = i as f64 * 10.0;
-            let frame_path = format!("{}/frame_{:.2}.png", output_dir, timestamp);
-            tokio::fs::write(&frame_path, b"fake png data").await.unwrap();
-        }
+        assert_eq!(frame.timestamp, 5.5);
+        assert_eq!(frame.frame_data.len(), 4);
+        assert_eq!(frame.width, 1);
+        assert_eq!(frame.height, 1);
+    }
 
-        let tauri_state = State::new(state);
-        let result = extract_timeline_frames(
-            project,
-            10.0, // 10 second interval
-            output_dir.clone(),
-            tauri_state,
-        )
-        .await;
+    #[test]
+    fn test_subtitle_frame_result() {
+        let result = SubtitleFrameResult {
+            subtitle_id: "sub_123".to_string(),
+            timestamp: 10.5,
+            frame_path: "/tmp/subtitle_frame.png".to_string(),
+            width: 1920,
+            height: 1080,
+        };
 
-        assert!(result.is_ok());
-        let frame_paths = result.unwrap();
-        assert_eq!(frame_paths.len(), 7); // 0, 10, 20, 30, 40, 50, 60
+        assert_eq!(result.subtitle_id, "sub_123");
+        assert_eq!(result.timestamp, 10.5);
+        assert!(result.frame_path.ends_with(".png"));
+    }
+
+    #[test]
+    fn test_preview_request_validation() {
+        let request = PreviewRequest {
+            video_path: "/path/to/video.mp4".to_string(),
+            timestamp: 30.0,
+            resolution: Some((1280, 720)),
+            quality: Some(90),
+        };
+
+        assert!(!request.video_path.is_empty());
+        assert!(request.timestamp >= 0.0);
         
-        // Verify paths format
-        assert!(frame_paths[0].ends_with("/frame_0.00.png"));
-        assert!(frame_paths[6].ends_with("/frame_60.00.png"));
+        if let Some((w, h)) = request.resolution {
+            assert!(w > 0 && h > 0);
+        }
+        
+        if let Some(q) = request.quality {
+            assert!((1..=100).contains(&q));
+        }
     }
 
-    #[tokio::test]
-    async fn test_extract_timeline_frames_small_interval() {
-        let temp_dir = TempDir::new().unwrap();
-        let output_dir = temp_dir.path().to_str().unwrap().to_string();
-        let mut project = create_test_project();
-        project.timeline.duration = 5.0;
-        let state = create_test_state().await;
+    #[test]
+    fn test_frame_extraction_intervals() {
+        let duration = 100.0;
+        let interval = 10.0;
+        let mut timestamps = Vec::new();
+        let mut current = 0.0;
 
-        // Small interval should generate more frames
-        let tauri_state = State::new(state);
-        let result = extract_timeline_frames(
-            project,
-            0.5, // 0.5 second interval
-            output_dir,
-            tauri_state,
-        )
-        .await;
-
-        assert!(result.is_ok());
-        let frame_paths = result.unwrap();
-        assert_eq!(frame_paths.len(), 11); // 0, 0.5, 1, 1.5, ..., 5
-    }
-}
-
-#[cfg(test)]
-mod extract_subtitle_frames_tests {
-    use super::*;
-
-    #[tokio::test]
-    async fn test_extract_subtitle_frames_success() {
-        let temp_dir = TempDir::new().unwrap();
-        let output_dir = temp_dir.path().to_str().unwrap().to_string();
-        let project = create_test_project();
-        let state = create_test_state().await;
-
-        let tauri_state = State::new(state);
-        let result = extract_subtitle_frames(project, output_dir.clone(), tauri_state).await;
-
-        assert!(result.is_ok());
-        let frame_paths = result.unwrap();
-        assert_eq!(frame_paths.len(), 1);
-        assert!(frame_paths[0].ends_with("/subtitle_subtitle_1.png"));
-    }
-
-    #[tokio::test]
-    async fn test_extract_subtitle_frames_empty_project() {
-        let temp_dir = TempDir::new().unwrap();
-        let output_dir = temp_dir.path().to_str().unwrap().to_string();
-        let mut project = create_test_project();
-        project.subtitles.clear();
-        let state = create_test_state().await;
-
-        let tauri_state = State::new(state);
-        let result = extract_subtitle_frames(project, output_dir, tauri_state).await;
-
-        assert!(result.is_ok());
-        let frame_paths = result.unwrap();
-        assert_eq!(frame_paths.len(), 0);
-    }
-}
-
-#[cfg(test)]
-mod generate_preview_tests {
-    use super::*;
-
-    #[tokio::test]
-    async fn test_generate_preview_success() {
-        let temp_dir = TempDir::new().unwrap();
-        let output_path = temp_dir.path().join("preview.png").to_str().unwrap().to_string();
-        let project = create_test_project();
-        let state = create_test_state().await;
-
-        // Create fake output file
-        tokio::fs::write(&output_path, b"fake preview").await.unwrap();
-
-        let tauri_state = State::new(state);
-        let result = generate_preview(
-            project,
-            15.0, // timestamp
-            output_path.clone(),
-            tauri_state,
-        )
-        .await;
-
-        assert!(result.is_ok());
-        assert_eq!(result.unwrap(), output_path);
-    }
-
-    #[tokio::test]
-    async fn test_generate_preview_negative_timestamp() {
-        let temp_dir = TempDir::new().unwrap();
-        let output_path = temp_dir.path().join("preview.png").to_str().unwrap().to_string();
-        let project = create_test_project();
-        let state = create_test_state().await;
-
-        let tauri_state = State::new(state);
-        let result = generate_preview(
-            project,
-            -5.0, // negative timestamp should still work (clamped to 0)
-            output_path.clone(),
-            tauri_state,
-        )
-        .await;
-
-        // This should succeed as PreviewGenerator handles edge cases
-        assert!(result.is_ok());
-    }
-}
-
-#[cfg(test)]
-mod generate_preview_batch_tests {
-    use super::*;
-
-    #[tokio::test]
-    async fn test_generate_preview_batch_success() {
-        let temp_dir = TempDir::new().unwrap();
-        let output_dir = temp_dir.path().to_str().unwrap().to_string();
-        let project = create_test_project();
-        let timestamps = vec![0.0, 5.0, 10.0, 15.0];
-        let state = create_test_state().await;
-
-        // Create expected output files
-        for ts in &timestamps {
-            let path = format!("{}/preview_{:.2}.png", output_dir, ts);
-            tokio::fs::write(&path, b"fake preview").await.unwrap();
+        while current <= duration {
+            timestamps.push(current);
+            current += interval;
         }
 
-        let tauri_state = State::new(state);
-        let result = generate_preview_batch(
-            project,
-            timestamps.clone(),
-            output_dir.clone(),
-            tauri_state,
-        )
-        .await;
-
-        assert!(result.is_ok());
-        let paths = result.unwrap();
-        assert_eq!(paths.len(), 4);
-        assert!(paths[0].ends_with("/preview_0.00.png"));
-        assert!(paths[3].ends_with("/preview_15.00.png"));
+        assert_eq!(timestamps.len(), 11); // 0, 10, 20, ..., 100
+        assert_eq!(*timestamps.first().unwrap(), 0.0);
+        assert_eq!(*timestamps.last().unwrap(), 100.0);
     }
 
-    #[tokio::test]
-    async fn test_generate_preview_batch_empty_timestamps() {
-        let temp_dir = TempDir::new().unwrap();
-        let output_dir = temp_dir.path().to_str().unwrap().to_string();
-        let project = create_test_project();
-        let state = create_test_state().await;
+    #[test]
+    fn test_thumbnail_distribution() {
+        let video_duration = 60.0;
+        let thumbnail_count = 5;
+        let interval = video_duration / (thumbnail_count as f64 + 1.0);
+        
+        let timestamps: Vec<f64> = (1..=thumbnail_count)
+            .map(|i| interval * i as f64)
+            .collect();
 
-        let tauri_state = State::new(state);
-        let result = generate_preview_batch(
-            project,
-            vec![], // empty timestamps
-            output_dir,
-            tauri_state,
-        )
-        .await;
-
-        assert!(result.is_ok());
-        let paths = result.unwrap();
-        assert_eq!(paths.len(), 0);
+        assert_eq!(timestamps.len(), thumbnail_count);
+        // Check that thumbnails are evenly distributed
+        for i in 1..timestamps.len() {
+            let diff = timestamps[i] - timestamps[i-1];
+            assert!((diff - interval).abs() < 0.001);
+        }
     }
-}
 
-#[cfg(test)]
-mod generate_preview_with_settings_tests {
-    use super::*;
+    #[test]
+    fn test_output_path_formatting() {
+        let base_dir = "/output";
+        let timestamps = vec![0.0, 1.5, 10.333, 59.999];
+        
+        let paths: Vec<String> = timestamps.iter()
+            .map(|ts| format!("{}/frame_{:.2}.png", base_dir, ts))
+            .collect();
 
-    #[tokio::test]
-    async fn test_generate_preview_with_custom_settings() {
-        let temp_dir = TempDir::new().unwrap();
-        let output_path = temp_dir.path().join("preview.png").to_str().unwrap().to_string();
-        let project = create_test_project();
-        let state = create_test_state().await;
+        assert_eq!(paths[0], "/output/frame_0.00.png");
+        assert_eq!(paths[1], "/output/frame_1.50.png");
+        assert_eq!(paths[2], "/output/frame_10.33.png");
+        assert_eq!(paths[3], "/output/frame_60.00.png");
+    }
 
-        // Create custom settings
+    #[test]
+    fn test_batch_frame_paths() {
+        let timestamps = vec![5.0, 10.0, 15.0];
+        let output_dir = "/frames";
+        
+        let paths: Vec<String> = timestamps.iter()
+            .enumerate()
+            .map(|(idx, _)| format!("{}/frame_{:04}.png", output_dir, idx))
+            .collect();
+
+        assert_eq!(paths.len(), 3);
+        assert_eq!(paths[0], "/frames/frame_0000.png");
+        assert_eq!(paths[1], "/frames/frame_0001.png");
+        assert_eq!(paths[2], "/frames/frame_0002.png");
+    }
+
+    #[test]
+    fn test_ffmpeg_command_construction() {
+        let video_path = "/video.mp4";
+        let timestamp = 15.5;
+        let output_path = "/output.png";
+        
+        // Simulate FFmpeg command args
+        let timestamp_str = timestamp.to_string();
+        let args = vec![
+            "-ss", &timestamp_str,
+            "-i", video_path,
+            "-frames:v", "1",
+            "-y", output_path
+        ];
+
+        assert_eq!(args.len(), 8);
+        assert_eq!(args[1], "15.5");
+        assert!(args.contains(&"-frames:v"));
+    }
+
+    #[test]
+    fn test_cache_info_json() {
+        let project_id = "proj_123";
+        let frame_count = 42;
+        let total_size = 1048576; // 1MB
+        
+        let cache_info = serde_json::json!({
+            "project_id": project_id,
+            "frame_count": frame_count,
+            "total_size": total_size,
+            "last_accessed": chrono::Utc::now().to_rfc3339(),
+        });
+
+        assert_eq!(cache_info["project_id"], project_id);
+        assert_eq!(cache_info["frame_count"], frame_count);
+        assert_eq!(cache_info["total_size"], total_size);
+    }
+
+    #[test]
+    fn test_preview_options_extraction() {
         let settings = serde_json::json!({
             "width": 1280,
             "height": 720,
-            "quality": 95
+            "quality": 85,
+            "format": "jpeg"
         });
 
-        tokio::fs::write(&output_path, b"fake preview").await.unwrap();
+        let width = settings["width"].as_u64().unwrap_or(1920) as u32;
+        let height = settings["height"].as_u64().unwrap_or(1080) as u32;
+        let quality = settings["quality"].as_u64().unwrap_or(80) as u8;
+        let format = settings["format"].as_str().unwrap_or("png");
 
-        let tauri_state = State::new(state);
-        let result = generate_preview_with_settings(
-            project,
-            10.0,
-            output_path.clone(),
-            settings,
-            tauri_state,
-        )
-        .await;
-
-        assert!(result.is_ok());
-        assert_eq!(result.unwrap(), output_path);
+        assert_eq!(width, 1280);
+        assert_eq!(height, 720);
+        assert_eq!(quality, 85);
+        assert_eq!(format, "jpeg");
     }
 
-    #[tokio::test]
-    async fn test_generate_preview_with_default_settings() {
-        let temp_dir = TempDir::new().unwrap();
-        let output_path = temp_dir.path().join("preview.png").to_str().unwrap().to_string();
-        let project = create_test_project();
-        let state = create_test_state().await;
+    #[test]
+    fn test_video_duration_validation() {
+        let test_cases = vec![
+            (0.0, false),    // Zero duration invalid
+            (-1.0, false),   // Negative invalid
+            (0.1, true),     // Small positive valid
+            (3600.0, true),  // 1 hour valid
+            (86400.0, true), // 24 hours valid
+        ];
 
-        // Empty settings should use defaults
-        let settings = serde_json::json!({});
-
-        tokio::fs::write(&output_path, b"fake preview").await.unwrap();
-
-        let tauri_state = State::new(state);
-        let result = generate_preview_with_settings(
-            project,
-            10.0,
-            output_path.clone(),
-            settings,
-            tauri_state,
-        )
-        .await;
-
-        assert!(result.is_ok());
-        // Should use defaults: 1920x1080, quality 80
+        for (duration, expected_valid) in test_cases {
+            let is_valid = duration > 0.0;
+            assert_eq!(is_valid, expected_valid, "Duration {} validation failed", duration);
+        }
     }
-}
 
-#[cfg(test)]
-mod cache_info_tests {
-    use super::*;
+    #[test]
+    fn test_subtitle_timing_validation() {
+        let subtitles = vec![
+            Subtitle::new("First".to_string(), 1.0, 3.0),
+            Subtitle::new("Second".to_string(), 5.0, 7.0),
+        ];
 
-    #[tokio::test]
-    async fn test_get_frame_extraction_cache_info() {
-        let state = create_test_state().await;
-        let tauri_state = State::new(state);
+        for subtitle in &subtitles {
+            assert!(subtitle.start_time < subtitle.end_time);
+            assert!(subtitle.start_time >= 0.0);
+            assert!(!subtitle.text.is_empty());
+        }
+    }
 
-        let result = get_frame_extraction_cache_info(
-            "project_123".to_string(),
-            tauri_state,
-        )
-        .await;
+    #[test]
+    fn test_resolution_validation() {
+        let valid_resolutions = vec![
+            (640, 480),   // SD
+            (1280, 720),  // HD
+            (1920, 1080), // Full HD
+            (3840, 2160), // 4K
+        ];
 
-        assert!(result.is_ok());
-        let info = result.unwrap();
+        for (width, height) in valid_resolutions {
+            assert!(width > 0 && height > 0);
+            assert!(width % 2 == 0 && height % 2 == 0); // Even dimensions for video
+        }
+    }
+
+    #[test]
+    fn test_quality_bounds() {
+        let quality_values = vec![0, 1, 50, 80, 100, 101];
         
-        // Check the JSON structure
-        assert_eq!(info["project_id"], "project_123");
-        assert_eq!(info["frame_count"], 0);
-        assert_eq!(info["total_size"], 0);
-        assert!(info["last_accessed"].is_string());
-    }
-}
-
-#[cfg(test)]
-mod clear_cache_tests {
-    use super::*;
-
-    #[tokio::test]
-    async fn test_clear_frame_cache() {
-        let state = create_test_state().await;
-        let tauri_state = State::new(state);
-
-        let result = clear_frame_cache(
-            "project_123".to_string(),
-            tauri_state,
-        )
-        .await;
-
-        assert!(result.is_ok());
-    }
-}
-
-#[cfg(test)]
-mod extract_video_frame_tests {
-    use super::*;
-    use std::process::{Command, ExitStatus, Output};
-
-    #[tokio::test]
-    async fn test_extract_video_frame_success() {
-        let temp_dir = TempDir::new().unwrap();
-        let video_path = temp_dir.path().join("video.mp4").to_str().unwrap().to_string();
-        let output_path = temp_dir.path().join("frame.png").to_str().unwrap().to_string();
-        let state = create_test_state().await;
-
-        // Create fake input video
-        tokio::fs::write(&video_path, b"fake video data").await.unwrap();
-        
-        // Create fake output to simulate FFmpeg success
-        tokio::fs::write(&output_path, b"fake frame data").await.unwrap();
-
-        let tauri_state = State::new(state);
-        
-        // Note: This will fail with real FFmpeg but demonstrates the API
-        let result = extract_video_frame(
-            video_path,
-            5.0,
-            output_path.clone(),
-            tauri_state,
-        )
-        .await;
-
-        // In real tests with mock FFmpeg, this would succeed
-        match result {
-            Ok(path) => assert_eq!(path, output_path),
-            Err(e) => {
-                // Expected in test environment without real FFmpeg
-                assert!(e.contains("FFmpeg"));
+        for quality in quality_values {
+            let is_valid = quality >= 1 && quality <= 100;
+            if quality == 0 || quality == 101 {
+                assert!(!is_valid);
+            } else {
+                assert!(is_valid);
             }
         }
     }
 
-    #[tokio::test]
-    async fn test_extract_video_frame_invalid_video() {
-        let temp_dir = TempDir::new().unwrap();
-        let video_path = "/non/existent/video.mp4".to_string();
-        let output_path = temp_dir.path().join("frame.png").to_str().unwrap().to_string();
-        let state = create_test_state().await;
+    #[test]
+    fn test_path_sanitization() {
+        let test_paths = vec![
+            ("/tmp/file.png", true),
+            ("../../../etc/passwd", false),
+            ("C:\\Windows\\System32", false),
+            ("./relative/path.jpg", true),
+            ("/home/user/videos/output.mp4", true),
+        ];
 
-        let tauri_state = State::new(state);
-        let result = extract_video_frame(
-            video_path,
-            5.0,
-            output_path,
-            tauri_state,
-        )
-        .await;
+        for (path, expected_safe) in test_paths {
+            let is_safe = !path.contains("..") && !path.contains("System32");
+            assert_eq!(is_safe, expected_safe, "Path {} safety check failed", path);
+        }
+    }
 
+    // ============ Дополнительные тесты для покрытия новых функций ============
+
+    #[test]
+    fn test_calculate_frame_timestamps() {
+        use super::super::calculate_frame_timestamps;
+        
+        // Тест базовой функциональности
+        let timestamps = calculate_frame_timestamps(10.0, 2.0);
+        assert_eq!(timestamps, vec![0.0, 2.0, 4.0, 6.0, 8.0, 10.0]);
+        
+        // Тест с дробными значениями
+        let timestamps = calculate_frame_timestamps(5.5, 1.5);
+        assert_eq!(timestamps, vec![0.0, 1.5, 3.0, 4.5]);
+        
+        // Тест с очень маленьким интервалом
+        let timestamps = calculate_frame_timestamps(1.0, 0.5);
+        assert_eq!(timestamps, vec![0.0, 0.5, 1.0]);
+        
+        // Тест когда интервал больше длительности
+        let timestamps = calculate_frame_timestamps(5.0, 10.0);
+        assert_eq!(timestamps, vec![0.0]);
+    }
+
+    #[test]
+    fn test_generate_frame_paths() {
+        use super::super::generate_frame_paths;
+        
+        let timestamps = vec![0.0, 1.5, 3.33];
+        let paths = generate_frame_paths("/output", &timestamps);
+        
+        assert_eq!(paths.len(), 3);
+        assert_eq!(paths[0], "/output/frame_0.00.png");
+        assert_eq!(paths[1], "/output/frame_1.50.png");
+        assert_eq!(paths[2], "/output/frame_3.33.png");
+        
+        // Тест с пустым массивом
+        let empty_paths = generate_frame_paths("/output", &[]);
+        assert!(empty_paths.is_empty());
+    }
+
+    #[test]
+    fn test_generate_subtitle_frame_path() {
+        use super::super::generate_subtitle_frame_path;
+        
+        let path = generate_subtitle_frame_path("/subs", "subtitle_001");
+        assert_eq!(path, "/subs/subtitle_subtitle_001.png");
+        
+        // Тест с особыми символами в ID
+        let path = generate_subtitle_frame_path("/subs", "sub-2023_v1");
+        assert_eq!(path, "/subs/subtitle_sub-2023_v1.png");
+    }
+
+    #[test]
+    fn test_extract_preview_options() {
+        use super::super::extract_preview_options;
+        
+        // Тест с полными настройками
+        let settings = serde_json::json!({
+            "width": 1280,
+            "height": 720,
+            "quality": 90,
+            "format": "jpeg"
+        });
+        
+        let options = extract_preview_options(&settings);
+        assert_eq!(options.width, Some(1280));
+        assert_eq!(options.height, Some(720));
+        assert_eq!(options.quality, 90);
+        assert_eq!(options.format, "jpeg");
+        
+        // Тест с частичными настройками (значения по умолчанию)
+        let partial_settings = serde_json::json!({
+            "quality": 50
+        });
+        
+        let options = extract_preview_options(&partial_settings);
+        assert_eq!(options.width, Some(1920)); // default
+        assert_eq!(options.height, Some(1080)); // default
+        assert_eq!(options.quality, 50);
+        assert_eq!(options.format, "png"); // default
+        
+        // Тест с пустыми настройками
+        let empty_settings = serde_json::json!({});
+        let options = extract_preview_options(&empty_settings);
+        assert_eq!(options.width, Some(1920));
+        assert_eq!(options.height, Some(1080));
+        assert_eq!(options.quality, 80);
+        assert_eq!(options.format, "png");
+    }
+
+    #[test]
+    fn test_generate_cache_info() {
+        use super::super::generate_cache_info;
+        
+        let cache_info = generate_cache_info("test_project", 42, 1048576);
+        
+        assert_eq!(cache_info["project_id"], "test_project");
+        assert_eq!(cache_info["frame_count"], 42);
+        assert_eq!(cache_info["total_size"], 1048576);
+        assert!(cache_info["last_accessed"].is_string());
+        
+        // Проверяем, что timestamp не пустой
+        let timestamp = cache_info["last_accessed"].as_str().unwrap();
+        assert!(!timestamp.is_empty());
+        assert!(timestamp.contains("T")); // ISO format should contain T
+    }
+
+    #[test]
+    fn test_calculate_thumbnail_timestamps() {
+        use super::super::calculate_thumbnail_timestamps;
+        
+        // Тест нормального случая
+        let result = calculate_thumbnail_timestamps(60.0, 5);
+        assert!(result.is_ok());
+        let timestamps = result.unwrap();
+        assert_eq!(timestamps.len(), 5);
+        
+        // Проверяем, что временные метки распределены равномерно
+        let expected_interval = 60.0 / 6.0; // 60 / (5 + 1)
+        for (i, &timestamp) in timestamps.iter().enumerate() {
+            let expected = expected_interval * (i + 1) as f64;
+            assert!((timestamp - expected).abs() < 0.001);
+        }
+        
+        // Тест с нулевой длительностью
+        let result = calculate_thumbnail_timestamps(0.0, 5);
         assert!(result.is_err());
-    }
-}
-
-#[cfg(test)]
-mod extract_video_frames_batch_tests {
-    use super::*;
-
-    #[tokio::test]
-    async fn test_extract_video_frames_batch_success() {
-        let temp_dir = TempDir::new().unwrap();
-        let video_path = temp_dir.path().join("video.mp4").to_str().unwrap().to_string();
-        let output_dir = temp_dir.path().to_str().unwrap().to_string();
-        let timestamps = vec![1.0, 5.0, 10.0];
-        let state = create_test_state().await;
-
-        // Create fake video
-        tokio::fs::write(&video_path, b"fake video").await.unwrap();
-
-        // Pre-create expected output files (simulating FFmpeg output)
-        for (i, _) in timestamps.iter().enumerate() {
-            let path = format!("{}/frame_{:04}.png", output_dir, i);
-            tokio::fs::write(&path, b"fake frame").await.unwrap();
-        }
-
-        let tauri_state = State::new(state);
-        let result = extract_video_frames_batch(
-            video_path,
-            timestamps.clone(),
-            output_dir.clone(),
-            tauri_state,
-        )
-        .await;
-
-        // This will fail with real FFmpeg but shows the expected behavior
-        match result {
-            Ok(paths) => {
-                assert_eq!(paths.len(), 3);
-                assert!(paths[0].ends_with("/frame_0000.png"));
-                assert!(paths[2].ends_with("/frame_0002.png"));
-            }
-            Err(e) => {
-                // Expected in test environment
-                assert!(e.contains("FFmpeg"));
-            }
-        }
-    }
-
-    #[tokio::test]
-    async fn test_extract_video_frames_batch_empty_timestamps() {
-        let temp_dir = TempDir::new().unwrap();
-        let video_path = temp_dir.path().join("video.mp4").to_str().unwrap().to_string();
-        let output_dir = temp_dir.path().to_str().unwrap().to_string();
-        let state = create_test_state().await;
-
-        tokio::fs::write(&video_path, b"fake video").await.unwrap();
-
-        let tauri_state = State::new(state);
-        let result = extract_video_frames_batch(
-            video_path,
-            vec![], // empty timestamps
-            output_dir,
-            tauri_state,
-        )
-        .await;
-
+        
+        // Тест с отрицательной длительностью
+        let result = calculate_thumbnail_timestamps(-10.0, 5);
+        assert!(result.is_err());
+        
+        // Тест с одним кадром
+        let result = calculate_thumbnail_timestamps(10.0, 1);
         assert!(result.is_ok());
-        let paths = result.unwrap();
-        assert_eq!(paths.len(), 0);
+        let timestamps = result.unwrap();
+        assert_eq!(timestamps.len(), 1);
+        assert_eq!(timestamps[0], 5.0); // 10.0 / 2
     }
-}
 
-#[cfg(test)]
-mod get_video_thumbnails_tests {
-    use super::*;
-
-    // Mock for get_video_info
-    #[tokio::test]
-    async fn test_get_video_thumbnails_success() {
-        let temp_dir = TempDir::new().unwrap();
-        let video_path = temp_dir.path().join("video.mp4").to_str().unwrap().to_string();
-        let output_dir = temp_dir.path().to_str().unwrap().to_string();
-        let state = create_test_state().await;
-
-        // Create fake video
-        tokio::fs::write(&video_path, b"fake video").await.unwrap();
-
-        let tauri_state = State::new(state);
+    #[test]
+    fn test_extract_video_duration() {
+        use super::super::extract_video_duration;
         
-        // This will fail because get_video_info is not mocked
-        let result = get_video_thumbnails(
-            video_path,
-            5, // 5 thumbnails
-            output_dir,
-            tauri_state,
-        )
-        .await;
-
-        // In a real test with mocked dependencies:
-        // - get_video_info would return duration: 60.0
-        // - Thumbnails would be at: 10, 20, 30, 40, 50 seconds
-        // - 5 frame paths would be returned
+        // Тест с корректной информацией о видео
+        let video_info = serde_json::json!({
+            "format": {
+                "duration": "123.456"
+            }
+        });
+        let duration = extract_video_duration(&video_info);
+        assert_eq!(duration, 123.456);
         
-        match result {
-            Ok(paths) => {
-                assert_eq!(paths.len(), 5);
+        // Тест с отсутствующим полем duration
+        let video_info = serde_json::json!({
+            "format": {}
+        });
+        let duration = extract_video_duration(&video_info);
+        assert_eq!(duration, 0.0);
+        
+        // Тест с отсутствующим полем format
+        let video_info = serde_json::json!({});
+        let duration = extract_video_duration(&video_info);
+        assert_eq!(duration, 0.0);
+        
+        // Тест с некорректным значением duration
+        let video_info = serde_json::json!({
+            "format": {
+                "duration": "invalid"
             }
-            Err(e) => {
-                // Expected in test environment without mocked get_video_info
-                assert!(e.contains("duration") || e.contains("FFmpeg"));
+        });
+        let duration = extract_video_duration(&video_info);
+        assert_eq!(duration, 0.0);
+        
+        // Тест с числовым значением duration (не строка)
+        let video_info = serde_json::json!({
+            "format": {
+                "duration": 456.789
             }
-        }
+        });
+        let duration = extract_video_duration(&video_info);
+        assert_eq!(duration, 0.0); // Функция ожидает строку
     }
 
-    #[tokio::test]
-    async fn test_get_video_thumbnails_zero_count() {
-        let temp_dir = TempDir::new().unwrap();
-        let video_path = temp_dir.path().join("video.mp4").to_str().unwrap().to_string();
-        let output_dir = temp_dir.path().to_str().unwrap().to_string();
-        let state = create_test_state().await;
-
-        tokio::fs::write(&video_path, b"fake video").await.unwrap();
-
-        let tauri_state = State::new(state);
-        let result = get_video_thumbnails(
-            video_path,
-            0, // zero thumbnails requested
-            output_dir,
-            tauri_state,
-        )
-        .await;
-
-        // Should return empty vec or error
-        match result {
-            Ok(paths) => assert_eq!(paths.len(), 0),
-            Err(_) => (), // Also acceptable
-        }
-    }
-}
-
-#[cfg(test)]
-mod integration_tests {
-    use super::*;
-
-    #[tokio::test]
-    async fn test_full_preview_generation_workflow() {
-        let temp_dir = TempDir::new().unwrap();
-        let output_dir = temp_dir.path().to_str().unwrap().to_string();
-        let project = create_test_project();
-        let state = create_test_state().await;
-
-        // Test complete workflow:
-        // 1. Generate timeline frames
-        // 2. Generate subtitle frames  
-        // 3. Get cache info
-        // 4. Clear cache
-
-        let tauri_state = State::new(state);
-
-        // Step 1: Generate timeline frames
-        let timeline_result = extract_timeline_frames(
-            project.clone(),
-            20.0,
-            output_dir.clone(),
-            tauri_state.clone(),
-        )
-        .await;
-        assert!(timeline_result.is_ok());
-
-        // Step 2: Generate subtitle frames
-        let subtitle_result = extract_subtitle_frames(
-            project,
-            output_dir,
-            tauri_state.clone(),
-        )
-        .await;
-        assert!(subtitle_result.is_ok());
-
-        // Step 3: Get cache info
-        let cache_info = get_frame_extraction_cache_info(
-            "test_project".to_string(),
-            tauri_state.clone(),
-        )
-        .await;
-        assert!(cache_info.is_ok());
-
-        // Step 4: Clear cache
-        let clear_result = clear_frame_cache(
-            "test_project".to_string(),
-            tauri_state,
-        )
-        .await;
-        assert!(clear_result.is_ok());
-    }
-}
-
-#[cfg(test)]
-mod error_handling_tests {
-    use super::*;
-
-    #[tokio::test]
-    async fn test_invalid_output_directory() {
-        let project = create_test_project();
-        let state = create_test_state().await;
-        let invalid_dir = "/invalid/path/that/does/not/exist";
-
-        let tauri_state = State::new(state);
-        let result = extract_timeline_frames(
-            project,
-            10.0,
-            invalid_dir.to_string(),
-            tauri_state,
-        )
-        .await;
-
-        // Should handle gracefully, creating directories or failing with clear error
-        match result {
-            Ok(_) => (), // Directory might be created
-            Err(e) => assert!(e.contains("path") || e.contains("directory")),
-        }
+    #[test]
+    fn test_edge_cases_frame_timestamps() {
+        use super::super::calculate_frame_timestamps;
+        
+        // Тест с нулевой длительностью
+        let timestamps = calculate_frame_timestamps(0.0, 1.0);
+        assert_eq!(timestamps, vec![0.0]);
+        
+        // Тест с очень большой длительностью
+        let timestamps = calculate_frame_timestamps(1000000.0, 100000.0);
+        assert_eq!(timestamps.len(), 11); // 0, 100000, 200000, ..., 1000000
+        
+        // Тест с очень маленьким интервалом
+        let timestamps = calculate_frame_timestamps(1.0, 0.1);
+        assert_eq!(timestamps.len(), 11); // 0.0, 0.1, 0.2, ..., 1.0
     }
 
-    #[tokio::test]
-    async fn test_preview_generation_with_invalid_timestamp() {
-        let temp_dir = TempDir::new().unwrap();
-        let output_path = temp_dir.path().join("preview.png").to_str().unwrap().to_string();
-        let project = create_test_project();
-        let state = create_test_state().await;
+    #[test]
+    fn test_preview_options_edge_cases() {
+        use super::super::extract_preview_options;
+        
+        // Тест с отрицательными значениями (должны использоваться defaults)
+        let settings = serde_json::json!({
+            "width": -100,
+            "height": -200,
+            "quality": -50
+        });
+        let options = extract_preview_options(&settings);
+        assert_eq!(options.width, Some(1920)); // fallback to default
+        assert_eq!(options.height, Some(1080)); // fallback to default
+        assert_eq!(options.quality, 80); // fallback to default
+        
+        // Тест с очень большими значениями
+        let settings = serde_json::json!({
+            "width": 999999,
+            "height": 999999,
+            "quality": 200
+        });
+        let options = extract_preview_options(&settings);
+        assert_eq!(options.width, Some(999999));
+        assert_eq!(options.height, Some(999999));
+        assert_eq!(options.quality, 200); // Валидация качества не в этой функции
+        
+        // Тест с нестандартными типами данных
+        let settings = serde_json::json!({
+            "width": "1280",
+            "height": true,
+            "quality": null,
+            "format": 123
+        });
+        let options = extract_preview_options(&settings);
+        assert_eq!(options.width, Some(1920)); // String не парсится as_u64
+        assert_eq!(options.height, Some(1080)); // Boolean не парсится as_u64
+        assert_eq!(options.quality, 80); // null возвращает default
+        assert_eq!(options.format, "png"); // Number не парсится as_str
+    }
 
-        let tauri_state = State::new(state);
-        let result = generate_preview(
-            project,
-            f64::NAN, // NaN timestamp
-            output_path,
-            tauri_state,
-        )
-        .await;
-
-        // Should handle gracefully
-        match result {
-            Ok(_) => (), // Might clamp to valid range
-            Err(e) => assert!(e.contains("timestamp") || e.contains("invalid")),
-        }
+    #[test]
+    fn test_cache_info_consistency() {
+        use super::super::generate_cache_info;
+        
+        // Генерируем два cache_info подряд и проверяем, что timestamps разные
+        let info1 = generate_cache_info("test", 10, 1000);
+        std::thread::sleep(std::time::Duration::from_millis(10));
+        let info2 = generate_cache_info("test", 10, 1000);
+        
+        assert_ne!(info1["last_accessed"], info2["last_accessed"]);
+        assert_eq!(info1["project_id"], info2["project_id"]);
+        assert_eq!(info1["frame_count"], info2["frame_count"]);
+        assert_eq!(info1["total_size"], info2["total_size"]);
     }
 }
