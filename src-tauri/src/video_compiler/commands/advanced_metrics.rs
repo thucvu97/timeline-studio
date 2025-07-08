@@ -364,9 +364,7 @@ pub async fn get_metrics_history(
   hours_back: u32,
   _state: State<'_, VideoCompilerState>,
 ) -> Result<serde_json::Value> {
-  log::debug!(
-    "Получение истории метрик для {service_name} - {metric_name} за {hours_back} часов"
-  );
+  log::debug!("Получение истории метрик для {service_name} - {metric_name} за {hours_back} часов");
   Ok(generate_metrics_history(
     &service_name,
     &metric_name,
