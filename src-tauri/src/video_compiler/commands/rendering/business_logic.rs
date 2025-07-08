@@ -4,10 +4,7 @@ use crate::video_compiler::schema::{OutputFormat, ProjectSchema};
 use super::types::*;
 
 /// Применяет предустановки экспорта к схеме проекта
-pub fn apply_export_preset(
-  mut schema: ProjectSchema,
-  preset: &str,
-) -> Result<ProjectSchema> {
+pub fn apply_export_preset(mut schema: ProjectSchema, preset: &str) -> Result<ProjectSchema> {
   match preset {
     "youtube" => {
       schema.settings.export.format = OutputFormat::Mp4;
@@ -66,7 +63,11 @@ pub fn get_export_preset(preset_name: &str) -> Option<ExportPreset> {
 
 /// Получает список всех доступных предустановок экспорта
 pub fn get_available_presets() -> Vec<String> {
-  vec!["youtube".to_string(), "instagram".to_string(), "twitter".to_string()]
+  vec![
+    "youtube".to_string(),
+    "instagram".to_string(),
+    "twitter".to_string(),
+  ]
 }
 
 /// Валидирует временные метки сегмента
@@ -121,29 +122,18 @@ pub fn create_segment_filters_info(
 }
 
 /// Создает статистику рендеринга из внутренних данных
-pub fn create_render_statistics(
-  job_id: String,
-  frames_processed: u64,
-  memory_used: u64,
-  error_count: u32,
-  warning_count: u32,
-  validation_time_secs: u64,
-  preprocessing_time_secs: u64,
-  composition_time_secs: u64,
-  encoding_time_secs: u64,
-  finalization_time_secs: u64,
-) -> RenderStatistics {
+pub fn create_render_statistics(params: RenderStatisticsParams) -> RenderStatistics {
   RenderStatistics {
-    job_id,
-    frames_processed,
-    memory_used,
-    error_count,
-    warning_count,
-    validation_time_secs,
-    preprocessing_time_secs,
-    composition_time_secs,
-    encoding_time_secs,
-    finalization_time_secs,
+    job_id: params.job_id,
+    frames_processed: params.frames_processed,
+    memory_used: params.memory_used,
+    error_count: params.error_count,
+    warning_count: params.warning_count,
+    validation_time_secs: params.validation_time_secs,
+    preprocessing_time_secs: params.preprocessing_time_secs,
+    composition_time_secs: params.composition_time_secs,
+    encoding_time_secs: params.encoding_time_secs,
+    finalization_time_secs: params.finalization_time_secs,
   }
 }
 
@@ -153,12 +143,12 @@ pub fn parse_custom_render_settings(settings: &serde_json::Value) -> CustomRende
     .get("use_hardware_acceleration")
     .and_then(|v| v.as_bool())
     .unwrap_or(false);
-    
+
   let hw_type = settings
     .get("hardware_acceleration_type")
     .and_then(|v| v.as_str())
     .map(String::from);
-    
+
   let global_options = settings
     .get("global_options")
     .and_then(|v| v.as_array())
@@ -196,7 +186,10 @@ pub fn create_project_info(schema: &ProjectSchema) -> FFmpegProjectInfo {
   FFmpegProjectInfo {
     name: schema.metadata.name.clone(),
     duration: schema.timeline.duration,
-    resolution: (schema.settings.resolution.width, schema.settings.resolution.height),
+    resolution: (
+      schema.settings.resolution.width,
+      schema.settings.resolution.height,
+    ),
     frame_rate: schema.settings.frame_rate as u32,
     format: format!("{:?}", schema.settings.export.format),
   }
@@ -289,15 +282,15 @@ pub fn validate_job_id(job_id: &str) -> Result<()> {
 /// Форматирует размер памяти в человекочитаемый формат
 pub fn format_memory_size(bytes: u64) -> String {
   const UNITS: &[&str] = &["B", "KB", "MB", "GB", "TB"];
-  
+
   if bytes == 0 {
     return "0 B".to_string();
   }
-  
+
   let k: f64 = 1024.0;
   let i = ((bytes as f64).ln() / k.ln()).floor() as i32;
   let size = (bytes as f64) / k.powi(i);
-  
+
   format!("{:.2} {}", size, UNITS[i as usize])
 }
 

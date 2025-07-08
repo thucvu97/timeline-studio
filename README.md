@@ -96,7 +96,7 @@ Timeline Studio is built on modern modular architecture:
 ## 🎯 Key Features
 
 ### 🎬 Video Editing Core
-- **Multi-track Timeline** - Professional non-linear editing `Stable`
+- **[Multi-track Timeline](docs/en/08_tasks/completed/timeline-full-integration.md)** - Professional non-linear editing `Stable`
 - **GPU Acceleration** - NVENC, QuickSync, VideoToolbox support `Stable`
 - **100+ Transitions** - Smooth transitions and effects library `Stable`
 - **Device Presets** - Optimized exports for iPhone, iPad, Android `Stable`
@@ -104,27 +104,27 @@ Timeline Studio is built on modern modular architecture:
 
 ### 🤖 AI-Powered Features
 - **82 Claude AI Tools** - Complete video automation platform `Beta` 🔥
-- **Smart Montage Planner** - AI-powered automatic montage plan generation `Stable` ✅
-- **Whisper Transcription** - Speech-to-text with OpenAI/local models `Beta`
-- **Object/Face Recognition** - YOLO-based detection and tracking `Beta`
+- **[Smart Montage Planner](docs/en/08_tasks/completed/smart-montage-planner.md)** - AI-powered automatic montage plan generation `Stable` ✅
+- **[Whisper Transcription](docs/en/08_tasks/completed/ai-models-integration.md)** - Speech-to-text with OpenAI/local models `Beta`
+- **[Object/Face Recognition](docs/en/08_tasks/completed/ai-models-integration.md)** - YOLO-based detection and tracking `Beta`
 - **Scene Analysis** - Automatic scene detection and classification `Alpha`
 - **Workflow Automation** - 10 pre-built AI editing workflows `Beta`
 
 ### 🎨 Professional Tools
-- **Advanced Color Grading** - Wheels, curves, LUT, scopes `Stable` ✨
-- **Fairlight Audio** - Professional mixing and mastering `Stable` ✨
+- **[Advanced Color Grading](docs/ru/08_tasks/completed/color-grading-system.md)** - Wheels, curves, LUT, scopes `Stable` ✨
+- **[Fairlight Audio](docs/ru/08_tasks/completed/fairlight-audio-completion.md)** - Professional mixing and mastering `Stable` ✨
 - **Subtitle System** - 72 styles with animations `Stable`
 - **Visual Effects** - 100+ filters and effects `Stable`
 - **Multi-track Audio** - Advanced audio editing with effects `Stable`
 
 ### 📤 Export & Integration
-- **Social Media OAuth** - YouTube, TikTok, Vimeo, Telegram `Stable`
+- **[Social Media OAuth](docs/en/06_deployment/oauth_setup.md)** - YouTube, TikTok, Vimeo, Telegram `Stable`
 - **Platform Optimization** - Auto-adapt for 4 social platforms `Beta`
 - **Format Support** - MP4, MOV, WebM with custom settings `Stable`
 - **Secure Token Storage** - Keychain integration for API keys `Stable`
 
 ### 🛠️ Developer Experience
-- **Plugin System** - Extend functionality without core changes `Beta`
+- **[Plugin System](docs/en/03_architecture/backend/plugin-system.md)** - Extend functionality without core changes `Beta`
 - **Modern Tech Stack** - Tauri v2, Next.js 15, React 19 `Stable`
 - **TypeScript** - Full type safety across the codebase `Stable`
 - **80%+ Test Coverage** - 9,000+ tests for reliability `Stable`

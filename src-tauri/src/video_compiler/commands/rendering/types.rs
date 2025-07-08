@@ -88,3 +88,18 @@ pub struct FrameExtractionCacheInfo {
   pub cache_available: bool,
   pub message: String,
 }
+
+/// Параметры для создания статистики рендеринга
+#[derive(Debug, Clone)]
+pub struct RenderStatisticsParams {
+  pub job_id: String,
+  pub frames_processed: u64,
+  pub memory_used: u64,
+  pub error_count: u32,
+  pub warning_count: u32,
+  pub validation_time_secs: u64,
+  pub preprocessing_time_secs: u64,
+  pub composition_time_secs: u64,
+  pub encoding_time_secs: u64,
+  pub finalization_time_secs: u64,
+}

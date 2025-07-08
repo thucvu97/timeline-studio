@@ -22,12 +22,11 @@ pub async fn compile_video<R: tauri::Runtime>(
 ) -> Result<String> {
   // Валидируем путь вывода
   business_logic::validate_output_path(&output_path)?;
-  
+
   // Используем RenderService из контейнера сервисов
-  let render_service = state
-    .services
-    .get_render_service()
-    .ok_or_else(|| crate::video_compiler::error::VideoCompilerError::validation("RenderService не найден"))?;
+  let render_service = state.services.get_render_service().ok_or_else(|| {
+    crate::video_compiler::error::VideoCompilerError::validation("RenderService не найден")
+  })?;
 
   // Запускаем рендеринг через сервис
   let job_id = render_service
@@ -49,11 +48,10 @@ pub async fn compile_video<R: tauri::Runtime>(
 #[tauri::command]
 pub async fn cancel_render(job_id: String, state: State<'_, VideoCompilerState>) -> Result<bool> {
   business_logic::validate_job_id(&job_id)?;
-  
-  let render_service = state
-    .services
-    .get_render_service()
-    .ok_or_else(|| crate::video_compiler::error::VideoCompilerError::validation("RenderService не найден"))?;
+
+  let render_service = state.services.get_render_service().ok_or_else(|| {
+    crate::video_compiler::error::VideoCompilerError::validation("RenderService не найден")
+  })?;
 
   render_service.cancel_render(&job_id).await
 }
@@ -61,10 +59,9 @@ pub async fn cancel_render(job_id: String, state: State<'_, VideoCompilerState>)
 /// Получить статус активных задач рендеринга
 #[tauri::command]
 pub async fn get_active_render_jobs(state: State<'_, VideoCompilerState>) -> Result<Vec<String>> {
-  let render_service = state
-    .services
-    .get_render_service()
-    .ok_or_else(|| crate::video_compiler::error::VideoCompilerError::validation("RenderService не найден"))?;
+  let render_service = state.services.get_render_service().ok_or_else(|| {
+    crate::video_compiler::error::VideoCompilerError::validation("RenderService не найден")
+  })?;
 
   let job_ids = render_service.get_active_jobs().await?;
   Ok(job_ids)
@@ -77,7 +74,7 @@ pub async fn get_render_job(
   state: State<'_, VideoCompilerState>,
 ) -> Result<Option<RenderJob>> {
   business_logic::validate_job_id(&job_id)?;
-  
+
   let jobs = state.active_jobs.read().await;
 
   if let Some(active_job) = jobs.get(&job_id) {
@@ -106,16 +103,18 @@ pub async fn get_render_job(
 #[tauri::command]
 pub async fn pause_render(job_id: String, state: State<'_, VideoCompilerState>) -> Result<()> {
   business_logic::validate_job_id(&job_id)?;
-  
+
   let jobs = state.active_jobs.read().await;
 
   if let Some(_active_job) = jobs.get(&job_id) {
     // VideoRenderer не поддерживает паузу, используем заглушку
     Ok(())
   } else {
-    Err(crate::video_compiler::error::VideoCompilerError::InternalError(format!(
-      "Render job '{job_id}' not found"
-    )))
+    Err(
+      crate::video_compiler::error::VideoCompilerError::InternalError(format!(
+        "Render job '{job_id}' not found"
+      )),
+    )
   }
 }
 
@@ -123,16 +122,18 @@ pub async fn pause_render(job_id: String, state: State<'_, VideoCompilerState>) 
 #[tauri::command]
 pub async fn resume_render(job_id: String, state: State<'_, VideoCompilerState>) -> Result<()> {
   business_logic::validate_job_id(&job_id)?;
-  
+
   let jobs = state.active_jobs.read().await;
 
   if let Some(_active_job) = jobs.get(&job_id) {
     // VideoRenderer не поддерживает возобновление, используем заглушку
     Ok(())
   } else {
-    Err(crate::video_compiler::error::VideoCompilerError::InternalError(format!(
-      "Render job '{job_id}' not found"
-    )))
+    Err(
+      crate::video_compiler::error::VideoCompilerError::InternalError(format!(
+        "Render job '{job_id}' not found"
+      )),
+    )
   }
 }
 
@@ -168,27 +169,53 @@ pub async fn get_render_pipeline_statistics(
   state: State<'_, VideoCompilerState>,
 ) -> Result<RenderStatistics> {
   business_logic::validate_job_id(&job_id)?;
-  
+
   let active_jobs = state.active_jobs.read().await;
   let job = active_jobs.get(&job_id).ok_or_else(|| {
-    crate::video_compiler::error::VideoCompilerError::InvalidParameter(format!("Render job {job_id} not found"))
+    crate::video_compiler::error::VideoCompilerError::InvalidParameter(format!(
+      "Render job {job_id} not found"
+    ))
   })?;
 
   let stats = job.renderer.get_render_statistics().ok_or_else(|| {
-    crate::video_compiler::error::VideoCompilerError::InternalError("No pipeline statistics available".to_string())
+    crate::video_compiler::error::VideoCompilerError::InternalError(
+      "No pipeline statistics available".to_string(),
+    )
   })?;
 
   Ok(business_logic::create_render_statistics(
-    job_id,
-    stats.frames_processed,
-    stats.memory_used,
-    stats.error_count,
-    stats.warning_count,
-    stats.validation_time.duration_since(std::time::UNIX_EPOCH).unwrap().as_secs(),
-    stats.preprocessing_time.duration_since(std::time::UNIX_EPOCH).unwrap().as_secs(),
-    stats.composition_time.duration_since(std::time::UNIX_EPOCH).unwrap().as_secs(),
-    stats.encoding_time.duration_since(std::time::UNIX_EPOCH).unwrap().as_secs(),
-    stats.finalization_time.duration_since(std::time::UNIX_EPOCH).unwrap().as_secs(),
+    super::types::RenderStatisticsParams {
+      job_id,
+      frames_processed: stats.frames_processed,
+      memory_used: stats.memory_used,
+      error_count: stats.error_count,
+      warning_count: stats.warning_count,
+      validation_time_secs: stats
+        .validation_time
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_secs(),
+      preprocessing_time_secs: stats
+        .preprocessing_time
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_secs(),
+      composition_time_secs: stats
+        .composition_time
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_secs(),
+      encoding_time_secs: stats
+        .encoding_time
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_secs(),
+      finalization_time_secs: stats
+        .finalization_time
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_secs(),
+    },
   ))
 }
 
@@ -201,10 +228,10 @@ pub async fn build_render_command_with_settings(
   state: State<'_, VideoCompilerState>,
 ) -> Result<Vec<String>> {
   business_logic::validate_output_path(&output_path)?;
-  
+
   let custom_settings = business_logic::parse_custom_render_settings(&settings);
   let ffmpeg_path = state.ffmpeg_path.read().await.clone();
-  
+
   let builder_settings = crate::video_compiler::ffmpeg_builder::builder::FFmpegBuilderSettings {
     ffmpeg_path: ffmpeg_path.clone(),
     use_hardware_acceleration: custom_settings.use_hardware_acceleration,
@@ -213,10 +240,10 @@ pub async fn build_render_command_with_settings(
   };
 
   let builder = crate::video_compiler::ffmpeg_builder::FFmpegBuilder::with_settings(
-    project_schema, 
-    builder_settings
+    project_schema,
+    builder_settings,
   );
-  
+
   let command = builder
     .build_render_command(std::path::Path::new(&output_path))
     .await?;
@@ -246,7 +273,9 @@ pub async fn extract_frames_for_clip(
     .extract_frames_for_clip(&clip, None)
     .await?;
 
-  Ok(business_logic::create_frame_extraction_cache_info(!frames.is_empty()))
+  Ok(business_logic::create_frame_extraction_cache_info(
+    !frames.is_empty(),
+  ))
 }
 
 /// Извлечь кадры для субтитров
@@ -274,7 +303,9 @@ pub async fn extract_frames_for_subtitles(
     .extract_frames_for_subtitles(std::path::Path::new(&video_path), &subtitles, None)
     .await?;
 
-  Ok(business_logic::create_frame_extraction_cache_info(!frames.is_empty()))
+  Ok(business_logic::create_frame_extraction_cache_info(
+    !frames.is_empty(),
+  ))
 }
 
 /// Построить команду превью с использованием FFmpeg Builder
@@ -286,7 +317,7 @@ pub async fn build_preview_command(
   _state: State<'_, VideoCompilerState>,
 ) -> Result<Vec<String>> {
   business_logic::validate_output_path(&output_path)?;
-  
+
   let builder = crate::video_compiler::ffmpeg_builder::FFmpegBuilder::new(project_schema.clone());
   let input_path = business_logic::get_first_input_path(&project_schema);
 
@@ -339,19 +370,23 @@ pub async fn build_segment_render_command(
   state: State<'_, VideoCompilerState>,
 ) -> Result<Vec<String>> {
   business_logic::validate_output_path(&output_path)?;
-  
+
   let validation = business_logic::validate_segment_timestamps(
-    start_time, 
-    end_time, 
-    project_schema.timeline.duration
+    start_time,
+    end_time,
+    project_schema.timeline.duration,
   );
-  
+
   if !validation.is_valid {
-    return Err(crate::video_compiler::error::VideoCompilerError::InvalidParameter(
-      validation.warnings.unwrap_or_else(|| "Invalid segment timestamps".to_string())
-    ));
+    return Err(
+      crate::video_compiler::error::VideoCompilerError::InvalidParameter(
+        validation
+          .warnings
+          .unwrap_or_else(|| "Invalid segment timestamps".to_string()),
+      ),
+    );
   }
-  
+
   use crate::video_compiler::ffmpeg_builder::{
     filters::FilterBuilder, inputs::InputBuilder, outputs::OutputBuilder, FFmpegBuilder,
   };
@@ -394,8 +429,9 @@ pub async fn get_segment_filters_info(
   end_time: f64,
   _state: State<'_, VideoCompilerState>,
 ) -> Result<SegmentFiltersInfo> {
-  let filter_builder = crate::video_compiler::ffmpeg_builder::filters::FilterBuilder::new(&project_schema);
-  
+  let filter_builder =
+    crate::video_compiler::ffmpeg_builder::filters::FilterBuilder::new(&project_schema);
+
   Ok(business_logic::create_segment_filters_info(
     start_time,
     end_time,
@@ -442,10 +478,14 @@ pub async fn get_clip_input_index(
   clip_id: String,
   _state: State<'_, VideoCompilerState>,
 ) -> Result<ClipInputIndexInfo> {
-  let input_builder = crate::video_compiler::ffmpeg_builder::inputs::InputBuilder::new(&project_schema);
+  let input_builder =
+    crate::video_compiler::ffmpeg_builder::inputs::InputBuilder::new(&project_schema);
   let input_index = input_builder.get_clip_input_index(&clip_id);
 
-  Ok(business_logic::create_clip_input_index_info(clip_id, input_index))
+  Ok(business_logic::create_clip_input_index_info(
+    clip_id,
+    input_index,
+  ))
 }
 
 /// Получить статистику использования памяти при рендеринге
@@ -455,14 +495,18 @@ pub async fn get_render_memory_usage(
   state: State<'_, VideoCompilerState>,
 ) -> Result<String> {
   business_logic::validate_job_id(&job_id)?;
-  
+
   let active_jobs = state.active_jobs.read().await;
   let job = active_jobs.get(&job_id).ok_or_else(|| {
-    crate::video_compiler::error::VideoCompilerError::InvalidParameter(format!("Render job {job_id} not found"))
+    crate::video_compiler::error::VideoCompilerError::InvalidParameter(format!(
+      "Render job {job_id} not found"
+    ))
   })?;
 
   let stats = job.renderer.get_render_statistics().ok_or_else(|| {
-    crate::video_compiler::error::VideoCompilerError::InternalError("No statistics available".to_string())
+    crate::video_compiler::error::VideoCompilerError::InternalError(
+      "No statistics available".to_string(),
+    )
   })?;
 
   Ok(business_logic::format_memory_size(stats.memory_used))
@@ -475,28 +519,56 @@ pub async fn get_render_total_processing_time(
   state: State<'_, VideoCompilerState>,
 ) -> Result<u64> {
   business_logic::validate_job_id(&job_id)?;
-  
+
   let active_jobs = state.active_jobs.read().await;
   let job = active_jobs.get(&job_id).ok_or_else(|| {
-    crate::video_compiler::error::VideoCompilerError::InvalidParameter(format!("Render job {job_id} not found"))
+    crate::video_compiler::error::VideoCompilerError::InvalidParameter(format!(
+      "Render job {job_id} not found"
+    ))
   })?;
 
   let stats = job.renderer.get_render_statistics().ok_or_else(|| {
-    crate::video_compiler::error::VideoCompilerError::InternalError("No statistics available".to_string())
+    crate::video_compiler::error::VideoCompilerError::InternalError(
+      "No statistics available".to_string(),
+    )
   })?;
 
   let render_stats = business_logic::create_render_statistics(
-    job_id,
-    stats.frames_processed,
-    stats.memory_used,
-    stats.error_count,
-    stats.warning_count,
-    stats.validation_time.duration_since(std::time::UNIX_EPOCH).unwrap().as_secs(),
-    stats.preprocessing_time.duration_since(std::time::UNIX_EPOCH).unwrap().as_secs(),
-    stats.composition_time.duration_since(std::time::UNIX_EPOCH).unwrap().as_secs(),
-    stats.encoding_time.duration_since(std::time::UNIX_EPOCH).unwrap().as_secs(),
-    stats.finalization_time.duration_since(std::time::UNIX_EPOCH).unwrap().as_secs(),
+    super::types::RenderStatisticsParams {
+      job_id,
+      frames_processed: stats.frames_processed,
+      memory_used: stats.memory_used,
+      error_count: stats.error_count,
+      warning_count: stats.warning_count,
+      validation_time_secs: stats
+        .validation_time
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_secs(),
+      preprocessing_time_secs: stats
+        .preprocessing_time
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_secs(),
+      composition_time_secs: stats
+        .composition_time
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_secs(),
+      encoding_time_secs: stats
+        .encoding_time
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_secs(),
+      finalization_time_secs: stats
+        .finalization_time
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_secs(),
+    },
   );
 
-  Ok(business_logic::calculate_total_processing_time(&render_stats))
+  Ok(business_logic::calculate_total_processing_time(
+    &render_stats,
+  ))
 }

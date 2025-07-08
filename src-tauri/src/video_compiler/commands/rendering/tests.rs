@@ -5,9 +5,7 @@ mod tests {
   use super::super::business_logic;
   use super::super::types::*;
   use crate::video_compiler::error::VideoCompilerError;
-  use crate::video_compiler::schema::{
-    Clip, OutputFormat, ProjectSchema, Track, TrackType,
-  };
+  use crate::video_compiler::schema::{Clip, OutputFormat, ProjectSchema, Track, TrackType};
 
   fn create_test_project() -> ProjectSchema {
     let mut project = ProjectSchema::new("Test Project".to_string());
@@ -35,7 +33,7 @@ mod tests {
     let modified = result.unwrap();
     // Check format is Mp4 by matching pattern
     match modified.settings.export.format {
-      OutputFormat::Mp4 => {},
+      OutputFormat::Mp4 => {}
       _ => panic!("Expected Mp4 format"),
     }
     assert_eq!(modified.settings.export.video_bitrate, 8000);
@@ -52,7 +50,7 @@ mod tests {
     let modified = result.unwrap();
     // Check format is Mp4 by matching pattern
     match modified.settings.export.format {
-      OutputFormat::Mp4 => {},
+      OutputFormat::Mp4 => {}
       _ => panic!("Expected Mp4 format"),
     }
     assert_eq!(modified.settings.export.video_bitrate, 5000);
@@ -69,7 +67,7 @@ mod tests {
     let modified = result.unwrap();
     // Check format is Mp4 by matching pattern
     match modified.settings.export.format {
-      OutputFormat::Mp4 => {},
+      OutputFormat::Mp4 => {}
       _ => panic!("Expected Mp4 format"),
     }
     assert_eq!(modified.settings.export.video_bitrate, 6000);
@@ -188,18 +186,18 @@ mod tests {
 
   #[test]
   fn test_create_render_statistics() {
-    let stats = business_logic::create_render_statistics(
-      "job-123".to_string(),
-      1000,
-      2048576,
-      2,
-      5,
-      10,
-      20,
-      30,
-      40,
-      5,
-    );
+    let stats = business_logic::create_render_statistics(RenderStatisticsParams {
+      job_id: "job-123".to_string(),
+      frames_processed: 1000,
+      memory_used: 2048576,
+      error_count: 2,
+      warning_count: 5,
+      validation_time_secs: 10,
+      preprocessing_time_secs: 20,
+      composition_time_secs: 30,
+      encoding_time_secs: 40,
+      finalization_time_secs: 5,
+    });
 
     assert_eq!(stats.job_id, "job-123");
     assert_eq!(stats.frames_processed, 1000);
@@ -225,7 +223,10 @@ mod tests {
     let parsed = business_logic::parse_custom_render_settings(&settings);
     assert!(parsed.use_hardware_acceleration);
     assert_eq!(parsed.hardware_acceleration_type, Some("nvenc".to_string()));
-    assert_eq!(parsed.global_options, vec!["-threads", "8", "-preset", "fast"]);
+    assert_eq!(
+      parsed.global_options,
+      vec!["-threads", "8", "-preset", "fast"]
+    );
 
     // Test with minimal settings
     let settings = serde_json::json!({});
