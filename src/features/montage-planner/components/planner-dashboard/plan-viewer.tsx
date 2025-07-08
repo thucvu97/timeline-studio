@@ -13,7 +13,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useMediaFiles } from "@/features/app-state/hooks/use-media-files"
-import { formatTime } from "@/features/timeline/utils/utils"
+import { formatTime } from "@/lib/date"
 
 import { usePlanGenerator } from "../../hooks/use-plan-generator"
 import { useTimelineIntegration } from "../../hooks/use-timeline-integration"

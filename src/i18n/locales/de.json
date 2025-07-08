@@ -2249,5 +2249,123 @@
       "conflictResolution": "Dateikonfliktlösung",
       "conflictResolutionDescription": "Was tun, wenn eine Datei bereits existiert"
     }
+  },
+  "montage-planner": {
+    "title": "Intelligenter Montageplaner",
+    "description": "Automatische Videomontageerstellung mit KI",
+    "navigation": {
+      "dashboard": "Dashboard",
+      "analysis": "Analyse",
+      "planning": "Planung",
+      "timeline": "Timeline-Integration"
+    },
+    "analysis": {
+      "title": "Videoanalyse",
+      "addVideos": "Videos hinzufügen",
+      "analyzeVideos": "Videos analysieren",
+      "analyzing": "Analysiere...",
+      "analysisComplete": "Analyse abgeschlossen",
+      "quality": "Qualität",
+      "moments": "Schlüsselmomente",
+      "composition": "Komposition",
+      "audio": "Audioanalyse",
+      "emotionalArc": "Emotionaler Bogen",
+      "emotionalArcDescription": "Verfolgung der emotionalen Intensität und des Tempos in Ihrer Montage",
+      "energyGraph": "Energiediagramm",
+      "averageEnergy": "Durchschnittliche Energie",
+      "peakEnergy": "Spitzenenergie",
+      "valleyEnergy": "Minimale Energie",
+      "dynamicRange": "Dynamikbereich",
+      "peak": "Spitze",
+      "avg": "Durchschn",
+      "arcAnalysis": "Bogenanalyse",
+      "highContrast": "Hoher Kontrast",
+      "highContrastDescription": "Ihre Montage hat dramatische emotionale Wechsel, die ein fesselndes Erlebnis schaffen.",
+      "balanced": "Ausgewogen",
+      "balancedDescription": "Ihre Montage hält eine gute Balance zwischen intensiven und ruhigen Momenten.",
+      "steady": "Stetig",
+      "steadyDescription": "Ihre Montage behält eine konstante emotionale Energie bei.",
+      "pacingInsights": "Tempo-Einblicke",
+      "highEnergyDetected": "Hohe Energie Erkannt",
+      "highEnergyAdvice": "Erwägen Sie, ruhige Momente hinzuzufügen, um den Zuschauern Atempause zu geben.",
+      "lowEnergyDetected": "Niedrige Energie Erkannt",
+      "lowEnergyAdvice": "Erwägen Sie, dynamischere Sequenzen hinzuzufügen, um das Engagement zu erhöhen.",
+      "peakMoments": "Höhepunkte",
+      "peakMomentsAdvice": "Sie haben starke Höhepunktmomente - sorgen Sie für einen angemessenen Aufbau und Abschluss."
+    },
+    "planning": {
+      "title": "Montageplanung",
+      "generatePlan": "Plan erstellen",
+      "generating": "Erstelle...",
+      "planGenerated": "Plan erstellt",
+      "preferences": "Einstellungen",
+      "style": "Stil",
+      "duration": "Zieldauer",
+      "platform": "Zielplattform"
+    },
+    "styles": {
+      "dynamicAction": "Dynamische Action",
+      "musicVideo": "Musikvideo",
+      "socialMedia": "Soziale Medien",
+      "cinematicDrama": "Filmisches Drama",
+      "documentary": "Dokumentation"
+    },
+    "timeline": {
+      "title": "Timeline-Integration",
+      "applyToTimeline": "Auf Timeline anwenden",
+      "createSection": "Neuen Abschnitt erstellen",
+      "useExistingTracks": "Vorhandene Spuren verwenden",
+      "timeOffset": "Zeitversatz",
+      "applied": "Auf Timeline angewendet",
+      "markers": "Marker erstellen",
+      "start": "Start",
+      "middle": "Mitte",
+      "end": "Ende"
+    },
+    "quality": {
+      "excellent": "Ausgezeichnet",
+      "good": "Gut",
+      "fair": "Befriedigend",
+      "poor": "Schlecht",
+      "sharpness": "Schärfe",
+      "stability": "Stabilität",
+      "exposure": "Belichtung",
+      "composition": "Komposition"
+    },
+    "moments": {
+      "action": "Action",
+      "drama": "Drama",
+      "comedy": "Komödie",
+      "transition": "Übergang",
+      "opening": "Eröffnung",
+      "closing": "Abschluss",
+      "highlight": "Höhepunkt"
+    },
+    "emotions": {
+      "happy": "Glücklich",
+      "sad": "Traurig",
+      "energetic": "Energisch",
+      "calm": "Ruhig",
+      "tense": "Angespannt",
+      "excited": "Aufgeregt",
+      "neutral": "Neutral",
+      "title": "Emotionen",
+      "journey": "Emotionale Reise",
+      "distribution": "Emotionsverteilung"
+    },
+    "errors": {
+      "noVideos": "Keine Videos hinzugefügt",
+      "analysisError": "Analysefehler",
+      "planGenerationError": "Fehler bei der Planerstellung",
+      "timelineError": "Fehler bei der Timeline-Integration",
+      "missingMediaFiles": "Fehlende Mediendateien"
+    },
+    "messages": {
+      "addVideosHint": "Fügen Sie Videos hinzu, um die Analyse zu starten",
+      "analysisInProgress": "Analyse läuft, bitte warten...",
+      "planReady": "Der Montageplan ist bereit zur Anwendung",
+      "timelineIntegrated": "Plan erfolgreich auf Timeline angewendet"
+    },
+    "sequence": "Sequenz"
   }
 }

@@ -4,6 +4,7 @@
  */
 
 import { AlertTriangle, CheckCircle, Minus, TrendingDown, TrendingUp } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -20,6 +21,7 @@ interface QualityMeterProps {
 }
 
 export function QualityMeter({ videoAnalysis, audioAnalysis, momentScore, className }: QualityMeterProps) {
+  const { t } = useTranslation()
   const getQualityColor = (score: number) => {
     if (score >= 80) return "text-green-600"
     if (score >= 60) return "text-yellow-600"
@@ -27,10 +29,10 @@ export function QualityMeter({ videoAnalysis, audioAnalysis, momentScore, classN
   }
 
   const getQualityBadge = (score: number) => {
-    if (score >= 90) return { label: "Excellent", variant: "default" as const }
-    if (score >= 75) return { label: "Good", variant: "secondary" as const }
-    if (score >= 50) return { label: "Fair", variant: "outline" as const }
-    return { label: "Poor", variant: "destructive" as const }
+    if (score >= 90) return { label: t("montage-planner.quality.excellent"), variant: "default" as const }
+    if (score >= 75) return { label: t("montage-planner.quality.good"), variant: "secondary" as const }
+    if (score >= 50) return { label: t("montage-planner.quality.fair"), variant: "outline" as const }
+    return { label: t("montage-planner.quality.poor"), variant: "destructive" as const }
   }
 
   const getTrendIcon = (current: number, previous?: number) => {
@@ -46,14 +48,14 @@ export function QualityMeter({ videoAnalysis, audioAnalysis, momentScore, classN
   return (
     <Card className={cn("", className)}>
       <CardHeader>
-        <CardTitle>Quality Metrics</CardTitle>
-        <CardDescription>Real-time quality assessment of your content</CardDescription>
+        <CardTitle>{t("montage-planner.analysis.quality")}</CardTitle>
+        <CardDescription>{t("common.qualityAssessment")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Overall Quality */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Overall Quality</span>
+            <span className="text-sm font-medium">{t("common.overallQuality")}</span>
             <div className="flex items-center gap-2">
               <Badge variant={qualityBadge.variant}>{qualityBadge.label}</Badge>
               <span className={cn("text-2xl font-bold", getQualityColor(overallScore))}>
@@ -68,7 +70,7 @@ export function QualityMeter({ videoAnalysis, audioAnalysis, momentScore, classN
         {videoAnalysis && (
           <div className="space-y-3">
             <h4 className="text-sm font-medium flex items-center gap-2">
-              Video Analysis
+              {t("montage-planner.analysis.title")}
               {(videoAnalysis.quality?.sharpness || 0) >= 70 ? (
                 <CheckCircle className="h-4 w-4 text-green-600" />
               ) : (
@@ -79,17 +81,17 @@ export function QualityMeter({ videoAnalysis, audioAnalysis, momentScore, classN
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div className="space-y-1">
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Resolution</span>
+                  <span className="text-muted-foreground">{t("common.resolution")}</span>
                   <span className="font-medium">
                     {videoAnalysis.quality?.resolution?.width || 0}x{videoAnalysis.quality?.resolution?.height || 0}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Frame Rate</span>
+                  <span className="text-muted-foreground">{t("common.frameRate")}</span>
                   <span className="font-medium">{videoAnalysis.quality?.frameRate || 0} fps</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Bitrate</span>
+                  <span className="text-muted-foreground">{t("common.bitrate")}</span>
                   <span className="font-medium">
                     {((videoAnalysis.quality?.bitrate || 0) / 1000000).toFixed(1)} Mbps
                   </span>
@@ -98,7 +100,7 @@ export function QualityMeter({ videoAnalysis, audioAnalysis, momentScore, classN
 
               <div className="space-y-1">
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Sharpness</span>
+                  <span className="text-muted-foreground">{t("montage-planner.quality.sharpness")}</span>
                   <div className="flex items-center gap-1">
                     <span className={cn("font-medium", getQualityColor(videoAnalysis.quality?.sharpness || 0))}>
                       {(videoAnalysis.quality?.sharpness || 0).toFixed(0)}%
@@ -107,7 +109,7 @@ export function QualityMeter({ videoAnalysis, audioAnalysis, momentScore, classN
                   </div>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Stability</span>
+                  <span className="text-muted-foreground">{t("montage-planner.quality.stability")}</span>
                   <div className="flex items-center gap-1">
                     <span className={cn("font-medium", getQualityColor(videoAnalysis.quality?.stability || 0))}>
                       {(videoAnalysis.quality?.stability || 0).toFixed(0)}%
@@ -116,7 +118,7 @@ export function QualityMeter({ videoAnalysis, audioAnalysis, momentScore, classN
                   </div>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Brightness</span>
+                  <span className="text-muted-foreground">{t("montage-planner.quality.exposure")}</span>
                   <div className="flex items-center gap-1">
                     <span className={cn("font-medium", getQualityColor(videoAnalysis.quality?.exposure || 0))}>
                       {(videoAnalysis.quality?.exposure || 0).toFixed(0)}%
@@ -129,19 +131,19 @@ export function QualityMeter({ videoAnalysis, audioAnalysis, momentScore, classN
 
             {/* Composition */}
             <div className="space-y-2">
-              <span className="text-sm text-muted-foreground">Composition Quality</span>
+              <span className="text-sm text-muted-foreground">{t("montage-planner.quality.composition")}</span>
               <div className="grid grid-cols-3 gap-2">
                 <div className="text-center">
                   <Progress value={videoAnalysis.content?.compositionScore || 0} className="h-2" />
-                  <span className="text-xs text-muted-foreground mt-1">Rule of Thirds</span>
+                  <span className="text-xs text-muted-foreground mt-1">{t("common.ruleOfThirds")}</span>
                 </div>
                 <div className="text-center">
                   <Progress value={videoAnalysis.content?.aestheticScore || 0} className="h-2" />
-                  <span className="text-xs text-muted-foreground mt-1">Balance</span>
+                  <span className="text-xs text-muted-foreground mt-1">{t("common.balance")}</span>
                 </div>
                 <div className="text-center">
                   <Progress value={videoAnalysis.content?.actionLevel || 0} className="h-2" />
-                  <span className="text-xs text-muted-foreground mt-1">Leading Lines</span>
+                  <span className="text-xs text-muted-foreground mt-1">{t("common.leadingLines")}</span>
                 </div>
               </div>
             </div>
@@ -152,7 +154,7 @@ export function QualityMeter({ videoAnalysis, audioAnalysis, momentScore, classN
         {audioAnalysis && (
           <div className="space-y-3">
             <h4 className="text-sm font-medium flex items-center gap-2">
-              Audio Analysis
+              {t("montage-planner.analysis.audio")}
               {(audioAnalysis.quality?.clarity || 0) >= 70 ? (
                 <CheckCircle className="h-4 w-4 text-green-600" />
               ) : (
@@ -163,22 +165,22 @@ export function QualityMeter({ videoAnalysis, audioAnalysis, momentScore, classN
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div className="space-y-1">
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Sample Rate</span>
+                  <span className="text-muted-foreground">{t("common.sampleRate")}</span>
                   <span className="font-medium">{audioAnalysis.quality?.sampleRate || 0} Hz</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Bit Depth</span>
+                  <span className="text-muted-foreground">{t("common.bitDepth")}</span>
                   <span className="font-medium">{audioAnalysis.quality?.bitDepth || 0} bit</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Noise Level</span>
+                  <span className="text-muted-foreground">{t("common.noiseLevel")}</span>
                   <span className="font-medium">{(audioAnalysis.quality?.noiseLevel || 0).toFixed(0)}%</span>
                 </div>
               </div>
 
               <div className="space-y-1">
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Speech Clarity</span>
+                  <span className="text-muted-foreground">{t("common.speechClarity")}</span>
                   <div className="flex items-center gap-1">
                     <span className={cn("font-medium", getQualityColor(audioAnalysis.quality?.clarity || 0))}>
                       {(audioAnalysis.quality?.clarity || 0).toFixed(0)}%
@@ -187,7 +189,7 @@ export function QualityMeter({ videoAnalysis, audioAnalysis, momentScore, classN
                   </div>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Music Energy</span>
+                  <span className="text-muted-foreground">{t("common.musicEnergy")}</span>
                   <div className="flex items-center gap-1">
                     <span className={cn("font-medium", getQualityColor(audioAnalysis.music?.energy || 0))}>
                       {(audioAnalysis.music?.energy || 0).toFixed(0)}%
@@ -196,8 +198,8 @@ export function QualityMeter({ videoAnalysis, audioAnalysis, momentScore, classN
                   </div>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Silence Ratio</span>
-                  <span className="font-medium">{(audioAnalysis.silenceRatio * 100).toFixed(0)}%</span>
+                  <span className="text-muted-foreground">{t("common.silenceRatio")}</span>
+                  <span className="font-medium">{(100 - audioAnalysis.content.speechPresence - audioAnalysis.content.musicPresence).toFixed(0)}%</span>
                 </div>
               </div>
             </div>
@@ -207,26 +209,26 @@ export function QualityMeter({ videoAnalysis, audioAnalysis, momentScore, classN
         {/* Moment Score Breakdown */}
         {momentScore && (
           <div className="space-y-3">
-            <h4 className="text-sm font-medium">Moment Score Details</h4>
+            <h4 className="text-sm font-medium">{t("montage-planner.analysis.moments")}</h4>
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div className="space-y-1">
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Visual Impact</span>
-                  <Progress value={momentScore.visualScore} className="w-16 h-2" />
+                  <span className="text-muted-foreground">{t("common.visualImpact")}</span>
+                  <Progress value={momentScore.scores.visual} className="w-16 h-2" />
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Technical Quality</span>
-                  <Progress value={momentScore.technicalScore} className="w-16 h-2" />
+                  <span className="text-muted-foreground">{t("common.technicalQuality")}</span>
+                  <Progress value={momentScore.scores.technical} className="w-16 h-2" />
                 </div>
               </div>
               <div className="space-y-1">
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Emotional Value</span>
-                  <Progress value={momentScore.emotionalScore} className="w-16 h-2" />
+                  <span className="text-muted-foreground">{t("common.emotionalValue")}</span>
+                  <Progress value={momentScore.scores.emotional} className="w-16 h-2" />
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Relevance</span>
-                  <Progress value={momentScore.relevanceScore} className="w-16 h-2" />
+                  <span className="text-muted-foreground">{t("common.relevance")}</span>
+                  <Progress value={momentScore.scores.narrative} className="w-16 h-2" />
                 </div>
               </div>
             </div>

@@ -66,59 +66,70 @@ describe("TimelineIntegrationService", () => {
         updatedAt: new Date(),
         version: 1,
       },
-      sequences: [],
+      sequences: [
+        {
+          id: "seq1",
+          type: "main" as any,
+          duration: 30,
+          purpose: "exposition" as any,
+          energyLevel: 80,
+          emotionalArc: {
+            startEnergy: 70,
+            peakPosition: 0.7,
+            peakEnergy: 90,
+            endEnergy: 80,
+            variability: 60,
+          },
+          clips: [
+            {
+              fragmentId: "frag1",
+              fragment: {
+                id: "frag1",
+                videoId: "video1",
+                sourceFile: mockMediaFiles[0],
+                startTime: 0,
+                endTime: 10,
+                duration: 10,
+                score: {
+                  timestamp: 5,
+                  duration: 10,
+                  scores: {
+                    visual: 90,
+                    technical: 80,
+                    emotional: 85,
+                    narrative: 75,
+                    action: 95,
+                    composition: 88,
+                  },
+                  totalScore: 85,
+                  category: MomentCategory.Action,
+                },
+                objects: [],
+                people: [],
+                tags: [],
+              },
+              sequenceOrder: 0,
+              role: "hero" as any,
+              importance: 90,
+              adjustments: {
+                stabilization: true,
+              },
+              suggestions: [],
+            },
+          ],
+          transitions: [],
+        },
+      ],
       pacing: {
-        overall: "medium",
-        variability: 50,
-        peaks: [],
-        valleys: [],
+        type: "variable" as any,
+        averageCutDuration: 3,
+        cutDurationRange: [1, 5],
+        rhythmComplexity: 70,
       },
       qualityScore: 85,
       engagementScore: 90,
       coherenceScore: 80,
-      // Additional test-specific fields for backward compatibility
-      clips: [
-        {
-          id: "clip1",
-          source_file: "/path/to/video1.mp4",
-          start_time: 0,
-          end_time: 10,
-          duration: 10,
-          order: 0,
-          moment: {
-            id: "moment1",
-            timestamp: 5,
-            duration: 10,
-            category: MomentCategory.Action,
-            emotionalTone: EmotionalTone.Energetic,
-            totalScore: 85,
-            scores: {
-              visual: 90,
-              technical: 80,
-              emotional: 85,
-              narrative: 75,
-              action: 95,
-              composition: 88,
-            },
-            detections: [],
-            qualityAnalysis: {
-              sharpness: 85,
-              stability: 90,
-              exposure: 50,
-              colorGrading: 80,
-              noiseLevel: 15,
-              dynamicRange: 75,
-            },
-          },
-          adjustments: {
-            fade_in: 0.5,
-            fade_out: 0.5,
-            stabilization: true,
-          },
-        },
-      ],
-      transitions: [],
-    } as any
+    } as MontagePlan
   })
 
   describe("applyPlanToTimeline", () => {
@@ -147,8 +158,7 @@ describe("TimelineIntegrationService", () => {
       const clip = videoTrack?.clips?.[0]
       expect(clip?.startTime).toBe(0)
       expect(clip?.duration).toBe(10)
-      expect(clip?.fadeInDuration).toBe(0.5)
-      expect(clip?.fadeOutDuration).toBe(0.5)
+      // Note: fade in/out are not supported in the current ClipAdjustments type
     })
 
     it("should use existing tracks when configured", () => {
@@ -259,16 +269,39 @@ describe("TimelineIntegrationService", () => {
     })
 
     it("should only create moment markers for high-scoring moments", () => {
-      // Add a low-scoring moment
-      mockPlan.clips.push({
-        ...mockPlan.clips[0],
-        id: "clip2",
-        start_time: 10,
-        moment: {
-          ...mockPlan.clips[0].moment,
-          id: "moment2",
-          totalScore: 50, // Below 80 threshold
+      // Add a low-scoring moment to the first sequence
+      mockPlan.sequences[0].clips.push({
+        fragmentId: "frag2",
+        fragment: {
+          id: "frag2",
+          videoId: "video1",
+          sourceFile: mockMediaFiles[0],
+          startTime: 10,
+          endTime: 20,
+          duration: 10,
+          score: {
+            timestamp: 15,
+            duration: 10,
+            scores: {
+              visual: 50,
+              technical: 40,
+              emotional: 45,
+              narrative: 35,
+              action: 30,
+              composition: 42,
+            },
+            totalScore: 50, // Below 80 threshold
+            category: MomentCategory.Drama,
+          },
+          objects: [],
+          people: [],
+          tags: [],
         },
+        sequenceOrder: 1,
+        role: "supporting" as any,
+        importance: 50,
+        adjustments: {},
+        suggestions: [],
       })
 
       const markers = createMarkersFromPlan(mockPlan)

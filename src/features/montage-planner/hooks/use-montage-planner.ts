@@ -6,7 +6,7 @@
 import { useCallback, useMemo } from "react"
 
 import type { MediaFile } from "@/features/media/types/media"
-import { formatTime } from "@/features/timeline/utils/utils"
+import { formatTime } from "@/lib/date"
 
 import { useMontagePlanner as useMontagePlannerContext } from "../services/montage-planner-provider"
 import { MONTAGE_STYLES } from "../types"

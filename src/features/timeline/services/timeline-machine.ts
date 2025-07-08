@@ -4,7 +4,7 @@
  * Машина состояний для управления Timeline
  */
 
-import { assign, createMachine } from "xstate"
+import { assign, setup } from "xstate"
 
 import { VideoEffect } from "@/features/effects/types"
 import { VideoFilter } from "@/features/filters/types/filters"
@@ -102,6 +102,37 @@ export type TimelineEvents =
       clipId: string
       newStartTime: number
       newDuration: number
+    }
+
+  // Advanced editing operations
+  | {
+      type: "RIPPLE_EDIT"
+      clipId: string
+      edge: "start" | "end"
+      delta: number
+      rippleAcrossTracks?: boolean
+    }
+  | {
+      type: "ROLL_EDIT"
+      clipId: string
+      adjacentClipId: string
+      delta: number
+    }
+  | {
+      type: "SLIP_EDIT"
+      clipId: string
+      delta: number
+    }
+  | {
+      type: "SLIDE_EDIT"
+      clipId: string
+      delta: number
+    }
+  | {
+      type: "RATE_STRETCH"
+      clipId: string
+      rate: number
+      maintainPitch?: boolean
     }
 
   // Выделение
@@ -285,6 +316,8 @@ const actions = {
         event.trackId,
         event.startTime,
         event.duration || event.mediaFile.duration || 10,
+        0, // mediaStartTime
+        event.mediaFile.duration, // mediaDuration
       )
       newClip.name = event.mediaFile.name
       newClip.mediaFile = event.mediaFile
@@ -698,150 +731,558 @@ const actions = {
     },
     lastAction: "APPLY_FILTER_TO_TRACK",
   }),
+
+  // Advanced editing operations
+  splitClip: assign({
+    project: ({ context, event }: { context: TimelineContext; event: any }) => {
+      if (!context.project) return context.project
+
+      const updateClips = (clips: TimelineClip[]) => {
+        const newClips: TimelineClip[] = []
+
+        clips.forEach((clip) => {
+          if (clip.id === event.clipId) {
+            const splitPoint = event.splitTime - clip.startTime
+
+            // Validate split point
+            if (splitPoint <= 0 || splitPoint >= clip.duration) {
+              newClips.push(clip)
+              return
+            }
+
+            // First part of the clip
+            const firstClip = {
+              ...clip,
+              duration: splitPoint,
+              // Preserve effects and filters
+              effects: clip.effects.map((e) => ({ ...e })),
+              filters: clip.filters.map((f) => ({ ...f })),
+              transitions: clip.transitions.filter((t) => t.type === "in"),
+            }
+
+            // Second part of the clip
+            const secondClip = {
+              ...clip,
+              id: `${clip.id}_split_${Date.now()}`,
+              startTime: clip.startTime + splitPoint,
+              duration: clip.duration - splitPoint,
+              offset: clip.offset + splitPoint,
+              // Preserve effects and filters
+              effects: clip.effects.map((e) => ({ ...e })),
+              filters: clip.filters.map((f) => ({ ...f })),
+              transitions: clip.transitions.filter((t) => t.type === "out"),
+            }
+
+            newClips.push(firstClip, secondClip)
+          } else {
+            newClips.push(clip)
+          }
+        })
+
+        return newClips
+      }
+
+      const updateTracks = (tracks: TimelineTrack[]) =>
+        tracks.map((track) => ({
+          ...track,
+          clips: updateClips(track.clips),
+        }))
+
+      const sections = context.project.sections.map((section) => ({
+        ...section,
+        tracks: updateTracks(section.tracks),
+      }))
+
+      const globalTracks = updateTracks(context.project.globalTracks)
+
+      return {
+        ...context.project,
+        sections,
+        globalTracks,
+        updatedAt: new Date(),
+      }
+    },
+    lastAction: "SPLIT_CLIP",
+  }),
+
+  rippleEdit: assign({
+    project: ({ context, event }: { context: TimelineContext; event: Extract<TimelineEvents, { type: "RIPPLE_EDIT" }> }) => {
+      if (!context.project) return context.project
+
+      const updateClips = (clips: TimelineClip[]) => {
+        let affectedClipIndex = -1
+        let rippleStartTime = 0
+
+        // Find the affected clip and determine ripple start time
+        const updatedClips = clips.map((clip, index) => {
+          if (clip.id === event.clipId) {
+            affectedClipIndex = index
+
+            if (event.edge === "start") {
+              const newStartTime = clip.startTime + event.delta
+              const newDuration = clip.duration - event.delta
+
+              if (newDuration <= 0) return clip // Invalid edit
+
+              rippleStartTime = clip.startTime
+
+              return {
+                ...clip,
+                startTime: newStartTime,
+                duration: newDuration,
+                offset: clip.offset + event.delta,
+              }
+            }
+            const newDuration = clip.duration + event.delta
+
+            if (newDuration <= 0) return clip // Invalid edit
+
+            rippleStartTime = clip.startTime + clip.duration
+
+            return {
+              ...clip,
+              duration: newDuration,
+            }
+          }
+          return clip
+        })
+
+        // Apply ripple effect to subsequent clips
+        if (affectedClipIndex !== -1) {
+          for (let i = affectedClipIndex + 1; i < updatedClips.length; i++) {
+            if (updatedClips[i].startTime >= rippleStartTime) {
+              updatedClips[i] = {
+                ...updatedClips[i],
+                startTime: updatedClips[i].startTime + event.delta,
+              }
+            }
+          }
+        }
+
+        return updatedClips
+      }
+
+      const updateTracks = (tracks: TimelineTrack[]) =>
+        tracks.map((track) => {
+          // Apply ripple only to the track containing the edited clip or all tracks if specified
+          const shouldUpdate = track.clips.some((c) => c.id === event.clipId) || event.rippleAcrossTracks
+
+          return {
+            ...track,
+            clips: shouldUpdate ? updateClips(track.clips) : track.clips,
+          }
+        })
+
+      const sections = context.project.sections.map((section) => ({
+        ...section,
+        tracks: updateTracks(section.tracks),
+      }))
+
+      const globalTracks = updateTracks(context.project.globalTracks)
+
+      return {
+        ...context.project,
+        sections,
+        globalTracks,
+        updatedAt: new Date(),
+      }
+    },
+    lastAction: "RIPPLE_EDIT",
+  }),
+
+  rollEdit: assign({
+    project: ({ context, event }: { context: TimelineContext; event: Extract<TimelineEvents, { type: "ROLL_EDIT" }> }) => {
+      if (!context.project) return context.project
+
+      const updateClips = (clips: TimelineClip[]) => {
+        return clips.map((clip) => {
+          if (clip.id === event.clipId) {
+            // Adjust the out point of the current clip
+            const newDuration = clip.duration + event.delta
+            if (newDuration <= 0) return clip // Invalid edit
+            
+            return {
+              ...clip,
+              duration: newDuration,
+            }
+          } else if (clip.id === event.adjacentClipId) {
+            // Adjust the in point of the adjacent clip
+            const newStartTime = clip.startTime + event.delta
+            const newDuration = clip.duration - event.delta
+            
+            if (newDuration <= 0) return clip // Invalid edit
+            
+            return {
+              ...clip,
+              startTime: newStartTime,
+              duration: newDuration,
+              offset: clip.offset + event.delta,
+            }
+          }
+          return clip
+        })
+      }
+
+      const updateTracks = (tracks: TimelineTrack[]) =>
+        tracks.map((track) => {
+          // Check if this track contains both clips
+          const hasClips = track.clips.some((c) => c.id === event.clipId || c.id === event.adjacentClipId)
+          
+          return {
+            ...track,
+            clips: hasClips ? updateClips(track.clips) : track.clips,
+          }
+        })
+
+      const sections = context.project.sections.map((section) => ({
+        ...section,
+        tracks: updateTracks(section.tracks),
+      }))
+
+      const globalTracks = updateTracks(context.project.globalTracks)
+
+      return {
+        ...context.project,
+        sections,
+        globalTracks,
+        updatedAt: new Date(),
+      }
+    },
+    lastAction: "ROLL_EDIT",
+  }),
+
+  slipEdit: assign({
+    project: ({ context, event }: { context: TimelineContext; event: Extract<TimelineEvents, { type: "SLIP_EDIT" }> }) => {
+      if (!context.project) return context.project
+
+      const updateClips = (clips: TimelineClip[]) => {
+        return clips.map((clip) => {
+          if (clip.id === event.clipId) {
+            // Adjust the media offset without changing timeline position
+            const newOffset = clip.offset + event.delta
+            
+            // Ensure offset stays within bounds
+            if (newOffset < 0) return clip
+            if (clip.mediaDuration && newOffset + clip.duration > clip.mediaDuration) return clip
+            
+            return {
+              ...clip,
+              offset: newOffset,
+            }
+          }
+          return clip
+        })
+      }
+
+      const updateTracks = (tracks: TimelineTrack[]) =>
+        tracks.map((track) => ({
+          ...track,
+          clips: updateClips(track.clips),
+        }))
+
+      const sections = context.project.sections.map((section) => ({
+        ...section,
+        tracks: updateTracks(section.tracks),
+      }))
+
+      const globalTracks = updateTracks(context.project.globalTracks)
+
+      return {
+        ...context.project,
+        sections,
+        globalTracks,
+        updatedAt: new Date(),
+      }
+    },
+    lastAction: "SLIP_EDIT",
+  }),
+
+  slideEdit: assign({
+    project: ({ context, event }: { context: TimelineContext; event: Extract<TimelineEvents, { type: "SLIDE_EDIT" }> }) => {
+      if (!context.project) return context.project
+
+      const updateClips = (clips: TimelineClip[]) => {
+        // Sort clips by start time for proper collision detection
+        const sortedClips = [...clips].sort((a, b) => a.startTime - b.startTime)
+        
+        return sortedClips.map((clip) => {
+          if (clip.id === event.clipId) {
+            const newStartTime = clip.startTime + event.delta
+            
+            // Check for collisions with other clips
+            const hasCollision = sortedClips.some((otherClip) => {
+              if (otherClip.id === clip.id) return false
+              
+              const otherEnd = otherClip.startTime + otherClip.duration
+              const newEnd = newStartTime + clip.duration
+              
+              // Check if clips would overlap
+              return (
+                (newStartTime >= otherClip.startTime && newStartTime < otherEnd) ||
+                (newEnd > otherClip.startTime && newEnd <= otherEnd) ||
+                (newStartTime <= otherClip.startTime && newEnd >= otherEnd)
+              )
+            })
+            
+            if (hasCollision || newStartTime < 0) return clip
+            
+            return {
+              ...clip,
+              startTime: newStartTime,
+            }
+          }
+          return clip
+        })
+      }
+
+      const updateTracks = (tracks: TimelineTrack[]) =>
+        tracks.map((track) => ({
+          ...track,
+          clips: track.clips.some((c) => c.id === event.clipId) ? updateClips(track.clips) : track.clips,
+        }))
+
+      const sections = context.project.sections.map((section) => ({
+        ...section,
+        tracks: updateTracks(section.tracks),
+      }))
+
+      const globalTracks = updateTracks(context.project.globalTracks)
+
+      return {
+        ...context.project,
+        sections,
+        globalTracks,
+        updatedAt: new Date(),
+      }
+    },
+    lastAction: "SLIDE_EDIT",
+  }),
+
+  rateStretch: assign({
+    project: ({ context, event }: { context: TimelineContext; event: Extract<TimelineEvents, { type: "RATE_STRETCH" }> }) => {
+      if (!context.project) return context.project
+
+      const updateClips = (clips: TimelineClip[]) => {
+        return clips.map((clip) => {
+          if (clip.id === event.clipId) {
+            // Apply rate to duration
+            const newDuration = clip.duration / event.rate
+            
+            if (newDuration <= 0) return clip
+            
+            // Check if we need to apply pitch compensation for audio
+            const pitchCompensation = event.maintainPitch !== false // Default to true
+            
+            return {
+              ...clip,
+              duration: newDuration,
+              playbackRate: event.rate,
+              maintainPitch: pitchCompensation,
+            }
+          }
+          return clip
+        })
+      }
+
+      const updateTracks = (tracks: TimelineTrack[]) =>
+        tracks.map((track) => ({
+          ...track,
+          clips: updateClips(track.clips),
+        }))
+
+      const sections = context.project.sections.map((section) => ({
+        ...section,
+        tracks: updateTracks(section.tracks),
+      }))
+
+      const globalTracks = updateTracks(context.project.globalTracks)
+
+      return {
+        ...context.project,
+        sections,
+        globalTracks,
+        updatedAt: new Date(),
+      }
+    },
+    lastAction: "RATE_STRETCH",
+  }),
 }
 
-export const timelineMachine = createMachine(
-  {
-    id: "timeline",
-    initial: "idle",
-    context: initialContext,
-    states: {
-      idle: {
-        on: {
-          CREATE_PROJECT: {
-            target: "ready",
-            actions: ["createProject"],
-          },
-          LOAD_PROJECT: {
-            target: "ready",
-            actions: ["loadProject"],
-          },
+export const timelineMachine = setup({
+  types: {
+    context: {} as TimelineContext,
+    events: {} as TimelineEvents,
+  },
+  guards,
+  actions,
+  actors: {
+    saveProjectService: async () => {
+      // TODO: Implement actual save logic
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      return { success: true }
+    },
+  },
+}).createMachine({
+  id: "timeline",
+  initial: "idle",
+  context: initialContext,
+  states: {
+    idle: {
+      on: {
+        CREATE_PROJECT: {
+          target: "ready",
+          actions: ["createProject"],
+        },
+        LOAD_PROJECT: {
+          target: "ready",
+          actions: ["loadProject"],
         },
       },
+    },
 
-      ready: {
-        on: {
-          // Проект
-          SAVE_PROJECT: {
-            target: "saving",
-            guard: "hasProject",
-          },
-          CLOSE_PROJECT: {
-            target: "idle",
-            actions: ["closeProject"],
-          },
+    ready: {
+      on: {
+        // Проект
+        SAVE_PROJECT: {
+          target: "saving",
+          guard: "hasProject",
+        },
+        CLOSE_PROJECT: {
+          target: "idle",
+          actions: ["closeProject"],
+        },
 
-          // Секции
-          ADD_SECTION: {
-            actions: ["addSection"],
-            guard: "hasProject",
-          },
+        // Секции
+        ADD_SECTION: {
+          actions: ["addSection"],
+          guard: "hasProject",
+        },
 
-          // Треки
-          ADD_TRACK: {
-            actions: ["addTrack"],
-            guard: "hasProject",
-          },
+        // Треки
+        ADD_TRACK: {
+          actions: ["addTrack"],
+          guard: "hasProject",
+        },
 
-          // Клипы
-          ADD_CLIP: {
-            actions: ["addClip"],
-            guard: "hasProject",
-          },
+        // Клипы
+        ADD_CLIP: {
+          actions: ["addClip"],
+          guard: "hasProject",
+        },
+        SPLIT_CLIP: {
+          actions: ["splitClip"],
+          guard: "hasProject",
+        },
+        RIPPLE_EDIT: {
+          actions: ["rippleEdit"],
+          guard: "hasProject",
+        },
+        ROLL_EDIT: {
+          actions: ["rollEdit"],
+          guard: "hasProject",
+        },
+        SLIP_EDIT: {
+          actions: ["slipEdit"],
+          guard: "hasProject",
+        },
+        SLIDE_EDIT: {
+          actions: ["slideEdit"],
+          guard: "hasProject",
+        },
+        RATE_STRETCH: {
+          actions: ["rateStretch"],
+          guard: "hasProject",
+        },
 
-          // Выделение
-          SELECT_CLIPS: {
-            actions: ["selectClips"],
-          },
-          CLEAR_SELECTION: {
-            actions: ["clearSelection"],
-          },
+        // Выделение
+        SELECT_CLIPS: {
+          actions: ["selectClips"],
+        },
+        CLEAR_SELECTION: {
+          actions: ["clearSelection"],
+        },
 
-          // Воспроизведение
-          PLAY: {
-            target: "playing",
-            actions: ["play"],
-          },
-          SEEK: {
-            actions: ["seek"],
-          },
+        // Воспроизведение
+        PLAY: {
+          target: "playing",
+          actions: ["play"],
+        },
+        SEEK: {
+          actions: ["seek"],
+        },
 
-          // UI
-          SET_TIME_SCALE: {
-            actions: ["setTimeScale"],
-          },
+        // UI
+        SET_TIME_SCALE: {
+          actions: ["setTimeScale"],
+        },
 
-          // Применение ресурсов
-          APPLY_EFFECT_TO_CLIP: {
-            actions: ["applyEffectToClip"],
-            guard: "hasProject",
-          },
-          APPLY_FILTER_TO_CLIP: {
-            actions: ["applyFilterToClip"],
-            guard: "hasProject",
-          },
-          APPLY_TRANSITION_TO_CLIP: {
-            actions: ["applyTransitionToClip"],
-            guard: "hasProject",
-          },
-          APPLY_STYLE_TEMPLATE_TO_CLIP: {
-            actions: ["applyStyleTemplateToClip"],
-            guard: "hasProject",
-          },
-          APPLY_TEMPLATE_TO_CLIP: {
-            actions: ["applyTemplateToClip"],
-            guard: "hasProject",
-          },
-          APPLY_EFFECT_TO_TRACK: {
-            actions: ["applyEffectToTrack"],
-            guard: "hasProject",
-          },
-          APPLY_FILTER_TO_TRACK: {
-            actions: ["applyFilterToTrack"],
-            guard: "hasProject",
-          },
+        // Применение ресурсов
+        APPLY_EFFECT_TO_CLIP: {
+          actions: ["applyEffectToClip"],
+          guard: "hasProject",
+        },
+        APPLY_FILTER_TO_CLIP: {
+          actions: ["applyFilterToClip"],
+          guard: "hasProject",
+        },
+        APPLY_TRANSITION_TO_CLIP: {
+          actions: ["applyTransitionToClip"],
+          guard: "hasProject",
+        },
+        APPLY_STYLE_TEMPLATE_TO_CLIP: {
+          actions: ["applyStyleTemplateToClip"],
+          guard: "hasProject",
+        },
+        APPLY_TEMPLATE_TO_CLIP: {
+          actions: ["applyTemplateToClip"],
+          guard: "hasProject",
+        },
+        APPLY_EFFECT_TO_TRACK: {
+          actions: ["applyEffectToTrack"],
+          guard: "hasProject",
+        },
+        APPLY_FILTER_TO_TRACK: {
+          actions: ["applyFilterToTrack"],
+          guard: "hasProject",
+        },
 
-          // Ошибки
-          CLEAR_ERROR: {
-            actions: ["clearError"],
-          },
+        // Ошибки
+        CLEAR_ERROR: {
+          actions: ["clearError"],
         },
       },
+    },
 
-      playing: {
-        on: {
-          PAUSE: {
-            target: "ready",
-            actions: ["pause"],
-          },
-          STOP: {
-            target: "ready",
-            actions: ["pause", "seek"],
-            // Автоматически перематываем в начало при остановке
-          },
-          SEEK: {
-            actions: ["seek"],
-          },
+    playing: {
+      on: {
+        PAUSE: {
+          target: "ready",
+          actions: ["pause"],
+        },
+        STOP: {
+          target: "ready",
+          actions: ["pause", "seek"],
+          // Автоматически перематываем в начало при остановке
+        },
+        SEEK: {
+          actions: ["seek"],
         },
       },
+    },
 
-      saving: {
-        invoke: {
-          id: "saveProject",
-          src: "saveProjectService",
-          onDone: {
-            target: "ready",
-          },
-          onError: {
-            target: "ready",
-            actions: ["setError"],
-          },
+    saving: {
+      invoke: {
+        id: "saveProject",
+        src: "saveProjectService",
+        onDone: {
+          target: "ready",
+        },
+        onError: {
+          target: "ready",
+          actions: ["setError"],
         },
       },
     },
   },
-  {
-    guards,
-    actions,
-  },
+},
 )

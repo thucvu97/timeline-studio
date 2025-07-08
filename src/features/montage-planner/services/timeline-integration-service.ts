@@ -16,7 +16,7 @@ import {
   createTimelineTrack,
 } from "@/features/timeline/types"
 
-import { MontageClip, MontagePlan, TransitionPlan } from "../types"
+import { EmotionalTone, MontagePlan, PlannedClip, TransitionPlan } from "../types"
 
 export interface TimelineIntegrationOptions {
   // Создать новую секцию для плана
@@ -73,7 +73,7 @@ export function applyPlanToTimeline(
       sectionName,
       calculateSectionStartTime(updatedProject),
       plan.totalDuration,
-      new Date()
+      new Date(),
     )
 
     updatedProject.sections = [...updatedProject.sections, targetSection]
@@ -81,11 +81,7 @@ export function applyPlanToTimeline(
     // Используем последнюю секцию или создаем, если нет
     targetSection = updatedProject.sections[updatedProject.sections.length - 1]
     if (!targetSection) {
-      targetSection = createTimelineSection(
-        "Main Section",
-        0,
-        plan.totalDuration
-      )
+      targetSection = createTimelineSection("Main Section", 0, plan.totalDuration)
       updatedProject.sections = [targetSection]
     }
   }
@@ -93,15 +89,24 @@ export function applyPlanToTimeline(
   // Определяем треки для клипов
   const { videoTrack, audioTrack } = getOrCreateTracks(targetSection, useExistingTracks, options)
 
-  // Группируем клипы по трекам
-  const videoClips = plan.clips.filter((clip) => {
-    const mediaFile = mediaMap.get(clip.source_file)
-    return mediaFile?.isVideo || mediaFile?.isImage
+  // Собираем все клипы из последовательностей
+  const allClips: PlannedClip[] = []
+  const allTransitions: TransitionPlan[] = []
+  
+  plan.sequences.forEach((sequence) => {
+    allClips.push(...sequence.clips)
+    allTransitions.push(...sequence.transitions)
   })
 
-  const audioClips = plan.clips.filter((clip) => {
-    const mediaFile = mediaMap.get(clip.source_file)
-    return mediaFile?.isAudio
+  // Группируем клипы по трекам
+  const videoClips = allClips.filter((clip) => {
+    if (!clip.fragment?.sourceFile) return false
+    return clip.fragment.sourceFile.isVideo || clip.fragment.sourceFile.isImage
+  })
+
+  const audioClips = allClips.filter((clip) => {
+    if (!clip.fragment?.sourceFile) return false
+    return clip.fragment.sourceFile.isAudio
   })
 
   // Добавляем видео клипы
@@ -109,8 +114,8 @@ export function applyPlanToTimeline(
     const timelineClips = createTimelineClips(videoClips, videoTrack.id, mediaMap, timeOffset)
 
     // Применяем переходы если нужно
-    if (applyTransitions && plan.transitions.length > 0) {
-      applyTransitionsToClips(timelineClips, plan.transitions)
+    if (applyTransitions && allTransitions.length > 0) {
+      applyTransitionsToClips(timelineClips, allTransitions)
     }
 
     videoTrack.clips = [...(videoTrack.clips || []), ...timelineClips]
@@ -133,30 +138,30 @@ export function applyPlanToTimeline(
  * Создать клипы для Timeline из монтажных клипов
  */
 function createTimelineClips(
-  montageClips: MontageClip[],
+  montageClips: PlannedClip[],
   trackId: string,
   mediaMap: Map<string, MediaFile>,
   timeOffset: number,
 ): TimelineClip[] {
   return montageClips
     .map((montageClip, index) => {
-      const mediaFile = mediaMap.get(montageClip.source_file)
-
-      if (!mediaFile) {
-        console.warn(`Media file not found: ${montageClip.source_file}`)
+      if (!montageClip.fragment || !montageClip.fragment.sourceFile) {
+        console.warn(`Fragment or source file not found for clip ${montageClip.fragmentId}`)
         return null
       }
+
+      const mediaFile = montageClip.fragment.sourceFile
 
       const timelineClip = createTimelineClip(
         mediaFile.id,
         trackId,
-        Number(montageClip.start_time) + Number(timeOffset),
-        montageClip.duration,
-        montageClip.start_time
+        montageClip.fragment.startTime + timeOffset,
+        montageClip.fragment.duration,
+        montageClip.fragment.startTime,
       )
-      
+
       // Устанавливаем дополнительные свойства
-      timelineClip.id = `montage_clip_${montageClip.id}`
+      timelineClip.id = `montage_clip_${montageClip.fragmentId}_${index}`
       timelineClip.name = `${mediaFile.name} - Moment ${index + 1}`
 
       // Применяем настройки из монтажного клипа
@@ -164,17 +169,12 @@ function createTimelineClips(
         const adjustments = montageClip.adjustments
 
         // Скорость воспроизведения
-        if (adjustments.speed_multiplier) {
-          timelineClip.playbackRate = adjustments.speed_multiplier
+        if (adjustments.speedMultiplier) {
+          timelineClip.playbackRate = adjustments.speedMultiplier
         }
 
-        // Fade in/out
-        if (adjustments.fade_in) {
-          timelineClip.fadeInDuration = adjustments.fade_in
-        }
-        if (adjustments.fade_out) {
-          timelineClip.fadeOutDuration = adjustments.fade_out
-        }
+        // Note: fade_in and fade_out are not in ClipAdjustments interface
+        // These would need to be added if required
 
         // Стабилизация
         if (adjustments.stabilization) {
@@ -199,10 +199,13 @@ function createTimelineClips(
       timelineClip.metadata = {
         ...timelineClip.metadata,
         montageMetadata: {
-          momentCategory: montageClip.moment.category,
-          momentScore: montageClip.moment.totalScore,
-          compositionScore: montageClip.moment.scores.composition,
-          emotionalTone: montageClip.moment.emotionalTone,
+          momentCategory: montageClip.fragment?.score.category || "",
+          momentScore: montageClip.fragment?.score.totalScore || 0,
+          compositionScore: montageClip.fragment?.score.scores.composition || 0,
+          emotionalTone: getEmotionalToneFromScore(montageClip.fragment?.score.scores.emotional || 0),
+          fragmentId: montageClip.fragmentId,
+          role: montageClip.role,
+          importance: montageClip.importance,
         },
       }
 
@@ -216,21 +219,19 @@ function createTimelineClips(
  */
 function applyTransitionsToClips(clips: TimelineClip[], transitions: TransitionPlan[]): void {
   transitions.forEach((transition) => {
-    const fromClip = clips.find((c) => c.id.endsWith(transition.from_clip))
-    const toClip = clips.find((c) => c.id.endsWith(transition.to_clip))
+    const fromClip = clips.find((c) => c.id.endsWith(transition.fromClipId))
+    const toClip = clips.find((c) => c.id.endsWith(transition.toClipId))
 
     if (fromClip && toClip) {
       // Применяем переход к концу первого клипа
       fromClip.appliedTransitions = [
         ...(fromClip.appliedTransitions || []),
         {
-          transitionId: transition.transition_type.toLowerCase(),
+          transitionId: transition.transitionId,
           position: "out",
           duration: transition.duration,
           targetClipId: toClip.id,
-          customParams: {
-            easing: transition.easing,
-          },
+          customParams: {},
         },
       ]
 
@@ -345,27 +346,43 @@ export function createMarkersFromPlan(plan: MontagePlan, timeOffset = 0): Timeli
   })
 
   // Маркеры для ключевых моментов
-  plan.clips.forEach((clip, index) => {
-    if (clip.moment.totalScore > 80) {
-      markers.push({
-        id: `moment_${clip.id}`,
-        name: `Key Moment ${Number(index) + 1}`,
-        time: Number(clip.start_time || 0) + Number(timeOffset),
-        color: "#FF9800",
-        type: "note",
-        description: `${clip.moment.category} - Score: ${clip.moment.totalScore.toFixed(0)}`,
-      })
-    }
+  let clipIndex = 0
+  plan.sequences.forEach((sequence) => {
+    sequence.clips.forEach((clip) => {
+      if (clip.fragment && clip.fragment.score.totalScore > 80) {
+        markers.push({
+          id: `moment_${clip.fragmentId}_${clipIndex}`,
+          name: `Key Moment ${clipIndex + 1}`,
+          time: (clip.fragment.startTime || 0) + timeOffset,
+          color: "#FF9800",
+          type: "note",
+          description: `${clip.fragment.score.category} - Score: ${clip.fragment.score.totalScore.toFixed(0)}`,
+        })
+      }
+      clipIndex++
+    })
   })
 
   // Маркер конца плана
   markers.push({
     id: `montage_end_${plan.id}`,
     name: `${plan.name} - End`,
-    time: Number(plan.totalDuration) + Number(timeOffset),
+    time: plan.totalDuration + timeOffset,
     color: "#F44336",
     type: "section",
   })
 
   return markers
+}
+
+/**
+ * Helper function to determine emotional tone from score
+ */
+function getEmotionalToneFromScore(emotionalScore: number): EmotionalTone {
+  if (emotionalScore >= 80) return EmotionalTone.Energetic
+  if (emotionalScore >= 70) return EmotionalTone.Excited
+  if (emotionalScore >= 60) return EmotionalTone.Happy
+  if (emotionalScore >= 40) return EmotionalTone.Calm
+  if (emotionalScore >= 20) return EmotionalTone.Tense
+  return EmotionalTone.Sad
 }

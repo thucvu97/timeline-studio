@@ -4,6 +4,7 @@
  */
 
 import { AlertCircle, Download, Play, Settings, Sparkles, Upload } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -17,6 +18,7 @@ import { useMontagePlanner } from "../../hooks/use-montage-planner"
 import { MONTAGE_STYLES } from "../../types"
 
 export function PlannerDashboard() {
+  const { t } = useTranslation()
   const {
     // State
     videos,
@@ -77,24 +79,24 @@ export function PlannerDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Smart Montage Planner</h2>
-          <p className="text-muted-foreground">Automatically create optimal montage plans from your media</p>
+          <h2 className="text-2xl font-bold">{t("montage-planner.title")}</h2>
+          <p className="text-muted-foreground">{t("montage-planner.description")}</p>
         </div>
         <div className="flex gap-2">
           {hasPlan && (
             <>
               <Button variant="outline" size="sm" onClick={handleExport} disabled={isBusy}>
                 <Download className="mr-2 h-4 w-4" />
-                Export
+                {t("topBar.export")}
               </Button>
               <Button variant="default" size="sm" onClick={handleApplyToTimeline} disabled={isBusy}>
                 <Play className="mr-2 h-4 w-4" />
-                Apply to Timeline
+                {t("montage-planner.timeline.applyToTimeline")}
               </Button>
             </>
           )}
           <Button variant="outline" size="sm" onClick={reset} disabled={isBusy}>
-            Reset
+            {t("common.reset")}
           </Button>
         </div>
       </div>
@@ -106,7 +108,7 @@ export function PlannerDashboard() {
           <AlertDescription className="flex items-center justify-between">
             <span>{error}</span>
             <Button variant="ghost" size="sm" onClick={clearError}>
-              Dismiss
+              {t("common.close")}
             </Button>
           </AlertDescription>
         </Alert>
@@ -132,25 +134,25 @@ export function PlannerDashboard() {
         {/* Project Overview */}
         <Card>
           <CardHeader>
-            <CardTitle>Project Overview</CardTitle>
-            <CardDescription>Current project statistics</CardDescription>
+            <CardTitle>{t("common.projectOverview")}</CardTitle>
+            <CardDescription>{t("common.currentProjectStatistics")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Videos</span>
+                <span className="text-muted-foreground">{t("common.videos")}</span>
                 <span className="font-medium">{videoCount}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Total Duration</span>
+                <span className="text-muted-foreground">{t("common.totalDuration")}</span>
                 <span className="font-medium">{formatDuration(totalVideoDuration)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Fragments Detected</span>
+                <span className="text-muted-foreground">{t("common.fragmentsDetected")}</span>
                 <span className="font-medium">{fragmentCount}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Utilization Rate</span>
+                <span className="text-muted-foreground">{t("common.utilizationRate")}</span>
                 <span className="font-medium">{utilizationRate.toFixed(1)}%</span>
               </div>
             </div>
@@ -160,8 +162,8 @@ export function PlannerDashboard() {
         {/* Montage Style */}
         <Card>
           <CardHeader>
-            <CardTitle>Montage Style</CardTitle>
-            <CardDescription>Selected editing style</CardDescription>
+            <CardTitle>{t("montage-planner.planning.style")}</CardTitle>
+            <CardDescription>{t("montage-planner.planning.preferences")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -171,13 +173,13 @@ export function PlannerDashboard() {
               </div>
               {targetDuration && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Target Duration</span>
+                  <span className="text-muted-foreground">{t("montage-planner.planning.duration")}</span>
                   <span>{formatDuration(targetDuration)}</span>
                 </div>
               )}
               {hasPlan && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Plan Duration</span>
+                  <span className="text-muted-foreground">{t("common.planDuration")}</span>
                   <span
                     className={targetDuration && Math.abs(planDuration - targetDuration) > 10 ? "text-yellow-600" : ""}
                   >
@@ -192,14 +194,14 @@ export function PlannerDashboard() {
         {/* Actions */}
         <Card>
           <CardHeader>
-            <CardTitle>Actions</CardTitle>
-            <CardDescription>Montage planning controls</CardDescription>
+            <CardTitle>{t("common.actions")}</CardTitle>
+            <CardDescription>{t("montage-planner.navigation.planning")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
               <Button className="w-full" onClick={startAnalysis} disabled={!hasVideos || isBusy}>
                 <Upload className="mr-2 h-4 w-4" />
-                Analyze Videos
+                {t("montage-planner.analysis.analyzeVideos")}
               </Button>
               <Button
                 className="w-full"
@@ -208,11 +210,11 @@ export function PlannerDashboard() {
                 variant={hasFragments ? "default" : "outline"}
               >
                 <Sparkles className="mr-2 h-4 w-4" />
-                Generate Plan
+                {t("montage-planner.planning.generatePlan")}
               </Button>
               <Button className="w-full" onClick={optimizePlan} disabled={!canOptimizePlan} variant="outline">
                 <Settings className="mr-2 h-4 w-4" />
-                Optimize Plan
+                {t("common.optimizePlan")}
               </Button>
             </div>
           </CardContent>

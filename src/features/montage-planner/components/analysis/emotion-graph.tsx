@@ -6,6 +6,7 @@
 import React from "react"
 
 import { Activity, Frown, Heart, Smile, Sparkles, Zap } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -21,6 +22,8 @@ interface EmotionGraphProps {
 }
 
 export function EmotionGraph({ plan, emotionalArc, className }: EmotionGraphProps) {
+  const { t } = useTranslation()
+
   const getEmotionIcon = (emotion: string) => {
     const icons: Record<string, React.ReactNode> = {
       joy: <Smile className="h-4 w-4" />,
@@ -93,15 +96,15 @@ export function EmotionGraph({ plan, emotionalArc, className }: EmotionGraphProp
   return (
     <Card className={cn("", className)}>
       <CardHeader>
-        <CardTitle>Emotional Arc</CardTitle>
-        <CardDescription>Tracking emotional intensity and pacing throughout your montage</CardDescription>
+        <CardTitle>{t("montage-planner.analysis.emotionalArc")}</CardTitle>
+        <CardDescription>{t("montage-planner.analysis.emotionalArcDescription")}</CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="graph" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="graph">Energy Graph</TabsTrigger>
-            <TabsTrigger value="emotions">Emotions</TabsTrigger>
-            <TabsTrigger value="analysis">Analysis</TabsTrigger>
+            <TabsTrigger value="graph">{t("montage-planner.analysis.energyGraph")}</TabsTrigger>
+            <TabsTrigger value="emotions">{t("montage-planner.emotions.title")}</TabsTrigger>
+            <TabsTrigger value="analysis">{t("montage-planner.analysis.title")}</TabsTrigger>
           </TabsList>
 
           {/* Energy Graph Tab */}
@@ -129,30 +132,36 @@ export function EmotionGraph({ plan, emotionalArc, className }: EmotionGraphProp
                 {/* Energy bars */}
                 <div className="absolute inset-0 flex items-end justify-between gap-1">
                   {emotionalJourney.map((point, index) => (
-                    <div key={point.sequenceId} className="flex-1 relative group">
+                    <div key={`emotion-${index}`} className="flex-1 relative group">
                       {/* Peak energy bar */}
                       <div
                         className={cn(
                           "absolute bottom-0 left-0 right-0 rounded-t transition-all",
                           "bg-gradient-to-t",
-                          getEnergyGradient(point.peakEnergy),
+                          getEnergyGradient(point.emotionalIntensity),
                           "opacity-80 group-hover:opacity-100",
                         )}
-                        style={{ height: `${point.peakEnergy}%` }}
+                        style={{ height: `${point.emotionalIntensity}%` }}
                       />
 
                       {/* Average energy line */}
                       <div
                         className="absolute left-0 right-0 h-0.5 bg-white/50"
-                        style={{ bottom: `${point.averageEnergy}%` }}
+                        style={{ bottom: `${point.score}%` }}
                       />
 
                       {/* Tooltip */}
                       <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
                         <div className="bg-popover text-popover-foreground text-xs rounded p-2 shadow-lg whitespace-nowrap">
-                          <p className="font-medium">Sequence {index + 1}</p>
-                          <p>Peak: {point.peakEnergy}%</p>
-                          <p>Avg: {point.averageEnergy.toFixed(0)}%</p>
+                          <p className="font-medium">
+                            {t("montage-planner.sequence")} {index + 1}
+                          </p>
+                          <p>
+                            {t("montage-planner.analysis.peak")}: {point.emotionalIntensity}%
+                          </p>
+                          <p>
+                            {t("montage-planner.analysis.avg")}: {point.score.toFixed(0)}%
+                          </p>
                           <p className="capitalize">{point.dominantEmotion}</p>
                         </div>
                       </div>
@@ -163,28 +172,28 @@ export function EmotionGraph({ plan, emotionalArc, className }: EmotionGraphProp
 
               {/* X-axis labels */}
               <div className="ml-10 mt-2 flex justify-between text-xs text-muted-foreground">
-                <span>Start</span>
-                <span>Middle</span>
-                <span>End</span>
+                <span>{t("montage-planner.timeline.start")}</span>
+                <span>{t("montage-planner.timeline.middle")}</span>
+                <span>{t("montage-planner.timeline.end")}</span>
               </div>
             </div>
 
             {/* Statistics */}
             <div className="grid grid-cols-4 gap-4 text-sm">
               <div className="space-y-1">
-                <p className="text-muted-foreground">Average Energy</p>
+                <p className="text-muted-foreground">{t("montage-planner.analysis.averageEnergy")}</p>
                 <p className={cn("text-2xl font-bold", getEnergyColor(averageEnergy))}>{averageEnergy.toFixed(0)}%</p>
               </div>
               <div className="space-y-1">
-                <p className="text-muted-foreground">Peak Energy</p>
+                <p className="text-muted-foreground">{t("montage-planner.analysis.peakEnergy")}</p>
                 <p className={cn("text-2xl font-bold", getEnergyColor(peakEnergy))}>{peakEnergy}%</p>
               </div>
               <div className="space-y-1">
-                <p className="text-muted-foreground">Valley Energy</p>
+                <p className="text-muted-foreground">{t("montage-planner.analysis.valleyEnergy")}</p>
                 <p className={cn("text-2xl font-bold", getEnergyColor(valleyEnergy))}>{valleyEnergy.toFixed(0)}%</p>
               </div>
               <div className="space-y-1">
-                <p className="text-muted-foreground">Dynamic Range</p>
+                <p className="text-muted-foreground">{t("montage-planner.analysis.dynamicRange")}</p>
                 <p className="text-2xl font-bold">{emotionalRange.toFixed(0)}%</p>
               </div>
             </div>
@@ -194,10 +203,10 @@ export function EmotionGraph({ plan, emotionalArc, className }: EmotionGraphProp
           <TabsContent value="emotions" className="space-y-4">
             {/* Emotion Timeline */}
             <div className="space-y-2">
-              <p className="text-sm font-medium">Emotional Journey</p>
+              <p className="text-sm font-medium">{t("montage-planner.emotions.journey")}</p>
               <div className="space-y-2">
                 {emotionalJourney.map((point, index) => (
-                  <div key={point.sequenceId} className="flex items-center gap-2">
+                  <div key={`journey-${index}`} className="flex items-center gap-2">
                     <div className="w-12 text-sm text-muted-foreground">#{index + 1}</div>
                     <div className={cn("p-1.5 rounded", getEmotionColor(point.dominantEmotion))}>
                       {getEmotionIcon(point.dominantEmotion)}
@@ -222,7 +231,7 @@ export function EmotionGraph({ plan, emotionalArc, className }: EmotionGraphProp
 
             {/* Emotion Distribution */}
             <div className="space-y-2">
-              <p className="text-sm font-medium">Emotion Distribution</p>
+              <p className="text-sm font-medium">{t("montage-planner.emotions.distribution")}</p>
               <div className="grid grid-cols-2 gap-2">
                 {emotionalArc &&
                   Object.entries(
@@ -251,30 +260,24 @@ export function EmotionGraph({ plan, emotionalArc, className }: EmotionGraphProp
           <TabsContent value="analysis" className="space-y-4">
             {/* Arc Type */}
             <div className="space-y-2">
-              <p className="text-sm font-medium">Arc Analysis</p>
+              <p className="text-sm font-medium">{t("montage-planner.analysis.arcAnalysis")}</p>
               <div className="space-y-2 text-sm">
                 {emotionalRange > 50 && (
                   <div className="flex items-start gap-2">
-                    <Badge variant="default">High Contrast</Badge>
-                    <p className="text-muted-foreground">
-                      Your montage has dramatic emotional shifts, creating an engaging roller-coaster experience.
-                    </p>
+                    <Badge variant="default">{t("montage-planner.analysis.highContrast")}</Badge>
+                    <p className="text-muted-foreground">{t("montage-planner.analysis.highContrastDescription")}</p>
                   </div>
                 )}
                 {emotionalRange <= 50 && emotionalRange > 25 && (
                   <div className="flex items-start gap-2">
-                    <Badge variant="secondary">Balanced</Badge>
-                    <p className="text-muted-foreground">
-                      Your montage maintains a good balance between intensity and calm moments.
-                    </p>
+                    <Badge variant="secondary">{t("montage-planner.analysis.balanced")}</Badge>
+                    <p className="text-muted-foreground">{t("montage-planner.analysis.balancedDescription")}</p>
                   </div>
                 )}
                 {emotionalRange <= 25 && (
                   <div className="flex items-start gap-2">
-                    <Badge variant="outline">Steady</Badge>
-                    <p className="text-muted-foreground">
-                      Your montage maintains consistent emotional energy throughout.
-                    </p>
+                    <Badge variant="outline">{t("montage-planner.analysis.steady")}</Badge>
+                    <p className="text-muted-foreground">{t("montage-planner.analysis.steadyDescription")}</p>
                   </div>
                 )}
               </div>
@@ -282,29 +285,33 @@ export function EmotionGraph({ plan, emotionalArc, className }: EmotionGraphProp
 
             {/* Pacing Recommendations */}
             <div className="space-y-2">
-              <p className="text-sm font-medium">Pacing Insights</p>
+              <p className="text-sm font-medium">{t("montage-planner.analysis.pacingInsights")}</p>
               <div className="space-y-2">
                 {averageEnergy > 70 && (
                   <div className="p-3 rounded-lg bg-orange-100 dark:bg-orange-900/20 text-sm">
-                    <p className="font-medium text-orange-900 dark:text-orange-100">High Energy Detected</p>
+                    <p className="font-medium text-orange-900 dark:text-orange-100">
+                      {t("montage-planner.analysis.highEnergyDetected")}
+                    </p>
                     <p className="text-orange-800 dark:text-orange-200">
-                      Consider adding calm moments to give viewers breathing room.
+                      {t("montage-planner.analysis.highEnergyAdvice")}
                     </p>
                   </div>
                 )}
                 {averageEnergy < 40 && (
                   <div className="p-3 rounded-lg bg-blue-100 dark:bg-blue-900/20 text-sm">
-                    <p className="font-medium text-blue-900 dark:text-blue-100">Low Energy Detected</p>
-                    <p className="text-blue-800 dark:text-blue-200">
-                      Consider adding more dynamic sequences to increase engagement.
+                    <p className="font-medium text-blue-900 dark:text-blue-100">
+                      {t("montage-planner.analysis.lowEnergyDetected")}
                     </p>
+                    <p className="text-blue-800 dark:text-blue-200">{t("montage-planner.analysis.lowEnergyAdvice")}</p>
                   </div>
                 )}
                 {plan && plan.sequences.some((s) => s.energyLevel > 90) && (
                   <div className="p-3 rounded-lg bg-purple-100 dark:bg-purple-900/20 text-sm">
-                    <p className="font-medium text-purple-900 dark:text-purple-100">Peak Moments</p>
+                    <p className="font-medium text-purple-900 dark:text-purple-100">
+                      {t("montage-planner.analysis.peakMoments")}
+                    </p>
                     <p className="text-purple-800 dark:text-purple-200">
-                      You have strong climactic moments - ensure proper build-up and resolution.
+                      {t("montage-planner.analysis.peakMomentsAdvice")}
                     </p>
                   </div>
                 )}

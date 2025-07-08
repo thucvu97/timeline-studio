@@ -123,6 +123,7 @@ export function createTimelineClip(
   startTime: number,
   duration: number,
   mediaStartTime = 0,
+  mediaDuration?: number,
 ): TimelineClip {
   return {
     id: `clip-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
@@ -133,6 +134,8 @@ export function createTimelineClip(
     duration,
     mediaStartTime,
     mediaEndTime: mediaStartTime + duration,
+    offset: mediaStartTime, // Initialize offset to match mediaStartTime
+    mediaDuration,
     volume: 1,
     speed: 1,
     isReversed: false,

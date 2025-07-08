@@ -4,16 +4,19 @@
  */
 
 import { Camera, Heart, Music, Sparkles, Target, Users, Zap } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { formatTime } from "@/features/timeline/utils/utils"
+import { formatTime } from "@/lib/date"
 import { cn } from "@/lib/utils"
 
-import type { Fragment, MomentType } from "../../types"
+import { MomentCategory } from "../../types"
+
+import type { Fragment } from "../../types"
 
 interface MomentDetectorProps {
   fragments: Fragment[]
@@ -21,28 +24,32 @@ interface MomentDetectorProps {
 }
 
 export function MomentDetector({ fragments, className }: MomentDetectorProps) {
-  const getMomentIcon = (type: MomentType) => {
+  const { t } = useTranslation()
+
+  const getMomentIcon = (type: MomentCategory) => {
     const icons = {
-      Highlight: <Sparkles className="h-4 w-4" />,
-      Action: <Zap className="h-4 w-4" />,
-      Emotion: <Heart className="h-4 w-4" />,
-      Scenic: <Camera className="h-4 w-4" />,
-      Musical: <Music className="h-4 w-4" />,
-      Dialog: <Users className="h-4 w-4" />,
-      KeyFrame: <Target className="h-4 w-4" />,
+      [MomentCategory.Highlight]: <Sparkles className="h-4 w-4" />,
+      [MomentCategory.Action]: <Zap className="h-4 w-4" />,
+      [MomentCategory.Drama]: <Heart className="h-4 w-4" />,
+      [MomentCategory.Comedy]: <Music className="h-4 w-4" />,
+      [MomentCategory.Transition]: <Camera className="h-4 w-4" />,
+      [MomentCategory.BRoll]: <Camera className="h-4 w-4" />,
+      [MomentCategory.Opening]: <Target className="h-4 w-4" />,
+      [MomentCategory.Closing]: <Users className="h-4 w-4" />,
     }
     return icons[type] || <Sparkles className="h-4 w-4" />
   }
 
-  const getMomentColor = (type: MomentType) => {
+  const getMomentColor = (type: MomentCategory) => {
     const colors = {
-      Highlight: "text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20",
-      Action: "text-red-600 bg-red-100 dark:bg-red-900/20",
-      Emotion: "text-pink-600 bg-pink-100 dark:bg-pink-900/20",
-      Scenic: "text-blue-600 bg-blue-100 dark:bg-blue-900/20",
-      Musical: "text-purple-600 bg-purple-100 dark:bg-purple-900/20",
-      Dialog: "text-green-600 bg-green-100 dark:bg-green-900/20",
-      KeyFrame: "text-orange-600 bg-orange-100 dark:bg-orange-900/20",
+      [MomentCategory.Highlight]: "text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20",
+      [MomentCategory.Action]: "text-red-600 bg-red-100 dark:bg-red-900/20",
+      [MomentCategory.Drama]: "text-pink-600 bg-pink-100 dark:bg-pink-900/20",
+      [MomentCategory.Comedy]: "text-purple-600 bg-purple-100 dark:bg-purple-900/20",
+      [MomentCategory.Transition]: "text-blue-600 bg-blue-100 dark:bg-blue-900/20",
+      [MomentCategory.BRoll]: "text-gray-600 bg-gray-100 dark:bg-gray-900/20",
+      [MomentCategory.Opening]: "text-green-600 bg-green-100 dark:bg-green-900/20",
+      [MomentCategory.Closing]: "text-orange-600 bg-orange-100 dark:bg-orange-900/20",
     }
     return colors[type] || "text-gray-600 bg-gray-100 dark:bg-gray-900/20"
   }
@@ -62,8 +69,8 @@ export function MomentDetector({ fragments, className }: MomentDetectorProps) {
     return acc
   }, {})
 
-  const fragmentsByType = fragments.reduce<Record<MomentType, Fragment[]>>((acc, fragment) => {
-    const type = fragment.score.momentType
+  const fragmentsByType = fragments.reduce<Record<MomentCategory, Fragment[]>>((acc, fragment) => {
+    const type = fragment.score.category
     if (!acc[type]) {
       acc[type] = []
     }
@@ -80,7 +87,7 @@ export function MomentDetector({ fragments, className }: MomentDetectorProps) {
 
   const momentTypeCounts = Object.entries(fragmentsByType)
     .map(([type, frags]) => ({
-      type: type as MomentType,
+      type: type as MomentCategory,
       count: frags.length,
       percentage: (frags.length / fragments.length) * 100,
     }))
@@ -89,17 +96,17 @@ export function MomentDetector({ fragments, className }: MomentDetectorProps) {
   return (
     <Card className={cn("", className)}>
       <CardHeader>
-        <CardTitle>Moment Detection</CardTitle>
+        <CardTitle>{t("montage-planner.analysis.moments")}</CardTitle>
         <CardDescription>
-          Analyzed {fragments.length} moments across {Object.keys(fragmentsByVideo).length} videos
+          {t("common.analyzedMoments", { count: fragments.length, videos: Object.keys(fragmentsByVideo).length })}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="overview" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="moments">Top Moments</TabsTrigger>
-            <TabsTrigger value="timeline">Timeline</TabsTrigger>
+            <TabsTrigger value="overview">{t("common.overview")}</TabsTrigger>
+            <TabsTrigger value="moments">{t("common.topMoments")}</TabsTrigger>
+            <TabsTrigger value="timeline">{t("timeline.title")}</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -107,24 +114,24 @@ export function MomentDetector({ fragments, className }: MomentDetectorProps) {
             {/* Statistics */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <p className="text-sm font-medium">Average Score</p>
+                <p className="text-sm font-medium">{t("common.averageScore")}</p>
                 <div className="flex items-center gap-2">
                   <span className="text-2xl font-bold">{averageScore.toFixed(0)}</span>
                   <Progress value={averageScore} className="flex-1 h-2" />
                 </div>
               </div>
               <div className="space-y-2">
-                <p className="text-sm font-medium">Detection Rate</p>
+                <p className="text-sm font-medium">{t("common.detectionRate")}</p>
                 <div className="flex items-center gap-2">
                   <span className="text-2xl font-bold">{fragments.length}</span>
-                  <span className="text-sm text-muted-foreground">moments detected</span>
+                  <span className="text-sm text-muted-foreground">{t("common.momentsDetected")}</span>
                 </div>
               </div>
             </div>
 
             {/* Moment Type Distribution */}
             <div className="space-y-2">
-              <p className="text-sm font-medium">Moment Types</p>
+              <p className="text-sm font-medium">{t("common.momentTypes")}</p>
               <div className="space-y-2">
                 {momentTypeCounts.map(({ type, count, percentage }) => (
                   <div key={type} className="flex items-center gap-2">

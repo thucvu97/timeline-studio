@@ -2164,5 +2164,123 @@
       "conflictResolution": "การแก้ไขความขัดแย้งของไฟล์",
       "conflictResolutionDescription": "สิ่งที่ต้องทำเมื่อไฟล์มีอยู่แล้ว"
     }
+  },
+  "montage-planner": {
+    "title": "ตัววางแผนมอนทาจอัจฉริยะ",
+    "description": "การสร้างมอนทาจวิดีโออัตโนมัติด้วย AI",
+    "navigation": {
+      "dashboard": "แดชบอร์ด",
+      "analysis": "การวิเคราะห์",
+      "planning": "การวางแผน",
+      "timeline": "การรวมไทม์ไลน์"
+    },
+    "analysis": {
+      "title": "การวิเคราะห์วิดีโอ",
+      "addVideos": "เพิ่มวิดีโอ",
+      "analyzeVideos": "วิเคราะห์วิดีโอ",
+      "analyzing": "กำลังวิเคราะห์...",
+      "analysisComplete": "วิเคราะห์เสร็จสิ้น",
+      "quality": "คุณภาพ",
+      "moments": "ช่วงเวลาสำคัญ",
+      "composition": "องค์ประกอบ",
+      "audio": "การวิเคราะห์เสียง",
+      "emotionalArc": "อารมณ์เส้นโค้ง",
+      "emotionalArcDescription": "ติดตามความเข้มข้นทางอารมณ์และจังหวะตลอดการตัดต่อของคุณ",
+      "energyGraph": "กราฟพลังงาน",
+      "averageEnergy": "พลังงานเฉลี่ย",
+      "peakEnergy": "พลังงานสูงสุด",
+      "valleyEnergy": "พลังงานต่ำสุด",
+      "dynamicRange": "ช่วงไดนามิก",
+      "peak": "จุดสูงสุด",
+      "avg": "เฉลี่ย",
+      "arcAnalysis": "การวิเคราะห์เส้นโค้ง",
+      "highContrast": "คอนทราสต์สูง",
+      "highContrastDescription": "การตัดต่อของคุณมีการเปลี่ยนแปลงทางอารมณ์อย่างมาก สร้างประสบการณ์ที่น่าตื่นเต้น",
+      "balanced": "สมดุล",
+      "balancedDescription": "การตัดต่อของคุณรักษาสมดุลที่ดีระหว่างช่วงเวลาที่เข้มข้นและสงบ",
+      "steady": "คงที่",
+      "steadyDescription": "การตัดต่อของคุณรักษาพลังงานทางอารมณ์ที่สม่ำเสมอตลอด",
+      "pacingInsights": "ข้อมูลเชิงลึกเกี่ยวกับจังหวะ",
+      "highEnergyDetected": "ตรวจพบพลังงานสูง",
+      "highEnergyAdvice": "พิจารณาเพิ่มช่วงเวลาที่สงบเพื่อให้ผู้ชมได้พักหายใจ",
+      "lowEnergyDetected": "ตรวจพบพลังงานต่ำ",
+      "lowEnergyAdvice": "พิจารณาเพิ่มซีเควนซ์ที่มีชีวิตชีวามากขึ้นเพื่อเพิ่มการมีส่วนร่วม",
+      "peakMoments": "ช่วงเวลาสูงสุด",
+      "peakMomentsAdvice": "คุณมีช่วงเวลาไคลแมกซ์ที่แข็งแกร่ง - ตรวจสอบให้แน่ใจว่ามีการสร้างและการแก้ไขที่เหมาะสม"
+    },
+    "planning": {
+      "title": "การวางแผนมอนทาจ",
+      "generatePlan": "สร้างแผน",
+      "generating": "กำลังสร้าง...",
+      "planGenerated": "สร้างแผนแล้ว",
+      "preferences": "การตั้งค่า",
+      "style": "สไตล์",
+      "duration": "ระยะเวลาเป้าหมาย",
+      "platform": "แพลตฟอร์มเป้าหมาย"
+    },
+    "styles": {
+      "dynamicAction": "แอ็คชันไดนามิก",
+      "musicVideo": "มิวสิควิดีโอ",
+      "socialMedia": "โซเชียลมีเดีย",
+      "cinematicDrama": "ดราม่าภาพยนตร์",
+      "documentary": "สารคดี"
+    },
+    "timeline": {
+      "title": "การรวมไทม์ไลน์",
+      "applyToTimeline": "นำไปใช้กับไทม์ไลน์",
+      "createSection": "สร้างส่วนใหม่",
+      "useExistingTracks": "ใช้แทร็กที่มีอยู่",
+      "timeOffset": "การเลื่อนเวลา",
+      "applied": "นำไปใช้กับไทม์ไลน์แล้ว",
+      "markers": "สร้างเครื่องหมาย",
+      "start": "เริ่มต้น",
+      "middle": "กลาง",
+      "end": "สิ้นสุด"
+    },
+    "quality": {
+      "excellent": "ยอดเยี่ยม",
+      "good": "ดี",
+      "fair": "พอใช้",
+      "poor": "แย่",
+      "sharpness": "ความคมชัด",
+      "stability": "ความมั่นคง",
+      "exposure": "การเปิดรับแสง",
+      "composition": "องค์ประกอบ"
+    },
+    "moments": {
+      "action": "แอ็คชัน",
+      "drama": "ดราม่า",
+      "comedy": "ตลก",
+      "transition": "การเปลี่ยนผ่าน",
+      "opening": "เปิดเรื่อง",
+      "closing": "ปิดเรื่อง",
+      "highlight": "ไฮไลต์"
+    },
+    "emotions": {
+      "happy": "มีความสุข",
+      "sad": "เศร้า",
+      "energetic": "มีพลัง",
+      "calm": "สงบ",
+      "tense": "ตึงเครียด",
+      "excited": "ตื่นเต้น",
+      "neutral": "เป็นกลาง",
+      "title": "อารมณ์",
+      "journey": "การเดินทางทางอารมณ์",
+      "distribution": "การกระจายอารมณ์"
+    },
+    "errors": {
+      "noVideos": "ไม่มีวิดีโอที่เพิ่ม",
+      "analysisError": "การวิเคราะห์ล้มเหลว",
+      "planGenerationError": "การสร้างแผนล้มเหลว",
+      "timelineError": "การรวมไทม์ไลน์ล้มเหลว",
+      "missingMediaFiles": "ไฟล์มีเดียหายไป"
+    },
+    "messages": {
+      "addVideosHint": "เพิ่มวิดีโอเพื่อเริ่มการวิเคราะห์",
+      "analysisInProgress": "กำลังวิเคราะห์ กรุณารอสักครู่...",
+      "planReady": "แผนมอนทาจพร้อมใช้งาน",
+      "timelineIntegrated": "นำแผนไปใช้กับไทม์ไลน์สำเร็จแล้ว"
+    },
+    "sequence": "ลำดับ"
   }
 }

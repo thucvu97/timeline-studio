@@ -2,14 +2,19 @@
  * Clip - Основной компонент клипа на Timeline
  */
 
-import { memo, useMemo } from "react"
+import { memo, useMemo, useState, useCallback } from "react"
 
 import { cn } from "@/lib/utils"
 
 import { AudioClip } from "./audio-clip"
 import { SubtitleClip } from "./subtitle-clip"
 import { VideoClip } from "./video-clip"
+import { ClipTrimHandles } from "./clip-trim-handles"
+import { SlipSlideHandles } from "../edit-tools/slip-slide-handles"
 import { TimelineClip, TimelineTrack, isSubtitleClip } from "../../types"
+import { useEditModeContext } from "../../hooks/use-edit-mode"
+import { useClipEditing } from "../../hooks/use-clip-editing"
+import { EDIT_MODES } from "../../types/edit-modes"
 
 interface ClipProps {
   clip: TimelineClip
@@ -21,13 +26,25 @@ interface ClipProps {
 }
 
 export const Clip = memo(function Clip({ clip, track, timeScale, onUpdate, onRemove, className }: ClipProps) {
+  const { editMode } = useEditModeContext()
+  const [isHovered, setIsHovered] = useState(false)
+  
+  const {
+    isEditing,
+    preview,
+    handleTrimStart,
+    handleTrimMove,
+    handleTrimEnd,
+    handleSplit,
+  } = useClipEditing(clip.id)
+
   // Мемоизируем вычисления позиции и размеров
   const { left, width } = useMemo(
     () => ({
-      left: clip.startTime * timeScale,
-      width: Math.max(clip.duration * timeScale, 20), // Минимальная ширина 20px
+      left: (preview?.startTime ?? clip.startTime) * timeScale,
+      width: Math.max((preview?.duration ?? clip.duration) * timeScale, 20), // Минимальная ширина 20px
     }),
-    [clip.startTime, clip.duration, timeScale],
+    [clip.startTime, clip.duration, timeScale, preview],
   )
 
   // Выбираем специализированный компонент в зависимости от типа трека
@@ -64,6 +81,13 @@ export const Clip = memo(function Clip({ clip, track, timeScale, onUpdate, onRem
     }
   }
 
+  // Handle slip/slide start
+  const handleSlipSlideStart = useCallback((mouseX: number) => {
+    if (editMode === EDIT_MODES.SLIP || editMode === EDIT_MODES.SLIDE) {
+      handleTrimStart(editMode === EDIT_MODES.SLIP ? "start" : "end", mouseX)
+    }
+  }, [editMode, handleTrimStart])
+
   return (
     <div
       className={cn(
@@ -71,6 +95,7 @@ export const Clip = memo(function Clip({ clip, track, timeScale, onUpdate, onRem
         "transition-all duration-150",
         clip.isSelected && "ring-2 ring-primary ring-offset-1",
         clip.isLocked && "opacity-60 cursor-not-allowed",
+        isEditing && "z-10",
         className,
       )}
       style={{
@@ -78,8 +103,37 @@ export const Clip = memo(function Clip({ clip, track, timeScale, onUpdate, onRem
         width: `${width}px`,
       }}
       data-testid="timeline-clip"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       {renderClipContent()}
+      
+      {/* Trim handles for regular trim/ripple modes */}
+      {(editMode === EDIT_MODES.TRIM || editMode === EDIT_MODES.RIPPLE) && (
+        <ClipTrimHandles
+          clipId={clip.id}
+          onTrimStart={handleTrimStart}
+          onTrimMove={handleTrimMove}
+          onTrimEnd={handleTrimEnd}
+          isSelected={clip.isSelected || false}
+          disabled={clip.isLocked}
+        />
+      )}
+      
+      {/* Slip/Slide handles */}
+      <SlipSlideHandles
+        clip={{
+          ...clip,
+          startTime: preview?.startTime ?? clip.startTime,
+          duration: preview?.duration ?? clip.duration,
+          offset: preview?.offset ?? clip.offset,
+        }}
+        isHovered={isHovered}
+        isActive={isEditing}
+        timeScale={timeScale}
+        onSlipStart={editMode === EDIT_MODES.SLIP ? handleSlipSlideStart : undefined}
+        onSlideStart={editMode === EDIT_MODES.SLIDE ? handleSlipSlideStart : undefined}
+      />
     </div>
   )
 })

@@ -14,7 +14,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
-import { formatTime } from "@/features/timeline/utils/utils"
+import { formatTime } from "@/lib/date"
 import { cn } from "@/lib/utils"
 
 import type { Fragment, Sequence, SequenceType } from "../../types"

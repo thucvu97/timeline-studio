@@ -2340,5 +2340,123 @@
       "conflictResolution": "फाइल कॉन्फ्लिक्ट रिज़ोल्यूशन",
       "conflictResolutionDescription": "जब फाइल पहले से मौजूद हो तो क्या करें"
     }
+  },
+  "montage-planner": {
+    "title": "स्मार्ट मॉन्टाज प्लानर",
+    "description": "AI संचालित स्वचालित वीडियो मॉन्टाज निर्माण",
+    "navigation": {
+      "dashboard": "डैशबोर्ड",
+      "analysis": "विश्लेषण",
+      "planning": "योजना",
+      "timeline": "टाइमलाइन एकीकरण"
+    },
+    "analysis": {
+      "title": "वीडियो विश्लेषण",
+      "addVideos": "वीडियो जोड़ें",
+      "analyzeVideos": "वीडियो का विश्लेषण करें",
+      "analyzing": "विश्लेषण हो रहा है...",
+      "analysisComplete": "विश्लेषण पूर्ण",
+      "quality": "गुणवत्ता",
+      "moments": "मुख्य क्षण",
+      "composition": "संरचना",
+      "audio": "ऑडियो विश्लेषण",
+      "emotionalArc": "भावनात्मक चाप",
+      "emotionalArcDescription": "आपके मॉन्टेज में भावनात्मक तीव्रता और गति को ट्रैक करना",
+      "energyGraph": "ऊर्जा ग्राफ",
+      "averageEnergy": "औसत ऊर्जा",
+      "peakEnergy": "शिखर ऊर्जा",
+      "valleyEnergy": "घाटी ऊर्जा",
+      "dynamicRange": "गतिशील रेंज",
+      "peak": "शिखर",
+      "avg": "औसत",
+      "arcAnalysis": "चाप विश्लेषण",
+      "highContrast": "उच्च कंट्रास्ट",
+      "highContrastDescription": "आपके मॉन्टेज में नाटकीय भावनात्मक बदलाव हैं, जो एक रोमांचक अनुभव बनाते हैं।",
+      "balanced": "संतुलित",
+      "balancedDescription": "आपका मॉन्टेज तीव्र और शांत क्षणों के बीच अच्छा संतुलन बनाए रखता है।",
+      "steady": "स्थिर",
+      "steadyDescription": "आपका मॉन्टेज पूरे समय स्थिर भावनात्मक ऊर्जा बनाए रखता है।",
+      "pacingInsights": "गति अंतर्दृष्टि",
+      "highEnergyDetected": "उच्च ऊर्जा का पता लगाया गया",
+      "highEnergyAdvice": "दर्शकों को सांस लेने का समय देने के लिए शांत क्षण जोड़ने पर विचार करें।",
+      "lowEnergyDetected": "कम ऊर्जा का पता लगाया गया",
+      "lowEnergyAdvice": "जुड़ाव बढ़ाने के लिए अधिक गतिशील अनुक्रम जोड़ने पर विचार करें।",
+      "peakMoments": "शिखर क्षण",
+      "peakMomentsAdvice": "आपके पास मजबूत चरमोत्कर्ष क्षण हैं - उचित निर्माण और समाधान सुनिश्चित करें।"
+    },
+    "planning": {
+      "title": "मॉन्टाज योजना",
+      "generatePlan": "योजना बनाएं",
+      "generating": "बनाया जा रहा है...",
+      "planGenerated": "योजना तैयार",
+      "preferences": "प्राथमिकताएं",
+      "style": "शैली",
+      "duration": "लक्ष्य अवधि",
+      "platform": "लक्ष्य प्लेटफॉर्म"
+    },
+    "styles": {
+      "dynamicAction": "डायनामिक एक्शन",
+      "musicVideo": "म्यूजिक वीडियो",
+      "socialMedia": "सोशल मीडिया",
+      "cinematicDrama": "सिनेमैटिक ड्रामा",
+      "documentary": "डॉक्यूमेंट्री"
+    },
+    "timeline": {
+      "title": "टाइमलाइन एकीकरण",
+      "applyToTimeline": "टाइमलाइन पर लागू करें",
+      "createSection": "नया सेक्शन बनाएं",
+      "useExistingTracks": "मौजूदा ट्रैक का उपयोग करें",
+      "timeOffset": "समय ऑफसेट",
+      "applied": "टाइमलाइन पर लागू किया गया",
+      "markers": "मार्कर बनाएं",
+      "start": "शुरुआत",
+      "middle": "मध्य",
+      "end": "अंत"
+    },
+    "quality": {
+      "excellent": "उत्कृष्ट",
+      "good": "अच्छा",
+      "fair": "ठीक",
+      "poor": "खराब",
+      "sharpness": "स्पष्टता",
+      "stability": "स्थिरता",
+      "exposure": "एक्सपोज़र",
+      "composition": "संरचना"
+    },
+    "moments": {
+      "action": "एक्शन",
+      "drama": "ड्रामा",
+      "comedy": "कॉमेडी",
+      "transition": "ट्रांजिशन",
+      "opening": "शुरुआत",
+      "closing": "समापन",
+      "highlight": "हाइलाइट"
+    },
+    "emotions": {
+      "happy": "खुश",
+      "sad": "उदास",
+      "energetic": "ऊर्जावान",
+      "calm": "शांत",
+      "tense": "तनावपूर्ण",
+      "excited": "उत्साहित",
+      "neutral": "तटस्थ",
+      "title": "भावनाएं",
+      "journey": "भावनात्मक यात्रा",
+      "distribution": "भावना वितरण"
+    },
+    "errors": {
+      "noVideos": "कोई वीडियो नहीं जोड़ा गया",
+      "analysisError": "विश्लेषण विफल",
+      "planGenerationError": "योजना निर्माण विफल",
+      "timelineError": "टाइमलाइन एकीकरण विफल",
+      "missingMediaFiles": "गुम मीडिया फाइलें"
+    },
+    "messages": {
+      "addVideosHint": "विश्लेषण शुरू करने के लिए वीडियो जोड़ें",
+      "analysisInProgress": "विश्लेषण जारी है, कृपया प्रतीक्षा करें...",
+      "planReady": "मॉन्टाज योजना लागू करने के लिए तैयार है",
+      "timelineIntegrated": "योजना सफलतापूर्वक टाइमलाइन पर लागू की गई"
+    },
+    "sequence": "क्रम"
   }
 }

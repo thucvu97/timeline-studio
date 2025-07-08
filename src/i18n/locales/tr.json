@@ -2112,5 +2112,123 @@
       "conflictResolution": "Dosya çakışması çözümü",
       "conflictResolutionDescription": "Bir dosya zaten mevcut olduğunda ne yapılacağı"
     }
+  },
+  "montage-planner": {
+    "title": "Akıllı Montaj Planlayıcı",
+    "description": "YZ destekli otomatik video montaj oluşturma",
+    "navigation": {
+      "dashboard": "Gösterge Paneli",
+      "analysis": "Analiz",
+      "planning": "Planlama",
+      "timeline": "Zaman Çizelgesi Entegrasyonu"
+    },
+    "analysis": {
+      "title": "Video Analizi",
+      "addVideos": "Video Ekle",
+      "analyzeVideos": "Videoları Analiz Et",
+      "analyzing": "Analiz ediliyor...",
+      "analysisComplete": "Analiz Tamamlandı",
+      "quality": "Kalite",
+      "moments": "Anahtar Anlar",
+      "composition": "Kompozisyon",
+      "audio": "Ses Analizi",
+      "emotionalArc": "Duygusal Yay",
+      "emotionalArcDescription": "Montajınız boyunca duygusal yoğunluk ve tempoyu takip etme",
+      "energyGraph": "Enerji Grafiği",
+      "averageEnergy": "Ortalama Enerji",
+      "peakEnergy": "Zirve Enerjisi",
+      "valleyEnergy": "Vadi Enerjisi",
+      "dynamicRange": "Dinamik Aralık",
+      "peak": "Zirve",
+      "avg": "Ort",
+      "arcAnalysis": "Yay Analizi",
+      "highContrast": "Yüksek Kontrast",
+      "highContrastDescription": "Montajınız dramatik duygusal değişimlere sahip, ilgi çekici bir deneyim yaratıyor.",
+      "balanced": "Dengeli",
+      "balancedDescription": "Montajınız yoğun ve sakin anlar arasında iyi bir denge kuruyor.",
+      "steady": "Sabit",
+      "steadyDescription": "Montajınız boyunca tutarlı bir duygusal enerji koruyor.",
+      "pacingInsights": "Tempo Öngörüleri",
+      "highEnergyDetected": "Yüksek Enerji Tespit Edildi",
+      "highEnergyAdvice": "İzleyicilere nefes alma alanı vermek için sakin anlar eklemeyi düşünün.",
+      "lowEnergyDetected": "Düşük Enerji Tespit Edildi",
+      "lowEnergyAdvice": "Katılımı artırmak için daha dinamik sekanslar eklemeyi düşünün.",
+      "peakMoments": "Zirve Anları",
+      "peakMomentsAdvice": "Güçlü doruk anlarınız var - uygun bir yapılanma ve çözüm sağlayın."
+    },
+    "planning": {
+      "title": "Montaj Planlama",
+      "generatePlan": "Plan Oluştur",
+      "generating": "Oluşturuluyor...",
+      "planGenerated": "Plan Oluşturuldu",
+      "preferences": "Tercihler",
+      "style": "Stil",
+      "duration": "Hedef Süre",
+      "platform": "Hedef Platform"
+    },
+    "styles": {
+      "dynamicAction": "Dinamik Aksiyon",
+      "musicVideo": "Müzik Videosu",
+      "socialMedia": "Sosyal Medya",
+      "cinematicDrama": "Sinematik Drama",
+      "documentary": "Belgesel"
+    },
+    "timeline": {
+      "title": "Zaman Çizelgesi Entegrasyonu",
+      "applyToTimeline": "Zaman Çizelgesine Uygula",
+      "createSection": "Yeni Bölüm Oluştur",
+      "useExistingTracks": "Mevcut İzleri Kullan",
+      "timeOffset": "Zaman Kayması",
+      "applied": "Zaman Çizelgesine Uygulandı",
+      "markers": "İşaretçiler Oluştur",
+      "start": "Başlangıç",
+      "middle": "Orta",
+      "end": "Son"
+    },
+    "quality": {
+      "excellent": "Mükemmel",
+      "good": "İyi",
+      "fair": "Orta",
+      "poor": "Zayıf",
+      "sharpness": "Keskinlik",
+      "stability": "Kararlılık",
+      "exposure": "Pozlama",
+      "composition": "Kompozisyon"
+    },
+    "moments": {
+      "action": "Aksiyon",
+      "drama": "Drama",
+      "comedy": "Komedi",
+      "transition": "Geçiş",
+      "opening": "Açılış",
+      "closing": "Kapanış",
+      "highlight": "Öne Çıkan"
+    },
+    "emotions": {
+      "happy": "Mutlu",
+      "sad": "Üzgün",
+      "energetic": "Enerjik",
+      "calm": "Sakin",
+      "tense": "Gergin",
+      "excited": "Heyecanlı",
+      "neutral": "Nötr",
+      "title": "Duygular",
+      "journey": "Duygusal Yolculuk",
+      "distribution": "Duygu Dağılımı"
+    },
+    "errors": {
+      "noVideos": "Video eklenmedi",
+      "analysisError": "Analiz başarısız oldu",
+      "planGenerationError": "Plan oluşturma başarısız oldu",
+      "timelineError": "Zaman çizelgesi entegrasyonu başarısız oldu",
+      "missingMediaFiles": "Eksik medya dosyaları"
+    },
+    "messages": {
+      "addVideosHint": "Analizi başlatmak için video ekleyin",
+      "analysisInProgress": "Analiz devam ediyor, lütfen bekleyin...",
+      "planReady": "Montaj planı uygulanmaya hazır",
+      "timelineIntegrated": "Plan zaman çizelgesine başarıyla uygulandı"
+    },
+    "sequence": "Sekans"
   }
 }

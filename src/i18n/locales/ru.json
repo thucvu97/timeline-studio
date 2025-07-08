@@ -43,7 +43,41 @@
     "permissionDenied": "Разрешение на использование медиа-устройств было отказано",
     "deviceNotFound": "Медиа-устройства не найдены",
     "mediaDeviceError": "Ошибка доступа к медиа-устройствам",
-    "importing": "Импорт..."
+    "importing": "Импорт...",
+    "projectOverview": "Обзор проекта",
+    "currentProjectStatistics": "Текущая статистика проекта",
+    "videos": "Видео",
+    "totalDuration": "Общая длительность",
+    "fragmentsDetected": "Обнаружено фрагментов",
+    "utilizationRate": "Коэффициент использования",
+    "actions": "Действия",
+    "planDuration": "Длительность плана",
+    "optimizePlan": "Оптимизировать план",
+    "overallQuality": "Общее качество",
+    "qualityAssessment": "Оценка качества в реальном времени",
+    "resolution": "Разрешение",
+    "frameRate": "Частота кадров",
+    "bitrate": "Битрейт",
+    "ruleOfThirds": "Правило третей",
+    "balance": "Баланс",
+    "leadingLines": "Направляющие линии",
+    "sampleRate": "Частота дискретизации",
+    "bitDepth": "Битовая глубина",
+    "noiseLevel": "Уровень шума",
+    "speechClarity": "Четкость речи",
+    "musicEnergy": "Энергия музыки",
+    "silenceRatio": "Коэффициент тишины",
+    "visualImpact": "Визуальное воздействие",
+    "technicalQuality": "Техническое качество",
+    "emotionalValue": "Эмоциональная ценность",
+    "relevance": "Релевантность",
+    "analyzedMoments": "Проанализировано {{count}} моментов в {{videos}} видео",
+    "overview": "Обзор",
+    "topMoments": "Лучшие моменты",
+    "averageScore": "Средняя оценка",
+    "detectionRate": "Частота обнаружения",
+    "momentsDetected": "моментов обнаружено",
+    "momentTypes": "Типы моментов"
   },
   "dates": {
     "today": "Сегодня",
@@ -2662,6 +2696,134 @@
       "post": "ПОСТ",
       "noAvailableBuses": "Нет доступных шин для посылов",
       "createBusesFirst": "Сначала создайте дополнительные шины"
+    }
+  },
+  "montage-planner": {
+    "title": "Умный планировщик монтажа",
+    "description": "Автоматическое создание видеомонтажа с помощью ИИ",
+    "sequence": "Последовательность",
+
+    "navigation": {
+      "dashboard": "Панель управления",
+      "analysis": "Анализ",
+      "planning": "Планирование",
+      "timeline": "Интеграция с таймлайном"
+    },
+
+    "analysis": {
+      "title": "Анализ видео",
+      "addVideos": "Добавить видео",
+      "analyzeVideos": "Анализировать видео",
+      "analyzing": "Анализируется...",
+      "analysisComplete": "Анализ завершен",
+      "quality": "Качество",
+      "moments": "Ключевые моменты",
+      "composition": "Композиция",
+      "audio": "Анализ аудио",
+      "emotionalArc": "Эмоциональная дуга",
+      "emotionalArcDescription": "Отслеживание эмоциональной интенсивности и темпа на протяжении вашего монтажа",
+      "energyGraph": "График энергии",
+      "averageEnergy": "Средняя энергия",
+      "peakEnergy": "Пиковая энергия",
+      "valleyEnergy": "Минимальная энергия",
+      "dynamicRange": "Динамический диапазон",
+      "peak": "Пик",
+      "avg": "Средн",
+      "arcAnalysis": "Анализ дуги",
+      "highContrast": "Высокий контраст",
+      "highContrastDescription": "Ваш монтаж имеет драматические эмоциональные переходы, создавая захватывающий опыт.",
+      "balanced": "Сбалансированный",
+      "balancedDescription": "Ваш монтаж поддерживает хороший баланс между интенсивными и спокойными моментами.",
+      "steady": "Стабильный",
+      "steadyDescription": "Ваш монтаж поддерживает постоянную эмоциональную энергию на протяжении всего времени.",
+      "pacingInsights": "Информация о темпе",
+      "highEnergyDetected": "Обнаружена высокая энергия",
+      "highEnergyAdvice": "Рассмотрите добавление спокойных моментов, чтобы дать зрителям передышку.",
+      "lowEnergyDetected": "Обнаружена низкая энергия",
+      "lowEnergyAdvice": "Рассмотрите добавление более динамичных последовательностей для повышения вовлеченности.",
+      "peakMoments": "Пиковые моменты",
+      "peakMomentsAdvice": "У вас есть сильные кульминационные моменты - обеспечьте правильное нарастание и разрешение."
+    },
+
+    "planning": {
+      "title": "Планирование монтажа",
+      "generatePlan": "Создать план",
+      "generating": "Создается...",
+      "planGenerated": "План создан",
+      "preferences": "Предпочтения",
+      "style": "Стиль",
+      "duration": "Целевая длительность",
+      "platform": "Целевая платформа"
+    },
+
+    "styles": {
+      "dynamicAction": "Динамичный экшн",
+      "musicVideo": "Музыкальное видео",
+      "socialMedia": "Социальные сети",
+      "cinematicDrama": "Кинематографическая драма",
+      "documentary": "Документальный"
+    },
+
+    "timeline": {
+      "title": "Интеграция с таймлайном",
+      "applyToTimeline": "Применить к таймлайну",
+      "createSection": "Создать новую секцию",
+      "useExistingTracks": "Использовать существующие дорожки",
+      "timeOffset": "Временное смещение",
+      "applied": "Применено к таймлайну",
+      "markers": "Создать маркеры",
+      "start": "Начало",
+      "middle": "Середина",
+      "end": "Конец"
+    },
+
+    "quality": {
+      "excellent": "Отличное",
+      "good": "Хорошее",
+      "fair": "Среднее",
+      "poor": "Плохое",
+      "sharpness": "Резкость",
+      "stability": "Стабильность",
+      "exposure": "Экспозиция",
+      "composition": "Композиция"
+    },
+
+    "moments": {
+      "action": "Экшн",
+      "drama": "Драма",
+      "comedy": "Комедия",
+      "transition": "Переход",
+      "opening": "Открытие",
+      "closing": "Закрытие",
+      "highlight": "Яркий момент"
+    },
+
+    "emotions": {
+      "happy": "Счастливый",
+      "sad": "Грустный",
+      "energetic": "Энергичный",
+      "calm": "Спокойный",
+      "tense": "Напряженный",
+      "excited": "Взволнованный",
+      "neutral": "Нейтральный",
+      "title": "Эмоции",
+      "journey": "Эмоциональное путешествие",
+      "distribution": "Распределение эмоций"
+    },
+
+    "errors": {
+      "noVideos": "Видео не добавлены",
+      "analysisError": "Ошибка анализа",
+      "planGenerationError": "Ошибка создания плана",
+      "timelineError": "Ошибка интеграции с таймлайном",
+      "missingMediaFiles": "Отсутствуют медиафайлы"
+    },
+
+    "messages": {
+      "addVideosHint": "Добавьте видео для начала анализа",
+      "analysisInProgress": "Анализ выполняется, пожалуйста подождите...",
+      "planReady": "План монтажа готов к применению",
+      "timelineIntegrated": "План успешно применен к таймлайну"
     }
   }
 }

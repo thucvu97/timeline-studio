@@ -2278,5 +2278,123 @@
       "conflictResolution": "Risoluzione Conflitti File",
       "conflictResolutionDescription": "Cosa fare quando un file esiste già"
     }
+  },
+  "montage-planner": {
+    "title": "Pianificatore Montaggio Intelligente",
+    "description": "Creazione automatica di montaggi video con IA",
+    "navigation": {
+      "dashboard": "Pannello di Controllo",
+      "analysis": "Analisi",
+      "planning": "Pianificazione",
+      "timeline": "Integrazione Timeline"
+    },
+    "analysis": {
+      "title": "Analisi Video",
+      "addVideos": "Aggiungi Video",
+      "analyzeVideos": "Analizza Video",
+      "analyzing": "Analisi in corso...",
+      "analysisComplete": "Analisi Completata",
+      "quality": "Qualità",
+      "moments": "Momenti Chiave",
+      "composition": "Composizione",
+      "audio": "Analisi Audio",
+      "emotionalArc": "Arco Emotivo",
+      "emotionalArcDescription": "Monitoraggio dell'intensità emotiva e del ritmo nel tuo montaggio",
+      "energyGraph": "Grafico Energia",
+      "averageEnergy": "Energia Media",
+      "peakEnergy": "Energia di Picco",
+      "valleyEnergy": "Energia Minima",
+      "dynamicRange": "Gamma Dinamica",
+      "peak": "Picco",
+      "avg": "Media",
+      "arcAnalysis": "Analisi Arco",
+      "highContrast": "Alto Contrasto",
+      "highContrastDescription": "Il tuo montaggio ha cambiamenti emotivi drammatici, creando un'esperienza coinvolgente.",
+      "balanced": "Bilanciato",
+      "balancedDescription": "Il tuo montaggio mantiene un buon equilibrio tra momenti intensi e calmi.",
+      "steady": "Costante",
+      "steadyDescription": "Il tuo montaggio mantiene un'energia emotiva costante.",
+      "pacingInsights": "Approfondimenti sul Ritmo",
+      "highEnergyDetected": "Alta Energia Rilevata",
+      "highEnergyAdvice": "Considera l'aggiunta di momenti calmi per dare agli spettatori spazio per respirare.",
+      "lowEnergyDetected": "Bassa Energia Rilevata",
+      "lowEnergyAdvice": "Considera l'aggiunta di sequenze più dinamiche per aumentare il coinvolgimento.",
+      "peakMoments": "Momenti di Picco",
+      "peakMomentsAdvice": "Hai momenti culminanti forti - assicura una costruzione e risoluzione adeguate."
+    },
+    "planning": {
+      "title": "Pianificazione Montaggio",
+      "generatePlan": "Genera Piano",
+      "generating": "Generazione in corso...",
+      "planGenerated": "Piano Generato",
+      "preferences": "Preferenze",
+      "style": "Stile",
+      "duration": "Durata Target",
+      "platform": "Piattaforma Target"
+    },
+    "styles": {
+      "dynamicAction": "Azione Dinamica",
+      "musicVideo": "Video Musicale",
+      "socialMedia": "Social Media",
+      "cinematicDrama": "Dramma Cinematografico",
+      "documentary": "Documentario"
+    },
+    "timeline": {
+      "title": "Integrazione Timeline",
+      "applyToTimeline": "Applica alla Timeline",
+      "createSection": "Crea Nuova Sezione",
+      "useExistingTracks": "Usa Tracce Esistenti",
+      "timeOffset": "Offset Temporale",
+      "applied": "Applicato alla Timeline",
+      "markers": "Crea Marcatori",
+      "start": "Inizio",
+      "middle": "Centro",
+      "end": "Fine"
+    },
+    "quality": {
+      "excellent": "Eccellente",
+      "good": "Buona",
+      "fair": "Discreta",
+      "poor": "Scarsa",
+      "sharpness": "Nitidezza",
+      "stability": "Stabilità",
+      "exposure": "Esposizione",
+      "composition": "Composizione"
+    },
+    "moments": {
+      "action": "Azione",
+      "drama": "Dramma",
+      "comedy": "Commedia",
+      "transition": "Transizione",
+      "opening": "Apertura",
+      "closing": "Chiusura",
+      "highlight": "Momento Clou"
+    },
+    "emotions": {
+      "happy": "Felice",
+      "sad": "Triste",
+      "energetic": "Energico",
+      "calm": "Calmo",
+      "tense": "Teso",
+      "excited": "Eccitato",
+      "neutral": "Neutrale",
+      "title": "Emozioni",
+      "journey": "Viaggio Emotivo",
+      "distribution": "Distribuzione Emozioni"
+    },
+    "errors": {
+      "noVideos": "Nessun video aggiunto",
+      "analysisError": "Analisi fallita",
+      "planGenerationError": "Generazione piano fallita",
+      "timelineError": "Integrazione timeline fallita",
+      "missingMediaFiles": "File multimediali mancanti"
+    },
+    "messages": {
+      "addVideosHint": "Aggiungi video per iniziare l'analisi",
+      "analysisInProgress": "Analisi in corso, attendere prego...",
+      "planReady": "Piano di montaggio pronto per l'applicazione",
+      "timelineIntegrated": "Piano applicato con successo alla timeline"
+    },
+    "sequence": "Sequenza"
   }
 }

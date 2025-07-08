@@ -2108,5 +2108,123 @@
       "conflictResolution": "文件冲突解决",
       "conflictResolutionDescription": "文件已存在时的处理方式"
     }
+  },
+  "montage-planner": {
+    "title": "智能剪辑规划器",
+    "description": "AI 驱动的自动视频剪辑创作",
+    "navigation": {
+      "dashboard": "仪表板",
+      "analysis": "分析",
+      "planning": "规划",
+      "timeline": "时间轴集成"
+    },
+    "analysis": {
+      "title": "视频分析",
+      "addVideos": "添加视频",
+      "analyzeVideos": "分析视频",
+      "analyzing": "分析中...",
+      "analysisComplete": "分析完成",
+      "quality": "质量",
+      "moments": "关键时刻",
+      "composition": "构图",
+      "audio": "音频分析",
+      "emotionalArc": "情感弧线",
+      "emotionalArcDescription": "跟踪整个剪辑中的情感强度和节奏",
+      "energyGraph": "能量图表",
+      "averageEnergy": "平均能量",
+      "peakEnergy": "峰值能量",
+      "valleyEnergy": "谷值能量",
+      "dynamicRange": "动态范围",
+      "peak": "峰值",
+      "avg": "平均",
+      "arcAnalysis": "弧线分析",
+      "highContrast": "高对比度",
+      "highContrastDescription": "您的剪辑具有戏剧性的情感转变，创造了引人入胜的过山车体验。",
+      "balanced": "平衡",
+      "balancedDescription": "您的剪辑在激烈和平静的时刻之间保持良好的平衡。",
+      "steady": "稳定",
+      "steadyDescription": "您的剪辑始终保持一致的情感能量。",
+      "pacingInsights": "节奏洞察",
+      "highEnergyDetected": "检测到高能量",
+      "highEnergyAdvice": "考虑添加一些平静的时刻，让观众有喘息的空间。",
+      "lowEnergyDetected": "检测到低能量",
+      "lowEnergyAdvice": "考虑添加更多动态序列以提高参与度。",
+      "peakMoments": "高峰时刻",
+      "peakMomentsAdvice": "您有强烈的高潮时刻 - 确保适当的铺垫和解决。"
+    },
+    "planning": {
+      "title": "剪辑规划",
+      "generatePlan": "生成方案",
+      "generating": "生成中...",
+      "planGenerated": "方案已生成",
+      "preferences": "偏好设置",
+      "style": "风格",
+      "duration": "目标时长",
+      "platform": "目标平台"
+    },
+    "styles": {
+      "dynamicAction": "动感动作",
+      "musicVideo": "音乐视频",
+      "socialMedia": "社交媒体",
+      "cinematicDrama": "电影戏剧",
+      "documentary": "纪录片"
+    },
+    "timeline": {
+      "title": "时间轴集成",
+      "applyToTimeline": "应用到时间轴",
+      "createSection": "创建新片段",
+      "useExistingTracks": "使用现有轨道",
+      "timeOffset": "时间偏移",
+      "applied": "已应用到时间轴",
+      "markers": "创建标记",
+      "start": "开始",
+      "middle": "中间",
+      "end": "结束"
+    },
+    "quality": {
+      "excellent": "优秀",
+      "good": "良好",
+      "fair": "一般",
+      "poor": "较差",
+      "sharpness": "清晰度",
+      "stability": "稳定性",
+      "exposure": "曝光",
+      "composition": "构图"
+    },
+    "moments": {
+      "action": "动作",
+      "drama": "戏剧",
+      "comedy": "喜剧",
+      "transition": "过渡",
+      "opening": "开场",
+      "closing": "结尾",
+      "highlight": "高光"
+    },
+    "emotions": {
+      "happy": "快乐",
+      "sad": "悲伤",
+      "energetic": "充满活力",
+      "calm": "平静",
+      "tense": "紧张",
+      "excited": "兴奋",
+      "neutral": "中性",
+      "title": "情感",
+      "journey": "情感之旅",
+      "distribution": "情感分布"
+    },
+    "errors": {
+      "noVideos": "未添加视频",
+      "analysisError": "分析失败",
+      "planGenerationError": "方案生成失败",
+      "timelineError": "时间轴集成失败",
+      "missingMediaFiles": "缺少媒体文件"
+    },
+    "messages": {
+      "addVideosHint": "添加视频以开始分析",
+      "analysisInProgress": "分析进行中，请稍候...",
+      "planReady": "剪辑方案已准备就绪",
+      "timelineIntegrated": "方案已成功应用到时间轴"
+    },
+    "sequence": "序列"
   }
 }

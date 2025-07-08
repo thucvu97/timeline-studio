@@ -2112,5 +2112,123 @@
       "conflictResolution": "ファイル競合の解決",
       "conflictResolutionDescription": "ファイルが既に存在する場合の対処"
     }
+  },
+  "montage-planner": {
+    "title": "スマートモンタージュプランナー",
+    "description": "AI駆動の自動ビデオモンタージュ作成",
+    "navigation": {
+      "dashboard": "ダッシュボード",
+      "analysis": "分析",
+      "planning": "プランニング",
+      "timeline": "タイムライン統合"
+    },
+    "analysis": {
+      "title": "ビデオ分析",
+      "addVideos": "ビデオを追加",
+      "analyzeVideos": "ビデオを分析",
+      "analyzing": "分析中...",
+      "analysisComplete": "分析完了",
+      "quality": "品質",
+      "moments": "キーモーメント",
+      "composition": "構図",
+      "audio": "オーディオ分析",
+      "emotionalArc": "感情アーク",
+      "emotionalArcDescription": "モンタージュ全体の感情的な強度とペースを追跡",
+      "energyGraph": "エネルギーグラフ",
+      "averageEnergy": "平均エネルギー",
+      "peakEnergy": "ピークエネルギー",
+      "valleyEnergy": "谷間エネルギー",
+      "dynamicRange": "ダイナミックレンジ",
+      "peak": "ピーク",
+      "avg": "平均",
+      "arcAnalysis": "アーク分析",
+      "highContrast": "高コントラスト",
+      "highContrastDescription": "あなたのモンタージュは劇的な感情の変化があり、魅力的なローラーコースター体験を作り出しています。",
+      "balanced": "バランス",
+      "balancedDescription": "あなたのモンタージュは激しい瞬間と穏やかな瞬間のバランスが取れています。",
+      "steady": "安定",
+      "steadyDescription": "あなたのモンタージュは一貫した感情的エネルギーを維持しています。",
+      "pacingInsights": "ペーシングの洞察",
+      "highEnergyDetected": "高エネルギーが検出されました",
+      "highEnergyAdvice": "視聴者に息抜きの時間を与えるため、穏やかな瞬間を追加することを検討してください。",
+      "lowEnergyDetected": "低エネルギーが検出されました",
+      "lowEnergyAdvice": "エンゲージメントを高めるため、よりダイナミックなシーケンスを追加することを検討してください。",
+      "peakMoments": "ピークモーメント",
+      "peakMomentsAdvice": "強いクライマックスの瞬間があります - 適切な構築と解決を確保してください。"
+    },
+    "planning": {
+      "title": "モンタージュプランニング",
+      "generatePlan": "プランを生成",
+      "generating": "生成中...",
+      "planGenerated": "プラン生成完了",
+      "preferences": "設定",
+      "style": "スタイル",
+      "duration": "目標時間",
+      "platform": "対象プラットフォーム"
+    },
+    "styles": {
+      "dynamicAction": "ダイナミックアクション",
+      "musicVideo": "ミュージックビデオ",
+      "socialMedia": "ソーシャルメディア",
+      "cinematicDrama": "シネマティックドラマ",
+      "documentary": "ドキュメンタリー"
+    },
+    "timeline": {
+      "title": "タイムライン統合",
+      "applyToTimeline": "タイムラインに適用",
+      "createSection": "新しいセクションを作成",
+      "useExistingTracks": "既存のトラックを使用",
+      "timeOffset": "タイムオフセット",
+      "applied": "タイムラインに適用済み",
+      "markers": "マーカーを作成",
+      "start": "開始",
+      "middle": "中間",
+      "end": "終了"
+    },
+    "quality": {
+      "excellent": "優秀",
+      "good": "良好",
+      "fair": "まあまあ",
+      "poor": "不良",
+      "sharpness": "シャープネス",
+      "stability": "安定性",
+      "exposure": "露出",
+      "composition": "構図"
+    },
+    "moments": {
+      "action": "アクション",
+      "drama": "ドラマ",
+      "comedy": "コメディ",
+      "transition": "トランジション",
+      "opening": "オープニング",
+      "closing": "クロージング",
+      "highlight": "ハイライト"
+    },
+    "emotions": {
+      "happy": "楽しい",
+      "sad": "悲しい",
+      "energetic": "エネルギッシュ",
+      "calm": "穏やか",
+      "tense": "緊張",
+      "excited": "興奮",
+      "neutral": "ニュートラル",
+      "title": "感情",
+      "journey": "感情の旅",
+      "distribution": "感情の分布"
+    },
+    "errors": {
+      "noVideos": "ビデオが追加されていません",
+      "analysisError": "分析に失敗しました",
+      "planGenerationError": "プラン生成に失敗しました",
+      "timelineError": "タイムライン統合に失敗しました",
+      "missingMediaFiles": "メディアファイルが見つかりません"
+    },
+    "messages": {
+      "addVideosHint": "ビデオを追加して分析を開始",
+      "analysisInProgress": "分析中です、お待ちください...",
+      "planReady": "モンタージュプランの準備が整いました",
+      "timelineIntegrated": "プランがタイムラインに正常に適用されました"
+    },
+    "sequence": "シーケンス"
   }
 }

@@ -83,6 +83,9 @@ export interface TimelineContextType {
 
   // Утилиты
   clearError: () => void
+  
+  // Прямой доступ к send для расширенных операций
+  send: (event: any) => void
 }
 
 export const TimelineContext = createContext<TimelineContextType | null>(null)
@@ -383,6 +386,7 @@ export function TimelineProvider({ children }: TimelineProviderProps) {
     cutSelection,
     paste,
     clearError,
+    send,
   }
 
   return <TimelineContext.Provider value={contextValue}>{children}</TimelineContext.Provider>

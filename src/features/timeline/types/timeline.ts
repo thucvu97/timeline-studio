@@ -173,10 +173,14 @@ export interface TimelineClip {
   // Обрезка исходного медиа
   mediaStartTime: number // Начало в исходном файле
   mediaEndTime: number // Конец в исходном файле
+  offset: number // Смещение от начала медиафайла (для slip редактирования)
+  mediaDuration?: number // Полная длительность исходного медиафайла
 
   // Настройки клипа
   volume: number // 0-1
   speed: number // Скорость воспроизведения (1.0 = нормальная)
+  playbackRate?: number // Коэффициент скорости для rate stretch (1.0 = нормальная)
+  maintainPitch?: boolean // Сохранять высоту тона при изменении скорости
   isReversed: boolean
 
   // Визуальные настройки (для видео)

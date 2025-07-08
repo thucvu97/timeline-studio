@@ -43,7 +43,41 @@
     "permissionDenied": "Permission to use media devices was denied",
     "deviceNotFound": "No media devices found",
     "mediaDeviceError": "Error accessing media devices",
-    "importing": "Importing..."
+    "importing": "Importing...",
+    "projectOverview": "Project Overview",
+    "currentProjectStatistics": "Current project statistics",
+    "videos": "Videos",
+    "totalDuration": "Total Duration",
+    "fragmentsDetected": "Fragments Detected",
+    "utilizationRate": "Utilization Rate",
+    "actions": "Actions",
+    "planDuration": "Plan Duration",
+    "optimizePlan": "Optimize Plan",
+    "overallQuality": "Overall Quality",
+    "qualityAssessment": "Real-time quality assessment",
+    "resolution": "Resolution",
+    "frameRate": "Frame Rate",
+    "bitrate": "Bitrate",
+    "ruleOfThirds": "Rule of Thirds",
+    "balance": "Balance",
+    "leadingLines": "Leading Lines",
+    "sampleRate": "Sample Rate",
+    "bitDepth": "Bit Depth",
+    "noiseLevel": "Noise Level",
+    "speechClarity": "Speech Clarity",
+    "musicEnergy": "Music Energy",
+    "silenceRatio": "Silence Ratio",
+    "visualImpact": "Visual Impact",
+    "technicalQuality": "Technical Quality",
+    "emotionalValue": "Emotional Value",
+    "relevance": "Relevance",
+    "analyzedMoments": "Analyzed {{count}} moments across {{videos}} videos",
+    "overview": "Overview",
+    "topMoments": "Top Moments",
+    "averageScore": "Average Score",
+    "detectionRate": "Detection Rate",
+    "momentsDetected": "moments detected",
+    "momentTypes": "Moment Types"
   },
   "dates": {
     "today": "Today",
@@ -2959,6 +2993,134 @@
       "post": "POST",
       "noAvailableBuses": "No buses available for sends",
       "createBusesFirst": "Create additional buses first"
+    }
+  },
+  "montage-planner": {
+    "title": "Smart Montage Planner",
+    "description": "AI-powered automatic video montage creation",
+    "sequence": "Sequence",
+
+    "navigation": {
+      "dashboard": "Dashboard",
+      "analysis": "Analysis",
+      "planning": "Planning",
+      "timeline": "Timeline Integration"
+    },
+
+    "analysis": {
+      "title": "Video Analysis",
+      "addVideos": "Add Videos",
+      "analyzeVideos": "Analyze Videos",
+      "analyzing": "Analyzing...",
+      "analysisComplete": "Analysis Complete",
+      "quality": "Quality",
+      "moments": "Key Moments",
+      "composition": "Composition",
+      "audio": "Audio Analysis",
+      "emotionalArc": "Emotional Arc",
+      "emotionalArcDescription": "Tracking emotional intensity and pacing throughout your montage",
+      "energyGraph": "Energy Graph",
+      "averageEnergy": "Average Energy",
+      "peakEnergy": "Peak Energy",
+      "valleyEnergy": "Valley Energy",
+      "dynamicRange": "Dynamic Range",
+      "peak": "Peak",
+      "avg": "Avg",
+      "arcAnalysis": "Arc Analysis",
+      "highContrast": "High Contrast",
+      "highContrastDescription": "Your montage has dramatic emotional shifts, creating an engaging roller-coaster experience.",
+      "balanced": "Balanced",
+      "balancedDescription": "Your montage maintains a good balance between intensity and calm moments.",
+      "steady": "Steady",
+      "steadyDescription": "Your montage maintains consistent emotional energy throughout.",
+      "pacingInsights": "Pacing Insights",
+      "highEnergyDetected": "High Energy Detected",
+      "highEnergyAdvice": "Consider adding calm moments to give viewers breathing room.",
+      "lowEnergyDetected": "Low Energy Detected",
+      "lowEnergyAdvice": "Consider adding more dynamic sequences to increase engagement.",
+      "peakMoments": "Peak Moments",
+      "peakMomentsAdvice": "You have strong climactic moments - ensure proper build-up and resolution."
+    },
+
+    "planning": {
+      "title": "Montage Planning",
+      "generatePlan": "Generate Plan",
+      "generating": "Generating...",
+      "planGenerated": "Plan Generated",
+      "preferences": "Preferences",
+      "style": "Style",
+      "duration": "Target Duration",
+      "platform": "Target Platform"
+    },
+
+    "styles": {
+      "dynamicAction": "Dynamic Action",
+      "musicVideo": "Music Video",
+      "socialMedia": "Social Media",
+      "cinematicDrama": "Cinematic Drama",
+      "documentary": "Documentary"
+    },
+
+    "timeline": {
+      "title": "Timeline Integration",
+      "applyToTimeline": "Apply to Timeline",
+      "createSection": "Create New Section",
+      "useExistingTracks": "Use Existing Tracks",
+      "timeOffset": "Time Offset",
+      "applied": "Applied to Timeline",
+      "markers": "Create Markers",
+      "start": "Start",
+      "middle": "Middle",
+      "end": "End"
+    },
+
+    "quality": {
+      "excellent": "Excellent",
+      "good": "Good",
+      "fair": "Fair",
+      "poor": "Poor",
+      "sharpness": "Sharpness",
+      "stability": "Stability",
+      "exposure": "Exposure",
+      "composition": "Composition"
+    },
+
+    "moments": {
+      "action": "Action",
+      "drama": "Drama",
+      "comedy": "Comedy",
+      "transition": "Transition",
+      "opening": "Opening",
+      "closing": "Closing",
+      "highlight": "Highlight"
+    },
+
+    "emotions": {
+      "happy": "Happy",
+      "sad": "Sad",
+      "energetic": "Energetic",
+      "calm": "Calm",
+      "tense": "Tense",
+      "excited": "Excited",
+      "neutral": "Neutral",
+      "title": "Emotions",
+      "journey": "Emotional Journey",
+      "distribution": "Emotion Distribution"
+    },
+
+    "errors": {
+      "noVideos": "No videos added",
+      "analysisError": "Analysis failed",
+      "planGenerationError": "Plan generation failed",
+      "timelineError": "Timeline integration failed",
+      "missingMediaFiles": "Missing media files"
+    },
+
+    "messages": {
+      "addVideosHint": "Add videos to start analysis",
+      "analysisInProgress": "Analysis in progress, please wait...",
+      "planReady": "Montage plan is ready to apply",
+      "timelineIntegrated": "Plan successfully applied to timeline"
     }
   }
 }
