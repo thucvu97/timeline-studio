@@ -250,8 +250,7 @@ pub fn create_custom_alert_id(
     _ => {
       return Err(
         crate::video_compiler::error::VideoCompilerError::InvalidParameter(format!(
-          "Invalid operator: {}",
-          operator
+          "Invalid operator: {operator}"
         )),
       )
     }
@@ -263,8 +262,7 @@ pub fn create_custom_alert_id(
     _ => {
       return Err(
         crate::video_compiler::error::VideoCompilerError::InvalidParameter(format!(
-          "Invalid severity: {}",
-          severity
+          "Invalid severity: {severity}"
         )),
       )
     }
@@ -280,11 +278,7 @@ pub fn create_custom_alert_id(
   }
 
   log::info!(
-    "Создание кастомного алерта: {} для метрики {} {} {}",
-    alert_name,
-    metric_name,
-    operator,
-    threshold
+    "Создание кастомного алерта: {alert_name} для метрики {metric_name} {operator} {threshold}"
   );
 
   let alert_id = uuid::Uuid::new_v4().to_string();
@@ -371,10 +365,7 @@ pub async fn get_metrics_history(
   _state: State<'_, VideoCompilerState>,
 ) -> Result<serde_json::Value> {
   log::debug!(
-    "Получение истории метрик для {} - {} за {} часов",
-    service_name,
-    metric_name,
-    hours_back
+    "Получение истории метрик для {service_name} - {metric_name} за {hours_back} часов"
   );
   Ok(generate_metrics_history(
     &service_name,

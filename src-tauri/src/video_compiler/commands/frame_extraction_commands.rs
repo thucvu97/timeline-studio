@@ -54,13 +54,13 @@ pub fn calculate_frame_timestamps(duration: f64, interval: f64) -> Vec<f64> {
 pub fn generate_frame_paths(output_dir: &str, timestamps: &[f64]) -> Vec<String> {
   timestamps
     .iter()
-    .map(|ts| format!("{}/frame_{:.2}.png", output_dir, ts))
+    .map(|ts| format!("{output_dir}/frame_{ts:.2}.png"))
     .collect()
 }
 
 /// Генерировать путь для кадра субтитра
 pub fn generate_subtitle_frame_path(output_dir: &str, subtitle_id: &str) -> String {
-  format!("{}/subtitle_{}.png", output_dir, subtitle_id)
+  format!("{output_dir}/subtitle_{subtitle_id}.png")
 }
 
 // ============ Tauri команды (тонкие обёртки) ============
