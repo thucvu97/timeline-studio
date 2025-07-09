@@ -3,8 +3,8 @@
 //! Содержит команды для управления процессом рендеринга,
 //! включая запуск, отмену, паузу и получение статистики.
 
-pub mod business_logic;
-pub mod commands;
+mod business_logic;
+mod commands;
 pub mod types;
 
 #[cfg(test)]

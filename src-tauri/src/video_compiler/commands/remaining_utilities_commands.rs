@@ -25,15 +25,15 @@ pub async fn test_hardware_acceleration_available(
   _state: State<'_, VideoCompilerState>,
 ) -> Result<HardwareAccelerationTestResult> {
   match test_hardware_acceleration().await {
-    Ok(encoders) => Ok(HardwareAccelerationTestResult {
-      supported_encoders: encoders,
+    Ok(info) => Ok(HardwareAccelerationTestResult {
+      supported_encoders: info.available_encoders,
       test_successful: true,
       error: None,
     }),
     Err(e) => Ok(HardwareAccelerationTestResult {
       supported_encoders: vec![],
       test_successful: false,
-      error: Some(e),
+      error: Some(e.to_string()),
     }),
   }
 }

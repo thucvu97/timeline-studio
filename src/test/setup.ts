@@ -10,6 +10,19 @@ import "@/test/mocks/tauri"
 import "@/test/mocks/browser"
 import "@/test/mocks/libraries"
 
+// Mock scrollIntoView globally for all tests (needed for Radix UI components)
+beforeAll(() => {
+  Element.prototype.scrollIntoView = vi.fn()
+
+  // Also mock other methods that might be missing in jsdom
+  if (!Element.prototype.scrollTo) {
+    Element.prototype.scrollTo = vi.fn()
+  }
+  if (!Element.prototype.scroll) {
+    Element.prototype.scroll = vi.fn()
+  }
+})
+
 // Mock common providers that are used in tests
 vi.mock("@/features/user-settings", () => ({
   useUserSettings: () => ({

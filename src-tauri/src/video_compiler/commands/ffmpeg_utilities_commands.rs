@@ -216,10 +216,19 @@ pub async fn get_ffmpeg_execution_information(
 ) -> Result<FFmpegExecutionInfo> {
   match get_ffmpeg_execution_info(vec!["-version".to_string()]).await {
     Ok(info) => {
-      // Парсим JSON данные
+      // Извлекаем версию из stdout
       let version = info
-        .get("version")
-        .and_then(|v| v.as_str())
+        .stdout
+        .lines()
+        .next()
+        .and_then(|line| {
+          if let Some(start) = line.find("version ") {
+            let version_start = start + 8;
+            line[version_start..].split_whitespace().next()
+          } else {
+            None
+          }
+        })
         .unwrap_or("Unknown")
         .to_string();
 

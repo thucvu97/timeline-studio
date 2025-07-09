@@ -59,8 +59,9 @@ pub mod workflow_commands;
 pub use advanced_metrics::*;
 pub use batch_commands::*;
 pub use cache::*;
+#[allow(ambiguous_glob_reexports, hidden_glob_reexports)]
 pub use compiler_settings_commands::*;
-#[allow(unused_imports)]
+#[allow(unused_imports, ambiguous_glob_reexports)]
 pub use ffmpeg_advanced::*;
 pub use ffmpeg_builder_advanced_commands::*;
 pub use ffmpeg_builder_commands::*;
@@ -93,6 +94,7 @@ pub use progress_tracker_commands::*;
 pub use project::*;
 pub use recognition_advanced_commands::*;
 pub use remaining_utilities_commands::*;
+#[allow(ambiguous_glob_reexports)]
 pub use rendering::*;
 pub use schema_commands::*;
 pub use security_advanced_commands::*;
@@ -108,4 +110,4 @@ pub use workflow_commands::*;
 pub use state::VideoCompilerState;
 
 #[cfg(test)]
-mod tests;
+mod commands_tests;

@@ -85,20 +85,22 @@ pub async fn probe_media_file_detailed(
 ) -> Result<ProbeMediaResult> {
   match probe_media_file(params.file_path.clone()).await {
     Ok(probe_data) => {
-      // Извлекаем данные из JSON
-      let duration = probe_data.get("duration").and_then(|v| v.as_f64());
-      let format = probe_data
-        .get("format")
-        .and_then(|v| v.as_str())
-        .map(|s| s.to_string());
-
+      // Извлекаем данные из структуры MediaFileInfo
       Ok(ProbeMediaResult {
         file_path: params.file_path,
         is_valid: true,
-        duration,
-        format,
-        video_streams: Some(1), // Simplified
-        audio_streams: Some(1), // Simplified
+        duration: Some(probe_data.duration),
+        format: Some(probe_data.format),
+        video_streams: if probe_data.video_codec.is_some() {
+          Some(1)
+        } else {
+          Some(0)
+        },
+        audio_streams: if probe_data.audio_codec.is_some() {
+          Some(1)
+        } else {
+          Some(0)
+        },
         metadata: std::collections::HashMap::new(),
         error: None,
       })

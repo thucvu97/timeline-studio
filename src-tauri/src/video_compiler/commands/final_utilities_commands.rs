@@ -27,8 +27,7 @@ pub async fn generate_subtitle_preview_ffmpeg(
     params.output_path.clone(),
     params.start_time,
   )
-  .await
-  .map_err(crate::video_compiler::error::VideoCompilerError::validation)?;
+  .await?;
 
   // Возвращаем путь к выходному файлу
   Ok(params.output_path)

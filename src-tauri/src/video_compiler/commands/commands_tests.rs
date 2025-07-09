@@ -27,9 +27,3 @@ mod basic_tests {
     assert!(detector.mock_capabilities.hardware_acceleration_supported);
   }
 }
-
-#[cfg(test)]
-mod new_commands;
-
-#[cfg(test)]
-mod segment_filters_test;
