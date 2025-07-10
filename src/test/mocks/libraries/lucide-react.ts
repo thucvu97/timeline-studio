@@ -141,6 +141,7 @@ export const UserCog = createMockIcon("UserCog")
 export const Video = createMockIcon("Video")
 export const Volume2 = createMockIcon("Volume2")
 export const VolumeX = createMockIcon("VolumeX")
+export const Wand2 = createMockIcon("Wand2")
 export const Webcam = createMockIcon("Webcam")
 export const X = createMockIcon("X")
 export const XCircle = createMockIcon("XCircle")
@@ -271,6 +272,7 @@ vi.mock("lucide-react", () => ({
   Video,
   Volume2,
   VolumeX,
+  Wand2,
   Webcam,
   X,
   XCircle,

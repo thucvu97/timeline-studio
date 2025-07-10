@@ -341,25 +341,29 @@ describe("ResourcesPanel", () => {
 
   describe("Resource deletion", () => {
     it("should show delete button on hover", () => {
-      render(<ResourcesPanel />)
+      const { container } = render(<ResourcesPanel />)
 
-      // Delete buttons should exist but be hidden initially (opacity-0)
-      const deleteButtons = screen.getAllByTestId("x-icon")
+      // Find delete buttons by searching for buttons inside resource items (they have absolute positioning)
+      const deleteButtons = container.querySelectorAll("button.absolute")
       expect(deleteButtons.length).toBeGreaterThan(0)
 
-      // Check that delete buttons have the parent button element
-      deleteButtons.forEach((icon) => {
-        const button = icon.closest("button")
+      // Check that delete buttons have the correct opacity classes
+      deleteButtons.forEach((button) => {
         expect(button).toBeInTheDocument()
-        expect(button).toHaveClass("opacity-0")
+        expect(button.className).toContain("opacity-0")
+        expect(button.className).toContain("group-hover:opacity-100")
+        expect(button.className).toContain("absolute")
       })
     })
 
     it("should call removeResource when delete button is clicked", () => {
       const { container } = render(<ResourcesPanel />)
 
-      // Find first resource delete button
-      const firstDeleteButton = container.querySelector("button.opacity-0")
+      // Find first resource delete button by looking for button with absolute positioning
+      const deleteButtons = container.querySelectorAll("button.absolute")
+      expect(deleteButtons.length).toBeGreaterThan(0)
+      
+      const firstDeleteButton = deleteButtons[0]
       expect(firstDeleteButton).toBeInTheDocument()
 
       // Click the delete button
@@ -373,14 +377,14 @@ describe("ResourcesPanel", () => {
     })
 
     it("should handle delete button clicks properly", () => {
-      render(<ResourcesPanel />)
+      const { container } = render(<ResourcesPanel />)
 
-      // Find all delete buttons
-      const deleteButtons = screen.getAllByTestId("x-icon")
+      // Find all delete buttons using the absolute positioning class
+      const deleteButtons = container.querySelectorAll("button.absolute")
       expect(deleteButtons.length).toBeGreaterThan(0)
 
-      // Get the parent button of the first X icon
-      const firstDeleteButton = deleteButtons[0].closest("button")
+      // Get the first delete button
+      const firstDeleteButton = deleteButtons[0]
       expect(firstDeleteButton).toBeInTheDocument()
 
       // Reset mock

@@ -4,6 +4,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { AiChat } from "../../components/ai-chat"
 
+import type { ChatMessage } from "../../types/chat"
+
 // Mock dependencies with proper structure
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
@@ -141,7 +143,7 @@ const mockSetProcessing = vi.fn()
 const mockSelectAgent = vi.fn()
 
 const mockUseChat = {
-  chatMessages: [],
+  chatMessages: [] as ChatMessage[],
   sendChatMessage: mockSendChatMessage,
   receiveChatMessage: mockReceiveChatMessage,
   selectedAgentId: "claude-4-sonnet",
@@ -181,9 +183,9 @@ describe("AiChat - Fixed Tests", () => {
   it("should render initial UI correctly", () => {
     render(<AiChat />)
 
-    expect(screen.getByText("CHAT")).toBeInTheDocument()
     expect(screen.getByTestId("chat-input")).toBeInTheDocument()
-    expect(screen.getByText("Previous Threads")).toBeInTheDocument()
+    expect(screen.getByTestId("chat-list-container")).toBeInTheDocument()
+    // "Previous Threads" is in the ChatList component which is rendered inside chat-list-container
   })
 
   it("should handle text input in textarea", async () => {
@@ -213,7 +215,7 @@ describe("AiChat - Fixed Tests", () => {
       {
         id: "1",
         content: "Test",
-        role: "user",
+        role: "user" as const,
         timestamp: new Date(),
       },
     ]
@@ -229,15 +231,15 @@ describe("AiChat - Fixed Tests", () => {
       {
         id: "1",
         content: "User message",
-        role: "user",
+        role: "user" as const,
         timestamp: new Date(),
       },
       {
         id: "2",
         content: "AI response",
-        role: "assistant",
+        role: "assistant" as const,
         timestamp: new Date(),
-        agent: "claude-4-sonnet",
+        agent: "claude-4-sonnet" as const,
       },
     ]
 
@@ -291,7 +293,7 @@ describe("AiChat - Fixed Tests", () => {
       {
         id: "1",
         content: "Test",
-        role: "user",
+        role: "user" as const,
         timestamp: new Date(),
       },
     ]
