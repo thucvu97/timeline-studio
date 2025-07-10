@@ -174,7 +174,7 @@ pub fn validate_output_path(path: &str) -> Result<()> {
 /// Парсит информацию о медиа файле из JSON вывода ffprobe
 pub fn parse_media_file_info(json_output: &str) -> Result<MediaFileInfo> {
   let json: serde_json::Value = serde_json::from_str(json_output)
-    .map_err(|e| VideoCompilerError::InvalidParameter(format!("Invalid JSON: {}", e)))?;
+    .map_err(|e| VideoCompilerError::InvalidParameter(format!("Invalid JSON: {e}")))?;
 
   let format = json["format"]["format_name"]
     .as_str()
@@ -384,15 +384,15 @@ pub fn check_execution_success(result: &FFmpegExecutionResult) -> Result<()> {
 #[allow(dead_code)]
 pub fn format_duration(seconds: f64) -> String {
   if seconds < 60.0 {
-    format!("{:.1}s", seconds)
+    format!("{seconds:.1}s")
   } else if seconds < 3600.0 {
     let minutes = (seconds / 60.0).floor();
     let secs = seconds % 60.0;
-    format!("{}m {:.0}s", minutes, secs)
+    format!("{minutes}m {secs:.0}s")
   } else {
     let hours = (seconds / 3600.0).floor();
     let minutes = ((seconds % 3600.0) / 60.0).floor();
-    format!("{}h {}m", hours, minutes)
+    format!("{hours}h {minutes}m")
   }
 }
 

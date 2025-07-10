@@ -31,7 +31,7 @@ pub async fn generate_video_preview(
 
   business_logic::validate_video_preview_params(&params)?;
 
-  log::debug!("Генерация превью видео: {} -> {}", input_path, output_path);
+  log::debug!("Генерация превью видео: {input_path} -> {output_path}");
 
   let project = ProjectSchema::new("video_preview".to_string());
   let builder = FFmpegBuilder::new(project);
@@ -73,7 +73,7 @@ pub async fn generate_gif_preview(
 
   business_logic::validate_gif_preview_params(&params)?;
 
-  log::debug!("Генерация GIF превью: {} -> {}", input_path, output_path);
+  log::debug!("Генерация GIF превью: {input_path} -> {output_path}");
 
   let project = ProjectSchema::new("gif_preview".to_string());
   let builder = FFmpegBuilder::new(project);
@@ -105,7 +105,7 @@ pub async fn concat_videos(input_paths: Vec<String>, output_path: String) -> Res
 
   business_logic::validate_concat_params(&params)?;
 
-  log::debug!("Объединение видео: {:?} -> {}", input_paths, output_path);
+  log::debug!("Объединение видео: {input_paths:?} -> {output_path}");
 
   let project = ProjectSchema::new("concat_videos".to_string());
   let builder = FFmpegBuilder::new(project);
@@ -138,12 +138,7 @@ pub async fn apply_video_filter(
 
   business_logic::validate_filter_params(&params)?;
 
-  log::debug!(
-    "Применение фильтра {} к видео: {} -> {}",
-    filter_name,
-    input_path,
-    output_path
-  );
+  log::debug!("Применение фильтра {filter_name} к видео: {input_path} -> {output_path}");
 
   let project = ProjectSchema::new("filter_preview".to_string());
   let builder = FFmpegBuilder::new(project);
@@ -168,7 +163,7 @@ pub async fn apply_video_filter(
 pub async fn probe_media_file(input_path: String) -> Result<MediaFileInfo> {
   business_logic::validate_input_path(&input_path)?;
 
-  log::debug!("Анализ медиа файла: {}", input_path);
+  log::debug!("Анализ медиа файла: {input_path}");
 
   let project = ProjectSchema::new("probe".to_string());
   let builder = FFmpegBuilder::new(project);
@@ -214,12 +209,7 @@ pub async fn generate_subtitle_preview(
 
   business_logic::validate_subtitle_preview_params(&params)?;
 
-  log::debug!(
-    "Генерация превью с субтитрами: {} + {} -> {}",
-    video_path,
-    subtitle_path,
-    output_path
-  );
+  log::debug!("Генерация превью с субтитрами: {video_path} + {subtitle_path} -> {output_path}");
 
   let project = ProjectSchema::new("subtitle_preview".to_string());
   let builder = FFmpegBuilder::new(project);
@@ -300,7 +290,7 @@ pub async fn execute_ffmpeg_with_progress(
     while let Some(update) = rx.recv().await {
       match update {
         ProgressUpdate::JobStarted { job_id } => {
-          log::info!("FFmpeg job started: {}", job_id);
+          log::info!("FFmpeg job started: {job_id}");
         }
         ProgressUpdate::ProgressChanged { job_id, progress } => {
           last_progress = Some(progress.clone());
@@ -315,27 +305,17 @@ pub async fn execute_ffmpeg_with_progress(
           output_path,
           duration,
         } => {
-          log::info!(
-            "FFmpeg job completed: {} -> {} (duration: {:?})",
-            job_id,
-            output_path,
-            duration
-          );
+          log::info!("FFmpeg job completed: {job_id} -> {output_path} (duration: {duration:?})");
         }
         ProgressUpdate::JobFailed {
           job_id,
           error,
           duration,
         } => {
-          log::error!(
-            "FFmpeg job failed: {} - {} (duration: {:?})",
-            job_id,
-            error,
-            duration
-          );
+          log::error!("FFmpeg job failed: {job_id} - {error} (duration: {duration:?})");
         }
         ProgressUpdate::JobCancelled { job_id } => {
-          log::warn!("FFmpeg job cancelled: {}", job_id);
+          log::warn!("FFmpeg job cancelled: {job_id}");
         }
       }
     }
@@ -345,15 +325,13 @@ pub async fn execute_ffmpeg_with_progress(
   // Ждем завершения выполнения
   let result = handle.await.map_err(|e| {
     crate::video_compiler::error::VideoCompilerError::InternalError(format!(
-      "Task execution failed: {}",
-      e
+      "Task execution failed: {e}"
     ))
   })??;
 
   let final_progress = progress_handle.await.map_err(|e| {
     crate::video_compiler::error::VideoCompilerError::InternalError(format!(
-      "Progress tracking failed: {}",
-      e
+      "Progress tracking failed: {e}"
     ))
   })?;
 

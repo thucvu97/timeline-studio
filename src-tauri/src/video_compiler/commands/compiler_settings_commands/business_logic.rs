@@ -156,15 +156,14 @@ fn estimate_system_memory_gb() -> usize {
 
 /// Экспортирует настройки в JSON
 pub fn export_settings_to_json(settings: &CompilerSettings) -> Result<String> {
-  serde_json::to_string_pretty(settings).map_err(|e| {
-    VideoCompilerError::SerializationError(format!("Failed to export settings: {}", e))
-  })
+  serde_json::to_string_pretty(settings)
+    .map_err(|e| VideoCompilerError::SerializationError(format!("Failed to export settings: {e}")))
 }
 
 /// Импортирует настройки из JSON
 pub fn import_settings_from_json(json: &str) -> Result<CompilerSettings> {
   let settings: CompilerSettings = serde_json::from_str(json).map_err(|e| {
-    VideoCompilerError::SerializationError(format!("Failed to import settings: {}", e))
+    VideoCompilerError::SerializationError(format!("Failed to import settings: {e}"))
   })?;
 
   // Валидируем импортированные настройки
@@ -236,13 +235,13 @@ pub fn calculate_optimal_parallel_jobs(cpu_cores: usize, memory_gb: usize) -> us
 /// Форматирует размер памяти в человекочитаемый формат
 pub fn format_memory_size(mb: usize) -> String {
   if mb < 1024 {
-    format!("{} MB", mb)
+    format!("{mb} MB")
   } else {
     let gb = mb as f64 / 1024.0;
     if gb < 10.0 {
-      format!("{:.1} GB", gb)
+      format!("{gb:.1} GB")
     } else {
-      format!("{:.0} GB", gb)
+      format!("{gb:.0} GB")
     }
   }
 }

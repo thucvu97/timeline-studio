@@ -21,7 +21,7 @@ pub async fn update_compiler_settings_advanced(
   _state: State<'_, VideoCompilerState>,
 ) -> Result<bool> {
   business_logic::validate_compiler_settings(&settings)?;
-  log::info!("Updating compiler settings: {:?}", settings);
+  log::info!("Updating compiler settings: {settings:?}");
   Ok(true)
 }
 
@@ -32,7 +32,7 @@ pub async fn set_ffmpeg_path_advanced(
   _state: State<'_, VideoCompilerState>,
 ) -> Result<bool> {
   business_logic::validate_ffmpeg_path(&path)?;
-  log::info!("Setting FFmpeg path to: {}", path);
+  log::info!("Setting FFmpeg path to: {path}");
   Ok(true)
 }
 
@@ -43,7 +43,7 @@ pub async fn set_parallel_jobs_advanced(
   _state: State<'_, VideoCompilerState>,
 ) -> Result<bool> {
   business_logic::validate_parallel_jobs(jobs)?;
-  log::info!("Setting parallel jobs to: {}", jobs);
+  log::info!("Setting parallel jobs to: {jobs}");
   Ok(true)
 }
 
@@ -54,7 +54,7 @@ pub async fn set_memory_limit_advanced(
   _state: State<'_, VideoCompilerState>,
 ) -> Result<bool> {
   business_logic::validate_memory_limit(limit_mb)?;
-  log::info!("Setting memory limit to: {} MB", limit_mb);
+  log::info!("Setting memory limit to: {limit_mb} MB");
   Ok(true)
 }
 
@@ -65,7 +65,7 @@ pub async fn set_temp_directory_advanced(
   _state: State<'_, VideoCompilerState>,
 ) -> Result<bool> {
   business_logic::validate_temp_directory(&directory)?;
-  log::info!("Setting temp directory to: {}", directory);
+  log::info!("Setting temp directory to: {directory}");
   Ok(true)
 }
 
@@ -76,7 +76,7 @@ pub async fn set_log_level_advanced(
   _state: State<'_, VideoCompilerState>,
 ) -> Result<bool> {
   business_logic::validate_log_level(&level)?;
-  log::info!("Setting log level to: {}", level);
+  log::info!("Setting log level to: {level}");
   Ok(true)
 }
 
