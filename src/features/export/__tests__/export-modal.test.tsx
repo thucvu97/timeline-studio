@@ -142,6 +142,47 @@ vi.mock("../components/social-export-tab", () => ({
   ),
 }))
 
+// Mock SectionExportTab
+vi.mock("../components/section-export-tab", () => ({
+  SectionExportTab: ({ onExport, defaultSettings }: any) => (
+    <div data-testid="section-export-tab">
+      <div data-testid="section-settings">{JSON.stringify(defaultSettings)}</div>
+      <button 
+        onClick={() => onExport({
+          ...defaultSettings,
+          sections: [
+            { 
+              id: 'section-1', 
+              name: 'Section 1', 
+              startTime: 0, 
+              endTime: 30, 
+              includeInExport: true,
+              customFileName: 'custom-section-1'
+            }
+          ]
+        })} 
+        data-testid="section-export-button"
+      >
+        Export Sections
+      </button>
+    </div>
+  ),
+}))
+
+// Mock ProjectSchemaBuilder
+vi.mock("../utils/project-schema-builder", () => ({
+  ProjectSchemaBuilder: {
+    createForExport: vi.fn((project, settings) => ({ id: project.id, ...settings })),
+    createForSectionExport: vi.fn((project, settings, startTime, endTime, name) => ({ 
+      id: project.id, 
+      ...settings, 
+      startTime, 
+      endTime, 
+      name 
+    }))
+  }
+}))
+
 // Mock BatchExportTab
 vi.mock("../components/batch-export-tab", () => ({
   BatchExportTab: ({ onClose, defaultSettings }: any) => (
@@ -452,6 +493,40 @@ describe("ExportModal", () => {
       expect(screen.getByText("dialogs.export.local")).toBeInTheDocument()
       expect(screen.getByText("dialogs.export.socialNetworks")).toBeInTheDocument()
       expect(screen.getByText("dialogs.export.batchTab")).toBeInTheDocument()
+      expect(screen.getByText("dialogs.export.sectionsTab")).toBeInTheDocument()
+    })
+
+    it.skip("should switch to social tab", async () => {
+      render(<ExportModal />)
+
+      const socialTab = screen.getByText("dialogs.export.socialNetworks")
+      fireEvent.click(socialTab)
+
+      await waitFor(() => {
+        expect(screen.getByTestId("social-export-tab")).toBeInTheDocument()
+      })
+    })
+
+    it.skip("should switch to batch tab", async () => {
+      render(<ExportModal />)
+
+      const batchTab = screen.getByText("dialogs.export.batchTab")
+      fireEvent.click(batchTab)
+
+      await waitFor(() => {
+        expect(screen.getByTestId("batch-export-tab")).toBeInTheDocument()
+      })
+    })
+
+    it.skip("should switch to sections tab", async () => {
+      render(<ExportModal />)
+
+      const sectionsTab = screen.getByText("dialogs.export.sectionsTab")
+      fireEvent.click(sectionsTab)
+
+      await waitFor(() => {
+        expect(screen.getByTestId("section-export-tab")).toBeInTheDocument()
+      })
     })
 
     it.skip("should switch to social tab", async () => {
@@ -511,6 +586,100 @@ describe("ExportModal", () => {
       await waitFor(() => {
         expect(screen.getByTestId("detailed-export-interface")).toBeInTheDocument()
       })
+    })
+  })
+
+  describe("Export functions", () => {
+    it("should call handleExport with correct parameters", async () => {
+      render(<ExportModal />)
+
+      const exportButton = screen.getByTestId("export-button")
+      await act(async () => {
+        fireEvent.click(exportButton)
+      })
+
+      expect(startRenderMock).toHaveBeenCalledWith(
+        expect.objectContaining({ id: defaultProject.id }),
+        defaultSettings.savePath
+      )
+    })
+
+    it.skip("should handle social export", async () => {
+      render(<ExportModal />)
+
+      // Switch to social tab
+      const socialTab = screen.getByText("dialogs.export.socialNetworks")
+      fireEvent.click(socialTab)
+
+      await waitFor(() => {
+        expect(screen.getByTestId("social-export-tab")).toBeInTheDocument()
+      })
+
+      const socialExportButton = screen.getByTestId("social-export-button")
+      await act(async () => {
+        fireEvent.click(socialExportButton)
+      })
+
+      expect(startRenderMock).toHaveBeenCalled()
+      expect(uploadToSocialNetworkMock).toHaveBeenCalled()
+    })
+
+    it.skip("should handle section export", async () => {
+      render(<ExportModal />)
+
+      // Switch to sections tab
+      const sectionsTab = screen.getByText("dialogs.export.sectionsTab")
+      fireEvent.click(sectionsTab)
+
+      await waitFor(() => {
+        expect(screen.getByTestId("section-export-tab")).toBeInTheDocument()
+      })
+
+      const sectionExportButton = screen.getByTestId("section-export-button")
+      await act(async () => {
+        fireEvent.click(sectionExportButton)
+      })
+
+      expect(startRenderMock).toHaveBeenCalled()
+      expect(toastMock.success).toHaveBeenCalledWith("dialogs.export.sectionsExportSuccess")
+      expect(closeModalMock).toHaveBeenCalled()
+    })
+
+    it("should handle render cancellation with job_id", async () => {
+      const testJobId = "test-job-123"
+      useVideoCompilerMock.mockReturnValue({
+        startRender: startRenderMock,
+        isRendering: true,
+        renderProgress: { job_id: testJobId, percentage: 50 },
+        cancelRender: cancelRenderMock,
+      })
+
+      render(<ExportModal />)
+
+      const cancelButton = screen.getByTestId("cancel-button")
+      await act(async () => {
+        fireEvent.click(cancelButton)
+      })
+
+      expect(cancelRenderMock).toHaveBeenCalledWith(testJobId)
+    })
+
+    it("should not cancel render without job_id", async () => {
+      useVideoCompilerMock.mockReturnValue({
+        startRender: startRenderMock,
+        isRendering: false,
+        renderProgress: null,
+        cancelRender: cancelRenderMock,
+      })
+
+      render(<ExportModal />)
+
+      const cancelButton = screen.getByTestId("cancel-button")
+      await act(async () => {
+        fireEvent.click(cancelButton)
+      })
+
+      expect(cancelRenderMock).not.toHaveBeenCalled()
     })
   })
 
