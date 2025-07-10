@@ -87,6 +87,7 @@ export function ClipTrimHandles({
         )}
         onMouseDown={(e) => handleMouseDown("start", e)}
         data-trim-handle="start"
+        data-testid="trim-handle-start"
       >
         <div className="absolute inset-y-0 left-0 w-1 bg-primary" />
       </div>
@@ -103,6 +104,7 @@ export function ClipTrimHandles({
         )}
         onMouseDown={(e) => handleMouseDown("end", e)}
         data-trim-handle="end"
+        data-testid="trim-handle-end"
       >
         <div className="absolute inset-y-0 right-0 w-1 bg-primary" />
       </div>

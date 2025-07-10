@@ -14,7 +14,7 @@ beforeEach(() => {
   // Настраиваем переводы с поддержкой интерполяции
   setTranslations({
     "dialogs.voiceRecord.microphoneWithNumber": "Микрофон {{number}}",
-    "dialogs.voiceRecord.errorGettingDevices": "Не удалось получить список устройств"
+    "dialogs.voiceRecord.errorGettingDevices": "Не удалось получить список устройств",
   })
 
   // Обновляем мок useTranslation для поддержки интерполяции
@@ -22,11 +22,11 @@ beforeEach(() => {
     t: (key: string, options?: any) => {
       const translations = {
         "dialogs.voiceRecord.microphoneWithNumber": "Микрофон {{number}}",
-        "dialogs.voiceRecord.errorGettingDevices": "Не удалось получить список устройств"
+        "dialogs.voiceRecord.errorGettingDevices": "Не удалось получить список устройств",
       }
-      
+
       let result = translations[key] || key
-      
+
       if (options && typeof options === "object") {
         // Простая интерполяция для тестов
         Object.keys(options).forEach((optionKey) => {
@@ -35,12 +35,12 @@ beforeEach(() => {
           }
         })
       }
-      
+
       // Если есть defaultValue и ключ не найден в переводах
       if (options?.defaultValue && !translations[key]) {
         result = options.defaultValue
       }
-      
+
       return result
     },
     i18n: {},
@@ -193,12 +193,12 @@ describe("useAudioDevices", () => {
 
       expect(success).toBe(true)
       expect(result.current.audioDevices).toHaveLength(3)
-      
+
       // Первые два должны получить автоматические названия
       expect(result.current.audioDevices[0].label).toBe("Микрофон 1")
       expect(result.current.audioDevices[1].label).toBe("Микрофон 2")
       expect(result.current.audioDevices[2].label).toBe("Named Device")
-      
+
       // Устройство без deviceId должно получить автоматический ID
       expect(result.current.audioDevices[2].deviceId).toBe("microphone-2")
     })
@@ -227,7 +227,7 @@ describe("useAudioDevices", () => {
 
       expect(success).toBe(true)
       expect(result.current.audioDevices).toHaveLength(3)
-      
+
       // Проверяем что текст в скобках удален
       expect(result.current.audioDevices[0].label).toBe("Microphone 1")
       expect(result.current.audioDevices[1].label).toBe("Built-in Microphone")
@@ -346,10 +346,9 @@ describe("useAudioDevices", () => {
     it("должен обрабатывать устройства с очень длинными названиями", async () => {
       const setErrorMessage = vi.fn()
 
-      const longName = "Very Long Microphone Name That Contains Many Words And Characters (USB Audio Device Model XYZ-123)"
-      const mockDevices = [
-        { kind: "audioinput", deviceId: "long-device", label: longName },
-      ]
+      const longName =
+        "Very Long Microphone Name That Contains Many Words And Characters (USB Audio Device Model XYZ-123)"
+      const mockDevices = [{ kind: "audioinput", deviceId: "long-device", label: longName }]
       mockEnumerateDevices.mockResolvedValue(mockDevices)
 
       const { result } = renderHook(() =>
@@ -365,7 +364,7 @@ describe("useAudioDevices", () => {
 
       expect(success).toBe(true)
       expect(result.current.audioDevices).toHaveLength(1)
-      
+
       // Проверяем что текст в скобках удален
       const expectedName = "Very Long Microphone Name That Contains Many Words And Characters"
       expect(result.current.audioDevices[0].label).toBe(expectedName)
@@ -410,17 +409,13 @@ describe("useAudioDevices", () => {
     it("должен сохранять список устройств между вызовами", async () => {
       const setErrorMessage = vi.fn()
 
-      const mockDevices1 = [
-        { kind: "audioinput", deviceId: "device-1", label: "Microphone 1" },
-      ]
+      const mockDevices1 = [{ kind: "audioinput", deviceId: "device-1", label: "Microphone 1" }]
       const mockDevices2 = [
         { kind: "audioinput", deviceId: "device-1", label: "Microphone 1" },
         { kind: "audioinput", deviceId: "device-2", label: "Microphone 2" },
       ]
 
-      mockEnumerateDevices
-        .mockResolvedValueOnce(mockDevices1)
-        .mockResolvedValueOnce(mockDevices2)
+      mockEnumerateDevices.mockResolvedValueOnce(mockDevices1).mockResolvedValueOnce(mockDevices2)
 
       const { result } = renderHook(() =>
         useAudioDevices({
@@ -470,9 +465,7 @@ describe("useAudioDevices", () => {
     it("не должен вызывать setErrorMessage при успешном получении устройств", async () => {
       const setErrorMessage = vi.fn()
 
-      const mockDevices = [
-        { kind: "audioinput", deviceId: "device-1", label: "Microphone 1" },
-      ]
+      const mockDevices = [{ kind: "audioinput", deviceId: "device-1", label: "Microphone 1" }]
       mockEnumerateDevices.mockResolvedValue(mockDevices)
 
       const { result } = renderHook(() =>

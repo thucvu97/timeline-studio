@@ -81,6 +81,26 @@ Timeline Studio is built on modern modular architecture:
 📚 **[Plugin System →](docs/en/08_tasks/planned/plugin-system.md)**  
 🛠️ **[Technical Stack Details →](docs/en/03_architecture/backend/rust-architecture.md#technology-overview)**
 
+## 📚 Backend Module Documentation
+
+Timeline Studio uses a modular Rust backend architecture. Each module provides specific functionality:
+
+### Core Modules
+🔧 **[Core System](src-tauri/src/core/README.md)** - DI container, EventBus, Performance monitoring  
+🔌 **[Plugin System](src-tauri/src/core/plugins/README.md)** - Modular plugin architecture with sandbox security  
+🎬 **[Video Compiler](src-tauri/src/video_compiler/README.md)** - FFmpeg integration and video processing  
+📁 **[Media Management](src-tauri/src/media/README.md)** - File scanning, metadata extraction, thumbnails  
+
+### AI & Recognition
+🧠 **[Smart Montage Planner](src-tauri/src/montage_planner/README.md)** - AI-powered video montage generation  
+👁️ **[Recognition System](src-tauri/src/recognition/README.md)** - YOLO object detection and scene analysis  
+📝 **[Subtitles Engine](src-tauri/src/subtitles/README.md)** - Subtitle generation, parsing, synchronization  
+
+### Security & Services
+🔒 **[Security Module](src-tauri/src/security/README.md)** - API validation, OAuth, secure storage  
+
+*All modules include comprehensive test suites and detailed API documentation.*
+
 ## 🏗️ Project Status
 
 **Overall readiness: 94%+** 

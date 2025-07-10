@@ -20,7 +20,7 @@ beforeEach(() => {
   // Настраиваем переводы
   setTranslations({
     "dialogs.voiceRecord.mediaDevicesNotSupported": "MediaDevices API недоступен",
-    "dialogs.voiceRecord.initError": "Ошибка инициализации микрофона"
+    "dialogs.voiceRecord.initError": "Ошибка инициализации микрофона",
   })
 
   // Мокаем navigator.mediaDevices.getUserMedia
@@ -234,7 +234,7 @@ describe("useVoiceRecording", () => {
 
       // Проверяем что функция stopRecording существует и может быть вызвана
       expect(typeof result.current.stopRecording).toBe("function")
-      
+
       // Вызываем stopRecording (без MediaRecorder он просто очистит состояние)
       act(() => {
         result.current.stopRecording()
@@ -250,7 +250,8 @@ describe("useVoiceRecording", () => {
       const onSaveRecording = vi.fn()
 
       // Мокаем ошибку при создании MediaRecorder с WebM
-      global.MediaRecorder = vi.fn()
+      global.MediaRecorder = vi
+        .fn()
         .mockImplementationOnce(() => {
           throw new Error("WebM not supported")
         })
@@ -283,7 +284,8 @@ describe("useVoiceRecording", () => {
       const onSaveRecording = vi.fn()
 
       // Мокаем ошибку при создании MediaRecorder
-      global.MediaRecorder = vi.fn()
+      global.MediaRecorder = vi
+        .fn()
         .mockImplementationOnce(() => {
           throw new Error("WebM not supported")
         })
@@ -337,7 +339,7 @@ describe("useVoiceRecording", () => {
 
       // Имитируем сохранение записи с blob
       const mockBlob = new Blob(["test"], { type: "audio/webm" })
-      
+
       // Имитируем событие onstop MediaRecorder
       if (mockMediaRecorderInstance.onstop) {
         mockMediaRecorderInstance.onstop()
@@ -421,9 +423,7 @@ describe("useVoiceRecording", () => {
         getTracks: () => [{ stop: mockTrackStop2 }],
       }
 
-      mockGetUserMedia
-        .mockResolvedValueOnce(mockStream1)
-        .mockResolvedValueOnce(mockStream2)
+      mockGetUserMedia.mockResolvedValueOnce(mockStream1).mockResolvedValueOnce(mockStream2)
 
       const { result } = renderHook(() =>
         useVoiceRecording({

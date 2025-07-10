@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor } from "@testing-library/react"
+import { fireEvent, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -54,11 +54,21 @@ vi.mock("../../hooks/use-audio-devices", () => ({
 
 vi.mock("../../hooks/use-voice-recording", () => ({
   useVoiceRecording: () => ({
-    get isRecording() { return mockIsRecording },
-    get showCountdown() { return mockShowCountdown },
-    get recordingTime() { return mockRecordingTime },
-    get isDeviceReady() { return mockIsDeviceReady },
-    get countdown() { return mockCountdown },
+    get isRecording() {
+      return mockIsRecording
+    },
+    get showCountdown() {
+      return mockShowCountdown
+    },
+    get recordingTime() {
+      return mockRecordingTime
+    },
+    get isDeviceReady() {
+      return mockIsDeviceReady
+    },
+    get countdown() {
+      return mockCountdown
+    },
     setCountdown: mockSetCountdown,
     audioRef: { current: null },
     formatTime: (seconds: number) => {
@@ -86,9 +96,7 @@ vi.mock("../../components/audio-permission-request", () => ({
   AudioPermissionRequest: ({ permissionStatus, onRequestPermissions }: any) => (
     <div data-testid="audio-permission-request">
       <div>Permission Status: {permissionStatus}</div>
-      {permissionStatus !== "granted" && (
-        <button onClick={onRequestPermissions}>Request Permissions</button>
-      )}
+      {permissionStatus !== "granted" && <button onClick={onRequestPermissions}>Request Permissions</button>}
     </div>
   ),
 }))
@@ -105,7 +113,7 @@ Object.defineProperty(global.navigator, "mediaDevices", {
 describe("VoiceRecordModal", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     // Убеждаемся что MediaDevices поддерживается по умолчанию
     Object.defineProperty(global.navigator, "mediaDevices", {
       writable: true,
@@ -114,8 +122,8 @@ describe("VoiceRecordModal", () => {
         enumerateDevices: vi.fn(),
       },
     })
-    
-    // Настраиваем переводы  
+
+    // Настраиваем переводы
     setTranslations({
       "dialogs.voiceRecord.notSupported": "Запись звука недоступна",
       "dialogs.voiceRecord.notSupportedDescription": "Запись звука не поддерживается в десктопном приложении.",
@@ -129,7 +137,7 @@ describe("VoiceRecordModal", () => {
       "dialogs.voiceRecord.recordingTime": "Время записи",
       "dialogs.voiceRecord.hint": "Нажмите кнопку записи для начала.",
     })
-    
+
     // Сбрасываем состояние моков
     mockPermissionStatus = "granted"
     mockErrorMessage = ""
@@ -184,18 +192,18 @@ describe("VoiceRecordModal", () => {
           enumerateDevices: vi.fn(),
         },
       })
-      
+
       renderWithModal(<VoiceRecordModal />)
-      
+
       // AudioPermissionRequest должен рендериться только если MediaDevices поддерживается
       expect(screen.getByTestId("audio-permission-request")).toBeInTheDocument()
     })
 
     it("должен скрывать основной контент, если разрешения не предоставлены", () => {
       mockPermissionStatus = "denied"
-      
+
       renderWithModal(<VoiceRecordModal />)
-      
+
       // Основные элементы не должны отображаться
       expect(screen.queryByRole("combobox")).not.toBeInTheDocument()
       expect(screen.queryByRole("button", { name: /start recording/i })).not.toBeInTheDocument()
@@ -205,7 +213,7 @@ describe("VoiceRecordModal", () => {
   describe("Выбор устройств", () => {
     it("должен отображать список аудиоустройств", () => {
       renderWithModal(<VoiceRecordModal />)
-      
+
       const deviceSelect = screen.getByRole("combobox")
       expect(deviceSelect).toBeInTheDocument()
       // Не проверяем значение, так как Select компонент может отображать его по-разному
@@ -214,10 +222,10 @@ describe("VoiceRecordModal", () => {
     it("должен вызывать setSelectedAudioDevice при выборе устройства", async () => {
       const user = userEvent.setup()
       renderWithModal(<VoiceRecordModal />)
-      
+
       const deviceSelect = screen.getByRole("combobox")
       await user.click(deviceSelect)
-      
+
       // В реальности здесь нужно было бы тестировать выбор из списка,
       // но это сложно с мокированными Select компонентами
       expect(deviceSelect).toBeInTheDocument()
@@ -225,25 +233,25 @@ describe("VoiceRecordModal", () => {
 
     it("должен отключать выбор устройств во время записи", () => {
       mockIsRecording = true
-      
+
       renderWithModal(<VoiceRecordModal />)
-      
+
       const deviceSelect = screen.getByRole("combobox")
       expect(deviceSelect).toBeDisabled()
     })
 
     it("должен вызывать getDevices при клике на кнопку обновления", async () => {
       const user = userEvent.setup()
-      
+
       renderWithModal(<VoiceRecordModal />)
-      
+
       const refreshButton = screen.getByTitle("Обновить устройства")
-      
+
       // Запоминаем количество вызовов до клика
       const callsBefore = mockGetDevices.mock.calls.length
-      
+
       await user.click(refreshButton)
-      
+
       // Проверяем что количество вызовов увеличилось
       expect(mockGetDevices.mock.calls.length).toBeGreaterThan(callsBefore)
     })
@@ -252,7 +260,7 @@ describe("VoiceRecordModal", () => {
   describe("Настройки записи", () => {
     it("должен отображать поле для пути сохранения", () => {
       renderWithModal(<VoiceRecordModal />)
-      
+
       const savePathInput = screen.getByPlaceholderText("/Users/username/Movies")
       expect(savePathInput).toBeInTheDocument()
       expect(savePathInput).toHaveValue("")
@@ -261,25 +269,25 @@ describe("VoiceRecordModal", () => {
     it("должен обновлять путь сохранения при вводе", async () => {
       const user = userEvent.setup()
       renderWithModal(<VoiceRecordModal />)
-      
+
       const savePathInput = screen.getByPlaceholderText("/Users/username/Movies")
       await user.type(savePathInput, "/custom/path")
-      
+
       expect(savePathInput).toHaveValue("/custom/path")
     })
 
     it("должен отключать поле пути во время записи", () => {
       mockIsRecording = true
-      
+
       renderWithModal(<VoiceRecordModal />)
-      
+
       const savePathInput = screen.getByPlaceholderText("/Users/username/Movies")
       expect(savePathInput).toBeDisabled()
     })
 
     it("должен отображать поле для настройки обратного отсчета", () => {
       renderWithModal(<VoiceRecordModal />)
-      
+
       const countdownInput = screen.getByDisplayValue("3")
       expect(countdownInput).toBeInTheDocument()
       expect(countdownInput).toHaveAttribute("type", "number")
@@ -289,31 +297,31 @@ describe("VoiceRecordModal", () => {
 
     it("должен вызывать setCountdown при изменении значения", async () => {
       renderWithModal(<VoiceRecordModal />)
-      
+
       const countdownInput = screen.getByDisplayValue("3")
-      
+
       // Используем fireEvent.change для более точного контроля
       fireEvent.change(countdownInput, { target: { value: "5" } })
-      
+
       expect(mockSetCountdown).toHaveBeenCalledWith(5)
     })
 
     it("должен обрабатывать некорректные значения обратного отсчета", async () => {
       const user = userEvent.setup()
       renderWithModal(<VoiceRecordModal />)
-      
+
       const countdownInput = screen.getByDisplayValue("3")
       await user.clear(countdownInput)
       await user.type(countdownInput, "abc")
-      
+
       expect(mockSetCountdown).toHaveBeenCalledWith(0)
     })
 
     it("должен отключать настройки во время записи", () => {
       mockIsRecording = true
-      
+
       renderWithModal(<VoiceRecordModal />)
-      
+
       const countdownInput = screen.getByDisplayValue("3")
       expect(countdownInput).toBeDisabled()
     })
@@ -322,7 +330,7 @@ describe("VoiceRecordModal", () => {
   describe("Процесс записи", () => {
     it("должен отображать кнопку начала записи когда не записывает", () => {
       renderWithModal(<VoiceRecordModal />)
-      
+
       const recordButton = screen.getByTitle("Начать запись")
       expect(recordButton).toBeInTheDocument()
       expect(recordButton).toBeEnabled()
@@ -330,9 +338,9 @@ describe("VoiceRecordModal", () => {
 
     it("должен отключать кнопку записи если устройство не готово", () => {
       mockIsDeviceReady = false
-      
+
       renderWithModal(<VoiceRecordModal />)
-      
+
       const recordButton = screen.getByTitle("Начать запись")
       expect(recordButton).toBeDisabled()
     })
@@ -340,18 +348,18 @@ describe("VoiceRecordModal", () => {
     it("должен вызывать startCountdown при клике на кнопку записи", async () => {
       const user = userEvent.setup()
       renderWithModal(<VoiceRecordModal />)
-      
+
       const recordButton = screen.getByTitle("Начать запись")
       await user.click(recordButton)
-      
+
       expect(mockStartCountdown).toHaveBeenCalledTimes(1)
     })
 
     it("должен отображать кнопку остановки во время записи", () => {
       mockIsRecording = true
-      
+
       renderWithModal(<VoiceRecordModal />)
-      
+
       const stopButton = screen.getByTitle("Остановить запись")
       expect(stopButton).toBeInTheDocument()
     })
@@ -359,12 +367,12 @@ describe("VoiceRecordModal", () => {
     it("должен вызывать stopRecording при клике на кнопку остановки", async () => {
       mockIsRecording = true
       const user = userEvent.setup()
-      
+
       renderWithModal(<VoiceRecordModal />)
-      
+
       const stopButton = screen.getByTitle("Остановить запись")
       await user.click(stopButton)
-      
+
       expect(mockStopRecording).toHaveBeenCalledTimes(1)
     })
   })
@@ -373,9 +381,9 @@ describe("VoiceRecordModal", () => {
     it("должен отображать обратный отсчет когда showCountdown = true", () => {
       mockShowCountdown = true
       mockCountdown = 2
-      
+
       renderWithModal(<VoiceRecordModal />)
-      
+
       const countdownDisplay = screen.getByText("2")
       expect(countdownDisplay).toBeInTheDocument()
       expect(countdownDisplay.closest("div")).toHaveClass("bg-red-600")
@@ -383,9 +391,9 @@ describe("VoiceRecordModal", () => {
 
     it("должен скрывать обратный отсчет когда showCountdown = false", () => {
       mockShowCountdown = false
-      
+
       renderWithModal(<VoiceRecordModal />)
-      
+
       expect(screen.queryByText("3")).not.toBeInTheDocument()
     })
   })
@@ -395,9 +403,9 @@ describe("VoiceRecordModal", () => {
       // Устанавливаем состояние перед рендером
       mockIsRecording = true
       mockRecordingTime = 65 // 1 минута 5 секунд
-      
+
       renderWithModal(<VoiceRecordModal />)
-      
+
       // Ищем части текста отдельно, так как они могут быть в разных элементах
       expect(screen.getByText(/время записи/i)).toBeInTheDocument()
       // Проверяем что время отображается в формате MM:SS
@@ -407,34 +415,34 @@ describe("VoiceRecordModal", () => {
     it("должен отображать прогресс-бар записи", () => {
       mockIsRecording = true
       mockRecordingTime = 150 // 2.5 минуты
-      
+
       renderWithModal(<VoiceRecordModal />)
-      
+
       // Ищем любое время в формате MM:SS и проверяем прогресс-бар рядом с ним
       const timeElement = screen.getByText(/\d{2}:\d{2}/)
-      const progressBar = timeElement.parentElement?.querySelector('.bg-red-600')
+      const progressBar = timeElement.parentElement?.querySelector(".bg-red-600")
       expect(progressBar).toBeInTheDocument()
       // Проверяем что прогресс-бар имеет ширину 50% (150 сек из 300 сек)
-      expect(progressBar).toHaveStyle({ width: '50%' })
+      expect(progressBar).toHaveStyle({ width: "50%" })
     })
 
     it("должен ограничивать прогресс-бар 100%", () => {
       mockIsRecording = true
       mockRecordingTime = 400 // больше 5 минут
-      
+
       renderWithModal(<VoiceRecordModal />)
-      
+
       // Ищем любое время и проверяем что прогресс-бар имеет максимальную ширину
       const timeElement = screen.getByText(/\d{2}:\d{2}/)
-      const progressBar = timeElement.parentElement?.querySelector('.bg-red-600')
-      expect(progressBar).toHaveStyle({ width: '100%' })
+      const progressBar = timeElement.parentElement?.querySelector(".bg-red-600")
+      expect(progressBar).toHaveStyle({ width: "100%" })
     })
 
     it("должен скрывать время записи когда не записывает", () => {
       mockIsRecording = false
-      
+
       renderWithModal(<VoiceRecordModal />)
-      
+
       expect(screen.queryByText(/время записи/i)).not.toBeInTheDocument()
     })
   })
@@ -446,15 +454,15 @@ describe("VoiceRecordModal", () => {
         writable: true,
         value: undefined,
       })
-      
+
       const user = userEvent.setup()
       renderWithModal(<VoiceRecordModal />)
-      
+
       const closeButton = screen.getByText("Закрыть")
       await user.click(closeButton)
-      
+
       expect(mockCloseModal).toHaveBeenCalledTimes(1)
-      
+
       // Восстанавливаем поддержку
       Object.defineProperty(global.navigator, "mediaDevices", {
         writable: true,
@@ -469,10 +477,10 @@ describe("VoiceRecordModal", () => {
   describe("Аудио элемент", () => {
     it("должен рендерить скрытый аудио элемент", () => {
       renderWithModal(<VoiceRecordModal />)
-      
-      const audioElement = document.querySelector('audio')
+
+      const audioElement = document.querySelector("audio")
       expect(audioElement).toBeInTheDocument()
-      expect(audioElement).toHaveAttribute('autoPlay')
+      expect(audioElement).toHaveAttribute("autoPlay")
       // Проверяем что аудио элемент не проигрывается в тестах
     })
   })
@@ -480,22 +488,22 @@ describe("VoiceRecordModal", () => {
   describe("Подсказки и сообщения", () => {
     it("должен отображать подсказку о использовании", () => {
       renderWithModal(<VoiceRecordModal />)
-      
+
       expect(screen.getByText("Нажмите кнопку записи для начала.")).toBeInTheDocument()
     })
 
     it("должен отображать правильные aria-label для кнопок", () => {
       renderWithModal(<VoiceRecordModal />)
-      
+
       const recordButton = screen.getByLabelText("Начать запись")
       expect(recordButton).toBeInTheDocument()
     })
 
     it("должен отображать правильные aria-label для кнопки остановки", () => {
       mockIsRecording = true
-      
+
       renderWithModal(<VoiceRecordModal />)
-      
+
       const stopButton = screen.getByLabelText("Остановить запись")
       expect(stopButton).toBeInTheDocument()
     })
@@ -505,13 +513,13 @@ describe("VoiceRecordModal", () => {
     it("должен обрабатывать ошибки при сохранении записи", async () => {
       // Тестируем через console.error spy
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
-      
+
       renderWithModal(<VoiceRecordModal />)
-      
+
       // Здесь мы можем только проверить что компонент рендерится без ошибок
       // Реальная обработка ошибок происходит в saveAudioToServer
       expect(screen.getByTestId("audio-permission-request")).toBeInTheDocument()
-      
+
       consoleSpy.mockRestore()
     })
   })
@@ -519,16 +527,16 @@ describe("VoiceRecordModal", () => {
   describe("Интеграция с хуками", () => {
     it("должен передавать правильные props в useVoiceRecording", () => {
       renderWithModal(<VoiceRecordModal />)
-      
+
       // Проверяем что хук был вызван (неявно через рендеринг)
       expect(screen.getByTestId("audio-permission-request")).toBeInTheDocument()
     })
 
     it("должен корректно работать с различными состояниями разрешений", () => {
       mockPermissionStatus = "prompt"
-      
+
       renderWithModal(<VoiceRecordModal />)
-      
+
       // Основной контент не должен отображаться при статусе prompt
       expect(screen.queryByRole("combobox")).not.toBeInTheDocument()
     })

@@ -805,6 +805,45 @@ const actions = {
     lastAction: "SPLIT_CLIP",
   }),
 
+  trimClip: assign({
+    project: ({ context, event }: { context: TimelineContext; event: any }) => {
+      if (!context.project) return context.project
+
+      const updateClips = (clips: TimelineClip[]) =>
+        clips.map((clip) => {
+          if (clip.id === event.clipId) {
+            return {
+              ...clip,
+              startTime: event.newStartTime,
+              duration: event.newDuration,
+            }
+          }
+          return clip
+        })
+
+      const updateTracks = (tracks: TimelineTrack[]) =>
+        tracks.map((track) => ({
+          ...track,
+          clips: updateClips(track.clips),
+        }))
+
+      const sections = context.project.sections.map((section) => ({
+        ...section,
+        tracks: updateTracks(section.tracks),
+      }))
+
+      const globalTracks = updateTracks(context.project.globalTracks)
+
+      return {
+        ...context.project,
+        sections,
+        globalTracks,
+        updatedAt: new Date(),
+      }
+    },
+    lastAction: "TRIM_CLIP",
+  }),
+
   rippleEdit: assign({
     project: ({
       context,
@@ -1202,6 +1241,10 @@ export const timelineMachine = setup({
         },
         SPLIT_CLIP: {
           actions: ["splitClip"],
+          guard: "hasProject",
+        },
+        TRIM_CLIP: {
+          actions: ["trimClip"],
           guard: "hasProject",
         },
         RIPPLE_EDIT: {

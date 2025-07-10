@@ -19,7 +19,7 @@ beforeEach(() => {
     "dialogs.voiceRecord.permissionCheckError": "Не удалось проверить разрешения",
     "dialogs.voiceRecord.deviceNotFound": "Микрофон не найден",
     "dialogs.voiceRecord.permissionError": "Не удалось получить доступ к микрофону",
-    "dialogs.voiceRecord.unknownError": "Произошла неизвестная ошибка"
+    "dialogs.voiceRecord.unknownError": "Произошла неизвестная ошибка",
   })
 
   // Мокаем navigator.mediaDevices.getUserMedia
@@ -136,7 +136,7 @@ describe("useAudioPermissions", () => {
       // Хук автоматически проверяет разрешения при монтировании
       await act(async () => {
         // Ждем завершения useEffect
-        await new Promise(resolve => setTimeout(resolve, 0))
+        await new Promise((resolve) => setTimeout(resolve, 0))
       })
 
       expect(result.current.permissionStatus).toBe("error")
@@ -167,7 +167,7 @@ describe("useAudioPermissions", () => {
 
       // Хук автоматически проверяет разрешения при монтировании
       await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 0))
+        await new Promise((resolve) => setTimeout(resolve, 0))
       })
 
       expect(result.current.permissionStatus).toBe("granted")
@@ -195,7 +195,7 @@ describe("useAudioPermissions", () => {
       let { result } = renderHook(() => useAudioPermissions())
 
       await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 0))
+        await new Promise((resolve) => setTimeout(resolve, 0))
       })
 
       expect(result.current.permissionStatus).toBe("error")
@@ -208,7 +208,7 @@ describe("useAudioPermissions", () => {
       result = renderHook(() => useAudioPermissions()).result
 
       await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 0))
+        await new Promise((resolve) => setTimeout(resolve, 0))
       })
 
       expect(result.current.permissionStatus).toBe("denied")
@@ -221,7 +221,7 @@ describe("useAudioPermissions", () => {
       result = renderHook(() => useAudioPermissions()).result
 
       await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 0))
+        await new Promise((resolve) => setTimeout(resolve, 0))
       })
 
       expect(result.current.permissionStatus).toBe("denied")
@@ -233,7 +233,7 @@ describe("useAudioPermissions", () => {
       result = renderHook(() => useAudioPermissions()).result
 
       await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 0))
+        await new Promise((resolve) => setTimeout(resolve, 0))
       })
 
       expect(result.current.permissionStatus).toBe("error")
@@ -261,7 +261,7 @@ describe("useAudioPermissions", () => {
       const { result } = renderHook(() => useAudioPermissions())
 
       await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 0))
+        await new Promise((resolve) => setTimeout(resolve, 0))
       })
 
       expect(result.current.permissionStatus).toBe("error")
@@ -287,7 +287,7 @@ describe("useAudioPermissions", () => {
       const { result } = renderHook(() => useAudioPermissions())
 
       await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 0))
+        await new Promise((resolve) => setTimeout(resolve, 0))
       })
 
       expect(result.current.permissionStatus).toBe("granted")
@@ -299,7 +299,7 @@ describe("useAudioPermissions", () => {
       const { result } = renderHook(() => useAudioPermissions())
 
       await act(async () => {
-        await new Promise(resolve => setTimeout(resolve, 0))
+        await new Promise((resolve) => setTimeout(resolve, 0))
       })
 
       expect(result.current.permissionStatus).toBe("error")
@@ -370,7 +370,7 @@ describe("useAudioPermissions", () => {
   })
 })
 
-// Отдельный afterEach для восстановления NODE_ENV  
+// Отдельный afterEach для восстановления NODE_ENV
 afterEach(() => {
   process.env.NODE_ENV = "test"
 })
