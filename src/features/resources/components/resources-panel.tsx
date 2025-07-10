@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
+import { Button } from "@/components/ui/button"
 import { DraggableType, useDraggable } from "@/features/drag-drop"
 import { useResources } from "@/features/resources"
 import { TimelineResource } from "@/features/resources/types"
@@ -195,9 +196,20 @@ export function ResourcesPanel() {
 
   return (
     <div className="flex h-full flex-col bg-background">
-      {/* <div className="border-b border-[#333] p-1.5">
-        <h3 className="text-xs font-medium">{t("timeline.resources.title", "Ресурсы")}</h3>
-      </div> */}
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-border px-2 py-1 pl-3 pb-[3px]">
+        <h2 className="text-sm font-medium text-white">{t("timeline.resources.title", "Ресурсы")}</h2>
+        <div className="flex items-center gap-1">
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-8 w-8 text-muted-foreground hover:text-white cursor-pointer"
+            onClick={() => {}}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
 
       {/* Прокручиваемый контейнер для всех категорий */}
       <div className="scrollbar-thin scrollbar-thumb-[#444] scrollbar-track-transparent flex-1 overflow-y-auto">

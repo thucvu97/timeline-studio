@@ -458,7 +458,10 @@ export function AiChat() {
 
   // Форматирование времени
   const formatTime = (timestamp: Date) => {
-    return timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    return timestamp.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    })
   }
 
   return (
@@ -466,7 +469,7 @@ export function AiChat() {
       <div className="relative z-50 flex h-full flex-col bg-background text-foreground">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border px-3 py-1 pb-[3px]">
-          <h2 className="text-sm font-medium text-white">CHAT</h2>
+          <h2 className="text-sm font-medium text-white">{t("timeline.chat.title", "Chat")}</h2>
           <div className="flex items-center gap-1">
             <Button
               size="icon"
