@@ -20,7 +20,7 @@ import { useTransitionsAdapter } from "../adapters/use-transitions-adapter"
  * Новая версия BrowserContent с использованием UniversalList и адаптеров
  * Поддерживает все типы контента через единую архитектуру
  */
-export function BrowserContentNew() {
+export function BrowserContent() {
   const contentClassName = "bg-background m-0 flex-1 overflow-auto"
 
   // Получаем состояние браузера

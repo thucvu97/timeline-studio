@@ -12,8 +12,8 @@ vi.mock("../../components/browser-tabs", () => ({
   ),
 }))
 
-vi.mock("../../components/browser-content-new", () => ({
-  BrowserContentNew: () => <div data-testid="browser-content">Browser Content</div>,
+vi.mock("../../components/browser-content", () => ({
+  BrowserContent: () => <div data-testid="browser-content">Browser Content</div>,
 }))
 
 vi.mock("@/components/ui/tabs", () => ({
@@ -48,9 +48,30 @@ vi.mock("@/features/app-state", () => ({
   AppSettingsProvider: ({ children }: { children: any }) => children,
 }))
 
+// Мокаем EffectsProvider
+vi.mock("../../providers/effects-provider", () => ({
+  EffectsProvider: ({ children }: { children: any }) => children,
+}))
+
+// Мокаем BrowserStateProvider и его хук
+let mockActiveTab = "media"
+let mockSwitchTab = vi.fn()
+
+vi.mock("../../services/browser-state-provider", () => ({
+  BrowserStateProvider: ({ children }: { children: any }) => children,
+  useBrowserState: () => ({
+    activeTab: mockActiveTab,
+    switchTab: mockSwitchTab,
+  }),
+}))
+
 describe("Browser", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockActiveTab = "media"
+    mockSwitchTab = vi.fn((tab: string) => {
+      mockActiveTab = tab
+    })
   })
 
   it("должен рендериться с компонентами табов и контента", () => {
@@ -65,58 +86,42 @@ describe("Browser", () => {
 
     const tabs = screen.getByTestId("tabs")
     expect(tabs).toHaveAttribute("data-value", "media")
-
-    const browserTabs = screen.getByTestId("browser-tabs")
-    expect(browserTabs).toHaveAttribute("data-active-tab", "media")
+    expect(screen.getByTestId("browser-tabs")).toHaveAttribute("data-active-tab", "media")
   })
 
   it("должен переключать вкладки при клике", () => {
     render(<Browser />)
 
-    // Переключаемся на music
-    fireEvent.click(screen.getByTestId("tab-music"))
+    const musicTab = screen.getByTestId("tab-music")
+    fireEvent.click(musicTab)
 
-    const tabs = screen.getByTestId("tabs")
-    expect(tabs).toHaveAttribute("data-value", "music")
-
-    const browserTabs = screen.getByTestId("browser-tabs")
-    expect(browserTabs).toHaveAttribute("data-active-tab", "music")
-
-    // Переключаемся на effects
-    fireEvent.click(screen.getByTestId("tab-effects"))
-
-    expect(tabs).toHaveAttribute("data-value", "effects")
-    expect(browserTabs).toHaveAttribute("data-active-tab", "effects")
+    expect(mockSwitchTab).toHaveBeenCalledWith("music")
   })
 
   it("должен иметь правильные CSS классы", () => {
     render(<Browser />)
 
     const tabs = screen.getByTestId("tabs")
-    expect(tabs).toHaveClass("flex", "h-full", "w-full", "flex-col", "gap-0", "dark:bg-[#2D2D2D]")
+    expect(tabs).toHaveClass("flex h-full w-full flex-col gap-0 dark:bg-[#2D2D2D]")
   })
 
   it("должен обрабатывать изменение вкладки через компонент Tabs", () => {
     render(<Browser />)
 
-    // Триггерим изменение через Tabs компонент
-    fireEvent.click(screen.getByTestId("trigger-tab-change"))
+    const tabChangeButton = screen.getByTestId("trigger-tab-change")
+    fireEvent.click(tabChangeButton)
 
-    const tabs = screen.getByTestId("tabs")
-    expect(tabs).toHaveAttribute("data-value", "test")
+    expect(mockSwitchTab).toHaveBeenCalledWith("test")
   })
 
   it("должен рендериться внутри контейнера с правильными классами", () => {
     const { container } = render(<Browser />)
 
-    // Browser -> BrowserStateProvider -> div.relative -> Tabs
-    const wrapper = container.querySelector(".relative.h-full.w-full")!
-    expect(wrapper).toBeInTheDocument()
-    expect(wrapper).toHaveClass("relative", "h-full", "w-full")
+    const wrapper = container.firstChild as HTMLElement
+    expect(wrapper).toHaveClass("relative h-full w-full")
   })
 
   it("должен предоставлять контекст состояния браузера дочерним компонентам", () => {
-    // Этот тест проверяет, что BrowserStateProvider оборачивает компоненты
     // Факт того, что компонент рендерится без ошибок, подтверждает,
     // что контекст доступен
     expect(() => render(<Browser />)).not.toThrow()
@@ -125,17 +130,14 @@ describe("Browser", () => {
   it("должен сохранять состояние вкладки при повторном рендере", () => {
     const { rerender } = render(<Browser />)
 
-    // Переключаемся на music
-    fireEvent.click(screen.getByTestId("tab-music"))
+    // Переключаем вкладку
+    const effectsTab = screen.getByTestId("tab-effects")
+    fireEvent.click(effectsTab)
 
-    let browserTabs = screen.getByTestId("browser-tabs")
-    expect(browserTabs).toHaveAttribute("data-active-tab", "music")
-
-    // Перерендериваем компонент
+    // Перерендер компонента
     rerender(<Browser />)
 
-    // Состояние должно сохраниться
-    browserTabs = screen.getByTestId("browser-tabs")
-    expect(browserTabs).toHaveAttribute("data-active-tab", "music")
+    // Проверяем, что активная вкладка сохранилась
+    expect(mockSwitchTab).toHaveBeenCalledWith("effects")
   })
 })

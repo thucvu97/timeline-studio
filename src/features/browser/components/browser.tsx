@@ -1,7 +1,7 @@
 import { Tabs } from "@/components/ui/tabs"
 import { BrowserStateProvider, useBrowserState } from "@/features/browser/services/browser-state-provider"
 
-import { BrowserContentNew as BrowserContent } from "./browser-content-new"
+import { BrowserContent } from "./browser-content"
 import { BrowserTabs } from "./browser-tabs"
 import { EffectsProvider } from "../providers/effects-provider"
 

@@ -1,5 +1,5 @@
 export * from "./browser"
-export * from "./browser-content-new"
+export * from "./browser-content"
 export * from "./browser-tabs"
 export * from "./layout"
 export * from "./media-toolbar"

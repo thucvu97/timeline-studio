@@ -1,5 +1,7 @@
 import React, { ReactNode } from "react"
 
+import { vi } from "vitest"
+
 // Минимальный провайдер для тестирования адаптеров
 // Избегаем циклических зависимостей, предоставляя только необходимый контекст
 export const AdapterTestProviders = ({ children }: { children: ReactNode }) => {
