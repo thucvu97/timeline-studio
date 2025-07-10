@@ -362,7 +362,7 @@ describe("ResourcesPanel", () => {
       // Find first resource delete button by looking for button with absolute positioning
       const deleteButtons = container.querySelectorAll("button.absolute")
       expect(deleteButtons.length).toBeGreaterThan(0)
-      
+
       const firstDeleteButton = deleteButtons[0]
       expect(firstDeleteButton).toBeInTheDocument()
 

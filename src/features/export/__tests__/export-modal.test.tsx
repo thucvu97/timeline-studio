@@ -147,20 +147,22 @@ vi.mock("../components/section-export-tab", () => ({
   SectionExportTab: ({ onExport, defaultSettings }: any) => (
     <div data-testid="section-export-tab">
       <div data-testid="section-settings">{JSON.stringify(defaultSettings)}</div>
-      <button 
-        onClick={() => onExport({
-          ...defaultSettings,
-          sections: [
-            { 
-              id: 'section-1', 
-              name: 'Section 1', 
-              startTime: 0, 
-              endTime: 30, 
-              includeInExport: true,
-              customFileName: 'custom-section-1'
-            }
-          ]
-        })} 
+      <button
+        onClick={() =>
+          onExport({
+            ...defaultSettings,
+            sections: [
+              {
+                id: "section-1",
+                name: "Section 1",
+                startTime: 0,
+                endTime: 30,
+                includeInExport: true,
+                customFileName: "custom-section-1",
+              },
+            ],
+          })
+        }
         data-testid="section-export-button"
       >
         Export Sections
@@ -173,14 +175,14 @@ vi.mock("../components/section-export-tab", () => ({
 vi.mock("../utils/project-schema-builder", () => ({
   ProjectSchemaBuilder: {
     createForExport: vi.fn((project, settings) => ({ id: project.id, ...settings })),
-    createForSectionExport: vi.fn((project, settings, startTime, endTime, name) => ({ 
-      id: project.id, 
-      ...settings, 
-      startTime, 
-      endTime, 
-      name 
-    }))
-  }
+    createForSectionExport: vi.fn((project, settings, startTime, endTime, name) => ({
+      id: project.id,
+      ...settings,
+      startTime,
+      endTime,
+      name,
+    })),
+  },
 }))
 
 // Mock BatchExportTab
@@ -600,7 +602,7 @@ describe("ExportModal", () => {
 
       expect(startRenderMock).toHaveBeenCalledWith(
         expect.objectContaining({ id: defaultProject.id }),
-        defaultSettings.savePath
+        defaultSettings.savePath,
       )
     })
 
