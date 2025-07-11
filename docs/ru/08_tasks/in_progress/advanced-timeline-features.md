@@ -473,11 +473,13 @@ class AudioSyncDetector {
 - [x] Интеграция с компонентом клипа
 - [x] Интеграция с компонентом трека
 
-### 📋 Фаза 3: Группировка (2 недели)
-- [ ] Создание/разбор групп
-- [ ] Вложенные sequences
-- [ ] UI для групп
-- [ ] Операции с группами
+### ✅ Фаза 3: Группировка (ВЫПОЛНЕНО)
+- [x] Создание/разбор групп
+- [x] UI для групп
+- [x] Операции с группами
+- [x] Горячие клавиши (Cmd/Ctrl+G, Cmd/Ctrl+Shift+G)
+- [ ] Вложенные sequences (базовая структура готова)
+- [ ] Drag & drop для групп
 
 ### 📋 Фаза 4: Advanced Cuts (1 неделя)
 - [ ] J/L cuts
@@ -503,6 +505,7 @@ class AudioSyncDetector {
 
 #### Типы и интерфейсы:
 - `src/features/timeline/types/edit-modes.ts` - определения режимов и операций
+- `src/features/timeline/types/clip-groups.ts` - типы для группировки клипов
 
 #### Компоненты:
 - `src/features/timeline/components/edit-mode-selector.tsx` - селектор режимов
@@ -513,23 +516,32 @@ class AudioSyncDetector {
 - `src/features/timeline/components/edit-tools/roll-edit-handle.tsx` - визуальные ручки для Roll
 - `src/features/timeline/components/edit-tools/rate-stretch-handle.tsx` - визуальные ручки для Rate Stretch
 - `src/features/timeline/components/track/track-roll-handles.tsx` - Roll handles на уровне трека
+- `src/features/timeline/components/clip-groups/group-indicator.tsx` - индикатор группы на клипе
+- `src/features/timeline/components/clip-groups/group-manager-panel.tsx` - панель управления группами
+- `src/features/timeline/components/clip-groups/collapsed-group.tsx` - отображение свернутой группы
+- `src/features/timeline/components/clip-groups/group-context-menu.tsx` - контекстное меню для групп
 
 #### Хуки:
 - `src/features/timeline/hooks/use-edit-mode.tsx` - управление режимами
 - `src/features/timeline/hooks/use-clip-editing.ts` - операции редактирования
+- `src/features/timeline/hooks/use-clip-groups.tsx` - управление группами клипов
+- `src/features/timeline/hooks/use-group-hotkeys.tsx` - горячие клавиши для групп
+
+#### Сервисы:
+- `src/features/timeline/services/group-manager.ts` - менеджер групп клипов
 
 #### Утилиты:
 - `src/features/timeline/utils/edit-operations.ts` - бизнес-логика операций
 - `src/features/timeline/utils/snap-engine.ts` - система привязки
 
 ### Изменения в существующих файлах:
-- `timeline-machine.ts` - добавлены новые события и обработчики для всех edit операций
+- `timeline-machine.ts` - добавлены новые события и обработчики для всех edit операций + события группировки
 - `timeline.ts` - добавлены свойства offset, mediaDuration, playbackRate, maintainPitch
 - `factories.ts` - обновлен createTimelineClip
 - `timeline-content.tsx` - интеграция системы режимов
 - `timeline-provider.tsx` - добавлен send в контекст для расширенных операций
-- `clip.tsx` - интеграция визуальных ручек для всех режимов
-- `track-content.tsx` - добавлены Roll handles между клипами
+- `clip.tsx` - интеграция визуальных ручек для всех режимов + индикатор группы
+- `track-content.tsx` - добавлены Roll handles между клипами + отображение свернутых групп
 
 ### Реализованный функционал:
 1. **8 режимов редактирования** с горячими клавишами (Q, W, E, R, T, Y, U, I)
@@ -545,6 +557,10 @@ class AudioSyncDetector {
 11. **Кастомные курсоры** для каждого режима
 12. **Context provider** для shared state
 13. **Визуальные индикаторы** для всех продвинутых режимов редактирования
+14. **Группировка клипов** с поддержкой создания/разбора групп
+15. **UI компоненты групп** - индикаторы, панель управления, контекстное меню
+16. **Свернутые группы** - отображение на треке с возможностью развернуть
+17. **Управление группами** - переименование, изменение цвета, блокировка
 
 ## 🎯 Метрики успеха
 
@@ -620,12 +636,35 @@ interface AdvancedTimelineAPI {
   - Rate stretch: индикаторы скорости воспроизведения
 - ✅ Полная интеграция с Timeline UI
 
+### 2025-01-11
+- ✅ Реализована базовая система группировки клипов
+- ✅ Созданы типы и интерфейсы для групп
+- ✅ Разработан менеджер групп с полным функционалом
+- ✅ Созданы UI компоненты:
+  - GroupIndicator - индикатор группы на клипе
+  - GroupManagerPanel - панель управления группами
+  - CollapsedGroup - отображение свернутой группы
+  - GroupContextMenu - контекстное меню групп
+- ✅ Интеграция с Timeline:
+  - Отображение индикаторов на клипах
+  - Поддержка свернутых групп на треках
+  - События группировки в state machine
+- ✅ Полностью реализованы операции с группами:
+  - Создание группы из выбранных клипов (через UI и контекстное меню)
+  - Разгруппировка
+  - Блокировка/разблокировка групп
+  - Сворачивание/разворачивание групп
+  - Переименование и изменение цвета
+  - Горячие клавиши: Cmd/Ctrl+G (группировать), Cmd/Ctrl+Shift+G (разгруппировать)
+- ✅ Добавлены обработчики событий группировки в state machine
+
 ### Следующие шаги:
-1. Добавить поддержку группировки клипов
+1. Завершить реализацию вложенных sequences
 2. Реализовать J/L cuts
 3. Создать систему маркеров
-4. Добавить интеграционные тесты для edit операций
+4. Добавить интеграционные тесты для группировки
+5. Добавить горячие клавиши для групповых операций
 
 ---
 
-*Документ обновлен: 2025-01-08*
+*Документ обновлен: 2025-01-11*

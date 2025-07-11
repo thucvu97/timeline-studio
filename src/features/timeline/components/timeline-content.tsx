@@ -20,6 +20,7 @@ import { EditModeSelector } from "./edit-mode-selector"
 import { useClips } from "../hooks/use-clips"
 import { useDragDropTimeline } from "../hooks/use-drag-drop-timeline"
 import { EditModeProvider } from "../hooks/use-edit-mode"
+import { useGroupHotkeys } from "../hooks/use-group-hotkeys"
 import { useTimeline } from "../hooks/use-timeline"
 import { useTimelinePlayerSync } from "../hooks/use-timeline-player-sync"
 import { useTracks } from "../hooks/use-tracks"
@@ -63,6 +64,9 @@ export function TimelineContent() {
 
   // Инициализируем синхронизацию с плеером
   const { isSynced, syncedClip } = useTimelinePlayerSync()
+  
+  // Инициализируем горячие клавиши для группировки
+  useGroupHotkeys()
 
   // Создаем проект при первой загрузке, используя настройки из реального проекта
   useEffect(() => {

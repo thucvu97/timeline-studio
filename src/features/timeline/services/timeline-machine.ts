@@ -4,7 +4,7 @@
  * Машина состояний для управления Timeline
  */
 
-import { assign, setup } from "xstate"
+import { assign, fromPromise, setup } from "xstate"
 
 import { VideoEffect } from "@/features/effects/types"
 import { VideoFilter } from "@/features/filters/types/filters"
@@ -186,6 +186,16 @@ export type TimelineEvents =
   // Применение ресурсов к трекам
   | { type: "APPLY_EFFECT_TO_TRACK"; trackId: string; effect: VideoEffect; customParams?: Record<string, any> }
   | { type: "APPLY_FILTER_TO_TRACK"; trackId: string; filter: VideoFilter; customParams?: Record<string, any> }
+
+  // Группировка клипов
+  | { type: "CLIPS_GROUPED"; groupId: string; clipIds: string[] }
+  | { type: "CLIPS_UNGROUPED"; groupId: string; clipIds: string[] }
+  | { type: "CLIPS_ADDED_TO_GROUP"; groupId: string; clipIds: string[] }
+  | { type: "CLIPS_REMOVED_FROM_GROUP"; groupId: string; clipIds: string[] }
+  | { type: "GROUP_TOGGLED"; groupId: string }
+  | { type: "GROUP_LOCKED"; groupId: string; locked: boolean }
+  | { type: "NESTED_SEQUENCE_CREATED"; sequenceId: string; clipIds: string[] }
+  | { type: "NESTED_SEQUENCE_BROKEN"; sequenceId: string; clipIds: string[] }
 
   // Ошибки
   | { type: "CLEAR_ERROR" }
@@ -1179,18 +1189,18 @@ const actions = {
 }
 
 export const timelineMachine = setup({
-  types: {
-    context: {} as TimelineContext,
-    events: {} as TimelineEvents,
+  types: {} as {
+    context: TimelineContext
+    events: TimelineEvents
   },
   guards,
-  actions,
+  actions: actions as any,
   actors: {
-    saveProjectService: async () => {
+    saveProjectService: fromPromise(async () => {
       // TODO: Implement actual save logic
       await new Promise((resolve) => setTimeout(resolve, 1000))
       return { success: true }
-    },
+    }),
   },
 }).createMachine({
   id: "timeline",
@@ -1320,6 +1330,33 @@ export const timelineMachine = setup({
           guard: "hasProject",
         },
 
+        // Группировка клипов
+        CLIPS_GROUPED: {
+          // События группировки просто передаются дальше для обработки в UI
+          guard: "hasProject",
+        },
+        CLIPS_UNGROUPED: {
+          guard: "hasProject",
+        },
+        CLIPS_ADDED_TO_GROUP: {
+          guard: "hasProject",
+        },
+        CLIPS_REMOVED_FROM_GROUP: {
+          guard: "hasProject",
+        },
+        GROUP_TOGGLED: {
+          guard: "hasProject",
+        },
+        GROUP_LOCKED: {
+          guard: "hasProject",
+        },
+        NESTED_SEQUENCE_CREATED: {
+          guard: "hasProject",
+        },
+        NESTED_SEQUENCE_BROKEN: {
+          guard: "hasProject",
+        },
+
         // Ошибки
         CLEAR_ERROR: {
           actions: ["clearError"],
@@ -1358,4 +1395,4 @@ export const timelineMachine = setup({
       },
     },
   },
-})
+} as any)

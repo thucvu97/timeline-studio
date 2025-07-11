@@ -10,10 +10,12 @@ import { useDropZone } from "@/features/drag-drop"
 import { cn } from "@/lib/utils"
 
 import { TrackRollHandles } from "./track-roll-handles"
+import { useClipGroups } from "../../hooks/use-clip-groups"
 import { useDragDropTimeline } from "../../hooks/use-drag-drop-timeline"
 import { useTimeline } from "../../hooks/use-timeline"
 import { TimelineTrack } from "../../types"
 import { Clip } from "../clip/clip"
+import { CollapsedGroup } from "../clip-groups/collapsed-group"
 
 interface TrackContentProps {
   track: TimelineTrack
@@ -24,7 +26,8 @@ interface TrackContentProps {
 
 export const TrackContent = memo(function TrackContent({ track, timeScale, currentTime, onUpdate }: TrackContentProps) {
   const { dragState, isValidDropTarget } = useDragDropTimeline()
-  const { addClip } = useTimeline()
+  const { addClip, selectClips } = useTimeline()
+  const { groups, toggleCollapse } = useClipGroups()
 
   // Setup droppable functionality for @dnd-kit
   const { isOver, setNodeRef } = useDroppable({
@@ -49,22 +52,12 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
 
     // Add clip to timeline
     if (item.type === "media" || item.type === "music") {
-      addClip({
-        id: `clip-${Date.now()}`,
-        trackId: track.id,
-        name: item.data.name,
-        startTime: dropTime,
-        duration: item.data.duration || 5,
-        mediaStartTime: 0,
-        mediaEndTime: item.data.duration || 5,
-        mediaFile: item.data,
-        isSelected: false,
-        isLocked: false,
-        volume: 1,
-        effects: [],
-        filters: [],
-        transitions: [],
-      })
+      addClip(
+        track.id,
+        item.data,
+        dropTime,
+        item.data.duration || 5
+      )
     }
   })
 
@@ -72,8 +65,43 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
   const isValidTarget = isValidDropTarget(track.id, track.type)
   const showDropFeedback = dragState.isDragging && isOver && isValidTarget
 
-  // Мемоизируем отсортированные клипы
-  const sortedClips = useMemo(() => [...track.clips].sort((a, b) => a.startTime - b.startTime), [track.clips])
+  // Мемоизируем отсортированные клипы и группы
+  const { visibleClips, collapsedGroups } = useMemo(() => {
+    const visibleClips: typeof track.clips = []
+    const collapsedGroups: Array<{ group: any; clips: typeof track.clips }> = []
+    
+    // Находим группы, которые содержат клипы с этого трека
+    const trackGroups = groups.filter(group => 
+      group.clips.some(ref => 
+        track.clips.some(clip => clip.id === ref.clipId)
+      )
+    )
+    
+    // Разделяем клипы на видимые и принадлежащие свернутым группам
+    track.clips.forEach(clip => {
+      const group = trackGroups.find(g => 
+        g.clips.some(ref => ref.clipId === clip.id)
+      )
+      
+      if (group && group.collapsed) {
+        // Клип в свернутой группе
+        let groupEntry = collapsedGroups.find(cg => cg.group.id === group.id)
+        if (!groupEntry) {
+          groupEntry = { group, clips: [] }
+          collapsedGroups.push(groupEntry)
+        }
+        groupEntry.clips.push(clip)
+      } else {
+        // Видимый клип (не в группе или группа развернута)
+        visibleClips.push(clip)
+      }
+    })
+    
+    // Сортируем видимые клипы
+    visibleClips.sort((a, b) => a.startTime - b.startTime)
+    
+    return { visibleClips, collapsedGroups }
+  }, [track.clips, groups])
 
   // Мемоизируем обработчики для предотвращения создания новых функций
   const handleClipUpdate = useCallback(
@@ -149,9 +177,10 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
         style={{ left: currentTime * timeScale }}
       />
 
-      {/* Клипы */}
+      {/* Клипы и свернутые группы */}
       <div className="relative h-full">
-        {sortedClips.map((clip) => (
+        {/* Отображаем видимые клипы */}
+        {visibleClips.map((clip) => (
           <Clip
             key={clip.id}
             clip={clip}
@@ -159,6 +188,19 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
             timeScale={timeScale}
             onUpdate={(updates) => handleClipUpdate(clip.id, updates)}
             onRemove={() => handleClipRemove(clip.id)}
+          />
+        ))}
+        
+        {/* Отображаем свернутые группы */}
+        {collapsedGroups.map(({ group, clips }) => (
+          <CollapsedGroup
+            key={group.id}
+            group={group}
+            clips={clips}
+            timeScale={timeScale}
+            onToggleCollapse={() => toggleCollapse(group.id)}
+            onSelect={() => selectClips(clips.map(c => c.id))}
+            isSelected={clips.some(c => c.isSelected)}
           />
         ))}
 
