@@ -39,6 +39,7 @@ tempfile = "3.8"
 tower = { version = "0.4", features = ["util"] }
 urlencoding = "2.0"
 reqwest = { version = "0.11", features = ["json"] }
+mockito = "1.2"
 # Benchmarking
 criterion = { version = "0.5", features = ["html_reports"] }
 # HTTP mocking for OAuth tests

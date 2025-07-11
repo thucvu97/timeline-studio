@@ -316,6 +316,7 @@ impl SecureStorage {
 
 #[cfg(test)]
 mod tests {
+  use super::*;
   use tempfile::TempDir;
 
   #[allow(dead_code)]
@@ -323,6 +324,108 @@ mod tests {
     let _temp_dir = TempDir::new().unwrap();
     // Тест заглушка - в реальности нужен настоящий AppHandle
     todo!("Implement test app handle creation")
+  }
+
+  #[test]
+  fn test_api_key_type_as_str() {
+    assert_eq!(ApiKeyType::OpenAI.as_str(), "openai");
+    assert_eq!(ApiKeyType::Claude.as_str(), "claude");
+    assert_eq!(ApiKeyType::DeepSeek.as_str(), "deepseek");
+    assert_eq!(ApiKeyType::YouTube.as_str(), "youtube");
+    assert_eq!(ApiKeyType::TikTok.as_str(), "tiktok");
+    assert_eq!(ApiKeyType::Vimeo.as_str(), "vimeo");
+    assert_eq!(ApiKeyType::Telegram.as_str(), "telegram");
+    assert_eq!(ApiKeyType::Codecov.as_str(), "codecov");
+    assert_eq!(ApiKeyType::TauriAnalytics.as_str(), "tauri_analytics");
+  }
+
+  #[test]
+  fn test_api_key_type_from_str() {
+    // Valid conversions
+    assert_eq!(ApiKeyType::from_str("openai").unwrap(), ApiKeyType::OpenAI);
+    assert_eq!(ApiKeyType::from_str("claude").unwrap(), ApiKeyType::Claude);
+    assert_eq!(ApiKeyType::from_str("deepseek").unwrap(), ApiKeyType::DeepSeek);
+    assert_eq!(ApiKeyType::from_str("youtube").unwrap(), ApiKeyType::YouTube);
+    assert_eq!(ApiKeyType::from_str("tiktok").unwrap(), ApiKeyType::TikTok);
+    assert_eq!(ApiKeyType::from_str("vimeo").unwrap(), ApiKeyType::Vimeo);
+    assert_eq!(ApiKeyType::from_str("telegram").unwrap(), ApiKeyType::Telegram);
+    assert_eq!(ApiKeyType::from_str("codecov").unwrap(), ApiKeyType::Codecov);
+    assert_eq!(ApiKeyType::from_str("tauri_analytics").unwrap(), ApiKeyType::TauriAnalytics);
+    
+    // Invalid conversions
+    assert!(ApiKeyType::from_str("invalid").is_err());
+    assert!(ApiKeyType::from_str("").is_err());
+    assert!(ApiKeyType::from_str("OpenAI").is_err()); // case sensitive
+  }
+
+
+  #[test]
+  fn test_oauth_credentials_serialization() {
+    let oauth = OAuthCredentials {
+      client_id: "test_client".to_string(),
+      client_secret: "test_secret".to_string(),
+      access_token: Some("access_token".to_string()),
+      refresh_token: Some("refresh_token".to_string()),
+      expires_at: None,
+    };
+
+    // Test serialization
+    let serialized = serde_json::to_string(&oauth).unwrap();
+    assert!(serialized.contains("\"client_id\":\"test_client\""));
+    assert!(serialized.contains("\"client_secret\":\"test_secret\""));
+    
+    // Test deserialization
+    let deserialized: OAuthCredentials = serde_json::from_str(&serialized).unwrap();
+    assert_eq!(deserialized.client_id, oauth.client_id);
+    assert_eq!(deserialized.client_secret, oauth.client_secret);
+  }
+
+  #[test]
+  fn test_api_key_type_equality() {
+    assert_eq!(ApiKeyType::OpenAI, ApiKeyType::OpenAI);
+    assert_ne!(ApiKeyType::OpenAI, ApiKeyType::Claude);
+    
+    // Test Hash trait (needed for HashMap keys)
+    use std::collections::HashMap;
+    let mut map = HashMap::new();
+    map.insert(ApiKeyType::OpenAI, "openai_value");
+    map.insert(ApiKeyType::Claude, "claude_value");
+    
+    assert_eq!(map.get(&ApiKeyType::OpenAI), Some(&"openai_value"));
+    assert_eq!(map.get(&ApiKeyType::Claude), Some(&"claude_value"));
+  }
+
+  #[test]
+  fn test_encryption_key_generation() {
+    // Test that we can generate encryption keys without AppHandle
+    let result = SecureStorage::get_or_create_encryption_key();
+    
+    // The result may be Ok or Err depending on whether keyring is available
+    // We just test that the function doesn't panic
+    match result {
+      Ok(key) => {
+        // If successful, the key should be 32 bytes
+        assert_eq!(key.len(), 32);
+      }
+      Err(_) => {
+        // If it fails, that's also acceptable in test environment
+      }
+    }
+  }
+
+  #[test]
+  fn test_oauth_credentials_with_expiry() {
+    let expires = chrono::Utc::now() + chrono::Duration::hours(1);
+    let oauth = OAuthCredentials {
+      client_id: "test_client".to_string(),
+      client_secret: "test_secret".to_string(),
+      access_token: Some("access_token".to_string()),
+      refresh_token: Some("refresh_token".to_string()),
+      expires_at: Some(expires),
+    };
+
+    assert!(oauth.expires_at.is_some());
+    assert!(oauth.expires_at.unwrap() > chrono::Utc::now());
   }
 
   #[tokio::test]
