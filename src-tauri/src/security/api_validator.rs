@@ -809,18 +809,33 @@ mod tests {
   #[test]
   fn test_api_key_type_from_str() {
     use std::str::FromStr;
-    
+
     // Test valid conversions
     assert_eq!(ApiKeyType::from_str("openai").unwrap(), ApiKeyType::OpenAI);
     assert_eq!(ApiKeyType::from_str("claude").unwrap(), ApiKeyType::Claude);
-    assert_eq!(ApiKeyType::from_str("deepseek").unwrap(), ApiKeyType::DeepSeek);
-    assert_eq!(ApiKeyType::from_str("youtube").unwrap(), ApiKeyType::YouTube);
+    assert_eq!(
+      ApiKeyType::from_str("deepseek").unwrap(),
+      ApiKeyType::DeepSeek
+    );
+    assert_eq!(
+      ApiKeyType::from_str("youtube").unwrap(),
+      ApiKeyType::YouTube
+    );
     assert_eq!(ApiKeyType::from_str("tiktok").unwrap(), ApiKeyType::TikTok);
     assert_eq!(ApiKeyType::from_str("vimeo").unwrap(), ApiKeyType::Vimeo);
-    assert_eq!(ApiKeyType::from_str("telegram").unwrap(), ApiKeyType::Telegram);
-    assert_eq!(ApiKeyType::from_str("codecov").unwrap(), ApiKeyType::Codecov);
-    assert_eq!(ApiKeyType::from_str("tauri_analytics").unwrap(), ApiKeyType::TauriAnalytics);
-    
+    assert_eq!(
+      ApiKeyType::from_str("telegram").unwrap(),
+      ApiKeyType::Telegram
+    );
+    assert_eq!(
+      ApiKeyType::from_str("codecov").unwrap(),
+      ApiKeyType::Codecov
+    );
+    assert_eq!(
+      ApiKeyType::from_str("tauri_analytics").unwrap(),
+      ApiKeyType::TauriAnalytics
+    );
+
     // Test invalid conversion
     assert!(ApiKeyType::from_str("invalid").is_err());
   }
@@ -828,10 +843,12 @@ mod tests {
   #[tokio::test]
   async fn test_validate_unsupported_service_for_oauth() {
     let validator = create_test_validator();
-    
+
     // Test validation for a service that doesn't support simple key validation
-    let result = validator.validate_api_key(ApiKeyType::YouTube, "some-key").await;
-    
+    let result = validator
+      .validate_api_key(ApiKeyType::YouTube, "some-key")
+      .await;
+
     assert!(result.is_ok());
     let validation = result.unwrap();
     assert!(!validation.is_valid);
@@ -843,13 +860,13 @@ mod tests {
   fn test_extract_deepseek_rate_limits() {
     let validator = create_test_validator();
     let mut headers = reqwest::header::HeaderMap::new();
-    
+
     // Add DeepSeek specific headers (similar to OpenAI)
     headers.insert(
       "x-ratelimit-remaining-requests",
       reqwest::header::HeaderValue::from_static("30"),
     );
-    
+
     // DeepSeek uses similar headers to OpenAI
     let rate_limits = validator.extract_openai_rate_limits(&headers);
     assert!(rate_limits.is_some());
@@ -860,7 +877,7 @@ mod tests {
   #[tokio::test]
   async fn test_validate_multiple_key_types() {
     let validator = create_test_validator();
-    
+
     // Test that all key types can be validated without panic
     let key_types = vec![
       ApiKeyType::OpenAI,
@@ -871,7 +888,7 @@ mod tests {
       ApiKeyType::Codecov,
       ApiKeyType::TauriAnalytics,
     ];
-    
+
     for key_type in key_types {
       let result = validator.validate_api_key(key_type, "test-key").await;
       assert!(result.is_ok());
@@ -888,7 +905,7 @@ mod tests {
       refresh_token: Some("refresh_token".to_string()),
       expires_at: Some(expires),
     };
-    
+
     assert_eq!(oauth_creds.client_id, "test_client");
     assert_eq!(oauth_creds.client_secret, "test_secret");
     assert!(oauth_creds.access_token.is_some());
@@ -902,7 +919,9 @@ mod tests {
     let validator = create_test_validator();
 
     // Test that Claude validation can be called without panic
-    let result = validator.validate_api_key(ApiKeyType::Claude, "sk-ant-test").await;
+    let result = validator
+      .validate_api_key(ApiKeyType::Claude, "sk-ant-test")
+      .await;
     assert!(result.is_ok());
   }
 }

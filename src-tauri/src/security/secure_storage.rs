@@ -344,20 +344,34 @@ mod tests {
     // Valid conversions
     assert_eq!(ApiKeyType::from_str("openai").unwrap(), ApiKeyType::OpenAI);
     assert_eq!(ApiKeyType::from_str("claude").unwrap(), ApiKeyType::Claude);
-    assert_eq!(ApiKeyType::from_str("deepseek").unwrap(), ApiKeyType::DeepSeek);
-    assert_eq!(ApiKeyType::from_str("youtube").unwrap(), ApiKeyType::YouTube);
+    assert_eq!(
+      ApiKeyType::from_str("deepseek").unwrap(),
+      ApiKeyType::DeepSeek
+    );
+    assert_eq!(
+      ApiKeyType::from_str("youtube").unwrap(),
+      ApiKeyType::YouTube
+    );
     assert_eq!(ApiKeyType::from_str("tiktok").unwrap(), ApiKeyType::TikTok);
     assert_eq!(ApiKeyType::from_str("vimeo").unwrap(), ApiKeyType::Vimeo);
-    assert_eq!(ApiKeyType::from_str("telegram").unwrap(), ApiKeyType::Telegram);
-    assert_eq!(ApiKeyType::from_str("codecov").unwrap(), ApiKeyType::Codecov);
-    assert_eq!(ApiKeyType::from_str("tauri_analytics").unwrap(), ApiKeyType::TauriAnalytics);
-    
+    assert_eq!(
+      ApiKeyType::from_str("telegram").unwrap(),
+      ApiKeyType::Telegram
+    );
+    assert_eq!(
+      ApiKeyType::from_str("codecov").unwrap(),
+      ApiKeyType::Codecov
+    );
+    assert_eq!(
+      ApiKeyType::from_str("tauri_analytics").unwrap(),
+      ApiKeyType::TauriAnalytics
+    );
+
     // Invalid conversions
     assert!(ApiKeyType::from_str("invalid").is_err());
     assert!(ApiKeyType::from_str("").is_err());
     assert!(ApiKeyType::from_str("OpenAI").is_err()); // case sensitive
   }
-
 
   #[test]
   fn test_oauth_credentials_serialization() {
@@ -373,7 +387,7 @@ mod tests {
     let serialized = serde_json::to_string(&oauth).unwrap();
     assert!(serialized.contains("\"client_id\":\"test_client\""));
     assert!(serialized.contains("\"client_secret\":\"test_secret\""));
-    
+
     // Test deserialization
     let deserialized: OAuthCredentials = serde_json::from_str(&serialized).unwrap();
     assert_eq!(deserialized.client_id, oauth.client_id);
@@ -384,13 +398,13 @@ mod tests {
   fn test_api_key_type_equality() {
     assert_eq!(ApiKeyType::OpenAI, ApiKeyType::OpenAI);
     assert_ne!(ApiKeyType::OpenAI, ApiKeyType::Claude);
-    
+
     // Test Hash trait (needed for HashMap keys)
     use std::collections::HashMap;
     let mut map = HashMap::new();
     map.insert(ApiKeyType::OpenAI, "openai_value");
     map.insert(ApiKeyType::Claude, "claude_value");
-    
+
     assert_eq!(map.get(&ApiKeyType::OpenAI), Some(&"openai_value"));
     assert_eq!(map.get(&ApiKeyType::Claude), Some(&"claude_value"));
   }
@@ -399,7 +413,7 @@ mod tests {
   fn test_encryption_key_generation() {
     // Test that we can generate encryption keys without AppHandle
     let result = SecureStorage::get_or_create_encryption_key();
-    
+
     // The result may be Ok or Err depending on whether keyring is available
     // We just test that the function doesn't panic
     match result {
