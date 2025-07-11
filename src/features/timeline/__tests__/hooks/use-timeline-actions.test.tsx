@@ -3,7 +3,7 @@
  */
 
 import { act, renderHook, waitFor } from "@testing-library/react"
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { type MediaFile } from "@/features/media/types/media"
 import { TimelineProviders } from "@/test/test-utils"
@@ -116,6 +116,7 @@ describe("useTimelineActions", () => {
 
   beforeEach(() => {
     vi.resetAllMocks()
+    vi.useFakeTimers()
     
     // Сбрасываем проект на значение по умолчанию
     mockTimeline.project = { id: "test-project", name: "Test Project" }
@@ -124,9 +125,14 @@ describe("useTimelineActions", () => {
     vi.mocked(useTracks).mockReturnValue(mockTracks)
     vi.mocked(useClips).mockReturnValue(mockClips)
     
-    // Default mock implementations
+    // Default mock implementations - возвращаем безопасные значения
     mockTracks.getTracksByType.mockReturnValue([])
     mockClips.getClipsByTrack.mockReturnValue([])
+  })
+
+  afterEach(() => {
+    vi.clearAllTimers()
+    vi.useRealTimers()
   })
 
   describe("hook initialization", () => {

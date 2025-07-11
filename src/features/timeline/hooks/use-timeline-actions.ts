@@ -74,7 +74,7 @@ export function useTimelineActions(): UseTimelineActionsReturn {
       const trackType = getTrackTypeForMedia(file)
       const tracksOfType = getTracksByType(trackType)
 
-      if (tracksOfType.length === 0) {
+      if (!tracksOfType || tracksOfType.length === 0) {
         return null // Нет подходящих треков
       }
 
@@ -89,7 +89,7 @@ export function useTimelineActions(): UseTimelineActionsReturn {
     (trackId: string): number => {
       const clipsOnTrack = getClipsByTrack(trackId)
 
-      if (clipsOnTrack.length === 0) {
+      if (!clipsOnTrack || clipsOnTrack.length === 0) {
         return 0 // Начинаем с начала трека
       }
 
