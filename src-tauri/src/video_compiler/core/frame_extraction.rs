@@ -1022,7 +1022,137 @@ mod tests {
       Some(&"detection")
     );
   }
-}
 
-#[cfg(test)]
-mod frame_extraction_tests;
+  // Дополнительные тесты из внешнего файла
+
+  #[test]
+  fn test_time_range_calculation() {
+    let start_time = 2.0;
+    let end_time = 6.0;
+    let interval = 1.0;
+
+    let mut timestamps = Vec::new();
+    let mut current = start_time;
+    while current <= end_time {
+      timestamps.push(current);
+      current += interval;
+    }
+
+    // Должно быть кадры только в диапазоне 2.0-6.0 секунд
+    assert!(timestamps.iter().all(|&t| (2.0..=6.0).contains(&t)));
+    assert_eq!(timestamps[0], 2.0);
+    assert_eq!(timestamps[timestamps.len() - 1], 6.0);
+    assert_eq!(timestamps, vec![2.0, 3.0, 4.0, 5.0, 6.0]);
+  }
+
+  #[test]
+  fn test_format_timestamp() {
+    // Test timestamp formatting function
+    fn format_timestamp(seconds: f64) -> String {
+      let hours = (seconds / 3600.0).floor() as u32;
+      let minutes = ((seconds % 3600.0) / 60.0).floor() as u32;
+      let secs = seconds % 60.0;
+      format!("{hours:02}:{minutes:02}:{secs:06.3}")
+    }
+
+    assert_eq!(format_timestamp(0.0), "00:00:00.000");
+    assert_eq!(format_timestamp(65.5), "00:01:05.500");
+    assert_eq!(format_timestamp(3661.25), "01:01:01.250");
+  }
+
+  #[test]
+  fn test_validate_extraction_settings() {
+    // Валидные настройки
+    let valid_settings = ExtractionSettings {
+      strategy: ExtractionStrategy::Interval { seconds: 1.0 },
+      _purpose: ExtractionPurpose::TimelinePreview,
+      resolution: (1920, 1080),
+      quality: 85,
+      _format: crate::video_compiler::schema::PreviewFormat::Jpeg,
+      max_frames: Some(100),
+      _gpu_decode: true,
+      parallel_extraction: true,
+      _thread_count: Some(4),
+    };
+
+    // Test validation logic
+    fn validate_settings(settings: &ExtractionSettings) -> std::result::Result<(), String> {
+      if settings.quality > 100 {
+        return Err("Quality cannot exceed 100".to_string());
+      }
+      if settings.resolution.0 == 0 || settings.resolution.1 == 0 {
+        return Err("Resolution dimensions must be positive".to_string());
+      }
+      Ok(())
+    }
+
+    assert!(validate_settings(&valid_settings).is_ok());
+
+    // Невалидные настройки: качество > 100
+    let mut invalid_settings = valid_settings.clone();
+    invalid_settings.quality = 150;
+    assert!(validate_settings(&invalid_settings).is_err());
+
+    // Невалидные настройки: нулевое разрешение
+    let mut invalid_settings = valid_settings;
+    invalid_settings.resolution = (0, 1080);
+    assert!(validate_settings(&invalid_settings).is_err());
+  }
+
+  #[test]
+  fn test_extraction_statistics_calculation() {
+    // Test extraction statistics calculation
+    struct TestStats {
+      total_frames_requested: usize,
+      frames_extracted: usize,
+      frames_failed: usize,
+      cache_hits: usize,
+      cache_misses: usize,
+      total_file_size: u64,
+    }
+
+    impl TestStats {
+      fn success_rate(&self) -> f64 {
+        (self.frames_extracted as f64 / self.total_frames_requested as f64) * 100.0
+      }
+
+      fn cache_hit_rate(&self) -> f64 {
+        let total_cache_accesses = self.cache_hits + self.cache_misses;
+        if total_cache_accesses == 0 {
+          0.0
+        } else {
+          self.cache_hits as f64 / total_cache_accesses as f64
+        }
+      }
+
+      fn average_file_size(&self) -> u64 {
+        if self.frames_extracted == 0 {
+          0
+        } else {
+          self.total_file_size / self.frames_extracted as u64
+        }
+      }
+    }
+
+    let stats = TestStats {
+      total_frames_requested: 100,
+      frames_extracted: 95,
+      frames_failed: 5,
+      cache_hits: 25,
+      cache_misses: 70,
+      total_file_size: 15_000_000, // 15MB
+    };
+
+    assert_eq!(stats.total_frames_requested, 100);
+    assert_eq!(stats.frames_extracted, 95);
+    assert_eq!(stats.frames_failed, 5);
+    assert_eq!(stats.cache_hits, 25);
+    assert_eq!(stats.cache_misses, 70);
+    assert_eq!(stats.total_file_size, 15_000_000);
+
+    // Тест вычисляемых метрик
+    assert_eq!(stats.success_rate(), 95.0);
+    assert!((stats.cache_hit_rate() - (25.0 / 95.0)).abs() < 0.001);
+    assert_eq!(stats.average_file_size(), 15_000_000 / 95);
+  }
+}

@@ -10,10 +10,7 @@
 // Новая модульная структура
 pub mod commands;
 pub mod core;
-pub mod ffmpeg_builder;
-pub mod ffmpeg_executor;
 pub mod registry;
-pub mod schema;
 pub mod services;
 
 #[cfg(test)]
@@ -25,7 +22,10 @@ pub use core::error::{Result, VideoCompilerError};
 pub use core::progress::RenderProgress;
 
 // Re-export core modules that are used by other parts of the application
-pub use core::{cache, error, frame_extraction, gpu, pipeline, preview, progress, renderer};
+pub use core::{
+  cache, error, ffmpeg_builder, ffmpeg_executor, frame_extraction, gpu, pipeline, preview,
+  progress, renderer, schema,
+};
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

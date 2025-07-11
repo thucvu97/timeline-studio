@@ -13,12 +13,15 @@
 pub mod cache;
 pub mod constants;
 pub mod error;
+pub mod ffmpeg_builder;
+pub mod ffmpeg_executor;
 pub mod frame_extraction;
 pub mod gpu;
 pub mod pipeline;
 pub mod preview;
 pub mod progress;
 pub mod renderer;
+pub mod schema;
 
 // Новые модули после рефакторинга
 pub mod pipeline_refactored;

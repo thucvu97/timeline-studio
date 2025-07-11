@@ -155,7 +155,7 @@ pub async fn register_example_plugins(
   plugin_manager: State<'_, PluginManager>,
 ) -> Result<(), String> {
   let registry = plugin_manager.loader().registry();
-  crate::plugins::register_example_plugins(&registry)
+  crate::core::plugins::register_example_plugins(&registry)
     .await
     .map_err(|e| e.to_string())
 }
@@ -184,7 +184,7 @@ mod tests {
 
     // Регистрируем примеры плагинов
     let registry = manager.loader().registry();
-    assert!(crate::plugins::register_example_plugins(&registry)
+    assert!(crate::core::plugins::register_example_plugins(&registry)
       .await
       .is_ok());
 
@@ -203,7 +203,7 @@ mod tests {
 
     // Регистрируем примеры плагинов
     let registry = manager.loader().registry();
-    crate::plugins::register_example_plugins(&registry)
+    crate::core::plugins::register_example_plugins(&registry)
       .await
       .unwrap();
 
@@ -246,7 +246,7 @@ mod tests {
 
     // Регистрируем тестовый плагин
     let registry = manager.loader().registry();
-    crate::plugins::register_example_plugins(&registry)
+    crate::core::plugins::register_example_plugins(&registry)
       .await
       .unwrap();
 
@@ -390,7 +390,7 @@ mod tests {
 
     // Тестируем команду регистрации напрямую
     let registry = manager.loader().registry();
-    let result = crate::plugins::register_example_plugins(&registry).await;
+    let result = crate::core::plugins::register_example_plugins(&registry).await;
     assert!(result.is_ok());
 
     // Проверяем что плагины действительно зарегистрированы
@@ -404,7 +404,7 @@ mod tests {
 
     // 1. Регистрируем примеры плагинов
     let registry = manager.loader().registry();
-    let register_result = crate::plugins::register_example_plugins(&registry).await;
+    let register_result = crate::core::plugins::register_example_plugins(&registry).await;
     assert!(register_result.is_ok());
 
     // 2. Проверяем список доступных плагинов
@@ -527,7 +527,7 @@ mod tests {
 
     // Регистрируем плагины для тестирования
     let registry = manager.loader().registry();
-    crate::plugins::register_example_plugins(&registry)
+    crate::core::plugins::register_example_plugins(&registry)
       .await
       .unwrap();
 

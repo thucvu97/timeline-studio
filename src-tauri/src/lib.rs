@@ -49,8 +49,7 @@ use montage_planner::commands::MontageState;
 pub mod security;
 use security::secure_storage::SecureStorage;
 
-// Модуль плагинов
-pub mod plugins;
+// Модуль плагинов теперь в core/plugins
 
 // Модуль субтитров
 mod subtitles;
@@ -220,7 +219,9 @@ pub fn run() {
 
       // Регистрируем примеры плагинов
       let registry = plugin_manager.loader().registry();
-      if let Err(e) = tauri::async_runtime::block_on(plugins::register_example_plugins(&registry)) {
+      if let Err(e) =
+        tauri::async_runtime::block_on(core::plugins::register_example_plugins(&registry))
+      {
         log::warn!("Failed to register example plugins: {e}");
       } else {
         log::info!("Example plugins registered successfully");

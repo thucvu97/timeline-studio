@@ -27,16 +27,4 @@ pub mod performance_limits;
 pub use processor::{MediaProcessor, ThumbnailOptions};
 
 #[cfg(test)]
-mod tests;
-
-#[cfg(test)]
-mod processor_test;
-
-#[cfg(test)]
-pub mod test_data;
-
-#[cfg(test)]
-mod real_data_tests;
-
-#[cfg(test)]
-mod test_ffmpeg_mock;
+mod __tests__;

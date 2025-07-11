@@ -589,10 +589,7 @@ where
 }
 
 #[cfg(test)]
-mod tests;
-
-#[cfg(test)]
-mod inline_tests {
+mod tests {
   use super::*;
   use std::time::Duration;
 
@@ -746,5 +743,280 @@ mod inline_tests {
 
     // key1 или key2 должен быть удален (в зависимости от реализации)
     assert!(lru.get(&"key3".to_string()).is_some());
+  }
+
+  #[tokio::test]
+  async fn test_cache_with_custom_settings() {
+    let settings = CacheSettings {
+      max_preview_entries: 50,
+      max_metadata_entries: 25,
+      max_render_entries: 10,
+      max_memory_mb: 256,
+      preview_ttl: Duration::from_secs(1800),
+      metadata_ttl: Duration::from_secs(900),
+      render_ttl: Duration::from_secs(3600),
+    };
+    let cache = RenderCache::with_settings(settings.clone());
+    assert_eq!(cache.settings.max_preview_entries, 50);
+    assert_eq!(cache.settings.max_memory_mb, 256);
+  }
+
+  #[tokio::test]
+  async fn test_preview_cache_miss() {
+    let mut cache = RenderCache::new();
+    let key = PreviewKey::new("/test/video.mp4".to_string(), 10.5, (640, 360), 75);
+
+    // Пытаемся получить несуществующее превью
+    let cached_data = cache.get_preview(&key).await;
+    assert!(cached_data.is_none());
+
+    // Проверяем статистику
+    let stats = cache.get_stats();
+    assert_eq!(stats.preview_requests, 1);
+    assert_eq!(stats.preview_hits, 0);
+    assert_eq!(stats.preview_misses, 1);
+  }
+
+  #[tokio::test]
+  async fn test_metadata_cache_miss() {
+    let mut cache = RenderCache::new();
+
+    // Пытаемся получить несуществующие метаданные
+    let cached_metadata = cache.get_metadata("/nonexistent.mp4").await;
+    assert!(cached_metadata.is_none());
+
+    // Проверяем статистику
+    let stats = cache.get_stats();
+    assert_eq!(stats.metadata_requests, 1);
+    assert_eq!(stats.metadata_hits, 0);
+    assert_eq!(stats.metadata_misses, 1);
+  }
+
+  #[tokio::test]
+  async fn test_render_cache() {
+    let mut cache = RenderCache::new();
+    let cache_key = "render_job_123".to_string();
+    let render_data = RenderCacheData {
+      cache_key: cache_key.clone(),
+      output_path: std::path::PathBuf::from("/output/render.mp4"),
+      render_hash: "abc123def456".to_string(),
+      created_at: SystemTime::now(),
+      file_size: 5000000,
+    };
+
+    // Сохраняем данные рендеринга
+    cache
+      .store_render_data(cache_key.clone(), render_data.clone())
+      .await
+      .unwrap();
+
+    // Получаем данные рендеринга
+    let cached_render = cache.get_render_data(&cache_key).await;
+    assert!(cached_render.is_some());
+    assert_eq!(cached_render.unwrap().render_hash, "abc123def456");
+
+    // Проверяем статистику
+    let stats = cache.get_stats();
+    assert_eq!(stats.render_requests, 1);
+    assert_eq!(stats.render_hits, 1);
+  }
+
+  #[tokio::test]
+  async fn test_render_cache_miss() {
+    let mut cache = RenderCache::new();
+
+    // Пытаемся получить несуществующие данные рендеринга
+    let cached_render = cache.get_render_data("nonexistent_job").await;
+    assert!(cached_render.is_none());
+
+    // Проверяем статистику
+    let stats = cache.get_stats();
+    assert_eq!(stats.render_requests, 1);
+    assert_eq!(stats.render_hits, 0);
+    assert_eq!(stats.render_misses, 1);
+  }
+
+  #[tokio::test]
+  async fn test_metadata_expiration() {
+    let settings = CacheSettings {
+      metadata_ttl: Duration::from_millis(10),
+      ..Default::default()
+    };
+    let mut cache = RenderCache::with_settings(settings);
+
+    let metadata = MediaMetadata {
+      file_path: "/test/video.mp4".to_string(),
+      file_size: 1024,
+      modified_time: SystemTime::now(),
+      duration: 60.0,
+      resolution: None,
+      fps: None,
+      bitrate: None,
+      video_codec: None,
+      audio_codec: None,
+      cached_at: SystemTime::now(),
+    };
+
+    cache
+      .store_metadata("/test/video.mp4".to_string(), metadata)
+      .await
+      .unwrap();
+    assert!(cache.get_metadata("/test/video.mp4").await.is_some());
+
+    tokio::time::sleep(Duration::from_millis(20)).await;
+    assert!(cache.get_metadata("/test/video.mp4").await.is_none());
+  }
+
+  #[tokio::test]
+  async fn test_render_data_expiration() {
+    let settings = CacheSettings {
+      render_ttl: Duration::from_millis(10),
+      ..Default::default()
+    };
+    let mut cache = RenderCache::with_settings(settings);
+
+    let render_data = RenderCacheData {
+      cache_key: "job_123".to_string(),
+      output_path: std::path::PathBuf::from("/output.mp4"),
+      render_hash: "hash123".to_string(),
+      created_at: SystemTime::now(),
+      file_size: 1000,
+    };
+
+    cache
+      .store_render_data("job_123".to_string(), render_data)
+      .await
+      .unwrap();
+    assert!(cache.get_render_data("job_123").await.is_some());
+
+    tokio::time::sleep(Duration::from_millis(20)).await;
+    assert!(cache.get_render_data("job_123").await.is_none());
+  }
+
+  #[tokio::test]
+  async fn test_cache_stats_hit_ratios() {
+    let cache = RenderCache::new();
+    let stats = cache.get_stats();
+
+    // При нулевых запросах hit ratio должен быть 0
+    assert_eq!(stats.hit_ratio(), 0.0);
+    assert_eq!(stats.preview_hit_ratio(), 0.0);
+  }
+
+  #[tokio::test]
+  async fn test_cache_clear_all() {
+    let mut cache = RenderCache::new();
+
+    // Добавляем различные данные
+    let preview_key = PreviewKey::new("/test1.mp4".to_string(), 1.0, (640, 360), 75);
+    cache
+      .store_preview(preview_key.clone(), vec![1, 2, 3])
+      .await
+      .unwrap();
+
+    let metadata = MediaMetadata {
+      file_path: "/test2.mp4".to_string(),
+      file_size: 1024,
+      modified_time: SystemTime::now(),
+      duration: 60.0,
+      resolution: None,
+      fps: None,
+      bitrate: None,
+      video_codec: None,
+      audio_codec: None,
+      cached_at: SystemTime::now(),
+    };
+    cache
+      .store_metadata("/test2.mp4".to_string(), metadata)
+      .await
+      .unwrap();
+
+    let render_data = RenderCacheData {
+      cache_key: "job_456".to_string(),
+      output_path: std::path::PathBuf::from("/output.mp4"),
+      render_hash: "hash456".to_string(),
+      created_at: SystemTime::now(),
+      file_size: 2000,
+    };
+    cache
+      .store_render_data("job_456".to_string(), render_data)
+      .await
+      .unwrap();
+
+    // Проверяем что все данные есть
+    assert!(cache.get_preview(&preview_key).await.is_some());
+    assert!(cache.get_metadata("/test2.mp4").await.is_some());
+    assert!(cache.get_render_data("job_456").await.is_some());
+
+    // Очищаем весь кэш
+    cache.clear_all().await;
+
+    // Проверяем что все данные удалены
+    assert!(cache.get_preview(&preview_key).await.is_none());
+    assert!(cache.get_metadata("/test2.mp4").await.is_none());
+    assert!(cache.get_render_data("job_456").await.is_none());
+
+    // Статистика должна быть сброшена
+    let stats = cache.get_stats();
+    assert_eq!(stats.preview_requests, 1); // один после clear_all
+    assert_eq!(stats.preview_hits, 0);
+    assert_eq!(stats.preview_misses, 1);
+  }
+
+  #[tokio::test]
+  async fn test_cleanup_old_entries() {
+    let settings = CacheSettings {
+      preview_ttl: Duration::from_millis(10),
+      metadata_ttl: Duration::from_millis(10),
+      render_ttl: Duration::from_millis(10),
+      ..Default::default()
+    };
+    let mut cache = RenderCache::with_settings(settings);
+
+    // Добавляем данные
+    let key1 = PreviewKey::new("/test1.mp4".to_string(), 1.0, (640, 360), 75);
+    let key2 = PreviewKey::new("/test2.mp4".to_string(), 2.0, (640, 360), 75);
+    cache
+      .store_preview(key1.clone(), vec![1, 2, 3])
+      .await
+      .unwrap();
+
+    // Ждем истечения TTL для первого элемента
+    tokio::time::sleep(Duration::from_millis(15)).await;
+
+    // Добавляем второй элемент
+    cache
+      .store_preview(key2.clone(), vec![4, 5, 6])
+      .await
+      .unwrap();
+
+    // Вызываем очистку
+    cache.cleanup_old_entries().await.unwrap();
+
+    // Первый должен быть удален, второй остаться
+    assert!(cache.get_preview(&key1).await.is_none());
+    assert!(cache.get_preview(&key2).await.is_some());
+  }
+
+  #[tokio::test]
+  async fn test_cleanup_if_needed_with_memory_limit() {
+    let settings = CacheSettings {
+      max_memory_mb: 1, // Очень маленький лимит памяти для теста
+      max_preview_entries: 10000,
+      ..Default::default()
+    };
+    let mut cache = RenderCache::with_settings(settings);
+
+    // Добавляем много больших превью чтобы превысить лимит памяти
+    for i in 0..100 {
+      let key = PreviewKey::new(format!("/test{i}.mp4"), i as f64, (1920, 1080), 90);
+      let large_data = vec![0u8; 100000]; // 100KB на превью
+      cache.store_preview(key, large_data).await.unwrap();
+    }
+
+    // cleanup_if_needed должен был быть вызван автоматически
+    let usage = cache.get_memory_usage();
+    // Проверяем что память не превышает сильно установленный лимит
+    assert!(usage.total_mb() < 10.0); // Даем запас на накладные расходы
   }
 }
