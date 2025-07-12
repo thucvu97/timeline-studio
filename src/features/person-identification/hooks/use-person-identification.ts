@@ -1,0 +1,331 @@
+/**
+ * Hook для работы с системой идентификации персон
+ * Предоставляет API для управления персонами и их обнаружения
+ */
+
+import { useCallback, useEffect, useState } from "react"
+
+import { SceneAnalysisEngine } from "../../ai-content-intelligence/engines/scene-analysis/scene-analysis-engine"
+import { PersonDatabaseService } from "../services/person-database-service"
+
+import type { DetectedFace, PersonAppearance, PersonCluster, PersonProfile } from "../types/person"
+
+interface UsePersonIdentificationOptions {
+  autoSave?: boolean
+  confidenceThreshold?: number
+}
+
+export function usePersonIdentification(options: UsePersonIdentificationOptions = {}) {
+  const { autoSave = true, confidenceThreshold = 0.7 } = options
+
+  const [persons, setPersons] = useState<PersonProfile[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const personDatabase = PersonDatabaseService.getInstance()
+  const sceneAnalysisEngine = new SceneAnalysisEngine()
+
+  // Загрузка всех персон
+  const loadPersons = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+      const allPersons = await personDatabase.getAllPersons()
+      setPersons(allPersons)
+    } catch (err) {
+      setError("Ошибка загрузки персон")
+      console.error("Failed to load persons:", err)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [personDatabase])
+
+  // Автозагрузка при монтировании
+  useEffect(() => {
+    void loadPersons()
+  }, [loadPersons])
+
+  // Добавление новой персоны
+  const addPerson = useCallback(
+    async (personData: {
+      name: string
+      description?: string
+      tags?: string[]
+      thumbnailPath?: string
+      detectedFaces?: DetectedFace[]
+    }): Promise<PersonProfile> => {
+      try {
+        setError(null)
+        const newPerson = await personDatabase.addPerson(personData)
+
+        if (autoSave) {
+          await loadPersons()
+        }
+
+        return newPerson
+      } catch (err) {
+        setError("Ошибка добавления персоны")
+        console.error("Failed to add person:", err)
+        throw err
+      }
+    },
+    [personDatabase, autoSave, loadPersons],
+  )
+
+  // Обновление персоны
+  const updatePerson = useCallback(
+    async (personId: string, updates: Partial<PersonProfile>): Promise<void> => {
+      try {
+        setError(null)
+        await personDatabase.updatePerson(personId, updates)
+
+        if (autoSave) {
+          await loadPersons()
+        }
+      } catch (err) {
+        setError("Ошибка обновления персоны")
+        console.error("Failed to update person:", err)
+        throw err
+      }
+    },
+    [personDatabase, autoSave, loadPersons],
+  )
+
+  // Удаление персоны
+  const deletePerson = useCallback(
+    async (personId: string): Promise<void> => {
+      try {
+        setError(null)
+        await personDatabase.deletePerson(personId)
+
+        if (autoSave) {
+          await loadPersons()
+        }
+      } catch (err) {
+        setError("Ошибка удаления персоны")
+        console.error("Failed to delete person:", err)
+        throw err
+      }
+    },
+    [personDatabase, autoSave, loadPersons],
+  )
+
+  // Поиск персон
+  const searchPersons = useCallback(
+    async (query: string, options?: { tags?: string[]; limit?: number }): Promise<PersonProfile[]> => {
+      try {
+        setError(null)
+        return await personDatabase.searchPersons(query, options)
+      } catch (err) {
+        setError("Ошибка поиска персон")
+        console.error("Failed to search persons:", err)
+        throw err
+      }
+    },
+    [personDatabase],
+  )
+
+  // Обнаружение лиц на изображении/видео
+  const detectFaces = useCallback(
+    async (mediaPath: string, timerange?: { start: number; end: number }): Promise<DetectedFace[]> => {
+      try {
+        setError(null)
+        const faces = await sceneAnalysisEngine.detectPersons(mediaPath, timerange)
+        return faces
+      } catch (err) {
+        setError("Ошибка обнаружения лиц")
+        console.error("Failed to detect faces:", err)
+        throw err
+      }
+    },
+    [sceneAnalysisEngine],
+  )
+
+  // Идентификация персоны по лицу
+  const identifyPerson = useCallback(
+    async (detectedFace: DetectedFace): Promise<{ person: PersonProfile; confidence: number } | null> => {
+      try {
+        setError(null)
+
+        // Находим наиболее похожую персону
+        const results = await personDatabase.findSimilarPersons(detectedFace.embedding, {
+          limit: 1,
+          minConfidence: confidenceThreshold,
+        })
+
+        if (results.length > 0) {
+          const result = results[0]
+          return {
+            person: result.person,
+            confidence: result.similarity,
+          }
+        }
+
+        return null
+      } catch (err) {
+        setError("Ошибка идентификации персоны")
+        console.error("Failed to identify person:", err)
+        throw err
+      }
+    },
+    [personDatabase, confidenceThreshold],
+  )
+
+  // Создание персоны из обнаруженного лица
+  const createPersonFromFace = useCallback(
+    async (
+      detectedFace: DetectedFace,
+      personData: {
+        name: string
+        description?: string
+        tags?: string[]
+      },
+    ): Promise<PersonProfile> => {
+      try {
+        setError(null)
+
+        const newPerson = await addPerson({
+          ...personData,
+          detectedFaces: [detectedFace],
+          thumbnailPath: detectedFace.thumbnail,
+        })
+
+        return newPerson
+      } catch (err) {
+        setError("Ошибка создания персоны")
+        console.error("Failed to create person from face:", err)
+        throw err
+      }
+    },
+    [addPerson],
+  )
+
+  // Добавление лица к существующей персоне
+  const addFaceToPerson = useCallback(
+    async (personId: string, detectedFace: DetectedFace): Promise<void> => {
+      try {
+        setError(null)
+
+        const person = persons.find((p) => p.id === personId)
+        if (!person) {
+          throw new Error("Персона не найдена")
+        }
+
+        // Добавляем новое появление вместо detectedFaces
+        const newAppearance = {
+          id: `appearance_${Date.now()}`,
+          personId,
+          clipId: detectedFace.clipId || '',
+          startTime: detectedFace.timestamp,
+          endTime: detectedFace.timestamp,
+          duration: 0,
+          confidence: detectedFace.confidence,
+          minConfidence: detectedFace.confidence,
+          maxConfidence: detectedFace.confidence,
+          detections: [detectedFace],
+          createdAt: new Date().toISOString()
+        }
+
+        await updatePerson(personId, {
+          appearances: [...(person.appearances || []), newAppearance],
+        })
+      } catch (err) {
+        setError("Ошибка добавления лица к персоне")
+        console.error("Failed to add face to person:", err)
+        throw err
+      }
+    },
+    [persons, updatePerson],
+  )
+
+  // Анализ видео на наличие персон
+  const analyzeVideoForPersons = useCallback(
+    async (
+      _videoPath: string,
+      options?: {
+        interval?: number // интервал анализа в секундах
+        confidenceThreshold?: number
+        onProgress?: (progress: number) => void
+      },
+    ): Promise<PersonAppearance[]> => {
+      try {
+        setError(null)
+        const appearances: PersonAppearance[] = []
+
+        // Здесь была бы логика анализа видео по кадрам
+        // Пока возвращаем заглушку
+        options?.onProgress?.(100)
+
+        return appearances
+      } catch (err) {
+        setError("Ошибка анализа видео")
+        console.error("Failed to analyze video:", err)
+        throw err
+      }
+    },
+    [],
+  )
+
+  // Кластеризация неизвестных лиц
+  const clusterUnknownFaces = useCallback(
+    async (_faces: DetectedFace[], _similarityThreshold = 0.8): Promise<PersonCluster[]> => {
+      try {
+        setError(null)
+
+        // Здесь была бы логика кластеризации лиц
+        // Пока возвращаем заглушку
+        const clusters: PersonCluster[] = []
+
+        return clusters
+      } catch (err) {
+        setError("Ошибка кластеризации лиц")
+        console.error("Failed to cluster faces:", err)
+        throw err
+      }
+    },
+    [],
+  )
+
+  // Получение статистики
+  const getStatistics = useCallback(() => {
+    return {
+      totalPersons: persons.length,
+      totalFaces: persons.reduce((sum, p) => sum + Number(p.faceEmbeddings?.length || 0), 0),
+      totalAppearances: persons.reduce((sum, p) => sum + Number(p.appearances?.length || 0), 0),
+      averageFacesPerPerson:
+        persons.length > 0 
+          ? persons.reduce((sum, p) => sum + Number(p.faceEmbeddings?.length || 0), 0) / persons.length 
+          : 0,
+    }
+  }, [persons])
+
+  return {
+    // Состояние
+    persons,
+    isLoading,
+    error,
+
+    // Методы управления персонами
+    addPerson,
+    updatePerson,
+    deletePerson,
+    searchPersons,
+    loadPersons,
+
+    // Методы работы с лицами
+    detectFaces,
+    identifyPerson,
+    createPersonFromFace,
+    addFaceToPerson,
+
+    // Анализ
+    analyzeVideoForPersons,
+    clusterUnknownFaces,
+
+    // Статистика
+    getStatistics,
+
+    // Утилиты
+    clearError: () => setError(null),
+  }
+}

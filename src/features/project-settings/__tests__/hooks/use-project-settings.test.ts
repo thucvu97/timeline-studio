@@ -21,24 +21,24 @@ describe("useProjectSettings", () => {
   describe("обработка ошибок", () => {
     it("должен выбрасывать ошибку при использовании вне провайдера", () => {
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
-      
+
       expect(() => {
         renderHook(() => useProjectSettings())
       }).toThrow("useProjectSettings must be used within a ProjectSettingsProvider")
-      
+
       consoleSpy.mockRestore()
     })
 
     it("должен выбрасывать ошибку с правильным сообщением", () => {
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
-      
+
       try {
         renderHook(() => useProjectSettings())
       } catch (error) {
         expect(error).toBeInstanceOf(Error)
         expect((error as Error).message).toBe("useProjectSettings must be used within a ProjectSettingsProvider")
       }
-      
+
       consoleSpy.mockRestore()
     })
   })
@@ -257,7 +257,7 @@ describe("useProjectSettings", () => {
       const TestComponent = () => {
         const settings1 = useProjectSettings()
         const settings2 = useProjectSettings()
-        
+
         expect(settings1).toBe(settings2)
         return null
       }

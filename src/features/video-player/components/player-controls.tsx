@@ -25,6 +25,7 @@ import { MediaFile } from "@/features/media/types/media"
 import { getFrameTime } from "@/features/media/utils/video"
 import { cn } from "@/lib/utils"
 
+import { PlayerAIControls } from "./player-ai-controls"
 import { PrerenderControls } from "./prerender-controls"
 import { VolumeSlider } from "./volume-slider"
 import { useFullscreen } from "../hooks/use-fullscreen"
@@ -382,8 +383,11 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
             </Button>
           </div>
 
-          {/* Правая часть: кнопки управления звуком и полноэкранным режимом */}
+          {/* Правая часть: AI controls, кнопки управления звуком и полноэкранным режимом */}
           <div className="flex items-center gap-2" style={{ justifyContent: "flex-end" }}>
+            {/* AI Controls */}
+            <PlayerAIControls className="mr-2" />
+
             <div className="flex items-center gap-2">
               <Button
                 className="h-8 w-8 cursor-pointer"

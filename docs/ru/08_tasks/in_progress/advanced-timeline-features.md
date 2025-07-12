@@ -481,17 +481,60 @@ class AudioSyncDetector {
 - [ ] Вложенные sequences (базовая структура готова)
 - [ ] Drag & drop для групп
 
-### 📋 Фаза 4: Advanced Cuts (1 неделя)
-- [ ] J/L cuts
-- [ ] Split edits
-- [ ] Audio/video unlink
-- [ ] Визуализация
+### ✅ Фаза 4: Advanced Cuts (ВЫПОЛНЕНО)
+- [x] J/L cuts - полная реализация
+  - [x] Типы и интерфейсы (jl-cuts.ts)
+  - [x] Хук use-jl-cuts для управления J/L cuts (работа через state machine)
+  - [x] Визуальный компонент JLCutIndicator с диагональной штриховкой
+  - [x] UI инструмент JLCutTool с popover контролами
+  - [x] Горячие клавиши (J, L, Shift+J, Shift+L, R)
+  - [x] События и обработчики в timeline-machine
+  - [x] Интеграция с Timeline UI через TimelineHotkeys
+  - [x] Drag handles для настройки offset (JLCutDragHandle)
+  - [x] Тесты для J/L cut функциональности
+- [x] Audio/video link/unlink
+  - [x] Функции linkClips/unlinkClips в хуке
+  - [x] Горячие клавиши (Cmd/Ctrl+Alt+L для link, Cmd/Ctrl+Alt+U для unlink)
+  - [x] Визуальная индикация связанных клипов (LinkedClipIndicator)
+- [ ] Split edits (редактирование аудио и видео отдельно)
+- [ ] Визуализация связей между клипами (линии связи)
 
-### 📋 Фаза 5: Markers & Speed (2 недели)
-- [ ] Marker система
-- [ ] Speed ramping
-- [ ] Кривые скорости
+### 🚧 Фаза 5: Markers & Speed (В ПРОЦЕССЕ)
+- [x] Marker система - базовая реализация
+  - [x] Типы маркеров (7 типов: chapter, section, note, export, todo, sync, cue)
+  - [x] Хук use-timeline-markers с полным CRUD
+  - [x] События и обработчики в timeline-machine
+  - [x] UI компоненты (TimelineMarker, TimelineMarkersLayer, MarkerControls)
+  - [x] Drag & drop для перемещения маркеров
+  - [x] Фильтрация и поиск маркеров
+  - [x] Горячие клавиши (M, Shift+M, Cmd/Ctrl+M, Delete, ', ;)
+  - [ ] Интеграция в Timeline UI
+  - [ ] Экспорт маркеров (JSON, CSV, SRT, FCPXML, EDL)
+  - [ ] Тесты
+- [x] Speed ramping - продвинутая система изменения скорости
+  - [x] Типы и интерфейсы (SpeedKeyframe, SpeedRampingConfig, interpolation types)
+  - [x] Пресеты скорости (7 встроенных: slow-motion, fast-forward, freeze-frame, etc.)
+  - [x] Хук use-speed-ramping с полным функционалом
+  - [x] Визуальный редактор кривых (SpeedCurveEditor)
+    - [x] Canvas-based отрисовка кривой скорости
+    - [x] Drag & drop для keyframes
+    - [x] Интерполяция между keyframes (linear, ease, ease-in/out, hold)
+    - [x] Применение пресетов
+  - [x] Интеграция в UI клипа (кнопка переключения)
+  - [x] События в state machine (ENABLE/DISABLE_SPEED_RAMPING, etc.)
+  - [x] Горячие клавиши:
+    - Cmd/Ctrl+Shift+R - включить speed ramping
+    - Cmd/Ctrl+Alt+R - сбросить к нормальной скорости
+    - 5 - установить 0.5x скорость
+    - 2 - установить 2x скорость
+    - 4 - установить 4x скорость
+  - [ ] Обработчики событий в state machine
+  - [ ] Интеграция с плеером (применение скорости при воспроизведении)
+  - [ ] Сохранение конфигурации в проект
+  - [ ] Тесты
 - [ ] Chapter export
+  - [ ] Экспорт в видео метаданные
+  - [ ] Экспорт для YouTube/Vimeo
 
 ### 📋 Фаза 6: Multi-cam (2 недели)
 - [ ] Sync detection
@@ -506,6 +549,9 @@ class AudioSyncDetector {
 #### Типы и интерфейсы:
 - `src/features/timeline/types/edit-modes.ts` - определения режимов и операций
 - `src/features/timeline/types/clip-groups.ts` - типы для группировки клипов
+- `src/features/timeline/types/jl-cuts.ts` - типы для J-Cut/L-Cut операций
+- `src/features/timeline/types/markers.ts` - расширенные типы для системы маркеров
+- `src/features/timeline/types/speed-ramping.ts` - типы для speed ramping системы
 
 #### Компоненты:
 - `src/features/timeline/components/edit-mode-selector.tsx` - селектор режимов
@@ -520,12 +566,23 @@ class AudioSyncDetector {
 - `src/features/timeline/components/clip-groups/group-manager-panel.tsx` - панель управления группами
 - `src/features/timeline/components/clip-groups/collapsed-group.tsx` - отображение свернутой группы
 - `src/features/timeline/components/clip-groups/group-context-menu.tsx` - контекстное меню для групп
+- `src/features/timeline/components/jl-cuts/jl-cut-indicator.tsx` - визуальный индикатор J/L cuts
+- `src/features/timeline/components/jl-cuts/jl-cut-tool.tsx` - UI инструмент для создания J/L cuts
+- `src/features/timeline/components/jl-cuts/jl-cut-drag-handle.tsx` - интерактивные ручки для настройки offset
+- `src/features/timeline/components/jl-cuts/linked-clip-indicator.tsx` - индикатор связанных клипов
+- `src/features/timeline/components/speed-ramping/speed-curve-editor.tsx` - визуальный редактор кривых скорости
+- `src/features/timeline/components/speed-ramping/speed-ramping-toggle.tsx` - кнопка переключения speed ramping
+- `src/features/timeline/components/timeline-hotkeys.tsx` - компонент инициализации всех горячих клавиш
 
 #### Хуки:
 - `src/features/timeline/hooks/use-edit-mode.tsx` - управление режимами
 - `src/features/timeline/hooks/use-clip-editing.ts` - операции редактирования
 - `src/features/timeline/hooks/use-clip-groups.tsx` - управление группами клипов
 - `src/features/timeline/hooks/use-group-hotkeys.tsx` - горячие клавиши для групп
+- `src/features/timeline/hooks/use-jl-cuts.ts` - управление J/L cut операциями
+- `src/features/timeline/hooks/use-jl-cut-hotkeys.tsx` - горячие клавиши для J/L cuts
+- `src/features/timeline/hooks/use-speed-ramping.ts` - управление speed ramping и keyframes
+- `src/features/timeline/hooks/use-speed-ramping-hotkeys.tsx` - горячие клавиши для speed ramping
 
 #### Сервисы:
 - `src/features/timeline/services/group-manager.ts` - менеджер групп клипов
@@ -534,9 +591,13 @@ class AudioSyncDetector {
 - `src/features/timeline/utils/edit-operations.ts` - бизнес-логика операций
 - `src/features/timeline/utils/snap-engine.ts` - система привязки
 
+#### Тесты:
+- `src/features/timeline/hooks/__tests__/use-jl-cuts.test.tsx` - комплексные тесты J/L cut
+- `src/features/timeline/hooks/__tests__/use-jl-cuts.simple.test.tsx` - упрощенные unit тесты
+
 ### Изменения в существующих файлах:
-- `timeline-machine.ts` - добавлены новые события и обработчики для всех edit операций + события группировки
-- `timeline.ts` - добавлены свойства offset, mediaDuration, playbackRate, maintainPitch
+- `timeline-machine.ts` - добавлены новые события и обработчики для всех edit операций + события группировки + J/L cut события
+- `timeline.ts` - добавлены свойства offset, mediaDuration, playbackRate, maintainPitch, audioOffset, linkedClipId, isLinked
 - `factories.ts` - обновлен createTimelineClip
 - `timeline-content.tsx` - интеграция системы режимов
 - `timeline-provider.tsx` - добавлен send в контекст для расширенных операций
@@ -561,6 +622,10 @@ class AudioSyncDetector {
 15. **UI компоненты групп** - индикаторы, панель управления, контекстное меню
 16. **Свернутые группы** - отображение на треке с возможностью развернуть
 17. **Управление группами** - переименование, изменение цвета, блокировка
+18. **J-Cut и L-Cut** - базовая реализация с визуальными индикаторами
+19. **Link/Unlink клипов** - связывание аудио и видео клипов
+20. **Горячие клавиши J/L cuts** - J, L, Shift+J/L для разных offset, R для сброса
+21. **UI инструменты J/L cuts** - popover с контролами для создания cuts
 
 ## 🎯 Метрики успеха
 
@@ -657,14 +722,43 @@ interface AdvancedTimelineAPI {
   - Переименование и изменение цвета
   - Горячие клавиши: Cmd/Ctrl+G (группировать), Cmd/Ctrl+Shift+G (разгруппировать)
 - ✅ Добавлены обработчики событий группировки в state machine
+- ✅ Реализована система J/L cuts:
+  - Типы и интерфейсы для J/L cut операций
+  - Хук use-jl-cuts для управления cuts (работа через state machine)
+  - Визуальные индикаторы с диагональной штриховкой
+  - UI инструменты с popover контролами
+  - Drag handles для настройки offset
+  - Горячие клавиши (J, L, Shift+J/L, R)
+  - Link/Unlink операции для связывания клипов
+  - Тесты для функциональности
+- ✅ Реализована система маркеров:
+  - 7 типов маркеров с уникальными цветами и иконками
+  - Полный CRUD функционал через хук
+  - UI компоненты для отображения и управления
+  - Drag & drop для перемещения
+  - Фильтрация и поиск
+  - Горячие клавиши
+- ✅ Реализована продвинутая система Speed Ramping:
+  - Keyframe-based изменение скорости
+  - 7 встроенных пресетов (slow-motion, bullet-time, etc.)
+  - Визуальный canvas-редактор кривых
+  - Интерполяция между keyframes
+  - Интеграция в UI клипа
+  - События в state machine
+  - Горячие клавиши для быстрого доступа
 
 ### Следующие шаги:
-1. Завершить реализацию вложенных sequences
-2. Реализовать J/L cuts
-3. Создать систему маркеров
-4. Добавить интеграционные тесты для группировки
-5. Добавить горячие клавиши для групповых операций
+1. Добавить обработчики событий speed ramping в state machine
+2. Интегрировать speed ramping с плеером для применения скорости
+3. Сохранение конфигурации speed ramping в проект
+4. Интегрировать маркеры в Timeline UI
+5. Реализовать экспорт маркеров в различные форматы
+6. Реализовать split edits (редактирование аудио и видео отдельно)
+7. Добавить визуальную связь между linked клипами
+8. Написать тесты для speed ramping и маркеров
+9. Завершить реализацию вложенных sequences
 
 ---
 
 *Документ обновлен: 2025-01-11*
+*Последнее обновление: Speed Ramping система полностью реализована с визуальным редактором и горячими клавишами*

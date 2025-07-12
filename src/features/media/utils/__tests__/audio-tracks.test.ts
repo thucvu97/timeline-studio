@@ -1,4 +1,3 @@
-import { nanoid } from "nanoid"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { calculateTimeRanges } from "@/features/media/utils/video"
@@ -39,7 +38,7 @@ vi.mock("@/i18n", () => ({
 }))
 
 vi.mock("@/i18n/constants", () => ({
-  formatDateByLanguage: vi.fn((date: Date, lang: string, options?: any) => {
+  formatDateByLanguage: vi.fn((date: Date, _lang: string, _options?: any) => {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
   }),
 }))
@@ -83,9 +82,9 @@ describe("audio-tracks", () => {
     it("должен обрабатывать пустой массив файлов", () => {
       const sectors: Sector[] = []
       const existingSectorsByDay = {}
-      
+
       processAudioFiles([], sectors, existingSectorsByDay, "en")
-      
+
       expect(sectors).toHaveLength(0)
     })
 
@@ -93,9 +92,9 @@ describe("audio-tracks", () => {
       const audioFile = createMockAudioFile(1000, 60)
       const sectors: Sector[] = []
       const existingSectorsByDay = {}
-      
+
       processAudioFiles([audioFile], sectors, existingSectorsByDay, "en")
-      
+
       expect(sectors).toHaveLength(1)
       expect(sectors[0].name).toContain("Section")
       expect(sectors[0].tracks).toHaveLength(1)
@@ -106,16 +105,16 @@ describe("audio-tracks", () => {
     it("должен группировать файлы по дням", () => {
       const date1 = new Date("2023-01-01").getTime() / 1000
       const date2 = new Date("2023-01-02").getTime() / 1000
-      
+
       const audioFile1 = createMockAudioFile(date1, 60, "audio-1")
       const audioFile2 = createMockAudioFile(date1, 30, "audio-2")
       const audioFile3 = createMockAudioFile(date2, 45, "audio-3")
-      
+
       const sectors: Sector[] = []
       const existingSectorsByDay = {}
-      
+
       processAudioFiles([audioFile1, audioFile2, audioFile3], sectors, existingSectorsByDay, "en")
-      
+
       expect(sectors).toHaveLength(2)
       expect(formatDateByLanguage).toHaveBeenCalledTimes(4) // 2 раза для каждого дня
     })
@@ -125,11 +124,11 @@ describe("audio-tracks", () => {
       const existingSector = createMockSector("existing-1", "Existing Section")
       const sectors: Sector[] = [existingSector]
       const existingSectorsByDay = {
-        "1970-01-01": { sector: existingSector }
+        "1970-01-01": { sector: existingSector },
       }
-      
+
       processAudioFiles([audioFile], sectors, existingSectorsByDay, "en")
-      
+
       expect(sectors).toHaveLength(1)
       expect(sectors[0].id).toBe("existing-1")
     })
@@ -139,13 +138,13 @@ describe("audio-tracks", () => {
       const existingSector = createMockSector("existing-1", "Section 1970-01-01")
       const sectors: Sector[] = []
       const existingSectorsByDay = {
-        "other-date": { sector: existingSector }
+        "other-date": { sector: existingSector },
       }
-      
+
       vi.mocked(formatDateByLanguage).mockReturnValue("1970-01-01")
-      
+
       processAudioFiles([audioFile], sectors, existingSectorsByDay, "en")
-      
+
       expect(sectors).toHaveLength(1)
     })
 
@@ -163,13 +162,13 @@ describe("audio-tracks", () => {
       const existingSector = createMockSector("existing-1", "Existing Section", [existingTrack])
       const sectors: Sector[] = []
       const existingSectorsByDay = {
-        "1970-01-01": { sector: existingSector }
+        "1970-01-01": { sector: existingSector },
       }
-      
+
       vi.mocked(doTimeRangesOverlap).mockReturnValue(false)
-      
+
       processAudioFiles([audioFile], sectors, existingSectorsByDay, "en")
-      
+
       expect(sectors[0].tracks).toHaveLength(1)
       expect(sectors[0].tracks[0].videos).toHaveLength(2)
     })
@@ -188,13 +187,13 @@ describe("audio-tracks", () => {
       const existingSector = createMockSector("existing-1", "Existing Section", [existingTrack])
       const sectors: Sector[] = []
       const existingSectorsByDay = {
-        "1970-01-01": { sector: existingSector }
+        "1970-01-01": { sector: existingSector },
       }
-      
+
       vi.mocked(doTimeRangesOverlap).mockReturnValue(true)
-      
+
       processAudioFiles([audioFile], sectors, existingSectorsByDay, "en")
-      
+
       expect(sectors[0].tracks).toHaveLength(2)
       expect(sectors[0].tracks[1].name).toContain("Audio 2")
     })
@@ -203,9 +202,9 @@ describe("audio-tracks", () => {
       const audioFile = createMockAudioFile(1000, 60)
       const sectors: Sector[] = []
       const existingSectorsByDay = {}
-      
+
       processAudioFiles([audioFile], sectors, existingSectorsByDay, "en")
-      
+
       expect(calculateTimeRanges).toHaveBeenCalledWith([audioFile])
       expect(updateSectorTimeRange).toHaveBeenCalledWith(sectors[0])
     })
@@ -215,11 +214,11 @@ describe("audio-tracks", () => {
       const existingSector = createMockSector("existing-1", "Existing Section")
       const sectors: Sector[] = [existingSector]
       const existingSectorsByDay = {
-        "1970-01-01": { sector: existingSector }
+        "1970-01-01": { sector: existingSector },
       }
-      
+
       processAudioFiles([audioFile], sectors, existingSectorsByDay, "en")
-      
+
       expect(sectors).toHaveLength(1)
       expect(sectors[0].tracks).toHaveLength(1)
     })
@@ -228,9 +227,9 @@ describe("audio-tracks", () => {
       const audioFile = { ...createMockAudioFile(0, 60), startTime: undefined }
       const sectors: Sector[] = []
       const existingSectorsByDay = {}
-      
+
       processAudioFiles([audioFile], sectors, existingSectorsByDay, "en")
-      
+
       expect(sectors).toHaveLength(1)
       expect(sectors[0].tracks).toHaveLength(1)
     })
@@ -239,9 +238,9 @@ describe("audio-tracks", () => {
       const audioFile = { ...createMockAudioFile(1000, 0), duration: undefined }
       const sectors: Sector[] = []
       const existingSectorsByDay = {}
-      
+
       processAudioFiles([audioFile], sectors, existingSectorsByDay, "en")
-      
+
       expect(sectors).toHaveLength(1)
       expect(sectors[0].tracks).toHaveLength(1)
     })
@@ -254,15 +253,15 @@ describe("audio-tracks", () => {
       const existingSector = createMockSector("existing-1", "Existing Section", [track1, track2, track3])
       const sectors: Sector[] = []
       const existingSectorsByDay = {
-        "1970-01-01": { sector: existingSector }
+        "1970-01-01": { sector: existingSector },
       }
-      
+
       vi.mocked(doTimeRangesOverlap).mockReturnValue(false)
-      
+
       processAudioFiles([audioFile], sectors, existingSectorsByDay, "en")
-      
+
       // Файл должен быть добавлен на одну из существующих дорожек
-      const trackWithFile = sectors[0].tracks.find(track => track.videos && track.videos.includes(audioFile))
+      const trackWithFile = sectors[0].tracks.find((track) => track.videos && track.videos.includes(audioFile))
       expect(trackWithFile).toBeDefined()
     })
 
@@ -272,11 +271,11 @@ describe("audio-tracks", () => {
       const existingSector = createMockSector("existing-1", "Existing Section", [videoTrack])
       const sectors: Sector[] = []
       const existingSectorsByDay = {
-        "1970-01-01": { sector: existingSector }
+        "1970-01-01": { sector: existingSector },
       }
-      
+
       processAudioFiles([audioFile], sectors, existingSectorsByDay, "en")
-      
+
       // Должна быть создана новая аудио дорожка
       expect(sectors[0].tracks).toHaveLength(2)
       expect(sectors[0].tracks[1].type).toBe("audio")
@@ -288,11 +287,11 @@ describe("audio-tracks", () => {
       const existingSector = createMockSector("existing-1", "Existing Section", [trackWithoutVideos])
       const sectors: Sector[] = []
       const existingSectorsByDay = {
-        "1970-01-01": { sector: existingSector }
+        "1970-01-01": { sector: existingSector },
       }
-      
+
       processAudioFiles([audioFile], sectors, existingSectorsByDay, "en")
-      
+
       expect(sectors[0].tracks).toHaveLength(1)
       expect(sectors[0].tracks[0].videos).toContain(audioFile)
     })
@@ -303,9 +302,9 @@ describe("audio-tracks", () => {
       const audioFile = createMockAudioFile(1000, 60)
       const sectors: Sector[] = []
       const existingSectorsByDay = {}
-      
+
       processAudioFiles([audioFile], sectors, existingSectorsByDay, "en")
-      
+
       const track = sectors[0].tracks[0]
       expect(track.id).toBe("test-id-123")
       expect(track.name).toContain("Audio 1")
@@ -326,7 +325,7 @@ describe("audio-tracks", () => {
     it("должен правильно вычислить следующий номер дорожки", () => {
       const audioFile1 = createMockAudioFile(1000, 60, "audio-1")
       const audioFile2 = createMockAudioFile(2000, 60, "audio-2")
-      
+
       const existingTrack = {
         id: "track-1",
         type: "audio",
@@ -336,13 +335,13 @@ describe("audio-tracks", () => {
       const existingSector = createMockSector("existing-1", "Existing Section", [existingTrack])
       const sectors: Sector[] = []
       const existingSectorsByDay = {
-        "1970-01-01": { sector: existingSector }
+        "1970-01-01": { sector: existingSector },
       }
-      
+
       vi.mocked(doTimeRangesOverlap).mockReturnValue(true)
-      
+
       processAudioFiles([audioFile1, audioFile2], sectors, existingSectorsByDay, "en")
-      
+
       // Должны быть созданы дорожки с номерами 6 и 7
       expect(sectors[0].tracks).toHaveLength(3)
       expect(sectors[0].tracks[1].index).toBe(6)
@@ -359,13 +358,13 @@ describe("audio-tracks", () => {
       const existingSector = createMockSector("existing-1", "Existing Section", [existingTrack])
       const sectors: Sector[] = []
       const existingSectorsByDay = {
-        "1970-01-01": { sector: existingSector }
+        "1970-01-01": { sector: existingSector },
       }
-      
+
       vi.mocked(doTimeRangesOverlap).mockReturnValue(true)
-      
+
       processAudioFiles([audioFile], sectors, existingSectorsByDay, "en")
-      
+
       expect(sectors[0].tracks).toHaveLength(2)
       expect(sectors[0].tracks[1].index).toBe(1)
     })
@@ -376,9 +375,9 @@ describe("audio-tracks", () => {
       const audioFile = createMockAudioFile(-1000, 60)
       const sectors: Sector[] = []
       const existingSectorsByDay = {}
-      
+
       processAudioFiles([audioFile], sectors, existingSectorsByDay, "en")
-      
+
       expect(sectors).toHaveLength(1)
       expect(sectors[0].tracks[0].startTime).toBe(-1000)
       expect(sectors[0].tracks[0].endTime).toBe(-940)
@@ -390,9 +389,9 @@ describe("audio-tracks", () => {
       const audioFile = createMockAudioFile(largeTime, 60)
       const sectors: Sector[] = []
       const existingSectorsByDay = {}
-      
+
       processAudioFiles([audioFile], sectors, existingSectorsByDay, "en")
-      
+
       expect(sectors).toHaveLength(1)
       expect(sectors[0].tracks[0].startTime).toBe(largeTime)
     })
@@ -401,9 +400,9 @@ describe("audio-tracks", () => {
       const audioFile = createMockAudioFile(1000, 0)
       const sectors: Sector[] = []
       const existingSectorsByDay = {}
-      
+
       processAudioFiles([audioFile], sectors, existingSectorsByDay, "en")
-      
+
       expect(sectors).toHaveLength(1)
       expect(sectors[0].tracks[0].combinedDuration).toBe(0)
       expect(sectors[0].tracks[0].endTime).toBe(1000)
@@ -415,11 +414,11 @@ describe("audio-tracks", () => {
       const audioFile3 = createMockAudioFile(1000, 60, "audio-3")
       const sectors: Sector[] = []
       const existingSectorsByDay = {}
-      
+
       vi.mocked(doTimeRangesOverlap).mockReturnValue(true)
-      
+
       processAudioFiles([audioFile1, audioFile2, audioFile3], sectors, existingSectorsByDay, "en")
-      
+
       expect(sectors).toHaveLength(1)
       expect(sectors[0].tracks).toHaveLength(3) // Все на разных дорожках из-за пересечения
     })
@@ -430,9 +429,9 @@ describe("audio-tracks", () => {
       const audioFile = createMockAudioFile(1000, 60)
       const sectors: Sector[] = []
       const existingSectorsByDay = {}
-      
+
       processAudioFiles([audioFile], sectors, existingSectorsByDay, "ru")
-      
+
       expect(i18n.t).toHaveBeenCalledWith("timeline.section.sectorName", expect.any(Object))
       expect(i18n.t).toHaveBeenCalledWith("timeline.tracks.audioWithNumber", expect.any(Object))
       expect(formatDateByLanguage).toHaveBeenCalledWith(expect.any(Date), "ru", expect.any(Object))
@@ -442,14 +441,10 @@ describe("audio-tracks", () => {
       const audioFile = createMockAudioFile(1000, 60)
       const sectors: Sector[] = []
       const existingSectorsByDay = {}
-      
+
       processAudioFiles([audioFile], sectors, existingSectorsByDay, "zh")
-      
-      expect(formatDateByLanguage).toHaveBeenCalledWith(
-        expect.any(Date),
-        "zh",
-        { includeYear: true, longFormat: true }
-      )
+
+      expect(formatDateByLanguage).toHaveBeenCalledWith(expect.any(Date), "zh", { includeYear: true, longFormat: true })
     })
   })
 })

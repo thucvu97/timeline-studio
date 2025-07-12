@@ -35,6 +35,10 @@ interface PlayerContextType extends MachineContextType {
   clearEffects: () => void
   clearFilters: () => void
   clearTemplate: () => void
+  // Speed ramping методы
+  setSpeedRampingEnabled: (enabled: boolean) => void
+  updatePlaybackRate: (rate: number) => void
+  setBasePlaybackRate: (rate: number) => void
 }
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined)
@@ -133,6 +137,19 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
     clearTemplate: () => {
       console.log("[PlayerProvider] Clearing template")
       send({ type: "clearTemplate" })
+    },
+    // Speed ramping методы
+    setSpeedRampingEnabled: (enabled: boolean) => {
+      console.log("[PlayerProvider] Setting speed ramping enabled:", enabled)
+      send({ type: "setSpeedRampingEnabled", enabled })
+    },
+    updatePlaybackRate: (rate: number) => {
+      console.log("[PlayerProvider] Updating playback rate:", rate)
+      send({ type: "updatePlaybackRate", rate })
+    },
+    setBasePlaybackRate: (rate: number) => {
+      console.log("[PlayerProvider] Setting base playback rate:", rate)
+      send({ type: "setBasePlaybackRate", rate })
     },
   }
 

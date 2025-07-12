@@ -2,11 +2,10 @@
  * Тесты для хука useTimelineActions
  */
 
-import { act, renderHook, waitFor } from "@testing-library/react"
+import { act, renderHook } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { type MediaFile } from "@/features/media/types/media"
-import { TimelineProviders } from "@/test/test-utils"
 
 import { useClips } from "../../hooks/use-clips"
 import { useTimeline } from "../../hooks/use-timeline"
@@ -117,14 +116,14 @@ describe("useTimelineActions", () => {
   beforeEach(() => {
     vi.resetAllMocks()
     vi.useFakeTimers()
-    
+
     // Сбрасываем проект на значение по умолчанию
     mockTimeline.project = { id: "test-project", name: "Test Project" }
-    
+
     vi.mocked(useTimeline).mockReturnValue(mockTimeline)
     vi.mocked(useTracks).mockReturnValue(mockTracks)
     vi.mocked(useClips).mockReturnValue(mockClips)
-    
+
     // Default mock implementations - возвращаем безопасные значения
     mockTracks.getTracksByType.mockReturnValue([])
     mockClips.getClipsByTrack.mockReturnValue([])
@@ -277,7 +276,7 @@ describe("useTimelineActions", () => {
     it("должен правильно найти последний клип среди множества", () => {
       const clips = [
         { startTime: 10, duration: 5 }, // заканчивается в 15
-        { startTime: 0, duration: 8 },  // заканчивается в 8
+        { startTime: 0, duration: 8 }, // заканчивается в 8
         { startTime: 20, duration: 3 }, // заканчивается в 23 - это последний
       ]
       mockClips.getClipsByTrack.mockReturnValue(clips)
@@ -304,19 +303,14 @@ describe("useTimelineActions", () => {
     it("должен добавить клип если трек существует", () => {
       mockTracks.getTracksByType.mockReturnValue([{ id: "video-track-1" }])
       mockClips.getClipsByTrack.mockReturnValue([])
-      
+
       const { result } = renderHook(() => useTimelineActions())
 
       act(() => {
         result.current.addSingleMediaToTimeline(mockVideoFile)
       })
 
-      expect(mockTimeline.addClip).toHaveBeenCalledWith(
-        "video-track-1",
-        mockVideoFile,
-        0,
-        30
-      )
+      expect(mockTimeline.addClip).toHaveBeenCalledWith("video-track-1", mockVideoFile, 0, 30)
     })
 
     it("должен создать новый трек если подходящий не найден", () => {
@@ -339,12 +333,7 @@ describe("useTimelineActions", () => {
         result.current.addSingleMediaToTimeline(mockVideoFile, undefined, 15)
       })
 
-      expect(mockTimeline.addClip).toHaveBeenCalledWith(
-        "video-track-1",
-        mockVideoFile,
-        15,
-        30
-      )
+      expect(mockTimeline.addClip).toHaveBeenCalledWith("video-track-1", mockVideoFile, 15, 30)
     })
 
     it("должен использовать customTrackId если указан", () => {
@@ -354,12 +343,7 @@ describe("useTimelineActions", () => {
         result.current.addSingleMediaToTimeline(mockVideoFile, "custom-track", 10)
       })
 
-      expect(mockTimeline.addClip).toHaveBeenCalledWith(
-        "custom-track",
-        mockVideoFile,
-        10,
-        30
-      )
+      expect(mockTimeline.addClip).toHaveBeenCalledWith("custom-track", mockVideoFile, 10, 30)
     })
 
     it("должен использовать дефолтную длительность для изображений", () => {
@@ -374,7 +358,7 @@ describe("useTimelineActions", () => {
         "image-track-1",
         mockImageFile,
         0,
-        5 // 5 секунд для изображений
+        5, // 5 секунд для изображений
       )
     })
 
@@ -391,7 +375,7 @@ describe("useTimelineActions", () => {
         "video-track-1",
         fileWithoutDuration,
         0,
-        10 // 10 секунд для видео/аудио без duration
+        10, // 10 секунд для видео/аудио без duration
       )
     })
   })
@@ -436,7 +420,7 @@ describe("useTimelineActions", () => {
     it("должен добавить все файлы с задержкой", async () => {
       vi.useFakeTimers()
       mockTracks.getTracksByType.mockReturnValue([{ id: "track-1" }])
-      
+
       const { result } = renderHook(() => useTimelineActions())
 
       act(() => {
@@ -481,7 +465,7 @@ describe("useTimelineActions", () => {
     it("должен обработать отрицательные значения времени в клипах", () => {
       const clips = [
         { startTime: -5, duration: 10 }, // заканчивается в 5
-        { startTime: 0, duration: 3 },   // заканчивается в 3
+        { startTime: 0, duration: 3 }, // заканчивается в 3
       ]
       mockClips.getClipsByTrack.mockReturnValue(clips)
       const { result } = renderHook(() => useTimelineActions())
@@ -552,9 +536,7 @@ describe("useTimelineActions", () => {
   describe("integration", () => {
     it("должен правильно интегрировать все части workflow", () => {
       mockTracks.getTracksByType.mockReturnValue([{ id: "video-track-1" }])
-      mockClips.getClipsByTrack.mockReturnValue([
-        { startTime: 0, duration: 10 }
-      ])
+      mockClips.getClipsByTrack.mockReturnValue([{ startTime: 0, duration: 10 }])
 
       const { result } = renderHook(() => useTimelineActions())
 
@@ -575,12 +557,7 @@ describe("useTimelineActions", () => {
         result.current.addSingleMediaToTimeline(mockVideoFile)
       })
 
-      expect(mockTimeline.addClip).toHaveBeenCalledWith(
-        "video-track-1",
-        mockVideoFile,
-        10,
-        30
-      )
+      expect(mockTimeline.addClip).toHaveBeenCalledWith("video-track-1", mockVideoFile, 10, 30)
     })
   })
 })

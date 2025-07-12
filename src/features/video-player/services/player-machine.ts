@@ -16,6 +16,11 @@ export interface PlayerContextType {
   isVideoReady: boolean
   isResizableMode: boolean // Флаг, указывающий, что шаблоны должны быть resizable
 
+  // Speed Ramping
+  speedRampingEnabled: boolean
+  currentPlaybackRate: number
+  basePlaybackRate: number
+
   // Настройки пререндера
   prerenderEnabled: boolean
   prerenderQuality: number
@@ -51,6 +56,11 @@ const initialContext: PlayerContextType = {
   isResizableMode: false,
   duration: 0,
   volume: 100, // Значение по умолчанию, будет заменено из пользовательских настроек
+
+  // Speed Ramping
+  speedRampingEnabled: false,
+  currentPlaybackRate: 1.0,
+  basePlaybackRate: 1.0,
 
   // Настройки пререндера по умолчанию
   prerenderEnabled: false,
@@ -171,6 +181,21 @@ interface ClearTemplateEvent {
   type: "clearTemplate"
 }
 
+interface SetSpeedRampingEnabledEvent {
+  type: "setSpeedRampingEnabled"
+  enabled: boolean
+}
+
+interface UpdatePlaybackRateEvent {
+  type: "updatePlaybackRate"
+  rate: number
+}
+
+interface SetBasePlaybackRateEvent {
+  type: "setBasePlaybackRate"
+  rate: number
+}
+
 export type PlayerEvent =
   | SetCurrentTimeEvent
   | SetIsPlayingEvent
@@ -192,6 +217,9 @@ export type PlayerEvent =
   | ClearEffectsEvent
   | ClearFiltersEvent
   | ClearTemplateEvent
+  | SetSpeedRampingEnabledEvent
+  | UpdatePlaybackRateEvent
+  | SetBasePlaybackRateEvent
 
 // Переиспользуемые actions для применения эффектов/фильтров/шаблонов
 const applyEffectAction = assign({
@@ -219,6 +247,19 @@ const applyTemplateAction = assign({
 const clearEffectsAction = assign({ appliedEffects: [] })
 const clearFiltersAction = assign({ appliedFilters: [] })
 const clearTemplateAction = assign({ appliedTemplate: null })
+
+// Speed Ramping actions
+const setSpeedRampingEnabledAction = assign({
+  speedRampingEnabled: ({ event }: { event: SetSpeedRampingEnabledEvent }) => event.enabled,
+})
+
+const updatePlaybackRateAction = assign({
+  currentPlaybackRate: ({ event }: { event: UpdatePlaybackRateEvent }) => event.rate,
+})
+
+const setBasePlaybackRateAction = assign({
+  basePlaybackRate: ({ event }: { event: SetBasePlaybackRateEvent }) => event.rate,
+})
 
 export const playerMachine = createMachine({
   id: "player",
@@ -341,6 +382,30 @@ export const playerMachine = createMachine({
             },
           ],
         },
+        setSpeedRampingEnabled: {
+          actions: [
+            setSpeedRampingEnabledAction,
+            ({ event }) => {
+              console.log(`[PlayerMachine] Speed ramping ${event.enabled ? "включен" : "выключен"}`)
+            },
+          ],
+        },
+        updatePlaybackRate: {
+          actions: [
+            updatePlaybackRateAction,
+            ({ event }) => {
+              console.log(`[PlayerMachine] Playback rate обновлен: ${event.rate}`)
+            },
+          ],
+        },
+        setBasePlaybackRate: {
+          actions: [
+            setBasePlaybackRateAction,
+            ({ event }) => {
+              console.log(`[PlayerMachine] Base playback rate установлен: ${event.rate}`)
+            },
+          ],
+        },
       },
     },
     loading: {
@@ -433,6 +498,15 @@ export const playerMachine = createMachine({
         clearTemplate: {
           actions: [clearTemplateAction],
         },
+        setSpeedRampingEnabled: {
+          actions: [setSpeedRampingEnabledAction],
+        },
+        updatePlaybackRate: {
+          actions: [updatePlaybackRateAction],
+        },
+        setBasePlaybackRate: {
+          actions: [setBasePlaybackRateAction],
+        },
       },
     },
     ready: {
@@ -522,6 +596,15 @@ export const playerMachine = createMachine({
         },
         clearTemplate: {
           actions: [clearTemplateAction],
+        },
+        setSpeedRampingEnabled: {
+          actions: [setSpeedRampingEnabledAction],
+        },
+        updatePlaybackRate: {
+          actions: [updatePlaybackRateAction],
+        },
+        setBasePlaybackRate: {
+          actions: [setBasePlaybackRateAction],
         },
       },
     },

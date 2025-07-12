@@ -8,10 +8,30 @@ import { MediaFile } from "@/features/media/types/media"
 import { PlayerContextType } from "@/features/video-player/services/player-machine"
 
 import { TimelineClip } from "../types"
+import { interpolateSpeed } from "../utils/speed-ramping-utils"
+
+interface PlayerContext extends PlayerContextType {
+  // Методы для управления видео
+  setVideoSource: (source: "browser" | "timeline") => void
+  setVideo: (video: MediaFile) => void
+  setCurrentTime: (time: number) => void
+
+  // Методы для управления эффектами/фильтрами/шаблонами
+  clearEffects: () => void
+  clearFilters: () => void
+  clearTemplate: () => void
+  applyEffect: (effect: { id: string; name: string; params: any }) => void
+  applyFilter: (filter: { id: string; name: string; params: any }) => void
+  applyTemplate: (template: { id: string; name: string }, files: MediaFile[]) => void
+
+  // Методы для speed ramping
+  setSpeedRampingEnabled: (enabled: boolean) => void
+  updatePlaybackRate: (rate: number) => void
+}
 
 export class TimelinePlayerSync {
   private static instance: TimelinePlayerSync | null = null
-  private playerContext: PlayerContextType | null = null
+  private playerContext: PlayerContext | null = null
   private currentSelectedClip: TimelineClip | null = null
 
   private constructor() {}
@@ -26,7 +46,7 @@ export class TimelinePlayerSync {
   /**
    * Устанавливает контекст плеера для синхронизации
    */
-  setPlayerContext(context: PlayerContextType) {
+  setPlayerContext(context: PlayerContext) {
     this.playerContext = context
     console.log("[TimelinePlayerSync] Player context set")
   }
@@ -129,7 +149,42 @@ export class TimelinePlayerSync {
       // Конвертируем в время медиафайла
       const mediaTime = this.currentSelectedClip.mediaStartTime + clipRelativeTime
       this.playerContext.setCurrentTime(mediaTime)
+
+      // Обновляем скорость воспроизведения если включен speed ramping
+      this.updateSpeedRamping(clipRelativeTime)
     }
+  }
+
+  /**
+   * Вычисляет и применяет speed ramping для текущего времени
+   */
+  private updateSpeedRamping(clipRelativeTime: number) {
+    if (!this.playerContext || !this.currentSelectedClip) {
+      return
+    }
+
+    // Проверяем, включен ли speed ramping для клипа
+    const speedRampingConfig = this.currentSelectedClip.speedRamping
+    if (!speedRampingConfig?.enabled || !speedRampingConfig.keyframes.length) {
+      // Если speed ramping выключен, устанавливаем базовую скорость
+      if (this.playerContext.speedRampingEnabled) {
+        this.playerContext.setSpeedRampingEnabled(false)
+        this.playerContext.updatePlaybackRate(this.playerContext.basePlaybackRate)
+      }
+      return
+    }
+
+    // Включаем speed ramping в плеере если он не включен
+    if (!this.playerContext.speedRampingEnabled) {
+      this.playerContext.setSpeedRampingEnabled(true)
+    }
+
+    // Вычисляем скорость для текущего времени
+    const speed = interpolateSpeed(speedRampingConfig.keyframes, clipRelativeTime)
+    const finalRate = this.playerContext.basePlaybackRate * speed
+
+    // Обновляем скорость воспроизведения
+    this.playerContext.updatePlaybackRate(finalRate)
   }
 
   /**

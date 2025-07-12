@@ -53,7 +53,7 @@ const StyleTemplatePreviewWrapper: React.FC<PreviewComponentProps<StyleTemplate>
         <div className="flex-shrink-0 w-16 h-9 bg-gray-100 rounded overflow-hidden relative">
           {template.thumbnail ? (
             <>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
+              { }
               <img
                 src={template.thumbnail}
                 alt={template.name[currentLanguage]}

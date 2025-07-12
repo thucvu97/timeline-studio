@@ -358,7 +358,9 @@ describe("AiChat - Fixed Tests", () => {
   it("should display correct placeholder text", () => {
     render(<AiChat />)
 
-    const textarea = screen.getByPlaceholderText("@ to mention, ⌘L to add a selection. Enter instructions...")
+    const textarea = screen.getByPlaceholderText(
+      "@ mention, ⌘L select. Команды: 'анализируй видео', 'создай сценарий', 'адаптируй для TikTok'...",
+    )
     expect(textarea).toBeInTheDocument()
   })
 })

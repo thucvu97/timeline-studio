@@ -16,6 +16,8 @@ import { StyleTemplate } from "@/features/style-templates/types/style-template"
 import { MediaTemplate } from "@/features/templates/lib/templates"
 import { Transition } from "@/features/transitions/types/transitions"
 
+import { SpeedRampingConfig } from "./speed-ramping"
+
 // ============================================================================
 // CORE TIMELINE TYPES
 // ============================================================================
@@ -176,12 +178,20 @@ export interface TimelineClip {
   offset: number // Смещение от начала медиафайла (для slip редактирования)
   mediaDuration?: number // Полная длительность исходного медиафайла
 
+  // J-Cut / L-Cut support
+  audioOffset?: number // Смещение аудио относительно видео (+ для J-cut, - для L-cut)
+  linkedClipId?: string // ID связанного клипа (для аудио/видео пары)
+  isLinked?: boolean // Связаны ли аудио и видео
+
   // Настройки клипа
   volume: number // 0-1
   speed: number // Скорость воспроизведения (1.0 = нормальная)
   playbackRate?: number // Коэффициент скорости для rate stretch (1.0 = нормальная)
   maintainPitch?: boolean // Сохранять высоту тона при изменении скорости
   isReversed: boolean
+
+  // Speed ramping
+  speedRamping?: SpeedRampingConfig
 
   // Визуальные настройки (для видео)
   position?: ClipPosition

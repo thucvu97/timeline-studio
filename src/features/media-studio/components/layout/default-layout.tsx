@@ -1,15 +1,16 @@
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { Browser } from "@/features/browser/components/browser"
 import { Options } from "@/features/options"
+import { AISuggestionsPanel } from "@/features/timeline/components/ai-suggestions/ai-suggestions-panel"
 import { Timeline } from "@/features/timeline/components/timeline"
 import { useUserSettings } from "@/features/user-settings"
 import { VideoPlayer } from "@/features/video-player/components/video-player"
 
 function TopDefaultLayout() {
-  const { isBrowserVisible, isOptionsVisible } = useUserSettings()
+  const { isBrowserVisible, isOptionsVisible, isAIAssistantVisible } = useUserSettings()
 
-  // Случай: только VideoPlayer (Browser и Options скрыты)
-  if (!isBrowserVisible && !isOptionsVisible) {
+  // Случай: только VideoPlayer (все панели скрыты)
+  if (!isBrowserVisible && !isOptionsVisible && !isAIAssistantVisible) {
     return (
       <div className="h-full flex-1">
         <VideoPlayer />
@@ -17,36 +18,128 @@ function TopDefaultLayout() {
     )
   }
 
-  // Случай: Browser + VideoPlayer (Options скрыт)
-  if (!isOptionsVisible) {
+  // Случай: VideoPlayer + AI Assistant (Browser и Options скрыты)
+  if (!isBrowserVisible && !isOptionsVisible && isAIAssistantVisible) {
     return (
-      <ResizablePanelGroup direction="horizontal" className="min-h-0 flex-grow" autoSaveId="default-layout-1">
-        <ResizablePanel defaultSize={35} minSize={20} maxSize={80}>
+      <ResizablePanelGroup direction="horizontal" className="min-h-0 flex-grow" autoSaveId="default-layout-ai">
+        <ResizablePanel defaultSize={70} minSize={30} maxSize={90}>
           <div className="h-full flex-1">
-            <Browser />
+            <VideoPlayer />
           </div>
         </ResizablePanel>
         <ResizableHandle />
-        <ResizablePanel defaultSize={65} minSize={20} maxSize={80}>
-          <div className="relative h-full flex-1">
-            <VideoPlayer />
+        <ResizablePanel defaultSize={30} minSize={10} maxSize={70}>
+          <div className="h-full flex-1">
+            <AISuggestionsPanel />
           </div>
         </ResizablePanel>
       </ResizablePanelGroup>
     )
   }
 
-  // Случай: VideoPlayer + Options (Browser скрыт)
-  if (!isBrowserVisible) {
+  // Случай: Browser + VideoPlayer (Options скрыт, AI может быть видим)
+  if (!isOptionsVisible) {
+    if (!isAIAssistantVisible) {
+      return (
+        <ResizablePanelGroup direction="horizontal" className="min-h-0 flex-grow" autoSaveId="default-layout-1">
+          <ResizablePanel defaultSize={35} minSize={20} maxSize={80}>
+            <div className="h-full flex-1">
+              <Browser />
+            </div>
+          </ResizablePanel>
+          <ResizableHandle />
+          <ResizablePanel defaultSize={65} minSize={20} maxSize={80}>
+            <div className="relative h-full flex-1">
+              <VideoPlayer />
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      )
+    }
+    // Browser + VideoPlayer + AI Assistant
     return (
-      <ResizablePanelGroup direction="horizontal" className="min-h-0 flex-grow" autoSaveId="default-layout-2">
-        <ResizablePanel defaultSize={65} minSize={20} maxSize={80}>
+      <ResizablePanelGroup direction="horizontal" className="min-h-0 flex-grow" autoSaveId="default-layout-browser-ai">
+        <ResizablePanel defaultSize={25} minSize={15} maxSize={70}>
+          <div className="h-full flex-1">
+            <Browser />
+          </div>
+        </ResizablePanel>
+        <ResizableHandle />
+        <ResizablePanel defaultSize={50} minSize={20} maxSize={70}>
           <div className="relative h-full flex-1">
             <VideoPlayer />
           </div>
         </ResizablePanel>
         <ResizableHandle />
-        <ResizablePanel defaultSize={35} minSize={20} maxSize={80}>
+        <ResizablePanel defaultSize={25} minSize={15} maxSize={70}>
+          <div className="h-full flex-1">
+            <AISuggestionsPanel />
+          </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
+    )
+  }
+
+  // Случай: VideoPlayer + Options (Browser скрыт, AI может быть видим)
+  if (!isBrowserVisible) {
+    if (!isAIAssistantVisible) {
+      return (
+        <ResizablePanelGroup direction="horizontal" className="min-h-0 flex-grow" autoSaveId="default-layout-2">
+          <ResizablePanel defaultSize={65} minSize={20} maxSize={80}>
+            <div className="relative h-full flex-1">
+              <VideoPlayer />
+            </div>
+          </ResizablePanel>
+          <ResizableHandle />
+          <ResizablePanel defaultSize={35} minSize={20} maxSize={80}>
+            <div className="h-full flex-1">
+              <Options />
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      )
+    }
+    // VideoPlayer + Options + AI Assistant
+    return (
+      <ResizablePanelGroup direction="horizontal" className="min-h-0 flex-grow" autoSaveId="default-layout-options-ai">
+        <ResizablePanel defaultSize={50} minSize={20} maxSize={70}>
+          <div className="relative h-full flex-1">
+            <VideoPlayer />
+          </div>
+        </ResizablePanel>
+        <ResizableHandle />
+        <ResizablePanel defaultSize={25} minSize={15} maxSize={70}>
+          <div className="h-full flex-1">
+            <Options />
+          </div>
+        </ResizablePanel>
+        <ResizableHandle />
+        <ResizablePanel defaultSize={25} minSize={15} maxSize={70}>
+          <div className="h-full flex-1">
+            <AISuggestionsPanel />
+          </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
+    )
+  }
+
+  // Случай: Browser + VideoPlayer + Options (все панели могут быть видимы)
+  if (!isAIAssistantVisible) {
+    return (
+      <ResizablePanelGroup direction="horizontal" className="min-h-0 flex-grow" autoSaveId="default-layout-3">
+        <ResizablePanel defaultSize={30} minSize={20} maxSize={80}>
+          <div className="h-full flex-1">
+            <Browser />
+          </div>
+        </ResizablePanel>
+        <ResizableHandle />
+        <ResizablePanel defaultSize={50} minSize={20} maxSize={80}>
+          <div className="relative h-full flex-1">
+            <VideoPlayer />
+          </div>
+        </ResizablePanel>
+        <ResizableHandle />
+        <ResizablePanel defaultSize={20} minSize={20} maxSize={80}>
           <div className="h-full flex-1">
             <Options />
           </div>
@@ -54,26 +147,30 @@ function TopDefaultLayout() {
       </ResizablePanelGroup>
     )
   }
-
-  // Случай: Browser + VideoPlayer + Options (все видимы)
+  // Все панели видимы: Browser + VideoPlayer + Options + AI Assistant
   return (
-    <ResizablePanelGroup direction="horizontal" className="min-h-0 flex-grow" autoSaveId="default-layout-3">
-      <ResizablePanel defaultSize={30} minSize={20} maxSize={80}>
+    <ResizablePanelGroup direction="horizontal" className="min-h-0 flex-grow" autoSaveId="default-layout-full">
+      <ResizablePanel defaultSize={20} minSize={15} maxSize={60}>
         <div className="h-full flex-1">
           <Browser />
         </div>
       </ResizablePanel>
       <ResizableHandle />
-      <ResizablePanel defaultSize={50} minSize={20} maxSize={100}>
+      <ResizablePanel defaultSize={40} minSize={20} maxSize={60}>
         <div className="relative h-full flex-1">
           <VideoPlayer />
         </div>
       </ResizablePanel>
-
       <ResizableHandle />
-      <ResizablePanel defaultSize={20} minSize={20} maxSize={80}>
+      <ResizablePanel defaultSize={20} minSize={15} maxSize={60}>
         <div className="h-full flex-1">
           <Options />
+        </div>
+      </ResizablePanel>
+      <ResizableHandle />
+      <ResizablePanel defaultSize={20} minSize={15} maxSize={60}>
+        <div className="h-full flex-1">
+          <AISuggestionsPanel />
         </div>
       </ResizablePanel>
     </ResizablePanelGroup>

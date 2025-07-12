@@ -91,6 +91,7 @@ export interface UserSettingsContextType {
   isBrowserVisible: boolean // Флаг видимости браузера
   isTimelineVisible: boolean // Флаг видимости временной шкалы
   isOptionsVisible: boolean // Флаг видимости опций
+  isAIAssistantVisible: boolean // Флаг видимости AI помощника
   isLoaded: boolean // Флаг загрузки настроек
   browserSettings?: BrowserContext // Настройки состояния браузера (опционально)
 }

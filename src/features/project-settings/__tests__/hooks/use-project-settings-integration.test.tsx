@@ -1,7 +1,7 @@
 import React from "react"
 
 import { renderHook } from "@testing-library/react"
-import { beforeEach, describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest"
 
 import { useProjectSettings } from "../../hooks/use-project-settings"
 import { ProjectSettingsProvider } from "../../services/project-settings-provider"
@@ -34,12 +34,12 @@ describe("useProjectSettings - интеграционные тесты", () => {
       const TestComponent = () => {
         const settings1 = useProjectSettings()
         const settings2 = useProjectSettings()
-        
+
         // Оба хука должны возвращать одинаковые данные
         expect(settings1.settings).toEqual(settings2.settings)
         expect(settings1.updateSettings).toBe(settings2.updateSettings)
         expect(settings1.resetSettings).toBe(settings2.resetSettings)
-        
+
         return null
       }
 
@@ -53,10 +53,8 @@ describe("useProjectSettings - интеграционные тесты", () => {
 
   describe("совместимость с различными провайдерами", () => {
     it("должен работать в вложенных провайдерах", () => {
-      const NestedWrapper = ({ children }: { children: React.ReactNode }) => 
-        React.createElement(ProjectSettingsProvider, {}, 
-          React.createElement(ProjectSettingsProvider, {}, children)
-        )
+      const NestedWrapper = ({ children }: { children: React.ReactNode }) =>
+        React.createElement(ProjectSettingsProvider, {}, React.createElement(ProjectSettingsProvider, {}, children))
 
       const { result } = renderHook(() => useProjectSettings(), {
         wrapper: NestedWrapper,
@@ -76,7 +74,7 @@ describe("useProjectSettings - интеграционные тесты", () => {
       expect(result.current).toHaveProperty("settings")
       expect(result.current).toHaveProperty("updateSettings")
       expect(result.current).toHaveProperty("resetSettings")
-      
+
       // Проверяем что настройки имеют правильную структуру
       expect(result.current.settings).toHaveProperty("aspectRatio")
       expect(result.current.settings).toHaveProperty("resolution")

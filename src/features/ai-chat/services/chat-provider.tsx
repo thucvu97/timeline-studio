@@ -26,7 +26,7 @@ export interface ChatContextType {
   clearMessages: () => void
   removeMessage: (messageId: string) => void
   createNewChat: () => void
-  switchSession: (sessionId: string) => void
+  switchSession: (sessionId: string) => Promise<void>
   deleteSession: (sessionId: string) => void
   updateSessions: (sessions: ChatListItem[]) => void
 
@@ -105,8 +105,20 @@ export function ChatProvider({ children, value }: ChatProviderProps) {
     }, 1500)
   }
 
-  const switchSession = (sessionId: string) => {
+  const switchSession = async (sessionId: string) => {
     send({ type: "SWITCH_SESSION", sessionId })
+
+    // Загружаем сообщения для выбранной сессии
+    try {
+      const session = await chatStorageService.getSession(sessionId)
+      if (session) {
+        // Загружаем все сообщения сразу
+        send({ type: "LOAD_SESSION_MESSAGES", messages: session.messages })
+      }
+    } catch (error) {
+      console.error("Failed to load session messages:", error)
+      send({ type: "SET_ERROR", error: "Не удалось загрузить сообщения сессии" })
+    }
   }
 
   const deleteSession = (sessionId: string) => {

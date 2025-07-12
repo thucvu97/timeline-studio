@@ -111,6 +111,16 @@ const mockProject: TimelineProject = {
   createdAt: new Date(),
   updatedAt: new Date(),
   version: "1.0.0",
+  resources: {
+    effects: [],
+    filters: [],
+    transitions: [],
+    templates: [],
+    styleTemplates: [],
+    subtitleStyles: [],
+    music: [],
+    media: [],
+  },
 }
 
 // Мокаем UI состояние

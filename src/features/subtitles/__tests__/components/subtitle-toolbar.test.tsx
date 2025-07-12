@@ -8,7 +8,6 @@ import { SubtitleSyncTools } from "../../components/subtitle-sync-tools"
 import { SubtitleToolbar } from "../../components/subtitle-toolbar"
 import { SubtitleTools } from "../../components/subtitle-tools"
 
-
 // Mock dependencies
 vi.mock("../../components/subtitle-ai-tools", () => ({
   SubtitleAITools: vi.fn(() => <div data-testid="subtitle-ai-tools">AI Tools</div>),
@@ -24,11 +23,7 @@ vi.mock("../../components/subtitle-tools", () => ({
 
 vi.mock("@/components/ui/separator", () => ({
   Separator: vi.fn(({ orientation, className }) => (
-    <div 
-      data-testid="separator" 
-      data-orientation={orientation}
-      className={className}
-    />
+    <div data-testid="separator" data-orientation={orientation} className={className} />
   )),
 }))
 
@@ -55,7 +50,7 @@ describe("SubtitleToolbar", () => {
       render(<SubtitleToolbar />)
 
       expect(screen.getByTestId("subtitle-tools")).toBeInTheDocument()
-      expect(screen.getByTestId("subtitle-sync-tools")).toBeInTheDocument() 
+      expect(screen.getByTestId("subtitle-sync-tools")).toBeInTheDocument()
       expect(screen.getByTestId("subtitle-ai-tools")).toBeInTheDocument()
     })
 
@@ -65,7 +60,7 @@ describe("SubtitleToolbar", () => {
       const separators = screen.getAllByTestId("separator")
       expect(separators).toHaveLength(2)
 
-      separators.forEach(separator => {
+      separators.forEach((separator) => {
         expect(separator).toHaveAttribute("data-orientation", "vertical")
         expect(separator).toHaveClass("h-6")
       })
@@ -86,9 +81,9 @@ describe("SubtitleToolbar", () => {
       expect(Separator).toHaveBeenCalledWith(
         {
           orientation: "vertical",
-          className: "h-6"
+          className: "h-6",
         },
-        undefined
+        undefined,
       )
     })
   })
@@ -167,7 +162,7 @@ describe("SubtitleToolbar", () => {
 
       // Проверяем что разделители имеют правильную ориентацию для screen readers
       const separators = screen.getAllByTestId("separator")
-      separators.forEach(separator => {
+      separators.forEach((separator) => {
         expect(separator).toHaveAttribute("data-orientation", "vertical")
       })
     })
@@ -183,12 +178,10 @@ describe("SubtitleToolbar", () => {
       expect(children.length).toBeGreaterThan(0)
 
       // Проверяем что каждый ребенок имеет контент или testid
-      children.forEach(child => {
+      children.forEach((child) => {
         const element = child as HTMLElement
         expect(
-          element.textContent || 
-          element.getAttribute("data-testid") ||
-          element.getAttribute("data-orientation")
+          element.textContent || element.getAttribute("data-testid") || element.getAttribute("data-orientation"),
         ).toBeTruthy()
       })
     })

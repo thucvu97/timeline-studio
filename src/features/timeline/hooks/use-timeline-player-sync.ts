@@ -17,6 +17,7 @@ export function useTimelinePlayerSync() {
 
   // Инициализируем сервис синхронизации с контекстом плеера
   useEffect(() => {
+    // player уже содержит все необходимые методы благодаря PlayerProvider
     timelinePlayerSync.setPlayerContext(player)
   }, [player])
 

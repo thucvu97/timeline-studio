@@ -484,7 +484,7 @@ describe("ChatProvider", () => {
       const sessionId = "test-session-123"
 
       act(() => {
-        result.current.switchSession(sessionId)
+        void result.current.switchSession(sessionId)
       })
 
       expect(result.current.currentSessionId).toBe(sessionId)
@@ -514,7 +514,7 @@ describe("ChatProvider", () => {
 
       act(() => {
         result.current.updateSessions(testSessions)
-        result.current.switchSession("session-1")
+        void result.current.switchSession("session-1")
       })
 
       expect(result.current.sessions).toHaveLength(2)

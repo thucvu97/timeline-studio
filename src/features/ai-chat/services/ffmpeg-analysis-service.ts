@@ -265,6 +265,41 @@ export class FFmpegAnalysisService {
   }
 
   /**
+   * Извлечение одного кадра по временной метке
+   */
+  public async extractFrame(filePath: string, timestamp: number, width = 640, height = 480): Promise<ImageData | null> {
+    try {
+      const result = await invoke<{ imagePath: string; width: number; height: number }>("ffmpeg_extract_frame", {
+        filePath,
+        timestamp,
+        width,
+        height,
+      })
+
+      // Создаем ImageData из пути к изображению
+      // В реальном приложении здесь будет загрузка изображения
+      const canvas = new OffscreenCanvas(result.width, result.height)
+      const ctx = canvas.getContext("2d")!
+
+      // Для тестирования создаем заглушку ImageData
+      const imageData = ctx.createImageData(result.width, result.height)
+
+      // Заполняем случайными данными для тестирования
+      for (let i = 0; i < imageData.data.length; i += 4) {
+        imageData.data[i] = Math.floor(Math.random() * 255) // R
+        imageData.data[i + 1] = Math.floor(Math.random() * 255) // G
+        imageData.data[i + 2] = Math.floor(Math.random() * 255) // B
+        imageData.data[i + 3] = 255 // A
+      }
+
+      return imageData
+    } catch (error) {
+      console.error("Ошибка извлечения кадра:", error)
+      return null
+    }
+  }
+
+  /**
    * Анализ аудиодорожки
    */
   public async analyzeAudio(

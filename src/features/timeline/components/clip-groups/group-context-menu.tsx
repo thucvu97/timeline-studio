@@ -1,16 +1,6 @@
-import React from 'react';
+import React from "react"
 
-import { 
-  Edit2, 
-  FolderClosed,
-  FolderOpen,
-  Layers,
-  Lock,
-  Palette,
-  Ungroup,
-  Unlock,
-  Users
-} from 'lucide-react';
+import { Edit2, FolderClosed, FolderOpen, Layers, Lock, Palette, Ungroup, Unlock, Users } from "lucide-react"
 
 import {
   ContextMenu,
@@ -20,122 +10,113 @@ import {
   ContextMenuSub,
   ContextMenuSubContent,
   ContextMenuSubTrigger,
-  ContextMenuTrigger
-} from '@/components/ui/context-menu';
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu"
 
-import { useClipGroups } from '../../hooks/use-clip-groups';
-import { useTimeline } from '../../hooks/use-timeline';
-import { type GroupColorKey, GroupColors } from '../../types/clip-groups';
+import { useClipGroups } from "../../hooks/use-clip-groups"
+import { useTimeline } from "../../hooks/use-timeline"
+import { type GroupColorKey, GroupColors } from "../../types/clip-groups"
 
-import type { TimelineClip } from '../../types/timeline';
+import type { TimelineClip } from "../../types/timeline"
 
 interface GroupContextMenuProps {
-  children: React.ReactNode;
+  children: React.ReactNode
 }
 
 export function GroupContextMenu({ children }: GroupContextMenuProps) {
-  const { uiState, project } = useTimeline();
-  const { 
-    createGroup,
-    ungroupClips, 
-    getGroupByClip,
-    toggleCollapse,
-    lockGroup,
-    setGroupColor,
-    createNestedSequence
-  } = useClipGroups();
-  
-  const selectedClipCount = uiState.selectedClipIds.length;
-  const firstSelectedClipId = uiState.selectedClipIds[0];
-  const group = firstSelectedClipId ? getGroupByClip(firstSelectedClipId) : null;
-  
+  const { uiState, project } = useTimeline()
+  const { createGroup, ungroupClips, getGroupByClip, toggleCollapse, lockGroup, setGroupColor, createNestedSequence } =
+    useClipGroups()
+
+  const selectedClipCount = uiState.selectedClipIds.length
+  const firstSelectedClipId = uiState.selectedClipIds[0]
+  const group = firstSelectedClipId ? getGroupByClip(firstSelectedClipId) : null
+
   const handleCreateGroup = () => {
-    if (!project || selectedClipCount < 2) return;
-    
+    if (!project || selectedClipCount < 2) return
+
     // Получаем выбранные клипы
-    const selectedClips: TimelineClip[] = [];
-    
-    project.globalTracks.forEach(track => {
-      track.clips.forEach(clip => {
+    const selectedClips: TimelineClip[] = []
+
+    project.globalTracks.forEach((track) => {
+      track.clips.forEach((clip) => {
         if (uiState.selectedClipIds.includes(clip.id)) {
-          selectedClips.push(clip);
+          selectedClips.push(clip)
         }
-      });
-    });
-    
-    project.sections.forEach(section => {
-      section.tracks.forEach(track => {
-        track.clips.forEach(clip => {
+      })
+    })
+
+    project.sections.forEach((section) => {
+      section.tracks.forEach((track) => {
+        track.clips.forEach((clip) => {
           if (uiState.selectedClipIds.includes(clip.id)) {
-            selectedClips.push(clip);
+            selectedClips.push(clip)
           }
-        });
-      });
-    });
-    
+        })
+      })
+    })
+
     if (selectedClips.length >= 2) {
-      createGroup(selectedClips);
+      createGroup(selectedClips)
     }
-  };
-  
+  }
+
   const handleUngroup = () => {
     if (group) {
-      ungroupClips(group.id);
+      ungroupClips(group.id)
     }
-  };
-  
+  }
+
   const handleToggleLock = () => {
     if (group) {
-      lockGroup(group.id, !group.locked);
+      lockGroup(group.id, !group.locked)
     }
-  };
-  
+  }
+
   const handleToggleCollapse = () => {
     if (group) {
-      toggleCollapse(group.id);
+      toggleCollapse(group.id)
     }
-  };
-  
+  }
+
   const handleColorChange = (color: string) => {
     if (group) {
-      setGroupColor(group.id, color);
+      setGroupColor(group.id, color)
     }
-  };
-  
+  }
+
   const handleCreateNested = () => {
-    if (!project || selectedClipCount < 1) return;
-    
+    if (!project || selectedClipCount < 1) return
+
     // Получаем выбранные клипы
-    const selectedClips: TimelineClip[] = [];
-    
-    project.globalTracks.forEach(track => {
-      track.clips.forEach(clip => {
+    const selectedClips: TimelineClip[] = []
+
+    project.globalTracks.forEach((track) => {
+      track.clips.forEach((clip) => {
         if (uiState.selectedClipIds.includes(clip.id)) {
-          selectedClips.push(clip);
+          selectedClips.push(clip)
         }
-      });
-    });
-    
-    project.sections.forEach(section => {
-      section.tracks.forEach(track => {
-        track.clips.forEach(clip => {
+      })
+    })
+
+    project.sections.forEach((section) => {
+      section.tracks.forEach((track) => {
+        track.clips.forEach((clip) => {
           if (uiState.selectedClipIds.includes(clip.id)) {
-            selectedClips.push(clip);
+            selectedClips.push(clip)
           }
-        });
-      });
-    });
-    
+        })
+      })
+    })
+
     if (selectedClips.length >= 1) {
-      createNestedSequence(selectedClips);
+      createNestedSequence(selectedClips)
     }
-  };
-  
+  }
+
   return (
     <ContextMenu>
-      <ContextMenuTrigger asChild>
-        {children}
-      </ContextMenuTrigger>
+      <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
       <ContextMenuContent className="w-64">
         {/* Group operations */}
         {selectedClipCount >= 2 && !group && (
@@ -144,14 +125,14 @@ export function GroupContextMenu({ children }: GroupContextMenuProps) {
             Group Selected Clips
           </ContextMenuItem>
         )}
-        
+
         {group && (
           <>
             <ContextMenuItem onClick={handleUngroup}>
               <Ungroup className="mr-2 h-4 w-4" />
               Ungroup
             </ContextMenuItem>
-            
+
             <ContextMenuItem onClick={handleToggleCollapse}>
               {group.collapsed ? (
                 <>
@@ -165,7 +146,7 @@ export function GroupContextMenu({ children }: GroupContextMenuProps) {
                 </>
               )}
             </ContextMenuItem>
-            
+
             <ContextMenuItem onClick={handleToggleLock}>
               {group.locked ? (
                 <>
@@ -179,9 +160,9 @@ export function GroupContextMenu({ children }: GroupContextMenuProps) {
                 </>
               )}
             </ContextMenuItem>
-            
+
             <ContextMenuSeparator />
-            
+
             <ContextMenuSub>
               <ContextMenuSubTrigger>
                 <Palette className="mr-2 h-4 w-4" />
@@ -189,29 +170,23 @@ export function GroupContextMenu({ children }: GroupContextMenuProps) {
               </ContextMenuSubTrigger>
               <ContextMenuSubContent>
                 {Object.entries(GroupColors as Record<GroupColorKey, string>).map(([key, color]) => (
-                  <ContextMenuItem
-                    key={key}
-                    onClick={() => handleColorChange(color)}
-                  >
-                    <div 
-                      className="w-4 h-4 rounded mr-2"
-                      style={{ backgroundColor: color }}
-                    />
+                  <ContextMenuItem key={key} onClick={() => handleColorChange(color)}>
+                    <div className="w-4 h-4 rounded mr-2" style={{ backgroundColor: color }} />
                     {key.charAt(0).toUpperCase() + key.slice(1)}
                   </ContextMenuItem>
                 ))}
               </ContextMenuSubContent>
             </ContextMenuSub>
-            
+
             <ContextMenuItem>
               <Edit2 className="mr-2 h-4 w-4" />
               Rename Group
             </ContextMenuItem>
           </>
         )}
-        
+
         <ContextMenuSeparator />
-        
+
         {/* Nested sequence */}
         {selectedClipCount >= 1 && (
           <ContextMenuItem onClick={handleCreateNested}>
@@ -221,5 +196,5 @@ export function GroupContextMenu({ children }: GroupContextMenuProps) {
         )}
       </ContextMenuContent>
     </ContextMenu>
-  );
+  )
 }

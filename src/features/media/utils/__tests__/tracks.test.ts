@@ -32,7 +32,7 @@ vi.mock("@/i18n", () => ({
 }))
 
 vi.mock("@/i18n/constants", () => ({
-  formatDateByLanguage: vi.fn((date: Date, lang: string, options?: any) => {
+  formatDateByLanguage: vi.fn((date: Date, _lang: string, _options?: any) => {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
   }),
 }))
@@ -58,12 +58,7 @@ describe("tracks", () => {
     vi.resetAllMocks()
   })
 
-  const createMockMediaFile = (
-    startTime: number,
-    hasVideo = true,
-    hasAudio = false,
-    id = "file-1"
-  ): MediaFile => ({
+  const createMockMediaFile = (startTime: number, hasVideo = true, hasAudio = false, id = "file-1"): MediaFile => ({
     id,
     path: `/path/to/${id}.mp4`,
     name: `${id}.mp4`,
@@ -91,16 +86,16 @@ describe("tracks", () => {
   describe("createTracksFromFiles", () => {
     it("должен обрабатывать пустой массив файлов", () => {
       const result = createTracksFromFiles([])
-      
+
       expect(result).toEqual([])
       expect(processAudioFiles).toHaveBeenCalledWith([], [], {}, "en")
     })
 
     it("должен создать сектор для видеофайлов", () => {
       const videoFile = createMockMediaFile(1000, true, false, "video-1")
-      
+
       const result = createTracksFromFiles([videoFile])
-      
+
       expect(result).toHaveLength(1)
       expect(result[0].name).toContain("Section")
       expect(result[0].id).toBe("1970-01-01")
@@ -112,9 +107,9 @@ describe("tracks", () => {
     it("должен разделить видео и аудио файлы", () => {
       const videoFile = createMockMediaFile(1000, true, false, "video-1")
       const audioFile = createMockMediaFile(2000, false, true, "audio-1")
-      
+
       createTracksFromFiles([videoFile, audioFile])
-      
+
       expect(processVideoFiles).toHaveBeenCalledWith([videoFile], expect.any(Object))
       expect(processAudioFiles).toHaveBeenCalledWith([audioFile], expect.any(Array), expect.any(Object), "en")
     })
@@ -122,13 +117,13 @@ describe("tracks", () => {
     it("должен группировать файлы по дням", () => {
       const date1 = new Date("2023-01-01").getTime() / 1000
       const date2 = new Date("2023-01-02").getTime() / 1000
-      
+
       const video1 = createMockMediaFile(date1, true, false, "video-1")
       const video2 = createMockMediaFile(date1, true, false, "video-2")
       const video3 = createMockMediaFile(date2, true, false, "video-3")
-      
+
       const result = createTracksFromFiles([video1, video2, video3])
-      
+
       expect(result).toHaveLength(2)
       expect(processVideoFiles).toHaveBeenCalledTimes(2)
       expect(processVideoFiles).toHaveBeenCalledWith([video1, video2], expect.any(Object))
@@ -137,20 +132,20 @@ describe("tracks", () => {
 
     it("должен сортировать файлы по времени начала", () => {
       const video1 = createMockMediaFile(3000, true, false, "video-1")
-      const video2 = createMockMediaFile(1000, true, false, "video-2") 
+      const video2 = createMockMediaFile(1000, true, false, "video-2")
       const video3 = createMockMediaFile(2000, true, false, "video-3")
-      
+
       createTracksFromFiles([video1, video2, video3])
-      
+
       // Файлы должны быть переданы в отсортированном порядке
       expect(processVideoFiles).toHaveBeenCalledWith([video2, video3, video1], expect.any(Object))
     })
 
     it("должен обрабатывать файлы без startTime", () => {
       const videoFile = { ...createMockMediaFile(0, true, false), startTime: undefined }
-      
+
       const result = createTracksFromFiles([videoFile])
-      
+
       expect(result).toHaveLength(1)
       expect(processVideoFiles).toHaveBeenCalledWith([videoFile], expect.any(Object))
     })
@@ -160,9 +155,9 @@ describe("tracks", () => {
         ...createMockMediaFile(1000, true, false),
         probeData: undefined,
       }
-      
+
       const result = createTracksFromFiles([fileWithoutProbe])
-      
+
       // Файл без probeData не будет классифицирован как видео или аудио
       expect(result).toHaveLength(0)
       expect(processVideoFiles).not.toHaveBeenCalled()
@@ -171,9 +166,9 @@ describe("tracks", () => {
 
     it("должен обрабатывать файлы с множественными потоками", () => {
       const videoWithAudio = createMockMediaFile(1000, true, true, "video-audio-1")
-      
+
       createTracksFromFiles([videoWithAudio])
-      
+
       // Файл с видео потоком должен быть классифицирован как видео
       expect(processVideoFiles).toHaveBeenCalledWith([videoWithAudio], expect.any(Object))
       expect(processAudioFiles).toHaveBeenCalledWith([], expect.any(Array), expect.any(Object), "en")
@@ -181,55 +176,51 @@ describe("tracks", () => {
 
     it("должен использовать правильный язык для форматирования", () => {
       const videoFile = createMockMediaFile(1000, true, false)
-      
+
       // Мокаем язык
       vi.mocked(i18n).language = "ru"
-      
+
       createTracksFromFiles([videoFile])
-      
-      expect(formatDateByLanguage).toHaveBeenCalledWith(
-        expect.any(Date),
-        "ru",
-        { includeYear: true, longFormat: true }
-      )
+
+      expect(formatDateByLanguage).toHaveBeenCalledWith(expect.any(Date), "ru", { includeYear: true, longFormat: true })
       expect(processAudioFiles).toHaveBeenCalledWith([], expect.any(Array), expect.any(Object), "ru")
     })
 
     it("должен использовать язык по умолчанию если i18n.language не установлен", () => {
       const videoFile = createMockMediaFile(1000, true, false)
-      
+
       // Убираем язык
       vi.mocked(i18n).language = undefined as any
-      
+
       createTracksFromFiles([videoFile])
-      
+
       expect(processAudioFiles).toHaveBeenCalledWith([], expect.any(Array), expect.any(Object), "ru")
     })
 
     it("должен работать с существующими треками", () => {
       const existingTrack = createMockMediaTrack("track-1", "Existing Track")
       const videoFile = createMockMediaFile(1000, true, false)
-      
+
       const result = createTracksFromFiles([videoFile], [existingTrack])
-      
+
       expect(result).toHaveLength(1)
       // existingTracks параметр логируется но не используется в текущей реализации
     })
 
     it("должен обрабатывать файлы только с аудио потоками", () => {
       const audioOnlyFile = createMockMediaFile(1000, false, true, "audio-only")
-      
+
       createTracksFromFiles([audioOnlyFile])
-      
+
       expect(processVideoFiles).not.toHaveBeenCalled()
       expect(processAudioFiles).toHaveBeenCalledWith([audioOnlyFile], [], {}, "ru")
     })
 
     it("должен создать корректную структуру сектора", () => {
       const videoFile = createMockMediaFile(1000, true, false)
-      
+
       const result = createTracksFromFiles([videoFile])
-      
+
       const sector = result[0]
       expect(sector).toMatchObject({
         id: "1970-01-01",
@@ -245,9 +236,9 @@ describe("tracks", () => {
 
     it("должен вызывать i18n.t для создания имени сектора", () => {
       const videoFile = createMockMediaFile(1000, true, false)
-      
+
       createTracksFromFiles([videoFile])
-      
+
       expect(i18n.t).toHaveBeenCalledWith("timeline.section.sectorName", {
         date: expect.any(String),
         defaultValue: expect.stringContaining("Section"),
@@ -258,9 +249,9 @@ describe("tracks", () => {
       const videoFile = createMockMediaFile(1000, true, false, "video")
       const audioFile = createMockMediaFile(2000, false, true, "audio")
       const videoWithAudio = createMockMediaFile(3000, true, true, "mixed")
-      
+
       const result = createTracksFromFiles([videoFile, audioFile, videoWithAudio])
-      
+
       expect(processVideoFiles).toHaveBeenCalledWith([videoFile, videoWithAudio], expect.any(Object))
       expect(processAudioFiles).toHaveBeenCalledWith([audioFile], expect.any(Array), expect.any(Object), "ru")
     })
@@ -268,21 +259,21 @@ describe("tracks", () => {
     it("должен логировать процесс создания треков", () => {
       const videoFile = createMockMediaFile(1000, true, false, "video-1")
       const audioFile = createMockMediaFile(2000, false, true, "audio-1")
-      
+
       createTracksFromFiles([videoFile, audioFile], [])
-      
-      expect(mockConsoleLog).toHaveBeenCalledWith(
-        "createTracksFromFiles called with files:",
-        ["video-1.mp4", "audio-1.mp4"]
-      )
+
+      expect(mockConsoleLog).toHaveBeenCalledWith("createTracksFromFiles called with files:", [
+        "video-1.mp4",
+        "audio-1.mp4",
+      ])
       expect(mockConsoleLog).toHaveBeenCalledWith("existingTracks:", [])
     })
 
     it("должен обрабатывать отрицательные временные значения", () => {
       const videoFile = createMockMediaFile(-1000, true, false)
-      
+
       const result = createTracksFromFiles([videoFile])
-      
+
       expect(result).toHaveLength(1)
       expect(processVideoFiles).toHaveBeenCalledWith([videoFile], expect.any(Object))
     })
@@ -290,18 +281,18 @@ describe("tracks", () => {
     it("должен обрабатывать очень большие временные значения", () => {
       const largeTime = new Date("2030-01-01").getTime() / 1000
       const videoFile = createMockMediaFile(largeTime, true, false)
-      
+
       const result = createTracksFromFiles([videoFile])
-      
+
       expect(result).toHaveLength(1)
       expect(result[0].id).toBe("2030-01-01")
     })
 
     it("должен обрабатывать файлы с нулевой продолжительностью", () => {
       const videoFile = { ...createMockMediaFile(1000, true, false), duration: 0 }
-      
+
       const result = createTracksFromFiles([videoFile])
-      
+
       expect(result).toHaveLength(1)
       expect(processVideoFiles).toHaveBeenCalledWith([videoFile], expect.any(Object))
     })
@@ -313,9 +304,9 @@ describe("tracks", () => {
         ...createMockMediaFile(1000, true, false),
         probeData: { streams: [] },
       }
-      
+
       const result = createTracksFromFiles([fileWithEmptyStreams])
-      
+
       expect(result).toHaveLength(0)
     })
 
@@ -324,18 +315,18 @@ describe("tracks", () => {
         ...createMockMediaFile(1000, true, false),
         probeData: undefined,
       }
-      
+
       const result = createTracksFromFiles([fileWithUndefinedStreams])
-      
+
       expect(result).toHaveLength(0)
     })
 
     it("должен обрабатывать дублирующиеся файлы", () => {
       const videoFile1 = createMockMediaFile(1000, true, false, "video-1")
       const videoFile2 = createMockMediaFile(1000, true, false, "video-1") // Такой же ID
-      
+
       const result = createTracksFromFiles([videoFile1, videoFile2])
-      
+
       expect(result).toHaveLength(1)
       expect(processVideoFiles).toHaveBeenCalledWith([videoFile1, videoFile2], expect.any(Object))
     })
@@ -350,9 +341,9 @@ describe("tracks", () => {
           ],
         },
       }
-      
+
       const result = createTracksFromFiles([fileWithBadStreams])
-      
+
       expect(result).toHaveLength(0)
     })
   })
@@ -361,9 +352,9 @@ describe("tracks", () => {
     it("должен правильно интегрировать все mock функции", () => {
       const videoFile = createMockMediaFile(1000, true, false)
       const audioFile = createMockMediaFile(2000, false, true)
-      
+
       createTracksFromFiles([videoFile, audioFile])
-      
+
       expect(processVideoFiles).toHaveBeenCalled()
       expect(processAudioFiles).toHaveBeenCalled()
       expect(calculateTimeRanges).toHaveBeenCalled()

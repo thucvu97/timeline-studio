@@ -13,11 +13,19 @@ import { VideoClip } from "./video-clip"
 import { useClipEditing } from "../../hooks/use-clip-editing"
 import { useClipGroups } from "../../hooks/use-clip-groups"
 import { useEditModeContext } from "../../hooks/use-edit-mode"
+import { useJLCuts } from "../../hooks/use-jl-cuts"
+import { useSpeedRamping } from "../../hooks/use-speed-ramping"
+import { useTimelinePersons } from "../../hooks/use-timeline-persons"
 import { TimelineClip, TimelineTrack, isSubtitleClip } from "../../types"
 import { EDIT_MODES } from "../../types/edit-modes"
+import { getCutType } from "../../types/jl-cuts"
+import { ClipAIIndicator } from "../ai-analysis/clip-ai-indicator"
 import { GroupIndicator } from "../clip-groups/group-indicator"
 import { RateStretchHandle } from "../edit-tools/rate-stretch-handle"
 import { SlipSlideHandles } from "../edit-tools/slip-slide-handles"
+import { JLCutDragHandle, JLCutIndicator, JLCutTool, LinkedClipIndicator } from "../jl-cuts"
+import { PersonIndicator } from "../person-indicators"
+import { SpeedCurveEditor } from "../speed-ramping/speed-curve-editor"
 
 interface ClipProps {
   clip: TimelineClip
@@ -31,12 +39,26 @@ interface ClipProps {
 export const Clip = memo(function Clip({ clip, track, timeScale, onUpdate, onRemove, className }: ClipProps) {
   const { editMode } = useEditModeContext()
   const [isHovered, setIsHovered] = useState(false)
+  const [showSpeedCurve, setShowSpeedCurve] = useState(false)
   const { getGroupByClip, toggleCollapse, lockGroup } = useClipGroups()
+  const { getLinkedClip } = useJLCuts()
+  const { getConfig } = useSpeedRamping()
+  const { getPersonsForClip, getAppearancesForClip, showPersonDetail } = useTimelinePersons()
 
   const { isEditing, preview, handleTrimStart, handleTrimMove, handleTrimEnd } = useClipEditing(clip.id)
-  
+
   // Получаем группу, если клип в ней находится
   const group = getGroupByClip(clip.id)
+
+  // Получаем связанный клип для J/L cut
+  const linkedClip = getLinkedClip(clip.id)
+
+  // Получаем конфигурацию speed ramping
+  const speedRampingConfig = getConfig(clip.id)
+
+  // Получаем данные о персонах для клипа
+  const clipPersons = getPersonsForClip(clip.id)
+  const clipAppearances = getAppearancesForClip(clip.id)
 
   // Мемоизируем вычисления позиции и размеров
   const { left, width } = useMemo(
@@ -110,7 +132,35 @@ export const Clip = memo(function Clip({ clip, track, timeScale, onUpdate, onRem
       onMouseLeave={() => setIsHovered(false)}
     >
       {renderClipContent()}
-      
+
+      {/* Linked clip indicator */}
+      <LinkedClipIndicator isLinked={clip.isLinked || false} />
+
+      {/* J/L Cut indicator */}
+      {linkedClip && clip.audioOffset !== undefined && clip.audioOffset !== 0 && (
+        <>
+          <JLCutIndicator
+            videoClip={track.type === "video" || track.type === "image" ? clip : linkedClip}
+            audioClip={["audio", "music", "voiceover", "sfx", "ambient"].includes(track.type) ? clip : linkedClip}
+            pixelsPerSecond={timeScale}
+          />
+          {/* J/L Cut drag handle */}
+          <JLCutDragHandle
+            clip={clip}
+            linkedClip={linkedClip}
+            cutType={getCutType(clip.audioOffset || 0)}
+            pixelsPerSecond={timeScale}
+          />
+        </>
+      )}
+
+      {/* J/L Cut tool */}
+      {isHovered && linkedClip && (
+        <div className="absolute top-0 right-0 m-1 z-10">
+          <JLCutTool clip={clip} />
+        </div>
+      )}
+
       {/* Group indicator */}
       {group && !group.collapsed && (
         <div className="absolute top-0 left-0 m-1 z-10">
@@ -119,6 +169,23 @@ export const Clip = memo(function Clip({ clip, track, timeScale, onUpdate, onRem
             onToggleCollapse={() => toggleCollapse(group.id)}
             onToggleLock={() => lockGroup(group.id, !group.locked)}
             className="scale-75 origin-top-left"
+          />
+        </div>
+      )}
+
+      {/* AI Analysis indicator */}
+      <ClipAIIndicator clip={clip} className="absolute top-1 left-1 z-10" />
+
+      {/* Person indicators для видео клипов */}
+      {(track.type === "video" || track.type === "image") && clipPersons.length > 0 && (
+        <div className="absolute bottom-1 left-1 z-10">
+          <PersonIndicator
+            persons={clipPersons}
+            appearances={clipAppearances}
+            clipId={clip.id}
+            compact={width < 80} // Компактный режим для узких клипов
+            maxVisible={3}
+            onClick={showPersonDetail}
           />
         </div>
       )}
@@ -162,6 +229,43 @@ export const Clip = memo(function Clip({ clip, track, timeScale, onUpdate, onRem
         timeScale={timeScale}
         onRateStretchStart={handleTrimStart}
       />
+
+      {/* Speed ramping indicator */}
+      {speedRampingConfig && speedRampingConfig.enabled && (
+        <div className="absolute top-1 right-1 z-10">
+          <button
+            className={cn(
+              "p-1 rounded bg-purple-500/20 hover:bg-purple-500/30 transition-colors",
+              showSpeedCurve && "bg-purple-500/40",
+            )}
+            onClick={() => setShowSpeedCurve(!showSpeedCurve)}
+            title="Toggle Speed Curve Editor"
+          >
+            <svg className="w-3 h-3 text-purple-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path
+                d="M3 12c0-3 1-6 4-6s4 3 4 6-1 6-4 6-4-3-4-6m8 0c0-3 1-6 4-6s4 3 4 6-1 6-4 6-4-3-4-6"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
+      )}
+
+      {/* Speed curve editor */}
+      {showSpeedCurve && speedRampingConfig && speedRampingConfig.enabled && (
+        <div className="absolute top-full mt-2 left-0 z-50">
+          <SpeedCurveEditor
+            clipId={clip.id}
+            clipDuration={clip.duration}
+            pixelsPerSecond={timeScale}
+            height={speedRampingConfig.graphHeight || 120}
+            onClose={() => setShowSpeedCurve(false)}
+            className="shadow-lg"
+          />
+        </div>
+      )}
     </div>
   )
 })

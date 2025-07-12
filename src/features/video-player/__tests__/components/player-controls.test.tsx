@@ -5,24 +5,8 @@ import { MediaFile } from "@/features/media/types/media"
 
 import { PlayerControls } from "../../components/player-controls"
 
-// Мокаем иконки Lucide
-vi.mock("lucide-react", () => ({
-  Camera: () => <div data-testid="icon-camera">Camera</div>,
-  ChevronFirst: () => <div data-testid="icon-chevron-first">ChevronFirst</div>,
-  ChevronLast: () => <div data-testid="icon-chevron-last">ChevronLast</div>,
-  CircleDot: () => <div data-testid="icon-circle-dot">CircleDot</div>,
-  ImagePlay: () => <div data-testid="icon-image-play">ImagePlay</div>,
-  Maximize2: () => <div data-testid="icon-maximize">Maximize2</div>,
-  Minimize2: () => <div data-testid="icon-minimize">Minimize2</div>,
-  Pause: () => <div data-testid="icon-pause">Pause</div>,
-  Play: () => <div data-testid="icon-play">Play</div>,
-  StepBack: () => <div data-testid="icon-step-back">StepBack</div>,
-  StepForward: () => <div data-testid="icon-step-forward">StepForward</div>,
-  TvMinimalPlay: () => <div data-testid="icon-tv-minimal">TvMinimalPlay</div>,
-  UnfoldHorizontal: () => <div data-testid="icon-unfold">UnfoldHorizontal</div>,
-  Volume2: () => <div data-testid="icon-volume">Volume2</div>,
-  VolumeX: () => <div data-testid="icon-volume-x">VolumeX</div>,
-}))
+// Импортируем централизованный мок иконок
+import "@/test/mocks/libraries/lucide-react"
 
 // Мокаем компоненты UI
 vi.mock("@/components/ui/button", () => ({
@@ -136,35 +120,37 @@ describe("PlayerControls", () => {
     it("должен отображать все основные элементы управления", () => {
       render(<PlayerControls currentTime={0} file={mockFile} />)
 
-      expect(screen.getByTestId("icon-step-back")).toBeInTheDocument()
-      expect(screen.getByTestId("icon-play")).toBeInTheDocument()
-      expect(screen.getByTestId("icon-step-forward")).toBeInTheDocument()
+      expect(screen.getByTestId("stepback-icon")).toBeInTheDocument()
+      // Ищем основную play иконку через кнопку
+      expect(screen.getByTitle("timeline.controls.play")).toBeInTheDocument()
+      expect(screen.getByTestId("stepforward-icon")).toBeInTheDocument()
       expect(screen.getByTestId("slider")).toBeInTheDocument()
       expect(screen.getByTestId("volume-slider")).toBeInTheDocument()
-      expect(screen.getByTestId("icon-maximize")).toBeInTheDocument()
+      expect(screen.getByTestId("maximize2-icon")).toBeInTheDocument()
     })
 
     it("должен отображать иконку паузы при воспроизведении", () => {
       mockPlayerContext.isPlaying = true
       render(<PlayerControls currentTime={0} file={mockFile} />)
 
-      expect(screen.getByTestId("icon-pause")).toBeInTheDocument()
-      expect(screen.queryByTestId("icon-play")).not.toBeInTheDocument()
+      expect(screen.getByTestId("pause-icon")).toBeInTheDocument()
+      // Проверяем что основная play кнопка не отображается (но маленькая play иконка в AI Analysis может остаться)
+      expect(screen.queryByTitle("timeline.controls.play")).not.toBeInTheDocument()
     })
 
     it("должен отображать иконку записи при isRecording", () => {
       mockPlayerContext.isRecording = true
       render(<PlayerControls currentTime={0} file={mockFile} />)
 
-      expect(screen.getByTestId("icon-circle-dot")).toBeInTheDocument()
+      expect(screen.getByTestId("circledot-icon")).toBeInTheDocument()
     })
 
     it("должен отображать иконку minimize в полноэкранном режиме", () => {
       mockFullscreen.isFullscreen = true
       render(<PlayerControls currentTime={0} file={mockFile} />)
 
-      expect(screen.getByTestId("icon-minimize")).toBeInTheDocument()
-      expect(screen.queryByTestId("icon-maximize")).not.toBeInTheDocument()
+      expect(screen.getByTestId("minimize2-icon")).toBeInTheDocument()
+      expect(screen.queryByTestId("maximize2-icon")).not.toBeInTheDocument()
     })
   })
 
@@ -332,7 +318,7 @@ describe("PlayerControls", () => {
       render(<PlayerControls currentTime={0} file={mockFile} />)
 
       // В режиме timeline показывается иконка TvMinimalPlay
-      const sourceButton = screen.getByTestId("icon-tv-minimal").closest("button")
+      const sourceButton = screen.getByTestId("tvminimalplay-icon").closest("button")
       fireEvent.click(sourceButton!)
 
       expect(mockPlayerContext.setVideoSource).toHaveBeenCalledWith("browser")
@@ -343,7 +329,7 @@ describe("PlayerControls", () => {
       render(<PlayerControls currentTime={0} file={mockFile} />)
 
       // В режиме browser показывается иконка ImagePlay
-      const sourceButton = screen.getByTestId("icon-image-play").closest("button")
+      const sourceButton = screen.getByTestId("imageplay-icon").closest("button")
       fireEvent.click(sourceButton!)
 
       expect(mockPlayerContext.setVideoSource).toHaveBeenCalledWith("timeline")
@@ -353,16 +339,16 @@ describe("PlayerControls", () => {
       const { rerender } = render(<PlayerControls currentTime={0} file={mockFile} />)
 
       // В режиме timeline
-      expect(screen.getByTestId("icon-tv-minimal")).toBeInTheDocument()
-      expect(screen.queryByTestId("icon-image-play")).not.toBeInTheDocument()
+      expect(screen.getByTestId("tvminimalplay-icon")).toBeInTheDocument()
+      expect(screen.queryByTestId("imageplay-icon")).not.toBeInTheDocument()
 
       // Переключаем на browser
       mockPlayerContext.videoSource = "browser" as any
       rerender(<PlayerControls currentTime={0} file={mockFile} />)
 
       // В режиме browser
-      expect(screen.getByTestId("icon-image-play")).toBeInTheDocument()
-      expect(screen.queryByTestId("icon-tv-minimal")).not.toBeInTheDocument()
+      expect(screen.getByTestId("imageplay-icon")).toBeInTheDocument()
+      expect(screen.queryByTestId("tvminimalplay-icon")).not.toBeInTheDocument()
     })
   })
 

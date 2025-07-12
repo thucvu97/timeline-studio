@@ -104,7 +104,7 @@ export const ImagePreview = memo(function ImagePreview({
         </div>
       )}
       <div className="flex h-full w-full items-center justify-center bg-gray-200 dark:bg-gray-700">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
+        { }
         <img
           src={imageUrl || convertToAssetUrl(file.path)}
           alt={file.name}

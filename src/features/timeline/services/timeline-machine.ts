@@ -28,6 +28,9 @@ import {
 } from "../types"
 import { ResourceManager } from "./resource-manager"
 
+import type { TimelineMarker } from "../types/markers"
+import type { SpeedRampingConfig } from "../types/speed-ramping"
+
 interface TimelineContext {
   // Основные данные
   project: TimelineProject | null
@@ -37,6 +40,9 @@ interface TimelineContext {
   isPlaying: boolean
   isRecording: boolean
   currentTime: number
+
+  // Speed ramping конфигурации
+  speedRampingConfigs: Record<string, SpeedRampingConfig>
 
   // Операции
   draggedClip: TimelineClip | null
@@ -197,6 +203,35 @@ export type TimelineEvents =
   | { type: "NESTED_SEQUENCE_CREATED"; sequenceId: string; clipIds: string[] }
   | { type: "NESTED_SEQUENCE_BROKEN"; sequenceId: string; clipIds: string[] }
 
+  // J-Cut / L-Cut операции
+  | { type: "CREATE_JL_CUT"; clipId: string; cutType: "j-cut" | "l-cut"; offset: number }
+  | { type: "RESET_JL_CUT"; clipId: string }
+  | { type: "LINK_CLIPS"; videoClipId: string; audioClipId: string }
+  | { type: "UNLINK_CLIPS"; clipId: string; linkedClipId: string }
+
+  // Маркеры
+  | { type: "ADD_MARKER"; marker: TimelineMarker }
+  | { type: "UPDATE_MARKER"; markerId: string; updates: Partial<TimelineMarker> }
+  | { type: "REMOVE_MARKER"; markerId: string }
+  | { type: "CLEAR_MARKERS" }
+
+  // Speed Ramping
+  | { type: "ENABLE_SPEED_RAMPING"; clipId: string }
+  | { type: "DISABLE_SPEED_RAMPING"; clipId: string }
+  | { type: "SET_SPEED_RAMPING_CONFIG"; clipId: string; config: any }
+  | { type: "ADD_SPEED_KEYFRAME"; clipId: string; time: number; value: number; interpolation?: string }
+  | { type: "UPDATE_SPEED_KEYFRAME"; clipId: string; keyframeId: string; updates: any }
+  | { type: "REMOVE_SPEED_KEYFRAME"; clipId: string; keyframeId: string }
+  | { type: "APPLY_SPEED_PRESET"; clipId: string; presetId: string }
+
+  // AI Content Intelligence
+  | { type: "ANALYZE_CLIP"; clipId: string }
+  | { type: "ANALYZE_TIMELINE" }
+  | { type: "APPLY_AI_SUGGESTION"; suggestionId: string }
+  | { type: "DISMISS_AI_SUGGESTION"; suggestionId: string }
+  | { type: "CLEAR_AI_SUGGESTIONS" }
+  | { type: "ADD_AI_MARKER"; clipId: string; marker: TimelineMarker }
+
   // Ошибки
   | { type: "CLEAR_ERROR" }
 
@@ -224,6 +259,7 @@ const initialContext: TimelineContext = {
   isPlaying: false,
   isRecording: false,
   currentTime: 0,
+  speedRampingConfigs: {},
   draggedClip: null,
   draggedTrack: null,
   error: null,
@@ -413,6 +449,401 @@ const actions = {
     lastAction: "SET_TIME_SCALE",
   }),
 
+  // J-Cut / L-Cut операции
+  createJLCut: assign({
+    project: ({
+      context,
+      event,
+    }: {
+      context: TimelineContext
+      event: Extract<TimelineEvents, { type: "CREATE_JL_CUT" }>
+    }) => {
+      if (!context.project) return context.project
+
+      const updateClips = (clips: TimelineClip[]) =>
+        clips.map((clip) => {
+          if (clip.id === event.clipId) {
+            return {
+              ...clip,
+              audioOffset: event.cutType === "j-cut" ? event.offset : -event.offset,
+            }
+          }
+          return clip
+        })
+
+      const updateTracks = (tracks: TimelineTrack[]) =>
+        tracks.map((track) => ({
+          ...track,
+          clips: updateClips(track.clips),
+        }))
+
+      const sections = context.project.sections.map((section) => ({
+        ...section,
+        tracks: updateTracks(section.tracks),
+      }))
+
+      const globalTracks = updateTracks(context.project.globalTracks)
+
+      return {
+        ...context.project,
+        sections,
+        globalTracks,
+        updatedAt: new Date(),
+      }
+    },
+    lastAction: "CREATE_JL_CUT",
+  }),
+
+  resetJLCut: assign({
+    project: ({
+      context,
+      event,
+    }: {
+      context: TimelineContext
+      event: Extract<TimelineEvents, { type: "RESET_JL_CUT" }>
+    }) => {
+      if (!context.project) return context.project
+
+      const updateClips = (clips: TimelineClip[]) =>
+        clips.map((clip) => {
+          if (clip.id === event.clipId) {
+            return {
+              ...clip,
+              audioOffset: 0,
+            }
+          }
+          return clip
+        })
+
+      const updateTracks = (tracks: TimelineTrack[]) =>
+        tracks.map((track) => ({
+          ...track,
+          clips: updateClips(track.clips),
+        }))
+
+      const sections = context.project.sections.map((section) => ({
+        ...section,
+        tracks: updateTracks(section.tracks),
+      }))
+
+      const globalTracks = updateTracks(context.project.globalTracks)
+
+      return {
+        ...context.project,
+        sections,
+        globalTracks,
+        updatedAt: new Date(),
+      }
+    },
+    lastAction: "RESET_JL_CUT",
+  }),
+
+  linkClips: assign({
+    project: ({
+      context,
+      event,
+    }: {
+      context: TimelineContext
+      event: Extract<TimelineEvents, { type: "LINK_CLIPS" }>
+    }) => {
+      if (!context.project) return context.project
+
+      const updateClips = (clips: TimelineClip[]) =>
+        clips.map((clip) => {
+          if (clip.id === event.videoClipId) {
+            return {
+              ...clip,
+              linkedClipId: event.audioClipId,
+              isLinked: true,
+            }
+          }
+          if (clip.id === event.audioClipId) {
+            return {
+              ...clip,
+              linkedClipId: event.videoClipId,
+              isLinked: true,
+            }
+          }
+          return clip
+        })
+
+      const updateTracks = (tracks: TimelineTrack[]) =>
+        tracks.map((track) => ({
+          ...track,
+          clips: updateClips(track.clips),
+        }))
+
+      const sections = context.project.sections.map((section) => ({
+        ...section,
+        tracks: updateTracks(section.tracks),
+      }))
+
+      const globalTracks = updateTracks(context.project.globalTracks)
+
+      return {
+        ...context.project,
+        sections,
+        globalTracks,
+        updatedAt: new Date(),
+      }
+    },
+    lastAction: "LINK_CLIPS",
+  }),
+
+  unlinkClips: assign({
+    project: ({
+      context,
+      event,
+    }: {
+      context: TimelineContext
+      event: Extract<TimelineEvents, { type: "UNLINK_CLIPS" }>
+    }) => {
+      if (!context.project) return context.project
+
+      const updateClips = (clips: TimelineClip[]) =>
+        clips.map((clip) => {
+          if (clip.id === event.clipId || clip.id === event.linkedClipId) {
+            return {
+              ...clip,
+              linkedClipId: undefined,
+              isLinked: false,
+              audioOffset: 0,
+            }
+          }
+          return clip
+        })
+
+      const updateTracks = (tracks: TimelineTrack[]) =>
+        tracks.map((track) => ({
+          ...track,
+          clips: updateClips(track.clips),
+        }))
+
+      const sections = context.project.sections.map((section) => ({
+        ...section,
+        tracks: updateTracks(section.tracks),
+      }))
+
+      const globalTracks = updateTracks(context.project.globalTracks)
+
+      return {
+        ...context.project,
+        sections,
+        globalTracks,
+        updatedAt: new Date(),
+      }
+    },
+    lastAction: "UNLINK_CLIPS",
+  }),
+
+  // Маркеры
+  addMarker: assign({
+    project: ({
+      context,
+      event,
+    }: {
+      context: TimelineContext
+      event: Extract<TimelineEvents, { type: "ADD_MARKER" }>
+    }) => {
+      if (!context.project) return context.project
+
+      const markers = context.project.markers || []
+
+      return {
+        ...context.project,
+        markers: [...markers, event.marker],
+        updatedAt: new Date(),
+      }
+    },
+    lastAction: "ADD_MARKER",
+  }),
+
+  updateMarker: assign({
+    project: ({
+      context,
+      event,
+    }: {
+      context: TimelineContext
+      event: Extract<TimelineEvents, { type: "UPDATE_MARKER" }>
+    }) => {
+      if (!context.project) return context.project
+
+      const markers = (context.project.markers || []).map((marker) =>
+        marker.id === event.markerId ? { ...marker, ...event.updates } : marker,
+      )
+
+      return {
+        ...context.project,
+        markers,
+        updatedAt: new Date(),
+      }
+    },
+    lastAction: "UPDATE_MARKER",
+  }),
+
+  removeMarker: assign({
+    project: ({
+      context,
+      event,
+    }: {
+      context: TimelineContext
+      event: Extract<TimelineEvents, { type: "REMOVE_MARKER" }>
+    }) => {
+      if (!context.project) return context.project
+
+      const markers = (context.project.markers || []).filter((marker) => marker.id !== event.markerId)
+
+      return {
+        ...context.project,
+        markers,
+        updatedAt: new Date(),
+      }
+    },
+    lastAction: "REMOVE_MARKER",
+  }),
+
+  clearMarkers: assign({
+    project: ({ context }: { context: TimelineContext }) => {
+      if (!context.project) return context.project
+
+      return {
+        ...context.project,
+        markers: [],
+        updatedAt: new Date(),
+      }
+    },
+    lastAction: "CLEAR_MARKERS",
+  }),
+
+  // Speed Ramping
+  enableSpeedRamping: assign({
+    speedRampingConfigs: ({ context, event }: { context: TimelineContext; event: any }) => ({
+      ...context.speedRampingConfigs,
+      [event.clipId]: {
+        enabled: true,
+        keyframes: [],
+        maintainPitch: true,
+      },
+    }),
+    lastAction: "ENABLE_SPEED_RAMPING",
+  }),
+
+  disableSpeedRamping: assign({
+    speedRampingConfigs: ({ context, event }: { context: TimelineContext; event: any }) => {
+      const configs = { ...context.speedRampingConfigs }
+      if (configs[event.clipId]) {
+        configs[event.clipId] = {
+          ...configs[event.clipId],
+          enabled: false,
+        }
+      }
+      return configs
+    },
+    lastAction: "DISABLE_SPEED_RAMPING",
+  }),
+
+  setSpeedRampingConfig: assign({
+    speedRampingConfigs: ({ context, event }: { context: TimelineContext; event: any }) => ({
+      ...context.speedRampingConfigs,
+      [event.clipId]: event.config,
+    }),
+    lastAction: "SET_SPEED_RAMPING_CONFIG",
+  }),
+
+  addSpeedKeyframe: assign({
+    speedRampingConfigs: ({ context, event }: { context: TimelineContext; event: any }) => {
+      const configs = { ...context.speedRampingConfigs }
+      if (configs[event.clipId]) {
+        const keyframe = {
+          id: `keyframe-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+          time: event.time,
+          value: event.value,
+          interpolation: event.interpolation || "linear",
+        }
+        configs[event.clipId] = {
+          ...configs[event.clipId],
+          keyframes: [...configs[event.clipId].keyframes, keyframe],
+        }
+      }
+      return configs
+    },
+    lastAction: "ADD_SPEED_KEYFRAME",
+  }),
+
+  updateSpeedKeyframe: assign({
+    speedRampingConfigs: ({ context, event }: { context: TimelineContext; event: any }) => {
+      const configs = { ...context.speedRampingConfigs }
+      if (configs[event.clipId]) {
+        configs[event.clipId] = {
+          ...configs[event.clipId],
+          keyframes: configs[event.clipId].keyframes.map((keyframe) =>
+            keyframe.id === event.keyframeId ? { ...keyframe, ...event.updates } : keyframe,
+          ),
+        }
+      }
+      return configs
+    },
+    lastAction: "UPDATE_SPEED_KEYFRAME",
+  }),
+
+  removeSpeedKeyframe: assign({
+    speedRampingConfigs: ({ context, event }: { context: TimelineContext; event: any }) => {
+      const configs = { ...context.speedRampingConfigs }
+      if (configs[event.clipId]) {
+        configs[event.clipId] = {
+          ...configs[event.clipId],
+          keyframes: configs[event.clipId].keyframes.filter((keyframe) => keyframe.id !== event.keyframeId),
+        }
+      }
+      return configs
+    },
+    lastAction: "REMOVE_SPEED_KEYFRAME",
+  }),
+
+  applySpeedPreset: assign({
+    speedRampingConfigs: ({ context, event }: { context: TimelineContext; event: any }) => {
+      const configs = { ...context.speedRampingConfigs }
+
+      // Базовые пресеты для speed ramping
+      const presets = {
+        "ease-in": [
+          { time: 0, value: 0.5, interpolation: "ease-in" },
+          { time: 0.5, value: 1.0, interpolation: "linear" },
+        ],
+        "ease-out": [
+          { time: 0, value: 1.0, interpolation: "linear" },
+          { time: 0.5, value: 0.5, interpolation: "ease-out" },
+        ],
+        "speed-ramp": [
+          { time: 0, value: 1.0, interpolation: "linear" },
+          { time: 0.25, value: 2.0, interpolation: "ease" },
+          { time: 0.75, value: 2.0, interpolation: "ease" },
+          { time: 1.0, value: 1.0, interpolation: "linear" },
+        ],
+        "slow-motion": [{ time: 0, value: 0.25, interpolation: "linear" }],
+        "fast-forward": [{ time: 0, value: 4.0, interpolation: "linear" }],
+      }
+
+      const preset = presets[event.presetId as keyof typeof presets]
+      if (preset && configs[event.clipId]) {
+        const keyframes = preset.map((keyframe, index) => ({
+          id: `preset-keyframe-${index}-${Date.now()}`,
+          ...keyframe,
+          interpolation: keyframe.interpolation as any,
+        }))
+
+        configs[event.clipId] = {
+          ...configs[event.clipId],
+          enabled: true,
+          keyframes,
+        }
+      }
+
+      return configs
+    },
+    lastAction: "APPLY_SPEED_PRESET",
+  }),
+
   // Ошибки
   setError: assign({
     error: ({ event }: { event: any }) => event.error || "Unknown error",
@@ -420,6 +851,41 @@ const actions = {
 
   clearError: assign({
     error: null,
+  }),
+
+  // AI Content Intelligence Actions
+  analyzeClip: assign({
+    lastAction: "ANALYZE_CLIP",
+  }),
+
+  analyzeTimeline: assign({
+    lastAction: "ANALYZE_TIMELINE",
+  }),
+
+  applyAISuggestion: assign({
+    lastAction: "APPLY_AI_SUGGESTION",
+  }),
+
+  dismissAISuggestion: assign({
+    lastAction: "DISMISS_AI_SUGGESTION",
+  }),
+
+  clearAISuggestions: assign({
+    lastAction: "CLEAR_AI_SUGGESTIONS",
+  }),
+
+  addAIMarker: assign({
+    project: ({ context, event }: { context: TimelineContext; event: any }) => {
+      if (!context.project) return context.project
+
+      // Добавляем AI маркер к проекту, а не к клипу
+      return {
+        ...context.project,
+        markers: [...(context.project.markers || []), event.marker],
+        updatedAt: new Date(),
+      }
+    },
+    lastAction: "ADD_AI_MARKER",
   }),
 
   // Применение ресурсов к клипам
@@ -1355,6 +1821,98 @@ export const timelineMachine = setup({
         },
         NESTED_SEQUENCE_BROKEN: {
           guard: "hasProject",
+        },
+
+        // J-Cut / L-Cut операции
+        CREATE_JL_CUT: {
+          guard: "hasProject",
+          actions: ["createJLCut"],
+        },
+        RESET_JL_CUT: {
+          guard: "hasProject",
+          actions: ["resetJLCut"],
+        },
+        LINK_CLIPS: {
+          guard: "hasProject",
+          actions: ["linkClips"],
+        },
+        UNLINK_CLIPS: {
+          guard: "hasProject",
+          actions: ["unlinkClips"],
+        },
+
+        // Маркеры
+        ADD_MARKER: {
+          guard: "hasProject",
+          actions: ["addMarker"],
+        },
+        UPDATE_MARKER: {
+          guard: "hasProject",
+          actions: ["updateMarker"],
+        },
+        REMOVE_MARKER: {
+          guard: "hasProject",
+          actions: ["removeMarker"],
+        },
+        CLEAR_MARKERS: {
+          guard: "hasProject",
+          actions: ["clearMarkers"],
+        },
+
+        // Speed Ramping
+        ENABLE_SPEED_RAMPING: {
+          guard: "hasProject",
+          actions: ["enableSpeedRamping"],
+        },
+        DISABLE_SPEED_RAMPING: {
+          guard: "hasProject",
+          actions: ["disableSpeedRamping"],
+        },
+        SET_SPEED_RAMPING_CONFIG: {
+          guard: "hasProject",
+          actions: ["setSpeedRampingConfig"],
+        },
+        ADD_SPEED_KEYFRAME: {
+          guard: "hasProject",
+          actions: ["addSpeedKeyframe"],
+        },
+        UPDATE_SPEED_KEYFRAME: {
+          guard: "hasProject",
+          actions: ["updateSpeedKeyframe"],
+        },
+        REMOVE_SPEED_KEYFRAME: {
+          guard: "hasProject",
+          actions: ["removeSpeedKeyframe"],
+        },
+        APPLY_SPEED_PRESET: {
+          guard: "hasProject",
+          actions: ["applySpeedPreset"],
+        },
+
+        // AI Content Intelligence
+        ANALYZE_CLIP: {
+          guard: "hasProject",
+          actions: ["analyzeClip"],
+        },
+        ANALYZE_TIMELINE: {
+          guard: "hasProject",
+          actions: ["analyzeTimeline"],
+        },
+        APPLY_AI_SUGGESTION: {
+          guard: "hasProject",
+          actions: ["applyAISuggestion"],
+        },
+        DISMISS_AI_SUGGESTION: {
+          guard: "hasProject",
+          actions: ["dismissAISuggestion"],
+        },
+        CLEAR_AI_SUGGESTIONS: {
+          guard: "hasProject",
+          actions: ["clearAISuggestions"],
+        },
+        ADD_AI_MARKER: {
+          guard: "hasProject",
+          actions: ["addAIMarker"],
         },
 
         // Ошибки

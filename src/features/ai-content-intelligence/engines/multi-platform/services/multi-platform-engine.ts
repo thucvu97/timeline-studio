@@ -1,0 +1,593 @@
+/**
+ * Multi-Platform Engine
+ * Основной движок для адаптации контента под различные платформы
+ */
+
+import { UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service"
+
+import { getOptimalAspectRatio, getOptimalResolution, getPlatformConfig } from "../platform-configs"
+import { BatchProcessor } from "./batch-processor"
+import { LanguageAdapter } from "./language-adapter"
+import { PlatformAdapter } from "./platform-adapter"
+
+import type { AdaptedContent, Platform, PlatformId } from "../../../shared/types/platform-adaptation"
+import type {
+  AdaptationResult,
+  AdaptationStrategy,
+  BatchAdaptationRequest,
+  MultiPlatformConfig,
+  PerformanceMetrics,
+  PlatformAdaptationContext,
+  PlatformOptimizationResult,
+  TrendingElements,
+} from "../types"
+
+export class MultiPlatformEngine {
+  private platformAdapter: PlatformAdapter
+  private languageAdapter: LanguageAdapter
+  private batchProcessor: BatchProcessor
+  private aiService: UnifiedAIService
+  private config: MultiPlatformConfig
+  private isInitialized = false
+
+  constructor(config?: Partial<MultiPlatformConfig>) {
+    this.config = this.getDefaultConfig(config)
+    this.platformAdapter = new PlatformAdapter()
+    this.languageAdapter = new LanguageAdapter()
+    this.batchProcessor = new BatchProcessor(this.config.processing)
+    this.aiService = UnifiedAIService.getInstance()
+  }
+
+  /**
+   * Инициализация движка
+   */
+  async initialize(): Promise<void> {
+    await Promise.all([
+      this.platformAdapter.initialize(),
+      this.languageAdapter.initialize(),
+      this.batchProcessor.initialize(),
+    ])
+
+    this.isInitialized = true
+  }
+
+  /**
+   * Адаптировать контент для платформы
+   */
+  async adaptForPlatform(context: PlatformAdaptationContext, platformId: PlatformId): Promise<AdaptationResult> {
+    if (!this.isInitialized) {
+      throw new Error("Multi-Platform Engine not initialized")
+    }
+
+    const platform = getPlatformConfig(platformId)
+    const strategy = await this.generateAdaptationStrategy(context, platform)
+
+    // Адаптируем контент
+    const adaptedContent = await this.platformAdapter.adapt(context.analysis, platform, strategy)
+
+    // Переводим при необходимости
+    if (context.targetLanguages.length > 0) {
+      await this.languageAdapter.translate(adaptedContent, context.sourceLanguage, context.targetLanguages)
+    }
+
+    // Оцениваем качество адаптации
+    const quality = await this.evaluateAdaptation(adaptedContent, platform)
+
+    return {
+      platform: platformId,
+      content: adaptedContent,
+      quality,
+      issues: this.detectIssues(adaptedContent, platform),
+      suggestions: await this.generateSuggestions(adaptedContent, platform),
+    }
+  }
+
+  /**
+   * Пакетная адаптация для нескольких платформ
+   */
+  async adaptBatch(request: BatchAdaptationRequest): Promise<AdaptationResult[]> {
+    return this.batchProcessor.processBatch(request.targetPlatforms, async (platformId) => {
+      const context: PlatformAdaptationContext = {
+        analysis: request.sourceContent.analysis,
+        script: request.sourceContent.script,
+        targetPlatform: getPlatformConfig(platformId),
+        sourceLanguage: "en", // TODO: определять автоматически
+        targetLanguages: request.languages,
+        userPreferences: request.preferences,
+      }
+
+      return this.adaptForPlatform(context, platformId)
+    })
+  }
+
+  /**
+   * Оптимизировать контент для платформы
+   */
+  async optimizeForPlatform(content: AdaptedContent, platformId: PlatformId): Promise<PlatformOptimizationResult> {
+    const platform = getPlatformConfig(platformId)
+
+    // Анализируем текущие тренды
+    const trends = await this.analyzeTrends(platformId)
+
+    // Генерируем рекомендации по настройкам
+    const recommendedSettings = await this.generateOptimalSettings(content, platform, trends)
+
+    // Оцениваем потенциальную производительность
+    const estimatedPerformance = await this.estimatePerformance(content, platform, recommendedSettings)
+
+    return {
+      recommendedSettings,
+      estimatedPerformance,
+      trendingElements: trends,
+    }
+  }
+
+  /**
+   * Сгенерировать стратегию адаптации
+   */
+  private async generateAdaptationStrategy(
+    context: PlatformAdaptationContext,
+    platform: Platform,
+  ): Promise<AdaptationStrategy> {
+    const optimalResolution = getOptimalResolution(platform.id)
+    const optimalAspectRatio = getOptimalAspectRatio(platform.id)
+
+    // Определяем стратегию видео
+    const videoStrategy = {
+      targetResolution: {
+        ...optimalResolution,
+        label: `${optimalResolution.height}p`,
+      },
+      targetAspectRatio: optimalAspectRatio,
+      cropStrategy: this.determineCropStrategy(context.analysis, optimalAspectRatio),
+      qualityPreset: this.config.adaptation.preserveOriginalQuality ? "preserve" : "optimize",
+      enhancementFilters: this.selectEnhancements(context.analysis),
+    }
+
+    // Определяем стратегию аудио
+    const audioStrategy = {
+      normalize: true,
+      compressDynamics: platform.id.includes("mobile"),
+      enhanceVoice: (context.analysis?.contentType as string) === "tutorial",
+      removeBackground: false,
+      targetLoudness: -16, // LUFS стандарт для стриминга
+    }
+
+    // Определяем стратегию текста
+    const textStrategy = {
+      generateTitle: true,
+      generateDescription: true,
+      generateHashtags: this.config.ai.generateHashtags,
+      hashtagCount: platform.bestPractices.optimization.seo.hashtagCount.optimal,
+      seoOptimization: this.config.ai.optimizeSEO,
+      callToAction: {
+        type: "subscribe" as const,
+        text: "Subscribe for more!",
+        placement: "end" as const,
+        style: "prominent" as const,
+      },
+      localization: {
+        translateTitle: context.targetLanguages.length > 0,
+        translateDescription: context.targetLanguages.length > 0,
+        adaptCulturally: true,
+        useLocalTrends: true,
+      },
+    }
+
+    // Определяем стратегию графики
+    const graphicsStrategy = {
+      addIntro: !!context.userPreferences?.brandingElements?.intros,
+      addOutro: !!context.userPreferences?.brandingElements?.outros,
+      addLowerThirds: false,
+      addCaptions: {
+        style: "bold" as const,
+        position: "bottom" as const,
+        autoGenerate: true,
+        burnIn: false,
+      },
+      addProgress: (platform.id as string) === "youtube_shorts" || (platform.id as string) === "tiktok",
+      addBranding: !!context.userPreferences?.brandingElements,
+      overlays: [],
+    }
+
+    // Определяем стратегию тайминга
+    const timingStrategy = {
+      targetDuration: platform.specifications.duration.optimal?.min,
+      trimStrategy: "smart" as const,
+      highlights: this.identifyHighlights(context.analysis),
+    }
+
+    return {
+      platform: platform.id,
+      videoStrategy,
+      audioStrategy,
+      textStrategy,
+      graphicsStrategy,
+      timingStrategy,
+    } as AdaptationStrategy
+  }
+
+  /**
+   * Определить стратегию обрезки видео
+   */
+  private determineCropStrategy(analysis: any, targetAspectRatio: any): "center" | "smart" | "manual" | "none" {
+    // Если соотношения совпадают, обрезка не нужна
+    if (analysis.technicalSpecs?.aspectRatio === targetAspectRatio.ratio) {
+      return "none"
+    }
+
+    // Если есть обнаруженные объекты, используем умную обрезку
+    if (analysis.detections?.objects?.length > 0) {
+      return "smart"
+    }
+
+    // По умолчанию центрируем
+    return "center"
+  }
+
+  /**
+   * Выбрать улучшения для видео
+   */
+  private selectEnhancements(analysis: any): any[] {
+    const enhancements = []
+
+    // Стабилизация для шаткого видео
+    if (analysis.qualityMetrics?.stability < 0.7) {
+      enhancements.push({
+        type: "stabilization",
+        intensity: 0.8,
+      })
+    }
+
+    // Шумоподавление для низкого качества
+    if (analysis.qualityMetrics?.noise > 0.3) {
+      enhancements.push({
+        type: "denoise",
+        intensity: 0.6,
+      })
+    }
+
+    return enhancements
+  }
+
+  /**
+   * Идентифицировать ключевые моменты
+   */
+  private identifyHighlights(analysis: any): any[] {
+    return (
+      analysis.keyMoments?.map((moment: any) => ({
+        start: moment.timestamp as number,
+        end: (moment.timestamp as number) + (moment.duration as number),
+        importance: moment.score as number,
+        keepAudio: true,
+      })) || []
+    )
+  }
+
+  /**
+   * Оценить качество адаптации
+   */
+  private async evaluateAdaptation(content: AdaptedContent, platform: Platform): Promise<any> {
+    // Базовая оценка
+    const scores = {
+      overall: 0.85,
+      video: this.evaluateVideoQuality(content),
+      audio: this.evaluateAudioQuality(content),
+      text: await this.evaluateTextQuality(content, platform),
+      engagement: this.estimateEngagement(content, platform),
+      technical: this.evaluateTechnicalCompliance(content, platform),
+    }
+
+    // Вычисляем общий балл
+    scores.overall =
+      scores.video * 0.3 + scores.audio * 0.2 + scores.text * 0.2 + scores.engagement * 0.2 + scores.technical * 0.1
+
+    return scores
+  }
+
+  private evaluateVideoQuality(_content: AdaptedContent): number {
+    // Упрощенная оценка качества видео
+    return 0.85
+  }
+
+  private evaluateAudioQuality(_content: AdaptedContent): number {
+    // Упрощенная оценка качества аудио
+    return 0.9
+  }
+
+  private async evaluateTextQuality(content: AdaptedContent, platform: Platform): Promise<number> {
+    // Проверяем соответствие длины текста рекомендациям
+    const titleLength = content.metadata.title.length
+    const descLength = content.metadata.description.length
+
+    const titleScore = this.scoreInRange(titleLength, platform.bestPractices.optimization.seo.titleLength)
+
+    const descScore = this.scoreInRange(descLength, platform.bestPractices.optimization.seo.descriptionLength)
+
+    return (titleScore + descScore) / 2
+  }
+
+  private scoreInRange(value: number, range: { min: number; max: number; optimal: number }): number {
+    if (value === range.optimal) return 1
+    if (value >= range.min && value <= range.max) {
+      const distance = Math.abs(value - range.optimal)
+      const maxDistance = Math.max(range.optimal - range.min, range.max - range.optimal)
+      return 1 - (distance / maxDistance) * 0.5
+    }
+    return 0.5
+  }
+
+  private estimateEngagement(content: AdaptedContent, platform: Platform): number {
+    // Базовая оценка вовлеченности
+    let score = 0.7
+
+    // Бонус за хуки в начале
+    if (content.processingDetails?.hooks?.length > 0) {
+      score += 0.1
+    }
+
+    // Бонус за CTA
+    if (content.processingDetails?.callToActions?.length > 0) {
+      score += 0.1
+    }
+
+    // Бонус за оптимальную длительность
+    if (
+      content.duration >= (platform.specifications.duration.optimal?.min || 0) &&
+      content.duration <= (platform.specifications.duration.optimal?.max || Number.POSITIVE_INFINITY)
+    ) {
+      score += 0.1
+    }
+
+    return Math.min(score, 1)
+  }
+
+  private evaluateTechnicalCompliance(_content: AdaptedContent, _platform: Platform): number {
+    // Проверяем техническое соответствие
+    return 0.95 // Упрощенная реализация
+  }
+
+  /**
+   * Обнаружить проблемы в адаптированном контенте
+   */
+  private detectIssues(content: AdaptedContent, platform: Platform): any[] {
+    const issues = []
+
+    // Проверяем длительность
+    if (content.duration > platform.specifications.duration.max) {
+      issues.push({
+        type: "error",
+        category: "timing",
+        message: `Video duration (${content.duration}s) exceeds platform limit (${platform.specifications.duration.max}s)`,
+        severity: "high",
+        suggestion: "Trim video to fit platform requirements",
+      })
+    }
+
+    // Проверяем размер файла
+    if (content.fileSize > platform.specifications.fileSize.max) {
+      issues.push({
+        type: "error",
+        category: "technical",
+        message: "File size exceeds platform limit",
+        severity: "high",
+        suggestion: "Reduce video quality or duration",
+      })
+    }
+
+    return issues
+  }
+
+  /**
+   * Сгенерировать предложения по улучшению
+   */
+  private async generateSuggestions(content: AdaptedContent, platform: Platform): Promise<string[]> {
+    const suggestions = []
+
+    // Предложения по хэштегам
+    if (content.metadata.hashtags.length < platform.bestPractices.optimization.seo.hashtagCount.min) {
+      suggestions.push(
+        `Add more hashtags (current: ${content.metadata.hashtags.length}, recommended: ${platform.bestPractices.optimization.seo.hashtagCount.optimal})`,
+      )
+    }
+
+    // Предложения по времени публикации
+    if (platform.bestPractices.timing.optimalTimes.length > 0) {
+      const times = platform.bestPractices.timing.optimalTimes
+        .map((t) => `${t.dayOfWeek} ${t.startHour}:00-${t.endHour}:00 ${t.timezone}`)
+        .join(", ")
+      suggestions.push(`Best posting times: ${times}`)
+    }
+
+    return suggestions
+  }
+
+  /**
+   * Анализировать тренды платформы
+   */
+  private async analyzeTrends(platformId: PlatformId): Promise<TrendingElements> {
+    // В реальной реализации здесь был бы вызов API платформы
+    // Сейчас возвращаем моковые данные
+
+    const trendsByPlatform: Record<PlatformId, TrendingElements> = {
+      youtube: {
+        hashtags: ["#tutorial", "#howto", "#diy", "#tech", "#vlog"],
+        topics: ["AI", "productivity", "gaming", "cooking", "fitness"],
+        formats: ["long-form", "tutorials", "reviews"],
+      },
+      youtube_shorts: {
+        hashtags: ["#shorts", "#viral", "#trending", "#fyp"],
+        sounds: ["trending-sound-1", "trending-sound-2"],
+        topics: ["quick tips", "life hacks", "comedy"],
+        formats: ["vertical", "quick tips", "reactions"],
+      },
+      tiktok: {
+        hashtags: ["#fyp", "#foryou", "#viral", "#trend"],
+        sounds: ["popular-audio-1", "popular-audio-2"],
+        effects: ["green-screen", "transitions", "filters"],
+        topics: ["dance", "comedy", "education"],
+        formats: ["challenges", "duets", "stories"],
+      },
+      instagram_reels: {
+        hashtags: ["#reels", "#explore", "#viral", "#instagram"],
+        sounds: ["trending-audio-1", "trending-audio-2"],
+        topics: ["lifestyle", "fashion", "food"],
+        formats: ["aesthetic", "behind-scenes", "tutorials"],
+      },
+      twitter: {
+        hashtags: ["#breaking", "#news", "#opinion"],
+        topics: ["current events", "tech", "politics"],
+        formats: ["news clips", "reactions", "explainers"],
+      },
+    }
+
+    return (
+      trendsByPlatform[platformId] || {
+        hashtags: [],
+        topics: [],
+        formats: [],
+      }
+    )
+  }
+
+  /**
+   * Сгенерировать оптимальные настройки
+   */
+  private async generateOptimalSettings(
+    _content: AdaptedContent,
+    platform: Platform,
+    _trends: TrendingElements,
+  ): Promise<Partial<AdaptationStrategy>> {
+    // Генерируем настройки на основе трендов и контента
+    return {
+      textStrategy: {
+        generateHashtags: true,
+        hashtagCount: platform.bestPractices.optimization.seo.hashtagCount.optimal,
+        seoOptimization: true,
+        // Используем трендовые хэштеги
+      },
+    }
+  }
+
+  /**
+   * Оценить потенциальную производительность
+   */
+  private async estimatePerformance(
+    content: AdaptedContent,
+    platform: Platform,
+    _settings: Partial<AdaptationStrategy>,
+  ): Promise<PerformanceMetrics> {
+    // Базовая оценка производительности
+    const baseViews = this.estimateBaseViews(platform)
+    const contentMultiplier = this.calculateContentMultiplier(content, platform)
+    const trendMultiplier = 1.2 // Бонус за использование трендов
+
+    return {
+      estimatedViews: {
+        min: Math.floor(baseViews.min * contentMultiplier),
+        max: Math.floor(baseViews.max * contentMultiplier * trendMultiplier),
+      },
+      engagementRate: 0.05 * contentMultiplier, // 5% базовая вовлеченность
+      shareability: this.calculateShareability(content, platform),
+      algorithmScore: this.calculateAlgorithmScore(content, platform),
+    }
+  }
+
+  private estimateBaseViews(platform: Platform): { min: number; max: number } {
+    // Базовые оценки по платформам
+    const estimates: Record<PlatformId, { min: number; max: number }> = {
+      youtube: { min: 100, max: 10000 },
+      youtube_shorts: { min: 1000, max: 100000 },
+      tiktok: { min: 500, max: 50000 },
+      instagram_reels: { min: 200, max: 20000 },
+      twitter: { min: 50, max: 5000 },
+    }
+
+    return estimates[platform.id] || { min: 100, max: 1000 }
+  }
+
+  private calculateContentMultiplier(content: AdaptedContent, platform: Platform): number {
+    let multiplier = 1
+
+    // Бонус за качество
+    if (content.quality.overall > 0.8) multiplier *= 1.5
+
+    // Бонус за оптимальную длительность
+    if (
+      content.duration >= (platform.specifications.duration.optimal?.min || 0) &&
+      content.duration <= (platform.specifications.duration.optimal?.max || Number.POSITIVE_INFINITY)
+    ) {
+      multiplier *= 1.3
+    }
+
+    return multiplier
+  }
+
+  private calculateShareability(content: AdaptedContent, _platform: Platform): number {
+    // Упрощенный расчет "шарабельности"
+    let score = 0.5
+
+    // Контент с эмоциональным воздействием более "шарабелен"
+    if (content.metadata.tags.some((tag) => ["inspiring", "funny", "shocking", "educational"].includes(tag))) {
+      score += 0.2
+    }
+
+    // Короткий контент легче шарить
+    if (content.duration < 60) score += 0.1
+
+    return Math.min(score, 1)
+  }
+
+  private calculateAlgorithmScore(_content: AdaptedContent, platform: Platform): number {
+    // Оценка соответствия алгоритмам платформы
+    let score = 0.7
+
+    // Проверяем соответствие сигналам алгоритма
+    for (const signal of platform.algorithms.signals) {
+      if ((signal.importance as string) === "critical") {
+        score += 0.1
+      }
+    }
+
+    return Math.min(score, 1)
+  }
+
+  /**
+   * Получить конфигурацию по умолчанию
+   */
+  private getDefaultConfig(customConfig?: Partial<MultiPlatformConfig>): MultiPlatformConfig {
+    return {
+      adaptation: {
+        autoDetectBestFormat: true,
+        preserveOriginalQuality: false,
+        optimizeForMobile: true,
+        generateThumbnails: true,
+        generatePreviews: true,
+        ...customConfig?.adaptation,
+      },
+      language: {
+        autoTranslate: false,
+        translationService: "deepl",
+        preserveOriginalAudio: true,
+        generateSubtitles: true,
+        dubbing: false,
+        ...customConfig?.language,
+      },
+      processing: {
+        parallel: true,
+        maxConcurrent: 3,
+        priority: "balanced",
+        cacheResults: true,
+        ...customConfig?.processing,
+      },
+      ai: {
+        model: "gpt-4",
+        temperature: 0.7,
+        enhanceDescriptions: true,
+        generateHashtags: true,
+        optimizeSEO: true,
+        ...customConfig?.ai,
+      },
+    }
+  }
+}

@@ -52,12 +52,7 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
 
     // Add clip to timeline
     if (item.type === "media" || item.type === "music") {
-      addClip(
-        track.id,
-        item.data,
-        dropTime,
-        item.data.duration || 5
-      )
+      addClip(track.id, item.data, dropTime, item.data.duration || 5)
     }
   })
 
@@ -69,23 +64,19 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
   const { visibleClips, collapsedGroups } = useMemo(() => {
     const visibleClips: typeof track.clips = []
     const collapsedGroups: Array<{ group: any; clips: typeof track.clips }> = []
-    
+
     // Находим группы, которые содержат клипы с этого трека
-    const trackGroups = groups.filter(group => 
-      group.clips.some(ref => 
-        track.clips.some(clip => clip.id === ref.clipId)
-      )
+    const trackGroups = groups.filter((group) =>
+      group.clips.some((ref) => track.clips.some((clip) => clip.id === ref.clipId)),
     )
-    
+
     // Разделяем клипы на видимые и принадлежащие свернутым группам
-    track.clips.forEach(clip => {
-      const group = trackGroups.find(g => 
-        g.clips.some(ref => ref.clipId === clip.id)
-      )
-      
+    track.clips.forEach((clip) => {
+      const group = trackGroups.find((g) => g.clips.some((ref) => ref.clipId === clip.id))
+
       if (group && group.collapsed) {
         // Клип в свернутой группе
-        let groupEntry = collapsedGroups.find(cg => cg.group.id === group.id)
+        let groupEntry = collapsedGroups.find((cg) => cg.group.id === group.id)
         if (!groupEntry) {
           groupEntry = { group, clips: [] }
           collapsedGroups.push(groupEntry)
@@ -96,10 +87,10 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
         visibleClips.push(clip)
       }
     })
-    
+
     // Сортируем видимые клипы
     visibleClips.sort((a, b) => a.startTime - b.startTime)
-    
+
     return { visibleClips, collapsedGroups }
   }, [track.clips, groups])
 
@@ -190,7 +181,7 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
             onRemove={() => handleClipRemove(clip.id)}
           />
         ))}
-        
+
         {/* Отображаем свернутые группы */}
         {collapsedGroups.map(({ group, clips }) => (
           <CollapsedGroup
@@ -199,8 +190,8 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
             clips={clips}
             timeScale={timeScale}
             onToggleCollapse={() => toggleCollapse(group.id)}
-            onSelect={() => selectClips(clips.map(c => c.id))}
-            isSelected={clips.some(c => c.isSelected)}
+            onSelect={() => selectClips(clips.map((c) => c.id))}
+            isSelected={clips.some((c) => c.isSelected)}
           />
         ))}
 

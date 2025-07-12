@@ -70,6 +70,41 @@ vi.mock("../../services/chat-storage-service", () => ({
   },
 }))
 
+// Mock для новых AI Content Intelligence сервисов
+vi.mock("../../services/unified-ai-service", () => ({
+  UnifiedAIService: {
+    getInstance: vi.fn(() => ({
+      analyzeContentIntelligence: vi.fn(),
+      generateScript: vi.fn(),
+      adaptForPlatform: vi.fn(),
+    })),
+  },
+}))
+
+vi.mock("@/features/person-identification/services/person-database-service", () => ({
+  PersonDatabaseService: {
+    getInstance: vi.fn(() => ({
+      addPerson: vi.fn(),
+      searchPerson: vi.fn(),
+      getAllPersons: vi.fn(),
+    })),
+  },
+}))
+
+vi.mock("@/features/ai-content-intelligence/engines/scene-analysis/scene-analysis-engine", () => ({
+  SceneAnalysisEngine: vi.fn(() => ({
+    analyzeScene: vi.fn(),
+    detectPersons: vi.fn(),
+  })),
+}))
+
+vi.mock("../../hooks/use-safe-timeline", () => ({
+  useSafeTimeline: () => ({
+    project: null,
+    uiState: { selectedClipIds: [] },
+  }),
+}))
+
 // Lucide icons are now mocked globally in src/test/mocks/libraries/lucide-react.ts
 
 // Mock для useChat с правильной структурой
@@ -90,7 +125,7 @@ const mockChatMessages = [
 ]
 
 const mockUseChat = {
-  chatMessages: mockChatMessages,
+  chatMessages: [] as any[], // Начинаем с пустых сообщений
   sendChatMessage: vi.fn(),
   receiveChatMessage: vi.fn(),
   selectedAgentId: "claude-4-sonnet",
@@ -104,6 +139,7 @@ const mockUseChat = {
   switchSession: vi.fn(),
   deleteSession: vi.fn(),
   updateSessions: vi.fn(),
+  clearMessages: vi.fn(),
 }
 
 vi.mock("../../hooks/use-chat", () => ({
@@ -115,7 +151,7 @@ describe("AiChat Component (Simple)", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    mockUseChat.chatMessages = mockChatMessages
+    mockUseChat.chatMessages = [] // Сбрасываем в пустые сообщения
     mockUseChat.isProcessing = false
 
     // Mock scrollIntoView
@@ -125,11 +161,14 @@ describe("AiChat Component (Simple)", () => {
   it("должен отображать поле ввода", () => {
     render(<AiChat />)
 
-    const input = screen.getByPlaceholderText("@ to mention, ⌘L to add a selection. Enter instructions...")
+    const input = screen.getByPlaceholderText(
+      "@ mention, ⌘L select. Команды: 'анализируй видео', 'создай сценарий', 'адаптируй для TikTok'...",
+    )
     expect(input).toBeInTheDocument()
   })
 
   it("должен отображать сообщения", () => {
+    mockUseChat.chatMessages = mockChatMessages
     render(<AiChat />)
 
     expect(screen.getByText("Привет! Как добавить эффект размытия?")).toBeInTheDocument()
@@ -139,8 +178,10 @@ describe("AiChat Component (Simple)", () => {
   it("должен отправлять сообщение при клике на кнопку", async () => {
     render(<AiChat />)
 
-    const input = screen.getByPlaceholderText("@ to mention, ⌘L to add a selection. Enter instructions...")
-    const sendButton = screen.getByTestId("send-icon").closest("button")!
+    const input = screen.getByPlaceholderText(
+      "@ mention, ⌘L select. Команды: 'анализируй видео', 'создай сценарий', 'адаптируй для TikTok'...",
+    )
+    const sendButton = screen.getByTestId("send-button")
 
     await user.type(input, "Тестовое сообщение")
     await user.click(sendButton)
@@ -153,7 +194,9 @@ describe("AiChat Component (Simple)", () => {
 
     render(<AiChat />)
 
-    const input = screen.getByPlaceholderText("@ to mention, ⌘L to add a selection. Enter instructions...")
+    const input = screen.getByPlaceholderText(
+      "@ mention, ⌘L select. Команды: 'анализируй видео', 'создай сценарий', 'адаптируй для TikTok'...",
+    )
     expect(input).toBeDisabled()
   })
 

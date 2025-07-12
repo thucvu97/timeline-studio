@@ -98,6 +98,42 @@ vi.mock("@/features/app-state/services", async (importOriginal) => {
   }
 })
 
+// Mock AI Content Intelligence services globally
+vi.mock("@/features/ai-chat/services/unified-ai-service", () => ({
+  UnifiedAIService: {
+    getInstance: vi.fn(() => ({
+      analyzeContentIntelligence: vi.fn().mockResolvedValue([]),
+      generateScript: vi.fn().mockResolvedValue({ script: "Generated script" }),
+      adaptForPlatform: vi.fn().mockResolvedValue({ content: "Adapted content" }),
+    })),
+  },
+}))
+
+vi.mock("@/features/person-identification/services/person-database-service", () => ({
+  PersonDatabaseService: {
+    getInstance: vi.fn(() => ({
+      addPerson: vi.fn().mockResolvedValue({ id: "person-1", name: "Test Person" }),
+      searchPerson: vi.fn().mockResolvedValue([]),
+      getAllPersons: vi.fn().mockResolvedValue([]),
+      updatePerson: vi.fn().mockResolvedValue(undefined),
+      deletePerson: vi.fn().mockResolvedValue(undefined),
+    })),
+  },
+}))
+
+vi.mock("@/features/ai-content-intelligence/engines/scene-analysis/scene-analysis-engine", () => ({
+  SceneAnalysisEngine: vi.fn(() => ({
+    analyzeScene: vi.fn().mockResolvedValue({
+      objects: [],
+      faces: [],
+      emotions: [],
+      quality: { score: 0.8 },
+    }),
+    detectPersons: vi.fn().mockResolvedValue([]),
+    analyzeVideo: vi.fn().mockResolvedValue({ scenes: [], persons: [] }),
+  })),
+}))
+
 // Only absolutely essential global setup
 beforeAll(() => {
   // Mock console methods in tests to reduce noise

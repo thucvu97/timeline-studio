@@ -43,6 +43,10 @@ describe("Player Machine", () => {
       isResizableMode: false,
       duration: 0,
       volume: 100,
+      // Speed ramping fields
+      basePlaybackRate: 1,
+      currentPlaybackRate: 1,
+      speedRampingEnabled: false,
       // Настройки пререндера
       prerenderEnabled: false,
       prerenderQuality: 75,

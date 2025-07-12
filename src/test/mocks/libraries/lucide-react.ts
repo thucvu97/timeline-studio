@@ -27,12 +27,14 @@ export const ArrowLeftRight = createMockIcon("ArrowLeftRight")
 export const ArrowRight = createMockIcon("ArrowRight")
 export const AudioLines = createMockIcon("AudioLines")
 export const Blend = createMockIcon("Blend")
+export const Bookmark = createMockIcon("Bookmark")
 export const Bot = createMockIcon("Bot")
 export const Camera = createMockIcon("Camera")
 export const Check = createMockIcon("Check")
 export const CheckCircle = createMockIcon("CheckCircle")
 export const CheckCircle2 = createMockIcon("CheckCircle2")
 export const CheckIcon = createMockIcon("CheckIcon")
+export const CheckSquare = createMockIcon("CheckSquare")
 export const ChevronDown = createMockIcon("ChevronDown")
 export const ChevronDownIcon = createMockIcon("ChevronDownIcon")
 export const ChevronFirst = createMockIcon("ChevronFirst")
@@ -51,6 +53,7 @@ export const Copy = createMockIcon("Copy")
 export const CopyPlus = createMockIcon("CopyPlus")
 export const Cpu = createMockIcon("Cpu")
 export const Database = createMockIcon("Database")
+export const Download = createMockIcon("Download")
 export const Eye = createMockIcon("Eye")
 export const EyeOff = createMockIcon("EyeOff")
 export const File = createMockIcon("File")
@@ -125,12 +128,14 @@ export const Star = createMockIcon("Star")
 export const StepBack = createMockIcon("StepBack")
 export const StepForward = createMockIcon("StepForward")
 export const Sticker = createMockIcon("Sticker")
+export const StickyNote = createMockIcon("StickyNote")
 export const StopCircle = createMockIcon("StopCircle")
 export const Subtitles = createMockIcon("Subtitles")
 export const Sun = createMockIcon("Sun")
 export const Trash2 = createMockIcon("Trash2")
 export const TrendingDown = createMockIcon("TrendingDown")
 export const TrendingUp = createMockIcon("TrendingUp")
+export const TvMinimalPlay = createMockIcon("TvMinimalPlay")
 export const Type = createMockIcon("Type")
 export const Undo2 = createMockIcon("Undo2")
 export const UnfoldHorizontal = createMockIcon("UnfoldHorizontal")
@@ -138,6 +143,7 @@ export const Unlock = createMockIcon("Unlock")
 export const Upload = createMockIcon("Upload")
 export const User = createMockIcon("User")
 export const UserCog = createMockIcon("UserCog")
+export const Users = createMockIcon("Users")
 export const Video = createMockIcon("Video")
 export const Volume2 = createMockIcon("Volume2")
 export const VolumeX = createMockIcon("VolumeX")
@@ -158,12 +164,14 @@ vi.mock("lucide-react", () => ({
   ArrowRight,
   AudioLines,
   Blend,
+  Bookmark,
   Bot,
   Camera,
   Check,
   CheckCircle,
   CheckCircle2,
   CheckIcon,
+  CheckSquare,
   ChevronDown,
   ChevronDownIcon,
   ChevronFirst,
@@ -182,6 +190,7 @@ vi.mock("lucide-react", () => ({
   CopyPlus,
   Cpu,
   Database,
+  Download,
   Eye,
   EyeOff,
   File,
@@ -256,12 +265,14 @@ vi.mock("lucide-react", () => ({
   StepBack,
   StepForward,
   Sticker,
+  StickyNote,
   StopCircle,
   Subtitles,
   Sun,
   Trash2,
   TrendingDown,
   TrendingUp,
+  TvMinimalPlay,
   Type,
   Undo2,
   UnfoldHorizontal,
@@ -269,6 +280,7 @@ vi.mock("lucide-react", () => ({
   Upload,
   User,
   UserCog,
+  Users,
   Video,
   Volume2,
   VolumeX,

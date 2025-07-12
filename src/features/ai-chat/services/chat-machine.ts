@@ -17,6 +17,7 @@ export interface ChatMachineContext {
 export type ChatMachineEvent =
   | { type: "SEND_CHAT_MESSAGE"; message: string }
   | { type: "RECEIVE_CHAT_MESSAGE"; message: ChatMessage }
+  | { type: "LOAD_SESSION_MESSAGES"; messages: ChatMessage[] }
   | { type: "SELECT_AGENT"; agentId: string }
   | { type: "SET_PROCESSING"; isProcessing: boolean }
   | { type: "SET_ERROR"; error: string | null }
@@ -159,6 +160,12 @@ export const chatMachine = setup({
           actions: assign({
             currentSessionId: ({ event }) => event.sessionId,
             chatMessages: [], // Сообщения должны загружаться отдельно
+            error: null,
+          }),
+        },
+        LOAD_SESSION_MESSAGES: {
+          actions: assign({
+            chatMessages: ({ event }) => event.messages,
             error: null,
           }),
         },

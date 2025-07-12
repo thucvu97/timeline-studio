@@ -80,6 +80,31 @@
   - `auto_color_correction` - автоматическая цветокоррекция
   - `generate_video_thumbnails` - создание превью и миниатюр
 
+- **Content Intelligence Tools** (`tools/content-intelligence-tools.ts`) - 9 инструментов для AI анализа контента 🆕 НОВОЕ
+  - `analyze_content_intelligence` - комплексный анализ контента с генерацией скриптов
+  - `classify_video_content` - классификация жанра, стиля, аудитории, настроения
+  - `detect_scenes_advanced` - продвинутая детекция сцен с переходами и элементами
+  - `generate_video_script` - генерация сценария на основе анализа контента
+  - `adapt_content_for_platforms` - адаптация под YouTube, TikTok, Instagram и др.
+  - `analyze_content_quality` - анализ технического и нарративного качества
+  - `generate_content_insights` - AI инсайты и рекомендации по улучшению
+  - `create_multilingual_variants` - создание многоязычных версий контента
+  - `process_content_pipeline` - запуск полного pipeline анализа и обработки
+
+- **Person Identification Tools** (`tools/person-identification-tools.ts`) - 12 инструментов для работы с персонами 🆕 НОВОЕ
+  - `identify_persons_in_video` - детекция и идентификация персон в видео
+  - `search_persons` - поиск персон по имени, характеристикам или эмбеддингам
+  - `create_person_profile` - создание профиля персоны с метаданными
+  - `update_person_profile` - обновление данных персоны
+  - `get_person_stats` - статистика появлений персоны (время экрана, эмоции)
+  - `merge_person_profiles` - объединение дубликатов персон
+  - `cluster_unidentified_faces` - автоматическая кластеризация неопознанных лиц
+  - `export_person_data` - экспорт данных персон в различных форматах
+  - `analyze_person_emotions` - анализ эмоциональных состояний персон
+  - `manage_person_privacy` - управление приватностью (размытие, анонимизация)
+  - `find_persons_at_time` - поиск персон в определенный момент времени
+  - `generate_person_report` - генерация отчетов по персонам в проекте
+
 #### 3. **Timeline AI Service** 
 - `src/features/ai-chat/services/timeline-ai-service.ts` - Основной координирующий сервис
 - Интеграция с Claude API через инструменты
@@ -114,7 +139,9 @@
 - Оставлены только "Chat" и "Agent" режимы
 
 #### 2. **Современная архитектура инструментов**
-- 41 инструмент Claude для полного покрытия Timeline Studio
+- 89 AI инструментов Claude для полного покрытия Timeline Studio
+- Content Intelligence Engine с продвинутым анализом контента
+- Person Identification System с IndexedDB базой данных
 - Типизированные параметры и результаты
 - Валидация и обработка ошибок
 
@@ -158,8 +185,13 @@ await createTimelineFromPrompt("Создай документальный фил
 
 ### Компоненты:
 - **AI Context**: Сбор состояния всех компонентов Timeline Studio
-- **Claude Tools**: 68 инструментов для полного управления (+12 для субтитров, +15 для видео анализа) ✨
+- **Claude Tools**: 89 AI инструментов для полного управления (68 базовых + 9 Content Intelligence + 12 Person ID) 🆕
 - **Multi-Provider System**: Единый интерфейс для Claude, OpenAI, DeepSeek, Ollama ✨
+- **Content Intelligence Engine**: Комплексный анализ контента с генерацией скриптов 🆕
+- **Person Identification System**: Распознавание и отслеживание персон в видео 🆕
+- **Person Database**: IndexedDB база данных с эмбеддингами и статистикой 🆕
+- **Scene Analysis Engine**: Продвинутый анализ сцен с классификацией 🆕
+- **Unified Pipeline**: Координация всех AI движков и процессов 🆕
 - **Intent Recognition**: Автоматическое распознавание намерений пользователя ✨
 - **Unified AI Router**: Автоматический fallback и балансировка нагрузки ✨
 - **FFmpeg Integration**: AI-powered анализ видео через FFmpeg ✨
@@ -211,24 +243,48 @@ src/features/ai-chat/
 │   ├── browser-tools.ts       # 10 инструментов для браузера  
 │   ├── timeline-tools.ts      # 11 инструментов для timeline
 │   ├── player-tools.ts        # 10 инструментов для плеера
-│   ├── subtitle-tools.ts      # 12 инструментов для субтитров ✨ НОВОЕ
-│   ├── video-analysis-tools.ts # 15 инструментов анализа видео ✨ НОВОЕ
-│   └── index.ts               # Экспорт всех инструментов ✨
+│   ├── subtitle-tools.ts      # 12 инструментов для субтитров
+│   ├── video-analysis-tools.ts # 15 инструментов анализа видео
+│   ├── content-intelligence-tools.ts # 9 инструментов Content Intelligence 🆕
+│   ├── person-identification-tools.ts # 12 инструментов Person ID 🆕
+│   └── index.ts               # Экспорт всех инструментов
 ├── services/
 │   ├── timeline-ai-service.ts # Основной AI сервис
 │   ├── chat-machine.ts        # Расширенная state machine
-│   ├── deepseek-service.ts    # DeepSeek интеграция ✨ НОВОЕ
-│   ├── ollama-service.ts      # Ollama локальные модели ✨ НОВОЕ
-│   ├── unified-ai-service.ts  # Единая точка входа ✨ НОВОЕ
-│   ├── intent-recognition.ts  # Распознавание намерений ✨ НОВОЕ
-│   ├── ffmpeg-analysis-service.ts # FFmpeg анализ видео ✨ НОВОЕ
-│   └── index.ts               # Экспорт всех сервисов ✨
+│   ├── deepseek-service.ts    # DeepSeek интеграция
+│   ├── ollama-service.ts      # Ollama локальные модели
+│   ├── unified-ai-service.ts  # Единая точка входа + Content Intelligence
+│   ├── intent-recognition.ts  # Распознавание намерений
+│   ├── ffmpeg-analysis-service.ts # FFmpeg анализ видео
+│   └── index.ts               # Экспорт всех сервисов
 ├── hooks/
 │   └── use-timeline-ai.tsx    # Основной хук Timeline AI
 ├── components/
-│   └── ai-chat.tsx            # UI с поддержкой всех провайдеров ✨
+│   └── ai-chat.tsx            # UI с поддержкой всех провайдеров
 └── examples/
     └── timeline-ai-usage.md   # Примеры использования
+
+src/features/ai-content-intelligence/ 🆕 НОВОЕ
+├── engines/
+│   ├── scene-analysis/
+│   │   └── scene-analysis-engine.ts    # Анализ сцен с Person ID поддержкой
+│   ├── content-classification/
+│   │   └── content-classification-engine.ts # Классификация контента
+│   └── types.ts                        # Общие типы для движков
+├── unified-pipeline/
+│   └── unified-content-pipeline.ts     # Координатор всех AI движков
+├── components/                         # UI компоненты (планируется)
+├── hooks/                             # React хуки (планируется) 
+└── index.ts                           # Экспорт модуля
+
+src/features/person-identification/ 🆕 НОВОЕ
+├── types/
+│   └── person.ts                      # Comprehensive типы для персон
+├── services/
+│   └── person-database-service.ts     # IndexedDB база данных персон
+├── components/                        # UI компоненты (планируется)
+├── hooks/                            # React хуки (планируется)
+└── index.ts                          # Экспорт модуля
 ```
 
 ## 🚀 **Реализация потоковых ответов**
@@ -263,29 +319,58 @@ if (isContextOverLimit(messages, model, systemPrompt)) {
 
 ## 📊 **Статистика реализации**
 
-### ✅ **Версия 2.1 - FFmpeg интеграция для анализа видео**
-**Всего создано/изменено файлов: 25** (+13 новых файлов)
-**Общее количество строк кода: ~6500+** (+3000 строк)
+### ✅ **Версия 3.0 - AI Content Intelligence + Person Identification**
+**Всего создано/изменено файлов: 35** (+25 новых файлов)
+**Общее количество строк кода: ~12000+** (+5500 строк)
 **Поддерживаемые AI провайдеры: 4** (Claude, OpenAI, DeepSeek, Ollama)
-**Всего AI инструментов: 68** (+12 для субтитров, +15 для видео анализа)
-**Покрытие Timeline Studio: 100%** (все основные компоненты + субтитры + анализ видео)
+**Всего AI инструментов: 89** (68 базовых + 9 Content Intelligence + 12 Person Identification)
+**Покрытие Timeline Studio: 100%** (все компоненты + AI анализ + распознавание персон)
 
-### 🆕 **Новые файлы в версии 2.1:**
+### 🆕 **Новые файлы в версии 3.0:**
+
+#### AI Content Intelligence (9 инструментов):
+1. `ai-content-intelligence/engines/scene-analysis/scene-analysis-engine.ts` - Анализ сцен с Person ID
+2. `ai-content-intelligence/engines/content-classification/content-classification-engine.ts` - Классификация контента
+3. `ai-content-intelligence/unified-pipeline/unified-content-pipeline.ts` - Унифицированный pipeline
+4. `tools/content-intelligence-tools.ts` - 9 AI инструментов Content Intelligence
+
+#### Person Identification (12 инструментов):
+5. `person-identification/types/person.ts` - Comprehensive типы для персон
+6. `person-identification/services/person-database-service.ts` - IndexedDB база данных персон
+7. `tools/person-identification-tools.ts` - 12 AI инструментов для персон
+8. `person-identification/index.ts` - Экспорт модуля Person Identification
+
+#### Интеграция и расширения:
+9. Обновления в `services/unified-ai-service.ts` - интеграция с Content Intelligence
+10. Обновления в Scene Analysis Engine - поддержка Person Identification
+11. Расширения AI Chat инструментов с 77 до 89 инструментов
+
+### 🆕 **Файлы версии 2.1:**
 1. `services/deepseek-service.ts` - DeepSeek R1 интеграция
 2. `services/ollama-service.ts` - Локальные модели
 3. `services/unified-ai-service.ts` - Унифицированный роутер
 4. `services/intent-recognition.ts` - Распознавание намерений
-5. `services/ffmpeg-analysis-service.ts` - FFmpeg анализ видео ✨
+5. `services/ffmpeg-analysis-service.ts` - FFmpeg анализ видео
 6. `tools/subtitle-tools.ts` - Инструменты субтитров
-7. `tools/video-analysis-tools.ts` - Инструменты анализа видео ✨
+7. `tools/video-analysis-tools.ts` - Инструменты анализа видео
 8. `tools/index.ts` - Экспорт инструментов
 9. `services/index.ts` - Обновленный экспорт сервисов
-10. `src-tauri/src/video_compiler/commands/video_analysis.rs` - Rust команды анализа ✨
+10. `src-tauri/src/video_compiler/commands/video_analysis.rs` - Rust команды анализа
 11. Обновления в `src-tauri/src/security/secure_storage.rs` - DeepSeek поддержка
-12. Обновления в `src-tauri/src/security/api_validator.rs` - DeepSeek валидация ✨
-13. Обновления в `src-tauri/src/app_builder.rs` - Регистрация команд анализа ✨
+12. Обновления в `src-tauri/src/security/api_validator.rs` - DeepSeek валидация
+13. Обновления в `src-tauri/src/app_builder.rs` - Регистрация команд анализа
 
-### 🎯 **Новые возможности:**
+### 🎯 **Возможности версии 3.0:**
+- 🆕 **AI Content Intelligence** - комплексный анализ контента с генерацией скриптов
+- 🆕 **Person Identification** - распознавание и отслеживание персон в видео
+- 🆕 **Scene Analysis** - продвинутый анализ сцен с классификацией и переходами
+- 🆕 **Content Classification** - многоуровневая классификация контента и настроений
+- 🆕 **Person Database** - IndexedDB база данных с эмбеддингами и статистикой
+- 🆕 **Auto-clustering** - автоматическая кластеризация неопознанных лиц
+- 🆕 **Privacy Management** - управление приватностью персон (размытие, анонимизация)
+- 🆕 **Unified Pipeline** - координация всех AI движков и процессов
+
+### 🎯 **Возможности версии 2.1:**
 - ✨ **Интеллектуальное распознавание намерений** - автоматический анализ команд
 - ✨ **Мультипровайдерная поддержка** - Claude, OpenAI, DeepSeek, Ollama
 - ✨ **Автоматический fallback** - переключение между провайдерами при ошибках
@@ -295,4 +380,4 @@ if (isContextOverLimit(messages, model, systemPrompt)) {
 - ✨ **Кэширование ответов** - оптимизация производительности
 - ✨ **Контекстное сжатие** - умное управление большими контекстами
 
-Полная интеграция AI с анализом видео в Timeline Studio готова! 🚀🤖📹
+**Timeline Studio теперь имеет 89 AI инструментов - один из самых мощных AI-powered video editor'ов!** 🚀🤖📹👥

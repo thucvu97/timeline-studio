@@ -15,17 +15,20 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/componen
 import { useCurrentProject } from "@/features/app-state/hooks/use-current-project"
 import { useProjectSettings } from "@/features/project-settings/hooks/use-project-settings"
 
-import { DragDropProvider } from "./drag-drop-provider"
-import { EditModeSelector } from "./edit-mode-selector"
 import { useClips } from "../hooks/use-clips"
 import { useDragDropTimeline } from "../hooks/use-drag-drop-timeline"
 import { EditModeProvider } from "../hooks/use-edit-mode"
-import { useGroupHotkeys } from "../hooks/use-group-hotkeys"
 import { useTimeline } from "../hooks/use-timeline"
 import { useTimelinePlayerSync } from "../hooks/use-timeline-player-sync"
 import { useTracks } from "../hooks/use-tracks"
+import { TimelineAIOverlay } from "./ai-analysis/timeline-ai-overlay"
+import { AIMarkerControls } from "./ai-markers/ai-marker-controls"
+import { DragDropProvider } from "./drag-drop-provider"
+import { EditModeSelector } from "./edit-mode-selector"
 import { EditModeOverlay } from "./edit-tools/edit-mode-overlay"
 import { SplitIndicator } from "./edit-tools/split-indicator"
+import { TimelineMarkersLayer } from "./markers"
+import { TimelineHotkeys } from "./timeline-hotkeys"
 import { TimelinePreviewStrip } from "./timeline-preview-strip"
 import { TimelineScale } from "./timeline-scale"
 import { Track } from "./track/track"
@@ -63,10 +66,7 @@ export function TimelineContent() {
   const { settings: projectSettings } = useProjectSettings()
 
   // Инициализируем синхронизацию с плеером
-  const { isSynced, syncedClip } = useTimelinePlayerSync()
-  
-  // Инициализируем горячие клавиши для группировки
-  useGroupHotkeys()
+  useTimelinePlayerSync()
 
   // Создаем проект при первой загрузке, используя настройки из реального проекта
   useEffect(() => {
@@ -152,6 +152,7 @@ export function TimelineContent() {
 
   return (
     <EditModeProvider>
+      <TimelineHotkeys />
       <div className="flex h-full flex-col">
         {/* Edit mode overlay */}
         <EditModeOverlay />
@@ -170,6 +171,8 @@ export function TimelineContent() {
               </div>
               {/* Edit mode selector */}
               <EditModeSelector size="sm" />
+              {/* AI Marker Controls */}
+              <AIMarkerControls className="ml-4" />
             </div>
             <div className="flex gap-2">
               <Badge variant="outline">{project.sections.length} секций</Badge>
@@ -227,9 +230,27 @@ export function TimelineContent() {
                     </div>
                   ) : (
                     <div className="relative">
+                      {/* Markers layer */}
+                      <TimelineMarkersLayer
+                        timeScale={uiState.timeScale}
+                        scrollOffset={scrollOffset}
+                        containerWidth={containerWidth}
+                        currentTime={currentTime}
+                        duration={project?.duration || 300} // Используем длительность проекта или 5 минут по умолчанию
+                        className="sticky top-0 z-20"
+                      />
+
+                      {/* AI Analysis Overlay */}
+                      <TimelineAIOverlay
+                        timelineWidth={containerWidth}
+                        timelineDuration={project?.duration || 300}
+                        pixelsPerSecond={uiState.timeScale}
+                        className="sticky top-8 z-15"
+                      />
+
                       {/* Split indicator */}
                       <SplitIndicator
-                        containerRef={scrollContainerRef}
+                        containerRef={scrollContainerRef as React.RefObject<HTMLElement>}
                         timeScale={uiState.timeScale}
                         scrollX={scrollOffset}
                         onSplit={(time, trackId) => {

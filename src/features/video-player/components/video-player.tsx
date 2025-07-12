@@ -2,6 +2,7 @@ import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { useProjectSettings } from "@/features/project-settings"
 import { convertToAssetUrl } from "@/lib/tauri-utils"
 
+import { PlayerAIOverlay } from "./player-ai-overlay"
 import { PlayerControls } from "./player-controls"
 import { usePlayer } from "../services/player-provider"
 
@@ -104,6 +105,8 @@ export function VideoPlayer() {
                     zIndex: 1,
                   }}
                 />
+                {/* AI Analysis Overlay */}
+                <PlayerAIOverlay className="z-10" />
               </div>
             </AspectRatio>
           </div>

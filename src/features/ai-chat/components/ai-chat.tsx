@@ -516,7 +516,7 @@ export function AiChat() {
                     setTimeout(autoResizeTextarea, 0)
                   }}
                   onKeyDown={handleKeyDown}
-                  placeholder="@ to mention, ⌘L to add a selection. Enter instructions..."
+                  placeholder="@ mention, ⌘L select. Команды: 'анализируй видео', 'создай сценарий', 'адаптируй для TikTok'..."
                   className="min-h-[100px] w-full resize-none rounded-lg border border-border bg-muted p-3 pr-12 text-sm text-white placeholder:text-muted-foreground/70 focus:border-teal focus:outline-none"
                   disabled={isProcessing || isStreaming}
                   rows={4}
@@ -675,7 +675,7 @@ export function AiChat() {
                     setTimeout(autoResizeTextarea, 0)
                   }}
                   onKeyDown={handleKeyDown}
-                  placeholder="@ to mention, ⌘L to add a selection. Enter instructions..."
+                  placeholder="@ mention, ⌘L select. Команды: 'анализируй видео', 'создай сценарий', 'адаптируй для TikTok'..."
                   className="min-h-[40px] w-full resize-none rounded-lg border border-border bg-muted p-3 pr-12 text-sm text-white placeholder:text-muted-foreground/70 focus:border-teal focus:outline-none"
                   disabled={isProcessing || isStreaming}
                   rows={1}
@@ -773,7 +773,7 @@ export function AiChat() {
                 sessions={sessions}
                 currentSessionId={currentSessionId}
                 isCreatingNew={isCreatingNewChat}
-                onSelectSession={switchSession}
+                onSelectSession={(sessionId) => void switchSession(sessionId)}
                 onDeleteSession={async (id) => {
                   await chatStorageService.deleteSession(id)
                   deleteSession(id)

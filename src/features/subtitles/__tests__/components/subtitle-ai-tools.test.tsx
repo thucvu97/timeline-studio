@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react"
+import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
@@ -36,13 +36,7 @@ vi.mock("../../utils/subtitle-parsers", () => ({
 // Mock UI components
 vi.mock("@/components/ui/button", () => ({
   Button: vi.fn(({ children, variant, size, disabled, onClick, ...props }) => (
-    <button
-      data-variant={variant}
-      data-size={size}
-      disabled={disabled}
-      onClick={onClick}
-      {...props}
-    >
+    <button data-variant={variant} data-size={size} disabled={disabled} onClick={onClick} {...props}>
       {children}
     </button>
   )),
@@ -54,21 +48,11 @@ vi.mock("@/components/ui/dialog", () => ({
       {children}
     </div>
   )),
-  DialogContent: vi.fn(({ children }) => (
-    <div data-testid="dialog-content">{children}</div>
-  )),
-  DialogDescription: vi.fn(({ children }) => (
-    <div data-testid="dialog-description">{children}</div>
-  )),
-  DialogFooter: vi.fn(({ children }) => (
-    <div data-testid="dialog-footer">{children}</div>
-  )),
-  DialogHeader: vi.fn(({ children }) => (
-    <div data-testid="dialog-header">{children}</div>
-  )),
-  DialogTitle: vi.fn(({ children }) => (
-    <div data-testid="dialog-title">{children}</div>
-  )),
+  DialogContent: vi.fn(({ children }) => <div data-testid="dialog-content">{children}</div>),
+  DialogDescription: vi.fn(({ children }) => <div data-testid="dialog-description">{children}</div>),
+  DialogFooter: vi.fn(({ children }) => <div data-testid="dialog-footer">{children}</div>),
+  DialogHeader: vi.fn(({ children }) => <div data-testid="dialog-header">{children}</div>),
+  DialogTitle: vi.fn(({ children }) => <div data-testid="dialog-title">{children}</div>),
   DialogTrigger: vi.fn(({ children, asChild }) => (
     <div data-testid="dialog-trigger" data-as-child={asChild}>
       {children}
@@ -90,9 +74,7 @@ vi.mock("@/components/ui/select", () => ({
       {children}
     </div>
   )),
-  SelectContent: vi.fn(({ children }) => (
-    <div data-testid="select-content">{children}</div>
-  )),
+  SelectContent: vi.fn(({ children }) => <div data-testid="select-content">{children}</div>),
   SelectItem: vi.fn(({ children, value }) => (
     <div data-testid="select-item" data-value={value}>
       {children}
@@ -103,9 +85,7 @@ vi.mock("@/components/ui/select", () => ({
       {children}
     </div>
   )),
-  SelectValue: vi.fn(({ placeholder }) => (
-    <div data-testid="select-value" data-placeholder={placeholder} />
-  )),
+  SelectValue: vi.fn(({ placeholder }) => <div data-testid="select-value" data-placeholder={placeholder} />),
 }))
 
 // Mock icons
@@ -186,9 +166,9 @@ describe("SubtitleAITools", () => {
     it("должен показывать сообщение когда нет медиафайлов", () => {
       // Мокаем useCurrentProject для возврата пустого проекта
       const mockEmptyProject = {
-        tracks: []
+        tracks: [],
       }
-      
+
       render(<SubtitleAITools />)
 
       // В текущей реализации есть видеофайлы в заглушке, но проверим что компонент рендерится
@@ -210,7 +190,7 @@ describe("SubtitleAITools", () => {
 
       // Проверяем что компонент рендерится без ошибок
       expect(screen.getByText("Выберите медиафайл")).toBeInTheDocument()
-      
+
       // Проверяем что есть хотя бы один медиафайл в селекте
       const selectItems = screen.getAllByTestId("select-item")
       expect(selectItems.length).toBeGreaterThan(0)
@@ -223,7 +203,7 @@ describe("SubtitleAITools", () => {
       render(<SubtitleAITools />)
 
       const triggerButton = screen.getByText("AI Транскрипция").closest("button")!
-      
+
       // Проверяем начальное состояние
       const dialog = screen.getByTestId("dialog")
       expect(dialog).toHaveAttribute("data-open", "false")
@@ -258,7 +238,7 @@ describe("SubtitleAITools", () => {
       render(<SubtitleAITools />)
 
       const selectItems = screen.getAllByTestId("select-item")
-      const languages = selectItems.map(item => item.getAttribute("data-value"))
+      const languages = selectItems.map((item) => item.getAttribute("data-value"))
 
       expect(languages).toContain("auto")
       expect(languages).toContain("ru")
@@ -277,10 +257,10 @@ describe("SubtitleAITools", () => {
       render(<SubtitleAITools />)
 
       const startButton = screen.getByText("Начать транскрипцию").closest("button")!
-      
+
       // Кнопка изначально disabled из-за отсутствия selectedTrack
       expect(startButton).toBeDisabled()
-      
+
       // Проверяем что toast функции доступны
       expect(toast.error).toBeDefined()
     })
@@ -307,7 +287,7 @@ describe("SubtitleAITools", () => {
 
       // Проверяем что parseSRT мок настроен правильно
       expect(parseSRT).toBeDefined()
-      
+
       // Симулируем вызов функции
       const mockSRT = `1
 00:00:00,000 --> 00:00:03,000
@@ -383,7 +363,7 @@ describe("SubtitleAITools", () => {
         ...screen.getAllByTestId("select-trigger"),
       ]
 
-      focusableElements.forEach(element => {
+      focusableElements.forEach((element) => {
         expect(element).toBeInTheDocument()
       })
     })
@@ -394,11 +374,11 @@ describe("SubtitleAITools", () => {
       const { rerender } = render(<SubtitleAITools />)
 
       const initialMediaMessage = screen.queryByText(/Добавьте видео или аудио файлы/)
-      
+
       rerender(<SubtitleAITools />)
 
       const afterRerenderMessage = screen.queryByText(/Добавьте видео или аудио файлы/)
-      
+
       // Результат должен быть консистентным
       expect(!!initialMediaMessage).toBe(!!afterRerenderMessage)
     })
@@ -407,11 +387,11 @@ describe("SubtitleAITools", () => {
       const { rerender } = render(<SubtitleAITools />)
 
       const initialTriggerButton = screen.getByText("AI Транскрипция").closest("button")
-      
+
       rerender(<SubtitleAITools />)
 
       const afterRerenderTriggerButton = screen.getByText("AI Транскрипция").closest("button")
-      
+
       expect(initialTriggerButton).toBeInTheDocument()
       expect(afterRerenderTriggerButton).toBeInTheDocument()
     })
@@ -429,7 +409,7 @@ describe("SubtitleAITools", () => {
       render(<SubtitleAITools />)
 
       expect(useTranslation).toHaveBeenCalled()
-      
+
       // Проверяем что переводы используются в интерфейсе
       expect(screen.getByText("AI Транскрипция")).toBeInTheDocument()
       expect(screen.getByText("Автоматическая транскрипция")).toBeInTheDocument()

@@ -1,0 +1,694 @@
+/**
+ * Script Generation Engine
+ * Движок для генерации сценариев на основе анализа контента
+ */
+
+import { UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service"
+
+import { DialogueGenerator } from "./dialogue-generator"
+import { TemplateEngine } from "./template-engine"
+import {
+  AudioElementType as AudioElementTypeEnum,
+  TurningPointType,
+  VisualElementType as VisualElementTypeEnum,
+} from "../../../shared/types/script-generation"
+import { BaseAIEngine, type EngineCapabilities } from "../../types"
+
+import type { UnifiedContentAnalysis } from "../../../shared/types/content-analysis"
+import type {
+  Act,
+  GeneratedScript,
+  NarrativeStructure,
+  NarrativeType,
+  PaceType,
+  Pacing,
+  ScriptGenerationParams,
+  ScriptScene,
+  TurningPoint,
+} from "../../../shared/types/script-generation"
+import type {
+  ImprovementType,
+  ScriptGenerationConfig,
+  ScriptGenerationContext,
+  ScriptGenerationResult,
+  ScriptImprovement,
+  ScriptQuality,
+} from "../types"
+
+
+export class ScriptGenerationEngine extends BaseAIEngine {
+  name = "Script Generation Engine"
+  version = "1.0.0"
+  description = "AI-powered script generation based on video content analysis"
+
+  private aiService: UnifiedAIService
+  private templateEngine: TemplateEngine
+  private dialogueGenerator: DialogueGenerator
+  private config: ScriptGenerationConfig = this.getDefaultConfig()
+
+  constructor() {
+    super()
+    this.aiService = UnifiedAIService.getInstance()
+    this.templateEngine = new TemplateEngine()
+    this.dialogueGenerator = new DialogueGenerator()
+  }
+
+  async initialize(): Promise<void> {
+    try {
+      // Инициализация подсистем
+      await this.templateEngine.initialize()
+      await this.dialogueGenerator.initialize()
+
+      this._isReady = true
+    } catch (error) {
+      console.error("Failed to initialize Script Generation Engine:", error)
+      throw error
+    }
+  }
+
+  async process(
+    data: { analysis: UnifiedContentAnalysis; context?: ScriptGenerationContext },
+    params: ScriptGenerationParams,
+  ): Promise<ScriptGenerationResult> {
+    if (!this._isReady) {
+      throw new Error("Script Generation Engine not initialized")
+    }
+
+    try {
+      // 1. Анализ входных данных
+      const context = this.prepareContext(data.analysis, data.context)
+
+      // 2. Определение структуры повествования
+      const narrativeStructure = await this.determineNarrativeStructure(context, params.narrativeStructure)
+
+      // 3. Генерация сцен сценария
+      const scriptScenes = await this.generateScriptScenes(context, narrativeStructure, params)
+
+      // 4. Генерация диалогов (если требуется)
+      if (params.includeDialogue && this.config.generation.generateDialogue) {
+        await this.generateDialogues(scriptScenes, context)
+      }
+
+      // 5. Генерация закадрового голоса (если требуется)
+      if (params.includeVoiceover && this.config.generation.generateVoiceover) {
+        await this.generateVoiceovers(scriptScenes, context, params)
+      }
+
+      // 6. Сборка финального сценария
+      const script = this.assembleScript(scriptScenes, narrativeStructure, params, context)
+
+      // 7. Оценка качества
+      const quality = await this.evaluateScriptQuality(script, context)
+
+      // 8. Генерация улучшений
+      const improvements = this.suggestImprovements(script, quality)
+
+      return {
+        ...script,
+        quality,
+        improvements,
+        alternatives: [], // TODO: Implement alternative generation
+      }
+    } catch (error) {
+      console.error("Script generation failed:", error)
+      throw error
+    }
+  }
+
+  getCapabilities(): EngineCapabilities {
+    return {
+      supportsStreaming: true,
+      supportsBatch: true,
+      maxBatchSize: 5,
+      supportedFormats: ["json", "text", "markdown"],
+      requiredResources: {
+        minRAM: 1024, // 1GB
+        recommendedRAM: 2048, // 2GB
+        requiresGPU: false,
+      },
+      estimatedProcessingTime: (data) => {
+        // Примерная оценка: 10 секунд + 1 секунда на минуту видео
+        const duration = data.analysis?.mediaFile?.duration || 60
+        return 10 + duration / 60
+      },
+    }
+  }
+
+  configure(config: Partial<ScriptGenerationConfig>): Promise<void> {
+    this.config = { ...this.config, ...config }
+    return Promise.resolve()
+  }
+
+  // Приватные методы
+
+  private prepareContext(
+    analysis: UnifiedContentAnalysis,
+    providedContext?: ScriptGenerationContext,
+  ): ScriptGenerationContext {
+    return {
+      analysis: analysis.scenes,
+      metadata: {
+        duration: analysis.mediaFile.duration,
+        title: providedContext?.metadata?.title || analysis.mediaFile.filename,
+        tags: providedContext?.metadata?.tags || [],
+      },
+      userPrompt: providedContext?.userPrompt,
+      references: providedContext?.references || [],
+      constraints: providedContext?.constraints,
+    }
+  }
+
+  private async determineNarrativeStructure(
+    context: ScriptGenerationContext,
+    preferredType?: NarrativeType,
+  ): Promise<NarrativeStructure> {
+    // Если указан предпочтительный тип, используем его
+    if (preferredType) {
+      return this.createNarrativeStructure(preferredType, context)
+    }
+
+    // Иначе определяем на основе анализа
+    const prompt = this.buildNarrativeAnalysisPrompt(context)
+    const response = await this.aiService
+      .sendRequest(this.config.ai.model, [{ role: "user", content: prompt }], { temperature: 0.3, maxTokens: 1000 })
+      .then((r) => r.content)
+
+    const narrativeType = this.parseNarrativeType(response) || NarrativeType.THREE_ACT
+    return this.createNarrativeStructure(narrativeType, context)
+  }
+
+  private createNarrativeStructure(type: NarrativeType, context: ScriptGenerationContext): NarrativeStructure {
+    const duration = context.metadata.duration
+
+    switch (type) {
+      case NarrativeType.THREE_ACT:
+        return {
+          type,
+          acts: [
+            {
+              number: 1,
+              title: "Setup",
+              description: "Introduction and establishment",
+              scenes: [],
+              duration: duration * 0.25,
+            },
+            {
+              number: 2,
+              title: "Confrontation",
+              description: "Main conflict and development",
+              scenes: [],
+              duration: duration * 0.5,
+            },
+            {
+              number: 3,
+              title: "Resolution",
+              description: "Climax and conclusion",
+              scenes: [],
+              duration: duration * 0.25,
+            },
+          ],
+          turningPoints: [
+            {
+              timestamp: duration * 0.25,
+              type: TurningPointType.INCITING_INCIDENT,
+              description: "The event that sets the story in motion",
+              impact: 0.8,
+            },
+            {
+              timestamp: duration * 0.75,
+              type: TurningPointType.CLIMAX,
+              description: "The highest point of tension",
+              impact: 1.0,
+            },
+          ],
+        }
+
+      case NarrativeType.FIVE_ACT:
+        return {
+          type,
+          acts: this.createFiveActStructure(duration),
+          turningPoints: this.createFiveActTurningPoints(duration),
+        }
+
+      default:
+        return this.createDefaultStructure(type, duration)
+    }
+  }
+
+  private async generateScriptScenes(
+    context: ScriptGenerationContext,
+    structure: NarrativeStructure,
+    params: ScriptGenerationParams,
+  ): Promise<ScriptScene[]> {
+    const scenes: ScriptScene[] = []
+
+    // Распределяем анализированные сцены по актам
+    const scenesPerAct = this.distributeScenesToActs(context.analysis, structure.acts)
+
+    // Генерируем сценарные сцены для каждого акта
+    for (let i = 0; i < structure.acts.length; i++) {
+      const act = structure.acts[i]
+      const actScenes = scenesPerAct[i] || []
+
+      for (const sceneAnalysis of actScenes) {
+        const scriptScene = await this.generateScriptScene(sceneAnalysis, act, context, params)
+        scenes.push(scriptScene)
+        act.scenes.push(scriptScene.id)
+      }
+    }
+
+    return scenes
+  }
+
+  private async generateScriptScene(
+    sceneAnalysis: any,
+    act: Act,
+    context: ScriptGenerationContext,
+    params: ScriptGenerationParams,
+  ): Promise<ScriptScene> {
+    const prompt = this.buildSceneGenerationPrompt(sceneAnalysis, act, context, params)
+    const response = await this.aiService
+      .sendRequest(this.config.ai.model, [{ role: "user", content: prompt }], { temperature: 0.7, maxTokens: 1500 })
+      .then((r) => r.content)
+
+    const parsedScene = this.parseSceneResponse(response, sceneAnalysis)
+
+    return {
+      id: `scene-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
+      number: parsedScene.number || 1,
+      title: parsedScene.title || "Untitled Scene",
+      description: parsedScene.description || "",
+      location: parsedScene.location,
+      timeOfDay: parsedScene.timeOfDay,
+      duration: sceneAnalysis.duration,
+      visualElements: parsedScene.visualElements || [],
+      audioElements: parsedScene.audioElements || [],
+      actions: parsedScene.actions,
+      transitions: parsedScene.transitions,
+      linkedSceneAnalysis: sceneAnalysis,
+    }
+  }
+
+  private async generateDialogues(scenes: ScriptScene[], _context: ScriptGenerationContext): Promise<void> {
+    for (const scene of scenes) {
+      if (this.shouldHaveDialogue(scene)) {
+        const dialogues = await this.dialogueGenerator.generate({
+          characters: [], // TODO: Extract characters from context
+          scene: {
+            location: scene.location || "unknown",
+            timeOfDay: scene.timeOfDay || "day",
+            mood: "neutral", // TODO: Determine from scene
+            action: scene.description,
+          },
+          style: {
+            tone: "casual",
+            pacing: "medium",
+            naturalism: 0.8,
+            subtext: true,
+          },
+        })
+
+        // Добавляем диалоги в аудио элементы сцены
+        scene.audioElements.push(
+          ...dialogues.map((d) => ({
+            type: AudioElementTypeEnum.DIALOGUE,
+            description: `${d.character}: ${d.text}`,
+            timing: d.timing,
+          })),
+        )
+      }
+    }
+  }
+
+  private async generateVoiceovers(
+    scenes: ScriptScene[],
+    context: ScriptGenerationContext,
+    params: ScriptGenerationParams,
+  ): Promise<void> {
+    for (const scene of scenes) {
+      if (this.shouldHaveVoiceover(scene, params)) {
+        const voiceoverPrompt = this.buildVoiceoverPrompt(scene, context)
+        const response = await this.aiService
+          .sendRequest(this.config.ai.model, [{ role: "user", content: voiceoverPrompt }], {
+            temperature: 0.6,
+            maxTokens: 500,
+          })
+          .then((r) => r.content)
+
+        scene.audioElements.push({
+          type: AudioElementTypeEnum.VOICEOVER,
+          description: response,
+          timing: {
+            start: 0,
+            end: scene.duration,
+            duration: scene.duration,
+          },
+        })
+      }
+    }
+  }
+
+  private assembleScript(
+    scenes: ScriptScene[],
+    structure: NarrativeStructure,
+    params: ScriptGenerationParams,
+    context: ScriptGenerationContext,
+  ): GeneratedScript {
+    const totalDuration = scenes.reduce((sum, scene) => sum + scene.duration, 0)
+
+    return {
+      id: `script-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
+      title: context.metadata.title || "Untitled Script",
+      genre: params.genre || [],
+      duration: totalDuration,
+      structure,
+      scenes,
+      characters: [], // TODO: Extract from scenes
+      dialogue: [], // TODO: Extract from scenes
+      voiceover: [], // TODO: Extract from scenes
+      metadata: {
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        version: 1,
+        language: this.config.language.primaryLanguage,
+        tone: params.tone || { primary: "neutral", intensity: 0.5 },
+        pacing: this.calculatePacing(scenes),
+        style: params.style,
+      },
+    }
+  }
+
+  private async evaluateScriptQuality(
+    script: GeneratedScript,
+    context: ScriptGenerationContext,
+  ): Promise<ScriptQuality> {
+    // Базовая оценка качества
+    const structure = this.evaluateStructure(script)
+    const pacing = this.evaluatePacing(script)
+    const coherence = await this.evaluateCoherence(script)
+    const creativity = this.evaluateCreativity(script)
+    const audienceAppeal = this.evaluateAudienceAppeal(script, context)
+
+    const overall = (structure + pacing + coherence + creativity + audienceAppeal) / 5
+
+    return {
+      overall,
+      structure,
+      pacing,
+      coherence,
+      creativity,
+      audienceAppeal,
+    }
+  }
+
+  private suggestImprovements(_script: GeneratedScript, quality: ScriptQuality): ScriptImprovement[] {
+    const improvements: ScriptImprovement[] = []
+
+    if (quality.pacing < 0.7) {
+      improvements.push({
+        type: "pacing" as ImprovementType,
+        description: "Consider adjusting scene durations for better rhythm",
+        impact: "medium",
+        implementation: "Shorten longer scenes and add breathing room between intense moments",
+      })
+    }
+
+    if (quality.structure < 0.7) {
+      improvements.push({
+        type: "structure" as ImprovementType,
+        description: "The narrative structure could be more defined",
+        impact: "high",
+        implementation: "Add clearer act breaks and turning points",
+      })
+    }
+
+    if (quality.dialogue < 0.6) {
+      improvements.push({
+        type: "dialogue" as ImprovementType,
+        description: "Dialogue could be more natural and engaging",
+        impact: "medium",
+        implementation: "Revise dialogue to match character voices and add subtext",
+      })
+    }
+
+    return improvements
+  }
+
+  // Вспомогательные методы
+
+  private buildNarrativeAnalysisPrompt(context: ScriptGenerationContext): string {
+    return `Analyze this video content and suggest the best narrative structure:
+
+Duration: ${context.metadata.duration}s
+Scenes: ${context.analysis.length}
+Content type: ${context.analysis[0]?.type || "unknown"}
+
+Please suggest a narrative structure type from:
+- three_act: Classic beginning, middle, end
+- five_act: Extended dramatic structure
+- hero_journey: Campbell's monomyth
+- nonlinear: Non-chronological storytelling
+- episodic: Series of connected vignettes
+- circular: Ending returns to beginning
+
+Respond with just the structure type.`
+  }
+
+  private buildSceneGenerationPrompt(
+    sceneAnalysis: any,
+    act: Act,
+    _context: ScriptGenerationContext,
+    params: ScriptGenerationParams,
+  ): string {
+    return `Generate a script scene based on this analysis:
+
+Act: ${act.number} - ${act.title}
+Scene Duration: ${sceneAnalysis.duration}s
+Scene Type: ${sceneAnalysis.type}
+Visual Elements: ${JSON.stringify(sceneAnalysis.content)}
+
+Style: ${params.style?.narrative || "standard"}
+Tone: ${params.tone?.primary || "neutral"}
+
+Generate a scene with:
+1. Title (short, descriptive)
+2. Description (2-3 sentences)
+3. Location (if applicable)
+4. Time of day (if applicable)
+5. Visual elements (what we see)
+6. Audio elements (what we hear)
+7. Actions (what happens)
+
+Format as JSON.`
+  }
+
+  private buildVoiceoverPrompt(scene: ScriptScene, _context: ScriptGenerationContext): string {
+    return `Write voiceover narration for this scene:
+
+Scene: ${scene.title}
+Description: ${scene.description}
+Duration: ${scene.duration}s
+
+Keep it:
+- Concise (max ${Math.floor(scene.duration * 10)} words)
+- ${this.config.language.tone} in tone
+- Complementary to visuals, not redundant
+
+Return only the voiceover text.`
+  }
+
+  private parseNarrativeType(response: string): NarrativeType | null {
+    const normalized = response.toLowerCase().trim()
+
+    if (normalized.includes("three_act") || normalized.includes("three act")) {
+      return NarrativeType.THREE_ACT
+    }
+    if (normalized.includes("five_act") || normalized.includes("five act")) {
+      return NarrativeType.FIVE_ACT
+    }
+    if (normalized.includes("hero")) {
+      return NarrativeType.HEROS_JOURNEY
+    }
+    if (normalized.includes("nonlinear")) {
+      return NarrativeType.NONLINEAR
+    }
+    if (normalized.includes("episodic")) {
+      return NarrativeType.EPISODIC
+    }
+    if (normalized.includes("circular")) {
+      return NarrativeType.CIRCULAR
+    }
+
+    return null
+  }
+
+  private parseSceneResponse(response: string, _sceneAnalysis: any): any {
+    try {
+      const jsonMatch = /```json\n([\s\S]*?)\n```/.exec(response)
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[1])
+      }
+      return JSON.parse(response)
+    } catch {
+      // Fallback parsing
+      return {
+        title: "Scene",
+        description: response.slice(0, 200),
+        visualElements: [],
+        audioElements: [],
+      }
+    }
+  }
+
+  private distributeScenesToActs(scenes: any[], acts: Act[]): any[][] {
+    const result: any[][] = acts.map(() => [])
+    const totalDuration = scenes.reduce((sum: number, s) => sum + Number(s.duration), 0)
+
+    let currentActIndex = 0
+    let currentActDuration = 0
+
+    for (const scene of scenes) {
+      if (currentActIndex < acts.length - 1) {
+        const targetDuration = acts[currentActIndex].duration
+        if (currentActDuration + Number(scene.duration) > targetDuration * 1.2) {
+          currentActIndex++
+          currentActDuration = 0
+        }
+      }
+
+      result[currentActIndex].push(scene)
+      currentActDuration += Number(scene.duration)
+    }
+
+    return result
+  }
+
+  private shouldHaveDialogue(scene: ScriptScene): boolean {
+    return (
+      scene.visualElements.some(
+        (ve) => ve.type === VisualElementTypeEnum.CLOSE_UP || ve.type === VisualElementTypeEnum.MEDIUM_SHOT,
+      ) && scene.duration > 3
+    )
+  }
+
+  private shouldHaveVoiceover(scene: ScriptScene, params: ScriptGenerationParams): boolean {
+    return (
+      params.includeVoiceover === true &&
+      !scene.audioElements.some((ae) => ae.type === AudioElementTypeEnum.DIALOGUE) &&
+      scene.duration > 2
+    )
+  }
+
+  private calculatePacing(scenes: ScriptScene[]): Pacing {
+    const sceneDurations = scenes.map((s) => s.duration)
+    const avgDuration = sceneDurations.reduce((a, b) => a + b, 0) / sceneDurations.length
+
+    let overall: PaceType = PaceType.MODERATE
+    if (avgDuration < 3) overall = PaceType.FAST
+    else if (avgDuration > 10) overall = PaceType.SLOW
+
+    return {
+      overall,
+      variations: [], // TODO: Calculate variations
+    }
+  }
+
+  private createFiveActStructure(duration: number): Act[] {
+    return [
+      { number: 1, title: "Exposition", description: "Introduction", scenes: [], duration: duration * 0.1 },
+      { number: 2, title: "Rising Action", description: "Building tension", scenes: [], duration: duration * 0.25 },
+      { number: 3, title: "Climax", description: "Peak conflict", scenes: [], duration: duration * 0.3 },
+      { number: 4, title: "Falling Action", description: "Aftermath", scenes: [], duration: duration * 0.25 },
+      { number: 5, title: "Denouement", description: "Resolution", scenes: [], duration: duration * 0.1 },
+    ]
+  }
+
+  private createFiveActTurningPoints(duration: number): TurningPoint[] {
+    return [
+      { timestamp: duration * 0.1, type: TurningPointType.INCITING_INCIDENT, description: "Story begins", impact: 0.6 },
+      { timestamp: duration * 0.35, type: TurningPointType.PLOT_POINT, description: "Major development", impact: 0.8 },
+      { timestamp: duration * 0.65, type: TurningPointType.CLIMAX, description: "Peak moment", impact: 1.0 },
+      { timestamp: duration * 0.9, type: TurningPointType.RESOLUTION, description: "Final resolution", impact: 0.7 },
+    ]
+  }
+
+  private createDefaultStructure(type: NarrativeType, duration: number): NarrativeStructure {
+    return {
+      type,
+      acts: [
+        { number: 1, title: "Beginning", description: "Opening", scenes: [], duration: duration * 0.3 },
+        { number: 2, title: "Middle", description: "Development", scenes: [], duration: duration * 0.4 },
+        { number: 3, title: "End", description: "Conclusion", scenes: [], duration: duration * 0.3 },
+      ],
+      turningPoints: [],
+    }
+  }
+
+  private evaluateStructure(script: GeneratedScript): number {
+    // Проверяем наличие всех элементов структуры
+    let score = 0
+
+    if (script.structure.acts.length >= 3) score += 0.3
+    if (script.structure.turningPoints.length >= 2) score += 0.3
+    if (script.scenes.length >= 5) score += 0.2
+    if (script.structure.climax) score += 0.2
+
+    return Math.min(1, score)
+  }
+
+  private evaluatePacing(script: GeneratedScript): number {
+    const pace = script.metadata.pacing
+    if (!pace) return 0.5
+
+    // Проверяем вариативность темпа
+    const hasVariations = pace.variations && pace.variations.length > 0
+    return hasVariations ? 0.8 : 0.6
+  }
+
+  private async evaluateCoherence(_script: GeneratedScript): Promise<number> {
+    // TODO: Использовать AI для оценки связности
+    return 0.75
+  }
+
+  private evaluateCreativity(script: GeneratedScript): number {
+    // Базовая оценка креативности
+    const uniqueElements = new Set(script.scenes.map((s) => s.type)).size
+    return Math.min(1, uniqueElements / 5)
+  }
+
+  private evaluateAudienceAppeal(_script: GeneratedScript, _context: ScriptGenerationContext): number {
+    // TODO: Оценить соответствие целевой аудитории
+    return 0.7
+  }
+
+  private getDefaultConfig(): ScriptGenerationConfig {
+    return {
+      ai: {
+        model: "gpt-4",
+        temperature: 0.7,
+        maxTokens: 2000,
+        enableStreaming: false,
+      },
+      generation: {
+        includeSceneDescriptions: true,
+        includeVisualCues: true,
+        includeAudioCues: true,
+        includeTransitions: true,
+        generateDialogue: true,
+        generateVoiceover: true,
+        adaptToSceneAnalysis: true,
+      },
+      structure: {
+        defaultNarrativeType: NarrativeType.THREE_ACT,
+        minSceneLength: 2,
+        maxSceneLength: 60,
+        targetPacing: "medium",
+      },
+      language: {
+        primaryLanguage: "en",
+        tone: "professional",
+        vocabulary: "standard",
+      },
+    }
+  }
+}

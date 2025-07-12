@@ -46,7 +46,7 @@ describe("tracks-utils", () => {
       }
 
       const sector = createMockSector([track1, track2])
-      
+
       updateSectorTimeRange(sector)
 
       // Минимальное startTime: 500 (video3)
@@ -59,7 +59,7 @@ describe("tracks-utils", () => {
       const sector = createMockSector([])
       const originalStartTime = sector.startTime
       const originalEndTime = sector.endTime
-      
+
       updateSectorTimeRange(sector)
 
       // Время не должно измениться
@@ -82,7 +82,7 @@ describe("tracks-utils", () => {
       const sector = createMockSector([track1, track2])
       const originalStartTime = sector.startTime
       const originalEndTime = sector.endTime
-      
+
       updateSectorTimeRange(sector)
 
       // Время не должно измениться
@@ -101,7 +101,7 @@ describe("tracks-utils", () => {
       }
 
       const sector = createMockSector([track])
-      
+
       updateSectorTimeRange(sector)
 
       // Минимальное startTime: 0 (video1 без startTime = 0)
@@ -121,7 +121,7 @@ describe("tracks-utils", () => {
       }
 
       const sector = createMockSector([track])
-      
+
       updateSectorTimeRange(sector)
 
       // Минимальное startTime: 1000
@@ -141,7 +141,7 @@ describe("tracks-utils", () => {
       }
 
       const sector = createMockSector([track])
-      
+
       updateSectorTimeRange(sector)
 
       // Минимальное startTime: -1000
@@ -161,7 +161,7 @@ describe("tracks-utils", () => {
       }
 
       const sector = createMockSector([track])
-      
+
       updateSectorTimeRange(sector)
 
       expect(sector.startTime).toBe(0)
@@ -178,7 +178,7 @@ describe("tracks-utils", () => {
       }
 
       const sector = createMockSector([track])
-      
+
       updateSectorTimeRange(sector)
 
       expect(sector.startTime).toBe(1500)
@@ -208,7 +208,7 @@ describe("tracks-utils", () => {
       }
 
       const sector = createMockSector([track1, track2, track3])
-      
+
       updateSectorTimeRange(sector)
 
       // Минимальное startTime: 50 (video3)
@@ -219,8 +219,8 @@ describe("tracks-utils", () => {
 
     it("должен обрабатывать очень большие временные значения", () => {
       const largeStartTime = 1e10 // 10 миллиардов секунд
-      const largeDuration = 1e6   // 1 миллион секунд
-      
+      const largeDuration = 1e6 // 1 миллион секунд
+
       const video = createMockMediaFile(largeStartTime, largeDuration)
 
       const track = {
@@ -230,7 +230,7 @@ describe("tracks-utils", () => {
       }
 
       const sector = createMockSector([track])
-      
+
       updateSectorTimeRange(sector)
 
       expect(sector.startTime).toBe(largeStartTime)
@@ -248,7 +248,7 @@ describe("tracks-utils", () => {
       }
 
       const sector = createMockSector([track])
-      
+
       updateSectorTimeRange(sector)
 
       expect(sector.startTime).toBe(10.5)
@@ -265,7 +265,7 @@ describe("tracks-utils", () => {
 
       const sector = createMockSector([track])
       const originalSector = sector
-      
+
       updateSectorTimeRange(sector)
 
       // Убеждаемся что это тот же объект
@@ -284,13 +284,13 @@ describe("tracks-utils", () => {
         videos: [videoFile],
       }
       const audioTrack = {
-        id: "audio-track", 
+        id: "audio-track",
         type: "audio",
         videos: [audioFile],
       }
 
       const sector = createMockSector([videoTrack, audioTrack])
-      
+
       updateSectorTimeRange(sector)
 
       expect(sector.startTime).toBe(100)

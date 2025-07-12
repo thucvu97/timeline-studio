@@ -177,7 +177,7 @@ describe("useMontageBackend", () => {
     it("should handle errors correctly", async () => {
       const errorMessage = "Analysis failed"
       mockInvoke.mockRejectedValueOnce(new Error(errorMessage))
-      
+
       const { result } = renderHook(() => useMontageBackend())
 
       await act(async () => {

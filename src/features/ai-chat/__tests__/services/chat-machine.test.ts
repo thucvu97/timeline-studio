@@ -253,4 +253,76 @@ describe("ChatMachine", () => {
     // Останавливаем актора
     actor.stop()
   })
+
+  it("should handle SWITCH_SESSION event", () => {
+    // Создаем актора из машины состояний
+    const actor = createActor(chatMachine)
+
+    // Запускаем актора
+    actor.start()
+
+    // Добавляем сообщение и симулируем получение ответа, чтобы быть в состоянии idle
+    actor.send({ type: "SEND_CHAT_MESSAGE", message: "Test message" })
+
+    const agentMessage: ChatMessage = {
+      id: "agent-msg-1",
+      content: "Response",
+      role: "assistant",
+      timestamp: new Date(),
+    }
+    actor.send({ type: "RECEIVE_CHAT_MESSAGE", message: agentMessage })
+
+    // Переключаем сессию (теперь в состоянии idle)
+    actor.send({ type: "SWITCH_SESSION", sessionId: "session-1" })
+
+    // Получаем снимок состояния
+    const snapshot = actor.getSnapshot()
+
+    // Проверяем, что сессия переключилась и сообщения очистились
+    expect(snapshot.context.currentSessionId).toBe("session-1")
+    expect(snapshot.context.chatMessages).toHaveLength(0)
+    expect(snapshot.context.error).toBeNull()
+
+    // Останавливаем актора
+    actor.stop()
+  })
+
+  it("should handle LOAD_SESSION_MESSAGES event", () => {
+    // Создаем актора из машины состояний
+    const actor = createActor(chatMachine)
+
+    // Запускаем актора
+    actor.start()
+
+    // Создаем тестовые сообщения
+    const sessionMessages: ChatMessage[] = [
+      {
+        id: "msg-1",
+        content: "User message",
+        role: "user",
+        timestamp: new Date(),
+      },
+      {
+        id: "msg-2",
+        content: "Assistant response",
+        role: "assistant",
+        timestamp: new Date(),
+        agent: "claude-4-sonnet",
+      },
+    ]
+
+    // Загружаем сообщения сессии
+    actor.send({ type: "LOAD_SESSION_MESSAGES", messages: sessionMessages })
+
+    // Получаем снимок состояния
+    const snapshot = actor.getSnapshot()
+
+    // Проверяем, что сообщения загрузились
+    expect(snapshot.context.chatMessages).toHaveLength(2)
+    expect(snapshot.context.chatMessages).toEqual(sessionMessages)
+    expect(snapshot.context.error).toBeNull()
+
+    // Останавливаем актора
+    actor.stop()
+  })
 })
