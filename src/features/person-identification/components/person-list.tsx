@@ -118,7 +118,11 @@ export function PersonList({
                 {/* Аватар */}
                 <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
                   {person.thumbnails && person.thumbnails.length > 0 && person.thumbnails[0].imageUrl ? (
-                    <img src={person.thumbnails[0].imageUrl} alt={person.name} className="h-10 w-10 rounded-full object-cover" />
+                    <img
+                      src={person.thumbnails[0].imageUrl}
+                      alt={person.name}
+                      className="h-10 w-10 rounded-full object-cover"
+                    />
                   ) : (
                     <User className="h-5 w-5 text-muted-foreground" />
                   )}

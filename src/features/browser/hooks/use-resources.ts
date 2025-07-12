@@ -1,19 +1,13 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
 
 import type { VideoEffect } from "@/features/effects/types"
 import type { VideoFilter } from "@/features/filters/types/filters"
+import { ResourceType } from "@/features/resources/types"
 import type { Transition } from "@/features/transitions/types/transitions"
 
 import { useEffectsProvider } from "../providers/effects-provider"
 
-import type {
-  LoadingState,
-  Resource,
-  ResourceSource,
-  ResourceStats,
-  ResourceType,
-  SearchOptions,
-} from "../types/effects-provider"
+import type { LoadingState, Resource, ResourceSource, ResourceStats, SearchOptions } from "../types/effects-provider"
 
 /**
  * Хук для получения всех эффектов
@@ -353,38 +347,140 @@ export function useResourcesCache() {
 }
 
 /**
+ * Конфигурация для создания адаптера ресурсов
+ */
+export interface ResourceAdapterConfig {
+  /** Тип ресурса */
+  type: ResourceType
+  /** Опции поиска */
+  searchOptions?: SearchOptions
+  /** Компонент для превью */
+  PreviewComponent?: React.ComponentType<any>
+  /** Обработчики импорта */
+  importHandlers?: {
+    importFile?: () => Promise<void>
+    importFolder?: () => Promise<void>
+    isImporting?: boolean
+  }
+  /** Кастомные функции для сортировки и группировки */
+  customHandlers?: {
+    getSortValue?: (item: any, sortBy: string) => string | number
+    getSearchableText?: (item: any) => string[]
+    getGroupValue?: (item: any, groupBy: string) => string
+    matchesFilter?: (item: any, filterType: string) => boolean
+  }
+}
+
+/**
  * Унифицированный хук-адаптер для Browser компонента
  * Заменяет отдельные useEffectsAdapter, useFiltersAdapter, useTransitionsAdapter
  */
-export function useResourcesAdapter(type: ResourceType, options: SearchOptions = {}) {
-  const { results: items, loading } = useResourcesSearch(type, options)
+export function useResourcesAdapter(config: ResourceAdapterConfig) {
+  const { type, searchOptions = {}, PreviewComponent, importHandlers, customHandlers } = config
+  const { results: items, loading } = useResourcesSearch(type, searchOptions)
   const loadingState = useLoadingState()
   const stats = useResourcesStats()
 
   return useMemo(
     () => ({
+      // Данные
       items,
       loading: loading || loadingState.isLoading,
       error: loadingState.error,
       stats,
 
       // Методы для поиска и фильтрации
-      search: (query: string) => ({ ...options, query }),
-      filterByCategory: (category: string) => ({ ...options, category }),
-      filterByTag: (tag: string) => ({ ...options, tags: [tag] }),
-      filterByTags: (tags: string[]) => ({ ...options, tags }),
-      filterByComplexity: (complexity: string) => ({ ...options, complexity }),
+      search: (query: string) => ({ ...searchOptions, query }),
+      filterByCategory: (category: string) => ({ ...searchOptions, category }),
+      filterByTag: (tag: string) => ({ ...searchOptions, tags: [tag] }),
+      filterByTags: (tags: string[]) => ({ ...searchOptions, tags }),
+      filterByComplexity: (complexity: string) => ({ ...searchOptions, complexity }),
 
       // Пагинация
-      paginate: (offset: number, limit: number) => ({ ...options, offset, limit }),
+      paginate: (offset: number, limit: number) => ({ ...searchOptions, offset, limit }),
+
+      // ListAdapter интерфейс
+      useData: () => ({
+        items,
+        loading: loading || loadingState.isLoading,
+        error: loadingState.error,
+      }),
+      PreviewComponent,
+      getSortValue:
+        customHandlers?.getSortValue ||
+        ((item: any, sortBy: string) => {
+          switch (sortBy) {
+            case "name":
+              return item.name?.toLowerCase() || ""
+            case "category":
+              return item.category?.toLowerCase() || ""
+            default:
+              return item.name?.toLowerCase() || ""
+          }
+        }),
+      getSearchableText:
+        customHandlers?.getSearchableText ||
+        ((item: any) =>
+          [
+            item.name,
+            item.labels?.ru || "",
+            item.labels?.en || "",
+            item.description?.ru || "",
+            item.description?.en || "",
+            item.category,
+            ...(item.tags || []),
+          ].filter(Boolean)),
+      getGroupValue:
+        customHandlers?.getGroupValue ||
+        ((item: any, groupBy: string) => {
+          switch (groupBy) {
+            case "category":
+              return item.category || "other"
+            case "type":
+              return item.type || "unknown"
+            default:
+              return ""
+          }
+        }),
+      matchesFilter:
+        customHandlers?.matchesFilter ||
+        ((item: any, filterType: string) => {
+          if (filterType === "all") return true
+          return item.category === filterType || item.complexity === filterType
+        }),
+      importHandlers,
+      favoriteType: type,
     }),
-    [items, loading, loadingState, stats, options],
+    [items, loading, loadingState, stats, searchOptions, PreviewComponent, importHandlers, customHandlers, type],
   )
 }
 
+/**
+ * Упрощенная версия для обратной совместимости
+ */
+export function useResourcesAdapterLegacy(type: ResourceType, options: SearchOptions = {}) {
+  return useResourcesAdapter({ type, searchOptions: options })
+}
+
 // Типизированные версии хуков для конкретных ресурсов
-export const useEffectsSearch = (options: SearchOptions) => useResourcesSearch("effects", options)
+export const useEffectsSearch = (options: SearchOptions) => useResourcesSearch("effect", options)
 
-export const useFiltersSearch = (options: SearchOptions) => useResourcesSearch("filters", options)
+export const useFiltersSearch = (options: SearchOptions) => useResourcesSearch("filter", options)
 
-export const useTransitionsSearch = (options: SearchOptions) => useResourcesSearch("transitions", options)
+export const useTransitionsSearch = (options: SearchOptions) => useResourcesSearch("transition", options)
+
+// Типизированные адаптеры для каждого типа ресурса
+export const useEffectsAdapter = (options?: Partial<ResourceAdapterConfig>) =>
+  useResourcesAdapter({ type: "effect", ...options })
+
+export const useFiltersAdapter = (options?: Partial<ResourceAdapterConfig>) =>
+  useResourcesAdapter({ type: "filter", ...options })
+
+export const useTransitionsAdapter = (options?: Partial<ResourceAdapterConfig>) =>
+  useResourcesAdapter({ type: "transition", ...options })
+
+export const useTemplatesAdapter = (options?: Partial<ResourceAdapterConfig>) =>
+  useResourcesAdapter({ type: "template", ...options })
+
+export const useStyleTemplatesAdapter = (options?: Partial<ResourceAdapterConfig>) =>
+  useResourcesAdapter({ type: "styleTemplate", ...options })

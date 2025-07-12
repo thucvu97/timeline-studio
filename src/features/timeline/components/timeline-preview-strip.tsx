@@ -177,7 +177,7 @@ function PreviewFrame({ frame, scale, height, showTimestamp, isKeyframe, onClick
       {/* Изображение */}
       <div className="relative h-full overflow-hidden rounded border border-border">
         {!isLoaded && <Skeleton className="absolute inset-0" />}
-        { }
+        {}
         <img
           ref={imgRef}
           alt={`Frame at ${frame.timestamp}s`}

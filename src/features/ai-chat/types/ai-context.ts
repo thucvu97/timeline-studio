@@ -23,25 +23,25 @@ import { Transition } from "@/features/transitions/types/transitions"
  */
 export interface TimelineStudioContext {
   // Состояние ресурсов
-  resources: ResourcesContext
+  resources: AIResourcesContext
 
   // Состояние медиа браузера
-  browser: BrowserContext
+  browser: AIBrowserContext
 
   // Состояние видеоплеера
-  player: PlayerContext
+  player: AIPlayerContext
 
   // Состояние таймлайна
-  timeline: TimelineContext
+  timeline: AITimelineContext
 
   // Пользовательские предпочтения
   userPreferences: UserPreferencesContext
 }
 
 /**
- * Контекст ресурсов проекта
+ * Контекст ресурсов проекта для AI
  */
-export interface ResourcesContext {
+export interface AIResourcesContext {
   // Доступные ресурсы в пуле
   availableResources: {
     media: MediaFile[]
@@ -71,9 +71,9 @@ export interface ResourcesContext {
 }
 
 /**
- * Контекст медиа браузера
+ * Контекст медиа браузера для AI
  */
-export interface BrowserContext {
+export interface AIBrowserContext {
   // Активная вкладка
   activeTab: string
 
@@ -97,9 +97,9 @@ export interface BrowserContext {
 }
 
 /**
- * Контекст видеоплеера
+ * Контекст видеоплеера для AI
  */
-export interface PlayerContext {
+export interface AIPlayerContext {
   // Текущее видео
   currentVideo: MediaFile | null
 
@@ -131,9 +131,9 @@ export interface PlayerContext {
 }
 
 /**
- * Контекст таймлайна
+ * Контекст таймлайна для AI
  */
-export interface TimelineContext {
+export interface AITimelineContext {
   // Текущий проект
   currentProject: TimelineProject | null
 

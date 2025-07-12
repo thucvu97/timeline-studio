@@ -87,7 +87,7 @@ export interface TimelineProject {
   resources: ProjectResources
 
   // Настройки
-  settings: ProjectSettings
+  settings: TimelineProjectSettings
 
   // Метаданные
   createdAt: Date
@@ -242,7 +242,7 @@ export interface ClipPosition {
   scaleY: number // Масштаб по Y
 }
 
-export interface ProjectSettings {
+export interface TimelineProjectSettings {
   // Видео настройки
   resolution: {
     width: number

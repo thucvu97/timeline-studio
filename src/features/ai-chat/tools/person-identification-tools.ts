@@ -758,4 +758,68 @@ export const personIdentificationHandlers = {
   },
 }
 
+/**
+ * Результат выполнения Person Identification инструмента
+ */
+export interface PersonIdentificationToolResult {
+  success: boolean
+  message: string
+  toolName: string
+  input: any
+  data?: any
+  persons?: any[]
+  stats?: any
+  profile?: any
+  report?: any
+  error?: any
+}
+
+/**
+ * Выполнение Person Identification инструментов
+ */
+export async function executePersonIdentificationTool(
+  toolName: string,
+  input: Record<string, any>,
+): Promise<PersonIdentificationToolResult> {
+  try {
+    const handlerName = toolName.replace(/-/g, "_")
+    const handler = personIdentificationHandlers[handlerName as keyof typeof personIdentificationHandlers]
+
+    if (!handler) {
+      return {
+        success: false,
+        message: `Неизвестный инструмент Person Identification: ${toolName}`,
+        toolName,
+        input,
+      }
+    }
+
+    const result = await handler(input)
+
+    return {
+      success: result.success,
+      message: result.success
+        ? `Инструмент ${toolName} выполнен успешно`
+        : result.error || `Ошибка выполнения ${toolName}`,
+      toolName,
+      input,
+      data: result,
+      persons: result.persons,
+      stats: result.stats,
+      profile: result.profile,
+      report: result.report,
+      error: result.success ? undefined : result.error,
+    }
+  } catch (error) {
+    console.error(`Ошибка выполнения Person Identification инструмента ${toolName}:`, error)
+    return {
+      success: false,
+      message: `Ошибка выполнения ${toolName}: ${error.message}`,
+      toolName,
+      input,
+      error: error.message,
+    }
+  }
+}
+
 export default personIdentificationTools

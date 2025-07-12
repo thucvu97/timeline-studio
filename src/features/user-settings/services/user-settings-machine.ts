@@ -1,23 +1,12 @@
 import { assign, createMachine } from "xstate"
 
-import type { BrowserContext } from "@/features/browser/services/browser-state-machine"
 import { DEFAULT_CONTENT_SIZES, type PreviewSize, type PreviewSizeKey } from "@/features/media/utils/preview-sizes"
+import { BrowserTab, DEFAULT_TAB } from "@/shared/types"
+import type { BrowserContext } from "@/shared/types/browser-context"
 
-/**
- * Допустимые значения для активного таба в браузере
- * Определяют, какой тип контента отображается в браузере
- */
-export const BROWSER_TABS = [
-  "media", // Медиа-файлы (видео, изображения)
-  "music", // Музыкальные файлы
-  "subtitles", // Субтитры
-  "transitions", // Переходы между сценами
-  "effects", // Эффекты для видео
-  "filters", // Фильтры для видео
-  "templates", // Шаблоны проектов
-  "style-templates", // Стилевые шаблоны
-] as const
-export const DEFAULT_TAB = "media" // Таб по умолчанию
+// Реэкспортируем для обратной совместимости
+export type { BrowserTab } from "@/shared/types"
+export { BROWSER_TABS, DEFAULT_TAB } from "@/shared/types"
 
 /**
  * Допустимые значения для макета интерфейса
@@ -29,7 +18,6 @@ export const DEFAULT_LAYOUT = "default" // Макет по умолчанию
 /**
  * Типы для TypeScript, основанные на константах
  */
-export type BrowserTab = (typeof BROWSER_TABS)[number] // Тип таба браузера
 export type LayoutMode = (typeof LAYOUTS)[number] // Тип макета интерфейса
 
 /**
@@ -163,6 +151,7 @@ const initialContext: UserSettingsContextType = {
   isBrowserVisible: true, // Браузер виден по умолчанию
   isTimelineVisible: true, // Временная шкала видна по умолчанию
   isOptionsVisible: true, // Опции видны по умолчанию
+  isAIAssistantVisible: false, // AI помощник скрыт по умолчанию
   isLoaded: false, // Флаг загрузки настроек (изначально false)
 }
 

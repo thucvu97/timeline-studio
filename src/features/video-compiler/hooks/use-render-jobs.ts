@@ -2,10 +2,7 @@ import { useCallback, useEffect, useState } from "react"
 
 import { invoke } from "@tauri-apps/api/core"
 
-import { RenderStatus } from "../types/render"
-
-import type { RenderJob } from "../types/render"
-
+import { type VideoRenderJob as RenderJob, RenderStatus } from "../types/render"
 
 interface UseRenderJobsReturn {
   jobs: RenderJob[]

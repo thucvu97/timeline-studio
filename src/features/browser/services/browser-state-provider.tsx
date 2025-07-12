@@ -1,14 +1,9 @@
 import React, { createContext, useContext, useState } from "react"
 
-import { useAppSettings } from "@/features/app-state"
+import { useAppSettings } from "@/features/app-state/hooks"
 import { DEFAULT_PREVIEW_SIZE_INDEX, PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"
-import { BrowserTab } from "@/features/user-settings"
-
-import { ViewMode } from "../components"
-import { BrowserContext } from "./browser-state-machine"
-
-// Реэкспортируем для удобства
-export { PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"
+import { BrowserTab } from "@/shared/types/browser"
+import type { BrowserContext, ViewMode } from "@/shared/types/browser-context"
 
 /**
  * Начальные настройки для каждой вкладки

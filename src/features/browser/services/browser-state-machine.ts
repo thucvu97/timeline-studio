@@ -1,32 +1,8 @@
 import { assign, createMachine } from "xstate"
 
 import { DEFAULT_PREVIEW_SIZE_INDEX, getPreviewSizeIndex } from "@/features/media/utils/preview-sizes"
-import { BrowserTab } from "@/features/user-settings"
-
-import { ViewMode } from "../components/media-toolbar"
-
-/**
- * Контекст машины состояния браузера
- */
-export interface BrowserContext {
-  // Общие настройки
-  activeTab: BrowserTab
-
-  // Настройки для каждой вкладки
-  tabSettings: Record<
-    BrowserTab,
-    {
-      searchQuery: string
-      showFavoritesOnly: boolean
-      sortBy: string
-      sortOrder: "asc" | "desc"
-      groupBy: string
-      filterType: string
-      viewMode: ViewMode
-      previewSizeIndex: number
-    }
-  >
-}
+import { BrowserTab } from "@/shared/types/browser"
+import type { BrowserContext, ViewMode } from "@/shared/types/browser-context"
 
 /**
  * События машины состояния браузера

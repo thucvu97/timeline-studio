@@ -43,13 +43,14 @@ export interface ScriptGenerationConfig {
 
 export interface ScriptGenerationContext {
   analysis: SceneAnalysis[]
-  metadata: VideoMetadata
+  metadata: VideoContextMetadata
   userPrompt?: string
   references?: ScriptReference[]
   constraints?: ScriptConstraints
 }
 
-export interface VideoMetadata {
+// VideoMetadata импортируется из общих типов
+export interface VideoContextMetadata {
   duration: number
   title?: string
   description?: string

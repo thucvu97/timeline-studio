@@ -2,7 +2,7 @@
  * Типы для системы рендеринга видео
  */
 
-export interface RenderJob {
+export interface VideoRenderJob {
   id: string
   project_name: string
   output_path: string

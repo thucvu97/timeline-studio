@@ -5,10 +5,8 @@
 
 import { assign, emit, fromPromise, setup } from "xstate"
 
-import { FFmpegAnalysisService } from "@/features/ai-chat/services/ffmpeg-analysis-service"
-import { UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service"
-
 import { ProcessingStatus } from "../types"
+import { type IFFmpegAnalysisService, type IUnifiedAIService, getAIService } from "./media-analysis-interface"
 import { ContentType, Emotion } from "../types/content-analysis"
 import { NarrativeType, PaceType } from "../types/script-generation"
 
@@ -92,8 +90,8 @@ const analyzeContentActor = fromPromise(
     input: {
       mediaFiles: MediaFile[]
       config: AIConfig
-      ffmpegService: FFmpegAnalysisService
-      aiService: UnifiedAIService
+      ffmpegService: IFFmpegAnalysisService
+      aiService: IUnifiedAIService
     }
   }) => {
     const { mediaFiles, ffmpegService, aiService } = input
@@ -183,7 +181,7 @@ const generateScriptActor = fromPromise(
     input: {
       analysis: UnifiedContentAnalysis
       params: ScriptGenerationParams
-      aiService: UnifiedAIService
+      aiService: IUnifiedAIService
     }
   }) => {
     const { analysis, params } = input
@@ -223,7 +221,7 @@ const adaptForPlatformsActor = fromPromise(
       analysis: UnifiedContentAnalysis
       script?: GeneratedScript
       platforms: PlatformId[]
-      aiService: UnifiedAIService
+      aiService: IUnifiedAIService
     }
   }) => {
     const { platforms } = input
@@ -456,8 +454,8 @@ export const aiIntelligenceMachine = setup({
         input: ({ context }) => ({
           mediaFiles: context.mediaFiles,
           config: context.config,
-          ffmpegService: FFmpegAnalysisService.getInstance(),
-          aiService: UnifiedAIService.getInstance(),
+          ffmpegService: IgetFFmpegService(),
+          aiService: getAIService(),
         }),
         onDone: {
           target: "analysisComplete",
@@ -523,7 +521,7 @@ export const aiIntelligenceMachine = setup({
               genre: [],
               tone: { primary: Emotion.CALM, intensity: 0.5 },
             } as ScriptGenerationParams),
-          aiService: UnifiedAIService.getInstance(),
+          aiService: getAIService(),
         }),
         onDone: {
           target: "scriptGenerated",
@@ -576,7 +574,7 @@ export const aiIntelligenceMachine = setup({
           analysis: context.analysis!,
           script: context.script,
           platforms: context.config.platforms || [],
-          aiService: UnifiedAIService.getInstance(),
+          aiService: getAIService(),
         }),
         onDone: {
           target: "complete",
@@ -666,7 +664,7 @@ export const aiIntelligenceMachine = setup({
 })
 
 // Вспомогательные функции
-async function performFFmpegAnalysis(mediaFile: MediaFile, ffmpegService: FFmpegAnalysisService) {
+async function performFFmpegAnalysis(mediaFile: MediaFile, ffmpegService: IFFmpegAnalysisService) {
   const [metadata, scenes, quality, silence, motion] = await Promise.all([
     ffmpegService.getVideoMetadata(mediaFile.path),
     ffmpegService.detectScenes(mediaFile.path),
@@ -678,7 +676,7 @@ async function performFFmpegAnalysis(mediaFile: MediaFile, ffmpegService: FFmpeg
   return { metadata, scenes, quality, silence, motion }
 }
 
-async function performAIAnalysis(_ffmpegResults: any, _mediaFile: MediaFile, _aiService: UnifiedAIService) {
+async function performAIAnalysis(_ffmpegResults: any, _mediaFile: MediaFile, _aiService: IUnifiedAIService) {
   // Временная заглушка - в реальности здесь будет вызов AI
   return {
     scenes: [],

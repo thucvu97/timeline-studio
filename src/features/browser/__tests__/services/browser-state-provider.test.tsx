@@ -4,7 +4,7 @@ import { act, renderHook } from "@testing-library/react"
 import { MockedFunction, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { useAppSettings } from "@/features/app-state"
-import { BrowserTab } from "@/features/user-settings"
+import { BrowserTab } from "@/shared/types"
 
 import { ViewMode } from "../../components"
 import { BrowserStateProvider, useBrowserState, useTabSettings } from "../../services/browser-state-provider"

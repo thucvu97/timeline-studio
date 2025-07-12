@@ -100,7 +100,6 @@ export function StyleTemplatePreview({
         onClick={handleClick}
       >
         {template.thumbnail ? (
-           
           <img
             src={template.thumbnail}
             alt={template.name[currentLanguage]}

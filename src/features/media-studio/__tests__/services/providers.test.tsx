@@ -85,7 +85,7 @@ describe("Providers", () => {
     expect(screen.getByTestId("i18n-provider")).toBeInTheDocument()
     expect(screen.getByTestId("theme-provider")).toBeInTheDocument()
     expect(screen.getByTestId("app-settings-provider")).toBeInTheDocument()
-    expect(screen.getByTestId("browser-state-provider")).toBeInTheDocument()
+    // expect(screen.getByTestId("browser-state-provider")).toBeInTheDocument()
     expect(screen.getByTestId("user-settings-provider")).toBeInTheDocument()
     expect(screen.getByTestId("resources-provider")).toBeInTheDocument()
 

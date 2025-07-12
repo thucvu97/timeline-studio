@@ -2,6 +2,21 @@
  * TypeScript типы для интеграции с Video Compiler (Rust backend)
  */
 
+import {
+  OutputFormat,
+  type VideoRenderJob as RenderJob,
+  type RenderProgress,
+  RenderStatus,
+} from "@/features/video-compiler/types/render"
+
+// Реэкспорт для обратной совместимости
+export {
+  OutputFormat,
+  type RenderProgress,
+  RenderStatus,
+  type VideoRenderJob as RenderJob,
+} from "@/features/video-compiler/types/render"
+
 // ============ Основные типы проекта ============
 
 export interface ProjectSchema {
@@ -15,7 +30,7 @@ export interface ProjectSchema {
   templates: Template[]
   style_templates: StyleTemplate[]
   subtitles: Subtitle[]
-  settings: ProjectSettings
+  settings: ExportProjectSettings
 }
 
 export interface ProjectMetadata {
@@ -554,7 +569,7 @@ export enum SubtitleDirection {
 
 // ============ Настройки проекта ============
 
-export interface ProjectSettings {
+export interface ExportProjectSettings {
   export: ExportSettings
   preview: PreviewSettings
   custom: Record<string, any>
@@ -570,14 +585,8 @@ export interface ExportSettings {
   ffmpeg_args: string[] // Дополнительные параметры FFmpeg
 }
 
-export enum OutputFormat {
-  Mp4 = "Mp4",
-  Avi = "Avi",
-  Mov = "Mov",
-  Mkv = "Mkv",
-  WebM = "WebM",
-  Gif = "Gif",
-}
+// OutputFormat перенесен в /src/features/video-compiler/types/render.ts
+// Используйте OutputFormat оттуда
 
 export interface PreviewSettings {
   resolution: [number, number]
@@ -587,34 +596,8 @@ export interface PreviewSettings {
 
 // ============ Прогресс рендеринга ============
 
-export interface RenderProgress {
-  job_id: string
-  stage: string
-  percentage: number // 0.0 - 100.0
-  current_frame: number
-  total_frames: number
-  elapsed_time: number // миллисекунды
-  estimated_remaining?: number // миллисекунды
-  status: RenderStatus
-  message?: string
-}
-
-export enum RenderStatus {
-  Queued = "Queued",
-  Processing = "Processing",
-  Completed = "Completed",
-  Failed = "Failed",
-  Cancelled = "Cancelled",
-}
-
-export interface RenderJob {
-  id: string
-  project_name: string
-  output_path: string
-  status: RenderStatus
-  created_at: string // ISO 8601
-  progress: RenderProgress
-}
+// Типы для рендеринга перенесены в /src/features/video-compiler/types/render.ts
+// Используйте VideoRenderJob, RenderProgress, RenderStatus оттуда
 
 // ============ GPU ускорение ============
 

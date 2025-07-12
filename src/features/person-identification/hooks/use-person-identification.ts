@@ -215,7 +215,7 @@ export function usePersonIdentification(options: UsePersonIdentificationOptions 
         const newAppearance = {
           id: `appearance_${Date.now()}`,
           personId,
-          clipId: detectedFace.clipId || '',
+          clipId: detectedFace.clipId || "",
           startTime: detectedFace.timestamp,
           endTime: detectedFace.timestamp,
           duration: 0,
@@ -223,7 +223,7 @@ export function usePersonIdentification(options: UsePersonIdentificationOptions 
           minConfidence: detectedFace.confidence,
           maxConfidence: detectedFace.confidence,
           detections: [detectedFace],
-          createdAt: new Date().toISOString()
+          createdAt: new Date().toISOString(),
         }
 
         await updatePerson(personId, {
@@ -293,8 +293,8 @@ export function usePersonIdentification(options: UsePersonIdentificationOptions 
       totalFaces: persons.reduce((sum, p) => sum + Number(p.faceEmbeddings?.length || 0), 0),
       totalAppearances: persons.reduce((sum, p) => sum + Number(p.appearances?.length || 0), 0),
       averageFacesPerPerson:
-        persons.length > 0 
-          ? persons.reduce((sum, p) => sum + Number(p.faceEmbeddings?.length || 0), 0) / persons.length 
+        persons.length > 0
+          ? persons.reduce((sum, p) => sum + Number(p.faceEmbeddings?.length || 0), 0) / persons.length
           : 0,
     }
   }, [persons])

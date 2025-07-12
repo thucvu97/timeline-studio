@@ -2,9 +2,10 @@ import { invoke } from "@tauri-apps/api/core"
 import { open } from "@tauri-apps/plugin-dialog"
 
 /**
- * Типы метаданных медиафайлов
+ * Типы метаданных медиафайлов для браузера
+ * Отличается от VideoMetadata из media-analysis - здесь все поля опциональные
  */
-export interface VideoMetadata {
+export interface BrowserVideoMetadata {
   duration?: number
   width?: number
   height?: number
@@ -34,17 +35,9 @@ export interface ImageMetadata {
 }
 
 export type MediaMetadata =
-  | {
+  | ({
       type: "Video"
-      duration?: number
-      width?: number
-      height?: number
-      fps?: number
-      codec?: string
-      bitrate?: number
-      size?: number
-      creation_time?: string
-    }
+    } & BrowserVideoMetadata)
   | {
       type: "Audio"
       duration?: number

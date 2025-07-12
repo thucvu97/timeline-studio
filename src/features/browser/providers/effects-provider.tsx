@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState } from 
 
 import type { VideoEffect } from "@/features/effects/types"
 import type { VideoFilter } from "@/features/filters/types/filters"
+import { ResourceType } from "@/features/resources/types"
 import type { Transition } from "@/features/transitions/types/transitions"
 
 import type {
@@ -17,7 +18,6 @@ import type {
   ResourceCache,
   ResourceSource,
   ResourceStats,
-  ResourceType,
   SearchOptions,
   SourceConfig,
 } from "../types/effects-provider"
@@ -94,15 +94,15 @@ class EffectsProviderImpl implements EffectsProviderAPI {
   // === Получение ресурсов ===
 
   getEffects(source?: ResourceSource): VideoEffect[] {
-    return this.getResources<VideoEffect>("effects", source)
+    return this.getResources<VideoEffect>("effect", source)
   }
 
   getFilters(source?: ResourceSource): VideoFilter[] {
-    return this.getResources<VideoFilter>("filters", source)
+    return this.getResources<VideoFilter>("filter", source)
   }
 
   getTransitions(source?: ResourceSource): Transition[] {
-    return this.getResources<Transition>("transitions", source)
+    return this.getResources<Transition>("transition", source)
   }
 
   getResources<T extends Resource>(type: ResourceType, source?: ResourceSource): T[] {
@@ -138,7 +138,7 @@ class EffectsProviderImpl implements EffectsProviderAPI {
     if (options.query) {
       const query = options.query.toLowerCase()
       resources = resources.filter((resource) => {
-        const name = "name" in resource ? resource.name?.toLowerCase() : ""
+        const name = "name" in resource ? resource.name?.toLowerCase() || "" : ""
         const labels = "labels" in resource ? Object.values(resource.labels).join(" ").toLowerCase() : ""
         const description =
           "description" in resource
@@ -221,7 +221,7 @@ class EffectsProviderImpl implements EffectsProviderAPI {
       })
 
       // Уведомляем подписчиков об обновлении ресурсов
-      ;(["effects", "filters", "transitions"] as ResourceType[]).forEach((type) => {
+      ;(["effect", "filter", "transition"] as ResourceType[]).forEach((type) => {
         const resources = this.getResources(type, source)
         this.eventListeners.resourcesUpdate.forEach((callback) => callback(type, resources))
       })
@@ -390,17 +390,17 @@ class EffectsProviderImpl implements EffectsProviderAPI {
   getStats(): ResourceStats {
     const stats: ResourceStats = {
       total: 0,
-      byType: { effects: 0, filters: 0, transitions: 0 },
+      byType: { effect: 0, filter: 0, transition: 0, media: 0, music: 0, subtitle: 0, template: 0, styleTemplate: 0 },
       bySource: { "built-in": 0, local: 0, remote: 0, imported: 0 },
       cacheSize: this.getCacheSize(),
       memoryUsage: 0, // TODO: Подсчитать использование памяти
     }
 
     // Подсчитываем ресурсы по типам
-    stats.byType.effects = this.getEffects().length
-    stats.byType.filters = this.getFilters().length
-    stats.byType.transitions = this.getTransitions().length
-    stats.total = stats.byType.effects + stats.byType.filters + stats.byType.transitions
+    stats.byType.effect = this.getEffects().length
+    stats.byType.filter = this.getFilters().length
+    stats.byType.transition = this.getTransitions().length
+    stats.total = Number(stats.byType.effect) + Number(stats.byType.filter) + Number(stats.byType.transition)
 
     // Подсчитываем ресурсы по источникам
     for (const source of this.loadingState.loadedSources) {

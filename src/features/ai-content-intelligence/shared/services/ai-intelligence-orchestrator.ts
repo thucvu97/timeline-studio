@@ -3,7 +3,7 @@
  * Использует XState машину состояний для управления процессом
  */
 
-import { Actor, createActor } from "xstate"
+import { Actor } from "xstate"
 
 import { AIProvider, AccuracyLevel, AnalysisDepth, ProcessingStatus, SpeedPriority } from "../types"
 import { type AIIntelligenceContext, aiIntelligenceMachine } from "./ai-intelligence-machine"
@@ -40,8 +40,7 @@ interface Content {
 }
 
 export class AIIntelligenceOrchestrator {
-  private static instance: AIIntelligenceOrchestrator
-  private actor?: Actor<typeof aiIntelligenceMachine>
+  private actor: Actor<typeof aiIntelligenceMachine>
   private eventListeners = new Map<string, Set<(event: PipelineEvent) => void>>()
   private progressListeners = new Set<(progress: PipelineProgress) => void>()
 
@@ -50,16 +49,8 @@ export class AIIntelligenceOrchestrator {
   private scriptGenerator?: AIEngine
   private multiPlatformAdapter?: AIEngine
 
-  private constructor() {}
-
-  /**
-   * Получить экземпляр оркестратора (Singleton)
-   */
-  public static getInstance(): AIIntelligenceOrchestrator {
-    if (!AIIntelligenceOrchestrator.instance) {
-      AIIntelligenceOrchestrator.instance = new AIIntelligenceOrchestrator()
-    }
-    return AIIntelligenceOrchestrator.instance
+  constructor(actor: Actor<typeof aiIntelligenceMachine>) {
+    this.actor = actor
   }
 
   /**
@@ -132,7 +123,7 @@ export class AIIntelligenceOrchestrator {
     }
 
     return new Promise((resolve, reject) => {
-      const actor = this.createActor()
+      const actor = this.actor
 
       // Подписываемся на результат анализа
       actor.subscribe((snapshot) => {
@@ -186,8 +177,7 @@ export class AIIntelligenceOrchestrator {
    */
   public async processProject(mediaFiles: MediaFile[], config: AIConfig): Promise<IntelligentContent> {
     return new Promise((resolve, reject) => {
-      const actor = this.createActor()
-      this.actor = actor
+      const actor = this.actor
 
       // Подписываемся на события
       actor.subscribe((snapshot) => {
@@ -274,17 +264,10 @@ export class AIIntelligenceOrchestrator {
 
   // Приватные методы
 
-  private createActor() {
-    const actor = createActor(aiIntelligenceMachine)
-    actor.start()
-    return actor
-  }
-
   private cleanup() {
-    if (this.actor) {
-      this.actor.stop()
-      this.actor = undefined
-    }
+    // Больше не очищаем actor, так как он управляется провайдером
+    this.eventListeners.clear()
+    this.progressListeners.clear()
   }
 
   private calculateProgress(context: AIIntelligenceContext): PipelineProgress {

@@ -4,6 +4,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 
+import { useAIIntelligence as useAIIntelligenceContext } from "../services/ai-intelligence-provider"
 import { AIIntelligenceOrchestrator } from "../shared/services/ai-intelligence-orchestrator"
 
 import type {
@@ -70,28 +71,37 @@ export function useAIIntelligence(options: UseAIIntelligenceOptions = {}): UseAI
   const [error, setError] = useState<Error | null>(null)
   const [result, setResult] = useState<IntelligentContent | null>(null)
 
+  // Get AI Intelligence context
+  const context = useAIIntelligenceContext()
+  const actor = context?.actor
+
   // Refs
-  const orchestratorRef = useRef<AIIntelligenceOrchestrator>()
-  const pipelineControlRef = useRef<PipelineControl>()
+  const orchestratorRef = useRef<AIIntelligenceOrchestrator>(null)
+  const pipelineControlRef = useRef<PipelineControl>(null)
 
   // Инициализация оркестратора
   useEffect(() => {
-    if (autoInitialize && !orchestratorRef.current) {
-      orchestratorRef.current = AIIntelligenceOrchestrator.getInstance()
+    if (autoInitialize && !orchestratorRef.current && actor) {
+      orchestratorRef.current = new AIIntelligenceOrchestrator(actor)
 
       // Инициализация движков происходит лениво при первом использовании
       setIsInitialized(true)
     }
-  }, [autoInitialize])
+  }, [autoInitialize, actor])
 
   // Получить оркестратор
   const getOrchestrator = useCallback(() => {
-    if (!orchestratorRef.current) {
-      orchestratorRef.current = AIIntelligenceOrchestrator.getInstance()
+    if (!orchestratorRef.current && actor) {
+      orchestratorRef.current = new AIIntelligenceOrchestrator(actor)
       setIsInitialized(true)
     }
+    if (!orchestratorRef.current) {
+      throw new Error(
+        "AIIntelligenceOrchestrator not initialized. Make sure component is wrapped in AIIntelligenceProvider.",
+      )
+    }
     return orchestratorRef.current
-  }, [])
+  }, [actor])
 
   // Анализировать контент
   const analyzeContent = useCallback(

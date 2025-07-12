@@ -3,8 +3,8 @@
 import { ReactNode } from "react"
 
 import { ChatProvider } from "@/features/ai-chat/services/chat-provider"
+import { AIIntelligenceProvider } from "@/features/ai-content-intelligence"
 import { AppSettingsProvider } from "@/features/app-state"
-import { BrowserStateProvider } from "@/features/browser"
 import { ShortcutsProvider } from "@/features/keyboard-shortcuts"
 import { TauriMockProvider } from "@/features/media-studio/services/tauri-mock-provider"
 import { ModalProvider } from "@/features/modals/services/modal-provider"
@@ -15,6 +15,7 @@ import { ThemeProvider } from "@/features/top-bar/components/theme/theme-context
 import { UserSettingsProvider } from "@/features/user-settings"
 import { PlayerProvider } from "@/features/video-player/services/player-provider"
 import { I18nProvider } from "@/i18n/services/i18n-provider"
+import { BrowserStateProvider } from "@/features/browser/services/browser-state-provider"
 
 interface ProvidersProps {
   children: ReactNode
@@ -36,7 +37,7 @@ const AppProvider = composeProviders(
   ThemeProvider,
   ModalProvider,
   AppSettingsProvider,
-  BrowserStateProvider,
+  BrowserStateProvider, // Временно убираем для проверки
   ProjectSettingsProvider,
   UserSettingsProvider,
   ShortcutsProvider, // Зависит от UserSettingsProvider
@@ -44,6 +45,7 @@ const AppProvider = composeProviders(
   TimelineProvider,
   PlayerProvider,
   ChatProvider,
+  AIIntelligenceProvider, // Добавлен AI Intelligence Provider
 )
 
 export function Providers({ children }: ProvidersProps) {

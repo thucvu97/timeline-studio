@@ -1,9 +1,10 @@
 import React from "react"
 
 import { useFavorites } from "@/features/app-state"
+import { useTransitionsAdapter as useUnifiedTransitionsAdapter } from "@/features/browser/hooks/use-resources"
+import { useDraggable } from "@/features/drag-drop"
 import { MediaFile } from "@/features/media/types/media"
 import { TransitionPreview } from "@/features/transitions/components/transition-preview"
-import { useTransitions } from "@/features/transitions/hooks/use-transitions"
 import { Transition } from "@/features/transitions/types/transitions"
 
 import type { ListAdapter, PreviewComponentProps } from "../types/list"
@@ -22,9 +23,16 @@ const TransitionPreviewWrapper: React.FC<PreviewComponentProps<Transition>> = ({
     onClick?.(transition)
   }
 
-  const handleDragStart = (e: React.DragEvent) => {
-    onDragStart?.(transition, e)
-  }
+  // Используем DragDropManager для перетаскивания
+  const dragProps = useDraggable(
+    "transition",
+    () => transition,
+    () => ({
+      url: `/transitions/${transition.type}.png`, // Preview URL if available
+      width: 120,
+      height: 80,
+    }),
+  )
 
   // Демонстрационные видео для превью переходов
   const demoVideos = {
@@ -42,8 +50,7 @@ const TransitionPreviewWrapper: React.FC<PreviewComponentProps<Transition>> = ({
       <div
         className="flex items-center gap-3 p-2 rounded-lg border cursor-pointer transition-colors hover:bg-accent/50"
         onClick={handleClick}
-        onDragStart={handleDragStart}
-        draggable
+        {...dragProps}
       >
         {/* Transition preview thumbnail */}
         <div className="flex-shrink-0 w-12 h-9 bg-gray-200 rounded overflow-hidden relative">
@@ -75,7 +82,7 @@ const TransitionPreviewWrapper: React.FC<PreviewComponentProps<Transition>> = ({
 
   // Thumbnails mode - use the original TransitionPreview component
   return (
-    <div onDragStart={handleDragStart} draggable>
+    <div {...dragProps}>
       <TransitionPreview
         transition={transition}
         sourceVideo={demoVideos.source}
@@ -92,113 +99,95 @@ const TransitionPreviewWrapper: React.FC<PreviewComponentProps<Transition>> = ({
 
 /**
  * Хук для создания адаптера переходов
+ * Мигрирован на унифицированную систему browser-хуков
  */
 export function useTransitionsAdapter(): ListAdapter<Transition> {
-  const { transitions, loading, error } = useTransitions()
   const { isItemFavorite } = useFavorites()
 
-  return {
-    // Хук для получения данных
-    useData: () => ({
-      items: transitions,
-      loading,
-      error: error || null,
-    }),
+  // Используем унифицированный адаптер с конфигурацией для переходов
+  const { items, loading, error, stats, ...restAdapter } = useUnifiedTransitionsAdapter({
+    PreviewComponent: TransitionPreviewWrapper,
+    customHandlers: {
+      getSortValue: (transition: Transition, sortBy: string) => {
+        switch (sortBy) {
+          case "name":
+            return (transition.labels?.ru || transition.labels?.en || transition.name || "").toLowerCase()
+          case "category":
+            return transition.category.toLowerCase()
+          case "complexity":
+            // Определяем порядок сложности: basic < intermediate < advanced
+            const complexityOrder: Record<string, number> = { basic: 0, intermediate: 1, advanced: 2 }
+            return complexityOrder[transition.complexity || "basic"]
+          case "duration":
+            return transition.duration?.default || 1
+          case "type":
+            return transition.type.toLowerCase()
+          default:
+            return (transition.labels?.ru || transition.labels?.en || transition.name || "").toLowerCase()
+        }
+      },
+      getSearchableText: (transition: Transition) => {
+        const texts = [
+          transition.name || "",
+          transition.labels?.ru || "",
+          transition.labels?.en || "",
+          transition.description?.ru || "",
+          transition.description?.en || "",
+          transition.category,
+          transition.type,
+          ...(transition.tags || []),
+        ]
+        return texts.filter(Boolean)
+      },
+      getGroupValue: (transition: Transition, groupBy: string) => {
+        switch (groupBy) {
+          case "category":
+            return transition.category || "other"
+          case "complexity":
+            return transition.complexity || "basic"
+          case "type":
+            return transition.type || "unknown"
+          case "tags":
+            // Группируем по первому тегу или "untagged"
+            return transition.tags && transition.tags.length > 0 ? transition.tags[0] : "untagged"
+          case "duration":
+            const duration = transition.duration?.default || 1
+            if (duration <= 1) return "Короткие (≤1с)"
+            if (duration <= 3) return "Средние (1-3с)"
+            return "Длинные (>3с)"
+          default:
+            return ""
+        }
+      },
+      matchesFilter: (transition: Transition, filterType: string) => {
+        if (filterType === "all") return true
 
+        // Фильтрация по сложности
+        if (["basic", "intermediate", "advanced"].includes(filterType)) {
+          return (transition.complexity || "basic") === filterType
+        }
+
+        // Фильтрация по категории
+        if (["basic", "advanced", "creative", "3d", "artistic", "cinematic"].includes(filterType)) {
+          return transition.category === filterType
+        }
+
+        return true
+      },
+    },
+  })
+
+  return {
+    ...restAdapter,
+    // Данные с правильной типизацией
+    useData: () => ({
+      items: items as Transition[],
+      loading,
+      error: error ? new Error(error) : null,
+    }),
     // Компонент превью
     PreviewComponent: TransitionPreviewWrapper,
-
-    // Функция для получения значения сортировки
-    getSortValue: (transition, sortBy) => {
-      switch (sortBy) {
-        case "name":
-          return (transition.labels?.ru || transition.labels?.en || transition.name || "").toLowerCase()
-
-        case "category":
-          return transition.category.toLowerCase()
-
-        case "complexity":
-          // Определяем порядок сложности: basic < intermediate < advanced
-          const complexityOrder = { basic: 0, intermediate: 1, advanced: 2 }
-          return complexityOrder[transition.complexity || "basic"]
-
-        case "duration":
-          return transition.duration?.default || 1
-
-        case "type":
-          return transition.type.toLowerCase()
-
-        default:
-          return (transition.labels?.ru || transition.labels?.en || transition.name || "").toLowerCase()
-      }
-    },
-
-    // Функция для получения текста для поиска
-    getSearchableText: (transition) => {
-      const texts = [
-        transition.name || "",
-        transition.labels?.ru || "",
-        transition.labels?.en || "",
-        transition.description?.ru || "",
-        transition.description?.en || "",
-        transition.category,
-        transition.type,
-        ...(transition.tags || []),
-      ]
-      return texts.filter(Boolean)
-    },
-
-    // Функция для получения значения группировки
-    getGroupValue: (transition, groupBy) => {
-      switch (groupBy) {
-        case "category":
-          return transition.category || "other"
-
-        case "complexity":
-          return transition.complexity || "basic"
-
-        case "type":
-          return transition.type || "unknown"
-
-        case "tags":
-          // Группируем по первому тегу или "untagged"
-          return transition.tags && transition.tags.length > 0 ? transition.tags[0] : "untagged"
-
-        case "duration":
-          const duration = transition.duration?.default || 1
-          if (duration <= 1) return "Короткие (≤1с)"
-          if (duration <= 3) return "Средние (1-3с)"
-          return "Длинные (>3с)"
-
-        default:
-          return ""
-      }
-    },
-
-    // Функция для фильтрации по типу
-    matchesFilter: (transition, filterType) => {
-      if (filterType === "all") return true
-
-      // Фильтрация по сложности
-      if (["basic", "intermediate", "advanced"].includes(filterType)) {
-        return (transition.complexity || "basic") === filterType
-      }
-
-      // Фильтрация по категории
-      if (["basic", "advanced", "creative", "3d", "artistic", "cinematic"].includes(filterType)) {
-        return transition.category === filterType
-      }
-
-      return true
-    },
-
-    // Обработчики импорта не нужны для переходов (они встроенные)
-    importHandlers: undefined,
-
-    // Проверка избранного
-    isFavorite: (transition) => isItemFavorite(transition, "transition"),
-
-    // Тип для системы избранного
-    favoriteType: "transition",
+    // Проверка избранного (переопределяем)
+    isFavorite: (transition: Transition) => isItemFavorite(transition, "transition"),
   }
 }

@@ -1,9 +1,9 @@
 import React from "react"
 
 import { useFavorites } from "@/features/app-state"
+import { useFiltersAdapter as useUnifiedFiltersAdapter } from "@/features/browser/hooks/use-resources"
 import { useDraggable } from "@/features/drag-drop"
 import { FilterPreview } from "@/features/filters/components/filter-preview"
-import { useFilters } from "@/features/filters/hooks/use-filters"
 import { VideoFilter } from "@/features/filters/types/filters"
 
 import type { ListAdapter, PreviewComponentProps } from "../types/list"
@@ -26,7 +26,7 @@ const FilterPreviewWrapper: React.FC<PreviewComponentProps<VideoFilter>> = ({
     "filter",
     () => filter,
     () => ({
-      url: `/filters/${filter.type}.png`, // Preview URL if available
+      url: `/filters/${filter.name}.png`, // Preview URL if available
       width: 120,
       height: 80,
     }),
@@ -117,96 +117,82 @@ function getFilterPreviewStyle(filter: VideoFilter): string {
 
 /**
  * Хук для создания адаптера фильтров
+ * Мигрирован на унифицированную систему browser-хуков
  */
 export function useFiltersAdapter(): ListAdapter<VideoFilter> {
-  const { filters, loading, error } = useFilters()
   const { isItemFavorite } = useFavorites()
 
-  return {
-    // Хук для получения данных
-    useData: () => ({
-      items: filters,
-      loading,
-      error: error || null,
-    }),
+  // Используем унифицированный адаптер с конфигурацией для фильтров
+  const { items, loading, error, stats, ...restAdapter } = useUnifiedFiltersAdapter({
+    PreviewComponent: FilterPreviewWrapper,
+    customHandlers: {
+      getSortValue: (filter: VideoFilter, sortBy: string) => {
+        switch (sortBy) {
+          case "name":
+            return filter.name.toLowerCase()
+          case "category":
+            return filter.category.toLowerCase()
+          case "complexity":
+            // Определяем порядок сложности: basic < intermediate < advanced
+            const complexityOrder: Record<string, number> = { basic: 0, intermediate: 1, advanced: 2 }
+            return complexityOrder[filter.complexity || "basic"]
+          default:
+            return filter.name.toLowerCase()
+        }
+      },
+      getSearchableText: (filter: VideoFilter) => {
+        const texts = [
+          filter.name,
+          filter.labels?.ru || "",
+          filter.labels?.en || "",
+          filter.description?.en || "",
+          filter.category,
+          ...(filter.tags || []),
+        ]
+        return texts.filter(Boolean)
+      },
+      getGroupValue: (filter: VideoFilter, groupBy: string) => {
+        switch (groupBy) {
+          case "category":
+            return filter.category || "other"
+          case "complexity":
+            return filter.complexity || "basic"
+          case "tags":
+            // Группируем по первому тегу или "untagged"
+            return filter.tags && filter.tags.length > 0 ? filter.tags[0] : "untagged"
+          default:
+            return ""
+        }
+      },
+      matchesFilter: (filter: VideoFilter, filterType: string) => {
+        if (filterType === "all") return true
 
+        // Фильтрация по сложности
+        if (["basic", "intermediate", "advanced"].includes(filterType)) {
+          return (filter.complexity || "basic") === filterType
+        }
+
+        // Фильтрация по категории
+        if (["color-correction", "creative", "cinematic", "vintage", "technical", "artistic"].includes(filterType)) {
+          return filter.category === filterType
+        }
+
+        return true
+      },
+    },
+  })
+
+  return {
+    ...restAdapter,
+    // Данные с правильной типизацией
+    useData: () => ({
+      items: items as VideoFilter[],
+      loading,
+      error: error ? new Error(error) : null,
+    }),
     // Компонент превью
     PreviewComponent: FilterPreviewWrapper,
-
-    // Функция для получения значения сортировки
-    getSortValue: (filter, sortBy) => {
-      switch (sortBy) {
-        case "name":
-          return filter.name.toLowerCase()
-
-        case "category":
-          return filter.category.toLowerCase()
-
-        case "complexity":
-          // Определяем порядок сложности: basic < intermediate < advanced
-          const complexityOrder = { basic: 0, intermediate: 1, advanced: 2 }
-          return complexityOrder[filter.complexity || "basic"]
-
-        default:
-          return filter.name.toLowerCase()
-      }
-    },
-
-    // Функция для получения текста для поиска
-    getSearchableText: (filter) => {
-      const texts = [
-        filter.name,
-        filter.labels?.ru || "",
-        filter.labels?.en || "",
-        filter.description?.en || "",
-        filter.category,
-        ...(filter.tags || []),
-      ]
-      return texts.filter(Boolean)
-    },
-
-    // Функция для получения значения группировки
-    getGroupValue: (filter, groupBy) => {
-      switch (groupBy) {
-        case "category":
-          return filter.category || "other"
-
-        case "complexity":
-          return filter.complexity || "basic"
-
-        case "tags":
-          // Группируем по первому тегу или "untagged"
-          return filter.tags && filter.tags.length > 0 ? filter.tags[0] : "untagged"
-
-        default:
-          return ""
-      }
-    },
-
-    // Функция для фильтрации по типу
-    matchesFilter: (filter, filterType) => {
-      if (filterType === "all") return true
-
-      // Фильтрация по сложности
-      if (["basic", "intermediate", "advanced"].includes(filterType)) {
-        return (filter.complexity || "basic") === filterType
-      }
-
-      // Фильтрация по категории
-      if (["color-correction", "creative", "cinematic", "vintage", "technical", "artistic"].includes(filterType)) {
-        return filter.category === filterType
-      }
-
-      return true
-    },
-
-    // Обработчики импорта не нужны для фильтров (они встроенные)
-    importHandlers: undefined,
-
-    // Проверка избранного
-    isFavorite: (filter) => isItemFavorite(filter, "filter"),
-
-    // Тип для системы избранного
-    favoriteType: "filter",
+    // Проверка избранного (переопределяем)
+    isFavorite: (filter: VideoFilter) => isItemFavorite(filter, "filter"),
   }
 }

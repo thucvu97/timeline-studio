@@ -5,6 +5,7 @@
 
 import { useCallback, useRef, useState } from "react"
 
+import { useAIIntelligence as useAIIntelligenceContext } from "../services/ai-intelligence-provider"
 import { AIIntelligenceOrchestrator } from "../shared/services/ai-intelligence-orchestrator"
 
 import type { AIEngine } from "../engines/types"
@@ -31,21 +32,28 @@ interface UseAIOrchestratorReturn {
 
 export function useAIOrchestrator(options: UseAIOrchestratorOptions = {}): UseAIOrchestratorReturn {
   const { engines } = options
+  const context = useAIIntelligenceContext()
+  const actor = context?.actor
 
   const [isInitialized, setIsInitialized] = useState(false)
   const [isInitializing, setIsInitializing] = useState(false)
   const [initError, setInitError] = useState<Error | null>(null)
 
-  const orchestratorRef = useRef<AIIntelligenceOrchestrator>(null)
+  const orchestratorRef = useRef<AIIntelligenceOrchestrator | null>(null)
   const enginesRef = useRef(engines)
 
   // Получить оркестратор
   const getOrchestrator = useCallback(() => {
+    if (!orchestratorRef.current && actor) {
+      orchestratorRef.current = new AIIntelligenceOrchestrator(actor)
+    }
     if (!orchestratorRef.current) {
-      orchestratorRef.current = AIIntelligenceOrchestrator.getInstance()
+      throw new Error(
+        "AIIntelligenceOrchestrator not initialized. Make sure component is wrapped in AIIntelligenceProvider.",
+      )
     }
     return orchestratorRef.current
-  }, [])
+  }, [actor])
 
   // Инициализировать с движками
   const initialize = useCallback(async () => {

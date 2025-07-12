@@ -11,23 +11,25 @@ import { TimelineProject } from "@/features/timeline/types"
 
 import { CLAUDE_MODELS, ClaudeService, ClaudeTool } from "./claude-service"
 import { batchProcessingTools, executeBatchProcessingTool } from "../tools/batch-processing-tools"
-import { browserTools } from "../tools/browser-tools"
+import { browserTools, executeBrowserTool } from "../tools/browser-tools"
+import { contentIntelligenceTools, executeContentIntelligenceTool } from "../tools/content-intelligence-tools"
 import { executeMultimodalAnalysisTool, multimodalAnalysisTools } from "../tools/multimodal-analysis-tools"
+import { executePersonIdentificationTool, personIdentificationTools } from "../tools/person-identification-tools"
 import { executePlatformOptimizationTool, platformOptimizationTools } from "../tools/platform-optimization-tools"
-import { playerTools } from "../tools/player-tools"
-import { resourceTools } from "../tools/resource-tools"
+import { executePlayerTool, playerTools } from "../tools/player-tools"
+import { executeResourceTool, resourceTools } from "../tools/resource-tools"
 import { executeSubtitleTool, subtitleTools } from "../tools/subtitle-tools"
-import { timelineTools } from "../tools/timeline-tools"
+import { executeTimelineTool, timelineTools } from "../tools/timeline-tools"
 import { executeVideoAnalysisTool, videoAnalysisTools } from "../tools/video-analysis-tools"
 import { executeWhisperTool, whisperTools } from "../tools/whisper-tools"
 import { executeWorkflowAutomationTool, workflowAutomationTools } from "../tools/workflow-automation-tools"
 import {
+  AIBrowserContext,
+  AIPlayerContext,
+  AIResourcesContext,
+  AITimelineContext,
   AIToolResult,
-  BrowserContext,
   ContentStoryAnalysis,
-  PlayerContext,
-  ResourcesContext,
-  TimelineContext,
   TimelineStudioContext,
 } from "../types/ai-context"
 
@@ -79,6 +81,8 @@ export class TimelineAIService {
       ...multimodalAnalysisTools,
       ...platformOptimizationTools,
       ...workflowAutomationTools,
+      ...contentIntelligenceTools,
+      ...personIdentificationTools,
     ]
   }
 
@@ -96,7 +100,7 @@ export class TimelineAIService {
    */
   private createContext(): TimelineStudioContext {
     // Собираем контекст ресурсов
-    const resourcesContext: ResourcesContext = {
+    const resourcesContext: AIResourcesContext = {
       availableResources: {
         media: this.resourcesProvider.mediaResources.map((r) => r.file),
         effects: this.resourcesProvider.effectResources.map((r) => r.effect),
@@ -116,7 +120,7 @@ export class TimelineAIService {
     }
 
     // Собираем контекст браузера
-    const browserContext: BrowserContext = {
+    const browserContext: AIBrowserContext = {
       activeTab: this.browserState?.activeTab || "media",
       availableMedia: this.getBrowserMedia(),
       currentFilters: this.getBrowserFilters(),
@@ -124,7 +128,7 @@ export class TimelineAIService {
     }
 
     // Собираем контекст плеера
-    const playerContext: PlayerContext = {
+    const playerContext: AIPlayerContext = {
       currentVideo: this.playerState?.video || null,
       playbackState: {
         isPlaying: this.playerState?.isPlaying || false,
@@ -138,7 +142,7 @@ export class TimelineAIService {
     }
 
     // Собираем контекст таймлайна
-    const timelineContext: TimelineContext = {
+    const timelineContext: AITimelineContext = {
       currentProject: this.timelineState?.project || null,
       projectStats: this.calculateProjectStats(),
       recentChanges: this.getRecentTimelineChanges(),
@@ -523,8 +527,100 @@ export class TimelineAIService {
         ].includes(name)
       ) {
         result = await executeWorkflowAutomationTool(name, input)
+      } else if (
+        [
+          "analyze_media_browser",
+          "search_media_files",
+          "get_file_groups",
+          "analyze_file_relationships",
+          "bulk_select_files",
+          "get_browser_state",
+          "update_browser_filters",
+          "analyze_missing_content",
+          "suggest_import_sources",
+          "export_file_list",
+        ].includes(name)
+      ) {
+        result = await executeBrowserTool(name, input)
+      } else if (
+        [
+          "analyze_current_media",
+          "apply_preview_effects",
+          "apply_preview_filters",
+          "apply_template_preview",
+          "analyze_media_quality",
+          "extract_frame_or_clip",
+          "compare_media_versions",
+          "save_preview_as_resource",
+          "control_playback",
+          "generate_thumbnails",
+        ].includes(name)
+      ) {
+        result = await executePlayerTool(name, input)
+      } else if (
+        [
+          "analyze_timeline_structure",
+          "create_timeline_project",
+          "create_sections_by_strategy",
+          "create_track_structure",
+          "place_clips_on_timeline",
+          "apply_automatic_enhancements",
+          "analyze_content_for_story",
+          "detect_and_split_scenes",
+          "synchronize_with_music",
+          "suggest_timeline_improvements",
+          "export_timeline_data",
+        ].includes(name)
+      ) {
+        result = await executeTimelineTool(name, input)
+      } else if (
+        [
+          "analyze_available_resources",
+          "add_resource_to_pool",
+          "bulk_add_resources",
+          "remove_resource_from_pool",
+          "suggest_complementary_resources",
+          "update_resource_parameters",
+          "analyze_resource_compatibility",
+          "get_resource_usage_stats",
+          "cleanup_unused_resources",
+          "export_resource_list",
+        ].includes(name)
+      ) {
+        result = await executeResourceTool(name, input)
+      } else if (
+        [
+          "analyze_content_intelligence",
+          "detect_scene_boundaries",
+          "classify_content",
+          "generate_full_script",
+          "create_shot_list",
+          "adapt_content_to_platform",
+          "generate_multilanguage_batch",
+          "generate_content_variants",
+          "analyze_content_quality",
+        ].includes(name)
+      ) {
+        result = await executeContentIntelligenceTool(name, input)
+      } else if (
+        [
+          "identify_persons_in_video",
+          "search_persons",
+          "create_person_profile",
+          "update_person_profile",
+          "get_person_stats",
+          "merge_person_profiles",
+          "cluster_unidentified_faces",
+          "export_person_data",
+          "analyze_person_emotions",
+          "manage_person_privacy",
+          "find_persons_at_time",
+          "generate_person_report",
+        ].includes(name)
+      ) {
+        result = await executePersonIdentificationTool(name, input)
       } else {
-        // Пока заглушка для остальных инструментов (browser, player, timeline, resource)
+        // Пока заглушка для остальных инструментов
         console.warn(`Tool execution not implemented for: ${name}`)
         result = {
           success: false,

@@ -2,7 +2,7 @@ import { createContext } from "react"
 
 import { useMachine } from "@xstate/react"
 
-import { useAppSettings } from "@/features/app-state"
+import { useAppSettings } from "@/features/app-state/hooks"
 
 import { BrowserTab, LayoutMode, userSettingsMachine } from "./user-settings-machine"
 

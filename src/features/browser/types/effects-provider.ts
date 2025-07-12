@@ -1,5 +1,7 @@
 import type { VideoEffect } from "@/features/effects/types"
 import type { VideoFilter } from "@/features/filters/types/filters"
+import { ResourceType } from "@/features/resources/types"
+import type { StyleTemplate } from "@/features/style-templates/types"
 import type { Transition } from "@/features/transitions/types/transitions"
 
 /**
@@ -12,14 +14,9 @@ export type ResourceSource =
   | "imported" // Импортированные файлы (.cube, .lut, .preset)
 
 /**
- * Типы ресурсов
- */
-export type ResourceType = "effects" | "filters" | "transitions"
-
-/**
  * Базовый интерфейс для любого ресурса
  */
-export type Resource = VideoEffect | VideoFilter | Transition
+export type Resource = VideoEffect | VideoFilter | Transition | StyleTemplate
 
 /**
  * Состояние загрузки ресурсов

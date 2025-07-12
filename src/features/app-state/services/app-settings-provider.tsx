@@ -11,7 +11,7 @@ import { TimelineStudioProjectService } from "@/features/app-state/services/time
 import { getResourcesFromStorage, syncResourcesToProject } from "@/features/app-state/utils/sync-resources-to-project"
 import { useMediaRestoration } from "@/features/media/hooks/use-media-restoration"
 import { TimelineStudioProject } from "@/features/project-settings/types/timeline-studio-project"
-import { UserSettingsContextType } from "@/features/user-settings"
+import { UserSettingsContextType } from "@/features/user-settings/services/user-settings-machine"
 
 import { AppSettingsContextType, appSettingsMachine } from "./app-settings-machine"
 import { FavoritesType } from "./store-service"

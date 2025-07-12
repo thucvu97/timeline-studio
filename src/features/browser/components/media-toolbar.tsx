@@ -28,9 +28,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
-
-// Типы режимов просмотра
-export type ViewMode = "list" | "grid" | "thumbnails"
+import { ViewMode } from "@/shared/types/browser-context"
 
 // Конфигурация режимов просмотра
 export interface ViewModeConfig {

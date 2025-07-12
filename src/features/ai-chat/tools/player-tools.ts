@@ -430,3 +430,591 @@ export interface PlayerToolResult {
   warnings?: string[]
   nextActions?: string[]
 }
+
+/**
+ * Интерфейс для текущего медиа в плеере
+ */
+interface CurrentMedia {
+  id: string
+  type: "video" | "audio" | "image"
+  path: string
+  duration?: number
+  currentTime: number
+  metadata?: {
+    width?: number
+    height?: number
+    fps?: number
+    codec?: string
+    bitrate?: number
+    sampleRate?: number
+    channels?: number
+  }
+  effects?: any[]
+  filters?: any[]
+}
+
+/**
+ * Интерфейс для параметров плеера
+ */
+interface PlayerState {
+  isPlaying: boolean
+  currentTime: number
+  duration: number
+  volume: number
+  playbackSpeed: number
+  loop: boolean
+  muted: boolean
+}
+
+/**
+ * Выполняет инструмент плеера
+ */
+export async function executePlayerTool(toolName: string, input: Record<string, any>): Promise<PlayerToolResult> {
+  try {
+    switch (toolName) {
+      case "analyze_current_media":
+        return await analyzeCurrentMedia(input)
+      case "apply_preview_effects":
+        return await applyPreviewEffects(input)
+      case "apply_preview_filters":
+        return await applyPreviewFilters(input)
+      case "apply_template_preview":
+        return await applyTemplatePreview(input)
+      case "analyze_media_quality":
+        return await analyzeMediaQuality(input)
+      case "extract_frame_or_clip":
+        return await extractFrameOrClip(input)
+      case "compare_media_versions":
+        return await compareMediaVersions(input)
+      case "save_preview_as_resource":
+        return await savePreviewAsResource(input)
+      case "control_playback":
+        return await controlPlayback(input)
+      case "generate_thumbnails":
+        return await generateThumbnails(input)
+      default:
+        return {
+          success: false,
+          message: `Неизвестный инструмент плеера: ${toolName}`,
+          errors: [`Unknown player tool: ${toolName}`],
+        }
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: `Ошибка выполнения инструмента плеера ${toolName}`,
+      errors: [error instanceof Error ? error.message : String(error)],
+    }
+  }
+}
+
+/**
+ * Анализирует текущее медиа в плеере
+ */
+async function analyzeCurrentMedia(input: Record<string, any>): Promise<PlayerToolResult> {
+  const { includeMetadata = true, includeEffects = true, analyzeContent = false, detectIssues = true } = input
+
+  // TODO: Получить текущее медиа из player machine
+  const currentMedia: CurrentMedia = await getCurrentMediaFromPlayer()
+
+  if (!currentMedia) {
+    return {
+      success: false,
+      message: "Нет загруженного медиа в плеере",
+      errors: ["No media loaded in player"],
+    }
+  }
+
+  const analysis: any = {
+    mediaId: currentMedia.id,
+    type: currentMedia.type,
+    basicInfo: {
+      duration: currentMedia.duration,
+      currentTime: currentMedia.currentTime,
+    },
+  }
+
+  if (includeMetadata && currentMedia.metadata) {
+    analysis.metadata = currentMedia.metadata
+  }
+
+  if (includeEffects) {
+    analysis.appliedEffects = currentMedia.effects || []
+    analysis.appliedFilters = currentMedia.filters || []
+  }
+
+  if (analyzeContent) {
+    // TODO: Интеграция с AI анализом контента
+    analysis.contentAnalysis = await analyzeMediaContent(currentMedia)
+  }
+
+  if (detectIssues) {
+    // TODO: Анализ технических проблем
+    analysis.qualityIssues = await detectQualityIssues(currentMedia)
+  }
+
+  return {
+    success: true,
+    message: `Анализ медиа ${currentMedia.id} завершен`,
+    data: { analysis },
+  }
+}
+
+/**
+ * Применяет эффекты для предпросмотра
+ */
+async function applyPreviewEffects(input: Record<string, any>): Promise<PlayerToolResult> {
+  const { effects, previewMode = "real-time", autoOptimize = false } = input
+
+  if (!Array.isArray(effects) || effects.length === 0) {
+    return {
+      success: false,
+      message: "Не указаны эффекты для применения",
+      errors: ["No effects specified"],
+    }
+  }
+
+  // TODO: Интеграция с player machine для применения эффектов
+  const appliedEffects: string[] = []
+
+  for (const effect of effects) {
+    const { effectId, parameters, intensity = 1, timeRange } = effect
+
+    try {
+      // TODO: Применить эффект через player service
+      await applyEffectToPlayer(effectId, { parameters, intensity, timeRange })
+      appliedEffects.push(effectId)
+    } catch (error) {
+      return {
+        success: false,
+        message: `Ошибка применения эффекта ${effectId}`,
+        errors: [error instanceof Error ? error.message : String(error)],
+      }
+    }
+  }
+
+  return {
+    success: true,
+    message: `Применено эффектов: ${appliedEffects.length}`,
+    data: { appliedEffects },
+    nextActions: ["Используйте save_preview_as_resource для сохранения результата"],
+  }
+}
+
+/**
+ * Применяет фильтры цветокоррекции
+ */
+async function applyPreviewFilters(input: Record<string, any>): Promise<PlayerToolResult> {
+  const { filters, autoColorCorrection = false, referenceImage } = input
+
+  if (!Array.isArray(filters) || filters.length === 0) {
+    return {
+      success: false,
+      message: "Не указаны фильтры для применения",
+      errors: ["No filters specified"],
+    }
+  }
+
+  // TODO: Интеграция с player machine для применения фильтров
+  const appliedFilters: string[] = []
+
+  // Сортировка по порядку применения
+  const sortedFilters = filters.sort((a, b) => (a.order || 0) - (b.order || 0))
+
+  for (const filter of sortedFilters) {
+    const { filterId, parameters } = filter
+
+    try {
+      // TODO: Применить фильтр через player service
+      await applyFilterToPlayer(filterId, parameters)
+      appliedFilters.push(filterId)
+    } catch (error) {
+      return {
+        success: false,
+        message: `Ошибка применения фильтра ${filterId}`,
+        errors: [error instanceof Error ? error.message : String(error)],
+      }
+    }
+  }
+
+  if (autoColorCorrection) {
+    // TODO: Автоматическая цветокоррекция
+    await performAutoColorCorrection(referenceImage)
+  }
+
+  return {
+    success: true,
+    message: `Применено фильтров: ${appliedFilters.length}`,
+    data: { appliedFilters },
+  }
+}
+
+/**
+ * Применяет шаблон многокамерной раскладки
+ */
+async function applyTemplatePreview(input: Record<string, any>): Promise<PlayerToolResult> {
+  const { templateId, mediaFiles, templateParameters } = input
+
+  if (!templateId || !Array.isArray(mediaFiles) || mediaFiles.length === 0) {
+    return {
+      success: false,
+      message: "Не указан шаблон или медиафайлы",
+      errors: ["Template ID or media files not specified"],
+    }
+  }
+
+  try {
+    // TODO: Загрузка шаблона из ресурсов
+    const template = await loadTemplateFromResources(templateId)
+
+    if (!template) {
+      return {
+        success: false,
+        message: `Шаблон ${templateId} не найден`,
+        errors: [`Template ${templateId} not found`],
+      }
+    }
+
+    // TODO: Применение шаблона к медиафайлам
+    const result = await applyTemplateToMediaFiles(template, mediaFiles, templateParameters)
+
+    return {
+      success: true,
+      message: `Шаблон ${templateId} применен к ${mediaFiles.length} файлам`,
+      data: {
+        appliedTemplate: templateId,
+        processedMediaFiles: mediaFiles.map((f) => f.mediaId),
+      },
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: `Ошибка применения шаблона ${templateId}`,
+      errors: [error instanceof Error ? error.message : String(error)],
+    }
+  }
+}
+
+/**
+ * Анализирует качество медиа
+ */
+async function analyzeMediaQuality(input: Record<string, any>): Promise<PlayerToolResult> {
+  const {
+    analysisTypes = ["exposure", "color-balance", "sharpness", "noise"],
+    generateReport = true,
+    suggestCorrections = true,
+    compareWithStandards = false,
+  } = input
+
+  const currentMedia = await getCurrentMediaFromPlayer()
+
+  if (!currentMedia) {
+    return {
+      success: false,
+      message: "Нет медиа для анализа",
+      errors: ["No media to analyze"],
+    }
+  }
+
+  // TODO: Выполнить анализ качества
+  const qualityAnalysis = await performQualityAnalysis(currentMedia, analysisTypes)
+
+  const result: any = {
+    mediaId: currentMedia.id,
+    analysisTypes,
+    results: qualityAnalysis,
+  }
+
+  if (suggestCorrections) {
+    result.suggestions = await generateQualityCorrections(qualityAnalysis)
+  }
+
+  if (compareWithStandards) {
+    result.standardsComparison = await compareWithIndustryStandards(qualityAnalysis)
+  }
+
+  return {
+    success: true,
+    message: `Анализ качества завершен для ${analysisTypes.length} параметров`,
+    data: { analysis: result },
+    nextActions: suggestCorrections ? ["Примените предложенные коррекции"] : undefined,
+  }
+}
+
+/**
+ * Извлекает кадр или фрагмент из медиа
+ */
+async function extractFrameOrClip(input: Record<string, any>): Promise<PlayerToolResult> {
+  const { extractionType, timeParameters, outputSettings, purpose } = input
+
+  const currentMedia = await getCurrentMediaFromPlayer()
+
+  if (!currentMedia) {
+    return {
+      success: false,
+      message: "Нет медиа для извлечения",
+      errors: ["No media to extract from"],
+    }
+  }
+
+  try {
+    // TODO: Выполнить извлечение через FFmpeg или соответствующий сервис
+    const extractedFiles = await performExtraction(currentMedia, extractionType, timeParameters, outputSettings)
+
+    return {
+      success: true,
+      message: `Извлечено ${extractedFiles.length} файлов`,
+      data: { extractedMedia: extractedFiles },
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: `Ошибка извлечения: ${extractionType}`,
+      errors: [error instanceof Error ? error.message : String(error)],
+    }
+  }
+}
+
+/**
+ * Сравнивает версии медиа
+ */
+async function compareMediaVersions(input: Record<string, any>): Promise<PlayerToolResult> {
+  const { comparisonType, mediaVersions, comparisonMetrics, displayMode } = input
+
+  if (!Array.isArray(mediaVersions) || mediaVersions.length < 2) {
+    return {
+      success: false,
+      message: "Требуется минимум 2 версии для сравнения",
+      errors: ["At least 2 versions required for comparison"],
+    }
+  }
+
+  try {
+    // TODO: Выполнить сравнение версий
+    const comparisonResult = await performMediaComparison(mediaVersions, comparisonType, comparisonMetrics)
+
+    // TODO: Настроить отображение в плеере
+    await setupComparisonDisplay(displayMode, comparisonResult)
+
+    return {
+      success: true,
+      message: `Сравнение ${mediaVersions.length} версий завершено`,
+      data: { analysis: comparisonResult },
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: "Ошибка сравнения версий медиа",
+      errors: [error instanceof Error ? error.message : String(error)],
+    }
+  }
+}
+
+/**
+ * Сохраняет предпросмотр как ресурс
+ */
+async function savePreviewAsResource(input: Record<string, any>): Promise<PlayerToolResult> {
+  const { resourceName, resourceType, saveSettings, tags, description } = input
+
+  const currentMedia = await getCurrentMediaFromPlayer()
+  const playerState = await getPlayerState()
+
+  if (!currentMedia) {
+    return {
+      success: false,
+      message: "Нет медиа для сохранения",
+      errors: ["No media to save"],
+    }
+  }
+
+  try {
+    // TODO: Сохранить ресурс в зависимости от типа
+    const savedResourceId = await saveResourceToLibrary({
+      name: resourceName,
+      type: resourceType,
+      sourceMedia: currentMedia,
+      playerState,
+      settings: saveSettings,
+      tags,
+      description,
+    })
+
+    return {
+      success: true,
+      message: `Ресурс "${resourceName}" сохранен`,
+      data: { savedResource: savedResourceId },
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: `Ошибка сохранения ресурса "${resourceName}"`,
+      errors: [error instanceof Error ? error.message : String(error)],
+    }
+  }
+}
+
+/**
+ * Управляет воспроизведением
+ */
+async function controlPlayback(input: Record<string, any>): Promise<PlayerToolResult> {
+  const { action, parameters, reason } = input
+
+  try {
+    // TODO: Интеграция с player machine
+    const result = await executePlaybackAction(action, parameters)
+
+    const playerState = await getPlayerState()
+
+    return {
+      success: true,
+      message: `Действие "${action}" выполнено`,
+      data: { playbackState: playerState },
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: `Ошибка управления воспроизведением: ${action}`,
+      errors: [error instanceof Error ? error.message : String(error)],
+    }
+  }
+}
+
+/**
+ * Генерирует превью-изображения
+ */
+async function generateThumbnails(input: Record<string, any>): Promise<PlayerToolResult> {
+  const { thumbnailSettings, extractionMethod = "uniform-intervals", customTimes } = input
+
+  const currentMedia = await getCurrentMediaFromPlayer()
+
+  if (!currentMedia) {
+    return {
+      success: false,
+      message: "Нет медиа для создания превью",
+      errors: ["No media for thumbnail generation"],
+    }
+  }
+
+  try {
+    // TODO: Генерация превью через FFmpeg
+    const thumbnails = await generateMediaThumbnails(currentMedia, thumbnailSettings, extractionMethod, customTimes)
+
+    return {
+      success: true,
+      message: `Создано ${thumbnails.length} превью`,
+      data: { thumbnails },
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: "Ошибка генерации превью",
+      errors: [error instanceof Error ? error.message : String(error)],
+    }
+  }
+}
+
+// Вспомогательные функции - заглушки для интеграции с реальными сервисами
+
+async function getCurrentMediaFromPlayer(): Promise<CurrentMedia | null> {
+  // TODO: Интеграция с player machine
+  return null
+}
+
+async function getPlayerState(): Promise<PlayerState> {
+  // TODO: Интеграция с player machine
+  return {
+    isPlaying: false,
+    currentTime: 0,
+    duration: 0,
+    volume: 1,
+    playbackSpeed: 1,
+    loop: false,
+    muted: false,
+  }
+}
+
+async function analyzeMediaContent(_media: CurrentMedia): Promise<any> {
+  // TODO: Интеграция с AI анализом
+  return {}
+}
+
+async function detectQualityIssues(_media: CurrentMedia): Promise<any[]> {
+  // TODO: Анализ качества
+  return []
+}
+
+async function applyEffectToPlayer(_effectId: string, _settings: any): Promise<void> {
+  // TODO: Применение эффекта
+}
+
+async function applyFilterToPlayer(_filterId: string, _parameters: any): Promise<void> {
+  // TODO: Применение фильтра
+}
+
+async function performAutoColorCorrection(_referenceImage?: string): Promise<void> {
+  // TODO: Автоматическая цветокоррекция
+}
+
+async function loadTemplateFromResources(_templateId: string): Promise<any> {
+  // TODO: Загрузка шаблона
+  return null
+}
+
+async function applyTemplateToMediaFiles(_template: any, _mediaFiles: any[], _parameters?: any): Promise<any> {
+  // TODO: Применение шаблона
+  return {}
+}
+
+async function performQualityAnalysis(_media: CurrentMedia, _types: string[]): Promise<any> {
+  // TODO: Анализ качества
+  return {}
+}
+
+async function generateQualityCorrections(_analysis: any): Promise<any[]> {
+  // TODO: Генерация предложений по коррекции
+  return []
+}
+
+async function compareWithIndustryStandards(_analysis: any): Promise<any> {
+  // TODO: Сравнение со стандартами
+  return {}
+}
+
+async function performExtraction(
+  _media: CurrentMedia,
+  _type: string,
+  _timeParams: any,
+  _outputSettings: any,
+): Promise<string[]> {
+  // TODO: Извлечение медиа
+  return []
+}
+
+async function performMediaComparison(_versions: any[], _type: string, _metrics: string[]): Promise<any> {
+  // TODO: Сравнение версий
+  return {}
+}
+
+async function setupComparisonDisplay(_mode: string, _result: any): Promise<void> {
+  // TODO: Настройка отображения
+}
+
+async function saveResourceToLibrary(_resource: any): Promise<string> {
+  // TODO: Сохранение в библиотеку ресурсов
+  return "resource-id"
+}
+
+async function executePlaybackAction(_action: string, _parameters: any): Promise<any> {
+  // TODO: Выполнение действия воспроизведения
+  return {}
+}
+
+async function generateMediaThumbnails(
+  _media: CurrentMedia,
+  _settings: any,
+  _method: string,
+  _customTimes?: number[],
+): Promise<string[]> {
+  // TODO: Генерация превью
+  return []
+}

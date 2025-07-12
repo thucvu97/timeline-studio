@@ -359,3 +359,359 @@ export interface ResourceToolResult {
   errors?: string[]
   nextActions?: string[]
 }
+
+/**
+ * Выполняет инструмент для работы с ресурсами
+ */
+export async function executeResourceTool(toolName: string, input: Record<string, any>): Promise<ResourceToolResult> {
+  try {
+    switch (toolName) {
+      case "analyze_available_resources":
+        return await analyzeAvailableResources(input)
+      case "add_resource_to_pool":
+        return await addResourceToPool(input)
+      case "bulk_add_resources":
+        return await bulkAddResources(input)
+      case "remove_resource_from_pool":
+        return await removeResourceFromPool(input)
+      case "suggest_complementary_resources":
+        return await suggestComplementaryResources(input)
+      case "update_resource_parameters":
+        return await updateResourceParameters(input)
+      case "analyze_resource_compatibility":
+        return await analyzeResourceCompatibility(input)
+      case "get_resource_usage_stats":
+        return await getResourceUsageStats(input)
+      case "cleanup_unused_resources":
+        return await cleanupUnusedResources(input)
+      case "export_resource_list":
+        return await exportResourceList(input)
+      default:
+        return {
+          success: false,
+          message: `Неизвестный инструмент: ${toolName}`,
+          errors: [`Инструмент ${toolName} не найден`],
+        }
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: `Ошибка выполнения инструмента ${toolName}: ${error instanceof Error ? error.message : String(error)}`,
+      errors: [error instanceof Error ? error.message : String(error)],
+    }
+  }
+}
+
+/**
+ * Анализирует все доступные ресурсы в Resources Provider
+ */
+async function analyzeAvailableResources(input: Record<string, any>): Promise<ResourceToolResult> {
+  const { resourceType, includeStats = true, filter } = input
+
+  // TODO: Интеграция с ResourcesProvider state machine
+  console.log("Analyzing available resources:", { resourceType, includeStats, filter })
+
+  return {
+    success: true,
+    message: `Анализ ресурсов типа ${resourceType} выполнен`,
+    data: {
+      analysis: {
+        resourceType,
+        totalCount: 0, // TODO: Получить из ResourcesProvider
+        categoryBreakdown: {},
+        stats: includeStats
+          ? {
+            totalSize: 0,
+            totalDuration: 0,
+            averageQuality: "unknown",
+            recentlyAdded: [],
+          }
+          : undefined,
+        filter,
+      },
+      suggestions: ["Добавить больше медиафайлов для разнообразия", "Рассмотреть добавление музыкальных треков"],
+    },
+    nextActions: ["Просмотреть детали анализа", "Добавить рекомендуемые ресурсы"],
+  }
+}
+
+/**
+ * Добавляет конкретный ресурс в пул ресурсов проекта
+ */
+async function addResourceToPool(input: Record<string, any>): Promise<ResourceToolResult> {
+  const { resourceType, resourceId, reason, autoApply = false } = input
+
+  // TODO: Интеграция с ResourcesProvider state machine
+  console.log("Adding resource to pool:", { resourceType, resourceId, reason, autoApply })
+
+  return {
+    success: true,
+    message: `Ресурс ${resourceId} добавлен в пул`,
+    data: {
+      addedResources: [resourceId],
+      analysis: {
+        resourceType,
+        reason,
+        autoApplied: autoApply,
+      },
+    },
+    nextActions: autoApply ? ["Проверить применение ресурса"] : ["Разместить ресурс на таймлайне"],
+  }
+}
+
+/**
+ * Массово добавляет ресурсы в пул по заданным критериям
+ */
+async function bulkAddResources(input: Record<string, any>): Promise<ResourceToolResult> {
+  const { criteria, reason } = input
+  const { resourceType, selectionMethod, filters, maxCount } = criteria
+
+  // TODO: Интеграция с ResourcesProvider state machine и Browser state machine
+  console.log("Bulk adding resources:", { criteria, reason })
+
+  const mockAddedCount = Math.min(maxCount || 10, 5) // Имитация добавления ресурсов
+  const addedResources = Array.from({ length: mockAddedCount }, (_, i) => `${resourceType}_${Date.now()}_${i}`)
+
+  return {
+    success: true,
+    message: `Массово добавлено ${mockAddedCount} ресурсов типа ${resourceType}`,
+    data: {
+      addedResources,
+      analysis: {
+        criteria,
+        reason,
+        selectionMethod,
+        actualCount: mockAddedCount,
+        filters,
+      },
+    },
+    nextActions: ["Проверить добавленные ресурсы", "Разместить на таймлайне"],
+  }
+}
+
+/**
+ * Удаляет ресурс из пула ресурсов проекта
+ */
+async function removeResourceFromPool(input: Record<string, any>): Promise<ResourceToolResult> {
+  const { resourceId, reason, removeFromTimeline = false } = input
+
+  // TODO: Интеграция с ResourcesProvider и Timeline state machines
+  console.log("Removing resource from pool:", { resourceId, reason, removeFromTimeline })
+
+  return {
+    success: true,
+    message: `Ресурс ${resourceId} удален из пула`,
+    data: {
+      removedResources: [resourceId],
+      analysis: {
+        reason,
+        removedFromTimeline: removeFromTimeline,
+      },
+      warnings: removeFromTimeline ? ["Ресурс также удален из таймлайна"] : [],
+    },
+    nextActions: ["Проверить таймлайн на целостность"],
+  }
+}
+
+/**
+ * Анализирует текущие ресурсы и предлагает дополнительные
+ */
+async function suggestComplementaryResources(input: Record<string, any>): Promise<ResourceToolResult> {
+  const { baseContent = [], projectType, mood, targetDuration, includeAutoAdd = false } = input
+
+  // TODO: Интеграция с AI анализом и ResourcesProvider
+  console.log("Suggesting complementary resources:", { baseContent, projectType, mood, targetDuration, includeAutoAdd })
+
+  const suggestions = [
+    `Добавить фоновую музыку в стиле ${mood}`,
+    `Использовать переходы, подходящие для ${projectType} проекта`,
+    `Добавить цветовые фильтры для настроения ${mood}`,
+    "Включить динамичные эффекты для энергичных сцен",
+  ]
+
+  return {
+    success: true,
+    message: `Найдено ${suggestions.length} предложений для улучшения проекта`,
+    data: {
+      suggestions,
+      analysis: {
+        baseContent,
+        projectType,
+        mood,
+        targetDuration,
+        compatibility: "high",
+      },
+      addedResources: includeAutoAdd ? ["music_track_1", "transition_fade_1"] : [],
+    },
+    nextActions: includeAutoAdd ? ["Проверить автоматически добавленные ресурсы"] : ["Добавить рекомендуемые ресурсы"],
+  }
+}
+
+/**
+ * Обновляет параметры уже добавленного ресурса
+ */
+async function updateResourceParameters(input: Record<string, any>): Promise<ResourceToolResult> {
+  const { resourceId, newParameters, reason } = input
+
+  // TODO: Интеграция с ResourcesProvider state machine
+  console.log("Updating resource parameters:", { resourceId, newParameters, reason })
+
+  return {
+    success: true,
+    message: `Параметры ресурса ${resourceId} обновлены`,
+    data: {
+      analysis: {
+        resourceId,
+        updatedParameters: newParameters,
+        reason,
+        timestamp: new Date().toISOString(),
+      },
+    },
+    nextActions: ["Проверить влияние изменений на таймлайн"],
+  }
+}
+
+/**
+ * Анализирует совместимость ресурсов между собой и с проектом
+ */
+async function analyzeResourceCompatibility(input: Record<string, any>): Promise<ResourceToolResult> {
+  const { resourceIds, checkAgainst = "all", includeRecommendations = true } = input
+
+  // TODO: Интеграция с ResourcesProvider и ProjectSettings
+  console.log("Analyzing resource compatibility:", { resourceIds, checkAgainst, includeRecommendations })
+
+  const compatibilityResults = resourceIds.map((id: string) => ({
+    resourceId: id,
+    compatible: Math.random() > 0.3, // Имитация проверки совместимости
+    issues: Math.random() > 0.5 ? [] : ["Несовместимость разрешения", "Различная частота кадров"],
+  }))
+
+  const recommendations = includeRecommendations
+    ? [
+      "Конвертировать видео в единое разрешение",
+      "Синхронизировать частоту кадров",
+      "Применить цветовую коррекцию для единообразия",
+    ]
+    : []
+
+  return {
+    success: true,
+    message: `Анализ совместимости ${resourceIds.length} ресурсов завершен`,
+    data: {
+      analysis: {
+        checkAgainst,
+        results: compatibilityResults,
+        overallCompatibility: compatibilityResults.every((r) => r.compatible) ? "excellent" : "needs-attention",
+      },
+      suggestions: recommendations,
+    },
+    nextActions: recommendations.length > 0 ? ["Применить рекомендации"] : ["Ресурсы готовы к использованию"],
+  }
+}
+
+/**
+ * Получает статистику использования ресурсов в проекте
+ */
+async function getResourceUsageStats(input: Record<string, any>): Promise<ResourceToolResult> {
+  const { timeRange, groupBy = "type", includeUnused = true } = input
+
+  // TODO: Интеграция с ResourcesProvider и Timeline analytics
+  console.log("Getting resource usage stats:", { timeRange, groupBy, includeUnused })
+
+  const stats = {
+    totalResources: 25,
+    usedResources: 18,
+    unusedResources: 7,
+    byType: {
+      media: { total: 12, used: 10 },
+      music: { total: 5, used: 3 },
+      effects: { total: 8, used: 5 },
+    },
+    timeline: timeRange,
+    groupBy,
+  }
+
+  return {
+    success: true,
+    message: "Статистика использования ресурсов получена",
+    data: {
+      analysis: stats,
+      suggestions: ["Рассмотреть удаление неиспользуемых ресурсов", "Добавить больше музыкальных треков"],
+    },
+    nextActions: ["Оптимизировать неиспользуемые ресурсы"],
+  }
+}
+
+/**
+ * Удаляет неиспользуемые ресурсы из пула для оптимизации
+ */
+async function cleanupUnusedResources(input: Record<string, any>): Promise<ResourceToolResult> {
+  const { dryRun = true, criteria = {}, reason } = input
+  const { unusedForDays = 30, resourceTypes = [], excludeFavorites = true } = criteria
+
+  // TODO: Интеграция с ResourcesProvider state machine
+  console.log("Cleaning up unused resources:", { dryRun, criteria, reason })
+
+  const toRemove = ["unused_media_1", "unused_effect_2", "unused_music_3"] // Имитация поиска неиспользуемых
+
+  if (dryRun) {
+    return {
+      success: true,
+      message: `Найдено ${toRemove.length} неиспользуемых ресурсов для удаления`,
+      data: {
+        analysis: {
+          dryRun: true,
+          toRemove,
+          criteria: { unusedForDays, resourceTypes, excludeFavorites },
+          reason,
+        },
+        suggestions: ["Запустить реальную очистку после проверки"],
+      },
+      nextActions: ["Проверить список для удаления", "Выполнить реальную очистку"],
+    }
+  }
+
+  return {
+    success: true,
+    message: `Удалено ${toRemove.length} неиспользуемых ресурсов`,
+    data: {
+      removedResources: toRemove,
+      analysis: {
+        dryRun: false,
+        criteria,
+        reason,
+        removedCount: toRemove.length,
+      },
+    },
+    nextActions: ["Проверить освобожденное место"],
+  }
+}
+
+/**
+ * Экспортирует список ресурсов в различных форматах
+ */
+async function exportResourceList(input: Record<string, any>): Promise<ResourceToolResult> {
+  const { format, includeMetadata = true, filterCriteria = {} } = input
+
+  // TODO: Интеграция с ResourcesProvider и файловой системой
+  console.log("Exporting resource list:", { format, includeMetadata, filterCriteria })
+
+  const exportData = {
+    format,
+    timestamp: new Date().toISOString(),
+    includeMetadata,
+    filterCriteria,
+    resourceCount: 25,
+    exportPath: `/exports/resources_${Date.now()}.${format}`,
+  }
+
+  return {
+    success: true,
+    message: `Список ресурсов экспортирован в формате ${format}`,
+    data: {
+      analysis: exportData,
+      suggestions: ["Сохранить экспорт для резервного копирования"],
+    },
+    nextActions: ["Открыть экспортированный файл"],
+  }
+}

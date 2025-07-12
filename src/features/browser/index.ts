@@ -1,14 +1,21 @@
+// Адаптеры компонентов (с полной реализацией preview компонентов)
+export { useEffectsAdapter as useEffectsListAdapter } from "./adapters/use-effects-adapter"
+export { useFiltersAdapter as useFiltersListAdapter } from "./adapters/use-filters-adapter"
+export { useMediaAdapter } from "./adapters/use-media-adapter"
+export { useMusicAdapter } from "./adapters/use-music-adapter"
+export { useStyleTemplatesAdapter as useStyleTemplatesListAdapter } from "./adapters/use-style-templates-adapter"
+export { useSubtitlesAdapter } from "./adapters/use-subtitles-adapter"
+export { useTemplatesAdapter as useTemplatesListAdapter } from "./adapters/use-templates-adapter"
+export { useTransitionsAdapter as useTransitionsListAdapter } from "./adapters/use-transitions-adapter"
 export * from "./components"
-// Новые хуки с префиксом для избежания конфликтов
+// Унифицированные хуки ресурсов (только уникальные для browser)
 export {
-  useEffects as useBrowserEffects,
-  useEffectsSearch as useBrowserEffectsSearch,
-  useFilters as useBrowserFilters,
-  useFiltersSearch as useBrowserFiltersSearch,
+  // Типизированные адаптеры из унифицированной системы
+  useEffectsAdapter,
+  useFiltersAdapter,
   useLoadingState,
   useResourceById,
   useResourceSources,
-  useResources as useBrowserResources,
   useResourcesAdapter,
   useResourcesByCategory,
   useResourcesByComplexity,
@@ -16,11 +23,15 @@ export {
   useResourcesCache,
   useResourcesSearch,
   useResourcesStats,
-  useTransitions as useBrowserTransitions,
-  useTransitionsSearch as useBrowserTransitionsSearch,
+  useStyleTemplatesAdapter,
+  useTemplatesAdapter,
+  useTransitionsAdapter,
 } from "./hooks/use-resources"
-// Новые компоненты Browser Resource Machine
+
+// Провайдеры
 export { EffectsProvider, useEffectsProvider } from "./providers/effects-provider"
+
+// Сервисы
 export * from "./services"
 
 // Типы

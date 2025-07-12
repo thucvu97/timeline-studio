@@ -48,7 +48,11 @@ export function PersonDetail({ person, appearances = [], onEdit, onClose }: Pers
         <div className="flex items-center space-x-3">
           <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
             {person.thumbnails && person.thumbnails.length > 0 && person.thumbnails[0].imageUrl ? (
-              <img src={person.thumbnails[0].imageUrl} alt={person.name} className="h-12 w-12 rounded-full object-cover" />
+              <img
+                src={person.thumbnails[0].imageUrl}
+                alt={person.name}
+                className="h-12 w-12 rounded-full object-cover"
+              />
             ) : (
               <User className="h-6 w-6 text-muted-foreground" />
             )}

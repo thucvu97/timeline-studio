@@ -4,10 +4,7 @@
 
 export interface StyleTemplate {
   id: string
-  name: {
-    ru: string
-    en: string
-  }
+  name: string
   category: "intro" | "outro" | "lower-third" | "title" | "transition" | "overlay"
   style: "modern" | "vintage" | "minimal" | "corporate" | "creative" | "cinematic"
   aspectRatio: "16:9" | "9:16" | "1:1"
@@ -16,24 +13,15 @@ export interface StyleTemplate {
   hasAnimation: boolean // Есть ли анимация
   thumbnail?: string // Превью изображение
   previewVideo?: string // Превью видео
-  tags?: {
-    ru: string[]
-    en: string[]
-  }
+  tags?: string[]
   elements: TemplateElement[]
-  description?: {
-    ru: string
-    en: string
-  }
+  description?: string
 }
 
 export interface TemplateElement {
   id: string
   type: "text" | "shape" | "image" | "video" | "animation" | "particle"
-  name: {
-    ru: string
-    en: string
-  }
+  name: string
   position: {
     x: number // В процентах от 0 до 100
     y: number // В процентах от 0 до 100
@@ -90,14 +78,8 @@ export interface Animation {
 
 export interface StyleTemplateCategory {
   id: string
-  name: {
-    ru: string
-    en: string
-  }
-  description: {
-    ru: string
-    en: string
-  }
+  name: string
+  description: string
   icon?: string
   templates: StyleTemplate[]
 }

@@ -1,9 +1,9 @@
 import React from "react"
 
 import { useFavorites } from "@/features/app-state"
+import { useEffectsAdapter as useUnifiedEffectsAdapter } from "@/features/browser/hooks/use-resources"
 import { useDraggable } from "@/features/drag-drop"
 import { EffectPreview } from "@/features/effects/components/effect-preview"
-import { useEffects } from "@/features/effects/hooks/use-effects"
 import { VideoEffect } from "@/features/effects/types"
 
 import type { ListAdapter, PreviewComponentProps } from "../types/list"
@@ -94,108 +94,92 @@ const EffectPreviewWrapper: React.FC<PreviewComponentProps<VideoEffect>> = ({
 
 /**
  * Хук для создания адаптера эффектов
+ * Мигрирован на унифицированную систему browser-хуков
  */
 export function useEffectsAdapter(): ListAdapter<VideoEffect> {
-  const { effects, loading, error } = useEffects()
   const { isItemFavorite } = useFavorites()
 
-  return {
-    // Хук для получения данных
-    useData: () => ({
-      items: effects,
-      loading,
-      error: error ?? null,
-    }),
+  // Используем унифицированный адаптер с конфигурацией для эффектов
+  const { items, loading, error, stats, ...restAdapter } = useUnifiedEffectsAdapter({
+    PreviewComponent: EffectPreviewWrapper,
+    customHandlers: {
+      getSortValue: (effect: VideoEffect, sortBy: string) => {
+        switch (sortBy) {
+          case "name":
+            return effect.name.toLowerCase()
+          case "category":
+            return effect.category.toLowerCase()
+          case "complexity":
+            // Определяем порядок сложности: basic < intermediate < advanced
+            const complexityOrder: Record<string, number> = { basic: 0, intermediate: 1, advanced: 2 }
+            return complexityOrder[effect.complexity || "basic"]
+          case "type":
+            return effect.type.toLowerCase()
+          default:
+            return effect.name.toLowerCase()
+        }
+      },
+      getSearchableText: (effect: VideoEffect) => {
+        const texts = [
+          effect.name,
+          effect.labels?.ru || "",
+          effect.labels?.en || "",
+          effect.description?.ru || "",
+          effect.description?.en || "",
+          effect.category,
+          effect.type,
+          ...(effect.tags || []),
+        ]
+        return texts.filter(Boolean)
+      },
+      getGroupValue: (effect: VideoEffect, groupBy: string) => {
+        switch (groupBy) {
+          case "category":
+            return effect.category || "other"
+          case "complexity":
+            return effect.complexity || "basic"
+          case "type":
+            return effect.type || "unknown"
+          case "tags":
+            // Группируем по первому тегу или "untagged"
+            return effect.tags && effect.tags.length > 0 ? effect.tags[0] : "untagged"
+          default:
+            return ""
+        }
+      },
+      matchesFilter: (effect: VideoEffect, filterType: string) => {
+        if (filterType === "all") return true
 
+        // Фильтрация по сложности
+        if (["basic", "intermediate", "advanced"].includes(filterType)) {
+          return (effect.complexity || "basic") === filterType
+        }
+
+        // Фильтрация по категории
+        if (
+          ["color-correction", "artistic", "vintage", "cinematic", "creative", "technical", "distortion"].includes(
+            filterType,
+          )
+        ) {
+          return effect.category === filterType
+        }
+
+        return true
+      },
+    },
+  })
+
+  return {
+    ...restAdapter,
+    // Данные с правильной типизацией
+    useData: () => ({
+      items: items as VideoEffect[],
+      loading,
+      error: error ? new Error(error) : null,
+    }),
     // Компонент превью
     PreviewComponent: EffectPreviewWrapper,
-
-    // Функция для получения значения сортировки
-    getSortValue: (effect, sortBy) => {
-      switch (sortBy) {
-        case "name":
-          return effect.name.toLowerCase()
-
-        case "category":
-          return effect.category.toLowerCase()
-
-        case "complexity":
-          // Определяем порядок сложности: basic < intermediate < advanced
-          const complexityOrder = { basic: 0, intermediate: 1, advanced: 2 }
-          return complexityOrder[effect.complexity || "basic"]
-
-        case "type":
-          return effect.type.toLowerCase()
-
-        default:
-          return effect.name.toLowerCase()
-      }
-    },
-
-    // Функция для получения текста для поиска
-    getSearchableText: (effect) => {
-      const texts = [
-        effect.name,
-        effect.labels?.ru || "",
-        effect.labels?.en || "",
-        effect.description?.ru || "",
-        effect.description?.en || "",
-        effect.category,
-        effect.type,
-        ...(effect.tags || []),
-      ]
-      return texts.filter(Boolean)
-    },
-
-    // Функция для получения значения группировки
-    getGroupValue: (effect, groupBy) => {
-      switch (groupBy) {
-        case "category":
-          return effect.category || "other"
-
-        case "complexity":
-          return effect.complexity || "basic"
-
-        case "type":
-          return effect.type || "unknown"
-
-        case "tags":
-          // Группируем по первому тегу или "untagged"
-          return effect.tags && effect.tags.length > 0 ? effect.tags[0] : "untagged"
-
-        default:
-          return ""
-      }
-    },
-
-    // Функция для фильтрации по типу
-    matchesFilter: (effect, filterType) => {
-      if (filterType === "all") return true
-
-      // Фильтрация по сложности
-      if (["basic", "intermediate", "advanced"].includes(filterType)) {
-        return (effect.complexity || "basic") === filterType
-      }
-
-      // Фильтрация по категории
-      if (
-        ["color-correction", "artistic", "vintage", "cinematic", "creative", "technical", "distortion"].includes(
-          filterType,
-        )
-      ) {
-        return effect.category === filterType
-      }
-
-      return true
-    },
-
-    // Обработчики импорта не нужны для эффектов (они встроенные)
-    importHandlers: undefined,
-
-    // Проверка избранного
-    isFavorite: (effect) => isItemFavorite(effect, "effect"),
-
-    // Тип для системы избранного
-    favoriteType: "effect",
+    // Проверка избранного (переопределяем)
+    isFavorite: (effect: VideoEffect) => isItemFavorite(effect, "effect"),
   }
 }

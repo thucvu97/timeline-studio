@@ -243,7 +243,8 @@ describe("useRenderJobs", () => {
     })
 
     const totalProgress = Math.round(
-      result.current.jobs.reduce((sum, job) => sum + job.progress.percentage, 0) / result.current.jobs.length,
+      result.current.jobs.reduce((sum, job) => Number(sum) + Number(job.progress.percentage), 0) /
+        result.current.jobs.length,
     )
 
     expect(totalProgress).toBe(42) // (45 + 100 + 23 + 0) / 4 = 42

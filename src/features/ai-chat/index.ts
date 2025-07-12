@@ -18,12 +18,12 @@ export { resourceTools } from "./tools/resource-tools"
 export { timelineTools } from "./tools/timeline-tools"
 // Типы для AI контекста
 export type {
+  AIBrowserContext,
   AICommand,
   AICommandResult,
+  AIPlayerContext,
+  AIResourcesContext,
+  AITimelineContext,
   AIToolResult,
-  BrowserContext as AIBrowserContext,
-  PlayerContext as AIPlayerContext,
-  ResourcesContext,
-  TimelineContext as AITimelineContext,
   TimelineStudioContext,
 } from "./types/ai-context"
