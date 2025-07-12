@@ -11,29 +11,30 @@ Timeline Studio - это современный видеоредактор, со
 
 ## 📅 График релизов
 
-### 🎯 Alpha Release (Q1 2025) - 97.5% готов
+### 🎯 Alpha Release (Q1 2025) - 100% готов ✅
 
 **Цель**: Базовый функционал для early adopters
 
-**Что будет включено**:
+**Что включено**:
 - ✅ Профессиональный видеоредактор с timeline
 - ✅ 100+ эффектов, фильтров и переходов
 - ✅ Advanced Color Grading система
 - ✅ Fairlight Audio микшер
-- ✅ AI Chat интеграция (Claude/OpenAI)
+- ✅ AI Chat интеграция (Claude/OpenAI) с 77 инструментами
+- ✅ AI Content Intelligence Suite (Scene Analysis, Script Generation, Multi-Platform)
+- ✅ Person Identification - распознавание и управление персонами
 - ✅ Smart Montage Planner - AI-powered автоматический монтаж
 - ✅ Экспорт в основные форматы
 - ✅ OAuth публикация в соцсети
-- 🔄 Scene Analyzer (в работе)
-- 🔄 Script Generator (в работе)
-- 🔄 Person Identification (в работе)
+- ✅ 13 языков локализации
 
 ### 🚀 Beta Release (Q2 2025)
 
-**Цель**: Стабильная версия с расширенными AI функциями
+**Цель**: Стабильная версия с расширенными возможностями
 
 **Новые функции**:
-- AI Multi-Platform Generator - автоматическая адаптация под платформы
+- Advanced Timeline Features - J/L cuts, speed ramping, markers
+- Person Identification Advanced - ML модели, real-time трекинг
 - Effects Library Extension - 500+ профессиональных эффектов
 - Performance Optimization - proxy файлы для 4K/8K
 - Plugin System с WASM поддержкой
