@@ -15,6 +15,7 @@ import { useStyleTemplatesAdapter } from "../adapters/use-style-templates-adapte
 import { useSubtitlesAdapter } from "../adapters/use-subtitles-adapter"
 import { useTemplatesAdapter } from "../adapters/use-templates-adapter"
 import { useTransitionsAdapter } from "../adapters/use-transitions-adapter"
+import { useEffectsProvider } from "../providers/effects-provider"
 
 /**
  * Новая версия BrowserContent с использованием UniversalList и адаптеров
@@ -22,6 +23,9 @@ import { useTransitionsAdapter } from "../adapters/use-transitions-adapter"
  */
 export function BrowserContent() {
   const contentClassName = "bg-background m-0 flex-1 overflow-auto"
+  
+  // Проверяем инициализацию EffectsProvider
+  const { isInitialized } = useEffectsProvider()
 
   // Получаем состояние браузера
   const {
@@ -126,6 +130,14 @@ export function BrowserContent() {
   }
 
   const adapter = getAdapterForTab()
+  
+  // Логирование для отладки
+  console.log("[BrowserContent] Active tab and adapter:", {
+    activeTab,
+    adapter: adapter ? "Found" : "Not found",
+    effectsAdapter,
+    isInitialized,
+  })
 
   // Обработчики взаимодействия для разных типов контента
   const handleItemSelect = (item: any) => {
@@ -172,6 +184,20 @@ export function BrowserContent() {
     <>
       {/* Индикатор загрузки ресурсов */}
       <BrowserLoadingIndicator />
+      
+      {/* Временная отладочная информация для эффектов */}
+      {activeTab === "effects" && (
+        <div className="p-2 bg-yellow-100 dark:bg-yellow-900 text-xs">
+          <div>Effects Provider initialized: {isInitialized ? "Yes" : "No"}</div>
+          <div>Adapter found: {adapter ? "Yes" : "No"}</div>
+          {adapter && (
+            <div>
+              Items in adapter: {adapter.items?.length || 0}
+              {adapter.useData && <div>Items via useData: {adapter.useData().items?.length || 0}</div>}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Общий тулбар для всех вкладок */}
       <MediaToolbar

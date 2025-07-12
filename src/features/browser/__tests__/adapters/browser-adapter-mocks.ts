@@ -96,6 +96,59 @@ vi.mock("@/features/ai-chat/services/chat-provider", () => ({
   ChatProvider: ({ children }: any) => children,
 }))
 
+// Мокаем EffectsProvider
+vi.mock("@/features/browser/providers/effects-provider", () => ({
+  EffectsProvider: ({ children }: any) => children,
+  useEffectsProvider: vi.fn(() => ({
+    api: {
+      getEffects: vi.fn(() => []),
+      getFilters: vi.fn(() => []),
+      getTransitions: vi.fn(() => []),
+      getResources: vi.fn(() => []),
+      getResourceById: vi.fn(() => null),
+      searchResources: vi.fn(() => []),
+      getResourcesByCategory: vi.fn(() => []),
+      getResourcesByTags: vi.fn(() => []),
+      getResourcesByComplexity: vi.fn(() => []),
+      loadSource: vi.fn(() => Promise.resolve({ success: true, data: [], source: "built-in", timestamp: Date.now() })),
+      isSourceLoaded: vi.fn(() => true),
+      refreshSource: vi.fn(() => Promise.resolve({ success: true, data: [], source: "built-in", timestamp: Date.now() })),
+      preloadCategory: vi.fn(() => Promise.resolve({ success: true, data: [], source: "built-in", timestamp: Date.now() })),
+      getSourceConfig: vi.fn(() => null),
+      updateSourceConfig: vi.fn(),
+      getLoadingState: vi.fn(() => ({
+        isLoading: false,
+        loadedSources: new Set(["built-in"]),
+        loadingQueue: [],
+        error: null,
+        progress: 100,
+      })),
+      getStats: vi.fn(() => ({
+        total: 0,
+        byType: {},
+        bySource: {},
+        cacheSize: 0,
+        memoryUsage: 0,
+      })),
+      getCacheSize: vi.fn(() => 0),
+      clearCache: vi.fn(),
+      clearSourceCache: vi.fn(),
+      invalidateCache: vi.fn(),
+      onLoadingStateChange: vi.fn(() => () => {}),
+      onResourcesUpdate: vi.fn(() => () => {}),
+      onError: vi.fn(() => () => {}),
+    },
+    config: {
+      initialSources: ["built-in"],
+      backgroundLoadDelay: 1000,
+      enableCaching: true,
+      maxCacheSize: 100,
+    },
+    isInitialized: true,
+  })),
+}))
+
+
 // Мокаем i18n
 vi.mock("@/i18n", () => ({
   default: {

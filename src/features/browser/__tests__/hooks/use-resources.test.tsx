@@ -230,7 +230,7 @@ describe("useTransitions", () => {
 
 describe("useResourceById", () => {
   function TestComponent({ id }: { id: string }) {
-    const { resource, loading } = useResourceById("effects", id)
+    const { resource, loading } = useResourceById("effect", id)
     return (
       <div>
         <div data-testid="loading">{String(loading)}</div>
@@ -266,7 +266,7 @@ describe("useResourceById", () => {
 
 describe("useResourcesSearch", () => {
   function TestComponent({ options }: { options: any }) {
-    const { results, loading } = useResourcesSearch("effects", options)
+    const { results, loading } = useResourcesSearch("effect", options)
     return (
       <div>
         <div data-testid="loading">{String(loading)}</div>
@@ -335,7 +335,7 @@ describe("useResourcesSearch", () => {
 
 describe("useResourcesByCategory", () => {
   function TestComponent({ category }: { category: string }) {
-    const { results } = useResourcesByCategory("effects", category)
+    const { results } = useResourcesByCategory("effect", category)
     return (
       <div>
         <div data-testid="results-count">{results.length}</div>
@@ -358,7 +358,7 @@ describe("useResourcesByCategory", () => {
 
 describe("useResourcesByTags", () => {
   function TestComponent({ tags }: { tags: string[] }) {
-    const { results } = useResourcesByTags("effects", tags)
+    const { results } = useResourcesByTags("effect", tags)
     return (
       <div>
         <div data-testid="results-count">{results.length}</div>
@@ -381,7 +381,7 @@ describe("useResourcesByTags", () => {
 
 describe("useResourcesByComplexity", () => {
   function TestComponent({ complexity }: { complexity: string }) {
-    const { results } = useResourcesByComplexity("effects", complexity)
+    const { results } = useResourcesByComplexity("effect", complexity)
     return (
       <div>
         <div data-testid="results-count">{results.length}</div>
@@ -435,9 +435,9 @@ describe("useResourcesStats", () => {
     return (
       <div>
         <div data-testid="total">{stats.total}</div>
-        <div data-testid="effects">{stats.byType.effects}</div>
-        <div data-testid="filters">{stats.byType.filters}</div>
-        <div data-testid="transitions">{stats.byType.transitions}</div>
+        <div data-testid="effects">{stats.byType.effect}</div>
+        <div data-testid="filters">{stats.byType.filter}</div>
+        <div data-testid="transitions">{stats.byType.transition}</div>
       </div>
     )
   }
@@ -478,7 +478,7 @@ describe("useResources", () => {
   it("должен загружать ресурсы по типу", async () => {
     render(
       <EffectsProvider key="useResources-test">
-        <TestComponent type="effects" />
+        <TestComponent type="effect" />
       </EffectsProvider>,
     )
 
@@ -565,7 +565,7 @@ describe("useResourcesCache", () => {
     }, [getCacheSize])
 
     const handleClearCache = () => {
-      clearCache("effects")
+      clearCache("effect")
       setCacheSize(getCacheSize())
     }
 
@@ -613,7 +613,7 @@ describe("useResourcesCache", () => {
 
 describe("useResourcesAdapter", () => {
   function TestComponent({ type, options }: { type: any; options?: any }) {
-    const adapter = useResourcesAdapter(type, options)
+    const adapter = useResourcesAdapter({ type, searchOptions: options })
     return (
       <div>
         <div data-testid="items-count">{adapter.items.length}</div>
@@ -632,7 +632,7 @@ describe("useResourcesAdapter", () => {
   it("должен предоставлять унифицированный интерфейс адаптера", async () => {
     render(
       <EffectsProvider key="adapter-test">
-        <TestComponent type="effects" />
+        <TestComponent type="effect" />
       </EffectsProvider>,
     )
 
@@ -647,7 +647,7 @@ describe("useResourcesAdapter", () => {
   it("должен фильтровать через адаптер", async () => {
     render(
       <EffectsProvider key="adapter-filter-test">
-        <TestComponent type="effects" options={{ category: "artistic" }} />
+        <TestComponent type="effect" options={{ category: "artistic" }} />
       </EffectsProvider>,
     )
 

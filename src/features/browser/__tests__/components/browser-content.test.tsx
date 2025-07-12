@@ -198,6 +198,34 @@ vi.mock("@tauri-apps/plugin-shell", () => ({
   open: vi.fn(),
 }))
 
+vi.mock("@/features/browser/providers/effects-provider", () => ({
+  EffectsProvider: ({ children }: any) => children,
+  useEffectsProvider: vi.fn(() => ({
+    api: {
+      getEffects: vi.fn(() => []),
+      getFilters: vi.fn(() => []),
+      getTransitions: vi.fn(() => []),
+      getTemplates: vi.fn(() => []),
+      getLoadingState: vi.fn(() => ({
+        isLoading: false,
+        loadedSources: new Set(["built-in"]),
+        loadingQueue: [],
+        error: null,
+        progress: 100,
+      })),
+      onLoadingStateChange: vi.fn(() => () => {}),
+      getStats: vi.fn(() => ({
+        total: 0,
+        byType: {},
+        bySource: {},
+        cacheSize: 0,
+        memoryUsage: 0,
+      })),
+      onResourcesUpdate: vi.fn(() => () => {}),
+    },
+  })),
+}))
+
 vi.mock("@/features/media/utils/preview-sizes", () => ({
   PREVIEW_SIZES: [
     { key: "small", width: 160, height: 90 },

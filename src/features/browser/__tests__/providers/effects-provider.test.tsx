@@ -291,25 +291,25 @@ describe("EffectsProvider API", () => {
   })
 
   it("должен поддерживать поиск по запросу", () => {
-    const results = api.searchResources("effects", { query: "test" })
+    const results = api.searchResources("effect", { query: "test" })
     expect(results).toHaveLength(2)
     expect(results[0].name).toContain("Test")
   })
 
   it("должен поддерживать комбинированный поиск с фильтрацией по сложности", () => {
     // Поиск только по complexity
-    const basicResults = api.searchResources("effects", { complexity: "basic" })
+    const basicResults = api.searchResources("effect", { complexity: "basic" })
     expect(basicResults).toHaveLength(1)
     expect(basicResults[0].complexity).toBe("basic")
 
     // Комбинированный поиск: query + complexity
-    const testBasicResults = api.searchResources("effects", { query: "test", complexity: "basic" })
+    const testBasicResults = api.searchResources("effect", { query: "test", complexity: "basic" })
     expect(testBasicResults).toHaveLength(1)
     expect(testBasicResults[0].name).toContain("Test")
     expect(testBasicResults[0].complexity).toBe("basic")
 
     // Комбинированный поиск: category + complexity
-    const colorIntermediateResults = api.searchResources("effects", {
+    const colorIntermediateResults = api.searchResources("effect", {
       category: "color-correction",
       complexity: "intermediate",
     })
@@ -318,68 +318,68 @@ describe("EffectsProvider API", () => {
     expect(colorIntermediateResults[0].complexity).toBe("intermediate")
 
     // Поиск с несуществующей сложностью
-    const advancedResults = api.searchResources("effects", { complexity: "advanced" })
+    const advancedResults = api.searchResources("effect", { complexity: "advanced" })
     expect(advancedResults).toHaveLength(0)
   })
 
   it("должен поддерживать фильтрацию по категории", () => {
-    const artisticEffects = api.getResourcesByCategory("effects", "artistic")
+    const artisticEffects = api.getResourcesByCategory("effect", "artistic")
     expect(artisticEffects).toHaveLength(1)
     expect(artisticEffects[0].category).toBe("artistic")
 
-    const colorEffects = api.getResourcesByCategory("effects", "color-correction")
+    const colorEffects = api.getResourcesByCategory("effect", "color-correction")
     expect(colorEffects).toHaveLength(1)
     expect(colorEffects[0].category).toBe("color-correction")
   })
 
   it("должен поддерживать фильтрацию по тегам", () => {
-    const testResources = api.getResourcesByTags("effects", ["test"])
+    const testResources = api.getResourcesByTags("effect", ["test"])
     expect(testResources).toHaveLength(2)
 
-    const colorResources = api.getResourcesByTags("effects", ["color"])
+    const colorResources = api.getResourcesByTags("effect", ["color"])
     expect(colorResources).toHaveLength(1)
   })
 
   it("должен поддерживать фильтрацию по сложности", () => {
-    const basicEffects = api.getResourcesByComplexity("effects", "basic")
+    const basicEffects = api.getResourcesByComplexity("effect", "basic")
     expect(basicEffects).toHaveLength(1)
     expect(basicEffects[0].complexity).toBe("basic")
     expect(basicEffects[0].id).toBe("test-effect-1")
 
-    const intermediateEffects = api.getResourcesByComplexity("effects", "intermediate")
+    const intermediateEffects = api.getResourcesByComplexity("effect", "intermediate")
     expect(intermediateEffects).toHaveLength(1)
     expect(intermediateEffects[0].complexity).toBe("intermediate")
     expect(intermediateEffects[0].id).toBe("test-effect-2")
 
-    const advancedEffects = api.getResourcesByComplexity("effects", "advanced")
+    const advancedEffects = api.getResourcesByComplexity("effect", "advanced")
     expect(advancedEffects).toHaveLength(0)
 
     // Проверка для фильтров
-    const basicFilters = api.getResourcesByComplexity("filters", "basic")
+    const basicFilters = api.getResourcesByComplexity("filter", "basic")
     expect(basicFilters).toHaveLength(1)
     expect(basicFilters[0].complexity).toBe("basic")
 
     // Проверка для переходов
-    const basicTransitions = api.getResourcesByComplexity("transitions", "basic")
+    const basicTransitions = api.getResourcesByComplexity("transition", "basic")
     expect(basicTransitions).toHaveLength(1)
     expect(basicTransitions[0].complexity).toBe("basic")
   })
 
   it("должен поддерживать получение ресурса по ID", () => {
-    const effect = api.getResourceById("effects", "test-effect-1")
+    const effect = api.getResourceById("effect", "test-effect-1")
     expect(effect).toBeDefined()
     expect(effect.name).toBe("Test Effect 1")
 
-    const nonExistent = api.getResourceById("effects", "non-existent")
+    const nonExistent = api.getResourceById("effect", "non-existent")
     expect(nonExistent).toBeNull()
   })
 
   it("должен предоставлять статистику", () => {
     const stats = api.getStats()
     expect(stats.total).toBe(4) // 2 эффекта + 1 фильтр + 1 переход
-    expect(stats.byType.effects).toBe(2)
-    expect(stats.byType.filters).toBe(1)
-    expect(stats.byType.transitions).toBe(1)
+    expect(stats.byType.effect).toBe(2)
+    expect(stats.byType.filter).toBe(1)
+    expect(stats.byType.transition).toBe(1)
     expect(stats.bySource["built-in"]).toBe(4)
   })
 

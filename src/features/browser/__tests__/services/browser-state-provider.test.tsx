@@ -3,14 +3,13 @@ import React from "react"
 import { act, renderHook } from "@testing-library/react"
 import { MockedFunction, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { useAppSettings } from "@/features/app-state"
-import { BrowserTab } from "@/shared/types"
+import { useAppSettings } from "@/features/app-state/hooks"
+import { BrowserTab, ViewMode } from "@/shared/types"
 
-import { ViewMode } from "../../components"
 import { BrowserStateProvider, useBrowserState, useTabSettings } from "../../services/browser-state-provider"
 
 // Мокаем useAppSettings
-vi.mock("@/features/app-state", () => ({
+vi.mock("@/features/app-state/hooks", () => ({
   useAppSettings: vi.fn(),
 }))
 

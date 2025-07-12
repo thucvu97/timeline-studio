@@ -3,6 +3,7 @@ import React from "react"
 import { vi } from "vitest"
 
 import { ChatContextType } from "../services/chat-provider"
+import { ChatListItem } from "../types/chat"
 
 export const mockChatContext: ChatContextType = {
   chatMessages: [],
@@ -16,6 +17,24 @@ export const mockChatContext: ChatContextType = {
   setError: vi.fn(),
   clearMessages: vi.fn(),
   removeMessage: vi.fn(),
+  currentSessionId: null,
+  sessions: [],
+  isCreatingNewChat: false,
+  createNewChat: function (): void {
+    throw new Error("Function not implemented.")
+  },
+  switchSession: function (sessionId: string): Promise<void> {
+    throw new Error("Function not implemented.")
+  },
+  deleteSession: function (sessionId: string): void {
+    throw new Error("Function not implemented.")
+  },
+  updateSessions: function (sessions: ChatListItem[]): void {
+    throw new Error("Function not implemented.")
+  },
+  sendTimelineEvent: function (event: any): void {
+    throw new Error("Function not implemented.")
+  }
 }
 
 // Creating context with null as default value
@@ -28,6 +47,3 @@ export const useChat = () => mockChatContext
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return <ChatContext.Provider value={mockChatContext}>{children}</ChatContext.Provider>
 }
-
-// Re-export the types
-export type { ChatContextType }

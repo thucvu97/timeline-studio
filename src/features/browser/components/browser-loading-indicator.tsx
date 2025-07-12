@@ -78,9 +78,9 @@ export function BrowserLoadingIndicator() {
       {/* Детальная статистика (только при загрузке) */}
       {loadingState.isLoading && stats.total > 0 && (
         <div className="mt-2 flex gap-3 text-xs text-muted-foreground">
-          {stats.byType.effects > 0 && <span>Эффекты: {stats.byType.effects}</span>}
-          {stats.byType.filters > 0 && <span>Фильтры: {stats.byType.filters}</span>}
-          {stats.byType.transitions > 0 && <span>Переходы: {stats.byType.transitions}</span>}
+          {stats.byType.effect > 0 && <span>Эффекты: {stats.byType.effect}</span>}
+          {stats.byType.filter > 0 && <span>Фильтры: {stats.byType.filter}</span>}
+          {stats.byType.transition > 0 && <span>Переходы: {stats.byType.transition}</span>}
         </div>
       )}
     </div>
@@ -114,7 +114,7 @@ export function BrowserResourcesSkeleton() {
 /**
  * Мини-индикатор статуса загрузки для табов
  */
-export function BrowserTabLoadingBadge({ resourceType }: { resourceType: "effects" | "filters" | "transitions" }) {
+export function BrowserTabLoadingBadge({ resourceType }: { resourceType: "effect" | "filter" | "transition" }) {
   const loadingState = useLoadingState()
   const stats = useResourcesStats()
 

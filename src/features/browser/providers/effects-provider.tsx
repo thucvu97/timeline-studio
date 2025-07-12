@@ -115,9 +115,16 @@ class EffectsProviderImpl implements EffectsProviderAPI {
 
     // Если источник не указан, объединяем ресурсы из всех загруженных источников
     const allResources: T[] = []
+    console.log(`[getResources] Looking for ${type} in loaded sources:`, {
+      type,
+      loadedSources: Array.from(this.loadingState.loadedSources),
+      availableKeys: Array.from(this.resources.keys()),
+    })
+    
     for (const loadedSource of this.loadingState.loadedSources) {
       const sourceKey = `${type}:${loadedSource}`
       const sourceResources = this.resources.get(sourceKey) || []
+      console.log(`[getResources] Checking ${sourceKey}: found ${sourceResources.length} items`)
       allResources.push(...(sourceResources as T[]))
     }
 
@@ -133,6 +140,11 @@ class EffectsProviderImpl implements EffectsProviderAPI {
 
   searchResources<T extends Resource>(type: ResourceType, options: SearchOptions): T[] {
     let resources = this.getResources<T>(type, options.source)
+    
+    console.log(`[searchResources] Initial search for ${type}:`, {
+      options,
+      initialCount: resources.length,
+    })
 
     // Поиск по тексту
     if (options.query) {
@@ -272,13 +284,22 @@ class EffectsProviderImpl implements EffectsProviderAPI {
 
       // Сохраняем ресурсы в кэш только если загрузка успешна
       if (results.effects.success) {
-        this.resources.set("effects:built-in", results.effects.data)
+        this.resources.set("effect:built-in", results.effects.data)
+        console.log(`Loaded ${results.effects.data.length} effects`)
+        // Уведомляем об обновлении ресурсов
+        this.eventListeners.resourcesUpdate.forEach((callback) => callback("effect", results.effects.data))
       }
       if (results.filters.success) {
-        this.resources.set("filters:built-in", results.filters.data)
+        this.resources.set("filter:built-in", results.filters.data)
+        console.log(`Loaded ${results.filters.data.length} filters`)
+        // Уведомляем об обновлении ресурсов
+        this.eventListeners.resourcesUpdate.forEach((callback) => callback("filter", results.filters.data))
       }
       if (results.transitions.success) {
-        this.resources.set("transitions:built-in", results.transitions.data)
+        this.resources.set("transition:built-in", results.transitions.data)
+        console.log(`Loaded ${results.transitions.data.length} transitions`)
+        // Уведомляем об обновлении ресурсов
+        this.eventListeners.resourcesUpdate.forEach((callback) => callback("transition", results.transitions.data))
       }
 
       // Проверяем наличие ошибок
@@ -308,9 +329,9 @@ class EffectsProviderImpl implements EffectsProviderAPI {
 
   private async loadLocalResources(): Promise<LoadResult> {
     // TODO: Реализовать загрузку локальных ресурсов из localStorage/IndexedDB
-    this.resources.set("effects:local", [])
-    this.resources.set("filters:local", [])
-    this.resources.set("transitions:local", [])
+    this.resources.set("effect:local", [])
+    this.resources.set("filter:local", [])
+    this.resources.set("transition:local", [])
 
     return {
       success: true,
@@ -322,9 +343,9 @@ class EffectsProviderImpl implements EffectsProviderAPI {
 
   private async loadRemoteResources(): Promise<LoadResult> {
     // TODO: Реализовать загрузку удаленных ресурсов
-    this.resources.set("effects:remote", [])
-    this.resources.set("filters:remote", [])
-    this.resources.set("transitions:remote", [])
+    this.resources.set("effect:remote", [])
+    this.resources.set("filter:remote", [])
+    this.resources.set("transition:remote", [])
 
     return {
       success: true,
@@ -336,9 +357,9 @@ class EffectsProviderImpl implements EffectsProviderAPI {
 
   private async loadImportedResources(): Promise<LoadResult> {
     // TODO: Реализовать загрузку импортированных ресурсов
-    this.resources.set("effects:imported", [])
-    this.resources.set("filters:imported", [])
-    this.resources.set("transitions:imported", [])
+    this.resources.set("effect:imported", [])
+    this.resources.set("filter:imported", [])
+    this.resources.set("transition:imported", [])
 
     return {
       success: true,

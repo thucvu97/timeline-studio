@@ -100,7 +100,7 @@ export function useEffectsAdapter(): ListAdapter<VideoEffect> {
   const { isItemFavorite } = useFavorites()
 
   // Используем унифицированный адаптер с конфигурацией для эффектов
-  const { items, loading, error, stats, ...restAdapter } = useUnifiedEffectsAdapter({
+  const adapter = useUnifiedEffectsAdapter({
     PreviewComponent: EffectPreviewWrapper,
     customHandlers: {
       getSortValue: (effect: VideoEffect, sortBy: string) => {
@@ -169,16 +169,16 @@ export function useEffectsAdapter(): ListAdapter<VideoEffect> {
     },
   })
 
+  // Логирование для отладки
+  console.log("[useEffectsAdapter] Adapter data:", {
+    items: adapter.items,
+    loading: adapter.loading,
+    error: adapter.error,
+    stats: adapter.stats,
+  })
+
   return {
-    ...restAdapter,
-    // Данные с правильной типизацией
-    useData: () => ({
-      items: items as VideoEffect[],
-      loading,
-      error: error ? new Error(error) : null,
-    }),
-    // Компонент превью
-    PreviewComponent: EffectPreviewWrapper,
+    ...adapter,
     // Проверка избранного (переопределяем)
     isFavorite: (effect: VideoEffect) => isItemFavorite(effect, "effect"),
   }

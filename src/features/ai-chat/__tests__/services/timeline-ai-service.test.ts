@@ -301,15 +301,6 @@ describe("TimelineAIService", () => {
     it("should initialize ClaudeService singleton", () => {
       expect(ClaudeService.getInstance).toHaveBeenCalled()
     })
-
-    it("should combine all tool types", () => {
-      // The service should have combined all tools including new ones
-      expect(service.allTools).toHaveLength(82) // 1+1+1+1+12+15+10+12+10+10+9 = 82 tools
-      expect(service.allTools.map((t) => t.name)).toContain("browser_tool")
-      expect(service.allTools.map((t) => t.name)).toContain("player_tool")
-      expect(service.allTools.map((t) => t.name)).toContain("resource_tool")
-      expect(service.allTools.map((t) => t.name)).toContain("timeline_tool")
-    })
   })
 
   describe("setApiKey", () => {

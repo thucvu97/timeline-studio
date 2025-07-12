@@ -220,16 +220,44 @@ import {
 } from "@/features";
 ```
 
-### ❌ Требуют реализации
+### ✅ Реализованные интеграции (продолжение)
 
 #### Timeline интеграция
-- Drag & drop медиафайлов на треки
-- Синхронизация выбранных файлов
-- Предпросмотр на таймлайне
+- ✅ Drag & drop медиафайлов на треки (полностью функционально)
+  - Используется `@dnd-kit/core` для перетаскивания
+  - Автоматическое создание треков при необходимости
+  - Snap-to-grid и предотвращение наложений
+- ✅ Синхронизация выбранных файлов через Timeline
+- ✅ Предпросмотр на таймлайне через `TimelinePlayerSync`
 
-#### VideoPlayer синхронизация
-- Автоматическая загрузка выбранного видео
-- Синхронизация времени воспроизведения
+#### Timeline → VideoPlayer синхронизация  
+- ✅ Автоматическая загрузка видео клипа в плеер
+- ✅ Синхронизация времени воспроизведения
+- ✅ Применение эффектов и фильтров из клипа
+
+### ✅ Реализованные интеграции (продолжение)
+
+#### Browser → VideoPlayer интеграция для предпросмотра
+- ✅ Кнопка "Apply" (стрелка вправо) для загрузки медиа/эффекта/фильтра в плеер для предпросмотра
+  - Появляется при наведении на элемент
+  - Вызывает `setPreviewMedia` для загрузки в плеер
+- ✅ Клик управляет воспроизведением прямо в превью (play/pause)
+
+### 📁 Ключевые файлы интеграций
+
+#### Drag & Drop система
+- `/src/features/browser/components/preview/video-preview.tsx` - draggable элементы
+- `/src/features/timeline/hooks/use-drag-drop-timeline.ts` - логика drag & drop
+- `/src/features/timeline/components/drag-drop-provider.tsx` - контекст DnD
+- `/src/features/timeline/components/track/track-content.tsx` - drop зоны
+
+#### Timeline-Player синхронизация
+- `/src/features/timeline/hooks/use-timeline-player-sync.ts` - хук синхронизации
+- `/src/features/timeline/services/timeline-player-sync.ts` - сервис синхронизации
+
+#### Browser-Player связь
+- `/src/features/video-player/hooks/use-video-selection.ts` - выбор видео
+- `/src/features/browser/components/preview/video-preview.tsx` - кнопка Apply
 
 ## 📦 Типы данных
 

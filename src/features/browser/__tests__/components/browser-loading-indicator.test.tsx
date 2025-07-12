@@ -179,9 +179,9 @@ describe("BrowserLoadingIndicator", () => {
       vi.mocked(useResourcesStats).mockReturnValue({
         total: 100,
         byType: {
-          effects: 50,
-          filters: 30,
-          transitions: 20,
+          effect: 50,
+          filter: 30,
+          transition: 20,
         },
       })
 

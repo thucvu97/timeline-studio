@@ -319,7 +319,7 @@ describe("Video Compiler Types", () => {
     })
 
     it("should have correct RenderStatus values", () => {
-      expect(RenderStatus.Queued).toBe("Queued")
+      expect(RenderStatus.Pending).toBe("Pending")
       expect(RenderStatus.Processing).toBe("Processing")
       expect(RenderStatus.Completed).toBe("Completed")
       expect(RenderStatus.Failed).toBe("Failed")

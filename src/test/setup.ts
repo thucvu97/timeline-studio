@@ -169,6 +169,14 @@ afterEach(() => {
   cleanup()
   vi.clearAllMocks()
   vi.unstubAllEnvs()
+  
+  // Дополнительная очистка памяти
+  if (globalThis.gc) {
+    globalThis.gc()
+  }
+  
+  // Очистка всех таймеров
+  vi.clearAllTimers()
 })
 
 // Global test environment setup

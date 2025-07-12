@@ -1,6 +1,8 @@
 import { act, render, renderHook, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { BaseProviders } from "@/test/test-utils"
+
 import { useUserSettings } from "../../hooks/use-user-settings"
 import { UserSettingsProvider } from "../../services/user-settings-provider"
 
@@ -42,13 +44,56 @@ vi.mock("../../services/user-settings-machine", () => ({
   },
 }))
 
+// Мокаем useAppSettings
+vi.mock("@/features/app-state/hooks/use-app-settings", () => ({
+  useAppSettings: vi.fn(() => ({
+    settings: {},
+    state: {
+      context: {
+        isLoading: false,
+        currentProject: {
+          path: "/path/to/project",
+        },
+      },
+    },
+    send: vi.fn(),
+    updateUserSettings: vi.fn(),
+  })),
+}))
+
+// Мокаем AppSettingsProvider
+vi.mock("@/features/app-state", () => ({
+  AppSettingsProvider: ({ children }: any) => children,
+  useAppSettings: vi.fn(() => ({
+    settings: {},
+    state: {
+      context: {
+        isLoading: false,
+        currentProject: {
+          path: "/path/to/project",
+        },
+      },
+    },
+    send: vi.fn(),
+    updateUserSettings: vi.fn(),
+  })),
+}))
+
+// Мокаем сохранение настроек
+vi.mock("../../utils/user-settings-storage", () => ({
+  saveUserSettings: vi.fn(),
+  loadUserSettings: vi.fn(() => ({})),
+}))
+
 // Мокаем console.log и console.error
 vi.spyOn(console, "log").mockImplementation(() => {})
 vi.spyOn(console, "error").mockImplementation(() => {})
 
 // Компонент-обертка для тестирования хука useUserSettings
 const UserSettingsWrapper = ({ children }: { children: React.ReactNode }) => (
-  <UserSettingsProvider>{children}</UserSettingsProvider>
+  <BaseProviders>
+    <UserSettingsProvider>{children}</UserSettingsProvider>
+  </BaseProviders>
 )
 
 describe("UserSettingsProvider", () => {

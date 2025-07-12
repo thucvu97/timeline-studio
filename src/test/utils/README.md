@@ -1,6 +1,6 @@
-# Утилиты для тестирования Tauri аудио компонентов
+# Test Utilities
 
-Этот набор утилит предназначен для тестирования аудио компонентов в Tauri приложении с использованием Vitest и React Testing Library.
+Специализированные утилиты для тестирования различных компонентов Timeline Studio, включая расширенную поддержку тестирования аудио функциональности в Tauri приложении.
 
 ## Основные возможности
 
@@ -235,6 +235,186 @@ vi.mock("@context7/api", () => ({
 
 **Решение:** Используйте `waitFor` и `waitForAudioContextInit`
 
+## Дополнительные утилиты
+
+### Генераторы тестовых данных
+
+```typescript
+// Создание мок видео файла
+export function createMockVideoFile(options?: {
+  name?: string;
+  path?: string;
+  duration?: number;
+  resolution?: { width: number; height: number };
+}) {
+  return {
+    name: options?.name || 'test-video.mp4',
+    path: options?.path || '/videos/test-video.mp4',
+    duration: options?.duration || 120,
+    resolution: options?.resolution || { width: 1920, height: 1080 },
+    size: 10 * 1024 * 1024, // 10MB
+    type: 'video/mp4'
+  };
+}
+
+// Создание мок изображения
+export function createMockImageFile(options?: {
+  name?: string;
+  path?: string;
+  dimensions?: { width: number; height: number };
+}) {
+  return {
+    name: options?.name || 'test-image.jpg',
+    path: options?.path || '/images/test-image.jpg',
+    dimensions: options?.dimensions || { width: 1920, height: 1080 },
+    size: 2 * 1024 * 1024, // 2MB
+    type: 'image/jpeg'
+  };
+}
+```
+
+### Утилиты для Timeline тестирования
+
+```typescript
+// Создание мок клипа
+export function createMockClip(options?: Partial<TimelineClip>) {
+  return {
+    id: options?.id || `clip-${Math.random()}`,
+    type: options?.type || 'video',
+    start: options?.start || 0,
+    end: options?.end || 5,
+    duration: options?.duration || 5,
+    sourceIn: options?.sourceIn || 0,
+    sourceOut: options?.sourceOut || 5,
+    mediaId: options?.mediaId || 'media-1',
+    trackId: options?.trackId || 'video-1'
+  };
+}
+
+// Создание мок трека
+export function createMockTrack(options?: Partial<TimelineTrack>) {
+  return {
+    id: options?.id || `track-${Math.random()}`,
+    type: options?.type || 'video',
+    name: options?.name || 'Video Track 1',
+    clips: options?.clips || [],
+    muted: options?.muted || false,
+    locked: options?.locked || false,
+    height: options?.height || 60
+  };
+}
+```
+
+### Асинхронные хелперы
+
+```typescript
+// Ожидание загрузки медиа
+export async function waitForMediaLoad(
+  element: HTMLMediaElement,
+  timeout = 5000
+) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error('Media load timeout'));
+    }, timeout);
+
+    element.addEventListener('loadeddata', () => {
+      clearTimeout(timer);
+      resolve(element);
+    });
+
+    element.addEventListener('error', () => {
+      clearTimeout(timer);
+      reject(new Error('Media load error'));
+    });
+  });
+}
+
+// Ожидание Tauri события
+export async function waitForTauriEvent(
+  eventName: string,
+  timeout = 5000
+) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error(`Event ${eventName} timeout`));
+    }, timeout);
+
+    const unlisten = listen(eventName, (event) => {
+      clearTimeout(timer);
+      unlisten();
+      resolve(event);
+    });
+  });
+}
+```
+
+### Интеграционные тест-хелперы
+
+```typescript
+// Настройка полного тестового окружения
+export function setupIntegrationTest() {
+  const audioEnv = setupAudioTestEnvironment();
+  const tauriMocks = setupTauriMocks();
+  const browserMocks = setupBrowserMocks();
+
+  return {
+    ...audioEnv,
+    tauri: tauriMocks,
+    browser: browserMocks,
+    cleanup: () => {
+      audioEnv.cleanup();
+      resetTauriMocks();
+      resetBrowserMocks();
+    }
+  };
+}
+```
+
+## Структура утилит
+
+```
+src/test/utils/
+├── audio/                # Аудио-специфичные утилиты
+│   ├── mock-data.ts      # Генераторы аудио данных
+│   ├── mock-elements.ts  # Моки HTML аудио элементов
+│   └── events.ts         # Симуляция аудио событий
+├── media/                # Медиа утилиты
+│   ├── video.ts          # Видео утилиты
+│   └── image.ts          # Изображение утилиты
+├── timeline/             # Timeline утилиты
+│   ├── clips.ts          # Утилиты для клипов
+│   └── tracks.ts         # Утилиты для треков
+├── async/                # Асинхронные хелперы
+│   └── wait.ts           # Функции ожидания
+└── README.md             # Эта документация
+```
+
+## Связь с основной тестовой инфраструктурой
+
+Эти утилиты работают совместно с:
+
+- **`/src/test/setup.ts`** - Глобальная конфигурация тестов
+- **`/src/test/test-utils.tsx`** - Основные утилиты рендеринга
+- **`/src/test/mocks/`** - Централизованная система моков
+
+### Использование с test-utils
+```typescript
+import { render } from '@/test/test-utils';
+import { createMockAudioFile, setupAudioTestEnvironment } from '@/test/utils';
+
+test('audio component with custom utils', () => {
+  const audioEnv = setupAudioTestEnvironment();
+  const audioFile = createMockAudioFile();
+  
+  render(<AudioPlayer file={audioFile} />);
+  
+  // Тест логика
+  
+  audioEnv.cleanup();
+});
+```
+
 ## Совместимость
 
 - ✅ Vitest
@@ -243,3 +423,5 @@ vi.mock("@context7/api", () => ({
 - ✅ Web Audio API
 - ✅ Context7 MCP
 - ✅ TypeScript
+- ✅ XState v5
+- ✅ Next.js 15

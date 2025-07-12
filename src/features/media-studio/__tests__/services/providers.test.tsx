@@ -28,7 +28,7 @@ vi.mock("@/features/app-state", () => ({
   ),
 }))
 
-vi.mock("@/features/browser", () => ({
+vi.mock("@/features/browser/services/browser-state-provider", () => ({
   BrowserStateProvider: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="browser-state-provider">{children}</div>
   ),
@@ -72,6 +72,10 @@ vi.mock("@/features/ai-chat/services/chat-provider", () => ({
   ChatProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="chat-provider">{children}</div>,
 }))
 
+vi.mock("@/features/ai-content-intelligence", () => ({
+  AIIntelligenceProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="ai-intelligence-provider">{children}</div>,
+}))
+
 describe("Providers", () => {
   it("должен рендерить все провайдеры в правильном порядке", () => {
     render(
@@ -85,9 +89,10 @@ describe("Providers", () => {
     expect(screen.getByTestId("i18n-provider")).toBeInTheDocument()
     expect(screen.getByTestId("theme-provider")).toBeInTheDocument()
     expect(screen.getByTestId("app-settings-provider")).toBeInTheDocument()
-    // expect(screen.getByTestId("browser-state-provider")).toBeInTheDocument()
+    expect(screen.getByTestId("browser-state-provider")).toBeInTheDocument()
     expect(screen.getByTestId("user-settings-provider")).toBeInTheDocument()
     expect(screen.getByTestId("resources-provider")).toBeInTheDocument()
+    expect(screen.getByTestId("ai-intelligence-provider")).toBeInTheDocument()
 
     // Проверяем что дочерний компонент отрендерился
     expect(screen.getByTestId("test-child")).toBeInTheDocument()

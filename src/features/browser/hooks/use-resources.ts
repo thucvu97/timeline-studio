@@ -13,13 +13,19 @@ import type { LoadingState, Resource, ResourceSource, ResourceStats, SearchOptio
  * Хук для получения всех эффектов
  */
 export function useEffects(source?: ResourceSource) {
-  const { api } = useEffectsProvider()
+  const { api, isInitialized } = useEffectsProvider()
   const [effects, setEffects] = useState<VideoEffect[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const updateEffects = () => {
-      setEffects(api.getEffects(source))
+      const allEffects = api.getEffects(source)
+      console.log("[useEffects] Getting effects:", {
+        source,
+        isInitialized,
+        effects: allEffects,
+      })
+      setEffects(allEffects)
       setLoading(false)
     }
 
@@ -27,13 +33,14 @@ export function useEffects(source?: ResourceSource) {
 
     // Подписываемся на обновления
     const unsubscribe = api.onResourcesUpdate((type, _resources) => {
-      if (type === "effects") {
+      if (type === "effect") {
+        console.log("[useEffects] Effects update event received")
         updateEffects()
       }
     })
 
     return unsubscribe
-  }, [api, source])
+  }, [api, source, isInitialized])
 
   return { effects, loading }
 }
@@ -56,7 +63,7 @@ export function useFilters(source?: ResourceSource) {
 
     // Подписываемся на обновления
     const unsubscribe = api.onResourcesUpdate((type, _resources) => {
-      if (type === "filters") {
+      if (type === "filter") {
         updateFilters()
       }
     })
@@ -85,7 +92,7 @@ export function useTransitions(source?: ResourceSource) {
 
     // Подписываемся на обновления
     const unsubscribe = api.onResourcesUpdate((type, _resources) => {
-      if (type === "transitions") {
+      if (type === "transition") {
         updateTransitions()
       }
     })
@@ -178,7 +185,12 @@ export function useResourcesSearch(type: ResourceType, options: SearchOptions) {
 
   useEffect(() => {
     const updateResults = () => {
-      setResults(api.searchResources(type, memoizedOptions))
+      const searchResults = api.searchResources(type, memoizedOptions)
+      console.log(`[useResourcesSearch] Searching ${type}:`, {
+        options: memoizedOptions,
+        results: searchResults,
+      })
+      setResults(searchResults)
       setLoading(false)
     }
 
@@ -187,6 +199,7 @@ export function useResourcesSearch(type: ResourceType, options: SearchOptions) {
     // Подписываемся на обновления
     const unsubscribe = api.onResourcesUpdate((resourceType) => {
       if (resourceType === type) {
+        console.log(`[useResourcesSearch] Resource update for ${type}`)
         updateResults()
       }
     })

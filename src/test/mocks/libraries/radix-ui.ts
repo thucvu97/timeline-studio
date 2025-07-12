@@ -134,5 +134,3 @@ export const MockDialog = {
     return React.createElement("button", { ...props, ref, "data-testid": "dialog-close" }, children)
   }),
 }
-
-// All exports are already handled above
