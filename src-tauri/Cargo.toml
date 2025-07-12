@@ -46,6 +46,8 @@ criterion = { version = "0.5", features = ["html_reports"] }
 httpmock = "0.7"
 # Mocking framework for tests
 mockall = "0.11"
+# Async utilities for testing
+futures = "0.3"
 
 [dependencies]
 serde_json = "1"

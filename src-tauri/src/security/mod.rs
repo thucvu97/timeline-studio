@@ -15,6 +15,8 @@ pub mod registry;
 pub mod secure_storage;
 
 // Тесты включены в соответствующие модули inline
+#[cfg(test)]
+mod tests;
 
 // Re-export основных типов и функций
 pub use commands::*;
