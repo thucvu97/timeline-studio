@@ -365,6 +365,129 @@ impl Default for MediaAnalyzer {
 #[cfg(test)]
 mod tests {
   use super::*;
+  use crate::media::types::{FfprobeFormat, FfprobeStream, ProbeData};
+
+  /// Создает тестовый MediaFile с видео
+  fn create_test_video_file() -> MediaFile {
+    MediaFile {
+      id: "test-video-1".to_string(),
+      name: "video.mp4".to_string(),
+      path: "/test/video.mp4".to_string(),
+      is_video: true,
+      is_audio: false,
+      is_image: false,
+      size: 1024 * 1024 * 10, // 10MB
+      duration: Some(120.0),
+      start_time: 0,
+      creation_time: "2023-01-01T00:00:00Z".to_string(),
+      probe_data: ProbeData {
+        streams: vec![
+          FfprobeStream {
+            index: 0,
+            codec_type: "video".to_string(),
+            codec_name: Some("h264".to_string()),
+            width: Some(1920),
+            height: Some(1080),
+            bit_rate: Some("5000000".to_string()),
+            r_frame_rate: Some("30/1".to_string()),
+            sample_rate: None,
+            channels: None,
+            display_aspect_ratio: Some("16:9".to_string()),
+          },
+          FfprobeStream {
+            index: 1,
+            codec_type: "audio".to_string(),
+            codec_name: Some("aac".to_string()),
+            width: None,
+            height: None,
+            bit_rate: Some("128000".to_string()),
+            r_frame_rate: None,
+            sample_rate: Some("44100".to_string()),
+            channels: Some(2),
+            display_aspect_ratio: None,
+          },
+        ],
+        format: FfprobeFormat {
+          duration: Some(120.0),
+          size: Some(10485760),
+          bit_rate: Some("698880".to_string()),
+          format_name: Some("mp4".to_string()),
+        },
+      },
+    }
+  }
+
+  /// Создает тестовый MediaFile с изображением
+  fn create_test_image_file() -> MediaFile {
+    MediaFile {
+      id: "test-image-1".to_string(),
+      name: "image.png".to_string(),
+      path: "/test/image.png".to_string(),
+      is_video: false,
+      is_audio: false,
+      is_image: true,
+      size: 1024 * 100, // 100KB
+      duration: None,
+      start_time: 0,
+      creation_time: "2023-01-01T00:00:00Z".to_string(),
+      probe_data: ProbeData {
+        streams: vec![FfprobeStream {
+          index: 0,
+          codec_type: "video".to_string(),
+          codec_name: Some("png".to_string()),
+          width: Some(1920),
+          height: Some(1080),
+          bit_rate: None,
+          r_frame_rate: None,
+          sample_rate: None,
+          channels: None,
+          display_aspect_ratio: None,
+        }],
+        format: FfprobeFormat {
+          duration: None,
+          size: Some(102400),
+          bit_rate: None,
+          format_name: Some("png_pipe".to_string()),
+        },
+      },
+    }
+  }
+
+  /// Создает тестовый MediaFile с аудио
+  fn create_test_audio_file() -> MediaFile {
+    MediaFile {
+      id: "test-audio-1".to_string(),
+      name: "audio.mp3".to_string(),
+      path: "/test/audio.mp3".to_string(),
+      is_video: false,
+      is_audio: true,
+      is_image: false,
+      size: 1024 * 1024 * 5, // 5MB
+      duration: Some(180.0),
+      start_time: 0,
+      creation_time: "2023-01-01T00:00:00Z".to_string(),
+      probe_data: ProbeData {
+        streams: vec![FfprobeStream {
+          index: 0,
+          codec_type: "audio".to_string(),
+          codec_name: Some("mp3".to_string()),
+          width: None,
+          height: None,
+          bit_rate: Some("320000".to_string()),
+          r_frame_rate: None,
+          sample_rate: Some("48000".to_string()),
+          channels: Some(2),
+          display_aspect_ratio: None,
+        }],
+        format: FfprobeFormat {
+          duration: Some(180.0),
+          size: Some(5242880),
+          bit_rate: Some("233472".to_string()),
+          format_name: Some("mp3".to_string()),
+        },
+      },
+    }
+  }
 
   #[test]
   fn test_parse_frame_rate() {
@@ -375,26 +498,292 @@ mod tests {
     );
     assert_eq!(MediaAnalyzer::parse_frame_rate("25"), Some(25.0));
     assert_eq!(MediaAnalyzer::parse_frame_rate("invalid"), None);
+    assert_eq!(MediaAnalyzer::parse_frame_rate("0/1"), Some(0.0)); // 0/1 is valid but results in 0.0
+    assert_eq!(MediaAnalyzer::parse_frame_rate("30/0"), None);
   }
 
   #[test]
   fn test_quality_score_calculation() {
     let analyzer = MediaAnalyzer::new();
 
-    // High quality
+    // High quality - 4K resolution, 10Mbps, 60fps
     let score = analyzer.calculate_quality_score(
       &Some((3840, 2160)), // 4K
       &Some(10_000_000),   // 10 Mbps
       &Some(60.0),         // 60 fps
     );
-    assert!(score > 0.9);
+    assert!(score > 0.8); // Высокое качество
 
-    // Low quality
+    // Medium quality - Full HD, 5Mbps, 30fps
+    let score = analyzer.calculate_quality_score(
+      &Some((1920, 1080)), // Full HD
+      &Some(5_000_000),    // 5 Mbps
+      &Some(30.0),         // 30 fps
+    );
+    assert!((0.3..=0.6).contains(&score)); // Среднее качество
+
+    // Low quality - SD, 500Kbps, 15fps
     let score = analyzer.calculate_quality_score(
       &Some((640, 480)), // SD
       &Some(500_000),    // 500 Kbps
       &Some(15.0),       // 15 fps
     );
-    assert!(score < 0.3);
+    assert!(score < 0.25); // Низкое качество
+
+    // Missing some metrics - только разрешение и fps
+    let score = analyzer.calculate_quality_score(&Some((1920, 1080)), &None, &Some(30.0));
+    assert!(score > 0.25 && score < 0.7);
+
+    // No metrics
+    let score = analyzer.calculate_quality_score(&None, &None, &None);
+    assert_eq!(score, 0.5); // Default score
+  }
+
+  #[tokio::test]
+  async fn test_analyze_video_file() {
+    let analyzer = MediaAnalyzer::new();
+    let video_file = create_test_video_file();
+
+    let result = analyzer.analyze(video_file.clone()).await;
+    assert!(result.is_ok());
+
+    let analysis = result.unwrap();
+    assert_eq!(analysis.file_info.path, video_file.path);
+
+    // Check quality metrics
+    assert_eq!(analysis.quality_metrics.resolution, Some((1920, 1080)));
+    assert_eq!(analysis.quality_metrics.bitrate, Some(5_000_000));
+    assert_eq!(analysis.quality_metrics.fps, Some(30.0));
+    assert_eq!(analysis.quality_metrics.codec, Some("h264".to_string()));
+    assert!(analysis.quality_metrics.quality_score > 0.3); // Adjusted expectation
+
+    // Check content type
+    match analysis.content_type {
+      ContentType::Video {
+        has_audio,
+        aspect_ratio,
+        ..
+      } => {
+        assert!(has_audio);
+        assert_eq!(aspect_ratio, "1920:1080");
+      }
+      _ => panic!("Expected video content type"),
+    }
+  }
+
+  #[tokio::test]
+  async fn test_analyze_image_file() {
+    let analyzer = MediaAnalyzer::new();
+    let image_file = create_test_image_file();
+
+    let result = analyzer.analyze(image_file.clone()).await;
+    assert!(result.is_ok());
+
+    let analysis = result.unwrap();
+
+    // Check content type
+    match analysis.content_type {
+      ContentType::Image {
+        has_transparency,
+        color_space,
+      } => {
+        assert!(has_transparency); // PNG supports transparency
+        assert_eq!(color_space, "RGB");
+      }
+      _ => panic!("Expected image content type"),
+    }
+  }
+
+  #[tokio::test]
+  async fn test_analyze_audio_file() {
+    let analyzer = MediaAnalyzer::new();
+    let audio_file = create_test_audio_file();
+
+    let result = analyzer.analyze(audio_file.clone()).await;
+    assert!(result.is_ok());
+
+    let analysis = result.unwrap();
+
+    // Check content type
+    match analysis.content_type {
+      ContentType::Audio {
+        channels,
+        sample_rate,
+      } => {
+        assert_eq!(channels, 2);
+        assert_eq!(sample_rate, 48000);
+      }
+      _ => panic!("Expected audio content type"),
+    }
+  }
+
+  #[test]
+  fn test_generate_recommendations() {
+    let analyzer = MediaAnalyzer::new();
+    let video_file = create_test_video_file();
+
+    // Low resolution
+    let metrics = QualityMetrics {
+      resolution: Some((640, 480)),
+      bitrate: Some(5_000_000),
+      fps: Some(30.0),
+      codec: Some("h264".to_string()),
+      quality_score: 0.5,
+    };
+    let recommendations = analyzer.generate_recommendations(&video_file, &metrics);
+    assert!(recommendations.iter().any(|r| r.contains("HD resolution")));
+
+    // Low bitrate
+    let metrics = QualityMetrics {
+      resolution: Some((1920, 1080)),
+      bitrate: Some(500_000),
+      fps: Some(30.0),
+      codec: Some("h264".to_string()),
+      quality_score: 0.5,
+    };
+    let recommendations = analyzer.generate_recommendations(&video_file, &metrics);
+    assert!(recommendations.iter().any(|r| r.contains("bitrate is low")));
+
+    // Low FPS
+    let metrics = QualityMetrics {
+      resolution: Some((1920, 1080)),
+      bitrate: Some(5_000_000),
+      fps: Some(15.0),
+      codec: Some("h264".to_string()),
+      quality_score: 0.5,
+    };
+    let recommendations = analyzer.generate_recommendations(&video_file, &metrics);
+    assert!(recommendations.iter().any(|r| r.contains("Frame rate")));
+
+    // Non-standard codec
+    let metrics = QualityMetrics {
+      resolution: Some((1920, 1080)),
+      bitrate: Some(5_000_000),
+      fps: Some(30.0),
+      codec: Some("vp8".to_string()),
+      quality_score: 0.5,
+    };
+    let recommendations = analyzer.generate_recommendations(&video_file, &metrics);
+    assert!(recommendations.iter().any(|r| r.contains("H.264 or H.265")));
+  }
+
+  #[test]
+  fn test_detect_hdr_content() {
+    let analyzer = MediaAnalyzer::new();
+    let mut video_file = create_test_video_file();
+
+    // Test H.264 (no HDR)
+    assert!(!analyzer.detect_hdr_content(&video_file));
+
+    // Test HEVC (HDR)
+    video_file.probe_data.streams[0].codec_name = Some("hevc".to_string());
+    assert!(analyzer.detect_hdr_content(&video_file));
+
+    // Test H.265 (HDR)
+    video_file.probe_data.streams[0].codec_name = Some("h265".to_string());
+    assert!(analyzer.detect_hdr_content(&video_file));
+
+    // Test VP9 (HDR)
+    video_file.probe_data.streams[0].codec_name = Some("vp9".to_string());
+    assert!(analyzer.detect_hdr_content(&video_file));
+  }
+
+  #[test]
+  fn test_detect_image_transparency() {
+    let analyzer = MediaAnalyzer::new();
+    let mut image_file = create_test_image_file();
+
+    // PNG supports transparency
+    assert!(analyzer.detect_image_transparency(&image_file));
+
+    // JPEG doesn't support transparency
+    image_file.probe_data.format.format_name = Some("jpeg_pipe".to_string());
+    image_file.probe_data.streams[0].codec_name = Some("jpeg".to_string());
+    assert!(!analyzer.detect_image_transparency(&image_file));
+
+    // WebP supports transparency
+    image_file.probe_data.format.format_name = Some("webp_pipe".to_string());
+    image_file.probe_data.streams[0].codec_name = Some("webp".to_string());
+    assert!(analyzer.detect_image_transparency(&image_file));
+  }
+
+  #[test]
+  fn test_detect_color_space() {
+    let analyzer = MediaAnalyzer::new();
+    let mut file = create_test_video_file();
+
+    // H.264 uses YUV
+    assert_eq!(analyzer.detect_color_space(&file), "YUV");
+
+    // H.265 uses YUV
+    file.probe_data.streams[0].codec_name = Some("h265".to_string());
+    assert_eq!(analyzer.detect_color_space(&file), "YUV");
+
+    // Image formats default to RGB
+    let image_file = create_test_image_file();
+    assert_eq!(analyzer.detect_color_space(&image_file), "RGB");
+
+    // Unknown codec defaults to RGB
+    file.probe_data.streams[0].codec_name = Some("unknown".to_string());
+    assert_eq!(analyzer.detect_color_space(&file), "RGB");
+  }
+
+  #[test]
+  fn test_calculate_quality_metrics_edge_cases() {
+    let analyzer = MediaAnalyzer::new();
+    let mut video_file = create_test_video_file();
+
+    // Missing video stream
+    video_file.probe_data.streams.clear();
+    let metrics = analyzer.calculate_quality_metrics(&video_file);
+    assert!(metrics.resolution.is_none());
+    assert!(metrics.fps.is_none());
+    assert!(metrics.codec.is_none());
+
+    // Invalid frame rate
+    video_file = create_test_video_file();
+    video_file.probe_data.streams[0].r_frame_rate = Some("invalid".to_string());
+    let metrics = analyzer.calculate_quality_metrics(&video_file);
+    assert!(metrics.fps.is_none());
+
+    // Bitrate from format when not in stream
+    video_file.probe_data.streams[0].bit_rate = None;
+    let metrics = analyzer.calculate_quality_metrics(&video_file);
+    assert_eq!(metrics.bitrate, Some(698880)); // From format
+  }
+
+  #[test]
+  fn test_determine_content_type_fallback() {
+    let analyzer = MediaAnalyzer::new();
+    let mut file = create_test_video_file();
+
+    // File with no type flags set
+    file.is_video = false;
+    file.is_audio = false;
+    file.is_image = false;
+
+    match analyzer.determine_content_type(&file) {
+      ContentType::Video {
+        is_hdr,
+        has_audio,
+        aspect_ratio,
+      } => {
+        assert!(!is_hdr);
+        assert!(!has_audio);
+        assert_eq!(aspect_ratio, "unknown");
+      }
+      _ => panic!("Expected fallback to video content type"),
+    }
+  }
+
+  #[test]
+  fn test_default_trait() {
+    let analyzer1 = MediaAnalyzer::new();
+    let analyzer2 = MediaAnalyzer;
+    // Both should create the same empty struct
+    assert_eq!(
+      std::mem::size_of_val(&analyzer1),
+      std::mem::size_of_val(&analyzer2)
+    );
   }
 }

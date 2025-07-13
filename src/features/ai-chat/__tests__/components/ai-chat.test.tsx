@@ -32,6 +32,19 @@ vi.mock("../../hooks/use-safe-timeline", () => ({
   }),
 }))
 
+vi.mock("../../hooks/use-resources-ai-integration", () => ({
+  useResourcesAIIntegration: () => ({
+    isIntegrated: true,
+    resourceStats: {
+      totalMedia: 10,
+      totalEffects: 5,
+      totalFilters: 3,
+      totalSize: 1024 * 1024 * 100,
+      totalDuration: 3600,
+    },
+  }),
+}))
+
 vi.mock("../../services/chat-storage-service", () => ({
   chatStorageService: {
     getAllSessions: vi.fn().mockResolvedValue([]),

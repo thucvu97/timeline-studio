@@ -105,6 +105,19 @@ vi.mock("../../hooks/use-safe-timeline", () => ({
   }),
 }))
 
+vi.mock("../../hooks/use-resources-ai-integration", () => ({
+  useResourcesAIIntegration: () => ({
+    isIntegrated: true,
+    resourceStats: {
+      totalMedia: 10,
+      totalEffects: 5,
+      totalFilters: 3,
+      totalSize: 1024 * 1024 * 100,
+      totalDuration: 3600,
+    },
+  }),
+}))
+
 // Lucide icons are now mocked globally in src/test/mocks/libraries/lucide-react.ts
 
 // Mock для useChat с правильной структурой

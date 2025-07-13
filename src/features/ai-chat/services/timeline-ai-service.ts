@@ -84,6 +84,8 @@ export class TimelineAIService {
       ...contentIntelligenceTools,
       ...personIdentificationTools,
     ]
+
+    // TODO: Установить доступ к состоянию браузера через глобальную переменную
   }
 
   /**
@@ -679,7 +681,14 @@ export class TimelineAIService {
   }
 
   private getBrowserMedia(): MediaFile[] {
-    // Заглушка - нужно получать данные из браузера
+    // Получаем файлы в зависимости от активной вкладки
+    const activeTab = this.browserState?.activeTab
+    if (activeTab === "media") {
+      return this.resourcesProvider.mediaResources.map((r) => r.file)
+    }
+    if (activeTab === "music") {
+      return this.resourcesProvider.musicResources.map((r) => r.file)
+    }
     return []
   }
 

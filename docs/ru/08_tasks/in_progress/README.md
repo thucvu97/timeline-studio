@@ -10,6 +10,12 @@
 |--------|-----------|----------|---------------|---------|
 | [Advanced Timeline Features](./advanced-timeline-features.md) | 🟡 Средний | 10% | Frontend Team | 20 июля 2025 |
 
+### ✅ Недавно завершенные задачи
+
+| Задача | Дата завершения | Статус |
+|--------|-----------------|--------|
+| [AI Tools Implementation](../completed/ai-tools-implementation.md) | 13 июля 2025 | ✅ ЗАВЕРШЕНО |
+
 ## Описание задач
 
 ### ✅ Timeline Full Integration - Базовая интеграция Timeline (ЗАВЕРШЕНО!)

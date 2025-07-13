@@ -5,6 +5,8 @@
  * и модификации структуры таймлайна
  */
 
+import { TimelineClip, TimelineProject, TimelineSection, TimelineTrack } from "@/features/timeline/types"
+
 import { ClaudeTool } from "../services/claude-service"
 
 /**
@@ -548,67 +550,32 @@ export interface TimelineToolResult {
 }
 
 /**
- * Интерфейс для проекта Timeline
+ * Интерфейс для доступа к состоянию Timeline
  */
-interface TimelineProject {
-  id: string
-  name: string
-  description?: string
-  settings: {
-    resolution: { width: number; height: number }
-    fps: number
-    aspectRatio: string
-    duration?: number
-    sampleRate?: number
+interface TimelineStateAccess {
+  getCurrentProject: () => TimelineProject | null
+  createProject: (project: TimelineProject) => Promise<void>
+  updateProject: (updates: Partial<TimelineProject>) => Promise<void>
+  createSection: (section: Omit<TimelineSection, "id">) => Promise<TimelineSection>
+  createTrack: (track: Omit<TimelineTrack, "id">) => Promise<TimelineTrack>
+  addClip: (clip: Omit<TimelineClip, "id">) => Promise<TimelineClip>
+  getProjectStats: () => {
+    totalDuration: number
+    totalClips: number
+    totalTracks: number
+    totalSections: number
   }
-  tracks: TimelineTrack[]
-  sections: TimelineSection[]
-  clips: TimelineClip[]
-  metadata?: any
+  sendTimelineCommand: (command: string, params?: any) => Promise<void>
 }
 
-/**
- * Интерфейс для трека Timeline
- */
-interface TimelineTrack {
-  id: string
-  name: string
-  type: "video" | "audio" | "subtitle" | "overlay"
-  index: number
-  isVisible: boolean
-  isMuted: boolean
-  isLocked: boolean
-  clips: string[] // IDs клипов
-}
+// Глобальная переменная для доступа к состоянию timeline
+let timelineStateAccess: TimelineStateAccess | null = null
 
 /**
- * Интерфейс для секции Timeline
+ * Устанавливает доступ к состоянию timeline
  */
-interface TimelineSection {
-  id: string
-  name: string
-  description?: string
-  startTime: number
-  endTime: number
-  tags?: string[]
-  color?: string
-}
-
-/**
- * Интерфейс для клипа Timeline
- */
-interface TimelineClip {
-  id: string
-  name: string
-  trackId: string
-  resourceId: string
-  startTime: number
-  endTime: number
-  duration: number
-  trimStart?: number
-  trimEnd?: number
-  effects?: string[]
-  transitions?: { in?: string; out?: string }
+export function setTimelineStateAccess(access: TimelineStateAccess) {
+  timelineStateAccess = access
 }
 
 /**
@@ -675,8 +642,15 @@ async function analyzeTimelineStructure(params: any): Promise<TimelineToolResult
   } = params
 
   try {
-    // Получаем текущий проект timeline
-    const currentProject = await getCurrentTimelineProject()
+    if (!timelineStateAccess) {
+      return {
+        success: false,
+        message: "Timeline state access not configured",
+        errors: ["Timeline state access not available"],
+      }
+    }
+
+    const currentProject = timelineStateAccess.getCurrentProject()
 
     if (!currentProject) {
       return {
@@ -686,55 +660,109 @@ async function analyzeTimelineStructure(params: any): Promise<TimelineToolResult
       }
     }
 
+    const projectStats = timelineStateAccess.getProjectStats()
+
     const analysis: any = {
       projectInfo: {
         id: currentProject.id,
         name: currentProject.name,
-        duration: currentProject.settings.duration || 0,
-        tracks: currentProject.tracks.length,
-        sections: currentProject.sections.length,
-        clips: currentProject.clips.length,
+        duration: currentProject.duration,
+        fps: currentProject.fps,
+        resolution: currentProject.settings.resolution,
+        tracks: projectStats.totalTracks,
+        sections: projectStats.totalSections,
+        clips: projectStats.totalClips,
       },
     }
 
     if (includeTracks) {
-      analysis.tracks = currentProject.tracks.map((track) => ({
+      analysis.tracks = currentProject.globalTracks.map((track) => ({
         id: track.id,
         name: track.name,
         type: track.type,
         clipsCount: track.clips.length,
-        isVisible: track.isVisible,
+        isHidden: track.isHidden,
         isMuted: track.isMuted,
+        isLocked: track.isLocked,
+        height: track.height,
+        order: track.order,
       }))
+      // Добавляем треки из секций
+      currentProject.sections.forEach((section) => {
+        section.tracks.forEach((track) => {
+          analysis.tracks.push({
+            id: track.id,
+            name: track.name,
+            type: track.type,
+            sectionId: section.id,
+            clipsCount: track.clips.length,
+            isHidden: track.isHidden,
+            isMuted: track.isMuted,
+            isLocked: track.isLocked,
+          })
+        })
+      })
     }
 
     if (includeSections) {
       analysis.sections = currentProject.sections.map((section) => ({
         id: section.id,
         name: section.name,
-        duration: section.endTime - section.startTime,
+        index: section.index,
+        duration: section.duration,
         startTime: section.startTime,
         endTime: section.endTime,
+        tracksCount: section.tracks.length,
+        isCollapsed: section.isCollapsed,
+        color: section.color,
+        tags: section.tags,
       }))
     }
 
     if (includeClips) {
-      analysis.clips = currentProject.clips.map((clip) => ({
+      const allClips: TimelineClip[] = []
+      // Собираем клипы со всех треков
+      currentProject.globalTracks.forEach((track) => allClips.push(...track.clips))
+      currentProject.sections.forEach((section) => {
+        section.tracks.forEach((track) => allClips.push(...track.clips))
+      })
+
+      analysis.clips = allClips.map((clip) => ({
         id: clip.id,
         name: clip.name,
         trackId: clip.trackId,
+        mediaId: clip.mediaId,
+        startTime: clip.startTime,
         duration: clip.duration,
-        hasEffects: (clip.effects?.length || 0) > 0,
-        hasTransitions: !!(clip.transitions?.in || clip.transitions?.out),
+        volume: clip.volume,
+        speed: clip.speed,
+        hasEffects: clip.effects.length > 0,
+        hasFilters: clip.filters.length > 0,
+        hasTransitions: clip.transitions.length > 0,
+        isSelected: clip.isSelected,
+        isLocked: clip.isLocked,
       }))
     }
 
     if (analysisDepth === "detailed" || analysisDepth === "comprehensive") {
+      const allClips: TimelineClip[] = []
+      currentProject.globalTracks.forEach((track) => allClips.push(...track.clips))
+      currentProject.sections.forEach((section) => {
+        section.tracks.forEach((track) => allClips.push(...track.clips))
+      })
+
       analysis.statistics = {
         averageClipDuration:
-          currentProject.clips.reduce((sum, clip) => sum + clip.duration, 0) / currentProject.clips.length || 0,
-        trackTypeDistribution: getTrackTypeDistribution(currentProject.tracks),
+          allClips.length > 0 ? allClips.reduce((sum, clip) => sum + clip.duration, 0) / allClips.length : 0,
+        trackTypeDistribution: getTrackTypeDistribution(currentProject),
         timelineDensity: calculateTimelineDensity(currentProject),
+        usedResources: {
+          effects: currentProject.resources.effects.length,
+          filters: currentProject.resources.filters.length,
+          transitions: currentProject.resources.transitions.length,
+          templates: currentProject.resources.templates.length,
+          media: currentProject.resources.media.length,
+        },
       }
     }
 
@@ -763,35 +791,61 @@ async function createTimelineProject(params: any): Promise<TimelineToolResult> {
   const { projectSettings, autoCreateStructure = true, templateType = "basic" } = params
 
   try {
+    if (!timelineStateAccess) {
+      return {
+        success: false,
+        message: "Timeline state access not configured",
+        errors: ["Timeline state access not available"],
+      }
+    }
+
     // Создаем новый проект
     const projectId = generateProjectId()
     const project: TimelineProject = {
       id: projectId,
       name: projectSettings.name,
       description: projectSettings.description,
+      duration: projectSettings.duration || 0,
+      fps: projectSettings.fps,
+      sampleRate: projectSettings.sampleRate || 48000,
+      sections: [],
+      globalTracks: [],
+      markers: [],
+      resources: {
+        effects: [],
+        filters: [],
+        transitions: [],
+        templates: [],
+        styleTemplates: [],
+        subtitleStyles: [],
+        music: [],
+        media: [],
+      },
       settings: {
         resolution: projectSettings.resolution,
         fps: projectSettings.fps,
         aspectRatio: projectSettings.aspectRatio || "16:9",
-        duration: projectSettings.duration,
-        sampleRate: projectSettings.sampleRate || 44100,
+        sampleRate: projectSettings.sampleRate || 48000,
+        channels: 2,
+        bitDepth: 24,
+        timeFormat: "timecode",
+        snapToGrid: true,
+        gridSize: 1,
+        autoSave: true,
+        autoSaveInterval: 300,
       },
-      tracks: [],
-      sections: [],
-      clips: [],
-      metadata: {
-        created: new Date().toISOString(),
-        template: templateType,
-      },
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      version: "1.0.0",
     }
 
     // Автоматически создаем базовую структуру треков
     if (autoCreateStructure) {
-      project.tracks = createDefaultTrackStructure(templateType)
+      project.globalTracks = createDefaultTrackStructure(templateType)
     }
 
-    // Сохраняем проект (интеграция с timeline state machine)
-    await saveTimelineProject(project)
+    // Сохраняем проект
+    await timelineStateAccess.createProject(project)
 
     return {
       success: true,
@@ -896,7 +950,7 @@ async function createTrackStructure(params: any): Promise<TimelineToolResult> {
       id: generateTrackId(),
       name: trackConfig.name || `Track ${index + 1}`,
       type: trackConfig.type,
-      index: currentProject.tracks.length + index,
+      index: Number(currentProject.tracks?.length || 0) + Number(index),
       isVisible: trackConfig.isVisible !== false,
       isMuted: trackConfig.isMuted === true,
       isLocked: trackConfig.isLocked === true,
@@ -1068,9 +1122,10 @@ async function analyzeContentForStory(params: any): Promise<TimelineToolResult> 
 
     const analysis: any = {
       projectInfo: {
-        totalDuration: currentProject.clips.reduce((sum, clip) => sum + clip.duration, 0),
-        clipsCount: currentProject.clips.length,
-        sectionsCount: currentProject.sections.length,
+        totalDuration:
+          currentProject.clips?.reduce((sum: number, clip: any) => sum + Number(clip.duration || 0), 0) || 0,
+        clipsCount: currentProject.clips?.length || 0,
+        sectionsCount: currentProject.sections?.length || 0,
       },
     }
 
@@ -1465,35 +1520,231 @@ function getTrackTypeDistribution(tracks: TimelineTrack[]): Record<string, numbe
 }
 
 function calculateTimelineDensity(project: TimelineProject): number {
+  if (!timelineStateAccess) {
+    return 0
+  }
+
+  const projectStats = timelineStateAccess.getProjectStats()
   const totalDuration = project.settings.duration || 0
-  const totalClipDuration = project.clips.reduce((sum, clip) => sum + clip.duration, 0)
+  const totalClipDuration = project.clips?.reduce((sum: number, clip: any) => sum + Number(clip.duration || 0), 0) || 0
+
   return totalDuration > 0 ? totalClipDuration / totalDuration : 0
 }
 
-function generateStructureRecommendations(_project: TimelineProject): string[] {
-  // TODO: Реализовать генерацию рекомендаций по структуре
-  return []
+function generateStructureRecommendations(project: TimelineProject): string[] {
+  if (!timelineStateAccess) {
+    return ["Timeline state access не настроен"]
+  }
+
+  const recommendations: string[] = []
+  const stats = timelineStateAccess.getProjectStats()
+
+  // Анализируем структуру и предлагаем улучшения
+  if (stats.totalTracks === 0) {
+    recommendations.push("Добавьте треки для размещения контента")
+  }
+
+  if (stats.totalClips === 0) {
+    recommendations.push("Добавьте клипы на timeline")
+  }
+
+  if (stats.totalSections === 0) {
+    recommendations.push("Создайте секции для лучшей организации")
+  }
+
+  const trackTypeDistribution = getTrackTypeDistribution(project.tracks || [])
+  const hasVideo = trackTypeDistribution.video > 0
+  const hasAudio = trackTypeDistribution.audio > 0
+
+  if (!hasVideo) {
+    recommendations.push("Добавьте видео треки для визуального контента")
+  }
+
+  if (!hasAudio) {
+    recommendations.push("Добавьте аудио треки для звукового сопровождения")
+  }
+
+  return recommendations
 }
 
-function detectStructureIssues(_project: TimelineProject): any[] {
-  // TODO: Реализовать детекцию проблем структуры
-  return []
+function detectStructureIssues(project: TimelineProject): any[] {
+  if (!timelineStateAccess) {
+    return [{ type: "config", message: "Timeline state access не настроен" }]
+  }
+
+  const issues: any[] = []
+  const stats = timelineStateAccess.getProjectStats()
+
+  // Проверяем основные проблемы структуры
+  if (stats.totalTracks > 10) {
+    issues.push({
+      type: "performance",
+      severity: "warning",
+      message: "Слишком много треков может замедлить производительность",
+      recommendation: "Рассмотрите объединение похожих треков",
+    })
+  }
+
+  if (stats.totalClips > 100) {
+    issues.push({
+      type: "complexity",
+      severity: "warning",
+      message: "Большое количество клипов усложняет навигацию",
+      recommendation: "Используйте секции для группировки контента",
+    })
+  }
+
+  // Проверяем пустые треки
+  const emptyTracks = (project.tracks || []).filter((track) => !track.clips || track.clips.length === 0)
+
+  if (emptyTracks.length > 0) {
+    issues.push({
+      type: "organization",
+      severity: "info",
+      message: `Найдено ${emptyTracks.length} пустых треков`,
+      recommendation: "Удалите неиспользуемые треки или добавьте контент",
+    })
+  }
+
+  // Проверяем перекрытия клипов
+  const overlappingClips = detectClipOverlaps(project.clips || [])
+  if (overlappingClips.length > 0) {
+    issues.push({
+      type: "timing",
+      severity: "error",
+      message: `Обнаружено ${overlappingClips.length} перекрывающихся клипов`,
+      recommendation: "Исправьте временные конфликты",
+    })
+  }
+
+  return issues
 }
 
 // Функции создания секций
-function createSectionsByDate(_clips: TimelineClip[], _settings: any): TimelineSection[] {
-  // TODO: Реализовать создание секций по дате
-  return []
+function createSectionsByDate(clips: TimelineClip[], settings: any): TimelineSection[] {
+  if (!timelineStateAccess) {
+    return []
+  }
+
+  // Группируем клипы по дате создания
+  const dateGroups = new Map<string, TimelineClip[]>()
+
+  clips.forEach((clip) => {
+    // Предполагаем, что у клипа есть дата создания в метаданных
+    const date = extractDateFromClip(clip)
+    const dateKey = date.toDateString()
+
+    if (!dateGroups.has(dateKey)) {
+      dateGroups.set(dateKey, [])
+    }
+    dateGroups.get(dateKey)!.push(clip)
+  })
+
+  const sections: TimelineSection[] = []
+
+  for (const [dateKey, dateClips] of dateGroups) {
+    const section: TimelineSection = {
+      id: generateSectionId(),
+      name: `Section ${dateKey}`,
+      startTime: Math.min(...dateClips.map((c) => c.startTime)),
+      endTime: Math.max(...dateClips.map((c) => c.startTime + c.duration)),
+      color: settings.defaultColor || "#4F46E5",
+      isLocked: false,
+      clips: dateClips.map((c) => c.id),
+    }
+    sections.push(section)
+  }
+
+  return sections
 }
 
-function createSectionsByDuration(_clips: TimelineClip[], _settings: any): TimelineSection[] {
-  // TODO: Реализовать создание секций по длительности
-  return []
+function createSectionsByDuration(clips: TimelineClip[], settings: any): TimelineSection[] {
+  if (!timelineStateAccess) {
+    return []
+  }
+
+  const targetDuration = settings.sectionDuration || 60 // секунды
+  const sections: TimelineSection[] = []
+
+  // Сортируем клипы по времени начала
+  const sortedClips = [...clips].sort((a, b) => a.startTime - b.startTime)
+
+  let currentSection: TimelineSection | null = null
+  let currentSectionClips: TimelineClip[] = []
+  let sectionStartTime = 0
+
+  for (const clip of sortedClips) {
+    // Если секция пустая или если клип выходит за пределы целевой длительности
+    if (!currentSection || clip.startTime - sectionStartTime >= targetDuration) {
+      // Сохраняем предыдущую секцию
+      if (currentSection && currentSectionClips.length > 0) {
+        currentSection.clips = currentSectionClips.map((c) => c.id)
+        sections.push(currentSection)
+      }
+
+      // Создаем новую секцию
+      sectionStartTime = clip.startTime
+      currentSection = {
+        id: generateSectionId(),
+        name: `Section ${sections.length + 1}`,
+        startTime: sectionStartTime,
+        endTime: Number(sectionStartTime || 0) + Number(targetDuration || 0),
+        color: settings.defaultColor || "#4F46E5",
+        isLocked: false,
+        clips: [],
+      }
+      currentSectionClips = []
+    }
+
+    currentSectionClips.push(clip)
+  }
+
+  // Добавляем последнюю секцию
+  if (currentSection && currentSectionClips.length > 0) {
+    currentSection.clips = currentSectionClips.map((c) => c.id)
+    currentSection.endTime = Math.max(...currentSectionClips.map((c) => c.startTime + c.duration))
+    sections.push(currentSection)
+  }
+
+  return sections
 }
 
-function createSectionsByContentType(_clips: TimelineClip[], _settings: any): TimelineSection[] {
-  // TODO: Реализовать создание секций по типу контента
-  return []
+function createSectionsByContentType(clips: TimelineClip[], _settings: any): TimelineSection[] {
+  if (!timelineStateAccess) {
+    return []
+  }
+
+  // Группируем клипы по типу контента (на основе trackId и типа ресурса)
+  const contentGroups = new Map<string, TimelineClip[]>()
+
+  clips.forEach((clip) => {
+    const contentType = determineContentType(clip)
+
+    if (!contentGroups.has(contentType)) {
+      contentGroups.set(contentType, [])
+    }
+    contentGroups.get(contentType)!.push(clip)
+  })
+
+  const sections: TimelineSection[] = []
+
+  for (const [contentType, typeClips] of contentGroups) {
+    // Сортируем клипы по времени
+    const sortedClips = typeClips.sort((a, b) => a.startTime - b.startTime)
+
+    const section: TimelineSection = {
+      id: generateSectionId(),
+      name: `${contentType} Section`,
+      startTime: Math.min(...sortedClips.map((c) => c.startTime)),
+      endTime: Math.max(...sortedClips.map((c) => c.startTime + c.duration)),
+      color: getColorForContentType(contentType),
+      isLocked: false,
+      clips: sortedClips.map((c) => c.id),
+    }
+    sections.push(section)
+  }
+
+  return sections
 }
 
 function createSectionsByLocation(_clips: TimelineClip[], _settings: any): TimelineSection[] {
@@ -1642,6 +1893,67 @@ function exportAsCSV(_project: TimelineProject, _includeData: any): string {
 function exportAsEDL(_project: TimelineProject, _includeData: any): string {
   // TODO: Реализовать экспорт в EDL
   return ""
+}
+
+// Вспомогательная функция для обнаружения перекрытий клипов
+function detectClipOverlaps(clips: TimelineClip[]): { clipId: string; conflicts: string[] }[] {
+  const overlaps: { clipId: string; conflicts: string[] }[] = []
+
+  for (let i = 0; i < clips.length; i++) {
+    const clip1 = clips[i]
+    const conflicts: string[] = []
+
+    for (let j = i + 1; j < clips.length; j++) {
+      const clip2 = clips[j]
+
+      // Проверяем перекрытие только на одном треке
+      if (clip1.trackId === clip2.trackId) {
+        const clip1End = clip1.startTime + clip1.duration
+        const clip2End = clip2.startTime + clip2.duration
+
+        // Проверяем перекрытие по времени
+        if (clip1.startTime < clip2End && clip2.startTime < clip1End) {
+          conflicts.push(clip2.id)
+        }
+      }
+    }
+
+    if (conflicts.length > 0) {
+      overlaps.push({ clipId: clip1.id, conflicts })
+    }
+  }
+
+  return overlaps
+}
+
+// Вспомогательные функции для работы с секциями
+function extractDateFromClip(_clip: TimelineClip): Date {
+  // Извлекаем дату из метаданных клипа или используем текущую дату
+  // В реальном проекте это должно быть получено из файла медиа
+  return new Date()
+}
+
+function generateSectionId(): string {
+  return `section_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
+}
+
+function determineContentType(clip: TimelineClip): string {
+  // Определяем тип контента на основе трека или ресурса
+  // В реальном проекте это должно быть получено из resourceId
+  if (clip.trackId.includes("video")) return "Video"
+  if (clip.trackId.includes("audio")) return "Audio"
+  if (clip.trackId.includes("music")) return "Music"
+  return "Unknown"
+}
+
+function getColorForContentType(contentType: string): string {
+  const colorMap: Record<string, string> = {
+    Video: "#3B82F6",
+    Audio: "#10B981",
+    Music: "#8B5CF6",
+    Unknown: "#6B7280",
+  }
+  return colorMap[contentType] || "#6B7280"
 }
 
 function exportAsFCPXML(_project: TimelineProject, _includeData: any): string {

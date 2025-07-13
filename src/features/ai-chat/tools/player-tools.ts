@@ -5,7 +5,26 @@
  * применения эффектов и анализа медиа
  */
 
+import { MediaFile } from "@/features/media/types/media"
+
 import { ClaudeTool } from "../services/claude-service"
+
+// Типы для плеера
+interface CurrentMedia extends MediaFile {
+  activeEffects?: string[]
+  activeFilters?: string[]
+  playbackPosition?: number
+}
+
+interface PlayerState {
+  isPlaying: boolean
+  currentTime: number
+  duration: number
+  volume: number
+  playbackSpeed: number
+  loop: boolean
+  muted: boolean
+}
 
 /**
  * Инструменты для работы с плеером
@@ -432,38 +451,32 @@ export interface PlayerToolResult {
 }
 
 /**
- * Интерфейс для текущего медиа в плеере
+ * Интерфейс для доступа к состоянию плеера
  */
-interface CurrentMedia {
-  id: string
-  type: "video" | "audio" | "image"
-  path: string
-  duration?: number
-  currentTime: number
-  metadata?: {
-    width?: number
-    height?: number
-    fps?: number
-    codec?: string
-    bitrate?: number
-    sampleRate?: number
-    channels?: number
-  }
-  effects?: any[]
-  filters?: any[]
+interface PlayerStateAccess {
+  getCurrentMedia: () => MediaFile | null
+  getPlayerState: () => {
+    isPlaying: boolean
+    currentTime: number
+    duration: number
+    volume: number
+    playbackSpeed: number
+    loop: boolean
+    muted: boolean
+  } | null
+  getAppliedEffects: () => any[]
+  getAppliedFilters: () => any[]
+  sendPlayerCommand: (command: string, params?: any) => Promise<void>
 }
 
+// Глобальная переменная для доступа к состоянию плеера
+let playerStateAccess: PlayerStateAccess | null = null
+
 /**
- * Интерфейс для параметров плеера
+ * Устанавливает доступ к состоянию плеера
  */
-interface PlayerState {
-  isPlaying: boolean
-  currentTime: number
-  duration: number
-  volume: number
-  playbackSpeed: number
-  loop: boolean
-  muted: boolean
+export function setPlayerStateAccess(access: PlayerStateAccess) {
+  playerStateAccess = access
 }
 
 /**
@@ -514,8 +527,16 @@ export async function executePlayerTool(toolName: string, input: Record<string, 
 async function analyzeCurrentMedia(input: Record<string, any>): Promise<PlayerToolResult> {
   const { includeMetadata = true, includeEffects = true, analyzeContent = false, detectIssues = true } = input
 
-  // TODO: Получить текущее медиа из player machine
-  const currentMedia: CurrentMedia = await getCurrentMediaFromPlayer()
+  if (!playerStateAccess) {
+    return {
+      success: false,
+      message: "Player state access not configured",
+      errors: ["Player state access not available"],
+    }
+  }
+
+  const currentMedia = playerStateAccess.getCurrentMedia()
+  const playerState = playerStateAccess.getPlayerState()
 
   if (!currentMedia) {
     return {
@@ -529,18 +550,29 @@ async function analyzeCurrentMedia(input: Record<string, any>): Promise<PlayerTo
     mediaId: currentMedia.id,
     type: currentMedia.type,
     basicInfo: {
+      name: currentMedia.name,
+      path: currentMedia.path,
       duration: currentMedia.duration,
-      currentTime: currentMedia.currentTime,
+      currentTime: playerState?.currentTime || 0,
+      size: currentMedia.size,
     },
   }
 
-  if (includeMetadata && currentMedia.metadata) {
-    analysis.metadata = currentMedia.metadata
+  if (includeMetadata && currentMedia.probeData) {
+    analysis.metadata = {
+      width: currentMedia.probeData.video_streams?.[0]?.width,
+      height: currentMedia.probeData.video_streams?.[0]?.height,
+      fps: currentMedia.probeData.video_streams?.[0]?.fps,
+      codec: currentMedia.probeData.video_streams?.[0]?.codec_name,
+      bitrate: currentMedia.probeData.format?.bit_rate,
+      sampleRate: currentMedia.probeData.audio_streams?.[0]?.sample_rate,
+      channels: currentMedia.probeData.audio_streams?.[0]?.channels,
+    }
   }
 
   if (includeEffects) {
-    analysis.appliedEffects = currentMedia.effects || []
-    analysis.appliedFilters = currentMedia.filters || []
+    analysis.appliedEffects = playerStateAccess.getAppliedEffects()
+    analysis.appliedFilters = playerStateAccess.getAppliedFilters()
   }
 
   if (analyzeContent) {
@@ -555,7 +587,7 @@ async function analyzeCurrentMedia(input: Record<string, any>): Promise<PlayerTo
 
   return {
     success: true,
-    message: `Анализ медиа ${currentMedia.id} завершен`,
+    message: `Анализ медиа ${currentMedia.name} завершен`,
     data: { analysis },
   }
 }

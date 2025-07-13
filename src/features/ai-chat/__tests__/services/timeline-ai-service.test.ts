@@ -934,9 +934,17 @@ describe("TimelineAIService", () => {
   })
 
   describe("Placeholder methods", () => {
-    it("should return empty arrays for placeholder methods", () => {
+    it("should return appropriate data for service methods", () => {
       expect(service.getRecentlyAddedResources()).toEqual([])
-      expect(service.getBrowserMedia()).toEqual([])
+      // getBrowserMedia теперь возвращает медиа файлы из ресурсов
+      expect(service.getBrowserMedia()).toHaveLength(2)
+      expect(service.getBrowserMedia()[0]).toEqual(
+        expect.objectContaining({
+          id: "media-1",
+          name: "video1.mp4",
+          type: "video",
+        }),
+      )
       expect(service.getFavoriteFiles()).toEqual([])
       expect(service.getRecentTimelineChanges()).toEqual([])
       expect(service.analyzeTimelineIssues()).toEqual([])

@@ -282,7 +282,12 @@ export function useAutoLoadResources() {
   // Запускаем загрузку при монтировании с задержкой для лучшего UX
   useEffect(() => {
     const initTimeout = setTimeout(() => {
-      debouncedLoad()
+      if (loadTimeoutRef.current) {
+        clearTimeout(loadTimeoutRef.current)
+      }
+      loadTimeoutRef.current = setTimeout(() => {
+        void loadResources()
+      }, 500) // 500мс debounce для ресурсов
     }, 1000) // Загружаем ресурсы через 1 секунду после медиа
 
     return () => {
@@ -291,7 +296,7 @@ export function useAutoLoadResources() {
         clearTimeout(loadTimeoutRef.current)
       }
     }
-  }, [debouncedLoad])
+  }, []) // Пустой массив зависимостей - выполняется только при монтировании
 
   const clearCache = useCallback(() => {
     scanCacheRef.current.clear()

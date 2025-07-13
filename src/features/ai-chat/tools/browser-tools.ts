@@ -780,21 +780,21 @@ async function getBrowserState(params: any): Promise<BrowserToolResult> {
   const { includeSelection = true, includeFilters = true, includeStats = false } = params
 
   try {
-    // Получаем состояние браузера (заглушка - нужна интеграция с browser-state-machine)
-    const browserState = {
-      activeTab: "media",
-      tabSettings: {
-        media: {
-          searchQuery: "",
-          showFavoritesOnly: false,
-          sortBy: "name",
-          sortOrder: "asc" as const,
-          groupBy: "none",
-          filterType: "all",
-          viewMode: "thumbnails" as const,
-          previewSizeIndex: 2,
-        },
-      },
+    if (!browserStateAccess) {
+      return {
+        success: false,
+        message: "Browser state access not configured",
+        errors: ["Browser state access not available"],
+      }
+    }
+
+    const browserState = browserStateAccess.getBrowserState()
+    if (!browserState) {
+      return {
+        success: false,
+        message: "Browser state not available",
+        errors: ["Browser state is null"],
+      }
     }
 
     const result: any = {
@@ -802,7 +802,16 @@ async function getBrowserState(params: any): Promise<BrowserToolResult> {
     }
 
     if (includeFilters) {
-      result.currentFilters = browserState.tabSettings[browserState.activeTab]
+      const currentTabSettings = browserState.tabSettings[browserState.activeTab]
+      result.currentFilters = {
+        searchQuery: currentTabSettings.searchQuery,
+        showFavoritesOnly: currentTabSettings.showFavoritesOnly,
+        sortBy: currentTabSettings.sortBy,
+        sortOrder: currentTabSettings.sortOrder,
+        groupBy: currentTabSettings.groupBy,
+        filterType: currentTabSettings.filterType,
+        viewMode: currentTabSettings.viewMode,
+      }
     }
 
     if (includeSelection) {
@@ -814,7 +823,10 @@ async function getBrowserState(params: any): Promise<BrowserToolResult> {
       result.stats = {
         totalFiles: files.length,
         fileTypes: analyzeFileTypes(files),
-        totalSize: files.reduce((sum, file) => sum + file.size, 0),
+        totalSize: files.reduce((sum, file) => {
+          const size = typeof file.size === "string" ? Number.parseFloat(file.size) : file.size
+          return sum + size
+        }, 0),
       }
     }
 
@@ -1095,13 +1107,19 @@ function sortFiles(files: MediaFile[], sortBy: string, sortOrder: string): Media
         compareValue = a.name.localeCompare(b.name)
         break
       case "date":
-        compareValue = a.createdAt.getTime() - b.createdAt.getTime()
+        const dateA = new Date(a.startTime || 0).getTime()
+        const dateB = new Date(b.startTime || 0).getTime()
+        compareValue = dateA - dateB
         break
       case "size":
-        compareValue = a.size - b.size
+        const sizeA = typeof a.size === "string" ? Number.parseFloat(a.size) : a.size
+        const sizeB = typeof b.size === "string" ? Number.parseFloat(b.size) : b.size
+        compareValue = sizeA - sizeB
         break
       case "duration":
-        compareValue = (a.duration || 0) - (b.duration || 0)
+        const durA = typeof a.duration === "string" ? Number.parseFloat(a.duration) : a.duration || 0
+        const durB = typeof b.duration === "string" ? Number.parseFloat(b.duration) : b.duration || 0
+        compareValue = durA - durB
         break
       default:
         compareValue = 0
@@ -1246,7 +1264,8 @@ function generateXML(_files: MediaFile[], _includeMetadata: boolean): string {
   return ""
 }
 
-function formatFileSize(bytes: number): string {
+function formatFileSize(sizeInput: number | string): string {
+  const bytes = typeof sizeInput === "string" ? Number.parseFloat(sizeInput) : sizeInput
   const units = ["B", "KB", "MB", "GB"]
   let size = bytes
   let unitIndex = 0

@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils"
 
 import { useChat } from ".."
 import { ChatList } from "./chat-list"
+import { useResourcesAIIntegration } from "../hooks/use-resources-ai-integration"
 import { useSafeTimeline } from "../hooks/use-safe-timeline"
 import { chatStorageService } from "../services/chat-storage-service"
 import { CLAUDE_MODELS, ClaudeService } from "../services/claude-service"
@@ -152,6 +153,9 @@ export function AiChat() {
 
   // Получаем контекст Timeline (если доступен)
   const timelineContext = useSafeTimeline()
+
+  // Интеграция с ResourcesProvider для AI инструментов
+  const { isIntegrated, resourceStats } = useResourcesAIIntegration()
 
   const [message, setMessage] = useState("")
   const [chatMode, setChatMode] = useState<ChatMode>("agent")

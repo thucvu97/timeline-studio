@@ -264,14 +264,21 @@ export function useAutoLoadMedia() {
 
   // Запускаем загрузку при монтировании
   useEffect(() => {
-    debouncedLoad()
+    // Запускаем загрузку только один раз при монтировании
+    if (loadTimeoutRef.current) {
+      clearTimeout(loadTimeoutRef.current)
+    }
+
+    loadTimeoutRef.current = setTimeout(() => {
+      void loadMediaFiles()
+    }, 300) // 300мс debounce
 
     return () => {
       if (loadTimeoutRef.current) {
         clearTimeout(loadTimeoutRef.current)
       }
     }
-  }, [debouncedLoad])
+  }, []) // Пустой массив зависимостей - выполняется только при монтировании
 
   // Функция для очистки кэша
   const clearCache = useCallback(() => {
