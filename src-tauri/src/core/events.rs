@@ -124,9 +124,16 @@ struct Subscription {
   name: &'static str,
 }
 
+/// Специальная подписка для AppEvent
+struct AppEventSubscription {
+  handler: Box<dyn EventHandler<Event = AppEvent>>,
+  name: &'static str,
+}
+
 /// Event Bus для публикации и подписки на события
 pub struct EventBus {
   subscriptions: Arc<RwLock<HashMap<TypeId, Vec<Subscription>>>>,
+  app_event_subscriptions: Arc<RwLock<Vec<AppEventSubscription>>>,
   app_event_sender: mpsc::UnboundedSender<AppEvent>,
   app_event_receiver: Arc<RwLock<mpsc::UnboundedReceiver<AppEvent>>>,
 }
@@ -138,6 +145,7 @@ impl EventBus {
 
     Self {
       subscriptions: Arc::new(RwLock::new(HashMap::new())),
+      app_event_subscriptions: Arc::new(RwLock::new(Vec::new())),
       app_event_sender: tx,
       app_event_receiver: Arc::new(RwLock::new(rx)),
     }
@@ -164,6 +172,24 @@ impl EventBus {
       .push(subscription);
 
     log::info!("Subscribed handler '{handler_name}' to event type");
+    Ok(())
+  }
+
+  /// Специальный метод подписки на AppEvent
+  pub async fn subscribe_app_event<H>(&self, handler: H) -> Result<()>
+  where
+    H: EventHandler<Event = AppEvent>,
+  {
+    let mut app_subs = self.app_event_subscriptions.write().await;
+    let handler_name = handler.name();
+    
+    let subscription = AppEventSubscription {
+      handler: Box::new(handler),
+      name: handler_name,
+    };
+    
+    app_subs.push(subscription);
+    log::info!("Subscribed handler '{handler_name}' to AppEvent");
     Ok(())
   }
 
@@ -199,7 +225,7 @@ impl EventBus {
   /// Запустить обработку AppEvent
   pub async fn start_app_event_processor(&self) {
     let receiver = self.app_event_receiver.clone();
-    let _subscriptions = self.subscriptions.clone();
+    let app_subscriptions = self.app_event_subscriptions.clone();
 
     tokio::spawn(async move {
       let mut rx = receiver.write().await;
@@ -207,7 +233,15 @@ impl EventBus {
       while let Some(event) = rx.recv().await {
         log::debug!("Processing app event: {event:?}");
 
-        // Здесь можно добавить логику маршрутизации событий
+        // Маршрутизация событий к подписанным AppEvent обработчикам
+        let app_subs = app_subscriptions.read().await;
+        for subscription in app_subs.iter() {
+          if let Err(e) = subscription.handler.handle(event.clone()).await {
+            log::error!("Error in AppEvent handler '{}': {}", subscription.name, e);
+          }
+        }
+
+        // Логирование конкретных событий
         match &event {
           AppEvent::ProjectCreated { project_id } => {
             log::info!("Project created: {project_id}");

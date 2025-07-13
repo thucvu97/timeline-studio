@@ -69,7 +69,13 @@ async fn test_service_initialize_with_event_bus() {
   // Подписываемся на событие SystemStartup
   let (tx, mut rx) = tokio::sync::mpsc::channel(10);
   let handler = TestHandler { tx };
-  event_bus.subscribe(handler).await.unwrap();
+  event_bus.subscribe_app_event(handler).await.unwrap();
+
+  // Запускаем обработчик событий
+  event_bus.start_app_event_processor().await;
+
+  // Небольшая задержка для инициализации
+  tokio::time::sleep(std::time::Duration::from_millis(10)).await;
 
   // Инициализируем сервис
   assert!(service.initialize().await.is_ok());
@@ -112,7 +118,13 @@ async fn test_validate_key_with_event_bus() {
   // Подписываемся на события ConfigChanged
   let (tx, mut rx) = tokio::sync::mpsc::channel(10);
   let handler = ConfigChangeHandler { tx };
-  event_bus.subscribe(handler).await.unwrap();
+  event_bus.subscribe_app_event(handler).await.unwrap();
+
+  // Запускаем обработчик событий
+  event_bus.start_app_event_processor().await;
+
+  // Небольшая задержка для инициализации
+  tokio::time::sleep(std::time::Duration::from_millis(10)).await;
 
   // Валидируем ключ (будет ошибка из-за пустого ключа)
   let _ = service.validate_key(ApiKeyType::OpenAI, "").await;
@@ -254,7 +266,13 @@ mod event_tests {
     // Счетчики для разных типов событий
     let (tx, mut rx) = tokio::sync::mpsc::channel(100);
     let handler = ValidationEventHandler { tx };
-    event_bus.subscribe(handler).await.unwrap();
+    event_bus.subscribe_app_event(handler).await.unwrap();
+
+    // Запускаем обработчик событий
+    event_bus.start_app_event_processor().await;
+
+    // Небольшая задержка для инициализации
+    tokio::time::sleep(std::time::Duration::from_millis(10)).await;
 
     // Тестируем различные сценарии валидации
     let test_cases = vec![
@@ -270,7 +288,7 @@ mod event_tests {
     // Собираем события
     let mut events = vec![];
     while let Ok(Some(event)) =
-      tokio::time::timeout(std::time::Duration::from_millis(50), rx.recv()).await
+      tokio::time::timeout(std::time::Duration::from_millis(100), rx.recv()).await
     {
       events.push(event);
     }
@@ -319,7 +337,13 @@ mod event_tests {
 
     let (tx, mut rx) = tokio::sync::mpsc::channel(10);
     let handler = StartupHandler { tx };
-    event_bus.subscribe(handler).await.unwrap();
+    event_bus.subscribe_app_event(handler).await.unwrap();
+
+    // Запускаем обработчик событий
+    event_bus.start_app_event_processor().await;
+
+    // Небольшая задержка для инициализации
+    tokio::time::sleep(std::time::Duration::from_millis(10)).await;
 
     // Инициализируем сервис
     service.initialize().await.unwrap();
