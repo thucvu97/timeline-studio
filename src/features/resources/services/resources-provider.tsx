@@ -38,6 +38,7 @@ export interface ResourcesContextType extends ResourcesMachineContext {
   addStyleTemplate: (template: StyleTemplate) => void
   removeResource: (resourceId: string) => void
   updateResource: (resourceId: string, params: Record<string, any>) => void
+  clearResources: () => void
 
   // Методы для проверки наличия ресурса в хранилище
   isAdded: (resourceId: string, resource: ResourceType) => boolean
@@ -68,7 +69,7 @@ export function useResources(): ResourcesContextType {
 
 export function ResourcesProvider({ children }: ResourcesProviderProps) {
   const [state, send] = useMachine(resourcesMachine)
-  const { setProjectDirty } = useCurrentProject()
+  const { setProjectDirty, currentProject } = useCurrentProject()
 
   // Извлекаем свойства контекста из состояния машины
   const {
@@ -112,6 +113,15 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
     templateResources,
     styleTemplateResources,
   ])
+
+  // Отслеживаем создание нового проекта и очищаем ресурсы
+  React.useEffect(() => {
+    // Проверяем, что это новый проект (isNew = true и path = null)
+    if (currentProject.isNew && currentProject.path === null) {
+      console.log("New project detected, clearing resources")
+      send({ type: "CLEAR_RESOURCES" })
+    }
+  }, [currentProject.isNew, currentProject.path, send])
 
   // Методы для работы с ресурсами
   const handleAddEffect = React.useCallback(
@@ -239,6 +249,12 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
     },
     [send, setProjectDirty],
   )
+
+  const handleClearResources = React.useCallback(() => {
+    console.log("Clearing all resources")
+    send({ type: "CLEAR_RESOURCES" })
+    setProjectDirty(true)
+  }, [send, setProjectDirty])
 
   const isAdded = React.useCallback(
     (resourceId: string, resource: ResourceType) => {
@@ -485,6 +501,7 @@ export function ResourcesProvider({ children }: ResourcesProviderProps) {
     addResource: handleAddResource,
     removeResource: handleRemoveResource,
     updateResource: handleUpdateResource,
+    clearResources: handleClearResources,
 
     // Методы для проверки наличия ресурса в хранилище
     isAdded,

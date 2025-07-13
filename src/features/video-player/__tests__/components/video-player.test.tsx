@@ -7,7 +7,13 @@ import { VideoPlayer } from "../../components/video-player"
 
 // Мокаем Tauri API
 vi.mock("@tauri-apps/api/core", () => ({
-  convertFileSrc: vi.fn((path: string) => `file://${path}`),
+  convertFileSrc: vi.fn((path: string) => path),
+}))
+
+// Мокаем tauri-utils
+vi.mock("@/lib/tauri-utils", () => ({
+  convertVideoSrc: vi.fn((path: string) => path),
+  isTauriEnvironment: vi.fn(() => false),
 }))
 
 // Мокаем AspectRatio компонент
@@ -113,7 +119,7 @@ describe("VideoPlayer", () => {
 
       const video = document.querySelector("video")!
       expect(video).toBeInTheDocument()
-      expect(video).toHaveAttribute("src", "file:///path/to/video.mp4")
+      expect(video).toHaveAttribute("src", "/path/to/video.mp4")
     })
 
     it("должен передавать правильные атрибуты видео", () => {
@@ -239,7 +245,7 @@ describe("VideoPlayer", () => {
       rerender(<VideoPlayer />)
 
       const videoUpdated = document.querySelector("video")!
-      expect(videoUpdated).toHaveAttribute("src", "file:///new/video.mp4")
+      expect(videoUpdated).toHaveAttribute("src", "/new/video.mp4")
       // key атрибут не появляется в DOM
     })
 
@@ -256,7 +262,7 @@ describe("VideoPlayer", () => {
       const { rerender } = render(<VideoPlayer />)
 
       const videoWithFile = document.querySelector("video")!
-      expect(videoWithFile).toHaveAttribute("src", "file:///temp/video.mp4")
+      expect(videoWithFile).toHaveAttribute("src", "/temp/video.mp4")
 
       // Удаляем видео
       mockPlayerContext.video = null

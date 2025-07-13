@@ -11,6 +11,7 @@ export const createMockMediaFile = (id = "media-1"): MediaFile => ({
   duration: 100,
   size: 1000000,
   isVideo: true,
+  format: "video/mp4",
   createdAt: new Date().toISOString(),
 })
 
@@ -39,20 +40,24 @@ export const createMockClip = (overrides: Partial<TimelineClip> = {}): TimelineC
   ...overrides,
 })
 
+// Alias for createMockClip to match test expectations
+export const createMockTimelineClip = createMockClip
+
 export const createMockTrack = (overrides: Partial<TimelineTrack> = {}): TimelineTrack => ({
   id: "track-1",
-  type: TrackType.VIDEO,
+  type: "video" as TrackType,
   order: 0,
   height: 100,
   name: "Video Track 1",
   clips: [],
-  isVisible: true,
+  isHidden: false,
   isLocked: false,
-  isCollapsed: false,
   isMuted: false,
+  isSolo: false,
   volume: 1,
-  parentId: undefined,
-  children: [],
+  pan: 0,
+  trackEffects: [],
+  trackFilters: [],
   ...overrides,
 })
 
@@ -69,7 +74,7 @@ export const createMockClips = (count: number, overrides: Partial<TimelineClip> 
 }
 
 // Helper to create multiple tracks
-export const createMockTracks = (count: number, type: TrackType = TrackType.VIDEO): TimelineTrack[] => {
+export const createMockTracks = (count: number, type: TrackType = "video"): TimelineTrack[] => {
   return Array.from({ length: count }, (_, i) =>
     createMockTrack({
       id: `track-${i + 1}`,

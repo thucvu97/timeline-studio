@@ -3,6 +3,7 @@
 import { MediaStudio } from "@/features/media-studio/components/media-studio"
 
 import "@/lib/dayjs"
+import "@/lib/tauri-init"
 
 export default function Home() {
   return (

@@ -13,7 +13,7 @@ import { DragData } from "@/features/timeline/types/drag-drop"
 import { getTrackTypeForMediaFile } from "@/features/timeline/utils/drag-calculations"
 import { usePlayer } from "@/features/video-player"
 import { formatDuration } from "@/lib/date"
-import { checkFileAccess, convertToAssetUrl } from "@/lib/tauri-utils"
+import { checkFileAccess, convertToAssetUrl, convertVideoSrc } from "@/lib/tauri-utils"
 import { cn, formatResolution } from "@/lib/utils"
 
 import { ApplyButton } from "../layout"
@@ -178,10 +178,17 @@ export const VideoPreview = memo(
 
     // Функция для получения URL видео без загрузки в память
     const loadVideoFile = useCallback(async (path: string) => {
-      // Используем asset протокол через convertToAssetUrl
-      const assetUrl = convertToAssetUrl(path)
-      console.log(`[VideoPreview] Converting path ${path} to asset URL: ${assetUrl}`)
-      return assetUrl
+      console.log(`[VideoPreview] loadVideoFile called with path: ${path}`)
+      console.log(`[VideoPreview] isTauriEnvironment: ${typeof window !== "undefined" && window.__TAURI__ !== undefined}`)
+      console.log(`[VideoPreview] window.__TAURI__:`, typeof window !== "undefined" ? window.__TAURI__ : "window undefined")
+      
+      // Используем file:// протокол для видео через convertVideoSrc
+      const videoUrl = convertVideoSrc(path)
+      console.log(`[VideoPreview] Converting path:`)
+      console.log(`  Original: ${path}`)
+      console.log(`  Video URL: ${videoUrl}`)
+      console.log(`  URL starts with asset://: ${videoUrl.startsWith("asset://")}`)
+      return videoUrl
     }, [])
 
     // Мемоизируем путь к файлу для предотвращения лишних перезагрузок
@@ -191,16 +198,20 @@ export const VideoPreview = memo(
     useEffect(() => {
       let isMounted = true
 
+      console.log(`[VideoPreview] Attempting to load video from path: ${filePath}`)
+      
       // Проверяем доступ к файлу через Tauri API
       void checkFileAccess(filePath).then((hasAccess) => {
+        console.log(`[VideoPreview] File access check result: ${hasAccess}`)
         if (!hasAccess) {
           console.error(`[VideoPreview] No access to file: ${filePath}`)
-          return
+          // Попробуем загрузить все равно, может проблема в проверке доступа
         }
 
         void loadVideoFile(filePath).then((url) => {
           if (isMounted) {
             console.log(`[VideoPreview] Video URL generated: ${url}`)
+            console.log(`[VideoPreview] URL protocol: ${url.split(':')[0]}`)
             setVideoUrl(url)
           }
         })
@@ -287,7 +298,7 @@ export const VideoPreview = memo(
               }}
             >
               <video
-                src={videoUrl || convertToAssetUrl(file.path)}
+                src={videoUrl || undefined}
                 poster={
                   previewData
                     ? `data:image/jpeg;base64,${previewData}`
@@ -342,6 +353,16 @@ export const VideoPreview = memo(
                     }
 
                     setIsPlaying(newPlayingState)
+                  }
+                }}
+                onError={(e) => {
+                  const video = e.currentTarget as HTMLVideoElement
+                  if (video.error) {
+                    console.error("[VideoPreview Placeholder] Ошибка загрузки видео:")
+                    console.error(`  - Путь файла: ${file.path}`)
+                    console.error(`  - URL: ${video.src}`)
+                    console.error(`  - Код ошибки: ${video.error.code}`)
+                    console.error(`  - Сообщение: ${video.error.message}`)
                   }
                 }}
               />
@@ -433,7 +454,7 @@ export const VideoPreview = memo(
                     ref={(el) => {
                       videoRefs.current[key] = el
                     }}
-                    src={videoUrl || convertToAssetUrl(file.path)}
+                    src={videoUrl || undefined}
                     poster={
                       previewData
                         ? `data:image/jpeg;base64,${previewData}`
@@ -504,6 +525,24 @@ export const VideoPreview = memo(
                           "URL:",
                           video.src,
                         )
+                        
+                        // Дополнительная диагностика
+                        console.error("[VideoPreview] Детали ошибки:")
+                        console.error(`  - Путь файла: ${file.path}`)
+                        console.error(`  - Сгенерированный URL: ${videoUrl}`)
+                        console.error(`  - Код ошибки: ${video.error.code}`)
+                        console.error(`  - MEDIA_ERR_ABORTED (1): Загрузка прервана пользователем`)
+                        console.error(`  - MEDIA_ERR_NETWORK (2): Сетевая ошибка`)
+                        console.error(`  - MEDIA_ERR_DECODE (3): Ошибка декодирования`)
+                        console.error(`  - MEDIA_ERR_SRC_NOT_SUPPORTED (4): Формат не поддерживается или URL недоступен`)
+                        
+                        // Попробуем альтернативный подход для видео
+                        if (video.error.code === 4 && videoUrl && videoUrl.includes("asset.localhost")) {
+                          console.log("[VideoPreview] Trying alternative approach...")
+                          // Попробуем использовать прямой путь к файлу (только для диагностики)
+                          const testUrl = `http://localhost:3000/api/video?path=${encodeURIComponent(file.path)}`
+                          console.log("[VideoPreview] Test URL:", testUrl)
+                        }
                       }
                     }}
                     onKeyDown={(e) => {

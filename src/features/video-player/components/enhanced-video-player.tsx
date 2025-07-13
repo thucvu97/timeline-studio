@@ -12,7 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useProjectSettings } from "@/features/project-settings"
 import { useTimeline } from "@/features/timeline/hooks/use-timeline"
 import { usePrerender, usePrerenderCache } from "@/features/video-compiler/hooks/use-prerender"
-import { convertToAssetUrl } from "@/lib/tauri-utils"
+import { convertVideoSrc } from "@/lib/tauri-utils"
 
 import { PlayerControls } from "./player-controls"
 import { usePlayer } from "../services/player-provider"
@@ -145,9 +145,9 @@ export function EnhancedVideoPlayer() {
 
   // Определяем источник видео
   const videoSource = currentSegment?.filePath
-    ? convertToAssetUrl(currentSegment.filePath)
+    ? convertVideoSrc(currentSegment.filePath)
     : video?.path
-      ? convertToAssetUrl(video.path)
+      ? convertVideoSrc(video.path)
       : undefined
 
   if (!video?.path) {

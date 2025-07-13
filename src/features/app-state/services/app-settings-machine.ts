@@ -577,6 +577,13 @@ export const appSettingsMachine = createMachine({
                 },
               } as any)
             },
+            // Очищаем ресурсы при создании нового проекта
+            () => {
+              if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
+                localStorage.removeItem("timeline-studio-resources")
+                console.log("Resources cleared for new project")
+              }
+            },
           ],
         },
 

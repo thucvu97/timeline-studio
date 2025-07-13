@@ -1,6 +1,6 @@
 import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { useProjectSettings } from "@/features/project-settings"
-import { convertToAssetUrl } from "@/lib/tauri-utils"
+import { convertVideoSrc } from "@/lib/tauri-utils"
 
 import { PlayerAIOverlay } from "./player-ai-overlay"
 import { PlayerControls } from "./player-controls"
@@ -85,7 +85,7 @@ export function VideoPlayer() {
               <div className="relative h-full w-full">
                 <video
                   key={video.id || "no-video"}
-                  src={convertToAssetUrl(video.path)}
+                  src={convertVideoSrc(video.path)}
                   controls={false}
                   autoPlay={false}
                   loop={false}
