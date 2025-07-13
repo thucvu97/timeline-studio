@@ -182,12 +182,12 @@ impl EventBus {
   {
     let mut app_subs = self.app_event_subscriptions.write().await;
     let handler_name = handler.name();
-    
+
     let subscription = AppEventSubscription {
       handler: Box::new(handler),
       name: handler_name,
     };
-    
+
     app_subs.push(subscription);
     log::info!("Subscribed handler '{handler_name}' to AppEvent");
     Ok(())
