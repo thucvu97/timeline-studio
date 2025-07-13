@@ -412,3 +412,141 @@ fn test_parse_stream_data_with_index_override() {
   // Should use the index from JSON, not the parameter
   assert_eq!(parsed_stream.index, 10);
 }
+
+// Примечание: Тесты для extract_metadata, которые требуют реальные файлы и FFmpeg,
+// должны запускаться в интеграционных тестах с подготовленными тестовыми файлами
+
+#[tokio::test]
+async fn test_extract_metadata_file_not_found() {
+  use std::path::PathBuf;
+
+  let test_file = PathBuf::from("/nonexistent/file.mp4");
+  let result = extract_metadata(&test_file).await;
+
+  assert!(result.is_err());
+  assert!(result.unwrap_err().contains("File not found"));
+}
+
+#[test]
+fn test_parse_stream_data_with_all_fields() {
+  let stream_json = serde_json::json!({
+      "index": 0,
+      "codec_type": "video",
+      "codec_name": "h264",
+      "width": 1920,
+      "height": 1080,
+      "bit_rate": "5000000",
+      "r_frame_rate": "30/1",
+      "sample_rate": null,
+      "channels": null,
+      "display_aspect_ratio": "16:9"
+  });
+
+  let parsed_stream = parse_stream_data(&stream_json, 0);
+
+  assert_eq!(parsed_stream.index, 0);
+  assert_eq!(parsed_stream.codec_type, "video");
+  assert_eq!(parsed_stream.codec_name, Some("h264".to_string()));
+  assert_eq!(parsed_stream.width, Some(1920));
+  assert_eq!(parsed_stream.height, Some(1080));
+  assert_eq!(parsed_stream.bit_rate, Some("5000000".to_string()));
+  assert_eq!(parsed_stream.r_frame_rate, Some("30/1".to_string()));
+  assert_eq!(parsed_stream.sample_rate, None);
+  assert_eq!(parsed_stream.channels, None);
+  assert_eq!(parsed_stream.display_aspect_ratio, Some("16:9".to_string()));
+}
+
+#[test]
+fn test_parse_format_data_with_number_values() {
+  // Тест когда значения являются числами, а не строками
+  let mut format_data = serde_json::Map::new();
+  format_data.insert("duration".to_string(), serde_json::json!(120.5));
+  format_data.insert("size".to_string(), serde_json::json!(1048576));
+  format_data.insert("bit_rate".to_string(), serde_json::json!(128000));
+
+  let mut ffprobe_format = FfprobeFormat {
+    duration: None,
+    size: None,
+    bit_rate: None,
+    format_name: None,
+  };
+
+  parse_format_data(&format_data, &mut ffprobe_format);
+
+  // Числовые значения не должны парситься, так как ожидаются строки
+  assert_eq!(ffprobe_format.duration, None);
+  assert_eq!(ffprobe_format.size, None);
+  assert_eq!(ffprobe_format.bit_rate, None);
+}
+
+#[test]
+fn test_media_file_complete_creation() {
+  let media_file = MediaFile {
+    id: "complex-id".to_string(),
+    name: "complex.mkv".to_string(),
+    path: "/path/to/complex.mkv".to_string(),
+    is_video: true,
+    is_audio: true,
+    is_image: false,
+    size: 2097152,
+    duration: Some(300.5),
+    start_time: 1234567890,
+    creation_time: "2023-01-01T00:00:00Z".to_string(),
+    probe_data: ProbeData {
+      streams: vec![
+        FfprobeStream {
+          index: 0,
+          codec_type: "video".to_string(),
+          codec_name: Some("h264".to_string()),
+          width: Some(1920),
+          height: Some(1080),
+          bit_rate: Some("8000000".to_string()),
+          r_frame_rate: Some("25/1".to_string()),
+          sample_rate: None,
+          channels: None,
+          display_aspect_ratio: Some("16:9".to_string()),
+        },
+        FfprobeStream {
+          index: 1,
+          codec_type: "audio".to_string(),
+          codec_name: Some("aac".to_string()),
+          width: None,
+          height: None,
+          bit_rate: Some("192000".to_string()),
+          r_frame_rate: None,
+          sample_rate: Some("48000".to_string()),
+          channels: Some(2),
+          display_aspect_ratio: None,
+        },
+      ],
+      format: FfprobeFormat {
+        duration: Some(300.5),
+        size: Some(2097152),
+        bit_rate: Some("256000".to_string()),
+        format_name: Some("matroska,webm".to_string()),
+      },
+    },
+  };
+
+  // Проверяем, что все поля правильно установлены
+  assert_eq!(media_file.id, "complex-id");
+  assert_eq!(media_file.name, "complex.mkv");
+  assert!(media_file.is_video);
+  assert!(media_file.is_audio);
+  assert!(!media_file.is_image);
+  assert_eq!(media_file.size, 2097152);
+  assert_eq!(media_file.duration, Some(300.5));
+  assert_eq!(media_file.probe_data.streams.len(), 2);
+
+  // Проверяем видео поток
+  let video_stream = &media_file.probe_data.streams[0];
+  assert_eq!(video_stream.codec_type, "video");
+  assert_eq!(video_stream.width, Some(1920));
+  assert_eq!(video_stream.height, Some(1080));
+
+  // Проверяем аудио поток
+  let audio_stream = &media_file.probe_data.streams[1];
+  assert_eq!(audio_stream.codec_type, "audio");
+  assert_eq!(audio_stream.channels, Some(2));
+  assert_eq!(audio_stream.sample_rate, Some("48000".to_string()));
+}
