@@ -12,6 +12,26 @@ export function TauriMockProvider({ children }: { children: React.ReactNode }) {
     // Only mock in browser environment when Tauri is not available
     // This includes development server and E2E tests
     if (typeof window !== "undefined" && !isTauri()) {
+      // Mock navigator.mediaDevices API for Tauri environment
+      if (!navigator.mediaDevices) {
+        Object.defineProperty(navigator, "mediaDevices", {
+          writable: true,
+          value: {
+            getUserMedia: () => {
+              console.warn("[TauriMock] navigator.mediaDevices.getUserMedia not available in Tauri. Camera/microphone features disabled.")
+              return Promise.reject(new Error("MediaDevices API not available in Tauri environment"))
+            },
+            getDisplayMedia: () => {
+              console.warn("[TauriMock] navigator.mediaDevices.getDisplayMedia not available in Tauri. Screen capture features disabled.")
+              return Promise.reject(new Error("MediaDevices API not available in Tauri environment"))
+            },
+            enumerateDevices: () => {
+              console.warn("[TauriMock] navigator.mediaDevices.enumerateDevices not available in Tauri. Device enumeration disabled.")
+              return Promise.resolve([])
+            },
+          },
+        })
+      }
       // Track if temp project has been created
       let tempProjectCreated = false
 

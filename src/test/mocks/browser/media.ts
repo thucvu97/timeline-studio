@@ -257,6 +257,29 @@ export function setupAudioMocks() {
     active: true,
     id: "mock-stream-id",
   }))
+
+  // Mock navigator.mediaDevices for getUserMedia, getDisplayMedia, enumerateDevices
+  Object.defineProperty(navigator, "mediaDevices", {
+    writable: true,
+    value: {
+      getUserMedia: vi.fn().mockResolvedValue(new MediaStream()),
+      getDisplayMedia: vi.fn().mockResolvedValue(new MediaStream()),
+      enumerateDevices: vi.fn().mockResolvedValue([
+        {
+          deviceId: "default",
+          groupId: "group1",
+          kind: "audioinput",
+          label: "Default - Microphone (Built-in)",
+        },
+        {
+          deviceId: "default",
+          groupId: "group2", 
+          kind: "videoinput",
+          label: "Default - Camera (Built-in)",
+        },
+      ]),
+    },
+  })
 }
 
 // Helper to create a mock video element with specific properties

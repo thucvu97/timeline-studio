@@ -114,6 +114,15 @@ export class PersonDatabaseService {
   }
 
   /**
+   * Автоматическая инициализация базы данных при необходимости
+   */
+  private async ensureInitialized(): Promise<void> {
+    if (!this.isInitialized) {
+      await this.initialize()
+    }
+  }
+
+  /**
    * Инициализация IndexedDB
    */
   private async initializeIndexedDB(): Promise<void> {
@@ -176,6 +185,8 @@ export class PersonDatabaseService {
    * Создание нового профиля персоны
    */
   async createPerson(personData: Omit<PersonProfile, "id" | "createdAt" | "updatedAt">): Promise<PersonProfile> {
+    await this.ensureInitialized()
+    
     const person: PersonProfile = {
       ...personData,
       id: `person_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
@@ -198,6 +209,8 @@ export class PersonDatabaseService {
    * Получение персоны по ID
    */
   async getPerson(personId: string): Promise<PersonProfile | null> {
+    await this.ensureInitialized()
+    
     // Проверяем кэш
     if (this.config.enableCache && this.cache.has(personId)) {
       return this.cache.get(personId)!
@@ -222,6 +235,8 @@ export class PersonDatabaseService {
    * Обновление персоны
    */
   async updatePerson(personId: string, updates: Partial<PersonProfile>): Promise<PersonProfile | null> {
+    await this.ensureInitialized()
+    
     const existingPerson = await this.getPerson(personId)
     if (!existingPerson) return null
 
@@ -251,6 +266,8 @@ export class PersonDatabaseService {
    * Удаление персоны
    */
   async deletePerson(personId: string): Promise<boolean> {
+    await this.ensureInitialized()
+    
     try {
       // Удаляем связанные данные
       await Promise.all([
@@ -277,6 +294,8 @@ export class PersonDatabaseService {
    * Поиск персон по имени
    */
   async searchPersonsByName(query: string, limit = 10): Promise<PersonProfile[]> {
+    await this.ensureInitialized()
+    
     if (!query.trim()) return []
 
     try {
@@ -295,6 +314,8 @@ export class PersonDatabaseService {
     threshold = this.config.similarityThreshold,
     limit = 5,
   ): Promise<PersonSearchResult[]> {
+    await this.ensureInitialized()
+    
     try {
       // Получаем все эмбеддинги
       const allEmbeddings = await this.getAllEmbeddings()
@@ -353,6 +374,8 @@ export class PersonDatabaseService {
    * Добавление эмбеддинга к персоне
    */
   async addEmbedding(personId: string, embedding: FaceEmbedding): Promise<boolean> {
+    await this.ensureInitialized()
+    
     try {
       const person = await this.getPerson(personId)
       if (!person) return false
@@ -381,6 +404,8 @@ export class PersonDatabaseService {
    * Добавление появления персоны
    */
   async addAppearance(personId: string, appearance: PersonAppearance): Promise<boolean> {
+    await this.ensureInitialized()
+    
     try {
       const person = await this.getPerson(personId)
       if (!person) return false
@@ -415,6 +440,8 @@ export class PersonDatabaseService {
    * Получение статистики персоны
    */
   async getPersonStats(personId: string): Promise<PersonStats | null> {
+    await this.ensureInitialized()
+    
     try {
       const person = await this.getPerson(personId)
       if (!person) return null
@@ -450,6 +477,8 @@ export class PersonDatabaseService {
    * Получение всех персон
    */
   async getAllPersons(): Promise<PersonProfile[]> {
+    await this.ensureInitialized()
+    
     try {
       return await this.loadAllPersons()
     } catch (error) {
@@ -462,6 +491,8 @@ export class PersonDatabaseService {
    * Объединение персон
    */
   async mergePersons(targetPersonId: string, sourcePersonIds: string[]): Promise<boolean> {
+    await this.ensureInitialized()
+    
     try {
       const targetPerson = await this.getPerson(targetPersonId)
       if (!targetPerson) return false
@@ -509,6 +540,8 @@ export class PersonDatabaseService {
    * Автоматическая кластеризация неопознанных лиц
    */
   async clusterUnidentifiedFaces(detections: DetectedFace[], threshold = 0.8): Promise<PersonProfile[]> {
+    await this.ensureInitialized()
+    
     try {
       // Группируем детекции по сходству эмбеддингов
       const clusters: DetectedFace[][] = []
@@ -574,6 +607,8 @@ export class PersonDatabaseService {
    * Получение статистики базы данных
    */
   async getDatabaseStats(): Promise<DatabaseStats> {
+    await this.ensureInitialized()
+    
     try {
       const persons = await this.getAllPersons()
       const totalEmbeddings = persons.reduce((sum, p) => sum + p.faceEmbeddings.length, 0)

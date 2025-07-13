@@ -323,9 +323,8 @@ describe("FFmpegAnalysisService", () => {
 
       expect(invoke).toHaveBeenCalledWith("ffmpeg_extract_keyframes", {
         filePath: "test.mp4",
-        count: 10,
-        quality: "medium",
-        aiDescription: false,
+        interval: 5.0,
+        maxFrames: 10,
       })
       expect(result).toEqual(mockKeyFrames)
     })
@@ -343,9 +342,8 @@ describe("FFmpegAnalysisService", () => {
 
       expect(invoke).toHaveBeenCalledWith("ffmpeg_extract_keyframes", {
         filePath: "test.mp4",
-        count: 5,
-        quality: "high",
-        aiDescription: true,
+        interval: 5.0,
+        maxFrames: 5,
       })
       expect(result).toEqual(mockKeyFrames)
     })
