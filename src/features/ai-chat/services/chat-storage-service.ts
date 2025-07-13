@@ -137,7 +137,7 @@ export class LocalChatStorageService implements ChatStorageService {
             const id = entry.name.replace(".json", "")
             const session = await this.getSession(id)
 
-            if (session) {
+            if (session && session.messages.length > 0) {
               sessions.push(this.sessionToListItem(session))
             }
           }
@@ -149,7 +149,7 @@ export class LocalChatStorageService implements ChatStorageService {
           if (key?.startsWith("chat_")) {
             const id = key.replace("chat_", "")
             const session = await this.getSession(id)
-            if (session) {
+            if (session && session.messages.length > 0) {
               sessions.push(this.sessionToListItem(session))
             }
           }

@@ -91,18 +91,18 @@ export function ChatProvider({ children, value }: ChatProviderProps) {
   const createNewChat = async () => {
     send({ type: "CREATE_NEW_CHAT" })
 
-    // Симуляция создания чата
+    // Симуляция создания чата - НЕ сохраняем в storage до первого сообщения
     setTimeout(async () => {
       const newSession: ChatListItem = {
         id: `session-${Date.now()}`,
-        title: "составь план рефакторинга",
+        title: "Новый чат", // Изменен заголовок по умолчанию
         lastMessageAt: new Date(),
         messageCount: 0,
       }
 
-      await chatStorageService.createSession(newSession.title)
+      // НЕ создаем сессию в storage - она будет создана при первом сообщении
       send({ type: "NEW_CHAT_CREATED", session: newSession })
-    }, 1500)
+    }, 500) // Уменьшена задержка
   }
 
   const switchSession = async (sessionId: string) => {

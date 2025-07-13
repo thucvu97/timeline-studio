@@ -138,10 +138,13 @@ describe("LocalChatStorageService", () => {
     it("должен возвращать все сессии отсортированные по дате", async () => {
       // Создаем несколько сессий с задержкой
       const session1 = await service.createSession("Чат 1")
+      await service.addMessage(session1.id, { content: "Сообщение 1", role: "user" })
       await new Promise((resolve) => setTimeout(resolve, 10))
       const session2 = await service.createSession("Чат 2")
+      await service.addMessage(session2.id, { content: "Сообщение 2", role: "user" })
       await new Promise((resolve) => setTimeout(resolve, 10))
       const session3 = await service.createSession("Чат 3")
+      await service.addMessage(session3.id, { content: "Сообщение 3", role: "user" })
 
       const sessions = await service.getAllSessions()
 
@@ -284,14 +287,17 @@ describe("LocalChatStorageService", () => {
 
   describe("searchSessions", () => {
     it("должен находить сессии по заголовку", async () => {
-      await service.createSession("Чат про эффекты")
-      await service.createSession("Чат про переходы")
-      await service.createSession("Другая тема")
+      const session1 = await service.createSession("Чат про эффекты")
+      await service.addMessage(session1.id, { content: "Сообщение про эффекты", role: "user" })
+      const session2 = await service.createSession("Чат про переходы")
+      await service.addMessage(session2.id, { content: "Сообщение про переходы", role: "user" })
+      const session3 = await service.createSession("Другая тема")
+      await service.addMessage(session3.id, { content: "Другое сообщение", role: "user" })
 
       const results = await service.searchSessions("эффект")
 
       expect(results).toHaveLength(1)
-      expect(results[0].title).toBe("Чат про эффекты")
+      expect(results[0].title).toBe("Сообщение про эффекты") // Заголовок обновляется на содержание первого сообщения
     })
 
     it("должен находить сессии по содержимому последнего сообщения", async () => {

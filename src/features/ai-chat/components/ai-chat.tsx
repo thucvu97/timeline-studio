@@ -241,7 +241,21 @@ export function AiChat() {
 
     // Сохраняем сообщение пользователя в историю
     if (currentSessionId) {
-      void chatStorageService.addMessage(currentSessionId, userMessage)
+      // Проверяем, существует ли сессия в storage (для новых чатов может не существовать)
+      const performSave = async () => {
+        try {
+          const session = await chatStorageService.getSession(currentSessionId)
+          if (!session) {
+            // Если сессия не существует, создаем ее
+            await chatStorageService.createSession("") // Заголовок будет создан автоматически при добавлении первого сообщения
+          }
+          // Добавляем сообщение
+          await chatStorageService.addMessage(currentSessionId, userMessage)
+        } catch (error) {
+          console.error("Failed to save message:", error)
+        }
+      }
+      void performSave()
     }
 
     // Сбрасываем высоту textarea после очистки

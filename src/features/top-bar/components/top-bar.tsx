@@ -98,10 +98,24 @@ const TopBarComponent = function TopBar() {
     try {
       // Создаем новый проект с настройками по умолчанию
       const projectName = "Untitled Project"
+      
+      // Создаем проект в app-settings (для управления состоянием приложения)
       createNewProject(projectName)
 
-      // Также создаем timeline проект с теми же настройками
-      createTimelineProject(projectName)
+      // Создаем timeline проект с теми же настройками
+      createTimelineProject(projectName, {
+        resolution: { width: 1920, height: 1080 },
+        fps: 30,
+        aspectRatio: "16:9",
+        sampleRate: 48000,
+        channels: 2,
+        bitDepth: 24,
+        timeFormat: "timecode",
+        snapToGrid: true,
+        gridSize: 1,
+        autoSave: true,
+        autoSaveInterval: 300,
+      })
 
       console.log("New project created successfully")
     } catch (error) {
