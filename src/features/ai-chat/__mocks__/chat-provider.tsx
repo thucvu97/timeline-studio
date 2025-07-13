@@ -20,21 +20,21 @@ export const mockChatContext: ChatContextType = {
   currentSessionId: null,
   sessions: [],
   isCreatingNewChat: false,
-  createNewChat: function (): void {
+  createNewChat: (): void => {
     throw new Error("Function not implemented.")
   },
-  switchSession: function (sessionId: string): Promise<void> {
+  switchSession: (_sessionId: string): Promise<void> => {
     throw new Error("Function not implemented.")
   },
-  deleteSession: function (sessionId: string): void {
+  deleteSession: (_sessionId: string): void => {
     throw new Error("Function not implemented.")
   },
-  updateSessions: function (sessions: ChatListItem[]): void {
+  updateSessions: (_sessions: ChatListItem[]): void => {
     throw new Error("Function not implemented.")
   },
-  sendTimelineEvent: function (event: any): void {
+  sendTimelineEvent: (_event: any): void => {
     throw new Error("Function not implemented.")
-  }
+  },
 }
 
 // Creating context with null as default value

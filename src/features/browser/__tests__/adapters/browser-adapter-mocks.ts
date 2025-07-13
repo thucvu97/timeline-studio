@@ -112,8 +112,12 @@ vi.mock("@/features/browser/providers/effects-provider", () => ({
       getResourcesByComplexity: vi.fn(() => []),
       loadSource: vi.fn(() => Promise.resolve({ success: true, data: [], source: "built-in", timestamp: Date.now() })),
       isSourceLoaded: vi.fn(() => true),
-      refreshSource: vi.fn(() => Promise.resolve({ success: true, data: [], source: "built-in", timestamp: Date.now() })),
-      preloadCategory: vi.fn(() => Promise.resolve({ success: true, data: [], source: "built-in", timestamp: Date.now() })),
+      refreshSource: vi.fn(() =>
+        Promise.resolve({ success: true, data: [], source: "built-in", timestamp: Date.now() }),
+      ),
+      preloadCategory: vi.fn(() =>
+        Promise.resolve({ success: true, data: [], source: "built-in", timestamp: Date.now() }),
+      ),
       getSourceConfig: vi.fn(() => null),
       updateSourceConfig: vi.fn(),
       getLoadingState: vi.fn(() => ({
@@ -147,7 +151,6 @@ vi.mock("@/features/browser/providers/effects-provider", () => ({
     isInitialized: true,
   })),
 }))
-
 
 // Мокаем i18n
 vi.mock("@/i18n", () => ({

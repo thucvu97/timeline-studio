@@ -71,7 +71,7 @@ vi.mock("../../hooks/use-resources", () => ({
         memoryUsage: 2048,
       },
     }
-    
+
     // Добавляем методы адаптера
     const mockAdapter = {
       ...baseReturn,
@@ -81,58 +81,77 @@ vi.mock("../../hooks/use-resources", () => ({
         error: null,
       }),
       PreviewComponent: config?.PreviewComponent || (() => null),
-      getSortValue: config?.customHandlers?.getSortValue || ((item: any, sortBy: string) => {
-        switch (sortBy) {
-          case "name":
-            return item.name.toLowerCase()
-          case "category":
-            return item.category.toLowerCase()
-          case "complexity":
-            const complexityOrder: Record<string, number> = { basic: 0, intermediate: 1, advanced: 2 }
-            return complexityOrder[item.complexity || "basic"]
-          case "type":
-            return item.type.toLowerCase()
-          default:
-            return item.name.toLowerCase()
-        }
-      }),
-      getSearchableText: config?.customHandlers?.getSearchableText || ((item: any) => {
-        const texts = [
-          item.name,
-          item.labels?.ru || "",
-          item.labels?.en || "",
-          item.description?.ru || "",
-          item.description?.en || "",
-          item.category,
-          item.type,
-          ...(item.tags || []),
-        ]
-        return texts.filter(Boolean)
-      }),
-      getGroupValue: config?.customHandlers?.getGroupValue || ((item: any, groupBy: string) => {
-        switch (groupBy) {
-          case "category":
-            return item.category || "other"
-          case "complexity":
-            return item.complexity || "basic"
-          case "type":
-            return item.type || "unknown"
-          case "tags":
-            return item.tags && item.tags.length > 0 ? item.tags[0] : "untagged"
-          default:
-            return ""
-        }
-      }),
-      matchesFilter: config?.customHandlers?.matchesFilter || ((item: any, filterType: string) => {
-        if (filterType === "all") return true
-        if (["basic", "intermediate", "advanced"].includes(filterType)) {
-          return (item.complexity || "basic") === filterType
-        }
-        if (["color-correction", "artistic", "vintage", "cinematic", "creative", "technical", "distortion", "filter"].includes(filterType)) {
-          return item.category === filterType
-        }
-        return true
-      }),
+      getSortValue:
+        config?.customHandlers?.getSortValue ||
+        ((item: any, sortBy: string) => {
+          switch (sortBy) {
+            case "name":
+              return item.name.toLowerCase()
+            case "category":
+              return item.category.toLowerCase()
+            case "complexity":
+              const complexityOrder: Record<string, number> = { basic: 0, intermediate: 1, advanced: 2 }
+              return complexityOrder[item.complexity || "basic"]
+            case "type":
+              return item.type.toLowerCase()
+            default:
+              return item.name.toLowerCase()
+          }
+        }),
+      getSearchableText:
+        config?.customHandlers?.getSearchableText ||
+        ((item: any) => {
+          const texts = [
+            item.name,
+            item.labels?.ru || "",
+            item.labels?.en || "",
+            item.description?.ru || "",
+            item.description?.en || "",
+            item.category,
+            item.type,
+            ...(item.tags || []),
+          ]
+          return texts.filter(Boolean)
+        }),
+      getGroupValue:
+        config?.customHandlers?.getGroupValue ||
+        ((item: any, groupBy: string) => {
+          switch (groupBy) {
+            case "category":
+              return item.category || "other"
+            case "complexity":
+              return item.complexity || "basic"
+            case "type":
+              return item.type || "unknown"
+            case "tags":
+              return item.tags && item.tags.length > 0 ? item.tags[0] : "untagged"
+            default:
+              return ""
+          }
+        }),
+      matchesFilter:
+        config?.customHandlers?.matchesFilter ||
+        ((item: any, filterType: string) => {
+          if (filterType === "all") return true
+          if (["basic", "intermediate", "advanced"].includes(filterType)) {
+            return (item.complexity || "basic") === filterType
+          }
+          if (
+            [
+              "color-correction",
+              "artistic",
+              "vintage",
+              "cinematic",
+              "creative",
+              "technical",
+              "distortion",
+              "filter",
+            ].includes(filterType)
+          ) {
+            return item.category === filterType
+          }
+          return true
+        }),
       favoriteType: "effect",
     }
     return mockAdapter
@@ -155,7 +174,7 @@ describe("useEffectsAdapter", () => {
     expect(result.current).toHaveProperty("getGroupValue")
     expect(result.current).toHaveProperty("favoriteType", "effect")
     expect(result.current).toHaveProperty("isFavorite")
-    
+
     // Проверяем через useData()
     const { items } = result.current.useData()
     expect(items).toHaveLength(2)

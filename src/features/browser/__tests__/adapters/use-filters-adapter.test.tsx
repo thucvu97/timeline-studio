@@ -63,7 +63,7 @@ vi.mock("../../hooks/use-resources", () => ({
         memoryUsage: 2048,
       },
     }
-    
+
     // Добавляем методы адаптера
     const mockAdapter = {
       ...baseReturn,
@@ -73,53 +73,65 @@ vi.mock("../../hooks/use-resources", () => ({
         error: null,
       }),
       PreviewComponent: config?.PreviewComponent || (() => null),
-      getSortValue: config?.customHandlers?.getSortValue || ((item: any, sortBy: string) => {
-        switch (sortBy) {
-          case "name":
-            return item.name.toLowerCase()
-          case "category":
-            return item.category.toLowerCase()
-          case "complexity":
-            const complexityOrder: Record<string, number> = { basic: 0, intermediate: 1, advanced: 2 }
-            return complexityOrder[item.complexity || "basic"]
-          default:
-            return item.name.toLowerCase()
-        }
-      }),
-      getSearchableText: config?.customHandlers?.getSearchableText || ((item: any) => {
-        const texts = [
-          item.name,
-          item.labels?.ru || "",
-          item.labels?.en || "",
-          item.description?.ru || "",
-          item.description?.en || "",
-          item.category,
-          ...(item.tags || []),
-        ]
-        return texts.filter(Boolean)
-      }),
-      getGroupValue: config?.customHandlers?.getGroupValue || ((item: any, groupBy: string) => {
-        switch (groupBy) {
-          case "category":
-            return item.category || "other"
-          case "complexity":
-            return item.complexity || "basic"
-          case "tags":
-            return item.tags && item.tags.length > 0 ? item.tags[0] : "untagged"
-          default:
-            return ""
-        }
-      }),
-      matchesFilter: config?.customHandlers?.matchesFilter || ((item: any, filterType: string) => {
-        if (filterType === "all") return true
-        if (["basic", "intermediate", "advanced"].includes(filterType)) {
-          return (item.complexity || "basic") === filterType
-        }
-        if (["color-correction", "artistic", "vintage", "cinematic", "creative", "technical", "distortion"].includes(filterType)) {
-          return item.category === filterType
-        }
-        return true
-      }),
+      getSortValue:
+        config?.customHandlers?.getSortValue ||
+        ((item: any, sortBy: string) => {
+          switch (sortBy) {
+            case "name":
+              return item.name.toLowerCase()
+            case "category":
+              return item.category.toLowerCase()
+            case "complexity":
+              const complexityOrder: Record<string, number> = { basic: 0, intermediate: 1, advanced: 2 }
+              return complexityOrder[item.complexity || "basic"]
+            default:
+              return item.name.toLowerCase()
+          }
+        }),
+      getSearchableText:
+        config?.customHandlers?.getSearchableText ||
+        ((item: any) => {
+          const texts = [
+            item.name,
+            item.labels?.ru || "",
+            item.labels?.en || "",
+            item.description?.ru || "",
+            item.description?.en || "",
+            item.category,
+            ...(item.tags || []),
+          ]
+          return texts.filter(Boolean)
+        }),
+      getGroupValue:
+        config?.customHandlers?.getGroupValue ||
+        ((item: any, groupBy: string) => {
+          switch (groupBy) {
+            case "category":
+              return item.category || "other"
+            case "complexity":
+              return item.complexity || "basic"
+            case "tags":
+              return item.tags && item.tags.length > 0 ? item.tags[0] : "untagged"
+            default:
+              return ""
+          }
+        }),
+      matchesFilter:
+        config?.customHandlers?.matchesFilter ||
+        ((item: any, filterType: string) => {
+          if (filterType === "all") return true
+          if (["basic", "intermediate", "advanced"].includes(filterType)) {
+            return (item.complexity || "basic") === filterType
+          }
+          if (
+            ["color-correction", "artistic", "vintage", "cinematic", "creative", "technical", "distortion"].includes(
+              filterType,
+            )
+          ) {
+            return item.category === filterType
+          }
+          return true
+        }),
       favoriteType: "filter",
     }
     return mockAdapter
@@ -142,7 +154,7 @@ describe("useFiltersAdapter", () => {
     expect(result.current).toHaveProperty("getGroupValue")
     expect(result.current).toHaveProperty("favoriteType", "filter")
     expect(result.current).toHaveProperty("isFavorite")
-    
+
     // Проверяем через useData()
     const { items } = result.current.useData()
     expect(items).toHaveLength(2)
@@ -198,7 +210,9 @@ describe("useFiltersAdapter", () => {
       expect(searchableText).toContain("Image brightness adjustment")
       // Русское описание не попадает в массив, так как мок его не возвращает
       // Проверяем, что хотя бы русское название есть
-      expect(searchableText.filter(text => text.includes("яркость") || text.includes("Яркость")).length).toBeGreaterThan(0)
+      expect(
+        searchableText.filter((text) => text.includes("яркость") || text.includes("Яркость")).length,
+      ).toBeGreaterThan(0)
     })
   })
 

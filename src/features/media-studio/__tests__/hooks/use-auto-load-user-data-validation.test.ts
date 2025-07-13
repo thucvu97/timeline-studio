@@ -9,7 +9,7 @@ import {
   validateStyleTemplate,
   validateSubtitleStyle,
   validateTransition,
-} from "../../hooks/use-auto-load-user-data"
+} from "../../hooks"
 
 describe("useAutoLoadUserData - Validation Functions", () => {
   describe("validateEffect", () => {

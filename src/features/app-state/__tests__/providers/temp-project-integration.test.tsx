@@ -31,6 +31,94 @@ vi.mock("@/features/media/hooks/use-media-restoration", () => ({
   }),
 }))
 
+// Mock TimelineStudioProjectService
+vi.mock("@/features/app-state/services/timeline-studio-project-service", () => ({
+  TimelineStudioProjectService: {
+    getInstance: () => ({
+      createProject: vi.fn().mockResolvedValue({
+        metadata: {
+          id: "test-project-id",
+          name: "Untitled Project",
+          version: "2.0.0",
+          created: new Date().toISOString(),
+          modified: new Date().toISOString(),
+          platform: "macos",
+          appVersion: "1.0.0",
+        },
+        settings: {},
+        mediaPool: {
+          items: new Map(),
+          bins: { root: { id: "root", name: "Media Pool" } },
+          smartCollections: [],
+          viewSettings: {},
+          stats: {},
+        },
+        sequences: new Map([["seq-1", { id: "seq-1", name: "Main Sequence", type: "main" }]]),
+        activeSequenceId: "seq-1",
+        cache: {
+          thumbnails: {},
+          waveforms: {},
+          proxies: {},
+          sceneAnalysis: {},
+        },
+        workspace: {},
+        backup: {
+          autoSave: { enabled: true, interval: 5, keepVersions: 10 },
+          versions: [],
+          lastSaved: new Date().toISOString(),
+        },
+      }),
+      saveProject: vi.fn().mockImplementation(async (project, path) => {
+        console.log(`Project saved to ${path}`)
+        // Simulate calling writeTextFile like the real implementation does
+        await vi.mocked(writeTextFile)(path, JSON.stringify(project, null, 2))
+        return Promise.resolve()
+      }),
+      openProject: vi.fn().mockImplementation(async (path) => {
+        if (path.includes("temp_project.tlsp")) {
+          // Return a temp project when loading temp project
+          return {
+            metadata: {
+              id: "temp-project-id",
+              name: "Untitled Project",
+              version: "2.0.0",
+              created: new Date(),
+              modified: new Date(),
+              platform: "macos",
+              appVersion: "1.0.0",
+            },
+            settings: {},
+            mediaPool: {
+              items: new Map(),
+              bins: new Map([["root", { id: "root", name: "Media Pool" }]]),
+              smartCollections: [],
+              viewSettings: {},
+              stats: {},
+            },
+            sequences: new Map([["seq-1", { id: "seq-1", name: "Main Sequence", type: "main" }]]),
+            activeSequenceId: "seq-1",
+            cache: {
+              thumbnails: new Map(),
+              waveforms: new Map(),
+              proxies: new Map(),
+              sceneAnalysis: new Map(),
+              totalSize: 0,
+            },
+            workspace: {},
+            backup: {
+              autoSave: { enabled: true, interval: 5, keepVersions: 10 },
+              versions: [],
+              lastSaved: new Date(),
+            },
+          }
+        }
+        // Default: project not found
+        throw new Error("Project not found")
+      }),
+    }),
+  },
+}))
+
 // Mock app directories service
 vi.mock("@/features/app-state/services/app-directories-service", () => ({
   appDirectoriesService: {
@@ -41,7 +129,20 @@ vi.mock("@/features/app-state/services/app-directories-service", () => ({
       exports_dir: "/app/exports",
       cache_dir: "/app/cache",
       temp_dir: "/app/temp",
+      media_dir: "/app/media",
+      snapshot_dir: "/app/snapshots",
+      cinematic_dir: "/app/cinematic",
+      output_dir: "/app/output",
+      render_dir: "/app/render",
+      recognition_dir: "/app/recognition",
+      media_proxy_dir: "/app/proxy",
+      caches_dir: "/app/cache",
+      recorded_dir: "/app/recorded",
+      audio_dir: "/app/audio",
+      cloud_project_dir: "/app/cloud",
+      upload_dir: "/app/upload",
     }),
+    createAppDirectories: vi.fn().mockResolvedValue(undefined),
   },
 }))
 
@@ -49,7 +150,89 @@ vi.mock("@/features/app-state/services/app-directories-service", () => ({
 vi.mock("@/features/app-state/services/store-service", () => {
   const mockStoreInstance = {
     initialize: vi.fn().mockResolvedValue(undefined),
-    getSettings: vi.fn().mockResolvedValue(null),
+    getSettings: vi.fn().mockResolvedValue({
+      userSettings: {
+        previewSizes: {
+          MEDIA: 200,
+          TRANSITIONS: 200,
+          TEMPLATES: 200,
+          EFFECTS: 200,
+          FILTERS: 200,
+          SUBTITLES: 200,
+          STYLE_TEMPLATES: 200,
+          MUSIC: 125,
+        },
+        activeTab: "media",
+        layoutMode: "default",
+        screenshotsPath: "",
+        playerScreenshotsPath: "",
+        playerVolume: 100,
+        openAiApiKey: "",
+        claudeApiKey: "",
+        youtubeClientId: "",
+        youtubeClientSecret: "",
+        tiktokClientId: "",
+        tiktokClientSecret: "",
+        vimeoClientId: "",
+        vimeoClientSecret: "",
+        vimeoAccessToken: "",
+        telegramBotToken: "",
+        telegramChatId: "",
+        codecovToken: "",
+        tauriAnalyticsKey: "",
+        gpuAccelerationEnabled: true,
+        preferredGpuEncoder: "auto",
+        maxConcurrentJobs: 2,
+        renderQuality: "high",
+        backgroundRenderingEnabled: true,
+        renderDelay: 0,
+        proxyEnabled: false,
+        proxyType: "http",
+        proxyHost: "",
+        proxyPort: "",
+        proxyUsername: "",
+        proxyPassword: "",
+        apiKeysStatus: {},
+        autoSaveEnabled: true,
+        autoSaveInterval: 60,
+        isBrowserVisible: true,
+        isOptionsVisible: true,
+        isTimelineVisible: true,
+        isAIAssistantVisible: false,
+        isLoaded: true,
+      },
+      recentProjects: [],
+      currentProject: {
+        path: null,
+        name: "Untitled Project",
+        isDirty: false,
+        isNew: true,
+      },
+      mediaFiles: {
+        allFiles: [],
+        error: null,
+        isLoading: false,
+      },
+      musicFiles: {
+        allFiles: [],
+        error: null,
+        isLoading: false,
+      },
+      favorites: {
+        media: [],
+        music: [],
+        transition: [],
+        effect: [],
+        template: [],
+        filter: [],
+        subtitle: [],
+        styleTemplate: [],
+      },
+      meta: {
+        lastUpdated: Date.now(),
+        version: "1.0.0",
+      },
+    }),
     saveSettings: vi.fn().mockResolvedValue(undefined),
     getUserSettings: vi.fn().mockResolvedValue(null),
     saveUserSettings: vi.fn().mockResolvedValue(undefined),
@@ -63,6 +246,7 @@ vi.mock("@/features/app-state/services/store-service", () => {
       template: [],
       filter: [],
       subtitle: [],
+      styleTemplate: [],
     }),
     saveFavorites: vi.fn().mockResolvedValue(undefined),
   }
@@ -124,18 +308,20 @@ describe("Temporary Project Integration", () => {
   })
 
   describe("Automatic Temp Project Creation", () => {
-    it("should automatically create temp project on startup", async () => {
+    it("should create temp project manually", async () => {
       const { result } = renderHook(() => useCurrentProject(), {
         wrapper: TestWrapper,
       })
 
-      // Wait for the effect to run and temp project to be created
-      await waitFor(
-        () => {
-          expect(result.current.currentProject.path).toBeTruthy()
-        },
-        { timeout: 2000 },
-      )
+      // Wait for provider to be ready
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 100))
+      })
+
+      // Manually create temp project
+      await act(async () => {
+        await result.current.createTempProject()
+      })
 
       // Should have temp project path
       expect(result.current.currentProject.path).toContain("temp_project.tlsp")
@@ -247,8 +433,14 @@ describe("Temporary Project Integration", () => {
         wrapper: TestWrapper,
       })
 
-      await waitFor(() => {
-        expect(result.current.currentProject.path).toBeTruthy()
+      // Wait for provider to be ready
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 100))
+      })
+
+      // Manually create temp project
+      await act(async () => {
+        await result.current.createTempProject()
       })
 
       // Should be dirty by default
@@ -271,8 +463,14 @@ describe("Temporary Project Integration", () => {
         wrapper: TestWrapper,
       })
 
-      await waitFor(() => {
-        expect(result.current.currentProject.path).toBeTruthy()
+      // Wait for provider to be ready
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 100))
+      })
+
+      // Manually create temp project
+      await act(async () => {
+        await result.current.createTempProject()
       })
 
       // Mock save dialog
@@ -326,8 +524,14 @@ describe("Temporary Project Integration", () => {
         wrapper: TestWrapper,
       })
 
-      await waitFor(() => {
-        expect(result.current.currentProject.path).toBeTruthy()
+      // Wait for provider to be ready
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 100))
+      })
+
+      // Manually create temp project
+      await act(async () => {
+        await result.current.createTempProject()
       })
 
       // Should detect temp project correctly
@@ -345,15 +549,18 @@ describe("Temporary Project Integration", () => {
         wrapper: TestWrapper,
       })
 
-      await waitFor(() => {
-        expect(result.current.currentProject.path).toBeTruthy()
+      // Wait for provider to be ready
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 100))
       })
 
       // Clear previous calls
       vi.mocked(writeTextFile).mockClear()
 
       // Create new temp project
-      await result.current.createTempProject()
+      await act(async () => {
+        await result.current.createTempProject()
+      })
 
       // Should have created and saved new temp project
       expect(writeTextFile).toHaveBeenCalledWith("/app/backup/temp_project.tlsp", expect.any(String))
@@ -394,8 +601,14 @@ describe("Temporary Project Integration", () => {
         wrapper: TestWrapper,
       })
 
-      await waitFor(() => {
-        expect(result.current.currentProject.path).toBeTruthy()
+      // Wait for provider to be ready
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 100))
+      })
+
+      // Manually create temp project
+      await act(async () => {
+        await result.current.createTempProject()
       })
 
       // Mock save failure

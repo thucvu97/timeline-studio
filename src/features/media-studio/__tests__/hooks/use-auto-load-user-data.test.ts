@@ -109,17 +109,16 @@ describe("useAutoLoadUserData", () => {
 
       const { result } = renderHook(() => useAutoLoadUserData())
 
-      expect(result.current.isLoading).toBe(true) // Starts loading immediately
+      expect(result.current.isLoading).toBe(false) // Initial state is not loading
       expect(result.current.error).toBe(null)
       expect(result.current.loadedData).toEqual({
-        media: [],
-        music: [],
-        effects: [],
-        transitions: [],
-        filters: [],
-        subtitles: [],
-        templates: [],
-        styleTemplates: [],
+        media: 0,
+        music: 0,
+        effects: 0,
+        transitions: 0,
+        filters: 0,
+        subtitles: 0,
+        styleTemplates: 0,
       })
     })
 
@@ -134,8 +133,8 @@ describe("useAutoLoadUserData", () => {
       })
 
       // In web browser, no files should be loaded
-      expect(result.current.loadedData.media).toHaveLength(0)
-      expect(result.current.loadedData.music).toHaveLength(0)
+      expect(result.current.loadedData.media).toBe(0)
+      expect(result.current.loadedData.music).toBe(0)
       expect(result.current.error).toBe(null)
     })
   })
@@ -421,7 +420,7 @@ describe("useAutoLoadUserData", () => {
       })
 
       expect(result.current.error).toBe(null)
-      expect(result.current.loadedData.effects).toHaveLength(0)
+      expect(result.current.loadedData.effects).toBe(0)
     })
   })
 
@@ -443,7 +442,7 @@ describe("useAutoLoadUserData", () => {
 
       // Should complete without error - errors are logged but not thrown
       expect(result.current.error).toBe(null)
-      expect(result.current.loadedData.effects).toHaveLength(0)
+      expect(result.current.loadedData.effects).toBe(0)
     })
   })
 

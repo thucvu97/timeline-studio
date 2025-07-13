@@ -71,7 +71,7 @@ describe("Speed Ramping Player Sync Integration", () => {
         maxSpeed: 0,
         showGraph: false,
         graphHeight: 0,
-        graphOpacity: 0
+        graphOpacity: 0,
       },
     })
 
@@ -100,7 +100,7 @@ describe("Speed Ramping Player Sync Integration", () => {
         maxSpeed: 0,
         showGraph: false,
         graphHeight: 0,
-        graphOpacity: 0
+        graphOpacity: 0,
       },
     })
 

@@ -134,8 +134,8 @@ describe("App Settings Machine", () => {
     // Запускаем актора
     actor.start()
 
-    // Проверяем, что начальное состояние - loading
-    expect(actor.getSnapshot().value).toBe("loading")
+    // Проверяем, что начальное состояние - initializing
+    expect(actor.getSnapshot().value).toBe("initializing")
 
     // Ждем, пока машина перейдет в состояние idle
     await new Promise((resolve) => setTimeout(resolve, 100))
@@ -161,8 +161,8 @@ describe("App Settings Machine", () => {
     // Запускаем актора
     actor.start()
 
-    // Проверяем, что начальное состояние - loading
-    expect(actor.getSnapshot().value).toBe("loading")
+    // Проверяем, что начальное состояние - initializing
+    expect(actor.getSnapshot().value).toBe("initializing")
 
     // Ждем, пока машина загрузит настройки по умолчанию
     await new Promise((resolve) => setTimeout(resolve, 100))

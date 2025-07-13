@@ -73,7 +73,9 @@ vi.mock("@/features/ai-chat/services/chat-provider", () => ({
 }))
 
 vi.mock("@/features/ai-content-intelligence", () => ({
-  AIIntelligenceProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="ai-intelligence-provider">{children}</div>,
+  AIIntelligenceProvider: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="ai-intelligence-provider">{children}</div>
+  ),
 }))
 
 describe("Providers", () => {

@@ -4,6 +4,7 @@ use std::path::PathBuf;
 use tauri::State;
 
 use super::ffmpeg::check_ffmpeg;
+use super::media_analyzer::{MediaAnalysis, MediaAnalyzer};
 use super::preview_data::MediaPreviewData;
 use super::preview_manager::PreviewDataManager;
 use super::types::{MediaFile, SUPPORTED_EXTENSIONS};
@@ -437,6 +438,17 @@ pub async fn process_media_files_with_thumbnails(
   // The frontend will need to call generate_media_thumbnail separately
   // with the proper state and file_id parameters
   process_media_files(file_paths).await
+}
+
+/// Analyze media file using MediaAnalyzer
+#[tauri::command]
+pub async fn analyze_media(file_path: String) -> Result<MediaAnalysis, String> {
+  // First get media metadata
+  let media_file = get_media_metadata(file_path)?;
+
+  // Create analyzer and analyze the file
+  let analyzer = MediaAnalyzer::new();
+  analyzer.analyze(media_file).await
 }
 
 #[cfg(test)]

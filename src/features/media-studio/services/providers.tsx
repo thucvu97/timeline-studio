@@ -29,23 +29,23 @@ const composeProviders = (...providers: React.ComponentType<{ children: ReactNod
 }
 
 // Создаем единый провайдер из всех контекстов
-// ВАЖНО: Порядок провайдеров имеет значение!
-// ShortcutsProvider зависит от UserSettingsProvider и должен идти после него
+// ВАЖНО: Порядок провайдеров оптимизирован для производительности!
+// Легкие провайдеры первыми, тяжелые - последними
 const AppProvider = composeProviders(
   TauriMockProvider, // Должен быть первым для инициализации моков
-  I18nProvider,
-  ThemeProvider,
-  ModalProvider,
-  AppSettingsProvider,
-  BrowserStateProvider, // Временно убираем для проверки
-  ProjectSettingsProvider,
-  UserSettingsProvider,
+  I18nProvider, // Легкий провайдер для локализации
+  ThemeProvider, // Легкий провайдер для темы
+  ModalProvider, // Легкий провайдер для модальных окон
+  AppSettingsProvider, // Основной провайдер настроек (оптимизирован)
+  UserSettingsProvider, // Пользовательские настройки
+  ProjectSettingsProvider, // Настройки проекта
   ShortcutsProvider, // Зависит от UserSettingsProvider
-  ResourcesProvider,
-  TimelineProvider,
-  PlayerProvider,
-  ChatProvider,
-  AIIntelligenceProvider, // Добавлен AI Intelligence Provider
+  ResourcesProvider, // Ресурсы (оптимизированы с кэшированием)
+  BrowserStateProvider, // Состояние браузера
+  TimelineProvider, // Тяжелый провайдер для таймлайна
+  PlayerProvider, // Провайдер видеоплеера
+  ChatProvider, // AI чат
+  AIIntelligenceProvider, // AI Intelligence (может быть тяжелым)
 )
 
 export function Providers({ children }: ProvidersProps) {

@@ -72,21 +72,20 @@ describe("useAutoLoadUserData Hook", () => {
       const { result } = renderHook(() => useAutoLoadUserData())
 
       expect(result.current.loadedData).toEqual({
-        media: [],
-        music: [],
-        effects: [],
-        transitions: [],
-        filters: [],
-        subtitles: [],
-        templates: [],
-        styleTemplates: [],
+        media: 0,
+        music: 0,
+        effects: 0,
+        transitions: 0,
+        filters: 0,
+        subtitles: 0,
+        styleTemplates: 0,
       })
     })
 
     it("should complete loading in web environment", async () => {
       const { result } = renderHook(() => useAutoLoadUserData())
 
-      expect(result.current.isLoading).toBe(true)
+      expect(result.current.isLoading).toBe(false)
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false)
@@ -151,7 +150,7 @@ describe("useAutoLoadUserData Hook", () => {
 
       expect(result.current.error).toBe(null)
       // In non-Tauri environment, it should work as web browser
-      expect(result.current.loadedData.media).toHaveLength(0)
+      expect(result.current.loadedData.media).toBe(0)
 
       // Restore Tauri
       if (originalTauri) {
@@ -176,8 +175,8 @@ describe("useAutoLoadUserData Hook", () => {
       const { result } = renderHook(() => useAutoLoadUserData())
 
       // In SSR/non-Tauri environment, it should:
-      // 1. Start with loading state
-      expect(result.current.isLoading).toBe(true)
+      // 1. Start with non-loading state (no Tauri = no loading)
+      expect(result.current.isLoading).toBe(false)
 
       // 2. Have no errors
       expect(result.current.error).toBe(null)

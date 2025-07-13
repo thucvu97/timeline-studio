@@ -26,7 +26,7 @@ export function UniversalList<T extends ListItem>({
 
   // Получаем данные через адаптер
   const { items, loading, error } = adapter.useData()
-  
+
   // Логирование для отладки
   console.log("[UniversalList] Data from adapter:", {
     items,

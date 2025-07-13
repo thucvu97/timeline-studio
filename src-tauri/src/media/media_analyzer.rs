@@ -41,18 +41,15 @@ pub enum ContentType {
 }
 
 /// Анализатор медиафайлов
-#[allow(dead_code)]
 pub struct MediaAnalyzer;
 
 impl MediaAnalyzer {
   /// Создает новый анализатор
-  #[allow(dead_code)]
   pub fn new() -> Self {
     Self
   }
 
   /// Анализирует медиафайл
-  #[allow(dead_code)]
   pub async fn analyze(&self, file_info: MediaFile) -> Result<MediaAnalysis, String> {
     let quality_metrics = self.calculate_quality_metrics(&file_info);
     let content_type = self.determine_content_type(&file_info);
@@ -67,7 +64,6 @@ impl MediaAnalyzer {
   }
 
   /// Вычисляет метрики качества
-  #[allow(dead_code)]
   fn calculate_quality_metrics(&self, file_info: &MediaFile) -> QualityMetrics {
     let mut resolution = None;
     let mut bitrate = None;
@@ -125,7 +121,6 @@ impl MediaAnalyzer {
   }
 
   /// Определяет тип контента
-  #[allow(dead_code)]
   fn determine_content_type(&self, file_info: &MediaFile) -> ContentType {
     if file_info.is_video {
       let has_audio = file_info
@@ -189,7 +184,6 @@ impl MediaAnalyzer {
   }
 
   /// Генерирует рекомендации
-  #[allow(dead_code)]
   fn generate_recommendations(
     &self,
     file_info: &MediaFile,
@@ -233,7 +227,6 @@ impl MediaAnalyzer {
   }
 
   /// Вычисляет оценку качества
-  #[allow(dead_code)]
   fn calculate_quality_score(
     &self,
     resolution: &Option<(u32, u32)>,
@@ -273,7 +266,6 @@ impl MediaAnalyzer {
   }
 
   /// Парсит frame rate из строки вида "30/1"
-  #[allow(dead_code)]
   fn parse_frame_rate(fps_str: &str) -> Option<f64> {
     if fps_str.contains('/') {
       let parts: Vec<&str> = fps_str.split('/').collect();

@@ -120,7 +120,7 @@ class EffectsProviderImpl implements EffectsProviderAPI {
       loadedSources: Array.from(this.loadingState.loadedSources),
       availableKeys: Array.from(this.resources.keys()),
     })
-    
+
     for (const loadedSource of this.loadingState.loadedSources) {
       const sourceKey = `${type}:${loadedSource}`
       const sourceResources = this.resources.get(sourceKey) || []
@@ -140,7 +140,7 @@ class EffectsProviderImpl implements EffectsProviderAPI {
 
   searchResources<T extends Resource>(type: ResourceType, options: SearchOptions): T[] {
     let resources = this.getResources<T>(type, options.source)
-    
+
     console.log(`[searchResources] Initial search for ${type}:`, {
       options,
       initialCount: resources.length,

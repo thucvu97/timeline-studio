@@ -104,51 +104,72 @@ function ensureMediaFilesHaveMetadataState(files: any[]): any[] {
   }))
 }
 
+// Кэш для настроек, чтобы избежать повторных загрузок
+let settingsCache: AppSettings | null = null
+let isLoading = false
+
 /**
- * Загрузка настроек из хранилища
+ * Загрузка настроек из хранилища с мемоизацией
  */
 const loadSettings = fromPromise(async () => {
   try {
-    // Создаем промис с таймаутом
-    const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error("Settings loading timeout")), 5000)
-    })
+    // Если уже загружаем, ждем завершения
+    if (isLoading && settingsCache) {
+      console.log("[AppSettingsMachine] Using cached settings during loading")
+      return settingsCache
+    }
 
-    // Загружаем настройки с таймаутом
-    const loadPromise = (async () => {
-      // Инициализируем хранилище
-      await storeService.initialize()
+    // Если настройки уже закэшированы, возвращаем их
+    if (settingsCache) {
+      console.log("[AppSettingsMachine] Using cached settings")
+      return settingsCache
+    }
 
-      // Получаем настройки
-      const settings = await storeService.getSettings()
+    isLoading = true
 
-      if (settings) {
-        console.log("[AppSettingsMachine] Loaded settings from storage")
-        console.log(`[AppSettingsMachine] Media files count: ${settings.mediaFiles?.allFiles?.length || 0}`)
-        console.log(`[AppSettingsMachine] Music files count: ${settings.musicFiles?.allFiles?.length || 0}`)
+    // Инициализируем хранилище с быстрым fallback
+    let settings: AppSettings | null = null
+    try {
+      await Promise.race([
+        storeService.initialize(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("Init timeout")), 1000)),
+      ])
+      settings = await storeService.getSettings()
+    } catch (error) {
+      console.warn("[AppSettingsMachine] Storage init failed or timed out, using defaults:", error)
+    }
 
-        // Обеспечиваем правильное состояние метаданных для медиафайлов
-        if (settings.mediaFiles?.allFiles) {
-          settings.mediaFiles.allFiles = ensureMediaFilesHaveMetadataState(settings.mediaFiles.allFiles)
-        }
-        if (settings.musicFiles?.allFiles) {
-          settings.musicFiles.allFiles = ensureMediaFilesHaveMetadataState(settings.musicFiles.allFiles)
-        }
+    if (settings) {
+      console.log("[AppSettingsMachine] Loaded settings from storage")
+      console.log(`[AppSettingsMachine] Media files count: ${settings.mediaFiles?.allFiles?.length || 0}`)
+      console.log(`[AppSettingsMachine] Music files count: ${settings.musicFiles?.allFiles?.length || 0}`)
 
-        return settings
+      // Обеспечиваем правильное состояние метаданных для медиафайлов
+      if (settings.mediaFiles?.allFiles) {
+        settings.mediaFiles.allFiles = ensureMediaFilesHaveMetadataState(settings.mediaFiles.allFiles)
+      }
+      if (settings.musicFiles?.allFiles) {
+        settings.musicFiles.allFiles = ensureMediaFilesHaveMetadataState(settings.musicFiles.allFiles)
       }
 
-      // Если настроек нет, возвращаем настройки по умолчанию
-      console.log("[AppSettingsMachine] No settings found, using defaults")
-      return getDefaultSettings()
-    })()
+      // Кэшируем настройки
+      settingsCache = settings
+      return settings
+    }
 
-    // Ждем либо загрузку настроек, либо таймаут
-    return await Promise.race([loadPromise, timeoutPromise])
+    // Если настроек нет, возвращаем настройки по умолчанию
+    console.log("[AppSettingsMachine] No settings found, using defaults")
+    const defaultSettings = getDefaultSettings()
+    settingsCache = defaultSettings
+    return defaultSettings
   } catch (error) {
     console.error("[AppSettingsMachine] Error loading settings:", error)
     // Возвращаем настройки по умолчанию вместо выброса ошибки
-    return getDefaultSettings()
+    const defaultSettings = getDefaultSettings()
+    settingsCache = defaultSettings
+    return defaultSettings
+  } finally {
+    isLoading = false
   }
 })
 
@@ -195,6 +216,7 @@ function getDefaultSettings(): AppSettings {
       isBrowserVisible: true,
       isOptionsVisible: true,
       isTimelineVisible: true,
+      isAIAssistantVisible: false,
       isLoaded: true,
     },
     recentProjects: [],
@@ -236,7 +258,7 @@ function getDefaultSettings(): AppSettings {
  */
 export const appSettingsMachine = createMachine({
   id: "appSettings",
-  initial: "loading",
+  initial: "initializing",
 
   // Контекст машины состояний
   context: {
@@ -287,6 +309,7 @@ export const appSettingsMachine = createMachine({
       isBrowserVisible: true,
       isOptionsVisible: true,
       isTimelineVisible: true,
+      isAIAssistantVisible: false,
       isLoaded: false,
     },
     recentProjects: [],
@@ -328,6 +351,17 @@ export const appSettingsMachine = createMachine({
 
   // Состояния машины
   states: {
+    // Инициализация
+    initializing: {
+      entry: () => {
+        console.log("[AppSettingsMachine] Entering initializing state")
+      },
+      after: {
+        // Быстрый переход к loading для улучшения UX
+        50: "loading",
+      },
+    },
+
     // Загрузка настроек
     loading: {
       entry: () => {
@@ -342,9 +376,9 @@ export const appSettingsMachine = createMachine({
               console.log("[AppSettingsMachine] Settings loaded successfully, transitioning to idle")
             },
             assign({
-              userSettings: ({ event }) => event.output.userSettings,
+              userSettings: ({ event }) => event.output.userSettings || getDefaultSettings().userSettings,
               recentProjects: ({ event }) => event.output.recentProjects || [],
-              favorites: ({ event }) => event.output.favorites,
+              favorites: ({ event }) => event.output.favorites || getDefaultSettings().favorites,
               mediaFiles: ({ event }) => event.output.mediaFiles || { allFiles: [], error: null, isLoading: false },
               musicFiles: ({ event }) => event.output.musicFiles || { allFiles: [], error: null, isLoading: false },
               isLoading: false,
@@ -353,15 +387,20 @@ export const appSettingsMachine = createMachine({
           ],
         },
         onError: {
-          target: "error",
+          target: "idle", // Переходим в idle вместо error для лучшего UX
           actions: [
             ({ event }) => {
-              console.error("[AppSettingsMachine] Error loading settings:", event.error)
+              console.warn("[AppSettingsMachine] Error loading settings, using defaults:", event.error)
             },
             assign({
-              // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-              error: ({ event }) => `Error loading settings: ${event.error}`,
+              // Используем настройки по умолчанию при ошибке
+              userSettings: () => getDefaultSettings().userSettings,
+              recentProjects: () => [],
+              favorites: () => getDefaultSettings().favorites,
+              mediaFiles: () => ({ allFiles: [], error: null, isLoading: false }),
+              musicFiles: () => ({ allFiles: [], error: null, isLoading: false }),
               isLoading: false,
+              error: null, // Не показываем ошибку пользователю, просто используем defaults
             }),
           ],
         },

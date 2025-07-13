@@ -50,6 +50,7 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::media::commands::process_media_files_with_thumbnails,
     crate::media::commands::save_preview_data,
     crate::media::commands::save_timeline_frames,
+    crate::media::commands::analyze_media,
     // Recognition commands
     crate::recognition::commands::clear_recognition_results,
     crate::recognition::commands::export_recognition_results,

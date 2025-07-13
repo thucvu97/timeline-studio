@@ -23,7 +23,7 @@ import { useEffectsProvider } from "../providers/effects-provider"
  */
 export function BrowserContent() {
   const contentClassName = "bg-background m-0 flex-1 overflow-auto"
-  
+
   // Проверяем инициализацию EffectsProvider
   const { isInitialized } = useEffectsProvider()
 
@@ -130,7 +130,7 @@ export function BrowserContent() {
   }
 
   const adapter = getAdapterForTab()
-  
+
   // Логирование для отладки
   console.log("[BrowserContent] Active tab and adapter:", {
     activeTab,
@@ -184,7 +184,7 @@ export function BrowserContent() {
     <>
       {/* Индикатор загрузки ресурсов */}
       <BrowserLoadingIndicator />
-      
+
       {/* Временная отладочная информация для эффектов */}
       {activeTab === "effects" && (
         <div className="p-2 bg-yellow-100 dark:bg-yellow-900 text-xs">
