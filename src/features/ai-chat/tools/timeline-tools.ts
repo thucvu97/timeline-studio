@@ -880,18 +880,25 @@ async function createSectionsByStrategy(params: any): Promise<TimelineToolResult
 
     let sections: TimelineSection[] = []
 
+    // Собираем все клипы из проекта
+    const allClips: TimelineClip[] = []
+    currentProject.globalTracks.forEach((track) => allClips.push(...track.clips))
+    currentProject.sections.forEach((section) => {
+      section.tracks.forEach((track) => allClips.push(...track.clips))
+    })
+
     switch (strategy) {
       case "by-date":
-        sections = createSectionsByDate(currentProject.clips, sectionSettings)
+        sections = createSectionsByDate(allClips, sectionSettings)
         break
       case "by-duration":
-        sections = createSectionsByDuration(currentProject.clips, sectionSettings)
+        sections = createSectionsByDuration(allClips, sectionSettings)
         break
       case "by-content-type":
-        sections = createSectionsByContentType(currentProject.clips, sectionSettings)
+        sections = createSectionsByContentType(allClips, sectionSettings)
         break
       case "by-location":
-        sections = createSectionsByLocation(currentProject.clips, sectionSettings)
+        sections = createSectionsByLocation(allClips, sectionSettings)
         break
       case "manual":
         sections = createManualSections(sectionSettings)
