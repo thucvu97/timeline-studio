@@ -5,7 +5,7 @@
 
 import { useCallback, useEffect, useState } from "react"
 
-import { SceneAnalysisEngine } from "../../ai-content-intelligence/engines/scene-analysis/scene-analysis-engine"
+import { SceneAnalysisEngine } from "../../ai-content-intelligence/engines/scene-analysis/services/scene-analysis-engine"
 import { PersonDatabaseService } from "../services/person-database-service"
 
 import type { DetectedFace, PersonAppearance, PersonCluster, PersonProfile } from "../types/person"
