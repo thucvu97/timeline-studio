@@ -29,6 +29,8 @@ export const AudioLines = createMockIcon("AudioLines")
 export const Blend = createMockIcon("Blend")
 export const Bookmark = createMockIcon("Bookmark")
 export const Bot = createMockIcon("Bot")
+export const Brain = createMockIcon("Brain")
+export const BarChart3 = createMockIcon("BarChart3")
 export const Camera = createMockIcon("Camera")
 export const Check = createMockIcon("Check")
 export const CheckCircle = createMockIcon("CheckCircle")
@@ -71,6 +73,7 @@ export const Gauge = createMockIcon("Gauge")
 export const Grid = createMockIcon("Grid")
 export const Grid2x2 = createMockIcon("Grid2x2")
 export const Grid2X2 = createMockIcon("Grid2X2")
+export const Grid3X3 = createMockIcon("Grid3X3")
 export const GripVertical = createMockIcon("GripVertical")
 export const GripVerticalIcon = createMockIcon("GripVerticalIcon")
 export const HardDrive = createMockIcon("HardDrive")
@@ -130,6 +133,7 @@ export const StepForward = createMockIcon("StepForward")
 export const Sticker = createMockIcon("Sticker")
 export const StickyNote = createMockIcon("StickyNote")
 export const StopCircle = createMockIcon("StopCircle")
+export const Target = createMockIcon("Target")
 export const Subtitles = createMockIcon("Subtitles")
 export const Sun = createMockIcon("Sun")
 export const Trash2 = createMockIcon("Trash2")
@@ -166,6 +170,8 @@ vi.mock("lucide-react", () => ({
   Blend,
   Bookmark,
   Bot,
+  Brain,
+  BarChart3,
   Camera,
   Check,
   CheckCircle,
@@ -208,6 +214,7 @@ vi.mock("lucide-react", () => ({
   Grid,
   Grid2x2,
   Grid2X2,
+  Grid3X3,
   GripVertical,
   GripVerticalIcon,
   HardDrive,
@@ -267,6 +274,7 @@ vi.mock("lucide-react", () => ({
   Sticker,
   StickyNote,
   StopCircle,
+  Target,
   Subtitles,
   Sun,
   Trash2,

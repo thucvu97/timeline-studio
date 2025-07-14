@@ -98,7 +98,7 @@ const TopBarComponent = function TopBar() {
     try {
       // Создаем новый проект с настройками по умолчанию
       const projectName = "Untitled Project"
-      
+
       // Создаем проект в app-settings (для управления состоянием приложения)
       createNewProject(projectName)
 

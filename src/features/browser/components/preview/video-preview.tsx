@@ -179,12 +179,17 @@ export const VideoPreview = memo(
     // Функция для получения URL видео без загрузки в память
     const loadVideoFile = useCallback(async (path: string) => {
       console.log(`[VideoPreview] loadVideoFile called with path: ${path}`)
-      console.log(`[VideoPreview] isTauriEnvironment: ${typeof window !== "undefined" && window.__TAURI__ !== undefined}`)
-      console.log(`[VideoPreview] window.__TAURI__:`, typeof window !== "undefined" ? window.__TAURI__ : "window undefined")
-      
+      console.log(
+        `[VideoPreview] isTauriEnvironment: ${typeof window !== "undefined" && window.__TAURI__ !== undefined}`,
+      )
+      console.log(
+        "[VideoPreview] window.__TAURI__:",
+        typeof window !== "undefined" ? window.__TAURI__ : "window undefined",
+      )
+
       // Используем file:// протокол для видео через convertVideoSrc
       const videoUrl = convertVideoSrc(path)
-      console.log(`[VideoPreview] Converting path:`)
+      console.log("[VideoPreview] Converting path:")
       console.log(`  Original: ${path}`)
       console.log(`  Video URL: ${videoUrl}`)
       console.log(`  URL starts with asset://: ${videoUrl.startsWith("asset://")}`)
@@ -199,7 +204,7 @@ export const VideoPreview = memo(
       let isMounted = true
 
       console.log(`[VideoPreview] Attempting to load video from path: ${filePath}`)
-      
+
       // Проверяем доступ к файлу через Tauri API
       void checkFileAccess(filePath).then((hasAccess) => {
         console.log(`[VideoPreview] File access check result: ${hasAccess}`)
@@ -211,7 +216,7 @@ export const VideoPreview = memo(
         void loadVideoFile(filePath).then((url) => {
           if (isMounted) {
             console.log(`[VideoPreview] Video URL generated: ${url}`)
-            console.log(`[VideoPreview] URL protocol: ${url.split(':')[0]}`)
+            console.log(`[VideoPreview] URL protocol: ${url.split(":")[0]}`)
             setVideoUrl(url)
           }
         })
@@ -525,17 +530,19 @@ export const VideoPreview = memo(
                           "URL:",
                           video.src,
                         )
-                        
+
                         // Дополнительная диагностика
                         console.error("[VideoPreview] Детали ошибки:")
                         console.error(`  - Путь файла: ${file.path}`)
                         console.error(`  - Сгенерированный URL: ${videoUrl}`)
                         console.error(`  - Код ошибки: ${video.error.code}`)
-                        console.error(`  - MEDIA_ERR_ABORTED (1): Загрузка прервана пользователем`)
-                        console.error(`  - MEDIA_ERR_NETWORK (2): Сетевая ошибка`)
-                        console.error(`  - MEDIA_ERR_DECODE (3): Ошибка декодирования`)
-                        console.error(`  - MEDIA_ERR_SRC_NOT_SUPPORTED (4): Формат не поддерживается или URL недоступен`)
-                        
+                        console.error("  - MEDIA_ERR_ABORTED (1): Загрузка прервана пользователем")
+                        console.error("  - MEDIA_ERR_NETWORK (2): Сетевая ошибка")
+                        console.error("  - MEDIA_ERR_DECODE (3): Ошибка декодирования")
+                        console.error(
+                          "  - MEDIA_ERR_SRC_NOT_SUPPORTED (4): Формат не поддерживается или URL недоступен",
+                        )
+
                         // Попробуем альтернативный подход для видео
                         if (video.error.code === 4 && videoUrl && videoUrl.includes("asset.localhost")) {
                           console.log("[VideoPreview] Trying alternative approach...")

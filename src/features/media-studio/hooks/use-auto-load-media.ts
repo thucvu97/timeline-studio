@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 
-import { useMediaFiles, useMusicFiles } from "@/features/app-state/hooks"
+import { useAppSettings, useMediaFiles, useMusicFiles } from "@/features/app-state/hooks"
 import { appDirectoriesService } from "@/features/app-state/services"
 import type { MediaFile } from "@/features/media/types/media"
 
@@ -17,6 +17,7 @@ export function useAutoLoadMedia() {
 
   const { updateMediaFiles } = useMediaFiles()
   const { updateMusicFiles } = useMusicFiles()
+  const { state } = useAppSettings()
 
   // Debouncing refs
   const loadTimeoutRef = useRef<NodeJS.Timeout>(null)
@@ -264,6 +265,15 @@ export function useAutoLoadMedia() {
 
   // Запускаем загрузку при монтировании
   useEffect(() => {
+    // Проверяем, не является ли проект новым (только что созданным)
+    const currentProject = state.context.currentProject
+    const isNewProject = currentProject.isNew && currentProject.path === null
+
+    if (isNewProject) {
+      console.log("[useAutoLoadMedia] Skipping auto-load for new project")
+      return
+    }
+
     // Запускаем загрузку только один раз при монтировании
     if (loadTimeoutRef.current) {
       clearTimeout(loadTimeoutRef.current)
@@ -278,7 +288,7 @@ export function useAutoLoadMedia() {
         clearTimeout(loadTimeoutRef.current)
       }
     }
-  }, []) // Пустой массив зависимостей - выполняется только при монтировании
+  }, [state.context.currentProject.isNew, state.context.currentProject.path]) // Следим за изменениями проекта
 
   // Функция для очистки кэша
   const clearCache = useCallback(() => {

@@ -152,7 +152,7 @@ export class FFmpegAnalysisService {
       // Конвертируем count в interval (примерно каждые N секунд)
       const maxFrames = options.count || 10
       const interval = 5.0 // Извлекаем ключевой кадр каждые 5 секунд по умолчанию
-      
+
       const result = await invoke<KeyFrameExtractionResult>("ffmpeg_extract_keyframes", {
         filePath,
         interval,

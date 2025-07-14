@@ -24,7 +24,10 @@ export {
   AIIntelligenceProvider,
   useAIIntelligence as useAIIntelligenceContext,
 } from "./services/ai-intelligence-provider"
-export type { AIIntelligenceContext, AIIntelligenceEvent } from "./shared/services/ai-intelligence-machine"
+export type {
+  AIIntelligenceContext,
+  AIIntelligenceEvent,
+} from "./shared/services/ai-intelligence-machine"
 export { aiIntelligenceMachine } from "./shared/services/ai-intelligence-machine"
 // ===== Orchestrator & State Machine =====
 export { AIIntelligenceOrchestrator } from "./shared/services/ai-intelligence-orchestrator"

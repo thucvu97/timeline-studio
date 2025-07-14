@@ -565,6 +565,17 @@ export const appSettingsMachine = createMachine({
                 isDirty: false,
                 isNew: true,
               }),
+              // Очищаем медиафайлы при создании нового проекта
+              mediaFiles: () => ({
+                allFiles: [],
+                error: null,
+                isLoading: false,
+              }),
+              musicFiles: () => ({
+                allFiles: [],
+                error: null,
+                isLoading: false,
+              }),
             }),
             ({ context }) => {
               void storeService.saveSettings({
@@ -574,6 +585,17 @@ export const appSettingsMachine = createMachine({
                   name: context.currentProject.name,
                   isDirty: false,
                   isNew: true,
+                },
+                // Также очищаем медиафайлы в хранилище
+                mediaFiles: {
+                  allFiles: [],
+                  error: null,
+                  isLoading: false,
+                },
+                musicFiles: {
+                  allFiles: [],
+                  error: null,
+                  isLoading: false,
                 },
               } as any)
             },

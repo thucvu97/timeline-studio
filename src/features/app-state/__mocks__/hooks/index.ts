@@ -21,6 +21,28 @@ export const useAppSettings = vi.fn(() => ({
   setCurrentProject: mockSetCurrentProject,
   toggleFavorite: mockToggleFavorite,
   updateBrowserState: mockUpdateBrowserState,
+  isLoading: vi.fn(() => false),
+  getError: vi.fn(() => null),
+  state: {
+    context: {
+      currentProject: {
+        isNew: false,
+        path: "/test/project.json",
+        name: "Test Project",
+        isDirty: false,
+      },
+      mediaFiles: {
+        allFiles: [],
+        error: null,
+        isLoading: false,
+      },
+      musicFiles: {
+        allFiles: [],
+        error: null,
+        isLoading: false,
+      },
+    },
+  },
 }))
 
 // Default return values

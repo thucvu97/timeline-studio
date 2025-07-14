@@ -37,10 +37,10 @@ export function convertToAssetUrl(filePath: string): string {
   } catch (error) {
     console.error("[convertToAssetUrl] Error:", error)
   }
-  
+
   // Fallback
-  const encodedPath = encodeURIComponent(cleanPath).replace(/%2F/g, '/')
-  return `asset://localhost${cleanPath.startsWith('/') ? '' : '/'}${encodedPath}`
+  const encodedPath = encodeURIComponent(cleanPath).replace(/%2F/g, "/")
+  return `asset://localhost${cleanPath.startsWith("/") ? "" : "/"}${encodedPath}`
 }
 
 /**
@@ -54,7 +54,7 @@ export function convertVideoSrc(filePath: string): string {
   // Проверяем, работаем ли мы в Tauri окружении
   if (!isTauriEnvironment()) {
     console.warn("[convertVideoSrc] Not in Tauri environment, returning original path")
-    
+
     // В development режиме пробуем использовать asset URL напрямую
     if (typeof window !== "undefined" && window.location.hostname === "localhost") {
       // Создаем asset URL для development
@@ -63,7 +63,7 @@ export function convertVideoSrc(filePath: string): string {
       console.log("[convertVideoSrc] Dev mode asset URL:", devAssetUrl)
       return devAssetUrl
     }
-    
+
     return filePath
   }
 
@@ -83,7 +83,7 @@ export function convertVideoSrc(filePath: string): string {
   console.log("[convertVideoSrc] Converting:", {
     original: filePath,
     cleaned: cleanPath,
-    isTauri: isTauriEnvironment()
+    isTauri: isTauriEnvironment(),
   })
 
   // В Tauri v2 для видео лучше использовать http://asset.localhost вместо asset://
@@ -91,19 +91,19 @@ export function convertVideoSrc(filePath: string): string {
   try {
     const assetUrl = convertFileSrc(cleanPath)
     console.log("[convertVideoSrc] convertFileSrc result:", assetUrl)
-    
+
     // Если получили asset://, преобразуем в http://asset.localhost для видео
     if (assetUrl && assetUrl.startsWith("asset://localhost/")) {
       const httpUrl = assetUrl.replace("asset://localhost/", "http://asset.localhost/")
       console.log("[convertVideoSrc] Converted to HTTP URL for video:", httpUrl)
       return httpUrl
     }
-    
+
     return assetUrl
   } catch (error) {
     console.error("[convertVideoSrc] Error with convertFileSrc:", error)
   }
-  
+
   // Fallback - создаем http://asset.localhost URL вручную
   const encodedPath = encodeURIComponent(cleanPath)
   const httpAssetUrl = `http://asset.localhost/${encodedPath}`
@@ -133,17 +133,17 @@ export async function checkFileAccess(filePath: string): Promise<boolean> {
  */
 export function isTauriEnvironment(): boolean {
   if (typeof window === "undefined") return false
-  
+
   // В Tauri v2 также проверяем __TAURI_INTERNALS__
   const windowWithTauri = window as any
   const hasTauri = windowWithTauri.__TAURI__ !== undefined
   const hasTauriInternals = windowWithTauri.__TAURI_INTERNALS__ !== undefined
-  
+
   const isTauri = hasTauri || hasTauriInternals
-  
+
   if (isTauri) {
     console.log("[isTauriEnvironment] Tauri detected:", { hasTauri, hasTauriInternals })
   }
-  
+
   return isTauri
 }

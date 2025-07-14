@@ -273,7 +273,7 @@ export function setupAudioMocks() {
         },
         {
           deviceId: "default",
-          groupId: "group2", 
+          groupId: "group2",
           kind: "videoinput",
           label: "Default - Camera (Built-in)",
         },

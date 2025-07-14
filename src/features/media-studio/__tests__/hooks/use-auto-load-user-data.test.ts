@@ -29,6 +29,30 @@ vi.mock("@/features/app-state/hooks", () => ({
   useMusicFiles: () => ({
     updateMusicFiles: mockUpdateMusicFiles,
   }),
+  useAppSettings: () => ({
+    isLoading: () => false,
+    getError: () => null,
+    state: {
+      context: {
+        currentProject: {
+          isNew: false,
+          path: "/test/project.json",
+          name: "Test Project",
+          isDirty: false,
+        },
+        mediaFiles: {
+          allFiles: [],
+          error: null,
+          isLoading: false,
+        },
+        musicFiles: {
+          allFiles: [],
+          error: null,
+          isLoading: false,
+        },
+      },
+    },
+  }),
 }))
 
 vi.mock("@/features/resources", () => ({

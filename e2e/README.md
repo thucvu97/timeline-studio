@@ -8,20 +8,95 @@ End-to-end (E2E) тесты для Timeline Studio используют Playwrig
 
 ```
 e2e/
-├── fixtures/              # Фикстуры и вспомогательные функции
-│   ├── test-base.ts      # Базовая конфигурация тестов
-│   └── page-objects/     # Page Object модели
+├── fixtures/                     # Фикстуры и вспомогательные функции
+│   ├── test-base.ts             # Базовая конфигурация тестов
+│   ├── media-fixtures.ts        # Фикстуры для работы с медиафайлами
+│   └── page-objects/            # Page Object модели
 │       ├── browser-page.ts
 │       └── timeline-page.ts
-├── tests/                # Тестовые файлы
-│   ├── app-launch.spec.ts       # Тесты запуска приложения
-│   ├── browser-functionality.spec.ts # Тесты браузера медиа
-│   ├── timeline-basic.spec.ts   # Базовые тесты таймлайна
-│   ├── video-player.spec.ts     # Тесты видео плеера
-│   └── keyboard-shortcuts.spec.ts # Тесты горячих клавиш
-├── global-setup.ts       # Глобальная настройка перед тестами
-└── global-teardown.ts    # Глобальная очистка после тестов
+├── helpers/                     # Вспомогательные функции
+│   └── test-utils.ts           # Утилиты для тестов
+├── tests/                       # Тестовые файлы (51 файл)
+│   ├── Основные функции
+│   │   ├── app-launch.spec.ts          # Тесты запуска приложения
+│   │   ├── basic-smoke.spec.ts         # Основные smoke тесты
+│   │   ├── stable-tests.spec.ts        # Стабильные E2E тесты
+│   │   └── working-tests.spec.ts       # Рабочие проверенные тесты
+│   ├── Браузер медиа
+│   │   ├── browser-functionality.spec.ts  # Тесты браузера медиа
+│   │   ├── media-browser.spec.ts          # Функциональность медиа браузера
+│   │   ├── effects-browser.spec.ts        # Браузер эффектов
+│   │   ├── filters-browser.spec.ts        # Браузер фильтров
+│   │   ├── transitions-browser.spec.ts    # Браузер переходов
+│   │   ├── templates-browser.spec.ts      # Браузер шаблонов
+│   │   ├── style-templates-browser.spec.ts # Браузер стилевых шаблонов
+│   │   ├── music-browser.spec.ts          # Браузер музыки
+│   │   └── subtitles-browser.spec.ts      # Браузер субтитров
+│   ├── Импорт медиа
+│   │   ├── media-import.spec.ts           # Основной процесс импорта
+│   │   ├── media-import-basic.spec.ts     # Базовый импорт
+│   │   ├── media-import-advanced.spec.ts  # Продвинутый импорт
+│   │   ├── media-import-real-files.spec.ts # Импорт реальных файлов
+│   │   ├── media-import-correct.spec.ts   # Корректная реализация импорта
+│   │   ├── media-import-demo.spec.ts      # Демонстрация импорта
+│   │   ├── media-import-integration.spec.ts # Интеграционные тесты
+│   │   └── simple-media-import.spec.ts    # Простой импорт медиа
+│   ├── Таймлайн
+│   │   ├── timeline-basic.spec.ts         # Базовые тесты таймлайна
+│   │   ├── timeline-operations.spec.ts    # Операции таймлайна
+│   │   └── timeline-video-addition.spec.ts # Добавление видео на таймлайн
+│   ├── Видео плеер
+│   │   ├── video-player.spec.ts           # Тесты видео плеера
+│   │   └── video-playback-test.spec.ts    # Тесты воспроизведения
+│   ├── Экспорт и рендеринг
+│   │   ├── video-export.spec.ts           # Экспорт видео
+│   │   ├── export-advanced-features.spec.ts # Продвинутые функции экспорта
+│   │   └── video-compilation-workflow.spec.ts # Рабочий процесс компиляции
+│   ├── Производительность
+│   │   ├── performance-loading.spec.ts    # Тесты загрузки
+│   │   ├── gpu-acceleration.spec.ts       # GPU ускорение
+│   │   └── caching-workflow.spec.ts       # Рабочий процесс кэширования
+│   ├── Настройки и управление
+│   │   ├── app-settings.spec.ts           # Настройки приложения
+│   │   ├── project-management.spec.ts     # Управление проектами
+│   │   └── keyboard-shortcuts.spec.ts     # Горячие клавиши
+│   ├── Специальные функции
+│   │   ├── color-grading.spec.ts          # Цветокоррекция
+│   │   ├── media-sort-filter.spec.ts      # Сортировка и фильтрация
+│   │   └── test-all-tabs.spec.ts          # Навигация по всем вкладкам
+│   └── Debug и тестирование
+│       ├── debug-*.spec.ts               # Отладочные тесты
+│       ├── minimal-test.spec.ts          # Минимальные тесты
+│       └── realistic-app-test.spec.ts    # Реалистичные тесты
+├── test-media/                  # Тестовые медиафайлы
+│   ├── video/                  # Видеофайлы для тестов
+│   ├── audio/                  # Аудиофайлы для тестов
+│   ├── images/                 # Изображения для тестов
+│   └── corrupt/                # Поврежденные файлы для тестов
+├── home.spec.ts                # Домашняя страница
+├── smoke.spec.ts               # Smoke тесты
+├── global-setup.ts             # Глобальная настройка
+└── global-teardown.ts          # Глобальная очистка
 ```
+
+### Категории тестов
+
+**По функциональности:**
+- **App Launch & Core** (4 файла) - запуск и основные функции
+- **Media Browser** (8 файлов) - различные браузеры ресурсов
+- **Media Import** (7 файлов) - импорт медиафайлов
+- **Timeline** (3 файла) - работа с таймлайном
+- **Video & Player** (3 файла) - видео плеер и воспроизведение
+- **Export & Rendering** (3 файла) - экспорт и рендеринг
+- **Performance** (3 файлов) - производительность
+- **Settings & Project** (3 файла) - настройки и проекты
+- **Special Features** (3 файла) - специальные возможности
+- **Debug & Testing** (14 файлов) - отладка и тестирование
+
+**По стабильности:**
+- ✅ **Стабильные** - working-tests.spec.ts, stable-tests.spec.ts
+- 🔄 **В разработке** - media-import-*.spec.ts
+- 🐛 **Отладочные** - debug-*.spec.ts
 
 ## Запуск тестов
 
@@ -235,19 +310,29 @@ E2E тесты фокусируются на **функциональном по
 
 Наши E2E тесты покрывают следующие сценарии:
 
-| Функция | Покрытие | Файлы тестов |
-|---------|----------|--------------|
-| Запуск приложения | ✅ | app-launch.spec.ts |
-| Импорт медиа | ✅ | media-import-*.spec.ts |
-| Браузер медиа | ✅ | browser-functionality.spec.ts |
-| Операции таймлайна | ✅ | timeline-*.spec.ts |
-| Видео плеер | ✅ | video-player.spec.ts |
-| Экспорт видео | ✅ | video-export.spec.ts |
-| Настройки | ✅ | app-settings.spec.ts |
-| Горячие клавиши | ✅ | keyboard-shortcuts.spec.ts |
-| Мультиязычность | ✅ | i18n.spec.ts |
-| AI ассистент | ⏳ | В разработке |
-| Распознавание | ⏳ | В разработке |
+| Функция | Покрытие | Файлы тестов | Количество |
+|---------|----------|--------------|------------|
+| **Запуск приложения** | ✅ | app-launch, basic-smoke, stable-tests, working-tests | 4 |
+| **Импорт медиа** | ✅ | media-import-*.spec.ts | 7 |
+| **Браузер медиа** | ✅ | browser-functionality, media-browser | 2 |
+| **Браузер ресурсов** | ✅ | effects/filters/transitions/templates/music/subtitles-browser | 6 |
+| **Операции таймлайна** | ✅ | timeline-*.spec.ts | 3 |
+| **Видео плеер** | ✅ | video-player, video-playback-test | 2 |
+| **Экспорт видео** | ✅ | video-export, export-advanced-features, video-compilation-workflow | 3 |
+| **Настройки** | ✅ | app-settings | 1 |
+| **Управление проектами** | ✅ | project-management, load-project-with-media, media-with-project | 3 |
+| **Горячие клавиши** | ✅ | keyboard-shortcuts | 1 |
+| **Сортировка и фильтрация** | ✅ | media-sort-filter | 1 |
+| **Цветокоррекция** | ✅ | color-grading | 1 |
+| **Производительность** | ✅ | performance-loading, gpu-acceleration, caching-workflow | 3 |
+| **Навигация по вкладкам** | ✅ | test-all-tabs | 1 |
+| **Стилевые шаблоны** | ✅ | style-templates-browser | 1 |
+| **Реальные медиафайлы** | ✅ | media-import-real-files | 1 |
+| **Отладка и диагностика** | 🐛 | debug-*.spec.ts, minimal-test, realistic-app-test | 14 |
+| **AI ассистент** | ⏳ | В разработке | 0 |
+| **Распознавание** | ⏳ | В разработке | 0 |
+
+**Статистика:** 51 тестовый файл покрывают все основные функции Timeline Studio
 
 ## Полезные ссылки
 

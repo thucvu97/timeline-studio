@@ -18,15 +18,21 @@ export function TauriMockProvider({ children }: { children: React.ReactNode }) {
           writable: true,
           value: {
             getUserMedia: () => {
-              console.warn("[TauriMock] navigator.mediaDevices.getUserMedia not available in Tauri. Camera/microphone features disabled.")
+              console.warn(
+                "[TauriMock] navigator.mediaDevices.getUserMedia not available in Tauri. Camera/microphone features disabled.",
+              )
               return Promise.reject(new Error("MediaDevices API not available in Tauri environment"))
             },
             getDisplayMedia: () => {
-              console.warn("[TauriMock] navigator.mediaDevices.getDisplayMedia not available in Tauri. Screen capture features disabled.")
+              console.warn(
+                "[TauriMock] navigator.mediaDevices.getDisplayMedia not available in Tauri. Screen capture features disabled.",
+              )
               return Promise.reject(new Error("MediaDevices API not available in Tauri environment"))
             },
             enumerateDevices: () => {
-              console.warn("[TauriMock] navigator.mediaDevices.enumerateDevices not available in Tauri. Device enumeration disabled.")
+              console.warn(
+                "[TauriMock] navigator.mediaDevices.enumerateDevices not available in Tauri. Device enumeration disabled.",
+              )
               return Promise.resolve([])
             },
           },

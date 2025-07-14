@@ -11,7 +11,7 @@ import { createMockTimelineProject } from "./__fixtures__/timeline-fixtures"
 
 export const createMockTimelineContext = (overrides?: Partial<TimelineContextType>): TimelineContextType => {
   const mockProject = createMockTimelineProject()
-  
+
   return {
     // Состояние
     project: mockProject,
@@ -87,6 +87,6 @@ export const MockTimelineProvider: React.FC<{
   value?: Partial<TimelineContextType>
 }> = ({ children, value }) => {
   const contextValue = createMockTimelineContext(value)
-  
+
   return <TimelineContext.Provider value={contextValue}>{children}</TimelineContext.Provider>
 }

@@ -6,8 +6,11 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 
 import { useAIIntelligence } from "./use-ai-intelligence"
+import { AIProvider, AccuracyLevel, AnalysisDepth, SpeedPriority, StepType } from "../shared/types"
+import { ProcessingStatus } from "../shared/types/pipeline"
 
 import type {
+  AIConfig,
   BatchProcessingConfig,
   BatchProgress,
   IntelligentContent,
@@ -315,38 +318,57 @@ export function useContentPipeline(options: UseContentPipelineOptions = {}): Use
 }
 
 // Вспомогательная функция конвертации конфигурации
-function convertPipelineConfigToAIConfig(_pipelineConfig: PipelineConfig): any {
-  // TODO: Реализовать конвертацию PipelineConfig в AIConfig
-  // Это временная заглушка
-  return {
+function convertPipelineConfigToAIConfig(pipelineConfig: PipelineConfig): AIConfig {
+  // Проверяем валидность конфигурации
+  if (!pipelineConfig || !pipelineConfig.steps) {
+    throw new Error("Invalid pipeline configuration: steps are required")
+  }
+
+  // Анализируем шаги pipeline для определения включенных функций
+  const stepTypes = new Set(pipelineConfig.steps.map((step) => step.type))
+
+  // Определяем настройки провайдера по умолчанию
+  const defaultProvider: AIProvider = AIProvider.OPENAI
+
+  // Создаем базовую конфигурацию AI
+  const aiConfig: AIConfig = {
     providers: [
       {
-        provider: "openai",
-        model: "gpt-4",
+        provider: defaultProvider,
+        model: "gpt-4-turbo-preview",
+        maxTokens: 4096,
+        temperature: 0.7,
+        stream: false,
       },
     ],
-    defaultProvider: "openai",
+    defaultProvider,
+
+    // Определяем функции на основе шагов pipeline
     features: {
-      sceneAnalysis: true,
-      scriptGeneration: true,
-      multiPlatform: true,
-      contentClassification: true,
-      qualityEnhancement: false,
-      autoSuggestions: true,
+      sceneAnalysis: stepTypes.has(StepType.ANALYZE),
+      scriptGeneration: stepTypes.has(StepType.GENERATE),
+      multiPlatform: stepTypes.has(StepType.ADAPT),
+      contentClassification: stepTypes.has(StepType.CLASSIFY),
+      qualityEnhancement: stepTypes.has(StepType.ENHANCE),
+      autoSuggestions: true, // Всегда включено для лучшего UX
     },
+
+    // Настройки обработки
     processing: {
       parallel: true,
       maxConcurrent: 3,
       batchSize: 10,
       cacheResults: true,
-      cacheDuration: 24,
+      cacheDuration: 24, // 24 часа
       retryAttempts: 3,
-      timeout: 300,
+      timeout: 300, // 5 минут
     },
+
+    // Настройки качества
     quality: {
-      analysisDepth: "standard",
-      accuracy: "balanced",
-      speed: "normal",
+      analysisDepth: AnalysisDepth.STANDARD,
+      accuracy: AccuracyLevel.BALANCED,
+      speed: SpeedPriority.NORMAL,
       resourceUsage: {
         maxCPU: 80,
         maxRAM: 4096,
@@ -354,4 +376,102 @@ function convertPipelineConfigToAIConfig(_pipelineConfig: PipelineConfig): any {
       },
     },
   }
+
+  // Обрабатываем специфичные настройки шагов
+  for (const step of pipelineConfig.steps) {
+    switch (step.type) {
+      case StepType.ANALYZE:
+        // Настройки для анализа
+        if (step.config?.depth) {
+          switch (step.config.depth) {
+            case "basic":
+              aiConfig.quality.analysisDepth = AnalysisDepth.BASIC
+              break
+            case "detailed":
+              aiConfig.quality.analysisDepth = AnalysisDepth.DETAILED
+              break
+            case "comprehensive":
+              aiConfig.quality.analysisDepth = AnalysisDepth.COMPREHENSIVE
+              break
+            default:
+              // Keep default value
+              break
+          }
+        }
+        break
+
+      case StepType.GENERATE:
+        // Настройки для генерации
+        if (step.config?.scriptParams) {
+          aiConfig.scriptParams = step.config.scriptParams
+        }
+        break
+
+      case StepType.ADAPT:
+        // Настройки для адаптации платформ
+        if (step.config?.platforms) {
+          aiConfig.platforms = step.config.platforms
+        }
+        break
+
+      case StepType.CLASSIFY:
+        // Настройки для классификации контента
+        aiConfig.features.contentClassification = true
+        break
+
+      case StepType.ENHANCE:
+        // Настройки для улучшения качества
+        aiConfig.features.qualityEnhancement = true
+        if (step.config?.accuracy) {
+          switch (step.config.accuracy) {
+            case "fast":
+              aiConfig.quality.accuracy = AccuracyLevel.FAST
+              break
+            case "accurate":
+              aiConfig.quality.accuracy = AccuracyLevel.ACCURATE
+              break
+            case "maximum":
+              aiConfig.quality.accuracy = AccuracyLevel.MAXIMUM
+              break
+            default:
+              // Keep default value
+              break
+          }
+        }
+        break
+      default:
+        // Unknown step type, skip
+        break
+    }
+  }
+
+  // Обрабатываем глобальные настройки производительности
+  if (pipelineConfig.steps.length >= 5) {
+    // Для больших pipeline увеличиваем параллелизм
+    aiConfig.processing.maxConcurrent = 5
+    aiConfig.processing.batchSize = 15
+  }
+
+  // Определяем приоритет скорости на основе количества шагов
+  if (pipelineConfig.steps.length <= 2) {
+    aiConfig.quality.speed = SpeedPriority.FAST
+  } else if (pipelineConfig.steps.length >= 5) {
+    aiConfig.quality.speed = SpeedPriority.QUALITY
+  }
+
+  // Настройки языков если есть
+  const languageSteps = pipelineConfig.steps.filter((step) => step.config?.language)
+  if (languageSteps.length > 0) {
+    const languages = languageSteps.map((step) => step.config.language).filter(Boolean)
+    if (languages.length > 0) {
+      aiConfig.languages = {
+        source: "auto", // Автоопределение
+        targets: [...new Set(languages)], // Уникальные языки
+        autoDetect: true,
+        preserveOriginal: true,
+      }
+    }
+  }
+
+  return aiConfig
 }
