@@ -148,7 +148,8 @@ export function usePersonIdentification(options: UsePersonIdentificationOptions 
         setError(null)
 
         // Находим наиболее похожую персону
-        const results = await personDatabase.findSimilarPersons(detectedFace.embedding, {
+        // TODO: Использовать face embedding из detectedFace
+        const results = await personDatabase.findSimilarPersons(undefined, {
           limit: 1,
           minConfidence: confidenceThreshold,
         })
@@ -187,7 +188,7 @@ export function usePersonIdentification(options: UsePersonIdentificationOptions 
         const newPerson = await addPerson({
           ...personData,
           detectedFaces: [detectedFace],
-          thumbnailPath: detectedFace.thumbnail,
+          thumbnailPath: undefined, // TODO: Извлечь thumbnail из detectedFace
         })
 
         return newPerson

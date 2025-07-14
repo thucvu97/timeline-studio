@@ -278,6 +278,17 @@ export interface PersonDataExport {
   includeConfidence: boolean
 }
 
+// Кластер персон для группировки неизвестных лиц
+export interface PersonCluster {
+  id: string
+  faces: DetectedFace[]
+  centroidEmbedding: Float32Array // Центроид кластера
+  confidence: number // Средняя уверенность кластера
+  timeRange: TimeRange
+  clipIds: string[]
+  createdAt: string
+}
+
 // События системы персон
 export type PersonEvent =
   | { type: "person_detected"; data: { personId: string; appearance: PersonAppearance } }

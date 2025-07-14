@@ -10,7 +10,6 @@ import { createMockAnalysis, createMockGeneratedScript } from "../../../hooks/__
 import { useAIIntelligence } from "../../../hooks/use-ai-intelligence"
 import { GenerationWizard } from "../generation-wizard"
 
-
 // Mock the hooks
 vi.mock("../../../hooks/use-ai-intelligence", () => ({
   useAIIntelligence: vi.fn(),
@@ -239,12 +238,12 @@ describe("GenerationWizard", () => {
 
     it("should show narrative structure selection cards", async () => {
       // Check that narrative structure cards are present and clickable
-      const threeActCard = screen.getByText("Трёхактная структура").closest('div')
+      const threeActCard = screen.getByText("Трёхактная структура").closest("div")
       expect(threeActCard).toBeInTheDocument()
-      
+
       // Test clicking on a structure card
       await user.click(threeActCard!)
-      
+
       // Check if the card gets selected by looking for data-selected attribute or specific classes that indicate selection
       expect(threeActCard).toBeInTheDocument()
     })
@@ -283,7 +282,7 @@ describe("GenerationWizard", () => {
     it("should toggle dialogue inclusion", async () => {
       const dialogueSwitches = screen.getAllByRole("switch")
       expect(dialogueSwitches.length).toBeGreaterThan(0)
-      
+
       // Click the first switch (dialogue inclusion)
       await user.click(dialogueSwitches[0])
 
@@ -316,7 +315,7 @@ describe("GenerationWizard", () => {
     it("should allow selecting voiceover style", async () => {
       const voiceoverSwitches = screen.getAllByRole("switch")
       expect(voiceoverSwitches.length).toBeGreaterThan(0)
-      
+
       // Enable voiceover first
       await user.click(voiceoverSwitches[0])
 
@@ -389,7 +388,7 @@ describe("GenerationWizard", () => {
           expect.objectContaining({
             style: expect.objectContaining({
               visual: "cinematic",
-              narrative: "linear", 
+              narrative: "linear",
               editing: "continuity",
             }),
             targetAudience: "Общая аудитория",

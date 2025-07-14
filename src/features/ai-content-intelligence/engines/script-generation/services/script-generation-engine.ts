@@ -4,6 +4,8 @@
  */
 
 import { UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service"
+// Интеграция с персонажами из montage-planner
+import type { Person } from "@/features/montage-planner/types"
 
 import { DialogueGenerator } from "./dialogue-generator"
 import { TemplateEngine } from "./template-engine"
@@ -145,6 +147,9 @@ export class ScriptGenerationEngine extends BaseAIEngine {
     analysis: UnifiedContentAnalysis,
     providedContext?: ScriptGenerationContext,
   ): ScriptGenerationContext {
+    // Извлекаем персонажей из результатов анализа сцен
+    const detectedPersons = this.extractPersonsFromAnalysis(analysis)
+    
     return {
       analysis: analysis.scenes,
       metadata: {
@@ -155,6 +160,9 @@ export class ScriptGenerationEngine extends BaseAIEngine {
       userPrompt: providedContext?.userPrompt,
       references: providedContext?.references || [],
       constraints: providedContext?.constraints,
+      // Добавляем персонажей в контекст
+      detectedPersons,
+      personStats: (analysis as any).personStats || null,
     }
   }
 
@@ -289,15 +297,22 @@ export class ScriptGenerationEngine extends BaseAIEngine {
     }
   }
 
-  private async generateDialogues(scenes: ScriptScene[], _context: ScriptGenerationContext): Promise<void> {
+  private async generateDialogues(scenes: ScriptScene[], context: ScriptGenerationContext): Promise<void> {
     for (const scene of scenes) {
       if (this.shouldHaveDialogue(scene)) {
+        // Получаем персонажей для текущей сцены
+        const scenePersons = this.getPersonsForScene(scene, context)
+        
         const dialogues = await this.dialogueGenerator.generate({
-          characters: [], // TODO: Extract characters from context
+          characters: scenePersons.map(person => ({
+            name: person.name,
+            traits: [`confidence: ${Math.round(person.confidence * 100)}%`],
+            relationship: "neutral", // TODO: Определить отношения между персонажами
+          })),
           scene: {
             location: scene.location || "unknown",
             timeOfDay: scene.timeOfDay || "day",
-            mood: "neutral", // TODO: Determine from scene
+            mood: this.determineSceneMood(scene), 
             action: scene.description,
           },
           style: {
@@ -356,6 +371,11 @@ export class ScriptGenerationEngine extends BaseAIEngine {
   ): GeneratedScript {
     const totalDuration = scenes.reduce((sum, scene) => sum + scene.duration, 0)
 
+    // Извлекаем персонажей и диалоги из сцен
+    const characters = this.extractCharactersFromContext(context)
+    const dialogue = this.extractDialogueFromScenes(scenes)
+    const voiceover = this.extractVoiceoverFromScenes(scenes)
+
     return {
       id: `script-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
       title: context.metadata.title || "Untitled Script",
@@ -363,9 +383,9 @@ export class ScriptGenerationEngine extends BaseAIEngine {
       duration: totalDuration,
       structure,
       scenes,
-      characters: [], // TODO: Extract from scenes
-      dialogue: [], // TODO: Extract from scenes
-      voiceover: [], // TODO: Extract from scenes
+      characters,
+      dialogue,
+      voiceover,
       metadata: {
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -374,6 +394,9 @@ export class ScriptGenerationEngine extends BaseAIEngine {
         tone: params.tone || { primary: "neutral", intensity: 0.5 },
         pacing: this.calculatePacing(scenes),
         style: params.style,
+        // Добавляем информацию о персонажах
+        personStats: context.personStats,
+        detectedPersonsCount: context.detectedPersons?.length || 0,
       },
     }
   }
@@ -457,15 +480,20 @@ Respond with just the structure type.`
   private buildSceneGenerationPrompt(
     sceneAnalysis: any,
     act: Act,
-    _context: ScriptGenerationContext,
+    context: ScriptGenerationContext,
     params: ScriptGenerationParams,
   ): string {
+    // Получаем персонажей сцены
+    const scenePersons = sceneAnalysis.content?.identifiedPersons || []
+    const personNames = scenePersons.map((p: Person) => p.name).join(", ")
+    
     return `Generate a script scene based on this analysis:
 
 Act: ${act.number} - ${act.title}
 Scene Duration: ${sceneAnalysis.duration}s
 Scene Type: ${sceneAnalysis.type}
 Visual Elements: ${JSON.stringify(sceneAnalysis.content)}
+${scenePersons.length > 0 ? `Characters in scene: ${personNames}` : ''}
 
 Style: ${params.style?.narrative || "standard"}
 Tone: ${params.tone?.primary || "neutral"}
@@ -478,6 +506,9 @@ Generate a scene with:
 5. Visual elements (what we see)
 6. Audio elements (what we hear)
 7. Actions (what happens)
+${scenePersons.length > 0 ? '8. Character interactions (if applicable)' : ''}
+
+${context.userPrompt ? `User instructions: ${context.userPrompt}` : ''}
 
 Format as JSON.`
   }
@@ -688,6 +719,205 @@ Return only the voiceover text.`
         primaryLanguage: "en",
         tone: "professional",
         vocabulary: "standard",
+      },
+    }
+  }
+
+  // Методы для работы с персонажами из montage-planner
+
+  /**
+   * Извлечь персонажей из анализа контента
+   */
+  private extractPersonsFromAnalysis(analysis: UnifiedContentAnalysis): Person[] {
+    const persons: Person[] = []
+    
+    // Проверяем, есть ли персонажи в общем анализе
+    if ((analysis as any).persons) {
+      return (analysis as any).persons
+    }
+    
+    // Иначе собираем из сцен
+    const personMap = new Map<string, Person>()
+    
+    for (const scene of analysis.scenes) {
+      const scenePersons = (scene as any).content?.identifiedPersons || []
+      for (const person of scenePersons) {
+        if (!personMap.has(person.id)) {
+          personMap.set(person.id, person)
+        } else {
+          // Обновляем уверенность, если выше
+          const existing = personMap.get(person.id)!
+          if (person.confidence > existing.confidence) {
+            personMap.set(person.id, person)
+          }
+        }
+      }
+    }
+    
+    return Array.from(personMap.values())
+  }
+
+  /**
+   * Получить персонажей для конкретной сцены
+   */
+  private getPersonsForScene(scene: ScriptScene, context: ScriptGenerationContext): Person[] {
+    // Если есть связанный анализ сцены, берем персонажей оттуда
+    const linkedAnalysis = (scene as any).linkedSceneAnalysis
+    if (linkedAnalysis?.content?.identifiedPersons) {
+      return linkedAnalysis.content.identifiedPersons
+    }
+    
+    // Иначе возвращаем топ персонажей из контекста
+    const allPersons = context.detectedPersons || []
+    return allPersons
+      .sort((a, b) => b.confidence - a.confidence)
+      .slice(0, 3) // Максимум 3 персонажа в диалоге
+  }
+
+  /**
+   * Определить настроение сцены
+   */
+  private determineSceneMood(scene: ScriptScene): string {
+    // Анализируем визуальные элементы
+    const hasCloseUp = scene.visualElements.some(ve => 
+      ve.type === VisualElementTypeEnum.CLOSE_UP
+    )
+    const hasAction = scene.visualElements.some(ve => 
+      ve.type === VisualElementTypeEnum.ACTION_SHOT
+    )
+    
+    if (hasAction) return "tense"
+    if (hasCloseUp) return "intimate"
+    
+    // Анализируем длительность
+    if (scene.duration < 3) return "dynamic"
+    if (scene.duration > 10) return "contemplative"
+    
+    return "neutral"
+  }
+
+  /**
+   * Преобразовать персонажей в формат персонажей сценария
+   */
+  private extractCharactersFromContext(context: ScriptGenerationContext): any[] {
+    const persons = context.detectedPersons || []
+    
+    return persons.map((person, index) => ({
+      id: person.id,
+      name: person.name,
+      role: index === 0 ? "protagonist" : index === 1 ? "deuteragonist" : "supporting",
+      description: `Character with ${Math.round(person.confidence * 100)}% confidence`,
+      traits: [],
+      appearances: context.personStats?.personAppearances?.[person.name] || 0,
+      screenTime: context.personStats?.screenTimeByPerson?.[person.name] || 0,
+    }))
+  }
+
+  /**
+   * Извлечь диалоги из сцен
+   */
+  private extractDialogueFromScenes(scenes: ScriptScene[]): any[] {
+    const dialogues: any[] = []
+    
+    for (const scene of scenes) {
+      const sceneDialogues = scene.audioElements
+        .filter(ae => ae.type === AudioElementTypeEnum.DIALOGUE)
+        .map(ae => {
+          const [character, ...textParts] = ae.description.split(":")
+          return {
+            sceneId: scene.id,
+            character: character.trim(),
+            text: textParts.join(":").trim(),
+            timing: ae.timing,
+          }
+        })
+      
+      dialogues.push(...sceneDialogues)
+    }
+    
+    return dialogues
+  }
+
+  /**
+   * Извлечь закадровый голос из сцен
+   */
+  private extractVoiceoverFromScenes(scenes: ScriptScene[]): any[] {
+    return scenes
+      .flatMap(scene => 
+        scene.audioElements
+          .filter(ae => ae.type === AudioElementTypeEnum.VOICEOVER)
+          .map(ae => ({
+            sceneId: scene.id,
+            text: ae.description,
+            timing: ae.timing,
+          }))
+      )
+  }
+
+  /**
+   * Адаптировать сценарий под инструкции о персонажах
+   */
+  public adaptScriptToPersonInstructions(
+    script: GeneratedScript, 
+    instructions: string,
+    context: ScriptGenerationContext
+  ): GeneratedScript {
+    // Парсим инструкции
+    const focusOnRegex = /(?:фокус|focus|больше|more)\s+(?:на|on)\s+(.+?)(?:\s|$)/gi
+    const reduceRegex = /(?:меньше|less|убрать|remove)\s+(.+?)(?:\s|$)/gi
+    
+    const focusPersons: string[] = []
+    const reducePersons: string[] = []
+    
+    let match
+    while ((match = focusOnRegex.exec(instructions)) !== null) {
+      focusPersons.push(match[1].toLowerCase().trim())
+    }
+    
+    while ((match = reduceRegex.exec(instructions)) !== null) {
+      reducePersons.push(match[1].toLowerCase().trim())
+    }
+    
+    // Адаптируем сцены
+    const adaptedScenes = script.scenes.map(scene => {
+      const scenePersons = this.getPersonsForScene(scene, context)
+      const scenePersonNames = scenePersons.map(p => p.name.toLowerCase())
+      
+      // Проверяем, есть ли нужные персонажи
+      const hasFocusPerson = focusPersons.some(name => 
+        scenePersonNames.some(pName => pName.includes(name))
+      )
+      const hasReducePerson = reducePersons.some(name => 
+        scenePersonNames.some(pName => pName.includes(name))
+      )
+      
+      // Модифицируем сцену
+      if (hasFocusPerson) {
+        // Увеличиваем длительность сцены
+        scene.duration *= 1.5
+        // Добавляем больше крупных планов
+        scene.visualElements.push({
+          type: VisualElementTypeEnum.CLOSE_UP,
+          description: "Focus on main character",
+          subjects: scenePersons.map(p => p.name),
+        })
+      }
+      
+      if (hasReducePerson) {
+        // Уменьшаем длительность
+        scene.duration *= 0.7
+      }
+      
+      return scene
+    })
+    
+    return {
+      ...script,
+      scenes: adaptedScenes,
+      metadata: {
+        ...script.metadata,
+        adaptedForPersons: true,
+        personInstructions: instructions,
       },
     }
   }

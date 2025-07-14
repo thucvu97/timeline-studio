@@ -791,6 +791,163 @@ export class PersonDatabaseService {
   }
 
   /**
+   * Добавление персоны (алиас для createPerson)
+   */
+  async addPerson(personData: {
+    name: string
+    description?: string
+    tags?: string[]
+    thumbnailPath?: string
+    detectedFaces?: DetectedFace[]
+  }): Promise<PersonProfile> {
+    const thumbnails: PersonThumbnail[] = personData.thumbnailPath
+      ? [
+          {
+            id: `thumb_${Date.now()}`,
+            imageUrl: personData.thumbnailPath,
+            width: 200,
+            height: 200,
+            sourceClipId: "",
+            sourceTimestamp: { seconds: 0 },
+            quality: 1,
+            isPrimary: true,
+            isGenerated: false,
+          },
+        ]
+      : []
+
+    const appearances: PersonAppearance[] = personData.detectedFaces
+      ? personData.detectedFaces.map((face) => ({
+          id: `appearance_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+          personId: "", // Будет установлен после создания персоны
+          clipId: face.clipId || "",
+          startTime: face.timestamp,
+          endTime: face.timestamp,
+          duration: 0,
+          confidence: face.confidence,
+          minConfidence: face.confidence,
+          maxConfidence: face.confidence,
+          detections: [face],
+          createdAt: new Date().toISOString(),
+        }))
+      : []
+
+    const profile = await this.createPerson({
+      name: personData.name,
+      isVerified: false,
+      faceEmbeddings: [],
+      appearances,
+      totalScreenTime: 0,
+      firstSeen: { seconds: 0 },
+      lastSeen: { seconds: 0 },
+      tags: personData.tags || [],
+      notes: personData.description,
+      thumbnails,
+      privacy: {
+        blurFace: false,
+        hideFromSearch: false,
+        anonymize: false,
+        blurIntensity: 5,
+        blurTracking: true,
+      },
+    })
+
+    // Обновляем personId в appearances
+    if (appearances.length > 0) {
+      const updatedAppearances = appearances.map((app) => ({ ...app, personId: profile.id }))
+      await this.updatePerson(profile.id, { appearances: updatedAppearances })
+    }
+
+    return profile
+  }
+
+  /**
+   * Поиск персон по имени и тегам
+   */
+  async searchPersons(
+    query: string,
+    options?: { tags?: string[]; limit?: number }
+  ): Promise<PersonProfile[]> {
+    await this.ensureInitialized()
+
+    try {
+      const allPersons = await this.getAllPersons()
+      let results = allPersons
+
+      // Фильтр по имени
+      if (query) {
+        const lowerQuery = query.toLowerCase()
+        results = results.filter(
+          (person) =>
+            person.name?.toLowerCase().includes(lowerQuery) ||
+            person.notes?.toLowerCase().includes(lowerQuery)
+        )
+      }
+
+      // Фильтр по тегам
+      if (options?.tags && options.tags.length > 0) {
+        results = results.filter((person) =>
+          options.tags!.some((tag) => person.tags.includes(tag))
+        )
+      }
+
+      // Лимит результатов
+      if (options?.limit) {
+        results = results.slice(0, options.limit)
+      }
+
+      return results
+    } catch (error) {
+      console.error("Ошибка поиска персон:", error)
+      return []
+    }
+  }
+
+  /**
+   * Поиск похожих персон по эмбеддингу
+   */
+  async findSimilarPersons(
+    embedding: Float32Array | undefined,
+    options?: { limit?: number; minConfidence?: number }
+  ): Promise<PersonSearchResult[]> {
+    if (!embedding) return []
+
+    await this.ensureInitialized()
+
+    try {
+      const allPersons = await this.getAllPersons()
+      const results: PersonSearchResult[] = []
+
+      for (const person of allPersons) {
+        if (!person.averageEmbedding) continue
+
+        const similarity = this.calculateCosineSimilarity(embedding, person.averageEmbedding)
+        
+        if (similarity >= (options?.minConfidence || this.config.similarityThreshold)) {
+          results.push({
+            person,
+            similarity,
+            matches: [], // TODO: Добавить конкретные совпадения
+          })
+        }
+      }
+
+      // Сортируем по убыванию сходства
+      results.sort((a, b) => b.similarity - a.similarity)
+
+      // Ограничиваем количество результатов
+      if (options?.limit) {
+        return results.slice(0, options.limit)
+      }
+
+      return results
+    } catch (error) {
+      console.error("Ошибка поиска похожих персон:", error)
+      return []
+    }
+  }
+
+  /**
    * Математические вспомогательные функции
    */
 

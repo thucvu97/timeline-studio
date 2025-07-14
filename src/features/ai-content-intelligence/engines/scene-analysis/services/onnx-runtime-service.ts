@@ -129,6 +129,12 @@ export class ONNXRuntimeService {
       type: "face",
       inputSize: [320, 320],
     },
+    {
+      name: "ocr-detection",
+      path: "/models/ocr-detection.onnx",
+      type: "ocr",
+      inputSize: [640, 640],
+    },
   ]
 
   private constructor() {}
@@ -346,6 +352,56 @@ export class ONNXRuntimeService {
         ],
       },
     ]
+  }
+
+  /**
+   * Выполнить инференс для OCR
+   */
+  public async runOCRInference(_imageData: ImageData | Float32Array): Promise<
+    Array<{
+      text: string
+      bbox: { x: number; y: number; width: number; height: number }
+      confidence: number
+      language?: string
+    }>
+  > {
+    const modelSession = this.sessions.get("ocr-detection")
+    if (!modelSession) {
+      throw new Error("OCR model not loaded")
+    }
+
+    // Mock реализация - генерируем случайные детекции текста
+    const mockTexts = [
+      "BREAKING NEWS",
+      "LIVE",
+      "SUBSCRIBE",
+      "FOLLOW US",
+      "WELCOME",
+      "SALE",
+      "NEW",
+      "TODAY",
+      "WATCH NOW",
+      "CLICK HERE",
+    ]
+
+    const detections = []
+    const numDetections = Math.floor(Math.random() * 3) + 1
+
+    for (let i = 0; i < numDetections; i++) {
+      detections.push({
+        text: mockTexts[Math.floor(Math.random() * mockTexts.length)],
+        bbox: {
+          x: Math.random() * 0.6,
+          y: Math.random() * 0.6,
+          width: 0.2 + Math.random() * 0.3,
+          height: 0.05 + Math.random() * 0.1,
+        },
+        confidence: 0.7 + Math.random() * 0.3,
+        language: "en",
+      })
+    }
+
+    return detections
   }
 
   /**

@@ -5,6 +5,8 @@
 
 import { FFmpegAnalysisService } from "@/features/ai-chat/services/ffmpeg-analysis-service"
 import { UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service"
+import type { Person } from "@/features/montage-planner/types"
+import type { DetectedFace, PersonProfile } from "@/features/person-identification/types"
 
 import {
   ContentType,
@@ -17,6 +19,7 @@ import {
 } from "../../../shared/types/content-analysis"
 import { BaseAIEngine, type EngineCapabilities } from "../../types"
 import { CameraMovementType, LightingType, MotionDirection } from "../types"
+import { VisionService } from "./vision-service"
 
 import type {
   AudioProfile,
@@ -27,6 +30,9 @@ import type {
   VisualFeatures,
 } from "../types"
 
+// Интеграция с montage-planner для работы с персонажами
+
+
 export class SceneAnalysisEngine extends BaseAIEngine {
   name = "Scene Analysis Engine"
   version = "1.0.0"
@@ -34,8 +40,12 @@ export class SceneAnalysisEngine extends BaseAIEngine {
 
   private ffmpegService: FFmpegAnalysisService
   private aiService: UnifiedAIService
-  private visionService?: any // Will be implemented later
+  private visionService?: VisionService
   private config: SceneAnalysisConfig = this.getDefaultConfig()
+  
+  // Кэш для персонажей из montage-planner
+  private personProfilesCache = new Map<string, PersonProfile>()
+  private detectedPersonsCache = new Map<string, Person[]>()
 
   constructor() {
     super()
@@ -45,18 +55,30 @@ export class SceneAnalysisEngine extends BaseAIEngine {
 
   async initialize(): Promise<void> {
     try {
-      // Проверяем доступность сервисов
-      const testPath = "/tmp/test.mp4" // Временный путь для теста
+      console.log("Initializing Scene Analysis Engine with YOLO/ONNX support...")
 
-      // TODO: Добавить реальную проверку инициализации
-      // await this.ffmpegService.getVideoMetadata(testPath).catch(() => {});
+      // Инициализация VisionService с YOLO/ONNX
+      if (this.config.vision.enableObjectDetection || this.config.vision.enableFaceDetection) {
+        this.visionService = VisionService.getInstance({
+          enableObjectDetection: this.config.vision.enableObjectDetection,
+          enableFaceDetection: this.config.vision.enableFaceDetection,
+          enableTextRecognition: this.config.vision.enableTextRecognition,
+          enableActivityDetection: this.config.vision.enableActivityDetection,
+          objectConfidenceThreshold: this.config.vision.confidenceThreshold,
+          faceConfidenceThreshold: this.config.vision.confidenceThreshold,
+          textConfidenceThreshold: this.config.vision.confidenceThreshold,
+          maxDetectionsPerFrame: 100,
+        })
 
-      // Инициализация computer vision (будет добавлено позже)
-      if (this.config.vision.enableObjectDetection) {
-        // TODO: Инициализировать YOLO/ONNX
+        await this.visionService.initialize()
+        console.log("VisionService initialized with YOLO/ONNX models")
       }
 
+      // Загружаем существующие профили персонажей
+      await this.loadPersonProfiles()
+
       this._isReady = true
+      console.log("Scene Analysis Engine ready")
     } catch (error) {
       console.error("Failed to initialize Scene Analysis Engine:", error)
       throw error
@@ -87,7 +109,13 @@ export class SceneAnalysisEngine extends BaseAIEngine {
       // 5. Создание timeline данных
       const timeline = this.createTimelineData(scenes, keyMoments, ffmpegAnalysis)
 
-      // 6. Сборка финального результата
+      // 6. Агрегируем информацию о персонажах из всех сцен
+      const allDetectedPersons = this.getDetectedPersonsForVideo(data.mediaFile.path)
+      const fragmentsWithPersons = scenes
+        .map(scene => scene.content?.montagePlannerFragment)
+        .filter(fragment => fragment && fragment.people.length > 0)
+
+      // 7. Сборка финального результата
       const result: SceneAnalysisResult = {
         scenes,
         keyMoments,
@@ -100,6 +128,10 @@ export class SceneAnalysisEngine extends BaseAIEngine {
           audioProfile: this.createAudioProfile(ffmpegAnalysis),
         },
         timeline,
+        // Интеграция с montage-planner
+        persons: allDetectedPersons,
+        fragments: fragmentsWithPersons,
+        personStats: this.calculatePersonStats(allDetectedPersons, scenes),
       }
 
       return result
@@ -203,20 +235,10 @@ export class SceneAnalysisEngine extends BaseAIEngine {
       return content
     }
 
-    // Инициализируем VisionService если еще не инициализирован
+    // VisionService уже инициализирован в initialize()
     if (!this.visionService) {
-      const { VisionService } = await import("./vision-service")
-      this.visionService = VisionService.getInstance({
-        enableObjectDetection: config.vision.enableObjectDetection,
-        enableFaceDetection: config.vision.enableFaceDetection,
-        enableTextRecognition: config.vision.enableTextRecognition,
-        enableActivityDetection: config.vision.enableActivityDetection,
-        objectConfidenceThreshold: config.vision.confidenceThreshold,
-        faceConfidenceThreshold: config.vision.confidenceThreshold,
-        textConfidenceThreshold: config.vision.confidenceThreshold,
-        maxDetectionsPerFrame: 100,
-      })
-      await this.visionService.initialize()
+      console.warn("VisionService not initialized, skipping computer vision analysis")
+      return content
     }
 
     try {
@@ -250,13 +272,32 @@ export class SceneAnalysisEngine extends BaseAIEngine {
         const middleFrameTimestamp = Number(scene.startTime) + scene.duration / 2
         const middleFrame = await this.ffmpegService.extractFrame(mediaFile.path, middleFrameTimestamp)
         if (middleFrame) {
-          content.dominantColors = await this.visionService.extractDominantColors(middleFrame)
+          content.dominantColors = this.visionService.extractDominantColors(middleFrame)
         }
+      }
+
+      // Идентифицируем персонажей на основе детекций лиц
+      if (content.faces.length > 0) {
+        const identifiedPersons = await this.identifyPersons(content.faces, scene.id)
+        content.identifiedPersons = identifiedPersons
+        
+        console.log(`Scene ${scene.id}: Found ${identifiedPersons.length} persons`, 
+          identifiedPersons.map(p => `${p.name}(${Math.round(p.confidence * 100)}%)`))
       }
 
       // Определяем настроение сцены с помощью AI
       if (config.ai.enableMoodDetection) {
         content.mood = await this.detectSceneMood(content, scene)
+      }
+
+      // Создаем Fragment в формате montage-planner
+      if (content.identifiedPersons?.length > 0) {
+        const fragment = this.createFragmentFromScene(
+          { ...scene, content } as SceneAnalysis, 
+          mediaFile, 
+          content.identifiedPersons
+        )
+        content.montagePlannerFragment = fragment
       }
     } catch (error) {
       console.error("Failed to analyze scene content:", error)
@@ -549,8 +590,8 @@ Format as JSON: { contentType: string, genres: string[], confidence: number }`
         qualitySampleRate: 1.0,
       },
       vision: {
-        enableObjectDetection: false,
-        enableFaceDetection: false,
+        enableObjectDetection: true, // Включаем YOLO по умолчанию
+        enableFaceDetection: true,   // Включаем детекцию лиц
         enableTextRecognition: false,
         enableActivityDetection: false,
         confidenceThreshold: 0.5,
@@ -566,6 +607,287 @@ Format as JSON: { contentType: string, genres: string[], confidence: number }`
         maxThreads: 4,
         cacheResults: true,
       },
+    }
+  }
+
+  /**
+   * Загрузить профили персонажей из person-identification
+   */
+  private async loadPersonProfiles(): Promise<void> {
+    try {
+      // TODO: Интеграция с person-identification service
+      // const personService = PersonIdentificationService.getInstance()
+      // const profiles = await personService.getAllProfiles()
+      
+      // Mock данные для тестирования
+      const mockProfiles: PersonProfile[] = [
+        {
+          id: "person-1",
+          name: "John Doe",
+          isVerified: true,
+          faceEmbeddings: [],
+          appearances: [],
+          totalScreenTime: 0,
+          averageConfidence: 0.85,
+          tags: ["main_character"],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: "person-2", 
+          name: "Jane Smith",
+          isVerified: true,
+          faceEmbeddings: [],
+          appearances: [],
+          totalScreenTime: 0,
+          averageConfidence: 0.82,
+          tags: ["secondary_character"],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ]
+
+      for (const profile of mockProfiles) {
+        this.personProfilesCache.set(profile.id, profile)
+      }
+
+      console.log(`Loaded ${mockProfiles.length} person profiles`)
+    } catch (error) {
+      console.warn("Failed to load person profiles:", error)
+    }
+  }
+
+  /**
+   * Идентифицировать персонажей на основе детекций лиц
+   */
+  private async identifyPersons(faceDetections: any[], sceneId: string): Promise<Person[]> {
+    const cacheKey = `${sceneId}-persons`
+    
+    // Проверяем кэш
+    if (this.detectedPersonsCache.has(cacheKey)) {
+      return this.detectedPersonsCache.get(cacheKey)!
+    }
+
+    const identifiedPersons: Person[] = []
+
+    for (const face of faceDetections) {
+      // В реальной реализации здесь будет сравнение face embeddings
+      // с существующими PersonProfile.faceEmbeddings
+      
+      // Mock идентификация на основе confidence
+      let identifiedPerson: Person | null = null
+      
+      if (face.confidence > 0.8) {
+        // Высокая уверенность - ищем по профилям
+        const profiles = Array.from(this.personProfilesCache.values())
+        const matchedProfile = profiles.find(p => p.averageConfidence > 0.8)
+        
+        if (matchedProfile) {
+          identifiedPerson = {
+            id: matchedProfile.id,
+            name: matchedProfile.name || "Unknown",
+            confidence: face.confidence * 0.9, // Снижаем уверенность при сопоставлении
+          }
+        }
+      }
+      
+      // Если не найден в профилях, создаем временного персонажа
+      if (!identifiedPerson) {
+        identifiedPerson = {
+          id: `temp-person-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+          name: `Unknown Person ${identifiedPersons.length + 1}`,
+          confidence: face.confidence,
+        }
+      }
+
+      identifiedPersons.push(identifiedPerson)
+    }
+
+    // Удаляем дубликаты по ID
+    const uniquePersons = identifiedPersons.filter(
+      (person, index, arr) => arr.findIndex(p => p.id === person.id) === index
+    )
+
+    // Кэшируем результат
+    this.detectedPersonsCache.set(cacheKey, uniquePersons)
+
+    return uniquePersons
+  }
+
+  /**
+   * Создать Fragment на основе сцены с интеграцией montage-planner
+   */
+  private createFragmentFromScene(scene: SceneAnalysis, mediaFile: MediaFile, persons: Person[]): any {
+    // Создаем Fragment в формате montage-planner
+    return {
+      id: `fragment-${scene.id}`,
+      videoId: mediaFile.path,
+      sourceFile: {
+        path: mediaFile.path,
+        name: mediaFile.name,
+        duration: mediaFile.duration,
+        size: 0, // TODO: Get real file size
+        format: "mp4", // TODO: Detect format
+        mimeType: "video/mp4",
+      },
+      startTime: scene.startTime,
+      endTime: scene.endTime,
+      duration: scene.duration,
+      screenshotPath: scene.keyFrames[0]?.thumbnailPath,
+      objects: scene.content?.objects?.map((obj: any) => obj.label) || [],
+      people: persons,
+      score: {
+        overall: scene.quality.overall,
+        visual: scene.quality.overall,
+        audio: scene.quality.overall,
+        composition: scene.keyFrames[0]?.composition?.ruleOfThirds * 100 || 50,
+        timing: scene.duration > 2 ? 80 : 60, // Предпочитаем более длинные сцены
+        relevance: this.calculateSceneRelevance(scene),
+      },
+      tags: [scene.type, `quality-${Math.round(scene.quality.overall / 20) * 20}`],
+      description: `${scene.type} scene with ${persons.length} person(s)`,
+    }
+  }
+
+  /**
+   * Вычислить релевантность сцены для монтажа
+   */
+  private calculateSceneRelevance(scene: SceneAnalysis): number {
+    let relevance = 50 // Базовая релевантность
+
+    // Бонусы за тип сцены
+    switch (scene.type) {
+      case SceneType.ACTION:
+        relevance += 30
+        break
+      case SceneType.DIALOGUE:
+        relevance += 20
+        break
+      case SceneType.ESTABLISHING:
+        relevance += 15
+        break
+      case SceneType.CLOSEUP:
+        relevance += 25
+        break
+      default:
+        // Неизвестный тип сцены остается с базовой релевантностью
+        break
+    }
+
+    // Бонус за качество
+    relevance += (scene.quality.overall - 50) * 0.3
+
+    // Бонус за количество лиц
+    const faceCount = scene.content?.faces?.length || 0
+    relevance += Math.min(faceCount * 10, 30)
+
+    return Math.max(0, Math.min(100, relevance))
+  }
+
+  /**
+   * Получить всех детектированных персонажей для видео
+   */
+  public getDetectedPersonsForVideo(videoPath: string): Person[] {
+    const allPersons: Person[] = []
+    
+    for (const [key, persons] of this.detectedPersonsCache.entries()) {
+      if (key.includes(videoPath)) {
+        allPersons.push(...persons)
+      }
+    }
+
+    // Убираем дубликаты и объединяем по ID
+    const uniquePersons = new Map<string, Person>()
+    
+    for (const person of allPersons) {
+      if (uniquePersons.has(person.id)) {
+        // Обновляем уверенность максимальной
+        const existing = uniquePersons.get(person.id)!
+        if (person.confidence > existing.confidence) {
+          uniquePersons.set(person.id, person)
+        }
+      } else {
+        uniquePersons.set(person.id, person)
+      }
+    }
+
+    return Array.from(uniquePersons.values())
+  }
+
+  /**
+   * Очистить кэш персонажей
+   */
+  public clearPersonCache(): void {
+    this.detectedPersonsCache.clear()
+    console.log("Person detection cache cleared")
+  }
+
+  /**
+   * Обнаружить персонажей в видео или изображении
+   */
+  public async detectPersons(
+    mediaPath: string,
+    timerange?: { start: number; end: number }
+  ): Promise<DetectedFace[]> {
+    if (!this._isReady) {
+      throw new Error("Scene Analysis Engine not initialized")
+    }
+
+    const detectedFaces: DetectedFace[] = []
+
+    try {
+      // Если указан временной диапазон, анализируем только его
+      const startTime = timerange?.start || 0
+      const endTime = timerange?.end || 60 // По умолчанию первые 60 секунд
+      
+      // Анализируем кадры с интервалом
+      const frameInterval = 1.0 // Каждую секунду
+      const frameCount = Math.ceil((endTime - startTime) / frameInterval)
+
+      for (let i = 0; i < frameCount; i++) {
+        const timestamp = startTime + i * frameInterval
+
+        // Извлекаем кадр через FFmpeg
+        const frameData = await this.ffmpegService.extractFrame(mediaPath, timestamp)
+
+        if (frameData && this.visionService) {
+          // Анализируем кадр
+          const frameAnalysis = await this.visionService.analyzeFrame(frameData, i)
+
+          // Преобразуем детекции лиц в DetectedFace
+          for (const face of frameAnalysis.faces) {
+            const detectedFace: DetectedFace = {
+              id: `face_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+              bbox: face.bbox,
+              confidence: face.confidence,
+              landmarks: undefined, // TODO: Преобразовать landmarks
+              age: face.age,
+              gender: face.gender,
+              emotion: face.emotion,
+              blur: 0.1, // TODO: Вычислять реальное размытие
+              occlusion: 0.1, // TODO: Вычислять перекрытие
+              pose: {
+                yaw: 0,
+                pitch: 0,
+                roll: 0,
+              },
+              frameNumber: i,
+              timestamp: {
+                seconds: timestamp,
+                frames: Math.floor(timestamp * 30), // Предполагаем 30 fps
+              },
+              clipId: mediaPath,
+            }
+
+            detectedFaces.push(detectedFace)
+          }
+        }
+      }
+
+      return detectedFaces
+    } catch (error) {
+      console.error("Failed to detect persons:", error)
+      return detectedFaces
     }
   }
 }
