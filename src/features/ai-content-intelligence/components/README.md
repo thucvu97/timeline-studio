@@ -6,12 +6,37 @@ React компоненты для UI модуля AI Content Intelligence.
 
 ```
 components/
-├── unified-dashboard/    # Главная панель управления AI
-│   ├── index.tsx        # Основной компонент дашборда
-│   ├── action-panel.tsx # Панель действий
-│   ├── analysis-results.tsx # Отображение результатов
-│   ├── dashboard-header.tsx # Заголовок дашборда
-│   └── pipeline-status.tsx  # Статус обработки
+├── unified-dashboard/      # Главная панель управления AI
+│   ├── index.tsx          # Основной компонент дашборда
+│   ├── action-panel.tsx   # Панель действий
+│   └── tabs/              # Вкладки дашборда
+│       ├── overview-tab.tsx
+│       ├── pipeline-tab.tsx
+│       ├── results-tab.tsx
+│       ├── scripts-tab.tsx
+│       └── metrics-tab.tsx
+├── generation-wizard/      # Мастер генерации контента
+│   ├── index.tsx
+│   └── steps/
+│       ├── content-selection.tsx
+│       ├── template-selection.tsx
+│       ├── style-configuration.tsx
+│       └── generation-review.tsx
+├── analysis-viewer/        # Просмотр результатов анализа
+│   ├── index.tsx
+│   ├── scene-details.tsx
+│   ├── key-moments.tsx
+│   ├── quality-metrics.tsx
+│   └── suggestions.tsx
+├── preview-grid/           # Сетка превью контента
+│   ├── index.tsx
+│   ├── preview-card.tsx
+│   ├── filter-bar.tsx
+│   └── selection-actions.tsx
+├── shared/                 # Общие компоненты
+│   ├── loading-states.tsx
+│   ├── error-display.tsx
+│   └── progress-indicators.tsx
 └── README.md
 ```
 
@@ -35,10 +60,11 @@ import { UnifiedDashboard } from '@/features/ai-content-intelligence/components/
 - `onClose?: () => void` - Обработчик закрытия
 
 **Возможности:**
-- Три вкладки: Analysis, Script, Platforms
-- Выбор файлов для анализа
-- Отображение прогресса обработки
-- Просмотр результатов анализа
+- Пять вкладок: Overview, Pipeline, Results, Scripts, Metrics
+- Управление AI pipeline через XState
+- Отображение результатов анализа с персонажами
+- Просмотр сгенерированных сценариев
+- Метрики качества и рекомендации
 
 ### ActionPanel
 
@@ -65,52 +91,99 @@ import { UnifiedDashboard } from '@/features/ai-content-intelligence/components/
 - `onResume: () => void` - Продолжение
 - `onCancel: () => void` - Отмена
 
-### PipelineStatus
+### GenerationWizard
 
-Отображение статуса обработки AI pipeline.
-
-```tsx
-<PipelineStatus progress={progress} />
-```
-
-**Props:**
-- `progress: PipelineProgress` - Объект с информацией о прогрессе
-
-**Отображает:**
-- Общий прогресс (progress bar)
-- Текущий шаг обработки
-- Статус каждого шага
-- Сообщения об ошибках
-
-### AnalysisResults
-
-Компонент для отображения результатов AI анализа.
+Мастер генерации контента с пошаговым интерфейсом.
 
 ```tsx
-<AnalysisResults 
-  result={analysisResult}
-  activeTab="analysis"
+import { GenerationWizard } from '@/features/ai-content-intelligence/components/generation-wizard'
+
+<GenerationWizard
+  onComplete={(config) => handleGenerate(config)}
+  onCancel={() => setShowWizard(false)}
 />
 ```
 
 **Props:**
-- `result: IntelligentContent` - Результаты анализа
-- `activeTab: 'analysis' | 'script' | 'platforms'` - Активная вкладка
+- `onComplete: (config: GenerationConfig) => void` - Обработчик завершения
+- `onCancel: () => void` - Обработчик отмены
+- `initialConfig?: Partial<GenerationConfig>` - Начальная конфигурация
+
+**Шаги:**
+1. Выбор контента для генерации
+2. Выбор шаблона (опционально)
+3. Настройка стиля и параметров
+4. Превью и подтверждение
+
+### AnalysisViewer
+
+Компонент для детального отображения результатов AI анализа.
+
+```tsx
+import { AnalysisViewer } from '@/features/ai-content-intelligence/components/analysis-viewer'
+
+<AnalysisViewer
+  analysis={contentAnalysis}
+  suggestions={suggestions}
+  onSuggestionApply={(suggestion) => applySuggestion(suggestion)}
+/>
+```
+
+**Props:**
+- `analysis: UnifiedContentAnalysis` - Результаты анализа
+- `suggestions?: ContentSuggestion[]` - Предложения по улучшению
+- `onSuggestionApply?: (suggestion: ContentSuggestion) => void` - Применение предложения
 
 **Отображает:**
 - Детали анализа сцен
-- Сгенерированные скрипты
-- Адаптации для платформ
-- Ключевые моменты
-- Метрики качества
+- Обнаруженные объекты и персонажи
+- Ключевые моменты с таймкодами
+- Метрики качества видео
+- Предложения с приоритетами
 
-### DashboardHeader
+### PreviewGrid
 
-Заголовок дашборда с названием и кнопкой закрытия.
+Сетка превью контента с возможностью фильтрации и выбора.
 
 ```tsx
-<DashboardHeader onClose={handleClose} />
+import { PreviewGrid } from '@/features/ai-content-intelligence/components/preview-grid'
+
+<PreviewGrid
+  scenes={analysisResult.scenes}
+  onSceneSelect={(scene) => handleSceneSelect(scene)}
+  onBatchAction={(action, scenes) => handleBatchAction(action, scenes)}
+/>
 ```
+
+**Props:**
+- `scenes: SceneAnalysis[]` - Массив сцен для отображения
+- `onSceneSelect?: (scene: SceneAnalysis) => void` - Выбор сцены
+- `onBatchAction?: (action: string, scenes: SceneAnalysis[]) => void` - Групповые действия
+- `filterOptions?: PreviewFilterOptions` - Опции фильтрации
+
+**Возможности:**
+- Фильтрация по типу сцены, качеству, длительности
+- Мультивыбор с checkbox
+- Превью миниатюр с hover эффектами
+- Отображение обнаруженных персонажей
+
+## 🆕 Новые возможности
+
+### Интеграция с Person Identification
+- Отображение обнаруженных персонажей в результатах анализа
+- Статистика появлений персонажей в сценах
+- Генерация диалогов с реальными персонажами
+
+### OCR и анализ композиции
+- Распознавание текста в видео
+- Анализ правила третей, баланса и направляющих линий
+- Оценка глубины и цветовой гармонии
+
+### Улучшенные компоненты
+- **GenerationWizard** - мастер с пошаговым интерфейсом
+- **AnalysisViewer** - детальный просмотр результатов
+- **PreviewGrid** - умная сетка превью с фильтрами
+- **UnifiedDashboard** - расширен до 5 вкладок
 
 ## 🎯 Использование
 

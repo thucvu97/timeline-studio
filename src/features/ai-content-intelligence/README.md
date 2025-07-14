@@ -26,15 +26,20 @@ ai-content-intelligence/
 ### 1. Scene Analysis Engine
 - Детекция смены сцен
 - Распознавание объектов (YOLO/ONNX)
-- Анализ композиции и качества
+- Анализ композиции и качества (правило третей, баланс, направляющие линии)
 - Определение ключевых моментов
 - Классификация контента
+- **NEW:** Интеграция с Person Identification для распознавания персонажей
+- **NEW:** OCR (оптическое распознавание текста)
+- **NEW:** Анализ активности и движения
 
 ### 2. Script Generation Engine
 - Автоматическая генерация скриптов
 - Поддержка различных стилей повествования
 - Адаптация под жанр контента
 - Генерация диалогов и закадрового текста
+- **NEW:** Интеграция с montage-planner для использования реальных персонажей из видео
+- **NEW:** Адаптация сценария под инструкции о персонажах
 
 ### 3. Multi-Platform Adaptation
 - YouTube (длинные видео, оптимизация SEO)
@@ -155,6 +160,9 @@ class SceneAnalysisEngine {
   process(data: { mediaFile: MediaFile }): Promise<SceneAnalysisResult>
   analyzeFrame(imageData: ImageData): Promise<FrameAnalysis>
   detectObjects(imageData: ImageData): Promise<ObjectDetection[]>
+  detectPersons(mediaPath: string, timerange?: { start: number; end: number }): Promise<DetectedFace[]>
+  getDetectedPersonsForVideo(videoPath: string): Person[]
+  clearPersonCache(): void
 }
 ```
 
@@ -174,12 +182,69 @@ interface UnifiedContentAnalysis {
   suggestions: ContentSuggestion[]
   metadata: AnalysisMetadata
 }
+
+interface SceneAnalysisResult {
+  scenes: SceneAnalysis[]
+  keyMoments: KeyMoment[]
+  classification: ContentClassification
+  summary: SceneSummary
+  timeline: TimelineData
+  // Интеграция с montage-planner
+  persons?: Person[]
+  fragments?: Fragment[]
+  personStats?: PersonStatistics
+}
+
+interface GeneratedScript {
+  id: string
+  title: string
+  genre: string[]
+  duration: number
+  structure: NarrativeStructure
+  scenes: ScriptScene[]
+  characters: Character[]
+  dialogue: Dialogue[]
+  voiceover: Voiceover[]
+  metadata: ScriptMetadata & {
+    // Интеграция с персонажами
+    personStats?: PersonStatistics
+    detectedPersonsCount?: number
+    adaptedForPersons?: boolean
+    personInstructions?: string
+  }
+}
 ```
 
 ## 🎨 UI Компоненты
 
 ### UnifiedDashboard
-Главная панель управления AI функциями с вкладками для анализа, скриптов и платформ.
+Главная панель управления AI функциями с вкладками:
+- Overview - общий обзор анализа
+- Pipeline - управление процессом обработки
+- Results - детальные результаты анализа
+- Scripts - сгенерированные сценарии
+- Metrics - метрики качества
+
+### GenerationWizard
+Мастер генерации контента с поддержкой:
+- Выбор стиля повествования
+- Настройка визуального стиля
+- Выбор эмоционального тона
+- Использование шаблонов
+
+### AnalysisViewer
+Компонент для отображения результатов анализа:
+- Визуализация сцен и ключевых моментов
+- Отображение обнаруженных объектов и персонажей
+- Показ качественных метрик
+- Предложения по улучшению
+
+### PreviewGrid
+Сетка превью контента с возможностями:
+- Отображение миниатюр сцен
+- Индикаторы качества
+- Выбор сцен для обработки
+- Группировка по типам контента
 
 ### AIMarkerControls
 Компонент для создания маркеров на Timeline из AI анализа.
@@ -218,10 +283,31 @@ bun test:coverage src/features/ai-content-intelligence
 3. Некоторые AI модели работают только с определенными форматами
 4. Скорость обработки зависит от мощности GPU
 
+## 🔗 Интеграции
+
+### Person Identification
+Модуль тесно интегрирован с системой распознавания персонажей:
+- Автоматическое обнаружение лиц в видео
+- Создание профилей персонажей
+- Отслеживание появлений в сценах
+- Использование в генерации сценариев
+
+### Montage Planner
+Интеграция с планировщиком монтажа:
+- Создание Fragment объектов для каждой сцены
+- Передача информации о персонажах
+- Расчет релевантности сцен
+- Оценка качества фрагментов
+
 ## 🔮 Roadmap
 
+- [x] Интеграция с Person Identification
+- [x] Интеграция с Montage Planner
+- [x] OCR и анализ текста в видео
+- [x] Продвинутый анализ композиции
 - [ ] Поддержка большего количества AI моделей
 - [ ] Улучшение точности детекции объектов
 - [ ] Real-time анализ во время записи
 - [ ] Экспорт аналитики в различные форматы
 - [ ] Интеграция с облачными AI сервисами
+- [ ] Автоматическая генерация субтитров из OCR
