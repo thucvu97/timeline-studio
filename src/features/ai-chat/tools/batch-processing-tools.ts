@@ -602,7 +602,7 @@ function clearBatchHistory(params: any): { cleared: number; message: string } {
     }
 
     history = history.filter((item) => {
-      const itemDate = new Date(item.createdAt || item.timestamp || Date.now())
+      const itemDate = new Date(item.createdAt || Date.now())
       return itemDate < cutoffDate
     })
   }

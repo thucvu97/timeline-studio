@@ -32,12 +32,14 @@ export interface WhisperWord {
   word: string
   start: number
   end: number
+  confidence?: number
 }
 
 export interface WhisperTranscriptionResult {
   text: string
   language?: string
   duration?: number
+  confidence?: number
   segments?: WhisperSegment[]
   words?: WhisperWord[]
 }

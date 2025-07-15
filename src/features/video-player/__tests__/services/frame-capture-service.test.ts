@@ -113,9 +113,8 @@ describe("FrameCaptureService", () => {
       const unreadyVideo = Object.assign(Object.create(HTMLVideoElement.prototype), {
         videoWidth: mockVideoElement.videoWidth,
         videoHeight: mockVideoElement.videoHeight,
-        readyState: mockVideoElement.readyState,
         currentTime: mockVideoElement.currentTime,
-        readyState: 1
+        readyState: 1,
       }) as HTMLVideoElement
 
       const result = service.captureFrame(unreadyVideo)
@@ -134,12 +133,10 @@ describe("FrameCaptureService", () => {
 
     it("handles video with different dimensions", () => {
       const smallVideo = Object.assign(Object.create(HTMLVideoElement.prototype), {
-        videoWidth: mockVideoElement.videoWidth,
-        videoHeight: mockVideoElement.videoHeight,
         readyState: mockVideoElement.readyState,
         currentTime: mockVideoElement.currentTime,
         videoWidth: 640,
-        videoHeight: 480
+        videoHeight: 480,
       }) as HTMLVideoElement
 
       service.captureFrame(smallVideo)
@@ -180,9 +177,8 @@ describe("FrameCaptureService", () => {
       const unreadyVideo = Object.assign(Object.create(HTMLVideoElement.prototype), {
         videoWidth: mockVideoElement.videoWidth,
         videoHeight: mockVideoElement.videoHeight,
-        readyState: mockVideoElement.readyState,
         currentTime: mockVideoElement.currentTime,
-        readyState: 1
+        readyState: 1,
       }) as HTMLVideoElement
 
       const result = await service.captureFrameAsBlob(unreadyVideo)
@@ -245,9 +241,8 @@ describe("FrameCaptureService", () => {
       const unreadyVideo = Object.assign(Object.create(HTMLVideoElement.prototype), {
         videoWidth: mockVideoElement.videoWidth,
         videoHeight: mockVideoElement.videoHeight,
-        readyState: mockVideoElement.readyState,
         currentTime: mockVideoElement.currentTime,
-        readyState: 1
+        readyState: 1,
       }) as HTMLVideoElement
 
       const result = service.captureFrameAsBase64(unreadyVideo)
@@ -301,9 +296,8 @@ describe("FrameCaptureService", () => {
       const unreadyVideo = Object.assign(Object.create(HTMLVideoElement.prototype), {
         videoWidth: mockVideoElement.videoWidth,
         videoHeight: mockVideoElement.videoHeight,
-        readyState: mockVideoElement.readyState,
         currentTime: mockVideoElement.currentTime,
-        readyState: 1
+        readyState: 1,
       }) as HTMLVideoElement
 
       const result = service.captureThumbnail(unreadyVideo)
@@ -335,8 +329,6 @@ describe("FrameCaptureService", () => {
 
     it("handles portrait video correctly", () => {
       const portraitVideo = {
-        videoWidth: mockVideoElement.videoWidth,
-        videoHeight: mockVideoElement.videoHeight,
         readyState: mockVideoElement.readyState,
         currentTime: mockVideoElement.currentTime,
         videoWidth: 1080,
@@ -354,8 +346,6 @@ describe("FrameCaptureService", () => {
 
     it("handles square video correctly", () => {
       const squareVideo = {
-        videoWidth: mockVideoElement.videoWidth,
-        videoHeight: mockVideoElement.videoHeight,
         readyState: mockVideoElement.readyState,
         currentTime: mockVideoElement.currentTime,
         videoWidth: 1000,
@@ -374,8 +364,6 @@ describe("FrameCaptureService", () => {
     it("rounds dimensions correctly", () => {
       // Видео с размерами, которые дают дробные результаты
       const oddVideo = {
-        videoWidth: mockVideoElement.videoWidth,
-        videoHeight: mockVideoElement.videoHeight,
         readyState: mockVideoElement.readyState,
         currentTime: mockVideoElement.currentTime,
         videoWidth: 1920,
@@ -461,8 +449,6 @@ describe("FrameCaptureService", () => {
 
     it("handles video with zero dimensions", () => {
       const zeroVideo = {
-        videoWidth: mockVideoElement.videoWidth,
-        videoHeight: mockVideoElement.videoHeight,
         readyState: mockVideoElement.readyState,
         currentTime: mockVideoElement.currentTime,
         videoWidth: 0,
@@ -478,8 +464,6 @@ describe("FrameCaptureService", () => {
 
     it("handles very large video dimensions", () => {
       const largeVideo = {
-        videoWidth: mockVideoElement.videoWidth,
-        videoHeight: mockVideoElement.videoHeight,
         readyState: mockVideoElement.readyState,
         currentTime: mockVideoElement.currentTime,
         videoWidth: 7680,

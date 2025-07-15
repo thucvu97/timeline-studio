@@ -551,18 +551,18 @@ export const personIdentificationHandlers = {
 
       // Собираем всех обнаруженных персон
       const allPersons = scenes.flatMap((scene) => scene.identifiedPersons || [])
-      const uniquePersons = Array.from(new Map(allPersons.map((p) => [p.personId, p])).values())
+      const uniquePersons = Array.from(new Map(allPersons.map((p: any) => [p.personId, p])).values())
 
       return {
         success: true,
         totalScenes: scenes.length,
         personsFound: uniquePersons.length,
-        persons: uniquePersons.map((p) => ({
+        persons: uniquePersons.map((p: any) => ({
           id: p.personId,
-          name: p.person.name || "Unknown",
+          name: p.person?.name || "Unknown",
           confidence: p.confidence,
-          appearances: p.appearances.length,
-          isMainCharacter: p.appearances.some((app) => app.isMainCharacter),
+          appearances: p.appearances?.length || 0,
+          isMainCharacter: p.appearances?.some((app: any) => app.isMainCharacter) || false,
         })),
         message: `Обработано ${scenes.length} сцен, найдено ${uniquePersons.length} персон`,
       }
@@ -606,8 +606,8 @@ export const personIdentificationHandlers = {
         try {
           const faceEmbedding = await sceneEngine.generateFaceEmbedding(params.faceImagePath)
           const matchingPersons = await personDatabase.findSimilarPersons(faceEmbedding, {
-            threshold: params.confidenceThreshold || 0.8,
-            maxResults: params.maxResults || 10,
+            threshold: params.similarityThreshold || 0.8,
+            maxResults: params.limit || 10,
           })
 
           return {
@@ -826,20 +826,20 @@ export async function executePersonIdentificationTool(
       toolName,
       input,
       data: result,
-      persons: result.persons,
-      stats: result.stats,
-      profile: result.profile,
-      report: result.report,
+      persons: (result as any).persons,
+      stats: (result as any).stats,
+      profile: (result as any).profile,
+      report: (result as any).report,
       error: result.success ? undefined : result.error,
     }
   } catch (error) {
     console.error(`Ошибка выполнения Person Identification инструмента ${toolName}:`, error)
     return {
       success: false,
-      message: `Ошибка выполнения ${toolName}: ${error.message}`,
+      message: `Ошибка выполнения ${toolName}: ${error instanceof Error ? error.message : String(error)}`,
       toolName,
       input,
-      error: error.message,
+      error: error instanceof Error ? error.message : String(error),
     }
   }
 }

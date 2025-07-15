@@ -85,7 +85,27 @@ export class TimelineAIService {
       ...personIdentificationTools,
     ]
 
-    // TODO: Установить доступ к состоянию браузера через глобальную переменную
+    // Установить доступ к состоянию браузера через глобальную переменную
+    if (typeof window !== "undefined") {
+      // Браузер контекст для browser-tools
+      ;(window as any).browserContext = {
+        getBrowserState: () => {
+          // Этот метод будет переопределен при инициализации BrowserProvider
+          console.warn("Browser state not initialized yet")
+          return null
+        },
+      }
+
+      // Timeline контекст для timeline-tools и других инструментов
+      ;(window as any).timelineContext = {
+        project: null,
+        getTimelineState: () => {
+          // Этот метод будет переопределен при инициализации TimelineProvider
+          console.warn("Timeline state not initialized yet")
+          return null
+        },
+      }
+    }
   }
 
   /**

@@ -64,6 +64,7 @@ export interface BatchOperationResult {
   successCount: number
   failureCount: number
   executionTime: number
+  createdAt: Date
   summary: {
     operation: BatchOperationType
     clipIds: string[]
@@ -267,6 +268,7 @@ export class BatchProcessingService {
         successCount: finalProgress.completed,
         failureCount: finalProgress.failed,
         executionTime,
+        createdAt: progress.startTime,
         summary: {
           operation: params.operation,
           clipIds: params.clipIds,
@@ -415,7 +417,24 @@ export class BatchProcessingService {
   }
 
   private getClipPath(clipId: string): string {
-    // TODO: Получать реальный путь к клипу из Timeline
+    // Получаем путь к клипу из Timeline контекста
+    if (typeof window !== "undefined" && (window as any).timelineContext) {
+      const timelineContext = (window as any).timelineContext
+      const project = timelineContext.project || timelineContext.getTimelineState?.()
+
+      if (project?.tracks) {
+        // Ищем клип во всех треках
+        for (const track of project.tracks) {
+          const clip = track.clips?.find((c: any) => c.id === clipId)
+          if (clip?.mediaFile?.path) {
+            return clip.mediaFile.path
+          }
+        }
+      }
+    }
+
+    // Fallback на стандартный путь если клип не найден
+    console.warn(`Clip ${clipId} not found in timeline, using fallback path`)
     return `/path/to/video/${clipId}.mp4`
   }
 

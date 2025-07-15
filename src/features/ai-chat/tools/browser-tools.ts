@@ -1408,7 +1408,7 @@ function identifyMissingContent(files: MediaFile[], tab: string): any {
         missing.recommendations.push("Добавьте переходы для плавной смены сцен")
       }
       break
-      
+
     default:
       // Для других вкладок
       break

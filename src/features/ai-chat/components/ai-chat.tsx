@@ -798,9 +798,34 @@ export function AiChat() {
                   const updatedSessions = await chatStorageService.getAllSessions()
                   updateSessions(updatedSessions)
                 }}
-                onCopySession={(id) => {
-                  // TODO: Implement copy functionality
-                  console.log("Copy session:", id)
+                onCopySession={async (id) => {
+                  try {
+                    const session = await chatStorageService.getSession(id)
+                    if (session) {
+                      // Создаем новую сессию с копией данных
+                      const newSession = await chatStorageService.createSession(`${session.title} (${t("chat.copy")})`)
+
+                      // Копируем все сообщения в новую сессию
+                      for (const message of session.messages) {
+                        await chatStorageService.addMessage(newSession.id, {
+                          role: message.role,
+                          content: message.content,
+                          agent: message.agent,
+                          error: message.error,
+                          metadata: message.metadata,
+                        })
+                      }
+
+                      // Обновляем список сессий
+                      const updatedSessions = await chatStorageService.getAllSessions()
+                      updateSessions(updatedSessions)
+
+                      // Переключаемся на скопированную сессию
+                      await switchSession(newSession.id)
+                    }
+                  } catch (error) {
+                    console.error("Failed to copy session:", error)
+                  }
                 }}
               />
             </div>

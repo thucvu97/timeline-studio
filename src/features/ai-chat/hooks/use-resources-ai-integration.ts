@@ -1,6 +1,7 @@
 import { useCallback, useEffect } from "react"
 
 import { useResources } from "@/features/resources/services/resources-provider"
+import { ResourceType } from "@/features/resources/types"
 
 import { setResourcesStateAccess } from "../tools/resource-tools"
 
@@ -66,7 +67,7 @@ export function useResourcesAIIntegration() {
   // Функция для добавления любого ресурса
   const addResource = useCallback(
     async (resourceType: string, resource: any) => {
-      return resources.addResource(resourceType, resource)
+      return resources.addResource(resourceType as ResourceType, resource)
     },
     [resources],
   )

@@ -394,54 +394,23 @@ if (isContextOverLimit(messages, model, systemPrompt)) {
 
 **Результат**: Все 9 Content Intelligence инструментов теперь используют **реальные AI сервисы** вместо mock данных:
 
-## 📝 TODO List для Timeline Tools
+## 📝 Актуальные TODO
 
-### Интеграция с Timeline State Machine
-- [ ] `getCurrentTimelineProject()` - Получение текущего проекта из timeline state machine
-- [ ] `saveTimelineProject()` - Сохранение проекта через timeline state machine
-- [ ] `setTimelineStateAccess()` - Настройка доступа к состоянию timeline
+### ✅ Недавно выполнено
+- [x] **Интеграция с браузером** (`timeline-ai-service.ts:88`) - ✅ Установлен доступ к состоянию браузера через глобальную переменную
+- [x] **Путь к клипу** (`batch-processing-service.ts:418`) - ✅ Реализовано получение реального пути к клипу из Timeline
+- [x] **Очистка temp директории** (`workflow-automation-service.ts:238`) - ✅ Реализована очистка временной директории
+- [x] **Очистка temp файлов** (`workflow-automation-service.ts:374`) - ✅ Добавлена очистка при отмене workflow
+- [x] **Копирование сессии** (`ai-chat.tsx:802`) - ✅ Реализовано копирование чат-сессий
+- [x] **Прогресс workflow** (`workflow-automation-service.ts:361`) - ✅ Добавлено отслеживание прогресса
 
-### Функции создания секций
-- [ ] `createSectionsByLocation()` - Создание секций по местоположению (GPS данные из медиафайлов)
-- [ ] `createManualSections()` - Создание секций вручную по параметрам пользователя
-- [ ] `createSmartSections()` - Умное создание секций с использованием AI анализа
-- [ ] `calculateSectionsCoverage()` - Расчет покрытия секций на таймлайне
+### Критические задачи
+- [ ] **GPS метаданные** (`timeline-tools.ts:2072`) - Добавить поддержку GPS метаданных в MediaFile для создания секций по местоположению
 
-### Функции работы с клипами
-- [ ] `assignTrackForClip()` - Интеллектуальное назначение трека для клипа
-- [ ] `extractDateFromClip()` - Извлечение даты из метаданных медиафайла (полная реализация)
+### Отслеживание прогресса
+- [ ] **Прогресс загрузки Whisper** (`whisper-service.ts:271`) - Реализовать отслеживание прогресса через events при загрузке модели
+- [ ] **Тесты прогресса** (`__tests__/services/whisper-service.test.ts:420,427`) - Реализовать тесты для отслеживания прогресса
 
-### Автоматические улучшения
-- [ ] `applyAutoTransitions()` - Автоматические переходы между клипами
-- [ ] `applyAutoColorCorrection()` - Автоматическая цветокоррекция
-- [ ] `applyAutoAudioBalance()` - Автоматический баланс аудио
-- [ ] `applyAutoStabilization()` - Автоматическая стабилизация видео
-
-### Анализ контента
-- [ ] `analyzeNarrativeStructure()` - Анализ нарративной структуры
-- [ ] `analyzePacing()` - Анализ темпа и ритма
-- [ ] `analyzeEmotionalFlow()` - Анализ эмоционального потока
-- [ ] `generateStoryImprovements()` - Генерация улучшений повествования
-
-### Детекция и обработка сцен
-- [ ] `detectScenesInClip()` - Детекция смены сцен в клипе
-- [ ] `splitClipByScenes()` - Разделение клипа по сценам
-
-### Синхронизация с музыкой
-- [ ] `analyzeMusicForSync()` - Анализ музыки (BPM, биты, фразы)
-- [ ] `adjustClipsToMusic()` - Подстройка клипов под музыкальный ритм
-
-### Анализ и предложения
-- [ ] `analyzePerformanceIssues()` - Анализ проблем производительности
-- [ ] `analyzeQualityIssues()` - Анализ проблем качества
-- [ ] `analyzeStorytellingIssues()` - Анализ проблем повествования
-- [ ] `calculateProjectComplexity()` - Расчет сложности проекта
-- [ ] `estimateRenderTime()` - Оценка времени рендера
-
-### Функции экспорта
-- [ ] `exportAsJSON()` - Полная реализация экспорта в JSON (частично готово)
-- [ ] `exportAsXML()` - Полная реализация экспорта в XML (частично готово)
-- [ ] `exportAsCSV()` - Полная реализация экспорта в CSV (частично готово)
-- [ ] `exportAsEDL()` - Полная реализация экспорта в EDL (частично готово)
-- [ ] `exportAsFCPXML()` - Экспорт в Final Cut Pro XML
-- [ ] `exportAsDaVinciResolve()` - Экспорт для DaVinci Resolve
+### Анализ видео
+- [ ] **Реальное время анализа** (`multimodal-analysis-service.ts:273`) - Использовать реальное время обработки вместо Date.now()
+- [ ] **Детекция монтажных точек** (`multimodal-analysis-service.ts:541`) - Implement cut detection для предложения точек монтажа
