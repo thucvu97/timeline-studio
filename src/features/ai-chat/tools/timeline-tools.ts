@@ -13,9 +13,15 @@ import {
   TimelineTrack,
   createTimelineClip,
   createTimelineSection,
-} from "@/features/timeline/types"
+} from "../../timeline/types"
 
 import { ClaudeTool } from "../services/claude-service"
+
+// Типы для функций обратного вызова в reduce операциях
+type ReducerCallback<T, R> = (acc: T, curr: R) => T
+type SectionReducer = ReducerCallback<number, TimelineSection>
+type TrackReducer = ReducerCallback<number, TimelineTrack>
+type ClipReducer = ReducerCallback<number, TimelineClip>
 
 /**
  * Инструменты для работы с Timeline
@@ -684,7 +690,7 @@ async function analyzeTimelineStructure(params: any): Promise<TimelineToolResult
     }
 
     if (includeTracks) {
-      analysis.tracks = currentProject.globalTracks.map((track) => ({
+      analysis.tracks = currentProject.globalTracks.map((track: TimelineTrack) => ({
         id: track.id,
         name: track.name,
         type: track.type,
@@ -713,7 +719,7 @@ async function analyzeTimelineStructure(params: any): Promise<TimelineToolResult
     }
 
     if (includeSections) {
-      analysis.sections = currentProject.sections.map((section) => ({
+      analysis.sections = currentProject.sections.map((section: TimelineSection) => ({
         id: section.id,
         name: section.name,
         index: section.index,
@@ -735,7 +741,7 @@ async function analyzeTimelineStructure(params: any): Promise<TimelineToolResult
         section.tracks.forEach((track) => allClips.push(...track.clips))
       })
 
-      analysis.clips = allClips.map((clip) => ({
+      analysis.clips = allClips.map((clip: TimelineClip) => ({
         id: clip.id,
         name: clip.name,
         trackId: clip.trackId,
@@ -1433,11 +1439,11 @@ async function exportTimelineData(params: any): Promise<TimelineToolResult> {
           elementsCount: {
             tracks:
               currentProject.globalTracks.length +
-              currentProject.sections.reduce((sum, section) => sum + section.tracks.length, 0),
+              currentProject.sections.reduce((sum: number, section: TimelineSection) => sum + section.tracks.length, 0),
             clips:
-              currentProject.globalTracks.reduce((sum, track) => sum + track.clips.length, 0) +
+              currentProject.globalTracks.reduce((sum: number, track: TimelineTrack) => sum + track.clips.length, 0) +
               currentProject.sections.reduce(
-                (sum, section) => sum + section.tracks.reduce((s, track) => s + track.clips.length, 0),
+                (sum: number, section: TimelineSection) => sum + section.tracks.reduce((s: number, track: TimelineTrack) => s + track.clips.length, 0),
                 0,
               ),
             sections: currentProject.sections.length,
@@ -1810,7 +1816,7 @@ function calculateTimelineDensity(project: TimelineProject): number {
 
   if (allClips.length === 0) return 0
 
-  const totalDuration = Math.max(...allClips.map((clip) => clip.startTime + clip.duration))
+  const totalDuration = Math.max(...allClips.map((clip: TimelineClip) => clip.startTime + clip.duration))
   if (totalDuration === 0) return 0
 
   // Плотность = общая длительность клипов / общая длительность таймлайна
@@ -2263,7 +2269,7 @@ function assignTrackForClip(tracks: TimelineTrack[], clipConfig: any, strategy: 
 
     case "least_used":
       // Назначение на наименее используемый трек
-      const trackUsage = tracks.map((track) => ({
+      const trackUsage = tracks.map((track: TimelineTrack) => ({
         id: track.id,
         clipCount: track.clips?.length || 0,
       }))
@@ -2302,7 +2308,7 @@ function assignTrackForClip(tracks: TimelineTrack[], clipConfig: any, strategy: 
       }
 
       // 3. Fallback на наименее используемый
-      const smartTrackUsage = tracks.map((track) => ({
+      const smartTrackUsage = tracks.map((track: TimelineTrack) => ({
         id: track.id,
         clipCount: track.clips?.length || 0,
       }))
@@ -2447,7 +2453,7 @@ function analyzeNarrativeStructure(project: TimelineProject): any {
   const sortedClips = allClips.sort((a, b) => a.startTime - b.startTime)
 
   // Выделяем акты на основе секций
-  const acts = project.sections.map((section, index) => ({
+  const acts = project.sections.map((section: TimelineSection, index: number) => ({
     id: section.id,
     name: section.name,
     startTime: section.startTime,
@@ -2457,8 +2463,8 @@ function analyzeNarrativeStructure(project: TimelineProject): any {
   }))
 
   // Анализируем сцены (группируем клипы по времени)
-  const scenes = []
-  let currentScene = { startTime: 0, clips: [], duration: 0 }
+  const scenes: Array<{startTime: number, clips: TimelineClip[], duration: number}> = []
+  let currentScene: {startTime: number, clips: TimelineClip[], duration: number} = { startTime: 0, clips: [], duration: 0 }
 
   for (const clip of sortedClips) {
     const gap = clip.startTime - (currentScene.startTime + currentScene.duration)
@@ -2506,7 +2512,7 @@ function analyzeEmotionalFlow(project: TimelineProject): any {
 
   const sortedClips = allClips.sort((a, b) => a.startTime - b.startTime)
 
-  const emotionProgression = sortedClips.map((clip) => {
+  const emotionProgression = sortedClips.map((clip: TimelineClip) => {
     // Простая эвристика для определения эмоциональной окраски
     const contentType = determineContentType(clip)
     const duration = clip.duration
@@ -2613,7 +2619,7 @@ function generateStoryImprovements(project: TimelineProject, analysis: any): str
 async function detectScenesInClip(clip: TimelineClip, sensitivity: string): Promise<any[]> {
   // Интеграция с AI анализом сцен
   try {
-    const sceneDetectionService = await import("@/features/ai-chat/services/unified-ai-service")
+    const sceneDetectionService = await import("../services/unified-ai-service")
     const aiService = sceneDetectionService.UnifiedAIService.getInstance()
 
     // AI service doesn't have analyze method, fallback to basic detection
@@ -2697,7 +2703,7 @@ async function splitClipByScenes(clip: TimelineClip, scenes: any[], project: Tim
 async function analyzeMusicForSync(musicClip: TimelineClip): Promise<any> {
   try {
     // Интеграция с AI анализом музыки
-    const audioAnalysisService = await import("@/features/ai-chat/services/unified-ai-service")
+    const audioAnalysisService = await import("../services/unified-ai-service")
     const aiService = audioAnalysisService.UnifiedAIService.getInstance()
 
     const analysis = await aiService.analyzeContent({
@@ -2864,7 +2870,7 @@ function analyzeQualityIssues(project: TimelineProject): string[] {
   // Проверяем консистентность разрешения
   const videoClips = allClips.filter((clip) => determineContentType(clip) === "Video")
   const resolutions = new Set(
-    videoClips.map((clip) => {
+    videoClips.map((clip: TimelineClip) => {
       const width = clip.mediaFile?.probeData?.streams?.[0]?.width
       const height = clip.mediaFile?.probeData?.streams?.[0]?.height
       return width && height ? `${width}x${height}` : "unknown"
@@ -2944,7 +2950,7 @@ function calculateProjectComplexity(project: TimelineProject): number {
 
   // Количество треков
   const trackCount =
-    project.globalTracks.length + project.sections.reduce((sum, section) => sum + section.tracks.length, 0)
+    project.globalTracks.length + project.sections.reduce((sum: number, section: TimelineSection) => sum + section.tracks.length, 0)
   complexity += trackCount * 0.1
 
   // Количество клипов
@@ -2976,8 +2982,8 @@ function calculateProjectComplexity(project: TimelineProject): number {
 function estimateRenderTime(project: TimelineProject): number {
   // Общая длительность проекта
   const totalDuration = Math.max(
-    ...project.globalTracks.map((track) => Math.max(...track.clips.map((clip) => clip.startTime + clip.duration), 0)),
-    ...project.sections.map((section) => section.startTime + section.duration),
+    ...project.globalTracks.map((track: TimelineTrack) => Math.max(...track.clips.map((clip: TimelineClip) => clip.startTime + clip.duration), 0)),
+    ...project.sections.map((section: TimelineSection) => section.startTime + section.duration),
   )
 
   // Базовое время рендера (1:1 с длительностью)
@@ -3030,7 +3036,7 @@ function exportAsJSON(project: TimelineProject, includeData: any): any {
   const exportData: any = {
     project_info: {
       name: project.name,
-      duration: project.settings.duration,
+      duration: project.duration,
       resolution: project.settings.resolution,
       fps: project.settings.fps,
       created_at: project.createdAt?.toISOString(),
@@ -3082,7 +3088,7 @@ function exportAsXML(project: TimelineProject, includeData: any): string {
   // Информация о проекте
   xml += "  <project_info>\n"
   xml += `    <name>${escapeXml(project.name)}</name>\n`
-  xml += `    <duration>${project.settings.duration}</duration>\n`
+  xml += `    <duration>${project.duration}</duration>\n`
   xml += `    <fps>${project.settings.fps}</fps>\n`
   xml += "  </project_info>\n"
 
@@ -3283,7 +3289,7 @@ function calculatePacingMetrics(project: TimelineProject): any {
   })
 
   // Количество монтажных склеек в минуту
-  const totalDuration = Math.max(...allClips.map((clip) => clip.startTime + clip.duration))
+  const totalDuration = Math.max(...allClips.map((clip: TimelineClip) => clip.startTime + clip.duration))
   const cutsPerMinute = totalDuration > 0 ? (allClips.length / totalDuration) * 60 : 0
 
   // Ритмический паттерн (упрощенный)
@@ -3408,4 +3414,29 @@ function escapeXml(unsafe: string): string {
 
 function escapeCsv(unsafe: string): string {
   return unsafe.replace(/"/g, '""')
+}
+
+// Базовая детекция сцен
+function detectScenesBasic(clip: TimelineClip, sensitivity: string): any[] {
+  // Простая эмуляция детекции сцен на основе времени
+  const duration = clip.duration
+  const sensitivityMap = {
+    high: 0.5,
+    medium: 1.0,
+    low: 2.0
+  }
+  
+  const interval = sensitivityMap[sensitivity as keyof typeof sensitivityMap] || 1.0
+  const scenes = []
+  
+  for (let time = 0; time < duration; time += interval) {
+    scenes.push({
+      startTime: time,
+      endTime: Math.min(time + interval, duration),
+      confidence: 0.8,
+      type: time % 2 === 0 ? 'static' : 'dynamic'
+    })
+  }
+  
+  return scenes
 }
