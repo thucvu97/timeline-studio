@@ -143,7 +143,7 @@ export function usePersonIdentification(options: UsePersonIdentificationOptions 
 
   // Идентификация персоны по лицу
   const identifyPerson = useCallback(
-    async (detectedFace: DetectedFace): Promise<{ person: PersonProfile; confidence: number } | null> => {
+    async (_detectedFace: DetectedFace): Promise<{ person: PersonProfile; confidence: number } | null> => {
       try {
         setError(null)
 

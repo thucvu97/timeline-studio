@@ -580,15 +580,40 @@ async function createBatchReport(params: any): Promise<any> {
   return report
 }
 
-function clearBatchHistory(_params: any): { cleared: number; message: string } {
+function clearBatchHistory(params: any): { cleared: number; message: string } {
   const batchService = BatchProcessingService.getInstance()
-  const historyBefore = batchService.getBatchHistory().length
+  const { filterByStatus, filterByDate, olderThanDays } = params
 
-  // TODO: Добавить фильтрацию по дате и статусу
-  batchService.clearBatchHistory()
+  let history = batchService.getBatchHistory()
+  const totalBefore = history.length
+
+  // Фильтрация по статусу
+  if (filterByStatus && Array.isArray(filterByStatus)) {
+    history = history.filter((item) => filterByStatus.includes(item.status))
+  }
+
+  // Фильтрация по дате
+  if (filterByDate || olderThanDays) {
+    const cutoffDate = new Date()
+    if (olderThanDays) {
+      cutoffDate.setDate(cutoffDate.getDate() - olderThanDays)
+    } else if (filterByDate) {
+      cutoffDate.setTime(Date.parse(filterByDate))
+    }
+
+    history = history.filter((item) => {
+      const itemDate = new Date(item.createdAt || item.timestamp || Date.now())
+      return itemDate < cutoffDate
+    })
+  }
+
+  // Удаляем отфильтрованные записи
+  if (history.length > 0) {
+    batchService.clearBatchHistory(history.map((h) => h.id).filter(Boolean))
+  }
 
   return {
-    cleared: historyBefore,
-    message: `Очищено ${historyBefore} записей из истории пакетных операций`,
+    cleared: history.length,
+    message: `Очищено ${history.length} из ${totalBefore} записей из истории пакетных операций`,
   }
 }

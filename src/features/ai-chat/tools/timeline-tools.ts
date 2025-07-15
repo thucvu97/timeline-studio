@@ -5,7 +5,15 @@
  * и модификации структуры таймлайна
  */
 
-import { TimelineClip, TimelineProject, TimelineSection, TimelineTrack } from "@/features/timeline/types"
+import {
+  AppliedEffect,
+  TimelineClip,
+  TimelineProject,
+  TimelineSection,
+  TimelineTrack,
+  createTimelineClip,
+  createTimelineSection,
+} from "@/features/timeline/types"
 
 import { ClaudeTool } from "../services/claude-service"
 
@@ -751,10 +759,14 @@ async function analyzeTimelineStructure(params: any): Promise<TimelineToolResult
         section.tracks.forEach((track) => allClips.push(...track.clips))
       })
 
+      // Собираем все треки для статистики
+      const allTracksForStats: TimelineTrack[] = [...currentProject.globalTracks]
+      currentProject.sections.forEach((section) => allTracksForStats.push(...section.tracks))
+
       analysis.statistics = {
         averageClipDuration:
           allClips.length > 0 ? allClips.reduce((sum, clip) => sum + clip.duration, 0) / allClips.length : 0,
-        trackTypeDistribution: getTrackTypeDistribution(currentProject),
+        trackTypeDistribution: getTrackTypeDistribution(allTracksForStats),
         timelineDensity: calculateTimelineDensity(currentProject),
         usedResources: {
           effects: currentProject.resources.effects.length,
@@ -852,7 +864,7 @@ async function createTimelineProject(params: any): Promise<TimelineToolResult> {
       message: `Проект "${project.name}" создан успешно`,
       data: {
         projectId: project.id,
-        createdElements: project.tracks.map((t) => t.id),
+        createdElements: project.globalTracks.map((t) => t.id),
       },
     }
   } catch (error) {
@@ -904,10 +916,10 @@ async function createSectionsByStrategy(params: any): Promise<TimelineToolResult
         sections = createManualSections(sectionSettings)
         break
       case "smart":
-        sections = createSmartSections(currentProject.clips, sectionSettings)
+        sections = createSmartSections(allClips, sectionSettings)
         break
       default:
-        sections = createSmartSections(currentProject.clips, sectionSettings)
+        sections = createSmartSections(allClips, sectionSettings)
         break
     }
 
@@ -950,21 +962,28 @@ async function createTrackStructure(params: any): Promise<TimelineToolResult> {
     }
 
     if (replaceExisting) {
-      currentProject.tracks = []
+      currentProject.globalTracks = []
     }
 
     const newTracks: TimelineTrack[] = tracks.map((trackConfig: any, index: number) => ({
       id: generateTrackId(),
       name: trackConfig.name || `Track ${index + 1}`,
       type: trackConfig.type,
-      index: Number(currentProject.tracks?.length || 0) + Number(index),
-      isVisible: trackConfig.isVisible !== false,
-      isMuted: trackConfig.isMuted === true,
-      isLocked: trackConfig.isLocked === true,
+      sectionId: undefined,
+      order: currentProject.globalTracks.length + index,
       clips: [],
+      isLocked: trackConfig.isLocked === true,
+      isMuted: trackConfig.isMuted === true,
+      isHidden: trackConfig.isHidden === true,
+      isSolo: false,
+      volume: 1,
+      pan: 0,
+      height: 100,
+      trackEffects: [],
+      trackFilters: [],
     }))
 
-    currentProject.tracks.push(...newTracks)
+    currentProject.globalTracks.push(...newTracks)
     await saveTimelineProject(currentProject)
 
     return {
@@ -1000,7 +1019,11 @@ async function placeClipsOnTimeline(params: any): Promise<TimelineToolResult> {
     let currentTime = 0
 
     for (const clipConfig of clips) {
-      const trackId = assignTrackForClip(currentProject.tracks, clipConfig, trackAssignment)
+      // Собираем все треки
+      const allTracks: TimelineTrack[] = [...currentProject.globalTracks]
+      currentProject.sections.forEach((section) => allTracks.push(...section.tracks))
+
+      const trackId = assignTrackForClip(allTracks, clipConfig, trackAssignment)
 
       if (!trackId) {
         continue // Пропускаем клип если нет подходящего трека
@@ -1010,23 +1033,32 @@ async function placeClipsOnTimeline(params: any): Promise<TimelineToolResult> {
         id: generateClipId(),
         name: clipConfig.name || `Clip ${placedClips.length + 1}`,
         trackId,
-        resourceId: clipConfig.resourceId,
+        mediaId: clipConfig.resourceId,
+        mediaFile: undefined,
         startTime: strategy === "sequential" ? currentTime : clipConfig.startTime,
-        endTime:
-          strategy === "sequential"
-            ? Number(currentTime) + Number(clipConfig.duration)
-            : Number(clipConfig.startTime) + Number(clipConfig.duration),
         duration: clipConfig.duration,
-        trimStart: clipConfig.trimStart,
-        trimEnd: clipConfig.trimEnd,
+        mediaStartTime: clipConfig.trimStart || 0,
+        mediaEndTime: (clipConfig.trimStart || 0) + clipConfig.duration,
+        offset: 0,
+        volume: 1,
+        speed: 1,
+        isReversed: false,
+        opacity: 1,
+        effects: [],
+        filters: [],
+        transitions: [],
+        isSelected: false,
+        isLocked: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       }
 
       placedClips.push(clip)
 
       // Добавляем клип к треку
-      const track = currentProject.tracks.find((t) => t.id === trackId)
+      const track = allTracks.find((t) => t.id === trackId)
       if (track) {
-        track.clips.push(clip.id)
+        track.clips.push(clip)
       }
 
       if (strategy === "sequential") {
@@ -1034,7 +1066,7 @@ async function placeClipsOnTimeline(params: any): Promise<TimelineToolResult> {
       }
     }
 
-    currentProject.clips.push(...placedClips)
+    // Клипы уже добавлены к трекам
     await saveTimelineProject(currentProject)
 
     return {
@@ -1127,11 +1159,17 @@ async function analyzeContentForStory(params: any): Promise<TimelineToolResult> 
       }
     }
 
+    // Собираем все клипы
+    const allClips: TimelineClip[] = []
+    currentProject.globalTracks.forEach((track) => allClips.push(...track.clips))
+    currentProject.sections.forEach((section) => {
+      section.tracks.forEach((track) => allClips.push(...track.clips))
+    })
+
     const analysis: any = {
       projectInfo: {
-        totalDuration:
-          currentProject.clips?.reduce((sum: number, clip: any) => sum + Number(clip.duration || 0), 0) || 0,
-        clipsCount: currentProject.clips?.length || 0,
+        totalDuration: allClips.reduce((sum: number, clip: any) => sum + Number(clip.duration || 0), 0),
+        clipsCount: allClips.length,
         sectionsCount: currentProject.sections?.length || 0,
       },
     }
@@ -1148,7 +1186,7 @@ async function analyzeContentForStory(params: any): Promise<TimelineToolResult> 
       analysis.emotionalFlow = analyzeEmotionalFlow(currentProject)
     }
 
-    const suggestions = generateStoryImprovements(analysis)
+    const suggestions = generateStoryImprovements(currentProject, analysis)
 
     return {
       success: true,
@@ -1180,8 +1218,14 @@ async function detectAndSplitScenes(params: any): Promise<TimelineToolResult> {
       }
     }
 
-    const targetClips =
-      clipIds.length > 0 ? currentProject.clips.filter((clip) => clipIds.includes(clip.id)) : currentProject.clips
+    // Собираем все клипы
+    const allClips: TimelineClip[] = []
+    currentProject.globalTracks.forEach((track) => allClips.push(...track.clips))
+    currentProject.sections.forEach((section) => {
+      section.tracks.forEach((track) => allClips.push(...track.clips))
+    })
+
+    const targetClips = clipIds.length > 0 ? allClips.filter((clip) => clipIds.includes(clip.id)) : allClips
 
     const detectedScenes: any[] = []
 
@@ -1233,7 +1277,20 @@ async function synchronizeWithMusic(params: any): Promise<TimelineToolResult> {
       }
     }
 
-    const musicClip = currentProject.clips.find((clip) => clip.id === musicTrackId)
+    // Находим музыкальный клип
+    let musicClip: TimelineClip | undefined
+    currentProject.globalTracks.forEach((track) => {
+      const found = track.clips.find((clip) => clip.id === musicTrackId)
+      if (found) musicClip = found
+    })
+    if (!musicClip) {
+      currentProject.sections.forEach((section) => {
+        section.tracks.forEach((track) => {
+          const found = track.clips.find((clip) => clip.id === musicTrackId)
+          if (found) musicClip = found
+        })
+      })
+    }
 
     if (!musicClip) {
       return {
@@ -1246,8 +1303,15 @@ async function synchronizeWithMusic(params: any): Promise<TimelineToolResult> {
     // Анализируем музыкальный трек
     const musicAnalysis = await analyzeMusicForSync(musicClip)
 
+    // Собираем все клипы для синхронизации
+    const allClips: TimelineClip[] = []
+    currentProject.globalTracks.forEach((track) => allClips.push(...track.clips))
+    currentProject.sections.forEach((section) => {
+      section.tracks.forEach((track) => allClips.push(...track.clips))
+    })
+
     // Синхронизируем видео клипы с музыкой
-    const adjustedClips = await adjustClipsToMusic(currentProject.clips, musicAnalysis, syncMode, adjustmentStrength)
+    const adjustedClips = await adjustClipsToMusic(allClips, musicAnalysis, syncMode, adjustmentStrength)
 
     await saveTimelineProject(currentProject)
 
@@ -1367,8 +1431,15 @@ async function exportTimelineData(params: any): Promise<TimelineToolResult> {
           format: exportFormat,
           dataSize: JSON.stringify(exportData).length,
           elementsCount: {
-            tracks: currentProject.tracks.length,
-            clips: currentProject.clips.length,
+            tracks:
+              currentProject.globalTracks.length +
+              currentProject.sections.reduce((sum, section) => sum + section.tracks.length, 0),
+            clips:
+              currentProject.globalTracks.reduce((sum, track) => sum + track.clips.length, 0) +
+              currentProject.sections.reduce(
+                (sum, section) => sum + section.tracks.reduce((s, track) => s + track.clips.length, 0),
+                0,
+              ),
             sections: currentProject.sections.length,
           },
         },
@@ -1386,14 +1457,28 @@ async function exportTimelineData(params: any): Promise<TimelineToolResult> {
 // Вспомогательные функции
 
 async function getCurrentTimelineProject(): Promise<TimelineProject | null> {
-  // TODO: Интеграция с timeline state machine
-  // Пока возвращаем заглушку
+  // Интеграция с timeline state machine
+  // Получаем текущий проект из глобального состояния Timeline
+  if (typeof window !== "undefined" && (window as any).timelineContext) {
+    return (window as any).timelineContext.project
+  }
+
+  // Fallback - возвращаем null если контекст недоступен
   return null
 }
 
 async function saveTimelineProject(project: TimelineProject): Promise<void> {
-  // TODO: Интеграция с timeline state machine для сохранения проекта
-  console.log(`Сохранение проекта: ${project.name}`)
+  // Интеграция с timeline state machine для сохранения проекта
+  if (typeof window !== "undefined" && (window as any).timelineContext) {
+    const timelineContext = (window as any).timelineContext
+    if (timelineContext.saveProject) {
+      await timelineContext.saveProject()
+      console.log(`Проект сохранен: ${project.name}`)
+    }
+  } else {
+    // Fallback - логируем попытку сохранения
+    console.log(`Попытка сохранения проекта: ${project.name} (timeline context недоступен)`)
+  }
 }
 
 function generateProjectId(): string {
@@ -1408,6 +1493,141 @@ function generateClipId(): string {
   return `clip_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
 }
 
+function generateSectionId(): string {
+  return `section_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
+}
+
+function formatTimecode(seconds: number, fps: number): string {
+  const hours = Math.floor(seconds / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+  const secs = Math.floor(seconds % 60)
+  const frames = Math.floor((seconds % 1) * fps)
+
+  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}:${String(frames).padStart(2, "0")}`
+}
+
+function extractDateFromClip(clip: TimelineClip): Date {
+  // Извлечение даты из метаданных клипа
+  if (clip.createdAt) return clip.createdAt
+
+  // Попытка извлечь дату из mediaFile.createdAt если доступно
+  if (clip.mediaFile?.createdAt) {
+    return new Date(clip.mediaFile.createdAt)
+  }
+
+  // Попытка извлечь дату из mediaFile.probeData
+  if (clip.mediaFile?.probeData?.format?.tags?.creation_time) {
+    return new Date(clip.mediaFile.probeData.format.tags.creation_time)
+  }
+
+  // Попытка извлечь дату из имени файла (если есть паттерн даты)
+  if (clip.name) {
+    const dateMatch = /(\d{4})-(\d{2})-(\d{2})/.exec(clip.name)
+    if (dateMatch) {
+      return new Date(`${dateMatch[1]}-${dateMatch[2]}-${dateMatch[3]}`)
+    }
+  }
+
+  // Fallback - текущая дата
+  return new Date()
+}
+
+function determineContentType(clip: TimelineClip): string {
+  // Определение типа контента на основе метаданных
+
+  // Приоритет: анализ реальных метаданных файла
+  if (clip.mediaFile?.isVideo) {
+    return "Video"
+  }
+
+  if (clip.mediaFile?.isAudio) {
+    return "Audio"
+  }
+
+  // Анализ типа медиафайла
+  if (clip.mediaFile?.isImage) {
+    return "Image"
+  }
+
+  // Анализ расширения файла
+  if (clip.name) {
+    const extension = clip.name.split(".").pop()?.toLowerCase()
+    switch (extension) {
+      case "mp4":
+      case "mov":
+      case "avi":
+      case "mkv":
+      case "webm":
+        return "Video"
+      case "mp3":
+      case "wav":
+      case "aac":
+      case "flac":
+      case "ogg":
+        return "Audio"
+      case "jpg":
+      case "jpeg":
+      case "png":
+      case "gif":
+      case "webp":
+        return "Image"
+      default:
+        break
+    }
+  }
+
+  // Fallback: анализ по track ID
+  if (clip.trackId.includes("video")) return "Video"
+  if (clip.trackId.includes("audio")) return "Audio"
+  if (clip.trackId.includes("music")) return "Music"
+  if (clip.trackId.includes("image")) return "Image"
+
+  return "Unknown"
+}
+
+function getColorForContentType(contentType: string): string {
+  const colors: Record<string, string> = {
+    Video: "#3B82F6",
+    Audio: "#10B981",
+    Music: "#8B5CF6",
+    Unknown: "#6B7280",
+  }
+  return colors[contentType] || "#6B7280"
+}
+
+function detectClipOverlaps(clips: TimelineClip[]): any[] {
+  const overlaps: any[] = []
+
+  // Группируем клипы по трекам
+  const trackClips = new Map<string, TimelineClip[]>()
+
+  clips.forEach((clip) => {
+    if (!trackClips.has(clip.trackId)) {
+      trackClips.set(clip.trackId, [])
+    }
+    trackClips.get(clip.trackId)!.push(clip)
+  })
+
+  // Проверяем перекрытия на каждом треке
+  for (const [trackId, trackClipList] of trackClips) {
+    const sortedClips = trackClipList.sort((a, b) => a.startTime - b.startTime)
+
+    for (let i = 0; i < sortedClips.length - 1; i++) {
+      const clip1 = sortedClips[i]
+      const clip2 = sortedClips[i + 1]
+
+      if (clip1.startTime + clip1.duration > clip2.startTime) {
+        overlaps.push({
+          clipId: clip1.id,
+          conflicts: [clip2.id],
+        })
+      }
+    }
+  }
+
+  return overlaps
+}
+
 function createDefaultTrackStructure(templateType: string): TimelineTrack[] {
   const tracks: TimelineTrack[] = []
 
@@ -1418,21 +1638,33 @@ function createDefaultTrackStructure(templateType: string): TimelineTrack[] {
           id: generateTrackId(),
           name: "Video 1",
           type: "video",
-          index: 0,
-          isVisible: true,
-          isMuted: false,
-          isLocked: false,
+          order: 0,
           clips: [],
+          isLocked: false,
+          isMuted: false,
+          isHidden: false,
+          isSolo: false,
+          volume: 1,
+          pan: 0,
+          height: 100,
+          trackEffects: [],
+          trackFilters: [],
         },
         {
           id: generateTrackId(),
           name: "Audio 1",
           type: "audio",
-          index: 1,
-          isVisible: true,
-          isMuted: false,
-          isLocked: false,
+          order: 1,
           clips: [],
+          isLocked: false,
+          isMuted: false,
+          isHidden: false,
+          isSolo: false,
+          volume: 1,
+          pan: 0,
+          height: 100,
+          trackEffects: [],
+          trackFilters: [],
         },
       )
       break
@@ -1442,51 +1674,81 @@ function createDefaultTrackStructure(templateType: string): TimelineTrack[] {
           id: generateTrackId(),
           name: "Video Main",
           type: "video",
-          index: 0,
-          isVisible: true,
-          isMuted: false,
-          isLocked: false,
+          order: 0,
           clips: [],
+          isLocked: false,
+          isMuted: false,
+          isHidden: false,
+          isSolo: false,
+          volume: 1,
+          pan: 0,
+          height: 100,
+          trackEffects: [],
+          trackFilters: [],
         },
         {
           id: generateTrackId(),
           name: "Video Overlay",
-          type: "overlay",
-          index: 1,
-          isVisible: true,
-          isMuted: false,
-          isLocked: false,
+          type: "video",
+          order: 1,
           clips: [],
+          isLocked: false,
+          isMuted: false,
+          isHidden: false,
+          isSolo: false,
+          volume: 1,
+          pan: 0,
+          height: 100,
+          trackEffects: [],
+          trackFilters: [],
         },
         {
           id: generateTrackId(),
           name: "Audio Main",
           type: "audio",
-          index: 2,
-          isVisible: true,
-          isMuted: false,
-          isLocked: false,
+          order: 2,
           clips: [],
+          isLocked: false,
+          isMuted: false,
+          isHidden: false,
+          isSolo: false,
+          volume: 1,
+          pan: 0,
+          height: 100,
+          trackEffects: [],
+          trackFilters: [],
         },
         {
           id: generateTrackId(),
           name: "Audio Music",
-          type: "audio",
-          index: 3,
-          isVisible: true,
-          isMuted: false,
-          isLocked: false,
+          type: "music",
+          order: 3,
           clips: [],
+          isLocked: false,
+          isMuted: false,
+          isHidden: false,
+          isSolo: false,
+          volume: 1,
+          pan: 0,
+          height: 100,
+          trackEffects: [],
+          trackFilters: [],
         },
         {
           id: generateTrackId(),
           name: "Subtitles",
           type: "subtitle",
-          index: 4,
-          isVisible: true,
-          isMuted: false,
-          isLocked: false,
+          order: 4,
           clips: [],
+          isLocked: false,
+          isMuted: false,
+          isHidden: false,
+          isSolo: false,
+          volume: 1,
+          pan: 0,
+          height: 100,
+          trackEffects: [],
+          trackFilters: [],
         },
       )
       break
@@ -1496,21 +1758,33 @@ function createDefaultTrackStructure(templateType: string): TimelineTrack[] {
           id: generateTrackId(),
           name: "Video 1",
           type: "video",
-          index: 0,
-          isVisible: true,
-          isMuted: false,
-          isLocked: false,
+          order: 0,
           clips: [],
+          isLocked: false,
+          isMuted: false,
+          isHidden: false,
+          isSolo: false,
+          volume: 1,
+          pan: 0,
+          height: 100,
+          trackEffects: [],
+          trackFilters: [],
         },
         {
           id: generateTrackId(),
           name: "Audio 1",
           type: "audio",
-          index: 1,
-          isVisible: true,
-          isMuted: false,
-          isLocked: false,
+          order: 1,
           clips: [],
+          isLocked: false,
+          isMuted: false,
+          isHidden: false,
+          isSolo: false,
+          volume: 1,
+          pan: 0,
+          height: 100,
+          trackEffects: [],
+          trackFilters: [],
         },
       )
       break
@@ -1527,15 +1801,21 @@ function getTrackTypeDistribution(tracks: TimelineTrack[]): Record<string, numbe
 }
 
 function calculateTimelineDensity(project: TimelineProject): number {
-  if (!timelineStateAccess) {
-    return 0
-  }
+  // Убираем зависимость от timelineStateAccess и считаем плотность
+  const allClips: TimelineClip[] = []
+  project.globalTracks.forEach((track) => allClips.push(...track.clips))
+  project.sections.forEach((section) => {
+    section.tracks.forEach((track) => allClips.push(...track.clips))
+  })
 
-  const projectStats = timelineStateAccess.getProjectStats()
-  const totalDuration = project.settings.duration || 0
-  const totalClipDuration = project.clips?.reduce((sum: number, clip: any) => sum + Number(clip.duration || 0), 0) || 0
+  if (allClips.length === 0) return 0
 
-  return totalDuration > 0 ? totalClipDuration / totalDuration : 0
+  const totalDuration = Math.max(...allClips.map((clip) => clip.startTime + clip.duration))
+  if (totalDuration === 0) return 0
+
+  // Плотность = общая длительность клипов / общая длительность таймлайна
+  const totalClipDuration = allClips.reduce((sum, clip) => sum + clip.duration, 0)
+  return Math.min(1, totalClipDuration / totalDuration)
 }
 
 function generateStructureRecommendations(project: TimelineProject): string[] {
@@ -1559,7 +1839,11 @@ function generateStructureRecommendations(project: TimelineProject): string[] {
     recommendations.push("Создайте секции для лучшей организации")
   }
 
-  const trackTypeDistribution = getTrackTypeDistribution(project.tracks || [])
+  // Собираем все треки
+  const allTracks: TimelineTrack[] = [...project.globalTracks]
+  project.sections.forEach((section) => allTracks.push(...section.tracks))
+
+  const trackTypeDistribution = getTrackTypeDistribution(allTracks)
   const hasVideo = trackTypeDistribution.video > 0
   const hasAudio = trackTypeDistribution.audio > 0
 
@@ -1602,7 +1886,9 @@ function detectStructureIssues(project: TimelineProject): any[] {
   }
 
   // Проверяем пустые треки
-  const emptyTracks = (project.tracks || []).filter((track) => !track.clips || track.clips.length === 0)
+  const allTracks: TimelineTrack[] = [...project.globalTracks]
+  project.sections.forEach((section) => allTracks.push(...section.tracks))
+  const emptyTracks = allTracks.filter((track) => !track.clips || track.clips.length === 0)
 
   if (emptyTracks.length > 0) {
     issues.push({
@@ -1614,7 +1900,12 @@ function detectStructureIssues(project: TimelineProject): any[] {
   }
 
   // Проверяем перекрытия клипов
-  const overlappingClips = detectClipOverlaps(project.clips || [])
+  const allClips: TimelineClip[] = []
+  project.globalTracks.forEach((track) => allClips.push(...track.clips))
+  project.sections.forEach((section) => {
+    section.tracks.forEach((track) => allClips.push(...track.clips))
+  })
+  const overlappingClips = detectClipOverlaps(allClips)
   if (overlappingClips.length > 0) {
     issues.push({
       type: "timing",
@@ -1650,14 +1941,21 @@ function createSectionsByDate(clips: TimelineClip[], settings: any): TimelineSec
   const sections: TimelineSection[] = []
 
   for (const [dateKey, dateClips] of dateGroups) {
+    const minStartTime = Math.min(...dateClips.map((c) => c.startTime))
+    const maxEndTime = Math.max(...dateClips.map((c) => c.startTime + c.duration))
+
     const section: TimelineSection = {
       id: generateSectionId(),
+      index: sections.length,
       name: `Section ${dateKey}`,
-      startTime: Math.min(...dateClips.map((c) => c.startTime)),
-      endTime: Math.max(...dateClips.map((c) => c.startTime + c.duration)),
+      startTime: minStartTime,
+      endTime: maxEndTime,
+      duration: maxEndTime - minStartTime,
+      realStartTime: new Date(dateKey),
+      tracks: [],
+      isCollapsed: false,
       color: settings.defaultColor || "#4F46E5",
-      isLocked: false,
-      clips: dateClips.map((c) => c.id),
+      tags: ["date-grouped"],
     }
     sections.push(section)
   }
@@ -1685,7 +1983,7 @@ function createSectionsByDuration(clips: TimelineClip[], settings: any): Timelin
     if (!currentSection || clip.startTime - sectionStartTime >= targetDuration) {
       // Сохраняем предыдущую секцию
       if (currentSection && currentSectionClips.length > 0) {
-        currentSection.clips = currentSectionClips.map((c) => c.id)
+        // Секции не содержат клипы напрямую, только треки
         sections.push(currentSection)
       }
 
@@ -1693,12 +1991,15 @@ function createSectionsByDuration(clips: TimelineClip[], settings: any): Timelin
       sectionStartTime = clip.startTime
       currentSection = {
         id: generateSectionId(),
+        index: sections.length,
         name: `Section ${sections.length + 1}`,
         startTime: sectionStartTime,
         endTime: Number(sectionStartTime || 0) + Number(targetDuration || 0),
+        duration: targetDuration,
+        tracks: [],
+        isCollapsed: false,
         color: settings.defaultColor || "#4F46E5",
-        isLocked: false,
-        clips: [],
+        tags: ["duration-based"],
       }
       currentSectionClips = []
     }
@@ -1708,8 +2009,8 @@ function createSectionsByDuration(clips: TimelineClip[], settings: any): Timelin
 
   // Добавляем последнюю секцию
   if (currentSection && currentSectionClips.length > 0) {
-    currentSection.clips = currentSectionClips.map((c) => c.id)
     currentSection.endTime = Math.max(...currentSectionClips.map((c) => c.startTime + c.duration))
+    currentSection.duration = currentSection.endTime - currentSection.startTime
     sections.push(currentSection)
   }
 
@@ -1739,14 +2040,20 @@ function createSectionsByContentType(clips: TimelineClip[], _settings: any): Tim
     // Сортируем клипы по времени
     const sortedClips = typeClips.sort((a, b) => a.startTime - b.startTime)
 
+    const minStartTime = Math.min(...sortedClips.map((c) => c.startTime))
+    const maxEndTime = Math.max(...sortedClips.map((c) => c.startTime + c.duration))
+
     const section: TimelineSection = {
       id: generateSectionId(),
+      index: sections.length,
       name: `${contentType} Section`,
-      startTime: Math.min(...sortedClips.map((c) => c.startTime)),
-      endTime: Math.max(...sortedClips.map((c) => c.startTime + c.duration)),
+      startTime: minStartTime,
+      endTime: maxEndTime,
+      duration: maxEndTime - minStartTime,
+      tracks: [],
+      isCollapsed: false,
       color: getColorForContentType(contentType),
-      isLocked: false,
-      clips: sortedClips.map((c) => c.id),
+      tags: [contentType],
     }
     sections.push(section)
   }
@@ -1754,29 +2061,263 @@ function createSectionsByContentType(clips: TimelineClip[], _settings: any): Tim
   return sections
 }
 
-function createSectionsByLocation(_clips: TimelineClip[], _settings: any): TimelineSection[] {
-  // TODO: Реализовать создание секций по местоположению
-  return []
+function createSectionsByLocation(clips: TimelineClip[], settings: any): TimelineSection[] {
+  // Создание секций по местоположению на основе GPS метаданных
+  const locationGroups = new Map<string, TimelineClip[]>()
+
+  clips.forEach((clip) => {
+    let location = "Unknown Location"
+
+    // Попытка извлечь GPS координаты из метаданных (если будут доступны)
+    // TODO: Добавить поддержку GPS метаданных в MediaFile
+
+    // Попытка извлечь местоположение из имени файла
+    if (location === "Unknown Location" && clip.name) {
+      const locationMatch = /_([\w\s]+)_location/i.exec(clip.name)
+      if (locationMatch) {
+        location = locationMatch[1].replace(/\s+/g, "_")
+      }
+    }
+
+    if (!locationGroups.has(location)) {
+      locationGroups.set(location, [])
+    }
+    locationGroups.get(location)!.push(clip)
+  })
+
+  const sections: TimelineSection[] = []
+  let sectionIndex = 0
+
+  locationGroups.forEach((locationClips, location) => {
+    if (locationClips.length >= (settings.minClipsPerLocation || 2)) {
+      const startTime = Math.min(...locationClips.map((c) => c.startTime))
+      const endTime = Math.max(...locationClips.map((c) => c.startTime + c.duration))
+
+      const section = createTimelineSection(
+        location === "Unknown Location" ? `Location ${sectionIndex + 1}` : location,
+        startTime,
+        endTime - startTime,
+        extractDateFromClip(locationClips[0]),
+        sectionIndex,
+      )
+
+      sections.push(section)
+      sectionIndex++
+    }
+  })
+
+  return sections
 }
 
-function createManualSections(_settings: any): TimelineSection[] {
-  // TODO: Реализовать создание ручных секций
-  return []
+function createManualSections(settings: any): TimelineSection[] {
+  // Создание ручных секций на основе пользовательских настроек
+  const sections: TimelineSection[] = []
+
+  if (settings.sectionDefinitions && Array.isArray(settings.sectionDefinitions)) {
+    settings.sectionDefinitions.forEach((def: any, index: number) => {
+      const section = createTimelineSection(
+        def.name || `Manual Section ${index + 1}`,
+        def.startTime || 0,
+        def.duration || 60,
+        def.realStartTime ? new Date(def.realStartTime) : new Date(),
+        index,
+      )
+
+      sections.push(section)
+    })
+  } else if (settings.sectionCount) {
+    // Создаем секции равной длительности
+    const totalDuration = settings.totalDuration || 300 // 5 минут по умолчанию
+    const sectionDuration = totalDuration / settings.sectionCount
+
+    for (let i = 0; i < settings.sectionCount; i++) {
+      const section = createTimelineSection(`Section ${i + 1}`, i * sectionDuration, sectionDuration, new Date(), i)
+
+      sections.push(section)
+    }
+  }
+
+  return sections
 }
 
-function createSmartSections(_clips: TimelineClip[], _settings: any): TimelineSection[] {
-  // TODO: Реализовать умное создание секций
-  return []
+function createSmartSections(clips: TimelineClip[], settings: any): TimelineSection[] {
+  // Умное создание секций на основе AI анализа контента
+  const sections: TimelineSection[] = []
+
+  if (clips.length === 0) return sections
+
+  // Сортируем клипы по времени
+  const sortedClips = [...clips].sort((a, b) => a.startTime - b.startTime)
+
+  // Группируем клипы по схожести контента и времени
+  const groups: TimelineClip[][] = []
+  let currentGroup: TimelineClip[] = [sortedClips[0]]
+
+  for (let i = 1; i < sortedClips.length; i++) {
+    const currentClip = sortedClips[i]
+    const lastClip = currentGroup[currentGroup.length - 1]
+
+    // Условия для группировки:
+    // 1. Временной интервал между клипами
+    const timeGap = currentClip.startTime - (lastClip.startTime + lastClip.duration)
+    const maxGap = settings.maxTimeGap || 30 // 30 секунд
+
+    // 2. Схожий тип контента
+    const sameContentType = determineContentType(currentClip) === determineContentType(lastClip)
+
+    // 3. Схожие даты создания (для группировки по событиям)
+    const currentDate = extractDateFromClip(currentClip)
+    const lastDate = extractDateFromClip(lastClip)
+    const dateDiff = Math.abs(currentDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60) // часы
+    const maxDateDiff = settings.maxDateDiff || 24 // 24 часа
+
+    if (timeGap <= maxGap && sameContentType && dateDiff <= maxDateDiff) {
+      currentGroup.push(currentClip)
+    } else {
+      groups.push(currentGroup)
+      currentGroup = [currentClip]
+    }
+  }
+  groups.push(currentGroup)
+
+  // Создаем секции из групп
+  groups.forEach((group, index) => {
+    if (group.length >= (settings.minClipsPerSection || 1)) {
+      const startTime = Math.min(...group.map((c) => c.startTime))
+      const endTime = Math.max(...group.map((c) => c.startTime + c.duration))
+
+      // Определяем название секции на основе контента
+      const contentTypes = [...new Set(group.map((c) => determineContentType(c)))]
+      const sectionName =
+        contentTypes.length === 1 ? `${contentTypes[0]} Section ${index + 1}` : `Mixed Content ${index + 1}`
+
+      const section = createTimelineSection(
+        sectionName,
+        startTime,
+        endTime - startTime,
+        extractDateFromClip(group[0]),
+        index,
+      )
+
+      sections.push(section)
+    }
+  })
+
+  return sections
 }
 
-function calculateSectionsCoverage(_sections: TimelineSection[]): number {
-  // TODO: Реализовать расчет покрытия секций
-  return 0
+function calculateSectionsCoverage(sections: TimelineSection[]): number {
+  // Расчет покрытия секций (процент времени timeline покрытого секциями)
+  if (sections.length === 0) return 0
+
+  // Находим общую длительность timeline
+  const maxEndTime = Math.max(...sections.map((s) => s.startTime + s.duration))
+  const minStartTime = Math.min(...sections.map((s) => s.startTime))
+  const totalTimelineDuration = maxEndTime - minStartTime
+
+  if (totalTimelineDuration === 0) return 100
+
+  // Сортируем секции по времени начала
+  const sortedSections = [...sections].sort((a, b) => a.startTime - b.startTime)
+
+  // Объединяем перекрывающиеся секции для точного расчета покрытия
+  const mergedRanges: Array<{ start: number; end: number }> = []
+
+  for (const section of sortedSections) {
+    const start = section.startTime
+    const end = section.startTime + section.duration
+
+    if (mergedRanges.length === 0) {
+      mergedRanges.push({ start, end })
+    } else {
+      const lastRange = mergedRanges[mergedRanges.length - 1]
+      if (start <= lastRange.end) {
+        // Перекрытие - объединяем
+        lastRange.end = Math.max(lastRange.end, end)
+      } else {
+        // Нет перекрытия - добавляем новый диапазон
+        mergedRanges.push({ start, end })
+      }
+    }
+  }
+
+  // Считаем общую покрытую длительность
+  const coveredDuration = mergedRanges.reduce((total, range) => total + (range.end - range.start), 0)
+
+  // Возвращаем процент покрытия
+  return Math.round((coveredDuration / totalTimelineDuration) * 100)
 }
 
-function assignTrackForClip(tracks: TimelineTrack[], _clipConfig: any, _strategy: string): string | null {
-  // TODO: Реализовать назначение трека для клипа
-  return tracks.length > 0 ? tracks[0].id : null
+function assignTrackForClip(tracks: TimelineTrack[], clipConfig: any, strategy: string): string | null {
+  // Интеллектуальное назначение трека для клипа
+  if (tracks.length === 0) return null
+
+  const contentType = clipConfig.contentType || determineContentType(clipConfig)
+
+  switch (strategy) {
+    case "content_type":
+      // Поиск трека по типу контента
+      const typeTrack = tracks.find((track) => track.type.toLowerCase().includes(contentType.toLowerCase()))
+      if (typeTrack) return typeTrack.id
+      break
+
+    case "least_used":
+      // Назначение на наименее используемый трек
+      const trackUsage = tracks.map((track) => ({
+        id: track.id,
+        clipCount: track.clips?.length || 0,
+      }))
+      const leastUsed = trackUsage.reduce((min, current) => (current.clipCount < min.clipCount ? current : min))
+      return leastUsed.id
+
+    case "time_based":
+      // Назначение на основе времени (избегаем перекрытий)
+      const targetTime = clipConfig.startTime || 0
+      const duration = clipConfig.duration || 10
+
+      for (const track of tracks) {
+        const hasOverlap =
+          track.clips?.some(
+            (clip) => targetTime < clip.startTime + clip.duration && targetTime + duration > clip.startTime,
+          ) || false
+
+        if (!hasOverlap) return track.id
+      }
+      break
+
+    case "smart":
+      // Комбинированная стратегия
+      // 1. Сначала по типу контента
+      const smartTypeTrack = tracks.find((track) => track.type.toLowerCase().includes(contentType.toLowerCase()))
+      if (smartTypeTrack) {
+        // 2. Проверяем на перекрытия
+        const targetTime = clipConfig.startTime || 0
+        const duration = clipConfig.duration || 10
+        const hasOverlap =
+          smartTypeTrack.clips?.some(
+            (clip) => targetTime < clip.startTime + clip.duration && targetTime + duration > clip.startTime,
+          ) || false
+
+        if (!hasOverlap) return smartTypeTrack.id
+      }
+
+      // 3. Fallback на наименее используемый
+      const smartTrackUsage = tracks.map((track) => ({
+        id: track.id,
+        clipCount: track.clips?.length || 0,
+      }))
+      const smartLeastUsed = smartTrackUsage.reduce((min, current) =>
+        current.clipCount < min.clipCount ? current : min,
+      )
+      return smartLeastUsed.id
+
+    default:
+      // По умолчанию - первый доступный трек
+      return tracks[0].id
+  }
+
+  // Fallback - первый трек
+  return tracks[0].id
 }
 
 function getClipTrackDistribution(clips: TimelineClip[]): Record<string, number> {
@@ -1787,188 +2328,1084 @@ function getClipTrackDistribution(clips: TimelineClip[]): Record<string, number>
 }
 
 // Функции автоматических улучшений
-async function applyAutoTransitions(_project: TimelineProject): Promise<void> {
-  // TODO: Реализовать автоматические переходы
-}
+async function applyAutoTransitions(project: TimelineProject): Promise<void> {
+  // Автоматическое применение переходов между клипами
+  const allTracks = [...project.globalTracks, ...project.sections.flatMap((s) => s.tracks)]
 
-async function applyAutoColorCorrection(_project: TimelineProject): Promise<void> {
-  // TODO: Реализовать автоматическую цветокоррекцию
-}
+  allTracks.forEach((track) => {
+    if (track.clips && track.clips.length > 1) {
+      // Сортируем клипы по времени
+      const sortedClips = [...track.clips].sort((a, b) => a.startTime - b.startTime)
 
-async function applyAutoAudioBalance(_project: TimelineProject): Promise<void> {
-  // TODO: Реализовать автоматический баланс аудио
-}
+      for (let i = 0; i < sortedClips.length - 1; i++) {
+        const currentClip = sortedClips[i]
+        const nextClip = sortedClips[i + 1]
 
-async function applyAutoStabilization(_project: TimelineProject): Promise<void> {
-  // TODO: Реализовать автоматическую стабилизацию
-}
-
-// Функции анализа контента
-function analyzeNarrativeStructure(_project: TimelineProject): any {
-  // TODO: Реализовать анализ нарративной структуры
-  return {}
-}
-
-function analyzePacing(_project: TimelineProject): any {
-  // TODO: Реализовать анализ темпа
-  return {}
-}
-
-function analyzeEmotionalFlow(_project: TimelineProject): any {
-  // TODO: Реализовать анализ эмоционального потока
-  return {}
-}
-
-function generateStoryImprovements(_analysis: any): string[] {
-  // TODO: Реализовать генерацию улучшений повествования
-  return []
-}
-
-// Функции детекции сцен
-async function detectScenesInClip(_clip: TimelineClip, _sensitivity: string): Promise<any[]> {
-  // TODO: Реализовать детекцию сцен в клипе
-  return []
-}
-
-async function splitClipByScenes(_clip: TimelineClip, _scenes: any[], _project: TimelineProject): Promise<void> {
-  // TODO: Реализовать разделение клипа по сценам
-}
-
-// Функции синхронизации с музыкой
-async function analyzeMusicForSync(_musicClip: TimelineClip): Promise<any> {
-  // TODO: Реализовать анализ музыки для синхронизации
-  return { beats: [], tempo: 120 }
-}
-
-async function adjustClipsToMusic(
-  _clips: TimelineClip[],
-  _musicAnalysis: any,
-  _syncMode: string,
-  _strength: string,
-): Promise<string[]> {
-  // TODO: Реализовать подстройку клипов под музыку
-  return []
-}
-
-// Функции анализа и предложений
-function analyzePerformanceIssues(_project: TimelineProject): string[] {
-  // TODO: Реализовать анализ проблем производительности
-  return []
-}
-
-function analyzeQualityIssues(_project: TimelineProject): string[] {
-  // TODO: Реализовать анализ проблем качества
-  return []
-}
-
-function analyzeStorytellingIssues(_project: TimelineProject): string[] {
-  // TODO: Реализовать анализ проблем повествования
-  return []
-}
-
-function calculateProjectComplexity(_project: TimelineProject): number {
-  // TODO: Реализовать расчет сложности проекта
-  return 0
-}
-
-function estimateRenderTime(_project: TimelineProject): number {
-  // TODO: Реализовать оценку времени рендера
-  return 0
-}
-
-function calculateQualityScore(_project: TimelineProject): number {
-  // TODO: Реализовать расчет оценки качества
-  return 0
-}
-
-// Функции экспорта
-function exportAsJSON(project: TimelineProject, _includeData: any): any {
-  // TODO: Реализовать экспорт в JSON
-  return project
-}
-
-function exportAsXML(_project: TimelineProject, _includeData: any): string {
-  // TODO: Реализовать экспорт в XML
-  return ""
-}
-
-function exportAsCSV(_project: TimelineProject, _includeData: any): string {
-  // TODO: Реализовать экспорт в CSV
-  return ""
-}
-
-function exportAsEDL(_project: TimelineProject, _includeData: any): string {
-  // TODO: Реализовать экспорт в EDL
-  return ""
-}
-
-// Вспомогательная функция для обнаружения перекрытий клипов
-function detectClipOverlaps(clips: TimelineClip[]): { clipId: string; conflicts: string[] }[] {
-  const overlaps: { clipId: string; conflicts: string[] }[] = []
-
-  for (let i = 0; i < clips.length; i++) {
-    const clip1 = clips[i]
-    const conflicts: string[] = []
-
-    for (let j = i + 1; j < clips.length; j++) {
-      const clip2 = clips[j]
-
-      // Проверяем перекрытие только на одном треке
-      if (clip1.trackId === clip2.trackId) {
-        const clip1End = clip1.startTime + clip1.duration
-        const clip2End = clip2.startTime + clip2.duration
-
-        // Проверяем перекрытие по времени
-        if (clip1.startTime < clip2End && clip2.startTime < clip1End) {
-          conflicts.push(clip2.id)
+        // Если клипы близко друг к другу, добавляем переход
+        const gap = nextClip.startTime - (currentClip.startTime + currentClip.duration)
+        if (gap <= 1) {
+          // 1 секунда
+          // Добавляем эффект перехода
+          currentClip.effects = currentClip.effects || []
+          currentClip.effects.push({
+            id: `auto_transition_${currentClip.id}`,
+            effectId: "crossfade",
+            duration: 0.5,
+            isEnabled: true,
+            order: currentClip.effects.length,
+          } as AppliedEffect)
         }
       }
     }
+  })
+}
 
-    if (conflicts.length > 0) {
-      overlaps.push({ clipId: clip1.id, conflicts })
+async function applyAutoColorCorrection(project: TimelineProject): Promise<void> {
+  // Автоматическая цветокоррекция клипов
+  const allTracks = [...project.globalTracks, ...project.sections.flatMap((s) => s.tracks)]
+
+  allTracks.forEach((track) => {
+    track.clips?.forEach((clip) => {
+      if (determineContentType(clip) === "Video") {
+        clip.effects = clip.effects || []
+        clip.effects.push({
+          id: `auto_color_${clip.id}`,
+          effectId: "color_correction",
+          customParams: {
+            brightness: 1.1,
+            contrast: 1.05,
+            saturation: 1.02,
+            auto_balance: true,
+          },
+          isEnabled: true,
+          order: clip.effects.length,
+        } as AppliedEffect)
+      }
+    })
+  })
+}
+
+async function applyAutoAudioBalance(project: TimelineProject): Promise<void> {
+  // Автоматический баланс аудио
+  const allTracks = [...project.globalTracks, ...project.sections.flatMap((s) => s.tracks)]
+
+  allTracks.forEach((track) => {
+    track.clips?.forEach((clip) => {
+      if (determineContentType(clip) === "Audio" || determineContentType(clip) === "Video") {
+        clip.effects = clip.effects || []
+        clip.effects.push({
+          id: `auto_audio_${clip.id}`,
+          effectId: "audio_balance",
+          customParams: {
+            normalize: true,
+            compression: 0.3,
+            eq_auto: true,
+            noise_reduction: 0.2,
+          },
+          isEnabled: true,
+          order: clip.effects.length,
+        })
+      }
+    })
+  })
+}
+
+async function applyAutoStabilization(project: TimelineProject): Promise<void> {
+  // Автоматическая стабилизация видео
+  const allTracks = [...project.globalTracks, ...project.sections.flatMap((s) => s.tracks)]
+
+  allTracks.forEach((track) => {
+    track.clips?.forEach((clip) => {
+      if (determineContentType(clip) === "Video") {
+        clip.effects = clip.effects || []
+        clip.effects.push({
+          id: `auto_stabilization_${clip.id}`,
+          effectId: "stabilization",
+          customParams: {
+            strength: 0.7,
+            smoothness: 0.5,
+            crop_ratio: 0.9,
+          },
+          isEnabled: true,
+          order: clip.effects.length,
+        } as AppliedEffect)
+      }
+    })
+  })
+}
+
+// Функции анализа контента
+function analyzeNarrativeStructure(project: TimelineProject): any {
+  // Анализируем структуру таймлайна
+  const allClips: TimelineClip[] = []
+  project.globalTracks.forEach((track) => allClips.push(...track.clips))
+  project.sections.forEach((section) => {
+    section.tracks.forEach((track) => allClips.push(...track.clips))
+  })
+
+  // Сортируем клипы по времени
+  const sortedClips = allClips.sort((a, b) => a.startTime - b.startTime)
+
+  // Выделяем акты на основе секций
+  const acts = project.sections.map((section, index) => ({
+    id: section.id,
+    name: section.name,
+    startTime: section.startTime,
+    duration: section.duration,
+    position: index + 1,
+    clipCount: section.tracks.reduce((count, track) => count + track.clips.length, 0),
+  }))
+
+  // Анализируем сцены (группируем клипы по времени)
+  const scenes = []
+  let currentScene = { startTime: 0, clips: [], duration: 0 }
+
+  for (const clip of sortedClips) {
+    const gap = clip.startTime - (currentScene.startTime + currentScene.duration)
+
+    if (gap > 5) {
+      // Разрыв больше 5 секунд = новая сцена
+      if (currentScene.clips.length > 0) {
+        scenes.push(currentScene)
+      }
+      currentScene = {
+        startTime: clip.startTime,
+        clips: [clip],
+        duration: clip.duration,
+      }
+    } else {
+      currentScene.clips.push(clip)
+      currentScene.duration = clip.startTime + clip.duration - currentScene.startTime
     }
   }
 
-  return overlaps
-}
-
-// Вспомогательные функции для работы с секциями
-function extractDateFromClip(_clip: TimelineClip): Date {
-  // Извлекаем дату из метаданных клипа или используем текущую дату
-  // В реальном проекте это должно быть получено из файла медиа
-  return new Date()
-}
-
-function generateSectionId(): string {
-  return `section_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
-}
-
-function determineContentType(clip: TimelineClip): string {
-  // Определяем тип контента на основе трека или ресурса
-  // В реальном проекте это должно быть получено из resourceId
-  if (clip.trackId.includes("video")) return "Video"
-  if (clip.trackId.includes("audio")) return "Audio"
-  if (clip.trackId.includes("music")) return "Music"
-  return "Unknown"
-}
-
-function getColorForContentType(contentType: string): string {
-  const colorMap: Record<string, string> = {
-    Video: "#3B82F6",
-    Audio: "#10B981",
-    Music: "#8B5CF6",
-    Unknown: "#6B7280",
+  if (currentScene.clips.length > 0) {
+    scenes.push(currentScene)
   }
-  return colorMap[contentType] || "#6B7280"
+
+  return {
+    acts,
+    scenes,
+    transitions: analyzeTransitionFlow(project),
+    pacing: calculatePacingMetrics(project),
+    emotionalArc: generateEmotionalArc(project),
+  }
 }
 
-function exportAsFCPXML(_project: TimelineProject, _includeData: any): string {
-  // TODO: Реализовать экспорт в FCPXML
-  return ""
+function analyzePacing(project: TimelineProject): any {
+  return calculatePacingAnalysis(project)
 }
 
-function exportAsDaVinciResolve(_project: TimelineProject, _includeData: any): string {
-  // TODO: Реализовать экспорт в DaVinci Resolve
-  return ""
+function analyzeEmotionalFlow(project: TimelineProject): any {
+  // Анализируем эмоциональный поток
+  const allClips: TimelineClip[] = []
+  project.globalTracks.forEach((track) => allClips.push(...track.clips))
+  project.sections.forEach((section) => {
+    section.tracks.forEach((track) => allClips.push(...track.clips))
+  })
+
+  const sortedClips = allClips.sort((a, b) => a.startTime - b.startTime)
+
+  const emotionProgression = sortedClips.map((clip) => {
+    // Простая эвристика для определения эмоциональной окраски
+    const contentType = determineContentType(clip)
+    const duration = clip.duration
+
+    let emotion = "neutral"
+    let intensity = 0.5
+
+    // Анализ на основе длительности клипа
+    if (duration < 2) {
+      emotion = "dynamic"
+      intensity = 0.8
+    } else if (duration > 10) {
+      emotion = "calm"
+      intensity = 0.3
+    }
+
+    // Анализ на основе типа контента
+    if (contentType === "Music") {
+      emotion = "uplifting"
+      intensity = 0.7
+    }
+
+    return {
+      time: clip.startTime,
+      emotion,
+      intensity,
+      clipId: clip.id,
+    }
+  })
+
+  // Находим пики и спады
+  const peaks = emotionProgression.filter((e) => e.intensity > 0.7)
+  const valleys = emotionProgression.filter((e) => e.intensity < 0.3)
+
+  // Анализируем переходы между эмоциями
+  const transitions = []
+  for (let i = 0; i < emotionProgression.length - 1; i++) {
+    const current = emotionProgression[i]
+    const next = emotionProgression[i + 1]
+
+    if (current.emotion !== next.emotion) {
+      transitions.push({
+        from: current.emotion,
+        to: next.emotion,
+        time: next.time,
+        intensity_change: next.intensity - current.intensity,
+      })
+    }
+  }
+
+  return {
+    emotionProgression,
+    intensityLevels: emotionProgression.map((e) => e.intensity),
+    emotionTransitions: transitions,
+    dramaticPeaks: peaks,
+    calmMoments: valleys,
+    overallArc: calculateOverallEmotionalArc(emotionProgression),
+  }
+}
+
+function generateStoryImprovements(project: TimelineProject, analysis: any): string[] {
+  const suggestions: string[] = []
+
+  // Анализ структуры
+  if (analysis.narrativeStructure?.acts?.length === 0) {
+    suggestions.push("Рассмотрите возможность создания секций для лучшей структуры повествования")
+  }
+
+  if (analysis.narrativeStructure?.acts?.length === 1) {
+    suggestions.push("Добавьте дополнительные секции для создания трёхактной структуры")
+  }
+
+  // Анализ темпа
+  if (analysis.pacing?.cutsPerMinute > 20) {
+    suggestions.push("Слишком быстрый темп монтажа - рассмотрите возможность увеличения длительности клипов")
+  } else if (analysis.pacing?.cutsPerMinute < 3) {
+    suggestions.push("Медленный темп монтажа - добавьте больше монтажных переходов для динамики")
+  }
+
+  // Анализ эмоционального потока
+  if (analysis.emotionalFlow?.dramaticPeaks?.length === 0) {
+    suggestions.push("Добавьте эмоциональные пики для создания драматического напряжения")
+  }
+
+  if (analysis.emotionalFlow?.emotionTransitions?.length < 2) {
+    suggestions.push("Создайте больше эмоциональных переходов для разнообразия")
+  }
+
+  // Анализ длительности проекта
+  const totalDuration = project.globalTracks.reduce((max, track) => {
+    const trackDuration = track.clips.reduce((dur, clip) => Math.max(dur, clip.startTime + clip.duration), 0)
+    return Math.max(max, trackDuration)
+  }, 0)
+
+  if (totalDuration > 600) {
+    // Больше 10 минут
+    suggestions.push("Рассмотрите возможность сокращения общей длительности для лучшего удержания внимания")
+  }
+
+  return suggestions
+}
+
+// Функции детекции сцен
+async function detectScenesInClip(clip: TimelineClip, sensitivity: string): Promise<any[]> {
+  // Интеграция с AI анализом сцен
+  try {
+    const sceneDetectionService = await import("@/features/ai-chat/services/unified-ai-service")
+    const aiService = sceneDetectionService.UnifiedAIService.getInstance()
+
+    // AI service doesn't have analyze method, fallback to basic detection
+    return detectScenesBasic(clip, sensitivity)
+  } catch (error) {
+    console.warn("Fallback to basic scene detection:", error)
+
+    // Fallback: базовый анализ по длительности
+    const scenes = []
+    const segmentDuration = sensitivity === "high" ? 10 : sensitivity === "low" ? 30 : 20
+
+    for (let time = 0; time < clip.duration; time += segmentDuration) {
+      scenes.push({
+        time,
+        confidence: 0.7,
+        type: "auto_detected",
+        duration: Math.min(segmentDuration, clip.duration - time),
+      })
+    }
+
+    return scenes
+  }
+}
+
+async function splitClipByScenes(clip: TimelineClip, scenes: any[], project: TimelineProject): Promise<void> {
+  // Находим трек с клипом
+  let targetTrack: TimelineTrack | undefined
+
+  for (const track of project.globalTracks) {
+    if (track.clips.find((c) => c.id === clip.id)) {
+      targetTrack = track
+      break
+    }
+  }
+
+  if (!targetTrack) {
+    for (const section of project.sections) {
+      for (const track of section.tracks) {
+        if (track.clips.find((c) => c.id === clip.id)) {
+          targetTrack = track
+          break
+        }
+      }
+    }
+  }
+
+  if (!targetTrack) return
+
+  // Удаляем оригинальный клип
+  const clipIndex = targetTrack.clips.findIndex((c) => c.id === clip.id)
+  if (clipIndex === -1) return
+
+  targetTrack.clips.splice(clipIndex, 1)
+
+  // Создаем новые клипы для каждой сцены
+  for (let i = 0; i < scenes.length; i++) {
+    const scene = scenes[i]
+    const nextScene = scenes[i + 1]
+    const sceneDuration = nextScene ? nextScene.time - scene.time : clip.duration - scene.time
+
+    const newClip = createTimelineClip(
+      clip.mediaId,
+      clip.trackId,
+      clip.startTime + scene.time,
+      sceneDuration,
+      clip.mediaStartTime + scene.time,
+      clip.mediaDuration,
+    )
+
+    // Добавляем комментарий о сцене
+    newClip.name = `${clip.name} - Scene ${i + 1}`
+
+    targetTrack.clips.push(newClip)
+  }
+
+  // Сортируем клипы по времени
+  targetTrack.clips.sort((a, b) => a.startTime - b.startTime)
+}
+
+// Функции синхронизации с музыкой
+async function analyzeMusicForSync(musicClip: TimelineClip): Promise<any> {
+  try {
+    // Интеграция с AI анализом музыки
+    const audioAnalysisService = await import("@/features/ai-chat/services/unified-ai-service")
+    const aiService = audioAnalysisService.UnifiedAIService.getInstance()
+
+    const analysis = await aiService.analyzeContent({
+      mediaPath: musicClip.mediaFile.path,
+      analysisType: "audio_analysis",
+    })
+
+    return (
+      analysis || {
+        beats: [],
+        tempo: 120,
+        key: "C",
+        energy: 0.5,
+        danceability: 0.5,
+      }
+    )
+  } catch (error) {
+    console.warn("Fallback to basic music analysis:", error)
+
+    // Fallback: простой анализ на основе длительности
+    const tempo = 120 // BPM по умолчанию
+    const beatInterval = 60 / tempo
+    const beats = []
+
+    for (let time = 0; time < musicClip.duration; time += beatInterval) {
+      beats.push({
+        time,
+        confidence: 0.8,
+        type: "beat",
+      })
+    }
+
+    return {
+      beats,
+      tempo,
+      key: "C",
+      energy: 0.5,
+      danceability: 0.5,
+    }
+  }
+}
+
+async function adjustClipsToMusic(
+  clips: TimelineClip[],
+  musicAnalysis: any,
+  syncMode: string,
+  strength: string,
+): Promise<string[]> {
+  const adjustedClips: string[] = []
+  const { beats, tempo } = musicAnalysis
+
+  if (!beats || beats.length === 0) {
+    return adjustedClips
+  }
+
+  const strengthMultiplier = strength === "strong" ? 1 : strength === "subtle" ? 0.3 : 0.6
+
+  for (const clip of clips) {
+    if (determineContentType(clip) === "Video") {
+      switch (syncMode) {
+        case "beat-based":
+          // Выравниваем начало клипов по битам
+          const nearestBeat = beats.find((beat: any) => Math.abs(beat.time - clip.startTime) < 2)
+
+          if (nearestBeat) {
+            const adjustment = (nearestBeat.time - clip.startTime) * strengthMultiplier
+            clip.startTime += adjustment
+            adjustedClips.push(clip.id)
+          }
+          break
+
+        case "tempo-based":
+          // Подгоняем длительность клипов под темп
+          const beatDuration = 60 / tempo
+          const targetDuration = Math.round(clip.duration / beatDuration) * beatDuration
+          const durationAdjustment = (targetDuration - clip.duration) * strengthMultiplier
+
+          if (Math.abs(durationAdjustment) > 0.1) {
+            clip.duration += durationAdjustment
+            adjustedClips.push(clip.id)
+          }
+          break
+
+        case "phrase-based":
+          // Выравниваем клипы по музыкальным фразам (каждые 8 битов)
+          const phraseLength = (60 / tempo) * 8
+          const phraseStart = Math.floor(clip.startTime / phraseLength) * phraseLength
+          const adjustment = (phraseStart - clip.startTime) * strengthMultiplier
+
+          if (Math.abs(adjustment) > 0.5) {
+            clip.startTime += adjustment
+            adjustedClips.push(clip.id)
+          }
+          break
+          
+        default:
+          // Неизвестный режим синхронизации
+          break
+      }
+    }
+  }
+
+  return adjustedClips
+}
+
+// Функции анализа и предложений
+function analyzePerformanceIssues(project: TimelineProject): string[] {
+  const issues: string[] = []
+
+  // Подсчитываем общее количество клипов и эффектов
+  let totalClips = 0
+  let totalEffects = 0
+
+  project.globalTracks.forEach((track) => {
+    totalClips += track.clips.length
+    track.clips.forEach((clip) => {
+      totalEffects += clip.effects?.length || 0
+    })
+  })
+
+  project.sections.forEach((section) => {
+    section.tracks.forEach((track) => {
+      totalClips += track.clips.length
+      track.clips.forEach((clip) => {
+        totalEffects += clip.effects?.length || 0
+      })
+    })
+  })
+
+  // Анализ производительности
+  if (totalClips > 100) {
+    issues.push("Очень много клипов - рассмотрите оптимизацию таймлайна")
+  }
+
+  if (totalEffects > 50) {
+    issues.push("Много эффектов - может замедлить рендеринг")
+  }
+
+  // Проверяем перекрытия клипов
+  const allClips: TimelineClip[] = []
+  project.globalTracks.forEach((track) => allClips.push(...track.clips))
+  project.sections.forEach((section) => {
+    section.tracks.forEach((track) => allClips.push(...track.clips))
+  })
+
+  const overlaps = detectClipOverlaps(allClips)
+  if (overlaps.length > 10) {
+    issues.push(`Обнаружено ${overlaps.length} перекрытий клипов - может вызвать проблемы воспроизведения`)
+  }
+
+  return issues
+}
+
+function analyzeQualityIssues(project: TimelineProject): string[] {
+  const issues: string[] = []
+
+  // Собираем все клипы
+  const allClips: TimelineClip[] = []
+  project.globalTracks.forEach((track) => allClips.push(...track.clips))
+  project.sections.forEach((section) => {
+    section.tracks.forEach((track) => allClips.push(...track.clips))
+  })
+
+  // Проверяем консистентность разрешения
+  const videoClips = allClips.filter((clip) => determineContentType(clip) === "Video")
+  const resolutions = new Set(
+    videoClips.map((clip) => {
+      const width = clip.mediaFile?.probeData?.streams?.[0]?.width
+      const height = clip.mediaFile?.probeData?.streams?.[0]?.height
+      return width && height ? `${width}x${height}` : "unknown"
+    }),
+  )
+
+  if (resolutions.size > 2) {
+    issues.push(`Обнаружено ${resolutions.size} разных разрешений - рассмотрите стандартизацию`)
+  }
+
+  // Проверяем короткие клипы
+  const shortClips = allClips.filter((clip) => clip.duration < 1)
+  if (shortClips.length > 5) {
+    issues.push(`Обнаружено ${shortClips.length} очень коротких клипов - может создавать рябь`)
+  }
+
+  // Проверяем отсутствие переходов
+  let transitionCount = 0
+  allClips.forEach((clip) => {
+    const hasTransitions = clip.effects?.some(
+      (effect: AppliedEffect) => effect.effectId === "transition" || effect.effectId === "crossfade",
+    )
+    if (hasTransitions) transitionCount++
+  })
+
+  if (transitionCount === 0 && allClips.length > 3) {
+    issues.push("Отсутствуют переходы между клипами - рассмотрите добавление")
+  }
+
+  return issues
+}
+
+function analyzeStorytellingIssues(project: TimelineProject): string[] {
+  const issues: string[] = []
+
+  // Проверяем структуру проекта
+  if (project.sections.length === 0) {
+    issues.push("Отсутствует структура секций - создайте секции для лучшей организации")
+  }
+
+  // Проверяем баланс длительности секций
+  if (project.sections.length >= 3) {
+    const durations = project.sections.map((s) => s.duration)
+    const maxDuration = Math.max(...durations)
+    const minDuration = Math.min(...durations)
+
+    if (maxDuration / minDuration > 5) {
+      issues.push("Неравномерное распределение длительности секций")
+    }
+  }
+
+  // Проверяем наличие титров/субтитров
+  const hasTextTracks =
+    project.globalTracks.some((track) => track.type === "title" || track.type === "subtitle") ||
+    project.sections.some((section) =>
+      section.tracks.some((track) => track.type === "title" || track.type === "subtitle"),
+    )
+
+  if (!hasTextTracks) {
+    issues.push("Отсутствуют титры или субтитры - рассмотрите добавление для лучшего восприятия")
+  }
+
+  // Проверяем наличие музыкального сопровождения
+  const hasMusicTracks =
+    project.globalTracks.some((track) => track.type === "music") ||
+    project.sections.some((section) => section.tracks.some((track) => track.type === "music"))
+
+  if (!hasMusicTracks) {
+    issues.push("Отсутствует музыкальное сопровождение - добавьте фоновую музыку")
+  }
+
+  return issues
+}
+
+function calculateProjectComplexity(project: TimelineProject): number {
+  let complexity = 0
+
+  // Количество треков
+  const trackCount =
+    project.globalTracks.length + project.sections.reduce((sum, section) => sum + section.tracks.length, 0)
+  complexity += trackCount * 0.1
+
+  // Количество клипов
+  let clipCount = 0
+  project.globalTracks.forEach((track) => (clipCount += track.clips.length))
+  project.sections.forEach((section) => {
+    section.tracks.forEach((track) => (clipCount += track.clips.length))
+  })
+  complexity += clipCount * 0.05
+
+  // Количество эффектов
+  let effectCount = 0
+  project.globalTracks.forEach((track) => {
+    track.clips.forEach((clip) => (effectCount += clip.effects?.length || 0))
+  })
+  project.sections.forEach((section) => {
+    section.tracks.forEach((track) => {
+      track.clips.forEach((clip) => (effectCount += clip.effects?.length || 0))
+    })
+  })
+  complexity += effectCount * 0.2
+
+  // Количество секций
+  complexity += project.sections.length * 0.3
+
+  return Math.min(10, Math.max(1, complexity))
+}
+
+function estimateRenderTime(project: TimelineProject): number {
+  // Общая длительность проекта
+  const totalDuration = Math.max(
+    ...project.globalTracks.map((track) => Math.max(...track.clips.map((clip) => clip.startTime + clip.duration), 0)),
+    ...project.sections.map((section) => section.startTime + section.duration),
+  )
+
+  // Базовое время рендера (1:1 с длительностью)
+  let renderTime = totalDuration
+
+  // Множитель сложности
+  const complexity = calculateProjectComplexity(project)
+  const complexityMultiplier = 0.5 + (complexity / 10) * 2
+
+  renderTime *= complexityMultiplier
+
+  // Минимум 30 секунд
+  return Math.max(30, Math.round(renderTime))
+}
+
+function calculateQualityScore(project: TimelineProject): number {
+  let score = 10 // Максимальная оценка
+
+  // Проверяем проблемы
+  const performanceIssues = analyzePerformanceIssues(project)
+  const qualityIssues = analyzeQualityIssues(project)
+  const storytellingIssues = analyzeStorytellingIssues(project)
+
+  // Отнимаем баллы за каждую проблему
+  score -= performanceIssues.length * 0.5
+  score -= qualityIssues.length * 0.8
+  score -= storytellingIssues.length * 1.0
+
+  // Поощряем хорошую структуру
+  if (project.sections.length >= 3) score += 0.5
+
+  // Проверяем наличие переходов
+  let hasTransitions = false
+  project.globalTracks.forEach((track) => {
+    track.clips.forEach((clip) => {
+      if (clip.effects?.some((effect: AppliedEffect) => effect.effectId === "transition")) {
+        hasTransitions = true
+      }
+    })
+  })
+  if (hasTransitions) score += 0.5
+
+  // Ограничиваем оценку
+  return Math.max(1, Math.min(10, Math.round(score * 10) / 10))
+}
+
+// Функции экспорта
+function exportAsJSON(project: TimelineProject, includeData: any): any {
+  // Основные данные проекта
+  const exportData: any = {
+    project_info: {
+      name: project.name,
+      duration: project.settings.duration,
+      resolution: project.settings.resolution,
+      fps: project.settings.fps,
+      created_at: project.createdAt?.toISOString(),
+      updated_at: project.updatedAt?.toISOString(),
+    },
+    sections: project.sections.map((section) => ({
+      id: section.id,
+      name: section.name,
+      start_time: section.startTime,
+      duration: section.duration,
+      real_start_time: section.realStartTime?.toISOString(),
+    })),
+  }
+
+  // Дополнительные данные
+  if (includeData.includeTracks) {
+    exportData.tracks = [...project.globalTracks, ...project.sections.flatMap((s) => s.tracks)].map((track) => ({
+      id: track.id,
+      name: track.name,
+      type: track.type,
+      clips_count: track.clips.length,
+    }))
+  }
+
+  if (includeData.includeClips) {
+    const allClips: TimelineClip[] = []
+    project.globalTracks.forEach((track) => allClips.push(...track.clips))
+    project.sections.forEach((section) => {
+      section.tracks.forEach((track) => allClips.push(...track.clips))
+    })
+
+    exportData.clips = allClips.map((clip) => ({
+      id: clip.id,
+      name: clip.name,
+      start_time: clip.startTime,
+      duration: clip.duration,
+      media_file: clip.mediaFile.name,
+      track_id: clip.trackId,
+    }))
+  }
+
+  return exportData
+}
+
+function exportAsXML(project: TimelineProject, includeData: any): string {
+  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+  xml += "<timeline_project>\n"
+
+  // Информация о проекте
+  xml += "  <project_info>\n"
+  xml += `    <name>${escapeXml(project.name)}</name>\n`
+  xml += `    <duration>${project.settings.duration}</duration>\n`
+  xml += `    <fps>${project.settings.fps}</fps>\n`
+  xml += "  </project_info>\n"
+
+  // Секции
+  xml += "  <sections>\n"
+  project.sections.forEach((section) => {
+    xml += `    <section id="${section.id}">\n`
+    xml += `      <name>${escapeXml(section.name)}</name>\n`
+    xml += `      <start_time>${section.startTime}</start_time>\n`
+    xml += `      <duration>${section.duration}</duration>\n`
+    xml += "    </section>\n"
+  })
+  xml += "  </sections>\n"
+
+  // Треки (если запрошено)
+  if (includeData.includeTracks) {
+    xml += "  <tracks>\n"
+    const allTracks = [...project.globalTracks, ...project.sections.flatMap((s) => s.tracks)]
+    allTracks.forEach((track) => {
+      xml += `    <track id="${track.id}" type="${track.type}">\n`
+      xml += `      <name>${escapeXml(track.name)}</name>\n`
+      xml += `      <clips_count>${track.clips.length}</clips_count>\n`
+      xml += "    </track>\n"
+    })
+    xml += "  </tracks>\n"
+  }
+
+  xml += "</timeline_project>"
+  return xml
+}
+
+function exportAsCSV(project: TimelineProject, includeData: any): string {
+  let csv = ""
+
+  if (includeData.includeClips) {
+    // Экспорт клипов
+    csv += "Clip ID,Name,Start Time,Duration,Track ID,Media File\n"
+
+    const allClips: TimelineClip[] = []
+    project.globalTracks.forEach((track) => allClips.push(...track.clips))
+    project.sections.forEach((section) => {
+      section.tracks.forEach((track) => allClips.push(...track.clips))
+    })
+
+    allClips.forEach((clip) => {
+      csv += `${clip.id},"${escapeCsv(clip.name)}",${clip.startTime},${clip.duration},${clip.trackId},"${escapeCsv(clip.mediaFile.name)}"\n`
+    })
+  } else {
+    // Экспорт секций
+    csv += "Section ID,Name,Start Time,Duration\n"
+    project.sections.forEach((section) => {
+      csv += `${section.id},"${escapeCsv(section.name)}",${section.startTime},${section.duration}\n`
+    })
+  }
+
+  return csv
+}
+
+function exportAsEDL(project: TimelineProject, _includeData: any): string {
+  // EDL (Edit Decision List) формат
+  let edl = `TITLE: ${project.name}\n`
+  edl += "FCM: NON-DROP FRAME\n\n"
+
+  let eventNumber = 1
+
+  // Собираем все клипы и сортируем по времени
+  const allClips: TimelineClip[] = []
+  project.globalTracks.forEach((track) => allClips.push(...track.clips))
+  project.sections.forEach((section) => {
+    section.tracks.forEach((track) => allClips.push(...track.clips))
+  })
+
+  const sortedClips = allClips.sort((a, b) => a.startTime - b.startTime)
+
+  sortedClips.forEach((clip) => {
+    const sourceIn = formatTimecode(clip.trimStart || 0, project.settings.fps)
+    const sourceOut = formatTimecode((clip.trimStart || 0) + clip.duration, project.settings.fps)
+    const recordIn = formatTimecode(clip.startTime, project.settings.fps)
+    const recordOut = formatTimecode(clip.startTime + clip.duration, project.settings.fps)
+
+    edl += `${String(eventNumber).padStart(3, "0")}  ${clip.mediaFile.name.substring(0, 8).toUpperCase().padEnd(8)} V     C        ${sourceIn} ${sourceOut} ${recordIn} ${recordOut}\n`
+    eventNumber++
+  })
+
+  return edl
+}
+
+// Функция detectClipOverlaps уже определена выше
+
+// Эти функции уже определены выше в файле (строки 1462-1551)
+
+function exportAsFCPXML(project: TimelineProject, _includeData: any): string {
+  // Final Cut Pro XML формат
+  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+  xml += "<!DOCTYPE fcpxml>\n"
+  xml += '<fcpxml version="1.10">\n'
+  xml += "  <resources>\n"
+  xml +=
+    '    <format id="r1" name="FFVideoFormat1080p30" frameDuration="100/3000s" width="1920" height="1080" colorSpace="1-1-1 (Rec. 709)"/>\n'
+  xml += "  </resources>\n"
+  xml += '  <library location="file:///">\n'
+  xml += '    <event name="Timeline Studio Export">\n'
+  xml += `      <project name="${escapeXml(project.name)}">\n`
+  xml += '        <sequence format="r1" tcStart="0s" tcFormat="NDF" audioLayout="stereo" audioRate="48k">\n'
+  xml += "          <spine>\n"
+
+  // Основные клипы
+  const allClips: TimelineClip[] = []
+  project.globalTracks.forEach((track) => {
+    if (track.type === "video") {
+      allClips.push(...track.clips)
+    }
+  })
+
+  const sortedClips = allClips.sort((a, b) => a.startTime - b.startTime)
+
+  sortedClips.forEach((clip) => {
+    const duration = `${Math.round(clip.duration * 30)}/30s`
+    xml += `            <video name="${escapeXml(clip.name)}" duration="${duration}"/>\n`
+  })
+
+  xml += "          </spine>\n"
+  xml += "        </sequence>\n"
+  xml += "      </project>\n"
+  xml += "    </event>\n"
+  xml += "  </library>\n"
+  xml += "</fcpxml>"
+
+  return xml
+}
+
+function exportAsDaVinciResolve(project: TimelineProject, _includeData: any): string {
+  // DaVinci Resolve XML формат
+  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+  xml += "<timeline>\n"
+  xml += `  <name>${escapeXml(project.name)}</name>\n`
+  xml += `  <rate>${project.settings.fps}</rate>\n`
+  xml += "  <tracks>\n"
+
+  // Экспорт треков
+  const allTracks = [...project.globalTracks, ...project.sections.flatMap((s) => s.tracks)]
+
+  allTracks.forEach((track, index) => {
+    xml += `    <track type="${track.type}" index="${index + 1}">\n`
+    xml += `      <name>${escapeXml(track.name)}</name>\n`
+
+    track.clips.forEach((clip) => {
+      xml += "      <clip>\n"
+      xml += `        <name>${escapeXml(clip.name)}</name>\n`
+      xml += `        <start>${Math.round(clip.startTime * project.settings.fps)}</start>\n`
+      xml += `        <duration>${Math.round(clip.duration * project.settings.fps)}</duration>\n`
+      xml += `        <file>${escapeXml(clip.mediaFile?.path || "")}</file>\n`
+      xml += "      </clip>\n"
+    })
+
+    xml += "    </track>\n"
+  })
+
+  xml += "  </tracks>\n"
+  xml += "</timeline>"
+
+  return xml
+}
+
+// Дополнительные вспомогательные функции
+function calculatePacingMetrics(project: TimelineProject): any {
+  const allClips: TimelineClip[] = []
+  project.globalTracks.forEach((track) => allClips.push(...track.clips))
+  project.sections.forEach((section) => {
+    section.tracks.forEach((track) => allClips.push(...track.clips))
+  })
+
+  if (allClips.length === 0) {
+    return {
+      avgClipDuration: 0,
+      overallTempo: "unknown",
+      transitionCount: 0,
+      rhythmPattern: [],
+      cutsPerMinute: 0,
+      energyDistribution: [],
+    }
+  }
+
+  // Средняя длительность клипа
+  const avgClipDuration = allClips.reduce((sum, clip) => sum + clip.duration, 0) / allClips.length
+
+  // Общий темп
+  let overallTempo = "medium"
+  if (avgClipDuration < 2) overallTempo = "fast"
+  else if (avgClipDuration > 8) overallTempo = "slow"
+
+  // Количество переходов
+  let transitionCount = 0
+  allClips.forEach((clip) => {
+    if (clip.effects?.some((effect: AppliedEffect) => effect.effectId === "transition")) {
+      transitionCount++
+    }
+  })
+
+  // Количество монтажных склеек в минуту
+  const totalDuration = Math.max(...allClips.map((clip) => clip.startTime + clip.duration))
+  const cutsPerMinute = totalDuration > 0 ? (allClips.length / totalDuration) * 60 : 0
+
+  // Ритмический паттерн (упрощенный)
+  const rhythmPattern = allClips.map((clip) => Math.round(clip.duration))
+
+  // Распределение энергии (на основе длительности клипов)
+  const energyDistribution = allClips.map((clip) => {
+    if (clip.duration < 1) return "high"
+    if (clip.duration < 3) return "medium"
+    return "low"
+  })
+
+  return {
+    avgClipDuration,
+    overallTempo,
+    transitionCount,
+    rhythmPattern,
+    cutsPerMinute: Math.round(cutsPerMinute * 10) / 10,
+    energyDistribution,
+  }
+}
+
+function calculatePacingAnalysis(project: TimelineProject): any {
+  return calculatePacingMetrics(project)
+}
+
+function analyzeTransitionFlow(project: TimelineProject): any[] {
+  const transitions: any[] = []
+
+  // Анализируем переходы между клипами
+  const allTracks = [...project.globalTracks, ...project.sections.flatMap((s) => s.tracks)]
+
+  allTracks.forEach((track) => {
+    const sortedClips = [...track.clips].sort((a, b) => a.startTime - b.startTime)
+
+    for (let i = 0; i < sortedClips.length - 1; i++) {
+      const currentClip = sortedClips[i]
+      const nextClip = sortedClips[i + 1]
+
+      const gap = nextClip.startTime - (currentClip.startTime + currentClip.duration)
+      const hasTransitionEffect = currentClip.effects?.some(
+        (effect: AppliedEffect) => effect.effectId === "transition" || effect.effectId === "crossfade",
+      )
+
+      transitions.push({
+        from: currentClip.id,
+        to: nextClip.id,
+        gap,
+        type: hasTransitionEffect ? "smooth" : gap > 0.1 ? "cut" : "direct",
+        time: currentClip.startTime + currentClip.duration,
+      })
+    }
+  })
+
+  return transitions
+}
+
+function generateEmotionalArc(project: TimelineProject): any {
+  // Простая эвристика для эмоциональной дуги
+  const sections = project.sections.map((section, index) => {
+    const position = index / Math.max(1, project.sections.length - 1)
+    let intensity = 0.5
+
+    // Классическая трёхактная структура
+    if (position < 0.25) {
+      intensity = 0.3 + position * 0.8 // Нарастание
+    } else if (position < 0.75) {
+      intensity = 0.6 + Math.sin(position * Math.PI) * 0.3 // Развитие с пиками
+    } else {
+      intensity = 0.9 - (position - 0.75) * 1.2 // Спад к разрешению
+    }
+
+    return {
+      time: section.startTime,
+      intensity: Math.max(0.1, Math.min(1, intensity)),
+      act: position < 0.33 ? 1 : position < 0.67 ? 2 : 3,
+    }
+  })
+
+  return {
+    acts: sections,
+    overallShape: "dramatic",
+    peaks: sections.filter((s) => s.intensity > 0.7),
+    valleys: sections.filter((s) => s.intensity < 0.3),
+  }
+}
+
+function calculateOverallEmotionalArc(emotionProgression: any[]): string {
+  if (emotionProgression.length < 3) return "linear"
+
+  const intensities = emotionProgression.map((e) => e.intensity)
+  const firstThird = intensities.slice(0, Math.floor(intensities.length / 3))
+  const lastThird = intensities.slice(-Math.floor(intensities.length / 3))
+
+  const avgFirst = firstThird.reduce((sum, i) => sum + i, 0) / firstThird.length
+  const avgLast = lastThird.reduce((sum, i) => sum + i, 0) / lastThird.length
+
+  if (avgLast > avgFirst + 0.2) return "rising"
+  if (avgLast < avgFirst - 0.2) return "falling"
+  return "stable"
+}
+
+// Вспомогательные функции для экспорта
+function escapeXml(unsafe: string): string {
+  return unsafe.replace(/[<>&'"]/g, (c) => {
+    switch (c) {
+      case "<":
+        return "&lt;"
+      case ">":
+        return "&gt;"
+      case "&":
+        return "&amp;"
+      case "'":
+        return "&apos;"
+      case '"':
+        return "&quot;"
+      default:
+        return c
+    }
+  })
+}
+
+function escapeCsv(unsafe: string): string {
+  return unsafe.replace(/"/g, '""')
 }

@@ -802,34 +802,34 @@ export class PersonDatabaseService {
   }): Promise<PersonProfile> {
     const thumbnails: PersonThumbnail[] = personData.thumbnailPath
       ? [
-          {
-            id: `thumb_${Date.now()}`,
-            imageUrl: personData.thumbnailPath,
-            width: 200,
-            height: 200,
-            sourceClipId: "",
-            sourceTimestamp: { seconds: 0 },
-            quality: 1,
-            isPrimary: true,
-            isGenerated: false,
-          },
-        ]
+        {
+          id: `thumb_${Date.now()}`,
+          imageUrl: personData.thumbnailPath,
+          width: 200,
+          height: 200,
+          sourceClipId: "",
+          sourceTimestamp: { seconds: 0 },
+          quality: 1,
+          isPrimary: true,
+          isGenerated: false,
+        },
+      ]
       : []
 
     const appearances: PersonAppearance[] = personData.detectedFaces
       ? personData.detectedFaces.map((face) => ({
-          id: `appearance_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
-          personId: "", // Будет установлен после создания персоны
-          clipId: face.clipId || "",
-          startTime: face.timestamp,
-          endTime: face.timestamp,
-          duration: 0,
-          confidence: face.confidence,
-          minConfidence: face.confidence,
-          maxConfidence: face.confidence,
-          detections: [face],
-          createdAt: new Date().toISOString(),
-        }))
+        id: `appearance_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+        personId: "", // Будет установлен после создания персоны
+        clipId: face.clipId || "",
+        startTime: face.timestamp,
+        endTime: face.timestamp,
+        duration: 0,
+        confidence: face.confidence,
+        minConfidence: face.confidence,
+        maxConfidence: face.confidence,
+        detections: [face],
+        createdAt: new Date().toISOString(),
+      }))
       : []
 
     const profile = await this.createPerson({
@@ -864,10 +864,7 @@ export class PersonDatabaseService {
   /**
    * Поиск персон по имени и тегам
    */
-  async searchPersons(
-    query: string,
-    options?: { tags?: string[]; limit?: number }
-  ): Promise<PersonProfile[]> {
+  async searchPersons(query: string, options?: { tags?: string[]; limit?: number }): Promise<PersonProfile[]> {
     await this.ensureInitialized()
 
     try {
@@ -879,16 +876,13 @@ export class PersonDatabaseService {
         const lowerQuery = query.toLowerCase()
         results = results.filter(
           (person) =>
-            person.name?.toLowerCase().includes(lowerQuery) ||
-            person.notes?.toLowerCase().includes(lowerQuery)
+            person.name?.toLowerCase().includes(lowerQuery) || person.notes?.toLowerCase().includes(lowerQuery),
         )
       }
 
       // Фильтр по тегам
       if (options?.tags && options.tags.length > 0) {
-        results = results.filter((person) =>
-          options.tags!.some((tag) => person.tags.includes(tag))
-        )
+        results = results.filter((person) => options.tags!.some((tag) => person.tags.includes(tag)))
       }
 
       // Лимит результатов
@@ -908,7 +902,7 @@ export class PersonDatabaseService {
    */
   async findSimilarPersons(
     embedding: Float32Array | undefined,
-    options?: { limit?: number; minConfidence?: number }
+    options?: { limit?: number; minConfidence?: number },
   ): Promise<PersonSearchResult[]> {
     if (!embedding) return []
 
@@ -922,7 +916,7 @@ export class PersonDatabaseService {
         if (!person.averageEmbedding) continue
 
         const similarity = this.calculateCosineSimilarity(embedding, person.averageEmbedding)
-        
+
         if (similarity >= (options?.minConfidence || this.config.similarityThreshold)) {
           results.push({
             person,

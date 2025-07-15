@@ -5,6 +5,9 @@
  * медиафайлов в браузере перед добавлением в ресурсы
  */
 
+import { ResourceType } from "@/features/resources/types"
+import { BrowserTab } from "@/shared/types/browser"
+
 import { ClaudeTool } from "../services/claude-service"
 
 /**
@@ -815,7 +818,13 @@ async function getBrowserState(params: any): Promise<BrowserToolResult> {
     }
 
     if (includeSelection) {
-      result.selectedFiles = [] // TODO: получать выбранные файлы
+      // Получаем выбранные файлы из browser state
+      if (typeof window !== "undefined" && (window as any).browserContext) {
+        const browserContext = (window as any).browserContext
+        result.selectedFiles = browserContext.selectedFiles || []
+      } else {
+        result.selectedFiles = []
+      }
     }
 
     if (includeStats) {
@@ -848,8 +857,59 @@ async function updateBrowserFilters(params: any): Promise<BrowserToolResult> {
   const { tab, newFilters, reason } = params
 
   try {
-    // TODO: Интеграция с browser-state-machine для обновления фильтров
-    console.log(`Обновление фильтров для вкладки ${tab}:`, newFilters, `Причина: ${reason}`)
+    // Интеграция с browser-state-machine для обновления фильтров
+    if (typeof window !== "undefined" && (window as any).browserContext) {
+      const browserContext = (window as any).browserContext
+
+      // Отправляем событие обновления фильтров
+      if (browserContext.send) {
+        // Обновляем поисковый запрос
+        if (newFilters.searchQuery !== undefined) {
+          browserContext.send({
+            type: "SET_SEARCH_QUERY",
+            query: newFilters.searchQuery,
+            tab: tab as BrowserTab,
+          })
+        }
+
+        // Обновляем сортировку
+        if (newFilters.sortBy || newFilters.sortOrder) {
+          browserContext.send({
+            type: "SET_SORT",
+            sortBy: newFilters.sortBy || "name",
+            sortOrder: newFilters.sortOrder || "asc",
+            tab: tab as BrowserTab,
+          })
+        }
+
+        // Обновляем группировку
+        if (newFilters.groupBy !== undefined) {
+          browserContext.send({
+            type: "SET_GROUP_BY",
+            groupBy: newFilters.groupBy,
+            tab: tab as BrowserTab,
+          })
+        }
+
+        // Обновляем фильтр
+        if (newFilters.filterType !== undefined) {
+          browserContext.send({
+            type: "SET_FILTER",
+            filterType: newFilters.filterType,
+            tab: tab as BrowserTab,
+          })
+        }
+
+        // Обновляем режим отображения
+        if (newFilters.viewMode !== undefined) {
+          browserContext.send({
+            type: "SET_VIEW_MODE",
+            viewMode: newFilters.viewMode,
+            tab: tab as BrowserTab,
+          })
+        }
+      }
+    }
 
     return {
       success: true,
@@ -999,36 +1059,55 @@ async function exportFileList(params: any): Promise<BrowserToolResult> {
 
 // Вспомогательные функции
 
-async function getFilesFromBrowserTab(_tab: string, _filters: any): Promise<MediaFile[]> {
-  // TODO: Интеграция с реальными данными браузера
-  // Пока возвращаем заглушку
-  return []
+async function getFilesFromBrowserTab(tab: string, filters: any): Promise<MediaFile[]> {
+  // Интеграция с browser state machine
+  try {
+    if (typeof window !== "undefined" && (window as any).browserContext) {
+      const browserContext = (window as any).browserContext
+
+      // Получаем данные в зависимости от типа вкладки
+      switch (tab) {
+        case "media":
+          return await getMediaFiles(filters)
+        case "music":
+          return await getMusicFiles(filters)
+        case "effects":
+        case "filters":
+        case "transitions":
+          return await getResourceFiles(tab as ResourceType, filters)
+        default:
+          return []
+      }
+    }
+
+    // Fallback к статическим данным
+    return await getStaticBrowserFiles(tab, filters)
+  } catch (error) {
+    console.warn("Error getting browser files:", error)
+    return getStaticBrowserFiles(tab, filters)
+  }
 }
 
 async function getAllBrowserFiles(): Promise<MediaFile[]> {
-  // TODO: Интеграция с реальными данными браузера
-  // Пока возвращаем заглушку с примерами файлов
-  return [
-    {
-      id: "1",
-      name: "wedding_ceremony.mp4",
-      path: "/media/videos/wedding_ceremony.mp4",
-      type: "video",
-      size: 1024 * 1024 * 500, // 500MB
-      duration: 1800, // 30 min
-      createdAt: new Date("2024-01-15"),
-      modifiedAt: new Date("2024-01-15"),
-      metadata: {
-        resolution: { width: 1920, height: 1080 },
-        fps: 30,
-        codec: "h264",
-        hasAudio: true,
-      },
-      tags: ["wedding", "ceremony"],
-      isFavorite: true,
-    },
-    // Можно добавить больше примеров файлов
-  ]
+  // Интеграция с browser state machine для получения всех файлов
+  try {
+    const allFiles: MediaFile[] = []
+
+    // Получаем файлы со всех вкладок
+    const tabs = ["media", "music", "effects", "filters", "transitions"]
+
+    for (const tab of tabs) {
+      const tabFiles = await getFilesFromBrowserTab(tab, {})
+      allFiles.push(...tabFiles)
+    }
+
+    return allFiles
+  } catch (error) {
+    console.warn("Error getting all browser files:", error)
+
+    // Fallback к статическим примерам
+    return getStaticBrowserFiles("all", {})
+  }
 }
 
 function analyzeFileTypes(files: MediaFile[]): Record<string, number> {
@@ -1068,34 +1147,346 @@ function analyzeQualityDistribution(files: MediaFile[]): Record<string, number> 
   }, {})
 }
 
-function analyzeResolutions(_files: MediaFile[]): any {
-  // TODO: Реализовать анализ разрешений
-  return {}
+function analyzeResolutions(files: MediaFile[]): any {
+  const resolutions: Record<string, number> = {}
+
+  files.forEach((file) => {
+    if (file.type === "video" && file.metadata?.resolution) {
+      const { width, height } = file.metadata.resolution
+      const resolutionKey = `${width}x${height}`
+      resolutions[resolutionKey] = (resolutions[resolutionKey] || 0) + 1
+    }
+  })
+
+  // Классифицируем по качеству
+  const qualityDistribution: Record<string, number> = {}
+
+  Object.entries(resolutions).forEach(([resolution, count]) => {
+    const [width, height] = resolution.split("x").map(Number)
+    const pixels = width * height
+
+    let quality = "unknown"
+    if (pixels >= 3840 * 2160) quality = "4K"
+    else if (pixels >= 2560 * 1440) quality = "2K"
+    else if (pixels >= 1920 * 1080) quality = "Full HD"
+    else if (pixels >= 1280 * 720) quality = "HD"
+    else if (pixels >= 854 * 480) quality = "SD"
+    else quality = "Low"
+
+    qualityDistribution[quality] = (qualityDistribution[quality] || 0) + count
+  })
+
+  return {
+    resolutions,
+    qualityDistribution,
+    totalVideoFiles: Object.values(resolutions).reduce((sum, count) => sum + count, 0),
+  }
 }
 
-function analyzeCodecs(_files: MediaFile[]): any {
-  // TODO: Реализовать анализ кодеков
-  return {}
+function analyzeCodecs(files: MediaFile[]): any {
+  const videoCodecs: Record<string, number> = {}
+  const audioCodecs: Record<string, number> = {}
+
+  files.forEach((file) => {
+    if (file.type === "video" && file.metadata?.codec) {
+      videoCodecs[file.metadata.codec] = (videoCodecs[file.metadata.codec] || 0) + 1
+    }
+
+    if (file.type === "audio" && file.metadata?.codec) {
+      audioCodecs[file.metadata.codec] = (audioCodecs[file.metadata.codec] || 0) + 1
+    }
+  })
+
+  // Определяем компатибильность
+  const compatibility = {
+    modernCodecs: 0,
+    legacyCodecs: 0,
+    unknownCodecs: 0,
+  }
+
+  const modernVideoCodecs = ["h264", "h265", "vp9", "av1"]
+  const modernAudioCodecs = ["aac", "opus", "flac"]
+
+  Object.entries(videoCodecs).forEach(([codec, count]) => {
+    if (modernVideoCodecs.includes(codec.toLowerCase())) {
+      compatibility.modernCodecs += count
+    } else if (codec.toLowerCase() === "unknown") {
+      compatibility.unknownCodecs += count
+    } else {
+      compatibility.legacyCodecs += count
+    }
+  })
+
+  Object.entries(audioCodecs).forEach(([codec, count]) => {
+    if (modernAudioCodecs.includes(codec.toLowerCase())) {
+      compatibility.modernCodecs += count
+    } else if (codec.toLowerCase() === "unknown") {
+      compatibility.unknownCodecs += count
+    } else {
+      compatibility.legacyCodecs += count
+    }
+  })
+
+  return {
+    videoCodecs,
+    audioCodecs,
+    compatibility,
+    recommendations: generateCodecRecommendations(compatibility),
+  }
 }
 
-function findDuplicates(_files: MediaFile[]): any[] {
-  // TODO: Реализовать поиск дубликатов
-  return []
+function findDuplicates(files: MediaFile[]): any[] {
+  const duplicates: any[] = []
+  const seenFiles = new Map<string, MediaFile[]>()
+
+  // Группируем файлы по ключам
+  files.forEach((file) => {
+    // Ключ на основе имени и размера
+    const nameKey = file.name.toLowerCase().replace(/\s+/g, "")
+    const sizeKey = String(file.size)
+    const key = `${nameKey}_${sizeKey}`
+
+    if (!seenFiles.has(key)) {
+      seenFiles.set(key, [])
+    }
+    seenFiles.get(key)!.push(file)
+  })
+
+  // Находим дубликаты
+  for (const [key, group] of seenFiles) {
+    if (group.length > 1) {
+      duplicates.push({
+        key,
+        files: group,
+        count: group.length,
+        type: "exact_match",
+        totalSize: group.reduce((sum, f) => sum + f.size, 0),
+      })
+    }
+  }
+
+  // Поиск похожих файлов (по имени)
+  const similarNames = new Map<string, MediaFile[]>()
+  files.forEach((file) => {
+    const baseName = file.name
+      .replace(/\d+/g, "")
+      .replace(/[_\-\s]+/g, "")
+      .toLowerCase()
+    if (baseName.length > 3) {
+      if (!similarNames.has(baseName)) {
+        similarNames.set(baseName, [])
+      }
+      similarNames.get(baseName)!.push(file)
+    }
+  })
+
+  for (const [baseName, group] of similarNames) {
+    if (group.length > 1) {
+      // Проверяем, что это не точные дубликаты
+      const isExactDuplicate = duplicates.some((dup) => dup.files.some((f: MediaFile) => group.includes(f)))
+
+      if (!isExactDuplicate) {
+        duplicates.push({
+          key: `similar_${baseName}`,
+          files: group,
+          count: group.length,
+          type: "similar_names",
+          totalSize: group.reduce((sum, f) => sum + f.size, 0),
+        })
+      }
+    }
+  }
+
+  return duplicates.sort((a, b) => b.totalSize - a.totalSize)
 }
 
-function generateRecommendations(_files: MediaFile[], _analysis: any): string[] {
-  // TODO: Реализовать генерацию рекомендаций
-  return []
+function generateRecommendations(files: MediaFile[], analysis: any): string[] {
+  const recommendations: string[] = []
+
+  // Анализ количества файлов
+  if (files.length === 0) {
+    recommendations.push("Начните с импорта медиафайлов в браузер")
+    return recommendations
+  }
+
+  if (files.length < 5) {
+    recommendations.push("Добавьте больше медиафайлов для создания полноценного проекта")
+  }
+
+  // Анализ типов файлов
+  if (analysis.fileTypes) {
+    const hasVideo = analysis.fileTypes.video > 0
+    const hasAudio = analysis.fileTypes.audio > 0
+    const hasImages = analysis.fileTypes.image > 0
+
+    if (hasVideo && !hasAudio) {
+      recommendations.push("Добавьте аудиофайлы для фоновой музыки")
+    }
+
+    if (hasAudio && !hasVideo && !hasImages) {
+      recommendations.push("Добавьте видео или изображения для создания визуального контента")
+    }
+  }
+
+  // Анализ качества
+  if (analysis.qualityDistribution) {
+    const totalFiles = Object.values(analysis.qualityDistribution).reduce((sum: number, count: any) => sum + count, 0)
+    const lowQualityCount = analysis.qualityDistribution.low || 0
+
+    if (lowQualityCount / totalFiles > 0.5) {
+      recommendations.push("Большинство файлов имеет низкое качество - рассмотрите замену на HD/4K")
+    }
+  }
+
+  // Анализ дубликатов
+  const duplicates = findDuplicates(files)
+  if (duplicates.length > 0) {
+    const duplicateSize = duplicates.reduce((sum, dup) => sum + dup.totalSize, 0)
+    recommendations.push(`Обнаружено ${duplicates.length} групп дубликатов (экономия ${formatFileSize(duplicateSize)})`)
+  }
+
+  // Анализ организации
+  const untaggedFiles = files.filter((f) => !f.tags || f.tags.length === 0)
+  if (untaggedFiles.length > files.length * 0.3) {
+    recommendations.push("Добавьте теги к файлам для лучшей организации")
+  }
+
+  // Общие рекомендации
+  if (files.length > 50) {
+    recommendations.push("Используйте фильтры и поиск для быстрого нахождения нужных файлов")
+  }
+
+  return recommendations
 }
 
-function identifyMissingContent(_files: MediaFile[], _tab: string): any {
-  // TODO: Реализовать определение недостающего контента
-  return {}
+function identifyMissingContent(files: MediaFile[], tab: string): any {
+  const fileTypes = analyzeFileTypes(files)
+  const missing: any = {
+    content: [],
+    recommendations: [],
+    priority: "medium",
+  }
+
+  switch (tab) {
+    case "media":
+      if (!fileTypes.video || fileTypes.video === 0) {
+        missing.content.push("Видеофайлы")
+        missing.recommendations.push("Добавьте видео для создания основного контента")
+      }
+
+      if (!fileTypes.image || fileTypes.image === 0) {
+        missing.content.push("Изображения")
+        missing.recommendations.push("Добавьте изображения для слайдов и обложек")
+      }
+      break
+
+    case "music":
+      if (!fileTypes.audio || fileTypes.audio === 0) {
+        missing.content.push("Аудиофайлы")
+        missing.recommendations.push("Добавьте музыку для фонового сопровождения")
+        missing.priority = "high"
+      }
+      break
+
+    case "effects":
+      if (files.length === 0) {
+        missing.content.push("Основные эффекты")
+        missing.recommendations.push("Установите пакет основных эффектов")
+      }
+      break
+
+    case "filters":
+      if (files.length === 0) {
+        missing.content.push("Цветовые фильтры")
+        missing.recommendations.push("Установите набор LUT фильтров")
+      }
+      break
+
+    case "transitions":
+      if (files.length === 0) {
+        missing.content.push("Переходы")
+        missing.recommendations.push("Добавьте переходы для плавной смены сцен")
+      }
+      break
+      
+    default:
+      // Для других вкладок
+      break
+  }
+
+  return missing
 }
 
-function applyAdvancedFilters(files: MediaFile[], _filters: any): MediaFile[] {
-  // TODO: Реализовать продвинутые фильтры
-  return files
+function applyAdvancedFilters(files: MediaFile[], filters: any): MediaFile[] {
+  let filteredFiles = [...files]
+
+  // Фильтр по типу
+  if (filters.fileTypes && filters.fileTypes.length > 0) {
+    filteredFiles = filteredFiles.filter((file) => filters.fileTypes.includes(file.type))
+  }
+
+  // Фильтр по дате
+  if (filters.dateRange) {
+    const { start, end } = filters.dateRange
+    if (start) {
+      const startDate = new Date(start)
+      filteredFiles = filteredFiles.filter((file) => file.createdAt >= startDate)
+    }
+    if (end) {
+      const endDate = new Date(end)
+      filteredFiles = filteredFiles.filter((file) => file.createdAt <= endDate)
+    }
+  }
+
+  // Фильтр по размеру
+  if (filters.sizeRange) {
+    const { min, max } = filters.sizeRange
+    if (min !== undefined) {
+      filteredFiles = filteredFiles.filter((file) => file.size >= min)
+    }
+    if (max !== undefined) {
+      filteredFiles = filteredFiles.filter((file) => file.size <= max)
+    }
+  }
+
+  // Фильтр по длительности
+  if (filters.durationRange) {
+    const { min, max } = filters.durationRange
+    if (min !== undefined) {
+      filteredFiles = filteredFiles.filter((file) => (file.duration || 0) >= min)
+    }
+    if (max !== undefined) {
+      filteredFiles = filteredFiles.filter((file) => (file.duration || 0) <= max)
+    }
+  }
+
+  // Фильтр по поисковому запросу
+  if (filters.searchQuery) {
+    const query = filters.searchQuery.toLowerCase()
+    filteredFiles = filteredFiles.filter((file) => {
+      return (
+        file.name.toLowerCase().includes(query) ||
+        file.tags?.some((tag) => tag.toLowerCase().includes(query)) ||
+        file.path.toLowerCase().includes(query)
+      )
+    })
+  }
+
+  // Фильтр по тегам
+  if (filters.tags && filters.tags.length > 0) {
+    filteredFiles = filteredFiles.filter((file) => {
+      return filters.tags.some((tag: string) =>
+        file.tags?.some((fileTag) => fileTag.toLowerCase().includes(tag.toLowerCase())),
+      )
+    })
+  }
+
+  // Фильтр по избранным
+  if (filters.favoritesOnly) {
+    filteredFiles = filteredFiles.filter((file) => file.isFavorite)
+  }
+
+  return filteredFiles
 }
 
 function sortFiles(files: MediaFile[], sortBy: string, sortOrder: string): MediaFile[] {
@@ -1130,150 +1521,846 @@ function sortFiles(files: MediaFile[], sortBy: string, sortOrder: string): Media
 }
 
 // Функции группировки
-function groupFilesByDate(_files: MediaFile[], _minGroupSize: number): any[] {
-  // TODO: Реализовать группировку по дате
-  return []
+function groupFilesByDate(files: MediaFile[], minGroupSize: number): any[] {
+  const groups = new Map<string, MediaFile[]>()
+
+  files.forEach((file) => {
+    const date = new Date(file.createdAt)
+    const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
+
+    if (!groups.has(dateKey)) {
+      groups.set(dateKey, [])
+    }
+    groups.get(dateKey)!.push(file)
+  })
+
+  // Фильтруем по минимальному размеру группы
+  const result: any[] = []
+  for (const [dateKey, groupFiles] of groups) {
+    if (groupFiles.length >= minGroupSize) {
+      result.push({
+        key: dateKey,
+        name: `Файлы от ${dateKey}`,
+        files: groupFiles,
+        count: groupFiles.length,
+        type: "date",
+        date: new Date(dateKey),
+      })
+    }
+  }
+
+  return result.sort((a, b) => b.date.getTime() - a.date.getTime())
 }
 
-function groupFilesByLocation(_files: MediaFile[], _minGroupSize: number): any[] {
-  // TODO: Реализовать группировку по местоположению
-  return []
+function groupFilesByLocation(files: MediaFile[], minGroupSize: number): any[] {
+  const groups = new Map<string, MediaFile[]>()
+
+  files.forEach((file) => {
+    // Извлекаем папку из пути
+    const pathParts = file.path.split("/")
+    const location = pathParts.length > 1 ? pathParts[pathParts.length - 2] : "root"
+
+    if (!groups.has(location)) {
+      groups.set(location, [])
+    }
+    groups.get(location)!.push(file)
+  })
+
+  const result: any[] = []
+  for (const [location, groupFiles] of groups) {
+    if (groupFiles.length >= minGroupSize) {
+      result.push({
+        key: location,
+        name: `Папка: ${location}`,
+        files: groupFiles,
+        count: groupFiles.length,
+        type: "location",
+        location,
+      })
+    }
+  }
+
+  return result.sort((a, b) => b.count - a.count)
 }
 
-function groupFilesBySeries(_files: MediaFile[], _minGroupSize: number): any[] {
-  // TODO: Реализовать группировку по сериям
-  return []
+function groupFilesBySeries(files: MediaFile[], minGroupSize: number): any[] {
+  const groups = new Map<string, MediaFile[]>()
+
+  files.forEach((file) => {
+    // Убираем цифры и расширение для поиска серий
+    const baseName = file.name
+      .replace(/\d+/g, "") // Убираем цифры
+      .replace(/\.[^.]+$/, "") // Убираем расширение
+      .replace(/[_\-\s]+/g, "_") // Нормализуем разделители
+      .toLowerCase()
+      .trim()
+
+    if (baseName.length > 2) {
+      if (!groups.has(baseName)) {
+        groups.set(baseName, [])
+      }
+      groups.get(baseName)!.push(file)
+    }
+  })
+
+  const result: any[] = []
+  for (const [baseName, groupFiles] of groups) {
+    if (groupFiles.length >= minGroupSize) {
+      result.push({
+        key: baseName,
+        name: `Серия: ${baseName}`,
+        files: groupFiles.sort((a, b) => a.name.localeCompare(b.name)),
+        count: groupFiles.length,
+        type: "series",
+        series: baseName,
+      })
+    }
+  }
+
+  return result.sort((a, b) => b.count - a.count)
 }
 
-function groupFilesByType(_files: MediaFile[], _minGroupSize: number): any[] {
-  // TODO: Реализовать группировку по типу
-  return []
+function groupFilesByType(files: MediaFile[], minGroupSize: number): any[] {
+  const groups = new Map<string, MediaFile[]>()
+
+  files.forEach((file) => {
+    if (!groups.has(file.type)) {
+      groups.set(file.type, [])
+    }
+    groups.get(file.type)!.push(file)
+  })
+
+  const result: any[] = []
+  for (const [fileType, groupFiles] of groups) {
+    if (groupFiles.length >= minGroupSize) {
+      result.push({
+        key: fileType,
+        name: `Тип: ${fileType}`,
+        files: groupFiles,
+        count: groupFiles.length,
+        type: "file_type",
+        fileType,
+      })
+    }
+  }
+
+  return result.sort((a, b) => b.count - a.count)
 }
 
-function groupFilesByDuration(_files: MediaFile[], _minGroupSize: number): any[] {
-  // TODO: Реализовать группировку по длительности
-  return []
+function groupFilesByDuration(files: MediaFile[], minGroupSize: number): any[] {
+  const groups = new Map<string, MediaFile[]>()
+
+  files.forEach((file) => {
+    if (file.duration) {
+      let durationCategory = "unknown"
+
+      if (file.duration < 30)
+        durationCategory = "short" // < 30 сек
+      else if (file.duration < 300)
+        durationCategory = "medium" // 30 сек - 5 мин
+      else if (file.duration < 1800)
+        durationCategory = "long" // 5-30 мин
+      else durationCategory = "very_long" // > 30 мин
+
+      if (!groups.has(durationCategory)) {
+        groups.set(durationCategory, [])
+      }
+      groups.get(durationCategory)!.push(file)
+    }
+  })
+
+  const categoryNames = {
+    short: "Короткие (< 30 сек)",
+    medium: "Средние (30 сек - 5 мин)",
+    long: "Длинные (5-30 мин)",
+    very_long: "Очень длинные (> 30 мин)",
+    unknown: "Неизвестная длительность",
+  }
+
+  const result: any[] = []
+  for (const [category, groupFiles] of groups) {
+    if (groupFiles.length >= minGroupSize) {
+      result.push({
+        key: category,
+        name: categoryNames[category as keyof typeof categoryNames] || category,
+        files: groupFiles,
+        count: groupFiles.length,
+        type: "duration",
+        category,
+      })
+    }
+  }
+
+  return result.sort((a, b) => b.count - a.count)
 }
 
-function smartGroupFiles(_files: MediaFile[], _minGroupSize: number): any[] {
-  // TODO: Реализовать умную группировку
-  return []
+function smartGroupFiles(files: MediaFile[], minGroupSize: number): any[] {
+  // Комбинируем несколько стратегий группировки
+  const allGroups: any[] = []
+
+  // Группировка по сериям (приоритет)
+  allGroups.push(...groupFilesBySeries(files, minGroupSize))
+
+  // Группировка по дате для файлов, не попавших в серии
+  const seriesFiles = new Set(allGroups.flatMap((g) => g.files.map((f: MediaFile) => f.id)))
+  const nonSeriesFiles = files.filter((f) => !seriesFiles.has(f.id))
+
+  if (nonSeriesFiles.length > 0) {
+    allGroups.push(...groupFilesByDate(nonSeriesFiles, minGroupSize))
+  }
+
+  // Группировка по типу для оставшихся файлов
+  const groupedFiles = new Set(allGroups.flatMap((g) => g.files.map((f: MediaFile) => f.id)))
+  const ungroupedFiles = files.filter((f) => !groupedFiles.has(f.id))
+
+  if (ungroupedFiles.length > 0) {
+    allGroups.push(...groupFilesByType(ungroupedFiles, Math.max(1, minGroupSize)))
+  }
+
+  return allGroups.sort((a, b) => {
+    // Приоритет: серии > дата > тип
+    const priorities = { series: 3, date: 2, file_type: 1 }
+    const priorityA = priorities[a.type as keyof typeof priorities] || 0
+    const priorityB = priorities[b.type as keyof typeof priorities] || 0
+
+    if (priorityA !== priorityB) return priorityB - priorityA
+    return b.count - a.count
+  })
 }
 
-function mergeSimilarGroups(groups: any[]): any[] {
-  // TODO: Реализовать объединение похожих групп
-  return groups
+// Функции анализа связей между файлами
+function findSequenceRelationships(files: MediaFile[]): any[] {
+  const relationships: any[] = []
+
+  // Группируем файлы по базовому имени
+  const groups = new Map<string, MediaFile[]>()
+
+  files.forEach((file) => {
+    const baseName = file.name
+      .replace(/\d+/g, "")
+      .replace(/\.[^.]+$/, "")
+      .toLowerCase()
+      .trim()
+    if (!groups.has(baseName)) {
+      groups.set(baseName, [])
+    }
+    groups.get(baseName)!.push(file)
+  })
+
+  // Ищем последовательности
+  for (const [baseName, groupFiles] of groups) {
+    if (groupFiles.length > 1) {
+      // Сортируем файлы по номеру в имени
+      const sorted = groupFiles.sort((a, b) => {
+        const numA = Number.parseInt(/\d+/.exec(a.name)?.[0] || "0")
+        const numB = Number.parseInt(/\d+/.exec(b.name)?.[0] || "0")
+        return numA - numB
+      })
+
+      for (let i = 0; i < sorted.length - 1; i++) {
+        relationships.push({
+          type: "sequence",
+          from: sorted[i].id,
+          to: sorted[i + 1].id,
+          confidence: 0.9,
+          metadata: {
+            series: baseName,
+            position: i + 1,
+            totalInSeries: sorted.length,
+          },
+        })
+      }
+    }
+  }
+
+  return relationships
 }
 
-// Функции анализа связей
-function findSequenceRelationships(_files: MediaFile[]): any[] {
-  // TODO: Реализовать поиск последовательностей
-  return []
+function findDuplicateRelationships(files: MediaFile[]): any[] {
+  const relationships: any[] = []
+  const duplicateGroups = findDuplicates(files)
+
+  duplicateGroups.forEach((group) => {
+    const groupFiles = group.files
+    for (let i = 0; i < groupFiles.length; i++) {
+      for (let j = i + 1; j < groupFiles.length; j++) {
+        relationships.push({
+          type: "duplicate",
+          from: groupFiles[i].id,
+          to: groupFiles[j].id,
+          confidence: group.type === "exact_match" ? 1.0 : 0.7,
+          metadata: {
+            duplicateType: group.type,
+            savings: formatFileSize(groupFiles[j].size),
+          },
+        })
+      }
+    }
+  })
+
+  return relationships
 }
 
-function findDuplicateRelationships(_files: MediaFile[]): any[] {
-  // TODO: Реализовать поиск дубликатов
-  return []
+function findVersionRelationships(files: MediaFile[]): any[] {
+  const relationships: any[] = []
+
+  // Ищем файлы с версионированием (v1, v2, _final, _edit, etc.)
+  const versionPatterns = [/v\d+/i, /_v\d+/i, /_final/i, /_edit/i, /_draft/i, /_copy/i, /\(\d+\)/]
+
+  files.forEach((file) => {
+    const fileName = file.name.toLowerCase()
+
+    for (const pattern of versionPatterns) {
+      if (pattern.test(fileName)) {
+        // Ищем базовое имя файла
+        const baseName = fileName.replace(pattern, "").replace(/\.[^.]+$/, "")
+
+        // Ищем другие версии этого файла
+        const relatedFiles = files.filter((f) => {
+          const otherName = f.name.toLowerCase().replace(/\.[^.]+$/, "")
+          return f.id !== file.id && otherName.includes(baseName)
+        })
+
+        relatedFiles.forEach((relatedFile) => {
+          relationships.push({
+            type: "version",
+            from: file.id,
+            to: relatedFile.id,
+            confidence: 0.8,
+            metadata: {
+              baseName,
+              pattern: pattern.source,
+            },
+          })
+        })
+        break
+      }
+    }
+  })
+
+  return relationships
 }
 
-function findVersionRelationships(_files: MediaFile[]): any[] {
-  // TODO: Реализовать поиск версий
-  return []
+function findSimilarRelationships(files: MediaFile[], similarity: any = {}): any[] {
+  const relationships: any[] = []
+  const { threshold = 0.7, considerSize = true, considerDuration = true } = similarity
+
+  for (let i = 0; i < files.length; i++) {
+    for (let j = i + 1; j < files.length; j++) {
+      const fileA = files[i]
+      const fileB = files[j]
+
+      let similarityScore = 0
+      let factors = 0
+
+      // Сравнение имен
+      const nameA = fileA.name.toLowerCase()
+      const nameB = fileB.name.toLowerCase()
+      const nameSimilarity = calculateStringSimilarity(nameA, nameB)
+      similarityScore += nameSimilarity
+      factors++
+
+      // Сравнение размеров
+      if (considerSize && fileA.size && fileB.size) {
+        const sizeDiff = Math.abs(fileA.size - fileB.size) / Math.max(fileA.size, fileB.size)
+        const sizeSimilarity = 1 - sizeDiff
+        similarityScore += sizeSimilarity
+        factors++
+      }
+
+      // Сравнение длительности
+      if (considerDuration && fileA.duration && fileB.duration) {
+        const durationDiff = Math.abs(fileA.duration - fileB.duration) / Math.max(fileA.duration, fileB.duration)
+        const durationSimilarity = 1 - durationDiff
+        similarityScore += durationSimilarity
+        factors++
+      }
+
+      const averageSimilarity = similarityScore / factors
+
+      if (averageSimilarity >= threshold) {
+        relationships.push({
+          type: "similar",
+          from: fileA.id,
+          to: fileB.id,
+          confidence: averageSimilarity,
+          metadata: {
+            nameSimilarity,
+            sizeSimilarity: considerSize
+              ? 1 - Math.abs(fileA.size - fileB.size) / Math.max(fileA.size, fileB.size)
+              : null,
+            durationSimilarity:
+              considerDuration && fileA.duration && fileB.duration
+                ? 1 - Math.abs(fileA.duration - fileB.duration) / Math.max(fileA.duration, fileB.duration)
+                : null,
+          },
+        })
+      }
+    }
+  }
+
+  return relationships
 }
 
-function findSimilarRelationships(_files: MediaFile[], _similarity: any): any[] {
-  // TODO: Реализовать поиск похожих файлов
-  return []
-}
+function findComplementaryRelationships(files: MediaFile[]): any[] {
+  const relationships: any[] = []
 
-function findComplementaryRelationships(_files: MediaFile[]): any[] {
-  // TODO: Реализовать поиск дополняющих файлов
-  return []
+  // Ищем комплементарные файлы (видео + аудио, изображение + аудио, etc.)
+  const videoFiles = files.filter((f) => f.type === "video")
+  const audioFiles = files.filter((f) => f.type === "audio")
+  const imageFiles = files.filter((f) => f.type === "image")
+
+  // Видео + Аудио комбинации
+  videoFiles.forEach((video) => {
+    audioFiles.forEach((audio) => {
+      const nameSimilarity = calculateStringSimilarity(
+        video.name.toLowerCase().replace(/\.[^.]+$/, ""),
+        audio.name.toLowerCase().replace(/\.[^.]+$/, ""),
+      )
+
+      if (nameSimilarity > 0.6) {
+        relationships.push({
+          type: "complementary",
+          from: video.id,
+          to: audio.id,
+          confidence: nameSimilarity,
+          metadata: {
+            relationship: "video_audio",
+            suggestion: "Подходит для синхронизации звука",
+          },
+        })
+      }
+    })
+  })
+
+  // Изображение + Аудио для слайд-шоу
+  imageFiles.forEach((image) => {
+    audioFiles.forEach((audio) => {
+      if (audio.duration && audio.duration > 30) {
+        // Достаточно длинное аудио
+        relationships.push({
+          type: "complementary",
+          from: image.id,
+          to: audio.id,
+          confidence: 0.5,
+          metadata: {
+            relationship: "image_audio",
+            suggestion: "Подходит для создания слайд-шоу",
+          },
+        })
+      }
+    })
+  })
+
+  return relationships
 }
 
 // Функции выбора файлов
-function applySelectionFilters(files: MediaFile[], _filters: any): MediaFile[] {
-  // TODO: Реализовать фильтры выбора
-  return files
+function applySelectionFilters(files: MediaFile[], filters: any): MediaFile[] {
+  let filtered = [...files]
+
+  if (filters.fileTypes) {
+    filtered = filtered.filter((f) => filters.fileTypes.includes(f.type))
+  }
+
+  if (filters.tags) {
+    filtered = filtered.filter((f) => filters.tags.some((tag: string) => f.tags?.includes(tag)))
+  }
+
+  if (filters.sizeRange) {
+    const { min, max } = filters.sizeRange
+    if (min) filtered = filtered.filter((f) => f.size >= min)
+    if (max) filtered = filtered.filter((f) => f.size <= max)
+  }
+
+  if (filters.durationRange) {
+    const { min, max } = filters.durationRange
+    if (min) filtered = filtered.filter((f) => (f.duration || 0) >= min)
+    if (max) filtered = filtered.filter((f) => (f.duration || 0) <= max)
+  }
+
+  if (filters.dateRange) {
+    const { start, end } = filters.dateRange
+    if (start) filtered = filtered.filter((f) => f.createdAt >= new Date(start))
+    if (end) filtered = filtered.filter((f) => f.createdAt <= new Date(end))
+  }
+
+  return filtered
 }
 
-function applySelectionPriorities(files: MediaFile[], _priorities: string[]): MediaFile[] {
-  // TODO: Реализовать приоритеты выбора
-  return files
+function applySelectionPriorities(files: MediaFile[], priorities: string[]): MediaFile[] {
+  if (!priorities.length) return files
+
+  return files.sort((a, b) => {
+    for (const priority of priorities) {
+      switch (priority) {
+        case "newest":
+          return b.createdAt.getTime() - a.createdAt.getTime()
+        case "oldest":
+          return a.createdAt.getTime() - b.createdAt.getTime()
+        case "largest":
+          return b.size - a.size
+        case "smallest":
+          return a.size - b.size
+        case "longest":
+          return (b.duration || 0) - (a.duration || 0)
+        case "shortest":
+          return (a.duration || 0) - (b.duration || 0)
+        case "favorites":
+          if (a.isFavorite && !b.isFavorite) return -1
+          if (!a.isFavorite && b.isFavorite) return 1
+          break
+        case "high_quality":
+          const qualityA = getFileQualityScore(a)
+          const qualityB = getFileQualityScore(b)
+          return qualityB - qualityA
+        default:
+          // Неизвестный приоритет
+          break
+      }
+    }
+    return 0
+  })
 }
 
 function selectBestQuality(files: MediaFile[], maxCount?: number): MediaFile[] {
-  // TODO: Реализовать выбор лучшего качества
-  return files.slice(0, maxCount)
+  const sorted = files.sort((a, b) => getFileQualityScore(b) - getFileQualityScore(a))
+  return maxCount ? sorted.slice(0, maxCount) : sorted
 }
 
 function selectRepresentative(files: MediaFile[], maxCount?: number): MediaFile[] {
-  // TODO: Реализовать репрезентативный выбор
-  return files.slice(0, maxCount)
+  if (!maxCount || files.length <= maxCount) return files
+
+  // Алгоритм выбора репрезентативной выборки
+  const step = Math.floor(files.length / maxCount)
+  const representative: MediaFile[] = []
+
+  for (let i = 0; i < files.length; i += step) {
+    if (representative.length < maxCount) {
+      representative.push(files[i])
+    }
+  }
+
+  return representative
 }
 
 function selectTimeDistributed(files: MediaFile[], maxCount?: number): MediaFile[] {
-  // TODO: Реализовать временное распределение
-  return files.slice(0, maxCount)
-}
+  if (!maxCount || files.length <= maxCount) return files
 
-// Функции анализа контента
-function analyzeCurrentContent(_files: MediaFile[], _currentContent: any): any {
-  // TODO: Реализовать анализ текущего контента
-  return {}
-}
+  // Сортируем по дате создания
+  const sorted = files.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
 
-function getProjectRequirements(_projectType: string, _targetRequirements: any): any {
-  // TODO: Реализовать получение требований проекта
-  return {}
-}
+  if (sorted.length === 0) return []
 
-function identifyMissingContentForProject(_analysis: any, _requirements: any): any {
-  // TODO: Реализовать определение недостающего контента
-  return {}
-}
+  const selected: MediaFile[] = []
+  const timeRange = sorted[sorted.length - 1].createdAt.getTime() - sorted[0].createdAt.getTime()
+  const timeStep = timeRange / maxCount
 
-function generateContentSuggestions(_missingContent: any, _projectType: string): string[] {
-  // TODO: Реализовать генерацию предложений контента
-  return []
-}
+  let currentTime = sorted[0].createdAt.getTime()
+  let fileIndex = 0
 
-function generateImportRecommendations(_missingContent: any): string[] {
-  // TODO: Реализовать рекомендации импорта
-  return []
-}
+  for (let i = 0; i < maxCount && fileIndex < sorted.length; i++) {
+    // Находим ближайший файл к текущему времени
+    while (
+      fileIndex < sorted.length - 1 &&
+      Math.abs(sorted[fileIndex + 1].createdAt.getTime() - currentTime) <
+        Math.abs(sorted[fileIndex].createdAt.getTime() - currentTime)
+    ) {
+      fileIndex++
+    }
 
-function generateImportSources(_contentType: string, _budget: string, _preferredSources: string[]): any[] {
-  // TODO: Реализовать генерацию источников импорта
-  return []
-}
+    if (fileIndex < sorted.length) {
+      selected.push(sorted[fileIndex])
+      fileIndex++ // Переходим к следующему файлу
+    }
 
-function calculateSourcePriority(_contentType: string, _budget: string): number {
-  // TODO: Реализовать расчет приоритета источника
-  return 1
-}
-
-// Функции экспорта
-function generateCSV(_files: MediaFile[], _includeMetadata: boolean): string {
-  // TODO: Реализовать генерацию CSV
-  return ""
-}
-
-function generateXML(_files: MediaFile[], _includeMetadata: boolean): string {
-  // TODO: Реализовать генерацию XML
-  return ""
-}
-
-function formatFileSize(sizeInput: number | string): string {
-  const bytes = typeof sizeInput === "string" ? Number.parseFloat(sizeInput) : sizeInput
-  const units = ["B", "KB", "MB", "GB"]
-  let size = bytes
-  let unitIndex = 0
-
-  while (size >= 1024 && unitIndex < units.length - 1) {
-    size /= 1024
-    unitIndex++
+    currentTime += timeStep
   }
 
-  return `${size.toFixed(1)} ${units[unitIndex]}`
+  return selected
+}
+
+// Вспомогательные функции
+function calculateStringSimilarity(str1: string, str2: string): number {
+  const longer = str1.length > str2.length ? str1 : str2
+  const shorter = str1.length > str2.length ? str2 : str1
+
+  if (longer.length === 0) return 1.0
+
+  const distance = levenshteinDistance(longer, shorter)
+  return (longer.length - distance) / longer.length
+}
+
+function levenshteinDistance(str1: string, str2: string): number {
+  const matrix = Array(str2.length + 1)
+    .fill(null)
+    .map(() => Array(str1.length + 1).fill(null))
+
+  for (let i = 0; i <= str1.length; i++) matrix[0][i] = i
+  for (let j = 0; j <= str2.length; j++) matrix[j][0] = j
+
+  for (let j = 1; j <= str2.length; j++) {
+    for (let i = 1; i <= str1.length; i++) {
+      const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1
+      matrix[j][i] = Math.min(matrix[j][i - 1] + 1, matrix[j - 1][i] + 1, matrix[j - 1][i - 1] + indicator)
+    }
+  }
+
+  return matrix[str2.length][str1.length]
+}
+
+function getFileQualityScore(file: MediaFile): number {
+  let score = 0
+
+  // Оценка разрешения для видео
+  if (file.type === "video" && file.metadata?.resolution) {
+    const { width, height } = file.metadata.resolution
+    const pixels = width * height
+
+    if (pixels >= 3840 * 2160)
+      score += 100 // 4K
+    else if (pixels >= 2560 * 1440)
+      score += 80 // 2K
+    else if (pixels >= 1920 * 1080)
+      score += 60 // Full HD
+    else if (pixels >= 1280 * 720)
+      score += 40 // HD
+    else score += 20 // SD и ниже
+  }
+
+  // Оценка битрейта
+  if (file.metadata?.bitrate) {
+    if (file.metadata.bitrate >= 10000) score += 30
+    else if (file.metadata.bitrate >= 5000) score += 20
+    else if (file.metadata.bitrate >= 2000) score += 10
+  }
+
+  // Оценка кодека
+  if (file.metadata?.codec) {
+    const modernCodecs = ["h264", "h265", "vp9", "av1"]
+    if (modernCodecs.includes(file.metadata.codec.toLowerCase())) {
+      score += 20
+    }
+  }
+
+  // Оценка размера файла (больше = лучше качество, но с разумными пределами)
+  if (file.size > 0) {
+    const sizeMB = file.size / (1024 * 1024)
+    if (sizeMB > 100) score += 10
+    else if (sizeMB > 50) score += 5
+  }
+
+  return score
+}
+
+function mergeSimilarGroups(groups: any[]): any[] {
+  // Простая логика объединения похожих групп
+  const merged: any[] = []
+  const processed = new Set<string>()
+
+  for (const group of groups) {
+    if (processed.has(group.key)) continue
+
+    const similar = groups.filter(
+      (g) =>
+        g.key !== group.key &&
+        !processed.has(g.key) &&
+        g.type === group.type &&
+        calculateStringSimilarity(g.key, group.key) > 0.8,
+    )
+
+    if (similar.length > 0) {
+      const mergedFiles = [group, ...similar].flatMap((g) => g.files)
+      merged.push({
+        key: `merged_${group.key}`,
+        name: `Объединенная группа: ${group.name}`,
+        files: mergedFiles,
+        count: mergedFiles.length,
+        type: group.type,
+        subGroups: [group, ...similar],
+      })
+
+      processed.add(group.key)
+      similar.forEach((g) => processed.add(g.key))
+    } else {
+      merged.push(group)
+      processed.add(group.key)
+    }
+  }
+
+  return merged
+}
+
+function generateCodecRecommendations(compatibility: any): string[] {
+  const recommendations: string[] = []
+
+  if (compatibility.legacyCodecs > compatibility.modernCodecs) {
+    recommendations.push("Рекомендуется перекодировать устаревшие форматы в H.264/H.265")
+  }
+
+  if (compatibility.unknownCodecs > 0) {
+    recommendations.push("Проверьте файлы с неопределенными кодеками")
+  }
+
+  if (compatibility.modernCodecs === 0) {
+    recommendations.push("Добавьте файлы в современных форматах для лучшей совместимости")
+  }
+
+  return recommendations
+}
+
+function formatFileSize(bytes: number): string {
+  if (bytes === 0) return "0 Bytes"
+
+  const k = 1024
+  const sizes = ["Bytes", "KB", "MB", "GB", "TB"]
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+  return `${Number.parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`
+}
+
+function generateCSV(files: MediaFile[], includeMetadata: boolean): string {
+  const headers = ["Name", "Type", "Size", "Duration", "Created"]
+  if (includeMetadata) {
+    headers.push("Path", "Resolution", "Codec", "Bitrate")
+  }
+
+  const rows = [headers.join(",")]
+
+  files.forEach((file) => {
+    const row = [
+      escapeCsv(file.name),
+      file.type,
+      file.size.toString(),
+      (file.duration || 0).toString(),
+      file.createdAt.toISOString(),
+    ]
+
+    if (includeMetadata) {
+      row.push(
+        escapeCsv(file.path),
+        file.metadata?.resolution ? `${file.metadata.resolution.width}x${file.metadata.resolution.height}` : "",
+        file.metadata?.codec || "",
+        file.metadata?.bitrate?.toString() || "",
+      )
+    }
+
+    rows.push(row.join(","))
+  })
+
+  return rows.join("\n")
+}
+
+function generateXML(files: MediaFile[], includeMetadata: boolean): string {
+  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<files>\n'
+
+  files.forEach((file) => {
+    xml += "  <file>\n"
+    xml += `    <name>${escapeXml(file.name)}</name>\n`
+    xml += `    <type>${file.type}</type>\n`
+    xml += `    <size>${file.size}</size>\n`
+    xml += `    <duration>${file.duration || 0}</duration>\n`
+    xml += `    <created>${file.createdAt.toISOString()}</created>\n`
+
+    if (includeMetadata) {
+      xml += `    <path>${escapeXml(file.path)}</path>\n`
+      if (file.metadata?.resolution) {
+        xml += "    <resolution>\n"
+        xml += `      <width>${file.metadata.resolution.width}</width>\n`
+        xml += `      <height>${file.metadata.resolution.height}</height>\n`
+        xml += "    </resolution>\n"
+      }
+      if (file.metadata?.codec) {
+        xml += `    <codec>${escapeXml(file.metadata.codec)}</codec>\n`
+      }
+      if (file.metadata?.bitrate) {
+        xml += `    <bitrate>${file.metadata.bitrate}</bitrate>\n`
+      }
+    }
+
+    xml += "  </file>\n"
+  })
+
+  xml += "</files>"
+  return xml
+}
+
+function escapeXml(unsafe: string): string {
+  return unsafe.replace(/[<>&'"]/g, (c) => {
+    switch (c) {
+      case "<":
+        return "&lt;"
+      case ">":
+        return "&gt;"
+      case "&":
+        return "&amp;"
+      case "'":
+        return "&apos;"
+      case '"':
+        return "&quot;"
+      default:
+        return c
+    }
+  })
+}
+
+// Заглушки для статических данных (fallback когда браузер недоступен)
+async function getStaticBrowserFiles(tab: string, _filters: any): Promise<MediaFile[]> {
+  // Возвращаем пустой массив для статических данных
+  console.warn(`Using static fallback for tab: ${tab}`)
+  return []
+}
+
+async function getMediaFiles(filters: any): Promise<MediaFile[]> {
+  // Интеграция с реальным API браузера медиафайлов
+  if (typeof window !== "undefined" && (window as any).browserContext?.getMediaFiles) {
+    return await (window as any).browserContext.getMediaFiles(filters)
+  }
+  return []
+}
+
+async function getMusicFiles(filters: any): Promise<MediaFile[]> {
+  // Интеграция с реальным API браузера музыки
+  if (typeof window !== "undefined" && (window as any).browserContext?.getMusicFiles) {
+    return await (window as any).browserContext.getMusicFiles(filters)
+  }
+  return []
+}
+
+async function getResourceFiles(resourceType: ResourceType, filters: any): Promise<MediaFile[]> {
+  // Интеграция с ресурс-провайдером
+  if (typeof window !== "undefined" && (window as any).resourcesContext) {
+    const resourcesContext = (window as any).resourcesContext
+    const resources = resourcesContext.getResources(resourceType, filters)
+
+    // Конвертируем ресурсы в MediaFile формат
+    return resources.map((resource: any) => ({
+      id: resource.id,
+      name: resource.name,
+      type: resourceType === "effect" ? "video" : "audio",
+      path: resource.path || "",
+      size: resource.size || 0,
+      duration: resource.duration,
+      createdAt: new Date(resource.createdAt || Date.now()),
+      metadata: resource.metadata,
+      tags: resource.tags,
+      isFavorite: resource.isFavorite,
+    }))
+  }
+  return []
+}
+
+// Интерфейс для доступа к browser state machine
+interface BrowserStateAccess {
+  getBrowserState(): any
+  updateBrowserFilter(tab: string, filters: any): void
+  sendEvent(event: any): void
+}
+
+// Глобальная переменная для доступа к browser state
+let browserStateAccess: BrowserStateAccess | null = null
+
+// Функция для инициализации доступа к browser state
+export function initializeBrowserStateAccess(access: BrowserStateAccess) {
+  browserStateAccess = access
 }

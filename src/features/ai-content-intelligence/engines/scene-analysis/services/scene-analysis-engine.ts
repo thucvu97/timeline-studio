@@ -32,7 +32,6 @@ import type {
 
 // Интеграция с montage-planner для работы с персонажами
 
-
 export class SceneAnalysisEngine extends BaseAIEngine {
   name = "Scene Analysis Engine"
   version = "1.0.0"
@@ -42,7 +41,7 @@ export class SceneAnalysisEngine extends BaseAIEngine {
   private aiService: UnifiedAIService
   private visionService?: VisionService
   private config: SceneAnalysisConfig = this.getDefaultConfig()
-  
+
   // Кэш для персонажей из montage-planner
   private personProfilesCache = new Map<string, PersonProfile>()
   private detectedPersonsCache = new Map<string, Person[]>()
@@ -112,8 +111,8 @@ export class SceneAnalysisEngine extends BaseAIEngine {
       // 6. Агрегируем информацию о персонажах из всех сцен
       const allDetectedPersons = this.getDetectedPersonsForVideo(data.mediaFile.path)
       const fragmentsWithPersons = scenes
-        .map(scene => scene.content?.montagePlannerFragment)
-        .filter(fragment => fragment && fragment.people.length > 0)
+        .map((scene) => scene.content?.montagePlannerFragment)
+        .filter((fragment) => fragment && fragment.people.length > 0)
 
       // 7. Сборка финального результата
       const result: SceneAnalysisResult = {
@@ -280,9 +279,11 @@ export class SceneAnalysisEngine extends BaseAIEngine {
       if (content.faces.length > 0) {
         const identifiedPersons = await this.identifyPersons(content.faces, scene.id)
         content.identifiedPersons = identifiedPersons
-        
-        console.log(`Scene ${scene.id}: Found ${identifiedPersons.length} persons`, 
-          identifiedPersons.map(p => `${p.name}(${Math.round(p.confidence * 100)}%)`))
+
+        console.log(
+          `Scene ${scene.id}: Found ${identifiedPersons.length} persons`,
+          identifiedPersons.map((p) => `${p.name}(${Math.round(p.confidence * 100)}%)`),
+        )
       }
 
       // Определяем настроение сцены с помощью AI
@@ -293,9 +294,9 @@ export class SceneAnalysisEngine extends BaseAIEngine {
       // Создаем Fragment в формате montage-planner
       if (content.identifiedPersons?.length > 0) {
         const fragment = this.createFragmentFromScene(
-          { ...scene, content } as SceneAnalysis, 
-          mediaFile, 
-          content.identifiedPersons
+          { ...scene, content } as SceneAnalysis,
+          mediaFile,
+          content.identifiedPersons,
         )
         content.montagePlannerFragment = fragment
       }
@@ -591,7 +592,7 @@ Format as JSON: { contentType: string, genres: string[], confidence: number }`
       },
       vision: {
         enableObjectDetection: true, // Включаем YOLO по умолчанию
-        enableFaceDetection: true,   // Включаем детекцию лиц
+        enableFaceDetection: true, // Включаем детекцию лиц
         enableTextRecognition: false,
         enableActivityDetection: false,
         confidenceThreshold: 0.5,
@@ -618,7 +619,7 @@ Format as JSON: { contentType: string, genres: string[], confidence: number }`
       // TODO: Интеграция с person-identification service
       // const personService = PersonIdentificationService.getInstance()
       // const profiles = await personService.getAllProfiles()
-      
+
       // Mock данные для тестирования
       const mockProfiles: PersonProfile[] = [
         {
@@ -634,7 +635,7 @@ Format as JSON: { contentType: string, genres: string[], confidence: number }`
           updatedAt: new Date(),
         },
         {
-          id: "person-2", 
+          id: "person-2",
           name: "Jane Smith",
           isVerified: true,
           faceEmbeddings: [],
@@ -662,7 +663,7 @@ Format as JSON: { contentType: string, genres: string[], confidence: number }`
    */
   private async identifyPersons(faceDetections: any[], sceneId: string): Promise<Person[]> {
     const cacheKey = `${sceneId}-persons`
-    
+
     // Проверяем кэш
     if (this.detectedPersonsCache.has(cacheKey)) {
       return this.detectedPersonsCache.get(cacheKey)!
@@ -673,15 +674,15 @@ Format as JSON: { contentType: string, genres: string[], confidence: number }`
     for (const face of faceDetections) {
       // В реальной реализации здесь будет сравнение face embeddings
       // с существующими PersonProfile.faceEmbeddings
-      
+
       // Mock идентификация на основе confidence
       let identifiedPerson: Person | null = null
-      
+
       if (face.confidence > 0.8) {
         // Высокая уверенность - ищем по профилям
         const profiles = Array.from(this.personProfilesCache.values())
-        const matchedProfile = profiles.find(p => p.averageConfidence > 0.8)
-        
+        const matchedProfile = profiles.find((p) => p.averageConfidence > 0.8)
+
         if (matchedProfile) {
           identifiedPerson = {
             id: matchedProfile.id,
@@ -690,7 +691,7 @@ Format as JSON: { contentType: string, genres: string[], confidence: number }`
           }
         }
       }
-      
+
       // Если не найден в профилях, создаем временного персонажа
       if (!identifiedPerson) {
         identifiedPerson = {
@@ -705,7 +706,7 @@ Format as JSON: { contentType: string, genres: string[], confidence: number }`
 
     // Удаляем дубликаты по ID
     const uniquePersons = identifiedPersons.filter(
-      (person, index, arr) => arr.findIndex(p => p.id === person.id) === index
+      (person, index, arr) => arr.findIndex((p) => p.id === person.id) === index,
     )
 
     // Кэшируем результат
@@ -789,7 +790,7 @@ Format as JSON: { contentType: string, genres: string[], confidence: number }`
    */
   public getDetectedPersonsForVideo(videoPath: string): Person[] {
     const allPersons: Person[] = []
-    
+
     for (const [key, persons] of this.detectedPersonsCache.entries()) {
       if (key.includes(videoPath)) {
         allPersons.push(...persons)
@@ -798,7 +799,7 @@ Format as JSON: { contentType: string, genres: string[], confidence: number }`
 
     // Убираем дубликаты и объединяем по ID
     const uniquePersons = new Map<string, Person>()
-    
+
     for (const person of allPersons) {
       if (uniquePersons.has(person.id)) {
         // Обновляем уверенность максимальной
@@ -825,10 +826,7 @@ Format as JSON: { contentType: string, genres: string[], confidence: number }`
   /**
    * Обнаружить персонажей в видео или изображении
    */
-  public async detectPersons(
-    mediaPath: string,
-    timerange?: { start: number; end: number }
-  ): Promise<DetectedFace[]> {
+  public async detectPersons(mediaPath: string, timerange?: { start: number; end: number }): Promise<DetectedFace[]> {
     if (!this._isReady) {
       throw new Error("Scene Analysis Engine not initialized")
     }
@@ -839,7 +837,7 @@ Format as JSON: { contentType: string, genres: string[], confidence: number }`
       // Если указан временной диапазон, анализируем только его
       const startTime = timerange?.start || 0
       const endTime = timerange?.end || 60 // По умолчанию первые 60 секунд
-      
+
       // Анализируем кадры с интервалом
       const frameInterval = 1.0 // Каждую секунду
       const frameCount = Math.ceil((endTime - startTime) / frameInterval)

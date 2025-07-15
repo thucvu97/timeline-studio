@@ -602,10 +602,32 @@ export const personIdentificationHandlers = {
         }
       }
       if (params.faceImagePath) {
-        // TODO: Поиск по изображению лица
-        return {
-          success: false,
-          error: "Поиск по изображению лица пока не реализован",
+        // Поиск по изображению лица с использованием эмбеддингов
+        try {
+          const faceEmbedding = await sceneEngine.generateFaceEmbedding(params.faceImagePath)
+          const matchingPersons = await personDatabase.findSimilarPersons(faceEmbedding, {
+            threshold: params.confidenceThreshold || 0.8,
+            maxResults: params.maxResults || 10,
+          })
+
+          return {
+            success: true,
+            data: {
+              foundPersons: matchingPersons.map((match) => ({
+                ...match.person,
+                confidence: match.confidence,
+                lastSeen: match.person.lastSeen?.toISOString(),
+                appearances: match.person.appearances?.length || 0,
+              })),
+              searchImage: params.faceImagePath,
+              totalMatches: matchingPersons.length,
+            },
+          }
+        } catch (error) {
+          return {
+            success: false,
+            error: `Ошибка поиска по изображению: ${error instanceof Error ? error.message : String(error)}`,
+          }
         }
       }
       // Возвращаем всех персон

@@ -163,6 +163,19 @@ beforeAll(() => {
     unobserve: vi.fn(),
     disconnect: vi.fn(),
   }))
+
+  // Mock setInterval and clearInterval to ensure they work properly in tests
+  if (typeof global.setInterval === "undefined") {
+    global.setInterval = vi.fn((callback: () => void, delay?: number) => {
+      return setTimeout(callback, delay)
+    })
+  }
+
+  if (typeof global.clearInterval === "undefined") {
+    global.clearInterval = vi.fn((id) => {
+      clearTimeout(id)
+    })
+  }
 })
 
 afterEach(() => {

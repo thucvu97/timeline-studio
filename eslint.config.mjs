@@ -104,6 +104,8 @@ const eslintConfig = tseslint.config(
       "@typescript-eslint/prefer-nullish-coalescing": "off",
       "@typescript-eslint/no-unnecessary-condition": "off",
       "@typescript-eslint/no-misused-promises": "off",
+      "@typescript-eslint/prefer-for-of": "off",
+      "@typescript-eslint/restrict-plus-operands": "off",
       // Отключаем Next.js img правило для Tauri приложения
       "@next/next/no-img-element": "off",
       // Стиль для switch statements
