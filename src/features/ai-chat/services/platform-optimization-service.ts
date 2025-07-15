@@ -73,7 +73,7 @@ export interface OptimizationParams {
 /**
  * Результат оптимизации
  */
-export interface OptimizationResult {
+export interface PlatformOptimizationResult {
   platform: SupportedPlatform
   originalFile: string
   optimizedFile: string
@@ -344,7 +344,7 @@ export class PlatformOptimizationService {
   /**
    * Оптимизировать видео для платформы
    */
-  public async optimizeForPlatform(params: OptimizationParams): Promise<OptimizationResult> {
+  public async optimizeForPlatform(params: OptimizationParams): Promise<PlatformOptimizationResult> {
     const specs = this.platformSpecs[params.platform]
 
     // Получаем метаданные исходного видео
@@ -436,10 +436,10 @@ export class PlatformOptimizationService {
     outputDirectory: string,
     contentCategory: ContentCategory = "standard",
   ): Promise<{
-    results: OptimizationResult[]
+    results: PlatformOptimizationResult[]
     stats: BatchOptimizationStats
   }> {
-    const results: OptimizationResult[] = []
+    const results: PlatformOptimizationResult[] = []
     const platformDistribution: Record<SupportedPlatform, number> = {} as any
 
     let totalOriginalSize = 0

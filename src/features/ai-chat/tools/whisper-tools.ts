@@ -801,7 +801,7 @@ async function syncSubtitlesWithWhisper(params: any): Promise<{
       const matchingWord = transcriptionWords.find((word: any, idx: number) => {
         const similarity = calculateWordSimilarity(subtitleWord.toLowerCase(), word.word.toLowerCase())
         return similarity > 0.7 && Math.abs(idx - i) < tolerance * 10 // Учитываем tolerance
-      })
+      }) as any
 
       if (matchingWord) {
         syncedSubtitles.push({

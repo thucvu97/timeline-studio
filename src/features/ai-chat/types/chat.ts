@@ -36,7 +36,7 @@ export interface ChatListItem {
   messageCount: number
 }
 
-export interface TimelineContext {
+export interface ChatTimelineContext {
   projectName?: string
   projectDuration?: number
   selectedClips?: Array<{
@@ -79,7 +79,7 @@ export interface ChatStorageService {
 export interface AIService {
   sendMessage(
     message: string,
-    context?: TimelineContext,
+    context?: ChatTimelineContext,
     options?: {
       stream?: boolean
       maxTokens?: number

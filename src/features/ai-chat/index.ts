@@ -7,23 +7,17 @@
 // Основные компоненты и хуки
 export * from "./components"
 export * from "./hooks"
-// Timeline AI интеграция
-export { useTimelineAI, useTimelineAIQuick } from "./hooks/use-timeline-ai"
 export * from "./services"
-export { TimelineAIService } from "./services/timeline-ai-service"
-export { browserTools } from "./tools/browser-tools"
-export { playerTools } from "./tools/player-tools"
-// Инструменты Claude
-export { resourceTools } from "./tools/resource-tools"
-export { timelineTools } from "./tools/timeline-tools"
-// Типы для AI контекста
-export type {
-  AIBrowserContext,
-  AICommand,
-  AICommandResult,
-  AIPlayerContext,
-  AIResourcesContext,
-  AITimelineContext,
-  AIToolResult,
-  TimelineStudioContext,
-} from "./types/ai-context"
+
+// Все инструменты
+export * from "./tools"
+
+// Все типы
+export * from "./types/ai-context"
+export * from "./types/ai-message"
+export * from "./types/chat"
+export * from "./types/streaming"
+
+// Утилиты
+export * from "./utils/context-manager"
+export * from "./utils/timeline-context"

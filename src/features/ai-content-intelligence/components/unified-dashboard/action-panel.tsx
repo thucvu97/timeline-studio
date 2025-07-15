@@ -24,7 +24,7 @@ export function ActionPanel({
   onAnalyze,
   onProcess,
   onPause,
-  onResume,
+  // onResume,
   onCancel,
   className,
 }: ActionPanelProps) {

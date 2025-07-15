@@ -56,6 +56,7 @@ export interface BatchProgress {
  * Результат пакетной операции
  */
 export interface BatchOperationResult {
+  id: string
   jobId: string
   status: BatchJobStatus
   results: Record<string, any>[]
@@ -192,8 +193,12 @@ export class BatchProcessingService {
   /**
    * Очистить историю пакетных операций
    */
-  public clearBatchHistory(): void {
-    this.jobHistory = []
+  public clearBatchHistory(idsToRemove?: string[]): void {
+    if (idsToRemove && idsToRemove.length > 0) {
+      this.jobHistory = this.jobHistory.filter((job) => !idsToRemove.includes(job.id))
+    } else {
+      this.jobHistory = []
+    }
   }
 
   /**
@@ -260,6 +265,7 @@ export class BatchProcessingService {
       const finalProgress = this.activeJobs.get(jobId)!
 
       const operationResult: BatchOperationResult = {
+        id: jobId,
         jobId,
         status: finalProgress.status === "cancelled" ? "cancelled" : "completed",
         results,

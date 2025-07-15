@@ -433,6 +433,9 @@ export interface BrowserToolResult {
     format?: string
     fileCount?: number
     includeMetadata?: boolean
+    query?: string
+    totalResults?: number
+    appliedFilters?: any
   }
   errors?: string[]
   warnings?: string[]
@@ -521,7 +524,7 @@ async function analyzeMediaBrowser(params: any): Promise<BrowserToolResult> {
     const files = await getFilesFromBrowserTab(tab, filters)
 
     // Базовый анализ
-    const analysis = {
+    const analysis: Record<string, any> = {
       totalFiles: files.length,
       fileTypes: analyzeFileTypes(files),
       totalSize: files.reduce((sum, file) => sum + file.size, 0),
@@ -596,11 +599,9 @@ async function searchMediaFiles(params: any): Promise<BrowserToolResult> {
       message: `Найдено ${files.length} файлов по запросу "${query}"`,
       data: {
         files,
-        searchMetadata: {
-          query,
-          totalResults: files.length,
-          appliedFilters: { type, ...advancedFilters },
-        },
+        query,
+        totalResults: files.length,
+        appliedFilters: { type, ...advancedFilters },
       },
     }
   } catch (error) {
@@ -930,15 +931,68 @@ async function updateBrowserFilters(params: any): Promise<BrowserToolResult> {
 }
 
 async function analyzeMissingContent(params: any): Promise<BrowserToolResult> {
-  const { projectType, currentContent = {}, targetRequirements = {} } = params
+  const { projectType, targetRequirements = {} } = params
 
   try {
     const files = await getAllBrowserFiles()
-    const contentAnalysis = analyzeCurrentContent(files, currentContent)
-    const requirements = getProjectRequirements(projectType, targetRequirements)
 
-    const missingContent = identifyMissingContentForProject(contentAnalysis, requirements)
-    const suggestions = generateContentSuggestions(missingContent, projectType)
+    // Анализируем текущий контент
+    const contentAnalysis = {
+      videoCount: files.filter((f) => f.type === "video").length,
+      audioCount: files.filter((f) => f.type === "audio").length,
+      imageCount: files.filter((f) => f.type === "image").length,
+      hasVideo: files.some((f) => f.type === "video"),
+      hasAudio: files.some((f) => f.type === "audio"),
+      hasImages: files.some((f) => f.type === "image"),
+      totalDuration: files.reduce((sum, f) => sum + (f.duration || 0), 0),
+    }
+
+    // Определяем требования к проекту
+    const requirements = {
+      minVideos: projectType === "simple" ? 1 : 3,
+      minAudio: projectType === "music-video" ? 1 : 0,
+      minImages: projectType === "slideshow" ? 5 : 0,
+      minDuration: projectType === "short" ? 30 : 120,
+      ...targetRequirements,
+    }
+
+    // Определяем недостающий контент
+    const missingContent = []
+
+    if (contentAnalysis.videoCount < requirements.minVideos) {
+      missingContent.push({
+        type: "video",
+        priority: "critical",
+        count: requirements.minVideos - contentAnalysis.videoCount,
+        reason: "Недостаточно видео для проекта",
+      })
+    }
+
+    if (contentAnalysis.audioCount < requirements.minAudio) {
+      missingContent.push({
+        type: "audio",
+        priority: "high",
+        count: requirements.minAudio - contentAnalysis.audioCount,
+        reason: "Требуется аудио для проекта",
+      })
+    }
+
+    if (contentAnalysis.imageCount < requirements.minImages) {
+      missingContent.push({
+        type: "image",
+        priority: "medium",
+        count: requirements.minImages - contentAnalysis.imageCount,
+        reason: "Требуются изображения для слайд-шоу",
+      })
+    }
+
+    // Генерируем предложения
+    const suggestions = missingContent.map((item) => ({
+      contentType: item.type,
+      priority: item.priority,
+      message: `${item.reason}. Необходимо добавить ${item.count} файл(ов).`,
+      sources: generateImportSources(item.type, "medium", []),
+    }))
 
     return {
       success: true,
@@ -1330,7 +1384,10 @@ function generateRecommendations(files: MediaFile[], analysis: any): string[] {
 
   // Анализ качества
   if (analysis.qualityDistribution) {
-    const totalFiles = Object.values(analysis.qualityDistribution).reduce((sum: number, count: any) => sum + count, 0)
+    const totalFiles = Object.values(analysis.qualityDistribution).reduce(
+      (sum: number, count: any) => sum + Number(count),
+      0,
+    )
     const lowQualityCount = analysis.qualityDistribution.low || 0
 
     if (lowQualityCount / totalFiles > 0.5) {
@@ -1498,8 +1555,8 @@ function sortFiles(files: MediaFile[], sortBy: string, sortOrder: string): Media
         compareValue = a.name.localeCompare(b.name)
         break
       case "date":
-        const dateA = new Date(a.startTime || 0).getTime()
-        const dateB = new Date(b.startTime || 0).getTime()
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0
         compareValue = dateA - dateB
         break
       case "size":
@@ -2303,6 +2360,123 @@ function escapeXml(unsafe: string): string {
     }
   })
 }
+
+function escapeCsv(value: string): string {
+  if (value.includes(",") || value.includes('"') || value.includes("\n")) {
+    return `"${value.replace(/"/g, '""')}"`
+  }
+  return value
+}
+
+function generateImportSources(contentType: string, projectBudget: string, preferredSources: string[]): any[] {
+  // Базовые источники для разных типов контента
+  const sourceMap: Record<string, Array<{ name: string; url: string; free?: boolean; premium?: boolean }>> = {
+    video: [
+      { name: "Pexels", url: "https://www.pexels.com/videos/", free: true },
+      { name: "Pixabay", url: "https://pixabay.com/videos/", free: true },
+      { name: "Videvo", url: "https://www.videvo.net/", free: true, premium: true },
+      { name: "StoryBlocks", url: "https://www.storyblocks.com/", premium: true },
+    ],
+    audio: [
+      { name: "FreeSounds", url: "https://freesound.org/", free: true },
+      { name: "YouTube Audio Library", url: "https://www.youtube.com/audiolibrary", free: true },
+      { name: "Epidemic Sound", url: "https://www.epidemicsound.com/", premium: true },
+      { name: "AudioJungle", url: "https://audiojungle.net/", premium: true },
+    ],
+    image: [
+      { name: "Unsplash", url: "https://unsplash.com/", free: true },
+      { name: "Pexels", url: "https://www.pexels.com/", free: true },
+      { name: "Shutterstock", url: "https://www.shutterstock.com/", premium: true },
+      { name: "Getty Images", url: "https://www.gettyimages.com/", premium: true },
+    ],
+    effect: [
+      { name: "MotionArray", url: "https://motionarray.com/", premium: true },
+      { name: "VideoHive", url: "https://videohive.net/", premium: true },
+      { name: "RocketStock", url: "https://www.rocketstock.com/", premium: true },
+    ],
+    music: [
+      { name: "Artlist", url: "https://artlist.io/", premium: true },
+      { name: "Musicbed", url: "https://www.musicbed.com/", premium: true },
+      { name: "Audio Network", url: "https://www.audionetwork.com/", premium: true },
+    ],
+  }
+
+  const contentSources = sourceMap[contentType] || []
+
+  // Фильтруем по бюджету
+  let filteredSources = contentSources
+  if (projectBudget === "low") {
+    filteredSources = contentSources.filter((s) => s.free)
+  } else if (projectBudget === "medium") {
+    filteredSources = contentSources.filter((s) => s.free || s.premium)
+  }
+
+  // Сортируем предпочтительные источники первыми
+  filteredSources.sort((a, b) => {
+    const aPreferred = preferredSources.includes(a.name)
+    const bPreferred = preferredSources.includes(b.name)
+    if (aPreferred && !bPreferred) return -1
+    if (!aPreferred && bPreferred) return 1
+    return 0
+  })
+
+  return filteredSources.map((source) => ({
+    ...source,
+    recommended: preferredSources.includes(source.name),
+    budgetFit:
+      projectBudget === "high" ||
+      (projectBudget === "medium" && source.premium) ||
+      (projectBudget === "low" && source.free),
+  }))
+}
+
+function generateImportRecommendations(missingContent: any[]): string[] {
+  const recommendations = []
+
+  if (missingContent.some((c) => c.type === "video")) {
+    recommendations.push("Добавьте видео материалы для создания основы монтажа")
+  }
+
+  if (missingContent.some((c) => c.type === "audio")) {
+    recommendations.push("Добавьте аудио дорожки для озвучки или музыкального сопровождения")
+  }
+
+  if (missingContent.some((c) => c.type === "effect")) {
+    recommendations.push("Добавьте визуальные эффекты для улучшения качества видео")
+  }
+
+  if (missingContent.some((c) => c.priority === "critical")) {
+    recommendations.push("Критически важно добавить недостающие элементы перед началом монтажа")
+  }
+
+  return recommendations
+}
+
+function calculateSourcePriority(contentType: string, projectBudget: string): number {
+  // Приоритет основан на типе контента и бюджете
+  const priorityMap: Record<string, number> = {
+    video: 10,
+    audio: 8,
+    music: 7,
+    effect: 5,
+    image: 4,
+    transition: 3,
+    filter: 2,
+  }
+
+  let priority = priorityMap[contentType] || 1
+
+  // Увеличиваем приоритет для низкого бюджета
+  if (projectBudget === "low") {
+    priority += 2
+  }
+
+  return priority
+}
+
+// Функции findDuplicates и getAllBrowserFiles уже определены выше
+// Вспомогательные функции analyzeFileTypes, analyzeDateRange, getDateRange, analyzeQualityDistribution,
+// analyzeResolutions, analyzeCodecs, generateRecommendations, identifyMissingContent уже определены выше
 
 // Заглушки для статических данных (fallback когда браузер недоступен)
 async function getStaticBrowserFiles(tab: string, _filters: any): Promise<MediaFile[]> {

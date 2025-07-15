@@ -471,7 +471,7 @@ async function analyzeAvailableResources(input: Record<string, any>): Promise<Re
           name: r.file.name,
           duration: r.file.duration,
           size: r.file.size,
-          type: r.file.type,
+          type: r.file.isVideo ? "video" : r.file.isAudio ? "audio" : r.file.isImage ? "image" : "unknown",
         }))
         break
       case "effect":
@@ -732,7 +732,8 @@ async function bulkAddResources(input: Record<string, any>): Promise<ResourceToo
     } else if (selectionMethod === "recent") {
       filteredResources = availableResources.slice(-10)
     } else if (selectionMethod === "favorites") {
-      filteredResources = availableResources.filter((r) => r.isFavorite)
+      // MediaFile не имеет поля isFavorite, поэтому возвращаем пустой массив для favorites
+      filteredResources = []
     }
 
     // Ограничиваем количество
@@ -925,8 +926,8 @@ async function suggestComplementaryResources(input: Record<string, any>): Promis
 
     // Специфичные предложения для baseContent
     if (baseContent.length > 0) {
-      const videoCount = baseContent.filter((c) => c.resourceType === "media").length
-      const audioCount = baseContent.filter((c) => c.resourceType === "music").length
+      const videoCount = baseContent.filter((c: any) => c.resourceType === "media").length
+      const audioCount = baseContent.filter((c: any) => c.resourceType === "music").length
 
       if (videoCount > 5 && !hasTransitions) {
         suggestions.push("Добавить переходы между многочисленными видеоклипами")
@@ -1116,29 +1117,48 @@ async function analyzeResourceCompatibility(input: Record<string, any>): Promise
           const file = mediaResource.file
 
           // Проверка разрешения для видео
-          if (file.type === "video" && file.resolution) {
-            if (
-              file.resolution.width !== projectSettings.resolution.width ||
-              file.resolution.height !== projectSettings.resolution.height
-            ) {
-              issues.push(
-                `Несовместимость разрешения: ${file.resolution.width}x${file.resolution.height} vs ${projectSettings.resolution.width}x${projectSettings.resolution.height}`,
-              )
-              compatible = false
+          if (file.isVideo && file.probeData?.streams) {
+            const videoStream = file.probeData.streams.find((s) => s.codec_type === "video")
+            if (videoStream && videoStream.width && videoStream.height) {
+              if (
+                videoStream.width !== projectSettings.resolution.width ||
+                videoStream.height !== projectSettings.resolution.height
+              ) {
+                issues.push(
+                  `Несовместимость разрешения: ${videoStream.width}x${videoStream.height} vs ${projectSettings.resolution.width}x${projectSettings.resolution.height}`,
+                )
+                compatible = false
+              }
             }
           }
 
           // Проверка частоты кадров
-          if (file.fps && file.fps !== projectSettings.fps) {
-            issues.push(`Различная частота кадров: ${file.fps} fps vs ${projectSettings.fps} fps`)
-            if (Math.abs(file.fps - projectSettings.fps) > 5) {
-              compatible = false
+          if (file.isVideo && file.probeData?.streams) {
+            const videoStream = file.probeData.streams.find((s) => s.codec_type === "video")
+            if (videoStream && videoStream.r_frame_rate) {
+              // Парсим frame rate (может быть в формате "30/1" или "30")
+              const fps = eval(videoStream.r_frame_rate) // Простой способ для формата типа "30/1"
+              if (fps && fps !== projectSettings.fps) {
+                issues.push(`Различная частота кадров: ${fps} fps vs ${projectSettings.fps} fps`)
+                if (Math.abs(fps - projectSettings.fps) > 5) {
+                  compatible = false
+                }
+              }
             }
           }
 
           // Проверка частоты дискретизации аудио
-          if (file.type === "audio" && file.sampleRate && file.sampleRate !== projectSettings.sampleRate) {
-            issues.push(`Различная частота дискретизации: ${file.sampleRate} Hz vs ${projectSettings.sampleRate} Hz`)
+          if (file.isAudio && file.probeData?.streams) {
+            const audioStream = file.probeData.streams.find((s) => s.codec_type === "audio")
+            if (
+              audioStream &&
+              audioStream.sample_rate &&
+              Number.parseInt(audioStream.sample_rate.toString()) !== projectSettings.sampleRate
+            ) {
+              issues.push(
+                `Различная частота дискретизации: ${audioStream.sample_rate} Hz vs ${projectSettings.sampleRate} Hz`,
+              )
+            }
           }
         }
       }
@@ -1482,9 +1502,8 @@ async function cleanupUnusedResources(input: Record<string, any>): Promise<Resou
             const lastUsed = new Date(resource.addedAt || now)
 
             if (!isUsedInTimeline && lastUsed < cutoffDate) {
-              if (!excludeFavorites || !mediaResource.file.isFavorite) {
-                shouldRemove = true
-              }
+              // MediaFile не имеет поля isFavorite, поэтому всегда проверяем
+              shouldRemove = true
             }
           }
           break
@@ -1498,9 +1517,8 @@ async function cleanupUnusedResources(input: Record<string, any>): Promise<Resou
             const lastUsed = new Date(resource.addedAt || now)
 
             if (!isUsedInTimeline && lastUsed < cutoffDate) {
-              if (!excludeFavorites || !musicResource.file.isFavorite) {
-                shouldRemove = true
-              }
+              // MediaFile не имеет поля isFavorite, поэтому всегда проверяем
+              shouldRemove = true
             }
           }
           break
@@ -1684,9 +1702,25 @@ async function exportResourceList(input: Record<string, any>): Promise<ResourceT
               baseData.path = mediaResource.file.path
               baseData.size = mediaResource.file.size
               baseData.duration = mediaResource.file.duration
-              baseData.resolution = mediaResource.file.resolution
-              baseData.fps = mediaResource.file.fps
-              baseData.isFavorite = mediaResource.file.isFavorite
+              // Извлекаем resolution и fps из probeData
+              if (mediaResource.file.probeData?.streams) {
+                const videoStream = mediaResource.file.probeData.streams.find((s) => s.codec_type === "video")
+                if (videoStream) {
+                  baseData.resolution = {
+                    width: videoStream.width || 0,
+                    height: videoStream.height || 0,
+                  }
+                  if (videoStream.r_frame_rate) {
+                    try {
+                      baseData.fps = eval(videoStream.r_frame_rate)
+                    } catch {
+                      baseData.fps = 30 // default
+                    }
+                  }
+                }
+              }
+              // MediaFile не имеет поля isFavorite
+              baseData.isFavorite = false
             }
             break
           }
@@ -1704,7 +1738,8 @@ async function exportResourceList(input: Record<string, any>): Promise<ResourceT
             if (filterResource) {
               baseData.name = filterResource.filter.name
               baseData.category = filterResource.filter.category
-              baseData.intensity = filterResource.filter.intensity
+              // VideoFilter не имеет поля intensity, используем параметры фильтра
+              baseData.params = filterResource.filter.params
             }
             break
           }

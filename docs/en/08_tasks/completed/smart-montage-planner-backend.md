@@ -64,7 +64,8 @@ pub async fn analyze_frame_quality(
 pub async fn analyze_audio_content(
     montage_state: State<'_, MontageState>,
     audio_path: String,
-) -> Result<AudioAnalysisResult, String>
+) -> Result<
+    , String>
 ```
 
 ## 🗂️ Implemented Backend Structure

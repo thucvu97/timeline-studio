@@ -834,8 +834,8 @@ export class WorkflowAutomationService {
   private async cleanupTempDirectory(tempDir: string): Promise<void> {
     try {
       if (typeof window !== "undefined" && window.__TAURI__) {
-        const { removeDir } = await import("@tauri-apps/plugin-fs")
-        await removeDir(tempDir, { recursive: true })
+        const { remove } = await import("@tauri-apps/plugin-fs")
+        await remove(tempDir, { recursive: true })
       }
     } catch (error) {
       console.warn(`Failed to cleanup temp directory ${tempDir}:`, error)

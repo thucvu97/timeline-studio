@@ -79,7 +79,7 @@ export interface StyleSubtitlesParams {
 /**
  * Результат анализа аудио
  */
-export interface AudioAnalysisResult {
+export interface AiAudioAnalysisResult {
   duration: number
   speakers: string[]
   speechSegments: Array<{
@@ -571,7 +571,7 @@ export async function executeSubtitleTool(toolName: string, input: Record<string
 }
 
 // Заглушки для реализации функций (будут реализованы при интеграции)
-async function analyzeAudioForTranscription(params: any): Promise<AudioAnalysisResult> {
+async function analyzeAudioForTranscription(params: any): Promise<AiAudioAnalysisResult> {
   const { clipId, language, detectSpeakers, minimumSilenceDuration } = params
 
   try {
@@ -734,13 +734,30 @@ async function translateSubtitles(params: any): Promise<SubtitleItem[]> {
       const subtitle = subtitles[i]
 
       try {
-        const translation = await unifiedAI.translateText({
-          text: subtitle.text,
-          targetLanguage,
-          sourceLanguage: "auto",
-          style: formatStyle,
-          context: "subtitle",
-        })
+        // Используем простой запрос к AI для перевода
+        const messages: any[] = [
+          {
+            role: "system",
+            content: `You are a professional translator. Translate the given text to ${targetLanguage}. Style: ${formatStyle}. Context: subtitle translation. Provide only the translated text without any explanations.`,
+          },
+          {
+            role: "user",
+            content: subtitle.text,
+          },
+        ]
+
+        const response = await unifiedAI.sendRequest(
+          "gpt-3.5-turbo", // Используем быструю модель для перевода
+          messages,
+          {
+            temperature: 0.3,
+            maxTokens: 500,
+          },
+        )
+
+        const translation = {
+          translatedText: response.content || subtitle.text,
+        }
 
         translatedSubtitles.push({
           id: `translated_${subtitle.id}`,
@@ -764,7 +781,7 @@ async function translateSubtitles(params: any): Promise<SubtitleItem[]> {
     console.error("Ошибка перевода субтитров:", error)
 
     // Fallback: возвращаем оригинальные субтитры с новыми ID
-    return subtitles.map((sub) => ({
+    return subtitles.map((sub: any) => ({
       ...sub,
       id: `translated_${sub.id}`,
     }))
@@ -1413,14 +1430,43 @@ async function createChaptersFromSubtitles(params: any): Promise<any[]> {
         // Собираем весь текст субтитров
         const fullText = subtitles.map((sub) => sub.text).join(" ")
 
-        const topicAnalysis = await unifiedAI.analyzeContent({
-          text: fullText,
-          analysisType: "topic_segmentation",
-          options: {
-            maxSegments: maxChapters,
-            minSegmentLength: minimumChapterLength,
+        // Используем AI для анализа текста и определения тем
+        const messages: any[] = [
+          {
+            role: "system",
+            content: `You are analyzing subtitles to identify topic changes and create chapters.
+                     Analyze the text and identify ${maxChapters} main topics or segments.
+                     Each segment should be at least ${minimumChapterLength} seconds long.
+                     Return JSON with format:
+                     {
+                       "segments": [
+                         {
+                           "title": "Chapter title",
+                           "startRatio": 0.0,
+                           "endRatio": 0.25,
+                           "summary": "Brief summary",
+                           "keywords": ["keyword1", "keyword2"]
+                         }
+                       ]
+                     }`,
           },
+          {
+            role: "user",
+            content: fullText,
+          },
+        ]
+
+        const response = await unifiedAI.sendRequest("gpt-3.5-turbo", messages, {
+          temperature: 0.5,
+          maxTokens: 1500,
         })
+
+        let topicAnalysis: any = { segments: [] }
+        try {
+          topicAnalysis = JSON.parse(response.content || "{}")
+        } catch (e) {
+          console.warn("Failed to parse AI response:", e)
+        }
 
         if (topicAnalysis.segments && topicAnalysis.segments.length > 0) {
           // Создаем главы на основе AI анализа

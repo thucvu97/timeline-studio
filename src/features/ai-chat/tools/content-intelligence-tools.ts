@@ -389,16 +389,16 @@ export interface ContentIntelligenceToolResult {
   success: boolean
   message: string
   toolName: string
-  input: any
-  data?: any
-  analysis?: any
-  script?: any
-  variants?: any[]
-  platforms?: any[]
-  languages?: any[]
-  quality?: any
-  recommendations?: any[]
-  error?: any
+  input: Record<string, unknown>
+  data?: Record<string, unknown>
+  analysis?: Record<string, unknown>
+  script?: Record<string, unknown>
+  variants?: Array<Record<string, unknown>>
+  platforms?: Array<Record<string, unknown>>
+  languages?: Array<Record<string, unknown>>
+  quality?: Record<string, unknown>
+  recommendations?: string[]
+  error?: unknown
 }
 
 /**
@@ -406,7 +406,7 @@ export interface ContentIntelligenceToolResult {
  */
 export async function executeContentIntelligenceTool(
   toolName: string,
-  input: Record<string, any>,
+  input: Record<string, unknown>,
 ): Promise<ContentIntelligenceToolResult> {
   try {
     switch (toolName) {
@@ -431,34 +431,34 @@ export async function executeContentIntelligenceTool(
       default:
         return {
           success: false,
-          message: `Неизвестный инструмент Content Intelligence: ${toolName}`,
+          message: `Неизвестный инструмент Content Intelligence: ${String(toolName)}`,
           toolName,
           input,
         }
     }
   } catch (error) {
-    console.error(`Ошибка выполнения Content Intelligence инструмента ${toolName}:`, error)
+    console.error(`Ошибка выполнения Content Intelligence инструмента ${String(toolName)}:`, error)
     return {
       success: false,
-      message: `Ошибка выполнения ${toolName}: ${error.message}`,
+      message: `Ошибка выполнения ${String(toolName)}: ${error instanceof Error ? error.message : String(error)}`,
       toolName,
       input,
-      error: error.message,
+      error: error instanceof Error ? error.message : String(error),
     }
   }
 }
 
 // Обработчики для каждого инструмента
 
-async function analyzeContentIntelligenceHandler(input: any): Promise<ContentIntelligenceToolResult> {
-  const {
-    media_files,
-    analysis_depth = "normal",
-    target_platforms = [],
-    languages = [],
-    enable_person_tracking = false,
-    generate_script = false,
-  } = input
+async function analyzeContentIntelligenceHandler(
+  input: Record<string, unknown>,
+): Promise<ContentIntelligenceToolResult> {
+  const media_files = input.media_files as string[]
+  const analysis_depth = (input.analysis_depth as string) || "normal"
+  const target_platforms = (input.target_platforms as string[]) || []
+  const languages = (input.languages as string[]) || []
+  const enable_person_tracking = (input.enable_person_tracking as boolean) || false
+  const generate_script = (input.generate_script as boolean) || false
 
   try {
     // Интеграция с AI Content Intelligence Service
@@ -476,7 +476,7 @@ async function analyzeContentIntelligenceHandler(input: any): Promise<ContentInt
 
     // Выполняем реальный анализ контента
     const analysisResults = await aiService.analyzeContentIntelligence(mediaInputs, {
-      analysisDepth: analysis_depth,
+      analysisDepth: analysis_depth as "normal" | "quick" | "deep",
       targetPlatforms: target_platforms,
       languages,
       enablePersonTracking: enable_person_tracking,
@@ -488,7 +488,7 @@ async function analyzeContentIntelligenceHandler(input: any): Promise<ContentInt
     const realAnalysis = {
       sceneAnalysis: {
         totalScenes: analysis.scenes.length,
-        sceneTypes: [...new Set(analysis.scenes.map((s) => s.type))],
+        sceneTypes: Array.from(new Set(analysis.scenes.map((s) => s.type))),
         averageSceneDuration:
           analysis.scenes.reduce((sum, s) => sum + (s.endTime - s.startTime), 0) / analysis.scenes.length,
         qualityScore: analysis.qualityMetrics.technical.overallScore / 10,
@@ -544,16 +544,19 @@ async function analyzeContentIntelligenceHandler(input: any): Promise<ContentInt
   } catch (error) {
     return {
       success: false,
-      message: `Ошибка анализа контента: ${error.message}`,
+      message: `Ошибка анализа контента: ${error instanceof Error ? error.message : String(error)}`,
       toolName: "analyze_content_intelligence",
       input,
-      error: error.message,
+      error: error instanceof Error ? error.message : String(error),
     }
   }
 }
 
-async function detectSceneBoundariesHandler(input: any): Promise<ContentIntelligenceToolResult> {
-  const { video_path, sensitivity = 0.5, min_scene_duration = 2, classify_types = false } = input
+async function detectSceneBoundariesHandler(input: Record<string, unknown>): Promise<ContentIntelligenceToolResult> {
+  const video_path = input.video_path as string
+  const sensitivity = (input.sensitivity as number) || 0.5
+  const min_scene_duration = (input.min_scene_duration as number) || 2
+  const classify_types = (input.classify_types as boolean) || false
 
   try {
     // Интеграция с Scene Analysis Engine через UnifiedAIService
@@ -598,7 +601,7 @@ async function detectSceneBoundariesHandler(input: any): Promise<ContentIntellig
 
     return {
       success: true,
-      message: `Обнаружено ${sceneCount} сцен в видео`,
+      message: `Обнаружено ${String(sceneCount)} сцен в видео`,
       toolName: "detect_scene_boundaries",
       input,
       data: {
@@ -611,16 +614,18 @@ async function detectSceneBoundariesHandler(input: any): Promise<ContentIntellig
   } catch (error) {
     return {
       success: false,
-      message: `Ошибка детекции сцен: ${error.message}`,
+      message: `Ошибка детекции сцен: ${error instanceof Error ? error.message : String(error)}`,
       toolName: "detect_scene_boundaries",
       input,
-      error: error.message,
+      error: error instanceof Error ? error.message : String(error),
     }
   }
 }
 
-async function classifyContentHandler(input: any): Promise<ContentIntelligenceToolResult> {
-  const { media_input, classification_types, include_confidence = false } = input
+async function classifyContentHandler(input: Record<string, unknown>): Promise<ContentIntelligenceToolResult> {
+  const media_input = input.media_input as Record<string, unknown>
+  const classification_types = input.classification_types as string[]
+  const include_confidence = (input.include_confidence as boolean) || false
 
   try {
     // Интеграция с Content Classifier через UnifiedAIService
@@ -629,10 +634,10 @@ async function classifyContentHandler(input: any): Promise<ContentIntelligenceTo
     // Конвертируем media_input в MediaInput формат
     const mediaInputs = [
       {
-        path: media_input.path,
-        filename: media_input.filename || media_input.path.split("/").pop() || "unknown",
-        type: media_input.type || ("video" as const),
-        duration: media_input.duration,
+        path: media_input.path as string,
+        filename: (media_input.filename as string) || (media_input.path as string).split("/").pop() || "unknown",
+        type: (media_input.type as "video" | "image") || ("video" as const),
+        duration: media_input.duration as number | undefined,
       },
     ]
 
@@ -651,10 +656,11 @@ async function classifyContentHandler(input: any): Promise<ContentIntelligenceTo
     }
 
     // Преобразуем результаты в ожидаемый формат
-    const realClassification = classification_types.reduce((acc, type) => {
+    const realClassification = classification_types.reduce<Record<string, any>>((acc, type) => {
+      const classificationData = classification as Record<string, any>
       acc[type] = {
-        result: classification[type] || "unknown",
-        confidence: include_confidence ? classification.confidence?.[type] || 0.8 : undefined,
+        result: classificationData[type] || "unknown",
+        confidence: include_confidence ? classificationData.confidence?.[type] || 0.8 : undefined,
       }
       return acc
     }, {})
@@ -673,23 +679,21 @@ async function classifyContentHandler(input: any): Promise<ContentIntelligenceTo
   } catch (error) {
     return {
       success: false,
-      message: `Ошибка классификации контента: ${error.message}`,
+      message: `Ошибка классификации контента: ${error instanceof Error ? error.message : String(error)}`,
       toolName: "classify_content",
       input,
-      error: error.message,
+      error: error instanceof Error ? error.message : String(error),
     }
   }
 }
 
-async function generateFullScriptHandler(input: any): Promise<ContentIntelligenceToolResult> {
-  const {
-    scene_analysis,
-    script_style,
-    target_duration,
-    include_shot_list = false,
-    narrative_structure = "chronological",
-    tone = "professional",
-  } = input
+async function generateFullScriptHandler(input: Record<string, unknown>): Promise<ContentIntelligenceToolResult> {
+  const scene_analysis = input.scene_analysis as Record<string, unknown>
+  const script_style = input.script_style as string
+  const target_duration = input.target_duration as number | undefined
+  const include_shot_list = (input.include_shot_list as boolean) || false
+  const narrative_structure = (input.narrative_structure as string) || "chronological"
+  const tone = (input.tone as string) || "professional"
 
   try {
     // Интеграция с Script Generation Engine через UnifiedAIService
@@ -725,12 +729,12 @@ async function generateFullScriptHandler(input: any): Promise<ContentIntelligenc
         {
           role: "user",
           content: `Создай полный сценарий на основе сцен:
-        
+
 Сцены: ${JSON.stringify(mockScenes)}
-Стиль: ${script_style}
-Структура: ${narrative_structure}
-Тон: ${tone}
-Целевая длительность: ${target_duration ? `${String(target_duration)} секунд` : "не указана"}
+Стиль: ${String(script_style)}
+Структура: ${String(narrative_structure)}
+Тон: ${String(tone)}
+Целевая длительность: ${target_duration ? `${JSON.stringify(target_duration)} секунд` : "не указана"}
 
 Создай сценарий в формате JSON с полями: id, title, style, structure, tone, scenes, shotList, metadata.`,
         },
@@ -745,7 +749,7 @@ async function generateFullScriptHandler(input: any): Promise<ContentIntelligenc
       // Fallback если парсинг не удался
       generatedScript = {
         id: `script_${Date.now()}`,
-        title: `${script_style} сценарий`,
+        title: `${String(script_style)} сценарий`,
         style: script_style,
         structure: narrative_structure,
         tone: tone,
@@ -762,7 +766,7 @@ async function generateFullScriptHandler(input: any): Promise<ContentIntelligenc
 
     // Реальный скрипт от AI сервиса
     const realScript = {
-      title: generatedScript.title || `${script_style} сценарий`,
+      title: generatedScript.title || `${String(script_style)} сценарий`,
       style: generatedScript.style || script_style,
       structure: generatedScript.structure || narrative_structure,
       tone: generatedScript.tone || tone,
@@ -809,7 +813,7 @@ async function generateFullScriptHandler(input: any): Promise<ContentIntelligenc
 
     return {
       success: true,
-      message: `Сценарий в стиле "${script_style}" создан`,
+      message: `Сценарий в стиле "${String(script_style)}" создан`,
       toolName: "generate_full_script",
       input,
       script: realScript,
@@ -822,16 +826,19 @@ async function generateFullScriptHandler(input: any): Promise<ContentIntelligenc
   } catch (error) {
     return {
       success: false,
-      message: `Ошибка генерации сценария: ${error.message}`,
+      message: `Ошибка генерации сценария: ${error instanceof Error ? error.message : String(error)}`,
       toolName: "generate_full_script",
       input,
-      error: error.message,
+      error: error instanceof Error ? error.message : String(error),
     }
   }
 }
 
-async function createShotListHandler(input: any): Promise<ContentIntelligenceToolResult> {
-  const { script_content, shot_types = [], include_camera_movements = false, production_notes = false } = input
+async function createShotListHandler(input: Record<string, unknown>): Promise<ContentIntelligenceToolResult> {
+  const script_content = input.script_content as string
+  const shot_types = (input.shot_types as string[]) || []
+  const include_camera_movements = (input.include_camera_movements as boolean) || false
+  const production_notes = (input.production_notes as boolean) || false
 
   try {
     // Интеграция с Shot List Generator через UnifiedAIService
@@ -844,8 +851,8 @@ async function createShotListHandler(input: any): Promise<ContentIntelligenceToo
         {
           role: "user",
           content: `Создай детальный shot list на основе сценария:
-        
-${script_content}
+
+${String(script_content)}
 
 Параметры:
 - Типы кадров: ${shot_types.join(", ") || "все типы"}
@@ -882,7 +889,13 @@ ${script_content}
           totalDuration: "5-8 минут",
           shotTypeBreakdown:
             shot_types.length > 0
-              ? shot_types.reduce((acc, type) => ({ ...acc, [type]: Math.floor(Math.random() * 5) + 1 }), {})
+              ? shot_types.reduce<Record<string, number>>(
+                (acc, type) => ({
+                  ...acc,
+                  [type]: Math.floor(Math.random() * 5) + 1,
+                }),
+                {},
+              )
               : { wide: 2, medium: 4, "close-up": 2 },
           productionTime: production_notes ? "2-3 часа" : "1-2 часа",
         },
@@ -899,22 +912,20 @@ ${script_content}
   } catch (error) {
     return {
       success: false,
-      message: `Ошибка создания shot list: ${error.message}`,
+      message: `Ошибка создания shot list: ${error instanceof Error ? error.message : String(error)}`,
       toolName: "create_shot_list",
       input,
-      error: error.message,
+      error: error instanceof Error ? error.message : String(error),
     }
   }
 }
 
-async function adaptContentToPlatformHandler(input: any): Promise<ContentIntelligenceToolResult> {
-  const {
-    source_content,
-    target_platform,
-    adaptation_depth = "basic",
-    include_seo = false,
-    generate_variants = 1,
-  } = input
+async function adaptContentToPlatformHandler(input: Record<string, unknown>): Promise<ContentIntelligenceToolResult> {
+  const source_content = input.source_content as Record<string, unknown>
+  const target_platform = input.target_platform as string
+  const adaptation_depth = (input.adaptation_depth as string) || "basic"
+  const include_seo = (input.include_seo as boolean) || false
+  const generate_variants = (input.generate_variants as number) || 1
 
   try {
     // Интеграция с Multi-Platform Engine через UnifiedAIService
@@ -926,14 +937,14 @@ async function adaptContentToPlatformHandler(input: any): Promise<ContentIntelli
       [
         {
           role: "user",
-          content: `Адаптируй контент под платформу ${target_platform}:
+          content: `Адаптируй контент под платформу ${String(target_platform)}:
 
 Исходный контент: ${JSON.stringify(source_content)}
-Глубина адаптации: ${adaptation_depth}
-Включить SEO: ${include_seo}
-Количество вариантов: ${generate_variants}
+Глубина адаптации: ${String(adaptation_depth)}
+Включить SEO: ${String(include_seo)}
+Количество вариантов: ${String(generate_variants)}
 
-Особенности платформы ${target_platform}:
+Особенности платформы ${String(target_platform)}:
 - YouTube: длинные видео, SEO, миниатюры
 - TikTok: короткие вертикальные видео, тренды
 - Instagram: визуальность, хештеги, Stories/Reels
@@ -953,18 +964,18 @@ async function adaptContentToPlatformHandler(input: any): Promise<ContentIntelli
       // Fallback если парсинг не удался
       realAdaptation = {
         platform: target_platform,
-        title: `${target_platform} версия контента`,
-        description: `Адаптировано для ${target_platform}`,
+        title: `${String(target_platform)} версия контента`,
+        description: `Адаптировано для ${String(target_platform)}`,
         optimizedContent: {
-          title: `${target_platform} заголовок`,
-          description: `Описание для ${target_platform}`,
+          title: `${String(target_platform)} заголовок`,
+          description: `Описание для ${String(target_platform)}`,
           format: target_platform === "tiktok" ? "vertical" : "horizontal",
           duration: target_platform === "tiktok" ? "15-60 сек" : "3-10 мин",
         },
         seoData: include_seo
           ? {
-            keywords: [`${target_platform} ключевые слова`],
-            tags: [`#${target_platform}`],
+            keywords: [`${String(target_platform)} ключевые слова`],
+            tags: [`#${String(target_platform)}`],
             category: "общее",
           }
           : null,
@@ -973,7 +984,7 @@ async function adaptContentToPlatformHandler(input: any): Promise<ContentIntelli
 
     return {
       success: true,
-      message: `Контент адаптирован для ${target_platform}`,
+      message: `Контент адаптирован для ${String(target_platform)}`,
       toolName: "adapt_content_to_platform",
       input,
       data: realAdaptation,
@@ -981,22 +992,22 @@ async function adaptContentToPlatformHandler(input: any): Promise<ContentIntelli
   } catch (error) {
     return {
       success: false,
-      message: `Ошибка адаптации для ${target_platform}: ${error.message}`,
+      message: `Ошибка адаптации для ${String(target_platform)}: ${error instanceof Error ? error.message : String(error)}`,
       toolName: "adapt_content_to_platform",
       input,
-      error: error.message,
+      error: error instanceof Error ? error.message : String(error),
     }
   }
 }
 
-async function generateMultiLanguageBatchHandler(input: any): Promise<ContentIntelligenceToolResult> {
-  const {
-    source_content,
-    target_languages,
-    localization_level = "translation",
-    maintain_timing = true,
-    cultural_sensitivity = false,
-  } = input
+async function generateMultiLanguageBatchHandler(
+  input: Record<string, unknown>,
+): Promise<ContentIntelligenceToolResult> {
+  const source_content = input.source_content as Record<string, unknown>
+  const target_languages = input.target_languages as string[]
+  const localization_level = (input.localization_level as string) || "translation"
+  const maintain_timing = (input.maintain_timing as boolean) ?? true
+  const cultural_sensitivity = (input.cultural_sensitivity as boolean) || false
 
   try {
     // Интеграция с Language Adapter Service через UnifiedAIService
@@ -1025,19 +1036,19 @@ async function generateMultiLanguageBatchHandler(input: any): Promise<ContentInt
             ja: "日本語",
           }[lang] || lang,
         translatedContent: {
-          title: `Переведенный заголовок (${lang})`,
-          description: `Описание на ${lang}`,
+          title: `Переведенный заголовок (${String(lang)})`,
+          description: `Описание на ${String(lang)}`,
           script:
             localization_level !== "translation"
-              ? `Локализованный скрипт для ${lang} с учетом культурных особенностей`
-              : `Переведенный скрипт на ${lang}`,
+              ? `Локализованный скрипт для ${String(lang)} с учетом культурных особенностей`
+              : `Переведенный скрипт на ${String(lang)}`,
           subtitles: maintain_timing ? "Субтитры с сохранением тайминга" : "Свободно переведенные субтитры",
         },
         culturalAdaptations: cultural_sensitivity
           ? [
-            `Адаптация для культуры ${lang}`,
-            `Местные референсы для ${lang}`,
-            `Культурно-чувствительная лексика для ${lang}`,
+            `Адаптация для культуры ${String(lang)}`,
+            `Местные референсы для ${String(lang)}`,
+            `Культурно-чувствительная лексика для ${String(lang)}`,
           ]
           : [],
         qualityScore: 0.8 + Math.random() * 0.2,
@@ -1062,16 +1073,19 @@ async function generateMultiLanguageBatchHandler(input: any): Promise<ContentInt
   } catch (error) {
     return {
       success: false,
-      message: `Ошибка мультиязычной генерации: ${error.message}`,
+      message: `Ошибка мультиязычной генерации: ${error instanceof Error ? error.message : String(error)}`,
       toolName: "generate_multilanguage_batch",
       input,
-      error: error.message,
+      error: error instanceof Error ? error.message : String(error),
     }
   }
 }
 
-async function generateContentVariantsHandler(input: any): Promise<ContentIntelligenceToolResult> {
-  const { base_content, variant_types, target_metrics = [], platform_context = "general" } = input
+async function generateContentVariantsHandler(input: Record<string, unknown>): Promise<ContentIntelligenceToolResult> {
+  const base_content = input.base_content as Record<string, unknown>
+  const variant_types = input.variant_types as string[]
+  const target_metrics = (input.target_metrics as string[]) || []
+  const platform_context = (input.platform_context as string) || "general"
 
   try {
     // Интеграция с Content Variant Generator через UnifiedAIService
@@ -1084,11 +1098,11 @@ async function generateContentVariantsHandler(input: any): Promise<ContentIntell
 
     // Заглушка для генерации вариантов
     const mockVariants = variant_types.map((type, index) => ({
-      variantId: `variant_${(index as number) + 1}`,
+      variantId: `variant_${index + 1}`,
       type: type,
       content: {
-        title: `${type} вариант: ${base_content.title || "Заголовок"}`,
-        description: `Описание оптимизированное для ${type}`,
+        title: `${String(type)} вариант: ${typeof base_content?.title === "string" ? base_content.title : typeof base_content?.title === "object" && base_content?.title !== null ? JSON.stringify(base_content.title) : "Заголовок"}`,
+        description: `Описание оптимизированное для ${String(type)}`,
         hook: {
           tone_variation: "Эмоциональный хук",
           length_variation: index % 2 === 0 ? "Краткий хук" : "Развернутый хук",
@@ -1110,7 +1124,7 @@ async function generateContentVariantsHandler(input: any): Promise<ContentIntell
         platform_context !== "general"
           ? {
             platform: platform_context,
-            optimization: `Оптимизировано для алгоритмов ${platform_context}`,
+            optimization: `Оптимизировано для алгоритмов ${String(platform_context)}`,
             bestPostingTime: "14:00-16:00",
             expectedPerformance: "Высокое",
           }
@@ -1139,21 +1153,19 @@ async function generateContentVariantsHandler(input: any): Promise<ContentIntell
   } catch (error) {
     return {
       success: false,
-      message: `Ошибка генерации вариантов: ${error.message}`,
+      message: `Ошибка генерации вариантов: ${error instanceof Error ? error.message : String(error)}`,
       toolName: "generate_content_variants",
       input,
-      error: error.message,
+      error: error instanceof Error ? error.message : String(error),
     }
   }
 }
 
-async function analyzeContentQualityHandler(input: any): Promise<ContentIntelligenceToolResult> {
-  const {
-    content_input,
-    quality_aspects,
-    benchmark_level = "professional",
-    generate_actionable_recommendations = true,
-  } = input
+async function analyzeContentQualityHandler(input: Record<string, unknown>): Promise<ContentIntelligenceToolResult> {
+  const content_input = input.content_input as Record<string, unknown>
+  const quality_aspects = input.quality_aspects as string[]
+  const benchmark_level = (input.benchmark_level as string) || "professional"
+  const generate_actionable_recommendations = (input.generate_actionable_recommendations as boolean) ?? true
 
   try {
     // Интеграция с Content Quality Analyzer через UnifiedAIService
@@ -1165,7 +1177,7 @@ async function analyzeContentQualityHandler(input: any): Promise<ContentIntellig
     // })
 
     // Заглушка для анализа качества
-    const qualityScores = quality_aspects.reduce((acc, aspect) => {
+    const qualityScores = quality_aspects.reduce<Record<string, any>>((acc, aspect) => {
       acc[aspect] = {
         score: 0.6 + Math.random() * 0.4, // 60-100%
         status: Math.random() > 0.3 ? "good" : "needs_improvement",
@@ -1201,8 +1213,11 @@ async function analyzeContentQualityHandler(input: any): Promise<ContentIntellig
         ? quality_aspects.map((aspect: string) => ({
           aspect: aspect,
           priority: Math.random() > 0.5 ? "high" : "medium",
-          recommendation: `Улучшить ${aspect} аспект контента`,
-          actionItems: [`Конкретная рекомендация 1 для ${aspect}`, `Конкретная рекомендация 2 для ${aspect}`],
+          recommendation: `Улучшить ${String(aspect)} аспект контента`,
+          actionItems: [
+            `Конкретная рекомендация 1 для ${String(aspect)}`,
+            `Конкретная рекомендация 2 для ${String(aspect)}`,
+          ],
           estimatedImpact: "Повышение на 10-15%",
           effort: Math.random() > 0.5 ? "low" : "medium",
         }))
@@ -1223,11 +1238,11 @@ async function analyzeContentQualityHandler(input: any): Promise<ContentIntellig
 
     return {
       success: true,
-      message: `Анализ качества завершен. Общая оценка: ${mockQualityAnalysis.overallGrade}`,
+      message: `Анализ качества завершен. Общая оценка: ${String(mockQualityAnalysis.overallGrade)}`,
       toolName: "analyze_content_quality",
       input,
       quality: mockQualityAnalysis,
-      recommendations: mockQualityAnalysis.recommendations,
+      recommendations: mockQualityAnalysis.recommendations.map((r: any) => r.recommendation),
       data: {
         overallScore: overallScore,
         aspectsAnalyzed: quality_aspects.length,
@@ -1239,7 +1254,7 @@ async function analyzeContentQualityHandler(input: any): Promise<ContentIntellig
     const errorMessage = error instanceof Error ? error.message : String(error)
     return {
       success: false,
-      message: `Ошибка анализа качества: ${errorMessage}`,
+      message: `Ошибка анализа качества: ${String(errorMessage)}`,
       toolName: "analyze_content_quality",
       input,
       error: errorMessage,

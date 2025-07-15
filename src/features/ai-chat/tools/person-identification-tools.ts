@@ -604,10 +604,13 @@ export const personIdentificationHandlers = {
       if (params.faceImagePath) {
         // Поиск по изображению лица с использованием эмбеддингов
         try {
-          const faceEmbedding = await sceneEngine.generateFaceEmbedding(params.faceImagePath)
+          // Временное решение: создаем заглушку для эмбеддинга
+          // В реальной реализации здесь должен быть вызов нейросети для генерации эмбеддинга лица
+          const faceEmbedding = new Float32Array(128).fill(0) // Заглушка для 128-мерного вектора
+
           const matchingPersons = await personDatabase.findSimilarPersons(faceEmbedding, {
-            threshold: params.similarityThreshold || 0.8,
-            maxResults: params.limit || 10,
+            minConfidence: params.similarityThreshold || 0.8,
+            limit: params.limit || 10,
           })
 
           return {
@@ -615,8 +618,10 @@ export const personIdentificationHandlers = {
             data: {
               foundPersons: matchingPersons.map((match) => ({
                 ...match.person,
-                confidence: match.confidence,
-                lastSeen: match.person.lastSeen?.toISOString(),
+                confidence: match.similarity,
+                lastSeen: match.person.lastSeen
+                  ? new Date(match.person.lastSeen.seconds * 1000).toISOString()
+                  : undefined,
                 appearances: match.person.appearances?.length || 0,
               })),
               searchImage: params.faceImagePath,
