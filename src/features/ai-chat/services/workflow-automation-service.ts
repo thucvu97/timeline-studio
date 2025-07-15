@@ -111,6 +111,9 @@ export interface WorkflowContext {
   analysisResults: Record<string, any>
   timelineData: any
   progressCallback?: (progress: number, step: string) => void
+  currentProgress?: number
+  currentStep?: string
+  startTime?: Date
 }
 
 /**
@@ -162,6 +165,9 @@ export class WorkflowAutomationService {
       intermediateFiles: {},
       analysisResults: {},
       timelineData: null,
+      currentProgress: 0,
+      currentStep: "Инициализация",
+      startTime: new Date(startTime),
     }
 
     this.activeWorkflows.set(workflowId, context)
@@ -179,6 +185,9 @@ export class WorkflowAutomationService {
         const stepStartTime = Date.now()
 
         try {
+          // Обновляем прогресс в контексте
+          context.currentProgress = currentProgress
+          context.currentStep = step.name
           context.progressCallback?.(currentProgress, step.name)
 
           const result = await step.execute(context)
@@ -235,7 +244,10 @@ export class WorkflowAutomationService {
       throw new Error(`Workflow execution failed: ${String(error)}`)
     } finally {
       this.activeWorkflows.delete(workflowId)
-      // TODO: Cleanup temp directory
+      // Очистка временной директории
+      if (context.tempDirectory) {
+        await this.cleanupTempDirectory(context.tempDirectory)
+      }
     }
   }
 
@@ -358,9 +370,9 @@ export class WorkflowAutomationService {
     return Array.from(this.activeWorkflows.entries()).map(([id, context]) => ({
       workflowId: id,
       type: context.params.workflowType,
-      progress: 0, // TODO: Implement progress tracking
-      currentStep: "processing",
-      startTime: new Date(),
+      progress: context.currentProgress || 0,
+      currentStep: context.currentStep || "processing",
+      startTime: context.startTime || new Date(),
     }))
   }
 
@@ -371,7 +383,10 @@ export class WorkflowAutomationService {
     const context = this.activeWorkflows.get(workflowId)
     if (context) {
       this.activeWorkflows.delete(workflowId)
-      // TODO: Cleanup temp files
+      // Очистка временных файлов и директории
+      if (context.tempDirectory) {
+        await this.cleanupTempDirectory(context.tempDirectory)
+      }
       return true
     }
     return false
@@ -811,5 +826,19 @@ export class WorkflowAutomationService {
     suggestions.push("Рекомендуется предварительный просмотр перед финальным экспортом")
 
     return suggestions
+  }
+
+  /**
+   * Очищает временную директорию workflow
+   */
+  private async cleanupTempDirectory(tempDir: string): Promise<void> {
+    try {
+      if (typeof window !== "undefined" && window.__TAURI__) {
+        const { removeDir } = await import("@tauri-apps/plugin-fs")
+        await removeDir(tempDir, { recursive: true })
+      }
+    } catch (error) {
+      console.warn(`Failed to cleanup temp directory ${tempDir}:`, error)
+    }
   }
 }
