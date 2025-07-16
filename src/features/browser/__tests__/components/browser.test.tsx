@@ -4,40 +4,31 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { Browser } from "../../components/browser"
 
 // Мокаем зависимости
+let mockOnTabChange: (tab: string) => void
+
 vi.mock("../../components/browser-tabs", () => ({
-  BrowserTabs: ({ activeTab }: any) => (
-    <div data-testid="browser-tabs" data-active-tab={activeTab}>
-      Browser Tabs Mock - Active: {activeTab}
-    </div>
-  ),
+  BrowserTabs: ({ activeTab, onTabChange }: any) => {
+    mockOnTabChange = onTabChange
+    return (
+      <div data-testid="browser-tabs" data-active-tab={activeTab}>
+        <button onClick={() => onTabChange("media")} data-testid="tab-media">
+          Media
+        </button>
+        <button onClick={() => onTabChange("music")} data-testid="tab-music">
+          Music
+        </button>
+        <button onClick={() => onTabChange("effects")} data-testid="tab-effects">
+          Effects
+        </button>
+        <button onClick={() => onTabChange("test")} data-testid="trigger-tab-change" />
+        Browser Tabs Mock - Active: {activeTab}
+      </div>
+    )
+  },
 }))
 
 vi.mock("../../components/browser-content", () => ({
   BrowserContent: () => <div data-testid="browser-content">Browser Content</div>,
-}))
-
-vi.mock("@/components/ui/tabs", () => ({
-  Tabs: ({ children, value, onValueChange, className }: any) => (
-    <div className={className} data-testid="tabs" data-value={value}>
-      <button onClick={() => onValueChange("media")} data-testid="tab-media">
-        Media
-      </button>
-      <button onClick={() => onValueChange("music")} data-testid="tab-music">
-        Music
-      </button>
-      <button onClick={() => onValueChange("effects")} data-testid="tab-effects">
-        Effects
-      </button>
-      <button onClick={() => onValueChange("test")} data-testid="trigger-tab-change" />
-      {children}
-    </div>
-  ),
-  TabsList: ({ children }: any) => <div>{children}</div>,
-  TabsTrigger: ({ children, value, ...props }: any) => (
-    <button data-value={value} {...props}>
-      {children}
-    </button>
-  ),
 }))
 
 vi.mock("@/features/app-state", () => ({
@@ -84,9 +75,8 @@ describe("Browser", () => {
   it("должен иметь начальную вкладку media", () => {
     render(<Browser />)
 
-    const tabs = screen.getByTestId("tabs")
-    expect(tabs).toHaveAttribute("data-value", "media")
-    expect(screen.getByTestId("browser-tabs")).toHaveAttribute("data-active-tab", "media")
+    const browserTabs = screen.getByTestId("browser-tabs")
+    expect(browserTabs).toHaveAttribute("data-active-tab", "media")
   })
 
   it("должен переключать вкладки при клике", () => {
@@ -99,10 +89,11 @@ describe("Browser", () => {
   })
 
   it("должен иметь правильные CSS классы", () => {
-    render(<Browser />)
+    const { container } = render(<Browser />)
 
-    const tabs = screen.getByTestId("tabs")
-    expect(tabs).toHaveClass("flex h-full w-full flex-col gap-0 dark:bg-[#2D2D2D]")
+    const wrapper = container.querySelector(".relative.h-full.w-full.flex.flex-col")
+    expect(wrapper).toBeInTheDocument()
+    expect(wrapper).toHaveClass("dark:bg-[#2D2D2D]")
   })
 
   it("должен обрабатывать изменение вкладки через компонент Tabs", () => {
@@ -118,7 +109,7 @@ describe("Browser", () => {
     const { container } = render(<Browser />)
 
     const wrapper = container.firstChild as HTMLElement
-    expect(wrapper).toHaveClass("relative h-full w-full")
+    expect(wrapper).toHaveClass("relative h-full w-full flex flex-col")
   })
 
   it("должен предоставлять контекст состояния браузера дочерним компонентам", () => {

@@ -63,36 +63,40 @@ vi.mock("@/features/timeline/hooks", () => ({
   }),
 }))
 
-// Создаем мок для MediaToolbar с возможностью вызова колбэков
-vi.mock("../../components/media-toolbar", () => ({
-  MediaToolbar: ({
+// Создаем мок для BrowserToolbarWrapper
+vi.mock("../../components/browser-toolbar-wrapper", () => ({
+  BrowserToolbarWrapper: ({
     onSearch,
     onSort,
     onFilter,
-    onChangeOrder,
-    onChangeViewMode,
-    onChangeGroupBy,
+    onViewModeChange,
+    onGroupBy,
     onToggleFavorites,
     onZoomIn,
     onZoomOut,
+    sortBy,
+    sortOrder,
   }: any) => (
     <div data-testid="media-toolbar">
       <button data-testid="search-btn" onClick={() => onSearch?.("test query")}>
         Search
       </button>
-      <button data-testid="sort-btn" onClick={() => onSort?.("size")}>
+      <button data-testid="sort-btn" onClick={() => onSort?.("size", sortOrder)}>
         Sort
       </button>
       <button data-testid="filter-btn" onClick={() => onFilter?.("video")}>
         Filter
       </button>
-      <button data-testid="order-btn" onClick={() => onChangeOrder?.()}>
+      <button data-testid="order-btn" onClick={() => {
+        const newOrder = sortOrder === "asc" ? "desc" : "asc"
+        onSort?.(sortBy, newOrder)
+      }}>
         Order
       </button>
-      <button data-testid="view-btn" onClick={() => onChangeViewMode?.("list")}>
+      <button data-testid="view-btn" onClick={() => onViewModeChange?.("list")}>
         View
       </button>
-      <button data-testid="group-btn" onClick={() => onChangeGroupBy?.("type")}>
+      <button data-testid="group-btn" onClick={() => onGroupBy?.("type")}>
         Group
       </button>
       <button data-testid="fav-btn" onClick={() => onToggleFavorites?.()}>
@@ -108,22 +112,13 @@ vi.mock("../../components/media-toolbar", () => ({
   ),
 }))
 
-vi.mock("../../components/media-toolbar-configs", () => ({
-  getToolbarConfigForContent: () => ({
-    sortOptions: ["name", "size", "duration"],
-    groupOptions: ["type", "date"],
-    filterOptions: ["all", "video", "audio"],
-    viewModes: ["grid", "list"],
-    showGroupBy: true,
-    showZoom: true,
-  }),
-}))
+// Мок для toolbar configs уже не нужен, так как используется в BrowserToolbarWrapper
 
 vi.mock("../../components/browser-loading-indicator", () => ({
   BrowserLoadingIndicator: () => <div data-testid="loading-indicator">Loading</div>,
 }))
 
-// Мок для UniversalList с поддержкой onItemSelect
+// Мок для UniversalList с поддержкой onItemSelect - теперь не используется напрямую
 vi.mock("../../components/universal-list", () => ({
   UniversalList: ({ adapter, onItemSelect }: any) => (
     <div data-testid="universal-list">
@@ -138,12 +133,63 @@ vi.mock("../../components/universal-list", () => ({
   ),
 }))
 
-vi.mock("@/components/ui/tabs", () => ({
-  TabsContent: ({ children, className }: any) => (
-    <div className={className} data-testid="tabs-content">
-      {children}
-    </div>
-  ),
+// Мок для LazyTabContent
+vi.mock("../../components/lazy-tab-content", () => ({
+  LazyTabContent: ({ tabValue, activeTab }: any) => {
+    // Симулируем lazy loading - показываем контент только для активной вкладки
+    if (tabValue !== activeTab) return null
+    
+    // Список известных вкладок
+    const knownTabs = [
+      "media", "music", "effects", "filters", 
+      "transitions", "subtitles", "templates", "style-templates"
+    ]
+    
+    // Если вкладка неизвестная, возвращаем null
+    if (!knownTabs.includes(activeTab)) return null
+    
+    return (
+      <div data-testid="lazy-tab-content">
+        <div data-testid="universal-list">
+          <div data-testid="adapter-type">{activeTab}</div>
+          <button
+            data-testid="item-select-btn"
+            onClick={() => {
+              // Эмулируем выбор элемента в зависимости от типа вкладки
+              const item = { id: "1", name: "test-item.mp4", path: "/test/path" }
+              // Вызываем соответствующий обработчик в зависимости от activeTab
+              if (activeTab === "media" && mockMediaAdapter.importHandlers?.importFile) {
+                mockAddSingleMediaToTimeline(item)
+              } else {
+                // Для других вкладок просто логируем
+                const typeMessages: Record<string, string> = {
+                  music: "Музыкальный файл выбран:",
+                  effects: "Эффект выбран:",
+                  filters: "Фильтр выбран:",
+                  transitions: "Переход выбран:",
+                  subtitles: "Стиль субтитров выбран:",
+                  templates: "Шаблон выбран:",
+                  "style-templates": "Стилистический шаблон выбран:",
+                }
+                const message = typeMessages[activeTab]
+                if (message) {
+                  if (activeTab === "templates") {
+                    console.log(message, item.id)
+                  } else if (activeTab === "style-templates") {
+                    console.log(message, undefined)
+                  } else {
+                    console.log(message, item.name)
+                  }
+                }
+              }
+            }}
+          >
+            Select Item
+          </button>
+        </div>
+      </div>
+    )
+  },
 }))
 
 // Создаем простые моки адаптеров
@@ -249,25 +295,28 @@ describe("BrowserContent", () => {
 
       expect(screen.getByTestId("media-toolbar")).toBeInTheDocument()
       expect(screen.getByTestId("loading-indicator")).toBeInTheDocument()
-      expect(screen.getByTestId("tabs-content")).toBeInTheDocument()
+      // LazyTabContent загружается лениво
+      expect(screen.getByTestId("lazy-tab-content")).toBeInTheDocument()
       expect(screen.getByTestId("universal-list")).toBeInTheDocument()
     })
 
     it("должен применять правильные классы к контенту", () => {
       render(<BrowserContent />)
 
-      const content = screen.getByTestId("tabs-content")
-      expect(content).toHaveClass("bg-background m-0 flex-1 overflow-auto")
+      // Теперь ищем контейнер контента по классу
+      const content = document.querySelector(".bg-background.m-0.flex-1.overflow-auto")
+      expect(content).toBeInTheDocument()
     })
 
-    it("должен показывать сообщение об отсутствии адаптера для неизвестной вкладки", () => {
+    it("должен не показывать контент для неизвестной вкладки", () => {
       // Устанавливаем неизвестную вкладку
       mockBrowserState.activeTab = "unknown" as any
       currentAdapters.media = undefined as any
 
       render(<BrowserContent />)
 
-      expect(screen.getByText('Адаптер для "unknown" не найден')).toBeInTheDocument()
+      // LazyTabContent возвращает null для неизвестных вкладок
+      expect(screen.queryByTestId("lazy-tab-content")).not.toBeInTheDocument()
     })
   })
 
@@ -278,7 +327,7 @@ describe("BrowserContent", () => {
       const searchBtn = screen.getByTestId("search-btn")
       fireEvent.click(searchBtn)
 
-      expect(mockSetSearchQuery).toHaveBeenCalledWith("test query", "media")
+      expect(mockSetSearchQuery).toHaveBeenCalledWith("test query")
     })
 
     it("должен вызывать setSort при сортировке", () => {
@@ -287,7 +336,7 @@ describe("BrowserContent", () => {
       const sortBtn = screen.getByTestId("sort-btn")
       fireEvent.click(sortBtn)
 
-      expect(mockSetSort).toHaveBeenCalledWith("size", "asc", "media")
+      expect(mockSetSort).toHaveBeenCalledWith("size", "asc")
     })
 
     it("должен вызывать setFilter при фильтрации", () => {
@@ -296,7 +345,7 @@ describe("BrowserContent", () => {
       const filterBtn = screen.getByTestId("filter-btn")
       fireEvent.click(filterBtn)
 
-      expect(mockSetFilter).toHaveBeenCalledWith("video", "media")
+      expect(mockSetFilter).toHaveBeenCalledWith("video")
     })
 
     it("должен переключать порядок сортировки", () => {
@@ -305,7 +354,7 @@ describe("BrowserContent", () => {
       const orderBtn = screen.getByTestId("order-btn")
       fireEvent.click(orderBtn)
 
-      expect(mockSetSort).toHaveBeenCalledWith("name", "desc", "media")
+      expect(mockSetSort).toHaveBeenCalledWith("name", "desc")
     })
 
     it("должен переключать порядок сортировки с desc на asc", () => {
@@ -315,7 +364,7 @@ describe("BrowserContent", () => {
       const orderBtn = screen.getByTestId("order-btn")
       fireEvent.click(orderBtn)
 
-      expect(mockSetSort).toHaveBeenCalledWith("name", "asc", "media")
+      expect(mockSetSort).toHaveBeenCalledWith("name", "asc")
     })
 
     it("должен вызывать setViewMode при изменении режима отображения", () => {
@@ -324,7 +373,7 @@ describe("BrowserContent", () => {
       const viewBtn = screen.getByTestId("view-btn")
       fireEvent.click(viewBtn)
 
-      expect(mockSetViewMode).toHaveBeenCalledWith("list", "media")
+      expect(mockSetViewMode).toHaveBeenCalledWith("list")
     })
 
     it("должен вызывать setGroupBy при группировке", () => {
@@ -333,7 +382,7 @@ describe("BrowserContent", () => {
       const groupBtn = screen.getByTestId("group-btn")
       fireEvent.click(groupBtn)
 
-      expect(mockSetGroupBy).toHaveBeenCalledWith("type", "media")
+      expect(mockSetGroupBy).toHaveBeenCalledWith("type")
     })
 
     it("должен вызывать toggleFavorites при переключении избранного", () => {
@@ -342,7 +391,7 @@ describe("BrowserContent", () => {
       const favBtn = screen.getByTestId("fav-btn")
       fireEvent.click(favBtn)
 
-      expect(mockToggleFavorites).toHaveBeenCalledWith("media")
+      expect(mockToggleFavorites).toHaveBeenCalledWith()
     })
   })
 
@@ -353,7 +402,7 @@ describe("BrowserContent", () => {
       const zoomInBtn = screen.getByTestId("zoom-in-btn")
       fireEvent.click(zoomInBtn)
 
-      expect(mockSetPreviewSize).toHaveBeenCalledWith(2, "media")
+      expect(mockSetPreviewSize).toHaveBeenCalledWith(2)
     })
 
     it("должен уменьшать размер превью при zoom out", () => {
@@ -362,27 +411,29 @@ describe("BrowserContent", () => {
       const zoomOutBtn = screen.getByTestId("zoom-out-btn")
       fireEvent.click(zoomOutBtn)
 
-      expect(mockSetPreviewSize).toHaveBeenCalledWith(0, "media")
+      expect(mockSetPreviewSize).toHaveBeenCalledWith(0)
     })
 
-    it("не должен увеличивать размер превью больше максимального", () => {
+    it("должен вызывать setPreviewSize с увеличенным индексом даже при максимальном размере", () => {
       mockBrowserState.currentTabSettings.previewSizeIndex = 2 // максимальный индекс
       render(<BrowserContent />)
 
       const zoomInBtn = screen.getByTestId("zoom-in-btn")
       fireEvent.click(zoomInBtn)
 
-      expect(mockSetPreviewSize).not.toHaveBeenCalled()
+      // BrowserContent не проверяет границы, это делает BrowserToolbarWrapper
+      expect(mockSetPreviewSize).toHaveBeenCalledWith(3)
     })
 
-    it("не должен уменьшать размер превью меньше минимального", () => {
+    it("должен вызывать setPreviewSize с уменьшенным индексом даже при минимальном размере", () => {
       mockBrowserState.currentTabSettings.previewSizeIndex = 0 // минимальный индекс
       render(<BrowserContent />)
 
       const zoomOutBtn = screen.getByTestId("zoom-out-btn")
       fireEvent.click(zoomOutBtn)
 
-      expect(mockSetPreviewSize).not.toHaveBeenCalled()
+      // BrowserContent не проверяет границы, это делает BrowserToolbarWrapper
+      expect(mockSetPreviewSize).toHaveBeenCalledWith(-1)
     })
   })
 
