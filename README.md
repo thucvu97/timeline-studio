@@ -58,7 +58,7 @@
 - **Modular Architecture** - easily add new features through plugins
 - **Open Source** - transparency and ability to participate in development
 
-![Timeline Interface #1](/public/screen3.png)
+![Timeline Interface #1](/public/screen1.png)
 
 ## 🏗️ Architecture
 
@@ -76,9 +76,9 @@ Timeline Studio is built on modern modular architecture:
 - **FFmpeg integration** - advanced video processing
 - **Security** - API key encryption, OAuth, Keychain
 
-📚 **[Detailed Frontend Architecture →](docs/en/03_architecture/frontend/)**  
-📚 **[Detailed Backend Architecture →](docs/en/03_architecture/backend/)**  
-📚 **[Plugin System →](docs/en/08_tasks/planned/plugin-system.md)**  
+📚 **[Detailed Frontend Architecture →](docs/en/03_architecture/frontend/)**
+📚 **[Detailed Backend Architecture →](docs/en/03_architecture/backend/)**
+📚 **[Plugin System →](docs/en/08_tasks/planned/plugin-system.md)**
 🛠️ **[Technical Stack Details →](docs/en/03_architecture/backend/rust-architecture.md#technology-overview)**
 
 ## 📚 Backend Module Documentation
@@ -86,30 +86,30 @@ Timeline Studio is built on modern modular architecture:
 Timeline Studio uses a modular Rust backend architecture. Each module provides specific functionality:
 
 ### Core Modules
-🔧 **[Core System](src-tauri/src/core/README.md)** - DI container, EventBus, Performance monitoring  
-🔌 **[Plugin System](src-tauri/src/core/plugins/README.md)** - Modular plugin architecture with sandbox security  
-🎬 **[Video Compiler](src-tauri/src/video_compiler/README.md)** - FFmpeg integration and video processing  
-📁 **[Media Management](src-tauri/src/media/README.md)** - File scanning, metadata extraction, thumbnails  
+🔧 **[Core System](src-tauri/src/core/README.md)** - DI container, EventBus, Performance monitoring
+🔌 **[Plugin System](src-tauri/src/core/plugins/README.md)** - Modular plugin architecture with sandbox security
+🎬 **[Video Compiler](src-tauri/src/video_compiler/README.md)** - FFmpeg integration and video processing
+📁 **[Media Management](src-tauri/src/media/README.md)** - File scanning, metadata extraction, thumbnails
 
 ### AI & Recognition
-🧠 **[Smart Montage Planner](src-tauri/src/montage_planner/README.md)** - AI-powered video montage generation  
-👁️ **[Recognition System](src-tauri/src/recognition/README.md)** - YOLO object detection and scene analysis  
-📝 **[Subtitles Engine](src-tauri/src/subtitles/README.md)** - Subtitle generation, parsing, synchronization  
+🧠 **[Smart Montage Planner](src-tauri/src/montage_planner/README.md)** - AI-powered video montage generation
+👁️ **[Recognition System](src-tauri/src/recognition/README.md)** - YOLO object detection and scene analysis
+📝 **[Subtitles Engine](src-tauri/src/subtitles/README.md)** - Subtitle generation, parsing, synchronization
 
 ### Security & Services
-🔒 **[Security Module](src-tauri/src/security/README.md)** - API validation, OAuth, secure storage  
+🔒 **[Security Module](src-tauri/src/security/README.md)** - API validation, OAuth, secure storage
 
 *All modules include comprehensive test suites and detailed API documentation.*
 
 ## 🏗️ Project Status
 
-**Overall readiness: 94%+** 
+**Overall readiness: 94%+**
 **🚀 Alpha version: 97.5% ready** 🎯
 
-✅ **Completed**: 55+ modules (100% ready) - 30+ frontend + 25+ backend  
-🔄 **In progress**: Advanced Timeline Features  
-✅ **Smart Montage Planner**: 100% ready - Full UI-Backend integration! 🎉  
-📋 **Recently Completed**: Smart Montage Planner, Timeline Integration, Backend Testing  
+✅ **Completed**: 55+ modules (100% ready) - 30+ frontend + 25+ backend
+🔄 **In progress**: Advanced Timeline Features
+✅ **Smart Montage Planner**: 100% ready - Full UI-Backend integration! 🎉
+📋 **Recently Completed**: Smart Montage Planner, Timeline Integration, Backend Testing
 
 [→ Detailed Roadmap](docs/en/10_project_state/)
 
@@ -150,9 +150,9 @@ sudo apt-get install ffmpeg libavcodec-dev libavformat-dev
 - **macOS**: Install Xcode Command Line Tools: `xcode-select --install`
 - **Linux**: Install build essentials: `sudo apt-get install build-essential`
 
-📚 **[Complete Installation Guide →](docs/en/02_requirements/)**  
-🪟 **[Windows Setup →](docs/en/06_deployment/platforms/)**  
-🎥 **[Video Tutorial →](https://www.youtube.com/@chatman-media)**  
+📚 **[Complete Installation Guide →](docs/en/02_requirements/)**
+🪟 **[Windows Setup →](docs/en/06_deployment/platforms/)**
+🎥 **[Video Tutorial →](https://www.youtube.com/@chatman-media)**
 📖 **[Full Documentation →](docs/en/)** - Complete documentation with 18+ sections
 
 ## Development
@@ -180,7 +180,7 @@ bun run check:all
 - ✅ **Coverage**: Codecov integration
 - ✅ **Build**: Cross-platform builds
 
-📚 **[Detailed CI/CD Guide →](docs/en/13_ci_cd/)**  
+📚 **[Detailed CI/CD Guide →](docs/en/13_ci_cd/)**
 🔧 **[Linting & Formatting →](docs/en/05_development/linting-and-formatting.md)**
 
 ## 👨‍💻 Developer Resources
