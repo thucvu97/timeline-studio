@@ -1,4 +1,3 @@
-import { Tabs } from "@/components/ui/tabs"
 import { BrowserStateProvider, useBrowserState } from "@/features/browser/services/browser-state-provider"
 
 import { BrowserContent } from "./browser-content"
@@ -14,16 +13,10 @@ function BrowserWithState() {
   }
 
   return (
-    <div className="relative h-full w-full">
-      <Tabs
-        value={activeTab}
-        onValueChange={handleTabChange}
-        defaultValue="media"
-        className="flex h-full w-full flex-col gap-0 dark:bg-[#2D2D2D]"
-      >
-        <BrowserTabs activeTab={activeTab} />
-        <BrowserContent />
-      </Tabs>
+    <div className="relative h-full w-full flex flex-col gap-0 dark:bg-[#2D2D2D]">
+      {/* Табы вне Tabs компонента для избежания ререндера */}
+      <BrowserTabs activeTab={activeTab} onTabChange={handleTabChange} />
+      <BrowserContent />
     </div>
   )
 }
@@ -40,7 +33,7 @@ export function Browser() {
           maxCacheSize: 50 * 1024 * 1024, // 50MB
         }}
         onError={(error) => {
-          console.error("Browser EffectsProvider Error:", error)
+          // Handle effects provider error
         }}
       >
         <BrowserWithState />
