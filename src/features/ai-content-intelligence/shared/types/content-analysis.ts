@@ -4,7 +4,8 @@ import type {
   AudioAnalysisResult as AudioAnalysis,
   QualityAnalysisResult,
   VideoMetadata,
-} from "@/features/ai-chat/services/ffmpeg-analysis-service"
+} from "../../../ai-chat/services/ffmpeg-analysis-service"
+import type { ContentInsights } from "../../../ai-chat/services/unified-ai-service"
 
 // Временный тип для VideoAnalysis пока не найден точный импорт
 export interface VideoAnalysis {
@@ -323,14 +324,8 @@ export interface SceneDetection {
   changeScore: number
 }
 
-// Content Insights
-export interface ContentInsights {
-  summary: string
-  highlights: string[]
-  suggestions: ContentSuggestion[]
-  warnings: ContentWarning[]
-  opportunities: ContentOpportunity[]
-}
+// Content Insights (re-exported from unified-ai-service)
+export type { ContentInsights }
 
 export interface ContentSuggestion {
   type: SuggestionType

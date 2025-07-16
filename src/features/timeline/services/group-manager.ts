@@ -21,6 +21,7 @@ export class TimelineGroupManager implements GroupManager {
 
   constructor() {
     this.groups = new Map()
+    this.groupCounter = 0
   }
 
   // Операции с группами
@@ -44,7 +45,7 @@ export class TimelineGroupManager implements GroupManager {
       name: name || getDefaultGroupName(this.groupCounter++),
       clips: [...clips],
       locked: false,
-      color: options?.autoColor !== false ? getDefaultGroupColor(this.groupCounter) : "#6b7280",
+      color: options?.autoColor !== false ? getDefaultGroupColor(this.groupCounter - 1) : "#6b7280",
       syncMode: options?.preserveSyncRelationships ? "relative" : "none",
       collapsed: options?.collapseOnCreate ?? false,
       createdAt: Date.now(),

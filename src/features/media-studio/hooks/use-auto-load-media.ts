@@ -265,6 +265,9 @@ export function useAutoLoadMedia() {
 
   // Запускаем загрузку при монтировании
   useEffect(() => {
+    // ВРЕМЕННО ОТКЛЮЧЕНО: Автоматическая загрузка медиа из директорий проекта
+    // TODO: Восстановить функциональность, когда потребуется
+    /*
     // Проверяем, не является ли проект новым (только что созданным)
     const currentProject = state.context.currentProject
     const isNewProject = currentProject.isNew && currentProject.path === null
@@ -288,7 +291,11 @@ export function useAutoLoadMedia() {
         clearTimeout(loadTimeoutRef.current)
       }
     }
-  }, [state.context.currentProject.isNew, state.context.currentProject.path]) // Следим за изменениями проекта
+    */
+    
+    // Логируем, что автозагрузка отключена
+    console.log("[useAutoLoadMedia] Auto-loading is disabled")
+  }, []) // Убираем зависимости, так как эффект теперь не активен
 
   // Функция для очистки кэша
   const clearCache = useCallback(() => {

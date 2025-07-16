@@ -3,7 +3,7 @@
  * Адаптер для многоязычной поддержки контента
  */
 
-import { UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service"
+import { UnifiedAIService } from "../../../../ai-chat/services/unified-ai-service"
 
 import type { AdaptedContent } from "../../../shared/types/platform-adaptation"
 

@@ -65,7 +65,7 @@ export class AIMarkerService {
       markers.push({
         id: `ai-scene-${scene.id}`,
         type: "chapter",
-        timecode: scene.startTime,
+        time: scene.startTime,
         name: `Сцена ${index + 1}: ${this.getSceneTypeLabel(scene.type)}`,
         description: `Длительность: ${scene.duration.toFixed(1)}с, Уверенность: ${(scene.confidence * 100).toFixed(0)}%`,
         color: this.getSceneColor(scene.type),
@@ -96,7 +96,7 @@ export class AIMarkerService {
       markers.push({
         id: `ai-moment-${moment.id}`,
         type: (moment.type as string) === "climax" ? "important" : "note",
-        timecode: moment.timestamp,
+        time: moment.timestamp,
         name: this.getMomentTypeLabel(moment.type),
         description: moment.description,
         color: this.getMomentColor(moment.type),
@@ -128,7 +128,7 @@ export class AIMarkerService {
         markers.push({
           id: `ai-quality-${index}`,
           type: "warning",
-          timecode: timestamp,
+          time: timestamp,
           name: "Низкое качество видео",
           description: `Общее качество: ${overall}/100. Рекомендуется улучшение.`,
           color: "#ef4444", // Красный
@@ -157,7 +157,7 @@ export class AIMarkerService {
       markers.push({
         id: `ai-emotion-${Date.now()}`,
         type: "note",
-        timecode: timestamp,
+        time: timestamp,
         name: `Эмоция: ${this.getEmotionLabel(insights.mood.dominantEmotion)}`,
         description: `Интенсивность: ${(insights.mood.intensity * 100).toFixed(0)}%`,
         color: this.getEmotionColor(insights.mood.dominantEmotion),
@@ -183,12 +183,12 @@ export class AIMarkerService {
     }
 
     // Сортируем маркеры по времени
-    const sorted = [...markers].sort((a, b) => a.timecode - b.timecode)
+    const sorted = [...markers].sort((a, b) => a.time - b.time)
     const grouped: TimelineMarker[] = []
     let currentGroup: TimelineMarker[] = [sorted[0]]
 
     for (let i = 1; i < sorted.length; i++) {
-      const timeDiff = sorted[i].timecode - sorted[i - 1].timecode
+      const timeDiff = sorted[i].time - sorted[i - 1].time
 
       if (timeDiff <= this.config.groupingThreshold) {
         currentGroup.push(sorted[i])
@@ -217,14 +217,14 @@ export class AIMarkerService {
    * Объединение группы маркеров в один
    */
   private mergeMarkers(markers: TimelineMarker[]): TimelineMarker {
-    const avgTime = markers.reduce((sum: number, m) => sum + Number(m.timecode), 0) / markers.length
+    const avgTime = markers.reduce((sum: number, m) => sum + Number(m.time), 0) / markers.length
     const types = [...new Set(markers.map((m) => m.type))]
     const names = markers.map((m) => m.name).join(", ")
 
     return {
       id: `ai-group-${Date.now()}`,
       type: types.includes("important") ? "important" : markers[0].type,
-      timecode: avgTime,
+      time: avgTime,
       name: `Группа событий (${markers.length})`,
       description: names,
       color: markers[0].color,

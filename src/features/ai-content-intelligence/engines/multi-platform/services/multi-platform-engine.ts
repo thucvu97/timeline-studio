@@ -3,8 +3,7 @@
  * Основной движок для адаптации контента под различные платформы
  */
 
-import { UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service"
-
+import { UnifiedAIService } from "../../../../ai-chat/services/unified-ai-service"
 import { getOptimalAspectRatio, getOptimalResolution, getPlatformConfig } from "../platform-configs"
 import { BatchProcessor } from "./batch-processor"
 import { LanguageAdapter } from "./language-adapter"
@@ -434,10 +433,50 @@ export class MultiPlatformEngine {
         topics: ["lifestyle", "fashion", "food"],
         formats: ["aesthetic", "behind-scenes", "tutorials"],
       },
+      instagram_feed: {
+        hashtags: ["#instagram", "#photo", "#lifestyle"],
+        topics: ["photography", "lifestyle", "art"],
+        formats: ["carousel", "single-image", "video"],
+      },
+      instagram_stories: {
+        hashtags: ["#story", "#behind", "#live"],
+        topics: ["daily life", "quick updates", "polls"],
+        formats: ["vertical", "interactive", "temporary"],
+      },
+      facebook: {
+        hashtags: ["#facebook", "#social", "#community"],
+        topics: ["community", "events", "family"],
+        formats: ["long-form", "live-video", "community"],
+      },
       twitter: {
         hashtags: ["#breaking", "#news", "#opinion"],
         topics: ["current events", "tech", "politics"],
         formats: ["news clips", "reactions", "explainers"],
+      },
+      telegram: {
+        hashtags: ["#telegram", "#channel", "#community"],
+        topics: ["tech", "crypto", "news"],
+        formats: ["text", "media", "polls"],
+      },
+      linkedin: {
+        hashtags: ["#professional", "#career", "#business"],
+        topics: ["career", "business", "networking"],
+        formats: ["articles", "professional", "insights"],
+      },
+      vimeo: {
+        hashtags: ["#creative", "#art", "#professional"],
+        topics: ["creative", "artistic", "professional"],
+        formats: ["high-quality", "creative", "artistic"],
+      },
+      twitch: {
+        hashtags: ["#twitch", "#gaming", "#live"],
+        topics: ["gaming", "streaming", "entertainment"],
+        formats: ["live-stream", "gaming", "interactive"],
+      },
+      snapchat: {
+        hashtags: ["#snapchat", "#snap", "#story"],
+        topics: ["daily life", "friends", "quick updates"],
+        formats: ["vertical", "temporary", "filters"],
       },
     }
 
@@ -461,10 +500,23 @@ export class MultiPlatformEngine {
     // Генерируем настройки на основе трендов и контента
     return {
       textStrategy: {
+        generateTitle: true,
+        generateDescription: true,
         generateHashtags: true,
         hashtagCount: platform.bestPractices.optimization.seo.hashtagCount.optimal,
         seoOptimization: true,
-        // Используем трендовые хэштеги
+        callToAction: {
+          type: "subscribe" as const,
+          text: "Subscribe for more!",
+          placement: "end" as const,
+          style: "prominent" as const,
+        },
+        localization: {
+          translateTitle: false,
+          translateDescription: false,
+          adaptCulturally: true,
+          useLocalTrends: true,
+        },
       },
     }
   }
@@ -500,7 +552,15 @@ export class MultiPlatformEngine {
       youtube_shorts: { min: 1000, max: 100000 },
       tiktok: { min: 500, max: 50000 },
       instagram_reels: { min: 200, max: 20000 },
+      instagram_feed: { min: 150, max: 8000 },
+      instagram_stories: { min: 100, max: 5000 },
+      facebook: { min: 80, max: 15000 },
       twitter: { min: 50, max: 5000 },
+      telegram: { min: 30, max: 3000 },
+      linkedin: { min: 40, max: 2000 },
+      vimeo: { min: 20, max: 1000 },
+      twitch: { min: 10, max: 10000 },
+      snapchat: { min: 50, max: 8000 },
     }
 
     return estimates[platform.id] || { min: 100, max: 1000 }

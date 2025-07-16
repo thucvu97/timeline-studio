@@ -2,10 +2,10 @@
  * Главный хук для работы с AI Content Intelligence
  */
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import { useAIIntelligence as useAIIntelligenceContext } from "../services/ai-intelligence-provider"
-import { AIIntelligenceOrchestrator } from "../shared/services/ai-intelligence-orchestrator"
+import { useAIIntelligence as useAIIntelligenceContext } from "../services/ai-intelligence-provider";
+import { AIIntelligenceOrchestrator } from "../shared/services/ai-intelligence-orchestrator";
 
 import type {
   AIConfig,
@@ -17,237 +17,270 @@ import type {
   PlatformId,
   ScriptGenerationParams,
   UnifiedContentAnalysis,
-} from "../shared/types"
+} from "../shared/types";
 
 interface UseAIIntelligenceOptions {
-  autoInitialize?: boolean
-  onProgress?: (progress: PipelineProgress) => void
-  onError?: (error: Error) => void
-  onComplete?: (result: IntelligentContent) => void
+  autoInitialize?: boolean;
+  onProgress?: (progress: PipelineProgress) => void;
+  onError?: (error: Error) => void;
+  onComplete?: (result: IntelligentContent) => void;
 }
 
 interface UseAIIntelligenceReturn {
   // Состояние
-  isInitialized: boolean
-  isProcessing: boolean
-  progress: PipelineProgress | null
-  error: Error | null
-  result: IntelligentContent | null
+  isInitialized: boolean;
+  isProcessing: boolean;
+  progress: PipelineProgress | null;
+  error: Error | null;
+  result: IntelligentContent | null;
 
   // Основные методы
-  analyzeContent: (mediaFiles: MediaFile[], config?: Partial<AIConfig>) => Promise<UnifiedContentAnalysis>
-  generateScript: (analysis: UnifiedContentAnalysis, params: ScriptGenerationParams) => Promise<GeneratedScript>
-  adaptForPlatforms: (content: Content, platforms: PlatformId[]) => Promise<AdaptedContent[]>
-  processProject: (mediaFiles: MediaFile[], config: AIConfig) => Promise<IntelligentContent>
+  analyzeContent: (
+    mediaFiles: MediaFile[],
+    config?: Partial<AIConfig>,
+  ) => Promise<UnifiedContentAnalysis>;
+  generateScript: (
+    analysis: UnifiedContentAnalysis,
+    params: ScriptGenerationParams,
+  ) => Promise<GeneratedScript>;
+  adaptForPlatforms: (
+    content: Content,
+    platforms: PlatformId[],
+  ) => Promise<AdaptedContent[]>;
+  processProject: (
+    mediaFiles: MediaFile[],
+    config: AIConfig,
+  ) => Promise<IntelligentContent>;
 
   // Управление pipeline
-  pausePipeline: () => Promise<void>
-  resumePipeline: () => Promise<void>
-  cancelPipeline: () => Promise<void>
+  pausePipeline: () => Promise<void>;
+  resumePipeline: () => Promise<void>;
+  cancelPipeline: () => Promise<void>;
 
   // Утилиты
-  reset: () => void
-  getOrchestrator: () => AIIntelligenceOrchestrator
+  reset: () => void;
+  getOrchestrator: () => AIIntelligenceOrchestrator;
 }
 
 interface MediaFile {
-  path: string
-  name: string
-  size?: number
+  path: string;
+  name: string;
+  size?: number;
 }
 
 interface Content {
-  analysis: UnifiedContentAnalysis
-  script?: GeneratedScript
+  analysis: UnifiedContentAnalysis;
+  script?: GeneratedScript;
 }
 
-export function useAIIntelligence(options: UseAIIntelligenceOptions = {}): UseAIIntelligenceReturn {
-  const { autoInitialize = true, onProgress, onError, onComplete } = options
+export function useAIIntelligence(
+  options: UseAIIntelligenceOptions = {},
+): UseAIIntelligenceReturn {
+  const { autoInitialize = true, onProgress, onError, onComplete } = options;
 
   // Состояние
-  const [isInitialized, setIsInitialized] = useState(false)
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [progress, setProgress] = useState<PipelineProgress | null>(null)
-  const [error, setError] = useState<Error | null>(null)
-  const [result, setResult] = useState<IntelligentContent | null>(null)
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [progress, setProgress] = useState<PipelineProgress | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+  const [result, setResult] = useState<IntelligentContent | null>(null);
 
   // Get AI Intelligence context
-  const context = useAIIntelligenceContext()
-  const actor = context?.actor
+  const context = useAIIntelligenceContext();
+  const actor = context?.actor;
 
   // Refs
-  const orchestratorRef = useRef<AIIntelligenceOrchestrator>(null)
-  const pipelineControlRef = useRef<PipelineControl>(null)
+  const orchestratorRef = useRef<AIIntelligenceOrchestrator>(null);
+  const pipelineControlRef = useRef<PipelineControl>(null);
 
   // Инициализация оркестратора
   useEffect(() => {
     if (autoInitialize && !orchestratorRef.current && actor) {
-      orchestratorRef.current = new AIIntelligenceOrchestrator(actor)
+      orchestratorRef.current = new AIIntelligenceOrchestrator(actor);
 
       // Инициализация движков происходит лениво при первом использовании
-      setIsInitialized(true)
+      setIsInitialized(true);
     }
-  }, [autoInitialize, actor])
+  }, [autoInitialize, actor]);
 
   // Получить оркестратор
   const getOrchestrator = useCallback(() => {
     if (!orchestratorRef.current && actor) {
-      orchestratorRef.current = new AIIntelligenceOrchestrator(actor)
-      setIsInitialized(true)
+      orchestratorRef.current = new AIIntelligenceOrchestrator(actor);
+      setIsInitialized(true);
     }
     if (!orchestratorRef.current) {
       throw new Error(
         "AIIntelligenceOrchestrator not initialized. Make sure component is wrapped in AIIntelligenceProvider.",
-      )
+      );
     }
-    return orchestratorRef.current
-  }, [actor])
+    return orchestratorRef.current;
+  }, [actor]);
 
   // Анализировать контент
   const analyzeContent = useCallback(
-    async (mediaFiles: MediaFile[], config?: Partial<AIConfig>): Promise<UnifiedContentAnalysis> => {
+    async (
+      mediaFiles: MediaFile[],
+      config?: Partial<AIConfig>,
+    ): Promise<UnifiedContentAnalysis> => {
       try {
-        setError(null)
-        setIsProcessing(true)
+        setError(null);
+        setIsProcessing(true);
 
-        const orchestrator = getOrchestrator()
-        const analysis = await orchestrator.analyzeContent(mediaFiles, config)
+        const orchestrator = getOrchestrator();
+        const analysis = await orchestrator.analyzeContent(mediaFiles, config);
 
-        return analysis
+        return analysis;
       } catch (err) {
-        const error = err instanceof Error ? err : new Error(String(err))
-        setError(error)
-        onError?.(error)
-        throw error
+        const error = err instanceof Error ? err : new Error(String(err));
+        setError(error);
+        onError?.(error);
+        throw error;
       } finally {
-        setIsProcessing(false)
+        setIsProcessing(false);
       }
     },
     [getOrchestrator, onError],
-  )
+  );
 
   // Генерировать сценарий
   const generateScript = useCallback(
-    async (analysis: UnifiedContentAnalysis, params: ScriptGenerationParams): Promise<GeneratedScript> => {
+    async (
+      analysis: UnifiedContentAnalysis,
+      params: ScriptGenerationParams,
+    ): Promise<GeneratedScript> => {
       try {
-        setError(null)
-        setIsProcessing(true)
+        setError(null);
+        setIsProcessing(true);
 
-        const orchestrator = getOrchestrator()
-        const script = await orchestrator.generateScript(analysis, params)
+        const orchestrator = getOrchestrator();
+        const script = await orchestrator.generateScript(analysis, params);
 
-        return script
+        return script;
       } catch (err) {
-        const error = err instanceof Error ? err : new Error(String(err))
-        setError(error)
-        onError?.(error)
-        throw error
+        const error = err instanceof Error ? err : new Error(String(err));
+        setError(error);
+        onError?.(error);
+        throw error;
       } finally {
-        setIsProcessing(false)
+        setIsProcessing(false);
       }
     },
     [getOrchestrator, onError],
-  )
+  );
 
   // Адаптировать для платформ
   const adaptForPlatforms = useCallback(
-    async (content: Content, platforms: PlatformId[]): Promise<AdaptedContent[]> => {
+    async (
+      content: Content,
+      platforms: PlatformId[],
+    ): Promise<AdaptedContent[]> => {
       try {
-        setError(null)
-        setIsProcessing(true)
+        setError(null);
+        setIsProcessing(true);
 
-        const orchestrator = getOrchestrator()
-        const adaptations = await orchestrator.adaptForPlatforms(content, platforms)
+        const orchestrator = getOrchestrator();
+        const adaptations = await orchestrator.adaptForPlatforms(
+          content,
+          platforms,
+        );
 
-        return adaptations
+        return adaptations;
       } catch (err) {
-        const error = err instanceof Error ? err : new Error(String(err))
-        setError(error)
-        onError?.(error)
-        throw error
+        const error = err instanceof Error ? err : new Error(String(err));
+        setError(error);
+        onError?.(error);
+        throw error;
       } finally {
-        setIsProcessing(false)
+        setIsProcessing(false);
       }
     },
     [getOrchestrator, onError],
-  )
+  );
 
   // Обработать проект полностью
   const processProject = useCallback(
-    async (mediaFiles: MediaFile[], config: AIConfig): Promise<IntelligentContent> => {
+    async (
+      mediaFiles: MediaFile[],
+      config: AIConfig,
+    ): Promise<IntelligentContent> => {
       try {
-        setError(null)
-        setIsProcessing(true)
-        setProgress(null)
+        setError(null);
+        setIsProcessing(true);
+        setProgress(null);
 
-        const orchestrator = getOrchestrator()
+        const orchestrator = getOrchestrator();
 
         // Создаем контрол для управления pipeline
-        pipelineControlRef.current = orchestrator.createPipelineControl()
+        pipelineControlRef.current = orchestrator.createPipelineControl();
 
         // Подписываемся на прогресс
-        const unsubscribeProgress = pipelineControlRef.current.onProgress((progress) => {
-          setProgress(progress)
-          onProgress?.(progress)
-        })
+        const unsubscribeProgress = pipelineControlRef.current.onProgress(
+          (progress) => {
+            setProgress(progress);
+            onProgress?.(progress);
+          },
+        );
 
         // Подписываемся на события
-        const unsubscribeEvents = pipelineControlRef.current.onEvent((event) => {
-          console.log("Pipeline event:", event.type, event.data)
-        })
+        const unsubscribeEvents = pipelineControlRef.current.onEvent(
+          (event) => {
+            console.log("Pipeline event:", event.type, event.data);
+          },
+        );
 
         try {
-          const result = await orchestrator.processProject(mediaFiles, config)
-          setResult(result)
-          onComplete?.(result)
-          return result
+          const result = await orchestrator.processProject(mediaFiles, config);
+          setResult(result);
+          onComplete?.(result);
+          return result;
         } finally {
           // Отписываемся от событий
-          unsubscribeProgress()
-          unsubscribeEvents()
+          unsubscribeProgress();
+          unsubscribeEvents();
         }
       } catch (err) {
-        const error = err instanceof Error ? err : new Error(String(err))
-        setError(error)
-        onError?.(error)
-        throw error
+        const error = err instanceof Error ? err : new Error(String(err));
+        setError(error);
+        onError?.(error);
+        throw error;
       } finally {
-        setIsProcessing(false)
-        pipelineControlRef.current = undefined
+        setIsProcessing(false);
+        pipelineControlRef.current = null;
       }
     },
     [getOrchestrator, onProgress, onComplete, onError],
-  )
+  );
 
   // Управление pipeline
   const pausePipeline = useCallback(async () => {
     if (pipelineControlRef.current) {
-      await pipelineControlRef.current.pause()
+      await pipelineControlRef.current.pause();
     }
-  }, [])
+  }, []);
 
   const resumePipeline = useCallback(async () => {
     if (pipelineControlRef.current) {
-      await pipelineControlRef.current.resume()
+      await pipelineControlRef.current.resume();
     }
-  }, [])
+  }, []);
 
   const cancelPipeline = useCallback(async () => {
     if (pipelineControlRef.current) {
-      await pipelineControlRef.current.cancel()
-      setIsProcessing(false)
-      setProgress(null)
+      await pipelineControlRef.current.cancel();
+      setIsProcessing(false);
+      setProgress(null);
     }
-  }, [])
+  }, []);
 
   // Сброс состояния
   const reset = useCallback(() => {
-    setError(null)
-    setProgress(null)
-    setResult(null)
-    setIsProcessing(false)
-    pipelineControlRef.current = undefined
-  }, [])
+    setError(null);
+    setProgress(null);
+    setResult(null);
+    setIsProcessing(false);
+    pipelineControlRef.current = null;
+  }, []);
 
   return {
     // Состояние
@@ -271,5 +304,5 @@ export function useAIIntelligence(options: UseAIIntelligenceOptions = {}): UseAI
     // Утилиты
     reset,
     getOrchestrator,
-  }
+  };
 }

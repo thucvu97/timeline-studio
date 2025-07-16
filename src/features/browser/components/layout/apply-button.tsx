@@ -49,7 +49,7 @@ export const ApplyButton = memo(function ApplyButton({
     <button
       type="button"
       className={cn(
-        "absolute z-[1] right-1 cursor-pointer rounded-full p-1 transition-all duration-150 dark:hover:text-black/50 border-0 outline-none focus:ring-2 focus:ring-teal",
+        "absolute z-30 right-1 cursor-pointer rounded-full p-1 transition-all duration-150 dark:hover:text-black/50 border-0 outline-none focus:ring-2 focus:ring-teal",
         "invisible bg-secondary dark:bg-secondary group-hover:visible group-hover:bg-teal-light hover:bg-teal-light dark:group-hover:bg-teal dark:hover:bg-teal", // Скрыта по умолчанию, видима при наведении
       )}
       style={{ color: "#fff", bottom: `${20 + size / 25}px` }}

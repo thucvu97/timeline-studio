@@ -3,10 +3,11 @@
  * Адаптер для преобразования контента под конкретную платформу
  */
 
-import { UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service"
+import { type ContentInsights, UnifiedAIService } from "../../../../ai-chat/services/unified-ai-service"
+import { CaptionPosition } from "../../../shared/types/platform-adaptation"
 
 import type { UnifiedContentAnalysis } from "../../../shared/types/content-analysis"
-import type { AdaptedContent, AudioSpecs, Platform, VideoSpecs } from "../../../shared/types/platform-adaptation"
+import type { AdaptedContent, AudioSpecs, Platform, PlatformResolution, VideoSpecs } from "../../../shared/types/platform-adaptation"
 import type {
   AdaptationStrategy,
   AudioAdaptationStrategy,
@@ -57,9 +58,70 @@ export class PlatformAdapter {
 
     // Формируем результат
     const adaptedContent: AdaptedContent = {
+      id: `adapted-${Date.now()}`,
+      platform: platform.id,
+      originalContent: {
+        sceneIds: analysis.scenes.map(s => s.id),
+        duration: analysis.mediaFile.duration,
+      },
+      adaptations: {
+        video: {
+          resolution: videoSpecs.resolution[0],
+          aspectRatio: videoSpecs.aspectRatio[0],
+          frameRate: videoSpecs.frameRate[0],
+          codec: videoSpecs.codec[0],
+          bitrate: videoSpecs.bitrate.recommended,
+        },
+        audio: {
+          volume: [],
+          compression: {
+            threshold: -18,
+            ratio: 4,
+            attack: 10,
+            release: 100,
+          },
+          normalization: true,
+          enhancements: [],
+        },
+        text: {
+          title: {
+            text: textContent.title || "",
+            language: "en",
+            characterCount: textContent.title?.length || 0,
+          },
+          description: {
+            text: textContent.description || "",
+            language: "en",
+            characterCount: textContent.description?.length || 0,
+          },
+          captions: {
+            enabled: false,
+            style: {
+              font: "Arial",
+              size: 16,
+              color: "#ffffff",
+              background: "#000000",
+              position: CaptionPosition.BOTTOM,
+            },
+            language: "en",
+            content: [],
+          },
+          hashtags: textContent.hashtags || [],
+          mentions: textContent.mentions || [],
+        },
+        graphics: {
+          overlays: [],
+        },
+        timing: {
+          cuts: [],
+          speed: [],
+        },
+      },
       platformId: platform.id,
       platformName: platform.name,
       metadata: {
+        createdAt: new Date(),
+        language: "en",
         title: textContent.title,
         description: textContent.description,
         hashtags: textContent.hashtags,
@@ -104,7 +166,9 @@ export class PlatformAdapter {
     strategy: VideoAdaptationStrategy,
   ): Promise<VideoSpecs> {
     // Выбираем оптимальное разрешение
-    const resolution = strategy.targetResolution || targetSpecs.resolution[0]
+    const resolution: PlatformResolution = strategy.targetResolution 
+      ? { ...strategy.targetResolution, preferred: true }
+      : targetSpecs.resolution[0]
 
     // Выбираем частоту кадров
     const frameRate = this.selectFrameRate(analysis.technicalSpecs?.frameRate, targetSpecs.frameRate)
@@ -181,7 +245,7 @@ export class PlatformAdapter {
     // Генерируем описание
     if (strategy.generateDescription) {
       const descPrompt = `Generate a compelling description for a ${platform.name} video.
-      Content insights: ${analysis.insights.themes.join(", ")}
+      Content insights: ${analysis.insights.strengths.join(", ")}
       Key moments: ${analysis.keyMoments.map((m) => m.description).join(", ")}
       Length: ${platform.bestPractices.optimization.seo.descriptionLength.optimal} characters
       Include SEO keywords naturally.
@@ -194,9 +258,9 @@ export class PlatformAdapter {
     // Генерируем хэштеги
     if (strategy.generateHashtags) {
       const hashtagPrompt = `Generate ${strategy.hashtagCount} relevant hashtags for a ${platform.name} video.
-      Topics: ${analysis.insights.topics.join(", ")}
+      Topics: ${analysis.insights.marketingAngles.join(", ")}
       Genre: ${analysis.genres.join(", ")}
-      Target audience: ${analysis.targetAudience.demographics.join(", ")}
+      Target audience: ${analysis.targetAudience ? 'General' : 'General'}
       
       Format: Return only hashtags separated by spaces, starting with #`
 
@@ -385,7 +449,7 @@ export class PlatformAdapter {
     analysis.genres.forEach((genre) => tags.add(genre))
 
     // Добавляем темы
-    analysis.insights.topics.forEach((topic) => tags.add(topic))
+    analysis.insights.marketingAngles.forEach((topic) => tags.add(topic))
 
     // Добавляем обнаруженные объекты
     analysis.detections.objects?.forEach((obj) => tags.add(obj.label))

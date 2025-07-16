@@ -411,7 +411,7 @@ export function useTimelineAIAnalysis(): TimelineAIAnalysisHook {
 
 // Генерация предложений на основе анализа
 function generateSuggestionsFromAnalysis(
-  clip: Clip,
+  clip: TimelineClip,
   sceneAnalysis: SceneAnalysisResult,
   fullAnalysis: UnifiedContentAnalysis,
 ): TimelineAISuggestion[] {

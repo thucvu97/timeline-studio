@@ -1,6 +1,6 @@
 "use client"
 
-import { ReactNode } from "react"
+import { ReactNode, useEffect } from "react"
 
 import { ChatProvider } from "@/features/ai-chat/services/chat-provider"
 import { AIIntelligenceProvider } from "@/features/ai-content-intelligence"
@@ -16,6 +16,7 @@ import { ThemeProvider } from "@/features/top-bar/components/theme/theme-context
 import { UserSettingsProvider } from "@/features/user-settings"
 import { PlayerProvider } from "@/features/video-player/services/player-provider"
 import { I18nProvider } from "@/i18n/services/i18n-provider"
+import { setupXStateInspector } from "@/lib/xstate-inspector"
 
 interface ProvidersProps {
   children: ReactNode
@@ -49,5 +50,10 @@ const AppProvider = composeProviders(
 )
 
 export function Providers({ children }: ProvidersProps) {
+  // Инициализируем XState Inspector в development режиме
+  useEffect(() => {
+    setupXStateInspector()
+  }, [])
+  
   return <AppProvider>{children}</AppProvider>
 }

@@ -281,6 +281,9 @@ export function useAutoLoadResources() {
 
   // Запускаем загрузку при монтировании с задержкой для лучшего UX
   useEffect(() => {
+    // ВРЕМЕННО ОТКЛЮЧЕНО: Автоматическая загрузка ресурсов из директорий проекта
+    // TODO: Восстановить функциональность, когда потребуется
+    /*
     const initTimeout = setTimeout(() => {
       if (loadTimeoutRef.current) {
         clearTimeout(loadTimeoutRef.current)
@@ -296,6 +299,10 @@ export function useAutoLoadResources() {
         clearTimeout(loadTimeoutRef.current)
       }
     }
+    */
+    
+    // Логируем, что автозагрузка отключена
+    console.log("[useAutoLoadResources] Auto-loading is disabled")
   }, []) // Пустой массив зависимостей - выполняется только при монтировании
 
   const clearCache = useCallback(() => {

@@ -68,6 +68,7 @@ export const Film = createMockIcon("Film")
 export const Filter = createMockIcon("Filter")
 export const FlipHorizontal2 = createMockIcon("FlipHorizontal2")
 export const Folder = createMockIcon("Folder")
+export const FolderClosed = createMockIcon("FolderClosed")
 export const FolderOpen = createMockIcon("FolderOpen")
 export const Gauge = createMockIcon("Gauge")
 export const Grid = createMockIcon("Grid")
@@ -158,6 +159,10 @@ export const XCircle = createMockIcon("XCircle")
 export const XIcon = createMockIcon("XIcon")
 export const Zap = createMockIcon("Zap")
 export const Youtube = createMockIcon("Youtube")
+// J/L Cut icons
+export const Link2 = createMockIcon("Link2")
+export const Unlink2 = createMockIcon("Unlink2")
+export const ScissorsLineDashed = createMockIcon("ScissorsLineDashed")
 
 // Mock the entire lucide-react module
 vi.mock("lucide-react", () => ({
@@ -209,6 +214,7 @@ vi.mock("lucide-react", () => ({
   Filter,
   FlipHorizontal2,
   Folder,
+  FolderClosed,
   FolderOpen,
   Gauge,
   Grid,
@@ -299,6 +305,10 @@ vi.mock("lucide-react", () => ({
   XIcon,
   Zap,
   Youtube,
+  // J/L Cut icons
+  Link2,
+  Unlink2,
+  ScissorsLineDashed,
 }))
 
 // Helper to create custom icons for tests

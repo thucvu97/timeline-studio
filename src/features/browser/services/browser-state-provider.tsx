@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react"
+import React, { createContext, useContext, useEffect, useRef, useState } from "react"
 
 import { useAppSettings } from "@/features/app-state/hooks"
 import { DEFAULT_PREVIEW_SIZE_INDEX, PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"
@@ -83,18 +83,28 @@ export const BrowserStateProvider: React.FC<BrowserStateProviderProps> = ({ chil
     return userSettings.browserSettings || getInitialContext()
   })
 
-  // // Сохраняем настройки в пользовательские настройки при изменении (с дебаунсом)
-  // useEffect(() => {
-  //   const timeoutId = setTimeout(() => {
-  //     const userSettings = getUserSettings()
-  //     updateUserSettings({
-  //       ...userSettings,
-  //       browserSettings: state,
-  //     })
-  //   }, 500) // Дебаунс 500мс
+  // Используем ref для отслеживания первого рендера
+  const isFirstRender = useRef(true)
+  
+  // Сохраняем настройки в пользовательские настройки при изменении (с дебаунсом)
+  useEffect(() => {
+    // Пропускаем первый рендер, чтобы не сохранять сразу после загрузки
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
+    
+    const timeoutId = setTimeout(() => {
+      const userSettings = getUserSettings()
+      updateUserSettings({
+        ...userSettings,
+        browserSettings: state,
+      })
+      console.log("[BrowserStateProvider] Settings saved:", state)
+    }, 500) // Дебаунс 500мс
 
-  //   return () => clearTimeout(timeoutId)
-  // }, [state, getUserSettings, updateUserSettings])
+    return () => clearTimeout(timeoutId)
+  }, [state, getUserSettings, updateUserSettings])
 
   // Геттеры
   const activeTab = state.activeTab

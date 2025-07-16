@@ -10,9 +10,24 @@ import { PersonDatabaseService } from "@/features/person-identification/services
 
 import { type ClaudeTool } from "../services/claude-service"
 
-// Инициализируем сервисы
-const personDatabase = PersonDatabaseService.getInstance()
-const sceneEngine = new SceneAnalysisEngine()
+// Сервисы будут инициализированы по требованию
+let personDatabase: PersonDatabaseService | null = null
+let sceneEngine: SceneAnalysisEngine | null = null
+
+// Lazy initialization для сервисов
+function getPersonDatabase(): PersonDatabaseService {
+  if (!personDatabase) {
+    personDatabase = PersonDatabaseService.getInstance()
+  }
+  return personDatabase
+}
+
+function getSceneEngine(): SceneAnalysisEngine {
+  if (!sceneEngine) {
+    sceneEngine = new SceneAnalysisEngine()
+  }
+  return sceneEngine
+}
 
 /**
  * 1. Детекция и идентификация персон в видео
@@ -532,7 +547,8 @@ export const personIdentificationHandlers = {
     createNewProfiles?: boolean
   }) {
     try {
-      await personDatabase.initialize()
+      const db = getPersonDatabase()
+      await db.initialize()
 
       const mediaFile = {
         path: params.videoPath,
@@ -541,7 +557,8 @@ export const personIdentificationHandlers = {
       }
 
       // Анализируем сцены с Person Identification
-      const scenes = await sceneEngine.analyzeScenes(mediaFile, {
+      const engine = getSceneEngine()
+      const scenes = await engine.analyzeScenes(mediaFile, {
         sensitivity: 0.5,
         minSceneDuration: 2.0,
         classifyTypes: true,
@@ -582,11 +599,12 @@ export const personIdentificationHandlers = {
     includeUnverified?: boolean
   }) {
     try {
-      await personDatabase.initialize()
+      const db = getPersonDatabase()
+      await db.initialize()
 
       if (params.query) {
         // Поиск по имени
-        const results = await personDatabase.searchPersonsByName(params.query, params.limit)
+        const results = await db.searchPersonsByName(params.query, params.limit)
         return {
           success: true,
           method: "name_search",
@@ -608,7 +626,7 @@ export const personIdentificationHandlers = {
           // В реальной реализации здесь должен быть вызов нейросети для генерации эмбеддинга лица
           const faceEmbedding = new Float32Array(128).fill(0) // Заглушка для 128-мерного вектора
 
-          const matchingPersons = await personDatabase.findSimilarPersons(faceEmbedding, {
+          const matchingPersons = await db.findSimilarPersons(faceEmbedding, {
             minConfidence: params.similarityThreshold || 0.8,
             limit: params.limit || 10,
           })
@@ -636,7 +654,7 @@ export const personIdentificationHandlers = {
         }
       }
       // Возвращаем всех персон
-      const allPersons = await personDatabase.getAllPersons()
+      const allPersons = await db.getAllPersons()
       const filtered = params.includeUnverified ? allPersons : allPersons.filter((p) => p.isVerified)
 
       return {
@@ -668,9 +686,10 @@ export const personIdentificationHandlers = {
     privacySettings?: any
   }) {
     try {
-      await personDatabase.initialize()
+      const db = getPersonDatabase()
+      await db.initialize()
 
-      const person = await personDatabase.createPerson({
+      const person = await db.createPerson({
         name: params.name,
         isVerified: params.isVerified ?? false,
         faceEmbeddings: [],
@@ -716,9 +735,10 @@ export const personIdentificationHandlers = {
     includeClipBreakdown?: boolean
   }) {
     try {
-      await personDatabase.initialize()
+      const db = getPersonDatabase()
+      await db.initialize()
 
-      const stats = await personDatabase.getPersonStats(params.personId)
+      const stats = await db.getPersonStats(params.personId)
       if (!stats) {
         return {
           success: false,

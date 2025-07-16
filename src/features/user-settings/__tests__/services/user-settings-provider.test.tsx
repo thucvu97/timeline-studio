@@ -28,6 +28,23 @@ const mockState = {
       TRANSITIONS: 100,
       TEMPLATES: 100,
     },
+    // GPU и производительность
+    gpuAccelerationEnabled: true,
+    preferredGpuEncoder: "h264",
+    maxConcurrentJobs: 4,
+    renderQuality: "high",
+    backgroundRenderingEnabled: true,
+    renderDelay: 0,
+    // Настройки прокси
+    proxyEnabled: false,
+    proxyType: "http",
+    proxyHost: "",
+    proxyPort: "",
+    proxyUsername: "",
+    proxyPassword: "",
+    // Настройки автосохранения
+    autoSaveEnabled: true,
+    autoSaveInterval: 300,
   },
   status: "active",
 }
@@ -118,6 +135,23 @@ describe("UserSettingsProvider", () => {
         TRANSITIONS: 100,
         TEMPLATES: 100,
       },
+      // GPU и производительность
+      gpuAccelerationEnabled: true,
+      preferredGpuEncoder: "h264",
+      maxConcurrentJobs: 4,
+      renderQuality: "high",
+      backgroundRenderingEnabled: true,
+      renderDelay: 0,
+      // Настройки прокси
+      proxyEnabled: false,
+      proxyType: "http",
+      proxyHost: "",
+      proxyPort: "",
+      proxyUsername: "",
+      proxyPassword: "",
+      // Настройки автосохранения
+      autoSaveEnabled: true,
+      autoSaveInterval: 300,
     })
   })
 
@@ -376,5 +410,434 @@ describe("UserSettingsProvider", () => {
         path: "new/player/path",
       }),
     )
+  })
+
+  describe("handleTabChange", () => {
+    it("should handle invalid tab values", () => {
+      mockSend.mockClear()
+      const { result } = renderHook(() => useUserSettings(), {
+        wrapper: UserSettingsWrapper,
+      })
+
+      // Вызываем с недопустимым значением
+      act(() => {
+        result.current.handleTabChange("invalid-tab")
+      })
+
+      // Проверяем, что send не был вызван
+      expect(mockSend).not.toHaveBeenCalled()
+      expect(console.error).toHaveBeenCalledWith("Invalid tab value:", "invalid-tab")
+    })
+
+    it("should update tab and save settings for valid values", async () => {
+      mockSend.mockClear()
+      const mockUpdateUserSettings = vi.fn()
+      
+      // Обновляем мок через импортированную функцию
+      const { useAppSettings } = await import("@/features/app-state/hooks/use-app-settings")
+      vi.mocked(useAppSettings).mockReturnValue({
+        settings: {},
+        state: { context: { isLoading: false, currentProject: { path: "/path" } } },
+        send: vi.fn(),
+        updateUserSettings: mockUpdateUserSettings,
+      })
+
+      const { result } = renderHook(() => useUserSettings(), {
+        wrapper: UserSettingsWrapper,
+      })
+
+      act(() => {
+        result.current.handleTabChange("effects")
+      })
+
+      expect(mockSend).toHaveBeenCalledWith({
+        type: "UPDATE_ACTIVE_TAB",
+        tab: "effects",
+      })
+      expect(mockUpdateUserSettings).toHaveBeenCalledWith({ activeTab: "effects" })
+    })
+  })
+
+  describe("handleLayoutChange", () => {
+    it("should handle invalid layout values", () => {
+      mockSend.mockClear()
+      const { result } = renderHook(() => useUserSettings(), {
+        wrapper: UserSettingsWrapper,
+      })
+
+      act(() => {
+        result.current.handleLayoutChange("invalid-layout" as any)
+      })
+
+      expect(mockSend).not.toHaveBeenCalled()
+      expect(console.error).toHaveBeenCalledWith("Invalid layout value:", "invalid-layout")
+    })
+
+    it("should update layout and save settings for valid values", async () => {
+      mockSend.mockClear()
+      const mockUpdateUserSettings = vi.fn()
+      
+      // Обновляем мок через импортированную функцию
+      const { useAppSettings } = await import("@/features/app-state/hooks/use-app-settings")
+      vi.mocked(useAppSettings).mockReturnValue({
+        settings: {},
+        state: { context: { isLoading: false, currentProject: { path: "/path" } } },
+        send: vi.fn(),
+        updateUserSettings: mockUpdateUserSettings,
+      })
+
+      const { result } = renderHook(() => useUserSettings(), {
+        wrapper: UserSettingsWrapper,
+      })
+
+      act(() => {
+        result.current.handleLayoutChange("chat")
+      })
+
+      expect(mockSend).toHaveBeenCalledWith({
+        type: "UPDATE_LAYOUT",
+        layoutMode: "chat",
+      })
+      expect(mockUpdateUserSettings).toHaveBeenCalledWith({ layoutMode: "chat" })
+    })
+  })
+
+  describe("GPU and Performance Settings", () => {
+    it("should handle GPU acceleration change", () => {
+      mockSend.mockClear()
+      const { result } = renderHook(() => useUserSettings(), {
+        wrapper: UserSettingsWrapper,
+      })
+
+      act(() => {
+        result.current.handleGpuAccelerationChange(false)
+      })
+
+      expect(mockSend).toHaveBeenCalledWith({
+        type: "UPDATE_GPU_ACCELERATION",
+        enabled: false,
+      })
+    })
+
+    it("should handle preferred GPU encoder change", () => {
+      mockSend.mockClear()
+      const { result } = renderHook(() => useUserSettings(), {
+        wrapper: UserSettingsWrapper,
+      })
+
+      act(() => {
+        result.current.handlePreferredGpuEncoderChange("h265")
+      })
+
+      expect(mockSend).toHaveBeenCalledWith({
+        type: "UPDATE_PREFERRED_GPU_ENCODER",
+        encoder: "h265",
+      })
+    })
+
+    it("should handle max concurrent jobs change", () => {
+      mockSend.mockClear()
+      const { result } = renderHook(() => useUserSettings(), {
+        wrapper: UserSettingsWrapper,
+      })
+
+      act(() => {
+        result.current.handleMaxConcurrentJobsChange(8)
+      })
+
+      expect(mockSend).toHaveBeenCalledWith({
+        type: "UPDATE_MAX_CONCURRENT_JOBS",
+        jobs: 8,
+      })
+    })
+
+    it("should handle render quality change", () => {
+      mockSend.mockClear()
+      const { result } = renderHook(() => useUserSettings(), {
+        wrapper: UserSettingsWrapper,
+      })
+
+      act(() => {
+        result.current.handleRenderQualityChange("medium")
+      })
+
+      expect(mockSend).toHaveBeenCalledWith({
+        type: "UPDATE_RENDER_QUALITY",
+        quality: "medium",
+      })
+    })
+
+    it("should handle background rendering change", () => {
+      mockSend.mockClear()
+      const { result } = renderHook(() => useUserSettings(), {
+        wrapper: UserSettingsWrapper,
+      })
+
+      act(() => {
+        result.current.handleBackgroundRenderingChange(false)
+      })
+
+      expect(mockSend).toHaveBeenCalledWith({
+        type: "UPDATE_BACKGROUND_RENDERING",
+        enabled: false,
+      })
+    })
+
+    it("should handle render delay change", () => {
+      mockSend.mockClear()
+      const { result } = renderHook(() => useUserSettings(), {
+        wrapper: UserSettingsWrapper,
+      })
+
+      act(() => {
+        result.current.handleRenderDelayChange(500)
+      })
+
+      expect(mockSend).toHaveBeenCalledWith({
+        type: "UPDATE_RENDER_DELAY",
+        delay: 500,
+      })
+    })
+  })
+
+  describe("Proxy Settings", () => {
+    it("should handle proxy enabled change", () => {
+      mockSend.mockClear()
+      const { result } = renderHook(() => useUserSettings(), {
+        wrapper: UserSettingsWrapper,
+      })
+
+      act(() => {
+        result.current.handleProxyEnabledChange(true)
+      })
+
+      expect(mockSend).toHaveBeenCalledWith({
+        type: "UPDATE_PROXY_ENABLED",
+        enabled: true,
+      })
+    })
+
+    it("should handle proxy type change", () => {
+      mockSend.mockClear()
+      const { result } = renderHook(() => useUserSettings(), {
+        wrapper: UserSettingsWrapper,
+      })
+
+      act(() => {
+        result.current.handleProxyTypeChange("socks5")
+      })
+
+      expect(mockSend).toHaveBeenCalledWith({
+        type: "UPDATE_PROXY_TYPE",
+        proxyType: "socks5",
+      })
+    })
+
+    it("should handle proxy host change", () => {
+      mockSend.mockClear()
+      const { result } = renderHook(() => useUserSettings(), {
+        wrapper: UserSettingsWrapper,
+      })
+
+      act(() => {
+        result.current.handleProxyHostChange("proxy.example.com")
+      })
+
+      expect(mockSend).toHaveBeenCalledWith({
+        type: "UPDATE_PROXY_HOST",
+        host: "proxy.example.com",
+      })
+    })
+
+    it("should handle proxy port change", () => {
+      mockSend.mockClear()
+      const { result } = renderHook(() => useUserSettings(), {
+        wrapper: UserSettingsWrapper,
+      })
+
+      act(() => {
+        result.current.handleProxyPortChange("8080")
+      })
+
+      expect(mockSend).toHaveBeenCalledWith({
+        type: "UPDATE_PROXY_PORT",
+        port: "8080",
+      })
+    })
+
+    it("should handle proxy username change", () => {
+      mockSend.mockClear()
+      const { result } = renderHook(() => useUserSettings(), {
+        wrapper: UserSettingsWrapper,
+      })
+
+      act(() => {
+        result.current.handleProxyUsernameChange("user123")
+      })
+
+      expect(mockSend).toHaveBeenCalledWith({
+        type: "UPDATE_PROXY_USERNAME",
+        username: "user123",
+      })
+    })
+
+    it("should handle proxy password change", () => {
+      mockSend.mockClear()
+      const { result } = renderHook(() => useUserSettings(), {
+        wrapper: UserSettingsWrapper,
+      })
+
+      act(() => {
+        result.current.handleProxyPasswordChange("password123")
+      })
+
+      expect(mockSend).toHaveBeenCalledWith({
+        type: "UPDATE_PROXY_PASSWORD",
+        password: "password123",
+      })
+    })
+  })
+
+  describe("AutoSave Settings", () => {
+    it("should handle auto save enabled change", () => {
+      mockSend.mockClear()
+      const { result } = renderHook(() => useUserSettings(), {
+        wrapper: UserSettingsWrapper,
+      })
+
+      act(() => {
+        result.current.handleAutoSaveEnabledChange(false)
+      })
+
+      expect(mockSend).toHaveBeenCalledWith({
+        type: "UPDATE_AUTO_SAVE_ENABLED",
+        enabled: false,
+      })
+    })
+
+    it("should handle auto save interval change", () => {
+      mockSend.mockClear()
+      const { result } = renderHook(() => useUserSettings(), {
+        wrapper: UserSettingsWrapper,
+      })
+
+      act(() => {
+        result.current.handleAutoSaveIntervalChange(600)
+      })
+
+      expect(mockSend).toHaveBeenCalledWith({
+        type: "UPDATE_AUTO_SAVE_INTERVAL",
+        interval: 600,
+      })
+    })
+  })
+
+  describe("toggleBrowserVisibility", () => {
+    it("should toggle browser visibility", () => {
+      mockSend.mockClear()
+      const { result } = renderHook(() => useUserSettings(), {
+        wrapper: UserSettingsWrapper,
+      })
+
+      act(() => {
+        result.current.toggleBrowserVisibility()
+      })
+
+      expect(mockSend).toHaveBeenCalledWith({
+        type: "TOGGLE_BROWSER_VISIBILITY",
+      })
+    })
+  })
+
+  describe("Additional GPU and Performance properties in context", () => {
+    it("should provide all GPU and performance properties", () => {
+      const { result } = renderHook(() => useUserSettings(), {
+        wrapper: UserSettingsWrapper,
+      })
+
+      expect(result.current.gpuAccelerationEnabled).toBe(true)
+      expect(result.current.preferredGpuEncoder).toBe("h264")
+      expect(result.current.maxConcurrentJobs).toBe(4)
+      expect(result.current.renderQuality).toBe("high")
+      expect(result.current.backgroundRenderingEnabled).toBe(true)
+      expect(result.current.renderDelay).toBe(0)
+    })
+  })
+
+  describe("Additional proxy properties in context", () => {
+    it("should provide all proxy properties", () => {
+      const { result } = renderHook(() => useUserSettings(), {
+        wrapper: UserSettingsWrapper,
+      })
+
+      expect(result.current.proxyEnabled).toBe(false)
+      expect(result.current.proxyType).toBe("http")
+      expect(result.current.proxyHost).toBe("")
+      expect(result.current.proxyPort).toBe("")
+      expect(result.current.proxyUsername).toBe("")
+      expect(result.current.proxyPassword).toBe("")
+    })
+  })
+
+  describe("Additional autosave properties in context", () => {
+    it("should provide all autosave properties", () => {
+      const { result } = renderHook(() => useUserSettings(), {
+        wrapper: UserSettingsWrapper,
+      })
+
+      expect(result.current.autoSaveEnabled).toBe(true)
+      expect(result.current.autoSaveInterval).toBe(300)
+    })
+  })
+
+  describe("All handler methods should be defined", () => {
+    it("should provide all GPU handler methods", () => {
+      const { result } = renderHook(() => useUserSettings(), {
+        wrapper: UserSettingsWrapper,
+      })
+
+      expect(result.current.handleGpuAccelerationChange).toBeDefined()
+      expect(typeof result.current.handleGpuAccelerationChange).toBe("function")
+      expect(result.current.handlePreferredGpuEncoderChange).toBeDefined()
+      expect(typeof result.current.handlePreferredGpuEncoderChange).toBe("function")
+      expect(result.current.handleMaxConcurrentJobsChange).toBeDefined()
+      expect(typeof result.current.handleMaxConcurrentJobsChange).toBe("function")
+      expect(result.current.handleRenderQualityChange).toBeDefined()
+      expect(typeof result.current.handleRenderQualityChange).toBe("function")
+      expect(result.current.handleBackgroundRenderingChange).toBeDefined()
+      expect(typeof result.current.handleBackgroundRenderingChange).toBe("function")
+      expect(result.current.handleRenderDelayChange).toBeDefined()
+      expect(typeof result.current.handleRenderDelayChange).toBe("function")
+    })
+
+    it("should provide all proxy handler methods", () => {
+      const { result } = renderHook(() => useUserSettings(), {
+        wrapper: UserSettingsWrapper,
+      })
+
+      expect(result.current.handleProxyEnabledChange).toBeDefined()
+      expect(typeof result.current.handleProxyEnabledChange).toBe("function")
+      expect(result.current.handleProxyTypeChange).toBeDefined()
+      expect(typeof result.current.handleProxyTypeChange).toBe("function")
+      expect(result.current.handleProxyHostChange).toBeDefined()
+      expect(typeof result.current.handleProxyHostChange).toBe("function")
+      expect(result.current.handleProxyPortChange).toBeDefined()
+      expect(typeof result.current.handleProxyPortChange).toBe("function")
+      expect(result.current.handleProxyUsernameChange).toBeDefined()
+      expect(typeof result.current.handleProxyUsernameChange).toBe("function")
+      expect(result.current.handleProxyPasswordChange).toBeDefined()
+      expect(typeof result.current.handleProxyPasswordChange).toBe("function")
+    })
+
+    it("should provide all autosave handler methods", () => {
+      const { result } = renderHook(() => useUserSettings(), {
+        wrapper: UserSettingsWrapper,
+      })
+
+      expect(result.current.handleAutoSaveEnabledChange).toBeDefined()
+      expect(typeof result.current.handleAutoSaveEnabledChange).toBe("function")
+      expect(result.current.handleAutoSaveIntervalChange).toBeDefined()
+      expect(typeof result.current.handleAutoSaveIntervalChange).toBe("function")
+    })
   })
 })

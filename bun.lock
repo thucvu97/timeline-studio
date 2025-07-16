@@ -89,6 +89,7 @@
         "@vitest/coverage-v8": "^3.2.4",
         "@vitest/ui": "^3.2.4",
         "@xstate/graph": "^3.0.4",
+        "@xstate/inspect": "^0.8.0",
         "eslint": "^9.31.0",
         "eslint-config-next": "^15.4.1",
         "eslint-plugin-import": "^2.32.0",
@@ -937,6 +938,8 @@
     "@webassemblyjs/wast-printer": ["@webassemblyjs/wast-printer@1.14.1", "", { "dependencies": { "@webassemblyjs/ast": "1.14.1", "@xtuc/long": "4.2.2" } }, "sha512-kPSSXE6De1XOR820C90RIo2ogvZG+c3KiHzqUoO/F34Y2shGzesfqv7o57xrxovZJH/MetF5UjroJ/R/3isoiw=="],
 
     "@xstate/graph": ["@xstate/graph@3.0.4", "", { "peerDependencies": { "xstate": "^5.19.4" } }, "sha512-b12RA7E//+7FJVrD09Td+BhHRJbeKZnK+98xXBd+JmccG360xVP1lyzVhUZPgBgwPdmIGBJqhKzmWYJQ9c8ojQ=="],
+
+    "@xstate/inspect": ["@xstate/inspect@0.8.0", "", { "dependencies": { "fast-safe-stringify": "^2.1.1" }, "peerDependencies": { "@types/ws": "^8.0.0", "ws": "^8.0.0", "xstate": "^4.37.0" }, "optionalPeers": ["@types/ws"] }, "sha512-wSkFeOnp+7dhn+zTThO0M4D2FEqZN9lGIWowJu5JLa2ojjtlzRwK8SkjcHZ4rLX8VnMev7kGjgQLrGs8kxy+hw=="],
 
     "@xstate/react": ["@xstate/react@6.0.0", "", { "dependencies": { "use-isomorphic-layout-effect": "^1.1.2", "use-sync-external-store": "^1.2.0" }, "peerDependencies": { "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0", "xstate": "^5.20.0" }, "optionalPeers": ["xstate"] }, "sha512-xXlLpFJxqLhhmecAXclBECgk+B4zYSrDTl8hTfPZBogkn82OHKbm9zJxox3Z/YXoOhAQhKFTRLMYGdlbhc6T9A=="],
 

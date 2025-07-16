@@ -88,7 +88,7 @@ export function PlayerAIOverlay({
       )}
 
       {/* Предстоящие моменты */}
-      {showMoments && upcomingMoments.length > 0 && (
+      {showMoments && upcomingMoments && upcomingMoments.length > 0 && (
         <div className="absolute bottom-20 right-4">
           <div className="bg-black/50 backdrop-blur-sm rounded-lg p-3">
             <div className="flex items-center gap-2 mb-2 text-white">

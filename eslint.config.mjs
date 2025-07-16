@@ -159,6 +159,18 @@ const eslintConfig = tseslint.config(
       },
     },
   },
+  // Separate config for test files - disable import sorting
+  {
+    files: ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"],
+    rules: {
+      // Disable import sorting in test files because we often need to mock before import
+      "import/order": "off",
+      "sort-imports": "off",
+      "import/first": "off",
+      "import/newline-after-import": "off",
+      "import/no-duplicates": "warn",
+    },
+  },
 )
 
 export default eslintConfig

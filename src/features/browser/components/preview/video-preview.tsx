@@ -71,7 +71,8 @@ export const VideoPreview = memo(
     // Обработчик применения видео
     const handleApplyVideo = useCallback(
       (_resource: TimelineResource, _type: string) => {
-        console.log("[VideoPreview] Applying video:", file.name)
+        console.log("[VideoPreview] Applying video to player:", file.name)
+        console.log("[VideoPreview] File object:", file)
         setPreviewMedia(file)
       },
       [file, setPreviewMedia],
@@ -114,6 +115,9 @@ export const VideoPreview = memo(
 
     const handleMouseMove = useCallback(
       (e: React.MouseEvent<HTMLDivElement>, stream: FfprobeStream) => {
+        // Не обновляем состояние во время воспроизведения
+        if (isPlaying) return
+        
         const rect = e.currentTarget.getBoundingClientRect()
         const x = e.clientX - rect.left
         const percentage = x / rect.width
@@ -126,12 +130,12 @@ export const VideoPreview = memo(
 
         const key = stream.streamKey ?? `stream-${stream.index}`
         const videoRef = videoRefs.current[key]
-        if (videoRef) {
+        if (videoRef && !isPlaying) {
           // Устанавливаем время напрямую без лишних логов
           videoRef.currentTime = newTime
         }
       },
-      [file.duration], // Удалили hoverTime из зависимостей, так как он не используется для условной проверки
+      [file.duration, isPlaying], // Добавили isPlaying в зависимости
     )
 
     const handleMouseLeave = useCallback(() => {
@@ -175,6 +179,9 @@ export const VideoPreview = memo(
 
     // Состояние для хранения объекта URL
     const [videoUrl, setVideoUrl] = useState<string>("")
+    
+    // Мемоизируем URL, чтобы он не менялся без необходимости
+    const memoizedVideoUrl = useMemo(() => videoUrl, [videoUrl])
 
     // Функция для получения URL видео без загрузки в память
     const loadVideoFile = useCallback(async (path: string) => {
@@ -446,20 +453,22 @@ export const VideoPreview = memo(
                         ? width
                         : adptivedWidth,
                 }}
-                onClick={(e) => handlePlayPause(e, stream)}
               >
                 <div
                   className="group relative h-full w-full overflow-hidden"
                   onMouseMove={(e) => handleMouseMove(e, stream)}
                   onMouseLeave={handleMouseLeave}
+                  onClick={(e) => handlePlayPause(e, stream)}
                   style={{ backgroundColor: "#1a1a1a" }}
                 >
                   <video
-                    key={`${file.id}-${stream.index}`}
+                    key={`video-${file.id}-${stream.index}`}
                     ref={(el) => {
-                      videoRefs.current[key] = el
+                      if (el && videoRefs.current[key] !== el) {
+                        videoRefs.current[key] = el
+                      }
                     }}
-                    src={videoUrl || undefined}
+                    src={memoizedVideoUrl || undefined}
                     poster={
                       previewData
                         ? `data:image/jpeg;base64,${previewData}`
