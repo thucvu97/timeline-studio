@@ -19,8 +19,6 @@ interface BrowserTabsProps {
 export const BrowserTabs = memo(({ activeTab }: BrowserTabsProps) => {
   const { t } = useTranslation()
 
-  console.log("BrowserTabs rendered, activeTab:", activeTab)
-
   return (
     <TabsList className="h-[50px] flex-shrink-0 justify-start border-none rounded-none dark:bg-[#2D2D2D] m-0 p-0">
       <TabsTrigger value="media" className={TAB_TRIGGER_STYLES} data-testid="media-tab">

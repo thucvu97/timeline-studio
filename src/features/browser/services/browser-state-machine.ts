@@ -239,7 +239,7 @@ export const browserMachine = setup({
       if (typeof window !== "undefined") {
         try {
           localStorage.setItem("browser-settings", JSON.stringify(context))
-          console.log("[BrowserMachine] Settings saved to localStorage:", context)
+          // Settings saved to localStorage
         } catch (error) {
           console.error("[BrowserMachine] Failed to save settings:", error)
         }

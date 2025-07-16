@@ -169,13 +169,7 @@ export function useEffectsAdapter(): ListAdapter<VideoEffect> {
     },
   })
 
-  // Логирование для отладки
-  console.log("[useEffectsAdapter] Adapter data:", {
-    items: adapter.items,
-    loading: adapter.loading,
-    error: adapter.error,
-    stats: adapter.stats,
-  })
+  // Adapter data ready
 
   return {
     ...adapter,

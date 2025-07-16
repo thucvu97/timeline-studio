@@ -83,16 +83,25 @@ export const BrowserStateProvider: React.FC<BrowserStateProviderProps> = ({ chil
     return userSettings.browserSettings || getInitialContext()
   })
 
-  // Используем ref для отслеживания первого рендера
+  // Используем ref для отслеживания первого рендера и предыдущего состояния
   const isFirstRender = useRef(true)
+  const prevStateRef = useRef(state)
   
   // Сохраняем настройки в пользовательские настройки при изменении (с дебаунсом)
   useEffect(() => {
     // Пропускаем первый рендер, чтобы не сохранять сразу после загрузки
     if (isFirstRender.current) {
       isFirstRender.current = false
+      prevStateRef.current = state
       return
     }
+    
+    // Проверяем, действительно ли состояние изменилось
+    if (JSON.stringify(prevStateRef.current) === JSON.stringify(state)) {
+      return
+    }
+    
+    prevStateRef.current = state
     
     const timeoutId = setTimeout(() => {
       const userSettings = getUserSettings()
@@ -100,7 +109,7 @@ export const BrowserStateProvider: React.FC<BrowserStateProviderProps> = ({ chil
         ...userSettings,
         browserSettings: state,
       })
-      console.log("[BrowserStateProvider] Settings saved:", state)
+      // Settings saved
     }, 500) // Дебаунс 500мс
 
     return () => clearTimeout(timeoutId)

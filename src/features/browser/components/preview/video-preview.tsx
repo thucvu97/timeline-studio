@@ -71,8 +71,6 @@ export const VideoPreview = memo(
     // Обработчик применения видео
     const handleApplyVideo = useCallback(
       (_resource: TimelineResource, _type: string) => {
-        console.log("[VideoPreview] Applying video to player:", file.name)
-        console.log("[VideoPreview] File object:", file)
         setPreviewMedia(file)
       },
       [file, setPreviewMedia],
@@ -118,24 +116,28 @@ export const VideoPreview = memo(
         // Не обновляем состояние во время воспроизведения
         if (isPlaying) return
         
+        const now = Date.now()
+        // Ограничиваем обновления до 30 fps для производительности
+        if (now - lastUpdateTimeRef.current < 33) return
+        lastUpdateTimeRef.current = now
+        
         const rect = e.currentTarget.getBoundingClientRect()
         const x = e.clientX - rect.left
         const percentage = x / rect.width
         const newTime = percentage * (file.duration ?? 0)
 
-        // Обновляем ref и состояние при каждом движении мыши
+        // Обновляем ref
         hoverTimeRef.current = newTime
-        // Обновляем состояние без задержки
+        // Обновляем состояние с дебаунсингом
         setHoverTime(newTime)
 
         const key = stream.streamKey ?? `stream-${stream.index}`
         const videoRef = videoRefs.current[key]
         if (videoRef && !isPlaying) {
-          // Устанавливаем время напрямую без лишних логов
           videoRef.currentTime = newTime
         }
       },
-      [file.duration, isPlaying], // Добавили isPlaying в зависимости
+      [file.duration, isPlaying],
     )
 
     const handleMouseLeave = useCallback(() => {

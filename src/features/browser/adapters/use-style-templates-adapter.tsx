@@ -34,7 +34,7 @@ const StyleTemplatePreviewWrapper: React.FC<PreviewComponentProps<StyleTemplate>
   )
 
   const handleSelect = (templateId: string) => {
-    console.log("Template selected:", templateId)
+    // Template selected
     onAddToTimeline?.(template)
   }
 
