@@ -83,6 +83,9 @@ export interface TimelineProject {
   // Маркеры времени для навигации и экспорта
   markers?: TimelineMarker[]
 
+  // Speed ramping конфигурации для клипов
+  speedRampingConfigs?: Record<string, SpeedRampingConfig>
+
   // Централизованное хранилище всех ресурсов проекта
   resources: ProjectResources
 

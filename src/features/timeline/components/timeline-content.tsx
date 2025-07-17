@@ -31,6 +31,7 @@ import { TimelineMarkersLayer } from "./markers"
 import { TimelineHotkeys } from "./timeline-hotkeys"
 import { TimelinePreviewStrip } from "./timeline-preview-strip"
 import { TimelineScale } from "./timeline-scale"
+import { SpeedRampingIndicator, TimelineSpeedRampingIntegration, TimelineSpeedRampingStatus } from "./timeline-speed-ramping-integration"
 import { Track } from "./track/track"
 import { TrackControlsPanel } from "./track-controls-panel"
 import { TrackInsertionZones } from "./track-insertion-zone"
@@ -153,6 +154,8 @@ export function TimelineContent() {
   return (
     <EditModeProvider>
       <TimelineHotkeys />
+      <TimelineSpeedRampingIntegration />
+      <SpeedRampingIndicator />
       <div className="flex h-full flex-col">
         {/* Edit mode overlay */}
         <EditModeOverlay />
@@ -178,6 +181,7 @@ export function TimelineContent() {
               <Badge variant="outline">{project.sections.length} секций</Badge>
               <Badge variant="outline">{tracks.length} треков</Badge>
               <Badge variant="outline">{clips.length} клипов</Badge>
+              <TimelineSpeedRampingStatus />
             </div>
           </div>
         </div>

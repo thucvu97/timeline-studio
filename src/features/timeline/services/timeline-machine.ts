@@ -27,6 +27,7 @@ import {
   createTimelineTrack,
 } from "../types"
 import { ResourceManager } from "./resource-manager"
+import { SpeedRampingServiceImpl } from "./speed-ramping-service"
 
 import type { TimelineMarker } from "../types/markers"
 import type { SpeedRampingConfig } from "../types/speed-ramping"
@@ -43,6 +44,7 @@ interface TimelineContext {
 
   // Speed ramping конфигурации
   speedRampingConfigs: Record<string, SpeedRampingConfig>
+  speedRampingService: SpeedRampingServiceImpl
 
   // Операции
   draggedClip: TimelineClip | null
@@ -260,6 +262,7 @@ const initialContext: TimelineContext = {
   isRecording: false,
   currentTime: 0,
   speedRampingConfigs: {},
+  speedRampingService: new SpeedRampingServiceImpl(),
   draggedClip: null,
   draggedTrack: null,
   error: null,
@@ -275,6 +278,17 @@ const guards = {
     context.uiState.historyIndex < context.uiState.history.length - 1,
   hasClipboard: ({ context }: { context: TimelineContext }) =>
     context.uiState.clipboard.clips.length > 0 || context.uiState.clipboard.tracks.length > 0,
+}
+
+// Хелпер для обновления speed ramping конфигураций в проекте
+const updateSpeedRampingInProject = (context: TimelineContext, newConfigs: Record<string, SpeedRampingConfig>) => {
+  if (!context.project) return context.project
+  
+  return {
+    ...context.project,
+    speedRampingConfigs: newConfigs,
+    updatedAt: new Date(),
+  }
 }
 
 const actions = {
@@ -717,14 +731,53 @@ const actions = {
 
   // Speed Ramping
   enableSpeedRamping: assign({
-    speedRampingConfigs: ({ context, event }: { context: TimelineContext; event: any }) => ({
-      ...context.speedRampingConfigs,
-      [event.clipId]: {
+    speedRampingConfigs: ({ context, event }: { context: TimelineContext; event: any }) => {
+      const newConfig = {
         enabled: true,
         keyframes: [],
         maintainPitch: true,
-      },
-    }),
+        minSpeed: 0.1,
+        maxSpeed: 10.0,
+        showGraph: true,
+        graphHeight: 60,
+        graphOpacity: 0.7,
+      }
+      
+      const newConfigs = {
+        ...context.speedRampingConfigs,
+        [event.clipId]: newConfig,
+      }
+      
+      // Обновляем сервис
+      context.speedRampingService.updateFromTimelineConfigs(newConfigs)
+      
+      return newConfigs
+    },
+    project: ({ context, event }: { context: TimelineContext; event: any }) => {
+      if (!context.project) return context.project
+      
+      const newConfig = {
+        enabled: true,
+        keyframes: [],
+        maintainPitch: true,
+        minSpeed: 0.1,
+        maxSpeed: 10.0,
+        showGraph: true,
+        graphHeight: 60,
+        graphOpacity: 0.7,
+      }
+      
+      const newConfigs = {
+        ...context.speedRampingConfigs,
+        [event.clipId]: newConfig,
+      }
+      
+      return {
+        ...context.project,
+        speedRampingConfigs: newConfigs,
+        updatedAt: new Date(),
+      }
+    },
     lastAction: "ENABLE_SPEED_RAMPING",
   }),
 
@@ -737,16 +790,42 @@ const actions = {
           enabled: false,
         }
       }
+      
+      // Обновляем сервис
+      context.speedRampingService.updateFromTimelineConfigs(configs)
+      
       return configs
+    },
+    project: ({ context, event }: { context: TimelineContext; event: any }) => {
+      return updateSpeedRampingInProject(context, {
+        ...context.speedRampingConfigs,
+        [event.clipId]: {
+          ...context.speedRampingConfigs[event.clipId],
+          enabled: false,
+        },
+      })
     },
     lastAction: "DISABLE_SPEED_RAMPING",
   }),
 
   setSpeedRampingConfig: assign({
-    speedRampingConfigs: ({ context, event }: { context: TimelineContext; event: any }) => ({
-      ...context.speedRampingConfigs,
-      [event.clipId]: event.config,
-    }),
+    speedRampingConfigs: ({ context, event }: { context: TimelineContext; event: any }) => {
+      const newConfigs = {
+        ...context.speedRampingConfigs,
+        [event.clipId]: event.config,
+      }
+      
+      // Обновляем сервис
+      context.speedRampingService.updateFromTimelineConfigs(newConfigs)
+      
+      return newConfigs
+    },
+    project: ({ context, event }: { context: TimelineContext; event: any }) => {
+      return updateSpeedRampingInProject(context, {
+        ...context.speedRampingConfigs,
+        [event.clipId]: event.config,
+      })
+    },
     lastAction: "SET_SPEED_RAMPING_CONFIG",
   }),
 
@@ -765,7 +844,27 @@ const actions = {
           keyframes: [...configs[event.clipId].keyframes, keyframe],
         }
       }
+      
+      // Обновляем сервис
+      context.speedRampingService.updateFromTimelineConfigs(configs)
+      
       return configs
+    },
+    project: ({ context, event }: { context: TimelineContext; event: any }) => {
+      const configs = { ...context.speedRampingConfigs }
+      if (configs[event.clipId]) {
+        const keyframe = {
+          id: `keyframe-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+          time: event.time,
+          value: event.value,
+          interpolation: event.interpolation || "linear",
+        }
+        configs[event.clipId] = {
+          ...configs[event.clipId],
+          keyframes: [...configs[event.clipId].keyframes, keyframe],
+        }
+      }
+      return updateSpeedRampingInProject(context, configs)
     },
     lastAction: "ADD_SPEED_KEYFRAME",
   }),
@@ -781,6 +880,10 @@ const actions = {
           ),
         }
       }
+      
+      // Обновляем сервис
+      context.speedRampingService.updateFromTimelineConfigs(configs)
+      
       return configs
     },
     lastAction: "UPDATE_SPEED_KEYFRAME",
@@ -795,6 +898,10 @@ const actions = {
           keyframes: configs[event.clipId].keyframes.filter((keyframe) => keyframe.id !== event.keyframeId),
         }
       }
+      
+      // Обновляем сервис
+      context.speedRampingService.updateFromTimelineConfigs(configs)
+      
       return configs
     },
     lastAction: "REMOVE_SPEED_KEYFRAME",
@@ -838,6 +945,9 @@ const actions = {
           keyframes,
         }
       }
+
+      // Обновляем сервис
+      context.speedRampingService.updateFromTimelineConfigs(configs)
 
       return configs
     },
