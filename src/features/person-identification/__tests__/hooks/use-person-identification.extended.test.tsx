@@ -4,9 +4,8 @@ import { describe, expect, it, vi, beforeEach, afterEach } from "vitest"
 import { BaseProviders } from "@/test/test-utils"
 
 import { usePersonIdentification } from "../../hooks/use-person-identification"
-import { PersonDatabaseService } from "../../services/person-database-service"
 
-import type { PersonProfile, DetectedFace } from "../../types"
+import type { PersonProfile, DetectedFace } from "../../types/person"
 
 // Mock SceneAnalysisEngine
 const mockDetectPersons = vi.fn()
@@ -62,9 +61,16 @@ const createMockPerson = (overrides?: Partial<PersonProfile>): PersonProfile => 
 
 const createMockDetectedFace = (overrides?: Partial<DetectedFace>): DetectedFace => ({
   id: "face-1",
+  bbox: { x: 10, y: 10, width: 100, height: 100 },
   confidence: 0.95,
-  boundingBox: { x: 10, y: 10, width: 100, height: 100 },
-  landmarks: [],
+  landmarks: {
+    points: [],
+    quality: 0.9
+  },
+  blur: 0.1,
+  occlusion: 0.05,
+  pose: { yaw: 0, pitch: 0, roll: 0 },
+  frameNumber: 100,
   timestamp: { seconds: 10 },
   clipId: "clip-1",
   ...overrides
@@ -247,8 +253,8 @@ describe("usePersonIdentification Extended Tests", () => {
     })
 
     expect(identifyResult).not.toBeNull()
-    expect(identifyResult?.person).toEqual(mockPerson)
-    expect(identifyResult?.confidence).toBe(0.9)
+    expect(identifyResult!.person).toEqual(mockPerson)
+    expect(identifyResult!.confidence).toBe(0.9)
   })
 
   it("should return null when no person identified", async () => {
@@ -374,8 +380,8 @@ describe("usePersonIdentification Extended Tests", () => {
       createMockPerson({
         id: "person-1",
         faceEmbeddings: [
-          { faceId: "e1", vector: new Float32Array(), quality: 0.9, timestamp: { seconds: 0 } },
-          { faceId: "e2", vector: new Float32Array(), quality: 0.8, timestamp: { seconds: 0 } }
+          { faceId: "e1", vector: new Float32Array(), quality: 0.9, timestamp: { seconds: 0 }, frameNumber: 0 },
+          { faceId: "e2", vector: new Float32Array(), quality: 0.8, timestamp: { seconds: 0 }, frameNumber: 100 }
         ],
         appearances: [
           {
@@ -396,7 +402,7 @@ describe("usePersonIdentification Extended Tests", () => {
       createMockPerson({
         id: "person-2",
         faceEmbeddings: [
-          { faceId: "e3", vector: new Float32Array(), quality: 0.9, timestamp: { seconds: 0 } }
+          { faceId: "e3", vector: new Float32Array(), quality: 0.9, timestamp: { seconds: 0 }, frameNumber: 200 }
         ],
         appearances: []
       })

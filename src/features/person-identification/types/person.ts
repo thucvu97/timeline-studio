@@ -297,5 +297,3 @@ export type PersonEvent =
   | { type: "person_merged"; data: { targetPersonId: string; mergedPersonIds: string[] } }
   | { type: "person_deleted"; data: { personId: string } }
   | { type: "detection_processed"; data: { clipId: string; detectionsCount: number } }
-
-export default PersonProfile

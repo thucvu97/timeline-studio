@@ -3,12 +3,12 @@ import { describe, expect, it, vi, beforeEach } from "vitest"
 
 import { BaseProviders } from "@/test/test-utils"
 
-import { ModalContainer } from "../modal-container"
 import { ModalType } from "../../services/modal-machine"
+import { ModalContainer } from "../modal-container"
 
 // Mock useModal hook
 const mockCloseModal = vi.fn()
-const mockModalType = vi.fn<[], ModalType>()
+const mockModalType = vi.fn()
 const mockModalData = vi.fn()
 const mockIsOpen = vi.fn()
 
