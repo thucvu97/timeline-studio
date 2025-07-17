@@ -134,6 +134,7 @@ export const StepForward = createMockIcon("StepForward")
 export const Sticker = createMockIcon("Sticker")
 export const StickyNote = createMockIcon("StickyNote")
 export const StopCircle = createMockIcon("StopCircle")
+export const Tag = createMockIcon("Tag")
 export const Target = createMockIcon("Target")
 export const Subtitles = createMockIcon("Subtitles")
 export const Sun = createMockIcon("Sun")
@@ -280,6 +281,7 @@ vi.mock("lucide-react", () => ({
   Sticker,
   StickyNote,
   StopCircle,
+  Tag,
   Target,
   Subtitles,
   Sun,
