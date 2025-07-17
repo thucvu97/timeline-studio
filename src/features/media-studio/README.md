@@ -1,98 +1,100 @@
 # Media Studio Module
 
-## 📋 Обзор
+[🇷🇺 Русская версия](./README.ru.md) | [🇺🇸 English version](./README.md)
 
-Media Studio - это основной модуль приложения Timeline Studio, который объединяет все компоненты редактора в единый интерфейс. Модуль предоставляет корневой компонент приложения, систему макетов и провайдеры состояния.
+## 📋 Overview
 
-## 🏗️ Архитектура
+Media Studio is the main module of the Timeline Studio application that combines all editor components into a unified interface. The module provides the root application component, layout system, and state providers.
 
-### Структура модуля
+## 🏗️ Architecture
+
+### Module Structure
 
 ```
 src/features/media-studio/
 ├── components/
-│   ├── media-studio.tsx          # Корневой компонент
+│   ├── media-studio.tsx          # Root component
 │   └── layout/
-│       ├── default-layout.tsx    # Стандартный макет
-│       ├── vertical-layout.tsx   # Вертикальный макет
-│       ├── options-layout.tsx    # Макет с панелью опций
-│       ├── chat-layout.tsx       # Макет с AI-чатом
-│       ├── layout-previews.tsx   # Компонент выбора макетов
-│       └── layouts-markup.tsx    # Визуальные превью макетов
+│       ├── default-layout.tsx    # Default layout
+│       ├── vertical-layout.tsx   # Vertical layout
+│       ├── options-layout.tsx    # Layout with options panel
+│       ├── chat-layout.tsx       # Layout with AI chat
+│       ├── layout-previews.tsx   # Layout selection component
+│       └── layouts-markup.tsx    # Visual layout previews
 ├── hooks/
-│   └── use-auto-load-user-data.ts # Автозагрузка данных
+│   └── use-auto-load-user-data.ts # Auto-load user data
 ├── services/
-│   └── providers.tsx             # Глобальные провайдеры
-└── __tests__/                    # Тесты компонентов
+│   └── providers.tsx             # Global providers
+└── __tests__/                    # Component tests
 ```
 
-## 🎯 Основные функции
+## 🎯 Core Features
 
 ### MediaStudio Component
 
-Корневой компонент приложения, который:
-- Инициализирует все провайдеры через `Providers`
-- Рендерит выбранный макет на основе настроек пользователя
-- Управляет автозагрузкой пользовательских данных
-- Отображает состояние загрузки
+The root application component that:
+- Initializes all providers via `Providers`
+- Renders the selected layout based on user settings
+- Manages automatic user data loading
+- Displays loading state
 
-### Система макетов (Layouts)
+### Layout System
 
 #### DefaultLayout
-- Классический макет с браузером слева, видео в центре, таймлайном внизу
-- Адаптивен к видимости панелей через `useUserSettings`
+- Classic layout with browser on the left, video in the center, timeline at the bottom
+- Adaptive to panel visibility through `useUserSettings`
 
 #### VerticalLayout
-- Вертикальное расположение с видео справа
-- Оптимизирован для работы с вертикальным контентом
+- Vertical arrangement with video on the right
+- Optimized for working with vertical content
 
 #### OptionsLayout
-- Включает панель опций справа
-- Адаптивное скрытие/показ панели опций
+- Includes options panel on the right
+- Adaptive show/hide for options panel
 
 #### ChatLayout
-- Интегрирует AI-чат справа
-- Поддерживает все комбинации видимости панелей
+- Integrates AI chat on the right
+- Supports all panel visibility combinations
 
 ### Hooks
 
 #### useAutoLoadUserData
-- Автоматическая загрузка медиа файлов при старте
-- Сканирование директорий проекта
-- Валидация и добавление ресурсов (эффекты, фильтры, переходы)
-- Поддержка работы без Tauri (веб-версия)
+- Automatic loading of media files on startup
+- Project directory scanning (currently disabled, may be re-enabled later)
+- Validation and addition of resources (effects, filters, transitions)
+- Support for non-Tauri environments (web version)
 
-### Провайдеры (Providers)
+### Providers
 
-Компонент `Providers` объединяет все необходимые контекст-провайдеры:
-- `AppStateProvider` - глобальное состояние приложения
-- `UserSettingsProvider` - пользовательские настройки
-- `ModalProvider` - управление модальными окнами
-- `CommandProvider` - обработка горячих клавиш
-- Другие провайдеры функций
+The `Providers` component combines all necessary context providers:
+- `AppStateProvider` - global application state
+- `UserSettingsProvider` - user preferences
+- `ModalProvider` - modal dialog management
+- `CommandProvider` - hotkey handling
+- Other feature providers
 
-## 🔌 Интеграция
+## 🔌 Integration
 
-### Используемые модули
-- `@/features/top-bar` - верхняя панель управления
-- `@/features/browser` - браузер медиа файлов
-- `@/features/timeline` - временная шкала
-- `@/features/video-player` - видеоплеер
-- `@/features/ai-chat` - AI ассистент
-- `@/features/options` - панель опций
-- `@/features/user-settings` - настройки пользователя
-- `@/features/modals` - модальные окна
+### Used Modules
+- `@/features/top-bar` - top control panel
+- `@/features/browser` - media file browser
+- `@/features/timeline` - timeline
+- `@/features/video-player` - video player
+- `@/features/ai-chat` - AI assistant
+- `@/features/options` - options panel
+- `@/features/user-settings` - user settings
+- `@/features/modals` - modal windows
 
 ### API
 
 ```typescript
-// Основной компонент
+// Main component
 export function MediaStudio(): JSX.Element
 
-// Провайдеры
+// Providers
 export function Providers({ children }: PropsWithChildren): JSX.Element
 
-// Хуки
+// Hooks
 export function useAutoLoadUserData(): {
   isLoading: boolean
   error: Error | null
@@ -100,18 +102,18 @@ export function useAutoLoadUserData(): {
 }
 ```
 
-## 🧪 Тестирование
+## 🧪 Testing
 
-Модуль имеет полное покрытие тестами:
-- **65 тестов** в 9 файлах
-- Тесты компонентов, макетов, хуков и сервисов
-- Моки для всех внешних зависимостей
-- Интеграционные тесты для провайдеров
+The module has complete test coverage:
+- **65 tests** in 9 files
+- Tests for components, layouts, hooks, and services
+- Mocks for all external dependencies
+- Integration tests for providers
 
-## 📝 Примеры использования
+## 📝 Usage Examples
 
 ```tsx
-// В корне приложения
+// In the application root
 import { MediaStudio } from '@/features/media-studio'
 
 function App() {
@@ -119,10 +121,10 @@ function App() {
 }
 ```
 
-## 🚀 Будущие улучшения
+## 🚀 Future Improvements
 
-- [ ] Кастомные макеты пользователя
-- [ ] Сохранение и восстановление состояния макетов
-- [ ] Анимации при переключении макетов
-- [ ] Динамическая загрузка компонентов для оптимизации
-- [ ] Плагинная архитектура для расширений
+- [ ] Custom user layouts
+- [ ] Save and restore layout states
+- [ ] Layout switching animations
+- [ ] Dynamic component loading for optimization
+- [ ] Plugin architecture for extensions

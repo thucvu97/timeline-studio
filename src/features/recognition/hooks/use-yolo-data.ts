@@ -119,13 +119,13 @@ export function useYoloData() {
       yoloDataService.clearVideoCache(videoId)
       setLoadingStates((prev) => {
         const newState = { ...prev }
-        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+         
         delete newState[videoId]
         return newState
       })
       setErrorStates((prev) => {
         const newState = { ...prev }
-        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+         
         delete newState[videoId]
         return newState
       })

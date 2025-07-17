@@ -3,8 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { VideoEffect } from "@/features/effects/types"
 
 import {
-  type UserEffect,
-  type UserEffectsCollection,
   deleteUserEffect,
   getUserEffectsList,
   loadEffectsCollection,
@@ -12,6 +10,8 @@ import {
   prepareEffectForExport,
   saveEffectsCollection,
   saveUserEffect,
+  type UserEffect,
+  type UserEffectsCollection,
 } from "../../utils/user-effects"
 
 // Mock Tauri invoke

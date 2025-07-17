@@ -81,7 +81,7 @@ const getInitialTabSettings = (tab: BrowserTab) => {
  */
 const loadSavedSettings = (): BrowserContext | null => {
   if (typeof window === "undefined") return null
-  
+
   try {
     const saved = localStorage.getItem("browser-settings")
     if (saved) {
@@ -90,7 +90,7 @@ const loadSavedSettings = (): BrowserContext | null => {
   } catch (error) {
     console.error("[BrowserMachine] Failed to load saved settings:", error)
   }
-  
+
   return null
 }
 

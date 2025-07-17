@@ -12,36 +12,44 @@ interface LazyTabContentProps {
 const getAdapterComponent = (tabValue: string) => {
   switch (tabValue) {
     case "media":
-      return React.lazy(() => 
-        import("./tab-adapters/media-adapter-content").then(module => ({ default: module.MediaAdapterContent }))
+      return React.lazy(() =>
+        import("./tab-adapters/media-adapter-content").then((module) => ({ default: module.MediaAdapterContent })),
       )
     case "music":
-      return React.lazy(() => 
-        import("./tab-adapters/music-adapter-content").then(module => ({ default: module.MusicAdapterContent }))
+      return React.lazy(() =>
+        import("./tab-adapters/music-adapter-content").then((module) => ({ default: module.MusicAdapterContent })),
       )
     case "effects":
-      return React.lazy(() => 
-        import("./tab-adapters/effects-adapter-content").then(module => ({ default: module.EffectsAdapterContent }))
+      return React.lazy(() =>
+        import("./tab-adapters/effects-adapter-content").then((module) => ({ default: module.EffectsAdapterContent })),
       )
     case "filters":
-      return React.lazy(() => 
-        import("./tab-adapters/filters-adapter-content").then(module => ({ default: module.FiltersAdapterContent }))
+      return React.lazy(() =>
+        import("./tab-adapters/filters-adapter-content").then((module) => ({ default: module.FiltersAdapterContent })),
       )
     case "transitions":
-      return React.lazy(() => 
-        import("./tab-adapters/transitions-adapter-content").then(module => ({ default: module.TransitionsAdapterContent }))
+      return React.lazy(() =>
+        import("./tab-adapters/transitions-adapter-content").then((module) => ({
+          default: module.TransitionsAdapterContent,
+        })),
       )
     case "subtitles":
-      return React.lazy(() => 
-        import("./tab-adapters/subtitles-adapter-content").then(module => ({ default: module.SubtitlesAdapterContent }))
+      return React.lazy(() =>
+        import("./tab-adapters/subtitles-adapter-content").then((module) => ({
+          default: module.SubtitlesAdapterContent,
+        })),
       )
     case "templates":
-      return React.lazy(() => 
-        import("./tab-adapters/templates-adapter-content").then(module => ({ default: module.TemplatesAdapterContent }))
+      return React.lazy(() =>
+        import("./tab-adapters/templates-adapter-content").then((module) => ({
+          default: module.TemplatesAdapterContent,
+        })),
       )
     case "style-templates":
-      return React.lazy(() => 
-        import("./tab-adapters/style-templates-adapter-content").then(module => ({ default: module.StyleTemplatesAdapterContent }))
+      return React.lazy(() =>
+        import("./tab-adapters/style-templates-adapter-content").then((module) => ({
+          default: module.StyleTemplatesAdapterContent,
+        })),
       )
     default:
       return null
@@ -55,7 +63,7 @@ const getAdapterComponent = (tabValue: string) => {
 export const LazyTabContent = memo(({ tabValue, activeTab, className }: LazyTabContentProps) => {
   // Рендерим контент только для активной вкладки
   const isActive = activeTab === tabValue
-  
+
   // Check if tab is active
 
   const AdapterComponent = useMemo(() => {

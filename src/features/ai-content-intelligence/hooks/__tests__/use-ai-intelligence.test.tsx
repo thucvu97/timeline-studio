@@ -9,13 +9,13 @@ import { useAIIntelligence as useAIIntelligenceContext } from "../../services/ai
 import { AIIntelligenceOrchestrator } from "../../shared/services/ai-intelligence-orchestrator"
 import { useAIIntelligence } from "../use-ai-intelligence"
 import {
-  MockAIIntelligenceOrchestrator,
-  createMockAIConfig,
   createMockActor,
+  createMockAIConfig,
   createMockAnalysis,
   createMockIntelligentContent,
   createMockMediaFile,
   createMockScript,
+  MockAIIntelligenceOrchestrator,
 } from "./test-utils"
 
 // First mock the modules before importing anything that uses them

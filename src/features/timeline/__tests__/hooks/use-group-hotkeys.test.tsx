@@ -4,8 +4,7 @@
 
 import { renderHook } from "@testing-library/react"
 import { useHotkeys } from "react-hotkeys-hook"
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest"
-
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 // Mock timeline-machine
 vi.mock("../../services/timeline-machine", () => ({
@@ -42,7 +41,7 @@ vi.mock("../../hooks/use-clip-groups", () => ({
 type HotkeyHandler = (event: KeyboardEvent) => void
 const hotkeyHandlers: Record<string, HotkeyHandler> = {}
 vi.mock("react-hotkeys-hook", () => ({
-  useHotkeys: vi.fn((keys: string, handler: HotkeyHandler, options?: any, deps?: any[]) => {
+  useHotkeys: vi.fn((keys: string, handler: HotkeyHandler, _options?: any, _deps?: any[]) => {
     hotkeyHandlers[keys] = handler
   }),
 }))
@@ -109,21 +108,20 @@ vi.mock("../../hooks/use-timeline", () => ({
 }))
 
 import { useGroupHotkeys } from "../../hooks/use-group-hotkeys"
-import { useTimeline } from "../../hooks/use-timeline"
 import { MockTimelineProvider } from "../test-providers"
 
 import type { ClipGroup } from "../../types/clip-groups"
-import type { TimelineProject, TimelineClip } from "../../types/timeline"
+import type { TimelineClip, TimelineProject } from "../../types/timeline"
 
 describe("useGroupHotkeys", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     // Очищаем обработчики
-    Object.keys(hotkeyHandlers).forEach(key => {
-      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+    Object.keys(hotkeyHandlers).forEach((key) => {
+       
       delete hotkeyHandlers[key]
     })
-    
+
     // Сбрасываем выбранные клипы
     mockUiState.selectedClipIds = ["clip-1", "clip-2"]
 
@@ -152,19 +150,17 @@ describe("useGroupHotkeys", () => {
     const mockUseHotkeys = vi.mocked(useHotkeys)
 
     // Проверяем регистрацию хоткеев для группировки
-    expect(mockUseHotkeys).toHaveBeenCalledWith(
-      "cmd+g, ctrl+g",
-      expect.any(Function),
-      { enableOnFormTags: false },
-      [mockProject, mockUiState.selectedClipIds]
-    )
+    expect(mockUseHotkeys).toHaveBeenCalledWith("cmd+g, ctrl+g", expect.any(Function), { enableOnFormTags: false }, [
+      mockProject,
+      mockUiState.selectedClipIds,
+    ])
 
     // Проверяем регистрацию хоткеев для разгруппировки
     expect(mockUseHotkeys).toHaveBeenCalledWith(
       "cmd+shift+g, ctrl+shift+g",
       expect.any(Function),
       { enableOnFormTags: false },
-      [mockProject, mockUiState.selectedClipIds]
+      [mockProject, mockUiState.selectedClipIds],
     )
   })
 
@@ -290,14 +286,14 @@ describe("useGroupHotkeys", () => {
       expect.stringContaining("cmd+g"),
       expect.any(Function),
       expect.any(Object),
-      expect.any(Array)
+      expect.any(Array),
     )
 
     expect(mockUseHotkeys).toHaveBeenCalledWith(
       expect.stringContaining("ctrl+g"),
       expect.any(Function),
       expect.any(Object),
-      expect.any(Array)
+      expect.any(Array),
     )
   })
 
@@ -312,7 +308,7 @@ describe("useGroupHotkeys", () => {
 
     // Проверяем что enableOnFormTags установлен в false
     const calls = mockUseHotkeys.mock.calls
-    calls.forEach(call => {
+    calls.forEach((call) => {
       const options = call[2]
       expect(options.enableOnFormTags).toBe(false)
     })
@@ -321,11 +317,11 @@ describe("useGroupHotkeys", () => {
   it("должен корректно обрабатывать отсутствие проекта", () => {
     // Временно сохраняем оригинальный проект и устанавливаем null
     const originalProject = mockProject
-    
+
     // Очищаем глобальные переменные для имитации отсутствия проекта
     mockProject.sections = []
     mockProject.globalTracks = []
-    
+
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <MockTimelineProvider>{children}</MockTimelineProvider>
     )
@@ -337,7 +333,7 @@ describe("useGroupHotkeys", () => {
 
     // Не должно быть вызовов createGroup когда нет клипов
     expect(mockCreateGroup).not.toHaveBeenCalled()
-    
+
     // Восстанавливаем проект
     mockProject.sections = originalProject.sections
     mockProject.globalTracks = originalProject.globalTracks
@@ -350,39 +346,43 @@ describe("useGroupHotkeys", () => {
 
     // Убедимся что в проекте есть нужные клипы после предыдущего теста
     if (mockProject.sections.length === 0) {
-      mockProject.sections = [{
-        id: "section-1",
-        name: "Section 1",
-        tracks: [{
-          id: "track-1",
-          clips: [
+      mockProject.sections = [
+        {
+          id: "section-1",
+          name: "Section 1",
+          tracks: [
             {
-              id: "clip-1",
-              name: "Clip 1",
-              trackId: "track-1",
-              startTime: 0,
-              duration: 5,
-            } as TimelineClip,
-            {
-              id: "clip-2",
-              name: "Clip 2",
-              trackId: "track-1",
-              startTime: 5,
-              duration: 5,
-            } as TimelineClip,
+              id: "track-1",
+              clips: [
+                {
+                  id: "clip-1",
+                  name: "Clip 1",
+                  trackId: "track-1",
+                  startTime: 0,
+                  duration: 5,
+                } as TimelineClip,
+                {
+                  id: "clip-2",
+                  name: "Clip 2",
+                  trackId: "track-1",
+                  startTime: 5,
+                  duration: 5,
+                } as TimelineClip,
+              ],
+            },
           ],
-        }],
-      }] as any
+        },
+      ] as any
     }
 
     // Выбираем только клипы из sections
     mockUiState.selectedClipIds = ["clip-2"]
 
     // Настраиваем группу для клипа
-    mockGetGroupByClip.mockReturnValue({ 
-      id: "group-2", 
+    mockGetGroupByClip.mockReturnValue({
+      id: "group-2",
       name: "Group 2",
-      clips: [{ clipId: "clip-2", trackId: "track-1" }]
+      clips: [{ clipId: "clip-2", trackId: "track-1" }],
     } as ClipGroup)
 
     renderHook(() => useGroupHotkeys(), { wrapper })
@@ -402,42 +402,48 @@ describe("useGroupHotkeys", () => {
 
     // Убедимся что проект восстановлен
     if (mockProject.sections.length === 0 || !mockProject.globalTracks) {
-      mockProject.sections = [{
-        id: "section-1",
-        name: "Section 1",
-        tracks: [{
-          id: "track-1",
+      mockProject.sections = [
+        {
+          id: "section-1",
+          name: "Section 1",
+          tracks: [
+            {
+              id: "track-1",
+              clips: [
+                {
+                  id: "clip-1",
+                  name: "Clip 1",
+                  trackId: "track-1",
+                  startTime: 0,
+                  duration: 5,
+                } as TimelineClip,
+                {
+                  id: "clip-2",
+                  name: "Clip 2",
+                  trackId: "track-1",
+                  startTime: 5,
+                  duration: 5,
+                } as TimelineClip,
+              ],
+            },
+          ],
+        },
+      ] as any
+
+      mockProject.globalTracks = [
+        {
+          id: "global-track-1",
           clips: [
             {
-              id: "clip-1",
-              name: "Clip 1",
-              trackId: "track-1",
+              id: "clip-3",
+              name: "Clip 3",
+              trackId: "global-track-1",
               startTime: 0,
-              duration: 5,
-            } as TimelineClip,
-            {
-              id: "clip-2",
-              name: "Clip 2",
-              trackId: "track-1",
-              startTime: 5,
-              duration: 5,
+              duration: 10,
             } as TimelineClip,
           ],
-        }],
-      }] as any
-      
-      mockProject.globalTracks = [{
-        id: "global-track-1",
-        clips: [
-          {
-            id: "clip-3",
-            name: "Clip 3",
-            trackId: "global-track-1",
-            startTime: 0,
-            duration: 10,
-          } as TimelineClip,
-        ],
-      }] as any
+        },
+      ] as any
     }
 
     // Добавляем дополнительную секцию
@@ -445,16 +451,20 @@ describe("useGroupHotkeys", () => {
     mockProject.sections.push({
       id: "section-2",
       name: "Section 2",
-      tracks: [{
-        id: "track-2",
-        clips: [{
-          id: "clip-4",
-          name: "Clip 4",
-          trackId: "track-2",
-          startTime: 0,
-          duration: 5,
-        } as TimelineClip],
-      }],
+      tracks: [
+        {
+          id: "track-2",
+          clips: [
+            {
+              id: "clip-4",
+              name: "Clip 4",
+              trackId: "track-2",
+              startTime: 0,
+              duration: 5,
+            } as TimelineClip,
+          ],
+        },
+      ],
     } as any)
 
     // Выбираем клипы из разных секций
@@ -467,7 +477,7 @@ describe("useGroupHotkeys", () => {
 
     // Проверяем что createGroup был вызван
     expect(mockCreateGroup).toHaveBeenCalled()
-    
+
     // Восстанавливаем оригинальные секции
     mockProject.sections = originalSections
   })

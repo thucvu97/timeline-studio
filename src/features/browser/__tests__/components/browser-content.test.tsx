@@ -87,10 +87,13 @@ vi.mock("../../components/browser-toolbar-wrapper", () => ({
       <button data-testid="filter-btn" onClick={() => onFilter?.("video")}>
         Filter
       </button>
-      <button data-testid="order-btn" onClick={() => {
-        const newOrder = sortOrder === "asc" ? "desc" : "asc"
-        onSort?.(sortBy, newOrder)
-      }}>
+      <button
+        data-testid="order-btn"
+        onClick={() => {
+          const newOrder = sortOrder === "asc" ? "desc" : "asc"
+          onSort?.(sortBy, newOrder)
+        }}
+      >
         Order
       </button>
       <button data-testid="view-btn" onClick={() => onViewModeChange?.("list")}>
@@ -138,16 +141,22 @@ vi.mock("../../components/lazy-tab-content", () => ({
   LazyTabContent: ({ tabValue, activeTab }: any) => {
     // Симулируем lazy loading - показываем контент только для активной вкладки
     if (tabValue !== activeTab) return null
-    
+
     // Список известных вкладок
     const knownTabs = [
-      "media", "music", "effects", "filters", 
-      "transitions", "subtitles", "templates", "style-templates"
+      "media",
+      "music",
+      "effects",
+      "filters",
+      "transitions",
+      "subtitles",
+      "templates",
+      "style-templates",
     ]
-    
+
     // Если вкладка неизвестная, возвращаем null
     if (!knownTabs.includes(activeTab)) return null
-    
+
     return (
       <div data-testid="lazy-tab-content">
         <div data-testid="universal-list">

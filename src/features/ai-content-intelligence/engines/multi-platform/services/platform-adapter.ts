@@ -3,11 +3,17 @@
  * Адаптер для преобразования контента под конкретную платформу
  */
 
-import { type ContentInsights, UnifiedAIService } from "../../../../ai-chat/services/unified-ai-service"
+import { UnifiedAIService } from "../../../../ai-chat/services/unified-ai-service"
 import { CaptionPosition } from "../../../shared/types/platform-adaptation"
 
 import type { UnifiedContentAnalysis } from "../../../shared/types/content-analysis"
-import type { AdaptedContent, AudioSpecs, Platform, PlatformResolution, VideoSpecs } from "../../../shared/types/platform-adaptation"
+import type {
+  AdaptedContent,
+  AudioSpecs,
+  Platform,
+  PlatformResolution,
+  VideoSpecs,
+} from "../../../shared/types/platform-adaptation"
 import type {
   AdaptationStrategy,
   AudioAdaptationStrategy,
@@ -61,7 +67,7 @@ export class PlatformAdapter {
       id: `adapted-${Date.now()}`,
       platform: platform.id,
       originalContent: {
-        sceneIds: analysis.scenes.map(s => s.id),
+        sceneIds: analysis.scenes.map((s) => s.id),
         duration: analysis.mediaFile.duration,
       },
       adaptations: {
@@ -166,7 +172,7 @@ export class PlatformAdapter {
     strategy: VideoAdaptationStrategy,
   ): Promise<VideoSpecs> {
     // Выбираем оптимальное разрешение
-    const resolution: PlatformResolution = strategy.targetResolution 
+    const resolution: PlatformResolution = strategy.targetResolution
       ? { ...strategy.targetResolution, preferred: true }
       : targetSpecs.resolution[0]
 
@@ -260,7 +266,7 @@ export class PlatformAdapter {
       const hashtagPrompt = `Generate ${strategy.hashtagCount} relevant hashtags for a ${platform.name} video.
       Topics: ${analysis.insights.marketingAngles.join(", ")}
       Genre: ${analysis.genres.join(", ")}
-      Target audience: ${analysis.targetAudience ? 'General' : 'General'}
+      Target audience: ${analysis.targetAudience ? "General" : "General"}
       
       Format: Return only hashtags separated by spaces, starting with #`
 

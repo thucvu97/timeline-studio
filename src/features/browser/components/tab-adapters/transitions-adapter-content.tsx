@@ -7,7 +7,7 @@ import { useTransitionsAdapter } from "../../adapters/use-transitions-adapter"
 export const TransitionsAdapterContent = memo(() => {
   const adapter = useTransitionsAdapter()
   const handleItemSelect = useMemo(() => () => {}, [])
-  
+
   return <UniversalList adapter={adapter} onItemSelect={handleItemSelect} />
 })
 

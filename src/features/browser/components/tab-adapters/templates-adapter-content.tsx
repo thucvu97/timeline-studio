@@ -7,7 +7,7 @@ import { useTemplatesAdapter } from "../../adapters/use-templates-adapter"
 export const TemplatesAdapterContent = memo(() => {
   const adapter = useTemplatesAdapter()
   const handleItemSelect = useMemo(() => () => {}, [])
-  
+
   return <UniversalList adapter={adapter} onItemSelect={handleItemSelect} />
 })
 

@@ -292,7 +292,7 @@ export function useAutoLoadMedia() {
       }
     }
     */
-    
+
     // Логируем, что автозагрузка отключена
     console.log("[useAutoLoadMedia] Auto-loading is disabled")
   }, []) // Убираем зависимости, так как эффект теперь не активен

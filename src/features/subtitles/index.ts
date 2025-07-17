@@ -1,6 +1,7 @@
 // Типы
 
 export * from "./components/subtitle-ai-tools"
+export * from "./components/subtitle-ai-tools-modal"
 export * from "./components/subtitle-group"
 // Компоненты
 // export * from "./components/subtitle-list" // Removed - replaced by adapter pattern

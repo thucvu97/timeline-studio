@@ -35,7 +35,7 @@ const localStorageMock = (() => {
       store = {}
     }),
     removeItem: vi.fn((key: string) => {
-      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+       
       delete store[key]
     }),
   }

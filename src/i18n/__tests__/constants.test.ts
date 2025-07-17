@@ -2,11 +2,11 @@ import { describe, expect, it } from "vitest"
 
 import {
   DEFAULT_LANGUAGE,
-  LANGUAGE_LOCALES,
-  SUPPORTED_LANGUAGES,
   formatDateByLanguage,
   getLocaleByLanguage,
   isSupportedLanguage,
+  LANGUAGE_LOCALES,
+  SUPPORTED_LANGUAGES,
 } from "../constants"
 
 describe("i18n constants", () => {

@@ -23,11 +23,8 @@ interface TabContentProps {
 const MediaTabContent = memo(() => {
   const adapter = useMediaAdapter()
   const { addSingleMediaToTimeline } = useTimelineActions()
-  
-  const handleItemSelect = useMemo(
-    () => (item: any) => addSingleMediaToTimeline(item),
-    [addSingleMediaToTimeline]
-  )
+
+  const handleItemSelect = useMemo(() => (item: any) => addSingleMediaToTimeline(item), [addSingleMediaToTimeline])
 
   return <UniversalList adapter={adapter} onItemSelect={handleItemSelect} />
 })

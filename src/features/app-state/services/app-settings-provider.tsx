@@ -4,12 +4,12 @@ import { appDataDir, basename, join } from "@tauri-apps/api/path"
 import { open, save } from "@tauri-apps/plugin-dialog"
 import { useMachine } from "@xstate/react"
 
-import { MissingFilesDialog } from "@/features/app-state/components/missing-files-dialog"
 import { appDirectoriesService } from "@/features/app-state/services/app-directories-service"
 import { ProjectFileService } from "@/features/app-state/services/project-file-service"
 import { TimelineStudioProjectService } from "@/features/app-state/services/timeline-studio-project-service"
 import { getResourcesFromStorage, syncResourcesToProject } from "@/features/app-state/utils/sync-resources-to-project"
 import { useMediaRestoration } from "@/features/media/hooks/use-media-restoration"
+import { useModal } from "@/features/modals/services"
 import { TimelineStudioProject } from "@/features/project-settings/types/timeline-studio-project"
 import { UserSettingsContextType } from "@/features/user-settings/services/user-settings-machine"
 
@@ -75,6 +75,9 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
   // Ref для хранения интервала автосохранения
   const autoSaveIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
+  // Modal
+  const { openModal } = useModal()
+
   // Хук для восстановления медиафайлов
   const {
     restoreProjectMedia,
@@ -94,6 +97,16 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
       })
     }
   }, [state.context.isLoading, state.context.currentProject.path, state.context.currentProject.isNew, send])
+
+  // Управление модальным окном отсутствующих файлов
+  useEffect(() => {
+    if (showMissingFilesDialog) {
+      openModal("missing-files", {
+        missingFiles: getMissingFiles(),
+        onResolve: handleMissingFilesResolution,
+      })
+    }
+  }, [showMissingFilesDialog, getMissingFiles, handleMissingFilesResolution, openModal])
 
   // Управление интервалом автосохранения
   useEffect(() => {
@@ -640,17 +653,5 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
     isTempProject,
   }
 
-  return (
-    <AppSettingsContext.Provider value={value}>
-      {children}
-
-      {/* Диалог для обработки отсутствующих медиафайлов */}
-      <MissingFilesDialog
-        open={showMissingFilesDialog}
-        onOpenChange={cancelMissingFilesDialog}
-        missingFiles={getMissingFiles()}
-        onResolve={handleMissingFilesResolution}
-      />
-    </AppSettingsContext.Provider>
-  )
+  return <AppSettingsContext.Provider value={value}>{children}</AppSettingsContext.Provider>
 }

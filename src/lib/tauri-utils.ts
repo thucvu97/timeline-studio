@@ -46,18 +46,17 @@ export function convertToAssetUrl(filePath: string): string {
   // Fallback - создаем asset URL вручную для Tauri 2.0
   // Кодируем только специальные символы, но не весь путь
   const escapedPath = cleanPath
-    .split('/')
-    .map(segment => {
+    .split("/")
+    .map((segment) => {
       // Кодируем каждый сегмент пути отдельно
-      return encodeURIComponent(segment)
-        .replace(/'/g, "%27")  // Дополнительно экранируем апостроф
+      return encodeURIComponent(segment).replace(/'/g, "%27") // Дополнительно экранируем апостроф
     })
-    .join('/')
-  
+    .join("/")
+
   // В Tauri 2.0 формат: asset://localhost/путь
   const assetUrl = `asset://localhost/${escapedPath}`
   console.log("[convertToAssetUrl] Fallback asset URL:", assetUrl)
-  
+
   return assetUrl
 }
 
@@ -109,17 +108,17 @@ export function convertVideoSrc(filePath: string): string {
     // Пробуем использовать встроенную функцию
     const assetUrl = convertFileSrc(cleanPath)
     console.log("[convertVideoSrc] convertFileSrc result:", assetUrl)
-    
+
     // Если URL начинается с asset://, возвращаем как есть
     if (assetUrl && assetUrl.startsWith("asset://")) {
       return assetUrl
     }
-    
+
     // Если получили http://asset.localhost, тоже возвращаем
     if (assetUrl && assetUrl.startsWith("http://asset.localhost")) {
       return assetUrl
     }
-    
+
     return assetUrl
   } catch (error) {
     console.error("[convertVideoSrc] Error with convertFileSrc:", error)
@@ -128,18 +127,17 @@ export function convertVideoSrc(filePath: string): string {
   // Fallback - создаем asset URL вручную для Tauri 2.0
   // Кодируем только специальные символы, но не весь путь
   const escapedPath = cleanPath
-    .split('/')
-    .map(segment => {
+    .split("/")
+    .map((segment) => {
       // Кодируем каждый сегмент пути отдельно
-      return encodeURIComponent(segment)
-        .replace(/'/g, "%27")  // Дополнительно экранируем апостроф
+      return encodeURIComponent(segment).replace(/'/g, "%27") // Дополнительно экранируем апостроф
     })
-    .join('/')
-  
+    .join("/")
+
   // В Tauri 2.0 формат: asset://localhost/путь
   const assetUrl = `asset://localhost/${escapedPath}`
   console.log("[convertVideoSrc] Fallback asset URL:", assetUrl)
-  
+
   return assetUrl
 }
 

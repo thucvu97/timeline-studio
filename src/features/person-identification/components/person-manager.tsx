@@ -6,9 +6,9 @@
 import { useEffect, useState } from "react"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { useModal } from "@/features/modals/services"
 
 import { PersonDetail } from "./person-detail"
-import { PersonForm } from "./person-form"
 import { PersonList } from "./person-list"
 import { PersonDatabaseService } from "../services/person-database-service"
 
@@ -22,12 +22,11 @@ export function PersonManager({ className }: PersonManagerProps) {
   const [persons, setPersons] = useState<PersonProfile[]>([])
   const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null)
   const [selectedPerson, setSelectedPerson] = useState<PersonProfile | null>(null)
-  const [editingPerson, setEditingPerson] = useState<PersonProfile | null>(null)
   const [appearances, setAppearances] = useState<PersonAppearance[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [showForm, setShowForm] = useState(false)
 
+  const { openModal } = useModal()
   const personDatabase = PersonDatabaseService.getInstance()
 
   // Загрузка всех персон при монтировании
@@ -80,15 +79,21 @@ export function PersonManager({ className }: PersonManagerProps) {
   }
 
   const handleCreatePerson = () => {
-    setEditingPerson(null)
-    setShowForm(true)
+    openModal("person-form", {
+      person: null,
+      onSave: handleSavePerson,
+      isLoading,
+    })
   }
 
   const handleEditPerson = (personId: string) => {
     const person = persons.find((p) => p.id === personId)
     if (person) {
-      setEditingPerson(person)
-      setShowForm(true)
+      openModal("person-form", {
+        person,
+        onSave: handleSavePerson,
+        isLoading,
+      })
     }
   }
 
@@ -111,32 +116,25 @@ export function PersonManager({ className }: PersonManagerProps) {
 
   const handleSavePerson = async (personData: Partial<PersonProfile>) => {
     try {
-      if (editingPerson) {
+      if (personData.id) {
         // Обновление существующей персоны
-        await personDatabase.updatePerson(editingPerson.id, personData)
+        await personDatabase.updatePerson(personData.id, personData)
       } else {
         // Создание новой персоны
         await personDatabase.addPerson({
           name: personData.name!,
-          description: personData.description,
+          description: personData.notes,
           tags: personData.tags,
-          thumbnailPath: personData.thumbnailPath,
+          thumbnailPath: personData.thumbnails?.[0]?.imageUrl,
         })
       }
 
       await loadPersons()
-      setShowForm(false)
-      setEditingPerson(null)
     } catch (err) {
       setError("Ошибка сохранения персоны")
       console.error("Failed to save person:", err)
       throw err // Пробрасываем ошибку для обработки в форме
     }
-  }
-
-  const handleCloseForm = () => {
-    setShowForm(false)
-    setEditingPerson(null)
   }
 
   const handleCloseDetail = () => {
@@ -190,9 +188,6 @@ export function PersonManager({ className }: PersonManagerProps) {
           </div>
         )}
       </div>
-
-      {/* Форма создания/редактирования */}
-      <PersonForm person={editingPerson} isOpen={showForm} onClose={handleCloseForm} onSave={handleSavePerson} />
     </div>
   )
 }

@@ -17,7 +17,6 @@ const TransitionPreviewWrapper: React.FC<PreviewComponentProps<Transition>> = ({
   size,
   viewMode,
   onClick,
-  onDragStart,
 }) => {
   const handleClick = () => {
     onClick?.(transition)

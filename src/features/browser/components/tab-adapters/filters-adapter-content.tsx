@@ -7,7 +7,7 @@ import { useFiltersAdapter } from "../../adapters/use-filters-adapter"
 export const FiltersAdapterContent = memo(() => {
   const adapter = useFiltersAdapter()
   const handleItemSelect = useMemo(() => () => {}, [])
-  
+
   return <UniversalList adapter={adapter} onItemSelect={handleItemSelect} />
 })
 

@@ -45,7 +45,7 @@ describe("JLCutIndicator", () => {
 
   it("should not render when audioOffset is 0", () => {
     const { container } = render(<JLCutIndicator {...defaultProps} />)
-    
+
     expect(container.firstChild).toBeNull()
   })
 
@@ -54,9 +54,9 @@ describe("JLCutIndicator", () => {
       ...defaultProps,
       audioClip: createMockClip({ audioOffset: undefined }),
     }
-    
+
     const { container } = render(<JLCutIndicator {...props} />)
-    
+
     expect(container.firstChild).toBeNull()
   })
 
@@ -68,7 +68,7 @@ describe("JLCutIndicator", () => {
 
     it("should render J-Cut indicator", () => {
       render(<JLCutIndicator {...jCutProps} />)
-      
+
       const indicator = screen.getByText("J")
       expect(indicator).toBeInTheDocument()
       expect(indicator).toHaveClass("bg-blue-500/20", "text-blue-500")
@@ -76,37 +76,37 @@ describe("JLCutIndicator", () => {
 
     it("should calculate correct width for J-Cut", () => {
       const { container } = render(<JLCutIndicator {...jCutProps} />)
-      
+
       const indicatorDiv = container.firstChild as HTMLElement
       expect(indicatorDiv).toHaveStyle({ width: "200px" }) // 2 * 100 pixels
     })
 
     it("should position J-Cut on the right side", () => {
       const { container } = render(<JLCutIndicator {...jCutProps} />)
-      
+
       const indicatorDiv = container.firstChild as HTMLElement
-      expect(indicatorDiv).toHaveStyle({ 
+      expect(indicatorDiv).toHaveStyle({
         right: "100%",
-        borderRight: "2px dashed rgba(59, 130, 246, 0.5)"
+        borderRight: "2px dashed rgba(59, 130, 246, 0.5)",
       })
     })
 
     it("should position J label on the right", () => {
       render(<JLCutIndicator {...jCutProps} />)
-      
+
       const jLabel = screen.getByText("J")
       expect(jLabel).toHaveClass("right-1")
     })
 
     it("should render SVG with blue diagonal pattern for J-Cut", () => {
       const { container } = render(<JLCutIndicator {...jCutProps} />)
-      
+
       const svg = container.querySelector("svg")
       expect(svg).toBeInTheDocument()
-      
+
       const pattern = container.querySelector('pattern[id="diagonal-j-cut"]')
       expect(pattern).toBeInTheDocument()
-      
+
       const patternPath = pattern?.querySelector("path")
       expect(patternPath).toHaveAttribute("stroke", "rgba(59, 130, 246, 0.3)")
     })
@@ -120,7 +120,7 @@ describe("JLCutIndicator", () => {
 
     it("should render L-Cut indicator", () => {
       render(<JLCutIndicator {...lCutProps} />)
-      
+
       const indicator = screen.getByText("L")
       expect(indicator).toBeInTheDocument()
       expect(indicator).toHaveClass("bg-red-500/20", "text-red-500")
@@ -128,44 +128,44 @@ describe("JLCutIndicator", () => {
 
     it("should calculate correct width for L-Cut", () => {
       const { container } = render(<JLCutIndicator {...lCutProps} />)
-      
+
       const indicatorDiv = container.firstChild as HTMLElement
       expect(indicatorDiv).toHaveStyle({ width: "150px" }) // Math.abs(-1.5) * 100 pixels
     })
 
     it("should position L-Cut on the left side", () => {
       const { container } = render(<JLCutIndicator {...lCutProps} />)
-      
+
       const indicatorDiv = container.firstChild as HTMLElement
-      expect(indicatorDiv).toHaveStyle({ 
+      expect(indicatorDiv).toHaveStyle({
         left: "100%",
-        borderLeft: "2px dashed rgba(239, 68, 68, 0.5)"
+        borderLeft: "2px dashed rgba(239, 68, 68, 0.5)",
       })
     })
 
     it("should position L label on the left", () => {
       render(<JLCutIndicator {...lCutProps} />)
-      
+
       const lLabel = screen.getByText("L")
       expect(lLabel).toHaveClass("left-1")
     })
 
     it("should render SVG with red diagonal pattern for L-Cut", () => {
       const { container } = render(<JLCutIndicator {...lCutProps} />)
-      
+
       const svg = container.querySelector("svg")
       expect(svg).toBeInTheDocument()
-      
+
       const pattern = container.querySelector('pattern[id="diagonal-l-cut"]')
       expect(pattern).toBeInTheDocument()
-      
+
       const patternPath = pattern?.querySelector("path")
       expect(patternPath).toHaveAttribute("stroke", "rgba(239, 68, 68, 0.3)")
     })
 
     it("should position SVG rect correctly for L-Cut", () => {
       const { container } = render(<JLCutIndicator {...lCutProps} />)
-      
+
       const rect = container.querySelector("rect")
       expect(rect).toHaveAttribute("x", "-150") // offsetPixels = -150
       expect(rect).toHaveAttribute("width", "150")
@@ -179,9 +179,9 @@ describe("JLCutIndicator", () => {
         audioClip: createMockClip({ audioOffset: 1 }),
         pixelsPerSecond: 50, // Вдвое меньше масштаб
       }
-      
+
       const { container } = render(<JLCutIndicator {...props} />)
-      
+
       const indicatorDiv = container.firstChild as HTMLElement
       expect(indicatorDiv).toHaveStyle({ width: "50px" }) // 1 * 50 pixels
     })
@@ -192,9 +192,9 @@ describe("JLCutIndicator", () => {
         audioClip: createMockClip({ audioOffset: 0.5 }),
         pixelsPerSecond: 200,
       }
-      
+
       const { container } = render(<JLCutIndicator {...props} />)
-      
+
       const indicatorDiv = container.firstChild as HTMLElement
       expect(indicatorDiv).toHaveStyle({ width: "100px" }) // 0.5 * 200 pixels
     })
@@ -207,9 +207,9 @@ describe("JLCutIndicator", () => {
       audioClip: createMockClip({ audioOffset: 1 }),
       className: customClass,
     }
-    
+
     const { container } = render(<JLCutIndicator {...props} />)
-    
+
     const indicatorDiv = container.firstChild as HTMLElement
     expect(indicatorDiv).toHaveClass(customClass)
   })
@@ -219,9 +219,9 @@ describe("JLCutIndicator", () => {
       ...defaultProps,
       audioClip: createMockClip({ audioOffset: 1 }),
     }
-    
+
     const { container } = render(<JLCutIndicator {...props} />)
-    
+
     const indicatorDiv = container.firstChild as HTMLElement
     expect(indicatorDiv).toHaveClass("absolute", "top-0", "h-full", "pointer-events-none")
   })
@@ -231,9 +231,9 @@ describe("JLCutIndicator", () => {
       ...defaultProps,
       audioClip: createMockClip({ audioOffset: 1 }),
     }
-    
+
     const { container } = render(<JLCutIndicator {...props} />)
-    
+
     const svg = container.querySelector("svg")
     expect(svg).toHaveClass("absolute", "inset-0", "w-full", "h-full")
     expect(svg).toHaveStyle({ overflow: "visible" })

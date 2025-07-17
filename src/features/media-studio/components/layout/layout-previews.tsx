@@ -1,12 +1,9 @@
-import { useTranslation } from "react-i18next"
-
 import { useUserSettings } from "@/features/user-settings"
 
 import { ChatLayout, DefaultLayout, OptionsLayout, VerticalLayout } from "./layouts-markup"
 
 export function LayoutPreviews() {
   const { layoutMode, handleLayoutChange } = useUserSettings()
-  const { t } = useTranslation()
 
   return (
     <div className="flex flex-col gap-2">

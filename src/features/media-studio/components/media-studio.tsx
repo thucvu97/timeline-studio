@@ -20,7 +20,7 @@ export function MediaStudio() {
   if (isLoadingUserData) {
     console.log("Загружаем пользовательские данные...")
   }
-  if (loadedData && Object.values(loadedData).some((arr) => arr.length > 0)) {
+  if (loadedData && Object.values(loadedData).some((count) => count > 0)) {
     console.log("Загружены пользовательские данные:", loadedData)
   }
 

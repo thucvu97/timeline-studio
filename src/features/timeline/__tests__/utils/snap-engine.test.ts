@@ -4,11 +4,11 @@ import { TimelineClip, TimelineProject, TimelineTrack } from "../../types"
 import { SnapPoint } from "../../types/edit-modes"
 import {
   DEFAULT_SNAP_CONFIG,
-  SnapConfig,
   findClosestSnapPoint,
   findMagneticAlignment,
   findSnapPoints,
   getClipEdgeSnapPoints,
+  SnapConfig,
   snapPosition,
   snapTime,
 } from "../../utils/snap-engine"

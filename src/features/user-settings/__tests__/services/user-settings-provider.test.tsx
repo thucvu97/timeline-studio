@@ -432,7 +432,7 @@ describe("UserSettingsProvider", () => {
     it("should update tab and save settings for valid values", async () => {
       mockSend.mockClear()
       const mockUpdateUserSettings = vi.fn()
-      
+
       // Обновляем мок через импортированную функцию
       const { useAppSettings } = await import("@/features/app-state/hooks/use-app-settings")
       vi.mocked(useAppSettings).mockReturnValue({
@@ -476,7 +476,7 @@ describe("UserSettingsProvider", () => {
     it("should update layout and save settings for valid values", async () => {
       mockSend.mockClear()
       const mockUpdateUserSettings = vi.fn()
-      
+
       // Обновляем мок через импортированную функцию
       const { useAppSettings } = await import("@/features/app-state/hooks/use-app-settings")
       vi.mocked(useAppSettings).mockReturnValue({

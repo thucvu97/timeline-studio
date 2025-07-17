@@ -5,15 +5,14 @@ import { useTranslation } from "react-i18next"
 
 import { cn } from "@/lib/utils"
 
-const TAB_BUTTON_STYLES =
+export const TAB_BUTTON_STYLES =
   "h-[50px] text-xs text-gray-600 dark:bg-[#2D2D2D] border-none " +
   "hover:text-gray-900 dark:text-gray-400 dark:hover:bg-background dark:hover:text-gray-100 " +
   "flex flex-col items-center justify-center gap-1 py-2 px-4 " +
   "cursor-pointer rounded-none transition-colors"
 
-const TAB_ACTIVE_STYLES = 
-  "bg-background text-teal dark:text-[#35d1c1] cursor-default " +
-  "[&>svg]:text-[#38dacac3]"
+export const TAB_ACTIVE_STYLES =
+  "bg-background text-teal dark:text-[#35d1c1] cursor-default " + "[&>svg]:text-[#38dacac3]"
 
 interface BrowserTabsProps {
   activeTab: string
@@ -30,13 +29,13 @@ interface TabButtonProps {
 
 const TabButton = memo(({ value, activeTab, onClick, children, testId }: TabButtonProps) => {
   const isActive = activeTab === value
-  
+
   const handleClick = useCallback(() => {
     if (!isActive) {
       onClick(value)
     }
   }, [isActive, onClick, value])
-  
+
   return (
     <button
       className={cn(TAB_BUTTON_STYLES, isActive && TAB_ACTIVE_STYLES)}

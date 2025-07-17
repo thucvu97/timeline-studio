@@ -3,13 +3,13 @@
  */
 
 import { act, renderHook } from "@testing-library/react"
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { useClipGroups } from "../../hooks/use-clip-groups"
 import { TimelineGroupManager } from "../../services/group-manager"
 import { MockTimelineProvider } from "../test-providers"
 
-import type { ClipGroup, GroupOperationResult } from "../../types/clip-groups"
+import type { ClipGroup } from "../../types/clip-groups"
 import type { TimelineClip, TimelineProject } from "../../types/timeline"
 
 // Mock timeline-machine
@@ -105,17 +105,17 @@ describe("useClipGroups", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     // Получаем экземпляр мока
     const TimelineGroupManagerMock = vi.mocked(TimelineGroupManager)
     mockGroupManager = new TimelineGroupManagerMock()
-    
+
     // Настройка моков по умолчанию
     mockGroupManager.createGroup.mockReturnValue({
       success: true,
       groupId: "group-1",
     })
-    
+
     mockGroupManager.ungroupClips.mockReturnValue({
       success: true,
       affectedClips: [{ clipId: "clip-1", trackId: "track-1" }],
@@ -206,7 +206,7 @@ describe("useClipGroups", () => {
         { clipId: "clip-2", trackId: "track-1" },
       ],
       "My Group",
-      undefined
+      undefined,
     )
 
     // Проверяем отправку события
@@ -237,7 +237,7 @@ describe("useClipGroups", () => {
     expect(mockGroupManager.createGroup).toHaveBeenCalledWith(
       [{ clipId: "clip-1", trackId: "track-1" }],
       undefined,
-      options
+      options,
     )
   })
 
@@ -254,7 +254,7 @@ describe("useClipGroups", () => {
     })
 
     expect(mockGroupManager.ungroupClips).toHaveBeenCalledWith("group-1")
-    
+
     expect(mockSend).toHaveBeenCalledWith({
       type: "CLIPS_UNGROUPED",
       groupId: "group-1",
@@ -280,10 +280,9 @@ describe("useClipGroups", () => {
       expect(operationResult.success).toBe(true)
     })
 
-    expect(mockGroupManager.addToGroup).toHaveBeenCalledWith(
-      "group-1",
-      [{ clipId: "clip-3", trackId: "global-track-1" }]
-    )
+    expect(mockGroupManager.addToGroup).toHaveBeenCalledWith("group-1", [
+      { clipId: "clip-3", trackId: "global-track-1" },
+    ])
 
     expect(mockSend).toHaveBeenCalledWith({
       type: "CLIPS_ADDED_TO_GROUP",
@@ -310,10 +309,7 @@ describe("useClipGroups", () => {
       expect(operationResult.success).toBe(true)
     })
 
-    expect(mockGroupManager.removeFromGroup).toHaveBeenCalledWith(
-      "group-1",
-      [{ clipId: "clip-1", trackId: "track-1" }]
-    )
+    expect(mockGroupManager.removeFromGroup).toHaveBeenCalledWith("group-1", [{ clipId: "clip-1", trackId: "track-1" }])
 
     expect(mockSend).toHaveBeenCalledWith({
       type: "CLIPS_REMOVED_FROM_GROUP",
@@ -334,7 +330,7 @@ describe("useClipGroups", () => {
     })
 
     expect(mockGroupManager.toggleCollapse).toHaveBeenCalledWith("group-1")
-    
+
     expect(mockSend).toHaveBeenCalledWith({
       type: "GROUP_TOGGLED",
       groupId: "group-1",
@@ -353,7 +349,7 @@ describe("useClipGroups", () => {
     })
 
     expect(mockGroupManager.lockGroup).toHaveBeenCalledWith("group-1", true)
-    
+
     expect(mockSend).toHaveBeenCalledWith({
       type: "GROUP_LOCKED",
       groupId: "group-1",
@@ -420,7 +416,7 @@ describe("useClipGroups", () => {
         { clipId: "clip-1", trackId: "track-1" },
         { clipId: "clip-2", trackId: "track-1" },
       ],
-      "My Sequence"
+      "My Sequence",
     )
 
     expect(mockSend).toHaveBeenCalledWith({
@@ -492,7 +488,7 @@ describe("useClipGroups", () => {
     })
 
     const group = result.current.getGroupByClip("clip-1")
-    
+
     expect(mockGroupManager.getGroupByClip).toHaveBeenCalledWith("clip-1")
     expect(group).toEqual({
       id: "group-1",
@@ -510,7 +506,7 @@ describe("useClipGroups", () => {
     mockGroupManager.isClipInGroup.mockReturnValue(true)
 
     const isInGroup = result.current.isClipInGroup("clip-1")
-    
+
     expect(mockGroupManager.isClipInGroup).toHaveBeenCalledWith("clip-1")
     expect(isInGroup).toBe(true)
   })
@@ -605,14 +601,14 @@ describe("useClipGroups", () => {
 
     // Вызываем callback, переданный в addEventListener
     const updateCallback = mockGroupManager.addEventListener.mock.calls[0][0]
-    
+
     act(() => {
       updateCallback()
     })
 
     // Ждем обновления состояния
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0))
+      await new Promise((resolve) => setTimeout(resolve, 0))
     })
 
     expect(result.current.groups).toEqual(newGroups)

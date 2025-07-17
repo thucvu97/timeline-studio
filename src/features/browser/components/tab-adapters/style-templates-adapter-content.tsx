@@ -7,7 +7,7 @@ import { useStyleTemplatesAdapter } from "../../adapters/use-style-templates-ada
 export const StyleTemplatesAdapterContent = memo(() => {
   const adapter = useStyleTemplatesAdapter()
   const handleItemSelect = useMemo(() => () => {}, [])
-  
+
   return <UniversalList adapter={adapter} onItemSelect={handleItemSelect} />
 })
 

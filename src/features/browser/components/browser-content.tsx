@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo } from "react"
+import { memo, useCallback } from "react"
 
 import { useBrowserState } from "@/features/browser/services/browser-state-provider"
 
@@ -6,11 +6,10 @@ import { BrowserLoadingIndicator } from "./browser-loading-indicator"
 import { BrowserToolbarWrapper } from "./browser-toolbar-wrapper"
 import { LazyTabContent } from "./lazy-tab-content"
 
-
 // Контейнер для контента вкладки
 const TabContentContainer = memo(({ activeTab }: { activeTab: string }) => {
   const contentClassName = "bg-background m-0 flex-1 overflow-auto"
-  
+
   return (
     <div className={contentClassName}>
       <LazyTabContent tabValue={activeTab} activeTab={activeTab} />
@@ -43,35 +42,20 @@ export const BrowserContent = memo(() => {
     currentTabSettings
 
   // Используем useCallback для стабильных ссылок на функции
-  const handleSearch = useCallback(
-    (query: string) => setSearchQuery(query),
-    [setSearchQuery]
-  )
+  const handleSearch = useCallback((query: string) => setSearchQuery(query), [setSearchQuery])
 
-  const handleSort = useCallback(
-    (sortBy: string, sortOrder: "asc" | "desc") => setSort(sortBy, sortOrder),
-    [setSort]
-  )
+  const handleSort = useCallback((sortBy: string, sortOrder: "asc" | "desc") => setSort(sortBy, sortOrder), [setSort])
 
-  const handleFilter = useCallback(
-    (filterType: string) => setFilter(filterType),
-    [setFilter]
-  )
+  const handleFilter = useCallback((filterType: string) => setFilter(filterType), [setFilter])
 
   const handleViewModeChange = useCallback(
     (mode: "list" | "grid" | "thumbnails") => setViewMode(mode as any),
-    [setViewMode]
+    [setViewMode],
   )
 
-  const handleGroupBy = useCallback(
-    (groupBy: string) => setGroupBy(groupBy),
-    [setGroupBy]
-  )
+  const handleGroupBy = useCallback((groupBy: string) => setGroupBy(groupBy), [setGroupBy])
 
-  const handleToggleFavorites = useCallback(
-    () => toggleFavorites(),
-    [toggleFavorites]
-  )
+  const handleToggleFavorites = useCallback(() => toggleFavorites(), [toggleFavorites])
 
   const handleZoomIn = useCallback(() => {
     setPreviewSize(previewSizeIndex + 1)
@@ -80,7 +64,6 @@ export const BrowserContent = memo(() => {
   const handleZoomOut = useCallback(() => {
     setPreviewSize(previewSizeIndex - 1)
   }, [previewSizeIndex, setPreviewSize])
-
 
   return (
     <>

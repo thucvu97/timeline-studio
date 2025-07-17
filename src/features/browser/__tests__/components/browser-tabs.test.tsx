@@ -35,7 +35,7 @@ vi.mock("lucide-react", () => ({
 describe("BrowserTabs", () => {
   const defaultProps = {
     activeTab: "media",
-    onTabChange: vi.fn()
+    onTabChange: vi.fn(),
   }
 
   const renderWithProvider = (component: React.ReactElement) => {
@@ -92,7 +92,7 @@ describe("BrowserTabs", () => {
     const musicTab = screen.getByTestId("music-tab")
     expect(musicTab).toHaveClass("bg-background")
     expect(musicTab).toHaveClass("text-teal")
-    
+
     // Неактивные вкладки не имеют этих классов
     const mediaTab = screen.getByTestId("media-tab")
     expect(mediaTab).toHaveClass("text-gray-600")
@@ -105,10 +105,10 @@ describe("BrowserTabs", () => {
     // Клик по неактивной вкладке
     fireEvent.click(screen.getByTestId("music-tab"))
     expect(onTabChange).toHaveBeenCalledWith("music")
-    
+
     fireEvent.click(screen.getByTestId("effects-tab"))
     expect(onTabChange).toHaveBeenCalledWith("effects")
-    
+
     fireEvent.click(screen.getByTestId("templates-tab"))
     expect(onTabChange).toHaveBeenCalledWith("templates")
   })
@@ -145,7 +145,11 @@ describe("BrowserTabs", () => {
     expect(screen.getByTestId("media-tab")).toHaveClass("bg-background")
 
     // Перерендерим с новым activeTab
-    rerender(<EffectsProvider><BrowserTabs {...defaultProps} activeTab="filters" /></EffectsProvider>)
+    rerender(
+      <EffectsProvider>
+        <BrowserTabs {...defaultProps} activeTab="filters" />
+      </EffectsProvider>,
+    )
 
     expect(screen.getByTestId("filters-tab")).toHaveClass("bg-background")
     expect(screen.getByTestId("media-tab")).toHaveClass("text-gray-600")

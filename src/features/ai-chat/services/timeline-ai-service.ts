@@ -13,6 +13,8 @@ import { CLAUDE_MODELS, ClaudeService, ClaudeTool } from "./claude-service"
 import { batchProcessingTools, executeBatchProcessingTool } from "../tools/batch-processing-tools"
 import { browserTools, executeBrowserTool } from "../tools/browser-tools"
 import { contentIntelligenceTools, executeContentIntelligenceTool } from "../tools/content-intelligence-tools"
+import { effectsFiltersTools, executeEffectsFiltersTool } from "../tools/effects-filters-tools"
+import { executeExportManagementTool, exportManagementTools } from "../tools/export-management-tools"
 import { executeMultimodalAnalysisTool, multimodalAnalysisTools } from "../tools/multimodal-analysis-tools"
 import { executePersonIdentificationTool, personIdentificationTools } from "../tools/person-identification-tools"
 import { executePlatformOptimizationTool, platformOptimizationTools } from "../tools/platform-optimization-tools"
@@ -83,6 +85,8 @@ export class TimelineAIService {
       ...workflowAutomationTools,
       ...contentIntelligenceTools,
       ...personIdentificationTools,
+      ...exportManagementTools,
+      ...effectsFiltersTools,
     ]
 
     // Установить доступ к состоянию браузера через глобальную переменную
@@ -641,6 +645,38 @@ export class TimelineAIService {
         ].includes(name)
       ) {
         result = await executePersonIdentificationTool(name, input)
+      } else if (
+        [
+          "optimize_export_settings",
+          "analyze_social_requirements",
+          "batch_export_optimizer",
+          "export_quality_advisor",
+          "platform_content_adaptor",
+          "render_jobs_manager",
+          "oauth_integration_helper",
+          "export_presets_creator",
+          "file_size_estimator",
+          "export_analytics_tracker",
+          "social_metadata_generator",
+          "export_error_resolver",
+        ].includes(name)
+      ) {
+        result = await executeExportManagementTool(name, input)
+      } else if (
+        [
+          "smart_effect_suggester",
+          "effect_chain_optimizer",
+          "color_mood_analyzer",
+          "vintage_style_creator",
+          "cinematic_grade_assistant",
+          "effect_presets_manager",
+          "artistic_filter_composer",
+          "transition_effects_generator",
+          "custom_effect_importer",
+          "effect_performance_analyzer",
+        ].includes(name)
+      ) {
+        result = await executeEffectsFiltersTool(name, input)
       } else {
         // Пока заглушка для остальных инструментов
         console.warn(`Tool execution not implemented for: ${name}`)

@@ -4,7 +4,6 @@ import { FfprobeStream } from "@/features/media/types/ffprobe"
 import { MediaFile } from "@/features/media/types/media"
 
 import {
-  VolumeState,
   calculateAdaptiveWidth,
   calculateTimeRanges,
   calculateWidth,
@@ -13,6 +12,7 @@ import {
   getFrameTime,
   getNextVolumeState,
   parseRotation,
+  VolumeState,
 } from "../../utils/video"
 
 describe("calculateTimeRanges", () => {

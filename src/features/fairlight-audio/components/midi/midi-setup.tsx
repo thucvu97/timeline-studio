@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-import { Info, Loader2, Music, Plus, Settings, Trash2 } from "lucide-react"
+import { Info, Loader2, Music, Trash2 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
@@ -31,8 +31,7 @@ export function MidiSetup() {
 
   const [selectedInput, setSelectedInput] = useState<string>("")
   const [selectedOutput, setSelectedOutput] = useState<string>("")
-  const [isLearnDialogOpen, setIsLearnDialogOpen] = useState(false)
-  const [editingMapping, setEditingMapping] = useState<string | null>(null)
+  // Убираем локальное состояние диалогов, так как теперь они управляются через ModalContainer
 
   if (!isInitialized) {
     return (
@@ -152,10 +151,21 @@ export function MidiSetup() {
         <TabsContent value="mappings" className="space-y-4">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-sm font-semibold text-zinc-100">{t("fairlightAudio.midi.setup.mappings.title")}</h3>
-            <Button size="sm" onClick={() => setIsLearnDialogOpen(true)} disabled={inputDevices.length === 0}>
-              <Plus className="w-3 h-3 mr-1" />
-              {t("fairlightAudio.midi.setup.mappings.addMapping")}
-            </Button>
+            <MidiLearnDialog
+              devices={inputDevices}
+              onComplete={(deviceId, message, targetParameter) => {
+                addMapping({
+                  deviceId,
+                  messageType: message.type,
+                  channel: message.channel,
+                  controller: message.data.controller,
+                  targetParameter,
+                  min: 0,
+                  max: 1,
+                  curve: "linear",
+                })
+              }}
+            />
           </div>
 
           {mappings.length === 0 ? (
@@ -182,9 +192,7 @@ export function MidiSetup() {
                       </p>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Button size="sm" variant="ghost" onClick={() => setEditingMapping(mapping.id)}>
-                        <Settings className="w-3 h-3" />
-                      </Button>
+                      <MidiMappingEditor mapping={mapping} onSave={(updates) => updateMapping(mapping.id, updates)} />
                       <Button size="sm" variant="ghost" onClick={() => removeMapping(mapping.id)}>
                         <Trash2 className="w-3 h-3" />
                       </Button>
@@ -200,37 +208,6 @@ export function MidiSetup() {
           <MidiRouterView />
         </TabsContent>
       </Tabs>
-
-      {/* Dialogs */}
-      <MidiLearnDialog
-        open={isLearnDialogOpen}
-        onClose={() => setIsLearnDialogOpen(false)}
-        devices={inputDevices}
-        onComplete={(deviceId, message, targetParameter) => {
-          addMapping({
-            deviceId,
-            messageType: message.type,
-            channel: message.channel,
-            controller: message.data.controller,
-            targetParameter,
-            min: 0,
-            max: 1,
-            curve: "linear",
-          })
-          setIsLearnDialogOpen(false)
-        }}
-      />
-
-      {editingMapping && (
-        <MidiMappingEditor
-          mapping={mappings.find((m) => m.id === editingMapping)!}
-          onSave={(updates) => {
-            updateMapping(editingMapping, updates)
-            setEditingMapping(null)
-          }}
-          onClose={() => setEditingMapping(null)}
-        />
-      )}
     </div>
   )
 }

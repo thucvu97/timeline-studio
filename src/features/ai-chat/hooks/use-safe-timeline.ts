@@ -3,8 +3,6 @@
  * Работает даже если Timeline Provider недоступен (например, в тестах)
  */
 
-// Removed useMemo import as it's no longer needed
-
 // Пытаемся импортировать useTimeline, если доступен
 let timelineHook: (() => any) | undefined
 try {

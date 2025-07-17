@@ -1,16 +1,11 @@
 import { describe, expect, it } from "vitest"
 
 import {
+  calculateDimensionsWithAspectRatio,
+  calculateGridColumns,
   DEFAULT_CONTENT_SIZES,
   DEFAULT_PREVIEW_SIZE_INDEX,
   DEFAULT_SIZE,
-  MAX_SIZE,
-  MIN_SIZE,
-  PREVIEW_SIZES,
-  type PreviewSize,
-  type PreviewSizeKey,
-  calculateDimensionsWithAspectRatio,
-  calculateGridColumns,
   getClosestPreviewSize,
   getNextPreviewSize,
   getOptimalTemplateSize,
@@ -19,6 +14,11 @@ import {
   getPreviousPreviewSize,
   getResponsivePreviewSize,
   isValidPreviewSize,
+  MAX_SIZE,
+  MIN_SIZE,
+  PREVIEW_SIZES,
+  type PreviewSize,
+  type PreviewSizeKey,
 } from "../preview-sizes"
 
 describe("preview-sizes", () => {

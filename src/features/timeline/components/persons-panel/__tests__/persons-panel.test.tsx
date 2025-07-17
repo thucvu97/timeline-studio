@@ -2,34 +2,29 @@
  * Тесты для PersonsPanel компонента
  */
 
-import { fireEvent, render, screen } from "@testing-library/react";
-import { vi } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react"
+import { vi } from "vitest"
 
-import type { PersonProfile } from "@/features/person-identification/types/person";
-import type { TimelinePersonAppearance } from "@/features/timeline/hooks/use-timeline-persons";
+import type { PersonProfile } from "@/features/person-identification/types/person"
+import type { TimelinePersonAppearance } from "@/features/timeline/hooks/use-timeline-persons"
 // Теперь импортируем компонент
-import { useTimelinePersons } from "@/features/timeline/hooks/use-timeline-persons";
+import { useTimelinePersons } from "@/features/timeline/hooks/use-timeline-persons"
 
-import { PersonsPanel } from "../persons-panel";
+import { PersonsPanel } from "../persons-panel"
 
 // Mock для хука useTimelinePersons
 vi.mock("@/features/timeline/hooks/use-timeline-persons", () => ({
   useTimelinePersons: vi.fn(),
-}));
+}))
 
 // Mock для UI компонентов
 vi.mock("@/components/ui/badge", () => ({
   Badge: ({ children, onClick, className, variant }: any) => (
-    <span
-      onClick={onClick}
-      className={className}
-      data-testid="badge"
-      data-variant={variant}
-    >
+    <span onClick={onClick} className={className} data-testid="badge" data-variant={variant}>
       {children}
     </span>
   ),
-}));
+}))
 
 vi.mock("@/components/ui/button", () => ({
   Button: ({ children, onClick, disabled, className, variant, size }: any) => (
@@ -44,7 +39,7 @@ vi.mock("@/components/ui/button", () => ({
       {children}
     </button>
   ),
-}));
+}))
 
 vi.mock("@/components/ui/card", () => ({
   Card: ({ children, className }: any) => (
@@ -67,19 +62,13 @@ vi.mock("@/components/ui/card", () => ({
       {children}
     </h3>
   ),
-}));
+}))
 
 vi.mock("@/components/ui/input", () => ({
   Input: ({ placeholder, value, onChange, className }: any) => (
-    <input
-      placeholder={placeholder}
-      value={value}
-      onChange={onChange}
-      className={className}
-      data-testid="input"
-    />
+    <input placeholder={placeholder} value={value} onChange={onChange} className={className} data-testid="input" />
   ),
-}));
+}))
 
 vi.mock("@/components/ui/scroll-area", () => ({
   ScrollArea: ({ children, className }: any) => (
@@ -87,14 +76,14 @@ vi.mock("@/components/ui/scroll-area", () => ({
       {children}
     </div>
   ),
-}));
+}))
 
 vi.mock("@/components/ui/slider", () => ({
   Slider: ({ value, onValueChange, min, max, step, className }: any) => (
     <input
       type="range"
       value={value[0]}
-      onChange={(e) => onValueChange([parseFloat(e.target.value)])}
+      onChange={(e) => onValueChange([Number.parseFloat(e.target.value)])}
       min={min}
       max={max}
       step={step}
@@ -102,28 +91,19 @@ vi.mock("@/components/ui/slider", () => ({
       data-testid="slider"
     />
   ),
-}));
+}))
 
 vi.mock("@/components/ui/switch", () => ({
   Switch: ({ checked, onCheckedChange }: any) => (
-    <input
-      type="checkbox"
-      checked={checked}
-      onChange={(e) => onCheckedChange(e.target.checked)}
-      data-testid="switch"
-    />
+    <input type="checkbox" checked={checked} onChange={(e) => onCheckedChange(e.target.checked)} data-testid="switch" />
   ),
-}));
+}))
 
 vi.mock("@/components/ui/tooltip", () => ({
   Tooltip: ({ children }: any) => <div>{children}</div>,
-  TooltipTrigger: ({ children }: any) => (
-    <div data-testid="tooltip-trigger">{children}</div>
-  ),
-  TooltipContent: ({ children }: any) => (
-    <div data-testid="tooltip-content">{children}</div>
-  ),
-}));
+  TooltipTrigger: ({ children }: any) => <div data-testid="tooltip-trigger">{children}</div>,
+  TooltipContent: ({ children }: any) => <div data-testid="tooltip-content">{children}</div>,
+}))
 
 vi.mock("lucide-react", () => ({
   Eye: ({ className }: any) => (
@@ -156,10 +136,10 @@ vi.mock("lucide-react", () => ({
       Users
     </span>
   ),
-}));
+}))
 
 // Получаем замоканную версию хука
-const mockUseTimelinePersons = vi.mocked(useTimelinePersons);
+const mockUseTimelinePersons = vi.mocked(useTimelinePersons)
 
 describe("PersonsPanel", () => {
   const mockPersons: PersonProfile[] = [
@@ -176,8 +156,7 @@ describe("PersonsPanel", () => {
       thumbnails: [
         {
           id: "thumb-1",
-          imageUrl:
-            "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAg",
+          imageUrl: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAg",
           width: 64,
           height: 64,
           sourceClipId: "clip-1",
@@ -239,7 +218,7 @@ describe("PersonsPanel", () => {
       createdAt: "2024-01-01T00:00:00Z",
       updatedAt: "2024-01-01T00:00:00Z",
     },
-  ];
+  ]
 
   const mockAppearances: TimelinePersonAppearance[] = [
     {
@@ -269,7 +248,7 @@ describe("PersonsPanel", () => {
       confidence: 0.85,
       detectedAt: new Date("2024-01-01T00:00:00Z"),
     },
-  ];
+  ]
 
   const mockHookReturn = {
     persons: mockPersons,
@@ -286,253 +265,246 @@ describe("PersonsPanel", () => {
     setEnablePersonDetection: vi.fn(),
     confidenceThreshold: 0.7,
     setConfidenceThreshold: vi.fn(),
-  };
+  }
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockUseTimelinePersons.mockReturnValue(mockHookReturn);
-  });
+    vi.clearAllMocks()
+    mockUseTimelinePersons.mockReturnValue(mockHookReturn)
+  })
 
   describe("Базовое отображение", () => {
     it("отображает компонент", () => {
-      render(<PersonsPanel />);
+      render(<PersonsPanel />)
 
-      expect(screen.getByTestId("card")).toBeInTheDocument();
-      expect(screen.getByTestId("card-header")).toBeInTheDocument();
-      expect(screen.getByTestId("card-content")).toBeInTheDocument();
-    });
+      expect(screen.getByTestId("card")).toBeInTheDocument()
+      expect(screen.getByTestId("card-header")).toBeInTheDocument()
+      expect(screen.getByTestId("card-content")).toBeInTheDocument()
+    })
 
     it("отображает заголовок с количеством персон", () => {
-      render(<PersonsPanel />);
+      render(<PersonsPanel />)
 
-      expect(screen.getByTestId("card-title")).toHaveTextContent("Персоны (3)");
-      expect(screen.getAllByTestId("users-icon")).toHaveLength(3); // Один в заголовке + 2 для персон без аватара
-    });
+      expect(screen.getByTestId("card-title")).toHaveTextContent("Персоны (3)")
+      expect(screen.getAllByTestId("users-icon")).toHaveLength(3) // Один в заголовке + 2 для персон без аватара
+    })
 
     it("отображает кнопки управления", () => {
-      render(<PersonsPanel />);
+      render(<PersonsPanel />)
 
-      const buttons = screen.getAllByTestId("button");
-      expect(buttons).toHaveLength(3); // Settings, Analyze, Clear
+      const buttons = screen.getAllByTestId("button")
+      expect(buttons).toHaveLength(3) // Settings, Analyze, Clear
 
-      expect(screen.getByTestId("settings-icon")).toBeInTheDocument();
-      expect(screen.getByTestId("eye-icon")).toBeInTheDocument();
-      expect(screen.getByTestId("eye-off-icon")).toBeInTheDocument();
-    });
+      expect(screen.getByTestId("settings-icon")).toBeInTheDocument()
+      expect(screen.getByTestId("eye-icon")).toBeInTheDocument()
+      expect(screen.getByTestId("eye-off-icon")).toBeInTheDocument()
+    })
 
     it("отображает поле поиска", () => {
-      render(<PersonsPanel />);
+      render(<PersonsPanel />)
 
-      const searchInput = screen.getByTestId("input");
-      expect(searchInput).toHaveAttribute("placeholder", "Поиск персон...");
-      expect(screen.getByTestId("search-icon")).toBeInTheDocument();
-    });
+      const searchInput = screen.getByTestId("input")
+      expect(searchInput).toHaveAttribute("placeholder", "Поиск персон...")
+      expect(screen.getByTestId("search-icon")).toBeInTheDocument()
+    })
 
     it("отображает список персон", () => {
-      render(<PersonsPanel />);
+      render(<PersonsPanel />)
 
-      expect(screen.getByText("Иван Петров")).toBeInTheDocument();
-      expect(screen.getByText("Анна Сидорова")).toBeInTheDocument();
-      expect(screen.getByText("Безымянная персона")).toBeInTheDocument();
-    });
+      expect(screen.getByText("Иван Петров")).toBeInTheDocument()
+      expect(screen.getByText("Анна Сидорова")).toBeInTheDocument()
+      expect(screen.getByText("Безымянная персона")).toBeInTheDocument()
+    })
 
     it("отображает статистику появлений", () => {
-      render(<PersonsPanel />);
+      render(<PersonsPanel />)
 
-      expect(screen.getByText("Появлений: 3")).toBeInTheDocument();
-      expect(screen.getByText("Средняя уверенность: 85%")).toBeInTheDocument();
-    });
-  });
+      expect(screen.getByText("Появлений: 3")).toBeInTheDocument()
+      expect(screen.getByText("Средняя уверенность: 85%")).toBeInTheDocument()
+    })
+  })
 
   describe("Действия кнопок", () => {
     it("вызывает анализ Timeline при клике на кнопку анализа", () => {
-      render(<PersonsPanel />);
+      render(<PersonsPanel />)
 
-      const analyzeButton = screen.getAllByTestId("button")[1];
-      fireEvent.click(analyzeButton);
+      const analyzeButton = screen.getAllByTestId("button")[1]
+      fireEvent.click(analyzeButton)
 
-      expect(mockHookReturn.analyzeTimelineForPersons).toHaveBeenCalled();
-    });
+      expect(mockHookReturn.analyzeTimelineForPersons).toHaveBeenCalled()
+    })
 
     it("очищает анализ при клике на кнопку очистки", () => {
-      render(<PersonsPanel />);
+      render(<PersonsPanel />)
 
-      const clearButton = screen.getAllByTestId("button")[2];
-      fireEvent.click(clearButton);
+      const clearButton = screen.getAllByTestId("button")[2]
+      fireEvent.click(clearButton)
 
-      expect(mockHookReturn.clearPersonsAnalysis).toHaveBeenCalled();
-    });
+      expect(mockHookReturn.clearPersonsAnalysis).toHaveBeenCalled()
+    })
 
     it("показывает детали персоны при клике на персону", () => {
-      render(<PersonsPanel />);
+      render(<PersonsPanel />)
 
-      const personElement = screen.getByText("Иван Петров").closest("div");
-      fireEvent.click(personElement!);
+      const personElement = screen.getByText("Иван Петров").closest("div")
+      fireEvent.click(personElement!)
 
-      expect(mockHookReturn.showPersonDetail).toHaveBeenCalledWith("person-1");
-    });
-  });
+      expect(mockHookReturn.showPersonDetail).toHaveBeenCalledWith("person-1")
+    })
+  })
 
   describe("Настройки", () => {
     it("показывает настройки при клике на кнопку настроек", () => {
-      render(<PersonsPanel />);
+      render(<PersonsPanel />)
 
-      const settingsButton = screen.getAllByTestId("button")[0];
-      fireEvent.click(settingsButton);
+      const settingsButton = screen.getAllByTestId("button")[0]
+      fireEvent.click(settingsButton)
 
-      expect(screen.getByTestId("switch")).toBeInTheDocument();
-      expect(screen.getByTestId("slider")).toBeInTheDocument();
-      expect(screen.getByText("Автообнаружение")).toBeInTheDocument();
-      expect(screen.getByText("Уверенность")).toBeInTheDocument();
-    });
+      expect(screen.getByTestId("switch")).toBeInTheDocument()
+      expect(screen.getByTestId("slider")).toBeInTheDocument()
+      expect(screen.getByText("Автообнаружение")).toBeInTheDocument()
+      expect(screen.getByText("Уверенность")).toBeInTheDocument()
+    })
 
     it("переключает автообнаружение", () => {
-      render(<PersonsPanel />);
+      render(<PersonsPanel />)
 
-      const settingsButton = screen.getAllByTestId("button")[0];
-      fireEvent.click(settingsButton);
+      const settingsButton = screen.getAllByTestId("button")[0]
+      fireEvent.click(settingsButton)
 
-      const switchElement = screen.getByTestId("switch");
-      expect(switchElement).toBeChecked(); // Проверяем, что переключатель включен по умолчанию
+      const switchElement = screen.getByTestId("switch")
+      expect(switchElement).toBeChecked() // Проверяем, что переключатель включен по умолчанию
 
       // Просто проверяем, что переключатель реагирует на изменения
-      fireEvent.change(switchElement, { target: { checked: false } });
-      expect(switchElement).not.toBeChecked();
-    });
+      fireEvent.change(switchElement, { target: { checked: false } })
+      expect(switchElement).not.toBeChecked()
+    })
 
     it("изменяет порог уверенности", () => {
-      render(<PersonsPanel />);
+      render(<PersonsPanel />)
 
-      const settingsButton = screen.getAllByTestId("button")[0];
-      fireEvent.click(settingsButton);
+      const settingsButton = screen.getAllByTestId("button")[0]
+      fireEvent.click(settingsButton)
 
-      const slider = screen.getByTestId("slider");
-      fireEvent.change(slider, { target: { value: "0.8" } });
+      const slider = screen.getByTestId("slider")
+      fireEvent.change(slider, { target: { value: "0.8" } })
 
-      expect(mockHookReturn.setConfidenceThreshold).toHaveBeenCalledWith(0.8);
-    });
-  });
+      expect(mockHookReturn.setConfidenceThreshold).toHaveBeenCalledWith(0.8)
+    })
+  })
 
   describe("Поиск персон", () => {
     it("фильтрует персон по имени", () => {
-      render(<PersonsPanel />);
+      render(<PersonsPanel />)
 
-      const searchInput = screen.getByTestId("input");
-      fireEvent.change(searchInput, { target: { value: "Иван" } });
+      const searchInput = screen.getByTestId("input")
+      fireEvent.change(searchInput, { target: { value: "Иван" } })
 
-      expect(screen.getByText("Иван Петров")).toBeInTheDocument();
-      expect(screen.queryByText("Анна Сидорова")).not.toBeInTheDocument();
-    });
+      expect(screen.getByText("Иван Петров")).toBeInTheDocument()
+      expect(screen.queryByText("Анна Сидорова")).not.toBeInTheDocument()
+    })
 
     it("показывает сообщение когда персоны не найдены", () => {
-      render(<PersonsPanel />);
+      render(<PersonsPanel />)
 
-      const searchInput = screen.getByTestId("input");
+      const searchInput = screen.getByTestId("input")
       fireEvent.change(searchInput, {
         target: { value: "Несуществующая персона" },
-      });
+      })
 
-      expect(
-        screen.getByText("Персоны не найдены по заданным критериям."),
-      ).toBeInTheDocument();
-    });
-  });
+      expect(screen.getByText("Персоны не найдены по заданным критериям.")).toBeInTheDocument()
+    })
+  })
 
   describe("Фильтр по тегам", () => {
     it("отображает доступные теги", () => {
-      render(<PersonsPanel />);
+      render(<PersonsPanel />)
 
-      expect(screen.getAllByText("актер")).toHaveLength(2); // В фильтре и в персоне
-      expect(screen.getAllByText("главный")).toHaveLength(2); // В фильтре и в персоне
-      expect(screen.getAllByText("актриса")).toHaveLength(2); // В фильтре и в персоне
-      expect(screen.getAllByText("второстепенный")).toHaveLength(2); // В фильтре и в персоне
-    });
+      expect(screen.getAllByText("актер")).toHaveLength(2) // В фильтре и в персоне
+      expect(screen.getAllByText("главный")).toHaveLength(2) // В фильтре и в персоне
+      expect(screen.getAllByText("актриса")).toHaveLength(2) // В фильтре и в персоне
+      expect(screen.getAllByText("второстепенный")).toHaveLength(2) // В фильтре и в персоне
+    })
 
     it("фильтрует персон по выбранным тегам", () => {
-      render(<PersonsPanel />);
+      render(<PersonsPanel />)
 
-      const actorTags = screen.getAllByText("актер");
-      const filterTag = actorTags[0]; // Первый тег - в фильтре
-      fireEvent.click(filterTag);
+      const actorTags = screen.getAllByText("актер")
+      const filterTag = actorTags[0] // Первый тег - в фильтре
+      fireEvent.click(filterTag)
 
-      expect(screen.getByText("Иван Петров")).toBeInTheDocument();
-      expect(screen.queryByText("Анна Сидорова")).not.toBeInTheDocument();
-    });
-  });
+      expect(screen.getByText("Иван Петров")).toBeInTheDocument()
+      expect(screen.queryByText("Анна Сидорова")).not.toBeInTheDocument()
+    })
+  })
 
   describe("Отображение персон", () => {
     it("отображает аватар персоны если есть thumbnail", () => {
-      render(<PersonsPanel />);
+      render(<PersonsPanel />)
 
-      const avatar = screen.getByAltText("Иван Петров");
-      expect(avatar).toHaveAttribute(
-        "src",
-        "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAg",
-      );
-    });
+      const avatar = screen.getByAltText("Иван Петров")
+      expect(avatar).toHaveAttribute("src", "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAg")
+    })
 
     it("отображает статистику появлений для каждой персоны", () => {
-      render(<PersonsPanel />);
+      render(<PersonsPanel />)
 
-      expect(screen.getByText("2 появлений")).toBeInTheDocument(); // person-1
-      expect(screen.getByText("1 появлений")).toBeInTheDocument(); // person-2
-      expect(screen.getByText("0 появлений")).toBeInTheDocument(); // person-3
-    });
+      expect(screen.getByText("2 появлений")).toBeInTheDocument() // person-1
+      expect(screen.getByText("1 появлений")).toBeInTheDocument() // person-2
+      expect(screen.getByText("0 появлений")).toBeInTheDocument() // person-3
+    })
 
     it("отображает теги персон", () => {
-      render(<PersonsPanel />);
+      render(<PersonsPanel />)
 
-      const tagBadges = screen.getAllByTestId("badge");
+      const tagBadges = screen.getAllByTestId("badge")
       // Теги отображаются как в фильтре по тегам, так и в каждой персоне
-      expect(tagBadges.length).toBeGreaterThan(0);
+      expect(tagBadges.length).toBeGreaterThan(0)
 
       // Проверим, что есть нужные теги
-      expect(screen.getAllByText("актер")).toHaveLength(2);
-      expect(screen.getAllByText("главный")).toHaveLength(2);
-      expect(screen.getAllByText("актриса")).toHaveLength(2);
-      expect(screen.getAllByText("второстепенный")).toHaveLength(2);
-    });
-  });
+      expect(screen.getAllByText("актер")).toHaveLength(2)
+      expect(screen.getAllByText("главный")).toHaveLength(2)
+      expect(screen.getAllByText("актриса")).toHaveLength(2)
+      expect(screen.getAllByText("второстепенный")).toHaveLength(2)
+    })
+  })
 
   describe("Состояния", () => {
     it("отображает прогресс анализа", () => {
-      mockHookReturn.state.isAnalyzing = true;
-      mockHookReturn.state.analysisProgress = 45;
-      mockUseTimelinePersons.mockReturnValue(mockHookReturn);
+      mockHookReturn.state.isAnalyzing = true
+      mockHookReturn.state.analysisProgress = 45
+      mockUseTimelinePersons.mockReturnValue(mockHookReturn)
 
-      render(<PersonsPanel />);
+      render(<PersonsPanel />)
 
-      expect(screen.getByText("Анализ...")).toBeInTheDocument();
-      expect(screen.getByText("45%")).toBeInTheDocument();
-    });
+      expect(screen.getByText("Анализ...")).toBeInTheDocument()
+      expect(screen.getByText("45%")).toBeInTheDocument()
+    })
 
     it("отображает ошибку если есть", () => {
-      mockHookReturn.state.error = "Ошибка анализа";
-      mockUseTimelinePersons.mockReturnValue(mockHookReturn);
+      mockHookReturn.state.error = "Ошибка анализа"
+      mockUseTimelinePersons.mockReturnValue(mockHookReturn)
 
-      render(<PersonsPanel />);
+      render(<PersonsPanel />)
 
-      expect(screen.getByText("Ошибка анализа")).toBeInTheDocument();
-    });
+      expect(screen.getByText("Ошибка анализа")).toBeInTheDocument()
+    })
 
     it("показывает сообщение когда нет персон", () => {
-      mockHookReturn.persons = [];
-      mockHookReturn.state.appearances = [];
-      mockUseTimelinePersons.mockReturnValue(mockHookReturn);
+      mockHookReturn.persons = []
+      mockHookReturn.state.appearances = []
+      mockUseTimelinePersons.mockReturnValue(mockHookReturn)
 
-      render(<PersonsPanel />);
+      render(<PersonsPanel />)
 
-      expect(
-        screen.getByText("Персоны не обнаружены. Запустите анализ Timeline."),
-      ).toBeInTheDocument();
-    });
-  });
+      expect(screen.getByText("Персоны не обнаружены. Запустите анализ Timeline.")).toBeInTheDocument()
+    })
+  })
 
   describe("Пропсы компонента", () => {
     it("применяет переданный className", () => {
-      render(<PersonsPanel className="custom-class" />);
+      render(<PersonsPanel className="custom-class" />)
 
-      expect(screen.getByTestId("card")).toHaveClass("custom-class");
-    });
-  });
-});
+      expect(screen.getByTestId("card")).toHaveClass("custom-class")
+    })
+  })
+})

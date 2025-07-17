@@ -290,6 +290,8 @@ ignore:
   - "src/**/__tests__/**"
   - "src/components/ui/**"  # shadcn/ui components
   - "src/features/media-studio/services/tauri-mock-provider.tsx"  # Mock provider for non-Tauri environments
+  - "src/features/media-studio/hooks/use-auto-load-media.ts"  # Disabled auto-loading functionality
+  - "src/features/media-studio/hooks/use-auto-load-resources.ts"  # Disabled auto-loading functionality
   - "src/lib/utils.ts"  # Utility functions from shadcn/ui
   - "src/app/**"  # Next.js app directory (mostly routing)
   - "src/pages/**"  # Next.js pages (if any)

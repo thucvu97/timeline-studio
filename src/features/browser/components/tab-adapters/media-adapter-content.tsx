@@ -8,11 +8,8 @@ import { useMediaAdapter } from "../../adapters/use-media-adapter"
 export const MediaAdapterContent = memo(() => {
   const adapter = useMediaAdapter()
   const { addSingleMediaToTimeline } = useTimelineActions()
-  
-  const handleItemSelect = useMemo(
-    () => (item: any) => addSingleMediaToTimeline(item),
-    [addSingleMediaToTimeline]
-  )
+
+  const handleItemSelect = useMemo(() => (item: any) => addSingleMediaToTimeline(item), [addSingleMediaToTimeline])
 
   return <UniversalList adapter={adapter} onItemSelect={handleItemSelect} />
 })

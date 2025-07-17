@@ -7,7 +7,7 @@ import { useSubtitlesAdapter } from "../../adapters/use-subtitles-adapter"
 export const SubtitlesAdapterContent = memo(() => {
   const adapter = useSubtitlesAdapter()
   const handleItemSelect = useMemo(() => () => {}, [])
-  
+
   return <UniversalList adapter={adapter} onItemSelect={handleItemSelect} />
 })
 

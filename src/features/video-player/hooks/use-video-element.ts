@@ -117,7 +117,7 @@ export function useVideoElement() {
           allVideoElementsRef.current.delete(videoElement)
 
           // Удаляем из videoRefs
-          // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+           
           delete videoRefs[id]
         }
       })

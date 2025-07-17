@@ -7,10 +7,10 @@ import { useUserSettings } from "@/features/user-settings"
 import { VideoPlayer } from "@/features/video-player/components/video-player"
 
 function TopDefaultLayout() {
-  const { isBrowserVisible, isOptionsVisible, isAIAssistantVisible } = useUserSettings()
+  const { isBrowserVisible, isOptionsVisible, isTimelineVisible } = useUserSettings()
 
   // Случай: только VideoPlayer (все панели скрыты)
-  if (!isBrowserVisible && !isOptionsVisible && !isAIAssistantVisible) {
+  if (!isBrowserVisible && !isOptionsVisible && !isTimelineVisible) {
     return (
       <div className="h-full flex-1">
         <VideoPlayer />
@@ -19,7 +19,7 @@ function TopDefaultLayout() {
   }
 
   // Случай: VideoPlayer + AI Assistant (Browser и Options скрыты)
-  if (!isBrowserVisible && !isOptionsVisible && isAIAssistantVisible) {
+  if (!isBrowserVisible && !isOptionsVisible && isTimelineVisible) {
     return (
       <ResizablePanelGroup direction="horizontal" className="min-h-0 flex-grow" autoSaveId="default-layout-ai">
         <ResizablePanel defaultSize={70} minSize={30} maxSize={90}>
@@ -39,7 +39,7 @@ function TopDefaultLayout() {
 
   // Случай: Browser + VideoPlayer (Options скрыт, AI может быть видим)
   if (!isOptionsVisible) {
-    if (!isAIAssistantVisible) {
+    if (!isTimelineVisible) {
       return (
         <ResizablePanelGroup direction="horizontal" className="min-h-0 flex-grow" autoSaveId="default-layout-1">
           <ResizablePanel defaultSize={35} minSize={20} maxSize={80}>
@@ -82,7 +82,7 @@ function TopDefaultLayout() {
 
   // Случай: VideoPlayer + Options (Browser скрыт, AI может быть видим)
   if (!isBrowserVisible) {
-    if (!isAIAssistantVisible) {
+    if (!isTimelineVisible) {
       return (
         <ResizablePanelGroup direction="horizontal" className="min-h-0 flex-grow" autoSaveId="default-layout-2">
           <ResizablePanel defaultSize={65} minSize={20} maxSize={80}>
@@ -124,7 +124,7 @@ function TopDefaultLayout() {
   }
 
   // Случай: Browser + VideoPlayer + Options (все панели могут быть видимы)
-  if (!isAIAssistantVisible) {
+  if (!isTimelineVisible) {
     return (
       <ResizablePanelGroup direction="horizontal" className="min-h-0 flex-grow" autoSaveId="default-layout-3">
         <ResizablePanel defaultSize={30} minSize={20} maxSize={80}>

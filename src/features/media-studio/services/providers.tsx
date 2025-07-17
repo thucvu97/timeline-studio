@@ -54,6 +54,6 @@ export function Providers({ children }: ProvidersProps) {
   useEffect(() => {
     setupXStateInspector()
   }, [])
-  
+
   return <AppProvider>{children}</AppProvider>
 }

@@ -7,8 +7,8 @@ import {
   cacheMediaMetadata,
   cacheMultipleMetadata,
   checkCachedFiles,
-  getCacheMemoryUsage,
   getCachedMetadata,
+  getCacheMemoryUsage,
   invalidateFileCache,
 } from "../metadata-cache-service"
 

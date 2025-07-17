@@ -2,16 +2,11 @@
  * Comprehensive tests for Timeline Group Manager
  */
 
-import { describe, expect, it, beforeEach, vi, afterEach } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { TimelineGroupManager } from "../../services/group-manager"
 
-import type {
-  ClipGroup,
-  ClipReference,
-  GroupEvent,
-  NestedSequence,
-} from "../../types/clip-groups"
+import type { ClipReference, NestedSequence } from "../../types/clip-groups"
 
 describe("TimelineGroupManager", () => {
   let manager: TimelineGroupManager
@@ -20,7 +15,7 @@ describe("TimelineGroupManager", () => {
   const createClipRefs = (count: number): ClipReference[] => {
     return Array.from({ length: count }, (_, i) => ({
       clipId: `clip-${i + 1}`,
-      trackId: `track-${i % 2 + 1}`,
+      trackId: `track-${(i % 2) + 1}`,
     }))
   }
 
@@ -90,14 +85,14 @@ describe("TimelineGroupManager", () => {
 
     it("не должен создавать группу если клипы уже в других группах", () => {
       const clips = createClipRefs(3)
-      
+
       // Создаем первую группу
       const result1 = manager.createGroup(clips.slice(0, 2))
       expect(result1.success).toBe(true)
 
       // Пытаемся создать вторую группу с одним из тех же клипов
       const result2 = manager.createGroup([clips[1], clips[2]])
-      
+
       expect(result2.success).toBe(false)
       expect(result2.error).toContain("already in groups")
     })
@@ -111,7 +106,7 @@ describe("TimelineGroupManager", () => {
           type: "created",
           groupId: expect.any(String),
           timestamp: expect.any(Number),
-        })
+        }),
       )
     })
   })
@@ -120,7 +115,7 @@ describe("TimelineGroupManager", () => {
     it("должен разгруппировывать клипы", () => {
       const clips = createClipRefs(3)
       const createResult = manager.createGroup(clips)
-      
+
       const ungroupResult = manager.ungroupClips(createResult.groupId!)
 
       expect(ungroupResult.success).toBe(true)
@@ -138,7 +133,7 @@ describe("TimelineGroupManager", () => {
     it("не должен разгруппировывать заблокированную группу", () => {
       const clips = createClipRefs(2)
       const createResult = manager.createGroup(clips)
-      
+
       manager.lockGroup(createResult.groupId!, true)
       const ungroupResult = manager.ungroupClips(createResult.groupId!)
 
@@ -149,7 +144,7 @@ describe("TimelineGroupManager", () => {
     it("должен вызывать событие при разгруппировке", () => {
       const clips = createClipRefs(2)
       const createResult = manager.createGroup(clips)
-      
+
       eventListener.mockClear()
       manager.ungroupClips(createResult.groupId!)
 
@@ -158,7 +153,7 @@ describe("TimelineGroupManager", () => {
           type: "deleted",
           groupId: createResult.groupId,
           timestamp: expect.any(Number),
-        })
+        }),
       )
     })
   })
@@ -193,11 +188,11 @@ describe("TimelineGroupManager", () => {
 
     it("не должен добавлять клипы в заблокированную группу", () => {
       const initialClips = createClipRefs(2)
-      const newClips = createClipRefs(1).map(c => ({ ...c, clipId: "new-clip" }))
+      const newClips = createClipRefs(1).map((c) => ({ ...c, clipId: "new-clip" }))
 
       const createResult = manager.createGroup(initialClips)
       manager.lockGroup(createResult.groupId!, true)
-      
+
       const addResult = manager.addToGroup(createResult.groupId!, newClips)
 
       expect(addResult.success).toBe(false)
@@ -207,7 +202,7 @@ describe("TimelineGroupManager", () => {
     it("не должен добавлять клипы которые уже в группе", () => {
       const clips = createClipRefs(3)
       const createResult = manager.createGroup(clips)
-      
+
       const addResult = manager.addToGroup(createResult.groupId!, [clips[0], clips[1]])
 
       expect(addResult.success).toBe(false)
@@ -217,7 +212,7 @@ describe("TimelineGroupManager", () => {
     it("должен добавлять только новые клипы", () => {
       const clips = createClipRefs(3)
       const createResult = manager.createGroup(clips.slice(0, 2))
-      
+
       const mixedClips = [clips[0], clips[2]] // Один уже в группе, один новый
       const addResult = manager.addToGroup(createResult.groupId!, mixedClips)
 
@@ -228,14 +223,14 @@ describe("TimelineGroupManager", () => {
     it("должен обновлять modifiedAt при добавлении", () => {
       const clips = createClipRefs(2)
       const createResult = manager.createGroup(clips)
-      
+
       const group1 = manager.getGroup(createResult.groupId!)
       const originalModified = group1!.modifiedAt
 
       // Ждем немного чтобы время изменилось
       vi.advanceTimersByTime(100)
-      
-      const newClips = createClipRefs(1).map(c => ({ ...c, clipId: "new-clip" }))
+
+      const newClips = createClipRefs(1).map((c) => ({ ...c, clipId: "new-clip" }))
       manager.addToGroup(createResult.groupId!, newClips)
 
       const group2 = manager.getGroup(createResult.groupId!)
@@ -247,7 +242,7 @@ describe("TimelineGroupManager", () => {
     it("должен удалять клипы из группы", () => {
       const clips = createClipRefs(4)
       const createResult = manager.createGroup(clips)
-      
+
       const removeResult = manager.removeFromGroup(createResult.groupId!, clips.slice(0, 2))
 
       expect(removeResult.success).toBe(true)
@@ -261,7 +256,7 @@ describe("TimelineGroupManager", () => {
     it("должен удалять группу если не осталось клипов", () => {
       const clips = createClipRefs(2)
       const createResult = manager.createGroup(clips)
-      
+
       const removeResult = manager.removeFromGroup(createResult.groupId!, clips)
 
       expect(removeResult.success).toBe(true)
@@ -280,7 +275,7 @@ describe("TimelineGroupManager", () => {
       const clips = createClipRefs(3)
       const createResult = manager.createGroup(clips)
       manager.lockGroup(createResult.groupId!, true)
-      
+
       const removeResult = manager.removeFromGroup(createResult.groupId!, [clips[0]])
 
       expect(removeResult.success).toBe(false)
@@ -290,12 +285,12 @@ describe("TimelineGroupManager", () => {
     it("должен возвращать ошибку если клипы не были удалены", () => {
       const clips = createClipRefs(2)
       const createResult = manager.createGroup(clips)
-      
+
       const nonExistentClips = createClipRefs(2).map((c, i) => ({
         ...c,
         clipId: `non-existent-${i}`,
       }))
-      
+
       const removeResult = manager.removeFromGroup(createResult.groupId!, nonExistentClips)
 
       expect(removeResult.success).toBe(false)
@@ -305,22 +300,18 @@ describe("TimelineGroupManager", () => {
     it("должен вызывать правильные события", () => {
       const clips = createClipRefs(3)
       const createResult = manager.createGroup(clips)
-      
+
       eventListener.mockClear()
-      
+
       // Удаляем часть клипов
       manager.removeFromGroup(createResult.groupId!, [clips[0]])
-      expect(eventListener).toHaveBeenCalledWith(
-        expect.objectContaining({ type: "modified" })
-      )
+      expect(eventListener).toHaveBeenCalledWith(expect.objectContaining({ type: "modified" }))
 
       eventListener.mockClear()
 
       // Удаляем все оставшиеся клипы
       manager.removeFromGroup(createResult.groupId!, clips.slice(1))
-      expect(eventListener).toHaveBeenCalledWith(
-        expect.objectContaining({ type: "deleted" })
-      )
+      expect(eventListener).toHaveBeenCalledWith(expect.objectContaining({ type: "deleted" }))
     })
   })
 
@@ -328,7 +319,7 @@ describe("TimelineGroupManager", () => {
     it("должен переключать состояние свернутости", () => {
       const clips = createClipRefs(2)
       const createResult = manager.createGroup(clips)
-      
+
       const group1 = manager.getGroup(createResult.groupId!)
       expect(group1?.collapsed).toBe(false)
 
@@ -344,7 +335,7 @@ describe("TimelineGroupManager", () => {
     it("должен блокировать и разблокировать группу", () => {
       const clips = createClipRefs(2)
       const createResult = manager.createGroup(clips)
-      
+
       manager.lockGroup(createResult.groupId!, true)
       const group1 = manager.getGroup(createResult.groupId!)
       expect(group1?.locked).toBe(true)
@@ -357,7 +348,7 @@ describe("TimelineGroupManager", () => {
     it("должен переименовывать группу", () => {
       const clips = createClipRefs(2)
       const createResult = manager.createGroup(clips, "Original Name")
-      
+
       manager.renameGroup(createResult.groupId!, "New Name")
       const group = manager.getGroup(createResult.groupId!)
       expect(group?.name).toBe("New Name")
@@ -366,7 +357,7 @@ describe("TimelineGroupManager", () => {
     it("должен изменять цвет группы", () => {
       const clips = createClipRefs(2)
       const createResult = manager.createGroup(clips)
-      
+
       manager.setGroupColor(createResult.groupId!, "#ff0000")
       const group = manager.getGroup(createResult.groupId!)
       expect(group?.color).toBe("#ff0000")
@@ -385,38 +376,26 @@ describe("TimelineGroupManager", () => {
     it("должен вызывать правильные события", () => {
       const clips = createClipRefs(2)
       const createResult = manager.createGroup(clips)
-      
+
       eventListener.mockClear()
 
       manager.toggleCollapse(createResult.groupId!)
-      expect(eventListener).toHaveBeenCalledWith(
-        expect.objectContaining({ type: "collapsed" })
-      )
+      expect(eventListener).toHaveBeenCalledWith(expect.objectContaining({ type: "collapsed" }))
 
       manager.toggleCollapse(createResult.groupId!)
-      expect(eventListener).toHaveBeenCalledWith(
-        expect.objectContaining({ type: "expanded" })
-      )
+      expect(eventListener).toHaveBeenCalledWith(expect.objectContaining({ type: "expanded" }))
 
       manager.lockGroup(createResult.groupId!, true)
-      expect(eventListener).toHaveBeenCalledWith(
-        expect.objectContaining({ type: "locked" })
-      )
+      expect(eventListener).toHaveBeenCalledWith(expect.objectContaining({ type: "locked" }))
 
       manager.lockGroup(createResult.groupId!, false)
-      expect(eventListener).toHaveBeenCalledWith(
-        expect.objectContaining({ type: "unlocked" })
-      )
+      expect(eventListener).toHaveBeenCalledWith(expect.objectContaining({ type: "unlocked" }))
 
       manager.renameGroup(createResult.groupId!, "New Name")
-      expect(eventListener).toHaveBeenCalledWith(
-        expect.objectContaining({ type: "modified" })
-      )
+      expect(eventListener).toHaveBeenCalledWith(expect.objectContaining({ type: "modified" }))
 
       manager.setGroupColor(createResult.groupId!, "#ff0000")
-      expect(eventListener).toHaveBeenCalledWith(
-        expect.objectContaining({ type: "modified" })
-      )
+      expect(eventListener).toHaveBeenCalledWith(expect.objectContaining({ type: "modified" }))
     })
   })
 
@@ -473,7 +452,7 @@ describe("TimelineGroupManager", () => {
     it("должен разбирать вложенную последовательность", () => {
       const clips = createClipRefs(3)
       const createResult = manager.createNestedSequence(clips)
-      
+
       const breakResult = manager.breakApartSequence(createResult.groupId!)
 
       expect(breakResult.success).toBe(true)
@@ -485,7 +464,7 @@ describe("TimelineGroupManager", () => {
       const clips = createClipRefs(2)
       const createResult = manager.createNestedSequence(clips)
       manager.lockGroup(createResult.groupId!, true)
-      
+
       const breakResult = manager.breakApartSequence(createResult.groupId!)
 
       expect(breakResult.success).toBe(false)
@@ -497,7 +476,7 @@ describe("TimelineGroupManager", () => {
     it("должен находить группу по ID", () => {
       const clips = createClipRefs(2)
       const result = manager.createGroup(clips)
-      
+
       const group = manager.getGroup(result.groupId!)
       expect(group).toBeDefined()
       expect(group?.id).toBe(result.groupId)
@@ -508,7 +487,7 @@ describe("TimelineGroupManager", () => {
     it("должен находить группу по клипу", () => {
       const clips = createClipRefs(3)
       const result = manager.createGroup(clips)
-      
+
       const group1 = manager.getGroupByClip("clip-1")
       expect(group1).toBeDefined()
       expect(group1?.id).toBe(result.groupId)
@@ -523,7 +502,7 @@ describe("TimelineGroupManager", () => {
     it("должен проверять находится ли клип в группе", () => {
       const clips = createClipRefs(3)
       manager.createGroup(clips.slice(0, 2))
-      
+
       expect(manager.isClipInGroup("clip-1")).toBe(true)
       expect(manager.isClipInGroup("clip-2")).toBe(true)
       expect(manager.isClipInGroup("clip-3")).toBe(false)
@@ -532,7 +511,7 @@ describe("TimelineGroupManager", () => {
     it("должен возвращать дочерние группы", () => {
       const clips1 = createClipRefs(2)
       const result1 = manager.createGroup(clips1, "Parent Group")
-      
+
       // Создаем дочерние группы
       const clips2 = createClipRefs(2).map((c, i) => ({ ...c, clipId: `child1-${i}` }))
       const result2 = manager.createGroup(clips2, "Child Group 1")
@@ -546,8 +525,8 @@ describe("TimelineGroupManager", () => {
 
       const childGroups = manager.getChildGroups(result1.groupId!)
       expect(childGroups).toHaveLength(2)
-      expect(childGroups.map(g => g.name)).toContain("Child Group 1")
-      expect(childGroups.map(g => g.name)).toContain("Child Group 2")
+      expect(childGroups.map((g) => g.name)).toContain("Child Group 1")
+      expect(childGroups.map((g) => g.name)).toContain("Child Group 2")
     })
 
     it("должен возвращать иерархию групп", () => {
@@ -555,22 +534,22 @@ describe("TimelineGroupManager", () => {
       const result1 = manager.createGroup(createClipRefs(2), "Top Level 1")
       const result2 = manager.createGroup(
         createClipRefs(2).map((c, i) => ({ ...c, clipId: `group2-${i}` })),
-        "Top Level 2"
+        "Top Level 2",
       )
       const result3 = manager.createGroup(
         createClipRefs(2).map((c, i) => ({ ...c, clipId: `child-${i}` })),
-        "Child Group"
+        "Child Group",
       )
-      
+
       // Делаем result3 дочерней группой result1
       const group3 = manager.getGroup(result3.groupId!)!
       group3.parent = result1.groupId
 
       const hierarchy = manager.getGroupHierarchy()
       expect(hierarchy).toHaveLength(2) // Только группы верхнего уровня
-      expect(hierarchy.map(g => g.name)).toContain("Top Level 1")
-      expect(hierarchy.map(g => g.name)).toContain("Top Level 2")
-      expect(hierarchy.map(g => g.name)).not.toContain("Child Group")
+      expect(hierarchy.map((g) => g.name)).toContain("Top Level 1")
+      expect(hierarchy.map((g) => g.name)).toContain("Top Level 2")
+      expect(hierarchy.map((g) => g.name)).not.toContain("Child Group")
     })
   })
 
@@ -611,7 +590,7 @@ describe("TimelineGroupManager", () => {
       manager.clear()
 
       expect(manager.getGroupHierarchy()).toHaveLength(0)
-      
+
       // Счетчик групп тоже должен сброситься
       const result = manager.createGroup(createClipRefs(2))
       const group = manager.getGroup(result.groupId!)
@@ -620,12 +599,12 @@ describe("TimelineGroupManager", () => {
 
     it("должен сериализовать и десериализовать состояние", () => {
       // Создаем группы
-      const result1 = manager.createGroup(createClipRefs(2), "Group 1") 
+      const result1 = manager.createGroup(createClipRefs(2), "Group 1")
       const result2 = manager.createGroup(
         createClipRefs(2).map((c, i) => ({ ...c, clipId: `group2-${i}` })),
-        "Group 2"
+        "Group 2",
       )
-      
+
       manager.lockGroup(result1.groupId!, true)
       manager.setGroupColor(result2.groupId!, "#ff0000")
 
@@ -633,7 +612,7 @@ describe("TimelineGroupManager", () => {
       const json = manager.toJSON()
       expect(json.groups).toHaveLength(2)
       // Проверяем что счетчик равен количеству созданных групп
-      expect(typeof json.groupCounter).toBe('number')
+      expect(typeof json.groupCounter).toBe("number")
 
       // Создаем новый менеджер и десериализуем
       const newManager = new TimelineGroupManager()
@@ -649,9 +628,7 @@ describe("TimelineGroupManager", () => {
       expect(group2?.color).toBe("#ff0000")
 
       // Проверяем что счетчик был восстановлен - новая группа должна иметь следующий номер
-      const result3 = newManager.createGroup(
-        createClipRefs(2).map((c, i) => ({ ...c, clipId: `group3-${i}` }))
-      )
+      const result3 = newManager.createGroup(createClipRefs(2).map((c, i) => ({ ...c, clipId: `group3-${i}` })))
       const group3 = newManager.getGroup(result3.groupId!)
       // Если мы создали группы с именами "Group 1" и "Group 2", то счетчик не увеличивается
       // т.к. мы передаем явные имена. Проверим что новая группа создается корректно
@@ -677,7 +654,7 @@ describe("TimelineGroupManager", () => {
 
       const clips = createClipRefs(2)
       const createResult = manager.createGroup(clips)
-      
+
       const addResult = manager.addToGroup(createResult.groupId!, [])
       expect(addResult.success).toBe(false)
 
@@ -688,7 +665,7 @@ describe("TimelineGroupManager", () => {
     it("должен обрабатывать дублирующиеся клипы в операциях", () => {
       const clips = createClipRefs(3)
       const createResult = manager.createGroup(clips.slice(0, 2))
-      
+
       // Добавляем с дубликатами
       const addResult = manager.addToGroup(createResult.groupId!, [clips[2], clips[2]])
       expect(addResult.success).toBe(true)
@@ -722,11 +699,9 @@ describe("TimelineGroupManager", () => {
 
     it("должен генерировать уникальные ID", () => {
       const ids = new Set<string>()
-      
+
       for (let i = 0; i < 100; i++) {
-        const result = manager.createGroup(
-          createClipRefs(1).map(c => ({ ...c, clipId: `clip-${i}` }))
-        )
+        const result = manager.createGroup(createClipRefs(1).map((c) => ({ ...c, clipId: `clip-${i}` })))
         ids.add(result.groupId!)
       }
 

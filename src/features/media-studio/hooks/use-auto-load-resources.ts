@@ -300,7 +300,7 @@ export function useAutoLoadResources() {
       }
     }
     */
-    
+
     // Логируем, что автозагрузка отключена
     console.log("[useAutoLoadResources] Auto-loading is disabled")
   }, []) // Пустой массив зависимостей - выполняется только при монтировании

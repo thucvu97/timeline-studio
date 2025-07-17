@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { ALL_TEMPLATE_CONFIGS, ALL_TEMPLATE_CONFIG_MAP, getAllTemplateConfig } from "../../lib/all-template-configs"
+import { ALL_TEMPLATE_CONFIG_MAP, ALL_TEMPLATE_CONFIGS, getAllTemplateConfig } from "../../lib/all-template-configs"
 
 describe("All Template Configurations", () => {
   describe("ALL_TEMPLATE_CONFIGS", () => {

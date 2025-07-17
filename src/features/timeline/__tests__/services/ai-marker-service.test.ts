@@ -2,7 +2,7 @@
  * Comprehensive tests for AI Marker Service
  */
 
-import { describe, expect, it, beforeEach } from "vitest"
+import { beforeEach, describe, expect, it } from "vitest"
 
 import type {
   ContentInsights,
@@ -25,7 +25,7 @@ describe("AIMarkerService", () => {
   describe("Конструктор и конфигурация", () => {
     it("должен создаваться с дефолтной конфигурацией", () => {
       const config = service.getConfig()
-      
+
       expect(config.createSceneMarkers).toBe(true)
       expect(config.createKeyMomentMarkers).toBe(true)
       expect(config.createQualityMarkers).toBe(true)
@@ -111,7 +111,7 @@ describe("AIMarkerService", () => {
       const markers = service.createMarkersFromScenes(mockScenes)
 
       expect(markers).toHaveLength(2) // Только первые 2 сцены проходят фильтры
-      
+
       expect(markers[0]).toMatchObject({
         id: "ai-scene-scene-1",
         type: "chapter",
@@ -131,15 +131,15 @@ describe("AIMarkerService", () => {
 
     it("должен фильтровать короткие сцены", () => {
       const markers = service.createMarkersFromScenes(mockScenes)
-      
-      const sceneIds = markers.map(m => m.metadata?.sceneId)
+
+      const sceneIds = markers.map((m) => m.metadata?.sceneId)
       expect(sceneIds).not.toContain("scene-3") // duration: 1.5 < minSceneDuration: 2
     })
 
     it("должен фильтровать сцены с низкой уверенностью", () => {
       const markers = service.createMarkersFromScenes(mockScenes)
-      
-      const sceneIds = markers.map(m => m.metadata?.sceneId)
+
+      const sceneIds = markers.map((m) => m.metadata?.sceneId)
       expect(sceneIds).not.toContain("scene-4") // confidence: 0.6 < minConfidence: 0.7
     })
 
@@ -228,8 +228,8 @@ describe("AIMarkerService", () => {
 
     it("должен фильтровать моменты с низким score", () => {
       const markers = service.createMarkersFromKeyMoments(mockMoments)
-      
-      const momentIds = markers.map(m => m.metadata?.momentId)
+
+      const momentIds = markers.map((m) => m.metadata?.momentId)
       expect(momentIds).not.toContain("moment-3") // score: 0.65 < minConfidence: 0.7
     })
 
@@ -406,7 +406,7 @@ describe("AIMarkerService", () => {
         color: "#3b82f6",
       },
       {
-        id: "marker-2", 
+        id: "marker-2",
         name: "Маркер 2",
         time: 11, // +1 сек от предыдущего
         type: "chapter",
@@ -457,7 +457,7 @@ describe("AIMarkerService", () => {
       const grouped = service.groupNearbyMarkers(markers)
 
       expect(grouped).toHaveLength(5) // Все маркеры остаются отдельными
-      expect(grouped.map(m => m.id)).toEqual(["marker-1", "marker-2", "marker-3", "marker-4", "marker-5"])
+      expect(grouped.map((m) => m.id)).toEqual(["marker-1", "marker-2", "marker-3", "marker-4", "marker-5"])
     })
 
     it("не должен группировать если маркеров меньше 2", () => {
@@ -555,7 +555,7 @@ describe("AIMarkerService", () => {
         }
 
         const markers = service.createEmotionalMarkers(insights, 0)
-        
+
         if (markers.length > 0) {
           expect(markers[0].name).toContain(expectedLabels[index])
           expect(markers[0].color).toBe(expectedColors[index])
@@ -566,21 +566,25 @@ describe("AIMarkerService", () => {
 
   describe("Интеграционные тесты", () => {
     it("должен создавать комплексный набор маркеров из всех источников", () => {
-      const scenes: SceneInfo[] = [{
-        id: "scene-1",
-        type: "action",
-        startTime: 10,
-        duration: 5,
-        confidence: 0.8,
-      } as SceneInfo]
+      const scenes: SceneInfo[] = [
+        {
+          id: "scene-1",
+          type: "action",
+          startTime: 10,
+          duration: 5,
+          confidence: 0.8,
+        } as SceneInfo,
+      ]
 
-      const moments: KeyMoment[] = [{
-        id: "moment-1",
-        type: "climax",
-        timestamp: 12,
-        score: 0.9,
-        description: "Кульминация",
-      } as KeyMoment]
+      const moments: KeyMoment[] = [
+        {
+          id: "moment-1",
+          type: "climax",
+          timestamp: 12,
+          score: 0.9,
+          description: "Кульминация",
+        } as KeyMoment,
+      ]
 
       const insights: ContentInsights = {
         summary: "",
@@ -605,17 +609,12 @@ describe("AIMarkerService", () => {
       const qualityMarkers = service.createQualityMarkers(insights, [15])
       const emotionalMarkers = service.createEmotionalMarkers(insights, 13)
 
-      const allMarkers = [
-        ...sceneMarkers,
-        ...momentMarkers,
-        ...qualityMarkers,
-        ...emotionalMarkers,
-      ]
+      const allMarkers = [...sceneMarkers, ...momentMarkers, ...qualityMarkers, ...emotionalMarkers]
 
       expect(allMarkers).toHaveLength(4)
 
       // Проверяем что все маркеры имеют правильную структуру
-      allMarkers.forEach(marker => {
+      allMarkers.forEach((marker) => {
         expect(marker).toHaveProperty("id")
         expect(marker).toHaveProperty("name")
         expect(marker).toHaveProperty("time")
@@ -638,21 +637,25 @@ describe("AIMarkerService", () => {
         createEmotionalMarkers: false,
       })
 
-      const scenes: SceneInfo[] = [{
-        id: "scene-1",
-        type: "action",
-        startTime: 0,
-        duration: 5,
-        confidence: 0.9,
-      } as SceneInfo]
+      const scenes: SceneInfo[] = [
+        {
+          id: "scene-1",
+          type: "action",
+          startTime: 0,
+          duration: 5,
+          confidence: 0.9,
+        } as SceneInfo,
+      ]
 
-      const moments: KeyMoment[] = [{
-        id: "moment-1",
-        type: "climax",
-        timestamp: 0,
-        score: 0.9,
-        description: "",
-      } as KeyMoment]
+      const moments: KeyMoment[] = [
+        {
+          id: "moment-1",
+          type: "climax",
+          timestamp: 0,
+          score: 0.9,
+          description: "",
+        } as KeyMoment,
+      ]
 
       const insights: ContentInsights = {
         summary: "",

@@ -1,6 +1,7 @@
 // Типы
 
 export * from "./components/effect-detail"
+export * from "./components/effect-detail-modal"
 export * from "./components/effect-indicators"
 // Компоненты
 // export * from "./components/effect-list" // Removed - replaced by adapter pattern

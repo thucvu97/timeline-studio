@@ -12,6 +12,17 @@ export type ModalType =
   | "keyboard-shortcuts"
   | "cache-settings"
   | "cache-statistics"
+  | "subtitle-editor"
+  | "person-form"
+  | "missing-files"
+  | "ai-marker-settings"
+  | "subtitle-ai-tools"
+  | "audio-effects"
+  | "midi-learn"
+  | "midi-mapping"
+  | "midi-configuration"
+  | "effect-detail"
+  | "color-grading"
   | "none"
 
 /**

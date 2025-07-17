@@ -1,5 +1,5 @@
 import { act, cleanup, fireEvent, screen } from "@testing-library/react"
-import { Mock, afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, Mock, vi } from "vitest"
 
 import { renderWithBase } from "@/test/test-utils"
 

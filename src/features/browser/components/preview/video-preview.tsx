@@ -115,12 +115,12 @@ export const VideoPreview = memo(
       (e: React.MouseEvent<HTMLDivElement>, stream: FfprobeStream) => {
         // Не обновляем состояние во время воспроизведения
         if (isPlaying) return
-        
+
         const now = Date.now()
         // Ограничиваем обновления до 30 fps для производительности
         if (now - lastUpdateTimeRef.current < 33) return
         lastUpdateTimeRef.current = now
-        
+
         const rect = e.currentTarget.getBoundingClientRect()
         const x = e.clientX - rect.left
         const percentage = x / rect.width
@@ -181,7 +181,7 @@ export const VideoPreview = memo(
 
     // Состояние для хранения объекта URL
     const [videoUrl, setVideoUrl] = useState<string>("")
-    
+
     // Мемоизируем URL, чтобы он не менялся без необходимости
     const memoizedVideoUrl = useMemo(() => videoUrl, [videoUrl])
 

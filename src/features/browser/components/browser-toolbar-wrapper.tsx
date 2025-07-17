@@ -28,75 +28,77 @@ interface BrowserToolbarWrapperProps {
 /**
  * Обертка для тулбара браузера, чтобы изолировать ререндеры
  */
-export const BrowserToolbarWrapper = memo(({
-  activeTab,
-  searchQuery,
-  showFavoritesOnly,
-  viewMode,
-  sortBy,
-  filterType,
-  groupBy,
-  sortOrder,
-  previewSizeIndex,
-  onSearch,
-  onSort,
-  onFilter,
-  onViewModeChange,
-  onGroupBy,
-  onToggleFavorites,
-  onZoomIn,
-  onZoomOut,
-}: BrowserToolbarWrapperProps) => {
-  // Получаем конфигурацию тулбара для текущей вкладки
-  const toolbarConfig = getToolbarConfigForContent(activeTab)
+export const BrowserToolbarWrapper = memo(
+  ({
+    activeTab,
+    searchQuery,
+    showFavoritesOnly,
+    viewMode,
+    sortBy,
+    filterType,
+    groupBy,
+    sortOrder,
+    previewSizeIndex,
+    onSearch,
+    onSort,
+    onFilter,
+    onViewModeChange,
+    onGroupBy,
+    onToggleFavorites,
+    onZoomIn,
+    onZoomOut,
+  }: BrowserToolbarWrapperProps) => {
+    // Получаем конфигурацию тулбара для текущей вкладки
+    const toolbarConfig = getToolbarConfigForContent(activeTab)
 
-  const handleChangeOrder = () => {
-    const newOrder = sortOrder === "asc" ? "desc" : "asc"
-    onSort(sortBy, newOrder)
-  }
+    const handleChangeOrder = () => {
+      const newOrder = sortOrder === "asc" ? "desc" : "asc"
+      onSort(sortBy, newOrder)
+    }
 
-  const canZoomIn = previewSizeIndex < PREVIEW_SIZES.length - 1
-  const canZoomOut = previewSizeIndex > 0
+    const canZoomIn = previewSizeIndex < PREVIEW_SIZES.length - 1
+    const canZoomOut = previewSizeIndex > 0
 
-  return (
-    <MediaToolbar
-      // Состояние
-      searchQuery={searchQuery}
-      sortBy={sortBy}
-      sortOrder={sortOrder}
-      filterType={filterType}
-      groupBy={groupBy}
-      viewMode={viewMode}
-      showFavoritesOnly={showFavoritesOnly}
-      // Конфигурация из toolbarConfig
-      availableExtensions={[]}
-      sortOptions={toolbarConfig.sortOptions}
-      groupOptions={toolbarConfig.groupOptions}
-      filterOptions={toolbarConfig.filterOptions}
-      availableViewModes={toolbarConfig.viewModes}
-      // Настройки отображения
-      showImport={activeTab === "media" || activeTab === "music"}
-      showGroupBy={toolbarConfig.showGroupBy}
-      showZoom={toolbarConfig.showZoom}
-      // Колбэки
-      onSearch={onSearch}
-      onSort={(sortBy) => onSort(sortBy, sortOrder)}
-      onFilter={onFilter}
-      onChangeOrder={handleChangeOrder}
-      onChangeViewMode={onViewModeChange}
-      onChangeGroupBy={onGroupBy}
-      onToggleFavorites={onToggleFavorites}
-      // Импорт (пока отключен, так как адаптеры загружаются лениво)
-      onImportFile={undefined}
-      onImportFolder={undefined}
-      isImporting={false}
-      // Зум
-      onZoomIn={onZoomIn}
-      onZoomOut={onZoomOut}
-      canZoomIn={canZoomIn}
-      canZoomOut={canZoomOut}
-    />
-  )
-})
+    return (
+      <MediaToolbar
+        // Состояние
+        searchQuery={searchQuery}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        filterType={filterType}
+        groupBy={groupBy}
+        viewMode={viewMode}
+        showFavoritesOnly={showFavoritesOnly}
+        // Конфигурация из toolbarConfig
+        availableExtensions={[]}
+        sortOptions={toolbarConfig.sortOptions}
+        groupOptions={toolbarConfig.groupOptions}
+        filterOptions={toolbarConfig.filterOptions}
+        availableViewModes={toolbarConfig.viewModes}
+        // Настройки отображения
+        showImport={activeTab === "media" || activeTab === "music"}
+        showGroupBy={toolbarConfig.showGroupBy}
+        showZoom={toolbarConfig.showZoom}
+        // Колбэки
+        onSearch={onSearch}
+        onSort={(sortBy) => onSort(sortBy, sortOrder)}
+        onFilter={onFilter}
+        onChangeOrder={handleChangeOrder}
+        onChangeViewMode={onViewModeChange}
+        onChangeGroupBy={onGroupBy}
+        onToggleFavorites={onToggleFavorites}
+        // Импорт (пока отключен, так как адаптеры загружаются лениво)
+        onImportFile={undefined}
+        onImportFolder={undefined}
+        isImporting={false}
+        // Зум
+        onZoomIn={onZoomIn}
+        onZoomOut={onZoomOut}
+        canZoomIn={canZoomIn}
+        canZoomOut={canZoomOut}
+      />
+    )
+  },
+)
 
 BrowserToolbarWrapper.displayName = "BrowserToolbarWrapper"

@@ -154,15 +154,15 @@ describe("PlayerAIOverlay", () => {
       })
 
       render(<PlayerAIOverlay showObjects={true} />)
-      
+
       // Проверяем первые 5 объектов
       for (let i = 0; i < 5; i++) {
         expect(screen.getByText(`object-${i} (90%)`)).toBeInTheDocument()
       }
-      
+
       // Проверяем счетчик оставшихся
       expect(screen.getByText("+3")).toBeInTheDocument()
-      
+
       // Проверяем что 6-8 не отображаются
       expect(screen.queryByText("object-5 (90%)")).not.toBeInTheDocument()
       expect(screen.queryByText("object-6 (90%)")).not.toBeInTheDocument()
@@ -214,7 +214,7 @@ describe("PlayerAIOverlay", () => {
       })
 
       const { container } = render(<PlayerAIOverlay showObjects={true} />)
-      
+
       const boundingBox = container.querySelector('[style*="left: 20%"]')
       expect(boundingBox).toBeInTheDocument()
       expect(boundingBox).toHaveStyle({
@@ -280,12 +280,12 @@ describe("PlayerAIOverlay", () => {
       })
 
       render(<PlayerAIOverlay showMoments={true} />)
-      
+
       // Проверяем первые 3 момента
       expect(screen.getByText("1:00: Момент 0")).toBeInTheDocument()
       expect(screen.getByText("1:10: Момент 1")).toBeInTheDocument()
       expect(screen.getByText("1:20: Момент 2")).toBeInTheDocument()
-      
+
       // Проверяем что 4-5 не отображаются
       expect(screen.queryByText("1:30: Момент 3")).not.toBeInTheDocument()
       expect(screen.queryByText("1:40: Момент 4")).not.toBeInTheDocument()
@@ -335,7 +335,7 @@ describe("PlayerAIOverlay", () => {
       })
 
       render(<PlayerAIOverlay showMoments={true} />)
-      
+
       expect(screen.getByText("0:05: Момент 1")).toBeInTheDocument()
       expect(screen.getByText("1:05: Момент 2")).toBeInTheDocument()
       expect(screen.getByText("2:05: Момент 3")).toBeInTheDocument()
@@ -381,7 +381,7 @@ describe("PlayerAIOverlay", () => {
       })
 
       const { container } = render(<PlayerAIOverlay />)
-      
+
       const sparklesIcon = container.querySelector(".animate-pulse")
       expect(sparklesIcon).toBeInTheDocument()
       expect(sparklesIcon).toHaveClass("text-blue-400")

@@ -8,7 +8,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { useAIIntelligence } from "../../services/ai-intelligence-provider"
 import { AIIntelligenceOrchestrator } from "../../shared/services/ai-intelligence-orchestrator"
 import { useAIOrchestrator } from "../use-ai-orchestrator"
-import { MockAIIntelligenceOrchestrator, createMockActor } from "./test-utils"
+import { createMockActor, MockAIIntelligenceOrchestrator } from "./test-utils"
 
 // First mock the modules before importing anything that uses them
 vi.mock("../../shared/services/ai-intelligence-orchestrator", () => ({

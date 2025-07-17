@@ -3,7 +3,7 @@
  */
 
 import { act, renderHook, waitFor } from "@testing-library/react"
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { useTimelineAIAnalysis } from "../../hooks/use-timeline-ai-analysis"
 import { MockTimelineProvider } from "../test-providers"
@@ -244,9 +244,9 @@ describe("useTimelineAIAnalysis", () => {
     expect(result.current.suggestions.length).toBeGreaterThan(0)
 
     // Проверяем предложения по типам
-    const markerSuggestions = result.current.suggestions.filter(s => s.type === "marker")
-    const speedSuggestions = result.current.suggestions.filter(s => s.type === "speed")
-    const colorSuggestions = result.current.suggestions.filter(s => s.type === "color")
+    const markerSuggestions = result.current.suggestions.filter((s) => s.type === "marker")
+    const speedSuggestions = result.current.suggestions.filter((s) => s.type === "speed")
+    const colorSuggestions = result.current.suggestions.filter((s) => s.type === "color")
 
     // Проверяем что есть предложения
     expect(markerSuggestions.length).toBeGreaterThan(0)
@@ -362,7 +362,7 @@ describe("useTimelineAIAnalysis", () => {
     })
 
     // Находим предложение о нарезке
-    const cutSuggestion = result.current.suggestions.find(s => s.type === "cut")
+    const cutSuggestion = result.current.suggestions.find((s) => s.type === "cut")
     expect(cutSuggestion).toBeDefined()
 
     if (cutSuggestion) {
@@ -403,7 +403,7 @@ describe("useTimelineAIAnalysis", () => {
     })
 
     // Находим предложение о маркере
-    const markerSuggestion = result.current.suggestions.find(s => s.type === "marker")
+    const markerSuggestion = result.current.suggestions.find((s) => s.type === "marker")
     expect(markerSuggestion).toBeDefined()
 
     if (markerSuggestion) {
@@ -449,7 +449,7 @@ describe("useTimelineAIAnalysis", () => {
     })
 
     // Находим предложение о скорости
-    const speedSuggestion = result.current.suggestions.find(s => s.type === "speed")
+    const speedSuggestion = result.current.suggestions.find((s) => s.type === "speed")
     expect(speedSuggestion).toBeDefined()
 
     if (speedSuggestion) {
@@ -501,7 +501,7 @@ describe("useTimelineAIAnalysis", () => {
     })
 
     expect(result.current.suggestions.length).toBe(suggestionsCount - 1)
-    expect(result.current.suggestions.find(s => s.id === firstSuggestion.id)).toBeUndefined()
+    expect(result.current.suggestions.find((s) => s.id === firstSuggestion.id)).toBeUndefined()
   })
 
   it("должен генерировать маркеры из анализа", async () => {
@@ -634,7 +634,7 @@ describe("useTimelineAIAnalysis", () => {
 
   it("должен автоматически анализировать новые клипы", async () => {
     vi.useFakeTimers()
-    
+
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <MockTimelineProvider>{children}</MockTimelineProvider>
     )
@@ -701,7 +701,7 @@ describe("useTimelineAIAnalysis", () => {
     } as TimelineClip
 
     // Задерживаем выполнение анализа
-    mockSceneEngine.process.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 1000)))
+    mockSceneEngine.process.mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 1000)))
 
     // Запускаем первый анализ
     act(() => {

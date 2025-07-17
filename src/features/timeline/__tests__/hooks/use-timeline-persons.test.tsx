@@ -2,8 +2,8 @@
  * Comprehensive tests for use-timeline-persons hook
  */
 
-import { act, renderHook, waitFor } from "@testing-library/react"
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest"
+import { act, renderHook } from "@testing-library/react"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { useTimelinePersons } from "../../hooks/use-timeline-persons"
 import { MockTimelineProvider } from "../test-providers"
@@ -108,7 +108,7 @@ vi.mock("../../hooks/use-timeline", () => ({
 describe("useTimelinePersons", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     // Настройка моков по умолчанию
     mockDetectFaces.mockResolvedValue([
       {
@@ -457,7 +457,7 @@ describe("useTimelinePersons", () => {
     const testClip = mockProject.sections[0].tracks[0].clips[0]
 
     // Задерживаем выполнение detectFaces
-    mockDetectFaces.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 1000)))
+    mockDetectFaces.mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 1000)))
 
     // Запускаем первый анализ
     act(() => {
@@ -477,7 +477,7 @@ describe("useTimelinePersons", () => {
 
   it("должен автоматически анализировать новые клипы", async () => {
     vi.useFakeTimers()
-    
+
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <MockTimelineProvider>{children}</MockTimelineProvider>
     )
@@ -562,7 +562,7 @@ describe("useTimelinePersons", () => {
       "Unknown face detected with high confidence:",
       expect.objectContaining({
         confidence: expect.any(Number),
-      })
+      }),
     )
 
     // Не должно быть appearances для неизвестных лиц

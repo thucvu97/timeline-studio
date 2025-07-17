@@ -4,7 +4,7 @@ import { AudioLines, Gauge, Info, Palette } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { TAB_TRIGGER_STYLES } from "@/features/browser"
+import { TAB_BUTTON_STYLES } from "@/features/browser"
 import { ColorSettings } from "@/features/color-grading"
 import { MediaFile } from "@/features/media/types/media"
 import { cn } from "@/lib/utils"
@@ -67,7 +67,7 @@ export function Options({ selectedMediaFile }: OptionsProps) {
         >
           {TABS.map((tab) => (
             <TabsTrigger
-              className={cn(TAB_TRIGGER_STYLES, "h-[35px] flex-row items-center justify-center gap-2")}
+              className={cn(TAB_BUTTON_STYLES, "h-[35px] flex-row items-center justify-center gap-2")}
               key={tab.id}
               value={tab.id}
               data-testid={`options-tab-${tab.id}`}

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { useMediaImport } from "@/features/media/hooks/use-media-import"
 import { useModal } from "@/features/modals"
 import { useApiKeys } from "@/features/user-settings/hooks/use-api-keys"
 import { cn } from "@/lib/utils"
@@ -150,6 +151,7 @@ export function AiChat() {
   } = useChat()
   const { getApiKeyInfo } = useApiKeys()
   const { openModal } = useModal()
+  const { importFile } = useMediaImport()
 
   // Получаем контекст Timeline (если доступен)
   const timelineContext = useSafeTimeline()
@@ -286,7 +288,7 @@ export function AiChat() {
         ]
 
         // Создаем системный промпт с контекстом Timeline
-        const systemPrompt = createTimelineContextPrompt(
+        let systemPrompt = createTimelineContextPrompt(
           timelineContext?.project || null,
           timelineContext?.project?.sections?.[0] || null, // Активная секция (пока берем первую)
           (timelineContext?.uiState?.selectedClipIds
@@ -302,6 +304,30 @@ export function AiChat() {
             })
             .filter(Boolean) as any[]) || [],
         )
+
+        // Добавляем информацию о доступных ресурсах
+        if (resourceStats && isIntegrated) {
+          systemPrompt += "\n\nДоступные ресурсы в проекте:"
+          if (resourceStats.totalMedia > 0) {
+            systemPrompt += `\n- Медиафайлы: ${resourceStats.totalMedia} шт.`
+          }
+          if (resourceStats.totalMusic > 0) {
+            systemPrompt += `\n- Музыкальные треки: ${resourceStats.totalMusic} шт.`
+          }
+          if (resourceStats.totalEffects > 0) {
+            systemPrompt += `\n- Эффекты: ${resourceStats.totalEffects} шт.`
+          }
+          if (resourceStats.totalFilters > 0) {
+            systemPrompt += `\n- Фильтры: ${resourceStats.totalFilters} шт.`
+          }
+          if (resourceStats.totalDuration > 0) {
+            systemPrompt += `\n- Общая длительность медиа: ${Math.floor(resourceStats.totalDuration / 60)} мин ${Math.floor(resourceStats.totalDuration % 60)} сек`
+          }
+          if (resourceStats.totalSize > 0) {
+            const sizeInMB = Math.round(resourceStats.totalSize / 1024 / 1024)
+            systemPrompt += `\n- Общий размер: ${sizeInMB} МБ`
+          }
+        }
 
         // Управление размером контекста
         let messages: { role: "user" | "assistant"; content: string }[] = allMessages
@@ -449,6 +475,8 @@ export function AiChat() {
     currentSessionId,
     t,
     timelineContext,
+    resourceStats,
+    isIntegrated,
   ])
 
   // Обработчик остановки обработки
@@ -486,38 +514,78 @@ export function AiChat() {
     <TooltipProvider>
       <div className="relative z-50 flex h-full flex-col bg-background text-foreground">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-border px-3 py-1 pb-[3px]">
-          <h2 className="text-sm font-medium text-white">{t("timeline.chat.title", "Chat")}</h2>
-          <div className="flex items-center gap-1">
-            <Button
-              size="icon"
-              variant="ghost"
-              className="h-8 w-8 text-muted-foreground hover:text-white"
-              onClick={() => createNewChat()}
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              className="h-8 w-8 text-muted-foreground hover:text-white"
-              onClick={() => {
-                // Return to initial screen by clearing messages
-                clearMessages()
-                setShowHistory(!showHistory)
-              }}
-            >
-              <History className="h-4 w-4" />
-            </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              className="h-8 w-8 text-muted-foreground hover:text-white"
-              onClick={() => openModal("user-settings")}
-            >
-              <Settings className="h-4 w-4" />
-            </Button>
+        <div className="flex flex-col border-b border-border">
+          <div className="flex items-center justify-between px-3 py-1 pb-[3px]">
+            <h2 className="text-sm font-medium text-white">{t("timeline.chat.title", "Chat")}</h2>
+            <div className="flex items-center gap-1">
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-8 w-8 text-muted-foreground hover:text-white"
+                onClick={() => createNewChat()}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-8 w-8 text-muted-foreground hover:text-white"
+                onClick={() => {
+                  // Return to initial screen by clearing messages
+                  clearMessages()
+                  setShowHistory(!showHistory)
+                }}
+              >
+                <History className="h-4 w-4" />
+              </Button>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-8 w-8 text-muted-foreground hover:text-white"
+                onClick={() => openModal("user-settings")}
+              >
+                <Settings className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
+
+          {/* Resource stats */}
+          {isIntegrated && resourceStats && (
+            <div className="flex items-center justify-between px-3 pb-2">
+              <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
+                {resourceStats.totalMedia > 0 && (
+                  <span className="flex items-center gap-1">
+                    <div className="h-1 w-1 rounded-full bg-blue-500" />
+                    {t("timeline.chat.media", "Медиа")}: {resourceStats.totalMedia}
+                  </span>
+                )}
+                {resourceStats.totalEffects > 0 && (
+                  <span className="flex items-center gap-1">
+                    <div className="h-1 w-1 rounded-full bg-purple-500" />
+                    {t("timeline.chat.effects", "Эффекты")}: {resourceStats.totalEffects}
+                  </span>
+                )}
+                {resourceStats.totalFilters > 0 && (
+                  <span className="flex items-center gap-1">
+                    <div className="h-1 w-1 rounded-full bg-green-500" />
+                    {t("timeline.chat.filters", "Фильтры")}: {resourceStats.totalFilters}
+                  </span>
+                )}
+                {resourceStats.totalDuration > 0 && (
+                  <span className="flex items-center gap-1">
+                    <div className="h-1 w-1 rounded-full bg-orange-500" />
+                    {Math.floor(resourceStats.totalDuration / 60)} {t("timeline.chat.minutes", "мин")}
+                  </span>
+                )}
+              </div>
+              {isIntegrated && (
+                <div className="flex items-center gap-1 text-[10px] text-green-500">
+                  <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
+                  <span>{t("timeline.chat.ai_connected", "AI подключен")}</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Main content area */}
@@ -525,6 +593,36 @@ export function AiChat() {
           {/* Input area - positioned at top when no messages */}
           {chatMessages.length === 0 && (
             <div className="p-4">
+              {/* Подсказка для пустого проекта */}
+              {resourceStats && resourceStats.totalMedia === 0 && (
+                <div className="mb-3 rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
+                  <p className="mb-2">💡 {t("timeline.chat.empty_project_hint", "Проект пока пустой. Начните с:")}</p>
+                  <div className="flex flex-wrap gap-2">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="h-7 text-xs" 
+                      onClick={async () => {
+                        const result = await importFile()
+                        if (result.success) {
+                          console.log(`Импортировано ${result.files.length} файлов`)
+                        }
+                      }}
+                    >
+                      {t("timeline.chat.import_media", "Импортировать медиа")}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 text-xs"
+                      onClick={() => setMessage("помоги импортировать видео для монтажа")}
+                    >
+                      {t("timeline.chat.ask_ai_import", "Спросить AI")}
+                    </Button>
+                  </div>
+                </div>
+              )}
+
               <div className="relative">
                 <textarea
                   ref={inputRef}
@@ -534,7 +632,13 @@ export function AiChat() {
                     setTimeout(autoResizeTextarea, 0)
                   }}
                   onKeyDown={handleKeyDown}
-                  placeholder="@ mention, ⌘L select. Команды: 'анализируй видео', 'создай сценарий', 'адаптируй для TikTok'..."
+                  placeholder={
+                    resourceStats && resourceStats.totalMedia === 0
+                      ? "Начните с команды 'импортируй видео' или перетащите файлы в браузер"
+                      : resourceStats && resourceStats.totalMedia > 0
+                        ? `Доступно ${resourceStats.totalMedia} файлов. Попробуйте: 'создай монтаж', 'анализируй видео', 'адаптируй для TikTok'`
+                        : "@ mention, ⌘L select. Команды: 'анализируй видео', 'создай сценарий', 'адаптируй для TikTok'..."
+                  }
                   className="min-h-[100px] w-full resize-none rounded-lg border border-border bg-muted p-3 pr-12 text-sm text-white placeholder:text-muted-foreground/70 focus:border-teal focus:outline-none"
                   disabled={isProcessing || isStreaming}
                   rows={4}
@@ -693,7 +797,13 @@ export function AiChat() {
                     setTimeout(autoResizeTextarea, 0)
                   }}
                   onKeyDown={handleKeyDown}
-                  placeholder="@ mention, ⌘L select. Команды: 'анализируй видео', 'создай сценарий', 'адаптируй для TikTok'..."
+                  placeholder={
+                    resourceStats && resourceStats.totalMedia === 0
+                      ? "Начните с команды 'импортируй видео' или перетащите файлы в браузер"
+                      : resourceStats && resourceStats.totalMedia > 0
+                        ? `Доступно ${resourceStats.totalMedia} файлов. Попробуйте: 'создай монтаж', 'анализируй видео', 'адаптируй для TikTok'`
+                        : "@ mention, ⌘L select. Команды: 'анализируй видео', 'создай сценарий', 'адаптируй для TikTok'..."
+                  }
                   className="min-h-[40px] w-full resize-none rounded-lg border border-border bg-muted p-3 pr-12 text-sm text-white placeholder:text-muted-foreground/70 focus:border-teal focus:outline-none"
                   disabled={isProcessing || isStreaming}
                   rows={1}

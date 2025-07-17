@@ -4,12 +4,12 @@
 
 import { renderHook } from "@testing-library/react"
 import { useHotkeys } from "react-hotkeys-hook"
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { useJLCutHotkeys } from "../../hooks/use-jl-cut-hotkeys"
 import { MockTimelineProvider } from "../test-providers"
 
-import type { TimelineProject, TimelineClip, TimelineTrack } from "../../types/timeline"
+import type { TimelineClip, TimelineProject, TimelineTrack } from "../../types/timeline"
 
 // Mock timeline-machine
 vi.mock("../../services/timeline-machine", () => ({
@@ -40,7 +40,7 @@ vi.mock("../../hooks/use-jl-cuts", () => ({
 type HotkeyHandler = (event: KeyboardEvent) => void
 const hotkeyHandlers: Record<string, HotkeyHandler> = {}
 vi.mock("react-hotkeys-hook", () => ({
-  useHotkeys: vi.fn((keys: string, handler: HotkeyHandler, options?: any, deps?: any[]) => {
+  useHotkeys: vi.fn((keys: string, handler: HotkeyHandler, _options?: any, _deps?: any[]) => {
     hotkeyHandlers[keys] = handler
   }),
 }))
@@ -114,17 +114,15 @@ vi.mock("../../hooks/use-timeline", () => ({
   }),
 }))
 
-
-
 describe("useJLCutHotkeys", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     // Очищаем обработчики
-    Object.keys(hotkeyHandlers).forEach(key => {
-      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+    Object.keys(hotkeyHandlers).forEach((key) => {
+       
       delete hotkeyHandlers[key]
     })
-    
+
     // Сбрасываем выбранные клипы
     mockUiState.selectedClipIds = ["video-clip-1"]
 
@@ -153,49 +151,49 @@ describe("useJLCutHotkeys", () => {
       "j",
       expect.any(Function),
       { enableOnFormTags: false },
-      expect.any(Array)
+      expect.any(Array),
     )
 
     expect(mockUseHotkeys).toHaveBeenCalledWith(
       "l",
       expect.any(Function),
       { enableOnFormTags: false },
-      expect.any(Array)
+      expect.any(Array),
     )
 
     expect(mockUseHotkeys).toHaveBeenCalledWith(
       "shift+j",
       expect.any(Function),
       { enableOnFormTags: false },
-      expect.any(Array)
+      expect.any(Array),
     )
 
     expect(mockUseHotkeys).toHaveBeenCalledWith(
       "shift+l",
       expect.any(Function),
       { enableOnFormTags: false },
-      expect.any(Array)
+      expect.any(Array),
     )
 
     expect(mockUseHotkeys).toHaveBeenCalledWith(
       "r",
       expect.any(Function),
       { enableOnFormTags: false },
-      expect.any(Array)
+      expect.any(Array),
     )
 
     expect(mockUseHotkeys).toHaveBeenCalledWith(
       "cmd+alt+l, ctrl+alt+l",
       expect.any(Function),
       { enableOnFormTags: false },
-      expect.any(Array)
+      expect.any(Array),
     )
 
     expect(mockUseHotkeys).toHaveBeenCalledWith(
       "cmd+alt+u, ctrl+alt+u",
       expect.any(Function),
       { enableOnFormTags: false },
-      expect.any(Array)
+      expect.any(Array),
     )
   })
 
@@ -505,7 +503,7 @@ describe("useJLCutHotkeys", () => {
     const event = { preventDefault: vi.fn() }
     hotkeyHandlers.j(event)
 
-    // Функция может быть вызвана, но это нормально - 
+    // Функция может быть вызвана, но это нормально -
     // хук не проверяет существование клипов в проекте
     expect(event.preventDefault).toHaveBeenCalled()
 
@@ -545,19 +543,21 @@ describe("useJLCutHotkeys", () => {
 
     // Тестируем каждый тип аудио трека
     const audioTypes = ["audio", "music", "voiceover", "sfx", "ambient"]
-    
+
     audioTypes.forEach((type, index) => {
       // Добавляем трек
       const track = {
         id: `${type}-track`,
         type,
-        clips: [{
-          id: `${type}-clip`,
-          name: `${type} Clip`,
-          trackId: `${type}-track`,
-          startTime: 0,
-          duration: 10,
-        } as TimelineClip],
+        clips: [
+          {
+            id: `${type}-clip`,
+            name: `${type} Clip`,
+            trackId: `${type}-track`,
+            startTime: 0,
+            duration: 10,
+          } as TimelineClip,
+        ],
       } as TimelineTrack
 
       mockProject.globalTracks.push(track)
@@ -589,11 +589,13 @@ describe("useJLCutHotkeys", () => {
 
     // Проверяем что sections и tracks существуют
     if (!mockProject.sections || mockProject.sections.length === 0) {
-      mockProject.sections = [{
-        id: "section-1",
-        name: "Section 1",
-        tracks: [],
-      }] as any
+      mockProject.sections = [
+        {
+          id: "section-1",
+          name: "Section 1",
+          tracks: [],
+        },
+      ] as any
     }
 
     // Сохраняем оригинальные треки
@@ -603,13 +605,15 @@ describe("useJLCutHotkeys", () => {
     const imageTrack = {
       id: "image-track-1",
       type: "image",
-      clips: [{
-        id: "image-clip-1",
-        name: "Image Clip 1",
-        trackId: "image-track-1",
-        startTime: 0,
-        duration: 5,
-      } as TimelineClip],
+      clips: [
+        {
+          id: "image-clip-1",
+          name: "Image Clip 1",
+          trackId: "image-track-1",
+          startTime: 0,
+          duration: 5,
+        } as TimelineClip,
+      ],
     } as TimelineTrack
 
     mockProject.sections[0].tracks.push(imageTrack)

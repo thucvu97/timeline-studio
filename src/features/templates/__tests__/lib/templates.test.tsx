@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 
-import { PRESET_STYLES, TEMPLATE_MAP, createCellConfig, createDividerConfig } from "../../lib/templates"
+import { createCellConfig, createDividerConfig, PRESET_STYLES, TEMPLATE_MAP } from "../../lib/templates"
 
 // Mock the template preview components
 vi.mock("../../components/template-previews/landscape-templates", () => ({

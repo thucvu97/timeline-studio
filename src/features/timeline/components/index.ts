@@ -1,3 +1,5 @@
+export * from "./audio-effects-editor"
+export * from "./audio-effects-editor-modal"
 export * from "./audio-mixer-view"
 export * from "./clip"
 export * from "./drag-drop-provider"

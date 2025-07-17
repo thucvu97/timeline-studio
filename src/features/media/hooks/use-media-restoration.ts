@@ -3,6 +3,7 @@ import { useCallback, useState } from "react"
 import { MediaRestorationService, ProjectRestorationResult } from "@/features/media/services/media-restoration-service"
 import { MediaFile } from "@/features/media/types/media"
 import { SavedMediaFile, SavedMusicFile } from "@/features/media/types/saved-media"
+import { useModal } from "@/features/modals/services"
 
 /**
  * Состояние процесса восстановления
@@ -27,6 +28,8 @@ export function useMediaRestoration() {
 
   const [restorationResult, setRestorationResult] = useState<ProjectRestorationResult | null>(null)
   const [showMissingFilesDialog, setShowMissingFilesDialog] = useState(false)
+
+  const { closeModal } = useModal()
 
   /**
    * Обновляет состояние восстановления
@@ -170,6 +173,7 @@ export function useMediaRestoration() {
 
       // Закрываем диалог и завершаем восстановление
       setShowMissingFilesDialog(false)
+      closeModal()
       updateState({
         progress: 100,
         phase: "completed",
@@ -178,7 +182,7 @@ export function useMediaRestoration() {
 
       return { foundFiles, removedFiles }
     },
-    [updateState],
+    [updateState, closeModal],
   )
 
   /**
@@ -186,12 +190,13 @@ export function useMediaRestoration() {
    */
   const cancelMissingFilesDialog = useCallback(() => {
     setShowMissingFilesDialog(false)
+    closeModal()
     updateState({
       progress: 100,
       phase: "completed",
       isRestoring: false,
     })
-  }, [updateState])
+  }, [updateState, closeModal])
 
   /**
    * Сбрасывает состояние восстановления

@@ -1,114 +1,132 @@
-# Media Studio - Техническая документация
+# Media Studio - Technical Documentation
 
-## 📁 Структура файлов
+[🇷🇺 Русская версия](./DEV.ru.md) | [🇺🇸 English version](./DEV.md)
 
-### ✅ Полная структура реализована
+## 📁 File Structure
+
+### ✅ Complete Implemented Structure
 ```
 src/features/media-studio/
 ├── components/
 │   ├── layout/
+│   │   ├── __tests__/
+│   │   │   ├── chat-layout.test.tsx ✅
+│   │   │   ├── default-layout.test.tsx ✅
+│   │   │   ├── layout-previews.test.tsx ✅
+│   │   │   ├── layouts-markup.test.tsx ✅
+│   │   │   ├── options-layout.test.tsx ✅
+│   │   │   └── vertical-layout.test.tsx ✅
 │   │   ├── chat-layout.tsx ✅
 │   │   ├── default-layout.tsx ✅
-│   │   ├── dual-layout.tsx ✅
 │   │   ├── options-layout.tsx ✅
 │   │   ├── vertical-layout.tsx ✅
 │   │   ├── layout-previews.tsx ✅
 │   │   ├── layouts-markup.tsx ✅
 │   │   └── index.ts ✅
-│   └── media-studio.tsx ✅
+│   ├── media-studio.test.tsx ✅
+│   ├── media-studio.tsx ✅
+│   └── index.ts ✅
 ├── hooks/
+│   ├── __tests__/
+│   │   ├── use-auto-load-user-data.test.ts ✅
+│   │   ├── use-auto-load-user-data-hook.test.ts ✅
+│   │   └── use-auto-load-user-data-validation.test.ts ✅
 │   ├── use-auto-load-user-data.ts ✅
+│   ├── use-auto-load-media.ts ✅
+│   ├── use-auto-load-resources.ts ✅
 │   └── index.ts ✅
 ├── services/
-│   └── providers.tsx ✅
+│   ├── __tests__/
+│   │   └── providers.test.tsx ✅
+│   ├── providers.tsx ✅
+│   ├── tauri-mock-provider.tsx ✅
+│   └── index.ts ✅
+├── utils/
+│   └── validation.ts ✅
 └── index.ts ✅
 ```
 
-### 🧪 Тестовое покрытие
-```
-__tests__/
-├── components/
-│   ├── layout/
-│   │   ├── chat-layout.test.tsx ✅
-│   │   ├── default-layout.test.tsx ✅
-│   │   ├── options-layout.test.tsx ✅
-│   │   ├── vertical-layout.test.tsx ✅
-│   │   ├── layout-previews.test.tsx ✅
-│   │   └── layouts-markup.test.tsx ✅
-│   └── media-studio.test.tsx ✅
-├── hooks/
-│   └── use-auto-load-user-data.test.ts ✅
-└── services/
-    └── providers.test.tsx ✅
-```
 
-## 🏗️ Архитектура компонентов
+## 🏗️ Component Architecture
 
-### MediaStudio (корневой компонент)
-**Файл**: `components/media-studio.tsx`
-**Статус**: ✅ Полностью реализован
+### MediaStudio (Root Component)
+**File**: `components/media-studio.tsx`
+**Status**: ✅ Fully implemented
 
-**Функционал**:
-- Корневой компонент приложения
-- Управление макетами (default, options, vertical, dual, chat)
-- Интеграция TopBar и ModalContainer
-- Автоматическая загрузка пользовательских данных через useAutoLoadUserData
+**Functionality**:
+- Root application component
+- Layout management (default, options, vertical, chat)
+- TopBar and ModalContainer integration
+- Automatic user data loading via useAutoLoadUserData
 
 ### Providers
-**Файл**: `services/providers.tsx`
-**Статус**: ✅ Полностью реализован
+**File**: `services/providers.tsx`
+**Status**: ✅ Fully implemented
 
-**Функционал**:
-- Глобальные провайдеры контекста
-- Обертка для всего приложения
+**Functionality**:
+- Global context providers
+- Application-wide wrapper
 
-## 🪝 Хуки (Hooks)
+### TauriMockProvider
+**File**: `services/tauri-mock-provider.tsx`
+**Status**: ✅ Fully implemented
+
+**Functionality**:
+- Mock implementation for Tauri API
+- Enables development without Tauri runtime
+
+## 🪝 Hooks
 
 ### useAutoLoadUserData
-**Файл**: `hooks/use-auto-load-user-data.ts`
-**Статус**: ✅ Полностью реализован
+**File**: `hooks/use-auto-load-user-data.ts`
+**Status**: ✅ Fully implemented
 
-**Функционал**:
-- Автоматическая загрузка медиа файлов (видео, изображения)
-- Загрузка музыкальных файлов
-- Сканирование директорий для ресурсов (эффекты, переходы, фильтры)
-- Валидация типов файлов
-- Пакетная обработка для улучшенной производительности
-- Кеширование результатов сканирования
-- Интеграция с хуками управления состоянием (useMediaFiles, useMusicFiles)
+**Functionality**:
+- Automatic media file loading (videos, images)
+- Music file loading
+- Directory scanning for resources (effects, transitions, filters) - currently disabled
+- File type validation
+- Batch processing for improved performance
+- Scan result caching
+- Integration with state management hooks (useMediaFiles, useMusicFiles)
 
-## 📦 Макеты
+### useAutoLoadMedia
+**File**: `hooks/use-auto-load-media.ts`
+**Status**: ✅ Fully implemented
+
+**Functionality**:
+- Dedicated media file loading logic
+- Integration with media file state
+
+### useAutoLoadResources
+**File**: `hooks/use-auto-load-resources.ts`
+**Status**: ✅ Fully implemented
+
+**Functionality**:
+- Resource loading (effects, filters, transitions)
+- Template loading
+
+## 📦 Layouts
 
 ### DefaultLayout
-**Файл**: `components/layout/default-layout.tsx`
-**Статус**: ✅ Полностью реализован
-
-### DualLayout
-**Файл**: `components/layout/dual-layout.tsx`
-**Статус**: ✅ Полностью реализован
+**File**: `components/layout/default-layout.tsx`
+**Status**: ✅ Fully implemented
 
 ### VerticalLayout
-**Файл**: `components/layout/vertical-layout.tsx`
-**Статус**: ✅ Полностью реализован
+**File**: `components/layout/vertical-layout.tsx`
+**Status**: ✅ Fully implemented
 
 ### OptionsLayout
-**Файл**: `components/layout/options-layout.tsx`
-**Статус**: ✅ Полностью реализован
+**File**: `components/layout/options-layout.tsx`
+**Status**: ✅ Fully implemented
 
 ### ChatLayout
-**Файл**: `components/layout/chat-layout.tsx`
-**Статус**: ✅ Полностью реализован
+**File**: `components/layout/chat-layout.tsx`
+**Status**: ✅ Fully implemented
 
-**Функционал**:
-- Интеграция AI чата рядом с медиа студией
-- Использует ResizablePanelGroup для гибкого макета
-- Левая сторона: Browser, VideoPlayer, Options, Timeline
-- Правая сторона: AI Chat компонент
-- Адаптивная видимость компонентов на основе настроек
+## 🔗 Component Integration
 
-## 🔗 Интеграция компонентов
-
-### Основные компоненты
+### Core Components
 - TopBar
 - Browser
 - Timeline
@@ -116,30 +134,37 @@ __tests__/
 - Options
 - ModalContainer
 
-### Система макетов
+### Layout System
 ```typescript
 {layoutMode === "default" && <DefaultLayout />}
 {layoutMode === "options" && <OptionsLayout />}
 {layoutMode === "vertical" && <VerticalLayout />}
-{layoutMode === "dual" && <DualLayout />}
 {layoutMode === "chat" && <ChatLayout />}
 ```
 
-## 📋 Последние изменения
+## 📋 Recent Changes
 
-### Рефакторинг структуры (2025)
-- Перемещение компонентов макетов в `components/layout/`
-- Создание директории `hooks/` и перенос `use-auto-load-user-data` из `services/`
-- Добавление нового `ChatLayout` для интеграции AI ассистента
-- Улучшенная структура тестов с разделением по типам (components, hooks, services)
+### Structure Refactoring (2025)
+- Moved layout components to `components/layout/`
+- Created `hooks/` directory and moved `use-auto-load-user-data` from `services/`
+- Added new `ChatLayout` for AI assistant integration
+- Improved test structure with separation by type (components, hooks, services)
+- Added utility functions in `utils/validation.ts`
 
-### Улучшения useAutoLoadUserData
-- Поддержка загрузки медиа и музыкальных файлов
-- Интеграция с хуками управления состоянием
-- Сканирование директорий для различных типов ресурсов
-- Механизм кеширования и пакетной обработки
+### useAutoLoadUserData Improvements
+- Support for media and music file loading
+- Integration with state management hooks
+- Directory scanning for various resource types (currently disabled)
+- Caching and batch processing mechanism
+- Separated into multiple specialized hooks
 
-### Тестовое покрытие
-- Полное покрытие всех компонентов макетов
-- Тесты для нового хука useAutoLoadUserData
-- Реорганизация тестов в соответствии с новой структурой
+### Test Coverage
+- Complete coverage of all layout components
+- Tests for useAutoLoadUserData hook and related functionality
+- Test reorganization: all tests moved to co-located `__tests__/` directories
+- `media-studio.test.tsx` placed in `components/` directory
+- Layout tests in `components/layout/__tests__/` directory
+- Hook tests in `hooks/__tests__/` directory
+- Service tests in `services/__tests__/` directory
+- Fixed mock dependencies and context providers
+- Additional validation tests

@@ -948,6 +948,7 @@ async function adaptContentToPlatformHandler(input: Record<string, unknown>): Pr
 - YouTube: длинные видео, SEO, миниатюры
 - TikTok: короткие вертикальные видео, тренды
 - Instagram: визуальность, хештеги, Stories/Reels
+- Telegram: каналы, длинные посты, медиафайлы до 2GB
 - LinkedIn: профессиональный контент, B2B фокус
 - Twitter: короткие посты, актуальность
 
@@ -970,7 +971,7 @@ async function adaptContentToPlatformHandler(input: Record<string, unknown>): Pr
           title: `${String(target_platform)} заголовок`,
           description: `Описание для ${String(target_platform)}`,
           format: target_platform === "tiktok" ? "vertical" : "horizontal",
-          duration: target_platform === "tiktok" ? "15-60 сек" : "3-10 мин",
+          duration: target_platform === "tiktok" ? "15-60 сек" : target_platform === "telegram" ? "любая" : "3-10 мин",
         },
         seoData: include_seo
           ? {

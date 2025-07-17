@@ -4,7 +4,14 @@
  */
 
 import { ContentType } from "../../shared/types/content-analysis"
-import { CTAType, DayOfWeek, PenaltyType, PlatformId, PlatformImportance, SignalType } from "../../shared/types/platform-adaptation"
+import {
+  CTAType,
+  DayOfWeek,
+  PenaltyType,
+  PlatformId,
+  PlatformImportance,
+  SignalType,
+} from "../../shared/types/platform-adaptation"
 
 import type { Platform } from "../../shared/types/platform-adaptation"
 
@@ -1093,9 +1100,7 @@ export const PLATFORM_CONFIGS: Record<PlatformIdString, Platform> = {
         visualStyle: ["High production value", "Color graded", "Cinematic"],
       },
       timing: {
-        optimalTimes: [
-          { dayOfWeek: DayOfWeek.WEDNESDAY, startHour: 10, endHour: 14, timezone: "EST" },
-        ],
+        optimalTimes: [{ dayOfWeek: DayOfWeek.WEDNESDAY, startHour: 10, endHour: 14, timezone: "EST" }],
         frequency: { min: 1, max: 4, unit: "month" },
         consistency: "Quality over quantity",
       },

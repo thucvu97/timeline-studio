@@ -229,9 +229,9 @@ export class YoloDataService {
    * @param videoId ID видео
    */
   public clearVideoCache(videoId: string): void {
-    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+     
     delete this.yoloDataCache[videoId]
-    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+     
     delete this.nonExistentFiles[videoId]
   }
 
@@ -268,7 +268,7 @@ export class YoloDataService {
 
     // Убираем из списка несуществующих файлов
     if (this.nonExistentFiles[videoId]) {
-      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+       
       delete this.nonExistentFiles[videoId]
     }
 

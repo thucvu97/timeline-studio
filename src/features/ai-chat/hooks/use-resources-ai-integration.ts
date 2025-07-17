@@ -5,6 +5,15 @@ import { ResourceType } from "@/features/resources/types"
 
 import { setResourcesStateAccess } from "../tools/resource-tools"
 
+export interface AIResourceStats {
+  totalMedia: number
+  totalEffects: number
+  totalFilters: number
+  totalSize: number
+  totalDuration: number
+  totalMusic: number
+}
+
 /**
  * Хук для интеграции ResourcesProvider с AI инструментами
  *
@@ -37,6 +46,7 @@ export function useResourcesAIIntegration() {
       totalFilters,
       totalSize,
       totalDuration,
+      totalMusic,
     }
   }, [resources])
 
@@ -111,6 +121,6 @@ export function useResourcesAIIntegration() {
 
   return {
     isIntegrated: true,
-    resourceStats: getResourceStats(),
+    resourceStats: getResourceStats() as AIResourceStats,
   }
 }

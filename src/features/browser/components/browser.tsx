@@ -32,7 +32,7 @@ export function Browser() {
           enableCaching: true,
           maxCacheSize: 50 * 1024 * 1024, // 50MB
         }}
-        onError={(error) => {
+        onError={(_error) => {
           // Handle effects provider error
         }}
       >
