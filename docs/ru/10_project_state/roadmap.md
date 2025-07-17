@@ -11,7 +11,7 @@ Timeline Studio - это современный видеоредактор, со
 
 ## 📅 График релизов
 
-### 🎯 Alpha Release (Q1 2025) - 100% готов ✅
+### 🎯 Alpha Release (Q3 2025) - 97.5% готов ✅
 
 **Цель**: Базовый функционал для early adopters
 
@@ -20,27 +20,32 @@ Timeline Studio - это современный видеоредактор, со
 - ✅ 100+ эффектов, фильтров и переходов
 - ✅ Advanced Color Grading система
 - ✅ Fairlight Audio микшер
-- ✅ AI Chat интеграция (Claude/OpenAI) с 77 инструментами
-- ✅ AI Content Intelligence Suite (Scene Analysis, Script Generation, Multi-Platform)
+- ✅ AI Chat интеграция (Claude/OpenAI) с **151 AI инструментом** 🎯
+- ✅ AI Content Intelligence Suite (**4 движка**: Content Classification, Scene Analysis, Script Generation, Multi-Platform)
 - ✅ Person Identification - распознавание и управление персонами
 - ✅ Smart Montage Planner - AI-powered автоматический монтаж
 - ✅ Экспорт в основные форматы
 - ✅ OAuth публикация в соцсети
 - ✅ 13 языков локализации
+- ✅ **Унифицированная система ресурсов** - 8 типов с единым API
 
-### 🚀 Beta Release (Q2 2025)
+**Осталось до Alpha** (2.5%):
+- 🔄 **Advanced Timeline Features** - multicam editing, compound clips, advanced trimming (в активной разработке)
+
+### 🚀 Beta Release (Q4 2025)
 
 **Цель**: Стабильная версия с расширенными возможностями
 
 **Новые функции**:
-- Advanced Timeline Features - J/L cuts, speed ramping, markers
+- **Comprehensive Resources Database** - 5000+ ресурсов уровня Filmora 🎯
+- **Cloud Storage & Sync** - мультиплатформенная синхронизация 🎯
 - Person Identification Advanced - ML модели, real-time трекинг
 - Effects Library Extension - 500+ профессиональных эффектов
 - Performance Optimization - proxy файлы для 4K/8K
 - Plugin System с WASM поддержкой
 - Расширенная документация и туториалы
 
-### 🌟 Version 1.0 (Q3 2025)
+### 🌟 Version 1.0 (Q1 2026)
 
 **Цель**: Полноценный релиз для массового использования
 
@@ -50,8 +55,9 @@ Timeline Studio - это современный видеоредактор, со
 - Project Version Control - Git для видеопроектов
 - Marketplace для плагинов и шаблонов
 - Enterprise функции (team collaboration)
+- **Collaborative editing** - совместная работа над проектами
 
-### 🔮 Version 2.0 (2026)
+### 🔮 Version 2.0 (Q3 2026)
 
 **Цель**: Революция в видеопроизводстве
 
@@ -61,32 +67,39 @@ Timeline Studio - это современный видеоредактор, со
 - **Cinema Without Screenwriters** - AI находит сюжеты в raw footage
 - Интеграция с VR/AR
 - Real-time collaboration
+- **Mobile Apps** - полноценные iOS/Android приложения
 
 ## 📊 Метрики успеха
 
-### Alpha (Q1 2025)
+### Alpha (Q3 2025)
 - 1,000+ early adopters
 - 50+ обработанных видео в день
 - 80%+ удовлетворенность пользователей
+- **151 AI инструмент** в использовании
 
-### Beta (Q2 2025)
+### Beta (Q4 2025)
 - 10,000+ активных пользователей
 - 500+ видео в день
 - Интеграция с 10+ платформами
+- **5000+ ресурсов** в базе данных
 
-### v1.0 (Q3 2025)
+### v1.0 (Q1 2026)
 - 100,000+ пользователей
 - 5,000+ видео в день
 - Прибыльность через Pro подписки
+- **Мультиплатформенная синхронизация** активна
 
 ## 🛠️ Технический долг
 
 ### Приоритет 1 (до Alpha)
-- Оптимизация памяти для больших проектов
-- Улучшение производительности timeline
-- Стабилизация экспорта
+- ✅ Оптимизация памяти для больших проектов
+- ✅ Улучшение производительности timeline
+- ✅ Стабилизация экспорта
+- 🔄 **Advanced Timeline Features** - завершение разработки
 
 ### Приоритет 2 (до Beta)
+- **Comprehensive Resources Database** - создание базы 5000+ ресурсов
+- **Cloud Storage & Sync** - мультиплатформенная синхронизация
 - Рефакторинг системы плагинов
 - Миграция на новые API Tauri
 - Улучшение тестового покрытия до 90%
@@ -95,6 +108,7 @@ Timeline Studio - это современный видеоредактор, со
 - Оптимизация bundle size
 - Улучшение startup time до 1 секунды
 - Полная документация API
+- **Collaborative editing** - совместная работа
 
 ## 🤝 Вклад сообщества
 

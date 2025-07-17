@@ -60,6 +60,16 @@ Timeline Studio использует комбинацию XState v5 для уп�
 
 Состояние видео плеера: воспроизведение, позиция, громкость, полноэкранный режим.
 
+### 10. **Montage Planner Machine**
+📍 [`src/features/montage-planner/services/montage-planner-machine.ts`](../../src/features/montage-planner/services/montage-planner-machine.ts)
+
+Управление Smart Montage Planner: анализ контента, планирование монтажа, автоматическая обработка.
+
+### 11. **AI Intelligence Machine**
+📍 [`src/features/ai-content-intelligence/shared/services/ai-intelligence-machine.ts`](../../src/features/ai-content-intelligence/shared/services/ai-intelligence-machine.ts)
+
+Состояние AI анализа контента: 4 движка анализа, обработка через 151 AI инструмент, координация workflow.
+
 ## 🔌 React провайдеры
 
 ### Основные провайдеры функций
@@ -109,31 +119,41 @@ Timeline Studio использует комбинацию XState v5 для уп�
 
 Управление состоянием видео плеера.
 
+#### 10. **Montage Planner Provider**
+📍 [`src/features/montage-planner/services/montage-planner-provider.tsx`](../../src/features/montage-planner/services/montage-planner-provider.tsx)
+
+Контекст для Smart Montage Planner с интеграцией Tauri событий.
+
+#### 11. **AI Intelligence Provider**
+📍 [`src/features/ai-content-intelligence/services/ai-intelligence-provider.tsx`](../../src/features/ai-content-intelligence/services/ai-intelligence-provider.tsx)
+
+Управление состоянием AI анализа контента и 4 движков обработки.
+
 ### Дополнительные провайдеры
 
-#### 10. **Keyboard Shortcuts Provider**
+#### 12. **Keyboard Shortcuts Provider**
 📍 [`src/features/keyboard-shortcuts/services/shortcuts-provider.tsx`](../../src/features/keyboard-shortcuts/services/shortcuts-provider.tsx)
 
 Регистрация и управление горячими клавишами (без XState машины).
 
-#### 11. **Drag-Drop Provider**
+#### 13. **Drag-Drop Provider**
 📍 [`src/features/timeline/components/drag-drop-provider.tsx`](../../src/features/timeline/components/drag-drop-provider.tsx)
 
 Специализированный провайдер для drag-and-drop в timeline.
 
-#### 12. **I18n Provider**
+#### 14. **I18n Provider**
 📍 [`src/i18n/services/i18n-provider.tsx`](../../src/i18n/services/i18n-provider.tsx)
 
 Интернационализация и локализация приложения.
 
 ### Агрегаторы провайдеров
 
-#### 13. **Media Studio Providers**
+#### 15. **Media Studio Providers**
 📍 [`src/features/media-studio/services/providers.tsx`](../../src/features/media-studio/services/providers.tsx)
 
 Объединяет все необходимые провайдеры для Media Studio.
 
-#### 14. **Tauri Mock Provider**
+#### 16. **Tauri Mock Provider**
 📍 [`src/features/media-studio/services/tauri-mock-provider.tsx`](../../src/features/media-studio/services/tauri-mock-provider.tsx)
 
 Mock провайдер для тестирования без Tauri.
@@ -215,6 +235,10 @@ export function MyComponent() {
 - **Browser Machine** → **Timeline Machine**: Добавление медиа файлов
 - **Project Settings** → **Timeline Machine**: Обновление параметров проекта
 - **Modal Machine** ← **Все машины**: Открытие модальных окон из любого места
+- **AI Intelligence Machine** → **Timeline Machine**: Автоматическое создание клипов на основе AI анализа
+- **Montage Planner Machine** → **Timeline Machine**: Применение автоматических планов монтажа
+- **AI Chat Machine** ↔ **AI Intelligence Machine**: Координация AI обработки и **151 AI инструмента**
+- **Resources Machine** ↔ **AI Intelligence Machine**: Использование AI для рекомендаций ресурсов
 
 ## 📚 Дополнительные ресурсы
 

@@ -6,13 +6,58 @@
 
 ```
 engines/
-├── multi-platform/      # Адаптация контента под платформы
-├── scene-analysis/      # Анализ сцен и видео
-├── script-generation/   # Генерация скриптов
+├── content-classification/  # Классификация и анализ контента
+├── multi-platform/          # Адаптация контента под платформы
+├── scene-analysis/          # Анализ сцен и видео
+├── script-generation/       # Генерация скриптов
 └── README.md
 ```
 
 ## 🚀 Движки
+
+### Content Classification Engine
+
+Продвинутая классификация видео контента с использованием AI анализа.
+
+**Возможности:**
+- Расширенная классификация по жанрам, стилям и аудитории
+- Анализ подкатегорий (кинематография, монтаж, цвет, звук)
+- Извлечение контентных тегов по 5 категориям
+- Анализ настроения и эмоциональной дуги
+- Рекомендации по таргетингу аудитории
+- Оценка подходящести для различных платформ
+- Анализ маркетингового потенциала
+- Оценка доступности контента
+
+**Использование:**
+```typescript
+import { ContentClassificationEngine } from './content-classification'
+
+const engine = new ContentClassificationEngine()
+
+const classification = await engine.classifyContent(
+  mediaFile,
+  scenes,
+  {
+    includeSubcategories: true,
+    analyzeMood: true,
+    includeTargeting: true,
+    analyzePlatforms: true,
+    includeMarketing: true,
+    analyzeAccessibility: true
+  }
+)
+
+// Результат содержит:
+// - Базовую классификацию (жанр, стиль, аудитория)
+// - Подкатегории (кинематография, монтаж, структура)
+// - Теги контента по категориям
+// - Анализ настроения и эмоциональную дугу
+// - Рекомендации по таргетингу
+// - Оценки подходящести для платформ
+// - Маркетинговый потенциал
+// - Оценку доступности
+```
 
 ### Scene Analysis Engine
 
@@ -191,6 +236,7 @@ const modelsLoaded = engine.areModelsReady()
 
 ## 📊 Метрики производительности
 
+- Content Classification: ~5-15 сек на полный анализ
 - Scene Analysis: ~2-5 сек на минуту видео
 - Script Generation: ~3-10 сек в зависимости от длины
 - Platform Adaptation: <1 сек на платформу
@@ -200,7 +246,7 @@ const modelsLoaded = engine.areModelsReady()
 
 Все движки интегрированы с:
 - `AIIntelligenceOrchestrator` - координация работы
-- `UnifiedAIService` - доступ к 68+ AI инструментам
+- `UnifiedAIService` - доступ к 151 AI инструменту
 - `FFmpegAnalysisService` - анализ медиа файлов
 
 ## ⚠️ Требования

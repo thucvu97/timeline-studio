@@ -43,8 +43,8 @@ UI/UX документация, design system, компонентная библ
 Интеграции с третьими сторонами: API, плагины, расширения.
 
 ### [08_tasks/](08_tasks/)
+- **active/** - Текущие задачи  
 - **completed/** - Выполненные задачи
-- **in_progress/** - Текущие задачи  
 - **planned/** - Будущие задачи
 
 ### [09_troubleshooting/](09_troubleshooting/)
