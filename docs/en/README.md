@@ -44,7 +44,7 @@ Third-party integrations: APIs, plugins, extensions.
 
 ### [08_tasks/](08_tasks/)
 - **completed/** - Finished tasks
-- **in_progress/** - Current tasks  
+- **active/** - Current tasks  
 - **planned/** - Future tasks
 
 ### [09_troubleshooting/](09_troubleshooting/)
