@@ -23,24 +23,26 @@ Timeline Studio aims to combine:
 ### 🤖 AI and Automation
 | Module | Priority | Complexity | Development Time | Status |
 |--------|----------|------------|------------------|--------|
-| **[AI Content Intelligence Suite](ai-content-intelligence-epic.md)** 🆕 | 🔴 High | ⭐⭐⭐⭐⭐ | 7 weeks | 📋 Epic |
-| ├─ [Scene Analyzer](scene-analyzer.md) | 🟡 Medium | ⭐⭐⭐⭐ | Part of epic | 📋 In epic |
-| ├─ [Script Generator](script-generator.md) | 🟡 Medium | ⭐⭐⭐⭐ | Part of epic | 📋 In epic |
-| └─ [AI Multi-Platform Generator](ai-multiplatform-generator.md) | 🟡 Medium | ⭐⭐⭐⭐⭐ | Part of epic | 📋 In epic |
-| [AI Chat Integration](ai-chat-content-intelligence-integration.md) 🆕 | 🔴 High | ⭐⭐⭐ | 1 week | 📋 Planned |
-| [Person Identification](person-identification.md) | 🟡 Medium | ⭐⭐⭐⭐ | 1 day | 📋 Planned |
+| [AI Multi-Platform Generator](ai-multiplatform-generator.md) | 🟡 Medium | ⭐⭐⭐⭐⭐ | 3 days | 📋 Planned |
+| [Person Identification Advanced](person-identification-advanced.md) | 🟡 Medium | ⭐⭐⭐⭐⭐ | 4-6 weeks | 📋 Planned |
+
+### 🎨 Creative Tools
+| Module | Priority | Complexity | Development Time | Status |
+|--------|----------|------------|------------------|--------|
+| [Effects Library Extension](effects-library-extension.md) | 🔴 High | ⭐⭐⭐⭐⭐ | 2 days | 📋 Planned |
+| [Project Version Control](project-version-control.md) | 🟡 Medium | ⭐⭐⭐ | 2 days | 📋 Planned |
+| [Comprehensive Resources Database](comprehensive-resources-database.md) | 🔴 High | ⭐⭐⭐⭐⭐ | 8-12 weeks | 📋 Planned |
 
 ### 🏗️ System Architecture
 | Module | Priority | Complexity | Development Time | Status |
 |--------|----------|------------|------------------|--------|
 | [Performance Optimization](performance-optimization.md) | 🔴 High | ⭐⭐⭐⭐ | 3 days | 📋 Planned |
-| [Plugin System](plugin-system.md) | 🟡 Medium | ⭐⭐⭐⭐⭐ | 2 days | 📋 In Development |
-| [EventBus API Extensions](eventbus-api-extensions.md) | 🟡 Medium | ⭐⭐⭐ | 1 day | 📋 Planned |
 
 ### ☁️ Cloud Technologies
 | Module | Priority | Complexity | Development Time | Status |
 |--------|----------|------------|------------------|--------|
 | [Cloud Rendering](cloud-rendering.md) | 🔴 High | ⭐⭐⭐⭐⭐ | 11 days | 📋 Planned |
+| [Cloud Storage & Sync](cloud-storage-sync.md) | 🔴 High | ⭐⭐⭐⭐⭐ | 6-8 weeks | 📋 Planned |
 
 ### 📱 Mobile Platforms
 | Module | Priority | Complexity | Development Time | Status |
@@ -99,17 +101,17 @@ Timeline Studio aims to combine:
 ## 📊 Planned Modules Statistics
 
 ### By Complexity:
-- ⭐⭐⭐⭐⭐ (Very High): 3 modules + 1 epic
-- ⭐⭐⭐⭐ (High): 2 modules
-- ⭐⭐⭐ (Medium): 2 modules
+- ⭐⭐⭐⭐⭐ (Very High): 6 modules
+- ⭐⭐⭐⭐ (High): 1 module
+- ⭐⭐⭐ (Medium): 1 module
 
 ### By Development Time:
-- **Total time:** 13 weeks (including AI Content Intelligence Suite + AI Chat)
-- **Savings from unification:** 11 weeks (46% of original plan)
-- **Additional savings from AI Chat:** 4 weeks
+- **Total time:** 22+ weeks (expanded with new comprehensive modules)
+- **Completed tasks:** 7 major AI and infrastructure modules
+- **Remaining tasks:** 9 modules focused on comprehensive functionality
 
 ### By Priority:
-- 🔴 **High priority:** 4 modules (including AI epic)
+- 🔴 **High priority:** 4 modules
 - 🟡 **Medium priority:** 4 modules
 - 🟢 **Low priority:** 0 modules
 
