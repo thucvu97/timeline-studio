@@ -10,7 +10,6 @@ import { MediaFile } from "@/features/media/types/media"
 import { cn } from "@/lib/utils"
 
 import { AudioSettings } from "./audio-settings"
-import { MediaInfo } from "./media-info"
 import { SpeedSettings } from "./speed-settings"
 
 type OptionsTab = "audio" | "color" | "speed" | "info"
@@ -45,10 +44,8 @@ export function Options({ selectedMediaFile }: OptionsProps) {
         return <ColorSettings />
       case "speed":
         return <SpeedSettings />
-      case "info":
-        return <MediaInfo />
       default:
-        return <MediaInfo />
+        return <ColorSettings />
     }
   }
 

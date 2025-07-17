@@ -1,198 +1,200 @@
-# Person Identification - Модуль распознавания и идентификации персон
+# Person Identification - Face Recognition and Person Identification Module
 
-> ✅ **Модуль полностью реализован и интегрирован в Timeline Studio**
+[🇷🇺 Русская версия](./README.ru.md)
 
-## 📋 Обзор
+> ✅ **Module is fully implemented and integrated into Timeline Studio**
 
-Person Identification - это продвинутый модуль для распознавания лиц, идентификации персон и отслеживания их появления на протяжении всего видео. Модуль интегрирован с Timeline и предоставляет полный набор инструментов для работы с персонами в видеопроектах.
+## 📋 Overview
 
-## ✅ Реализованные возможности
+Person Identification is an advanced module for face detection, person identification, and tracking their appearances throughout the video. The module is integrated with Timeline and provides a complete set of tools for working with persons in video projects.
 
-### 🎯 Основная функциональность:
-- ✅ **Автоматическое обнаружение лиц** - детекция лиц в видео с помощью Scene Analysis Engine
-- ✅ **Идентификация персон** - сопоставление обнаруженных лиц с известными персонами
-- ✅ **Управление профилями персон** - создание, редактирование и удаление персон
-- ✅ **Timeline интеграция** - отображение персон на клипах Timeline
-- ✅ **Поиск и фильтрация** - быстрый поиск персон по имени и тегам
-- ✅ **Статистика появлений** - подсчет появлений персон в проекте
+## ✅ Implemented Features
 
-### 🏗️ Архитектура
+### 🎯 Core Functionality:
+- ✅ **Automatic Face Detection** - face detection in videos using Scene Analysis Engine
+- ✅ **Person Identification** - matching detected faces with known persons
+- ✅ **Person Profile Management** - create, edit, and delete persons
+- ✅ **Timeline Integration** - display persons on Timeline clips
+- ✅ **Search and Filtering** - quick person search by name and tags
+- ✅ **Appearance Statistics** - person appearance counting in the project
+
+### 🏗️ Architecture
 
 ```
 src/features/person-identification/
-├── components/                  # React компоненты
-│   ├── person-list.tsx         # ✅ Список персон с фильтрацией
-│   ├── person-detail.tsx       # ✅ Детальная информация о персоне
-│   ├── person-form.tsx         # ✅ Форма создания/редактирования
-│   ├── person-manager.tsx      # ✅ Главный компонент управления
+├── components/                  # React components
+│   ├── person-list.tsx         # ✅ Person list with filtering
+│   ├── person-detail.tsx       # ✅ Detailed person information
+│   ├── person-form.tsx         # ✅ Create/edit form
+│   ├── person-manager.tsx      # ✅ Main management component
 │   └── index.ts               # ✅ Barrel exports
 ├── hooks/                      # React hooks
-│   ├── use-person-identification.ts # ✅ Главный hook для работы с персонами
+│   ├── use-person-identification.ts # ✅ Main hook for working with persons
 │   └── index.ts               # ✅ Barrel exports
-├── services/                   # Бизнес-логика
-│   └── person-database-service.ts # ✅ Сервис для работы с IndexedDB
-├── types/                      # TypeScript типы
-│   └── person.ts              # ✅ Полные типы для персон
-├── index.ts                   # ✅ Главный export модуля
-└── README.md                  # ✅ Документация
+├── services/                   # Business logic
+│   └── person-database-service.ts # ✅ Service for IndexedDB
+├── types/                      # TypeScript types
+│   └── person.ts              # ✅ Complete types for persons
+├── index.ts                   # ✅ Main module export
+└── README.md                  # ✅ Documentation
 ```
 
-### 🔗 Timeline интеграция
+### 🔗 Timeline Integration
 
 ```
 src/features/timeline/
 ├── components/
-│   ├── person-indicators/      # ✅ Индикаторы персон на клипах
+│   ├── person-indicators/      # ✅ Person indicators on clips
 │   │   ├── person-indicator.tsx
 │   │   └── index.ts
-│   ├── persons-panel/          # ✅ Панель персон в Timeline
+│   ├── persons-panel/          # ✅ Persons panel in Timeline
 │   │   ├── persons-panel.tsx
 │   │   └── index.ts
-│   └── track-controls-panel.tsx # ✅ Обновлен с панелью персон
+│   └── track-controls-panel.tsx # ✅ Updated with persons panel
 ├── hooks/
-│   ├── use-timeline-persons.ts # ✅ Hook для Timeline интеграции
-│   └── index.ts               # ✅ Обновлен с новыми exports
+│   ├── use-timeline-persons.ts # ✅ Hook for Timeline integration
+│   └── index.ts               # ✅ Updated with new exports
 ```
 
-## 🎨 Пользовательский интерфейс
+## 🎨 User Interface
 
-### PersonManager - Главный компонент
-- ✅ Список всех персон с фото и статистикой
-- ✅ Поиск персон по имени и описанию
-- ✅ Фильтрация по тегам
-- ✅ Создание новых персон
-- ✅ Редактирование существующих
-- ✅ Удаление персон
+### PersonManager - Main Component
+- ✅ List of all persons with photos and statistics
+- ✅ Search persons by name and description
+- ✅ Filter by tags
+- ✅ Create new persons
+- ✅ Edit existing ones
+- ✅ Delete persons
 
-### PersonIndicator - Индикаторы на Timeline
-- ✅ Маленькие аватары персон на видео клипах
-- ✅ Индикаторы уверенности (зеленый/желтый/красный)
-- ✅ Компактный режим для узких клипов
-- ✅ Tooltip с детальной информацией
-- ✅ Клик для открытия деталей персоны
+### PersonIndicator - Timeline Indicators
+- ✅ Small person avatars on video clips
+- ✅ Confidence indicators (green/yellow/red)
+- ✅ Compact mode for narrow clips
+- ✅ Tooltip with detailed information
+- ✅ Click to open person details
 
-### PersonsPanel - Панель в Timeline
-- ✅ Интегрирована в левую панель Timeline
-- ✅ Список обнаруженных персон
-- ✅ Настройки анализа (порог уверенности, автообнаружение)
-- ✅ Статистика появлений
-- ✅ Фильтрация и поиск
+### PersonsPanel - Timeline Panel
+- ✅ Integrated into left Timeline panel
+- ✅ List of detected persons
+- ✅ Analysis settings (confidence threshold, auto-detection)
+- ✅ Appearance statistics
+- ✅ Filtering and search
 
-## 💾 Структуры данных
+## 💾 Data Structures
 
-### PersonProfile - Профиль персоны
+### PersonProfile - Person Profile
 ```typescript
 interface PersonProfile {
-  id: string                    // ✅ Уникальный идентификатор
-  name?: string                 // ✅ Имя персоны (опционально)
-  isVerified: boolean          // ✅ Подтверждена ли идентичность
+  id: string                    // ✅ Unique identifier
+  name?: string                 // ✅ Person name (optional)
+  isVerified: boolean          // ✅ Identity verification status
   
-  // Биометрические данные
-  faceEmbeddings: FaceEmbedding[]     // ✅ Face embeddings для распознавания
-  averageEmbedding?: Float32Array     // ✅ Усредненный вектор
+  // Biometric data
+  faceEmbeddings: FaceEmbedding[]     // ✅ Face embeddings for recognition
+  averageEmbedding?: Float32Array     // ✅ Average vector
   
-  // Статистика появлений
-  appearances: PersonAppearance[]      // ✅ Все появления в видео
-  totalScreenTime: number             // ✅ Общее время в кадре
-  firstSeen: Timecode                 // ✅ Первое появление
-  lastSeen: Timecode                  // ✅ Последнее появление
+  // Appearance statistics
+  appearances: PersonAppearance[]      // ✅ All video appearances
+  totalScreenTime: number             // ✅ Total screen time
+  firstSeen: Timecode                 // ✅ First appearance
+  lastSeen: Timecode                  // ✅ Last appearance
   
-  // Метаданные
-  tags: string[]                      // ✅ Теги для категоризации
-  notes?: string                      // ✅ Заметки о персоне
-  thumbnails: PersonThumbnail[]       // ✅ Миниатюры лица
+  // Metadata
+  tags: string[]                      // ✅ Tags for categorization
+  notes?: string                      // ✅ Notes about the person
+  thumbnails: PersonThumbnail[]       // ✅ Face thumbnails
   
-  // Настройки приватности
-  privacy: PersonPrivacySettings      // ✅ Настройки конфиденциальности
+  // Privacy settings
+  privacy: PersonPrivacySettings      // ✅ Privacy settings
   
-  // Системные поля
-  createdAt: string                   // ✅ Дата создания
-  updatedAt: string                   // ✅ Дата обновления
+  // System fields
+  createdAt: string                   // ✅ Creation date
+  updatedAt: string                   // ✅ Update date
 }
 ```
 
-### TimelinePersonAppearance - Появление в Timeline
+### TimelinePersonAppearance - Timeline Appearance
 ```typescript
 interface TimelinePersonAppearance {
-  id: string            // ✅ Уникальный ID появления
-  personId: string      // ✅ ID персоны
-  clipId: string        // ✅ ID клипа Timeline
-  startTime: number     // ✅ Время начала (секунды)
-  endTime: number       // ✅ Время окончания (секунды)
-  confidence: number    // ✅ Уверенность идентификации
-  boundingBox?: BoundingBox  // ✅ Область лица
-  thumbnailPath?: string     // ✅ Путь к миниатюре
-  detectedAt: Date      // ✅ Время обнаружения
+  id: string            // ✅ Unique appearance ID
+  personId: string      // ✅ Person ID
+  clipId: string        // ✅ Timeline clip ID
+  startTime: number     // ✅ Start time (seconds)
+  endTime: number       // ✅ End time (seconds)
+  confidence: number    // ✅ Identification confidence
+  boundingBox?: BoundingBox  // ✅ Face area
+  thumbnailPath?: string     // ✅ Thumbnail path
+  detectedAt: Date      // ✅ Detection time
 }
 ```
 
-## 🔧 API и хуки
+## 🔧 API and Hooks
 
-### usePersonIdentification - Главный hook
+### usePersonIdentification - Main Hook
 ```typescript
 const {
-  // Состояние
-  persons,           // ✅ Все персоны
-  isLoading,         // ✅ Статус загрузки
-  error,            // ✅ Ошибки
+  // State
+  persons,           // ✅ All persons
+  isLoading,         // ✅ Loading status
+  error,            // ✅ Errors
   
-  // Методы управления
-  addPerson,         // ✅ Добавить персону
-  updatePerson,      // ✅ Обновить персону
-  deletePerson,      // ✅ Удалить персону
-  searchPersons,     // ✅ Поиск персон
+  // Management methods
+  addPerson,         // ✅ Add person
+  updatePerson,      // ✅ Update person
+  deletePerson,      // ✅ Delete person
+  searchPersons,     // ✅ Search persons
   
-  // Методы работы с лицами
-  detectFaces,       // ✅ Обнаружение лиц
-  identifyPerson,    // ✅ Идентификация по лицу
-  createPersonFromFace, // ✅ Создание персоны из лица
+  // Face methods
+  detectFaces,       // ✅ Face detection
+  identifyPerson,    // ✅ Identify by face
+  createPersonFromFace, // ✅ Create person from face
   
-  // Статистика
-  getStatistics,     // ✅ Получение статистики
+  // Statistics
+  getStatistics,     // ✅ Get statistics
 } = usePersonIdentification()
 ```
 
-### useTimelinePersons - Timeline интеграция
+### useTimelinePersons - Timeline Integration
 ```typescript
 const {
-  // Состояние
-  state,                    // ✅ Состояние анализа
-  persons,                  // ✅ Все персоны
+  // State
+  state,                    // ✅ Analysis state
+  persons,                  // ✅ All persons
   
-  // Методы для клипов
-  getPersonsForClip,        // ✅ Персоны в конкретном клипе
-  getAppearancesForClip,    // ✅ Появления в клипе
+  // Clip methods
+  getPersonsForClip,        // ✅ Persons in specific clip
+  getAppearancesForClip,    // ✅ Appearances in clip
   
-  // Анализ
-  analyzeClipForPersons,    // ✅ Анализ клипа
-  analyzeTimelineForPersons, // ✅ Анализ всего Timeline
+  // Analysis
+  analyzeClipForPersons,    // ✅ Analyze clip
+  analyzeTimelineForPersons, // ✅ Analyze entire Timeline
   
-  // Настройки
-  enablePersonDetection,    // ✅ Включить автообнаружение
-  confidenceThreshold,      // ✅ Порог уверенности
+  // Settings
+  enablePersonDetection,    // ✅ Enable auto-detection
+  confidenceThreshold,      // ✅ Confidence threshold
 } = useTimelinePersons()
 ```
 
-## 🎯 Интеграция с AI Content Intelligence
+## 🎯 AI Content Intelligence Integration
 
-Person Identification полностью интегрирован с AI Content Intelligence Suite:
+Person Identification is fully integrated with AI Content Intelligence Suite:
 
-- ✅ **Scene Analysis Engine** - базовое обнаружение лиц
-- ✅ **Computer Vision Service** - расширенная обработка
-- ✅ **AI Intelligence Orchestrator** - координация анализа
-- ✅ **Unified AI Service** - единый API
+- ✅ **Scene Analysis Engine** - basic face detection
+- ✅ **Computer Vision Service** - advanced processing
+- ✅ **AI Intelligence Orchestrator** - analysis coordination
+- ✅ **Unified AI Service** - unified API
 
-## 🚀 Использование
+## 🚀 Usage
 
-### Базовое использование
+### Basic Usage
 ```typescript
 import { PersonManager } from '@/features/person-identification'
 
-// В компоненте
+// In component
 <PersonManager />
 ```
 
-### В Timeline
+### In Timeline
 ```typescript
 import { PersonIndicator } from '@/features/timeline/components/person-indicators'
 import { useTimelinePersons } from '@/features/timeline/hooks'
@@ -207,49 +209,49 @@ const { getPersonsForClip, getAppearancesForClip } = useTimelinePersons()
 />
 ```
 
-## ⚙️ Настройки
+## ⚙️ Settings
 
-### Настройки обнаружения
-- ✅ **Порог уверенности** - минимальная уверенность для идентификации (по умолчанию 70%)
-- ✅ **Автообнаружение** - автоматический анализ новых клипов
-- ✅ **Интервал анализа** - как часто анализировать кадры
+### Detection Settings
+- ✅ **Confidence Threshold** - minimum confidence for identification (default 70%)
+- ✅ **Auto-detection** - automatic analysis of new clips
+- ✅ **Analysis Interval** - how often to analyze frames
 
-### Настройки приватности
-- ✅ **Размытие лиц** - автоматическое размытие для приватности
-- ✅ **Скрытие из поиска** - исключение из результатов поиска
-- ✅ **Анонимизация** - полное удаление личных данных
+### Privacy Settings
+- ✅ **Face Blurring** - automatic face blurring for privacy
+- ✅ **Hide from Search** - exclude from search results
+- ✅ **Anonymization** - complete removal of personal data
 
-## 📊 Статистика и метрики
+## 📊 Statistics and Metrics
 
-- ✅ **Общее количество персон** в проекте
-- ✅ **Количество обнаруженных лиц** 
-- ✅ **Общее количество появлений**
-- ✅ **Среднее количество лиц на персону**
-- ✅ **Средняя уверенность идентификации**
+- ✅ **Total persons count** in project
+- ✅ **Number of detected faces** 
+- ✅ **Total appearances count**
+- ✅ **Average faces per person**
+- ✅ **Average identification confidence**
 
-## 🔄 Автоматизация
+## 🔄 Automation
 
-- ✅ **Автоматическое обнаружение** новых персон в добавляемых клипах
-- ✅ **Фоновый анализ** без блокировки интерфейса
-- ✅ **Кэширование результатов** для повышения производительности
-- ✅ **Прогресс анализа** с визуальными индикаторами
+- ✅ **Automatic detection** of new persons in added clips
+- ✅ **Background analysis** without blocking UI
+- ✅ **Result caching** for performance improvement
+- ✅ **Analysis progress** with visual indicators
 
-## 🎭 Возможности персонализации
+## 🎭 Personalization Features
 
-- ✅ **Теги персон** - категоризация и группировка
-- ✅ **Заметки** - дополнительная информация о персонах
-- ✅ **Миниатюры** - множественные фото персоны
-- ✅ **Верификация** - подтверждение правильности идентификации
+- ✅ **Person tags** - categorization and grouping
+- ✅ **Notes** - additional person information
+- ✅ **Thumbnails** - multiple person photos
+- ✅ **Verification** - identity confirmation
 
-## 🛡️ Безопасность и приватность
+## 🛡️ Security and Privacy
 
-- ✅ **Локальное хранение** - все данные остаются на устройстве пользователя
-- ✅ **Шифрование** - безопасное хранение биометрических данных
-- ✅ **GDPR готовность** - соответствие требованиям защиты данных
-- ✅ **Право на удаление** - полное удаление данных персоны
+- ✅ **Local storage** - all data stays on user's device
+- ✅ **Encryption** - secure biometric data storage
+- ✅ **GDPR ready** - compliant with data protection requirements
+- ✅ **Right to deletion** - complete person data removal
 
 ---
 
-**Статус**: ✅ **Полностью реализован и готов к использованию**
+**Status**: ✅ **Fully implemented and ready to use**
 
-Модуль Person Identification полностью интегрирован в Timeline Studio и предоставляет комплексное решение для работы с персонами в видеопроектах. Все основные функции реализованы и протестированы.
+The Person Identification module is fully integrated into Timeline Studio and provides a comprehensive solution for working with persons in video projects. All main features are implemented and tested.

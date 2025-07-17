@@ -1,4 +1,3 @@
 export { AudioSettings } from "./components/audio-settings"
-export { MediaInfo } from "./components/media-info"
 export { Options } from "./components/options"
 export { SpeedSettings } from "./components/speed-settings"

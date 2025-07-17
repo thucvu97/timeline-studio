@@ -155,17 +155,7 @@ vi.mock("@/features/ai-chat/services/unified-ai-service", () => ({
   },
 }))
 
-vi.mock("@/features/person-identification/services/person-database-service", () => ({
-  PersonDatabaseService: {
-    getInstance: vi.fn(() => ({
-      addPerson: vi.fn().mockResolvedValue({ id: "person-1", name: "Test Person" }),
-      searchPerson: vi.fn().mockResolvedValue([]),
-      getAllPersons: vi.fn().mockResolvedValue([]),
-      updatePerson: vi.fn().mockResolvedValue(undefined),
-      deletePerson: vi.fn().mockResolvedValue(undefined),
-    })),
-  },
-}))
+// PersonDatabaseService is not mocked globally to allow testing the real implementation
 
 vi.mock("@/features/ai-content-intelligence/engines/scene-analysis/scene-analysis-engine", () => ({
   SceneAnalysisEngine: vi.fn(() => ({
