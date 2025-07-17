@@ -1,4 +1,4 @@
-# TIMELINE STUDIO PROJECT MANIFEST
+# Timeline Studio Project Manifest
 
 ## 🎯 Vision
 
@@ -109,6 +109,7 @@ You upload videos - AI finds story arcs, crises, resolutions, emotional peaks. T
 
 ## 📚 Documentation Structure
 
+- `00_project_manifest/` - Project overview and manifests
 - `01_project_docs/` - Main documentation
 - `02_requirements/` - Functional and technical requirements
 - `03_architecture/` - Detailed system architecture
