@@ -19,7 +19,9 @@ export const BaseProviders = ({ children }: { children: ReactNode }) => {
   return (
     <ThemeProvider>
       <I18nProvider>
-        <AppSettingsProvider>{children}</AppSettingsProvider>
+        <AppSettingsProvider>
+          <ModalProvider>{children}</ModalProvider>
+        </AppSettingsProvider>
       </I18nProvider>
     </ThemeProvider>
   )

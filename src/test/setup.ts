@@ -24,23 +24,69 @@ beforeAll(() => {
 })
 
 // Mock common providers that are used in tests
-vi.mock("@/features/user-settings", () => ({
-  useUserSettings: () => ({
-    openAiApiKey: "test-api-key",
-    claudeApiKey: "test-claude-key",
-    updateSettings: vi.fn(),
-  }),
-  UserSettingsProvider: ({ children }: { children: React.ReactNode }) => children,
-}))
+vi.mock("@/features/user-settings", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/features/user-settings")>()
+  return {
+    ...actual,
+    useUserSettings: () => ({
+      openAiApiKey: "test-api-key",
+      claudeApiKey: "test-claude-key",
+      updateSettings: vi.fn(),
+    }),
+    UserSettingsProvider: ({ children }: { children: React.ReactNode }) => children,
+  }
+})
 
 // Mock useApiKeys hook
 vi.mock("@/features/user-settings/hooks/use-api-keys")
+
+// Mock ApiKeyLoader
+vi.mock("@/features/ai-chat/services/api-key-loader", () => ({
+  ApiKeyLoader: {
+    getInstance: () => ({
+      clearCache: vi.fn(),
+      getApiKey: vi.fn().mockResolvedValue("test-api-key"),
+      setApiKey: vi.fn(),
+    }),
+  },
+}))
+
+vi.mock("@/features/ai-chat/__mocks__/api-key-loader", () => ({
+  ApiKeyLoader: {
+    getInstance: () => ({
+      clearCache: vi.fn(),
+      getApiKey: vi.fn().mockResolvedValue("test-api-key"),
+      setApiKey: vi.fn(),
+    }),
+  },
+}))
 
 vi.mock("@/features/modals", () => ({
   useModal: () => ({
     openModal: vi.fn(),
     closeModal: vi.fn(),
     isOpen: false,
+    modalData: null,
+  }),
+  ModalProvider: ({ children }: { children: React.ReactNode }) => children,
+}))
+
+vi.mock("@/features/modals/services/modal-provider", () => ({
+  ModalProvider: ({ children }: { children: React.ReactNode }) => children,
+  useModal: () => ({
+    openModal: vi.fn(),
+    closeModal: vi.fn(),
+    isOpen: false,
+    modalData: null,
+  }),
+}))
+
+vi.mock("@/features/modals/services", () => ({
+  useModal: () => ({
+    openModal: vi.fn(),
+    closeModal: vi.fn(),
+    isOpen: false,
+    modalData: null,
   }),
   ModalProvider: ({ children }: { children: React.ReactNode }) => children,
 }))
