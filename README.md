@@ -17,7 +17,7 @@
 [![npm downloads](https://img.shields.io/npm/dm/timeline-studio?style=flat-square&label=downloads)](https://www.npmjs.com/package/timeline-studio)
 
 [![Telegram](https://img.shields.io/badge/Join%20Group-Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/timelinestudio)
-[![Discord](https://img.shields.io/badge/Chat-on%20Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/gwJUYxck)
+[![Discord](https://img.shields.io/badge/Chat-on%20Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/BSddjvWk)
 [![X](https://img.shields.io/badge/Follow-@chatman-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/chatman_media)
 [![YouTube](https://img.shields.io/badge/Subscribe-YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/@chatman-media)
 
@@ -47,10 +47,16 @@
 ### 🚀 Problems We Solve
 
 **One upload → dozens of ready versions:**
-- 📱 **TikTok** - vertical shorts with trending effects
-- 📺 **YouTube** - full movies, short clips, Shorts
-- 📸 **Instagram** - Reels, Stories, posts of different lengths
-- ✈️ **Telegram** - optimized versions for channels and chats
+- 📱 **TikTok** - vertical shorts with trending effects (direct upload)
+- 📺 **YouTube** - full movies, short clips, Shorts (direct upload)
+- 🎬 **Vimeo** - high-quality cinematic versions (direct upload)
+- ✈️ **Telegram** - optimized versions for channels and chats (direct upload)
+- 📸 **Instagram** - Reels, Stories, posts optimized for manual upload
+- 🐦 **Twitter/X** - short engaging clips with captions
+- 💼 **LinkedIn** - professional content with subtitles
+- 📘 **Facebook** - square and landscape videos
+- 🎮 **Twitch** - gaming clips and highlights
+- 👻 **Snapchat** - vertical stories with AR effects
 
 ### 💡 How It Works
 
@@ -130,13 +136,14 @@ Timeline Studio uses a modular Rust backend architecture. Each module provides s
 
 ## 🏗️ Project Status
 
-**Overall readiness: 94%+**
 **🚀 Alpha version: 97.5% ready** 🎯
 
 ✅ **Completed**: 55+ modules (100% ready) - 30+ frontend + 25+ backend
-🔄 **In progress**: Advanced Timeline Features
-✅ **Smart Montage Planner**: 100% ready - Full UI-Backend integration! 🎉
-📋 **Recently Completed**: Smart Montage Planner, Timeline Integration, Backend Testing
+📋 **Recently Completed**: 
+- 🤖 **AI Chat Integration** - Full Claude/OpenAI/DeepSeek/Ollama provider support with 151 specialized tools
+- 💬 **Chat UI** - Modern chat interface with markdown support, code highlighting, and streaming responses
+- 🧠 **Smart Montage Planner** - AI-powered automatic montage generation with quality analysis
+- 🎬 **Timeline Integration** - Complete timeline editing with AI assistance
 
 [→ Detailed Roadmap](docs/en/10_project_state/)
 
@@ -232,7 +239,7 @@ bun run check:all
 
 ### Join Our Community
 [![Telegram](https://img.shields.io/badge/Join%20Group-Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/timelinestudio)
-[![Discord](https://img.shields.io/badge/Chat-on%20Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/gwJUYxck)
+[![Discord](https://img.shields.io/badge/Chat-on%20Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/BSddjvWk)
 [![X](https://img.shields.io/badge/Follow-@chatman-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/chatman_media)
 [![YouTube](https://img.shields.io/badge/Subscribe-YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/@chatman-media)
 
