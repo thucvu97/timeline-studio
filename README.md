@@ -52,11 +52,6 @@
 - 🎬 **Vimeo** - high-quality cinematic versions (direct upload)
 - ✈️ **Telegram** - optimized versions for channels and chats (direct upload)
 - 📸 **Instagram** - Reels, Stories, posts optimized for manual upload
-- 🐦 **Twitter/X** - short engaging clips with captions
-- 💼 **LinkedIn** - professional content with subtitles
-- 📘 **Facebook** - square and landscape videos
-- 🎮 **Twitch** - gaming clips and highlights
-- 👻 **Snapchat** - vertical stories with AR effects
 
 ### 💡 How It Works
 
@@ -139,7 +134,7 @@ Timeline Studio uses a modular Rust backend architecture. Each module provides s
 **🚀 Alpha version: 97.5% ready** 🎯
 
 ✅ **Completed**: 55+ modules (100% ready) - 30+ frontend + 25+ backend
-📋 **Recently Completed**: 
+📋 **Recently Completed**:
 - 🤖 **AI Chat Integration** - Full Claude/OpenAI/DeepSeek/Ollama provider support with 151 specialized tools
 - 💬 **Chat UI** - Modern chat interface with markdown support, code highlighting, and streaming responses
 - 🧠 **Smart Montage Planner** - AI-powered automatic montage generation with quality analysis

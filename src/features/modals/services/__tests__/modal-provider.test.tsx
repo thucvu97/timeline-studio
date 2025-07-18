@@ -1,92 +1,381 @@
-import { describe, expect, it } from "vitest"
+import { render, screen, renderHook, act, waitFor } from "@testing-library/react"
+import { describe, expect, it, vi, beforeEach } from "vitest"
 
-// Simple tests for modal provider functionality
+// Очищаем моки только для этого файла
+vi.unmock("@/features/modals")
+vi.unmock("@/features/modals/services/modal-provider")
+vi.unmock("@/features/modals/services")
+
+import { ModalProvider, useModal } from "../modal-provider"
+import { ModalType } from "../modal-machine"
+
+// Мокаем консоль для проверки логов
+const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {})
+
 describe("ModalProvider", () => {
-  it("should validate modal provider interface", () => {
-    const modalProviderInterface = {
-      modalType: "none",
-      modalData: null,
-      isOpen: false,
-      openModal: true,
-      closeModal: true,
-      submitModal: true
-    }
-
-    expect(modalProviderInterface.modalType).toBe("none")
-    expect(modalProviderInterface.modalData).toBeNull()
-    expect(modalProviderInterface.isOpen).toBe(false)
-    expect(modalProviderInterface.openModal).toBe(true)
-    expect(modalProviderInterface.closeModal).toBe(true)
-    expect(modalProviderInterface.submitModal).toBe(true)
+  beforeEach(() => {
+    vi.clearAllMocks()
   })
 
-  it("should handle modal state management", () => {
-    const modalStates = {
-      CLOSED: "closed",
-      OPENED: "opened",
-      SUBMITTING: "submitting"
-    }
+  it("должен рендерить дочерние элементы", () => {
+    render(
+      <ModalProvider>
+        <div data-testid="test-child">Test Content</div>
+      </ModalProvider>
+    )
 
-    expect(modalStates.CLOSED).toBe("closed")
-    expect(modalStates.OPENED).toBe("opened")
-    expect(modalStates.SUBMITTING).toBe("submitting")
+    expect(screen.getByTestId("test-child")).toBeInTheDocument()
+    expect(screen.getByText("Test Content")).toBeInTheDocument()
   })
 
-  it("should validate modal event types", () => {
-    const eventTypes = {
-      OPEN_MODAL: "OPEN_MODAL",
-      CLOSE_MODAL: "CLOSE_MODAL",
-      SUBMIT_MODAL: "SUBMIT_MODAL",
-      SET_MODAL_DATA: "SET_MODAL_DATA"
+  it("должен предоставлять начальный контекст", () => {
+    const TestComponent = () => {
+      const modal = useModal()
+      return (
+        <div>
+          <div data-testid="modal-type">{modal.modalType}</div>
+          <div data-testid="modal-data">{JSON.stringify(modal.modalData)}</div>
+          <div data-testid="is-open">{modal.isOpen.toString()}</div>
+        </div>
+      )
     }
 
-    expect(eventTypes.OPEN_MODAL).toBe("OPEN_MODAL")
-    expect(eventTypes.CLOSE_MODAL).toBe("CLOSE_MODAL")
-    expect(eventTypes.SUBMIT_MODAL).toBe("SUBMIT_MODAL")
-    expect(eventTypes.SET_MODAL_DATA).toBe("SET_MODAL_DATA")
+    render(
+      <ModalProvider>
+        <TestComponent />
+      </ModalProvider>
+    )
+
+    expect(screen.getByTestId("modal-type")).toHaveTextContent("none")
+    expect(screen.getByTestId("modal-data")).toHaveTextContent("null")
+    expect(screen.getByTestId("is-open")).toHaveTextContent("false")
   })
 
-  it("should handle modal data validation", () => {
-    const validateModalData = (data: any) => {
-      if (data === null || data === undefined) {
-        return { isValid: true, error: null }
-      }
+  it("должен открывать модальное окно", async () => {
+    const TestComponent = () => {
+      const modal = useModal()
+      return (
+        <div>
+          <button onClick={() => modal.openModal("project-settings")}>
+            Open Modal
+          </button>
+          <div data-testid="modal-type">{modal.modalType}</div>
+          <div data-testid="is-open">{modal.isOpen.toString()}</div>
+        </div>
+      )
+    }
+
+    render(
+      <ModalProvider>
+        <TestComponent />
+      </ModalProvider>
+    )
+
+    const openButton = screen.getByText("Open Modal")
+    
+    act(() => {
+      openButton.click()
+    })
+
+    await waitFor(() => {
+      expect(screen.getByTestId("modal-type")).toHaveTextContent("project-settings")
+      expect(screen.getByTestId("is-open")).toHaveTextContent("true")
+    })
+
+    expect(consoleLogSpy).toHaveBeenCalledWith("Открываем модальное окно:", "project-settings")
+  })
+
+  it("должен открывать модальное окно с данными", async () => {
+    const TestComponent = () => {
+      const modal = useModal()
+      return (
+        <div>
+          <button 
+            onClick={() => modal.openModal("user-settings", { 
+              dialogClass: "custom-class",
+              testData: "test-value" 
+            })}
+          >
+            Open Modal with Data
+          </button>
+          <div data-testid="modal-data">{JSON.stringify(modal.modalData)}</div>
+        </div>
+      )
+    }
+
+    render(
+      <ModalProvider>
+        <TestComponent />
+      </ModalProvider>
+    )
+
+    const openButton = screen.getByText("Open Modal with Data")
+    
+    act(() => {
+      openButton.click()
+    })
+
+    await waitFor(() => {
+      const modalData = JSON.parse(screen.getByTestId("modal-data").textContent!)
+      expect(modalData).toEqual({
+        dialogClass: "custom-class",
+        testData: "test-value"
+      })
+    })
+  })
+
+  it("должен закрывать модальное окно", async () => {
+    const TestComponent = () => {
+      const modal = useModal()
+      return (
+        <div>
+          <button onClick={() => modal.openModal("export")}>Open</button>
+          <button onClick={() => modal.closeModal()}>Close</button>
+          <div data-testid="is-open">{modal.isOpen.toString()}</div>
+        </div>
+      )
+    }
+
+    render(
+      <ModalProvider>
+        <TestComponent />
+      </ModalProvider>
+    )
+
+    const openButton = screen.getByText("Open")
+    const closeButton = screen.getByText("Close")
+    
+    // Открываем модальное окно
+    act(() => {
+      openButton.click()
+    })
+    
+    await waitFor(() => {
+      expect(screen.getByTestId("is-open")).toHaveTextContent("true")
+    })
+
+    // Закрываем модальное окно
+    act(() => {
+      closeButton.click()
+    })
+    
+    await waitFor(() => {
+      expect(screen.getByTestId("is-open")).toHaveTextContent("false")
+    })
+    
+    expect(consoleLogSpy).toHaveBeenCalledWith("Закрываем модальное окно")
+  })
+
+  it("должен отправлять данные модального окна", async () => {
+    const TestComponent = () => {
+      const modal = useModal()
+      return (
+        <div>
+          <button onClick={() => modal.openModal("camera-capture")}>Open</button>
+          <button onClick={() => modal.submitModal({ result: "success" })}>
+            Submit
+          </button>
+        </div>
+      )
+    }
+
+    render(
+      <ModalProvider>
+        <TestComponent />
+      </ModalProvider>
+    )
+
+    const openButton = screen.getByText("Open")
+    const submitButton = screen.getByText("Submit")
+    
+    // Открываем модальное окно
+    act(() => {
+      openButton.click()
+    })
+
+    await waitFor(() => {
+      // Ждем пока модальное окно откроется
+    })
+
+    // Отправляем данные
+    act(() => {
+      submitButton.click()
+    })
+
+    await waitFor(() => {
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        "Отправляем данные модального окна:", 
+        { result: "success" }
+      )
+    })
+  })
+
+  it("должен переключаться между разными типами модальных окон", async () => {
+    const TestComponent = () => {
+      const modal = useModal()
+      return (
+        <div>
+          <button onClick={() => modal.openModal("keyboard-shortcuts")}>
+            Open Shortcuts
+          </button>
+          <button onClick={() => modal.openModal("voice-recording")}>
+            Open Voice
+          </button>
+          <div data-testid="modal-type">{modal.modalType}</div>
+        </div>
+      )
+    }
+
+    render(
+      <ModalProvider>
+        <TestComponent />
+      </ModalProvider>
+    )
+
+    const shortcutsButton = screen.getByText("Open Shortcuts")
+    const voiceButton = screen.getByText("Open Voice")
+    
+    // Открываем первое модальное окно
+    act(() => {
+      shortcutsButton.click()
+    })
+    
+    await waitFor(() => {
+      expect(screen.getByTestId("modal-type")).toHaveTextContent("keyboard-shortcuts")
+    })
+
+    // Переключаемся на второе модальное окно
+    act(() => {
+      voiceButton.click()
+    })
+    
+    await waitFor(() => {
+      expect(screen.getByTestId("modal-type")).toHaveTextContent("voice-recording")
+    })
+  })
+
+  describe("useModal hook", () => {
+    it("должен выбрасывать ошибку если используется вне провайдера", () => {
+      // Подавляем вывод ошибки в консоль для этого теста
+      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
+
+      expect(() => {
+        renderHook(() => useModal())
+      }).toThrow("useModal must be used within a ModalProvider")
+
+      consoleErrorSpy.mockRestore()
+    })
+
+    it("должен сохранять состояние между ререндерами", async () => {
+      const { result, rerender } = renderHook(() => useModal(), {
+        wrapper: ModalProvider
+      })
+
+      act(() => {
+        result.current.openModal("cache-statistics", { testValue: 123 })
+      })
+
+      await waitFor(() => {
+        expect(result.current.modalType).toBe("cache-statistics")
+        expect(result.current.modalData).toEqual({ testValue: 123 })
+        expect(result.current.isOpen).toBe(true)
+      })
+
+      rerender()
+
+      expect(result.current.modalType).toBe("cache-statistics")
+      expect(result.current.modalData).toEqual({ testValue: 123 })
+      expect(result.current.isOpen).toBe(true)
+    })
+  })
+
+  it("должен работать с различными типами модальных окон", async () => {
+    const modalTypes: ModalType[] = [
+      "camera-capture",
+      "voice-recording",
+      "export",
+      "project-settings",
+      "user-settings"
+    ]
+
+    const TestComponent = () => {
+      const modal = useModal()
+      return (
+        <div>
+          {modalTypes.map(type => (
+            <button key={type} onClick={() => modal.openModal(type)}>
+              {type}
+            </button>
+          ))}
+          <div data-testid="current-modal">{modal.modalType}</div>
+        </div>
+      )
+    }
+
+    render(
+      <ModalProvider>
+        <TestComponent />
+      </ModalProvider>
+    )
+
+    for (const type of modalTypes) {
+      const button = screen.getByText(type)
       
-      if (typeof data !== "object") {
-        return { isValid: false, error: "Data must be an object" }
-      }
-      
-      return { isValid: true, error: null }
-    }
+      act(() => {
+        button.click()
+      })
 
-    expect(validateModalData(null)).toEqual({ isValid: true, error: null })
-    expect(validateModalData({})).toEqual({ isValid: true, error: null })
-    expect(validateModalData({ id: 1 })).toEqual({ isValid: true, error: null })
-    expect(validateModalData("string")).toEqual({ isValid: false, error: "Data must be an object" })
+      await waitFor(() => {
+        expect(screen.getByTestId("current-modal")).toHaveTextContent(type)
+      })
+    }
   })
 
-  it("should handle modal lifecycle", () => {
-    const modalLifecycle = {
-      initialize: () => ({ modalType: "none", isOpen: false }),
-      open: (type: string) => ({ modalType: type, isOpen: true }),
-      close: () => ({ modalType: "none", isOpen: false }),
-      submit: (data: any) => ({ submitted: true, data })
+  it("должен обрабатывать сложные данные модального окна", async () => {
+    const complexData = {
+      dialogClass: "max-w-4xl",
+      returnTo: "project-settings" as ModalType,
+      subtitle: {
+        id: "sub-123",
+        text: "Test subtitle",
+        startTime: 10.5,
+        endTime: 15.3
+      },
+      options: {
+        autoSave: true,
+        quality: "high"
+      }
     }
 
-    const initial = modalLifecycle.initialize()
-    expect(initial.modalType).toBe("none")
-    expect(initial.isOpen).toBe(false)
+    const TestComponent = () => {
+      const modal = useModal()
+      return (
+        <div>
+          <button onClick={() => modal.openModal("subtitle-editor", complexData)}>
+            Open Complex
+          </button>
+          <pre data-testid="modal-data">
+            {JSON.stringify(modal.modalData, null, 2)}
+          </pre>
+        </div>
+      )
+    }
 
-    const opened = modalLifecycle.open("export")
-    expect(opened.modalType).toBe("export")
-    expect(opened.isOpen).toBe(true)
+    render(
+      <ModalProvider>
+        <TestComponent />
+      </ModalProvider>
+    )
 
-    const closed = modalLifecycle.close()
-    expect(closed.modalType).toBe("none")
-    expect(closed.isOpen).toBe(false)
+    const button = screen.getByText("Open Complex")
+    
+    act(() => {
+      button.click()
+    })
 
-    const submitted = modalLifecycle.submit({ result: "success" })
-    expect(submitted.submitted).toBe(true)
-    expect(submitted.data).toEqual({ result: "success" })
+    await waitFor(() => {
+      const modalData = JSON.parse(screen.getByTestId("modal-data").textContent!)
+      expect(modalData).toEqual(complexData)
+    })
   })
 })
