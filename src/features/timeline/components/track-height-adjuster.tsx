@@ -4,7 +4,7 @@
  * Добавляет возможность изменения высоты трека перетаскиванием нижней границы
  */
 
-import React, { useCallback, useState } from "react"
+import React, { useCallback, useRef, useState } from "react"
 
 import { cn } from "@/lib/utils"
 
@@ -17,8 +17,11 @@ interface TrackHeightAdjusterProps {
 
 export function TrackHeightAdjuster({ trackId, currentHeight, onHeightChange, className }: TrackHeightAdjusterProps) {
   const [isDragging, setIsDragging] = useState(false)
-  const [startY, setStartY] = useState(0)
-  const [startHeight, setStartHeight] = useState(0)
+  const dragStateRef = useRef({
+    isDragging: false,
+    startY: 0,
+    startHeight: 0,
+  })
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
@@ -26,19 +29,23 @@ export function TrackHeightAdjuster({ trackId, currentHeight, onHeightChange, cl
       e.stopPropagation()
 
       setIsDragging(true)
-      setStartY(e.clientY)
-      setStartHeight(currentHeight)
+      dragStateRef.current = {
+        isDragging: true,
+        startY: e.clientY,
+        startHeight: currentHeight,
+      }
 
       const handleMouseMove = (e: MouseEvent) => {
-        if (!isDragging) return
+        if (!dragStateRef.current.isDragging) return
 
-        const deltaY = e.clientY - startY
-        const newHeight = Math.max(40, Math.min(300, startHeight + deltaY))
+        const deltaY = e.clientY - dragStateRef.current.startY
+        const newHeight = Math.max(40, Math.min(300, dragStateRef.current.startHeight + deltaY))
 
         onHeightChange(trackId, newHeight)
       }
 
       const handleMouseUp = () => {
+        dragStateRef.current.isDragging = false
         setIsDragging(false)
         document.removeEventListener("mousemove", handleMouseMove)
         document.removeEventListener("mouseup", handleMouseUp)
@@ -47,7 +54,7 @@ export function TrackHeightAdjuster({ trackId, currentHeight, onHeightChange, cl
       document.addEventListener("mousemove", handleMouseMove)
       document.addEventListener("mouseup", handleMouseUp)
     },
-    [trackId, currentHeight, onHeightChange, isDragging, startY, startHeight],
+    [trackId, currentHeight, onHeightChange],
   )
 
   return (
