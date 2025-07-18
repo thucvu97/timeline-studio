@@ -1,4 +1,8 @@
-# [Timeline Studio](https://chatman-media.github.io/timeline-studio/)
+<div align="center">
+
+[![](public/logo2.png)](https://timelinestudio.pro/)
+
+</div>
 
 <div align="center">
 
@@ -22,6 +26,8 @@
 [![Website](https://img.shields.io/badge/visit-website-brightgreen?style=for-the-badge&logo=globe&logoColor=white)](https://chatman-media.github.io/timeline-studio/)
 
 </div>
+
+# [Timeline Studio](https://timelinestudio.pro/)
 
 ## 🎬 About the Project
 
