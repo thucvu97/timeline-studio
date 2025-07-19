@@ -31,10 +31,10 @@ interface RouteItemProps {
 function RouteItem({ route, onUpdate, onDelete, devices }: RouteItemProps) {
   const { t } = useTranslation()
   const getRouteIcon = () => {
-    if (route.processors.some((p) => p.type === "split")) return <GitBranch className="w-4 h-4" />
-    if (route.processors.some((p) => p.type === "filter")) return <Filter className="w-4 h-4" />
-    if (route.processors.some((p) => p.type === "transform")) return <Shuffle className="w-4 h-4" />
-    return <ArrowRight className="w-4 h-4" />
+    if (route.processors.some((p) => p.type === "split")) return <GitBranch className="w-4 h-4" data-testid="git-branch-icon" />
+    if (route.processors.some((p) => p.type === "filter")) return <Filter className="w-4 h-4" data-testid="filter-icon" />
+    if (route.processors.some((p) => p.type === "transform")) return <Shuffle className="w-4 h-4" data-testid="shuffle-icon" />
+    return <ArrowRight className="w-4 h-4" data-testid="arrow-right-icon" />
   }
 
   const getSourceLabel = () => {
@@ -96,7 +96,7 @@ function RouteItem({ route, onUpdate, onDelete, devices }: RouteItemProps) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
-                <Settings className="w-4 h-4" />
+                <Settings className="w-4 h-4" data-testid="settings-icon" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
@@ -238,7 +238,7 @@ export function MidiRouterView() {
     <Card className="h-full">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="flex items-center gap-2">
-          <Zap className="w-5 h-5" />
+          <Zap className="w-5 h-5" data-testid="zap-icon" />
           {t("fairlightAudio.midi.router.title")}
         </CardTitle>
         <div className="flex items-center gap-2">
@@ -249,26 +249,26 @@ export function MidiRouterView() {
             <SelectContent>
               <SelectItem value="keyboard-split">
                 <div className="flex items-center gap-2">
-                  <Keyboard className="w-4 h-4" />
+                  <Keyboard className="w-4 h-4" data-testid="keyboard-icon" />
                   <span>{t("fairlightAudio.midi.router.presets.keyboardSplit")}</span>
                 </div>
               </SelectItem>
               <SelectItem value="channel-filter">
                 <div className="flex items-center gap-2">
-                  <Filter className="w-4 h-4" />
+                  <Filter className="w-4 h-4" data-testid="filter-icon" />
                   <span>{t("fairlightAudio.midi.router.presets.channelFilter")}</span>
                 </div>
               </SelectItem>
               <SelectItem value="cc-remap">
                 <div className="flex items-center gap-2">
-                  <Shuffle className="w-4 h-4" />
+                  <Shuffle className="w-4 h-4" data-testid="shuffle-icon" />
                   <span>{t("fairlightAudio.midi.router.presets.ccRemap")}</span>
                 </div>
               </SelectItem>
             </SelectContent>
           </Select>
           <Button onClick={handleCreatePreset} disabled={!selectedPreset} size="sm">
-            <Plus className="w-4 h-4 mr-1" />
+            <Plus className="w-4 h-4 mr-1" data-testid="plus-icon" />
             {t("fairlightAudio.midi.router.create")}
           </Button>
         </div>
@@ -285,7 +285,7 @@ export function MidiRouterView() {
             <ScrollArea className="h-[400px]">
               {routes.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
-                  <Music className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                  <Music className="w-12 h-12 mx-auto mb-3 opacity-30" data-testid="music-icon" />
                   <p>{t("fairlightAudio.midi.router.noRoutes")}</p>
                   <p className="text-sm mt-1">{t("fairlightAudio.midi.router.createFirstRoute")}</p>
                 </div>
@@ -307,7 +307,7 @@ export function MidiRouterView() {
 
           <TabsContent value="matrix" className="p-4">
             <div className="text-center py-8 text-muted-foreground">
-              <GitBranch className="w-12 h-12 mx-auto mb-3 opacity-30" />
+              <GitBranch className="w-12 h-12 mx-auto mb-3 opacity-30" data-testid="git-branch-icon" />
               <p>{t("fairlightAudio.midi.router.matrixViewComingSoon")}</p>
               <p className="text-sm mt-1">{t("fairlightAudio.midi.router.matrixDescription")}</p>
             </div>
@@ -315,7 +315,7 @@ export function MidiRouterView() {
 
           <TabsContent value="monitor" className="p-4">
             <div className="text-center py-8 text-muted-foreground">
-              <Zap className="w-12 h-12 mx-auto mb-3 opacity-30" />
+              <Zap className="w-12 h-12 mx-auto mb-3 opacity-30" data-testid="zap-icon" />
               <p>{t("fairlightAudio.midi.router.monitorComingSoon")}</p>
               <p className="text-sm mt-1">{t("fairlightAudio.midi.router.monitorDescription")}</p>
             </div>

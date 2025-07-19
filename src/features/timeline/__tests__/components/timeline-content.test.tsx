@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { useProjectSettings } from "@/features/project-settings/hooks/use-project-settings"
+
 import { TimelineContent } from "../../components/timeline-content"
 
 // Mock все внешние зависимости

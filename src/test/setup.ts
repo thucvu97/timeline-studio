@@ -187,30 +187,44 @@ beforeAll(() => {
   }
 
   // Mock ResizeObserver for components that use it
-  global.ResizeObserver = vi.fn().mockImplementation(() => ({
-    observe: vi.fn(),
-    unobserve: vi.fn(),
-    disconnect: vi.fn(),
-  }))
+  global.ResizeObserver = class ResizeObserver {
+    observe = vi.fn()
+    unobserve = vi.fn()
+    disconnect = vi.fn()
+  }
 
   // Mock IntersectionObserver
-  global.IntersectionObserver = vi.fn().mockImplementation(() => ({
-    observe: vi.fn(),
-    unobserve: vi.fn(),
-    disconnect: vi.fn(),
-  }))
+  global.IntersectionObserver = class IntersectionObserver {
+    constructor(callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {
+      // Store callback and options for potential use
+      void callback
+      void options
+    }
+    observe = vi.fn()
+    unobserve = vi.fn()
+    disconnect = vi.fn()
+    root = null
+    rootMargin = ''
+    thresholds = []
+    takeRecords = vi.fn(() => [])
+  }
 
   // Mock setInterval and clearInterval to ensure they work properly in tests
   if (typeof global.setInterval === "undefined") {
-    global.setInterval = vi.fn((callback: () => void, delay?: number) => {
-      return setTimeout(callback, delay)
-    })
+    global.setInterval = vi.fn((callback: TimerHandler, delay?: number) => {
+      // In tests, callback should always be a function, not a string
+      if (typeof callback === 'function') {
+        return setTimeout(callback, delay) as unknown as number
+      }
+      // If it's not a function, just return a mock timer ID
+      return 1 as unknown as number
+    }) as any
   }
 
   if (typeof global.clearInterval === "undefined") {
     global.clearInterval = vi.fn((id) => {
       clearTimeout(id)
-    })
+    }) as any
   }
 })
 

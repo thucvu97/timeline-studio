@@ -6,8 +6,8 @@ vi.unmock("@/features/modals")
 vi.unmock("@/features/modals/services/modal-provider")
 vi.unmock("@/features/modals/services")
 
-import { ModalProvider, useModal } from "../modal-provider"
 import { ModalType } from "../modal-machine"
+import { ModalProvider, useModal } from "../modal-provider"
 
 // Мокаем консоль для проверки логов
 const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {})

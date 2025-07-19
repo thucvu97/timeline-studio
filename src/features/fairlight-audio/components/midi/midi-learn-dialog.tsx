@@ -136,13 +136,13 @@ export function MidiLearnDialog({ open, onClose, devices, onComplete }: MidiLear
             <div className="text-center space-y-2">
               {isListening ? (
                 <>
-                  <Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-500" />
+                  <Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-500" data-testid="loader-icon" />
                   <p className="text-sm font-medium">{t("fairlightAudio.midi.learnDialog.status.listening")}</p>
                   <p className="text-xs text-zinc-500">{t("fairlightAudio.midi.learnDialog.status.listeningHint")}</p>
                 </>
               ) : receivedMessage ? (
                 <>
-                  <Music className="w-8 h-8 mx-auto text-green-500" />
+                  <Music className="w-8 h-8 mx-auto text-green-500" data-testid="music-icon" />
                   <p className="text-sm font-medium text-green-400">
                     {t("fairlightAudio.midi.learnDialog.status.received")}
                   </p>
@@ -163,7 +163,7 @@ export function MidiLearnDialog({ open, onClose, devices, onComplete }: MidiLear
                 </>
               ) : (
                 <>
-                  <Music className="w-8 h-8 mx-auto text-zinc-600" />
+                  <Music className="w-8 h-8 mx-auto text-zinc-600" data-testid="music-icon" />
                   <p className="text-sm text-zinc-400">{t("fairlightAudio.midi.learnDialog.status.ready")}</p>
                   <p className="text-xs text-zinc-500">{t("fairlightAudio.midi.learnDialog.status.readyHint")}</p>
                 </>

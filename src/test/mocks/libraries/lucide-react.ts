@@ -71,6 +71,7 @@ export const Folder = createMockIcon("Folder")
 export const FolderClosed = createMockIcon("FolderClosed")
 export const FolderOpen = createMockIcon("FolderOpen")
 export const Gauge = createMockIcon("Gauge")
+export const GitBranch = createMockIcon("GitBranch")
 export const Grid = createMockIcon("Grid")
 export const Grid2x2 = createMockIcon("Grid2x2")
 export const Grid2X2 = createMockIcon("Grid2X2")
@@ -153,6 +154,8 @@ export const Users = createMockIcon("Users")
 export const Video = createMockIcon("Video")
 export const Volume2 = createMockIcon("Volume2")
 export const VolumeX = createMockIcon("VolumeX")
+export const RadioIcon = createMockIcon("RadioIcon")
+export const Shuffle = createMockIcon("Shuffle")
 export const Wand2 = createMockIcon("Wand2")
 export const Webcam = createMockIcon("Webcam")
 export const X = createMockIcon("X")
@@ -218,6 +221,7 @@ vi.mock("lucide-react", () => ({
   FolderClosed,
   FolderOpen,
   Gauge,
+  GitBranch,
   Grid,
   Grid2x2,
   Grid2X2,
@@ -263,12 +267,14 @@ vi.mock("lucide-react", () => ({
   Redo2,
   RefreshCw,
   RotateCcw,
+  RadioIcon,
   Save,
   Scissors,
   Search,
   Send,
   Settings,
   Settings2,
+  Shuffle,
   Sliders,
   Circle,
   Sparkles,
