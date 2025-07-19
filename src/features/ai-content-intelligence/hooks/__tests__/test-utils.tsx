@@ -81,7 +81,7 @@ export class MockAIIntelligenceOrchestrator {
       resume: vi.fn(),
       cancel: vi.fn(),
       getProgress: vi.fn(() => createMockProgress()),
-      onProgress: vi.fn((callback) => {
+      onProgress: vi.fn((_callback) => {
         // Return unsubscribe function without calling callback
         // This avoids timing issues in tests
         const unsubscribe = vi.fn()

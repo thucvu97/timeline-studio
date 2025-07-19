@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi, afterEach } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { PersonDatabaseService } from "../../services/person-database-service"
 
@@ -8,9 +8,9 @@ import type { PersonProfile } from "../../types"
 const mockDb = {
   transaction: vi.fn(),
   objectStoreNames: {
-    contains: vi.fn().mockReturnValue(false)
+    contains: vi.fn().mockReturnValue(false),
   },
-  close: vi.fn()
+  close: vi.fn(),
 }
 
 const mockObjectStore = {
@@ -19,20 +19,20 @@ const mockObjectStore = {
   getAll: vi.fn(),
   delete: vi.fn(),
   index: vi.fn(),
-  createIndex: vi.fn()
+  createIndex: vi.fn(),
 }
 
 const mockTransaction = {
   objectStore: vi.fn().mockReturnValue(mockObjectStore),
   onerror: null,
-  oncomplete: null
+  oncomplete: null,
 }
 
 const mockRequest = {
   result: null,
   error: null,
   onsuccess: null,
-  onerror: null
+  onerror: null,
 }
 
 // Mock indexedDB global
@@ -42,11 +42,11 @@ global.indexedDB = {
     error: null,
     onsuccess: null,
     onerror: null,
-    onupgradeneeded: null
+    onupgradeneeded: null,
   }),
   deleteDatabase: vi.fn(),
   databases: vi.fn(),
-  cmp: vi.fn()
+  cmp: vi.fn(),
 } as any
 
 describe("PersonDatabaseService Integration", () => {
@@ -57,7 +57,7 @@ describe("PersonDatabaseService Integration", () => {
     // Reset singleton
     ;(PersonDatabaseService as any).instance = null
     service = PersonDatabaseService.getInstance()
-    
+
     // Setup mock returns
     mockDb.transaction.mockReturnValue(mockTransaction)
     mockObjectStore.put.mockReturnValue(mockRequest)
@@ -76,20 +76,20 @@ describe("PersonDatabaseService Integration", () => {
       error: null,
       onsuccess: null,
       onerror: null,
-      onupgradeneeded: null
+      onupgradeneeded: null,
     }
-    
+
     global.indexedDB.open = vi.fn().mockReturnValue(openRequest)
-    
+
     // Simulate successful open
     setTimeout(() => {
       if (openRequest.onsuccess) {
         openRequest.onsuccess()
       }
     }, 0)
-    
+
     await service.initialize()
-    
+
     expect(global.indexedDB.open).toHaveBeenCalledWith("timeline_studio_persons", 1)
   })
 
@@ -100,27 +100,27 @@ describe("PersonDatabaseService Integration", () => {
       error: null,
       onsuccess: null,
       onerror: null,
-      onupgradeneeded: null
+      onupgradeneeded: null,
     }
-    
+
     global.indexedDB.open = vi.fn().mockReturnValue(openRequest)
-    
+
     setTimeout(() => {
       if (openRequest.onsuccess) {
         openRequest.onsuccess()
       }
     }, 0)
-    
+
     await service.initialize()
-    
+
     // Setup successful put request
     mockObjectStore.put.mockReturnValue({
       result: null,
       error: null,
       onsuccess: null,
-      onerror: null
+      onerror: null,
     })
-    
+
     const personData = {
       name: "Test Person",
       isVerified: false,
@@ -136,21 +136,21 @@ describe("PersonDatabaseService Integration", () => {
         hideFromSearch: false,
         anonymize: false,
         blurIntensity: 5,
-        blurTracking: true
-      }
+        blurTracking: true,
+      },
     }
-    
+
     // Mock successful transaction
     mockTransaction.objectStore = vi.fn().mockReturnValue({
       put: vi.fn().mockImplementation(() => {
         const req = { onsuccess: null, onerror: null }
         setTimeout(() => req.onsuccess && req.onsuccess(), 0)
         return req
-      })
+      }),
     })
-    
+
     const person = await service.createPerson(personData)
-    
+
     expect(person).toHaveProperty("id")
     expect(person.name).toBe("Test Person")
     expect(person.tags).toContain("test")
@@ -163,52 +163,54 @@ describe("PersonDatabaseService Integration", () => {
       error: null,
       onsuccess: null,
       onerror: null,
-      onupgradeneeded: null
+      onupgradeneeded: null,
     }
-    
+
     global.indexedDB.open = vi.fn().mockReturnValue(openRequest)
-    
+
     setTimeout(() => {
       if (openRequest.onsuccess) {
         openRequest.onsuccess()
       }
     }, 0)
-    
+
     await service.initialize()
-    
-    const mockPersons: PersonProfile[] = [{
-      id: "person-1",
-      name: "John Doe",
-      isVerified: true,
-      faceEmbeddings: [],
-      appearances: [],
-      totalScreenTime: 100,
-      firstSeen: { seconds: 0 },
-      lastSeen: { seconds: 100 },
-      tags: ["actor"],
-      thumbnails: [],
-      privacy: {
-        blurFace: false,
-        hideFromSearch: false,
-        anonymize: false,
-        blurIntensity: 5,
-        blurTracking: true
+
+    const mockPersons: PersonProfile[] = [
+      {
+        id: "person-1",
+        name: "John Doe",
+        isVerified: true,
+        faceEmbeddings: [],
+        appearances: [],
+        totalScreenTime: 100,
+        firstSeen: { seconds: 0 },
+        lastSeen: { seconds: 100 },
+        tags: ["actor"],
+        thumbnails: [],
+        privacy: {
+          blurFace: false,
+          hideFromSearch: false,
+          anonymize: false,
+          blurIntensity: 5,
+          blurTracking: true,
+        },
+        createdAt: "2025-01-01T00:00:00Z",
+        updatedAt: "2025-01-01T00:00:00Z",
       },
-      createdAt: "2025-01-01T00:00:00Z",
-      updatedAt: "2025-01-01T00:00:00Z"
-    }]
-    
+    ]
+
     // Mock successful getAll
     mockTransaction.objectStore = vi.fn().mockReturnValue({
       getAll: vi.fn().mockImplementation(() => {
         const req = { result: mockPersons, onsuccess: null, onerror: null }
         setTimeout(() => req.onsuccess && req.onsuccess(), 0)
         return req
-      })
+      }),
     })
-    
+
     const persons = await service.getAllPersons()
-    
+
     expect(persons).toHaveLength(1)
     expect(persons[0].name).toBe("John Doe")
   })
@@ -220,19 +222,19 @@ describe("PersonDatabaseService Integration", () => {
       error: null,
       onsuccess: null,
       onerror: null,
-      onupgradeneeded: null
+      onupgradeneeded: null,
     }
-    
+
     global.indexedDB.open = vi.fn().mockReturnValue(openRequest)
-    
+
     setTimeout(() => {
       if (openRequest.onsuccess) {
         openRequest.onsuccess()
       }
     }, 0)
-    
+
     await service.initialize()
-    
+
     const mockPersons: PersonProfile[] = [
       {
         id: "person-1",
@@ -251,10 +253,10 @@ describe("PersonDatabaseService Integration", () => {
           hideFromSearch: false,
           anonymize: false,
           blurIntensity: 5,
-          blurTracking: true
+          blurTracking: true,
         },
         createdAt: "2025-01-01T00:00:00Z",
-        updatedAt: "2025-01-01T00:00:00Z"
+        updatedAt: "2025-01-01T00:00:00Z",
       },
       {
         id: "person-2",
@@ -272,18 +274,18 @@ describe("PersonDatabaseService Integration", () => {
           hideFromSearch: false,
           anonymize: false,
           blurIntensity: 5,
-          blurTracking: true
+          blurTracking: true,
         },
         createdAt: "2025-01-01T00:00:00Z",
-        updatedAt: "2025-01-01T00:00:00Z"
-      }
+        updatedAt: "2025-01-01T00:00:00Z",
+      },
     ]
-    
+
     // Mock getAllPersons
-    vi.spyOn(service, 'getAllPersons').mockResolvedValue(mockPersons)
-    
+    vi.spyOn(service, "getAllPersons").mockResolvedValue(mockPersons)
+
     const results = await service.searchPersons("john")
-    
+
     expect(results).toHaveLength(1)
     expect(results[0].name).toBe("John Doe")
   })
@@ -295,26 +297,26 @@ describe("PersonDatabaseService Integration", () => {
       error: null,
       onsuccess: null,
       onerror: null,
-      onupgradeneeded: null
+      onupgradeneeded: null,
     }
-    
+
     global.indexedDB.open = vi.fn().mockReturnValue(openRequest)
-    
+
     setTimeout(() => {
       if (openRequest.onsuccess) {
         openRequest.onsuccess()
       }
     }, 0)
-    
+
     await service.initialize()
-    
+
     // Access private method through prototype
     const calculateCosineSimilarity = (service as any).calculateCosineSimilarity.bind(service)
-    
+
     const vec1 = new Float32Array([1, 0, 0])
     const vec2 = new Float32Array([1, 0, 0])
     const vec3 = new Float32Array([0, 1, 0])
-    
+
     expect(calculateCosineSimilarity(vec1, vec2)).toBeCloseTo(1, 5)
     expect(calculateCosineSimilarity(vec1, vec3)).toBeCloseTo(0, 5)
   })
@@ -325,17 +327,17 @@ describe("PersonDatabaseService Integration", () => {
       error: new Error("Database error"),
       onsuccess: null,
       onerror: null,
-      onupgradeneeded: null
+      onupgradeneeded: null,
     }
-    
+
     global.indexedDB.open = vi.fn().mockReturnValue(openRequest)
-    
+
     setTimeout(() => {
       if (openRequest.onerror) {
         openRequest.onerror()
       }
     }, 0)
-    
+
     await expect(service.initialize()).rejects.toThrow()
   })
 
@@ -346,19 +348,19 @@ describe("PersonDatabaseService Integration", () => {
       error: null,
       onsuccess: null,
       onerror: null,
-      onupgradeneeded: null
+      onupgradeneeded: null,
     }
-    
+
     global.indexedDB.open = vi.fn().mockReturnValue(openRequest)
-    
+
     setTimeout(() => {
       if (openRequest.onsuccess) {
         openRequest.onsuccess()
       }
     }, 0)
-    
+
     await service.initialize()
-    
+
     const existingPerson: PersonProfile = {
       id: "person-1",
       name: "John Doe",
@@ -375,26 +377,26 @@ describe("PersonDatabaseService Integration", () => {
         hideFromSearch: false,
         anonymize: false,
         blurIntensity: 5,
-        blurTracking: true
+        blurTracking: true,
       },
       createdAt: "2025-01-01T00:00:00Z",
-      updatedAt: "2025-01-01T00:00:00Z"
+      updatedAt: "2025-01-01T00:00:00Z",
     }
-    
+
     // Mock getPerson
-    vi.spyOn(service, 'getPerson').mockResolvedValue(existingPerson)
-    
+    vi.spyOn(service, "getPerson").mockResolvedValue(existingPerson)
+
     // Mock successful put
     mockTransaction.objectStore = vi.fn().mockReturnValue({
       put: vi.fn().mockImplementation(() => {
         const req = { onsuccess: null, onerror: null }
         setTimeout(() => req.onsuccess && req.onsuccess(), 0)
         return req
-      })
+      }),
     })
-    
+
     const updated = await service.updatePerson("person-1", { name: "John Updated" })
-    
+
     expect(updated).not.toBeNull()
     expect(updated?.name).toBe("John Updated")
   })
@@ -406,30 +408,30 @@ describe("PersonDatabaseService Integration", () => {
       error: null,
       onsuccess: null,
       onerror: null,
-      onupgradeneeded: null
+      onupgradeneeded: null,
     }
-    
+
     global.indexedDB.open = vi.fn().mockReturnValue(openRequest)
-    
+
     setTimeout(() => {
       if (openRequest.onsuccess) {
         openRequest.onsuccess()
       }
     }, 0)
-    
+
     await service.initialize()
-    
+
     // Mock successful delete
     mockTransaction.objectStore = vi.fn().mockReturnValue({
       delete: vi.fn().mockImplementation(() => {
         const req = { onsuccess: null, onerror: null }
         setTimeout(() => req.onsuccess && req.onsuccess(), 0)
         return req
-      })
+      }),
     })
-    
+
     const result = await service.deletePerson("person-1")
-    
+
     expect(result).toBe(true)
   })
 
@@ -440,26 +442,26 @@ describe("PersonDatabaseService Integration", () => {
       error: null,
       onsuccess: null,
       onerror: null,
-      onupgradeneeded: null
+      onupgradeneeded: null,
     }
-    
+
     global.indexedDB.open = vi.fn().mockReturnValue(openRequest)
-    
+
     setTimeout(() => {
       if (openRequest.onsuccess) {
         openRequest.onsuccess()
       }
     }, 0)
-    
+
     await service.initialize()
-    
+
     const mockPersons: PersonProfile[] = [
       {
         id: "person-1",
         name: "John Doe",
         isVerified: true,
         faceEmbeddings: [
-          { faceId: "face-1", vector: new Float32Array([0.1, 0.2]), quality: 0.9, timestamp: { seconds: 10 } }
+          { faceId: "face-1", vector: new Float32Array([0.1, 0.2]), quality: 0.9, timestamp: { seconds: 10 } },
         ],
         appearances: [
           {
@@ -473,8 +475,8 @@ describe("PersonDatabaseService Integration", () => {
             minConfidence: 0.9,
             maxConfidence: 0.9,
             detections: [],
-            createdAt: "2025-01-01T00:00:00Z"
-          }
+            createdAt: "2025-01-01T00:00:00Z",
+          },
         ],
         totalScreenTime: 100,
         firstSeen: { seconds: 0 },
@@ -486,17 +488,17 @@ describe("PersonDatabaseService Integration", () => {
           hideFromSearch: false,
           anonymize: false,
           blurIntensity: 5,
-          blurTracking: true
+          blurTracking: true,
         },
         createdAt: "2025-01-01T00:00:00Z",
-        updatedAt: "2025-01-01T00:00:00Z"
-      }
+        updatedAt: "2025-01-01T00:00:00Z",
+      },
     ]
-    
-    vi.spyOn(service, 'getAllPersons').mockResolvedValue(mockPersons)
-    
+
+    vi.spyOn(service, "getAllPersons").mockResolvedValue(mockPersons)
+
     const stats = await service.getDatabaseStats()
-    
+
     expect(stats.totalPersons).toBe(1)
     expect(stats.totalEmbeddings).toBe(1)
     expect(stats.totalAppearances).toBe(1)

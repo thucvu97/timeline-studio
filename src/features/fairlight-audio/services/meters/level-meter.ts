@@ -36,7 +36,6 @@ export interface MeterConfig {
 export class LevelMeter extends EventEmitter {
   private config: LevelConfig
   private meterConfig: MeterConfig
-  private context: AudioContext | null = null
   private processor: AudioWorkletNode | null = null
 
   // Буферы для каждого канала

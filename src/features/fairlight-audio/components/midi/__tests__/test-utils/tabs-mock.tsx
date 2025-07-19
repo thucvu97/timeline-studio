@@ -4,12 +4,12 @@ const TabsContext = React.createContext<any>(null)
 
 export const Tabs = ({ children, defaultValue, value, onValueChange, className }: any) => {
   const [activeTab, setActiveTab] = React.useState(value || defaultValue || "")
-  
+
   const handleValueChange = (newValue: string) => {
     setActiveTab(newValue)
     onValueChange?.(newValue)
   }
-  
+
   return (
     <TabsContext.Provider value={{ activeTab, setActiveTab: handleValueChange }}>
       <div className={className} data-default-value={defaultValue} data-value={activeTab}>
@@ -22,10 +22,10 @@ export const Tabs = ({ children, defaultValue, value, onValueChange, className }
 export const TabsContent = ({ children, value, className }: any) => {
   const context = React.useContext(TabsContext)
   const isActive = context?.activeTab === value
-  
+
   return isActive ? (
-    <div 
-      className={className} 
+    <div
+      className={className}
       data-tab-content={value}
       role="tabpanel"
       aria-labelledby={`trigger-${value}`}
@@ -37,15 +37,17 @@ export const TabsContent = ({ children, value, className }: any) => {
 }
 
 export const TabsList = ({ children, className }: any) => (
-  <div className={className} role="tablist">{children}</div>
+  <div className={className} role="tablist">
+    {children}
+  </div>
 )
 
 export const TabsTrigger = ({ children, value }: any) => {
   const context = React.useContext(TabsContext)
   const isActive = context?.activeTab === value
-  
+
   return (
-    <button 
+    <button
       data-tab={value}
       role="tab"
       aria-selected={isActive}

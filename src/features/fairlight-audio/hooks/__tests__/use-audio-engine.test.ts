@@ -437,7 +437,7 @@ describe("useAudioEngine", () => {
     it("handles initialization errors gracefully", async () => {
       // Suppress console.error for this test
       const consoleError = vi.spyOn(console, "error").mockImplementation(() => {})
-      
+
       mockAudioEngine.initialize.mockRejectedValue(new Error("Audio context error"))
 
       const { result } = renderHook(() => useAudioEngine())
@@ -446,9 +446,9 @@ describe("useAudioEngine", () => {
       await vi.waitFor(() => {
         expect(mockAudioEngine.initialize).toHaveBeenCalled()
       })
-      
+
       expect(result.current.isInitialized).toBe(false)
-      
+
       // Restore console.error
       consoleError.mockRestore()
     })

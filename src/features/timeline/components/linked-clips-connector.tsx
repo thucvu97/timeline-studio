@@ -2,15 +2,15 @@
  * Компонент для отображения визуальной связи между linked клипами
  */
 
-import React, { useMemo } from 'react'
+import { useMemo } from "react"
 
 import { AnimatePresence, motion } from "motion/react"
 
-import { cn } from '@/lib/utils'
+import { cn } from "@/lib/utils"
 
-import { useTimeline } from '../hooks/use-timeline'
+import { useTimeline } from "../hooks/use-timeline"
 
-import type { TimelineClip } from '../types/timeline'
+import type { TimelineClip } from "../types/timeline"
 
 interface LinkedClipsConnectorProps {
   className?: string
@@ -36,7 +36,7 @@ interface LinkedConnection {
   id: string
   clip1: ClipPosition
   clip2: ClipPosition
-  type: 'video-audio' | 'audio-video' | 'multi-camera'
+  type: "video-audio" | "audio-video" | "multi-camera"
   isActive: boolean
   isHovered: boolean
 }
@@ -101,21 +101,19 @@ export function LinkedClipsConnector({
 
       // Проверяем, есть ли связанный клип
       if (clip1.linkedClipId) {
-        const position2 = clipPositions.find(
-          (pos) => pos.clip.id === clip1.linkedClipId
-        )
+        const position2 = clipPositions.find((pos) => pos.clip.id === clip1.linkedClipId)
 
         if (position2) {
           const { clip: clip2 } = position2
 
           // Определяем тип связи
-          let type: LinkedConnection['type'] = 'video-audio'
-          if (clip1.mediaFile?.type === 'video' && clip2.mediaFile?.type === 'audio') {
-            type = 'video-audio'
-          } else if (clip1.mediaFile?.type === 'audio' && clip2.mediaFile?.type === 'video') {
-            type = 'audio-video'
-          } else if (clip1.mediaFile?.type === 'video' && clip2.mediaFile?.type === 'video') {
-            type = 'multi-camera'
+          let type: LinkedConnection["type"] = "video-audio"
+          if (clip1.mediaFile?.type === "video" && clip2.mediaFile?.type === "audio") {
+            type = "video-audio"
+          } else if (clip1.mediaFile?.type === "audio" && clip2.mediaFile?.type === "video") {
+            type = "audio-video"
+          } else if (clip1.mediaFile?.type === "video" && clip2.mediaFile?.type === "video") {
+            type = "multi-camera"
           }
 
           const connection: LinkedConnection = {
@@ -140,25 +138,20 @@ export function LinkedClipsConnector({
   }
 
   return (
-    <div className={cn('absolute inset-0 pointer-events-none', className)}>
-      <svg
-        width={timelineWidth}
-        height={timelineHeight}
-        className="absolute inset-0"
-        style={{ zIndex: 1 }}
-      >
+    <div className={cn("absolute inset-0 pointer-events-none", className)}>
+      <svg width={timelineWidth} height={timelineHeight} className="absolute inset-0" style={{ zIndex: 1 }}>
         <defs>
           {/* Градиенты для разных типов связей */}
           <linearGradient id="video-audio-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.8" />
             <stop offset="100%" stopColor="#10b981" stopOpacity="0.8" />
           </linearGradient>
-          
+
           <linearGradient id="audio-video-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="#10b981" stopOpacity="0.8" />
             <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.8" />
           </linearGradient>
-          
+
           <linearGradient id="multi-camera-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.8" />
             <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.8" />
@@ -166,10 +159,10 @@ export function LinkedClipsConnector({
 
           {/* Фильтры для свечения */}
           <filter id="glow">
-            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feGaussianBlur stdDeviation="3" result="coloredBlur" />
             <feMerge>
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/>
+              <feMergeNode in="coloredBlur" />
+              <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
         </defs>
@@ -202,23 +195,25 @@ export function LinkedClipsConnector({
 
             const pathData = `M ${clip1Center.x} ${clip1Center.y} C ${controlPoint1.x} ${controlPoint1.y}, ${controlPoint2.x} ${controlPoint2.y}, ${clip2Center.x} ${clip2Center.y}`
 
-            const strokeColor = 
-              type === 'video-audio' ? 'url(#video-audio-gradient)' :
-                type === 'audio-video' ? 'url(#audio-video-gradient)' :
-                  'url(#multi-camera-gradient)'
+            const strokeColor =
+              type === "video-audio"
+                ? "url(#video-audio-gradient)"
+                : type === "audio-video"
+                  ? "url(#audio-video-gradient)"
+                  : "url(#multi-camera-gradient)"
 
             return (
               <motion.g
                 key={connection.id}
                 initial={{ opacity: 0, pathLength: 0 }}
-                animate={{ 
+                animate={{
                   opacity: isActive ? 1 : 0.4,
                   pathLength: 1,
                 }}
                 exit={{ opacity: 0, pathLength: 0 }}
-                transition={{ 
+                transition={{
                   duration: animateConnections ? 0.6 : 0,
-                  ease: 'easeOut',
+                  ease: "easeOut",
                 }}
               >
                 {/* Основная линия связи */}
@@ -227,13 +222,13 @@ export function LinkedClipsConnector({
                   stroke={strokeColor}
                   strokeWidth={isActive ? 3 : 2}
                   fill="none"
-                  filter={isActive ? 'url(#glow)' : undefined}
-                  strokeDasharray={type === 'multi-camera' ? '8,4' : 'none'}
+                  filter={isActive ? "url(#glow)" : undefined}
+                  strokeDasharray={type === "multi-camera" ? "8,4" : "none"}
                   initial={{ pathLength: 0 }}
                   animate={{ pathLength: 1 }}
-                  transition={{ 
+                  transition={{
                     duration: animateConnections ? 0.8 : 0,
-                    ease: 'easeInOut',
+                    ease: "easeInOut",
                   }}
                 />
 
@@ -247,7 +242,7 @@ export function LinkedClipsConnector({
                   strokeWidth={2}
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  transition={{ 
+                  transition={{
                     duration: animateConnections ? 0.3 : 0,
                     delay: animateConnections ? 0.4 : 0,
                   }}
@@ -262,7 +257,7 @@ export function LinkedClipsConnector({
                   strokeWidth={2}
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  transition={{ 
+                  transition={{
                     duration: animateConnections ? 0.3 : 0,
                     delay: animateConnections ? 0.4 : 0,
                   }}
@@ -273,20 +268,15 @@ export function LinkedClipsConnector({
                   transform={`translate(${(clip1Center.x + clip2Center.x) / 2}, ${(clip1Center.y + clip2Center.y) / 2})`}
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  transition={{ 
+                  transition={{
                     duration: animateConnections ? 0.3 : 0,
                     delay: animateConnections ? 0.6 : 0,
                   }}
                 >
-                  <circle
-                    r={12}
-                    fill="white"
-                    stroke={strokeColor}
-                    strokeWidth={2}
-                  />
-                  
+                  <circle r={12} fill="white" stroke={strokeColor} strokeWidth={2} />
+
                   {/* Иконка в зависимости от типа */}
-                  {type === 'video-audio' && (
+                  {type === "video-audio" && (
                     <text
                       x={0}
                       y={0}
@@ -299,8 +289,8 @@ export function LinkedClipsConnector({
                       V→A
                     </text>
                   )}
-                  
-                  {type === 'audio-video' && (
+
+                  {type === "audio-video" && (
                     <text
                       x={0}
                       y={0}
@@ -313,8 +303,8 @@ export function LinkedClipsConnector({
                       A→V
                     </text>
                   )}
-                  
-                  {type === 'multi-camera' && (
+
+                  {type === "multi-camera" && (
                     <text
                       x={0}
                       y={0}
@@ -337,16 +327,18 @@ export function LinkedClipsConnector({
       {/* Подписи для активных соединений */}
       <AnimatePresence>
         {linkedConnections
-          .filter(connection => connection.isActive)
+          .filter((connection) => connection.isActive)
           .map((connection) => {
             const { clip1, clip2, type } = connection
             const centerX = (clip1.x + clip1.width / 2 + clip2.x + clip2.width / 2) / 2
             const centerY = (clip1.y + clip1.height / 2 + clip2.y + clip2.height / 2) / 2
 
-            const label = 
-              type === 'video-audio' ? 'Video → Audio Link' :
-                type === 'audio-video' ? 'Audio → Video Link' :
-                  'Multi-Camera Link'
+            const label =
+              type === "video-audio"
+                ? "Video → Audio Link"
+                : type === "audio-video"
+                  ? "Audio → Video Link"
+                  : "Multi-Camera Link"
 
             return (
               <motion.div

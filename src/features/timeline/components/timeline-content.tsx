@@ -31,7 +31,11 @@ import { TimelineMarkersLayer } from "./markers"
 import { TimelineHotkeys } from "./timeline-hotkeys"
 import { TimelinePreviewStrip } from "./timeline-preview-strip"
 import { TimelineScale } from "./timeline-scale"
-import { SpeedRampingIndicator, TimelineSpeedRampingIntegration, TimelineSpeedRampingStatus } from "./timeline-speed-ramping-integration"
+import {
+  SpeedRampingIndicator,
+  TimelineSpeedRampingIntegration,
+  TimelineSpeedRampingStatus,
+} from "./timeline-speed-ramping-integration"
 import { Track } from "./track/track"
 import { TrackControlsPanel } from "./track-controls-panel"
 import { TrackInsertionZones } from "./track-insertion-zone"

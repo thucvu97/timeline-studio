@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { AudioClipEditor, type AudioClip, type FadeOptions } from "../audio-clip-editor"
+import { type AudioClip, AudioClipEditor, type FadeOptions } from "../audio-clip-editor"
 
 // Mock AudioContext и AudioBuffer
 class MockAudioBuffer {
@@ -14,7 +14,7 @@ class MockAudioBuffer {
     this.length = length
     this.sampleRate = sampleRate
     this.channels = []
-    
+
     for (let i = 0; i < numberOfChannels; i++) {
       this.channels.push(new Float32Array(length))
     }
@@ -32,24 +32,15 @@ class MockAudioContext {
 }
 
 // Helper функция для создания тестового AudioClip
-function createTestClip(
-  id: string,
-  duration: number,
-  sampleRate = 44100,
-  numberOfChannels = 2
-): AudioClip {
-  const buffer = new MockAudioBuffer(
-    numberOfChannels,
-    Math.floor(duration * sampleRate),
-    sampleRate
-  )
+function createTestClip(id: string, duration: number, sampleRate = 44100, numberOfChannels = 2): AudioClip {
+  const buffer = new MockAudioBuffer(numberOfChannels, Math.floor(duration * sampleRate), sampleRate)
 
   // Заполняем буфер тестовыми данными
   for (let channel = 0; channel < numberOfChannels; channel++) {
     const data = buffer.getChannelData(channel)
     for (let i = 0; i < data.length; i++) {
       // Синусоида для тестов
-      data[i] = Math.sin(2 * Math.PI * 440 * i / sampleRate) * 0.5
+      data[i] = Math.sin((2 * Math.PI * 440 * i) / sampleRate) * 0.5
     }
   }
 
@@ -171,7 +162,7 @@ describe("AudioClipEditor", () => {
       // Проверяем, что начало затухает
       const originalData = clip.audioBuffer.getChannelData(0)
       const fadedData = faded.audioBuffer.getChannelData(0)
-      
+
       // Первый сэмпл должен быть близок к нулю (fade in начинается с 0)
       expect(Math.abs(fadedData[0])).toBeCloseTo(0, 3)
       // Последний сэмпл за пределами fade должен остаться неизменным
@@ -186,7 +177,7 @@ describe("AudioClipEditor", () => {
       const faded = editor.applyFadeIn(clip, options)
 
       expect(faded.fadeIn).toBe(0.2)
-      
+
       // Exponential fade должен начинаться с очень малых значений
       const fadedData = faded.audioBuffer.getChannelData(0)
       expect(Math.abs(fadedData[0])).toBeCloseTo(0, 3)
@@ -208,7 +199,7 @@ describe("AudioClipEditor", () => {
       const faded = editor.applyFadeIn(clip, options)
 
       expect(faded.fadeIn).toBe(0.25)
-      
+
       // Cosine fade имеет плавную S-образную кривую
       const fadedData = faded.audioBuffer.getChannelData(0)
       expect(Math.abs(fadedData[0])).toBeCloseTo(0, 3)
@@ -238,14 +229,14 @@ describe("AudioClipEditor", () => {
       // Проверяем, что конец затухает
       const originalData = clip.audioBuffer.getChannelData(0)
       const fadedData = faded.audioBuffer.getChannelData(0)
-      
+
       expect(fadedData[0]).toBe(originalData[0]) // начало не изменено
       expect(Math.abs(fadedData[fadedData.length - 1])).toBeLessThan(Math.abs(originalData[originalData.length - 1]))
     })
 
     it("should apply different fade types correctly", () => {
       const clip = createTestClip("clip1", 1)
-      
+
       const linearFade = editor.applyFadeOut(clip, { type: "linear", duration: 0.2 })
       const expFade = editor.applyFadeOut(clip, { type: "exponential", duration: 0.2 })
       const logFade = editor.applyFadeOut(clip, { type: "logarithmic", duration: 0.2 })
@@ -253,16 +244,16 @@ describe("AudioClipEditor", () => {
 
       // Все должны иметь разные результаты
       const getLastSample = (clip: AudioClip) => clip.audioBuffer.getChannelData(0)[clip.audioBuffer.length - 1]
-      
+
       const samples = [
         getLastSample(linearFade),
         getLastSample(expFade),
         getLastSample(logFade),
-        getLastSample(cosFade)
+        getLastSample(cosFade),
       ]
 
       // Проверяем, что все значения близки к нулю (fade out)
-      samples.forEach(sample => {
+      samples.forEach((sample) => {
         expect(Math.abs(sample)).toBeLessThan(0.1)
       })
     })
@@ -293,9 +284,9 @@ describe("AudioClipEditor", () => {
       const clipB = createTestClip("clipB", 2)
       clipB.startTime = 1.8 // перекрытие только 0.2 секунды
 
-      await expect(
-        editor.createCrossfade(clipA, clipB, 0.5)
-      ).rejects.toThrow("Clips do not overlap enough for crossfade")
+      await expect(editor.createCrossfade(clipA, clipB, 0.5)).rejects.toThrow(
+        "Clips do not overlap enough for crossfade",
+      )
     })
 
     it("should handle different fade types", async () => {
@@ -347,7 +338,7 @@ describe("AudioClipEditor", () => {
   describe("normalizeClip", () => {
     it("should normalize clip and increase gain", () => {
       const clip = createTestClip("clip1", 0.1)
-      
+
       // Уменьшаем громкость
       const data = clip.audioBuffer.getChannelData(0)
       for (let i = 0; i < data.length; i++) {
@@ -358,25 +349,25 @@ describe("AudioClipEditor", () => {
 
       expect(normalized.audioBuffer).not.toBe(clip.audioBuffer)
       expect(normalized.gain).toBeGreaterThan(clip.gain)
-      
+
       // Проверяем, что громкость увеличилась
       const normalizedData = normalized.audioBuffer.getChannelData(0)
       const originalData = clip.audioBuffer.getChannelData(0)
-      
+
       let normalizedMax = 0
       let originalMax = 0
-      
+
       for (let i = 0; i < normalizedData.length; i++) {
         normalizedMax = Math.max(normalizedMax, Math.abs(normalizedData[i]))
         originalMax = Math.max(originalMax, Math.abs(originalData[i]))
       }
-      
+
       expect(normalizedMax).toBeGreaterThan(originalMax)
     })
 
     it("should handle silent clips", () => {
       const clip = createTestClip("clip1", 1)
-      
+
       // Делаем клип тихим
       for (let channel = 0; channel < clip.audioBuffer.numberOfChannels; channel++) {
         const data = clip.audioBuffer.getChannelData(channel)
@@ -427,7 +418,7 @@ describe("AudioClipEditor", () => {
   describe("edge cases", () => {
     it("should handle single-channel audio", async () => {
       const clip = createTestClip("clip1", 1, 44100, 1) // mono
-      
+
       const trimmed = await editor.trimClip(clip, 0.1, 0.1)
       const faded = editor.applyFadeIn(trimmed, { type: "linear", duration: 0.1 })
       const normalized = editor.normalizeClip(faded)
@@ -439,14 +430,14 @@ describe("AudioClipEditor", () => {
 
     it("should handle very short clips", async () => {
       const clip = createTestClip("clip1", 0.01) // 10ms
-      
+
       const faded = editor.applyFadeIn(clip, { type: "linear", duration: 0.005 })
       expect(faded.fadeIn).toBe(0.005)
     })
 
     it("should preserve sample rate through operations", async () => {
       const clip = createTestClip("clip1", 2, 48000) // 48kHz
-      
+
       const trimmed = await editor.trimClip(clip, 0.5, 0.5)
       const faded = editor.applyFadeOut(trimmed, { type: "cosine", duration: 0.2 })
       const normalized = editor.normalizeClip(faded)

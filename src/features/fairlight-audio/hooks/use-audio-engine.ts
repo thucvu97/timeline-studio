@@ -11,7 +11,8 @@ export function useAudioEngine() {
     const engine = new AudioEngine()
     engineRef.current = engine
 
-    void engine.initialize()
+    void engine
+      .initialize()
       .then(() => {
         setIsInitialized(true)
       })

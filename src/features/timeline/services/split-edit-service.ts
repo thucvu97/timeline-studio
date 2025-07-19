@@ -11,8 +11,7 @@ import {
   createSplitEdit,
   getSplitEditsForClip,
   removeSplitEdit,
-  updateSplitEdit,
-} from '../types/split-edit'
+} from "../types/split-edit"
 
 import type {
   SplitEdit,
@@ -20,8 +19,8 @@ import type {
   SplitEditOperation,
   SplitEditToolSettings,
   SplitEditVisual,
-} from '../types/split-edit'
-import type { TimelineClip } from '../types/timeline'
+} from "../types/split-edit"
+import type { TimelineClip } from "../types/timeline"
 
 export interface SplitEditService {
   /** Получить текущую конфигурацию */
@@ -32,78 +31,98 @@ export interface SplitEditService {
   getToolSettings(): SplitEditToolSettings
   /** Обновить настройки инструмента */
   updateToolSettings(settings: Partial<SplitEditToolSettings>): void
-  
+
   /** Выполнить split edit операцию */
-  performSplitEdit(operation: SplitEditOperation, clips: TimelineClip[]): {
+  performSplitEdit(
+    operation: SplitEditOperation,
+    clips: TimelineClip[],
+  ): {
     success: boolean
     splitEdit?: SplitEdit
     updatedClips?: TimelineClip[]
     error?: string
   }
-  
+
   /** Создать L-cut */
-  createLCut(videoClipId: string, audioClipId: string, position: number, clips: TimelineClip[]): {
+  createLCut(
+    videoClipId: string,
+    audioClipId: string,
+    position: number,
+    clips: TimelineClip[],
+  ): {
     success: boolean
     splitEdit?: SplitEdit
     updatedClips?: TimelineClip[]
     error?: string
   }
-  
+
   /** Создать J-cut */
-  createJCut(videoClipId: string, audioClipId: string, position: number, clips: TimelineClip[]): {
+  createJCut(
+    videoClipId: string,
+    audioClipId: string,
+    position: number,
+    clips: TimelineClip[],
+  ): {
     success: boolean
     splitEdit?: SplitEdit
     updatedClips?: TimelineClip[]
     error?: string
   }
-  
+
   /** Разделить клип в позиции playhead */
-  splitAtPlayhead(clipId: string, position: number, clips: TimelineClip[]): {
+  splitAtPlayhead(
+    clipId: string,
+    position: number,
+    clips: TimelineClip[],
+  ): {
     success: boolean
     splitEdit?: SplitEdit
     updatedClips?: TimelineClip[]
     error?: string
   }
-  
+
   /** Удалить split edit */
   removeSplitEdit(splitEditId: string): boolean
-  
+
   /** Получить все split edits для клипа */
   getSplitEditsForClip(clipId: string): SplitEdit[]
-  
+
   /** Получить активные split edits */
   getActiveSplitEdits(): SplitEdit[]
-  
+
   /** Очистить все split edits */
   clearAllSplitEdits(): void
-  
+
   /** Получить визуальные настройки */
   getVisualSettings(): SplitEditVisual
-  
+
   /** Обновить позицию предварительного просмотра */
   updatePreviewPosition(position: number): void
-  
+
   /** Показать предварительный просмотр */
-  showPreview(position: number, type: 'L-cut' | 'J-cut' | 'split-at-playhead'): void
-  
+  showPreview(position: number, type: "L-cut" | "J-cut" | "split-at-playhead"): void
+
   /** Скрыть предварительный просмотр */
   hidePreview(): void
-  
+
   /** Проверить возможность выполнения операции */
   canPerformOperation(operation: SplitEditOperation, clips: TimelineClip[]): boolean
-  
+
   /** Получить связанные клипы */
-  getLinkedClips(clipId: string, clips: TimelineClip[]): {
+  getLinkedClips(
+    clipId: string,
+    clips: TimelineClip[],
+  ): {
     videoClip?: TimelineClip
     audioClip?: TimelineClip
   }
-  
+
   /** Синхронизировать split edits */
   syncSplitEdits(clips: TimelineClip[]): void
-  
+
   /** Получить snap позицию */
   getSnapPosition(position: number, clips: TimelineClip[]): number
-  
+
   /** Валидировать split edit */
   validateSplitEdit(splitEdit: SplitEdit, clips: TimelineClip[]): boolean
 }
@@ -113,17 +132,14 @@ export class SplitEditServiceImpl implements SplitEditService {
   private toolSettings: SplitEditToolSettings
   private visualSettings: SplitEditVisual
 
-  constructor(
-    initialConfig?: Partial<SplitEditConfig>,
-    initialToolSettings?: Partial<SplitEditToolSettings>
-  ) {
+  constructor(initialConfig?: Partial<SplitEditConfig>, initialToolSettings?: Partial<SplitEditToolSettings>) {
     this.config = { ...createDefaultSplitEditConfig(), ...initialConfig }
     this.toolSettings = { ...createDefaultSplitEditSettings(), ...initialToolSettings }
     this.visualSettings = {
       showPreview: false,
       previewPosition: 0,
-      operationType: 'split-at-playhead',
-      indicatorColor: '#3b82f6',
+      operationType: "split-at-playhead",
+      indicatorColor: "#3b82f6",
       indicatorOpacity: 0.8,
     }
   }
@@ -144,7 +160,10 @@ export class SplitEditServiceImpl implements SplitEditService {
     this.toolSettings = { ...this.toolSettings, ...settings }
   }
 
-  performSplitEdit(operation: SplitEditOperation, clips: TimelineClip[]): {
+  performSplitEdit(
+    operation: SplitEditOperation,
+    clips: TimelineClip[],
+  ): {
     success: boolean
     splitEdit?: SplitEdit
     updatedClips?: TimelineClip[]
@@ -153,37 +172,42 @@ export class SplitEditServiceImpl implements SplitEditService {
     if (!this.canPerformOperation(operation, clips)) {
       return {
         success: false,
-        error: 'Cannot perform split edit operation',
+        error: "Cannot perform split edit operation",
       }
     }
 
     switch (operation.type) {
-      case 'create':
+      case "create":
         switch (operation.splitType) {
-          case 'L-cut':
+          case "L-cut":
             return this.createLCut(operation.clipId, operation.clipId, operation.position, clips)
-          case 'J-cut':
+          case "J-cut":
             return this.createJCut(operation.clipId, operation.clipId, operation.position, clips)
-          case 'split-at-playhead':
+          case "split-at-playhead":
             return this.splitAtPlayhead(operation.clipId, operation.position, clips)
           default:
-            return { success: false, error: 'Unknown split type' }
+            return { success: false, error: "Unknown split type" }
         }
         break
-      case 'remove':
+      case "remove":
         const removed = this.removeSplitEdit(operation.clipId)
         return { success: removed }
-      case 'adjust':
+      case "adjust":
         // Реализация корректировки split edit
         return { success: true }
       default:
-        return { success: false, error: 'Unknown operation type' }
+        return { success: false, error: "Unknown operation type" }
     }
 
-    return { success: false, error: 'Unknown operation type' }
+    return { success: false, error: "Unknown operation type" }
   }
 
-  createLCut(videoClipId: string, audioClipId: string, position: number, clips: TimelineClip[]): {
+  createLCut(
+    videoClipId: string,
+    audioClipId: string,
+    position: number,
+    clips: TimelineClip[],
+  ): {
     success: boolean
     splitEdit?: SplitEdit
     updatedClips?: TimelineClip[]
@@ -192,25 +216,25 @@ export class SplitEditServiceImpl implements SplitEditService {
     if (!canPerformSplitEdit(videoClipId, audioClipId, position, clips)) {
       return {
         success: false,
-        error: 'Cannot create L-cut at this position',
+        error: "Cannot create L-cut at this position",
       }
     }
 
-    const videoClip = clips.find(c => c.id === videoClipId)
-    const audioClip = clips.find(c => c.id === audioClipId)
+    const videoClip = clips.find((c) => c.id === videoClipId)
+    const audioClip = clips.find((c) => c.id === audioClipId)
 
     if (!videoClip || !audioClip) {
       return {
         success: false,
-        error: 'Video or audio clip not found',
+        error: "Video or audio clip not found",
       }
     }
 
-    const splitEdit = createSplitEdit(videoClipId, audioClipId, position, 'L-cut')
+    const splitEdit = createSplitEdit(videoClipId, audioClipId, position, "L-cut")
     const params = calculateLCutParams(videoClip, audioClip, position)
 
     // Обновляем клипы
-    const updatedClips = clips.map(clip => {
+    const updatedClips = clips.map((clip) => {
       if (clip.id === videoClipId) {
         return {
           ...clip,
@@ -237,7 +261,12 @@ export class SplitEditServiceImpl implements SplitEditService {
     }
   }
 
-  createJCut(videoClipId: string, audioClipId: string, position: number, clips: TimelineClip[]): {
+  createJCut(
+    videoClipId: string,
+    audioClipId: string,
+    position: number,
+    clips: TimelineClip[],
+  ): {
     success: boolean
     splitEdit?: SplitEdit
     updatedClips?: TimelineClip[]
@@ -246,25 +275,25 @@ export class SplitEditServiceImpl implements SplitEditService {
     if (!canPerformSplitEdit(videoClipId, audioClipId, position, clips)) {
       return {
         success: false,
-        error: 'Cannot create J-cut at this position',
+        error: "Cannot create J-cut at this position",
       }
     }
 
-    const videoClip = clips.find(c => c.id === videoClipId)
-    const audioClip = clips.find(c => c.id === audioClipId)
+    const videoClip = clips.find((c) => c.id === videoClipId)
+    const audioClip = clips.find((c) => c.id === audioClipId)
 
     if (!videoClip || !audioClip) {
       return {
         success: false,
-        error: 'Video or audio clip not found',
+        error: "Video or audio clip not found",
       }
     }
 
-    const splitEdit = createSplitEdit(videoClipId, audioClipId, position, 'J-cut')
+    const splitEdit = createSplitEdit(videoClipId, audioClipId, position, "J-cut")
     const params = calculateJCutParams(videoClip, audioClip, position)
 
     // Обновляем клипы
-    const updatedClips = clips.map(clip => {
+    const updatedClips = clips.map((clip) => {
       if (clip.id === videoClipId) {
         return {
           ...clip,
@@ -291,28 +320,32 @@ export class SplitEditServiceImpl implements SplitEditService {
     }
   }
 
-  splitAtPlayhead(clipId: string, position: number, clips: TimelineClip[]): {
+  splitAtPlayhead(
+    clipId: string,
+    position: number,
+    clips: TimelineClip[],
+  ): {
     success: boolean
     splitEdit?: SplitEdit
     updatedClips?: TimelineClip[]
     error?: string
   } {
-    const clip = clips.find(c => c.id === clipId)
+    const clip = clips.find((c) => c.id === clipId)
     if (!clip) {
       return {
         success: false,
-        error: 'Clip not found',
+        error: "Clip not found",
       }
     }
 
     if (position < clip.startTime || position > clip.startTime + clip.duration) {
       return {
         success: false,
-        error: 'Position outside clip bounds',
+        error: "Position outside clip bounds",
       }
     }
 
-    const splitEdit = createSplitEdit(clipId, clipId, position, 'split-at-playhead')
+    const splitEdit = createSplitEdit(clipId, clipId, position, "split-at-playhead")
 
     // Создаем два новых клипа
     const firstClip = {
@@ -329,7 +362,7 @@ export class SplitEditServiceImpl implements SplitEditService {
     }
 
     // Обновляем массив клипов
-    const updatedClips = clips.map(c => {
+    const updatedClips = clips.map((c) => {
       if (c.id === clipId) {
         return firstClip
       }
@@ -358,7 +391,7 @@ export class SplitEditServiceImpl implements SplitEditService {
   }
 
   getActiveSplitEdits(): SplitEdit[] {
-    return this.config.activeEdits.filter(edit => edit.isActive)
+    return this.config.activeEdits.filter((edit) => edit.isActive)
   }
 
   clearAllSplitEdits(): void {
@@ -374,7 +407,7 @@ export class SplitEditServiceImpl implements SplitEditService {
     this.config.previewPosition = position
   }
 
-  showPreview(position: number, type: 'L-cut' | 'J-cut' | 'split-at-playhead'): void {
+  showPreview(position: number, type: "L-cut" | "J-cut" | "split-at-playhead"): void {
     this.visualSettings.showPreview = true
     this.visualSettings.previewPosition = position
     this.visualSettings.operationType = type
@@ -387,29 +420,31 @@ export class SplitEditServiceImpl implements SplitEditService {
   }
 
   canPerformOperation(operation: SplitEditOperation, clips: TimelineClip[]): boolean {
-    const clip = clips.find(c => c.id === operation.clipId)
+    const clip = clips.find((c) => c.id === operation.clipId)
     if (!clip) return false
 
     return canPerformSplitEdit(operation.clipId, operation.clipId, operation.position, clips)
   }
 
-  getLinkedClips(clipId: string, clips: TimelineClip[]): {
+  getLinkedClips(
+    clipId: string,
+    clips: TimelineClip[],
+  ): {
     videoClip?: TimelineClip
     audioClip?: TimelineClip
   } {
-    const clip = clips.find(c => c.id === clipId)
+    const clip = clips.find((c) => c.id === clipId)
     if (!clip) return {}
 
     // Если клип связан с другим клипом
     if (clip.linkedClipId) {
-      const linkedClip = clips.find(c => c.id === clip.linkedClipId)
+      const linkedClip = clips.find((c) => c.id === clip.linkedClipId)
       if (linkedClip) {
         // Определяем, какой клип видео, а какой аудио
-        if (clip.mediaFile?.type === 'video') {
+        if (clip.mediaFile?.type === "video") {
           return { videoClip: clip, audioClip: linkedClip }
-        } else {
-          return { videoClip: linkedClip, audioClip: clip }
         }
+        return { videoClip: linkedClip, audioClip: clip }
       }
     }
 
@@ -419,7 +454,7 @@ export class SplitEditServiceImpl implements SplitEditService {
 
   syncSplitEdits(clips: TimelineClip[]): void {
     // Синхронизация split edits с изменениями в клипах
-    this.config.activeEdits = this.config.activeEdits.filter(edit => {
+    this.config.activeEdits = this.config.activeEdits.filter((edit) => {
       return this.validateSplitEdit(edit, clips)
     })
   }
@@ -431,13 +466,13 @@ export class SplitEditServiceImpl implements SplitEditService {
     const snapTargets: number[] = []
 
     // Собираем все позиции для snap
-    clips.forEach(clip => {
+    clips.forEach((clip) => {
       snapTargets.push(clip.startTime)
       snapTargets.push(clip.startTime + clip.duration)
     })
 
     // Добавляем позиции split edits
-    this.config.activeEdits.forEach(edit => {
+    this.config.activeEdits.forEach((edit) => {
       snapTargets.push(edit.position)
     })
 
@@ -453,16 +488,11 @@ export class SplitEditServiceImpl implements SplitEditService {
   }
 
   validateSplitEdit(splitEdit: SplitEdit, clips: TimelineClip[]): boolean {
-    const videoClip = clips.find(c => c.id === splitEdit.videoClipId)
-    const audioClip = clips.find(c => c.id === splitEdit.audioClipId)
+    const videoClip = clips.find((c) => c.id === splitEdit.videoClipId)
+    const audioClip = clips.find((c) => c.id === splitEdit.audioClipId)
 
     if (!videoClip || !audioClip) return false
 
-    return canPerformSplitEdit(
-      splitEdit.videoClipId,
-      splitEdit.audioClipId,
-      splitEdit.position,
-      clips
-    )
+    return canPerformSplitEdit(splitEdit.videoClipId, splitEdit.audioClipId, splitEdit.position, clips)
   }
 }

@@ -117,7 +117,7 @@ export function useVideoElement() {
           allVideoElementsRef.current.delete(videoElement)
 
           // Удаляем из videoRefs
-           
+
           delete videoRefs[id]
         }
       })

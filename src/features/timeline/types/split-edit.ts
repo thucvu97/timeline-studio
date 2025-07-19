@@ -10,7 +10,7 @@ export interface SplitEditConfig {
   /** Позиция для предварительного просмотра */
   previewPosition?: number
   /** Тип инструмента */
-  tool: 'razor' | 'select' | 'slip' | 'slide'
+  tool: "razor" | "select" | "slip" | "slide"
 }
 
 export interface SplitEdit {
@@ -23,7 +23,7 @@ export interface SplitEdit {
   /** Позиция split */
   position: number
   /** Тип split edit */
-  type: 'L-cut' | 'J-cut' | 'split-at-playhead'
+  type: "L-cut" | "J-cut" | "split-at-playhead"
   /** Создан ли split edit */
   isActive: boolean
   /** Время создания */
@@ -34,13 +34,13 @@ export interface SplitEdit {
 
 export interface SplitEditOperation {
   /** Тип операции */
-  type: 'create' | 'remove' | 'adjust'
+  type: "create" | "remove" | "adjust"
   /** ID клипа */
   clipId: string
   /** Позиция для split */
   position: number
   /** Тип split edit */
-  splitType: 'L-cut' | 'J-cut' | 'split-at-playhead'
+  splitType: "L-cut" | "J-cut" | "split-at-playhead"
   /** Дополнительные параметры */
   options?: {
     /** Отступ для L-cut/J-cut */
@@ -58,7 +58,7 @@ export interface SplitEditVisual {
   /** Позиция предварительного просмотра */
   previewPosition: number
   /** Тип операции */
-  operationType: 'L-cut' | 'J-cut' | 'split-at-playhead'
+  operationType: "L-cut" | "J-cut" | "split-at-playhead"
   /** Цвет индикатора */
   indicatorColor: string
   /** Прозрачность индикатора */
@@ -77,7 +77,7 @@ export interface SplitEditToolSettings {
   /** Синхронизировать треки */
   syncTracks: boolean
   /** Режим split edit */
-  mode: 'normal' | 'ripple' | 'roll'
+  mode: "normal" | "ripple" | "roll"
 }
 
 /**
@@ -87,7 +87,7 @@ export function createSplitEdit(
   videoClipId: string,
   audioClipId: string,
   position: number,
-  type: 'L-cut' | 'J-cut' | 'split-at-playhead'
+  type: "L-cut" | "J-cut" | "split-at-playhead",
 ): SplitEdit {
   return {
     id: `split-edit-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
@@ -111,7 +111,7 @@ export function createDefaultSplitEditSettings(): SplitEditToolSettings {
     autoAlign: true,
     showGuides: true,
     syncTracks: true,
-    mode: 'normal',
+    mode: "normal",
   }
 }
 
@@ -123,44 +123,36 @@ export function createDefaultSplitEditConfig(): SplitEditConfig {
     enabled: false,
     activeEdits: [],
     previewPosition: undefined,
-    tool: 'razor',
+    tool: "razor",
   }
 }
 
 /**
  * Проверяет, может ли быть выполнен split edit
  */
-export function canPerformSplitEdit(
-  videoClipId: string,
-  audioClipId: string,
-  position: number,
-  clips: any[]
-): boolean {
+export function canPerformSplitEdit(videoClipId: string, audioClipId: string, position: number, clips: any[]): boolean {
   // Проверяем, что клипы существуют
-  const videoClip = clips.find(c => c.id === videoClipId)
-  const audioClip = clips.find(c => c.id === audioClipId)
-  
+  const videoClip = clips.find((c) => c.id === videoClipId)
+  const audioClip = clips.find((c) => c.id === audioClipId)
+
   if (!videoClip || !audioClip) return false
-  
+
   // Проверяем, что позиция в пределах клипов
   const videoStart = videoClip.startTime
   const videoEnd = videoClip.startTime + videoClip.duration
   const audioStart = audioClip.startTime
   const audioEnd = audioClip.startTime + audioClip.duration
-  
-  return (
-    position >= videoStart && position <= videoEnd &&
-    position >= audioStart && position <= audioEnd
-  )
+
+  return position >= videoStart && position <= videoEnd && position >= audioStart && position <= audioEnd
 }
 
 /**
  * Вычисляет параметры для L-cut
  */
 export function calculateLCutParams(
-  videoClip: any,
-  audioClip: any,
-  position: number
+  _videoClip: any,
+  _audioClip: any,
+  position: number,
 ): { newVideoStart: number; newAudioEnd: number } {
   return {
     newVideoStart: position,
@@ -172,9 +164,9 @@ export function calculateLCutParams(
  * Вычисляет параметры для J-cut
  */
 export function calculateJCutParams(
-  videoClip: any,
-  audioClip: any,
-  position: number
+  _videoClip: any,
+  _audioClip: any,
+  position: number,
 ): { newVideoEnd: number; newAudioStart: number } {
   return {
     newVideoEnd: position,
@@ -185,23 +177,15 @@ export function calculateJCutParams(
 /**
  * Получает все split edits для клипа
  */
-export function getSplitEditsForClip(
-  clipId: string,
-  splitEdits: SplitEdit[]
-): SplitEdit[] {
-  return splitEdits.filter(
-    edit => edit.videoClipId === clipId || edit.audioClipId === clipId
-  )
+export function getSplitEditsForClip(clipId: string, splitEdits: SplitEdit[]): SplitEdit[] {
+  return splitEdits.filter((edit) => edit.videoClipId === clipId || edit.audioClipId === clipId)
 }
 
 /**
  * Удаляет split edit
  */
-export function removeSplitEdit(
-  splitEditId: string,
-  splitEdits: SplitEdit[]
-): SplitEdit[] {
-  return splitEdits.filter(edit => edit.id !== splitEditId)
+export function removeSplitEdit(splitEditId: string, splitEdits: SplitEdit[]): SplitEdit[] {
+  return splitEdits.filter((edit) => edit.id !== splitEditId)
 }
 
 /**
@@ -210,11 +194,7 @@ export function removeSplitEdit(
 export function updateSplitEdit(
   splitEditId: string,
   updates: Partial<SplitEdit>,
-  splitEdits: SplitEdit[]
+  splitEdits: SplitEdit[],
 ): SplitEdit[] {
-  return splitEdits.map(edit =>
-    edit.id === splitEditId
-      ? { ...edit, ...updates, updatedAt: new Date() }
-      : edit
-  )
+  return splitEdits.map((edit) => (edit.id === splitEditId ? { ...edit, ...updates, updatedAt: new Date() } : edit))
 }

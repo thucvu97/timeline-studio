@@ -56,7 +56,7 @@ const createMockProjectSchema = () => ({
           source_path: "/path/to/video.mp4",
         },
         {
-          id: "clip2", 
+          id: "clip2",
           start_time: 30,
           end_time: 60,
           source_start: 0,
@@ -134,7 +134,7 @@ describe("qualityToNumber", () => {
 describe("getDefaultExportSettings", () => {
   it("should return default export settings", () => {
     const settings = getDefaultExportSettings()
-    
+
     expect(settings).toEqual({
       format: OutputFormat.Mp4,
       quality: 85,
@@ -148,7 +148,7 @@ describe("getDefaultExportSettings", () => {
   it("should return a copy of defaults", () => {
     const settings1 = getDefaultExportSettings()
     const settings2 = getDefaultExportSettings()
-    
+
     expect(settings1).not.toBe(settings2)
     expect(settings1).toEqual(settings2)
   })
@@ -157,7 +157,7 @@ describe("getDefaultExportSettings", () => {
 describe("getDefaultPreviewSettings", () => {
   it("should return default preview settings", () => {
     const settings = getDefaultPreviewSettings()
-    
+
     expect(settings).toEqual({
       resolution: [1280, 720],
       fps: 30,
@@ -168,7 +168,7 @@ describe("getDefaultPreviewSettings", () => {
   it("should return a copy of defaults", () => {
     const settings1 = getDefaultPreviewSettings()
     const settings2 = getDefaultPreviewSettings()
-    
+
     expect(settings1).not.toBe(settings2)
     expect(settings1).toEqual(settings2)
   })
@@ -181,7 +181,7 @@ describe("ProjectSchemaBuilder", () => {
     it("should create builder with timeline", () => {
       const builder = new ProjectSchemaBuilder(mockTimeline)
       const schema = builder.build()
-      
+
       expect(schema).toBeDefined()
       expect(schema.metadata.name).toBe("Test Project")
     })
@@ -189,7 +189,7 @@ describe("ProjectSchemaBuilder", () => {
     it("should set custom project name", () => {
       const builder = new ProjectSchemaBuilder(mockTimeline, "Custom Project")
       const schema = builder.build()
-      
+
       expect(schema.metadata.name).toBe("Custom Project")
     })
   })
@@ -200,9 +200,9 @@ describe("ProjectSchemaBuilder", () => {
       const exportSettings: Partial<ExportSettings> = {
         format: "webm",
       }
-      
+
       const schema = builder.withExportSettings(exportSettings).build()
-      
+
       expect(schema.settings.export.format).toBe(OutputFormat.WebM)
     })
 
@@ -211,9 +211,9 @@ describe("ProjectSchemaBuilder", () => {
       const exportSettings: Partial<ExportSettings> = {
         quality: "best",
       }
-      
+
       const schema = builder.withExportSettings(exportSettings).build()
-      
+
       expect(schema.settings.export.quality).toBe(95)
     })
 
@@ -222,18 +222,18 @@ describe("ProjectSchemaBuilder", () => {
       const exportSettings: Partial<ExportSettings> = {
         bitrate: 12000,
       }
-      
+
       const schema = builder.withExportSettings(exportSettings).build()
-      
+
       expect(schema.settings.export.video_bitrate).toBe(12000)
     })
 
     it("should always set audio bitrate to default", () => {
       const builder = new ProjectSchemaBuilder(mockTimeline)
       const exportSettings: Partial<ExportSettings> = {}
-      
+
       const schema = builder.withExportSettings(exportSettings).build()
-      
+
       expect(schema.settings.export.audio_bitrate).toBe(AUDIO_BITRATE)
     })
 
@@ -242,9 +242,9 @@ describe("ProjectSchemaBuilder", () => {
       const exportSettings: Partial<ExportSettings> = {
         enableGPU: false,
       }
-      
+
       const schema = builder.withExportSettings(exportSettings).build()
-      
+
       expect(schema.settings.export.hardware_acceleration).toBe(false)
     })
 
@@ -253,9 +253,9 @@ describe("ProjectSchemaBuilder", () => {
       const exportSettings: Partial<ExportSettings> = {
         resolution: "4k",
       }
-      
+
       const schema = builder.withExportSettings(exportSettings).build()
-      
+
       expect(schema.timeline.resolution).toEqual([3840, 2160])
     })
 
@@ -264,9 +264,9 @@ describe("ProjectSchemaBuilder", () => {
       const exportSettings: Partial<ExportSettings> = {
         resolution: "timeline",
       }
-      
+
       const schema = builder.withExportSettings(exportSettings).build()
-      
+
       // Should keep original timeline resolution
       expect(schema.timeline.resolution).toEqual([1920, 1080])
     })
@@ -276,9 +276,9 @@ describe("ProjectSchemaBuilder", () => {
       const exportSettings: Partial<ExportSettings> = {
         frameRate: "60",
       }
-      
+
       const schema = builder.withExportSettings(exportSettings).build()
-      
+
       expect(schema.timeline.fps).toBe(60)
     })
 
@@ -287,9 +287,9 @@ describe("ProjectSchemaBuilder", () => {
       const exportSettings: Partial<ExportSettings> = {
         frameRate: "invalid",
       }
-      
+
       const schema = builder.withExportSettings(exportSettings).build()
-      
+
       // Should keep original fps
       expect(schema.timeline.fps).toBe(30)
     })
@@ -302,9 +302,9 @@ describe("ProjectSchemaBuilder", () => {
         resolution: "1440",
         enableGPU: true,
       }
-      
+
       const schema = builder.withExportSettings(exportSettings).build()
-      
+
       expect(schema.settings.export.format).toBe(OutputFormat.Mov)
       expect(schema.settings.export.quality).toBe(95)
       expect(schema.timeline.resolution).toEqual([2560, 1440])
@@ -318,9 +318,9 @@ describe("ProjectSchemaBuilder", () => {
       const previewSettings = {
         resolution: [1920, 1080] as [number, number],
       }
-      
+
       const schema = builder.withPreviewSettings(previewSettings).build()
-      
+
       expect(schema.settings.preview.resolution).toEqual([1920, 1080])
     })
 
@@ -329,9 +329,9 @@ describe("ProjectSchemaBuilder", () => {
       const previewSettings = {
         fps: 60,
       }
-      
+
       const schema = builder.withPreviewSettings(previewSettings).build()
-      
+
       expect(schema.settings.preview.fps).toBe(60)
     })
 
@@ -340,9 +340,9 @@ describe("ProjectSchemaBuilder", () => {
       const previewSettings = {
         quality: 90,
       }
-      
+
       const schema = builder.withPreviewSettings(previewSettings).build()
-      
+
       expect(schema.settings.preview.quality).toBe(90)
     })
   })
@@ -354,9 +354,9 @@ describe("ProjectSchemaBuilder", () => {
         name: "Custom Name",
         version: "2.0.0",
       }
-      
+
       const schema = builder.withMetadata(metadata).build()
-      
+
       expect(schema.metadata.name).toBe("Custom Name")
       expect(schema.metadata.version).toBe("2.0.0")
     })
@@ -366,9 +366,9 @@ describe("ProjectSchemaBuilder", () => {
       const metadata = {
         version: "2.0.0",
       }
-      
+
       const schema = builder.withMetadata(metadata).build()
-      
+
       expect(schema.metadata.name).toBe("Test Project") // original preserved
       expect(schema.metadata.version).toBe("2.0.0") // new value
     })
@@ -381,9 +381,9 @@ describe("ProjectSchemaBuilder", () => {
         customField: "value",
         anotherField: 123,
       }
-      
+
       const schema = builder.withCustomSettings(customSettings).build()
-      
+
       expect(schema.settings.custom.customField).toBe("value")
       expect(schema.settings.custom.anotherField).toBe(123)
     })
@@ -392,9 +392,9 @@ describe("ProjectSchemaBuilder", () => {
       const builder = new ProjectSchemaBuilder(mockTimeline)
         .withCustomSettings({ field1: "value1" })
         .withCustomSettings({ field2: "value2" })
-      
+
       const schema = builder.build()
-      
+
       expect(schema.settings.custom.field1).toBe("value1")
       expect(schema.settings.custom.field2).toBe("value2")
     })
@@ -403,16 +403,16 @@ describe("ProjectSchemaBuilder", () => {
   describe("withTimeRange", () => {
     it("should filter clips by time range", () => {
       const builder = new ProjectSchemaBuilder(mockTimeline)
-      
+
       const schema = builder.withTimeRange(10, 40).build()
-      
+
       // Should include clips that intersect with [10, 40]
       expect(schema.tracks[0].clips).toHaveLength(2)
-      
+
       // First clip should be adjusted
       expect(schema.tracks[0].clips[0].start_time).toBe(0) // 10 - 10 = 0
       expect(schema.tracks[0].clips[0].end_time).toBe(20) // 30 - 10 = 20
-      
+
       // Second clip should be adjusted and trimmed
       expect(schema.tracks[0].clips[1].start_time).toBe(20) // 30 - 10 = 20
       expect(schema.tracks[0].clips[1].end_time).toBe(30) // 40 - 10 = 30
@@ -420,16 +420,16 @@ describe("ProjectSchemaBuilder", () => {
 
     it("should filter subtitles by time range", () => {
       const builder = new ProjectSchemaBuilder(mockTimeline)
-      
+
       const schema = builder.withTimeRange(15, 45).build()
-      
+
       // Should include subtitles that intersect with [15, 45]
       expect(schema.subtitles).toHaveLength(2)
-      
+
       // First subtitle (10-20) intersects with [15, 45]
       expect(schema.subtitles[0].start_time).toBe(0) // max(10, 15) - 15 = 0
       expect(schema.subtitles[0].end_time).toBe(5) // min(20, 45) - 15 = 5
-      
+
       // Second subtitle (40-50) intersects with [15, 45]
       expect(schema.subtitles[1].start_time).toBe(25) // max(40, 15) - 15 = 25
       expect(schema.subtitles[1].end_time).toBe(30) // min(50, 45) - 15 = 30
@@ -437,17 +437,17 @@ describe("ProjectSchemaBuilder", () => {
 
     it("should update timeline duration", () => {
       const builder = new ProjectSchemaBuilder(mockTimeline)
-      
+
       const schema = builder.withTimeRange(10, 40).build()
-      
+
       expect(schema.timeline.duration).toBe(30) // 40 - 10
     })
 
     it("should add time range to custom settings", () => {
       const builder = new ProjectSchemaBuilder(mockTimeline)
-      
+
       const schema = builder.withTimeRange(10, 40).build()
-      
+
       expect(schema.settings.custom.timeRange).toEqual({
         start: 10,
         end: 40,
@@ -457,18 +457,18 @@ describe("ProjectSchemaBuilder", () => {
 
     it("should handle clips outside time range", () => {
       const builder = new ProjectSchemaBuilder(mockTimeline)
-      
+
       const schema = builder.withTimeRange(65, 75).build()
-      
+
       // No clips should be included (all clips end at 60)
       expect(schema.tracks[0].clips).toHaveLength(0)
     })
 
     it("should handle subtitles outside time range", () => {
       const builder = new ProjectSchemaBuilder(mockTimeline)
-      
+
       const schema = builder.withTimeRange(0, 5).build()
-      
+
       // No subtitles should be included (first starts at 10)
       expect(schema.subtitles).toHaveLength(0)
     })
@@ -478,14 +478,14 @@ describe("ProjectSchemaBuilder", () => {
     describe("createDefault", () => {
       it("should create default project schema", () => {
         const schema = ProjectSchemaBuilder.createDefault(mockTimeline)
-        
+
         expect(schema).toBeDefined()
         expect(schema.metadata.name).toBe("Test Project")
       })
 
       it("should create with custom project name", () => {
         const schema = ProjectSchemaBuilder.createDefault(mockTimeline, "Custom")
-        
+
         expect(schema.metadata.name).toBe("Custom")
       })
     })
@@ -501,9 +501,9 @@ describe("ProjectSchemaBuilder", () => {
           frameRate: "60",
           enableGPU: true,
         }
-        
+
         const schema = ProjectSchemaBuilder.createForExport(mockTimeline, exportSettings, "Export Project")
-        
+
         expect(schema.metadata.name).toBe("Export Project")
         expect(schema.settings.export.format).toBe(OutputFormat.WebM)
         expect(schema.settings.export.quality).toBe(95)
@@ -515,7 +515,7 @@ describe("ProjectSchemaBuilder", () => {
     describe("createForPreview", () => {
       it("should create schema with default preview settings", () => {
         const schema = ProjectSchemaBuilder.createForPreview(mockTimeline)
-        
+
         expect(schema.metadata.name).toBe("preview")
         expect(schema.settings.preview.resolution).toEqual([1280, 720])
         expect(schema.settings.preview.fps).toBe(30)
@@ -528,9 +528,9 @@ describe("ProjectSchemaBuilder", () => {
           fps: 60,
           quality: 90,
         }
-        
+
         const schema = ProjectSchemaBuilder.createForPreview(mockTimeline, previewSettings)
-        
+
         expect(schema.settings.preview.resolution).toEqual([1920, 1080])
         expect(schema.settings.preview.fps).toBe(60)
         expect(schema.settings.preview.quality).toBe(90)
@@ -548,15 +548,9 @@ describe("ProjectSchemaBuilder", () => {
           frameRate: "30",
           enableGPU: false,
         }
-        
-        const schema = ProjectSchemaBuilder.createForSectionExport(
-          mockTimeline,
-          exportSettings,
-          10,
-          40,
-          "Test Section"
-        )
-        
+
+        const schema = ProjectSchemaBuilder.createForSectionExport(mockTimeline, exportSettings, 10, 40, "Test Section")
+
         expect(schema.metadata.name).toBe("Test Section")
         expect(schema.timeline.duration).toBe(30) // 40 - 10
         expect(schema.settings.custom.timeRange).toEqual({
@@ -569,21 +563,16 @@ describe("ProjectSchemaBuilder", () => {
       it("should use default section name", () => {
         const exportSettings: ExportSettings = {
           fileName: "section",
-          savePath: "/tmp", 
+          savePath: "/tmp",
           format: "mp4",
           quality: "good",
           resolution: "1080",
           frameRate: "30",
           enableGPU: false,
         }
-        
-        const schema = ProjectSchemaBuilder.createForSectionExport(
-          mockTimeline,
-          exportSettings,
-          10,
-          40
-        )
-        
+
+        const schema = ProjectSchemaBuilder.createForSectionExport(mockTimeline, exportSettings, 10, 40)
+
         expect(schema.metadata.name).toBe("section")
       })
     })
@@ -595,20 +584,20 @@ describe("ProjectSchemaBuilder", () => {
         format: "mov",
         quality: "best",
       }
-      
+
       const previewSettings = {
         resolution: [1920, 1080] as [number, number],
         fps: 60,
       }
-      
+
       const metadata = {
         version: "2.0.0",
       }
-      
+
       const customSettings = {
         customField: "value",
       }
-      
+
       const schema = new ProjectSchemaBuilder(mockTimeline, "Chained Project")
         .withExportSettings(exportSettings)
         .withPreviewSettings(previewSettings)
@@ -616,7 +605,7 @@ describe("ProjectSchemaBuilder", () => {
         .withCustomSettings(customSettings)
         .withTimeRange(5, 25)
         .build()
-      
+
       expect(schema.metadata.name).toBe("Chained Project")
       expect(schema.metadata.version).toBe("2.0.0")
       expect(schema.settings.export.format).toBe(OutputFormat.Mov)

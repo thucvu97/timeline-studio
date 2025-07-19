@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { MidiRouter, type MidiRoute, type MidiDestination, BaseMidiProcessor } from "../midi-router"
+import { BaseMidiProcessor, MidiRouter } from "../midi-router"
 
 import type { MidiMessage } from "../midi-engine"
 
@@ -39,7 +39,7 @@ describe("MidiRouter", () => {
         expect.objectContaining({
           ...config,
           id: routeId,
-        })
+        }),
       )
 
       const route = router.getRoute(routeId)
@@ -71,7 +71,7 @@ describe("MidiRouter", () => {
           name: "Updated Route",
           enabled: false,
           sourceChannel: 2,
-        })
+        }),
       )
 
       const route = router.getRoute(routeId)
@@ -131,8 +131,8 @@ describe("MidiRouter", () => {
 
       const routes = router.getRoutes()
       expect(routes).toHaveLength(2)
-      expect(routes.find(r => r.id === route1)).toBeDefined()
-      expect(routes.find(r => r.id === route2)).toBeDefined()
+      expect(routes.find((r) => r.id === route1)).toBeDefined()
+      expect(routes.find((r) => r.id === route2)).toBeDefined()
     })
 
     it("should delete all routes", () => {
@@ -581,7 +581,7 @@ describe("MidiRouter", () => {
             note: 60,
             velocity: expect.any(Number),
           }),
-        })
+        }),
       )
     })
 
@@ -754,7 +754,6 @@ describe("MidiRouter", () => {
     })
   })
 
-
   describe("Virtual Destinations", () => {
     it("should route to virtual instruments", () => {
       const virtualHandler = vi.fn()
@@ -837,7 +836,6 @@ describe("MidiRouter", () => {
       expect(() => router.updateRoute("invalid-id", { name: "Test" })).not.toThrow()
       expect(() => router.deleteRoute("invalid-id")).not.toThrow()
     })
-
 
     it("should handle callback errors", () => {
       const errorCallback = vi.fn(() => {

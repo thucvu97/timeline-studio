@@ -12,19 +12,19 @@ describe("PersonDetail", () => {
       privacySettings: {
         blurFace: false,
         anonymize: false,
-        excludeFromExport: false
+        excludeFromExport: false,
       },
       statistics: {
         totalAppearances: 25,
         totalScreenTime: 1800, // 30 minutes
         firstSeen: "2025-01-01T10:00:00Z",
         lastSeen: "2025-01-01T10:30:00Z",
-        averageScreenTime: 72 // seconds per appearance
+        averageScreenTime: 72, // seconds per appearance
       },
       clips: [
         { clipId: "clip-1", startTime: 0, endTime: 60 },
-        { clipId: "clip-2", startTime: 120, endTime: 180 }
-      ]
+        { clipId: "clip-2", startTime: 120, endTime: 180 },
+      ],
     }
 
     expect(mockPerson.id).toBeDefined()
@@ -37,7 +37,7 @@ describe("PersonDetail", () => {
     const privacySettings = {
       blurFace: false,
       anonymize: false,
-      excludeFromExport: false
+      excludeFromExport: false,
     }
 
     const toggleSetting = (setting: keyof typeof privacySettings) => {
@@ -60,7 +60,7 @@ describe("PersonDetail", () => {
       { startTime: 0, endTime: 60 },
       { startTime: 120, endTime: 180 },
       { startTime: 240, endTime: 300 },
-      { startTime: 360, endTime: 420 }
+      { startTime: 360, endTime: 420 },
     ]
 
     const calculateTimeline = (clips: any[], totalDuration: number) => {
@@ -96,9 +96,7 @@ describe("PersonDetail", () => {
         case "screenTime":
           const minutes = Math.floor(value / 60)
           const seconds = value % 60
-          return minutes > 0 
-            ? `${minutes}m ${seconds}s`
-            : `${seconds}s`
+          return minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`
         case "percentage":
           return `${value.toFixed(1)}%`
         default:
@@ -117,11 +115,11 @@ describe("PersonDetail", () => {
     const clips = [
       { id: "1", time: 0 },
       { id: "2", time: 120 },
-      { id: "3", time: 240 }
+      { id: "3", time: 240 },
     ]
 
     const navigateToClip = (clipId: string) => {
-      const clip = clips.find(c => c.id === clipId)
+      const clip = clips.find((c) => c.id === clipId)
       return clip ? clip.time : null
     }
 
@@ -130,9 +128,9 @@ describe("PersonDetail", () => {
 
     // Test next/previous navigation
     const getAdjacentClip = (currentId: string, direction: "next" | "prev") => {
-      const index = clips.findIndex(c => c.id === currentId)
+      const index = clips.findIndex((c) => c.id === currentId)
       if (index === -1) return null
-      
+
       const newIndex = direction === "next" ? index + 1 : index - 1
       return clips[newIndex] || null
     }

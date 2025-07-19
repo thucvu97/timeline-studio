@@ -2,44 +2,20 @@
  * Панель управления связанными клипами
  */
 
-import React, { useState } from 'react'
+import { useState } from "react"
 
-import { 
-  AlertTriangle, 
-  CheckCircle, 
-  Eye, 
-  EyeOff, 
-  Info, 
-  Link2,
-  RefreshCw,
-  Search,
-  Settings,
-  Target,
-  Unlink,
-  Zap,
-} from 'lucide-react'
+import { AlertTriangle, Eye, EyeOff, Info, Link2, RefreshCw, Search, Target, Unlink } from "lucide-react"
 
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { 
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
-import { 
-  Tooltip, 
-  TooltipContent, 
-  TooltipProvider, 
-  TooltipTrigger 
-} from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils'
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { cn } from "@/lib/utils"
 
-import { useLinkedClips } from '../hooks/use-linked-clips'
+import { useLinkedClips } from "../hooks/use-linked-clips"
 
 interface LinkedClipsPanelProps {
   className?: string
@@ -69,7 +45,7 @@ export function LinkedClipsPanel({ className, compact = false }: LinkedClipsPane
   const handleFindPotentialLinks = async () => {
     setIsSearching(true)
     // Имитируем асинхронную операцию
-    await new Promise(resolve => setTimeout(resolve, 500))
+    await new Promise((resolve) => setTimeout(resolve, 500))
     const links = findPotentialLinks()
     setPotentialLinks(links)
     setIsSearching(false)
@@ -81,29 +57,29 @@ export function LinkedClipsPanel({ className, compact = false }: LinkedClipsPane
     console.log(`Auto-linked ${linkedCount} clips`)
   }
 
-  const visiblePairs = showInactive ? linkedPairs : linkedPairs.filter(pair => pair.isActive)
+  const visiblePairs = showInactive ? linkedPairs : linkedPairs.filter((pair) => pair.isActive)
 
   const getLinkTypeColor = (type: string) => {
     switch (type) {
-      case 'video-audio':
-        return 'bg-blue-500'
-      case 'audio-video':
-        return 'bg-green-500'
-      case 'multi-camera':
-        return 'bg-purple-500'
+      case "video-audio":
+        return "bg-blue-500"
+      case "audio-video":
+        return "bg-green-500"
+      case "multi-camera":
+        return "bg-purple-500"
       default:
-        return 'bg-gray-500'
+        return "bg-gray-500"
     }
   }
 
   const getLinkTypeLabel = (type: string) => {
     switch (type) {
-      case 'video-audio':
-        return 'Video → Audio'
-      case 'audio-video':
-        return 'Audio → Video'
-      case 'multi-camera':
-        return 'Multi-Camera'
+      case "video-audio":
+        return "Video → Audio"
+      case "audio-video":
+        return "Audio → Video"
+      case "multi-camera":
+        return "Multi-Camera"
       default:
         return type
     }
@@ -112,14 +88,10 @@ export function LinkedClipsPanel({ className, compact = false }: LinkedClipsPane
   if (compact) {
     return (
       <TooltipProvider>
-        <div className={cn('flex items-center gap-2 p-2', className)}>
+        <div className={cn("flex items-center gap-2 p-2", className)}>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="px-2"
-              >
+              <Button variant="ghost" size="sm" className="px-2">
                 <Link2 className="h-4 w-4" />
                 <Badge variant="secondary" className="ml-1 text-xs">
                   {linkedCount}
@@ -135,7 +107,7 @@ export function LinkedClipsPanel({ className, compact = false }: LinkedClipsPane
               </div>
             </TooltipContent>
           </Tooltip>
-          
+
           {hasActiveLinks && (
             <>
               <Separator orientation="vertical" className="h-4" />
@@ -150,19 +122,17 @@ export function LinkedClipsPanel({ className, compact = false }: LinkedClipsPane
   }
 
   return (
-    <Card className={cn('w-full', className)}>
+    <Card className={cn("w-full", className)}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
             <Link2 className="h-5 w-5" />
             Linked Clips
           </CardTitle>
-          
+
           <div className="flex items-center gap-2">
-            <Badge variant="secondary">
-              {linkedCount} links
-            </Badge>
-            
+            <Badge variant="secondary">{linkedCount} links</Badge>
+
             <Dialog>
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm">
@@ -184,9 +154,9 @@ export function LinkedClipsPanel({ className, compact = false }: LinkedClipsPane
                       <div className="text-sm text-muted-foreground">Broken Links</div>
                     </div>
                   </div>
-                  
+
                   <Separator />
-                  
+
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Video → Audio</span>
@@ -206,37 +176,24 @@ export function LinkedClipsPanel({ className, compact = false }: LinkedClipsPane
             </Dialog>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-2 mt-3">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleFindPotentialLinks}
-            disabled={isSearching}
-          >
-            {isSearching ? (
-              <RefreshCw className="h-4 w-4 animate-spin" />
-            ) : (
-              <Search className="h-4 w-4" />
-            )}
+          <Button variant="outline" size="sm" onClick={handleFindPotentialLinks} disabled={isSearching}>
+            {isSearching ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
             Find Links
           </Button>
-          
+
           <Button
-            variant={showInactive ? 'default' : 'outline'}
+            variant={showInactive ? "default" : "outline"}
             size="sm"
             onClick={() => setShowInactive(!showInactive)}
           >
-            {showInactive ? (
-              <EyeOff className="h-4 w-4" />
-            ) : (
-              <Eye className="h-4 w-4" />
-            )}
-            {showInactive ? 'Hide' : 'Show'} Inactive
+            {showInactive ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {showInactive ? "Hide" : "Show"} Inactive
           </Button>
         </div>
       </CardHeader>
-      
+
       <CardContent>
         <ScrollArea className="h-[300px]">
           <div className="space-y-3">
@@ -244,58 +201,40 @@ export function LinkedClipsPanel({ className, compact = false }: LinkedClipsPane
               <div className="text-center py-8 text-muted-foreground">
                 <Link2 className="h-8 w-8 mx-auto mb-2 opacity-50" />
                 <div className="text-sm">No linked clips found</div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-2"
-                  onClick={handleFindPotentialLinks}
-                >
+                <Button variant="outline" size="sm" className="mt-2" onClick={handleFindPotentialLinks}>
                   Find Potential Links
                 </Button>
               </div>
             ) : (
               visiblePairs.map((pair) => {
                 const isValid = validateLinkSync(pair.clip1.id)
-                
+
                 return (
                   <div
                     key={pair.id}
                     className={cn(
-                      'p-3 rounded-lg border',
-                      pair.isActive ? 'border-primary bg-primary/5' : 'border-border'
+                      "p-3 rounded-lg border",
+                      pair.isActive ? "border-primary bg-primary/5" : "border-border",
                     )}
                   >
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <div
-                          className={cn(
-                            'w-3 h-3 rounded-full',
-                            getLinkTypeColor(pair.type)
-                          )}
-                        />
-                        <span className="text-sm font-medium">
-                          {getLinkTypeLabel(pair.type)}
-                        </span>
-                        {!isValid && (
-                          <AlertTriangle className="h-4 w-4 text-yellow-500" />
-                        )}
+                        <div className={cn("w-3 h-3 rounded-full", getLinkTypeColor(pair.type))} />
+                        <span className="text-sm font-medium">{getLinkTypeLabel(pair.type)}</span>
+                        {!isValid && <AlertTriangle className="h-4 w-4 text-yellow-500" />}
                       </div>
-                      
+
                       <div className="flex items-center gap-1">
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => syncLinkedClips(pair.clip1.id, {})}
-                              >
+                              <Button variant="ghost" size="sm" onClick={() => syncLinkedClips(pair.clip1.id, {})}>
                                 <RefreshCw className="h-3 w-3" />
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent>Sync clips</TooltipContent>
                           </Tooltip>
-                          
+
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Button
@@ -311,19 +250,15 @@ export function LinkedClipsPanel({ className, compact = false }: LinkedClipsPane
                         </TooltipProvider>
                       </div>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <div className="flex items-center justify-between text-xs">
                         <span className="font-medium">{pair.clip1.name}</span>
-                        <span className="text-muted-foreground">
-                          {pair.clip1.startTime.toFixed(2)}s
-                        </span>
+                        <span className="text-muted-foreground">{pair.clip1.startTime.toFixed(2)}s</span>
                       </div>
                       <div className="flex items-center justify-between text-xs">
                         <span className="font-medium">{pair.clip2.name}</span>
-                        <span className="text-muted-foreground">
-                          {pair.clip2.startTime.toFixed(2)}s
-                        </span>
+                        <span className="text-muted-foreground">{pair.clip2.startTime.toFixed(2)}s</span>
                       </div>
                     </div>
                   </div>
@@ -332,7 +267,7 @@ export function LinkedClipsPanel({ className, compact = false }: LinkedClipsPane
             )}
           </div>
         </ScrollArea>
-        
+
         {/* Потенциальные связи */}
         {potentialLinks.length > 0 && (
           <div className="mt-4 pt-4 border-t">
@@ -343,10 +278,7 @@ export function LinkedClipsPanel({ className, compact = false }: LinkedClipsPane
             <ScrollArea className="h-[150px]">
               <div className="space-y-2">
                 {potentialLinks.slice(0, 5).map((link, index) => (
-                  <div
-                    key={index}
-                    className="p-2 rounded border border-dashed"
-                  >
+                  <div key={index} className="p-2 rounded border border-dashed">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
                         <div className="text-xs font-medium">
@@ -361,7 +293,7 @@ export function LinkedClipsPanel({ className, compact = false }: LinkedClipsPane
                         size="sm"
                         onClick={() => {
                           // linkClips(link.clip1.id, link.clip2.id)
-                          setPotentialLinks(prev => prev.filter((_, i) => i !== index))
+                          setPotentialLinks((prev) => prev.filter((_, i) => i !== index))
                         }}
                       >
                         <Link2 className="h-3 w-3" />

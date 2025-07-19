@@ -2,23 +2,19 @@
  * Компонент для интеграции Speed Ramping с Timeline UI
  */
 
-import React, { useEffect } from "react"
+import { useEffect } from "react"
 
 import { useSpeedRampingPlayerIntegration } from "../hooks/use-speed-ramping-player-integration"
 import { useTimeline } from "../hooks/use-timeline"
 
 export function TimelineSpeedRampingIntegration() {
   const { state: timelineState } = useTimeline()
-  const { 
-    updatePlaybackRateForTime, 
-    setAutoUpdateEnabled,
-    resetPlaybackRate 
-  } = useSpeedRampingPlayerIntegration()
+  const { updatePlaybackRateForTime, setAutoUpdateEnabled, resetPlaybackRate } = useSpeedRampingPlayerIntegration()
 
   // Автоматически включаем интеграцию при монтировании
   useEffect(() => {
     setAutoUpdateEnabled(true)
-    
+
     return () => {
       setAutoUpdateEnabled(false)
     }
@@ -48,10 +44,10 @@ export function TimelineSpeedRampingIntegration() {
 export function SpeedRampingIndicator() {
   const { getCurrentPlaybackRate, isSpeedRampingActive } = useSpeedRampingPlayerIntegration()
   const { state: timelineState } = useTimeline()
-  
+
   const currentRate = getCurrentPlaybackRate()
-  const hasActiveSpeedRamping = Object.keys(timelineState.context.speedRampingConfigs).some(
-    (clipId) => isSpeedRampingActive(clipId)
+  const hasActiveSpeedRamping = Object.keys(timelineState.context.speedRampingConfigs).some((clipId) =>
+    isSpeedRampingActive(clipId),
   )
 
   if (!hasActiveSpeedRamping || currentRate === 1.0) {
@@ -87,7 +83,7 @@ export function TimelineSpeedRampingStatus() {
     <div className="flex items-center gap-2 px-2 py-1 bg-orange-100 text-orange-800 rounded text-xs">
       <div className="w-1.5 h-1.5 bg-orange-500 rounded-full" />
       <span>
-        Speed Ramping: {activeSpeedRampingClips.length} clip{activeSpeedRampingClips.length > 1 ? 's' : ''}
+        Speed Ramping: {activeSpeedRampingClips.length} clip{activeSpeedRampingClips.length > 1 ? "s" : ""}
       </span>
     </div>
   )

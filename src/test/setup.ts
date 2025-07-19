@@ -204,7 +204,7 @@ beforeAll(() => {
     unobserve = vi.fn()
     disconnect = vi.fn()
     root = null
-    rootMargin = ''
+    rootMargin = ""
     thresholds = []
     takeRecords = vi.fn(() => [])
   }
@@ -213,7 +213,7 @@ beforeAll(() => {
   if (typeof global.setInterval === "undefined") {
     global.setInterval = vi.fn((callback: TimerHandler, delay?: number) => {
       // In tests, callback should always be a function, not a string
-      if (typeof callback === 'function') {
+      if (typeof callback === "function") {
         return setTimeout(callback, delay) as unknown as number
       }
       // If it's not a function, just return a mock timer ID

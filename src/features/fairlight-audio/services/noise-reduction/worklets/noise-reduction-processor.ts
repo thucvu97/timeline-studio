@@ -6,12 +6,6 @@
 // This code runs in AudioWorkletGlobalScope
 class NoiseReductionProcessor extends AudioWorkletProcessor {
   private fftSize = 2048
-  private hopSize = 512
-  private window: Float32Array
-  private inputBuffer: Float32Array
-  private outputBuffer: Float32Array
-  private overlapBuffer: Float32Array
-  private fftProcessor: FFTProcessor
 
   constructor() {
     super()

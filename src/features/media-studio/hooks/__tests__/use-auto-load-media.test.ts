@@ -1,5 +1,5 @@
-import { renderHook, act } from "@testing-library/react"
-import { describe, expect, it, vi, beforeEach } from "vitest"
+import { act, renderHook } from "@testing-library/react"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { BaseProviders } from "@/test/test-utils"
 
@@ -11,32 +11,32 @@ const mockUpdateMusicFiles = vi.fn()
 
 vi.mock("@/features/app-state/hooks", () => ({
   useMediaFiles: () => ({
-    updateMediaFiles: mockUpdateMediaFiles
+    updateMediaFiles: mockUpdateMediaFiles,
   }),
   useMusicFiles: () => ({
-    updateMusicFiles: mockUpdateMusicFiles
+    updateMusicFiles: mockUpdateMusicFiles,
   }),
   useAppSettings: () => ({
     state: {
       context: {
         currentProject: {
           isNew: false,
-          path: "/test/project"
-        }
-      }
-    }
-  })
+          path: "/test/project",
+        },
+      },
+    },
+  }),
 }))
 
 vi.mock("@/features/app-state/services", () => ({
   appDirectoriesService: {
     createAppDirectories: vi.fn(),
-    getMediaSubdirectory: vi.fn()
-  }
+    getMediaSubdirectory: vi.fn(),
+  },
 }))
 
 vi.mock("@/features/app-state", () => ({
-  AppSettingsProvider: ({ children }: { children: React.ReactNode }) => children
+  AppSettingsProvider: ({ children }: { children: React.ReactNode }) => children,
 }))
 
 const mockGetMediaExtensions = vi.fn()
@@ -44,37 +44,37 @@ const mockGetMusicExtensions = vi.fn()
 
 vi.mock("../utils/validation", () => ({
   getMediaExtensions: mockGetMediaExtensions,
-  getMusicExtensions: mockGetMusicExtensions
+  getMusicExtensions: mockGetMusicExtensions,
 }))
 
 vi.mock("@tauri-apps/plugin-fs", () => ({
   exists: vi.fn(),
-  readDir: vi.fn()
+  readDir: vi.fn(),
 }))
 
 vi.mock("@tauri-apps/api/core", () => ({
-  invoke: vi.fn()
+  invoke: vi.fn(),
 }))
 
 describe("useAutoLoadMedia", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     // Default setup
     mockGetMediaExtensions.mockReturnValue([".mp4", ".avi", ".mov"])
     mockGetMusicExtensions.mockReturnValue([".mp3", ".wav", ".ogg"])
-    
+
     // Mock Tauri environment
     Object.defineProperty(window, "__TAURI_INTERNALS__", {
       value: {},
       writable: true,
-      configurable: true
+      configurable: true,
     })
   })
 
   it("should initialize with default state", () => {
     const { result } = renderHook(() => useAutoLoadMedia(), {
-      wrapper: BaseProviders
+      wrapper: BaseProviders,
     })
 
     expect(result.current.isLoading).toBe(false)
@@ -86,22 +86,22 @@ describe("useAutoLoadMedia", () => {
 
   it("should provide reload function", () => {
     const { result } = renderHook(() => useAutoLoadMedia(), {
-      wrapper: BaseProviders
+      wrapper: BaseProviders,
     })
 
     expect(typeof result.current.reload).toBe("function")
-    
+
     // Should not throw when called
     expect(() => result.current.reload()).not.toThrow()
   })
 
   it("should provide clearCache function", () => {
     const { result } = renderHook(() => useAutoLoadMedia(), {
-      wrapper: BaseProviders
+      wrapper: BaseProviders,
     })
 
     expect(typeof result.current.clearCache).toBe("function")
-    
+
     act(() => {
       result.current.clearCache()
     })
@@ -113,7 +113,7 @@ describe("useAutoLoadMedia", () => {
     delete (window as any).__TAURI_INTERNALS__
 
     const { result } = renderHook(() => useAutoLoadMedia(), {
-      wrapper: BaseProviders
+      wrapper: BaseProviders,
     })
 
     expect(result.current.isLoading).toBe(false)
@@ -123,7 +123,7 @@ describe("useAutoLoadMedia", () => {
 
   it("should have access to extension functions", () => {
     renderHook(() => useAutoLoadMedia(), {
-      wrapper: BaseProviders
+      wrapper: BaseProviders,
     })
 
     // Extension functions should be available
@@ -133,7 +133,7 @@ describe("useAutoLoadMedia", () => {
 
   it("should maintain state across rerenders", () => {
     const { result, rerender } = renderHook(() => useAutoLoadMedia(), {
-      wrapper: BaseProviders
+      wrapper: BaseProviders,
     })
 
     const initialStats = result.current.loadedCount
@@ -150,7 +150,7 @@ describe("useAutoLoadMedia", () => {
 
   it("should handle loading state changes", async () => {
     const { result } = renderHook(() => useAutoLoadMedia(), {
-      wrapper: BaseProviders
+      wrapper: BaseProviders,
     })
 
     // Initially not loading
@@ -166,23 +166,23 @@ describe("useAutoLoadMedia", () => {
 
   it("should handle error state", () => {
     const { result } = renderHook(() => useAutoLoadMedia(), {
-      wrapper: BaseProviders
+      wrapper: BaseProviders,
     })
 
     // Initially no error
     expect(result.current.error).toBeNull()
-    
+
     // Should remain consistent
     act(() => {
       result.current.clearCache()
     })
-    
+
     expect(result.current.error).toBeNull()
   })
 
   it("should handle loaded count state", () => {
     const { result } = renderHook(() => useAutoLoadMedia(), {
-      wrapper: BaseProviders
+      wrapper: BaseProviders,
     })
 
     // Initially zero counts
@@ -192,7 +192,7 @@ describe("useAutoLoadMedia", () => {
 
   it("should provide working interface", () => {
     const { result } = renderHook(() => useAutoLoadMedia(), {
-      wrapper: BaseProviders
+      wrapper: BaseProviders,
     })
 
     // Should have all expected properties
@@ -201,7 +201,7 @@ describe("useAutoLoadMedia", () => {
     expect(result.current).toHaveProperty("loadedCount")
     expect(result.current).toHaveProperty("reload")
     expect(result.current).toHaveProperty("clearCache")
-    
+
     // Properties should have correct types
     expect(typeof result.current.isLoading).toBe("boolean")
     expect(typeof result.current.reload).toBe("function")

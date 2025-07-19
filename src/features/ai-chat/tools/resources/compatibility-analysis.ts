@@ -12,6 +12,7 @@ import {
 import type { CompatibilityParams, ResourceToolResult } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
 
+
 export const analyzeResourceCompatibilityTool: ClaudeTool = {
   name: "analyze_resource_compatibility",
   description: "Анализирует совместимость ресурсов между собой и с текущим проектом",

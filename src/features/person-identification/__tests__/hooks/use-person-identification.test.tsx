@@ -12,8 +12,8 @@ describe("usePersonIdentification", () => {
       filterOptions: {
         tags: [],
         sortBy: "name" as const,
-        sortOrder: "asc" as const
-      }
+        sortOrder: "asc" as const,
+      },
     }
 
     expect(mockState.persons).toEqual([])
@@ -26,19 +26,20 @@ describe("usePersonIdentification", () => {
   it("should handle search query logic", () => {
     const filterPersons = (persons: any[], query: string) => {
       if (!query) return persons
-      
+
       const lowerQuery = query.toLowerCase()
-      return persons.filter(person =>
-        person.name.toLowerCase().includes(lowerQuery) ||
-        person.description?.toLowerCase().includes(lowerQuery) ||
-        person.tags?.some((tag: string) => tag.toLowerCase().includes(lowerQuery))
+      return persons.filter(
+        (person) =>
+          person.name.toLowerCase().includes(lowerQuery) ||
+          person.description?.toLowerCase().includes(lowerQuery) ||
+          person.tags?.some((tag: string) => tag.toLowerCase().includes(lowerQuery)),
       )
     }
 
     const persons = [
       { id: "1", name: "John Doe", description: "Actor", tags: ["main"] },
       { id: "2", name: "Jane Smith", description: "Director", tags: ["crew"] },
-      { id: "3", name: "Bob Johnson", description: "Actor", tags: ["supporting"] }
+      { id: "3", name: "Bob Johnson", description: "Actor", tags: ["supporting"] },
     ]
 
     expect(filterPersons(persons, "")).toHaveLength(3)
@@ -52,28 +53,25 @@ describe("usePersonIdentification", () => {
     const sortPersons = (persons: any[], sortBy: string, sortOrder: string) => {
       return [...persons].sort((a, b) => {
         let compareValue = 0
-        
+
         switch (sortBy) {
           case "name":
             compareValue = a.name.localeCompare(b.name)
             break
           case "appearances":
-            compareValue = (a.statistics?.totalAppearances || 0) - 
-                          (b.statistics?.totalAppearances || 0)
+            compareValue = (a.statistics?.totalAppearances || 0) - (b.statistics?.totalAppearances || 0)
             break
           case "screenTime":
-            compareValue = (a.statistics?.totalScreenTime || 0) - 
-                          (b.statistics?.totalScreenTime || 0)
+            compareValue = (a.statistics?.totalScreenTime || 0) - (b.statistics?.totalScreenTime || 0)
             break
           case "createdAt":
-            compareValue = new Date(a.createdAt).getTime() - 
-                          new Date(b.createdAt).getTime()
+            compareValue = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
             break
           default:
             compareValue = 0
             break
         }
-        
+
         return sortOrder === "asc" ? compareValue : -compareValue
       })
     }
@@ -81,7 +79,7 @@ describe("usePersonIdentification", () => {
     const persons = [
       { name: "Charlie", statistics: { totalAppearances: 5 }, createdAt: "2025-01-03" },
       { name: "Alice", statistics: { totalAppearances: 10 }, createdAt: "2025-01-01" },
-      { name: "Bob", statistics: { totalAppearances: 3 }, createdAt: "2025-01-02" }
+      { name: "Bob", statistics: { totalAppearances: 3 }, createdAt: "2025-01-02" },
     ]
 
     // Sort by name ascending
@@ -103,17 +101,15 @@ describe("usePersonIdentification", () => {
   it("should handle tag filtering logic", () => {
     const filterByTags = (persons: any[], selectedTags: string[]) => {
       if (selectedTags.length === 0) return persons
-      
-      return persons.filter(person =>
-        selectedTags.some(tag => person.tags?.includes(tag))
-      )
+
+      return persons.filter((person) => selectedTags.some((tag) => person.tags?.includes(tag)))
     }
 
     const persons = [
       { name: "Person 1", tags: ["actor", "main"] },
       { name: "Person 2", tags: ["actor", "supporting"] },
       { name: "Person 3", tags: ["crew", "director"] },
-      { name: "Person 4", tags: ["crew", "producer"] }
+      { name: "Person 4", tags: ["crew", "producer"] },
     ]
 
     expect(filterByTags(persons, [])).toHaveLength(4)
@@ -128,7 +124,7 @@ describe("usePersonIdentification", () => {
       createPerson: (data: any) => ({ id: "new-id", ...data }),
       updatePerson: (id: string, data: any) => ({ id, ...data }),
       deletePerson: (id: string) => id,
-      togglePrivacySetting: (id: string, setting: string) => ({ id, setting })
+      togglePrivacySetting: (id: string, setting: string) => ({ id, setting }),
     }
 
     const created = operations.createPerson({ name: "Test" })

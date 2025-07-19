@@ -44,12 +44,12 @@ describe("MediaStudio", () => {
     vi.clearAllMocks()
     console.log = consoleLogSpy
     console.error = consoleErrorSpy
-    
+
     // Дефолтные значения для моков
     mockUseUserSettings.mockReturnValue({
       layoutMode: "default",
     })
-    
+
     mockUseAutoLoadUserData.mockReturnValue({
       isLoading: false,
       loadedData: {
@@ -72,7 +72,7 @@ describe("MediaStudio", () => {
 
   it("рендерит основные компоненты", () => {
     render(<MediaStudio />)
-    
+
     expect(screen.getByTestId("top-bar")).toBeInTheDocument()
     expect(screen.getByTestId("modal-container")).toBeInTheDocument()
   })
@@ -80,9 +80,9 @@ describe("MediaStudio", () => {
   describe("рендерит правильный layout в зависимости от layoutMode", () => {
     it("рендерит DefaultLayout при layoutMode='default'", () => {
       mockUseUserSettings.mockReturnValue({ layoutMode: "default" })
-      
+
       render(<MediaStudio />)
-      
+
       expect(screen.getByTestId("default-layout")).toBeInTheDocument()
       expect(screen.queryByTestId("options-layout")).not.toBeInTheDocument()
       expect(screen.queryByTestId("vertical-layout")).not.toBeInTheDocument()
@@ -91,9 +91,9 @@ describe("MediaStudio", () => {
 
     it("рендерит OptionsLayout при layoutMode='options'", () => {
       mockUseUserSettings.mockReturnValue({ layoutMode: "options" })
-      
+
       render(<MediaStudio />)
-      
+
       expect(screen.getByTestId("options-layout")).toBeInTheDocument()
       expect(screen.queryByTestId("default-layout")).not.toBeInTheDocument()
       expect(screen.queryByTestId("vertical-layout")).not.toBeInTheDocument()
@@ -102,9 +102,9 @@ describe("MediaStudio", () => {
 
     it("рендерит VerticalLayout при layoutMode='vertical'", () => {
       mockUseUserSettings.mockReturnValue({ layoutMode: "vertical" })
-      
+
       render(<MediaStudio />)
-      
+
       expect(screen.getByTestId("vertical-layout")).toBeInTheDocument()
       expect(screen.queryByTestId("default-layout")).not.toBeInTheDocument()
       expect(screen.queryByTestId("options-layout")).not.toBeInTheDocument()
@@ -113,9 +113,9 @@ describe("MediaStudio", () => {
 
     it("рендерит ChatLayout при layoutMode='chat'", () => {
       mockUseUserSettings.mockReturnValue({ layoutMode: "chat" })
-      
+
       render(<MediaStudio />)
-      
+
       expect(screen.getByTestId("chat-layout")).toBeInTheDocument()
       expect(screen.queryByTestId("default-layout")).not.toBeInTheDocument()
       expect(screen.queryByTestId("options-layout")).not.toBeInTheDocument()
@@ -138,9 +138,9 @@ describe("MediaStudio", () => {
         },
         error: null,
       })
-      
+
       render(<MediaStudio />)
-      
+
       expect(consoleLogSpy).toHaveBeenCalledWith("Загружаем пользовательские данные...")
     })
 
@@ -159,9 +159,9 @@ describe("MediaStudio", () => {
         },
         error,
       })
-      
+
       render(<MediaStudio />)
-      
+
       expect(consoleErrorSpy).toHaveBeenCalledWith("Ошибка автозагрузки пользовательских данных:", error)
     })
 
@@ -175,15 +175,15 @@ describe("MediaStudio", () => {
         subtitles: 0,
         styleTemplates: 1,
       }
-      
+
       mockUseAutoLoadUserData.mockReturnValue({
         isLoading: false,
         loadedData,
         error: null,
       })
-      
+
       render(<MediaStudio />)
-      
+
       expect(consoleLogSpy).toHaveBeenCalledWith("Загружены пользовательские данные:", loadedData)
     })
 
@@ -201,19 +201,19 @@ describe("MediaStudio", () => {
         },
         error: null,
       })
-      
+
       render(<MediaStudio />)
-      
+
       expect(consoleLogSpy).not.toHaveBeenCalled()
     })
   })
 
   it("имеет правильную структуру DOM", () => {
     const { container } = render(<MediaStudio />)
-    
+
     const rootDiv = container.firstChild as HTMLElement
     expect(rootDiv.className).toContain("flex flex-col h-screen w-screen m-0 p-0")
-    
+
     const contentDiv = rootDiv.querySelector(".flex-1")
     expect(contentDiv).toBeInTheDocument()
   })

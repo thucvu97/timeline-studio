@@ -125,7 +125,7 @@ export async function analyzeContentForStory(params: any): Promise<TimelineToolR
           analysis.audioConsistency = audioAnalysis
           suggestions.push(...audioAnalysis.suggestions)
           break
-          
+
         default:
           // Неизвестный элемент истории - пропускаем
           break

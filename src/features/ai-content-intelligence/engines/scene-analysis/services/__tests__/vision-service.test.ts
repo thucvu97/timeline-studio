@@ -1,16 +1,9 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { ONNXRuntimeService } from "../onnx-runtime-service"
 import { VisionService } from "../vision-service"
 
-import type {
-  ActivityDetection,
-  BoundingBox,
-  CompositionAnalysis,
-  FaceDetection,
-  ObjectDetection,
-  TextDetection,
-} from "../../../../shared/types/content-analysis"
+import type { BoundingBox, ObjectDetection } from "../../../../shared/types/content-analysis"
 
 // Mock ONNXRuntimeService
 vi.mock("../onnx-runtime-service")
@@ -38,8 +31,8 @@ global.document = {
         height: 0,
         getContext: vi.fn(() => ({
           drawImage: vi.fn(),
-          getImageData: vi.fn((x: number, y: number, width: number, height: number) => 
-            createMockImageData(width, height)
+          getImageData: vi.fn((_x: number, _y: number, width: number, height: number) =>
+            createMockImageData(width, height),
           ),
           putImageData: vi.fn(),
           filter: "",
@@ -56,10 +49,10 @@ const createMockImageData = (width: number, height: number): ImageData => {
   const data = new Uint8ClampedArray(width * height * 4)
   // Fill with some pattern for testing
   for (let i = 0; i < data.length; i += 4) {
-    data[i] = 128 + Math.floor(Math.random() * 128)     // R
+    data[i] = 128 + Math.floor(Math.random() * 128) // R
     data[i + 1] = 128 + Math.floor(Math.random() * 128) // G
     data[i + 2] = 128 + Math.floor(Math.random() * 128) // B
-    data[i + 3] = 255                                    // A
+    data[i + 3] = 255 // A
   }
   return { data, width, height } as ImageData
 }
@@ -79,7 +72,7 @@ const createMockFaceDetection = () => ({
   landmarks: [
     { x: 0.17, y: 0.18 }, // left eye
     { x: 0.23, y: 0.18 }, // right eye
-    { x: 0.2, y: 0.22 },  // nose
+    { x: 0.2, y: 0.22 }, // nose
     { x: 0.17, y: 0.25 }, // mouth left
     { x: 0.23, y: 0.25 }, // mouth right
   ],
@@ -156,12 +149,8 @@ describe("VisionService", () => {
 
       await service.initialize()
 
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        "YOLO model not available, object detection will use mock data"
-      )
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        "Face detection model not available, will use mock data"
-      )
+      expect(consoleWarnSpy).toHaveBeenCalledWith("YOLO model not available, object detection will use mock data")
+      expect(consoleWarnSpy).toHaveBeenCalledWith("Face detection model not available, will use mock data")
 
       consoleWarnSpy.mockRestore()
     })
@@ -234,7 +223,7 @@ describe("VisionService", () => {
     it("should skip disabled features", async () => {
       // Reset singleton before creating custom instance
       ;(VisionService as any).instance = undefined
-      
+
       const customService = VisionService.getInstance({
         enableObjectDetection: false,
         enableFaceDetection: false,
@@ -274,9 +263,9 @@ describe("VisionService", () => {
         label: "person",
         confidence: 0.95,
         boundingBox: {
-          x: 64,  // 0.1 * 640
-          y: 48,  // 0.1 * 480
-          width: 128,  // 0.2 * 640
+          x: 64, // 0.1 * 640
+          y: 48, // 0.1 * 480
+          width: 128, // 0.2 * 640
           height: 144, // 0.3 * 480
         },
         trackId: 1,
@@ -330,10 +319,10 @@ describe("VisionService", () => {
         id: "face-0-0",
         confidence: 0.9,
         boundingBox: {
-          x: 96,   // 0.15 * 640
-          y: 72,   // 0.15 * 480
-          width: 64,   // 0.1 * 640
-          height: 72,  // 0.15 * 480
+          x: 96, // 0.15 * 640
+          y: 72, // 0.15 * 480
+          width: 64, // 0.1 * 640
+          height: 72, // 0.15 * 480
         },
       })
       expect(faces[0].landmarks).toBeDefined()
@@ -346,7 +335,7 @@ describe("VisionService", () => {
     it("should filter faces by confidence threshold", async () => {
       // Reset singleton before creating custom instance
       ;(VisionService as any).instance = undefined
-      
+
       const customService = VisionService.getInstance({
         faceConfidenceThreshold: 0.95,
       })
@@ -364,9 +353,7 @@ describe("VisionService", () => {
     })
 
     it("should handle faces without landmarks", async () => {
-      mockONNXService.runFaceDetection.mockResolvedValueOnce([
-        { ...createMockFaceDetection(), landmarks: undefined },
-      ])
+      mockONNXService.runFaceDetection.mockResolvedValueOnce([{ ...createMockFaceDetection(), landmarks: undefined }])
 
       const faces = await service.detectFaces(createMockImageData(640, 480), 0)
 
@@ -402,10 +389,10 @@ describe("VisionService", () => {
         text: "Hello World",
         confidence: 0.85,
         boundingBox: {
-          x: 192,  // 0.3 * 640
-          y: 144,  // 0.3 * 480
-          width: 256,  // 0.4 * 640
-          height: 48,  // 0.1 * 480
+          x: 192, // 0.3 * 640
+          y: 144, // 0.3 * 480
+          width: 256, // 0.4 * 640
+          height: 48, // 0.1 * 480
         },
         language: "en",
       })
@@ -424,7 +411,7 @@ describe("VisionService", () => {
     it("should filter text by confidence threshold", async () => {
       // Reset singleton before creating custom instance
       ;(VisionService as any).instance = undefined
-      
+
       const customService = VisionService.getInstance({
         textConfidenceThreshold: 0.9,
       })
@@ -460,11 +447,7 @@ describe("VisionService", () => {
     })
 
     it("should detect high motion activity", async () => {
-      const frames = [
-        createMockImageData(640, 480),
-        createMockImageData(640, 480),
-        createMockImageData(640, 480),
-      ]
+      const frames = [createMockImageData(640, 480), createMockImageData(640, 480), createMockImageData(640, 480)]
 
       // Mock high motion between frames
       vi.spyOn(service as any, "calculateMotionIntensity").mockResolvedValue(0.8)
@@ -475,20 +458,17 @@ describe("VisionService", () => {
         expect.objectContaining({
           activity: "high_motion",
           confidence: 0.9,
-        })
+        }),
       )
       expect(activities).toContainEqual(
         expect.objectContaining({
           activity: "fast_action",
-        })
+        }),
       )
     })
 
     it("should detect moderate motion activity", async () => {
-      const frames = [
-        createMockImageData(640, 480),
-        createMockImageData(640, 480),
-      ]
+      const frames = [createMockImageData(640, 480), createMockImageData(640, 480)]
 
       vi.spyOn(service as any, "calculateMotionIntensity").mockResolvedValue(0.5)
 
@@ -498,20 +478,17 @@ describe("VisionService", () => {
         expect.objectContaining({
           activity: "moderate_motion",
           confidence: 0.8,
-        })
+        }),
       )
       expect(activities).toContainEqual(
         expect.objectContaining({
           activity: "walking",
-        })
+        }),
       )
     })
 
     it("should detect static activity", async () => {
-      const frames = [
-        createMockImageData(640, 480),
-        createMockImageData(640, 480),
-      ]
+      const frames = [createMockImageData(640, 480), createMockImageData(640, 480)]
 
       vi.spyOn(service as any, "calculateMotionIntensity").mockResolvedValue(0.05)
 
@@ -521,7 +498,7 @@ describe("VisionService", () => {
         expect.objectContaining({
           activity: "static",
           confidence: 0.9,
-        })
+        }),
       )
     })
 
@@ -532,9 +509,7 @@ describe("VisionService", () => {
 
     it("should handle activity detection errors", async () => {
       const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
-      vi.spyOn(service as any, "calculateMotionIntensity").mockRejectedValue(
-        new Error("Motion calc failed")
-      )
+      vi.spyOn(service as any, "calculateMotionIntensity").mockRejectedValue(new Error("Motion calc failed"))
 
       const activities = await service.detectActivity([createMockImageData(640, 480)], 0, 0)
 
@@ -678,12 +653,8 @@ describe("VisionService", () => {
           { id: "1", label: "person", confidence: 0.9, boundingBox: {} as BoundingBox, frameNumbers: [0] },
           { id: "2", label: "car", confidence: 0.8, boundingBox: {} as BoundingBox, frameNumbers: [0] },
         ],
-        faces: [
-          { id: "f1", confidence: 0.9, boundingBox: {} as BoundingBox },
-        ],
-        text: [
-          { text: "Hello", confidence: 0.85, boundingBox: {} as BoundingBox, language: "en" },
-        ],
+        faces: [{ id: "f1", confidence: 0.9, boundingBox: {} as BoundingBox }],
+        text: [{ text: "Hello", confidence: 0.85, boundingBox: {} as BoundingBox, language: "en" }],
         activities: [],
         composition: {
           ruleOfThirds: 0.8,
@@ -738,9 +709,9 @@ describe("VisionService", () => {
       const data = new Uint8Array(100 * 100 * 4)
       // Fill with red color
       for (let i = 0; i < data.length; i += 4) {
-        data[i] = 255     // R
-        data[i + 1] = 0   // G
-        data[i + 2] = 0   // B
+        data[i] = 255 // R
+        data[i + 1] = 0 // G
+        data[i + 2] = 0 // B
         data[i + 3] = 255 // A
       }
 
@@ -776,14 +747,12 @@ describe("VisionService", () => {
       await service.initialize()
       const frameData = createMockImageData(640, 480)
 
-      const promises = Array.from({ length: 5 }, (_, i) => 
-        service.analyzeFrame(frameData, i)
-      )
+      const promises = Array.from({ length: 5 }, (_, i) => service.analyzeFrame(frameData, i))
 
       const results = await Promise.all(promises)
 
       expect(results).toHaveLength(5)
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(result).toBeDefined()
         expect(result.objects).toBeDefined()
       })

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { MidiSequencer, type MidiTrack, type MidiEvent } from "../midi-sequencer"
+import { MidiSequencer } from "../midi-sequencer"
 
 import type { MidiMessage } from "../midi-engine"
 
@@ -8,45 +8,44 @@ import type { MidiMessage } from "../midi-engine"
 class MockMidiClock {
   private handlers = new Map<string, Array<(...args: any[]) => void>>()
   private running = false
-  private position = 0
-  
+
   on(event: string, handler: (...args: any[]) => void) {
     if (!this.handlers.has(event)) {
       this.handlers.set(event, [])
     }
     this.handlers.get(event)!.push(handler)
   }
-  
+
   emit(event: string, ...args: any[]) {
     const eventHandlers = this.handlers.get(event)
     if (eventHandlers) {
-      eventHandlers.forEach(handler => handler(...args))
+      eventHandlers.forEach((handler) => handler(...args))
     }
   }
-  
+
   start() {
     this.running = true
     this.emit("start")
   }
-  
+
   stop() {
     this.running = false
     this.emit("stop")
   }
-  
+
   tick(position: number) {
     this.position = position
     this.emit("tick", position)
   }
-  
+
   isRunning() {
     return this.running
   }
-  
+
   setPosition(position: number) {
     this.position = position
   }
-  
+
   beatsToMs(beats: number) {
     // Simple conversion: 120 BPM = 500ms per beat
     return beats * 500
@@ -93,10 +92,10 @@ describe("MidiSequencer", () => {
       const trackUpdatedHandler = vi.fn()
       sequencer.on("trackUpdated", trackUpdatedHandler)
 
-      sequencer.updateTrack(trackId, { 
-        name: "Updated", 
+      sequencer.updateTrack(trackId, {
+        name: "Updated",
         channel: 2,
-        muted: true 
+        muted: true,
       })
 
       expect(trackUpdatedHandler).toHaveBeenCalledWith(
@@ -104,10 +103,10 @@ describe("MidiSequencer", () => {
           id: trackId,
           name: "Updated",
           channel: 2,
-          muted: true
-        })
+          muted: true,
+        }),
       )
-      
+
       const track = sequencer.getTrack(trackId)
       expect(track?.name).toBe("Updated")
       expect(track?.channel).toBe(2)
@@ -131,8 +130,8 @@ describe("MidiSequencer", () => {
 
       const tracks = sequencer.getTracks()
       expect(tracks).toHaveLength(2)
-      expect(tracks.find(t => t.id === track1)).toBeDefined()
-      expect(tracks.find(t => t.id === track2)).toBeDefined()
+      expect(tracks.find((t) => t.id === track1)).toBeDefined()
+      expect(tracks.find((t) => t.id === track2)).toBeDefined()
     })
 
     it("should clear all tracks", () => {
@@ -161,7 +160,7 @@ describe("MidiSequencer", () => {
         timestamp: 0,
         message,
         channel: 1,
-        velocity: 100
+        velocity: 100,
       })
 
       expect(eventId).toMatch(/^event_\d+$/)
@@ -170,8 +169,8 @@ describe("MidiSequencer", () => {
         event: expect.objectContaining({
           id: eventId,
           timestamp: 0,
-          message
-        })
+          message,
+        }),
       })
 
       const track = sequencer.getTrack(trackId)
@@ -192,7 +191,7 @@ describe("MidiSequencer", () => {
         timestamp: 0,
         message,
         channel: 1,
-        velocity: 100
+        velocity: 100,
       })
 
       const eventUpdatedHandler = vi.fn()
@@ -205,9 +204,9 @@ describe("MidiSequencer", () => {
         data: { note: 64, velocity: 80 },
       }
 
-      sequencer.updateEvent(trackId, eventId, { 
-        timestamp: 1, 
-        message: updatedMessage 
+      sequencer.updateEvent(trackId, eventId, {
+        timestamp: 1,
+        message: updatedMessage,
       })
 
       expect(eventUpdatedHandler).toHaveBeenCalledWith({
@@ -215,12 +214,12 @@ describe("MidiSequencer", () => {
         event: expect.objectContaining({
           id: eventId,
           timestamp: 1,
-          message: updatedMessage
-        })
+          message: updatedMessage,
+        }),
       })
 
       const track = sequencer.getTrack(trackId)
-      const event = track?.events.find(e => e.id === eventId)
+      const event = track?.events.find((e) => e.id === eventId)
       expect(event?.timestamp).toBe(1)
       expect(event?.message.data.note).toBe(64)
     })
@@ -236,7 +235,7 @@ describe("MidiSequencer", () => {
           data: { note: 60, velocity: 100 },
         },
         channel: 1,
-        velocity: 100
+        velocity: 100,
       })
 
       const eventDeletedHandler = vi.fn()
@@ -244,17 +243,15 @@ describe("MidiSequencer", () => {
 
       sequencer.deleteEvent(trackId, eventId)
 
-      expect(eventDeletedHandler).toHaveBeenCalledWith(
-        expect.objectContaining({ trackId, eventId })
-      )
-      
+      expect(eventDeletedHandler).toHaveBeenCalledWith(expect.objectContaining({ trackId, eventId }))
+
       const track = sequencer.getTrack(trackId)
       expect(track?.events).toHaveLength(0)
     })
 
     it("should get events from track", () => {
       const trackId = sequencer.createTrack("Test", 1)
-      
+
       // Add events at different times
       sequencer.addEvent(trackId, {
         timestamp: 0,
@@ -265,9 +262,9 @@ describe("MidiSequencer", () => {
           data: { note: 60, velocity: 100 },
         },
         channel: 1,
-        velocity: 100
+        velocity: 100,
       })
-      
+
       sequencer.addEvent(trackId, {
         timestamp: 1,
         message: {
@@ -277,7 +274,7 @@ describe("MidiSequencer", () => {
           data: { note: 60, velocity: 0 },
         },
         channel: 1,
-        velocity: 0
+        velocity: 0,
       })
 
       const track = sequencer.getTrack(trackId)
@@ -332,7 +329,7 @@ describe("MidiSequencer", () => {
       expect(loopChangedHandler).toHaveBeenCalledWith({
         start: 4,
         end: 8,
-        enabled: true
+        enabled: true,
       })
 
       const state = sequencer.getState()
@@ -343,7 +340,7 @@ describe("MidiSequencer", () => {
 
     it("should send events during playback", () => {
       vi.useFakeTimers()
-      
+
       const trackId = sequencer.createTrack("Test", 1)
       sequencer.addEvent(trackId, {
         timestamp: 0,
@@ -354,7 +351,7 @@ describe("MidiSequencer", () => {
           data: { note: 60, velocity: 100 },
         },
         channel: 1,
-        velocity: 100
+        velocity: 100,
       })
 
       sequencer.startPlayback()
@@ -385,7 +382,7 @@ describe("MidiSequencer", () => {
           data: { note: 60, velocity: 100 },
         },
         channel: 1,
-        velocity: 100
+        velocity: 100,
       })
 
       sequencer.addEvent(track2, {
@@ -397,7 +394,7 @@ describe("MidiSequencer", () => {
           data: { note: 64, velocity: 100 },
         },
         channel: 2,
-        velocity: 100
+        velocity: 100,
       })
 
       // Mute track 1
@@ -419,7 +416,7 @@ describe("MidiSequencer", () => {
       const trackId = sequencer.createTrack("Recording Track", 1)
       const recordingStartedHandler = vi.fn()
       sequencer.on("recordingStarted", recordingStartedHandler)
-      
+
       sequencer.startRecording(trackId)
       expect(recordingStartedHandler).toHaveBeenCalledWith(trackId)
       expect(sequencer.getState().isRecording).toBe(true)
@@ -430,7 +427,7 @@ describe("MidiSequencer", () => {
 
     it("should record incoming MIDI messages", () => {
       const trackId = sequencer.createTrack("Recording Track", 1)
-      
+
       sequencer.startRecording(trackId)
       sequencer.startPlayback()
 
@@ -454,7 +451,7 @@ describe("MidiSequencer", () => {
 
     it("should handle recording with existing events", () => {
       const trackId = sequencer.createTrack("Test", 1)
-      
+
       // Add existing event
       sequencer.addEvent(trackId, {
         timestamp: 0,
@@ -465,7 +462,7 @@ describe("MidiSequencer", () => {
           data: { note: 60, velocity: 100 },
         },
         channel: 1,
-        velocity: 100
+        velocity: 100,
       })
 
       // Start recording
@@ -490,7 +487,7 @@ describe("MidiSequencer", () => {
 
     it("should apply track quantization", () => {
       const trackId = sequencer.createTrack("Test", 1)
-      
+
       // Add unquantized events
       sequencer.addEvent(trackId, {
         timestamp: 0.1,
@@ -501,9 +498,9 @@ describe("MidiSequencer", () => {
           data: { note: 60, velocity: 100 },
         },
         channel: 1,
-        velocity: 100
+        velocity: 100,
       })
-      
+
       sequencer.addEvent(trackId, {
         timestamp: 0.9,
         message: {
@@ -513,7 +510,7 @@ describe("MidiSequencer", () => {
           data: { note: 64, velocity: 100 },
         },
         channel: 1,
-        velocity: 100
+        velocity: 100,
       })
 
       // Apply quantization
@@ -530,25 +527,25 @@ describe("MidiSequencer", () => {
     it("should respond to clock start/stop", () => {
       const startHandler = vi.fn()
       const stopHandler = vi.fn()
-      
+
       sequencer.on("playbackStarted", startHandler)
       sequencer.on("playbackStopped", stopHandler)
-      
+
       // Start via clock
       sequencer.startPlayback()
       mockClock.start()
-      
+
       expect(startHandler).toHaveBeenCalled()
-      
+
       // Stop via clock
       mockClock.stop()
-      
+
       expect(sequencer.getState().isPlaying).toBe(false)
     })
 
     it("should process events on clock tick", () => {
       const trackId = sequencer.createTrack("Test", 1)
-      
+
       sequencer.addEvent(trackId, {
         timestamp: 1,
         message: {
@@ -558,14 +555,14 @@ describe("MidiSequencer", () => {
           data: { note: 60, velocity: 100 },
         },
         channel: 1,
-        velocity: 100
+        velocity: 100,
       })
-      
+
       sequencer.startPlayback()
-      
+
       // Tick to position 1
       mockClock.tick(1)
-      
+
       expect(sequencer.getState().currentPosition).toBe(1)
     })
   })
@@ -574,7 +571,7 @@ describe("MidiSequencer", () => {
     it("should clear all data", () => {
       const track1 = sequencer.createTrack("Track 1", 1)
       const track2 = sequencer.createTrack("Track 2", 2)
-      
+
       sequencer.addEvent(track1, {
         timestamp: 0,
         message: {
@@ -584,11 +581,11 @@ describe("MidiSequencer", () => {
           data: { note: 60, velocity: 100 },
         },
         channel: 1,
-        velocity: 100
+        velocity: 100,
       })
 
       sequencer.clear()
-      
+
       expect(sequencer.getTracks()).toHaveLength(0)
       expect(sequencer.getState().isPlaying).toBe(false)
       expect(sequencer.getState().isRecording).toBe(false)
@@ -596,9 +593,9 @@ describe("MidiSequencer", () => {
 
     it("should dispose properly", () => {
       const track1 = sequencer.createTrack("Track 1", 1)
-      
+
       sequencer.dispose()
-      
+
       expect(sequencer.getTracks()).toHaveLength(0)
       expect(sequencer.listenerCount("trackCreated")).toBe(0)
     })
@@ -608,25 +605,27 @@ describe("MidiSequencer", () => {
     it("should handle invalid track ID", () => {
       expect(() => sequencer.updateTrack("invalid-id", { name: "Test" })).not.toThrow()
       expect(() => sequencer.deleteTrack("invalid-id")).not.toThrow()
-      
-      expect(() => sequencer.addEvent("invalid-id", {
-        timestamp: 0,
-        message: {
-          type: "noteon",
-          channel: 1,
+
+      expect(() =>
+        sequencer.addEvent("invalid-id", {
           timestamp: 0,
-          data: { note: 60, velocity: 100 },
-        },
-        channel: 1,
-        velocity: 100
-      })).toThrow("Track invalid-id not found")
+          message: {
+            type: "noteon",
+            channel: 1,
+            timestamp: 0,
+            data: { note: 60, velocity: 100 },
+          },
+          channel: 1,
+          velocity: 100,
+        }),
+      ).toThrow("Track invalid-id not found")
     })
 
     it("should handle position bounds", () => {
       sequencer.setPosition(100)
       expect(sequencer.getState().currentPosition).toBe(100)
 
-      sequencer.setPosition(-10) // Negative position  
+      sequencer.setPosition(-10) // Negative position
       expect(sequencer.getState().currentPosition).toBe(-10) // Allows negative for count-in
     })
 

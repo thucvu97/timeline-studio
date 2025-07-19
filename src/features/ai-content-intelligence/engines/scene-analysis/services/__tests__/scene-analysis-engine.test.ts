@@ -1,16 +1,9 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { FFmpegAnalysisService } from "@/features/ai-chat/services/ffmpeg-analysis-service"
 import { UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service"
-import type { Person } from "@/features/montage-planner/types"
 
-import {
-  ContentType,
-  Genre,
-  KeyMomentType,
-  SceneType,
-} from "../../../../shared/types/content-analysis"
-import { CameraMovementType, LightingType, MotionDirection } from "../../types"
+import { ContentType, Genre, KeyMomentType, SceneType } from "../../../../shared/types/content-analysis"
 import { SceneAnalysisEngine } from "../scene-analysis-engine"
 import { VisionService } from "../vision-service"
 
@@ -100,30 +93,30 @@ const createMockFFmpegAnalysis = () => ({
 // Create mock vision analysis results
 const createMockVisionAnalysis = () => ({
   objects: [
-    { 
-      type: "person", 
-      confidence: 0.95, 
+    {
+      type: "person",
+      confidence: 0.95,
       bbox: { x: 100, y: 100, width: 200, height: 300 },
       trackId: 1,
     },
-    { 
-      type: "car", 
-      confidence: 0.85, 
+    {
+      type: "car",
+      confidence: 0.85,
       bbox: { x: 400, y: 200, width: 300, height: 200 },
       trackId: 2,
     },
   ],
   faces: [
-    { 
-      confidence: 0.9, 
+    {
+      confidence: 0.9,
       bbox: { x: 120, y: 120, width: 80, height: 100 },
       landmarks: [],
     },
   ],
   text: [
-    { 
-      text: "Hello World", 
-      confidence: 0.88, 
+    {
+      text: "Hello World",
+      confidence: 0.88,
       bbox: { x: 500, y: 50, width: 200, height: 50 },
     },
   ],
@@ -238,7 +231,7 @@ describe("SceneAnalysisEngine", () => {
 
     it("should process media file successfully", async () => {
       const mediaFile = createMockMediaFile()
-      
+
       const result = await engine.process({ mediaFile })
 
       expect(result).toBeDefined()
@@ -247,7 +240,7 @@ describe("SceneAnalysisEngine", () => {
       expect(result.classification).toBeDefined()
       expect(result.summary).toBeDefined()
       expect(result.timeline).toBeDefined()
-      
+
       // Verify FFmpeg service calls
       expect(mockFFmpegService.getVideoMetadata).toHaveBeenCalledWith(mediaFile.path)
       expect(mockFFmpegService.detectScenes).toHaveBeenCalled()
@@ -261,16 +254,15 @@ describe("SceneAnalysisEngine", () => {
       const uninitializedEngine = new SceneAnalysisEngine()
       const mediaFile = createMockMediaFile()
 
-      await expect(uninitializedEngine.process({ mediaFile }))
-        .rejects.toThrow("Scene Analysis Engine not initialized")
+      await expect(uninitializedEngine.process({ mediaFile })).rejects.toThrow("Scene Analysis Engine not initialized")
     })
 
     it("should analyze scenes with vision service", async () => {
       const mediaFile = createMockMediaFile()
-      
+
       // Ensure extractFrame returns valid data
       mockFFmpegService.extractFrame.mockResolvedValue(new Uint8Array(100))
-      
+
       const result = await engine.process({ mediaFile })
 
       // Verify vision analysis was performed
@@ -279,7 +271,7 @@ describe("SceneAnalysisEngine", () => {
       expect(mockVisionService.extractDominantColors).toHaveBeenCalled()
 
       // Check that scenes have content analysis
-      result.scenes.forEach(scene => {
+      result.scenes.forEach((scene) => {
         expect(scene.content).toBeDefined()
         expect(scene.content.objects).toBeDefined()
         expect(scene.content.faces).toBeDefined()
@@ -289,19 +281,17 @@ describe("SceneAnalysisEngine", () => {
 
     it("should identify persons from face detections", async () => {
       const mediaFile = createMockMediaFile()
-      
+
       // Ensure extractFrame returns valid data and vision detects faces
       mockFFmpegService.extractFrame.mockResolvedValue(new Uint8Array(100))
-      
+
       const result = await engine.process({ mediaFile })
 
       // Check person identification
-      const scenesWithFaces = result.scenes.filter(
-        scene => scene.content?.faces?.length > 0
-      )
+      const scenesWithFaces = result.scenes.filter((scene) => scene.content?.faces?.length > 0)
       expect(scenesWithFaces.length).toBeGreaterThan(0)
-      
-      scenesWithFaces.forEach(scene => {
+
+      scenesWithFaces.forEach((scene) => {
         expect(scene.content.identifiedPersons).toBeDefined()
         expect(Array.isArray(scene.content.identifiedPersons)).toBe(true)
       })
@@ -323,7 +313,7 @@ describe("SceneAnalysisEngine", () => {
         expect.objectContaining({
           threshold: 0.5,
           minSceneLength: 2.0,
-        })
+        }),
       )
     })
   })
@@ -331,7 +321,7 @@ describe("SceneAnalysisEngine", () => {
   describe("getCapabilities", () => {
     it("should return engine capabilities", async () => {
       await engine.initialize()
-      
+
       const capabilities = engine.getCapabilities()
 
       expect(capabilities).toBeDefined()
@@ -346,7 +336,7 @@ describe("SceneAnalysisEngine", () => {
 
     it("should calculate estimated processing time", async () => {
       await engine.initialize()
-      
+
       const capabilities = engine.getCapabilities()
       const mediaFile = createMockMediaFile()
       const estimatedTime = capabilities.estimatedProcessingTime({ mediaFile })
@@ -394,7 +384,7 @@ describe("SceneAnalysisEngine", () => {
         expect.objectContaining({
           threshold: 0.5,
           minSceneLength: 2.0,
-        })
+        }),
       )
     })
   })
@@ -406,7 +396,7 @@ describe("SceneAnalysisEngine", () => {
 
     it("should detect different scene types", async () => {
       const mediaFile = createMockMediaFile()
-      
+
       // Mock scene type detection
       vi.spyOn(engine as any, "detectSceneType").mockImplementation((scene) => {
         if (scene.startTime === 0) return SceneType.ESTABLISHING
@@ -425,10 +415,10 @@ describe("SceneAnalysisEngine", () => {
 
     it("should extract quality metrics for each scene", async () => {
       const mediaFile = createMockMediaFile()
-      
+
       const result = await engine.process({ mediaFile })
 
-      result.scenes.forEach(scene => {
+      result.scenes.forEach((scene) => {
         expect(scene.quality).toBeDefined()
         expect(scene.quality.overall).toBeGreaterThanOrEqual(0)
         expect(scene.quality.overall).toBeLessThanOrEqual(1)
@@ -437,10 +427,10 @@ describe("SceneAnalysisEngine", () => {
 
     it("should extract keyframes for each scene", async () => {
       const mediaFile = createMockMediaFile()
-      
+
       const result = await engine.process({ mediaFile })
 
-      result.scenes.forEach(scene => {
+      result.scenes.forEach((scene) => {
         expect(scene.keyFrames).toBeDefined()
         expect(Array.isArray(scene.keyFrames)).toBe(true)
       })
@@ -454,7 +444,7 @@ describe("SceneAnalysisEngine", () => {
 
     it("should detect key moments", async () => {
       const mediaFile = createMockMediaFile()
-      
+
       // Mock key moment detection
       vi.spyOn(engine as any, "detectKeyMoments").mockResolvedValue([
         {
@@ -490,7 +480,7 @@ describe("SceneAnalysisEngine", () => {
 
     it("should classify content", async () => {
       const mediaFile = createMockMediaFile()
-      
+
       // Mock content classification
       vi.spyOn(engine as any, "classifyContent").mockResolvedValue({
         contentType: ContentType.NARRATIVE,
@@ -518,12 +508,12 @@ describe("SceneAnalysisEngine", () => {
 
     it("should track persons across scenes", async () => {
       const mediaFile = createMockMediaFile()
-      
+
       const result = await engine.process({ mediaFile })
 
       expect(result.persons).toBeDefined()
       expect(Array.isArray(result.persons)).toBe(true)
-      
+
       if (result.persons.length > 0) {
         const person = result.persons[0]
         expect(person).toHaveProperty("id")
@@ -534,7 +524,7 @@ describe("SceneAnalysisEngine", () => {
 
     it("should calculate person statistics", async () => {
       const mediaFile = createMockMediaFile()
-      
+
       // Mock person detection
       vi.spyOn(engine as any, "identifyPersons").mockResolvedValue([
         { id: "person-1", name: "John Doe", confidence: 0.9 },
@@ -554,7 +544,7 @@ describe("SceneAnalysisEngine", () => {
 
     it("should generate timeline data", async () => {
       const mediaFile = createMockMediaFile()
-      
+
       const result = await engine.process({ mediaFile })
 
       expect(result.timeline).toBeDefined()
@@ -572,7 +562,7 @@ describe("SceneAnalysisEngine", () => {
 
     it("should generate analysis summary", async () => {
       const mediaFile = createMockMediaFile()
-      
+
       const result = await engine.process({ mediaFile })
 
       expect(result.summary).toBeDefined()
@@ -595,22 +585,21 @@ describe("SceneAnalysisEngine", () => {
       const mediaFile = createMockMediaFile()
       mockFFmpegService.getVideoMetadata.mockRejectedValueOnce(new Error("FFmpeg failed"))
 
-      await expect(engine.process({ mediaFile }))
-        .rejects.toThrow("FFmpeg failed")
+      await expect(engine.process({ mediaFile })).rejects.toThrow("FFmpeg failed")
     })
 
     it("should handle vision service errors gracefully", async () => {
       const mediaFile = createMockMediaFile()
-      
+
       // Ensure extractFrame returns data so vision service is called
       mockFFmpegService.extractFrame.mockResolvedValue(new Uint8Array(100))
       mockVisionService.analyzeFrame.mockRejectedValueOnce(new Error("Vision failed"))
-      
+
       const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
 
       // Should not throw, but log error
       const result = await engine.process({ mediaFile })
-      
+
       expect(result).toBeDefined()
       expect(consoleErrorSpy).toHaveBeenCalled()
 

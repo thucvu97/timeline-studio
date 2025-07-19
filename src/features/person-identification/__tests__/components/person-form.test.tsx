@@ -8,23 +8,23 @@ describe("PersonForm", () => {
         required: true,
         minLength: 1,
         maxLength: 100,
-        placeholder: "Enter person name"
+        placeholder: "Enter person name",
       },
       description: {
         required: false,
         maxLength: 500,
-        placeholder: "Add description (optional)"
+        placeholder: "Add description (optional)",
       },
       tags: {
         required: false,
         maxItems: 10,
-        maxItemLength: 50
+        maxItemLength: 50,
       },
       avatarUrl: {
         required: false,
         pattern: /^https?:\/\/.+/,
-        placeholder: "Avatar URL (optional)"
-      }
+        placeholder: "Avatar URL (optional)",
+      },
     }
 
     expect(formFields.name.required).toBe(true)
@@ -62,7 +62,7 @@ describe("PersonForm", () => {
 
       return {
         isValid: Object.keys(errors).length === 0,
-        errors
+        errors,
       }
     }
 
@@ -71,7 +71,7 @@ describe("PersonForm", () => {
       name: "John Doe",
       description: "Test person",
       tags: ["actor"],
-      avatarUrl: "https://example.com/avatar.jpg"
+      avatarUrl: "https://example.com/avatar.jpg",
     }
     expect(validateForm(validData).isValid).toBe(true)
 
@@ -130,7 +130,7 @@ describe("PersonForm", () => {
       description: "",
       tags: [] as string[],
       avatarUrl: "",
-      isDirty: false
+      isDirty: false,
     }
 
     const updateField = (field: keyof typeof formState, value: any) => {
@@ -157,10 +157,10 @@ describe("PersonForm", () => {
         privacySettings: {
           blurFace: false,
           anonymize: false,
-          excludeFromExport: false
+          excludeFromExport: false,
         },
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       }
     }
 
@@ -168,7 +168,7 @@ describe("PersonForm", () => {
       name: "  John Doe  ",
       description: "  Actor  ",
       tags: ["main"],
-      avatarUrl: "  https://example.com/avatar.jpg  "
+      avatarUrl: "  https://example.com/avatar.jpg  ",
     }
 
     const submitData = prepareSubmitData(formData)

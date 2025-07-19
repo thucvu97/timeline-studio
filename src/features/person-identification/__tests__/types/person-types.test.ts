@@ -11,13 +11,11 @@ describe("Person Types", () => {
       description: "Description text",
       avatarUrl: "https://example.com/avatar.jpg",
       tags: ["actor", "main"],
-      faceEmbeddings: [
-        new Float32Array([0.1, 0.2, 0.3])
-      ],
+      faceEmbeddings: [new Float32Array([0.1, 0.2, 0.3])],
       privacySettings: {
         blurFace: false,
         anonymize: false,
-        excludeFromExport: false
+        excludeFromExport: false,
       },
       clips: [],
       statistics: {
@@ -25,10 +23,10 @@ describe("Person Types", () => {
         totalScreenTime: 0,
         lastSeen: null,
         firstSeen: null,
-        averageScreenTime: 0
+        averageScreenTime: 0,
       },
       createdAt: "2025-01-17T12:00:00Z",
-      updatedAt: "2025-01-17T12:00:00Z"
+      updatedAt: "2025-01-17T12:00:00Z",
     }
 
     expect(validPerson).toHaveProperty("id")
@@ -43,7 +41,7 @@ describe("Person Types", () => {
       clipId: "clip-123",
       startTime: 10.5,
       endTime: 25.3,
-      confidence: 0.95
+      confidence: 0.95,
     }
 
     expect(validClip.clipId).toBeDefined()
@@ -56,7 +54,7 @@ describe("Person Types", () => {
     const settings: PersonPrivacySettings = {
       blurFace: true,
       anonymize: false,
-      excludeFromExport: true
+      excludeFromExport: true,
     }
 
     expect(typeof settings.blurFace).toBe("boolean")
@@ -68,10 +66,10 @@ describe("Person Types", () => {
       { blurFace: true, anonymize: true, excludeFromExport: true },
       { blurFace: false, anonymize: false, excludeFromExport: false },
       { blurFace: true, anonymize: false, excludeFromExport: false },
-      { blurFace: false, anonymize: true, excludeFromExport: false }
+      { blurFace: false, anonymize: true, excludeFromExport: false },
     ]
 
-    allCombinations.forEach(combo => {
+    allCombinations.forEach((combo) => {
       expect(combo).toHaveProperty("blurFace")
       expect(combo).toHaveProperty("anonymize")
       expect(combo).toHaveProperty("excludeFromExport")
@@ -82,7 +80,7 @@ describe("Person Types", () => {
     const clips: PersonClip[] = [
       { clipId: "1", startTime: 0, endTime: 10, confidence: 0.9 },
       { clipId: "2", startTime: 20, endTime: 35, confidence: 0.85 },
-      { clipId: "3", startTime: 50, endTime: 60, confidence: 0.95 }
+      { clipId: "3", startTime: 50, endTime: 60, confidence: 0.95 },
     ]
 
     const calculateStatistics = (clips: PersonClip[]): PersonStatistics => {
@@ -92,14 +90,12 @@ describe("Person Types", () => {
           totalScreenTime: 0,
           lastSeen: null,
           firstSeen: null,
-          averageScreenTime: 0
+          averageScreenTime: 0,
         }
       }
 
       const totalAppearances = clips.length
-      const totalScreenTime = clips.reduce(
-        (sum, clip) => sum + (clip.endTime - clip.startTime), 0
-      )
+      const totalScreenTime = clips.reduce((sum, clip) => sum + (clip.endTime - clip.startTime), 0)
       const firstSeen = new Date().toISOString() // Mock timestamp
       const lastSeen = new Date().toISOString() // Mock timestamp
       const averageScreenTime = totalScreenTime / totalAppearances
@@ -109,7 +105,7 @@ describe("Person Types", () => {
         totalScreenTime,
         firstSeen,
         lastSeen,
-        averageScreenTime
+        averageScreenTime,
       }
     }
 
@@ -145,7 +141,7 @@ describe("Person Types", () => {
     expect(embedding512.length).toBe(512)
 
     // Check value ranges
-    embedding128.forEach(value => {
+    embedding128.forEach((value) => {
       expect(value).toBeGreaterThanOrEqual(-1)
       expect(value).toBeLessThanOrEqual(1)
     })
@@ -155,13 +151,11 @@ describe("Person Types", () => {
     const validateTags = (tags: string[]): boolean => {
       const MAX_TAGS = 10
       const MAX_TAG_LENGTH = 50
-      
+
       if (tags.length > MAX_TAGS) return false
-      
-      return tags.every(tag => 
-        tag.length > 0 && 
-        tag.length <= MAX_TAG_LENGTH &&
-        tag.trim() === tag // No leading/trailing spaces
+
+      return tags.every(
+        (tag) => tag.length > 0 && tag.length <= MAX_TAG_LENGTH && tag.trim() === tag, // No leading/trailing spaces
       )
     }
 

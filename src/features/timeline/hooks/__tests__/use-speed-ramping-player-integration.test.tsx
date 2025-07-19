@@ -2,30 +2,30 @@
  * Тесты для хука use-speed-ramping-player-integration
  */
 
-import { renderHook, act } from '@testing-library/react'
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { act, renderHook } from "@testing-library/react"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { SpeedRampingServiceImpl } from '../../services/speed-ramping-service'
-import { useSpeedRampingPlayerIntegration } from '../use-speed-ramping-player-integration'
+import { SpeedRampingServiceImpl } from "../../services/speed-ramping-service"
+import { useSpeedRampingPlayerIntegration } from "../use-speed-ramping-player-integration"
 
 // Мокаем timeline
 const mockSpeedRampingService = new SpeedRampingServiceImpl()
 const mockTimelineState = {
   context: {
     project: {
-      id: 'test-project',
+      id: "test-project",
       globalTracks: [
         {
-          id: 'track-1',
+          id: "track-1",
           clips: [
             {
-              id: 'clip-1',
+              id: "clip-1",
               startTime: 0,
               duration: 10,
               offset: 0,
             },
             {
-              id: 'clip-2',
+              id: "clip-2",
               startTime: 15,
               duration: 8,
               offset: 2,
@@ -40,30 +40,30 @@ const mockTimelineState = {
   },
 }
 
-vi.mock('../use-timeline', () => ({
+vi.mock("../use-timeline", () => ({
   useTimeline: () => ({ state: mockTimelineState }),
 }))
 
-describe('useSpeedRampingPlayerIntegration', () => {
+describe("useSpeedRampingPlayerIntegration", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockSpeedRampingService.resetAllConfigs()
   })
 
-  it('should initialize with default values', () => {
+  it("should initialize with default values", () => {
     const { result } = renderHook(() => useSpeedRampingPlayerIntegration())
 
     expect(result.current.getCurrentPlaybackRate()).toBe(1.0)
-    expect(result.current.isSpeedRampingActive('clip-1')).toBe(false)
+    expect(result.current.isSpeedRampingActive("clip-1")).toBe(false)
   })
 
-  it('should update playback rate when speed ramping is active', () => {
+  it("should update playback rate when speed ramping is active", () => {
     // Настраиваем speed ramping для клипа
-    mockSpeedRampingService.updateSpeedRampingConfig('clip-1', {
+    mockSpeedRampingService.updateSpeedRampingConfig("clip-1", {
       enabled: true,
       keyframes: [
-        { id: 'kf1', time: 0, value: 0.5, interpolation: 'linear' },
-        { id: 'kf2', time: 10, value: 2.0, interpolation: 'linear' },
+        { id: "kf1", time: 0, value: 0.5, interpolation: "linear" },
+        { id: "kf2", time: 10, value: 2.0, interpolation: "linear" },
       ],
       maintainPitch: true,
       minSpeed: 0.1,
@@ -83,12 +83,12 @@ describe('useSpeedRampingPlayerIntegration', () => {
     expect(result.current.getCurrentPlaybackRate()).toBeDefined()
   })
 
-  it('should check if speed ramping is active for clip', () => {
+  it("should check if speed ramping is active for clip", () => {
     const { result } = renderHook(() => useSpeedRampingPlayerIntegration())
 
-    expect(result.current.isSpeedRampingActive('clip-1')).toBe(false)
+    expect(result.current.isSpeedRampingActive("clip-1")).toBe(false)
 
-    mockSpeedRampingService.updateSpeedRampingConfig('clip-1', {
+    mockSpeedRampingService.updateSpeedRampingConfig("clip-1", {
       enabled: true,
       keyframes: [],
       maintainPitch: true,
@@ -99,10 +99,10 @@ describe('useSpeedRampingPlayerIntegration', () => {
       graphOpacity: 0.7,
     })
 
-    expect(result.current.isSpeedRampingActive('clip-1')).toBe(true)
+    expect(result.current.isSpeedRampingActive("clip-1")).toBe(true)
   })
 
-  it('should handle auto update enabling/disabling', () => {
+  it("should handle auto update enabling/disabling", () => {
     const { result } = renderHook(() => useSpeedRampingPlayerIntegration())
 
     act(() => {
@@ -124,7 +124,7 @@ describe('useSpeedRampingPlayerIntegration', () => {
     expect(result.current.getCurrentPlaybackRate()).toBe(1.0)
   })
 
-  it('should manually reset playback rate', () => {
+  it("should manually reset playback rate", () => {
     const { result } = renderHook(() => useSpeedRampingPlayerIntegration())
 
     act(() => {

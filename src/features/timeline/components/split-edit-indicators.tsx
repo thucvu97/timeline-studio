@@ -2,13 +2,11 @@
  * Визуальные индикаторы Split Edit
  */
 
-import React from 'react'
+import { AnimatePresence, motion } from "motion/react"
 
-import { AnimatePresence, motion } from 'motion/react'
+import { cn } from "@/lib/utils"
 
-import { cn } from '@/lib/utils'
-
-import { useSplitEdit } from '../hooks/use-split-edit'
+import { useSplitEdit } from "../hooks/use-split-edit"
 
 interface SplitEditIndicatorsProps {
   className?: string
@@ -25,25 +23,19 @@ export function SplitEditIndicators({
   pixelsPerSecond,
   currentTime,
 }: SplitEditIndicatorsProps) {
-  const {
-    config,
-    toolSettings,
-    visualSettings,
-    activeSplitEdits,
-    isEnabled,
-  } = useSplitEdit()
+  const { config, toolSettings, visualSettings, activeSplitEdits, isEnabled } = useSplitEdit()
 
   if (!isEnabled) return null
 
   const timeToPixel = (time: number) => time * pixelsPerSecond
 
   return (
-    <div className={cn('absolute inset-0 pointer-events-none', className)}>
+    <div className={cn("absolute inset-0 pointer-events-none", className)}>
       {/* Активные split edits */}
       <AnimatePresence>
         {activeSplitEdits.map((splitEdit) => {
           const x = timeToPixel(splitEdit.position)
-          
+
           return (
             <motion.div
               key={splitEdit.id}
@@ -62,35 +54,35 @@ export function SplitEditIndicators({
               {/* Основная линия */}
               <div
                 className={cn(
-                  'w-full h-full',
-                  splitEdit.type === 'L-cut' && 'bg-blue-500',
-                  splitEdit.type === 'J-cut' && 'bg-green-500',
-                  splitEdit.type === 'split-at-playhead' && 'bg-yellow-500'
+                  "w-full h-full",
+                  splitEdit.type === "L-cut" && "bg-blue-500",
+                  splitEdit.type === "J-cut" && "bg-green-500",
+                  splitEdit.type === "split-at-playhead" && "bg-yellow-500",
                 )}
                 style={{
                   opacity: visualSettings.indicatorOpacity,
                 }}
               />
-              
+
               {/* Индикатор типа */}
               <div
                 className={cn(
-                  'absolute -top-6 -left-3 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white',
-                  splitEdit.type === 'L-cut' && 'bg-blue-500',
-                  splitEdit.type === 'J-cut' && 'bg-green-500',
-                  splitEdit.type === 'split-at-playhead' && 'bg-yellow-500'
+                  "absolute -top-6 -left-3 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white",
+                  splitEdit.type === "L-cut" && "bg-blue-500",
+                  splitEdit.type === "J-cut" && "bg-green-500",
+                  splitEdit.type === "split-at-playhead" && "bg-yellow-500",
                 )}
               >
-                {splitEdit.type === 'L-cut' && 'L'}
-                {splitEdit.type === 'J-cut' && 'J'}
-                {splitEdit.type === 'split-at-playhead' && 'S'}
+                {splitEdit.type === "L-cut" && "L"}
+                {splitEdit.type === "J-cut" && "J"}
+                {splitEdit.type === "split-at-playhead" && "S"}
               </div>
-              
+
               {/* Подпись */}
               <div className="absolute -top-12 -left-8 text-xs font-medium text-foreground bg-background px-2 py-1 rounded border shadow-sm">
-                {splitEdit.type === 'L-cut' && 'L-Cut'}
-                {splitEdit.type === 'J-cut' && 'J-Cut'}
-                {splitEdit.type === 'split-at-playhead' && 'Split'}
+                {splitEdit.type === "L-cut" && "L-Cut"}
+                {splitEdit.type === "J-cut" && "J-Cut"}
+                {splitEdit.type === "split-at-playhead" && "Split"}
               </div>
             </motion.div>
           )
@@ -116,28 +108,28 @@ export function SplitEditIndicators({
             {/* Предварительная линия */}
             <div
               className={cn(
-                'w-full h-full border-dashed border-2',
-                visualSettings.operationType === 'L-cut' && 'border-blue-400',
-                visualSettings.operationType === 'J-cut' && 'border-green-400',
-                visualSettings.operationType === 'split-at-playhead' && 'border-yellow-400'
+                "w-full h-full border-dashed border-2",
+                visualSettings.operationType === "L-cut" && "border-blue-400",
+                visualSettings.operationType === "J-cut" && "border-green-400",
+                visualSettings.operationType === "split-at-playhead" && "border-yellow-400",
               )}
               style={{
                 opacity: visualSettings.indicatorOpacity * 0.7,
               }}
             />
-            
+
             {/* Предварительный индикатор */}
             <div
               className={cn(
-                'absolute -top-6 -left-3 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white border-2 border-white',
-                visualSettings.operationType === 'L-cut' && 'bg-blue-400',
-                visualSettings.operationType === 'J-cut' && 'bg-green-400',
-                visualSettings.operationType === 'split-at-playhead' && 'bg-yellow-400'
+                "absolute -top-6 -left-3 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white border-2 border-white",
+                visualSettings.operationType === "L-cut" && "bg-blue-400",
+                visualSettings.operationType === "J-cut" && "bg-green-400",
+                visualSettings.operationType === "split-at-playhead" && "bg-yellow-400",
               )}
             >
-              {visualSettings.operationType === 'L-cut' && 'L'}
-              {visualSettings.operationType === 'J-cut' && 'J'}
-              {visualSettings.operationType === 'split-at-playhead' && 'S'}
+              {visualSettings.operationType === "L-cut" && "L"}
+              {visualSettings.operationType === "J-cut" && "J"}
+              {visualSettings.operationType === "split-at-playhead" && "S"}
             </div>
           </motion.div>
         )}
@@ -148,16 +140,14 @@ export function SplitEditIndicators({
         <div className="absolute inset-0">
           {/* Линии привязки */}
           {toolSettings.magneticSnap && (
-            <div className="absolute inset-0">
-              {/* Здесь могут быть дополнительные направляющие */}
-            </div>
+            <div className="absolute inset-0">{/* Здесь могут быть дополнительные направляющие */}</div>
           )}
-          
+
           {/* Сетка для выравнивания */}
           {toolSettings.autoAlign && (
             <div className="absolute inset-0">
-              <div 
-                className="absolute inset-0 bg-grid-pattern opacity-10" 
+              <div
+                className="absolute inset-0 bg-grid-pattern opacity-10"
                 style={{
                   backgroundSize: `${pixelsPerSecond}px ${timelineHeight / 4}px`,
                 }}
@@ -169,14 +159,14 @@ export function SplitEditIndicators({
 
       {/* Инструмент курсора */}
       <AnimatePresence>
-        {config.tool === 'razor' && (
+        {config.tool === "razor" && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="absolute inset-0 cursor-crosshair"
             style={{
-              background: 'linear-gradient(90deg, transparent 49%, rgba(234, 179, 8, 0.3) 50%, transparent 51%)',
+              background: "linear-gradient(90deg, transparent 49%, rgba(234, 179, 8, 0.3) 50%, transparent 51%)",
             }}
           />
         )}

@@ -7,6 +7,7 @@ import { getBrowserStateAccess, getBrowserStats, getCurrentTab, hasBrowserAccess
 import type { BrowserToolResult, UpdateFiltersParams } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
 
+
 export const getBrowserStateTool: ClaudeTool = {
   name: "get_browser_state",
   description: "Получает текущее состояние медиа браузера включая активную вкладку, фильтры и выбранные файлы",
@@ -342,7 +343,7 @@ export async function updateBrowserFilters(params: UpdateFiltersParams): Promise
 
     return {
       success: true,
-      message: clearAll 
+      message: clearAll
         ? `Все фильтры очищены (${reason})`
         : `Фильтры обновлены: ${operation} для ${filterType || "неопределен"} (${reason})`,
       data: {

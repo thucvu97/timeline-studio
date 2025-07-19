@@ -89,7 +89,7 @@ export class SpeedRampingServiceImpl implements SpeedRampingService {
     for (let i = 0; i < sampleRate; i++) {
       const time = i * step
       const speed = getSpeedAtTime(config.keyframes, time, clip.duration)
-      
+
       if (speed > 0) {
         totalDuration += step / speed
       }
@@ -113,7 +113,7 @@ export class SpeedRampingServiceImpl implements SpeedRampingService {
     for (let i = 0; i < sampleRate; i++) {
       const time = i * step
       const speed = getSpeedAtTime(config.keyframes, time, originalTime)
-      
+
       if (speed > 0) {
         convertedTime += step / speed
       }
@@ -123,9 +123,7 @@ export class SpeedRampingServiceImpl implements SpeedRampingService {
   }
 
   getAllActiveConfigs(): Record<string, SpeedRampingConfig> {
-    return Object.fromEntries(
-      Object.entries(this.speedRampingConfigs).filter(([_, config]) => config.enabled)
-    )
+    return Object.fromEntries(Object.entries(this.speedRampingConfigs).filter(([_, config]) => config.enabled))
   }
 
   updateSpeedRampingConfig(clipId: string, config: SpeedRampingConfig): void {

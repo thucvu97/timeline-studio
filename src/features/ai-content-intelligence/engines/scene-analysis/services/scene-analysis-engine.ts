@@ -228,7 +228,11 @@ export class SceneAnalysisEngine extends BaseAIEngine {
     return scenes
   }
 
-  private async analyzeSceneContent(scene: any, mediaFile: MediaFile, config: SceneAnalysisConfig): Promise<ExtendedContentElements> {
+  private async analyzeSceneContent(
+    scene: any,
+    mediaFile: MediaFile,
+    config: SceneAnalysisConfig,
+  ): Promise<ExtendedContentElements> {
     const content: ExtendedContentElements = {
       objects: [],
       faces: [],
@@ -257,14 +261,14 @@ export class SceneAnalysisEngine extends BaseAIEngine {
     try {
       // Вычисляем продолжительность сцены
       const sceneDuration = scene.endTime - scene.startTime
-      
+
       // Извлекаем кадры из сцены для анализа
       const frameCount = Math.min(5, Math.ceil(sceneDuration)) // Анализируем до 5 кадров на сцену
       const frameInterval = sceneDuration / frameCount
 
       // Анализируем только если есть кадры для анализа
       const actualFrameCount = frameCount > 0 && sceneDuration > 0 ? frameCount : 0
-      
+
       for (let i = 0; i < actualFrameCount; i++) {
         const timestamp = Number(scene.startTime) + i * frameInterval
 
@@ -383,7 +387,7 @@ export class SceneAnalysisEngine extends BaseAIEngine {
   private extractSceneQuality(_scene: any, qualityAnalysis: any): QualityMetrics {
     // Возвращаем качество для сцены (нормализованное от 0 до 1)
     return {
-      overall: (qualityAnalysis?.average || 0.75),
+      overall: qualityAnalysis?.average || 0.75,
       sharpness: (qualityAnalysis?.sharpness || 80) / 100,
       brightness: (qualityAnalysis?.brightness || 70) / 100,
       contrast: (qualityAnalysis?.contrast || 75) / 100,
@@ -826,7 +830,7 @@ Format as JSON: { contentType: string, genres: string[], confidence: number }`
   /**
    * Получить всех детектированных персонажей для видео
    */
-  private getDetectedPersonsForVideo(videoPath: string): Person[] {
+  private getDetectedPersonsForVideo(_videoPath: string): Person[] {
     const allPersons: Person[] = []
 
     // Собираем всех персонажей из кэша
@@ -932,14 +936,22 @@ Format as JSON: { contentType: string, genres: string[], confidence: number }`
               landmarks: undefined, // TODO: Преобразовать landmarks
               age: undefined, // TODO: Определять возраст
               gender: undefined, // TODO: Определять пол
-              emotion: face.emotion?.emotion === Emotion.HAPPY ? "happy" : 
-                      face.emotion?.emotion === Emotion.SAD ? "sad" :
-                      face.emotion?.emotion === Emotion.EXCITED ? "surprised" :
-                      face.emotion?.emotion === Emotion.TENSE ? "angry" :
-                      face.emotion?.emotion === Emotion.CALM ? "neutral" :
-                      face.emotion?.emotion === Emotion.MYSTERIOUS ? "fear" :
-                      face.emotion?.emotion === Emotion.DRAMATIC ? "disgust" :
-                      "neutral",
+              emotion:
+                face.emotion?.emotion === Emotion.HAPPY
+                  ? "happy"
+                  : face.emotion?.emotion === Emotion.SAD
+                    ? "sad"
+                    : face.emotion?.emotion === Emotion.EXCITED
+                      ? "surprised"
+                      : face.emotion?.emotion === Emotion.TENSE
+                        ? "angry"
+                        : face.emotion?.emotion === Emotion.CALM
+                          ? "neutral"
+                          : face.emotion?.emotion === Emotion.MYSTERIOUS
+                            ? "fear"
+                            : face.emotion?.emotion === Emotion.DRAMATIC
+                              ? "disgust"
+                              : "neutral",
               blur: 0.1, // TODO: Вычислять реальное размытие
               occlusion: 0.1, // TODO: Вычислять перекрытие
               pose: {

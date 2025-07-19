@@ -76,7 +76,6 @@ class EffectsProviderImpl implements EffectsProviderAPI {
     progress: 0,
   }
   private sourceConfigs: Record<ResourceSource, SourceConfig> = { ...DEFAULT_SOURCE_CONFIGS }
-  private config: LoadingConfig
   private eventListeners: {
     loadingStateChange: ((state: LoadingState) => void)[]
     resourcesUpdate: ((type: ResourceType, resources: Resource[]) => void)[]

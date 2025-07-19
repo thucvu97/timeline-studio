@@ -7,6 +7,7 @@ import { getResourcesProvider, getResourcesStats, hasResourcesAccess } from "./u
 import type { AnalyzeResourcesParams, ResourceToolResult } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
 
+
 export const analyzeAvailableResourcesTool: ClaudeTool = {
   name: "analyze_available_resources",
   description: "Анализирует все доступные ресурсы в Resources Provider и возвращает подробную статистику",

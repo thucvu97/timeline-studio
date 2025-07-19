@@ -156,7 +156,6 @@ export interface ThumbnailSuggestion {
 export class MultimodalAnalysisService {
   private static instance: MultimodalAnalysisService
   private apiKeyLoader: ApiKeyLoader
-  private readonly supportedModels = ["gpt-4o", "gpt-4-turbo", "gpt-4o-mini"]
 
   private constructor() {
     this.apiKeyLoader = ApiKeyLoader.getInstance()

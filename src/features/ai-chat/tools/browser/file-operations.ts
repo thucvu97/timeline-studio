@@ -16,6 +16,7 @@ import {
 import type { AnalyzeRelationshipsParams, BrowserToolResult, BulkSelectParams, GetFileGroupsParams } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
 
+
 export const getFileGroupsTool: ClaudeTool = {
   name: "get_file_groups",
   description: "Группирует файлы в браузере по различным критериям для лучшей организации",
@@ -276,7 +277,7 @@ function analyzeFileRelationshipsData(files: any[], analysisType: string): any {
       relationships.totalRelationships = seriesGroups.length
       relationships.relatedGroups = seriesGroups
       relationships.unrelatedFiles = files.filter(
-        (file) => !seriesGroups.some((group) => group.files.some((f: any) => f.id === file.id))
+        (file) => !seriesGroups.some((group) => group.files.some((f: any) => f.id === file.id)),
       )
       break
 
@@ -315,7 +316,7 @@ function analyzeFileRelationshipsData(files: any[], analysisType: string): any {
 // Helper functions for grouping
 function groupFilesBySeries(files: any[]): any[] {
   const groups = new Map<string, any[]>()
-  
+
   files.forEach((file) => {
     const seriesMatch = file.name.match(/(.+?)[\s_-]?(\d+)/)
     if (seriesMatch) {
@@ -339,18 +340,16 @@ function groupFilesBySeries(files: any[]): any[] {
 function groupFilesByTime(files: any[]): any[] {
   const timeThreshold = 60 * 60 * 1000 // 1 hour
   const groups: any[] = []
-  const sortedFiles = [...files].sort((a, b) => 
-    new Date(a.modifiedAt).getTime() - new Date(b.modifiedAt).getTime()
-  )
+  const sortedFiles = [...files].sort((a, b) => new Date(a.modifiedAt).getTime() - new Date(b.modifiedAt).getTime())
 
   let currentGroup: any[] = []
-  sortedFiles.forEach((file, index) => {
+  sortedFiles.forEach((file, _index) => {
     if (currentGroup.length === 0) {
       currentGroup.push(file)
     } else {
       const lastFileTime = new Date(currentGroup[currentGroup.length - 1].modifiedAt).getTime()
       const currentFileTime = new Date(file.modifiedAt).getTime()
-      
+
       if (currentFileTime - lastFileTime <= timeThreshold) {
         currentGroup.push(file)
       } else {
@@ -379,9 +378,9 @@ function groupFilesByTime(files: any[]): any[] {
 
 function groupFilesByFormat(files: any[]): any[] {
   const groups = new Map<string, any[]>()
-  
+
   files.forEach((file) => {
-    const format = file.extension || 'unknown'
+    const format = file.extension || "unknown"
     if (!groups.has(format)) {
       groups.set(format, [])
     }

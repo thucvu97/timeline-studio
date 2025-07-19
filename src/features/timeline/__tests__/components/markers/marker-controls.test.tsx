@@ -102,9 +102,7 @@ vi.mock("@/components/ui/badge", () => ({
 }))
 
 vi.mock("@/components/ui/input", () => ({
-  Input: ({ onChange, onKeyDown, ...props }: any) => (
-    <input onChange={onChange} onKeyDown={onKeyDown} {...props} />
-  ),
+  Input: ({ onChange, onKeyDown, ...props }: any) => <input onChange={onChange} onKeyDown={onKeyDown} {...props} />,
 }))
 
 vi.mock("@/components/ui/popover", () => ({
@@ -116,9 +114,7 @@ vi.mock("@/components/ui/popover", () => ({
   PopoverTrigger: ({ children, asChild }: any) => (
     <div data-testid="popover-trigger">{asChild ? children : <div>{children}</div>}</div>
   ),
-  PopoverContent: ({ children }: any) => (
-    <div data-testid="popover-content">{children}</div>
-  ),
+  PopoverContent: ({ children }: any) => <div data-testid="popover-content">{children}</div>,
 }))
 
 vi.mock("@/components/ui/dropdown-menu", () => ({
@@ -126,9 +122,7 @@ vi.mock("@/components/ui/dropdown-menu", () => ({
   DropdownMenuTrigger: ({ children, asChild }: any) => (
     <div data-testid="dropdown-trigger">{asChild ? children : <div>{children}</div>}</div>
   ),
-  DropdownMenuContent: ({ children }: any) => (
-    <div data-testid="dropdown-content">{children}</div>
-  ),
+  DropdownMenuContent: ({ children }: any) => <div data-testid="dropdown-content">{children}</div>,
   DropdownMenuItem: ({ children, onClick }: any) => (
     <div onClick={onClick} data-testid="dropdown-item">
       {children}
@@ -187,11 +181,11 @@ describe("MarkerControls", () => {
     // Используем getAllByText и проверяем первый элемент (кнопка)
     const addMarkerButtons = screen.getAllByText("Add Marker")
     expect(addMarkerButtons[0]).toBeInTheDocument()
-    
+
     // Ищем кнопку Filter по data-icon
     const filterButton = screen.getByRole("button", { name: /Filter/i })
     expect(filterButton).toBeInTheDocument()
-    
+
     expect(screen.getByText("3 / 3")).toBeInTheDocument() // счетчик маркеров
   })
 
@@ -225,7 +219,7 @@ describe("MarkerControls", () => {
     expect(defaultMocks.addMarker).toHaveBeenCalledWith(
       15, // currentTime
       "New Chapter",
-      "note" // тип по умолчанию
+      "note", // тип по умолчанию
     )
   })
 
@@ -263,7 +257,7 @@ describe("MarkerControls", () => {
 
     // Выбираем тип "Chapter" - находим первый элемент dropdown-item с текстом Chapter
     const dropdownItems = screen.getAllByTestId("dropdown-item")
-    const chapterOption = dropdownItems.find(item => item.textContent?.includes("Chapter"))
+    const chapterOption = dropdownItems.find((item) => item.textContent?.includes("Chapter"))
     fireEvent.click(chapterOption!)
 
     // Проверяем что тип изменился

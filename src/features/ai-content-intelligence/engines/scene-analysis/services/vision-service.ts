@@ -1650,7 +1650,7 @@ export class VisionService {
   public extractDominantColors(frameData: ImageData | Uint8Array, numColors = 5): string[] {
     try {
       let imageData: ImageData
-      
+
       if (frameData instanceof Uint8Array) {
         // Assume it's a raw pixel array in RGBA format
         // We need dimensions, so use a square image
@@ -1666,12 +1666,12 @@ export class VisionService {
       }
 
       const colors = this.extractDominantColorsInternal(imageData, numColors)
-      
+
       // Convert to hex strings
-      return colors.map(color => {
-        const r = Math.round(color.r).toString(16).padStart(2, '0')
-        const g = Math.round(color.g).toString(16).padStart(2, '0')
-        const b = Math.round(color.b).toString(16).padStart(2, '0')
+      return colors.map((color) => {
+        const r = Math.round(color.r).toString(16).padStart(2, "0")
+        const g = Math.round(color.g).toString(16).padStart(2, "0")
+        const b = Math.round(color.b).toString(16).padStart(2, "0")
         return `#${r}${g}${b}`.toUpperCase()
       })
     } catch (error) {

@@ -16,7 +16,11 @@ export const mockUIComponents = () => {
 
   // Mock UI components
   vi.mock("@/components/ui/alert", () => ({
-    Alert: ({ children, className }: any) => <div className={className} role="alert">{children}</div>,
+    Alert: ({ children, className }: any) => (
+      <div className={className} role="alert">
+        {children}
+      </div>
+    ),
     AlertDescription: ({ children }: any) => <div>{children}</div>,
   }))
 
@@ -26,13 +30,7 @@ export const mockUIComponents = () => {
 
   vi.mock("@/components/ui/button", () => ({
     Button: ({ children, onClick, disabled, variant, size, className }: any) => (
-      <button 
-        onClick={onClick} 
-        disabled={disabled} 
-        data-variant={variant} 
-        data-size={size}
-        className={className}
-      >
+      <button onClick={onClick} disabled={disabled} data-variant={variant} data-size={size} className={className}>
         {children}
       </button>
     ),
@@ -49,7 +47,11 @@ export const mockUIComponents = () => {
     Dialog: ({ open, onOpenChange, children }: any) => {
       // If open is undefined, default to true for components that always show
       const isOpen = open !== undefined ? open : true
-      return isOpen ? <div data-testid="dialog" onClick={() => onOpenChange?.(false)}>{children}</div> : null
+      return isOpen ? (
+        <div data-testid="dialog" onClick={() => onOpenChange?.(false)}>
+          {children}
+        </div>
+      ) : null
     },
     DialogContent: ({ children, className }: any) => <div className={className}>{children}</div>,
     DialogDescription: ({ children }: any) => <div>{children}</div>,
@@ -62,21 +64,23 @@ export const mockUIComponents = () => {
     DropdownMenu: ({ children }: any) => <div>{children}</div>,
     DropdownMenuContent: ({ children }: any) => <div data-testid="dropdown-content">{children}</div>,
     DropdownMenuItem: ({ children, onClick, className }: any) => (
-      <div onClick={onClick} className={className}>{children}</div>
+      <div onClick={onClick} className={className}>
+        {children}
+      </div>
     ),
     DropdownMenuTrigger: ({ children, asChild }: any) => <div data-testid="dropdown-trigger">{children}</div>,
   }))
 
   vi.mock("@/components/ui/label", () => ({
     Label: ({ children, htmlFor, className }: any) => (
-      <label htmlFor={htmlFor} className={className}>{children}</label>
+      <label htmlFor={htmlFor} className={className}>
+        {children}
+      </label>
     ),
   }))
 
   vi.mock("@/components/ui/progress", () => ({
-    Progress: ({ value, className }: any) => (
-      <div className={className} data-value={value} data-testid="progress" />
-    ),
+    Progress: ({ value, className }: any) => <div className={className} data-value={value} data-testid="progress" />,
   }))
 
   vi.mock("@/components/ui/scroll-area", () => ({
@@ -87,11 +91,11 @@ export const mockUIComponents = () => {
   vi.mock("@/components/ui/select", () => {
     // Create a context to share state between Select components
     const SelectContext = React.createContext<any>(null)
-    
+
     return {
       Select: ({ value, onValueChange, children, defaultValue }: any) => {
         const [internalValue, setInternalValue] = React.useState(value || defaultValue || "")
-        
+
         // Update internal value when prop value changes
         React.useEffect(() => {
           if (value !== undefined && value !== internalValue) {
@@ -116,20 +120,14 @@ export const mockUIComponents = () => {
         const context = React.useContext(SelectContext)
         return (
           <div data-testid="select-content">
-            {React.Children.map(children, child => 
-              React.isValidElement(child) 
-                ? React.cloneElement(child as any, { ...context })
-                : child
+            {React.Children.map(children, (child) =>
+              React.isValidElement(child) ? React.cloneElement(child as any, { ...context }) : child,
             )}
           </div>
         )
       },
       SelectItem: ({ value, children, onValueChange }: any) => (
-        <div 
-          data-value={value} 
-          data-testid="select-item"
-          onClick={() => onValueChange?.(value)}
-        >
+        <div data-value={value} data-testid="select-item" onClick={() => onValueChange?.(value)}>
           {children}
         </div>
       ),
@@ -150,7 +148,7 @@ export const mockUIComponents = () => {
       <input
         type="range"
         value={value?.[0] || 0}
-        onChange={(e) => onValueChange?.([parseFloat(e.target.value)])}
+        onChange={(e) => onValueChange?.([Number.parseFloat(e.target.value)])}
         min={min}
         max={max}
         step={step}
@@ -161,7 +159,7 @@ export const mockUIComponents = () => {
   }))
 
   vi.mock("@/components/ui/switch", () => ({
-    Switch: ({ checked, onCheckedChange, 'aria-label': ariaLabel }: any) => (
+    Switch: ({ checked, onCheckedChange, "aria-label": ariaLabel }: any) => (
       <input
         type="checkbox"
         checked={checked}
@@ -174,16 +172,16 @@ export const mockUIComponents = () => {
 
   vi.mock("@/components/ui/tabs", () => {
     const TabsContext = React.createContext<any>(null)
-    
+
     return {
       Tabs: ({ children, defaultValue, value, onValueChange, className }: any) => {
         const [activeTab, setActiveTab] = React.useState(value || defaultValue || "")
-        
+
         const handleValueChange = (newValue: string) => {
           setActiveTab(newValue)
           onValueChange?.(newValue)
         }
-        
+
         return (
           <TabsContext.Provider value={{ activeTab, setActiveTab: handleValueChange }}>
             <div className={className} data-default-value={defaultValue} data-value={activeTab}>
@@ -195,10 +193,10 @@ export const mockUIComponents = () => {
       TabsContent: ({ children, value, className }: any) => {
         const context = React.useContext(TabsContext)
         const isActive = context?.activeTab === value
-        
+
         return isActive ? (
-          <div 
-            className={className} 
+          <div
+            className={className}
             data-tab-content={value}
             role="tabpanel"
             aria-labelledby={`trigger-${value}`}
@@ -209,14 +207,16 @@ export const mockUIComponents = () => {
         ) : null
       },
       TabsList: ({ children, className }: any) => (
-        <div className={className} role="tablist">{children}</div>
+        <div className={className} role="tablist">
+          {children}
+        </div>
       ),
       TabsTrigger: ({ children, value }: any) => {
         const context = React.useContext(TabsContext)
         const isActive = context?.activeTab === value
-        
+
         return (
-          <button 
+          <button
             data-tab={value}
             role="tab"
             aria-selected={isActive}

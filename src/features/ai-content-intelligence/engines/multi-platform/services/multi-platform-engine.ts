@@ -25,7 +25,6 @@ export class MultiPlatformEngine {
   private platformAdapter: PlatformAdapter
   private languageAdapter: LanguageAdapter
   private batchProcessor: BatchProcessor
-  private aiService: UnifiedAIService
   private config: MultiPlatformConfig
   private isInitialized = false
 

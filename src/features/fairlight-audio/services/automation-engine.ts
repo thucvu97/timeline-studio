@@ -31,8 +31,6 @@ export class AutomationEngine {
   private state: AutomationState
   private recordingLanes = new Set<string>()
   private callbacks = new Map<string, (value: number) => void>()
-  private recordingStartTime = 0
-  private lastTouchTime = 0
   private latchedLanes = new Set<string>()
 
   constructor() {

@@ -22,7 +22,6 @@ export interface LUFSConfig {
 
 export class LUFSMeter extends EventEmitter {
   private config: LUFSConfig
-  private context: AudioContext | null = null
   private analyser: AnalyserNode | null = null
   // eslint-disable-next-line @typescript-eslint/no-deprecated
   private processor: ScriptProcessorNode | null = null

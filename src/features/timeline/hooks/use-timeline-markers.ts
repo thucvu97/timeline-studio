@@ -179,7 +179,7 @@ function exportToJSON(markers: ExtendedTimelineMarker[]): string {
 
 function exportToFCPXML(_markers: ExtendedTimelineMarker[]): string {
   const projectName = "Timeline Studio Project"
-  
+
   const fcpxml = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE fcpxml>
 <fcpxml version="1.11">
@@ -213,11 +213,11 @@ function exportToFCPXML(_markers: ExtendedTimelineMarker[]): string {
 
 function exportToSRT(markers: ExtendedTimelineMarker[]): string {
   let srt = ""
-  
+
   markers.forEach((marker, index) => {
     const startTime = formatSRTTime(marker.time)
     const endTime = formatSRTTime(marker.time + (marker.duration || 2)) // 2 секунды по умолчанию
-    
+
     srt += `${index + 1}\n`
     srt += `${startTime} --> ${endTime}\n`
     srt += `${marker.name}\n`
@@ -226,7 +226,7 @@ function exportToSRT(markers: ExtendedTimelineMarker[]): string {
     }
     srt += "\n"
   })
-  
+
   return srt
 }
 

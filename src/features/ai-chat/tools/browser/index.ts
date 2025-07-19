@@ -4,8 +4,22 @@
 
 import { analyzeMediaBrowser, analyzeMediaBrowserTool } from "./analyze-browser"
 import { getBrowserState, getBrowserStateTool, updateBrowserFilters, updateBrowserFiltersTool } from "./browser-state"
-import { analyzeMissingContent, analyzeMissingContentTool, exportFileList, exportFileListTool, suggestImportSources, suggestImportSourcesTool } from "./content-analysis"
-import { analyzeFileRelationships, analyzeFileRelationshipsTool, bulkSelectFiles, bulkSelectFilesTool, getFileGroups, getFileGroupsTool } from "./file-operations"
+import {
+  analyzeMissingContent,
+  analyzeMissingContentTool,
+  exportFileList,
+  exportFileListTool,
+  suggestImportSources,
+  suggestImportSourcesTool,
+} from "./content-analysis"
+import {
+  analyzeFileRelationships,
+  analyzeFileRelationshipsTool,
+  bulkSelectFiles,
+  bulkSelectFilesTool,
+  getFileGroups,
+  getFileGroupsTool,
+} from "./file-operations"
 import { searchMediaFiles, searchMediaFilesTool } from "./search-files"
 
 import type { BrowserToolResult } from "./types"
@@ -40,23 +54,23 @@ export * from "./types"
 
 // Экспортируем утилиты (кроме analyzeFileRelationships, которая уже экспортируется из file-operations)
 export {
-  setBrowserStateAccess,
-  getBrowserStateAccess,
-  hasBrowserAccess,
-  getCurrentTab,
-  getBrowserFiles,
-  getSelectedFiles,
-  getBrowserStats,
   filterFiles,
-  sortFiles,
-  groupFiles,
-  getFileTypeCategory,
+  findFilesByPattern,
   formatDateKey,
-  getSizeCategory,
-  formatFileSize,
   formatDuration,
+  formatFileSize,
+  getBrowserFiles,
+  getBrowserStateAccess,
+  getBrowserStats,
+  getCurrentTab,
+  getFileTypeCategory,
   getRandomFiles,
-  findFilesByPattern
+  getSelectedFiles,
+  getSizeCategory,
+  groupFiles,
+  hasBrowserAccess,
+  setBrowserStateAccess,
+  sortFiles,
 } from "./utils/helpers"
 
 export const browserTools = [

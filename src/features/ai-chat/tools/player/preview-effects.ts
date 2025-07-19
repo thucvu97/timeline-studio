@@ -7,6 +7,7 @@ import { getCurrentMedia, hasLoadedMedia } from "./utils/helpers"
 import type { EffectApplicationParams, PlayerToolResult } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
 
+
 export const applyPreviewEffectsTool: ClaudeTool = {
   name: "apply_preview_effects",
   description: "Применяет эффекты к медиа в плеере для превью",

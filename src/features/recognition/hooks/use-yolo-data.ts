@@ -119,13 +119,13 @@ export function useYoloData() {
       yoloDataService.clearVideoCache(videoId)
       setLoadingStates((prev) => {
         const newState = { ...prev }
-         
+
         delete newState[videoId]
         return newState
       })
       setErrorStates((prev) => {
         const newState = { ...prev }
-         
+
         delete newState[videoId]
         return newState
       })

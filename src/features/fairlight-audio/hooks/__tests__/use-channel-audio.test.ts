@@ -106,7 +106,7 @@ describe("useChannelAudio", () => {
     vi.mocked(mockAudioElement.play).mockClear().mockResolvedValue(undefined)
     vi.mocked(mockAudioElement.pause).mockClear()
   })
-  
+
   afterEach(() => {
     vi.clearAllMocks()
   })
@@ -361,10 +361,10 @@ describe("useChannelAudio", () => {
 
         // The effect should have already called play() once
         expect(mockAudioElement.play).toHaveBeenCalledOnce()
-        
+
         // Clear the mock to test manual play
         vi.mocked(mockAudioElement.play).mockClear()
-        
+
         act(() => {
           result.current.play()
         })
@@ -409,7 +409,7 @@ describe("useChannelAudio", () => {
         // The effect will call pause() multiple times due to re-renders
         // Just verify that we can call pause manually
         const pauseCallsBefore = mockAudioElement.pause.mock.calls.length
-        
+
         act(() => {
           result.current.pause()
         })
@@ -420,12 +420,12 @@ describe("useChannelAudio", () => {
       it("does nothing when audio element is not available", () => {
         // Reset the pause mock completely to ensure isolation
         vi.mocked(mockAudioElement.pause).mockClear()
-        
+
         const { result } = renderHook(() => useChannelAudio("ch1"))
 
         // No audio element is loaded, so pause should not be called
         expect(result.current.audioElement).toBe(null)
-        
+
         act(() => {
           result.current.pause()
         })

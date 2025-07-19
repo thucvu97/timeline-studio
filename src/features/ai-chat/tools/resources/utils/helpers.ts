@@ -218,15 +218,12 @@ export function formatDuration(seconds: number): string {
  * Группирует ресурсы по типу
  */
 export function groupResourcesByType(resources: any[]): Record<string, any[]> {
-  return resources.reduce<Record<string, any[]>>(
-    (acc, resource) => {
-      const type = resource.type || "unknown"
-      if (!acc[type]) acc[type] = []
-      acc[type].push(resource)
-      return acc
-    },
-    {},
-  )
+  return resources.reduce<Record<string, any[]>>((acc, resource) => {
+    const type = resource.type || "unknown"
+    if (!acc[type]) acc[type] = []
+    acc[type].push(resource)
+    return acc
+  }, {})
 }
 
 /**

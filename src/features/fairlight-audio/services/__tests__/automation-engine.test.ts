@@ -216,7 +216,6 @@ describe("AutomationEngine", () => {
       // Should apply trim relative to current value
       expect(mockCallback).toHaveBeenCalledWith(0.51) // 0.5 + 0.01
     })
-
   })
 
   describe("touch and latch modes", () => {
@@ -301,7 +300,6 @@ describe("AutomationEngine", () => {
       expect(lane.points[1].value).toBe(0.9)
     })
 
-
     it("should handle delete range on non-existent lane", () => {
       expect(() => engine.deletePointsInRange("non-existent", 0, 1)).not.toThrow()
     })
@@ -327,7 +325,6 @@ describe("AutomationEngine", () => {
       const value = engine.readValueAtTime("ch1.volume", 0.5)
       expect(value).toBe(0.5) // Initial point value
     })
-
 
     it("should interpolate linearly between points", () => {
       engine.updateTime(0.0)
@@ -393,7 +390,6 @@ describe("AutomationEngine", () => {
       engine.writeParameter("ch1.volume", 0.6, true)
     })
 
-
     it("should not read automation for recording lanes", () => {
       engine.setMode("touch")
       engine.touchParameter("ch1.volume")
@@ -427,7 +423,6 @@ describe("AutomationEngine", () => {
       engine.writeParameter("ch1.volume", 0.8, true)
       engine.writeParameter("ch2.pan", 0.3, true)
     })
-
 
     it("should import automation data", () => {
       const importData = {
@@ -480,6 +475,5 @@ describe("AutomationEngine", () => {
 
       expect(() => engine.readValueAtTime("ch1.volume", 1000000.0)).not.toThrow()
     })
-
   })
 })

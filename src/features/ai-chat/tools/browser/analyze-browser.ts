@@ -15,6 +15,7 @@ import {
 import type { AnalyzeBrowserParams, BrowserToolResult } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
 
+
 export const analyzeMediaBrowserTool: ClaudeTool = {
   name: "analyze_media_browser",
   description: "Анализирует все доступные медиафайлы в браузере по указанным критериям",

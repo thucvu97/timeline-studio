@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react"
+import { fireEvent, render, screen } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { MidiDevice, MidiMessage } from "../../../services/midi/midi-engine"
@@ -51,36 +51,36 @@ describe("MidiLearnModal", () => {
   describe("Rendering", () => {
     it("should render modal content", () => {
       render(<MidiLearnModal />)
-      
+
       expect(screen.getByText("fairlightAudio.midi.learnDialog.midiDevice")).toBeInTheDocument()
       expect(screen.getByText("fairlightAudio.midi.learnDialog.targetParameter")).toBeInTheDocument()
     })
 
     it("should render with correct structure", () => {
       const { container } = render(<MidiLearnModal />)
-      
+
       const wrapper = container.firstChild as HTMLElement
       expect(wrapper).toHaveClass("sm:max-w-md")
-      
+
       const footer = container.querySelector(".border-t")
       expect(footer).toBeInTheDocument()
     })
 
     it("should render all devices from modal data", () => {
       render(<MidiLearnModal />)
-      
+
       // With real Radix UI, we can only verify the select components exist
-      const selects = screen.getAllByRole('combobox')
+      const selects = screen.getAllByRole("combobox")
       expect(selects).toHaveLength(2) // Device and parameter selects
     })
 
     it("should handle empty devices array", () => {
       mockModalData.devices = []
-      
+
       render(<MidiLearnModal />)
-      
+
       // With real Radix UI, we can only verify the select components exist
-      const selects = screen.getAllByRole('combobox')
+      const selects = screen.getAllByRole("combobox")
       expect(selects).toHaveLength(2) // Device and parameter selects still exist
     })
 
@@ -88,9 +88,9 @@ describe("MidiLearnModal", () => {
       // Testing edge case with missing modal data
       mockModalData.devices = undefined as any
       mockModalData.onComplete = undefined as any
-      
+
       render(<MidiLearnModal />)
-      
+
       // Should render without errors
       expect(screen.getByText("fairlightAudio.midi.learnDialog.midiDevice")).toBeInTheDocument()
     })
@@ -99,19 +99,17 @@ describe("MidiLearnModal", () => {
   describe("State Management", () => {
     it("should reset state when modal data changes", () => {
       const { rerender } = render(<MidiLearnModal />)
-      
+
       // Verify initial state
-      const selects = screen.getAllByRole('combobox')
+      const selects = screen.getAllByRole("combobox")
       expect(selects).toHaveLength(2)
-      
+
       // Simulate modal data change
-      mockModalData.devices = [
-        { id: "device3", name: "New Device", type: "input", manufacturer: "", connected: true },
-      ]
+      mockModalData.devices = [{ id: "device3", name: "New Device", type: "input", manufacturer: "", connected: true }]
       rerender(<MidiLearnModal />)
-      
+
       // Check that selects still exist after data change
-      const newSelects = screen.getAllByRole('combobox')
+      const newSelects = screen.getAllByRole("combobox")
       expect(newSelects).toHaveLength(2)
     })
   })
@@ -119,26 +117,26 @@ describe("MidiLearnModal", () => {
   describe("Device and Parameter Selection", () => {
     it("should handle device selection", () => {
       render(<MidiLearnModal />)
-      
+
       // With real Radix UI, we can only verify the select exists
-      const selects = screen.getAllByRole('combobox')
+      const selects = screen.getAllByRole("combobox")
       expect(selects[0]).toBeInTheDocument() // Device select
     })
 
     it("should handle parameter selection", () => {
       render(<MidiLearnModal />)
-      
+
       // With real Radix UI, we can only verify the select exists
-      const selects = screen.getAllByRole('combobox')
+      const selects = screen.getAllByRole("combobox")
       expect(selects[1]).toBeInTheDocument() // Parameter select
     })
 
     it("should render all parameter options", () => {
       render(<MidiLearnModal />)
-      
+
       // With real Radix UI, parameter options are not rendered until select is opened
       // We can only verify the parameter select exists
-      const selects = screen.getAllByRole('combobox')
+      const selects = screen.getAllByRole("combobox")
       expect(selects[1]).toBeInTheDocument() // Parameter select
     })
   })
@@ -147,9 +145,9 @@ describe("MidiLearnModal", () => {
     it("should start listening when button clicked with valid selections", async () => {
       const mockStopLearning = vi.fn()
       mockStartLearning.mockReturnValue(mockStopLearning)
-      
+
       render(<MidiLearnModal />)
-      
+
       // Since we can't test selection with real Radix UI, we'll just verify
       // that the start button exists and is initially disabled
       const startButton = screen.getByText("fairlightAudio.midi.learnDialog.buttons.startListening")
@@ -158,7 +156,7 @@ describe("MidiLearnModal", () => {
 
     it("should disable start button when selections incomplete", () => {
       render(<MidiLearnModal />)
-      
+
       const startButton = screen.getByText("fairlightAudio.midi.learnDialog.buttons.startListening")
       expect(startButton).toBeDisabled()
     })
@@ -166,9 +164,9 @@ describe("MidiLearnModal", () => {
     it("should display listening state correctly", async () => {
       const mockStopLearning = vi.fn()
       mockStartLearning.mockReturnValue(mockStopLearning)
-      
+
       render(<MidiLearnModal />)
-      
+
       // Initial state
       expect(screen.getByTestId("music-icon")).toHaveClass("text-zinc-600")
       expect(screen.getByText("fairlightAudio.midi.learnDialog.status.ready")).toBeInTheDocument()
@@ -180,14 +178,14 @@ describe("MidiLearnModal", () => {
     it("should handle received MIDI message", async () => {
       const mockStopLearning = vi.fn()
       let capturedCallback: ((message: MidiMessage) => void) | null = null
-      
+
       mockStartLearning.mockImplementation((callback) => {
         capturedCallback = callback
         return mockStopLearning
       })
-      
+
       render(<MidiLearnModal />)
-      
+
       // Since we can't test the full flow with real Radix UI,
       // we'll just verify the component renders correctly
       expect(screen.getByTestId("music-icon")).toBeInTheDocument()
@@ -197,9 +195,9 @@ describe("MidiLearnModal", () => {
     it("should display note on message correctly", async () => {
       const mockStopLearning = vi.fn()
       mockStartLearning.mockReturnValue(mockStopLearning)
-      
+
       render(<MidiLearnModal />)
-      
+
       // Since we can't test the full flow with real Radix UI,
       // we'll just verify the hook is setup correctly
       expect(mockStartLearning).toBeDefined()
@@ -209,19 +207,19 @@ describe("MidiLearnModal", () => {
   describe("Completing the Mapping", () => {
     it("should call onComplete and close modal", async () => {
       render(<MidiLearnModal />)
-      
+
       // Verify cancel button works
       const cancelButton = screen.getByText("fairlightAudio.midi.learnDialog.buttons.cancel")
       fireEvent.click(cancelButton)
-      
+
       expect(mockCloseModal).toHaveBeenCalled()
     })
 
     it("should not complete if onComplete is missing", async () => {
       mockModalData.onComplete = undefined
-      
+
       render(<MidiLearnModal />)
-      
+
       // Verify component renders even without onComplete
       expect(screen.getByText("fairlightAudio.midi.learnDialog.midiDevice")).toBeInTheDocument()
     })
@@ -230,16 +228,16 @@ describe("MidiLearnModal", () => {
   describe("Modal Controls", () => {
     it("should close modal when cancel clicked", () => {
       render(<MidiLearnModal />)
-      
+
       const cancelButton = screen.getByText("fairlightAudio.midi.learnDialog.buttons.cancel")
       fireEvent.click(cancelButton)
-      
+
       expect(mockCloseModal).toHaveBeenCalled()
     })
 
     it("should show save button with correct styling", async () => {
       render(<MidiLearnModal />)
-      
+
       // Verify start button exists with correct initial state
       const startButton = screen.getByText("fairlightAudio.midi.learnDialog.buttons.startListening")
       expect(startButton).toBeInTheDocument()
@@ -251,12 +249,12 @@ describe("MidiLearnModal", () => {
     it("should cleanup MIDI listener on unmount", async () => {
       const mockStopLearning = vi.fn()
       mockStartLearning.mockReturnValue(mockStopLearning)
-      
+
       const { unmount } = render(<MidiLearnModal />)
-      
+
       // Unmount immediately to test cleanup
       unmount()
-      
+
       // Since we didn't start listening, stopLearning should not be called
       expect(mockStopLearning).not.toHaveBeenCalled()
     })

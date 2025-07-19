@@ -1,5 +1,5 @@
-import { render, screen, fireEvent } from "@testing-library/react"
-import { describe, expect, it, vi, beforeEach } from "vitest"
+import { fireEvent, render, screen } from "@testing-library/react"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { BaseProviders } from "@/test/test-utils"
 
@@ -17,86 +17,85 @@ vi.mock("../../services", () => ({
     modalType: mockModalType(),
     modalData: mockModalData(),
     isOpen: mockIsOpen(),
-    closeModal: mockCloseModal
-  })
+    closeModal: mockCloseModal,
+  }),
 }))
-
 
 // Mock all modal components
 vi.mock("@/features/app-state/components/missing-files-modal", () => ({
-  MissingFilesModal: () => <div data-testid="missing-files-modal">Missing Files Modal</div>
+  MissingFilesModal: () => <div data-testid="missing-files-modal">Missing Files Modal</div>,
 }))
 
 vi.mock("@/features/camera-capture", () => ({
-  CameraCaptureModal: () => <div data-testid="camera-capture-modal">Camera Capture Modal</div>
+  CameraCaptureModal: () => <div data-testid="camera-capture-modal">Camera Capture Modal</div>,
 }))
 
 vi.mock("@/features/color-grading/components/controls/color-grading-save-preset-modal", () => ({
-  ColorGradingSavePresetModal: () => <div data-testid="color-grading-modal">Color Grading Modal</div>
+  ColorGradingSavePresetModal: () => <div data-testid="color-grading-modal">Color Grading Modal</div>,
 }))
 
 vi.mock("@/features/effects/components/effect-detail-modal", () => ({
-  EffectDetailModal: () => <div data-testid="effect-detail-modal">Effect Detail Modal</div>
+  EffectDetailModal: () => <div data-testid="effect-detail-modal">Effect Detail Modal</div>,
 }))
 
 vi.mock("@/features/export", () => ({
-  ExportModal: () => <div data-testid="export-modal">Export Modal</div>
+  ExportModal: () => <div data-testid="export-modal">Export Modal</div>,
 }))
 
 vi.mock("@/features/fairlight-audio/components/midi/midi-configuration-modal-component", () => ({
-  MidiConfigurationModalComponent: () => <div data-testid="midi-configuration-modal">MIDI Configuration Modal</div>
+  MidiConfigurationModalComponent: () => <div data-testid="midi-configuration-modal">MIDI Configuration Modal</div>,
 }))
 
 vi.mock("@/features/fairlight-audio/components/midi/midi-learn-modal", () => ({
-  MidiLearnModal: () => <div data-testid="midi-learn-modal">MIDI Learn Modal</div>
+  MidiLearnModal: () => <div data-testid="midi-learn-modal">MIDI Learn Modal</div>,
 }))
 
 vi.mock("@/features/fairlight-audio/components/midi/midi-mapping-editor-modal", () => ({
-  MidiMappingEditorModal: () => <div data-testid="midi-mapping-modal">MIDI Mapping Modal</div>
+  MidiMappingEditorModal: () => <div data-testid="midi-mapping-modal">MIDI Mapping Modal</div>,
 }))
 
 vi.mock("@/features/keyboard-shortcuts", () => ({
-  KeyboardShortcutsModal: () => <div data-testid="keyboard-shortcuts-modal">Keyboard Shortcuts Modal</div>
+  KeyboardShortcutsModal: () => <div data-testid="keyboard-shortcuts-modal">Keyboard Shortcuts Modal</div>,
 }))
 
 vi.mock("@/features/media/components/cache-settings-modal", () => ({
-  CacheSettingsModal: () => <div data-testid="cache-settings-modal">Cache Settings Modal</div>
+  CacheSettingsModal: () => <div data-testid="cache-settings-modal">Cache Settings Modal</div>,
 }))
 
 vi.mock("@/features/person-identification/components/person-form-modal", () => ({
-  PersonFormModal: () => <div data-testid="person-form-modal">Person Form Modal</div>
+  PersonFormModal: () => <div data-testid="person-form-modal">Person Form Modal</div>,
 }))
 
 vi.mock("@/features/project-settings", () => ({
-  ProjectSettingsModal: () => <div data-testid="project-settings-modal">Project Settings Modal</div>
+  ProjectSettingsModal: () => <div data-testid="project-settings-modal">Project Settings Modal</div>,
 }))
 
 vi.mock("@/features/subtitles/components/subtitle-ai-tools-modal", () => ({
-  SubtitleAIToolsModal: () => <div data-testid="subtitle-ai-tools-modal">Subtitle AI Tools Modal</div>
+  SubtitleAIToolsModal: () => <div data-testid="subtitle-ai-tools-modal">Subtitle AI Tools Modal</div>,
 }))
 
 vi.mock("@/features/timeline/components/ai-markers/ai-marker-settings-modal", () => ({
-  AIMarkerSettingsModal: () => <div data-testid="ai-marker-settings-modal">AI Marker Settings Modal</div>
+  AIMarkerSettingsModal: () => <div data-testid="ai-marker-settings-modal">AI Marker Settings Modal</div>,
 }))
 
 vi.mock("@/features/timeline/components/audio-effects-editor-modal", () => ({
-  AudioEffectsEditorModal: () => <div data-testid="audio-effects-modal">Audio Effects Modal</div>
+  AudioEffectsEditorModal: () => <div data-testid="audio-effects-modal">Audio Effects Modal</div>,
 }))
 
 vi.mock("@/features/timeline/components/subtitle-editor-modal", () => ({
-  SubtitleEditorModal: () => <div data-testid="subtitle-editor-modal">Subtitle Editor Modal</div>
+  SubtitleEditorModal: () => <div data-testid="subtitle-editor-modal">Subtitle Editor Modal</div>,
 }))
 
 vi.mock("@/features/user-settings", () => ({
-  UserSettingsModal: () => <div data-testid="user-settings-modal">User Settings Modal</div>
+  UserSettingsModal: () => <div data-testid="user-settings-modal">User Settings Modal</div>,
 }))
 
 vi.mock("@/features/video-compiler/components/cache-statistics-modal", () => ({
-  CacheStatisticsModal: () => <div data-testid="cache-statistics-modal">Cache Statistics Modal</div>
+  CacheStatisticsModal: () => <div data-testid="cache-statistics-modal">Cache Statistics Modal</div>,
 }))
 
 vi.mock("@/features/voice-recording", () => ({
-  VoiceRecordModal: () => <div data-testid="voice-recording-modal">Voice Recording Modal</div>
+  VoiceRecordModal: () => <div data-testid="voice-recording-modal">Voice Recording Modal</div>,
 }))
 
 describe("ModalContainer", () => {
@@ -111,7 +110,7 @@ describe("ModalContainer", () => {
     render(
       <BaseProviders>
         <ModalContainer />
-      </BaseProviders>
+      </BaseProviders>,
     )
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
@@ -124,7 +123,7 @@ describe("ModalContainer", () => {
     render(
       <BaseProviders>
         <ModalContainer />
-      </BaseProviders>
+      </BaseProviders>,
     )
 
     expect(screen.getByRole("dialog")).toBeInTheDocument()
@@ -138,7 +137,7 @@ describe("ModalContainer", () => {
     render(
       <BaseProviders>
         <ModalContainer />
-      </BaseProviders>
+      </BaseProviders>,
     )
 
     // Find the close button and click it
@@ -168,25 +167,22 @@ describe("ModalContainer", () => {
       ["midi-mapping", "midi-mapping-modal", "modals.midiMapping.title"],
       ["midi-configuration", "midi-configuration-modal", "modals.midiConfiguration.title"],
       ["effect-detail", "effect-detail-modal", "modals.effectDetail.title"],
-      ["color-grading", "color-grading-modal", "modals.colorGrading.title"]
+      ["color-grading", "color-grading-modal", "modals.colorGrading.title"],
     ]
 
-    it.each(modalTestCases)(
-      "should render %s modal with correct title",
-      (modalType, testId, title) => {
-        mockIsOpen.mockReturnValue(true)
-        mockModalType.mockReturnValue(modalType)
+    it.each(modalTestCases)("should render %s modal with correct title", (modalType, testId, title) => {
+      mockIsOpen.mockReturnValue(true)
+      mockModalType.mockReturnValue(modalType)
 
-        render(
-          <BaseProviders>
-            <ModalContainer />
-          </BaseProviders>
-        )
+      render(
+        <BaseProviders>
+          <ModalContainer />
+        </BaseProviders>,
+      )
 
-        expect(screen.getByTestId(testId)).toBeInTheDocument()
-        expect(screen.getByText(title)).toBeInTheDocument()
-      }
-    )
+      expect(screen.getByTestId(testId)).toBeInTheDocument()
+      expect(screen.getByText(title)).toBeInTheDocument()
+    })
   })
 
   it("should handle subtitle editor with edit mode", () => {
@@ -197,7 +193,7 @@ describe("ModalContainer", () => {
     render(
       <BaseProviders>
         <ModalContainer />
-      </BaseProviders>
+      </BaseProviders>,
     )
 
     expect(screen.getByText("modals.subtitleEditor.titleEdit")).toBeInTheDocument()
@@ -211,7 +207,7 @@ describe("ModalContainer", () => {
     render(
       <BaseProviders>
         <ModalContainer />
-      </BaseProviders>
+      </BaseProviders>,
     )
 
     expect(screen.getByText("modals.personForm.titleEdit")).toBeInTheDocument()
@@ -225,7 +221,7 @@ describe("ModalContainer", () => {
     render(
       <BaseProviders>
         <ModalContainer />
-      </BaseProviders>
+      </BaseProviders>,
     )
 
     const dialogElement = screen.getByRole("dialog")
@@ -252,25 +248,22 @@ describe("ModalContainer", () => {
       ["midi-mapping", "sm:max-w-md"],
       ["midi-configuration", "max-w-2xl"],
       ["effect-detail", "max-w-4xl"],
-      ["color-grading", "border-[#464647]"]
+      ["color-grading", "border-[#464647]"],
     ]
 
-    it.each(classTestCases)(
-      "should apply correct class for %s modal",
-      (modalType, expectedClass) => {
-        mockIsOpen.mockReturnValue(true)
-        mockModalType.mockReturnValue(modalType)
+    it.each(classTestCases)("should apply correct class for %s modal", (modalType, expectedClass) => {
+      mockIsOpen.mockReturnValue(true)
+      mockModalType.mockReturnValue(modalType)
 
-        render(
-          <BaseProviders>
-            <ModalContainer />
-          </BaseProviders>
-        )
+      render(
+        <BaseProviders>
+          <ModalContainer />
+        </BaseProviders>,
+      )
 
-        const dialogElement = screen.getByRole("dialog")
-        expect(dialogElement).toHaveClass(expectedClass)
-      }
-    )
+      const dialogElement = screen.getByRole("dialog")
+      expect(dialogElement).toHaveClass(expectedClass)
+    })
   })
 
   it("should render nothing for unknown modal type", () => {
@@ -280,7 +273,7 @@ describe("ModalContainer", () => {
     render(
       <BaseProviders>
         <ModalContainer />
-      </BaseProviders>
+      </BaseProviders>,
     )
 
     // Should still render dialog but with no content
@@ -295,7 +288,7 @@ describe("ModalContainer", () => {
     render(
       <BaseProviders>
         <ModalContainer />
-      </BaseProviders>
+      </BaseProviders>,
     )
 
     expect(screen.getByRole("dialog")).toBeInTheDocument()
@@ -311,7 +304,7 @@ describe("ModalContainer", () => {
     render(
       <BaseProviders>
         <ModalContainer />
-      </BaseProviders>
+      </BaseProviders>,
     )
 
     const dialogElement = screen.getByRole("dialog")
@@ -325,7 +318,7 @@ describe("ModalContainer", () => {
     render(
       <BaseProviders>
         <ModalContainer />
-      </BaseProviders>
+      </BaseProviders>,
     )
 
     const contentArea = screen.getByTestId("project-settings-modal").parentElement

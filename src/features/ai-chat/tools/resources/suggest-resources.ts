@@ -13,6 +13,7 @@ import {
 import type { ResourceToolResult, SuggestResourcesParams } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
 
+
 export const suggestComplementaryResourcesTool: ClaudeTool = {
   name: "suggest_complementary_resources",
   description: "Анализирует текущие ресурсы и предлагает дополнительные для улучшения проекта",

@@ -1,5 +1,5 @@
-import { renderHook, act } from "@testing-library/react"
-import { describe, expect, it, vi, beforeEach } from "vitest"
+import { act, renderHook } from "@testing-library/react"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { BaseProviders } from "@/test/test-utils"
 
@@ -18,19 +18,19 @@ vi.mock("@/features/resources", () => ({
     addFilter: mockAddFilter,
     addTransition: mockAddTransition,
     addSubtitle: mockAddSubtitle,
-    addStyleTemplate: mockAddStyleTemplate
-  })
+    addStyleTemplate: mockAddStyleTemplate,
+  }),
 }))
 
 vi.mock("@/features/app-state/services", () => ({
   appDirectoriesService: {
     createAppDirectories: vi.fn(),
-    getMediaSubdirectory: vi.fn()
-  }
+    getMediaSubdirectory: vi.fn(),
+  },
 }))
 
 vi.mock("@/features/app-state", () => ({
-  AppSettingsProvider: ({ children }: { children: React.ReactNode }) => children
+  AppSettingsProvider: ({ children }: { children: React.ReactNode }) => children,
 }))
 
 // Mock validators
@@ -45,12 +45,12 @@ vi.mock("../utils/validation", () => ({
   validateFilter: mockValidateFilter,
   validateTransition: mockValidateTransition,
   validateSubtitleStyle: mockValidateSubtitleStyle,
-  validateStyleTemplate: mockValidateStyleTemplate
+  validateStyleTemplate: mockValidateStyleTemplate,
 }))
 
 vi.mock("@tauri-apps/plugin-fs", () => ({
   exists: vi.fn(),
-  readDir: vi.fn()
+  readDir: vi.fn(),
 }))
 
 // Mock fetch
@@ -60,31 +60,31 @@ global.fetch = mockFetch
 describe("useAutoLoadResources", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     // Default validators
-    mockValidateEffect.mockImplementation((data) => data?.id ? data : null)
-    mockValidateFilter.mockImplementation((data) => data?.id ? data : null)
-    mockValidateTransition.mockImplementation((data) => data?.id ? data : null)
-    mockValidateSubtitleStyle.mockImplementation((data) => data?.id ? data : null)
-    mockValidateStyleTemplate.mockImplementation((data) => data?.id ? data : null)
-    
+    mockValidateEffect.mockImplementation((data) => (data?.id ? data : null))
+    mockValidateFilter.mockImplementation((data) => (data?.id ? data : null))
+    mockValidateTransition.mockImplementation((data) => (data?.id ? data : null))
+    mockValidateSubtitleStyle.mockImplementation((data) => (data?.id ? data : null))
+    mockValidateStyleTemplate.mockImplementation((data) => (data?.id ? data : null))
+
     // Default fetch
     mockFetch.mockResolvedValue({
       ok: true,
-      json: async () => ({ id: "test-id", name: "Test Resource" })
+      json: async () => ({ id: "test-id", name: "Test Resource" }),
     })
-    
+
     // Mock Tauri environment
     Object.defineProperty(window, "__TAURI_INTERNALS__", {
       value: {},
       writable: true,
-      configurable: true
+      configurable: true,
     })
   })
 
   it("should initialize with default state", () => {
     const { result } = renderHook(() => useAutoLoadResources(), {
-      wrapper: BaseProviders
+      wrapper: BaseProviders,
     })
 
     expect(result.current.isLoading).toBe(false)
@@ -94,7 +94,7 @@ describe("useAutoLoadResources", () => {
       filters: 0,
       transitions: 0,
       subtitles: 0,
-      styleTemplates: 0
+      styleTemplates: 0,
     })
     expect(typeof result.current.reload).toBe("function")
     expect(typeof result.current.clearCache).toBe("function")
@@ -102,22 +102,22 @@ describe("useAutoLoadResources", () => {
 
   it("should provide reload function", () => {
     const { result } = renderHook(() => useAutoLoadResources(), {
-      wrapper: BaseProviders
+      wrapper: BaseProviders,
     })
 
     expect(typeof result.current.reload).toBe("function")
-    
+
     // Should not throw when called
     expect(() => result.current.reload()).not.toThrow()
   })
 
   it("should provide clearCache function", () => {
     const { result } = renderHook(() => useAutoLoadResources(), {
-      wrapper: BaseProviders
+      wrapper: BaseProviders,
     })
 
     expect(typeof result.current.clearCache).toBe("function")
-    
+
     act(() => {
       result.current.clearCache()
     })
@@ -129,7 +129,7 @@ describe("useAutoLoadResources", () => {
     delete (window as any).__TAURI_INTERNALS__
 
     const { result } = renderHook(() => useAutoLoadResources(), {
-      wrapper: BaseProviders
+      wrapper: BaseProviders,
     })
 
     expect(result.current.isLoading).toBe(false)
@@ -139,13 +139,13 @@ describe("useAutoLoadResources", () => {
       filters: 0,
       transitions: 0,
       subtitles: 0,
-      styleTemplates: 0
+      styleTemplates: 0,
     })
   })
 
   it("should have correct resource stats structure", () => {
     const { result } = renderHook(() => useAutoLoadResources(), {
-      wrapper: BaseProviders
+      wrapper: BaseProviders,
     })
 
     const stats = result.current.loadedStats
@@ -154,7 +154,7 @@ describe("useAutoLoadResources", () => {
     expect(stats).toHaveProperty("transitions")
     expect(stats).toHaveProperty("subtitles")
     expect(stats).toHaveProperty("styleTemplates")
-    
+
     // All should be numbers
     expect(typeof stats.effects).toBe("number")
     expect(typeof stats.filters).toBe("number")
@@ -165,7 +165,7 @@ describe("useAutoLoadResources", () => {
 
   it("should maintain state across rerenders", () => {
     const { result, rerender } = renderHook(() => useAutoLoadResources(), {
-      wrapper: BaseProviders
+      wrapper: BaseProviders,
     })
 
     const initialReload = result.current.reload
@@ -179,7 +179,7 @@ describe("useAutoLoadResources", () => {
 
   it("should handle loading state changes", async () => {
     const { result } = renderHook(() => useAutoLoadResources(), {
-      wrapper: BaseProviders
+      wrapper: BaseProviders,
     })
 
     // Initially not loading
@@ -195,23 +195,23 @@ describe("useAutoLoadResources", () => {
 
   it("should handle error state", () => {
     const { result } = renderHook(() => useAutoLoadResources(), {
-      wrapper: BaseProviders
+      wrapper: BaseProviders,
     })
 
     // Initially no error
     expect(result.current.error).toBeNull()
-    
+
     // Should remain consistent
     act(() => {
       result.current.clearCache()
     })
-    
+
     expect(result.current.error).toBeNull()
   })
 
   it("should use resource hooks correctly", () => {
     renderHook(() => useAutoLoadResources(), {
-      wrapper: BaseProviders
+      wrapper: BaseProviders,
     })
 
     // Should have called useResources hook
@@ -224,7 +224,7 @@ describe("useAutoLoadResources", () => {
 
   it("should have validators available", () => {
     renderHook(() => useAutoLoadResources(), {
-      wrapper: BaseProviders
+      wrapper: BaseProviders,
     })
 
     expect(mockValidateEffect).toBeDefined()
@@ -236,7 +236,7 @@ describe("useAutoLoadResources", () => {
 
   it("should handle resource loading stats", () => {
     const { result } = renderHook(() => useAutoLoadResources(), {
-      wrapper: BaseProviders
+      wrapper: BaseProviders,
     })
 
     // Should start with zero stats
@@ -249,7 +249,7 @@ describe("useAutoLoadResources", () => {
 
   it("should provide stable function references", () => {
     const { result, rerender } = renderHook(() => useAutoLoadResources(), {
-      wrapper: BaseProviders
+      wrapper: BaseProviders,
     })
 
     const reload1 = result.current.reload

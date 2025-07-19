@@ -11,8 +11,8 @@ describe("Drag-Drop Timeline Integration", () => {
       position: { x: 100, y: 50 },
       metadata: {
         duration: 30,
-        mediaType: "video"
-      }
+        mediaType: "video",
+      },
     }
 
     expect(dragOperation.type).toBe("media-file")
@@ -27,11 +27,11 @@ describe("Drag-Drop Timeline Integration", () => {
     const dropZones = [
       { id: "track-1", type: "video", accepts: ["video", "image"] },
       { id: "track-2", type: "audio", accepts: ["audio"] },
-      { id: "track-3", type: "subtitle", accepts: ["subtitle"] }
+      { id: "track-3", type: "subtitle", accepts: ["subtitle"] },
     ]
 
     const isValidDrop = (dragType: string, dropZoneId: string) => {
-      const zone = dropZones.find(z => z.id === dropZoneId)
+      const zone = dropZones.find((z) => z.id === dropZoneId)
       return zone ? zone.accepts.includes(dragType) : false
     }
 
@@ -64,19 +64,19 @@ describe("Drag-Drop Timeline Integration", () => {
         startTime: dropPosition.time,
         duration: dragData.duration,
         mediaId: dragData.sourceId,
-        type: dragData.mediaType
+        type: dragData.mediaType,
       }
     }
 
     const dragData = {
       sourceId: "media-123",
       duration: 45,
-      mediaType: "video"
+      mediaType: "video",
     }
 
     const dropPosition = {
       trackId: "track-1",
-      time: 10
+      time: 10,
     }
 
     const clip = createClipFromDrop(dragData, dropPosition)
@@ -92,11 +92,11 @@ describe("Drag-Drop Timeline Integration", () => {
     const trackInsertionZones = [
       { id: "insert-above-track-1", position: "above", targetTrackId: "track-1" },
       { id: "insert-below-track-1", position: "below", targetTrackId: "track-1" },
-      { id: "insert-above-track-2", position: "above", targetTrackId: "track-2" }
+      { id: "insert-above-track-2", position: "above", targetTrackId: "track-2" },
     ]
 
     const findInsertionZone = (zoneId: string) => {
-      return trackInsertionZones.find(zone => zone.id === zoneId)
+      return trackInsertionZones.find((zone) => zone.id === zoneId)
     }
 
     const zone = findInsertionZone("insert-above-track-1")

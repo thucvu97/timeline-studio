@@ -8,17 +8,17 @@ describe("PersonManager", () => {
         display: "grid",
         gridTemplateColumns: "1fr 2fr",
         gap: 4,
-        height: "100%"
+        height: "100%",
       },
       leftPanel: {
         display: "flex",
         flexDirection: "column" as const,
-        gap: 4
+        gap: 4,
       },
       rightPanel: {
         display: "flex",
-        flexDirection: "column" as const
-      }
+        flexDirection: "column" as const,
+      },
     }
 
     expect(layoutConfig.container.gridTemplateColumns).toBe("1fr 2fr")
@@ -30,7 +30,7 @@ describe("PersonManager", () => {
     let state = {
       selectedPersonId: null as string | null,
       searchQuery: "",
-      isLoading: false
+      isLoading: false,
     }
 
     // Test selecting a person

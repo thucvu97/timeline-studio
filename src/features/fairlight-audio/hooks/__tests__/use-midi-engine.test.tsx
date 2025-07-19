@@ -27,18 +27,18 @@ vi.mock("../../services/midi/midi-router", () => ({
 describe("useMidiEngine", () => {
   it("should return hook interface", () => {
     const { result } = renderHook(() => useMidiEngine())
-    
+
     // Should return the expected interface
     expect(result.current).toHaveProperty("engine")
     expect(result.current).toHaveProperty("devices")
     expect(result.current).toHaveProperty("isInitialized")
     expect(result.current).toHaveProperty("error")
-    
+
     // Initial state
     expect(result.current.devices).toEqual({ input: [], output: [] })
     expect(result.current.error).toBe(null)
   })
-  
+
   it("should export messageToMidiData types", () => {
     // This test verifies the hook can be imported and doesn't throw
     expect(useMidiEngine).toBeDefined()

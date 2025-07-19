@@ -7,6 +7,7 @@ import { getResourcesProvider, groupResourcesByType, hasResourcesAccess } from "
 import type { ExportListParams, ResourceToolResult } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
 
+
 export const exportResourceListTool: ClaudeTool = {
   name: "export_resource_list",
   description: "Экспортирует список ресурсов в различных форматах для внешнего использования",

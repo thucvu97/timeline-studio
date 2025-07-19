@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import type { YoloDetection } from "@/features/recognition/types/yolo"
 
@@ -96,22 +96,22 @@ describe("ONNXRuntimeService", () => {
 
       await service.initialize()
       const firstCallCount = consoleSpy.mock.calls.length
-      
+
       await service.initialize() // Second call
 
       // Should not add any new log calls
       expect(consoleSpy).toHaveBeenCalledTimes(firstCallCount)
-      
+
       consoleSpy.mockRestore()
     })
 
     it("should handle initialization errors gracefully", async () => {
       const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
-      
+
       // Create a new service instance that hasn't been initialized
       ;(ONNXRuntimeService as any).instance = undefined
       const newService = ONNXRuntimeService.getInstance()
-      
+
       // Mock loadModel to throw error for all models
       vi.spyOn(newService as any, "loadModel").mockRejectedValue(new Error("Failed to load model"))
 
@@ -134,7 +134,7 @@ describe("ONNXRuntimeService", () => {
 
       expect(Array.isArray(detections)).toBe(true)
       expect(detections.length).toBeGreaterThan(0)
-      
+
       // Check detection structure
       const detection = detections[0]
       expect(detection).toHaveProperty("class")
@@ -155,8 +155,9 @@ describe("ONNXRuntimeService", () => {
     })
 
     it("should throw error for unknown model", async () => {
-      await expect(service.runYOLOInference(new ImageData(640, 640), "unknown-model"))
-        .rejects.toThrow("Model unknown-model not loaded")
+      await expect(service.runYOLOInference(new ImageData(640, 640), "unknown-model")).rejects.toThrow(
+        "Model unknown-model not loaded",
+      )
     })
 
     it("should validate YOLO detection properties", async () => {
@@ -190,7 +191,7 @@ describe("ONNXRuntimeService", () => {
 
       expect(Array.isArray(faces)).toBe(true)
       expect(faces.length).toBeGreaterThan(0)
-      
+
       const face = faces[0]
       expect(face).toHaveProperty("bbox")
       expect(face).toHaveProperty("confidence")
@@ -209,7 +210,7 @@ describe("ONNXRuntimeService", () => {
       expect(Array.isArray(face.landmarks)).toBe(true)
       expect(face.landmarks!.length).toBe(5) // 5 key points
 
-      face.landmarks!.forEach(landmark => {
+      face.landmarks!.forEach((landmark) => {
         expect(landmark).toHaveProperty("x")
         expect(landmark).toHaveProperty("y")
         expect(typeof landmark.x).toBe("number")
@@ -220,8 +221,7 @@ describe("ONNXRuntimeService", () => {
     it("should throw error when face model not loaded", async () => {
       await service.dispose()
 
-      await expect(service.runFaceDetection(new ImageData(320, 320)))
-        .rejects.toThrow("Face detection model not loaded")
+      await expect(service.runFaceDetection(new ImageData(320, 320))).rejects.toThrow("Face detection model not loaded")
     })
   })
 
@@ -237,7 +237,7 @@ describe("ONNXRuntimeService", () => {
 
       expect(Array.isArray(textDetections)).toBe(true)
       expect(textDetections.length).toBeGreaterThan(0)
-      
+
       const textDetection = textDetections[0]
       expect(textDetection).toHaveProperty("text")
       expect(textDetection).toHaveProperty("bbox")
@@ -251,7 +251,7 @@ describe("ONNXRuntimeService", () => {
     it("should validate OCR detection structure", async () => {
       const textDetections = await service.runOCRInference(new ImageData(640, 640))
 
-      textDetections.forEach(detection => {
+      textDetections.forEach((detection) => {
         expect(typeof detection.text).toBe("string")
         expect(typeof detection.confidence).toBe("number")
         expect(detection.confidence).toBeGreaterThan(0)
@@ -266,8 +266,7 @@ describe("ONNXRuntimeService", () => {
     it("should throw error when OCR model not loaded", async () => {
       await service.dispose()
 
-      await expect(service.runOCRInference(new ImageData(640, 640)))
-        .rejects.toThrow("OCR model not loaded")
+      await expect(service.runOCRInference(new ImageData(640, 640))).rejects.toThrow("OCR model not loaded")
     })
   })
 
@@ -304,7 +303,7 @@ describe("ONNXRuntimeService", () => {
 
     it("should handle dispose errors gracefully", async () => {
       const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
-      
+
       // Mock session with failing release method
       const mockSession = {
         session: {
@@ -312,15 +311,12 @@ describe("ONNXRuntimeService", () => {
         },
         model: { name: "test" },
       }
-      
+
       ;(service as any).sessions.set("test", mockSession)
 
       await service.dispose()
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "Failed to release session test:",
-        expect.any(Error)
-      )
+      expect(consoleErrorSpy).toHaveBeenCalledWith("Failed to release session test:", expect.any(Error))
 
       consoleErrorSpy.mockRestore()
     })
@@ -333,7 +329,7 @@ describe("ONNXRuntimeService", () => {
 
     it("should preprocess ImageData correctly", async () => {
       const imageData = new ImageData(100, 100)
-      
+
       // Access private method through type assertion
       const preprocessImage = (service as any).preprocessImage.bind(service)
       const tensor = await preprocessImage(imageData, [640, 640])
@@ -345,7 +341,7 @@ describe("ONNXRuntimeService", () => {
 
     it("should handle Float32Array input", async () => {
       const floatArray = new Float32Array(3 * 640 * 640)
-      
+
       const preprocessImage = (service as any).preprocessImage.bind(service)
       const tensor = await preprocessImage(floatArray, [640, 640])
 
@@ -359,7 +355,7 @@ describe("ONNXRuntimeService", () => {
     it("should generate mock YOLO results", () => {
       const generateMockResults = (service as any).generateMockResults.bind(service)
       const yoloModel = { type: "yolo", name: "test" }
-      
+
       const results = generateMockResults(yoloModel)
 
       expect(results).toHaveProperty("output0")
@@ -370,7 +366,7 @@ describe("ONNXRuntimeService", () => {
     it("should generate mock face detection results", () => {
       const generateMockResults = (service as any).generateMockResults.bind(service)
       const faceModel = { type: "face", name: "test" }
-      
+
       const results = generateMockResults(faceModel)
 
       expect(results).toHaveProperty("output")
@@ -381,7 +377,7 @@ describe("ONNXRuntimeService", () => {
     it("should generate empty results for unknown model type", () => {
       const generateMockResults = (service as any).generateMockResults.bind(service)
       const unknownModel = { type: "unknown", name: "test" }
-      
+
       const results = generateMockResults(unknownModel)
 
       expect(results).toEqual({})
@@ -389,7 +385,7 @@ describe("ONNXRuntimeService", () => {
 
     it("should generate random YOLO detections", () => {
       const generateMockYOLODetections = (service as any).generateMockYOLODetections.bind(service)
-      
+
       const detections1 = generateMockYOLODetections()
       const detections2 = generateMockYOLODetections()
 
@@ -397,7 +393,7 @@ describe("ONNXRuntimeService", () => {
       expect(Array.isArray(detections2)).toBe(true)
       expect(detections1.length).toBeGreaterThan(0)
       expect(detections1.length).toBeLessThanOrEqual(6)
-      
+
       // Results should be different (random)
       expect(detections1).not.toEqual(detections2)
     })
@@ -406,7 +402,7 @@ describe("ONNXRuntimeService", () => {
   describe("Error handling", () => {
     it("should handle inference errors", async () => {
       await service.initialize()
-      
+
       // Mock session to throw error
       const mockSession = {
         session: {
@@ -414,16 +410,15 @@ describe("ONNXRuntimeService", () => {
         },
         model: { inputSize: [640, 640] },
       }
-      
+
       ;(service as any).sessions.set("yolov8n", mockSession)
 
-      await expect(service.runYOLOInference(new ImageData(640, 640)))
-        .rejects.toThrow("Inference failed")
+      await expect(service.runYOLOInference(new ImageData(640, 640))).rejects.toThrow("Inference failed")
     })
 
     it("should continue loading other models if one fails", async () => {
       const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
-      
+
       // Mock createMockSession to fail for first model
       const originalCreateMockSession = (service as any).createMockSession
       vi.spyOn(service as any, "createMockSession")
@@ -434,10 +429,7 @@ describe("ONNXRuntimeService", () => {
 
       // Should have loaded 2 out of 3 models
       expect(service.getLoadedModels().length).toBe(2)
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "Failed to load model yolov8n:",
-        expect.any(Error)
-      )
+      expect(consoleErrorSpy).toHaveBeenCalledWith("Failed to load model yolov8n:", expect.any(Error))
 
       consoleErrorSpy.mockRestore()
     })

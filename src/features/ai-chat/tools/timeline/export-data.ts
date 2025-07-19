@@ -400,7 +400,7 @@ function objectToXML(obj: any, rootName: string): string {
           for (const [itemKey, itemValue] of Object.entries(item)) {
             let safeValue = ""
             if (itemValue !== null && itemValue !== undefined) {
-              if (typeof itemValue === 'object') {
+              if (typeof itemValue === "object") {
                 safeValue = JSON.stringify(itemValue)
               } else {
                 // eslint-disable-next-line @typescript-eslint/no-base-to-string
@@ -420,7 +420,7 @@ function objectToXML(obj: any, rootName: string): string {
       for (const [subKey, subValue] of Object.entries(value)) {
         let safeSubValue = ""
         if (subValue !== null && subValue !== undefined) {
-          if (typeof subValue === 'object') {
+          if (typeof subValue === "object") {
             safeSubValue = JSON.stringify(subValue)
           } else {
             // eslint-disable-next-line @typescript-eslint/no-base-to-string
@@ -433,7 +433,7 @@ function objectToXML(obj: any, rootName: string): string {
     } else {
       let safeValue = ""
       if (value !== null && value !== undefined) {
-        if (typeof value === 'object') {
+        if (typeof value === "object") {
           safeValue = JSON.stringify(value)
         } else {
           // eslint-disable-next-line @typescript-eslint/no-base-to-string

@@ -4,7 +4,12 @@
 
 import { analyzeCurrentMedia, analyzeCurrentMediaTool } from "./analyze-media"
 import { controlPlayback, controlPlaybackTool } from "./playback-control"
-import { applyPreviewEffects, applyPreviewEffectsTool, applyPreviewFilters, applyPreviewFiltersTool } from "./preview-effects"
+import {
+  applyPreviewEffects,
+  applyPreviewEffectsTool,
+  applyPreviewFilters,
+  applyPreviewFiltersTool,
+} from "./preview-effects"
 
 import type { PlayerToolResult } from "./types"
 

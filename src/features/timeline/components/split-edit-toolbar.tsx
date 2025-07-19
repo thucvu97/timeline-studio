@@ -2,12 +2,10 @@
  * Панель инструментов Split Edit
  */
 
-import React from 'react'
-
-import { 
-  AlignCenter, 
-  ArrowLeftRight, 
-  Eye, 
+import {
+  AlignCenter,
+  ArrowLeftRight,
+  Eye,
   EyeOff,
   Grid,
   Layers,
@@ -15,24 +13,17 @@ import {
   MousePointer,
   Move,
   Scissors,
-  Settings,
   Target,
-  Zap,
-} from 'lucide-react'
+} from "lucide-react"
 
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { Toggle } from '@/components/ui/toggle'
-import { 
-  Tooltip, 
-  TooltipContent, 
-  TooltipProvider, 
-  TooltipTrigger 
-} from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils'
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
+import { Toggle } from "@/components/ui/toggle"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { cn } from "@/lib/utils"
 
-import { useSplitEdit } from '../hooks/use-split-edit'
+import { useSplitEdit } from "../hooks/use-split-edit"
 
 interface SplitEditToolbarProps {
   className?: string
@@ -54,32 +45,32 @@ export function SplitEditToolbar({ className, compact = false }: SplitEditToolba
 
   const tools = [
     {
-      id: 'razor' as const,
-      name: 'Razor Tool',
+      id: "razor" as const,
+      name: "Razor Tool",
       icon: Scissors,
-      description: 'Split clips at specific positions',
-      shortcut: 'R',
+      description: "Split clips at specific positions",
+      shortcut: "R",
     },
     {
-      id: 'select' as const,
-      name: 'Selection Tool',
+      id: "select" as const,
+      name: "Selection Tool",
       icon: MousePointer,
-      description: 'Select and modify split edits',
-      shortcut: 'V',
+      description: "Select and modify split edits",
+      shortcut: "V",
     },
     {
-      id: 'slip' as const,
-      name: 'Slip Tool',
+      id: "slip" as const,
+      name: "Slip Tool",
       icon: Move,
-      description: 'Slip clip content without changing duration',
-      shortcut: 'S',
+      description: "Slip clip content without changing duration",
+      shortcut: "S",
     },
     {
-      id: 'slide' as const,
-      name: 'Slide Tool',
+      id: "slide" as const,
+      name: "Slide Tool",
       icon: ArrowLeftRight,
-      description: 'Slide clip position while maintaining sync',
-      shortcut: 'X',
+      description: "Slide clip position while maintaining sync",
+      shortcut: "X",
     },
   ]
 
@@ -95,23 +86,18 @@ export function SplitEditToolbar({ className, compact = false }: SplitEditToolba
 
   if (compact) {
     return (
-      <div className={cn('flex items-center gap-1 p-1', className)}>
-        <Toggle
-          pressed={isEnabled}
-          onPressedChange={toggleSplitEdit}
-          size="sm"
-          aria-label="Toggle Split Edit"
-        >
+      <div className={cn("flex items-center gap-1 p-1", className)}>
+        <Toggle pressed={isEnabled} onPressedChange={toggleSplitEdit} size="sm" aria-label="Toggle Split Edit">
           <Scissors className="h-4 w-4" />
         </Toggle>
-        
+
         {isEnabled && (
           <>
             <Separator orientation="vertical" className="h-4" />
             {tools.map((tool) => (
               <Button
                 key={tool.id}
-                variant={config.tool === tool.id ? 'default' : 'ghost'}
+                variant={config.tool === tool.id ? "default" : "ghost"}
                 size="sm"
                 onClick={() => handleToolSelect(tool.id)}
                 className="px-2"
@@ -121,7 +107,7 @@ export function SplitEditToolbar({ className, compact = false }: SplitEditToolba
             ))}
           </>
         )}
-        
+
         {activeSplitEdits.length > 0 && (
           <>
             <Separator orientation="vertical" className="h-4" />
@@ -136,38 +122,29 @@ export function SplitEditToolbar({ className, compact = false }: SplitEditToolba
 
   return (
     <TooltipProvider>
-      <div className={cn('flex items-center gap-2 p-2 bg-background border rounded-lg', className)}>
+      <div className={cn("flex items-center gap-2 p-2 bg-background border rounded-lg", className)}>
         {/* Основное переключение */}
         <div className="flex items-center gap-2">
-          <Toggle
-            pressed={isEnabled}
-            onPressedChange={toggleSplitEdit}
-            size="sm"
-            aria-label="Toggle Split Edit Mode"
-          >
+          <Toggle pressed={isEnabled} onPressedChange={toggleSplitEdit} size="sm" aria-label="Toggle Split Edit Mode">
             <Scissors className="h-4 w-4" />
           </Toggle>
-          
+
           <span className="text-sm font-medium">Split Edit</span>
-          
-          {activeSplitEdits.length > 0 && (
-            <Badge variant="secondary">
-              {activeSplitEdits.length} active
-            </Badge>
-          )}
+
+          {activeSplitEdits.length > 0 && <Badge variant="secondary">{activeSplitEdits.length} active</Badge>}
         </div>
 
         {isEnabled && (
           <>
             <Separator orientation="vertical" className="h-6" />
-            
+
             {/* Инструменты */}
             <div className="flex items-center gap-1">
               {tools.map((tool) => (
                 <Tooltip key={tool.id}>
                   <TooltipTrigger asChild>
                     <Button
-                      variant={config.tool === tool.id ? 'default' : 'ghost'}
+                      variant={config.tool === tool.id ? "default" : "ghost"}
                       size="sm"
                       onClick={() => handleToolSelect(tool.id)}
                       className="px-3"
@@ -196,27 +173,25 @@ export function SplitEditToolbar({ className, compact = false }: SplitEditToolba
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant={toolSettings.magneticSnap ? 'default' : 'ghost'}
+                    variant={toolSettings.magneticSnap ? "default" : "ghost"}
                     size="sm"
-                    onClick={() => handleToggleSetting('magneticSnap')}
+                    onClick={() => handleToggleSetting("magneticSnap")}
                   >
                     <Magnet className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
                   <div>Magnetic Snap</div>
-                  <div className="text-xs text-muted-foreground">
-                    Distance: {toolSettings.snapDistance}px
-                  </div>
+                  <div className="text-xs text-muted-foreground">Distance: {toolSettings.snapDistance}px</div>
                 </TooltipContent>
               </Tooltip>
 
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant={toolSettings.autoAlign ? 'default' : 'ghost'}
+                    variant={toolSettings.autoAlign ? "default" : "ghost"}
                     size="sm"
-                    onClick={() => handleToggleSetting('autoAlign')}
+                    onClick={() => handleToggleSetting("autoAlign")}
                   >
                     <AlignCenter className="h-4 w-4" />
                   </Button>
@@ -227,9 +202,9 @@ export function SplitEditToolbar({ className, compact = false }: SplitEditToolba
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant={toolSettings.showGuides ? 'default' : 'ghost'}
+                    variant={toolSettings.showGuides ? "default" : "ghost"}
                     size="sm"
-                    onClick={() => handleToggleSetting('showGuides')}
+                    onClick={() => handleToggleSetting("showGuides")}
                   >
                     <Grid className="h-4 w-4" />
                   </Button>
@@ -240,9 +215,9 @@ export function SplitEditToolbar({ className, compact = false }: SplitEditToolba
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant={toolSettings.syncTracks ? 'default' : 'ghost'}
+                    variant={toolSettings.syncTracks ? "default" : "ghost"}
                     size="sm"
-                    onClick={() => handleToggleSetting('syncTracks')}
+                    onClick={() => handleToggleSetting("syncTracks")}
                   >
                     <Layers className="h-4 w-4" />
                   </Button>
@@ -257,20 +232,11 @@ export function SplitEditToolbar({ className, compact = false }: SplitEditToolba
             <div className="flex items-center gap-1">
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
-                    variant={visualSettings.showPreview ? 'default' : 'ghost'}
-                    size="sm"
-                  >
-                    {visualSettings.showPreview ? (
-                      <Eye className="h-4 w-4" />
-                    ) : (
-                      <EyeOff className="h-4 w-4" />
-                    )}
+                  <Button variant={visualSettings.showPreview ? "default" : "ghost"} size="sm">
+                    {visualSettings.showPreview ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>
-                  {visualSettings.showPreview ? 'Hide Preview' : 'Show Preview'}
-                </TooltipContent>
+                <TooltipContent>{visualSettings.showPreview ? "Hide Preview" : "Show Preview"}</TooltipContent>
               </Tooltip>
 
               <Tooltip>

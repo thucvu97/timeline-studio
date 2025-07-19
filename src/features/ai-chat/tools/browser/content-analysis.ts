@@ -7,6 +7,7 @@ import { formatFileSize, getBrowserFiles, getBrowserStats, hasBrowserAccess } fr
 import type { AnalyzeMissingContentParams, BrowserToolResult, ExportFileListParams, SuggestImportParams } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
 
+
 export const analyzeMissingContentTool: ClaudeTool = {
   name: "analyze_missing_content",
   description: "Анализирует отсутствующий контент и предлагает что добавить для улучшения проекта",

@@ -28,7 +28,7 @@ vi.mock("../../services/ai-intelligence-provider", () => ({
 }))
 
 // Mock window object for tests
-Object.defineProperty(global, 'window', {
+Object.defineProperty(global, "window", {
   value: {
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
@@ -52,7 +52,7 @@ describe.skip("useAIIntelligence", () => {
 
     // Mock setTimeout to track timeout IDs
     const originalSetTimeout = global.setTimeout
-    vi.spyOn(global, 'setTimeout').mockImplementation((fn, delay) => {
+    vi.spyOn(global, "setTimeout").mockImplementation((fn, delay) => {
       const id = originalSetTimeout(fn, delay)
       timeoutIds.add(id)
       return id
@@ -70,9 +70,9 @@ describe.skip("useAIIntelligence", () => {
 
   afterEach(() => {
     // Clear all timeouts
-    timeoutIds.forEach(id => clearTimeout(id))
+    timeoutIds.forEach((id) => clearTimeout(id))
     timeoutIds.clear()
-    
+
     vi.clearAllTimers()
     vi.useRealTimers()
     vi.restoreAllMocks()
@@ -487,7 +487,7 @@ describe("useAIIntelligence - Basic Tests", () => {
     })
 
     const { result } = renderHook(() => useAIIntelligence())
-    
+
     // Basic assertions that don't trigger async operations
     expect(result.current).toBeDefined()
     expect(typeof result.current.analyzeContent).toBe("function")

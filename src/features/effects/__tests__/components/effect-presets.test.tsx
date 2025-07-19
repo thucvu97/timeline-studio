@@ -89,7 +89,6 @@ describe("EffectPresets", () => {
         store[key] = value
       }),
       removeItem: vi.fn((key: string) => {
-         
         delete store[key]
       }),
       clear: vi.fn(() => {

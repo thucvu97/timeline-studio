@@ -5,7 +5,7 @@ import { useHotkeys } from "react-hotkeys-hook"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { EditModeProvider, useEditMode, useEditModeContext } from "../../hooks/use-edit-mode"
-import { EDIT_MODES, EDIT_MODE_CONFIGS } from "../../types/edit-modes"
+import { EDIT_MODE_CONFIGS, EDIT_MODES } from "../../types/edit-modes"
 
 // Мок для react-hotkeys-hook
 vi.mock("react-hotkeys-hook", () => ({
@@ -131,7 +131,7 @@ describe("use-edit-mode", () => {
 
       act(() => {
         if (trimCallback) {
-          trimCallback({} as KeyboardEvent, { keys: ['t'], scope: '', element: null } as any)
+          trimCallback({} as KeyboardEvent, { keys: ["t"], scope: "", element: null } as any)
         }
       })
 
@@ -152,7 +152,7 @@ describe("use-edit-mode", () => {
 
       act(() => {
         if (escapeCallback) {
-          escapeCallback({} as KeyboardEvent, { keys: ['escape'], scope: '', element: null } as any)
+          escapeCallback({} as KeyboardEvent, { keys: ["escape"], scope: "", element: null } as any)
         }
       })
 
@@ -161,9 +161,7 @@ describe("use-edit-mode", () => {
   })
 
   describe("EditModeContext", () => {
-    const wrapper = ({ children }: { children: ReactNode }) => (
-      <EditModeProvider>{children}</EditModeProvider>
-    )
+    const wrapper = ({ children }: { children: ReactNode }) => <EditModeProvider>{children}</EditModeProvider>
 
     it("предоставляет контекст режима редактирования", () => {
       const { result } = renderHook(() => useEditModeContext(), { wrapper })
@@ -229,7 +227,7 @@ describe("use-edit-mode", () => {
 
       act(() => {
         if (rollCallback) {
-          rollCallback({} as KeyboardEvent, { keys: ['w'], scope: '', element: null } as any)
+          rollCallback({} as KeyboardEvent, { keys: ["w"], scope: "", element: null } as any)
         }
       })
 
@@ -242,7 +240,7 @@ describe("use-edit-mode", () => {
 
       act(() => {
         if (escapeCallback) {
-          escapeCallback({} as KeyboardEvent, { keys: ['escape'], scope: '', element: null } as any)
+          escapeCallback({} as KeyboardEvent, { keys: ["escape"], scope: "", element: null } as any)
         }
       })
 

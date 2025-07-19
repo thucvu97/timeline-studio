@@ -7,6 +7,7 @@ import { getPlayerState, hasLoadedMedia, setPlayerState } from "./utils/helpers"
 import type { PlaybackControlParams, PlayerToolResult } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
 
+
 export const controlPlaybackTool: ClaudeTool = {
   name: "control_playback",
   description: "Управляет воспроизведением медиа в плеере",

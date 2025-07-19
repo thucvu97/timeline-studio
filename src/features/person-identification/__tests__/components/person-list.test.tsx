@@ -9,10 +9,10 @@ describe("PersonList", () => {
       avatarUrl: "https://example.com/avatar.jpg",
       statistics: {
         totalAppearances: 15,
-        totalScreenTime: 450 // seconds
+        totalScreenTime: 450, // seconds
       },
       isSelected: false,
-      onClick: () => {}
+      onClick: () => {},
     }
 
     expect(mockPersonItem.id).toBeDefined()
@@ -29,9 +29,7 @@ describe("PersonList", () => {
       const minutes = Math.floor(seconds / 60)
       const remainingSeconds = seconds % 60
       if (minutes < 60) {
-        return remainingSeconds > 0 
-          ? `${minutes}m ${remainingSeconds}s`
-          : `${minutes}m`
+        return remainingSeconds > 0 ? `${minutes}m ${remainingSeconds}s` : `${minutes}m`
       }
       const hours = Math.floor(minutes / 60)
       const remainingMinutes = minutes % 60
@@ -49,13 +47,13 @@ describe("PersonList", () => {
     const persons = [
       { id: "1", selected: false },
       { id: "2", selected: false },
-      { id: "3", selected: false }
+      { id: "3", selected: false },
     ]
 
     const selectPerson = (persons: any[], selectedId: string) => {
-      return persons.map(p => ({
+      return persons.map((p) => ({
         ...p,
-        selected: p.id === selectedId
+        selected: p.id === selectedId,
       }))
     }
 
@@ -69,7 +67,7 @@ describe("PersonList", () => {
     const searchState = {
       value: "",
       placeholder: "Search persons...",
-      maxLength: 100
+      maxLength: 100,
     }
 
     const handleSearchChange = (value: string) => {
@@ -93,16 +91,16 @@ describe("PersonList", () => {
       totalItems: number,
       itemHeight: number,
       containerHeight: number,
-      scrollTop: number
+      scrollTop: number,
     ) => {
       const visibleCount = Math.ceil(containerHeight / itemHeight)
       const startIndex = Math.floor(scrollTop / itemHeight)
       const endIndex = Math.min(startIndex + visibleCount + 1, totalItems)
-      
+
       return {
         startIndex,
         endIndex,
-        visibleCount
+        visibleCount,
       }
     }
 

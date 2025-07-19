@@ -598,10 +598,10 @@ export function AiChat() {
                 <div className="mb-3 rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
                   <p className="mb-2">💡 {t("timeline.chat.empty_project_hint", "Проект пока пустой. Начните с:")}</p>
                   <div className="flex flex-wrap gap-2">
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      className="h-7 text-xs" 
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 text-xs"
                       onClick={async () => {
                         const result = await importFile()
                         if (result.success) {

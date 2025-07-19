@@ -7,9 +7,9 @@ describe("Modal Integration", () => {
       modalType: "none",
       modalData: null,
       isOpen: false,
-      openModal: (type: string, data?: any) => {},
+      openModal: (_type: string, _data?: any) => {},
       closeModal: () => {},
-      submitModal: (data?: any) => {}
+      submitModal: (_data?: any) => {},
     }
 
     expect(mockProvider.modalType).toBe("none")
@@ -22,7 +22,7 @@ describe("Modal Integration", () => {
   it("should handle modal state transitions", () => {
     let currentState = {
       modalType: "none",
-      isOpen: false
+      isOpen: false,
     }
 
     // Simulate opening modal
@@ -50,7 +50,7 @@ describe("Modal Integration", () => {
       isOpen: true,
       openModal: true,
       closeModal: true,
-      submitModal: true
+      submitModal: true,
     }
 
     const requiredProperties = Object.keys(contextInterface)

@@ -1,5 +1,5 @@
-import { render, screen, renderHook, act, waitFor } from "@testing-library/react"
-import { describe, expect, it, vi, beforeEach } from "vitest"
+import { act, render, renderHook, screen, waitFor } from "@testing-library/react"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 // Очищаем моки только для этого файла
 vi.unmock("@/features/modals")
@@ -21,7 +21,7 @@ describe("ModalProvider", () => {
     render(
       <ModalProvider>
         <div data-testid="test-child">Test Content</div>
-      </ModalProvider>
+      </ModalProvider>,
     )
 
     expect(screen.getByTestId("test-child")).toBeInTheDocument()
@@ -43,7 +43,7 @@ describe("ModalProvider", () => {
     render(
       <ModalProvider>
         <TestComponent />
-      </ModalProvider>
+      </ModalProvider>,
     )
 
     expect(screen.getByTestId("modal-type")).toHaveTextContent("none")
@@ -56,9 +56,7 @@ describe("ModalProvider", () => {
       const modal = useModal()
       return (
         <div>
-          <button onClick={() => modal.openModal("project-settings")}>
-            Open Modal
-          </button>
+          <button onClick={() => modal.openModal("project-settings")}>Open Modal</button>
           <div data-testid="modal-type">{modal.modalType}</div>
           <div data-testid="is-open">{modal.isOpen.toString()}</div>
         </div>
@@ -68,11 +66,11 @@ describe("ModalProvider", () => {
     render(
       <ModalProvider>
         <TestComponent />
-      </ModalProvider>
+      </ModalProvider>,
     )
 
     const openButton = screen.getByText("Open Modal")
-    
+
     act(() => {
       openButton.click()
     })
@@ -90,11 +88,13 @@ describe("ModalProvider", () => {
       const modal = useModal()
       return (
         <div>
-          <button 
-            onClick={() => modal.openModal("user-settings", { 
-              dialogClass: "custom-class",
-              testData: "test-value" 
-            })}
+          <button
+            onClick={() =>
+              modal.openModal("user-settings", {
+                dialogClass: "custom-class",
+                testData: "test-value",
+              })
+            }
           >
             Open Modal with Data
           </button>
@@ -106,11 +106,11 @@ describe("ModalProvider", () => {
     render(
       <ModalProvider>
         <TestComponent />
-      </ModalProvider>
+      </ModalProvider>,
     )
 
     const openButton = screen.getByText("Open Modal with Data")
-    
+
     act(() => {
       openButton.click()
     })
@@ -119,7 +119,7 @@ describe("ModalProvider", () => {
       const modalData = JSON.parse(screen.getByTestId("modal-data").textContent!)
       expect(modalData).toEqual({
         dialogClass: "custom-class",
-        testData: "test-value"
+        testData: "test-value",
       })
     })
   })
@@ -139,17 +139,17 @@ describe("ModalProvider", () => {
     render(
       <ModalProvider>
         <TestComponent />
-      </ModalProvider>
+      </ModalProvider>,
     )
 
     const openButton = screen.getByText("Open")
     const closeButton = screen.getByText("Close")
-    
+
     // Открываем модальное окно
     act(() => {
       openButton.click()
     })
-    
+
     await waitFor(() => {
       expect(screen.getByTestId("is-open")).toHaveTextContent("true")
     })
@@ -158,11 +158,11 @@ describe("ModalProvider", () => {
     act(() => {
       closeButton.click()
     })
-    
+
     await waitFor(() => {
       expect(screen.getByTestId("is-open")).toHaveTextContent("false")
     })
-    
+
     expect(consoleLogSpy).toHaveBeenCalledWith("Закрываем модальное окно")
   })
 
@@ -172,9 +172,7 @@ describe("ModalProvider", () => {
       return (
         <div>
           <button onClick={() => modal.openModal("camera-capture")}>Open</button>
-          <button onClick={() => modal.submitModal({ result: "success" })}>
-            Submit
-          </button>
+          <button onClick={() => modal.submitModal({ result: "success" })}>Submit</button>
         </div>
       )
     }
@@ -182,12 +180,12 @@ describe("ModalProvider", () => {
     render(
       <ModalProvider>
         <TestComponent />
-      </ModalProvider>
+      </ModalProvider>,
     )
 
     const openButton = screen.getByText("Open")
     const submitButton = screen.getByText("Submit")
-    
+
     // Открываем модальное окно
     act(() => {
       openButton.click()
@@ -203,10 +201,7 @@ describe("ModalProvider", () => {
     })
 
     await waitFor(() => {
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        "Отправляем данные модального окна:", 
-        { result: "success" }
-      )
+      expect(consoleLogSpy).toHaveBeenCalledWith("Отправляем данные модального окна:", { result: "success" })
     })
   })
 
@@ -215,12 +210,8 @@ describe("ModalProvider", () => {
       const modal = useModal()
       return (
         <div>
-          <button onClick={() => modal.openModal("keyboard-shortcuts")}>
-            Open Shortcuts
-          </button>
-          <button onClick={() => modal.openModal("voice-recording")}>
-            Open Voice
-          </button>
+          <button onClick={() => modal.openModal("keyboard-shortcuts")}>Open Shortcuts</button>
+          <button onClick={() => modal.openModal("voice-recording")}>Open Voice</button>
           <div data-testid="modal-type">{modal.modalType}</div>
         </div>
       )
@@ -229,17 +220,17 @@ describe("ModalProvider", () => {
     render(
       <ModalProvider>
         <TestComponent />
-      </ModalProvider>
+      </ModalProvider>,
     )
 
     const shortcutsButton = screen.getByText("Open Shortcuts")
     const voiceButton = screen.getByText("Open Voice")
-    
+
     // Открываем первое модальное окно
     act(() => {
       shortcutsButton.click()
     })
-    
+
     await waitFor(() => {
       expect(screen.getByTestId("modal-type")).toHaveTextContent("keyboard-shortcuts")
     })
@@ -248,7 +239,7 @@ describe("ModalProvider", () => {
     act(() => {
       voiceButton.click()
     })
-    
+
     await waitFor(() => {
       expect(screen.getByTestId("modal-type")).toHaveTextContent("voice-recording")
     })
@@ -268,7 +259,7 @@ describe("ModalProvider", () => {
 
     it("должен сохранять состояние между ререндерами", async () => {
       const { result, rerender } = renderHook(() => useModal(), {
-        wrapper: ModalProvider
+        wrapper: ModalProvider,
       })
 
       act(() => {
@@ -290,19 +281,13 @@ describe("ModalProvider", () => {
   })
 
   it("должен работать с различными типами модальных окон", async () => {
-    const modalTypes: ModalType[] = [
-      "camera-capture",
-      "voice-recording",
-      "export",
-      "project-settings",
-      "user-settings"
-    ]
+    const modalTypes: ModalType[] = ["camera-capture", "voice-recording", "export", "project-settings", "user-settings"]
 
     const TestComponent = () => {
       const modal = useModal()
       return (
         <div>
-          {modalTypes.map(type => (
+          {modalTypes.map((type) => (
             <button key={type} onClick={() => modal.openModal(type)}>
               {type}
             </button>
@@ -315,12 +300,12 @@ describe("ModalProvider", () => {
     render(
       <ModalProvider>
         <TestComponent />
-      </ModalProvider>
+      </ModalProvider>,
     )
 
     for (const type of modalTypes) {
       const button = screen.getByText(type)
-      
+
       act(() => {
         button.click()
       })
@@ -339,24 +324,20 @@ describe("ModalProvider", () => {
         id: "sub-123",
         text: "Test subtitle",
         startTime: 10.5,
-        endTime: 15.3
+        endTime: 15.3,
       },
       options: {
         autoSave: true,
-        quality: "high"
-      }
+        quality: "high",
+      },
     }
 
     const TestComponent = () => {
       const modal = useModal()
       return (
         <div>
-          <button onClick={() => modal.openModal("subtitle-editor", complexData)}>
-            Open Complex
-          </button>
-          <pre data-testid="modal-data">
-            {JSON.stringify(modal.modalData, null, 2)}
-          </pre>
+          <button onClick={() => modal.openModal("subtitle-editor", complexData)}>Open Complex</button>
+          <pre data-testid="modal-data">{JSON.stringify(modal.modalData, null, 2)}</pre>
         </div>
       )
     }
@@ -364,11 +345,11 @@ describe("ModalProvider", () => {
     render(
       <ModalProvider>
         <TestComponent />
-      </ModalProvider>
+      </ModalProvider>,
     )
 
     const button = screen.getByText("Open Complex")
-    
+
     act(() => {
       button.click()
     })

@@ -11,10 +11,6 @@ export class FFTProcessor {
 
   // Buffers
   private inputBuffer: Float32Array
-  private outputBuffer: Float32Array
-  private overlapBuffer: Float32Array
-  private realBuffer: Float32Array
-  private imagBuffer: Float32Array
 
   // Pre-computed values
   private windowSum: number

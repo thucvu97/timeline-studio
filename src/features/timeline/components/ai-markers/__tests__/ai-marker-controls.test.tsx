@@ -1,5 +1,5 @@
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+import { fireEvent, render, screen, waitFor } from "@testing-library/react"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { AIMarkerControls } from "../ai-marker-controls"
 
@@ -70,17 +70,17 @@ describe("AIMarkerControls", () => {
 
   it("renders control buttons", () => {
     render(<AIMarkerControls />)
-    
+
     expect(screen.getByRole("button", { name: /AI Маркеры/i })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /settings/i })).toBeInTheDocument()
   })
 
   it("shows error when no analysis data available", async () => {
     render(<AIMarkerControls />)
-    
+
     const generateButton = screen.getByRole("button", { name: /AI Маркеры/i })
     fireEvent.click(generateButton)
-    
+
     await waitFor(() => {
       expect(screen.getByText("Нет данных анализа. Сначала проанализируйте Timeline.")).toBeInTheDocument()
     })
@@ -94,25 +94,25 @@ describe("AIMarkerControls", () => {
         { start: 5, end: 10, type: "main", confidence: 0.8 },
       ],
     }
-    
+
     const mockSceneMarkers = [
       { id: "marker1", time: 0, label: "Scene 1" },
       { id: "marker2", time: 5, label: "Scene 2" },
     ]
     mockCreateMarkersFromScenes.mockReturnValue(mockSceneMarkers)
     mockGroupNearbyMarkers.mockImplementation((markers) => markers)
-    
+
     render(<AIMarkerControls />)
-    
+
     const generateButton = screen.getByRole("button", { name: /AI Маркеры/i })
     fireEvent.click(generateButton)
-    
+
     await waitFor(() => {
       expect(mockCreateMarkersFromScenes).toHaveBeenCalledWith(mockAnalysisState.sceneAnalysis.scenes)
       expect(mockSend).toHaveBeenCalledWith({ type: "ADD_MARKER", marker: mockSceneMarkers[0] })
       expect(mockSend).toHaveBeenCalledWith({ type: "ADD_MARKER", marker: mockSceneMarkers[1] })
     })
-    
+
     // Check that markers were created and added
     expect(mockCreateMarkersFromScenes).toHaveBeenCalledWith(mockAnalysisState.sceneAnalysis.scenes)
     expect(mockSend).toHaveBeenCalledWith({ type: "ADD_MARKER", marker: mockSceneMarkers[0] })
@@ -125,19 +125,19 @@ describe("AIMarkerControls", () => {
       { time: 10, type: "action", confidence: 0.85, description: "Action moment" },
       { time: 20, type: "emotion", confidence: 0.9, description: "Emotional moment" },
     ]
-    
+
     const mockMomentMarkers = [
       { id: "moment1", time: 10, label: "Key Moment 1" },
       { id: "moment2", time: 20, label: "Key Moment 2" },
     ]
     mockCreateMarkersFromKeyMoments.mockReturnValue(mockMomentMarkers)
     mockGroupNearbyMarkers.mockImplementation((markers) => markers)
-    
+
     render(<AIMarkerControls />)
-    
+
     const generateButton = screen.getByRole("button", { name: /AI Маркеры/i })
     fireEvent.click(generateButton)
-    
+
     await waitFor(() => {
       expect(mockCreateMarkersFromKeyMoments).toHaveBeenCalledWith(mockAnalysisState.keyMoments)
       expect(mockSend).toHaveBeenCalledTimes(2)
@@ -148,34 +148,34 @@ describe("AIMarkerControls", () => {
     mockAnalysisState.keyMoments = [{ time: 10, type: "action", confidence: 0.85 }]
     mockCreateMarkersFromKeyMoments.mockReturnValue([{ id: "marker1", time: 10 }])
     mockGroupNearbyMarkers.mockImplementation((markers) => markers)
-    
+
     render(<AIMarkerControls />)
-    
+
     const generateButton = screen.getByRole("button", { name: /AI Маркеры/i })
     fireEvent.click(generateButton)
-    
+
     expect(screen.getByText("Создание...")).toBeInTheDocument()
     expect(screen.getByRole("progressbar")).toBeInTheDocument()
-    
+
     // Check that progress bar is visible during generation
     expect(screen.getByRole("progressbar")).toBeInTheDocument()
   })
 
   it("disables generate button when analyzing", () => {
     mockAnalysisState.isAnalyzing = true
-    
+
     render(<AIMarkerControls />)
-    
+
     const generateButton = screen.getByRole("button", { name: /AI Маркеры/i })
     expect(generateButton).toBeDisabled()
   })
 
   it("opens settings modal", () => {
     render(<AIMarkerControls />)
-    
+
     const settingsButton = screen.getByRole("button", { name: /settings/i })
     fireEvent.click(settingsButton)
-    
+
     expect(mockOpenModal).toHaveBeenCalledWith("ai-marker-settings", {
       config: expect.objectContaining({
         createSceneMarkers: true,
@@ -194,10 +194,10 @@ describe("AIMarkerControls", () => {
 
   it("updates marker service config when settings are saved", () => {
     render(<AIMarkerControls />)
-    
+
     const settingsButton = screen.getByRole("button", { name: /settings/i })
     fireEvent.click(settingsButton)
-    
+
     const { onSave } = mockOpenModal.mock.calls[0][1]
     const newConfig = {
       createSceneMarkers: false,
@@ -210,9 +210,9 @@ describe("AIMarkerControls", () => {
       groupNearbyMarkers: false,
       groupingThreshold: 1,
     }
-    
+
     onSave(newConfig)
-    
+
     expect(mockUpdateConfig).toHaveBeenCalledWith(newConfig)
   })
 
@@ -221,18 +221,18 @@ describe("AIMarkerControls", () => {
     mockCreateMarkersFromKeyMoments.mockImplementation(() => {
       throw new Error("Generation failed")
     })
-    
+
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
-    
+
     render(<AIMarkerControls />)
-    
+
     const generateButton = screen.getByRole("button", { name: /AI Маркеры/i })
     fireEvent.click(generateButton)
-    
+
     await waitFor(() => {
       expect(screen.getByText("Ошибка при создании маркеров")).toBeInTheDocument()
     })
-    
+
     expect(consoleSpy).toHaveBeenCalledWith("Failed to generate markers:", expect.any(Error))
     consoleSpy.mockRestore()
   })
@@ -241,12 +241,12 @@ describe("AIMarkerControls", () => {
     mockAnalysisState.keyMoments = [{ time: 10 }]
     mockCreateMarkersFromKeyMoments.mockReturnValue([{ id: "marker1", time: 10 }])
     mockGroupNearbyMarkers.mockImplementation((markers) => markers)
-    
+
     render(<AIMarkerControls />)
-    
+
     const generateButton = screen.getByRole("button", { name: /AI Маркеры/i })
     fireEvent.click(generateButton)
-    
+
     // Check that marker was created
     expect(mockCreateMarkersFromKeyMoments).toHaveBeenCalled()
     expect(mockSend).toHaveBeenCalledWith({ type: "ADD_MARKER", marker: { id: "marker1", time: 10 } })
@@ -254,10 +254,10 @@ describe("AIMarkerControls", () => {
 
   it("opens settings with current config", async () => {
     render(<AIMarkerControls />)
-    
+
     const settingsButton = screen.getByRole("button", { name: /settings/i })
     fireEvent.click(settingsButton)
-    
+
     expect(mockOpenModal).toHaveBeenCalledWith("ai-marker-settings", {
       config: expect.objectContaining({
         createSceneMarkers: true,
@@ -279,23 +279,21 @@ describe("AIMarkerControls", () => {
       { time: 10, type: "action" },
       { time: 11, type: "emotion" },
     ]
-    
+
     const mockMarkers = [
       { id: "marker1", time: 10, label: "Marker 1" },
       { id: "marker2", time: 11, label: "Marker 2" },
     ]
-    const mockGroupedMarkers = [
-      { id: "grouped1", time: 10.5, label: "Grouped Marker" },
-    ]
-    
+    const mockGroupedMarkers = [{ id: "grouped1", time: 10.5, label: "Grouped Marker" }]
+
     mockCreateMarkersFromKeyMoments.mockReturnValue(mockMarkers)
     mockGroupNearbyMarkers.mockReturnValue(mockGroupedMarkers)
-    
+
     render(<AIMarkerControls />)
-    
+
     const generateButton = screen.getByRole("button", { name: /AI Маркеры/i })
     fireEvent.click(generateButton)
-    
+
     await waitFor(() => {
       expect(mockGroupNearbyMarkers).toHaveBeenCalledWith(mockMarkers)
       expect(mockSend).toHaveBeenCalledWith({ type: "ADD_MARKER", marker: mockGroupedMarkers[0] })
@@ -305,7 +303,7 @@ describe("AIMarkerControls", () => {
 
   it("handles className prop", () => {
     const { container } = render(<AIMarkerControls className="custom-class" />)
-    
+
     expect(container.firstChild).toHaveClass("custom-class")
   })
 
@@ -313,15 +311,15 @@ describe("AIMarkerControls", () => {
     mockAnalysisState.keyMoments = [{ time: 10 }]
     mockCreateMarkersFromKeyMoments.mockReturnValue([{ id: "marker1", time: 10 }])
     mockGroupNearbyMarkers.mockImplementation((markers) => markers)
-    
+
     render(<AIMarkerControls />)
-    
+
     const generateButton = screen.getByRole("button", { name: /AI Маркеры/i })
     fireEvent.click(generateButton)
-    
+
     // Progress should be visible during generation
     expect(screen.getByRole("progressbar")).toBeInTheDocument()
-    
+
     // Check that progress bar is visible during generation
     expect(screen.getByRole("progressbar")).toBeInTheDocument()
   })

@@ -14,7 +14,7 @@ vi.mock("@/components/ui/slider", () => ({
     <input
       type="range"
       value={value?.[0] || 0}
-      onChange={(e) => onValueChange?.([parseFloat(e.target.value)])}
+      onChange={(e) => onValueChange?.([Number.parseFloat(e.target.value)])}
       min={min}
       max={max}
       step={step}
@@ -27,7 +27,7 @@ vi.mock("@/components/ui/slider", () => ({
 describe("MidiMappingEditor", () => {
   const mockOnSave = vi.fn()
   const mockOnClose = vi.fn()
-  
+
   const defaultMapping: MidiMapping = {
     id: "mapping-1",
     deviceId: "device-1",
@@ -59,21 +59,21 @@ describe("MidiMappingEditor", () => {
   describe("Rendering", () => {
     it("should render dialog when open", () => {
       render(<MidiMappingEditor {...defaultProps} />)
-      
+
       expect(screen.getByRole("dialog")).toBeInTheDocument()
       expect(screen.getByText("fairlightAudio.midi.mappingEditor.title")).toBeInTheDocument()
     })
 
     it("should display mapping information", () => {
       render(<MidiMappingEditor {...defaultProps} />)
-      
+
       expect(screen.getByText("channel.1.volume")).toBeInTheDocument()
       expect(screen.getByText("CC CC7 CH1")).toBeInTheDocument()
     })
 
     it("should display all controls", () => {
       render(<MidiMappingEditor {...defaultProps} />)
-      
+
       expect(screen.getByText("fairlightAudio.midi.mappingEditor.minimumValue")).toBeInTheDocument()
       expect(screen.getByText("fairlightAudio.midi.mappingEditor.maximumValue")).toBeInTheDocument()
       expect(screen.getByText("fairlightAudio.midi.mappingEditor.responseCurve")).toBeInTheDocument()
@@ -87,14 +87,14 @@ describe("MidiMappingEditor", () => {
         max: 0.75,
         curve: "exponential" as const,
       }
-      
+
       render(<MidiMappingEditor {...defaultProps} mapping={mapping} />)
-      
+
       expect(screen.getByText("0.25")).toBeInTheDocument()
       expect(screen.getByText("0.75")).toBeInTheDocument()
-      
+
       // With real Radix UI, we can't easily check select value
-      expect(screen.getByRole('combobox')).toBeInTheDocument()
+      expect(screen.getByRole("combobox")).toBeInTheDocument()
     })
 
     it("should handle note type messages", () => {
@@ -103,9 +103,9 @@ describe("MidiMappingEditor", () => {
         messageType: "noteon" as const,
         controller: undefined,
       }
-      
+
       render(<MidiMappingEditor {...defaultProps} mapping={mapping} />)
-      
+
       expect(screen.getByText("NOTEON CH1")).toBeInTheDocument()
     })
 
@@ -114,9 +114,9 @@ describe("MidiMappingEditor", () => {
         ...defaultMapping,
         channel: undefined,
       }
-      
+
       render(<MidiMappingEditor {...defaultProps} mapping={mapping} />)
-      
+
       expect(screen.getByText("CC CC7")).toBeInTheDocument()
     })
   })
@@ -124,16 +124,16 @@ describe("MidiMappingEditor", () => {
   describe("Value Editing", () => {
     it("should update minimum value", () => {
       render(<MidiMappingEditor {...defaultProps} />)
-      
+
       // With real Radix UI sliders, we can't easily simulate changes
       // Just verify the slider exists
-      const sliders = screen.getAllByRole('slider')
+      const sliders = screen.getAllByRole("slider")
       expect(sliders).toHaveLength(2) // Min and max sliders
     })
 
     it("should update maximum value", () => {
       render(<MidiMappingEditor {...defaultProps} />)
-      
+
       // With real Radix UI sliders, we can't easily simulate changes
       // Just verify the elements exist
       expect(screen.getByText("1.00")).toBeInTheDocument() // Default max value
@@ -141,7 +141,7 @@ describe("MidiMappingEditor", () => {
 
     it("should handle boundary values", () => {
       render(<MidiMappingEditor {...defaultProps} />)
-      
+
       // Just verify default boundary values are displayed
       expect(screen.getByText("0.00")).toBeInTheDocument()
       expect(screen.getByText("1.00")).toBeInTheDocument()
@@ -149,38 +149,38 @@ describe("MidiMappingEditor", () => {
 
     it("should update curve type", () => {
       render(<MidiMappingEditor {...defaultProps} />)
-      
+
       // With real Radix UI, we can't easily test select interactions
       // Just verify the select exists
-      expect(screen.getByRole('combobox')).toBeInTheDocument()
+      expect(screen.getByRole("combobox")).toBeInTheDocument()
     })
   })
 
   describe("Curve Preview", () => {
     it("should render SVG curve", () => {
       render(<MidiMappingEditor {...defaultProps} />)
-      
+
       // With real Radix UI Dialog, SVG is rendered in a portal
       const svg = document.querySelector("svg")
       expect(svg).toBeInTheDocument()
       // SVG might have different viewBox due to Radix UI styling
       expect(svg?.tagName.toLowerCase()).toBe("svg")
-      
+
       const path = document.querySelector('path[stroke="rgb(59, 130, 246)"]')
       expect(path).toBeInTheDocument()
     })
 
     it("should render grid lines", () => {
       render(<MidiMappingEditor {...defaultProps} />)
-      
+
       // With real Radix UI Dialog, content is rendered in a portal
-      const gridLines = document.querySelectorAll('g.stroke-zinc-800 line')
+      const gridLines = document.querySelectorAll("g.stroke-zinc-800 line")
       expect(gridLines).toHaveLength(2)
     })
 
     it("should render min/max indicators", () => {
       render(<MidiMappingEditor {...defaultProps} />)
-      
+
       // With real Radix UI Dialog, content is rendered in a portal
       const circles = document.querySelectorAll('circle[fill="rgb(59, 130, 246)"]')
       expect(circles).toHaveLength(2)
@@ -188,7 +188,7 @@ describe("MidiMappingEditor", () => {
 
     it("should update indicators when values change", () => {
       render(<MidiMappingEditor {...defaultProps} />)
-      
+
       // With real Radix UI, we can't easily simulate slider changes
       // Just verify the indicators exist at default positions
       const circles = document.querySelectorAll("circle")
@@ -201,12 +201,12 @@ describe("MidiMappingEditor", () => {
   describe("Dialog Actions", () => {
     it("should save changes", () => {
       render(<MidiMappingEditor {...defaultProps} />)
-      
+
       // With real Radix UI, we can't easily test slider changes
       // Just test that save button exists and is clickable
       const saveButton = screen.getByText("fairlightAudio.midi.mappingEditor.saveChanges")
       fireEvent.click(saveButton)
-      
+
       expect(mockOnSave).toHaveBeenCalledWith({
         min: 0,
         max: 1,
@@ -216,18 +216,18 @@ describe("MidiMappingEditor", () => {
 
     it("should close dialog on cancel", () => {
       render(<MidiMappingEditor {...defaultProps} />)
-      
+
       const cancelButton = screen.getByText("fairlightAudio.midi.mappingEditor.cancel")
       fireEvent.click(cancelButton)
-      
+
       expect(mockOnClose).toHaveBeenCalled()
     })
 
     it("should close dialog when clicking outside", () => {
       render(<MidiMappingEditor {...defaultProps} />)
-      
+
       // With real Radix UI, the Dialog component handles outside clicks
-      // Since we pass open={true} and onOpenChange={onClose}, 
+      // Since we pass open={true} and onOpenChange={onClose},
       // the component should call onClose when the user tries to close it
       // However, testing this with real Radix UI is complex
       // Just verify the dialog is rendered correctly
@@ -237,12 +237,12 @@ describe("MidiMappingEditor", () => {
 
     it("should save all changes including curve", () => {
       render(<MidiMappingEditor {...defaultProps} />)
-      
+
       // With real Radix UI, we can't easily test form changes
       // Just test save button functionality with default values
       const saveButton = screen.getByText("fairlightAudio.midi.mappingEditor.saveChanges")
       fireEvent.click(saveButton)
-      
+
       expect(mockOnSave).toHaveBeenCalledWith({
         min: 0,
         max: 1,
@@ -254,19 +254,19 @@ describe("MidiMappingEditor", () => {
   describe("Curve Path Generation", () => {
     it("should generate different paths for different curves", () => {
       const { rerender } = render(<MidiMappingEditor {...defaultProps} />)
-      
+
       const linearPath = document.querySelector("path")?.getAttribute("d")
-      
+
       // Change to exponential
       const exponentialMapping = { ...defaultMapping, curve: "exponential" as const }
       rerender(<MidiMappingEditor {...defaultProps} mapping={exponentialMapping} />)
       const exponentialPath = document.querySelector("path")?.getAttribute("d")
-      
+
       // Change to logarithmic
       const logarithmicMapping = { ...defaultMapping, curve: "logarithmic" as const }
       rerender(<MidiMappingEditor {...defaultProps} mapping={logarithmicMapping} />)
       const logarithmicPath = document.querySelector("path")?.getAttribute("d")
-      
+
       // Paths should be different (but we can't test exact values due to floating point)
       expect(linearPath).toBeTruthy()
       expect(exponentialPath).toBeTruthy()
@@ -279,12 +279,12 @@ describe("MidiMappingEditor", () => {
         min: 0,
         max: 0,
       }
-      
+
       render(<MidiMappingEditor {...defaultProps} mapping={mapping} />)
-      
+
       const path = document.querySelector("path")
       expect(path).toBeInTheDocument()
-      
+
       // Both indicators should be at bottom
       const circles = document.querySelectorAll("circle")
       expect(circles[0]).toHaveAttribute("cy", "100")
@@ -295,25 +295,25 @@ describe("MidiMappingEditor", () => {
   describe("State Management", () => {
     it("should maintain separate state from props", () => {
       const { rerender } = render(<MidiMappingEditor {...defaultProps} />)
-      
+
       // With real Radix UI, we can't easily test state changes
       // Just verify component renders consistently
       expect(screen.getByText("0.00")).toBeInTheDocument()
-      
+
       // Re-render with same props
       rerender(<MidiMappingEditor {...defaultProps} />)
-      
+
       // Should still show initial value
       expect(screen.getByText("0.00")).toBeInTheDocument()
     })
 
     it("should reset state when mapping changes", () => {
       const { rerender } = render(<MidiMappingEditor {...defaultProps} />)
-      
+
       // Initial values
       expect(screen.getByText("0.00")).toBeInTheDocument()
       expect(screen.getByText("1.00")).toBeInTheDocument()
-      
+
       // Note: The MidiMappingEditor component doesn't reset state when mapping changes
       // This is because it uses useState with initial values, not useEffect to watch for changes
       // This test documents the current behavior
@@ -323,9 +323,9 @@ describe("MidiMappingEditor", () => {
         min: 0.1,
         max: 0.9,
       }
-      
+
       rerender(<MidiMappingEditor {...defaultProps} mapping={newMapping} />)
-      
+
       // State persists from previous render (doesn't update to new mapping values)
       expect(screen.getByText("0.00")).toBeInTheDocument() // Still shows old value
       expect(screen.getByText("1.00")).toBeInTheDocument() // Max unchanged

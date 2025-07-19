@@ -5,7 +5,7 @@ describe("Modal Machine", () => {
   it("should validate modal machine states", () => {
     const modalStates = {
       CLOSED: "closed",
-      OPENED: "opened"
+      OPENED: "opened",
     }
 
     expect(modalStates.CLOSED).toBe("closed")
@@ -16,7 +16,7 @@ describe("Modal Machine", () => {
     const initialContext = {
       modalType: "none",
       modalData: null,
-      previousModal: null
+      previousModal: null,
     }
 
     expect(initialContext.modalType).toBe("none")
@@ -27,8 +27,8 @@ describe("Modal Machine", () => {
   it("should validate modal machine events", () => {
     const events = {
       OPEN_MODAL: "OPEN_MODAL",
-      CLOSE_MODAL: "CLOSE_MODAL", 
-      SUBMIT_MODAL: "SUBMIT_MODAL"
+      CLOSE_MODAL: "CLOSE_MODAL",
+      SUBMIT_MODAL: "SUBMIT_MODAL",
     }
 
     expect(events.OPEN_MODAL).toBe("OPEN_MODAL")
@@ -38,7 +38,7 @@ describe("Modal Machine", () => {
 
   it("should handle modal type transitions", () => {
     let currentModalType = "none"
-    
+
     const openModal = (type: string) => {
       currentModalType = type
     }
@@ -48,13 +48,13 @@ describe("Modal Machine", () => {
     }
 
     expect(currentModalType).toBe("none")
-    
+
     openModal("export")
     expect(currentModalType).toBe("export")
-    
+
     openModal("user-settings")
     expect(currentModalType).toBe("user-settings")
-    
+
     closeModal()
     expect(currentModalType).toBe("none")
   })
@@ -62,7 +62,7 @@ describe("Modal Machine", () => {
   it("should handle modal data management", () => {
     const modalData = {
       current: null,
-      previous: null
+      previous: null,
     }
 
     const setModalData = (data: any) => {
@@ -75,10 +75,10 @@ describe("Modal Machine", () => {
     }
 
     expect(modalData.current).toBeNull()
-    
+
     setModalData({ id: 1, title: "Test" })
     expect(modalData.current).toEqual({ id: 1, title: "Test" })
-    
+
     clearModalData()
     expect(modalData.current).toBeNull()
     expect(modalData.previous).toEqual({ id: 1, title: "Test" })
@@ -86,7 +86,7 @@ describe("Modal Machine", () => {
 
   it("should handle modal navigation with returnTo", () => {
     const modalStack = []
-    
+
     const openModal = (type: string, returnTo?: string) => {
       if (returnTo) {
         modalStack.push({ type, returnTo })
@@ -99,7 +99,7 @@ describe("Modal Machine", () => {
       const current = modalStack.pop()
       if (current && current.returnTo) {
         // Find and remove the returnTo modal from stack if it exists
-        const returnToIndex = modalStack.findIndex(modal => modal.type === current.returnTo)
+        const returnToIndex = modalStack.findIndex((modal) => modal.type === current.returnTo)
         if (returnToIndex !== -1) {
           modalStack.splice(returnToIndex, 1)
         }
@@ -109,15 +109,15 @@ describe("Modal Machine", () => {
     }
 
     expect(modalStack.length).toBe(0)
-    
+
     openModal("user-settings")
     expect(modalStack.length).toBe(1)
     expect(modalStack[0].type).toBe("user-settings")
-    
+
     openModal("cache-settings", "user-settings")
     expect(modalStack.length).toBe(2)
     expect(modalStack[1].type).toBe("cache-settings")
-    
+
     closeModal()
     expect(modalStack.length).toBe(1)
     expect(modalStack[0].type).toBe("user-settings")
@@ -131,7 +131,7 @@ describe("Modal Machine", () => {
       "project-settings",
       "keyboard-shortcuts",
       "cache-settings",
-      "missing-files"
+      "missing-files",
     ]
 
     expect(validModalTypes).toContain("none")

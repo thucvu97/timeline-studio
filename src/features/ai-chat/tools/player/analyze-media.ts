@@ -7,6 +7,7 @@ import { getCurrentMedia, parseFps } from "./utils/helpers"
 import type { MediaAnalysisParams, PlayerToolResult } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
 
+
 export const analyzeCurrentMediaTool: ClaudeTool = {
   name: "analyze_current_media",
   description: "Анализирует текущее медиа в плеере и его характеристики",

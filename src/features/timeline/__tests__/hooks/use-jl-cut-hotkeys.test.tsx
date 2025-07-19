@@ -119,7 +119,6 @@ describe("useJLCutHotkeys", () => {
     vi.clearAllMocks()
     // Очищаем обработчики
     Object.keys(hotkeyHandlers).forEach((key) => {
-       
       delete hotkeyHandlers[key]
     })
 

@@ -1,18 +1,18 @@
-import { renderHook, act, waitFor } from "@testing-library/react"
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest"
+import { act, renderHook, waitFor } from "@testing-library/react"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { BaseProviders } from "@/test/test-utils"
 
 import { usePersonIdentification } from "../../hooks/use-person-identification"
 
-import type { PersonProfile, DetectedFace } from "../../types/person"
+import type { DetectedFace, PersonProfile } from "../../types/person"
 
 // Mock SceneAnalysisEngine
 const mockDetectPersons = vi.fn()
 vi.mock("../../../ai-content-intelligence/engines/scene-analysis/services/scene-analysis-engine", () => ({
   SceneAnalysisEngine: vi.fn().mockImplementation(() => ({
-    detectPersons: mockDetectPersons
-  }))
+    detectPersons: mockDetectPersons,
+  })),
 }))
 
 // Mock PersonDatabaseService methods
@@ -31,9 +31,9 @@ vi.mock("../../services/person-database-service", () => ({
       updatePerson: mockUpdatePerson,
       deletePerson: mockDeletePerson,
       searchPersons: mockSearchPersons,
-      findSimilarPersons: mockFindSimilarPersons
-    }))
-  }
+      findSimilarPersons: mockFindSimilarPersons,
+    })),
+  },
 }))
 
 const createMockPerson = (overrides?: Partial<PersonProfile>): PersonProfile => ({
@@ -52,11 +52,11 @@ const createMockPerson = (overrides?: Partial<PersonProfile>): PersonProfile => 
     hideFromSearch: false,
     anonymize: false,
     blurIntensity: 5,
-    blurTracking: true
+    blurTracking: true,
   },
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
-  ...overrides
+  ...overrides,
 })
 
 const createMockDetectedFace = (overrides?: Partial<DetectedFace>): DetectedFace => ({
@@ -65,7 +65,7 @@ const createMockDetectedFace = (overrides?: Partial<DetectedFace>): DetectedFace
   confidence: 0.95,
   landmarks: {
     points: [],
-    quality: 0.9
+    quality: 0.9,
   },
   blur: 0.1,
   occlusion: 0.05,
@@ -73,7 +73,7 @@ const createMockDetectedFace = (overrides?: Partial<DetectedFace>): DetectedFace
   frameNumber: 100,
   timestamp: { seconds: 10 },
   clipId: "clip-1",
-  ...overrides
+  ...overrides,
 })
 
 describe("usePersonIdentification Extended Tests", () => {
@@ -88,7 +88,7 @@ describe("usePersonIdentification Extended Tests", () => {
 
   it("should initialize with empty state", async () => {
     const { result } = renderHook(() => usePersonIdentification(), {
-      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>
+      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>,
     })
 
     expect(result.current.persons).toEqual([])
@@ -103,12 +103,12 @@ describe("usePersonIdentification Extended Tests", () => {
   it("should load persons on mount", async () => {
     const mockPersons = [
       createMockPerson({ id: "person-1", name: "John" }),
-      createMockPerson({ id: "person-2", name: "Jane" })
+      createMockPerson({ id: "person-2", name: "Jane" }),
     ]
     mockGetAllPersons.mockResolvedValue(mockPersons)
 
     const { result } = renderHook(() => usePersonIdentification(), {
-      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>
+      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>,
     })
 
     await waitFor(() => {
@@ -126,7 +126,7 @@ describe("usePersonIdentification Extended Tests", () => {
     mockGetAllPersons.mockRejectedValue(new Error("Database error"))
 
     const { result } = renderHook(() => usePersonIdentification(), {
-      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>
+      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>,
     })
 
     await waitFor(() => {
@@ -141,7 +141,7 @@ describe("usePersonIdentification Extended Tests", () => {
     mockGetAllPersons.mockResolvedValue([newPerson])
 
     const { result } = renderHook(() => usePersonIdentification(), {
-      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>
+      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>,
     })
 
     let addedPerson: PersonProfile | null = null
@@ -149,7 +149,7 @@ describe("usePersonIdentification Extended Tests", () => {
       addedPerson = await result.current.addPerson({
         name: "New Person",
         description: "Test description",
-        tags: ["test"]
+        tags: ["test"],
       })
     })
 
@@ -157,7 +157,7 @@ describe("usePersonIdentification Extended Tests", () => {
     expect(mockAddPerson).toHaveBeenCalledWith({
       name: "New Person",
       description: "Test description",
-      tags: ["test"]
+      tags: ["test"],
     })
 
     await waitFor(() => {
@@ -165,7 +165,7 @@ describe("usePersonIdentification Extended Tests", () => {
     })
   })
 
-  // Skipping error state test - timing issues  
+  // Skipping error state test - timing issues
   it.skip("should handle add person errors", async () => {
     // Test removed due to timing issues
   })
@@ -176,7 +176,7 @@ describe("usePersonIdentification Extended Tests", () => {
     mockUpdatePerson.mockResolvedValue(undefined)
 
     const { result } = renderHook(() => usePersonIdentification(), {
-      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>
+      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>,
     })
 
     await act(async () => {
@@ -191,7 +191,7 @@ describe("usePersonIdentification Extended Tests", () => {
     mockGetAllPersons.mockResolvedValue([])
 
     const { result } = renderHook(() => usePersonIdentification(), {
-      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>
+      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>,
     })
 
     await act(async () => {
@@ -206,7 +206,7 @@ describe("usePersonIdentification Extended Tests", () => {
     mockSearchPersons.mockResolvedValue(searchResults)
 
     const { result } = renderHook(() => usePersonIdentification(), {
-      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>
+      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>,
     })
 
     let results: PersonProfile[] = []
@@ -223,7 +223,7 @@ describe("usePersonIdentification Extended Tests", () => {
     mockDetectPersons.mockResolvedValue(mockFaces)
 
     const { result } = renderHook(() => usePersonIdentification(), {
-      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>
+      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>,
     })
 
     let faces: DetectedFace[] = []
@@ -237,12 +237,10 @@ describe("usePersonIdentification Extended Tests", () => {
 
   it("should identify person from face", async () => {
     const mockPerson = createMockPerson()
-    mockFindSimilarPersons.mockResolvedValue([
-      { person: mockPerson, similarity: 0.9 }
-    ])
+    mockFindSimilarPersons.mockResolvedValue([{ person: mockPerson, similarity: 0.9 }])
 
     const { result } = renderHook(() => usePersonIdentification(), {
-      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>
+      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>,
     })
 
     const face = createMockDetectedFace()
@@ -261,7 +259,7 @@ describe("usePersonIdentification Extended Tests", () => {
     mockFindSimilarPersons.mockResolvedValue([])
 
     const { result } = renderHook(() => usePersonIdentification(), {
-      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>
+      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>,
     })
 
     const face = createMockDetectedFace()
@@ -280,7 +278,7 @@ describe("usePersonIdentification Extended Tests", () => {
     mockGetAllPersons.mockResolvedValue([newPerson])
 
     const { result } = renderHook(() => usePersonIdentification(), {
-      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>
+      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>,
     })
 
     const face = createMockDetectedFace()
@@ -290,7 +288,7 @@ describe("usePersonIdentification Extended Tests", () => {
       createdPerson = await result.current.createPersonFromFace(face, {
         name: "From Face",
         description: "Created from face",
-        tags: ["auto"]
+        tags: ["auto"],
       })
     })
 
@@ -300,7 +298,7 @@ describe("usePersonIdentification Extended Tests", () => {
       description: "Created from face",
       tags: ["auto"],
       detectedFaces: [face],
-      thumbnailPath: undefined
+      thumbnailPath: undefined,
     })
   })
 
@@ -310,7 +308,7 @@ describe("usePersonIdentification Extended Tests", () => {
     mockUpdatePerson.mockResolvedValue(undefined)
 
     const { result } = renderHook(() => usePersonIdentification(), {
-      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>
+      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>,
     })
 
     await waitFor(() => {
@@ -328,10 +326,10 @@ describe("usePersonIdentification Extended Tests", () => {
         appearances: expect.arrayContaining([
           expect.objectContaining({
             personId: "person-1",
-            detections: [face]
-          })
-        ])
-      })
+            detections: [face],
+          }),
+        ]),
+      }),
     )
   })
 
@@ -342,7 +340,7 @@ describe("usePersonIdentification Extended Tests", () => {
 
   it("should analyze video for persons", async () => {
     const { result } = renderHook(() => usePersonIdentification(), {
-      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>
+      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>,
     })
 
     const onProgress = vi.fn()
@@ -352,7 +350,7 @@ describe("usePersonIdentification Extended Tests", () => {
       appearances = await result.current.analyzeVideoForPersons("/video.mp4", {
         interval: 1,
         confidenceThreshold: 0.8,
-        onProgress
+        onProgress,
       })
     })
 
@@ -362,7 +360,7 @@ describe("usePersonIdentification Extended Tests", () => {
 
   it("should cluster unknown faces", async () => {
     const { result } = renderHook(() => usePersonIdentification(), {
-      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>
+      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>,
     })
 
     const faces = [createMockDetectedFace()]
@@ -381,7 +379,7 @@ describe("usePersonIdentification Extended Tests", () => {
         id: "person-1",
         faceEmbeddings: [
           { faceId: "e1", vector: new Float32Array(), quality: 0.9, timestamp: { seconds: 0 }, frameNumber: 0 },
-          { faceId: "e2", vector: new Float32Array(), quality: 0.8, timestamp: { seconds: 0 }, frameNumber: 100 }
+          { faceId: "e2", vector: new Float32Array(), quality: 0.8, timestamp: { seconds: 0 }, frameNumber: 100 },
         ],
         appearances: [
           {
@@ -395,23 +393,23 @@ describe("usePersonIdentification Extended Tests", () => {
             minConfidence: 0.9,
             maxConfidence: 0.9,
             detections: [],
-            createdAt: new Date().toISOString()
-          }
-        ]
+            createdAt: new Date().toISOString(),
+          },
+        ],
       }),
       createMockPerson({
         id: "person-2",
         faceEmbeddings: [
-          { faceId: "e3", vector: new Float32Array(), quality: 0.9, timestamp: { seconds: 0 }, frameNumber: 200 }
+          { faceId: "e3", vector: new Float32Array(), quality: 0.9, timestamp: { seconds: 0 }, frameNumber: 200 },
         ],
-        appearances: []
-      })
+        appearances: [],
+      }),
     ]
 
     mockGetAllPersons.mockResolvedValue(persons)
 
     const { result } = renderHook(() => usePersonIdentification(), {
-      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>
+      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>,
     })
 
     await waitFor(() => {
@@ -430,7 +428,7 @@ describe("usePersonIdentification Extended Tests", () => {
     mockGetAllPersons.mockRejectedValue(new Error("Test error"))
 
     const { result } = renderHook(() => usePersonIdentification(), {
-      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>
+      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>,
     })
 
     await waitFor(() => {
@@ -450,17 +448,17 @@ describe("usePersonIdentification Extended Tests", () => {
     mockGetAllPersons.mockResolvedValue([])
 
     const { result } = renderHook(() => usePersonIdentification({ autoSave: false }), {
-      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>
+      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>,
     })
 
     // Wait for initial load to complete
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false)
     })
-    
+
     // Clear all mocks and track new calls
     const initialCallCount = mockGetAllPersons.mock.calls.length
-    
+
     await act(async () => {
       await result.current.addPerson({ name: "Test" })
     })
@@ -473,7 +471,7 @@ describe("usePersonIdentification Extended Tests", () => {
     mockFindSimilarPersons.mockResolvedValue([])
 
     const { result } = renderHook(() => usePersonIdentification({ confidenceThreshold: 0.9 }), {
-      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>
+      wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>,
     })
 
     const face = createMockDetectedFace()
@@ -481,9 +479,6 @@ describe("usePersonIdentification Extended Tests", () => {
       await result.current.identifyPerson(face)
     })
 
-    expect(mockFindSimilarPersons).toHaveBeenCalledWith(
-      undefined,
-      expect.objectContaining({ minConfidence: 0.9 })
-    )
+    expect(mockFindSimilarPersons).toHaveBeenCalledWith(undefined, expect.objectContaining({ minConfidence: 0.9 }))
   })
 })

@@ -31,9 +31,12 @@ interface RouteItemProps {
 function RouteItem({ route, onUpdate, onDelete, devices }: RouteItemProps) {
   const { t } = useTranslation()
   const getRouteIcon = () => {
-    if (route.processors.some((p) => p.type === "split")) return <GitBranch className="w-4 h-4" data-testid="git-branch-icon" />
-    if (route.processors.some((p) => p.type === "filter")) return <Filter className="w-4 h-4" data-testid="filter-icon" />
-    if (route.processors.some((p) => p.type === "transform")) return <Shuffle className="w-4 h-4" data-testid="shuffle-icon" />
+    if (route.processors.some((p) => p.type === "split"))
+      return <GitBranch className="w-4 h-4" data-testid="git-branch-icon" />
+    if (route.processors.some((p) => p.type === "filter"))
+      return <Filter className="w-4 h-4" data-testid="filter-icon" />
+    if (route.processors.some((p) => p.type === "transform"))
+      return <Shuffle className="w-4 h-4" data-testid="shuffle-icon" />
     return <ArrowRight className="w-4 h-4" data-testid="arrow-right-icon" />
   }
 

@@ -229,9 +229,8 @@ export class YoloDataService {
    * @param videoId ID видео
    */
   public clearVideoCache(videoId: string): void {
-     
     delete this.yoloDataCache[videoId]
-     
+
     delete this.nonExistentFiles[videoId]
   }
 
@@ -268,7 +267,6 @@ export class YoloDataService {
 
     // Убираем из списка несуществующих файлов
     if (this.nonExistentFiles[videoId]) {
-       
       delete this.nonExistentFiles[videoId]
     }
 

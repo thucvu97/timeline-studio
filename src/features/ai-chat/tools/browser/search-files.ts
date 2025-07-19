@@ -7,6 +7,7 @@ import { findFilesByPattern, getBrowserFiles, getBrowserStateAccess, hasBrowserA
 import type { BrowserToolResult, SearchMediaParams } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
 
+
 export const searchMediaFilesTool: ClaudeTool = {
   name: "search_media_files",
   description: "Выполняет поиск медиафайлов в браузере по различным критериям",

@@ -13,10 +13,15 @@ import {
   removeResourceFromPool,
   removeResourceFromPoolTool,
   updateResourceParameters,
-  updateResourceParametersTool
+  updateResourceParametersTool,
 } from "./manage-resources"
 import { suggestComplementaryResources, suggestComplementaryResourcesTool } from "./suggest-resources"
-import { cleanupUnusedResources, cleanupUnusedResourcesTool, getResourceUsageStats, getResourceUsageStatsTool } from "./usage-stats"
+import {
+  cleanupUnusedResources,
+  cleanupUnusedResourcesTool,
+  getResourceUsageStats,
+  getResourceUsageStatsTool,
+} from "./usage-stats"
 
 import type { ResourceToolResult } from "./types"
 

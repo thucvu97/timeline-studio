@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach } from "vitest"
+import { beforeEach, describe, expect, it } from "vitest"
 
 import { MidiFile } from "../midi-file"
 
@@ -15,11 +15,20 @@ describe("MidiFile", () => {
     it("should parse a valid MIDI file header", async () => {
       // Create a minimal MIDI file with header
       const header = new Uint8Array([
-        0x4d, 0x54, 0x68, 0x64, // MThd
-        0x00, 0x00, 0x00, 0x06, // Header length (6 bytes)
-        0x00, 0x01, // Format 1
-        0x00, 0x02, // 2 tracks
-        0x01, 0xe0, // 480 ticks per quarter note
+        0x4d,
+        0x54,
+        0x68,
+        0x64, // MThd
+        0x00,
+        0x00,
+        0x00,
+        0x06, // Header length (6 bytes)
+        0x00,
+        0x01, // Format 1
+        0x00,
+        0x02, // 2 tracks
+        0x01,
+        0xe0, // 480 ticks per quarter note
       ])
 
       const buffer = header.buffer
@@ -32,7 +41,7 @@ describe("MidiFile", () => {
 
     it("should throw error for invalid MIDI file", async () => {
       const invalidData = new Uint8Array([0x00, 0x00, 0x00, 0x00])
-      
+
       await expect(midiFile.parse(invalidData.buffer)).rejects.toThrow()
     })
 
@@ -40,19 +49,37 @@ describe("MidiFile", () => {
       // Create MIDI file with header and one track
       const data = new Uint8Array([
         // Header
-        0x4d, 0x54, 0x68, 0x64, // MThd
-        0x00, 0x00, 0x00, 0x06, // Header length
-        0x00, 0x01, // Format 1
-        0x00, 0x01, // 1 track
-        0x00, 0x60, // 96 ticks per quarter note
+        0x4d,
+        0x54,
+        0x68,
+        0x64, // MThd
+        0x00,
+        0x00,
+        0x00,
+        0x06, // Header length
+        0x00,
+        0x01, // Format 1
+        0x00,
+        0x01, // 1 track
+        0x00,
+        0x60, // 96 ticks per quarter note
         // Track
-        0x4d, 0x54, 0x72, 0x6b, // MTrk
-        0x00, 0x00, 0x00, 0x04, // Track length (4 bytes)
-        0x00, 0xff, 0x2f, 0x00, // End of track event
+        0x4d,
+        0x54,
+        0x72,
+        0x6b, // MTrk
+        0x00,
+        0x00,
+        0x00,
+        0x04, // Track length (4 bytes)
+        0x00,
+        0xff,
+        0x2f,
+        0x00, // End of track event
       ])
 
       await midiFile.parse(data.buffer)
-      
+
       const tracks = midiFile.toSequencerTracks()
       expect(tracks).toBeDefined()
       expect(Array.isArray(tracks)).toBe(true)
@@ -104,12 +131,7 @@ describe("MidiFile", () => {
 
       // Verify header
       const view = new DataView(buffer)
-      const headerType = String.fromCharCode(
-        view.getUint8(0),
-        view.getUint8(1),
-        view.getUint8(2),
-        view.getUint8(3)
-      )
+      const headerType = String.fromCharCode(view.getUint8(0), view.getUint8(1), view.getUint8(2), view.getUint8(3))
       expect(headerType).toBe("MThd")
     })
 
@@ -167,7 +189,7 @@ describe("MidiFile", () => {
       }
 
       const buffer = MidiFile.fromSequencerTracks([track], 480)
-      
+
       // Parse it back
       const newFile = new MidiFile()
       return newFile.parse(buffer).then(() => {
@@ -490,15 +512,33 @@ describe("MidiFile", () => {
     it("should handle corrupted track data", async () => {
       const data = new Uint8Array([
         // Header
-        0x4d, 0x54, 0x68, 0x64, // MThd
-        0x00, 0x00, 0x00, 0x06, // Header length
-        0x00, 0x01, // Format 1
-        0x00, 0x01, // 1 track
-        0x00, 0x60, // 96 ticks per quarter note
+        0x4d,
+        0x54,
+        0x68,
+        0x64, // MThd
+        0x00,
+        0x00,
+        0x00,
+        0x06, // Header length
+        0x00,
+        0x01, // Format 1
+        0x00,
+        0x01, // 1 track
+        0x00,
+        0x60, // 96 ticks per quarter note
         // Invalid track (wrong type)
-        0x4d, 0x54, 0x00, 0x00, // Should be MTrk
-        0x00, 0x00, 0x00, 0x04, // Track length
-        0x00, 0xff, 0x2f, 0x00, // End of track
+        0x4d,
+        0x54,
+        0x00,
+        0x00, // Should be MTrk
+        0x00,
+        0x00,
+        0x00,
+        0x04, // Track length
+        0x00,
+        0xff,
+        0x2f,
+        0x00, // End of track
       ])
 
       const newMidiFile = new MidiFile()
@@ -561,7 +601,7 @@ describe("MidiFile", () => {
 
       const buffer = MidiFile.fromSequencerTracks(tracks)
       expect(buffer).toBeInstanceOf(ArrayBuffer)
-      
+
       // File should still be created even with unknown events
       expect(buffer.byteLength).toBeGreaterThan(0)
     })

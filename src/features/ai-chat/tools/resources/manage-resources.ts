@@ -20,6 +20,7 @@ import type {
 } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
 
+
 export const addResourceToPoolTool: ClaudeTool = {
   name: "add_resource_to_pool",
   description: "Добавляет конкретный ресурс в пул ресурсов проекта с указанием причины",

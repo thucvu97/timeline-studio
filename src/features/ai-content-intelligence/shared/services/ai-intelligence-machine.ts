@@ -6,7 +6,12 @@
 import { assign, emit, fromPromise, setup } from "xstate"
 
 import { ProcessingStatus } from "../types"
-import { type IFFmpegAnalysisService, type IUnifiedAIService, getAIService } from "./media-analysis-interface"
+import {
+  type IFFmpegAnalysisService,
+  type IUnifiedAIService,
+  getAIService,
+  getFFmpegService,
+} from "./media-analysis-interface"
 import { ContentType, Emotion } from "../types/content-analysis"
 import { NarrativeType, PaceType } from "../types/script-generation"
 
@@ -454,14 +459,16 @@ export const aiIntelligenceMachine = setup({
         input: ({ context }) => ({
           mediaFiles: context.mediaFiles,
           config: context.config,
-          ffmpegService: IgetFFmpegService(),
+          ffmpegService: getFFmpegService(),
           aiService: getAIService(),
         }),
         onDone: {
           target: "analysisComplete",
           actions: [
             { type: "completeProcessingStep", params: { name: "content_analysis" } },
-            "saveAnalysis",
+            assign({
+              analysis: ({ event }) => event.output,
+            }),
             "emitProgress",
           ],
         },
@@ -527,7 +534,9 @@ export const aiIntelligenceMachine = setup({
           target: "scriptGenerated",
           actions: [
             { type: "completeProcessingStep", params: { name: "script_generation" } },
-            "saveScript",
+            assign({
+              script: ({ event }) => event.output,
+            }),
             "emitProgress",
           ],
         },
@@ -580,7 +589,9 @@ export const aiIntelligenceMachine = setup({
           target: "complete",
           actions: [
             { type: "completeProcessingStep", params: { name: "platform_adaptation" } },
-            "savePlatformContent",
+            assign({
+              platformContent: ({ event }) => event.output,
+            }),
             "emitProgress",
           ],
         },

@@ -8,7 +8,6 @@ import type { TemplateSection, TemplateStructure, TemplateVariable } from "../ty
 
 export class TemplateEngine {
   private templates = new Map<string, ScriptTemplate>()
-  private isInitialized = false
 
   async initialize(): Promise<void> {
     // Загружаем встроенные шаблоны
