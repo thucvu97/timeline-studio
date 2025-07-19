@@ -483,7 +483,7 @@ describe("useAIIntelligence - Basic Tests", () => {
   it("should work with basic mocking", () => {
     // Mock the context to avoid timing issues
     vi.mocked(useAIIntelligenceContext).mockReturnValue({
-      actor: createMockActor(),
+      actor: createMockActor() as any,
     })
 
     const { result } = renderHook(() => useAIIntelligence())
