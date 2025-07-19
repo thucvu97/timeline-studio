@@ -54,6 +54,10 @@ export interface SceneAnalysisResult {
     audioProfile: AudioProfile
   }
   timeline: TimelineData
+  // Интеграция с montage-planner
+  persons?: any[]
+  fragments?: any[]
+  personStats?: any
 }
 
 export interface AudioProfile {

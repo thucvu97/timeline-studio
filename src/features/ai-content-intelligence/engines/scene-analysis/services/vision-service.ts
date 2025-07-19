@@ -1203,7 +1203,7 @@ export class VisionService {
       const imageData = frameData
 
       // Извлекаем доминирующие цвета
-      const dominantColors = this.extractDominantColors(imageData, 5)
+      const dominantColors = this.extractDominantColorsInternal(imageData, 5)
 
       if (dominantColors.length < 2) return 1.0 // Монохром = высокая гармония
 
@@ -1511,7 +1511,7 @@ export class VisionService {
     return size
   }
 
-  private extractDominantColors(
+  private extractDominantColorsInternal(
     imageData: ImageData,
     numColors: number,
   ): Array<{ r: number; g: number; b: number; percentage: number }> {
@@ -1642,5 +1642,41 @@ export class VisionService {
 
     // IoU
     return intersectionArea / unionArea
+  }
+
+  /**
+   * Извлечь доминирующие цвета из изображения (публичный метод)
+   */
+  public extractDominantColors(frameData: ImageData | Uint8Array, numColors = 5): string[] {
+    try {
+      let imageData: ImageData
+      
+      if (frameData instanceof Uint8Array) {
+        // Assume it's a raw pixel array in RGBA format
+        // We need dimensions, so use a square image
+        const pixelCount = frameData.length / 4
+        const size = Math.floor(Math.sqrt(pixelCount))
+        imageData = {
+          data: new Uint8ClampedArray(frameData),
+          width: size,
+          height: size,
+        } as ImageData
+      } else {
+        imageData = frameData
+      }
+
+      const colors = this.extractDominantColorsInternal(imageData, numColors)
+      
+      // Convert to hex strings
+      return colors.map(color => {
+        const r = Math.round(color.r).toString(16).padStart(2, '0')
+        const g = Math.round(color.g).toString(16).padStart(2, '0')
+        const b = Math.round(color.b).toString(16).padStart(2, '0')
+        return `#${r}${g}${b}`.toUpperCase()
+      })
+    } catch (error) {
+      console.error("Failed to extract dominant colors:", error)
+      return []
+    }
   }
 }

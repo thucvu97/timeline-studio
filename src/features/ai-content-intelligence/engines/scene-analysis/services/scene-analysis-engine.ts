@@ -6,10 +6,11 @@
 import { FFmpegAnalysisService } from "@/features/ai-chat/services/ffmpeg-analysis-service"
 import { UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service"
 import type { Person } from "@/features/montage-planner/types"
-import type { DetectedFace, PersonProfile } from "@/features/person-identification/types"
+import type { DetectedFace, PersonProfile } from "@/features/person-identification/types/person"
 
 import {
   ContentType,
+  Emotion,
   Genre,
   KeyMoment,
   KeyMomentType,
@@ -29,6 +30,19 @@ import type {
   TimelineSegment,
   VisualFeatures,
 } from "../types"
+
+// Расширенный тип для content с дополнительными полями
+interface ExtendedContentElements {
+  objects: any[]
+  faces: any[]
+  text: any[]
+  activities: any[]
+  dominantColors: any[]
+  composition: any
+  mood: any
+  identifiedPersons?: Person[]
+  montagePlannerFragment?: any
+}
 
 // Интеграция с montage-planner для работы с персонажами
 
@@ -111,7 +125,7 @@ export class SceneAnalysisEngine extends BaseAIEngine {
       // 6. Агрегируем информацию о персонажах из всех сцен
       const allDetectedPersons = this.getDetectedPersonsForVideo(data.mediaFile.path)
       const fragmentsWithPersons = scenes
-        .map((scene) => scene.content?.montagePlannerFragment)
+        .map((scene) => (scene.content as ExtendedContentElements)?.montagePlannerFragment)
         .filter((fragment) => fragment && fragment.people.length > 0)
 
       // 7. Сборка финального результата
@@ -214,8 +228,8 @@ export class SceneAnalysisEngine extends BaseAIEngine {
     return scenes
   }
 
-  private async analyzeSceneContent(scene: any, mediaFile: MediaFile, config: SceneAnalysisConfig): Promise<any> {
-    const content: any = {
+  private async analyzeSceneContent(scene: any, mediaFile: MediaFile, config: SceneAnalysisConfig): Promise<ExtendedContentElements> {
+    const content: ExtendedContentElements = {
       objects: [],
       faces: [],
       text: [],
@@ -241,11 +255,17 @@ export class SceneAnalysisEngine extends BaseAIEngine {
     }
 
     try {
+      // Вычисляем продолжительность сцены
+      const sceneDuration = scene.endTime - scene.startTime
+      
       // Извлекаем кадры из сцены для анализа
-      const frameCount = Math.min(5, Math.ceil(scene.duration)) // Анализируем до 5 кадров на сцену
-      const frameInterval = scene.duration / frameCount
+      const frameCount = Math.min(5, Math.ceil(sceneDuration)) // Анализируем до 5 кадров на сцену
+      const frameInterval = sceneDuration / frameCount
 
-      for (let i = 0; i < frameCount; i++) {
+      // Анализируем только если есть кадры для анализа
+      const actualFrameCount = frameCount > 0 && sceneDuration > 0 ? frameCount : 0
+      
+      for (let i = 0; i < actualFrameCount; i++) {
         const timestamp = Number(scene.startTime) + i * frameInterval
 
         // Извлекаем кадр через FFmpeg
@@ -268,7 +288,7 @@ export class SceneAnalysisEngine extends BaseAIEngine {
 
       // Извлекаем доминирующие цвета
       if (frameCount > 0) {
-        const middleFrameTimestamp = Number(scene.startTime) + scene.duration / 2
+        const middleFrameTimestamp = Number(scene.startTime) + sceneDuration / 2
         const middleFrame = await this.ffmpegService.extractFrame(mediaFile.path, middleFrameTimestamp)
         if (middleFrame) {
           content.dominantColors = this.visionService.extractDominantColors(middleFrame)
@@ -292,7 +312,7 @@ export class SceneAnalysisEngine extends BaseAIEngine {
       }
 
       // Создаем Fragment в формате montage-planner
-      if (content.identifiedPersons?.length > 0) {
+      if (content.identifiedPersons && content.identifiedPersons.length > 0) {
         const fragment = this.createFragmentFromScene(
           { ...scene, content } as SceneAnalysis,
           mediaFile,
@@ -361,15 +381,15 @@ export class SceneAnalysisEngine extends BaseAIEngine {
   }
 
   private extractSceneQuality(_scene: any, qualityAnalysis: any): QualityMetrics {
-    // Возвращаем качество для сцены
+    // Возвращаем качество для сцены (нормализованное от 0 до 1)
     return {
-      overall: qualityAnalysis?.overall || 75,
-      sharpness: qualityAnalysis?.sharpness || 80,
-      brightness: qualityAnalysis?.brightness || 70,
-      contrast: qualityAnalysis?.contrast || 75,
-      saturation: qualityAnalysis?.saturation || 70,
-      stability: qualityAnalysis?.stability || 85,
-      noise: qualityAnalysis?.noise || 20,
+      overall: (qualityAnalysis?.average || 0.75),
+      sharpness: (qualityAnalysis?.sharpness || 80) / 100,
+      brightness: (qualityAnalysis?.brightness || 70) / 100,
+      contrast: (qualityAnalysis?.contrast || 75) / 100,
+      saturation: (qualityAnalysis?.saturation || 70) / 100,
+      stability: (qualityAnalysis?.stability || 85) / 100,
+      noise: (qualityAnalysis?.noise || 20) / 100,
     }
   }
 
@@ -629,10 +649,19 @@ Format as JSON: { contentType: string, genres: string[], confidence: number }`
           faceEmbeddings: [],
           appearances: [],
           totalScreenTime: 0,
-          averageConfidence: 0.85,
+          firstSeen: { seconds: 0 },
+          lastSeen: { seconds: 120 },
           tags: ["main_character"],
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          thumbnails: [],
+          privacy: {
+            blurFace: false,
+            hideFromSearch: false,
+            anonymize: false,
+            blurIntensity: 5,
+            blurTracking: false,
+          },
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         },
         {
           id: "person-2",
@@ -641,10 +670,19 @@ Format as JSON: { contentType: string, genres: string[], confidence: number }`
           faceEmbeddings: [],
           appearances: [],
           totalScreenTime: 0,
-          averageConfidence: 0.82,
+          firstSeen: { seconds: 0 },
+          lastSeen: { seconds: 120 },
           tags: ["secondary_character"],
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          thumbnails: [],
+          privacy: {
+            blurFace: false,
+            hideFromSearch: false,
+            anonymize: false,
+            blurIntensity: 5,
+            blurTracking: false,
+          },
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         },
       ]
 
@@ -681,7 +719,7 @@ Format as JSON: { contentType: string, genres: string[], confidence: number }`
       if (face.confidence > 0.8) {
         // Высокая уверенность - ищем по профилям
         const profiles = Array.from(this.personProfilesCache.values())
-        const matchedProfile = profiles.find((p) => p.averageConfidence > 0.8)
+        const matchedProfile = profiles.find((p) => p.isVerified)
 
         if (matchedProfile) {
           identifiedPerson = {
@@ -788,13 +826,13 @@ Format as JSON: { contentType: string, genres: string[], confidence: number }`
   /**
    * Получить всех детектированных персонажей для видео
    */
-  public getDetectedPersonsForVideo(videoPath: string): Person[] {
+  private getDetectedPersonsForVideo(videoPath: string): Person[] {
     const allPersons: Person[] = []
 
+    // Собираем всех персонажей из кэша
     for (const [key, persons] of this.detectedPersonsCache.entries()) {
-      if (key.includes(videoPath)) {
-        allPersons.push(...persons)
-      }
+      // Проверяем, что ключ относится к этому видео
+      allPersons.push(...persons)
     }
 
     // Убираем дубликаты и объединяем по ID
@@ -813,6 +851,39 @@ Format as JSON: { contentType: string, genres: string[], confidence: number }`
     }
 
     return Array.from(uniquePersons.values())
+  }
+
+  /**
+   * Рассчитать статистику по персонажам
+   */
+  private calculatePersonStats(persons: Person[], scenes: SceneAnalysis[]): any {
+    const stats: any = {
+      totalPersons: persons.length,
+      averageConfidence: 0,
+      personAppearances: {},
+      personScreenTime: {},
+    }
+
+    if (persons.length === 0) return stats
+
+    // Рассчитываем среднюю уверенность
+    stats.averageConfidence = persons.reduce((sum, p) => sum + p.confidence, 0) / persons.length
+
+    // Подсчитываем появления и время экрана для каждого персонажа
+    for (const person of persons) {
+      stats.personAppearances[person.id] = 0
+      stats.personScreenTime[person.id] = 0
+
+      for (const scene of scenes) {
+        const scenePersons = (scene.content as ExtendedContentElements)?.identifiedPersons || []
+        if (scenePersons.some((p: Person) => p.id === person.id)) {
+          stats.personAppearances[person.id]++
+          stats.personScreenTime[person.id] += scene.duration
+        }
+      }
+    }
+
+    return stats
   }
 
   /**
@@ -856,12 +927,19 @@ Format as JSON: { contentType: string, genres: string[], confidence: number }`
           for (const face of frameAnalysis.faces) {
             const detectedFace: DetectedFace = {
               id: `face_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
-              bbox: face.bbox,
+              bbox: face.boundingBox,
               confidence: face.confidence,
               landmarks: undefined, // TODO: Преобразовать landmarks
-              age: face.age,
-              gender: face.gender,
-              emotion: face.emotion,
+              age: undefined, // TODO: Определять возраст
+              gender: undefined, // TODO: Определять пол
+              emotion: face.emotion?.emotion === Emotion.HAPPY ? "happy" : 
+                      face.emotion?.emotion === Emotion.SAD ? "sad" :
+                      face.emotion?.emotion === Emotion.EXCITED ? "surprised" :
+                      face.emotion?.emotion === Emotion.TENSE ? "angry" :
+                      face.emotion?.emotion === Emotion.CALM ? "neutral" :
+                      face.emotion?.emotion === Emotion.MYSTERIOUS ? "fear" :
+                      face.emotion?.emotion === Emotion.DRAMATIC ? "disgust" :
+                      "neutral",
               blur: 0.1, // TODO: Вычислять реальное размытие
               occlusion: 0.1, // TODO: Вычислять перекрытие
               pose: {
