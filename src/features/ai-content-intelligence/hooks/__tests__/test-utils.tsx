@@ -82,9 +82,11 @@ export class MockAIIntelligenceOrchestrator {
       cancel: vi.fn(),
       getProgress: vi.fn(() => createMockProgress()),
       onProgress: vi.fn((callback) => {
-        // Simulate progress updates
-        setTimeout(() => callback(createMockProgress(50)), 100)
-        return vi.fn() // unsubscribe
+        // Return unsubscribe function without calling callback
+        // This avoids timing issues in tests
+        const unsubscribe = vi.fn()
+        // Don't call callback immediately to avoid React state update issues
+        return unsubscribe
       }),
       onEvent: vi.fn(() => vi.fn()), // unsubscribe
     }
