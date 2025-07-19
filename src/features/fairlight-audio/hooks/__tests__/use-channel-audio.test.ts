@@ -1,28 +1,26 @@
 import { act, renderHook, waitFor } from "@testing-library/react"
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { useChannelAudio } from "../use-channel-audio"
 
-// Mock dependencies using vi.hoisted
-const { mockUseTimeline, mockUseAudioEngine, mockConnectMediaElement, mockAudioFileManager } = vi.hoisted(() => ({
-  mockUseTimeline: vi.fn(),
-  mockUseAudioEngine: vi.fn(),
-  mockConnectMediaElement: vi.fn(),
-  mockAudioFileManager: {
-    loadAudioFile: vi.fn(),
-    unloadAll: vi.fn(),
-  },
-}))
+// Mock dependencies
+const mockUseTimeline = vi.fn()
+const mockUseAudioEngine = vi.fn()
+const mockConnectMediaElement = vi.fn()
+const mockAudioFileManager = {
+  loadAudioFile: vi.fn(),
+  unloadAll: vi.fn(),
+}
 
 vi.mock("@/features/timeline/hooks", () => ({
-  useTimeline: mockUseTimeline,
+  useTimeline: () => mockUseTimeline(),
 }))
 
 vi.mock("../use-audio-engine", () => ({
-  useAudioEngine: mockUseAudioEngine,
+  useAudioEngine: () => mockUseAudioEngine(),
 }))
 
-vi.mock("../services/audio-file-manager", () => ({
+vi.mock("../../services/audio-file-manager", () => ({
   AudioFileManager: vi.fn(() => mockAudioFileManager),
 }))
 
@@ -87,7 +85,7 @@ const mockAudioElement = {
   removeEventListener: vi.fn(),
 } as unknown as HTMLAudioElement
 
-describe.skip("useChannelAudio", () => {
+describe("useChannelAudio", () => {
   beforeEach(() => {
     vi.clearAllMocks()
 
@@ -101,10 +99,16 @@ describe.skip("useChannelAudio", () => {
       element: mockAudioElement,
       id: "loaded-audio",
     })
+    mockConnectMediaElement.mockClear()
 
     // Reset audio element mocks
     mockAudioElement.currentTime = 0
-    vi.mocked(mockAudioElement.play).mockResolvedValue(undefined)
+    vi.mocked(mockAudioElement.play).mockClear().mockResolvedValue(undefined)
+    vi.mocked(mockAudioElement.pause).mockClear()
+  })
+  
+  afterEach(() => {
+    vi.clearAllMocks()
   })
 
   describe("initialization", () => {
@@ -342,6 +346,7 @@ describe.skip("useChannelAudio", () => {
 
     describe("play", () => {
       it("plays audio when timeline is playing", async () => {
+        // Start with timeline playing
         mockUseTimeline.mockReturnValue({
           ...mockTimeline,
           isPlaying: true,
@@ -354,6 +359,12 @@ describe.skip("useChannelAudio", () => {
           expect(result.current.audioElement).toBe(mockAudioElement)
         })
 
+        // The effect should have already called play() once
+        expect(mockAudioElement.play).toHaveBeenCalledOnce()
+        
+        // Clear the mock to test manual play
+        vi.mocked(mockAudioElement.play).mockClear()
+        
         act(() => {
           result.current.play()
         })
@@ -395,16 +406,26 @@ describe.skip("useChannelAudio", () => {
           expect(result.current.audioElement).toBe(mockAudioElement)
         })
 
+        // The effect will call pause() multiple times due to re-renders
+        // Just verify that we can call pause manually
+        const pauseCallsBefore = mockAudioElement.pause.mock.calls.length
+        
         act(() => {
           result.current.pause()
         })
 
-        expect(mockAudioElement.pause).toHaveBeenCalledOnce()
+        expect(mockAudioElement.pause).toHaveBeenCalledTimes(pauseCallsBefore + 1)
       })
 
       it("does nothing when audio element is not available", () => {
+        // Reset the pause mock completely to ensure isolation
+        vi.mocked(mockAudioElement.pause).mockClear()
+        
         const { result } = renderHook(() => useChannelAudio("ch1"))
 
+        // No audio element is loaded, so pause should not be called
+        expect(result.current.audioElement).toBe(null)
+        
         act(() => {
           result.current.pause()
         })

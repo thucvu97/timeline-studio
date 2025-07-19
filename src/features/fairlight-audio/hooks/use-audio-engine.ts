@@ -11,9 +11,13 @@ export function useAudioEngine() {
     const engine = new AudioEngine()
     engineRef.current = engine
 
-    void engine.initialize().then(() => {
-      setIsInitialized(true)
-    })
+    void engine.initialize()
+      .then(() => {
+        setIsInitialized(true)
+      })
+      .catch((error: unknown) => {
+        console.error("Failed to initialize audio engine:", error)
+      })
 
     return () => {
       engine.dispose()

@@ -1,34 +1,32 @@
 import { act, renderHook, waitFor } from "@testing-library/react"
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { setupAudioTestEnvironment } from "@/test/utils/tauri-audio-test-utils"
 
 import { useAudioEngine } from "../use-audio-engine"
 
-// Mock the AudioEngine service using vi.hoisted
-const { mockAudioEngine } = vi.hoisted(() => ({
-  mockAudioEngine: {
-    initialize: vi.fn(),
-    dispose: vi.fn(),
-    connectMediaElement: vi.fn(),
-    updateChannelVolume: vi.fn(),
-    updateChannelPan: vi.fn(),
-    muteChannel: vi.fn(),
-    soloChannel: vi.fn(),
-    updateMasterVolume: vi.fn(),
-    enableLimiter: vi.fn(),
-    setLimiterThreshold: vi.fn(),
-    createChannel: vi.fn(),
-    getChannelAnalyser: vi.fn(),
-    getMasterAnalyser: vi.fn(),
-  },
-}))
+// Mock the AudioEngine service
+const mockAudioEngine = {
+  initialize: vi.fn(),
+  dispose: vi.fn(),
+  connectMediaElement: vi.fn(),
+  updateChannelVolume: vi.fn(),
+  updateChannelPan: vi.fn(),
+  muteChannel: vi.fn(),
+  soloChannel: vi.fn(),
+  updateMasterVolume: vi.fn(),
+  enableLimiter: vi.fn(),
+  setLimiterThreshold: vi.fn(),
+  createChannel: vi.fn(),
+  getChannelAnalyser: vi.fn(),
+  getMasterAnalyser: vi.fn(),
+}
 
-vi.mock("../services/audio-engine", () => ({
+vi.mock("../../services/audio-engine", () => ({
   AudioEngine: vi.fn(() => mockAudioEngine),
 }))
 
-describe.skip("useAudioEngine", () => {
+describe("useAudioEngine", () => {
   let testEnv: ReturnType<typeof setupAudioTestEnvironment>
 
   beforeEach(() => {
@@ -38,8 +36,21 @@ describe.skip("useAudioEngine", () => {
     // Setup default mock returns
     mockAudioEngine.initialize.mockResolvedValue(undefined)
     mockAudioEngine.createChannel.mockReturnValue({ id: "test-channel" })
-    mockAudioEngine.getChannelAnalyser.mockReturnValue(testEnv.webAudio.AudioContext().createAnalyser())
-    mockAudioEngine.getMasterAnalyser.mockReturnValue(testEnv.webAudio.AudioContext().createAnalyser())
+    const mockAnalyser = {
+      fftSize: 2048,
+      frequencyBinCount: 1024,
+      minDecibels: -90,
+      maxDecibels: -10,
+      smoothingTimeConstant: 0.8,
+      getByteFrequencyData: vi.fn(),
+      getFloatFrequencyData: vi.fn(),
+      getByteTimeDomainData: vi.fn(),
+      getFloatTimeDomainData: vi.fn(),
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+    }
+    mockAudioEngine.getChannelAnalyser.mockReturnValue(mockAnalyser)
+    mockAudioEngine.getMasterAnalyser.mockReturnValue(mockAnalyser)
   })
 
   afterEach(() => {
@@ -424,13 +435,22 @@ describe.skip("useAudioEngine", () => {
 
   describe("error handling", () => {
     it("handles initialization errors gracefully", async () => {
+      // Suppress console.error for this test
+      const consoleError = vi.spyOn(console, "error").mockImplementation(() => {})
+      
       mockAudioEngine.initialize.mockRejectedValue(new Error("Audio context error"))
 
       const { result } = renderHook(() => useAudioEngine())
 
       // Should not throw and remain uninitialized
-      await new Promise((resolve) => setTimeout(resolve, 100))
+      await vi.waitFor(() => {
+        expect(mockAudioEngine.initialize).toHaveBeenCalled()
+      })
+      
       expect(result.current.isInitialized).toBe(false)
+      
+      // Restore console.error
+      consoleError.mockRestore()
     })
   })
 })
