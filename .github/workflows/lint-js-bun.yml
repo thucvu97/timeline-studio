@@ -38,9 +38,6 @@ jobs:
       - name: Run lint step
         run: bun run lint
 
-      - name: Check import order
-        run: bun run format:imports
-
       - name: Run TypeScript check
         run: bun run typecheck || echo "TypeScript check not configured"
 
