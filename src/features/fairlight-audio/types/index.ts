@@ -40,6 +40,13 @@ export interface AudioBus {
   channels: string[] // Channel IDs routing to this bus
 }
 
+export interface ChannelEffect {
+  id: string
+  type: "eq" | "compressor" | "reverb" | "delay" | "gate"
+  enabled: boolean
+  parameters: Record<string, any>
+}
+
 export interface MixerState {
   channels: AudioChannel[]
   buses: AudioBus[]
