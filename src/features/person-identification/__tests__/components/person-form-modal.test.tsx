@@ -333,7 +333,7 @@ describe("PersonFormModal", () => {
     const onSave = vi.fn().mockResolvedValue(undefined)
     mockModalData.mockReturnValue({ onSave })
 
-    render(
+    const { container } = render(
       <BaseProviders>
         <PersonFormModal />
       </BaseProviders>,
@@ -350,19 +350,34 @@ describe("PersonFormModal", () => {
     const mockFileReader = {
       readAsDataURL: vi.fn(),
       result: "data:image/png;base64,test",
-      onloadend: null,
+      onloadend: null as any,
     }
 
-    global.FileReader = vi.fn(() => mockFileReader) as any
+    global.FileReader = vi.fn().mockImplementation(() => {
+      return {
+        readAsDataURL: vi.fn().mockImplementation(() => {
+          // Simulate async file reading
+          setTimeout(() => {
+            if (mockFileReader.onloadend) {
+              mockFileReader.onloadend()
+            }
+          }, 0)
+        }),
+        set onloadend(handler: any) {
+          mockFileReader.onloadend = handler
+        },
+        result: mockFileReader.result,
+      }
+    }) as any
 
     const file = new File(["test"], "test.png", { type: "image/png" })
     fireEvent.change(fileInput, { target: { files: [file] } })
 
-    // Trigger onloadend
+    // Wait for the thumbnail to be loaded
     await waitFor(() => {
-      if (mockFileReader.onloadend) {
-        mockFileReader.onloadend()
-      }
+      const thumbnailImg = container.querySelector('img[alt="Превью"]')
+      expect(thumbnailImg).toBeInTheDocument()
+      expect(thumbnailImg).toHaveAttribute('src', 'data:image/png;base64,test')
     })
 
     fireEvent.click(saveButton)
