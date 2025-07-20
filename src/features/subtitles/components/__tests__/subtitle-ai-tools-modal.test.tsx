@@ -1,6 +1,4 @@
-import React from "react"
-
-import { render, screen, fireEvent, waitFor } from "@testing-library/react"
+import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { toast } from "sonner"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -111,12 +109,12 @@ describe("SubtitleAIToolsModal", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     mockedUseModal.mockReturnValue({
       modalData: null,
       closeModal: mockCloseModal,
     })
-    
+
     mockedUseTimeline.mockReturnValue({
       project: mockProject as any,
       send: mockSend,
@@ -125,16 +123,16 @@ describe("SubtitleAIToolsModal", () => {
 
   it("should render the modal with description", () => {
     render(<SubtitleAIToolsModal />)
-    
+
     expect(screen.getByText("Используйте AI для автоматического создания субтитров из аудио")).toBeTruthy()
   })
 
   it("should display available media files", async () => {
     render(<SubtitleAIToolsModal />)
-    
+
     const fileSelect = screen.getAllByRole("combobox")[0]
     fireEvent.click(fileSelect)
-    
+
     // Wait for the dropdown to open and check for files
     await waitFor(() => {
       expect(screen.getAllByText("video.mp4").length).toBeGreaterThan(0)
@@ -144,10 +142,10 @@ describe("SubtitleAIToolsModal", () => {
 
   it("should display language options", () => {
     render(<SubtitleAIToolsModal />)
-    
+
     const languageSelect = screen.getAllByRole("combobox")[1]
     fireEvent.click(languageSelect)
-    
+
     // Use getAllByText since there might be duplicates in the portal
     expect(screen.getAllByText("Автоопределение").length).toBeGreaterThan(0)
     expect(screen.getAllByText("Русский").length).toBeGreaterThan(0)
@@ -156,10 +154,10 @@ describe("SubtitleAIToolsModal", () => {
 
   it("should display model selection options", async () => {
     render(<SubtitleAIToolsModal />)
-    
+
     const modelSelect = screen.getAllByRole("combobox")[2]
     fireEvent.click(modelSelect)
-    
+
     await waitFor(() => {
       expect(screen.getAllByText("OpenAI Whisper (облачный)").length).toBeGreaterThan(0)
       expect(screen.getAllByText("Локальная Tiny (39 MB)").length).toBeGreaterThan(0)
@@ -169,7 +167,7 @@ describe("SubtitleAIToolsModal", () => {
 
   it("should disable start button when no file is selected", () => {
     render(<SubtitleAIToolsModal />)
-    
+
     const startButton = screen.getByText("Начать транскрипцию")
     expect(startButton).toBeDisabled()
   })
@@ -179,9 +177,9 @@ describe("SubtitleAIToolsModal", () => {
       project: { sections: [], globalTracks: [] } as any,
       send: mockSend,
     } as any)
-    
+
     render(<SubtitleAIToolsModal />)
-    
+
     expect(screen.getByText("Добавьте видео или аудио файлы в проект для транскрипции")).toBeTruthy()
   })
 
@@ -202,7 +200,7 @@ describe("SubtitleAIToolsModal", () => {
         },
       ],
     }
-    
+
     const mockWhisper = {
       loadApiKey: vi.fn().mockResolvedValue(false),
       hasApiKey: vi.fn(() => false),
@@ -212,24 +210,24 @@ describe("SubtitleAIToolsModal", () => {
       convertToSRT: vi.fn(() => "1\n00:00:00,000 --> 00:00:03,000\nTest subtitle"),
       recommendModel: vi.fn(() => "whisper-base"),
     }
-    
+
     mockedWhisperService.mockReturnValue(mockWhisper as any)
-    
+
     render(<SubtitleAIToolsModal />)
-    
+
     // Select video file
     fireEvent.click(screen.getByText("Выберите файл..."))
     fireEvent.click(screen.getByText("video.mp4"))
-    
+
     // Start transcription
     const startButton = screen.getByText("Начать транскрипцию")
     fireEvent.click(startButton)
-    
+
     await waitFor(() => {
       expect(toast.info).toHaveBeenCalledWith("Извлечение аудио из видео...")
       expect(mockWhisper.extractAudioForTranscription).toHaveBeenCalledWith("/path/to/video.mp4")
     })
-    
+
     await waitFor(() => {
       expect(toast.info).toHaveBeenCalledWith("Транскрипция с помощью локальной модели...")
       expect(mockWhisper.transcribeWithLocalModel).toHaveBeenCalledWith(
@@ -238,10 +236,10 @@ describe("SubtitleAIToolsModal", () => {
         expect.objectContaining({
           language: undefined,
           outputFormat: "json",
-        })
+        }),
       )
     })
-    
+
     await waitFor(() => {
       expect(mockSend).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -249,16 +247,16 @@ describe("SubtitleAIToolsModal", () => {
           track: expect.objectContaining({
             type: "subtitle",
           }),
-        })
+        }),
       )
     })
-    
+
     await waitFor(() => {
       expect(toast.success).toHaveBeenCalledWith(
         "Транскрипция завершена",
         expect.objectContaining({
           description: "Добавлено {{count}} субтитров",
-        })
+        }),
       )
       expect(mockCloseModal).toHaveBeenCalled()
     })
@@ -269,7 +267,7 @@ describe("SubtitleAIToolsModal", () => {
       text: "Test subtitle",
       segments: [],
     }
-    
+
     const mockWhisper = {
       loadApiKey: vi.fn().mockResolvedValue(true),
       hasApiKey: vi.fn(() => true),
@@ -277,19 +275,19 @@ describe("SubtitleAIToolsModal", () => {
       transcribeWithOpenAI: vi.fn().mockResolvedValue(mockTranscriptionResult),
       convertToSRT: vi.fn(() => ""),
     }
-    
+
     mockedWhisperService.mockReturnValue(mockWhisper as any)
-    
+
     render(<SubtitleAIToolsModal />)
-    
+
     // Select audio file
     fireEvent.click(screen.getByText("Выберите файл..."))
     fireEvent.click(screen.getByText("audio.mp3"))
-    
+
     // Start transcription
     const startButton = screen.getByText("Начать транскрипцию")
     fireEvent.click(startButton)
-    
+
     await waitFor(() => {
       expect(toast.info).toHaveBeenCalledWith("Транскрипция с помощью OpenAI Whisper...")
       expect(mockWhisper.transcribeWithOpenAI).toHaveBeenCalledWith(
@@ -298,7 +296,7 @@ describe("SubtitleAIToolsModal", () => {
           language: undefined,
           response_format: "verbose_json",
           timestamp_granularities: ["segment"],
-        })
+        }),
       )
     })
   })
@@ -311,40 +309,40 @@ describe("SubtitleAIToolsModal", () => {
       transcribeWithLocalModel: vi.fn().mockRejectedValue(new Error("Transcription failed")),
       recommendModel: vi.fn(() => "whisper-base"),
     }
-    
+
     mockedWhisperService.mockReturnValue(mockWhisper as any)
-    
+
     render(<SubtitleAIToolsModal />)
-    
+
     // Select file
     fireEvent.click(screen.getByText("Выберите файл..."))
     fireEvent.click(screen.getByText("audio.mp3"))
-    
+
     // Start transcription
     const startButton = screen.getByText("Начать транскрипцию")
     fireEvent.click(startButton)
-    
+
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith(
         "Ошибка транскрипции",
         expect.objectContaining({
           description: "Transcription failed",
-        })
+        }),
       )
     })
   })
 
   it("should show local model note when local model is selected", async () => {
     render(<SubtitleAIToolsModal />)
-    
+
     const modelSelect = screen.getAllByRole("combobox")[2]
     fireEvent.click(modelSelect)
-    
+
     await waitFor(() => {
       const baseOptions = screen.getAllByText("Локальная Base (74 MB)")
       fireEvent.click(baseOptions[baseOptions.length - 1]) // Click the last one (in dropdown)
     })
-    
+
     await waitFor(() => {
       expect(screen.getByText("Локальные модели работают без интернета, но могут быть медленнее")).toBeTruthy()
     })
@@ -352,15 +350,15 @@ describe("SubtitleAIToolsModal", () => {
 
   it("should disable start button when transcribing", async () => {
     render(<SubtitleAIToolsModal />)
-    
+
     // Select file
     fireEvent.click(screen.getByText("Выберите файл..."))
     fireEvent.click(screen.getByText("audio.mp3"))
-    
+
     // Start transcription
     const startButton = screen.getByText("Начать транскрипцию")
     fireEvent.click(startButton)
-    
+
     await waitFor(() => {
       expect(startButton).toBeDisabled()
     })
@@ -372,25 +370,25 @@ describe("SubtitleAIToolsModal", () => {
       hasApiKey: vi.fn(() => false),
       isLocalWhisperAvailable: vi.fn().mockResolvedValue(false),
     }
-    
+
     mockedWhisperService.mockReturnValue(mockWhisper as any)
-    
+
     render(<SubtitleAIToolsModal />)
-    
+
     // Select file
     fireEvent.click(screen.getByText("Выберите файл..."))
     fireEvent.click(screen.getByText("audio.mp3"))
-    
+
     // Start transcription
     const startButton = screen.getByText("Начать транскрипцию")
     fireEvent.click(startButton)
-    
+
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith(
         "Метод транскрипции недоступен",
         expect.objectContaining({
           description: "Установите API ключ OpenAI или локальную модель Whisper",
-        })
+        }),
       )
     })
   })
@@ -423,17 +421,17 @@ describe("SubtitleAIToolsModal", () => {
       ],
       globalTracks: [],
     }
-    
+
     mockedUseTimeline.mockReturnValue({
       project: projectWithDuplicates as any,
       send: mockSend,
     } as any)
-    
+
     render(<SubtitleAIToolsModal />)
-    
+
     const fileSelect = screen.getAllByRole("combobox")[0]
     fireEvent.click(fileSelect)
-    
+
     // Should show only one instance of video.mp4 in the dropdown
     await waitFor(() => {
       // The file appears in the select value and in the dropdown, so we expect 2
@@ -450,24 +448,24 @@ describe("SubtitleAIToolsModal", () => {
       transcribeWithLocalModel: vi.fn().mockResolvedValue({ text: "Test" }),
       recommendModel: vi.fn(() => "whisper-base"),
     }
-    
+
     mockedWhisperService.mockReturnValue(mockWhisper as any)
-    
+
     render(<SubtitleAIToolsModal />)
-    
+
     // Select file
     fireEvent.click(screen.getByText("Выберите файл..."))
     fireEvent.click(screen.getByText("audio.mp3"))
-    
+
     // Select language
     const languageSelect = screen.getAllByRole("combobox")[1]
     fireEvent.click(languageSelect)
     fireEvent.click(screen.getByText("Русский"))
-    
+
     // Start transcription
     const startButton = screen.getByText("Начать транскрипцию")
     fireEvent.click(startButton)
-    
+
     await waitFor(() => {
       expect(mockWhisper.transcribeWithLocalModel).toHaveBeenCalledWith(
         "/path/to/audio.mp3",
@@ -475,7 +473,7 @@ describe("SubtitleAIToolsModal", () => {
         expect.objectContaining({
           language: "ru",
           outputFormat: "json",
-        })
+        }),
       )
     })
   })

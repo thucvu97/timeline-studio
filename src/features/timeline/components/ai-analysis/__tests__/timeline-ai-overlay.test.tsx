@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
-import { render, screen, fireEvent, waitFor } from "@testing-library/react"
+import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { Camera, Sparkles } from "lucide-react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -16,13 +16,7 @@ vi.mock("framer-motion", () => ({
 const cn = (...classes: any[]) => classes.filter(Boolean).join(" ")
 
 // Create a test version of the component that doesn't use the problematic hook
-const TestableTimelineAIOverlay = ({ 
-  timelineWidth,
-  pixelsPerSecond,
-  className,
-  mockAIState
-}: any) => {
-  
+const TestableTimelineAIOverlay = ({ timelineWidth, pixelsPerSecond, className, mockAIState }: any) => {
   const [segments, setSegments] = useState<any[]>([])
   const [hoveredSegment, setHoveredSegment] = useState<string | null>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -84,9 +78,7 @@ const TestableTimelineAIOverlay = ({
       {aiState.isAnalyzing && (
         <div className="absolute top-0 right-0 bg-primary/90 text-primary-foreground px-3 py-1 rounded-bl-lg flex items-center gap-2 pointer-events-auto">
           <div className="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
-          <span className="text-xs font-medium">
-            Анализ {Math.round(aiState.analysisProgress)}%
-          </span>
+          <span className="text-xs font-medium">Анализ {Math.round(aiState.analysisProgress)}%</span>
         </div>
       )}
 
@@ -94,7 +86,7 @@ const TestableTimelineAIOverlay = ({
         const Icon = segment.icon
         const x = segment.startTime * pixelsPerSecond
         const isKeyMoment = segment.type === "keyMoment"
-        
+
         return (
           <div
             key={segment.id}
@@ -108,7 +100,7 @@ const TestableTimelineAIOverlay = ({
               className={cn(
                 "flex items-center justify-center rounded-full transition-all cursor-pointer",
                 isKeyMoment ? "w-6 h-6" : "w-5 h-5",
-                hoveredSegment === segment.id && "scale-110"
+                hoveredSegment === segment.id && "scale-110",
               )}
               style={{
                 backgroundColor: segment.color,
@@ -118,13 +110,11 @@ const TestableTimelineAIOverlay = ({
             >
               <Icon className={cn("text-white", isKeyMoment ? "w-3 h-3" : "w-2.5 h-2.5")} />
             </div>
-            
+
             {hoveredSegment === segment.id && (
               <div className="absolute top-8 left-0 bg-popover text-popover-foreground rounded p-2 shadow-md z-50 min-w-[200px]">
                 <div className="font-semibold">{segment.label}</div>
-                {segment.description && (
-                  <div className="text-xs text-muted-foreground">{segment.description}</div>
-                )}
+                {segment.description && <div className="text-xs text-muted-foreground">{segment.description}</div>}
                 <div className="text-xs text-muted-foreground">
                   Уверенность: {Math.round(segment.confidence * 100)}%
                 </div>
@@ -135,7 +125,7 @@ const TestableTimelineAIOverlay = ({
       })}
 
       {segments.length > 0 && (
-        <div 
+        <div
           className="absolute bottom-0 left-0 bg-background/90 backdrop-blur-sm rounded-tr-lg p-2 pointer-events-none"
           style={{ opacity: hoveredSegment ? 1 : 0 }}
         >
@@ -163,7 +153,7 @@ describe("TimelineAIOverlay", () => {
       keyMoments: [],
       error: null,
       lastAnalyzedClipId: null,
-    }
+    },
   }
 
   beforeEach(() => {
@@ -172,10 +162,10 @@ describe("TimelineAIOverlay", () => {
 
   it("should render without content when no analysis data", () => {
     const { container } = render(<TestableTimelineAIOverlay {...defaultProps} />)
-    
+
     const overlay = container.querySelector(".absolute.inset-x-0")
     expect(overlay).toBeTruthy()
-    
+
     const segments = container.querySelectorAll("[data-testid^='segment-']")
     expect(segments).toHaveLength(0)
   })
@@ -187,13 +177,13 @@ describe("TimelineAIOverlay", () => {
         ...defaultProps.mockAIState,
         isAnalyzing: true,
         analysisProgress: 45,
-      }
+      },
     }
 
     render(<TestableTimelineAIOverlay {...props} />)
-    
+
     expect(screen.getByText("Анализ 45%")).toBeTruthy()
-    
+
     const spinner = screen.getByText("Анализ 45%").parentElement?.querySelector(".animate-spin")
     expect(spinner).toBeTruthy()
   })
@@ -220,15 +210,15 @@ describe("TimelineAIOverlay", () => {
               confidence: 0.85,
             },
           ],
-        }
-      }
+        },
+      },
     }
 
     const { container } = render(<TestableTimelineAIOverlay {...props} />)
-    
+
     const segments = container.querySelectorAll("[data-testid^='segment-']")
     expect(segments).toHaveLength(2)
-    
+
     const markers = container.querySelectorAll("[data-testid^='marker-']")
     expect(markers).toHaveLength(2)
   })
@@ -253,15 +243,15 @@ describe("TimelineAIOverlay", () => {
             score: 0.8,
             description: "Эмоциональный пик",
           },
-        ]
-      }
+        ],
+      },
     }
 
     const { container } = render(<TestableTimelineAIOverlay {...props} />)
-    
+
     const segments = container.querySelectorAll("[data-testid^='segment-']")
     expect(segments).toHaveLength(2)
-    
+
     // Key moments have larger size
     const markers = container.querySelectorAll(".w-6.h-6")
     expect(markers).toHaveLength(2)
@@ -281,15 +271,15 @@ describe("TimelineAIOverlay", () => {
               type: "action",
             },
           ],
-        }
-      }
+        },
+      },
     }
 
     const { container } = render(<TestableTimelineAIOverlay {...props} />)
-    
+
     const segment = container.querySelector("[data-testid='segment-scene-scene-1']")
     expect(segment).toBeTruthy()
-    
+
     // Should be positioned at 10s * 10px/s = 100px
     expect(segment?.getAttribute("style")).toContain("left: 100px")
   })
@@ -307,18 +297,18 @@ describe("TimelineAIOverlay", () => {
             score: 0.95,
             description: "Кульминационный момент",
           },
-        ]
-      }
+        ],
+      },
     }
 
     const { container } = render(<TestableTimelineAIOverlay {...props} />)
-    
+
     const segment = container.querySelector("[data-testid='segment-moment-moment-1']")
     expect(segment).toBeTruthy()
-    
+
     if (segment) {
       fireEvent.mouseEnter(segment)
-      
+
       await waitFor(() => {
         expect(screen.getByText("Ключевой момент")).toBeTruthy()
         expect(screen.getByText("Кульминационный момент")).toBeTruthy()
@@ -341,20 +331,20 @@ describe("TimelineAIOverlay", () => {
               type: "action",
             },
           ],
-        }
-      }
+        },
+      },
     }
 
     const { container } = render(<TestableTimelineAIOverlay {...props} />)
-    
+
     const legend = screen.getByText("Сцены").parentElement
     expect(legend).toBeTruthy()
     expect(legend?.parentElement?.getAttribute("style")).toContain("opacity: 0")
-    
+
     const segment = container.querySelector("[data-testid^='segment-']")
     if (segment) {
       fireEvent.mouseEnter(segment)
-      
+
       await waitFor(() => {
         expect(legend?.parentElement?.getAttribute("style")).toContain("opacity: 1")
       })
@@ -363,7 +353,7 @@ describe("TimelineAIOverlay", () => {
 
   it("should render canvas for visualization", () => {
     const { container } = render(<TestableTimelineAIOverlay {...defaultProps} />)
-    
+
     const canvas = container.querySelector("canvas")
     expect(canvas).toBeTruthy()
     expect(canvas?.getAttribute("width")).toBe("1000")
@@ -371,10 +361,8 @@ describe("TimelineAIOverlay", () => {
   })
 
   it("should apply custom className", () => {
-    const { container } = render(
-      <TestableTimelineAIOverlay {...defaultProps} className="custom-class" />
-    )
-    
+    const { container } = render(<TestableTimelineAIOverlay {...defaultProps} className="custom-class" />)
+
     const overlay = container.querySelector(".custom-class")
     expect(overlay).toBeTruthy()
   })
@@ -392,28 +380,28 @@ describe("TimelineAIOverlay", () => {
             score: 0.95,
             description: "Test moment",
           },
-        ]
-      }
+        ],
+      },
     }
 
     const { container } = render(<TestableTimelineAIOverlay {...props} />)
-    
+
     const marker = container.querySelector("[data-testid='marker-moment-moment-1']")
     expect(marker).toBeTruthy()
-    
+
     if (marker) {
       const segment = marker.parentElement!
-      
+
       expect(marker.className).not.toContain("scale-110")
-      
+
       fireEvent.mouseEnter(segment)
-      
+
       await waitFor(() => {
         expect(marker.className).toContain("scale-110")
       })
-      
+
       fireEvent.mouseLeave(segment)
-      
+
       await waitFor(() => {
         expect(marker.className).not.toContain("scale-110")
       })

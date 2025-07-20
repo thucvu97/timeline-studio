@@ -1,6 +1,4 @@
-import React from "react"
-
-import { act, render, renderHook, screen } from "@testing-library/react"
+import { act, render, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { AIIntelligenceProvider, useAIIntelligence } from "../ai-intelligence-provider"
@@ -41,7 +39,7 @@ describe("AIIntelligenceProvider", () => {
       const { getByTestId } = render(
         <AIIntelligenceProvider>
           <div data-testid="child">Test Child</div>
-        </AIIntelligenceProvider>
+        </AIIntelligenceProvider>,
       )
 
       const child = getByTestId("child")
@@ -153,7 +151,7 @@ describe("AIIntelligenceProvider", () => {
       const { getByTestId } = render(
         <AIIntelligenceProvider>
           <TestComponent />
-        </AIIntelligenceProvider>
+        </AIIntelligenceProvider>,
       )
 
       // The actor is immediately available in our mock, so it shows "ready"
@@ -212,7 +210,7 @@ describe("AIIntelligenceProvider", () => {
       const { getByTestId, getByText } = render(
         <AIIntelligenceProvider>
           <TestComponent />
-        </AIIntelligenceProvider>
+        </AIIntelligenceProvider>,
       )
 
       // Wait for actor to be available

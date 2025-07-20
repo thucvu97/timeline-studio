@@ -84,7 +84,7 @@ export function useChannelAudio(channelId: string, trackId?: string) {
 
             if (audioFile.element) {
               newAudioElements.set(clip.id, audioFile.element)
-              
+
               // Set start time offset for the clip
               audioFile.element.dataset.startTime = clip.startTime.toString()
             }
@@ -94,12 +94,12 @@ export function useChannelAudio(channelId: string, trackId?: string) {
         }
 
         setAudioElements(newAudioElements)
-        
+
         // Set the first clip as active if we have any
         if (newAudioElements.size > 0) {
           const firstClipId = clips[0].id
           setActiveClipId(firstClipId)
-          
+
           // Connect the first clip to audio engine
           const firstElement = newAudioElements.get(firstClipId)
           if (firstElement) {
@@ -126,44 +126,47 @@ export function useChannelAudio(channelId: string, trackId?: string) {
   }, [trackId, channelId, isInitialized, connectMediaElement, getAudioClipsForTrack, timeline.project])
 
   // Find which clip should be playing at current time
-  const updateActiveClip = useCallback((currentTime: number) => {
-    const clips = getAudioClipsForTrack()
-    
-    for (const clip of clips) {
-      const clipStartTime = Number(audioElements.get(clip.id)?.dataset.startTime || clip.startTime)
-      const element = audioElements.get(clip.id)
-      
-      if (element && currentTime >= clipStartTime && currentTime < clipStartTime + (element.duration || 0)) {
-        if (activeClipId !== clip.id) {
-          // Switch to new clip
-          const prevElement = activeClipId ? audioElements.get(activeClipId) : null
-          if (prevElement) {
-            prevElement.pause()
+  const updateActiveClip = useCallback(
+    (currentTime: number) => {
+      const clips = getAudioClipsForTrack()
+
+      for (const clip of clips) {
+        const clipStartTime = Number(audioElements.get(clip.id)?.dataset.startTime || clip.startTime)
+        const element = audioElements.get(clip.id)
+
+        if (element && currentTime >= clipStartTime && currentTime < clipStartTime + (element.duration || 0)) {
+          if (activeClipId !== clip.id) {
+            // Switch to new clip
+            const prevElement = activeClipId ? audioElements.get(activeClipId) : null
+            if (prevElement) {
+              prevElement.pause()
+            }
+
+            setActiveClipId(clip.id)
+            connectMediaElement(channelId, element)
           }
-          
-          setActiveClipId(clip.id)
-          connectMediaElement(channelId, element)
+          return clip
         }
-        return clip
       }
-    }
-    
-    // No active clip
-    if (activeClipId) {
-      const prevElement = audioElements.get(activeClipId)
-      if (prevElement) {
-        prevElement.pause()
+
+      // No active clip
+      if (activeClipId) {
+        const prevElement = audioElements.get(activeClipId)
+        if (prevElement) {
+          prevElement.pause()
+        }
+        setActiveClipId(null)
       }
-      setActiveClipId(null)
-    }
-    
-    return null
-  }, [audioElements, activeClipId, channelId, connectMediaElement, getAudioClipsForTrack])
+
+      return null
+    },
+    [audioElements, activeClipId, channelId, connectMediaElement, getAudioClipsForTrack],
+  )
 
   // Playback control
   const play = useCallback(() => {
     if (!timeline.isPlaying) return
-    
+
     const activeClip = updateActiveClip(timeline.currentTime)
     if (activeClip && activeClipId) {
       const element = audioElements.get(activeClipId)

@@ -6,17 +6,7 @@
 import { useEffect, useRef, useState } from "react"
 
 import { AnimatePresence, motion } from "framer-motion"
-import { 
-  Activity, 
-  AlertTriangle, 
-  Camera,
-  Eye,
-  Sparkles, 
-  TrendingUp, 
-  Users, 
-  Volume2,
-  Zap
-} from "lucide-react"
+import { Activity, AlertTriangle, Camera, Eye, Sparkles, TrendingUp, Users, Volume2, Zap } from "lucide-react"
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
@@ -99,7 +89,7 @@ export function TimelineAIOverlay({
       // Создаем один сегмент для общего качества
       const quality = aiState.currentAnalysis.qualityMetrics.overall
       newSegments.push({
-        id: `quality-overall`,
+        id: "quality-overall",
         startTime: 0,
         endTime: timelineDuration,
         type: "quality",
@@ -135,7 +125,12 @@ export function TimelineAIOverlay({
       // Создаем градиент
       const gradient = ctx.createLinearGradient(x, 0, x, canvas.height)
       gradient.addColorStop(0, `${segment.color}00`)
-      gradient.addColorStop(0.5, `${segment.color}${Math.floor(intensity * 40).toString(16).padStart(2, "0")}`)
+      gradient.addColorStop(
+        0.5,
+        `${segment.color}${Math.floor(intensity * 40)
+          .toString(16)
+          .padStart(2, "0")}`,
+      )
       gradient.addColorStop(1, `${segment.color}00`)
 
       ctx.fillStyle = gradient
@@ -164,9 +159,7 @@ export function TimelineAIOverlay({
             className="absolute top-0 right-0 bg-primary/90 text-primary-foreground px-3 py-1 rounded-bl-lg flex items-center gap-2 pointer-events-auto"
           >
             <div className="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
-            <span className="text-xs font-medium">
-              Анализ {Math.round(aiState.analysisProgress)}%
-            </span>
+            <span className="text-xs font-medium">Анализ {Math.round(aiState.analysisProgress)}%</span>
           </motion.div>
         )}
 
@@ -176,7 +169,7 @@ export function TimelineAIOverlay({
             const Icon = segment.icon
             const x = segment.startTime * pixelsPerSecond
             const isKeyMoment = segment.type === "keyMoment"
-            
+
             return (
               <motion.div
                 key={segment.id}
@@ -194,7 +187,7 @@ export function TimelineAIOverlay({
                       className={cn(
                         "flex items-center justify-center rounded-full transition-all cursor-pointer",
                         isKeyMoment ? "w-6 h-6" : "w-5 h-5",
-                        hoveredSegment === segment.id && "scale-110"
+                        hoveredSegment === segment.id && "scale-110",
                       )}
                       style={{
                         backgroundColor: segment.color,

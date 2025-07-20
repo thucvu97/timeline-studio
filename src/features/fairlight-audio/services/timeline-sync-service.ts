@@ -10,17 +10,17 @@ import type { AudioChannel, ChannelEffect } from "../types"
  */
 function convertTrackEffects(track: TimelineTrack): ChannelEffect[] {
   const effects: ChannelEffect[] = []
-  
+
   // Check if track has effects property
   if (!track.trackEffects || !Array.isArray(track.trackEffects)) {
     return effects
   }
-  
+
   // Convert each effect
   track.trackEffects.forEach((appliedEffect, index) => {
     // Map timeline effect types to audio effect types
     let effectType: "eq" | "compressor" | "reverb" | "delay" | "gate" | undefined
-    
+
     // Check if we have effect details
     if (appliedEffect.effect) {
       switch (appliedEffect.effect.type) {
@@ -54,7 +54,7 @@ function convertTrackEffects(track: TimelineTrack): ChannelEffect[] {
           break
       }
     }
-    
+
     if (effectType) {
       effects.push({
         id: appliedEffect.id || `effect-${index}`,
@@ -64,7 +64,7 @@ function convertTrackEffects(track: TimelineTrack): ChannelEffect[] {
       })
     }
   })
-  
+
   return effects
 }
 

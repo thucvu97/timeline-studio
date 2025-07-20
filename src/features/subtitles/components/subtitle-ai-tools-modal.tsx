@@ -43,12 +43,10 @@ export function SubtitleAIToolsModal() {
       style?: any
       position?: any
       subtitlePosition?: any
-    }
+    },
   ) => {
     // Находим или создаем трек для субтитров
-    const subtitleTrack = project?.sections[0]?.tracks.find(
-      (track) => track.type === "subtitle"
-    )
+    const subtitleTrack = project?.sections[0]?.tracks.find((track) => track.type === "subtitle")
 
     if (!subtitleTrack) {
       // Создаем новый трек для субтитров
@@ -157,24 +155,24 @@ export function SubtitleAIToolsModal() {
 
     try {
       const whisperService = WhisperService.getInstance()
-      
+
       // Загружаем API ключ, если есть
       await whisperService.loadApiKey()
-      
+
       // Определяем, нужно ли извлечь аудио из видео
       const filePath = selectedTrack
       let audioFilePath = filePath
-      
+
       // Если это видеофайл, извлекаем аудио
       const videoRegex = /\.(mp4|avi|mov|mkv|webm)$/i
       if (videoRegex.test(filePath)) {
         toast.info(t("subtitles.ai.extractingAudio", "Извлечение аудио из видео..."))
         audioFilePath = await whisperService.extractAudioForTranscription(filePath)
       }
-      
+
       // Выбираем метод транскрипции
       let transcriptionResult
-      
+
       if (!useLocalModel && whisperService.hasApiKey()) {
         // Используем OpenAI API
         toast.info(t("subtitles.ai.transcribing", "Транскрипция с помощью OpenAI Whisper..."))
@@ -186,49 +184,37 @@ export function SubtitleAIToolsModal() {
       } else if (useLocalModel || !whisperService.hasApiKey()) {
         // Проверяем доступность локального Whisper
         const isLocalAvailable = await whisperService.isLocalWhisperAvailable()
-        
+
         if (!isLocalAvailable) {
-          toast.error(
-            t("subtitles.ai.noMethod", "Метод транскрипции недоступен"),
-            {
-              description: t(
-                "subtitles.ai.noMethodDesc",
-                "Установите API ключ OpenAI или локальную модель Whisper"
-              ),
-            }
-          )
+          toast.error(t("subtitles.ai.noMethod", "Метод транскрипции недоступен"), {
+            description: t("subtitles.ai.noMethodDesc", "Установите API ключ OpenAI или локальную модель Whisper"),
+          })
           return
         }
-        
+
         // Используем локальную модель
         toast.info(t("subtitles.ai.transcribingLocal", "Транскрипция с помощью локальной модели..."))
-        
+
         // Получаем длительность файла для рекомендации модели
-        const selectedFile = mediaFiles.find(f => f.path === selectedTrack)
+        const selectedFile = mediaFiles.find((f) => f.path === selectedTrack)
         const duration = selectedFile?.duration || 300 // по умолчанию 5 минут
-        
+
         const modelToUse = useLocalModel ? selectedModel : whisperService.recommendModel(duration, true)
-        
+
         transcriptionResult = await whisperService.transcribeWithLocalModel(audioFilePath, modelToUse, {
           language: selectedLanguage === "auto" ? undefined : selectedLanguage,
           outputFormat: "json",
         })
       } else {
-        toast.error(
-          t("subtitles.ai.noMethod", "Метод транскрипции недоступен"),
-          {
-            description: t(
-              "subtitles.ai.noMethodDesc",
-              "Установите API ключ OpenAI или локальную модель Whisper"
-            ),
-          }
-        )
+        toast.error(t("subtitles.ai.noMethod", "Метод транскрипции недоступен"), {
+          description: t("subtitles.ai.noMethodDesc", "Установите API ключ OpenAI или локальную модель Whisper"),
+        })
         return
       }
-      
+
       // Конвертируем результат в SRT формат
       let srtContent = ""
-      
+
       if (transcriptionResult.segments && transcriptionResult.segments.length > 0) {
         srtContent = whisperService.convertToSRT(transcriptionResult.segments)
       } else if (transcriptionResult.text) {
@@ -240,12 +226,10 @@ ${transcriptionResult.text}`
 
       // Парсим SRT и добавляем на таймлайн
       const subtitles = parseSRT(srtContent)
-      
+
       // Находим или создаем ID трека для субтитров
-      let subtitleTrackId = project?.sections[0]?.tracks.find(
-        (track) => track.type === "subtitle"
-      )?.id
-      
+      let subtitleTrackId = project?.sections[0]?.tracks.find((track) => track.type === "subtitle")?.id
+
       if (!subtitleTrackId) {
         subtitleTrackId = `subtitle-track-${Date.now()}`
       }
@@ -265,7 +249,10 @@ ${transcriptionResult.text}`
     } catch (error) {
       console.error("Ошибка транскрипции:", error)
       toast.error(t("subtitles.ai.error", "Ошибка транскрипции"), {
-        description: error instanceof Error ? error.message : t("subtitles.ai.errorDesc", "Не удалось выполнить транскрипцию аудио"),
+        description:
+          error instanceof Error
+            ? error.message
+            : t("subtitles.ai.errorDesc", "Не удалось выполнить транскрипцию аудио"),
       })
     } finally {
       setIsTranscribing(false)
@@ -323,11 +310,11 @@ ${transcriptionResult.text}`
             </SelectContent>
           </Select>
         </div>
-        
+
         <div className="space-y-2">
           <Label htmlFor="model">{t("subtitles.ai.modelSelection", "Модель транскрипции")}</Label>
-          <Select 
-            value={useLocalModel ? selectedModel : "whisper-1"} 
+          <Select
+            value={useLocalModel ? selectedModel : "whisper-1"}
             onValueChange={(value) => {
               if (value.startsWith("whisper-") && value !== "whisper-1") {
                 setUseLocalModel(true)
@@ -342,18 +329,10 @@ ${transcriptionResult.text}`
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="whisper-1">
-                {t("subtitles.ai.openaiModel", "OpenAI Whisper (облачный)")}
-              </SelectItem>
-              <SelectItem value="whisper-tiny">
-                {t("subtitles.ai.localTiny", "Локальная Tiny (39 MB)")}
-              </SelectItem>
-              <SelectItem value="whisper-base">
-                {t("subtitles.ai.localBase", "Локальная Base (74 MB)")}
-              </SelectItem>
-              <SelectItem value="whisper-small">
-                {t("subtitles.ai.localSmall", "Локальная Small (244 MB)")}
-              </SelectItem>
+              <SelectItem value="whisper-1">{t("subtitles.ai.openaiModel", "OpenAI Whisper (облачный)")}</SelectItem>
+              <SelectItem value="whisper-tiny">{t("subtitles.ai.localTiny", "Локальная Tiny (39 MB)")}</SelectItem>
+              <SelectItem value="whisper-base">{t("subtitles.ai.localBase", "Локальная Base (74 MB)")}</SelectItem>
+              <SelectItem value="whisper-small">{t("subtitles.ai.localSmall", "Локальная Small (244 MB)")}</SelectItem>
               <SelectItem value="whisper-medium">
                 {t("subtitles.ai.localMedium", "Локальная Medium (769 MB)")}
               </SelectItem>

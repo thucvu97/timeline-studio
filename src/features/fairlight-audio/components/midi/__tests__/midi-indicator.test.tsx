@@ -115,7 +115,7 @@ describe("MidiIndicator", () => {
 
   it("should have proper timer cleanup on unmount", () => {
     const { unmount } = render(<MidiIndicator />)
-    
+
     // Component should unmount without errors
     expect(() => unmount()).not.toThrow()
   })
@@ -125,18 +125,18 @@ describe("MidiIndicator", () => {
     // Since we can't easily trigger real state changes with the current mock setup,
     // we'll just verify the component structure is correct
     const { rerender } = render(<MidiIndicator />)
-    
+
     const activityIcon = screen.getByTestId("activity-icon")
-    
+
     // Verify the icon has transition classes
     expect(activityIcon).toHaveClass("transition-colors")
-    
+
     // Verify one of the state classes is present
     const hasInactiveClass = activityIcon.classList.contains("text-zinc-600")
     const hasActiveClass = activityIcon.classList.contains("text-green-400")
-    
+
     expect(hasInactiveClass || hasActiveClass).toBe(true)
-    
+
     // Rerender to ensure stability
     rerender(<MidiIndicator />)
     expect(activityIcon).toBeInTheDocument()

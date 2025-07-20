@@ -87,14 +87,14 @@ const createMockAudioElement = (startTime: string) => {
     removeEventListener: vi.fn(),
     dataset: {} as DOMStringMap,
   } as unknown as HTMLAudioElement
-  
+
   // Properly set dataset.startTime
-  Object.defineProperty(element.dataset, 'startTime', {
+  Object.defineProperty(element.dataset, "startTime", {
     value: startTime,
     writable: true,
-    configurable: true
+    configurable: true,
   })
-  
+
   return element
 }
 
@@ -230,7 +230,7 @@ describe("useChannelAudio", () => {
     it("handles missing media file in project resources", async () => {
       // Use console.error spy
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
-      
+
       // Mock timeline with clip that references non-existent media
       mockUseTimeline.mockReturnValue({
         ...mockTimeline,
@@ -262,12 +262,14 @@ describe("useChannelAudio", () => {
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false)
       })
-      
+
       // Then check console.error was called
-      expect(consoleSpy).toHaveBeenCalledWith("[AudioLoader] Media file nonexistent-media not found in project resources")
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "[AudioLoader] Media file nonexistent-media not found in project resources",
+      )
       expect(result.current.audioElements.size).toBe(0)
       expect(result.current.error).toBe(null) // No error set, just skip the file
-      
+
       consoleSpy.mockRestore()
     })
 
@@ -312,7 +314,7 @@ describe("useChannelAudio", () => {
     it("handles audio file loading errors", async () => {
       // Use console.error spy
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
-      
+
       const loadError = new Error("Failed to load audio file")
       // Reset the mock and set it to reject
       mockAudioFileManager.loadAudioFile.mockReset()
@@ -323,26 +325,23 @@ describe("useChannelAudio", () => {
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false)
       })
-      
+
       // Wait a bit more to ensure console.error is called
       await waitFor(() => {
         expect(consoleSpy).toHaveBeenCalled()
       })
-      
+
       // Check that error was logged - the format is "[AudioLoader] Failed to load clip <clipId>:" followed by the error
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "[AudioLoader] Failed to load clip clip1:",
-        loadError
-      )
+      expect(consoleSpy).toHaveBeenCalledWith("[AudioLoader] Failed to load clip clip1:", loadError)
       expect(result.current.audioElements.size).toBe(0) // No clips loaded due to errors
       expect(result.current.error).toBe(null) // Error logged but not set in state for individual clips
-      
+
       consoleSpy.mockRestore()
     })
 
     it("handles unknown errors gracefully", async () => {
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
-      
+
       // Reset the mock and set it to reject
       mockAudioFileManager.loadAudioFile.mockReset()
       mockAudioFileManager.loadAudioFile.mockRejectedValue("Unknown error")
@@ -352,20 +351,17 @@ describe("useChannelAudio", () => {
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false)
       })
-      
+
       // Wait for console.error to be called
       await waitFor(() => {
         expect(consoleSpy).toHaveBeenCalled()
       })
-      
+
       // Check that error was logged
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "[AudioLoader] Failed to load clip clip1:",
-        "Unknown error"
-      )
+      expect(consoleSpy).toHaveBeenCalledWith("[AudioLoader] Failed to load clip clip1:", "Unknown error")
       expect(result.current.audioElements.size).toBe(0)
       expect(result.current.error).toBe(null)
-      
+
       consoleSpy.mockRestore()
     })
   })
@@ -410,7 +406,6 @@ describe("useChannelAudio", () => {
   })
 
   describe("playback control", () => {
-
     describe("play", () => {
       it("plays audio when timeline is playing", async () => {
         // Start with timeline playing
@@ -580,7 +575,7 @@ describe("useChannelAudio", () => {
         const activeElement = result.current.audioElements.get("clip1")
         expect(activeElement?.currentTime).toBe(3)
       })
-      
+
       // The play might be called through the effect
       expect(mockAudioElement.play).toHaveBeenCalled()
     })

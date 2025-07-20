@@ -13,10 +13,10 @@ vi.mock("react-i18next", () => ({
 describe("Reverb", () => {
   it("renders with default settings", () => {
     render(<Reverb />)
-    
+
     expect(screen.getByText("fairlightAudio.effects.reverb.title")).toBeInTheDocument()
     expect(screen.getByText("fairlightAudio.effects.reverb.reset")).toBeInTheDocument()
-    
+
     // Check all control labels
     expect(screen.getByText("fairlightAudio.effects.reverb.roomSize")).toBeInTheDocument()
     expect(screen.getByText("fairlightAudio.effects.reverb.decay")).toBeInTheDocument()
@@ -30,19 +30,19 @@ describe("Reverb", () => {
 
   it("displays default values", () => {
     render(<Reverb />)
-    
+
     // Room size and damping both have default value of 50%
     const fiftyPercents = screen.getAllByText("50%")
     expect(fiftyPercents).toHaveLength(2)
-    
+
     expect(screen.getByText("2.0s")).toBeInTheDocument() // decay
     expect(screen.getByText("30%")).toBeInTheDocument() // wet
     expect(screen.getByText("70%")).toBeInTheDocument() // dry
-    
+
     // Pre-delay appears twice (in SVG and in the control)
     const preDelays = screen.getAllByText("20ms")
     expect(preDelays).toHaveLength(2)
-    
+
     // Early and late reflections both have default value of 80%
     const eightyPercents = screen.getAllByText("80%")
     expect(eightyPercents).toHaveLength(2)
@@ -50,7 +50,7 @@ describe("Reverb", () => {
 
   it("renders preset buttons", () => {
     render(<Reverb />)
-    
+
     expect(screen.getByText("fairlightAudio.effects.reverb.presets.room")).toBeInTheDocument()
     expect(screen.getByText("fairlightAudio.effects.reverb.presets.hall")).toBeInTheDocument()
     expect(screen.getByText("fairlightAudio.effects.reverb.presets.plate")).toBeInTheDocument()
@@ -61,11 +61,11 @@ describe("Reverb", () => {
   it("calls onParameterChange when parameters are adjusted", () => {
     const onParameterChange = vi.fn()
     render(<Reverb onParameterChange={onParameterChange} />)
-    
+
     // Click room preset
     const roomButton = screen.getByText("fairlightAudio.effects.reverb.presets.room")
     fireEvent.click(roomButton)
-    
+
     expect(onParameterChange).toHaveBeenCalledWith("roomSize", 30)
     expect(onParameterChange).toHaveBeenCalledWith("decay", 0.8)
     expect(onParameterChange).toHaveBeenCalledWith("damping", 70)
@@ -79,10 +79,10 @@ describe("Reverb", () => {
   it("applies hall preset correctly", () => {
     const onParameterChange = vi.fn()
     render(<Reverb onParameterChange={onParameterChange} />)
-    
+
     const hallButton = screen.getByText("fairlightAudio.effects.reverb.presets.hall")
     fireEvent.click(hallButton)
-    
+
     expect(onParameterChange).toHaveBeenCalledWith("roomSize", 70)
     expect(onParameterChange).toHaveBeenCalledWith("decay", 2.5)
     expect(onParameterChange).toHaveBeenCalledWith("damping", 50)
@@ -96,10 +96,10 @@ describe("Reverb", () => {
   it("applies cathedral preset correctly", () => {
     const onParameterChange = vi.fn()
     render(<Reverb onParameterChange={onParameterChange} />)
-    
+
     const cathedralButton = screen.getByText("fairlightAudio.effects.reverb.presets.cathedral")
     fireEvent.click(cathedralButton)
-    
+
     expect(onParameterChange).toHaveBeenCalledWith("roomSize", 100)
     expect(onParameterChange).toHaveBeenCalledWith("decay", 6)
     expect(onParameterChange).toHaveBeenCalledWith("damping", 40)
@@ -113,10 +113,10 @@ describe("Reverb", () => {
   it("applies plate preset correctly", () => {
     const onParameterChange = vi.fn()
     render(<Reverb onParameterChange={onParameterChange} />)
-    
+
     const plateButton = screen.getByText("fairlightAudio.effects.reverb.presets.plate")
     fireEvent.click(plateButton)
-    
+
     expect(onParameterChange).toHaveBeenCalledWith("roomSize", 50)
     expect(onParameterChange).toHaveBeenCalledWith("decay", 1.5)
     expect(onParameterChange).toHaveBeenCalledWith("damping", 80)
@@ -130,10 +130,10 @@ describe("Reverb", () => {
   it("applies spring preset correctly", () => {
     const onParameterChange = vi.fn()
     render(<Reverb onParameterChange={onParameterChange} />)
-    
+
     const springButton = screen.getByText("fairlightAudio.effects.reverb.presets.spring")
     fireEvent.click(springButton)
-    
+
     expect(onParameterChange).toHaveBeenCalledWith("roomSize", 20)
     expect(onParameterChange).toHaveBeenCalledWith("decay", 2)
     expect(onParameterChange).toHaveBeenCalledWith("damping", 30)
@@ -147,18 +147,18 @@ describe("Reverb", () => {
   it("resets to default settings", () => {
     const onParameterChange = vi.fn()
     render(<Reverb onParameterChange={onParameterChange} />)
-    
+
     // Apply a preset first
     const hallButton = screen.getByText("fairlightAudio.effects.reverb.presets.hall")
     fireEvent.click(hallButton)
-    
+
     // Clear the mock
     onParameterChange.mockClear()
-    
+
     // Click reset
     const resetButton = screen.getByText("fairlightAudio.effects.reverb.reset")
     fireEvent.click(resetButton)
-    
+
     expect(onParameterChange).toHaveBeenCalledWith("roomSize", 50)
     expect(onParameterChange).toHaveBeenCalledWith("decay", 2)
     expect(onParameterChange).toHaveBeenCalledWith("damping", 50)
@@ -171,7 +171,7 @@ describe("Reverb", () => {
 
   it("applies custom className", () => {
     const { container } = render(<Reverb className="custom-class" />)
-    
+
     const reverbDiv = container.firstChild
     expect(reverbDiv).toHaveClass("custom-class")
     expect(reverbDiv).toHaveClass("bg-zinc-900")
@@ -180,21 +180,21 @@ describe("Reverb", () => {
   it("does not call onParameterChange when not provided", () => {
     // This should not throw
     render(<Reverb />)
-    
+
     const roomButton = screen.getByText("fairlightAudio.effects.reverb.presets.room")
     expect(() => fireEvent.click(roomButton)).not.toThrow()
   })
 
   it("formats decay time with decimal", () => {
     render(<Reverb />)
-    
+
     // Default decay is 2s, should show with decimal
     expect(screen.getByText("2.0s")).toBeInTheDocument()
   })
 
   it("formats pre-delay time correctly", () => {
     render(<Reverb />)
-    
+
     // Default pre-delay is 20ms (appears twice - in SVG and in control)
     const preDelays = screen.getAllByText("20ms")
     expect(preDelays).toHaveLength(2)
@@ -202,7 +202,7 @@ describe("Reverb", () => {
 
   it("shows all slider controls", () => {
     const { container } = render(<Reverb />)
-    
+
     // Should have 8 sliders: roomSize, decay, damping, predelay, dryLevel, wetLevel, earlyLevel, lateLevel
     // Radix UI sliders use data-slot="slider" attribute
     const sliders = container.querySelectorAll('[data-slot="slider"]')

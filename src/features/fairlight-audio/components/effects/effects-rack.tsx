@@ -153,13 +153,13 @@ export function EffectsRack({
 
     const updateGainReduction = () => {
       const newGainReductions: Record<string, number> = {}
-      
+
       effects.forEach((effect) => {
         if (effect.type === "compressor" && effect.enabled) {
           newGainReductions[effect.id] = getCompressorGainReduction(effect.id)
         }
       })
-      
+
       setGainReductions(newGainReductions)
       animationFrameRef.current = requestAnimationFrame(updateGainReduction)
     }

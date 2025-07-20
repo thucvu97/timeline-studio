@@ -1,5 +1,3 @@
-import React from "react"
-
 import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -22,8 +20,8 @@ vi.mock("../../../hooks/use-channel-audio", () => ({
 
 vi.mock("../../waveform/simple-waveform", () => ({
   SimpleWaveform: ({ audioElement, height, className }: any) => (
-    <div 
-      data-testid="simple-waveform" 
+    <div
+      data-testid="simple-waveform"
       data-audio-element={audioElement ? "present" : "absent"}
       data-height={height}
       className={className}
@@ -128,9 +126,7 @@ describe("ChannelWithAudio", () => {
   })
 
   it("should apply custom className", () => {
-    const { container } = render(
-      <ChannelWithAudio {...defaultProps} className="custom-class" />
-    )
+    const { container } = render(<ChannelWithAudio {...defaultProps} className="custom-class" />)
 
     const wrapper = container.firstChild
     expect(wrapper?.className).toContain("custom-class")
