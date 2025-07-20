@@ -35,6 +35,8 @@ jobs:
           npm ci --prefer-offline --no-audit --no-fund
 
       - name: Run lint
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
         run: npm run lint:ci
 
       - name: Check import order
