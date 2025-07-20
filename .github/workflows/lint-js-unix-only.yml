@@ -39,7 +39,7 @@ jobs:
           npm ci --prefer-offline --no-audit --no-fund
 
       - name: Run lint
-        run: npm run lint
+        run: npm run lint:ci
 
       - name: Check import order
         run: npm run format:imports
