@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { ChevronDown, ChevronRight, GripVertical, Plus, Power, X } from "lucide-react"
 import { useTranslation } from "react-i18next"
@@ -24,6 +24,7 @@ interface EffectsRackProps {
   onEffectRemove?: (effectId: string) => void
   onEffectToggle?: (effectId: string, enabled: boolean) => void
   onEffectParameterChange?: (effectId: string, param: string, value: number) => void
+  getCompressorGainReduction?: (effectId: string) => number
   className?: string
 }
 
@@ -32,11 +33,14 @@ export function EffectsRack({
   onEffectRemove,
   onEffectToggle,
   onEffectParameterChange,
+  getCompressorGainReduction,
   className,
 }: EffectsRackProps) {
   const { t } = useTranslation()
   const [effects, setEffects] = useState<Effect[]>([])
   const [showAddMenu, setShowAddMenu] = useState(false)
+  const [gainReductions, setGainReductions] = useState<Record<string, number>>({})
+  const animationFrameRef = useRef<number>()
 
   const AVAILABLE_EFFECTS: { type: EffectType; label: string }[] = [
     { type: "equalizer", label: t("fairlightAudio.effectsRack.effects.eq") },
@@ -90,7 +94,7 @@ export function EffectsRack({
             />
           )
         case "compressor":
-          return <Compressor onParameterChange={handleParameterChange} />
+          return <Compressor onParameterChange={handleParameterChange} gainReduction={gainReductions[effect.id] || 0} />
         case "reverb":
           return <Reverb onParameterChange={handleParameterChange} />
         default:
@@ -142,6 +146,32 @@ export function EffectsRack({
       </div>
     )
   }
+
+  // Update gain reduction values for compressors
+  useEffect(() => {
+    if (!getCompressorGainReduction) return
+
+    const updateGainReduction = () => {
+      const newGainReductions: Record<string, number> = {}
+      
+      effects.forEach((effect) => {
+        if (effect.type === "compressor" && effect.enabled) {
+          newGainReductions[effect.id] = getCompressorGainReduction(effect.id)
+        }
+      })
+      
+      setGainReductions(newGainReductions)
+      animationFrameRef.current = requestAnimationFrame(updateGainReduction)
+    }
+
+    updateGainReduction()
+
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current)
+      }
+    }
+  }, [effects, getCompressorGainReduction])
 
   return (
     <div className={cn("space-y-2", className)}>

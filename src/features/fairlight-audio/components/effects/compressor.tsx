@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 
 interface CompressorProps {
   onParameterChange?: (param: keyof CompressorSettings, value: number) => void
+  gainReduction?: number // Current gain reduction in dB
   className?: string
 }
 
@@ -28,10 +29,9 @@ const DEFAULT_SETTINGS: CompressorSettings = {
   makeup: 0,
 }
 
-export function Compressor({ onParameterChange, className }: CompressorProps) {
+export function Compressor({ onParameterChange, gainReduction = 0, className }: CompressorProps) {
   const { t } = useTranslation()
   const [settings, setSettings] = useState<CompressorSettings>(DEFAULT_SETTINGS)
-  const [gainReduction] = useState(0) // TODO: connect to actual gain reduction from processor
 
   const handleParameterChange = (param: keyof CompressorSettings, value: number) => {
     setSettings((prev) => ({ ...prev, [param]: value }))
@@ -119,7 +119,7 @@ export function Compressor({ onParameterChange, className }: CompressorProps) {
         <div className="absolute right-2 top-2 bottom-2 w-2 bg-zinc-800 rounded">
           <div
             className="absolute bottom-0 left-0 right-0 bg-orange-500 rounded transition-all duration-75"
-            style={{ height: `${(gainReduction / 30) * 100}%` }}
+            style={{ height: `${(Math.abs(gainReduction) / 30) * 100}%` }}
           />
         </div>
 

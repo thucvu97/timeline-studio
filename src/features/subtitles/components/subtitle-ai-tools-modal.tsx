@@ -7,50 +7,85 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { WhisperService } from "@/features/ai-chat/services/whisper-service"
 import { useModal } from "@/features/modals/services"
 import { useTimeline } from "@/features/timeline/hooks/use-timeline"
 
 import { parseSRT } from "../utils/subtitle-parsers"
 
-// Временная заглушка для useCurrentProject
-const useCurrentProject = () => ({
-  tracks: [
-    {
-      id: "video-1",
-      type: "video",
-      clips: [
-        {
-          id: "clip-1",
-          type: "video",
-          source: "/path/to/video.mp4",
-        },
-      ],
-    },
-  ],
-})
-
-// Временная заглушка для generateId
-const generateId = () => `sub-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+// Функция генерации уникального ID для субтитров
+const generateSubtitleId = () => `subtitle-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
 
 export function SubtitleAIToolsModal() {
   const { t } = useTranslation()
   const { modalData, closeModal } = useModal()
-  const timeline = useTimeline()
-  const project = useCurrentProject()
+  const { project, send } = useTimeline()
 
   const [isTranscribing, setIsTranscribing] = useState(false)
   const [selectedLanguage, setSelectedLanguage] = useState("auto")
   const [selectedTrack, setSelectedTrack] = useState<string>("")
+  const [useLocalModel, setUseLocalModel] = useState(false)
+  const [selectedModel, setSelectedModel] = useState("whisper-1")
 
   /**
-   * Временная функция для добавления субтитров на таймлайн
-   * TODO: реализовать правильное добавление SubtitleClip в timeline-machine
+   * Добавляет субтитры на таймлайн
+   * @param trackId - ID трека для субтитров
+   * @param subtitle - Данные субтитра из parseSRT
    */
-  const addSubtitleClip = async (trackId: string, subtitle: any) => {
-    // Временная заглушка - просто логируем
-    console.log("Adding subtitle clip:", { trackId, subtitle })
-    // В будущем здесь будет:
-    // timeline.addSubtitleClip(trackId, subtitle.text, subtitle.startTime, subtitle.duration)
+  const addSubtitleClip = async (
+    trackId: string,
+    subtitle: {
+      id: string
+      type: "subtitle"
+      startTime: number
+      duration: number
+      text: string
+      style?: any
+      position?: any
+      subtitlePosition?: any
+    }
+  ) => {
+    // Находим или создаем трек для субтитров
+    const subtitleTrack = project?.sections[0]?.tracks.find(
+      (track) => track.type === "subtitle"
+    )
+
+    if (!subtitleTrack) {
+      // Создаем новый трек для субтитров
+      send({
+        type: "ADD_TRACK",
+        track: {
+          id: trackId,
+          type: "subtitle",
+          name: t("subtitles.trackName", "Субтитры"),
+          clips: [],
+          height: 60,
+          locked: false,
+          muted: false,
+          visible: true,
+        },
+      })
+    }
+
+    // Добавляем клип субтитра
+    send({
+      type: "ADD_CLIP",
+      trackId: subtitleTrack?.id || trackId,
+      clip: {
+        id: subtitle.id,
+        type: "subtitle",
+        startTime: subtitle.startTime,
+        duration: subtitle.duration,
+        text: subtitle.text,
+        style: {
+          fontSize: 24,
+          fontFamily: "Arial",
+          color: "#FFFFFF",
+          backgroundColor: "rgba(0, 0, 0, 0.8)",
+          position: "bottom",
+        },
+      },
+    })
   }
 
   /**
@@ -59,21 +94,50 @@ export function SubtitleAIToolsModal() {
   const getMediaFiles = () => {
     if (!project) return []
 
-    const mediaFiles: Array<{ id: string; path: string; name: string }> = []
+    const mediaFiles: Array<{ id: string; path: string; name: string; duration?: number }> = []
+    const uniquePaths = new Set<string>() // Избегаем дубликатов
 
-    for (const track of project.tracks) {
-      if (track.type === "video" || track.type === "audio") {
-        for (const clip of track.clips) {
-          if (clip.type === "video" || clip.type === "audio") {
-            mediaFiles.push({
-              id: clip.id,
-              path: clip.source,
-              name: clip.source.split("/").pop() || clip.source,
-            })
-          }
+    // Проходим по всем секциям и трекам
+    project.sections.forEach((section) => {
+      section.tracks.forEach((track) => {
+        if (track.type === "video" || track.type === "audio") {
+          track.clips.forEach((clip) => {
+            if ((clip.type === "video" || clip.type === "audio") && clip.mediaFile) {
+              const path = clip.mediaFile.path
+              if (!uniquePaths.has(path)) {
+                uniquePaths.add(path)
+                mediaFiles.push({
+                  id: clip.id,
+                  path: path,
+                  name: clip.mediaFile.name || path.split("/").pop() || "Unnamed",
+                  duration: clip.duration,
+                })
+              }
+            }
+          })
         }
+      })
+    })
+
+    // Также проверяем глобальные треки
+    project.globalTracks?.forEach((track) => {
+      if (track.type === "video" || track.type === "audio") {
+        track.clips.forEach((clip) => {
+          if ((clip.type === "video" || clip.type === "audio") && clip.mediaFile) {
+            const path = clip.mediaFile.path
+            if (!uniquePaths.has(path)) {
+              uniquePaths.add(path)
+              mediaFiles.push({
+                id: clip.id,
+                path: path,
+                name: clip.mediaFile.name || path.split("/").pop() || "Unnamed",
+                duration: clip.duration,
+              })
+            }
+          }
+        })
       }
-    }
+    })
 
     return mediaFiles
   }
@@ -92,31 +156,104 @@ export function SubtitleAIToolsModal() {
     setIsTranscribing(true)
 
     try {
-      // TODO: Вызвать реальный сервис транскрипции
-      // const result = await transcribeAudio({
-      //   filePath: selectedTrack,
-      //   language: selectedLanguage === 'auto' ? undefined : selectedLanguage,
-      //   format: 'srt',
-      // })
-
-      // Временная заглушка для демонстрации
-      const mockSRT = `1
-00:00:00,000 --> 00:00:03,000
-Это пример автоматически сгенерированных субтитров
-
-2
-00:00:03,500 --> 00:00:06,000
-Транскрипция выполнена с помощью Whisper AI`
+      const whisperService = WhisperService.getInstance()
+      
+      // Загружаем API ключ, если есть
+      await whisperService.loadApiKey()
+      
+      // Определяем, нужно ли извлечь аудио из видео
+      const filePath = selectedTrack
+      let audioFilePath = filePath
+      
+      // Если это видеофайл, извлекаем аудио
+      const videoRegex = /\.(mp4|avi|mov|mkv|webm)$/i
+      if (videoRegex.test(filePath)) {
+        toast.info(t("subtitles.ai.extractingAudio", "Извлечение аудио из видео..."))
+        audioFilePath = await whisperService.extractAudioForTranscription(filePath)
+      }
+      
+      // Выбираем метод транскрипции
+      let transcriptionResult
+      
+      if (!useLocalModel && whisperService.hasApiKey()) {
+        // Используем OpenAI API
+        toast.info(t("subtitles.ai.transcribing", "Транскрипция с помощью OpenAI Whisper..."))
+        transcriptionResult = await whisperService.transcribeWithOpenAI(audioFilePath, {
+          language: selectedLanguage === "auto" ? undefined : selectedLanguage,
+          response_format: "verbose_json",
+          timestamp_granularities: ["segment"],
+        })
+      } else if (useLocalModel || !whisperService.hasApiKey()) {
+        // Проверяем доступность локального Whisper
+        const isLocalAvailable = await whisperService.isLocalWhisperAvailable()
+        
+        if (!isLocalAvailable) {
+          toast.error(
+            t("subtitles.ai.noMethod", "Метод транскрипции недоступен"),
+            {
+              description: t(
+                "subtitles.ai.noMethodDesc",
+                "Установите API ключ OpenAI или локальную модель Whisper"
+              ),
+            }
+          )
+          return
+        }
+        
+        // Используем локальную модель
+        toast.info(t("subtitles.ai.transcribingLocal", "Транскрипция с помощью локальной модели..."))
+        
+        // Получаем длительность файла для рекомендации модели
+        const selectedFile = mediaFiles.find(f => f.path === selectedTrack)
+        const duration = selectedFile?.duration || 300 // по умолчанию 5 минут
+        
+        const modelToUse = useLocalModel ? selectedModel : whisperService.recommendModel(duration, true)
+        
+        transcriptionResult = await whisperService.transcribeWithLocalModel(audioFilePath, modelToUse, {
+          language: selectedLanguage === "auto" ? undefined : selectedLanguage,
+          outputFormat: "json",
+        })
+      } else {
+        toast.error(
+          t("subtitles.ai.noMethod", "Метод транскрипции недоступен"),
+          {
+            description: t(
+              "subtitles.ai.noMethodDesc",
+              "Установите API ключ OpenAI или локальную модель Whisper"
+            ),
+          }
+        )
+        return
+      }
+      
+      // Конвертируем результат в SRT формат
+      let srtContent = ""
+      
+      if (transcriptionResult.segments && transcriptionResult.segments.length > 0) {
+        srtContent = whisperService.convertToSRT(transcriptionResult.segments)
+      } else if (transcriptionResult.text) {
+        // Если нет сегментов, создаем один субтитр на весь текст
+        srtContent = `1
+00:00:00,000 --> 00:00:10,000
+${transcriptionResult.text}`
+      }
 
       // Парсим SRT и добавляем на таймлайн
-      const subtitles = parseSRT(mockSRT)
-      const subtitleTrackId = "subtitle-track-1" // TODO: получать из проекта
+      const subtitles = parseSRT(srtContent)
+      
+      // Находим или создаем ID трека для субтитров
+      let subtitleTrackId = project?.sections[0]?.tracks.find(
+        (track) => track.type === "subtitle"
+      )?.id
+      
+      if (!subtitleTrackId) {
+        subtitleTrackId = `subtitle-track-${Date.now()}`
+      }
 
       for (const subtitle of subtitles) {
         await addSubtitleClip(subtitleTrackId, {
           ...subtitle,
-          id: generateId(),
-          trackId: subtitleTrackId,
+          id: generateSubtitleId(),
         })
       }
 
@@ -128,7 +265,7 @@ export function SubtitleAIToolsModal() {
     } catch (error) {
       console.error("Ошибка транскрипции:", error)
       toast.error(t("subtitles.ai.error", "Ошибка транскрипции"), {
-        description: t("subtitles.ai.errorDesc", "Не удалось выполнить транскрипцию аудио"),
+        description: error instanceof Error ? error.message : t("subtitles.ai.errorDesc", "Не удалось выполнить транскрипцию аудио"),
       })
     } finally {
       setIsTranscribing(false)
@@ -180,8 +317,56 @@ export function SubtitleAIToolsModal() {
               <SelectItem value="de">{t("language.native.de", "Deutsch")}</SelectItem>
               <SelectItem value="zh">{t("language.native.zh", "中文")}</SelectItem>
               <SelectItem value="ja">{t("language.native.ja", "日本語")}</SelectItem>
+              <SelectItem value="ko">{t("language.native.ko", "한국어")}</SelectItem>
+              <SelectItem value="pt">{t("language.native.pt", "Português")}</SelectItem>
+              <SelectItem value="tr">{t("language.native.tr", "Türkçe")}</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="model">{t("subtitles.ai.modelSelection", "Модель транскрипции")}</Label>
+          <Select 
+            value={useLocalModel ? selectedModel : "whisper-1"} 
+            onValueChange={(value) => {
+              if (value.startsWith("whisper-") && value !== "whisper-1") {
+                setUseLocalModel(true)
+                setSelectedModel(value)
+              } else {
+                setUseLocalModel(false)
+                setSelectedModel(value)
+              }
+            }}
+          >
+            <SelectTrigger id="model">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="whisper-1">
+                {t("subtitles.ai.openaiModel", "OpenAI Whisper (облачный)")}
+              </SelectItem>
+              <SelectItem value="whisper-tiny">
+                {t("subtitles.ai.localTiny", "Локальная Tiny (39 MB)")}
+              </SelectItem>
+              <SelectItem value="whisper-base">
+                {t("subtitles.ai.localBase", "Локальная Base (74 MB)")}
+              </SelectItem>
+              <SelectItem value="whisper-small">
+                {t("subtitles.ai.localSmall", "Локальная Small (244 MB)")}
+              </SelectItem>
+              <SelectItem value="whisper-medium">
+                {t("subtitles.ai.localMedium", "Локальная Medium (769 MB)")}
+              </SelectItem>
+              <SelectItem value="whisper-large-v3">
+                {t("subtitles.ai.localLarge", "Локальная Large v3 (1.5 GB)")}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+          {useLocalModel && (
+            <p className="text-xs text-muted-foreground">
+              {t("subtitles.ai.localModelNote", "Локальные модели работают без интернета, но могут быть медленнее")}
+            </p>
+          )}
         </div>
 
         {mediaFiles.length === 0 && (

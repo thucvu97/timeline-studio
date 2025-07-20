@@ -10,8 +10,8 @@ import { parseSubtitleFile } from "../utils/subtitle-parsers"
 
 import type { SubtitleImportResult } from "../types/subtitles"
 
-// Временная заглушка для generateId
-const generateId = () => `sub-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+// Генерация уникального ID для субтитров
+const generateSubtitleId = () => `subtitle-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
 
 /**
  * Хук для импорта файлов субтитров
@@ -19,18 +19,70 @@ const generateId = () => `sub-${Date.now()}-${Math.random().toString(36).substri
  */
 export function useSubtitlesImport() {
   const [isImporting, setIsImporting] = useState(false)
-  const timeline = useTimeline()
+  const { project, send } = useTimeline()
 
   /**
-   * Временная функция для добавления субтитров на таймлайн
-   * TODO: реализовать правильное добавление SubtitleClip в timeline-machine
+   * Добавление субтитров на таймлайн
+   * @param trackId - ID трека для субтитров
+   * @param subtitle - Данные субтитра
    */
-  const addSubtitleClip = useCallback(async (trackId: string, subtitle: any) => {
-    // Временная заглушка - просто логируем
-    console.log("Adding subtitle clip:", { trackId, subtitle })
-    // В будущем здесь будет:
-    // timeline.addSubtitleClip(trackId, subtitle.text, subtitle.startTime, subtitle.duration)
-  }, [])
+  const addSubtitleClip = useCallback(async (
+    trackId: string,
+    subtitle: {
+      id: string
+      type: "subtitle"
+      startTime: number
+      duration: number
+      text: string
+      style?: any
+      position?: any
+      subtitlePosition?: any
+    }
+  ) => {
+    // Находим или создаем трек для субтитров
+    const subtitleTrack = project?.sections[0]?.tracks.find(
+      (track) => track.type === "subtitle"
+    )
+
+    if (!subtitleTrack) {
+      // Создаем новый трек для субтитров
+      send({
+        type: "ADD_TRACK",
+        track: {
+          id: trackId,
+          type: "subtitle",
+          name: "Субтитры",
+          clips: [],
+          height: 60,
+          locked: false,
+          muted: false,
+          visible: true,
+        },
+      })
+    }
+
+    // Добавляем клип субтитра
+    send({
+      type: "ADD_CLIP",
+      trackId: subtitleTrack?.id || trackId,
+      clip: {
+        id: subtitle.id,
+        type: "subtitle",
+        startTime: subtitle.startTime,
+        duration: subtitle.duration,
+        text: subtitle.text,
+        style: subtitle.style || {
+          fontSize: 24,
+          fontFamily: "Arial",
+          color: "#FFFFFF",
+          backgroundColor: "rgba(0, 0, 0, 0.8)",
+          position: "bottom",
+        },
+        position: subtitle.position,
+        subtitlePosition: subtitle.subtitlePosition,
+      },
+    })
+  }, [project, send])
 
   /**
    * Импорт файлов субтитров (SRT, VTT, ASS)
@@ -66,13 +118,18 @@ export function useSubtitlesImport() {
 
             // Добавляем субтитры на таймлайн
             // Находим или создаем трек для субтитров
-            const subtitleTrackId = "subtitle-track-1" // TODO: получать из текущего проекта
+            let subtitleTrackId = project?.sections[0]?.tracks.find(
+              (track) => track.type === "subtitle"
+            )?.id
+            
+            if (!subtitleTrackId) {
+              subtitleTrackId = `subtitle-track-${Date.now()}`
+            }
 
             for (const subtitle of subtitles) {
               await addSubtitleClip(subtitleTrackId, {
                 ...subtitle,
-                id: generateId(),
-                trackId: subtitleTrackId,
+                id: generateSubtitleId(),
               })
             }
 
@@ -99,7 +156,7 @@ export function useSubtitlesImport() {
     } finally {
       setIsImporting(false)
     }
-  }, [isImporting, addSubtitleClip])
+  }, [isImporting, addSubtitleClip, project])
 
   /**
    * Импорт одного файла субтитров
@@ -130,13 +187,18 @@ export function useSubtitlesImport() {
           const subtitles = parseSubtitleFile(result.content, result.format as any)
 
           // Добавляем субтитры на таймлайн
-          const subtitleTrackId = "subtitle-track-1" // TODO: получать из текущего проекта
+          let subtitleTrackId = project?.sections[0]?.tracks.find(
+            (track) => track.type === "subtitle"
+          )?.id
+          
+          if (!subtitleTrackId) {
+            subtitleTrackId = `subtitle-track-${Date.now()}`
+          }
 
           for (const subtitle of subtitles) {
             await addSubtitleClip(subtitleTrackId, {
               ...subtitle,
-              id: generateId(),
-              trackId: subtitleTrackId,
+              id: generateSubtitleId(),
             })
           }
 
@@ -158,7 +220,7 @@ export function useSubtitlesImport() {
     } finally {
       setIsImporting(false)
     }
-  }, [isImporting, addSubtitleClip])
+  }, [isImporting, addSubtitleClip, project])
 
   return {
     importSubtitleFiles,

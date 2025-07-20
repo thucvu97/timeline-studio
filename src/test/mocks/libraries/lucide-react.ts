@@ -84,6 +84,7 @@ export const Image = createMockIcon("Image")
 export const ImagePlay = createMockIcon("ImagePlay")
 export const Info = createMockIcon("Info")
 export const Keyboard = createMockIcon("Keyboard")
+export const Languages = createMockIcon("Languages")
 export const LayoutDashboard = createMockIcon("LayoutDashboard")
 export const LayoutTemplate = createMockIcon("LayoutTemplate")
 export const Layers = createMockIcon("Layers")
@@ -114,6 +115,7 @@ export const Pause = createMockIcon("Pause")
 export const Play = createMockIcon("Play")
 export const PlayCircle = createMockIcon("PlayCircle")
 export const Plus = createMockIcon("Plus")
+export const Power = createMockIcon("Power")
 export const Redo2 = createMockIcon("Redo2")
 export const RefreshCw = createMockIcon("RefreshCw")
 export const RotateCcw = createMockIcon("RotateCcw")
@@ -234,6 +236,7 @@ vi.mock("lucide-react", () => ({
   ImagePlay,
   Info,
   Keyboard,
+  Languages,
   LayoutDashboard,
   LayoutTemplate,
   Layers,
@@ -264,6 +267,7 @@ vi.mock("lucide-react", () => ({
   Play,
   PlayCircle,
   Plus,
+  Power,
   Redo2,
   RefreshCw,
   RotateCcw,

@@ -3,7 +3,70 @@ import { useEffect } from "react"
 import { useTimeline } from "@/features/timeline/hooks"
 import type { TimelineTrack } from "@/features/timeline/types"
 
-import type { AudioChannel } from "../types"
+import type { AudioChannel, ChannelEffect } from "../types"
+
+/**
+ * Converts timeline effects to channel effects
+ */
+function convertTrackEffects(track: TimelineTrack): ChannelEffect[] {
+  const effects: ChannelEffect[] = []
+  
+  // Check if track has effects property
+  if (!track.trackEffects || !Array.isArray(track.trackEffects)) {
+    return effects
+  }
+  
+  // Convert each effect
+  track.trackEffects.forEach((appliedEffect, index) => {
+    // Map timeline effect types to audio effect types
+    let effectType: "eq" | "compressor" | "reverb" | "delay" | "gate" | undefined
+    
+    // Check if we have effect details
+    if (appliedEffect.effect) {
+      switch (appliedEffect.effect.type) {
+        case "equalizer":
+        case "eq":
+        case "audio-eq":
+          effectType = "eq"
+          break
+        case "compressor":
+        case "dynamics":
+        case "audio-compressor":
+          effectType = "compressor"
+          break
+        case "reverb":
+        case "ambience":
+        case "audio-reverb":
+          effectType = "reverb"
+          break
+        case "delay":
+        case "echo":
+        case "audio-delay":
+          effectType = "delay"
+          break
+        case "gate":
+        case "noise-gate":
+        case "audio-gate":
+          effectType = "gate"
+          break
+        default:
+          // Unknown effect type, effectType remains undefined
+          break
+      }
+    }
+    
+    if (effectType) {
+      effects.push({
+        id: appliedEffect.id || `effect-${index}`,
+        type: effectType,
+        enabled: appliedEffect.enabled !== false,
+        parameters: appliedEffect.settings || {},
+      })
+    }
+  })
+  
+  return effects
+}
 
 /**
  * Converts timeline audio tracks to mixer channels
@@ -25,7 +88,7 @@ export function convertTrackToChannel(track: TimelineTrack): AudioChannel | null
     solo: track.isSolo,
     armed: false, // Recording armed state, not in timeline yet
     trackId: track.id,
-    effects: [], // TODO: Convert timeline effects
+    effects: convertTrackEffects(track),
     sends: [],
     eq: {
       enabled: false,

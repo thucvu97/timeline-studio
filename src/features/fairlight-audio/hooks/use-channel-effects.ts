@@ -138,10 +138,19 @@ export function useChannelEffects(engine: AudioEngine | null, channelId: string)
     }
   }, [])
 
+  const getCompressorGainReduction = useCallback((effectId: string): number => {
+    const effectData = effectsRef.current.get(effectId)
+    if (!effectData || effectData.type !== "compressor") return 0
+
+    const compressor = effectData.processor as CompressorProcessor
+    return compressor.getGainReduction()
+  }, [])
+
   return {
     addEffect,
     removeEffect,
     toggleEffect,
     updateEffectParameter,
+    getCompressorGainReduction,
   }
 }
