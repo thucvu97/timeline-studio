@@ -377,7 +377,7 @@ describe("PersonFormModal", () => {
     await waitFor(() => {
       const thumbnailImg = container.querySelector('img[alt="Превью"]')
       expect(thumbnailImg).toBeInTheDocument()
-      expect(thumbnailImg).toHaveAttribute('src', 'data:image/png;base64,test')
+      expect(thumbnailImg).toHaveAttribute("src", "data:image/png;base64,test")
     })
 
     fireEvent.click(saveButton)
