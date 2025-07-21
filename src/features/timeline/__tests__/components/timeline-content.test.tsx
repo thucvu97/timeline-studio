@@ -99,6 +99,17 @@ vi.mock("../../hooks/use-drag-drop-timeline", () => ({
   useDragDropTimeline: () => mockDragState,
 }))
 
+// Мокаем AI интеграцию
+vi.mock("@/features/ai-chat/hooks/use-timeline-ai-integration", () => ({
+  useTimelineAIIntegration: () => ({
+    isReady: true,
+    hasProject: false,
+    clipsCount: 0,
+    tracksCount: 0,
+    projectDuration: 0,
+  }),
+}))
+
 vi.mock("../../hooks/use-timeline-player-sync", () => ({
   useTimelinePlayerSync: vi.fn(),
 }))

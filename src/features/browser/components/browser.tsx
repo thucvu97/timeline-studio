@@ -1,4 +1,5 @@
 import { BrowserStateProvider, useBrowserState } from "@/features/browser/services/browser-state-provider"
+import { useBrowserAIIntegration } from "@/features/ai-chat/hooks/use-browser-ai-integration"
 
 import { BrowserContent } from "./browser-content"
 import { BrowserTabs } from "./browser-tabs"
@@ -7,6 +8,9 @@ import { EffectsProvider } from "../providers/effects-provider"
 // Внутренний компонент, который использует состояние браузера
 function BrowserWithState() {
   const { activeTab, switchTab } = useBrowserState()
+  
+  // Подключаем AI интеграцию
+  const { isReady } = useBrowserAIIntegration()
 
   const handleTabChange = (value: string) => {
     switchTab(value as any) // TODO: типизировать правильно

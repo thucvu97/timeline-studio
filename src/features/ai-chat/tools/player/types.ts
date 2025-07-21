@@ -96,3 +96,27 @@ export interface PreviewFiltersParams {
   filters: EffectApplicationParams[]
   replace?: boolean
 }
+
+/**
+ * Интерфейс для доступа к состоянию плеера
+ */
+export interface PlayerStateAccess {
+  getPlayerState: () => any
+  getCurrentMedia: () => MediaFile | null
+  getPlaybackStatus: () => any
+  getAppliedEffects: () => any
+  play: () => void
+  pause: () => void
+  seek: (time: number) => void
+  setVolume: (volume: number) => void
+  setPlaybackRate: (rate: number) => void
+  applyEffect: (effect: any) => void
+  removeEffect: (effectId: string) => void
+  applyFilter: (filter: any) => void
+  removeFilter: (filterId: string) => void
+  applyTemplate: (template: any, files: MediaFile[]) => void
+  clearTemplate: () => void
+  setMedia: (media: MediaFile) => void
+  analyzeMediaQuality: () => any
+  getPlayerStats: () => any
+}

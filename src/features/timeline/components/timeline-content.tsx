@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { useCurrentProject } from "@/features/app-state/hooks/use-current-project"
 import { useProjectSettings } from "@/features/project-settings/hooks/use-project-settings"
+import { useTimelineAIIntegration } from "@/features/ai-chat/hooks/use-timeline-ai-integration"
 
 import { useClips } from "../hooks/use-clips"
 import { useDragDropTimeline } from "../hooks/use-drag-drop-timeline"
@@ -44,6 +45,9 @@ export function TimelineContent() {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [scrollOffset, setScrollOffset] = useState(0)
   const [containerWidth, setContainerWidth] = useState(0)
+
+  // Подключаем AI интеграцию
+  const { isReady: aiReady } = useTimelineAIIntegration()
 
   // Drag and drop hook
   const { dragState } = useDragDropTimeline()

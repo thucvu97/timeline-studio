@@ -35,8 +35,21 @@ vi.mock("@/features/app-state", () => ({
   useAppSettings: () => ({
     getUserSettings: vi.fn(() => ({})),
     updateUserSettings: vi.fn(),
+    state: {
+      appSettings: {},
+    },
   }),
   AppSettingsProvider: ({ children }: { children: any }) => children,
+}))
+
+// Мокаем AI интеграцию
+vi.mock("@/features/ai-chat/hooks/use-browser-ai-integration", () => ({
+  useBrowserAIIntegration: () => ({
+    isReady: true,
+    hasFiles: false,
+    fileCount: 0,
+    selectedCount: 0,
+  }),
 }))
 
 // Мокаем EffectsProvider

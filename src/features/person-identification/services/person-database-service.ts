@@ -4,6 +4,7 @@
  * Обеспечивает CRUD операции, поиск по эмбеддингам, кластеризацию и синхронизацию.
  */
 
+import { invoke } from "@tauri-apps/api/core"
 import {
   DetectedFace,
   FaceEmbedding,
@@ -174,11 +175,16 @@ export class PersonDatabaseService {
   }
 
   /**
-   * Инициализация Tauri базы данных (заглушка)
+   * Инициализация Tauri базы данных
    */
   private async initializeTauriDB(): Promise<void> {
-    // TODO: Реализовать Tauri SQL базу данных
-    console.warn("Tauri база данных пока не реализована")
+    try {
+      await invoke("init_person_database")
+      console.log("Tauri база данных инициализирована")
+    } catch (error) {
+      console.error("Ошибка инициализации Tauri базы данных:", error)
+      throw error
+    }
   }
 
   /**
@@ -187,22 +193,39 @@ export class PersonDatabaseService {
   async createPerson(personData: Omit<PersonProfile, "id" | "createdAt" | "updatedAt">): Promise<PersonProfile> {
     await this.ensureInitialized()
 
-    const person: PersonProfile = {
-      ...personData,
-      id: `person_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+    if (this.config.storage === "tauri") {
+      const person = await invoke<PersonProfile>("create_person", {
+        name: personData.name,
+        description: personData.description,
+        tags: personData.tags,
+      })
+
+      // Кэшируем
+      if (this.config.enableCache) {
+        this.cache.set(person.id, person)
+      }
+
+      this.emitEvent({ type: "person_created", data: { person } })
+      return person
+    } else {
+      // Fallback to IndexedDB
+      const person: PersonProfile = {
+        ...personData,
+        id: `person_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
+
+      await this.storePerson(person)
+
+      // Кэшируем
+      if (this.config.enableCache) {
+        this.cache.set(person.id, person)
+      }
+
+      this.emitEvent({ type: "person_created", data: { person } })
+      return person
     }
-
-    await this.storePerson(person)
-
-    // Кэшируем
-    if (this.config.enableCache) {
-      this.cache.set(person.id, person)
-    }
-
-    this.emitEvent({ type: "person_created", data: { person } })
-    return person
   }
 
   /**
@@ -217,7 +240,13 @@ export class PersonDatabaseService {
     }
 
     try {
-      const person = await this.loadPerson(personId)
+      let person: PersonProfile | null = null
+      
+      if (this.config.storage === "tauri") {
+        person = await invoke<PersonProfile | null>("get_person", { personId })
+      } else {
+        person = await this.loadPerson(personId)
+      }
 
       // Кэшируем результат
       if (person && this.config.enableCache) {
@@ -269,15 +298,19 @@ export class PersonDatabaseService {
     await this.ensureInitialized()
 
     try {
-      // Удаляем связанные данные
-      await Promise.all([
-        this.deletePersonEmbeddings(personId),
-        this.deletePersonAppearances(personId),
-        this.deletePersonDetections(personId),
-      ])
+      if (this.config.storage === "tauri") {
+        await invoke("delete_person", { personId })
+      } else {
+        // Удаляем связанные данные
+        await Promise.all([
+          this.deletePersonEmbeddings(personId),
+          this.deletePersonAppearances(personId),
+          this.deletePersonDetections(personId),
+        ])
 
-      // Удаляем саму персону
-      await this.removePersonFromStore(personId)
+        // Удаляем саму персону
+        await this.removePersonFromStore(personId)
+      }
 
       // Удаляем из кэша
       this.cache.delete(personId)
@@ -317,37 +350,61 @@ export class PersonDatabaseService {
     await this.ensureInitialized()
 
     try {
-      // Получаем все эмбеддинги
-      const allEmbeddings = await this.getAllEmbeddings()
+      if (this.config.storage === "tauri") {
+        // Используем Tauri базу данных
+        const searchResults = await invoke<SimilaritySearchResult[]>("search_similar_persons", {
+          embedding: Array.from(embedding),
+          topK: limit,
+          useCosine: true,
+        })
 
-      // Вычисляем сходство
-      const similarities: SimilaritySearchResult[] = []
-
-      for (const storedEmbedding of allEmbeddings) {
-        const similarity = this.calculateCosineSimilarity(embedding, storedEmbedding.vector)
-
-        if (similarity >= threshold) {
-          similarities.push({
-            personId: storedEmbedding.faceId, // Будет заменено на personId
-            similarity,
-            embedding: storedEmbedding,
-            confidence: storedEmbedding.quality * similarity,
-          })
+        // Получаем персон для каждого результата
+        const results: PersonSearchResult[] = []
+        for (const result of searchResults) {
+          const person = await this.getPerson(result.personId)
+          if (person) {
+            results.push({
+              person,
+              similarity: result.similarity,
+              confidence: result.confidence,
+              distance: 1 - result.similarity, // Преобразуем сходство в расстояние
+            })
+          }
         }
-      }
+        return results
+      } else {
+        // Fallback to IndexedDB
+        // Получаем все эмбеддинги
+        const allEmbeddings = await this.getAllEmbeddings()
 
-      // Сортируем по сходству
-      similarities.sort((a, b) => b.similarity - a.similarity)
+        // Вычисляем сходство
+        const similarities: SimilaritySearchResult[] = []
 
-      // Получаем персон и создаем результаты
-      const results: PersonSearchResult[] = []
+        for (const storedEmbedding of allEmbeddings) {
+          const similarity = this.calculateCosineSimilarity(embedding, storedEmbedding.vector)
 
-      for (const sim of similarities.slice(0, limit)) {
-        // Найдем персону по эмбеддингу
-        const person = await this.findPersonByEmbedding(sim.embedding.faceId)
-        if (person) {
-          results.push({
-            person,
+          if (similarity >= threshold) {
+            similarities.push({
+              personId: storedEmbedding.faceId, // Будет заменено на personId
+              similarity,
+              embedding: storedEmbedding,
+              confidence: storedEmbedding.quality * similarity,
+            })
+          }
+        }
+
+        // Сортируем по сходству
+        similarities.sort((a, b) => b.similarity - a.similarity)
+
+        // Получаем персон и создаем результаты
+        const results: PersonSearchResult[] = []
+
+        for (const sim of similarities.slice(0, limit)) {
+          // Найдем персону по эмбеддингу
+          const person = await this.findPersonByEmbedding(sim.embedding.faceId)
+          if (person) {
+            results.push({
+              person,
             similarity: sim.similarity,
             matches: [
               {
@@ -377,19 +434,30 @@ export class PersonDatabaseService {
     await this.ensureInitialized()
 
     try {
-      const person = await this.getPerson(personId)
-      if (!person) return false
+      if (this.config.storage === "tauri") {
+        await invoke("add_face_embedding", {
+          personId,
+          embedding: Array.from(embedding.vector),
+          quality: embedding.quality,
+          sourceClipId: embedding.clipId || "",
+          frameNumber: embedding.frameNumber || 0,
+          timestamp: embedding.timestamp,
+        })
+        return true
+      } else {
+        const person = await this.getPerson(personId)
+        if (!person) return false
 
-      // Сохраняем эмбеддинг
-      await this.storeEmbedding(embedding)
+        // Сохраняем эмбеддинг
+        await this.storeEmbedding(embedding)
 
-      // Обновляем персону
-      const updatedEmbeddings = [...person.faceEmbeddings, embedding]
-      const averageEmbedding = this.calculateAverageEmbedding(updatedEmbeddings)
+        // Обновляем персону
+        const updatedEmbeddings = [...person.faceEmbeddings, embedding]
+        const averageEmbedding = this.calculateAverageEmbedding(updatedEmbeddings)
 
-      await this.updatePerson(personId, {
-        faceEmbeddings: updatedEmbeddings,
-        averageEmbedding,
+        await this.updatePerson(personId, {
+          faceEmbeddings: updatedEmbeddings,
+          averageEmbedding,
         updatedAt: new Date().toISOString(),
       })
 
@@ -553,7 +621,13 @@ export class PersonDatabaseService {
           const representative = cluster[0]
           // Здесь должен быть расчет сходства между detection и representative
           // Пока используем заглушку
-          const similarity = Math.random() // TODO: реальный расчет сходства
+          // Используем реальный расчет сходства
+          const similarity = detection.embedding && representative.embedding
+            ? this.calculateCosineSimilarity(
+                new Float32Array(detection.embedding),
+                new Float32Array(representative.embedding)
+              )
+            : 0
 
           if (similarity >= threshold) {
             cluster.push(detection)
@@ -610,17 +684,21 @@ export class PersonDatabaseService {
     await this.ensureInitialized()
 
     try {
-      const persons = await this.getAllPersons()
-      const totalEmbeddings = persons.reduce((sum, p) => sum + p.faceEmbeddings.length, 0)
-      const totalAppearances = persons.reduce((sum, p) => sum + p.appearances.length, 0)
+      if (this.config.storage === "tauri") {
+        return await invoke<DatabaseStats>("get_person_database_stats")
+      } else {
+        const persons = await this.getAllPersons()
+        const totalEmbeddings = persons.reduce((sum, p) => sum + p.faceEmbeddings.length, 0)
+        const totalAppearances = persons.reduce((sum, p) => sum + p.appearances.length, 0)
 
-      return {
-        totalPersons: persons.length,
-        totalEmbeddings,
-        totalAppearances,
-        averageEmbeddingsPerPerson: persons.length > 0 ? totalEmbeddings / persons.length : 0,
-        storageSize: 0, // TODO: вычислить размер хранилища
-        lastUpdated: new Date().toISOString(),
+        return {
+          totalPersons: persons.length,
+          totalEmbeddings,
+          totalAppearances,
+          averageEmbeddingsPerPerson: persons.length > 0 ? totalEmbeddings / persons.length : 0,
+          storageSize: 0,
+          lastUpdated: new Date().toISOString(),
+        }
       }
     } catch (error) {
       console.error("Ошибка получения статистики базы данных:", error)

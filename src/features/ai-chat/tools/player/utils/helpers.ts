@@ -2,7 +2,31 @@
  * Вспомогательные функции для Player AI инструментов
  */
 
-import type { CurrentMedia, PlayerState } from "../types"
+import type { CurrentMedia, PlayerState, PlayerStateAccess } from "../types"
+
+// Глобальная переменная для доступа к состоянию плеера
+let playerStateAccess: PlayerStateAccess | null = null
+
+/**
+ * Устанавливает доступ к состоянию плеера
+ */
+export function setPlayerStateAccess(access: PlayerStateAccess | null): void {
+  playerStateAccess = access
+}
+
+/**
+ * Получает доступ к состоянию плеера
+ */
+export function getPlayerStateAccess(): PlayerStateAccess | null {
+  return playerStateAccess
+}
+
+/**
+ * Проверяет, настроен ли доступ к плееру
+ */
+export function hasPlayerAccess(): boolean {
+  return playerStateAccess !== null
+}
 
 /**
  * Парсит FPS в различных форматах

@@ -619,28 +619,9 @@ export async function executeVideoAnalysisTool(toolName: string, input: Record<s
 
       // Создаем новые клипы на timeline на основе сцен
       let clipsCreated = 0
-      if (input.createNewClips && typeof window !== "undefined" && (window as any).timelineContext) {
-        const timelineContext = (window as any).timelineContext
-        const originalClip = timelineContext.project?.tracks
-          ?.flatMap((track: any) => track.clips)
-          ?.find((clip: any) => clip.id === input.clipId)
-
-        if (originalClip) {
-          // Создаем новый трек для сцен
-          const sceneTrackId = `scenes_${input.clipId}_${Date.now()}`
-          await timelineContext.addTrack("video", originalClip.trackId, `Scenes from ${originalClip.mediaFile.name}`)
-
-          // Создаем клипы для каждой сцены
-          for (let i = 0; i < scenes.scenes.length; i++) {
-            const scene = scenes.scenes[i]
-            const clipDuration = scene.endTime - scene.startTime
-
-            if (clipDuration >= input.minSceneLength) {
-              await timelineContext.addClip(sceneTrackId, originalClip.mediaFile, scene.startTime, clipDuration)
-              clipsCreated++
-            }
-          }
-        }
+      if (input.createNewClips) {
+        // TODO: Использовать TimelineStateAccess когда он будет доступен
+        console.warn("Creating clips on timeline not implemented yet - need TimelineStateAccess")
       }
 
       console.log("Creating new clips for scenes:", scenes.scenes.length)

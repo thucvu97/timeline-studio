@@ -49,16 +49,58 @@ vi.mock("@/features/project-settings", () => ({
 
 const mockPlayerContext = {
   video: null as MediaFile | null,
+  isPlaying: false,
+  currentTime: 0,
+  duration: 0,
+  volume: 100,
+  currentPlaybackRate: 1,
+  appliedEffects: [],
+  appliedFilters: [],
+  appliedTemplate: null,
+  videoSource: "browser" as "browser" | "timeline",
+  previewMedia: null,
+  isVideoLoading: false,
+  isVideoReady: true,
+  isSeeking: false,
+  speedRampingEnabled: false,
+  setIsPlaying: vi.fn(),
+  setCurrentTime: vi.fn(),
+  setVolume: vi.fn(),
+  updatePlaybackRate: vi.fn(),
+  applyEffect: vi.fn(),
+  applyFilter: vi.fn(),
+  applyTemplate: vi.fn(),
+  clearEffects: vi.fn(),
+  clearFilters: vi.fn(),
+  clearTemplate: vi.fn(),
+  setPreviewMedia: vi.fn(),
+  setVideoSource: vi.fn(),
 }
 
 vi.mock("../../services/player-provider", () => ({
   usePlayer: () => mockPlayerContext,
 }))
 
+// Мокаем хук AI интеграции
+vi.mock("@/features/ai-chat/hooks/use-player-ai-integration", () => ({
+  usePlayerAIIntegration: () => ({
+    isReady: true,
+    hasMedia: false,
+    isPlaying: false,
+    effectsCount: 0,
+    filtersCount: 0,
+  }),
+}))
+
 describe("VideoPlayer", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockPlayerContext.video = null
+    mockPlayerContext.previewMedia = null
+    mockPlayerContext.appliedEffects = []
+    mockPlayerContext.appliedFilters = []
+    mockPlayerContext.appliedTemplate = null
+    mockPlayerContext.isVideoReady = true
   })
 
   describe("Без видео", () => {

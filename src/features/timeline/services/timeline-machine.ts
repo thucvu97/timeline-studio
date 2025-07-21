@@ -6,9 +6,11 @@
 
 import { assign, fromPromise, setup } from "xstate"
 
+import { TimelineStudioProjectService } from "@/features/app-state/services/timeline-studio-project-service"
 import { VideoEffect } from "@/features/effects/types"
 import { VideoFilter } from "@/features/filters/types/filters"
 import { MediaFile } from "@/features/media/types/media"
+import { TimelineStudioProject } from "@/features/project-settings/types/timeline-studio-project"
 import { StyleTemplate } from "@/features/style-templates/types/style-template"
 import { MediaTemplate } from "@/features/templates/lib/templates"
 import { Transition } from "@/features/transitions/types/transitions"
@@ -1764,6 +1766,152 @@ const actions = {
   }),
 }
 
+/**
+ * Конвертирует TimelineProject в TimelineStudioProject для сохранения
+ */
+async function convertTimelineProjectToStudioProject(timelineProject: TimelineProject): Promise<TimelineStudioProject> {
+  const projectService = TimelineStudioProjectService.getInstance()
+  
+  // Создаем новый проект с базовой структурой
+  const studioProject = projectService.createProjectSync(timelineProject.name, {
+    resolution: { width: 1920, height: 1080 }, // TODO: Взять из настроек проекта
+    frameRate: timelineProject.fps,
+    duration: timelineProject.duration,
+  })
+  
+  // Обновляем ID и временные метки
+  studioProject.metadata.id = timelineProject.id
+  studioProject.metadata.created = timelineProject.createdAt
+  studioProject.metadata.modified = timelineProject.updatedAt
+  
+  // Конвертируем медиафайлы в MediaPool
+  if (timelineProject.resources.media && timelineProject.resources.media.length > 0) {
+    timelineProject.resources.media.forEach((mediaFile) => {
+      studioProject.mediaPool.items.set(mediaFile.id, {
+        id: mediaFile.id,
+        type: mediaFile.type as "video" | "audio" | "image",
+        path: mediaFile.path,
+        name: mediaFile.name,
+        duration: mediaFile.duration || 0,
+        metadata: {
+          format: mediaFile.format || "",
+          codec: mediaFile.codec || "",
+          resolution: mediaFile.resolution || { width: 0, height: 0 },
+          frameRate: mediaFile.frameRate || 0,
+          bitrate: mediaFile.bitrate || 0,
+          audioChannels: mediaFile.audioChannels || 0,
+          sampleRate: mediaFile.sampleRate || 0,
+        },
+        thumbnail: mediaFile.thumbnail,
+        importedAt: new Date(),
+        tags: [],
+        usageCount: 0,
+        proxyPath: undefined,
+      })
+    })
+  }
+  
+  // Создаем главную секвенцию из секций и треков
+  const mainSequence = studioProject.sequences.get(studioProject.activeSequenceId)!
+  
+  // Очищаем дефолтные треки
+  mainSequence.tracks = []
+  
+  // Добавляем глобальные треки
+  timelineProject.globalTracks.forEach((track) => {
+    mainSequence.tracks.push({
+      id: track.id,
+      name: track.name,
+      type: track.type as any,
+      enabled: track.enabled,
+      locked: track.locked,
+      height: track.height,
+      color: track.color,
+      volume: track.volume,
+      pan: track.pan,
+      effects: track.effects || [],
+      filters: track.filters || [],
+      clips: track.clips.map((clip) => ({
+        id: clip.id,
+        name: clip.name,
+        type: clip.type,
+        sourceId: clip.sourceId,
+        sourceIn: clip.sourceIn,
+        sourceOut: clip.sourceOut,
+        timelineIn: clip.startTime,
+        timelineOut: clip.startTime + clip.duration,
+        duration: clip.duration,
+        playbackRate: clip.playbackRate,
+        volume: clip.volume,
+        enabled: clip.enabled,
+        locked: clip.locked,
+        effects: clip.effects || [],
+        filters: clip.filters || [],
+        transitions: clip.transitions || [],
+        keyframes: [],
+        metadata: {},
+      })),
+    })
+  })
+  
+  // Добавляем треки из секций
+  timelineProject.sections.forEach((section) => {
+    section.tracks.forEach((track) => {
+      mainSequence.tracks.push({
+        id: track.id,
+        name: track.name,
+        type: track.type as any,
+        enabled: track.enabled,
+        locked: track.locked,
+        height: track.height,
+        color: track.color,
+        volume: track.volume,
+        pan: track.pan,
+        effects: track.effects || [],
+        filters: track.filters || [],
+        clips: track.clips.map((clip) => ({
+          id: clip.id,
+          name: clip.name,
+          type: clip.type,
+          sourceId: clip.sourceId,
+          sourceIn: clip.sourceIn,
+          sourceOut: clip.sourceOut,
+          timelineIn: clip.startTime,
+          timelineOut: clip.startTime + clip.duration,
+          duration: clip.duration,
+          playbackRate: clip.playbackRate,
+          volume: clip.volume,
+          enabled: clip.enabled,
+          locked: clip.locked,
+          effects: clip.effects || [],
+          filters: clip.filters || [],
+          transitions: clip.transitions || [],
+          keyframes: [],
+          metadata: {},
+        })),
+      })
+    })
+  })
+  
+  // Добавляем маркеры
+  if (timelineProject.markers) {
+    mainSequence.markers = timelineProject.markers.map((marker) => ({
+      id: marker.id,
+      name: marker.name,
+      time: marker.time,
+      color: marker.color || "#FF0000",
+      type: marker.type || "note",
+      comment: marker.description,
+    }))
+  }
+  
+  // Обновляем настройки проекта
+  studioProject.settings.frameRate = timelineProject.fps
+  studioProject.settings.duration = timelineProject.duration
+  
+  return studioProject
+}
+
 export const timelineMachine = setup({
   types: {} as {
     context: TimelineContext
@@ -1772,9 +1920,45 @@ export const timelineMachine = setup({
   guards,
   actions: actions as any,
   actors: {
-    saveProjectService: fromPromise(async () => {
-      // TODO: Implement actual save logic
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+    saveProjectService: fromPromise(async ({ input }: { input: { context: TimelineContext } }) => {
+      const { context } = input
+      
+      if (!context.project) {
+        throw new Error("No project to save")
+      }
+
+      // Получаем сервис для сохранения проектов
+      const projectService = TimelineStudioProjectService.getInstance()
+      
+      // Получаем путь к файлу из контекста приложения (должен быть передан через события)
+      // Временно используем заглушку - нужно будет интегрировать с AppSettingsContext
+      const projectPath = (window as any).__currentProjectPath || null
+      
+      if (!projectPath) {
+        // Если путь не определен, нужно показать диалог сохранения
+        const { save } = await import("@tauri-apps/plugin-dialog")
+        const path = await save({
+          filters: [
+            { name: "Timeline Studio Project v2", extensions: ["tlsp"] },
+            { name: "Timeline Studio Project (Legacy)", extensions: ["tls"] }
+          ],
+          defaultPath: `${context.project.name}.tlsp`
+        })
+        
+        if (!path) {
+          throw new Error("Save cancelled")
+        }
+        
+        // Сохраняем путь для последующего использования
+        (window as any).__currentProjectPath = path
+      }
+      
+      // Конвертируем TimelineProject в TimelineStudioProject
+      const timelineStudioProject = await convertTimelineProjectToStudioProject(context.project)
+      
+      // Сохраняем проект
+      await projectService.saveProject(timelineStudioProject, projectPath || (window as any).__currentProjectPath)
+      
       return { success: true }
     }),
   },
@@ -2053,6 +2237,7 @@ export const timelineMachine = setup({
       invoke: {
         id: "saveProject",
         src: "saveProjectService",
+        input: ({ context }) => ({ context }),
         onDone: {
           target: "ready",
         },
