@@ -42,6 +42,16 @@ export interface WhisperTranscriptionResult {
   confidence?: number
   segments?: WhisperSegment[]
   words?: WhisperWord[]
+  processingTime?: number
+  processingDetails?: {
+    startTime: number
+    endTime: number
+    durationMs: number
+    model: string
+    apiProvider: "openai" | "local"
+    threads?: number
+    language?: string
+  }
 }
 
 export interface WhisperTranslationOptions {
@@ -174,6 +184,9 @@ export class WhisperService {
       throw new Error("API ключ OpenAI не установлен")
     }
 
+    const startTime = Date.now()
+    console.log(`Начинаем транскрипцию через OpenAI: ${audioFilePath}`)
+
     try {
       // Используем Tauri команду для отправки файла в OpenAI
       const result = await invoke<WhisperTranscriptionResult>("whisper_transcribe_openai", {
@@ -187,9 +200,27 @@ export class WhisperService {
         timestampGranularities: options.timestamp_granularities || ["segment"],
       })
 
-      return result
+      const endTime = Date.now()
+      const processingTime = endTime - startTime
+      
+      console.log(`Транскрипция завершена за ${processingTime}мс (${(processingTime / 1000).toFixed(2)}с)`)
+
+      // Добавляем информацию о времени обработки в результат
+      return {
+        ...result,
+        processingTime,
+        processingDetails: {
+          startTime,
+          endTime,
+          durationMs: processingTime,
+          model: options.model || "whisper-1",
+          apiProvider: "openai"
+        }
+      }
     } catch (error) {
-      console.error("Ошибка транскрипции через OpenAI:", error)
+      const endTime = Date.now()
+      const processingTime = endTime - startTime
+      console.error(`Ошибка транскрипции через OpenAI (${processingTime}мс):`, error)
       throw new Error(`Не удалось выполнить транскрипцию: ${String(error)}`)
     }
   }
@@ -234,6 +265,9 @@ export class WhisperService {
       outputFormat?: "txt" | "srt" | "vtt" | "json"
     } = {},
   ): Promise<WhisperTranscriptionResult> {
+    const startTime = Date.now()
+    console.log(`Начинаем локальную транскрипцию: ${audioFilePath} (модель: ${modelName})`)
+
     try {
       const result = await invoke<WhisperTranscriptionResult>("whisper_transcribe_local", {
         audioFilePath,
@@ -243,9 +277,29 @@ export class WhisperService {
         outputFormat: options.outputFormat || "json",
       })
 
-      return result
+      const endTime = Date.now()
+      const processingTime = endTime - startTime
+      
+      console.log(`Локальная транскрипция завершена за ${processingTime}мс (${(processingTime / 1000).toFixed(2)}с)`)
+
+      // Добавляем информацию о времени обработки в результат
+      return {
+        ...result,
+        processingTime,
+        processingDetails: {
+          startTime,
+          endTime,
+          durationMs: processingTime,
+          model: modelName,
+          apiProvider: "local",
+          threads: options.threads || 4,
+          language: options.language || "auto"
+        }
+      }
     } catch (error) {
-      console.error("Ошибка локальной транскрипции:", error)
+      const endTime = Date.now()
+      const processingTime = endTime - startTime
+      console.error(`Ошибка локальной транскрипции (${processingTime}мс):`, error)
       throw new Error(`Не удалось выполнить локальную транскрипцию: ${String(error)}`)
     }
   }

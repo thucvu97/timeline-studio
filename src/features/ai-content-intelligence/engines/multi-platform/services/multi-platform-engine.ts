@@ -27,6 +27,7 @@ export class MultiPlatformEngine {
   private batchProcessor: BatchProcessor
   private config: MultiPlatformConfig
   private isInitialized = false
+  private aiService: UnifiedAIService
 
   constructor(config?: Partial<MultiPlatformConfig>) {
     this.config = this.getDefaultConfig(config)
@@ -89,7 +90,7 @@ export class MultiPlatformEngine {
         analysis: request.sourceContent.analysis,
         script: request.sourceContent.script,
         targetPlatform: getPlatformConfig(platformId),
-        sourceLanguage: "en", // TODO: определять автоматически
+        sourceLanguage: await this.detectSourceLanguage(request.sourceContent),
         targetLanguages: request.languages,
         userPreferences: request.preferences,
       }
@@ -647,6 +648,142 @@ export class MultiPlatformEngine {
         optimizeSEO: true,
         ...customConfig?.ai,
       },
+    }
+  }
+
+  /**
+   * Автоопределение исходного языка контента
+   */
+  private async detectSourceLanguage(sourceContent: any): Promise<string> {
+    try {
+      // 1. Пытаемся определить язык из метаданных
+      if (sourceContent.analysis?.metadata?.language) {
+        return sourceContent.analysis.metadata.language
+      }
+
+      // 2. Используем текстовый контент для определения языка
+      const textSamples = this.extractTextSamples(sourceContent)
+      if (textSamples.length === 0) {
+        return "en" // Fallback к английскому
+      }
+
+      // 3. Анализируем языковые паттерны
+      const detectedLanguage = await this.analyzeLanguagePatterns(textSamples)
+      if (detectedLanguage) {
+        return detectedLanguage
+      }
+
+      // 4. Используем AI для более точного определения
+      return await this.detectLanguageWithAI(textSamples)
+    } catch (error) {
+      console.warn("Language detection failed, defaulting to English:", error)
+      return "en"
+    }
+  }
+
+  /**
+   * Извлечение текстовых образцов из контента
+   */
+  private extractTextSamples(sourceContent: any): string[] {
+    const samples: string[] = []
+
+    // Извлекаем из сценария
+    if (sourceContent.script?.scenes) {
+      sourceContent.script.scenes.forEach((scene: any) => {
+        if (scene.description) samples.push(scene.description)
+        if (scene.audioElements) {
+          scene.audioElements.forEach((audio: any) => {
+            if (audio.description) samples.push(audio.description)
+          })
+        }
+      })
+    }
+
+    // Извлекаем из метаданных
+    if (sourceContent.analysis?.metadata?.title) {
+      samples.push(sourceContent.analysis.metadata.title)
+    }
+    if (sourceContent.analysis?.metadata?.description) {
+      samples.push(sourceContent.analysis.metadata.description)
+    }
+
+    // Извлекаем из транскрипции
+    if (sourceContent.analysis?.transcription?.text) {
+      samples.push(sourceContent.analysis.transcription.text)
+    }
+
+    return samples.filter(sample => sample && sample.trim().length > 0)
+  }
+
+  /**
+   * Анализ языковых паттернов (простая эвристика)
+   */
+  private async analyzeLanguagePatterns(textSamples: string[]): Promise<string | null> {
+    const combinedText = textSamples.join(" ").toLowerCase()
+    
+    // Простые эвристики для популярных языков
+    const languagePatterns = {
+      ru: /[а-яё]/g,
+      en: /\b(the|and|or|but|is|are|was|were|have|has|had|will|would|can|could|should|shall)\b/g,
+      es: /\b(el|la|los|las|de|del|y|o|pero|es|son|fue|fueron|tener|tiene|tenía)\b/g,
+      fr: /\b(le|la|les|de|du|des|et|ou|mais|est|sont|était|étaient|avoir|avons|avait)\b/g,
+      de: /\b(der|die|das|und|oder|aber|ist|sind|war|waren|haben|hat|hatte)\b/g,
+      it: /\b(il|la|lo|gli|le|di|del|e|o|ma|è|sono|era|erano|avere|ha|aveva)\b/g,
+      pt: /\b(o|a|os|as|de|do|da|e|ou|mas|é|são|era|eram|ter|tem|tinha)\b/g,
+    }
+
+    let bestMatch = { language: null as string | null, score: 0 }
+
+    for (const [language, pattern] of Object.entries(languagePatterns)) {
+      const matches = combinedText.match(pattern)
+      const score = matches ? matches.length / combinedText.split(/\s+/).length : 0
+
+      if (score > bestMatch.score && score > 0.1) {
+        bestMatch = { language, score }
+      }
+    }
+
+    return bestMatch.language
+  }
+
+  /**
+   * Определение языка с помощью AI
+   */
+  private async detectLanguageWithAI(textSamples: string[]): Promise<string> {
+    try {
+      const sampleText = textSamples.slice(0, 3).join("\n").substring(0, 500)
+      
+      const aiService = UnifiedAIService.getInstance()
+      const prompt = `Определите язык следующего текста. Верните только ISO код языка (например: en, ru, es, fr, de):
+
+${sampleText}
+
+Язык:`
+
+      const response = await aiService.processText(prompt, {
+        model: "gpt-4o",
+        temperature: 0.1,
+        maxTokens: 10,
+      })
+
+      // Очищаем ответ и проверяем валидность
+      const detectedLanguage = response.trim().toLowerCase()
+      const validLanguages = ["en", "ru", "es", "fr", "de", "it", "pt", "zh", "ja", "ko", "ar", "hi", "tr", "pl", "nl"]
+      
+      if (validLanguages.includes(detectedLanguage)) {
+        return detectedLanguage
+      }
+
+      // Пытаемся извлечь код языка из более длинного ответа
+      const langMatch = response.match(/\b(en|ru|es|fr|de|it|pt|zh|ja|ko|ar|hi|tr|pl|nl)\b/i)
+      if (langMatch) {
+        return langMatch[1].toLowerCase()
+      }
+
+      return "en" // Fallback
+    } catch (error) {
+      console.warn("AI language detection failed:", error)
+      return "en"
     }
   }
 }

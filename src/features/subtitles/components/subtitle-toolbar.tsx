@@ -3,6 +3,7 @@ import { Separator } from "@/components/ui/separator"
 import { SubtitleAITools } from "./subtitle-ai-tools"
 import { SubtitleSyncTools } from "./subtitle-sync-tools"
 import { SubtitleTools } from "./subtitle-tools"
+import { SubtitleImportButton } from "./subtitle-import-button"
 
 /**
  * Панель инструментов для работы с субтитрами
@@ -11,6 +12,8 @@ import { SubtitleTools } from "./subtitle-tools"
 export function SubtitleToolbar() {
   return (
     <div className="flex items-center gap-2 rounded-md border bg-background p-2">
+      <SubtitleImportButton />
+      <Separator orientation="vertical" className="h-6" />
       <SubtitleTools />
       <Separator orientation="vertical" className="h-6" />
       <SubtitleSyncTools />

@@ -63,21 +63,23 @@
 - Автоматическое переключение плеера в режим 'browser' при отправке из браузера
 - Fallback к локальному воспроизведению при ошибках backend
 
-### 6. ~~AI Content Intelligence - Реальные анализаторы~~ ✅ **85% выполнено**
-**Статус**: Выполнено (2025-07-21)
+### 6. ~~AI Content Intelligence - Реальные анализаторы~~ ✅ **100% выполнено**
+**Статус**: Полностью выполнено (2025-07-21)
 **Проблема**: Множество AI сервисов использовали заглушки вместо реальной реализации
 **Реализовано**:
 - ✅ **VisionService** - Реальный анализ композиции кадра (analyzeComposition без TODO)
 - ✅ **Scene Analysis Engine** - Анализ доминирующих цветов (extractDominantColors) и настроения (detectSceneMood) 
 - ✅ **Content Classifier** - Реальная классификация: calculateColorVariety, calculateMusicPercentage, generateSecondaryClassifications
 - ✅ **Character Analysis Service** - Полный анализ персонажей и определение отношений (новый сервис с 27 тестами)
-- ✅ **Whisper Service** - Отслеживание прогресса транскрипции через Tauri events
+- ✅ **Whisper Service** - Отслеживание прогресса и точное измерение времени транскрипции
 - ✅ **Multimodal Analysis** - Реальное время обработки и cut detection алгоритм
+- ✅ **Script Generation Engine** - Генерация альтернативных сценариев с интеграцией Character Analysis
+- ✅ **Multi-Platform Engine** - Автоопределение языка (эвристика + AI) для адаптации контента
 
-**Осталось доделать (8 TODO из 33):**
-- `script-generation-engine.ts`: альтернативные варианты сценариев (4 TODO)
-- `multi-platform-engine.ts`: автоопределение языка (2 TODO)  
-- Мелкие улучшения измерения времени обработки (2 TODO)
+**Все 33 TODO реализованы (100% завершение):**
+- `script-generation-engine.ts`: альтернативные варианты, отношения персонажей, AI оценка связности, аудиторная оценка ✅
+- `multi-platform-engine.ts`: автоопределение языка с fallback механизмами ✅
+- Точное измерение времени обработки во всех AI сервисах ✅
 
 ### 7. ~~Video Compiler - Rust модули~~ ✅ Частично выполнено
 **Статус**: Критичные компоненты реализованы (2025-07-21)
@@ -89,10 +91,17 @@
 - Расширенный ProgressTracker с поддержкой приостановки задач
 **Осталось**: 18 TODO среднего и низкого приоритета (GPU оптимизации, кэширование)
 
-### 8. Import/Export форматы
-**Приоритет**: Критичный для профессионального использования
-**Проблема**: Отсутствует поддержка FCPXML, AAF, EDL форматов
-**Решение**: Реализовать парсеры и конвертеры для профессиональных форматов
+### 8. ~~Import/Export форматы~~ ✅ Частично выполнено
+**Статус**: Import субтитров реализован (2025-07-21)
+**Реализовано**:
+- ✅ Import субтитров SRT (с парсингом временных меток)
+- ✅ Import субтитров VTT (с поддержкой позиционирования)
+- ✅ Import субтитров ASS/SSA (с парсингом стилей и цветов)
+- ✅ Автоопределение формата субтитров
+- ✅ Валидация импортированных субтитров
+- ✅ UI компонент для импорта с прогрессом
+- ✅ Интеграция с Timeline и хуки
+**Осталось**: Import видео проектов (EDL, FCPXML, AAF), Export улучшения
 
 ### 9. Real-time Preview
 **Приоритет**: Критичный для удобства редактирования
@@ -113,10 +122,6 @@
 - `script-generation-engine.ts`: Генерация альтернативных вариантов контента (3 TODO)
 - `multi-platform-engine.ts`: Адаптация контента под разные платформы (2 TODO)
 - `character-analysis.ts`: Определение отношений между персонажами (5 TODO)
-
-#### AI Chat и анализ
-- `whisper-service.ts`: Отслеживание прогресса транскрипции (2 TODO)
-- `multimodal-analysis-service.ts`: Определение точек для монтажа (1 TODO)
 
 ### ~~Timeline Features~~ ✅ Частично выполнено (18 → 12 TODO)
 
@@ -213,14 +218,15 @@
 5. ~~**Оставшиеся задачи Q3**: Timeline Player Sync FIXME (критичный баг)~~ ✅ Выполнено!
 
 ### Q4 2025 (Октябрь-Декабрь) - Актуализированный план
-1. **~~Октябрь~~**: ✅ **AI Content Intelligence** - реальные анализаторы (33 → 8 TODO) **85% выполнено**
+1. **~~Октябрь~~**: ✅ **AI Content Intelligence** - реальные анализаторы (33 TODO) **100% выполнено**
    - ✅ VisionService - реальный анализ композиции кадра
    - ✅ Scene Analysis Engine - доминирующие цвета и анализ настроения
    - ✅ Content Classifier - реальная классификация контента и музыки  
    - ✅ Character Analysis Service - полный анализ отношений персонажей (новый сервис)
-   - ✅ Whisper Service - отслеживание прогресса загрузки моделей
+   - ✅ Whisper Service - отслеживание прогресса загрузки моделей и точное измерение времени
    - ✅ Multimodal Analysis - реальное время обработки и cut detection
-   - Осталось: Script Generation альтернативы, Multi-Platform автоопределение языка (8 TODO)
+   - ✅ Script Generation Engine - генерация альтернативных сценариев, AI оценка связности, анализ аудитории
+   - ✅ Multi-Platform Engine - автоопределение языка контента (эвристики + AI)
 2. **~~Ноябрь~~**: ✅ **Video Compiler Rust модули** (23 → 18 TODO)
    - ✅ Frame extraction и scene detection (FFmpeg интеграция)
    - ✅ Progress tracking и pause/resume (полная реализация)
@@ -291,11 +297,11 @@
 ### Статистика улучшений  
 - **Решено критичных TODO**: 13 из 15 (87% прогресс) 🚀
 - **Реализовано Video Compiler**: 8 из 23 критичных TODO (35% прогресс)
-- **Реализовано AI Content Intelligence**: 25 из 33 высокоприоритетных TODO (76% прогресс) 🎉
+- **Реализовано AI Content Intelligence**: 33 из 33 высокоприоритетных TODO (100% прогресс) 🎉✅
 - **Реализовано высокоприоритетных**: 6 из 24 Timeline операций (25% прогресс)
 - **Реализовано простых TODO**: 7 из 10 общих (70% прогресс) ✅
   - **Rust backend** (3/3): System Info Memory metrics, Quality Analyzer exposure, Montage Planner frame quality
-  - **AI Content Intelligence** (25/33): VisionService, Scene Analysis, Content Classifier, Character Analysis, Whisper, Multimodal
+  - **AI Content Intelligence** (33/33): VisionService, Scene Analysis, Content Classifier, Character Analysis, Whisper, Multimodal, Script Generation, Multi-Platform ✅
 - **Новый функционал**: Система стилей субтитров, музыкальные треки, расширенные snap алгоритмы
 - **Архитектурные улучшения**: Clip operations утилиты, timeline-machine clipboard integration
 
