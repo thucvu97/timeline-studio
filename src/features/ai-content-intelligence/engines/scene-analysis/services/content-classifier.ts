@@ -345,10 +345,10 @@ export class ContentClassifier {
       averageSceneDuration,
       sceneChangeRate,
       motionIntensity: metadata.motion?.motionIntensity || 0.5,
-      colorVariety: 0.5, // TODO: вычислить из анализа цветов
+      colorVariety: this.calculateColorVariety(scenes),
       visualComplexity: this.calculateVisualComplexity(scenes),
       speechPercentage: metadata.silence?.speechPercentage || 50,
-      musicPercentage: 30, // TODO: определить из аудио анализа
+      musicPercentage: this.calculateMusicPercentage(metadata),
       silencePercentage: metadata.silence?.totalSilenceDuration
         ? (metadata.silence.totalSilenceDuration / totalDuration) * 100
         : 20,
@@ -512,7 +512,7 @@ Format your response as JSON with this structure:
   private buildClassification(result: ClassificationResult): ContentClassification {
     return {
       primary: result,
-      secondary: [], // TODO: Добавить вторичные классификации
+      secondary: this.generateSecondaryClassifications(result),
       confidence: result.confidence,
       tags: this.generateTags(result),
       warnings: this.generateWarnings(result),
@@ -574,5 +574,213 @@ Format your response as JSON with this structure:
    */
   public updateConfig(config: Partial<ClassifierConfig>): void {
     this.config = { ...this.config, ...config }
+  }
+
+  /**
+   * Вычисляет разнообразие цветов в сценах
+   */
+  private calculateColorVariety(scenes: SceneAnalysis[]): number {
+    try {
+      if (scenes.length === 0) return 0.5
+
+      const allColors = new Set<string>()
+      let sceneCount = 0
+
+      for (const scene of scenes) {
+        if (scene.keyFrames && scene.keyFrames.length > 0) {
+          for (const keyFrame of scene.keyFrames) {
+            // Извлекаем доминирующие цвета из ключевых кадров
+            if (keyFrame.features?.colorHistogram) {
+              // Используем гистограмму цветов если доступна
+              keyFrame.features.colorHistogram.forEach((_, index) => {
+                allColors.add(`color_${index}`)
+              })
+            } else {
+              // Fallback: используем композицию для оценки цветового разнообразия
+              if (keyFrame.composition) {
+                const colorScore = keyFrame.composition.colorHarmony
+                if (colorScore > 0.7) allColors.add('harmonious')
+                if (colorScore < 0.3) allColors.add('contrasting')
+              }
+            }
+          }
+          sceneCount++
+        }
+      }
+
+      // Нормализуем количество уникальных цветов на количество сцен
+      const varietyScore = sceneCount > 0 ? Math.min(1, allColors.size / (sceneCount * 3)) : 0.5
+      return varietyScore
+    } catch (error) {
+      console.error('Failed to calculate color variety:', error)
+      return 0.5
+    }
+  }
+
+  /**
+   * Вычисляет процент музыки из метаданных
+   */
+  private calculateMusicPercentage(metadata: any): number {
+    try {
+      // Проверяем различные источники музыкальных данных в метаданных
+      
+      // 1. Данные из music detection service
+      if (metadata.musicSegments && Array.isArray(metadata.musicSegments)) {
+        const totalDuration = metadata.duration || 0
+        if (totalDuration > 0) {
+          const musicDuration = metadata.musicSegments.reduce((sum: number, segment: any) => {
+            return sum + (segment.endTime - segment.startTime)
+          }, 0)
+          return Math.min(100, (musicDuration / totalDuration) * 100)
+        }
+      }
+
+      // 2. Данные из FFmpeg аудио анализа
+      if (metadata.audio?.analysis?.musicPercentage !== undefined) {
+        return metadata.audio.analysis.musicPercentage
+      }
+
+      // 3. Эвристика на основе аудио характеристик
+      if (metadata.audio) {
+        const volume = metadata.audio.volume?.average || 0
+        const frequencies = metadata.audio.frequencies
+        
+        // Если есть данные о частотах
+        if (frequencies) {
+          // Проверяем музыкальные частоты
+          const bassLevel = frequencies.low || 0
+          const midLevel = frequencies.mid || 0
+          const highLevel = frequencies.high || 0
+          
+          // Музыка обычно имеет более сбалансированное распределение частот
+          const frequencyBalance = 1 - Math.abs((bassLevel + midLevel + highLevel) / 3 - 0.5)
+          const musicScore = (volume + frequencyBalance) / 2
+          
+          return Math.min(100, musicScore * 100)
+        }
+
+        // Простая эвристика на основе громкости
+        if (volume > 0.3) {
+          return Math.min(80, volume * 100) // Громкий звук часто содержит музыку
+        }
+      }
+
+      // 4. Анализ речи для косвенного определения музыки
+      if (metadata.silence?.speechPercentage !== undefined) {
+        const speechPercentage = metadata.silence.speechPercentage
+        const silencePercentage = metadata.silence.totalSilenceDuration 
+          ? (metadata.silence.totalSilenceDuration / (metadata.duration || 1)) * 100 
+          : 0
+
+        // Если мало речи и мало тишины, вероятно есть музыка
+        const nonSpeechNonSilence = 100 - speechPercentage - silencePercentage
+        return Math.max(0, Math.min(70, nonSpeechNonSilence))
+      }
+
+      // Дефолтное значение
+      return 30
+    } catch (error) {
+      console.error('Failed to calculate music percentage:', error)
+      return 30
+    }
+  }
+
+  /**
+   * Генерирует вторичные классификации
+   */
+  private generateSecondaryClassifications(primary: ClassificationResult): ClassificationResult[] {
+    const secondary: ClassificationResult[] = []
+
+    try {
+      // Генерируем альтернативные классификации на основе основной
+      switch (primary.category as ContentType) {
+        case ContentType.DOCUMENTARY:
+          // Документальные фильмы могут быть также образовательными
+          secondary.push({
+            category: ContentType.TUTORIAL,
+            confidence: Math.max(0.3, primary.confidence - 0.2),
+            reasoning: 'Documentary content often has educational value'
+          })
+          break
+
+        case ContentType.TUTORIAL:
+          // Туториалы могут быть документальными
+          if (primary.confidence > 0.8) {
+            secondary.push({
+              category: ContentType.DOCUMENTARY,
+              confidence: primary.confidence - 0.3,
+              reasoning: 'High-quality tutorial with documentary characteristics'
+            })
+          }
+          break
+
+        case ContentType.VLOG:
+          // Влоги могут содержать коммерческий контент
+          secondary.push({
+            category: ContentType.COMMERCIAL,
+            confidence: 0.4,
+            reasoning: 'Vlogs often contain promotional content'
+          })
+          break
+
+        case ContentType.MUSIC_VIDEO:
+          // Музыкальные видео могут быть коммерческими
+          secondary.push({
+            category: ContentType.COMMERCIAL,
+            confidence: 0.6,
+            reasoning: 'Music videos are often promotional content'
+          })
+          break
+
+        case ContentType.NARRATIVE:
+          // Повествовательный контент может иметь различные поджанры
+          if (primary.subcategory) {
+            // На основе поджанра добавляем альтернативы
+            switch (primary.subcategory as Genre) {
+              case Genre.ACTION:
+                secondary.push({
+                  category: ContentType.SPORTS,
+                  confidence: 0.5,
+                  reasoning: 'Action content may contain sports elements'
+                })
+                break
+              case Genre.EDUCATIONAL:
+                secondary.push({
+                  category: ContentType.TUTORIAL,
+                  confidence: 0.7,
+                  reasoning: 'Educational narrative content'
+                })
+                break
+            }
+          }
+          break
+
+        case ContentType.COMMERCIAL:
+          // Коммерческий контент может быть музыкальным или образовательным
+          secondary.push({
+            category: ContentType.MUSIC_VIDEO,
+            confidence: 0.3,
+            reasoning: 'Commercial content often uses music'
+          })
+          break
+
+        default:
+          // Для остальных типов добавляем общие альтернативы
+          if (primary.confidence < 0.7) {
+            secondary.push({
+              category: ContentType.NARRATIVE,
+              confidence: 0.5,
+              reasoning: 'Generic narrative content as fallback'
+            })
+          }
+          break
+      }
+
+      // Фильтруем вторичные классификации по минимальной уверенности
+      return secondary.filter(s => s.confidence >= 0.3)
+    } catch (error) {
+      console.error('Failed to generate secondary classifications:', error)
+      return []
+    }
   }
 }

@@ -47,9 +47,19 @@ use recognition::RecognitionState;
 pub mod montage_planner;
 use montage_planner::commands::MontageState;
 
+// Модуль Person Identification
+pub mod features;
+
 // Модуль безопасности и API ключей
 pub mod security;
 use security::secure_storage::SecureStorage;
+
+// Модуль управления состоянием
+pub mod state;
+use state::StateManager;
+
+// Модуль экспорта типов
+pub mod types_export;
 
 // Модуль плагинов теперь в core/plugins
 
@@ -180,6 +190,20 @@ pub fn run() {
           // Продолжаем работу даже если Video Compiler не инициализирован
           // Создаем дефолтное состояние
           app.manage(tauri::async_runtime::block_on(VideoCompilerState::new()));
+        }
+      }
+
+      // Initialize State Manager
+      let state_manager = tauri::async_runtime::block_on(StateManager::new(app.handle().clone()));
+      match state_manager {
+        Ok(manager) => {
+          app.manage(manager);
+          log::info!("State Manager initialized successfully");
+        }
+        Err(e) => {
+          log::error!("Failed to initialize State Manager: {e}");
+          // State Manager is critical, so we should probably exit
+          // but for now, continue without it
         }
       }
 

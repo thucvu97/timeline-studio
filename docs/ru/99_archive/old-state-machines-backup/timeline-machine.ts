@@ -28,6 +28,13 @@ import {
   createTimelineSection,
   createTimelineTrack,
 } from "../types"
+import {
+  copyClips,
+  cutClips,
+  pasteClips,
+  ClipboardData,
+  PasteOptions,
+} from "../utils/clip-operations"
 import { ResourceManager } from "./resource-manager"
 import { SpeedRampingServiceImpl } from "./speed-ramping-service"
 
@@ -291,6 +298,39 @@ const updateSpeedRampingInProject = (context: TimelineContext, newConfigs: Recor
     speedRampingConfigs: newConfigs,
     updatedAt: new Date(),
   }
+}
+
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+
+/**
+ * Получает выделенные клипы из проекта
+ */
+function getSelectedClips(project: TimelineProject, selectedClipIds: string[]): TimelineClip[] {
+  const clips: TimelineClip[] = []
+  
+  // Поиск в секциях
+  project.sections.forEach(section => {
+    section.tracks.forEach(track => {
+      track.clips.forEach(clip => {
+        if (selectedClipIds.includes(clip.id)) {
+          clips.push(clip)
+        }
+      })
+    })
+  })
+  
+  // Поиск в глобальных треках
+  project.globalTracks.forEach(track => {
+    track.clips.forEach(clip => {
+      if (selectedClipIds.includes(clip.id)) {
+        clips.push(clip)
+      }
+    })
+  })
+  
+  return clips
 }
 
 const actions = {
@@ -1764,6 +1804,157 @@ const actions = {
     },
     lastAction: "RATE_STRETCH",
   }),
+
+  // ============================================================================
+  // CLIPBOARD OPERATIONS
+  // ============================================================================
+
+  copySelection: assign({
+    uiState: ({ context }: { context: TimelineContext }) => {
+      if (!context.project) return context.uiState
+
+      // Получаем выделенные клипы
+      const selectedClips = getSelectedClips(context.project, context.uiState.selectedClipIds)
+      
+      if (selectedClips.length === 0) {
+        return context.uiState
+      }
+
+      try {
+        // Копируем клипы в буфер обмена
+        const clipboardData = copyClips(selectedClips, {
+          includeEffects: true,
+          includeFilters: true,
+          includeTransitions: true,
+          deepCopy: true,
+        })
+
+        return {
+          ...context.uiState,
+          clipboard: {
+            clips: clipboardData.clips,
+            tracks: clipboardData.tracks,
+          },
+        }
+      } catch (error) {
+        console.error("Ошибка при копировании клипов:", error)
+        return context.uiState
+      }
+    },
+    lastAction: "COPY_SELECTION",
+  }),
+
+  cutSelection: assign({
+    project: ({ context }: { context: TimelineContext }) => {
+      if (!context.project) return context.project
+
+      // Получаем выделенные клипы
+      const selectedClips = getSelectedClips(context.project, context.uiState.selectedClipIds)
+      
+      if (selectedClips.length === 0) {
+        return context.project
+      }
+
+      try {
+        // Вырезаем клипы (копируем + удаляем)
+        const { updatedProject, clipboardData } = cutClips(context.project, selectedClips, {
+          includeEffects: true,
+          includeFilters: true,
+          includeTransitions: true,
+          deepCopy: true,
+        })
+
+        // Обновляем буфер обмена в uiState будет обработано отдельно
+        return updatedProject
+      } catch (error) {
+        console.error("Ошибка при вырезании клипов:", error)
+        return context.project
+      }
+    },
+    uiState: ({ context }: { context: TimelineContext }) => {
+      if (!context.project) return context.uiState
+
+      // Получаем выделенные клипы
+      const selectedClips = getSelectedClips(context.project, context.uiState.selectedClipIds)
+      
+      if (selectedClips.length === 0) {
+        return context.uiState
+      }
+
+      try {
+        // Копируем в буфер обмена
+        const clipboardData = copyClips(selectedClips, {
+          includeEffects: true,
+          includeFilters: true,
+          includeTransitions: true,
+          deepCopy: true,
+        })
+
+        return {
+          ...context.uiState,
+          clipboard: {
+            clips: clipboardData.clips,
+            tracks: clipboardData.tracks,
+          },
+          selectedClipIds: [], // Очищаем выделение после вырезания
+        }
+      } catch (error) {
+        console.error("Ошибка при обновлении буфера обмена:", error)
+        return context.uiState
+      }
+    },
+    lastAction: "CUT_SELECTION",
+  }),
+
+  paste: assign({
+    project: ({
+      context,
+      event,
+    }: {
+      context: TimelineContext
+      event: Extract<TimelineEvents, { type: "PASTE" }>
+    }) => {
+      if (!context.project) return context.project
+
+      const { clipboard } = context.uiState
+      if (clipboard.clips.length === 0) {
+        return context.project
+      }
+
+      try {
+        // Подготавливаем данные буфера обмена
+        const clipboardData: ClipboardData = {
+          clips: clipboard.clips,
+          tracks: clipboard.tracks,
+          metadata: {
+            copiedAt: new Date(), // Временное значение
+            originalTimeRange: {
+              startTime: Math.min(...clipboard.clips.map(c => c.startTime)),
+              endTime: Math.max(...clipboard.clips.map(c => c.startTime + c.duration)),
+            },
+            trackIds: [...new Set(clipboard.clips.map(c => c.trackId))],
+          },
+        }
+
+        // Определяем параметры вставки
+        const pasteOptions: PasteOptions = {
+          targetTrackId: event.targetTrackId,
+          targetTime: event.targetTime || context.uiState.currentTime,
+          mode: "insert", // По умолчанию insert mode
+          preserveRelativePositions: true,
+        }
+
+        // Вставляем клипы
+        const { updatedProject } = pasteClips(context.project, clipboardData, pasteOptions)
+
+        return updatedProject
+      } catch (error) {
+        console.error("Ошибка при вставке клипов:", error)
+        return context.project
+      }
+    },
+    lastAction: "PASTE",
+  }),
 }
 
 /**
@@ -1774,7 +1965,7 @@ async function convertTimelineProjectToStudioProject(timelineProject: TimelinePr
   
   // Создаем новый проект с базовой структурой
   const studioProject = projectService.createProjectSync(timelineProject.name, {
-    resolution: { width: 1920, height: 1080 }, // TODO: Взять из настроек проекта
+    resolution: timelineProject.settings.resolution,
     frameRate: timelineProject.fps,
     duration: timelineProject.duration,
   })
@@ -2207,6 +2398,20 @@ export const timelineMachine = setup({
         ADD_AI_MARKER: {
           guard: "hasProject",
           actions: ["addAIMarker"],
+        },
+
+        // Буфер обмена
+        COPY_SELECTION: {
+          actions: ["copySelection"],
+          guard: "hasProject",
+        },
+        CUT_SELECTION: {
+          actions: ["cutSelection"],
+          guard: "hasProject",
+        },
+        PASTE: {
+          actions: ["paste"],
+          guard: "hasProject",
         },
 
         // Ошибки

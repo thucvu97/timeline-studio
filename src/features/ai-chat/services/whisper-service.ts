@@ -268,9 +268,29 @@ export class WhisperService {
    */
   public async downloadLocalModel(modelName: string, onProgress?: (progress: number) => void): Promise<boolean> {
     try {
-      // Создаем канал для отслеживания прогресса
+      // Создаем канал для отслеживания прогресса через Tauri events
       if (onProgress) {
-        // TODO: Реализовать отслеживание прогресса через events
+        const { listen } = await import("@tauri-apps/api/event")
+        
+        // Подписываемся на события прогресса загрузки
+        const unlisten = await listen<{ model: string; progress: number; total: number }>(
+          "whisper_download_progress",
+          (event) => {
+            if (event.payload.model === modelName) {
+              const progressPercent = (event.payload.progress / event.payload.total) * 100
+              onProgress(Math.round(progressPercent))
+            }
+          }
+        )
+
+        // Запускаем загрузку модели
+        const success = await invoke<boolean>("whisper_download_model", {
+          modelName,
+        })
+
+        // Отписываемся от событий после завершения
+        unlisten()
+        return success
       }
 
       const success = await invoke<boolean>("whisper_download_model", {

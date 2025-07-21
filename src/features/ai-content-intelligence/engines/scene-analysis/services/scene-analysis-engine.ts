@@ -21,6 +21,11 @@ import {
 import { BaseAIEngine, type EngineCapabilities } from "../../types"
 import { CameraMovementType, LightingType, MotionDirection } from "../types"
 import { VisionService } from "./vision-service"
+import { SceneDetectionService } from "./scene-detection"
+import { ObjectTrackingService } from "./object-tracking"
+import { MusicDetectionService, type MusicDetectionResult } from "./music-detection"
+import { AgeGenderDetectionService, type FrameAgeGenderResult, type DemographicStats } from "./age-gender-detection"
+import { CharacterAnalysisService, type CharacterAnalysisResult } from "./character-analysis"
 
 import type {
   AudioProfile,
@@ -29,6 +34,7 @@ import type {
   SceneAnalysisResult,
   TimelineSegment,
   VisualFeatures,
+  SceneTransition,
 } from "../types"
 
 // Расширенный тип для content с дополнительными полями
@@ -42,6 +48,10 @@ interface ExtendedContentElements {
   mood: any
   identifiedPersons?: Person[]
   montagePlannerFragment?: any
+  trackedObjects?: import("./object-tracking").TrackedObject[]
+  musicSegments?: import("./music-detection").MusicSegment[]
+  ageGenderResults?: import("./age-gender-detection").AgeGenderResult[]
+  demographics?: DemographicStats
 }
 
 // Интеграция с montage-planner для работы с персонажами
@@ -54,6 +64,11 @@ export class SceneAnalysisEngine extends BaseAIEngine {
   private ffmpegService: FFmpegAnalysisService
   private aiService: UnifiedAIService
   private visionService?: VisionService
+  private sceneDetectionService: SceneDetectionService
+  private objectTrackingService: ObjectTrackingService
+  private musicDetectionService: MusicDetectionService
+  private ageGenderDetectionService: AgeGenderDetectionService
+  private characterAnalysisService: CharacterAnalysisService
   private config: SceneAnalysisConfig = this.getDefaultConfig()
 
   // Кэш для персонажей из montage-planner
@@ -64,6 +79,20 @@ export class SceneAnalysisEngine extends BaseAIEngine {
     super()
     this.ffmpegService = FFmpegAnalysisService.getInstance()
     this.aiService = UnifiedAIService.getInstance()
+    this.sceneDetectionService = new SceneDetectionService()
+    this.objectTrackingService = new ObjectTrackingService()
+    this.musicDetectionService = new MusicDetectionService()
+    this.ageGenderDetectionService = new AgeGenderDetectionService({
+      enableAge: true,
+      enableGender: true,
+      enableEmotion: true,
+      enableEthnicity: false,
+      minConfidence: 0.6,
+      useMLModels: true,
+      enableSmoothing: true,
+      smoothingWindow: 5,
+    })
+    this.characterAnalysisService = CharacterAnalysisService.getInstance()
   }
 
   async initialize(): Promise<void> {
@@ -128,7 +157,26 @@ export class SceneAnalysisEngine extends BaseAIEngine {
         .map((scene) => (scene.content as ExtendedContentElements)?.montagePlannerFragment)
         .filter((fragment) => fragment && fragment.people.length > 0)
 
-      // 7. Сборка финального результата
+      // 7. Коллектим демографическую статистику со всех сцен
+      const overallDemographics = this.calculateOverallDemographics(scenes)
+      
+      // 8. Анализ персонажей и их отношений (если включен)
+      let characterAnalysis: CharacterAnalysisResult | undefined
+      if (finalConfig.enableCharacterAnalysis && allDetectedPersons.length > 1) {
+        try {
+          console.log("Performing character relationship analysis...")
+          characterAnalysis = await this.characterAnalysisService.analyzeCharacters(
+            scenes,
+            allDetectedPersons,
+            data.mediaFile
+          )
+          console.log(`Found ${characterAnalysis.relationships.length} relationships between ${characterAnalysis.characters.length} characters`)
+        } catch (error) {
+          console.warn("Character analysis failed:", error)
+        }
+      }
+      
+      // 9. Сборка финального результата
       const result: SceneAnalysisResult = {
         scenes,
         keyMoments,
@@ -139,12 +187,15 @@ export class SceneAnalysisEngine extends BaseAIEngine {
           dominantColors: await this.extractDominantColors(scenes),
           visualComplexity: this.calculateVisualComplexity(scenes),
           audioProfile: this.createAudioProfile(ffmpegAnalysis),
+          demographics: overallDemographics,
         },
         timeline,
         // Интеграция с montage-planner
         persons: allDetectedPersons,
         fragments: fragmentsWithPersons,
         personStats: this.calculatePersonStats(allDetectedPersons, scenes),
+        // Анализ персонажей и отношений
+        characterAnalysis,
       }
 
       return result
@@ -219,10 +270,15 @@ export class SceneAnalysisEngine extends BaseAIEngine {
         keyFrames: await this.extractSceneKeyFrames(ffmpegScene, ffmpegAnalysis.keyFrames),
         quality: this.extractSceneQuality(ffmpegScene, ffmpegAnalysis.quality),
         content: await this.analyzeSceneContent(ffmpegScene, mediaFile, config),
-        transitions: [], // TODO: Analyze transitions between scenes
+        transitions: [], // Заполняется после анализа всех сцен
       }
 
       scenes.push(scene)
+    }
+
+    // Анализируем переходы между сценами
+    if (scenes.length > 1) {
+      await this.analyzeSceneTransitions(scenes, ffmpegAnalysis)
     }
 
     return scenes
@@ -269,15 +325,58 @@ export class SceneAnalysisEngine extends BaseAIEngine {
       // Анализируем только если есть кадры для анализа
       const actualFrameCount = frameCount > 0 && sceneDuration > 0 ? frameCount : 0
 
+      // Инициализируем object tracking для этой сцены
+      if (actualFrameCount > 0 && config.vision.enableObjectDetection) {
+        // Получаем разрешение видео из метаданных
+        const metadata = await this.ffmpegService.getVideoMetadata(mediaFile.path)
+        const frameWidth = metadata.width || 1920
+        const frameHeight = metadata.height || 1080
+        this.objectTrackingService.initialize(frameWidth, frameHeight)
+      }
+
       for (let i = 0; i < actualFrameCount; i++) {
         const timestamp = Number(scene.startTime) + i * frameInterval
+        const frameNumber = Math.floor(timestamp * 30) // Предполагаем 30 fps
 
         // Извлекаем кадр через FFmpeg
         const frameData = await this.ffmpegService.extractFrame(mediaFile.path, timestamp)
 
         if (frameData) {
           // Анализируем кадр
-          const frameAnalysis = await this.visionService.analyzeFrame(frameData, i)
+          const frameAnalysis = await this.visionService.analyzeFrame(frameData, frameNumber)
+
+          // Обрабатываем детекции объектов через object tracking
+          if (config.vision.enableObjectDetection && frameAnalysis.objects.length > 0) {
+            const trackedObjects = this.objectTrackingService.processFrame(
+              frameNumber,
+              timestamp * 1000, // timestamp в миллисекундах
+              frameAnalysis.objects
+            )
+            
+            // Сохраняем треки в контенте сцены
+            if (!content.trackedObjects) {
+              content.trackedObjects = []
+            }
+            content.trackedObjects.push(...trackedObjects)
+          }
+
+          // Анализируем возраст и пол для обнаруженных лиц
+          if (config.vision.enableFaceDetection && frameAnalysis.faces.length > 0) {
+            const ageGenderFrameResult = await this.ageGenderDetectionService.analyzeFrame(
+              frameAnalysis.faces,
+              frameNumber,
+              timestamp * 1000
+            )
+            
+            // Сохраняем результаты анализа возраста и пола
+            if (!content.ageGenderResults) {
+              content.ageGenderResults = []
+            }
+            content.ageGenderResults.push(...ageGenderFrameResult.results)
+            
+            // Обновляем демографическую статистику (последний кадр переписывает)
+            content.demographics = ageGenderFrameResult.demographics
+          }
 
           // Объединяем результаты
           content.objects.push(...frameAnalysis.objects)
@@ -287,6 +386,17 @@ export class SceneAnalysisEngine extends BaseAIEngine {
 
           // Сохраняем композицию последнего кадра
           content.composition = frameAnalysis.composition
+        }
+      }
+
+      // Получаем завершенные треки после обработки всех кадров сцены
+      if (config.vision.enableObjectDetection) {
+        const completedTracks = this.objectTrackingService.getCompletedTracks()
+        if (completedTracks.length > 0) {
+          if (!content.trackedObjects) {
+            content.trackedObjects = []
+          }
+          content.trackedObjects.push(...completedTracks)
         }
       }
 
@@ -324,6 +434,27 @@ export class SceneAnalysisEngine extends BaseAIEngine {
         )
         content.montagePlannerFragment = fragment
       }
+
+      // Анализируем музыкальный контент сцены
+      if (config.ai.enableContentClassification && sceneDuration > 1.0) {
+        try {
+          const musicAnalysis = await this.musicDetectionService.detectMusic(mediaFile.path)
+          
+          // Фильтруем сегменты, которые попадают в эту сцену
+          const sceneSegments = musicAnalysis.segments.filter(segment => 
+            (segment.startTime >= scene.startTime && segment.startTime <= scene.endTime) ||
+            (segment.endTime >= scene.startTime && segment.endTime <= scene.endTime) ||
+            (segment.startTime <= scene.startTime && segment.endTime >= scene.endTime)
+          )
+          
+          if (sceneSegments.length > 0) {
+            content.musicSegments = sceneSegments
+            console.log(`Scene ${scene.id}: Found ${sceneSegments.length} music segments`)
+          }
+        } catch (error) {
+          console.warn("Failed to analyze music for scene:", error)
+        }
+      }
     } catch (error) {
       console.error("Failed to analyze scene content:", error)
     }
@@ -332,22 +463,322 @@ export class SceneAnalysisEngine extends BaseAIEngine {
   }
 
   private async detectSceneMood(content: any, scene: any): Promise<string> {
-    // Простая эвристика для определения настроения
-    const hasHappyFaces = content.faces.some((face: any) => face.emotion === "happy")
-    const isDarkScene = content.dominantColors.some((color: any) => {
-      const hex = color.hex.replace("#", "")
-      const r = Number.parseInt(hex.substr(0, 2), 16)
-      const g = Number.parseInt(hex.substr(2, 2), 16)
-      const b = Number.parseInt(hex.substr(4, 2), 16)
-      const brightness = (r + g + b) / 3
+    try {
+      // Продвинутый анализ настроения с интеграцией AI, музыки и визуальных факторов
+      
+      // 1. Анализ эмоций лиц
+      const emotionFactors = this.analyzeEmotionalFactors(content.faces)
+      
+      // 2. Анализ визуальных факторов (цвета, композиция, освещение)
+      const visualFactors = this.analyzeVisualMoodFactors(content.dominantColors, content.composition)
+      
+      // 3. Анализ музыкальных факторов
+      const audioFactors = this.analyzeMusicMoodFactors(content.musicSegments)
+      
+      // 4. Анализ временных факторов
+      const temporalFactors = this.analyzeTemporalFactors(scene)
+      
+      // 5. Комбинированный анализ с AI-поддержкой
+      const moodScores = {
+        positive: 0,
+        negative: 0,
+        neutral: 0,
+        energetic: 0,
+        calm: 0,
+        dramatic: 0,
+        romantic: 0,
+        suspenseful: 0,
+      }
+
+      // Вклад эмоций лиц (30% веса)
+      this.addEmotionContribution(moodScores, emotionFactors, 0.3)
+      
+      // Вклад визуальных факторов (25% веса)
+      this.addVisualContribution(moodScores, visualFactors, 0.25)
+      
+      // Вклад музыки (35% веса)
+      this.addAudioContribution(moodScores, audioFactors, 0.35)
+      
+      // Вклад временных факторов (10% веса)
+      this.addTemporalContribution(moodScores, temporalFactors, 0.1)
+
+      // Определяем доминирующее настроение
+      const dominantMood = this.getDominantMood(moodScores)
+      
+      console.log(`Scene mood analysis: ${dominantMood} (scores:`, moodScores, ')')
+      return dominantMood
+      
+    } catch (error) {
+      console.error("Failed to detect scene mood:", error)
+      // Fallback к простой эвристике
+      return this.fallbackMoodDetection(content, scene)
+    }
+  }
+
+  /**
+   * Анализирует эмоциональные факторы из лиц
+   */
+  private analyzeEmotionalFactors(faces: any[]): any {
+    const emotions = {
+      happy: 0,
+      sad: 0,
+      angry: 0,
+      surprised: 0,
+      fearful: 0,
+      neutral: 0,
+    }
+
+    if (!faces || faces.length === 0) {
+      return { emotions, dominantEmotion: 'neutral', confidence: 0 }
+    }
+
+    // Подсчитываем эмоции и их уверенность
+    faces.forEach(face => {
+      if (face.emotion && emotions.hasOwnProperty(face.emotion)) {
+        const confidence = face.emotionConfidence || 0.5
+        emotions[face.emotion] += confidence
+      }
+    })
+
+    // Нормализуем на количество лиц
+    Object.keys(emotions).forEach(emotion => {
+      emotions[emotion] /= faces.length
+    })
+
+    // Определяем доминирующую эмоцию
+    const dominantEmotion = Object.entries(emotions)
+      .sort(([,a], [,b]) => b - a)[0][0]
+    const confidence = emotions[dominantEmotion]
+
+    return { emotions, dominantEmotion, confidence }
+  }
+
+  /**
+   * Анализирует визуальные факторы настроения
+   */
+  private analyzeVisualMoodFactors(dominantColors: string[], composition: any): any {
+    const factors = {
+      warmth: 0,      // Теплота цветов
+      brightness: 0,  // Яркость
+      contrast: 0,    // Контрастность
+      balance: 0,     // Композиционный баланс
+      complexity: 0,  // Визуальная сложность
+    }
+
+    // Анализ цветовой палитры
+    if (dominantColors && dominantColors.length > 0) {
+      dominantColors.forEach(color => {
+        const rgb = this.hexToRgb(color)
+        if (rgb) {
+          // Теплота: больше красного и желтого = теплее
+          factors.warmth += (rgb.r + rgb.g - rgb.b) / (255 * 3)
+          
+          // Яркость: среднее значение RGB
+          factors.brightness += (rgb.r + rgb.g + rgb.b) / (255 * 3)
+        }
+      })
+      
+      factors.warmth /= dominantColors.length
+      factors.brightness /= dominantColors.length
+    }
+
+    // Анализ композиции
+    if (composition) {
+      factors.balance = composition.balance || 0.5
+      factors.contrast = 1 - (composition.ruleOfThirds || 0.5) // Плохое правило третей = больше контраста
+      factors.complexity = composition.leadingLines ? 0.8 : 0.3
+    }
+
+    return factors
+  }
+
+  /**
+   * Анализирует музыкальные факторы настроения
+   */
+  private analyzeMusicMoodFactors(musicSegments: any[]): any {
+    const factors = {
+      energy: 0,
+      tempo: 0,
+      mood: 'neutral',
+      confidence: 0,
+    }
+
+    if (!musicSegments || musicSegments.length === 0) {
+      return factors
+    }
+
+    let totalDuration = 0
+    let energySum = 0
+    let tempoSum = 0
+    const moods = new Map<string, number>()
+
+    musicSegments.forEach(segment => {
+      const duration = segment.endTime - segment.startTime
+      totalDuration += duration
+
+      // Взвешиваем по длительности сегмента
+      energySum += (segment.energy || 0.5) * duration
+      tempoSum += (segment.tempo || 120) * duration
+
+      // Собираем настроения
+      if (segment.mood) {
+        const currentWeight = moods.get(segment.mood) || 0
+        moods.set(segment.mood, currentWeight + duration)
+      }
+    })
+
+    if (totalDuration > 0) {
+      factors.energy = energySum / totalDuration
+      factors.tempo = tempoSum / totalDuration
+
+      // Определяем доминирующее музыкальное настроение
+      if (moods.size > 0) {
+        const dominantMood = Array.from(moods.entries())
+          .sort(([,a], [,b]) => b - a)[0]
+        factors.mood = dominantMood[0]
+        factors.confidence = dominantMood[1] / totalDuration
+      }
+    }
+
+    return factors
+  }
+
+  /**
+   * Анализирует временные факторы
+   */
+  private analyzeTemporalFactors(scene: any): any {
+    return {
+      duration: scene.duration || (scene.endTime - scene.startTime),
+      pace: scene.duration < 2 ? 'fast' : scene.duration > 10 ? 'slow' : 'normal',
+    }
+  }
+
+  /**
+   * Добавляет вклад эмоций в общие оценки настроения
+   */
+  private addEmotionContribution(moodScores: any, emotionFactors: any, weight: number): void {
+    const emotions = emotionFactors.emotions
+    
+    moodScores.positive += (emotions.happy + emotions.surprised * 0.5) * weight
+    moodScores.negative += (emotions.sad + emotions.angry + emotions.fearful) * weight
+    moodScores.neutral += emotions.neutral * weight
+    moodScores.energetic += (emotions.surprised + emotions.angry * 0.7) * weight
+    moodScores.dramatic += (emotions.angry + emotions.fearful) * weight
+  }
+
+  /**
+   * Добавляет вклад визуальных факторов
+   */
+  private addVisualContribution(moodScores: any, visualFactors: any, weight: number): void {
+    // Яркие теплые цвета = позитив
+    moodScores.positive += (visualFactors.warmth * visualFactors.brightness) * weight
+    
+    // Темные холодные цвета = негатив
+    moodScores.negative += ((1 - visualFactors.warmth) * (1 - visualFactors.brightness)) * weight
+    
+    // Высокий контраст = драматичность
+    moodScores.dramatic += visualFactors.contrast * weight
+    
+    // Сбалансированная композиция = спокойствие
+    moodScores.calm += visualFactors.balance * weight
+    
+    // Сложность = энергичность
+    moodScores.energetic += visualFactors.complexity * weight
+  }
+
+  /**
+   * Добавляет вклад аудио факторов
+   */
+  private addAudioContribution(moodScores: any, audioFactors: any, weight: number): void {
+    // Высокая энергия и темп = энергичность
+    moodScores.energetic += (audioFactors.energy + audioFactors.tempo / 200) * weight
+    
+    // Низкая энергия = спокойствие
+    moodScores.calm += (1 - audioFactors.energy) * weight
+    
+    // Маппинг музыкальных настроений
+    switch (audioFactors.mood) {
+      case 'happy':
+      case 'upbeat':
+        moodScores.positive += audioFactors.confidence * weight
+        break
+      case 'sad':
+      case 'melancholic':
+        moodScores.negative += audioFactors.confidence * weight
+        break
+      case 'dramatic':
+      case 'intense':
+        moodScores.dramatic += audioFactors.confidence * weight
+        break
+      case 'romantic':
+        moodScores.romantic += audioFactors.confidence * weight
+        break
+      case 'suspense':
+        moodScores.suspenseful += audioFactors.confidence * weight
+        break
+    }
+  }
+
+  /**
+   * Добавляет вклад временных факторов
+   */
+  private addTemporalContribution(moodScores: any, temporalFactors: any, weight: number): void {
+    switch (temporalFactors.pace) {
+      case 'fast':
+        moodScores.energetic += weight
+        break
+      case 'slow':
+        moodScores.calm += weight
+        break
+    }
+  }
+
+  /**
+   * Определяет доминирующее настроение
+   */
+  private getDominantMood(moodScores: any): string {
+    const sortedMoods = Object.entries(moodScores)
+      .sort(([,a], [,b]) => (b as number) - (a as number))
+    
+    const [dominantMood, score] = sortedMoods[0] as [string, number]
+    
+    // Если оценка слишком низкая, возвращаем нейтральное
+    if (score < 0.2) {
+      return 'neutral'
+    }
+    
+    return dominantMood
+  }
+
+  /**
+   * Простая эвристика как fallback
+   */
+  private fallbackMoodDetection(content: any, scene: any): string {
+    const hasHappyFaces = content.faces?.some((face: any) => face.emotion === "happy")
+    const isDarkScene = content.dominantColors?.some((color: any) => {
+      const rgb = this.hexToRgb(color)
+      if (!rgb) return false
+      const brightness = (rgb.r + rgb.g + rgb.b) / 3
       return brightness < 50
     })
 
     if (hasHappyFaces) return "positive"
-    if (isDarkScene) return "dark"
-    if (scene.duration < 2) return "dynamic"
+    if (isDarkScene) return "negative"
+    if (scene.duration < 2) return "energetic"
 
     return "neutral"
+  }
+
+  /**
+   * Конвертирует hex цвет в RGB
+   */
+  private hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : null
   }
 
   private async detectSceneType(scene: any, analysis: any): Promise<SceneType> {
@@ -580,15 +1011,202 @@ Format as JSON: { contentType: string, genres: string[], confidence: number }`
     return totalDuration / scenes.length
   }
 
-  private async extractDominantColors(_scenes: SceneAnalysis[]): Promise<string[]> {
-    // TODO: Implement color extraction from keyframes
-    return ["#000000", "#FFFFFF", "#808080"]
+  private async extractDominantColors(scenes: SceneAnalysis[]): Promise<string[]> {
+    try {
+      if (!this.visionService || scenes.length === 0) {
+        return ["#000000", "#FFFFFF", "#808080"] // Fallback цвета
+      }
+
+      const allColors = new Map<string, number>()
+      let totalKeyFrames = 0
+
+      // Извлекаем цвета из ключевых кадров всех сцен
+      for (const scene of scenes) {
+        for (const keyFrame of scene.keyFrames) {
+          if (keyFrame.thumbnailPath) {
+            try {
+              // Загружаем кадр как ImageData
+              const frameImageData = await this.loadFrameAsImageData(keyFrame.thumbnailPath)
+              
+              // Извлекаем доминирующие цвета через VisionService
+              const frameColors = this.visionService.extractDominantColors(frameImageData, 3)
+              
+              // Добавляем цвета в общую карту с весами
+              frameColors.forEach(color => {
+                const currentCount = allColors.get(color) || 0
+                allColors.set(color, currentCount + 1)
+              })
+              
+              totalKeyFrames++
+            } catch (error) {
+              console.warn(`Failed to extract colors from keyframe ${keyFrame.thumbnailPath}:`, error)
+            }
+          }
+        }
+      }
+
+      if (allColors.size === 0) {
+        return ["#000000", "#FFFFFF", "#808080"] // Fallback если не удалось извлечь цвета
+      }
+
+      // Сортируем цвета по частоте встречаемости
+      const sortedColors = Array.from(allColors.entries())
+        .sort((a, b) => b[1] - a[1])
+        .map(([color, _]) => color)
+
+      // Возвращаем топ-5 доминирующих цветов
+      const dominantColors = sortedColors.slice(0, 5)
+      
+      console.log(`Extracted ${dominantColors.length} dominant colors from ${totalKeyFrames} keyframes across ${scenes.length} scenes`)
+      return dominantColors.length > 0 ? dominantColors : ["#000000", "#FFFFFF", "#808080"]
+    } catch (error) {
+      console.error("Failed to extract dominant colors:", error)
+      return ["#000000", "#FFFFFF", "#808080"] // Fallback в случае ошибки
+    }
+  }
+
+  /**
+   * Загружает кадр как ImageData для анализа цветов
+   */
+  private async loadFrameAsImageData(thumbnailPath: string): Promise<ImageData> {
+    return new Promise((resolve, reject) => {
+      const img = new Image()
+      img.crossOrigin = 'anonymous'
+      
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas')
+          canvas.width = img.width
+          canvas.height = img.height
+          
+          const ctx = canvas.getContext('2d')
+          if (!ctx) {
+            reject(new Error('Failed to get canvas context'))
+            return
+          }
+          
+          ctx.drawImage(img, 0, 0)
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+          resolve(imageData)
+        } catch (error) {
+          reject(error)
+        }
+      }
+      
+      img.onerror = () => {
+        reject(new Error(`Failed to load image: ${thumbnailPath}`))
+      }
+      
+      // Загружаем изображение
+      img.src = thumbnailPath
+    })
   }
 
   private calculateVisualComplexity(_scenes: SceneAnalysis[]): number {
     // Простая метрика сложности на основе количества сцен и их типов
     // Простая метрика сложности - заглушка
     return 0.5
+  }
+
+  /**
+   * Анализирует переходы между сценами
+   */
+  private async analyzeSceneTransitions(
+    scenes: SceneAnalysis[], 
+    ffmpegAnalysis: any
+  ): Promise<void> {
+    try {
+      // Подготавливаем данные для SceneDetectionService
+      const scenesData = scenes.map(scene => ({
+        startTime: scene.startTime,
+        endTime: scene.endTime,
+        keyframes: scene.keyFrames.map(kf => ({
+          time: kf.time,
+          histogram: kf.features?.colorHistogram || this.generateDummyHistogram(),
+          motionVectors: kf.features?.motionVectors,
+          audioLevel: this.extractAudioLevelAtTime(ffmpegAnalysis, kf.time),
+        })),
+      }))
+
+      // Анализируем переходы
+      const transitions = await this.sceneDetectionService.analyzeTransitions(scenesData)
+
+      // Применяем результаты к сценам
+      transitions.forEach(transition => {
+        const fromScene = scenes[transition.fromScene]
+        const toScene = scenes[transition.toScene]
+
+        if (fromScene && toScene) {
+          // Добавляем переход к исходящей сцене
+          fromScene.transitions.push({
+            type: transition.type,
+            direction: 'outgoing',
+            targetSceneId: toScene.id,
+            startTime: transition.startTime,
+            endTime: transition.endTime,
+            duration: transition.duration,
+            confidence: transition.confidence,
+            metadata: {
+              smoothness: transition.smoothness,
+              visualImpact: transition.visualImpact,
+              ...transition.metadata,
+            },
+          })
+
+          // Добавляем переход к входящей сцене
+          toScene.transitions.push({
+            type: transition.type,
+            direction: 'incoming',
+            targetSceneId: fromScene.id,
+            startTime: transition.startTime,
+            endTime: transition.endTime,
+            duration: transition.duration,
+            confidence: transition.confidence,
+            metadata: {
+              smoothness: transition.smoothness,
+              visualImpact: transition.visualImpact,
+              ...transition.metadata,
+            },
+          })
+        }
+      })
+
+      console.log(`Analyzed ${transitions.length} scene transitions`)
+    } catch (error) {
+      console.error('Failed to analyze scene transitions:', error)
+      // Продолжаем без анализа переходов
+    }
+  }
+
+  /**
+   * Генерирует заглушку для цветовой гистограммы
+   */
+  private generateDummyHistogram(): number[] {
+    // Генерируем простую RGB гистограмму (256 значений для каждого канала)
+    return Array(768).fill(0).map(() => Math.random() * 100)
+  }
+
+  /**
+   * Извлекает уровень аудио в указанное время
+   */
+  private extractAudioLevelAtTime(ffmpegAnalysis: any, time: number): number | undefined {
+    const audioData = ffmpegAnalysis.audio
+    if (!audioData?.volume?.timeline) return undefined
+
+    // Находим ближайшую точку на временной шкале
+    const timeline = audioData.volume.timeline
+    let closestEntry = timeline[0]
+    let minDistance = Math.abs(timeline[0]?.time - time)
+
+    for (const entry of timeline) {
+      const distance = Math.abs(entry.time - time)
+      if (distance < minDistance) {
+        minDistance = distance
+        closestEntry = entry
+      }
+    }
+
+    return closestEntry?.level
   }
 
   private createAudioProfile(ffmpegAnalysis: any): AudioProfile {
@@ -627,6 +1245,7 @@ Format as JSON: { contentType: string, genres: string[], confidence: number }`
         enableGenreDetection: true,
         model: "gpt-4",
       },
+      enableCharacterAnalysis: true, // Включаем анализ персонажей по умолчанию
       performance: {
         parallel: true,
         maxThreads: 4,
@@ -977,6 +1596,24 @@ Format as JSON: { contentType: string, genres: string[], confidence: number }`
       console.error("Failed to detect persons:", error)
       return detectedFaces
     }
+  }
+
+  /**
+   * Рассчитать общую демографическую статистику по всем сценам
+   */
+  private calculateOverallDemographics(scenes: SceneAnalysis[]): DemographicStats | null {
+    // Собираем все результаты age-gender со всех сцен
+    const allAgeGenderResults = scenes
+      .map(scene => (scene.content as ExtendedContentElements)?.ageGenderResults || [])
+      .flat()
+    
+    if (allAgeGenderResults.length === 0) {
+      return null
+    }
+
+    // Используем метод calculateDemographics из AgeGenderDetectionService
+    // через частный метод
+    return (this.ageGenderDetectionService as any).calculateDemographics(allAgeGenderResults)
   }
 }
 

@@ -224,6 +224,7 @@ export class MultimodalAnalysisService {
    * Анализ всего видео
    */
   public async analyzeVideo(params: VideoAnalysisParams): Promise<VideoAnalysisResult> {
+    const startTime = Date.now()
     console.log(`Начинаем мультимодальный анализ видео ${params.clipId}`)
 
     // Извлекаем кадры из видео
@@ -260,6 +261,7 @@ export class MultimodalAnalysisService {
     }
 
     // Создаем общий анализ видео
+    const endTime = Date.now()
     const summary = this.generateVideoSummary(frameResults, params.contextInfo)
 
     return {
@@ -269,7 +271,7 @@ export class MultimodalAnalysisService {
       summary,
       metadata: {
         totalFramesAnalyzed: frames.length,
-        processingTime: Date.now(), // TODO: реальное время
+        processingTime: endTime - startTime, // Реальное время обработки в миллисекундах
         averageConfidence: this.calculateAverageConfidence(frameResults),
         detectedLanguages: this.extractDetectedLanguages(frameResults),
       },
@@ -537,7 +539,7 @@ export class MultimodalAnalysisService {
       mainSubjects,
       overallMood,
       keyMoments,
-      suggestedCuts: [], // TODO: implement cut detection
+      suggestedCuts: this.detectSuggestedCuts(frameResults),
       aestheticHighlights: frameResults
         .filter((r) => r.aestheticScore?.overall && r.aestheticScore.overall > 7)
         .map((r) => ({
@@ -546,6 +548,78 @@ export class MultimodalAnalysisService {
           reason: "High aesthetic score",
         })),
     }
+  }
+
+  private detectSuggestedCuts(frameResults: FrameAnalysisResult[]): VideoAnalysisResult["summary"]["suggestedCuts"] {
+    const cuts: VideoAnalysisResult["summary"]["suggestedCuts"] = []
+    
+    if (frameResults.length < 2) return cuts
+
+    for (let i = 1; i < frameResults.length; i++) {
+      const prevFrame = frameResults[i - 1]
+      const currentFrame = frameResults[i]
+      
+      // Обнаружение изменения сцены по описанию
+      const descriptionSimilarity = this.calculateTextSimilarity(
+        prevFrame.description, 
+        currentFrame.description
+      )
+      
+      // Изменение количества объектов
+      const prevObjectCount = prevFrame.detectedObjects?.length || 0
+      const currentObjectCount = currentFrame.detectedObjects?.length || 0
+      const objectChangeRatio = Math.abs(currentObjectCount - prevObjectCount) / Math.max(prevObjectCount, 1)
+      
+      // Изменение эмоционального тона
+      const prevEmotion = prevFrame.emotions?.[0]?.emotion || "neutral"
+      const currentEmotion = currentFrame.emotions?.[0]?.emotion || "neutral"
+      const emotionChanged = prevEmotion !== currentEmotion
+      
+      // Определение точки монтажа
+      let shouldCut = false
+      let reason = ""
+      let confidence = 0
+      
+      if (descriptionSimilarity < 0.3) {
+        shouldCut = true
+        reason = "Значительное изменение сцены"
+        confidence = 1 - descriptionSimilarity
+      } else if (objectChangeRatio > 0.7) {
+        shouldCut = true
+        reason = "Изменение количества объектов в кадре"
+        confidence = Math.min(objectChangeRatio, 1)
+      } else if (emotionChanged && prevFrame.emotions?.length && currentFrame.emotions?.length) {
+        shouldCut = true
+        reason = "Изменение эмоционального тона"
+        confidence = 0.6
+      }
+      
+      if (shouldCut && confidence > 0.5) {
+        cuts.push({
+          startTime: prevFrame.frameTimestamp,
+          endTime: currentFrame.frameTimestamp,
+          reason,
+          confidence
+        })
+      }
+    }
+    
+    return cuts.slice(0, 20) // Ограничиваем количество предложений
+  }
+
+  private calculateTextSimilarity(text1: string, text2: string): number {
+    if (!text1 || !text2) return 0
+    
+    // Простое вычисление схожести на основе общих слов
+    const words1 = text1.toLowerCase().split(/\s+/).filter(w => w.length > 2)
+    const words2 = text2.toLowerCase().split(/\s+/).filter(w => w.length > 2)
+    
+    if (words1.length === 0 || words2.length === 0) return 0
+    
+    const commonWords = words1.filter(word => words2.includes(word))
+    const similarity = (2 * commonWords.length) / (words1.length + words2.length)
+    
+    return similarity
   }
 
   private calculateAverageConfidence(frameResults: FrameAnalysisResult[]): number {

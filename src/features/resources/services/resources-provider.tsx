@@ -1,519 +1,324 @@
-import React, { ReactNode, createContext, useContext } from "react"
+/**
+ * Resources Provider V2
+ * 
+ * Новая версия с интеграцией backend state management
+ */
 
-import { useMachine } from "@xstate/react"
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
 
-import { useCurrentProject } from "@/features/app-state"
-import { VideoEffect } from "@/features/effects/types"
-import { VideoFilter } from "@/features/filters/types/filters"
-import { MediaFile } from "@/features/media/types/media"
+import { getBackendSync } from '@/features/app-state/services/backend-sync'
+import { ProjectState } from '@/features/app-state/types/unified-project'
+import { VideoEffect } from '@/features/effects/types'
+import { VideoFilter } from '@/features/filters/types/filters'
+import { MediaFile } from '@/features/media/types/media'
+import { StyleTemplate } from '@/features/style-templates/types'
+import { SubtitleStyle } from '@/features/subtitles/types'
+import { MediaTemplate } from '@/features/templates/lib/templates'
+import { Transition } from '@/features/transitions/types/transitions'
+
 import {
   EffectResource,
   FilterResource,
   MediaResource,
   MusicResource,
-  ResourceType,
   StyleTemplateResource,
   SubtitleResource,
   TemplateResource,
+  TimelineResource,
   TransitionResource,
-} from "@/features/resources/types"
-import { StyleTemplate } from "@/features/style-templates/types"
-import { SubtitleStyle } from "@/features/subtitles/types"
-import { MediaTemplate } from "@/features/templates/lib/templates"
-import { Transition } from "@/features/transitions/types/transitions"
+  createEffectResource,
+  createFilterResource,
+  createMediaResource,
+  createMusicResource,
+  createStyleTemplateResource,
+  createSubtitleResource,
+  createTemplateResource,
+  createTransitionResource,
+} from '../types'
 
-import { ResourcesMachineContext, resourcesMachine } from "./resources-machine"
+interface ResourcesContextTypeV2 {
+  // Ресурсы (синхронизированы с backend через project state)
+  resources: TimelineResource[]
+  mediaResources: MediaResource[]
+  musicResources: MusicResource[]
+  subtitleResources: SubtitleResource[]
+  effectResources: EffectResource[]
+  filterResources: FilterResource[]
+  transitionResources: TransitionResource[]
+  templateResources: TemplateResource[]
+  styleTemplateResources: StyleTemplateResource[]
 
-export interface ResourcesContextType extends ResourcesMachineContext {
-  // Методы для работы с ресурсами
-  addResource: (resource: ResourceType, object: any) => void
+  // Состояние загрузки
+  isLoading: boolean
+  error: string | null
 
-  addMedia: (file: MediaFile) => void
-  addMusic: (file: MediaFile) => void
-  addSubtitle: (style: SubtitleStyle) => void
-  addEffect: (effect: VideoEffect) => void
-  addFilter: (filter: VideoFilter) => void
-  addTransition: (transition: Transition) => void
-  addTemplate: (template: MediaTemplate) => void
-  addStyleTemplate: (template: StyleTemplate) => void
-  removeResource: (resourceId: string) => void
-  updateResource: (resourceId: string, params: Record<string, any>) => void
-  clearResources: () => void
+  // Действия для добавления ресурсов (backend команды)
+  addMedia: (file: MediaFile) => Promise<void>
+  addMusic: (file: MediaFile) => Promise<void>
+  addSubtitle: (style: SubtitleStyle) => Promise<void>
+  addEffect: (effect: VideoEffect) => Promise<void>
+  addFilter: (filter: VideoFilter) => Promise<void>
+  addTransition: (transition: Transition) => Promise<void>
+  addTemplate: (template: MediaTemplate) => Promise<void>
+  addStyleTemplate: (template: StyleTemplate) => Promise<void>
 
-  // Методы для проверки наличия ресурса в хранилище
-  isAdded: (resourceId: string, resource: ResourceType) => boolean
+  // Действия для удаления/обновления
+  removeResource: (resourceId: string) => Promise<void>
+  updateResource: (resourceId: string, params: Record<string, any>) => Promise<void>
+  clearResources: () => Promise<void>
 
-  isMediaAdded: (file: MediaFile) => boolean
-  isMusicAdded: (file: MediaFile) => boolean
-  isSubtitleAdded: (style: SubtitleStyle) => boolean
-  isEffectAdded: (effect: VideoEffect) => boolean
-  isFilterAdded: (filter: VideoFilter) => boolean
-  isTransitionAdded: (transition: Transition) => boolean
-  isTemplateAdded: (template: MediaTemplate) => boolean
-  isStyleTemplateAdded: (template: StyleTemplate) => boolean
+  // Утилиты
+  getResourceById: (resourceId: string) => TimelineResource | undefined
+  getResourcesByType: (type: string) => TimelineResource[]
 }
 
-interface ResourcesProviderProps {
-  children: ReactNode
+const ResourcesContextV2 = createContext<ResourcesContextTypeV2 | undefined>(undefined)
+
+interface ResourcesProviderV2Props {
+  children: React.ReactNode
 }
 
-const ResourcesContext = createContext<ResourcesContextType | null>(null)
+export function ResourcesProviderV2({ children }: ResourcesProviderV2Props) {
+  const [backendSync] = useState(() => getBackendSync())
+  const [backendState, setBackendState] = useState<ProjectState | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-export function useResources(): ResourcesContextType {
-  const context = useContext(ResourcesContext)
-  if (!context) {
-    throw new Error("useResources must be used within a ResourcesProvider")
+  // Подписка на backend состояние
+  useEffect(() => {
+    const unsubscribe = backendSync.onStateChange((state: ProjectState) => {
+      setBackendState(state)
+      setError(null)
+    })
+
+    return unsubscribe
+  }, [backendSync])
+
+  // Функция для выполнения backend команд
+  const executeCommand = useCallback(async (command: any) => {
+    try {
+      setIsLoading(true)
+      setError(null)
+      
+      const result = await backendSync.executeCommand(command)
+      if (!result.success) {
+        throw new Error(result.error || 'Command failed')
+      }
+      
+      return result.data
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error'
+      setError(errorMessage)
+      console.error('Resources command failed:', err)
+      throw err
+    } finally {
+      setIsLoading(false)
+    }
+  }, [backendSync])
+
+  // Действия для добавления ресурсов
+  const addMedia = useCallback(async (file: MediaFile) => {
+    await executeCommand({
+      type: 'AddMedia',
+      params: { path: file.path, mediaType: 'Video' } // или определить тип из file
+    })
+  }, [executeCommand])
+
+  const addMusic = useCallback(async (file: MediaFile) => {
+    await executeCommand({
+      type: 'AddMedia',
+      params: { path: file.path, mediaType: 'Audio' }
+    })
+  }, [executeCommand])
+
+  const addSubtitle = useCallback(async (style: SubtitleStyle) => {
+    // Для субтитров пока используем локальное хранение
+    // Так как backend команды для них ещё нет
+    console.warn('Subtitle resources not yet integrated with backend')
+  }, [])
+
+  const addEffect = useCallback(async (effect: VideoEffect) => {
+    // Эффекты пока остаются локальными
+    console.warn('Effect resources not yet integrated with backend')
+  }, [])
+
+  const addFilter = useCallback(async (filter: VideoFilter) => {
+    // Фильтры пока остаются локальными
+    console.warn('Filter resources not yet integrated with backend')
+  }, [])
+
+  const addTransition = useCallback(async (transition: Transition) => {
+    // Переходы пока остаются локальными
+    console.warn('Transition resources not yet integrated with backend')
+  }, [])
+
+  const addTemplate = useCallback(async (template: MediaTemplate) => {
+    // Шаблоны пока остаются локальными
+    console.warn('Template resources not yet integrated with backend')
+  }, [])
+
+  const addStyleTemplate = useCallback(async (template: StyleTemplate) => {
+    // Стилистические шаблоны пока остаются локальными
+    console.warn('Style template resources not yet integrated with backend')
+  }, [])
+
+  const removeResource = useCallback(async (resourceId: string) => {
+    await executeCommand({
+      type: 'RemoveMedia',
+      params: { mediaId: resourceId }
+    })
+  }, [executeCommand])
+
+  const updateResource = useCallback(async (resourceId: string, params: Record<string, any>) => {
+    await executeCommand({
+      type: 'UpdateMedia',
+      params: { mediaId: resourceId, updates: params }
+    })
+  }, [executeCommand])
+
+  const clearResources = useCallback(async () => {
+    // Нужна команда для очистки всех ресурсов
+    console.warn('Clear resources command not yet implemented in backend')
+  }, [])
+
+  // Утилиты
+  const getResourceById = useCallback((resourceId: string) => {
+    const allResources = [
+      ...mediaResources,
+      ...musicResources,
+      ...subtitleResources,
+      ...effectResources,
+      ...filterResources,
+      ...transitionResources,
+      ...templateResources,
+      ...styleTemplateResources,
+    ]
+    return allResources.find(resource => resource.resourceId === resourceId)
+  }, [backendState])
+
+  const getResourcesByType = useCallback((type: string) => {
+    switch (type) {
+      case 'media': return mediaResources
+      case 'music': return musicResources
+      case 'subtitle': return subtitleResources
+      case 'effect': return effectResources
+      case 'filter': return filterResources
+      case 'transition': return transitionResources
+      case 'template': return templateResources
+      case 'styleTemplate': return styleTemplateResources
+      default: return []
+    }
+  }, [backendState])
+
+  // Извлекаем ресурсы из backend состояния
+  // Пока backend не содержит все типы ресурсов, создаем пустые массивы
+  const mediaPool = backendState?.project?.mediaPool
+  
+  // Конвертируем медиа из backend в MediaResource формат
+  const mediaResources: MediaResource[] = mediaPool ? 
+    Array.from(mediaPool.items.values())
+      .filter(item => item.type === 'video' || item.type === 'image')
+      .map(item => createMediaResource({
+        id: item.id,
+        name: item.name,
+        path: item.source.path,
+        size: item.metadata.fileSize,
+        type: item.type,
+        isVideo: item.type === 'video',
+        isAudio: false,
+        isImage: item.type === 'image',
+        isLoadingMetadata: false,
+        probeData: { streams: [], format: {} },
+        duration: item.metadata.duration,
+      })) : []
+
+  const musicResources: MusicResource[] = mediaPool ?
+    Array.from(mediaPool.items.values())
+      .filter(item => item.type === 'audio')
+      .map(item => createMusicResource({
+        id: item.id,
+        name: item.name,
+        path: item.source.path,
+        size: item.metadata.fileSize,
+        type: item.type,
+        isVideo: false,
+        isAudio: true,
+        isImage: false,
+        isLoadingMetadata: false,
+        probeData: { streams: [], format: {} },
+        duration: item.metadata.duration,
+      })) : []
+
+  // Остальные ресурсы пока пустые (будут добавлены позже)
+  const subtitleResources: SubtitleResource[] = []
+  const effectResources: EffectResource[] = []
+  const filterResources: FilterResource[] = []
+  const transitionResources: TransitionResource[] = []
+  const templateResources: TemplateResource[] = []
+  const styleTemplateResources: StyleTemplateResource[] = []
+
+  const resources: TimelineResource[] = [
+    ...mediaResources,
+    ...musicResources,
+    ...subtitleResources,
+    ...effectResources,
+    ...filterResources,
+    ...transitionResources,
+    ...templateResources,
+    ...styleTemplateResources,
+  ]
+
+  // Контекстное значение
+  const contextValue: ResourcesContextTypeV2 = {
+    // Ресурсы
+    resources,
+    mediaResources,
+    musicResources,
+    subtitleResources,
+    effectResources,
+    filterResources,
+    transitionResources,
+    templateResources,
+    styleTemplateResources,
+
+    // Состояние
+    isLoading,
+    error,
+
+    // Действия
+    addMedia,
+    addMusic,
+    addSubtitle,
+    addEffect,
+    addFilter,
+    addTransition,
+    addTemplate,
+    addStyleTemplate,
+    removeResource,
+    updateResource,
+    clearResources,
+
+    // Утилиты
+    getResourceById,
+    getResourcesByType,
   }
+
+  return (
+    <ResourcesContextV2.Provider value={contextValue}>
+      {children}
+    </ResourcesContextV2.Provider>
+  )
+}
+
+export function useResourcesV2(): ResourcesContextTypeV2 {
+  const context = useContext(ResourcesContextV2)
+  
+  if (!context) {
+    throw new Error('useResourcesV2 must be used within ResourcesProviderV2')
+  }
+  
   return context
 }
 
-export function ResourcesProvider({ children }: ResourcesProviderProps) {
-  const [state, send] = useMachine(resourcesMachine)
-  const { setProjectDirty, currentProject } = useCurrentProject()
-
-  // Извлекаем свойства контекста из состояния машины
-  const {
-    resources,
-    mediaResources,
-    musicResources,
-    subtitleResources,
-    effectResources,
-    filterResources,
-    transitionResources,
-    templateResources,
-    styleTemplateResources,
-  } = state.context
-
-  // Сохраняем состояние ресурсов в localStorage при каждом изменении
-  React.useEffect(() => {
-    try {
-      const resourcesData = {
-        resources,
-        mediaResources,
-        musicResources,
-        subtitleResources,
-        effectResources,
-        filterResources,
-        transitionResources,
-        templateResources,
-        styleTemplateResources,
-      }
-      localStorage.setItem("timeline-studio-resources", JSON.stringify(resourcesData))
-    } catch (error) {
-      console.warn("Failed to save resources to localStorage:", error)
-    }
-  }, [
-    resources,
-    mediaResources,
-    musicResources,
-    subtitleResources,
-    effectResources,
-    filterResources,
-    transitionResources,
-    templateResources,
-    styleTemplateResources,
-  ])
-
-  // Отслеживаем создание нового проекта и очищаем ресурсы
-  React.useEffect(() => {
-    // Проверяем, что это новый проект (isNew = true и path = null)
-    if (currentProject.isNew && currentProject.path === null) {
-      console.log("New project detected, clearing resources")
-      send({ type: "CLEAR_RESOURCES" })
-    }
-  }, [currentProject.isNew, currentProject.path, send])
-
-  // Методы для работы с ресурсами
-  const handleAddEffect = React.useCallback(
-    (effect: VideoEffect) => {
-      send({ type: "ADD_EFFECT", effect })
-      setProjectDirty(true)
-    },
-    [send, setProjectDirty],
-  )
-
-  const handleAddFilter = React.useCallback(
-    (filter: VideoFilter) => {
-      send({ type: "ADD_FILTER", filter })
-      setProjectDirty(true)
-    },
-    [send, setProjectDirty],
-  )
-
-  const handleAddTransition = React.useCallback(
-    (transition: Transition) => {
-      send({ type: "ADD_TRANSITION", transition })
-      setProjectDirty(true)
-    },
-    [send, setProjectDirty],
-  )
-
-  const handleAddTemplate = React.useCallback(
-    (template: MediaTemplate) => {
-      send({ type: "ADD_TEMPLATE", template })
-      setProjectDirty(true)
-    },
-    [send, setProjectDirty],
-  )
-
-  const handleAddStyleTemplate = React.useCallback(
-    (template: StyleTemplate) => {
-      send({ type: "ADD_STYLE_TEMPLATE", template })
-      setProjectDirty(true)
-    },
-    [send, setProjectDirty],
-  )
-
-  const handleAddMusic = React.useCallback(
-    (file: MediaFile) => {
-      console.log("Adding music file to resources:", file.name)
-      send({ type: "ADD_MUSIC", file })
-      setProjectDirty(true)
-    },
-    [send, setProjectDirty],
-  )
-
-  const handleAddMedia = React.useCallback(
-    (file: MediaFile) => {
-      console.log("Adding media to resources:", file.name)
-      send({ type: "ADD_MEDIA", file })
-      setProjectDirty(true)
-    },
-    [send, setProjectDirty],
-  )
-
-  const handleAddSubtitle = React.useCallback(
-    (style: SubtitleStyle) => {
-      console.log("Adding subtitle style to resources:", style.name)
-      send({ type: "ADD_SUBTITLE", style })
-      setProjectDirty(true)
-    },
-    [send, setProjectDirty],
-  )
-
-  const handleAddResource = React.useCallback(
-    (resource: ResourceType, object: any) => {
-      switch (resource) {
-        case "media":
-          handleAddMedia(object as MediaFile)
-          break
-        case "music":
-          handleAddMusic(object as MediaFile)
-          break
-        case "subtitle":
-          handleAddSubtitle(object as SubtitleStyle)
-          break
-        case "effect":
-          handleAddEffect(object as VideoEffect)
-          break
-        case "filter":
-          handleAddFilter(object as VideoFilter)
-          break
-        case "transition":
-          handleAddTransition(object as Transition)
-          break
-        case "template":
-          handleAddTemplate(object as MediaTemplate)
-          break
-        case "styleTemplate":
-          handleAddStyleTemplate(object as StyleTemplate)
-          break
-        default:
-          console.warn("Unknown resource type:", resource)
-      }
-    },
-    [
-      handleAddMedia,
-      handleAddMusic,
-      handleAddSubtitle,
-      handleAddEffect,
-      handleAddFilter,
-      handleAddTransition,
-      handleAddTemplate,
-      handleAddStyleTemplate,
-    ],
-  )
-
-  const handleRemoveResource = React.useCallback(
-    (resourceId: string) => {
-      send({ type: "REMOVE_RESOURCE", resourceId })
-      setProjectDirty(true)
-    },
-    [send, setProjectDirty],
-  )
-
-  const handleUpdateResource = React.useCallback(
-    (resourceId: string, params: Record<string, any>) => {
-      send({ type: "UPDATE_RESOURCE", resourceId, params })
-      setProjectDirty(true)
-    },
-    [send, setProjectDirty],
-  )
-
-  const handleClearResources = React.useCallback(() => {
-    console.log("Clearing all resources")
-    send({ type: "CLEAR_RESOURCES" })
-    setProjectDirty(true)
-  }, [send, setProjectDirty])
-
-  const isAdded = React.useCallback(
-    (resourceId: string, resource: ResourceType) => {
-      return resources.some((res) => res.type === resource && res.resourceId === resourceId)
-    },
-    [resources],
-  )
-
-  // Методы для проверки наличия ресурса в хранилище
-  // Создаем кэш для результатов проверки эффектов
-  const effectAddedCache = React.useRef<Record<string, boolean>>({})
-
-  // Сбрасываем кэш при изменении effectResources
-  React.useEffect(() => {
-    effectAddedCache.current = {}
-  }, [effectResources])
-
-  const isEffectAdded = React.useCallback(
-    (effect: VideoEffect) => {
-      // Проверяем, есть ли результат в кэше
-      if (effect.id in effectAddedCache.current) {
-        return effectAddedCache.current[effect.id]
-      }
-
-      // Если результата нет в кэше, вычисляем его
-      const isAdded = effectResources.some((resource: EffectResource) => resource.resourceId === effect.id)
-
-      // Сохраняем результат в кэше
-      effectAddedCache.current[effect.id] = isAdded
-
-      return isAdded
-    },
-    [effectResources],
-  )
-
-  // Создаем кэш для результатов проверки фильтров
-  const filterAddedCache = React.useRef<Record<string, boolean>>({})
-
-  // Сбрасываем кэш при изменении filterResources
-  React.useEffect(() => {
-    filterAddedCache.current = {}
-  }, [filterResources])
-
-  const isFilterAdded = React.useCallback(
-    (filter: VideoFilter) => {
-      // Проверяем, есть ли результат в кэше
-      if (filter.id in filterAddedCache.current) {
-        return filterAddedCache.current[filter.id]
-      }
-
-      // Если результата нет в кэше, вычисляем его
-      const isAdded = filterResources.some((resource: FilterResource) => resource.resourceId === filter.id)
-
-      // Сохраняем результат в кэше
-      filterAddedCache.current[filter.id] = isAdded
-
-      return isAdded
-    },
-    [filterResources],
-  )
-
-  // Создаем кэш для результатов проверки переходов
-  const transitionAddedCache = React.useRef<Record<string, boolean>>({})
-
-  // Сбрасываем кэш при изменении transitionResources
-  React.useEffect(() => {
-    transitionAddedCache.current = {}
-  }, [transitionResources])
-
-  const isTransitionAdded = React.useCallback(
-    (transition: Transition) => {
-      // Проверяем, есть ли результат в кэше
-      const cacheKey = transition.id || transition.type
-      if (cacheKey in transitionAddedCache.current) {
-        return transitionAddedCache.current[cacheKey]
-      }
-
-      // Если результата нет в кэше, вычисляем его
-      const isAdded = transitionResources.some((resource: TransitionResource) => {
-        return resource.resourceId === transition.id || resource.resourceId === transition.type
-      })
-
-      // Сохраняем результат в кэше
-      transitionAddedCache.current[cacheKey] = isAdded
-
-      return isAdded
-    },
-    [transitionResources],
-  )
-
-  // Создаем кэш для результатов проверки шаблонов
-  const templateAddedCache = React.useRef<Record<string, boolean>>({})
-
-  // Сбрасываем кэш при изменении templateResources
-  React.useEffect(() => {
-    templateAddedCache.current = {}
-  }, [templateResources])
-
-  const isTemplateAdded = React.useCallback(
-    (template: MediaTemplate) => {
-      // Проверяем, есть ли результат в кэше
-      if (template.id in templateAddedCache.current) {
-        return templateAddedCache.current[template.id]
-      }
-
-      // Если результата нет в кэше, вычисляем его
-      const isAdded = templateResources.some((resource: TemplateResource) => resource.resourceId === template.id)
-
-      // Сохраняем результат в кэше
-      templateAddedCache.current[template.id] = isAdded
-
-      return isAdded
-    },
-    [templateResources],
-  )
-
-  // Создаем кэш для результатов проверки стилистических шаблонов
-  const styleTemplateAddedCache = React.useRef<Record<string, boolean>>({})
-
-  // Сбрасываем кэш при изменении styleTemplateResources
-  React.useEffect(() => {
-    styleTemplateAddedCache.current = {}
-  }, [styleTemplateResources])
-
-  const isStyleTemplateAdded = React.useCallback(
-    (template: StyleTemplate) => {
-      // Проверяем, есть ли результат в кэше
-      if (template.id in styleTemplateAddedCache.current) {
-        return styleTemplateAddedCache.current[template.id]
-      }
-
-      // Если результата нет в кэше, вычисляем его
-      const isAdded = styleTemplateResources.some(
-        (resource: StyleTemplateResource) => resource.resourceId === template.id,
-      )
-
-      // Сохраняем результат в кэше
-      styleTemplateAddedCache.current[template.id] = isAdded
-
-      return isAdded
-    },
-    [styleTemplateResources],
-  )
-
-  // Создаем кэш для результатов проверки музыкальных файлов
-  const musicFileAddedCache = React.useRef<Record<string, boolean>>({})
-
-  // Сбрасываем кэш при изменении musicResources
-  React.useEffect(() => {
-    musicFileAddedCache.current = {}
-  }, [musicResources])
-
-  const isMusicAdded = React.useCallback(
-    (file: MediaFile) => {
-      // Проверяем, есть ли результат в кэше
-      if (file.id in musicFileAddedCache.current) {
-        return musicFileAddedCache.current[file.id]
-      }
-
-      // Если результата нет в кэше, вычисляем его
-      const isAdded = musicResources.some((resource: MusicResource) => resource.resourceId === file.id)
-
-      // Сохраняем результат в кэше
-      musicFileAddedCache.current[file.id] = isAdded
-
-      return isAdded
-    },
-    [musicResources],
-  )
-
-  // Создаем кэш для результатов проверки медиа файлов
-  const mediaAddedCache = React.useRef<Record<string, boolean>>({})
-
-  React.useEffect(() => {
-    mediaAddedCache.current = {}
-  }, [mediaResources])
-
-  const isMediaAdded = React.useCallback(
-    (file: MediaFile) => {
-      // Проверяем, есть ли результат в кэше
-      if (file.id in mediaAddedCache.current) {
-        return mediaAddedCache.current[file.id]
-      }
-
-      // Если результата нет в кэше, вычисляем его
-      const isAdded = mediaResources.some((resource: MediaResource) => resource.resourceId === file.id)
-
-      // Сохраняем результат в кэше
-      mediaAddedCache.current[file.id] = isAdded
-
-      return isAdded
-    },
-    [mediaResources],
-  )
-
-  // Создаем кэш для результатов проверки стилей субтитров
-  const subtitleAddedCache = React.useRef<Record<string, boolean>>({})
-
-  // Сбрасываем кэш при изменении subtitleResources
-  React.useEffect(() => {
-    subtitleAddedCache.current = {}
-  }, [subtitleResources])
-
-  const isSubtitleAdded = React.useCallback(
-    (style: SubtitleStyle) => {
-      // Проверяем, есть ли результат в кэше (используем hasOwnProperty для проверки наличия ключа)
-      // eslint-disable-next-line no-prototype-builtins
-      if (subtitleAddedCache.current.hasOwnProperty(style.id)) {
-        return subtitleAddedCache.current[style.id]
-      }
-
-      // Если результата нет в кэше, вычисляем его
-      const isAdded = subtitleResources.some((resource: SubtitleResource) => resource.resourceId === style.id)
-
-      // Сохраняем результат в кэше
-      subtitleAddedCache.current[style.id] = isAdded
-
-      return isAdded
-    },
-    [subtitleResources],
-  )
-
-  const value: ResourcesContextType = {
-    // Данные из контекста машины состояний
-    resources,
-    mediaResources,
-    effectResources,
-    filterResources,
-    transitionResources,
-    templateResources,
-    styleTemplateResources,
-    musicResources,
-    subtitleResources,
-
-    // Методы для работы с ресурсами
-    addMedia: handleAddMedia,
-    addEffect: handleAddEffect,
-    addFilter: handleAddFilter,
-    addTransition: handleAddTransition,
-    addTemplate: handleAddTemplate,
-    addStyleTemplate: handleAddStyleTemplate,
-    addMusic: handleAddMusic,
-    addSubtitle: handleAddSubtitle,
-    addResource: handleAddResource,
-    removeResource: handleRemoveResource,
-    updateResource: handleUpdateResource,
-    clearResources: handleClearResources,
-
-    // Методы для проверки наличия ресурса в хранилище
-    isAdded,
-    isEffectAdded,
-    isFilterAdded,
-    isTransitionAdded,
-    isTemplateAdded,
-    isStyleTemplateAdded,
-    isMusicAdded,
-    isMediaAdded,
-    isSubtitleAdded,
-  }
-
-  return <ResourcesContext.Provider value={value}>{children}</ResourcesContext.Provider>
-}
+// Экспорт типов
+export type { ResourcesContextTypeV2 }

@@ -1,375 +1,417 @@
 /**
- * Timeline Provider
- *
- * React контекст для управления состоянием Timeline
+ * Timeline Provider V2
+ * 
+ * Новый провайдер timeline с интеграцией backend state management
  */
 
-import React, { createContext, useCallback } from "react"
+import React, { createContext, useEffect, useCallback, useMemo } from 'react'
+import { useMachine } from '@xstate/react'
 
-import { useMachine } from "@xstate/react"
+import { getBackendSync } from '@/features/app-state/services/backend-sync'
+import { ProjectCommand } from '@/features/app-state/types/commands'
+import { ProjectState } from '@/features/app-state/types/unified-project'
+import { MediaFile } from '@/features/media/types/media'
 
-import { MediaFile } from "@/features/media/types/media"
-
-import { TimelineClip, TimelineProject, TimelineSection, TimelineTrack, TimelineUIState, TrackType } from "../types"
-import { timelineMachine } from "./timeline-machine"
+import { TimelineClip, TimelineProject, TimelineSection, TimelineTrack, TrackType } from '../types'
+import { timelineUIMachine, TimelineUIContext } from './timeline-ui-machine'
+import { ClipboardData, copyClips, cutClips, pasteClips } from '../utils/clip-operations'
 
 export interface TimelineContextType {
-  // Состояние
+  // Данные проекта (из backend)
   project: TimelineProject | null
-  uiState: TimelineUIState
   isPlaying: boolean
-  isRecording: boolean
   currentTime: number
-  error: string | null
-  lastAction: string | null
+  playbackRate: number
 
-  // Статус машины состояний
-  isReady: boolean
-  isSaving: boolean
-
-  // Действия с проектом
-  createProject: (name: string, settings?: any) => void
-  loadProject: (project: TimelineProject) => void
-  saveProject: () => void
-  closeProject: () => void
-
-  // Действия с секциями
-  addSection: (name: string, startTime: number, duration: number, realStartTime?: Date) => void
-  removeSection: (sectionId: string) => void
-  updateSection: (sectionId: string, updates: Partial<TimelineSection>) => void
-
-  // Действия с треками
-  addTrack: (trackType: TrackType, sectionId?: string, name?: string) => void
-  removeTrack: (trackId: string) => void
-  updateTrack: (trackId: string, updates: Partial<TimelineTrack>) => void
-  reorderTracks: (trackIds: string[]) => void
-
-  // Действия с клипами
-  addClip: (trackId: string, mediaFile: MediaFile, startTime: number, duration?: number) => void
-  removeClip: (clipId: string) => void
-  updateClip: (clipId: string, updates: Partial<TimelineClip>) => void
-  moveClip: (clipId: string, newTrackId: string, newStartTime: number) => void
-  splitClip: (clipId: string, splitTime: number) => void
-  trimClip: (clipId: string, newStartTime: number, newDuration: number) => void
+  // UI состояние (из UI машины)
+  uiState: TimelineUIContext
+  timeScale: number
+  scrollPosition: { x: number; y: number }
+  editMode: 'select' | 'cut' | 'trim' | 'move'
+  snapMode: 'none' | 'grid' | 'clips' | 'markers'
 
   // Выделение
+  selectedClipIds: string[]
+  selectedTrackIds: string[]
+  selectedSectionIds: string[]
+
+  // Флаги
+  isLoading: boolean
+  error: string | null
+  hasClipboard: boolean
+
+  // Команды проекта (через backend)
+  createProject: (name: string, settings?: any) => Promise<void>
+  saveProject: (path?: string) => Promise<void>
+
+  // Команды секций
+  addSection: (name: string, startTime: number, duration: number, realStartTime?: Date) => Promise<void>
+  removeSection: (sectionId: string) => Promise<void>
+  updateSection: (sectionId: string, updates: Partial<TimelineSection>) => Promise<void>
+
+  // Команды треков
+  addTrack: (trackType: TrackType, name?: string, index?: number) => Promise<void>
+  removeTrack: (trackId: string) => Promise<void>
+  updateTrack: (trackId: string, updates: Partial<TimelineTrack>) => Promise<void>
+
+  // Команды клипов
+  addClip: (trackId: string, mediaFile: MediaFile, startTime: number) => Promise<void>
+  removeClip: (clipId: string) => Promise<void>
+  moveClip: (clipId: string, trackId: string, startTime: number) => Promise<void>
+  trimClip: (clipId: string, start: number, end: number) => Promise<void>
+  updateClip: (clipId: string, updates: Partial<TimelineClip>) => Promise<void>
+
+  // Команды воспроизведения
+  play: () => Promise<void>
+  pause: () => Promise<void>
+  stop: () => Promise<void>
+  seek: (time: number) => Promise<void>
+  setPlaybackRate: (rate: number) => Promise<void>
+
+  // UI команды (локальные)
+  setTimeScale: (scale: number) => void
+  setScrollPosition: (x: number, y: number) => void
+  setEditMode: (mode: 'select' | 'cut' | 'trim' | 'move') => void
+  toggleSnap: (snapMode: 'none' | 'grid' | 'clips' | 'markers') => void
+
+  // Выделение (локальное)
   selectClips: (clipIds: string[], addToSelection?: boolean) => void
   selectTracks: (trackIds: string[], addToSelection?: boolean) => void
   selectSections: (sectionIds: string[], addToSelection?: boolean) => void
   clearSelection: () => void
 
-  // Воспроизведение
-  play: () => void
-  pause: () => void
-  stop: () => void
-  seek: (time: number) => void
-  setPlaybackRate: (rate: number) => void
-
-  // UI
-  setTimeScale: (scale: number) => void
-  setScrollPosition: (x: number, y: number) => void
-  setEditMode: (mode: "select" | "cut" | "trim" | "move") => void
-  toggleSnap: (snapMode: "none" | "grid" | "clips" | "markers") => void
-
-  // История
-  undo: () => void
-  redo: () => void
-  clearHistory: () => void
-
   // Буфер обмена
   copySelection: () => void
   cutSelection: () => void
-  paste: (targetTrackId?: string, targetTime?: number) => void
+  paste: (targetTrackId?: string, targetTime?: number) => Promise<void>
+
+  // Операции перетаскивания
+  startDragClip: (clipId: string) => void
+  startDragTrack: (trackId: string) => void
+  stopDrag: () => void
 
   // Утилиты
   clearError: () => void
-
-  // Прямой доступ к send для расширенных операций
-  send: (event: any) => void
 }
 
 export const TimelineContext = createContext<TimelineContextType | null>(null)
 
-interface TimelineProviderProps {
+interface TimelineProviderV2Props {
   children: React.ReactNode
 }
 
-export function TimelineProvider({ children }: TimelineProviderProps) {
-  const [state, send] = useMachine(timelineMachine)
+export function TimelineProvider({ children }: TimelineProviderV2Props) {
+  const [uiState, sendUI] = useMachine(timelineUIMachine)
+  const [backendState, setBackendState] = React.useState<ProjectState | null>(null)
+  const [isLoading, setIsLoading] = React.useState(false)
+  const [error, setError] = React.useState<string | null>(null)
 
-  // Извлекаем данные из состояния машины
-  const { project, uiState, isPlaying, isRecording, currentTime, error, lastAction } = state.context
+  const backendSync = useMemo(() => getBackendSync(), [])
 
-  // Статус машины состояний
-  const isReady = state.matches("ready")
-  const isSaving = state.matches("saving")
+  // Подписка на backend состояние
+  useEffect(() => {
+    const unsubscribeState = backendSync.onStateChange((state: ProjectState) => {
+      setBackendState(state)
+      
+      // Синхронизируем playback состояние с UI машиной
+      if (state.playbackState) {
+        sendUI({
+          type: 'SYNC_PLAYBACK_STATE',
+          isPlaying: state.playbackState.isPlaying,
+          currentTime: state.playbackState.currentTime,
+          playbackRate: state.playbackState.playbackRate || 1,
+        })
+      }
+    })
 
-  // Проект
-  const createProject = useCallback(
-    (name: string, settings?: any) => {
-      send({ type: "CREATE_PROJECT", name, settings })
-    },
-    [send],
-  )
+    const unsubscribeEvents = backendSync.onEvent((event) => {
+      console.log('Timeline backend event:', event)
+    })
 
-  const loadProject = useCallback(
-    (project: TimelineProject) => {
-      send({ type: "LOAD_PROJECT", project })
-    },
-    [send],
-  )
+    return () => {
+      unsubscribeState()
+      unsubscribeEvents()
+    }
+  }, [backendSync, sendUI])
 
-  const saveProject = useCallback(() => {
-    send({ type: "SAVE_PROJECT" })
-  }, [send])
+  // Функция для выполнения backend команд
+  const executeCommand = useCallback(async (command: ProjectCommand) => {
+    try {
+      setIsLoading(true)
+      setError(null)
+      
+      const result = await backendSync.executeCommand(command)
+      if (!result.success) {
+        throw new Error(result.error || 'Command failed')
+      }
+      
+      return result.data
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error'
+      setError(errorMessage)
+      console.error('Timeline command failed:', err)
+      throw err
+    } finally {
+      setIsLoading(false)
+    }
+  }, [backendSync])
 
-  const closeProject = useCallback(() => {
-    send({ type: "CLOSE_PROJECT" })
-  }, [send])
+  // Команды проекта
+  const createProject = useCallback(async (name: string, settings?: any) => {
+    await executeCommand({
+      type: 'CreateProject',
+      params: { name, settings: settings || {} }
+    })
+  }, [executeCommand])
 
-  // Секции
-  const addSection = useCallback(
-    (name: string, startTime: number, duration: number, realStartTime?: Date) => {
-      send({ type: "ADD_SECTION", name, startTime, duration, realStartTime })
-    },
-    [send],
-  )
+  const saveProject = useCallback(async (path?: string) => {
+    await executeCommand({
+      type: 'SaveProject',
+      params: { path }
+    })
+  }, [executeCommand])
 
-  const removeSection = useCallback(
-    (sectionId: string) => {
-      send({ type: "REMOVE_SECTION", sectionId })
-    },
-    [send],
-  )
+  // Команды треков (секции в новой архитектуре не используются)
+  const addTrack = useCallback(async (trackType: TrackType, name?: string, index?: number) => {
+    await executeCommand({
+      type: 'AddTrack',
+      params: { name: name || `Track ${Date.now()}`, trackType, index }
+    })
+  }, [executeCommand])
 
-  const updateSection = useCallback(
-    (sectionId: string, updates: Partial<TimelineSection>) => {
-      send({ type: "UPDATE_SECTION", sectionId, updates })
-    },
-    [send],
-  )
+  const removeTrack = useCallback(async (trackId: string) => {
+    await executeCommand({
+      type: 'DeleteTrack',
+      params: { trackId }
+    })
+  }, [executeCommand])
 
-  // Треки
-  const addTrack = useCallback(
-    (trackType: TrackType, sectionId?: string, name?: string) => {
-      send({ type: "ADD_TRACK", trackType, sectionId, name })
-    },
-    [send],
-  )
+  const updateTrack = useCallback(async (trackId: string, updates: Partial<TimelineTrack>) => {
+    await executeCommand({
+      type: 'UpdateTrack',
+      params: { trackId, updates }
+    })
+  }, [executeCommand])
 
-  const removeTrack = useCallback(
-    (trackId: string) => {
-      send({ type: "REMOVE_TRACK", trackId })
-    },
-    [send],
-  )
+  // Команды клипов
+  const addClip = useCallback(async (trackId: string, mediaFile: MediaFile, startTime: number) => {
+    await executeCommand({
+      type: 'AddClip',
+      params: { trackId, mediaId: mediaFile.id, time: startTime }
+    })
+  }, [executeCommand])
 
-  const updateTrack = useCallback(
-    (trackId: string, updates: Partial<TimelineTrack>) => {
-      send({ type: "UPDATE_TRACK", trackId, updates })
-    },
-    [send],
-  )
+  const removeClip = useCallback(async (clipId: string) => {
+    await executeCommand({
+      type: 'DeleteClip',
+      params: { clipId }
+    })
+  }, [executeCommand])
 
-  const reorderTracks = useCallback(
-    (trackIds: string[]) => {
-      send({ type: "REORDER_TRACKS", trackIds })
-    },
-    [send],
-  )
+  const moveClip = useCallback(async (clipId: string, trackId: string, startTime: number) => {
+    await executeCommand({
+      type: 'MoveClip',
+      params: { clipId, trackId, time: startTime }
+    })
+  }, [executeCommand])
 
-  // Клипы
-  const addClip = useCallback(
-    (trackId: string, mediaFile: MediaFile, startTime: number, duration?: number) => {
-      send({ type: "ADD_CLIP", trackId, mediaFile, startTime, duration })
-    },
-    [send],
-  )
+  const trimClip = useCallback(async (clipId: string, start: number, end: number) => {
+    await executeCommand({
+      type: 'TrimClip',
+      params: { clipId, start, end }
+    })
+  }, [executeCommand])
 
-  const removeClip = useCallback(
-    (clipId: string) => {
-      send({ type: "REMOVE_CLIP", clipId })
-    },
-    [send],
-  )
+  const updateClip = useCallback(async (clipId: string, updates: Partial<TimelineClip>) => {
+    await executeCommand({
+      type: 'UpdateClip',
+      params: { clipId, updates }
+    })
+  }, [executeCommand])
 
-  const updateClip = useCallback(
-    (clipId: string, updates: Partial<TimelineClip>) => {
-      send({ type: "UPDATE_CLIP", clipId, updates })
-    },
-    [send],
-  )
+  // Команды воспроизведения
+  const play = useCallback(async () => {
+    await executeCommand({ type: 'Play', params: {} })
+  }, [executeCommand])
 
-  const moveClip = useCallback(
-    (clipId: string, newTrackId: string, newStartTime: number) => {
-      send({ type: "MOVE_CLIP", clipId, newTrackId, newStartTime })
-    },
-    [send],
-  )
+  const pause = useCallback(async () => {
+    await executeCommand({ type: 'Pause', params: {} })
+  }, [executeCommand])
 
-  const splitClip = useCallback(
-    (clipId: string, splitTime: number) => {
-      send({ type: "SPLIT_CLIP", clipId, splitTime })
-    },
-    [send],
-  )
+  const stop = useCallback(async () => {
+    await executeCommand({ type: 'Stop', params: {} })
+  }, [executeCommand])
 
-  const trimClip = useCallback(
-    (clipId: string, newStartTime: number, newDuration: number) => {
-      send({ type: "TRIM_CLIP", clipId, newStartTime, newDuration })
-    },
-    [send],
-  )
+  const seek = useCallback(async (time: number) => {
+    await executeCommand({ type: 'Seek', params: { time } })
+  }, [executeCommand])
+
+  const setPlaybackRate = useCallback(async (rate: number) => {
+    await executeCommand({ type: 'SetPlaybackRate', params: { rate } })
+  }, [executeCommand])
+
+  // UI команды (локальные)
+  const setTimeScale = useCallback((scale: number) => {
+    sendUI({ type: 'SET_TIME_SCALE', scale })
+  }, [sendUI])
+
+  const setScrollPosition = useCallback((x: number, y: number) => {
+    sendUI({ type: 'SET_SCROLL_POSITION', x, y })
+  }, [sendUI])
+
+  const setEditMode = useCallback((mode: 'select' | 'cut' | 'trim' | 'move') => {
+    sendUI({ type: 'SET_EDIT_MODE', mode })
+  }, [sendUI])
+
+  const toggleSnap = useCallback((snapMode: 'none' | 'grid' | 'clips' | 'markers') => {
+    sendUI({ type: 'TOGGLE_SNAP', snapMode })
+  }, [sendUI])
 
   // Выделение
-  const selectClips = useCallback(
-    (clipIds: string[], addToSelection = false) => {
-      send({ type: "SELECT_CLIPS", clipIds, addToSelection })
-    },
-    [send],
-  )
+  const selectClips = useCallback((clipIds: string[], addToSelection?: boolean) => {
+    sendUI({ type: 'SELECT_CLIPS', clipIds, addToSelection })
+  }, [sendUI])
 
-  const selectTracks = useCallback(
-    (trackIds: string[], addToSelection = false) => {
-      send({ type: "SELECT_TRACKS", trackIds, addToSelection })
-    },
-    [send],
-  )
+  const selectTracks = useCallback((trackIds: string[], addToSelection?: boolean) => {
+    sendUI({ type: 'SELECT_TRACKS', trackIds, addToSelection })
+  }, [sendUI])
 
-  const selectSections = useCallback(
-    (sectionIds: string[], addToSelection = false) => {
-      send({ type: "SELECT_SECTIONS", sectionIds, addToSelection })
-    },
-    [send],
-  )
+  const selectSections = useCallback((sectionIds: string[], addToSelection?: boolean) => {
+    sendUI({ type: 'SELECT_SECTIONS', sectionIds, addToSelection })
+  }, [sendUI])
 
   const clearSelection = useCallback(() => {
-    send({ type: "CLEAR_SELECTION" })
-  }, [send])
-
-  // Воспроизведение
-  const play = useCallback(() => {
-    send({ type: "PLAY" })
-  }, [send])
-
-  const pause = useCallback(() => {
-    send({ type: "PAUSE" })
-  }, [send])
-
-  const stop = useCallback(() => {
-    send({ type: "STOP" })
-  }, [send])
-
-  const seek = useCallback(
-    (time: number) => {
-      send({ type: "SEEK", time })
-    },
-    [send],
-  )
-
-  const setPlaybackRate = useCallback(
-    (rate: number) => {
-      send({ type: "SET_PLAYBACK_RATE", rate })
-    },
-    [send],
-  )
-
-  // UI
-  const setTimeScale = useCallback(
-    (scale: number) => {
-      send({ type: "SET_TIME_SCALE", scale })
-    },
-    [send],
-  )
-
-  const setScrollPosition = useCallback(
-    (x: number, y: number) => {
-      send({ type: "SET_SCROLL_POSITION", x, y })
-    },
-    [send],
-  )
-
-  const setEditMode = useCallback(
-    (mode: "select" | "cut" | "trim" | "move") => {
-      send({ type: "SET_EDIT_MODE", mode })
-    },
-    [send],
-  )
-
-  const toggleSnap = useCallback(
-    (snapMode: "none" | "grid" | "clips" | "markers") => {
-      send({ type: "TOGGLE_SNAP", snapMode })
-    },
-    [send],
-  )
-
-  // История
-  const undo = useCallback(() => {
-    send({ type: "UNDO" })
-  }, [send])
-
-  const redo = useCallback(() => {
-    send({ type: "REDO" })
-  }, [send])
-
-  const clearHistory = useCallback(() => {
-    send({ type: "CLEAR_HISTORY" })
-  }, [send])
+    sendUI({ type: 'CLEAR_SELECTION' })
+  }, [sendUI])
 
   // Буфер обмена
   const copySelection = useCallback(() => {
-    send({ type: "COPY_SELECTION" })
-  }, [send])
+    if (!backendState?.project) return
+    
+    const selectedClips = uiState.context.selectedClipIds
+      .map(id => backendState.project!.timeline.clips.find(c => c.id === id))
+      .filter(Boolean) as TimelineClip[]
+
+    if (selectedClips.length > 0) {
+      const clipboardData = copyClips(selectedClips)
+      sendUI({ type: 'COPY_SELECTION', clipboardData })
+    }
+  }, [backendState, uiState.context.selectedClipIds, sendUI])
 
   const cutSelection = useCallback(() => {
-    send({ type: "CUT_SELECTION" })
-  }, [send])
+    if (!backendState?.project) return
+    
+    const selectedClips = uiState.context.selectedClipIds
+      .map(id => backendState.project!.timeline.clips.find(c => c.id === id))
+      .filter(Boolean) as TimelineClip[]
 
-  const paste = useCallback(
-    (targetTrackId?: string, targetTime?: number) => {
-      send({ type: "PASTE", targetTrackId, targetTime })
-    },
-    [send],
-  )
+    if (selectedClips.length > 0) {
+      const clipboardData = cutClips(selectedClips)
+      sendUI({ type: 'CUT_SELECTION', clipboardData })
+      
+      // Удаляем клипы из backend
+      selectedClips.forEach(clip => {
+        removeClip(clip.id).catch(console.error)
+      })
+    }
+  }, [backendState, uiState.context.selectedClipIds, sendUI, removeClip])
+
+  const paste = useCallback(async (targetTrackId?: string, targetTime?: number) => {
+    const clipboard = uiState.context.clipboard
+    if (!clipboard || !backendState?.project) return
+
+    const tracks = backendState.project.timeline.tracks
+    const trackId = targetTrackId || tracks[0]?.id
+    const time = targetTime || uiState.context.currentTime
+
+    if (!trackId) return
+
+    try {
+      const pastedClips = pasteClips(clipboard, trackId, time)
+      
+      // Добавляем клипы в backend
+      for (const clip of pastedClips) {
+        // Нужно получить MediaFile из clip для добавления
+        // Это упрощенная версия - в реальности нужно получить MediaFile из mediaPool
+        const mediaFile = { id: clip.mediaId } as MediaFile
+        await addClip(trackId, mediaFile, clip.startTime)
+      }
+    } catch (err) {
+      console.error('Paste failed:', err)
+    }
+  }, [uiState.context.clipboard, uiState.context.currentTime, backendState, addClip])
+
+  // Операции перетаскивания
+  const startDragClip = useCallback((clipId: string) => {
+    sendUI({ type: 'START_DRAG_CLIP', clipId })
+  }, [sendUI])
+
+  const startDragTrack = useCallback((trackId: string) => {
+    sendUI({ type: 'START_DRAG_TRACK', trackId })
+  }, [sendUI])
+
+  const stopDrag = useCallback(() => {
+    sendUI({ type: 'STOP_DRAG' })
+  }, [sendUI])
 
   // Утилиты
   const clearError = useCallback(() => {
-    send({ type: "CLEAR_ERROR" })
-  }, [send])
+    setError(null)
+    sendUI({ type: 'CLEAR_UI_ERROR' })
+  }, [sendUI])
 
-  const contextValue: TimelineContextType = {
-    // Состояние
-    project,
-    uiState,
-    isPlaying,
-    isRecording,
-    currentTime,
-    error,
-    lastAction,
-    isReady,
-    isSaving,
-    // Действия
+  // Заглушки для методов которых нет в новой архитектуре
+  const addSection = useCallback(async (name: string, startTime: number, duration: number, realStartTime?: Date) => {
+    console.warn('Sections are not supported in the new architecture')
+  }, [])
+
+  const removeSection = useCallback(async (sectionId: string) => {
+    console.warn('Sections are not supported in the new architecture')
+  }, [])
+
+  const updateSection = useCallback(async (sectionId: string, updates: Partial<TimelineSection>) => {
+    console.warn('Sections are not supported in the new architecture')
+  }, [])
+
+  // Контекстное значение
+  const contextValue: TimelineContextTypeV2 = {
+    // Данные проекта
+    project: backendState?.project || null,
+    isPlaying: uiState.context.isPlaying,
+    currentTime: uiState.context.currentTime,
+    playbackRate: uiState.context.playbackRate,
+
+    // UI состояние
+    uiState: uiState.context,
+    timeScale: uiState.context.timeScale,
+    scrollPosition: uiState.context.scrollPosition,
+    editMode: uiState.context.editMode,
+    snapMode: uiState.context.snapMode,
+
+    // Выделение
+    selectedClipIds: uiState.context.selectedClipIds,
+    selectedTrackIds: uiState.context.selectedTrackIds,
+    selectedSectionIds: uiState.context.selectedSectionIds,
+
+    // Флаги
+    isLoading,
+    error: error || uiState.context.uiError,
+    hasClipboard: uiState.context.clipboard !== null,
+
+    // Команды
     createProject,
-    loadProject,
     saveProject,
-    closeProject,
     addSection,
     removeSection,
     updateSection,
     addTrack,
     removeTrack,
     updateTrack,
-    reorderTracks,
     addClip,
     removeClip,
-    updateClip,
     moveClip,
-    splitClip,
     trimClip,
-    selectClips,
-    selectTracks,
-    selectSections,
-    clearSelection,
+    updateClip,
     play,
     pause,
     stop,
@@ -379,15 +421,27 @@ export function TimelineProvider({ children }: TimelineProviderProps) {
     setScrollPosition,
     setEditMode,
     toggleSnap,
-    undo,
-    redo,
-    clearHistory,
+    selectClips,
+    selectTracks,
+    selectSections,
+    clearSelection,
     copySelection,
     cutSelection,
     paste,
+    startDragClip,
+    startDragTrack,
+    stopDrag,
     clearError,
-    send,
   }
 
-  return <TimelineContext.Provider value={contextValue}>{children}</TimelineContext.Provider>
+  return (
+    <TimelineContext.Provider value={contextValue}>
+      {children}
+    </TimelineContext.Provider>
+  )
 }
+
+// Legacy exports для обратной совместимости
+export { TimelineProvider as TimelineProviderV2 }
+export { TimelineContext as TimelineContextV2 }
+export type { TimelineContextType as TimelineContextTypeV2 }

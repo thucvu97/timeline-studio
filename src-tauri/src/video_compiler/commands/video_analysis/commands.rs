@@ -108,47 +108,32 @@ pub async fn ffmpeg_detect_scenes(
   min_scene_length: f64,
 ) -> Result<SceneDetectionResult> {
   let path = Path::new(&file_path);
-  if !path.exists() {
-    return Err(VideoCompilerError::MediaFileError {
-      path: file_path,
-      reason: "File not found".to_string(),
-    });
-  }
-
-  let _executor = FFmpegExecutor::new();
-
-  // В реальной реализации здесь был бы анализ через FFmpeg
-  let video_duration = 30.0; // Заглушка
-
-  Ok(generate_scene_detection_result(
+  
+  // Используем реальную FFmpeg реализацию
+  crate::video_compiler::core::ffmpeg::scene_detection::detect_scenes(
+    path,
     threshold,
     min_scene_length,
-    video_duration,
-  ))
+  ).await
 }
 
 /// Анализ качества видео
 #[tauri::command]
 pub async fn ffmpeg_analyze_quality(
   file_path: String,
-  _sample_rate: f64,
+  sample_rate: f64,
   enable_noise_detection: bool,
   enable_stability_check: bool,
 ) -> Result<QualityAnalysisResult> {
   let path = Path::new(&file_path);
-  if !path.exists() {
-    return Err(VideoCompilerError::MediaFileError {
-      path: file_path,
-      reason: "File not found".to_string(),
-    });
-  }
-
-  // Используем бизнес-логику для расчета метрик
-  Ok(calculate_quality_metrics(
+  
+  // Используем реальную FFmpeg реализацию
+  crate::video_compiler::core::ffmpeg::quality::analyze_video_quality(
+    path,
+    sample_rate,
     enable_noise_detection,
     enable_stability_check,
-    None,
-  ))
+  ).await
 }
 
 /// Анализ качества видео (обновленная команда)
@@ -160,12 +145,7 @@ pub async fn ffmpeg_analyze_quality_enhanced(
   enable_stability_check: bool,
   _state: State<'_, VideoCompilerState>,
 ) -> Result<QualityAnalysisResult> {
-  if !Path::new(&file_path).exists() {
-    return Err(VideoCompilerError::MediaFileError {
-      path: file_path,
-      reason: "File not found".to_string(),
-    });
-  }
+  let path = Path::new(&file_path);
 
   if sample_rate <= 0.0 || sample_rate > 10.0 {
     return Err(VideoCompilerError::InvalidParameter(
@@ -177,11 +157,13 @@ pub async fn ffmpeg_analyze_quality_enhanced(
     "Анализ качества видео: {file_path}, sample_rate: {sample_rate}, noise: {enable_noise_detection}, stability: {enable_stability_check}"
   );
 
-  Ok(calculate_quality_metrics(
+  // Используем реальную FFmpeg реализацию
+  crate::video_compiler::core::ffmpeg::quality::analyze_video_quality(
+    path,
+    sample_rate,
     enable_noise_detection,
     enable_stability_check,
-    None,
-  ))
+  ).await
 }
 
 /// Детекция тишины в аудио
@@ -192,21 +174,13 @@ pub async fn ffmpeg_detect_silence(
   min_duration: f64,
 ) -> Result<SilenceDetectionResult> {
   let path = Path::new(&file_path);
-  if !path.exists() {
-    return Err(VideoCompilerError::MediaFileError {
-      path: file_path,
-      reason: "File not found".to_string(),
-    });
-  }
-
-  // В реальной реализации здесь был бы анализ через FFmpeg
-  let total_duration = 60.0; // Заглушка
-
-  Ok(analyze_silence_patterns(
+  
+  // Используем реальную FFmpeg реализацию
+  crate::video_compiler::core::ffmpeg::silence_detection::detect_silence(
+    path,
     threshold,
     min_duration,
-    total_duration,
-  ))
+  ).await
 }
 
 /// Анализ движения в видео
@@ -216,14 +190,12 @@ pub async fn ffmpeg_analyze_motion(
   sensitivity: f64,
 ) -> Result<MotionAnalysisResult> {
   let path = Path::new(&file_path);
-  if !path.exists() {
-    return Err(VideoCompilerError::MediaFileError {
-      path: file_path,
-      reason: "File not found".to_string(),
-    });
-  }
-
-  Ok(generate_motion_analysis_result(sensitivity))
+  
+  // Используем реальную FFmpeg реализацию
+  crate::video_compiler::core::ffmpeg::motion_analysis::analyze_motion(
+    path,
+    sensitivity,
+  ).await
 }
 
 /// Извлечение ключевых кадров
@@ -234,14 +206,13 @@ pub async fn ffmpeg_extract_keyframes(
   max_frames: u32,
 ) -> Result<KeyFrameExtractionResult> {
   let path = Path::new(&file_path);
-  if !path.exists() {
-    return Err(VideoCompilerError::MediaFileError {
-      path: file_path,
-      reason: "File not found".to_string(),
-    });
-  }
-
-  Ok(generate_keyframe_extraction_result(interval, max_frames))
+  
+  // Используем реальную FFmpeg реализацию
+  crate::video_compiler::core::ffmpeg::keyframes::extract_keyframes(
+    path,
+    interval,
+    max_frames,
+  ).await
 }
 
 /// Анализ аудио
@@ -251,26 +222,41 @@ pub async fn ffmpeg_analyze_audio(
   sample_rate: f64,
 ) -> Result<AudioAnalysisResult> {
   let path = Path::new(&file_path);
-  if !path.exists() {
-    return Err(VideoCompilerError::MediaFileError {
-      path: file_path,
-      reason: "File not found".to_string(),
-    });
-  }
-
-  Ok(generate_audio_analysis_result(sample_rate))
+  
+  // Используем реальную FFmpeg реализацию
+  crate::video_compiler::core::ffmpeg::audio_analysis::analyze_audio(
+    path,
+    sample_rate,
+  ).await
 }
 
 /// Быстрый анализ видео
 #[tauri::command]
 pub async fn ffmpeg_quick_analysis(file_path: String) -> Result<serde_json::Value> {
   let path = Path::new(&file_path);
-  if !path.exists() {
-    return Err(VideoCompilerError::MediaFileError {
-      path: file_path,
-      reason: "File not found".to_string(),
-    });
-  }
-
-  Ok(generate_quick_analysis_result())
+  
+  // Используем несколько FFmpeg функций для быстрого анализа
+  let metadata = crate::video_compiler::core::ffmpeg::analysis::get_video_metadata(path).await?;
+  
+  // Базовый анализ качества с минимальным sample rate
+  let quality = crate::video_compiler::core::ffmpeg::quality::analyze_video_quality(
+    path,
+    0.5, // Низкий sample rate для быстрого анализа
+    false, // Без детекции шума
+    false, // Без проверки стабильности
+  ).await?;
+  
+  // Формируем результат
+  Ok(serde_json::json!({
+    "duration": metadata.duration,
+    "resolution": format!("{}x{}", metadata.width, metadata.height),
+    "fps": metadata.fps,
+    "codec": metadata.codec,
+    "bitrate": metadata.bitrate,
+    "overall_quality": quality.overall,
+    "brightness": quality.brightness,
+    "contrast": quality.contrast,
+    "sharpness": quality.sharpness,
+    "issues": quality.issues
+  }))
 }

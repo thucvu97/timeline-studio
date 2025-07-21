@@ -30,6 +30,9 @@ export interface SceneAnalysisConfig {
     model?: string // Какую AI модель использовать
   }
 
+  // Character Analysis
+  enableCharacterAnalysis: boolean
+
   // Производительность
   performance: {
     parallel: boolean
@@ -52,12 +55,15 @@ export interface SceneAnalysisResult {
     dominantColors: string[]
     visualComplexity: number // 0-1
     audioProfile: AudioProfile
+    demographics?: any
   }
   timeline: TimelineData
   // Интеграция с montage-planner
   persons?: any[]
   fragments?: any[]
   personStats?: any
+  // Анализ персонажей и отношений
+  characterAnalysis?: import("./services/character-analysis").CharacterAnalysisResult
 }
 
 export interface AudioProfile {
@@ -166,4 +172,50 @@ export enum CameraMovementType {
   DOLLY = "dolly",
   HANDHELD = "handheld",
   TRACKING = "tracking",
+}
+
+// Типы для анализа переходов между сценами
+export interface SceneTransition {
+  fromScene: number
+  toScene: number
+  startTime: number
+  endTime: number
+  duration: number
+  type: TransitionType
+  confidence: number
+  smoothness: number
+  visualImpact: number
+  metadata: {
+    colorChange: number
+    motionChange: number
+    audioChange: number
+    isNaturalCut: boolean
+    requiresAttention: boolean
+  }
+}
+
+export type TransitionType = 
+  | "cut"
+  | "fade_in" 
+  | "fade_out"
+  | "fade_through"
+  | "dissolve"
+  | "wipe"
+  | "wipe_left"
+  | "wipe_right" 
+  | "wipe_up"
+  | "wipe_down"
+  | "morph"
+
+export interface TransitionQuality {
+  confidence: number // Уверенность в определении типа (0-1)
+  smoothness: number // Плавность перехода (0-1)
+  visualImpact: number // Визуальное воздействие (0-1)
+}
+
+export interface SceneChangeMetrics {
+  colorHistogramChange: number // Изменение цветовой гистограммы (0-1)
+  motionVectorChange: number // Изменение векторов движения (0-1)
+  audioLevelChange: number // Изменение уровня звука (дБ)
+  brightnessChange: number // Изменение яркости (0-1)
 }

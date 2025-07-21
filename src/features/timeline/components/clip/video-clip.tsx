@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils"
 
 import { timelinePlayerSync } from "../../services/timeline-player-sync"
 import { TimelineClip, TimelineTrack } from "../../types"
+import { useTimeline } from "../../hooks/use-timeline"
 
 interface VideoClipProps {
   clip: TimelineClip
@@ -23,6 +24,7 @@ interface VideoClipProps {
 export const VideoClip = memo(
   function VideoClip({ clip, track, onUpdate, onRemove }: VideoClipProps) {
     const [isHovered, setIsHovered] = React.useState(false)
+    const { timelineActor, uiState } = useTimeline()
 
     // Мемоизируем обработчики для предотвращения создания новых функций при каждом рендере
     const handleSelect = useCallback(() => {
@@ -38,19 +40,36 @@ export const VideoClip = memo(
     const handleCopy = useCallback(
       (e: React.MouseEvent) => {
         e.stopPropagation()
-        // TODO: Реализовать копирование клипа
-        console.log("Copy clip:", clip.id)
+        
+        // Выделяем клип если он не выделен
+        if (!clip.isSelected) {
+          timelineActor.send({
+            type: "SELECT_CLIPS",
+            clipIds: [clip.id],
+            addToSelection: false,
+          })
+        }
+        
+        // Копируем выделенные клипы
+        timelineActor.send({ type: "COPY_SELECTION" })
       },
-      [clip.id],
+      [clip.id, clip.isSelected, timelineActor],
     )
 
     const handleSplit = useCallback(
       (e: React.MouseEvent) => {
         e.stopPropagation()
-        // TODO: Реализовать разделение клипа
-        console.log("Split clip:", clip.id)
+        
+        // Разделяем клип в середине
+        const splitTime = clip.startTime + (clip.duration / 2)
+        
+        timelineActor.send({
+          type: "SPLIT_CLIP",
+          clipId: clip.id,
+          splitTime: splitTime,
+        })
       },
-      [clip.id],
+      [clip.id, clip.startTime, clip.duration, timelineActor],
     )
 
     const handleRemove = useCallback(

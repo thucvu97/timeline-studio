@@ -77,6 +77,7 @@ impl VideoQualityAnalyzer {
     let noise_level = self.analyze_noise(path).await.unwrap_or(20.0);
     let color_grading = self.analyze_color_quality(path).await.unwrap_or(75.0);
     let dynamic_range = self.analyze_dynamic_range(path).await.unwrap_or(70.0);
+    let exposure = self.analyze_exposure(path).await.unwrap_or(50.0);
 
     Ok(VideoQualityAnalysis {
       resolution: Resolution {
@@ -87,7 +88,7 @@ impl VideoQualityAnalyzer {
       bitrate: metadata.bitrate,
       sharpness,
       stability,
-      exposure: 50.0, // TODO: Calculate actual exposure
+      exposure,
       color_grading,
       noise_level,
       dynamic_range,
@@ -637,6 +638,64 @@ impl VideoQualityAnalyzer {
     // This would require motion vector analysis in a real implementation
     // For now, return a base value with some temporal variation
     (5.0 + (timestamp * 0.1) % 10.0) as f32
+  }
+
+  /// Analyze exposure using FFmpeg histogram analysis
+  async fn analyze_exposure<P: AsRef<Path>>(&self, video_path: P) -> Result<f32> {
+    let path = video_path.as_ref();
+
+    // Use histogram filter to analyze brightness distribution
+    let output = AsyncCommand::new("ffmpeg")
+      .args([
+        "-i",
+        path
+          .to_str()
+          .ok_or_else(|| anyhow::anyhow!("Invalid path"))?,
+        "-vf",
+        "histogram=level_height=1024:scale_height=256,signalstats",
+        "-frames:v",
+        "10", // Analyze 10 frames for better accuracy
+        "-f",
+        "null",
+        "-",
+      ])
+      .output()
+      .await?;
+
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    // Parse signalstats output for brightness metrics
+    let mut avg_brightness = 50.0; // Default middle exposure
+    
+    for line in stderr.lines() {
+      if line.contains("YAVG:") {
+        // Extract Y (luma) average value
+        if let Some(yavg_start) = line.find("YAVG:") {
+          let yavg_part = &line[yavg_start + 5..];
+          if let Some(end) = yavg_part.find(' ') {
+            if let Ok(yavg) = yavg_part[..end].parse::<f32>() {
+              // Convert Y value (0-255) to exposure percentage (0-100)
+              avg_brightness = (yavg / 255.0) * 100.0;
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    // Calculate exposure quality based on brightness distribution
+    // Optimal exposure is around 45-55% brightness
+    let exposure_quality = if (45.0..=55.0).contains(&avg_brightness) {
+      90.0 + (10.0 - (avg_brightness - 50.0).abs() * 2.0) // Very good exposure
+    } else if (30.0..=70.0).contains(&avg_brightness) {
+      70.0 + (20.0 - (avg_brightness - 50.0).abs() * 0.5) // Acceptable exposure
+    } else if (15.0..=85.0).contains(&avg_brightness) {
+      40.0 + (30.0 - (avg_brightness - 50.0).abs() * 0.3) // Poor exposure
+    } else {
+      10.0 + (40.0 - (avg_brightness - 50.0).abs() * 0.1) // Very poor exposure
+    };
+
+    Ok(exposure_quality.clamp(0.0, 100.0))
   }
 }
 

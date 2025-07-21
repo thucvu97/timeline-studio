@@ -22,6 +22,11 @@ const mockUpdatePerson = vi.fn()
 const mockDeletePerson = vi.fn()
 const mockSearchPersons = vi.fn()
 const mockFindSimilarPersons = vi.fn()
+const mockAddEmbedding = vi.fn()
+const mockAddAppearance = vi.fn()
+const mockAddPersonThumbnail = vi.fn()
+const mockClusterUnidentifiedFaces = vi.fn()
+const mockSearchPersonsByEmbedding = vi.fn()
 
 vi.mock("../../services/person-database-service", () => ({
   PersonDatabaseService: {
@@ -32,6 +37,11 @@ vi.mock("../../services/person-database-service", () => ({
       deletePerson: mockDeletePerson,
       searchPersons: mockSearchPersons,
       findSimilarPersons: mockFindSimilarPersons,
+      addEmbedding: mockAddEmbedding,
+      addAppearance: mockAddAppearance,
+      addPersonThumbnail: mockAddPersonThumbnail,
+      clusterUnidentifiedFaces: mockClusterUnidentifiedFaces,
+      searchPersonsByEmbedding: mockSearchPersonsByEmbedding,
     })),
   },
 }))
@@ -73,6 +83,7 @@ const createMockDetectedFace = (overrides?: Partial<DetectedFace>): DetectedFace
   frameNumber: 100,
   timestamp: { seconds: 10 },
   clipId: "clip-1",
+  embedding: [0.1, 0.2, 0.3, 0.4, 0.5], // Добавляем embedding по умолчанию
   ...overrides,
 })
 
@@ -320,16 +331,29 @@ describe("usePersonIdentification Extended Tests", () => {
       await result.current.addFaceToPerson("person-1", face)
     })
 
-    expect(mockUpdatePerson).toHaveBeenCalledWith(
+    expect(mockAddEmbedding).toHaveBeenCalledWith(
       "person-1",
       expect.objectContaining({
-        appearances: expect.arrayContaining([
-          expect.objectContaining({
-            personId: "person-1",
-            detections: [face],
-          }),
-        ]),
-      }),
+        faceId: "face-1",
+        personId: "person-1",
+        vector: expect.any(Float32Array),
+        quality: 0.95,
+        timestamp: { seconds: 10 },
+        frameNumber: 100,
+      })
+    )
+    
+    expect(mockAddAppearance).toHaveBeenCalledWith(
+      "person-1",
+      expect.objectContaining({
+        personId: "person-1",
+        clipId: "clip-1",
+        startTime: { seconds: 10 },
+        endTime: { seconds: 10 },
+        duration: 0,
+        confidence: 0.95,
+        detections: [face],
+      })
     )
   })
 
@@ -359,6 +383,16 @@ describe("usePersonIdentification Extended Tests", () => {
   })
 
   it("should cluster unknown faces", async () => {
+    const mockClusters = [
+      {
+        id: "cluster-1",
+        faces: [createMockDetectedFace()],
+        centroid: new Float32Array([0.1, 0.2, 0.3, 0.4, 0.5]),
+        averageQuality: 0.95,
+      }
+    ]
+    mockClusterUnidentifiedFaces.mockResolvedValue(mockClusters)
+
     const { result } = renderHook(() => usePersonIdentification(), {
       wrapper: ({ children }) => <BaseProviders>{children}</BaseProviders>,
     })
@@ -370,7 +404,8 @@ describe("usePersonIdentification Extended Tests", () => {
       clusters = await result.current.clusterUnknownFaces(faces, 0.8)
     })
 
-    expect(clusters).toEqual([])
+    expect(mockClusterUnidentifiedFaces).toHaveBeenCalledWith(faces, 0.8)
+    expect(clusters).toEqual(mockClusters)
   })
 
   it("should calculate statistics correctly", async () => {
@@ -479,6 +514,9 @@ describe("usePersonIdentification Extended Tests", () => {
       await result.current.identifyPerson(face)
     })
 
-    expect(mockFindSimilarPersons).toHaveBeenCalledWith(undefined, expect.objectContaining({ minConfidence: 0.9 }))
+    expect(mockFindSimilarPersons).toHaveBeenCalledWith(
+      expect.any(Float32Array), 
+      expect.objectContaining({ minConfidence: 0.9 })
+    )
   })
 })

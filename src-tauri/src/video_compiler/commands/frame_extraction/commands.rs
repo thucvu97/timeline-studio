@@ -46,14 +46,55 @@ pub async fn extract_subtitle_frames(
     let frame_path =
       business_logic::generate_subtitle_frame_path(&output_dir, &subtitle.id, &FrameFormat::Png);
 
-    // TODO: Реализовать генерацию кадра с субтитром
-    results.push(SubtitleFrameResult {
-      subtitle_id: subtitle.id.clone(),
-      timestamp: subtitle.start_time,
-      frame_path,
-      width: 1920,
-      height: 1080,
-    });
+    // Генерируем кадр с субтитром используя FFmpeg
+    let ffmpeg_path = _state.ffmpeg_path.read().await.clone();
+    let generator = PreviewGenerator::new_with_ffmpeg(ffmpeg_path);
+    
+    // Находим видео клип для извлечения базового кадра
+    let video_clip = project_schema.tracks
+      .iter()
+      .flat_map(|track| &track.clips)
+      .find(|clip| {
+        subtitle.start_time >= clip.start_time && subtitle.start_time <= clip.end_time
+      });
+
+    if let Some(clip) = video_clip {
+      match &clip.source {
+        crate::video_compiler::schema::ClipSource::File(video_path) => {
+          // Извлекаем базовый кадр из видео
+          let base_frame_path = format!("{}_base.png", frame_path.trim_end_matches(".png"));
+          generator
+            .generate_frame(&project_schema, subtitle.start_time, &base_frame_path, None)
+            .await?;
+
+          // Создаем кадр с субтитром поверх базового кадра
+          generate_subtitle_overlay(
+            &base_frame_path,
+            &frame_path,
+            &subtitle.text,
+            &subtitle.style_id,
+            &project_schema,
+          ).await?;
+
+          // Получаем размеры кадра
+          let (width, height) = get_frame_dimensions(&frame_path).unwrap_or((1920, 1080));
+
+          results.push(SubtitleFrameResult {
+            subtitle_id: subtitle.id.clone(),
+            timestamp: subtitle.start_time,
+            frame_path,
+            width,
+            height,
+          });
+        }
+        _ => {
+          log::warn!("Субтитр {} не связан с видео файлом", subtitle.id);
+        }
+      }
+    } else {
+      log::warn!("Не найден видео клип для субтитра {} в момент времени {}", 
+                subtitle.id, subtitle.start_time);
+    }
   }
 
   Ok(results)
@@ -243,4 +284,94 @@ pub async fn get_video_thumbnails(
 
   log::info!("Generated {} thumbnails from {}", count, video_path);
   Ok(thumbnails)
+}
+
+/// Генерирует наложение субтитра поверх базового кадра
+async fn generate_subtitle_overlay(
+  base_frame_path: &str,
+  output_path: &str,
+  subtitle_text: &str,
+  style_id: &str,
+  project_schema: &ProjectSchema,
+) -> Result<()> {
+  use std::process::Command;
+
+  // Ищем стиль субтитра в проекте
+  let subtitle_style = project_schema.subtitle_styles
+    .iter()
+    .find(|style| style.id == style_id);
+
+  let (font_size, font_color, bg_color) = if let Some(style) = subtitle_style {
+    (
+      style.font_size.unwrap_or(24),
+      style.font_color.as_deref().unwrap_or("#FFFFFF"),
+      style.background_color.as_deref().unwrap_or("#00000080"),
+    )
+  } else {
+    (24, "#FFFFFF", "#00000080")
+  };
+
+  // Экранируем текст для FFmpeg
+  let escaped_text = subtitle_text.replace("'", "\\'").replace(":", "\\:");
+
+  // Создаем FFmpeg фильтр для наложения текста
+  let drawtext_filter = format!(
+    "drawtext=text='{}':fontsize={}:fontcolor={}:box=1:boxcolor={}:boxborderw=5:x=(w-text_w)/2:y=h-th-50",
+    escaped_text, font_size, font_color, bg_color
+  );
+
+  let mut cmd = Command::new("ffmpeg");
+  cmd.args([
+    "-i", base_frame_path,
+    "-vf", &drawtext_filter,
+    "-frames:v", "1",
+    "-y", // Перезаписать выходной файл
+    output_path,
+  ]);
+
+  log::debug!("Генерируем субтитр: {:?}", cmd);
+
+  let output = cmd.output().map_err(|e| {
+    crate::video_compiler::error::VideoCompilerError::ExternalProcessError(
+      format!("Failed to generate subtitle overlay: {}", e)
+    )
+  })?;
+
+  if !output.status.success() {
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    return Err(crate::video_compiler::error::VideoCompilerError::ExternalProcessError(
+      format!("FFmpeg subtitle overlay failed: {}", stderr)
+    ));
+  }
+
+  log::info!("Сгенерирован кадр с субтитром: {}", output_path);
+  Ok(())
+}
+
+/// Получает размеры кадра из файла изображения
+fn get_frame_dimensions(image_path: &str) -> Option<(u32, u32)> {
+  use std::process::Command;
+
+  let output = Command::new("ffprobe")
+    .args([
+      "-v", "quiet",
+      "-print_format", "json",
+      "-show_streams",
+      image_path,
+    ])
+    .output()
+    .ok()?;
+
+  let output_str = String::from_utf8(output.stdout).ok()?;
+  let json: serde_json::Value = serde_json::from_str(&output_str).ok()?;
+
+  let streams = json.get("streams")?.as_array()?;
+  let video_stream = streams.iter().find(|stream| {
+    stream.get("codec_type")?.as_str() == Some("video")
+  })?;
+
+  let width = video_stream.get("width")?.as_u64()? as u32;
+  let height = video_stream.get("height")?.as_u64()? as u32;
+
+  Some((width, height))
 }

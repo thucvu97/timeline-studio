@@ -48,11 +48,16 @@ export enum SceneType {
 }
 
 export interface KeyFrame {
+  time: number
   timestamp: number
   thumbnailPath: string
   composition: CompositionAnalysis
   isKeyMoment: boolean
   score: number
+  features?: {
+    colorHistogram?: number[]
+    motionVectors?: Array<[number, number]>
+  }
 }
 
 export interface CompositionAnalysis {
@@ -116,17 +121,35 @@ export interface ActivityDetection {
 // Scene Transitions
 export interface SceneTransition {
   type: TransitionType
+  direction: 'incoming' | 'outgoing'
+  targetSceneId: string
+  startTime: number
+  endTime: number
   duration: number
-  fromScene: string
-  toScene: string
+  confidence: number
+  metadata?: {
+    smoothness?: number
+    visualImpact?: number
+    colorChange?: number
+    motionChange?: number
+    audioChange?: number
+    isNaturalCut?: boolean
+    requiresAttention?: boolean
+  }
 }
 
 export enum TransitionType {
   CUT = "cut",
-  FADE = "fade",
+  FADE_IN = "fade_in",
+  FADE_OUT = "fade_out", 
+  FADE_THROUGH = "fade_through",
   DISSOLVE = "dissolve",
   WIPE = "wipe",
-  ZOOM = "zoom",
+  WIPE_LEFT = "wipe_left",
+  WIPE_RIGHT = "wipe_right",
+  WIPE_UP = "wipe_up", 
+  WIPE_DOWN = "wipe_down",
+  MORPH = "morph",
 }
 
 // Unified Content Analysis

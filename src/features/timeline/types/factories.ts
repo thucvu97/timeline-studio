@@ -3,9 +3,12 @@
  */
 
 import {
+  MusicClip,
+  MusicFile,
   ProjectResources,
   ProjectSettings,
   SubtitleClip,
+  SubtitleStyle,
   TimelineClip,
   TimelineProject,
   TimelineSection,
@@ -61,7 +64,7 @@ function createEmptyResources(): ProjectResources {
     transitions: [],
     templates: [],
     styleTemplates: [],
-    subtitleStyles: [],
+    subtitleStyles: createDefaultSubtitleStyles(), // Добавляем встроенные стили
     music: [],
     media: [],
   }
@@ -188,4 +191,231 @@ export function createSubtitleClip(
   }
 
   return subtitleClip
+}
+
+/**
+ * Создает новый музыкальный клип
+ */
+export function createMusicClip(
+  musicFileId: string,
+  trackId: string,
+  startTime: number,
+  duration: number,
+  options?: {
+    bpm?: number
+    key?: string
+    genre?: string
+    mood?: string
+    energy?: number
+    fadeIn?: MusicClip["fadeIn"]
+    fadeOut?: MusicClip["fadeOut"]
+    equalizer?: MusicClip["equalizer"]
+    reverb?: number
+    compression?: number
+    syncToVideo?: boolean
+    beatSync?: boolean
+  },
+): MusicClip {
+  // Создаем базовый клип
+  const baseClip = createTimelineClip(
+    musicFileId,
+    trackId,
+    startTime,
+    duration,
+  )
+
+  // Расширяем его свойствами музыкального клипа
+  const musicClip: MusicClip = {
+    ...baseClip,
+    bpm: options?.bpm,
+    key: options?.key,
+    genre: options?.genre,
+    mood: options?.mood,
+    energy: options?.energy,
+    markers: [], // Пустой массив маркеров по умолчанию
+    fadeIn: options?.fadeIn,
+    fadeOut: options?.fadeOut,
+    equalizer: options?.equalizer || {
+      bass: 0,
+      mid: 0,
+      treble: 0,
+    },
+    reverb: options?.reverb || 0,
+    compression: options?.compression || 0,
+    syncToVideo: options?.syncToVideo || false,
+    beatSync: options?.beatSync || false,
+  }
+
+  return musicClip
+}
+
+/**
+ * Создает новый стиль субтитров
+ */
+export function createSubtitleStyle(
+  name: string,
+  options?: Partial<Omit<SubtitleStyle, "id" | "name" | "createdAt" | "updatedAt">>,
+): SubtitleStyle {
+  return {
+    id: `subtitle-style-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+    name,
+    description: options?.description || "",
+    
+    // Шрифт и текст - значения по умолчанию
+    fontFamily: options?.fontFamily || "Inter, system-ui, sans-serif",
+    fontSize: options?.fontSize || 24,
+    fontWeight: options?.fontWeight || "normal",
+    fontStyle: options?.fontStyle || "normal",
+    textAlign: options?.textAlign || "center",
+    
+    // Цвета
+    color: options?.color || "#ffffff",
+    backgroundColor: options?.backgroundColor || "rgba(0, 0, 0, 0.7)",
+    strokeColor: options?.strokeColor,
+    strokeWidth: options?.strokeWidth || 0,
+    
+    // Тени
+    textShadow: options?.textShadow,
+    
+    // Позиционирование
+    defaultPosition: options?.defaultPosition || {
+      alignment: "bottom-center",
+      marginX: 0,
+      marginY: 50,
+    },
+    
+    // Размеры и отступы
+    padding: options?.padding || {
+      top: 8,
+      right: 12,
+      bottom: 8,
+      left: 12,
+    },
+    borderRadius: options?.borderRadius || 4,
+    maxWidth: options?.maxWidth || 80,
+    
+    // Поведение
+    wordWrap: options?.wordWrap ?? true,
+    letterSpacing: options?.letterSpacing || 0,
+    lineHeight: options?.lineHeight || 1.2,
+    
+    // Анимации
+    defaultAnimationIn: options?.defaultAnimationIn,
+    defaultAnimationOut: options?.defaultAnimationOut,
+    
+    // Метаданные
+    isBuiltIn: options?.isBuiltIn || false,
+    tags: options?.tags || [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
+}
+
+/**
+ * Создает встроенные стили субтитров по умолчанию
+ */
+export function createDefaultSubtitleStyles(): SubtitleStyle[] {
+  return [
+    createSubtitleStyle("Классический", {
+      description: "Стандартный стиль с белым текстом и черным фоном",
+      isBuiltIn: true,
+      tags: ["классический", "стандартный"],
+    }),
+    
+    createSubtitleStyle("Минималистичный", {
+      description: "Чистый белый текст без фона",
+      backgroundColor: "transparent",
+      strokeColor: "#000000",
+      strokeWidth: 2,
+      textShadow: {
+        offsetX: 1,
+        offsetY: 1,
+        blur: 2,
+        color: "rgba(0, 0, 0, 0.8)",
+      },
+      isBuiltIn: true,
+      tags: ["минимализм", "чистый"],
+    }),
+    
+    createSubtitleStyle("Яркий", {
+      description: "Выразительный стиль с желтым текстом",
+      color: "#ffeb3b",
+      backgroundColor: "rgba(0, 0, 0, 0.8)",
+      fontSize: 28,
+      fontWeight: "bold",
+      borderRadius: 8,
+      isBuiltIn: true,
+      tags: ["яркий", "выразительный"],
+    }),
+    
+    createSubtitleStyle("Элегантный", {
+      description: "Изысканный стиль с засечками",
+      fontFamily: "Georgia, Times, serif",
+      fontSize: 26,
+      fontStyle: "italic",
+      color: "#f8f8f2",
+      backgroundColor: "rgba(40, 42, 54, 0.9)",
+      borderRadius: 6,
+      padding: {
+        top: 12,
+        right: 16,
+        bottom: 12,
+        left: 16,
+      },
+      isBuiltIn: true,
+      tags: ["элегантный", "засечки"],
+    }),
+  ]
+}
+
+/**
+ * Создает файл музыки
+ */
+export function createMusicFile(
+  name: string,
+  filePath: string,
+  duration: number,
+  options?: Partial<Omit<MusicFile, "id" | "name" | "filePath" | "duration" | "createdAt" | "updatedAt">>,
+): MusicFile {
+  return {
+    id: `music-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+    name,
+    filePath,
+    duration,
+    
+    // Технические параметры
+    sampleRate: options?.sampleRate || 44100,
+    channels: options?.channels || 2,
+    bitrate: options?.bitrate,
+    format: options?.format || "mp3",
+    
+    // Музыкальные метаданные
+    artist: options?.artist,
+    album: options?.album,
+    bpm: options?.bpm,
+    key: options?.key,
+    genre: options?.genre,
+    mood: options?.mood,
+    energy: options?.energy,
+    
+    // Правовая информация
+    license: options?.license || "royalty-free",
+    licenseDetails: options?.licenseDetails,
+    copyright: options?.copyright,
+    
+    // Теги и категоризация
+    tags: options?.tags || [],
+    category: options?.category,
+    
+    // Анализ
+    waveformData: options?.waveformData,
+    spectrogramData: options?.spectrogramData,
+    analysisComplete: options?.analysisComplete || false,
+    
+    // Метаданные
+    fileSize: options?.fileSize || 0,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    lastUsed: options?.lastUsed,
+  }
 }

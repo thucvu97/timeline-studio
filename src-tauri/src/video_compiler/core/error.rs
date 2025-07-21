@@ -25,8 +25,6 @@ pub enum VideoCompilerError {
   /// Отсутствующая зависимость (FFmpeg, библиотеки)
   DependencyMissing(String),
 
-  /// Ошибка ввода/вывода
-  IoError(String),
 
   /// Ошибка сериализации/десериализации
   SerializationError(String),
@@ -101,6 +99,19 @@ pub enum VideoCompilerError {
 
   /// Ошибка безопасности
   SecurityError(String),
+
+  /// Ошибка обработки
+  ProcessingError {
+    operation: String,
+    details: String,
+  },
+
+  /// Ошибка ввода/вывода с деталями
+  IoError {
+    operation: String,
+    path: String,
+    details: String,
+  },
 }
 
 impl fmt::Display for VideoCompilerError {
@@ -121,9 +132,6 @@ impl fmt::Display for VideoCompilerError {
       }
       VideoCompilerError::DependencyMissing(dep) => {
         write!(f, "Отсутствует зависимость: {dep}")
-      }
-      VideoCompilerError::IoError(msg) => {
-        write!(f, "Ошибка ввода/вывода: {msg}")
       }
       VideoCompilerError::SerializationError(msg) => {
         write!(f, "Ошибка сериализации: {msg}")
@@ -207,6 +215,12 @@ impl fmt::Display for VideoCompilerError {
       }
       VideoCompilerError::SecurityError(msg) => {
         write!(f, "Ошибка безопасности: {msg}")
+      }
+      VideoCompilerError::ProcessingError { operation, details } => {
+        write!(f, "Ошибка обработки при {operation}: {details}")
+      }
+      VideoCompilerError::IoError { operation, path, details } => {
+        write!(f, "Ошибка ввода/вывода при {operation} для '{path}': {details}")
       }
     }
   }

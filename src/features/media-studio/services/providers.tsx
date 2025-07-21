@@ -1,15 +1,21 @@
+/**
+ * Providers V2
+ * 
+ * Новая версия провайдеров с интеграцией backend state management
+ */
+
 "use client"
 
 import { ReactNode, useEffect } from "react"
 
 import { ChatProvider } from "@/features/ai-chat/services/chat-provider"
 import { AIIntelligenceProvider } from "@/features/ai-content-intelligence"
-import { AppSettingsProvider } from "@/features/app-state"
+import { AppProvider } from "@/features/app-state/services/app-provider"
 import { BrowserStateProvider } from "@/features/browser/services/browser-state-provider"
 import { ShortcutsProvider } from "@/features/keyboard-shortcuts"
 import { TauriMockProvider } from "@/features/media-studio/services/tauri-mock-provider"
 import { ModalProvider } from "@/features/modals/services/modal-provider"
-import { ProjectSettingsProvider } from "@/features/project-settings"
+import { ProjectSettingsProvider } from "@/features/project-settings/services/project-settings-provider"
 import { ResourcesProvider } from "@/features/resources/services/resources-provider"
 import { TimelineProvider } from "@/features/timeline/services/timeline-provider"
 import { ThemeProvider } from "@/features/top-bar/components/theme/theme-context"
@@ -18,7 +24,7 @@ import { PlayerProvider } from "@/features/video-player/services/player-provider
 import { I18nProvider } from "@/i18n/services/i18n-provider"
 import { setupXStateInspector } from "@/lib/xstate-inspector"
 
-interface ProvidersProps {
+interface ProvidersV2Props {
   children: ReactNode
 }
 
@@ -29,31 +35,41 @@ const composeProviders = (...providers: React.ComponentType<{ children: ReactNod
   }
 }
 
-// Создаем единый провайдер из всех контекстов
-// ВАЖНО: Порядок провайдеров оптимизирован для производительности!
-// Легкие провайдеры первыми, тяжелые - последними
-const AppProvider = composeProviders(
+// Создаем единый провайдер из всех контекстов V2
+// ВАЖНО: Порядок провайдеров оптимизирован для новой архитектуры!
+// AppProviderV2 должен быть рано в цепочке для инициализации backend
+const AppProviderComposite = composeProviders(
   TauriMockProvider, // Должен быть первым для инициализации моков
   I18nProvider, // Легкий провайдер для локализации
   ThemeProvider, // Легкий провайдер для темы
   ModalProvider, // Легкий провайдер для модальных окон
-  AppSettingsProvider, // Основной провайдер настроек (оптимизирован)
+  
+  // ✅ НОВАЯ АРХИТЕКТУРА
+  AppProvider, // Новый провайдер с backend state management
+  
+  // Остальные провайдеры (некоторые будут мигрированы позже)
   UserSettingsProvider, // Пользовательские настройки
-  ProjectSettingsProvider, // Настройки проекта
+  ProjectSettingsProvider, // ✅ Новый провайдер настроек проекта с backend синхронизацией
   ShortcutsProvider, // Зависит от UserSettingsProvider
-  ResourcesProvider, // Ресурсы (оптимизированы с кэшированием)
+  ResourcesProvider, // ✅ Новый провайдер ресурсов с backend интеграцией
   BrowserStateProvider, // Состояние браузера
-  TimelineProvider, // Тяжелый провайдер для таймлайна
-  PlayerProvider, // Провайдер видеоплеера
-  ChatProvider, // AI чат
+  
+  // ✅ НОВАЯ TIMELINE АРХИТЕКТУРА
+  TimelineProvider, // Новый провайдер timeline с backend интеграцией
+  
+  PlayerProvider, // ✅ Новый провайдер видеоплеера с backend синхронизацией
+  ChatProvider, // ✅ Новый провайдер чата с backend интеграцией для истории
   AIIntelligenceProvider, // AI Intelligence (может быть тяжелым)
 )
 
-export function Providers({ children }: ProvidersProps) {
+export function ProvidersV2({ children }: ProvidersV2Props) {
   // Инициализируем XState Inspector в development режиме
   useEffect(() => {
     setupXStateInspector()
   }, [])
 
-  return <AppProvider>{children}</AppProvider>
+  return <AppProviderComposite>{children}</AppProviderComposite>
 }
+
+// Экспорт для обратной совместимости
+export { ProvidersV2 as Providers }

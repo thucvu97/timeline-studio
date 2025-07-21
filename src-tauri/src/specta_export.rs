@@ -10,6 +10,23 @@ pub use crate::core::plugins::plugin::{
   PluginCommand, PluginDependency, PluginMetadata, PluginResponse, PluginState, PluginType, Version,
 };
 
+// State management types
+#[allow(unused_imports)]
+pub use crate::state::{
+  ProjectState, ProjectCommand, CommandResult, ProjectEvent, EventEnvelope, EventMetadata,
+};
+#[allow(unused_imports)]
+pub use crate::state::project_state::{
+  Project, ProjectMetadata, Timeline, Track, TrackType, Clip, Transition, Marker, MarkerType,
+  MediaPool, MediaItem, MediaType, MediaMetadata, Resolution, ProjectSettings, UiState, PlaybackState,
+};
+#[allow(unused_imports)]
+pub use crate::state::commands::{TrackUpdates, ClipUpdates, MediaUpdates};
+#[allow(unused_imports)]
+pub use crate::state::events::{
+  ClipData, ClipChanges, TrackData, TrackChanges, MediaData, MediaChanges,
+};
+
 // Simple command for demonstration
 #[tauri::command]
 #[specta::specta]
@@ -19,11 +36,15 @@ pub fn get_app_version() -> String {
 
 /// Export TypeScript bindings
 pub fn export_typescript_bindings() {
-  #[cfg(debug_assertions)]
-  {
-    let builder = tauri_specta::Builder::<tauri::Wry>::new()
-      .commands(tauri_specta::collect_commands![get_app_version])
-      .events(tauri_specta::collect_events![]);
+  // Remove cfg to always generate types when called
+  let builder = tauri_specta::Builder::<tauri::Wry>::new()
+    .commands(tauri_specta::collect_commands![
+      get_app_version,
+      crate::state::commands_api::execute_command,
+      crate::state::commands_api::get_project_state,
+      crate::state::commands_api::get_event_history,
+    ])
+    .events(tauri_specta::collect_events![]);
 
     // Create directory if it doesn't exist
     std::fs::create_dir_all("../src/types/generated").ok();
@@ -36,5 +57,4 @@ pub fn export_typescript_bindings() {
       .expect("Failed to export TypeScript bindings");
 
     println!("TypeScript bindings exported successfully!");
-  }
 }

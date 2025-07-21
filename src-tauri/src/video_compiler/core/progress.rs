@@ -12,7 +12,7 @@ use tokio::sync::{mpsc, RwLock};
 use uuid::Uuid;
 
 /// Основной трекер прогресса рендеринга
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ProgressTracker {
   /// Активные задачи рендеринга
   active_jobs: Arc<RwLock<HashMap<String, RenderJob>>>,
@@ -219,6 +219,65 @@ impl ProgressTracker {
     jobs.values().cloned().collect()
   }
 
+  /// Приостановить задачу
+  pub async fn pause_job(&self, job_id: &str) -> Result<()> {
+    let mut jobs = self.active_jobs.write().await;
+
+    if let Some(job) = jobs.get_mut(job_id) {
+      job.pause()?;
+
+      // Отправляем уведомление о приостановке
+      let update = ProgressUpdate::JobPaused {
+        job_id: job_id.to_string(),
+      };
+      let _ = self.progress_sender.send(update);
+
+      log::info!("Задача {} приостановлена", job_id);
+    } else {
+      return Err(VideoCompilerError::render(
+        job_id,
+        "pause_job",
+        "Задача не найдена",
+      ));
+    }
+
+    Ok(())
+  }
+
+  /// Возобновить задачу
+  pub async fn resume_job(&self, job_id: &str) -> Result<()> {
+    let mut jobs = self.active_jobs.write().await;
+
+    if let Some(job) = jobs.get_mut(job_id) {
+      job.resume()?;
+
+      // Отправляем уведомление о возобновлении
+      let update = ProgressUpdate::JobResumed {
+        job_id: job_id.to_string(),
+      };
+      let _ = self.progress_sender.send(update);
+
+      log::info!("Задача {} возобновлена", job_id);
+    } else {
+      return Err(VideoCompilerError::render(
+        job_id,
+        "resume_job",
+        "Задача не найдена",
+      ));
+    }
+
+    Ok(())
+  }
+
+  /// Получить все приостановленные задачи
+  pub async fn get_paused_jobs(&self) -> Vec<RenderJob> {
+    let jobs = self.active_jobs.read().await;
+    jobs.values()
+        .filter(|job| matches!(job.status, RenderStatus::Paused))
+        .cloned()
+        .collect()
+  }
+
   /// Проверить и отменить задачи по таймауту
   #[allow(dead_code)]
   pub async fn check_job_timeouts(&self) -> Result<Vec<String>> {
@@ -272,6 +331,121 @@ impl ProgressTracker {
       }
     }
     None
+  }
+
+  /// Real-time парсинг прогресса FFmpeg из потока
+  pub async fn parse_realtime_progress(
+    &self,
+    job_id: &str,
+    ffmpeg_output: &mut tokio::process::ChildStderr,
+    total_duration: f64,
+  ) -> Result<()> {
+    use tokio::io::{AsyncBufReadExt, BufReader};
+
+    let mut reader = BufReader::new(ffmpeg_output);
+    let mut line_buffer = String::new();
+
+    while let Ok(bytes_read) = reader.read_line(&mut line_buffer).await {
+      if bytes_read == 0 {
+        break; // EOF достигнут
+      }
+
+      // Парсим строку прогресса в реальном времени
+      if line_buffer.starts_with("frame=") {
+        if let Some(progress) = self.parse_progress_line(&line_buffer) {
+          // Вычисляем процент выполнения на основе времени
+          let percentage = if total_duration > 0.0 {
+            ((progress.time / total_duration) * 100.0).min(100.0)
+          } else {
+            0.0
+          };
+
+          let current_frame = (progress.frame as f64 * (percentage / 100.0)) as u64;
+
+          // Создаем детальное сообщение с метриками
+          let detailed_message = format!(
+            "FPS: {:.1}, Quality: {:.1}, Size: {}MB, Bitrate: {:.1}Mbps, Speed: {:.2}x",
+            progress.fps,
+            progress.quality,
+            progress.size / (1024.0 * 1024.0), // Конвертируем в MB
+            progress.bitrate / 1_000_000.0,   // Конвертируем в Mbps
+            progress.speed
+          );
+
+          // Обновляем прогресс задачи в реальном времени
+          self.update_progress(
+            job_id,
+            current_frame,
+            "Encoding".to_string(),
+            Some(detailed_message),
+          ).await?;
+
+          log::debug!(
+            "Real-time progress: {:.1}% (frame {}, time {:.2}s)",
+            percentage, progress.frame, progress.time
+          );
+        }
+      }
+
+      // Также обрабатываем ошибки FFmpeg
+      if line_buffer.contains("Error") || line_buffer.contains("error") {
+        log::error!("FFmpeg error: {}", line_buffer.trim());
+      }
+
+      line_buffer.clear();
+    }
+
+    Ok(())
+  }
+
+  /// Запустить real-time мониторинг FFmpeg процесса
+  pub async fn monitor_ffmpeg_process(
+    &self,
+    job_id: &str,
+    mut child: tokio::process::Child,
+    total_duration: f64,
+  ) -> Result<()> {
+    // Получаем stderr для парсинга прогресса
+    if let Some(stderr) = child.stderr.take() {
+      // Запускаем парсинг прогресса в отдельной задаче
+      let progress_tracker = self.clone();
+      let job_id_clone = job_id.to_string();
+      
+      let progress_task = tokio::spawn(async move {
+        let mut stderr = stderr;
+        if let Err(e) = progress_tracker
+          .parse_realtime_progress(&job_id_clone, &mut stderr, total_duration)
+          .await
+        {
+          log::error!("Ошибка парсинга real-time прогресса: {}", e);
+        }
+      });
+
+      // Ждем завершения процесса
+      let output = child.wait_with_output().await.map_err(|e| {
+        VideoCompilerError::ExternalProcessError(format!("FFmpeg process failed: {}", e))
+      })?;
+
+      // Ждем завершения задачи парсинга прогресса
+      let _ = progress_task.await;
+
+      if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(VideoCompilerError::ExternalProcessError(format!(
+          "FFmpeg failed with exit code {:?}: {}",
+          output.status.code(),
+          stderr
+        )));
+      }
+
+      log::info!("FFmpeg процесс завершен успешно для задачи {}", job_id);
+    } else {
+      return Err(VideoCompilerError::ExternalProcessError(
+        "Failed to capture FFmpeg stderr for progress monitoring".to_string()
+      ));
+    }
+
+    Ok(())
   }
 
   /// Парсинг строки прогресса FFmpeg
@@ -495,6 +669,36 @@ impl RenderJob {
     Ok(())
   }
 
+  /// Приостановить задачу
+  pub fn pause(&mut self) -> Result<()> {
+    if !matches!(self.status, RenderStatus::Processing | RenderStatus::Preparing) {
+      return Err(VideoCompilerError::render(
+        &self.id,
+        "pause",
+        "Задача не может быть приостановлена в текущем состоянии",
+      ));
+    }
+
+    self.status = RenderStatus::Paused;
+    self.current_stage = "Paused".to_string();
+    Ok(())
+  }
+
+  /// Возобновить задачу
+  pub fn resume(&mut self) -> Result<()> {
+    if self.status != RenderStatus::Paused {
+      return Err(VideoCompilerError::render(
+        &self.id,
+        "resume",
+        "Задача не приостановлена",
+      ));
+    }
+
+    self.status = RenderStatus::Processing;
+    self.current_stage = "Processing".to_string();
+    Ok(())
+  }
+
   /// Получить прогресс рендеринга
   pub fn get_progress(&self) -> RenderProgress {
     let percentage = if self.total_frames > 0 {
@@ -619,6 +823,10 @@ pub enum ProgressUpdate {
   },
   /// Задача отменена
   JobCancelled { job_id: String },
+  /// Задача приостановлена
+  JobPaused { job_id: String },
+  /// Задача возобновлена
+  JobResumed { job_id: String },
 }
 
 /// Настройки трекера прогресса

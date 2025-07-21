@@ -13,6 +13,7 @@
 pub mod cache;
 pub mod constants;
 pub mod error;
+pub mod ffmpeg;
 pub mod ffmpeg_builder;
 pub mod ffmpeg_executor;
 pub mod frame_extraction;

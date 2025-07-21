@@ -140,7 +140,11 @@ impl PluginManager {
     context
       .ensure_directories()
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::IoError {
+        operation: "create plugins directory".to_string(),
+        path: plugin_id.to_string(),
+        details: e.to_string(),
+      })?;
 
     // Инициализируем плагин
     plugin.initialize(context.clone()).await?;
@@ -203,7 +207,11 @@ impl PluginManager {
       .context
       .cleanup_temp_files()
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::IoError {
+        operation: "create plugins directory".to_string(),
+        path: plugin_id.to_string(),
+        details: e.to_string(),
+      })?;
 
     // Удаляем sandbox плагина
     self.sandbox_manager.remove_sandbox(plugin_id).await;

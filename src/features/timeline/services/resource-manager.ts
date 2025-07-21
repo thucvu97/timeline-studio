@@ -17,7 +17,9 @@ import {
   AppliedFilter,
   AppliedStyleTemplate,
   AppliedTransition,
+  MusicFile,
   ProjectResources,
+  SubtitleStyle,
   TimelineProject,
 } from "../types/timeline"
 
@@ -115,6 +117,38 @@ export class ResourceManager {
     const exists = project.resources.media.some((m) => m.id === media.id)
     if (!exists) {
       project.resources.media.push(media)
+    }
+
+    return project
+  }
+
+  /**
+   * Добавляет стиль субтитров в ресурсы проекта если его там еще нет
+   */
+  static addSubtitleStyleToResources(project: TimelineProject, subtitleStyle: SubtitleStyle): TimelineProject {
+    if (!project.resources) {
+      project.resources = ResourceManager.createEmptyResources()
+    }
+
+    const exists = project.resources.subtitleStyles.some((s) => s.id === subtitleStyle.id)
+    if (!exists) {
+      project.resources.subtitleStyles.push(subtitleStyle)
+    }
+
+    return project
+  }
+
+  /**
+   * Добавляет музыкальный файл в ресурсы проекта если его там еще нет
+   */
+  static addMusicToResources(project: TimelineProject, musicFile: MusicFile): TimelineProject {
+    if (!project.resources) {
+      project.resources = ResourceManager.createEmptyResources()
+    }
+
+    const exists = project.resources.music.some((m) => m.id === musicFile.id)
+    if (!exists) {
+      project.resources.music.push(musicFile)
     }
 
     return project
@@ -226,6 +260,8 @@ export class ResourceManager {
     const usedTransitionIds = new Set<string>()
     const usedTemplateIds = new Set<string>()
     const usedStyleTemplateIds = new Set<string>()
+    const usedSubtitleStyleIds = new Set<string>()
+    const usedMusicIds = new Set<string>()
     const usedMediaIds = new Set<string>()
 
     // Проходим по всем трекам и клипам
@@ -243,6 +279,15 @@ export class ResourceManager {
           if (clip.templateId) usedTemplateIds.add(clip.templateId)
           if (clip.styleTemplate?.styleTemplateId) usedStyleTemplateIds.add(clip.styleTemplate.styleTemplateId)
           if (clip.mediaId) usedMediaIds.add(clip.mediaId)
+          
+          // Субтитровые клипы
+          if (clip.subtitleStyleId) usedSubtitleStyleIds.add(clip.subtitleStyleId)
+          
+          // Музыкальные клипы (музыка хранится как mediaId, но может иметь дополнительные ссылки)
+          if (clip.bpm || clip.fadeIn || clip.fadeOut) {
+            // Это музыкальный клип, добавляем его mediaId в музыкальные ресурсы
+            if (clip.mediaId) usedMusicIds.add(clip.mediaId)
+          }
         })
       })
     }
@@ -266,8 +311,8 @@ export class ResourceManager {
         transitions: project.resources.transitions.filter((t) => usedTransitionIds.has(t.id)),
         templates: project.resources.templates.filter((t) => usedTemplateIds.has(t.id)),
         styleTemplates: project.resources.styleTemplates.filter((st) => usedStyleTemplateIds.has(st.id)),
-        subtitleStyles: [], // TODO: Implement when subtitles are added
-        music: [], // TODO: Implement when music is added
+        subtitleStyles: project.resources.subtitleStyles.filter((s) => usedSubtitleStyleIds.has(s.id)),
+        music: project.resources.music.filter((m) => usedMusicIds.has(m.id)),
         media: project.resources.media.filter((m) => usedMediaIds.has(m.id)),
       },
     }
@@ -283,8 +328,8 @@ export class ResourceManager {
       transitions: [],
       templates: [],
       styleTemplates: [],
-      subtitleStyles: [], // TODO: Implement when subtitles are added
-      music: [], // TODO: Implement when music is added
+      subtitleStyles: [],
+      music: [],
       media: [],
     }
   }

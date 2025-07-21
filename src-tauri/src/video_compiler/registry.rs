@@ -370,6 +370,17 @@ impl CommandRegistry for VideoCompilerCommandRegistry {
       reset_progress_tracker,
       set_progress_callback_enabled,
       get_current_operation_details,
+      // Video analysis commands
+      ffmpeg_get_metadata,
+      ffmpeg_get_metadata_enhanced,
+      ffmpeg_detect_scenes,
+      ffmpeg_analyze_quality,
+      ffmpeg_analyze_quality_enhanced,
+      ffmpeg_detect_silence,
+      ffmpeg_analyze_motion,
+      ffmpeg_extract_keyframes,
+      ffmpeg_analyze_audio,
+      ffmpeg_quick_analysis,
     ])
   }
 }

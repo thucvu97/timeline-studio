@@ -7,6 +7,7 @@ import { Image } from "lucide-react"
 
 import { MediaFile } from "@/features/media/types/media"
 import { TimelineResource } from "@/features/resources/types"
+import { usePlayer } from "@/features/video-player"
 import { convertToAssetUrl } from "@/lib/tauri-utils"
 
 import { AddMediaButton } from "../layout/add-media-button"
@@ -42,6 +43,8 @@ export const ImagePreview = memo(function ImagePreview({
   showFileName = false,
   dimensions = [16, 9],
 }: ImagePreviewProps) {
+  const { playerSetSource, playerSetMedia } = usePlayer()
+  
   const calculateWidth = (): number => {
     const [width, height] = dimensions
     return (size * width) / height
@@ -87,10 +90,23 @@ export const ImagePreview = memo(function ImagePreview({
     }
   }, [file.path, loadImageFile]) // Убираем imageUrl из зависимостей
 
+  // Обработчик клика для отправки изображения в плеер
+  const handleImageClick = useCallback(async () => {
+    try {
+      await playerSetSource("browser")
+      await playerSetMedia(file.id, 0)
+      
+      console.log(`[ImagePreview] Image sent to main player: ${file.name}`)
+    } catch (error) {
+      console.error("[ImagePreview] Failed to send image to main player:", error)
+    }
+  }, [file, playerSetSource, playerSetMedia])
+
   return (
     <div
-      className="group relative h-full flex-shrink-0"
+      className="group relative h-full flex-shrink-0 cursor-pointer"
       style={{ height: `${size}px`, width: `${calculateWidth().toFixed(0)}px` }}
+      onClick={handleImageClick}
     >
       {showFileName && (
         <div

@@ -54,7 +54,7 @@ export const VideoPreview = memo(
     const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({})
     const { isAdded: isResourceAdded } = useResources()
     const isAdded = isResourceAdded(file.id, "media")
-    const { setPreviewMedia } = usePlayer()
+    const { setPreviewMedia, playerSetSource, playerSetMedia } = usePlayer()
 
     // Используем Preview Manager для получения данных превью
     const { getPreviewData } = useMediaPreview()
@@ -68,12 +68,24 @@ export const VideoPreview = memo(
       })
     }, [file.id, getPreviewData])
 
-    // Обработчик применения видео
+    // Обработчик применения видео - теперь отправляем в главный плеер через backend
     const handleApplyVideo = useCallback(
-      (_resource: TimelineResource, _type: string) => {
-        setPreviewMedia(file)
+      async (_resource: TimelineResource, _type: string) => {
+        try {
+          // Устанавливаем плеер в режим браузера
+          await playerSetSource("browser")
+          
+          // Устанавливаем медиа в плеер
+          await playerSetMedia(file.id, 0)
+          
+          console.log(`[VideoPreview] Media sent to main player: ${file.name}`)
+        } catch (error) {
+          console.error("[VideoPreview] Failed to send media to player:", error)
+          // Fallback к старому поведению
+          setPreviewMedia(file)
+        }
       },
-      [file, setPreviewMedia],
+      [file],
     )
 
     // Используем useRef для хранения времени последнего обновления
@@ -148,35 +160,41 @@ export const VideoPreview = memo(
       }
     }, [isPlaying])
 
-    // Функция handlePlayPause, которая управляет воспроизведением только в превью
+    // Функция handlePlayPause - теперь отправляем видео в главный плеер
     const handlePlayPause = useCallback(
-      (e: React.MouseEvent, stream: FfprobeStream) => {
+      async (e: React.MouseEvent, stream: FfprobeStream) => {
         e.preventDefault()
-        const key = stream.streamKey ?? `stream-${stream.index}`
-        const videoRef = videoRefs.current[key]
-        if (!videoRef) return
+        
+        try {
+          // Отправляем видео в главный плеер через backend
+          await playerSetSource("browser")
+          await playerSetMedia(file.id, hoverTime || 0)
+          
+          console.log(`[VideoPreview] Video sent to main player from preview: ${file.name} at time ${hoverTime || 0}`)
+        } catch (error) {
+          console.error("[VideoPreview] Failed to send video to main player:", error)
+          
+          // Fallback: локальное воспроизведение в превью (старое поведение)
+          const key = stream.streamKey ?? `stream-${stream.index}`
+          const videoRef = videoRefs.current[key]
+          if (!videoRef) return
 
-        // Определяем новое состояние воспроизведения (противоположное текущему)
-        const newPlayingState = !isPlaying
+          const newPlayingState = !isPlaying
 
-        // Воспроизводим только в превью
-        if (newPlayingState) {
-          // Запускаем воспроизведение в превью
-          if (hoverTime !== null) {
-            videoRef.currentTime = hoverTime
+          if (newPlayingState) {
+            if (hoverTime !== null) {
+              videoRef.currentTime = hoverTime
+            }
+            videoRef.play().catch((err: unknown) => console.error("[VideoPreview] Ошибка воспроизведения в превью:", err))
+          } else {
+            videoRef.pause()
           }
-          videoRef.play().catch((err: unknown) => console.error("[VideoPreview] Ошибка воспроизведения в превью:", err))
-        } else {
-          // Останавливаем воспроизведение в превью
-          videoRef.pause()
+
+          setIsPlaying(newPlayingState)
+          console.log(`[VideoPreview] Fallback: Видео ${newPlayingState ? "запущено" : "остановлено"} в превью:`, file.name)
         }
-
-        // Обновляем локальное состояние воспроизведения
-        setIsPlaying(newPlayingState)
-
-        console.log(`[VideoPreview] Видео ${newPlayingState ? "запущено" : "остановлено"} в превью:`, file.name)
       },
-      [isPlaying, hoverTime, file],
+      [hoverTime, file, playerSetSource, playerSetMedia, isPlaying],
     )
 
     // Состояние для хранения объекта URL
@@ -273,24 +291,36 @@ export const VideoPreview = memo(
             <div
               className="group relative h-full w-full cursor-pointer"
               style={{ backgroundColor: "#1a1a1a" }}
-              onClick={(e) => {
+              onClick={async (e) => {
                 e.preventDefault()
-                const video = e.currentTarget.querySelector("video")
-                if (!video) return
+                
+                try {
+                  // Отправляем видео в главный плеер
+                  await playerSetSource("browser")
+                  await playerSetMedia(file.id, hoverTime || 0)
+                  
+                  console.log(`[VideoPreview] Video sent to main player from placeholder: ${file.name} at time ${hoverTime || 0}`)
+                } catch (error) {
+                  console.error("[VideoPreview] Failed to send video to main player from placeholder:", error)
+                  
+                  // Fallback: локальное воспроизведение
+                  const video = e.currentTarget.querySelector("video")
+                  if (!video) return
 
-                const newPlayingState = !isPlaying
+                  const newPlayingState = !isPlaying
 
-                if (newPlayingState) {
-                  video.play().catch((err: unknown) => console.error("[VideoPreview] Ошибка воспроизведения:", err))
-                } else {
-                  video.pause()
+                  if (newPlayingState) {
+                    video.play().catch((err: unknown) => console.error("[VideoPreview] Ошибка воспроизведения:", err))
+                  } else {
+                    video.pause()
+                  }
+
+                  setIsPlaying(newPlayingState)
+                  console.log(
+                    `[VideoPreview] Fallback: Видео ${newPlayingState ? "запущено" : "остановлено"} в плейсхолдере:`,
+                    file.name,
+                  )
                 }
-
-                setIsPlaying(newPlayingState)
-                console.log(
-                  `[VideoPreview] Видео ${newPlayingState ? "запущено" : "остановлено"} в плейсхолдере:`,
-                  file.name,
-                )
               }}
               onMouseMove={(e) => {
                 const rect = e.currentTarget.getBoundingClientRect()

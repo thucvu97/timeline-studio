@@ -118,12 +118,13 @@ pub fn parse_fps_from_string(fps_str: &str) -> f64 {
 }
 
 /// Расчет качественных метрик видео на основе полученных данных
+/// TODO: Эта функция теперь используется как fallback, реальный анализ в ffmpeg/quality.rs
 pub fn calculate_quality_metrics(
   enable_noise_detection: bool,
   enable_stability_check: bool,
   mock_analysis_data: Option<&serde_json::Value>,
 ) -> QualityAnalysisResult {
-  // В реальной реализации здесь будет парсинг вывода FFmpeg
+  // В реальной реализации используется crate::video_compiler::ffmpeg::quality::analyze_video_quality
   let base_quality = if let Some(data) = mock_analysis_data {
     data.get("quality").and_then(|q| q.as_f64()).unwrap_or(0.75)
   } else {

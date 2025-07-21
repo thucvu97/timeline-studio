@@ -26,6 +26,14 @@ path = "src/main.rs"
 # name = "test_specta"
 # path = "src/bin/test_specta.rs"
 
+[[bin]]
+name = "generate_types"
+path = "src/bin/generate_types.rs"
+
+[[bin]]
+name = "export_types"
+path = "src/bin/export_types.rs"
+
 [build-dependencies]
 tauri-build = { version = "2.0", features = [] }
 
@@ -62,6 +70,9 @@ tauri-plugin-notification = "2"
 tauri-plugin-log = "2"
 tauri-plugin-store = "2"
 tauri-plugin-global-shortcut = "2"
+# Database dependencies
+tauri-plugin-sql = { version = "2", features = ["sqlite"] }
+rusqlite = { version = "0.32", features = ["bundled", "vtab", "load_extension"] }
 # Video Compiler dependencies
 ffmpeg-next = "7.0"
 uuid = { version = "1.0", features = ["serde", "v4"] }

@@ -311,14 +311,38 @@ impl VideoRenderer {
 
   /// Приостановить рендеринг
   pub async fn pause(&mut self) -> Result<()> {
-    // TODO: Реализовать логику приостановки рендеринга
+    log::info!("Приостанавливаем рендеринг...");
+
+    // Приостанавливаем текущий pipeline если он существует
+    if let Some(ref mut pipeline) = self.current_pipeline {
+      pipeline.pause().await?;
+    }
+
+    // Обновляем статус всех активных задач в progress tracker
+    let jobs = self.progress_tracker.get_active_jobs().await;
+    for job in jobs {
+      self.progress_tracker.pause_job(&job.id).await?;
+    }
+
     log::info!("Рендеринг приостановлен");
     Ok(())
   }
 
   /// Возобновить рендеринг
   pub async fn resume(&mut self) -> Result<()> {
-    // TODO: Реализовать логику возобновления рендеринга
+    log::info!("Возобновляем рендеринг...");
+
+    // Возобновляем текущий pipeline если он существует
+    if let Some(ref mut pipeline) = self.current_pipeline {
+      pipeline.resume().await?;
+    }
+
+    // Обновляем статус всех приостановленных задач в progress tracker
+    let jobs = self.progress_tracker.get_paused_jobs().await;
+    for job in jobs {
+      self.progress_tracker.resume_job(&job.id).await?;
+    }
+
     log::info!("Рендеринг возобновлен");
     Ok(())
   }

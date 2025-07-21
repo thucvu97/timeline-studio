@@ -6,6 +6,7 @@ import { LiveAudioVisualizer } from "react-audio-visualize"
 
 import { MediaFile } from "@/features/media/types/media"
 import { TimelineResource } from "@/features/resources/types"
+import { usePlayer } from "@/features/video-player"
 import { convertToAssetUrl } from "@/lib/tauri-utils"
 
 import { AddMediaButton } from "../layout/add-media-button"
@@ -47,6 +48,7 @@ export const AudioPreview = memo(function AudioPreview({
   const audioContextRef = useRef<AudioContext | null>(null)
   const sourceRef = useRef<MediaElementAudioSourceNode | null>(null)
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null)
+  const { playerSetSource, playerSetMedia } = usePlayer()
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -64,21 +66,34 @@ export const AudioPreview = memo(function AudioPreview({
   )
 
   const handlePlayPause = useCallback(
-    (e: React.MouseEvent) => {
+    async (e: React.MouseEvent) => {
       e.preventDefault()
-      if (!audioRef.current) return
+      
+      try {
+        // Отправляем аудио в главный плеер через backend
+        await playerSetSource("browser")
+        await playerSetMedia(file.id, hoverTime || 0)
+        
+        console.log(`[AudioPreview] Audio sent to main player: ${file.name} at time ${hoverTime || 0}`)
+      } catch (error) {
+        console.error("[AudioPreview] Failed to send audio to main player:", error)
+        
+        // Fallback: локальное воспроизведение в превью
+        if (!audioRef.current) return
 
-      if (isPlaying) {
-        audioRef.current.pause()
-      } else {
-        if (hoverTime !== null) {
-          audioRef.current.currentTime = hoverTime
+        if (isPlaying) {
+          audioRef.current.pause()
+        } else {
+          if (hoverTime !== null) {
+            audioRef.current.currentTime = hoverTime
+          }
+          void audioRef.current.play()
         }
-        void audioRef.current.play()
+        setIsPlaying(!isPlaying)
+        console.log(`[AudioPreview] Fallback: Audio ${!isPlaying ? "playing" : "paused"} in preview`)
       }
-      setIsPlaying(!isPlaying)
     },
-    [isPlaying, hoverTime],
+    [hoverTime, file, playerSetSource, playerSetMedia, isPlaying],
   )
 
   const handleMouseLeave = useCallback(() => {

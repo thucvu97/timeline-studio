@@ -143,13 +143,21 @@ export function usePersonIdentification(options: UsePersonIdentificationOptions 
 
   // Идентификация персоны по лицу
   const identifyPerson = useCallback(
-    async (_detectedFace: DetectedFace): Promise<{ person: PersonProfile; confidence: number } | null> => {
+    async (detectedFace: DetectedFace): Promise<{ person: PersonProfile; confidence: number } | null> => {
       try {
         setError(null)
 
+        // Проверяем наличие embedding
+        if (!detectedFace.embedding || detectedFace.embedding.length === 0) {
+          console.warn("Нет embedding для лица, идентификация невозможна")
+          return null
+        }
+
+        // Преобразуем embedding в Float32Array
+        const embedding = new Float32Array(detectedFace.embedding)
+
         // Находим наиболее похожую персону
-        // TODO: Использовать face embedding из detectedFace
-        const results = await personDatabase.findSimilarPersons(undefined, {
+        const results = await personDatabase.findSimilarPersons(embedding, {
           limit: 1,
           minConfidence: confidenceThreshold,
         })
@@ -185,11 +193,38 @@ export function usePersonIdentification(options: UsePersonIdentificationOptions 
       try {
         setError(null)
 
+        // Создаем персону
         const newPerson = await addPerson({
           ...personData,
           detectedFaces: [detectedFace],
-          thumbnailPath: undefined, // TODO: Извлечь thumbnail из detectedFace
         })
+
+        // Если есть embedding, добавляем его
+        if (detectedFace.embedding && detectedFace.embedding.length > 0) {
+          await personDatabase.addEmbedding(newPerson.id, {
+            faceId: detectedFace.id,
+            personId: newPerson.id,
+            vector: new Float32Array(detectedFace.embedding),
+            quality: detectedFace.confidence,
+            clipId: detectedFace.clipId,
+            frameNumber: detectedFace.frameNumber || 0,
+            timestamp: detectedFace.timestamp,
+            landmarks: detectedFace.landmarks,
+            createdAt: new Date().toISOString(),
+          })
+        }
+
+        // Если есть thumbnail в detectedFace, добавляем его
+        if (detectedFace.thumbnailUrl || detectedFace.croppedImage) {
+          await personDatabase.addPersonThumbnail(newPerson.id, {
+            imageUrl: detectedFace.thumbnailUrl,
+            imageData: detectedFace.croppedImage,
+            width: detectedFace.box.width,
+            height: detectedFace.box.height,
+            isPrimary: true,
+            quality: detectedFace.confidence,
+          })
+        }
 
         return newPerson
       } catch (err) {
@@ -212,8 +247,23 @@ export function usePersonIdentification(options: UsePersonIdentificationOptions 
           throw new Error("Персона не найдена")
         }
 
-        // Добавляем новое появление вместо detectedFaces
-        const newAppearance = {
+        // Добавляем embedding если есть
+        if (detectedFace.embedding && detectedFace.embedding.length > 0) {
+          await personDatabase.addEmbedding(personId, {
+            faceId: detectedFace.id,
+            personId,
+            vector: new Float32Array(detectedFace.embedding),
+            quality: detectedFace.confidence,
+            clipId: detectedFace.clipId,
+            frameNumber: detectedFace.frameNumber || 0,
+            timestamp: detectedFace.timestamp,
+            landmarks: detectedFace.landmarks,
+            createdAt: new Date().toISOString(),
+          })
+        }
+
+        // Добавляем появление
+        await personDatabase.addAppearance(personId, {
           id: `appearance_${Date.now()}`,
           personId,
           clipId: detectedFace.clipId || "",
@@ -224,19 +274,20 @@ export function usePersonIdentification(options: UsePersonIdentificationOptions 
           minConfidence: detectedFace.confidence,
           maxConfidence: detectedFace.confidence,
           detections: [detectedFace],
+          frameCount: 1,
           createdAt: new Date().toISOString(),
-        }
-
-        await updatePerson(personId, {
-          appearances: [...(person.appearances || []), newAppearance],
         })
+
+        if (autoSave) {
+          await loadPersons()
+        }
       } catch (err) {
         setError("Ошибка добавления лица к персоне")
         console.error("Failed to add face to person:", err)
         throw err
       }
     },
-    [persons, updatePerson],
+    [persons, personDatabase, autoSave, loadPersons],
   )
 
   // Анализ видео на наличие персон
@@ -269,22 +320,26 @@ export function usePersonIdentification(options: UsePersonIdentificationOptions 
 
   // Кластеризация неизвестных лиц
   const clusterUnknownFaces = useCallback(
-    async (_faces: DetectedFace[], _similarityThreshold = 0.8): Promise<PersonCluster[]> => {
+    async (faces: DetectedFace[], similarityThreshold = 0.8): Promise<PersonProfile[]> => {
       try {
         setError(null)
 
-        // Здесь была бы логика кластеризации лиц
-        // Пока возвращаем заглушку
-        const clusters: PersonCluster[] = []
+        // Используем метод из базы данных для кластеризации
+        const newPersons = await personDatabase.clusterUnidentifiedFaces(faces, similarityThreshold)
 
-        return clusters
+        // Перезагружаем список персон
+        if (autoSave && newPersons.length > 0) {
+          await loadPersons()
+        }
+
+        return newPersons
       } catch (err) {
         setError("Ошибка кластеризации лиц")
         console.error("Failed to cluster faces:", err)
         throw err
       }
     },
-    [],
+    [personDatabase, autoSave, loadPersons],
   )
 
   // Получение статистики

@@ -245,6 +245,20 @@ impl RenderPipeline {
     Ok(())
   }
 
+  /// Приостановить выполнение конвейера
+  pub async fn pause(&mut self) -> Result<()> {
+    self.context.paused = true;
+    log::info!("Конвейер приостановлен");
+    Ok(())
+  }
+
+  /// Возобновить выполнение конвейера
+  pub async fn resume(&mut self) -> Result<()> {
+    self.context.paused = false;
+    log::info!("Конвейер возобновлен");
+    Ok(())
+  }
+
   /// Получить статистику выполнения
   pub fn get_statistics(&self) -> PipelineStatistics {
     self.context.statistics.clone()
@@ -264,6 +278,8 @@ pub struct PipelineContext {
   pub intermediate_files: HashMap<String, PathBuf>,
   /// Флаг отмены
   pub cancelled: bool,
+  /// Флаг приостановки
+  pub paused: bool,
   /// Пользовательские данные
   pub user_data: HashMap<String, serde_json::Value>,
   /// Статистика выполнения
@@ -290,6 +306,7 @@ impl PipelineContext {
       temp_dir,
       intermediate_files: HashMap::new(),
       cancelled: false,
+      paused: false,
       user_data: HashMap::new(),
       statistics: PipelineStatistics::default(),
       ffmpeg_builder: None,
@@ -329,6 +346,11 @@ impl PipelineContext {
   /// Проверить, отменено ли выполнение
   pub fn is_cancelled(&self) -> bool {
     self.cancelled
+  }
+
+  /// Проверить, приостановлено ли выполнение
+  pub fn is_paused(&self) -> bool {
+    self.paused
   }
 
   /// Создать временную директорию

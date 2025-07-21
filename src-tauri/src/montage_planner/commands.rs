@@ -78,10 +78,18 @@ pub async fn analyze_video_composition(
 
   // Step 3: Enhance YOLO results with composition analysis
   let mut enhanced_results = Vec::new();
+  let quality_analyzer = montage_state.quality_analyzer.read().await;
 
   for (timestamp, detections) in yolo_detections {
-    // Only analyze frames above quality threshold
-    let frame_quality = 85.0; // TODO: Get actual frame quality from metadata
+    // Get actual frame quality from metadata
+    let frame_quality = match quality_analyzer.analyze_frame_quality(&path, timestamp).await {
+      Ok(analysis) => analysis.overall_quality,
+      Err(e) => {
+        log::warn!("Failed to analyze frame quality at {timestamp}: {e:?}");
+        85.0 // Fallback to reasonable default
+      }
+    };
+    
     if frame_quality >= analysis_options.quality_threshold {
       match composition_analyzer.analyze_composition(
         &detections,

@@ -1,164 +1,311 @@
-import React, { createContext } from "react"
-
-import { useActor } from "@xstate/react"
-
-import { chatMachine } from "./chat-machine"
-import { chatStorageService } from "./chat-storage-service"
-import { ChatListItem, ChatMessage } from "../types/chat"
-
-// Интерфейс контекста провайдера чата
-export interface ChatContextType {
-  // Состояние
-  chatMessages: ChatMessage[]
-  selectedAgentId: string | null
-  isProcessing: boolean
-  error: string | null
-  currentSessionId: string | null
-  sessions: ChatListItem[]
-  isCreatingNewChat: boolean
-
-  // Действия
-  sendChatMessage: (message: string) => void
-  receiveChatMessage: (message: ChatMessage) => void
-  selectAgent: (agentId: string) => void
-  setProcessing: (isProcessing: boolean) => void
-  setError: (error: string | null) => void
-  clearMessages: () => void
-  removeMessage: (messageId: string) => void
-  createNewChat: () => void
-  switchSession: (sessionId: string) => Promise<void>
-  deleteSession: (sessionId: string) => void
-  updateSessions: (sessions: ChatListItem[]) => void
-
-  // Timeline AI события
-  sendTimelineEvent: (event: any) => void
-}
-
-// Создаем контекст
-export const ChatContext = createContext<ChatContextType | null>(null)
-
-// Интерфейс пропсов провайдера
-interface ChatProviderProps {
-  children: React.ReactNode
-  value?: ChatContextType // Для тестирования
-}
-
 /**
- * Провайдер для управления состоянием чата
- *
- * Использует XState машину состояний для управления:
- * - Сообщениями чата
- * - Выбранным агентом (моделью ИИ)
- * - Состоянием обработки
- * - Ошибками
+ * Chat Provider V2
+ * 
+ * Гибридная архитектура: UI локально, история чата через backend
  */
-export function ChatProvider({ children, value }: ChatProviderProps) {
-  const [state, send] = useActor(chatMachine)
 
-  // Извлекаем данные из состояния машины
-  const { chatMessages, selectedAgentId, isProcessing, error, currentSessionId, sessions, isCreatingNewChat } =
-    state.context
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
 
-  // Создаем функции для отправки событий
-  const sendChatMessage = (message: string) => {
-    send({ type: "SEND_CHAT_MESSAGE", message })
-  }
+import { getBackendSync } from '@/features/app-state/services/backend-sync'
+import { ProjectState } from '@/features/app-state/types/unified-project'
 
-  const receiveChatMessage = (message: ChatMessage) => {
-    send({ type: "RECEIVE_CHAT_MESSAGE", message })
-  }
-
-  const selectAgent = (agentId: string) => {
-    send({ type: "SELECT_AGENT", agentId })
-  }
-
-  const setProcessing = (isProcessing: boolean) => {
-    send({ type: "SET_PROCESSING", isProcessing })
-  }
-
-  const setError = (error: string | null) => {
-    send({ type: "SET_ERROR", error })
-  }
-
-  const clearMessages = () => {
-    send({ type: "CLEAR_MESSAGES" })
-  }
-
-  const removeMessage = (messageId: string) => {
-    send({ type: "REMOVE_MESSAGE", messageId })
-  }
-
-  const createNewChat = async () => {
-    send({ type: "CREATE_NEW_CHAT" })
-
-    // Симуляция создания чата - НЕ сохраняем в storage до первого сообщения
-    setTimeout(async () => {
-      const newSession: ChatListItem = {
-        id: `session-${Date.now()}`,
-        title: "Новый чат", // Изменен заголовок по умолчанию
-        lastMessageAt: new Date(),
-        messageCount: 0,
-      }
-
-      // НЕ создаем сессию в storage - она будет создана при первом сообщении
-      send({ type: "NEW_CHAT_CREATED", session: newSession })
-    }, 500) // Уменьшена задержка
-  }
-
-  const switchSession = async (sessionId: string) => {
-    send({ type: "SWITCH_SESSION", sessionId })
-
-    // Загружаем сообщения для выбранной сессии
-    try {
-      const session = await chatStorageService.getSession(sessionId)
-      if (session) {
-        // Загружаем все сообщения сразу
-        send({ type: "LOAD_SESSION_MESSAGES", messages: session.messages })
-      }
-    } catch (error) {
-      console.error("Failed to load session messages:", error)
-      send({ type: "SET_ERROR", error: "Не удалось загрузить сообщения сессии" })
-    }
-  }
-
-  const deleteSession = (sessionId: string) => {
-    send({ type: "DELETE_SESSION", sessionId })
-  }
-
-  const updateSessions = (sessions: ChatListItem[]) => {
-    send({ type: "UPDATE_SESSIONS", sessions })
-  }
-
-  const sendTimelineEvent = (event: any) => {
-    send(event)
-  }
-
-  // Создаем значение контекста
-  const contextValue: ChatContextType = {
-    // Состояние
-    chatMessages,
-    selectedAgentId,
-    isProcessing,
-    error,
-    currentSessionId,
-    sessions,
-    isCreatingNewChat,
-
-    // Действия
-    sendChatMessage,
-    receiveChatMessage,
-    selectAgent,
-    setProcessing,
-    setError,
-    clearMessages,
-    removeMessage,
-    createNewChat,
-    switchSession,
-    deleteSession,
-    updateSessions,
-    sendTimelineEvent,
-  }
-
-  // Используем переданное значение для тестов или реальное значение
-  return <ChatContext.Provider value={value || contextValue}>{children}</ChatContext.Provider>
+// Базовые типы для чата
+interface ChatMessage {
+  id: string
+  content: string
+  role: 'user' | 'assistant' | 'system'
+  timestamp: Date
+  metadata?: Record<string, any>
 }
+
+interface ChatSession {
+  id: string
+  name: string
+  messages: ChatMessage[]
+  createdAt: Date
+  updatedAt: Date
+}
+
+interface ChatContextTypeV2 {
+  // Текущая сессия (локальное состояние)
+  currentSession: ChatSession | null
+  isLoading: boolean
+  error: string | null
+  
+  // История сессий (backend)
+  sessions: ChatSession[]
+  
+  // UI состояние (локальное)
+  isOpen: boolean
+  inputText: string
+  isStreaming: boolean
+  
+  // Действия для сессий (backend)
+  createSession: (name?: string) => Promise<ChatSession>
+  deleteSession: (sessionId: string) => Promise<void>
+  switchToSession: (sessionId: string) => Promise<void>
+  
+  // Действия для сообщений (backend)
+  sendMessage: (content: string) => Promise<void>
+  clearCurrentSession: () => Promise<void>
+  
+  // UI действия (локальные)
+  setIsOpen: (isOpen: boolean) => void
+  setInputText: (text: string) => void
+  setIsStreaming: (isStreaming: boolean) => void
+}
+
+const ChatContextV2 = createContext<ChatContextTypeV2 | undefined>(undefined)
+
+interface ChatProviderV2Props {
+  children: React.ReactNode
+}
+
+export function ChatProviderV2({ children }: ChatProviderV2Props) {
+  const [backendSync] = useState(() => getBackendSync())
+  const [backendState, setBackendState] = useState<ProjectState | null>(null)
+  
+  // Backend состояние
+  const [sessions, setSessions] = useState<ChatSession[]>([])
+  const [currentSession, setCurrentSession] = useState<ChatSession | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  
+  // UI состояние (локальное)
+  const [isOpen, setIsOpen] = useState(false)
+  const [inputText, setInputText] = useState('')
+  const [isStreaming, setIsStreaming] = useState(false)
+
+  // Подписка на backend состояние
+  useEffect(() => {
+    const unsubscribe = backendSync.onStateChange((state: ProjectState) => {
+      setBackendState(state)
+      setError(null)
+      
+      // Извлекаем сессии чата из состояния проекта
+      // Пока backend не поддерживает чат, используем заглушку
+      if (state.project?.metadata?.chatSessions) {
+        setSessions(state.project.metadata.chatSessions)
+      }
+    })
+
+    return unsubscribe
+  }, [backendSync])
+
+  // Функция для выполнения backend команд
+  const executeCommand = useCallback(async (command: any) => {
+    try {
+      setIsLoading(true)
+      setError(null)
+      
+      const result = await backendSync.executeCommand(command)
+      if (!result.success) {
+        throw new Error(result.error || 'Command failed')
+      }
+      
+      return result.data
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error'
+      setError(errorMessage)
+      console.error('Chat command failed:', err)
+      throw err
+    } finally {
+      setIsLoading(false)
+    }
+  }, [backendSync])
+
+  // Действия для сессий
+  const createSession = useCallback(async (name?: string): Promise<ChatSession> => {
+    const sessionName = name || `Чат ${new Date().toLocaleString()}`
+    
+    // Пока backend не поддерживает чат, создаем локально
+    const newSession: ChatSession = {
+      id: `session_${Date.now()}`,
+      name: sessionName,
+      messages: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+    
+    setSessions(prev => [...prev, newSession])
+    setCurrentSession(newSession)
+    
+    console.warn('Chat sessions not yet integrated with backend')
+    return newSession
+    
+    // В будущем это будет:
+    // return await executeCommand({
+    //   type: 'CreateChatSession',
+    //   params: { name: sessionName }
+    // })
+  }, [])
+
+  const deleteSession = useCallback(async (sessionId: string) => {
+    setSessions(prev => prev.filter(s => s.id !== sessionId))
+    
+    if (currentSession?.id === sessionId) {
+      setCurrentSession(null)
+    }
+    
+    console.warn('Chat session deletion not yet integrated with backend')
+    
+    // В будущем это будет:
+    // await executeCommand({
+    //   type: 'DeleteChatSession',
+    //   params: { sessionId }
+    // })
+  }, [currentSession])
+
+  const switchToSession = useCallback(async (sessionId: string) => {
+    const session = sessions.find(s => s.id === sessionId)
+    if (session) {
+      setCurrentSession(session)
+    }
+  }, [sessions])
+
+  // Действия для сообщений
+  const sendMessage = useCallback(async (content: string) => {
+    if (!currentSession) {
+      // Создаем новую сессию если её нет
+      const newSession = await createSession()
+      setCurrentSession(newSession)
+    }
+
+    const userMessage: ChatMessage = {
+      id: `msg_${Date.now()}`,
+      content,
+      role: 'user',
+      timestamp: new Date(),
+    }
+
+    // Добавляем сообщение пользователя
+    setCurrentSession(prev => {
+      if (!prev) return prev
+      const updatedSession = {
+        ...prev,
+        messages: [...prev.messages, userMessage],
+        updatedAt: new Date(),
+      }
+      
+      // Обновляем в списке сессий
+      setSessions(prevSessions => 
+        prevSessions.map(s => s.id === prev.id ? updatedSession : s)
+      )
+      
+      return updatedSession
+    })
+
+    // Симулируем ответ AI (пока нет интеграции с backend)
+    setIsStreaming(true)
+    
+    setTimeout(() => {
+      const aiMessage: ChatMessage = {
+        id: `msg_${Date.now() + 1}`,
+        content: `Это ответ на ваше сообщение: "${content}"`,
+        role: 'assistant',
+        timestamp: new Date(),
+      }
+      
+      setCurrentSession(prev => {
+        if (!prev) return prev
+        const updatedSession = {
+          ...prev,
+          messages: [...prev.messages, aiMessage],
+          updatedAt: new Date(),
+        }
+        
+        setSessions(prevSessions => 
+          prevSessions.map(s => s.id === prev.id ? updatedSession : s)
+        )
+        
+        return updatedSession
+      })
+      
+      setIsStreaming(false)
+    }, 1000)
+
+    console.warn('Chat AI integration not yet implemented in backend')
+    
+    // В будущем это будет:
+    // await executeCommand({
+    //   type: 'SendChatMessage',
+    //   params: { sessionId: currentSession.id, content }
+    // })
+  }, [currentSession, createSession])
+
+  const clearCurrentSession = useCallback(async () => {
+    if (!currentSession) return
+    
+    setCurrentSession(prev => {
+      if (!prev) return prev
+      const clearedSession = {
+        ...prev,
+        messages: [],
+        updatedAt: new Date(),
+      }
+      
+      setSessions(prevSessions => 
+        prevSessions.map(s => s.id === prev.id ? clearedSession : s)
+      )
+      
+      return clearedSession
+    })
+    
+    console.warn('Chat session clearing not yet integrated with backend')
+    
+    // В будущем это будет:
+    // await executeCommand({
+    //   type: 'ClearChatSession',
+    //   params: { sessionId: currentSession.id }
+    // })
+  }, [currentSession])
+
+  // Контекстное значение
+  const contextValue: ChatContextTypeV2 = {
+    // Текущая сессия
+    currentSession,
+    isLoading,
+    error,
+    
+    // История сессий
+    sessions,
+    
+    // UI состояние
+    isOpen,
+    inputText,
+    isStreaming,
+    
+    // Действия для сессий
+    createSession,
+    deleteSession,
+    switchToSession,
+    
+    // Действия для сообщений
+    sendMessage,
+    clearCurrentSession,
+    
+    // UI действия
+    setIsOpen,
+    setInputText,
+    setIsStreaming,
+  }
+
+  return (
+    <ChatContextV2.Provider value={contextValue}>
+      {children}
+    </ChatContextV2.Provider>
+  )
+}
+
+export function useChatV2(): ChatContextTypeV2 {
+  const context = useContext(ChatContextV2)
+  
+  if (!context) {
+    throw new Error('useChatV2 must be used within ChatProviderV2')
+  }
+  
+  return context
+}
+
+// Экспорт типов
+export type { ChatContextTypeV2, ChatMessage, ChatSession }

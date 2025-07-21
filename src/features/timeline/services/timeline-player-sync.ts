@@ -5,34 +5,39 @@
  */
 
 import { MediaFile } from "@/features/media/types/media"
-import { PlayerContextType } from "@/features/video-player/services/player-machine"
+import { AppCommands } from "@/features/app-state/services/app-machine"
+import { getBackendSync } from "@/features/app-state/services/backend-sync"
 
 import { TimelineClip } from "../types"
 import { interpolateSpeed } from "../utils/speed-ramping-utils"
 
-interface PlayerContext extends PlayerContextType {
-  // Методы для управления видео
-  setVideoSource: (source: "browser" | "timeline") => void
-  setVideo: (video: MediaFile) => void
-  setCurrentTime: (time: number) => void
-
-  // Методы для управления эффектами/фильтрами/шаблонами
-  clearEffects: () => void
-  clearFilters: () => void
-  clearTemplate: () => void
-  applyEffect: (effect: { id: string; name: string; params: any }) => void
-  applyFilter: (filter: { id: string; name: string; params: any }) => void
-  applyTemplate: (template: { id: string; name: string }, files: MediaFile[]) => void
-
-  // Методы для speed ramping
-  setSpeedRampingEnabled: (enabled: boolean) => void
-  updatePlaybackRate: (rate: number) => void
+interface PlayerContext {
+  // Backend команды для управления плеером
+  playerSetMedia: (mediaId: string, startTime?: number) => Promise<void>
+  playerSelectClip: (clipId: string) => Promise<void>
+  playerClearSelection: () => Promise<void>
+  playerSetSource: (source: "browser" | "timeline") => Promise<void>
+  playerApplyEffect: (effectId: string, params: Record<string, any>) => Promise<void>
+  playerApplyFilter: (filterId: string, params: Record<string, any>) => Promise<void>
+  playerApplyTemplate: (templateId: string, mediaIds: string[]) => Promise<void>
+  playerClearEffects: () => Promise<void>
+  playerClearFilters: () => Promise<void>
+  playerClearTemplate: () => Promise<void>
+  seek: (time: number) => Promise<void>
+  setPlaybackRate: (rate: number) => Promise<void>
+  
+  // Локальные состояния для совместимости
+  speedRampingEnabled?: boolean
+  basePlaybackRate?: number
+  setSpeedRampingEnabled?: (enabled: boolean) => void
+  updatePlaybackRate?: (rate: number) => void
 }
 
 export class TimelinePlayerSync {
   private static instance: TimelinePlayerSync | null = null
   private playerContext: PlayerContext | null = null
   private currentSelectedClip: TimelineClip | null = null
+  private backendSync = getBackendSync()
 
   private constructor() {}
 
@@ -52,11 +57,18 @@ export class TimelinePlayerSync {
   }
 
   /**
-   * Синхронизирует выбранный клип с плеером
+   * Синхронизирует выбранный клип с плеером через backend команды
    */
-  syncSelectedClip(clip: TimelineClip | null) {
-    // Если клип не выбран, ничего не делаем
-    if (!clip || !this.playerContext) {
+  async syncSelectedClip(clip: TimelineClip | null) {
+    // Если клип не выбран, очищаем выбор
+    if (!clip) {
+      await this.clearSelection()
+      return
+    }
+
+    // Если нет контекста плеера, пропускаем
+    if (!this.playerContext) {
+      console.warn("[TimelinePlayerSync] No player context")
       return
     }
 
@@ -65,78 +77,75 @@ export class TimelinePlayerSync {
       return
     }
 
-    this.currentSelectedClip = clip
-
-    // Проверяем, есть ли медиафайл у клипа
+    // ИСПРАВЛЕНИЕ: Проверяем наличие медиафайла ДО установки currentSelectedClip
     if (!clip.mediaFile) {
       console.warn("[TimelinePlayerSync] Clip has no media file")
       return
     }
 
-    console.log("[TimelinePlayerSync] Syncing clip to player:", clip.name)
+    try {
+      this.currentSelectedClip = clip
 
-    // Устанавливаем источник как timeline
-    this.playerContext.setVideoSource("timeline")
+      console.log("[TimelinePlayerSync] Syncing clip to player:", clip.name)
 
-    // Устанавливаем видео в плеер
-    this.playerContext.setVideo(clip.mediaFile)
+      // Устанавливаем источник как timeline через backend
+      await this.playerContext.playerSetSource("timeline")
 
-    // Устанавливаем время воспроизведения на начало клипа
-    this.playerContext.setCurrentTime(clip.mediaStartTime || 0)
+      // Выбираем клип в плеере через backend
+      await this.playerContext.playerSelectClip(clip.id)
 
-    // Применяем эффекты, фильтры и шаблоны клипа
-    this.applyClipResources(clip)
+      // Устанавливаем медиа в плеер (если есть mediaId)
+      if (clip.mediaId) {
+        await this.playerContext.playerSetMedia(clip.mediaId, clip.mediaStartTime || 0)
+      }
+
+      // Применяем эффекты, фильтры и шаблоны клипа
+      await this.applyClipResources(clip)
+    } catch (error) {
+      console.error("[TimelinePlayerSync] Failed to sync clip:", error)
+    }
   }
 
   /**
-   * Применяет ресурсы (эффекты, фильтры, шаблоны) из клипа к плееру
+   * Применяет ресурсы (эффекты, фильтры, шаблоны) из клипа к плееру через backend команды
    */
-  private applyClipResources(clip: TimelineClip) {
+  private async applyClipResources(clip: TimelineClip) {
     if (!this.playerContext) return
 
-    // Очищаем предыдущие эффекты/фильтры/шаблоны
-    this.playerContext.clearEffects()
-    this.playerContext.clearFilters()
-    this.playerContext.clearTemplate()
+    try {
+      // Очищаем предыдущие эффекты/фильтры/шаблоны через backend
+      await this.playerContext.playerClearEffects()
+      await this.playerContext.playerClearFilters()
+      await this.playerContext.playerClearTemplate()
 
-    // Применяем эффекты
-    clip.effects?.forEach((effect) => {
-      this.playerContext?.applyEffect({
-        id: effect.id,
-        name: effect.name,
-        params: effect.params,
-      })
-    })
+      // Применяем эффекты через backend
+      if (clip.effects) {
+        for (const effect of clip.effects) {
+          await this.playerContext.playerApplyEffect(effect.effectId, effect.customParams || {})
+        }
+      }
 
-    // Применяем фильтры
-    clip.filters?.forEach((filter) => {
-      this.playerContext?.applyFilter({
-        id: filter.id,
-        name: filter.name,
-        params: filter.params,
-      })
-    })
+      // Применяем фильтры через backend
+      if (clip.filters) {
+        for (const filter of clip.filters) {
+          await this.playerContext.playerApplyFilter(filter.filterId, filter.customParams || {})
+        }
+      }
 
-    // Применяем шаблон если есть
-    if (clip.template) {
-      // Для шаблона нужны дополнительные файлы,
-      // пока используем только основной медиафайл
-      const files: MediaFile[] = clip.mediaFile ? [clip.mediaFile] : []
-
-      this.playerContext.applyTemplate(
-        {
-          id: clip.template.id,
-          name: clip.template.name,
-        },
-        files,
-      )
+      // Применяем шаблон если есть через backend
+      if (clip.templateId) {
+        const mediaIds = clip.mediaId ? [clip.mediaId] : []
+        await this.playerContext.playerApplyTemplate(clip.templateId, mediaIds)
+      }
+    } catch (error) {
+      console.error("[TimelinePlayerSync] Failed to apply clip resources:", error)
     }
   }
 
   /**
    * Обновляет время воспроизведения в плеере при изменении времени в timeline
    */
-  syncPlaybackTime(timelineTime: number) {
+  async syncPlaybackTime(timelineTime: number) {
     if (!this.playerContext || !this.currentSelectedClip) {
       return
     }
@@ -146,19 +155,23 @@ export class TimelinePlayerSync {
 
     // Проверяем, находится ли время в пределах клипа
     if (clipRelativeTime >= 0 && clipRelativeTime <= this.currentSelectedClip.duration) {
-      // Конвертируем в время медиафайла
-      const mediaTime = this.currentSelectedClip.mediaStartTime + clipRelativeTime
-      this.playerContext.setCurrentTime(mediaTime)
+      try {
+        // Конвертируем в время медиафайла
+        const mediaTime = this.currentSelectedClip.mediaStartTime + clipRelativeTime
+        await this.playerContext.seek(mediaTime)
 
-      // Обновляем скорость воспроизведения если включен speed ramping
-      this.updateSpeedRamping(clipRelativeTime)
+        // Обновляем скорость воспроизведения если включен speed ramping
+        await this.updateSpeedRamping(clipRelativeTime)
+      } catch (error) {
+        console.error("[TimelinePlayerSync] Failed to sync playback time:", error)
+      }
     }
   }
 
   /**
    * Вычисляет и применяет speed ramping для текущего времени
    */
-  private updateSpeedRamping(clipRelativeTime: number) {
+  private async updateSpeedRamping(clipRelativeTime: number) {
     if (!this.playerContext || !this.currentSelectedClip) {
       return
     }
@@ -168,39 +181,53 @@ export class TimelinePlayerSync {
     if (!speedRampingConfig?.enabled || !speedRampingConfig.keyframes.length) {
       // Если speed ramping выключен, устанавливаем базовую скорость
       if (this.playerContext.speedRampingEnabled) {
-        this.playerContext.setSpeedRampingEnabled(false)
-        this.playerContext.updatePlaybackRate(this.playerContext.basePlaybackRate)
+        this.playerContext.setSpeedRampingEnabled?.(false)
+        if (this.playerContext.basePlaybackRate) {
+          await this.playerContext.setPlaybackRate(this.playerContext.basePlaybackRate)
+        }
       }
       return
     }
 
     // Включаем speed ramping в плеере если он не включен
     if (!this.playerContext.speedRampingEnabled) {
-      this.playerContext.setSpeedRampingEnabled(true)
+      this.playerContext.setSpeedRampingEnabled?.(true)
     }
 
     // Вычисляем скорость для текущего времени
     const speed = interpolateSpeed(speedRampingConfig.keyframes, clipRelativeTime)
-    const finalRate = this.playerContext.basePlaybackRate * speed
+    const baseRate = this.playerContext.basePlaybackRate || 1.0
+    const finalRate = baseRate * speed
 
-    // Обновляем скорость воспроизведения
-    this.playerContext.updatePlaybackRate(finalRate)
+    // Обновляем скорость воспроизведения через backend
+    try {
+      await this.playerContext.setPlaybackRate(finalRate)
+    } catch (error) {
+      console.error("[TimelinePlayerSync] Failed to update playback rate:", error)
+    }
   }
 
   /**
-   * Очищает текущий выбранный клип
+   * Очищает текущий выбранный клип через backend команды
    */
-  clearSelection() {
+  async clearSelection() {
     this.currentSelectedClip = null
 
     if (this.playerContext) {
-      // Возвращаем источник на browser
-      this.playerContext.setVideoSource("browser")
+      try {
+        // Возвращаем источник на browser через backend
+        await this.playerContext.playerSetSource("browser")
 
-      // Очищаем эффекты/фильтры/шаблоны
-      this.playerContext.clearEffects()
-      this.playerContext.clearFilters()
-      this.playerContext.clearTemplate()
+        // Очищаем выбор клипа через backend
+        await this.playerContext.playerClearSelection()
+
+        // Очищаем эффекты/фильтры/шаблоны через backend
+        await this.playerContext.playerClearEffects()
+        await this.playerContext.playerClearFilters()
+        await this.playerContext.playerClearTemplate()
+      } catch (error) {
+        console.error("[TimelinePlayerSync] Failed to clear selection:", error)
+      }
     }
 
     console.log("[TimelinePlayerSync] Selection cleared")

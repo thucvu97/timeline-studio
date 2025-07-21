@@ -10,6 +10,7 @@ use crate::{
 };
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
+use sysinfo::{System, RefreshKind, MemoryRefreshKind};
 use std::{
   collections::HashMap,
   path::{Path, PathBuf},
@@ -224,14 +225,22 @@ impl PluginStorageImpl {
     // Создать директорию если не существует
     tokio::fs::create_dir_all(&storage_path)
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::IoError {
+        operation: "create plugin storage directory".to_string(),
+        path: storage_path.to_string_lossy().to_string(),
+        details: e.to_string(),
+      })?;
 
     // Загрузить существующие данные
     let data_file = storage_path.join("data.json");
     let data = if data_file.exists() {
       let contents = tokio::fs::read_to_string(&data_file)
         .await
-        .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+        .map_err(|e| VideoCompilerError::IoError {
+          operation: "read plugin data file".to_string(),
+          path: data_file.to_string_lossy().to_string(),
+          details: e.to_string(),
+        })?;
       serde_json::from_str(&contents).unwrap_or_default()
     } else {
       HashMap::new()
@@ -252,7 +261,11 @@ impl PluginStorageImpl {
     let data_file = self.storage_path.join("data.json");
     tokio::fs::write(&data_file, json)
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::IoError {
+        operation: "write plugin data file".to_string(),
+        path: data_file.to_string_lossy().to_string(),
+        details: e.to_string(),
+      })?;
 
     Ok(())
   }
@@ -862,13 +875,18 @@ impl PluginApi for PluginApiImpl {
   }
 
   async fn get_system_info(&self) -> Result<SystemInfo> {
-    // TODO: Реализовать через SystemInfoService
+    // Инициализируем sysinfo для получения информации о памяти
+    let mut system = System::new_with_specifics(
+      RefreshKind::new().with_memory(MemoryRefreshKind::everything())
+    );
+    system.refresh_memory();
+
     Ok(SystemInfo {
       os: std::env::consts::OS.to_string(),
       arch: std::env::consts::ARCH.to_string(),
       cpu_count: num_cpus::get(),
-      memory_total: 0,     // TODO: Get from system
-      memory_available: 0, // TODO: Get from system
+      memory_total: system.total_memory(),
+      memory_available: system.available_memory(),
     })
   }
 }
