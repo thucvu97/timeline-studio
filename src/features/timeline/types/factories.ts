@@ -217,12 +217,7 @@ export function createMusicClip(
   },
 ): MusicClip {
   // Создаем базовый клип
-  const baseClip = createTimelineClip(
-    musicFileId,
-    trackId,
-    startTime,
-    duration,
-  )
+  const baseClip = createTimelineClip(musicFileId, trackId, startTime, duration)
 
   // Расширяем его свойствами музыкального клипа
   const musicClip: MusicClip = {
@@ -260,30 +255,30 @@ export function createSubtitleStyle(
     id: `subtitle-style-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
     name,
     description: options?.description || "",
-    
+
     // Шрифт и текст - значения по умолчанию
     fontFamily: options?.fontFamily || "Inter, system-ui, sans-serif",
     fontSize: options?.fontSize || 24,
     fontWeight: options?.fontWeight || "normal",
     fontStyle: options?.fontStyle || "normal",
     textAlign: options?.textAlign || "center",
-    
+
     // Цвета
     color: options?.color || "#ffffff",
     backgroundColor: options?.backgroundColor || "rgba(0, 0, 0, 0.7)",
     strokeColor: options?.strokeColor,
     strokeWidth: options?.strokeWidth || 0,
-    
+
     // Тени
     textShadow: options?.textShadow,
-    
+
     // Позиционирование
     defaultPosition: options?.defaultPosition || {
       alignment: "bottom-center",
       marginX: 0,
       marginY: 50,
     },
-    
+
     // Размеры и отступы
     padding: options?.padding || {
       top: 8,
@@ -293,16 +288,16 @@ export function createSubtitleStyle(
     },
     borderRadius: options?.borderRadius || 4,
     maxWidth: options?.maxWidth || 80,
-    
+
     // Поведение
     wordWrap: options?.wordWrap ?? true,
     letterSpacing: options?.letterSpacing || 0,
     lineHeight: options?.lineHeight || 1.2,
-    
+
     // Анимации
     defaultAnimationIn: options?.defaultAnimationIn,
     defaultAnimationOut: options?.defaultAnimationOut,
-    
+
     // Метаданные
     isBuiltIn: options?.isBuiltIn || false,
     tags: options?.tags || [],
@@ -321,7 +316,7 @@ export function createDefaultSubtitleStyles(): SubtitleStyle[] {
       isBuiltIn: true,
       tags: ["классический", "стандартный"],
     }),
-    
+
     createSubtitleStyle("Минималистичный", {
       description: "Чистый белый текст без фона",
       backgroundColor: "transparent",
@@ -336,7 +331,7 @@ export function createDefaultSubtitleStyles(): SubtitleStyle[] {
       isBuiltIn: true,
       tags: ["минимализм", "чистый"],
     }),
-    
+
     createSubtitleStyle("Яркий", {
       description: "Выразительный стиль с желтым текстом",
       color: "#ffeb3b",
@@ -347,7 +342,7 @@ export function createDefaultSubtitleStyles(): SubtitleStyle[] {
       isBuiltIn: true,
       tags: ["яркий", "выразительный"],
     }),
-    
+
     createSubtitleStyle("Элегантный", {
       description: "Изысканный стиль с засечками",
       fontFamily: "Georgia, Times, serif",
@@ -382,13 +377,13 @@ export function createMusicFile(
     name,
     filePath,
     duration,
-    
+
     // Технические параметры
     sampleRate: options?.sampleRate || 44100,
     channels: options?.channels || 2,
     bitrate: options?.bitrate,
     format: options?.format || "mp3",
-    
+
     // Музыкальные метаданные
     artist: options?.artist,
     album: options?.album,
@@ -397,21 +392,21 @@ export function createMusicFile(
     genre: options?.genre,
     mood: options?.mood,
     energy: options?.energy,
-    
+
     // Правовая информация
     license: options?.license || "royalty-free",
     licenseDetails: options?.licenseDetails,
     copyright: options?.copyright,
-    
+
     // Теги и категоризация
     tags: options?.tags || [],
     category: options?.category,
-    
+
     // Анализ
     waveformData: options?.waveformData,
     spectrogramData: options?.spectrogramData,
     analysisComplete: options?.analysisComplete || false,
-    
+
     // Метаданные
     fileSize: options?.fileSize || 0,
     createdAt: new Date(),

@@ -6,7 +6,7 @@ export type {
   SubtitleComplexity,
   SubtitleExportOptions,
   SubtitleImportResult,
-  SubtitleStyle,
+  SubtitleStyleTemplate,
   SubtitleTag,
 } from "./subtitles"
 

@@ -127,7 +127,7 @@ impl PipelineContext {
     if !self.temp_dir.exists() {
       tokio::fs::create_dir_all(&self.temp_dir)
         .await
-        .map_err(|e| crate::video_compiler::error::VideoCompilerError::IoError(e.to_string()))?;
+        .map_err(|e| crate::video_compiler::error::VideoCompilerError::Io(e.to_string()))?;
       log::debug!("Создана временная директория: {:?}", self.temp_dir);
     }
     Ok(())
@@ -140,7 +140,7 @@ impl PipelineContext {
         .await
         .map_err(|e| {
           log::warn!("Не удалось удалить временную директорию: {e}");
-          crate::video_compiler::error::VideoCompilerError::IoError(e.to_string())
+          crate::video_compiler::error::VideoCompilerError::Io(e.to_string())
         })?;
       log::debug!("Очищена временная директория: {:?}", self.temp_dir);
     }

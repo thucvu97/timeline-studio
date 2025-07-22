@@ -80,7 +80,7 @@ export function useMediaImport() {
 
         // Добавляем файлы в ресурсы для синхронизации с проектом
         basicFiles.forEach((file) => {
-          addMedia(file)
+          void addMedia(file)
         })
       },
       [updateMediaFiles, addMedia],
@@ -102,7 +102,7 @@ export function useMediaImport() {
         updateMediaFiles([updatedFile])
 
         // Обновляем файл в ресурсах для синхронизации с проектом
-        addMedia(updatedFile)
+        void addMedia(updatedFile)
       },
       [updateMediaFiles, addMedia],
     ),
@@ -190,7 +190,7 @@ export function useMediaImport() {
 
       // Добавляем файлы в ресурсы для синхронизации с проектом
       basicFiles.forEach((file) => {
-        addMedia(file)
+        void addMedia(file)
       })
 
       // Обрабатываем выбранные файлы и ждем результат
@@ -213,7 +213,7 @@ export function useMediaImport() {
 
         // Добавляем обработанные файлы в ресурсы
         filesWithMetadata.forEach((file) => {
-          addMedia(file)
+          void addMedia(file)
         })
 
         // Сохраняем обработанные файлы в проект
@@ -281,7 +281,7 @@ export function useMediaImport() {
 
           // Добавляем файлы в ресурсы
           filesWithMetadata.forEach((file) => {
-            addMedia(file)
+            void addMedia(file)
           })
 
           // Сохраняем финальный список файлов в проект

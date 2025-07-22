@@ -154,7 +154,7 @@ export function useDragDropTimeline(): UseDragDropTimelineReturn {
             console.log("[DragDrop] Creating new track:", trackName, "for media:", dragData.mediaFile.name)
 
             // Create new track and add media to it
-            addTrack(trackType as any, undefined, trackName)
+            void addTrack(trackType as any, undefined, trackName)
 
             // TODO: We need to get the newly created track ID to add the media
             // For now, we'll add it to the first compatible track

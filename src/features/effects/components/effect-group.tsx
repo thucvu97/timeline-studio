@@ -1,7 +1,7 @@
 import React from "react"
 
 import { ContentGroup } from "@/features/browser/components/content-group"
-import { VideoEffect } from "@/features/effects/types"
+import { BaseEffect } from "@/features/effects/types"
 
 import { EffectPreview } from "./effect-preview"
 
@@ -12,7 +12,7 @@ interface EffectGroupProps {
   /** Заголовок группы */
   title: string
   /** Эффекты в группе */
-  effects: VideoEffect[]
+  effects: BaseEffect[]
   /** Размер превью */
   previewSize: number
   /** Ширина превью */
@@ -20,9 +20,9 @@ interface EffectGroupProps {
   /** Высота превью */
   previewHeight: number
   /** Функция для клика по эффекту */
-  onEffectClick: (effect: VideoEffect, index: number) => void
+  onEffectClick: (effect: BaseEffect, index: number) => void
   /** Функция для добавления всех эффектов группы */
-  onAddAllEffects?: (effects: VideoEffect[]) => void
+  onAddAllEffects?: (effects: BaseEffect[]) => void
   /** Map для refs элементов */
   effectRefs?: React.RefObject<Map<string, HTMLDivElement>>
   /** Начальный индекс эффектов в общем списке */
@@ -47,7 +47,7 @@ export const EffectGroup: React.FC<EffectGroupProps> = ({
   startIndex = 0,
 }) => {
   // Функция рендеринга эффекта
-  const renderEffect = (effect: VideoEffect, index: number) => {
+  const renderEffect = (effect: BaseEffect, index: number) => {
     const actualIndex = startIndex + index
 
     return (
@@ -60,11 +60,11 @@ export const EffectGroup: React.FC<EffectGroupProps> = ({
         }}
         tabIndex={0}
         role="button"
-        aria-label={`${effect.name} effect`}
+        aria-label={`${effect.name.en || effect.name.ru} effect`}
         className="focus:outline-none focus:ring-2 focus:ring-primary rounded-sm"
       >
         <EffectPreview
-          effectType={effect.type}
+          effect={effect}
           onClick={() => onEffectClick(effect, actualIndex)}
           size={previewSize}
           width={previewWidth}

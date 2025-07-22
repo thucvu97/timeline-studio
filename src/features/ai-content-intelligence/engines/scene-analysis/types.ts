@@ -194,15 +194,15 @@ export interface SceneTransition {
   }
 }
 
-export type TransitionType = 
+export type TransitionType =
   | "cut"
-  | "fade_in" 
+  | "fade_in"
   | "fade_out"
   | "fade_through"
   | "dissolve"
   | "wipe"
   | "wipe_left"
-  | "wipe_right" 
+  | "wipe_right"
   | "wipe_up"
   | "wipe_down"
   | "morph"

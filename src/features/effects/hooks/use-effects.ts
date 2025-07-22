@@ -2,15 +2,14 @@ import { useCallback, useEffect, useState } from "react"
 
 import { useTranslation } from "react-i18next"
 
-import { VideoEffect } from "@/features/effects/types"
+import { BaseEffect } from "@/features/effects/types"
 
-import effectsData from "../data/effects.json"
-import { createFallbackEffect, processEffects, validateEffectsData } from "../utils/effect-processor"
+import { allMigratedEffects, migratedEffects } from "../data/effects-loader"
 
-// Импортируем JSON файл напрямую - в Tauri это работает отлично
+// Используем мигрированные эффекты из новой системы
 
 interface UseEffectsReturn {
-  effects: VideoEffect[]
+  effects: BaseEffect[]
   loading: boolean
   error: string | null
   reload: () => void
@@ -18,52 +17,36 @@ interface UseEffectsReturn {
 }
 
 /**
- * Хук для загрузки и управления эффектами из JSON файла
+ * Хук для загрузки и управления эффектами из новой унифицированной системы
  */
 export function useEffects(): UseEffectsReturn {
   const { t } = useTranslation()
-  const [effects, setEffects] = useState<VideoEffect[]>([])
+  const [effects, setEffects] = useState<BaseEffect[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   /**
-   * Загружает эффекты из импортированного JSON файла
+   * Загружает эффекты из новой унифицированной системы
    */
   const loadEffects = useCallback(() => {
     try {
       setLoading(true)
       setError(null)
 
-      // Используем импортированные данные - в Tauri это работает мгновенно
-      const data = effectsData
-
-      // Валидируем данные
-      if (!validateEffectsData(data)) {
-        throw new Error(t("effects.errors.invalidEffectsData", "Invalid effects data structure"))
-      }
-
-      // Обрабатываем эффекты (преобразуем строки в функции)
-      const processedEffects = processEffects(data.effects)
-
-      setEffects(processedEffects)
+      // Используем мигрированные эффекты
+      setEffects(allMigratedEffects)
 
       console.log(
-        `✅ ${t("effects.messages.effectsLoaded", "Loaded {{count}} effects from JSON", { count: processedEffects.length })}`,
+        `✅ ${t("effects.messages.effectsLoaded", "Loaded {{count}} effects from unified system", { count: allMigratedEffects.length })}`,
       )
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : t("effects.errors.unknownError", "Unknown error")
       setError(t("effects.errors.failedToLoadEffects", "Failed to load effects: {{error}}", { error: errorMessage }))
 
-      // Создаем fallback эффекты в случае ошибки
-      const fallbackEffects = [
-        createFallbackEffect("brightness"),
-        createFallbackEffect("contrast"),
-        createFallbackEffect("saturation"),
-      ]
+      // В случае ошибки используем пустой массив
+      setEffects([])
 
-      setEffects(fallbackEffects)
-
-      console.error(`❌ ${t("effects.errors.fallbackEffects", "Failed to load effects, using fallback")}:`, err)
+      console.error(`❌ ${t("effects.errors.fallbackEffects", "Failed to load effects")}:`, err)
     } finally {
       setLoading(false)
     }
@@ -87,7 +70,7 @@ export function useEffects(): UseEffectsReturn {
  * Хук для получения конкретного эффекта по ID
  * Примечание: Названо useEffectById, чтобы избежать конфликта с React.useEffect
  */
-export function useEffectById(effectId: string): VideoEffect | null {
+export function useEffectById(effectId: string): BaseEffect | null {
   const { effects, isReady } = useEffects()
 
   if (!isReady) {
@@ -100,7 +83,7 @@ export function useEffectById(effectId: string): VideoEffect | null {
 /**
  * Хук для получения эффектов по категории
  */
-export function useEffectsByCategory(category: string): VideoEffect[] {
+export function useEffectsByCategory(category: string): BaseEffect[] {
   const { effects, isReady } = useEffects()
 
   if (!isReady) {
@@ -113,7 +96,7 @@ export function useEffectsByCategory(category: string): VideoEffect[] {
 /**
  * Хук для поиска эффектов
  */
-export function useEffectsSearch(query: string, lang: "ru" | "en" = "ru"): VideoEffect[] {
+export function useEffectsSearch(query: string, lang: "ru" | "en" = "ru"): BaseEffect[] {
   const { effects, isReady } = useEffects()
 
   if (!isReady || !query.trim()) {
@@ -124,8 +107,24 @@ export function useEffectsSearch(query: string, lang: "ru" | "en" = "ru"): Video
 
   return effects.filter(
     (effect) =>
-      (effect.labels?.[lang] || effect.name || "").toLowerCase().includes(lowercaseQuery) ||
-      (effect.description?.[lang] || "").toLowerCase().includes(lowercaseQuery) ||
+      (effect.name[lang] || effect.name.en || "").toLowerCase().includes(lowercaseQuery) ||
+      (effect.description?.[lang] || effect.description?.en || "").toLowerCase().includes(lowercaseQuery) ||
       (effect.tags || []).some((tag) => tag.toLowerCase().includes(lowercaseQuery)),
   )
+}
+
+/**
+ * Хук для получения эффектов по категориям
+ */
+export function useEffectCategories() {
+  return {
+    colorCorrection: migratedEffects.colorCorrection,
+    vintage: migratedEffects.vintage,
+    artistic: migratedEffects.artistic,
+    cinematic: migratedEffects.cinematic,
+    creative: migratedEffects.creative,
+    technical: migratedEffects.technical,
+    motion: migratedEffects.motion,
+    distortion: migratedEffects.distortion,
+  }
 }

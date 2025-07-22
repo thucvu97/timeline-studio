@@ -403,7 +403,7 @@ impl CompositionStage {
       // Просто копируем файл
       tokio::fs::copy(input_path, output_path)
         .await
-        .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+        .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
       return Ok(output_path.clone());
     }
 
@@ -508,7 +508,7 @@ impl CompositionStage {
       // Просто копируем единственный клип
       tokio::fs::copy(&clip_paths[0], output_path)
         .await
-        .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+        .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
       return Ok(());
     }
 
@@ -522,7 +522,7 @@ impl CompositionStage {
 
     tokio::fs::write(&concat_file, concat_content)
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
     let mut command = tokio::process::Command::new("ffmpeg");
     command
@@ -578,7 +578,7 @@ impl CompositionStage {
       // Просто копируем единственный слой
       tokio::fs::copy(&layer_paths[0], output_path)
         .await
-        .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+        .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
       return Ok(());
     }
 

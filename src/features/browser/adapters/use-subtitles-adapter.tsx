@@ -3,14 +3,14 @@ import React from "react"
 import { useFavorites } from "@/features/app-state"
 import { SubtitlePreview } from "@/features/subtitles/components/subtitle-preview"
 import { useSubtitles } from "@/features/subtitles/hooks/use-subtitle-styles"
-import { SubtitleStyle } from "@/features/subtitles/types/subtitles"
+import { SubtitleStyleTemplate } from "@/features/subtitles/types/subtitles"
 
 import type { ListAdapter, PreviewComponentProps } from "../types/list"
 
 /**
  * Компонент превью для стилей субтитров
  */
-const SubtitlePreviewWrapper: React.FC<PreviewComponentProps<SubtitleStyle>> = ({
+const SubtitlePreviewWrapper: React.FC<PreviewComponentProps<SubtitleStyleTemplate>> = ({
   item: style,
   size,
   viewMode,
@@ -91,7 +91,7 @@ const SubtitlePreviewWrapper: React.FC<PreviewComponentProps<SubtitleStyle>> = (
 /**
  * Хук для создания адаптера стилей субтитров
  */
-export function useSubtitlesAdapter(): ListAdapter<SubtitleStyle> {
+export function useSubtitlesAdapter(): ListAdapter<SubtitleStyleTemplate> {
   const { subtitles, loading, error } = useSubtitles()
   const { isItemFavorite } = useFavorites()
 

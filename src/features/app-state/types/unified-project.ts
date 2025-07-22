@@ -170,18 +170,18 @@ export interface PlaybackState {
   loopEnabled: boolean
   loopStart?: number
   loopEnd?: number
-  
+
   // Player state
   volume: number
   currentMediaId: string | null
   selectedClipId: string | null
-  videoSource: 'browser' | 'timeline'
-  
+  videoSource: "browser" | "timeline"
+
   // Applied resources
   appliedEffects: AppliedEffect[]
   appliedFilters: AppliedFilter[]
   appliedTemplate: AppliedTemplate | null
-  
+
   // Player flags
   isLoading: boolean
   isSeeking: boolean

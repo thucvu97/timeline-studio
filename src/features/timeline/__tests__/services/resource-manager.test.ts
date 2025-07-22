@@ -295,7 +295,7 @@ describe("ResourceManager", () => {
 
       expect(appliedEffect.effectId).toBe(mockEffect.id)
       expect(appliedEffect.customParams).toEqual(customParams)
-      expect(appliedEffect.isEnabled).toBe(true)
+      expect(appliedEffect.enabled).toBe(true)
       expect(appliedEffect.order).toBe(0)
       expect(appliedEffect.id).toMatch(/^applied-effect-1-\d+$/)
     })
@@ -484,7 +484,7 @@ describe("ResourceManager", () => {
                     {
                       id: "applied-effect-1",
                       effectId: "used-effect",
-                      isEnabled: true,
+                      enabled: true,
                       order: 0,
                     },
                   ],

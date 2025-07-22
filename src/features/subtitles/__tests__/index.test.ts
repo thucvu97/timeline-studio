@@ -27,12 +27,12 @@ describe("Subtitles Module Exports", () => {
   it("должен экспортировать все утилиты", () => {
     // Утилиты CSS
     expect(SubtitlesModule.subtitleStyleToCSS).toBeDefined()
-    expect(SubtitlesModule.applySubtitleStyle).toBeDefined()
-    expect(SubtitlesModule.resetSubtitleStyle).toBeDefined()
+    expect(SubtitlesModule.applySubtitleStyleTemplate).toBeDefined()
+    expect(SubtitlesModule.resetSubtitleStyleTemplate).toBeDefined()
     expect(SubtitlesModule.generateSubtitleCSS).toBeDefined()
     expect(SubtitlesModule.subtitleAnimations).toBeDefined()
     expect(SubtitlesModule.getSubtitleAnimation).toBeDefined()
-    expect(SubtitlesModule.validateSubtitleStyle).toBeDefined()
+    expect(SubtitlesModule.validateSubtitleStyleTemplate).toBeDefined()
     expect(SubtitlesModule.createSubtitleCSSVariables).toBeDefined()
 
     // Утилиты экспорта
@@ -51,12 +51,12 @@ describe("Subtitles Module Exports", () => {
     expect(SubtitlesModule.parseSubtitleFile).toBeDefined()
 
     // Утилиты обработки
-    expect(SubtitlesModule.processSubtitleStyles).toBeDefined()
-    expect(SubtitlesModule.validateSubtitleStylesData).toBeDefined()
-    expect(SubtitlesModule.createFallbackSubtitleStyle).toBeDefined()
-    expect(SubtitlesModule.searchSubtitleStyles).toBeDefined()
-    expect(SubtitlesModule.groupSubtitleStyles).toBeDefined()
-    expect(SubtitlesModule.sortSubtitleStyles).toBeDefined()
+    expect(SubtitlesModule.processSubtitleStyleTemplates).toBeDefined()
+    expect(SubtitlesModule.validateSubtitleStyleTemplatesData).toBeDefined()
+    expect(SubtitlesModule.createFallbackSubtitleStyleTemplate).toBeDefined()
+    expect(SubtitlesModule.searchSubtitleStyleTemplates).toBeDefined()
+    expect(SubtitlesModule.groupSubtitleStyleTemplates).toBeDefined()
+    expect(SubtitlesModule.sortSubtitleStyleTemplates).toBeDefined()
   })
 
   it("должен экспортировать объект анимаций", () => {
@@ -88,10 +88,10 @@ describe("Subtitles Module Exports", () => {
 
   it("утилиты должны быть функциями", () => {
     // Проверяем типы утилит
-    expect(typeof SubtitlesModule.applySubtitleStyle).toBe("function")
+    expect(typeof SubtitlesModule.applySubtitleStyleTemplate).toBe("function")
     expect(typeof SubtitlesModule.exportToSRT).toBe("function")
     expect(typeof SubtitlesModule.parseSRT).toBe("function")
-    expect(typeof SubtitlesModule.processSubtitleStyles).toBe("function")
+    expect(typeof SubtitlesModule.processSubtitleStyleTemplates).toBe("function")
   })
 
   it("не должен экспортировать закомментированные модули", () => {

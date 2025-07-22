@@ -149,7 +149,7 @@ describe("MidiFile", () => {
                 type: "tempo" as any, // Custom event type
                 channel: 0,
                 timestamp: 0,
-                data: { bpm: 120 },
+                data: { velocity: 120 },
               },
               channel: 0,
             },
@@ -165,7 +165,7 @@ describe("MidiFile", () => {
   })
 
   describe("Event Conversion", () => {
-    it("should convert sequencer track to file track", () => {
+    it("should convert sequencer track to file track", async () => {
       const track: MidiTrack = {
         id: "track1",
         name: "Test Track",

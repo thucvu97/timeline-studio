@@ -31,7 +31,7 @@ mod tests {
   async fn create_test_plugin_api(
     security_level: SecurityLevel,
   ) -> Result<(PluginApiImpl, TempDir)> {
-    let temp_dir = TempDir::new().map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+    let temp_dir = TempDir::new().map_err(|e| VideoCompilerError::Io(e.to_string()))?;
     let storage_path = temp_dir.path().to_path_buf();
 
     let service_container = create_test_service_container().await;

@@ -8,7 +8,7 @@ import { useCallback, useEffect, useState } from "react"
 import { SceneAnalysisEngine } from "../../ai-content-intelligence/engines/scene-analysis/services/scene-analysis-engine"
 import { PersonDatabaseService } from "../services/person-database-service"
 
-import type { DetectedFace, PersonAppearance, PersonCluster, PersonProfile } from "../types/person"
+import type { DetectedFace, PersonAppearance, PersonProfile } from "../types/person"
 
 interface UsePersonIdentificationOptions {
   autoSave?: boolean

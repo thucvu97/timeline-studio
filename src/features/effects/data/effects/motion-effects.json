@@ -1,0 +1,70 @@
+{
+  "version": "2.0.0",
+  "category": "motion",
+  "migratedAt": "2025-07-21T11:27:01.956Z",
+  "stats": {
+    "total": 1,
+    "migrated": 1,
+    "skipped": 0,
+    "successRate": "100.00%",
+    "errors": []
+  },
+  "effects": [
+    {
+      "id": "effect_motion-blur",
+      "name": {
+        "en": "Motion Blur",
+        "ru": "Размытие движения",
+        "es": "Desenfoque de Movimiento",
+        "fr": "Flou de Mouvement",
+        "de": "Bewegungsunschärfe"
+      },
+      "description": {
+        "ru": "Создает эффект размытия движущихся объектов",
+        "en": "Creates motion blur effect for moving objects"
+      },
+      "category": "motion",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["dramatic", "modern"],
+      "complexity": "high",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "radius",
+          "name": {
+            "en": "Radius",
+            "ru": "Радиус"
+          },
+          "type": "number",
+          "defaultValue": 2,
+          "min": 0,
+          "max": 100,
+          "step": 0.1,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "angle",
+          "name": {
+            "en": "Angle",
+            "ru": "Угол"
+          },
+          "type": "number",
+          "defaultValue": 180,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    }
+  ]
+}

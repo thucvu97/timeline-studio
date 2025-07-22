@@ -351,11 +351,13 @@ describe("getClipEdgeSnapPoints", () => {
 
     const snapPoints = getClipEdgeSnapPoints(clip, "start", [track], timeScale)
 
-    expect(snapPoints).toHaveLength(4) // 2 других клипа × 2 края
-    expect(snapPoints.find((p) => p.position === 50)).toBeDefined()
-    expect(snapPoints.find((p) => p.position === 150)).toBeDefined()
-    expect(snapPoints.find((p) => p.position === 400)).toBeDefined()
-    expect(snapPoints.find((p) => p.position === 550)).toBeDefined()
+    expect(snapPoints).toHaveLength(6) // 2 других клипа × 3 точки (начало, конец, центр)
+    expect(snapPoints.find((p) => p.position === 50)).toBeDefined() // clip-2 start
+    expect(snapPoints.find((p) => p.position === 150)).toBeDefined() // clip-2 end
+    expect(snapPoints.find((p) => p.position === 100)).toBeDefined() // clip-2 center
+    expect(snapPoints.find((p) => p.position === 400)).toBeDefined() // clip-3 start
+    expect(snapPoints.find((p) => p.position === 550)).toBeDefined() // clip-3 end
+    expect(snapPoints.find((p) => p.position === 475)).toBeDefined() // clip-3 center
   })
 
   it("не должен включать сам редактируемый клип", () => {

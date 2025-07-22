@@ -353,13 +353,13 @@ describe("user-effects", () => {
       const result = prepareEffectForExport(mockEffect, customParams, presetName)
 
       expect(result.presets).toBeDefined()
-      const presetKeys = Object.keys(result.presets!)
+      const presetKeys = Object.keys(result.presets)
       expect(presetKeys).toHaveLength(1)
 
       const customPresetKey = presetKeys[0]
       expect(customPresetKey).toMatch(/^custom_\d+$/)
 
-      const customPreset = result.presets![customPresetKey]
+      const customPreset = result.presets[customPresetKey]
       expect(customPreset).toEqual({
         name: {
           ru: presetName,
@@ -388,11 +388,11 @@ describe("user-effects", () => {
 
       const result = prepareEffectForExport(mockEffect, customParams, presetName)
 
-      expect(Object.keys(result.presets!)).toHaveLength(2)
-      expect(result.presets!["existing-preset"]).toBeDefined()
+      expect(Object.keys(result.presets)).toHaveLength(2)
+      expect(result.presets["existing-preset"]).toBeDefined()
 
-      const customPresetKey = Object.keys(result.presets!).find((key) => key.startsWith("custom_"))!
-      expect(result.presets![customPresetKey].params).toEqual(customParams)
+      const customPresetKey = Object.keys(result.presets).find((key) => key.startsWith("custom_"))!
+      expect(result.presets[customPresetKey].params).toEqual(customParams)
     })
 
     it("should not add preset if only params provided without name", () => {
@@ -424,8 +424,8 @@ describe("user-effects", () => {
 
       const result2 = prepareEffectForExport(mockEffect, customParams, "Preset 2")
 
-      const keys1 = Object.keys(result1.presets!)
-      const keys2 = Object.keys(result2.presets!)
+      const keys1 = Object.keys(result1.presets)
+      const keys2 = Object.keys(result2.presets)
 
       expect(keys1[0]).not.toBe(keys2[0])
       expect(keys1[0]).toMatch(/^custom_\d+$/)

@@ -49,6 +49,7 @@ import {
 } from "@/types/video-compiler"
 
 import {
+  AppliedTransition,
   ProjectResources,
   SubtitleClip,
   TimelineClip,
@@ -168,10 +169,20 @@ function convertClip(clip: TimelineClip): BackendClip {
     volume: clip.volume ?? 1.0,
     effects: clip.effects?.map((e) => e.effectId) || [],
     filters: clip.filters?.map((f) => f.filterId) || [],
+    transitions: convertClipTransitions(clip.transitions),
     template_id: clip.templateId,
     template_cell: clip.templateCell,
     style_template_id: clip.styleTemplate?.styleTemplateId,
   }
+}
+
+/**
+ * Конвертирует переходы клипа
+ */
+function convertClipTransitions(transitions?: AppliedTransition[]): string[] {
+  if (!transitions) return []
+
+  return transitions.filter((t) => t.isEnabled).map((t) => t.transitionId)
 }
 
 /**
@@ -266,9 +277,170 @@ function convertFilters(filters: VideoFilter[]): BackendFilter[] {
 /**
  * Преобразует переходы в формат backend
  */
-function convertTransitions(_transitions: Transition[]): BackendTransition[] {
-  // TODO: Реализовать преобразование переходов
-  return []
+function convertTransitions(transitions: Transition[]): BackendTransition[] {
+  return transitions.map((transition) => ({
+    id: transition.id,
+    transition_type: convertTransitionType(transition.type),
+    duration: transition.duration.default,
+    params: convertTransitionParams(transition),
+  }))
+}
+
+/**
+ * Конвертирует тип перехода в backend enum
+ */
+function convertTransitionType(type: string): string {
+  // Маппинг типов переходов на backend enum
+  const transitionMap: Record<string, string> = {
+    // Базовые переходы
+    fade: "Fade",
+    crossfade: "CrossFade",
+    "dip-to-black": "DipToBlack",
+    dissolve: "Dissolve",
+
+    // Движение
+    "slide-left": "SlideLeft",
+    "slide-right": "SlideRight",
+    "slide-up": "SlideUp",
+    "slide-down": "SlideDown",
+    "push-left": "PushLeft",
+    "push-right": "PushRight",
+    "push-up": "PushUp",
+    "push-down": "PushDown",
+
+    // Вытеснение
+    "wipe-left": "WipeLeft",
+    "wipe-right": "WipeRight",
+    "wipe-up": "WipeUp",
+    "wipe-down": "WipeDown",
+    "wipe-diagonal": "WipeDiagonal",
+
+    // Масштабирование
+    "zoom-in": "ZoomIn",
+    "zoom-out": "ZoomOut",
+    scale: "Scale",
+
+    // Вращение
+    rotate: "Rotate",
+    spin: "Spin",
+    swirl: "Swirl",
+
+    // 3D эффекты
+    cube: "Cube",
+    flip: "Flip",
+    "page-turn": "PageTurn",
+
+    // Творческие
+    ripple: "Ripple",
+    wave: "Wave",
+    glitch: "Glitch",
+    pixelate: "Pixelate",
+    blur: "Blur",
+    burn: "Burn",
+    shatter: "Shatter",
+
+    // Геометрические
+    iris: "Iris",
+    blinds: "Blinds",
+    radial: "Radial",
+    spiral: "Spiral",
+    kaleidoscope: "Kaleidoscope",
+  }
+
+  // Возвращаем маппинг или используем тип как есть с капитализацией
+  return transitionMap[type] || toRustEnumCase(type)
+}
+
+/**
+ * Конвертирует параметры перехода
+ */
+function convertTransitionParams(transition: Transition): Record<string, any> {
+  const params: Record<string, any> = {}
+
+  // Базовые параметры из определения перехода
+  if (transition.parameters) {
+    // Направление
+    if (transition.parameters.direction) {
+      params.direction = convertTransitionDirection(transition.parameters.direction)
+    }
+
+    // Смягчение (easing)
+    if (transition.parameters.easing) {
+      params.easing = convertTransitionEasing(transition.parameters.easing)
+    }
+
+    // Интенсивность
+    if (transition.parameters.intensity !== undefined) {
+      params.intensity = transition.parameters.intensity
+    }
+
+    // Масштаб
+    if (transition.parameters.scale !== undefined) {
+      params.scale = transition.parameters.scale
+    }
+
+    // Плавность
+    if (transition.parameters.smoothness !== undefined) {
+      params.smoothness = transition.parameters.smoothness
+    }
+  }
+
+  // Дополнительные параметры в зависимости от типа
+  switch (transition.type) {
+    case "blur":
+      params.blur_amount = params.intensity || 0.5
+      break
+    case "glitch":
+      params.glitch_strength = params.intensity || 0.7
+      params.glitch_frequency = 5
+      break
+    case "pixelate":
+      params.pixel_size = Math.round((params.scale || 1) * 20)
+      break
+    case "burn":
+      params.burn_intensity = params.intensity || 0.8
+      params.burn_color = "#FF6600"
+      break
+    case "ripple":
+      params.ripple_amplitude = params.scale || 1.0
+      params.ripple_frequency = 3
+      break
+    default:
+      // Для остальных типов переходов используем стандартные параметры
+      break
+  }
+
+  return params
+}
+
+/**
+ * Конвертирует направление перехода
+ */
+function convertTransitionDirection(direction: string): string {
+  const directionMap: Record<string, string> = {
+    left: "Left",
+    right: "Right",
+    up: "Up",
+    down: "Down",
+    center: "Center",
+  }
+
+  return directionMap[direction] || "Right"
+}
+
+/**
+ * Конвертирует easing перехода
+ */
+function convertTransitionEasing(easing: string): string {
+  const easingMap: Record<string, string> = {
+    linear: "Linear",
+    "ease-in": "EaseIn",
+    "ease-out": "EaseOut",
+    "ease-in-out": "EaseInOut",
+    bounce: "Bounce",
+  }
+
+  return easingMap[easing] || "Linear"
 }
 
 /**
@@ -684,8 +856,159 @@ function convertSubtitleStyle(style: any): BackendSubtitleStyle {
     return createDefaultSubtitleStyle()
   }
 
-  // TODO: Реализовать полную конвертацию стиля из resources.subtitleStyles
-  return createDefaultSubtitleStyle()
+  // Конвертируем CSS стили в формат backend
+  const cssStyle = style.style || {}
+
+  return {
+    font_family: cssStyle.fontFamily || "Arial",
+    font_size: cssStyle.fontSize || 24.0,
+    font_weight: convertFontWeight(cssStyle.fontWeight),
+    color: cssStyle.color || "#FFFFFF",
+    stroke_color: extractStrokeColorFromTextShadow(cssStyle.textShadow) || "#000000",
+    stroke_width: extractStrokeWidthFromTextShadow(cssStyle.textShadow) || 2.0,
+    shadow_color: extractShadowColorFromTextShadow(cssStyle.textShadow) || "#000000",
+    shadow_x: extractShadowXFromTextShadow(cssStyle.textShadow) || 2.0,
+    shadow_y: extractShadowYFromTextShadow(cssStyle.textShadow) || 2.0,
+    shadow_blur: extractShadowBlurFromTextShadow(cssStyle.textShadow) || 4.0,
+    background_color: cssStyle.backgroundColor || cssStyle.background,
+    background_opacity: cssStyle.opacity || 0.8,
+    padding: parsePadding(cssStyle.padding),
+    border_radius: Number.parseFloat(String(cssStyle.borderRadius || 4)),
+    line_height: cssStyle.lineHeight || 1.2,
+    letter_spacing: cssStyle.letterSpacing || 0.0,
+    max_width: 80.0, // По умолчанию 80% ширины экрана
+  }
+}
+
+/**
+ * Конвертирует font weight в enum
+ */
+function convertFontWeight(weight?: string | number): SubtitleFontWeight {
+  if (!weight) return SubtitleFontWeight.Normal
+
+  const weightValue = typeof weight === "string" ? weight.toLowerCase() : String(weight)
+
+  switch (weightValue) {
+    case "thin":
+    case "100":
+      return SubtitleFontWeight.Thin
+    case "light":
+    case "300":
+      return SubtitleFontWeight.Light
+    case "normal":
+    case "400":
+      return SubtitleFontWeight.Normal
+    case "medium":
+    case "500":
+      return SubtitleFontWeight.Medium
+    case "bold":
+    case "700":
+      return SubtitleFontWeight.Bold
+    case "black":
+    case "900":
+      return SubtitleFontWeight.Black
+    default:
+      return SubtitleFontWeight.Normal
+  }
+}
+
+/**
+ * Парсит padding из CSS строки или числа
+ */
+function parsePadding(padding?: string | number): { top: number; right: number; bottom: number; left: number } {
+  if (!padding) {
+    return { top: 8.0, right: 12.0, bottom: 8.0, left: 12.0 }
+  }
+
+  if (typeof padding === "number") {
+    return { top: padding, right: padding, bottom: padding, left: padding }
+  }
+
+  const parts = padding.split(" ").map((p) => Number.parseFloat(p.replace("px", "")))
+
+  switch (parts.length) {
+    case 1:
+      return { top: parts[0], right: parts[0], bottom: parts[0], left: parts[0] }
+    case 2:
+      return { top: parts[0], right: parts[1], bottom: parts[0], left: parts[1] }
+    case 3:
+      return { top: parts[0], right: parts[1], bottom: parts[2], left: parts[1] }
+    case 4:
+      return { top: parts[0], right: parts[1], bottom: parts[2], left: parts[3] }
+    default:
+      return { top: 8.0, right: 12.0, bottom: 8.0, left: 12.0 }
+  }
+}
+
+/**
+ * Извлекает параметры тени из CSS text-shadow
+ */
+function extractStrokeColorFromTextShadow(textShadow?: string): string | undefined {
+  if (!textShadow) return undefined
+
+  // Для text-shadow типа "2px 2px 4px #000000"
+  // Если есть несколько теней (для обводки), берем первую
+  const shadows = textShadow.split(",").map((s) => s.trim())
+  const firstShadow = shadows[0]
+
+  // Ищем цвет (hex, rgb, rgba, или named color)
+  const colorMatch = /(#[0-9A-Fa-f]{3,8}|rgb[a]?\([^)]+\)|[a-zA-Z]+)/.exec(firstShadow)
+  return colorMatch ? colorMatch[1] : undefined
+}
+
+function extractStrokeWidthFromTextShadow(textShadow?: string): number | undefined {
+  if (!textShadow) return undefined
+
+  // Если есть несколько теней для эмуляции обводки, считаем их
+  const shadows = textShadow.split(",").map((s) => s.trim())
+
+  // Эвристика: если больше 4 теней, вероятно это обводка
+  if (shadows.length > 4) {
+    return 2.0 // Стандартная обводка
+  }
+
+  return undefined
+}
+
+function extractShadowColorFromTextShadow(textShadow?: string): string | undefined {
+  if (!textShadow) return undefined
+
+  // Берем последнюю тень (обычно это настоящая тень, а не обводка)
+  const shadows = textShadow.split(",").map((s) => s.trim())
+  const lastShadow = shadows[shadows.length - 1]
+
+  const colorMatch = /(#[0-9A-Fa-f]{3,8}|rgb[a]?\([^)]+\)|[a-zA-Z]+)/.exec(lastShadow)
+  return colorMatch ? colorMatch[1] : undefined
+}
+
+function extractShadowXFromTextShadow(textShadow?: string): number | undefined {
+  if (!textShadow) return undefined
+
+  const shadows = textShadow.split(",").map((s) => s.trim())
+  const lastShadow = shadows[shadows.length - 1]
+
+  const parts = lastShadow.split(" ")
+  return parts[0] ? Number.parseFloat(parts[0].replace("px", "")) : undefined
+}
+
+function extractShadowYFromTextShadow(textShadow?: string): number | undefined {
+  if (!textShadow) return undefined
+
+  const shadows = textShadow.split(",").map((s) => s.trim())
+  const lastShadow = shadows[shadows.length - 1]
+
+  const parts = lastShadow.split(" ")
+  return parts[1] ? Number.parseFloat(parts[1].replace("px", "")) : undefined
+}
+
+function extractShadowBlurFromTextShadow(textShadow?: string): number | undefined {
+  if (!textShadow) return undefined
+
+  const shadows = textShadow.split(",").map((s) => s.trim())
+  const lastShadow = shadows[shadows.length - 1]
+
+  const parts = lastShadow.split(" ")
+  return parts[2] ? Number.parseFloat(parts[2].replace("px", "")) : undefined
 }
 
 /**

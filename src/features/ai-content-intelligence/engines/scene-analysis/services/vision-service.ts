@@ -956,9 +956,9 @@ export class VisionService {
   public analyzeComposition(frameData: ImageData | string): CompositionAnalysis {
     try {
       // Реализован полный анализ композиции на основе художественных принципов
-      
+
       const ruleOfThirds = this.calculateRuleOfThirds(frameData)
-      const balance = this.calculateBalance(frameData)  
+      const balance = this.calculateBalance(frameData)
       const leadingLines = this.detectLeadingLines(frameData)
       const depth = this.calculateDepth(frameData)
       const colorHarmony = this.calculateColorHarmony(frameData)

@@ -118,7 +118,7 @@ export function ProjectSettingsModal() {
       }
 
       // Применяем новые настройки через контекст
-      updateSettings(newSettings)
+      void updateSettings(newSettings)
 
       // Отладочный вывод
       console.log("[ProjectSettingsDialog] Соотношение сторон изменено:", {
@@ -195,14 +195,14 @@ export function ProjectSettingsModal() {
               }
 
               // Применяем новые настройки
-              updateSettings(newSettings)
+              void updateSettings(newSettings)
 
               // Обновляем значения пользовательской ширины и высоты
               setCustomWidth(selectedResolution.width)
               setCustomHeight(selectedResolution.height)
             } else {
               // Если разрешение не найдено, просто обновляем значение
-              updateSettings({
+              void updateSettings({
                 ...settings,
                 resolution: value,
               })
@@ -267,7 +267,7 @@ export function ProjectSettingsModal() {
                     },
                     resolution: `${width}x${newHeight}`,
                   }
-                  updateSettings(newSettings)
+                  void updateSettings(newSettings)
                 } else {
                   // Если соотношение сторон не заблокировано или пользовательское,
                   // просто обновляем ширину без изменения высоты
@@ -282,7 +282,7 @@ export function ProjectSettingsModal() {
                     },
                     resolution: `${width}x${customHeight}`,
                   }
-                  updateSettings(newSettings)
+                  void updateSettings(newSettings)
                 }
               }
             }}
@@ -327,7 +327,7 @@ export function ProjectSettingsModal() {
                     },
                     resolution: `${newWidth}x${height}`,
                   }
-                  updateSettings(newSettings)
+                  void updateSettings(newSettings)
                 } else {
                   // Если соотношение сторон не заблокировано или пользовательское,
                   // просто обновляем высоту без изменения ширины
@@ -342,7 +342,7 @@ export function ProjectSettingsModal() {
                     },
                     resolution: `${customWidth}x${height}`,
                   }
-                  updateSettings(newSettings)
+                  void updateSettings(newSettings)
                 }
               }
             }}
@@ -517,7 +517,7 @@ export function ProjectSettingsModal() {
             }
 
             // Применяем обновленные настройки
-            updateSettings(currentSettings)
+            void updateSettings(currentSettings)
 
             // Отладочный вывод
             console.log("[ProjectSettingsDialog] Applied settings:", currentSettings)

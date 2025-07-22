@@ -202,7 +202,7 @@ export function SectionExportTab({ defaultSettings, onExport, onPreviewSection }
       if (onPreviewSection) {
         onPreviewSection(section.startTime)
       } else if (seek) {
-        seek(section.startTime)
+        void seek(section.startTime)
       }
     },
     [onPreviewSection, seek],

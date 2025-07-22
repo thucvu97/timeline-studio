@@ -8,7 +8,7 @@ import type {
   SubtitleComplexity,
   SubtitleExportOptions,
   SubtitleImportResult,
-  SubtitleStyle,
+  SubtitleStyleTemplate,
   SubtitleTag,
 } from "../../types/subtitles"
 
@@ -59,9 +59,9 @@ describe("Subtitle Types", () => {
     })
   })
 
-  describe("SubtitleStyle", () => {
+  describe("SubtitleStyleTemplate", () => {
     it("должен создавать корректный объект стиля", () => {
-      const style: SubtitleStyle = {
+      const style: SubtitleStyleTemplate = {
         id: "test-style",
         name: "Test Style",
         category: "basic",

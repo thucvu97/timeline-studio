@@ -1,10 +1,10 @@
 import { renderHook, waitFor } from "@testing-library/react"
-import { describe, expect, it, vi, beforeEach } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { usePersonIdentification } from "../../hooks/use-person-identification"
 import { PersonDatabaseService } from "../../services/person-database-service"
 
-import type { DetectedFace, PersonProfile, FaceEmbedding } from "../../types"
+import type { DetectedFace, FaceEmbedding, PersonProfile } from "../../types"
 
 // Mock PersonDatabaseService
 vi.mock("../../services/person-database-service", () => ({
@@ -103,15 +103,22 @@ describe("usePersonIdentification Tauri Integration", () => {
       expect(identified?.confidence).toBe(0.92)
 
       // Verify embedding was used
-      expect(mockDatabaseService.findSimilarPersons).toHaveBeenCalledWith(
-        expect.any(Float32Array),
-        { limit: 1, minConfidence: 0.8 }
-      )
+      expect(mockDatabaseService.findSimilarPersons).toHaveBeenCalledWith(expect.any(Float32Array), {
+        limit: 1,
+        minConfidence: 0.8,
+      })
 
       // Check that Float32Array was created from embedding
       const callArgs = mockDatabaseService.findSimilarPersons.mock.calls[0]
       expect(callArgs[0]).toBeInstanceOf(Float32Array)
-      expect(Array.from(callArgs[0])).toEqual([0.1, 0.2, 0.3, 0.4, 0.5])
+      // Use toBeCloseTo for floating point comparison
+      const embeddingArray = Array.from(callArgs[0])
+      expect(embeddingArray).toHaveLength(5)
+      expect(embeddingArray[0]).toBeCloseTo(0.1, 5)
+      expect(embeddingArray[1]).toBeCloseTo(0.2, 5)
+      expect(embeddingArray[2]).toBeCloseTo(0.3, 5)
+      expect(embeddingArray[3]).toBeCloseTo(0.4, 5)
+      expect(embeddingArray[4]).toBeCloseTo(0.5, 5)
     })
 
     it("should handle face without embedding", async () => {
@@ -194,7 +201,7 @@ describe("usePersonIdentification Tauri Integration", () => {
           clipId: "clip_new",
           frameNumber: 750,
           timestamp: 25,
-        })
+        }),
       )
 
       // Verify thumbnail was added
@@ -207,7 +214,7 @@ describe("usePersonIdentification Tauri Integration", () => {
           height: 120,
           isPrimary: true,
           quality: 0.93,
-        })
+        }),
       )
     })
   })
@@ -270,7 +277,7 @@ describe("usePersonIdentification Tauri Integration", () => {
           clipId: "clip_add",
           frameNumber: 1800,
           timestamp: 60,
-        })
+        }),
       )
 
       // Verify appearance was added
@@ -283,7 +290,7 @@ describe("usePersonIdentification Tauri Integration", () => {
           endTime: 60,
           confidence: 0.88,
           frameCount: 1,
-        })
+        }),
       )
     })
   })
@@ -350,10 +357,7 @@ describe("usePersonIdentification Tauri Integration", () => {
 
       expect(clusteredPersons).toHaveLength(1)
       expect(clusteredPersons[0].tags).toContain("clustered")
-      expect(mockDatabaseService.clusterUnidentifiedFaces).toHaveBeenCalledWith(
-        unidentifiedFaces,
-        0.85
-      )
+      expect(mockDatabaseService.clusterUnidentifiedFaces).toHaveBeenCalledWith(unidentifiedFaces, 0.85)
     })
   })
 
@@ -368,10 +372,7 @@ describe("usePersonIdentification Tauri Integration", () => {
             { faceId: "f1", vector: new Float32Array([0.1]), quality: 0.9 } as FaceEmbedding,
             { faceId: "f2", vector: new Float32Array([0.2]), quality: 0.8 } as FaceEmbedding,
           ],
-          appearances: [
-            { id: "a1", duration: 10 } as PersonAppearance,
-            { id: "a2", duration: 20 } as PersonAppearance,
-          ],
+          appearances: [{ id: "a1", duration: 10 } as PersonAppearance, { id: "a2", duration: 20 } as PersonAppearance],
           totalScreenTime: 30,
           firstSeen: { seconds: 0 },
           lastSeen: { seconds: 30 },
@@ -391,12 +392,8 @@ describe("usePersonIdentification Tauri Integration", () => {
           id: "p2",
           name: "Person 2",
           isVerified: false,
-          faceEmbeddings: [
-            { faceId: "f3", vector: new Float32Array([0.3]), quality: 0.95 } as FaceEmbedding,
-          ],
-          appearances: [
-            { id: "a3", duration: 15 } as PersonAppearance,
-          ],
+          faceEmbeddings: [{ faceId: "f3", vector: new Float32Array([0.3]), quality: 0.95 } as FaceEmbedding],
+          appearances: [{ id: "a3", duration: 15 } as PersonAppearance],
           totalScreenTime: 15,
           firstSeen: { seconds: 0 },
           lastSeen: { seconds: 15 },

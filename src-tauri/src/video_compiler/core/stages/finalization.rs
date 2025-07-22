@@ -76,7 +76,7 @@ impl FinalizationStage {
 
     tokio::fs::write(&metadata_path, metadata_json)
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
     context.update_progress(60, "Finalization").await?;
 
@@ -136,11 +136,11 @@ impl FinalizationStage {
     let output = command
       .output()
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
     if !output.status.success() {
       let error_msg = String::from_utf8_lossy(&output.stderr);
-      return Err(VideoCompilerError::IoError(error_msg.to_string()));
+      return Err(VideoCompilerError::Io(error_msg.to_string()));
     }
 
     let json_output = String::from_utf8_lossy(&output.stdout);
@@ -222,7 +222,7 @@ impl FinalizationStage {
     let output = command
       .output()
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
     if output.status.success() {
       log::info!("✅ Превью создано: {thumbnail_path:?}");
@@ -248,7 +248,7 @@ impl FinalizationStage {
     // Проверяем размер файла
     let metadata = tokio::fs::metadata(&context.output_path)
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
     if metadata.len() == 0 {
       return Err(VideoCompilerError::ValidationError(

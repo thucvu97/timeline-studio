@@ -161,7 +161,7 @@ impl PreviewServiceImpl {
     // Создаем временную директорию для композиции
     let temp_dir_path = std::env::temp_dir().join(format!("storyboard_{}", uuid::Uuid::new_v4()));
     std::fs::create_dir_all(&temp_dir_path).map_err(|e| {
-      VideoCompilerError::IoError(format!("Не удалось создать временную директорию: {e}"))
+      VideoCompilerError::Io(format!("Не удалось создать временную директорию: {e}"))
     })?;
 
     let (thumb_width, thumb_height) = thumbnail_size;
@@ -174,7 +174,7 @@ impl PreviewServiceImpl {
       let thumb_path = temp_dir_path.join(format!("thumb_{i}.jpg"));
       tokio::fs::write(&thumb_path, thumbnail_data)
         .await
-        .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+        .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
       thumbnail_paths.push(thumb_path);
     }
 
@@ -205,7 +205,7 @@ impl PreviewServiceImpl {
 
     // Выполняем команду
     let output = cmd.output().map_err(|e| {
-      VideoCompilerError::IoError(format!("Не удалось запустить FFmpeg для storyboard: {e}"))
+      VideoCompilerError::Io(format!("Не удалось запустить FFmpeg для storyboard: {e}"))
     })?;
 
     if !output.status.success() {
@@ -221,7 +221,7 @@ impl PreviewServiceImpl {
     // Читаем результат
     let storyboard_data = tokio::fs::read(&output_path)
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
     // Удаляем временную директорию
     let _ = std::fs::remove_dir_all(&temp_dir_path);
@@ -261,7 +261,7 @@ impl Service for PreviewServiceImpl {
     // Создаем временную директорию
     tokio::fs::create_dir_all(&self.temp_dir)
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
     Ok(())
   }
@@ -391,7 +391,7 @@ impl PreviewService for PreviewServiceImpl {
       .join(format!("thumbs_{}", uuid::Uuid::new_v4()));
     tokio::fs::create_dir_all(&temp_dir)
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
     // Используем FFmpegBuilder для генерации миниатюр
     let project = ProjectSchema::new("thumbnails".to_string());
@@ -418,7 +418,7 @@ impl PreviewService for PreviewServiceImpl {
       if thumb_path.exists() {
         let data = tokio::fs::read(&thumb_path)
           .await
-          .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+          .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
         thumbnails.push(data);
       }
     }
@@ -526,7 +526,7 @@ impl PreviewService for PreviewServiceImpl {
     // Читаем результат
     let waveform_data = tokio::fs::read(&output_path)
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
     // Удаляем временный файл
     let _ = tokio::fs::remove_file(&output_path).await;
@@ -684,24 +684,24 @@ impl PreviewService for PreviewServiceImpl {
 
       // Создаем директорию для вывода если нужно
       if let Some(parent) = Path::new(output_path).parent() {
-        tokio::fs::create_dir_all(parent).await.map_err(|e| {
-          VideoCompilerError::IoError(format!("Не удалось создать директорию: {e}"))
-        })?;
+        tokio::fs::create_dir_all(parent)
+          .await
+          .map_err(|e| VideoCompilerError::Io(format!("Не удалось создать директорию: {e}")))?;
       }
 
       // Сохраняем результат в файл
       tokio::fs::write(output_path, preview)
         .await
-        .map_err(|e| VideoCompilerError::IoError(format!("Не удалось сохранить превью: {e}")))?;
+        .map_err(|e| VideoCompilerError::Io(format!("Не удалось сохранить превью: {e}")))?;
     } else {
       // Если нет активного клипа, создаем черный кадр
       log::debug!("Нет активного клипа на времени {timestamp}, создаем черный кадр");
 
       // Создаем директорию для вывода если нужно
       if let Some(parent) = Path::new(output_path).parent() {
-        tokio::fs::create_dir_all(parent).await.map_err(|e| {
-          VideoCompilerError::IoError(format!("Не удалось создать директорию: {e}"))
-        })?;
+        tokio::fs::create_dir_all(parent)
+          .await
+          .map_err(|e| VideoCompilerError::Io(format!("Не удалось создать директорию: {e}")))?;
       }
 
       // Создаем минимальный черный JPEG
@@ -734,9 +734,7 @@ impl PreviewService for PreviewServiceImpl {
 
       tokio::fs::write(output_path, black_jpeg)
         .await
-        .map_err(|e| {
-          VideoCompilerError::IoError(format!("Не удалось сохранить черный кадр: {e}"))
-        })?;
+        .map_err(|e| VideoCompilerError::Io(format!("Не удалось сохранить черный кадр: {e}")))?;
     }
 
     Ok(())

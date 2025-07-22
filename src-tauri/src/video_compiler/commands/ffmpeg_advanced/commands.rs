@@ -307,6 +307,12 @@ pub async fn execute_ffmpeg_with_progress(
         } => {
           log::info!("FFmpeg job completed: {job_id} -> {output_path} (duration: {duration:?})");
         }
+        ProgressUpdate::JobPaused { job_id } => {
+          log::info!("FFmpeg job paused: {job_id}");
+        }
+        ProgressUpdate::JobResumed { job_id } => {
+          log::info!("FFmpeg job resumed: {job_id}");
+        }
         ProgressUpdate::JobFailed {
           job_id,
           error,

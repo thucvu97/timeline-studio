@@ -599,8 +599,8 @@ Format your response as JSON with this structure:
               // Fallback: используем композицию для оценки цветового разнообразия
               if (keyFrame.composition) {
                 const colorScore = keyFrame.composition.colorHarmony
-                if (colorScore > 0.7) allColors.add('harmonious')
-                if (colorScore < 0.3) allColors.add('contrasting')
+                if (colorScore > 0.7) allColors.add("harmonious")
+                if (colorScore < 0.3) allColors.add("contrasting")
               }
             }
           }
@@ -612,7 +612,7 @@ Format your response as JSON with this structure:
       const varietyScore = sceneCount > 0 ? Math.min(1, allColors.size / (sceneCount * 3)) : 0.5
       return varietyScore
     } catch (error) {
-      console.error('Failed to calculate color variety:', error)
+      console.error("Failed to calculate color variety:", error)
       return 0.5
     }
   }
@@ -623,7 +623,7 @@ Format your response as JSON with this structure:
   private calculateMusicPercentage(metadata: any): number {
     try {
       // Проверяем различные источники музыкальных данных в метаданных
-      
+
       // 1. Данные из music detection service
       if (metadata.musicSegments && Array.isArray(metadata.musicSegments)) {
         const totalDuration = metadata.duration || 0
@@ -644,18 +644,18 @@ Format your response as JSON with this structure:
       if (metadata.audio) {
         const volume = metadata.audio.volume?.average || 0
         const frequencies = metadata.audio.frequencies
-        
+
         // Если есть данные о частотах
         if (frequencies) {
           // Проверяем музыкальные частоты
           const bassLevel = frequencies.low || 0
           const midLevel = frequencies.mid || 0
           const highLevel = frequencies.high || 0
-          
+
           // Музыка обычно имеет более сбалансированное распределение частот
           const frequencyBalance = 1 - Math.abs((bassLevel + midLevel + highLevel) / 3 - 0.5)
           const musicScore = (volume + frequencyBalance) / 2
-          
+
           return Math.min(100, musicScore * 100)
         }
 
@@ -668,8 +668,8 @@ Format your response as JSON with this structure:
       // 4. Анализ речи для косвенного определения музыки
       if (metadata.silence?.speechPercentage !== undefined) {
         const speechPercentage = metadata.silence.speechPercentage
-        const silencePercentage = metadata.silence.totalSilenceDuration 
-          ? (metadata.silence.totalSilenceDuration / (metadata.duration || 1)) * 100 
+        const silencePercentage = metadata.silence.totalSilenceDuration
+          ? (metadata.silence.totalSilenceDuration / (metadata.duration || 1)) * 100
           : 0
 
         // Если мало речи и мало тишины, вероятно есть музыка
@@ -680,7 +680,7 @@ Format your response as JSON with this structure:
       // Дефолтное значение
       return 30
     } catch (error) {
-      console.error('Failed to calculate music percentage:', error)
+      console.error("Failed to calculate music percentage:", error)
       return 30
     }
   }
@@ -699,7 +699,7 @@ Format your response as JSON with this structure:
           secondary.push({
             category: ContentType.TUTORIAL,
             confidence: Math.max(0.3, primary.confidence - 0.2),
-            reasoning: 'Documentary content often has educational value'
+            reasoning: "Documentary content often has educational value",
           })
           break
 
@@ -709,7 +709,7 @@ Format your response as JSON with this structure:
             secondary.push({
               category: ContentType.DOCUMENTARY,
               confidence: primary.confidence - 0.3,
-              reasoning: 'High-quality tutorial with documentary characteristics'
+              reasoning: "High-quality tutorial with documentary characteristics",
             })
           }
           break
@@ -719,7 +719,7 @@ Format your response as JSON with this structure:
           secondary.push({
             category: ContentType.COMMERCIAL,
             confidence: 0.4,
-            reasoning: 'Vlogs often contain promotional content'
+            reasoning: "Vlogs often contain promotional content",
           })
           break
 
@@ -728,7 +728,7 @@ Format your response as JSON with this structure:
           secondary.push({
             category: ContentType.COMMERCIAL,
             confidence: 0.6,
-            reasoning: 'Music videos are often promotional content'
+            reasoning: "Music videos are often promotional content",
           })
           break
 
@@ -741,15 +741,18 @@ Format your response as JSON with this structure:
                 secondary.push({
                   category: ContentType.SPORTS,
                   confidence: 0.5,
-                  reasoning: 'Action content may contain sports elements'
+                  reasoning: "Action content may contain sports elements",
                 })
                 break
               case Genre.EDUCATIONAL:
                 secondary.push({
                   category: ContentType.TUTORIAL,
                   confidence: 0.7,
-                  reasoning: 'Educational narrative content'
+                  reasoning: "Educational narrative content",
                 })
+                break
+              default:
+                // Для других жанров не добавляем дополнительные категории
                 break
             }
           }
@@ -760,7 +763,7 @@ Format your response as JSON with this structure:
           secondary.push({
             category: ContentType.MUSIC_VIDEO,
             confidence: 0.3,
-            reasoning: 'Commercial content often uses music'
+            reasoning: "Commercial content often uses music",
           })
           break
 
@@ -770,16 +773,16 @@ Format your response as JSON with this structure:
             secondary.push({
               category: ContentType.NARRATIVE,
               confidence: 0.5,
-              reasoning: 'Generic narrative content as fallback'
+              reasoning: "Generic narrative content as fallback",
             })
           }
           break
       }
 
       // Фильтруем вторичные классификации по минимальной уверенности
-      return secondary.filter(s => s.confidence >= 0.3)
+      return secondary.filter((s) => s.confidence >= 0.3)
     } catch (error) {
-      console.error('Failed to generate secondary classifications:', error)
+      console.error("Failed to generate secondary classifications:", error)
       return []
     }
   }

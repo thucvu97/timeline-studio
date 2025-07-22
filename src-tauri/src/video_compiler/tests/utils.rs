@@ -11,13 +11,13 @@ use tempfile::{tempdir, TempDir};
 
 /// Создает временную директорию для тестов
 pub fn create_test_dir() -> Result<TempDir> {
-  tempdir().map_err(|e| VideoCompilerError::IoError(e.to_string()))
+  tempdir().map_err(|e| VideoCompilerError::Io(e.to_string()))
 }
 
 /// Создает временный файл с заданным содержимым
 pub fn create_test_file(dir: &Path, name: &str, content: &[u8]) -> Result<PathBuf> {
   let file_path = dir.join(name);
-  fs::write(&file_path, content).map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+  fs::write(&file_path, content).map_err(|e| VideoCompilerError::Io(e.to_string()))?;
   Ok(file_path)
 }
 

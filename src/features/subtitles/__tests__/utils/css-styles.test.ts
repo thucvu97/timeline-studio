@@ -1,20 +1,20 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 
-import { SubtitleStyle } from "../../types/subtitles"
+import { SubtitleStyleTemplate } from "../../types/subtitles"
 import {
-  applySubtitleStyle,
+  applySubtitleStyleTemplate,
   generateSubtitleCSS,
   getSubtitleAnimation,
-  resetSubtitleStyle,
+  resetSubtitleStyleTemplate,
   subtitleAnimations,
   subtitleStyleToCSS,
-  validateSubtitleStyle,
+  validateSubtitleStyleTemplate,
 } from "../../utils/css-styles"
 
 describe("CSS Styles Module", () => {
   describe("subtitleStyleToCSS", () => {
     it("should convert subtitle style to CSS object", () => {
-      const subtitleStyle: SubtitleStyle = {
+      const subtitleStyle: SubtitleStyleTemplate = {
         id: "test",
         name: "Test Style",
         category: "basic",
@@ -55,7 +55,7 @@ describe("CSS Styles Module", () => {
     })
 
     it("should handle gradient text", () => {
-      const subtitleStyle: SubtitleStyle = {
+      const subtitleStyle: SubtitleStyleTemplate = {
         id: "gradient",
         name: "Gradient",
         category: "modern",
@@ -80,7 +80,7 @@ describe("CSS Styles Module", () => {
     })
 
     it("should handle animation", () => {
-      const subtitleStyle: SubtitleStyle = {
+      const subtitleStyle: SubtitleStyleTemplate = {
         id: "animated",
         name: "Animated",
         category: "animated",
@@ -100,7 +100,7 @@ describe("CSS Styles Module", () => {
     })
 
     it("should handle empty style object", () => {
-      const subtitleStyle: SubtitleStyle = {
+      const subtitleStyle: SubtitleStyleTemplate = {
         id: "empty",
         name: "Empty",
         category: "basic",
@@ -117,7 +117,7 @@ describe("CSS Styles Module", () => {
     })
 
     it("should handle string fontSize", () => {
-      const subtitleStyle: SubtitleStyle = {
+      const subtitleStyle: SubtitleStyleTemplate = {
         id: "test",
         name: "Test",
         category: "basic",
@@ -136,7 +136,7 @@ describe("CSS Styles Module", () => {
     })
   })
 
-  describe("applySubtitleStyle", () => {
+  describe("applySubtitleStyleTemplate", () => {
     let element: HTMLElement
 
     beforeEach(() => {
@@ -149,7 +149,7 @@ describe("CSS Styles Module", () => {
     })
 
     it("should apply styles to element", () => {
-      const subtitleStyle: SubtitleStyle = {
+      const subtitleStyle: SubtitleStyleTemplate = {
         id: "test",
         name: "Test",
         category: "basic",
@@ -164,7 +164,7 @@ describe("CSS Styles Module", () => {
         },
       }
 
-      applySubtitleStyle(element, subtitleStyle)
+      applySubtitleStyleTemplate(element, subtitleStyle)
 
       expect(element.style.color).toBe("rgb(255, 0, 0)")
       expect(element.style.fontSize).toBe("32px")
@@ -172,7 +172,7 @@ describe("CSS Styles Module", () => {
     })
 
     it("should handle null element gracefully", () => {
-      const subtitleStyle: SubtitleStyle = {
+      const subtitleStyle: SubtitleStyleTemplate = {
         id: "test",
         name: "Test",
         category: "basic",
@@ -183,11 +183,11 @@ describe("CSS Styles Module", () => {
         style: {},
       }
 
-      expect(() => applySubtitleStyle(null as any, subtitleStyle)).not.toThrow()
+      expect(() => applySubtitleStyleTemplate(null as any, subtitleStyle)).not.toThrow()
     })
   })
 
-  describe("resetSubtitleStyle", () => {
+  describe("resetSubtitleStyleTemplate", () => {
     it("should reset element styles", () => {
       const element = document.createElement("div")
       element.style.color = "red"
@@ -196,7 +196,7 @@ describe("CSS Styles Module", () => {
       element.style.background = "linear-gradient(45deg, red, blue)"
       element.style.padding = "10px"
 
-      resetSubtitleStyle(element)
+      resetSubtitleStyleTemplate(element)
 
       expect(element.style.color).toBe("")
       expect(element.style.fontSize).toBe("")
@@ -207,13 +207,13 @@ describe("CSS Styles Module", () => {
 
     it("should handle null element by throwing error", () => {
       // Функция не обрабатывает null, поэтому должна выбросить ошибку
-      expect(() => resetSubtitleStyle(null as any)).toThrow()
+      expect(() => resetSubtitleStyleTemplate(null as any)).toThrow()
     })
   })
 
   describe("generateSubtitleCSS", () => {
     it("should generate CSS class string", () => {
-      const subtitleStyle: SubtitleStyle = {
+      const subtitleStyle: SubtitleStyleTemplate = {
         id: "test-style",
         name: "Test Style",
         category: "basic",
@@ -239,7 +239,7 @@ describe("CSS Styles Module", () => {
     })
 
     it("should include animation keyframes", () => {
-      const subtitleStyle: SubtitleStyle = {
+      const subtitleStyle: SubtitleStyleTemplate = {
         id: "animated",
         name: "Animated",
         category: "animated",
@@ -260,7 +260,7 @@ describe("CSS Styles Module", () => {
     })
   })
 
-  describe("validateSubtitleStyle", () => {
+  describe("validateSubtitleStyleTemplate", () => {
     it("should validate correct style", () => {
       const style = {
         color: "#FFFFFF",
@@ -268,7 +268,7 @@ describe("CSS Styles Module", () => {
         fontFamily: "Arial",
       }
 
-      const result = validateSubtitleStyle(style)
+      const result = validateSubtitleStyleTemplate(style)
 
       expect(result).toBe(true)
     })
@@ -280,7 +280,7 @@ describe("CSS Styles Module", () => {
         fontSize: 24,
       }
 
-      const result = validateSubtitleStyle(style)
+      const result = validateSubtitleStyleTemplate(style)
 
       expect(result).toBe(false)
     })
@@ -290,7 +290,7 @@ describe("CSS Styles Module", () => {
         fontSize: -10,
       }
 
-      const result = validateSubtitleStyle(style)
+      const result = validateSubtitleStyleTemplate(style)
 
       expect(result).toBe(false)
     })
@@ -304,8 +304,8 @@ describe("CSS Styles Module", () => {
         opacity: 1.5,
       }
 
-      expect(validateSubtitleStyle(validOpacity)).toBe(true)
-      expect(validateSubtitleStyle(invalidOpacity)).toBe(false)
+      expect(validateSubtitleStyleTemplate(validOpacity)).toBe(true)
+      expect(validateSubtitleStyleTemplate(invalidOpacity)).toBe(false)
     })
 
     it("should validate line height", () => {
@@ -317,12 +317,12 @@ describe("CSS Styles Module", () => {
         lineHeight: -1,
       }
 
-      expect(validateSubtitleStyle(validLineHeight)).toBe(true)
-      expect(validateSubtitleStyle(invalidLineHeight)).toBe(false)
+      expect(validateSubtitleStyleTemplate(validLineHeight)).toBe(true)
+      expect(validateSubtitleStyleTemplate(invalidLineHeight)).toBe(false)
     })
 
     it("should handle empty style", () => {
-      const result = validateSubtitleStyle({})
+      const result = validateSubtitleStyleTemplate({})
 
       expect(result).toBe(true)
     })

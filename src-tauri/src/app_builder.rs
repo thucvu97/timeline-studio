@@ -305,7 +305,6 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::montage_planner::commands::get_analysis_progress,
     crate::montage_planner::commands::update_composition_weights,
     // Person Identification commands
-    crate::features::person_identification::commands::init_person_database,
     crate::features::person_identification::commands::create_person,
     crate::features::person_identification::commands::get_person,
     crate::features::person_identification::commands::add_face_embedding,

@@ -2,11 +2,12 @@
  * New App Machine that coordinates all state through backend
  */
 
-import { setup, fromCallback, fromPromise, assign } from 'xstate'
-import { BackendSync, getBackendSync } from './backend-sync'
-import { ProjectState, UiState, PlaybackState } from '../types/unified-project'
-import { ProjectCommand } from '../types/commands'
-import { ProjectEvent } from '../types/events'
+import { assign, fromCallback, fromPromise, setup } from "xstate"
+
+import { BackendSync, getBackendSync } from "./backend-sync"
+import { ProjectCommand } from "../types/commands"
+import { ProjectEvent } from "../types/events"
+import { ProjectState } from "../types/unified-project"
 
 // Context for the app machine
 export interface AppMachineContext {
@@ -19,15 +20,15 @@ export interface AppMachineContext {
 
 // Events for the app machine
 export type AppMachineEvent =
-  | { type: 'CONNECT' }
-  | { type: 'DISCONNECT' }
-  | { type: 'BACKEND_EVENT'; event: ProjectEvent }
-  | { type: 'STATE_UPDATED'; state: ProjectState }
-  | { type: 'EXECUTE_COMMAND'; command: ProjectCommand }
-  | { type: 'COMMAND_SUCCESS'; data?: any }
-  | { type: 'COMMAND_ERROR'; error: string }
-  | { type: 'CONNECTION_ERROR'; error: string }
-  | { type: 'RETRY_CONNECTION' }
+  | { type: "CONNECT" }
+  | { type: "DISCONNECT" }
+  | { type: "BACKEND_EVENT"; event: ProjectEvent }
+  | { type: "STATE_UPDATED"; state: ProjectState }
+  | { type: "EXECUTE_COMMAND"; command: ProjectCommand }
+  | { type: "COMMAND_SUCCESS"; data?: any }
+  | { type: "COMMAND_ERROR"; error: string }
+  | { type: "CONNECTION_ERROR"; error: string }
+  | { type: "RETRY_CONNECTION" }
 
 // Create the app machine
 export const appMachine = setup({
@@ -35,88 +36,89 @@ export const appMachine = setup({
     context: AppMachineContext
     events: AppMachineEvent
   },
-  
+
   actions: {
     setProjectState: assign({
       projectState: (_, params: { state: ProjectState }) => params.state,
     }),
-    
+
     setError: assign({
       error: (_, params: { error: string }) => params.error,
     }),
-    
+
     clearError: assign({
       error: () => null,
     }),
-    
+
     setConnected: assign({
       isConnected: () => true,
     }),
-    
+
     setDisconnected: assign({
       isConnected: () => false,
     }),
-    
+
     queueCommand: assign({
-      commandQueue: ({ context }, params: { command: ProjectCommand }) => 
-        [...context.commandQueue, params.command],
+      commandQueue: ({ context }, params: { command: ProjectCommand }) => [...context.commandQueue, params.command],
     }),
-    
+
     clearCommandQueue: assign({
       commandQueue: () => [],
     }),
   },
-  
+
   actors: {
     backendConnection: fromCallback(({ sendBack, input }: { sendBack: any; input: { backendSync: BackendSync } }) => {
       const { backendSync } = input
-      
+
       // Subscribe to backend events
       const unsubscribeEvent = backendSync.onEvent((event) => {
-        sendBack({ type: 'BACKEND_EVENT', event })
+        sendBack({ type: "BACKEND_EVENT", event })
       })
-      
+
       // Subscribe to state changes
       const unsubscribeState = backendSync.onStateChange((state) => {
-        sendBack({ type: 'STATE_UPDATED', state })
+        sendBack({ type: "STATE_UPDATED", state })
       })
-      
+
       // Connect to backend
-      backendSync.connect()
+      backendSync
+        .connect()
         .then(() => {
-          sendBack({ type: 'CONNECT' })
+          sendBack({ type: "CONNECT" })
         })
-        .catch((error) => {
-          sendBack({ type: 'CONNECTION_ERROR', error: error.message })
+        .catch((error: unknown) => {
+          const errorMessage = error instanceof Error ? error.message : String(error)
+          sendBack({ type: "CONNECTION_ERROR", error: errorMessage })
         })
-      
+
       // Cleanup function
       return () => {
         unsubscribeEvent()
         unsubscribeState()
-        backendSync.disconnect()
+        void backendSync.disconnect()
       }
     }),
 
     executeCommand: fromPromise(async ({ input }: { input: { command: ProjectCommand; backendSync: BackendSync } }) => {
       const { command, backendSync } = input
       const result = await backendSync.executeCommand(command)
-      
+
       if (!result.success) {
-        throw new Error(result.error || 'Command failed')
+        throw new Error(result.error || "Command failed")
       }
-      
+
       return result.data
     }),
   },
-  
+
   guards: {
     hasQueuedCommands: ({ context }) => context.commandQueue.length > 0,
   },
 }).createMachine({
-  id: 'appV2',
-  initial: 'disconnected',
-  
+  id: "appV2",
+  initial: "disconnected",
+
   context: {
     projectState: null,
     backendSync: getBackendSync(),
@@ -124,146 +126,146 @@ export const appMachine = setup({
     error: null,
     commandQueue: [],
   },
-  
+
   states: {
     disconnected: {
-      entry: 'clearError',
-      
+      entry: "clearError",
+
       on: {
-        CONNECT: 'connecting',
+        CONNECT: "connecting",
       },
     },
-    
+
     connecting: {
       invoke: {
-        id: 'backendConnection',
-        src: 'backendConnection',
+        id: "backendConnection",
+        src: "backendConnection",
         input: ({ context }) => ({ backendSync: context.backendSync }),
       },
-      
+
       on: {
         CONNECT: {
-          target: 'connected',
-          actions: ['setConnected', 'clearError'],
+          target: "connected",
+          actions: ["setConnected", "clearError"],
         },
-        
+
         CONNECTION_ERROR: {
-          target: 'error',
+          target: "error",
           actions: {
-            type: 'setError',
+            type: "setError",
             params: ({ event }) => ({ error: event.error }),
           },
         },
-        
+
         STATE_UPDATED: {
           actions: {
-            type: 'setProjectState',
+            type: "setProjectState",
             params: ({ event }) => ({ state: event.state }),
           },
         },
       },
     },
-    
+
     connected: {
-      initial: 'idle',
-      
+      initial: "idle",
+
       on: {
         DISCONNECT: {
-          target: 'disconnected',
-          actions: 'setDisconnected',
+          target: "disconnected",
+          actions: "setDisconnected",
         },
-        
+
         BACKEND_EVENT: {
           // Log event for debugging
           actions: ({ event }) => {
-            console.log('Backend event:', event.event)
+            console.log("Backend event:", event.event)
           },
         },
-        
+
         STATE_UPDATED: {
           actions: {
-            type: 'setProjectState',
+            type: "setProjectState",
             params: ({ event }) => ({ state: event.state }),
           },
         },
-        
+
         CONNECTION_ERROR: {
-          target: 'error',
+          target: "error",
           actions: {
-            type: 'setError',
+            type: "setError",
             params: ({ event }) => ({ error: event.error }),
           },
         },
       },
-      
+
       states: {
         idle: {
           always: [
             {
-              target: 'processingQueue',
-              guard: 'hasQueuedCommands',
+              target: "processingQueue",
+              guard: "hasQueuedCommands",
             },
           ],
-          
+
           on: {
             EXECUTE_COMMAND: {
-              target: 'executing',
+              target: "executing",
               actions: {
-                type: 'queueCommand',
+                type: "queueCommand",
                 params: ({ event }) => ({ command: event.command }),
               },
             },
           },
         },
-        
+
         executing: {
           invoke: {
-            id: 'executeCommand',
-            src: 'executeCommand',
+            id: "executeCommand",
+            src: "executeCommand",
             input: ({ context }) => ({
               command: context.commandQueue[0],
               backendSync: context.backendSync,
             }),
             onDone: {
-              target: 'idle',
+              target: "idle",
               actions: [
                 ({ context }) => {
                   // Remove executed command from queue
                   context.commandQueue.shift()
                 },
                 ({ event }) => {
-                  console.log('Command executed successfully:', event.output)
+                  console.log("Command executed successfully:", event.output)
                 },
               ],
             },
             onError: {
-              target: 'idle',
+              target: "idle",
               actions: [
                 ({ context }) => {
                   // Remove failed command from queue
                   context.commandQueue.shift()
                 },
                 ({ event }) => {
-                  console.error('Command execution failed:', event.error)
+                  console.error("Command execution failed:", event.error)
                 },
               ],
             },
           },
         },
-        
+
         processingQueue: {
           always: {
-            target: 'executing',
+            target: "executing",
           },
         },
       },
     },
-    
+
     error: {
       on: {
-        RETRY_CONNECTION: 'connecting',
-        
-        CONNECT: 'connecting',
+        RETRY_CONNECTION: "connecting",
+
+        CONNECT: "connecting",
       },
     },
   },
@@ -273,95 +275,95 @@ export const appMachine = setup({
 export const AppCommands = {
   // Project commands
   createProject: (name: string, settings: any): ProjectCommand => ({
-    type: 'CreateProject',
+    type: "CreateProject",
     params: { name, settings },
   }),
-  
+
   saveProject: (path?: string): ProjectCommand => ({
-    type: 'SaveProject',
+    type: "SaveProject",
     params: { path },
   }),
-  
+
   // Timeline commands
   addClip: (trackId: string, mediaId: string, time: number): ProjectCommand => ({
-    type: 'AddClip',
+    type: "AddClip",
     params: { trackId, mediaId, time },
   }),
-  
+
   moveClip: (clipId: string, trackId: string, time: number): ProjectCommand => ({
-    type: 'MoveClip',
+    type: "MoveClip",
     params: { clipId, trackId, time },
   }),
-  
+
   // Basic playback commands
   play: (): ProjectCommand => ({
-    type: 'Play',
+    type: "Play",
     params: {},
   }),
-  
+
   pause: (): ProjectCommand => ({
-    type: 'Pause',
+    type: "Pause",
     params: {},
   }),
-  
+
   seek: (time: number): ProjectCommand => ({
-    type: 'Seek',
+    type: "Seek",
     params: { time },
   }),
-  
+
   // Player commands
   playerSetMedia: (mediaId: string, startTime?: number): ProjectCommand => ({
-    type: 'PlayerSetMedia',
+    type: "PlayerSetMedia",
     params: { mediaId, startTime },
   }),
-  
+
   playerSetVolume: (volume: number): ProjectCommand => ({
-    type: 'PlayerSetVolume',
+    type: "PlayerSetVolume",
     params: { volume },
   }),
-  
+
   playerSelectClip: (clipId: string): ProjectCommand => ({
-    type: 'PlayerSelectClip',
+    type: "PlayerSelectClip",
     params: { clipId },
   }),
-  
+
   playerClearSelection: (): ProjectCommand => ({
-    type: 'PlayerClearSelection',
+    type: "PlayerClearSelection",
     params: {},
   }),
-  
-  playerSetSource: (source: 'browser' | 'timeline'): ProjectCommand => ({
-    type: 'PlayerSetSource',
+
+  playerSetSource: (source: "browser" | "timeline"): ProjectCommand => ({
+    type: "PlayerSetSource",
     params: { source },
   }),
-  
+
   playerApplyEffect: (effectId: string, params: Record<string, any>): ProjectCommand => ({
-    type: 'PlayerApplyEffect',
+    type: "PlayerApplyEffect",
     params: { effectId, params },
   }),
-  
+
   playerApplyFilter: (filterId: string, params: Record<string, any>): ProjectCommand => ({
-    type: 'PlayerApplyFilter',
+    type: "PlayerApplyFilter",
     params: { filterId, params },
   }),
-  
+
   playerApplyTemplate: (templateId: string, mediaIds: string[]): ProjectCommand => ({
-    type: 'PlayerApplyTemplate',
+    type: "PlayerApplyTemplate",
     params: { templateId, mediaIds },
   }),
-  
+
   playerClearEffects: (): ProjectCommand => ({
-    type: 'PlayerClearEffects',
+    type: "PlayerClearEffects",
     params: {},
   }),
-  
+
   playerClearFilters: (): ProjectCommand => ({
-    type: 'PlayerClearFilters',
+    type: "PlayerClearFilters",
     params: {},
   }),
-  
+
   playerClearTemplate: (): ProjectCommand => ({
-    type: 'PlayerClearTemplate',
+    type: "PlayerClearTemplate",
     params: {},
   }),
 }

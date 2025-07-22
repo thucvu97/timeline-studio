@@ -1,4 +1,4 @@
-import type { VideoEffect } from "@/features/effects/types"
+import type { BaseEffect } from "@/features/effects/types"
 import type { VideoFilter } from "@/features/filters/types/filters"
 import type { Transition } from "@/features/transitions/types/transitions"
 
@@ -12,19 +12,15 @@ import type { LoadResult } from "../types/effects-provider"
 /**
  * Загрузчик эффектов с ленивой загрузкой
  */
-export async function loadEffectsLazy(): Promise<LoadResult<VideoEffect[]>> {
+export async function loadEffectsLazy(): Promise<LoadResult<BaseEffect[]>> {
   try {
-    // Динамический импорт JSON файла
-    const module = await import("@/features/effects/data/effects.json")
-    const data = module.default as any
-    const effects = data.effects || [] // Эффекты находятся под ключом 'effects'
-
-    // Обрабатываем эффекты для преобразования строковых функций
-    const processedEffects = await processEffects(effects)
+    // Динамический импорт мигрированных эффектов
+    const module = await import("@/features/effects/data/effects-loader")
+    const effects = module.allMigratedEffects || []
 
     return {
       success: true,
-      data: processedEffects,
+      data: effects,
       source: "built-in",
       timestamp: Date.now(),
     }
@@ -49,12 +45,9 @@ export async function loadFiltersLazy(): Promise<LoadResult<VideoFilter[]>> {
     const data = module.default as any
     const filters = data.filters || [] // Фильтры находятся под ключом 'filters'
 
-    // Обрабатываем фильтры
-    const processedFilters = await processFilters(filters)
-
     return {
       success: true,
-      data: processedFilters,
+      data: filters as VideoFilter[],
       source: "built-in",
       timestamp: Date.now(),
     }
@@ -79,12 +72,9 @@ export async function loadTransitionsLazy(): Promise<LoadResult<Transition[]>> {
     const data = module.default as any
     const transitions = data.transitions || [] // Переходы находятся под ключом 'transitions'
 
-    // Обрабатываем переходы
-    const processedTransitions = await processTransitions(transitions)
-
     return {
       success: true,
-      data: processedTransitions,
+      data: transitions as Transition[],
       source: "built-in",
       timestamp: Date.now(),
     }
@@ -101,87 +91,10 @@ export async function loadTransitionsLazy(): Promise<LoadResult<Transition[]>> {
 }
 
 /**
- * Обработка эффектов - преобразование строковых функций в настоящие функции
- */
-async function processEffects(effects: any[]): Promise<VideoEffect[]> {
-  if (!Array.isArray(effects)) {
-    console.warn("processEffects: effects is not an array", effects)
-    return []
-  }
-
-  return effects
-    .filter((effect) => effect != null) // Фильтруем undefined и null элементы
-    .map((effect) => {
-      // Проверяем, что у effect есть обязательные свойства
-      if (!effect.id || !effect.name) {
-        console.warn("processEffects: effect missing required properties", effect)
-        return null
-      }
-
-      // Если ffmpegCommand - строка, преобразуем в функцию
-      if (typeof effect.ffmpegCommand === "string") {
-        const commandTemplate = effect.ffmpegCommand
-        effect.ffmpegCommand = (params: any = {}) => {
-          // Простая замена плейсхолдеров в строке команды
-          let command = commandTemplate
-          Object.entries(params).forEach(([key, value]) => {
-            command = command.replace(new RegExp(`{${key}}`, "g"), String(value))
-          })
-          return command
-        }
-      }
-
-      // Аналогично для cssFilter
-      if (typeof effect.cssFilter === "string") {
-        const filterTemplate = effect.cssFilter
-        effect.cssFilter = (params: any = {}) => {
-          let filter = filterTemplate
-          Object.entries(params).forEach(([key, value]) => {
-            filter = filter.replace(new RegExp(`{${key}}`, "g"), String(value))
-          })
-          return filter
-        }
-      }
-
-      return effect as VideoEffect
-    })
-    .filter((effect) => effect !== null) // Удаляем null значения
-}
-
-/**
- * Обработка фильтров
- */
-async function processFilters(filters: any[]): Promise<VideoFilter[]> {
-  // Фильтры обычно не содержат функций, просто возвращаем как есть
-  return filters as VideoFilter[]
-}
-
-/**
- * Обработка переходов - преобразование строковых функций
- */
-async function processTransitions(transitions: any[]): Promise<Transition[]> {
-  return transitions.map((transition) => {
-    // Если ffmpegCommand - строка, преобразуем в функцию
-    if (typeof transition.ffmpegCommand === "string") {
-      const commandTemplate = transition.ffmpegCommand
-      transition.ffmpegCommand = (params: any = {}) => {
-        let command = commandTemplate
-        Object.entries(params).forEach(([key, value]) => {
-          command = command.replace(new RegExp(`{${key}}`, "g"), String(value))
-        })
-        return command
-      }
-    }
-
-    return transition as Transition
-  })
-}
-
-/**
  * Пакетная загрузка всех ресурсов с возможностью отмены
  */
 export async function loadAllResourcesLazy(signal?: AbortSignal): Promise<{
-  effects: LoadResult<VideoEffect[]>
+  effects: LoadResult<BaseEffect[]>
   filters: LoadResult<VideoFilter[]>
   transitions: LoadResult<Transition[]>
 }> {

@@ -26,17 +26,17 @@ export function useTimelinePlayerSync() {
     if (selectedClips.length === 1) {
       // Если выбран один клип, синхронизируем его
       const selectedClip = selectedClips[0]
-      timelinePlayerSync.syncSelectedClip(selectedClip)
+      void timelinePlayerSync.syncSelectedClip(selectedClip)
     } else if (selectedClips.length === 0) {
       // Если ничего не выбрано, очищаем синхронизацию
-      timelinePlayerSync.clearSelection()
+      void timelinePlayerSync.clearSelection()
     }
     // Если выбрано несколько клипов, ничего не делаем
   }, [selectedClips])
 
   // Синхронизируем время воспроизведения
   useEffect(() => {
-    timelinePlayerSync.syncPlaybackTime(currentTime)
+    void timelinePlayerSync.syncPlaybackTime(currentTime)
   }, [currentTime])
 
   return {

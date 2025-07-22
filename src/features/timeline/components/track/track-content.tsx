@@ -52,7 +52,7 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
 
     // Add clip to timeline
     if (item.type === "media" || item.type === "music") {
-      addClip(track.id, item.data, dropTime, item.data.duration || 5)
+      void addClip(track.id, item.data, dropTime, item.data.duration || 5)
     }
   })
 

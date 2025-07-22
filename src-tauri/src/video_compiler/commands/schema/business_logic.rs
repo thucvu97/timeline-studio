@@ -68,7 +68,7 @@ pub fn create_effect_with_params(params: &EffectCreationParams) -> Effect {
     description: None,
     labels: None,
     enabled: params.enabled.unwrap_or(true),
-    parameters: HashMap::new(), // TODO: Convert from serde_json::Value to EffectParameter
+    parameters: convert_json_to_effect_parameters(&params.parameters),
     start_time: None,
     end_time: None,
     ffmpeg_command: None,
@@ -104,7 +104,7 @@ pub fn create_filter_with_params(params: &FilterCreationParams) -> Filter {
       .clone()
       .unwrap_or_else(|| params.filter_type.clone()),
     enabled: params.enabled.unwrap_or(true),
-    parameters: HashMap::new(), // TODO: Convert from serde_json::Value to f64
+    parameters: convert_json_to_filter_parameters(&params.parameters),
     ffmpeg_command: None,
     intensity: params.intensity.unwrap_or(1.0) as f32,
     custom_filter: None,
@@ -409,4 +409,108 @@ pub fn get_preset_resolutions() -> Vec<serde_json::Value> {
         "resolution": Resolution::new(1080, 1920)
     }),
   ]
+}
+
+/// Конвертирует JSON значения в параметры эффектов
+pub fn convert_json_to_effect_parameters(
+  params: &std::collections::HashMap<String, serde_json::Value>,
+) -> std::collections::HashMap<String, crate::video_compiler::core::schema::effects::EffectParameter>
+{
+  use crate::video_compiler::core::schema::effects::EffectParameter;
+
+  let mut result = HashMap::new();
+
+  for (key, value) in params {
+    let parameter = match value {
+      serde_json::Value::Number(n) => {
+        if n.is_f64() {
+          EffectParameter::Float(n.as_f64().unwrap() as f32)
+        } else {
+          EffectParameter::Int(n.as_i64().unwrap() as i32)
+        }
+      }
+      serde_json::Value::String(s) => {
+        // Проверяем, является ли строка путем к файлу
+        if s.contains("/") || s.contains("\\") || s.starts_with("file://") {
+          EffectParameter::FilePath(std::path::PathBuf::from(s))
+        } else if s.starts_with("#") && s.len() == 7 {
+          // Цвет в формате #RRGGBB
+          if let Ok(color) = u32::from_str_radix(&s[1..], 16) {
+            EffectParameter::Color(color)
+          } else {
+            EffectParameter::String(s.clone())
+          }
+        } else {
+          EffectParameter::String(s.clone())
+        }
+      }
+      serde_json::Value::Bool(b) => EffectParameter::Bool(*b),
+      serde_json::Value::Array(arr) => {
+        // Пытаемся конвертировать в массив чисел
+        let mut float_array = Vec::new();
+        let mut all_numbers = true;
+
+        for item in arr {
+          if let Some(n) = item.as_f64() {
+            float_array.push(n as f32);
+          } else {
+            all_numbers = false;
+            break;
+          }
+        }
+
+        if all_numbers {
+          EffectParameter::FloatArray(float_array)
+        } else {
+          // Если не все элементы числа, конвертируем в строку
+          EffectParameter::String(value.to_string())
+        }
+      }
+      _ => {
+        // Для объектов и null конвертируем в строку
+        EffectParameter::String(value.to_string())
+      }
+    };
+
+    result.insert(key.clone(), parameter);
+  }
+
+  result
+}
+
+/// Конвертирует JSON значения в параметры фильтров (числовые значения)
+pub fn convert_json_to_filter_parameters(
+  params: &std::collections::HashMap<String, serde_json::Value>,
+) -> std::collections::HashMap<String, f64> {
+  let mut result = HashMap::new();
+
+  for (key, value) in params {
+    let numeric_value = match value {
+      serde_json::Value::Number(n) => n.as_f64().unwrap_or(0.0),
+      serde_json::Value::String(s) => {
+        // Пытаемся распарсить строку как число
+        s.parse::<f64>().unwrap_or(0.0)
+      }
+      serde_json::Value::Bool(b) => {
+        // bool -> f64: true=1.0, false=0.0
+        if *b {
+          1.0
+        } else {
+          0.0
+        }
+      }
+      _ => {
+        log::warn!(
+          "Не удалось конвертировать параметр фильтра '{}': {:?} в число, используется 0.0",
+          key,
+          value
+        );
+        0.0
+      }
+    };
+
+    result.insert(key.clone(), numeric_value);
+  }
+
+  result
 }

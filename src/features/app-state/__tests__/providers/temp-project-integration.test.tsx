@@ -13,11 +13,50 @@ import { act, renderHook, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { useCurrentProject } from "../../hooks/use-current-project"
-import { AppSettingsProvider } from "../../services/app-settings-provider"
+import { AppProvider } from "../../services/app-provider"
 
 // Mock nanoid
 vi.mock("nanoid", () => ({
   nanoid: () => `test-id-${Math.random().toString(36).substring(2, 11)}`,
+}))
+
+// Mock useAppSettings to provide all methods needed by useCurrentProject
+const mockCurrentProject = {
+  path: null as string | null,
+  name: "Untitled Project",
+  isDirty: false,
+  isNew: true,
+}
+
+// Import mocked function here to use in implementation
+const { writeTextFile: mockWriteTextFile } = await import("@tauri-apps/plugin-fs")
+
+const mockAppSettings = {
+  getCurrentProject: vi.fn(() => mockCurrentProject),
+  createNewProject: vi.fn(),
+  createTempProject: vi.fn().mockImplementation(async () => {
+    mockCurrentProject.path = "/app/backup/temp_project.tlsp"
+    mockCurrentProject.isDirty = true
+    // Вызываем writeTextFile как в реальной реализации
+    await mockWriteTextFile("/app/backup/temp_project.tlsp", JSON.stringify(mockCurrentProject))
+    return mockCurrentProject
+  }),
+  loadOrCreateTempProject: vi.fn(),
+  openProject: vi.fn(),
+  saveProject: vi.fn().mockImplementation(async (name: string) => {
+    mockCurrentProject.name = name
+    mockCurrentProject.path = "/user/my-project.tlsp"
+    mockCurrentProject.isDirty = false
+    return { path: "/user/my-project.tlsp", name }
+  }),
+  setProjectDirty: vi.fn().mockImplementation((dirty: boolean) => {
+    mockCurrentProject.isDirty = dirty
+  }),
+  isTempProject: vi.fn(() => mockCurrentProject.path?.includes("temp_project.tlsp") ?? false),
+}
+
+vi.mock("@/features/app-state/hooks/use-app-settings", () => ({
+  useAppSettings: () => mockAppSettings,
 }))
 
 // Mock media restoration
@@ -262,7 +301,7 @@ vi.mock("@/features/app-state/services/store-service", () => {
 
 // Test wrapper component
 function TestWrapper({ children }: { children: ReactNode }) {
-  return <AppSettingsProvider>{children}</AppSettingsProvider>
+  return <AppProvider>{children}</AppProvider>
 }
 
 describe("Temporary Project Integration", () => {
@@ -286,6 +325,12 @@ describe("Temporary Project Integration", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+
+    // Reset mock project state
+    mockCurrentProject.path = null
+    mockCurrentProject.name = "Untitled Project"
+    mockCurrentProject.isDirty = false
+    mockCurrentProject.isNew = true
 
     // Mock app directories
     vi.mocked(invoke).mockImplementation((command) => {

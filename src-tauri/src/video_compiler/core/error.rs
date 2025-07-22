@@ -25,7 +25,6 @@ pub enum VideoCompilerError {
   /// Отсутствующая зависимость (FFmpeg, библиотеки)
   DependencyMissing(String),
 
-
   /// Ошибка сериализации/десериализации
   SerializationError(String),
 
@@ -101,10 +100,7 @@ pub enum VideoCompilerError {
   SecurityError(String),
 
   /// Ошибка обработки
-  ProcessingError {
-    operation: String,
-    details: String,
-  },
+  ProcessingError { operation: String, details: String },
 
   /// Ошибка ввода/вывода с деталями
   IoError {
@@ -219,8 +215,15 @@ impl fmt::Display for VideoCompilerError {
       VideoCompilerError::ProcessingError { operation, details } => {
         write!(f, "Ошибка обработки при {operation}: {details}")
       }
-      VideoCompilerError::IoError { operation, path, details } => {
-        write!(f, "Ошибка ввода/вывода при {operation} для '{path}': {details}")
+      VideoCompilerError::IoError {
+        operation,
+        path,
+        details,
+      } => {
+        write!(
+          f,
+          "Ошибка ввода/вывода при {operation} для '{path}': {details}"
+        )
       }
     }
   }
@@ -270,7 +273,7 @@ impl VideoCompilerError {
 // Конверсии из стандартных ошибок
 impl From<std::io::Error> for VideoCompilerError {
   fn from(error: std::io::Error) -> Self {
-    VideoCompilerError::IoError(error.to_string())
+    VideoCompilerError::Io(error.to_string())
   }
 }
 
@@ -388,7 +391,7 @@ impl VideoCompilerError {
   pub fn is_retryable(&self) -> bool {
     matches!(
       self,
-      VideoCompilerError::IoError(_)
+      VideoCompilerError::Io(_)
         | VideoCompilerError::TimeoutError(_)
         | VideoCompilerError::CacheError(_)
     )
@@ -400,7 +403,7 @@ impl VideoCompilerError {
       VideoCompilerError::ValidationError(_) => "VALIDATION_ERROR",
       VideoCompilerError::FFmpegError { .. } => "FFMPEG_ERROR",
       VideoCompilerError::DependencyMissing(_) => "DEPENDENCY_MISSING",
-      VideoCompilerError::IoError(_) => "IO_ERROR",
+      VideoCompilerError::Io(_) => "IO_ERROR",
       VideoCompilerError::SerializationError(_) => "SERIALIZATION_ERROR",
       VideoCompilerError::MediaFileError { .. } => "MEDIA_FILE_ERROR",
       VideoCompilerError::UnsupportedFormat { .. } => "UNSUPPORTED_FORMAT",
@@ -413,7 +416,6 @@ impl VideoCompilerError {
       VideoCompilerError::CancelledError(_) => "CANCELLED_ERROR",
       VideoCompilerError::GpuError(_) => "GPU_ERROR",
       VideoCompilerError::GpuUnavailable(_) => "GPU_UNAVAILABLE",
-      VideoCompilerError::Io(_) => "IO_ERROR",
       VideoCompilerError::InternalError(_) => "INTERNAL_ERROR",
       VideoCompilerError::Unknown(_) => "UNKNOWN_ERROR",
       VideoCompilerError::TemplateNotFound(_) => "TEMPLATE_NOT_FOUND",
@@ -423,6 +425,8 @@ impl VideoCompilerError {
       VideoCompilerError::TooManyActiveJobs(_) => "TOO_MANY_ACTIVE_JOBS",
       VideoCompilerError::ServiceNotFound(_) => "SERVICE_NOT_FOUND",
       VideoCompilerError::SecurityError(_) => "SECURITY_ERROR",
+      VideoCompilerError::ProcessingError { .. } => "PROCESSING_ERROR",
+      VideoCompilerError::IoError { .. } => "IO_ERROR",
     }
   }
 }
@@ -527,7 +531,7 @@ mod tests {
     assert!(critical_error.is_critical());
     assert!(!critical_error.is_retryable());
 
-    let retryable_error = VideoCompilerError::IoError("Temporary file error".to_string());
+    let retryable_error = VideoCompilerError::Io("Temporary file error".to_string());
     assert!(!retryable_error.is_critical());
     assert!(retryable_error.is_retryable());
   }
@@ -542,7 +546,7 @@ mod tests {
         command: "test".to_string(),
       },
       VideoCompilerError::DependencyMissing("test".to_string()),
-      VideoCompilerError::IoError("test".to_string()),
+      VideoCompilerError::Io("test".to_string()),
     ];
 
     let expected_codes = [
@@ -580,7 +584,7 @@ mod tests {
   fn test_conversion_from_std_errors() {
     let io_error = std::io::Error::new(std::io::ErrorKind::NotFound, "File not found");
     let video_error: VideoCompilerError = io_error.into();
-    assert!(matches!(video_error, VideoCompilerError::IoError(_)));
+    assert!(matches!(video_error, VideoCompilerError::Io(_)));
 
     let json_error = serde_json::from_str::<serde_json::Value>("invalid json").unwrap_err();
     let video_error: VideoCompilerError = json_error.into();
@@ -653,7 +657,7 @@ mod tests {
         "Отсутствует зависимость: FFmpeg",
       ),
       (
-        VideoCompilerError::IoError("Disk full".to_string()),
+        VideoCompilerError::Io("Disk full".to_string()),
         "Ошибка ввода/вывода: Disk full",
       ),
       (
@@ -761,7 +765,7 @@ mod tests {
         VideoCompilerError::DependencyMissing("test".to_string()),
         "DEPENDENCY_MISSING",
       ),
-      (VideoCompilerError::IoError("test".to_string()), "IO_ERROR"),
+      (VideoCompilerError::Io("test".to_string()), "IO_ERROR"),
       (
         VideoCompilerError::SerializationError("test".to_string()),
         "SERIALIZATION_ERROR",
@@ -936,14 +940,14 @@ mod tests {
 
     // Некритические ошибки
     assert!(!VideoCompilerError::ValidationError("test".to_string()).is_critical());
-    assert!(!VideoCompilerError::IoError("test".to_string()).is_critical());
+    assert!(!VideoCompilerError::Io("test".to_string()).is_critical());
     assert!(!VideoCompilerError::TimeoutError("test".to_string()).is_critical());
   }
 
   #[test]
   fn test_is_retryable_comprehensive() {
     // Повторяемые ошибки
-    assert!(VideoCompilerError::IoError("test".to_string()).is_retryable());
+    assert!(VideoCompilerError::Io("test".to_string()).is_retryable());
     assert!(VideoCompilerError::TimeoutError("test".to_string()).is_retryable());
     assert!(VideoCompilerError::CacheError("test".to_string()).is_retryable());
 

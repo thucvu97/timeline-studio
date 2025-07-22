@@ -236,7 +236,7 @@ impl Plugin for YouTubeUploaderPlugin {
         tokio::fs::write(&queue_path, queue_json)
           .await
           .map_err(|e| {
-            timeline_studio_lib::video_compiler::error::VideoCompilerError::IoError(e.to_string())
+            timeline_studio_lib::video_compiler::error::VideoCompilerError::Io(e.to_string())
           })?;
       }
     }

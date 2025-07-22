@@ -49,8 +49,8 @@ export function SubtitleClip({
   const getClipBackgroundColor = () => {
     if (subtitleStyle) {
       // Генерируем цвет на основе имени стиля для визуального различия
-      const hash = subtitleStyle.name.split('').reduce((a, b) => {
-        a = ((a << 5) - a) + b.charCodeAt(0)
+      const hash = subtitleStyle.name.split("").reduce((a, b) => {
+        a = (a << 5) - a + b.charCodeAt(0)
         return a & a
       }, 0)
       const hue = Math.abs(hash) % 360
@@ -61,63 +61,69 @@ export function SubtitleClip({
 
   // Состояние для отслеживания изменения размера
   const [isResizing, setIsResizing] = useState(false)
-  const resizeType = useRef<'start' | 'end' | null>(null)
+  const resizeType = useRef<"start" | "end" | null>(null)
   const initialMouseX = useRef(0)
   const initialStartTime = useRef(0)
   const initialDuration = useRef(0)
 
   // Обработчики изменения размера
-  const handleResizeStart = useCallback((e: MouseEvent) => {
-    if (!resizeType.current) return
-    
-    e.preventDefault()
-    const deltaX = e.clientX - initialMouseX.current
-    const deltaTime = deltaX / pixelsPerSecond
-    
-    let newStartTime = initialStartTime.current
-    let newDuration = initialDuration.current
-    
-    if (resizeType.current === 'start') {
-      // Изменение начала клипа
-      newStartTime = Math.max(0, initialStartTime.current + deltaTime)
-      newDuration = initialDuration.current - (newStartTime - initialStartTime.current)
-      
-      // Минимальная длительность 0.1 секунды
-      if (newDuration < 0.1) {
-        newDuration = 0.1
-        newStartTime = initialStartTime.current + initialDuration.current - 0.1
+  const handleResizeStart = useCallback(
+    (e: MouseEvent) => {
+      if (!resizeType.current) return
+
+      e.preventDefault()
+      const deltaX = e.clientX - initialMouseX.current
+      const deltaTime = deltaX / pixelsPerSecond
+
+      let newStartTime = initialStartTime.current
+      let newDuration = initialDuration.current
+
+      if (resizeType.current === "start") {
+        // Изменение начала клипа
+        newStartTime = Math.max(0, initialStartTime.current + deltaTime)
+        newDuration = initialDuration.current - (newStartTime - initialStartTime.current)
+
+        // Минимальная длительность 0.1 секунды
+        if (newDuration < 0.1) {
+          newDuration = 0.1
+          newStartTime = initialStartTime.current + initialDuration.current - 0.1
+        }
+      } else if (resizeType.current === "end") {
+        // Изменение конца клипа
+        newDuration = Math.max(0.1, initialDuration.current + deltaTime)
       }
-    } else if (resizeType.current === 'end') {
-      // Изменение конца клипа
-      newDuration = Math.max(0.1, initialDuration.current + deltaTime)
-    }
-    
-    // Обновляем клип
-    updateClip(clip.id, {
-      startTime: newStartTime,
-      duration: newDuration,
-      mediaEndTime: clip.mediaStartTime + newDuration,
-    })
-  }, [clip.id, clip.mediaStartTime, pixelsPerSecond, updateClip])
-  
+
+      // Обновляем клип
+      void updateClip(clip.id, {
+        startTime: newStartTime,
+        duration: newDuration,
+        mediaEndTime: clip.mediaStartTime + newDuration,
+      })
+    },
+    [clip.id, clip.mediaStartTime, pixelsPerSecond, updateClip],
+  )
+
   const handleResizeEnd = useCallback(() => {
     setIsResizing(false)
     resizeType.current = null
-    document.removeEventListener('mousemove', handleResizeStart)
-    document.removeEventListener('mouseup', handleResizeEnd)
+    document.removeEventListener("mousemove", handleResizeStart)
+    document.removeEventListener("mouseup", handleResizeEnd)
   }, [handleResizeStart])
-  
-  const startResize = useCallback((type: 'start' | 'end', e: React.MouseEvent) => {
-    e.stopPropagation()
-    setIsResizing(true)
-    resizeType.current = type
-    initialMouseX.current = e.clientX
-    initialStartTime.current = clip.startTime
-    initialDuration.current = clip.duration
-    
-    document.addEventListener('mousemove', handleResizeStart)
-    document.addEventListener('mouseup', handleResizeEnd)
-  }, [clip.startTime, clip.duration, handleResizeStart, handleResizeEnd])
+
+  const startResize = useCallback(
+    (type: "start" | "end", e: React.MouseEvent) => {
+      e.stopPropagation()
+      setIsResizing(true)
+      resizeType.current = type
+      initialMouseX.current = e.clientX
+      initialStartTime.current = clip.startTime
+      initialDuration.current = clip.duration
+
+      document.addEventListener("mousemove", handleResizeStart)
+      document.addEventListener("mouseup", handleResizeEnd)
+    },
+    [clip.startTime, clip.duration, handleResizeStart, handleResizeEnd],
+  )
 
   // Обрезка текста если он слишком длинный
   const truncateText = (text: string, maxLength: number) => {
@@ -186,12 +192,12 @@ export function SubtitleClip({
         <>
           <div
             className="absolute left-0 top-0 bottom-0 w-2 bg-black/20 hover:bg-black/40 cursor-ew-resize transition-colors"
-            onMouseDown={(e) => startResize('start', e)}
+            onMouseDown={(e) => startResize("start", e)}
             title="Изменить начало клипа"
           />
           <div
             className="absolute right-0 top-0 bottom-0 w-2 bg-black/20 hover:bg-black/40 cursor-ew-resize transition-colors"
-            onMouseDown={(e) => startResize('end', e)}
+            onMouseDown={(e) => startResize("end", e)}
             title="Изменить конец клипа"
           />
         </>

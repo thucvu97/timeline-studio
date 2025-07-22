@@ -118,13 +118,33 @@ pub fn parse_fps_from_string(fps_str: &str) -> f64 {
 }
 
 /// Расчет качественных метрик видео на основе полученных данных
-/// TODO: Эта функция теперь используется как fallback, реальный анализ в ffmpeg/quality.rs
+/// Использует реальный анализ через FFmpeg вместо mock данных
+pub async fn calculate_quality_metrics_async(
+  video_path: &std::path::Path,
+  sample_rate: f64,
+  enable_noise_detection: bool,
+  enable_stability_check: bool,
+) -> crate::video_compiler::error::Result<QualityAnalysisResult> {
+  // Используем реальный анализ качества из ffmpeg модуля
+  crate::video_compiler::core::ffmpeg::quality::analyze_video_quality(
+    video_path,
+    sample_rate,
+    enable_noise_detection,
+    enable_stability_check,
+  )
+  .await
+}
+
+/// Синхронная fallback функция для совместимости
+/// DEPRECATED: Используйте calculate_quality_metrics_async для реального анализа
 pub fn calculate_quality_metrics(
   enable_noise_detection: bool,
   enable_stability_check: bool,
   mock_analysis_data: Option<&serde_json::Value>,
 ) -> QualityAnalysisResult {
-  // В реальной реализации используется crate::video_compiler::ffmpeg::quality::analyze_video_quality
+  log::warn!("Использование устаревшей fallback функции calculate_quality_metrics. Рекомендуется использовать calculate_quality_metrics_async.");
+
+  // Возвращаем базовые mock данные только для совместимости
   let base_quality = if let Some(data) = mock_analysis_data {
     data.get("quality").and_then(|q| q.as_f64()).unwrap_or(0.75)
   } else {

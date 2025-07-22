@@ -27,7 +27,6 @@ export class MultiPlatformEngine {
   private batchProcessor: BatchProcessor
   private config: MultiPlatformConfig
   private isInitialized = false
-  private aiService: UnifiedAIService
 
   constructor(config?: Partial<MultiPlatformConfig>) {
     this.config = this.getDefaultConfig(config)
@@ -712,7 +711,7 @@ export class MultiPlatformEngine {
       samples.push(sourceContent.analysis.transcription.text)
     }
 
-    return samples.filter(sample => sample && sample.trim().length > 0)
+    return samples.filter((sample) => sample && sample.trim().length > 0)
   }
 
   /**
@@ -720,7 +719,7 @@ export class MultiPlatformEngine {
    */
   private async analyzeLanguagePatterns(textSamples: string[]): Promise<string | null> {
     const combinedText = textSamples.join(" ").toLowerCase()
-    
+
     // Простые эвристики для популярных языков
     const languagePatterns = {
       ru: /[а-яё]/g,
@@ -752,7 +751,7 @@ export class MultiPlatformEngine {
   private async detectLanguageWithAI(textSamples: string[]): Promise<string> {
     try {
       const sampleText = textSamples.slice(0, 3).join("\n").substring(0, 500)
-      
+
       const aiService = UnifiedAIService.getInstance()
       const prompt = `Определите язык следующего текста. Верните только ISO код языка (например: en, ru, es, fr, de):
 
@@ -769,7 +768,7 @@ ${sampleText}
       // Очищаем ответ и проверяем валидность
       const detectedLanguage = response.trim().toLowerCase()
       const validLanguages = ["en", "ru", "es", "fr", "de", "it", "pt", "zh", "ja", "ko", "ar", "hi", "tr", "pl", "nl"]
-      
+
       if (validLanguages.includes(detectedLanguage)) {
         return detectedLanguage
       }

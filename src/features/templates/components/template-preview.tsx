@@ -101,7 +101,7 @@ export function TemplatePreview({ template, onClick, size, dimensions }: Templat
     setLocalIsAdded(true)
 
     // Добавляем шаблон в хранилище ресурсов
-    addTemplate(template)
+    void addTemplate(template)
 
     // Принудительно обновляем состояние через небольшую задержку,
     // чтобы кнопка стала видимой сразу после добавления
@@ -129,7 +129,7 @@ export function TemplatePreview({ template, onClick, size, dimensions }: Templat
 
     if (resource) {
       // Удаляем ресурс из хранилища
-      removeResource(resource.id)
+      void removeResource(resource.id)
     } else {
       console.warn(`Не удалось найти ресурс шаблона с ID ${template.id} для удаления`)
     }

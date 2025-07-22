@@ -1,9 +1,9 @@
-import { SubtitleStyle } from "../types/subtitles"
+import { SubtitleStyleTemplate } from "../types/subtitles"
 
 /**
  * Интерфейс для CSS стилей субтитров
  */
-interface CSSSubtitleStyle {
+interface CSSSubtitleStyleTemplate {
   fontFamily?: string
   fontSize?: number | string
   fontWeight?: string | number
@@ -30,7 +30,7 @@ interface CSSSubtitleStyle {
  * @param style - Стиль субтитров
  * @returns CSS объект для React
  */
-export function subtitleStyleToCSS(style: SubtitleStyle): React.CSSProperties {
+export function subtitleStyleToCSS(style: SubtitleStyleTemplate): React.CSSProperties {
   const cssStyle: React.CSSProperties = {}
 
   // Основные свойства шрифта
@@ -89,7 +89,7 @@ export function subtitleStyleToCSS(style: SubtitleStyle): React.CSSProperties {
  * @param element - HTML элемент
  * @param style - Стиль субтитров
  */
-export function applySubtitleStyle(element: HTMLElement, style: SubtitleStyle): void {
+export function applySubtitleStyleTemplate(element: HTMLElement, style: SubtitleStyleTemplate): void {
   if (!element) return
 
   const cssStyle = subtitleStyleToCSS(style)
@@ -105,7 +105,7 @@ export function applySubtitleStyle(element: HTMLElement, style: SubtitleStyle): 
  * Сбрасывает CSS стиль с HTML элемента
  * @param element - HTML элемент
  */
-export function resetSubtitleStyle(element: HTMLElement): void {
+export function resetSubtitleStyleTemplate(element: HTMLElement): void {
   // Сбрасываем основные свойства
   const propertiesToReset = [
     "fontFamily",
@@ -139,7 +139,7 @@ export function resetSubtitleStyle(element: HTMLElement): void {
  * @param style - Стиль субтитров
  * @returns CSS строка
  */
-export function generateSubtitleCSS(style: SubtitleStyle): string {
+export function generateSubtitleCSS(style: SubtitleStyleTemplate): string {
   const cssStyle = subtitleStyleToCSS(style)
 
   const cssRules = Object.entries(cssStyle)
@@ -232,7 +232,7 @@ export function getSubtitleAnimation(animationName: keyof typeof subtitleAnimati
  * @param style - Стиль для валидации
  * @returns true если стиль валиден
  */
-export function validateSubtitleStyle(style: CSSSubtitleStyle): boolean {
+export function validateSubtitleStyleTemplate(style: CSSSubtitleStyleTemplate): boolean {
   // Проверяем основные свойства
   if (style.fontSize && typeof style.fontSize === "number" && style.fontSize <= 0) {
     return false
@@ -274,7 +274,7 @@ function isValidColor(color: string): boolean {
  * @param style - Стиль субтитров
  * @returns Объект с CSS переменными
  */
-export function createSubtitleCSSVariables(style: SubtitleStyle): Record<string, string> {
+export function createSubtitleCSSVariables(style: SubtitleStyleTemplate): Record<string, string> {
   const variables: Record<string, string> = {}
 
   if (style.style.color) variables["--subtitle-color"] = style.style.color

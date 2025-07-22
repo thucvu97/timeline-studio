@@ -9,9 +9,9 @@ import { Copy, Image, Scissors, Trash2, Video } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
+import { useTimeline } from "../../hooks/use-timeline"
 import { timelinePlayerSync } from "../../services/timeline-player-sync"
 import { TimelineClip, TimelineTrack } from "../../types"
-import { useTimeline } from "../../hooks/use-timeline"
 
 interface VideoClipProps {
   clip: TimelineClip
@@ -33,14 +33,14 @@ export const VideoClip = memo(
 
       // Синхронизируем с плеером при выборе
       if (newIsSelected) {
-        timelinePlayerSync.syncSelectedClip(clip)
+        void timelinePlayerSync.syncSelectedClip(clip)
       }
     }, [clip, onUpdate])
 
     const handleCopy = useCallback(
       (e: React.MouseEvent) => {
         e.stopPropagation()
-        
+
         // Выделяем клип если он не выделен
         if (!clip.isSelected) {
           timelineActor.send({
@@ -49,7 +49,7 @@ export const VideoClip = memo(
             addToSelection: false,
           })
         }
-        
+
         // Копируем выделенные клипы
         timelineActor.send({ type: "COPY_SELECTION" })
       },
@@ -59,10 +59,10 @@ export const VideoClip = memo(
     const handleSplit = useCallback(
       (e: React.MouseEvent) => {
         e.stopPropagation()
-        
+
         // Разделяем клип в середине
-        const splitTime = clip.startTime + (clip.duration / 2)
-        
+        const splitTime = clip.startTime + clip.duration / 2
+
         timelineActor.send({
           type: "SPLIT_CLIP",
           clipId: clip.id,

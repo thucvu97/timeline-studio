@@ -49,7 +49,7 @@ impl Service for CacheManagerService {
     tokio::fs::create_dir_all(&self.cache_dir)
       .await
       .map_err(|e| {
-        timeline_studio_lib::video_compiler::error::VideoCompilerError::IoError(e.to_string())
+        timeline_studio_lib::video_compiler::error::VideoCompilerError::Io(e.to_string())
       })?;
 
     self.initialized = true;

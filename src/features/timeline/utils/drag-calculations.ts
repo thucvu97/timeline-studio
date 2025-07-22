@@ -4,7 +4,8 @@
 
 import { MediaFile } from "@/features/media/types/media"
 
-import { TrackType, TimelineClip, TimelineProject } from "../types"
+import { TimelineClip, TimelineProject, TrackType } from "../types"
+
 import type { TimelineMarker } from "../types/markers"
 
 // ============================================================================
@@ -50,15 +51,9 @@ export function snapToTargets(
     snapThreshold?: number // pixels
     timeScale?: number
     excludeClipId?: string // для исключения текущего перетаскиваемого клипа
-  } = {}
+  } = {},
 ): { snappedPosition: number; snapTarget?: SnapTarget } {
-  const { 
-    gridInterval = 1, 
-    project, 
-    snapThreshold = 10, 
-    timeScale = 100,
-    excludeClipId 
-  } = options
+  const { gridInterval = 1, project, snapThreshold = 10, timeScale = 100, excludeClipId } = options
 
   if (snapMode === "none") {
     return { snappedPosition: position }
@@ -89,15 +84,15 @@ export function snapToTargets(
   }
 
   // Найти ближайший snap target
-  const validTargets = snapTargets.filter(target => target.distance <= snapThreshold)
-  
+  const validTargets = snapTargets.filter((target) => target.distance <= snapThreshold)
+
   if (validTargets.length === 0) {
     return { snappedPosition: position }
   }
 
   // Сортируем по расстоянию и берем ближайший
   const closestTarget = validTargets.sort((a, b) => a.distance - b.distance)[0]
-  
+
   return {
     snappedPosition: closestTarget.position,
     snapTarget: closestTarget,
@@ -163,30 +158,30 @@ function getClipSnapTargets(
   position: number,
   timeScale: number,
   snapThreshold: number,
-  excludeClipId?: string
+  excludeClipId?: string,
 ): SnapTarget[] {
   const targets: SnapTarget[] = []
-  
+
   // Собираем все клипы из всех треков и секций
   const allClips: TimelineClip[] = []
-  
+
   // Клипы из секций
-  project.sections.forEach(section => {
-    section.tracks.forEach(track => {
+  project.sections.forEach((section) => {
+    section.tracks.forEach((track) => {
       allClips.push(...track.clips)
     })
   })
-  
+
   // Глобальные клипы
-  allClips.push(...project.globalTracks.flatMap(track => track.clips))
-  
+  allClips.push(...project.globalTracks.flatMap((track) => track.clips))
+
   // Создаем snap targets для начала и конца каждого клипа
-  allClips.forEach(clip => {
+  allClips.forEach((clip) => {
     if (clip.id === excludeClipId) return // Исключаем перетаскиваемый клип
-    
+
     const startDistance = Math.abs(position - clip.startTime) * timeScale
     const endDistance = Math.abs(position - (clip.startTime + clip.duration)) * timeScale
-    
+
     if (startDistance <= snapThreshold) {
       targets.push({
         position: clip.startTime,
@@ -196,7 +191,7 @@ function getClipSnapTargets(
         label: `${clip.name} (начало)`,
       })
     }
-    
+
     if (endDistance <= snapThreshold) {
       targets.push({
         position: clip.startTime + clip.duration,
@@ -207,7 +202,7 @@ function getClipSnapTargets(
       })
     }
   })
-  
+
   return targets
 }
 
@@ -218,13 +213,13 @@ function getMarkerSnapTargets(
   markers: TimelineMarker[],
   position: number,
   timeScale: number,
-  snapThreshold: number
+  snapThreshold: number,
 ): SnapTarget[] {
   const targets: SnapTarget[] = []
-  
-  markers.forEach(marker => {
+
+  markers.forEach((marker) => {
     const distance = Math.abs(position - marker.time) * timeScale
-    
+
     if (distance <= snapThreshold) {
       targets.push({
         position: marker.time,
@@ -235,7 +230,7 @@ function getMarkerSnapTargets(
       })
     }
   })
-  
+
   return targets
 }
 
@@ -252,86 +247,81 @@ export function findInsertionPoint(
     snapToClips?: boolean
     snapThreshold?: number
     timeScale?: number
-  } = {}
+  } = {},
 ): { insertionTime: number; snapTarget?: SnapTarget } {
   if (!project) {
     return { insertionTime: Math.max(0, targetTime) }
   }
-  
-  const { 
-    avoidOverlaps = true, 
-    snapToClips = false,
-    snapThreshold = 10,
-    timeScale = 100 
-  } = options
-  
+
+  const { avoidOverlaps = true, snapToClips = false, snapThreshold = 10, timeScale = 100 } = options
+
   // Находим целевой трек
   let targetTrack: { clips: TimelineClip[] } | undefined
-  
+
   // Поиск в секциях
   for (const section of project.sections) {
-    const track = section.tracks.find(t => t.id === trackId)
+    const track = section.tracks.find((t) => t.id === trackId)
     if (track) {
       targetTrack = track
       break
     }
   }
-  
+
   // Поиск в глобальных треках
   if (!targetTrack) {
-    targetTrack = project.globalTracks.find(t => t.id === trackId)
+    targetTrack = project.globalTracks.find((t) => t.id === trackId)
   }
-  
+
   if (!targetTrack) {
     return { insertionTime: Math.max(0, targetTime) }
   }
-  
+
   // Snap to clips если включено
   if (snapToClips) {
     const snapTargets = getClipSnapTargets(project, targetTime, timeScale, snapThreshold)
-    const validTargets = snapTargets.filter(target => 
-      Math.abs(target.position - targetTime) * timeScale <= snapThreshold
+    const validTargets = snapTargets.filter(
+      (target) => Math.abs(target.position - targetTime) * timeScale <= snapThreshold,
     )
-    
+
     if (validTargets.length > 0) {
       const closestTarget = validTargets.sort((a, b) => a.distance - b.distance)[0]
       targetTime = closestTarget.position
     }
   }
-  
+
   // Избежание пересечений если включено
   if (avoidOverlaps) {
     const insertionEndTime = targetTime + clipDuration
-    
+
     // Проверяем пересечения с существующими клипами
-    const hasOverlap = targetTrack.clips.some(clip => {
+    const hasOverlap = targetTrack.clips.some((clip) => {
       const clipStart = clip.startTime
       const clipEnd = clip.startTime + clip.duration
-      
+
       return (
         (targetTime >= clipStart && targetTime < clipEnd) ||
         (insertionEndTime > clipStart && insertionEndTime <= clipEnd) ||
         (targetTime <= clipStart && insertionEndTime >= clipEnd)
       )
     })
-    
+
     if (hasOverlap) {
       // Найти первое доступное место после targetTime
       const sortedClips = [...targetTrack.clips].sort((a, b) => a.startTime - b.startTime)
-      
+
       for (let i = 0; i < sortedClips.length; i++) {
         const clip = sortedClips[i]
         const nextClip = sortedClips[i + 1]
-        
+
         const clipEnd = clip.startTime + clip.duration
-        const nextClipStart = nextClip ? nextClip.startTime : Infinity
-        
+        const nextClipStart = nextClip ? nextClip.startTime : Number.POSITIVE_INFINITY
+
         // Если есть достаточно места между клипами
-        if (clipEnd >= targetTime && (nextClipStart - clipEnd >= clipDuration)) {
+        if (clipEnd >= targetTime && nextClipStart - clipEnd >= clipDuration) {
           return { insertionTime: Math.max(0, clipEnd) }
         }
       }
-      
+
       // Если нет места между клипами, поставить в конец
       const lastClip = sortedClips[sortedClips.length - 1]
       if (lastClip) {
@@ -339,7 +329,7 @@ export function findInsertionPoint(
       }
     }
   }
-  
+
   return { insertionTime: Math.max(0, targetTime) }
 }
 

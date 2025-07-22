@@ -81,15 +81,15 @@ export function AudioMixer({ className }: AudioMixerProps) {
   }
 
   const handleVolumeChange = (trackId: string, value: number[]) => {
-    updateTrack(trackId, { volume: value[0] })
+    void updateTrack(trackId, { volume: value[0] })
   }
 
   const handleMute = (trackId: string, currentMuted: boolean) => {
-    updateTrack(trackId, { isMuted: !currentMuted })
+    void updateTrack(trackId, { isMuted: !currentMuted })
   }
 
   const handleSolo = (trackId: string, currentSolo: boolean) => {
-    updateTrack(trackId, { isSolo: !currentSolo })
+    void updateTrack(trackId, { isSolo: !currentSolo })
   }
 
   if (audioTracks.length === 0) {

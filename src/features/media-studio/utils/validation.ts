@@ -1,7 +1,7 @@
 import type { VideoEffect } from "@/features/effects/types"
 import type { VideoFilter } from "@/features/filters/types/filters"
 import type { StyleTemplate } from "@/features/style-templates/types"
-import type { SubtitleStyle } from "@/features/subtitles/types"
+import type { SubtitleStyleTemplate } from "@/features/subtitles/types"
 import type { Transition } from "@/features/transitions/types/transitions"
 
 /**
@@ -49,7 +49,7 @@ export function validateTransition(data: any): Transition | null {
 /**
  * Валидирует объект стиля субтитров
  */
-export function validateSubtitleStyle(data: any): SubtitleStyle | null {
+export function validateSubtitleStyle(data: any): SubtitleStyleTemplate | null {
   if (!data || typeof data !== "object") return null
   if (!data.id || !data.name || !data.style) return null
 
@@ -58,7 +58,7 @@ export function validateSubtitleStyle(data: any): SubtitleStyle | null {
 
   if (!data.style || typeof data.style !== "object" || Array.isArray(data.style)) return null
 
-  return data as SubtitleStyle
+  return data as SubtitleStyleTemplate
 }
 
 /**

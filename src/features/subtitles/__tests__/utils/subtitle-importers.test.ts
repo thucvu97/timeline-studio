@@ -1,10 +1,10 @@
-import { describe, it, expect } from "vitest"
+import { describe, expect, it } from "vitest"
 
 import {
+  detectSubtitleFormat,
+  importFromASS,
   importFromSRT,
   importFromVTT,
-  importFromASS,
-  detectSubtitleFormat,
   validateSubtitles,
 } from "../../utils/subtitle-importers"
 

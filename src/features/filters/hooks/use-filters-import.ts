@@ -43,7 +43,7 @@ export function useFiltersImport() {
           // Импортируем каждый фильтр
           for (const filterData of filtersData) {
             if (filterData.id && filterData.name && filterData.category) {
-              addFilter(filterData as VideoFilter)
+              void addFilter(filterData as VideoFilter)
             }
           }
           console.log(`Импортировано ${filtersData.length} фильтров`)
@@ -51,7 +51,7 @@ export function useFiltersImport() {
           // Альтернативный формат с обёрткой
           for (const filterData of filtersData.filters) {
             if (filterData.id && filterData.name && filterData.category) {
-              addFilter(filterData as VideoFilter)
+              void addFilter(filterData as VideoFilter)
             }
           }
           console.log(`Импортировано ${filtersData.filters.length} фильтров`)
@@ -112,7 +112,7 @@ export function useFiltersImport() {
           }
 
           // Добавляем фильтр в ресурсы
-          addFilter(filter)
+          void addFilter(filter)
         }
 
         console.log(`Импортировано ${files.length} файлов фильтров`)

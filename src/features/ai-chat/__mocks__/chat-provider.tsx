@@ -2,10 +2,10 @@ import React from "react"
 
 import { vi } from "vitest"
 
-import { ChatContextType } from "../services/chat-provider"
+import { ChatContextTypeV2 } from "../services/chat-provider"
 import { ChatListItem } from "../types/chat"
 
-export const mockChatContext: ChatContextType = {
+export const mockChatContext: ChatContextTypeV2 = {
   chatMessages: [],
   selectedAgentId: "openai",
   isProcessing: false,
@@ -38,7 +38,7 @@ export const mockChatContext: ChatContextType = {
 }
 
 // Creating context with null as default value
-export const ChatContext = React.createContext<ChatContextType | null>(null)
+export const ChatContext = React.createContext<ChatContextTypeV2 | null>(null)
 
 // Create a hook that always returns the mock context
 export const useChat = () => mockChatContext

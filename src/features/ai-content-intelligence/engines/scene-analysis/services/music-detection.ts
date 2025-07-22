@@ -35,7 +35,7 @@ export enum MusicSegmentType {
 
 export enum MusicGenre {
   CLASSICAL = "classical",
-  ROCK = "rock", 
+  ROCK = "rock",
   POP = "pop",
   JAZZ = "jazz",
   ELECTRONIC = "electronic",
@@ -52,7 +52,7 @@ export enum MusicGenre {
 
 export enum MusicalKey {
   C_MAJOR = "C_major",
-  G_MAJOR = "G_major", 
+  G_MAJOR = "G_major",
   D_MAJOR = "D_major",
   A_MAJOR = "A_major",
   E_MAJOR = "E_major",
@@ -239,10 +239,10 @@ export class MusicDetectionService {
 
       // Получаем базовую аудио аналитику через FFmpeg
       const audioAnalysis = await this.ffmpegService.analyzeAudio(filePath)
-      
+
       // Получаем метаданные файла
       const metadata = await this.ffmpegService.getVideoMetadata(filePath)
-      
+
       // Получаем детекцию тишины
       const silenceDetection = await this.ffmpegService.detectSilence(filePath, {
         threshold: -30, // dB
@@ -250,15 +250,11 @@ export class MusicDetectionService {
       })
 
       // Анализируем аудио сегменты
-      const segments = await this.analyzeAudioSegments(
-        audioAnalysis,
-        silenceDetection,
-        metadata.duration
-      )
+      const segments = await this.analyzeAudioSegments(audioAnalysis, silenceDetection, metadata.duration)
 
       // Создаем сводку
       const summary = this.createMusicSummary(segments, metadata.duration)
-      
+
       // Создаем временную шкалу
       const timeline = this.createMusicTimeline(segments, metadata.duration)
 
@@ -281,7 +277,7 @@ export class MusicDetectionService {
   private async analyzeAudioSegments(
     audioAnalysis: AudioAnalysisResult,
     silenceDetection: any,
-    totalDuration: number
+    totalDuration: number,
   ): Promise<MusicSegment[]> {
     const segments: MusicSegment[] = []
     const analysisInterval = this.config.performance.analysisInterval
@@ -292,31 +288,25 @@ export class MusicDetectionService {
     for (let i = 0; i < timeSlices; i++) {
       const startTime = i * analysisInterval
       const endTime = Math.min((i + 1) * analysisInterval, totalDuration)
-      
+
       // Проверяем, не является ли этот отрезок тишиной
       const isSilence = this.isTimestampInSilence(startTime, endTime, silenceDetection.silences)
-      
+
       if (isSilence) {
         segments.push(this.createSilenceSegment(startTime, endTime))
         continue
       }
 
       // Анализируем аудио характеристики для этого отрезка
-      const segment = await this.analyzeTimeSlice(
-        startTime,
-        endTime,
-        audioAnalysis
-      )
-      
+      const segment = await this.analyzeTimeSlice(startTime, endTime, audioAnalysis)
+
       if (segment.confidence >= this.config.filtering.confidenceThreshold) {
         segments.push(segment)
       }
     }
 
     // Объединяем близкие сегменты если нужно
-    return this.config.filtering.mergeNearbySegments 
-      ? this.mergeNearbySegments(segments)
-      : segments
+    return this.config.filtering.mergeNearbySegments ? this.mergeNearbySegments(segments) : segments
   }
 
   /**
@@ -325,14 +315,14 @@ export class MusicDetectionService {
   private async analyzeTimeSlice(
     startTime: number,
     endTime: number,
-    audioAnalysis: AudioAnalysisResult
+    audioAnalysis: AudioAnalysisResult,
   ): Promise<MusicSegment> {
     const duration = endTime - startTime
     const segmentId = `segment_${startTime.toFixed(1)}_${endTime.toFixed(1)}`
 
     // Определяем тип сегмента на основе аудио характеристик
     const segmentType = this.classifySegmentType(audioAnalysis)
-    
+
     // Базовый сегмент
     const segment: MusicSegment = {
       id: segmentId,
@@ -350,19 +340,19 @@ export class MusicDetectionService {
       if (this.config.analysis.enableGenreDetection) {
         segment.genre = this.detectGenre(audioAnalysis)
       }
-      
+
       if (this.config.analysis.enableTempoDetection) {
         segment.tempo = this.detectTempo(audioAnalysis)
       }
-      
+
       if (this.config.analysis.enableMoodDetection) {
         segment.mood = this.detectMood(audioAnalysis)
       }
-      
+
       if (this.config.analysis.enableVocalDetection) {
         segment.vocals = this.detectVocalCharacteristics(audioAnalysis)
       }
-      
+
       if (this.config.analysis.enableKeyDetection) {
         segment.key = this.detectMusicalKey(audioAnalysis)
       }
@@ -376,36 +366,38 @@ export class MusicDetectionService {
    */
   private classifySegmentType(audioAnalysis: AudioAnalysisResult): MusicSegmentType {
     const { volume, frequency, dynamics } = audioAnalysis
-    
+
     // Если очень тихо - вероятно тишина
     if (volume.average < 0.1) {
       return MusicSegmentType.SILENCE
     }
-    
+
     // Анализируем частотный спектр
     const lowEnergy = frequency.lowEnd
-    const midEnergy = frequency.midRange  
+    const midEnergy = frequency.midRange
     const highEnergy = frequency.highEnd
-    
+
     // Музыка обычно имеет более равномерное распределение частот
     const frequencyBalance = this.calculateFrequencyBalance(lowEnergy, midEnergy, highEnergy)
-    
+
     // Музыка обычно имеет больший динамический диапазон
     const dynamicRange = dynamics.dynamicRange
-    
+
     // Простая эвристика для классификации
     if (frequencyBalance > 0.6 && dynamicRange > 0.4) {
       // Проверяем наличие речевых характеристик
       const hasSpeechCharacteristics = this.detectSpeechCharacteristics(audioAnalysis)
       return hasSpeechCharacteristics ? MusicSegmentType.MIXED : MusicSegmentType.MUSIC
-    } else if (midEnergy > lowEnergy && midEnergy > highEnergy) {
+    }
+    if (midEnergy > lowEnergy && midEnergy > highEnergy) {
       // Преобладание средних частот может указывать на речь
       return MusicSegmentType.SPEECH
-    } else if (volume.average > 0.3 && frequencyBalance < 0.3) {
+    }
+    if (volume.average > 0.3 && frequencyBalance < 0.3) {
       // Высокий уровень, но плохой частотный баланс - возможно шум
       return MusicSegmentType.NOISE
     }
-    
+
     return MusicSegmentType.AMBIENT
   }
 
@@ -415,13 +407,13 @@ export class MusicDetectionService {
   private calculateFrequencyBalance(low: number, mid: number, high: number): number {
     const total = low + mid + high
     if (total === 0) return 0
-    
+
     const normalized = [low / total, mid / total, high / total]
     const ideal = 1 / 3 // идеальное равномерное распределение
-    
+
     // Вычисляем отклонение от идеального распределения
     const deviation = normalized.reduce((sum, freq) => sum + Math.abs(freq - ideal), 0)
-    
+
     // Возвращаем показатель баланса (1 = идеальный баланс, 0 = полный дисбаланс)
     return Math.max(0, 1 - deviation)
   }
@@ -431,13 +423,13 @@ export class MusicDetectionService {
    */
   private detectSpeechCharacteristics(audioAnalysis: AudioAnalysisResult): boolean {
     const { frequency, volume } = audioAnalysis
-    
+
     // Речь обычно концентрируется в средних частотах
     const midFreqDominance = frequency.midRange > (frequency.lowEnd + frequency.highEnd) / 2
-    
+
     // Речь имеет характерные паузы и изменения громкости
     const hasVariation = volume.peak - volume.average > 0.2
-    
+
     return midFreqDominance && hasVariation
   }
 
@@ -446,12 +438,12 @@ export class MusicDetectionService {
    */
   private calculateEnergyLevel(audioAnalysis: AudioAnalysisResult): number {
     const { volume, frequency, dynamics } = audioAnalysis
-    
+
     // Комбинируем различные факторы для определения энергии
     const volumeEnergy = volume.rms * 0.4
-    const frequencyEnergy = (frequency.lowEnd + frequency.midRange + frequency.highEnd) / 3 * 0.3
+    const frequencyEnergy = ((frequency.lowEnd + frequency.midRange + frequency.highEnd) / 3) * 0.3
     const dynamicEnergy = dynamics.dynamicRange * 0.3
-    
+
     return Math.min(1, volumeEnergy + frequencyEnergy + dynamicEnergy)
   }
 
@@ -460,18 +452,21 @@ export class MusicDetectionService {
    */
   private detectGenre(audioAnalysis: AudioAnalysisResult): MusicGenre {
     const { frequency, dynamics } = audioAnalysis
-    
+
     // Простая эвристика на основе частотных характеристик
     if (frequency.lowEnd > 0.7) {
       return MusicGenre.ELECTRONIC // Много басов
-    } else if (frequency.highEnd > 0.7) {
+    }
+    if (frequency.highEnd > 0.7) {
       return MusicGenre.CLASSICAL // Много высоких частот
-    } else if (dynamics.dynamicRange > 0.8) {
+    }
+    if (dynamics.dynamicRange > 0.8) {
       return MusicGenre.CLASSICAL // Большой динамический диапазон
-    } else if (frequency.midRange > 0.6) {
+    }
+    if (frequency.midRange > 0.6) {
       return MusicGenre.POP // Преобладание средних частот
     }
-    
+
     return MusicGenre.UNKNOWN
   }
 
@@ -482,9 +477,9 @@ export class MusicDetectionService {
     // Заглушка - в реальной реализации нужен анализ ритма
     // Возвращаем примерный темп на основе энергии
     const energy = this.calculateEnergyLevel(audioAnalysis)
-    
+
     if (energy > 0.8) return 120 + Math.random() * 60 // Быстрый темп 120-180 BPM
-    if (energy > 0.5) return 90 + Math.random() * 40  // Средний темп 90-130 BPM
+    if (energy > 0.5) return 90 + Math.random() * 40 // Средний темп 90-130 BPM
     return 60 + Math.random() * 40 // Медленный темп 60-100 BPM
   }
 
@@ -494,22 +489,27 @@ export class MusicDetectionService {
   private detectMood(audioAnalysis: AudioAnalysisResult): MusicMood {
     const energy = this.calculateEnergyLevel(audioAnalysis)
     const { frequency, dynamics } = audioAnalysis
-    
+
     // Простая эвристика на основе энергии и частотных характеристик
     if (energy > 0.8 && frequency.highEnd > 0.6) {
       return MusicMood.ENERGETIC
-    } else if (energy > 0.7 && dynamics.dynamicRange > 0.6) {
+    }
+    if (energy > 0.7 && dynamics.dynamicRange > 0.6) {
       return MusicMood.EPIC
-    } else if (energy < 0.3 && frequency.lowEnd < 0.3) {
+    }
+    if (energy < 0.3 && frequency.lowEnd < 0.3) {
       return MusicMood.SAD
-    } else if (energy < 0.4 && frequency.midRange > 0.5) {
+    }
+    if (energy < 0.4 && frequency.midRange > 0.5) {
       return MusicMood.CALM
-    } else if (energy > 0.6 && frequency.lowEnd > 0.6) {
+    }
+    if (energy > 0.6 && frequency.lowEnd > 0.6) {
       return MusicMood.AGGRESSIVE
-    } else if (energy > 0.5 && frequency.midRange > 0.6) {
+    }
+    if (energy > 0.5 && frequency.midRange > 0.6) {
       return MusicMood.HAPPY
     }
-    
+
     return MusicMood.UNKNOWN
   }
 
@@ -518,7 +518,7 @@ export class MusicDetectionService {
    */
   private detectVocalCharacteristics(audioAnalysis: AudioAnalysisResult): VocalCharacteristics {
     const hasSpeechCharacteristics = this.detectSpeechCharacteristics(audioAnalysis)
-    
+
     // Заглушка - требует специализированного анализа
     return {
       hasVocals: hasSpeechCharacteristics,
@@ -529,7 +529,7 @@ export class MusicDetectionService {
   /**
    * Детекция музыкального ключа (заглушка - требует специализированных алгоритмов)
    */
-  private detectMusicalKey(audioAnalysis: AudioAnalysisResult): MusicalKey {
+  private detectMusicalKey(_audioAnalysis: AudioAnalysisResult): MusicalKey {
     // В реальной реализации требуется анализ гармоний и мелодических паттернов
     return MusicalKey.UNKNOWN
   }
@@ -540,12 +540,13 @@ export class MusicDetectionService {
   private isTimestampInSilence(
     startTime: number,
     endTime: number,
-    silences: Array<{ startTime: number; endTime: number }>
+    silences: Array<{ startTime: number; endTime: number }>,
   ): boolean {
-    return silences.some(silence => 
-      (startTime >= silence.startTime && startTime <= silence.endTime) ||
-      (endTime >= silence.startTime && endTime <= silence.endTime) ||
-      (startTime <= silence.startTime && endTime >= silence.endTime)
+    return silences.some(
+      (silence) =>
+        (startTime >= silence.startTime && startTime <= silence.endTime) ||
+        (endTime >= silence.startTime && endTime <= silence.endTime) ||
+        (startTime <= silence.startTime && endTime >= silence.endTime),
     )
   }
 
@@ -595,7 +596,7 @@ export class MusicDetectionService {
    * Объединение двух сегментов
    */
   private mergeTwoSegments(seg1: MusicSegment, seg2: MusicSegment): MusicSegment {
-    const totalDuration = (seg1.endTime - seg1.startTime) + (seg2.endTime - seg2.startTime)
+    const totalDuration = seg1.endTime - seg1.startTime + (seg2.endTime - seg2.startTime)
     const weight1 = (seg1.endTime - seg1.startTime) / totalDuration
     const weight2 = (seg2.endTime - seg2.startTime) / totalDuration
 
@@ -604,14 +605,16 @@ export class MusicDetectionService {
       startTime: seg1.startTime,
       endTime: seg2.endTime,
       duration: seg2.endTime - seg1.startTime,
-      confidence: (seg1.confidence * weight1 + seg2.confidence * weight2),
+      confidence: seg1.confidence * weight1 + seg2.confidence * weight2,
       type: seg1.type,
       genre: seg1.genre || seg2.genre,
-      tempo: seg1.tempo && seg2.tempo ? (seg1.tempo * weight1 + seg2.tempo * weight2) : (seg1.tempo || seg2.tempo),
+      tempo: seg1.tempo && seg2.tempo ? seg1.tempo * weight1 + seg2.tempo * weight2 : seg1.tempo || seg2.tempo,
       key: seg1.key || seg2.key,
       mood: seg1.mood || seg2.mood,
-      energy: seg1.energy && seg2.energy ? (seg1.energy * weight1 + seg2.energy * weight2) : (seg1.energy || seg2.energy || 0),
-      volume: seg1.volume && seg2.volume ? (seg1.volume * weight1 + seg2.volume * weight2) : (seg1.volume || seg2.volume || 0),
+      energy:
+        seg1.energy && seg2.energy ? seg1.energy * weight1 + seg2.energy * weight2 : seg1.energy || seg2.energy || 0,
+      volume:
+        seg1.volume && seg2.volume ? seg1.volume * weight1 + seg2.volume * weight2 : seg1.volume || seg2.volume || 0,
       vocals: seg1.vocals || seg2.vocals,
     }
   }
@@ -620,9 +623,9 @@ export class MusicDetectionService {
    * Создание сводки музыкального анализа
    */
   private createMusicSummary(segments: MusicSegment[], totalDuration: number): MusicSummary {
-    const musicSegments = segments.filter(s => s.type === MusicSegmentType.MUSIC || s.type === MusicSegmentType.MIXED)
-    const speechSegments = segments.filter(s => s.type === MusicSegmentType.SPEECH)
-    const silenceSegments = segments.filter(s => s.type === MusicSegmentType.SILENCE)
+    const musicSegments = segments.filter((s) => s.type === MusicSegmentType.MUSIC || s.type === MusicSegmentType.MIXED)
+    const speechSegments = segments.filter((s) => s.type === MusicSegmentType.SPEECH)
+    const silenceSegments = segments.filter((s) => s.type === MusicSegmentType.SILENCE)
 
     const musicDuration = musicSegments.reduce((sum, s) => sum + s.duration, 0)
     const speechDuration = speechSegments.reduce((sum, s) => sum + s.duration, 0)
@@ -630,40 +633,37 @@ export class MusicDetectionService {
 
     // Определяем доминирующий жанр
     const genreCounts = new Map<MusicGenre, number>()
-    musicSegments.forEach(s => {
+    musicSegments.forEach((s) => {
       if (s.genre) {
         genreCounts.set(s.genre, (genreCounts.get(s.genre) || 0) + s.duration)
       }
     })
-    const dominantGenre = Array.from(genreCounts.entries())
-      .sort((a, b) => b[1] - a[1])[0]?.[0]
+    const dominantGenre = Array.from(genreCounts.entries()).sort((a, b) => b[1] - a[1])[0]?.[0]
 
     // Средний темп
-    const tempos = musicSegments.filter(s => s.tempo).map(s => s.tempo!)
+    const tempos = musicSegments.filter((s) => s.tempo).map((s) => s.tempo!)
     const averageTempo = tempos.length > 0 ? tempos.reduce((sum, t) => sum + t, 0) / tempos.length : undefined
 
     // Доминирующий ключ
     const keyCounts = new Map<MusicalKey, number>()
-    musicSegments.forEach(s => {
+    musicSegments.forEach((s) => {
       if (s.key) {
         keyCounts.set(s.key, (keyCounts.get(s.key) || 0) + s.duration)
       }
     })
-    const dominantKey = Array.from(keyCounts.entries())
-      .sort((a, b) => b[1] - a[1])[0]?.[0]
+    const dominantKey = Array.from(keyCounts.entries()).sort((a, b) => b[1] - a[1])[0]?.[0]
 
     // Доминирующее настроение
     const moodCounts = new Map<MusicMood, number>()
-    musicSegments.forEach(s => {
+    musicSegments.forEach((s) => {
       if (s.mood) {
         moodCounts.set(s.mood, (moodCounts.get(s.mood) || 0) + s.duration)
       }
     })
-    const dominantMood = Array.from(moodCounts.entries())
-      .sort((a, b) => b[1] - a[1])[0]?.[0]
+    const dominantMood = Array.from(moodCounts.entries()).sort((a, b) => b[1] - a[1])[0]?.[0]
 
     // Наличие вокала
-    const hasVocals = musicSegments.some(s => s.vocals?.hasVocals)
+    const hasVocals = musicSegments.some((s) => s.vocals?.hasVocals)
 
     // Профиль энергии
     const energyProfile = this.createEnergyProfile(segments)
@@ -687,14 +687,14 @@ export class MusicDetectionService {
    * Создание профиля энергии
    */
   private createEnergyProfile(segments: MusicSegment[]): EnergyProfile {
-    const energyValues = segments.map(s => s.energy || 0)
+    const energyValues = segments.map((s) => s.energy || 0)
     const overall = energyValues.reduce((sum, e) => sum + e, 0) / energyValues.length
 
     // Поиск пиков и впадин
     const peaks: Array<{ timestamp: number; energy: number; duration: number }> = []
     const valleys: Array<{ timestamp: number; energy: number; duration: number }> = []
 
-    segments.forEach(segment => {
+    segments.forEach((segment) => {
       const energy = segment.energy || 0
       if (energy > overall * 1.5) {
         peaks.push({
@@ -716,16 +716,16 @@ export class MusicDetectionService {
     if (energyValues.length > 5) {
       const firstHalf = energyValues.slice(0, Math.floor(energyValues.length / 2))
       const secondHalf = energyValues.slice(Math.floor(energyValues.length / 2))
-      
+
       const firstAvg = firstHalf.reduce((sum, e) => sum + e, 0) / firstHalf.length
       const secondAvg = secondHalf.reduce((sum, e) => sum + e, 0) / secondHalf.length
-      
+
       const difference = secondAvg - firstAvg
       if (Math.abs(difference) > 0.2) {
         trend = difference > 0 ? "increasing" : "decreasing"
       } else {
         // Проверяем вариативность
-        const variance = energyValues.reduce((sum, e) => sum + Math.pow(e - overall, 2), 0) / energyValues.length
+        const variance = energyValues.reduce((sum, e) => sum + (e - overall) ** 2, 0) / energyValues.length
         trend = variance > 0.1 ? "variable" : "stable"
       }
     }
@@ -753,7 +753,7 @@ export class MusicDetectionService {
       const timestamp = i * timelineInterval
 
       // Находим сегмент для этого времени
-      const segment = segments.find(s => timestamp >= s.startTime && timestamp <= s.endTime)
+      const segment = segments.find((s) => timestamp >= s.startTime && timestamp <= s.endTime)
 
       energyTimeline.push({
         timestamp,

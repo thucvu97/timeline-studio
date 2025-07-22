@@ -114,7 +114,7 @@ impl PreprocessingStage {
       // Просто копируем файл
       tokio::fs::copy(&source, &output_path)
         .await
-        .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+        .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
       log::debug!("📋 Файл скопирован без изменений: {output_path:?}");
     }
 
@@ -206,11 +206,11 @@ impl PreprocessingStage {
     let output = command
       .output()
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
     if !output.status.success() {
       let error_msg = String::from_utf8_lossy(&output.stderr);
-      return Err(VideoCompilerError::IoError(error_msg.to_string()));
+      return Err(VideoCompilerError::Io(error_msg.to_string()));
     }
 
     Ok(())
@@ -280,11 +280,11 @@ impl PreprocessingStage {
     let output = command
       .output()
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
     if !output.status.success() {
       let error_msg = String::from_utf8_lossy(&output.stderr);
-      return Err(VideoCompilerError::IoError(error_msg.to_string()));
+      return Err(VideoCompilerError::Io(error_msg.to_string()));
     }
 
     Ok(())
@@ -319,11 +319,11 @@ impl PreprocessingStage {
     let output = command
       .output()
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
     if !output.status.success() {
       let error_msg = String::from_utf8_lossy(&output.stderr);
-      return Err(VideoCompilerError::IoError(error_msg.to_string()));
+      return Err(VideoCompilerError::Io(error_msg.to_string()));
     }
 
     Ok(())
@@ -361,11 +361,11 @@ impl PreprocessingStage {
     let output = command
       .output()
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
     if !output.status.success() {
       let error_msg = String::from_utf8_lossy(&output.stderr);
-      return Err(VideoCompilerError::IoError(error_msg.to_string()));
+      return Err(VideoCompilerError::Io(error_msg.to_string()));
     }
 
     Ok(())
@@ -386,11 +386,11 @@ impl PreprocessingStage {
     let output = command
       .output()
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
     if !output.status.success() {
       let error_msg = String::from_utf8_lossy(&output.stderr);
-      return Err(VideoCompilerError::IoError(error_msg.to_string()));
+      return Err(VideoCompilerError::Io(error_msg.to_string()));
     }
 
     let json_output = String::from_utf8_lossy(&output.stdout);

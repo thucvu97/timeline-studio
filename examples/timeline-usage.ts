@@ -134,7 +134,7 @@ function applyEffectsToClips(project: TimelineProject): void {
       brightness: 1.2,
       contrast: 1.1,
     },
-    isEnabled: true,
+    enabled: true,
     order: 0,
   })
 

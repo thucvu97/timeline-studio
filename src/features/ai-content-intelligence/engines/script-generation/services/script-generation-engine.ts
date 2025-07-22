@@ -6,9 +6,11 @@
 import { UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service"
 // Интеграция с персонажами из montage-planner
 import type { Person } from "@/features/montage-planner/types"
+
 // Интеграция с анализом персонажей
-import { CharacterAnalysisService } from "../../scene-analysis/services/character-analysis"
-import type { CharacterRelationship } from "../../scene-analysis/types"
+
+
+
 
 import { DialogueGenerator } from "./dialogue-generator"
 import { TemplateEngine } from "./template-engine"
@@ -17,6 +19,7 @@ import {
   TurningPointType,
   VisualElementType as VisualElementTypeEnum,
 } from "../../../shared/types/script-generation"
+import { CharacterAnalysisService } from "../../scene-analysis/services/character-analysis"
 import { BaseAIEngine, type EngineCapabilities } from "../../types"
 
 import type { UnifiedContentAnalysis } from "../../../shared/types/content-analysis"
@@ -31,6 +34,7 @@ import type {
   ScriptScene,
   TurningPoint,
 } from "../../../shared/types/script-generation"
+import type { CharacterRelationship } from "../../scene-analysis/types"
 import type {
   ImprovementType,
   ScriptGenerationConfig,
@@ -39,6 +43,9 @@ import type {
   ScriptImprovement,
   ScriptQuality,
 } from "../types"
+
+
+
 
 
 export class ScriptGenerationEngine extends BaseAIEngine {
@@ -699,7 +706,7 @@ Return only the voiceover text.`
       // Парсим ответ и извлекаем числовую оценку
       const coherenceMatch = response.match(/coherence[:\s]*(\d+(?:\.\d+)?)/i)
       if (coherenceMatch) {
-        const score = parseFloat(coherenceMatch[1])
+        const score = Number.parseFloat(coherenceMatch[1])
         return Math.min(1, Math.max(0, score / 10)) // Нормализуем к 0-1
       }
 
@@ -965,10 +972,10 @@ Return only the voiceover text.`
   private async generateAlternatives(
     script: GeneratedScript,
     context: ScriptGenerationContext,
-    params: ScriptGenerationParams
-  ): Promise<AlternativeScript[]> {
+    _params: ScriptGenerationParams
+  ): Promise<Array<GeneratedScript & { type: string }>> {
     try {
-      const alternatives: AlternativeScript[] = []
+      const alternatives: Array<GeneratedScript & { type: string }> = []
 
       // 1. Альтернатива с другим тоном/настроением
       if (script.scenes.length > 0) {
@@ -1006,8 +1013,8 @@ Return only the voiceover text.`
    */
   private async generateMoodAlternative(
     script: GeneratedScript,
-    context: ScriptGenerationContext
-  ): Promise<AlternativeScript | null> {
+    _context: ScriptGenerationContext
+  ): Promise<(GeneratedScript & { type: string }) | null> {
     try {
       const currentMood = this.detectCurrentMood(script)
       const alternateMood = this.getAlternateMood(currentMood)
@@ -1043,8 +1050,8 @@ Return only the voiceover text.`
    */
   private generateStructureAlternative(
     script: GeneratedScript,
-    context: ScriptGenerationContext
-  ): AlternativeScript | null {
+    _context: ScriptGenerationContext
+  ): (GeneratedScript & { type: string }) | null {
     if (script.scenes.length < 3) return null
 
     try {
@@ -1075,7 +1082,7 @@ Return only the voiceover text.`
   private generateCharacterFocusAlternative(
     script: GeneratedScript,
     context: ScriptGenerationContext
-  ): AlternativeScript | null {
+  ): (GeneratedScript & { type: string }) | null {
     if (context.characters.length < 2) return null
 
     try {
@@ -1130,8 +1137,8 @@ Return only the voiceover text.`
    */
   private generateShortVersionAlternative(
     script: GeneratedScript,
-    context: ScriptGenerationContext
-  ): AlternativeScript | null {
+    _context: ScriptGenerationContext
+  ): (GeneratedScript & { type: string }) | null {
     try {
       // Выбираем самые важные сцены (первая, последняя, и самая эмоциональная)
       const scenes = script.scenes
@@ -1150,7 +1157,7 @@ Return only the voiceover text.`
       shortScenes.push(lastScene)
 
       // Сокращаем каждую сцену
-      const condensedScenes = shortScenes.map((scene, index) => ({
+      const condensedScenes = shortScenes.map((scene, _index) => ({
         ...scene,
         id: `${scene.id}_short`,
         duration: Math.min(scene.duration, 15), // Максимум 15 секунд на сцену
@@ -1181,7 +1188,7 @@ Return only the voiceover text.`
   private generateDetailedAlternative(
     script: GeneratedScript,
     context: ScriptGenerationContext
-  ): AlternativeScript | null {
+  ): (GeneratedScript & { type: string }) | null {
     try {
       const detailedScenes = script.scenes.map(scene => ({
         ...scene,
@@ -1437,7 +1444,7 @@ Return only the voiceover text.`
   /**
    * Базовое определение отношений без AI анализа
    */
-  private determineBasicRelationship(currentPerson: Person, scenePersons: Person[]): string {
+  private determineBasicRelationship(_currentPerson: Person, scenePersons: Person[]): string {
     // Если персонажи часто появляются вместе, вероятно они связаны
     if (scenePersons.length === 1) return "neutral"
     if (scenePersons.length === 2) return "friendly"
@@ -1449,7 +1456,10 @@ Return only the voiceover text.`
   /**
    * Вычисление вариаций темпа
    */
-  private calculatePaceVariations(context: ScriptGenerationContext, scenes: ScriptScene[]): Array<{ timestamp: number; pace: PaceType; reason: string }> {
+  private calculatePaceVariations(
+    _context: ScriptGenerationContext, 
+    scenes: ScriptScene[]
+  ): Array<{ timestamp: number; pace: PaceType; reason: string }> {
     const variations: Array<{ timestamp: number; pace: PaceType; reason: string }> = []
 
     for (let i = 0; i < scenes.length; i++) {
@@ -1496,8 +1506,8 @@ Return only the voiceover text.`
 
 СЦЕНЫ:
 ${script.scenes.map((scene, index) => 
-  `${index + 1}. ${scene.type.toUpperCase()}: ${scene.description} (${scene.timestamp}с)`
-).join('\n')}
+    `${index + 1}. ${scene.type.toUpperCase()}: ${scene.description} (${scene.timestamp}с)`
+  ).join('\n')}
 
 ОЦЕНИТЕ:
 1. Логическая последовательность событий
@@ -1611,7 +1621,7 @@ ${script.scenes.map((scene, index) =>
     complexity += uniqueSceneTypes * 0.1
 
     // Наличие нелинейной структуры
-    if (script.structure.type !== "linear") {
+    if (script.structure.type !== NarrativeType.THREE_ACT) {
       complexity += 0.2
     }
 

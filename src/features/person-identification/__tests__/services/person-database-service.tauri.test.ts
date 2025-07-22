@@ -1,9 +1,9 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { invoke } from "@tauri-apps/api/core"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { PersonDatabaseService } from "../../services/person-database-service"
 
-import type { DetectedFace, PersonProfile, DatabaseStats } from "../../types"
+import type { DatabaseStats, DetectedFace, PersonProfile } from "../../types"
 
 // Mock Tauri invoke
 vi.mock("@tauri-apps/api/core", () => ({
@@ -16,7 +16,7 @@ describe("PersonDatabaseService Tauri Integration", () => {
   beforeEach(async () => {
     vi.clearAllMocks()
     ;(PersonDatabaseService as any).instance = null
-    
+
     // Create service with Tauri storage
     service = PersonDatabaseService.getInstance({
       storage: "tauri",
@@ -24,7 +24,7 @@ describe("PersonDatabaseService Tauri Integration", () => {
 
     // Mock successful initialization
     vi.mocked(invoke).mockResolvedValueOnce("Person database initialized successfully")
-    
+
     await service.initialize()
   })
 
@@ -195,7 +195,7 @@ describe("PersonDatabaseService Tauri Integration", () => {
 
       vi.mocked(invoke)
         .mockResolvedValueOnce(mockResults) // search_similar_persons
-        .mockResolvedValueOnce(mockPerson)   // get_person
+        .mockResolvedValueOnce(mockPerson) // get_person
 
       const embedding = new Float32Array([0.1, 0.2, 0.3])
       const results = await service.searchPersonsByEmbedding(embedding, 0.8, 5)

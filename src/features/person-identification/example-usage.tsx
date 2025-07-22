@@ -30,12 +30,12 @@ export function PersonIdentificationExample() {
   // Пример 2: Идентификация лица
   const handleIdentifyFace = async (detectedFace: DetectedFace) => {
     const result = await identifyPerson(detectedFace)
-    
+
     if (result) {
       console.log(`Опознан: ${result.person.name} с уверенностью ${result.confidence}`)
     } else {
       console.log("Лицо не опознано")
-      
+
       // Создаем новую персону из неопознанного лица
       const newPerson = await createPersonFromFace(detectedFace, {
         name: "Неизвестный",
@@ -60,7 +60,7 @@ export function PersonIdentificationExample() {
   return (
     <div className="p-4">
       <h2 className="text-xl font-bold mb-4">Person Identification</h2>
-      
+
       <div className="mb-4">
         <h3 className="font-semibold">Статистика</h3>
         <ul className="text-sm">
@@ -77,18 +77,13 @@ export function PersonIdentificationExample() {
           {persons.map((person) => (
             <div key={person.id} className="border p-2 rounded">
               <h4 className="font-medium">{person.name || "Без имени"}</h4>
-              <p className="text-xs text-gray-600">
-                Лиц: {person.faceEmbeddings?.length || 0}
-              </p>
+              <p className="text-xs text-gray-600">Лиц: {person.faceEmbeddings?.length || 0}</p>
             </div>
           ))}
         </div>
       </div>
 
-      <button
-        onClick={handleCreatePerson}
-        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-      >
+      <button onClick={handleCreatePerson} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
         Создать персону
       </button>
     </div>

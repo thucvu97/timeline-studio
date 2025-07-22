@@ -1,9 +1,9 @@
 import { renderHook } from "@testing-library/react"
-import { describe, it, expect, vi, beforeEach } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { useBrowserAIIntegration } from "../use-browser-ai-integration"
-import { useTimelineAIIntegration } from "../use-timeline-ai-integration"
 import { usePlayerAIIntegration } from "../use-player-ai-integration"
+import { useTimelineAIIntegration } from "../use-timeline-ai-integration"
 
 // Мокаем зависимости
 vi.mock("@/features/browser/services/browser-state-provider", () => ({
@@ -16,8 +16,8 @@ vi.mock("@/features/browser/services/browser-state-provider", () => ({
           showFavoritesOnly: false,
           sortBy: "name",
           sortOrder: "asc",
-        }
-      }
+        },
+      },
     },
     activeTab: "media",
     currentTabSettings: {},
@@ -26,7 +26,7 @@ vi.mock("@/features/browser/services/browser-state-provider", () => ({
     toggleFavorites: vi.fn(),
     setSort: vi.fn(),
     setFilter: vi.fn(),
-  })
+  }),
 }))
 
 vi.mock("@/features/app-state/hooks", () => ({
@@ -39,10 +39,10 @@ vi.mock("@/features/app-state/hooks", () => ({
             { id: "2", name: "audio1.mp3", isAudio: true },
           ],
           isLoading: false,
-        }
-      }
-    }
-  })
+        },
+      },
+    },
+  }),
 }))
 
 vi.mock("@/features/timeline/hooks", () => ({
@@ -52,12 +52,10 @@ vi.mock("@/features/timeline/hooks", () => ({
         {
           id: "track1",
           type: "video",
-          clips: [
-            { id: "clip1", startTime: 0, duration: 10 }
-          ]
-        }
+          clips: [{ id: "clip1", startTime: 0, duration: 10 }],
+        },
       ],
-      sections: []
+      sections: [],
     },
     isReady: true,
     isPlaying: false,
@@ -83,7 +81,7 @@ vi.mock("@/features/timeline/hooks", () => ({
     play: vi.fn(),
     pause: vi.fn(),
     createProject: vi.fn(),
-  })
+  }),
 }))
 
 vi.mock("@/features/video-player", () => ({
@@ -115,7 +113,7 @@ vi.mock("@/features/video-player", () => ({
     clearTemplate: vi.fn(),
     setPreviewMedia: vi.fn(),
     setVideoSource: vi.fn(),
-  })
+  }),
 }))
 
 describe("State Machine AI Integration", () => {
@@ -126,7 +124,7 @@ describe("State Machine AI Integration", () => {
   describe("useBrowserAIIntegration", () => {
     it("should provide browser state access", () => {
       const { result } = renderHook(() => useBrowserAIIntegration())
-      
+
       expect(result.current.isReady).toBe(true)
       expect(result.current.filesCount).toBe(2)
       expect(result.current.activeTab).toBe("media")
@@ -134,7 +132,7 @@ describe("State Machine AI Integration", () => {
 
     it("should not set global window.browserContext", () => {
       renderHook(() => useBrowserAIIntegration())
-      
+
       expect((window as any).browserContext).toBeUndefined()
     })
   })
@@ -142,7 +140,7 @@ describe("State Machine AI Integration", () => {
   describe("useTimelineAIIntegration", () => {
     it("should provide timeline state access", () => {
       const { result } = renderHook(() => useTimelineAIIntegration())
-      
+
       expect(result.current.isReady).toBe(true)
       expect(result.current.hasProject).toBe(true)
       expect(result.current.clipsCount).toBe(1)
@@ -152,7 +150,7 @@ describe("State Machine AI Integration", () => {
 
     it("should not set global window.timelineContext", () => {
       renderHook(() => useTimelineAIIntegration())
-      
+
       expect((window as any).timelineContext).toBeUndefined()
     })
   })
@@ -160,7 +158,7 @@ describe("State Machine AI Integration", () => {
   describe("usePlayerAIIntegration", () => {
     it("should provide player state access", () => {
       const { result } = renderHook(() => usePlayerAIIntegration())
-      
+
       expect(result.current.isReady).toBe(true)
       expect(result.current.hasMedia).toBe(true)
       expect(result.current.isPlaying).toBe(false)
@@ -170,7 +168,7 @@ describe("State Machine AI Integration", () => {
 
     it("should not set global window.playerContext", () => {
       renderHook(() => usePlayerAIIntegration())
-      
+
       expect((window as any).playerContext).toBeUndefined()
     })
   })

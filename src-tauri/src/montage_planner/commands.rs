@@ -82,14 +82,17 @@ pub async fn analyze_video_composition(
 
   for (timestamp, detections) in yolo_detections {
     // Get actual frame quality from metadata
-    let frame_quality = match quality_analyzer.analyze_frame_quality(&path, timestamp).await {
+    let frame_quality = match quality_analyzer
+      .analyze_frame_quality(&path, timestamp)
+      .await
+    {
       Ok(analysis) => analysis.overall_quality,
       Err(e) => {
         log::warn!("Failed to analyze frame quality at {timestamp}: {e:?}");
         85.0 // Fallback to reasonable default
       }
     };
-    
+
     if frame_quality >= analysis_options.quality_threshold {
       match composition_analyzer.analyze_composition(
         &detections,

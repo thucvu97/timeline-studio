@@ -1,11 +1,12 @@
 /**
  * Timeline UI State Machine
- * 
+ *
  * Управляет только UI состоянием timeline, данные проекта берутся из backend
  */
 
-import { setup, assign } from 'xstate'
-import { ClipboardData } from '../utils/clip-operations'
+import { assign, setup } from "xstate"
+
+import { ClipboardData } from "../utils/clip-operations"
 
 // UI состояние timeline
 export interface TimelineUIContext {
@@ -17,8 +18,8 @@ export interface TimelineUIContext {
   // UI состояние
   timeScale: number
   scrollPosition: { x: number; y: number }
-  editMode: 'select' | 'cut' | 'trim' | 'move'
-  snapMode: 'none' | 'grid' | 'clips' | 'markers'
+  editMode: "select" | "cut" | "trim" | "move"
+  snapMode: "none" | "grid" | "clips" | "markers"
 
   // Выделение
   selectedClipIds: string[]
@@ -45,39 +46,39 @@ export interface TimelineUIContext {
 
 export type TimelineUIEvent =
   // Синхронизация с backend
-  | { type: 'SYNC_PLAYBACK_STATE'; isPlaying: boolean; currentTime: number; playbackRate: number }
-  
+  | { type: "SYNC_PLAYBACK_STATE"; isPlaying: boolean; currentTime: number; playbackRate: number }
+
   // UI состояние
-  | { type: 'SET_TIME_SCALE'; scale: number }
-  | { type: 'SET_SCROLL_POSITION'; x: number; y: number }
-  | { type: 'SET_EDIT_MODE'; mode: 'select' | 'cut' | 'trim' | 'move' }
-  | { type: 'TOGGLE_SNAP'; snapMode: 'none' | 'grid' | 'clips' | 'markers' }
+  | { type: "SET_TIME_SCALE"; scale: number }
+  | { type: "SET_SCROLL_POSITION"; x: number; y: number }
+  | { type: "SET_EDIT_MODE"; mode: "select" | "cut" | "trim" | "move" }
+  | { type: "TOGGLE_SNAP"; snapMode: "none" | "grid" | "clips" | "markers" }
 
   // Выделение
-  | { type: 'SELECT_CLIPS'; clipIds: string[]; addToSelection?: boolean }
-  | { type: 'SELECT_TRACKS'; trackIds: string[]; addToSelection?: boolean }
-  | { type: 'SELECT_SECTIONS'; sectionIds: string[]; addToSelection?: boolean }
-  | { type: 'CLEAR_SELECTION' }
+  | { type: "SELECT_CLIPS"; clipIds: string[]; addToSelection?: boolean }
+  | { type: "SELECT_TRACKS"; trackIds: string[]; addToSelection?: boolean }
+  | { type: "SELECT_SECTIONS"; sectionIds: string[]; addToSelection?: boolean }
+  | { type: "CLEAR_SELECTION" }
 
   // Операции перетаскивания
-  | { type: 'START_DRAG_CLIP'; clipId: string }
-  | { type: 'START_DRAG_TRACK'; trackId: string }
-  | { type: 'STOP_DRAG' }
+  | { type: "START_DRAG_CLIP"; clipId: string }
+  | { type: "START_DRAG_TRACK"; trackId: string }
+  | { type: "STOP_DRAG" }
 
   // Буфер обмена
-  | { type: 'COPY_SELECTION'; clipboardData: ClipboardData }
-  | { type: 'CUT_SELECTION'; clipboardData: ClipboardData }
-  | { type: 'CLEAR_CLIPBOARD' }
+  | { type: "COPY_SELECTION"; clipboardData: ClipboardData }
+  | { type: "CUT_SELECTION"; clipboardData: ClipboardData }
+  | { type: "CLEAR_CLIPBOARD" }
 
   // Флаги UI
-  | { type: 'SET_RECORDING'; isRecording: boolean }
-  | { type: 'TOGGLE_WAVEFORMS' }
-  | { type: 'TOGGLE_THUMBNAILS' }
-  | { type: 'TOGGLE_MARKERS' }
+  | { type: "SET_RECORDING"; isRecording: boolean }
+  | { type: "TOGGLE_WAVEFORMS" }
+  | { type: "TOGGLE_THUMBNAILS" }
+  | { type: "TOGGLE_MARKERS" }
 
   // Ошибки
-  | { type: 'SET_UI_ERROR'; error: string }
-  | { type: 'CLEAR_UI_ERROR' }
+  | { type: "SET_UI_ERROR"; error: string }
+  | { type: "CLEAR_UI_ERROR" }
 
 export const timelineUIMachine = setup({
   types: {} as {
@@ -88,34 +89,34 @@ export const timelineUIMachine = setup({
   actions: {
     // Синхронизация с backend
     syncPlaybackState: assign({
-      isPlaying: ({ event }) => event.type === 'SYNC_PLAYBACK_STATE' ? event.isPlaying : false,
-      currentTime: ({ event }) => event.type === 'SYNC_PLAYBACK_STATE' ? event.currentTime : 0,
-      playbackRate: ({ event }) => event.type === 'SYNC_PLAYBACK_STATE' ? event.playbackRate : 1,
+      isPlaying: ({ event }) => (event.type === "SYNC_PLAYBACK_STATE" ? event.isPlaying : false),
+      currentTime: ({ event }) => (event.type === "SYNC_PLAYBACK_STATE" ? event.currentTime : 0),
+      playbackRate: ({ event }) => (event.type === "SYNC_PLAYBACK_STATE" ? event.playbackRate : 1),
     }),
 
     // UI состояние
     setTimeScale: assign({
-      timeScale: ({ event }) => event.type === 'SET_TIME_SCALE' ? event.scale : 1,
+      timeScale: ({ event }) => (event.type === "SET_TIME_SCALE" ? event.scale : 1),
     }),
 
     setScrollPosition: assign({
-      scrollPosition: ({ event }) => 
-        event.type === 'SET_SCROLL_POSITION' ? { x: event.x, y: event.y } : { x: 0, y: 0 },
+      scrollPosition: ({ event }) =>
+        event.type === "SET_SCROLL_POSITION" ? { x: event.x, y: event.y } : { x: 0, y: 0 },
     }),
 
     setEditMode: assign({
-      editMode: ({ event }) => event.type === 'SET_EDIT_MODE' ? event.mode : 'select',
+      editMode: ({ event }) => (event.type === "SET_EDIT_MODE" ? event.mode : "select"),
     }),
 
     toggleSnap: assign({
-      snapMode: ({ event }) => event.type === 'TOGGLE_SNAP' ? event.snapMode : 'none',
+      snapMode: ({ event }) => (event.type === "TOGGLE_SNAP" ? event.snapMode : "none"),
     }),
 
     // Выделение
     selectClips: assign({
       selectedClipIds: ({ context, event }) => {
-        if (event.type !== 'SELECT_CLIPS') return context.selectedClipIds
-        
+        if (event.type !== "SELECT_CLIPS") return context.selectedClipIds
+
         if (event.addToSelection) {
           return [...new Set([...context.selectedClipIds, ...event.clipIds])]
         }
@@ -125,8 +126,8 @@ export const timelineUIMachine = setup({
 
     selectTracks: assign({
       selectedTrackIds: ({ context, event }) => {
-        if (event.type !== 'SELECT_TRACKS') return context.selectedTrackIds
-        
+        if (event.type !== "SELECT_TRACKS") return context.selectedTrackIds
+
         if (event.addToSelection) {
           return [...new Set([...context.selectedTrackIds, ...event.trackIds])]
         }
@@ -136,8 +137,8 @@ export const timelineUIMachine = setup({
 
     selectSections: assign({
       selectedSectionIds: ({ context, event }) => {
-        if (event.type !== 'SELECT_SECTIONS') return context.selectedSectionIds
-        
+        if (event.type !== "SELECT_SECTIONS") return context.selectedSectionIds
+
         if (event.addToSelection) {
           return [...new Set([...context.selectedSectionIds, ...event.sectionIds])]
         }
@@ -154,13 +155,13 @@ export const timelineUIMachine = setup({
     // Операции перетаскивания
     startDragClip: assign({
       isDragging: () => true,
-      draggedClipId: ({ event }) => event.type === 'START_DRAG_CLIP' ? event.clipId : null,
+      draggedClipId: ({ event }) => (event.type === "START_DRAG_CLIP" ? event.clipId : null),
       draggedTrackId: () => null,
     }),
 
     startDragTrack: assign({
       isDragging: () => true,
-      draggedTrackId: ({ event }) => event.type === 'START_DRAG_TRACK' ? event.trackId : null,
+      draggedTrackId: ({ event }) => (event.type === "START_DRAG_TRACK" ? event.trackId : null),
       draggedClipId: () => null,
     }),
 
@@ -172,10 +173,8 @@ export const timelineUIMachine = setup({
 
     // Буфер обмена
     setClipboard: assign({
-      clipboard: ({ event }) => 
-        (event.type === 'COPY_SELECTION' || event.type === 'CUT_SELECTION') 
-          ? event.clipboardData 
-          : null,
+      clipboard: ({ event }) =>
+        event.type === "COPY_SELECTION" || event.type === "CUT_SELECTION" ? event.clipboardData : null,
     }),
 
     clearClipboard: assign({
@@ -184,7 +183,7 @@ export const timelineUIMachine = setup({
 
     // Флаги UI
     setRecording: assign({
-      isRecording: ({ event }) => event.type === 'SET_RECORDING' ? event.isRecording : false,
+      isRecording: ({ event }) => (event.type === "SET_RECORDING" ? event.isRecording : false),
     }),
 
     toggleWaveforms: assign({
@@ -201,7 +200,7 @@ export const timelineUIMachine = setup({
 
     // Ошибки
     setUIError: assign({
-      uiError: ({ event }) => event.type === 'SET_UI_ERROR' ? event.error : null,
+      uiError: ({ event }) => (event.type === "SET_UI_ERROR" ? event.error : null),
     }),
 
     clearUIError: assign({
@@ -210,9 +209,9 @@ export const timelineUIMachine = setup({
   },
 
   guards: {
-    hasSelection: ({ context }) => 
-      context.selectedClipIds.length > 0 || 
-      context.selectedTrackIds.length > 0 || 
+    hasSelection: ({ context }) =>
+      context.selectedClipIds.length > 0 ||
+      context.selectedTrackIds.length > 0 ||
       context.selectedSectionIds.length > 0,
 
     isDragging: ({ context }) => context.isDragging,
@@ -220,8 +219,8 @@ export const timelineUIMachine = setup({
     hasClipboard: ({ context }) => context.clipboard !== null,
   },
 }).createMachine({
-  id: 'timelineUI',
-  initial: 'idle',
+  id: "timelineUI",
+  initial: "idle",
 
   context: {
     // Состояние воспроизведения
@@ -232,8 +231,8 @@ export const timelineUIMachine = setup({
     // UI состояние
     timeScale: 1,
     scrollPosition: { x: 0, y: 0 },
-    editMode: 'select',
-    snapMode: 'none',
+    editMode: "select",
+    snapMode: "none",
 
     // Выделение
     selectedClipIds: [],
@@ -263,80 +262,80 @@ export const timelineUIMachine = setup({
       on: {
         // Синхронизация с backend
         SYNC_PLAYBACK_STATE: {
-          actions: 'syncPlaybackState',
+          actions: "syncPlaybackState",
         },
 
         // UI состояние
         SET_TIME_SCALE: {
-          actions: 'setTimeScale',
+          actions: "setTimeScale",
         },
         SET_SCROLL_POSITION: {
-          actions: 'setScrollPosition',
+          actions: "setScrollPosition",
         },
         SET_EDIT_MODE: {
-          actions: 'setEditMode',
+          actions: "setEditMode",
         },
         TOGGLE_SNAP: {
-          actions: 'toggleSnap',
+          actions: "toggleSnap",
         },
 
         // Выделение
         SELECT_CLIPS: {
-          actions: 'selectClips',
+          actions: "selectClips",
         },
         SELECT_TRACKS: {
-          actions: 'selectTracks',
+          actions: "selectTracks",
         },
         SELECT_SECTIONS: {
-          actions: 'selectSections',
+          actions: "selectSections",
         },
         CLEAR_SELECTION: {
-          actions: 'clearSelection',
+          actions: "clearSelection",
         },
 
         // Операции перетаскивания
         START_DRAG_CLIP: {
-          target: 'dragging',
-          actions: 'startDragClip',
+          target: "dragging",
+          actions: "startDragClip",
         },
         START_DRAG_TRACK: {
-          target: 'dragging',
-          actions: 'startDragTrack',
+          target: "dragging",
+          actions: "startDragTrack",
         },
 
         // Буфер обмена
         COPY_SELECTION: {
-          guard: 'hasSelection',
-          actions: 'setClipboard',
+          guard: "hasSelection",
+          actions: "setClipboard",
         },
         CUT_SELECTION: {
-          guard: 'hasSelection',
-          actions: 'setClipboard',
+          guard: "hasSelection",
+          actions: "setClipboard",
         },
         CLEAR_CLIPBOARD: {
-          actions: 'clearClipboard',
+          actions: "clearClipboard",
         },
 
         // Флаги UI
         SET_RECORDING: {
-          actions: 'setRecording',
+          actions: "setRecording",
         },
         TOGGLE_WAVEFORMS: {
-          actions: 'toggleWaveforms',
+          actions: "toggleWaveforms",
         },
         TOGGLE_THUMBNAILS: {
-          actions: 'toggleThumbnails',
+          actions: "toggleThumbnails",
         },
         TOGGLE_MARKERS: {
-          actions: 'toggleMarkers',
+          actions: "toggleMarkers",
         },
 
         // Ошибки
         SET_UI_ERROR: {
-          actions: 'setUIError',
+          actions: "setUIError",
         },
         CLEAR_UI_ERROR: {
-          actions: 'clearUIError',
+          actions: "clearUIError",
         },
       },
     },
@@ -344,13 +343,13 @@ export const timelineUIMachine = setup({
     dragging: {
       on: {
         STOP_DRAG: {
-          target: 'idle',
-          actions: 'stopDrag',
+          target: "idle",
+          actions: "stopDrag",
         },
 
         // Во время перетаскивания можно обновлять позицию скролла
         SET_SCROLL_POSITION: {
-          actions: 'setScrollPosition',
+          actions: "setScrollPosition",
         },
       },
     },
@@ -393,10 +392,8 @@ export const timelineUISelectors = {
     showMarkers: context.showMarkers,
   }),
 
-  hasSelection: (context: TimelineUIContext) => 
-    context.selectedClipIds.length > 0 || 
-    context.selectedTrackIds.length > 0 || 
-    context.selectedSectionIds.length > 0,
+  hasSelection: (context: TimelineUIContext) =>
+    context.selectedClipIds.length > 0 || context.selectedTrackIds.length > 0 || context.selectedSectionIds.length > 0,
 
   hasClipboard: (context: TimelineUIContext) => context.clipboard !== null,
 }

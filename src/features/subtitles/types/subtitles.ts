@@ -37,7 +37,7 @@ export type SubtitleTag =
 /**
  * Интерфейс, описывающий стиль субтитров
  */
-export interface SubtitleStyle {
+export interface SubtitleStyleTemplate {
   id: string // Уникальный идентификатор стиля
   name: string // Название стиля
   category: SubtitleCategory // Категория стиля
@@ -84,7 +84,7 @@ export interface SubtitleCategoryInfo {
   id: string // Уникальный идентификатор категории
   name: string // Название категории
   description?: string // Описание категории
-  styles: SubtitleStyle[] // Список стилей в категории
+  styles: SubtitleStyleTemplate[] // Список стилей в категории
 }
 
 /**

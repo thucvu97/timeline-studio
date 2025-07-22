@@ -168,7 +168,7 @@ pub async fn initialize() -> Result<VideoCompilerState> {
   if !temp_dir.exists() {
     tokio::fs::create_dir_all(&temp_dir)
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
   }
 
   // Создаем контейнер сервисов с правильным путем к FFmpeg

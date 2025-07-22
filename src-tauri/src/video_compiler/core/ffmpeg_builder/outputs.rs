@@ -92,14 +92,29 @@ impl<'a> OutputBuilder<'a> {
     let encoder = if hw_type == "auto" {
       // Автоматически определяем лучший доступный кодировщик
       let detector = GpuDetector::new(self.settings.ffmpeg_path.clone());
-      match detector.get_recommended_encoder().await? {
-        Some(recommended) => {
-          log::info!("Using recommended encoder: {recommended:?}");
-          recommended
-        }
-        None => {
-          log::warn!("No hardware encoders available, falling back to software");
+
+      // Проверяем доступность GPU с учетом загрузки
+      if let Ok(available) = detector.check_gpu_availability().await {
+        if !available {
+          log::warn!("GPU is overloaded or unavailable, falling back to software encoding");
           GpuEncoder::Software
+        } else {
+          match detector.get_recommended_encoder().await? {
+            Some(recommended) => {
+              log::info!("Using recommended encoder: {recommended:?}");
+              recommended
+            }
+            None => {
+              log::warn!("No hardware encoders available, falling back to software");
+              GpuEncoder::Software
+            }
+          }
+        }
+      } else {
+        // Если не можем проверить доступность, пробуем использовать GPU
+        match detector.get_recommended_encoder().await? {
+          Some(recommended) => recommended,
+          None => GpuEncoder::Software,
         }
       }
     } else {

@@ -2,19 +2,25 @@
  * Tests for Scene Detection Service
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
-import { SceneDetectionService, classifyTransitionComplexity, evaluateEditingQuality, type SceneTransitionAnalysis } from '../../services/scene-detection'
-import { TransitionType } from '../../../../shared/types/content-analysis'
+import { beforeEach, describe, expect, it } from "vitest"
 
-describe('SceneDetectionService', () => {
+import { TransitionType } from "../../../../shared/types/content-analysis"
+import {
+  classifyTransitionComplexity,
+  evaluateEditingQuality,
+  SceneDetectionService,
+  type SceneTransitionAnalysis,
+} from "../../services/scene-detection"
+
+describe("SceneDetectionService", () => {
   let service: SceneDetectionService
 
   beforeEach(() => {
     service = new SceneDetectionService()
   })
 
-  describe('analyzeTransitions', () => {
-    it('должен анализировать переходы между сценами', async () => {
+  describe("analyzeTransitions", () => {
+    it("должен анализировать переходы между сценами", async () => {
       const mockScenes = [
         {
           startTime: 0,
@@ -23,7 +29,10 @@ describe('SceneDetectionService', () => {
             {
               time: 5,
               histogram: Array(768).fill(50), // Средняя яркость
-              motionVectors: [[1, 0], [2, 0]],
+              motionVectors: [
+                [1, 0],
+                [2, 0],
+              ],
               audioLevel: -20,
             },
           ],
@@ -35,7 +44,10 @@ describe('SceneDetectionService', () => {
             {
               time: 15,
               histogram: Array(768).fill(100), // Высокая яркость
-              motionVectors: [[-1, 0], [-2, 0]],
+              motionVectors: [
+                [-1, 0],
+                [-2, 0],
+              ],
               audioLevel: -15,
             },
           ],
@@ -58,7 +70,7 @@ describe('SceneDetectionService', () => {
       })
     })
 
-    it('должен обрабатывать случай без кадров', async () => {
+    it("должен обрабатывать случай без кадров", async () => {
       const mockScenes = [
         {
           startTime: 0,
@@ -78,7 +90,7 @@ describe('SceneDetectionService', () => {
       expect(transitions[0].type).toBe(TransitionType.CUT)
     })
 
-    it('должен возвращать пустой массив для одной сцены', async () => {
+    it("должен возвращать пустой массив для одной сцены", async () => {
       const mockScenes = [
         {
           startTime: 0,
@@ -93,8 +105,8 @@ describe('SceneDetectionService', () => {
     })
   })
 
-  describe('detectTransitionType', () => {
-    it('должен определять fade переходы', async () => {
+  describe("detectTransitionType", () => {
+    it("должен определять fade переходы", async () => {
       const mockConfig = {
         colorHistogramThreshold: 0.3,
         motionVectorThreshold: 0.4,
@@ -149,15 +161,15 @@ describe('SceneDetectionService', () => {
     })
   })
 
-  describe('configuration', () => {
-    it('должен использовать конфигурацию по умолчанию', () => {
+  describe("configuration", () => {
+    it("должен использовать конфигурацию по умолчанию", () => {
       const service = new SceneDetectionService()
-      
+
       // Проверяем, что сервис создан успешно (конфигурация валидна)
       expect(service).toBeDefined()
     })
 
-    it('должен принимать пользовательскую конфигурацию', () => {
+    it("должен принимать пользовательскую конфигурацию", () => {
       const customConfig = {
         colorHistogramThreshold: 0.5,
         transitionDetection: {
@@ -170,14 +182,14 @@ describe('SceneDetectionService', () => {
       }
 
       const service = new SceneDetectionService(customConfig)
-      
+
       expect(service).toBeDefined()
     })
   })
 })
 
-describe('classifyTransitionComplexity', () => {
-  it('должен классифицировать простые переходы', () => {
+describe("classifyTransitionComplexity", () => {
+  it("должен классифицировать простые переходы", () => {
     const cutTransition: SceneTransitionAnalysis = {
       fromScene: 0,
       toScene: 1,
@@ -197,10 +209,10 @@ describe('classifyTransitionComplexity', () => {
       },
     }
 
-    expect(classifyTransitionComplexity(cutTransition)).toBe('simple')
+    expect(classifyTransitionComplexity(cutTransition)).toBe("simple")
   })
 
-  it('должен классифицировать средние переходы', () => {
+  it("должен классифицировать средние переходы", () => {
     const dissolveTransition: SceneTransitionAnalysis = {
       fromScene: 0,
       toScene: 1,
@@ -220,10 +232,10 @@ describe('classifyTransitionComplexity', () => {
       },
     }
 
-    expect(classifyTransitionComplexity(dissolveTransition)).toBe('medium')
+    expect(classifyTransitionComplexity(dissolveTransition)).toBe("medium")
   })
 
-  it('должен классифицировать сложные переходы', () => {
+  it("должен классифицировать сложные переходы", () => {
     const morphTransition: SceneTransitionAnalysis = {
       fromScene: 0,
       toScene: 1,
@@ -243,12 +255,12 @@ describe('classifyTransitionComplexity', () => {
       },
     }
 
-    expect(classifyTransitionComplexity(morphTransition)).toBe('complex')
+    expect(classifyTransitionComplexity(morphTransition)).toBe("complex")
   })
 })
 
-describe('evaluateEditingQuality', () => {
-  it('должен возвращать нулевые значения для пустого массива', () => {
+describe("evaluateEditingQuality", () => {
+  it("должен возвращать нулевые значения для пустого массива", () => {
     const quality = evaluateEditingQuality([])
 
     expect(quality).toEqual({
@@ -259,7 +271,7 @@ describe('evaluateEditingQuality', () => {
     })
   })
 
-  it('должен оценивать качество монтажа', () => {
+  it("должен оценивать качество монтажа", () => {
     const transitions: SceneTransitionAnalysis[] = [
       {
         fromScene: 0,
@@ -311,7 +323,7 @@ describe('evaluateEditingQuality', () => {
     expect(quality.creativity).toBeLessThanOrEqual(1)
   })
 
-  it('должен предпочитать консистентность при одинаковых переходах', () => {
+  it("должен предпочитать консистентность при одинаковых переходах", () => {
     const transitions: SceneTransitionAnalysis[] = [
       {
         fromScene: 0,

@@ -41,7 +41,7 @@ pub async fn whisper_transcribe_openai(
   // Читаем файл
   let file_content = fs::read(&file_path)
     .await
-    .map_err(|e| VideoCompilerError::IoError(format!("Ошибка чтения файла: {e}")))?;
+    .map_err(|e| VideoCompilerError::Io(format!("Ошибка чтения файла: {e}")))?;
 
   let file_name = file_path
     .file_name()
@@ -81,7 +81,7 @@ pub async fn whisper_transcribe_openai(
     .multipart(form)
     .send()
     .await
-    .map_err(|e| VideoCompilerError::IoError(format!("Ошибка запроса к OpenAI: {e}")))?;
+    .map_err(|e| VideoCompilerError::Io(format!("Ошибка запроса к OpenAI: {e}")))?;
 
   let status = response.status();
   if !status.is_success() {
@@ -126,7 +126,7 @@ pub async fn whisper_translate_openai(
   // Читаем файл
   let file_content = fs::read(&file_path)
     .await
-    .map_err(|e| VideoCompilerError::IoError(format!("Ошибка чтения файла: {e}")))?;
+    .map_err(|e| VideoCompilerError::Io(format!("Ошибка чтения файла: {e}")))?;
 
   let file_name = file_path
     .file_name()
@@ -155,7 +155,7 @@ pub async fn whisper_translate_openai(
     .multipart(form)
     .send()
     .await
-    .map_err(|e| VideoCompilerError::IoError(format!("Ошибка запроса к OpenAI: {e}")))?;
+    .map_err(|e| VideoCompilerError::Io(format!("Ошибка запроса к OpenAI: {e}")))?;
 
   let status = response.status();
   if !status.is_success() {
@@ -241,7 +241,7 @@ pub async fn whisper_transcribe_local(
   let result = executor
     .execute(cmd)
     .await
-    .map_err(|e| VideoCompilerError::IoError(format!("Ошибка выполнения whisper.cpp: {e}")))?;
+    .map_err(|e| VideoCompilerError::Io(format!("Ошибка выполнения whisper.cpp: {e}")))?;
 
   if result.exit_code != 0 {
     return Err(VideoCompilerError::FFmpegError {
@@ -257,7 +257,7 @@ pub async fn whisper_transcribe_local(
       let json_file = output_file.with_extension("json");
       let content = fs::read_to_string(&json_file)
         .await
-        .map_err(|e| VideoCompilerError::IoError(format!("Ошибка чтения результата: {e}")))?;
+        .map_err(|e| VideoCompilerError::Io(format!("Ошибка чтения результата: {e}")))?;
 
       // Парсим JSON результат whisper.cpp
       let whisper_result: serde_json::Value = serde_json::from_str(&content).map_err(|e| {
@@ -282,7 +282,7 @@ pub async fn whisper_transcribe_local(
       let txt_file = output_file.with_extension("txt");
       let text = fs::read_to_string(&txt_file)
         .await
-        .map_err(|e| VideoCompilerError::IoError(format!("Ошибка чтения результата: {e}")))?;
+        .map_err(|e| VideoCompilerError::Io(format!("Ошибка чтения результата: {e}")))?;
 
       // Удаляем временный файл
       let _ = fs::remove_file(&txt_file).await;
@@ -340,7 +340,7 @@ pub async fn whisper_download_model(model_name: String) -> Result<bool> {
   // Создаем директорию если её нет
   fs::create_dir_all(&models_dir)
     .await
-    .map_err(|e| VideoCompilerError::IoError(format!("Ошибка создания директории моделей: {e}")))?;
+    .map_err(|e| VideoCompilerError::Io(format!("Ошибка создания директории моделей: {e}")))?;
 
   // Определяем имя файла модели
   let filename = match model_name.as_str() {
@@ -374,10 +374,10 @@ pub async fn whisper_download_model(model_name: String) -> Result<bool> {
     .get(&download_url)
     .send()
     .await
-    .map_err(|e| VideoCompilerError::IoError(format!("Ошибка скачивания модели: {e}")))?;
+    .map_err(|e| VideoCompilerError::Io(format!("Ошибка скачивания модели: {e}")))?;
 
   if !response.status().is_success() {
-    return Err(VideoCompilerError::IoError(format!(
+    return Err(VideoCompilerError::Io(format!(
       "Ошибка скачивания: HTTP {}",
       response.status()
     )));
@@ -387,11 +387,11 @@ pub async fn whisper_download_model(model_name: String) -> Result<bool> {
   let content = response
     .bytes()
     .await
-    .map_err(|e| VideoCompilerError::IoError(format!("Ошибка получения данных: {e}")))?;
+    .map_err(|e| VideoCompilerError::Io(format!("Ошибка получения данных: {e}")))?;
 
   fs::write(&model_path, content)
     .await
-    .map_err(|e| VideoCompilerError::IoError(format!("Ошибка сохранения модели: {e}")))?;
+    .map_err(|e| VideoCompilerError::Io(format!("Ошибка сохранения модели: {e}")))?;
 
   Ok(true)
 }
@@ -425,9 +425,9 @@ pub async fn extract_audio_for_whisper(
 
   // Создаем временную директорию
   let temp_dir = std::env::temp_dir().join("timeline_studio_whisper");
-  fs::create_dir_all(&temp_dir).await.map_err(|e| {
-    VideoCompilerError::IoError(format!("Ошибка создания временной директории: {e}"))
-  })?;
+  fs::create_dir_all(&temp_dir)
+    .await
+    .map_err(|e| VideoCompilerError::Io(format!("Ошибка создания временной директории: {e}")))?;
 
   // Генерируем имя выходного файла
   let timestamp = chrono::Utc::now().timestamp_millis();
@@ -501,7 +501,7 @@ pub async fn extract_audio_for_whisper(
   let result = executor
     .execute(cmd)
     .await
-    .map_err(|e| VideoCompilerError::IoError(format!("Ошибка извлечения аудио: {e}")))?;
+    .map_err(|e| VideoCompilerError::Io(format!("Ошибка извлечения аудио: {e}")))?;
 
   if result.exit_code != 0 {
     return Err(VideoCompilerError::FFmpegError {

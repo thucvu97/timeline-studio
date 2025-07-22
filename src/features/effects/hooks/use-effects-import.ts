@@ -2,8 +2,9 @@ import { useCallback, useState } from "react"
 
 import { open } from "@tauri-apps/plugin-dialog"
 
-import { VideoEffect } from "@/features/effects/types"
+import { BaseEffect } from "@/features/effects/types"
 
+import { EffectManager } from "../services/effect-manager"
 import { loadEffectsCollection, loadUserEffect } from "../utils/user-effects"
 
 /**
@@ -12,7 +13,9 @@ import { loadEffectsCollection, loadUserEffect } from "../utils/user-effects"
 interface ImportResult {
   success: boolean
   message: string
-  effects: VideoEffect[]
+  effects: BaseEffect[]
+  imported?: number
+  failed?: number
 }
 
 /**
@@ -26,18 +29,17 @@ export function useEffectsImport() {
   /**
    * Валидация структуры эффекта
    */
-  const validateEffect = (effect: any): effect is VideoEffect => {
+  const validateEffect = (effect: any): effect is BaseEffect => {
     return (
       effect &&
       typeof effect.id === "string" &&
-      typeof effect.name === "string" &&
-      typeof effect.type === "string" &&
+      effect.name &&
+      (typeof effect.name === "string" || typeof effect.name === "object") &&
       typeof effect.category === "string" &&
-      typeof effect.complexity === "string" &&
-      Array.isArray(effect.tags) &&
-      effect.description &&
-      typeof effect.description.ru === "string" &&
-      typeof effect.description.en === "string"
+      typeof effect.scope === "string" &&
+      Array.isArray(effect.parameters) &&
+      effect.processors &&
+      typeof effect.processors === "object"
     )
   }
 
@@ -81,23 +83,32 @@ export function useEffectsImport() {
 
       // Определяем тип файла
       const fileExtension = selected.split(".").pop()?.toLowerCase()
-      let effects: VideoEffect[] = []
+      let effects: BaseEffect[] = []
+      let imported = 0
+      let failed = 0
 
       try {
         if (fileExtension === "effect") {
           // Пользовательский эффект
           const userEffect = await loadUserEffect(selected)
-          if (userEffect && userEffect.effect && validateEffect(userEffect.effect)) {
-            effects = [userEffect.effect]
+          if (userEffect && validateEffect(userEffect)) {
+            effects = [userEffect]
+            imported = 1
+          } else {
+            failed = 1
           }
         } else if (fileExtension === "effects") {
           // Коллекция эффектов
           const collection = await loadEffectsCollection(selected)
           if (collection && collection.effects && Array.isArray(collection.effects)) {
-            effects = collection.effects
-              .filter((ue) => ue && ue.effect)
-              .map((ue) => ue.effect)
-              .filter(validateEffect)
+            collection.effects.forEach((effect) => {
+              if (validateEffect(effect)) {
+                effects.push(effect)
+                imported++
+              } else {
+                failed++
+              }
+            })
           }
         } else {
           // Обычный JSON
@@ -105,11 +116,28 @@ export function useEffectsImport() {
           const data = await response.json()
 
           if (Array.isArray(data)) {
-            effects = data.filter(validateEffect)
+            data.forEach((item) => {
+              if (validateEffect(item)) {
+                effects.push(item)
+                imported++
+              } else {
+                failed++
+              }
+            })
           } else if (data.effects && Array.isArray(data.effects)) {
-            effects = data.effects.filter(validateEffect)
+            data.effects.forEach((item: any) => {
+              if (validateEffect(item)) {
+                effects.push(item)
+                imported++
+              } else {
+                failed++
+              }
+            })
           } else if (validateEffect(data)) {
             effects = [data]
+            imported = 1
+          } else {
+            failed = 1
           }
         }
       } catch (error) {
@@ -130,21 +158,40 @@ export function useEffectsImport() {
         setIsImporting(false)
         return {
           success: false,
-          message: "В файле не найдено валидных эффектов",
+          message:
+            failed > 0
+              ? `Не удалось импортировать ${failed} эффектов. Проверьте формат файла.`
+              : "В файле не найдено валидных эффектов",
           effects: [],
+          imported: 0,
+          failed,
         }
       }
 
-      // TODO: Сохранить эффекты в пользовательскую коллекцию
-      console.log("Импортированные эффекты:", effects)
+      // Регистрируем эффекты в EffectManager
+      const effectManager = EffectManager.getInstance()
+      effects.forEach((effect) => {
+        try {
+          effectManager.registerEffect(effect)
+        } catch (error) {
+          console.error(`Failed to register effect ${effect.id}:`, error)
+        }
+      })
 
       setProgress(100)
       setIsImporting(false)
 
+      const message =
+        failed > 0
+          ? `Успешно импортировано ${imported} эффектов. Не удалось импортировать: ${failed}`
+          : `Успешно импортировано ${imported} эффектов`
+
       return {
         success: true,
-        message: `Успешно импортировано ${effects.length} эффектов`,
+        message,
         effects,
+        imported,
+        failed,
       }
     } catch (error) {
       console.error("Ошибка при импорте эффектов:", error)
@@ -196,61 +243,92 @@ export function useEffectsImport() {
       const files = Array.isArray(selected) ? selected : [selected]
       setProgress(25)
 
-      const importedEffects: VideoEffect[] = []
+      const importedEffects: BaseEffect[] = []
+      let imported = 0
 
       for (let i = 0; i < files.length; i++) {
         const filePath = files[i]
         const fileName = filePath.split("/").pop() || filePath.split("\\").pop() || "unknown"
         const extension = fileName.split(".").pop()?.toLowerCase()
+        const baseName = fileName.replace(/\.[^/.]+$/, "")
+
+        // Определяем категорию на основе типа файла
+        let category = "stylize"
+        if (extension === "cube" || extension === "3dl") {
+          category = "luts"
+        }
 
         // Создаем базовый эффект на основе файла
-        const effect: VideoEffect = {
-          id: `user-${Date.now()}-${i}`,
-          name: fileName.replace(/\.[^/.]+$/, ""), // Убираем расширение
-          type: extension === "cube" || extension === "3dl" ? "vintage" : "glow", // Используем существующие типы
-          duration: 0,
-          category: "creative", // Используем существующую категорию
-          complexity: "intermediate",
-          tags: ["experimental"], // Используем существующие теги
+        const effect: BaseEffect = {
+          id: `user_lut_${Date.now()}_${i}`,
+          name: {
+            en: baseName,
+            ru: baseName,
+          },
+          category,
+          scope: "clip",
+          version: "1.0.0",
+          author: "User",
           description: {
-            ru: `Пользовательский эффект: ${fileName}`,
-            en: `User effect: ${fileName}`,
+            en: `Custom LUT effect from ${fileName}`,
+            ru: `Пользовательский LUT эффект из ${fileName}`,
           },
-          ffmpegCommand: (params) => {
-            // Используем intensity как основной параметр для пользовательских эффектов
-            const intensity = params.intensity || 50
-            return extension === "cube" || extension === "3dl"
-              ? `lut3d=${filePath}:interp=trilinear:amount=${intensity / 100}`
-              : `custom=${filePath}:intensity=${intensity}`
+          tags: ["custom", "lut", "imported"],
+          parameters: [
+            {
+              id: "intensity",
+              name: { en: "Intensity", ru: "Интенсивность" },
+              type: "number",
+              defaultValue: 1.0,
+              min: 0,
+              max: 1,
+              step: 0.01,
+            },
+          ],
+          processors: {
+            ffmpeg: {
+              filter: (params) => {
+                const intensity = params.intensity || 1.0
+                return extension === "cube" || extension === "3dl"
+                  ? `lut3d=${filePath}:interp=trilinear:amount=${intensity}`
+                  : `custom=${filePath}:intensity=${intensity}`
+              },
+            },
           },
-          params: {
-            intensity: 50, // Интенсивность применения эффекта
-            amount: 100, // Количество эффекта
+          preview: {
+            image: "/effects/lut-preview.jpg",
+            video: "/t1.mp4",
           },
-          previewPath: "/t1.mp4",
-          labels: {
-            ru: fileName.replace(/\.[^/.]+$/, ""),
-            en: fileName.replace(/\.[^/.]+$/, ""),
-            es: fileName.replace(/\.[^/.]+$/, ""),
-            fr: fileName.replace(/\.[^/.]+$/, ""),
-            de: fileName.replace(/\.[^/.]+$/, ""),
+          compatibility: {
+            webgl: false,
+            css: false,
+            ffmpeg: true,
           },
         }
 
         importedEffects.push(effect)
+        imported++
         setProgress(25 + (i + 1) * (50 / files.length))
       }
 
-      // TODO: Сохранить эффекты в пользовательскую коллекцию
-      console.log("Импортированные файлы эффектов:", importedEffects)
+      // Регистрируем эффекты в EffectManager
+      const effectManager = EffectManager.getInstance()
+      importedEffects.forEach((effect) => {
+        try {
+          effectManager.registerEffect(effect)
+        } catch (error) {
+          console.error(`Failed to register LUT effect ${effect.id}:`, error)
+        }
+      })
 
       setProgress(100)
       setIsImporting(false)
 
       return {
         success: true,
-        message: `Успешно импортировано ${importedEffects.length} файлов эффектов`,
+        message: `Успешно импортировано ${imported} файлов эффектов`,
         effects: importedEffects,
+        imported,
       }
     } catch (error) {
       console.error("Ошибка при импорте файлов эффектов:", error)

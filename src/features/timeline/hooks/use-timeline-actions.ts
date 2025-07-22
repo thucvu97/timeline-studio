@@ -114,7 +114,7 @@ export function useTimelineActions(): UseTimelineActionsReturn {
       // Если нет проекта, создаем новый
       if (!project) {
         console.log("No timeline project found, creating new project...")
-        createProject("Untitled Project")
+        void createProject("Untitled Project")
 
         // Откладываем добавление медиафайла до создания проекта
         setTimeout(() => {
@@ -133,7 +133,7 @@ export function useTimelineActions(): UseTimelineActionsReturn {
         console.log(`Creating new ${trackType} track for file: ${file.name}`)
 
         // Создаем трек
-        addTrack(trackType, undefined, trackName)
+        void addTrack(trackType, trackName, undefined)
 
         // Для синхронной обработки используем рекурсивный вызов с задержкой
         // Это позволит state machine обработать создание трека
@@ -168,7 +168,7 @@ export function useTimelineActions(): UseTimelineActionsReturn {
       const startTime = customStartTime !== undefined ? customStartTime : calculateClipStartTime(targetTrackId)
       const duration = file.duration || (file.isImage ? 5 : 10) // 5 секунд для изображений, 10 для видео/аудио без duration
 
-      addClip(targetTrackId, file, startTime, duration)
+      void addClip(targetTrackId, file, startTime, duration)
       console.log(`Added ${file.name} to track ${targetTrackId} at time ${startTime} with duration ${duration}`)
     },
     [project, getTrackTypeForMedia, findBestTrackForMedia, addTrack, calculateClipStartTime, addClip, createProject],

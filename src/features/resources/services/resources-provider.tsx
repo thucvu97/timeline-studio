@@ -1,20 +1,20 @@
 /**
  * Resources Provider V2
- * 
+ *
  * Новая версия с интеграцией backend state management
  */
 
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useState } from "react"
 
-import { getBackendSync } from '@/features/app-state/services/backend-sync'
-import { ProjectState } from '@/features/app-state/types/unified-project'
-import { VideoEffect } from '@/features/effects/types'
-import { VideoFilter } from '@/features/filters/types/filters'
-import { MediaFile } from '@/features/media/types/media'
-import { StyleTemplate } from '@/features/style-templates/types'
-import { SubtitleStyle } from '@/features/subtitles/types'
-import { MediaTemplate } from '@/features/templates/lib/templates'
-import { Transition } from '@/features/transitions/types/transitions'
+import { getBackendSync } from "@/features/app-state/services/backend-sync"
+import { ProjectState } from "@/features/app-state/types/unified-project"
+import { VideoEffect } from "@/features/effects/types"
+import { VideoFilter } from "@/features/filters/types/filters"
+import { MediaFile } from "@/features/media/types/media"
+import { StyleTemplate } from "@/features/style-templates/types"
+import { SubtitleStyleTemplate } from "@/features/subtitles/types"
+import { MediaTemplate } from "@/features/templates/lib/templates"
+import { Transition } from "@/features/transitions/types/transitions"
 
 import {
   EffectResource,
@@ -26,15 +26,9 @@ import {
   TemplateResource,
   TimelineResource,
   TransitionResource,
-  createEffectResource,
-  createFilterResource,
   createMediaResource,
   createMusicResource,
-  createStyleTemplateResource,
-  createSubtitleResource,
-  createTemplateResource,
-  createTransitionResource,
-} from '../types'
+} from "../types"
 
 interface ResourcesContextTypeV2 {
   // Ресурсы (синхронизированы с backend через project state)
@@ -55,7 +49,7 @@ interface ResourcesContextTypeV2 {
   // Действия для добавления ресурсов (backend команды)
   addMedia: (file: MediaFile) => Promise<void>
   addMusic: (file: MediaFile) => Promise<void>
-  addSubtitle: (style: SubtitleStyle) => Promise<void>
+  addSubtitle: (style: SubtitleStyleTemplate) => Promise<void>
   addEffect: (effect: VideoEffect) => Promise<void>
   addFilter: (filter: VideoFilter) => Promise<void>
   addTransition: (transition: Transition) => Promise<void>
@@ -95,159 +89,195 @@ export function ResourcesProviderV2({ children }: ResourcesProviderV2Props) {
   }, [backendSync])
 
   // Функция для выполнения backend команд
-  const executeCommand = useCallback(async (command: any) => {
-    try {
-      setIsLoading(true)
-      setError(null)
-      
-      const result = await backendSync.executeCommand(command)
-      if (!result.success) {
-        throw new Error(result.error || 'Command failed')
+  const executeCommand = useCallback(
+    async (command: any) => {
+      try {
+        setIsLoading(true)
+        setError(null)
+
+        const result = await backendSync.executeCommand(command)
+        if (!result.success) {
+          throw new Error(result.error || "Command failed")
+        }
+
+        return result.data
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : "Unknown error"
+        setError(errorMessage)
+        console.error("Resources command failed:", err)
+        throw err
+      } finally {
+        setIsLoading(false)
       }
-      
-      return result.data
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error'
-      setError(errorMessage)
-      console.error('Resources command failed:', err)
-      throw err
-    } finally {
-      setIsLoading(false)
-    }
-  }, [backendSync])
+    },
+    [backendSync],
+  )
 
   // Действия для добавления ресурсов
-  const addMedia = useCallback(async (file: MediaFile) => {
-    await executeCommand({
-      type: 'AddMedia',
-      params: { path: file.path, mediaType: 'Video' } // или определить тип из file
-    })
-  }, [executeCommand])
+  const addMedia = useCallback(
+    async (file: MediaFile) => {
+      await executeCommand({
+        type: "AddMedia",
+        params: { path: file.path, mediaType: "Video" }, // или определить тип из file
+      })
+    },
+    [executeCommand],
+  )
 
-  const addMusic = useCallback(async (file: MediaFile) => {
-    await executeCommand({
-      type: 'AddMedia',
-      params: { path: file.path, mediaType: 'Audio' }
-    })
-  }, [executeCommand])
+  const addMusic = useCallback(
+    async (file: MediaFile) => {
+      await executeCommand({
+        type: "AddMedia",
+        params: { path: file.path, mediaType: "Audio" },
+      })
+    },
+    [executeCommand],
+  )
 
-  const addSubtitle = useCallback(async (style: SubtitleStyle) => {
+  const addSubtitle = useCallback(async (_style: SubtitleStyleTemplate) => {
     // Для субтитров пока используем локальное хранение
     // Так как backend команды для них ещё нет
-    console.warn('Subtitle resources not yet integrated with backend')
+    console.warn("Subtitle resources not yet integrated with backend")
   }, [])
 
-  const addEffect = useCallback(async (effect: VideoEffect) => {
+  const addEffect = useCallback(async (_effect: VideoEffect) => {
     // Эффекты пока остаются локальными
-    console.warn('Effect resources not yet integrated with backend')
+    console.warn("Effect resources not yet integrated with backend")
   }, [])
 
-  const addFilter = useCallback(async (filter: VideoFilter) => {
+  const addFilter = useCallback(async (_filter: VideoFilter) => {
     // Фильтры пока остаются локальными
-    console.warn('Filter resources not yet integrated with backend')
+    console.warn("Filter resources not yet integrated with backend")
   }, [])
 
-  const addTransition = useCallback(async (transition: Transition) => {
+  const addTransition = useCallback(async (_transition: Transition) => {
     // Переходы пока остаются локальными
-    console.warn('Transition resources not yet integrated with backend')
+    console.warn("Transition resources not yet integrated with backend")
   }, [])
 
-  const addTemplate = useCallback(async (template: MediaTemplate) => {
+  const addTemplate = useCallback(async (_template: MediaTemplate) => {
     // Шаблоны пока остаются локальными
-    console.warn('Template resources not yet integrated with backend')
+    console.warn("Template resources not yet integrated with backend")
   }, [])
 
-  const addStyleTemplate = useCallback(async (template: StyleTemplate) => {
+  const addStyleTemplate = useCallback(async (_template: StyleTemplate) => {
     // Стилистические шаблоны пока остаются локальными
-    console.warn('Style template resources not yet integrated with backend')
+    console.warn("Style template resources not yet integrated with backend")
   }, [])
 
-  const removeResource = useCallback(async (resourceId: string) => {
-    await executeCommand({
-      type: 'RemoveMedia',
-      params: { mediaId: resourceId }
-    })
-  }, [executeCommand])
+  const removeResource = useCallback(
+    async (resourceId: string) => {
+      await executeCommand({
+        type: "RemoveMedia",
+        params: { mediaId: resourceId },
+      })
+    },
+    [executeCommand],
+  )
 
-  const updateResource = useCallback(async (resourceId: string, params: Record<string, any>) => {
-    await executeCommand({
-      type: 'UpdateMedia',
-      params: { mediaId: resourceId, updates: params }
-    })
-  }, [executeCommand])
+  const updateResource = useCallback(
+    async (resourceId: string, params: Record<string, any>) => {
+      await executeCommand({
+        type: "UpdateMedia",
+        params: { mediaId: resourceId, updates: params },
+      })
+    },
+    [executeCommand],
+  )
 
   const clearResources = useCallback(async () => {
     // Нужна команда для очистки всех ресурсов
-    console.warn('Clear resources command not yet implemented in backend')
+    console.warn("Clear resources command not yet implemented in backend")
   }, [])
 
   // Утилиты
-  const getResourceById = useCallback((resourceId: string) => {
-    const allResources = [
-      ...mediaResources,
-      ...musicResources,
-      ...subtitleResources,
-      ...effectResources,
-      ...filterResources,
-      ...transitionResources,
-      ...templateResources,
-      ...styleTemplateResources,
-    ]
-    return allResources.find(resource => resource.resourceId === resourceId)
-  }, [backendState])
+  const getResourceById = useCallback(
+    (resourceId: string) => {
+      const allResources = [
+        ...mediaResources,
+        ...musicResources,
+        ...subtitleResources,
+        ...effectResources,
+        ...filterResources,
+        ...transitionResources,
+        ...templateResources,
+        ...styleTemplateResources,
+      ]
+      return allResources.find((resource) => resource.resourceId === resourceId)
+    },
+    [backendState],
+  )
 
-  const getResourcesByType = useCallback((type: string) => {
-    switch (type) {
-      case 'media': return mediaResources
-      case 'music': return musicResources
-      case 'subtitle': return subtitleResources
-      case 'effect': return effectResources
-      case 'filter': return filterResources
-      case 'transition': return transitionResources
-      case 'template': return templateResources
-      case 'styleTemplate': return styleTemplateResources
-      default: return []
-    }
-  }, [backendState])
+  const getResourcesByType = useCallback(
+    (type: string) => {
+      switch (type) {
+        case "media":
+          return mediaResources
+        case "music":
+          return musicResources
+        case "subtitle":
+          return subtitleResources
+        case "effect":
+          return effectResources
+        case "filter":
+          return filterResources
+        case "transition":
+          return transitionResources
+        case "template":
+          return templateResources
+        case "styleTemplate":
+          return styleTemplateResources
+        default:
+          return []
+      }
+    },
+    [backendState],
+  )
 
   // Извлекаем ресурсы из backend состояния
   // Пока backend не содержит все типы ресурсов, создаем пустые массивы
   const mediaPool = backendState?.project?.mediaPool
-  
-  // Конвертируем медиа из backend в MediaResource формат
-  const mediaResources: MediaResource[] = mediaPool ? 
-    Array.from(mediaPool.items.values())
-      .filter(item => item.type === 'video' || item.type === 'image')
-      .map(item => createMediaResource({
-        id: item.id,
-        name: item.name,
-        path: item.source.path,
-        size: item.metadata.fileSize,
-        type: item.type,
-        isVideo: item.type === 'video',
-        isAudio: false,
-        isImage: item.type === 'image',
-        isLoadingMetadata: false,
-        probeData: { streams: [], format: {} },
-        duration: item.metadata.duration,
-      })) : []
 
-  const musicResources: MusicResource[] = mediaPool ?
-    Array.from(mediaPool.items.values())
-      .filter(item => item.type === 'audio')
-      .map(item => createMusicResource({
-        id: item.id,
-        name: item.name,
-        path: item.source.path,
-        size: item.metadata.fileSize,
-        type: item.type,
-        isVideo: false,
-        isAudio: true,
-        isImage: false,
-        isLoadingMetadata: false,
-        probeData: { streams: [], format: {} },
-        duration: item.metadata.duration,
-      })) : []
+  // Конвертируем медиа из backend в MediaResource формат
+  const mediaResources: MediaResource[] = mediaPool
+    ? Array.from(mediaPool.items.values())
+      .filter((item) => item.type === "video" || item.type === "image")
+      .map((item) =>
+        createMediaResource({
+          id: item.id,
+          name: item.name,
+          path: item.source.path,
+          size: item.metadata.fileSize,
+          type: item.type,
+          isVideo: item.type === "video",
+          isAudio: false,
+          isImage: item.type === "image",
+          isLoadingMetadata: false,
+          probeData: { streams: [], format: {} },
+          duration: item.metadata.duration,
+        }),
+      )
+    : []
+
+  const musicResources: MusicResource[] = mediaPool
+    ? Array.from(mediaPool.items.values())
+      .filter((item) => item.type === "audio")
+      .map((item) =>
+        createMusicResource({
+          id: item.id,
+          name: item.name,
+          path: item.source.path,
+          size: item.metadata.fileSize,
+          type: item.type,
+          isVideo: false,
+          isAudio: true,
+          isImage: false,
+          isLoadingMetadata: false,
+          probeData: { streams: [], format: {} },
+          duration: item.metadata.duration,
+        }),
+      )
+    : []
 
   // Остальные ресурсы пока пустые (будут добавлены позже)
   const subtitleResources: SubtitleResource[] = []
@@ -303,22 +333,22 @@ export function ResourcesProviderV2({ children }: ResourcesProviderV2Props) {
     getResourcesByType,
   }
 
-  return (
-    <ResourcesContextV2.Provider value={contextValue}>
-      {children}
-    </ResourcesContextV2.Provider>
-  )
+  return <ResourcesContextV2.Provider value={contextValue}>{children}</ResourcesContextV2.Provider>
 }
 
 export function useResourcesV2(): ResourcesContextTypeV2 {
   const context = useContext(ResourcesContextV2)
-  
+
   if (!context) {
-    throw new Error('useResourcesV2 must be used within ResourcesProviderV2')
+    throw new Error("useResourcesV2 must be used within ResourcesProviderV2")
   }
-  
+
   return context
 }
 
 // Экспорт типов
 export type { ResourcesContextTypeV2 }
+
+// Экспорт для обратной совместимости
+export { ResourcesProviderV2 as ResourcesProvider }
+export { useResourcesV2 as useResources }

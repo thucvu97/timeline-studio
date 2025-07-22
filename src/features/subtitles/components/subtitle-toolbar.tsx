@@ -1,9 +1,9 @@
 import { Separator } from "@/components/ui/separator"
 
 import { SubtitleAITools } from "./subtitle-ai-tools"
+import { SubtitleImportButton } from "./subtitle-import-button"
 import { SubtitleSyncTools } from "./subtitle-sync-tools"
 import { SubtitleTools } from "./subtitle-tools"
-import { SubtitleImportButton } from "./subtitle-import-button"
 
 /**
  * Панель инструментов для работы с субтитрами

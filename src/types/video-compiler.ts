@@ -2,12 +2,15 @@
  * TypeScript типы для интеграции с Video Compiler (Rust backend)
  */
 
+import type { BaseEffect } from "@/features/effects/types/unified-effects"
 import {
   OutputFormat,
   type VideoRenderJob as RenderJob,
   type RenderProgress,
   RenderStatus,
 } from "@/features/video-compiler/types/render"
+
+// Импортируем новые типы эффектов
 
 // Реэкспорт для обратной совместимости
 export {
@@ -24,7 +27,7 @@ export interface ProjectSchema {
   metadata: ProjectMetadata
   timeline: Timeline
   tracks: Track[]
-  effects: Effect[]
+  effects: BaseEffect[] // Используем новый тип
   transitions: Transition[]
   filters: Filter[]
   templates: Template[]
@@ -92,82 +95,6 @@ export interface Clip {
   template_cell?: number // Индекс ячейки в шаблоне (0-based)
   style_template_id?: string // ID стильного шаблона (интро, аутро, титры)
 }
-
-// ============ Эффекты ============
-
-export interface Effect {
-  id: string
-  effect_type: EffectType
-  name: string
-  enabled: boolean
-  parameters: Record<string, EffectParameter>
-  ffmpeg_command?: string // Опциональная кастомная команда
-}
-
-export type EffectType =
-  // Video Effects
-  | "Blur"
-  | "Brightness"
-  | "Contrast"
-  | "Speed"
-  | "Reverse"
-  | "Grayscale"
-  | "Sepia"
-  | "Saturation"
-  | "HueRotate"
-  | "Vintage"
-  | "Duotone"
-  | "Noir"
-  | "Cyberpunk"
-  | "Dreamy"
-  | "Infrared"
-  | "Matrix"
-  | "Arctic"
-  | "Sunset"
-  | "Lomo"
-  | "Twilight"
-  | "Neon"
-  | "Invert"
-  | "Vignette"
-  | "FilmGrain"
-  | "ChromaticAberration"
-  | "LensFlare"
-  | "Glow"
-  | "Sharpen"
-  | "NoiseReduction"
-  | "Stabilization"
-  // Audio Effects
-  | "AudioFadeIn"
-  | "AudioFadeOut"
-  | "AudioCrossfade"
-  | "AudioEqualizer"
-  | "AudioCompressor"
-  | "AudioReverb"
-  | "AudioDelay"
-  | "AudioChorus"
-  | "AudioDistortion"
-  | "AudioNormalize"
-  | "AudioDenoise"
-  | "AudioPitch"
-  | "AudioTempo"
-  | "AudioDucking"
-  | "AudioGate"
-  | "AudioLimiter"
-  | "AudioExpander"
-  | "AudioPan"
-  | "AudioStereoWidth"
-  | "AudioHighpass"
-  | "AudioLowpass"
-  | "AudioBandpass"
-
-export type EffectParameter =
-  | { type: "Float"; value: number }
-  | { type: "Int"; value: number }
-  | { type: "String"; value: string }
-  | { type: "Bool"; value: boolean }
-  | { type: "Color"; value: number } // RGBA как u32
-  | { type: "FloatArray"; value: number[] }
-  | { type: "FilePath"; value: string }
 
 // ============ Переходы ============
 
@@ -239,6 +166,17 @@ export type TransitionTag =
   | "ThreeD"
   | "Complex"
   | "Fallback"
+
+// ============ Параметры эффектов для Rust ============
+
+export type EffectParameter =
+  | { type: "Float"; value: number }
+  | { type: "Int"; value: number }
+  | { type: "String"; value: string }
+  | { type: "Bool"; value: boolean }
+  | { type: "Color"; value: number } // RGBA как u32
+  | { type: "FloatArray"; value: number[] }
+  | { type: "FilePath"; value: string }
 
 // ============ Фильтры ============
 
@@ -762,7 +700,7 @@ export function createEmptyProject(name = "Untitled Project"): ProjectSchema {
       aspect_ratio: AspectRatio.Ratio16x9,
     },
     tracks: [],
-    effects: [],
+    effects: [], // Теперь это BaseEffect[]
     transitions: [],
     filters: [],
     templates: [],

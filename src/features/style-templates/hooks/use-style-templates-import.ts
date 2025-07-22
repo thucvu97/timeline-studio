@@ -49,7 +49,7 @@ export function useStyleTemplatesImport() {
           // Импортируем каждый шаблон
           for (const templateData of templatesData) {
             if (validateStyleTemplate(templateData)) {
-              addStyleTemplate(templateData as StyleTemplate)
+              void addStyleTemplate(templateData as StyleTemplate)
             }
           }
           console.log(`Импортировано ${templatesData.length} стилистических шаблонов`)
@@ -57,7 +57,7 @@ export function useStyleTemplatesImport() {
           // Альтернативный формат с обёрткой
           for (const templateData of templatesData.templates) {
             if (validateStyleTemplate(templateData)) {
-              addStyleTemplate(templateData as StyleTemplate)
+              void addStyleTemplate(templateData as StyleTemplate)
             }
           }
           console.log(`Импортировано ${templatesData.templates.length} стилистических шаблонов`)
@@ -103,7 +103,7 @@ export function useStyleTemplatesImport() {
             const templateData = JSON.parse(content)
 
             if (validateStyleTemplate(templateData)) {
-              addStyleTemplate(templateData as StyleTemplate)
+              void addStyleTemplate(templateData as StyleTemplate)
               console.log(`Импортирован шаблон из файла: ${fileName}`)
             }
           } else {

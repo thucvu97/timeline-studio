@@ -2,10 +2,20 @@
  * Character Analysis Service Tests
  */
 
-import { describe, it, expect, beforeEach, vi } from "vitest"
-import { CharacterAnalysisService, RelationshipType, InteractionType, InteractionIntensity, EmotionalTone, CharacterRole } from "../character-analysis"
-import type { SceneAnalysis } from "../../../../shared/types/content-analysis"
+import { beforeEach, describe, expect, it, vi } from "vitest"
+
 import type { Person } from "@/features/montage-planner/types"
+
+import {
+  CharacterAnalysisService,
+  CharacterRole,
+  EmotionalTone,
+  InteractionIntensity,
+  InteractionType,
+  RelationshipType,
+} from "../character-analysis"
+
+import type { SceneAnalysis } from "../../../../shared/types/content-analysis"
 
 // Mock dependencies
 vi.mock("@/features/ai-chat/services/unified-ai-service", () => ({
@@ -23,7 +33,7 @@ describe("CharacterAnalysisService", () => {
 
   beforeEach(() => {
     service = CharacterAnalysisService.getInstance()
-    
+
     // Reset singleton for each test
     ;(CharacterAnalysisService as any).instance = null
     service = CharacterAnalysisService.getInstance()
@@ -182,8 +192,8 @@ describe("CharacterAnalysisService", () => {
     it("should create character profiles with correct data", async () => {
       const result = await service.analyzeCharacters(mockScenes, mockPersons, { path: "test-video.mp4" })
 
-      const alice = result.characters.find(c => c.personId === "person-1")
-      const bob = result.characters.find(c => c.personId === "person-2")
+      const alice = result.characters.find((c) => c.personId === "person-1")
+      const bob = result.characters.find((c) => c.personId === "person-2")
 
       expect(alice).toBeDefined()
       expect(alice!.appearanceCount).toBe(2) // Appears in 2 scenes
@@ -200,7 +210,7 @@ describe("CharacterAnalysisService", () => {
       const result = await service.analyzeCharacters(mockScenes, mockPersons, { path: "test-video.mp4" })
 
       expect(result.interactions).toHaveLength(1) // Alice and Bob interact in scene-1
-      
+
       const interaction = result.interactions[0]
       expect(interaction.participants).toContain("person-1")
       expect(interaction.participants).toContain("person-2")
@@ -212,7 +222,7 @@ describe("CharacterAnalysisService", () => {
       const result = await service.analyzeCharacters(mockScenes, mockPersons, { path: "test-video.mp4" })
 
       expect(result.relationships).toHaveLength(1) // Alice and Bob relationship
-      
+
       const relationship = result.relationships[0]
       expect([relationship.personA, relationship.personB]).toContain("person-1")
       expect([relationship.personA, relationship.personB]).toContain("person-2")
@@ -225,13 +235,13 @@ describe("CharacterAnalysisService", () => {
       const result = await service.analyzeCharacters(mockScenes, mockPersons, { path: "test-video.mp4" })
 
       expect(result.socialNetwork).toHaveLength(2)
-      
-      const aliceNode = result.socialNetwork.find(n => n.personId === "person-1")
-      const bobNode = result.socialNetwork.find(n => n.personId === "person-2")
+
+      const aliceNode = result.socialNetwork.find((n) => n.personId === "person-1")
+      const bobNode = result.socialNetwork.find((n) => n.personId === "person-2")
 
       expect(aliceNode!.connections).toHaveLength(1)
       expect(bobNode!.connections).toHaveLength(1)
-      
+
       expect(aliceNode!.connections[0].targetPersonId).toBe("person-2")
       expect(bobNode!.connections[0].targetPersonId).toBe("person-1")
     })
@@ -278,19 +288,13 @@ describe("CharacterAnalysisService", () => {
   describe("proximity calculation", () => {
     it("should calculate proximity between faces correctly", async () => {
       const service = CharacterAnalysisService.getInstance()
-      
+
       // Access private method for testing
       const calculateProximity = (service as any).calculateProximity
 
-      const closeFaces = [
-        { bbox: { x: 100, y: 100, width: 80, height: 100 } },
-      ]
-      const nearbyFaces = [
-        { bbox: { x: 200, y: 120, width: 75, height: 95 } },
-      ]
-      const distantFaces = [
-        { bbox: { x: 800, y: 600, width: 70, height: 90 } },
-      ]
+      const closeFaces = [{ bbox: { x: 100, y: 100, width: 80, height: 100 } }]
+      const nearbyFaces = [{ bbox: { x: 200, y: 120, width: 75, height: 95 } }]
+      const distantFaces = [{ bbox: { x: 800, y: 600, width: 70, height: 90 } }]
 
       const closeProximity = calculateProximity(closeFaces, nearbyFaces)
       const distantProximity = calculateProximity(closeFaces, distantFaces)
@@ -473,7 +477,7 @@ describe("CharacterAnalysisService", () => {
       const role = determineCharacterRole(
         mockPersons[0],
         mockScenes,
-        35 // High screen time (>50% of 60 seconds total)
+        35, // High screen time (>50% of 60 seconds total)
       )
 
       expect(role).toBe(CharacterRole.PROTAGONIST)
@@ -486,7 +490,7 @@ describe("CharacterAnalysisService", () => {
       const role = determineCharacterRole(
         mockPersons[1],
         mockScenes,
-        15 // Medium screen time (25% of 60 seconds total)
+        15, // Medium screen time (25% of 60 seconds total)
       )
 
       expect(role).toBe(CharacterRole.SUPPORTING)
@@ -499,7 +503,7 @@ describe("CharacterAnalysisService", () => {
       const role = determineCharacterRole(
         mockPersons[1],
         mockScenes,
-        4 // Low screen time (7% of 60 seconds total)
+        4, // Low screen time (7% of 60 seconds total)
       )
 
       expect(role).toBe(CharacterRole.BACKGROUND)

@@ -261,3 +261,49 @@ pub async fn get_cache_path(state: State<'_, VideoCompilerState>) -> Result<Path
     .ok_or_else(|| VideoCompilerError::validation("CacheService не найден"))?;
   cache_service.get_cache_path().await
 }
+
+/// Получить рекомендации по оптимизации кэша
+#[tauri::command]
+pub async fn get_cache_optimization_recommendations(
+  state: State<'_, VideoCompilerState>,
+) -> Result<Vec<String>> {
+  let cache = state.cache_manager.read().await;
+  Ok(cache.get_optimization_recommendations())
+}
+
+/// Предзагрузить превью для видео
+#[tauri::command]
+pub async fn preload_video_previews(
+  video_path: String,
+  timestamps: Vec<f64>,
+  resolution: Option<(u32, u32)>,
+  quality: Option<u8>,
+  state: State<'_, VideoCompilerState>,
+) -> Result<()> {
+  let mut cache = state.cache_manager.write().await;
+  let cache_arc = state.cache_manager.clone();
+
+  let resolution = resolution.unwrap_or((320, 180));
+  let quality = quality.unwrap_or(75);
+
+  cache
+    .preload_video_previews(&video_path, &timestamps, resolution, quality, cache_arc)
+    .await?;
+
+  log::info!(
+    "Предзагружено {} превью для {}",
+    timestamps.len(),
+    video_path
+  );
+  Ok(())
+}
+
+/// Оптимизировать кэш на основе статистики
+#[tauri::command]
+pub async fn optimize_cache_by_stats(state: State<'_, VideoCompilerState>) -> Result<()> {
+  let mut cache = state.cache_manager.write().await;
+  cache.optimize_cache().await?;
+
+  log::info!("Кэш оптимизирован на основе статистики использования");
+  Ok(())
+}

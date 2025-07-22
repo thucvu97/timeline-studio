@@ -59,7 +59,7 @@ function convertTrackEffects(track: TimelineTrack): ChannelEffect[] {
       effects.push({
         id: appliedEffect.id || `effect-${index}`,
         type: effectType,
-        enabled: appliedEffect.enabled !== false,
+        enabled: appliedEffect.enabled,
         parameters: appliedEffect.settings || {},
       })
     }
@@ -142,7 +142,7 @@ export function useTimelineMixerSync(onChannelsUpdate: (channels: AudioChannel[]
     }
 
     // Update timeline track
-    timeline.updateTrack(channelId, timelineUpdates)
+    void timeline.updateTrack(channelId, timelineUpdates)
   }
 
   return {

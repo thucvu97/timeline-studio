@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import subtitleStylesData from "../data/subtitle-styles.json"
-import { SubtitleStyle } from "../types/subtitles"
+import { SubtitleStyleTemplate } from "../types/subtitles"
 import {
   createFallbackSubtitleStyle,
   processSubtitleStyles,
@@ -13,7 +13,7 @@ import {
 // Импортируем JSON файл напрямую - в Tauri это работает отлично
 
 interface UseSubtitlesReturn {
-  subtitles: SubtitleStyle[]
+  subtitles: SubtitleStyleTemplate[]
   loading: boolean
   error: string | null
   reload: () => void
@@ -25,7 +25,7 @@ interface UseSubtitlesReturn {
  */
 export function useSubtitles(): UseSubtitlesReturn {
   const { t } = useTranslation()
-  const [subtitles, setSubtitles] = useState<SubtitleStyle[]>([])
+  const [subtitles, setSubtitles] = useState<SubtitleStyleTemplate[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -94,7 +94,7 @@ export function useSubtitles(): UseSubtitlesReturn {
 /**
  * Хук для получения конкретного субтитра по ID
  */
-export function useSubtitleById(subtitleId: string): SubtitleStyle | null {
+export function useSubtitleById(subtitleId: string): SubtitleStyleTemplate | null {
   const { subtitles, isReady } = useSubtitles()
 
   if (!isReady) {

@@ -4,9 +4,17 @@
  * Экспортирует все основные компоненты и хуки для AI чата
  */
 
-// Основные компоненты и хуки
+// Основные компоненты
 export * from "./components"
-export * from "./hooks"
+
+// Хуки - экспортируем все кроме useChat (конфликт с services)
+export * from "./hooks/use-chat-actions"
+export * from "./hooks/use-chat-state"
+export * from "./hooks/use-resources-ai-integration"
+export * from "./hooks/use-safe-timeline"
+export * from "./hooks/use-timeline-ai"
+
+// Сервисы и провайдеры (включая основной useChat)
 export * from "./services"
 
 // Все инструменты

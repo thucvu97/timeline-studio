@@ -74,10 +74,10 @@ export const VideoPreview = memo(
         try {
           // Устанавливаем плеер в режим браузера
           await playerSetSource("browser")
-          
+
           // Устанавливаем медиа в плеер
           await playerSetMedia(file.id, 0)
-          
+
           console.log(`[VideoPreview] Media sent to main player: ${file.name}`)
         } catch (error) {
           console.error("[VideoPreview] Failed to send media to player:", error)
@@ -164,16 +164,16 @@ export const VideoPreview = memo(
     const handlePlayPause = useCallback(
       async (e: React.MouseEvent, stream: FfprobeStream) => {
         e.preventDefault()
-        
+
         try {
           // Отправляем видео в главный плеер через backend
           await playerSetSource("browser")
           await playerSetMedia(file.id, hoverTime || 0)
-          
+
           console.log(`[VideoPreview] Video sent to main player from preview: ${file.name} at time ${hoverTime || 0}`)
         } catch (error) {
           console.error("[VideoPreview] Failed to send video to main player:", error)
-          
+
           // Fallback: локальное воспроизведение в превью (старое поведение)
           const key = stream.streamKey ?? `stream-${stream.index}`
           const videoRef = videoRefs.current[key]
@@ -185,13 +185,18 @@ export const VideoPreview = memo(
             if (hoverTime !== null) {
               videoRef.currentTime = hoverTime
             }
-            videoRef.play().catch((err: unknown) => console.error("[VideoPreview] Ошибка воспроизведения в превью:", err))
+            videoRef
+              .play()
+              .catch((err: unknown) => console.error("[VideoPreview] Ошибка воспроизведения в превью:", err))
           } else {
             videoRef.pause()
           }
 
           setIsPlaying(newPlayingState)
-          console.log(`[VideoPreview] Fallback: Видео ${newPlayingState ? "запущено" : "остановлено"} в превью:`, file.name)
+          console.log(
+            `[VideoPreview] Fallback: Видео ${newPlayingState ? "запущено" : "остановлено"} в превью:`,
+            file.name,
+          )
         }
       },
       [hoverTime, file, playerSetSource, playerSetMedia, isPlaying],
@@ -293,16 +298,18 @@ export const VideoPreview = memo(
               style={{ backgroundColor: "#1a1a1a" }}
               onClick={async (e) => {
                 e.preventDefault()
-                
+
                 try {
                   // Отправляем видео в главный плеер
                   await playerSetSource("browser")
                   await playerSetMedia(file.id, hoverTime || 0)
-                  
-                  console.log(`[VideoPreview] Video sent to main player from placeholder: ${file.name} at time ${hoverTime || 0}`)
+
+                  console.log(
+                    `[VideoPreview] Video sent to main player from placeholder: ${file.name} at time ${hoverTime || 0}`,
+                  )
                 } catch (error) {
                   console.error("[VideoPreview] Failed to send video to main player from placeholder:", error)
-                  
+
                   // Fallback: локальное воспроизведение
                   const video = e.currentTarget.querySelector("video")
                   if (!video) return
@@ -596,7 +603,7 @@ export const VideoPreview = memo(
                     onKeyDown={(e) => {
                       if (e.code === "Space") {
                         e.preventDefault()
-                        handlePlayPause(e as unknown as React.MouseEvent, stream)
+                        void handlePlayPause(e as unknown as React.MouseEvent, stream)
                       }
                     }}
                     onLoadedData={(e) => {

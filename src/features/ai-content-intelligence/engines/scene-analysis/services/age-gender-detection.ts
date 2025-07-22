@@ -3,8 +3,9 @@
  * Сервис для определения возраста и пола людей на видео
  */
 
-import type { FaceDetection } from "../../../shared/types/content-analysis"
 import { invoke } from "@tauri-apps/api/core"
+
+import type { FaceDetection } from "../../../shared/types/content-analysis"
 
 /**
  * Результат анализа возраста и пола
@@ -17,15 +18,15 @@ export interface AgeGenderResult {
   /** Уверенность в определении возраста (0-1) */
   ageConfidence: number
   /** Пол */
-  gender: 'male' | 'female' | 'unknown'
+  gender: "male" | "female" | "unknown"
   /** Уверенность в определении пола (0-1) */
   genderConfidence: number
   /** Эмоция (опционально) */
-  emotion?: 'happy' | 'sad' | 'angry' | 'surprised' | 'fearful' | 'disgusted' | 'neutral'
+  emotion?: "happy" | "sad" | "angry" | "surprised" | "fearful" | "disgusted" | "neutral"
   /** Уверенность в определении эмоции (0-1) */
   emotionConfidence?: number
   /** Этническая принадлежность (опционально) */
-  ethnicity?: 'caucasian' | 'asian' | 'african' | 'hispanic' | 'middle_eastern' | 'other'
+  ethnicity?: "caucasian" | "asian" | "african" | "hispanic" | "middle_eastern" | "other"
   /** Уверенность в определении этнической принадлежности (0-1) */
   ethnicityConfidence?: number
 }
@@ -38,11 +39,11 @@ export interface DemographicStats {
   totalFaces: number
   /** Распределение по возрасту */
   ageDistribution: {
-    children: number      // 0-12
-    teenagers: number     // 13-19
-    young_adults: number  // 20-35
-    middle_aged: number   // 36-55
-    seniors: number       // 56+
+    children: number // 0-12
+    teenagers: number // 13-19
+    young_adults: number // 20-35
+    middle_aged: number // 36-55
+    seniors: number // 56+
   }
   /** Распределение по полу */
   genderDistribution: {
@@ -53,7 +54,7 @@ export interface DemographicStats {
   /** Средний возраст */
   averageAge: number
   /** Преобладающий пол */
-  dominantGender: 'male' | 'female' | 'balanced'
+  dominantGender: "male" | "female" | "balanced"
   /** Распределение эмоций */
   emotionDistribution?: {
     happy: number
@@ -112,7 +113,7 @@ export interface FrameAgeGenderResult {
  */
 export class AgeGenderDetectionService {
   private config: AgeGenderConfig
-  private frameHistory: Map<string, AgeGenderResult[]> = new Map()
+  private frameHistory = new Map<string, AgeGenderResult[]>()
 
   constructor(config?: Partial<AgeGenderConfig>) {
     this.config = {
@@ -134,7 +135,7 @@ export class AgeGenderDetectionService {
   public async analyzeFrame(
     faces: FaceDetection[],
     frameNumber: number,
-    timestamp: number
+    timestamp: number,
   ): Promise<FrameAgeGenderResult> {
     const results: AgeGenderResult[] = []
 
@@ -146,9 +147,7 @@ export class AgeGenderDetectionService {
     }
 
     // Применяем сглаживание если включено
-    const smoothedResults = this.config.enableSmoothing
-      ? this.applySmoothingToResults(results, frameNumber)
-      : results
+    const smoothedResults = this.config.enableSmoothing ? this.applySmoothingToResults(results, frameNumber) : results
 
     // Вычисляем демографическую статистику
     const demographics = this.calculateDemographics(smoothedResults)
@@ -169,18 +168,15 @@ export class AgeGenderDetectionService {
   /**
    * Анализ конкретного лица
    */
-  private async analyzeFace(
-    face: FaceDetection,
-    frameNumber: number
-  ): Promise<AgeGenderResult | null> {
+  private async analyzeFace(face: FaceDetection, _frameNumber: number): Promise<AgeGenderResult | null> {
     try {
       let age = 0
       let ageConfidence = 0
-      let gender: 'male' | 'female' | 'unknown' = 'unknown'
+      let gender: "male" | "female" | "unknown" = "unknown"
       let genderConfidence = 0
-      let emotion: AgeGenderResult['emotion']
+      let emotion: AgeGenderResult["emotion"]
       let emotionConfidence = 0
-      let ethnicity: AgeGenderResult['ethnicity']
+      let ethnicity: AgeGenderResult["ethnicity"]
       let ethnicityConfidence = 0
 
       if (this.config.useMLModels) {
@@ -221,19 +217,29 @@ export class AgeGenderDetectionService {
       }
 
       // Добавляем опциональные поля
-      if (this.config.enableEmotion && emotion && emotionConfidence !== undefined && emotionConfidence >= this.config.minConfidence) {
+      if (
+        this.config.enableEmotion &&
+        emotion &&
+        emotionConfidence !== undefined &&
+        emotionConfidence >= this.config.minConfidence
+      ) {
         result.emotion = emotion
         result.emotionConfidence = emotionConfidence
       }
 
-      if (this.config.enableEthnicity && ethnicity && ethnicityConfidence !== undefined && ethnicityConfidence >= this.config.minConfidence) {
+      if (
+        this.config.enableEthnicity &&
+        ethnicity &&
+        ethnicityConfidence !== undefined &&
+        ethnicityConfidence >= this.config.minConfidence
+      ) {
         result.ethnicity = ethnicity
         result.ethnicityConfidence = ethnicityConfidence
       }
 
       return result
     } catch (error) {
-      console.error('Failed to analyze face for age/gender:', error)
+      console.error("Failed to analyze face for age/gender:", error)
       return null
     }
   }
@@ -250,12 +256,12 @@ export class AgeGenderDetectionService {
         return onnxResult
       }
     } catch (error) {
-      console.warn('ONNX analysis failed, fallback to mock data:', error)
+      console.warn("ONNX analysis failed, fallback to mock data:", error)
     }
-    
+
     // Fallback: используем mock данные с небольшой случайностью
     // Симулируем время работы ML модели
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 50))
+    await new Promise((resolve) => setTimeout(resolve, Math.random() * 50))
 
     // Генерируем результаты на основе характеристик лица
     const faceArea = face.boundingBox.width * face.boundingBox.height
@@ -263,7 +269,7 @@ export class AgeGenderDetectionService {
 
     // Анализ возраста на основе размера лица и пропорций
     let age = 25 + Math.random() * 30 // Базовый возраст 25-55
-    
+
     // Корректировка на основе размера лица (больше лицо = старше)
     if (faceArea > 15000) {
       age += 10
@@ -280,27 +286,38 @@ export class AgeGenderDetectionService {
     const ageConfidence = 0.7 + Math.random() * 0.25
 
     // Анализ пола
-    let gender: 'male' | 'female' = Math.random() > 0.5 ? 'male' : 'female'
-    
+    let gender: "male" | "female" = Math.random() > 0.5 ? "male" : "female"
+
     // Корректировка на основе пропорций лица
     if (aspectRatio < 0.85) {
-      gender = 'female' // Более узкое лицо чаще у женщин
+      gender = "female" // Более узкое лицо чаще у женщин
     } else if (aspectRatio > 0.95) {
-      gender = 'male' // Более широкое лицо чаще у мужчин
+      gender = "male" // Более широкое лицо чаще у мужчин
     }
 
     const genderConfidence = 0.65 + Math.random() * 0.3
 
     // Анализ эмоций
-    const emotions: AgeGenderResult['emotion'][] = [
-      'happy', 'neutral', 'sad', 'angry', 'surprised', 'fearful', 'disgusted'
+    const emotions: AgeGenderResult["emotion"][] = [
+      "happy",
+      "neutral",
+      "sad",
+      "angry",
+      "surprised",
+      "fearful",
+      "disgusted",
     ]
     const emotion = emotions[Math.floor(Math.random() * emotions.length)]
     const emotionConfidence = 0.6 + Math.random() * 0.35
 
     // Анализ этнической принадлежности
-    const ethnicities: AgeGenderResult['ethnicity'][] = [
-      'caucasian', 'asian', 'african', 'hispanic', 'middle_eastern', 'other'
+    const ethnicities: AgeGenderResult["ethnicity"][] = [
+      "caucasian",
+      "asian",
+      "african",
+      "hispanic",
+      "middle_eastern",
+      "other",
     ]
     const ethnicity = ethnicities[Math.floor(Math.random() * ethnicities.length)]
     const ethnicityConfidence = 0.55 + Math.random() * 0.4
@@ -330,21 +347,21 @@ export class AgeGenderDetectionService {
         width: face.boundingBox.width,
         height: face.boundingBox.height,
         confidence: face.confidence,
-        landmarks: face.landmarks || []
+        landmarks: face.landmarks || [],
       }
 
       // Вызываем Tauri команду для ONNX анализа
       const onnxResult = await invoke<{
         age: number
         age_confidence: number
-        gender: 'male' | 'female' | 'unknown'
+        gender: "male" | "female" | "unknown"
         gender_confidence: number
-        emotion?: 'happy' | 'sad' | 'angry' | 'surprised' | 'fearful' | 'disgusted' | 'neutral'
+        emotion?: "happy" | "sad" | "angry" | "surprised" | "fearful" | "disgusted" | "neutral"
         emotion_confidence?: number
-        ethnicity?: 'caucasian' | 'asian' | 'african' | 'hispanic' | 'middle_eastern' | 'other'
+        ethnicity?: "caucasian" | "asian" | "african" | "hispanic" | "middle_eastern" | "other"
         ethnicity_confidence?: number
       }>("analyze_face_age_gender_onnx", {
-        faceData
+        faceData,
       })
 
       return {
@@ -360,7 +377,7 @@ export class AgeGenderDetectionService {
       }
     } catch (error) {
       // ONNX модели не доступны или произошла ошибка
-      console.debug('ONNX analysis not available:', error)
+      console.debug("ONNX analysis not available:", error)
       return null
     }
   }
@@ -368,13 +385,13 @@ export class AgeGenderDetectionService {
   /**
    * Анализ с использованием эвристических методов
    */
-  private analyzeWithHeuristics(face: FaceDetection): Omit<AgeGenderResult, 'faceId'> {
+  private analyzeWithHeuristics(face: FaceDetection): Omit<AgeGenderResult, "faceId"> {
     const faceArea = face.boundingBox.width * face.boundingBox.height
     const aspectRatio = face.boundingBox.width / face.boundingBox.height
 
     // Простые эвристики для определения возраста
     let age = 30 // Базовый возраст
-    
+
     if (faceArea < 3000) {
       age = 15 // Маленькое лицо - вероятно ребенок
     } else if (faceArea > 20000) {
@@ -382,14 +399,14 @@ export class AgeGenderDetectionService {
     }
 
     // Простые эвристики для определения пола
-    let gender: 'male' | 'female' | 'unknown' = 'unknown'
+    let gender: "male" | "female" | "unknown" = "unknown"
     let genderConfidence = 0.5
 
     if (aspectRatio > 0.9) {
-      gender = 'male'
+      gender = "male"
       genderConfidence = 0.6
     } else if (aspectRatio < 0.85) {
-      gender = 'female'
+      gender = "female"
       genderConfidence = 0.6
     }
 
@@ -402,7 +419,7 @@ export class AgeGenderDetectionService {
 
     // Добавляем эмоции если включено
     if (this.config.enableEmotion) {
-      result.emotion = 'neutral'
+      result.emotion = "neutral"
       result.emotionConfidence = 0.5
     }
 
@@ -412,10 +429,7 @@ export class AgeGenderDetectionService {
   /**
    * Применение сглаживания к результатам
    */
-  private applySmoothingToResults(
-    currentResults: AgeGenderResult[],
-    frameNumber: number
-  ): AgeGenderResult[] {
+  private applySmoothingToResults(currentResults: AgeGenderResult[], frameNumber: number): AgeGenderResult[] {
     if (!this.config.enableSmoothing) {
       return currentResults
     }
@@ -424,7 +438,7 @@ export class AgeGenderDetectionService {
 
     for (const result of currentResults) {
       const history = this.getHistoryForFace(result.faceId, frameNumber)
-      
+
       if (history.length === 0) {
         // Нет истории - используем текущий результат
         smoothedResults.push(result)
@@ -443,12 +457,12 @@ export class AgeGenderDetectionService {
    */
   private getHistoryForFace(faceId: string, currentFrame: number): AgeGenderResult[] {
     const allHistory: AgeGenderResult[] = []
-    
+
     // Собираем историю из последних кадров
     for (let frame = Math.max(0, currentFrame - this.config.smoothingWindow); frame < currentFrame; frame++) {
       const frameResults = this.frameHistory.get(frame.toString())
       if (frameResults) {
-        const faceResult = frameResults.find(r => r.faceId === faceId)
+        const faceResult = frameResults.find((r) => r.faceId === faceId)
         if (faceResult) {
           allHistory.push(faceResult)
         }
@@ -467,25 +481,27 @@ export class AgeGenderDetectionService {
     }
 
     // Сглаживание возраста
-    const ages = [current.age, ...history.map(h => h.age)]
+    const ages = [current.age, ...history.map((h) => h.age)]
     const smoothedAge = Math.round(ages.reduce((sum, age) => sum + age, 0) / ages.length)
 
     // Сглаживание уверенности возраста
-    const ageConfidences = [current.ageConfidence, ...history.map(h => h.ageConfidence)]
+    const ageConfidences = [current.ageConfidence, ...history.map((h) => h.ageConfidence)]
     const smoothedAgeConfidence = ageConfidences.reduce((sum, conf) => sum + conf, 0) / ageConfidences.length
 
     // Для пола используем наиболее часто встречающийся
-    const genders = [current.gender, ...history.map(h => h.gender)]
-    const genderCounts = genders.reduce((counts, gender) => {
+    const genders = [current.gender, ...history.map((h) => h.gender)]
+    const genderCounts = genders.reduce<Record<string, number>>((counts, gender) => {
       counts[gender] = (counts[gender] || 0) + 1
       return counts
-    }, {} as Record<string, number>)
-    
-    const dominantGender = Object.entries(genderCounts)
-      .sort(([,a], [,b]) => b - a)[0][0] as 'male' | 'female' | 'unknown'
+    }, {})
+
+    const dominantGender = Object.entries(genderCounts).sort(([, a], [, b]) => b - a)[0][0] as
+      | "male"
+      | "female"
+      | "unknown"
 
     // Сглаживание уверенности пола
-    const genderConfidences = [current.genderConfidence, ...history.map(h => h.genderConfidence)]
+    const genderConfidences = [current.genderConfidence, ...history.map((h) => h.genderConfidence)]
     const smoothedGenderConfidence = genderConfidences.reduce((sum, conf) => sum + conf, 0) / genderConfidences.length
 
     return {
@@ -531,7 +547,7 @@ export class AgeGenderDetectionService {
           unknown: 0,
         },
         averageAge: 0,
-        dominantGender: 'balanced',
+        dominantGender: "balanced",
       }
     }
 
@@ -601,11 +617,17 @@ export class AgeGenderDetectionService {
     }
 
     // Определение доминирующего пола
-    let dominantGender: 'male' | 'female' | 'balanced' = 'balanced'
-    if (genderDistribution.male > genderDistribution.female && genderDistribution.male > genderDistribution.female * 1.2) {
-      dominantGender = 'male'
-    } else if (genderDistribution.female > genderDistribution.male && genderDistribution.female > genderDistribution.male * 1.2) {
-      dominantGender = 'female'
+    let dominantGender: "male" | "female" | "balanced" = "balanced"
+    if (
+      genderDistribution.male > genderDistribution.female &&
+      genderDistribution.male > genderDistribution.female * 1.2
+    ) {
+      dominantGender = "male"
+    } else if (
+      genderDistribution.female > genderDistribution.male &&
+      genderDistribution.female > genderDistribution.male * 1.2
+    ) {
+      dominantGender = "female"
     }
 
     const stats: DemographicStats = {
@@ -617,12 +639,12 @@ export class AgeGenderDetectionService {
     }
 
     // Добавляем опциональные распределения если есть данные
-    const hasEmotions = Object.values(emotionDistribution).some(count => count > 0)
+    const hasEmotions = Object.values(emotionDistribution).some((count) => count > 0)
     if (hasEmotions) {
       stats.emotionDistribution = emotionDistribution
     }
 
-    const hasEthnicities = Object.values(ethnicityDistribution).some(count => count > 0)
+    const hasEthnicities = Object.values(ethnicityDistribution).some((count) => count > 0)
     if (hasEthnicities) {
       stats.ethnicityDistribution = ethnicityDistribution
     }
@@ -690,7 +712,7 @@ export class AgeGenderDetectionService {
     return {
       totalFrames: frameResults.length,
       overallDemographics: this.calculateDemographics(allResults),
-      demographicTrends: frameResults.map(frame => ({
+      demographicTrends: frameResults.map((frame) => ({
         frame: frame.frameNumber,
         timestamp: frame.timestamp,
         demographics: frame.demographics,
@@ -713,27 +735,27 @@ export class AgeGenderDetectionService {
 
     return [
       {
-        group: 'Дети (0-12)',
+        group: "Дети (0-12)",
         count: demographics.ageDistribution.children,
         percentage: Math.round((demographics.ageDistribution.children / total) * 100),
       },
       {
-        group: 'Подростки (13-19)',
+        group: "Подростки (13-19)",
         count: demographics.ageDistribution.teenagers,
         percentage: Math.round((demographics.ageDistribution.teenagers / total) * 100),
       },
       {
-        group: 'Молодые взрослые (20-35)',
+        group: "Молодые взрослые (20-35)",
         count: demographics.ageDistribution.young_adults,
         percentage: Math.round((demographics.ageDistribution.young_adults / total) * 100),
       },
       {
-        group: 'Средний возраст (36-55)',
+        group: "Средний возраст (36-55)",
         count: demographics.ageDistribution.middle_aged,
         percentage: Math.round((demographics.ageDistribution.middle_aged / total) * 100),
       },
       {
-        group: 'Пожилые (56+)',
+        group: "Пожилые (56+)",
         count: demographics.ageDistribution.seniors,
         percentage: Math.round((demographics.ageDistribution.seniors / total) * 100),
       },

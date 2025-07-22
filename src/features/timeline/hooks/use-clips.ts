@@ -186,7 +186,7 @@ export function useClips(): UseClipsReturn {
     const trackId = targetTrackId || clip.trackId
     const startTime = clip.startTime + clip.duration + 1 // Размещаем после оригинала
 
-    addClip(trackId, mediaFile, startTime, clip.duration)
+    void addClip(trackId, mediaFile, startTime, clip.duration)
   }
 
   // ============================================================================
@@ -229,26 +229,26 @@ export function useClips(): UseClipsReturn {
   // ============================================================================
 
   const setClipVolume = (clipId: string, volume: number) => {
-    updateClip(clipId, { volume: Math.max(0, Math.min(1, volume)) })
+    void updateClip(clipId, { volume: Math.max(0, Math.min(1, volume)) })
   }
 
   const setClipSpeed = (clipId: string, speed: number) => {
-    updateClip(clipId, { speed: Math.max(0.1, Math.min(10, speed)) })
+    void updateClip(clipId, { speed: Math.max(0.1, Math.min(10, speed)) })
   }
 
   const setClipOpacity = (clipId: string, opacity: number) => {
-    updateClip(clipId, { opacity: Math.max(0, Math.min(1, opacity)) })
+    void updateClip(clipId, { opacity: Math.max(0, Math.min(1, opacity)) })
   }
 
   const toggleClipReverse = (clipId: string) => {
     const clip = findClip(clipId)
     if (clip) {
-      updateClip(clipId, { isReversed: !clip.isReversed })
+      void updateClip(clipId, { isReversed: !clip.isReversed })
     }
   }
 
   const setClipPosition = (clipId: string, position: { x: number; y: number; width: number; height: number }) => {
-    updateClip(clipId, {
+    void updateClip(clipId, {
       position: {
         x: Math.max(0, Math.min(1, position.x)),
         y: Math.max(0, Math.min(1, position.y)),

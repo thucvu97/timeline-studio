@@ -1,0 +1,190 @@
+{
+  "version": "2.0.0",
+  "category": "cinematic",
+  "migratedAt": "2025-07-21T11:27:01.892Z",
+  "stats": {
+    "total": 4,
+    "migrated": 4,
+    "skipped": 0,
+    "successRate": "100.00%",
+    "errors": []
+  },
+  "effects": [
+    {
+      "id": "effect_vignette",
+      "name": {
+        "en": "Vignette",
+        "ru": "Виньетка",
+        "es": "Viñeta",
+        "fr": "Vignette",
+        "de": "Vignette"
+      },
+      "description": {
+        "ru": "Затемняет края кадра, создавая эффект виньетки",
+        "en": "Darkens the edges of the frame, creating a vignette effect"
+      },
+      "category": "lighting",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["popular", "pro", "subtle"],
+      "complexity": "low",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "intensity",
+          "name": {
+            "en": "Intensity",
+            "ru": "Интенсивность"
+          },
+          "type": "number",
+          "defaultValue": 0.3,
+          "min": 0,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "radius",
+          "name": {
+            "en": "Radius",
+            "ru": "Радиус"
+          },
+          "type": "number",
+          "defaultValue": 0.8,
+          "min": 0,
+          "max": 100,
+          "step": 0.1,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "subtle",
+          "name": {
+            "ru": "Тонкая",
+            "en": "Subtle"
+          },
+          "description": {
+            "ru": "Легкое затемнение краев",
+            "en": "Light edge darkening"
+          },
+          "parameters": {
+            "intensity": 0.2,
+            "radius": 0.9
+          },
+          "tags": []
+        },
+        {
+          "id": "dramatic",
+          "name": {
+            "ru": "Драматическая",
+            "en": "Dramatic"
+          },
+          "description": {
+            "ru": "Сильное затемнение краев",
+            "en": "Strong edge darkening"
+          },
+          "parameters": {
+            "intensity": 0.5,
+            "radius": 0.6
+          },
+          "tags": []
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    },
+    {
+      "id": "effect_twilight",
+      "name": {
+        "en": "Twilight",
+        "ru": "Сумерки",
+        "es": "Crepúsculo",
+        "fr": "Crépuscule",
+        "de": "Dämmerung"
+      },
+      "description": {
+        "ru": "Создает приглушенные синеватые тона сумерек",
+        "en": "Creates muted bluish twilight tones"
+      },
+      "category": "stylize",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["subtle", "pro"],
+      "complexity": "low",
+      "gpuAccelerated": true,
+      "parameters": [],
+      "presets": [],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    },
+    {
+      "id": "effect_noir",
+      "name": {
+        "en": "Noir",
+        "ru": "Нуар",
+        "es": "Negro",
+        "fr": "Noir",
+        "de": "Noir"
+      },
+      "description": {
+        "ru": "Создает драматический черно-белый эффект в стиле нуар",
+        "en": "Creates dramatic black and white noir effect"
+      },
+      "category": "stylize",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["dramatic", "pro"],
+      "complexity": "medium",
+      "gpuAccelerated": true,
+      "parameters": [],
+      "presets": [],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    },
+    {
+      "id": "effect_arctic",
+      "name": {
+        "en": "Arctic",
+        "ru": "Арктический",
+        "es": "Ártico",
+        "fr": "Arctique",
+        "de": "Arktisch"
+      },
+      "description": {
+        "ru": "Создает холодный арктический эффект",
+        "en": "Creates cold arctic effect"
+      },
+      "category": "stylize",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["subtle", "pro"],
+      "complexity": "low",
+      "gpuAccelerated": true,
+      "parameters": [],
+      "presets": [],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    }
+  ]
+}

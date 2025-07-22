@@ -1,6 +1,6 @@
 /**
  * Providers V2
- * 
+ *
  * Новая версия провайдеров с интеграцией backend state management
  */
 
@@ -43,20 +43,20 @@ const AppProviderComposite = composeProviders(
   I18nProvider, // Легкий провайдер для локализации
   ThemeProvider, // Легкий провайдер для темы
   ModalProvider, // Легкий провайдер для модальных окон
-  
+
   // ✅ НОВАЯ АРХИТЕКТУРА
   AppProvider, // Новый провайдер с backend state management
-  
+
   // Остальные провайдеры (некоторые будут мигрированы позже)
   UserSettingsProvider, // Пользовательские настройки
   ProjectSettingsProvider, // ✅ Новый провайдер настроек проекта с backend синхронизацией
   ShortcutsProvider, // Зависит от UserSettingsProvider
   ResourcesProvider, // ✅ Новый провайдер ресурсов с backend интеграцией
   BrowserStateProvider, // Состояние браузера
-  
+
   // ✅ НОВАЯ TIMELINE АРХИТЕКТУРА
   TimelineProvider, // Новый провайдер timeline с backend интеграцией
-  
+
   PlayerProvider, // ✅ Новый провайдер видеоплеера с backend синхронизацией
   ChatProvider, // ✅ Новый провайдер чата с backend интеграцией для истории
   AIIntelligenceProvider, // AI Intelligence (может быть тяжелым)

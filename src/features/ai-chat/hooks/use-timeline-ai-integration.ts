@@ -1,9 +1,9 @@
-import { useEffect, useCallback } from "react"
+import { useCallback, useEffect } from "react"
 
-import { useTimeline } from "@/features/timeline/hooks"
 import { TimelineStateAccess } from "@/features/ai-chat/tools/timeline/types"
 import { setTimelineStateAccess } from "@/features/ai-chat/tools/timeline/utils/helpers"
-import { TimelineProject, TimelineClip, TimelineTrack, TimelineSection } from "@/features/timeline/types"
+import { useTimeline } from "@/features/timeline/hooks"
+import { TimelineClip, TimelineProject, TimelineSection, TimelineTrack } from "@/features/timeline/types"
 
 /**
  * Хук для интеграции Timeline с AI функциональностью
@@ -15,9 +15,9 @@ export function useTimelineAIIntegration() {
   // Функция для получения всех клипов
   const getAllClips = useCallback((): TimelineClip[] => {
     if (!timeline.project) return []
-    
+
     const clips: TimelineClip[] = []
-    timeline.project.tracks.forEach(track => {
+    timeline.project.tracks.forEach((track) => {
       clips.push(...track.clips)
     })
     return clips
@@ -38,57 +38,58 @@ export function useTimelineAIIntegration() {
   // Функция для расчета общей длительности проекта
   const getProjectDuration = useCallback((): number => {
     if (!timeline.project) return 0
-    
+
     let maxEndTime = 0
-    timeline.project.tracks.forEach(track => {
-      track.clips.forEach(clip => {
+    timeline.project.tracks.forEach((track) => {
+      track.clips.forEach((clip) => {
         const clipEndTime = clip.startTime + clip.duration
         if (clipEndTime > maxEndTime) {
           maxEndTime = clipEndTime
         }
       })
     })
-    
+
     return maxEndTime
   }, [timeline.project])
 
   // Функция для получения выбранных клипов
   const getSelectedClips = useCallback((): TimelineClip[] => {
     if (!timeline.project || !timeline.uiState) return []
-    
+
     const selectedClipIds = timeline.uiState.selectedClipIds || []
     const allClips = getAllClips()
-    
-    return allClips.filter(clip => selectedClipIds.includes(clip.id))
+
+    return allClips.filter((clip) => selectedClipIds.includes(clip.id))
   }, [timeline.project, timeline.uiState, getAllClips])
 
   // Функция для получения клипов на определенном времени
-  const getClipsAtTime = useCallback((time: number): TimelineClip[] => {
-    const allClips = getAllClips()
-    return allClips.filter(clip => 
-      time >= clip.startTime && time < (clip.startTime + clip.duration)
-    )
-  }, [getAllClips])
+  const getClipsAtTime = useCallback(
+    (time: number): TimelineClip[] => {
+      const allClips = getAllClips()
+      return allClips.filter((clip) => time >= clip.startTime && time < clip.startTime + clip.duration)
+    },
+    [getAllClips],
+  )
 
   // Эффект для установки доступа к состоянию timeline
   useEffect(() => {
     const timelineAccess: TimelineStateAccess = {
       getCurrentProject: () => timeline.project,
       createProject: async (project: TimelineProject) => {
-        timeline.createProject(project.name, project.settings)
+        await timeline.createProject(project.name, project.settings)
       },
-      updateProject: async (updates: Partial<TimelineProject>) => {
+      updateProject: async (_updates: Partial<TimelineProject>) => {
         // TODO: Implement project update
         console.warn("updateProject not implemented yet")
       },
       createSection: async (section: Omit<TimelineSection, "id">) => {
         const id = `section_${Date.now()}`
-        timeline.addSection(section.name, section.startTime, section.duration)
+        await timeline.addSection(section.name, section.startTime, section.duration)
         return { ...section, id } as TimelineSection
       },
       createTrack: async (track: Omit<TimelineTrack, "id">) => {
         const id = `track_${Date.now()}`
-        timeline.addTrack(track.type, undefined, track.name)
+        await timeline.addTrack(track.type, undefined, track.name)
         return { ...track, id, clips: [] } as TimelineTrack
       },
       addClip: async (clip: Omit<TimelineClip, "id">) => {
@@ -101,7 +102,7 @@ export function useTimelineAIIntegration() {
         const clips = getAllClips()
         const tracks = getAllTracks()
         const sections = getAllSections()
-        
+
         return {
           totalDuration: getProjectDuration(),
           totalClips: clips.length,
@@ -113,14 +114,14 @@ export function useTimelineAIIntegration() {
         // Map commands to timeline actions
         switch (command) {
           case "play":
-            timeline.play()
+            await timeline.play()
             break
           case "pause":
-            timeline.pause()
+            await timeline.pause()
             break
           case "seek":
             if (params?.time !== undefined) {
-              timeline.seek(params.time)
+              await timeline.seek(params.time)
             }
             break
           case "selectClips":
@@ -141,15 +142,7 @@ export function useTimelineAIIntegration() {
     return () => {
       setTimelineStateAccess(null)
     }
-  }, [
-    timeline,
-    getAllClips,
-    getAllTracks,
-    getAllSections,
-    getProjectDuration,
-    getSelectedClips,
-    getClipsAtTime,
-  ])
+  }, [timeline, getAllClips, getAllTracks, getAllSections, getProjectDuration, getSelectedClips, getClipsAtTime])
 
   return {
     isReady: timeline.isReady && timeline.project !== null,

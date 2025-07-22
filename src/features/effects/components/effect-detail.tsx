@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button"
-import { VideoEffect } from "@/features/effects/types"
+import { BaseEffect } from "@/features/effects/types"
 import { useModal } from "@/features/modals/services"
 
 interface EffectDetailProps {
-  effect: VideoEffect
-  onApplyEffect: (effect: VideoEffect, preset?: string, customParams?: Record<string, number>) => void
+  effect: BaseEffect
+  onApplyEffect: (effect: BaseEffect, preset?: string, customParams?: Record<string, number>) => void
 }
 
 /**

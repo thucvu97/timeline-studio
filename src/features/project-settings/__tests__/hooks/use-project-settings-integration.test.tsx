@@ -1,7 +1,15 @@
 import React from "react"
 
 import { renderHook } from "@testing-library/react"
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
+
+// Мокаем backend-sync ДО импорта компонентов
+vi.mock("@/features/app-state/services/backend-sync", () => ({
+  getBackendSync: () => ({
+    onStateChange: vi.fn(() => () => {}),
+    sendCommand: vi.fn().mockResolvedValue(undefined),
+  }),
+}))
 
 import { useProjectSettings } from "../../hooks/use-project-settings"
 import { ProjectSettingsProvider } from "../../services/project-settings-provider"
@@ -53,33 +61,38 @@ describe("useProjectSettings - интеграционные тесты", () => {
 
   describe("совместимость с различными провайдерами", () => {
     it("должен работать в вложенных провайдерах", () => {
-      const NestedWrapper = ({ children }: { children: React.ReactNode }) =>
-        React.createElement(ProjectSettingsProvider, {}, React.createElement(ProjectSettingsProvider, {}, children))
+      const MultipleProvidersWrapper = ({ children }: { children: React.ReactNode }) => (
+        <ProjectSettingsProvider>
+          <div data-testid="outer-provider">
+            <ProjectSettingsProvider>
+              <div data-testid="inner-provider">{children}</div>
+            </ProjectSettingsProvider>
+          </div>
+        </ProjectSettingsProvider>
+      )
 
       const { result } = renderHook(() => useProjectSettings(), {
-        wrapper: NestedWrapper,
+        wrapper: MultipleProvidersWrapper,
       })
 
+      // Внутренний провайдер должен переопределить настройки
       expect(result.current.settings).toEqual(DEFAULT_PROJECT_SETTINGS)
-      expect(typeof result.current.updateSettings).toBe("function")
-      expect(typeof result.current.resetSettings).toBe("function")
     })
 
     it("должен предоставлять стабильный API", () => {
-      const { result } = renderHook(() => useProjectSettings(), {
+      const { result, rerender } = renderHook(() => useProjectSettings(), {
         wrapper: ProjectSettingsProvider,
       })
 
-      // Проверяем что API содержит все необходимые методы
-      expect(result.current).toHaveProperty("settings")
-      expect(result.current).toHaveProperty("updateSettings")
-      expect(result.current).toHaveProperty("resetSettings")
+      const firstUpdateSettings = result.current.updateSettings
+      const firstResetSettings = result.current.resetSettings
 
-      // Проверяем что настройки имеют правильную структуру
-      expect(result.current.settings).toHaveProperty("aspectRatio")
-      expect(result.current.settings).toHaveProperty("resolution")
-      expect(result.current.settings).toHaveProperty("frameRate")
-      expect(result.current.settings).toHaveProperty("colorSpace")
+      // Ререндерим компонент
+      rerender()
+
+      // Ссылки на функции должны остаться прежними
+      expect(result.current.updateSettings).toBe(firstUpdateSettings)
+      expect(result.current.resetSettings).toBe(firstResetSettings)
     })
   })
 })

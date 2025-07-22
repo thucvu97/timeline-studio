@@ -51,7 +51,7 @@ import { StyleTemplate } from "@/features/style-templates/types/style-template"
 import { MediaTemplate } from "@/features/templates/lib/templates"
 import { Transition } from "@/features/transitions/types/transitions"
 
-import { timelineMachine } from "../../services/timeline-machine"
+import { timelineUIMachine } from "../../services/timeline-ui-machine"
 import { createTimelineClip, createTimelineTrack, TimelineProject, TrackType } from "../../types"
 
 // Test data factories
@@ -216,7 +216,7 @@ describe("TimelineMachine", () => {
 
   beforeEach(() => {
     vi.resetAllMocks()
-    actor = createActor(timelineMachine)
+    actor = createActor(timelineUIMachine)
     actor.start()
   })
 
@@ -2094,7 +2094,7 @@ describe("TimelineMachine", () => {
       }
       project.sections = [section]
 
-      const actor = createActor(timelineMachine)
+      const actor = createActor(timelineUIMachine)
       actor.start()
       actor.send({ type: "LOAD_PROJECT", project })
 
@@ -2145,7 +2145,7 @@ describe("TimelineMachine", () => {
       }
       project.sections = [section]
 
-      const actor = createActor(timelineMachine)
+      const actor = createActor(timelineUIMachine)
       actor.start()
       actor.send({ type: "LOAD_PROJECT", project })
 
@@ -2197,7 +2197,7 @@ describe("TimelineMachine", () => {
       }
       project.sections = [section]
 
-      const actor = createActor(timelineMachine)
+      const actor = createActor(timelineUIMachine)
       actor.start()
       actor.send({ type: "LOAD_PROJECT", project })
 
@@ -2225,7 +2225,7 @@ describe("TimelineMachine", () => {
         },
       ]
 
-      const actor = createActor(timelineMachine)
+      const actor = createActor(timelineUIMachine)
       actor.start()
       actor.send({ type: "LOAD_PROJECT", project })
 
@@ -2247,7 +2247,7 @@ describe("TimelineMachine", () => {
   describe("Save Project Service", () => {
     it("should trigger save project service", async () => {
       const project = createProject()
-      const actor = createActor(timelineMachine)
+      const actor = createActor(timelineUIMachine)
       actor.start()
       actor.send({ type: "LOAD_PROJECT", project })
 
@@ -2268,7 +2268,7 @@ describe("TimelineMachine", () => {
     })
 
     it("should not save without project", () => {
-      const actor = createActor(timelineMachine)
+      const actor = createActor(timelineUIMachine)
       actor.start()
 
       actor.send({ type: "SAVE_PROJECT" })
@@ -2302,7 +2302,7 @@ describe("TimelineMachine", () => {
       }
       project.sections = [section]
 
-      const actor = createActor(timelineMachine)
+      const actor = createActor(timelineUIMachine)
       actor.start()
       actor.send({ type: "LOAD_PROJECT", project })
 
@@ -2343,7 +2343,7 @@ describe("TimelineMachine", () => {
       }
       project.sections = [section]
 
-      const actor = createActor(timelineMachine)
+      const actor = createActor(timelineUIMachine)
       actor.start()
       actor.send({ type: "LOAD_PROJECT", project })
 
@@ -2383,7 +2383,7 @@ describe("TimelineMachine", () => {
       }
       project.sections = [section]
 
-      const actor = createActor(timelineMachine)
+      const actor = createActor(timelineUIMachine)
       actor.start()
       actor.send({ type: "LOAD_PROJECT", project })
 
@@ -2422,7 +2422,7 @@ describe("TimelineMachine", () => {
       }
       project.sections = [section]
 
-      const actor = createActor(timelineMachine)
+      const actor = createActor(timelineUIMachine)
       actor.start()
       actor.send({ type: "LOAD_PROJECT", project })
 

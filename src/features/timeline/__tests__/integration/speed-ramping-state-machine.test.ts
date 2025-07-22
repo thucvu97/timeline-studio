@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest"
 import { createActor } from "xstate"
 
-import { timelineMachine } from "../../services/timeline-machine"
+import { timelineUIMachine } from "../../services/timeline-ui-machine"
 import { createTimelineProject } from "../../types/factories"
 import { SpeedRampingConfig } from "../../types/speed-ramping"
 
@@ -31,7 +31,7 @@ describe("Speed Ramping State Machine Integration", () => {
       ],
     })
 
-    actor = createActor(timelineMachine)
+    actor = createActor(timelineUIMachine)
     actor.start()
 
     // Загружаем проект через событие

@@ -340,9 +340,9 @@ describe("usePersonIdentification Extended Tests", () => {
         quality: 0.95,
         timestamp: { seconds: 10 },
         frameNumber: 100,
-      })
+      }),
     )
-    
+
     expect(mockAddAppearance).toHaveBeenCalledWith(
       "person-1",
       expect.objectContaining({
@@ -353,7 +353,7 @@ describe("usePersonIdentification Extended Tests", () => {
         duration: 0,
         confidence: 0.95,
         detections: [face],
-      })
+      }),
     )
   })
 
@@ -389,7 +389,7 @@ describe("usePersonIdentification Extended Tests", () => {
         faces: [createMockDetectedFace()],
         centroid: new Float32Array([0.1, 0.2, 0.3, 0.4, 0.5]),
         averageQuality: 0.95,
-      }
+      },
     ]
     mockClusterUnidentifiedFaces.mockResolvedValue(mockClusters)
 
@@ -515,8 +515,8 @@ describe("usePersonIdentification Extended Tests", () => {
     })
 
     expect(mockFindSimilarPersons).toHaveBeenCalledWith(
-      expect.any(Float32Array), 
-      expect.objectContaining({ minConfidence: 0.9 })
+      expect.any(Float32Array),
+      expect.objectContaining({ minConfidence: 0.9 }),
     )
   })
 })

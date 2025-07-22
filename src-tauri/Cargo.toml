@@ -136,6 +136,8 @@ prometheus = "0.14.0"
 specta = { version = "2.0.0-rc.21", features = ["serde", "chrono", "uuid", "serde_json"] }
 specta-typescript = { version = "0.0.9" }
 tauri-specta = { version = "2.0.0-rc.21", features = ["derive", "typescript"] }
+# Compression
+zstd = "0.13"
 
 [features]
 # by default Tauri runs in production mode

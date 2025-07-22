@@ -202,7 +202,7 @@ export class WhisperService {
 
       const endTime = Date.now()
       const processingTime = endTime - startTime
-      
+
       console.log(`Транскрипция завершена за ${processingTime}мс (${(processingTime / 1000).toFixed(2)}с)`)
 
       // Добавляем информацию о времени обработки в результат
@@ -214,8 +214,8 @@ export class WhisperService {
           endTime,
           durationMs: processingTime,
           model: options.model || "whisper-1",
-          apiProvider: "openai"
-        }
+          apiProvider: "openai",
+        },
       }
     } catch (error) {
       const endTime = Date.now()
@@ -279,7 +279,7 @@ export class WhisperService {
 
       const endTime = Date.now()
       const processingTime = endTime - startTime
-      
+
       console.log(`Локальная транскрипция завершена за ${processingTime}мс (${(processingTime / 1000).toFixed(2)}с)`)
 
       // Добавляем информацию о времени обработки в результат
@@ -293,8 +293,8 @@ export class WhisperService {
           model: modelName,
           apiProvider: "local",
           threads: options.threads || 4,
-          language: options.language || "auto"
-        }
+          language: options.language || "auto",
+        },
       }
     } catch (error) {
       const endTime = Date.now()
@@ -325,7 +325,7 @@ export class WhisperService {
       // Создаем канал для отслеживания прогресса через Tauri events
       if (onProgress) {
         const { listen } = await import("@tauri-apps/api/event")
-        
+
         // Подписываемся на события прогресса загрузки
         const unlisten = await listen<{ model: string; progress: number; total: number }>(
           "whisper_download_progress",
@@ -334,7 +334,7 @@ export class WhisperService {
               const progressPercent = (event.payload.progress / event.payload.total) * 100
               onProgress(Math.round(progressPercent))
             }
-          }
+          },
         )
 
         // Запускаем загрузку модели

@@ -11,6 +11,8 @@ export interface SnapConfig {
   snapToClips: boolean
   snapToMarkers: boolean
   snapToPlayhead: boolean
+  snapToGuides: boolean
+  snapToBeats: boolean
   gridInterval: number // in seconds
 }
 
@@ -21,6 +23,8 @@ export const DEFAULT_SNAP_CONFIG: SnapConfig = {
   snapToClips: true,
   snapToMarkers: true,
   snapToPlayhead: true,
+  snapToGuides: true,
+  snapToBeats: false, // Disabled by default as it requires audio analysis
   gridInterval: 1.0, // 1 second grid
 }
 
@@ -209,13 +213,17 @@ export function getClipEdgeSnapPoints(
   // Get the position we're dragging
   const dragPosition = edge === "start" ? clip.startTime : clip.startTime + clip.duration
 
+  // Find the clip's track to get its order
+  const clipTrack = tracks.find((t) => t.id === clip.trackId)
+  const clipTrackOrder = clipTrack?.order ?? 0
+
   tracks.forEach((track) => {
     track.clips.forEach((otherClip) => {
       if (otherClip.id === clip.id) return
 
       // Check if clips are on nearby tracks (for magnetic behavior)
-      const trackDistance = Math.abs((track.order - clip.trackId) as any) // TODO: fix type
-      const magnetStrength = trackDistance === 0 ? 1.0 : 0.8
+      const trackDistance = Math.abs(track.order - clipTrackOrder)
+      const magnetStrength = trackDistance === 0 ? 1.0 : trackDistance === 1 ? 0.8 : 0.6
 
       // Snap to other clip edges
       snapPoints.push({
@@ -228,6 +236,14 @@ export function getClipEdgeSnapPoints(
         position: (otherClip.startTime + otherClip.duration) * timeScale,
         type: "clip-end",
         strength: magnetStrength,
+      })
+
+      // Add snap to clip center (new snap point)
+      const clipCenter = otherClip.startTime + otherClip.duration / 2
+      snapPoints.push({
+        position: clipCenter * timeScale,
+        type: "clip",
+        strength: magnetStrength * 0.7, // Slightly weaker than edges
       })
     })
   })
@@ -290,4 +306,225 @@ export function findMagneticAlignment(
   })
 
   return bestAlignment
+}
+
+/**
+ * Generate snap points for timeline guides (thirds, quarters, custom guides)
+ */
+export interface TimelineGuide {
+  id: string
+  position: number // in seconds
+  type: "thirds" | "quarters" | "custom"
+  color?: string
+}
+
+export function generateGuideSnapPoints(
+  projectDuration: number,
+  guides: TimelineGuide[],
+  timeScale: number,
+  includeThirds = true,
+  includeQuarters = true,
+): SnapPoint[] {
+  const snapPoints: SnapPoint[] = []
+
+  // Add thirds
+  if (includeThirds) {
+    const thirdDuration = projectDuration / 3
+    for (let i = 1; i <= 2; i++) {
+      snapPoints.push({
+        position: thirdDuration * i * timeScale,
+        type: "guide",
+        strength: 0.7,
+      })
+    }
+  }
+
+  // Add quarters
+  if (includeQuarters) {
+    const quarterDuration = projectDuration / 4
+    for (let i = 1; i <= 3; i++) {
+      snapPoints.push({
+        position: quarterDuration * i * timeScale,
+        type: "guide",
+        strength: 0.6,
+      })
+    }
+  }
+
+  // Add custom guides
+  guides.forEach((guide) => {
+    snapPoints.push({
+      position: guide.position * timeScale,
+      type: "guide",
+      strength: 0.9,
+    })
+  })
+
+  return snapPoints
+}
+
+/**
+ * Enhanced magnetic alignment for group operations
+ * Supports multiple clips moving together
+ */
+export interface GroupMagneticAlignment {
+  targetTrack: TimelineTrack | null
+  targetTime: number
+  offsetPerClip: Map<string, number> // clip id -> time offset
+  strength: number
+}
+
+export function findGroupMagneticAlignment(
+  clips: TimelineClip[],
+  tracks: TimelineTrack[],
+  draggedClipId: string,
+  currentTime: number,
+  currentTrackIndex: number,
+  timeScale: number,
+  config: SnapConfig = DEFAULT_SNAP_CONFIG,
+): GroupMagneticAlignment {
+  if (!config.enabled || !config.snapToClips || clips.length === 0) {
+    return {
+      targetTrack: tracks[currentTrackIndex] || null,
+      targetTime: currentTime,
+      offsetPerClip: new Map(),
+      strength: 0,
+    }
+  }
+
+  // Find the dragged clip
+  const draggedClip = clips.find((c) => c.id === draggedClipId)
+  if (!draggedClip) {
+    return {
+      targetTrack: tracks[currentTrackIndex] || null,
+      targetTime: currentTime,
+      offsetPerClip: new Map(),
+      strength: 0,
+    }
+  }
+
+  // Calculate relative positions of all clips to the dragged one
+  const clipOffsets = new Map<string, number>()
+  clips.forEach((clip) => {
+    clipOffsets.set(clip.id, clip.startTime - draggedClip.startTime)
+  })
+
+  let bestAlignment: GroupMagneticAlignment = {
+    targetTrack: tracks[currentTrackIndex] || null,
+    targetTime: currentTime,
+    offsetPerClip: clipOffsets,
+    strength: 0,
+  }
+
+  // Check for alignment opportunities
+  const nearbyTracks = tracks.filter((_, index) => Math.abs(index - currentTrackIndex) <= 2)
+
+  nearbyTracks.forEach((track) => {
+    // Get all clips on this track except the ones we're moving
+    const targetClips = track.clips.filter((c) => !clips.some((mc) => mc.id === c.id))
+
+    // Check each moving clip for alignment
+    clips.forEach((movingClip) => {
+      const clipOffset = clipOffsets.get(movingClip.id) ?? 0
+      const clipTime = currentTime + clipOffset
+
+      targetClips.forEach((targetClip) => {
+        // Check alignment with target clip edges
+        const alignmentPoints = [
+          { time: targetClip.startTime, type: "start" },
+          { time: targetClip.startTime + targetClip.duration, type: "end" },
+          { time: targetClip.startTime + targetClip.duration / 2, type: "center" },
+        ]
+
+        alignmentPoints.forEach((point) => {
+          const timeDiff = Math.abs(clipTime - point.time)
+
+          if (timeDiff < config.threshold / timeScale) {
+            const strength = 1 - (timeDiff * timeScale) / config.threshold
+
+            if (strength > bestAlignment.strength) {
+              // Calculate new position that would align this clip
+              const alignedDraggedTime = currentTime - (clipTime - point.time)
+
+              // Update all clip offsets
+              const newOffsets = new Map<string, number>()
+              clips.forEach((clip) => {
+                const offset = clipOffsets.get(clip.id) ?? 0
+                newOffsets.set(clip.id, offset)
+              })
+
+              bestAlignment = {
+                targetTrack: track,
+                targetTime: alignedDraggedTime,
+                offsetPerClip: newOffsets,
+                strength,
+              }
+            }
+          }
+        })
+      })
+    })
+  })
+
+  return bestAlignment
+}
+
+/**
+ * Find rhythm-based snap points for music synchronization
+ * This is a placeholder for future beat detection integration
+ */
+export function findRhythmSnapPoints(
+  audioAnalysis: {
+    bpm?: number
+    beats?: number[]
+    measures?: number[]
+  },
+  timeScale: number,
+  startTime = 0,
+  endTime = Number.POSITIVE_INFINITY,
+): SnapPoint[] {
+  const snapPoints: SnapPoint[] = []
+
+  // If we have beat positions, use them
+  if (audioAnalysis.beats) {
+    audioAnalysis.beats
+      .filter((beat) => beat >= startTime && beat <= endTime)
+      .forEach((beat) => {
+        snapPoints.push({
+          position: beat * timeScale,
+          type: "beat",
+          strength: 0.8,
+        })
+      })
+  }
+
+  // If we have measure positions, use them with higher strength
+  if (audioAnalysis.measures) {
+    audioAnalysis.measures
+      .filter((measure) => measure >= startTime && measure <= endTime)
+      .forEach((measure) => {
+        snapPoints.push({
+          position: measure * timeScale,
+          type: "measure",
+          strength: 1.0,
+        })
+      })
+  }
+
+  // If we only have BPM, generate beat positions
+  if (audioAnalysis.bpm && !audioAnalysis.beats) {
+    const beatInterval = 60 / audioAnalysis.bpm
+    let beatTime = Math.ceil(startTime / beatInterval) * beatInterval
+
+    while (beatTime <= endTime) {
+      snapPoints.push({
+        position: beatTime * timeScale,
+        type: "beat",
+        strength: 0.7,
+      })
+      beatTime += beatInterval
+    }
+  }
+
+  return snapPoints
 }

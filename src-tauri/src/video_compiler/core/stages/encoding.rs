@@ -296,12 +296,12 @@ impl EncodingStage {
 
     let mut child = command
       .spawn()
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
     let stdout = child
       .stdout
       .take()
-      .ok_or_else(|| VideoCompilerError::IoError("Не удалось получить stdout".to_string()))?;
+      .ok_or_else(|| VideoCompilerError::Io("Не удалось получить stdout".to_string()))?;
 
     let mut reader = BufReader::new(stdout).lines();
     let mut last_progress = start_progress;
@@ -310,7 +310,7 @@ impl EncodingStage {
     while let Some(line) = reader
       .next_line()
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?
     {
       if context.is_cancelled() {
         let _ = child.kill().await;
@@ -333,7 +333,7 @@ impl EncodingStage {
     let status = child
       .wait()
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
     if !status.success() {
       return Err(VideoCompilerError::InternalError(
@@ -365,7 +365,7 @@ impl EncodingStage {
     // Проверяем размер файла
     let metadata = tokio::fs::metadata(&context.output_path)
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
     let file_size_mb = metadata.len() / 1_000_000;
     log::info!("📦 Размер выходного файла: {file_size_mb} MB");
@@ -394,7 +394,7 @@ impl EncodingStage {
     let output = command
       .output()
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
     if !output.status.success() {
       let error_msg = String::from_utf8_lossy(&output.stderr);

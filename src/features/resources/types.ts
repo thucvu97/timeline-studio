@@ -1,7 +1,7 @@
 import { VideoEffect } from "@/features/effects/types"
 import { MediaFile } from "@/features/media/types/media"
 import { StyleTemplate } from "@/features/style-templates/types"
-import { SubtitleStyle } from "@/features/subtitles/types"
+import { SubtitleStyleTemplate } from "@/features/subtitles/types"
 import { MediaTemplate } from "@/features/templates/lib/templates"
 import { Transition } from "@/features/transitions/types/transitions"
 
@@ -121,7 +121,7 @@ export function createMusicResource(file: MediaFile): MusicResource {
 }
 
 // Функция для создания ресурса стиля субтитров
-export function createSubtitleResource(style: SubtitleStyle): SubtitleResource {
+export function createSubtitleResource(style: SubtitleStyleTemplate): SubtitleResource {
   return {
     id: `subtitle-${style.id}-${Date.now()}`,
     type: "subtitle",

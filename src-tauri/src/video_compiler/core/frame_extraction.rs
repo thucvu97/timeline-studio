@@ -233,14 +233,16 @@ impl FrameExtractionManager {
     let video_info = self.preview_generator.get_video_info(video_path).await?;
 
     // Вычисляем временные метки для извлечения
-    let timestamps = self.calculate_timestamps(
-      video_path,
-      &settings.strategy,
-      clip.source_start,
-      clip.source_end,
-      &video_info,
-      None,
-    ).await?;
+    let timestamps = self
+      .calculate_timestamps(
+        video_path,
+        &settings.strategy,
+        clip.source_start,
+        clip.source_end,
+        &video_info,
+        None,
+      )
+      .await?;
 
     // Извлекаем кадры
     self
@@ -306,13 +308,16 @@ impl FrameExtractionManager {
     let video_info = self.preview_generator.get_video_info(video_path).await?;
 
     // Вычисляем временные метки
-    let timestamps = self.calculate_timestamps(
-      &settings.strategy,
-      0.0,
-      duration,
-      &video_info,
-      settings.max_frames,
-    )?;
+    let timestamps = self
+      .calculate_timestamps(
+        video_path,
+        &settings.strategy,
+        0.0,
+        duration,
+        &video_info,
+        settings.max_frames,
+      )
+      .await?;
 
     // Извлекаем кадры
     let extracted_frames = self
@@ -370,12 +375,16 @@ impl FrameExtractionManager {
 
       ExtractionStrategy::SceneChange { threshold } => {
         // Используем FFmpeg scene detection с заданным порогом
-        self.detect_scene_changes(video_path, start_time, end_time, *threshold, video_info).await?
+        self
+          .detect_scene_changes(video_path, start_time, end_time, *threshold, video_info)
+          .await?
       }
 
       ExtractionStrategy::KeyFrames => {
         // Извлечение I-frames через FFmpeg
-        self.extract_keyframe_timestamps(video_path, start_time, end_time).await?
+        self
+          .extract_keyframe_timestamps(video_path, start_time, end_time)
+          .await?
       }
 
       ExtractionStrategy::Combined {
@@ -394,13 +403,17 @@ impl FrameExtractionManager {
 
         // Добавляем изменения сцен
         if *include_scene_changes {
-          let scene_changes = self.detect_scene_changes(video_path, start_time, end_time, 0.3, video_info).await?;
+          let scene_changes = self
+            .detect_scene_changes(video_path, start_time, end_time, 0.3, video_info)
+            .await?;
           timestamps.extend(scene_changes);
         }
 
         // Добавляем ключевые кадры
         if *include_keyframes {
-          let keyframes = self.extract_keyframe_timestamps(video_path, start_time, end_time).await?;
+          let keyframes = self
+            .extract_keyframe_timestamps(video_path, start_time, end_time)
+            .await?;
           timestamps.extend(keyframes);
         }
 
@@ -656,7 +669,6 @@ impl FrameExtractionManager {
     _video_info: &VideoInfo,
   ) -> Result<Vec<f64>> {
     use std::process::Command;
-    use std::io::{BufRead, BufReader};
 
     log::info!("Обнаружение сцен от {start_time:.2}s до {end_time:.2}s с порогом {threshold}");
 
@@ -665,10 +677,13 @@ impl FrameExtractionManager {
     // Используем FFmpeg для обнаружения сцен
     let mut cmd = Command::new(&self._ffmpeg_path);
     cmd.args([
-      "-i", video_path_str.as_ref(),
-      "-filter:v", &format!("select='gt(scene,{threshold})',showinfo"),
-      "-f", "null",
-      "-"
+      "-i",
+      video_path_str.as_ref(),
+      "-filter:v",
+      &format!("select='gt(scene,{threshold})',showinfo"),
+      "-f",
+      "null",
+      "-",
     ]);
 
     // Добавляем временные рамки если нужно
@@ -682,9 +697,10 @@ impl FrameExtractionManager {
     log::debug!("Выполняем команду FFmpeg: {:?}", cmd);
 
     let output = cmd.output().map_err(|e| {
-      crate::video_compiler::error::VideoCompilerError::ExternalProcessError(
-        format!("Failed to execute FFmpeg scene detection: {}", e)
-      )
+      crate::video_compiler::error::VideoCompilerError::ProcessingError {
+        operation: "ffmpeg scene detection".to_string(),
+        details: format!("Failed to execute FFmpeg: {}", e),
+      }
     })?;
 
     let mut scene_timestamps = Vec::new();
@@ -710,9 +726,9 @@ impl FrameExtractionManager {
     // Альтернативный метод: Histogram-based scene detection
     if scene_timestamps.is_empty() {
       log::warn!("FFmpeg scene detection не нашел сцен, используем histogram-based метод");
-      scene_timestamps = self.detect_scenes_histogram_based(
-        video_path_str.as_ref(), start_time, end_time, threshold
-      ).await?;
+      scene_timestamps = self
+        .detect_scenes_histogram_based(video_path_str.as_ref(), start_time, end_time, threshold)
+        .await?;
     }
 
     log::info!("Найдено {} изменений сцен", scene_timestamps.len());
@@ -733,26 +749,32 @@ impl FrameExtractionManager {
 
     let mut cmd = Command::new(&self._ffmpeg_path);
     cmd.args([
-      "-i", video_path,
-      "-ss", &start_time.to_string(),
-      "-t", &(end_time - start_time).to_string(),
-      "-filter:v", &format!(
+      "-i",
+      video_path,
+      "-ss",
+      &start_time.to_string(),
+      "-t",
+      &(end_time - start_time).to_string(),
+      "-filter:v",
+      &format!(
         "select='gt(scene,{})',metadata=print:file=-",
         threshold * 0.7 // Более низкий порог для histogram метода
       ),
-      "-f", "null",
-      "-"
+      "-f",
+      "null",
+      "-",
     ]);
 
     let output = cmd.output().map_err(|e| {
-      crate::video_compiler::error::VideoCompilerError::ExternalProcessError(
-        format!("Failed to execute histogram-based scene detection: {}", e)
-      )
+      crate::video_compiler::error::VideoCompilerError::ProcessingError {
+        operation: "ffmpeg".to_string(),
+        details: format!("Failed to execute histogram-based scene detection: {}", e),
+      }
     })?;
 
     let mut timestamps = Vec::new();
     let stderr = String::from_utf8_lossy(&output.stderr);
-    
+
     for line in stderr.lines() {
       if line.contains("frame:") && line.contains("pts:") {
         // Простой парсинг для извлечения временных меток
@@ -799,20 +821,26 @@ impl FrameExtractionManager {
     // Используем FFmpeg для поиска I-frames
     let mut cmd = Command::new(&self._ffmpeg_path);
     cmd.args([
-      "-i", video_path_str.as_ref(),
-      "-ss", &start_time.to_string(),
-      "-t", &(end_time - start_time).to_string(),
-      "-filter:v", "select='eq(pict_type,I)',showinfo",
-      "-f", "null",
-      "-"
+      "-i",
+      video_path_str.as_ref(),
+      "-ss",
+      &start_time.to_string(),
+      "-t",
+      &(end_time - start_time).to_string(),
+      "-filter:v",
+      "select='eq(pict_type,I)',showinfo",
+      "-f",
+      "null",
+      "-",
     ]);
 
     log::debug!("Выполняем команду FFmpeg для ключевых кадров: {:?}", cmd);
 
     let output = cmd.output().map_err(|e| {
-      crate::video_compiler::error::VideoCompilerError::ExternalProcessError(
-        format!("Failed to execute FFmpeg keyframe extraction: {}", e)
-      )
+      crate::video_compiler::error::VideoCompilerError::ProcessingError {
+        operation: "ffmpeg".to_string(),
+        details: format!("Failed to execute FFmpeg keyframe extraction: {}", e),
+      }
     })?;
 
     let mut keyframe_timestamps = Vec::new();
@@ -837,10 +865,12 @@ impl FrameExtractionManager {
 
     // Альтернативный метод если основной не работает
     if keyframe_timestamps.is_empty() {
-      log::warn!("Основной метод извлечения ключевых кадров не сработал, используем альтернативный");
-      keyframe_timestamps = self.extract_keyframes_alternative(
-        video_path_str.as_ref(), start_time, end_time
-      ).await?;
+      log::warn!(
+        "Основной метод извлечения ключевых кадров не сработал, используем альтернативный"
+      );
+      keyframe_timestamps = self
+        .extract_keyframes_alternative(video_path_str.as_ref(), start_time, end_time)
+        .await?;
     }
 
     log::info!("Найдено {} ключевых кадров", keyframe_timestamps.len());
@@ -860,24 +890,30 @@ impl FrameExtractionManager {
 
     let mut cmd = Command::new(&self._ffmpeg_path);
     cmd.args([
-      "-i", video_path,
-      "-ss", &start_time.to_string(),
-      "-t", &(end_time - start_time).to_string(),
-      "-vf", "select='eq(pict_type,I)',metadata=print:file=-",
+      "-i",
+      video_path,
+      "-ss",
+      &start_time.to_string(),
+      "-t",
+      &(end_time - start_time).to_string(),
+      "-vf",
+      "select='eq(pict_type,I)',metadata=print:file=-",
       "-an", // Отключаем аудио
-      "-f", "null",
-      "-"
+      "-f",
+      "null",
+      "-",
     ]);
 
     let output = cmd.output().map_err(|e| {
-      crate::video_compiler::error::VideoCompilerError::ExternalProcessError(
-        format!("Failed to execute alternative keyframe extraction: {}", e)
-      )
+      crate::video_compiler::error::VideoCompilerError::ProcessingError {
+        operation: "ffmpeg".to_string(),
+        details: format!("Failed to execute alternative keyframe extraction: {}", e),
+      }
     })?;
 
     let mut timestamps = Vec::new();
     let stderr = String::from_utf8_lossy(&output.stderr);
-    
+
     for line in stderr.lines() {
       // Парсим вывод для альтернативного формата
       if line.contains("frame:") && line.contains("pts:") {
@@ -900,7 +936,7 @@ impl FrameExtractionManager {
     if timestamps.is_empty() {
       log::warn!("Альтернативный метод не сработал, используем приблизительные позиции");
       // Обычно I-frames идут каждые 1-2 секунды в видео
-      let keyframe_interval = 2.0; 
+      let keyframe_interval = 2.0;
       let mut current = start_time;
       while current <= end_time {
         timestamps.push(current);
@@ -1155,8 +1191,10 @@ mod tests {
       audio_codec: Some("aac".to_string()),
     };
 
+    let video_path = Path::new("/test/video.mp4");
     let timestamps = manager
-      .calculate_timestamps(&strategy, 0.0, 10.0, &video_info, None)
+      .calculate_timestamps(video_path, &strategy, 0.0, 10.0, &video_info, None)
+      .await
       .unwrap();
 
     assert_eq!(timestamps.len(), 6); // 0, 2, 4, 6, 8, 10
@@ -1180,8 +1218,10 @@ mod tests {
       audio_codec: Some("aac".to_string()),
     };
 
+    let video_path = Path::new("/test/video.mp4");
     let timestamps = manager
-      .calculate_timestamps(&strategy, 0.0, 60.0, &video_info, Some(5))
+      .calculate_timestamps(video_path, &strategy, 0.0, 60.0, &video_info, Some(5))
+      .await
       .unwrap();
 
     assert_eq!(timestamps.len(), 5); // Limited to 5 frames
@@ -1206,8 +1246,10 @@ mod tests {
       audio_codec: Some("aac".to_string()),
     };
 
+    let video_path = Path::new("/test/video.mp4");
     let timestamps = manager
-      .calculate_timestamps(&strategy, 0.0, 10.0, &video_info, None)
+      .calculate_timestamps(video_path, &strategy, 0.0, 10.0, &video_info, None)
+      .await
       .unwrap();
 
     assert!(!timestamps.is_empty());

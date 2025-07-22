@@ -5,18 +5,17 @@ describe("Subtitle Processor Module", () => {
   it("should import subtitle processor utilities without errors", async () => {
     // Проверяем, что модули импортируются без ошибок
     try {
-      const { processSubtitleStyles, validateSubtitleStylesData, createFallbackSubtitleStyle } = await import(
-        "../../utils/subtitle-processor"
-      )
+      const { processSubtitleStyleTemplates, validateSubtitleStyleTemplatesData, createFallbackSubtitleStyleTemplate } =
+        await import("../../utils/subtitle-processor")
 
-      expect(processSubtitleStyles).toBeDefined()
-      expect(typeof processSubtitleStyles).toBe("function")
+      expect(processSubtitleStyleTemplates).toBeDefined()
+      expect(typeof processSubtitleStyleTemplates).toBe("function")
 
-      expect(validateSubtitleStylesData).toBeDefined()
-      expect(typeof validateSubtitleStylesData).toBe("function")
+      expect(validateSubtitleStyleTemplatesData).toBeDefined()
+      expect(typeof validateSubtitleStyleTemplatesData).toBe("function")
 
-      expect(createFallbackSubtitleStyle).toBeDefined()
-      expect(typeof createFallbackSubtitleStyle).toBe("function")
+      expect(createFallbackSubtitleStyleTemplate).toBeDefined()
+      expect(typeof createFallbackSubtitleStyleTemplate).toBe("function")
     } catch (error) {
       // Если модуль не найден, это нормально для тестов
       console.log("Subtitle processor module not found, which is expected in test environment")
@@ -25,7 +24,7 @@ describe("Subtitle Processor Module", () => {
 
   it("should validate subtitle style data structure", () => {
     // Тестируем структуру данных стиля субтитров
-    const validSubtitleStyle = {
+    const validSubtitleStyleTemplate = {
       id: "basic-white",
       name: "Basic White",
       labels: {
@@ -59,28 +58,28 @@ describe("Subtitle Processor Module", () => {
     }
 
     // Проверяем обязательные поля
-    expect(validSubtitleStyle).toHaveProperty("id")
-    expect(validSubtitleStyle).toHaveProperty("name")
-    expect(validSubtitleStyle).toHaveProperty("labels")
-    expect(validSubtitleStyle).toHaveProperty("description")
-    expect(validSubtitleStyle).toHaveProperty("category")
-    expect(validSubtitleStyle).toHaveProperty("complexity")
-    expect(validSubtitleStyle).toHaveProperty("style")
+    expect(validSubtitleStyleTemplate).toHaveProperty("id")
+    expect(validSubtitleStyleTemplate).toHaveProperty("name")
+    expect(validSubtitleStyleTemplate).toHaveProperty("labels")
+    expect(validSubtitleStyleTemplate).toHaveProperty("description")
+    expect(validSubtitleStyleTemplate).toHaveProperty("category")
+    expect(validSubtitleStyleTemplate).toHaveProperty("complexity")
+    expect(validSubtitleStyleTemplate).toHaveProperty("style")
 
     // Проверяем типы
-    expect(typeof validSubtitleStyle.id).toBe("string")
-    expect(typeof validSubtitleStyle.name).toBe("string")
-    expect(typeof validSubtitleStyle.labels).toBe("object")
-    expect(typeof validSubtitleStyle.description).toBe("object")
-    expect(typeof validSubtitleStyle.category).toBe("string")
-    expect(typeof validSubtitleStyle.complexity).toBe("string")
-    expect(typeof validSubtitleStyle.style).toBe("object")
+    expect(typeof validSubtitleStyleTemplate.id).toBe("string")
+    expect(typeof validSubtitleStyleTemplate.name).toBe("string")
+    expect(typeof validSubtitleStyleTemplate.labels).toBe("object")
+    expect(typeof validSubtitleStyleTemplate.description).toBe("object")
+    expect(typeof validSubtitleStyleTemplate.category).toBe("string")
+    expect(typeof validSubtitleStyleTemplate.complexity).toBe("string")
+    expect(typeof validSubtitleStyleTemplate.style).toBe("object")
 
     // Проверяем языковые метки
-    expect(validSubtitleStyle.labels).toHaveProperty("ru")
-    expect(validSubtitleStyle.labels).toHaveProperty("en")
-    expect(validSubtitleStyle.description).toHaveProperty("ru")
-    expect(validSubtitleStyle.description).toHaveProperty("en")
+    expect(validSubtitleStyleTemplate.labels).toHaveProperty("ru")
+    expect(validSubtitleStyleTemplate.labels).toHaveProperty("en")
+    expect(validSubtitleStyleTemplate.description).toHaveProperty("ru")
+    expect(validSubtitleStyleTemplate.description).toHaveProperty("en")
   })
 
   it("should validate subtitle categories", () => {

@@ -1,0 +1,424 @@
+{
+  "version": "2.0.0",
+  "category": "creative",
+  "migratedAt": "2025-07-21T11:27:01.916Z",
+  "stats": {
+    "total": 9,
+    "migrated": 9,
+    "skipped": 0,
+    "successRate": "100.00%",
+    "errors": []
+  },
+  "effects": [
+    {
+      "id": "effect_neon",
+      "name": {
+        "en": "Neon",
+        "ru": "Неон",
+        "es": "Neón",
+        "fr": "Néon",
+        "de": "Neon"
+      },
+      "description": {
+        "ru": "Создает яркий неоновый эффект с повышенным контрастом",
+        "en": "Creates a bright neon effect with enhanced contrast"
+      },
+      "category": "stylize",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["modern", "dramatic", "intense"],
+      "complexity": "medium",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "intensity",
+          "name": {
+            "en": "Intensity",
+            "ru": "Интенсивность"
+          },
+          "type": "number",
+          "defaultValue": 0.5,
+          "min": 0,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    },
+    {
+      "id": "effect_lens-flare",
+      "name": {
+        "en": "Lens Flare",
+        "ru": "Блики линз",
+        "es": "Destello de Lente",
+        "fr": "Reflet d'Objectif",
+        "de": "Linsenreflex"
+      },
+      "description": {
+        "ru": "Добавляет эффект бликов от линз объектива",
+        "en": "Adds lens flare effect from camera lens"
+      },
+      "category": "lighting",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["dramatic", "modern"],
+      "complexity": "medium",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "intensity",
+          "name": {
+            "en": "Intensity",
+            "ru": "Интенсивность"
+          },
+          "type": "number",
+          "defaultValue": 0.5,
+          "min": 0,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    },
+    {
+      "id": "effect_glow",
+      "name": {
+        "en": "Glow",
+        "ru": "Свечение",
+        "es": "Resplandor",
+        "fr": "Lueur",
+        "de": "Glühen"
+      },
+      "description": {
+        "ru": "Создает эффект мягкого свечения вокруг ярких областей",
+        "en": "Creates a soft glow effect around bright areas"
+      },
+      "category": "lighting",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["dramatic", "modern", "intense"],
+      "complexity": "medium",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "intensity",
+          "name": {
+            "en": "Intensity",
+            "ru": "Интенсивность"
+          },
+          "type": "number",
+          "defaultValue": 0.5,
+          "min": 0,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "soft",
+          "name": {
+            "ru": "Мягкое",
+            "en": "Soft"
+          },
+          "description": {
+            "ru": "Мягкое свечение",
+            "en": "Soft glow"
+          },
+          "parameters": {
+            "intensity": 0.3
+          },
+          "tags": []
+        },
+        {
+          "id": "intense",
+          "name": {
+            "ru": "Интенсивное",
+            "en": "Intense"
+          },
+          "description": {
+            "ru": "Интенсивное свечение",
+            "en": "Intense glow"
+          },
+          "parameters": {
+            "intensity": 0.8
+          },
+          "tags": []
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    },
+    {
+      "id": "effect_cyberpunk",
+      "name": {
+        "en": "Cyberpunk",
+        "ru": "Киберпанк",
+        "es": "Ciberpunk",
+        "fr": "Cyberpunk",
+        "de": "Cyberpunk"
+      },
+      "description": {
+        "ru": "Создает футуристический киберпанк эффект с неоновыми цветами",
+        "en": "Creates futuristic cyberpunk effect with neon colors"
+      },
+      "category": "stylize",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["modern", "intense", "experimental"],
+      "complexity": "high",
+      "gpuAccelerated": true,
+      "parameters": [],
+      "presets": [],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    },
+    {
+      "id": "effect_infrared",
+      "name": {
+        "en": "Infrared",
+        "ru": "Инфракрасный",
+        "es": "Infrarrojo",
+        "fr": "Infrarouge",
+        "de": "Infrarot"
+      },
+      "description": {
+        "ru": "Имитирует инфракрасную съемку",
+        "en": "Simulates infrared photography"
+      },
+      "category": "stylize",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["experimental", "dramatic"],
+      "complexity": "medium",
+      "gpuAccelerated": true,
+      "parameters": [],
+      "presets": [],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    },
+    {
+      "id": "effect_matrix",
+      "name": {
+        "en": "Matrix",
+        "ru": "Матрица",
+        "es": "Matrix",
+        "fr": "Matrix",
+        "de": "Matrix"
+      },
+      "description": {
+        "ru": "Создает зеленый эффект в стиле фильма Матрица",
+        "en": "Creates green Matrix movie style effect"
+      },
+      "category": "stylize",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["modern", "intense", "experimental"],
+      "complexity": "high",
+      "gpuAccelerated": true,
+      "parameters": [],
+      "presets": [],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    },
+    {
+      "id": "effect_glitch",
+      "name": {
+        "en": "Glitch",
+        "ru": "Глитч",
+        "es": "Glitch",
+        "fr": "Glitch",
+        "de": "Glitch"
+      },
+      "description": {
+        "ru": "Создает эффект цифровых помех и искажений",
+        "en": "Creates digital glitch and distortion effects"
+      },
+      "category": "stylize",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["modern", "experimental", "intense"],
+      "complexity": "high",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "intensity",
+          "name": {
+            "en": "Intensity",
+            "ru": "Интенсивность"
+          },
+          "type": "number",
+          "defaultValue": 50,
+          "min": 0,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "subtle",
+          "name": {
+            "ru": "Тонкий",
+            "en": "Subtle"
+          },
+          "description": {
+            "ru": "Легкие цифровые помехи",
+            "en": "Light digital noise"
+          },
+          "parameters": {
+            "intensity": 25
+          },
+          "tags": []
+        },
+        {
+          "id": "heavy",
+          "name": {
+            "ru": "Сильный",
+            "en": "Heavy"
+          },
+          "description": {
+            "ru": "Сильные искажения",
+            "en": "Heavy distortions"
+          },
+          "parameters": {
+            "intensity": 100
+          },
+          "tags": []
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    },
+    {
+      "id": "effect_zoom-blur",
+      "name": {
+        "en": "Zoom Blur",
+        "ru": "Радиальное размытие",
+        "es": "Desenfoque Radial",
+        "fr": "Flou Radial",
+        "de": "Radiale Unschärfe"
+      },
+      "description": {
+        "ru": "Создает радиальное размытие от центра изображения",
+        "en": "Creates radial blur from the center of the image"
+      },
+      "category": "stylize",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["dramatic", "modern"],
+      "complexity": "high",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "intensity",
+          "name": {
+            "en": "Intensity",
+            "ru": "Интенсивность"
+          },
+          "type": "number",
+          "defaultValue": 2,
+          "min": 0,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    },
+    {
+      "id": "effect_hologram",
+      "name": {
+        "en": "Hologram",
+        "ru": "Голограмма",
+        "es": "Holograma",
+        "fr": "Hologramme",
+        "de": "Hologramm"
+      },
+      "description": {
+        "ru": "Создает футуристический голографический эффект",
+        "en": "Creates futuristic holographic effect"
+      },
+      "category": "stylize",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["modern", "experimental", "intense"],
+      "complexity": "high",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "intensity",
+          "name": {
+            "en": "Intensity",
+            "ru": "Интенсивность"
+          },
+          "type": "number",
+          "defaultValue": 0.5,
+          "min": 0,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    }
+  ]
+}

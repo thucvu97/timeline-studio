@@ -52,6 +52,9 @@ impl CommandRegistry for VideoCompilerCommandRegistry {
       get_cache_size_limit,
       preload_media_to_cache,
       get_cache_path,
+      get_cache_optimization_recommendations,
+      preload_video_previews,
+      optimize_cache_by_stats,
       // Prerender commands
       prerender_segment,
       get_prerender_cache_info,
@@ -119,16 +122,10 @@ impl CommandRegistry for VideoCompilerCommandRegistry {
       get_performance_stats,
       get_available_filters,
       get_media_file_info,
-      // Misc commands - TODO: These will be moved to specialized modules
-      add_clip_to_track,
+      // Misc commands
       add_subtitles_to_project,
       concat_videos,
-      create_clip,
       create_custom_alert,
-      create_effect,
-      create_filter,
-      create_schema_objects,
-      create_style_template,
       get_cache_memory_usage,
       get_cached_metadata,
       get_current_gpu_info,
@@ -206,11 +203,7 @@ impl CommandRegistry for VideoCompilerCommandRegistry {
       generate_preview,
       generate_preview_batch,
       generate_preview_with_settings,
-      // Timeline Schema commands
-      create_subtitle,
-      create_track,
-      add_clip_to_track,
-      create_clip,
+      // Additional schema validation commands
       validate_schema_structure,
       // Remaining Utilities commands
       test_hardware_acceleration,
@@ -272,7 +265,13 @@ impl CommandRegistry for VideoCompilerCommandRegistry {
       ffmpeg_extract_keyframes,
       ffmpeg_get_metadata,
       ffmpeg_quick_analysis,
-      // Schema commands
+      // Schema commands - Timeline schema creation and management
+      add_clip_to_track,
+      create_clip,
+      create_effect,
+      create_filter,
+      create_schema_objects,
+      create_style_template,
       create_subtitle,
       create_subtitle_animation,
       create_template,

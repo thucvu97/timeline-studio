@@ -177,17 +177,17 @@ impl CacheServiceImpl {
 
     let mut entries = tokio::fs::read_dir(path)
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
     while let Some(entry) = entries
       .next_entry()
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?
     {
       let metadata = entry
         .metadata()
         .await
-        .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+        .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
       if metadata.is_file() {
         total_size += metadata.len();
@@ -207,17 +207,17 @@ impl CacheServiceImpl {
 
     let mut entries = tokio::fs::read_dir(path)
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
     while let Some(entry) = entries
       .next_entry()
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?
     {
       let metadata = entry
         .metadata()
         .await
-        .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+        .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
       if metadata.is_file() {
         if let Ok(modified) = metadata.modified() {
@@ -225,7 +225,7 @@ impl CacheServiceImpl {
             if elapsed.as_secs() > max_age_secs {
               tokio::fs::remove_file(entry.path())
                 .await
-                .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+                .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
               removed_count += 1;
             }
           }
@@ -257,7 +257,7 @@ impl Service for CacheServiceImpl {
     for dir in dirs {
       tokio::fs::create_dir_all(&dir)
         .await
-        .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+        .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
     }
 
     Ok(())
@@ -275,10 +275,10 @@ impl Service for CacheServiceImpl {
     let test_file = self.cache_dir.join(".health_check");
     tokio::fs::write(&test_file, b"test")
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
     tokio::fs::remove_file(&test_file)
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
     Ok(())
   }
@@ -304,10 +304,10 @@ impl CacheService for CacheServiceImpl {
       if dir_path.exists() {
         tokio::fs::remove_dir_all(&dir_path)
           .await
-          .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+          .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
         tokio::fs::create_dir_all(&dir_path)
           .await
-          .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+          .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
       }
     }
 
@@ -324,10 +324,10 @@ impl CacheService for CacheServiceImpl {
     if render_dir.exists() {
       tokio::fs::remove_dir_all(&render_dir)
         .await
-        .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+        .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
       tokio::fs::create_dir_all(&render_dir)
         .await
-        .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+        .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
     }
 
     Ok(())
@@ -339,10 +339,10 @@ impl CacheService for CacheServiceImpl {
     if preview_dir.exists() {
       tokio::fs::remove_dir_all(&preview_dir)
         .await
-        .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+        .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
       tokio::fs::create_dir_all(&preview_dir)
         .await
-        .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+        .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
     }
     Ok(())
   }
@@ -358,7 +358,7 @@ impl CacheService for CacheServiceImpl {
     if project_dir.exists() {
       tokio::fs::remove_dir_all(&project_dir)
         .await
-        .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+        .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
     }
 
     Ok(())
@@ -445,12 +445,12 @@ impl CacheService for CacheServiceImpl {
     if let Some(parent) = cache_path.parent() {
       tokio::fs::create_dir_all(parent)
         .await
-        .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+        .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
     }
 
     tokio::fs::write(&cache_path, data)
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
     Ok(cache_path)
   }
@@ -461,7 +461,7 @@ impl CacheService for CacheServiceImpl {
     if cache_path.exists() {
       let data = tokio::fs::read(&cache_path)
         .await
-        .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+        .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
       Ok(Some(data))
     } else {
       Ok(None)
@@ -482,12 +482,12 @@ impl CacheService for CacheServiceImpl {
       if dir_path.exists() {
         let mut entries = tokio::fs::read_dir(&dir_path)
           .await
-          .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+          .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
         while let Some(entry) = entries
           .next_entry()
           .await
-          .map_err(|e| VideoCompilerError::IoError(e.to_string()))?
+          .map_err(|e| VideoCompilerError::Io(e.to_string()))?
         {
           if entry.metadata().await.unwrap().is_file() {
             if let Some(name) = entry.file_name().to_str() {
@@ -509,7 +509,7 @@ impl CacheService for CacheServiceImpl {
       if cache_path.exists() {
         let metadata = tokio::fs::metadata(&cache_path)
           .await
-          .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+          .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
         let created_at = metadata
           .created()

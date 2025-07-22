@@ -170,7 +170,7 @@ export class ResourceManager {
       id: `applied-${effect.id}-${Date.now()}`,
       effectId: effect.id,
       customParams,
-      isEnabled: true,
+      enabled: true,
       order: 0,
     }
 
@@ -279,10 +279,10 @@ export class ResourceManager {
           if (clip.templateId) usedTemplateIds.add(clip.templateId)
           if (clip.styleTemplate?.styleTemplateId) usedStyleTemplateIds.add(clip.styleTemplate.styleTemplateId)
           if (clip.mediaId) usedMediaIds.add(clip.mediaId)
-          
+
           // Субтитровые клипы
           if (clip.subtitleStyleId) usedSubtitleStyleIds.add(clip.subtitleStyleId)
-          
+
           // Музыкальные клипы (музыка хранится как mediaId, но может иметь дополнительные ссылки)
           if (clip.bpm || clip.fadeIn || clip.fadeOut) {
             // Это музыкальный клип, добавляем его mediaId в музыкальные ресурсы

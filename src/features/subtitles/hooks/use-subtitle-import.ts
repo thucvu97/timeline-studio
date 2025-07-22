@@ -3,35 +3,30 @@
  */
 
 import { useCallback, useState } from "react"
+
 import { invoke } from "@tauri-apps/api/core"
 import { open } from "@tauri-apps/plugin-dialog"
 import { readTextFile } from "@tauri-apps/plugin-fs"
 
-import { useTimelineStore } from "@/features/timeline/stores/timeline-store"
-import { useToast } from "@/components/ui/use-toast"
+import { useTimeline } from "@/features/timeline/hooks/use-timeline"
+import { useToast } from "@/hooks/use-toast"
 import { generateId } from "@/lib/utils"
 
+import { detectSubtitleFormat, importSubtitles, validateSubtitles } from "../utils/subtitle-importers"
+
 import type { SubtitleClip } from "../types/subtitles"
-import { 
-  importSubtitles, 
-  detectSubtitleFormat, 
-  validateSubtitles 
-} from "../utils/subtitle-importers"
 
 export interface UseSubtitleImportProps {
   trackId?: string
   onImportComplete?: (subtitles: SubtitleClip[]) => void
 }
 
-export function useSubtitleImport({
-  trackId,
-  onImportComplete,
-}: UseSubtitleImportProps = {}) {
+export function useSubtitleImport({ trackId, onImportComplete }: UseSubtitleImportProps = {}) {
   const [isImporting, setIsImporting] = useState(false)
   const [importProgress, setImportProgress] = useState(0)
-  
+
   const { toast } = useToast()
-  const timelineStore = useTimelineStore()
+  const { project, addTrack, addClip } = useTimeline()
 
   /**
    * Открывает диалог выбора файла и импортирует субтитры
@@ -90,13 +85,11 @@ export function useSubtitleImport({
 
       // Определяем трек для добавления
       let targetTrackId = trackId
-      
+
       if (!targetTrackId) {
         // Ищем существующий трек субтитров
-        const subtitleTrack = timelineStore.tracks.find(
-          (track) => track.type === "subtitle"
-        )
-        
+        const subtitleTrack = project?.tracks.find((track) => track.type === "subtitle")
+
         if (subtitleTrack) {
           targetTrackId = subtitleTrack.id
         } else {
@@ -111,8 +104,8 @@ export function useSubtitleImport({
             muted: false,
             clips: [],
           }
-          
-          timelineStore.addTrack(newTrack)
+
+          await addTrack(newTrack)
           targetTrackId = newTrack.id
         }
       }
@@ -127,7 +120,7 @@ export function useSubtitleImport({
 
       // Добавляем клипы на timeline
       for (const clip of clipsToAdd) {
-        timelineStore.addClip(targetTrackId!, clip)
+        await addClip(targetTrackId!, clip, clip.startTime)
       }
 
       setImportProgress(100)
@@ -148,7 +141,6 @@ export function useSubtitleImport({
         trackId: targetTrackId,
         subtitles: clipsToAdd,
       })
-
     } catch (error) {
       console.error("Ошибка импорта субтитров:", error)
       toast({
@@ -172,7 +164,7 @@ export function useSubtitleImport({
       options?: {
         trackId?: string
         validateOnly?: boolean
-      }
+      },
     ) => {
       try {
         // Импортируем субтитры
@@ -181,9 +173,7 @@ export function useSubtitleImport({
         // Валидируем
         const validation = validateSubtitles(subtitles)
         if (!validation.valid) {
-          throw new Error(
-            `Ошибки валидации:\n${validation.errors.join("\n")}`
-          )
+          throw new Error(`Ошибки валидации:\n${validation.errors.join("\n")}`)
         }
 
         // Если только валидация - возвращаем результат
@@ -216,7 +206,7 @@ export function useSubtitleImport({
         }
       }
     },
-    [trackId, timelineStore]
+    [trackId, timelineStore],
   )
 
   /**
@@ -232,7 +222,7 @@ export function useSubtitleImport({
       options?: {
         trackId?: string
         language?: string
-      }
+      },
     ) => {
       try {
         // Конвертируем сегменты Whisper в субтитры
@@ -248,9 +238,7 @@ export function useSubtitleImport({
         // Валидируем
         const validation = validateSubtitles(subtitles)
         if (!validation.valid) {
-          throw new Error(
-            `Ошибки валидации:\n${validation.errors.join("\n")}`
-          )
+          throw new Error(`Ошибки валидации:\n${validation.errors.join("\n")}`)
         }
 
         // Определяем трек
@@ -275,8 +263,7 @@ export function useSubtitleImport({
         console.error("Ошибка импорта транскрипции:", error)
         toast({
           title: "Ошибка импорта",
-          description:
-            error instanceof Error ? error.message : "Неизвестная ошибка",
+          description: error instanceof Error ? error.message : "Неизвестная ошибка",
           variant: "destructive",
         })
         return {
@@ -285,7 +272,7 @@ export function useSubtitleImport({
         }
       }
     },
-    [trackId, timelineStore, toast]
+    [trackId, timelineStore, toast],
   )
 
   return {

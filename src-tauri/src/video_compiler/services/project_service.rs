@@ -189,7 +189,7 @@ impl ProjectService for ProjectServiceImpl {
   async fn load_project(&self, path: &Path) -> Result<ProjectSchema> {
     let content = tokio::fs::read_to_string(path)
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
     serde_json::from_str(&content).map_err(|e| VideoCompilerError::ValidationError(e.to_string()))
   }
@@ -200,7 +200,7 @@ impl ProjectService for ProjectServiceImpl {
 
     tokio::fs::write(path, content)
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
     Ok(())
   }
@@ -414,7 +414,7 @@ impl ProjectService for ProjectServiceImpl {
     if let Some(parent) = backup_path.parent() {
       tokio::fs::create_dir_all(parent)
         .await
-        .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+        .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
     }
 
     // Сохраняем проект с временной меткой

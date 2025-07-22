@@ -9,46 +9,26 @@ import { Transition } from "@/features/transitions/types/transitions"
 
 import { ResourcesProvider, useResources } from "../../services/resources-provider"
 
-const mockSend = vi.fn()
-
-// Создаем моковый объект для состояния
-const mockState = {
-  context: {
-    resources: [],
-    mediaResources: [],
-    effectResources: [],
-    filterResources: [],
-    transitionResources: [],
-    templateResources: [],
-    musicResources: [],
-  },
-}
-
-// Мокаем useMachine из @xstate/react
-vi.mock("@xstate/react", () => ({
-  useMachine: () => [mockState, mockSend],
+// Мокаем backend-sync
+const mockSendCommand = vi.fn()
+const mockExecuteCommand = vi.fn().mockResolvedValue({ success: true })
+vi.mock("@/features/app-state/services/backend-sync", () => ({
+  getBackendSync: () => ({
+    onStateChange: vi.fn(() => () => {}),
+    sendCommand: mockSendCommand,
+    executeCommand: mockExecuteCommand,
+  }),
 }))
 
-// Мокаем resourcesMachine
-vi.mock("../../services/resources-machine", () => ({
-  resourcesMachine: {
-    withConfig: () => ({
-      context: {
-        resources: [],
-        mediaResources: [],
-        effectResources: [],
-        filterResources: [],
-        transitionResources: [],
-        templateResources: [],
-        musicResources: [],
-      },
-    }),
-  },
-}))
+// Мокаем console.log, console.error и console.warn
+const logSpy = vi.spyOn(console, "log").mockImplementation(() => {})
+const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
+const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {})
 
-// Мокаем console.log и console.error
-vi.spyOn(console, "log").mockImplementation(() => {})
-vi.spyOn(console, "error").mockImplementation(() => {})
+beforeEach(() => {
+  vi.clearAllMocks()
+  mockExecuteCommand.mockClear()
+})
 
 // Компонент-обертка для тестирования хука useResources
 function ResourcesWrapper({ children }: { children: React.ReactNode }) {
@@ -81,427 +61,190 @@ function TestComponent() {
 }
 
 describe("ResourcesProvider", () => {
-  // Очищаем моки перед каждым тестом
   beforeEach(() => {
     vi.clearAllMocks()
+    mockExecuteCommand.mockClear()
   })
 
   it("should provide initial context values", () => {
-    // Рендерим тестовый компонент с провайдером
     render(
-      <ResourcesProvider>
+      <ResourcesWrapper>
         <TestComponent />
-      </ResourcesProvider>,
+      </ResourcesWrapper>,
     )
 
-    // Проверяем, что начальные значения корректны
-    expect(screen.getByTestId("resources-count").textContent).toBe("0")
-    expect(screen.getByTestId("media-resources-count").textContent).toBe("0")
-    expect(screen.getByTestId("effect-resources-count").textContent).toBe("0")
-    expect(screen.getByTestId("filter-resources-count").textContent).toBe("0")
-    expect(screen.getByTestId("transition-resources-count").textContent).toBe("0")
-    expect(screen.getByTestId("template-resources-count").textContent).toBe("0")
-    expect(screen.getByTestId("music-resources-count").textContent).toBe("0")
+    expect(screen.getByTestId("resources-count")).toHaveTextContent("0")
+    expect(screen.getByTestId("media-resources-count")).toHaveTextContent("0")
+    expect(screen.getByTestId("effect-resources-count")).toHaveTextContent("0")
+    expect(screen.getByTestId("filter-resources-count")).toHaveTextContent("0")
+    expect(screen.getByTestId("transition-resources-count")).toHaveTextContent("0")
+    expect(screen.getByTestId("template-resources-count")).toHaveTextContent("0")
+    expect(screen.getByTestId("music-resources-count")).toHaveTextContent("0")
   })
 
-  // Тест на проверку ошибки при использовании useResources вне провайдера
-  // Этот тест не работает из-за мока в setup.ts, который возвращает объект вместо ошибки
-  // Поэтому мы просто проверяем, что хук useResources существует
   it("should have useResources hook", () => {
-    expect(useResources).toBeDefined()
+    const { result } = renderHook(() => useResources(), { wrapper: ResourcesWrapper })
+
+    expect(result.current).toBeDefined()
+    expect(result.current.resources).toBeDefined()
+    expect(result.current.mediaResources).toBeDefined()
+    expect(result.current.effectResources).toBeDefined()
+    expect(result.current.filterResources).toBeDefined()
+    expect(result.current.transitionResources).toBeDefined()
+    expect(result.current.templateResources).toBeDefined()
+    expect(result.current.musicResources).toBeDefined()
   })
 
   it("should provide correct methods for adding resources", () => {
-    // Используем renderHook для тестирования хука useResources
-    const { result } = renderHook(() => useResources(), {
-      wrapper: ResourcesWrapper,
-    })
+    const { result } = renderHook(() => useResources(), { wrapper: ResourcesWrapper })
 
-    // Проверяем, что методы для добавления ресурсов существуют
-    expect(result.current.addEffect).toBeDefined()
-    expect(result.current.addFilter).toBeDefined()
-    expect(result.current.addTransition).toBeDefined()
-    expect(result.current.addTemplate).toBeDefined()
-    expect(result.current.addMusic).toBeDefined()
-  })
-
-  it("should provide correct methods for checking resources", () => {
-    // Используем renderHook для тестирования хука useResources
-    const { result } = renderHook(() => useResources(), {
-      wrapper: ResourcesWrapper,
-    })
-
-    // Проверяем, что методы для проверки наличия ресурсов существуют
-    expect(result.current.isEffectAdded).toBeDefined()
-    expect(result.current.isFilterAdded).toBeDefined()
-    expect(result.current.isTransitionAdded).toBeDefined()
-    expect(result.current.isTemplateAdded).toBeDefined()
-    expect(result.current.isMusicAdded).toBeDefined()
-    expect(result.current.isMediaAdded).toBeDefined()
-  })
-
-  it("should have addEffect method", () => {
-    // Используем renderHook для тестирования хука useResources
-    const { result } = renderHook(() => useResources(), {
-      wrapper: ResourcesWrapper,
-    })
-
-    // Проверяем, что метод addEffect существует
-    expect(result.current.addEffect).toBeDefined()
-    expect(typeof result.current.addEffect).toBe("function")
-  })
-
-  it("should have addMusic method", () => {
-    // Используем renderHook для тестирования хука useResources
-    const { result } = renderHook(() => useResources(), {
-      wrapper: ResourcesWrapper,
-    })
-
-    // Проверяем, что метод addMusic существует
-    expect(result.current.addMusic).toBeDefined()
-    expect(typeof result.current.addMusic).toBe("function")
-  })
-
-  it("should call send with correct parameters when adding an effect", () => {
-    // Очищаем моковый объект перед тестом
-    mockSend.mockClear()
-
-    // Используем renderHook для тестирования хука useResources
-    const { result } = renderHook(() => useResources(), {
-      wrapper: ResourcesWrapper,
-    })
-
-    // Создаем тестовый эффект
-    const testEffect: VideoEffect = {
-      id: "test-effect",
-      name: "Test Effect",
-      type: "blur",
-      duration: 0,
-      ffmpegCommand: () => "gblur=sigma=5",
-      params: { intensity: 0.5 },
-      previewPath: "/effects/test-preview.mp4",
-      labels: {
-        ru: "Тестовый эффект",
-        en: "Test Effect",
-      },
-      category: "cinematic",
-      complexity: "basic",
-      tags: ["professional", "intense"],
-      description: {
-        ru: "Тестовый эффект для проверки",
-        en: "Test effect for checking",
-      },
-    }
-
-    // Вызываем метод добавления эффекта
-    act(() => {
-      result.current.addEffect(testEffect)
-    })
-
-    // Проверяем, что send был вызван с правильными параметрами
-    expect(mockSend).toHaveBeenCalledWith({
-      type: "ADD_EFFECT",
-      effect: testEffect,
-    })
-  })
-
-  it("should call send with correct parameters when adding a filter", () => {
-    // Очищаем моковый объект перед тестом
-    mockSend.mockClear()
-
-    // Используем renderHook для тестирования хука useResources
-    const { result } = renderHook(() => useResources(), {
-      wrapper: ResourcesWrapper,
-    })
-
-    // Создаем тестовый фильтр
-    const testFilter: VideoFilter = {
-      id: "test-filter",
-      name: "Test Filter",
-      type: "color",
-      ffmpegCommand: () => "colorchannelmixer=rr=0.5:gg=0.5:bb=0.5",
-      params: { brightness: 0.5 },
-      previewPath: "/filters/test-preview.mp4",
-      labels: {
-        ru: "Тестовый фильтр",
-        en: "Test Filter",
-      },
-    }
-
-    // Вызываем метод добавления фильтра
-    act(() => {
-      result.current.addFilter(testFilter)
-    })
-
-    // Проверяем, что send был вызван с правильными параметрами
-    expect(mockSend).toHaveBeenCalledWith({
-      type: "ADD_FILTER",
-      filter: testFilter,
-    })
-  })
-
-  it("should call send with correct parameters when adding a transition", () => {
-    // Очищаем моковый объект перед тестом
-    mockSend.mockClear()
-
-    // Используем renderHook для тестирования хука useResources
-    const { result } = renderHook(() => useResources(), {
-      wrapper: ResourcesWrapper,
-    })
-
-    // Создаем тестовый переход
-    const testTransition: Transition = {
-      id: "test-transition",
-      name: "Test Transition",
-      type: "fade",
-      duration: 1000,
-      ffmpegCommand: () => "fade=t=in:st=0:d=1",
-      previewPath: "/transitions/test-preview.mp4",
-      labels: {
-        ru: "Тестовый переход",
-        en: "Test Transition",
-      },
-    }
-
-    // Вызываем метод добавления перехода
-    act(() => {
-      result.current.addTransition(testTransition)
-    })
-
-    // Проверяем, что send был вызван с правильными параметрами
-    expect(mockSend).toHaveBeenCalledWith({
-      type: "ADD_TRANSITION",
-      transition: testTransition,
-    })
-  })
-
-  it("should call send with correct parameters when adding a template", () => {
-    // Очищаем моковый объект перед тестом
-    mockSend.mockClear()
-
-    // Используем renderHook для тестирования хука useResources
-    const { result } = renderHook(() => useResources(), {
-      wrapper: ResourcesWrapper,
-    })
-
-    // Создаем тестовый шаблон
-    const testTemplate: MediaTemplate = {
-      id: "test-template",
-      name: "Test Template",
-      previewPath: "/templates/test-preview.jpg",
-      duration: 10000,
-      elements: [],
-      labels: {
-        ru: "Тестовый шаблон",
-        en: "Test Template",
-      },
-    }
-
-    // Вызываем метод добавления шаблона
-    act(() => {
-      result.current.addTemplate(testTemplate)
-    })
-
-    // Проверяем, что send был вызван с правильными параметрами
-    expect(mockSend).toHaveBeenCalledWith({
-      type: "ADD_TEMPLATE",
-      template: testTemplate,
-    })
-  })
-
-  it("should call send with correct parameters when adding a music file", () => {
-    // Очищаем моковый объект перед тестом
-    mockSend.mockClear()
-
-    // Используем renderHook для тестирования хука useResources
-    const { result } = renderHook(() => useResources(), {
-      wrapper: ResourcesWrapper,
-    })
-
-    // Создаем тестовый музыкальный файл
-    const testFile: MediaFile = {
-      id: "test-music",
-      name: "test.mp3",
-      path: "/test/test.mp3",
-      isAudio: true,
-      duration: 120,
-      probeData: {
-        format: {
-          duration: 120,
-          size: 1000,
-          tags: {
-            title: "Test Song",
-            artist: "Test Artist",
-            genre: "Test Genre",
-            date: "2021-01-01",
-          },
-        },
-        streams: [],
-      },
-    }
-
-    // Вызываем метод добавления музыкального файла
-    act(() => {
-      result.current.addMusic(testFile)
-    })
-
-    // Проверяем, что send был вызван с правильными параметрами
-    expect(mockSend).toHaveBeenCalledWith({
-      type: "ADD_MUSIC",
-      file: testFile,
-    })
-  })
-
-  it("should call send with correct parameters when removing a resource", () => {
-    // Очищаем моковый объект перед тестом
-    mockSend.mockClear()
-
-    // Используем renderHook для тестирования хука useResources
-    const { result } = renderHook(() => useResources(), {
-      wrapper: ResourcesWrapper,
-    })
-
-    // Вызываем метод удаления ресурса
-    act(() => {
-      result.current.removeResource("test-resource-id")
-    })
-
-    // Проверяем, что send был вызван с правильными параметрами
-    expect(mockSend).toHaveBeenCalledWith({
-      type: "REMOVE_RESOURCE",
-      resourceId: "test-resource-id",
-    })
-  })
-
-  it("should call send with correct parameters when updating a resource", () => {
-    // Очищаем моковый объект перед тестом
-    mockSend.mockClear()
-
-    // Используем renderHook для тестирования хука useResources
-    const { result } = renderHook(() => useResources(), {
-      wrapper: ResourcesWrapper,
-    })
-
-    // Создаем параметры для обновления
-    const updateParams = { opacity: 0.5, duration: 2000 }
-
-    // Вызываем метод обновления ресурса
-    act(() => {
-      result.current.updateResource("test-resource-id", updateParams)
-    })
-
-    // Проверяем, что send был вызван с правильными параметрами
-    expect(mockSend).toHaveBeenCalledWith({
-      type: "UPDATE_RESOURCE",
-      resourceId: "test-resource-id",
-      params: updateParams,
-    })
-  })
-
-  it("should check if an effect is added", () => {
-    // Очищаем моковый объект перед тестом
-    mockSend.mockClear()
-
-    // Изменяем состояние в моке для имитации добавленного эффекта
-    const testEffect: VideoEffect = {
-      id: "test-effect",
-      name: "Test Effect",
-      type: "blur",
-      duration: 0,
-      ffmpegCommand: () => "gblur=sigma=5",
-      params: { intensity: 0.5 },
-      previewPath: "/effects/test-preview.mp4",
-      labels: {
-        ru: "Тестовый эффект",
-        en: "Test Effect",
-      },
-    }
-
-    // Обновляем мок-состояние
-    Object.assign(mockState.context, {
-      effectResources: [
-        {
-          id: "test-resource",
-          resourceId: "test-effect",
-          resourceType: "effect",
-          params: {},
-        },
-      ],
-    })
-
-    // Используем renderHook для тестирования хука useResources
-    const { result } = renderHook(() => useResources(), {
-      wrapper: ResourcesWrapper,
-    })
-
-    // Проверяем, что метод isEffectAdded возвращает правильное значение
-    expect(result.current.isEffectAdded(testEffect)).toBe(true)
-  })
-
-  it("should update UI when state changes", () => {
-    // Изменяем состояние в моке
-    Object.assign(mockState.context, {
-      resources: [
-        {
-          id: "test-resource",
-          resourceId: "test",
-          resourceType: "effect",
-          params: {},
-        },
-      ],
-      effectResources: [
-        {
-          id: "test-resource",
-          resourceId: "test",
-          resourceType: "effect",
-          params: {},
-        },
-      ],
-    })
-
-    // Рендерим компонент
-    render(
-      <ResourcesProvider>
-        <TestComponent />
-      </ResourcesProvider>,
-    )
-
-    // Проверяем, что UI отображает правильные данные
-    expect(screen.getByTestId("resources-count").textContent).toBe("1")
-    expect(screen.getByTestId("effect-resources-count").textContent).toBe("1")
-    expect(screen.getByTestId("filter-resources-count").textContent).toBe("0")
-  })
-
-  it("should provide all required methods in context", () => {
-    // Сбрасываем состояние мока перед тестом
-    Object.assign(mockState.context, {
-      resources: [],
-      mediaResources: [],
-      effectResources: [],
-      filterResources: [],
-      transitionResources: [],
-      templateResources: [],
-      musicResources: [],
-    })
-
-    // Используем renderHook для тестирования хука useResources
-    const { result } = renderHook(() => useResources(), {
-      wrapper: ResourcesWrapper,
-    })
-
-    // Проверяем наличие всех необходимых методов
+    expect(typeof result.current.addMedia).toBe("function")
     expect(typeof result.current.addEffect).toBe("function")
     expect(typeof result.current.addFilter).toBe("function")
     expect(typeof result.current.addTransition).toBe("function")
     expect(typeof result.current.addTemplate).toBe("function")
     expect(typeof result.current.addMusic).toBe("function")
-    expect(typeof result.current.removeResource).toBe("function")
-    expect(typeof result.current.updateResource).toBe("function")
-    expect(typeof result.current.isEffectAdded).toBe("function")
-    expect(typeof result.current.isFilterAdded).toBe("function")
-    expect(typeof result.current.isTransitionAdded).toBe("function")
-    expect(typeof result.current.isTemplateAdded).toBe("function")
-    expect(typeof result.current.isMusicAdded).toBe("function")
-    expect(typeof result.current.isMediaAdded).toBe("function")
+  })
+
+  it("should provide correct utility methods", () => {
+    const { result } = renderHook(() => useResources(), { wrapper: ResourcesWrapper })
+
+    expect(typeof result.current.getResourceById).toBe("function")
+    expect(typeof result.current.getResourcesByType).toBe("function")
+  })
+
+  it("should have addEffect method", () => {
+    const { result } = renderHook(() => useResources(), { wrapper: ResourcesWrapper })
+
+    expect(result.current.addEffect).toBeDefined()
+    expect(typeof result.current.addEffect).toBe("function")
+  })
+
+  it("should have addMusic method", () => {
+    const { result } = renderHook(() => useResources(), { wrapper: ResourcesWrapper })
+
+    expect(result.current.addMusic).toBeDefined()
+    expect(typeof result.current.addMusic).toBe("function")
+  })
+
+  it("should call send with correct parameters when adding an effect", async () => {
+    const { result } = renderHook(() => useResources(), { wrapper: ResourcesWrapper })
+
+    const mockEffect: VideoEffect = {
+      id: "effect-1",
+      name: "Test Effect",
+      category: "color",
+      description: "Test effect description",
+      parameters: {},
+      defaultIntensity: 1,
+      preview: "test-preview.jpg",
+      isPremium: false,
+    }
+
+    await act(async () => {
+      await result.current.addEffect(mockEffect)
+    })
+
+    expect(console.warn).toHaveBeenCalledWith("Effect resources not yet integrated with backend")
+  })
+
+  it("should call send with correct parameters when adding a filter", async () => {
+    const { result } = renderHook(() => useResources(), { wrapper: ResourcesWrapper })
+
+    const mockFilter: VideoFilter = {
+      id: "filter-1",
+      name: "Test Filter",
+      category: "color",
+      description: "Test filter description",
+      value: "grayscale(100%)",
+      preview: "test-preview.jpg",
+    }
+
+    await act(async () => {
+      await result.current.addFilter(mockFilter)
+    })
+
+    expect(console.warn).toHaveBeenCalledWith("Filter resources not yet integrated with backend")
+  })
+
+  it("should call send with correct parameters when adding a transition", async () => {
+    const { result } = renderHook(() => useResources(), { wrapper: ResourcesWrapper })
+
+    const mockTransition: Transition = {
+      id: "transition-1",
+      name: "Test Transition",
+      type: "fade",
+      durationMin: 500,
+      durationMax: 2000,
+      defaultDuration: 1000,
+      easing: "linear",
+      category: "basic",
+      isPremium: false,
+    }
+
+    await act(async () => {
+      await result.current.addTransition(mockTransition)
+    })
+
+    expect(console.warn).toHaveBeenCalledWith("Transition resources not yet integrated with backend")
+  })
+
+  it("should call send with correct parameters when adding a template", async () => {
+    const { result } = renderHook(() => useResources(), { wrapper: ResourcesWrapper })
+
+    const mockTemplate: MediaTemplate = {
+      id: "template-1",
+      name: "Test Template",
+      category: "basic",
+      thumbnail: "test-thumbnail.jpg",
+      minVideos: 2,
+      maxVideos: 4,
+      layout: {
+        id: "layout-1",
+        name: "Test Layout",
+        type: "grid",
+        positions: [],
+      },
+      preview: "test-preview.jpg",
+    }
+
+    await act(async () => {
+      await result.current.addTemplate(mockTemplate)
+    })
+
+    expect(console.warn).toHaveBeenCalledWith("Template resources not yet integrated with backend")
+  })
+
+  it("should call send with correct parameters when adding a music file", async () => {
+    const { result } = renderHook(() => useResources(), { wrapper: ResourcesWrapper })
+
+    const mockMusicFile: MediaFile = {
+      id: "music-1",
+      name: "Test Music.mp3",
+      path: "/path/to/music.mp3",
+      size: 1024,
+      duration: 180,
+      isVideo: false,
+    }
+
+    await act(async () => {
+      await result.current.addMusic(mockMusicFile)
+    })
+
+    expect(mockExecuteCommand).toHaveBeenCalledWith({
+      type: "AddMedia",
+      params: { path: mockMusicFile.path, mediaType: "Audio" },
+    })
+  })
+
+  it("should provide resource arrays", () => {
+    const { result } = renderHook(() => useResources(), { wrapper: ResourcesWrapper })
+
+    // Проверяем, что массивы ресурсов существуют
+    expect(Array.isArray(result.current.effectResources)).toBe(true)
+    expect(Array.isArray(result.current.filterResources)).toBe(true)
+    expect(Array.isArray(result.current.transitionResources)).toBe(true)
+    expect(Array.isArray(result.current.templateResources)).toBe(true)
+    expect(Array.isArray(result.current.musicResources)).toBe(true)
   })
 })

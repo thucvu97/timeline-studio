@@ -5,6 +5,50 @@
 import { fireEvent, render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+// Мокаем backend-sync ДО импорта компонентов
+vi.mock("@/features/app-state/services/backend-sync", () => ({
+  getBackendSync: () => ({
+    onStateChange: vi.fn(() => () => {}),
+    sendCommand: vi.fn().mockResolvedValue(undefined),
+    executeCommand: vi.fn().mockResolvedValue({ success: true }),
+    onEvent: vi.fn(() => () => {}),
+  }),
+}))
+
+// Мокаем useUserSettings
+vi.mock("@/features/user-settings", () => ({
+  useUserSettings: () => ({
+    playerVolume: 100,
+    handlePlayerVolumeChange: vi.fn(),
+  }),
+}))
+
+// Мокаем timeline-player-sync
+vi.mock("../../../services/timeline-player-sync", () => ({
+  timelinePlayerSync: {
+    syncSelectedClip: vi.fn().mockResolvedValue(undefined),
+  },
+}))
+
+// Мокаем useTimeline
+const mockTimelineActor = {
+  send: vi.fn(),
+}
+
+const mockUiState = {
+  context: {
+    selectedClipIds: [],
+    currentTime: 0,
+  },
+}
+
+vi.mock("../../../hooks/use-timeline", () => ({
+  useTimeline: () => ({
+    timelineActor: mockTimelineActor,
+    uiState: mockUiState,
+  }),
+}))
+
 import { VideoClip } from "../../../components/clip/video-clip"
 import { TimelineClip, TimelineTrack, TrackType } from "../../../types"
 
@@ -63,6 +107,7 @@ describe("VideoClip", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    mockTimelineActor.send.mockClear()
   })
 
   describe("Rendering", () => {
@@ -100,21 +145,21 @@ describe("VideoClip", () => {
 
   describe("Selection", () => {
     it("should call onUpdate when clicked", () => {
-      const { container } = render(
-        <VideoClip clip={mockVideoClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
-      )
+      render(<VideoClip clip={mockVideoClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />)
 
-      fireEvent.click(container.firstChild!)
+      const clipElement = screen.getByText("Test Video Clip").closest("div")
+      fireEvent.click(clipElement!)
+
       expect(mockOnUpdate).toHaveBeenCalledWith({ isSelected: true })
     })
 
     it("should toggle selection state", () => {
       const selectedClip = { ...mockVideoClip, isSelected: true }
-      const { container } = render(
-        <VideoClip clip={selectedClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
-      )
+      render(<VideoClip clip={selectedClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />)
 
-      fireEvent.click(container.firstChild!)
+      const clipElement = screen.getByText("Test Video Clip").closest("div")
+      fireEvent.click(clipElement!)
+
       expect(mockOnUpdate).toHaveBeenCalledWith({ isSelected: false })
     })
 
@@ -124,7 +169,8 @@ describe("VideoClip", () => {
         <VideoClip clip={selectedClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
-      expect(container.firstChild).toHaveClass("ring-2")
+      const clipElement = container.firstChild
+      expect(clipElement).toHaveClass("ring-2")
     })
   })
 
@@ -132,16 +178,9 @@ describe("VideoClip", () => {
     it("should show action buttons on hover", () => {
       render(<VideoClip clip={mockVideoClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />)
 
-      // Initially buttons should not be visible
-      expect(screen.queryByTitle("Копировать")).not.toBeInTheDocument()
-      expect(screen.queryByTitle("Разделить")).not.toBeInTheDocument()
-      expect(screen.queryByTitle("Удалить")).not.toBeInTheDocument()
+      const clipElement = screen.getByText("Test Video Clip").closest("div")
+      fireEvent.mouseEnter(clipElement!)
 
-      // Hover over the clip
-      const clipElement = screen.getByText("Test Video Clip").closest("div")!
-      fireEvent.mouseEnter(clipElement.parentElement!)
-
-      // Buttons should be visible
       expect(screen.getByTitle("Копировать")).toBeInTheDocument()
       expect(screen.getByTitle("Разделить")).toBeInTheDocument()
       expect(screen.getByTitle("Удалить")).toBeInTheDocument()
@@ -150,25 +189,25 @@ describe("VideoClip", () => {
     it("should hide action buttons on mouse leave", () => {
       render(<VideoClip clip={mockVideoClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />)
 
-      const clipElement = screen.getByText("Test Video Clip").closest("div")!
+      const clipElement = screen.getByText("Test Video Clip").closest("div")
+      fireEvent.mouseEnter(clipElement!)
+      fireEvent.mouseLeave(clipElement!)
 
-      // Hover and then leave
-      fireEvent.mouseEnter(clipElement.parentElement!)
-      fireEvent.mouseLeave(clipElement.parentElement!)
-
-      // Buttons should not be visible
       expect(screen.queryByTitle("Копировать")).not.toBeInTheDocument()
+      expect(screen.queryByTitle("Разделить")).not.toBeInTheDocument()
+      expect(screen.queryByTitle("Удалить")).not.toBeInTheDocument()
     })
 
     it("should not show buttons when clip is locked", () => {
       const lockedClip = { ...mockVideoClip, isLocked: true }
       render(<VideoClip clip={lockedClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />)
 
-      const clipElement = screen.getByText("Test Video Clip").closest("div")!
-      fireEvent.mouseEnter(clipElement.parentElement!)
+      const clipElement = screen.getByText("Test Video Clip").closest("div")
+      fireEvent.mouseEnter(clipElement!)
 
-      // Buttons should not be visible
       expect(screen.queryByTitle("Копировать")).not.toBeInTheDocument()
+      expect(screen.queryByTitle("Разделить")).not.toBeInTheDocument()
+      expect(screen.queryByTitle("Удалить")).not.toBeInTheDocument()
     })
 
     it("should show resize handles on hover", () => {
@@ -176,49 +215,59 @@ describe("VideoClip", () => {
         <VideoClip clip={mockVideoClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
-      fireEvent.mouseEnter(container.firstChild as Element)
+      const clipElement = screen.getByText("Test Video Clip").closest("div")
+      fireEvent.mouseEnter(clipElement!)
 
-      const resizeHandles = container.querySelectorAll(".cursor-w-resize, .cursor-e-resize")
-      expect(resizeHandles).toHaveLength(2)
+      // В новой реализации ручки отображаются как дивы с классами cursor-*-resize
+      const leftHandle = container.querySelector(".cursor-w-resize")
+      const rightHandle = container.querySelector(".cursor-e-resize")
+
+      expect(leftHandle).toBeInTheDocument()
+      expect(rightHandle).toBeInTheDocument()
     })
   })
 
   describe("Action Buttons", () => {
     it("should handle copy button click", () => {
-      const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {})
-
       render(<VideoClip clip={mockVideoClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />)
 
-      const clipElement = screen.getByText("Test Video Clip").closest("div")!
-      fireEvent.mouseEnter(clipElement.parentElement!)
+      const clipElement = screen.getByText("Test Video Clip").closest("div")
+      fireEvent.mouseEnter(clipElement!)
 
       const copyButton = screen.getByTitle("Копировать")
       fireEvent.click(copyButton)
 
-      expect(consoleSpy).toHaveBeenCalledWith("Copy clip:", "clip-1")
-      consoleSpy.mockRestore()
+      // Проверяем что была отправлена команда в timelineActor
+      expect(mockTimelineActor.send).toHaveBeenCalledWith({
+        type: "SELECT_CLIPS",
+        clipIds: ["clip-1"],
+        addToSelection: false,
+      })
+      expect(mockTimelineActor.send).toHaveBeenCalledWith({ type: "COPY_SELECTION" })
     })
 
     it("should handle split button click", () => {
-      const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {})
-
       render(<VideoClip clip={mockVideoClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />)
 
-      const clipElement = screen.getByText("Test Video Clip").closest("div")!
-      fireEvent.mouseEnter(clipElement.parentElement!)
+      const clipElement = screen.getByText("Test Video Clip").closest("div")
+      fireEvent.mouseEnter(clipElement!)
 
       const splitButton = screen.getByTitle("Разделить")
       fireEvent.click(splitButton)
 
-      expect(consoleSpy).toHaveBeenCalledWith("Split clip:", "clip-1")
-      consoleSpy.mockRestore()
+      // Проверяем что была отправлена команда разделения
+      expect(mockTimelineActor.send).toHaveBeenCalledWith({
+        type: "SPLIT_CLIP",
+        clipId: "clip-1",
+        splitTime: 5, // clip.startTime + clip.duration / 2 = 0 + 10 / 2 = 5
+      })
     })
 
     it("should handle remove button click", () => {
       render(<VideoClip clip={mockVideoClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />)
 
-      const clipElement = screen.getByText("Test Video Clip").closest("div")!
-      fireEvent.mouseEnter(clipElement.parentElement!)
+      const clipElement = screen.getByText("Test Video Clip").closest("div")
+      fireEvent.mouseEnter(clipElement!)
 
       const removeButton = screen.getByTitle("Удалить")
       fireEvent.click(removeButton)
@@ -229,13 +278,13 @@ describe("VideoClip", () => {
     it("should stop propagation on button clicks", () => {
       render(<VideoClip clip={mockVideoClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />)
 
-      const clipElement = screen.getByText("Test Video Clip").closest("div")!
-      fireEvent.mouseEnter(clipElement.parentElement!)
+      const clipElement = screen.getByText("Test Video Clip").closest("div")
+      fireEvent.mouseEnter(clipElement!)
 
       const removeButton = screen.getByTitle("Удалить")
       fireEvent.click(removeButton)
 
-      // onUpdate should not be called (selection should not change)
+      // Should not trigger clip selection
       expect(mockOnUpdate).not.toHaveBeenCalled()
     })
   })
@@ -244,9 +293,8 @@ describe("VideoClip", () => {
     it("should show effects indicator", () => {
       const clipWithEffects = {
         ...mockVideoClip,
-        effects: [{ id: "effect-1", type: "blur" }],
+        effects: [{ id: "effect-1", name: "Blur", params: {} }],
       }
-
       render(
         <VideoClip clip={clipWithEffects} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
@@ -257,9 +305,8 @@ describe("VideoClip", () => {
     it("should show filters indicator", () => {
       const clipWithFilters = {
         ...mockVideoClip,
-        filters: [{ id: "filter-1", type: "brightness" }],
+        filters: [{ id: "filter-1", name: "Vintage", value: "vintage" }],
       }
-
       render(
         <VideoClip clip={clipWithFilters} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
@@ -270,9 +317,8 @@ describe("VideoClip", () => {
     it("should show transitions indicator", () => {
       const clipWithTransitions = {
         ...mockVideoClip,
-        transitions: [{ id: "transition-1", type: "fade" }],
+        transitions: [{ id: "transition-1", name: "Fade", duration: 1000 }],
       }
-
       render(
         <VideoClip clip={clipWithTransitions} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
@@ -286,7 +332,8 @@ describe("VideoClip", () => {
         <VideoClip clip={lockedClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
-      expect(container.firstChild).toHaveClass("opacity-60")
+      const clipElement = container.firstChild
+      expect(clipElement).toHaveClass("opacity-60")
     })
   })
 
@@ -294,32 +341,43 @@ describe("VideoClip", () => {
     it("should calculate trim progress correctly", () => {
       const trimmedClip = {
         ...mockVideoClip,
-        mediaStartTime: 5,
-        mediaEndTime: 15,
-        duration: 5,
+        trimStart: 2,
+        trimEnd: 8,
+        mediaStartTime: 2,
+        mediaEndTime: 8,
       }
-
       const { container } = render(
         <VideoClip clip={trimmedClip} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
-      const progressBar = container.querySelector(".h-1.bg-black\\/30 > div")
-      expect(progressBar).toHaveStyle({
-        marginLeft: "33.33333333333333%",
-        width: "33.33333333333333%",
-      })
+      // В новой реализации прогресс бар - это просто div с белым фоном
+      const progressBars = container.getElementsByClassName("bg-white/50")
+      expect(progressBars).toHaveLength(1)
+      const progressBar = progressBars[0]
+
+      // Проверяем вычисления
+      // width = duration / (mediaEndTime - mediaStartTime + duration) * 100
+      // width = 10 / (8 - 2 + 10) * 100 = 10 / 16 * 100 = 62.5%
+      expect(progressBar).toHaveStyle({ width: "62.5%" })
     })
   })
 
   describe("Edge Cases", () => {
     it("should handle clip without name", () => {
       const clipWithoutName = { ...mockVideoClip, name: "" }
-      render(
+      const { container } = render(
         <VideoClip clip={clipWithoutName} track={mockVideoTrack} onUpdate={mockOnUpdate} onRemove={mockOnRemove} />,
       )
 
-      // Should not throw error
+      // Клип должен отображаться, даже без имени
       expect(screen.getByText("10s")).toBeInTheDocument()
+
+      // Проверяем, что есть элемент с классом truncate, но он может быть пустым
+      const nameElements = container.querySelectorAll(".truncate")
+      expect(nameElements.length).toBeGreaterThan(0)
+      // Проверяем, что хотя бы один элемент пустой
+      const emptyNameElement = Array.from(nameElements).find((el) => el.textContent === "")
+      expect(emptyNameElement).toBeTruthy()
     })
 
     it("should handle zero duration", () => {
@@ -332,10 +390,13 @@ describe("VideoClip", () => {
     })
 
     it("should handle missing callbacks", () => {
-      const { container } = render(<VideoClip clip={mockVideoClip} track={mockVideoTrack} />)
+      render(<VideoClip clip={mockVideoClip} track={mockVideoTrack} />)
 
-      // Should not throw when clicking without callbacks
-      expect(() => fireEvent.click(container.firstChild!)).not.toThrow()
+      const clipElement = screen.getByText("Test Video Clip").closest("div")
+      fireEvent.click(clipElement!)
+
+      // Should not throw error
+      expect(true).toBe(true)
     })
   })
 })

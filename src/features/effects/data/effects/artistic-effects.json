@@ -1,0 +1,371 @@
+{
+  "version": "2.0.0",
+  "category": "artistic",
+  "migratedAt": "2025-07-21T11:27:01.870Z",
+  "stats": {
+    "total": 9,
+    "migrated": 9,
+    "skipped": 0,
+    "successRate": "100.00%",
+    "errors": []
+  },
+  "effects": [
+    {
+      "id": "effect_grayscale",
+      "name": {
+        "en": "Grayscale",
+        "ru": "Черно-белый",
+        "es": "Escala de Grises",
+        "fr": "Niveaux de Gris",
+        "de": "Graustufen"
+      },
+      "description": {
+        "ru": "Преобразует видео в черно-белое изображение",
+        "en": "Converts video to black and white"
+      },
+      "category": "color_correction",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["popular"],
+      "complexity": "low",
+      "gpuAccelerated": true,
+      "parameters": [],
+      "presets": [],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    },
+    {
+      "id": "effect_sunset",
+      "name": {
+        "en": "Sunset",
+        "ru": "Закат",
+        "es": "Atardecer",
+        "fr": "Coucher de Soleil",
+        "de": "Sonnenuntergang"
+      },
+      "description": {
+        "ru": "Создает теплые оранжевые тона заката",
+        "en": "Creates warm orange sunset tones"
+      },
+      "category": "stylize",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["popular", "dramatic"],
+      "complexity": "low",
+      "gpuAccelerated": true,
+      "parameters": [],
+      "presets": [],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    },
+    {
+      "id": "effect_invert",
+      "name": {
+        "en": "Invert",
+        "ru": "Инверсия",
+        "es": "Invertir",
+        "fr": "Inverser",
+        "de": "Invertieren"
+      },
+      "description": {
+        "ru": "Инвертирует цвета изображения",
+        "en": "Inverts image colors"
+      },
+      "category": "color_correction",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["experimental", "dramatic"],
+      "complexity": "low",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "intensity",
+          "name": {
+            "en": "Intensity",
+            "ru": "Интенсивность"
+          },
+          "type": "number",
+          "defaultValue": 0.8,
+          "min": 0,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    },
+    {
+      "id": "effect_blur",
+      "name": {
+        "en": "Blur",
+        "ru": "Размытие",
+        "es": "Desenfoque",
+        "fr": "Flou",
+        "de": "Unschärfe"
+      },
+      "description": {
+        "ru": "Создает эффект размытия изображения",
+        "en": "Creates image blur effect"
+      },
+      "category": "blur_sharpen",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["beginner", "subtle"],
+      "complexity": "low",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "radius",
+          "name": {
+            "en": "Radius",
+            "ru": "Радиус"
+          },
+          "type": "number",
+          "defaultValue": 2,
+          "min": 0,
+          "max": 100,
+          "step": 0.1,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "light",
+          "name": {
+            "ru": "Легкое",
+            "en": "Light"
+          },
+          "description": {
+            "ru": "Легкое размытие",
+            "en": "Light blur"
+          },
+          "parameters": {
+            "radius": 1
+          },
+          "tags": []
+        },
+        {
+          "id": "strong",
+          "name": {
+            "ru": "Сильное",
+            "en": "Strong"
+          },
+          "description": {
+            "ru": "Сильное размытие",
+            "en": "Strong blur"
+          },
+          "parameters": {
+            "radius": 5
+          },
+          "tags": []
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    },
+    {
+      "id": "effect_duotone",
+      "name": {
+        "en": "Duotone",
+        "ru": "Дуотон",
+        "es": "Duotono",
+        "fr": "Bichromie",
+        "de": "Duoton"
+      },
+      "description": {
+        "ru": "Создает двухцветный эффект",
+        "en": "Creates two-tone effect"
+      },
+      "category": "stylize",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["modern", "artistic"],
+      "complexity": "medium",
+      "gpuAccelerated": true,
+      "parameters": [],
+      "presets": [],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    },
+    {
+      "id": "effect_dreamy",
+      "name": {
+        "en": "Dreamy",
+        "ru": "Мечтательный",
+        "es": "Soñador",
+        "fr": "Rêveur",
+        "de": "Verträumt"
+      },
+      "description": {
+        "ru": "Создает мягкий мечтательный эффект",
+        "en": "Creates soft dreamy effect"
+      },
+      "category": "stylize",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["subtle", "artistic"],
+      "complexity": "low",
+      "gpuAccelerated": true,
+      "parameters": [],
+      "presets": [],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    },
+    {
+      "id": "effect_pixelate",
+      "name": {
+        "en": "Pixelate",
+        "ru": "Пикселизация",
+        "es": "Pixelar",
+        "fr": "Pixelliser",
+        "de": "Verpixeln"
+      },
+      "description": {
+        "ru": "Создает эффект пикселизации изображения",
+        "en": "Creates pixelation effect on the image"
+      },
+      "category": "stylize",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["vintage", "experimental"],
+      "complexity": "low",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "pixelSize",
+          "name": {
+            "en": "Pixel Size",
+            "ru": "Pixel Size"
+          },
+          "type": "number",
+          "defaultValue": 4,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    },
+    {
+      "id": "effect_emboss",
+      "name": {
+        "en": "Emboss",
+        "ru": "Рельеф",
+        "es": "Relieve",
+        "fr": "Relief",
+        "de": "Prägung"
+      },
+      "description": {
+        "ru": "Создает эффект рельефного изображения",
+        "en": "Creates embossed relief effect"
+      },
+      "category": "stylize",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["artistic", "dramatic"],
+      "complexity": "medium",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "intensity",
+          "name": {
+            "en": "Intensity",
+            "ru": "Интенсивность"
+          },
+          "type": "number",
+          "defaultValue": 0.8,
+          "min": 0,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    },
+    {
+      "id": "effect_solarize",
+      "name": {
+        "en": "Solarize",
+        "ru": "Соляризация",
+        "es": "Solarizar",
+        "fr": "Solarisation",
+        "de": "Solarisation"
+      },
+      "description": {
+        "ru": "Создает эффект соляризации с инверсией цветов",
+        "en": "Creates solarization effect with color inversion"
+      },
+      "category": "stylize",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["experimental", "artistic"],
+      "complexity": "medium",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "threshold",
+          "name": {
+            "en": "Threshold",
+            "ru": "Порог"
+          },
+          "type": "number",
+          "defaultValue": 0.5,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    }
+  ]
+}

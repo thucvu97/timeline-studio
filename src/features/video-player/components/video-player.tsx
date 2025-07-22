@@ -1,7 +1,7 @@
 import { AspectRatio } from "@/components/ui/aspect-ratio"
+import { usePlayerAIIntegration } from "@/features/ai-chat/hooks/use-player-ai-integration"
 import { useProjectSettings } from "@/features/project-settings"
 import { convertVideoSrc } from "@/lib/tauri-utils"
-import { usePlayerAIIntegration } from "@/features/ai-chat/hooks/use-player-ai-integration"
 
 import { PlayerAIOverlay } from "./player-ai-overlay"
 import { PlayerControls } from "./player-controls"
@@ -15,7 +15,7 @@ export function VideoPlayer() {
     settings: { aspectRatio },
   } = useProjectSettings()
   const { video } = usePlayer()
-  
+
   // Подключаем AI интеграцию
   const { isReady: aiReady } = usePlayerAIIntegration()
 

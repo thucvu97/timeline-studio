@@ -1,0 +1,205 @@
+{
+  "version": "2.0.0",
+  "category": "technical",
+  "migratedAt": "2025-07-21T11:27:01.937Z",
+  "stats": {
+    "total": 4,
+    "migrated": 4,
+    "skipped": 0,
+    "successRate": "100.00%",
+    "errors": []
+  },
+  "effects": [
+    {
+      "id": "effect_sharpen",
+      "name": {
+        "en": "Sharpen",
+        "ru": "Резкость",
+        "es": "Nitidez",
+        "fr": "Netteté",
+        "de": "Schärfe"
+      },
+      "description": {
+        "ru": "Увеличивает резкость и четкость изображения",
+        "en": "Increases image sharpness and clarity"
+      },
+      "category": "blur_sharpen",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["pro", "beginner"],
+      "complexity": "low",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "intensity",
+          "name": {
+            "en": "Intensity",
+            "ru": "Интенсивность"
+          },
+          "type": "number",
+          "defaultValue": 1,
+          "min": 0,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "light",
+          "name": {
+            "ru": "Легкая",
+            "en": "Light"
+          },
+          "description": {
+            "ru": "Легкое увеличение резкости",
+            "en": "Light sharpening"
+          },
+          "parameters": {
+            "intensity": 0.5
+          },
+          "tags": []
+        },
+        {
+          "id": "strong",
+          "name": {
+            "ru": "Сильная",
+            "en": "Strong"
+          },
+          "description": {
+            "ru": "Сильное увеличение резкости",
+            "en": "Strong sharpening"
+          },
+          "parameters": {
+            "intensity": 1.5
+          },
+          "tags": []
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    },
+    {
+      "id": "effect_noise-reduction",
+      "name": {
+        "en": "Noise Reduction",
+        "ru": "Шумоподавление",
+        "es": "Reducción de Ruido",
+        "fr": "Réduction du Bruit",
+        "de": "Rauschunterdrückung"
+      },
+      "description": {
+        "ru": "Уменьшает шум в изображении",
+        "en": "Reduces image noise"
+      },
+      "category": "noise_grain",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["pro"],
+      "complexity": "high",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "intensity",
+          "name": {
+            "en": "Intensity",
+            "ru": "Интенсивность"
+          },
+          "type": "number",
+          "defaultValue": 3,
+          "min": 0,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    },
+    {
+      "id": "effect_stabilization",
+      "name": {
+        "en": "Stabilization",
+        "ru": "Стабилизация",
+        "es": "Estabilización",
+        "fr": "Stabilisation",
+        "de": "Stabilisierung"
+      },
+      "description": {
+        "ru": "Стабилизирует дрожание камеры",
+        "en": "Stabilizes camera shake"
+      },
+      "category": "motion",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["pro"],
+      "complexity": "high",
+      "gpuAccelerated": true,
+      "parameters": [],
+      "presets": [],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    },
+    {
+      "id": "effect_edge-enhance",
+      "name": {
+        "en": "Edge Enhance",
+        "ru": "Усиление краев",
+        "es": "Realzar Bordes",
+        "fr": "Amélioration des Contours",
+        "de": "Kantenverstärkung"
+      },
+      "description": {
+        "ru": "Усиливает контуры и края объектов на изображении",
+        "en": "Enhances edges and contours of objects in the image"
+      },
+      "category": "color_correction",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["pro"],
+      "complexity": "medium",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "intensity",
+          "name": {
+            "en": "Intensity",
+            "ru": "Интенсивность"
+          },
+          "type": "number",
+          "defaultValue": 0.5,
+          "min": 0,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    }
+  ]
+}

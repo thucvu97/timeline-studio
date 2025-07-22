@@ -13,12 +13,26 @@ const mockUiState = {
 vi.mock("../../../hooks/use-timeline", () => ({
   useTimeline: () => ({
     uiState: mockUiState,
+    updateClip: vi.fn(),
   }),
 }))
 
 vi.mock("../../../hooks/use-timeline-selection", () => ({
   useTimelineSelection: () => ({
     selectClip: mockSelectClip,
+  }),
+}))
+
+// Мокаем useSubtitleStyles
+vi.mock("../../../hooks/use-subtitle-styles", () => ({
+  useSubtitleStyles: () => ({
+    getComputedStyle: vi.fn(() => ({})),
+    getStyleById: vi.fn((id: string) => {
+      if (id === "style-1") {
+        return { id: "style-1", name: "Test Style" }
+      }
+      return undefined
+    }),
   }),
 }))
 
@@ -143,7 +157,7 @@ describe("SubtitleClip", () => {
 
       const clipElement = container.firstChild as HTMLElement
       expect(clipElement).toHaveStyle({
-        backgroundColor: "hsl(47 95% 50%)", // Желтый для стилизованных
+        backgroundColor: "hsl(61 70% 50%)", // Цвет на основе хеша имени "Test Style"
       })
     })
 

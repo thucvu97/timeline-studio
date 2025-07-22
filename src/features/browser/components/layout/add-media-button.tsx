@@ -109,7 +109,7 @@ export const AddMediaButton = memo(function AddMediaButton({
 
       if (isAdded(resource.id, type) && canShowRemoveButton) {
         // Удаляем из добавленных
-        removeResource(resource.id)
+        void removeResource(resource.id)
       } else if (!isAdded(resource.id, type) && isHovering) {
         // Добавляем в добавленные
         addResource(type, resource)

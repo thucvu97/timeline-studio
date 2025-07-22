@@ -49,7 +49,12 @@ impl RenderCache {
       // Проверяем, не истек ли кэш
       if !data.is_expired(self.settings.preview_ttl) {
         self.stats.preview_hits += 1;
-        return Some(data.clone());
+        // Декомпрессируем данные перед возвратом
+        let mut decompressed_data = data.clone();
+        if let Ok(decompressed) = decompress_preview_data(&data.image_data) {
+          decompressed_data.image_data = decompressed;
+        }
+        return Some(decompressed_data);
       } else {
         // Удаляем истекший элемент
         self.preview_cache.remove(key);
@@ -62,8 +67,11 @@ impl RenderCache {
 
   /// Сохранить превью кадр в кэш
   pub async fn store_preview(&mut self, key: PreviewKey, data: Vec<u8>) -> Result<()> {
+    // Сжимаем данные перед сохранением
+    let compressed_data = compress_preview_data(&data)?;
+
     let preview_data = PreviewData {
-      image_data: data,
+      image_data: compressed_data,
       timestamp: SystemTime::now(),
       _access_count: 0,
     };
@@ -1018,5 +1026,205 @@ mod tests {
     let usage = cache.get_memory_usage();
     // Проверяем что память не превышает сильно установленный лимит
     assert!(usage.total_mb() < 10.0); // Даем запас на накладные расходы
+  }
+}
+
+/// Сжатие данных превью с использованием zstd
+fn compress_preview_data(data: &[u8]) -> Result<Vec<u8>> {
+  // Проверяем, что данные достаточно большие для сжатия
+  if data.len() < 1024 {
+    // Не сжимаем маленькие данные
+    return Ok(data.to_vec());
+  }
+
+  // Уровень сжатия 3 - хороший баланс между скоростью и степенью сжатия
+  match zstd::encode_all(data, 3) {
+    Ok(compressed) => {
+      // Проверяем, что сжатие дало выигрыш
+      if compressed.len() < data.len() {
+        Ok(compressed)
+      } else {
+        Ok(data.to_vec())
+      }
+    }
+    Err(e) => {
+      log::warn!("Ошибка сжатия данных превью: {}", e);
+      Ok(data.to_vec())
+    }
+  }
+}
+
+/// Декомпрессия данных превью
+fn decompress_preview_data(data: &[u8]) -> Result<Vec<u8>> {
+  // Проверяем магическое число zstd
+  if data.len() >= 4 && data[0..4] == [0x28, 0xB5, 0x2F, 0xFD] {
+    match zstd::decode_all(data) {
+      Ok(decompressed) => Ok(decompressed),
+      Err(e) => {
+        log::warn!("Ошибка декомпрессии данных превью: {}", e);
+        Ok(data.to_vec())
+      }
+    }
+  } else {
+    // Данные не сжаты
+    Ok(data.to_vec())
+  }
+}
+
+/// Расширения для оптимизации кэша
+impl RenderCache {
+  /// Предзагрузить превью для видео файла
+  pub async fn preload_video_previews(
+    &mut self,
+    video_path: &str,
+    timestamps: &[f64],
+    resolution: (u32, u32),
+    quality: u8,
+    cache: std::sync::Arc<tokio::sync::RwLock<RenderCache>>,
+  ) -> Result<()> {
+    use crate::video_compiler::core::preview::PreviewGenerator;
+
+    let generator = PreviewGenerator::new(cache);
+
+    for &timestamp in timestamps {
+      let key = PreviewKey::new(video_path.to_string(), timestamp, resolution, quality);
+
+      // Проверяем, есть ли уже в кэше
+      if self.preview_cache.get(&key).is_some() {
+        continue;
+      }
+
+      // Генерируем превью
+      match generator
+        .generate_preview(
+          std::path::Path::new(video_path),
+          timestamp,
+          Some(resolution),
+          Some(quality),
+        )
+        .await
+      {
+        Ok(image_data) => {
+          self.store_preview(key, image_data).await?;
+        }
+        Err(e) => {
+          log::warn!(
+            "Ошибка генерации превью для {} на {}: {}",
+            video_path,
+            timestamp,
+            e
+          );
+        }
+      }
+    }
+
+    Ok(())
+  }
+
+  /// Оптимизировать кэш на основе статистики использования
+  pub async fn optimize_cache(&mut self) -> Result<()> {
+    let hit_ratio = {
+      let stats = self.get_stats();
+      stats.hit_ratio()
+    };
+    let current_memory_mb = self.settings.max_memory_mb;
+
+    // Если процент попаданий низкий, увеличиваем размер кэша
+    if hit_ratio < 0.5 && current_memory_mb < 1024 {
+      let new_limit = (current_memory_mb as f32 * 1.5) as usize;
+      self.settings.max_memory_mb = new_limit;
+      log::info!("Увеличиваем лимит памяти кэша до {} MB", new_limit);
+    }
+
+    // Если процент попаданий высокий и память используется мало, уменьшаем размер
+    let total_usage_mb = {
+      let usage = self.get_memory_usage();
+      usage.total_mb()
+    };
+    if hit_ratio > 0.8 && total_usage_mb < (current_memory_mb as f32 * 0.5) {
+      let new_limit = (current_memory_mb as f32 * 0.75) as usize;
+      self.settings.max_memory_mb = new_limit;
+      log::info!("Уменьшаем лимит памяти кэша до {} MB", new_limit);
+    }
+
+    // Очищаем старые записи
+    self.cleanup_old_entries().await?;
+
+    Ok(())
+  }
+
+  /// Получить рекомендации по оптимизации кэша
+  pub fn get_optimization_recommendations(&self) -> Vec<String> {
+    let mut recommendations = Vec::new();
+    let stats = self.get_stats();
+    let usage = self.get_memory_usage();
+
+    // Анализ процента попаданий
+    if stats.hit_ratio() < 0.3 {
+      recommendations
+        .push("Низкий процент попаданий в кэш. Рекомендуется увеличить размер кэша.".to_string());
+    }
+
+    if stats.preview_hit_ratio() < 0.5 && self.settings.max_preview_entries < 2000 {
+      recommendations
+        .push("Низкий процент попаданий превью. Увеличьте max_preview_entries.".to_string());
+    }
+
+    // Анализ использования памяти
+    if usage.total_mb() > (self.settings.max_memory_mb as f32 * 0.9) {
+      recommendations
+        .push("Кэш близок к лимиту памяти. Рассмотрите увеличение max_memory_mb.".to_string());
+    }
+
+    if usage.total_mb() < (self.settings.max_memory_mb as f32 * 0.1) {
+      recommendations.push(
+        "Кэш использует мало памяти. Можно уменьшить max_memory_mb для экономии ресурсов."
+          .to_string(),
+      );
+    }
+
+    // Анализ TTL
+    if self.settings.preview_ttl < Duration::from_secs(1800) {
+      recommendations
+        .push("TTL превью слишком короткий. Рекомендуется увеличить до 30-60 минут.".to_string());
+    }
+
+    recommendations
+  }
+}
+
+#[cfg(test)]
+mod compression_tests {
+  use super::*;
+
+  #[test]
+  fn test_compress_small_data() {
+    let data = vec![1, 2, 3, 4, 5];
+    let compressed = compress_preview_data(&data).unwrap();
+    // Маленькие данные не должны сжиматься
+    assert_eq!(compressed, data);
+  }
+
+  #[test]
+  fn test_compress_large_data() {
+    let data = vec![0u8; 10000];
+    let compressed = compress_preview_data(&data).unwrap();
+    // Повторяющиеся данные должны хорошо сжиматься
+    assert!(compressed.len() < data.len());
+  }
+
+  #[test]
+  fn test_decompress_uncompressed_data() {
+    let data = vec![1, 2, 3, 4, 5];
+    let decompressed = decompress_preview_data(&data).unwrap();
+    assert_eq!(decompressed, data);
+  }
+
+  #[test]
+  fn test_compress_decompress_cycle() {
+    let original = vec![42u8; 5000];
+    let compressed = compress_preview_data(&original).unwrap();
+    let decompressed = decompress_preview_data(&compressed).unwrap();
+    assert_eq!(decompressed, original);
   }
 }

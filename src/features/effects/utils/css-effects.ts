@@ -1,70 +1,137 @@
-import { VideoEffect } from "@/features/effects/types"
+/**
+ * Утилиты для CSS эффектов - обратная совместимость
+ * Мост между старой системой эффектов и новой унифицированной системой
+ */
 
 /**
- * Утилитарная функция для генерации CSS-фильтров на основе параметров эффекта
- * Все эффекты теперь содержат cssFilter в JSON данных
+ * Генерирует CSS фильтр для эффекта
+ * @param effect - Эффект (старый VideoEffect или новый BaseEffect)
+ * @param params - Параметры эффекта
+ * @returns CSS filter строка
  */
-export function generateCSSFilterForEffect(effect: VideoEffect): string {
-  const params = effect.params || {}
+export function generateCSSFilterForEffect(
+  effect: any, // VideoEffect | BaseEffect
+  params?: Record<string, any>,
+): string {
+  // Если это новый эффект с CSS процессором
+  if (effect.processors?.css?.filter) {
+    let filter = effect.processors.css.filter
 
-  // Все эффекты должны иметь cssFilter функцию из JSON
+    // Заменяем параметры в фильтре
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        filter = filter.replace(new RegExp(`\\$\\{${key}\\}`, "g"), String(value))
+      })
+    }
+
+    return filter
+  }
+
+  // Для старых эффектов используем cssFilter
   if (effect.cssFilter) {
-    return effect.cssFilter(params)
+    let filter = effect.cssFilter
+
+    // Заменяем параметры в фильтре
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        filter = filter.replace(new RegExp(`\\$\\{${key}\\}`, "g"), String(value))
+      })
+    }
+
+    return filter
   }
 
-  // Если по какой-то причине cssFilter отсутствует, возвращаем пустую строку
-  console.warn(`Effect ${effect.id} (${effect.type}) missing cssFilter`)
-  return ""
+  // Fallback для базовых эффектов
+  const filters: string[] = []
+
+  if (params?.brightness !== undefined && params.brightness !== 1) {
+    filters.push(`brightness(${params.brightness})`)
+  }
+  if (params?.contrast !== undefined && params.contrast !== 1) {
+    filters.push(`contrast(${params.contrast})`)
+  }
+  if (params?.saturation !== undefined && params.saturation !== 1) {
+    filters.push(`saturate(${params.saturation})`)
+  }
+  if (params?.hue !== undefined && params.hue !== 0) {
+    filters.push(`hue-rotate(${params.hue}deg)`)
+  }
+  if (params?.blur !== undefined && params.blur > 0) {
+    filters.push(`blur(${params.blur}px)`)
+  }
+  if (params?.sepia !== undefined && params.sepia > 0) {
+    filters.push(`sepia(${params.sepia})`)
+  }
+  if (params?.grayscale !== undefined && params.grayscale > 0) {
+    filters.push(`grayscale(${params.grayscale})`)
+  }
+  if (params?.invert !== undefined && params.invert > 0) {
+    filters.push(`invert(${params.invert})`)
+  }
+
+  return filters.join(" ")
 }
 
 /**
- * Функция для получения скорости воспроизведения
+ * Получает скорость воспроизведения для эффекта
+ * @param effect - Эффект
+ * @param params - Параметры эффекта
+ * @returns Скорость воспроизведения (1 = нормальная)
  */
-export function getPlaybackRate(effect: VideoEffect): number {
-  if (effect.type === "speed") {
-    return effect.params?.speed || 2
+export function getPlaybackRate(
+  effect: any, // VideoEffect | BaseEffect
+  params?: Record<string, any>,
+): number {
+  // Проверяем параметр speed
+  if (params?.speed !== undefined) {
+    return params.speed
   }
-  if (effect.type === "reverse") {
-    // Реверс через CSS невозможен, но можем замедлить
-    return 0.5
+
+  // Проверяем параметр playbackRate
+  if (params?.playbackRate !== undefined) {
+    return params.playbackRate
   }
-  return 1
+
+  // Проверяем дефолтные значения в параметрах эффекта
+  if (effect.parameters) {
+    const speedParam = effect.parameters.find((p: any) => p.id === "speed" || p.id === "playbackRate")
+    if (speedParam?.defaultValue !== undefined) {
+      return speedParam.defaultValue
+    }
+  }
+
+  // Для старых эффектов проверяем params
+  if (effect.params?.speed !== undefined) {
+    return effect.params.speed
+  }
+
+  return 1 // Нормальная скорость по умолчанию
 }
 
 /**
- * Применяет специальные CSS-стили для эффектов, которые требуют дополнительной обработки
+ * Применяет CSS эффект к элементу
+ * @param element - HTML элемент
+ * @param effect - Эффект
+ * @param params - Параметры эффекта
  */
-export function applySpecialEffectStyles(element: HTMLVideoElement, effect: VideoEffect, size: number): void {
-  // Сбрасываем все специальные стили
-  element.style.boxShadow = ""
-  element.style.borderRadius = ""
+export function applyCSSEffect(element: HTMLElement, effect: any, params?: Record<string, any>): void {
+  const filter = generateCSSFilterForEffect(effect, params)
+  if (filter) {
+    element.style.filter = filter
+  }
 
-  switch (effect.type) {
-    case "vignette":
-      // Создаем эффект виньетки через box-shadow
-      const intensity = effect.params?.intensity || 0.3
-      const radius = effect.params?.radius || 0.8
-      const shadowSize = Math.round(size * (1 - radius) * 0.5)
-      const shadowBlur = Math.round(shadowSize * intensity * 2)
-      element.style.boxShadow = `inset 0 0 ${shadowBlur}px ${shadowSize}px rgba(0,0,0,${intensity})`
-      break
-
-    case "film-grain":
-      // Можно добавить дополнительные стили для зерна пленки
-      break
-
-    default:
-      // Для остальных эффектов специальные стили не нужны
-      break
+  // Применяем дополнительные стили если есть
+  if (effect.processors?.css?.styles) {
+    Object.assign(element.style, effect.processors.css.styles)
   }
 }
 
 /**
- * Сбрасывает все CSS-стили эффектов
+ * Сбрасывает CSS эффекты с элемента
+ * @param element - HTML элемент
  */
-export function resetEffectStyles(element: HTMLVideoElement): void {
+export function resetCSSEffect(element: HTMLElement): void {
   element.style.filter = ""
-  element.style.boxShadow = ""
-  element.style.borderRadius = ""
-  element.playbackRate = 1
+  element.style.transform = ""
+  element.style.opacity = ""
 }

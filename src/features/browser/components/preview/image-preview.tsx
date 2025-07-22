@@ -44,7 +44,7 @@ export const ImagePreview = memo(function ImagePreview({
   dimensions = [16, 9],
 }: ImagePreviewProps) {
   const { playerSetSource, playerSetMedia } = usePlayer()
-  
+
   const calculateWidth = (): number => {
     const [width, height] = dimensions
     return (size * width) / height
@@ -95,7 +95,7 @@ export const ImagePreview = memo(function ImagePreview({
     try {
       await playerSetSource("browser")
       await playerSetMedia(file.id, 0)
-      
+
       console.log(`[ImagePreview] Image sent to main player: ${file.name}`)
     } catch (error) {
       console.error("[ImagePreview] Failed to send image to main player:", error)

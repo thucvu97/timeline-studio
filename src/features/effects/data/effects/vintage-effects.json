@@ -1,0 +1,173 @@
+{
+  "version": "2.0.0",
+  "category": "vintage",
+  "migratedAt": "2025-07-21T11:27:01.849Z",
+  "stats": {
+    "total": 4,
+    "migrated": 4,
+    "skipped": 0,
+    "successRate": "100.00%",
+    "errors": []
+  },
+  "effects": [
+    {
+      "id": "effect_sepia",
+      "name": {
+        "en": "Sepia",
+        "ru": "Сепия",
+        "es": "Sepia",
+        "fr": "Sépia",
+        "de": "Sepia"
+      },
+      "description": {
+        "ru": "Создает теплый коричневатый оттенок, характерный для старых фотографий",
+        "en": "Creates a warm brownish tone characteristic of old photographs"
+      },
+      "category": "color_correction",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["vintage", "popular"],
+      "complexity": "low",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "intensity",
+          "name": {
+            "en": "Intensity",
+            "ru": "Интенсивность"
+          },
+          "type": "number",
+          "defaultValue": 0.8,
+          "min": 0,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    },
+    {
+      "id": "effect_vintage",
+      "name": {
+        "en": "Vintage",
+        "ru": "Винтаж",
+        "es": "Vintage",
+        "fr": "Vintage",
+        "de": "Vintage"
+      },
+      "description": {
+        "ru": "Создает винтажный эффект с теплыми тонами",
+        "en": "Creates a vintage effect with warm tones"
+      },
+      "category": "stylize",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["vintage", "popular"],
+      "complexity": "low",
+      "gpuAccelerated": true,
+      "parameters": [],
+      "presets": [],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    },
+    {
+      "id": "effect_lomo",
+      "name": {
+        "en": "Lomo",
+        "ru": "Ломография",
+        "es": "Lomografía",
+        "fr": "Lomographie",
+        "de": "Lomografie"
+      },
+      "description": {
+        "ru": "Эффект ломографии с повышенным контрастом и виньеткой",
+        "en": "Lomography effect with increased contrast and vignette"
+      },
+      "category": "stylize",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["vintage", "artistic"],
+      "complexity": "medium",
+      "gpuAccelerated": true,
+      "parameters": [],
+      "presets": [],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    },
+    {
+      "id": "effect_film-grain",
+      "name": {
+        "en": "Film Grain",
+        "ru": "Пленочное зерно",
+        "es": "Grano de Película",
+        "fr": "Grain de Film",
+        "de": "Filmkorn"
+      },
+      "description": {
+        "ru": "Добавляет текстуру пленочного зерна для винтажного вида",
+        "en": "Adds film grain texture for a vintage look"
+      },
+      "category": "noise_grain",
+      "scope": ["clip", "track"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["vintage", "pro"],
+      "complexity": "medium",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "intensity",
+          "name": {
+            "en": "Intensity",
+            "ru": "Интенсивность"
+          },
+          "type": "number",
+          "defaultValue": 0.02,
+          "min": 0,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "amount",
+          "name": {
+            "en": "Amount",
+            "ru": "Количество"
+          },
+          "type": "number",
+          "defaultValue": 0.5,
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    }
+  ]
+}

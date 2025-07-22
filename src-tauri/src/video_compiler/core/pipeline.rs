@@ -358,7 +358,7 @@ impl PipelineContext {
     if !self.temp_dir.exists() {
       tokio::fs::create_dir_all(&self.temp_dir)
         .await
-        .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+        .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
     }
     Ok(())
   }
@@ -368,7 +368,7 @@ impl PipelineContext {
     if self.temp_dir.exists() {
       tokio::fs::remove_dir_all(&self.temp_dir)
         .await
-        .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+        .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
     }
     Ok(())
   }
@@ -1047,7 +1047,7 @@ impl EncodingStage {
     if let Some(parent) = context.output_path.parent() {
       tokio::fs::create_dir_all(parent)
         .await
-        .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+        .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
     }
 
     // Получаем FFmpegBuilder из контекста
@@ -1322,7 +1322,7 @@ impl FinalizationStage {
       // Заменяем оригинальный файл
       tokio::fs::rename(&tmp_file, &context.output_path)
         .await
-        .map_err(|e| VideoCompilerError::IoError(format!("Не удалось заменить файл: {e}")))?;
+        .map_err(|e| VideoCompilerError::Io(format!("Не удалось заменить файл: {e}")))?;
 
       log::info!("Метаданные добавлены к выходному файлу");
     } else {
@@ -1348,13 +1348,12 @@ impl FinalizationStage {
       "timeline_studio_version": context.project.version,
     });
 
-    let stats_string = serde_json::to_string_pretty(&stats_json).map_err(|e| {
-      VideoCompilerError::IoError(format!("Не удалось сериализовать статистику: {e}"))
-    })?;
+    let stats_string = serde_json::to_string_pretty(&stats_json)
+      .map_err(|e| VideoCompilerError::Io(format!("Не удалось сериализовать статистику: {e}")))?;
 
     tokio::fs::write(&stats_path, stats_string)
       .await
-      .map_err(|e| VideoCompilerError::IoError(format!("Не удалось сохранить статистику: {e}")))?;
+      .map_err(|e| VideoCompilerError::Io(format!("Не удалось сохранить статистику: {e}")))?;
 
     log::info!("Статистика рендеринга сохранена в {stats_path:?}");
     Ok(())

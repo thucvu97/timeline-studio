@@ -22,10 +22,8 @@ vi.mock("@/features/modals/services/modal-provider", () => ({
   ModalProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="modal-provider">{children}</div>,
 }))
 
-vi.mock("@/features/app-state", () => ({
-  AppSettingsProvider: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="app-settings-provider">{children}</div>
-  ),
+vi.mock("@/features/app-state/services/app-provider", () => ({
+  AppProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="app-provider">{children}</div>,
 }))
 
 vi.mock("@/features/browser/services/browser-state-provider", () => ({
@@ -34,7 +32,7 @@ vi.mock("@/features/browser/services/browser-state-provider", () => ({
   ),
 }))
 
-vi.mock("@/features/project-settings", () => ({
+vi.mock("@/features/project-settings/services/project-settings-provider", () => ({
   ProjectSettingsProvider: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="project-settings-provider">{children}</div>
   ),
@@ -90,7 +88,7 @@ describe("Providers", () => {
     expect(screen.getByTestId("tauri-mock-provider")).toBeInTheDocument()
     expect(screen.getByTestId("i18n-provider")).toBeInTheDocument()
     expect(screen.getByTestId("theme-provider")).toBeInTheDocument()
-    expect(screen.getByTestId("app-settings-provider")).toBeInTheDocument()
+    expect(screen.getByTestId("app-provider")).toBeInTheDocument()
     expect(screen.getByTestId("browser-state-provider")).toBeInTheDocument()
     expect(screen.getByTestId("user-settings-provider")).toBeInTheDocument()
     expect(screen.getByTestId("resources-provider")).toBeInTheDocument()

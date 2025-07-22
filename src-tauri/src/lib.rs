@@ -220,6 +220,38 @@ pub fn run() {
       let montage_state = MontageState::new(montage_yolo_state);
       app.manage(montage_state);
 
+      // Initialize Person Identification Database
+      {
+        use features::person_identification::commands::PersonDatabaseState;
+        use features::person_identification::database::PersonDatabase;
+
+        let app_handle = app.handle();
+        match app_handle.path().app_data_dir() {
+          Ok(app_dir) => {
+            // Create app data directory if it doesn't exist
+            if let Err(e) = std::fs::create_dir_all(&app_dir) {
+              log::error!("Failed to create app data dir: {e}");
+            } else {
+              let db_path = app_dir.join("persons.db");
+
+              // Initialize database asynchronously
+              match tauri::async_runtime::block_on(PersonDatabase::new(db_path)) {
+                Ok(db) => {
+                  app.manage(PersonDatabaseState(Arc::new(tokio::sync::Mutex::new(db))));
+                  log::info!("Person identification database initialized successfully");
+                }
+                Err(e) => {
+                  log::error!("Failed to initialize person database: {e}");
+                }
+              }
+            }
+          }
+          Err(e) => {
+            log::error!("Failed to get app data dir: {e}");
+          }
+        }
+      }
+
       // Create Secure Storage for API keys
       match SecureStorage::new(app.handle().clone()) {
         Ok(storage) => {

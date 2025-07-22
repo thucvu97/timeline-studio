@@ -186,6 +186,7 @@ describe("MidiRouter", () => {
       const message: MidiMessage = {
         type: "noteon",
         channel: 1,
+        timestamp: Date.now(),
         data: { note: 60, velocity: 100 },
       }
 
@@ -218,6 +219,7 @@ describe("MidiRouter", () => {
       const message: MidiMessage = {
         type: "noteon",
         channel: 1,
+        timestamp: Date.now(),
         data: { note: 60, velocity: 100 },
       }
 
@@ -251,6 +253,7 @@ describe("MidiRouter", () => {
       router.routeMessage("input1", {
         type: "noteon",
         channel: 1,
+        timestamp: Date.now(),
         data: { note: 60, velocity: 100 },
       })
       expect(callback).not.toHaveBeenCalled()
@@ -259,6 +262,7 @@ describe("MidiRouter", () => {
       router.routeMessage("input1", {
         type: "noteon",
         channel: 2,
+        timestamp: Date.now(),
         data: { note: 60, velocity: 100 },
       })
       expect(callback).toHaveBeenCalledTimes(1)
@@ -285,6 +289,7 @@ describe("MidiRouter", () => {
       router.routeMessage("input1", {
         type: "noteon",
         channel: 1,
+        timestamp: Date.now(),
         data: { note: 60, velocity: 100 },
       })
       expect(callback).toHaveBeenCalledTimes(1)
@@ -398,6 +403,7 @@ describe("MidiRouter", () => {
       router.routeMessage("input1", {
         type: "noteon",
         channel: 1,
+        timestamp: Date.now(),
         data: { note: 60, velocity: 100 },
       })
 
@@ -408,6 +414,7 @@ describe("MidiRouter", () => {
       router.routeMessage("input1", {
         type: "noteon",
         channel: 1,
+        timestamp: Date.now(),
         data: { note: 60, velocity: 100 },
       })
 
@@ -438,6 +445,7 @@ describe("MidiRouter", () => {
       router.routeMessage("input1", {
         type: "noteon",
         channel: 1,
+        timestamp: Date.now(),
         data: { note: 60, velocity: 100 },
       })
 
@@ -473,6 +481,7 @@ describe("MidiRouter", () => {
       router.routeMessage("input1", {
         type: "noteon",
         channel: 1,
+        timestamp: Date.now(),
         data: { note: 60, velocity: 100 },
       })
 
@@ -505,6 +514,7 @@ describe("MidiRouter", () => {
       router.routeMessage("input1", {
         type: "noteon",
         channel: 1,
+        timestamp: Date.now(),
         data: { note: 60, velocity: 100 },
       })
 
@@ -537,6 +547,7 @@ describe("MidiRouter", () => {
       router.routeMessage("input1", {
         type: "noteon",
         channel: 1,
+        timestamp: Date.now(),
         data: { note: 60, velocity: 100 },
       })
 
@@ -559,7 +570,7 @@ describe("MidiRouter", () => {
             type: "function",
             callback,
             transform: {
-              velocityCurve: "soft",
+              velocityScale: 0.8, // "soft" curve simulation
             },
           },
         ],
@@ -569,6 +580,7 @@ describe("MidiRouter", () => {
       router.routeMessage("input1", {
         type: "noteon",
         channel: 1,
+        timestamp: Date.now(),
         data: { note: 60, velocity: 100 },
       })
 
@@ -644,7 +656,7 @@ describe("MidiRouter", () => {
             callback,
           },
         ],
-        processors: [{ id: "test-processor", enabled: true }],
+        processors: [{ id: "test-processor", type: "transform" as const, enabled: true, config: {} }],
       })
 
       router.routeMessage("input1", {
@@ -680,7 +692,7 @@ describe("MidiRouter", () => {
             callback,
           },
         ],
-        processors: [{ id: "test-processor", enabled: false }],
+        processors: [{ id: "test-processor", type: "transform" as const, enabled: false, config: {} }],
       })
 
       router.routeMessage("input1", {
@@ -735,14 +747,15 @@ describe("MidiRouter", () => {
           },
         ],
         processors: [
-          { id: "transpose", enabled: true },
-          { id: "velocity-scale", enabled: true },
+          { id: "transpose", type: "transform" as const, enabled: true, config: {} },
+          { id: "velocity-scale", type: "transform" as const, enabled: true, config: {} },
         ],
       })
 
       router.routeMessage("input1", {
         type: "noteon",
         channel: 1,
+        timestamp: Date.now(),
         data: { note: 60, velocity: 100 },
       })
 
@@ -775,6 +788,7 @@ describe("MidiRouter", () => {
       const message: MidiMessage = {
         type: "noteon",
         channel: 1,
+        timestamp: Date.now(),
         data: { note: 60, velocity: 100 },
       }
 
@@ -820,6 +834,7 @@ describe("MidiRouter", () => {
       const message: MidiMessage = {
         type: "noteon",
         channel: 1,
+        timestamp: Date.now(),
         data: { note: 60, velocity: 100 },
       }
 
@@ -858,6 +873,7 @@ describe("MidiRouter", () => {
       const message: MidiMessage = {
         type: "noteon",
         channel: 1,
+        timestamp: Date.now(),
         data: { note: 60, velocity: 100 },
       }
 

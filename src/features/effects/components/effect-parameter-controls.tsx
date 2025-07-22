@@ -7,17 +7,88 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { VideoEffect } from "@/features/effects/types"
+import { BaseEffect, EffectParameter } from "@/features/effects/types"
 
 interface EffectParameterControlsProps {
-  effect: VideoEffect
-  onParametersChange: (params: Record<string, number>) => void
+  effect: BaseEffect
+  onParametersChange: (params: Record<string, any>) => void
   selectedPreset?: string
-  onSavePreset?: (name: string, params: Record<string, number>) => void
+  onSavePreset?: (name: string, params: Record<string, any>) => void
 }
 
-// Конфигурация параметров с их диапазонами и описаниями
-const PARAMETER_CONFIG = {
+// Получаем конфигурацию из параметров эффекта
+function getParameterConfig(param: EffectParameter): {
+  min: number
+  max: number
+  step: number
+  default: any
+  label: { ru: string; en: string }
+  description: { ru: string; en: string }
+} {
+  const label = {
+    ru: param.name.ru || param.name.en,
+    en: param.name.en,
+  }
+
+  const description = {
+    ru: param.description?.ru || param.description?.en || "",
+    en: param.description?.en || "",
+  }
+
+  switch (param.type) {
+    case "number":
+      return {
+        min: param.min ?? 0,
+        max: param.max ?? 100,
+        step: param.step ?? 1,
+        default: param.defaultValue,
+        label,
+        description,
+      }
+    case "boolean":
+      return {
+        min: 0,
+        max: 1,
+        step: 1,
+        default: param.defaultValue ? 1 : 0,
+        label,
+        description,
+      }
+    case "select":
+      // Для select используем индексы
+      const options = param.options || []
+      return {
+        min: 0,
+        max: options.length - 1,
+        step: 1,
+        default: options.indexOf(param.defaultValue) ?? 0,
+        label,
+        description,
+      }
+    case "color":
+      // Для цвета будем использовать другой компонент
+      return {
+        min: 0,
+        max: 255,
+        step: 1,
+        default: 0,
+        label,
+        description,
+      }
+    default:
+      return {
+        min: 0,
+        max: 100,
+        step: 1,
+        default: param.defaultValue,
+        label,
+        description,
+      }
+  }
+}
+
+// Старая конфигурация для обратной совместимости
+const LEGACY_PARAMETER_CONFIG = {
   intensity: {
     min: 0,
     max: 100,
@@ -103,27 +174,25 @@ export function EffectParameterControls({
   const currentLang = i18n.language as "ru" | "en"
 
   // Состояние параметров
-  const [parameters, setParameters] = useState<Record<string, number>>(() => {
-    // Инициализируем значениями по умолчанию или из эффекта
-    const defaultParams: Record<string, number> = {}
+  const [parameters, setParameters] = useState<Record<string, any>>(() => {
+    // Инициализируем значениями по умолчанию из эффекта
+    const defaultParams: Record<string, any> = {}
 
-    if (effect.params) {
-      Object.keys(effect.params).forEach((key) => {
-        const config = PARAMETER_CONFIG[key as keyof typeof PARAMETER_CONFIG]
-        const paramKey = key as keyof typeof effect.params
-        defaultParams[key] = effect.params![paramKey] ?? config?.default ?? 0
-      })
-    }
+    effect.parameters.forEach((param) => {
+      defaultParams[param.id] = customParams?.[param.id] ?? param.defaultValue
+    })
 
     return defaultParams
   })
 
   // Обновляем параметры при смене пресета
   useEffect(() => {
-    if (selectedPreset && effect.presets?.[selectedPreset]) {
-      const presetParams = effect.presets[selectedPreset].params
-      setParameters(presetParams)
-      onParametersChange(presetParams)
+    if (selectedPreset && effect.presets) {
+      const preset = effect.presets.find((p) => p.id === selectedPreset)
+      if (preset) {
+        setParameters(preset.parameters)
+        onParametersChange(preset.parameters)
+      }
     }
   }, [selectedPreset, effect.presets, onParametersChange])
 
@@ -140,18 +209,15 @@ export function EffectParameterControls({
 
   // Сброс к значениям по умолчанию
   const handleReset = useCallback(() => {
-    const defaultParams: Record<string, number> = {}
+    const defaultParams: Record<string, any> = {}
 
-    if (effect.params) {
-      Object.keys(effect.params).forEach((key) => {
-        const config = PARAMETER_CONFIG[key as keyof typeof PARAMETER_CONFIG]
-        defaultParams[key] = config?.default ?? 0
-      })
-    }
+    effect.parameters.forEach((param) => {
+      defaultParams[param.id] = param.defaultValue
+    })
 
     setParameters(defaultParams)
     onParametersChange(defaultParams)
-  }, [effect.params, onParametersChange])
+  }, [effect.parameters, onParametersChange])
 
   // Сохранение пользовательского пресета
   const handleSavePreset = useCallback(() => {
@@ -165,11 +231,9 @@ export function EffectParameterControls({
   }, [onSavePreset, parameters, t])
 
   // Если у эффекта нет параметров, не показываем контролы
-  if (!effect.params || Object.keys(effect.params).length === 0) {
+  if (!effect.parameters || effect.parameters.length === 0) {
     return null
   }
-
-  const availableParams = Object.keys(effect.params)
 
   return (
     <div className="space-y-4">
@@ -205,17 +269,31 @@ export function EffectParameterControls({
 
       {/* Контролы параметров */}
       <div className="space-y-4">
-        {availableParams.map((paramName) => {
-          const config = PARAMETER_CONFIG[paramName as keyof typeof PARAMETER_CONFIG]
-          if (!config) return null
+        {effect.parameters.map((param) => {
+          const config = getParameterConfig(param)
+          const currentValue = parameters[param.id] ?? param.defaultValue
 
-          const currentValue = parameters[paramName] ?? config.default
+          // Для цветов и сложных типов нужны специальные контролы
+          if (param.type === "color") {
+            // TODO: Добавить color picker
+            return null
+          }
+
+          if (param.type === "select") {
+            // TODO: Добавить select компонент
+            return null
+          }
+
+          // Преобразуем boolean в число для slider
+          const sliderValue = param.type === "boolean" ? (currentValue ? 1 : 0) : currentValue
 
           return (
-            <div key={paramName} className="space-y-2">
+            <div key={param.id} className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label className="text-sm font-medium">{config.label[currentLang] || config.label.en}</Label>
-                <span className="text-sm text-gray-500 font-mono">{currentValue}</span>
+                <span className="text-sm text-gray-500 font-mono">
+                  {param.type === "boolean" ? (currentValue ? "Вкл" : "Выкл") : currentValue}
+                </span>
               </div>
 
               <TooltipProvider>
@@ -223,8 +301,11 @@ export function EffectParameterControls({
                   <TooltipTrigger asChild>
                     <div>
                       <Slider
-                        value={[currentValue]}
-                        onValueChange={(value) => handleParameterChange(paramName, value)}
+                        value={[sliderValue]}
+                        onValueChange={(value) => {
+                          const newValue = param.type === "boolean" ? value[0] === 1 : value[0]
+                          handleParameterChange(param.id, [newValue])
+                        }}
                         min={config.min}
                         max={config.max}
                         step={config.step}
@@ -256,7 +337,7 @@ export function EffectParameterControls({
         <div className="font-mono bg-gray-50 dark:bg-gray-800 p-2 rounded">
           {Object.entries(parameters).map(([key, value]) => (
             <div key={key}>
-              {key}: {value}
+              {key}: {typeof value === "boolean" ? (value ? "true" : "false") : value}
             </div>
           ))}
         </div>

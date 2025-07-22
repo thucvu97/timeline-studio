@@ -121,7 +121,7 @@ export interface ActivityDetection {
 // Scene Transitions
 export interface SceneTransition {
   type: TransitionType
-  direction: 'incoming' | 'outgoing'
+  direction: "incoming" | "outgoing"
   targetSceneId: string
   startTime: number
   endTime: number
@@ -141,13 +141,13 @@ export interface SceneTransition {
 export enum TransitionType {
   CUT = "cut",
   FADE_IN = "fade_in",
-  FADE_OUT = "fade_out", 
+  FADE_OUT = "fade_out",
   FADE_THROUGH = "fade_through",
   DISSOLVE = "dissolve",
   WIPE = "wipe",
   WIPE_LEFT = "wipe_left",
   WIPE_RIGHT = "wipe_right",
-  WIPE_UP = "wipe_up", 
+  WIPE_UP = "wipe_up",
   WIPE_DOWN = "wipe_down",
   MORPH = "morph",
 }

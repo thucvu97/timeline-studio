@@ -255,7 +255,7 @@ describe("EffectGroup", () => {
 
     effectElements.forEach((element, index) => {
       expect(element).toHaveAttribute("tabIndex", "0")
-      expect(element).toHaveAttribute("aria-label", `${mockEffects[index].name} effect`)
+      expect(element).toHaveAttribute("aria-label", `${mockEffects[index].labels?.en || mockEffects[index].name} effect`)
       expect(element).toHaveClass("focus:outline-none", "focus:ring-2", "focus:ring-primary", "rounded-sm")
     })
   })

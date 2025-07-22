@@ -66,11 +66,11 @@ export function TrackControlsPanel({ className }: TrackControlsPanelProps) {
   const { updateTrack } = useTimeline()
 
   const toggleTrackVisibility = (trackId: string, currentHidden: boolean) => {
-    updateTrack(trackId, { isHidden: !currentHidden })
+    void updateTrack(trackId, { isHidden: !currentHidden })
   }
 
   const toggleTrackLock = (trackId: string, currentLock: boolean) => {
-    updateTrack(trackId, { isLocked: !currentLock })
+    void updateTrack(trackId, { isLocked: !currentLock })
   }
 
   return (

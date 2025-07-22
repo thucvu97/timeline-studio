@@ -93,11 +93,47 @@ pub fn calculate_batch_statistics(jobs: &[BatchJobInfo]) -> BatchStatistics {
     0.0
   };
 
+  // Собираем время выполнения из результатов клипов
+  let mut clip_times: Vec<u64> = Vec::new();
+  let mut total_processing_time_ms = 0u64;
+
+  for job in jobs {
+    for result in &job.results {
+      if let Ok(batch_result) = serde_json::from_value::<
+        crate::video_compiler::commands::batch::BatchClipResult,
+      >(result.1.clone())
+      {
+        clip_times.push(batch_result.processing_time_ms);
+        total_processing_time_ms += batch_result.processing_time_ms;
+      }
+    }
+
+    // Также можем рассчитать на основе времени старта/окончания задания
+    if let (Ok(start), Some(end_str)) = (
+      chrono::DateTime::parse_from_rfc3339(&job.start_time),
+      &job.end_time,
+    ) {
+      if let Ok(end) = chrono::DateTime::parse_from_rfc3339(end_str) {
+        let duration = end.signed_duration_since(start);
+        total_processing_time_ms += duration.num_milliseconds() as u64;
+      }
+    }
+  }
+
+  let average_clip_time_ms = if !clip_times.is_empty() {
+    clip_times.iter().sum::<u64>() / clip_times.len() as u64
+  } else {
+    0
+  };
+
+  let fastest_clip_time_ms = clip_times.iter().min().copied().unwrap_or(0);
+  let slowest_clip_time_ms = clip_times.iter().max().copied().unwrap_or(0);
+
   BatchStatistics {
-    total_processing_time_ms: 0, // TODO: Implement actual timing
-    average_clip_time_ms: 0,
-    fastest_clip_time_ms: 0,
-    slowest_clip_time_ms: 0,
+    total_processing_time_ms,
+    average_clip_time_ms,
+    fastest_clip_time_ms,
+    slowest_clip_time_ms,
     success_rate,
     total_errors,
   }

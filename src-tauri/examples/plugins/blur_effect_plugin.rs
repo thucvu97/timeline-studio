@@ -128,7 +128,7 @@ impl Plugin for BlurEffectPlugin {
       tokio::fs::write(&config_path, config_json)
         .await
         .map_err(|e| {
-          timeline_studio_lib::video_compiler::error::VideoCompilerError::IoError(e.to_string())
+          timeline_studio_lib::video_compiler::error::VideoCompilerError::Io(e.to_string())
         })?;
     }
 

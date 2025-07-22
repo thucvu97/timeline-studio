@@ -8,14 +8,14 @@ import { SubtitleResource } from "@/features/resources/types"
 
 import { AddMediaButton } from "../../browser/components/layout/add-media-button"
 import { FavoriteButton } from "../../browser/components/layout/favorite-button"
-import { SubtitleStyle } from "../types/subtitles"
+import { SubtitleStyleTemplate } from "../types/subtitles"
 import { subtitleStyleToCSS } from "../utils/css-styles"
 
 /**
  * Интерфейс пропсов для компонента SubtitlePreview
  */
 interface SubtitlePreviewProps {
-  style: SubtitleStyle
+  style: SubtitleStyleTemplate
   onClick: () => void
   size: number
   previewWidth?: number

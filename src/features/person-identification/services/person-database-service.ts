@@ -5,6 +5,7 @@
  */
 
 import { invoke } from "@tauri-apps/api/core"
+
 import {
   DetectedFace,
   FaceEmbedding,
@@ -207,25 +208,24 @@ export class PersonDatabaseService {
 
       this.emitEvent({ type: "person_created", data: { person } })
       return person
-    } else {
-      // Fallback to IndexedDB
-      const person: PersonProfile = {
-        ...personData,
-        id: `person_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      }
-
-      await this.storePerson(person)
-
-      // Кэшируем
-      if (this.config.enableCache) {
-        this.cache.set(person.id, person)
-      }
-
-      this.emitEvent({ type: "person_created", data: { person } })
-      return person
     }
+    // Fallback to IndexedDB
+    const person: PersonProfile = {
+      ...personData,
+      id: `person_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+
+    await this.storePerson(person)
+
+    // Кэшируем
+    if (this.config.enableCache) {
+      this.cache.set(person.id, person)
+    }
+
+    this.emitEvent({ type: "person_created", data: { person } })
+    return person
   }
 
   /**
@@ -241,7 +241,7 @@ export class PersonDatabaseService {
 
     try {
       let person: PersonProfile | null = null
-      
+
       if (this.config.storage === "tauri") {
         person = await invoke<PersonProfile | null>("get_person", { personId })
       } else {
@@ -372,39 +372,39 @@ export class PersonDatabaseService {
           }
         }
         return results
-      } else {
-        // Fallback to IndexedDB
-        // Получаем все эмбеддинги
-        const allEmbeddings = await this.getAllEmbeddings()
+      }
+      // Fallback to IndexedDB
+      // Получаем все эмбеддинги
+      const allEmbeddings = await this.getAllEmbeddings()
 
-        // Вычисляем сходство
-        const similarities: SimilaritySearchResult[] = []
+      // Вычисляем сходство
+      const similarities: SimilaritySearchResult[] = []
 
-        for (const storedEmbedding of allEmbeddings) {
-          const similarity = this.calculateCosineSimilarity(embedding, storedEmbedding.vector)
+      for (const storedEmbedding of allEmbeddings) {
+        const similarity = this.calculateCosineSimilarity(embedding, storedEmbedding.vector)
 
-          if (similarity >= threshold) {
-            similarities.push({
-              personId: storedEmbedding.faceId, // Будет заменено на personId
-              similarity,
-              embedding: storedEmbedding,
-              confidence: storedEmbedding.quality * similarity,
-            })
-          }
+        if (similarity >= threshold) {
+          similarities.push({
+            personId: storedEmbedding.faceId, // Будет заменено на personId
+            similarity,
+            embedding: storedEmbedding,
+            confidence: storedEmbedding.quality * similarity,
+          })
         }
+      }
 
-        // Сортируем по сходству
-        similarities.sort((a, b) => b.similarity - a.similarity)
+      // Сортируем по сходству
+      similarities.sort((a, b) => b.similarity - a.similarity)
 
-        // Получаем персон и создаем результаты
-        const results: PersonSearchResult[] = []
+      // Получаем персон и создаем результаты
+      const results: PersonSearchResult[] = []
 
-        for (const sim of similarities.slice(0, limit)) {
-          // Найдем персону по эмбеддингу
-          const person = await this.findPersonByEmbedding(sim.embedding.faceId)
-          if (person) {
-            results.push({
-              person,
+      for (const sim of similarities.slice(0, limit)) {
+        // Найдем персону по эмбеддингу
+        const person = await this.findPersonByEmbedding(sim.embedding.faceId)
+        if (person) {
+          results.push({
+            person,
             similarity: sim.similarity,
             matches: [
               {
@@ -417,7 +417,6 @@ export class PersonDatabaseService {
               },
             ],
           })
-          }
         }
       }
 
@@ -445,20 +444,20 @@ export class PersonDatabaseService {
           timestamp: embedding.timestamp,
         })
         return true
-      } else {
-        const person = await this.getPerson(personId)
-        if (!person) return false
+      }
+      const person = await this.getPerson(personId)
+      if (!person) return false
 
-        // Сохраняем эмбеддинг
-        await this.storeEmbedding(embedding)
+      // Сохраняем эмбеддинг
+      await this.storeEmbedding(embedding)
 
-        // Обновляем персону
-        const updatedEmbeddings = [...person.faceEmbeddings, embedding]
-        const averageEmbedding = this.calculateAverageEmbedding(updatedEmbeddings)
+      // Обновляем персону
+      const updatedEmbeddings = [...person.faceEmbeddings, embedding]
+      const averageEmbedding = this.calculateAverageEmbedding(updatedEmbeddings)
 
-        await this.updatePerson(personId, {
-          faceEmbeddings: updatedEmbeddings,
-          averageEmbedding,
+      await this.updatePerson(personId, {
+        faceEmbeddings: updatedEmbeddings,
+        averageEmbedding,
         updatedAt: new Date().toISOString(),
       })
 
@@ -492,31 +491,30 @@ export class PersonDatabaseService {
         })
 
         return true
-      } else {
-        const person = await this.getPerson(personId)
-        if (!person) return false
-
-        // Сохраняем появление
-        await this.storeAppearance(appearance)
-
-        // Обновляем персону
-        const updatedAppearances = [...person.appearances, appearance]
-        const totalScreenTime = updatedAppearances.reduce((sum, app) => sum + app.duration, 0)
-
-        await this.updatePerson(personId, {
-          appearances: updatedAppearances,
-          totalScreenTime,
-          lastSeen: appearance.endTime,
-          updatedAt: new Date().toISOString(),
-        })
-
-        this.emitEvent({
-          type: "person_detected",
-          data: { personId, appearance },
-        })
-
-        return true
       }
+      const person = await this.getPerson(personId)
+      if (!person) return false
+
+      // Сохраняем появление
+      await this.storeAppearance(appearance)
+
+      // Обновляем персону
+      const updatedAppearances = [...person.appearances, appearance]
+      const totalScreenTime = updatedAppearances.reduce((sum, app) => sum + app.duration, 0)
+
+      await this.updatePerson(personId, {
+        appearances: updatedAppearances,
+        totalScreenTime,
+        lastSeen: appearance.endTime,
+        updatedAt: new Date().toISOString(),
+      })
+
+      this.emitEvent({
+        type: "person_detected",
+        data: { personId, appearance },
+      })
+
+      return true
     } catch (error) {
       console.error("Ошибка добавления появления:", error)
       return false
@@ -641,12 +639,13 @@ export class PersonDatabaseService {
           // Здесь должен быть расчет сходства между detection и representative
           // Пока используем заглушку
           // Используем реальный расчет сходства
-          const similarity = detection.embedding && representative.embedding
-            ? this.calculateCosineSimilarity(
+          const similarity =
+            detection.embedding && representative.embedding
+              ? this.calculateCosineSimilarity(
                 new Float32Array(detection.embedding),
-                new Float32Array(representative.embedding)
+                new Float32Array(representative.embedding),
               )
-            : 0
+              : 0
 
           if (similarity >= threshold) {
             cluster.push(detection)
@@ -668,13 +667,13 @@ export class PersonDatabaseService {
 
         // Конвертируем DetectedFace в FaceEmbedding
         const faceEmbeddings: FaceEmbedding[] = cluster
-          .filter(face => face.embedding && face.embedding.length > 0)
-          .map(face => ({
+          .filter((face) => face.embedding && face.embedding.length > 0)
+          .map((face) => ({
             faceId: face.id,
-            personId: '', // Будет установлен после создания персоны
-            vector: new Float32Array(face.embedding!),
+            personId: "", // Будет установлен после создания персоны
+            vector: new Float32Array(face.embedding),
             quality: face.confidence,
-            clipId: face.clipId || '',
+            clipId: face.clipId || "",
             frameNumber: face.frameNumber || 0,
             timestamp: face.timestamp,
             landmarks: face.landmarks,
@@ -717,14 +716,14 @@ export class PersonDatabaseService {
                 personId: person.id,
                 vector: new Float32Array(face.embedding),
                 quality: face.confidence,
-                clipId: face.clipId || '',
+                clipId: face.clipId || "",
                 frameNumber: face.frameNumber || 0,
                 timestamp: face.timestamp,
                 landmarks: face.landmarks,
                 createdAt: new Date().toISOString(),
               })
             }
-            
+
             // Добавляем первую миниатюру как основную
             if (newPersons.length === 0 && (face.thumbnailUrl || face.croppedImage)) {
               await this.addPersonThumbnail(person.id, {
@@ -758,19 +757,18 @@ export class PersonDatabaseService {
     try {
       if (this.config.storage === "tauri") {
         return await invoke<DatabaseStats>("get_person_database_stats")
-      } else {
-        const persons = await this.getAllPersons()
-        const totalEmbeddings = persons.reduce((sum, p) => sum + p.faceEmbeddings.length, 0)
-        const totalAppearances = persons.reduce((sum, p) => sum + p.appearances.length, 0)
+      }
+      const persons = await this.getAllPersons()
+      const totalEmbeddings = persons.reduce((sum, p) => sum + p.faceEmbeddings.length, 0)
+      const totalAppearances = persons.reduce((sum, p) => sum + p.appearances.length, 0)
 
-        return {
-          totalPersons: persons.length,
-          totalEmbeddings,
-          totalAppearances,
-          averageEmbeddingsPerPerson: persons.length > 0 ? totalEmbeddings / persons.length : 0,
-          storageSize: 0,
-          lastUpdated: new Date().toISOString(),
-        }
+      return {
+        totalPersons: persons.length,
+        totalEmbeddings,
+        totalAppearances,
+        averageEmbeddingsPerPerson: persons.length > 0 ? totalEmbeddings / persons.length : 0,
+        storageSize: 0,
+        lastUpdated: new Date().toISOString(),
       }
     } catch (error) {
       console.error("Ошибка получения статистики базы данных:", error)
@@ -1037,7 +1035,7 @@ export class PersonDatabaseService {
       height: number
       isPrimary?: boolean
       quality?: number
-    }
+    },
   ): Promise<boolean> {
     await this.ensureInitialized()
 
@@ -1053,7 +1051,7 @@ export class PersonDatabaseService {
               reader.onloadend = () => resolve(reader.result as string)
               reader.readAsDataURL(blob)
             })
-            thumbnailData.imageData = base64.split(',')[1]
+            thumbnailData.imageData = base64.split(",")[1]
           } else {
             return false
           }
@@ -1069,31 +1067,30 @@ export class PersonDatabaseService {
         })
 
         return true
-      } else {
-        // Fallback to IndexedDB implementation
-        const person = await this.getPerson(personId)
-        if (!person) return false
-
-        const thumbnail: PersonThumbnail = {
-          id: `thumb_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
-          imageUrl: thumbnailData.imageUrl || '',
-          width: thumbnailData.width,
-          height: thumbnailData.height,
-          sourceClipId: '',
-          sourceTimestamp: { seconds: 0 },
-          quality: thumbnailData.quality || 1,
-          isPrimary: thumbnailData.isPrimary || false,
-          isGenerated: false,
-        }
-
-        const updatedThumbnails = [...person.thumbnails, thumbnail]
-        await this.updatePerson(personId, {
-          thumbnails: updatedThumbnails,
-          updatedAt: new Date().toISOString(),
-        })
-
-        return true
       }
+      // Fallback to IndexedDB implementation
+      const person = await this.getPerson(personId)
+      if (!person) return false
+
+      const thumbnail: PersonThumbnail = {
+        id: `thumb_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+        imageUrl: thumbnailData.imageUrl || "",
+        width: thumbnailData.width,
+        height: thumbnailData.height,
+        sourceClipId: "",
+        sourceTimestamp: { seconds: 0 },
+        quality: thumbnailData.quality || 1,
+        isPrimary: thumbnailData.isPrimary || false,
+        isGenerated: false,
+      }
+
+      const updatedThumbnails = [...person.thumbnails, thumbnail]
+      await this.updatePerson(personId, {
+        thumbnails: updatedThumbnails,
+        updatedAt: new Date().toISOString(),
+      })
+
+      return true
     } catch (error) {
       console.error("Ошибка добавления миниатюры:", error)
       return false
@@ -1240,7 +1237,7 @@ export class PersonDatabaseService {
         if (person.faceEmbeddings && person.faceEmbeddings.length > 0) {
           for (const faceEmbedding of person.faceEmbeddings) {
             const faceSimilarity = this.calculateCosineSimilarity(embedding, faceEmbedding.vector)
-            
+
             if (faceSimilarity >= (options?.minConfidence || this.config.similarityThreshold)) {
               matches.push({
                 faceId: faceEmbedding.faceId,
@@ -1250,7 +1247,7 @@ export class PersonDatabaseService {
                 clipId: faceEmbedding.clipId,
                 timestamp: faceEmbedding.timestamp,
               })
-              
+
               // Обновляем максимальное сходство
               if (faceSimilarity > maxSimilarity) {
                 maxSimilarity = faceSimilarity
@@ -1263,7 +1260,7 @@ export class PersonDatabaseService {
         if (maxSimilarity >= (options?.minConfidence || this.config.similarityThreshold) || matches.length > 0) {
           // Сортируем совпадения по убыванию сходства
           matches.sort((a, b) => b.similarity - a.similarity)
-          
+
           results.push({
             person,
             similarity: maxSimilarity,

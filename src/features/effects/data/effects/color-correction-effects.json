@@ -1,0 +1,546 @@
+{
+  "version": "2.0.0",
+  "category": "color-correction",
+  "migratedAt": "2025-07-21T11:26:46.321Z",
+  "stats": {
+    "total": 7,
+    "migrated": 7,
+    "skipped": 0,
+    "successRate": "100.00%",
+    "errors": []
+  },
+  "effects": [
+    {
+      "id": "effect_brightness",
+      "name": {
+        "en": "Brightness",
+        "ru": "Яркость",
+        "es": "Brillo",
+        "fr": "Luminosité",
+        "de": "Helligkeit"
+      },
+      "description": {
+        "ru": "Регулирует яркость видео, делая изображение светлее или темнее",
+        "en": "Adjusts video brightness, making the image lighter or darker"
+      },
+      "category": "color_correction",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["popular", "beginner"],
+      "complexity": "low",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "intensity",
+          "name": {
+            "en": "Intensity",
+            "ru": "Интенсивность"
+          },
+          "type": "number",
+          "defaultValue": 1.2,
+          "min": 0,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "subtle",
+          "name": {
+            "ru": "Тонкий",
+            "en": "Subtle"
+          },
+          "description": {
+            "ru": "Легкое увеличение яркости",
+            "en": "Light brightness increase"
+          },
+          "parameters": {
+            "intensity": 1.1
+          },
+          "tags": []
+        },
+        {
+          "id": "moderate",
+          "name": {
+            "ru": "Умеренный",
+            "en": "Moderate"
+          },
+          "description": {
+            "ru": "Заметное увеличение яркости",
+            "en": "Noticeable brightness increase"
+          },
+          "parameters": {
+            "intensity": 1.3
+          },
+          "tags": []
+        },
+        {
+          "id": "dramatic",
+          "name": {
+            "ru": "Драматический",
+            "en": "Dramatic"
+          },
+          "description": {
+            "ru": "Сильное увеличение яркости",
+            "en": "Strong brightness increase"
+          },
+          "parameters": {
+            "intensity": 1.6
+          },
+          "tags": []
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {},
+        "webgl": {
+          "fragmentShader": "\n        precision mediump float;\n        uniform sampler2D u_texture;\n        uniform float u_intensity;\n        varying vec2 v_texCoord;\n        \n        void main() {\n          vec4 color = texture2D(u_texture, v_texCoord);\n          gl_FragColor = vec4(color.rgb * u_intensity, color.a);\n        }\n      ",
+          "uniforms": {
+            "u_texture": 0,
+            "u_intensity": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "effect_contrast",
+      "name": {
+        "en": "Contrast",
+        "ru": "Контраст",
+        "es": "Contraste",
+        "fr": "Contraste",
+        "de": "Kontrast"
+      },
+      "description": {
+        "ru": "Увеличивает разность между светлыми и темными областями изображения",
+        "en": "Increases the difference between light and dark areas of the image"
+      },
+      "category": "color_correction",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["popular", "beginner"],
+      "complexity": "low",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "intensity",
+          "name": {
+            "en": "Intensity",
+            "ru": "Интенсивность"
+          },
+          "type": "number",
+          "defaultValue": 1.5,
+          "min": 0,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "low",
+          "name": {
+            "ru": "Низкий",
+            "en": "Low"
+          },
+          "description": {
+            "ru": "Мягкое увеличение контраста",
+            "en": "Soft contrast increase"
+          },
+          "parameters": {
+            "intensity": 1.2
+          },
+          "tags": []
+        },
+        {
+          "id": "high",
+          "name": {
+            "ru": "Высокий",
+            "en": "High"
+          },
+          "description": {
+            "ru": "Сильное увеличение контраста",
+            "en": "Strong contrast increase"
+          },
+          "parameters": {
+            "intensity": 1.8
+          },
+          "tags": []
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {},
+        "webgl": {
+          "fragmentShader": "\n        precision mediump float;\n        uniform sampler2D u_texture;\n        uniform float u_intensity;\n        varying vec2 v_texCoord;\n        \n        void main() {\n          vec4 color = texture2D(u_texture, v_texCoord);\n          vec3 adjusted = (color.rgb - 0.5) * u_intensity + 0.5;\n          gl_FragColor = vec4(adjusted, color.a);\n        }\n      ",
+          "uniforms": {
+            "u_texture": 0,
+            "u_intensity": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "effect_saturation",
+      "name": {
+        "en": "Saturation",
+        "ru": "Насыщенность",
+        "es": "Saturación",
+        "fr": "Saturation",
+        "de": "Sättigung"
+      },
+      "description": {
+        "ru": "Регулирует насыщенность цветов, делая их более яркими или приглушенными",
+        "en": "Adjusts color saturation, making colors more vibrant or muted"
+      },
+      "category": "color_correction",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["popular", "beginner"],
+      "complexity": "low",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "intensity",
+          "name": {
+            "en": "Intensity",
+            "ru": "Интенсивность"
+          },
+          "type": "number",
+          "defaultValue": 2,
+          "min": 0,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "desaturated",
+          "name": {
+            "ru": "Приглушенный",
+            "en": "Desaturated"
+          },
+          "description": {
+            "ru": "Уменьшенная насыщенность цветов",
+            "en": "Reduced color saturation"
+          },
+          "parameters": {
+            "intensity": 0.7
+          },
+          "tags": []
+        },
+        {
+          "id": "vibrant",
+          "name": {
+            "ru": "Яркий",
+            "en": "Vibrant"
+          },
+          "description": {
+            "ru": "Повышенная насыщенность цветов",
+            "en": "Enhanced color saturation"
+          },
+          "parameters": {
+            "intensity": 1.5
+          },
+          "tags": []
+        },
+        {
+          "id": "hypersaturated",
+          "name": {
+            "ru": "Гиперяркий",
+            "en": "Hypersaturated"
+          },
+          "description": {
+            "ru": "Максимальная насыщенность цветов",
+            "en": "Maximum color saturation"
+          },
+          "parameters": {
+            "intensity": 2.5
+          },
+          "tags": []
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    },
+    {
+      "id": "effect_hue-rotate",
+      "name": {
+        "en": "Hue Rotate",
+        "ru": "Поворот оттенка",
+        "es": "Rotar Matiz",
+        "fr": "Rotation de Teinte",
+        "de": "Farbton Drehen"
+      },
+      "description": {
+        "ru": "Поворачивает цветовой оттенок изображения",
+        "en": "Rotates the color hue of the image"
+      },
+      "category": "color_correction",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["beginner", "experimental"],
+      "complexity": "low",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "angle",
+          "name": {
+            "en": "Angle",
+            "ru": "Угол"
+          },
+          "type": "number",
+          "defaultValue": 90,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "rainbow",
+          "name": {
+            "ru": "Радуга",
+            "en": "Rainbow"
+          },
+          "description": {
+            "ru": "Радужный эффект",
+            "en": "Rainbow effect"
+          },
+          "parameters": {
+            "angle": 180
+          },
+          "tags": []
+        },
+        {
+          "id": "cool",
+          "name": {
+            "ru": "Холодный",
+            "en": "Cool"
+          },
+          "description": {
+            "ru": "Холодные тона",
+            "en": "Cool tones"
+          },
+          "parameters": {
+            "angle": 240
+          },
+          "tags": []
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    },
+    {
+      "id": "effect_temperature",
+      "name": {
+        "en": "Temperature",
+        "ru": "Температура",
+        "es": "Temperatura",
+        "fr": "Température",
+        "de": "Temperatur"
+      },
+      "description": {
+        "ru": "Регулирует цветовую температуру от холодных до теплых тонов",
+        "en": "Adjusts color temperature from cool to warm tones"
+      },
+      "category": "color_correction",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["pro", "beginner"],
+      "complexity": "low",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "temperature",
+          "name": {
+            "en": "Temperature",
+            "ru": "Температура"
+          },
+          "type": "number",
+          "defaultValue": 0,
+          "min": -100,
+          "max": 100,
+          "step": 1,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "cool",
+          "name": {
+            "ru": "Холодный",
+            "en": "Cool"
+          },
+          "description": {
+            "ru": "Холодные голубые тона",
+            "en": "Cool blue tones"
+          },
+          "parameters": {
+            "temperature": -50
+          },
+          "tags": []
+        },
+        {
+          "id": "warm",
+          "name": {
+            "ru": "Теплый",
+            "en": "Warm"
+          },
+          "description": {
+            "ru": "Теплые оранжевые тона",
+            "en": "Warm orange tones"
+          },
+          "parameters": {
+            "temperature": 50
+          },
+          "tags": []
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    },
+    {
+      "id": "effect_tint",
+      "name": {
+        "en": "Tint",
+        "ru": "Тинт",
+        "es": "Matiz",
+        "fr": "Teinte",
+        "de": "Farbstich"
+      },
+      "description": {
+        "ru": "Регулирует баланс между зеленым и пурпурным оттенками",
+        "en": "Adjusts balance between green and magenta tints"
+      },
+      "category": "color_correction",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["pro"],
+      "complexity": "low",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "tint",
+          "name": {
+            "en": "Tint",
+            "ru": "Тонирование"
+          },
+          "type": "number",
+          "defaultValue": 0,
+          "min": -100,
+          "max": 100,
+          "step": 1,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    },
+    {
+      "id": "effect_exposure",
+      "name": {
+        "en": "Exposure",
+        "ru": "Экспозиция",
+        "es": "Exposición",
+        "fr": "Exposition",
+        "de": "Belichtung"
+      },
+      "description": {
+        "ru": "Регулирует экспозицию изображения, имитируя изменение диафрагмы",
+        "en": "Adjusts image exposure, simulating aperture changes"
+      },
+      "category": "color_correction",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "hybrid",
+      "version": "1.0.0",
+      "tags": ["pro"],
+      "complexity": "medium",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "exposure",
+          "name": {
+            "en": "Exposure",
+            "ru": "Exposure"
+          },
+          "type": "number",
+          "defaultValue": 0,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "underexposed",
+          "name": {
+            "ru": "Недоэкспонировано",
+            "en": "Underexposed"
+          },
+          "description": {
+            "ru": "Уменьшенная экспозиция",
+            "en": "Reduced exposure"
+          },
+          "parameters": {
+            "exposure": -1
+          },
+          "tags": []
+        },
+        {
+          "id": "overexposed",
+          "name": {
+            "ru": "Переэкспонировано",
+            "en": "Overexposed"
+          },
+          "description": {
+            "ru": "Увеличенная экспозиция",
+            "en": "Increased exposure"
+          },
+          "parameters": {
+            "exposure": 1
+          },
+          "tags": []
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "ffmpeg": {}
+      }
+    }
+  ]
+}

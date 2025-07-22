@@ -1,9 +1,9 @@
-import { useEffect, useCallback } from "react"
+import { useCallback, useEffect } from "react"
 
-import { usePlayer } from "@/features/video-player"
 import { PlayerStateAccess } from "@/features/ai-chat/tools/player/types"
 import { setPlayerStateAccess } from "@/features/ai-chat/tools/player/utils/helpers"
 import { MediaFile } from "@/features/media/types/media"
+import { usePlayer } from "@/features/video-player"
 
 /**
  * Хук для интеграции Player с AI функциональностью
@@ -56,14 +56,14 @@ export function usePlayerAIIntegration() {
     if (!media) return null
 
     const issues = []
-    const videoStream = media.probeData?.streams?.find(s => s.codec_type === "video")
-    const audioStream = media.probeData?.streams?.find(s => s.codec_type === "audio")
+    const videoStream = media.probeData?.streams?.find((s) => s.codec_type === "video")
+    const audioStream = media.probeData?.streams?.find((s) => s.codec_type === "audio")
 
     // Проверка качества видео
     if (videoStream) {
       const width = videoStream.width || 0
       const height = videoStream.height || 0
-      const bitrate = parseInt(videoStream.bit_rate || "0") || 0
+      const bitrate = Number.parseInt(videoStream.bit_rate || "0") || 0
       const fps = eval(videoStream.r_frame_rate || "0") || 0
 
       if (width < 1280 || height < 720) {
@@ -93,8 +93,8 @@ export function usePlayerAIIntegration() {
 
     // Проверка качества аудио
     if (audioStream) {
-      const sampleRate = parseInt(audioStream.sample_rate || "0") || 0
-      const bitrate = parseInt(audioStream.bit_rate || "0") || 0
+      const sampleRate = Number.parseInt(audioStream.sample_rate || "0") || 0
+      const bitrate = Number.parseInt(audioStream.bit_rate || "0") || 0
 
       if (sampleRate < 44100 && sampleRate > 0) {
         issues.push({
@@ -118,9 +118,9 @@ export function usePlayerAIIntegration() {
       issues,
       resolution: videoStream ? `${videoStream.width}x${videoStream.height}` : "unknown",
       fps: videoStream ? eval(videoStream.r_frame_rate || "0") || 0 : 0,
-      videoBitrate: videoStream ? parseInt(videoStream.bit_rate || "0") || 0 : 0,
-      audioBitrate: audioStream ? parseInt(audioStream.bit_rate || "0") || 0 : 0,
-      sampleRate: audioStream ? parseInt(audioStream.sample_rate || "0") || 0 : 0,
+      videoBitrate: videoStream ? Number.parseInt(videoStream.bit_rate || "0") || 0 : 0,
+      audioBitrate: audioStream ? Number.parseInt(audioStream.bit_rate || "0") || 0 : 0,
+      sampleRate: audioStream ? Number.parseInt(audioStream.sample_rate || "0") || 0 : 0,
     }
   }, [getCurrentMedia])
 
@@ -150,16 +150,16 @@ export function usePlayerAIIntegration() {
       applyEffect: player.applyEffect,
       removeEffect: (effectId: string) => {
         // Удаляем эффект из списка
-        const updatedEffects = player.appliedEffects.filter(e => e.id !== effectId)
+        const updatedEffects = player.appliedEffects.filter((e) => e.id !== effectId)
         player.clearEffects()
-        updatedEffects.forEach(e => player.applyEffect(e))
+        updatedEffects.forEach((e) => player.applyEffect(e))
       },
       applyFilter: player.applyFilter,
       removeFilter: (filterId: string) => {
         // Удаляем фильтр из списка
-        const updatedFilters = player.appliedFilters.filter(f => f.id !== filterId)
+        const updatedFilters = player.appliedFilters.filter((f) => f.id !== filterId)
         player.clearFilters()
-        updatedFilters.forEach(f => player.applyFilter(f))
+        updatedFilters.forEach((f) => player.applyFilter(f))
       },
       applyTemplate: (template: any, files: MediaFile[]) => {
         player.applyTemplate(template, files)
@@ -187,13 +187,7 @@ export function usePlayerAIIntegration() {
     return () => {
       setPlayerStateAccess(null)
     }
-  }, [
-    player,
-    getCurrentMedia,
-    getPlaybackStatus,
-    getAppliedEffects,
-    analyzeMediaQuality,
-  ])
+  }, [player, getCurrentMedia, getPlaybackStatus, getAppliedEffects, analyzeMediaQuality])
 
   return {
     isReady: player.isVideoReady && getCurrentMedia() !== null,

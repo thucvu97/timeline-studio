@@ -82,7 +82,7 @@ export function useTimelineMarkers(): UseTimelineMarkersReturn {
   const goToMarker = (markerId: string) => {
     const marker = markers.find((m) => m.id === markerId)
     if (marker && seek) {
-      seek(marker.time)
+      void seek(marker.time)
     }
   }
 

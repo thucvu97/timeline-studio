@@ -3,9 +3,10 @@
 use super::business_logic;
 use super::types::*;
 use crate::video_compiler::commands::VideoCompilerState;
-use crate::video_compiler::error::Result;
+use crate::video_compiler::error::{Result, VideoCompilerError};
 use crate::video_compiler::preview::PreviewGenerator;
 use crate::video_compiler::schema::ProjectSchema;
+use std::path::Path;
 use tauri::State;
 
 /// Извлечь кадры таймлайна
@@ -49,18 +50,17 @@ pub async fn extract_subtitle_frames(
     // Генерируем кадр с субтитром используя FFmpeg
     let ffmpeg_path = _state.ffmpeg_path.read().await.clone();
     let generator = PreviewGenerator::new_with_ffmpeg(ffmpeg_path);
-    
+
     // Находим видео клип для извлечения базового кадра
-    let video_clip = project_schema.tracks
+    let video_clip = project_schema
+      .tracks
       .iter()
       .flat_map(|track| &track.clips)
-      .find(|clip| {
-        subtitle.start_time >= clip.start_time && subtitle.start_time <= clip.end_time
-      });
+      .find(|clip| subtitle.start_time >= clip.start_time && subtitle.start_time <= clip.end_time);
 
     if let Some(clip) = video_clip {
       match &clip.source {
-        crate::video_compiler::schema::ClipSource::File(video_path) => {
+        crate::video_compiler::schema::ClipSource::File(_video_path) => {
           // Извлекаем базовый кадр из видео
           let base_frame_path = format!("{}_base.png", frame_path.trim_end_matches(".png"));
           generator
@@ -72,9 +72,10 @@ pub async fn extract_subtitle_frames(
             &base_frame_path,
             &frame_path,
             &subtitle.text,
-            &subtitle.style_id,
+            subtitle.style.font_family.as_str(),
             &project_schema,
-          ).await?;
+          )
+          .await?;
 
           // Получаем размеры кадра
           let (width, height) = get_frame_dimensions(&frame_path).unwrap_or((1920, 1080));
@@ -92,8 +93,11 @@ pub async fn extract_subtitle_frames(
         }
       }
     } else {
-      log::warn!("Не найден видео клип для субтитра {} в момент времени {}", 
-                subtitle.id, subtitle.start_time);
+      log::warn!(
+        "Не найден видео клип для субтитра {} в момент времени {}",
+        subtitle.id,
+        subtitle.start_time
+      );
     }
   }
 
@@ -150,18 +154,45 @@ pub async fn extract_frames_with_params(
   business_logic::validate_extraction_params(&params)?;
 
   let ffmpeg_path = state.ffmpeg_path.read().await.clone();
-  let _generator = PreviewGenerator::new_with_ffmpeg(ffmpeg_path);
+  let generator = PreviewGenerator::new_with_ffmpeg(ffmpeg_path);
 
-  // TODO: Реализовать извлечение кадров с заданными параметрами
+  // Извлекаем кадры с заданными параметрами
   let mut frames = Vec::new();
+  let resolution = params.resolution;
+  let quality = params.quality.unwrap_or(80);
 
   for timestamp in &params.timestamps {
-    frames.push(ExtractedFrame {
-      timestamp: *timestamp,
-      data: vec![], // TODO: Заполнить реальными данными
-      width: params.resolution.map(|(w, _)| w).unwrap_or(1920),
-      height: params.resolution.map(|(_, h)| h).unwrap_or(1080),
-      format: params.output_format.clone(),
+    log::info!("Извлечение кадра на временной метке: {timestamp}s");
+
+    match generator
+      .generate_preview(
+        Path::new(&params.video_path),
+        *timestamp,
+        resolution,
+        Some(quality),
+      )
+      .await
+    {
+      Ok(image_data) => {
+        frames.push(ExtractedFrame {
+          timestamp: *timestamp,
+          data: image_data,
+          width: resolution.map(|(w, _)| w).unwrap_or(1920),
+          height: resolution.map(|(_, h)| h).unwrap_or(1080),
+          format: params.output_format.clone(),
+        });
+      }
+      Err(e) => {
+        log::error!("Ошибка извлечения кадра на {timestamp}s: {e}");
+        // Продолжаем с другими кадрами
+      }
+    }
+  }
+
+  if frames.is_empty() && !params.timestamps.is_empty() {
+    return Err(VideoCompilerError::PreviewError {
+      timestamp: params.timestamps.first().copied().unwrap_or(0.0),
+      reason: "Не удалось извлечь ни одного кадра".to_string(),
     });
   }
 
@@ -240,27 +271,128 @@ pub async fn extract_video_frame(
   video_path: String,
   timestamp: f64,
   output_path: String,
-  _state: State<'_, VideoCompilerState>,
+  state: State<'_, VideoCompilerState>,
 ) -> Result<String> {
-  // TODO: Реализовать извлечение кадра напрямую из видео файла
-  log::info!("Extracting frame from {} at {}s", video_path, timestamp);
+  log::info!(
+    "Извлечение кадра из {} на {}s в {}",
+    video_path,
+    timestamp,
+    output_path
+  );
+
+  // Проверяем существование файла
+  let video_path_obj = Path::new(&video_path);
+  if !video_path_obj.exists() {
+    return Err(VideoCompilerError::ValidationError(format!(
+      "Видео файл не найден: {}",
+      video_path
+    )));
+  }
+
+  let ffmpeg_path = state.ffmpeg_path.read().await.clone();
+  let generator = PreviewGenerator::new_with_ffmpeg(ffmpeg_path);
+
+  // Извлекаем кадр с параметрами по умолчанию
+  let image_data = generator
+    .generate_preview(
+      video_path_obj,
+      timestamp,
+      Some((1920, 1080)), // Стандартное разрешение
+      Some(90),           // Высокое качество
+    )
+    .await?;
+
+  // Сохраняем данные в файл
+  tokio::fs::write(&output_path, image_data)
+    .await
+    .map_err(|e| VideoCompilerError::ProcessingError {
+      operation: "frame_extraction".to_string(),
+      details: format!("Не удалось сохранить кадр: {}", e),
+    })?;
+
+  log::info!("Кадр успешно извлечен и сохранен: {}", output_path);
   Ok(output_path)
 }
 
 /// Извлечь кадры из видео пакетом
 #[tauri::command]
 pub async fn extract_video_frames_batch(
-  _video_path: String,
+  video_path: String,
   timestamps: Vec<f64>,
   output_dir: String,
-  _state: State<'_, VideoCompilerState>,
+  state: State<'_, VideoCompilerState>,
 ) -> Result<Vec<String>> {
-  let mut paths = Vec::new();
+  use std::path::Path;
 
-  for (i, timestamp) in timestamps.iter().enumerate() {
+  log::info!(
+    "Пакетное извлечение {} кадров из {}",
+    timestamps.len(),
+    video_path
+  );
+
+  // Проверяем существование видео файла
+  let video_path_obj = Path::new(&video_path);
+  if !video_path_obj.exists() {
+    return Err(VideoCompilerError::ValidationError(format!(
+      "Видео файл не найден: {}",
+      video_path
+    )));
+  }
+
+  // Создаем директорию если не существует
+  tokio::fs::create_dir_all(&output_dir).await.map_err(|e| {
+    VideoCompilerError::ProcessingError {
+      operation: "frame_extraction".to_string(),
+      details: format!("Не удалось создать директорию: {}", e),
+    }
+  })?;
+
+  let ffmpeg_path = state.ffmpeg_path.read().await.clone();
+  let generator = PreviewGenerator::new_with_ffmpeg(ffmpeg_path);
+
+  // Извлекаем кадры пакетом для оптимизации
+  let preview_results = generator
+    .generate_preview_batch_for_file(
+      video_path_obj,
+      timestamps.clone(),
+      Some((1280, 720)), // Среднее разрешение для пакетной обработки
+      Some(80),          // Хорошее качество
+    )
+    .await?;
+
+  let mut paths = Vec::new();
+  let mut success_count = 0;
+
+  for (i, (timestamp, result)) in timestamps.iter().zip(preview_results.iter()).enumerate() {
     let output_path = format!("{}/frame_{:04}_{:.2}.jpg", output_dir, i + 1, timestamp);
-    // TODO: Реализовать извлечение кадра
-    paths.push(output_path);
+
+    match &result.result {
+      Ok(image_data) => {
+        // Сохраняем кадр
+        if let Err(e) = tokio::fs::write(&output_path, image_data).await {
+          log::error!("Ошибка сохранения кадра {}: {}", output_path, e);
+          continue;
+        }
+        success_count += 1;
+        paths.push(output_path);
+      }
+      Err(e) => {
+        log::error!("Ошибка извлечения кадра на {}s: {}", timestamp, e);
+      }
+    }
+  }
+
+  log::info!(
+    "Успешно извлечено {} из {} кадров",
+    success_count,
+    timestamps.len()
+  );
+
+  if paths.is_empty() {
+    return Err(VideoCompilerError::PreviewError {
+      timestamp: timestamps.first().copied().unwrap_or(0.0),
+      reason: "Не удалось извлечь ни одного кадра".to_string(),
+    });
   }
 
   Ok(paths)
@@ -272,17 +404,101 @@ pub async fn get_video_thumbnails(
   video_path: String,
   count: usize,
   output_dir: String,
-  _state: State<'_, VideoCompilerState>,
+  state: State<'_, VideoCompilerState>,
 ) -> Result<Vec<String>> {
-  // TODO: Реализовать генерацию миниатюр
-  let mut thumbnails = Vec::new();
+  use std::path::Path;
 
-  for i in 0..count {
-    let output_path = format!("{}/thumbnail_{:03}.jpg", output_dir, i + 1);
-    thumbnails.push(output_path);
+  log::info!("Генерация {} миниатюр из {}", count, video_path);
+
+  // Проверяем существование видео файла
+  let video_path_obj = Path::new(&video_path);
+  if !video_path_obj.exists() {
+    return Err(VideoCompilerError::ValidationError(format!(
+      "Видео файл не найден: {}",
+      video_path
+    )));
   }
 
-  log::info!("Generated {} thumbnails from {}", count, video_path);
+  // Создаем директорию если не существует
+  tokio::fs::create_dir_all(&output_dir).await.map_err(|e| {
+    VideoCompilerError::ProcessingError {
+      operation: "frame_extraction".to_string(),
+      details: format!("Не удалось создать директорию: {}", e),
+    }
+  })?;
+
+  let ffmpeg_path = state.ffmpeg_path.read().await.clone();
+  let generator = PreviewGenerator::new_with_ffmpeg(ffmpeg_path);
+
+  // Получаем информацию о видео для определения длительности
+  let video_info = generator.get_video_info(video_path_obj).await?;
+  let duration = video_info.duration;
+
+  if duration <= 0.0 {
+    return Err(VideoCompilerError::PreviewError {
+      timestamp: 0.0,
+      reason: "Не удалось определить длительность видео".to_string(),
+    });
+  }
+
+  // Вычисляем временные метки для равномерного распределения миниатюр
+  let mut timestamps = Vec::new();
+  if count == 1 {
+    // Для одной миниатюры берем кадр из середины
+    timestamps.push(duration / 2.0);
+  } else {
+    // Равномерно распределяем по длительности
+    let interval = duration / (count as f64 + 1.0);
+    for i in 1..=count {
+      timestamps.push(interval * i as f64);
+    }
+  }
+
+  // Извлекаем миниатюры с меньшим разрешением
+  let preview_results = generator
+    .generate_preview_batch_for_file(
+      video_path_obj,
+      timestamps.clone(),
+      Some((320, 180)), // Маленькое разрешение для миниатюр
+      Some(70),         // Среднее качество достаточно для миниатюр
+    )
+    .await?;
+
+  let mut thumbnails = Vec::new();
+  let mut success_count = 0;
+
+  for (i, result) in preview_results.iter().enumerate() {
+    let output_path = format!("{}/thumbnail_{:03}.jpg", output_dir, i + 1);
+
+    match &result.result {
+      Ok(image_data) => {
+        // Сохраняем миниатюру
+        if let Err(e) = tokio::fs::write(&output_path, image_data).await {
+          log::error!("Ошибка сохранения миниатюры {}: {}", output_path, e);
+          continue;
+        }
+        success_count += 1;
+        thumbnails.push(output_path);
+      }
+      Err(e) => {
+        log::error!("Ошибка генерации миниатюры {}: {}", i + 1, e);
+      }
+    }
+  }
+
+  log::info!(
+    "Успешно сгенерировано {} из {} миниатюр",
+    success_count,
+    count
+  );
+
+  if thumbnails.is_empty() {
+    return Err(VideoCompilerError::PreviewError {
+      timestamp: 0.0,
+      reason: "Не удалось сгенерировать ни одной миниатюры".to_string(),
+    });
+  }
+
   Ok(thumbnails)
 }
 
@@ -296,16 +512,14 @@ async fn generate_subtitle_overlay(
 ) -> Result<()> {
   use std::process::Command;
 
-  // Ищем стиль субтитра в проекте
-  let subtitle_style = project_schema.subtitle_styles
-    .iter()
-    .find(|style| style.id == style_id);
+  // Ищем субтитр по style_id (который на самом деле должен быть subtitle_id)
+  let subtitle = project_schema.subtitles.iter().find(|s| s.id == style_id);
 
-  let (font_size, font_color, bg_color) = if let Some(style) = subtitle_style {
+  let (font_size, font_color, bg_color) = if let Some(sub) = subtitle {
     (
-      style.font_size.unwrap_or(24),
-      style.font_color.as_deref().unwrap_or("#FFFFFF"),
-      style.background_color.as_deref().unwrap_or("#00000080"),
+      sub.style.font_size as u32,
+      sub.style.color.as_str(),
+      sub.style.background_color.as_deref().unwrap_or("#00000080"),
     )
   } else {
     (24, "#FFFFFF", "#00000080")
@@ -322,9 +536,12 @@ async fn generate_subtitle_overlay(
 
   let mut cmd = Command::new("ffmpeg");
   cmd.args([
-    "-i", base_frame_path,
-    "-vf", &drawtext_filter,
-    "-frames:v", "1",
+    "-i",
+    base_frame_path,
+    "-vf",
+    &drawtext_filter,
+    "-frames:v",
+    "1",
     "-y", // Перезаписать выходной файл
     output_path,
   ]);
@@ -332,16 +549,20 @@ async fn generate_subtitle_overlay(
   log::debug!("Генерируем субтитр: {:?}", cmd);
 
   let output = cmd.output().map_err(|e| {
-    crate::video_compiler::error::VideoCompilerError::ExternalProcessError(
-      format!("Failed to generate subtitle overlay: {}", e)
-    )
+    crate::video_compiler::error::VideoCompilerError::ProcessingError {
+      operation: "detect_scene_changes".to_string(),
+      details: format!("Failed to generate subtitle overlay: {}", e),
+    }
   })?;
 
   if !output.status.success() {
     let stderr = String::from_utf8_lossy(&output.stderr);
-    return Err(crate::video_compiler::error::VideoCompilerError::ExternalProcessError(
-      format!("FFmpeg subtitle overlay failed: {}", stderr)
-    ));
+    return Err(
+      crate::video_compiler::error::VideoCompilerError::ProcessingError {
+        operation: "ffmpeg_scene_detection".to_string(),
+        details: format!("FFmpeg subtitle overlay failed: {}", stderr),
+      },
+    );
   }
 
   log::info!("Сгенерирован кадр с субтитром: {}", output_path);
@@ -354,8 +575,10 @@ fn get_frame_dimensions(image_path: &str) -> Option<(u32, u32)> {
 
   let output = Command::new("ffprobe")
     .args([
-      "-v", "quiet",
-      "-print_format", "json",
+      "-v",
+      "quiet",
+      "-print_format",
+      "json",
       "-show_streams",
       image_path,
     ])
@@ -366,9 +589,9 @@ fn get_frame_dimensions(image_path: &str) -> Option<(u32, u32)> {
   let json: serde_json::Value = serde_json::from_str(&output_str).ok()?;
 
   let streams = json.get("streams")?.as_array()?;
-  let video_stream = streams.iter().find(|stream| {
-    stream.get("codec_type")?.as_str() == Some("video")
-  })?;
+  let video_stream = streams
+    .iter()
+    .find(|stream| stream.get("codec_type").and_then(|v| v.as_str()) == Some("video"))?;
 
   let width = video_stream.get("width")?.as_u64()? as u32;
   let height = video_stream.get("height")?.as_u64()? as u32;

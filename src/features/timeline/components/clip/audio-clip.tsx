@@ -43,7 +43,7 @@ export function AudioClip({ clip, track, onUpdate, onRemove }: AudioClipProps) {
 
     // Синхронизируем с плеером при выборе
     if (newIsSelected) {
-      timelinePlayerSync.syncSelectedClip(clip)
+      void timelinePlayerSync.syncSelectedClip(clip)
     }
   }
 

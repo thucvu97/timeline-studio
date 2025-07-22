@@ -10,6 +10,7 @@
 
 use crate::video_compiler::error::{Result, VideoCompilerError};
 use serde::{Deserialize, Serialize};
+use std::time::Duration;
 
 /// Типы GPU кодировщиков
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -90,6 +91,7 @@ pub struct GpuCapabilities {
 }
 
 /// Детектор GPU возможностей
+#[derive(Clone)]
 pub struct GpuDetector {
   ffmpeg_path: String,
 }
@@ -308,12 +310,79 @@ impl GpuDetector {
     })
   }
 
+  /// Мониторинг использования GPU в реальном времени
+  pub async fn monitor_gpu_usage(&self) -> Result<GpuInfo> {
+    let mut current_info = self.get_current_gpu_info().await?;
+
+    // Обновляем информацию об использовании GPU
+    match current_info.encoder_type {
+      GpuEncoder::Nvenc =>
+      {
+        #[cfg(any(target_os = "windows", target_os = "linux"))]
+        if let Ok(usage) = self.get_nvidia_gpu_usage().await {
+          current_info.memory_used = usage.memory_used;
+          current_info.utilization = usage.utilization;
+        }
+      }
+      GpuEncoder::VideoToolbox =>
+      {
+        #[cfg(target_os = "macos")]
+        if let Ok(usage) = self.get_macos_gpu_usage().await {
+          current_info.utilization = usage.utilization;
+        }
+      }
+      _ => {
+        // Для других GPU пытаемся получить общую информацию
+        log::debug!(
+          "GPU monitoring not fully implemented for {:?}",
+          current_info.encoder_type
+        );
+      }
+    }
+
+    Ok(current_info)
+  }
+
+  /// Проверить доступность GPU для кодирования
+  pub async fn check_gpu_availability(&self) -> Result<bool> {
+    let capabilities = self.get_gpu_capabilities().await?;
+
+    if !capabilities.hardware_acceleration_supported {
+      return Ok(false);
+    }
+
+    // Проверяем загруженность GPU
+    if let Some(gpu) = &capabilities.current_gpu {
+      if let Some(utilization) = gpu.utilization {
+        // Если GPU загружен более чем на 90%, считаем его недоступным
+        if utilization > 90.0 {
+          log::warn!("GPU utilization is too high: {:.1}%", utilization);
+          return Ok(false);
+        }
+      }
+
+      // Проверяем доступную память
+      if let (Some(total), Some(used)) = (gpu.memory_total, gpu.memory_used) {
+        let free_memory = total.saturating_sub(used);
+        let free_mb = free_memory / (1024 * 1024);
+
+        // Требуем минимум 512MB свободной памяти GPU
+        if free_mb < 512 {
+          log::warn!("Insufficient GPU memory: {} MB free", free_mb);
+          return Ok(false);
+        }
+      }
+    }
+
+    Ok(true)
+  }
+
   /// Получить информацию о NVIDIA GPU (Windows)
   #[cfg(target_os = "windows")]
   async fn get_nvidia_info_windows(&self) -> Result<GpuInfo> {
     let output = tokio::process::Command::new("nvidia-smi")
       .args([
-        "--query-gpu=name,driver_version,memory.total,memory.used,utilization.gpu",
+        "--query-gpu=name,driver_version,memory.total,memory.used,utilization.gpu,encoder.stats.sessionCount,encoder.stats.averageFps",
         "--format=csv,noheader,nounits",
       ])
       .output()
@@ -332,17 +401,66 @@ impl GpuDetector {
 
     let parts: Vec<&str> = line.split(", ").collect();
     if parts.len() >= 5 {
-      Ok(GpuInfo {
+      let mut info = GpuInfo {
         name: parts[0].trim().to_string(),
         driver_version: Some(parts[1].trim().to_string()),
         memory_total: parts[2].trim().parse::<u64>().ok().map(|m| m * 1024 * 1024),
         memory_used: parts[3].trim().parse::<u64>().ok().map(|m| m * 1024 * 1024),
         utilization: parts[4].trim().parse().ok(),
         encoder_type: GpuEncoder::Nvenc,
-        supported_codecs: vec!["h264_nvenc".to_string(), "hevc_nvenc".to_string()],
-      })
+        supported_codecs: vec![
+          "h264_nvenc".to_string(),
+          "hevc_nvenc".to_string(),
+          "av1_nvenc".to_string(),
+        ],
+      };
+
+      // Проверяем поддержку AV1 на новых картах (RTX 40 серии)
+      if info.name.contains("RTX 40")
+        || info.name.contains("RTX 4080")
+        || info.name.contains("RTX 4090")
+      {
+        info.supported_codecs.push("av1_nvenc".to_string());
+      }
+
+      Ok(info)
     } else {
       Err(VideoCompilerError::gpu("Invalid nvidia-smi output format"))
+    }
+  }
+
+  /// Получить информацию об использовании NVIDIA GPU
+  #[cfg(any(target_os = "windows", target_os = "linux"))]
+  async fn get_nvidia_gpu_usage(&self) -> Result<GpuUsageInfo> {
+    let output = tokio::process::Command::new("nvidia-smi")
+      .args([
+        "--query-gpu=memory.used,utilization.gpu,encoder.stats.sessionCount,encoder.stats.averageFps",
+        "--format=csv,noheader,nounits",
+      ])
+      .output()
+      .await
+      .map_err(|e| VideoCompilerError::Io(format!("Failed to run nvidia-smi: {e}")))?;
+
+    if !output.status.success() {
+      return Err(VideoCompilerError::gpu("nvidia-smi failed"));
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let line = stdout
+      .lines()
+      .next()
+      .ok_or_else(|| VideoCompilerError::gpu("No GPU usage data"))?;
+
+    let parts: Vec<&str> = line.split(", ").collect();
+    if parts.len() >= 2 {
+      Ok(GpuUsageInfo {
+        memory_used: parts[0].trim().parse::<u64>().ok().map(|m| m * 1024 * 1024),
+        utilization: parts[1].trim().parse().ok(),
+        encoder_sessions: parts.get(2).and_then(|s| s.trim().parse().ok()),
+        encoder_fps: parts.get(3).and_then(|s| s.trim().parse().ok()),
+      })
+    } else {
+      Err(VideoCompilerError::gpu("Invalid nvidia-smi usage output"))
     }
   }
 
@@ -655,6 +773,140 @@ impl GpuHelper {
     // V4L2 bitrate mapping
     let clamped_quality = quality.min(100);
     (clamped_quality as u32 * 50000) + 500000 // 0.5M to 5.5M bps
+  }
+}
+
+/// Информация об использовании GPU
+#[derive(Debug, Clone)]
+#[allow(dead_code)]
+struct GpuUsageInfo {
+  memory_used: Option<u64>,
+  utilization: Option<f32>,
+  encoder_sessions: Option<u32>,
+  encoder_fps: Option<f32>,
+}
+
+/// GPU Performance Monitor
+pub struct GpuMonitor {
+  detector: GpuDetector,
+  last_check: std::time::Instant,
+  check_interval: Duration,
+}
+
+impl GpuMonitor {
+  pub fn new(ffmpeg_path: String) -> Self {
+    Self {
+      detector: GpuDetector::new(ffmpeg_path),
+      last_check: std::time::Instant::now(),
+      check_interval: Duration::from_secs(5),
+    }
+  }
+
+  /// Проверить, нужно ли переключиться на CPU
+  pub async fn should_switch_to_cpu(&mut self) -> bool {
+    // Проверяем не чаще чем раз в 5 секунд
+    if self.last_check.elapsed() < self.check_interval {
+      return false;
+    }
+
+    self.last_check = std::time::Instant::now();
+
+    match self.detector.monitor_gpu_usage().await {
+      Ok(info) => {
+        if let Some(util) = info.utilization {
+          if util > 95.0 {
+            log::warn!("GPU overloaded: {:.1}% utilization", util);
+            return true;
+          }
+        }
+
+        if let (Some(total), Some(used)) = (info.memory_total, info.memory_used) {
+          let usage_percent = (used as f64 / total as f64) * 100.0;
+          if usage_percent > 90.0 {
+            log::warn!("GPU memory nearly full: {:.1}%", usage_percent);
+            return true;
+          }
+        }
+
+        false
+      }
+      Err(e) => {
+        log::error!("Failed to monitor GPU: {}", e);
+        true // При ошибке мониторинга лучше переключиться на CPU
+      }
+    }
+  }
+
+  /// Получить оптимальные параметры кодирования на основе загрузки GPU
+  pub async fn get_adaptive_encoding_params(&mut self, base_quality: u8) -> Vec<String> {
+    match self.detector.monitor_gpu_usage().await {
+      Ok(info) => {
+        let utilization = info.utilization.unwrap_or(50.0);
+
+        // Адаптируем пресет в зависимости от загрузки
+        let preset = if utilization > 80.0 {
+          "p1" // Самый быстрый
+        } else if utilization > 60.0 {
+          "p2"
+        } else if utilization > 40.0 {
+          "p3"
+        } else {
+          "p4" // Сбалансированный
+        };
+
+        let mut params = vec!["-preset".to_string(), preset.to_string()];
+
+        // Если GPU не сильно загружен, включаем дополнительные оптимизации
+        if utilization < 50.0 {
+          params.extend_from_slice(&[
+            "-rc-lookahead".to_string(),
+            "32".to_string(),
+            "-spatial_aq".to_string(),
+            "1".to_string(),
+            "-temporal_aq".to_string(),
+            "1".to_string(),
+            "-weighted_pred".to_string(),
+            "1".to_string(),
+          ]);
+        }
+
+        // Добавляем качество
+        let cq = GpuHelper::quality_to_nvenc_cq(base_quality);
+        params.extend_from_slice(&["-cq".to_string(), cq.to_string()]);
+
+        params
+      }
+      Err(_) => {
+        // Fallback на стандартные параметры
+        GpuHelper::get_ffmpeg_params(&GpuEncoder::Nvenc, base_quality)
+      }
+    }
+  }
+}
+
+/// Получить информацию об использовании GPU на macOS
+#[cfg(target_os = "macos")]
+impl GpuDetector {
+  async fn get_macos_gpu_usage(&self) -> Result<GpuUsageInfo> {
+    // Используем ioreg для получения информации о GPU
+    let output = tokio::process::Command::new("ioreg")
+      .args(["-r", "-c", "IOAccelerator"])
+      .output()
+      .await
+      .map_err(|e| VideoCompilerError::Io(format!("Failed to run ioreg: {e}")))?;
+
+    if output.status.success() {
+      // Базовая реализация - возвращаем приблизительные значения
+      // В реальности нужен более сложный парсинг вывода ioreg
+      Ok(GpuUsageInfo {
+        memory_used: None,
+        utilization: Some(30.0), // Примерное значение
+        encoder_sessions: None,
+        encoder_fps: None,
+      })
+    } else {
+      Err(VideoCompilerError::gpu("ioreg failed"))
+    }
   }
 }
 

@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 import subtitleCategories from "../../data/subtitle-categories.json"
 import subtitleStyles from "../../data/subtitle-styles.json"
 
-import type { SubtitleCategory, SubtitleStyle } from "../../types/subtitles"
+import type { SubtitleCategory, SubtitleStyleTemplate } from "../../types/subtitles"
 
 describe("Subtitle Data Files", () => {
   describe("subtitle-styles.json", () => {
@@ -27,7 +27,7 @@ describe("Subtitle Data Files", () => {
     })
 
     it("каждый стиль должен иметь обязательные поля", () => {
-      subtitleStyles.styles.forEach((style: SubtitleStyle) => {
+      subtitleStyles.styles.forEach((style: SubtitleStyleTemplate) => {
         // Основные поля
         expect(style).toHaveProperty("id")
         expect(style).toHaveProperty("name")
@@ -54,14 +54,14 @@ describe("Subtitle Data Files", () => {
     })
 
     it("стили должны иметь уникальные ID", () => {
-      const ids = subtitleStyles.styles.map((style: SubtitleStyle) => style.id)
+      const ids = subtitleStyles.styles.map((style: SubtitleStyleTemplate) => style.id)
       const uniqueIds = new Set(ids)
 
       expect(uniqueIds.size).toBe(ids.length)
     })
 
     it("каждый стиль должен содержать хотя бы один CSS атрибут", () => {
-      subtitleStyles.styles.forEach((style: SubtitleStyle) => {
+      subtitleStyles.styles.forEach((style: SubtitleStyleTemplate) => {
         const styleKeys = Object.keys(style.style)
         expect(styleKeys.length).toBeGreaterThan(0)
       })
@@ -107,7 +107,7 @@ describe("Subtitle Data Files", () => {
 
     it("должен содержать все категории из subtitle-styles.json", () => {
       const categoryIds = Object.keys(subtitleCategories.categories)
-      const styleCategories = new Set(subtitleStyles.styles.map((style: SubtitleStyle) => style.category))
+      const styleCategories = new Set(subtitleStyles.styles.map((style: SubtitleStyleTemplate) => style.category))
 
       styleCategories.forEach((styleCategory) => {
         expect(categoryIds).toContain(styleCategory)
@@ -123,7 +123,7 @@ describe("Subtitle Data Files", () => {
     it("все стили должны относиться к существующим категориям", () => {
       const validCategories = Object.keys(subtitleCategories.categories)
 
-      subtitleStyles.styles.forEach((style: SubtitleStyle) => {
+      subtitleStyles.styles.forEach((style: SubtitleStyleTemplate) => {
         expect(validCategories).toContain(style.category)
       })
     })
@@ -131,7 +131,7 @@ describe("Subtitle Data Files", () => {
     it("количество стилей в категориях должно быть сбалансированным", () => {
       const styleCounts = new Map<string, number>()
 
-      subtitleStyles.styles.forEach((style: SubtitleStyle) => {
+      subtitleStyles.styles.forEach((style: SubtitleStyleTemplate) => {
         const count = styleCounts.get(style.category) || 0
         styleCounts.set(style.category, count + 1)
       })

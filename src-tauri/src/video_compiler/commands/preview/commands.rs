@@ -240,7 +240,7 @@ pub async fn generate_waveform_preview(
   // Сохраняем результат в файл
   tokio::fs::write(&output_path, waveform_data)
     .await
-    .map_err(|e| VideoCompilerError::IoError(format!("Не удалось сохранить waveform: {e}")))?;
+    .map_err(|e| VideoCompilerError::Io(format!("Не удалось сохранить waveform: {e}")))?;
 
   Ok(output_path)
 }

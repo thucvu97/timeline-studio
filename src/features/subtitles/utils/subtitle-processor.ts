@@ -1,9 +1,9 @@
-import { SubtitleStyle } from "../types/subtitles"
+import { SubtitleStyleTemplate } from "../types/subtitles"
 
 /**
  * Интерфейс для сырых данных стиля субтитров из JSON
  */
-interface RawSubtitleStyleData {
+interface RawSubtitleStyleTemplateData {
   id: string
   name: string
   category: string
@@ -26,12 +26,12 @@ interface RawSubtitleStyleData {
 /**
  * Интерфейс для данных стилей субтитров из JSON файла
  */
-interface SubtitleStylesDataFile {
+interface SubtitleStyleTemplatesDataFile {
   version: string
   lastUpdated: string
   totalStyles: number
   categories: string[]
-  styles: RawSubtitleStyleData[]
+  styles: RawSubtitleStyleTemplateData[]
 }
 
 /**
@@ -39,13 +39,13 @@ interface SubtitleStylesDataFile {
  * @param rawStyles - Массив сырых данных стилей
  * @returns Массив обработанных стилей субтитров
  */
-export function processSubtitleStyles(rawStyles: RawSubtitleStyleData[]): SubtitleStyle[] {
+export function processSubtitleStyleTemplates(rawStyles: RawSubtitleStyleTemplateData[]): SubtitleStyleTemplate[] {
   return rawStyles.map((rawStyle) => ({
     id: rawStyle.id,
     name: rawStyle.name,
-    category: rawStyle.category as SubtitleStyle["category"],
-    complexity: rawStyle.complexity as SubtitleStyle["complexity"],
-    tags: rawStyle.tags as SubtitleStyle["tags"],
+    category: rawStyle.category as SubtitleStyleTemplate["category"],
+    complexity: rawStyle.complexity as SubtitleStyleTemplate["complexity"],
+    tags: rawStyle.tags as SubtitleStyleTemplate["tags"],
     description: rawStyle.description,
     labels: rawStyle.labels,
     style: rawStyle.style,
@@ -57,7 +57,7 @@ export function processSubtitleStyles(rawStyles: RawSubtitleStyleData[]): Subtit
  * @param data - Данные для валидации
  * @returns true если данные валидны, false в противном случае
  */
-export function validateSubtitleStylesData(data: any): data is SubtitleStylesDataFile {
+export function validateSubtitleStyleTemplatesData(data: any): data is SubtitleStyleTemplatesDataFile {
   if (!data || typeof data !== "object") {
     return false
   }
@@ -93,7 +93,7 @@ export function validateSubtitleStylesData(data: any): data is SubtitleStylesDat
  * @param id - ID стиля
  * @returns Базовый стиль субтитров
  */
-export function createFallbackSubtitleStyle(id: string): SubtitleStyle {
+export function createFallbackSubtitleStyleTemplate(id: string): SubtitleStyleTemplate {
   return {
     id,
     name: id.charAt(0).toUpperCase() + id.slice(1),
@@ -128,11 +128,11 @@ export function createFallbackSubtitleStyle(id: string): SubtitleStyle {
  * @param lang - Язык для поиска
  * @returns Отфильтрованный массив стилей
  */
-export function searchSubtitleStyles(
-  styles: SubtitleStyle[],
+export function searchSubtitleStyleTemplates(
+  styles: SubtitleStyleTemplate[],
   query: string,
   lang: "ru" | "en" = "ru",
-): SubtitleStyle[] {
+): SubtitleStyleTemplate[] {
   if (!query.trim()) {
     return styles
   }
@@ -153,15 +153,15 @@ export function searchSubtitleStyles(
  * @param groupBy - Критерий группировки
  * @returns Объект с группами стилей
  */
-export function groupSubtitleStyles(
-  styles: SubtitleStyle[],
+export function groupSubtitleStyleTemplates(
+  styles: SubtitleStyleTemplate[],
   groupBy: "category" | "complexity" | "tags" | "none",
-): Record<string, SubtitleStyle[]> {
+): Record<string, SubtitleStyleTemplate[]> {
   if (groupBy === "none") {
     return { all: styles }
   }
 
-  const groups: Record<string, SubtitleStyle[]> = {}
+  const groups: Record<string, SubtitleStyleTemplate[]> = {}
 
   styles.forEach((style) => {
     let groupKey = ""
@@ -196,11 +196,11 @@ export function groupSubtitleStyles(
  * @param order - Порядок сортировки
  * @returns Отсортированный массив стилей
  */
-export function sortSubtitleStyles(
-  styles: SubtitleStyle[],
+export function sortSubtitleStyleTemplates(
+  styles: SubtitleStyleTemplate[],
   sortBy: "name" | "complexity" | "category",
   order: "asc" | "desc" = "asc",
-): SubtitleStyle[] {
+): SubtitleStyleTemplate[] {
   const sorted = [...styles].sort((a, b) => {
     let result = 0
 

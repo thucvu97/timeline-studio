@@ -1,142 +1,300 @@
 {
-  "version": "1.0.0",
-  "lastUpdated": "2025-06-25",
+  "version": "2.0.0",
+  "lastUpdated": "2025-07-21",
+  "description": "Professional effect categories inspired by DaVinci Resolve and Filmora",
   "categories": {
-    "color-correction": {
+    "color_correction": {
+      "id": "color_correction",
       "name": {
-        "ru": "Цветокоррекция",
         "en": "Color Correction",
+        "ru": "Цветокоррекция",
         "es": "Corrección de Color",
         "fr": "Correction des Couleurs",
-        "de": "Farbkorrektur"
+        "de": "Farbkorrektur",
+        "pt": "Correção de Cor",
+        "zh": "色彩校正",
+        "ja": "カラー補正",
+        "ko": "색상 보정",
+        "tr": "Renk Düzeltme"
       },
       "description": {
-        "ru": "Базовые инструменты цветокоррекции для улучшения изображения",
-        "en": "Basic color correction tools for image enhancement",
-        "es": "Herramientas básicas de corrección de color para mejorar la imagen",
-        "fr": "Outils de base pour la correction des couleurs et l'amélioration de l'image",
-        "de": "Grundlegende Farbkorrektur-Tools zur Bildverbesserung"
+        "en": "Basic color correction tools: brightness, contrast, saturation, temperature",
+        "ru": "Базовые инструменты цветокоррекции: яркость, контраст, насыщенность, температура"
       },
-      "order": 1
+      "icon": "🎨",
+      "order": 1,
+      "scope": ["clip", "track", "sequence"],
+      "subcategories": ["basic", "advanced", "curves", "wheels"]
     },
-    "vintage": {
+    "color_grading": {
+      "id": "color_grading",
       "name": {
-        "ru": "Винтажные",
-        "en": "Vintage",
-        "es": "Vintage",
-        "fr": "Vintage",
-        "de": "Vintage"
+        "en": "Color Grading",
+        "ru": "Цветовая градация",
+        "es": "Gradación de Color",
+        "fr": "Étalonnage des Couleurs",
+        "de": "Farbabstufung"
       },
       "description": {
-        "ru": "Винтажные и ретро эффекты для создания атмосферы прошлого",
-        "en": "Vintage and retro effects for creating nostalgic atmosphere",
-        "es": "Efectos vintage y retro para crear una atmósfera nostálgica",
-        "fr": "Effets vintage et rétro pour créer une atmosphère nostalgique",
-        "de": "Vintage- und Retro-Effekte für nostalgische Atmosphäre"
+        "en": "Professional color grading with lift/gamma/gain controls",
+        "ru": "Профессиональная цветовая градация с контролем теней/полутонов/светов"
       },
-      "order": 2
+      "icon": "🎭",
+      "order": 2,
+      "scope": ["clip", "track", "sequence"],
+      "subcategories": ["primary", "secondary", "hsl", "qualifiers"]
     },
-    "artistic": {
+    "luts": {
+      "id": "luts",
       "name": {
-        "ru": "Художественные",
-        "en": "Artistic",
-        "es": "Artísticos",
-        "fr": "Artistiques",
-        "de": "Künstlerisch"
+        "en": "LUTs",
+        "ru": "LUT таблицы",
+        "es": "LUTs",
+        "fr": "LUTs",
+        "de": "LUTs"
       },
       "description": {
-        "ru": "Художественные эффекты для творческого самовыражения",
-        "en": "Artistic effects for creative expression",
-        "es": "Efectos artísticos para la expresión creativa",
-        "fr": "Effets artistiques pour l'expression créative",
-        "de": "Künstlerische Effekte für kreativen Ausdruck"
+        "en": "Look-Up Tables for instant color transformation",
+        "ru": "Таблицы поиска цветов для мгновенной трансформации"
       },
-      "order": 3
+      "icon": "📊",
+      "order": 3,
+      "scope": ["clip", "track", "sequence"],
+      "subcategories": ["technical", "creative", "film_emulation", "log_conversion"]
     },
-    "cinematic": {
+    "blur_sharpen": {
+      "id": "blur_sharpen",
       "name": {
-        "ru": "Кинематографические",
-        "en": "Cinematic",
-        "es": "Cinematográficos",
-        "fr": "Cinématographiques",
-        "de": "Kinematografisch"
+        "en": "Blur & Sharpen",
+        "ru": "Размытие и резкость",
+        "es": "Desenfoque y Nitidez",
+        "fr": "Flou et Netteté",
+        "de": "Unschärfe und Schärfe"
       },
       "description": {
-        "ru": "Кинематографические эффекты для профессионального вида",
-        "en": "Cinematic effects for professional look",
-        "es": "Efectos cinematográficos para un aspecto profesional",
-        "fr": "Effets cinématographiques pour un aspect professionnel",
-        "de": "Kinematografische Effekte für professionelles Aussehen"
+        "en": "Blur, sharpen, and focus control effects",
+        "ru": "Эффекты размытия, резкости и управления фокусом"
       },
-      "order": 4
+      "icon": "🔍",
+      "order": 4,
+      "scope": ["clip", "track"],
+      "subcategories": ["gaussian", "motion", "radial", "sharpen", "unsharp_mask"]
     },
-    "creative": {
+    "stylize": {
+      "id": "stylize",
       "name": {
-        "ru": "Креативные",
-        "en": "Creative",
-        "es": "Creativos",
-        "fr": "Créatifs",
-        "de": "Kreativ"
+        "en": "Stylize",
+        "ru": "Стилизация",
+        "es": "Estilizar",
+        "fr": "Styliser",
+        "de": "Stilisieren"
       },
       "description": {
-        "ru": "Креативные и экспериментальные эффекты",
-        "en": "Creative and experimental effects",
-        "es": "Efectos creativos y experimentales",
-        "fr": "Effets créatifs et expérimentaux",
-        "de": "Kreative und experimentelle Effekte"
+        "en": "Artistic and stylistic effects: vintage, film looks, artistic filters",
+        "ru": "Художественные и стилистические эффекты: винтаж, киноэффекты, арт-фильтры"
       },
-      "order": 5
+      "icon": "🎨",
+      "order": 5,
+      "scope": ["clip", "track"],
+      "subcategories": ["vintage", "film_looks", "artistic", "sketch", "painting"]
     },
-    "technical": {
+    "distort": {
+      "id": "distort",
       "name": {
-        "ru": "Технические",
-        "en": "Technical",
-        "es": "Técnicos",
-        "fr": "Techniques",
-        "de": "Technisch"
-      },
-      "description": {
-        "ru": "Технические эффекты для улучшения качества видео",
-        "en": "Technical effects for video quality improvement",
-        "es": "Efectos técnicos para mejorar la calidad del video",
-        "fr": "Effets techniques pour améliorer la qualité vidéo",
-        "de": "Technische Effekte zur Verbesserung der Videoqualität"
-      },
-      "order": 6
-    },
-    "motion": {
-      "name": {
-        "ru": "Движение",
-        "en": "Motion",
-        "es": "Movimiento",
-        "fr": "Mouvement",
-        "de": "Bewegung"
-      },
-      "description": {
-        "ru": "Эффекты движения и скорости",
-        "en": "Motion and speed effects",
-        "es": "Efectos de movimiento y velocidad",
-        "fr": "Effets de mouvement et de vitesse",
-        "de": "Bewegungs- und Geschwindigkeitseffekte"
-      },
-      "order": 7
-    },
-    "distortion": {
-      "name": {
-        "ru": "Искажения",
-        "en": "Distortion",
+        "en": "Distort",
+        "ru": "Искажение",
         "es": "Distorsión",
         "fr": "Distorsion",
         "de": "Verzerrung"
       },
       "description": {
-        "ru": "Специальные искажения изображения",
-        "en": "Special image distortions",
-        "es": "Distorsiones especiales de imagen",
-        "fr": "Distorsions d'image spéciales",
-        "de": "Spezielle Bildverzerrungen"
+        "en": "Lens distortion, perspective, warp and other geometric effects",
+        "ru": "Искажение объектива, перспектива, деформация и другие геометрические эффекты"
       },
-      "order": 8
+      "icon": "🌀",
+      "order": 6,
+      "scope": ["clip"],
+      "subcategories": ["lens", "perspective", "warp", "mirror", "kaleidoscope"]
+    },
+    "lighting": {
+      "id": "lighting",
+      "name": {
+        "en": "Lighting",
+        "ru": "Освещение",
+        "es": "Iluminación",
+        "fr": "Éclairage",
+        "de": "Beleuchtung"
+      },
+      "description": {
+        "en": "Light effects: glow, flare, vignette, light leaks",
+        "ru": "Световые эффекты: свечение, блики, виньетка, засветы"
+      },
+      "icon": "💡",
+      "order": 7,
+      "scope": ["clip", "track"],
+      "subcategories": ["glow", "flare", "vignette", "light_leaks", "rays"]
+    },
+    "noise_grain": {
+      "id": "noise_grain",
+      "name": {
+        "en": "Noise & Grain",
+        "ru": "Шум и зерно",
+        "es": "Ruido y Grano",
+        "fr": "Bruit et Grain",
+        "de": "Rauschen und Körnung"
+      },
+      "description": {
+        "en": "Film grain, digital noise, and texture effects",
+        "ru": "Зерно пленки, цифровой шум и текстурные эффекты"
+      },
+      "icon": "📺",
+      "order": 8,
+      "scope": ["clip", "track"],
+      "subcategories": ["film_grain", "digital_noise", "texture", "dust_scratches"]
+    },
+    "transform": {
+      "id": "transform",
+      "name": {
+        "en": "Transform",
+        "ru": "Трансформация",
+        "es": "Transformación",
+        "fr": "Transformation",
+        "de": "Transformation"
+      },
+      "description": {
+        "en": "Scale, rotate, position, and 3D transform effects",
+        "ru": "Масштаб, поворот, позиция и 3D трансформации"
+      },
+      "icon": "🔄",
+      "order": 9,
+      "scope": ["clip"],
+      "subcategories": ["2d_transform", "3d_transform", "perspective", "corner_pin"]
+    },
+    "keying": {
+      "id": "keying",
+      "name": {
+        "en": "Keying",
+        "ru": "Кеинг",
+        "es": "Croma",
+        "fr": "Incrustation",
+        "de": "Keying"
+      },
+      "description": {
+        "en": "Green screen, blue screen, and luma key effects",
+        "ru": "Хромакей, синий экран и яркостный кеинг"
+      },
+      "icon": "🟢",
+      "order": 10,
+      "scope": ["clip"],
+      "subcategories": ["chroma_key", "luma_key", "difference_key", "matte_refinement"]
+    },
+    "motion": {
+      "id": "motion",
+      "name": {
+        "en": "Motion",
+        "ru": "Движение",
+        "es": "Movimiento",
+        "fr": "Mouvement",
+        "de": "Bewegung"
+      },
+      "description": {
+        "en": "Motion blur, stabilization, and motion effects",
+        "ru": "Размытие движения, стабилизация и эффекты движения"
+      },
+      "icon": "🏃",
+      "order": 11,
+      "scope": ["clip"],
+      "subcategories": ["motion_blur", "stabilization", "tracking", "trails"]
+    },
+    "temporal": {
+      "id": "temporal",
+      "name": {
+        "en": "Temporal",
+        "ru": "Временные",
+        "es": "Temporales",
+        "fr": "Temporels",
+        "de": "Zeitlich"
+      },
+      "description": {
+        "en": "Time-based effects: speed, reverse, echo, strobe",
+        "ru": "Временные эффекты: скорость, реверс, эхо, стробоскоп"
+      },
+      "icon": "⏱️",
+      "order": 12,
+      "scope": ["clip"],
+      "subcategories": ["speed_change", "time_remapping", "echo", "strobe", "freeze_frame"]
+    },
+    "audio_effects": {
+      "id": "audio_effects",
+      "name": {
+        "en": "Audio Effects",
+        "ru": "Аудио эффекты",
+        "es": "Efectos de Audio",
+        "fr": "Effets Audio",
+        "de": "Audio-Effekte"
+      },
+      "description": {
+        "en": "Audio processing and visualization effects",
+        "ru": "Обработка звука и визуализация аудио"
+      },
+      "icon": "🔊",
+      "order": 13,
+      "scope": ["clip", "track"],
+      "subcategories": ["eq", "compression", "reverb", "visualization"]
+    },
+    "text_graphics": {
+      "id": "text_graphics",
+      "name": {
+        "en": "Text & Graphics",
+        "ru": "Текст и графика",
+        "es": "Texto y Gráficos",
+        "fr": "Texte et Graphiques",
+        "de": "Text und Grafiken"
+      },
+      "description": {
+        "en": "Text overlays, titles, and graphic elements",
+        "ru": "Текстовые наложения, титры и графические элементы"
+      },
+      "icon": "📝",
+      "order": 14,
+      "scope": ["clip", "sequence"],
+      "subcategories": ["titles", "lower_thirds", "credits", "callouts"]
+    },
+    "transitions": {
+      "id": "transitions",
+      "name": {
+        "en": "Transitions",
+        "ru": "Переходы",
+        "es": "Transiciones",
+        "fr": "Transitions",
+        "de": "Übergänge"
+      },
+      "description": {
+        "en": "Transition effects between clips",
+        "ru": "Эффекты перехода между клипами"
+      },
+      "icon": "🔀",
+      "order": 15,
+      "scope": ["clip"],
+      "subcategories": ["dissolve", "wipe", "slide", "3d_transitions", "creative"]
+    },
+    "color_match": {
+      "id": "color_match",
+      "name": {
+        "en": "Color Match",
+        "ru": "Сопоставление цветов",
+        "es": "Coincidencia de Color",
+        "fr": "Correspondance des Couleurs",
+        "de": "Farbabgleich"
+      },
+      "description": {
+        "en": "Match colors between different clips or to reference",
+        "ru": "Сопоставление цветов между клипами или с эталоном"
+      },
+      "icon": "🎯",
+      "order": 16,
+      "scope": ["clip"],
+      "subcategories": ["auto_match", "manual_match", "shot_match"]
     }
   }
 }

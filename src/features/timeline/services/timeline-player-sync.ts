@@ -4,10 +4,6 @@
  * Синхронизирует выбранный клип в timeline с video player
  */
 
-import { MediaFile } from "@/features/media/types/media"
-import { AppCommands } from "@/features/app-state/services/app-machine"
-import { getBackendSync } from "@/features/app-state/services/backend-sync"
-
 import { TimelineClip } from "../types"
 import { interpolateSpeed } from "../utils/speed-ramping-utils"
 
@@ -25,7 +21,7 @@ interface PlayerContext {
   playerClearTemplate: () => Promise<void>
   seek: (time: number) => Promise<void>
   setPlaybackRate: (rate: number) => Promise<void>
-  
+
   // Локальные состояния для совместимости
   speedRampingEnabled?: boolean
   basePlaybackRate?: number
@@ -37,7 +33,6 @@ export class TimelinePlayerSync {
   private static instance: TimelinePlayerSync | null = null
   private playerContext: PlayerContext | null = null
   private currentSelectedClip: TimelineClip | null = null
-  private backendSync = getBackendSync()
 
   private constructor() {}
 

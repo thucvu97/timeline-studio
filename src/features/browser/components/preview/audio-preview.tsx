@@ -68,16 +68,16 @@ export const AudioPreview = memo(function AudioPreview({
   const handlePlayPause = useCallback(
     async (e: React.MouseEvent) => {
       e.preventDefault()
-      
+
       try {
         // Отправляем аудио в главный плеер через backend
         await playerSetSource("browser")
         await playerSetMedia(file.id, hoverTime || 0)
-        
+
         console.log(`[AudioPreview] Audio sent to main player: ${file.name} at time ${hoverTime || 0}`)
       } catch (error) {
         console.error("[AudioPreview] Failed to send audio to main player:", error)
-        
+
         // Fallback: локальное воспроизведение в превью
         if (!audioRef.current) return
 
@@ -206,7 +206,7 @@ export const AudioPreview = memo(function AudioPreview({
         onKeyDown={(e) => {
           if (e.code === "Space") {
             e.preventDefault()
-            handlePlayPause(e as unknown as React.MouseEvent)
+            void handlePlayPause(e as unknown as React.MouseEvent)
           }
         }}
       />

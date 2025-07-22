@@ -1,16 +1,16 @@
 /**
  * Player Provider V2
- * 
+ *
  * Новая версия player provider с синхронизацией через backend
  */
 
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useState } from "react"
 
-import { getBackendSync } from '@/features/app-state/services/backend-sync'
-import { ProjectState } from '@/features/app-state/types/unified-project'
-import { AppCommands } from '@/features/app-state/services/app-machine'
-import { MediaFile } from '@/features/media/types/media'
-import { useUserSettings } from '@/features/user-settings'
+import { AppCommands } from "@/features/app-state/services/app-machine"
+import { getBackendSync } from "@/features/app-state/services/backend-sync"
+import { ProjectState } from "@/features/app-state/types/unified-project"
+import { MediaFile } from "@/features/media/types/media"
+import { useUserSettings } from "@/features/user-settings"
 
 interface PlayerContextType {
   // Состояние воспроизведения (синхронизировано с backend)
@@ -27,11 +27,11 @@ interface PlayerContextType {
   isChangingCamera: boolean
   isRecording: boolean
   isResizableMode: boolean
-  
+
   // Медиа контент
   currentVideo: MediaFile | null
   previewMedia: MediaFile | null
-  videoSource: 'browser' | 'timeline'
+  videoSource: "browser" | "timeline"
 
   // Эффекты и фильтры (локальные для preview)
   appliedEffects: Array<{ id: string; name: string; params: any }>
@@ -58,7 +58,7 @@ interface PlayerContextType {
   setIsRecording: (isRecording: boolean) => void
   setIsResizableMode: (isResizableMode: boolean) => void
   setPreviewMedia: (media: MediaFile | null) => void
-  setVideoSource: (source: 'browser' | 'timeline') => void
+  setVideoSource: (source: "browser" | "timeline") => void
 
   // Действия для эффектов/фильтров (локальные preview)
   applyEffect: (effect: { id: string; name: string; params: any }) => void
@@ -69,20 +69,20 @@ interface PlayerContextType {
   clearTemplate: () => void
 
   // Prerender
-  setPrerenderSettings: (settings: Partial<PlayerContextType['prerenderSettings']>) => void
+  setPrerenderSettings: (settings: Partial<PlayerContextType["prerenderSettings"]>) => void
 
   // Backend команды (асинхронные)
   play: () => Promise<void>
   pause: () => Promise<void>
   seek: (time: number) => Promise<void>
   setPlaybackRate: (rate: number) => Promise<void>
-  
+
   // Player-specific backend команды
   playerSetMedia: (mediaId: string, startTime?: number) => Promise<void>
   playerSetVolume: (volume: number) => Promise<void>
   playerSelectClip: (clipId: string) => Promise<void>
   playerClearSelection: () => Promise<void>
-  playerSetSource: (source: 'browser' | 'timeline') => Promise<void>
+  playerSetSource: (source: "browser" | "timeline") => Promise<void>
   playerApplyEffect: (effectId: string, params: Record<string, any>) => Promise<void>
   playerApplyFilter: (filterId: string, params: Record<string, any>) => Promise<void>
   playerApplyTemplate: (templateId: string, mediaIds: string[]) => Promise<void>
@@ -100,13 +100,13 @@ interface PlayerProviderProps {
 export function PlayerProvider({ children }: PlayerProviderProps) {
   const userSettings = useUserSettings()
   const [backendSync] = useState(() => getBackendSync())
-  
+
   // Backend состояние (синхронизированное)
   const [backendState, setBackendState] = useState<ProjectState | null>(null)
-  
+
   // Локальное состояние плеера
   const [localState, setLocalState] = useState({
-    volume: userSettings.playerVolume || 50,
+    volume: (userSettings.playerVolume || 50) / 100, // Конвертируем из процентов (0-100) в диапазон (0-1)
     duration: 0,
     isVideoLoading: false,
     isVideoReady: false,
@@ -116,7 +116,7 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
     isResizableMode: false,
     currentVideo: null as MediaFile | null,
     previewMedia: null as MediaFile | null,
-    videoSource: 'timeline' as 'browser' | 'timeline',
+    videoSource: "timeline" as "browser" | "timeline",
     appliedEffects: [] as Array<{ id: string; name: string; params: any }>,
     appliedFilters: [] as Array<{ id: string; name: string; params: any }>,
     appliedTemplate: null as { id: string; name: string } | null,
@@ -143,29 +143,29 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
     try {
       const result = await backendSync.executeCommand(command)
       if (!result.success) {
-        throw new Error(result.error || 'Command failed')
+        throw new Error(result.error || "Command failed")
       }
       return result.data
     } catch (error) {
-      console.error('Player command failed:', error)
+      console.error("Player command failed:", error)
       throw error
     }
   }
 
   const play = async () => {
-    await executeCommand({ type: 'Play', params: {} })
+    await executeCommand({ type: "Play", params: {} })
   }
 
   const pause = async () => {
-    await executeCommand({ type: 'Pause', params: {} })
+    await executeCommand({ type: "Pause", params: {} })
   }
 
   const seek = async (time: number) => {
-    await executeCommand({ type: 'Seek', params: { time } })
+    await executeCommand({ type: "Seek", params: { time } })
   }
 
   const setPlaybackRateBackend = async (rate: number) => {
-    await executeCommand({ type: 'SetPlaybackRate', params: { rate } })
+    await executeCommand({ type: "SetPlaybackRate", params: { rate } })
   }
 
   // Player-specific backend команды
@@ -185,7 +185,7 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
     await executeCommand(AppCommands.playerClearSelection())
   }
 
-  const playerSetSourceBackend = async (source: 'browser' | 'timeline') => {
+  const playerSetSourceBackend = async (source: "browser" | "timeline") => {
     await executeCommand(AppCommands.playerSetSource(source))
   }
 
@@ -215,88 +215,88 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
 
   // Локальные действия
   const setCurrentVideo = (video: MediaFile | null) => {
-    setLocalState(prev => ({ ...prev, currentVideo: video }))
+    setLocalState((prev) => ({ ...prev, currentVideo: video }))
   }
 
   const setVolume = (volume: number) => {
-    setLocalState(prev => ({ ...prev, volume }))
-    userSettings.handlePlayerVolumeChange(volume)
+    setLocalState((prev) => ({ ...prev, volume }))
+    userSettings.handlePlayerVolumeChange(volume * 100) // Конвертируем обратно в проценты для user settings
   }
 
   const setDuration = (duration: number) => {
-    setLocalState(prev => ({ ...prev, duration }))
+    setLocalState((prev) => ({ ...prev, duration }))
   }
 
   const setVideoLoading = (isLoading: boolean) => {
-    setLocalState(prev => ({ ...prev, isVideoLoading: isLoading }))
+    setLocalState((prev) => ({ ...prev, isVideoLoading: isLoading }))
   }
 
   const setVideoReady = (isReady: boolean) => {
-    setLocalState(prev => ({ ...prev, isVideoReady: isReady }))
+    setLocalState((prev) => ({ ...prev, isVideoReady: isReady }))
   }
 
   const setIsSeeking = (isSeeking: boolean) => {
-    setLocalState(prev => ({ ...prev, isSeeking }))
+    setLocalState((prev) => ({ ...prev, isSeeking }))
   }
 
   const setIsChangingCamera = (isChangingCamera: boolean) => {
-    setLocalState(prev => ({ ...prev, isChangingCamera }))
+    setLocalState((prev) => ({ ...prev, isChangingCamera }))
   }
 
   const setIsRecording = (isRecording: boolean) => {
-    setLocalState(prev => ({ ...prev, isRecording }))
+    setLocalState((prev) => ({ ...prev, isRecording }))
   }
 
   const setIsResizableMode = (isResizableMode: boolean) => {
-    setLocalState(prev => ({ ...prev, isResizableMode }))
+    setLocalState((prev) => ({ ...prev, isResizableMode }))
   }
 
   const setPreviewMedia = (media: MediaFile | null) => {
-    setLocalState(prev => ({ ...prev, previewMedia: media }))
+    setLocalState((prev) => ({ ...prev, previewMedia: media }))
   }
 
-  const setVideoSource = (source: 'browser' | 'timeline') => {
-    setLocalState(prev => ({ ...prev, videoSource: source }))
+  const setVideoSource = (source: "browser" | "timeline") => {
+    setLocalState((prev) => ({ ...prev, videoSource: source }))
   }
 
   // Эффекты и фильтры (локальные для preview)
   const applyEffect = (effect: { id: string; name: string; params: any }) => {
-    setLocalState(prev => ({
+    setLocalState((prev) => ({
       ...prev,
-      appliedEffects: [...prev.appliedEffects, effect]
+      appliedEffects: [...prev.appliedEffects, effect],
     }))
   }
 
   const applyFilter = (filter: { id: string; name: string; params: any }) => {
-    setLocalState(prev => ({
+    setLocalState((prev) => ({
       ...prev,
-      appliedFilters: [...prev.appliedFilters, filter]
+      appliedFilters: [...prev.appliedFilters, filter],
     }))
   }
 
-  const applyTemplate = (template: { id: string; name: string }, files: MediaFile[]) => {
-    setLocalState(prev => ({
+  const applyTemplate = (template: { id: string; name: string }, _files: MediaFile[]) => {
+    setLocalState((prev) => ({
       ...prev,
-      appliedTemplate: template
+      appliedTemplate: template,
     }))
   }
 
   const clearEffects = () => {
-    setLocalState(prev => ({ ...prev, appliedEffects: [] }))
+    setLocalState((prev) => ({ ...prev, appliedEffects: [] }))
   }
 
   const clearFilters = () => {
-    setLocalState(prev => ({ ...prev, appliedFilters: [] }))
+    setLocalState((prev) => ({ ...prev, appliedFilters: [] }))
   }
 
   const clearTemplate = () => {
-    setLocalState(prev => ({ ...prev, appliedTemplate: null }))
+    setLocalState((prev) => ({ ...prev, appliedTemplate: null }))
   }
 
-  const setPrerenderSettings = (settings: Partial<PlayerContextType['prerenderSettings']>) => {
-    setLocalState(prev => ({
+  const setPrerenderSettings = (settings: Partial<PlayerContextType["prerenderSettings"]>) => {
+    setLocalState((prev) => ({
       ...prev,
-      prerenderSettings: { ...prev.prerenderSettings, ...settings }
+      prerenderSettings: { ...prev.prerenderSettings, ...settings },
     }))
   }
 
@@ -308,7 +308,7 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
     volume: 1.0,
     currentMediaId: null,
     selectedClipId: null,
-    videoSource: 'browser',
+    videoSource: "browser",
     appliedEffects: [],
     appliedFilters: [],
     appliedTemplate: null,
@@ -326,10 +326,10 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
 
     // Локальное состояние с override для backend значений
     ...localState,
-    
-    // Override некоторых значений из backend
-    volume: playbackState.volume || localState.volume,
-    videoSource: playbackState.videoSource || localState.videoSource,
+
+    // Override некоторых значений из backend (только если backend состояние существует)
+    volume: backendState ? playbackState.volume || localState.volume : localState.volume,
+    videoSource: backendState ? playbackState.videoSource || localState.videoSource : localState.videoSource,
     duration: playbackState.duration || localState.duration,
     isSeeking: playbackState.isSeeking || localState.isSeeking,
     isVideoLoading: playbackState.isLoading || localState.isVideoLoading,
@@ -359,7 +359,7 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
     pause,
     seek,
     setPlaybackRate: setPlaybackRateBackend,
-    
+
     // Player-specific backend команды
     playerSetMedia,
     playerSetVolume: playerSetVolumeBackend,
@@ -374,20 +374,16 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
     playerClearTemplate: playerClearTemplateBackend,
   }
 
-  return (
-    <PlayerContext.Provider value={contextValue}>
-      {children}
-    </PlayerContext.Provider>
-  )
+  return <PlayerContext.Provider value={contextValue}>{children}</PlayerContext.Provider>
 }
 
 export function usePlayer(): PlayerContextType {
   const context = useContext(PlayerContext)
-  
+
   if (!context) {
-    throw new Error('usePlayer must be used within PlayerProvider')
+    throw new Error("usePlayer must be used within PlayerProvider")
   }
-  
+
   return context
 }
 

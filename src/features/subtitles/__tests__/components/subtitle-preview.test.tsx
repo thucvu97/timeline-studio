@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest"
 import { fireEvent, renderWithMedia as render, screen } from "@/test/test-utils"
 
 import { SubtitlePreview } from "../../components/subtitle-preview"
-import { SubtitleStyle } from "../../types/subtitles"
+import { SubtitleStyleTemplate } from "../../types/subtitles"
 
 // Мокаем дополнительные зависимости
 vi.mock("@/features/browser/components/layout/apply-button", () => ({
@@ -18,7 +18,7 @@ vi.mock("@/features/browser/components/layout/favorite-button", () => ({
   FavoriteButton: () => <button>Избранное</button>,
 }))
 
-const mockSubtitle: SubtitleStyle = {
+const mockSubtitle: SubtitleStyleTemplate = {
   id: "basic-white",
   name: "Basic White",
   category: "basic",
@@ -81,7 +81,7 @@ describe("SubtitlePreview", () => {
   })
 
   it("должен отображать индикатор анимации", () => {
-    const animatedSubtitle: SubtitleStyle = {
+    const animatedSubtitle: SubtitleStyleTemplate = {
       ...mockSubtitle,
       style: {
         ...mockSubtitle.style,
@@ -106,7 +106,7 @@ describe("SubtitlePreview", () => {
   })
 
   it("должен применять градиент для текста если указан", () => {
-    const gradientSubtitle: SubtitleStyle = {
+    const gradientSubtitle: SubtitleStyleTemplate = {
       ...mockSubtitle,
       style: {
         ...mockSubtitle.style,
@@ -123,7 +123,7 @@ describe("SubtitlePreview", () => {
   })
 
   it("должен применять тень текста если указана", () => {
-    const shadowSubtitle: SubtitleStyle = {
+    const shadowSubtitle: SubtitleStyleTemplate = {
       ...mockSubtitle,
       style: {
         ...mockSubtitle.style,
@@ -138,7 +138,7 @@ describe("SubtitlePreview", () => {
   })
 
   it("должен применять анимацию если указана", () => {
-    const animatedSubtitle: SubtitleStyle = {
+    const animatedSubtitle: SubtitleStyleTemplate = {
       ...mockSubtitle,
       style: {
         ...mockSubtitle.style,

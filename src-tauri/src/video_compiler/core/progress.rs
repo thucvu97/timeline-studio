@@ -272,10 +272,11 @@ impl ProgressTracker {
   /// Получить все приостановленные задачи
   pub async fn get_paused_jobs(&self) -> Vec<RenderJob> {
     let jobs = self.active_jobs.read().await;
-    jobs.values()
-        .filter(|job| matches!(job.status, RenderStatus::Paused))
-        .cloned()
-        .collect()
+    jobs
+      .values()
+      .filter(|job| matches!(job.status, RenderStatus::Paused))
+      .cloned()
+      .collect()
   }
 
   /// Проверить и отменить задачи по таймауту
@@ -355,7 +356,7 @@ impl ProgressTracker {
         if let Some(progress) = self.parse_progress_line(&line_buffer) {
           // Вычисляем процент выполнения на основе времени
           let percentage = if total_duration > 0.0 {
-            ((progress.time / total_duration) * 100.0).min(100.0)
+            ((progress.time.as_secs_f64() / total_duration) * 100.0).min(100.0)
           } else {
             0.0
           };
@@ -367,22 +368,26 @@ impl ProgressTracker {
             "FPS: {:.1}, Quality: {:.1}, Size: {}MB, Bitrate: {:.1}Mbps, Speed: {:.2}x",
             progress.fps,
             progress.quality,
-            progress.size / (1024.0 * 1024.0), // Конвертируем в MB
-            progress.bitrate / 1_000_000.0,   // Конвертируем в Mbps
+            progress.size as f64 / (1024.0 * 1024.0), // Конвертируем в MB
+            progress.bitrate / 1_000_000.0,           // Конвертируем в Mbps
             progress.speed
           );
 
           // Обновляем прогресс задачи в реальном времени
-          self.update_progress(
-            job_id,
-            current_frame,
-            "Encoding".to_string(),
-            Some(detailed_message),
-          ).await?;
+          self
+            .update_progress(
+              job_id,
+              current_frame,
+              "Encoding".to_string(),
+              Some(detailed_message),
+            )
+            .await?;
 
           log::debug!(
             "Real-time progress: {:.1}% (frame {}, time {:.2}s)",
-            percentage, progress.frame, progress.time
+            percentage,
+            progress.frame,
+            progress.time.as_secs_f64()
           );
         }
       }
@@ -410,7 +415,7 @@ impl ProgressTracker {
       // Запускаем парсинг прогресса в отдельной задаче
       let progress_tracker = self.clone();
       let job_id_clone = job_id.to_string();
-      
+
       let progress_task = tokio::spawn(async move {
         let mut stderr = stderr;
         if let Err(e) = progress_tracker
@@ -422,27 +427,36 @@ impl ProgressTracker {
       });
 
       // Ждем завершения процесса
-      let output = child.wait_with_output().await.map_err(|e| {
-        VideoCompilerError::ExternalProcessError(format!("FFmpeg process failed: {}", e))
-      })?;
+      let output =
+        child
+          .wait_with_output()
+          .await
+          .map_err(|e| VideoCompilerError::ProcessingError {
+            operation: "ffmpeg".to_string(),
+            details: format!("FFmpeg process failed: {}", e),
+          })?;
 
       // Ждем завершения задачи парсинга прогресса
       let _ = progress_task.await;
 
       if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
-        return Err(VideoCompilerError::ExternalProcessError(format!(
-          "FFmpeg failed with exit code {:?}: {}",
-          output.status.code(),
-          stderr
-        )));
+        return Err(VideoCompilerError::ProcessingError {
+          operation: "ffmpeg".to_string(),
+          details: format!(
+            "FFmpeg failed with exit code {:?}: {}",
+            output.status.code(),
+            stderr
+          ),
+        });
       }
 
       log::info!("FFmpeg процесс завершен успешно для задачи {}", job_id);
     } else {
-      return Err(VideoCompilerError::ExternalProcessError(
-        "Failed to capture FFmpeg stderr for progress monitoring".to_string()
-      ));
+      return Err(VideoCompilerError::ProcessingError {
+        operation: "ffmpeg".to_string(),
+        details: "Failed to capture FFmpeg stderr for progress monitoring".to_string(),
+      });
     }
 
     Ok(())
@@ -671,7 +685,10 @@ impl RenderJob {
 
   /// Приостановить задачу
   pub fn pause(&mut self) -> Result<()> {
-    if !matches!(self.status, RenderStatus::Processing | RenderStatus::Preparing) {
+    if !matches!(
+      self.status,
+      RenderStatus::Processing | RenderStatus::Preparing
+    ) {
       return Err(VideoCompilerError::render(
         &self.id,
         "pause",

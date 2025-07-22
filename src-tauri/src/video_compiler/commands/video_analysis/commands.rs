@@ -108,13 +108,14 @@ pub async fn ffmpeg_detect_scenes(
   min_scene_length: f64,
 ) -> Result<SceneDetectionResult> {
   let path = Path::new(&file_path);
-  
+
   // Используем реальную FFmpeg реализацию
   crate::video_compiler::core::ffmpeg::scene_detection::detect_scenes(
     path,
     threshold,
     min_scene_length,
-  ).await
+  )
+  .await
 }
 
 /// Анализ качества видео
@@ -126,14 +127,15 @@ pub async fn ffmpeg_analyze_quality(
   enable_stability_check: bool,
 ) -> Result<QualityAnalysisResult> {
   let path = Path::new(&file_path);
-  
+
   // Используем реальную FFmpeg реализацию
   crate::video_compiler::core::ffmpeg::quality::analyze_video_quality(
     path,
     sample_rate,
     enable_noise_detection,
     enable_stability_check,
-  ).await
+  )
+  .await
 }
 
 /// Анализ качества видео (обновленная команда)
@@ -163,7 +165,8 @@ pub async fn ffmpeg_analyze_quality_enhanced(
     sample_rate,
     enable_noise_detection,
     enable_stability_check,
-  ).await
+  )
+  .await
 }
 
 /// Детекция тишины в аудио
@@ -174,13 +177,14 @@ pub async fn ffmpeg_detect_silence(
   min_duration: f64,
 ) -> Result<SilenceDetectionResult> {
   let path = Path::new(&file_path);
-  
+
   // Используем реальную FFmpeg реализацию
   crate::video_compiler::core::ffmpeg::silence_detection::detect_silence(
     path,
     threshold,
     min_duration,
-  ).await
+  )
+  .await
 }
 
 /// Анализ движения в видео
@@ -190,12 +194,9 @@ pub async fn ffmpeg_analyze_motion(
   sensitivity: f64,
 ) -> Result<MotionAnalysisResult> {
   let path = Path::new(&file_path);
-  
+
   // Используем реальную FFmpeg реализацию
-  crate::video_compiler::core::ffmpeg::motion_analysis::analyze_motion(
-    path,
-    sensitivity,
-  ).await
+  crate::video_compiler::core::ffmpeg::motion_analysis::analyze_motion(path, sensitivity).await
 }
 
 /// Извлечение ключевых кадров
@@ -206,13 +207,10 @@ pub async fn ffmpeg_extract_keyframes(
   max_frames: u32,
 ) -> Result<KeyFrameExtractionResult> {
   let path = Path::new(&file_path);
-  
+
   // Используем реальную FFmpeg реализацию
-  crate::video_compiler::core::ffmpeg::keyframes::extract_keyframes(
-    path,
-    interval,
-    max_frames,
-  ).await
+  crate::video_compiler::core::ffmpeg::keyframes::extract_keyframes(path, interval, max_frames)
+    .await
 }
 
 /// Анализ аудио
@@ -222,30 +220,27 @@ pub async fn ffmpeg_analyze_audio(
   sample_rate: f64,
 ) -> Result<AudioAnalysisResult> {
   let path = Path::new(&file_path);
-  
+
   // Используем реальную FFmpeg реализацию
-  crate::video_compiler::core::ffmpeg::audio_analysis::analyze_audio(
-    path,
-    sample_rate,
-  ).await
+  crate::video_compiler::core::ffmpeg::audio_analysis::analyze_audio(path, sample_rate).await
 }
 
 /// Быстрый анализ видео
 #[tauri::command]
 pub async fn ffmpeg_quick_analysis(file_path: String) -> Result<serde_json::Value> {
   let path = Path::new(&file_path);
-  
+
   // Используем несколько FFmpeg функций для быстрого анализа
   let metadata = crate::video_compiler::core::ffmpeg::analysis::get_video_metadata(path).await?;
-  
+
   // Базовый анализ качества с минимальным sample rate
   let quality = crate::video_compiler::core::ffmpeg::quality::analyze_video_quality(
-    path,
-    0.5, // Низкий sample rate для быстрого анализа
+    path, 0.5,   // Низкий sample rate для быстрого анализа
     false, // Без детекции шума
     false, // Без проверки стабильности
-  ).await?;
-  
+  )
+  .await?;
+
   // Формируем результат
   Ok(serde_json::json!({
     "duration": metadata.duration,

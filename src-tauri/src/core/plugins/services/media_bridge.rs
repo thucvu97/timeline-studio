@@ -103,7 +103,7 @@ impl MediaBridge {
     // Fallback: получаем метаданные файла
     let metadata = tokio::fs::metadata(&media_path)
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
     // Определяем параметры по расширению файла
     let file_extension = media_path
@@ -215,7 +215,7 @@ impl MediaBridge {
     if let Some(parent) = output_path.parent() {
       tokio::fs::create_dir_all(parent)
         .await
-        .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+        .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
     }
 
     // Пытаемся интегрироваться с PreviewService, иначе создаем заглушку
@@ -238,7 +238,7 @@ impl MediaBridge {
 
     tokio::fs::write(output_path, thumbnail_data)
       .await
-      .map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+      .map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
     log::info!(
       "[MediaBridge {}] Thumbnail generated: {:?}",

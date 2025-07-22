@@ -3,14 +3,14 @@
  * Handles communication with Rust backend state management
  */
 
-import { invoke } from "@tauri-apps/api/core";
-import { listen, UnlistenFn } from "@tauri-apps/api/event";
+import { invoke } from "@tauri-apps/api/core"
+import { UnlistenFn, listen } from "@tauri-apps/api/event"
 
 // Use generated types from Specta once they're available
 // For now, keep using our manually created types
-import { CommandResult, ProjectCommand } from "../types/commands";
-import { EventEnvelope, ProjectEvent } from "../types/events";
-import { ProjectState } from "../types/unified-project";
+import { CommandResult, ProjectCommand } from "../types/commands"
+import { EventEnvelope, ProjectEvent } from "../types/events"
+import { ProjectState } from "../types/unified-project"
 
 // TODO: Replace with generated types when Specta export is working
 // import {
@@ -21,42 +21,42 @@ import { ProjectState } from "../types/unified-project";
 //   ProjectState
 // } from '@/types/generated/tauri-bindings'
 
-export type EventHandler = (event: ProjectEvent) => void;
-export type StateChangeHandler = (state: ProjectState) => void;
+export type EventHandler = (event: ProjectEvent) => void
+export type StateChangeHandler = (state: ProjectState) => void
 
 export class BackendSync {
-  private eventHandlers: Set<EventHandler> = new Set();
-  private stateChangeHandlers: Set<StateChangeHandler> = new Set();
-  private unlisten: UnlistenFn | null = null;
-  private isConnected = false;
-  private lastVersion = 0;
+  private eventHandlers = new Set<EventHandler>()
+  private stateChangeHandlers = new Set<StateChangeHandler>()
+  private unlisten: UnlistenFn | null = null
+  private isConnected = false
+  private lastVersion = 0
 
   /**
    * Initialize the backend sync service
    */
   async connect(): Promise<void> {
     if (this.isConnected) {
-      return;
+      return
     }
 
     try {
       // Subscribe to backend events
       this.unlisten = await listen<EventEnvelope>("project:event", (event) => {
-        this.handleBackendEvent(event.payload);
-      });
+        this.handleBackendEvent(event.payload)
+      })
 
       // Get initial state
-      const state = await this.getProjectState();
+      const state = await this.getProjectState()
       if (state) {
-        this.lastVersion = state.version;
-        this.notifyStateChange(state);
+        this.lastVersion = state.version
+        this.notifyStateChange(state)
       }
 
-      this.isConnected = true;
-      console.log("Backend sync connected");
+      this.isConnected = true
+      console.log("Backend sync connected")
     } catch (error) {
-      console.error("Failed to connect backend sync:", error);
-      throw error;
+      console.error("Failed to connect backend sync:", error)
+      throw error
     }
   }
 
@@ -65,11 +65,11 @@ export class BackendSync {
    */
   async disconnect(): Promise<void> {
     if (this.unlisten) {
-      this.unlisten();
-      this.unlisten = null;
+      this.unlisten()
+      this.unlisten = null
     }
-    this.isConnected = false;
-    console.log("Backend sync disconnected");
+    this.isConnected = false
+    console.log("Backend sync disconnected")
   }
 
   /**
@@ -79,14 +79,14 @@ export class BackendSync {
     try {
       const result = await invoke<CommandResult>("execute_command", {
         command,
-      });
-      return result;
+      })
+      return result
     } catch (error) {
-      console.error("Command execution failed:", error);
+      console.error("Command execution failed:", error)
       return {
         success: false,
         error: error instanceof Error ? error.message : String(error),
-      };
+      }
     }
   }
 
@@ -95,11 +95,11 @@ export class BackendSync {
    */
   async getProjectState(): Promise<ProjectState | null> {
     try {
-      const state = await invoke<ProjectState>("get_project_state");
-      return state;
+      const state = await invoke<ProjectState>("get_project_state")
+      return state
     } catch (error) {
-      console.error("Failed to get project state:", error);
-      return null;
+      console.error("Failed to get project state:", error)
+      return null
     }
   }
 
@@ -110,11 +110,11 @@ export class BackendSync {
     try {
       const events = await invoke<EventEnvelope[]>("get_event_history", {
         sinceVersion: sinceVersion ?? this.lastVersion,
-      });
-      return events;
+      })
+      return events
     } catch (error) {
-      console.error("Failed to get event history:", error);
-      return [];
+      console.error("Failed to get event history:", error)
+      return []
     }
   }
 
@@ -122,20 +122,20 @@ export class BackendSync {
    * Subscribe to backend events
    */
   onEvent(handler: EventHandler): () => void {
-    this.eventHandlers.add(handler);
+    this.eventHandlers.add(handler)
     return () => {
-      this.eventHandlers.delete(handler);
-    };
+      this.eventHandlers.delete(handler)
+    }
   }
 
   /**
    * Subscribe to state changes
    */
   onStateChange(handler: StateChangeHandler): () => void {
-    this.stateChangeHandlers.add(handler);
+    this.stateChangeHandlers.add(handler)
     return () => {
-      this.stateChangeHandlers.delete(handler);
-    };
+      this.stateChangeHandlers.delete(handler)
+    }
   }
 
   /**
@@ -143,20 +143,20 @@ export class BackendSync {
    */
   private handleBackendEvent(envelope: EventEnvelope) {
     // Update last version
-    this.lastVersion = envelope.metadata.version;
+    this.lastVersion = envelope.metadata.version
 
     // Notify event handlers
     this.eventHandlers.forEach((handler) => {
       try {
-        handler(envelope.event);
+        handler(envelope.event)
       } catch (error) {
-        console.error("Event handler error:", error);
+        console.error("Event handler error:", error)
       }
-    });
+    })
 
     // For state-changing events, fetch new state
     if (this.isStateChangingEvent(envelope.event)) {
-      void this.fetchAndNotifyState();
+      void this.fetchAndNotifyState()
     }
   }
 
@@ -181,18 +181,18 @@ export class BackendSync {
       "MediaRemoved",
       "MediaUpdated",
       "StateRestored",
-    ];
+    ]
 
-    return stateChangingTypes.includes(event.type);
+    return stateChangingTypes.includes(event.type)
   }
 
   /**
    * Fetch state and notify handlers
    */
   private async fetchAndNotifyState() {
-    const state = await this.getProjectState();
+    const state = await this.getProjectState()
     if (state) {
-      this.notifyStateChange(state);
+      this.notifyStateChange(state)
     }
   }
 
@@ -202,23 +202,23 @@ export class BackendSync {
   private notifyStateChange(state: ProjectState) {
     this.stateChangeHandlers.forEach((handler) => {
       try {
-        handler(state);
+        handler(state)
       } catch (error) {
-        console.error("State change handler error:", error);
+        console.error("State change handler error:", error)
       }
-    });
+    })
   }
 }
 
 // Singleton instance
-let backendSyncInstance: BackendSync | null = null;
+let backendSyncInstance: BackendSync | null = null
 
 /**
  * Get or create backend sync instance
  */
 export function getBackendSync(): BackendSync {
   if (!backendSyncInstance) {
-    backendSyncInstance = new BackendSync();
+    backendSyncInstance = new BackendSync()
   }
-  return backendSyncInstance;
+  return backendSyncInstance
 }

@@ -904,7 +904,7 @@ export function AiChat() {
                 onSelectSession={(sessionId) => void switchSession(sessionId)}
                 onDeleteSession={async (id) => {
                   await chatStorageService.deleteSession(id)
-                  deleteSession(id)
+                  void deleteSession(id)
                   const updatedSessions = await chatStorageService.getAllSessions()
                   updateSessions(updatedSessions)
                 }}

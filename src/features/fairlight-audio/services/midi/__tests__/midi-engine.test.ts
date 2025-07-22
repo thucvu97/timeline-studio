@@ -7,25 +7,25 @@ const mockMIDIInput = {
   id: "input-1",
   name: "Test Input",
   manufacturer: "Test Manufacturer",
-  state: "connected",
-  type: "input",
+  state: "connected" as MIDIPortDeviceState,
+  type: "input" as MIDIPortType,
   onmidimessage: null,
-}
+} as unknown as MIDIInput
 
 const mockMIDIOutput = {
   id: "output-1",
   name: "Test Output",
   manufacturer: "Test Manufacturer",
-  state: "connected",
-  type: "output",
+  state: "connected" as MIDIPortDeviceState,
+  type: "output" as MIDIPortType,
   send: vi.fn(),
-}
+} as unknown as MIDIOutput
 
 const mockMIDIAccess = {
   inputs: new Map([["input-1", mockMIDIInput]]),
   outputs: new Map([["output-1", mockMIDIOutput]]),
   onstatechange: null,
-}
+} as unknown as MIDIAccess
 
 // Mock navigator.requestMIDIAccess
 Object.defineProperty(global.navigator, "requestMIDIAccess", {
@@ -107,7 +107,7 @@ describe("MidiEngine", () => {
     })
 
     it("should handle initialization errors", async () => {
-      vi.mocked(global.navigator.requestMIDIAccess).mockRejectedValueOnce(new Error("MIDI Error"))
+      vi.mocked(global.navigator.requestMIDIAccess as any).mockRejectedValueOnce(new Error("MIDI Error"))
 
       const initPromise = new Promise((resolve) => {
         midiEngine.once("initialized", resolve)

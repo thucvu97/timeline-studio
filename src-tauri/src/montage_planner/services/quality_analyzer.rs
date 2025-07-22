@@ -666,7 +666,7 @@ impl VideoQualityAnalyzer {
 
     // Parse signalstats output for brightness metrics
     let mut avg_brightness = 50.0; // Default middle exposure
-    
+
     for line in stderr.lines() {
       if line.contains("YAVG:") {
         // Extract Y (luma) average value

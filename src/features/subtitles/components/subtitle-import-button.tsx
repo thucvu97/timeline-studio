@@ -47,9 +47,7 @@ export function SubtitleImportButton({
       {isImporting ? (
         <div className="flex items-center gap-2">
           <Progress value={importProgress} className="w-24 h-2" />
-          <span className="text-xs text-muted-foreground">
-            {importProgress}%
-          </span>
+          <span className="text-xs text-muted-foreground">{importProgress}%</span>
         </div>
       ) : (
         <DropdownMenu>
@@ -65,9 +63,7 @@ export function SubtitleImportButton({
               Из файла
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <div className="px-2 py-1.5 text-xs text-muted-foreground">
-              Поддерживаемые форматы:
-            </div>
+            <div className="px-2 py-1.5 text-xs text-muted-foreground">Поддерживаемые форматы:</div>
             <DropdownMenuItem disabled className="text-xs">
               • SRT (SubRip)
             </DropdownMenuItem>

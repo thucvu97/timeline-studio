@@ -106,7 +106,7 @@ pub async fn extract_project_subtitles(
 pub async fn backup_project(project_schema: ProjectSchema, backup_path: String) -> Result<String> {
   let json = business_logic::create_project_backup(&project_schema)?;
 
-  std::fs::write(&backup_path, json).map_err(|e| VideoCompilerError::IoError(e.to_string()))?;
+  std::fs::write(&backup_path, json).map_err(|e| VideoCompilerError::Io(e.to_string()))?;
 
   Ok(backup_path)
 }

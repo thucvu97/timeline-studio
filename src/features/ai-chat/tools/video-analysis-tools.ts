@@ -618,7 +618,7 @@ export async function executeVideoAnalysisTool(toolName: string, input: Record<s
       })
 
       // Создаем новые клипы на timeline на основе сцен
-      let clipsCreated = 0
+      const clipsCreated = 0
       if (input.createNewClips) {
         // TODO: Использовать TimelineStateAccess когда он будет доступен
         console.warn("Creating clips on timeline not implemented yet - need TimelineStateAccess")

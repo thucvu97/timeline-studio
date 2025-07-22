@@ -12,23 +12,23 @@ import type { SceneAnalysis } from "../../../shared/types/content-analysis"
 // Типы отношений между персонажами
 export enum RelationshipType {
   FAMILY = "family",
-  ROMANTIC = "romantic", 
+  ROMANTIC = "romantic",
   FRIENDS = "friends",
   COLLEAGUES = "colleagues",
   STRANGERS = "strangers",
   CONFLICT = "conflict",
   MENTOR_STUDENT = "mentor_student",
   PROFESSIONAL = "professional",
-  UNKNOWN = "unknown"
+  UNKNOWN = "unknown",
 }
 
 // Интенсивность взаимодействия
 export enum InteractionIntensity {
   NONE = "none",
   LOW = "low",
-  MEDIUM = "medium", 
+  MEDIUM = "medium",
   HIGH = "high",
-  VERY_HIGH = "very_high"
+  VERY_HIGH = "very_high",
 }
 
 // Эмоциональная окраска взаимодействия
@@ -36,7 +36,7 @@ export enum EmotionalTone {
   POSITIVE = "positive",
   NEGATIVE = "negative",
   NEUTRAL = "neutral",
-  MIXED = "mixed"
+  MIXED = "mixed",
 }
 
 // Анализ отношений между персонажами
@@ -81,7 +81,7 @@ export enum InteractionType {
   COOPERATION = "cooperation",
   OBSERVATION = "observation", // один смотрит на другого
   PARALLEL_ACTION = "parallel_action", // делают что-то параллельно
-  UNKNOWN = "unknown"
+  UNKNOWN = "unknown",
 }
 
 // Визуальные подсказки для определения отношений
@@ -100,7 +100,7 @@ export enum VisualCueType {
   GESTURE = "gesture", // жесты
   SHARED_FOCUS = "shared_focus", // общий фокус внимания
   SIMILAR_CLOTHING = "similar_clothing", // похожая одежда
-  SYNCHRONIZED_MOVEMENT = "synchronized_movement" // синхронные движения
+  SYNCHRONIZED_MOVEMENT = "synchronized_movement", // синхронные движения
 }
 
 // Направление взгляда
@@ -113,7 +113,7 @@ export interface GazeDirection {
 // Язык тела
 export interface BodyLanguage {
   openness: number // 0-1, открытая/закрытая поза
-  dominance: number // 0-1, доминирующая/подчиненная поза  
+  dominance: number // 0-1, доминирующая/подчиненная поза
   engagement: number // 0-1, заинтересованность/отстраненность
   mirroring: boolean // повторяют ли персонажи позы друг друга
   confidence: number
@@ -136,7 +136,7 @@ export enum EvidenceType {
   PHYSICAL_CONTACT = "physical_contact", // физический контакт
   SHARED_OBJECTS = "shared_objects", // общие предметы
   ENTRY_EXIT_TIMING = "entry_exit_timing", // синхронность появления/исчезновения
-  CLOTHING_COORDINATION = "clothing_coordination" // координация одежды
+  CLOTHING_COORDINATION = "clothing_coordination", // координация одежды
 }
 
 // Результат анализа персонажей
@@ -165,11 +165,11 @@ export interface CharacterProfile {
 
 export enum CharacterRole {
   PROTAGONIST = "protagonist",
-  ANTAGONIST = "antagonist", 
+  ANTAGONIST = "antagonist",
   SUPPORTING = "supporting",
   BACKGROUND = "background",
   NARRATOR = "narrator",
-  UNKNOWN = "unknown"
+  UNKNOWN = "unknown",
 }
 
 // Черты характера на основе визуального анализа
@@ -229,7 +229,6 @@ interface CharacterAnalysisConfig {
 
 export class CharacterAnalysisService {
   private static instance: CharacterAnalysisService
-  private aiService: UnifiedAIService
   private config: CharacterAnalysisConfig
 
   private constructor() {
@@ -260,7 +259,7 @@ export class CharacterAnalysisService {
   async analyzeCharacters(
     scenes: SceneAnalysis[],
     detectedPersons: Person[],
-    mediaFile: any
+    _mediaFile: any,
   ): Promise<CharacterAnalysisResult> {
     try {
       console.log(`Analyzing characters for ${detectedPersons.length} detected persons in ${scenes.length} scenes`)
@@ -298,23 +297,21 @@ export class CharacterAnalysisService {
    */
   private async createCharacterProfiles(
     scenes: SceneAnalysis[],
-    detectedPersons: Person[]
+    detectedPersons: Person[],
   ): Promise<CharacterProfile[]> {
     const profiles: CharacterProfile[] = []
 
     for (const person of detectedPersons) {
       // Находим все сцены где появляется этот персонаж
-      const personScenes = scenes.filter(scene => 
-        scene.content?.identifiedPersons?.some((p: any) => p.id === person.id)
+      const personScenes = scenes.filter((scene) =>
+        scene.content?.identifiedPersons?.some((p: any) => p.id === person.id),
       )
 
       if (personScenes.length === 0) continue
 
       // Вычисляем статистику появлений
       const totalScreenTime = personScenes.reduce((sum, scene) => sum + scene.duration, 0)
-      const mostActiveScene = personScenes.reduce((max, scene) => 
-        scene.duration > max.duration ? scene : max
-      ).id
+      const mostActiveScene = personScenes.reduce((max, scene) => (scene.duration > max.duration ? scene : max)).id
 
       // Анализируем черты характера
       const traits = await this.analyzeCharacterTraits(person, personScenes)
@@ -330,7 +327,7 @@ export class CharacterAnalysisService {
         person,
         appearanceCount: personScenes.length,
         totalScreenTime,
-        sceneAppearances: personScenes.map(s => s.id),
+        sceneAppearances: personScenes.map((s) => s.id),
         role,
         traits,
         relationships: [], // Будет заполнено после анализа отношений
@@ -350,15 +347,13 @@ export class CharacterAnalysisService {
    */
   private async analyzeInteractions(
     scenes: SceneAnalysis[],
-    characters: CharacterProfile[]
+    characters: CharacterProfile[],
   ): Promise<CharacterInteraction[]> {
     const interactions: CharacterInteraction[] = []
 
     for (const scene of scenes) {
       // Находим персонажей в этой сцене
-      const sceneCharacters = characters.filter(char =>
-        char.sceneAppearances.includes(scene.id)
-      )
+      const sceneCharacters = characters.filter((char) => char.sceneAppearances.includes(scene.id))
 
       if (sceneCharacters.length < 2) continue // Нужно минимум 2 персонажа для взаимодействия
 
@@ -368,11 +363,7 @@ export class CharacterAnalysisService {
           const charA = sceneCharacters[i]
           const charB = sceneCharacters[j]
 
-          const interaction = await this.analyzePersonPairInteraction(
-            charA,
-            charB,
-            scene
-          )
+          const interaction = await this.analyzePersonPairInteraction(charA, charB, scene)
 
           if (interaction && interaction.duration >= this.config.minInteractionDuration) {
             interactions.push(interaction)
@@ -390,7 +381,7 @@ export class CharacterAnalysisService {
   private async analyzePersonPairInteraction(
     charA: CharacterProfile,
     charB: CharacterProfile,
-    scene: SceneAnalysis
+    scene: SceneAnalysis,
   ): Promise<CharacterInteraction | null> {
     try {
       // Извлекаем данные о лицах персонажей из сцены
@@ -405,13 +396,7 @@ export class CharacterAnalysisService {
       if (proximityScore < this.config.proximityThreshold) return null
 
       // Определяем тип взаимодействия
-      const interactionType = await this.determineInteractionType(
-        charA,
-        charB,
-        scene,
-        facesA,
-        facesB
-      )
+      const interactionType = await this.determineInteractionType(charA, charB, scene, facesA, facesB)
 
       // Анализируем визуальные подсказки
       const visualCues = await this.analyzeVisualCues(facesA, facesB, scene)
@@ -451,7 +436,7 @@ export class CharacterAnalysisService {
   private async detectRelationships(
     interactions: CharacterInteraction[],
     characters: CharacterProfile[],
-    scenes: SceneAnalysis[]
+    scenes: SceneAnalysis[],
   ): Promise<CharacterRelationship[]> {
     const relationships: CharacterRelationship[] = []
 
@@ -472,22 +457,22 @@ export class CharacterAnalysisService {
 
     // Анализируем каждую пару
     for (const [pairKey, pairInteractions] of interactionPairs) {
-      const [personA, personB] = pairKey.split('_')
+      const [personA, personB] = pairKey.split("_")
 
       const relationship = await this.analyzeRelationshipBetweenPersons(
         personA,
         personB,
         pairInteractions,
         characters,
-        scenes
+        scenes,
       )
 
       if (relationship) {
         relationships.push(relationship)
 
         // Обновляем профили персонажей
-        const charA = characters.find(c => c.personId === personA)
-        const charB = characters.find(c => c.personId === personB)
+        const charA = characters.find((c) => c.personId === personA)
+        const charB = characters.find((c) => c.personId === personB)
 
         if (charA) charA.relationships.push(relationship.id)
         if (charB) charB.relationships.push(relationship.id)
@@ -504,8 +489,8 @@ export class CharacterAnalysisService {
     personAId: string,
     personBId: string,
     interactions: CharacterInteraction[],
-    characters: CharacterProfile[],
-    scenes: SceneAnalysis[]
+    _characters: CharacterProfile[],
+    scenes: SceneAnalysis[],
   ): Promise<CharacterRelationship | null> {
     if (interactions.length === 0) return null
 
@@ -528,7 +513,7 @@ export class CharacterAnalysisService {
       if (confidence < this.config.confidenceThreshold) return null
 
       const totalInteractionTime = interactions.reduce((sum, i) => sum + i.duration, 0)
-      const timestamps = interactions.map(i => i.startTime).sort()
+      const timestamps = interactions.map((i) => i.startTime).sort()
 
       const relationship: CharacterRelationship = {
         id: `relationship_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
@@ -557,7 +542,7 @@ export class CharacterAnalysisService {
    */
   private async collectRelationshipEvidence(
     interactions: CharacterInteraction[],
-    scenes: SceneAnalysis[]
+    _scenes: SceneAnalysis[],
   ): Promise<RelationshipEvidence[]> {
     const evidence: RelationshipEvidence[] = []
 
@@ -570,49 +555,46 @@ export class CharacterAnalysisService {
         type: EvidenceType.PROXIMITY_FREQUENCY,
         description: `Characters frequently appear close together (avg proximity: ${avgProximity.toFixed(2)})`,
         confidence: Math.min(avgProximity, 1.0),
-        sceneIds: interactions.map(i => i.sceneId),
+        sceneIds: interactions.map((i) => i.sceneId),
         weight: 0.8,
       })
     }
 
     // Доказательство продолжительности взаимодействий
     const totalDuration = interactions.reduce((sum, i) => sum + i.duration, 0)
-    if (totalDuration > 10) { // Более 10 секунд общего взаимодействия
+    if (totalDuration > 10) {
+      // Более 10 секунд общего взаимодействия
       evidence.push({
         type: EvidenceType.INTERACTION_DURATION,
         description: `Extended interaction time: ${totalDuration.toFixed(1)} seconds`,
         confidence: Math.min(totalDuration / 30, 1.0), // Нормализуем к 30 секундам
-        sceneIds: interactions.map(i => i.sceneId),
+        sceneIds: interactions.map((i) => i.sceneId),
         weight: 0.6,
       })
     }
 
     // Доказательство физического контакта
-    const physicalContactInteractions = interactions.filter(i => 
-      i.type === InteractionType.PHYSICAL_CONTACT
-    )
+    const physicalContactInteractions = interactions.filter((i) => i.type === InteractionType.PHYSICAL_CONTACT)
 
     if (physicalContactInteractions.length > 0) {
       evidence.push({
         type: EvidenceType.PHYSICAL_CONTACT,
         description: `Physical contact observed in ${physicalContactInteractions.length} scenes`,
         confidence: 0.9,
-        sceneIds: physicalContactInteractions.map(i => i.sceneId),
+        sceneIds: physicalContactInteractions.map((i) => i.sceneId),
         weight: 1.0,
       })
     }
 
     // Доказательство паттернов разговоров
-    const conversationInteractions = interactions.filter(i => 
-      i.type === InteractionType.CONVERSATION
-    )
+    const conversationInteractions = interactions.filter((i) => i.type === InteractionType.CONVERSATION)
 
     if (conversationInteractions.length > 2) {
       evidence.push({
         type: EvidenceType.CONVERSATION_PATTERNS,
         description: `Multiple conversation instances: ${conversationInteractions.length}`,
         confidence: Math.min(conversationInteractions.length / 5, 1.0),
-        sceneIds: conversationInteractions.map(i => i.sceneId),
+        sceneIds: conversationInteractions.map((i) => i.sceneId),
         weight: 0.7,
       })
     }
@@ -625,22 +607,22 @@ export class CharacterAnalysisService {
    */
   private async determineRelationshipType(
     interactions: CharacterInteraction[],
-    evidence: RelationshipEvidence[]
+    evidence: RelationshipEvidence[],
   ): Promise<RelationshipType> {
     // Проверяем физический контакт
-    const hasPhysicalContact = evidence.some(e => e.type === EvidenceType.PHYSICAL_CONTACT)
+    const hasPhysicalContact = evidence.some((e) => e.type === EvidenceType.PHYSICAL_CONTACT)
     if (hasPhysicalContact) {
       return RelationshipType.ROMANTIC // или FAMILY, нужен дополнительный анализ
     }
 
     // Проверяем конфликтные взаимодействия
-    const hasConflict = interactions.some(i => i.type === InteractionType.CONFLICT)
+    const hasConflict = interactions.some((i) => i.type === InteractionType.CONFLICT)
     if (hasConflict) {
       return RelationshipType.CONFLICT
     }
 
     // Проверяем кооперацию
-    const hasCooperation = interactions.some(i => i.type === InteractionType.COOPERATION)
+    const hasCooperation = interactions.some((i) => i.type === InteractionType.COOPERATION)
     if (hasCooperation) {
       return RelationshipType.COLLEAGUES
     }
@@ -658,7 +640,7 @@ export class CharacterAnalysisService {
 
   private calculateInteractionIntensity(interactions: CharacterInteraction[]): InteractionIntensity {
     if (interactions.length === 0) return InteractionIntensity.NONE
-    
+
     const avgProximity = interactions.reduce((sum, i) => sum + i.proximityScore, 0) / interactions.length
     const totalDuration = interactions.reduce((sum, i) => sum + i.duration, 0)
     const interactionCount = interactions.length
@@ -674,7 +656,7 @@ export class CharacterAnalysisService {
 
   private async determineEmotionalTone(interactions: CharacterInteraction[]): Promise<EmotionalTone> {
     if (interactions.length === 0) return EmotionalTone.NEUTRAL
-    
+
     let positiveCount = 0
     let negativeCount = 0
     let neutralCount = 0
@@ -682,8 +664,10 @@ export class CharacterAnalysisService {
     for (const interaction of interactions) {
       if (interaction.type === InteractionType.CONFLICT) {
         negativeCount++
-      } else if (interaction.type === InteractionType.COOPERATION || 
-                 interaction.type === InteractionType.PHYSICAL_CONTACT) {
+      } else if (
+        interaction.type === InteractionType.COOPERATION ||
+        interaction.type === InteractionType.PHYSICAL_CONTACT
+      ) {
         positiveCount++
       } else {
         neutralCount++
@@ -705,25 +689,25 @@ export class CharacterAnalysisService {
 
   private calculateRelationshipConfidence(
     evidence: RelationshipEvidence[],
-    interactions: CharacterInteraction[]
+    interactions: CharacterInteraction[],
   ): number {
     if (evidence.length === 0) return 0
 
     // Взвешенная сумма доказательств
-    const evidenceScore = evidence.reduce((sum, e) => sum + e.confidence * e.weight, 0) / 
-                         evidence.reduce((sum, e) => sum + e.weight, 0)
+    const evidenceScore =
+      evidence.reduce((sum, e) => sum + e.confidence * e.weight, 0) / evidence.reduce((sum, e) => sum + e.weight, 0)
 
     // Дополнительная уверенность от количества взаимодействий
     const interactionScore = Math.min(interactions.length / 5, 1.0)
 
-    return (evidenceScore * 0.7 + interactionScore * 0.3)
+    return evidenceScore * 0.7 + interactionScore * 0.3
   }
 
   private extractPersonFacesFromScene(personId: string, scene: SceneAnalysis): DetectedFace[] {
     // Извлекаем лица конкретного персонажа из сцены
-    const identifiedPersons = scene.content?.identifiedPersons as any[] || []
+    const identifiedPersons = (scene.content?.identifiedPersons as any[]) || []
     const person = identifiedPersons.find((p: any) => p.id === personId)
-    
+
     if (!person || !person.appearances) return []
 
     return person.appearances.flatMap((app: any) => app.detectedFaces || [])
@@ -743,9 +727,7 @@ export class CharacterAnalysisService {
         const centerBX = faceB.bbox.x + faceB.bbox.width / 2
         const centerBY = faceB.bbox.y + faceB.bbox.height / 2
 
-        const distance = Math.sqrt(
-          Math.pow(centerAX - centerBX, 2) + Math.pow(centerAY - centerBY, 2)
-        )
+        const distance = Math.sqrt((centerAX - centerBX) ** 2 + (centerAY - centerBY) ** 2)
 
         // Нормализуем расстояние (предполагаем, что кадр 1920x1080)
         const maxDistance = Math.sqrt(1920 * 1920 + 1080 * 1080)
@@ -763,11 +745,11 @@ export class CharacterAnalysisService {
   }
 
   private async determineInteractionType(
-    charA: CharacterProfile,
-    charB: CharacterProfile,
-    scene: SceneAnalysis,
+    _charA: CharacterProfile,
+    _charB: CharacterProfile,
+    _scene: SceneAnalysis,
     facesA: DetectedFace[],
-    facesB: DetectedFace[]
+    facesB: DetectedFace[],
   ): Promise<InteractionType> {
     // Простая эвристика для определения типа взаимодействия
     const proximity = this.calculateProximity(facesA, facesB)
@@ -791,7 +773,7 @@ export class CharacterAnalysisService {
   private async analyzeVisualCues(
     facesA: DetectedFace[],
     facesB: DetectedFace[],
-    scene: SceneAnalysis
+    scene: SceneAnalysis,
   ): Promise<VisualCue[]> {
     const cues: VisualCue[] = []
 
@@ -808,7 +790,7 @@ export class CharacterAnalysisService {
 
     // Анализ выражений лиц
     for (const face of [...facesA, ...facesB]) {
-      if (face.emotion && face.emotion !== 'neutral') {
+      if (face.emotion && face.emotion !== "neutral") {
         cues.push({
           type: VisualCueType.FACIAL_EXPRESSION,
           description: `${face.emotion} expression detected`,
@@ -824,7 +806,7 @@ export class CharacterAnalysisService {
   private analyzeGazeDirection(facesA: DetectedFace[], facesB: DetectedFace[]): GazeDirection | undefined {
     // Упрощенный анализ направления взгляда
     // В реальной реализации здесь будет анализ pose данных
-    
+
     if (facesA.length === 0 || facesB.length === 0) return undefined
 
     const avgPoseA = this.calculateAveragePose(facesA)
@@ -842,11 +824,14 @@ export class CharacterAnalysisService {
   private calculateAveragePose(faces: DetectedFace[]): { yaw: number; pitch: number; roll: number } {
     if (faces.length === 0) return { yaw: 0, pitch: 0, roll: 0 }
 
-    const sum = faces.reduce((acc, face) => ({
-      yaw: acc.yaw + (face.pose?.yaw || 0),
-      pitch: acc.pitch + (face.pose?.pitch || 0),
-      roll: acc.roll + (face.pose?.roll || 0),
-    }), { yaw: 0, pitch: 0, roll: 0 })
+    const sum = faces.reduce(
+      (acc, face) => ({
+        yaw: acc.yaw + (face.pose?.yaw || 0),
+        pitch: acc.pitch + (face.pose?.pitch || 0),
+        roll: acc.roll + (face.pose?.roll || 0),
+      }),
+      { yaw: 0, pitch: 0, roll: 0 },
+    )
 
     return {
       yaw: sum.yaw / faces.length,
@@ -855,13 +840,10 @@ export class CharacterAnalysisService {
     }
   }
 
-  private async analyzeBodyLanguage(
-    facesA: DetectedFace[],
-    facesB: DetectedFace[]
-  ): Promise<BodyLanguage | undefined> {
+  private async analyzeBodyLanguage(facesA: DetectedFace[], facesB: DetectedFace[]): Promise<BodyLanguage | undefined> {
     // Упрощенный анализ языка тела
     // В реальной реализации нужен анализ полных скелетов тела
-    
+
     if (facesA.length === 0 || facesB.length === 0) return undefined
 
     return {
@@ -876,7 +858,7 @@ export class CharacterAnalysisService {
   private generateInteractionDescription(
     type: InteractionType,
     charA: CharacterProfile,
-    charB: CharacterProfile
+    charB: CharacterProfile,
   ): string {
     const nameA = charA.person.name || `Person ${charA.personId.substring(0, 8)}`
     const nameB = charB.person.name || `Person ${charB.personId.substring(0, 8)}`
@@ -901,10 +883,7 @@ export class CharacterAnalysisService {
     }
   }
 
-  private async analyzeCharacterTraits(
-    person: Person,
-    scenes: SceneAnalysis[]
-  ): Promise<CharacterTraits> {
+  private async analyzeCharacterTraits(_person: Person, scenes: SceneAnalysis[]): Promise<CharacterTraits> {
     // Упрощенный анализ черт характера на основе появлений
     const totalAppearances = scenes.length
     const totalDuration = scenes.reduce((sum, scene) => sum + scene.duration, 0)
@@ -912,7 +891,7 @@ export class CharacterAnalysisService {
     // Эвристики для определения черт
     const sociability = Math.min(totalAppearances / 10, 1.0) // Больше появлений = больше социальности
     const activityLevel = Math.min(totalDuration / 60, 1.0) // Больше экранного времени = больше активности
-    
+
     return {
       dominance: 0.5, // Нейтральное значение, нужен дополнительный анализ
       sociability,
@@ -922,17 +901,14 @@ export class CharacterAnalysisService {
     }
   }
 
-  private async analyzeEmotionalRange(
-    person: Person,
-    scenes: SceneAnalysis[]
-  ): Promise<EmotionalRange> {
+  private async analyzeEmotionalRange(person: Person, scenes: SceneAnalysis[]): Promise<EmotionalRange> {
     // Собираем все эмоции персонажа из сцен
     const emotions: string[] = []
 
     for (const scene of scenes) {
-      const identifiedPersons = scene.content?.identifiedPersons as any[] || []
+      const identifiedPersons = (scene.content?.identifiedPersons as any[]) || []
       const personInScene = identifiedPersons.find((p: any) => p.id === person.id)
-      
+
       if (personInScene?.appearances) {
         for (const appearance of personInScene.appearances) {
           for (const face of appearance.detectedFaces || []) {
@@ -946,7 +922,7 @@ export class CharacterAnalysisService {
 
     if (emotions.length === 0) {
       return {
-        dominantEmotion: 'neutral',
+        dominantEmotion: "neutral",
         emotionalVariability: 0.5,
         positiveRatio: 0.33,
         negativeRatio: 0.33,
@@ -955,23 +931,22 @@ export class CharacterAnalysisService {
     }
 
     // Анализируем эмоции
-    const emotionCounts = emotions.reduce((acc, emotion) => {
+    const emotionCounts = emotions.reduce<Record<string, number>>((acc, emotion) => {
       acc[emotion] = (acc[emotion] || 0) + 1
       return acc
-    }, {} as Record<string, number>)
+    }, {})
 
-    const dominantEmotion = Object.entries(emotionCounts)
-      .sort(([,a], [,b]) => b - a)[0][0]
+    const dominantEmotion = Object.entries(emotionCounts).sort(([, a], [, b]) => b - a)[0][0]
 
     const uniqueEmotions = Object.keys(emotionCounts).length
     const emotionalVariability = Math.min(uniqueEmotions / 7, 1.0) // 7 основных эмоций
 
     // Классифицируем эмоции
-    const positiveEmotions = ['happy', 'joy', 'surprise', 'love']
-    const negativeEmotions = ['sad', 'anger', 'fear', 'disgust']
+    const positiveEmotions = ["happy", "joy", "surprise", "love"]
+    const negativeEmotions = ["sad", "anger", "fear", "disgust"]
 
-    const positiveCount = emotions.filter(e => positiveEmotions.includes(e)).length
-    const negativeCount = emotions.filter(e => negativeEmotions.includes(e)).length
+    const positiveCount = emotions.filter((e) => positiveEmotions.includes(e)).length
+    const negativeCount = emotions.filter((e) => negativeEmotions.includes(e)).length
     const neutralCount = emotions.length - positiveCount - negativeCount
 
     return {
@@ -983,29 +958,26 @@ export class CharacterAnalysisService {
     }
   }
 
-  private determineCharacterRole(
-    person: Person,
-    scenes: SceneAnalysis[],
-    totalScreenTime: number
-  ): CharacterRole {
-    const totalVideoTime = Math.max(...scenes.map(s => s.endTime))
+  private determineCharacterRole(_person: Person, scenes: SceneAnalysis[], totalScreenTime: number): CharacterRole {
+    const totalVideoTime = Math.max(...scenes.map((s) => s.endTime))
     const screenTimeRatio = totalScreenTime / totalVideoTime
 
     // Простая эвристика основанная на экранном времени
     if (screenTimeRatio > 0.5) {
       return CharacterRole.PROTAGONIST
-    } else if (screenTimeRatio > 0.2) {
-      return CharacterRole.SUPPORTING
-    } else if (screenTimeRatio > 0.05) {
-      return CharacterRole.BACKGROUND
-    } else {
-      return CharacterRole.UNKNOWN
     }
+    if (screenTimeRatio > 0.2) {
+      return CharacterRole.SUPPORTING
+    }
+    if (screenTimeRatio > 0.05) {
+      return CharacterRole.BACKGROUND
+    }
+    return CharacterRole.UNKNOWN
   }
 
   private buildSocialNetwork(
     characters: CharacterProfile[],
-    relationships: CharacterRelationship[]
+    relationships: CharacterRelationship[],
   ): SocialNetworkNode[] {
     const nodes: SocialNetworkNode[] = []
 
@@ -1013,13 +985,13 @@ export class CharacterAnalysisService {
       const connections: SocialConnection[] = []
 
       // Находим все отношения для этого персонажа
-      const charRelationships = relationships.filter(rel => 
-        rel.personA === character.personId || rel.personB === character.personId
+      const charRelationships = relationships.filter(
+        (rel) => rel.personA === character.personId || rel.personB === character.personId,
       )
 
       for (const rel of charRelationships) {
         const targetPersonId = rel.personA === character.personId ? rel.personB : rel.personA
-        
+
         connections.push({
           targetPersonId,
           strength: this.calculateConnectionStrength(rel),
@@ -1070,44 +1042,51 @@ export class CharacterAnalysisService {
     const intensityWeight = intensityWeights[relationship.intensity] || 0.5
     const timeWeight = Math.min(relationship.totalInteractionTime / 30, 1.0) // Нормализуем к 30 секундам
 
-    return (typeWeight + intensityWeight + timeWeight) / 3 * relationship.confidence
+    return ((typeWeight + intensityWeight + timeWeight) / 3) * relationship.confidence
   }
 
   private createAnalysisSummary(
     characters: CharacterProfile[],
     relationships: CharacterRelationship[],
-    interactions: CharacterInteraction[]
+    _interactions: CharacterInteraction[],
   ): CharacterAnalysisSummary {
-    const mainCharacters = characters.filter(char => 
-      char.role === CharacterRole.PROTAGONIST || char.role === CharacterRole.ANTAGONIST
+    const mainCharacters = characters.filter(
+      (char) => char.role === CharacterRole.PROTAGONIST || char.role === CharacterRole.ANTAGONIST,
     ).length
 
-    const relationshipTypeCounts = relationships.reduce((acc, rel) => {
-      acc[rel.type] = (acc[rel.type] || 0) + 1
-      return acc
-    }, {} as Record<RelationshipType, number>)
+    const relationshipTypeCounts = relationships.reduce(
+      (acc, rel) => {
+        acc[rel.type] = (acc[rel.type] || 0) + 1
+        return acc
+      },
+      {} as Record<RelationshipType, number>,
+    )
 
-    const mostCommonRelationshipType = Object.entries(relationshipTypeCounts)
-      .sort(([,a], [,b]) => b - a)[0]?.[0] as RelationshipType || RelationshipType.UNKNOWN
+    const mostCommonRelationshipType =
+      (Object.entries(relationshipTypeCounts).sort(([, a], [, b]) => b - a)[0]?.[0] as RelationshipType) ||
+      RelationshipType.UNKNOWN
 
-    const avgRelationshipsPerCharacter = characters.length > 0 ? 
-      relationships.length * 2 / characters.length : 0 // *2 потому что каждое отношение связывает двух персонажей
+    const avgRelationshipsPerCharacter = characters.length > 0 ? (relationships.length * 2) / characters.length : 0 // *2 потому что каждое отношение связывает двух персонажей
 
     // Социальная сложность на основе количества уникальных типов отношений
     const uniqueRelationshipTypes = Object.keys(relationshipTypeCounts).length
     const socialComplexity = Math.min(uniqueRelationshipTypes / 7, 1.0) // 7 возможных типов
 
     // Доминирующий эмоциональный тон
-    const emotionalToneCounts = relationships.reduce((acc, rel) => {
-      acc[rel.emotionalTone] = (acc[rel.emotionalTone] || 0) + 1
-      return acc
-    }, {} as Record<EmotionalTone, number>)
+    const emotionalToneCounts = relationships.reduce(
+      (acc, rel) => {
+        acc[rel.emotionalTone] = (acc[rel.emotionalTone] || 0) + 1
+        return acc
+      },
+      {} as Record<EmotionalTone, number>,
+    )
 
-    const dominantEmotionalTone = Object.entries(emotionalToneCounts)
-      .sort(([,a], [,b]) => b - a)[0]?.[0] as EmotionalTone || EmotionalTone.NEUTRAL
+    const dominantEmotionalTone =
+      (Object.entries(emotionalToneCounts).sort(([, a], [, b]) => b - a)[0]?.[0] as EmotionalTone) ||
+      EmotionalTone.NEUTRAL
 
     // Плотность сети (процент возможных связей, которые существуют)
-    const maxPossibleRelationships = characters.length * (characters.length - 1) / 2
+    const maxPossibleRelationships = (characters.length * (characters.length - 1)) / 2
     const networkDensity = maxPossibleRelationships > 0 ? relationships.length / maxPossibleRelationships : 0
 
     return {
@@ -1129,31 +1108,32 @@ export class CharacterAnalysisService {
       characterCount: result.characters.length,
       relationshipCount: result.relationships.length,
       interactionCount: result.interactions.length,
-      avgScreenTimePerCharacter: result.characters.reduce((sum, char) => sum + char.totalScreenTime, 0) / result.characters.length,
-      mostActiveCharacter: result.characters.reduce((max, char) => 
-        char.totalScreenTime > max.totalScreenTime ? char : max
+      avgScreenTimePerCharacter:
+        result.characters.reduce((sum, char) => sum + char.totalScreenTime, 0) / result.characters.length,
+      mostActiveCharacter: result.characters.reduce((max, char) =>
+        char.totalScreenTime > max.totalScreenTime ? char : max,
       ),
-      relationshipTypes: result.relationships.reduce((acc, rel) => {
+      relationshipTypes: result.relationships.reduce<Record<string, number>>((acc, rel) => {
         acc[rel.type] = (acc[rel.type] || 0) + 1
         return acc
-      }, {} as Record<string, number>),
+      }, {}),
     }
   }
 
   /**
    * Экспорт результатов анализа в различных форматах
    */
-  async exportAnalysis(result: CharacterAnalysisResult, format: 'json' | 'csv' | 'graph' = 'json'): Promise<string> {
+  async exportAnalysis(result: CharacterAnalysisResult, format: "json" | "csv" | "graph" = "json"): Promise<string> {
     switch (format) {
-      case 'json':
+      case "json":
         return JSON.stringify(result, null, 2)
-      
-      case 'csv':
+
+      case "csv":
         return this.convertToCSV(result)
-      
-      case 'graph':
+
+      case "graph":
         return this.convertToGraphFormat(result)
-      
+
       default:
         throw new Error(`Unsupported export format: ${format}`)
     }
@@ -1162,17 +1142,17 @@ export class CharacterAnalysisService {
   private convertToCSV(result: CharacterAnalysisResult): string {
     // Экспорт отношений в CSV
     const headers = [
-      'PersonA',
-      'PersonB', 
-      'RelationshipType',
-      'Confidence',
-      'Intensity',
-      'EmotionalTone',
-      'TotalInteractionTime',
-      'InteractionCount'
+      "PersonA",
+      "PersonB",
+      "RelationshipType",
+      "Confidence",
+      "Intensity",
+      "EmotionalTone",
+      "TotalInteractionTime",
+      "InteractionCount",
     ]
 
-    const rows = result.relationships.map(rel => [
+    const rows = result.relationships.map((rel) => [
       rel.personA,
       rel.personB,
       rel.type,
@@ -1180,21 +1160,21 @@ export class CharacterAnalysisService {
       rel.intensity,
       rel.emotionalTone,
       rel.totalInteractionTime.toFixed(1),
-      rel.interactions.length
+      rel.interactions.length,
     ])
 
-    return [headers.join(','), ...rows.map(row => row.join(','))].join('\n')
+    return [headers.join(","), ...rows.map((row) => row.join(","))].join("\n")
   }
 
   private convertToGraphFormat(result: CharacterAnalysisResult): string {
     // Экспорт в формате DOT для визуализации графа
-    const nodes = result.characters.map(char => 
-      `  "${char.personId}" [label="${char.person.name || char.personId}", role="${char.role}"];`
-    ).join('\n')
+    const nodes = result.characters
+      .map((char) => `  "${char.personId}" [label="${char.person.name || char.personId}", role="${char.role}"];`)
+      .join("\n")
 
-    const edges = result.relationships.map(rel => 
-      `  "${rel.personA}" -- "${rel.personB}" [label="${rel.type}", weight="${rel.confidence}"];`
-    ).join('\n')
+    const edges = result.relationships
+      .map((rel) => `  "${rel.personA}" -- "${rel.personB}" [label="${rel.type}", weight="${rel.confidence}"];`)
+      .join("\n")
 
     return `graph CharacterNetwork {
 ${nodes}

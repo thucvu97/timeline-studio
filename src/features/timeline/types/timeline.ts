@@ -289,7 +289,7 @@ export interface AppliedEffect {
   customParams?: Record<string, any>
 
   // Состояние
-  isEnabled: boolean
+  enabled: boolean
   order: number // Порядок применения в цепочке
 }
 
@@ -548,7 +548,7 @@ export interface SubtitleStyle {
     blur: number
     color: string
   }
-  
+
   // Позиционирование по умолчанию
   defaultPosition: {
     alignment:
@@ -574,7 +574,7 @@ export interface SubtitleStyle {
   }
   borderRadius?: number
   maxWidth?: number // В процентах от ширины экрана
-  
+
   // Поведение
   wordWrap: boolean
   letterSpacing?: number
@@ -586,7 +586,7 @@ export interface SubtitleStyle {
     duration: number
     easing?: "linear" | "ease" | "ease-in" | "ease-out" | "ease-in-out"
   }
-  
+
   defaultAnimationOut?: {
     type: "fade" | "slide" | "scale"
     duration: number
@@ -613,18 +613,18 @@ export interface MusicClip extends TimelineClip {
 
   // Структура трека
   markers?: MusicMarker[] // Маркеры в музыке (verse, chorus, etc.)
-  
+
   // Аудио настройки
   fadeIn?: {
     duration: number // Длительность fade-in в секундах
     curve?: "linear" | "exponential" | "logarithmic"
   }
-  
+
   fadeOut?: {
     duration: number // Длительность fade-out в секундах
     curve?: "linear" | "exponential" | "logarithmic"
   }
-  
+
   // Эквалайзер (базовые частоты)
   equalizer?: {
     bass: number // -1 до 1
@@ -635,7 +635,7 @@ export interface MusicClip extends TimelineClip {
   // Эффекты
   reverb?: number // 0-1
   compression?: number // 0-1
-  
+
   // Синхронизация с видео
   syncToVideo?: boolean // Синхронизировать с видео (влияет на speed ramping)
   beatSync?: boolean // Синхронизировать нарезку по битам
@@ -659,14 +659,14 @@ export interface MusicFile {
   id: string
   name: string
   filePath: string
-  
+
   // Технические параметры
   duration: number
   sampleRate: number
   channels: number
   bitrate?: number
   format: string // mp3, wav, flac, etc.
-  
+
   // Музыкальные метаданные
   artist?: string
   album?: string
@@ -675,21 +675,21 @@ export interface MusicFile {
   genre?: string
   mood?: string
   energy?: number
-  
+
   // Правовая информация
   license?: "royalty-free" | "copyright" | "creative-commons" | "custom"
   licenseDetails?: string
   copyright?: string
-  
+
   // Теги и категоризация
   tags: string[]
   category?: string
-  
+
   // Предварительный анализ
   waveformData?: number[] // Данные волновой формы для отображения
   spectrogramData?: number[][] // Данные спектрограммы
   analysisComplete?: boolean
-  
+
   // Метаданные
   fileSize: number
   createdAt: Date

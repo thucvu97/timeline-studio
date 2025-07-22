@@ -121,41 +121,41 @@ export function useTracks(): UseTracksReturn {
   const toggleTrackMute = (trackId: string) => {
     const track = findTrack(trackId)
     if (track) {
-      updateTrack(trackId, { isMuted: !track.isMuted })
+      void updateTrack(trackId, { isMuted: !track.isMuted })
     }
   }
 
   const toggleTrackLock = (trackId: string) => {
     const track = findTrack(trackId)
     if (track) {
-      updateTrack(trackId, { isLocked: !track.isLocked })
+      void updateTrack(trackId, { isLocked: !track.isLocked })
     }
   }
 
   const toggleTrackVisibility = (trackId: string) => {
     const track = findTrack(trackId)
     if (track) {
-      updateTrack(trackId, { isHidden: !track.isHidden })
+      void updateTrack(trackId, { isHidden: !track.isHidden })
     }
   }
 
   const toggleTrackSolo = (trackId: string) => {
     const track = findTrack(trackId)
     if (track) {
-      updateTrack(trackId, { isSolo: !track.isSolo })
+      void updateTrack(trackId, { isSolo: !track.isSolo })
     }
   }
 
   const setTrackVolume = (trackId: string, volume: number) => {
-    updateTrack(trackId, { volume: Math.max(0, Math.min(1, volume)) })
+    void updateTrack(trackId, { volume: Math.max(0, Math.min(1, volume)) })
   }
 
   const setTrackPan = (trackId: string, pan: number) => {
-    updateTrack(trackId, { pan: Math.max(-1, Math.min(1, pan)) })
+    void updateTrack(trackId, { pan: Math.max(-1, Math.min(1, pan)) })
   }
 
   const setTrackHeight = (trackId: string, height: number) => {
-    updateTrack(trackId, { height: Math.max(40, Math.min(300, height)) })
+    void updateTrack(trackId, { height: Math.max(40, Math.min(300, height)) })
   }
 
   // ============================================================================

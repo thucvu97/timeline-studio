@@ -253,43 +253,43 @@ export function useTimelineSelection(): UseTimelineSelectionReturn {
 
   const setSelectedVolume = (volume: number) => {
     selectedClips.forEach((clip) => {
-      updateClip(clip.id, { volume })
+      void updateClip(clip.id, { volume })
     })
   }
 
   const setSelectedSpeed = (speed: number) => {
     selectedClips.forEach((clip) => {
-      updateClip(clip.id, { speed })
+      void updateClip(clip.id, { speed })
     })
   }
 
   const setSelectedOpacity = (opacity: number) => {
     selectedClips.forEach((clip) => {
-      updateClip(clip.id, { opacity })
+      void updateClip(clip.id, { opacity })
     })
   }
 
   const muteSelected = () => {
     selectedClips.forEach((clip) => {
-      updateClip(clip.id, { volume: 0 })
+      void updateClip(clip.id, { volume: 0 })
     })
   }
 
   const unmuteSelected = () => {
     selectedClips.forEach((clip) => {
-      updateClip(clip.id, { volume: 1 })
+      void updateClip(clip.id, { volume: 1 })
     })
   }
 
   const lockSelected = () => {
     selectedClips.forEach((clip) => {
-      updateClip(clip.id, { isLocked: true })
+      void updateClip(clip.id, { isLocked: true })
     })
   }
 
   const unlockSelected = () => {
     selectedClips.forEach((clip) => {
-      updateClip(clip.id, { isLocked: false })
+      void updateClip(clip.id, { isLocked: false })
     })
   }
 
@@ -306,7 +306,7 @@ export function useTimelineSelection(): UseTimelineSelectionReturn {
   }
 
   const pasteAtTime = (time: number, trackId?: string) => {
-    paste(trackId, time)
+    void paste(trackId, time)
   }
 
   // ============================================================================

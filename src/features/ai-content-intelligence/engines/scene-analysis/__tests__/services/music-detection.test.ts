@@ -2,19 +2,20 @@
  * Tests for Music Detection Service
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { 
-  MusicDetectionService, 
-  MusicSegmentType, 
-  MusicGenre, 
-  MusicMood,
+import { beforeEach, describe, expect, it, vi } from "vitest"
+
+import type { AudioAnalysisResult } from "@/shared/types/media-analysis"
+
+import {
   type MusicDetectionConfig,
-  type MusicSegment 
-} from '../../services/music-detection'
-import type { AudioAnalysisResult } from '@/shared/types/media-analysis'
+  MusicDetectionService,
+  MusicGenre,
+  MusicMood,
+  MusicSegmentType,
+} from "../../services/music-detection"
 
 // Mock FFmpeg service
-vi.mock('@/features/ai-chat/services/ffmpeg-analysis-service', () => ({
+vi.mock("@/features/ai-chat/services/ffmpeg-analysis-service", () => ({
   FFmpegAnalysisService: {
     getInstance: () => ({
       analyzeAudio: vi.fn(),
@@ -24,7 +25,7 @@ vi.mock('@/features/ai-chat/services/ffmpeg-analysis-service', () => ({
   },
 }))
 
-describe('MusicDetectionService', () => {
+describe("MusicDetectionService", () => {
   let service: MusicDetectionService
 
   const mockAudioAnalysis: AudioAnalysisResult = {
@@ -55,10 +56,10 @@ describe('MusicDetectionService', () => {
     height: 1080,
     fps: 30,
     bitrate: 5000000,
-    codec: 'h264',
-    format: 'mp4',
+    codec: "h264",
+    format: "mp4",
     hasAudio: true,
-    audioCodec: 'aac',
+    audioCodec: "aac",
     audioChannels: 2,
     audioSampleRate: 44100,
     fileSize: 10000000,
@@ -75,7 +76,7 @@ describe('MusicDetectionService', () => {
 
   beforeEach(() => {
     service = new MusicDetectionService()
-    
+
     // Mock the FFmpeg service methods
     const mockFFmpegInstance = (service as any).ffmpegService
     mockFFmpegInstance.analyzeAudio.mockResolvedValue(mockAudioAnalysis)
@@ -83,15 +84,15 @@ describe('MusicDetectionService', () => {
     mockFFmpegInstance.detectSilence.mockResolvedValue(mockSilenceDetection)
   })
 
-  describe('initialization', () => {
-    it('должен инициализироваться с конфигурацией по умолчанию', () => {
+  describe("initialization", () => {
+    it("должен инициализироваться с конфигурацией по умолчанию", () => {
       expect(service).toBeDefined()
       expect((service as any).config.analysis.enableGenreDetection).toBe(true)
       expect((service as any).config.analysis.enableTempoDetection).toBe(true)
       expect((service as any).config.filtering.minSegmentDuration).toBe(1.0)
     })
 
-    it('должен принимать пользовательскую конфигурацию', () => {
+    it("должен принимать пользовательскую конфигурацию", () => {
       const customConfig: Partial<MusicDetectionConfig> = {
         analysis: {
           enableGenreDetection: false,
@@ -115,17 +116,17 @@ describe('MusicDetectionService', () => {
     })
   })
 
-  describe('detectMusic', () => {
-    it('должен анализировать музыкальный контент файла', async () => {
-      const filePath = '/test/audio.mp4'
-      
+  describe("detectMusic", () => {
+    it("должен анализировать музыкальный контент файла", async () => {
+      const filePath = "/test/audio.mp4"
+
       const result = await service.detectMusic(filePath)
 
       expect(result).toBeDefined()
       expect(result.segments).toBeInstanceOf(Array)
       expect(result.summary).toBeDefined()
       expect(result.timeline).toBeDefined()
-      
+
       // Проверяем, что были вызваны методы FFmpeg
       const mockFFmpegInstance = (service as any).ffmpegService
       expect(mockFFmpegInstance.analyzeAudio).toHaveBeenCalledWith(filePath)
@@ -136,15 +137,15 @@ describe('MusicDetectionService', () => {
       })
     })
 
-    it('должен создавать сегменты на основе анализа', async () => {
-      const filePath = '/test/audio.mp4'
-      
+    it("должен создавать сегменты на основе анализа", async () => {
+      const filePath = "/test/audio.mp4"
+
       const result = await service.detectMusic(filePath)
 
       expect(result.segments.length).toBeGreaterThan(0)
-      
+
       // Проверяем структуру сегментов
-      result.segments.forEach(segment => {
+      result.segments.forEach((segment) => {
         expect(segment).toMatchObject({
           id: expect.any(String),
           startTime: expect.any(Number),
@@ -158,32 +159,32 @@ describe('MusicDetectionService', () => {
       })
     })
 
-    it('должен классифицировать типы сегментов', async () => {
-      const filePath = '/test/audio.mp4'
-      
+    it("должен классифицировать типы сегментов", async () => {
+      const filePath = "/test/audio.mp4"
+
       const result = await service.detectMusic(filePath)
 
       // Проверяем, что есть сегменты с разными типами
-      const segmentTypes = new Set(result.segments.map(s => s.type))
+      const segmentTypes = new Set(result.segments.map((s) => s.type))
       expect(segmentTypes.size).toBeGreaterThan(0)
-      
+
       // Проверяем, что типы валидны
-      result.segments.forEach(segment => {
+      result.segments.forEach((segment) => {
         expect(Object.values(MusicSegmentType)).toContain(segment.type)
       })
     })
 
-    it('должен обрабатывать сегменты тишины', async () => {
-      const filePath = '/test/audio.mp4'
-      
+    it("должен обрабатывать сегменты тишины", async () => {
+      const filePath = "/test/audio.mp4"
+
       const result = await service.detectMusic(filePath)
 
       // Должны быть сегменты тишины соответствующие mock данным
-      const silenceSegments = result.segments.filter(s => s.type === MusicSegmentType.SILENCE)
+      const silenceSegments = result.segments.filter((s) => s.type === MusicSegmentType.SILENCE)
       expect(silenceSegments.length).toBeGreaterThan(0)
-      
+
       // Проверяем, что сегменты тишины имеют правильные характеристики
-      silenceSegments.forEach(segment => {
+      silenceSegments.forEach((segment) => {
         expect(segment.volume).toBe(0)
         expect(segment.energy).toBe(0)
         expect(segment.confidence).toBeGreaterThan(0.8)
@@ -191,8 +192,8 @@ describe('MusicDetectionService', () => {
     })
   })
 
-  describe('segment classification', () => {
-    it('должен определять музыкальные сегменты', async () => {
+  describe("segment classification", () => {
+    it("должен определять музыкальные сегменты", async () => {
       // Создаем mock с характеристиками музыки
       const musicAudioAnalysis: AudioAnalysisResult = {
         ...mockAudioAnalysis,
@@ -200,19 +201,19 @@ describe('MusicDetectionService', () => {
         frequency: { lowEnd: 0.6, midRange: 0.6, highEnd: 0.5 },
         dynamics: { dynamicRange: 0.8, compressionRatio: 0.2 },
       }
-      
+
       const mockFFmpegInstance = (service as any).ffmpegService
       mockFFmpegInstance.analyzeAudio.mockResolvedValue(musicAudioAnalysis)
 
-      const result = await service.detectMusic('/test/music.mp4')
-      
-      const musicSegments = result.segments.filter(s => 
-        s.type === MusicSegmentType.MUSIC || s.type === MusicSegmentType.MIXED
+      const result = await service.detectMusic("/test/music.mp4")
+
+      const musicSegments = result.segments.filter(
+        (s) => s.type === MusicSegmentType.MUSIC || s.type === MusicSegmentType.MIXED,
       )
       expect(musicSegments.length).toBeGreaterThan(0)
     })
 
-    it('должен определять речевые сегменты', async () => {
+    it("должен определять речевые сегменты", async () => {
       // Создаем mock с характеристиками речи
       const speechAudioAnalysis: AudioAnalysisResult = {
         ...mockAudioAnalysis,
@@ -220,20 +221,20 @@ describe('MusicDetectionService', () => {
         frequency: { lowEnd: 0.3, midRange: 0.8, highEnd: 0.3 }, // Преобладание средних частот
         dynamics: { dynamicRange: 0.5, compressionRatio: 0.4 },
       }
-      
+
       const mockFFmpegInstance = (service as any).ffmpegService
       mockFFmpegInstance.analyzeAudio.mockResolvedValue(speechAudioAnalysis)
 
-      const result = await service.detectMusic('/test/speech.mp4')
-      
-      const speechSegments = result.segments.filter(s => 
-        s.type === MusicSegmentType.SPEECH || s.type === MusicSegmentType.MIXED
+      const result = await service.detectMusic("/test/speech.mp4")
+
+      const speechSegments = result.segments.filter(
+        (s) => s.type === MusicSegmentType.SPEECH || s.type === MusicSegmentType.MIXED,
       )
       expect(speechSegments.length).toBeGreaterThan(0)
     })
   })
 
-  describe('music analysis features', () => {
+  describe("music analysis features", () => {
     beforeEach(() => {
       // Настраиваем service для анализа музыки
       const musicAudioAnalysis: AudioAnalysisResult = {
@@ -242,72 +243,72 @@ describe('MusicDetectionService', () => {
         frequency: { lowEnd: 0.6, midRange: 0.6, highEnd: 0.5 },
         dynamics: { dynamicRange: 0.8, compressionRatio: 0.2 },
       }
-      
+
       const mockFFmpegInstance = (service as any).ffmpegService
       mockFFmpegInstance.analyzeAudio.mockResolvedValue(musicAudioAnalysis)
     })
 
-    it('должен определять жанр музыки', async () => {
-      const result = await service.detectMusic('/test/music.mp4')
-      
-      const musicSegments = result.segments.filter(s => s.type === MusicSegmentType.MUSIC)
+    it("должен определять жанр музыки", async () => {
+      const result = await service.detectMusic("/test/music.mp4")
+
+      const musicSegments = result.segments.filter((s) => s.type === MusicSegmentType.MUSIC)
       if (musicSegments.length > 0) {
-        const segmentsWithGenre = musicSegments.filter(s => s.genre)
+        const segmentsWithGenre = musicSegments.filter((s) => s.genre)
         expect(segmentsWithGenre.length).toBeGreaterThan(0)
-        
-        segmentsWithGenre.forEach(segment => {
+
+        segmentsWithGenre.forEach((segment) => {
           expect(Object.values(MusicGenre)).toContain(segment.genre)
         })
       }
     })
 
-    it('должен определять темп музыки', async () => {
-      const result = await service.detectMusic('/test/music.mp4')
-      
-      const musicSegments = result.segments.filter(s => s.type === MusicSegmentType.MUSIC)
+    it("должен определять темп музыки", async () => {
+      const result = await service.detectMusic("/test/music.mp4")
+
+      const musicSegments = result.segments.filter((s) => s.type === MusicSegmentType.MUSIC)
       if (musicSegments.length > 0) {
-        const segmentsWithTempo = musicSegments.filter(s => s.tempo)
+        const segmentsWithTempo = musicSegments.filter((s) => s.tempo)
         expect(segmentsWithTempo.length).toBeGreaterThan(0)
-        
-        segmentsWithTempo.forEach(segment => {
+
+        segmentsWithTempo.forEach((segment) => {
           expect(segment.tempo).toBeGreaterThan(40) // Разумный диапазон BPM
           expect(segment.tempo).toBeLessThan(200)
         })
       }
     })
 
-    it('должен определять настроение музыки', async () => {
-      const result = await service.detectMusic('/test/music.mp4')
-      
-      const musicSegments = result.segments.filter(s => s.type === MusicSegmentType.MUSIC)
+    it("должен определять настроение музыки", async () => {
+      const result = await service.detectMusic("/test/music.mp4")
+
+      const musicSegments = result.segments.filter((s) => s.type === MusicSegmentType.MUSIC)
       if (musicSegments.length > 0) {
-        const segmentsWithMood = musicSegments.filter(s => s.mood)
+        const segmentsWithMood = musicSegments.filter((s) => s.mood)
         expect(segmentsWithMood.length).toBeGreaterThan(0)
-        
-        segmentsWithMood.forEach(segment => {
+
+        segmentsWithMood.forEach((segment) => {
           expect(Object.values(MusicMood)).toContain(segment.mood)
         })
       }
     })
 
-    it('должен вычислять уровень энергии', async () => {
-      const result = await service.detectMusic('/test/music.mp4')
-      
-      result.segments.forEach(segment => {
+    it("должен вычислять уровень энергии", async () => {
+      const result = await service.detectMusic("/test/music.mp4")
+
+      result.segments.forEach((segment) => {
         expect(segment.energy).toBeGreaterThanOrEqual(0)
         expect(segment.energy).toBeLessThanOrEqual(1)
       })
     })
 
-    it('должен определять вокальные характеристики', async () => {
-      const result = await service.detectMusic('/test/music.mp4')
-      
-      const musicSegments = result.segments.filter(s => s.type === MusicSegmentType.MUSIC)
+    it("должен определять вокальные характеристики", async () => {
+      const result = await service.detectMusic("/test/music.mp4")
+
+      const musicSegments = result.segments.filter((s) => s.type === MusicSegmentType.MUSIC)
       if (musicSegments.length > 0) {
-        const segmentsWithVocals = musicSegments.filter(s => s.vocals)
+        const segmentsWithVocals = musicSegments.filter((s) => s.vocals)
         expect(segmentsWithVocals.length).toBeGreaterThan(0)
-        
-        segmentsWithVocals.forEach(segment => {
+
+        segmentsWithVocals.forEach((segment) => {
           expect(segment.vocals).toMatchObject({
             hasVocals: expect.any(Boolean),
             confidence: expect.any(Number),
@@ -319,23 +320,23 @@ describe('MusicDetectionService', () => {
     })
   })
 
-  describe('summary generation', () => {
-    it('должен создавать точную сводку', async () => {
-      const result = await service.detectMusic('/test/audio.mp4')
-      
+  describe("summary generation", () => {
+    it("должен создавать точную сводку", async () => {
+      const result = await service.detectMusic("/test/audio.mp4")
+
       const { summary } = result
       expect(summary.totalDuration).toBe(mockMetadata.duration)
       expect(summary.musicPercentage).toBeGreaterThanOrEqual(0)
       expect(summary.musicPercentage).toBeLessThanOrEqual(100)
-      
+
       // Проверяем, что продолжительности складываются правильно
       const calculatedTotal = summary.musicDuration + summary.speechDuration + summary.silenceDuration
       expect(Math.abs(calculatedTotal - summary.totalDuration)).toBeLessThan(2) // Допуск 2 секунды
     })
 
-    it('должен определять доминирующие характеристики', async () => {
-      const result = await service.detectMusic('/test/audio.mp4')
-      
+    it("должен определять доминирующие характеристики", async () => {
+      const result = await service.detectMusic("/test/audio.mp4")
+
       const { summary } = result
       expect(summary.hasVocals).toBeDefined()
       expect(summary.energyProfile).toBeDefined()
@@ -345,15 +346,15 @@ describe('MusicDetectionService', () => {
     })
   })
 
-  describe('timeline generation', () => {
-    it('должен создавать временную шкалу', async () => {
-      const result = await service.detectMusic('/test/audio.mp4')
-      
+  describe("timeline generation", () => {
+    it("должен создавать временную шкалу", async () => {
+      const result = await service.detectMusic("/test/audio.mp4")
+
       const { timeline } = result
       expect(timeline.energyTimeline).toBeInstanceOf(Array)
       expect(timeline.volumeTimeline).toBeInstanceOf(Array)
-      
-      timeline.energyTimeline.forEach(point => {
+
+      timeline.energyTimeline.forEach((point) => {
         expect(point).toMatchObject({
           timestamp: expect.any(Number),
           energy: expect.any(Number),
@@ -365,8 +366,8 @@ describe('MusicDetectionService', () => {
     })
   })
 
-  describe('segment merging', () => {
-    it('должен объединять близкие сегменты одного типа', async () => {
+  describe("segment merging", () => {
+    it("должен объединять близкие сегменты одного типа", async () => {
       const configWithMerging: Partial<MusicDetectionConfig> = {
         filtering: {
           minSegmentDuration: 0.5,
@@ -375,33 +376,33 @@ describe('MusicDetectionService', () => {
           mergeGapThreshold: 1.0,
         },
       }
-      
+
       const serviceWithMerging = new MusicDetectionService(configWithMerging)
-      
+
       // Mock FFmpeg service для нового service
       const mockFFmpegInstance = (serviceWithMerging as any).ffmpegService
       mockFFmpegInstance.analyzeAudio.mockResolvedValue(mockAudioAnalysis)
       mockFFmpegInstance.getVideoMetadata.mockResolvedValue(mockMetadata)
       mockFFmpegInstance.detectSilence.mockResolvedValue(mockSilenceDetection)
 
-      const result = await serviceWithMerging.detectMusic('/test/audio.mp4')
-      
+      const result = await serviceWithMerging.detectMusic("/test/audio.mp4")
+
       // Проверяем, что сегменты были объединены
       expect(result.segments.length).toBeGreaterThan(0)
-      
+
       // Проверяем целостность временных диапазонов
       for (let i = 1; i < result.segments.length; i++) {
         expect(result.segments[i].startTime).toBeGreaterThanOrEqual(result.segments[i - 1].endTime)
       }
     })
 
-    it('должен не объединять сегменты разных типов', async () => {
-      const result = await service.detectMusic('/test/audio.mp4')
-      
+    it("должен не объединять сегменты разных типов", async () => {
+      const result = await service.detectMusic("/test/audio.mp4")
+
       // Проверяем, что есть переходы между типами сегментов
-      const segmentTypes = result.segments.map(s => s.type)
+      const segmentTypes = result.segments.map((s) => s.type)
       const uniqueTypes = new Set(segmentTypes)
-      
+
       if (uniqueTypes.size > 1) {
         // Должны быть сегменты разных типов, не объединенные вместе
         for (let i = 1; i < result.segments.length; i++) {
@@ -414,19 +415,19 @@ describe('MusicDetectionService', () => {
     })
   })
 
-  describe('error handling', () => {
-    it('должен обрабатывать ошибки FFmpeg анализа', async () => {
+  describe("error handling", () => {
+    it("должен обрабатывать ошибки FFmpeg анализа", async () => {
       const mockFFmpegInstance = (service as any).ffmpegService
-      mockFFmpegInstance.analyzeAudio.mockRejectedValue(new Error('FFmpeg failed'))
+      mockFFmpegInstance.analyzeAudio.mockRejectedValue(new Error("FFmpeg failed"))
 
-      await expect(service.detectMusic('/invalid/path.mp4')).rejects.toThrow('FFmpeg failed')
+      await expect(service.detectMusic("/invalid/path.mp4")).rejects.toThrow("FFmpeg failed")
     })
 
-    it('должен обрабатывать отсутствующие метаданные', async () => {
+    it("должен обрабатывать отсутствующие метаданные", async () => {
       const mockFFmpegInstance = (service as any).ffmpegService
       mockFFmpegInstance.getVideoMetadata.mockResolvedValue({ duration: 0 })
 
-      const result = await service.detectMusic('/empty/file.mp4')
+      const result = await service.detectMusic("/empty/file.mp4")
       expect(result.segments).toBeInstanceOf(Array)
       expect(result.summary.totalDuration).toBe(0)
     })
