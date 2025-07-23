@@ -6,7 +6,7 @@ import { toast } from "sonner"
 
 import { SOCIAL_NETWORKS } from "../constants/export-constants"
 import * as SocialNetworksService from "../services/social-networks-service"
-import * as SocialValidationService from "../services/social-validation-service"
+import { validateExportSettings, getOptimalSettings, getNetworkLimits } from "../services/social-validation-service"
 import { SocialExportSettings } from "../types/export-types"
 
 export function useSocialExport() {
@@ -88,7 +88,7 @@ export function useSocialExport() {
         return { valid: false, error: "Unknown social network" }
       }
 
-      const validation = SocialValidationService.validateExportSettings(network.id, settings, videoFile)
+      const validation = validateExportSettings(network.id, settings, videoFile)
 
       if (!validation.isValid) {
         return {
@@ -110,11 +110,11 @@ export function useSocialExport() {
   )
 
   const getOptimalSettings = useCallback((networkId: string) => {
-    return SocialValidationService.getOptimalSettings(networkId)
+    return getOptimalSettings(networkId)
   }, [])
 
   const getNetworkLimits = useCallback((networkId: string) => {
-    return SocialValidationService.getNetworkLimits(networkId)
+    return getNetworkLimits(networkId)
   }, [])
 
   return {

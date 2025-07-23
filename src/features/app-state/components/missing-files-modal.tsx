@@ -6,7 +6,7 @@ import { AlertTriangle, CheckCircle, FileX, Search, Trash2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { MediaRestorationService } from "@/features/media/services/media-restoration-service"
+import { handleMissingFiles, promptUserToFindFile } from "@/features/media/services/media-restoration-service"
 import { SavedMediaFile } from "@/features/media/types/saved-media"
 import { useModal } from "@/features/modals/services"
 
@@ -45,7 +45,7 @@ export function MissingFilesModal() {
     setResolutions((prev) => prev.map((r, i) => (i === index ? { ...r, isProcessing: true } : r)))
 
     try {
-      const newPath = await MediaRestorationService.promptUserToFindFile(resolution.file)
+      const newPath = await promptUserToFindFile(resolution.file)
 
       setResolutions((prev) =>
         prev.map((r, i) =>

@@ -286,6 +286,24 @@ Special thanks to our generous sponsors who have contributed $5,000+ to the proj
 
 </div>
 
+## Support 💝🚀
+
+- **BTC:** 14s9Y9Rb2CUWHSAatiQMhfkpx1MWXofUzw
+- **TON:** UQD1M80nPyzph5ZW1vfp_r19XI5MaerNhDq4dWXbXCo96WFj
+- **NOT:** UQD1M80nPyzph5ZW1vfp_r19XI5MaerNhDq4dWXbXCo96WFj
+- **ETH:** 0x286D65151b622dCC16624cEd8463FDa45585fd60
+
+<div align="center">
+  <table>
+    <tr>
+      <td><img src="public/qr/btc.png" alt="BTC" height="185" /></td>
+      <td><img src="public/qr/ton.png" alt="TON" height="185" /></td>
+      <td><img src="public/qr/not.png" alt="NOT" height="185" /></td>
+      <td><img src="public/qr/eth.png" alt="ETH" height="185" /></td>
+    </tr>
+  </table>
+</div>
+
 ## Star History
 <a href="https://www.star-history.com/#chatman-media/timeline-studio&Date">
  <picture>

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react"
 import { invoke } from "@tauri-apps/api/core"
 import { open } from "@tauri-apps/plugin-dialog"
 
-import { ProjectFileService } from "@/features/app-state/services/project-file-service"
+import { loadProject } from "@/features/app-state/services/project-file-service"
 import { calculateAspectRatio } from "@/features/project-settings/utils/aspect-ratio-utils"
 import { OutputFormat, ProjectSchema, RenderJob, RenderStatus } from "@/types/video-compiler"
 
@@ -119,7 +119,7 @@ export function useRenderQueue(): UseRenderQueueReturn {
         for (const project of projects) {
           try {
             // Загружаем проект из файла
-            const projectFile = await ProjectFileService.loadProject(project.path)
+            const projectFile = await loadProject(project.path)
 
             // Создаем схему проекта из реальных данных timeline
             const resolution = projectFile.settings.resolution.split("x").map(Number) as [number, number]

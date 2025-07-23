@@ -1,6 +1,11 @@
 import { useCallback, useState } from "react"
 
-import { MediaRestorationService, ProjectRestorationResult } from "@/features/media/services/media-restoration-service"
+import { 
+  ProjectRestorationResult,
+  restoreProjectMedia,
+  handleMissingFiles,
+  generateRestorationReport 
+} from "@/features/media/services/media-restoration-service"
 import { MediaFile } from "@/features/media/types/media"
 import { SavedMediaFile, SavedMusicFile } from "@/features/media/types/saved-media"
 import { useModal } from "@/features/modals/services"
@@ -67,7 +72,7 @@ export function useMediaRestoration() {
         // Фаза 1: Автоматическое восстановление
         console.log("Начинаем автоматическое восстановление медиафайлов...")
 
-        const result = await MediaRestorationService.restoreProjectMedia(mediaFiles, musicFiles, projectPath)
+        const result = await restoreProjectMedia(mediaFiles, musicFiles, projectPath)
 
         setRestorationResult(result)
 
@@ -103,7 +108,7 @@ export function useMediaRestoration() {
         }
 
         // Генерируем отчет
-        const report = MediaRestorationService.generateRestorationReport(result)
+        const report = generateRestorationReport(result)
         console.log("Отчет о восстановлении:", report)
 
         return {
@@ -237,7 +242,7 @@ export function useMediaRestoration() {
    */
   const getRestorationReport = useCallback(() => {
     if (!restorationResult) return null
-    return MediaRestorationService.generateRestorationReport(restorationResult)
+    return generateRestorationReport(restorationResult)
   }, [restorationResult])
 
   return {
