@@ -123,8 +123,14 @@ export function useCameraStream(
 
       console.log("Запрашиваем медиа-поток с ограничениями:", constraints)
       try {
-        const stream = await navigator.mediaDevices.getUserMedia(constraints)
+        const stream = await navigator.mediaDevices?.getUserMedia?.(constraints)
         console.log("Поток получен:", stream)
+        
+        if (!stream) {
+          console.error("Не удалось получить медиа-поток")
+          throw new Error("Медиа-поток недоступен")
+        }
+        
         streamRef.current = stream
 
         // Получаем информацию о фактическом разрешении из трека
@@ -155,8 +161,14 @@ export function useCameraStream(
         }
 
         try {
-          const stream = await navigator.mediaDevices.getUserMedia(fallbackConstraints)
+          const stream = await navigator.mediaDevices?.getUserMedia?.(fallbackConstraints)
           console.log("Поток получен с резервными настройками:", stream)
+          
+          if (!stream) {
+            console.error("Не удалось получить медиа-поток с резервными настройками")
+            throw new Error("Медиа-поток недоступен")
+          }
+          
           streamRef.current = stream
         } catch (fallbackError) {
           console.error("Ошибка при получении потока с резервными настройками:", fallbackError)

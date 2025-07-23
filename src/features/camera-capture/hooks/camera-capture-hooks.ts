@@ -30,10 +30,18 @@ export function useCameraPermissions(getDevices: () => Promise<boolean>): UseCam
       setErrorMessage("")
 
       // Запрашиваем доступ к камере и микрофону, чтобы получить метки устройств
-      const tempStream = await navigator.mediaDevices.getUserMedia({
+      const tempStream = await navigator.mediaDevices?.getUserMedia?.({
         video: true,
         audio: true,
       })
+      
+      if (!tempStream) {
+        setPermissionStatus("error")
+        setErrorMessage(
+          t("camera.permissionError", "Не удалось получить доступ к камере и микрофону. Проверьте настройки."),
+        )
+        return false
+      }
 
       // После получения доступа останавливаем временный поток
       tempStream.getTracks().forEach((track) => track.stop())
@@ -99,11 +107,16 @@ export function useDeviceCapabilities(
       setIsLoadingCapabilities(true)
       try {
         // Временно запрашиваем поток для определения возможностей
-        const stream = await navigator.mediaDevices.getUserMedia({
+        const stream = await navigator.mediaDevices?.getUserMedia?.({
           video: {
             deviceId: { exact: deviceId },
           },
         })
+        
+        if (!stream) {
+          console.error("Не удалось получить поток для определения возможностей устройства")
+          return
+        }
 
         // Получаем трек
         const videoTrack = stream.getVideoTracks()[0]

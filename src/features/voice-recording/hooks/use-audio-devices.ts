@@ -19,7 +19,7 @@ export function useAudioDevices({ setErrorMessage }: UseAudioDevicesProps) {
   // Получаем список доступных аудио устройств
   const getDevices = useCallback(async () => {
     try {
-      const devices = await navigator.mediaDevices.enumerateDevices()
+      const devices = await navigator.mediaDevices?.enumerateDevices?.() || []
 
       const audioDevices = devices
         .filter((device) => device.kind === "audioinput")

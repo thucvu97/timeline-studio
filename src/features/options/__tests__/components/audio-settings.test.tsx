@@ -1,8 +1,17 @@
 import { describe, expect, it, vi } from "vitest"
 
-import { renderWithBase, screen } from "@/test/test-utils"
+import { renderWithProviders, screen } from "@/test/test-utils"
 
 import { AudioSettings } from "../../components/audio-settings"
+
+// Мокаем lucide-react иконки
+vi.mock("lucide-react", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("lucide-react")>()
+  return {
+    ...actual,
+    // Переопределяем только если нужно
+  }
+})
 
 // Мокаем ResizeObserver для компонентов со Slider
 global.ResizeObserver = vi.fn().mockImplementation(() => ({
@@ -13,20 +22,19 @@ global.ResizeObserver = vi.fn().mockImplementation(() => ({
 
 describe("AudioSettings", () => {
   it("should render audio settings component", () => {
-    renderWithBase(<AudioSettings />)
+    renderWithProviders(<AudioSettings />)
 
     // Проверяем, что компонент рендерится
     expect(screen.getByTestId("audio-settings")).toBeInTheDocument()
   })
 
   it("should render all audio setting controls", () => {
-    renderWithBase(<AudioSettings />)
+    renderWithProviders(<AudioSettings />)
 
-    // Проверяем основные элементы управления
-    expect(screen.getByText("options.audio.sampleRate")).toBeInTheDocument()
-    expect(screen.getByText("options.audio.bitrate")).toBeInTheDocument()
-    expect(screen.getByText("options.audio.channels")).toBeInTheDocument()
-    expect(screen.getByText("options.audio.defaultVolume")).toBeInTheDocument()
-    expect(screen.getByText("options.audio.codec")).toBeInTheDocument()
+    // Проверяем новые элементы управления согласно обновленному дизайну (по ключам i18n)
+    expect(screen.getByText("options.audio.deviceSettings")).toBeInTheDocument()
+    expect(screen.getByText("options.audio.mixerControls")).toBeInTheDocument()
+    expect(screen.getByText("options.audio.effects")).toBeInTheDocument()
+    expect(screen.getByText("options.audio.advanced")).toBeInTheDocument()
   })
 })

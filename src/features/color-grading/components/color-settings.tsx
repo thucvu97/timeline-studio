@@ -1,6 +1,13 @@
 import { useState } from "react"
 
-import { ChevronDown } from "lucide-react"
+import { 
+  BarChart3,
+  ChevronDown,
+  Image,
+  Palette,
+  Sliders,
+  TrendingUp
+} from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
@@ -56,6 +63,7 @@ export function ColorSettings({ className }: ColorSettingsProps) {
             >
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-blue-400" />
+                <Palette className="h-4 w-4 text-blue-400" />
                 <h3 className="font-medium text-white">
                   {t("colorGrading.primaryCorrection", "Primary Color Correction")}
                 </h3>
@@ -80,6 +88,7 @@ export function ColorSettings({ className }: ColorSettingsProps) {
             >
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-green-400" />
+                <TrendingUp className="h-4 w-4 text-green-400" />
                 <h3 className="font-medium text-white">{t("colorGrading.curvesSection", "Curves")}</h3>
               </div>
               <ChevronDown
@@ -102,6 +111,7 @@ export function ColorSettings({ className }: ColorSettingsProps) {
             >
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-yellow-400" />
+                <Sliders className="h-4 w-4 text-yellow-400" />
                 <h3 className="font-medium text-white">{t("colorGrading.hslCorrection", "HSL Correction")}</h3>
               </div>
               <ChevronDown
@@ -124,6 +134,7 @@ export function ColorSettings({ className }: ColorSettingsProps) {
             >
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-purple-400" />
+                <Image className="h-4 w-4 text-purple-400" />
                 <h3 className="font-medium text-white">{t("colorGrading.lutSection", "LUT")}</h3>
               </div>
               <ChevronDown
@@ -146,6 +157,7 @@ export function ColorSettings({ className }: ColorSettingsProps) {
             >
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-red-400" />
+                <BarChart3 className="h-4 w-4 text-red-400" />
                 <h3 className="font-medium text-white">{t("colorGrading.scopesSection", "Scopes")}</h3>
               </div>
               <ChevronDown

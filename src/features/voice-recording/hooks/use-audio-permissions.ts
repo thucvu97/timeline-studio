@@ -73,9 +73,17 @@ export function useAudioPermissions() {
       }
 
       // Запрашиваем доступ к микрофону
-      const tempStream = await navigator.mediaDevices.getUserMedia({
+      const tempStream = await navigator.mediaDevices?.getUserMedia?.({
         audio: true,
       })
+      
+      if (!tempStream) {
+        setPermissionStatus("error")
+        setErrorMessage(
+          t("dialogs.voiceRecord.permissionError", "Не удалось получить доступ к микрофону. Проверьте настройки."),
+        )
+        return false
+      }
 
       // После получения доступа останавливаем временный поток
       tempStream.getTracks().forEach((track) => track.stop())

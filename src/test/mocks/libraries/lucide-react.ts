@@ -96,6 +96,7 @@ export const Maximize2 = createMockIcon("Maximize2")
 export const Mic = createMockIcon("Mic")
 export const Minimize2 = createMockIcon("Minimize2")
 export const Minus = createMockIcon("Minus")
+export const Monitor = createMockIcon("Monitor")
 export const MonitorCog = createMockIcon("MonitorCog")
 export const Moon = createMockIcon("Moon")
 export const Move = createMockIcon("Move")
@@ -248,6 +249,7 @@ vi.mock("lucide-react", () => ({
   Mic,
   Minimize2,
   Minus,
+  Monitor,
   MonitorCog,
   Moon,
   Move,

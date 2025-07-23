@@ -10,6 +10,7 @@ import { MediaFile } from "@/features/media/types/media";
 import { cn } from "@/lib/utils";
 
 import { AudioSettings } from "./audio-settings";
+import { InfoSettings } from "./info-settings";
 import { SpeedSettings } from "./speed-settings";
 
 type OptionsTab = "audio" | "color" | "speed" | "info";
@@ -18,7 +19,7 @@ const TABS: Array<{ id: OptionsTab; labelKey: string; icon: JSX.Element }> = [
   { id: "color", labelKey: "options.tabs.color", icon: <Palette /> },
   { id: "speed", labelKey: "options.tabs.speed", icon: <Gauge /> },
   { id: "audio", labelKey: "options.tabs.audio", icon: <AudioLines /> },
-  // { id: "info", labelKey: "options.tabs.info", icon: <Info /> },
+  { id: "info", labelKey: "options.tabs.info", icon: <Info /> },
 ];
 
 export interface OptionsProps {
@@ -44,6 +45,8 @@ export function Options({ selectedMediaFile }: OptionsProps) {
         return <ColorSettings />;
       case "speed":
         return <SpeedSettings />;
+      case "info":
+        return <InfoSettings selectedMediaFile={selectedMediaFile} />;
       default:
         return <ColorSettings />;
     }
@@ -62,7 +65,7 @@ export function Options({ selectedMediaFile }: OptionsProps) {
       >
         {/* Вкладки */}
         <TabsList
-          className="grid w-full grid-cols-5 flex-shrink-0 border-none bg-[#252526] rounded-none m-0 p-0"
+          className="grid w-full grid-cols-4 flex-shrink-0 border-none bg-[#252526] rounded-none m-0 p-0"
           data-testid="options-tabs-list"
         >
           {TABS.map((tab) => (

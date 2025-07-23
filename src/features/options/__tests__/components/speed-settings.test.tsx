@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 
-import { renderWithBase, screen } from "@/test/test-utils"
+import { renderWithProviders, screen } from "@/test/test-utils"
 
 import { SpeedSettings } from "../../components/speed-settings"
 
@@ -13,20 +13,19 @@ global.ResizeObserver = vi.fn().mockImplementation(() => ({
 
 describe("SpeedSettings", () => {
   it("should render speed settings component", () => {
-    renderWithBase(<SpeedSettings />)
+    renderWithProviders(<SpeedSettings />)
 
     // Проверяем, что компонент рендерится
     expect(screen.getByTestId("speed-settings")).toBeInTheDocument()
   })
 
   it("should render all speed setting controls", () => {
-    renderWithBase(<SpeedSettings />)
+    renderWithProviders(<SpeedSettings />)
 
-    // Проверяем основные элементы управления
-    expect(screen.getByText("options.speed.defaultPlayback")).toBeInTheDocument()
-    expect(screen.getByText("options.speed.customSpeed")).toBeInTheDocument()
-    expect(screen.getByText("options.speed.interpolation")).toBeInTheDocument()
-    expect(screen.getByText("options.speed.motionBlur")).toBeInTheDocument()
-    expect(screen.getByText("options.speed.smoothPlayback")).toBeInTheDocument()
+    // Проверяем новые элементы управления согласно обновленному дизайну (по ключам i18n)
+    expect(screen.getByText("options.speed.basicSpeed")).toBeInTheDocument()
+    expect(screen.getByText("options.speed.speedRamping")).toBeInTheDocument()
+    expect(screen.getByText("options.speed.frameInterpolation")).toBeInTheDocument()
+    expect(screen.getByText("options.speed.advanced")).toBeInTheDocument()
   })
 })
