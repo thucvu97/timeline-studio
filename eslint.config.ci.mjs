@@ -55,6 +55,7 @@ const eslintConfig = tseslint.config(
       "@typescript-eslint/no-misused-new": "error",
       "@typescript-eslint/no-empty-function": "off",
       "@typescript-eslint/no-non-null-assertion": "off",
+      "@typescript-eslint/no-deprecated": "off",
       "@typescript-eslint/array-type": "off",
       "no-case-declarations": "off",
       indent: ["error", 2, { SwitchCase: 1 }],
