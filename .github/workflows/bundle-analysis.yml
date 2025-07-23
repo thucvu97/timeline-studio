@@ -24,6 +24,27 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential gcc g++ make cmake
+          sudo apt-get install -y clang libclang-dev llvm-dev
+          sudo apt-get install -y libc6-dev linux-libc-dev
+          sudo apt-get install -y ffmpeg libavcodec-dev libavformat-dev libavutil-dev libavfilter-dev libavdevice-dev libswscale-dev libswresample-dev pkg-config
+
+      - name: Generate TypeScript bindings
+        run: |
+          cd src-tauri
+          cargo run --bin generate_types
+
       - name: Build with bundle analysis
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

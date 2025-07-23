@@ -59,8 +59,21 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
       - name: Clean install dependencies
         run: npm ci --cache clean --force
+
+      - name: Generate TypeScript bindings
+        run: |
+          cd src-tauri
+          cargo run --bin generate_types
 
       - name: Build Next.js app
         run: npm run build
