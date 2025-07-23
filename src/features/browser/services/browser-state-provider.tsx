@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from "react"
 
+import { useAppSettings } from "@/features/app-state/hooks"
 import { DEFAULT_PREVIEW_SIZE_INDEX, PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"
 import { useUserSettings } from "@/features/user-settings/hooks/use-user-settings"
 import { BrowserTab } from "@/shared/types/browser"
@@ -76,10 +77,12 @@ interface BrowserStateProviderProps {
  * Провайдер состояния браузера
  */
 export const BrowserStateProvider: React.FC<BrowserStateProviderProps> = ({ children }) => {
-  const { settings: userSettings, updateSettings: updateUserSettings } = useUserSettings()
+  const { updateUserSettings } = useAppSettings()
+  const userSettings = useUserSettings()
   const [state, setState] = useState<BrowserContext>(() => {
     // Пытаемся загрузить настройки из пользовательских настроек
-    return userSettings?.browserSettings || getInitialContext()
+    // Теперь browserSettings должны быть доступны напрямую как поле в userSettings
+    return (userSettings as any)?.browserSettings || getInitialContext()
   })
 
   // Используем ref для отслеживания первого рендера и предыдущего состояния
@@ -104,7 +107,6 @@ export const BrowserStateProvider: React.FC<BrowserStateProviderProps> = ({ chil
 
     const timeoutId = setTimeout(() => {
       updateUserSettings({
-        ...userSettings,
         browserSettings: state,
       })
       // Settings saved

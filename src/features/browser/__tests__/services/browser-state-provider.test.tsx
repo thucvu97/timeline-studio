@@ -108,10 +108,7 @@ describe("BrowserStateProvider", () => {
       }
 
       ;(useUserSettings as MockedFunction<typeof useUserSettings>).mockReturnValue({
-        settings: {
-          browserSettings: savedSettings,
-        },
-        updateSettings: mockUpdateSettings,
+        browserSettings: savedSettings,
       } as any)
 
       const { result } = renderHook(() => useBrowserState(), { wrapper })
