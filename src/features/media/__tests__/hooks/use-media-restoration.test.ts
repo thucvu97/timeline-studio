@@ -7,17 +7,15 @@ import { SavedMediaFile, SavedMusicFile } from "@/features/media/types/saved-med
 
 // Мокаем MediaRestorationService
 vi.mock("@/features/media/services/media-restoration-service", () => ({
-  MediaRestorationService: {
-    restoreProjectMedia: vi.fn(),
-    handleMissingFiles: vi.fn(),
-    generateRestorationReport: vi.fn(),
-  },
+  restoreProjectMedia: vi.fn(),
+  handleMissingFiles: vi.fn(),
+  generateRestorationReport: vi.fn(),
 }))
 
-const { MediaRestorationService } = await import("@/features/media/services/media-restoration-service")
-const mockRestoreProjectMedia = vi.mocked(MediaRestorationService.restoreProjectMedia)
-const mockHandleMissingFiles = vi.mocked(MediaRestorationService.handleMissingFiles)
-const mockGenerateRestorationReport = vi.mocked(MediaRestorationService.generateRestorationReport)
+const { restoreProjectMedia, handleMissingFiles, generateRestorationReport } = await import("@/features/media/services/media-restoration-service")
+const mockRestoreProjectMedia = vi.mocked(restoreProjectMedia)
+const mockHandleMissingFiles = vi.mocked(handleMissingFiles)
+const mockGenerateRestorationReport = vi.mocked(generateRestorationReport)
 
 describe("useMediaRestoration", () => {
   beforeEach(() => {

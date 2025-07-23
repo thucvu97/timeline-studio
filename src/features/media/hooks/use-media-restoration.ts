@@ -2,7 +2,7 @@ import { useCallback, useState } from "react"
 
 import { 
   ProjectRestorationResult,
-  restoreProjectMedia,
+  restoreProjectMedia as restoreProjectMediaService,
   handleMissingFiles,
   generateRestorationReport 
 } from "@/features/media/services/media-restoration-service"
@@ -72,7 +72,7 @@ export function useMediaRestoration() {
         // Фаза 1: Автоматическое восстановление
         console.log("Начинаем автоматическое восстановление медиафайлов...")
 
-        const result = await restoreProjectMedia(mediaFiles, musicFiles, projectPath)
+        const result = await restoreProjectMediaService(mediaFiles, musicFiles, projectPath)
 
         setRestorationResult(result)
 
