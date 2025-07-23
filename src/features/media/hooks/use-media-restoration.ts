@@ -2,9 +2,9 @@ import { useCallback, useState } from "react"
 
 import { 
   ProjectRestorationResult,
-  restoreProjectMedia as restoreProjectMediaService,
+  generateRestorationReport,
   handleMissingFiles,
-  generateRestorationReport 
+  restoreProjectMedia as restoreProjectMediaService 
 } from "@/features/media/services/media-restoration-service"
 import { MediaFile } from "@/features/media/types/media"
 import { SavedMediaFile, SavedMusicFile } from "@/features/media/types/saved-media"

@@ -17,19 +17,17 @@ vi.mock("@tauri-apps/plugin-dialog", () => ({
   open: (options: any) => mockOpen(options),
 }))
 
-// Mock ProjectFileService
+// Mock loadProject function
 vi.mock("@/features/app-state/services/project-file-service", () => ({
-  ProjectFileService: {
-    loadProject: vi.fn().mockResolvedValue({
-      id: "test-project",
-      settings: {
-        aspectRatio: { width: 1920, height: 1080 },
-        resolution: "1920x1080",
-        frameRate: "30",
-        colorSpace: "sdr",
-      },
-    }),
-  },
+  loadProject: vi.fn().mockResolvedValue({
+    id: "test-project",
+    settings: {
+      aspectRatio: { width: 1920, height: 1080 },
+      resolution: "1920x1080",
+      frameRate: "30",
+      colorSpace: "sdr",
+    },
+  }),
 }))
 
 // Mock timeline utils
@@ -177,6 +175,14 @@ describe("useRenderQueue", () => {
 
   it("should start render queue for multiple projects", async () => {
     const { result } = renderHook(() => useRenderQueue())
+
+    // Ждём пока хук выполнит начальную загрузку
+    await waitFor(() => {
+      expect(mockInvoke).toHaveBeenCalledWith("get_active_jobs", undefined)
+    })
+
+    // Сбрасываем счётчик вызовов после начальной загрузки
+    mockInvoke.mockClear()
 
     const projects = [
       { path: "/path/to/project1.tls", outputPath: "/output/video1.mp4" },

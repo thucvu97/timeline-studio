@@ -17,10 +17,12 @@
 [![npm downloads](https://img.shields.io/npm/dm/timeline-studio?style=flat-square&label=downloads)](https://www.npmjs.com/package/timeline-studio)
 
 [![GitHub stars](https://img.shields.io/github/stars/chatman-media/timeline-studio?style=for-the-badge)](https://github.com/chatman-media/timeline-studio/stargazers)
-[![Documentation](https://img.shields.io/badge/read-docs-blue?style=for-the-badge)](https://chatman-media.github.io/timeline-studio/api-docs/)
+[![Open Collective](https://img.shields.io/badge/Open%20Collective-Support%20Us-7FADF2?style=for-the-badge&logo=opencollective&logoColor=white)](https://opencollective.com/timeline-studio)
 [![Telegram](https://img.shields.io/badge/Join%20Group-Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/timelinestudio)
 [![Discord](https://img.shields.io/badge/Chat-on%20Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/BSddjvWk)
-<!-- [![Website](https://img.shields.io/badge/visit-website-brightgreen?style=for-the-badge&logo=globe&logoColor=white)](https://chatman-media.github.io/timeline-studio/) -->
+<!--
+[![Documentation](https://img.shields.io/badge/read-docs-blue?style=for-the-badge)](https://chatman-media.github.io/timeline-studio/api-docs/)
+[![Website](https://img.shields.io/badge/visit-website-brightgreen?style=for-the-badge&logo=globe&logoColor=white)](https://chatman-media.github.io/timeline-studio/) -->
 
 </div>
 
@@ -266,8 +268,6 @@ Timeline Studio is supported by these amazing sponsors:
 
 <div align="center">
 
-[![Open Collective](https://img.shields.io/badge/Open%20Collective-Support%20Us-7FADF2?style=for-the-badge&logo=opencollective&logoColor=white)](https://opencollective.com/timeline-studio)
-
 ### 🌟 Gold Sponsors
 
 <a href="https://github.com/alagiz">
@@ -277,26 +277,39 @@ Timeline Studio is supported by these amazing sponsors:
   <img src="https://github.com/alexk984.png" width="80" height="80" alt="alexk984" style="border-radius: 50%; margin: 10px;" />
 </a>
 
-Special thanks to our generous sponsors who have contributed $5,000+ to the project development!
-
-[Become a sponsor →](https://opencollective.com/timeline-studio)
+Special thanks to our generous crypto sponsors who have contributed $1,000+ to the project development!
 
 </div>
 
 ## Support 💝🚀
 
-- **BTC:** 14s9Y9Rb2CUWHSAatiQMhfkpx1MWXofUzw
-- **TON:** UQD1M80nPyzph5ZW1vfp_r19XI5MaerNhDq4dWXbXCo96WFj
-- **NOT:** UQD1M80nPyzph5ZW1vfp_r19XI5MaerNhDq4dWXbXCo96WFj
-- **ETH:** 0x286D65151b622dCC16624cEd8463FDa45585fd60
+Support the development via crypto donations:
 
 <div align="center">
   <table>
     <tr>
-      <td><img src="public/qr/btc.png" alt="BTC" height="185" /></td>
-      <td><img src="public/qr/ton.png" alt="TON" height="185" /></td>
-      <td><img src="public/qr/not.png" alt="NOT" height="185" /></td>
-      <td><img src="public/qr/eth.png" alt="ETH" height="185" /></td>
+      <td align="center">
+        <strong>BTC</strong><br/>
+        <img src="public/qr/btc.png" alt="BTC QR Code" height="200" /><br/>
+        <code>14s9Y9Rb2CUWHSAatiQMhfkpx1MWXofUzw</code>
+      </td>
+      <td align="center">
+        <strong>ETH</strong><br/>
+        <img src="public/qr/eth.png" alt="ETH QR Code" height="200" /><br/>
+        <code>0x286D65151b622dCC16624cEd8463FDa45585fd60</code>
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <strong>TON</strong><br/>
+        <img src="public/qr/ton.png" alt="TON QR Code" height="200" /><br/>
+        <code>UQD1M80nPyzph5ZW1vfp_r19XI5MaerNhDq4dWXbXCo96WFj</code>
+      </td>
+      <td align="center">
+        <strong>NOT</strong><br/>
+        <img src="public/qr/not.png" alt="NOT QR Code" height="200" /><br/>
+        <code>UQD1M80nPyzph5ZW1vfp_r19XI5MaerNhDq4dWXbXCo96WFj</code>
+      </td>
     </tr>
   </table>
 </div>

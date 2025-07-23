@@ -6,7 +6,7 @@ import { toast } from "sonner"
 
 import { SOCIAL_NETWORKS } from "../constants/export-constants"
 import * as SocialNetworksService from "../services/social-networks-service"
-import { validateExportSettings, getOptimalSettings, getNetworkLimits } from "../services/social-validation-service"
+import { validateExportSettings } from "../services/social-validation-service"
 import { SocialExportSettings } from "../types/export-types"
 
 export function useSocialExport() {
@@ -61,7 +61,7 @@ export function useSocialExport() {
           description: settings.description || "",
           tags: settings.tags || [],
           privacy: settings.privacy || "public",
-          onProgress: (progress) => {
+          onProgress: (progress: number) => {
             setUploadProgress(progress)
           },
         })
