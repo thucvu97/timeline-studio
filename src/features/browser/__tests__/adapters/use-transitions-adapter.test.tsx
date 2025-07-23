@@ -68,7 +68,7 @@ const mockGetGroupValue = vi.fn((transition: any, groupBy: string) => {
       return transition.category || "other"
     case "complexity":
       return transition.complexity || "basic"
-    case "type":  
+    case "type":
       return transition.type || "unknown"
     case "tags":
       return transition.tags && transition.tags.length > 0 ? transition.tags[0] : "untagged"
@@ -84,17 +84,17 @@ const mockGetGroupValue = vi.fn((transition: any, groupBy: string) => {
 
 const mockMatchesFilter = vi.fn((transition: any, filterType: string) => {
   if (filterType === "all") return true
-  
+
   // Фильтрация по сложности
   if (["basic", "intermediate", "advanced"].includes(filterType)) {
     return (transition.complexity || "basic") === filterType
   }
-  
+
   // Фильтрация по категории
   if (["basic", "advanced", "creative", "3d", "artistic", "cinematic"].includes(filterType)) {
     return transition.category === filterType
   }
-  
+
   return true
 })
 
@@ -245,7 +245,7 @@ describe("useTransitionsAdapter", () => {
       expect(result.current.getSortValue(testTransition, "duration")).toBe(1)
       expect(result.current.getSortValue(testTransition, "type")).toBe("fade")
       expect(result.current.getSortValue(testTransition, "unknown")).toBe("затухание")
-      
+
       // Проверяем что mock был вызван с правильными параметрами
       expect(mockGetSortValue).toHaveBeenCalledWith(testTransition, "name")
     })
@@ -272,7 +272,7 @@ describe("useTransitionsAdapter", () => {
       expect(searchableText).toContain("Smooth fade")
       expect(searchableText).toContain("basic")
       expect(searchableText).toContain("fade")
-      
+
       // Проверяем что mock был вызван
       expect(mockGetSearchableText).toHaveBeenCalledWith(testTransition)
     })

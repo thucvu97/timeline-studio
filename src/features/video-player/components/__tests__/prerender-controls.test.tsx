@@ -168,7 +168,7 @@ describe("PrerenderControls", () => {
 
     it("should show all settings when enabled", () => {
       render(<PrerenderControls {...defaultProps} />)
-      
+
       expect(screen.getByText("Включить пререндер")).toBeInTheDocument()
       expect(screen.getByText("Качество")).toBeInTheDocument()
       expect(screen.getByText("80%")).toBeInTheDocument()
@@ -180,7 +180,7 @@ describe("PrerenderControls", () => {
 
     it("should show action buttons", () => {
       render(<PrerenderControls {...defaultProps} />)
-      
+
       expect(screen.getByText("Пререндер текущего сегмента")).toBeInTheDocument()
       expect(screen.getByText(/Очистить кеш.*3 файлов.*3.0 МБ/)).toBeInTheDocument()
     })
@@ -226,7 +226,7 @@ describe("PrerenderControls", () => {
 
     it("should update enabled setting", async () => {
       render(<PrerenderControls {...defaultProps} />)
-      
+
       const enableSwitch = screen.getByLabelText("Включить пререндер")
       fireEvent.click(enableSwitch)
 
@@ -249,7 +249,7 @@ describe("PrerenderControls", () => {
 
     it("should update apply effects setting", async () => {
       render(<PrerenderControls {...defaultProps} />)
-      
+
       const effectsSwitch = screen.getByLabelText("Применять эффекты")
       fireEvent.click(effectsSwitch)
 
@@ -264,7 +264,7 @@ describe("PrerenderControls", () => {
 
     it("should update auto prerender setting", async () => {
       render(<PrerenderControls {...defaultProps} />)
-      
+
       const autoSwitch = screen.getByLabelText("Автоматический")
       fireEvent.click(autoSwitch)
 
@@ -292,7 +292,7 @@ describe("PrerenderControls", () => {
 
     it("should execute prerender for current segment", async () => {
       render(<PrerenderControls {...defaultProps} />)
-      
+
       const prerenderButton = screen.getByText("Пререндер текущего сегмента")
       fireEvent.click(prerenderButton)
 
@@ -312,7 +312,7 @@ describe("PrerenderControls", () => {
 
     it("should clear cache", async () => {
       render(<PrerenderControls {...defaultProps} />)
-      
+
       const clearButton = screen.getByText(/Очистить кеш/)
       fireEvent.click(clearButton)
 

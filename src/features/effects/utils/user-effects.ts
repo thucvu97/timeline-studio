@@ -128,16 +128,16 @@ export function prepareEffectForExport(
     // Обрабатываем presets как массив или объект
     if (Array.isArray(exportEffect.presets)) {
       exportEffect.presets = [...exportEffect.presets, customPreset]
-    } else if (exportEffect.presets && typeof exportEffect.presets === 'object') {
+    } else if (exportEffect.presets && typeof exportEffect.presets === "object") {
       // Если presets - объект, добавляем новый пресет с его ID как ключом
       exportEffect.presets = {
         ...exportEffect.presets,
-        [customPreset.id]: customPreset
+        [customPreset.id]: customPreset,
       }
     } else {
       // Если presets отсутствует, создаем объект
       exportEffect.presets = {
-        [customPreset.id]: customPreset
+        [customPreset.id]: customPreset,
       }
     }
   }

@@ -5,8 +5,8 @@ import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
 import { SOCIAL_NETWORKS } from "../constants/export-constants"
-import { SocialNetworksService } from "../services/social-networks-service"
-import { SocialValidationService } from "../services/social-validation-service"
+import * as SocialNetworksService from "../services/social-networks-service"
+import * as SocialValidationService from "../services/social-validation-service"
 import { SocialExportSettings } from "../types/export-types"
 
 export function useSocialExport() {

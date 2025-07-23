@@ -78,7 +78,7 @@ export class FiltersPreviewService {
         console.warn("Filters WebGL initialization skipped (SSR)")
         return
       }
-      
+
       this.canvas = document.createElement("canvas")
       this.gl = this.canvas.getContext("webgl2", {
         premultipliedAlpha: false,

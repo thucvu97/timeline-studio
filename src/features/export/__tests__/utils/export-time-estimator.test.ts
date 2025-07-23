@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { ExportSettings } from "../../types/export-types"
-import { ExportTimeEstimator, ProjectMetrics } from "../../utils/export-time-estimator"
+import { estimateExportTime, formatEstimatedTime, getConfidenceIcon, getConfidenceDescription, type ProjectMetrics } from "../../utils/export-time-estimator"
 
 describe("ExportTimeEstimator", () => {
   const basicSettings: ExportSettings = {
@@ -25,7 +25,7 @@ describe("ExportTimeEstimator", () => {
 
   describe("estimateExportTime", () => {
     it("should provide baseline estimate for simple project", () => {
-      const estimate = ExportTimeEstimator.estimateExportTime(basicSettings, basicProject)
+      const estimate = estimateExportTime(basicSettings, basicProject)
 
       expect(estimate.estimatedSeconds).toBeGreaterThan(0)
       expect(estimate.confidence).toBe("medium")
@@ -40,8 +40,8 @@ describe("ExportTimeEstimator", () => {
         effectsCount: 10,
       }
 
-      const simpleEstimate = ExportTimeEstimator.estimateExportTime(basicSettings, basicProject)
-      const complexEstimate = ExportTimeEstimator.estimateExportTime(basicSettings, complexProject)
+      const simpleEstimate = estimateExportTime(basicSettings, basicProject)
+      const complexEstimate = estimateExportTime(basicSettings, complexProject)
 
       expect(complexEstimate.estimatedSeconds).toBeGreaterThan(simpleEstimate.estimatedSeconds)
       expect(complexEstimate.confidence).toBe("low")
@@ -51,8 +51,8 @@ describe("ExportTimeEstimator", () => {
       const settings720p = { ...basicSettings, resolution: "720" }
       const settings4k = { ...basicSettings, resolution: "2160" }
 
-      const estimate720p = ExportTimeEstimator.estimateExportTime(settings720p, basicProject)
-      const estimate4k = ExportTimeEstimator.estimateExportTime(settings4k, basicProject)
+      const estimate720p = estimateExportTime(settings720p, basicProject)
+      const estimate4k = estimateExportTime(settings4k, basicProject)
 
       expect(estimate4k.estimatedSeconds).toBeGreaterThan(estimate720p.estimatedSeconds)
     })
@@ -65,8 +65,8 @@ describe("ExportTimeEstimator", () => {
       const h264Project = { ...basicProject }
       const h265Project = { ...basicProject }
 
-      const h264Estimate = ExportTimeEstimator.estimateExportTime(h264Settings, h264Project)
-      const h265Estimate = ExportTimeEstimator.estimateExportTime(h265Settings, h265Project)
+      const h264Estimate = estimateExportTime(h264Settings, h264Project)
+      const h265Estimate = estimateExportTime(h265Settings, h265Project)
 
       // At minimum, estimates should be different or we should get valid estimates
       expect(h264Estimate.estimatedSeconds).toBeGreaterThan(0)
@@ -82,40 +82,40 @@ describe("ExportTimeEstimator", () => {
         hasComplexEffects: false,
       }
 
-      const estimate = ExportTimeEstimator.estimateExportTime(basicSettings, simpleProject)
+      const estimate = estimateExportTime(basicSettings, simpleProject)
       expect(estimate.confidence).toBe("high")
     })
   })
 
   describe("formatEstimatedTime", () => {
     it("should format seconds correctly", () => {
-      expect(ExportTimeEstimator.formatEstimatedTime(45)).toBe("~45s")
+      expect(formatEstimatedTime(45)).toBe("~45s")
     })
 
     it("should format minutes correctly", () => {
-      expect(ExportTimeEstimator.formatEstimatedTime(90)).toBe("~1m 30s")
-      expect(ExportTimeEstimator.formatEstimatedTime(120)).toBe("~2m")
+      expect(formatEstimatedTime(90)).toBe("~1m 30s")
+      expect(formatEstimatedTime(120)).toBe("~2m")
     })
 
     it("should format hours correctly", () => {
-      expect(ExportTimeEstimator.formatEstimatedTime(3660)).toBe("~1h 1m")
-      expect(ExportTimeEstimator.formatEstimatedTime(3600)).toBe("~1h")
+      expect(formatEstimatedTime(3660)).toBe("~1h 1m")
+      expect(formatEstimatedTime(3600)).toBe("~1h")
     })
   })
 
   describe("getConfidenceIcon", () => {
     it("should return correct icons", () => {
-      expect(ExportTimeEstimator.getConfidenceIcon("high")).toBe("✓")
-      expect(ExportTimeEstimator.getConfidenceIcon("medium")).toBe("~")
-      expect(ExportTimeEstimator.getConfidenceIcon("low")).toBe("?")
+      expect(getConfidenceIcon("high")).toBe("✓")
+      expect(getConfidenceIcon("medium")).toBe("~")
+      expect(getConfidenceIcon("low")).toBe("?")
     })
   })
 
   describe("getConfidenceDescription", () => {
     it("should return meaningful descriptions", () => {
-      expect(ExportTimeEstimator.getConfidenceDescription("high")).toContain("simple project")
-      expect(ExportTimeEstimator.getConfidenceDescription("medium")).toContain("typical project")
-      expect(ExportTimeEstimator.getConfidenceDescription("low")).toContain("complex effects")
+      expect(getConfidenceDescription("high")).toContain("simple project")
+      expect(getConfidenceDescription("medium")).toContain("typical project")
+      expect(getConfidenceDescription("low")).toContain("complex effects")
     })
   })
 })

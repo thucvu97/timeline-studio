@@ -139,10 +139,10 @@ export function EffectsPreviewPlayer() {
 
     if (isPreviewActive && previewOptions.enabled && activeEffects.length > 0) {
       getEffectsPreviewService().startRealTimePreview(
-        videoRef.current, 
-        mockClip, 
-        effectsCanvasRef.current, 
-        previewOptions
+        videoRef.current,
+        mockClip,
+        effectsCanvasRef.current,
+        previewOptions,
       )
     } else {
       getEffectsPreviewService().stopRealTimePreview()

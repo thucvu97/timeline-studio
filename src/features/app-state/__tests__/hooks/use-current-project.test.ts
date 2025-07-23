@@ -47,7 +47,7 @@ describe("useCurrentProject", () => {
 
     expect(mockExecuteCommand).toHaveBeenCalledWith({
       type: "CreateProject",
-      params: { name: "Новый проект", template: "default" }
+      params: { name: "Новый проект", template: "default" },
     })
   })
 
@@ -60,7 +60,7 @@ describe("useCurrentProject", () => {
 
     expect(mockExecuteCommand).toHaveBeenCalledWith({
       type: "LoadProject",
-      params: { path: "/path/to/opened.tls" }
+      params: { path: "/path/to/opened.tls" },
     })
   })
 
@@ -73,7 +73,7 @@ describe("useCurrentProject", () => {
 
     expect(mockExecuteCommand).toHaveBeenCalledWith({
       type: "SaveProject",
-      params: { path: "/path/to/saved.tls" }
+      params: { path: "/path/to/saved.tls" },
     })
   })
 
@@ -86,7 +86,7 @@ describe("useCurrentProject", () => {
 
     expect(mockExecuteCommand).toHaveBeenCalledWith({
       type: "SetProjectDirty",
-      params: { dirty: true }
+      params: { dirty: true },
     })
 
     act(() => {
@@ -95,7 +95,7 @@ describe("useCurrentProject", () => {
 
     expect(mockExecuteCommand).toHaveBeenCalledWith({
       type: "SetProjectDirty",
-      params: { dirty: false }
+      params: { dirty: false },
     })
   })
 

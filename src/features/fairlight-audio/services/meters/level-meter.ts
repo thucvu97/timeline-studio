@@ -37,6 +37,7 @@ export class LevelMeter extends EventEmitter {
   private config: LevelConfig
   private meterConfig: MeterConfig
   private processor: AudioWorkletNode | null = null
+  private context: AudioContext | null = null
 
   // Буферы для каждого канала
   private peakValues: number[]
@@ -95,86 +96,22 @@ export class LevelMeter extends EventEmitter {
   async initialize(context: AudioContext): Promise<void> {
     this.context = context
 
-    try {
-      await this.initializeWithWorklet(context)
-    } catch (error) {
-      console.warn("AudioWorklet not supported, falling back to ScriptProcessor")
-      await this.initializeWithScriptProcessor(context)
-    }
+    // Always use AudioWorklet - it's supported in all modern browsers
+    await this.initializeWithWorklet(context)
   }
 
   private async initializeWithWorklet(context: AudioContext): Promise<void> {
-    const workletCode = `
-      class LevelMeterProcessor extends AudioWorkletProcessor {
-        constructor() {
-          super()
-          this.updateCounter = 0
-          this.sampleRate = 48000 // Will be updated from main thread
-        }
-        
-        process(inputs, outputs, parameters) {
-          const input = inputs[0]
-          const output = outputs[0]
-          
-          if (input.length === 0) return true
-          
-          // Pass-through audio
-          for (let ch = 0; ch < input.length; ch++) {
-            if (output[ch]) {
-              output[ch].set(input[ch])
-            }
-          }
-          
-          // Analyze levels every 128 samples (reduce CPU load)
-          this.updateCounter++
-          if (this.updateCounter >= 128) {
-            this.analyzeLevels(input)
-            this.updateCounter = 0
-          }
-          
-          return true
-        }
-        
-        analyzeLevels(channels) {
-          const levelData = []
-          
-          for (let ch = 0; ch < channels.length; ch++) {
-            const samples = channels[ch]
-            let peak = 0
-            let rmsSum = 0
-            
-            // Calculate peak and RMS
-            for (let i = 0; i < samples.length; i++) {
-              const sample = Math.abs(samples[i])
-              peak = Math.max(peak, sample)
-              rmsSum += samples[i] * samples[i]
-            }
-            
-            const rms = Math.sqrt(rmsSum / samples.length)
-            
-            levelData.push({
-              peak: peak > 0 ? 20 * Math.log10(peak) : -100,
-              rms: rms > 0 ? 20 * Math.log10(rms) : -100,
-              samples: samples.slice() // Copy for detailed analysis
-            })
-          }
-          
-          this.port.postMessage({
-            type: 'level-data',
-            levels: levelData,
-            timestamp: currentTime
-          })
-        }
-      }
-      
-      registerProcessor('level-meter', LevelMeterProcessor)
-    `
-
-    const blob = new Blob([workletCode], { type: "application/javascript" })
-    const workletUrl = URL.createObjectURL(blob)
-
-    await context.audioWorklet.addModule(workletUrl)
-    URL.revokeObjectURL(workletUrl)
+    if (!context.audioWorklet) {
+      throw new Error("AudioWorklet is not supported in this browser")
+    }
+    
+    try {
+      await context.audioWorklet.addModule(
+        "/src/features/fairlight-audio/services/meters/worklets/level-meter-worklet.js"
+      )
+    } catch (error) {
+      // Module might already be loaded, continue
+    }
 
     this.processor = new AudioWorkletNode(context, "level-meter", {
       numberOfInputs: 1,
@@ -184,17 +121,16 @@ export class LevelMeter extends EventEmitter {
       channelInterpretation: "speakers",
     })
 
+    // Send configuration to worklet
+    this.processor.port.postMessage({
+      type: "config",
+      sampleRate: context.sampleRate
+    })
+
     this.processor.port.onmessage = this.handleWorkletMessage.bind(this)
   }
 
-  private async initializeWithScriptProcessor(context: AudioContext): Promise<void> {
-    const bufferSize = 4096
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    const processor = context.createScriptProcessor(bufferSize, this.config.channels, this.config.channels)
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    processor.onaudioprocess = this.processAudioFallback.bind(this)
-    this.processor = processor as unknown as AudioWorkletNode
-  }
+  // Removed deprecated ScriptProcessor fallback
 
   private handleWorkletMessage(event: MessageEvent): void {
     const { type, levels, timestamp } = event.data
@@ -233,38 +169,7 @@ export class LevelMeter extends EventEmitter {
     this.emitLevelData()
   }
 
-  private processAudioFallback(event: any): void {
-    const inputBuffer = event.inputBuffer
-    const outputBuffer = event.outputBuffer
-
-    // Pass-through audio
-    for (let ch = 0; ch < inputBuffer.numberOfChannels; ch++) {
-      const input = inputBuffer.getChannelData(ch)
-      const output = outputBuffer.getChannelData(ch)
-      output.set(input)
-
-      // Analyze levels
-      const peak = this.calculatePeak(input)
-      const now = performance.now()
-
-      this.updatePeak(ch, peak, now)
-      this.updateRMSBuffer(ch, input)
-
-      if (this.config.enableVUMeter) {
-        this.updateVUBuffer(ch, input)
-      }
-
-      this.checkOverload(ch, peak)
-    }
-
-    if (this.isRunning) {
-      const now = performance.now()
-      if (now - this.lastUpdate >= this.config.updateInterval) {
-        this.lastUpdate = now
-        this.emitLevelData()
-      }
-    }
-  }
+  // Removed deprecated audio processing fallback method
 
   private calculatePeak(samples: Float32Array): number {
     let peak = 0

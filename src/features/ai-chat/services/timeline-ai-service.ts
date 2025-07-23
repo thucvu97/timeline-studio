@@ -9,6 +9,7 @@ import { MediaFile } from "@/features/media/types/media"
 import { ResourcesContextType } from "@/features/resources/services/resources-provider"
 import { TimelineProject } from "@/features/timeline/types"
 
+import { ApiKeyLoader } from "./api-key-loader"
 import { CLAUDE_MODELS, ClaudeService, ClaudeTool } from "./claude-service"
 import { batchProcessingTools, executeBatchProcessingTool } from "../tools/batch-processing-tools"
 import { browserTools, executeBrowserTool } from "../tools/browser-tools"
@@ -91,8 +92,26 @@ export class TimelineAIService {
   }
 
   /**
-   * Устанавливает API ключ Claude
-   * @deprecated Используйте API Keys Management вместо прямой установки ключа
+   * Инициализирует API ключ Claude из безопасного хранилища
+   * @returns Promise<boolean> - успешность загрузки ключа
+   */
+  public async initializeApiKey(): Promise<boolean> {
+    const apiKeyLoader = ApiKeyLoader.getInstance()
+    const apiKey = await apiKeyLoader.getApiKey("claude")
+
+    if (apiKey) {
+      // Временно используем deprecated метод для обратной совместимости
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
+      this.claudeService.setApiKey(apiKey)
+      return true
+    }
+
+    return false
+  }
+
+  /**
+   * Устанавливает API ключ для Claude
+   * @param apiKey API ключ
    */
   public setApiKey(apiKey: string): void {
     // eslint-disable-next-line @typescript-eslint/no-deprecated

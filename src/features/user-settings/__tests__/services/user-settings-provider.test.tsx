@@ -150,7 +150,7 @@ const UserSettingsWrapper = ({ children }: { children: React.ReactNode }) => (
 describe("UserSettingsProvider", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     // Сбрасываем счетчик вызовов useMachine
     useMachineCallCount = 0
 

@@ -1,18 +1,17 @@
-import React, { useState } from "react"
+import { useState } from "react"
 
-import { 
-  AudioLines, 
-  ChevronDown, 
+import {
+  AudioLines,
+  ChevronDown,
   Filter,
-  Headphones, 
-  Mic, 
-  Music, 
-  Settings, 
+  Headphones,
+  Music,
+  Settings,
   Sliders,
   Speaker,
-  Volume2, 
+  Volume2,
   Waves,
-  Zap
+  Zap,
 } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
@@ -34,7 +33,7 @@ interface AudioSettingsState {
 
 export function AudioSettings() {
   const { t } = useTranslation()
-  
+
   // Безопасно получаем timeline data
   let selectedClips: any[] = []
   try {
@@ -44,14 +43,13 @@ export function AudioSettings() {
     // TimelineProvider не доступен (например, в тестах)
     selectedClips = []
   }
-  
+
   // Получаем первый выбранный аудио клип
-  const currentAudioClip = selectedClips?.find(clip => 
-    clip.mediaFile?.type === 'audio' || 
-    clip.trackId?.includes('audio') ||
-    clip.trackId?.includes('music')
-  ) || null
-  
+  const currentAudioClip =
+    selectedClips?.find(
+      (clip) => clip.mediaFile?.type === "audio" || clip.trackId?.includes("audio") || clip.trackId?.includes("music"),
+    ) || null
+
   // Состояние открытых секций
   const [openSections, setOpenSections] = useState<AudioSettingsState>({
     deviceSettings: true, // Первая секция открыта по умолчанию
@@ -77,9 +75,9 @@ export function AudioSettings() {
   })
 
   const toggleSection = (section: keyof AudioSettingsState) => {
-    setOpenSections(prev => ({
+    setOpenSections((prev) => ({
       ...prev,
-      [section]: !prev[section]
+      [section]: !prev[section],
     }))
   }
 
@@ -138,7 +136,6 @@ export function AudioSettings() {
       {/* Основной контент с прокруткой */}
       <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-track-[#2D2D30] scrollbar-thumb-[#464647] hover:scrollbar-thumb-[#5A5A5C]">
         <div className="p-4 space-y-4">
-          
           {/* Настройки устройств */}
           <Collapsible open={openSections.deviceSettings} onOpenChange={() => toggleSection("deviceSettings")}>
             <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-[#383838] hover:bg-[#404040] rounded-lg border border-[#464647] transition-colors">
@@ -147,18 +144,21 @@ export function AudioSettings() {
                 <Headphones className="h-4 w-4 text-blue-400" />
                 <h3 className="font-medium text-white">{t("options.audio.deviceSettings", "Device Settings")}</h3>
               </div>
-              <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${openSections.deviceSettings ? "rotate-180" : ""}`} />
+              <ChevronDown
+                className={`h-4 w-4 text-gray-400 transition-transform ${openSections.deviceSettings ? "rotate-180" : ""}`}
+              />
             </CollapsibleTrigger>
-            
+
             <CollapsibleContent className="mt-3">
               <div className="bg-[#2D2D30] rounded-lg border border-[#464647] p-4 space-y-4">
-                
                 {/* Частота дискретизации */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-300">{t("options.audio.sampleRate", "Sample Rate")}</Label>
-                  <Select 
-                    value={settings.sampleRate} 
-                    onValueChange={(value) => setSettings(prev => ({ ...prev, sampleRate: value }))}
+                  <Label className="text-sm font-medium text-gray-300">
+                    {t("options.audio.sampleRate", "Sample Rate")}
+                  </Label>
+                  <Select
+                    value={settings.sampleRate}
+                    onValueChange={(value) => setSettings((prev) => ({ ...prev, sampleRate: value }))}
                   >
                     <SelectTrigger className="h-8">
                       <SelectValue />
@@ -176,9 +176,9 @@ export function AudioSettings() {
                 {/* Количество каналов */}
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-gray-300">{t("options.audio.channels", "Channels")}</Label>
-                  <Select 
-                    value={settings.channels} 
-                    onValueChange={(value) => setSettings(prev => ({ ...prev, channels: value }))}
+                  <Select
+                    value={settings.channels}
+                    onValueChange={(value) => setSettings((prev) => ({ ...prev, channels: value }))}
                   >
                     <SelectTrigger className="h-8">
                       <SelectValue />
@@ -196,9 +196,9 @@ export function AudioSettings() {
                 {/* Аудиокодек */}
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-gray-300">{t("options.audio.codec", "Audio Codec")}</Label>
-                  <Select 
-                    value={settings.codec} 
-                    onValueChange={(value) => setSettings(prev => ({ ...prev, codec: value }))}
+                  <Select
+                    value={settings.codec}
+                    onValueChange={(value) => setSettings((prev) => ({ ...prev, codec: value }))}
                   >
                     <SelectTrigger className="h-8">
                       <SelectValue />
@@ -224,22 +224,25 @@ export function AudioSettings() {
                 <Volume2 className="h-4 w-4 text-green-400" />
                 <h3 className="font-medium text-white">{t("options.audio.mixerControls", "Mixer Controls")}</h3>
               </div>
-              <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${openSections.mixerControls ? "rotate-180" : ""}`} />
+              <ChevronDown
+                className={`h-4 w-4 text-gray-400 transition-transform ${openSections.mixerControls ? "rotate-180" : ""}`}
+              />
             </CollapsibleTrigger>
-            
+
             <CollapsibleContent className="mt-3">
               <div className="bg-[#2D2D30] rounded-lg border border-[#464647] p-4 space-y-4">
-                
                 {/* Громкость по умолчанию */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-300">{t("options.audio.defaultVolume", "Default Volume")}</Label>
+                  <Label className="text-sm font-medium text-gray-300">
+                    {t("options.audio.defaultVolume", "Default Volume")}
+                  </Label>
                   <div className="space-y-2">
-                    <Slider 
-                      value={[settings.defaultVolume]} 
-                      onValueChange={([value]) => setSettings(prev => ({ ...prev, defaultVolume: value }))}
-                      max={100} 
-                      step={1} 
-                      className="w-full" 
+                    <Slider
+                      value={[settings.defaultVolume]}
+                      onValueChange={([value]) => setSettings((prev) => ({ ...prev, defaultVolume: value }))}
+                      max={100}
+                      step={1}
+                      className="w-full"
                     />
                     <div className="flex justify-between text-xs text-gray-400">
                       <span>0%</span>
@@ -252,9 +255,9 @@ export function AudioSettings() {
                 {/* Битрейт */}
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-gray-300">{t("options.audio.bitrate", "Bitrate")}</Label>
-                  <Select 
-                    value={settings.bitrate} 
-                    onValueChange={(value) => setSettings(prev => ({ ...prev, bitrate: value }))}
+                  <Select
+                    value={settings.bitrate}
+                    onValueChange={(value) => setSettings((prev) => ({ ...prev, bitrate: value }))}
                   >
                     <SelectTrigger className="h-8">
                       <SelectValue />
@@ -274,7 +277,7 @@ export function AudioSettings() {
                   <Checkbox
                     id="auto-gain"
                     checked={settings.autoGain}
-                    onCheckedChange={(checked) => setSettings(prev => ({ ...prev, autoGain: !!checked }))}
+                    onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, autoGain: !!checked }))}
                   />
                   <Label htmlFor="auto-gain" className="text-sm text-gray-300">
                     {t("options.audio.autoGain", "Automatic gain control")}
@@ -292,27 +295,29 @@ export function AudioSettings() {
                 <Zap className="h-4 w-4 text-yellow-400" />
                 <h3 className="font-medium text-white">{t("options.audio.effects", "Audio Effects")}</h3>
               </div>
-              <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${openSections.effects ? "rotate-180" : ""}`} />
+              <ChevronDown
+                className={`h-4 w-4 text-gray-400 transition-transform ${openSections.effects ? "rotate-180" : ""}`}
+              />
             </CollapsibleTrigger>
-            
+
             <CollapsibleContent className="mt-3">
               <div className="bg-[#2D2D30] rounded-lg border border-[#464647] p-4 space-y-4">
-                
                 {/* Эффекты в виде карточек */}
                 <div className="grid grid-cols-2 gap-3">
-                  
                   {/* Шумоподавление */}
-                  <div 
+                  <div
                     className={`p-3 rounded-lg border transition-all cursor-pointer ${
-                      settings.noiseReduction 
-                        ? 'border-blue-500 bg-blue-500/10' 
-                        : 'border-[#464647] bg-[#1E1E1E] hover:border-blue-400'
+                      settings.noiseReduction
+                        ? "border-blue-500 bg-blue-500/10"
+                        : "border-[#464647] bg-[#1E1E1E] hover:border-blue-400"
                     }`}
-                    onClick={() => setSettings(prev => ({ ...prev, noiseReduction: !prev.noiseReduction }))}
+                    onClick={() => setSettings((prev) => ({ ...prev, noiseReduction: !prev.noiseReduction }))}
                   >
                     <div className="flex items-center gap-2 mb-2">
-                      <Filter className={`h-4 w-4 ${settings.noiseReduction ? 'text-blue-400' : 'text-gray-400'}`} />
-                      <span className={`text-sm font-medium ${settings.noiseReduction ? 'text-blue-400' : 'text-gray-300'}`}>
+                      <Filter className={`h-4 w-4 ${settings.noiseReduction ? "text-blue-400" : "text-gray-400"}`} />
+                      <span
+                        className={`text-sm font-medium ${settings.noiseReduction ? "text-blue-400" : "text-gray-300"}`}
+                      >
                         {t("options.audio.noiseReduction", "Noise Reduction")}
                       </span>
                     </div>
@@ -322,17 +327,21 @@ export function AudioSettings() {
                   </div>
 
                   {/* Компрессор */}
-                  <div 
+                  <div
                     className={`p-3 rounded-lg border transition-all cursor-pointer ${
-                      settings.compressorEnabled 
-                        ? 'border-orange-500 bg-orange-500/10' 
-                        : 'border-[#464647] bg-[#1E1E1E] hover:border-orange-400'
+                      settings.compressorEnabled
+                        ? "border-orange-500 bg-orange-500/10"
+                        : "border-[#464647] bg-[#1E1E1E] hover:border-orange-400"
                     }`}
-                    onClick={() => setSettings(prev => ({ ...prev, compressorEnabled: !prev.compressorEnabled }))}
+                    onClick={() => setSettings((prev) => ({ ...prev, compressorEnabled: !prev.compressorEnabled }))}
                   >
                     <div className="flex items-center gap-2 mb-2">
-                      <Waves className={`h-4 w-4 ${settings.compressorEnabled ? 'text-orange-400' : 'text-gray-400'}`} />
-                      <span className={`text-sm font-medium ${settings.compressorEnabled ? 'text-orange-400' : 'text-gray-300'}`}>
+                      <Waves
+                        className={`h-4 w-4 ${settings.compressorEnabled ? "text-orange-400" : "text-gray-400"}`}
+                      />
+                      <span
+                        className={`text-sm font-medium ${settings.compressorEnabled ? "text-orange-400" : "text-gray-300"}`}
+                      >
                         {t("options.audio.compressor", "Compressor")}
                       </span>
                     </div>
@@ -342,17 +351,21 @@ export function AudioSettings() {
                   </div>
 
                   {/* Эквалайзер */}
-                  <div 
+                  <div
                     className={`p-3 rounded-lg border transition-all cursor-pointer ${
-                      settings.equalizerEnabled 
-                        ? 'border-green-500 bg-green-500/10' 
-                        : 'border-[#464647] bg-[#1E1E1E] hover:border-green-400'
+                      settings.equalizerEnabled
+                        ? "border-green-500 bg-green-500/10"
+                        : "border-[#464647] bg-[#1E1E1E] hover:border-green-400"
                     }`}
-                    onClick={() => setSettings(prev => ({ ...prev, equalizerEnabled: !prev.equalizerEnabled }))}
+                    onClick={() => setSettings((prev) => ({ ...prev, equalizerEnabled: !prev.equalizerEnabled }))}
                   >
                     <div className="flex items-center gap-2 mb-2">
-                      <Sliders className={`h-4 w-4 ${settings.equalizerEnabled ? 'text-green-400' : 'text-gray-400'}`} />
-                      <span className={`text-sm font-medium ${settings.equalizerEnabled ? 'text-green-400' : 'text-gray-300'}`}>
+                      <Sliders
+                        className={`h-4 w-4 ${settings.equalizerEnabled ? "text-green-400" : "text-gray-400"}`}
+                      />
+                      <span
+                        className={`text-sm font-medium ${settings.equalizerEnabled ? "text-green-400" : "text-gray-300"}`}
+                      >
                         {t("options.audio.equalizer", "Equalizer")}
                       </span>
                     </div>
@@ -362,25 +375,24 @@ export function AudioSettings() {
                   </div>
 
                   {/* Реверберация */}
-                  <div 
+                  <div
                     className={`p-3 rounded-lg border transition-all cursor-pointer ${
-                      settings.reverbEnabled 
-                        ? 'border-purple-500 bg-purple-500/10' 
-                        : 'border-[#464647] bg-[#1E1E1E] hover:border-purple-400'
+                      settings.reverbEnabled
+                        ? "border-purple-500 bg-purple-500/10"
+                        : "border-[#464647] bg-[#1E1E1E] hover:border-purple-400"
                     }`}
-                    onClick={() => setSettings(prev => ({ ...prev, reverbEnabled: !prev.reverbEnabled }))}
+                    onClick={() => setSettings((prev) => ({ ...prev, reverbEnabled: !prev.reverbEnabled }))}
                   >
                     <div className="flex items-center gap-2 mb-2">
-                      <Speaker className={`h-4 w-4 ${settings.reverbEnabled ? 'text-purple-400' : 'text-gray-400'}`} />
-                      <span className={`text-sm font-medium ${settings.reverbEnabled ? 'text-purple-400' : 'text-gray-300'}`}>
+                      <Speaker className={`h-4 w-4 ${settings.reverbEnabled ? "text-purple-400" : "text-gray-400"}`} />
+                      <span
+                        className={`text-sm font-medium ${settings.reverbEnabled ? "text-purple-400" : "text-gray-300"}`}
+                      >
                         {t("options.audio.reverb", "Reverb")}
                       </span>
                     </div>
-                    <div className="text-xs text-gray-400">
-                      {t("options.audio.reverbDesc", "Spatial audio effect")}
-                    </div>
+                    <div className="text-xs text-gray-400">{t("options.audio.reverbDesc", "Spatial audio effect")}</div>
                   </div>
-                  
                 </div>
 
                 {/* Статус эффектов */}
@@ -389,24 +401,25 @@ export function AudioSettings() {
                     <div className="text-xs text-gray-400">{t("options.audio.effectsStatus", "Effects Status")}</div>
                     <div className="flex items-center gap-1">
                       {[
-                        settings.noiseReduction, 
-                        settings.compressorEnabled, 
-                        settings.equalizerEnabled, 
-                        settings.reverbEnabled
-                      ].filter(Boolean).length > 0 && (
-                        <div className="w-2 h-2 rounded-full bg-green-400"></div>
-                      )}
+                        settings.noiseReduction,
+                        settings.compressorEnabled,
+                        settings.equalizerEnabled,
+                        settings.reverbEnabled,
+                      ].filter(Boolean).length > 0 && <div className="w-2 h-2 rounded-full bg-green-400" />}
                       <span className="text-xs text-gray-400">
-                        {[
-                          settings.noiseReduction, 
-                          settings.compressorEnabled, 
-                          settings.equalizerEnabled, 
-                          settings.reverbEnabled
-                        ].filter(Boolean).length} active
+                        {
+                          [
+                            settings.noiseReduction,
+                            settings.compressorEnabled,
+                            settings.equalizerEnabled,
+                            settings.reverbEnabled,
+                          ].filter(Boolean).length
+                        }{" "}
+                        active
                       </span>
                     </div>
                   </div>
-                  
+
                   {currentAudioClip ? (
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
@@ -435,43 +448,51 @@ export function AudioSettings() {
                 <Settings className="h-4 w-4 text-purple-400" />
                 <h3 className="font-medium text-white">{t("options.audio.advanced", "Advanced Settings")}</h3>
               </div>
-              <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${openSections.advanced ? "rotate-180" : ""}`} />
+              <ChevronDown
+                className={`h-4 w-4 text-gray-400 transition-transform ${openSections.advanced ? "rotate-180" : ""}`}
+              />
             </CollapsibleTrigger>
-            
+
             <CollapsibleContent className="mt-3">
               <div className="bg-[#2D2D30] rounded-lg border border-[#464647] p-4 space-y-4">
-                
                 {/* Размер буфера */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-300">{t("options.audio.bufferSize", "Buffer Size (samples)")}</Label>
-                  <Input 
-                    type="number" 
-                    value={settings.bufferSize} 
-                    onChange={(e) => setSettings(prev => ({ ...prev, bufferSize: parseInt(e.target.value) || 512 }))}
-                    min="128" 
-                    max="2048" 
-                    step="128" 
+                  <Label className="text-sm font-medium text-gray-300">
+                    {t("options.audio.bufferSize", "Buffer Size (samples)")}
+                  </Label>
+                  <Input
+                    type="number"
+                    value={settings.bufferSize}
+                    onChange={(e) =>
+                      setSettings((prev) => ({ ...prev, bufferSize: Number.parseInt(e.target.value) || 512 }))
+                    }
+                    min="128"
+                    max="2048"
+                    step="128"
                     className="h-8"
                   />
                 </div>
 
                 {/* Задержка */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-300">{t("options.audio.latency", "Latency (ms)")}</Label>
-                  <Input 
-                    type="number" 
-                    value={settings.latency} 
-                    onChange={(e) => setSettings(prev => ({ ...prev, latency: parseInt(e.target.value) || 20 }))}
-                    min="0" 
-                    max="100" 
-                    step="5" 
+                  <Label className="text-sm font-medium text-gray-300">
+                    {t("options.audio.latency", "Latency (ms)")}
+                  </Label>
+                  <Input
+                    type="number"
+                    value={settings.latency}
+                    onChange={(e) =>
+                      setSettings((prev) => ({ ...prev, latency: Number.parseInt(e.target.value) || 20 }))
+                    }
+                    min="0"
+                    max="100"
+                    step="5"
                     className="h-8"
                   />
                 </div>
               </div>
             </CollapsibleContent>
           </Collapsible>
-
         </div>
       </div>
 
@@ -480,42 +501,45 @@ export function AudioSettings() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             {/* Fairlight интеграция */}
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               className="h-8 px-3 text-xs flex items-center gap-2 hover:bg-blue-500/20 hover:text-blue-400"
             >
               <AudioLines className="h-3 w-3" />
               {t("options.audio.fairlight", "Fairlight Console")}
             </Button>
-            
+
             {/* Индикатор MIDI */}
             <div className="flex items-center gap-1 px-2 py-1 bg-[#1E1E1E] rounded border border-[#464647]">
-              <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+              <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
               <span className="text-xs text-gray-400">MIDI</span>
             </div>
           </div>
           <div className="flex items-center gap-2">
             {/* Статус активных эффектов */}
             {[
-              settings.noiseReduction, 
-              settings.compressorEnabled, 
-              settings.equalizerEnabled, 
-              settings.reverbEnabled
+              settings.noiseReduction,
+              settings.compressorEnabled,
+              settings.equalizerEnabled,
+              settings.reverbEnabled,
             ].filter(Boolean).length > 0 && (
               <div className="flex items-center gap-1 px-2 py-1 bg-green-500/10 rounded border border-green-500/30">
                 <Zap className="h-3 w-3 text-green-400" />
                 <span className="text-xs text-green-400">
-                  {[
-                    settings.noiseReduction, 
-                    settings.compressorEnabled, 
-                    settings.equalizerEnabled, 
-                    settings.reverbEnabled
-                  ].filter(Boolean).length} FX
+                  {
+                    [
+                      settings.noiseReduction,
+                      settings.compressorEnabled,
+                      settings.equalizerEnabled,
+                      settings.reverbEnabled,
+                    ].filter(Boolean).length
+                  }{" "}
+                  FX
                 </span>
               </div>
             )}
-            
+
             <Button variant="outline" size="sm" className="h-8 px-3 text-xs" onClick={handleReset}>
               {t("common.reset", "Reset")}
             </Button>

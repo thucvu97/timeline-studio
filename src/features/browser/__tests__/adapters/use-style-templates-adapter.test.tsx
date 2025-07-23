@@ -277,7 +277,7 @@ describe("useStyleTemplatesAdapter", () => {
       expect(result.current.getSortValue(testTemplate, "duration")).toBe(2)
       expect(result.current.getSortValue(testTemplate, "aspectRatio")).toBe("16:9")
       expect(result.current.getSortValue(testTemplate, "unknown")).toBe("плавное появление")
-      
+
       // Проверяем что mock был вызван с правильными параметрами
       expect(mockGetSortValue).toHaveBeenCalledWith(testTemplate, "name")
     })
@@ -308,7 +308,7 @@ describe("useStyleTemplatesAdapter", () => {
       expect(searchableText).toContain("вступление")
       expect(searchableText).toContain("плавное")
       expect(searchableText).toContain("fade")
-      
+
       // Проверяем что mock был вызван
       expect(mockGetSearchableText).toHaveBeenCalledWith(testTemplate)
     })

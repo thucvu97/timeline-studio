@@ -2,7 +2,7 @@
  * Tests for useAIIntelligence hook
  */
 
-import { act, renderHook, waitFor } from "@testing-library/react"
+import { act, renderHook } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 // Mock modules first
@@ -59,7 +59,7 @@ describe("useAIIntelligence", () => {
     // Set up default mocks with vi.mocked()
     const mockAIIntelligenceOrchestrator = vi.mocked(AIIntelligenceOrchestrator)
     mockAIIntelligenceOrchestrator.mockImplementation(() => mockOrchestrator as any)
-    
+
     const mockUseAIIntelligenceContext = vi.mocked(useAIIntelligenceContext)
     mockUseAIIntelligenceContext.mockReturnValue({
       actor: createMockActor(),

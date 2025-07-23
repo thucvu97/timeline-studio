@@ -3,7 +3,25 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { MediaFile } from "@/features/media/types/media"
 import { SavedMediaFile, SavedMusicFile } from "@/features/media/types/saved-media"
 
-import { MediaRestorationService } from "../../services/media-restoration-service"
+import {
+  FileRestorationResult,
+  ProjectRestorationResult,
+  restoreProjectMedia,
+  restoreFile,
+  promptUserToFindFile,
+  handleMissingFiles,
+  generateRestorationReport,
+} from "../../services/media-restoration-service"
+
+// Мокаем модули Tauri
+vi.mock("@tauri-apps/api/path", () => ({
+  dirname: vi.fn().mockResolvedValue("/project/dir"),
+  join: vi.fn().mockImplementation((...args) => args.join("/")),
+}))
+
+vi.mock("@tauri-apps/plugin-dialog", () => ({
+  open: vi.fn(),
+}))
 
 // Мокаем утилиты
 vi.mock("../../utils/saved-media-utils", () => ({
@@ -62,7 +80,7 @@ describe("MediaRestorationService", () => {
         path: "/original/path/video.mp4",
       } as MediaFile)
 
-      const result = await MediaRestorationService.restoreFile(mockSavedFile, "/project/dir")
+      const result = await restoreFile(mockSavedFile, "/project/dir")
 
       expect(result.status).toBe("found")
       expect(result.restoredFile).toBeDefined()
@@ -88,7 +106,7 @@ describe("MediaRestorationService", () => {
         path: "/project/dir/media/video.mp4",
       } as MediaFile)
 
-      const result = await MediaRestorationService.restoreFile(savedFileWithRelative, "/project/dir")
+      const result = await restoreFile(savedFileWithRelative, "/project/dir")
 
       expect(result.status).toBe("relocated")
       expect(result.newPath).toBe("/project/dir/media/video.mp4")
@@ -109,7 +127,7 @@ describe("MediaRestorationService", () => {
         path: "/project/dir/video.mp4",
       } as MediaFile)
 
-      const result = await MediaRestorationService.restoreFile(mockSavedFile, "/project/dir")
+      const result = await restoreFile(mockSavedFile, "/project/dir")
 
       expect(result.status).toBe("relocated")
       expect(result.newPath).toBe("/project/dir/video.mp4")
@@ -119,7 +137,7 @@ describe("MediaRestorationService", () => {
       mockFileExists.mockResolvedValue(false)
       mockGenerateAlternativePaths.mockResolvedValue([])
 
-      const result = await MediaRestorationService.restoreFile(mockSavedFile, "/project/dir")
+      const result = await restoreFile(mockSavedFile, "/project/dir")
 
       expect(result.status).toBe("missing")
       expect(result.restoredFile).toBeUndefined()
@@ -133,7 +151,7 @@ describe("MediaRestorationService", () => {
         issues: ["File size mismatch"],
       })
 
-      const result = await MediaRestorationService.restoreFile(mockSavedFile, "/project/dir")
+      const result = await restoreFile(mockSavedFile, "/project/dir")
 
       expect(result.status).toBe("corrupted")
     })
@@ -141,7 +159,7 @@ describe("MediaRestorationService", () => {
     it("должен обрабатывать ошибки", async () => {
       mockFileExists.mockRejectedValue(new Error("File system error"))
 
-      await expect(MediaRestorationService.restoreFile(mockSavedFile, "/project/dir")).rejects.toThrow(
+      await expect(restoreFile(mockSavedFile, "/project/dir")).rejects.toThrow(
         "File system error",
       )
     })
@@ -190,7 +208,7 @@ describe("MediaRestorationService", () => {
       })
       mockConvertFromSavedMediaFile.mockReturnValue({} as MediaFile)
 
-      const result = await MediaRestorationService.restoreProjectMedia(
+      const result = await restoreProjectMedia(
         mockMediaFiles,
         mockMusicFiles,
         "/project/path.tls",
@@ -205,7 +223,7 @@ describe("MediaRestorationService", () => {
       mockFileExists.mockResolvedValue(false)
       mockGenerateAlternativePaths.mockResolvedValue([])
 
-      const result = await MediaRestorationService.restoreProjectMedia(
+      const result = await restoreProjectMedia(
         mockMediaFiles,
         mockMusicFiles,
         "/project/path.tls",
@@ -224,13 +242,13 @@ describe("MediaRestorationService", () => {
       })
       mockConvertFromSavedMediaFile.mockReturnValue({} as MediaFile)
 
-      const result = await MediaRestorationService.restoreProjectMedia(
+      const result = await restoreProjectMedia(
         mockMediaFiles,
         mockMusicFiles,
         "/project/path.tls",
       )
 
-      const report = MediaRestorationService.generateRestorationReport(result)
+      const report = generateRestorationReport(result)
 
       expect(report).toContain("Восстановление медиафайлов завершено")
       expect(report).toContain("Всего файлов: 2")
@@ -262,7 +280,7 @@ describe("MediaRestorationService", () => {
 
       mockOpen.mockResolvedValue("/new/path/video.mp4")
 
-      const result = await MediaRestorationService.promptUserToFindFile(mockSavedFileForDialog)
+      const result = await promptUserToFindFile(mockSavedFileForDialog)
 
       expect(result).toBe("/new/path/video.mp4")
       expect(mockOpen).toHaveBeenCalledWith({
@@ -278,7 +296,7 @@ describe("MediaRestorationService", () => {
 
       mockOpen.mockResolvedValue(null)
 
-      const result = await MediaRestorationService.promptUserToFindFile(mockSavedFileForDialog)
+      const result = await promptUserToFindFile(mockSavedFileForDialog)
 
       expect(result).toBeNull()
     })

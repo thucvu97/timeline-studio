@@ -7,10 +7,22 @@ import { StyleTemplate } from "@/features/style-templates/types/style-template"
 import { MediaTemplate } from "@/features/templates/lib/templates"
 import { Transition } from "@/features/transitions/types/transitions"
 
-import { ResourceManager } from "../../services/resource-manager"
+import {
+  addEffectToResources,
+  addFilterToResources,
+  addTransitionToResources,
+  addTemplateToResources,
+  addStyleTemplateToResources,
+  addMediaToResources,
+  createAppliedEffect,
+  createAppliedFilter,
+  createAppliedTransition,
+  createAppliedStyleTemplate,
+  cleanupUnusedResources,
+} from "../../services/resource-manager"
 import { TimelineProject } from "../../types/timeline"
 
-describe("ResourceManager", () => {
+describe("resource-manager", () => {
   let mockProject: TimelineProject
 
   beforeEach(() => {
@@ -43,7 +55,7 @@ describe("ResourceManager", () => {
     }
 
     it("should create resources object if not exists", () => {
-      const result = ResourceManager.addEffectToResources(mockProject, mockEffect)
+      const result = addEffectToResources(mockProject, mockEffect)
 
       expect(result.resources).toBeDefined()
       expect(result.resources?.effects).toHaveLength(1)
@@ -62,7 +74,7 @@ describe("ResourceManager", () => {
         media: [],
       }
 
-      const result = ResourceManager.addEffectToResources(mockProject, mockEffect)
+      const result = addEffectToResources(mockProject, mockEffect)
 
       expect(result.resources?.effects).toHaveLength(1)
       expect(result.resources?.effects[0]).toBe(mockEffect)
@@ -80,7 +92,7 @@ describe("ResourceManager", () => {
         media: [],
       }
 
-      const result = ResourceManager.addEffectToResources(mockProject, mockEffect)
+      const result = addEffectToResources(mockProject, mockEffect)
 
       expect(result.resources?.effects).toHaveLength(1)
     })
@@ -99,7 +111,7 @@ describe("ResourceManager", () => {
     }
 
     it("should add filter to resources", () => {
-      const result = ResourceManager.addFilterToResources(mockProject, mockFilter)
+      const result = addFilterToResources(mockProject, mockFilter)
 
       expect(result.resources?.filters).toHaveLength(1)
       expect(result.resources?.filters[0]).toBe(mockFilter)
@@ -117,7 +129,7 @@ describe("ResourceManager", () => {
         media: [],
       }
 
-      const result = ResourceManager.addFilterToResources(mockProject, mockFilter)
+      const result = addFilterToResources(mockProject, mockFilter)
 
       expect(result.resources?.filters).toHaveLength(1)
     })
@@ -137,7 +149,7 @@ describe("ResourceManager", () => {
     }
 
     it("should add transition to resources", () => {
-      const result = ResourceManager.addTransitionToResources(mockProject, mockTransition)
+      const result = addTransitionToResources(mockProject, mockTransition)
 
       expect(result.resources?.transitions).toHaveLength(1)
       expect(result.resources?.transitions[0]).toBe(mockTransition)
@@ -155,7 +167,7 @@ describe("ResourceManager", () => {
         media: [],
       }
 
-      const result = ResourceManager.addTransitionToResources(mockProject, mockTransition)
+      const result = addTransitionToResources(mockProject, mockTransition)
 
       expect(result.resources?.transitions).toHaveLength(1)
     })
@@ -172,7 +184,7 @@ describe("ResourceManager", () => {
     }
 
     it("should add template to resources", () => {
-      const result = ResourceManager.addTemplateToResources(mockProject, mockTemplate)
+      const result = addTemplateToResources(mockProject, mockTemplate)
 
       expect(result.resources?.templates).toHaveLength(1)
       expect(result.resources?.templates[0]).toBe(mockTemplate)
@@ -190,7 +202,7 @@ describe("ResourceManager", () => {
         media: [],
       }
 
-      const result = ResourceManager.addTemplateToResources(mockProject, mockTemplate)
+      const result = addTemplateToResources(mockProject, mockTemplate)
 
       expect(result.resources?.templates).toHaveLength(1)
     })
@@ -213,7 +225,7 @@ describe("ResourceManager", () => {
     }
 
     it("should add style template to resources", () => {
-      const result = ResourceManager.addStyleTemplateToResources(mockProject, mockStyleTemplate)
+      const result = addStyleTemplateToResources(mockProject, mockStyleTemplate)
 
       expect(result.resources?.styleTemplates).toHaveLength(1)
       expect(result.resources?.styleTemplates[0]).toBe(mockStyleTemplate)
@@ -231,7 +243,7 @@ describe("ResourceManager", () => {
         media: [],
       }
 
-      const result = ResourceManager.addStyleTemplateToResources(mockProject, mockStyleTemplate)
+      const result = addStyleTemplateToResources(mockProject, mockStyleTemplate)
 
       expect(result.resources?.styleTemplates).toHaveLength(1)
     })
@@ -250,7 +262,7 @@ describe("ResourceManager", () => {
     }
 
     it("should add media to resources", () => {
-      const result = ResourceManager.addMediaToResources(mockProject, mockMedia)
+      const result = addMediaToResources(mockProject, mockMedia)
 
       expect(result.resources?.media).toHaveLength(1)
       expect(result.resources?.media[0]).toBe(mockMedia)
@@ -268,7 +280,7 @@ describe("ResourceManager", () => {
         media: [mockMedia],
       }
 
-      const result = ResourceManager.addMediaToResources(mockProject, mockMedia)
+      const result = addMediaToResources(mockProject, mockMedia)
 
       expect(result.resources?.media).toHaveLength(1)
     })
@@ -288,7 +300,7 @@ describe("ResourceManager", () => {
 
     it("should create applied effect and add to resources", () => {
       const customParams = { intensity: 0.5 }
-      const { project, appliedEffect } = ResourceManager.createAppliedEffect(mockProject, mockEffect, customParams)
+      const { project, appliedEffect } = createAppliedEffect(mockProject, mockEffect, customParams)
 
       expect(project.resources?.effects).toHaveLength(1)
       expect(project.resources?.effects[0]).toBe(mockEffect)
@@ -315,7 +327,7 @@ describe("ResourceManager", () => {
 
     it("should create applied filter and add to resources", () => {
       const customParams = { radius: 10 }
-      const { project, appliedFilter } = ResourceManager.createAppliedFilter(mockProject, mockFilter, customParams)
+      const { project, appliedFilter } = createAppliedFilter(mockProject, mockFilter, customParams)
 
       expect(project.resources?.filters).toHaveLength(1)
       expect(project.resources?.filters[0]).toBe(mockFilter)
@@ -343,7 +355,7 @@ describe("ResourceManager", () => {
 
     it("should create applied transition and add to resources", () => {
       const customParams = { easing: "ease-in-out" }
-      const { project, appliedTransition } = ResourceManager.createAppliedTransition(
+      const { project, appliedTransition } = createAppliedTransition(
         mockProject,
         mockTransition,
         500,
@@ -384,7 +396,7 @@ describe("ResourceManager", () => {
         text: { title: "Custom Title" },
         colors: { primary: "#ff0000" },
       }
-      const { project, appliedStyleTemplate } = ResourceManager.createAppliedStyleTemplate(
+      const { project, appliedStyleTemplate } = createAppliedStyleTemplate(
         mockProject,
         mockStyleTemplate,
         customizations,
@@ -495,7 +507,7 @@ describe("ResourceManager", () => {
         },
       ]
 
-      const result = ResourceManager.cleanupUnusedResources(mockProject)
+      const result = cleanupUnusedResources(mockProject)
 
       expect(result.resources?.effects).toHaveLength(1)
       expect(result.resources?.effects[0].id).toBe("used-effect")
@@ -504,7 +516,7 @@ describe("ResourceManager", () => {
     })
 
     it("should handle project without resources", () => {
-      const result = ResourceManager.cleanupUnusedResources(mockProject)
+      const result = cleanupUnusedResources(mockProject)
       expect(result).toEqual(mockProject)
     })
 
@@ -551,7 +563,7 @@ describe("ResourceManager", () => {
         },
       ]
 
-      const result = ResourceManager.cleanupUnusedResources(mockProject)
+      const result = cleanupUnusedResources(mockProject)
 
       expect(result.resources?.filters).toHaveLength(1)
       expect(result.resources?.filters[0].id).toBe("used-filter")

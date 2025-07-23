@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { TikTokService } from "../../services/tiktok-service"
+import * as TikTokService from "../../services/tiktok-service"
 
 // Мокаем зависимости
 vi.mock("../../services/oauth-service", () => ({

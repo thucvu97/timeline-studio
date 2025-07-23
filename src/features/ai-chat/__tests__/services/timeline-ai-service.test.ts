@@ -15,6 +15,7 @@ import {
 } from "@/features/resources/types"
 import { TimelineProject } from "@/features/timeline/types"
 
+import { ApiKeyLoader } from "../../services/api-key-loader"
 import { CLAUDE_MODELS, ClaudeService } from "../../services/claude-service"
 import { TimelineAIService } from "../../services/timeline-ai-service"
 
@@ -25,6 +26,13 @@ vi.mock("../../services/claude-service", () => ({
     CLAUDE_4_OPUS: "claude-4-opus-latest",
   },
   ClaudeService: {
+    getInstance: vi.fn(),
+  },
+}))
+
+// Mock ApiKeyLoader
+vi.mock("../../services/api-key-loader", () => ({
+  ApiKeyLoader: {
     getInstance: vi.fn(),
   },
 }))
@@ -303,12 +311,37 @@ describe("TimelineAIService", () => {
     })
   })
 
-  describe("setApiKey", () => {
-    it("should set the API key in ClaudeService", () => {
-      const apiKey = "test-api-key-123"
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
-      service.setApiKey(apiKey)
-      expect(mockClaudeService.setApiKey).toHaveBeenCalledWith(apiKey)
+  describe("initializeApiKey", () => {
+    it("should initialize API key from secure storage", async () => {
+      // Mock ApiKeyLoader
+      const mockGetApiKey = vi.fn().mockResolvedValue("test-api-key-123")
+      vi.mocked(ApiKeyLoader.getInstance).mockReturnValue({
+        getApiKey: mockGetApiKey,
+        clearCache: vi.fn(),
+        updateCache: vi.fn(),
+      } as any)
+
+      const result = await service.initializeApiKey()
+
+      expect(mockGetApiKey).toHaveBeenCalledWith("claude")
+      expect(mockClaudeService.setApiKey).toHaveBeenCalledWith("test-api-key-123")
+      expect(result).toBe(true)
+    })
+
+    it("should return false when no API key is found", async () => {
+      // Mock ApiKeyLoader
+      const mockGetApiKey = vi.fn().mockResolvedValue(null)
+      vi.mocked(ApiKeyLoader.getInstance).mockReturnValue({
+        getApiKey: mockGetApiKey,
+        clearCache: vi.fn(),
+        updateCache: vi.fn(),
+      } as any)
+
+      const result = await service.initializeApiKey()
+
+      expect(mockGetApiKey).toHaveBeenCalledWith("claude")
+      expect(mockClaudeService.setApiKey).not.toHaveBeenCalled()
+      expect(result).toBe(false)
     })
   })
 

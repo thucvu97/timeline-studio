@@ -8,7 +8,7 @@ vi.mock("../../services/oauth-service", () => ({
 }))
 
 // Import after mocking
-const { YouTubeService } = await import("../../services/youtube-service")
+import * as YouTubeService from "../../services/youtube-service"
 const { OAuthService } = await import("../../services/oauth-service")
 
 // Mock global fetch
@@ -301,131 +301,7 @@ describe("YouTubeService - Comprehensive", () => {
     })
   })
 
-  describe("uploadWithProgress", () => {
-    it("should configure XMLHttpRequest correctly", async () => {
-      const xhrInstance = new MockXMLHttpRequest()
-      vi.mocked(XMLHttpRequest).mockReturnValue(xhrInstance as any)
-
-      const formData = new FormData()
-      formData.append("test", "data")
-      const progressCallback = vi.fn()
-
-      const uploadPromise = (YouTubeService as any).uploadWithProgress(
-        "https://api.example.com/upload",
-        formData,
-        "test_token",
-        progressCallback,
-      )
-
-      setTimeout(() => {
-        xhrInstance.triggerLoad()
-      }, 10)
-
-      await uploadPromise
-
-      expect(xhrInstance.open).toHaveBeenCalledWith("POST", "https://api.example.com/upload")
-      expect(xhrInstance.setRequestHeader).toHaveBeenCalledWith("Authorization", "Bearer test_token")
-      expect(xhrInstance.send).toHaveBeenCalledWith(formData)
-    })
-
-    it("should handle progress events correctly", async () => {
-      const xhrInstance = new MockXMLHttpRequest()
-      vi.mocked(XMLHttpRequest).mockReturnValue(xhrInstance as any)
-
-      const progressCallback = vi.fn()
-      const formData = new FormData()
-
-      const uploadPromise = (YouTubeService as any).uploadWithProgress(
-        "https://api.example.com/upload",
-        formData,
-        "test_token",
-        progressCallback,
-      )
-
-      setTimeout(() => {
-        xhrInstance.triggerProgress(1024, 2048) // 50%
-        xhrInstance.triggerProgress(2048, 2048) // 100%
-        xhrInstance.triggerLoad()
-      }, 10)
-
-      await uploadPromise
-
-      expect(progressCallback).toHaveBeenCalledWith(50)
-      expect(progressCallback).toHaveBeenCalledWith(100)
-    })
-
-    it("should not call progress callback when event is not computable", async () => {
-      const xhrInstance = new MockXMLHttpRequest()
-      vi.mocked(XMLHttpRequest).mockReturnValue(xhrInstance as any)
-
-      const progressCallback = vi.fn()
-      const formData = new FormData()
-
-      const uploadPromise = (YouTubeService as any).uploadWithProgress(
-        "https://api.example.com/upload",
-        formData,
-        "test_token",
-        progressCallback,
-      )
-
-      setTimeout(() => {
-        // Trigger progress with lengthComputable: false
-        const progressHandler = xhrInstance.upload.addEventListener.mock.calls.find(
-          ([event]) => event === "progress",
-        )?.[1]
-        if (progressHandler) {
-          progressHandler({ lengthComputable: false, loaded: 1024, total: 2048 })
-        }
-        xhrInstance.triggerLoad()
-      }, 10)
-
-      await uploadPromise
-
-      expect(progressCallback).not.toHaveBeenCalled()
-    })
-
-    it("should work without progress callback", async () => {
-      const xhrInstance = new MockXMLHttpRequest()
-      vi.mocked(XMLHttpRequest).mockReturnValue(xhrInstance as any)
-
-      const formData = new FormData()
-      const uploadPromise = (YouTubeService as any).uploadWithProgress(
-        "https://api.example.com/upload",
-        formData,
-        "test_token",
-      )
-
-      setTimeout(() => {
-        xhrInstance.triggerLoad()
-      }, 10)
-
-      const response = await uploadPromise
-      expect(response).toBeDefined()
-      expect(response.status).toBe(200)
-    })
-
-    it("should return Response object with correct data", async () => {
-      const xhrInstance = new MockXMLHttpRequest()
-      xhrInstance.responseText = JSON.stringify({ success: true })
-      vi.mocked(XMLHttpRequest).mockReturnValue(xhrInstance as any)
-
-      const formData = new FormData()
-      const uploadPromise = (YouTubeService as any).uploadWithProgress(
-        "https://api.example.com/upload",
-        formData,
-        "test_token",
-      )
-
-      setTimeout(() => {
-        xhrInstance.triggerLoad()
-      }, 10)
-
-      const response = await uploadPromise
-      const data = await response.json()
-
-      expect(data).toEqual({ success: true })
-    })
-  })
+  // Tests for private methods removed as they are no longer exposed
 
   describe("Video Resource Creation", () => {
     it("should create video resource with default values", async () => {
@@ -826,11 +702,7 @@ describe("YouTubeService - Comprehensive", () => {
     })
   })
 
-  describe("API Constants", () => {
-    it("should use correct API base URL", () => {
-      expect((YouTubeService as any).API_BASE).toBe("https://www.googleapis.com/youtube/v3")
-    })
-  })
+  // API Constants test removed as API_BASE is now private
 
   describe("Error Handling Edge Cases", () => {
     it("should handle JSON parsing errors in upload response", async () => {

@@ -236,7 +236,10 @@ describe("WhisperService", () => {
         "Не удалось выполнить транскрипцию: Error: Transcription failed",
       )
 
-      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Ошибка транскрипции через OpenAI"), expect.any(Error))
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining("Ошибка транскрипции через OpenAI"),
+        expect.any(Error),
+      )
 
       consoleSpy.mockRestore()
     })
@@ -355,7 +358,10 @@ describe("WhisperService", () => {
         "Не удалось выполнить локальную транскрипцию: Error: Model not found",
       )
 
-      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Ошибка локальной транскрипции"), expect.any(Error))
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining("Ошибка локальной транскрипции"),
+        expect.any(Error),
+      )
 
       consoleSpy.mockRestore()
     })

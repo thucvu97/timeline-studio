@@ -168,57 +168,64 @@ export class CompressorProcessor {
   }
 
   // Sidechain support (for ducking, etc)
-  connectSidechain(source: AudioNode) {
+  async connectSidechain(source: AudioNode) {
     // In Web Audio API, DynamicsCompressorNode doesn't have true sidechain
     // This is a workaround that modulates the threshold based on sidechain input
-    const sidechainAnalyser = this.context.createAnalyser()
-    sidechainAnalyser.fftSize = 256
-
-    source.connect(sidechainAnalyser)
-
-    // Create a script processor to monitor sidechain and adjust threshold
-    // Note: ScriptProcessorNode is deprecated but still widely supported
-    // For production, consider using AudioWorklet
-    const bufferSize = 256
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    const processor = this.context.createScriptProcessor(bufferSize, 1, 1)
-
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    processor.onaudioprocess = (e) => {
-      const dataArray = new Float32Array(sidechainAnalyser.frequencyBinCount)
-      sidechainAnalyser.getFloatTimeDomainData(dataArray)
-
-      // Calculate sidechain level
-      let sum = 0
-      for (const sample of dataArray) {
-        sum += sample * sample
-      }
-      const rms = Math.sqrt(sum / dataArray.length)
-      const sidechainDb = 20 * Math.log10(Math.max(0.00001, rms))
-
-      // Modulate threshold based on sidechain level
-      // This creates a ducking effect
-      const modulation = Math.max(-20, sidechainDb) * 0.5
-      const newThreshold = this.config.threshold - modulation
-
-      this.compressor.threshold.setTargetAtTime(newThreshold, this.context.currentTime, 0.01)
-
-      // Pass through audio unchanged
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
-      const inputBuffer = e.inputBuffer.getChannelData(0)
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
-      const outputBuffer = e.outputBuffer.getChannelData(0)
-      outputBuffer.set(inputBuffer)
+    
+    // Load AudioWorklet module if not already loaded
+    if (!this.context.audioWorklet) {
+      throw new Error("AudioWorklet is not supported in this browser")
     }
-
-    // Connect processor in parallel (doesn't affect audio)
-    source.connect(processor)
-    processor.connect(this.context.destination)
-
+    
+    try {
+      await this.context.audioWorklet.addModule(
+        "/src/features/fairlight-audio/services/effects/worklets/compressor-worklet.js"
+      )
+    } catch (error) {
+      // Module might already be loaded, continue
+    }
+    
+    // Create AudioWorkletNode for sidechain processing
+    const workletNode = new AudioWorkletNode(this.context, "compressor-worklet", {
+      numberOfInputs: 2,
+      numberOfOutputs: 1,
+      channelCount: 1,
+    })
+    
+    // Enable sidechain processing
+    workletNode.port.postMessage({ type: "setSidechain", enabled: true })
+    
+    // Handle sidechain level updates
+    workletNode.port.onmessage = (event) => {
+      if (event.data.type === "sidechainLevel") {
+        const sidechainDb = event.data.level
+        
+        // Modulate threshold based on sidechain level
+        // This creates a ducking effect
+        const modulation = Math.max(-20, sidechainDb) * 0.5
+        const newThreshold = this.config.threshold - modulation
+        
+        this.compressor.threshold.setTargetAtTime(
+          newThreshold,
+          this.context.currentTime,
+          0.01
+        )
+      }
+    }
+    
+    // Connect sidechain source to worklet's second input
+    source.connect(workletNode, 0, 1)
+    
+    // Connect main audio through first input (pass-through)
+    const dummyGain = this.context.createGain()
+    dummyGain.gain.value = 0
+    dummyGain.connect(workletNode, 0, 0)
+    
     return () => {
-      processor.disconnect()
-      source.disconnect(sidechainAnalyser)
-      sidechainAnalyser.disconnect()
+      workletNode.port.postMessage({ type: "setSidechain", enabled: false })
+      workletNode.disconnect()
+      source.disconnect(workletNode)
+      dummyGain.disconnect()
     }
   }
 }

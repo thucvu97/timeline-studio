@@ -1,0 +1,122 @@
+/**
+ * Modern Language Hook - современный хук для управления языком
+ * Заменяет устаревший хук из @/i18n/hooks/use-language
+ */
+
+import { useCallback, useEffect, useState } from "react"
+
+import { invoke } from "@tauri-apps/api/core"
+import { useTranslation } from "react-i18next"
+
+import { DEFAULT_LANGUAGE, LanguageCode, isSupportedLanguage } from "@/i18n/constants"
+
+interface LanguageResponse {
+  language: string
+  system_language: string
+}
+
+interface UseLanguageReturn {
+  currentLanguage: LanguageCode
+  systemLanguage: LanguageCode
+  isLoading: boolean
+  error: string | null
+  changeLanguage: (lang: LanguageCode) => Promise<void>
+  refreshLanguage: () => Promise<void>
+}
+
+/**
+ * Современный хук для управления языком приложения
+ * Синхронизирует язык между фронтендом и бэкендом Tauri
+ */
+export function useLanguage(): UseLanguageReturn {
+  const { i18n } = useTranslation()
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [systemLanguage, setSystemLanguage] = useState<LanguageCode>(DEFAULT_LANGUAGE)
+
+  // Получение языка из бэкенда Tauri
+  const fetchLanguage = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+
+      // Получаем язык из бэкенда Tauri
+      const response = await invoke<LanguageResponse>("get_app_language_tauri")
+
+      // Проверяем, поддерживается ли язык
+      const appLang = isSupportedLanguage(response.language) 
+        ? (response.language as LanguageCode) 
+        : DEFAULT_LANGUAGE
+
+      const sysLang = isSupportedLanguage(response.system_language)
+        ? (response.system_language as LanguageCode)
+        : DEFAULT_LANGUAGE
+
+      // Устанавливаем системный язык
+      setSystemLanguage(sysLang)
+
+      // Если язык приложения отличается от текущего, меняем его
+      if (i18n && i18n.language !== appLang) {
+        await i18n.changeLanguage(appLang)
+      }
+
+      // Сохраняем в localStorage для совместимости
+      localStorage.setItem("app-language", appLang)
+    } catch (err) {
+      console.error("Error fetching language:", err)
+      setError(err instanceof Error ? err.message : String(err))
+
+      // Пытаемся получить язык из localStorage
+      try {
+        const storedLanguage = localStorage.getItem("app-language")
+        if (storedLanguage && isSupportedLanguage(storedLanguage) && i18n) {
+          await i18n.changeLanguage(storedLanguage as LanguageCode)
+        }
+      } catch (e) {
+        console.error("Error reading language from localStorage:", e)
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }, [i18n])
+
+  // Изменение языка
+  const changeLanguage = useCallback(
+    async (lang: LanguageCode) => {
+      try {
+        setIsLoading(true)
+        setError(null)
+
+        // Меняем язык в i18next
+        if (i18n) {
+          await i18n.changeLanguage(lang)
+        }
+
+        // Сохраняем в localStorage
+        localStorage.setItem("app-language", lang)
+
+        // Синхронизируем с бэкендом Tauri
+        await invoke<LanguageResponse>("set_app_language_tauri", { lang })
+      } catch (err) {
+        console.error("Error changing language:", err)
+        setError(err instanceof Error ? err.message : String(err))
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [i18n],
+  )
+
+  useEffect(() => {
+    void fetchLanguage()
+  }, [fetchLanguage])
+
+  return {
+    currentLanguage: (i18n?.language || DEFAULT_LANGUAGE) as LanguageCode,
+    systemLanguage,
+    isLoading,
+    error,
+    changeLanguage,
+    refreshLanguage: fetchLanguage,
+  }
+}

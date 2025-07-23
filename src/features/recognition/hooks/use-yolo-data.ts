@@ -149,8 +149,7 @@ export function useYoloData() {
   const preloadYoloData = useCallback(
     async (videoIds: string[]): Promise<void> => {
       const promises = videoIds.map((videoId) =>
-        // eslint-disable-next-line @typescript-eslint/use-unknown-in-catch-callback-variable
-        loadYoloData(videoId).catch((error) => {
+        loadYoloData(videoId).catch((error: unknown) => {
           console.warn(`[useYoloData] Не удалось предзагрузить данные для видео ${videoId}:`, error)
         }),
       )

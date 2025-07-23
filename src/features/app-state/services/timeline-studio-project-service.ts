@@ -435,10 +435,10 @@ export class TimelineStudioProjectService implements ProjectOperations {
   // Вспомогательные методы
 
   private getPlatform(): "windows" | "macos" | "linux" {
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    const platform = window.navigator.platform.toLowerCase()
-    if (platform.includes("win")) return "windows"
-    if (platform.includes("mac")) return "macos"
+    // Use userAgent as navigator.platform is deprecated
+    const userAgent = window.navigator.userAgent.toLowerCase()
+    if (userAgent.includes("win")) return "windows"
+    if (userAgent.includes("mac")) return "macos"
     return "linux"
   }
 

@@ -53,11 +53,26 @@ import {
   isSubtitleClip,
 } from "../types/timeline"
 
-interface VideoEffect { type: string; params: Record<string, unknown> }
-interface VideoFilter { type: string; params: Record<string, unknown> }
-interface StyleTemplate { id: string; type: string }
-interface MediaTemplate { id: string; type: string }
-interface Transition { type: string; params: Record<string, unknown> }
+interface VideoEffect {
+  type: string
+  params: Record<string, unknown>
+}
+interface VideoFilter {
+  type: string
+  params: Record<string, unknown>
+}
+interface StyleTemplate {
+  id: string
+  type: string
+}
+interface MediaTemplate {
+  id: string
+  type: string
+}
+interface Transition {
+  type: string
+  params: Record<string, unknown>
+}
 
 /**
  * Преобразует проект Timeline в схему для Video Compiler
@@ -229,7 +244,7 @@ function convertFilters(filters: VideoFilter[]): BackendFilter[] {
     const parameters: Record<string, number> = {}
     if (filter.params) {
       Object.entries(filter.params).forEach(([key, value]) => {
-        if (value !== undefined && typeof value === 'number') {
+        if (value !== undefined && typeof value === "number") {
           parameters[key] = value
         }
       })

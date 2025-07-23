@@ -319,8 +319,7 @@ export function useMusicImport() {
       }
       return {
         success: false,
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        message: `Ошибка при импорте: ${error}`,
+        message: `Ошибка при импорте: ${error instanceof Error ? error.message : String(error)}`,
         files: [],
       }
     }
@@ -393,8 +392,7 @@ export function useMusicImport() {
       }
       return {
         success: false,
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        message: `Ошибка при импорте: ${error}`,
+        message: `Ошибка при импорте: ${error instanceof Error ? error.message : String(error)}`,
         files: [],
       }
     }

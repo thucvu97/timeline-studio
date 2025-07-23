@@ -25,11 +25,11 @@ export {
   applySubtitleStyleTemplate,
   createSubtitleCSSVariables,
   generateSubtitleCSS,
+  getSubtitleAnimation,
   resetSubtitleStyleTemplate,
+  subtitleAnimations,
   subtitleStyleToCSS,
   validateSubtitleStyleTemplate,
-  subtitleAnimations,
-  getSubtitleAnimation,
 } from "./utils/css-styles"
 export * from "./utils/subtitle-exporters"
 export * from "./utils/subtitle-parsers"

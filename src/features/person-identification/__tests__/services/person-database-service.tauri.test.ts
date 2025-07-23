@@ -152,11 +152,7 @@ describe("PersonDatabaseService Tauri Integration", () => {
 
       expect(invoke).toHaveBeenCalledWith("add_face_embedding", {
         personId: "person_123",
-        embedding: expect.arrayContaining([
-          expect.closeTo(0.1, 5),
-          expect.closeTo(0.2, 5),
-          expect.closeTo(0.3, 5),
-        ]),
+        embedding: expect.arrayContaining([expect.closeTo(0.1, 5), expect.closeTo(0.2, 5), expect.closeTo(0.3, 5)]),
         quality: 0.95,
         sourceClipId: "clip_123",
         frameNumber: 100,
@@ -205,11 +201,7 @@ describe("PersonDatabaseService Tauri Integration", () => {
       const results = await service.searchPersonsByEmbedding(embedding, 0.8, 5)
 
       expect(invoke).toHaveBeenCalledWith("search_similar_persons", {
-        embedding: expect.arrayContaining([
-          expect.closeTo(0.1, 5),
-          expect.closeTo(0.2, 5),
-          expect.closeTo(0.3, 5),
-        ]),
+        embedding: expect.arrayContaining([expect.closeTo(0.1, 5), expect.closeTo(0.2, 5), expect.closeTo(0.3, 5)]),
         topK: 5,
         useCosine: true,
       })

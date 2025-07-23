@@ -10,9 +10,6 @@ import { ExportOptions, Exporter } from "../types"
 
 export class AAFExporter implements Exporter {
   private frameRate = 30
-  private projectWidth = 1920
-  private projectHeight = 1080
-  private mobIDCounter = 1
 
   async export(project: TimelineProject, options: ExportOptions): Promise<string> {
     this.frameRate = project.fps || 30

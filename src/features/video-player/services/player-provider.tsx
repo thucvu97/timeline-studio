@@ -124,7 +124,7 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
     isChangingCamera: false,
     isRecording: false,
     isResizableMode: false,
-    
+
     // Speed ramping
     speedRampingEnabled: false,
     currentPlaybackRate: 1.0,

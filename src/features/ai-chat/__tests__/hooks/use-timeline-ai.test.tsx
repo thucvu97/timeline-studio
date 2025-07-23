@@ -5,7 +5,7 @@ import { useTimelineAI, useTimelineAIQuick } from "../../hooks/use-timeline-ai"
 import { TimelineAIService } from "../../services/timeline-ai-service"
 
 // Mock console.log для проверки заглушки sendTimelineEvent
-const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {})
 
 vi.mock("@/features/resources/services/resources-provider", () => ({
   useResources: vi.fn(() => ({
@@ -25,6 +25,7 @@ vi.mock("../../services/timeline-ai-service", () => {
   mockTimelineAIService.prototype.analyzeAndSuggestResources = vi.fn()
   mockTimelineAIService.prototype.executeCommand = vi.fn()
   mockTimelineAIService.prototype.setApiKey = vi.fn()
+  mockTimelineAIService.prototype.initializeApiKey = vi.fn()
 
   return {
     TimelineAIService: mockTimelineAIService,

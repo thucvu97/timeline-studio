@@ -44,7 +44,7 @@ export function useDevices(
     }
 
     try {
-      const devices = await navigator.mediaDevices?.enumerateDevices?.() || []
+      const devices = (await navigator.mediaDevices?.enumerateDevices?.()) || []
 
       const videoDevices = devices
         .filter((device) => device.kind === "videoinput")

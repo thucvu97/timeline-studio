@@ -4,7 +4,17 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { SavedMediaFile, SavedMusicFile } from "@/features/media/types/saved-media"
 import { ProjectFile } from "@/features/project-settings/types/project"
 
-import { ProjectFileService } from "../../services/project-file-service"
+import {
+  loadProject,
+  saveProject,
+  hasUnsavedChanges,
+  migrateProject,
+  createNewProject,
+  updateMediaLibrary,
+  updateBrowserState,
+  updateProjectFavorites,
+  getProjectStats,
+} from "../../services/project-file-service"
 
 // Мокаем Tauri FS
 vi.mock("@tauri-apps/plugin-fs", () => ({
@@ -99,7 +109,7 @@ describe("ProjectFileService", () => {
     it("должен успешно загружать проект из файла", async () => {
       vi.mocked(readTextFile).mockResolvedValue(JSON.stringify(mockProjectFile))
 
-      const project = await ProjectFileService.loadProject(mockProjectPath)
+      const project = await loadProject(mockProjectPath)
 
       expect(project).toEqual(mockProjectFile)
       expect(readTextFile).toHaveBeenCalledWith(mockProjectPath)
@@ -108,7 +118,7 @@ describe("ProjectFileService", () => {
     it("должен выбрасывать ошибку при невалидном JSON", async () => {
       vi.mocked(readTextFile).mockResolvedValue("invalid json")
 
-      await expect(ProjectFileService.loadProject(mockProjectPath)).rejects.toThrow()
+      await expect(loadProject(mockProjectPath)).rejects.toThrow()
     })
 
     it("должен выбрасывать ошибку при отсутствии обязательных полей", async () => {
@@ -118,7 +128,7 @@ describe("ProjectFileService", () => {
 
       vi.mocked(readTextFile).mockResolvedValue(JSON.stringify(invalidProject))
 
-      await expect(ProjectFileService.loadProject(mockProjectPath)).rejects.toThrow(
+      await expect(loadProject(mockProjectPath)).rejects.toThrow(
         "Invalid project structure: missing settings",
       )
     })
@@ -131,7 +141,7 @@ describe("ProjectFileService", () => {
 
       vi.mocked(readTextFile).mockResolvedValue(JSON.stringify(unsupportedProject))
 
-      await expect(ProjectFileService.loadProject(mockProjectPath)).rejects.toThrow(
+      await expect(loadProject(mockProjectPath)).rejects.toThrow(
         "Unsupported project version: 2.0.0",
       )
     })
@@ -147,7 +157,7 @@ describe("ProjectFileService", () => {
 
       vi.mocked(readTextFile).mockResolvedValue(JSON.stringify(projectWithInvalidMedia))
 
-      await expect(ProjectFileService.loadProject(mockProjectPath)).rejects.toThrow(
+      await expect(loadProject(mockProjectPath)).rejects.toThrow(
         "Invalid media library: mediaFiles must be an array",
       )
     })
@@ -173,7 +183,7 @@ describe("ProjectFileService", () => {
 
       vi.mocked(readTextFile).mockResolvedValue(JSON.stringify(projectWithInvalidFile))
 
-      await expect(ProjectFileService.loadProject(mockProjectPath)).rejects.toThrow(
+      await expect(loadProject(mockProjectPath)).rejects.toThrow(
         "Invalid saved media file: missing field originalPath",
       )
     })
@@ -184,7 +194,7 @@ describe("ProjectFileService", () => {
       const now = Date.now()
       vi.setSystemTime(now)
 
-      await ProjectFileService.saveProject(mockProjectPath, mockProjectFile)
+      await saveProject(mockProjectPath, mockProjectFile)
 
       const expectedProject = {
         ...mockProjectFile,
@@ -202,7 +212,7 @@ describe("ProjectFileService", () => {
     it("должен выбрасывать ошибку при неудачном сохранении", async () => {
       vi.mocked(writeTextFile).mockRejectedValue(new Error("Write failed"))
 
-      await expect(ProjectFileService.saveProject(mockProjectPath, mockProjectFile)).rejects.toThrow(
+      await expect(saveProject(mockProjectPath, mockProjectFile)).rejects.toThrow(
         "Failed to save project: Error: Write failed",
       )
     })
@@ -210,7 +220,7 @@ describe("ProjectFileService", () => {
 
   describe("createNewProject", () => {
     it("должен создавать новый проект с базовой структурой", () => {
-      const project = ProjectFileService.createNewProject("Новый проект")
+      const project = createNewProject("Новый проект")
 
       expect(project.settings).toBeDefined()
       expect(project.mediaPool).toBeDefined()
@@ -221,7 +231,7 @@ describe("ProjectFileService", () => {
     })
 
     it("должен устанавливать корректные значения по умолчанию", () => {
-      const project = ProjectFileService.createNewProject("Тестовый проект")
+      const project = createNewProject("Тестовый проект")
 
       expect(project.settings.aspectRatio.value).toEqual({ width: 1920, height: 1080, name: "16:9" })
       expect(project.settings.frameRate).toBe("30")
@@ -247,7 +257,7 @@ describe("ProjectFileService", () => {
 
       const newMusicFiles: SavedMusicFile[] = []
 
-      const updatedProject = ProjectFileService.updateMediaLibrary(mockProjectFile, newMediaFiles, newMusicFiles)
+      const updatedProject = updateMediaLibrary(mockProjectFile, newMediaFiles, newMusicFiles)
 
       expect(updatedProject.mediaPool.mediaFiles).toEqual(newMediaFiles)
       expect(updatedProject.mediaPool.musicFiles).toEqual(newMusicFiles)
@@ -255,7 +265,7 @@ describe("ProjectFileService", () => {
     })
 
     it("должен сохранять версию медиабиблиотеки", () => {
-      const updatedProject = ProjectFileService.updateMediaLibrary(mockProjectFile, [], [])
+      const updatedProject = updateMediaLibrary(mockProjectFile, [], [])
 
       expect(updatedProject.mediaPool.version).toBe("1.0.0")
     })
@@ -272,7 +282,7 @@ describe("ProjectFileService", () => {
         },
       }
 
-      const updatedProject = ProjectFileService.updateBrowserState(mockProjectFile, newBrowserState)
+      const updatedProject = updateBrowserState(mockProjectFile, newBrowserState)
 
       expect(updatedProject.workspaceSettings).toEqual(newBrowserState)
     })
@@ -285,7 +295,7 @@ describe("ProjectFileService", () => {
         musicFiles: ["music1"],
       }
 
-      const updatedProject = ProjectFileService.updateProjectFavorites(mockProjectFile, newFavorites)
+      const updatedProject = updateProjectFavorites(mockProjectFile, newFavorites)
 
       expect(updatedProject.favoriteFiles).toEqual(newFavorites)
     })
@@ -293,7 +303,7 @@ describe("ProjectFileService", () => {
 
   describe("getProjectStats", () => {
     it("должен возвращать статистику проекта", () => {
-      const stats = ProjectFileService.getProjectStats(mockProjectFile)
+      const stats = getProjectStats(mockProjectFile)
 
       expect(stats.totalMediaFiles).toBe(1)
       expect(stats.totalMusicFiles).toBe(1)
@@ -307,7 +317,7 @@ describe("ProjectFileService", () => {
         mediaPool: undefined,
       }
 
-      const stats = ProjectFileService.getProjectStats(projectWithoutMedia as any)
+      const stats = getProjectStats(projectWithoutMedia as any)
 
       expect(stats.totalMediaFiles).toBe(0)
       expect(stats.totalMusicFiles).toBe(0)
@@ -330,7 +340,7 @@ describe("ProjectFileService", () => {
         },
       ]
 
-      const hasChanges = ProjectFileService.hasUnsavedChanges(
+      const hasChanges = hasUnsavedChanges(
         mockProjectFile,
         currentMediaFiles,
         mockProjectFile.mediaPool.musicFiles,
@@ -340,7 +350,7 @@ describe("ProjectFileService", () => {
     })
 
     it("должен возвращать false при отсутствии изменений", () => {
-      const hasChanges = ProjectFileService.hasUnsavedChanges(
+      const hasChanges = hasUnsavedChanges(
         mockProjectFile,
         mockProjectFile.mediaPool.mediaFiles,
         mockProjectFile.mediaPool.musicFiles,
@@ -350,7 +360,7 @@ describe("ProjectFileService", () => {
     })
 
     it("должен определять изменения в количестве файлов", () => {
-      const hasChanges = ProjectFileService.hasUnsavedChanges(mockProjectFile, [], mockProjectFile.mediaPool.musicFiles)
+      const hasChanges = hasUnsavedChanges(mockProjectFile, [], mockProjectFile.mediaPool.musicFiles)
 
       expect(hasChanges).toBe(true)
     })
@@ -361,7 +371,7 @@ describe("ProjectFileService", () => {
         mediaPool: undefined,
       }
 
-      const hasChanges = ProjectFileService.hasUnsavedChanges(projectWithoutMedia as any, [], [])
+      const hasChanges = hasUnsavedChanges(projectWithoutMedia as any, [], [])
 
       expect(hasChanges).toBe(false)
     })
@@ -369,7 +379,7 @@ describe("ProjectFileService", () => {
 
   describe("migrateProject", () => {
     it("должен возвращать проект без изменений (пока нет миграций)", () => {
-      const migratedProject = ProjectFileService.migrateProject(mockProjectFile)
+      const migratedProject = migrateProject(mockProjectFile)
 
       expect(migratedProject).toEqual(mockProjectFile)
     })
@@ -397,7 +407,7 @@ describe("ProjectFileService", () => {
 
       vi.mocked(readTextFile).mockResolvedValue(JSON.stringify(projectWithEmptyId))
 
-      await expect(ProjectFileService.loadProject(mockProjectPath)).rejects.toThrow(
+      await expect(loadProject(mockProjectPath)).rejects.toThrow(
         "Invalid saved media file: id must be a non-empty string",
       )
     })
@@ -423,7 +433,7 @@ describe("ProjectFileService", () => {
 
       vi.mocked(readTextFile).mockResolvedValue(JSON.stringify(projectWithEmptyPath))
 
-      await expect(ProjectFileService.loadProject(mockProjectPath)).rejects.toThrow(
+      await expect(loadProject(mockProjectPath)).rejects.toThrow(
         "Invalid saved media file: originalPath must be a non-empty string",
       )
     })
@@ -431,7 +441,7 @@ describe("ProjectFileService", () => {
     it("должен проверять тип проекта", async () => {
       vi.mocked(readTextFile).mockResolvedValue(JSON.stringify(null))
 
-      await expect(ProjectFileService.loadProject(mockProjectPath)).rejects.toThrow(
+      await expect(loadProject(mockProjectPath)).rejects.toThrow(
         "Invalid project structure: not an object",
       )
     })
@@ -443,7 +453,7 @@ describe("ProjectFileService", () => {
 
       vi.mocked(readTextFile).mockResolvedValue(JSON.stringify(projectWithoutMeta))
 
-      await expect(ProjectFileService.loadProject(mockProjectPath)).rejects.toThrow(
+      await expect(loadProject(mockProjectPath)).rejects.toThrow(
         "Invalid project structure: missing meta",
       )
     })
@@ -469,7 +479,7 @@ describe("ProjectFileService", () => {
 
       vi.mocked(readTextFile).mockResolvedValue(JSON.stringify(projectWithInvalidMusic))
 
-      await expect(ProjectFileService.loadProject(mockProjectPath)).rejects.toThrow(
+      await expect(loadProject(mockProjectPath)).rejects.toThrow(
         "Invalid saved media file: missing field name",
       )
     })

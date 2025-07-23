@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import { useState } from "react"
 
 import { ChevronDown, Gauge, Play, Settings, Zap } from "lucide-react"
 import { useTranslation } from "react-i18next"
@@ -21,7 +21,7 @@ interface SpeedSettingsState {
 
 export function SpeedSettings() {
   const { t } = useTranslation()
-  
+
   // Безопасно получаем timeline data
   let selectedClips: any[] = []
   try {
@@ -31,10 +31,10 @@ export function SpeedSettings() {
     // TimelineProvider не доступен (например, в тестах)
     selectedClips = []
   }
-  
+
   // Получаем первый выбранный клип для демонстрации
   const currentClip = selectedClips?.[0] || null
-  
+
   // Состояние открытых секций
   const [openSections, setOpenSections] = useState<SpeedSettingsState>({
     basicSpeed: true, // Первая секция открыта по умолчанию
@@ -57,9 +57,9 @@ export function SpeedSettings() {
   })
 
   const toggleSection = (section: keyof SpeedSettingsState) => {
-    setOpenSections(prev => ({
+    setOpenSections((prev) => ({
       ...prev,
-      [section]: !prev[section]
+      [section]: !prev[section],
     }))
   }
 
@@ -98,8 +98,8 @@ export function SpeedSettings() {
   ]
 
   const handleSpeedPresetSelect = (speed: string) => {
-    const numericSpeed = parseFloat(speed)
-    setSettings(prev => ({ ...prev, defaultSpeed: numericSpeed, customSpeed: numericSpeed }))
+    const numericSpeed = Number.parseFloat(speed)
+    setSettings((prev) => ({ ...prev, defaultSpeed: numericSpeed, customSpeed: numericSpeed }))
   }
 
   const handleApplySpeedRampingPreset = (presetId: string) => {
@@ -131,7 +131,6 @@ export function SpeedSettings() {
       {/* Основной контент с прокруткой */}
       <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-track-[#2D2D30] scrollbar-thumb-[#464647] hover:scrollbar-thumb-[#5A5A5C]">
         <div className="p-4 space-y-4">
-          
           {/* Базовые настройки скорости */}
           <Collapsible open={openSections.basicSpeed} onOpenChange={() => toggleSection("basicSpeed")}>
             <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-[#383838] hover:bg-[#404040] rounded-lg border border-[#464647] transition-colors">
@@ -140,20 +139,23 @@ export function SpeedSettings() {
                 <Play className="h-4 w-4 text-blue-400" />
                 <h3 className="font-medium text-white">{t("options.speed.basicSpeed", "Basic Speed")}</h3>
               </div>
-              <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${openSections.basicSpeed ? "rotate-180" : ""}`} />
+              <ChevronDown
+                className={`h-4 w-4 text-gray-400 transition-transform ${openSections.basicSpeed ? "rotate-180" : ""}`}
+              />
             </CollapsibleTrigger>
-            
+
             <CollapsibleContent className="mt-3">
               <div className="bg-[#2D2D30] rounded-lg border border-[#464647] p-4 space-y-4">
-                
                 {/* Быстрые пресеты */}
                 <div className="space-y-3">
-                  <Label className="text-sm font-medium text-gray-300">{t("options.speed.quickPresets", "Quick Presets")}</Label>
+                  <Label className="text-sm font-medium text-gray-300">
+                    {t("options.speed.quickPresets", "Quick Presets")}
+                  </Label>
                   <div className="grid grid-cols-4 gap-2">
                     {SPEED_PRESETS.map((preset) => (
                       <Button
                         key={preset.value}
-                        variant={settings.defaultSpeed === parseFloat(preset.value) ? "default" : "outline"}
+                        variant={settings.defaultSpeed === Number.parseFloat(preset.value) ? "default" : "outline"}
                         size="sm"
                         className="h-8 text-xs"
                         onClick={() => handleSpeedPresetSelect(preset.value)}
@@ -166,13 +168,15 @@ export function SpeedSettings() {
 
                 {/* Пользовательская скорость */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-300">{t("options.speed.customSpeed", "Custom Speed")}</Label>
+                  <Label className="text-sm font-medium text-gray-300">
+                    {t("options.speed.customSpeed", "Custom Speed")}
+                  </Label>
                   <div className="flex items-center space-x-3">
                     <Input
                       type="number"
                       value={settings.customSpeed}
                       onChange={(e) =>
-                        setSettings(prev => ({ ...prev, customSpeed: parseFloat(e.target.value) || 1.0 }))
+                        setSettings((prev) => ({ ...prev, customSpeed: Number.parseFloat(e.target.value) || 1.0 }))
                       }
                       min="0.1"
                       max="10"
@@ -182,7 +186,7 @@ export function SpeedSettings() {
                     <span className="text-sm text-gray-400">x</span>
                     <Slider
                       value={[settings.customSpeed]}
-                      onValueChange={([value]) => setSettings(prev => ({ ...prev, customSpeed: value }))}
+                      onValueChange={([value]) => setSettings((prev) => ({ ...prev, customSpeed: value }))}
                       max={10}
                       min={0.1}
                       step={0.1}
@@ -196,7 +200,7 @@ export function SpeedSettings() {
                   <Checkbox
                     id="preserve-pitch-basic"
                     checked={settings.preservePitch}
-                    onCheckedChange={(checked) => setSettings(prev => ({ ...prev, preservePitch: !!checked }))}
+                    onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, preservePitch: !!checked }))}
                   />
                   <Label htmlFor="preserve-pitch-basic" className="text-sm text-gray-300">
                     {t("options.speed.preservePitch", "Preserve pitch when changing speed")}
@@ -214,15 +218,18 @@ export function SpeedSettings() {
                 <Zap className="h-4 w-4 text-green-400" />
                 <h3 className="font-medium text-white">{t("options.speed.speedRamping", "Speed Ramping")}</h3>
               </div>
-              <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${openSections.speedRamping ? "rotate-180" : ""}`} />
+              <ChevronDown
+                className={`h-4 w-4 text-gray-400 transition-transform ${openSections.speedRamping ? "rotate-180" : ""}`}
+              />
             </CollapsibleTrigger>
-            
+
             <CollapsibleContent className="mt-3">
               <div className="bg-[#2D2D30] rounded-lg border border-[#464647] p-4 space-y-4">
-                
                 {/* Speed Ramping пресеты */}
                 <div className="space-y-3">
-                  <Label className="text-sm font-medium text-gray-300">{t("options.speed.rampingPresets", "Ramping Presets")}</Label>
+                  <Label className="text-sm font-medium text-gray-300">
+                    {t("options.speed.rampingPresets", "Ramping Presets")}
+                  </Label>
                   <div className="grid grid-cols-2 gap-2">
                     {SPEED_RAMPING_PRESETS.map((preset) => (
                       <Button
@@ -240,7 +247,9 @@ export function SpeedSettings() {
 
                 {/* Визуальный редактор кривой скорости */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-300">{t("options.speed.speedCurve", "Speed Curve")}</Label>
+                  <Label className="text-sm font-medium text-gray-300">
+                    {t("options.speed.speedCurve", "Speed Curve")}
+                  </Label>
                   <div className="bg-[#1E1E1E] rounded border border-[#464647] p-2 h-32 flex items-center justify-center">
                     {currentClip ? (
                       <div className="text-center text-gray-400">
@@ -260,7 +269,7 @@ export function SpeedSettings() {
                   <Checkbox
                     id="maintain-duration"
                     checked={settings.autoKeyframes}
-                    onCheckedChange={(checked) => setSettings(prev => ({ ...prev, autoKeyframes: !!checked }))}
+                    onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, autoKeyframes: !!checked }))}
                   />
                   <Label htmlFor="maintain-duration" className="text-sm text-gray-300">
                     {t("options.speed.maintainDuration", "Maintain clip duration")}
@@ -276,20 +285,25 @@ export function SpeedSettings() {
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-yellow-400" />
                 <Gauge className="h-4 w-4 text-yellow-400" />
-                <h3 className="font-medium text-white">{t("options.speed.frameInterpolation", "Frame Interpolation")}</h3>
+                <h3 className="font-medium text-white">
+                  {t("options.speed.frameInterpolation", "Frame Interpolation")}
+                </h3>
               </div>
-              <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${openSections.interpolation ? "rotate-180" : ""}`} />
+              <ChevronDown
+                className={`h-4 w-4 text-gray-400 transition-transform ${openSections.interpolation ? "rotate-180" : ""}`}
+              />
             </CollapsibleTrigger>
-            
+
             <CollapsibleContent className="mt-3">
               <div className="bg-[#2D2D30] rounded-lg border border-[#464647] p-4 space-y-4">
-                
                 {/* Метод интерполяции */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-300">{t("options.speed.interpolationMethod", "Interpolation Method")}</Label>
+                  <Label className="text-sm font-medium text-gray-300">
+                    {t("options.speed.interpolationMethod", "Interpolation Method")}
+                  </Label>
                   <Select
                     value={settings.interpolationType}
-                    onValueChange={(value) => setSettings(prev => ({ ...prev, interpolationType: value }))}
+                    onValueChange={(value) => setSettings((prev) => ({ ...prev, interpolationType: value }))}
                   >
                     <SelectTrigger className="h-8">
                       <SelectValue />
@@ -306,10 +320,12 @@ export function SpeedSettings() {
 
                 {/* Motion Blur */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-300">{t("options.speed.motionBlur", "Motion Blur")}</Label>
+                  <Label className="text-sm font-medium text-gray-300">
+                    {t("options.speed.motionBlur", "Motion Blur")}
+                  </Label>
                   <Select
                     value={settings.motionBlur}
-                    onValueChange={(value) => setSettings(prev => ({ ...prev, motionBlur: value }))}
+                    onValueChange={(value) => setSettings((prev) => ({ ...prev, motionBlur: value }))}
                   >
                     <SelectTrigger className="h-8">
                       <SelectValue />
@@ -330,7 +346,7 @@ export function SpeedSettings() {
                     <Checkbox
                       id="smooth-playback"
                       checked={settings.smoothPlayback}
-                      onCheckedChange={(checked) => setSettings(prev => ({ ...prev, smoothPlayback: !!checked }))}
+                      onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, smoothPlayback: !!checked }))}
                     />
                     <Label htmlFor="smooth-playback" className="text-sm text-gray-300">
                       {t("options.speed.smoothPlayback", "Smooth Playback")}
@@ -339,11 +355,13 @@ export function SpeedSettings() {
 
                   {settings.smoothPlayback && (
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium text-gray-300">{t("options.speed.smoothnessLevel", "Smoothness Level")}</Label>
+                      <Label className="text-sm font-medium text-gray-300">
+                        {t("options.speed.smoothnessLevel", "Smoothness Level")}
+                      </Label>
                       <div className="space-y-2">
                         <Slider
                           value={[settings.smoothnessLevel]}
-                          onValueChange={([value]) => setSettings(prev => ({ ...prev, smoothnessLevel: value }))}
+                          onValueChange={([value]) => setSettings((prev) => ({ ...prev, smoothnessLevel: value }))}
                           max={100}
                           step={1}
                           className="w-full"
@@ -369,18 +387,19 @@ export function SpeedSettings() {
                 <Settings className="h-4 w-4 text-purple-400" />
                 <h3 className="font-medium text-white">{t("options.speed.advanced", "Advanced Settings")}</h3>
               </div>
-              <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${openSections.advanced ? "rotate-180" : ""}`} />
+              <ChevronDown
+                className={`h-4 w-4 text-gray-400 transition-transform ${openSections.advanced ? "rotate-180" : ""}`}
+              />
             </CollapsibleTrigger>
-            
+
             <CollapsibleContent className="mt-3">
               <div className="bg-[#2D2D30] rounded-lg border border-[#464647] p-4 space-y-4">
-                
                 {/* Автоматические ключевые кадры */}
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="auto-keyframes"
                     checked={settings.autoKeyframes}
-                    onCheckedChange={(checked) => setSettings(prev => ({ ...prev, autoKeyframes: !!checked }))}
+                    onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, autoKeyframes: !!checked }))}
                   />
                   <Label htmlFor="auto-keyframes" className="text-sm text-gray-300">
                     {t("options.speed.autoKeyframes", "Auto keyframes")}
@@ -389,12 +408,16 @@ export function SpeedSettings() {
 
                 {/* Максимальная скорость */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-300">{t("options.speed.maxSpeed", "Maximum Speed")}</Label>
+                  <Label className="text-sm font-medium text-gray-300">
+                    {t("options.speed.maxSpeed", "Maximum Speed")}
+                  </Label>
                   <div className="flex items-center space-x-3">
                     <Input
                       type="number"
                       value={settings.maxSpeed}
-                      onChange={(e) => setSettings(prev => ({ ...prev, maxSpeed: parseFloat(e.target.value) || 10.0 }))}
+                      onChange={(e) =>
+                        setSettings((prev) => ({ ...prev, maxSpeed: Number.parseFloat(e.target.value) || 10.0 }))
+                      }
                       min="1"
                       max="100"
                       step="1"
@@ -406,7 +429,6 @@ export function SpeedSettings() {
               </div>
             </CollapsibleContent>
           </Collapsible>
-
         </div>
       </div>
 

@@ -304,17 +304,17 @@ export class PersonDatabaseService {
         // Удаляем связанные данные
         // Обрабатываем ошибки для каждой операции отдельно
         const deleteOperations = [
-          this.deletePersonEmbeddings(personId).catch((err: unknown) => 
-            console.warn(`Не удалось удалить эмбеддинги для ${personId}:`, err)
+          this.deletePersonEmbeddings(personId).catch((err: unknown) =>
+            console.warn(`Не удалось удалить эмбеддинги для ${personId}:`, err),
           ),
-          this.deletePersonAppearances(personId).catch((err: unknown) => 
-            console.warn(`Не удалось удалить появления для ${personId}:`, err)
+          this.deletePersonAppearances(personId).catch((err: unknown) =>
+            console.warn(`Не удалось удалить появления для ${personId}:`, err),
           ),
-          this.deletePersonDetections(personId).catch((err: unknown) => 
-            console.warn(`Не удалось удалить детекции для ${personId}:`, err)
+          this.deletePersonDetections(personId).catch((err: unknown) =>
+            console.warn(`Не удалось удалить детекции для ${personId}:`, err),
           ),
         ]
-        
+
         await Promise.all(deleteOperations)
 
         // Удаляем саму персону

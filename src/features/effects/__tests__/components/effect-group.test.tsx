@@ -19,11 +19,11 @@ vi.mock("@/features/user-settings/hooks/use-user-settings", () => ({
 vi.mock("../../components/effect-preview", () => ({
   EffectPreview: vi.fn(({ onClick, effect, size, width, height }) => (
     <div
-      data-testid={`effect-preview-${effect?.type || 'undefined'}`}
+      data-testid={`effect-preview-${effect?.type || "undefined"}`}
       onClick={onClick}
       style={{ width: `${width}px`, height: `${height}px` }}
     >
-      Effect Preview {effect?.type || 'undefined'} ({size}x{width}x{height})
+      Effect Preview {effect?.type || "undefined"} ({size}x{width}x{height})
     </div>
   )),
 }))
@@ -263,7 +263,10 @@ describe("EffectGroup", () => {
 
     effectElements.forEach((element, index) => {
       expect(element).toHaveAttribute("tabIndex", "0")
-      expect(element).toHaveAttribute("aria-label", `${mockEffects[index].labels?.en || mockEffects[index].name} effect`)
+      expect(element).toHaveAttribute(
+        "aria-label",
+        `${mockEffects[index].labels?.en || mockEffects[index].name} effect`,
+      )
       expect(element).toHaveClass("focus:outline-none", "focus:ring-2", "focus:ring-primary", "rounded-sm")
     })
   })

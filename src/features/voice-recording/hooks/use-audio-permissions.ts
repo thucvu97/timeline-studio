@@ -76,7 +76,7 @@ export function useAudioPermissions() {
       const tempStream = await navigator.mediaDevices?.getUserMedia?.({
         audio: true,
       })
-      
+
       if (!tempStream) {
         setPermissionStatus("error")
         setErrorMessage(

@@ -77,99 +77,22 @@ export class PhaseMeter extends EventEmitter {
 
   async initialize(context: AudioContext): Promise<void> {
     this.context = context
-
-    try {
-      // Пытаемся использовать AudioWorklet для лучшей производительности
-      await this.initializeWithWorklet(context)
-    } catch (error) {
-      // Fallback на ScriptProcessor если AudioWorklet недоступен
-      await this.initializeWithScriptProcessor(context)
-    }
+    // Always use AudioWorklet - it's supported in all modern browsers
+    await this.initializeWithWorklet(context)
   }
 
   private async initializeWithWorklet(context: AudioContext): Promise<void> {
-    // Регистрируем worklet processor
-    const workletCode = `
-      class PhaseAnalyzerProcessor extends AudioWorkletProcessor {
-        constructor() {
-          super()
-          this.bufferSize = 128
-          this.leftBuffer = new Float32Array(this.bufferSize)
-          this.rightBuffer = new Float32Array(this.bufferSize)
-          this.bufferIndex = 0
-        }
-        
-        process(inputs, outputs, parameters) {
-          const input = inputs[0]
-          const output = outputs[0]
-          
-          if (input.length >= 2) {
-            const left = input[0]
-            const right = input[1]
-            
-            // Копируем входной сигнал на выход
-            if (output[0]) output[0].set(left)
-            if (output[1]) output[1].set(right)
-            
-            // Анализируем фазу
-            this.analyzePhase(left, right)
-          }
-          
-          return true
-        }
-        
-        analyzePhase(left, right) {
-          // Добавляем сэмплы в буфер
-          for (let i = 0; i < left.length; i++) {
-            this.leftBuffer[this.bufferIndex] = left[i]
-            this.rightBuffer[this.bufferIndex] = right[i]
-            
-            this.bufferIndex++
-            if (this.bufferIndex >= this.bufferSize) {
-              this.processBuffer()
-              this.bufferIndex = 0
-            }
-          }
-        }
-        
-        processBuffer() {
-          // Вычисляем корреляцию
-          let correlation = this.calculateCorrelation()
-          
-          // Отправляем данные в main thread
-          this.port.postMessage({
-            type: 'phase-data',
-            correlation: correlation,
-            leftBuffer: this.leftBuffer.slice(),
-            rightBuffer: this.rightBuffer.slice()
-          })
-        }
-        
-        calculateCorrelation() {
-          let sumLR = 0, sumLL = 0, sumRR = 0
-          
-          for (let i = 0; i < this.bufferSize; i++) {
-            const l = this.leftBuffer[i]
-            const r = this.rightBuffer[i]
-            
-            sumLR += l * r
-            sumLL += l * l
-            sumRR += r * r
-          }
-          
-          const denominator = Math.sqrt(sumLL * sumRR)
-          return denominator > 0 ? sumLR / denominator : 0
-        }
-      }
-      
-      registerProcessor('phase-analyzer', PhaseAnalyzerProcessor)
-    `
-
-    const blob = new Blob([workletCode], { type: "application/javascript" })
-    const workletUrl = URL.createObjectURL(blob)
-
-    await context.audioWorklet.addModule(workletUrl)
-    URL.revokeObjectURL(workletUrl)
+    if (!context.audioWorklet) {
+      throw new Error("AudioWorklet is not supported in this browser")
+    }
+    
+    try {
+      await context.audioWorklet.addModule(
+        "/src/features/fairlight-audio/services/meters/worklets/phase-analyzer-worklet.js"
+      )
+    } catch (error) {
+      // Module might already be loaded, continue
+    }
 
     this.processor = new AudioWorkletNode(context, "phase-analyzer", {
       numberOfInputs: 1,
@@ -182,14 +105,7 @@ export class PhaseMeter extends EventEmitter {
     this.processor.port.onmessage = this.handleWorkletMessage.bind(this)
   }
 
-  private async initializeWithScriptProcessor(context: AudioContext): Promise<void> {
-    // Fallback: используем устаревший ScriptProcessor
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    const processor = context.createScriptProcessor(this.config.bufferSize, 2, 2)
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    processor.onaudioprocess = this.processAudioFallback.bind(this)
-    this.processor = processor as unknown as AudioWorkletNode
-  }
+  // Removed deprecated ScriptProcessor fallback
 
   private handleWorkletMessage(event: MessageEvent): void {
     const { type, correlation, leftBuffer, rightBuffer } = event.data

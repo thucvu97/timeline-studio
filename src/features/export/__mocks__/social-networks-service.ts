@@ -1,140 +1,105 @@
-// Mock social networks service for testing
+// Mock Social Networks Service for testing
 
-import { SocialExportSettings } from "../types/export-types"
+export interface SocialNetworkCapabilities {
+  maxVideoSize: number
+  maxDuration: number
+  supportedFormats: string[]
+  supportedResolutions: string[]
+}
 
 export interface UploadResult {
   success: boolean
   url?: string
-  id?: string
   error?: string
 }
 
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
-export class SocialNetworksService {
-  private static mockUserInfo: Record<string, any> = {
-    youtube: { name: "Test YouTube User", id: "youtube123" },
-    tiktok: { display_name: "Test TikTok User", id: "tiktok123" },
-    telegram: { name: "Test Telegram User", id: "telegram123" },
+// Mock network capabilities
+const mockCapabilities: Record<string, SocialNetworkCapabilities> = {
+  youtube: {
+    maxVideoSize: 128 * 1024 * 1024 * 1024, // 128GB
+    maxDuration: 12 * 60 * 60, // 12 hours
+    supportedFormats: ["mp4", "mov", "avi", "wmv", "flv", "mkv"],
+    supportedResolutions: ["480p", "720p", "1080p", "1440p", "2160p", "4320p"],
+  },
+  tiktok: {
+    maxVideoSize: 500 * 1024 * 1024, // 500MB
+    maxDuration: 10 * 60, // 10 minutes
+    supportedFormats: ["mp4", "mov"],
+    supportedResolutions: ["480p", "720p", "1080p"],
+  },
+  vimeo: {
+    maxVideoSize: 500 * 1024 * 1024 * 1024, // 500GB (for Pro users)
+    maxDuration: 24 * 60 * 60, // 24 hours
+    supportedFormats: ["mp4", "mov", "avi", "wmv", "flv", "mkv", "mxf"],
+    supportedResolutions: ["480p", "720p", "1080p", "1440p", "2160p", "4320p"],
+  },
+}
+
+export function getNetworkCapabilities(network: string): SocialNetworkCapabilities | null {
+  return mockCapabilities[network] || null
+}
+
+export async function uploadToNetwork(
+  network: string,
+  _videoPath: string,
+  _metadata?: Record<string, any>,
+): Promise<UploadResult> {
+  // Simulate upload delay
+  await new Promise((resolve) => setTimeout(resolve, 1000))
+
+  // Simulate successful upload
+  return {
+    success: true,
+    url: `https://${network}.com/video/mock_video_id`,
+  }
+}
+
+export function validateVideoForNetwork(
+  network: string,
+  fileSize: number,
+  duration: number,
+  format: string,
+): { valid: boolean; errors: string[] } {
+  const capabilities = getNetworkCapabilities(network)
+  if (!capabilities) {
+    return { valid: false, errors: [`Network ${network} not supported`] }
   }
 
-  static async login(_network: string): Promise<boolean> {
-    // Simulate successful login
-    return true
+  const errors: string[] = []
+
+  if (fileSize > capabilities.maxVideoSize) {
+    errors.push(`File size exceeds limit of ${capabilities.maxVideoSize / (1024 * 1024)}MB`)
   }
 
-  static async logout(_network: string): Promise<void> {
-    // Simulate logout
+  if (duration > capabilities.maxDuration) {
+    errors.push(`Duration exceeds limit of ${capabilities.maxDuration / 60} minutes`)
   }
 
-  static async isLoggedIn(network: string): Promise<boolean> {
-    // For testing, check if we have a mock token
-    const token = localStorage.getItem(`oauth_token_${network}`)
-    return !!token
+  if (!capabilities.supportedFormats.includes(format.toLowerCase())) {
+    errors.push(`Format ${format} not supported. Supported formats: ${capabilities.supportedFormats.join(", ")}`)
   }
 
-  static getStoredUserInfo(network: string): any {
-    return SocialNetworksService.mockUserInfo[network] || null
+  return {
+    valid: errors.length === 0,
+    errors,
   }
+}
 
-  static async refreshTokenIfNeeded(_network: string): Promise<boolean> {
-    // Mock implementation - always return true
-    return true
-  }
+export async function getUploadProgress(_network: string): Promise<number> {
+  // Mock progress - always return 50%
+  return 50
+}
 
-  static validateSettings(network: string, settings: SocialExportSettings): string[] {
-    const errors: string[] = []
+export async function cancelUpload(_network: string): Promise<boolean> {
+  // Mock cancel - always successful
+  return true
+}
 
-    if (!settings.title || settings.title.trim().length === 0) {
-      errors.push("Title is required")
-    }
-
-    if (network === "youtube") {
-      if (settings.title && settings.title.length > 100) {
-        errors.push("Title is too long")
-      }
-      if (settings.description && settings.description.length > 5000) {
-        errors.push("Description is too long")
-      }
-    }
-
-    if (network === "tiktok") {
-      if (settings.title && settings.title.length > 150) {
-        errors.push("Title is too long")
-      }
-      if (settings.description && settings.description.length > 2200) {
-        errors.push("Description is too long")
-      }
-    }
-
-    return errors
-  }
-
-  static async validateVideoFile(_network: string, _file: File): Promise<string[]> {
-    // Mock validation - return no errors
-    return []
-  }
-
-  static async uploadVideo(
-    network: string,
-    _videoFile: File,
-    settings: SocialExportSettings,
-    onProgress?: (progress: number) => void,
-  ): Promise<UploadResult> {
-    // Check if logged in
-    if (!(await SocialNetworksService.isLoggedIn(network))) {
-      return {
-        success: false,
-        error: `Not logged in to ${network}`,
-      }
-    }
-
-    // Validate settings first
-    const validationErrors = SocialNetworksService.validateSettings(network, settings)
-    if (validationErrors.length > 0) {
-      return {
-        success: false,
-        error: validationErrors[0],
-      }
-    }
-
-    // Simulate progress
-    if (onProgress) {
-      for (let i = 0; i <= 100; i += 10) {
-        onProgress(i)
-        await new Promise((resolve) => setTimeout(resolve, 10))
-      }
-    }
-
-    // Simulate successful upload
-    return {
-      success: true,
-      url: `https://${network}.com/video/mock123`,
-      id: "mock123",
-    }
-  }
-
-  static getOptimalSettings(network: string): Partial<SocialExportSettings> {
-    const common = {
-      format: "Mp4" as any,
-      quality: "good" as any,
-      frameRate: "30",
-    }
-
-    switch (network) {
-      case "youtube":
-        return {
-          ...common,
-          resolution: "1080",
-          useVerticalResolution: false,
-        }
-      case "tiktok":
-        return {
-          ...common,
-          resolution: "1080",
-          useVerticalResolution: true,
-        }
-      default:
-        return common
-    }
-  }
+// Export a namespace-like object for backward compatibility if needed
+export const SocialNetworksService = {
+  getNetworkCapabilities,
+  uploadToNetwork,
+  validateVideoForNetwork,
+  getUploadProgress,
+  cancelUpload,
 }

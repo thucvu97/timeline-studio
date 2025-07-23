@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { setTranslations } from "@/test/mocks/libraries"
 
 import { useSocialExport } from "../../hooks/use-social-export"
-import { SocialNetworksService } from "../../services/social-networks-service"
+import * as SocialNetworksService from "../../services/social-networks-service"
 
 import type { SocialExportSettings } from "../../types/export-types"
 
@@ -17,13 +17,11 @@ vi.mock("sonner", () => ({
 }))
 
 vi.mock("../../services/social-networks-service", () => ({
-  SocialNetworksService: {
-    login: vi.fn(),
-    logout: vi.fn(),
-    isLoggedIn: vi.fn(),
-    getStoredUserInfo: vi.fn(),
-    uploadVideo: vi.fn(),
-  },
+  login: vi.fn(),
+  logout: vi.fn(),
+  isLoggedIn: vi.fn(),
+  getStoredUserInfo: vi.fn(),
+  uploadVideo: vi.fn(),
 }))
 
 describe("useSocialExport", () => {

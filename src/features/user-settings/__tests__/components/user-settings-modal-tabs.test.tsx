@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { useLanguage } from "@/features/language"
 import { useModal } from "@/features/modals/services/modal-provider"
-import { useLanguage } from "@/i18n/hooks/use-language"
 
 import { UserSettingsModalTabs } from "../../components/user-settings-modal-tabs"
 import { useApiKeys } from "../../hooks/use-api-keys"
@@ -11,7 +11,7 @@ import { useUserSettings } from "../../hooks/use-user-settings"
 // Мокаем хуки
 vi.mock("../../hooks/use-user-settings")
 vi.mock("../../hooks/use-api-keys")
-vi.mock("@/i18n/hooks/use-language")
+vi.mock("@/features/language")
 vi.mock("@/features/modals/services/modal-provider")
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
@@ -73,7 +73,7 @@ describe("UserSettingsModalTabs", () => {
     }))
 
     // Мок для useLanguage
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
+
     vi.mocked(useLanguage).mockImplementation(() => ({
       currentLanguage: "ru",
       changeLanguage: vi.fn(),

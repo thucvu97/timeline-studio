@@ -116,7 +116,7 @@ export function ChatProvider({ children }: ChatProviderProps) {
 
   // Флаг для отслеживания был ли вызван updateSessions
   const [wasUpdated, setWasUpdated] = useState(false)
-  
+
   // Инициализация дефолтной сессии только если не было вызвано updateSessions
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -132,7 +132,7 @@ export function ChatProvider({ children }: ChatProviderProps) {
         setSessions([defaultSession])
       }
     }, 100) // Небольшая задержка для тестов
-    
+
     return () => clearTimeout(timer)
   }, [])
 
@@ -206,30 +206,26 @@ export function ChatProvider({ children }: ChatProviderProps) {
     [currentSession],
   )
 
-  const switchToSession = useCallback(
-    async (sessionId: string) => {
-      // Используем функциональное обновление для получения актуального состояния
-      setSessions(prevSessions => {
-        const session = prevSessions.find((s) => s.id === sessionId)
-        if (session) {
-          setCurrentSession(session)
-          return prevSessions
-        } else {
-          // Создаем новую сессию с указанным ID для обратной совместимости
-          const newSession: ChatSession = {
-            id: sessionId,
-            name: "Новый чат",
-            messages: [],
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          }
-          setCurrentSession(newSession)
-          return [...prevSessions, newSession]
-        }
-      })
-    },
-    [],
-  )
+  const switchToSession = useCallback(async (sessionId: string) => {
+    // Используем функциональное обновление для получения актуального состояния
+    setSessions((prevSessions) => {
+      const session = prevSessions.find((s) => s.id === sessionId)
+      if (session) {
+        setCurrentSession(session)
+        return prevSessions
+      }
+      // Создаем новую сессию с указанным ID для обратной совместимости
+      const newSession: ChatSession = {
+        id: sessionId,
+        name: "Новый чат",
+        messages: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+      setCurrentSession(newSession)
+      return [...prevSessions, newSession]
+    })
+  }, [])
 
   // Действия для сообщений
   const sendMessage = useCallback(
@@ -326,38 +322,44 @@ export function ChatProvider({ children }: ChatProviderProps) {
   }, [currentSession])
 
   // Функции обратной совместимости
-  const sendChatMessage = useCallback(async (content: string) => {
-    setIsProcessing(true)
-    try {
-      await sendMessage(content)
-    } finally {
-      setIsProcessing(false)
-    }
-  }, [sendMessage])
+  const sendChatMessage = useCallback(
+    async (content: string) => {
+      setIsProcessing(true)
+      try {
+        await sendMessage(content)
+      } finally {
+        setIsProcessing(false)
+      }
+    },
+    [sendMessage],
+  )
 
-  const receiveChatMessage = useCallback((content: string) => {
-    if (!currentSession) return
+  const receiveChatMessage = useCallback(
+    (content: string) => {
+      if (!currentSession) return
 
-    const newMessage: ChatMessage = {
-      id: Date.now().toString(),
-      content,
-      role: "assistant",
-      timestamp: new Date(),
-    }
-
-    setCurrentSession((prev) => {
-      if (!prev) return prev
-      const updatedSession = {
-        ...prev,
-        messages: [...prev.messages, newMessage],
-        updatedAt: new Date(),
+      const newMessage: ChatMessage = {
+        id: Date.now().toString(),
+        content,
+        role: "assistant",
+        timestamp: new Date(),
       }
 
-      setSessions((prevSessions) => prevSessions.map((s) => (s.id === prev.id ? updatedSession : s)))
+      setCurrentSession((prev) => {
+        if (!prev) return prev
+        const updatedSession = {
+          ...prev,
+          messages: [...prev.messages, newMessage],
+          updatedAt: new Date(),
+        }
 
-      return updatedSession
-    })
-  }, [currentSession])
+        setSessions((prevSessions) => prevSessions.map((s) => (s.id === prev.id ? updatedSession : s)))
+
+        return updatedSession
+      })
+    },
+    [currentSession],
+  )
 
   const selectAgent = useCallback((agentId: string) => {
     setSelectedAgentId(agentId)
@@ -376,49 +378,55 @@ export function ChatProvider({ children }: ChatProviderProps) {
     }
   }, [createSession])
 
-  const switchSession = useCallback(async (sessionId: string) => {
-    await switchToSession(sessionId)
-  }, [switchToSession])
+  const switchSession = useCallback(
+    async (sessionId: string) => {
+      await switchToSession(sessionId)
+    },
+    [switchToSession],
+  )
 
-  const updateSessions = useCallback(async (newSessions?: any[]) => {
-    setWasUpdated(true)
-    if (newSessions) {
-      // Для тестов и обратной совместимости - принимаем массив сессий
-      const convertedSessions: ChatSession[] = newSessions.map(s => {
-        // Создаем пустые сообщения, если указан messageCount
-        const messages: ChatMessage[] = s.messages || []
-        if (s.messageCount && !s.messages) {
-          // Создаем фиктивные сообщения для соответствия messageCount
-          for (let i = 0; i < s.messageCount; i++) {
-            messages.push({
-              id: `msg_${s.id}_${i}`,
-              content: `Message ${i + 1}`,
-              role: i % 2 === 0 ? "user" : "assistant",
-              timestamp: new Date(),
-            })
+  const updateSessions = useCallback(
+    async (newSessions?: any[]) => {
+      setWasUpdated(true)
+      if (newSessions) {
+        // Для тестов и обратной совместимости - принимаем массив сессий
+        const convertedSessions: ChatSession[] = newSessions.map((s) => {
+          // Создаем пустые сообщения, если указан messageCount
+          const messages: ChatMessage[] = s.messages || []
+          if (s.messageCount && !s.messages) {
+            // Создаем фиктивные сообщения для соответствия messageCount
+            for (let i = 0; i < s.messageCount; i++) {
+              messages.push({
+                id: `msg_${s.id}_${i}`,
+                content: `Message ${i + 1}`,
+                role: i % 2 === 0 ? "user" : "assistant",
+                timestamp: new Date(),
+              })
+            }
           }
+
+          return {
+            id: s.id,
+            name: s.title || s.name || "Чат",
+            messages,
+            createdAt: s.createdAt || new Date(),
+            updatedAt: s.updatedAt || s.lastMessageAt || new Date(),
+          }
+        })
+        // Полностью заменяем все сессии новыми (удаляем default-session если она есть)
+        setSessions(convertedSessions)
+
+        // Если текущая сессия не в новом списке, сбрасываем её
+        if (currentSession && !convertedSessions.find((s) => s.id === currentSession.id)) {
+          setCurrentSession(null)
         }
-        
-        return {
-          id: s.id,
-          name: s.title || s.name || "Чат",
-          messages,
-          createdAt: s.createdAt || new Date(),
-          updatedAt: s.updatedAt || s.lastMessageAt || new Date(),
-        }
-      })
-      // Полностью заменяем все сессии новыми (удаляем default-session если она есть)
-      setSessions(convertedSessions)
-      
-      // Если текущая сессия не в новом списке, сбрасываем её
-      if (currentSession && !convertedSessions.find(s => s.id === currentSession.id)) {
-        setCurrentSession(null)
+      } else {
+        // Обновление сессий уже происходит через backend state
+        console.log("Sessions updated through backend state")
       }
-    } else {
-      // Обновление сессий уже происходит через backend state
-      console.log("Sessions updated through backend state")
-    }
-  }, [currentSession])
+    },
+    [currentSession],
+  )
 
   const clearMessages = useCallback(async () => {
     await clearCurrentSession()
@@ -453,7 +461,7 @@ export function ChatProvider({ children }: ChatProviderProps) {
     error,
 
     // История сессий - конвертируем в ChatListItem для обратной совместимости
-    sessions: sessions.map(s => {
+    sessions: sessions.map((s) => {
       const item: any = {
         id: s.id,
         title: s.name,

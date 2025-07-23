@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-deprecated */
 import { act, renderHook, waitFor } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { useLanguage } from "../use-language"
+import { useLanguage } from "@/features/language"
 
 // Mock Tauri API
 const mockInvoke = vi.fn()

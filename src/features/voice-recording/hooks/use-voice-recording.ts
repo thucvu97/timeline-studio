@@ -157,16 +157,14 @@ export function useVoiceRecording({
 
       // Запрашиваем поток с микрофона
       const stream = await navigator.mediaDevices?.getUserMedia?.(constraints)
-      
+
       if (!stream) {
         console.error("Не удалось получить поток с микрофона")
-        setErrorMessage(
-          t("dialogs.voiceRecord.streamError", "Не удалось инициализировать микрофон"),
-        )
+        setErrorMessage(t("dialogs.voiceRecord.streamError", "Не удалось инициализировать микрофон"))
         setIsDeviceReady(false)
         return
       }
-      
+
       streamRef.current = stream
 
       // Создаем аудио элемент для предпросмотра

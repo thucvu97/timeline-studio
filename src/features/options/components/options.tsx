@@ -1,62 +1,59 @@
-import { JSX, useEffect, useState } from "react";
+import { JSX, useEffect, useState } from "react"
 
-import { AudioLines, Gauge, Info, Palette } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { AudioLines, Gauge, Info, Palette } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TAB_BUTTON_STYLES } from "@/features/browser";
-import { ColorSettings } from "@/features/color-grading";
-import { MediaFile } from "@/features/media/types/media";
-import { cn } from "@/lib/utils";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { TAB_BUTTON_STYLES } from "@/features/browser"
+import { ColorSettings } from "@/features/color-grading"
+import { MediaFile } from "@/features/media/types/media"
+import { cn } from "@/lib/utils"
 
-import { AudioSettings } from "./audio-settings";
-import { InfoSettings } from "./info-settings";
-import { SpeedSettings } from "./speed-settings";
+import { AudioSettings } from "./audio-settings"
+import { InfoSettings } from "./info-settings"
+import { SpeedSettings } from "./speed-settings"
 
-type OptionsTab = "audio" | "color" | "speed" | "info";
+type OptionsTab = "audio" | "color" | "speed" | "info"
 
 const TABS: Array<{ id: OptionsTab; labelKey: string; icon: JSX.Element }> = [
   { id: "color", labelKey: "options.tabs.color", icon: <Palette /> },
   { id: "speed", labelKey: "options.tabs.speed", icon: <Gauge /> },
   { id: "audio", labelKey: "options.tabs.audio", icon: <AudioLines /> },
   { id: "info", labelKey: "options.tabs.info", icon: <Info /> },
-];
+]
 
 export interface OptionsProps {
-  selectedMediaFile?: MediaFile | null;
+  selectedMediaFile?: MediaFile | null
 }
 
 export function Options({ selectedMediaFile }: OptionsProps) {
-  const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<OptionsTab>("color");
+  const { t } = useTranslation()
+  const [activeTab, setActiveTab] = useState<OptionsTab>("color")
 
   // Автоматически переключаемся на вкладку "info" при выборе медиафайла
   useEffect(() => {
     if (selectedMediaFile) {
-      setActiveTab("info");
+      setActiveTab("info")
     }
-  }, [selectedMediaFile]);
+  }, [selectedMediaFile])
 
   const renderTabContent = () => {
     switch (activeTab) {
       case "audio":
-        return <AudioSettings />;
+        return <AudioSettings />
       case "color":
-        return <ColorSettings />;
+        return <ColorSettings />
       case "speed":
-        return <SpeedSettings />;
+        return <SpeedSettings />
       case "info":
-        return <InfoSettings selectedMediaFile={selectedMediaFile} />;
+        return <InfoSettings selectedMediaFile={selectedMediaFile} />
       default:
-        return <ColorSettings />;
+        return <ColorSettings />
     }
-  };
+  }
 
   return (
-    <div
-      className="flex h-full flex-col bg-background p-0 m-0"
-      data-testid="options"
-    >
+    <div className="flex h-full flex-col bg-background p-0 m-0" data-testid="options">
       <Tabs
         className="flex flex-col h-full justify-start border-none rounded-none m-0 p-0"
         value={activeTab}
@@ -70,10 +67,7 @@ export function Options({ selectedMediaFile }: OptionsProps) {
         >
           {TABS.map((tab) => (
             <TabsTrigger
-              className={cn(
-                TAB_BUTTON_STYLES,
-                "h-[35px] flex-row items-center justify-center gap-2",
-              )}
+              className={cn(TAB_BUTTON_STYLES, "h-[35px] flex-row items-center justify-center gap-2")}
               key={tab.id}
               value={tab.id}
               data-testid={`options-tab-${tab.id}`}
@@ -93,10 +87,7 @@ export function Options({ selectedMediaFile }: OptionsProps) {
             data-testid={`options-content-${tab.id}`}
           >
             {activeTab === tab.id && (
-              <div
-                className="h-full"
-                data-testid={`options-${tab.id}-settings`}
-              >
+              <div className="h-full" data-testid={`options-${tab.id}-settings`}>
                 {renderTabContent()}
               </div>
             )}
@@ -104,5 +95,5 @@ export function Options({ selectedMediaFile }: OptionsProps) {
         ))}
       </Tabs>
     </div>
-  );
+  )
 }

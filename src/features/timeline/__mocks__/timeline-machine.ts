@@ -126,7 +126,7 @@ export const timelineMachine = createMachine({
         speedRampingConfigs: ({ context, event }) => {
           const config = context.speedRampingConfigs[event.clipId]
           if (!config) return context.speedRampingConfigs
-          
+
           return {
             ...context.speedRampingConfigs,
             [event.clipId]: {
@@ -151,7 +151,7 @@ export const timelineMachine = createMachine({
         speedRampingConfigs: ({ context, event }) => {
           const config = context.speedRampingConfigs[event.clipId]
           if (!config) return context.speedRampingConfigs
-          
+
           return {
             ...context.speedRampingConfigs,
             [event.clipId]: {

@@ -89,14 +89,14 @@ export function SubtitleAIToolsModal() {
   }
 
   // Фильтруем только видео и аудио файлы для транскрипции
-  const audioVideoFiles = mediaFiles.filter(file => 
-    file.mediaType === "Video" || file.mediaType === "Audio"
-  ).map(file => ({
-    id: file.id,
-    path: file.path,
-    name: file.name,
-    duration: file.duration,
-  }))
+  const audioVideoFiles = mediaFiles
+    .filter((file) => file.mediaType === "Video" || file.mediaType === "Audio")
+    .map((file) => ({
+      id: file.id,
+      path: file.path,
+      name: file.name,
+      duration: file.duration,
+    }))
 
   /**
    * Запускает транскрипцию аудио

@@ -180,12 +180,19 @@ export function useTimelineAI() {
   )
 
   /**
+   * Инициализирует API ключ для Claude из безопасного хранилища
+   * @returns Promise<boolean> - успешность загрузки ключа
+   */
+  const initializeApiKey = useCallback(async () => {
+    return await timelineAI.initializeApiKey()
+  }, [timelineAI])
+
+  /**
    * Устанавливает API ключ для Claude
-   * @deprecated Используйте API Keys Management вместо прямой установки ключа
+   * @param apiKey API ключ
    */
   const setApiKey = useCallback(
     (apiKey: string) => {
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
       timelineAI.setApiKey(apiKey)
     },
     [timelineAI],
@@ -252,7 +259,7 @@ export function useTimelineAI() {
     createTimelineFromPrompt,
     analyzeResources,
     executeCommand,
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
+    initializeApiKey,
     setApiKey,
 
     // Быстрые команды

@@ -253,7 +253,7 @@ export class SceneDetectionService {
         smoothness = 0.9
         visualImpact = 0.9
         break
-      
+
       default:
         // Неизвестный тип перехода, используем значения по умолчанию
         break

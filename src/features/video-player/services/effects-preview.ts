@@ -74,7 +74,7 @@ export class EffectsPreviewService {
         console.warn("Effects preview WebGL initialization skipped (SSR)")
         return
       }
-      
+
       this.canvas = document.createElement("canvas")
       this.gl = this.canvas.getContext("webgl2", {
         premultipliedAlpha: false,

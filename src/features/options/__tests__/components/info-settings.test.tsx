@@ -45,7 +45,7 @@ const mockMediaFile = {
         codec_type: "audio",
         sample_rate: "48000",
         channels: 2,
-      }
+      },
     ],
     format: {
       format_name: "mov,mp4,m4a,3gp,3g2,mj2",
@@ -53,8 +53,8 @@ const mockMediaFile = {
       duration: "120.000000",
       size: "1024000",
       bit_rate: "68266",
-    }
-  }
+    },
+  },
 }
 
 describe("InfoSettings", () => {

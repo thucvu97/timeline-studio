@@ -16,15 +16,15 @@ export function useCurrentProject() {
   const createNewProject = async (name: string) => {
     return executeCommand({
       type: "CreateProject",
-      params: { name, template: "default" }
+      params: { name, template: "default" },
     })
   }
 
   // Создание временного проекта
   const createTempProject = async () => {
     return executeCommand({
-      type: "CreateProject", 
-      params: { name: "Temp Project", template: "temp", temporary: true }
+      type: "CreateProject",
+      params: { name: "Temp Project", template: "temp", temporary: true },
     })
   }
 
@@ -32,7 +32,7 @@ export function useCurrentProject() {
   const loadOrCreateTempProject = async () => {
     return executeCommand({
       type: "LoadOrCreateTempProject",
-      params: {}
+      params: {},
     })
   }
 
@@ -40,7 +40,7 @@ export function useCurrentProject() {
   const openProject = async (projectPath: string) => {
     return executeCommand({
       type: "LoadProject",
-      params: { path: projectPath }
+      params: { path: projectPath },
     })
   }
 
@@ -48,7 +48,7 @@ export function useCurrentProject() {
   const saveProject = async (projectPath?: string) => {
     return executeCommand({
       type: "SaveProject",
-      params: { path: projectPath }
+      params: { path: projectPath },
     })
   }
 
@@ -56,7 +56,7 @@ export function useCurrentProject() {
   const setProjectDirty = (dirty: boolean) => {
     executeCommand({
       type: "SetProjectDirty",
-      params: { dirty }
+      params: { dirty },
     })
   }
 

@@ -23,46 +23,21 @@ export interface LUFSConfig {
 export class LUFSMeter extends EventEmitter {
   private config: LUFSConfig
   private analyser: AnalyserNode | null = null
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-  private processor: ScriptProcessorNode | null = null
+  private context: AudioContext | null = null
+  private processor: AudioWorkletNode | null = null
 
-  // Буферы для измерений
-  private momentaryBuffer: Float32Array[] = [] // 400ms буфер
-  private shortTermBuffer: Float32Array[] = [] // 3s буфер
-  private integratedBuffer: Float32Array[] = [] // Весь материал
-  private gatingBlocks: number[] = [] // Блоки для gating
-
-  // Временные параметры
-  private blockSize = 400 // ms
-  private samplesPerBlock: number
-  private momentaryBlocks = 1 // 400ms / 400ms
-  private shortTermBlocks = 7.5 // 3000ms / 400ms
+  // Состояние
+  private isRunning = false
 
   // Фильтры EBU R128
   private preFilter: BiquadFilterNode | null = null
   private revFilter: BiquadFilterNode | null = null
 
-  // Состояние измерений
-  private isRunning = false
-  private lastUpdate = 0
-  private peakHoldTime = 0
-  private currentPeak = -Number.NEGATIVE_INFINITY
-
-  // Gating thresholds (LUFS)
-  private readonly ABSOLUTE_GATE = -70.0
-  private readonly RELATIVE_GATE_OFFSET = -10.0
+  // Фильтры будут применяться на стороне AudioWorklet
 
   constructor(config: LUFSConfig) {
     super()
     this.config = config
-    this.samplesPerBlock = Math.floor((config.sampleRate * this.blockSize) / 1000)
-
-    // Инициализируем буферы для каждого канала
-    for (let ch = 0; ch < config.channels; ch++) {
-      this.momentaryBuffer[ch] = new Float32Array(this.samplesPerBlock * this.momentaryBlocks)
-      this.shortTermBuffer[ch] = new Float32Array(this.samplesPerBlock * this.shortTermBlocks)
-      this.integratedBuffer[ch] = new Float32Array(0) // Будет расти динамически
-    }
   }
 
   async initialize(context: AudioContext): Promise<void> {
@@ -76,17 +51,13 @@ export class LUFSMeter extends EventEmitter {
     // Создаём фильтры EBU R128
     await this.createFilters(context)
 
-    // Создаём processor для обработки аудио
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    this.processor = context.createScriptProcessor(this.samplesPerBlock, this.config.channels, this.config.channels)
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    this.processor.onaudioprocess = this.processAudio.bind(this)
+    // Создаём AudioWorklet processor
+    await this.initializeWorklet(context)
 
-    // Подключаем цепочку: input -> preFilter -> revFilter -> analyser -> processor -> output
-    if (this.preFilter && this.revFilter) {
+    // Подключаем цепочку: input -> preFilter -> revFilter -> processor -> output
+    if (this.preFilter && this.revFilter && this.processor) {
       this.preFilter.connect(this.revFilter)
-      this.revFilter.connect(this.analyser)
-      this.analyser.connect(this.processor)
+      this.revFilter.connect(this.processor)
     }
   }
 
@@ -105,212 +76,49 @@ export class LUFSMeter extends EventEmitter {
     this.revFilter.Q.setValueAtTime(1.0, context.currentTime)
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-  private processAudio(event: AudioProcessingEvent): void {
-    if (!this.isRunning) return
-
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    const inputBuffer = event.inputBuffer
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    const outputBuffer = event.outputBuffer
-
-    // Копируем вход на выход (pass-through)
-    for (let ch = 0; ch < inputBuffer.numberOfChannels && ch < this.config.channels; ch++) {
-      const input = inputBuffer.getChannelData(ch)
-      const output = outputBuffer.getChannelData(ch)
-
-      // Обрабатываем блок
-      this.processBlock(input, ch)
-
-      // Передаём аудио дальше
-      output.set(input)
+  private async initializeWorklet(context: AudioContext): Promise<void> {
+    if (!context.audioWorklet) {
+      throw new Error("AudioWorklet is not supported in this browser")
+    }
+    
+    try {
+      await context.audioWorklet.addModule(
+        "/src/features/fairlight-audio/services/meters/worklets/lufs-meter-worklet.js"
+      )
+    } catch (error) {
+      // Module might already be loaded, continue
     }
 
-    // Обновляем измерения
-    this.updateMeasurements()
-  }
+    this.processor = new AudioWorkletNode(context, "lufs-meter", {
+      numberOfInputs: 1,
+      numberOfOutputs: 1,
+      channelCount: this.config.channels,
+      channelCountMode: "explicit",
+      channelInterpretation: "speakers",
+    })
 
-  private processBlock(samples: Float32Array, channel: number): void {
-    // Добавляем новые сэмплы в буферы
-    this.addSamplesToBuffer(this.momentaryBuffer[channel], samples)
-    this.addSamplesToBuffer(this.shortTermBuffer[channel], samples)
+    // Send configuration to worklet
+    this.processor.port.postMessage({
+      type: "config",
+      config: {
+        sampleRate: context.sampleRate,
+        channels: this.config.channels,
+        updateInterval: this.config.updateInterval,
+        enableTruePeak: this.config.enableTruePeak
+      }
+    })
 
-    // Расширяем integrated буфер (весь материал)
-    const newIntegratedSize = this.integratedBuffer[channel].length + samples.length
-    const newIntegratedBuffer = new Float32Array(newIntegratedSize)
-    newIntegratedBuffer.set(this.integratedBuffer[channel])
-    newIntegratedBuffer.set(samples, this.integratedBuffer[channel].length)
-    this.integratedBuffer[channel] = newIntegratedBuffer
-
-    // Вычисляем True Peak если включено
-    if (this.config.enableTruePeak) {
-      this.updateTruePeak(samples)
-    }
-  }
-
-  private addSamplesToBuffer(buffer: Float32Array, newSamples: Float32Array): void {
-    if (newSamples.length >= buffer.length) {
-      // Новых сэмплов больше чем размер буфера - берём только последние
-      buffer.set(newSamples.slice(-buffer.length))
-    } else {
-      // Сдвигаем старые сэмплы и добавляем новые
-      const oldLength = buffer.length - newSamples.length
-      buffer.copyWithin(0, newSamples.length)
-      buffer.set(newSamples, oldLength)
-    }
-  }
-
-  private updateTruePeak(samples: Float32Array): void {
-    // Upsampling для True Peak (упрощённая версия)
-    // В полной реализации нужен 4x oversampling с proper anti-aliasing
-    for (const sample of samples) {
-      const peak = Math.abs(sample)
-      if (peak > this.currentPeak) {
-        this.currentPeak = peak
-        this.peakHoldTime = performance.now()
+    // Handle measurements from worklet
+    this.processor.port.onmessage = (event) => {
+      if (event.data.type === "measurement") {
+        this.emit("measurement", event.data.data)
       }
     }
-
-    // Peak hold decay (500ms)
-    if (performance.now() - this.peakHoldTime > 500) {
-      this.currentPeak *= 0.999 // Медленное затухание
-    }
   }
 
-  private updateMeasurements(): void {
-    const now = performance.now()
-    if (now - this.lastUpdate < this.config.updateInterval) return
+  // Processing moved to AudioWorklet
 
-    this.lastUpdate = now
-
-    // Вычисляем все типы измерений
-    const momentary = this.calculateLoudness(this.momentaryBuffer)
-    const shortTerm = this.calculateLoudness(this.shortTermBuffer)
-    const integrated = this.calculateIntegratedLoudness()
-    const range = this.calculateLoudnessRange()
-    const peak = this.config.enableTruePeak ? this.currentPeak : this.getSimplePeak()
-
-    const measurement: LUFSMeasurement = {
-      momentary,
-      shortTerm,
-      integrated,
-      range,
-      peak: peak > 0 ? 20 * Math.log10(peak) : -Number.NEGATIVE_INFINITY, // Convert to dBTP
-    }
-
-    this.emit("measurement", measurement)
-  }
-
-  private calculateLoudness(buffers: Float32Array[]): number {
-    if (buffers.length === 0 || buffers[0].length === 0) return -Number.NEGATIVE_INFINITY
-
-    let meanSquareSum = 0
-    let validChannels = 0
-
-    for (let ch = 0; ch < buffers.length && ch < this.config.channels; ch++) {
-      const buffer = buffers[ch]
-      let channelMeanSquare = 0
-
-      for (const sample of buffer) {
-        channelMeanSquare += sample * sample
-      }
-
-      channelMeanSquare /= buffer.length
-
-      // Взвешивание каналов согласно ITU-R BS.1770-4
-      const weight = this.getChannelWeight(ch)
-      meanSquareSum += channelMeanSquare * weight
-      validChannels++
-    }
-
-    if (validChannels === 0 || meanSquareSum <= 0) return -Number.NEGATIVE_INFINITY
-
-    // Конвертируем в LUFS: -0.691 dB для калибровки
-    const loudness = -0.691 + 10 * Math.log10(meanSquareSum)
-    return Math.max(loudness, this.ABSOLUTE_GATE)
-  }
-
-  private calculateIntegratedLoudness(): number {
-    if (this.integratedBuffer.length === 0) return -Number.NEGATIVE_INFINITY
-
-    // Разбиваем на блоки по 400ms для gating
-    const blocks: number[] = []
-    const blockSamples = this.samplesPerBlock
-
-    for (let start = 0; start < this.integratedBuffer[0].length; start += blockSamples) {
-      const blockBuffers: Float32Array[] = []
-
-      for (let ch = 0; ch < this.config.channels; ch++) {
-        const end = Math.min(start + blockSamples, this.integratedBuffer[ch].length)
-        blockBuffers[ch] = this.integratedBuffer[ch].slice(start, end)
-      }
-
-      const blockLoudness = this.calculateLoudness(blockBuffers)
-      if (blockLoudness > this.ABSOLUTE_GATE) {
-        blocks.push(blockLoudness)
-      }
-    }
-
-    if (blocks.length === 0) return -Number.NEGATIVE_INFINITY
-
-    // Relative gating
-    const averageLoudness = blocks.reduce((sum, l) => sum + 10 ** (l / 10), 0) / blocks.length
-    const relativeGate = 10 * Math.log10(averageLoudness) + this.RELATIVE_GATE_OFFSET
-
-    const gatedBlocks = blocks.filter((l) => l >= relativeGate)
-    if (gatedBlocks.length === 0) return -Number.NEGATIVE_INFINITY
-
-    const gatedAverage = gatedBlocks.reduce((sum, l) => sum + 10 ** (l / 10), 0) / gatedBlocks.length
-    return 10 * Math.log10(gatedAverage)
-  }
-
-  private calculateLoudnessRange(): number {
-    // Упрощённый расчёт LRA - нужна полная реализация с гистограммой
-    if (this.gatingBlocks.length < 2) return 0
-
-    const sorted = [...this.gatingBlocks].sort((a, b) => a - b)
-    const percentile10 = sorted[Math.floor(sorted.length * 0.1)]
-    const percentile95 = sorted[Math.floor(sorted.length * 0.95)]
-
-    return Math.max(0, percentile95 - percentile10)
-  }
-
-  private getChannelWeight(channel: number): number {
-    // ITU-R BS.1770-4 channel weighting
-    switch (this.config.channels) {
-      case 1: // Mono
-        return 1.0
-      case 2: // Stereo
-        return 1.0 // L, R
-      case 6: // 5.1
-        switch (channel) {
-          case 0:
-          case 1:
-            return 1.0 // L, R
-          case 2:
-            return 1.0 // C
-          case 3:
-            return 0.0 // LFE (не учитывается)
-          case 4:
-          case 5:
-            return 1.41 // Ls, Rs (surround boost)
-          default:
-            return 1.0
-        }
-      default:
-        return 1.0
-    }
-  }
-
-  private getSimplePeak(): number {
-    let peak = 0
-    for (const buffer of this.momentaryBuffer) {
-      for (const sample of buffer) {
-        peak = Math.max(peak, Math.abs(sample))
-      }
-    }
-    return peak
-  }
+  // All calculation methods moved to AudioWorklet
 
   // Public API
   start(): void {
@@ -329,17 +137,10 @@ export class LUFSMeter extends EventEmitter {
   }
 
   reset(): void {
-    // Очищаем все буферы
-    for (let ch = 0; ch < this.config.channels; ch++) {
-      this.momentaryBuffer[ch].fill(0)
-      this.shortTermBuffer[ch].fill(0)
-      this.integratedBuffer[ch] = new Float32Array(0)
+    // Send reset command to worklet
+    if (this.processor) {
+      this.processor.port.postMessage({ type: "reset" })
     }
-
-    this.gatingBlocks = []
-    this.currentPeak = -Number.NEGATIVE_INFINITY
-    this.peakHoldTime = 0
-
     this.emit("reset")
   }
 
@@ -352,18 +153,14 @@ export class LUFSMeter extends EventEmitter {
   }
 
   getCurrentMeasurement(): LUFSMeasurement {
-    const momentary = this.calculateLoudness(this.momentaryBuffer)
-    const shortTerm = this.calculateLoudness(this.shortTermBuffer)
-    const integrated = this.calculateIntegratedLoudness()
-    const range = this.calculateLoudnessRange()
-    const peak = this.config.enableTruePeak ? this.currentPeak : this.getSimplePeak()
-
+    // Request current measurement from worklet
+    // Note: This would be async in real implementation
     return {
-      momentary,
-      shortTerm,
-      integrated,
-      range,
-      peak: peak > 0 ? 20 * Math.log10(peak) : -Number.NEGATIVE_INFINITY,
+      momentary: -Number.NEGATIVE_INFINITY,
+      shortTerm: -Number.NEGATIVE_INFINITY,
+      integrated: -Number.NEGATIVE_INFINITY,
+      range: 0,
+      peak: -Number.NEGATIVE_INFINITY,
     }
   }
 

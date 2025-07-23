@@ -66,6 +66,12 @@ interface ResourcesContextType {
   getResourcesByType: (type: string) => TimelineResource[]
   isMusicAdded: (file: MediaFile) => boolean
   isSubtitleAdded: (style: SubtitleStyleTemplate) => boolean
+  isTemplateAdded: (template: MediaTemplate) => boolean
+  isEffectAdded: (effect: VideoEffect) => boolean
+  isFilterAdded: (filter: VideoFilter) => boolean
+  isTransitionAdded: (transition: Transition) => boolean
+  isStyleTemplateAdded: (template: StyleTemplate) => boolean
+  isAdded: (resourceId: string, type: string) => boolean
 }
 
 const ResourcesContextV2 = createContext<ResourcesContextType | undefined>(undefined)
@@ -334,10 +340,29 @@ export function ResourcesProviderV2({ children }: ResourcesProviderV2Props) {
     getResourceById,
     getResourcesByType,
     isMusicAdded: (file: MediaFile) => {
-      return musicResources.some(resource => resource.data.path === file.path)
+      return musicResources.some((resource) => resource.data.path === file.path)
     },
     isSubtitleAdded: (style: SubtitleStyleTemplate) => {
-      return subtitleResources.some(resource => resource.data.id === style.id)
+      return subtitleResources.some((resource) => resource.data.id === style.id)
+    },
+    isTemplateAdded: (template: MediaTemplate) => {
+      return templateResources.some((resource) => resource.data.id === template.id)
+    },
+    isEffectAdded: (effect: VideoEffect) => {
+      return effectResources.some((resource) => resource.data.id === effect.id)
+    },
+    isFilterAdded: (filter: VideoFilter) => {
+      return filterResources.some((resource) => resource.data.id === filter.id)
+    },
+    isTransitionAdded: (transition: Transition) => {
+      return transitionResources.some((resource) => resource.data.id === transition.id)
+    },
+    isStyleTemplateAdded: (template: StyleTemplate) => {
+      return styleTemplateResources.some((resource) => resource.data.id === template.id)
+    },
+    isAdded: (resourceId: string, type: string) => {
+      const resources = getResourcesByType(type)
+      return resources.some((resource) => resource.id === resourceId || resource.resourceId === resourceId)
     },
   }
 

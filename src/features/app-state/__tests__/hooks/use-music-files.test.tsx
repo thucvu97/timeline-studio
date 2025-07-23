@@ -8,7 +8,6 @@ import type { MediaItem } from "@/types/generated/tauri-bindings"
 import { useMusicFiles } from "../../hooks/use-music-files"
 import { AppProvider } from "../../services/app-provider"
 
-
 // Мокаем backend-sync и app provider
 const mockMusicFiles: MediaItem[] = [
   {
@@ -66,10 +65,10 @@ const mockProjectState = {
     },
     media_pool: {
       items: {
-        "music1": mockMusicFiles[0],
-        "music2": mockMusicFiles[1],
+        music1: mockMusicFiles[0],
+        music2: mockMusicFiles[1],
         // Добавляем видео файл для проверки фильтрации
-        "video1": {
+        video1: {
           id: "video1",
           path: "/path/to/video.mp4",
           name: "video.mp4",
@@ -146,9 +145,7 @@ vi.mock("@xstate/react", () => ({
   useMachine: () => [mockState, mockSend],
 }))
 
-const wrapper = ({ children }: { children: React.ReactNode }) => (
-  <AppProvider>{children}</AppProvider>
-)
+const wrapper = ({ children }: { children: React.ReactNode }) => <AppProvider>{children}</AppProvider>
 
 describe("useMusicFiles", () => {
   beforeEach(() => {
@@ -161,9 +158,9 @@ describe("useMusicFiles", () => {
 
     expect(result.current.musicFiles).toEqual(mockMusicFiles)
     expect(result.current.musicFiles).toHaveLength(2)
-    
+
     // Проверяем что все файлы имеют тип Audio
-    result.current.musicFiles.forEach(file => {
+    result.current.musicFiles.forEach((file) => {
       expect(file.media_type).toBe("Audio")
     })
   })
@@ -193,8 +190,8 @@ describe("useMusicFiles", () => {
       type: "EXECUTE_COMMAND",
       command: {
         type: "AddMedia",
-        params: { path: "/path/to/new-song.mp3", media_type: "Audio" }
-      }
+        params: { path: "/path/to/new-song.mp3", media_type: "Audio" },
+      },
     })
   })
 
@@ -204,7 +201,7 @@ describe("useMusicFiles", () => {
     const musicFiles = result.current.musicFiles
 
     // Проверяем что видео файл не включён в результат
-    const videoFile = musicFiles.find(file => file.name === "video.mp4")
+    const videoFile = musicFiles.find((file) => file.name === "video.mp4")
     expect(videoFile).toBeUndefined()
 
     // Проверяем что есть только аудио файлы
@@ -224,8 +221,8 @@ describe("useMusicFiles", () => {
       type: "EXECUTE_COMMAND",
       command: {
         type: "RemoveMedia",
-        params: { media_id: "music1" }
-      }
+        params: { media_id: "music1" },
+      },
     })
   })
 })

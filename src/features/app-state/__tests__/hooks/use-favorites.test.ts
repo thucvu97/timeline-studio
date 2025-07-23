@@ -65,15 +65,15 @@ describe("useFavorites", () => {
 
   it("должен предоставлять метод удаления из избранного", async () => {
     const { result } = renderHook(() => useFavorites())
-    
+
     // Сначала добавляем элемент
     const item = { id: "effect1", name: "Blur" }
     await act(async () => {
       await result.current.addToFavorites(item, "effect")
     })
-    
+
     expect(result.current.favorites.effect).toContainEqual(item)
-    
+
     // Затем удаляем
     await act(async () => {
       await result.current.removeFromFavorites(item, "effect")
@@ -84,12 +84,12 @@ describe("useFavorites", () => {
 
   it("должен проверять, является ли элемент избранным", async () => {
     const { result } = renderHook(() => useFavorites())
-    
+
     // Добавляем элементы
     const effect1 = { id: "effect1", name: "Blur" }
     const effect2 = { id: "effect2", name: "Sharpen" }
     const filter1 = { id: "filter1", name: "Sepia" }
-    
+
     await act(async () => {
       await result.current.addToFavorites(effect1, "effect")
       await result.current.addToFavorites(effect2, "effect")
@@ -120,7 +120,7 @@ describe("useFavorites", () => {
 
   it("должен обновлять isItemFavorite при изменении избранных", async () => {
     const { result } = renderHook(() => useFavorites())
-    
+
     const effect1 = { id: "effect1", name: "Blur" }
     const effect2 = { id: "effect2", name: "Sharpen" }
 

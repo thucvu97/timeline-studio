@@ -43,12 +43,12 @@ export function useRealtimePreview(options: UseRealtimePreviewOptions = {}) {
 
   const timeline = useTimeline()
   const player = usePlayer()
-  
+
   const currentTime = player.currentTime
   const selectedClipId = timeline.selectedClipIds?.[0]
   const mediaFile = player.currentVideo
   const isPlaying = player.isPlaying
-  
+
   const getEffectsAtTime = undefined // TODO: Implement when timeline effects API is available
   const getEffectsForClip = undefined // TODO: Implement when timeline effects API is available
 

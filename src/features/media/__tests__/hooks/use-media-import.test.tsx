@@ -20,7 +20,7 @@ vi.mock("@/features/app-state", async () => {
     useMediaFiles: vi.fn(() => ({
       mediaFiles: [],
       addMediaFile: vi.fn(),
-      removeMediaFile: vi.fn(), 
+      removeMediaFile: vi.fn(),
       updateMediaFile: vi.fn(),
       updateMediaFiles: mockUpdateMediaFiles,
     })),

@@ -60,7 +60,7 @@ export function useScreenCapture() {
       console.log("Запрашиваем разрешение на запись экрана с параметрами:", constraints)
 
       const stream = await navigator.mediaDevices?.getDisplayMedia?.(constraints as DisplayMediaStreamOptions)
-      
+
       if (!stream) {
         console.error("Не удалось получить поток захвата экрана")
         throw new Error("Захват экрана недоступен")

@@ -176,7 +176,7 @@ describe("SceneAnalysisEngine", () => {
   let mockFFmpegService: any
   let mockAIService: any
   let mockVisionService: any
-  
+
   // Увеличиваем таймаут для тестов, которые могут долго выполняться
   const TEST_TIMEOUT = 10000
 
@@ -195,7 +195,7 @@ describe("SceneAnalysisEngine", () => {
       extractFrame: vi.fn().mockResolvedValue(new Uint8Array(100)),
       extractAudio: vi.fn().mockResolvedValue(createMockFFmpegAnalysis().audio),
     }
-    
+
     // Правильно мокаем FFmpegAnalysisService
     const MockFFmpegAnalysisService = {
       getInstance: vi.fn().mockReturnValue(mockFFmpegService),
@@ -223,7 +223,7 @@ describe("SceneAnalysisEngine", () => {
 
     // Create engine instance
     engine = new SceneAnalysisEngine()
-    
+
     // Отключаем character analysis для тестов, чтобы избежать зависания
     await engine.configure({
       enableCharacterAnalysis: false,
@@ -269,7 +269,7 @@ describe("SceneAnalysisEngine", () => {
 
     it("should handle initialization errors", async () => {
       const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {})
-      
+
       // Включаем vision для этого теста чтобы VisionService был инициализирован
       await engine.configure({
         enableCharacterAnalysis: false,
@@ -281,7 +281,7 @@ describe("SceneAnalysisEngine", () => {
           confidenceThreshold: 0.5,
         },
       })
-      
+
       mockVisionService.initialize.mockRejectedValueOnce(new Error("Vision init failed"))
 
       await expect(engine.initialize()).rejects.toThrow("Vision init failed")

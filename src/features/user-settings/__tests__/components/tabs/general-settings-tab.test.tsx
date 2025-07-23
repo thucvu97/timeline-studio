@@ -1,15 +1,15 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { useLanguage } from "@/features/language"
 import { useModal } from "@/features/modals/services/modal-provider"
-import { useLanguage } from "@/i18n/hooks/use-language"
 
 import { GeneralSettingsTab } from "../../../components/tabs/general-settings-tab"
 import { useUserSettings } from "../../../hooks/use-user-settings"
 
 vi.mock("../../../hooks/use-user-settings")
 vi.mock("@/features/modals/services/modal-provider")
-vi.mock("@/i18n/hooks/use-language")
+vi.mock("@/features/language")
 vi.mock("@tauri-apps/plugin-dialog", () => ({
   open: vi.fn(),
 }))
@@ -103,7 +103,6 @@ describe("GeneralSettingsTab", () => {
       submitModal: vi.fn(),
     }))
 
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
     vi.mocked(useLanguage).mockImplementation(() => ({
       currentLanguage: "ru",
       changeLanguage: mockChangeLanguage,

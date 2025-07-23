@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { ProjectAnalysis, SmartExportOptimizer } from "../../utils/smart-export-optimizer"
+import { optimizeSettings, type ProjectAnalysis } from "../../utils/smart-export-optimizer"
 
 describe("SmartExportOptimizer", () => {
   const basicProject: ProjectAnalysis = {
@@ -18,7 +18,7 @@ describe("SmartExportOptimizer", () => {
 
   describe("optimizeSettings", () => {
     it("should provide reasonable defaults for basic project", () => {
-      const result = SmartExportOptimizer.optimizeSettings(basicProject)
+      const result = optimizeSettings(basicProject)
 
       expect(result.recommendedSettings.resolution).toBe("1080")
       expect(result.recommendedSettings.format).toBe("mp4")
@@ -33,7 +33,7 @@ describe("SmartExportOptimizer", () => {
         targetPlatform: "social" as const,
       }
 
-      const result = SmartExportOptimizer.optimizeSettings(socialProject)
+      const result = optimizeSettings(socialProject)
 
       expect(result.recommendedSettings.format).toBe("mp4")
       expect(result.recommendedSettings.codec).toBe("h264")
@@ -48,7 +48,7 @@ describe("SmartExportOptimizer", () => {
         targetPlatform: "social" as const,
       }
 
-      const result = SmartExportOptimizer.optimizeSettings(verticalProject)
+      const result = optimizeSettings(verticalProject)
 
       expect(result.recommendedSettings.resolution).toBe("1080")
       expect(result.reasons.some((r) => r.includes("Vertical video"))).toBe(true)
@@ -60,7 +60,7 @@ describe("SmartExportOptimizer", () => {
         targetPlatform: "archive" as const,
       }
 
-      const result = SmartExportOptimizer.optimizeSettings(archiveProject)
+      const result = optimizeSettings(archiveProject)
 
       expect(result.recommendedSettings.quality).toBe("best")
       expect(result.reasons.some((r) => r.includes("archive"))).toBe(true)
@@ -73,7 +73,7 @@ describe("SmartExportOptimizer", () => {
         clipCount: 50,
       }
 
-      const result = SmartExportOptimizer.optimizeSettings(largeProject)
+      const result = optimizeSettings(largeProject)
 
       expect(result.recommendedSettings.useGPU).toBe(true)
       expect(result.reasons.some((r) => r.includes("GPU acceleration"))).toBe(true)
@@ -85,7 +85,7 @@ describe("SmartExportOptimizer", () => {
         targetPlatform: "broadcast" as const,
       }
 
-      const result = SmartExportOptimizer.optimizeSettings(broadcastProject)
+      const result = optimizeSettings(broadcastProject)
 
       expect(result.recommendedSettings.format).toBe("mov")
       expect(result.recommendedSettings.codec).toBe("prores")
@@ -98,8 +98,8 @@ describe("SmartExportOptimizer", () => {
         hasMotion: true,
       }
 
-      const staticResult = SmartExportOptimizer.optimizeSettings(basicProject)
-      const motionResult = SmartExportOptimizer.optimizeSettings(motionProject)
+      const staticResult = optimizeSettings(basicProject)
+      const motionResult = optimizeSettings(motionProject)
 
       expect(motionResult.recommendedSettings.bitrate).toBeGreaterThan(staticResult.recommendedSettings.bitrate || 0)
       expect(motionResult.reasons.some((r) => r.includes("motion"))).toBe(true)
@@ -112,7 +112,7 @@ describe("SmartExportOptimizer", () => {
         hasMotion: true,
       }
 
-      const result = SmartExportOptimizer.optimizeSettings(highFpsMotionProject)
+      const result = optimizeSettings(highFpsMotionProject)
 
       expect(result.recommendedSettings.fps).toBe("60")
       expect(result.reasons.some((r) => r.includes("motion"))).toBe(true)
@@ -125,14 +125,14 @@ describe("SmartExportOptimizer", () => {
         originalResolution: { width: 3840, height: 2160 }, // 4K
       }
 
-      const result = SmartExportOptimizer.optimizeSettings(longProject)
+      const result = optimizeSettings(longProject)
 
       expect(result.recommendedSettings.resolution).toBe("1080")
       expect(result.reasons.some((r) => r.includes("Long video"))).toBe(true)
     })
 
     it("should provide alternative options", () => {
-      const result = SmartExportOptimizer.optimizeSettings(basicProject)
+      const result = optimizeSettings(basicProject)
 
       expect(result.alternativeOptions).toBeDefined()
       expect(result.alternativeOptions!.length).toBeGreaterThan(0)
@@ -154,7 +154,7 @@ describe("SmartExportOptimizer", () => {
         hasTextOverlays: true,
       }
 
-      const result = SmartExportOptimizer.optimizeSettings(complexProject)
+      const result = optimizeSettings(complexProject)
 
       expect(result.recommendedSettings.quality).toBe("best")
       expect(result.reasons.some((r) => r.includes("Complex effects"))).toBe(true)
@@ -167,7 +167,7 @@ describe("SmartExportOptimizer", () => {
         fps: 24,
       }
 
-      const result = SmartExportOptimizer.optimizeSettings(cinemaProject)
+      const result = optimizeSettings(cinemaProject)
 
       expect(result.recommendedSettings.fps).toBe("24")
       expect(result.reasons.some((r) => r.includes("Cinema"))).toBe(true)

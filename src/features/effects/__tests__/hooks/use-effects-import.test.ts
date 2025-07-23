@@ -453,10 +453,14 @@ describe("useEffectsImport", () => {
       const presetEffect = importResult.effects[1]
 
       // Test LUT command
-      expect(lutEffect.processors.ffmpeg?.filter({ intensity: 0.5 })).toBe("lut3d=/path/to/lut.cube:interp=trilinear:amount=0.5")
+      expect(lutEffect.processors.ffmpeg?.filter({ intensity: 0.5 })).toBe(
+        "lut3d=/path/to/lut.cube:interp=trilinear:amount=0.5",
+      )
 
       // Test custom command
-      expect(presetEffect.processors.ffmpeg?.filter({ intensity: 0.8 })).toBe("custom=/path/to/preset.json:intensity=0.8")
+      expect(presetEffect.processors.ffmpeg?.filter({ intensity: 0.8 })).toBe(
+        "custom=/path/to/preset.json:intensity=0.8",
+      )
     })
 
     it("should handle Windows file paths correctly", async () => {
@@ -637,7 +641,7 @@ describe("useEffectsImport", () => {
           scope: ["clip"],
           parameters: [],
           processors: "not-object", // Wrong processors type
-        }
+        },
       ]
 
       const { open } = await import("@tauri-apps/plugin-dialog")
@@ -655,7 +659,7 @@ describe("useEffectsImport", () => {
       expect(result2.success).toBe(true)
       expect(result2.effects.length).toBeGreaterThan(0)
       // The first valid effect should be our main one
-      expect(result2.effects.some(effect => effect.id === "valid")).toBe(true)
+      expect(result2.effects.some((effect) => effect.id === "valid")).toBe(true)
     })
   })
 })

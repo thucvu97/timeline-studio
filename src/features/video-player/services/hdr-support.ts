@@ -81,7 +81,7 @@ export class HDRSupportService {
         console.warn("HDR support WebGL initialization skipped (SSR)")
         return
       }
-      
+
       this.canvas = document.createElement("canvas")
       this.gl = this.canvas.getContext("webgl2")
 

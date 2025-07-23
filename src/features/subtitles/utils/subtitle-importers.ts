@@ -172,11 +172,10 @@ function parseASSColor(assColor: string): string {
     // Формат с альфа-каналом: &HAABBGGRR
     const [, _alpha, blue, green, red] = match
     return `#${red}${green}${blue}`
-  } else {
-    // Формат без альфа-канала: &HBBGGRR
-    const [, , blue, green, red] = match
-    return `#${red}${green}${blue}`
   }
+  // Формат без альфа-канала: &HBBGGRR
+  const [, , blue, green, red] = match
+  return `#${red}${green}${blue}`
 }
 
 /**

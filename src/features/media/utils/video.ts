@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */
 import { FfprobeStream } from "@/features/media/types/ffprobe"
 import type { MediaFile } from "@/features/media/types/media"
 import type { TimeRange } from "@/features/media/types/time-range"
@@ -210,7 +209,7 @@ export enum VolumeState {
  * @example
  * const nextVolume = getNextVolumeState(VolumeState.FULL); // VolumeState.HALF
  */
-export const getNextVolumeState = (currentVolume: number): VolumeState => {
+export const getNextVolumeState = (currentVolume: VolumeState): VolumeState => {
   if (currentVolume === VolumeState.FULL) return VolumeState.HALF
   if (currentVolume === VolumeState.HALF) return VolumeState.MUTED
   return VolumeState.FULL

@@ -13,7 +13,7 @@ export function useMediaFiles() {
   const { projectState, executeCommand } = useApp()
 
   // Извлекаем медиа-файлы из media_pool
-  const mediaFiles: MediaItem[] = projectState?.project?.media_pool?.items 
+  const mediaFiles: MediaItem[] = projectState?.project?.media_pool?.items
     ? Object.values(projectState.project.media_pool.items)
     : []
 
@@ -21,15 +21,15 @@ export function useMediaFiles() {
   const addMediaFile = async (path: string, mediaType: "Video" | "Audio" | "Image") => {
     return executeCommand({
       type: "AddMedia",
-      params: { path, media_type: mediaType }
+      params: { path, media_type: mediaType },
     })
   }
 
   // Удаление медиа-файла
   const removeMediaFile = async (mediaId: string) => {
     return executeCommand({
-      type: "RemoveMedia", 
-      params: { media_id: mediaId }
+      type: "RemoveMedia",
+      params: { media_id: mediaId },
     })
   }
 
@@ -37,7 +37,7 @@ export function useMediaFiles() {
   const updateMediaFile = async (mediaId: string, updates: any) => {
     return executeCommand({
       type: "UpdateMedia",
-      params: { media_id: mediaId, updates }
+      params: { media_id: mediaId, updates },
     })
   }
 
@@ -48,10 +48,10 @@ export function useMediaFiles() {
       const mediaType = file.isVideo ? "Video" : file.isAudio ? "Audio" : "Image"
       executeCommand({
         type: "AddMedia",
-        params: { 
-          path: file.path, 
-          media_type: mediaType
-        }
+        params: {
+          path: file.path,
+          media_type: mediaType,
+        },
       })
     }
   }

@@ -223,7 +223,7 @@ export class CodecSupportService {
         console.warn("Codec support detection skipped (SSR)")
         return "unsupported"
       }
-      
+
       // Базовая проверка через canPlayType
       const video = document.createElement("video")
       const basicSupport = video.canPlayType(profile.mimeType)

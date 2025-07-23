@@ -6,14 +6,13 @@
 import { UnlistenFn, listen } from "@tauri-apps/api/event"
 
 // Use generated types from Specta
-import { 
+import {
   CommandResult,
   EventEnvelope,
   ProjectCommand,
   ProjectEvent,
   ProjectState,
-  Result,
-  commands
+  commands,
 } from "@/types/generated/tauri-bindings"
 
 export type EventHandler = (event: ProjectEvent) => void
@@ -75,20 +74,19 @@ export class BackendSync {
       const result = await commands.executeCommand(command)
       if (result.status === "ok") {
         return result.data
-      } else {
-        console.error("Command execution failed:", result.error)
-        return {
-          success: false,
-          error: result.error,
-          data: null
-        }
+      }
+      console.error("Command execution failed:", result.error)
+      return {
+        success: false,
+        error: result.error,
+        data: null,
       }
     } catch (error) {
       console.error("Command execution failed:", error)
       return {
         success: false,
         error: error instanceof Error ? error.message : String(error),
-        data: null
+        data: null,
       }
     }
   }
@@ -101,10 +99,9 @@ export class BackendSync {
       const result = await commands.getProjectState()
       if (result.status === "ok") {
         return result.data
-      } else {
-        console.error("Failed to get project state:", result.error)
-        return null
       }
+      console.error("Failed to get project state:", result.error)
+      return null
     } catch (error) {
       console.error("Failed to get project state:", error)
       return null
@@ -119,10 +116,9 @@ export class BackendSync {
       const result = await commands.getEventHistory(sinceVersion ?? this.lastVersion)
       if (result.status === "ok") {
         return result.data
-      } else {
-        console.error("Failed to get event history:", result.error)
-        return []
       }
+      console.error("Failed to get event history:", result.error)
+      return []
     } catch (error) {
       console.error("Failed to get event history:", error)
       return []

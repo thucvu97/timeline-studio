@@ -152,7 +152,7 @@ export class AAFImporter implements Importer {
 
     // Парсим все Mob элементы - используем [\s\S]*? для работы с новыми строками
     const mobRegex = /<(CompositionMob|MasterMob|SourceMob)[^>]*>([\s\S]*?)<\/\1>/g
-    
+
     let mobMatch
     while ((mobMatch = mobRegex.exec(content)) !== null) {
       const match = mobMatch

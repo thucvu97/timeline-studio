@@ -135,16 +135,14 @@ export function CameraCaptureModal() {
   // Инициализируем камеру при изменении выбранного устройства или разрешения
   useEffect(() => {
     if (selectedDevice && permissionStatus === "granted") {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      initCamera()
+      void initCamera()
     }
   }, [selectedDevice, selectedResolution, frameRate, permissionStatus, initCamera])
 
   // Запрашиваем разрешения при открытии модального окна и останавливаем камеру при закрытии
   useEffect(() => {
     if (isOpen) {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      requestPermissions()
+      void requestPermissions()
     } else {
       // Останавливаем все треки при закрытии модального окна
       if (streamRef.current) {
@@ -162,8 +160,7 @@ export function CameraCaptureModal() {
   // Обработчик изменения устройства
   const handleDeviceChange = (deviceId: string) => {
     setSelectedDevice(deviceId)
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    getDeviceCapabilities(deviceId)
+    void getDeviceCapabilities(deviceId)
   }
 
   // Обработчик изменения аудио устройства

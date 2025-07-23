@@ -34,7 +34,7 @@ export function useCameraPermissions(getDevices: () => Promise<boolean>): UseCam
         video: true,
         audio: true,
       })
-      
+
       if (!tempStream) {
         setPermissionStatus("error")
         setErrorMessage(
@@ -112,7 +112,7 @@ export function useDeviceCapabilities(
             deviceId: { exact: deviceId },
           },
         })
-        
+
         if (!stream) {
           console.error("Не удалось получить поток для определения возможностей устройства")
           return

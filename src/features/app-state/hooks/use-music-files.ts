@@ -13,9 +13,9 @@ export function useMusicFiles() {
   const { projectState, executeCommand } = useApp()
 
   // Извлекаем только аудио файлы из media_pool (музыка - это аудио)
-  const musicFiles: MediaItem[] = projectState?.project?.media_pool?.items 
-    ? Object.values(projectState.project.media_pool.items).filter((item): item is MediaItem => 
-      (item as MediaItem).media_type === "Audio"
+  const musicFiles: MediaItem[] = projectState?.project?.media_pool?.items
+    ? Object.values(projectState.project.media_pool.items).filter(
+      (item): item is MediaItem => (item as MediaItem).media_type === "Audio",
     )
     : []
 
@@ -23,15 +23,15 @@ export function useMusicFiles() {
   const addMusicFile = async (path: string) => {
     return executeCommand({
       type: "AddMedia",
-      params: { path, media_type: "Audio" }
+      params: { path, media_type: "Audio" },
     })
   }
 
   // Удаление музыкального файла
   const removeMusicFile = async (mediaId: string) => {
     return executeCommand({
-      type: "RemoveMedia", 
-      params: { media_id: mediaId }
+      type: "RemoveMedia",
+      params: { media_id: mediaId },
     })
   }
 
@@ -39,7 +39,7 @@ export function useMusicFiles() {
   const updateMusicFile = async (mediaId: string, updates: any) => {
     return executeCommand({
       type: "UpdateMedia",
-      params: { media_id: mediaId, updates }
+      params: { media_id: mediaId, updates },
     })
   }
 
@@ -49,10 +49,10 @@ export function useMusicFiles() {
     for (const file of files) {
       executeCommand({
         type: "AddMedia",
-        params: { 
-          path: file.path, 
-          media_type: "Audio"
-        }
+        params: {
+          path: file.path,
+          media_type: "Audio",
+        },
       })
     }
   }

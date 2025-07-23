@@ -53,11 +53,7 @@ describe("Fader", () => {
   }
 
   const renderWithAppProvider = (component: React.ReactElement) => {
-    return render(
-      <AppProvider>
-        {component}
-      </AppProvider>
-    )
+    return render(<AppProvider>{component}</AppProvider>)
   }
 
   beforeEach(() => {

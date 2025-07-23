@@ -1,8 +1,8 @@
 import { act, fireEvent, render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { useLanguage } from "@/features/language"
 import { useModal } from "@/features/modals/services/modal-provider"
-import { useLanguage } from "@/i18n/hooks/use-language"
 
 import { UserSettingsModal } from "../../components/user-settings-modal"
 import { useApiKeys } from "../../hooks/use-api-keys"
@@ -29,7 +29,7 @@ vi.mock("@tauri-apps/plugin-dialog", () => ({
 }))
 
 // Мокаем хуки
-vi.mock("@/i18n/hooks/use-language")
+vi.mock("@/features/language")
 vi.mock("../../hooks/use-user-settings")
 vi.mock("../../hooks/use-api-keys")
 vi.mock("@/features/modals/services/modal-provider")
@@ -107,7 +107,6 @@ describe("UserSettingsModal", () => {
       toggleOptionsVisibility: mockToggleOptionsVisibility,
     }))
 
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
     vi.mocked(useLanguage).mockImplementation(() => ({
       currentLanguage: "ru",
       changeLanguage: mockChangeLanguage,
@@ -169,7 +168,7 @@ describe("UserSettingsModal", () => {
     expect(screen.getByText("dialogs.userSettings.interfaceLanguage")).toBeInTheDocument()
 
     // Симулируем выбор языка, вызывая напрямую функцию changeLanguage
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
+
     void vi.mocked(useLanguage)().changeLanguage("en")
 
     // Проверяем, что changeLanguage был вызван
@@ -263,7 +262,7 @@ describe("UserSettingsModal", () => {
     expect(selectValue).toHaveTextContent("ru")
 
     // Изменяем язык в контексте
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
+
     vi.mocked(useLanguage).mockImplementation(() => ({
       currentLanguage: "en",
       changeLanguage: mockChangeLanguage,

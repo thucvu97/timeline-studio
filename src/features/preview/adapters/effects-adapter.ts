@@ -317,8 +317,8 @@ export function filterEffectsByTime(
   return effects.filter((effect) => {
     // Находим соответствующий applied effect
     const applied =
-        appliedEffects.find((ae) => ae.id === effect.appliedEffectId) ||
-        appliedFilters.find((af) => af.id === effect.appliedEffectId)
+      appliedEffects.find((ae) => ae.id === effect.appliedEffectId) ||
+      appliedFilters.find((af) => af.id === effect.appliedEffectId)
 
     if (!applied) return true // Эффекты без временных ограничений всегда активны
 

@@ -218,7 +218,7 @@ describe("AudioPreview", () => {
 
     // Кликаем на контейнер
     const container_div = renderResult.container.firstChild as HTMLElement
-    
+
     await act(async () => {
       fireEvent.click(container_div)
     })

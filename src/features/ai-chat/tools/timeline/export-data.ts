@@ -403,8 +403,8 @@ function objectToXML(obj: any, rootName: string): string {
               if (typeof itemValue === "object") {
                 safeValue = JSON.stringify(itemValue)
               } else {
-                // eslint-disable-next-line @typescript-eslint/no-base-to-string
-                safeValue = String(itemValue)
+                // Type is string, number, boolean, etc - safe to stringify
+                safeValue = String(itemValue as string | number | boolean)
               }
             }
             xmlLines.push(`      <${itemKey}>${safeValue}</${itemKey}>`)
@@ -419,26 +419,28 @@ function objectToXML(obj: any, rootName: string): string {
       xmlLines.push(`  <${key}>`)
       for (const [subKey, subValue] of Object.entries(value)) {
         let safeSubValue = ""
-        if (subValue !== null && subValue !== undefined) {
-          if (typeof subValue === "object") {
-            safeSubValue = JSON.stringify(subValue)
-          } else {
-            // eslint-disable-next-line @typescript-eslint/no-base-to-string
-            safeSubValue = String(subValue)
-          }
+        if (subValue === null || subValue === undefined) {
+          safeSubValue = ""
+        } else if (typeof subValue === "object") {
+          safeSubValue = JSON.stringify(subValue)
+        } else {
+          safeSubValue = typeof subValue === "string" || typeof subValue === "number" || typeof subValue === "boolean" 
+            ? String(subValue)
+            : JSON.stringify(subValue)
         }
         xmlLines.push(`    <${subKey}>${safeSubValue}</${subKey}>`)
       }
       xmlLines.push(`  </${key}>`)
     } else {
       let safeValue = ""
-      if (value !== null && value !== undefined) {
-        if (typeof value === "object") {
-          safeValue = JSON.stringify(value)
-        } else {
-          // eslint-disable-next-line @typescript-eslint/no-base-to-string
-          safeValue = String(value)
-        }
+      if (value === null || value === undefined) {
+        safeValue = ""
+      } else if (typeof value === "object") {
+        safeValue = JSON.stringify(value)
+      } else {
+        safeValue = typeof value === "string" || typeof value === "number" || typeof value === "boolean"
+          ? String(value)
+          : JSON.stringify(value)
       }
       xmlLines.push(`  <${key}>${safeValue}</${key}>`)
     }

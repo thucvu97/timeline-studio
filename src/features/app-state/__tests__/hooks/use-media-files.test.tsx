@@ -8,7 +8,6 @@ import type { MediaItem } from "@/types/generated/tauri-bindings"
 import { useMediaFiles } from "../../hooks/use-media-files"
 import { AppProvider } from "../../services/app-provider"
 
-
 // Мокаем backend-sync и app provider
 const mockMediaFiles: MediaItem[] = [
   {
@@ -78,9 +77,9 @@ const mockProjectState = {
     },
     media_pool: {
       items: {
-        "file1": mockMediaFiles[0],
-        "file2": mockMediaFiles[1],
-        "file3": mockMediaFiles[2],
+        file1: mockMediaFiles[0],
+        file2: mockMediaFiles[1],
+        file3: mockMediaFiles[2],
       },
     },
     settings: {
@@ -144,9 +143,7 @@ vi.mock("@xstate/react", () => ({
   useMachine: () => [mockState, mockSend],
 }))
 
-const wrapper = ({ children }: { children: React.ReactNode }) => (
-  <AppProvider>{children}</AppProvider>
-)
+const wrapper = ({ children }: { children: React.ReactNode }) => <AppProvider>{children}</AppProvider>
 
 describe("useMediaFiles", () => {
   beforeEach(() => {
@@ -188,8 +185,8 @@ describe("useMediaFiles", () => {
       type: "EXECUTE_COMMAND",
       command: {
         type: "AddMedia",
-        params: { path: "/path/to/new-video.mp4", media_type: "Video" }
-      }
+        params: { path: "/path/to/new-video.mp4", media_type: "Video" },
+      },
     })
   })
 
@@ -225,8 +222,8 @@ describe("useMediaFiles", () => {
       type: "EXECUTE_COMMAND",
       command: {
         type: "RemoveMedia",
-        params: { media_id: "file1" }
-      }
+        params: { media_id: "file1" },
+      },
     })
   })
 })
