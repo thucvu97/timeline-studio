@@ -6,6 +6,7 @@ import { useMediaAdapter } from "../../adapters/use-media-adapter"
 // Мокаем хуки для app-state
 const mockUseAppSettings = vi.fn()
 const mockUseFavorites = vi.fn()
+const mockUseMediaImport = vi.fn()
 
 vi.mock("@/features/app-state", () => ({
   useAppSettings: (...args: any[]) => mockUseAppSettings(...args),
@@ -14,11 +15,7 @@ vi.mock("@/features/app-state", () => ({
 }))
 
 vi.mock("@/features/media/hooks/use-media-import", () => ({
-  useMediaImport: vi.fn(() => ({
-    importFile: vi.fn(),
-    importFolder: vi.fn(),
-    isImporting: false,
-  })),
+  useMediaImport: (...args: any[]) => mockUseMediaImport(...args),
 }))
 
 vi.mock("@/features/media", () => ({
@@ -141,21 +138,22 @@ describe("useMediaAdapter", () => {
 
     // Настраиваем моки по умолчанию
     mockUseAppSettings.mockReturnValue({
-      isLoading: vi.fn(() => false),
-      getError: vi.fn(() => null),
-      state: {
-        context: {
-          mediaFiles: {
-            allFiles: createTestMediaFiles(),
-            isLoading: false,
-            error: null,
-          },
+      connectionError: null,
+      projectState: {
+        mediaFiles: {
+          allFiles: createTestMediaFiles(),
         },
       },
     })
 
     mockUseFavorites.mockReturnValue({
       isItemFavorite: vi.fn((item: any) => item.id === "video1"),
+    })
+
+    mockUseMediaImport.mockReturnValue({
+      importFile: vi.fn(),
+      importFolder: vi.fn(),
+      isImporting: false,
     })
   })
 
@@ -180,7 +178,7 @@ describe("useMediaAdapter", () => {
 
       expect(dataResult.current.items).toHaveLength(3)
       expect(dataResult.current.loading).toBe(false)
-      expect(dataResult.current.error).toBeNull()
+      expect(dataResult.current.error).toBe(null)
     })
   })
 
@@ -190,6 +188,7 @@ describe("useMediaAdapter", () => {
       const { result: dataResult } = renderHook(() => result.current.useData())
       const file = dataResult.current.items[0]
 
+      expect(file).toBeDefined()
       expect(result.current.getSortValue(file, "name")).toBe("test-video.mp4")
     })
 
@@ -198,6 +197,7 @@ describe("useMediaAdapter", () => {
       const { result: dataResult } = renderHook(() => result.current.useData())
       const file = dataResult.current.items[0]
 
+      expect(file).toBeDefined()
       expect(result.current.getSortValue(file, "size")).toBe(10485760)
     })
 
@@ -206,6 +206,7 @@ describe("useMediaAdapter", () => {
       const { result: dataResult } = renderHook(() => result.current.useData())
       const file = dataResult.current.items[0]
 
+      expect(file).toBeDefined()
       expect(result.current.getSortValue(file, "duration")).toBe(90) // 1:30 = 90 seconds
     })
 
@@ -214,6 +215,7 @@ describe("useMediaAdapter", () => {
       const { result: dataResult } = renderHook(() => result.current.useData())
       const file = dataResult.current.items[0]
 
+      expect(file).toBeDefined()
       expect(result.current.getSortValue(file, "date")).toBe(1704067200)
     })
   })
@@ -235,6 +237,7 @@ describe("useMediaAdapter", () => {
       const { result: dataResult } = renderHook(() => result.current.useData())
       const file = dataResult.current.items[2] // image without title/artist
 
+      expect(file).toBeDefined()
       const searchableText = result.current.getSearchableText(file)
       expect(searchableText).toContain("test-image.jpg")
       expect(searchableText.length).toBe(1)
@@ -248,6 +251,8 @@ describe("useMediaAdapter", () => {
       const videoFile = dataResult.current.items[0]
       const audioFile = dataResult.current.items[1]
 
+      expect(videoFile).toBeDefined()
+      expect(audioFile).toBeDefined()
       expect(result.current.getGroupValue(videoFile, "type")).toBe("browser.media.video")
       expect(result.current.getGroupValue(audioFile, "type")).toBe("browser.media.audio")
     })
@@ -257,6 +262,7 @@ describe("useMediaAdapter", () => {
       const { result: dataResult } = renderHook(() => result.current.useData())
       const file = dataResult.current.items[0]
 
+      expect(file).toBeDefined()
       const dateGroup = result.current.getGroupValue(file, "date")
       expect(dateGroup).toBeTruthy()
     })
@@ -266,6 +272,7 @@ describe("useMediaAdapter", () => {
       const { result: dataResult } = renderHook(() => result.current.useData())
       const file = dataResult.current.items[0]
 
+      expect(file).toBeDefined()
       const durationGroup = result.current.getGroupValue(file, "duration")
       expect(durationGroup).toBeTruthy()
     })

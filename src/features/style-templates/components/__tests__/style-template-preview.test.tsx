@@ -11,6 +11,13 @@ import { StyleTemplatePreview } from "../style-template-preview"
 const mockAddStyleTemplate = vi.fn()
 const mockIsStyleTemplateAdded = vi.fn()
 
+vi.mock("@/features/user-settings/hooks/use-user-settings", () => ({
+  useUserSettings: () => ({
+    settings: {},
+    updateSettings: vi.fn(),
+  }),
+}))
+
 vi.mock("@/features/resources", () => ({
   useResources: () => ({
     addStyleTemplate: mockAddStyleTemplate,

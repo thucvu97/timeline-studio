@@ -322,7 +322,7 @@ describe("useTimelineActions", () => {
       })
 
       expect(mockConsoleLog).toHaveBeenCalledWith("Creating new video track for file: test-video.mp4")
-      expect(mockTimeline.addTrack).toHaveBeenCalledWith("video", undefined, "Video Track")
+      expect(mockTimeline.addTrack).toHaveBeenCalledWith("video", "Video Track", undefined)
     })
 
     it("должен использовать customStartTime если указано", () => {

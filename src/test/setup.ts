@@ -129,6 +129,17 @@ vi.mock("@/features/app-state", async (importOriginal) => {
       setProjectDirty: vi.fn(),
       isTempProject: false,
     }),
+    useAppState: () => ({
+      state: {
+        context: {
+          isConnected: true,
+          error: null,
+          projectState: null,
+        },
+        matches: vi.fn(() => false),
+      },
+      send: vi.fn(),
+    }),
   }
 })
 

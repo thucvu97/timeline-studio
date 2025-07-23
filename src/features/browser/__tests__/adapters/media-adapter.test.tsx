@@ -8,40 +8,35 @@ import { useMediaAdapter } from "../../adapters/use-media-adapter"
 vi.mock("@/features/app-state", () => ({
   AppSettingsProvider: ({ children }: any) => children,
   useAppSettings: vi.fn(() => ({
-    isLoading: vi.fn(() => false),
-    getError: vi.fn(() => null),
-    state: {
-      context: {
-        mediaFiles: {
-          allFiles: [
-            {
-              id: "test-1",
-              name: "test-video.mp4",
-              path: "/test/video.mp4",
-              extension: ".mp4",
-              size: 1024000,
-              createdAt: "2024-01-01T00:00:00Z",
-              startTime: 0,
-              isVideo: true,
-              probeData: {
-                streams: [{ codec_type: "video" }],
-                format: { duration: 120.5 },
-              },
+    connectionError: null,
+    projectState: {
+      mediaFiles: {
+        allFiles: [
+          {
+            id: "test-1",
+            name: "test-video.mp4",
+            path: "/test/video.mp4",
+            extension: ".mp4",
+            size: 1024000,
+            createdAt: "2024-01-01T00:00:00Z",
+            startTime: 0,
+            isVideo: true,
+            probeData: {
+              streams: [{ codec_type: "video" }],
+              format: { duration: 120.5 },
             },
-            {
-              id: "test-2",
-              name: "test-image.jpg",
-              path: "/test/image.jpg",
-              extension: ".jpg",
-              size: 512000,
-              createdAt: "2024-01-02T00:00:00Z",
-              startTime: 0,
-              isImage: true,
-            },
-          ],
-          isLoading: false,
-          error: null,
-        },
+          },
+          {
+            id: "test-2",
+            name: "test-image.jpg",
+            path: "/test/image.jpg",
+            extension: ".jpg",
+            size: 512000,
+            createdAt: "2024-01-02T00:00:00Z",
+            startTime: 0,
+            isImage: true,
+          },
+        ],
       },
     },
   })),
@@ -127,7 +122,7 @@ describe("useMediaAdapter", () => {
       const { result: dataResult } = renderHook(() => result.current.useData())
 
       expect(dataResult.current.loading).toBe(false)
-      expect(dataResult.current.error).toBeNull()
+      expect(dataResult.current.error).toBe(null)
       expect(dataResult.current.items).toHaveLength(2)
       expect(dataResult.current.items[0].name).toBe("test-video.mp4")
       expect(dataResult.current.items[1].name).toBe("test-image.jpg")

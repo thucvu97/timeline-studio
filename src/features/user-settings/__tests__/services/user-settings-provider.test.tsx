@@ -49,9 +49,32 @@ const mockState = {
   status: "active",
 }
 
+// Создаем мок состояния для AppProvider
+const mockAppState = {
+  context: {
+    isConnected: true,
+    error: null,
+    projectState: null,
+  },
+  matches: vi.fn(() => false),
+}
+
+const mockAppSend = vi.fn()
+
+// Счетчик вызовов useMachine для различения машин
+let useMachineCallCount = 0
+
 // Мокаем useMachine из @xstate/react
 vi.mock("@xstate/react", () => ({
-  useMachine: vi.fn(() => [mockState, mockSend]),
+  useMachine: vi.fn(() => {
+    useMachineCallCount++
+    // Первый вызов - это appMachine из AppProvider
+    if (useMachineCallCount === 1) {
+      return [mockAppState, mockAppSend]
+    }
+    // Последующие вызовы - это userSettingsMachine
+    return [mockState, mockSend]
+  }),
 }))
 
 // Мокаем userSettingsMachine
@@ -78,7 +101,7 @@ vi.mock("@/features/app-state/hooks/use-app-settings", () => ({
   })),
 }))
 
-// Мокаем AppSettingsProvider
+// Мокаем AppSettingsProvider и useAppState
 vi.mock("@/features/app-state", () => ({
   AppSettingsProvider: ({ children }: any) => children,
   useAppSettings: vi.fn(() => ({
@@ -93,6 +116,17 @@ vi.mock("@/features/app-state", () => ({
     },
     send: vi.fn(),
     updateUserSettings: vi.fn(),
+  })),
+  useAppState: vi.fn(() => ({
+    state: {
+      context: {
+        isConnected: true,
+        error: null,
+        projectState: null,
+      },
+      matches: vi.fn(() => false),
+    },
+    send: vi.fn(),
   })),
 }))
 
@@ -116,6 +150,9 @@ const UserSettingsWrapper = ({ children }: { children: React.ReactNode }) => (
 describe("UserSettingsProvider", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    
+    // Сбрасываем счетчик вызовов useMachine
+    useMachineCallCount = 0
 
     // Сбрасываем состояние мока перед каждым тестом
     Object.assign(mockState.context, {
@@ -254,10 +291,10 @@ describe("UserSettingsProvider", () => {
     })
   })
 
-  it("should handle layout change", async () => {
-    // Получаем доступ к send из мока useMachine
+  it("should handle layout change", () => {
+    mockSend.mockClear()
     const { result } = renderHook(() => useUserSettings(), {
-      wrapper: UserSettingsProvider,
+      wrapper: UserSettingsWrapper,
     })
 
     // Изменяем макет
@@ -266,20 +303,16 @@ describe("UserSettingsProvider", () => {
     })
 
     // Проверяем, что send был вызван с правильными параметрами
-    const { useMachine } = await import("@xstate/react")
-    const mockSend = vi.mocked(useMachine as any)()[1]
-    expect(mockSend).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: "UPDATE_LAYOUT",
-        layoutMode: "vertical",
-      }),
-    )
+    expect(mockSend).toHaveBeenCalledWith({
+      type: "UPDATE_LAYOUT",
+      layoutMode: "vertical",
+    })
   })
 
-  it("should handle screenshots path change", async () => {
-    // Получаем доступ к send из мока useMachine
+  it("should handle screenshots path change", () => {
+    mockSend.mockClear()
     const { result } = renderHook(() => useUserSettings(), {
-      wrapper: UserSettingsProvider,
+      wrapper: UserSettingsWrapper,
     })
 
     // Изменяем путь скриншотов
@@ -288,20 +321,16 @@ describe("UserSettingsProvider", () => {
     })
 
     // Проверяем, что send был вызван с правильными параметрами
-    const { useMachine } = await import("@xstate/react")
-    const mockSend = vi.mocked(useMachine as any)()[1]
-    expect(mockSend).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: "UPDATE_SCREENSHOTS_PATH",
-        path: "new/path",
-      }),
-    )
+    expect(mockSend).toHaveBeenCalledWith({
+      type: "UPDATE_SCREENSHOTS_PATH",
+      path: "new/path",
+    })
   })
 
   it("should handle player volume change", () => {
-    // Получаем доступ к send из мока useMachine
+    mockSend.mockClear()
     const { result } = renderHook(() => useUserSettings(), {
-      wrapper: UserSettingsProvider,
+      wrapper: UserSettingsWrapper,
     })
 
     // Изменяем громкость плеера
@@ -317,9 +346,9 @@ describe("UserSettingsProvider", () => {
   })
 
   it("should handle timeline visibility toggle", () => {
-    // Получаем доступ к send из мока useMachine
+    mockSend.mockClear()
     const { result } = renderHook(() => useUserSettings(), {
-      wrapper: UserSettingsProvider,
+      wrapper: UserSettingsWrapper,
     })
 
     // Переключаем видимость временной шкалы
@@ -334,9 +363,9 @@ describe("UserSettingsProvider", () => {
   })
 
   it("should handle options visibility toggle", () => {
-    // Получаем доступ к send из мока useMachine
+    mockSend.mockClear()
     const { result } = renderHook(() => useUserSettings(), {
-      wrapper: UserSettingsProvider,
+      wrapper: UserSettingsWrapper,
     })
 
     // Переключаем видимость опций
@@ -351,9 +380,9 @@ describe("UserSettingsProvider", () => {
   })
 
   it("should handle Claude API key change", () => {
-    // Получаем доступ к send из мока useMachine
+    mockSend.mockClear()
     const { result } = renderHook(() => useUserSettings(), {
-      wrapper: UserSettingsProvider,
+      wrapper: UserSettingsWrapper,
     })
 
     // Изменяем Claude API ключ
@@ -368,10 +397,10 @@ describe("UserSettingsProvider", () => {
     })
   })
 
-  it("should handle AI API key change", async () => {
-    // Получаем доступ к send из мока useMachine
+  it("should handle AI API key change", () => {
+    mockSend.mockClear()
     const { result } = renderHook(() => useUserSettings(), {
-      wrapper: UserSettingsProvider,
+      wrapper: UserSettingsWrapper,
     })
 
     // Изменяем API ключ
@@ -380,20 +409,16 @@ describe("UserSettingsProvider", () => {
     })
 
     // Проверяем, что send был вызван с правильными параметрами
-    const { useMachine } = await import("@xstate/react")
-    const mockSend = vi.mocked(useMachine as any)()[1]
-    expect(mockSend).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: "UPDATE_OPENAI_API_KEY",
-        apiKey: "test-api-key",
-      }),
-    )
+    expect(mockSend).toHaveBeenCalledWith({
+      type: "UPDATE_OPENAI_API_KEY",
+      apiKey: "test-api-key",
+    })
   })
 
-  it("should handle player screenshots path change", async () => {
-    // Получаем доступ к send из мока useMachine
+  it("should handle player screenshots path change", () => {
+    mockSend.mockClear()
     const { result } = renderHook(() => useUserSettings(), {
-      wrapper: UserSettingsProvider,
+      wrapper: UserSettingsWrapper,
     })
 
     // Изменяем путь скриншотов плеера
@@ -402,14 +427,10 @@ describe("UserSettingsProvider", () => {
     })
 
     // Проверяем, что send был вызван с правильными параметрами
-    const { useMachine } = await import("@xstate/react")
-    const mockSend = vi.mocked(useMachine as any)()[1]
-    expect(mockSend).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: "UPDATE_PLAYER_SCREENSHOTS_PATH",
-        path: "new/player/path",
-      }),
-    )
+    expect(mockSend).toHaveBeenCalledWith({
+      type: "UPDATE_PLAYER_SCREENSHOTS_PATH",
+      path: "new/player/path",
+    })
   })
 
   describe("handleTabChange", () => {

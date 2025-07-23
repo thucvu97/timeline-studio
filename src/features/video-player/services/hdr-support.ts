@@ -76,6 +76,12 @@ export class HDRSupportService {
    */
   private initializeWebGL(): void {
     try {
+      // Skip initialization during SSR
+      if (typeof document === "undefined") {
+        console.warn("HDR support WebGL initialization skipped (SSR)")
+        return
+      }
+      
       this.canvas = document.createElement("canvas")
       this.gl = this.canvas.getContext("webgl2")
 
@@ -521,4 +527,5 @@ export class HDRSupportService {
   }
 }
 
-export const hdrSupportService = HDRSupportService.getInstance()
+// Lazy initialization to avoid SSR issues
+export const getHDRSupportService = () => HDRSupportService.getInstance()

@@ -76,7 +76,7 @@ export interface UseLinkedClipsReturn {
 
 export function useLinkedClips(): UseLinkedClipsReturn {
   const { state, send } = useTimeline()
-  const { project } = state.context
+  const { project } = state?.context || { project: null }
 
   // Получаем все клипы из проекта
   const getAllClips = useCallback((): TimelineClip[] => {

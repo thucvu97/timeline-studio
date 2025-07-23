@@ -1,11 +1,12 @@
 import React from "react"
+
 import { fireEvent } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { AppProvider } from "@/features/app-state/services/app-provider"
 import { mockUseTranslation } from "@/test/mocks/libraries/i18n"
 import { render } from "@/test/test-utils"
 import { setupAudioTestEnvironment } from "@/test/utils/tauri-audio-test-utils"
-import { AppProvider } from "@/features/app-state/services/app-provider"
 
 import { Fader } from "../../mixer/fader"
 

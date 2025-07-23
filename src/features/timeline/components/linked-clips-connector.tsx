@@ -52,7 +52,7 @@ export function LinkedClipsConnector({
   animateConnections = true,
 }: LinkedClipsConnectorProps) {
   const { state } = useTimeline()
-  const { project } = state.context
+  const { project } = state?.context || { project: null }
 
   const timeToPixel = (time: number) => time * pixelsPerSecond
 

@@ -4,11 +4,39 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { Separator } from "@/components/ui/separator"
 
 import { SubtitleAITools } from "../../components/subtitle-ai-tools"
+import { SubtitleImportButton } from "../../components/subtitle-import-button"
 import { SubtitleSyncTools } from "../../components/subtitle-sync-tools"
 import { SubtitleToolbar } from "../../components/subtitle-toolbar"
 import { SubtitleTools } from "../../components/subtitle-tools"
 
+// Mock timeline hook
+vi.mock("@/features/timeline/hooks/use-timeline", () => ({
+  useTimeline: () => ({
+    project: { id: "test-project" },
+    tracks: [],
+    clips: [],
+    addTrack: vi.fn(),
+    addClip: vi.fn(),
+    addSection: vi.fn(),
+  }),
+}))
+
+// Mock timeline store
+vi.mock("@/features/timeline/stores/timeline-store", () => ({
+  timelineStore: {
+    addClip: vi.fn(),
+    addTrack: vi.fn(),
+    updateClip: vi.fn(),
+    deleteClip: vi.fn(),
+    selectClips: vi.fn(),
+  },
+}))
+
 // Mock dependencies
+vi.mock("../../components/subtitle-import-button", () => ({
+  SubtitleImportButton: vi.fn(() => <div data-testid="subtitle-import-button">Import Button</div>),
+}))
+
 vi.mock("../../components/subtitle-ai-tools", () => ({
   SubtitleAITools: vi.fn(() => <div data-testid="subtitle-ai-tools">AI Tools</div>),
 }))
@@ -49,6 +77,7 @@ describe("SubtitleToolbar", () => {
     it("должен рендерить все компоненты инструментов", () => {
       render(<SubtitleToolbar />)
 
+      expect(screen.getByTestId("subtitle-import-button")).toBeInTheDocument()
       expect(screen.getByTestId("subtitle-tools")).toBeInTheDocument()
       expect(screen.getByTestId("subtitle-sync-tools")).toBeInTheDocument()
       expect(screen.getByTestId("subtitle-ai-tools")).toBeInTheDocument()
@@ -58,7 +87,7 @@ describe("SubtitleToolbar", () => {
       render(<SubtitleToolbar />)
 
       const separators = screen.getAllByTestId("separator")
-      expect(separators).toHaveLength(2)
+      expect(separators).toHaveLength(3)
 
       separators.forEach((separator) => {
         expect(separator).toHaveAttribute("data-orientation", "vertical")
@@ -69,6 +98,7 @@ describe("SubtitleToolbar", () => {
     it("должен вызывать компоненты инструментов", () => {
       render(<SubtitleToolbar />)
 
+      expect(SubtitleImportButton).toHaveBeenCalledTimes(1)
       expect(SubtitleTools).toHaveBeenCalledTimes(1)
       expect(SubtitleSyncTools).toHaveBeenCalledTimes(1)
       expect(SubtitleAITools).toHaveBeenCalledTimes(1)
@@ -77,7 +107,7 @@ describe("SubtitleToolbar", () => {
     it("должен вызывать Separator с правильными props", () => {
       render(<SubtitleToolbar />)
 
-      expect(Separator).toHaveBeenCalledTimes(2)
+      expect(Separator).toHaveBeenCalledTimes(3)
       expect(Separator).toHaveBeenCalledWith(
         {
           orientation: "vertical",
@@ -95,14 +125,16 @@ describe("SubtitleToolbar", () => {
       const toolbar = container.querySelector(".flex.items-center")!
       const children = Array.from(toolbar.children)
 
-      expect(children).toHaveLength(5) // 3 компонента + 2 разделителя
+      expect(children).toHaveLength(7) // 4 компонента + 3 разделителя
 
       // Проверяем порядок элементов
-      expect(children[0]).toHaveAttribute("data-testid", "subtitle-tools")
+      expect(children[0]).toHaveAttribute("data-testid", "subtitle-import-button")
       expect(children[1]).toHaveAttribute("data-testid", "separator")
-      expect(children[2]).toHaveAttribute("data-testid", "subtitle-sync-tools")
+      expect(children[2]).toHaveAttribute("data-testid", "subtitle-tools")
       expect(children[3]).toHaveAttribute("data-testid", "separator")
-      expect(children[4]).toHaveAttribute("data-testid", "subtitle-ai-tools")
+      expect(children[4]).toHaveAttribute("data-testid", "subtitle-sync-tools")
+      expect(children[5]).toHaveAttribute("data-testid", "separator")
+      expect(children[6]).toHaveAttribute("data-testid", "subtitle-ai-tools")
     })
 
     it("должен применять flexbox стили для расположения", () => {
@@ -130,6 +162,7 @@ describe("SubtitleToolbar", () => {
       const { container } = render(<SubtitleToolbar />)
 
       // Проверяем что все компоненты присутствуют
+      expect(screen.getByText("Import Button")).toBeInTheDocument()
       expect(screen.getByText("Subtitle Tools")).toBeInTheDocument()
       expect(screen.getByText("Sync Tools")).toBeInTheDocument()
       expect(screen.getByText("AI Tools")).toBeInTheDocument()
@@ -192,6 +225,7 @@ describe("SubtitleToolbar", () => {
       const { rerender } = render(<SubtitleToolbar />)
 
       const initialCallCounts = {
+        import: vi.mocked(SubtitleImportButton).mock.calls.length,
         tools: vi.mocked(SubtitleTools).mock.calls.length,
         sync: vi.mocked(SubtitleSyncTools).mock.calls.length,
         ai: vi.mocked(SubtitleAITools).mock.calls.length,
@@ -201,10 +235,11 @@ describe("SubtitleToolbar", () => {
       // Перерендериваем тот же компонент
       rerender(<SubtitleToolbar />)
 
+      expect(vi.mocked(SubtitleImportButton).mock.calls.length).toBe(initialCallCounts.import + 1)
       expect(vi.mocked(SubtitleTools).mock.calls.length).toBe(initialCallCounts.tools + 1)
       expect(vi.mocked(SubtitleSyncTools).mock.calls.length).toBe(initialCallCounts.sync + 1)
       expect(vi.mocked(SubtitleAITools).mock.calls.length).toBe(initialCallCounts.ai + 1)
-      expect(vi.mocked(Separator).mock.calls.length).toBe(initialCallCounts.separator + 2)
+      expect(vi.mocked(Separator).mock.calls.length).toBe(initialCallCounts.separator + 3)
     })
 
     it("должен быть легковесным без сложной логики", () => {
@@ -238,7 +273,7 @@ describe("SubtitleToolbar", () => {
       // Остальные компоненты должны отрендериться
       expect(screen.getByTestId("subtitle-sync-tools")).toBeInTheDocument()
       expect(screen.getByTestId("subtitle-ai-tools")).toBeInTheDocument()
-      expect(screen.getAllByTestId("separator")).toHaveLength(2)
+      expect(screen.getAllByTestId("separator")).toHaveLength(3)
     })
   })
 })

@@ -221,7 +221,7 @@ export function useAutoLoadMedia() {
         updateMediaFiles(processedMedia)
       }
       if (processedMusic.length > 0) {
-        updateMusicFiles(processedMusic)
+        void updateMusicFiles(processedMusic)
       }
 
       setLoadedCount({
@@ -269,8 +269,8 @@ export function useAutoLoadMedia() {
     // TODO: Восстановить функциональность, когда потребуется
     /*
     // Проверяем, не является ли проект новым (только что созданным)
-    const currentProject = state.context.currentProject
-    const isNewProject = currentProject.isNew && currentProject.path === null
+    const currentProject = state?.context?.currentProject || null
+    const isNewProject = currentProject?.isNew && currentProject?.path === null
 
     if (isNewProject) {
       console.log("[useAutoLoadMedia] Skipping auto-load for new project")

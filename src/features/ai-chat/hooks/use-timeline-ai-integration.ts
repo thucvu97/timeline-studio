@@ -1,7 +1,6 @@
 import { useCallback, useEffect } from "react"
 
-import { TimelineStateAccess } from "@/features/ai-chat/tools/timeline/types"
-import { setTimelineStateAccess } from "@/features/ai-chat/tools/timeline/utils/helpers"
+import { TimelineStateAccess, setTimelineStateAccess } from "@/features/ai-chat/tools/timeline/types"
 import { useTimeline } from "@/features/timeline/hooks"
 import { TimelineClip, TimelineProject, TimelineSection, TimelineTrack } from "@/features/timeline/types"
 

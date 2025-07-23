@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { WhisperService } from "@/features/ai-chat/services/whisper-service"
+import { useMediaFiles } from "@/features/app-state/hooks/use-media-files"
 import { useModal } from "@/features/modals/services"
 import { useTimeline } from "@/features/timeline/hooks/use-timeline"
 
@@ -20,6 +21,7 @@ export function SubtitleAIToolsModal() {
   const { t } = useTranslation()
   const { modalData, closeModal } = useModal()
   const { project, send } = useTimeline()
+  const { mediaFiles } = useMediaFiles()
 
   const [isTranscribing, setIsTranscribing] = useState(false)
   const [selectedLanguage, setSelectedLanguage] = useState("auto")
@@ -86,59 +88,15 @@ export function SubtitleAIToolsModal() {
     })
   }
 
-  /**
-   * Получает видео/аудио файлы из проекта
-   */
-  const getMediaFiles = () => {
-    if (!project) return []
-
-    const mediaFiles: Array<{ id: string; path: string; name: string; duration?: number }> = []
-    const uniquePaths = new Set<string>() // Избегаем дубликатов
-
-    // Проходим по всем секциям и трекам
-    project.sections.forEach((section) => {
-      section.tracks.forEach((track) => {
-        if (track.type === "video" || track.type === "audio") {
-          track.clips.forEach((clip) => {
-            if ((clip.type === "video" || clip.type === "audio") && clip.mediaFile) {
-              const path = clip.mediaFile.path
-              if (!uniquePaths.has(path)) {
-                uniquePaths.add(path)
-                mediaFiles.push({
-                  id: clip.id,
-                  path: path,
-                  name: clip.mediaFile.name || path.split("/").pop() || "Unnamed",
-                  duration: clip.duration,
-                })
-              }
-            }
-          })
-        }
-      })
-    })
-
-    // Также проверяем глобальные треки
-    project.globalTracks?.forEach((track) => {
-      if (track.type === "video" || track.type === "audio") {
-        track.clips.forEach((clip) => {
-          if ((clip.type === "video" || clip.type === "audio") && clip.mediaFile) {
-            const path = clip.mediaFile.path
-            if (!uniquePaths.has(path)) {
-              uniquePaths.add(path)
-              mediaFiles.push({
-                id: clip.id,
-                path: path,
-                name: clip.mediaFile.name || path.split("/").pop() || "Unnamed",
-                duration: clip.duration,
-              })
-            }
-          }
-        })
-      }
-    })
-
-    return mediaFiles
-  }
+  // Фильтруем только видео и аудио файлы для транскрипции
+  const audioVideoFiles = mediaFiles.filter(file => 
+    file.mediaType === "Video" || file.mediaType === "Audio"
+  ).map(file => ({
+    id: file.id,
+    path: file.path,
+    name: file.name,
+    duration: file.duration,
+  }))
 
   /**
    * Запускает транскрипцию аудио
@@ -259,7 +217,7 @@ ${transcriptionResult.text}`
     }
   }
 
-  const mediaFiles = getMediaFiles()
+  const availableMediaFiles = audioVideoFiles
 
   return (
     <div className="space-y-4">
@@ -275,7 +233,7 @@ ${transcriptionResult.text}`
               <SelectValue placeholder={t("subtitles.ai.selectPlaceholder", "Выберите файл...")} />
             </SelectTrigger>
             <SelectContent>
-              {mediaFiles.map((file) => (
+              {availableMediaFiles.map((file) => (
                 <SelectItem key={file.id} value={file.path}>
                   {file.name}
                 </SelectItem>

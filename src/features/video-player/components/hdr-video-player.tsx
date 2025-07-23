@@ -25,7 +25,7 @@ import { convertVideoSrc } from "@/lib/tauri-utils"
 
 import { PlayerAIOverlay } from "./player-ai-overlay"
 import { PlayerControls } from "./player-controls"
-import { HDRMetadata, VideoCodecInfo, hdrSupportService } from "../services/hdr-support"
+import { HDRMetadata, VideoCodecInfo, getHDRSupportService } from "../services/hdr-support"
 import { usePlayer } from "../services/player-provider"
 
 interface HDRPlayerSettings {
@@ -74,7 +74,7 @@ export function HDRVideoPlayer() {
     const initializeHDRSupport = async () => {
       try {
         // Определяем возможности устройства
-        const capabilities = await hdrSupportService.detectHDRCapabilities()
+        const capabilities = await getHDRSupportService().detectHDRCapabilities()
         setDeviceCapabilities(capabilities)
 
         if (capabilities.isHDRSupported) {
@@ -109,11 +109,11 @@ export function HDRVideoPlayer() {
         }
 
         // Получаем HDR метаданные
-        const metadata = await hdrSupportService.parseHDRMetadata(videoElement)
+        const metadata = await getHDRSupportService().parseHDRMetadata(videoElement)
         setHdrMetadata(metadata)
 
         // Получаем информацию о кодеке
-        const codec = await hdrSupportService.getVideoCodecInfo(videoElement)
+        const codec = await getHDRSupportService().getVideoCodecInfo(videoElement)
         setCodecInfo(codec)
 
         // Показываем HDR controls если контент HDR
@@ -138,7 +138,7 @@ export function HDRVideoPlayer() {
 
     if (!hdrSettings.toneMappingEnabled || !hdrSettings.hdrEnabled) return
 
-    const success = hdrSupportService.applyHDRToneMapping(videoRef.current, canvasRef.current, {
+    const success = getHDRSupportService().applyHDRToneMapping(videoRef.current, canvasRef.current, {
       targetNits: hdrSettings.targetNits,
       gammaCorrection: hdrSettings.gammaCorrection,
       saturation: hdrSettings.saturation,

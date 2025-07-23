@@ -36,7 +36,7 @@ export function useEffectsImport() {
       effect.name &&
       (typeof effect.name === "string" || typeof effect.name === "object") &&
       typeof effect.category === "string" &&
-      typeof effect.scope === "string" &&
+      (typeof effect.scope === "string" || Array.isArray(effect.scope)) &&
       Array.isArray(effect.parameters) &&
       effect.processors &&
       typeof effect.processors === "object"

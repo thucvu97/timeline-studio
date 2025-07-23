@@ -104,8 +104,8 @@ export function UserSettingsProvider({ children }: { children: React.ReactNode }
   const [state, send] = useMachine(userSettingsMachine)
 
   // Отладочные логи
-  console.log("UserSettingsProvider state:", state.context)
-  console.log("UserSettingsProvider state status:", state.status)
+  console.log("UserSettingsProvider state:", state?.context)
+  console.log("UserSettingsProvider state status:", state?.status)
 
   // Хелпер для обновления настроек с сохранением
   const updateSettingAndSave = (event: any, partialSettings: any) => {
@@ -118,36 +118,36 @@ export function UserSettingsProvider({ children }: { children: React.ReactNode }
   // Создаем значение контекста, которое будет доступно через хук useUserSettings
   const value = {
     // Данные настроек из контекста машины состояний
-    activeTab: state.context.activeTab,
-    layoutMode: state.context.layoutMode,
-    screenshotsPath: state.context.screenshotsPath,
-    playerScreenshotsPath: state.context.playerScreenshotsPath,
-    playerVolume: state.context.playerVolume,
-    openAiApiKey: state.context.openAiApiKey,
-    claudeApiKey: state.context.claudeApiKey,
-    isBrowserVisible: state.context.isBrowserVisible,
-    isTimelineVisible: state.context.isTimelineVisible,
-    isOptionsVisible: state.context.isOptionsVisible,
+    activeTab: state?.context?.activeTab || "media",
+    layoutMode: state?.context?.layoutMode || "default",
+    screenshotsPath: state?.context?.screenshotsPath || "",
+    playerScreenshotsPath: state?.context?.playerScreenshotsPath || "",
+    playerVolume: state?.context?.playerVolume || 100,
+    openAiApiKey: state?.context?.openAiApiKey || "",
+    claudeApiKey: state?.context?.claudeApiKey || "",
+    isBrowserVisible: state?.context?.isBrowserVisible ?? true,
+    isTimelineVisible: state?.context?.isTimelineVisible ?? true,
+    isOptionsVisible: state?.context?.isOptionsVisible ?? false,
 
     // GPU и производительность
-    gpuAccelerationEnabled: state.context.gpuAccelerationEnabled,
-    preferredGpuEncoder: state.context.preferredGpuEncoder,
-    maxConcurrentJobs: state.context.maxConcurrentJobs,
-    renderQuality: state.context.renderQuality,
-    backgroundRenderingEnabled: state.context.backgroundRenderingEnabled,
-    renderDelay: state.context.renderDelay,
+    gpuAccelerationEnabled: state?.context?.gpuAccelerationEnabled ?? false,
+    preferredGpuEncoder: state?.context?.preferredGpuEncoder || "auto",
+    maxConcurrentJobs: state?.context?.maxConcurrentJobs || 1,
+    renderQuality: state?.context?.renderQuality || "medium",
+    backgroundRenderingEnabled: state?.context?.backgroundRenderingEnabled ?? false,
+    renderDelay: state?.context?.renderDelay || 0,
 
     // Настройки прокси
-    proxyEnabled: state.context.proxyEnabled,
-    proxyType: state.context.proxyType,
-    proxyHost: state.context.proxyHost,
-    proxyPort: state.context.proxyPort,
-    proxyUsername: state.context.proxyUsername,
-    proxyPassword: state.context.proxyPassword,
+    proxyEnabled: state?.context?.proxyEnabled ?? false,
+    proxyType: state?.context?.proxyType || "http",
+    proxyHost: state?.context?.proxyHost || "",
+    proxyPort: state?.context?.proxyPort || "",
+    proxyUsername: state?.context?.proxyUsername || "",
+    proxyPassword: state?.context?.proxyPassword || "",
 
     // Настройки автосохранения
-    autoSaveEnabled: state.context.autoSaveEnabled,
-    autoSaveInterval: state.context.autoSaveInterval,
+    autoSaveEnabled: state?.context?.autoSaveEnabled ?? true,
+    autoSaveInterval: state?.context?.autoSaveInterval || 300,
 
     /**
      * Обработчик изменения активной вкладки
@@ -177,7 +177,7 @@ export function UserSettingsProvider({ children }: { children: React.ReactNode }
      */
     handleLayoutChange: (value: LayoutMode) => {
       console.log("Layout change requested:", value)
-      console.log("Current layoutMode before update:", state.context.layoutMode)
+      console.log("Current layoutMode before update:", state?.context?.layoutMode)
 
       // Проверяем, что значение является допустимым LayoutMode
       if (["default", "options", "vertical", "chat"].includes(value)) {

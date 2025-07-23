@@ -1,6 +1,5 @@
 /// Tauri commands for state management
-use super::{CommandResult, ProjectCommand, StateManager};
-use serde_json::Value;
+use super::{CommandResult, EventEnvelope, ProjectCommand, ProjectState, StateManager};
 use tauri::State;
 
 /// Execute a project command
@@ -16,9 +15,11 @@ pub async fn execute_command(
 /// Get current project state
 #[tauri::command]
 #[specta::specta]
-pub async fn get_project_state(state_manager: State<'_, StateManager>) -> Result<Value, String> {
+pub async fn get_project_state(
+  state_manager: State<'_, StateManager>,
+) -> Result<ProjectState, String> {
   let state = state_manager.get_state().await;
-  serde_json::to_value(&*state).map_err(|e| format!("Failed to serialize state: {}", e))
+  Ok(state.clone())
 }
 
 /// Get event history since a specific version
@@ -27,12 +28,9 @@ pub async fn get_project_state(state_manager: State<'_, StateManager>) -> Result
 pub async fn get_event_history(
   state_manager: State<'_, StateManager>,
   since_version: Option<u32>,
-) -> Result<Vec<Value>, String> {
+) -> Result<Vec<EventEnvelope>, String> {
   let events = state_manager.event_bus().get_history(since_version).await;
-  events
-    .into_iter()
-    .map(|e| serde_json::to_value(e).map_err(|err| err.to_string()))
-    .collect()
+  Ok(events)
 }
 
 // Subscribe to project events (handled automatically by Tauri event system)

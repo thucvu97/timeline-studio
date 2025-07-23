@@ -69,6 +69,12 @@ export class EffectsPreviewService {
    */
   private initializeWebGL(): void {
     try {
+      // Skip initialization during SSR
+      if (typeof document === "undefined") {
+        console.warn("Effects preview WebGL initialization skipped (SSR)")
+        return
+      }
+      
       this.canvas = document.createElement("canvas")
       this.gl = this.canvas.getContext("webgl2", {
         premultipliedAlpha: false,
@@ -467,7 +473,7 @@ export class EffectsPreviewService {
 
     try {
       // Получаем или создаем программу
-      let program = this.programs.get(effectId)
+      let program: WebGLProgram | undefined | null = this.programs.get(effectId)
       if (!program) {
         program = this.createProgram(effectId)
         if (!program) return false
@@ -788,4 +794,5 @@ export class EffectsPreviewService {
   }
 }
 
-export const effectsPreviewService = EffectsPreviewService.getInstance()
+// Lazy initialization to avoid SSR issues
+export const getEffectsPreviewService = () => EffectsPreviewService.getInstance()

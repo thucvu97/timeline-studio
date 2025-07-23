@@ -9,9 +9,8 @@ import React, { createContext, useCallback, useEffect, useMemo } from "react"
 import { useMachine } from "@xstate/react"
 
 import { getBackendSync } from "@/features/app-state/services/backend-sync"
-import { ProjectCommand } from "@/features/app-state/types/commands"
-import { ProjectState } from "@/features/app-state/types/unified-project"
 import { MediaFile } from "@/features/media/types/media"
+import { ProjectCommand, ProjectState } from "@/types/generated/tauri-bindings"
 
 import { AppliedEffect, TimelineClip, TimelineProject, TimelineSection, TimelineTrack, TrackType } from "../types"
 import { TimelineUIContext, timelineUIMachine } from "./timeline-ui-machine"

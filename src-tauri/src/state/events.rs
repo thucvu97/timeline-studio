@@ -259,7 +259,7 @@ pub struct TrackData {
   pub id: String,
   pub name: String,
   pub track_type: String,
-  pub index: usize,
+  pub index: u32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]

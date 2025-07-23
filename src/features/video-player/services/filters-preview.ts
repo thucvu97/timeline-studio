@@ -73,6 +73,12 @@ export class FiltersPreviewService {
    */
   private initializeWebGL(): void {
     try {
+      // Skip initialization during SSR
+      if (typeof document === "undefined") {
+        console.warn("Filters WebGL initialization skipped (SSR)")
+        return
+      }
+      
       this.canvas = document.createElement("canvas")
       this.gl = this.canvas.getContext("webgl2", {
         premultipliedAlpha: false,
@@ -711,4 +717,5 @@ export class FiltersPreviewService {
   }
 }
 
-export const filtersPreviewService = FiltersPreviewService.getInstance()
+// Lazy initialization to avoid SSR issues
+export const getFiltersPreviewService = () => FiltersPreviewService.getInstance()

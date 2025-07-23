@@ -29,7 +29,7 @@ export function useMontagePlanner() {
     progressMessage,
   } = useMontagePlannerContext()
 
-  const context = state.context
+  const context = state?.context || {}
 
   // Video management
   const addVideo = useCallback(

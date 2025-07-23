@@ -46,14 +46,13 @@ const MediaPreviewWrapper: React.FC<PreviewComponentProps<MediaFile>> = ({
 export const MediaAdapter: ListAdapter<MediaFile> = {
   // Хук для получения данных
   useData: () => {
-    const { isLoading, getError, state } = useAppSettings()
-    const allMediaFiles = state.context.mediaFiles.allFiles || []
-    const error = getError()
+    const { connectionError, projectState } = useAppSettings()
+    const allMediaFiles = projectState?.mediaFiles?.allFiles || []
 
     return {
       items: allMediaFiles,
-      loading: isLoading,
-      error,
+      loading: false, // V2 не использует общий loading состояние
+      error: connectionError,
     }
   },
 

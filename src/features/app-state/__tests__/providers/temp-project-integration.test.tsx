@@ -12,7 +12,6 @@ import { act, renderHook, waitFor } from "@testing-library/react"
 // Import Tauri modules - они автоматически мокаются через алиасы в vitest.config.ts
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { useCurrentProject } from "../../hooks/use-current-project"
 import { AppProvider } from "../../services/app-provider"
 
 // Mock nanoid
@@ -58,6 +57,21 @@ const mockAppSettings = {
 vi.mock("@/features/app-state/hooks/use-app-settings", () => ({
   useAppSettings: () => mockAppSettings,
 }))
+
+// Mock useCurrentProject hook directly
+vi.mock("@/features/app-state/hooks/use-current-project", async () => {
+  const actual = await vi.importActual("@/features/app-state/hooks/use-current-project")
+  return {
+    ...actual,
+    useCurrentProject: () => ({
+      currentProject: mockCurrentProject,
+      ...mockAppSettings,
+    }),
+  }
+})
+
+// Import after mocks
+const { useCurrentProject } = await import("@/features/app-state/hooks/use-current-project")
 
 // Mock media restoration
 vi.mock("@/features/media/hooks/use-media-restoration", () => ({

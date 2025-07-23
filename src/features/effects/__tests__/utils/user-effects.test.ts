@@ -79,12 +79,9 @@ describe("user-effects", () => {
       // Verify the effect data structure
       const effectData = JSON.parse(mockInvoke.mock.calls[0][1].effect)
       expect(effectData).toMatchObject({
-        effect: expect.objectContaining({
-          id: mockEffect.id,
-          name: mockEffect.name,
-          type: mockEffect.type,
-          // Note: functions are not preserved in JSON serialization
-        }),
+        id: mockEffect.id,
+        name: mockEffect.name,
+        type: mockEffect.type,
         isCustom: true,
       })
       expect(effectData.createdAt).toBeDefined()
@@ -115,12 +112,17 @@ describe("user-effects", () => {
 
       const effectData = JSON.parse(mockInvoke.mock.calls[0][1].effect)
       expect(effectData).toEqual({
-        effect: expect.objectContaining({
-          id: mockEffect.id,
-          name: mockEffect.name,
-          type: mockEffect.type,
-          // Functions are not preserved in JSON serialization
-        }),
+        id: mockEffect.id,
+        name: mockEffect.name,
+        type: mockEffect.type,
+        category: mockEffect.category,
+        complexity: mockEffect.complexity,
+        description: mockEffect.description,
+        duration: mockEffect.duration,
+        labels: mockEffect.labels,
+        params: mockEffect.params,
+        previewPath: mockEffect.previewPath,
+        tags: mockEffect.tags,
         createdAt: expect.any(String),
         updatedAt: expect.any(String),
         isCustom: true,
@@ -361,15 +363,17 @@ describe("user-effects", () => {
 
       const customPreset = result.presets[customPresetKey]
       expect(customPreset).toEqual({
+        id: expect.stringMatching(/^custom_\d+$/),
         name: {
           ru: presetName,
           en: presetName,
         },
-        params: customParams,
+        parameters: customParams,
         description: {
           ru: "Пользовательская настройка",
           en: "Custom configuration",
         },
+        tags: ["custom", "user"],
       })
     })
 
@@ -392,7 +396,7 @@ describe("user-effects", () => {
       expect(result.presets["existing-preset"]).toBeDefined()
 
       const customPresetKey = Object.keys(result.presets).find((key) => key.startsWith("custom_"))!
-      expect(result.presets[customPresetKey].params).toEqual(customParams)
+      expect(result.presets[customPresetKey].parameters).toEqual(customParams)
     })
 
     it("should not add preset if only params provided without name", () => {
@@ -526,15 +530,15 @@ describe("user-effects", () => {
 
       const loadedEffect = await loadUserEffect(savedPath)
 
-      expect(loadedEffect.effect).toEqual(
+      expect(loadedEffect).toEqual(
         expect.objectContaining({
           id: mockEffect.id,
           name: mockEffect.name,
           type: mockEffect.type,
+          isCustom: true,
           // Functions are not preserved in JSON serialization
         }),
       )
-      expect(loadedEffect.isCustom).toBe(true)
     })
 
     it("should handle collection save and load cycle", async () => {

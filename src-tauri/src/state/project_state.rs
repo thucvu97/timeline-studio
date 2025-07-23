@@ -150,7 +150,7 @@ pub struct MediaMetadata {
   pub codec: Option<String>,
   pub resolution: Option<Resolution>,
   pub frame_rate: Option<f64>,
-  pub bitrate: Option<u64>,
+  pub bitrate: Option<u32>,
   pub audio_channels: Option<u32>,
   pub sample_rate: Option<u32>,
 }

@@ -9,32 +9,52 @@ import {
   loadTransitionsLazy,
 } from "../../services/resource-loaders"
 
-// Мокаем JSON импорты
-vi.mock("@/features/effects/data/effects.json", () => ({
-  default: {
-    effects: [
-      {
-        id: "test-effect-1",
-        name: "Test Effect 1",
-        type: "blur",
-        category: "artistic",
-        complexity: "basic",
-        tags: ["test"],
-        ffmpegCommand: "blur={intensity}",
-        cssFilter: "blur({intensity}px)",
+// Мокаем загрузчик эффектов
+vi.mock("@/features/effects/data/effects-loader", () => ({
+  allMigratedEffects: [
+    {
+      id: "test-effect-1",
+      name: { en: "Test Effect 1", ru: "Тестовый эффект 1" },
+      category: "stylize",
+      scope: ["clip"],
+      processingType: "realtime",
+      version: "1.0.0",
+      tags: ["test"],
+      complexity: "low",
+      gpuAccelerated: true,
+      parameters: [],
+      presets: [],
+      processors: {
+        ffmpeg: {
+          filter: (params: any) => `blur=${params.intensity || 5}`,
+        },
+        css: {
+          filter: (params: any) => `blur(${params.intensity || 5}px)`,
+        },
       },
-      {
-        id: "test-effect-2",
-        name: "Test Effect 2",
-        type: "brightness",
-        category: "color-correction",
-        complexity: "intermediate",
-        tags: ["test"],
-        ffmpegCommand: "brightness={intensity}",
-        cssFilter: "brightness({intensity})",
+    },
+    {
+      id: "test-effect-2",
+      name: { en: "Test Effect 2", ru: "Тестовый эффект 2" },
+      category: "color_correction",
+      scope: ["clip"],
+      processingType: "realtime",
+      version: "1.0.0",
+      tags: ["test"],
+      complexity: "medium",
+      gpuAccelerated: true,
+      parameters: [],
+      presets: [],
+      processors: {
+        ffmpeg: {
+          filter: (params: any) => `brightness=${params.intensity || 1}`,
+        },
+        css: {
+          filter: (params: any) => `brightness(${params.intensity || 1})`,
+        },
       },
-    ],
-  },
+    },
+  ],
 }))
 
 vi.mock("@/features/filters/data/filters.json", () => ({
@@ -77,22 +97,22 @@ describe("loadEffectsLazy", () => {
     expect(result.success).toBe(true)
     expect(result.data).toHaveLength(2)
     expect(result.source).toBe("built-in")
-    expect(result.data[0].name).toBe("Test Effect 1")
-    expect(result.data[1].name).toBe("Test Effect 2")
+    expect(result.data[0].name.en).toBe("Test Effect 1")
+    expect(result.data[1].name.en).toBe("Test Effect 2")
   })
 
   it("должен обрабатывать строковые функции в эффектах", async () => {
     const result = await loadEffectsLazy()
 
     expect(result.success).toBe(true)
-    expect(typeof result.data[0].ffmpegCommand).toBe("function")
-    expect(typeof result.data[0].cssFilter).toBe("function")
+    expect(typeof result.data[0].processors.ffmpeg?.filter).toBe("function")
+    expect(typeof result.data[0].processors.css?.filter).toBe("function")
 
     // Тестируем функции
-    const ffmpegResult = result.data[0].ffmpegCommand({ intensity: 5 })
+    const ffmpegResult = result.data[0].processors.ffmpeg?.filter({ intensity: 5 })
     expect(ffmpegResult).toBe("blur=5")
 
-    const cssResult = result.data[0].cssFilter({ intensity: 10 })
+    const cssResult = result.data[0].processors.css?.filter({ intensity: 10 })
     expect(cssResult).toBe("blur(10px)")
   })
 
@@ -133,10 +153,9 @@ describe("loadTransitionsLazy", () => {
     const result = await loadTransitionsLazy()
 
     expect(result.success).toBe(true)
-    expect(typeof result.data[0].ffmpegCommand).toBe("function")
-
-    const commandResult = result.data[0].ffmpegCommand({ start: 0, duration: 1 })
-    expect(commandResult).toBe("fade=t=in:st=0:d=1")
+    // Переходы имеют строковые ffmpegCommand в моках
+    expect(typeof result.data[0].ffmpegCommand).toBe("string")
+    expect(result.data[0].ffmpegCommand).toBe("fade=t=in:st={start}:d={duration}")
   })
 })
 
@@ -175,11 +194,11 @@ describe("loadAllResourcesLazy", () => {
 
 describe("loadResourcesByCategory", () => {
   it("должен загружать ресурсы конкретной категории", async () => {
-    const result = await loadResourcesByCategory("effects", "artistic")
+    const result = await loadResourcesByCategory("effects", "stylize")
 
     expect(result.success).toBe(true)
     expect(result.data).toHaveLength(1)
-    expect(result.data[0].name).toBe("Test Effect 1")
+    expect(result.data[0].name.en).toBe("Test Effect 1")
   })
 
   it("должен возвращать пустой массив для несуществующей категории", async () => {
@@ -218,8 +237,8 @@ describe("loadResourcesInChunks", () => {
     expect(chunks).toHaveLength(2) // 2 эффекта по 1 в каждом чанке
     expect(chunks[0].data).toHaveLength(1)
     expect(chunks[1].data).toHaveLength(1)
-    expect(chunks[0].data[0].name).toBe("Test Effect 1")
-    expect(chunks[1].data[0].name).toBe("Test Effect 2")
+    expect(chunks[0].data[0].name.en).toBe("Test Effect 1")
+    expect(chunks[1].data[0].name.en).toBe("Test Effect 2")
   })
 
   it("должен обрабатывать ошибки загрузки", async () => {

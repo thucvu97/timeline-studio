@@ -170,11 +170,7 @@ export function AiChat() {
 
   // Load chat history on mount
   useEffect(() => {
-    const loadHistory = async () => {
-      const sessions = await chatStorageService.getAllSessions()
-      updateSessions(sessions)
-    }
-    void loadHistory()
+    void updateSessions()
   }, [])
 
   // Прокрутка к последнему сообщению
@@ -237,7 +233,7 @@ export function AiChat() {
     }
 
     // Отправляем сообщение пользователя
-    sendChatMessage(message)
+    void sendChatMessage(message)
     setMessage("")
     setProcessing(true)
 
@@ -358,7 +354,7 @@ export function AiChat() {
             agent: (selectedAgentId as any) || undefined,
           }
 
-          receiveChatMessage(agentMessage)
+          receiveChatMessage(agentMessage.content)
 
           // Сохраняем сообщение в историю
           if (currentSessionId) {
@@ -532,7 +528,7 @@ export function AiChat() {
                 className="h-8 w-8 text-muted-foreground hover:text-white"
                 onClick={() => {
                   // Return to initial screen by clearing messages
-                  clearMessages()
+                  void clearMessages()
                   setShowHistory(!showHistory)
                 }}
               >
@@ -905,8 +901,7 @@ export function AiChat() {
                 onDeleteSession={async (id) => {
                   await chatStorageService.deleteSession(id)
                   void deleteSession(id)
-                  const updatedSessions = await chatStorageService.getAllSessions()
-                  updateSessions(updatedSessions)
+                  void updateSessions()
                 }}
                 onCopySession={async (id) => {
                   try {
@@ -927,8 +922,7 @@ export function AiChat() {
                       }
 
                       // Обновляем список сессий
-                      const updatedSessions = await chatStorageService.getAllSessions()
-                      updateSessions(updatedSessions)
+                      void updateSessions()
 
                       // Переключаемся на скопированную сессию
                       await switchSession(newSession.id)

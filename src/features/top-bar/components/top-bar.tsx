@@ -44,13 +44,13 @@ const TopBarComponent = function TopBar() {
   const { currentProject, openProject, saveProject, setProjectDirty, createNewProject } = useCurrentProject()
   const { createProject: createTimelineProject } = useTimeline()
   const [isEditing, setIsEditing] = useState(false)
-  const [projectName, setProjectName] = useState(currentProject.name)
+  const [projectName, setProjectName] = useState(currentProject?.name || "Новый проект")
   const projectNameInputId = useId()
 
   // Синхронизируем projectName с currentProject.name
   useEffect(() => {
-    setProjectName(currentProject.name)
-  }, [currentProject.name])
+    setProjectName(currentProject?.name || "Новый проект")
+  }, [currentProject?.name])
 
   const handleOpenModal = useCallback(
     (modal: string) => {
@@ -100,7 +100,7 @@ const TopBarComponent = function TopBar() {
       const projectName = "Untitled Project"
 
       // Создаем проект в app-settings (для управления состоянием приложения)
-      createNewProject(projectName)
+      void createNewProject(projectName)
 
       // Создаем timeline проект с теми же настройками
       void createTimelineProject(projectName, {
@@ -134,14 +134,14 @@ const TopBarComponent = function TopBar() {
       projectSettings: t("topBar.projectSettings"),
       openProject: t("topBar.openProject"),
       newProject: t("topBar.newProject"),
-      save: currentProject.isDirty ? t("topBar.saveChanges") : t("topBar.allChangesSaved"),
+      save: currentProject?.isDirty ? t("topBar.saveChanges") : t("topBar.allChangesSaved"),
       cameraCapture: t("topBar.cameraCapture"),
       voiceRecording: t("topBar.voiceRecording"),
       publish: t("topBar.publish"),
       editingTasks: t("topBar.editingTasks"),
       export: t("topBar.export"),
     }),
-    [t, isBrowserVisible, currentProject.isDirty],
+    [t, isBrowserVisible, currentProject?.isDirty],
   )
 
   // Мемоизируем CSS классы
@@ -149,9 +149,9 @@ const TopBarComponent = function TopBar() {
     () =>
       cn(
         "h-7 w-7 cursor-pointer p-0",
-        currentProject.isDirty ? "hover:bg-accent opacity-100" : "opacity-50 hover:opacity-50",
+        currentProject?.isDirty ? "hover:bg-accent opacity-100" : "opacity-50 hover:opacity-50",
       ),
-    [currentProject.isDirty],
+    [currentProject?.isDirty],
   )
 
   const projectNameClassName = useMemo(
@@ -283,7 +283,7 @@ const TopBarComponent = function TopBar() {
             size="icon"
             title={buttonTitles.save}
             onClick={handleSave}
-            disabled={!currentProject.isDirty}
+            disabled={!currentProject?.isDirty}
             data-testid="save-button"
           >
             <Save className="h-5 w-5" />

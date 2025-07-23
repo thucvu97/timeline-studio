@@ -82,7 +82,7 @@ describe("useChatActions", () => {
       const { result } = renderHook(() => useChatActions(), { wrapper })
 
       act(() => {
-        result.current.sendChatMessage("Тестовое сообщение")
+        void result.current.sendChatMessage("Тестовое сообщение")
       })
 
       expect(mockChatActions.sendChatMessage).toHaveBeenCalledTimes(1)
@@ -137,7 +137,7 @@ describe("useChatActions", () => {
       const { result } = renderHook(() => useChatActions(), { wrapper })
 
       act(() => {
-        result.current.clearMessages()
+        void result.current.clearMessages()
       })
 
       expect(mockChatActions.clearMessages).toHaveBeenCalledTimes(1)
@@ -160,8 +160,8 @@ describe("useChatActions", () => {
       const { result } = renderHook(() => useChatActions(), { wrapper })
 
       act(() => {
-        result.current.sendChatMessage("Сообщение 1")
-        result.current.sendChatMessage("Сообщение 2")
+        void result.current.sendChatMessage("Сообщение 1")
+        void result.current.sendChatMessage("Сообщение 2")
         result.current.receiveChatMessage("Ответ 1")
         result.current.receiveChatMessage("Ответ 2")
       })
@@ -176,7 +176,7 @@ describe("useChatActions", () => {
       // Симулируем типичный поток работы
       act(() => {
         result.current.setProcessing(true)
-        result.current.sendChatMessage("Как добавить эффект?")
+        void result.current.sendChatMessage("Как добавить эффект?")
       })
 
       expect(mockChatActions.setProcessing).toHaveBeenCalledWith(true)
@@ -264,7 +264,7 @@ describe("useChatActions", () => {
 
       expect(() => {
         act(() => {
-          result.current.sendChatMessage("Сообщение")
+          void result.current.sendChatMessage("Сообщение")
         })
       }).toThrow("Тестовая ошибка")
     })

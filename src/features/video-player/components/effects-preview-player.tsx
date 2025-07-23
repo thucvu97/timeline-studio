@@ -25,7 +25,7 @@ import { TimelineClip } from "@/features/timeline/types/timeline"
 import { convertVideoSrc } from "@/lib/tauri-utils"
 
 import { PlayerControls } from "./player-controls"
-import { EffectPreviewOptions, effectsPreviewService } from "../services/effects-preview"
+import { EffectPreviewOptions, getEffectsPreviewService } from "../services/effects-preview"
 import { usePlayer } from "../services/player-provider"
 
 interface EffectParameter {
@@ -96,7 +96,7 @@ export function EffectsPreviewPlayer() {
    * Инициализация эффектов
    */
   useEffect(() => {
-    const effects = effectsPreviewService.getAvailableEffects()
+    const effects = getEffectsPreviewService().getAvailableEffects()
     setAvailableEffects(effects)
 
     if (effects.length > 0 && !selectedEffectId) {
@@ -124,13 +124,18 @@ export function EffectsPreviewPlayer() {
     if (!videoRef.current || !effectsCanvasRef.current || !video?.path) return
 
     if (isPreviewActive && previewOptions.enabled && activeEffects.length > 0) {
-      effectsPreviewService.startRealTimePreview(videoRef.current, mockClip, effectsCanvasRef.current, previewOptions)
+      getEffectsPreviewService().startRealTimePreview(
+        videoRef.current, 
+        mockClip, 
+        effectsCanvasRef.current, 
+        previewOptions
+      )
     } else {
-      effectsPreviewService.stopRealTimePreview()
+      getEffectsPreviewService().stopRealTimePreview()
     }
 
     return () => {
-      effectsPreviewService.stopRealTimePreview()
+      getEffectsPreviewService().stopRealTimePreview()
     }
   }, [isPreviewActive, previewOptions, activeEffects, mockClip, video?.path])
 
@@ -138,7 +143,7 @@ export function EffectsPreviewPlayer() {
    * Добавление эффекта
    */
   const addEffect = useCallback((effectId: string) => {
-    const parameters = effectsPreviewService.getEffectParameters(effectId)
+    const parameters = getEffectsPreviewService().getEffectParameters(effectId)
     if (!parameters) return
 
     const newEffect: EffectSettings = {

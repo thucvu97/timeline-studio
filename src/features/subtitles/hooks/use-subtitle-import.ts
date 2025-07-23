@@ -152,7 +152,7 @@ export function useSubtitleImport({ trackId, onImportComplete }: UseSubtitleImpo
       setIsImporting(false)
       setImportProgress(0)
     }
-  }, [trackId, timelineStore, toast, onImportComplete])
+  }, [trackId, addTrack, addClip, project, toast, onImportComplete])
 
   /**
    * Импортирует субтитры из строки
@@ -194,7 +194,7 @@ export function useSubtitleImport({ trackId, onImportComplete }: UseSubtitleImpo
         }))
 
         for (const clip of clipsToAdd) {
-          timelineStore.addClip(targetTrackId, clip)
+          await addClip(targetTrackId, clip, clip.startTime)
         }
 
         return { success: true, subtitles: clipsToAdd }
@@ -206,7 +206,7 @@ export function useSubtitleImport({ trackId, onImportComplete }: UseSubtitleImpo
         }
       }
     },
-    [trackId, timelineStore],
+    [trackId, addClip],
   )
 
   /**
@@ -250,7 +250,7 @@ export function useSubtitleImport({ trackId, onImportComplete }: UseSubtitleImpo
         // Добавляем на timeline
         for (const subtitle of subtitles) {
           subtitle.trackId = targetTrackId
-          timelineStore.addClip(targetTrackId, subtitle)
+          await addClip(targetTrackId, subtitle, subtitle.startTime)
         }
 
         toast({
@@ -272,7 +272,7 @@ export function useSubtitleImport({ trackId, onImportComplete }: UseSubtitleImpo
         }
       }
     },
-    [trackId, timelineStore, toast],
+    [trackId, addClip, toast],
   )
 
   return {

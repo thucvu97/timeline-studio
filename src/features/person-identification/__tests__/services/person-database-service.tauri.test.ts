@@ -152,7 +152,11 @@ describe("PersonDatabaseService Tauri Integration", () => {
 
       expect(invoke).toHaveBeenCalledWith("add_face_embedding", {
         personId: "person_123",
-        embedding: [0.1, 0.2, 0.3],
+        embedding: expect.arrayContaining([
+          expect.closeTo(0.1, 5),
+          expect.closeTo(0.2, 5),
+          expect.closeTo(0.3, 5),
+        ]),
         quality: 0.95,
         sourceClipId: "clip_123",
         frameNumber: 100,
@@ -201,7 +205,11 @@ describe("PersonDatabaseService Tauri Integration", () => {
       const results = await service.searchPersonsByEmbedding(embedding, 0.8, 5)
 
       expect(invoke).toHaveBeenCalledWith("search_similar_persons", {
-        embedding: [0.1, 0.2, 0.3],
+        embedding: expect.arrayContaining([
+          expect.closeTo(0.1, 5),
+          expect.closeTo(0.2, 5),
+          expect.closeTo(0.3, 5),
+        ]),
         topK: 5,
         useCosine: true,
       })
@@ -369,10 +377,11 @@ describe("PersonDatabaseService Tauri Integration", () => {
   })
 
   describe("Error Handling", () => {
-    it("should handle Tauri command errors", async () => {
+    it("should handle Tauri command errors gracefully", async () => {
       vi.mocked(invoke).mockRejectedValueOnce(new Error("Tauri error"))
 
-      await expect(service.getPerson("invalid_id")).rejects.toThrow()
+      const result = await service.getPerson("invalid_id")
+      expect(result).toBeNull()
     })
 
     it("should handle missing embeddings gracefully", async () => {

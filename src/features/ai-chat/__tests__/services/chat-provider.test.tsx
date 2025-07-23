@@ -115,13 +115,13 @@ describe("ChatProvider", () => {
   })
 
   describe("Отправка сообщений", () => {
-    it("должен отправлять сообщение пользователя", () => {
+    it("должен отправлять сообщение пользователя", async () => {
       const { result } = renderHook(() => useChat(), {
         wrapper: ChatProvider,
       })
 
-      act(() => {
-        result.current.sendChatMessage("Привет, ИИ!")
+      await act(async () => {
+        await result.current.sendChatMessage("Привет, ИИ!")
       })
 
       expect(result.current.chatMessages).toHaveLength(1)
@@ -129,7 +129,7 @@ describe("ChatProvider", () => {
         role: "user",
         content: "Привет, ИИ!",
       })
-      expect(result.current.isProcessing).toBe(true)
+      expect(result.current.isProcessing).toBe(false) // После завершения должен быть false
     })
 
     it.skip("должен получать ответ от ИИ", async () => {
@@ -138,7 +138,7 @@ describe("ChatProvider", () => {
       })
 
       await act(async () => {
-        result.current.sendChatMessage("Как дела?")
+        await result.current.sendChatMessage("Как дела?")
       })
 
       // Ждем обработку
@@ -159,8 +159,8 @@ describe("ChatProvider", () => {
       })
 
       act(() => {
-        result.current.sendChatMessage("")
-        result.current.sendChatMessage("   ")
+        void result.current.sendChatMessage("")
+        void result.current.sendChatMessage("   ")
       })
 
       // Пустые сообщения могут быть добавлены в зависимости от реализации машины
@@ -195,7 +195,7 @@ describe("ChatProvider", () => {
       })
 
       await act(async () => {
-        result.current.sendChatMessage("Тест GPT")
+        await result.current.sendChatMessage("Тест GPT")
       })
 
       await waitFor(() => {
@@ -214,7 +214,7 @@ describe("ChatProvider", () => {
 
       // Добавляем несколько сообщений
       act(() => {
-        result.current.sendChatMessage("Сообщение 1")
+        void result.current.sendChatMessage("Сообщение 1")
       })
 
       const firstMessageId = result.current.chatMessages[0].id
@@ -226,7 +226,7 @@ describe("ChatProvider", () => {
           role: "assistant" as const,
           timestamp: new Date(),
         })
-        result.current.sendChatMessage("Сообщение 2")
+        void result.current.sendChatMessage("Сообщение 2")
       })
 
       expect(result.current.chatMessages).toHaveLength(3)
@@ -247,21 +247,21 @@ describe("ChatProvider", () => {
 
       // Добавляем сообщения
       act(() => {
-        result.current.sendChatMessage("Сообщение 1")
+        void result.current.sendChatMessage("Сообщение 1")
         result.current.receiveChatMessage({
           id: "msg-2",
           content: "Ответ 1",
           role: "assistant" as const,
           timestamp: new Date(),
         })
-        result.current.sendChatMessage("Сообщение 2")
+        void result.current.sendChatMessage("Сообщение 2")
       })
 
       expect(result.current.chatMessages.length).toBeGreaterThan(0)
 
       // Очищаем все
       act(() => {
-        result.current.clearMessages()
+        void result.current.clearMessages()
       })
 
       expect(result.current.chatMessages).toHaveLength(0)
@@ -281,7 +281,7 @@ describe("ChatProvider", () => {
       })
 
       await act(async () => {
-        result.current.sendChatMessage("Тест ошибки")
+        void result.current.sendChatMessage("Тест ошибки")
       })
 
       await waitFor(() => {
@@ -307,7 +307,7 @@ describe("ChatProvider", () => {
 
       // Отправляем новое сообщение
       await act(async () => {
-        result.current.sendChatMessage("Новое сообщение")
+        void result.current.sendChatMessage("Новое сообщение")
       })
 
       expect(result.current.error).toBe(null)
@@ -324,7 +324,7 @@ describe("ChatProvider", () => {
 
       // Начинаем обработку
       const sendPromise = act(async () => {
-        result.current.sendChatMessage("Тест")
+        void result.current.sendChatMessage("Тест")
       })
 
       expect(result.current.isProcessing).toBe(true)
@@ -366,7 +366,7 @@ describe("ChatProvider", () => {
 
       // Выполняем действия
       act(() => {
-        result.current.sendChatMessage("Тест синхронизации")
+        void result.current.sendChatMessage("Тест синхронизации")
       })
 
       // Проверяем, что состояние обновилось через машину
@@ -421,7 +421,7 @@ describe("ChatProvider", () => {
 
       // Отправляем несколько сообщений быстро
       act(() => {
-        result.current.sendChatMessage("Сообщение 1")
+        void result.current.sendChatMessage("Сообщение 1")
       })
 
       // Небольшая задержка
@@ -430,7 +430,7 @@ describe("ChatProvider", () => {
       })
 
       act(() => {
-        result.current.sendChatMessage("Сообщение 2")
+        void result.current.sendChatMessage("Сообщение 2")
       })
 
       // Проверяем, что оба сообщения пользователя добавлены
@@ -459,7 +459,7 @@ describe("ChatProvider", () => {
       expect(result.current.isCreatingNewChat).toBe(false)
 
       act(() => {
-        result.current.createNewChat()
+        void result.current.createNewChat()
       })
 
       expect(result.current.isCreatingNewChat).toBe(true)
@@ -491,7 +491,7 @@ describe("ChatProvider", () => {
       expect(result.current.chatMessages).toHaveLength(0)
     })
 
-    it("должен удалять сессию", () => {
+    it("должен удалять сессию", async () => {
       const { result } = renderHook(() => useChat(), {
         wrapper: ChatProvider,
       })
@@ -512,23 +512,23 @@ describe("ChatProvider", () => {
         },
       ]
 
-      act(() => {
-        result.current.updateSessions(testSessions)
-        void result.current.switchSession("session-1")
+      await act(async () => {
+        await result.current.updateSessions(testSessions)
+        await result.current.switchSession("session-1")
       })
 
       expect(result.current.sessions).toHaveLength(2)
       expect(result.current.currentSessionId).toBe("session-1")
 
-      act(() => {
-        result.current.deleteSession("session-1")
+      await act(async () => {
+        await result.current.deleteSession("session-1")
       })
 
       expect(result.current.sessions).toHaveLength(1)
       expect(result.current.currentSessionId).toBeNull()
     })
 
-    it("должен обновлять список сессий", () => {
+    it("должен обновлять список сессий", async () => {
       const { result } = renderHook(() => useChat(), {
         wrapper: ChatProvider,
       })
@@ -548,11 +548,22 @@ describe("ChatProvider", () => {
         },
       ]
 
-      act(() => {
-        result.current.updateSessions(newSessions)
+      await act(async () => {
+        await result.current.updateSessions(newSessions)
       })
 
-      expect(result.current.sessions).toEqual(newSessions)
+      // Проверяем, что сессии обновились правильно
+      expect(result.current.sessions).toHaveLength(2)
+      expect(result.current.sessions[0]).toMatchObject({
+        id: "new-1",
+        title: "Новый чат 1",
+        messageCount: 10,
+      })
+      expect(result.current.sessions[1]).toMatchObject({
+        id: "new-2",
+        title: "Новый чат 2",
+        messageCount: 20,
+      })
     })
   })
 })

@@ -21,8 +21,6 @@ export const useAppSettings = vi.fn(() => ({
   setCurrentProject: mockSetCurrentProject,
   toggleFavorite: mockToggleFavorite,
   updateBrowserState: mockUpdateBrowserState,
-  isLoading: vi.fn(() => false),
-  getError: vi.fn(() => null),
   state: {
     context: {
       currentProject: {

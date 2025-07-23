@@ -47,7 +47,6 @@ vi.mock("@/features/app-state/services/app-machine", () => ({
     }),
     playerClearSelection: () => ({
       type: "playerClearSelection",
-      params: {},
     }),
     playerSetSource: (source: string) => ({
       type: "playerSetSource",

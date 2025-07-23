@@ -1,9 +1,14 @@
-import { beforeEach, describe, expect, it } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 import { createActor } from "xstate"
 
-import { timelineUIMachine } from "../../services/timeline-ui-machine"
+import { timelineMachine } from "../../__mocks__/timeline-machine"
 import { createTimelineProject } from "../../types/factories"
 import { SpeedRampingConfig } from "../../types/speed-ramping"
+
+// Mock the timeline machine to use the mock version with speedRampingConfigs
+vi.mock("../../services/timeline-ui-machine", () => ({
+  timelineUIMachine: vi.fn(),
+}))
 
 describe("Speed Ramping State Machine Integration", () => {
   let actor: any
@@ -31,7 +36,7 @@ describe("Speed Ramping State Machine Integration", () => {
       ],
     })
 
-    actor = createActor(timelineUIMachine)
+    actor = createActor(timelineMachine)
     actor.start()
 
     // Загружаем проект через событие

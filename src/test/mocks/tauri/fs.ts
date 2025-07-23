@@ -247,20 +247,4 @@ export const metadata = mockFs.metadata
 export const mkdir = mockFs.mkdir
 export const remove = mockFs.remove
 
-// Mock the module
-vi.mock("@tauri-apps/plugin-fs", () => ({
-  readFile: mockFs.readFile,
-  writeFile: mockFs.writeFile,
-  readTextFile: mockFs.readTextFile,
-  writeTextFile: mockFs.writeTextFile,
-  exists: mockFs.exists,
-  createDir: mockFs.createDir,
-  removeFile: mockFs.removeFile,
-  removeDir: mockFs.removeDir,
-  copyFile: mockFs.copyFile,
-  readDir: mockFs.readDir,
-  metadata: mockFs.metadata,
-  mkdir: mockFs.mkdir,
-  remove: mockFs.remove,
-  mockFileSystem,
-}))
+// Export mocks for manual setup in tests - vi.mock should be called in test files, not here

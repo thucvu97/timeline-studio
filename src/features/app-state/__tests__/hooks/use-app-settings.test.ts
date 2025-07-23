@@ -38,8 +38,6 @@ const mockContextValue = {
   getFavorites: vi.fn(),
   getCurrentProject: vi.fn(),
   getMediaFiles: vi.fn(),
-  isLoading: vi.fn(),
-  getError: vi.fn(),
 }
 
 // Мокаем useContext

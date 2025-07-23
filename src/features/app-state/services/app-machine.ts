@@ -4,10 +4,9 @@
 
 import { assign, fromCallback, fromPromise, setup } from "xstate"
 
+import { ProjectCommand, ProjectEvent, ProjectState } from "@/types/generated/tauri-bindings"
+
 import { BackendSync, getBackendSync } from "./backend-sync"
-import { ProjectCommand } from "../types/commands"
-import { ProjectEvent } from "../types/events"
-import { ProjectState } from "../types/unified-project"
 
 // Context for the app machine
 export interface AppMachineContext {
@@ -298,12 +297,10 @@ export const AppCommands = {
   // Basic playback commands
   play: (): ProjectCommand => ({
     type: "Play",
-    params: {},
   }),
 
   pause: (): ProjectCommand => ({
     type: "Pause",
-    params: {},
   }),
 
   seek: (time: number): ProjectCommand => ({
@@ -329,7 +326,6 @@ export const AppCommands = {
 
   playerClearSelection: (): ProjectCommand => ({
     type: "PlayerClearSelection",
-    params: {},
   }),
 
   playerSetSource: (source: "browser" | "timeline"): ProjectCommand => ({
@@ -354,17 +350,14 @@ export const AppCommands = {
 
   playerClearEffects: (): ProjectCommand => ({
     type: "PlayerClearEffects",
-    params: {},
   }),
 
   playerClearFilters: (): ProjectCommand => ({
     type: "PlayerClearFilters",
-    params: {},
   }),
 
   playerClearTemplate: (): ProjectCommand => ({
     type: "PlayerClearTemplate",
-    params: {},
   }),
 }
 

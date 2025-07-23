@@ -196,7 +196,10 @@ describe("MidiRouter", () => {
         deviceId: "output1",
         message,
       })
-      expect(callback).toHaveBeenCalledWith(message)
+      expect(callback).toHaveBeenCalledWith({
+        ...message,
+        timestamp: expect.any(Number),
+      })
     })
 
     it("should filter messages by source device", () => {
@@ -452,6 +455,7 @@ describe("MidiRouter", () => {
       expect(callback).toHaveBeenCalledWith({
         type: "noteon",
         channel: 3,
+        timestamp: expect.any(Number),
         data: { note: 60, velocity: 100 },
       })
     })
@@ -488,6 +492,7 @@ describe("MidiRouter", () => {
       expect(callback).toHaveBeenCalledWith({
         type: "noteon",
         channel: 10,
+        timestamp: expect.any(Number),
         data: { note: 60, velocity: 100 },
       })
     })
@@ -521,6 +526,7 @@ describe("MidiRouter", () => {
       expect(callback).toHaveBeenCalledWith({
         type: "noteon",
         channel: 1,
+        timestamp: expect.any(Number),
         data: { note: 72, velocity: 100 },
       })
     })
@@ -554,6 +560,7 @@ describe("MidiRouter", () => {
       expect(callback).toHaveBeenCalledWith({
         type: "noteon",
         channel: 1,
+        timestamp: expect.any(Number),
         data: { note: 60, velocity: 50 },
       })
     })
@@ -622,12 +629,14 @@ describe("MidiRouter", () => {
       router.routeMessage("input1", {
         type: "cc",
         channel: 1,
+        timestamp: Date.now(),
         data: { controller: 1, value: 64 },
       })
 
       expect(callback).toHaveBeenCalledWith({
         type: "cc",
         channel: 1,
+        timestamp: expect.any(Number),
         data: { controller: 11, value: 64 },
       })
     })
@@ -662,6 +671,7 @@ describe("MidiRouter", () => {
       router.routeMessage("input1", {
         type: "noteon",
         channel: 1,
+        timestamp: Date.now(),
         data: { note: 60, velocity: 64 },
       })
 
@@ -669,6 +679,7 @@ describe("MidiRouter", () => {
       expect(callback).toHaveBeenCalledWith({
         type: "noteon",
         channel: 1,
+        timestamp: expect.any(Number),
         data: { note: 60, velocity: 127 },
       })
     })
@@ -762,6 +773,7 @@ describe("MidiRouter", () => {
       expect(callback).toHaveBeenCalledWith({
         type: "noteon",
         channel: 1,
+        timestamp: expect.any(Number),
         data: { note: 72, velocity: 80 },
       })
     })

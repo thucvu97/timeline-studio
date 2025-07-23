@@ -55,6 +55,13 @@ vi.mock("@/lib/utils", () => ({
   cn: (...classes: any[]) => classes.filter(Boolean).join(" "),
 }))
 
+vi.mock("@/features/video-player/services/player-provider", () => ({
+  usePlayer: () => ({
+    playerSetSource: vi.fn(),
+    playerSetMedia: vi.fn(),
+  }),
+}))
+
 // Mock components
 vi.mock("@/features/browser/components/layout/add-media-button", () => ({
   AddMediaButton: ({ onAddMedia, isAdded }: any) => (
@@ -110,7 +117,6 @@ describe("ImagePreview", () => {
   })
 
   it("should render add media button when onAddMedia is provided", () => {
-    const mockOnAddMedia = vi.fn()
     render(<ImagePreview file={mockFile} size={100} />)
 
     expect(screen.getByTestId("add-button")).toBeInTheDocument()

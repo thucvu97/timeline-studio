@@ -4,6 +4,7 @@ import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, MockedFunction, vi } from "vitest"
 
 import { useAppSettings } from "@/features/app-state/hooks"
+import { useUserSettings } from "@/features/user-settings/hooks/use-user-settings"
 import { BrowserTab, ViewMode } from "@/shared/types"
 
 import { BrowserStateProvider, useBrowserState, useTabSettings } from "../../services/browser-state-provider"
@@ -13,8 +14,14 @@ vi.mock("@/features/app-state/hooks", () => ({
   useAppSettings: vi.fn(),
 }))
 
+// Мокаем useUserSettings
+vi.mock("@/features/user-settings/hooks/use-user-settings", () => ({
+  useUserSettings: vi.fn(),
+}))
+
 const mockGetUserSettings = vi.fn()
 const mockUpdateUserSettings = vi.fn()
+const mockUpdateSettings = vi.fn()
 
 describe("BrowserStateProvider", () => {
   beforeEach(() => {
@@ -22,6 +29,11 @@ describe("BrowserStateProvider", () => {
     ;(useAppSettings as MockedFunction<typeof useAppSettings>).mockReturnValue({
       getUserSettings: mockGetUserSettings,
       updateUserSettings: mockUpdateUserSettings,
+    } as any)
+
+    ;(useUserSettings as MockedFunction<typeof useUserSettings>).mockReturnValue({
+      settings: {},
+      updateSettings: mockUpdateSettings,
     } as any)
 
     mockGetUserSettings.mockReturnValue({})
@@ -95,9 +107,12 @@ describe("BrowserStateProvider", () => {
         },
       }
 
-      mockGetUserSettings.mockReturnValue({
-        browserSettings: savedSettings,
-      })
+      ;(useUserSettings as MockedFunction<typeof useUserSettings>).mockReturnValue({
+        settings: {
+          browserSettings: savedSettings,
+        },
+        updateSettings: mockUpdateSettings,
+      } as any)
 
       const { result } = renderHook(() => useBrowserState(), { wrapper })
 

@@ -7,7 +7,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react"
 
 import { getBackendSync } from "@/features/app-state/services/backend-sync"
-import { ProjectState } from "@/features/app-state/types/unified-project"
 import { VideoEffect } from "@/features/effects/types"
 import { VideoFilter } from "@/features/filters/types/filters"
 import { MediaFile } from "@/features/media/types/media"
@@ -15,6 +14,7 @@ import { StyleTemplate } from "@/features/style-templates/types"
 import { SubtitleStyleTemplate } from "@/features/subtitles/types"
 import { MediaTemplate } from "@/features/templates/lib/templates"
 import { Transition } from "@/features/transitions/types/transitions"
+import { ProjectState } from "@/types/generated/tauri-bindings"
 
 import {
   EffectResource,
@@ -30,7 +30,7 @@ import {
   createMusicResource,
 } from "../types"
 
-interface ResourcesContextTypeV2 {
+interface ResourcesContextType {
   // Ресурсы (синхронизированы с backend через project state)
   resources: TimelineResource[]
   mediaResources: MediaResource[]
@@ -64,9 +64,10 @@ interface ResourcesContextTypeV2 {
   // Утилиты
   getResourceById: (resourceId: string) => TimelineResource | undefined
   getResourcesByType: (type: string) => TimelineResource[]
+  isMusicAdded: (file: MediaFile) => boolean
 }
 
-const ResourcesContextV2 = createContext<ResourcesContextTypeV2 | undefined>(undefined)
+const ResourcesContextV2 = createContext<ResourcesContextType | undefined>(undefined)
 
 interface ResourcesProviderV2Props {
   children: React.ReactNode
@@ -299,7 +300,7 @@ export function ResourcesProviderV2({ children }: ResourcesProviderV2Props) {
   ]
 
   // Контекстное значение
-  const contextValue: ResourcesContextTypeV2 = {
+  const contextValue: ResourcesContextType = {
     // Ресурсы
     resources,
     mediaResources,
@@ -331,12 +332,15 @@ export function ResourcesProviderV2({ children }: ResourcesProviderV2Props) {
     // Утилиты
     getResourceById,
     getResourcesByType,
+    isMusicAdded: (file: MediaFile) => {
+      return musicResources.some(resource => resource.data.path === file.path)
+    },
   }
 
   return <ResourcesContextV2.Provider value={contextValue}>{children}</ResourcesContextV2.Provider>
 }
 
-export function useResourcesV2(): ResourcesContextTypeV2 {
+export function useResourcesV2(): ResourcesContextType {
   const context = useContext(ResourcesContextV2)
 
   if (!context) {
@@ -347,7 +351,7 @@ export function useResourcesV2(): ResourcesContextTypeV2 {
 }
 
 // Экспорт типов
-export type { ResourcesContextTypeV2 }
+export type { ResourcesContextType }
 
 // Экспорт для обратной совместимости
 export { ResourcesProviderV2 as ResourcesProvider }

@@ -3,17 +3,17 @@ import { describe, expect, it, vi } from "vitest"
 
 import { useCurrentProject } from "../../hooks/use-current-project"
 
-// Мокаем useAppSettings
-const mockAppSettings = {
-  getCurrentProject: vi.fn(),
-  createNewProject: vi.fn(),
-  openProject: vi.fn(),
-  saveProject: vi.fn(),
-  setProjectDirty: vi.fn(),
+// Мокаем useApp
+const mockExecuteCommand = vi.fn()
+const mockProjectState = {
+  project: null,
 }
 
-vi.mock("../../hooks/use-app-settings", () => ({
-  useAppSettings: () => mockAppSettings,
+vi.mock("../../services/app-provider", () => ({
+  useApp: () => ({
+    projectState: mockProjectState,
+    executeCommand: mockExecuteCommand,
+  }),
 }))
 
 describe("useCurrentProject", () => {
@@ -23,65 +23,58 @@ describe("useCurrentProject", () => {
 
   it("должен возвращать текущий проект", () => {
     const mockProject = {
-      path: "/path/to/project.tls",
+      id: "project-1",
       name: "Мой проект",
-      isDirty: false,
-      isNew: false,
+      path: "/path/to/project.tls",
+      metadata: {
+        isDirty: false,
+        isNew: false,
+      },
     }
-    mockAppSettings.getCurrentProject.mockReturnValue(mockProject)
+    mockProjectState.project = mockProject
 
     const { result } = renderHook(() => useCurrentProject())
 
     expect(result.current.currentProject).toEqual(mockProject)
-    expect(mockAppSettings.getCurrentProject).toHaveBeenCalled()
   })
 
-  it("должен предоставлять метод создания нового проекта", () => {
+  it("должен предоставлять метод создания нового проекта", async () => {
     const { result } = renderHook(() => useCurrentProject())
 
-    act(() => {
-      result.current.createNewProject("Новый проект")
+    await act(async () => {
+      await result.current.createNewProject("Новый проект")
     })
 
-    expect(mockAppSettings.createNewProject).toHaveBeenCalledWith("Новый проект")
+    expect(mockExecuteCommand).toHaveBeenCalledWith({
+      type: "CreateProject",
+      params: { name: "Новый проект", template: "default" }
+    })
   })
 
   it("должен предоставлять метод открытия проекта", async () => {
-    mockAppSettings.openProject.mockResolvedValue({
-      path: "/path/to/opened.tls",
-      name: "Открытый проект",
-    })
-
     const { result } = renderHook(() => useCurrentProject())
 
-    const openedProject = await act(async () => {
-      return await result.current.openProject()
+    await act(async () => {
+      await result.current.openProject("/path/to/opened.tls")
     })
 
-    expect(openedProject).toEqual({
-      path: "/path/to/opened.tls",
-      name: "Открытый проект",
+    expect(mockExecuteCommand).toHaveBeenCalledWith({
+      type: "LoadProject",
+      params: { path: "/path/to/opened.tls" }
     })
-    expect(mockAppSettings.openProject).toHaveBeenCalled()
   })
 
   it("должен предоставлять метод сохранения проекта", async () => {
-    mockAppSettings.saveProject.mockResolvedValue({
-      path: "/path/to/saved.tls",
-      name: "Сохраненный проект",
-    })
-
     const { result } = renderHook(() => useCurrentProject())
 
-    const savedProject = await act(async () => {
-      return await result.current.saveProject("Сохраненный проект")
+    await act(async () => {
+      await result.current.saveProject("/path/to/saved.tls")
     })
 
-    expect(savedProject).toEqual({
-      path: "/path/to/saved.tls",
-      name: "Сохраненный проект",
+    expect(mockExecuteCommand).toHaveBeenCalledWith({
+      type: "SaveProject",
+      params: { path: "/path/to/saved.tls" }
     })
-    expect(mockAppSettings.saveProject).toHaveBeenCalledWith("Сохраненный проект")
   })
 
   it("должен предоставлять метод установки флага изменений", () => {
@@ -91,17 +84,23 @@ describe("useCurrentProject", () => {
       result.current.setProjectDirty(true)
     })
 
-    expect(mockAppSettings.setProjectDirty).toHaveBeenCalledWith(true)
+    expect(mockExecuteCommand).toHaveBeenCalledWith({
+      type: "SetProjectDirty",
+      params: { dirty: true }
+    })
 
     act(() => {
       result.current.setProjectDirty(false)
     })
 
-    expect(mockAppSettings.setProjectDirty).toHaveBeenCalledWith(false)
+    expect(mockExecuteCommand).toHaveBeenCalledWith({
+      type: "SetProjectDirty",
+      params: { dirty: false }
+    })
   })
 
   it("должен корректно обрабатывать null проект", () => {
-    mockAppSettings.getCurrentProject.mockReturnValue(null)
+    mockProjectState.project = null
 
     const { result } = renderHook(() => useCurrentProject())
 
@@ -109,17 +108,33 @@ describe("useCurrentProject", () => {
   })
 
   it("должен обновляться при изменении проекта", () => {
-    const project1 = { path: "/project1.tls", name: "Проект 1", isDirty: false, isNew: false }
-    const project2 = { path: "/project2.tls", name: "Проект 2", isDirty: true, isNew: false }
+    const project1 = {
+      id: "project-1",
+      name: "Проект 1",
+      path: "/project1.tls",
+      metadata: {
+        isDirty: false,
+        isNew: false,
+      },
+    }
+    const project2 = {
+      id: "project-2",
+      name: "Проект 2",
+      path: "/project2.tls",
+      metadata: {
+        isDirty: true,
+        isNew: false,
+      },
+    }
 
-    mockAppSettings.getCurrentProject.mockReturnValue(project1)
+    mockProjectState.project = project1
 
     const { result, rerender } = renderHook(() => useCurrentProject())
 
     expect(result.current.currentProject).toEqual(project1)
 
     // Меняем возвращаемое значение
-    mockAppSettings.getCurrentProject.mockReturnValue(project2)
+    mockProjectState.project = project2
 
     // Перерендериваем хук
     rerender()

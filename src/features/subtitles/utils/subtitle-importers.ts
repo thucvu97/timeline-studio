@@ -164,12 +164,19 @@ export function importFromVTT(content: string): SubtitleClip[] {
  * Парсит цвет из формата ASS BGR в hex
  */
 function parseASSColor(assColor: string): string {
-  // ASS цвет в формате &HBBGGRR& или &HAABBGGRR&
-  const match = /&H([A-F0-9]{2})?([A-F0-9]{2})([A-F0-9]{2})([A-F0-9]{2})&/i.exec(assColor)
+  // ASS цвет в формате &HBBGGRR или &HAABBGGRR (без завершающего &)
+  const match = /&H([A-F0-9]{2})?([A-F0-9]{2})([A-F0-9]{2})([A-F0-9]{2})/i.exec(assColor)
   if (!match) return "#FFFFFF"
 
-  const [, _alpha, blue, green, red] = match
-  return `#${red}${green}${blue}`
+  if (match[1]) {
+    // Формат с альфа-каналом: &HAABBGGRR
+    const [, _alpha, blue, green, red] = match
+    return `#${red}${green}${blue}`
+  } else {
+    // Формат без альфа-канала: &HBBGGRR
+    const [, , blue, green, red] = match
+    return `#${red}${green}${blue}`
+  }
 }
 
 /**

@@ -59,19 +59,19 @@ export function useMusicImport() {
   const saveFilesToProject = useCallback(
     async (files: MediaFile[]) => {
       // Сохраняем только если есть открытый проект
-      if (!currentProject.path || files.length === 0) {
+      if (!currentProject?.path || files.length === 0) {
         return
       }
 
       try {
         // Конвертируем MediaFile в SavedMusicFile
         const savedFiles = await Promise.all(
-          files.map((file) => convertToSavedMusicFile(file, currentProject.path || undefined)),
+          files.map((file) => convertToSavedMusicFile(file, currentProject?.path || undefined)),
         )
 
         // Сохраняем проект с обновленными музыкальными файлами
         // Используем существующее имя проекта или создаем новое
-        const projectName = currentProject.name || "Untitled Project"
+        const projectName = currentProject?.name || "Untitled Project"
         await saveProject(projectName)
         console.log(`Сохранено ${savedFiles.length} музыкальных файлов в проект`)
 
@@ -81,7 +81,7 @@ export function useMusicImport() {
         console.error("Ошибка при сохранении музыкальных файлов в проект:", error)
       }
     },
-    [currentProject.path, setProjectDirty],
+    [currentProject?.path, setProjectDirty],
   )
 
   /**
@@ -124,7 +124,7 @@ export function useMusicImport() {
       console.log(`Создание ${totalFiles} базовых музыкальных файлов...`)
       const basicMusicFiles = filePaths.map(createBasicMusicFile)
 
-      updateMusicFiles(basicMusicFiles)
+      void updateMusicFiles(basicMusicFiles)
       console.log("Добавлено файлов:", basicMusicFiles.length)
 
       // ШАГ 2: Асинхронно загружаем метаданные для каждого файла по очереди
@@ -185,7 +185,7 @@ export function useMusicImport() {
           }
 
           if (isMountedRef.current) {
-            updateMusicFiles([updatedMusicFile])
+            void updateMusicFiles([updatedMusicFile])
             console.log("Метаданные загружены для:", updatedMusicFile.name)
           }
 
@@ -198,7 +198,7 @@ export function useMusicImport() {
           }
 
           if (isMountedRef.current) {
-            updateMusicFiles([fallbackMusicFile])
+            void updateMusicFiles([fallbackMusicFile])
             console.log("Fallback для:", fallbackMusicFile.name)
           }
 
@@ -217,7 +217,7 @@ export function useMusicImport() {
         }
 
         if (isMountedRef.current) {
-          updateMusicFiles([errorMusicFile])
+          void updateMusicFiles([errorMusicFile])
           console.log("Ошибка для:", errorMusicFile.name)
         }
       } finally {

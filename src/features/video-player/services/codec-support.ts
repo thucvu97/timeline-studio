@@ -218,6 +218,12 @@ export class CodecSupportService {
     if (!profile) return "unsupported"
 
     try {
+      // Skip during SSR
+      if (typeof document === "undefined") {
+        console.warn("Codec support detection skipped (SSR)")
+        return "unsupported"
+      }
+      
       // Базовая проверка через canPlayType
       const video = document.createElement("video")
       const basicSupport = video.canPlayType(profile.mimeType)
@@ -598,7 +604,7 @@ export class CodecSupportService {
           },
           frameRate: formatInfo.videoTrack.frameRate,
           hdrRequired: formatInfo.hdr.isHdr,
-          qualityPriority: "balanced",
+          qualityPriority: "quality",
         },
         {
           preferHardwareDecoding: true,
@@ -660,4 +666,5 @@ export class CodecSupportService {
   }
 }
 
-export const codecSupportService = CodecSupportService.getInstance()
+// Lazy initialization to avoid SSR issues
+export const getCodecSupportService = () => CodecSupportService.getInstance()

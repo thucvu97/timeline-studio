@@ -95,8 +95,6 @@ export const useYoloData = vi.fn(() => ({
   getSceneContext: vi.fn().mockResolvedValue("В кадре обнаружено: person, car"),
   loadingStates: {},
   errorStates: {},
-  isLoading: vi.fn().mockReturnValue(false),
-  getError: vi.fn().mockReturnValue(null),
 }))
 
 // Мок сервисов

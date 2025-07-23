@@ -37,7 +37,7 @@ export function AppProvider({ children }: AppProviderV2Props) {
 
   // Auto-connect when component mounts
   useEffect(() => {
-    if (state.matches("disconnected")) {
+    if (state?.matches("disconnected")) {
       send({ type: "CONNECT" })
     }
   }, [state, send])
@@ -59,12 +59,12 @@ export function AppProvider({ children }: AppProviderV2Props) {
     send({ type: "EXECUTE_COMMAND", command })
   }
 
-  // Context value
+  // Context value with safe fallbacks
   const contextValue: AppProviderV2Context = {
-    isConnected: state.context.isConnected,
-    isConnecting: state.matches("connecting"),
-    connectionError: state.context.error,
-    projectState: state.context.projectState,
+    isConnected: state?.context?.isConnected ?? false,
+    isConnecting: state?.matches("connecting") ?? false,
+    connectionError: state?.context?.error ?? null,
+    projectState: state?.context?.projectState ?? null,
     connect,
     disconnect,
     retryConnection,

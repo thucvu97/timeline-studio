@@ -15,8 +15,8 @@ export function useBrowserAIIntegration() {
   const { state } = useAppSettings()
 
   // Получаем медиафайлы из app state
-  const mediaFiles = state.context.mediaFiles.allFiles || []
-  const isLoading = state.context.mediaFiles.isLoading
+  const mediaFiles = state?.context?.mediaFiles?.allFiles || []
+  const isLoading = state?.context?.mediaFiles?.isLoading || false
 
   // Функция для получения файлов из текущей вкладки
   const getTabFiles = useCallback((): MediaFile[] => {

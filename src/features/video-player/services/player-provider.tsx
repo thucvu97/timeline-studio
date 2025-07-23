@@ -8,9 +8,9 @@ import React, { createContext, useContext, useEffect, useState } from "react"
 
 import { AppCommands } from "@/features/app-state/services/app-machine"
 import { getBackendSync } from "@/features/app-state/services/backend-sync"
-import { ProjectState } from "@/features/app-state/types/unified-project"
 import { MediaFile } from "@/features/media/types/media"
 import { useUserSettings } from "@/features/user-settings"
+import { ProjectState } from "@/types/generated/tauri-bindings"
 
 interface PlayerContextType {
   // Состояние воспроизведения (синхронизировано с backend)

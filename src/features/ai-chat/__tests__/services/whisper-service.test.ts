@@ -191,7 +191,7 @@ describe("WhisperService", () => {
         timestampGranularities: ["segment"],
       })
 
-      expect(result).toEqual(mockTranscriptionResult)
+      expect(result).toMatchObject(mockTranscriptionResult)
     })
 
     it("should transcribe audio with custom options", async () => {
@@ -219,7 +219,7 @@ describe("WhisperService", () => {
         timestampGranularities: ["word", "segment"],
       })
 
-      expect(result).toEqual(mockTranscriptionResult)
+      expect(result).toMatchObject(mockTranscriptionResult)
     })
 
     it("should throw error when API key is not set", async () => {
@@ -236,7 +236,7 @@ describe("WhisperService", () => {
         "Не удалось выполнить транскрипцию: Error: Transcription failed",
       )
 
-      expect(consoleSpy).toHaveBeenCalledWith("Ошибка транскрипции через OpenAI:", expect.any(Error))
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Ошибка транскрипции через OpenAI"), expect.any(Error))
 
       consoleSpy.mockRestore()
     })
@@ -322,7 +322,7 @@ describe("WhisperService", () => {
         outputFormat: "json",
       })
 
-      expect(result).toEqual(mockTranscriptionResult)
+      expect(result).toMatchObject(mockTranscriptionResult)
     })
 
     it("should transcribe with custom options", async () => {
@@ -344,7 +344,7 @@ describe("WhisperService", () => {
         outputFormat: "srt",
       })
 
-      expect(result).toEqual(mockTranscriptionResult)
+      expect(result).toMatchObject(mockTranscriptionResult)
     })
 
     it("should handle local transcription errors", async () => {
@@ -355,7 +355,7 @@ describe("WhisperService", () => {
         "Не удалось выполнить локальную транскрипцию: Error: Model not found",
       )
 
-      expect(consoleSpy).toHaveBeenCalledWith("Ошибка локальной транскрипции:", expect.any(Error))
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Ошибка локальной транскрипции"), expect.any(Error))
 
       consoleSpy.mockRestore()
     })

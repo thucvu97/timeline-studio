@@ -3,23 +3,18 @@
  * Handles communication with Rust backend state management
  */
 
-import { invoke } from "@tauri-apps/api/core"
 import { UnlistenFn, listen } from "@tauri-apps/api/event"
 
-// Use generated types from Specta once they're available
-// For now, keep using our manually created types
-import { CommandResult, ProjectCommand } from "../types/commands"
-import { EventEnvelope, ProjectEvent } from "../types/events"
-import { ProjectState } from "../types/unified-project"
-
-// TODO: Replace with generated types when Specta export is working
-// import {
-//   ProjectCommand,
-//   CommandResult,
-//   EventEnvelope,
-//   ProjectEvent,
-//   ProjectState
-// } from '@/types/generated/tauri-bindings'
+// Use generated types from Specta
+import { 
+  CommandResult,
+  EventEnvelope,
+  ProjectCommand,
+  ProjectEvent,
+  ProjectState,
+  Result,
+  commands
+} from "@/types/generated/tauri-bindings"
 
 export type EventHandler = (event: ProjectEvent) => void
 export type StateChangeHandler = (state: ProjectState) => void
@@ -77,15 +72,23 @@ export class BackendSync {
    */
   async executeCommand(command: ProjectCommand): Promise<CommandResult> {
     try {
-      const result = await invoke<CommandResult>("execute_command", {
-        command,
-      })
-      return result
+      const result = await commands.executeCommand(command)
+      if (result.status === "ok") {
+        return result.data
+      } else {
+        console.error("Command execution failed:", result.error)
+        return {
+          success: false,
+          error: result.error,
+          data: null
+        }
+      }
     } catch (error) {
       console.error("Command execution failed:", error)
       return {
         success: false,
         error: error instanceof Error ? error.message : String(error),
+        data: null
       }
     }
   }
@@ -95,8 +98,13 @@ export class BackendSync {
    */
   async getProjectState(): Promise<ProjectState | null> {
     try {
-      const state = await invoke<ProjectState>("get_project_state")
-      return state
+      const result = await commands.getProjectState()
+      if (result.status === "ok") {
+        return result.data
+      } else {
+        console.error("Failed to get project state:", result.error)
+        return null
+      }
     } catch (error) {
       console.error("Failed to get project state:", error)
       return null
@@ -108,10 +116,13 @@ export class BackendSync {
    */
   async getEventHistory(sinceVersion?: number): Promise<EventEnvelope[]> {
     try {
-      const events = await invoke<EventEnvelope[]>("get_event_history", {
-        sinceVersion: sinceVersion ?? this.lastVersion,
-      })
-      return events
+      const result = await commands.getEventHistory(sinceVersion ?? this.lastVersion)
+      if (result.status === "ok") {
+        return result.data
+      } else {
+        console.error("Failed to get event history:", result.error)
+        return []
+      }
     } catch (error) {
       console.error("Failed to get event history:", error)
       return []

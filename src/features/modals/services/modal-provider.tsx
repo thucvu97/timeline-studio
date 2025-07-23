@@ -36,9 +36,9 @@ export function ModalProvider({ children }: ModalProviderProps) {
 
   const value = useMemo(
     () => ({
-      modalType: state.context.modalType,
-      modalData: state.context.modalData,
-      isOpen: state.matches("opened"),
+      modalType: state?.context?.modalType || null,
+      modalData: state?.context?.modalData || null,
+      isOpen: state?.matches("opened") || false,
       openModal: (modalType: ModalType, modalData?: ModalData) => {
         console.log("Открываем модальное окно:", modalType)
         send({ type: "OPEN_MODAL", modalType, modalData })

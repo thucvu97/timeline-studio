@@ -7,6 +7,9 @@ import { invoke } from "@tauri-apps/api/core"
 
 import type { BaseEffect, EffectPreset } from "../types/unified-effects"
 
+// Счетчик для генерации уникальных ID пресетов
+let presetIdCounter = 1
+
 /**
  * Интерфейс для пользовательского эффекта
  */
@@ -109,7 +112,7 @@ export function prepareEffectForExport(
   // Если есть пользовательские параметры, создаем новый пресет
   if (customParams && presetName) {
     const customPreset: EffectPreset = {
-      id: `custom_${Date.now()}`,
+      id: `custom_${presetIdCounter++}`,
       name: {
         ru: presetName,
         en: presetName,
@@ -122,7 +125,21 @@ export function prepareEffectForExport(
       tags: ["custom", "user"],
     }
 
-    exportEffect.presets = [...(exportEffect.presets || []), customPreset]
+    // Обрабатываем presets как массив или объект
+    if (Array.isArray(exportEffect.presets)) {
+      exportEffect.presets = [...exportEffect.presets, customPreset]
+    } else if (exportEffect.presets && typeof exportEffect.presets === 'object') {
+      // Если presets - объект, добавляем новый пресет с его ID как ключом
+      exportEffect.presets = {
+        ...exportEffect.presets,
+        [customPreset.id]: customPreset
+      }
+    } else {
+      // Если presets отсутствует, создаем объект
+      exportEffect.presets = {
+        [customPreset.id]: customPreset
+      }
+    }
   }
 
   return exportEffect

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from "react"
 
-import { useAppSettings } from "@/features/app-state/hooks"
 import { DEFAULT_PREVIEW_SIZE_INDEX, PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"
+import { useUserSettings } from "@/features/user-settings/hooks/use-user-settings"
 import { BrowserTab } from "@/shared/types/browser"
 import type { BrowserContext, ViewMode } from "@/shared/types/browser-context"
 
@@ -76,11 +76,10 @@ interface BrowserStateProviderProps {
  * Провайдер состояния браузера
  */
 export const BrowserStateProvider: React.FC<BrowserStateProviderProps> = ({ children }) => {
-  const { getUserSettings, updateUserSettings } = useAppSettings()
+  const { settings: userSettings, updateSettings: updateUserSettings } = useUserSettings()
   const [state, setState] = useState<BrowserContext>(() => {
     // Пытаемся загрузить настройки из пользовательских настроек
-    const userSettings = getUserSettings()
-    return userSettings.browserSettings || getInitialContext()
+    return userSettings?.browserSettings || getInitialContext()
   })
 
   // Используем ref для отслеживания первого рендера и предыдущего состояния
@@ -104,7 +103,6 @@ export const BrowserStateProvider: React.FC<BrowserStateProviderProps> = ({ chil
     prevStateRef.current = state
 
     const timeoutId = setTimeout(() => {
-      const userSettings = getUserSettings()
       updateUserSettings({
         ...userSettings,
         browserSettings: state,
@@ -113,7 +111,7 @@ export const BrowserStateProvider: React.FC<BrowserStateProviderProps> = ({ chil
     }, 500) // Дебаунс 500мс
 
     return () => clearTimeout(timeoutId)
-  }, [state, getUserSettings, updateUserSettings])
+  }, [state, userSettings, updateUserSettings])
 
   // Геттеры
   const activeTab = state.activeTab

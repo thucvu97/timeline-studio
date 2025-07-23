@@ -7,15 +7,23 @@ import { BrowserProviders } from "@/test/test-utils"
 
 import { EffectGroup } from "../../components/effect-group"
 
+// Мокаем useUserSettings
+vi.mock("@/features/user-settings/hooks/use-user-settings", () => ({
+  useUserSettings: () => ({
+    settings: {},
+    updateSettings: vi.fn(),
+  }),
+}))
+
 // Mock the EffectPreview component
 vi.mock("../../components/effect-preview", () => ({
-  EffectPreview: vi.fn(({ onClick, effectType, size, width, height }) => (
+  EffectPreview: vi.fn(({ onClick, effect, size, width, height }) => (
     <div
-      data-testid={`effect-preview-${effectType}`}
+      data-testid={`effect-preview-${effect?.type || 'undefined'}`}
       onClick={onClick}
       style={{ width: `${width}px`, height: `${height}px` }}
     >
-      Effect Preview {effectType} ({size}x{width}x{height})
+      Effect Preview {effect?.type || 'undefined'} ({size}x{width}x{height})
     </div>
   )),
 }))
@@ -42,7 +50,7 @@ vi.mock("@/features/browser/components/content-group", () => ({
 const mockEffects: VideoEffect[] = [
   {
     id: "effect-1",
-    name: "Blur Effect",
+    name: { en: "Blur Effect", ru: "Эффект размытия" },
     type: "blur",
     duration: 1000,
     category: "artistic",
@@ -56,7 +64,7 @@ const mockEffects: VideoEffect[] = [
   },
   {
     id: "effect-2",
-    name: "Brightness Effect",
+    name: { en: "Brightness Effect", ru: "Эффект яркости" },
     type: "brightness",
     duration: 1000,
     category: "color-correction",
@@ -70,7 +78,7 @@ const mockEffects: VideoEffect[] = [
   },
   {
     id: "effect-3",
-    name: "Contrast Effect",
+    name: { en: "Contrast Effect", ru: "Эффект контрастности" },
     type: "contrast",
     duration: 1000,
     category: "color-correction",

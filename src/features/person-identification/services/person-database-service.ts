@@ -302,11 +302,20 @@ export class PersonDatabaseService {
         await invoke("delete_person", { personId })
       } else {
         // Удаляем связанные данные
-        await Promise.all([
-          this.deletePersonEmbeddings(personId),
-          this.deletePersonAppearances(personId),
-          this.deletePersonDetections(personId),
-        ])
+        // Обрабатываем ошибки для каждой операции отдельно
+        const deleteOperations = [
+          this.deletePersonEmbeddings(personId).catch(err => 
+            console.warn(`Не удалось удалить эмбеддинги для ${personId}:`, err)
+          ),
+          this.deletePersonAppearances(personId).catch(err => 
+            console.warn(`Не удалось удалить появления для ${personId}:`, err)
+          ),
+          this.deletePersonDetections(personId).catch(err => 
+            console.warn(`Не удалось удалить детекции для ${personId}:`, err)
+          ),
+        ]
+        
+        await Promise.all(deleteOperations)
 
         // Удаляем саму персону
         await this.removePersonFromStore(personId)
@@ -922,68 +931,95 @@ export class PersonDatabaseService {
   }
 
   private async deletePersonEmbeddings(personId: string): Promise<void> {
-    if (!this.db) return
+    if (!this.db) {
+      // База данных не инициализирована, просто возвращаемся
+      return Promise.resolve()
+    }
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(["embeddings"], "readwrite")
-      const store = transaction.objectStore("embeddings")
-      const index = store.index("personId")
-      const request = index.openCursor(IDBKeyRange.only(personId))
+      try {
+        const transaction = this.db!.transaction(["embeddings"], "readwrite")
+        const store = transaction.objectStore("embeddings")
+        const index = store.index("personId")
+        const request = index.openCursor(IDBKeyRange.only(personId))
 
-      request.onsuccess = () => {
-        const cursor = request.result
-        if (cursor) {
-          cursor.delete()
-          cursor.continue()
-        } else {
-          resolve()
+        request.onsuccess = () => {
+          const cursor = request.result
+          if (cursor) {
+            cursor.delete()
+            cursor.continue()
+          } else {
+            resolve()
+          }
         }
+        request.onerror = () => reject(new Error(request.error?.message || "Database error"))
+      } catch (error) {
+        // Если таблица или индекс не существует, просто разрешаем промис
+        console.warn(`Не удалось удалить эмбеддинги: ${error}`)
+        resolve()
       }
-      request.onerror = () => reject(new Error(request.error?.message || "Database error"))
     })
   }
 
   private async deletePersonAppearances(personId: string): Promise<void> {
-    if (!this.db) return
+    if (!this.db) {
+      // База данных не инициализирована, просто возвращаемся
+      return Promise.resolve()
+    }
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(["appearances"], "readwrite")
-      const store = transaction.objectStore("appearances")
-      const index = store.index("personId")
-      const request = index.openCursor(IDBKeyRange.only(personId))
+      try {
+        const transaction = this.db!.transaction(["appearances"], "readwrite")
+        const store = transaction.objectStore("appearances")
+        const index = store.index("personId")
+        const request = index.openCursor(IDBKeyRange.only(personId))
 
-      request.onsuccess = () => {
-        const cursor = request.result
-        if (cursor) {
-          cursor.delete()
-          cursor.continue()
-        } else {
-          resolve()
+        request.onsuccess = () => {
+          const cursor = request.result
+          if (cursor) {
+            cursor.delete()
+            cursor.continue()
+          } else {
+            resolve()
+          }
         }
+        request.onerror = () => reject(new Error(request.error?.message || "Database error"))
+      } catch (error) {
+        // Если таблица или индекс не существует, просто разрешаем промис
+        console.warn(`Не удалось удалить появления: ${error}`)
+        resolve()
       }
-      request.onerror = () => reject(new Error(request.error?.message || "Database error"))
     })
   }
 
   private async deletePersonDetections(personId: string): Promise<void> {
-    if (!this.db) return
+    if (!this.db) {
+      // База данных не инициализирована, просто возвращаемся
+      return Promise.resolve()
+    }
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(["detections"], "readwrite")
-      const store = transaction.objectStore("detections")
-      const index = store.index("personId")
-      const request = index.openCursor(IDBKeyRange.only(personId))
+      try {
+        const transaction = this.db!.transaction(["detections"], "readwrite")
+        const store = transaction.objectStore("detections")
+        const index = store.index("personId")
+        const request = index.openCursor(IDBKeyRange.only(personId))
 
-      request.onsuccess = () => {
-        const cursor = request.result
-        if (cursor) {
-          cursor.delete()
-          cursor.continue()
-        } else {
-          resolve()
+        request.onsuccess = () => {
+          const cursor = request.result
+          if (cursor) {
+            cursor.delete()
+            cursor.continue()
+          } else {
+            resolve()
+          }
         }
+        request.onerror = () => reject(new Error(request.error?.message || "Database error"))
+      } catch (error) {
+        // Если таблица или индекс не существует, просто разрешаем промис
+        console.warn(`Не удалось удалить детекции: ${error}`)
+        resolve()
       }
-      request.onerror = () => reject(new Error(request.error?.message || "Database error"))
     })
   }
 

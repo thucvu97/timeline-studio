@@ -178,8 +178,8 @@ export function EffectParameterControls({
     // Инициализируем значениями по умолчанию из эффекта
     const defaultParams: Record<string, any> = {}
 
-    effect.parameters.forEach((param) => {
-      defaultParams[param.id] = customParams?.[param.id] ?? param.defaultValue
+    effect.parameters?.forEach((param) => {
+      defaultParams[param.id] = param.defaultValue
     })
 
     return defaultParams
@@ -211,7 +211,7 @@ export function EffectParameterControls({
   const handleReset = useCallback(() => {
     const defaultParams: Record<string, any> = {}
 
-    effect.parameters.forEach((param) => {
+    effect.parameters?.forEach((param) => {
       defaultParams[param.id] = param.defaultValue
     })
 

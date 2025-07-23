@@ -6,6 +6,10 @@ import { SubtitlePreview } from "../../components/subtitle-preview"
 import { SubtitleStyleTemplate } from "../../types/subtitles"
 
 // Мокаем дополнительные зависимости
+vi.mock("@/features/browser", () => ({
+  ApplyButton: () => <button>Применить</button>,
+}))
+
 vi.mock("@/features/browser/components/layout/apply-button", () => ({
   ApplyButton: () => <button>Применить</button>,
 }))
@@ -16,6 +20,16 @@ vi.mock("@/features/browser/components/layout/add-media-button", () => ({
 
 vi.mock("@/features/browser/components/layout/favorite-button", () => ({
   FavoriteButton: () => <button>Избранное</button>,
+}))
+
+vi.mock("@/features/resources", () => ({
+  useResources: () => ({
+    addSubtitle: vi.fn(),
+    isSubtitleAdded: vi.fn(() => false),
+    removeResource: vi.fn(),
+    subtitleResources: [],
+  }),
+  ResourcesProvider: ({ children }: { children: React.ReactNode }) => children,
 }))
 
 const mockSubtitle: SubtitleStyleTemplate = {

@@ -104,7 +104,7 @@ export function MontagePlannerProvider({ children }: MontagePlannerProviderProps
   }, [send])
 
   // Derived state
-  const context = state.context
+  const context = state?.context || {}
   const isAnalyzing = context.isAnalyzing
   const isGenerating = context.isGenerating
   const isOptimizing = context.isOptimizing

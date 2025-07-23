@@ -885,4 +885,5 @@ export class TransitionsPreviewService {
   }
 }
 
-export const transitionsPreviewService = TransitionsPreviewService.getInstance()
+// Lazy initialization to avoid SSR issues
+export const getTransitionsPreviewService = () => TransitionsPreviewService.getInstance()

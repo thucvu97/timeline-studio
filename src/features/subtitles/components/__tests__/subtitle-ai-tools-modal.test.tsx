@@ -30,6 +30,12 @@ vi.mock("@/features/timeline/hooks/use-timeline", () => ({
   })),
 }))
 
+vi.mock("@/features/app-state/hooks/use-media-files", () => ({
+  useMediaFiles: vi.fn(() => ({
+    mediaFiles: [],
+  })),
+}))
+
 vi.mock("@/features/ai-chat/services/whisper-service", () => ({
   WhisperService: {
     getInstance: vi.fn(() => ({
@@ -54,6 +60,7 @@ vi.mock("sonner", () => ({
 }))
 
 import { WhisperService } from "@/features/ai-chat/services/whisper-service"
+import { useMediaFiles } from "@/features/app-state/hooks/use-media-files"
 import { useModal } from "@/features/modals/services"
 import { useTimeline } from "@/features/timeline/hooks/use-timeline"
 
@@ -61,6 +68,7 @@ import { SubtitleAIToolsModal } from "../subtitle-ai-tools-modal"
 
 const mockedUseModal = vi.mocked(useModal)
 const mockedUseTimeline = vi.mocked(useTimeline)
+const mockedUseMediaFiles = vi.mocked(useMediaFiles)
 const mockedWhisperService = vi.mocked(WhisperService.getInstance)
 
 describe("SubtitleAIToolsModal", () => {
@@ -119,6 +127,28 @@ describe("SubtitleAIToolsModal", () => {
       project: mockProject as any,
       send: mockSend,
     } as any)
+
+    // Extract media files from mock project
+    const mediaFiles = []
+    for (const section of mockProject.sections) {
+      for (const track of section.tracks) {
+        for (const clip of track.clips) {
+          if (clip.mediaFile) {
+            mediaFiles.push({
+              id: clip.id,
+              path: clip.mediaFile.path,
+              name: clip.mediaFile.name,
+              duration: clip.duration,
+              mediaType: track.type === "video" ? "Video" : "Audio",
+            })
+          }
+        }
+      }
+    }
+
+    mockedUseMediaFiles.mockReturnValue({
+      mediaFiles: mediaFiles as any,
+    } as any)
   })
 
   it("should render the modal with description", () => {
@@ -176,6 +206,10 @@ describe("SubtitleAIToolsModal", () => {
     mockedUseTimeline.mockReturnValue({
       project: { sections: [], globalTracks: [] } as any,
       send: mockSend,
+    } as any)
+
+    mockedUseMediaFiles.mockReturnValue({
+      mediaFiles: [],
     } as any)
 
     render(<SubtitleAIToolsModal />)
@@ -425,6 +459,29 @@ describe("SubtitleAIToolsModal", () => {
     mockedUseTimeline.mockReturnValue({
       project: projectWithDuplicates as any,
       send: mockSend,
+    } as any)
+
+    // Extract media files from projectWithDuplicates
+    const mediaFilesMap = new Map()
+    for (const section of projectWithDuplicates.sections) {
+      for (const track of section.tracks) {
+        for (const clip of track.clips) {
+          if (clip.mediaFile && !mediaFilesMap.has(clip.mediaFile.path)) {
+            mediaFilesMap.set(clip.mediaFile.path, {
+              id: clip.id,
+              path: clip.mediaFile.path,
+              name: clip.mediaFile.name,
+              duration: clip.duration,
+              mediaType: track.type === "video" ? "Video" : "Audio",
+            })
+          }
+        }
+      }
+    }
+    const mediaFiles = Array.from(mediaFilesMap.values())
+
+    mockedUseMediaFiles.mockReturnValue({
+      mediaFiles: mediaFiles as any,
     } as any)
 
     render(<SubtitleAIToolsModal />)

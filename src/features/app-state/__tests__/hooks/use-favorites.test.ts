@@ -3,26 +3,13 @@ import { describe, expect, it, vi } from "vitest"
 
 import { useFavorites } from "../../hooks/use-favorites"
 
-// Мокаем useAppSettings
-const mockFavorites = {
-  effects: [],
-  filters: [],
-  transitions: [],
-  titles: [],
-  colors: [],
-  audio: [],
-  emoji: [],
-}
+// Мокаем useApp
+const mockExecuteCommand = vi.fn()
 
-const mockAppSettings = {
-  getFavorites: vi.fn(() => mockFavorites),
-  updateFavorites: vi.fn(),
-  addToFavorites: vi.fn(),
-  removeFromFavorites: vi.fn(),
-}
-
-vi.mock("../../hooks/use-app-settings", () => ({
-  useAppSettings: () => mockAppSettings,
+vi.mock("../../services/app-provider", () => ({
+  useApp: () => ({
+    executeCommand: mockExecuteCommand,
+  }),
 }))
 
 describe("useFavorites", () => {
@@ -33,75 +20,96 @@ describe("useFavorites", () => {
   it("должен возвращать объект избранных элементов", () => {
     const { result } = renderHook(() => useFavorites())
 
-    expect(result.current.favorites).toEqual(mockFavorites)
-    expect(mockAppSettings.getFavorites).toHaveBeenCalled()
+    expect(result.current.favorites).toEqual({
+      transition: [],
+      effect: [],
+      template: [],
+      filter: [],
+      subtitle: [],
+      media: [],
+      audio: [],
+    })
   })
 
-  it("должен предоставлять метод обновления избранных", () => {
+  it("должен предоставлять метод обновления избранных", async () => {
     const { result } = renderHook(() => useFavorites())
 
     const newFavorites = {
-      ...mockFavorites,
-      effects: [{ id: "effect1", name: "Blur" }],
+      transition: [],
+      effect: [{ id: "effect1", name: "Blur" }],
+      template: [],
+      filter: [],
+      subtitle: [],
+      media: [],
+      audio: [],
     }
 
-    act(() => {
-      result.current.updateFavorites(newFavorites)
+    await act(async () => {
+      await result.current.updateFavorites(newFavorites)
     })
 
-    expect(mockAppSettings.updateFavorites).toHaveBeenCalledWith(newFavorites)
+    expect(result.current.favorites).toEqual(newFavorites)
   })
 
-  it("должен предоставлять метод добавления в избранное", () => {
+  it("должен предоставлять метод добавления в избранное", async () => {
     const { result } = renderHook(() => useFavorites())
 
     const newItem = { id: "filter1", name: "Sepia" }
 
-    act(() => {
-      result.current.addToFavorites(newItem, "filters")
+    await act(async () => {
+      await result.current.addToFavorites(newItem, "filter")
     })
 
-    expect(mockAppSettings.addToFavorites).toHaveBeenCalledWith(newItem, "filters")
+    expect(result.current.favorites.filter).toContainEqual(newItem)
   })
 
-  it("должен предоставлять метод удаления из избранного", () => {
+  it("должен предоставлять метод удаления из избранного", async () => {
     const { result } = renderHook(() => useFavorites())
-
-    act(() => {
-      result.current.removeFromFavorites("effect1", "effects")
+    
+    // Сначала добавляем элемент
+    const item = { id: "effect1", name: "Blur" }
+    await act(async () => {
+      await result.current.addToFavorites(item, "effect")
+    })
+    
+    expect(result.current.favorites.effect).toContainEqual(item)
+    
+    // Затем удаляем
+    await act(async () => {
+      await result.current.removeFromFavorites(item, "effect")
     })
 
-    expect(mockAppSettings.removeFromFavorites).toHaveBeenCalledWith("effect1", "effects")
+    expect(result.current.favorites.effect).not.toContainEqual(item)
   })
 
-  it("должен проверять, является ли элемент избранным", () => {
-    const favoritesWithItems = {
-      ...mockFavorites,
-      effects: [
-        { id: "effect1", name: "Blur" },
-        { id: "effect2", name: "Sharpen" },
-      ],
-      filters: [{ id: "filter1", name: "Sepia" }],
-    }
-
-    mockAppSettings.getFavorites.mockReturnValue(favoritesWithItems)
-
+  it("должен проверять, является ли элемент избранным", async () => {
     const { result } = renderHook(() => useFavorites())
+    
+    // Добавляем элементы
+    const effect1 = { id: "effect1", name: "Blur" }
+    const effect2 = { id: "effect2", name: "Sharpen" }
+    const filter1 = { id: "filter1", name: "Sepia" }
+    
+    await act(async () => {
+      await result.current.addToFavorites(effect1, "effect")
+      await result.current.addToFavorites(effect2, "effect")
+      await result.current.addToFavorites(filter1, "filter")
+    })
 
     // Проверяем избранный элемент
-    expect(result.current.isItemFavorite({ id: "effect1" }, "effects")).toBe(true)
-    expect(result.current.isItemFavorite({ id: "filter1" }, "filters")).toBe(true)
+    expect(result.current.isItemFavorite({ id: "effect1" }, "effect")).toBe(true)
+    expect(result.current.isItemFavorite({ id: "filter1" }, "filter")).toBe(true)
 
     // Проверяем не избранный элемент
-    expect(result.current.isItemFavorite({ id: "effect3" }, "effects")).toBe(false)
-    expect(result.current.isItemFavorite({ id: "filter2" }, "filters")).toBe(false)
+    expect(result.current.isItemFavorite({ id: "effect3" }, "effect")).toBe(false)
+    expect(result.current.isItemFavorite({ id: "filter2" }, "filter")).toBe(false)
   })
 
   it("должен корректно работать с пустым типом избранного", () => {
     const { result } = renderHook(() => useFavorites())
 
-    // Когда тип не существует в favorites, some вызывается на undefined и возвращает undefined
-    expect(result.current.isItemFavorite({ id: "any" }, "nonExistentType")).toBe(undefined)
+    // Когда тип не существует в favorites, возвращается false
+    expect(result.current.isItemFavorite({ id: "any" }, "nonExistentType")).toBe(false)
   })
 
   it("должен корректно работать с элементами без id", () => {
@@ -110,32 +118,24 @@ describe("useFavorites", () => {
     expect(result.current.isItemFavorite({ name: "NoId" }, "effects")).toBe(false)
   })
 
-  it("должен обновлять isItemFavorite при изменении избранных", () => {
-    const favorites1 = {
-      ...mockFavorites,
-      effects: [{ id: "effect1", name: "Blur" }],
-    }
+  it("должен обновлять isItemFavorite при изменении избранных", async () => {
+    const { result } = renderHook(() => useFavorites())
+    
+    const effect1 = { id: "effect1", name: "Blur" }
+    const effect2 = { id: "effect2", name: "Sharpen" }
 
-    const favorites2 = {
-      ...mockFavorites,
-      effects: [
-        { id: "effect1", name: "Blur" },
-        { id: "effect2", name: "Sharpen" },
-      ],
-    }
+    // Добавляем первый эффект
+    await act(async () => {
+      await result.current.addToFavorites(effect1, "effect")
+    })
 
-    mockAppSettings.getFavorites.mockReturnValue(favorites1)
+    expect(result.current.isItemFavorite({ id: "effect2" }, "effect")).toBe(false)
 
-    const { result, rerender } = renderHook(() => useFavorites())
+    // Добавляем второй эффект
+    await act(async () => {
+      await result.current.addToFavorites(effect2, "effect")
+    })
 
-    expect(result.current.isItemFavorite({ id: "effect2" }, "effects")).toBe(false)
-
-    // Меняем возвращаемое значение
-    mockAppSettings.getFavorites.mockReturnValue(favorites2)
-
-    // Перерендериваем хук
-    rerender()
-
-    expect(result.current.isItemFavorite({ id: "effect2" }, "effects")).toBe(true)
+    expect(result.current.isItemFavorite({ id: "effect2" }, "effect")).toBe(true)
   })
 })

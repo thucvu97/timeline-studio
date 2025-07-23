@@ -43,30 +43,28 @@ const MediaPreviewWrapper: React.FC<PreviewComponentProps<MediaFile>> = ({ item:
  * Хук для создания адаптера медиафайлов с использованием React хуков
  */
 export function useMediaAdapter(): ListAdapter<MediaFile> {
-  const { isLoading, getError, state } = useAppSettings()
+  const { connectionError, projectState } = useAppSettings()
   const { isItemFavorite } = useFavorites()
   const { importFile, importFolder, isImporting } = useMediaImport()
 
   const allMediaFiles = useMemo(
     () =>
-      (state.context.mediaFiles.allFiles || []).map((file) => ({
+      (projectState?.mediaFiles?.allFiles || []).map((file) => ({
         ...file,
         isLoadingMetadata: false, // Force isLoadingMetadata to false for all files
       })),
-    [state.context.mediaFiles.allFiles],
+    [projectState?.mediaFiles?.allFiles],
   )
-  const error = getError()
 
-  // Используем isLoading из mediaFiles, а не глобальный isLoading
-  // Показываем загрузку только если действительно загружаются настройки приложения (при старте)
-  const mediaLoading = isLoading() ? true : state.context.mediaFiles.isLoading
+  // V2 не использует общий loading состояние, используем состояние импорта
+  const mediaLoading = isImporting
 
   return {
     // Хук для получения данных
     useData: () => ({
       items: allMediaFiles,
       loading: mediaLoading,
-      error,
+      error: connectionError,
     }),
 
     // Компонент превью

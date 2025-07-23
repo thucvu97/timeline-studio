@@ -25,14 +25,30 @@ vi.mock("@/features/modals/services/modal-provider", () => ({
   ModalProvider: ({ children }: any) => children,
 }))
 
-// Мокаем AppSettingsProvider и связанные хуки
+// Мокаем AppProvider и связанные хуки
+vi.mock("@/features/app-state/services/app-provider", () => ({
+  AppProvider: ({ children }: any) => children,
+  useApp: vi.fn(() => ({
+    projectState: { project: null },
+    executeCommand: vi.fn(),
+    isConnected: true,
+    isConnecting: false,
+    connectionError: null,
+  })),
+}))
+
 vi.mock("@/features/app-state", () => ({
-  AppSettingsProvider: ({ children }: any) => children,
   useFavorites: vi.fn(() => ({
     isItemFavorite: vi.fn(() => false),
   })),
-  useAppSettings: vi.fn(() => ({
-    getMusicFiles: vi.fn(() => ({ allFiles: [] })),
+}))
+
+vi.mock("@/features/app-state/hooks/use-music-files", () => ({
+  useMusicFiles: vi.fn(() => ({
+    musicFiles: [],
+    addMusicFile: vi.fn(),
+    removeMusicFile: vi.fn(),
+    updateMusicFile: vi.fn(),
   })),
 }))
 
