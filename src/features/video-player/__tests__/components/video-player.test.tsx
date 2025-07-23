@@ -275,7 +275,7 @@ describe("VideoPlayer", () => {
       expect(videoInitial).toHaveAttribute("src", "#")
 
       // Устанавливаем видео
-      mockPlayerContext.video = {
+      mockPlayerContext.currentVideo = {
         id: "new-video",
         path: "/new/video.mp4",
         name: "New Video.mp4",
@@ -292,7 +292,7 @@ describe("VideoPlayer", () => {
     })
 
     it("должен возвращаться к пустому состоянию при удалении видео", () => {
-      mockPlayerContext.video = {
+      mockPlayerContext.currentVideo = {
         id: "temp-video",
         path: "/temp/video.mp4",
         name: "Temp Video.mp4",
@@ -307,7 +307,7 @@ describe("VideoPlayer", () => {
       expect(videoWithFile).toHaveAttribute("src", "/temp/video.mp4")
 
       // Удаляем видео
-      mockPlayerContext.video = null
+      mockPlayerContext.currentVideo = null
 
       rerender(<VideoPlayer />)
 
