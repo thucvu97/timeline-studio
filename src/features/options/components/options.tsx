@@ -18,6 +18,7 @@ const TABS: Array<{ id: OptionsTab; labelKey: string; icon: JSX.Element }> = [
   { id: "color", labelKey: "options.tabs.color", icon: <Palette /> },
   { id: "speed", labelKey: "options.tabs.speed", icon: <Gauge /> },
   { id: "audio", labelKey: "options.tabs.audio", icon: <AudioLines /> },
+  // { id: "info", labelKey: "options.tabs.info", icon: <Info /> },
 ];
 
 export interface OptionsProps {
