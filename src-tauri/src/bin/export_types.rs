@@ -10,10 +10,10 @@ fn main() {
       std::fs::create_dir_all("../src/types/generated").ok();
 
       match std::fs::write(path, typescript_code) {
-        Ok(_) => println!("Types exported successfully to {}", path),
-        Err(e) => eprintln!("Failed to write file: {}", e),
+        Ok(_) => println!("Types exported successfully to {path}"),
+        Err(e) => eprintln!("Failed to write file: {e}"),
       }
     }
-    Err(e) => eprintln!("Failed to export types: {}", e),
+    Err(e) => eprintln!("Failed to export types: {e}"),
   }
 }
