@@ -9,8 +9,8 @@ import { useAudioPermissions } from "../../hooks/use-audio-permissions"
 const mockGetUserMedia = vi.fn()
 const mockPermissionsQuery = vi.fn()
 
-// Сохраняем оригинальное значение NODE_ENV
-const originalNodeEnv = process.env.NODE_ENV
+// Сохраняем оригинальный process.env
+const originalProcessEnv = process.env
 
 beforeEach(() => {
   vi.resetAllMocks()
@@ -41,12 +41,8 @@ beforeEach(() => {
     writable: true,
   })
 
-  // Устанавливаем NODE_ENV в test через Object.defineProperty
-  Object.defineProperty(process.env, "NODE_ENV", {
-    value: "test",
-    writable: true,
-    configurable: true,
-  })
+  // Мокаем NODE_ENV для тестов
+  vi.stubEnv("NODE_ENV", "test")
 })
 
 describe("useAudioPermissions", () => {
@@ -123,20 +119,12 @@ describe("useAudioPermissions", () => {
   describe("Проверка разрешений (не в тестовой среде)", () => {
     beforeEach(() => {
       // Убираем тестовую среду для проверки реальной логики
-      Object.defineProperty(process.env, "NODE_ENV", {
-        value: undefined,
-        writable: true,
-        configurable: true,
-      })
+      vi.stubEnv("NODE_ENV", undefined)
     })
 
     afterEach(() => {
       // Восстанавливаем тестовую среду
-      Object.defineProperty(process.env, "NODE_ENV", {
-        value: "test",
-        writable: true,
-        configurable: true,
-      })
+      vi.stubEnv("NODE_ENV", "test")
     })
 
     it("должен обрабатывать отсутствие MediaDevices API", async () => {
@@ -385,11 +373,7 @@ describe("useAudioPermissions", () => {
   })
 })
 
-// Отдельный afterEach для восстановления NODE_ENV
+// Отдельный afterEach для восстановления окружения
 afterEach(() => {
-  Object.defineProperty(process.env, "NODE_ENV", {
-    value: originalNodeEnv,
-    writable: true,
-    configurable: true,
-  })
+  vi.unstubAllEnvs()
 })
