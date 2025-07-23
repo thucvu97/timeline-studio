@@ -3,10 +3,11 @@ import React from "react"
 import { act, renderHook } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
+import type { MediaItem } from "@/types/generated/tauri-bindings"
+
 import { useMusicFiles } from "../../hooks/use-music-files"
 import { AppProvider } from "../../services/app-provider"
 
-import type { MediaItem } from "@/types/generated/tauri-bindings"
 
 // Мокаем backend-sync и app provider
 const mockMusicFiles: MediaItem[] = [
@@ -82,7 +83,7 @@ const mockProjectState = {
             bitrate: 5000,
           },
           usage_count: 0,
-    thumbnail: null,
+          thumbnail: null,
         },
       },
     },

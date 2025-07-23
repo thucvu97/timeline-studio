@@ -55,8 +55,9 @@ vi.mock("../../components/volume-slider", () => ({
 // Мокаем хуки
 const mockPlayerContext = {
   isPlaying: false,
-  setIsPlaying: vi.fn(),
-  setCurrentTime: vi.fn(),
+  play: vi.fn().mockResolvedValue(undefined),
+  pause: vi.fn().mockResolvedValue(undefined),
+  seek: vi.fn().mockResolvedValue(undefined),
   volume: 0.75,
   setVolume: vi.fn(),
   isRecording: false,
@@ -161,7 +162,7 @@ describe("PlayerControls", () => {
       const playButton = screen.getByTitle("timeline.controls.play")
       fireEvent.click(playButton)
 
-      expect(mockPlayerContext.setIsPlaying).toHaveBeenCalledWith(true)
+      expect(mockPlayerContext.play).toHaveBeenCalled()
     })
 
     it("должен переключать паузу при воспроизведении", () => {
@@ -171,7 +172,7 @@ describe("PlayerControls", () => {
       const pauseButton = screen.getByTitle("timeline.controls.pause")
       fireEvent.click(pauseButton)
 
-      expect(mockPlayerContext.setIsPlaying).toHaveBeenCalledWith(false)
+      expect(mockPlayerContext.pause).toHaveBeenCalled()
     })
 
     it("должен переключать запись", () => {
@@ -202,7 +203,7 @@ describe("PlayerControls", () => {
       const slider = screen.getByTestId("slider")
       fireEvent.change(slider, { target: { value: "60" } })
 
-      expect(mockPlayerContext.setCurrentTime).toHaveBeenCalledWith(60)
+      expect(mockPlayerContext.seek).toHaveBeenCalledWith(60)
     })
 
     it("должен устанавливать isSeeking при начале перемещения", () => {
@@ -213,7 +214,7 @@ describe("PlayerControls", () => {
       fireEvent.change(slider, { target: { value: "30" } })
 
       expect(mockPlayerContext.setIsSeeking).toHaveBeenCalledWith(true)
-      expect(mockPlayerContext.setCurrentTime).toHaveBeenCalledWith(30)
+      expect(mockPlayerContext.seek).toHaveBeenCalledWith(30)
     })
 
     it("должен правильно отображать время файла", () => {

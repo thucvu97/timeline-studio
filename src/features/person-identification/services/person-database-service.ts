@@ -304,13 +304,13 @@ export class PersonDatabaseService {
         // Удаляем связанные данные
         // Обрабатываем ошибки для каждой операции отдельно
         const deleteOperations = [
-          this.deletePersonEmbeddings(personId).catch(err => 
+          this.deletePersonEmbeddings(personId).catch((err: unknown) => 
             console.warn(`Не удалось удалить эмбеддинги для ${personId}:`, err)
           ),
-          this.deletePersonAppearances(personId).catch(err => 
+          this.deletePersonAppearances(personId).catch((err: unknown) => 
             console.warn(`Не удалось удалить появления для ${personId}:`, err)
           ),
-          this.deletePersonDetections(personId).catch(err => 
+          this.deletePersonDetections(personId).catch((err: unknown) => 
             console.warn(`Не удалось удалить детекции для ${personId}:`, err)
           ),
         ]
@@ -955,7 +955,7 @@ export class PersonDatabaseService {
         request.onerror = () => reject(new Error(request.error?.message || "Database error"))
       } catch (error) {
         // Если таблица или индекс не существует, просто разрешаем промис
-        console.warn(`Не удалось удалить эмбеддинги: ${error}`)
+        console.warn(`Не удалось удалить эмбеддинги: ${String(error)}`)
         resolve()
       }
     })
@@ -986,7 +986,7 @@ export class PersonDatabaseService {
         request.onerror = () => reject(new Error(request.error?.message || "Database error"))
       } catch (error) {
         // Если таблица или индекс не существует, просто разрешаем промис
-        console.warn(`Не удалось удалить появления: ${error}`)
+        console.warn(`Не удалось удалить появления: ${String(error)}`)
         resolve()
       }
     })
@@ -1017,7 +1017,7 @@ export class PersonDatabaseService {
         request.onerror = () => reject(new Error(request.error?.message || "Database error"))
       } catch (error) {
         // Если таблица или индекс не существует, просто разрешаем промис
-        console.warn(`Не удалось удалить детекции: ${error}`)
+        console.warn(`Не удалось удалить детекции: ${String(error)}`)
         resolve()
       }
     })

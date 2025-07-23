@@ -3,10 +3,11 @@ import React from "react"
 import { act, renderHook } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
+import type { MediaItem } from "@/types/generated/tauri-bindings"
+
 import { useMediaFiles } from "../../hooks/use-media-files"
 import { AppProvider } from "../../services/app-provider"
 
-import type { MediaItem } from "@/types/generated/tauri-bindings"
 
 // Мокаем backend-sync и app provider
 const mockMediaFiles: MediaItem[] = [

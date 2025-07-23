@@ -55,11 +55,13 @@ describe("PrerenderControls", () => {
   }
 
   const mockPlayerState = {
-    prerenderEnabled: true,
-    prerenderQuality: 80,
-    prerenderSegmentDuration: 5,
-    prerenderApplyEffects: true,
-    prerenderAutoPrerender: false,
+    prerenderSettings: {
+      prerenderEnabled: true,
+      prerenderQuality: 80,
+      prerenderSegmentDuration: 5,
+      prerenderApplyEffects: true,
+      prerenderAutoPrerender: false,
+    },
     setPrerenderSettings: vi.fn(),
   }
 
@@ -139,7 +141,10 @@ describe("PrerenderControls", () => {
     it("should not show primary styling when disabled", () => {
       mockUsePlayer.mockReturnValue({
         ...mockPlayerState,
-        prerenderEnabled: false,
+        prerenderSettings: {
+          ...mockPlayerState.prerenderSettings,
+          prerenderEnabled: false,
+        },
       } as any)
 
       render(<PrerenderControls {...defaultProps} />)
@@ -162,6 +167,8 @@ describe("PrerenderControls", () => {
     })
 
     it("should show all settings when enabled", () => {
+      render(<PrerenderControls {...defaultProps} />)
+      
       expect(screen.getByText("Включить пререндер")).toBeInTheDocument()
       expect(screen.getByText("Качество")).toBeInTheDocument()
       expect(screen.getByText("80%")).toBeInTheDocument()
@@ -172,6 +179,8 @@ describe("PrerenderControls", () => {
     })
 
     it("should show action buttons", () => {
+      render(<PrerenderControls {...defaultProps} />)
+      
       expect(screen.getByText("Пререндер текущего сегмента")).toBeInTheDocument()
       expect(screen.getByText(/Очистить кеш.*3 файлов.*3.0 МБ/)).toBeInTheDocument()
     })
@@ -181,7 +190,10 @@ describe("PrerenderControls", () => {
     beforeEach(() => {
       mockUsePlayer.mockReturnValue({
         ...mockPlayerState,
-        prerenderEnabled: false,
+        prerenderSettings: {
+          ...mockPlayerState.prerenderSettings,
+          prerenderEnabled: false,
+        },
       } as any)
     })
 
@@ -213,6 +225,8 @@ describe("PrerenderControls", () => {
     })
 
     it("should update enabled setting", async () => {
+      render(<PrerenderControls {...defaultProps} />)
+      
       const enableSwitch = screen.getByLabelText("Включить пререндер")
       fireEvent.click(enableSwitch)
 
@@ -234,6 +248,8 @@ describe("PrerenderControls", () => {
     })
 
     it("should update apply effects setting", async () => {
+      render(<PrerenderControls {...defaultProps} />)
+      
       const effectsSwitch = screen.getByLabelText("Применять эффекты")
       fireEvent.click(effectsSwitch)
 
@@ -247,6 +263,8 @@ describe("PrerenderControls", () => {
     })
 
     it("should update auto prerender setting", async () => {
+      render(<PrerenderControls {...defaultProps} />)
+      
       const autoSwitch = screen.getByLabelText("Автоматический")
       fireEvent.click(autoSwitch)
 
@@ -273,6 +291,8 @@ describe("PrerenderControls", () => {
     })
 
     it("should execute prerender for current segment", async () => {
+      render(<PrerenderControls {...defaultProps} />)
+      
       const prerenderButton = screen.getByText("Пререндер текущего сегмента")
       fireEvent.click(prerenderButton)
 
@@ -291,6 +311,8 @@ describe("PrerenderControls", () => {
     })
 
     it("should clear cache", async () => {
+      render(<PrerenderControls {...defaultProps} />)
+      
       const clearButton = screen.getByText(/Очистить кеш/)
       fireEvent.click(clearButton)
 

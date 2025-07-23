@@ -48,12 +48,12 @@ vi.mock("@/features/project-settings", () => ({
 }))
 
 const mockPlayerContext = {
-  video: null as MediaFile | null,
+  currentVideo: null as MediaFile | null,
   isPlaying: false,
   currentTime: 0,
   duration: 0,
   volume: 100,
-  currentPlaybackRate: 1,
+  playbackRate: 1,
   appliedEffects: [],
   appliedFilters: [],
   appliedTemplate: null,
@@ -62,11 +62,11 @@ const mockPlayerContext = {
   isVideoLoading: false,
   isVideoReady: true,
   isSeeking: false,
-  speedRampingEnabled: false,
-  setIsPlaying: vi.fn(),
-  setCurrentTime: vi.fn(),
+  play: vi.fn().mockResolvedValue(undefined),
+  pause: vi.fn().mockResolvedValue(undefined),
+  seek: vi.fn().mockResolvedValue(undefined),
   setVolume: vi.fn(),
-  updatePlaybackRate: vi.fn(),
+  setPlaybackRate: vi.fn().mockResolvedValue(undefined),
   applyEffect: vi.fn(),
   applyFilter: vi.fn(),
   applyTemplate: vi.fn(),
@@ -95,7 +95,7 @@ vi.mock("@/features/ai-chat/hooks/use-player-ai-integration", () => ({
 describe("VideoPlayer", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mockPlayerContext.video = null
+    mockPlayerContext.currentVideo = null
     mockPlayerContext.previewMedia = null
     mockPlayerContext.appliedEffects = []
     mockPlayerContext.appliedFilters = []
@@ -153,7 +153,7 @@ describe("VideoPlayer", () => {
     }
 
     beforeEach(() => {
-      mockPlayerContext.video = mockVideo
+      mockPlayerContext.currentVideo = mockVideo
     })
 
     it("должен отображать видео с правильным src", () => {
