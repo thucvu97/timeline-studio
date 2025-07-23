@@ -1,3 +1,4 @@
+import type { MediaFile } from "@/features/media/types/media"
 import type { MediaItem } from "@/types/generated/tauri-bindings"
 
 import { useApp } from "../services/app-provider"
@@ -40,10 +41,26 @@ export function useMediaFiles() {
     })
   }
 
+  // Массовое обновление медиа-файлов
+  const updateMediaFiles = async (files: MediaFile[]) => {
+    // Добавляем файлы по одному через команды
+    for (const file of files) {
+      const mediaType = file.isVideo ? "Video" : file.isAudio ? "Audio" : "Image"
+      executeCommand({
+        type: "AddMedia",
+        params: { 
+          path: file.path, 
+          media_type: mediaType
+        }
+      })
+    }
+  }
+
   return {
     mediaFiles,
     addMediaFile,
     removeMediaFile,
     updateMediaFile,
+    updateMediaFiles,
   }
 }

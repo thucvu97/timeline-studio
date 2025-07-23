@@ -65,6 +65,7 @@ interface ResourcesContextType {
   getResourceById: (resourceId: string) => TimelineResource | undefined
   getResourcesByType: (type: string) => TimelineResource[]
   isMusicAdded: (file: MediaFile) => boolean
+  isSubtitleAdded: (style: SubtitleStyleTemplate) => boolean
 }
 
 const ResourcesContextV2 = createContext<ResourcesContextType | undefined>(undefined)
@@ -334,6 +335,9 @@ export function ResourcesProviderV2({ children }: ResourcesProviderV2Props) {
     getResourcesByType,
     isMusicAdded: (file: MediaFile) => {
       return musicResources.some(resource => resource.data.path === file.path)
+    },
+    isSubtitleAdded: (style: SubtitleStyleTemplate) => {
+      return subtitleResources.some(resource => resource.data.id === style.id)
     },
   }
 

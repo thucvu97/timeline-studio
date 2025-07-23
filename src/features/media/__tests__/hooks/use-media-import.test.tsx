@@ -17,10 +17,12 @@ vi.mock("@/features/app-state", async () => {
   const actual = await vi.importActual("@/features/app-state")
   return {
     ...actual,
-    useAppSettings: vi.fn(() => ({
+    useMediaFiles: vi.fn(() => ({
+      mediaFiles: [],
+      addMediaFile: vi.fn(),
+      removeMediaFile: vi.fn(), 
+      updateMediaFile: vi.fn(),
       updateMediaFiles: mockUpdateMediaFiles,
-      getUserSettings: vi.fn(),
-      getCurrentProject: vi.fn(),
     })),
     useCurrentProject: vi.fn(() => ({
       currentProject: { path: "/test/project", name: "Test", isDirty: false, isNew: false },

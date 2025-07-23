@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react"
 
-import { useAppSettings } from "@/features/app-state"
+import { useMediaFiles } from "@/features/app-state"
 import { useCurrentProject } from "@/features/app-state/hooks/use-current-project"
 import { selectMediaDirectory, selectMediaFile } from "@/features/media"
 import { useMediaPreview } from "@/features/media/hooks/use-media-preview"
@@ -23,7 +23,7 @@ interface ImportResult {
  * Использует события от backend для обновления файлов по мере готовности
  */
 export function useMediaImport() {
-  const { updateMediaFiles } = useAppSettings()
+  const { updateMediaFiles } = useMediaFiles()
   const { currentProject, setProjectDirty } = useCurrentProject()
   const { addMedia } = useResources()
   const [isImporting, setIsImporting] = useState(false)
@@ -76,7 +76,7 @@ export function useMediaImport() {
         const basicFiles = discoveredFiles.map((file) => createBasicMediaFile(file.path, file.size))
 
         // Обновляем файлы в контексте
-        updateMediaFiles(basicFiles)
+        void updateMediaFiles(basicFiles)
 
         // Добавляем файлы в ресурсы для синхронизации с проектом
         basicFiles.forEach((file) => {
@@ -99,7 +99,7 @@ export function useMediaImport() {
         }
 
         // Обновляем в контексте только этот файл
-        updateMediaFiles([updatedFile])
+        void updateMediaFiles([updatedFile])
 
         // Обновляем файл в ресурсах для синхронизации с проектом
         void addMedia(updatedFile)
@@ -186,7 +186,7 @@ export function useMediaImport() {
       const basicFiles = selectedFiles.map((filePath) => createBasicMediaFile(filePath))
 
       // Обновляем контекст
-      updateMediaFiles(basicFiles)
+      void updateMediaFiles(basicFiles)
 
       // Добавляем файлы в ресурсы для синхронизации с проектом
       basicFiles.forEach((file) => {
@@ -209,7 +209,7 @@ export function useMediaImport() {
           isLoadingMetadata: false,
         }))
 
-        updateMediaFiles(filesWithMetadata)
+        void updateMediaFiles(filesWithMetadata)
 
         // Добавляем обработанные файлы в ресурсы
         filesWithMetadata.forEach((file) => {
@@ -277,7 +277,7 @@ export function useMediaImport() {
           }))
 
           // Обновляем файлы в контексте
-          updateMediaFiles(filesWithMetadata)
+          void updateMediaFiles(filesWithMetadata)
 
           // Добавляем файлы в ресурсы
           filesWithMetadata.forEach((file) => {

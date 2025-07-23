@@ -218,7 +218,7 @@ export function useAutoLoadMedia() {
 
       // Обновляем состояние только если есть изменения
       if (processedMedia.length > 0) {
-        updateMediaFiles(processedMedia)
+        void updateMediaFiles(processedMedia)
       }
       if (processedMusic.length > 0) {
         void updateMusicFiles(processedMusic)
