@@ -47,8 +47,9 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
   const { t } = useTranslation()
   const {
     isPlaying,
-    setIsPlaying,
-    setCurrentTime,
+    play,
+    pause,
+    seek,
     volume,
     setVolume,
     isRecording,
@@ -112,10 +113,10 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
     (value: number[]) => {
       const newTime = value[0]
       setLocalDisplayTime(newTime)
-      setCurrentTime(newTime)
+      seek(newTime).catch(console.error)
       setIsSeeking(true)
     },
-    [setLocalDisplayTime, setCurrentTime, setIsSeeking],
+    [setLocalDisplayTime, seek, setIsSeeking],
   )
 
   const handleRecordToggle = useCallback(() => {
@@ -123,36 +124,40 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
   }, [isRecording, setIsRecording])
 
   const handlePlayPause = useCallback(() => {
-    setIsPlaying(!isPlaying)
-  }, [isPlaying, setIsPlaying])
+    if (isPlaying) {
+      pause().catch(console.error)
+    } else {
+      play().catch(console.error)
+    }
+  }, [isPlaying, play, pause])
 
   const handleSkipForward = useCallback(() => {
     const newTime = Math.min(currentTime + frameTime, file.endTime ?? file.duration ?? 0)
     setLocalDisplayTime(newTime)
-    setCurrentTime(newTime)
+    seek(newTime).catch(console.error)
     setIsSeeking(true)
-  }, [currentTime, frameTime, file.endTime, file.duration, setLocalDisplayTime, setCurrentTime, setIsSeeking])
+  }, [currentTime, frameTime, file.endTime, file.duration, setLocalDisplayTime, seek, setIsSeeking])
 
   const handleSkipBackward = useCallback(() => {
     const newTime = Math.max(currentTime - frameTime, file.startTime ?? 0)
     setLocalDisplayTime(newTime)
-    setCurrentTime(newTime)
+    seek(newTime).catch(console.error)
     setIsSeeking(true)
-  }, [currentTime, frameTime, file.startTime, setLocalDisplayTime, setCurrentTime, setIsSeeking])
+  }, [currentTime, frameTime, file.startTime, setLocalDisplayTime, seek, setIsSeeking])
 
   const handleChevronFirst = useCallback(() => {
     const newTime = file.startTime ?? 0
     setLocalDisplayTime(newTime)
-    setCurrentTime(newTime)
+    seek(newTime).catch(console.error)
     setIsSeeking(true)
-  }, [file.startTime, setLocalDisplayTime, setCurrentTime, setIsSeeking])
+  }, [file.startTime, setLocalDisplayTime, seek, setIsSeeking])
 
   const handleChevronLast = useCallback(() => {
     const newTime = file.endTime ?? 0
     setLocalDisplayTime(newTime)
-    setCurrentTime(newTime)
+    seek(newTime).catch(console.error)
     setIsSeeking(true)
-  }, [file.endTime, setLocalDisplayTime, setCurrentTime, setIsSeeking])
+  }, [file.endTime, setLocalDisplayTime, seek, setIsSeeking])
 
   // Функция для переключения звука (вкл/выкл)
   const handleToggleMute = useCallback(() => {

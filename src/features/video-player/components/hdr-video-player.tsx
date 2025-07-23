@@ -42,7 +42,7 @@ export function HDRVideoPlayer() {
   const {
     settings: { aspectRatio },
   } = useProjectSettings()
-  const { video, currentTime } = usePlayer()
+  const { currentVideo: video, currentTime } = usePlayer()
 
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)

@@ -43,11 +43,13 @@ export function PrerenderControls({ currentTime, duration, onSettingsChange }: P
   const { clearCache, cacheSize, totalCacheSize } = usePrerenderCache()
   const { project } = useTimeline()
   const {
-    prerenderEnabled,
-    prerenderQuality,
-    prerenderSegmentDuration,
-    prerenderApplyEffects,
-    prerenderAutoPrerender,
+    prerenderSettings: {
+      prerenderEnabled,
+      prerenderQuality,
+      prerenderSegmentDuration,
+      prerenderApplyEffects,
+      prerenderAutoPrerender,
+    },
     setPrerenderSettings,
   } = usePlayer()
 

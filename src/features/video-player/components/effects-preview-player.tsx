@@ -48,7 +48,7 @@ export function EffectsPreviewPlayer() {
   const {
     settings: { aspectRatio },
   } = useProjectSettings()
-  const { video, currentTime } = usePlayer()
+  const { currentVideo: video, currentTime } = usePlayer()
 
   const videoRef = useRef<HTMLVideoElement>(null)
   const effectsCanvasRef = useRef<HTMLCanvasElement>(null)
@@ -73,12 +73,23 @@ export function EffectsPreviewPlayer() {
   const mockClip: TimelineClip = {
     id: "demo-clip",
     name: "Demo Clip",
-    type: "video",
+    mediaId: video?.id || "preview-media",
+    mediaFile: video || undefined,
+    trackId: "preview-track",
     startTime: 0,
     duration: 10,
-    trackOrder: 0,
-    mediaFile: video,
-    effects: activeEffects.map((effect) => ({
+    mediaStartTime: 0,
+    mediaEndTime: 10,
+    offset: 0,
+    volume: 1.0,
+    speed: 1.0,
+    isReversed: false,
+    opacity: 1.0,
+    isSelected: false,
+    isLocked: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    effects: activeEffects.map((effect, index) => ({
       id: `${effect.effectId}-${Date.now()}`,
       effectId: effect.effectId,
       enabled: effect.enabled,
@@ -86,7 +97,10 @@ export function EffectsPreviewPlayer() {
       intensity: effect.intensity,
       startTime: 0,
       endTime: 10,
+      order: index,
     })),
+    filters: [],
+    transitions: [],
   }
 
   // Вычисляем соотношение сторон
@@ -221,7 +235,7 @@ export function EffectsPreviewPlayer() {
         <div className="flex items-center justify-between">
           <h4 className="font-medium text-white capitalize">{effect.effectId}</h4>
           <div className="flex items-center gap-2">
-            <Switch checked={effect.enabled} onCheckedChange={() => toggleEffect(index)} size="sm" />
+            <Switch checked={effect.enabled} onCheckedChange={() => toggleEffect(index)} />
             <Button
               variant="ghost"
               size="sm"

@@ -191,9 +191,10 @@ export class HDRSupportService {
     }
 
     try {
-      // Получаем информацию о видеодорожках
-      if (video.videoTracks && video.videoTracks.length > 0) {
-        const videoTrack = video.videoTracks[0]
+      // Получаем информацию о видеодорожках через srcObject
+      const srcObject = video.srcObject as MediaStream
+      if (srcObject && srcObject.getVideoTracks && srcObject.getVideoTracks().length > 0) {
+        const videoTrack = srcObject.getVideoTracks()[0]
 
         // Пытаемся извлечь HDR информацию из трека
         if ("getSettings" in videoTrack) {

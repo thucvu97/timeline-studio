@@ -28,7 +28,7 @@ export function EnhancedVideoPlayer() {
   const {
     settings: { aspectRatio },
   } = useProjectSettings()
-  const { video, currentTime, duration } = usePlayer()
+  const { currentVideo: video, currentTime, duration } = usePlayer()
   const { project } = useTimeline()
   const { prerender, isRendering, currentResult } = usePrerender()
   const { hasInCache, getFromCache, addToCache } = usePrerenderCache()

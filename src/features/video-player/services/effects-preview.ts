@@ -695,8 +695,8 @@ export class EffectsPreviewService {
           clip.effects?.map((effect) => ({
             effectId: effect.effectId,
             enabled: effect.enabled,
-            parameters: effect.parameters || {},
-            intensity: effect.intensity ?? 1.0,
+            parameters: effect.customParams || {},
+            intensity: (effect.customParams as any)?.intensity ?? 1.0,
           })) || [],
         blendMode: "normal",
         opacity: 1.0,

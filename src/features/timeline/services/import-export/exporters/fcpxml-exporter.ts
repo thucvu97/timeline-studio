@@ -81,10 +81,10 @@ export class FCPXMLExporter implements Exporter {
       if (!mediaFile) continue
 
       const assetId = `r${index + 2}` // r1 занят форматом
-      const hasVideo = mediaFile.hasVideo ? "1" : "0"
-      const hasAudio = mediaFile.hasAudio ? "1" : "0"
+      const hasVideo = mediaFile.isVideo ? "1" : "0"
+      const hasAudio = mediaFile.isAudio ? "1" : "0"
 
-      const duration = this.secondsToFCPXMLDuration(mediaFile.duration)
+      const duration = this.secondsToFCPXMLDuration(mediaFile.duration || 0)
 
       lines.push(
         `    <asset id="${assetId}" name="${this.escapeXml(mediaFile.name)}" ` +

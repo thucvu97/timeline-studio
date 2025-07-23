@@ -14,7 +14,7 @@ export function VideoPlayer() {
   const {
     settings: { aspectRatio },
   } = useProjectSettings()
-  const { video } = usePlayer()
+  const { currentVideo: video } = usePlayer()
 
   // Подключаем AI интеграцию
   const { isReady: aiReady } = usePlayerAIIntegration()
