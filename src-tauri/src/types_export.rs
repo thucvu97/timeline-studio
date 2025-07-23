@@ -245,7 +245,7 @@ pub enum ProjectCommand {
   AddTrack {
     name: String,
     track_type: TrackType,
-    index: Option<usize>,
+    index: Option<u32>,
   },
   DeleteTrack {
     track_id: String,
