@@ -113,7 +113,7 @@ export const BrowserStateProvider: React.FC<BrowserStateProviderProps> = ({ chil
     }, 500) // Дебаунс 500мс
 
     return () => clearTimeout(timeoutId)
-  }, [state, userSettings, updateUserSettings])
+  }, [state, updateUserSettings])
 
   // Геттеры
   const activeTab = state.activeTab
