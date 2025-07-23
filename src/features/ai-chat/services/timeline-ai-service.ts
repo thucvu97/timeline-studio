@@ -101,7 +101,6 @@ export class TimelineAIService {
 
     if (apiKey) {
       // Временно используем deprecated метод для обратной совместимости
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
       this.claudeService.setApiKey(apiKey)
       return true
     }
@@ -114,7 +113,6 @@ export class TimelineAIService {
    * @param apiKey API ключ
    */
   public setApiKey(apiKey: string): void {
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
     this.claudeService.setApiKey(apiKey)
   }
 

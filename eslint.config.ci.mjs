@@ -26,6 +26,17 @@ const eslintConfig = tseslint.config(
   ...compat.extends("plugin:import/recommended"),
   ...compat.extends("plugin:import/typescript"),
   {
+    settings: {
+      "import/resolver": {
+        typescript: {
+          alwaysTryTypes: true,
+        },
+        node: {
+          extensions: [".js", ".jsx", ".ts", ".tsx"],
+        },
+      },
+      "import/ignore": ["@/types/generated/tauri-bindings"],
+    },
     rules: {
       "jsx-a11y/click-events-have-key-events": "off",
       "jsx-a11y/alt-text": "off",
@@ -83,6 +94,9 @@ const eslintConfig = tseslint.config(
       "import/first": "warn",
       "import/newline-after-import": "warn",
       "import/no-duplicates": "warn",
+      "import/no-unresolved": ["error", { 
+        ignore: ["@/types/generated/tauri-bindings"] 
+      }],
       "@typescript-eslint/consistent-type-imports": "off",
       "prefer-arrow-callback": "off",
       "arrow-body-style": "off",
