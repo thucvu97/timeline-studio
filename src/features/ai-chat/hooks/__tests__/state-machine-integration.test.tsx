@@ -6,6 +6,18 @@ import { usePlayerAIIntegration } from "../use-player-ai-integration"
 import { useTimelineAIIntegration } from "../use-timeline-ai-integration"
 
 // Мокаем зависимости
+vi.mock("@/features/app-state/services/app-provider", () => ({
+  useApp: () => ({
+    projectState: {
+      mediaFiles: [
+        { id: "1", name: "video1.mp4", type: "video", isVideo: true },
+        { id: "2", name: "video2.mp4", type: "video", isVideo: true },
+      ],
+    },
+    isReady: true,
+  }),
+}))
+
 vi.mock("@/features/browser/services/browser-state-provider", () => ({
   useBrowserState: () => ({
     state: {

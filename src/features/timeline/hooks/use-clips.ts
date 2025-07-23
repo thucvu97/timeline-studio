@@ -186,7 +186,7 @@ export function useClips(): UseClipsReturn {
     const trackId = targetTrackId || clip.trackId
     const startTime = clip.startTime + clip.duration + 1 // Размещаем после оригинала
 
-    void addClip(trackId, mediaFile, startTime, clip.duration)
+    void addClip(trackId, mediaFile, startTime)
   }
 
   // ============================================================================

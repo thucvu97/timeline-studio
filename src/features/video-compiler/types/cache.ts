@@ -10,6 +10,12 @@ export interface CacheStats {
   metadata_misses: number
   memory_usage: CacheMemoryUsage
   cache_size_mb: number
+  total_size_mb: number
+  preview_cache: {
+    entries: number
+    size_mb: number
+  }
+  cache_efficiency: number
 }
 
 export interface CacheMemoryUsage {
@@ -17,6 +23,10 @@ export interface CacheMemoryUsage {
   metadata_bytes: number
   render_bytes: number
   total_bytes: number
+  totalSize: number
+  fileCount: number
+  oldestEntry: string
+  newestEntry: string
 }
 
 export interface PreviewCacheEntry {

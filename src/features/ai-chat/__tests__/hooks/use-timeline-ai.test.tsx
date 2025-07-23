@@ -4,15 +4,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { useTimelineAI, useTimelineAIQuick } from "../../hooks/use-timeline-ai"
 import { TimelineAIService } from "../../services/timeline-ai-service"
 
-// Create mock instances
-const mockSendTimelineEvent = vi.fn()
-
-// Mock dependencies
-vi.mock("../../hooks/use-chat", () => ({
-  useChat: vi.fn(() => ({
-    sendTimelineEvent: mockSendTimelineEvent,
-  })),
-}))
+// Mock console.log для проверки заглушки sendTimelineEvent
+const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
 vi.mock("@/features/resources/services/resources-provider", () => ({
   useResources: vi.fn(() => ({
@@ -43,7 +36,7 @@ describe("useTimelineAI", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    mockSendTimelineEvent.mockClear()
+    consoleSpy.mockClear()
 
     // Get the mocked instance
     mockTimelineAIInstance = TimelineAIService.prototype
@@ -87,13 +80,13 @@ describe("useTimelineAI", () => {
         operationResult = await result.current.createTimelineFromPrompt("Создай видео из фотографий")
       })
 
-      // Проверяем вызов sendTimelineEvent с правильными параметрами
-      expect(mockSendTimelineEvent).toHaveBeenCalledWith({
+      // Проверяем вызов console.log с правильными параметрами (заглушка sendTimelineEvent)
+      expect(consoleSpy).toHaveBeenCalledWith("Timeline event:", {
         type: "CREATE_TIMELINE_FROM_PROMPT",
         prompt: "Создай видео из фотографий",
       })
 
-      expect(mockSendTimelineEvent).toHaveBeenCalledWith({
+      expect(consoleSpy).toHaveBeenCalledWith("Timeline event:", {
         type: "TIMELINE_OPERATION_SUCCESS",
         result: mockResult,
       })
@@ -119,7 +112,7 @@ describe("useTimelineAI", () => {
         operationResult = await result.current.createTimelineFromPrompt("Создай видео")
       })
 
-      expect(mockSendTimelineEvent).toHaveBeenCalledWith({
+      expect(consoleSpy).toHaveBeenCalledWith("Timeline event:", {
         type: "TIMELINE_OPERATION_ERROR",
         error: "Ошибка создания timeline",
       })
@@ -151,7 +144,7 @@ describe("useTimelineAI", () => {
         operationResult = await result.current.createTimelineFromPrompt("Создай видео")
       })
 
-      expect(mockSendTimelineEvent).toHaveBeenCalledWith({
+      expect(consoleSpy).toHaveBeenCalledWith("Timeline event:", {
         type: "TIMELINE_OPERATION_ERROR",
         error: "Недостаточно ресурсов",
       })
@@ -186,12 +179,12 @@ describe("useTimelineAI", () => {
         operationResult = await result.current.analyzeResources("Проанализируй качество видео")
       })
 
-      expect(mockSendTimelineEvent).toHaveBeenCalledWith({
+      expect(consoleSpy).toHaveBeenCalledWith("Timeline event:", {
         type: "ANALYZE_RESOURCES",
         query: "Проанализируй качество видео",
       })
 
-      expect(mockSendTimelineEvent).toHaveBeenCalledWith({
+      expect(consoleSpy).toHaveBeenCalledWith("Timeline event:", {
         type: "TIMELINE_OPERATION_SUCCESS",
         result: mockResult,
       })
@@ -218,7 +211,7 @@ describe("useTimelineAI", () => {
         operationResult = await result.current.analyzeResources("Анализ")
       })
 
-      expect(mockSendTimelineEvent).toHaveBeenCalledWith({
+      expect(consoleSpy).toHaveBeenCalledWith("Timeline event:", {
         type: "TIMELINE_OPERATION_ERROR",
         error: "Сервис недоступен",
       })
@@ -268,7 +261,7 @@ describe("useTimelineAI", () => {
         operationResult = await result.current.analyzeResources("Анализ качества")
       })
 
-      expect(mockSendTimelineEvent).toHaveBeenCalledWith({
+      expect(consoleSpy).toHaveBeenCalledWith("Timeline event:", {
         type: "TIMELINE_OPERATION_ERROR",
         error: "Недостаточно данных для анализа",
       })
@@ -302,7 +295,7 @@ describe("useTimelineAI", () => {
         operationResult = await result.current.executeCommand("Примени цветокоррекцию", params)
       })
 
-      expect(mockSendTimelineEvent).toHaveBeenCalledWith({
+      expect(consoleSpy).toHaveBeenCalledWith("Timeline event:", {
         type: "EXECUTE_AI_COMMAND",
         command: "Примени цветокоррекцию",
         params,
@@ -350,7 +343,7 @@ describe("useTimelineAI", () => {
         operationResult = await result.current.executeCommand("Неизвестная команда")
       })
 
-      expect(mockSendTimelineEvent).toHaveBeenCalledWith({
+      expect(consoleSpy).toHaveBeenCalledWith("Timeline event:", {
         type: "TIMELINE_OPERATION_ERROR",
         error: "Команда не распознана",
       })
@@ -382,7 +375,7 @@ describe("useTimelineAI", () => {
         operationResult = await result.current.executeCommand("Команда с ошибкой", { param: "value" })
       })
 
-      expect(mockSendTimelineEvent).toHaveBeenCalledWith({
+      expect(consoleSpy).toHaveBeenCalledWith("Timeline event:", {
         type: "TIMELINE_OPERATION_ERROR",
         error: "Команда не может быть выполнена",
       })

@@ -59,7 +59,7 @@ export interface TimelineMarker {
   name: string
   time: number // Время в секундах
   color?: string // Цвет маркера
-  type?: "chapter" | "section" | "note" | "export" // Тип маркера
+  type?: "chapter" | "section" | "note" | "export" | "todo" | "sync" | "cue" // Тип маркера
   description?: string
 }
 

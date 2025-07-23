@@ -4,18 +4,18 @@ import { invoke } from "@tauri-apps/api/core"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
-import type { ProjectSchema } from "@/types/video-compiler"
 
 import { renderProject, trackRenderProgress } from "../services/video-compiler-service"
 import { RenderStatus } from "../types/render"
 
-import type { RenderJob, RenderProgress } from "../types/render"
+import type { ProjectSchema } from "../../../types/video-compiler"
+import type { RenderProgress, VideoRenderJob } from "../types/render"
 
 interface UseVideoCompilerReturn {
   // Состояние
   isRendering: boolean
   renderProgress: RenderProgress | null
-  activeJobs: RenderJob[]
+  activeJobs: VideoRenderJob[]
 
   // Методы
   startRender: (project: ProjectSchema, outputPath: string) => Promise<string>

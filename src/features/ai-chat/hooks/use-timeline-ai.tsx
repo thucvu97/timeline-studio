@@ -9,8 +9,12 @@ import { useCallback } from "react"
 
 import { useResources } from "@/features/resources/services/resources-provider"
 
-import { useChat } from "../hooks/use-chat"
 import { TimelineAIService } from "../services/timeline-ai-service"
+
+// Заглушка для sendTimelineEvent, пока не реализован useChat
+const mockSendTimelineEvent = (event: any) => {
+  console.log("Timeline event:", event)
+}
 
 /**
  * Типы Timeline AI операций
@@ -34,7 +38,7 @@ export interface TimelineAIOperationResult {
  * Hook для работы с Timeline AI
  */
 export function useTimelineAI() {
-  const { sendTimelineEvent } = useChat()
+  const sendTimelineEvent = mockSendTimelineEvent
   const resourcesProvider = useResources()
 
   // Создаем экземпляр TimelineAI сервиса

@@ -6,9 +6,7 @@
 
 import { v4 as uuidv4 } from "uuid"
 
-import { MediaFile } from "@/features/media/types/media"
-import { TimelineClip, TimelineProject, TimelineTrack, TrackType } from "@/features/timeline/types/timeline"
-
+import { TimelineClip, TimelineProject, TimelineTrack, TrackType } from "../../../types/timeline"
 import {
   EDLEvent,
   ImportError,
@@ -20,6 +18,18 @@ import {
   parseTimecode,
   timecodeToSeconds,
 } from "../types"
+
+// Временная заглушка для MediaFile пока модуль недоступен
+interface MediaFile {
+  id: string
+  name: string
+  path: string
+  size: number
+  isVideo?: boolean
+  isAudio?: boolean
+  isImage?: boolean
+  duration?: number
+}
 
 export class EDLImporter implements Importer {
   private frameRate = 30
@@ -416,7 +426,7 @@ export class EDLImporter implements Importer {
     let index = 0
 
     // Добавляем медиафайлы из mediaReferences
-    for (const [path, reference] of this.mediaReferences) {
+    for (const [path, reference] of Array.from(this.mediaReferences)) {
       mediaFiles.push({
         id: `media-file-${index++}`,
         name: path.split("/").pop() || path,
@@ -469,7 +479,7 @@ export class EDLImporter implements Importer {
     const mediaFiles: MediaFile[] = []
     let index = 0
 
-    for (const [path, reference] of this.mediaReferences) {
+    for (const [path, reference] of Array.from(this.mediaReferences)) {
       const fileName = path.split("/").pop() || path
 
       mediaFiles.push({

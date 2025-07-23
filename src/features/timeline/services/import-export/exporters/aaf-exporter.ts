@@ -5,12 +5,14 @@
  * Примечание: Это упрощенная реализация AAF XML, не полный бинарный AAF
  */
 
-import { TimelineClip, TimelineProject, TimelineTrack } from "@/features/timeline/types/timeline"
-
+import { TimelineClip, TimelineProject, TimelineTrack } from "../../../types/timeline"
 import { ExportOptions, Exporter } from "../types"
 
 export class AAFExporter implements Exporter {
   private frameRate = 30
+  private projectWidth = 1920
+  private projectHeight = 1080
+  private mobIDCounter = 1
 
   async export(project: TimelineProject, options: ExportOptions): Promise<string> {
     this.frameRate = project.fps || 30

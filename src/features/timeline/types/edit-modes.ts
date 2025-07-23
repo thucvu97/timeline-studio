@@ -119,7 +119,7 @@ export const DEFAULT_EDIT_CONSTRAINTS: EditConstraints = {
 
 export interface SnapPoint {
   position: number
-  type: "grid" | "clip-start" | "clip-end" | "marker" | "playhead"
+  type: "grid" | "clip-start" | "clip-end" | "marker" | "playhead" | "clip" | "guide" | "beat" | "measure"
   strength: number // 0-1, how strongly it should snap
 }
 

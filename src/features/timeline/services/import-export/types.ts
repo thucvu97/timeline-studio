@@ -2,9 +2,19 @@
  * Типы для Import/Export функциональности
  */
 
-import { MediaFile } from "@/features/media/types/media"
-
+// Временная заглушка для MediaFile пока модуль недоступен
 import { TimelineProject } from "../../types/timeline"
+
+interface MediaFile {
+  id: string
+  name: string
+  path: string
+  size: number
+  isVideo?: boolean
+  isAudio?: boolean
+  isImage?: boolean
+  duration?: number
+}
 
 // Поддерживаемые форматы
 export type ImportFormat = "edl" | "fcpxml" | "aaf" | "json"

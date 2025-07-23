@@ -7,10 +7,28 @@
 
 import { v4 as uuidv4 } from "uuid"
 
-import { MediaFile } from "@/features/media/types/media"
-import { TimelineClip, TimelineProject, TimelineTrack, TrackType } from "@/features/timeline/types/timeline"
-
+import { TimelineClip, TimelineProject, TimelineTrack, TrackType } from "../../../types/timeline"
 import { ImportError, ImportOptions, ImportResult, ImportWarning, Importer } from "../types"
+
+// Временная заглушка для MediaFile пока модуль недоступен
+interface MediaFile {
+  id: string
+  name: string
+  path: string
+  type: string
+  size: number
+  duration: number
+  createdAt: Date
+  isVideo: boolean
+  isAudio: boolean
+  isImage: boolean
+  videoStreams: number
+  audioStreams: number
+  hasAudio: boolean
+  hasVideo: boolean
+  width?: number
+  height?: number
+}
 
 // AAF специфичные типы
 interface AAFComposition {
@@ -106,8 +124,9 @@ export class AAFImporter implements Importer {
   }
 
   validateContent(content: string): boolean {
-    // Проверяем, что это XML
-    if (!content.trim().startsWith("<?xml")) {
+    // Проверяем, что это XML (может быть без XML declaration)
+    const trimmedContent = content.trim()
+    if (!trimmedContent.startsWith("<?xml") && !trimmedContent.startsWith("<")) {
       this.errors.push({
         message: "Invalid XML format",
         code: "INVALID_XML",
@@ -131,10 +150,12 @@ export class AAFImporter implements Importer {
     const compositions: AAFComposition[] = []
     const mobs: AAFMob[] = []
 
-    // Парсим все Mob элементы
-    const mobMatches = content.matchAll(/<(CompositionMob|MasterMob|SourceMob)[^>]*>(.*?)<\/\1>/gs)
-
-    for (const match of mobMatches) {
+    // Парсим все Mob элементы - используем [\s\S]*? для работы с новыми строками
+    const mobRegex = /<(CompositionMob|MasterMob|SourceMob)[^>]*>([\s\S]*?)<\/\1>/g
+    
+    let mobMatch
+    while ((mobMatch = mobRegex.exec(content)) !== null) {
+      const match = mobMatch
       const mobType = match[1]
       const mobContent = match[2]
 
@@ -179,10 +200,11 @@ export class AAFImporter implements Importer {
   private parseTracks(content: string): AAFTrack[] {
     const tracks: AAFTrack[] = []
 
-    // Ищем все TimelineMobSlot элементы
-    const trackMatches = content.matchAll(/<TimelineMobSlot[^>]*>(.*?)<\/TimelineMobSlot>/gs)
-
-    for (const match of trackMatches) {
+    // Ищем все TimelineMobSlot элементы - используем [\s\S]*? для многострочного контента
+    const trackRegex = /<TimelineMobSlot[^>]*>([\s\S]*?)<\/TimelineMobSlot>/g
+    let trackMatch
+    while ((trackMatch = trackRegex.exec(content)) !== null) {
+      const match = trackMatch
       const trackContent = match[1]
 
       const track: AAFTrack = {
@@ -202,14 +224,15 @@ export class AAFImporter implements Importer {
   private parseSegments(content: string): AAFSegment[] {
     const segments: AAFSegment[] = []
 
-    // Сначала проверяем, есть ли Sequence
-    const sequenceMatch = /<Sequence[^>]*>(.*?)<\/Sequence>/s.exec(content)
+    // Сначала проверяем, есть ли Sequence - исправляем regex для многострочного контента
+    const sequenceMatch = /<Sequence[^>]*>([\s\S]*?)<\/Sequence>/.exec(content)
     const searchContent = sequenceMatch ? sequenceMatch[1] : content
 
-    // Ищем различные типы сегментов
-    const segmentMatches = searchContent.matchAll(/<(SourceClip|Filler|Transition)[^>]*>(.*?)<\/\1>/gs)
-
-    for (const match of segmentMatches) {
+    // Ищем различные типы сегментов - используем [\s\S]*? для многострочного контента
+    const segmentRegex = /<(SourceClip|Filler|Transition)[^>]*>([\s\S]*?)<\/\1>/g
+    let segmentMatch
+    while ((segmentMatch = segmentRegex.exec(searchContent)) !== null) {
+      const match = segmentMatch
       const segmentType = match[1] as AAFSegment["type"]
       const segmentContent = match[2]
 
@@ -240,7 +263,7 @@ export class AAFImporter implements Importer {
   }
 
   private parseEssenceDescriptor(content: string): AAFEssenceDescriptor | null {
-    const descriptorMatch = /<EssenceDescriptor[^>]*>(.*?)<\/EssenceDescriptor>/s.exec(content)
+    const descriptorMatch = /<EssenceDescriptor[^>]*>([\s\S]*?)<\/EssenceDescriptor>/.exec(content)
     if (!descriptorMatch) return null
 
     const descriptorContent = descriptorMatch[1]

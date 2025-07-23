@@ -261,20 +261,18 @@ describe("Cache Service", () => {
   describe("Performance Considerations", () => {
     it("should handle large cache statistics efficiently", async () => {
       const largeStats = {
-        preview_cache: {
-          count: 999999,
-          size_mb: 50000.0,
-          hit_rate: 0.95,
+        total_entries: 999999,
+        preview_hits: 850000,
+        preview_misses: 149999,
+        metadata_hits: 420000,
+        metadata_misses: 80000,
+        memory_usage: {
+          preview_bytes: 50000 * 1024 * 1024,
+          metadata_bytes: 75000 * 1024 * 1024,
+          render_bytes: 0,
+          total_bytes: 125000 * 1024 * 1024,
         },
-        frame_cache: {
-          count: 500000,
-          size_mb: 75000.0,
-          hit_rate: 0.88,
-        },
-        total_size_mb: 125000.0,
-        memory_usage_mb: 8192.0,
-        disk_usage_mb: 116808.0,
-        cache_efficiency: 0.91,
+        cache_size_mb: 125000.0,
       }
 
       mockInvoke.mockResolvedValue(largeStats)
@@ -282,8 +280,8 @@ describe("Cache Service", () => {
       const result = await getCacheStats()
 
       expect(result).toEqual(largeStats)
-      expect(result.preview_cache.count).toBe(999999)
-      expect(result.total_size_mb).toBe(125000.0)
+      expect(result.total_entries).toBe(999999)
+      expect(result.cache_size_mb).toBe(125000.0)
     })
 
     it("should handle rapid consecutive calls", async () => {

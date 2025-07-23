@@ -2,7 +2,7 @@ import { useCallback, useEffect } from "react"
 
 import { BrowserStateAccess } from "@/features/ai-chat/tools/browser/types"
 import { setBrowserStateAccess } from "@/features/ai-chat/tools/browser/utils/helpers"
-import { useAppSettings } from "@/features/app-state/hooks"
+import { useApp } from "@/features/app-state/services/app-provider"
 import { useBrowserState } from "@/features/browser/services/browser-state-provider"
 import { MediaFile } from "@/features/media/types/media"
 
@@ -12,11 +12,11 @@ import { MediaFile } from "@/features/media/types/media"
  */
 export function useBrowserAIIntegration() {
   const browserState = useBrowserState()
-  const { state } = useAppSettings()
+  const { projectState } = useApp()
 
-  // Получаем медиафайлы из app state
-  const mediaFiles = state?.context?.mediaFiles?.allFiles || []
-  const isLoading = state?.context?.mediaFiles?.isLoading || false
+  // Получаем медиафайлы из project state
+  const mediaFiles = projectState?.mediaFiles || []
+  const isLoading = false
 
   // Функция для получения файлов из текущей вкладки
   const getTabFiles = useCallback((): MediaFile[] => {

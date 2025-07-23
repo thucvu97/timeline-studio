@@ -1,7 +1,7 @@
 import { invoke } from "@tauri-apps/api/core"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import type { MediaMetadata } from "@/types/media"
+import type { MediaMetadata } from "../../../../types/media"
 
 import {
   cacheMediaMetadata,
@@ -19,18 +19,16 @@ vi.mock("@tauri-apps/api/core", () => ({
 }))
 
 const mockMetadata: MediaMetadata = {
-  fileName: "test-video.mp4",
-  filePath: "/path/to/test-video.mp4",
+  file_path: "/path/to/test-video.mp4",
+  file_size: 1024 * 1024 * 100, // 100MB
+  modified_time: "2024-01-02T00:00:00Z",
   duration: 120.5,
-  width: 1920,
-  height: 1080,
+  resolution: [1920, 1080],
   fps: 30,
-  hasAudio: true,
-  fileSize: 1024 * 1024 * 100, // 100MB
-  format: "mp4",
   bitrate: 5000000,
-  createdAt: new Date("2024-01-01").toISOString(),
-  modifiedAt: new Date("2024-01-02").toISOString(),
+  video_codec: "h264",
+  audio_codec: "aac",
+  cached_at: "2024-01-01T00:00:00Z",
 }
 
 const mockCacheMemoryUsage: CacheMemoryUsage = {

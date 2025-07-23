@@ -2,11 +2,7 @@
  * Преобразование Timeline в ProjectSchema для Video Compiler
  */
 
-import { VideoEffect } from "@/features/effects/types"
-import { VideoFilter } from "@/features/filters/types/filters"
-import { StyleTemplate } from "@/features/style-templates/types/style-template"
-import { MediaTemplate } from "@/features/templates/lib/templates"
-import { Transition } from "@/features/transitions/types/transitions"
+// Временные заглушки для отсутствующих типов
 import {
   AlignX,
   AlignY,
@@ -46,8 +42,7 @@ import {
   TextAlign,
   TrackType,
   toRustEnumCase,
-} from "@/types/video-compiler"
-
+} from "../../../types/video-compiler"
 import {
   AppliedTransition,
   ProjectResources,
@@ -57,6 +52,12 @@ import {
   TimelineTrack,
   isSubtitleClip,
 } from "../types/timeline"
+
+interface VideoEffect { type: string; params: Record<string, unknown> }
+interface VideoFilter { type: string; params: Record<string, unknown> }
+interface StyleTemplate { id: string; type: string }
+interface MediaTemplate { id: string; type: string }
+interface Transition { type: string; params: Record<string, unknown> }
 
 /**
  * Преобразует проект Timeline в схему для Video Compiler
@@ -210,7 +211,9 @@ function convertEffectParameters(effect: VideoEffect): Record<string, any> {
       parameters.value = effect.params.intensity
     } else {
       Object.entries(effect.params).forEach(([key, value]) => {
-        parameters[key] = value
+        if (value !== undefined) {
+          parameters[key] = value
+        }
       })
     }
   }
@@ -226,7 +229,7 @@ function convertFilters(filters: VideoFilter[]): BackendFilter[] {
     const parameters: Record<string, number> = {}
     if (filter.params) {
       Object.entries(filter.params).forEach(([key, value]) => {
-        if (value !== undefined) {
+        if (value !== undefined && typeof value === 'number') {
           parameters[key] = value
         }
       })
@@ -257,7 +260,7 @@ function convertFilters(filters: VideoFilter[]): BackendFilter[] {
 
     // Определяем тип по параметрам
     for (const [param, type] of Object.entries(typeMap)) {
-      if (filter.params[param as keyof typeof filter.params] !== undefined) {
+      if (filter.params[param] !== undefined) {
         filterType = type
         break
       }

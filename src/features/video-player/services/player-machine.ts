@@ -261,7 +261,7 @@ const setBasePlaybackRateAction = assign({
   basePlaybackRate: ({ event }: { event: SetBasePlaybackRateEvent }) => event.rate,
 })
 
-export const playerMachine = createMachine({
+export const playerMachine = createMachine<PlayerContextType, PlayerEvent>({
   id: "player",
   initial: "idle",
   context: initialContext,

@@ -21,7 +21,7 @@ import { CLAUDE_MODELS, ClaudeService } from "../services/claude-service"
 import { DEEPSEEK_MODELS, DeepSeekService } from "../services/deepseek-service"
 import { OLLAMA_MODELS, OllamaService } from "../services/ollama-service"
 import { AI_MODELS, OpenAiService } from "../services/open-ai-service"
-import { ChatMessage } from "../types/chat"
+import { Agent, ChatMessage } from "../types/chat"
 import { compressContext, isContextOverLimit } from "../utils/context-manager"
 import { createTimelineContextPrompt } from "../utils/timeline-context"
 
@@ -351,7 +351,7 @@ export function AiChat() {
             content: fullContent,
             role: "assistant",
             timestamp: new Date(),
-            agent: (selectedAgentId as any) || undefined,
+            agent: selectedAgentId as Agent | undefined,
           }
 
           receiveChatMessage(agentMessage.content)
@@ -445,7 +445,7 @@ export function AiChat() {
             ),
             role: "assistant",
             timestamp: new Date(),
-            agent: (selectedAgentId as any) || undefined,
+            agent: selectedAgentId as Agent | undefined,
           }
           receiveChatMessage(errorMessage)
         }

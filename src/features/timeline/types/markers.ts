@@ -151,7 +151,7 @@ export function sortMarkersByTime(markers: ExtendedTimelineMarker[]): ExtendedTi
 export function filterMarkers(markers: ExtendedTimelineMarker[], filter: MarkerFilter): ExtendedTimelineMarker[] {
   return markers.filter((marker) => {
     // Фильтр по типу
-    if (filter.types && !filter.types.includes(marker.type as MarkerType)) {
+    if (filter.types && !filter.types.includes(marker.type!)) {
       return false
     }
 

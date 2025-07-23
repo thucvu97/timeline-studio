@@ -59,6 +59,7 @@ export interface TimelineContextType {
   removeClip: (clipId: string) => Promise<void>
   moveClip: (clipId: string, trackId: string, startTime: number) => Promise<void>
   trimClip: (clipId: string, start: number, end: number) => Promise<void>
+  splitClip: (clipId: string, splitTime: number) => Promise<void>
   updateClip: (clipId: string, updates: Partial<TimelineClip>) => Promise<void>
 
   // Команды эффектов клипов
@@ -256,6 +257,16 @@ export function TimelineProvider({ children }: TimelineProviderV2Props) {
       await executeCommand({
         type: "TrimClip",
         params: { clipId, start, end },
+      })
+    },
+    [executeCommand],
+  )
+
+  const splitClip = useCallback(
+    async (clipId: string, splitTime: number) => {
+      await executeCommand({
+        type: "SplitClip",
+        params: { clipId, time: splitTime },
       })
     },
     [executeCommand],
@@ -589,6 +600,7 @@ export function TimelineProvider({ children }: TimelineProviderV2Props) {
     removeClip,
     moveClip,
     trimClip,
+    splitClip,
     updateClip,
     play,
     pause,

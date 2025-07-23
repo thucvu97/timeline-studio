@@ -18,6 +18,11 @@ interface PlayerContextType {
   isPlaying: boolean
   playbackRate: number
 
+  // Speed ramping (локальное состояние)
+  speedRampingEnabled: boolean
+  currentPlaybackRate: number
+  basePlaybackRate: number
+
   // Локальное состояние плеера
   volume: number
   duration: number
@@ -71,6 +76,11 @@ interface PlayerContextType {
   // Prerender
   setPrerenderSettings: (settings: Partial<PlayerContextType["prerenderSettings"]>) => void
 
+  // Speed ramping методы (локальные)
+  setSpeedRampingEnabled: (enabled: boolean) => void
+  updatePlaybackRate: (rate: number) => void
+  setBasePlaybackRate: (rate: number) => void
+
   // Backend команды (асинхронные)
   play: () => Promise<void>
   pause: () => Promise<void>
@@ -114,6 +124,11 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
     isChangingCamera: false,
     isRecording: false,
     isResizableMode: false,
+    
+    // Speed ramping
+    speedRampingEnabled: false,
+    currentPlaybackRate: 1.0,
+    basePlaybackRate: 1.0,
     currentVideo: null as MediaFile | null,
     previewMedia: null as MediaFile | null,
     videoSource: "timeline" as "browser" | "timeline",
@@ -293,6 +308,19 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
     setLocalState((prev) => ({ ...prev, appliedTemplate: null }))
   }
 
+  // Speed ramping методы
+  const setSpeedRampingEnabled = (enabled: boolean) => {
+    setLocalState((prev) => ({ ...prev, speedRampingEnabled: enabled }))
+  }
+
+  const updatePlaybackRate = (rate: number) => {
+    setLocalState((prev) => ({ ...prev, currentPlaybackRate: rate }))
+  }
+
+  const setBasePlaybackRate = (rate: number) => {
+    setLocalState((prev) => ({ ...prev, basePlaybackRate: rate }))
+  }
+
   const setPrerenderSettings = (settings: Partial<PlayerContextType["prerenderSettings"]>) => {
     setLocalState((prev) => ({
       ...prev,
@@ -301,7 +329,7 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
   }
 
   // Извлекаем состояние воспроизведения из backend
-  const playbackState = backendState?.playbackState || {
+  const playbackState = backendState?.playback_state || {
     currentTime: 0,
     isPlaying: false,
     playbackRate: 1,
@@ -353,6 +381,11 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
     clearFilters,
     clearTemplate,
     setPrerenderSettings,
+
+    // Speed ramping методы
+    setSpeedRampingEnabled,
+    updatePlaybackRate,
+    setBasePlaybackRate,
 
     // Backend команды
     play,

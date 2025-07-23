@@ -72,7 +72,7 @@ let timelineStateAccess: TimelineStateAccess | null = null
 /**
  * Устанавливает доступ к состоянию timeline
  */
-export function setTimelineStateAccess(access: TimelineStateAccess) {
+export function setTimelineStateAccess(access: TimelineStateAccess | null) {
   timelineStateAccess = access
 }
 

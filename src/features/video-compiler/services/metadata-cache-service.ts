@@ -4,8 +4,7 @@
 
 import { invoke } from "@tauri-apps/api/core"
 
-import type { MediaMetadata } from "@/types/media"
-
+import type { MediaMetadata } from "../../../types/media"
 import type { CacheMemoryUsage } from "../types/cache"
 
 /**

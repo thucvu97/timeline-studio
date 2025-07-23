@@ -33,7 +33,7 @@ export function TimelineMarker({ marker, timeScale, isSelected, onDrag, onClick,
   const [dragStartTime, setDragStartTime] = useState(0)
   const markerRef = useRef<HTMLDivElement>(null)
 
-  const markerType = marker.type as MarkerType
+  const markerType = marker.type!
   const markerColor = MarkerColors[markerType] || "#6b7280"
   const markerIcon = markerIcons[markerType] || <Bookmark className="w-3 h-3" />
 
