@@ -4,7 +4,7 @@
 
 import type { TimelineClip, TimelineProject, TimelineTrack } from "@/features/timeline/types"
 
-import { getTimelineStateAccess } from "../types"
+import { getTimelineStateAccess, setTimelineStateAccess } from "../types"
 import { determineContentType } from "./detectors"
 
 export async function getCurrentTimelineProject(): Promise<TimelineProject | null> {

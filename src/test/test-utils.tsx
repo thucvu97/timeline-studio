@@ -3,7 +3,7 @@ import { ReactElement, ReactNode } from "react"
 import { RenderOptions, render } from "@testing-library/react"
 
 import { ChatProvider } from "@/features/ai-chat/services/chat-provider"
-import { AppSettingsProvider } from "@/features/app-state"
+import { AppProvider } from "@/features/app-state/services/app-provider"
 import { BrowserStateProvider } from "@/features/browser/services/browser-state-provider"
 import { ModalProvider } from "@/features/modals/services/modal-provider"
 import { ProjectSettingsProvider } from "@/features/project-settings"
@@ -19,9 +19,9 @@ export const BaseProviders = ({ children }: { children: ReactNode }) => {
   return (
     <ThemeProvider>
       <I18nProvider>
-        <AppSettingsProvider>
+        <AppProvider>
           <ModalProvider>{children}</ModalProvider>
-        </AppSettingsProvider>
+        </AppProvider>
       </I18nProvider>
     </ThemeProvider>
   )

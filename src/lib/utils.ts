@@ -241,3 +241,20 @@ export function getMediaCreationTime(probeData: FfprobeData): number {
   )
   return Math.floor(Date.now() / 1000)
 }
+
+/**
+ * Генерирует уникальный идентификатор
+ *
+ * @param prefix - Префикс для идентификатора (необязательно)
+ * @returns Строка с уникальным идентификатором
+ *
+ * @example
+ * ```ts
+ * generateId() // "abc123def456"
+ * generateId("clip") // "clip_abc123def456"
+ * ```
+ */
+export function generateId(prefix?: string): string {
+  const id = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+  return prefix ? `${prefix}_${id}` : id
+}

@@ -315,3 +315,6 @@ export type { ChatContextTypeV2 }
 // Экспорт для обратной совместимости
 export { ChatProviderV2 as ChatProvider }
 export { useChatV2 as useChat }
+
+// Экспорт контекста для типизации
+export { ChatContextV2 as ChatContext }
