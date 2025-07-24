@@ -61,6 +61,70 @@ jobs:
         run: |
           echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig" >> $GITHUB_ENV
 
+      - name: Install Windows dependencies for Tauri bindings
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          # Install pkg-config
+          choco install pkgconfiglite -y
+          
+          # Create FFmpeg directory
+          New-Item -ItemType Directory -Force -Path C:\ffmpeg
+          
+          # Download pre-built FFmpeg shared libraries
+          $ffmpegUrl = "https://github.com/GyanD/codexffmpeg/releases/download/7.1/ffmpeg-7.1-full_build-shared.7z"
+          Write-Host "Downloading FFmpeg from $ffmpegUrl"
+          Invoke-WebRequest -Uri $ffmpegUrl -OutFile ffmpeg.7z
+          
+          # Extract FFmpeg
+          Write-Host "Extracting FFmpeg..."
+          7z x ffmpeg.7z -oC:\
+          $extractedDir = Get-ChildItem -Path C:\ -Directory | Where-Object { $_.Name -like "ffmpeg-*" } | Select-Object -First 1
+          Write-Host "Found extracted directory: $($extractedDir.FullName)"
+          
+          # Copy contents to C:\ffmpeg (use Copy instead of Move for reliability)
+          Write-Host "Copying FFmpeg files to C:\ffmpeg..."
+          Copy-Item -Path "$($extractedDir.FullName)\*" -Destination C:\ffmpeg -Recurse -Force
+          
+          # Verify FFmpeg installation
+          Write-Host "Verifying FFmpeg installation..."
+          $requiredDirs = @("bin", "include", "lib")
+          foreach ($dir in $requiredDirs) {
+            if (Test-Path "C:\ffmpeg\$dir") {
+              Write-Host "✓ Found C:\ffmpeg\$dir"
+            } else {
+              Write-Error "✗ Missing C:\ffmpeg\$dir"
+            }
+          }
+          
+          # List library files
+          Write-Host "FFmpeg libraries found:"
+          Get-ChildItem -Path "C:\ffmpeg\lib" -Filter "*.lib" | ForEach-Object { Write-Host "  - $($_.Name)" }
+          
+          # Set environment variables using NO_PKG_CONFIG approach
+          Write-Host "Setting environment variables..."
+          echo "FFMPEG_DIR=C:\ffmpeg" >> $env:GITHUB_ENV
+          echo "FFMPEG_INCLUDE_DIR=C:\ffmpeg\include" >> $env:GITHUB_ENV
+          echo "FFMPEG_LIB_DIR=C:\ffmpeg\lib" >> $env:GITHUB_ENV
+          echo "FFMPEG_NO_PKG_CONFIG=1" >> $env:GITHUB_ENV
+          echo "RUSTFLAGS=-C link-arg=/LIBPATH:C:\ffmpeg\lib" >> $env:GITHUB_ENV
+          echo "C:\ffmpeg\bin" >> $env:GITHUB_PATH
+          
+          # Also set for current shell
+          $env:FFMPEG_DIR = "C:\ffmpeg"
+          $env:FFMPEG_INCLUDE_DIR = "C:\ffmpeg\include"
+          $env:FFMPEG_LIB_DIR = "C:\ffmpeg\lib"
+          $env:FFMPEG_NO_PKG_CONFIG = "1"
+          $env:RUSTFLAGS = "-C link-arg=/LIBPATH:C:\ffmpeg\lib"
+          $env:PATH = "C:\ffmpeg\bin;$env:PATH"
+
+      - name: Setup Rust environment on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Write-Host "Running setup-rust-env-windows.ps1..."
+          ./scripts/setup-rust-env-windows.ps1 -FFmpegDir C:\ffmpeg
+          
       - name: Generate TypeScript bindings
         run: |
           cd src-tauri
