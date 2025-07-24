@@ -115,6 +115,9 @@ jobs:
           ls -la /usr/lib/pkgconfig/glib*.pc || echo "No glib pc files in lib/pkgconfig"
           ls -la /usr/share/pkgconfig/glib*.pc || echo "No glib pc files in share/pkgconfig"
 
+      - name: Create dist directory
+        run: mkdir -p dist
+
       - name: Generate TypeScript bindings
         run: |
           cd src-tauri

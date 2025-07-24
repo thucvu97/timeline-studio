@@ -125,6 +125,9 @@ jobs:
           Write-Host "Running setup-rust-env-windows.ps1..."
           ./scripts/setup-rust-env-windows.ps1 -FFmpegDir C:\ffmpeg
           
+      - name: Create dist directory
+        run: mkdir -p dist
+
       - name: Generate TypeScript bindings
         env:
           PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig
@@ -268,6 +271,9 @@ jobs:
       - name: Set FFmpeg environment
         run: |
           echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig" >> $GITHUB_ENV
+
+      - name: Create dist directory
+        run: mkdir -p dist
 
       - name: Generate TypeScript bindings
         env:
