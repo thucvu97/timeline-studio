@@ -286,33 +286,42 @@ jobs:
           # Find and set up libclang for bindgen
           echo "=== Finding libclang ==="
           
+          # Variable to track if we found libclang
+          FOUND_LIBCLANG=""
+          
           # First try to find versioned libclang
           for version in 14 13 12 11; do
             if [ -f "/usr/lib/llvm-$version/lib/libclang.so" ]; then
               echo "Found libclang version $version"
               echo "LIBCLANG_PATH=/usr/lib/llvm-$version/lib" >> $GITHUB_ENV
               echo "✅ Set LIBCLANG_PATH=/usr/lib/llvm-$version/lib"
+              FOUND_LIBCLANG="yes"
               break
             elif [ -f "/usr/lib/x86_64-linux-gnu/libclang-$version.so" ]; then
               echo "Found libclang version $version in x86_64-linux-gnu"
               echo "LIBCLANG_PATH=/usr/lib/x86_64-linux-gnu" >> $GITHUB_ENV
               echo "✅ Set LIBCLANG_PATH=/usr/lib/x86_64-linux-gnu"
+              FOUND_LIBCLANG="yes"
               break
             fi
           done
           
           # If not found, search more broadly
-          if [ -z "$LIBCLANG_PATH" ]; then
+          if [ -z "$FOUND_LIBCLANG" ]; then
             LIBCLANG_SO=$(find /usr -name "libclang.so*" -type f 2>/dev/null | grep -E "libclang(-[0-9]+)?\.so" | head -1)
             if [ -n "$LIBCLANG_SO" ]; then
               LIBCLANG_DIR=$(dirname "$LIBCLANG_SO")
               echo "Found libclang at: $LIBCLANG_SO"
               echo "LIBCLANG_PATH=$LIBCLANG_DIR" >> $GITHUB_ENV
               echo "✅ Set LIBCLANG_PATH=$LIBCLANG_DIR"
+              FOUND_LIBCLANG="yes"
             else
               echo "❌ ERROR: Could not find libclang.so!"
               echo "Installed clang packages:"
               dpkg -l | grep clang || echo "No clang packages found"
+              echo ""
+              echo "Searching for any libclang files:"
+              find /usr -name "*libclang*" -type f 2>/dev/null | head -20
               exit 1
             fi
           fi
