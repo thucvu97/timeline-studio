@@ -27,6 +27,22 @@ vi.mock("@tauri-apps/api/app", () => ({
   getTauriVersion: vi.fn().mockResolvedValue("2.0.0"),
 }))
 
+// Mock generated Tauri bindings
+vi.mock("@/types/generated/tauri-bindings", () => ({
+  commands: {
+    greet: vi.fn().mockResolvedValue("Hello from Tauri!"),
+    getActiveJobs: vi.fn().mockResolvedValue([]),
+    compileVideo: vi.fn().mockResolvedValue(null),
+    cancelRender: vi.fn().mockResolvedValue(true),
+    // Add other commands as needed
+  },
+  events: {
+    onProgressUpdate: vi.fn(),
+    onJobComplete: vi.fn(),
+    // Add other events as needed
+  },
+}))
+
 // Helper for setting up command responses
 export function setupTauriCommand(command: string, response: unknown) {
   mockInvoke.mockImplementation((cmd: string, _args?: InvokeArgs) => {
