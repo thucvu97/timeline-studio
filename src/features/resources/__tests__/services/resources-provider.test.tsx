@@ -83,7 +83,9 @@ describe("ResourcesProvider", () => {
   })
 
   it("should have useResources hook", () => {
-    const { result } = renderHook(() => useResources(), { wrapper: ResourcesWrapper })
+    const { result } = renderHook(() => useResources(), {
+      wrapper: ResourcesWrapper,
+    })
 
     expect(result.current).toBeDefined()
     expect(result.current.resources).toBeDefined()
@@ -96,7 +98,9 @@ describe("ResourcesProvider", () => {
   })
 
   it("should provide correct methods for adding resources", () => {
-    const { result } = renderHook(() => useResources(), { wrapper: ResourcesWrapper })
+    const { result } = renderHook(() => useResources(), {
+      wrapper: ResourcesWrapper,
+    })
 
     expect(typeof result.current.addMedia).toBe("function")
     expect(typeof result.current.addEffect).toBe("function")
@@ -107,28 +111,36 @@ describe("ResourcesProvider", () => {
   })
 
   it("should provide correct utility methods", () => {
-    const { result } = renderHook(() => useResources(), { wrapper: ResourcesWrapper })
+    const { result } = renderHook(() => useResources(), {
+      wrapper: ResourcesWrapper,
+    })
 
     expect(typeof result.current.getResourceById).toBe("function")
     expect(typeof result.current.getResourcesByType).toBe("function")
   })
 
   it("should have addEffect method", () => {
-    const { result } = renderHook(() => useResources(), { wrapper: ResourcesWrapper })
+    const { result } = renderHook(() => useResources(), {
+      wrapper: ResourcesWrapper,
+    })
 
     expect(result.current.addEffect).toBeDefined()
     expect(typeof result.current.addEffect).toBe("function")
   })
 
   it("should have addMusic method", () => {
-    const { result } = renderHook(() => useResources(), { wrapper: ResourcesWrapper })
+    const { result } = renderHook(() => useResources(), {
+      wrapper: ResourcesWrapper,
+    })
 
     expect(result.current.addMusic).toBeDefined()
     expect(typeof result.current.addMusic).toBe("function")
   })
 
   it("should call send with correct parameters when adding an effect", async () => {
-    const { result } = renderHook(() => useResources(), { wrapper: ResourcesWrapper })
+    const { result } = renderHook(() => useResources(), {
+      wrapper: ResourcesWrapper,
+    })
 
     const mockEffect: VideoEffect = {
       id: "effect-1",
@@ -149,7 +161,9 @@ describe("ResourcesProvider", () => {
   })
 
   it("should call send with correct parameters when adding a filter", async () => {
-    const { result } = renderHook(() => useResources(), { wrapper: ResourcesWrapper })
+    const { result } = renderHook(() => useResources(), {
+      wrapper: ResourcesWrapper,
+    })
 
     const mockFilter: VideoFilter = {
       id: "filter-1",
@@ -168,7 +182,9 @@ describe("ResourcesProvider", () => {
   })
 
   it("should call send with correct parameters when adding a transition", async () => {
-    const { result } = renderHook(() => useResources(), { wrapper: ResourcesWrapper })
+    const { result } = renderHook(() => useResources(), {
+      wrapper: ResourcesWrapper,
+    })
 
     const mockTransition: Transition = {
       id: "transition-1",
@@ -190,7 +206,9 @@ describe("ResourcesProvider", () => {
   })
 
   it("should call send with correct parameters when adding a template", async () => {
-    const { result } = renderHook(() => useResources(), { wrapper: ResourcesWrapper })
+    const { result } = renderHook(() => useResources(), {
+      wrapper: ResourcesWrapper,
+    })
 
     const mockTemplate: MediaTemplate = {
       id: "template-1",
@@ -216,7 +234,9 @@ describe("ResourcesProvider", () => {
   })
 
   it("should call send with correct parameters when adding a music file", async () => {
-    const { result } = renderHook(() => useResources(), { wrapper: ResourcesWrapper })
+    const { result } = renderHook(() => useResources(), {
+      wrapper: ResourcesWrapper,
+    })
 
     const mockMusicFile: MediaFile = {
       id: "music-1",
@@ -233,12 +253,14 @@ describe("ResourcesProvider", () => {
 
     expect(mockExecuteCommand).toHaveBeenCalledWith({
       type: "AddMedia",
-      params: { path: mockMusicFile.path, mediaType: "Audio" },
+      params: { path: mockMusicFile.path, media_type: "Audio" },
     })
   })
 
   it("should provide resource arrays", () => {
-    const { result } = renderHook(() => useResources(), { wrapper: ResourcesWrapper })
+    const { result } = renderHook(() => useResources(), {
+      wrapper: ResourcesWrapper,
+    })
 
     // Проверяем, что массивы ресурсов существуют
     expect(Array.isArray(result.current.effectResources)).toBe(true)
