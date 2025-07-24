@@ -325,7 +325,7 @@ Support the development via crypto donations:
 
 ## Repo Activity
 
-![Repo Activity](https://repobeats.axiom.co/api/embed/7866c9790deba0baf63ca1688b209130b306ea4e.svg "Repobeats analytics image")
+![Alt](https://repobeats.axiom.co/api/embed/47cf226e78d9ead27baf3add875327e91e852a11.svg "Repobeats analytics image")
 
 ## License
 
