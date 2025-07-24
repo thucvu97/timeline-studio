@@ -31,7 +31,6 @@ async function tryInstall(attempt) {
         ...process.env,
         npm_config_fetch_timeout: '600000',
         npm_config_fetch_retries: '5',
-        npm_config_network_timeout: '600000',
         ONNXRUNTIME_DOWNLOAD_TIMEOUT: '600000'
       }
     });

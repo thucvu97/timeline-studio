@@ -10,7 +10,6 @@ $ErrorActionPreference = "Stop"
 Write-Host "Configuring npm for Windows..." -ForegroundColor Cyan
 npm config set fetch-timeout 300000
 npm config set fetch-retries 5
-npm config set network-timeout 300000
 npm config set prefer-offline true
 npm config set audit false
 npm config set fund false

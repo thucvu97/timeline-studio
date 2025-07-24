@@ -166,7 +166,6 @@ jobs:
         run: |
           npm config set fetch-timeout 300000
           npm config set fetch-retries 5
-          npm config set network-timeout 300000
           # Try to install with retries, excluding onnxruntime-node
           npm ci --prefer-offline --no-audit --no-fund --omit=optional || \
           npm install --no-audit --no-fund --omit=optional
