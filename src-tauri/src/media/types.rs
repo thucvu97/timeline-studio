@@ -1,6 +1,43 @@
 // Типы данных для работы с медиафайлами
 
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
+use serde_json;
+
+/// Вспомогательная функция для десериализации строки в Option<f64>
+fn deserialize_string_to_f64<'de, D>(deserializer: D) -> Result<Option<f64>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value: Option<serde_json::Value> = Option::deserialize(deserializer)?;
+    match value {
+        Some(serde_json::Value::String(s)) => {
+            s.parse::<f64>()
+                .map(Some)
+                .map_err(serde::de::Error::custom)
+        }
+        Some(serde_json::Value::Number(n)) => Ok(n.as_f64()),
+        None => Ok(None),
+        _ => Err(serde::de::Error::custom("expected string or number")),
+    }
+}
+
+/// Вспомогательная функция для десериализации строки в Option<u64>
+fn deserialize_string_to_u64<'de, D>(deserializer: D) -> Result<Option<u64>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value: Option<serde_json::Value> = Option::deserialize(deserializer)?;
+    match value {
+        Some(serde_json::Value::String(s)) => {
+            s.parse::<u64>()
+                .map(Some)
+                .map_err(serde::de::Error::custom)
+        }
+        Some(serde_json::Value::Number(n)) => Ok(n.as_u64()),
+        None => Ok(None),
+        _ => Err(serde::de::Error::custom("expected string or number")),
+    }
+}
 
 /// Структура для хранения метаданных видео
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -65,7 +102,9 @@ pub struct FfprobeStream {
 /// Структура для формата в формате FFprobe
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FfprobeFormat {
+  #[serde(deserialize_with = "deserialize_string_to_f64")]
   pub duration: Option<f64>,
+  #[serde(deserialize_with = "deserialize_string_to_u64")]
   pub size: Option<u64>,
   pub bit_rate: Option<String>,
   pub format_name: Option<String>,
