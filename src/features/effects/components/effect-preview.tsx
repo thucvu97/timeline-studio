@@ -99,9 +99,9 @@ export function EffectPreview({
   // Ленивая загрузка видео при наведении
   useEffect(() => {
     if (isHovering && !videoSrc) {
-      setVideoSrc(getPreviewPath(effectType))
+      setVideoSrc(getPreviewPath(effect))
     }
-  }, [isHovering, effectType, videoSrc])
+  }, [isHovering, effect, videoSrc])
 
   /**
    * Эффект для управления воспроизведением видео и применением эффектов
