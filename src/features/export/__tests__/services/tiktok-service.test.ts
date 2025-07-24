@@ -9,6 +9,7 @@ vi.mock("../../services/oauth-service", () => ({
 
 // Import after mocking
 import * as TikTokService from "../../services/tiktok-service"
+
 const { OAuthService } = await import("../../services/oauth-service")
 
 // Mock global fetch
