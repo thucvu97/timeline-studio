@@ -126,6 +126,8 @@ jobs:
           ./scripts/setup-rust-env-windows.ps1 -FFmpegDir C:\ffmpeg
           
       - name: Generate TypeScript bindings
+        env:
+          PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig
         run: |
           cd src-tauri
           cargo run --bin generate_types
@@ -268,6 +270,8 @@ jobs:
           echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig" >> $GITHUB_ENV
 
       - name: Generate TypeScript bindings
+        env:
+          PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig
         run: |
           cd src-tauri
           cargo run --bin generate_types
