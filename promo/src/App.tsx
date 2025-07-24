@@ -1,5 +1,4 @@
 import React from "react"
-import { SmoothScroll } from './components/SmoothScroll'
 import { Navigation } from './components/Navigation'
 import { HeroSection } from './components/HeroSection'
 import { AnimatedSection } from './components/AnimatedSection'
@@ -9,8 +8,7 @@ import { PricingSection } from './components/PricingSection'
 
 const App: React.FC = () => {
   return (
-    <SmoothScroll>
-      <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-gray-900">
         <Navigation />
         
         {/* Hero Section */}
@@ -256,7 +254,6 @@ const App: React.FC = () => {
           </div>
         </footer>
       </div>
-    </SmoothScroll>
   )
 }
 
