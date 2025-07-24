@@ -53,12 +53,60 @@ jobs:
           # Set PKG_CONFIG_PATH
           echo "PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig" >> $GITHUB_ENV
 
+      - name: Install Windows dependencies for Tauri bindings
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          # Install pkg-config
+          choco install pkgconfiglite -y
+          
+          # Create FFmpeg directory
+          New-Item -ItemType Directory -Force -Path C:\ffmpeg
+          
+          # Download pre-built FFmpeg shared libraries
+          $ffmpegUrl = "https://github.com/GyanD/codexffmpeg/releases/download/7.1/ffmpeg-7.1-full_build-shared.7z"
+          Write-Host "Downloading FFmpeg from $ffmpegUrl"
+          Invoke-WebRequest -Uri $ffmpegUrl -OutFile ffmpeg.7z
+          
+          # Extract FFmpeg
+          Write-Host "Extracting FFmpeg..."
+          7z x ffmpeg.7z -oC:\
+          $extractedDir = Get-ChildItem -Path C:\ -Directory | Where-Object { $_.Name -like "ffmpeg-*" } | Select-Object -First 1
+          Write-Host "Found extracted directory: $($extractedDir.FullName)"
+          
+          # Copy contents to C:\ffmpeg
+          Write-Host "Copying FFmpeg files to C:\ffmpeg..."
+          Copy-Item -Path "$($extractedDir.FullName)\*" -Destination C:\ffmpeg -Recurse -Force
+          
+          # Set environment variables using NO_PKG_CONFIG approach
+          Write-Host "Setting environment variables..."
+          echo "FFMPEG_DIR=C:\ffmpeg" >> $env:GITHUB_ENV
+          echo "FFMPEG_INCLUDE_DIR=C:\ffmpeg\include" >> $env:GITHUB_ENV
+          echo "FFMPEG_LIB_DIR=C:\ffmpeg\lib" >> $env:GITHUB_ENV
+          echo "FFMPEG_NO_PKG_CONFIG=1" >> $env:GITHUB_ENV
+          echo "RUSTFLAGS=-C link-arg=/LIBPATH:C:\ffmpeg\lib" >> $env:GITHUB_ENV
+          echo "C:\ffmpeg\bin" >> $env:GITHUB_PATH
+
       - name: Create dist directory
         run: mkdir -p dist
 
-      - name: Generate TypeScript bindings
+      - name: Generate TypeScript bindings on Unix
+        if: runner.os != 'Windows'
         env:
           PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig
+        run: |
+          cd src-tauri
+          cargo run --bin generate_types
+
+      - name: Generate TypeScript bindings on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          FFMPEG_DIR: C:\ffmpeg
+          FFMPEG_INCLUDE_DIR: C:\ffmpeg\include
+          FFMPEG_LIB_DIR: C:\ffmpeg\lib
+          FFMPEG_NO_PKG_CONFIG: 1
+          RUSTFLAGS: -C link-arg=/LIBPATH:C:\ffmpeg\lib
         run: |
           cd src-tauri
           cargo run --bin generate_types

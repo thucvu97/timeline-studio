@@ -128,9 +128,23 @@ jobs:
       - name: Create dist directory
         run: mkdir -p dist
 
-      - name: Generate TypeScript bindings
+      - name: Generate TypeScript bindings on Unix
+        if: runner.os != 'Windows'
         env:
           PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig
+        run: |
+          cd src-tauri
+          cargo run --bin generate_types
+
+      - name: Generate TypeScript bindings on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          FFMPEG_DIR: C:\ffmpeg
+          FFMPEG_INCLUDE_DIR: C:\ffmpeg\include
+          FFMPEG_LIB_DIR: C:\ffmpeg\lib
+          FFMPEG_NO_PKG_CONFIG: 1
+          RUSTFLAGS: -C link-arg=/LIBPATH:C:\ffmpeg\lib
         run: |
           cd src-tauri
           cargo run --bin generate_types
@@ -275,9 +289,23 @@ jobs:
       - name: Create dist directory
         run: mkdir -p dist
 
-      - name: Generate TypeScript bindings
+      - name: Generate TypeScript bindings on Unix
+        if: runner.os != 'Windows'
         env:
           PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig
+        run: |
+          cd src-tauri
+          cargo run --bin generate_types
+
+      - name: Generate TypeScript bindings on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          FFMPEG_DIR: C:\ffmpeg
+          FFMPEG_INCLUDE_DIR: C:\ffmpeg\include
+          FFMPEG_LIB_DIR: C:\ffmpeg\lib
+          FFMPEG_NO_PKG_CONFIG: 1
+          RUSTFLAGS: -C link-arg=/LIBPATH:C:\ffmpeg\lib
         run: |
           cd src-tauri
           cargo run --bin generate_types
