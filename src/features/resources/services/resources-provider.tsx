@@ -127,9 +127,11 @@ export function ResourcesProviderV2({ children }: ResourcesProviderV2Props) {
   const addMedia = useCallback(
     async (file: MediaFile) => {
       console.log("ResourcesProvider: Adding media", file.path)
+      // Определяем тип медиа на основе свойств файла
+      const mediaType = file.isVideo ? "Video" : file.isAudio ? "Audio" : "Image"
       const result = await executeCommand({
         type: "AddMedia",
-        params: { path: file.path, mediaType: "Video" }, // или определить тип из file
+        params: { path: file.path, media_type: mediaType },
       })
       console.log("ResourcesProvider: AddMedia result", result)
     },
@@ -140,7 +142,7 @@ export function ResourcesProviderV2({ children }: ResourcesProviderV2Props) {
     async (file: MediaFile) => {
       await executeCommand({
         type: "AddMedia",
-        params: { path: file.path, mediaType: "Audio" },
+        params: { path: file.path, media_type: "Audio" },
       })
     },
     [executeCommand],
