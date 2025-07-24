@@ -79,6 +79,14 @@
     "momentsDetected": "моментов обнаружено",
     "momentTypes": "Типы моментов"
   },
+  "app": {
+    "connectingToBackend": "Подключение к приложению...",
+    "connectionError": "Ошибка подключения к приложению",
+    "loadingProject": "Загрузка проекта...",
+    "projectLoaded": "Проект загружен",
+    "creatingProject": "Создание нового проекта...",
+    "projectCreated": "Проект создан"
+  },
   "dates": {
     "today": "Сегодня",
     "yesterday": "Вчера",

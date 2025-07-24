@@ -10,15 +10,15 @@ import { Transition } from "@/features/transitions/types/transitions"
 import {
   addEffectToResources,
   addFilterToResources,
-  addTransitionToResources,
-  addTemplateToResources,
-  addStyleTemplateToResources,
   addMediaToResources,
+  addStyleTemplateToResources,
+  addTemplateToResources,
+  addTransitionToResources,
+  cleanupUnusedResources,
   createAppliedEffect,
   createAppliedFilter,
-  createAppliedTransition,
   createAppliedStyleTemplate,
-  cleanupUnusedResources,
+  createAppliedTransition,
 } from "../../services/resource-manager"
 import { TimelineProject } from "../../types/timeline"
 

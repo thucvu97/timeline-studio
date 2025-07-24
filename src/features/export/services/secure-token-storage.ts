@@ -274,13 +274,9 @@ async function decrypt(encrypted: EncryptedToken): Promise<string> {
  */
 async function getDerivedKey(): Promise<CryptoKey> {
   const encoder = new TextEncoder()
-  const keyMaterial = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(ENCRYPTION_KEY),
-    { name: "PBKDF2" },
-    false,
-    ["deriveKey"],
-  )
+  const keyMaterial = await crypto.subtle.importKey("raw", encoder.encode(ENCRYPTION_KEY), { name: "PBKDF2" }, false, [
+    "deriveKey",
+  ])
 
   return crypto.subtle.deriveKey(
     {

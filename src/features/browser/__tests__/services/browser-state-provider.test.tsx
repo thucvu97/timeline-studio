@@ -107,9 +107,24 @@ describe("BrowserStateProvider", () => {
         },
       }
 
-      ;(useUserSettings as MockedFunction<typeof useUserSettings>).mockReturnValue({
-        browserSettings: savedSettings,
-      } as any)
+      // Мокаем localStorage для загрузки сохраненных настроек
+      const localStorageMock = {
+        getItem: vi.fn((key: string) => {
+          if (key === "browserSettings") {
+            return JSON.stringify(savedSettings)
+          }
+          return null
+        }),
+        setItem: vi.fn(),
+        removeItem: vi.fn(),
+        clear: vi.fn(),
+        length: 0,
+        key: vi.fn(() => null),
+      }
+      Object.defineProperty(window, "localStorage", {
+        value: localStorageMock,
+        writable: true,
+      })
 
       const { result } = renderHook(() => useBrowserState(), { wrapper })
 

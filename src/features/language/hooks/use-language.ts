@@ -44,9 +44,7 @@ export function useLanguage(): UseLanguageReturn {
       const response = await invoke<LanguageResponse>("get_app_language_tauri")
 
       // Проверяем, поддерживается ли язык
-      const appLang = isSupportedLanguage(response.language) 
-        ? (response.language as LanguageCode) 
-        : DEFAULT_LANGUAGE
+      const appLang = isSupportedLanguage(response.language) ? (response.language as LanguageCode) : DEFAULT_LANGUAGE
 
       const sysLang = isSupportedLanguage(response.system_language)
         ? (response.system_language as LanguageCode)

@@ -58,8 +58,7 @@ export function estimateExportTime(settings: ExportSettings, projectMetrics: Pro
 
   // Учитываем разрешение
   const resolution = settings.resolution || "1080"
-  const resolutionMultiplier =
-    RESOLUTION_MULTIPLIERS[resolution as keyof typeof RESOLUTION_MULTIPLIERS] || 1.0
+  const resolutionMultiplier = RESOLUTION_MULTIPLIERS[resolution as keyof typeof RESOLUTION_MULTIPLIERS] || 1.0
   factors.push(`Resolution: ${resolution}p (${resolutionMultiplier}x)`)
 
   // Учитываем сложность проекта
@@ -79,12 +78,9 @@ export function estimateExportTime(settings: ExportSettings, projectMetrics: Pro
 
   // Переходы
   if (projectMetrics.transitionsCount > 0) {
-    const transitionMultiplier =
-      1 + projectMetrics.transitionsCount * COMPLEXITY_MULTIPLIERS.transition
+    const transitionMultiplier = 1 + projectMetrics.transitionsCount * COMPLEXITY_MULTIPLIERS.transition
     complexityMultiplier *= transitionMultiplier
-    factors.push(
-      `Transitions: ${projectMetrics.transitionsCount} (+${Math.round((transitionMultiplier - 1) * 100)}%)`,
-    )
+    factors.push(`Transitions: ${projectMetrics.transitionsCount} (+${Math.round((transitionMultiplier - 1) * 100)}%)`)
   }
 
   // Сложные эффекты

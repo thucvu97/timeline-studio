@@ -1,10 +1,9 @@
 import { useCallback, useState } from "react"
 
-import { 
+import {
   ProjectRestorationResult,
   generateRestorationReport,
-  handleMissingFiles,
-  restoreProjectMedia as restoreProjectMediaService 
+  restoreProjectMedia as restoreProjectMediaService,
 } from "@/features/media/services/media-restoration-service"
 import { MediaFile } from "@/features/media/types/media"
 import { SavedMediaFile, SavedMusicFile } from "@/features/media/types/saved-media"

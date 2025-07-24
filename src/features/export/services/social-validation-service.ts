@@ -242,13 +242,13 @@ function validateExportConfig(
     }
 
     const maxResolutionHeight =
-        limits.maxResolution === "4k"
-          ? 2160
-          : limits.maxResolution === "1440p"
-            ? 1440
-            : limits.maxResolution === "1080p"
-              ? 1080
-              : 720
+      limits.maxResolution === "4k"
+        ? 2160
+        : limits.maxResolution === "1440p"
+          ? 1440
+          : limits.maxResolution === "1080p"
+            ? 1080
+            : 720
 
     const settingsHeight = resolutionMap[settings.resolution] || Number.parseInt(settings.resolution)
     if (settingsHeight > maxResolutionHeight) {
@@ -257,11 +257,7 @@ function validateExportConfig(
   }
 }
 
-function addOptimizationSuggestions(
-  networkId: string,
-  settings: SocialExportSettings,
-  result: ValidationResult,
-): void {
+function addOptimizationSuggestions(networkId: string, settings: SocialExportSettings, result: ValidationResult): void {
   const network = SOCIAL_NETWORKS.find((n) => n.id === networkId)
   if (!network) return
 

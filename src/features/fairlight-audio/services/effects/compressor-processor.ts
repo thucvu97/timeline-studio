@@ -171,56 +171,52 @@ export class CompressorProcessor {
   async connectSidechain(source: AudioNode) {
     // In Web Audio API, DynamicsCompressorNode doesn't have true sidechain
     // This is a workaround that modulates the threshold based on sidechain input
-    
+
     // Load AudioWorklet module if not already loaded
     if (!this.context.audioWorklet) {
       throw new Error("AudioWorklet is not supported in this browser")
     }
-    
+
     try {
       await this.context.audioWorklet.addModule(
-        "/src/features/fairlight-audio/services/effects/worklets/compressor-worklet.js"
+        "/src/features/fairlight-audio/services/effects/worklets/compressor-worklet.js",
       )
     } catch (error) {
       // Module might already be loaded, continue
     }
-    
+
     // Create AudioWorkletNode for sidechain processing
     const workletNode = new AudioWorkletNode(this.context, "compressor-worklet", {
       numberOfInputs: 2,
       numberOfOutputs: 1,
       channelCount: 1,
     })
-    
+
     // Enable sidechain processing
     workletNode.port.postMessage({ type: "setSidechain", enabled: true })
-    
+
     // Handle sidechain level updates
     workletNode.port.onmessage = (event) => {
       if (event.data.type === "sidechainLevel") {
         const sidechainDb = event.data.level
-        
+
         // Modulate threshold based on sidechain level
         // This creates a ducking effect
         const modulation = Math.max(-20, sidechainDb) * 0.5
         const newThreshold = this.config.threshold - modulation
-        
-        this.compressor.threshold.setTargetAtTime(
-          newThreshold,
-          this.context.currentTime,
-          0.01
-        )
+
+        this.compressor.threshold.setTargetAtTime(newThreshold, this.context.currentTime, 0.01)
       }
     }
-    
+
     // Connect sidechain source to worklet's second input
     source.connect(workletNode, 0, 1)
-    
+
     // Connect main audio through first input (pass-through)
     const dummyGain = this.context.createGain()
     dummyGain.gain.value = 0
     dummyGain.connect(workletNode, 0, 0)
-    
+
     return () => {
       workletNode.port.postMessage({ type: "setSidechain", enabled: false })
       workletNode.disconnect()

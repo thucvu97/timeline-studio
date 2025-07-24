@@ -85,10 +85,10 @@ export class PhaseMeter extends EventEmitter {
     if (!context.audioWorklet) {
       throw new Error("AudioWorklet is not supported in this browser")
     }
-    
+
     try {
       await context.audioWorklet.addModule(
-        "/src/features/fairlight-audio/services/meters/worklets/phase-analyzer-worklet.js"
+        "/src/features/fairlight-audio/services/meters/worklets/phase-analyzer-worklet.js",
       )
     } catch (error) {
       // Module might already be loaded, continue
@@ -113,41 +113,6 @@ export class PhaseMeter extends EventEmitter {
     if (type === "phase-data") {
       this.updatePhaseAnalysis(correlation, leftBuffer, rightBuffer)
     }
-  }
-
-  private processAudioFallback(event: any): void {
-    const inputBuffer = event.inputBuffer
-    const outputBuffer = event.outputBuffer
-
-    const left = inputBuffer.getChannelData(0)
-    const right = inputBuffer.getChannelData(1)
-
-    // Копируем вход на выход
-    outputBuffer.getChannelData(0).set(left)
-    outputBuffer.getChannelData(1).set(right)
-
-    // Анализируем фазу
-    const correlation = this.calculateCorrelation(left, right)
-    this.updatePhaseAnalysis(correlation, left, right)
-  }
-
-  private calculateCorrelation(left: Float32Array, right: Float32Array): number {
-    let sumLR = 0
-    let sumLL = 0
-    let sumRR = 0
-    const length = Math.min(left.length, right.length)
-
-    for (let i = 0; i < length; i++) {
-      const l = left[i]
-      const r = right[i]
-
-      sumLR += l * r
-      sumLL += l * l
-      sumRR += r * r
-    }
-
-    const denominator = Math.sqrt(sumLL * sumRR)
-    return denominator > 0 ? sumLR / denominator : 0
   }
 
   private updatePhaseAnalysis(correlation: number, left: Float32Array, right: Float32Array): void {

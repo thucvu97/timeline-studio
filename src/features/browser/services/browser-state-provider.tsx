@@ -1,8 +1,6 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from "react"
 
-import { useAppSettings } from "@/features/app-state/hooks"
 import { DEFAULT_PREVIEW_SIZE_INDEX, PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"
-import { useUserSettings } from "@/features/user-settings/hooks/use-user-settings"
 import { BrowserTab } from "@/shared/types/browser"
 import type { BrowserContext, ViewMode } from "@/shared/types/browser-context"
 
@@ -77,17 +75,23 @@ interface BrowserStateProviderProps {
  * Провайдер состояния браузера
  */
 export const BrowserStateProvider: React.FC<BrowserStateProviderProps> = ({ children }) => {
-  const { updateUserSettings } = useAppSettings()
-  const userSettings = useUserSettings()
   const [state, setState] = useState<BrowserContext>(() => {
-    // Пытаемся загрузить настройки из пользовательских настроек
-    // Теперь browserSettings должны быть доступны напрямую как поле в userSettings
-    return (userSettings as any)?.browserSettings || getInitialContext()
+    // Пытаемся загрузить настройки из localStorage
+    try {
+      const savedSettings = localStorage.getItem("browserSettings")
+      if (savedSettings) {
+        return JSON.parse(savedSettings)
+      }
+    } catch (error) {
+      console.error("Failed to load browser settings from localStorage:", error)
+    }
+    return getInitialContext()
   })
 
   // Используем ref для отслеживания первого рендера и предыдущего состояния
   const isFirstRender = useRef(true)
   const prevStateRef = useRef(state)
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Сохраняем настройки в пользовательские настройки при изменении (с дебаунсом)
   useEffect(() => {
@@ -105,15 +109,38 @@ export const BrowserStateProvider: React.FC<BrowserStateProviderProps> = ({ chil
 
     prevStateRef.current = state
 
-    const timeoutId = setTimeout(() => {
-      updateUserSettings({
-        browserSettings: state,
-      })
-      // Settings saved
+    // Очищаем предыдущий таймаут, если он существует
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current)
+    }
+
+    saveTimeoutRef.current = setTimeout(() => {
+      try {
+        localStorage.setItem("browserSettings", JSON.stringify(state))
+        // Settings saved to localStorage
+      } catch (error) {
+        console.error("Failed to save browser settings to localStorage:", error)
+      }
+      saveTimeoutRef.current = null
     }, 500) // Дебаунс 500мс
 
-    return () => clearTimeout(timeoutId)
-  }, [state, updateUserSettings])
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current)
+        saveTimeoutRef.current = null
+      }
+    }
+  }, [state])
+
+  // Очистка таймера при размонтировании компонента
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current)
+        saveTimeoutRef.current = null
+      }
+    }
+  }, [])
 
   // Геттеры
   const activeTab = state.activeTab

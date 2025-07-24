@@ -14,10 +14,15 @@ export * from "./hooks/use-render-queue"
 export * from "./hooks/use-social-export"
 // Сервисы
 export type { SocialNetworkLimits, ValidationResult } from "./services/social-validation-service"
-export { validateExportSettings, getNetworkLimits, getOptimalSettings } from "./services/social-validation-service"
+export { getNetworkLimits, getOptimalSettings, validateExportSettings } from "./services/social-validation-service"
 export type * from "./types/export-types"
 export type { ProjectMetrics, TimeEstimate } from "./utils/export-time-estimator"
-export { estimateExportTime, formatEstimatedTime, getConfidenceIcon, getConfidenceDescription } from "./utils/export-time-estimator"
+export {
+  estimateExportTime,
+  formatEstimatedTime,
+  getConfidenceDescription,
+  getConfidenceIcon,
+} from "./utils/export-time-estimator"
 // Утилиты
 export type { PresetConfig } from "./utils/preset-configs"
 export { getAllPresets, PROFESSIONAL_PRESETS, SOCIAL_PRESETS } from "./utils/preset-configs"

@@ -37,7 +37,6 @@ export class LevelMeter extends EventEmitter {
   private config: LevelConfig
   private meterConfig: MeterConfig
   private processor: AudioWorkletNode | null = null
-  private context: AudioContext | null = null
 
   // Буферы для каждого канала
   private peakValues: number[]
@@ -104,10 +103,10 @@ export class LevelMeter extends EventEmitter {
     if (!context.audioWorklet) {
       throw new Error("AudioWorklet is not supported in this browser")
     }
-    
+
     try {
       await context.audioWorklet.addModule(
-        "/src/features/fairlight-audio/services/meters/worklets/level-meter-worklet.js"
+        "/src/features/fairlight-audio/services/meters/worklets/level-meter-worklet.js",
       )
     } catch (error) {
       // Module might already be loaded, continue
@@ -124,7 +123,7 @@ export class LevelMeter extends EventEmitter {
     // Send configuration to worklet
     this.processor.port.postMessage({
       type: "config",
-      sampleRate: context.sampleRate
+      sampleRate: context.sampleRate,
     })
 
     this.processor.port.onmessage = this.handleWorkletMessage.bind(this)
@@ -167,16 +166,6 @@ export class LevelMeter extends EventEmitter {
     }
 
     this.emitLevelData()
-  }
-
-  // Removed deprecated audio processing fallback method
-
-  private calculatePeak(samples: Float32Array): number {
-    let peak = 0
-    for (const sample of samples) {
-      peak = Math.max(peak, Math.abs(sample))
-    }
-    return peak > 0 ? 20 * Math.log10(peak) : Number.NEGATIVE_INFINITY
   }
 
   private updatePeak(channel: number, peakDb: number, currentTime: number): void {

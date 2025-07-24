@@ -6,7 +6,7 @@ import { AlertTriangle, CheckCircle, FileX, Search, Trash2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { handleMissingFiles, promptUserToFindFile } from "@/features/media/services/media-restoration-service"
+import { promptUserToFindFile } from "@/features/media/services/media-restoration-service"
 import { SavedMediaFile } from "@/features/media/types/saved-media"
 import { useModal } from "@/features/modals/services"
 

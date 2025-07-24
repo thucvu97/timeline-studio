@@ -79,6 +79,14 @@
     "momentsDetected": "moments detected",
     "momentTypes": "Moment Types"
   },
+  "app": {
+    "connectingToBackend": "Connecting to application...",
+    "connectionError": "Failed to connect to application",
+    "loadingProject": "Loading project...",
+    "projectLoaded": "Project loaded",
+    "creatingProject": "Creating new project...",
+    "projectCreated": "Project created"
+  },
   "dates": {
     "today": "Today",
     "yesterday": "Yesterday",

@@ -126,16 +126,13 @@ async function uploadThumbnail(videoId: string, thumbnailPath: string, accessTok
     const formData = new FormData()
     formData.append("thumbnail", thumbnailBlob)
 
-    const uploadResponse = await fetch(
-      `${API_BASE}/thumbnails/set?videoId=${videoId}&uploadType=media`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: formData,
+    const uploadResponse = await fetch(`${API_BASE}/thumbnails/set?videoId=${videoId}&uploadType=media`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
       },
-    )
+      body: formData,
+    })
 
     if (!uploadResponse.ok) {
       console.warn("Failed to upload thumbnail:", await uploadResponse.text())

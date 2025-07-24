@@ -424,9 +424,10 @@ function objectToXML(obj: any, rootName: string): string {
         } else if (typeof subValue === "object") {
           safeSubValue = JSON.stringify(subValue)
         } else {
-          safeSubValue = typeof subValue === "string" || typeof subValue === "number" || typeof subValue === "boolean" 
-            ? String(subValue)
-            : JSON.stringify(subValue)
+          safeSubValue =
+            typeof subValue === "string" || typeof subValue === "number" || typeof subValue === "boolean"
+              ? String(subValue)
+              : JSON.stringify(subValue)
         }
         xmlLines.push(`    <${subKey}>${safeSubValue}</${subKey}>`)
       }
@@ -438,9 +439,10 @@ function objectToXML(obj: any, rootName: string): string {
       } else if (typeof value === "object") {
         safeValue = JSON.stringify(value)
       } else {
-        safeValue = typeof value === "string" || typeof value === "number" || typeof value === "boolean"
-          ? String(value)
-          : JSON.stringify(value)
+        safeValue =
+          typeof value === "string" || typeof value === "number" || typeof value === "boolean"
+            ? String(value)
+            : JSON.stringify(value)
       }
       xmlLines.push(`  <${key}>${safeValue}</${key}>`)
     }

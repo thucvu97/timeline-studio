@@ -163,7 +163,7 @@ export function validateSettings(settings: SocialExportSettings): string[] {
 
   // Проверяем длину caption (максимум 1024 символа для видео)
   const captionLength =
-      (settings.title?.length || 0) + (settings.description?.length || 0) + (settings.tags?.join(" ").length || 0)
+    (settings.title?.length || 0) + (settings.description?.length || 0) + (settings.tags?.join(" ").length || 0)
 
   if (captionLength > 1000) {
     // Оставляем небольшой запас для markdown разметки

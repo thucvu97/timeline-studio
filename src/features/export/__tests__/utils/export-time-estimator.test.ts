@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest"
 
 import { ExportSettings } from "../../types/export-types"
-import { estimateExportTime, formatEstimatedTime, getConfidenceIcon, getConfidenceDescription, type ProjectMetrics } from "../../utils/export-time-estimator"
+import {
+  estimateExportTime,
+  formatEstimatedTime,
+  getConfidenceDescription,
+  getConfidenceIcon,
+  type ProjectMetrics,
+} from "../../utils/export-time-estimator"
 
 describe("ExportTimeEstimator", () => {
   const basicSettings: ExportSettings = {

@@ -12,7 +12,9 @@ vi.mock("@/features/media/services/media-restoration-service", () => ({
   generateRestorationReport: vi.fn(),
 }))
 
-const { restoreProjectMedia, handleMissingFiles, generateRestorationReport } = await import("@/features/media/services/media-restoration-service")
+const { restoreProjectMedia, handleMissingFiles, generateRestorationReport } = await import(
+  "@/features/media/services/media-restoration-service"
+)
 const mockRestoreProjectMedia = vi.mocked(restoreProjectMedia)
 const mockHandleMissingFiles = vi.mocked(handleMissingFiles)
 const mockGenerateRestorationReport = vi.mocked(generateRestorationReport)

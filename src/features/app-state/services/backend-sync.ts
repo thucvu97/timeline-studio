@@ -149,6 +149,7 @@ export class BackendSync {
    * Handle incoming backend event
    */
   private handleBackendEvent(envelope: EventEnvelope) {
+    console.log("BackendSync: Received event", envelope)
     // Update last version
     this.lastVersion = envelope.metadata.version
 
@@ -163,6 +164,7 @@ export class BackendSync {
 
     // For state-changing events, fetch new state
     if (this.isStateChangingEvent(envelope.event)) {
+      console.log("BackendSync: State-changing event detected, fetching new state")
       void this.fetchAndNotifyState()
     }
   }
@@ -198,6 +200,7 @@ export class BackendSync {
    */
   private async fetchAndNotifyState() {
     const state = await this.getProjectState()
+    console.log("BackendSync: Fetched project state", state)
     if (state) {
       this.notifyStateChange(state)
     }
@@ -207,6 +210,7 @@ export class BackendSync {
    * Notify state change handlers
    */
   private notifyStateChange(state: ProjectState) {
+    console.log("BackendSync: Notifying state change to", this.stateChangeHandlers.size, "handlers")
     this.stateChangeHandlers.forEach((handler) => {
       try {
         handler(state)

@@ -39,7 +39,18 @@ export const AddMediaButton = memo(function AddMediaButton({
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const prevIsAddedRef = useRef(false)
 
-  const { addResource, removeResource, isAdded } = useResources()
+  const {
+    addMedia,
+    addMusic,
+    addEffect,
+    addFilter,
+    addTransition,
+    addSubtitle,
+    addTemplate,
+    addStyleTemplate,
+    removeResource,
+    isAdded,
+  } = useResources()
 
   // Обновляем состояние при изменении isAdded
   useEffect(() => {
@@ -111,13 +122,55 @@ export const AddMediaButton = memo(function AddMediaButton({
         // Удаляем из добавленных
         void removeResource(resource.id)
       } else if (!isAdded(resource.id, type) && isHovering) {
-        // Добавляем в добавленные
-        addResource(type, resource)
+        // Добавляем в добавленные в зависимости от типа
+        switch (type) {
+          case "media":
+            void addMedia(resource.data)
+            break
+          case "music":
+            void addMusic(resource.data)
+            break
+          case "effect":
+            void addEffect(resource.data)
+            break
+          case "filter":
+            void addFilter(resource.data)
+            break
+          case "transition":
+            void addTransition(resource.data)
+            break
+          case "subtitle":
+            void addSubtitle(resource.data)
+            break
+          case "template":
+            void addTemplate(resource.data)
+            break
+          case "styleTemplate":
+            void addStyleTemplate(resource.data)
+            break
+          default:
+            console.warn(`Unknown resource type: ${type}`)
+        }
         // Немедленно обновляем визуальное состояние
         setIsRecentlyAdded(true)
       }
     },
-    [isAdded, isHovering, canShowRemoveButton, removeResource, addResource, resource],
+    [
+      isAdded,
+      isHovering,
+      canShowRemoveButton,
+      removeResource,
+      addMedia,
+      addMusic,
+      addEffect,
+      addFilter,
+      addTransition,
+      addSubtitle,
+      addTemplate,
+      addStyleTemplate,
+      resource,
+      type,
+    ],
   )
 
   return (

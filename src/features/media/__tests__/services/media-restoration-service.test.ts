@@ -4,13 +4,10 @@ import { MediaFile } from "@/features/media/types/media"
 import { SavedMediaFile, SavedMusicFile } from "@/features/media/types/saved-media"
 
 import {
-  FileRestorationResult,
-  ProjectRestorationResult,
-  restoreProjectMedia,
-  restoreFile,
-  promptUserToFindFile,
-  handleMissingFiles,
   generateRestorationReport,
+  promptUserToFindFile,
+  restoreFile,
+  restoreProjectMedia,
 } from "../../services/media-restoration-service"
 
 // Мокаем модули Tauri
@@ -159,9 +156,7 @@ describe("MediaRestorationService", () => {
     it("должен обрабатывать ошибки", async () => {
       mockFileExists.mockRejectedValue(new Error("File system error"))
 
-      await expect(restoreFile(mockSavedFile, "/project/dir")).rejects.toThrow(
-        "File system error",
-      )
+      await expect(restoreFile(mockSavedFile, "/project/dir")).rejects.toThrow("File system error")
     })
   })
 
@@ -208,11 +203,7 @@ describe("MediaRestorationService", () => {
       })
       mockConvertFromSavedMediaFile.mockReturnValue({} as MediaFile)
 
-      const result = await restoreProjectMedia(
-        mockMediaFiles,
-        mockMusicFiles,
-        "/project/path.tls",
-      )
+      const result = await restoreProjectMedia(mockMediaFiles, mockMusicFiles, "/project/path.tls")
 
       expect(result.stats.total).toBe(2)
       expect(result.stats.restored).toBe(2)
@@ -223,11 +214,7 @@ describe("MediaRestorationService", () => {
       mockFileExists.mockResolvedValue(false)
       mockGenerateAlternativePaths.mockResolvedValue([])
 
-      const result = await restoreProjectMedia(
-        mockMediaFiles,
-        mockMusicFiles,
-        "/project/path.tls",
-      )
+      const result = await restoreProjectMedia(mockMediaFiles, mockMusicFiles, "/project/path.tls")
 
       expect(result.stats.missing).toBe(2)
       expect(result.missingFiles).toHaveLength(2)
@@ -242,11 +229,7 @@ describe("MediaRestorationService", () => {
       })
       mockConvertFromSavedMediaFile.mockReturnValue({} as MediaFile)
 
-      const result = await restoreProjectMedia(
-        mockMediaFiles,
-        mockMusicFiles,
-        "/project/path.tls",
-      )
+      const result = await restoreProjectMedia(mockMediaFiles, mockMusicFiles, "/project/path.tls")
 
       const report = generateRestorationReport(result)
 

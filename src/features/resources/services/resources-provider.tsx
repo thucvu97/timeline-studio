@@ -88,7 +88,9 @@ export function ResourcesProviderV2({ children }: ResourcesProviderV2Props) {
 
   // Подписка на backend состояние
   useEffect(() => {
+    console.log("ResourcesProvider: Setting up backend state subscription")
     const unsubscribe = backendSync.onStateChange((state: ProjectState) => {
+      console.log("ResourcesProvider: Backend state updated", state)
       setBackendState(state)
       setError(null)
     })
@@ -124,10 +126,12 @@ export function ResourcesProviderV2({ children }: ResourcesProviderV2Props) {
   // Действия для добавления ресурсов
   const addMedia = useCallback(
     async (file: MediaFile) => {
-      await executeCommand({
+      console.log("ResourcesProvider: Adding media", file.path)
+      const result = await executeCommand({
         type: "AddMedia",
         params: { path: file.path, mediaType: "Video" }, // или определить тип из file
       })
+      console.log("ResourcesProvider: AddMedia result", result)
     },
     [executeCommand],
   )
@@ -245,6 +249,7 @@ export function ResourcesProviderV2({ children }: ResourcesProviderV2Props) {
   // Извлекаем ресурсы из backend состояния
   // Пока backend не содержит все типы ресурсов, создаем пустые массивы
   const mediaPool = backendState?.project?.mediaPool
+  console.log("ResourcesProvider: MediaPool from backend", mediaPool)
 
   // Конвертируем медиа из backend в MediaResource формат
   const mediaResources: MediaResource[] = mediaPool

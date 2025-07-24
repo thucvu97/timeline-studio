@@ -1,5 +1,7 @@
 "use client"
 
+import { AppStateGuard } from "@/features/app-state/components/app-state-guard"
+import { ProjectLoadingOverlay } from "@/features/app-state/components/project-loading-overlay"
 import { useAutoLoadUserData } from "@/features/media-studio/hooks"
 import { ModalContainer } from "@/features/modals/components"
 import { TopBar } from "@/features/top-bar/components/top-bar"
@@ -25,17 +27,22 @@ export function MediaStudio() {
   }
 
   return (
-    <div className="flex flex-col h-screen w-screen m-0 p-0">
-      <TopBar />
-      <div className="flex-1">
-        {layoutMode === "default" && <DefaultLayout />}
-        {layoutMode === "options" && <OptionsLayout />}
-        {layoutMode === "vertical" && <VerticalLayout />}
-        {layoutMode === "chat" && <ChatLayout />}
-      </div>
+    <AppStateGuard>
+      <div className="flex flex-col h-screen w-screen m-0 p-0">
+        <TopBar />
+        <div className="flex-1">
+          {layoutMode === "default" && <DefaultLayout />}
+          {layoutMode === "options" && <OptionsLayout />}
+          {layoutMode === "vertical" && <VerticalLayout />}
+          {layoutMode === "chat" && <ChatLayout />}
+        </div>
 
-      {/* Контейнер для модальных окон */}
-      <ModalContainer />
-    </div>
+        {/* Контейнер для модальных окон */}
+        <ModalContainer />
+
+        {/* Оверлей загрузки проекта */}
+        <ProjectLoadingOverlay />
+      </div>
+    </AppStateGuard>
   )
 }

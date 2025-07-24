@@ -170,9 +170,7 @@ export async function restoreFile(savedFile: SavedMediaFile, projectDir: string)
   // 2. Проверяем относительный путь (если есть)
   if (savedFile.relativePath) {
     try {
-      const relativePath = await import("@tauri-apps/api/path").then((p) =>
-        p.join(projectDir, savedFile.relativePath!),
-      )
+      const relativePath = await import("@tauri-apps/api/path").then((p) => p.join(projectDir, savedFile.relativePath!))
       const relativeExists = await fileExists(relativePath)
 
       if (relativeExists) {
@@ -282,19 +280,19 @@ export async function handleMissingFiles(
   missingFiles: SavedMediaFile[],
   onProgress?: (current: number, total: number, fileName: string) => void,
 ): Promise<{
-    found: Array<{
-      original: SavedMediaFile
-      newPath: string
-      restoredFile: MediaFile
-    }>
-    stillMissing: SavedMediaFile[]
-    userCancelled: SavedMediaFile[]
-  }> {
+  found: Array<{
+    original: SavedMediaFile
+    newPath: string
+    restoredFile: MediaFile
+  }>
+  stillMissing: SavedMediaFile[]
+  userCancelled: SavedMediaFile[]
+}> {
   const found: Array<{
-      original: SavedMediaFile
-      newPath: string
-      restoredFile: MediaFile
-    }> = []
+    original: SavedMediaFile
+    newPath: string
+    restoredFile: MediaFile
+  }> = []
   const stillMissing: SavedMediaFile[] = []
   const userCancelled: SavedMediaFile[] = []
 

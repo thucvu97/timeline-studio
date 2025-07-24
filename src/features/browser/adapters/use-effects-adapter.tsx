@@ -26,7 +26,7 @@ const EffectPreviewWrapper: React.FC<PreviewComponentProps<VideoEffect>> = ({
     "effect",
     () => effect,
     () => ({
-      url: `/effects/${effect.type}.png`, // Preview URL if available
+      url: `/effects/${effect.id}.png`, // Preview URL if available
       width: 120,
       height: 80,
     }),
@@ -46,12 +46,12 @@ const EffectPreviewWrapper: React.FC<PreviewComponentProps<VideoEffect>> = ({
       >
         {/* Effect Preview */}
         <div className="flex-shrink-0">
-          <EffectPreview effectType={effect.type} onClick={handleClick} size={48} width={48} height={36} />
+          <EffectPreview effect={effect} onClick={handleClick} size={48} width={48} height={36} />
         </div>
 
         {/* Effect Info */}
         <div className="flex-1 min-w-0">
-          <div className="font-medium text-sm truncate">{effect.name}</div>
+          <div className="font-medium text-sm truncate">{effect.name?.ru || effect.name?.en || ""}</div>
           <div className="text-xs text-muted-foreground truncate">
             {effect.description?.ru || effect.description?.en || ""}
           </div>
@@ -76,7 +76,7 @@ const EffectPreviewWrapper: React.FC<PreviewComponentProps<VideoEffect>> = ({
     >
       {/* Effect Preview */}
       <EffectPreview
-        effectType={effect.type}
+        effect={effect}
         onClick={handleClick}
         size={previewSize}
         width={previewWidth}
@@ -85,7 +85,7 @@ const EffectPreviewWrapper: React.FC<PreviewComponentProps<VideoEffect>> = ({
 
       {/* Effect Info */}
       <div className="text-center mt-2 w-full">
-        <div className="font-medium text-sm truncate">{effect.name}</div>
+        <div className="font-medium text-sm truncate">{effect.name?.ru || effect.name?.en || ""}</div>
         <div className="text-xs text-muted-foreground truncate">{effect.category}</div>
       </div>
     </div>
@@ -106,7 +106,8 @@ export function useEffectsAdapter(): ListAdapter<VideoEffect> {
       getSortValue: (effect: VideoEffect, sortBy: string) => {
         switch (sortBy) {
           case "name":
-            return effect.name.toLowerCase()
+            // effect.name - это объект с локализацией, используем английскую версию
+            return (effect.name?.en || effect.name?.ru || "").toLowerCase()
           case "category":
             return effect.category.toLowerCase()
           case "complexity":
@@ -114,20 +115,21 @@ export function useEffectsAdapter(): ListAdapter<VideoEffect> {
             const complexityOrder: Record<string, number> = { basic: 0, intermediate: 1, advanced: 2 }
             return complexityOrder[effect.complexity || "basic"]
           case "type":
-            return effect.type.toLowerCase()
+            return (effect.type || "").toLowerCase()
           default:
-            return effect.name.toLowerCase()
+            return (effect.name?.en || effect.name?.ru || "").toLowerCase()
         }
       },
       getSearchableText: (effect: VideoEffect) => {
         const texts = [
-          effect.name,
+          effect.name?.ru || "",
+          effect.name?.en || "",
           effect.labels?.ru || "",
           effect.labels?.en || "",
           effect.description?.ru || "",
           effect.description?.en || "",
           effect.category,
-          effect.type,
+          effect.type || "",
           ...(effect.tags || []),
         ]
         return texts.filter(Boolean)

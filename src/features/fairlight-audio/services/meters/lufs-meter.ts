@@ -23,11 +23,7 @@ export interface LUFSConfig {
 export class LUFSMeter extends EventEmitter {
   private config: LUFSConfig
   private analyser: AnalyserNode | null = null
-  private context: AudioContext | null = null
   private processor: AudioWorkletNode | null = null
-
-  // Состояние
-  private isRunning = false
 
   // Фильтры EBU R128
   private preFilter: BiquadFilterNode | null = null
@@ -80,10 +76,10 @@ export class LUFSMeter extends EventEmitter {
     if (!context.audioWorklet) {
       throw new Error("AudioWorklet is not supported in this browser")
     }
-    
+
     try {
       await context.audioWorklet.addModule(
-        "/src/features/fairlight-audio/services/meters/worklets/lufs-meter-worklet.js"
+        "/src/features/fairlight-audio/services/meters/worklets/lufs-meter-worklet.js",
       )
     } catch (error) {
       // Module might already be loaded, continue
@@ -104,8 +100,8 @@ export class LUFSMeter extends EventEmitter {
         sampleRate: context.sampleRate,
         channels: this.config.channels,
         updateInterval: this.config.updateInterval,
-        enableTruePeak: this.config.enableTruePeak
-      }
+        enableTruePeak: this.config.enableTruePeak,
+      },
     })
 
     // Handle measurements from worklet

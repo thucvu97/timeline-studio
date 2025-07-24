@@ -200,11 +200,11 @@ describe("useEffectsAdapter", () => {
     it("should sort by different fields", () => {
       const { result } = renderHook(() => useEffectsAdapter())
 
-      expect(result.current.getSortValue(testEffect, "name")).toBe("размытие")
+      expect(result.current.getSortValue(testEffect, "name")).toBe("blur")
       expect(result.current.getSortValue(testEffect, "category")).toBe("filter")
       expect(result.current.getSortValue(testEffect, "complexity")).toBe(0) // basic = 0
       expect(result.current.getSortValue(testEffect, "type")).toBe("blur")
-      expect(result.current.getSortValue(testEffect, "unknown")).toBe("размытие")
+      expect(result.current.getSortValue(testEffect, "unknown")).toBe("blur")
     })
   })
 

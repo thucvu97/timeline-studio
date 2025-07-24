@@ -5,15 +5,15 @@ import { SavedMediaFile, SavedMusicFile } from "@/features/media/types/saved-med
 import { ProjectFile } from "@/features/project-settings/types/project"
 
 import {
-  loadProject,
-  saveProject,
-  hasUnsavedChanges,
-  migrateProject,
   createNewProject,
-  updateMediaLibrary,
-  updateBrowserState,
-  updateProjectFavorites,
   getProjectStats,
+  hasUnsavedChanges,
+  loadProject,
+  migrateProject,
+  saveProject,
+  updateBrowserState,
+  updateMediaLibrary,
+  updateProjectFavorites,
 } from "../../services/project-file-service"
 
 // Мокаем Tauri FS
@@ -128,9 +128,7 @@ describe("ProjectFileService", () => {
 
       vi.mocked(readTextFile).mockResolvedValue(JSON.stringify(invalidProject))
 
-      await expect(loadProject(mockProjectPath)).rejects.toThrow(
-        "Invalid project structure: missing settings",
-      )
+      await expect(loadProject(mockProjectPath)).rejects.toThrow("Invalid project structure: missing settings")
     })
 
     it("должен выбрасывать ошибку при неподдерживаемой версии", async () => {
@@ -141,9 +139,7 @@ describe("ProjectFileService", () => {
 
       vi.mocked(readTextFile).mockResolvedValue(JSON.stringify(unsupportedProject))
 
-      await expect(loadProject(mockProjectPath)).rejects.toThrow(
-        "Unsupported project version: 2.0.0",
-      )
+      await expect(loadProject(mockProjectPath)).rejects.toThrow("Unsupported project version: 2.0.0")
     })
 
     it("должен валидировать медиабиблиотеку", async () => {
@@ -157,9 +153,7 @@ describe("ProjectFileService", () => {
 
       vi.mocked(readTextFile).mockResolvedValue(JSON.stringify(projectWithInvalidMedia))
 
-      await expect(loadProject(mockProjectPath)).rejects.toThrow(
-        "Invalid media library: mediaFiles must be an array",
-      )
+      await expect(loadProject(mockProjectPath)).rejects.toThrow("Invalid media library: mediaFiles must be an array")
     })
 
     it("должен валидировать медиафайлы", async () => {
@@ -183,9 +177,7 @@ describe("ProjectFileService", () => {
 
       vi.mocked(readTextFile).mockResolvedValue(JSON.stringify(projectWithInvalidFile))
 
-      await expect(loadProject(mockProjectPath)).rejects.toThrow(
-        "Invalid saved media file: missing field originalPath",
-      )
+      await expect(loadProject(mockProjectPath)).rejects.toThrow("Invalid saved media file: missing field originalPath")
     })
   })
 
@@ -340,11 +332,7 @@ describe("ProjectFileService", () => {
         },
       ]
 
-      const hasChanges = hasUnsavedChanges(
-        mockProjectFile,
-        currentMediaFiles,
-        mockProjectFile.mediaPool.musicFiles,
-      )
+      const hasChanges = hasUnsavedChanges(mockProjectFile, currentMediaFiles, mockProjectFile.mediaPool.musicFiles)
 
       expect(hasChanges).toBe(true)
     })
@@ -441,9 +429,7 @@ describe("ProjectFileService", () => {
     it("должен проверять тип проекта", async () => {
       vi.mocked(readTextFile).mockResolvedValue(JSON.stringify(null))
 
-      await expect(loadProject(mockProjectPath)).rejects.toThrow(
-        "Invalid project structure: not an object",
-      )
+      await expect(loadProject(mockProjectPath)).rejects.toThrow("Invalid project structure: not an object")
     })
 
     it("должен проверять отсутствие meta", async () => {
@@ -453,9 +439,7 @@ describe("ProjectFileService", () => {
 
       vi.mocked(readTextFile).mockResolvedValue(JSON.stringify(projectWithoutMeta))
 
-      await expect(loadProject(mockProjectPath)).rejects.toThrow(
-        "Invalid project structure: missing meta",
-      )
+      await expect(loadProject(mockProjectPath)).rejects.toThrow("Invalid project structure: missing meta")
     })
 
     it("должен валидировать музыкальные файлы", async () => {
@@ -479,9 +463,7 @@ describe("ProjectFileService", () => {
 
       vi.mocked(readTextFile).mockResolvedValue(JSON.stringify(projectWithInvalidMusic))
 
-      await expect(loadProject(mockProjectPath)).rejects.toThrow(
-        "Invalid saved media file: missing field name",
-      )
+      await expect(loadProject(mockProjectPath)).rejects.toThrow("Invalid saved media file: missing field name")
     })
   })
 })

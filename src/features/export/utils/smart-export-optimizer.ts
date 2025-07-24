@@ -126,10 +126,7 @@ function determineOptimalResolution(analysis: ProjectAnalysis, reasons: string[]
   return "720"
 }
 
-function determineOptimalFormat(
-  analysis: ProjectAnalysis,
-  reasons: string[],
-): { format: string; codec?: string } {
+function determineOptimalFormat(analysis: ProjectAnalysis, reasons: string[]): { format: string; codec?: string } {
   // Для веб-платформ
   if (analysis.targetPlatform === "web" || analysis.targetPlatform === "social") {
     reasons.push("Web/social platform - using H.264 for maximum compatibility")
