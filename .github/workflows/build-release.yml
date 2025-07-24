@@ -368,6 +368,30 @@ jobs:
           # Используем npm install вместо ci из-за проблем с lock файлом
           npm install --no-audit --no-fund
 
+      - name: Create dist directory
+        run: mkdir -p dist
+
+      - name: Generate TypeScript bindings (Unix)
+        if: runner.os != 'Windows'
+        env:
+          PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig:/opt/homebrew/lib/pkgconfig:/usr/local/lib/pkgconfig
+        run: |
+          cd src-tauri
+          cargo run --bin generate_types
+
+      - name: Generate TypeScript bindings (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          FFMPEG_DIR: C:\vcpkg\installed\x64-windows
+          FFMPEG_INCLUDE_DIR: C:\vcpkg\installed\x64-windows\include
+          FFMPEG_LIB_DIR: C:\vcpkg\installed\x64-windows\lib
+          FFMPEG_NO_PKG_CONFIG: 1
+          RUSTFLAGS: -C link-arg=/LIBPATH:C:\vcpkg\installed\x64-windows\lib
+        run: |
+          cd src-tauri
+          cargo run --bin generate_types
+
       - name: Install Tauri CLI (Unix)
         if: runner.os != 'Windows'
         run: |
