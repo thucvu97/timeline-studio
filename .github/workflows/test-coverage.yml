@@ -285,23 +285,36 @@ jobs:
           
           # Find and set up libclang for bindgen
           echo "=== Finding libclang ==="
-          # Find libclang.so
-          LIBCLANG_PATH=$(find /usr -name "libclang.so*" -type f 2>/dev/null | grep -E "libclang.so|libclang-[0-9]+.so" | head -1)
-          if [ -n "$LIBCLANG_PATH" ]; then
-            LIBCLANG_DIR=$(dirname "$LIBCLANG_PATH")
-            echo "Found libclang at: $LIBCLANG_PATH"
-            echo "Setting LIBCLANG_PATH=$LIBCLANG_DIR"
-            echo "LIBCLANG_PATH=$LIBCLANG_DIR" >> $GITHUB_ENV
-          else
-            echo "WARNING: libclang.so not found, trying default paths"
-            # Try common paths
-            for path in /usr/lib/llvm-*/lib /usr/lib/x86_64-linux-gnu /usr/lib64 /usr/lib; do
-              if [ -d "$path" ] && ls "$path"/libclang*.so* 2>/dev/null | grep -q .; then
-                echo "Found libclang in: $path"
-                echo "LIBCLANG_PATH=$path" >> $GITHUB_ENV
-                break
-              fi
-            done
+          
+          # First try to find versioned libclang
+          for version in 14 13 12 11; do
+            if [ -f "/usr/lib/llvm-$version/lib/libclang.so" ]; then
+              echo "Found libclang version $version"
+              echo "LIBCLANG_PATH=/usr/lib/llvm-$version/lib" >> $GITHUB_ENV
+              echo "✅ Set LIBCLANG_PATH=/usr/lib/llvm-$version/lib"
+              break
+            elif [ -f "/usr/lib/x86_64-linux-gnu/libclang-$version.so" ]; then
+              echo "Found libclang version $version in x86_64-linux-gnu"
+              echo "LIBCLANG_PATH=/usr/lib/x86_64-linux-gnu" >> $GITHUB_ENV
+              echo "✅ Set LIBCLANG_PATH=/usr/lib/x86_64-linux-gnu"
+              break
+            fi
+          done
+          
+          # If not found, search more broadly
+          if [ -z "$LIBCLANG_PATH" ]; then
+            LIBCLANG_SO=$(find /usr -name "libclang.so*" -type f 2>/dev/null | grep -E "libclang(-[0-9]+)?\.so" | head -1)
+            if [ -n "$LIBCLANG_SO" ]; then
+              LIBCLANG_DIR=$(dirname "$LIBCLANG_SO")
+              echo "Found libclang at: $LIBCLANG_SO"
+              echo "LIBCLANG_PATH=$LIBCLANG_DIR" >> $GITHUB_ENV
+              echo "✅ Set LIBCLANG_PATH=$LIBCLANG_DIR"
+            else
+              echo "❌ ERROR: Could not find libclang.so!"
+              echo "Installed clang packages:"
+              dpkg -l | grep clang || echo "No clang packages found"
+              exit 1
+            fi
           fi
           
           # Set up bindgen clang args
@@ -355,6 +368,10 @@ jobs:
           echo "FFMPEG_INCLUDE_DIR: $FFMPEG_INCLUDE_DIR"
           echo "FFMPEG_LIB_DIR: $FFMPEG_LIB_DIR"
           echo "PKG_CONFIG_PATH: $PKG_CONFIG_PATH"
+          echo ""
+          echo "=== Clang/Bindgen Environment ==="
+          echo "LIBCLANG_PATH: $LIBCLANG_PATH"
+          echo "BINDGEN_EXTRA_CLANG_ARGS: $BINDGEN_EXTRA_CLANG_ARGS"
           echo ""
           echo "=== All environment variables with FFMPEG ==="
           env | grep -i ffmpeg || echo "No FFMPEG variables found"
