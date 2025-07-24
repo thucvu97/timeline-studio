@@ -9,7 +9,7 @@ on:
 jobs:
   bundle-analysis:
     name: Bundle Size Analysis
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 10
     
     steps:
