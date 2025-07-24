@@ -23,9 +23,22 @@ const mockGetUserSettings = vi.fn()
 const mockUpdateUserSettings = vi.fn()
 const mockUpdateSettings = vi.fn()
 
+// Mock localStorage
+const localStorageMock = {
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
+}
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock,
+})
+
 describe("BrowserStateProvider", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    localStorageMock.getItem.mockReturnValue(null)
+    localStorageMock.setItem.mockClear()
     ;(useAppSettings as MockedFunction<typeof useAppSettings>).mockReturnValue({
       getUserSettings: mockGetUserSettings,
       updateUserSettings: mockUpdateUserSettings,
@@ -107,23 +120,12 @@ describe("BrowserStateProvider", () => {
         },
       }
 
-      // Мокаем localStorage для загрузки сохраненных настроек
-      const localStorageMock = {
-        getItem: vi.fn((key: string) => {
-          if (key === "browserSettings") {
-            return JSON.stringify(savedSettings)
-          }
-          return null
-        }),
-        setItem: vi.fn(),
-        removeItem: vi.fn(),
-        clear: vi.fn(),
-        length: 0,
-        key: vi.fn(() => null),
-      }
-      Object.defineProperty(window, "localStorage", {
-        value: localStorageMock,
-        writable: true,
+      // Используем глобальный мок localStorage
+      localStorageMock.getItem.mockImplementation((key: string) => {
+        if (key === "browserSettings") {
+          return JSON.stringify(savedSettings)
+        }
+        return null
       })
 
       const { result } = renderHook(() => useBrowserState(), { wrapper })
@@ -131,6 +133,9 @@ describe("BrowserStateProvider", () => {
       expect(result.current.activeTab).toBe("music")
       expect(result.current.state.tabSettings.media.searchQuery).toBe("video")
       expect(result.current.state.tabSettings.media.showFavoritesOnly).toBe(true)
+
+      // Очищаем мок после теста
+      localStorageMock.getItem.mockReturnValue(null)
     })
   })
 

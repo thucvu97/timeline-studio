@@ -27,7 +27,7 @@ vi.mock("@/features/drag-drop", () => ({
 const mockEffects = [
   {
     id: "blur",
-    name: "Размытие",
+    name: { ru: "Размытие", en: "Blur" },
     description: { ru: "Эффект размытия", en: "Blur effect" },
     category: "filter",
     type: "blur",
@@ -41,7 +41,7 @@ const mockEffects = [
   },
   {
     id: "sepia",
-    name: "Сепия",
+    name: { ru: "Сепия", en: "Sepia" },
     description: { ru: "Винтажный эффект", en: "Vintage effect" },
     category: "color-correction",
     type: "sepia",
@@ -184,7 +184,7 @@ describe("useEffectsAdapter", () => {
   describe("getSortValue", () => {
     const testEffect: VideoEffect = {
       id: "blur",
-      name: "Размытие",
+      name: { ru: "Размытие", en: "Blur" },
       description: { ru: "Эффект размытия", en: "Blur effect" },
       category: "filter",
       type: "blur",
@@ -211,7 +211,7 @@ describe("useEffectsAdapter", () => {
   describe("getSearchableText", () => {
     const testEffect: VideoEffect = {
       id: "blur",
-      name: "Размытие",
+      name: { ru: "Размытие", en: "Blur" },
       description: { ru: "Эффект размытия изображения", en: "Image blur effect" },
       category: "filter",
       type: "blur",
