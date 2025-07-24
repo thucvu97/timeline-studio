@@ -22,7 +22,18 @@ jobs:
           bun-version: latest
 
       - name: Install dependencies
-        run: bun install
+        run: |
+          # Configure timeout for onnxruntime download
+          export ONNXRUNTIME_DOWNLOAD_TIMEOUT=600000
+          # Try Bun install with fallback to npm
+          bun install --frozen-lockfile || {
+            echo "Bun install failed, trying npm..."
+            npm config set fetch-timeout 300000
+            npm config set fetch-retries 5
+            npm config set network-timeout 300000
+            npm ci --no-audit --no-fund --omit=optional || \
+            npm install --no-audit --no-fund --omit=optional
+          }
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
@@ -115,7 +126,18 @@ jobs:
           bun-version: latest
 
       - name: Install dependencies
-        run: bun install
+        run: |
+          # Configure timeout for onnxruntime download
+          export ONNXRUNTIME_DOWNLOAD_TIMEOUT=600000
+          # Try Bun install with fallback to npm
+          bun install --frozen-lockfile || {
+            echo "Bun install failed, trying npm..."
+            npm config set fetch-timeout 300000
+            npm config set fetch-retries 5
+            npm config set network-timeout 300000
+            npm ci --no-audit --no-fund --omit=optional || \
+            npm install --no-audit --no-fund --omit=optional
+          }
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable

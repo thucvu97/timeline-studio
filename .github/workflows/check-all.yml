@@ -38,7 +38,11 @@ jobs:
         run: |
           npm config set fetch-timeout 300000
           npm config set fetch-retries 5
-          npm ci --prefer-offline --no-audit --no-fund
+          npm config set network-timeout 300000
+          # Try to install with retries
+          npm ci --prefer-offline --no-audit --no-fund || \
+          npm ci --no-audit --no-fund --omit=optional || \
+          npm install --no-audit --no-fund --omit=optional
 
       - name: Install dependencies on Windows
         if: runner.os == 'Windows'
@@ -235,7 +239,11 @@ jobs:
         run: |
           npm config set fetch-timeout 300000
           npm config set fetch-retries 5
-          npm ci --prefer-offline --no-audit --no-fund
+          npm config set network-timeout 300000
+          # Try to install with retries
+          npm ci --prefer-offline --no-audit --no-fund || \
+          npm ci --no-audit --no-fund --omit=optional || \
+          npm install --no-audit --no-fund --omit=optional
 
       - name: Run rustfmt check
         run: npm run format:rust:check
@@ -270,7 +278,12 @@ jobs:
       - name: Install dependencies
         run: |
           rm -rf node_modules
-          npm install
+          npm config set fetch-timeout 300000
+          npm config set fetch-retries 5
+          npm config set network-timeout 300000
+          # Try to install with retries
+          npm install --no-audit --no-fund || \
+          npm install --no-audit --no-fund --omit=optional
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable

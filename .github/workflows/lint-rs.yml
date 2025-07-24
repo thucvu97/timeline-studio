@@ -166,7 +166,13 @@ jobs:
         run: |
           npm config set fetch-timeout 300000
           npm config set fetch-retries 5
-          npm ci --prefer-offline --no-audit --no-fund
+          npm config set network-timeout 300000
+          # Try to install with retries, excluding onnxruntime-node
+          npm ci --prefer-offline --no-audit --no-fund --omit=optional || \
+          npm install --no-audit --no-fund --omit=optional
+          
+          # Install onnxruntime-node separately with retry logic
+          node ./scripts/install-onnxruntime.js || echo "onnxruntime-node installation failed, continuing..."
 
       - name: Install dependencies on Windows
         if: runner.os == 'Windows'

@@ -10,11 +10,15 @@ $ErrorActionPreference = "Stop"
 Write-Host "Configuring npm for Windows..." -ForegroundColor Cyan
 npm config set fetch-timeout 300000
 npm config set fetch-retries 5
+npm config set network-timeout 300000
 npm config set prefer-offline true
 npm config set audit false
 npm config set fund false
 npm config set progress false
 npm config set loglevel error
+
+# Set environment variable for onnxruntime
+$env:ONNXRUNTIME_DOWNLOAD_TIMEOUT = "600000"
 
 # Function to run npm install with timeout
 function Install-NpmDependencies {
@@ -78,12 +82,24 @@ if (-not $success) {
         bun install --frozen-lockfile
         if ($LASTEXITCODE -eq 0) {
             Write-Host "Dependencies installed successfully with Bun!" -ForegroundColor Green
-            exit 0
+            $success = $true
         }
     }
     
-    Write-Host "`nFailed to install dependencies after all attempts" -ForegroundColor Red
-    exit 1
+    if (-not $success) {
+        Write-Host "`nFailed to install dependencies after all attempts" -ForegroundColor Red
+        exit 1
+    }
+}
+
+# Try to install onnxruntime-node separately if needed
+Write-Host "`nChecking onnxruntime-node installation..." -ForegroundColor Cyan
+try {
+    node -e "require('onnxruntime-node')"
+    Write-Host "onnxruntime-node is already installed" -ForegroundColor Green
+} catch {
+    Write-Host "Installing onnxruntime-node separately..." -ForegroundColor Yellow
+    node ./scripts/install-onnxruntime.js
 }
 
 exit 0

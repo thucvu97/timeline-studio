@@ -99,7 +99,16 @@ jobs:
           workspaces: src-tauri
 
       - name: Clean install dependencies
-        run: npm ci --cache clean --force
+        run: |
+          npm config set fetch-timeout 300000
+          npm config set fetch-retries 5
+          npm config set network-timeout 300000
+          # Clean cache first
+          npm cache clean --force
+          # Try to install with retries
+          npm ci --prefer-offline --no-audit --no-fund || \
+          npm ci --no-audit --no-fund --omit=optional || \
+          npm install --no-audit --no-fund --omit=optional
 
       - name: Set PKG_CONFIG_PATH for GLib
         run: |
