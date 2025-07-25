@@ -1959,7 +1959,23 @@
         "mp3": "MP3 (Compatibility)",
         "flac": "FLAC (Lossless)",
         "opus": "Opus (Efficiency)"
-      }
+      },
+      "deviceSettings": "Device Settings",
+      "mixerControls": "Mixer Controls",
+      "autoGain": "Automatic gain control",
+      "effects": "Audio Effects",
+      "noiseReduction": "Noise Reduction",
+      "noiseReductionDesc": "Remove background noise",
+      "compressor": "Compressor",
+      "compressorDesc": "Dynamic range control",
+      "equalizer": "Equalizer",
+      "equalizerDesc": "Frequency adjustment",
+      "reverb": "Reverb",
+      "reverbDesc": "Spatial audio effect",
+      "effectsStatus": "Effects Status",
+      "duration": "Duration",
+      "noClipSelected": "No audio clip selected",
+      "fairlight": "Fairlight Console"
     },
     "speed": {
       "title": "Speed Settings",
@@ -1983,15 +1999,31 @@
       "autoKeyframes": "Automatic Keyframes",
       "maxSpeed": "Maximum Speed",
       "speeds": {
-        "1": "1x (Normal)",
-        "2": "2x (Very fast)",
-        "0_25": "0.25x (Very slow)",
-        "0_5": "0.5x (Slow)",
-        "0_75": "0.75x (Slightly slow)",
-        "1_25": "1.25x (Slightly fast)",
-        "1_5": "1.5x (Fast)",
-        "custom": "Custom"
-      }
+        "1": "Normal",
+        "2": "Very fast",
+        "0_25": "Very slow",
+        "0_5": "Slow",
+        "0_75": "Slightly slow",
+        "1_25": "Slightly fast",
+        "1_5": "Fast"
+      },
+      "presets": {
+        "slowMotion": "Slow Motion",
+        "fastForward": "Fast Forward",
+        "freezeFrame": "Freeze Frame",
+        "bulletTime": "Bullet Time",
+        "rampToSlow": "Ramp to Slow",
+        "speedBurst": "Speed Burst"
+      },
+      "basicSpeed": "Basic Speed",
+      "quickPresets": "Quick Presets",
+      "speedRamping": "Speed Ramping",
+      "rampingPresets": "Ramping Presets",
+      "speedCurve": "Speed Curve",
+      "maintainDuration": "Maintain Duration",
+      "frameInterpolation": "Frame Interpolation",
+      "interpolationMethod": "Interpolation Method",
+      "smoothnessLevel": "Smoothness Level"
     },
     "info": {
       "title": "Media File Info",
@@ -2014,7 +2046,32 @@
       "audioBitrate": "Audio Bitrate",
       "metadata": "Metadata",
       "createdAt": "Created At",
-      "device": "Device"
+      "device": "Device",
+      "mediaInfo": "Media Information",
+      "projectInfo": "Project Information",
+      "technicalInfo": "Technical Information",
+      "advanced": "Advanced Information",
+      "filePath": "File Path",
+      "fileType": "File Type",
+      "noMediaSelected": "No media file selected",
+      "selectMediaHint": "Select a media file or clip to view information",
+      "projectName": "Project Name",
+      "frameRate": "Frame Rate",
+      "projectDuration": "Project Duration",
+      "sections": "Sections",
+      "tracks": "Tracks",
+      "noProject": "No project loaded",
+      "videoCodec": "Video Codec",
+      "videoBitrate": "Video Bitrate",
+      "audioCodec": "Audio Codec",
+      "noTechnicalInfo": "No technical information available",
+      "selectedClip": "Selected Clip",
+      "clipName": "Clip Name",
+      "clipDuration": "Clip Duration",
+      "clipStartTime": "Start Time",
+      "clipVolume": "Volume",
+      "clipSpeed": "Speed",
+      "noClipSelected": "No clip selected"
     }
   },
   "colorGrading": {
@@ -3007,14 +3064,12 @@
     "title": "Smart Montage Planner",
     "description": "AI-powered automatic video montage creation",
     "sequence": "Sequence",
-
     "navigation": {
       "dashboard": "Dashboard",
       "analysis": "Analysis",
       "planning": "Planning",
       "timeline": "Timeline Integration"
     },
-
     "analysis": {
       "title": "Video Analysis",
       "addVideos": "Add Videos",
@@ -3049,7 +3104,6 @@
       "peakMoments": "Peak Moments",
       "peakMomentsAdvice": "You have strong climactic moments - ensure proper build-up and resolution."
     },
-
     "planning": {
       "title": "Montage Planning",
       "generatePlan": "Generate Plan",
@@ -3060,7 +3114,6 @@
       "duration": "Target Duration",
       "platform": "Target Platform"
     },
-
     "styles": {
       "dynamicAction": "Dynamic Action",
       "musicVideo": "Music Video",
@@ -3068,7 +3121,6 @@
       "cinematicDrama": "Cinematic Drama",
       "documentary": "Documentary"
     },
-
     "timeline": {
       "title": "Timeline Integration",
       "applyToTimeline": "Apply to Timeline",
@@ -3081,7 +3133,6 @@
       "middle": "Middle",
       "end": "End"
     },
-
     "quality": {
       "excellent": "Excellent",
       "good": "Good",
@@ -3092,7 +3143,6 @@
       "exposure": "Exposure",
       "composition": "Composition"
     },
-
     "moments": {
       "action": "Action",
       "drama": "Drama",
@@ -3102,7 +3152,6 @@
       "closing": "Closing",
       "highlight": "Highlight"
     },
-
     "emotions": {
       "happy": "Happy",
       "sad": "Sad",
@@ -3115,7 +3164,6 @@
       "journey": "Emotional Journey",
       "distribution": "Emotion Distribution"
     },
-
     "errors": {
       "noVideos": "No videos added",
       "analysisError": "Analysis failed",
@@ -3123,7 +3171,6 @@
       "timelineError": "Timeline integration failed",
       "missingMediaFiles": "Missing media files"
     },
-
     "messages": {
       "addVideosHint": "Add videos to start analysis",
       "analysisInProgress": "Analysis in progress, please wait...",

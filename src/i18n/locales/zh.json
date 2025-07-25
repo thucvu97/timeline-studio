@@ -1616,6 +1616,7 @@
     "tabs": {
       "video": "视频",
       "audio": "音频",
+      "color": "颜色",
       "speed": "速度",
       "info": "信息"
     },
@@ -1662,7 +1663,23 @@
         "mp3": "MP3 (兼容性)",
         "flac": "FLAC (无损)",
         "opus": "Opus (高效)"
-      }
+      },
+      "deviceSettings": "设备设置",
+      "mixerControls": "混音器控制",
+      "autoGain": "自动增益控制",
+      "effects": "音频效果",
+      "noiseReduction": "降噪",
+      "noiseReductionDesc": "消除背景噪音",
+      "compressor": "压缩器",
+      "compressorDesc": "动态范围控制",
+      "equalizer": "均衡器",
+      "equalizerDesc": "频率调整",
+      "reverb": "混响",
+      "reverbDesc": "空间音频效果",
+      "effectsStatus": "效果状态",
+      "duration": "时长",
+      "noClipSelected": "未选择音频片段",
+      "fairlight": "Fairlight 控制台"
     },
     "speed": {
       "title": "速度设置",
@@ -1686,15 +1703,31 @@
       "autoKeyframes": "自动关键帧",
       "maxSpeed": "最大速度",
       "speeds": {
-        "1": "1x (正常)",
-        "2": "2x (非常快)",
-        "0_25": "0.25x (非常慢)",
-        "0_5": "0.5x (慢)",
-        "0_75": "0.75x (稍慢)",
-        "1_25": "1.25x (稍快)",
-        "1_5": "1.5x (快)",
-        "custom": "自定义"
-      }
+        "1": "正常",
+        "2": "非常快",
+        "0_25": "非常慢",
+        "0_5": "慢",
+        "0_75": "稍慢",
+        "1_25": "稍快",
+        "1_5": "快"
+      },
+      "presets": {
+        "slowMotion": "慢动作",
+        "fastForward": "快进",
+        "freezeFrame": "定格画面",
+        "bulletTime": "子弹时间",
+        "rampToSlow": "渐变到慢速",
+        "speedBurst": "速度爆发"
+      },
+      "basicSpeed": "基本速度",
+      "quickPresets": "快速预设",
+      "speedRamping": "速度渐变",
+      "rampingPresets": "渐变预设",
+      "speedCurve": "速度曲线",
+      "maintainDuration": "保持时长",
+      "frameInterpolation": "帧插值",
+      "interpolationMethod": "插值方法",
+      "smoothnessLevel": "平滑度"
     },
     "info": {
       "title": "媒体文件信息",
@@ -1717,7 +1750,32 @@
       "audioBitrate": "Audio Bitrate",
       "metadata": "Metadata",
       "createdAt": "Created At",
-      "device": "Device"
+      "device": "Device",
+      "mediaInfo": "媒体信息",
+      "projectInfo": "项目信息",
+      "technicalInfo": "技术信息",
+      "advanced": "高级信息",
+      "filePath": "文件路径",
+      "fileType": "文件类型",
+      "noMediaSelected": "未选择媒体文件",
+      "selectMediaHint": "选择媒体文件或片段以查看信息",
+      "projectName": "项目名称",
+      "frameRate": "帧率",
+      "projectDuration": "项目时长",
+      "sections": "段落",
+      "tracks": "轨道",
+      "noProject": "未加载项目",
+      "videoCodec": "视频编解码器",
+      "videoBitrate": "视频比特率",
+      "audioCodec": "音频编解码器",
+      "noTechnicalInfo": "技术信息不可用",
+      "selectedClip": "选定的片段",
+      "clipName": "片段名称",
+      "clipDuration": "片段时长",
+      "clipStartTime": "开始时间",
+      "clipVolume": "音量",
+      "clipSpeed": "速度",
+      "noClipSelected": "未选择片段"
     }
   },
   "colorGrading": {

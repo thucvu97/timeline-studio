@@ -1618,6 +1618,7 @@
     "tabs": {
       "video": "Video",
       "audio": "Audio",
+      "color": "Farbe",
       "speed": "Geschwindigkeit",
       "info": "Info"
     },
@@ -1664,7 +1665,23 @@
         "mp3": "MP3 (Kompatibilität)",
         "flac": "FLAC (Verlustfrei)",
         "opus": "Opus (Effizienz)"
-      }
+      },
+      "deviceSettings": "Geräteeinstellungen",
+      "mixerControls": "Mixer-Steuerung",
+      "autoGain": "Automatische Verstärkungsregelung",
+      "effects": "Audioeffekte",
+      "noiseReduction": "Rauschunterdrückung",
+      "noiseReductionDesc": "Hintergrundgeräusche entfernen",
+      "compressor": "Kompressor",
+      "compressorDesc": "Dynamikbereichssteuerung",
+      "equalizer": "Equalizer",
+      "equalizerDesc": "Frequenzanpassung",
+      "reverb": "Hall",
+      "reverbDesc": "Räumlicher Audioeffekt",
+      "effectsStatus": "Effekt-Status",
+      "duration": "Dauer",
+      "noClipSelected": "Kein Audioclip ausgewählt",
+      "fairlight": "Fairlight-Konsole"
     },
     "speed": {
       "title": "Geschwindigkeitseinstellungen",
@@ -1693,15 +1710,31 @@
         "high": "Hoch"
       },
       "speeds": {
-        "1": "1x (Normal)",
-        "2": "2x (Sehr schnell)",
-        "0_25": "0,25x (Sehr langsam)",
-        "0_5": "0,5x (Langsam)",
-        "0_75": "0,75x (Etwas langsam)",
-        "1_25": "1,25x (Etwas schnell)",
-        "1_5": "1,5x (Schnell)",
-        "custom": "Benutzerdefiniert"
-      }
+        "1": "Normal",
+        "2": "Sehr schnell",
+        "0_25": "Sehr langsam",
+        "0_5": "Langsam",
+        "0_75": "Etwas langsam",
+        "1_25": "Etwas schnell",
+        "1_5": "Schnell"
+      },
+      "presets": {
+        "slowMotion": "Zeitlupe",
+        "fastForward": "Schnellvorlauf",
+        "freezeFrame": "Standbild",
+        "bulletTime": "Bullet Time",
+        "rampToSlow": "Rampe zu langsam",
+        "speedBurst": "Geschwindigkeitsschub"
+      },
+      "basicSpeed": "Grundgeschwindigkeit",
+      "quickPresets": "Schnellvoreinstellungen",
+      "speedRamping": "Geschwindigkeitsrampe",
+      "rampingPresets": "Rampenvoreinstellungen",
+      "speedCurve": "Geschwindigkeitskurve",
+      "maintainDuration": "Dauer beibehalten",
+      "frameInterpolation": "Bildinterpolation",
+      "interpolationMethod": "Interpolationsmethode",
+      "smoothnessLevel": "Glättungsgrad"
     },
     "info": {
       "title": "Mediendatei-Info",
@@ -1724,7 +1757,32 @@
       "audioBitrate": "Audio-Bitrate",
       "metadata": "Metadaten",
       "createdAt": "Erstellungsdatum",
-      "device": "Gerät"
+      "device": "Gerät",
+      "mediaInfo": "Medieninformationen",
+      "projectInfo": "Projektinformationen",
+      "technicalInfo": "Technische Informationen",
+      "advanced": "Erweiterte Informationen",
+      "filePath": "Dateipfad",
+      "fileType": "Dateityp",
+      "noMediaSelected": "Keine Mediendatei ausgewählt",
+      "selectMediaHint": "Wählen Sie eine Mediendatei oder einen Clip aus, um Informationen anzuzeigen",
+      "projectName": "Projektname",
+      "frameRate": "Bildrate",
+      "projectDuration": "Projektdauer",
+      "sections": "Abschnitte",
+      "tracks": "Spuren",
+      "noProject": "Kein Projekt geladen",
+      "videoCodec": "Video-Codec",
+      "videoBitrate": "Video-Bitrate",
+      "audioCodec": "Audio-Codec",
+      "noTechnicalInfo": "Keine technischen Informationen verfügbar",
+      "selectedClip": "Ausgewählter Clip",
+      "clipName": "Clip-Name",
+      "clipDuration": "Clip-Dauer",
+      "clipStartTime": "Startzeit",
+      "clipVolume": "Lautstärke",
+      "clipSpeed": "Geschwindigkeit",
+      "noClipSelected": "Kein Clip ausgewählt"
     }
   },
   "colorGrading": {

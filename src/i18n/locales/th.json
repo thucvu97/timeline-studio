@@ -1668,6 +1668,7 @@
     "tabs": {
       "video": "วิดีโอ",
       "audio": "เสียง",
+      "color": "สี",
       "speed": "ความเร็ว",
       "info": "ข้อมูล"
     },
@@ -1714,7 +1715,23 @@
         "mp3": "MP3 (เข้ากันได้)",
         "flac": "FLAC (ไม่สูญเสีย)",
         "opus": "Opus (มีประสิทธิภาพ)"
-      }
+      },
+      "deviceSettings": "การตั้งค่าอุปกรณ์",
+      "mixerControls": "ควบคุมมิกเซอร์",
+      "autoGain": "ควบคุมเกนอัตโนมัติ",
+      "effects": "เอฟเฟกต์เสียง",
+      "noiseReduction": "ลดเสียงรบกวน",
+      "noiseReductionDesc": "ลบเสียงรบกวนพื้นหลัง",
+      "compressor": "คอมเพรสเซอร์",
+      "compressorDesc": "ควบคุมช่วงไดนามิก",
+      "equalizer": "อีควอไลเซอร์",
+      "equalizerDesc": "ปรับความถี่",
+      "reverb": "รีเวิร์บ",
+      "reverbDesc": "เอฟเฟกต์เสียงเชิงพื้นที่",
+      "effectsStatus": "สถานะเอฟเฟกต์",
+      "duration": "ระยะเวลา",
+      "noClipSelected": "ไม่ได้เลือกคลิปเสียง",
+      "fairlight": "คอนโซล Fairlight"
     },
     "speed": {
       "title": "การตั้งค่าความเร็ว",
@@ -1738,15 +1755,31 @@
       "autoKeyframes": "คีเฟรมอัตโนมัติ",
       "maxSpeed": "ความเร็วสูงสุด",
       "speeds": {
-        "1": "1x (ปกติ)",
-        "2": "2x (เร็วมาก)",
-        "0_25": "0.25x (ช้ามาก)",
-        "0_5": "0.5x (ช้า)",
-        "0_75": "0.75x (ช้าเล็กน้อย)",
-        "1_25": "1.25x (เร็วเล็กน้อย)",
-        "1_5": "1.5x (เร็ว)",
-        "custom": "กำหนดเอง"
-      }
+        "1": "ปกติ",
+        "2": "เร็วมาก",
+        "0_25": "ช้ามาก",
+        "0_5": "ช้า",
+        "0_75": "ช้าเล็กน้อย",
+        "1_25": "เร็วเล็กน้อย",
+        "1_5": "เร็ว"
+      },
+      "presets": {
+        "slowMotion": "สโลว์โมชั่น",
+        "fastForward": "เร่งความเร็ว",
+        "freezeFrame": "หยุดภาพ",
+        "bulletTime": "บูลเล็ตไทม์",
+        "rampToSlow": "ลดความเร็วแบบค่อยเป็นค่อยไป",
+        "speedBurst": "ระเบิดความเร็ว"
+      },
+      "basicSpeed": "ความเร็วพื้นฐาน",
+      "quickPresets": "พรีเซ็ตด่วน",
+      "speedRamping": "การปรับความเร็วแบบลาด",
+      "rampingPresets": "พรีเซ็ตการปรับแบบลาด",
+      "speedCurve": "เส้นโค้งความเร็ว",
+      "maintainDuration": "รักษาระยะเวลา",
+      "frameInterpolation": "การแทรกเฟรม",
+      "interpolationMethod": "วิธีการแทรก",
+      "smoothnessLevel": "ระดับความนุ่มนวล"
     },
     "info": {
       "title": "ข้อมูลไฟล์สื่อ",
@@ -1769,7 +1802,32 @@
       "audioBitrate": "บิตเรตเสียง",
       "metadata": "เมทาดาทา",
       "createdAt": "สร้างเมื่อ",
-      "device": "อุปกรณ์"
+      "device": "อุปกรณ์",
+      "mediaInfo": "ข้อมูลสื่อ",
+      "projectInfo": "ข้อมูลโครงการ",
+      "technicalInfo": "ข้อมูลทางเทคนิค",
+      "advanced": "ข้อมูลขั้นสูง",
+      "filePath": "เส้นทางไฟล์",
+      "fileType": "ประเภทไฟล์",
+      "noMediaSelected": "ไม่ได้เลือกไฟล์สื่อ",
+      "selectMediaHint": "เลือกไฟล์สื่อหรือคลิปเพื่อดูข้อมูล",
+      "projectName": "ชื่อโครงการ",
+      "frameRate": "อัตราเฟรม",
+      "projectDuration": "ระยะเวลาโครงการ",
+      "sections": "ส่วน",
+      "tracks": "แทร็ก",
+      "noProject": "ไม่ได้โหลดโครงการ",
+      "videoCodec": "วิดีโอโคเดก",
+      "videoBitrate": "บิตเรตวิดีโอ",
+      "audioCodec": "ออดิโอโคเดก",
+      "noTechnicalInfo": "ไม่มีข้อมูลทางเทคนิค",
+      "selectedClip": "คลิปที่เลือก",
+      "clipName": "ชื่อคลิป",
+      "clipDuration": "ระยะเวลาคลิป",
+      "clipStartTime": "เวลาเริ่มต้น",
+      "clipVolume": "ระดับเสียง",
+      "clipSpeed": "ความเร็ว",
+      "noClipSelected": "ไม่ได้เลือกคลิป"
     }
   },
   "colorGrading": {

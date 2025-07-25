@@ -1616,6 +1616,7 @@
     "tabs": {
       "video": "Video",
       "audio": "Ses",
+      "color": "Renk",
       "speed": "Hız",
       "info": "Bilgi"
     },
@@ -1662,7 +1663,23 @@
         "mp3": "MP3 (Uyumluluk)",
         "flac": "FLAC (Kayıpsız)",
         "opus": "Opus (Verimlilik)"
-      }
+      },
+      "deviceSettings": "Cihaz Ayarları",
+      "mixerControls": "Mikser Kontrolleri",
+      "autoGain": "Otomatik kazanç kontrolü",
+      "effects": "Ses Efektleri",
+      "noiseReduction": "Gürültü Azaltma",
+      "noiseReductionDesc": "Arka plan gürültüsünü kaldır",
+      "compressor": "Kompresör",
+      "compressorDesc": "Dinamik aralık kontrolü",
+      "equalizer": "Ekolayzer",
+      "equalizerDesc": "Frekans ayarı",
+      "reverb": "Yankı",
+      "reverbDesc": "Mekansal ses efekti",
+      "effectsStatus": "Efekt Durumu",
+      "duration": "Süre",
+      "noClipSelected": "Ses klibi seçilmedi",
+      "fairlight": "Fairlight Konsolu"
     },
     "speed": {
       "title": "Hız Ayarları",
@@ -1686,15 +1703,31 @@
       "autoKeyframes": "Otomatik Anahtar Kareler",
       "maxSpeed": "Maksimum Hız",
       "speeds": {
-        "1": "1x (Normal)",
-        "2": "2x (Çok hızlı)",
-        "0_25": "0.25x (Çok yavaş)",
-        "0_5": "0.5x (Yavaş)",
-        "0_75": "0.75x (Biraz yavaş)",
-        "1_25": "1.25x (Biraz hızlı)",
-        "1_5": "1.5x (Hızlı)",
-        "custom": "Özel"
-      }
+        "1": "Normal",
+        "2": "Çok hızlı",
+        "0_25": "Çok yavaş",
+        "0_5": "Yavaş",
+        "0_75": "Biraz yavaş",
+        "1_25": "Biraz hızlı",
+        "1_5": "Hızlı"
+      },
+      "presets": {
+        "slowMotion": "Ağır Çekim",
+        "fastForward": "Hızlı İleri",
+        "freezeFrame": "Dondurulmuş Kare",
+        "bulletTime": "Bullet Time",
+        "rampToSlow": "Yavaşa Geçiş",
+        "speedBurst": "Hız Patlaması"
+      },
+      "basicSpeed": "Temel Hız",
+      "quickPresets": "Hızlı Ön Ayarlar",
+      "speedRamping": "Hız Rampası",
+      "rampingPresets": "Rampa Ön Ayarları",
+      "speedCurve": "Hız Eğrisi",
+      "maintainDuration": "Süreyi Koru",
+      "frameInterpolation": "Kare İnterpolasyonu",
+      "interpolationMethod": "İnterpolasyon Yöntemi",
+      "smoothnessLevel": "Pürüzsüzlük Seviyesi"
     },
     "info": {
       "title": "Medya Dosyası Bilgisi",
@@ -1717,7 +1750,32 @@
       "audioBitrate": "Ses Bit Hızı",
       "metadata": "Meta Veri",
       "createdAt": "Oluşturulma Tarihi",
-      "device": "Cihaz"
+      "device": "Cihaz",
+      "mediaInfo": "Medya Bilgileri",
+      "projectInfo": "Proje Bilgileri",
+      "technicalInfo": "Teknik Bilgiler",
+      "advanced": "Gelişmiş Bilgiler",
+      "filePath": "Dosya Yolu",
+      "fileType": "Dosya Türü",
+      "noMediaSelected": "Medya dosyası seçilmedi",
+      "selectMediaHint": "Bilgi görüntülemek için bir medya dosyası veya klip seçin",
+      "projectName": "Proje Adı",
+      "frameRate": "Kare Hızı",
+      "projectDuration": "Proje Süresi",
+      "sections": "Bölümler",
+      "tracks": "İzler",
+      "noProject": "Proje yüklenmedi",
+      "videoCodec": "Video Codec",
+      "videoBitrate": "Video Bit Hızı",
+      "audioCodec": "Ses Codec",
+      "noTechnicalInfo": "Teknik bilgi mevcut değil",
+      "selectedClip": "Seçili Klip",
+      "clipName": "Klip Adı",
+      "clipDuration": "Klip Süresi",
+      "clipStartTime": "Başlangıç Zamanı",
+      "clipVolume": "Ses Düzeyi",
+      "clipSpeed": "Hız",
+      "noClipSelected": "Klip seçilmedi"
     }
   },
   "colorGrading": {

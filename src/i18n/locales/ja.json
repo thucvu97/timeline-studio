@@ -1616,6 +1616,7 @@
     "tabs": {
       "video": "動画",
       "audio": "音声",
+      "color": "カラー",
       "speed": "速度",
       "info": "情報"
     },
@@ -1662,7 +1663,23 @@
         "mp3": "MP3 (互換性)",
         "flac": "FLAC (ロスレス)",
         "opus": "Opus (効率性)"
-      }
+      },
+      "deviceSettings": "デバイス設定",
+      "mixerControls": "ミキサーコントロール",
+      "autoGain": "自動ゲインコントロール",
+      "effects": "オーディオエフェクト",
+      "noiseReduction": "ノイズリダクション",
+      "noiseReductionDesc": "背景ノイズを除去",
+      "compressor": "コンプレッサー",
+      "compressorDesc": "ダイナミックレンジコントロール",
+      "equalizer": "イコライザー",
+      "equalizerDesc": "周波数調整",
+      "reverb": "リバーブ",
+      "reverbDesc": "空間オーディオエフェクト",
+      "effectsStatus": "エフェクトステータス",
+      "duration": "再生時間",
+      "noClipSelected": "オーディオクリップが選択されていません",
+      "fairlight": "Fairlightコンソール"
     },
     "speed": {
       "title": "速度設定",
@@ -1686,15 +1703,31 @@
       "autoKeyframes": "自動キーフレーム",
       "maxSpeed": "最大速度",
       "speeds": {
-        "1": "1x (通常)",
-        "2": "2x (非常に速い)",
-        "0_25": "0.25x (非常に遅い)",
-        "0_5": "0.5x (遅い)",
-        "0_75": "0.75x (やや遅い)",
-        "1_25": "1.25x (やや速い)",
-        "1_5": "1.5x (速い)",
-        "custom": "カスタム"
-      }
+        "1": "通常",
+        "2": "非常に速い",
+        "0_25": "非常に遅い",
+        "0_5": "遅い",
+        "0_75": "やや遅い",
+        "1_25": "やや速い",
+        "1_5": "速い"
+      },
+      "presets": {
+        "slowMotion": "スローモーション",
+        "fastForward": "早送り",
+        "freezeFrame": "フリーズフレーム",
+        "bulletTime": "バレットタイム",
+        "rampToSlow": "スロー移行",
+        "speedBurst": "スピードバースト"
+      },
+      "basicSpeed": "基本速度",
+      "quickPresets": "クイックプリセット",
+      "speedRamping": "速度ランピング",
+      "rampingPresets": "ランピングプリセット",
+      "speedCurve": "速度カーブ",
+      "maintainDuration": "長さを維持",
+      "frameInterpolation": "フレーム補間",
+      "interpolationMethod": "補間方法",
+      "smoothnessLevel": "滑らかさレベル"
     },
     "info": {
       "title": "メディアファイル情報",
@@ -1717,7 +1750,32 @@
       "audioBitrate": "音声ビットレート",
       "metadata": "メタデータ",
       "createdAt": "作成日時",
-      "device": "デバイス"
+      "device": "デバイス",
+      "mediaInfo": "メディア情報",
+      "projectInfo": "プロジェクト情報",
+      "technicalInfo": "技術情報",
+      "advanced": "詳細情報",
+      "filePath": "ファイルパス",
+      "fileType": "ファイルタイプ",
+      "noMediaSelected": "メディアファイルが選択されていません",
+      "selectMediaHint": "情報を表示するにはメディアファイルまたはクリップを選択してください",
+      "projectName": "プロジェクト名",
+      "frameRate": "フレームレート",
+      "projectDuration": "プロジェクトの長さ",
+      "sections": "セクション",
+      "tracks": "トラック",
+      "noProject": "プロジェクトが読み込まれていません",
+      "videoCodec": "ビデオコーデック",
+      "videoBitrate": "ビデオビットレート",
+      "audioCodec": "オーディオコーデック",
+      "noTechnicalInfo": "技術情報が利用できません",
+      "selectedClip": "選択されたクリップ",
+      "clipName": "クリップ名",
+      "clipDuration": "クリップの長さ",
+      "clipStartTime": "開始時間",
+      "clipVolume": "音量",
+      "clipSpeed": "速度",
+      "noClipSelected": "クリップが選択されていません"
     }
   },
   "colorGrading": {

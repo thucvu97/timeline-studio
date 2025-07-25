@@ -1583,6 +1583,7 @@
     "tabs": {
       "video": "Vídeo",
       "audio": "Audio",
+      "color": "Color",
       "speed": "Velocidad",
       "info": "Info"
     },
@@ -1629,7 +1630,23 @@
         "mp3": "MP3 (Compatibilidad)",
         "flac": "FLAC (Sin pérdida)",
         "opus": "Opus (Eficiencia)"
-      }
+      },
+      "deviceSettings": "Configuración del dispositivo",
+      "mixerControls": "Controles del mezclador",
+      "autoGain": "Control automático de ganancia",
+      "effects": "Efectos de audio",
+      "noiseReduction": "Reducción de ruido",
+      "noiseReductionDesc": "Eliminar ruido de fondo",
+      "compressor": "Compresor",
+      "compressorDesc": "Control de rango dinámico",
+      "equalizer": "Ecualizador",
+      "equalizerDesc": "Ajuste de frecuencia",
+      "reverb": "Reverberación",
+      "reverbDesc": "Efecto de audio espacial",
+      "effectsStatus": "Estado de efectos",
+      "duration": "Duración",
+      "noClipSelected": "No hay clip de audio seleccionado",
+      "fairlight": "Consola Fairlight"
     },
     "speed": {
       "title": "Configuración de velocidad",
@@ -1658,15 +1675,31 @@
         "high": "Alto"
       },
       "speeds": {
-        "1": "1x (Normal)",
-        "2": "2x (Muy rápido)",
-        "0_25": "0.25x (Muy lento)",
-        "0_5": "0.5x (Lento)",
-        "0_75": "0.75x (Ligeramente lento)",
-        "1_25": "1.25x (Ligeramente rápido)",
-        "1_5": "1.5x (Rápido)",
-        "custom": "Personalizado"
-      }
+        "1": "Normal",
+        "2": "Muy rápido",
+        "0_25": "Muy lento",
+        "0_5": "Lento",
+        "0_75": "Ligeramente lento",
+        "1_25": "Ligeramente rápido",
+        "1_5": "Rápido"
+      },
+      "presets": {
+        "slowMotion": "Cámara lenta",
+        "fastForward": "Avance rápido",
+        "freezeFrame": "Fotograma congelado",
+        "bulletTime": "Tiempo bala",
+        "rampToSlow": "Rampa a lento",
+        "speedBurst": "Ráfaga de velocidad"
+      },
+      "basicSpeed": "Velocidad básica",
+      "quickPresets": "Presets rápidos",
+      "speedRamping": "Rampa de velocidad",
+      "rampingPresets": "Presets de rampa",
+      "speedCurve": "Curva de velocidad",
+      "maintainDuration": "Mantener duración",
+      "frameInterpolation": "Interpolación de fotogramas",
+      "interpolationMethod": "Método de interpolación",
+      "smoothnessLevel": "Nivel de suavidad"
     },
     "info": {
       "title": "Información del archivo multimedia",
@@ -1689,7 +1722,32 @@
       "audioBitrate": "Tasa de bits de audio",
       "metadata": "Metadatos",
       "createdAt": "Fecha de creación",
-      "device": "Dispositivo"
+      "device": "Dispositivo",
+      "mediaInfo": "Información de medios",
+      "projectInfo": "Información del proyecto",
+      "technicalInfo": "Información técnica",
+      "advanced": "Información avanzada",
+      "filePath": "Ruta del archivo",
+      "fileType": "Tipo de archivo",
+      "noMediaSelected": "No se ha seleccionado ningún archivo multimedia",
+      "selectMediaHint": "Seleccione un archivo multimedia o clip para ver información",
+      "projectName": "Nombre del proyecto",
+      "frameRate": "Velocidad de fotogramas",
+      "projectDuration": "Duración del proyecto",
+      "sections": "Secciones",
+      "tracks": "Pistas",
+      "noProject": "No hay proyecto cargado",
+      "videoCodec": "Códec de video",
+      "videoBitrate": "Tasa de bits de video",
+      "audioCodec": "Códec de audio",
+      "noTechnicalInfo": "Información técnica no disponible",
+      "selectedClip": "Clip seleccionado",
+      "clipName": "Nombre del clip",
+      "clipDuration": "Duración del clip",
+      "clipStartTime": "Tiempo de inicio",
+      "clipVolume": "Volumen",
+      "clipSpeed": "Velocidad",
+      "noClipSelected": "No hay clip seleccionado"
     }
   },
   "colorGrading": {

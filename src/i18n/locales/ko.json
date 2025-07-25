@@ -1616,6 +1616,7 @@
     "tabs": {
       "video": "비디오",
       "audio": "오디오",
+      "color": "색상",
       "speed": "속도",
       "info": "정보"
     },
@@ -1662,7 +1663,23 @@
         "mp3": "MP3 (호환성)",
         "flac": "FLAC (무손실)",
         "opus": "Opus (효율성)"
-      }
+      },
+      "deviceSettings": "장치 설정",
+      "mixerControls": "믹서 컨트롤",
+      "autoGain": "자동 게인 제어",
+      "effects": "오디오 효과",
+      "noiseReduction": "노이즈 감소",
+      "noiseReductionDesc": "배경 소음 제거",
+      "compressor": "컴프레서",
+      "compressorDesc": "다이나믹 레인지 제어",
+      "equalizer": "이퀄라이저",
+      "equalizerDesc": "주파수 조정",
+      "reverb": "리버브",
+      "reverbDesc": "공간 오디오 효과",
+      "effectsStatus": "효과 상태",
+      "duration": "지속 시간",
+      "noClipSelected": "선택된 오디오 클립이 없습니다",
+      "fairlight": "Fairlight 콘솔"
     },
     "speed": {
       "title": "속도 설정",
@@ -1686,15 +1703,31 @@
       "autoKeyframes": "자동 키프레임",
       "maxSpeed": "최대 속도",
       "speeds": {
-        "1": "1x (보통)",
-        "2": "2x (매우 빠르게)",
-        "0_25": "0.25x (매우 느리게)",
-        "0_5": "0.5x (느리게)",
-        "0_75": "0.75x (약간 느리게)",
-        "1_25": "1.25x (약간 빠르게)",
-        "1_5": "1.5x (빠르게)",
-        "custom": "사용자 지정"
-      }
+        "1": "보통",
+        "2": "매우 빠르게",
+        "0_25": "매우 느리게",
+        "0_5": "느리게",
+        "0_75": "약간 느리게",
+        "1_25": "약간 빠르게",
+        "1_5": "빠르게"
+      },
+      "presets": {
+        "slowMotion": "슬로우 모션",
+        "fastForward": "빨리 감기",
+        "freezeFrame": "정지 프레임",
+        "bulletTime": "불릿 타임",
+        "rampToSlow": "느리게 변환",
+        "speedBurst": "속도 버스트"
+      },
+      "basicSpeed": "기본 속도",
+      "quickPresets": "빠른 프리셋",
+      "speedRamping": "속도 램핑",
+      "rampingPresets": "램핑 프리셋",
+      "speedCurve": "속도 곡선",
+      "maintainDuration": "길이 유지",
+      "frameInterpolation": "프레임 보간",
+      "interpolationMethod": "보간 방법",
+      "smoothnessLevel": "부드러움 수준"
     },
     "info": {
       "title": "미디어 파일 정보",
@@ -1717,7 +1750,32 @@
       "audioBitrate": "오디오 비트레이트",
       "metadata": "메타데이터",
       "createdAt": "생성 일시",
-      "device": "장치"
+      "device": "장치",
+      "mediaInfo": "미디어 정보",
+      "projectInfo": "프로젝트 정보",
+      "technicalInfo": "기술 정보",
+      "advanced": "고급 정보",
+      "filePath": "파일 경로",
+      "fileType": "파일 유형",
+      "noMediaSelected": "선택된 미디어 파일이 없습니다",
+      "selectMediaHint": "정보를 보려면 미디어 파일 또는 클립을 선택하세요",
+      "projectName": "프로젝트 이름",
+      "frameRate": "프레임 속도",
+      "projectDuration": "프로젝트 길이",
+      "sections": "섹션",
+      "tracks": "트랙",
+      "noProject": "로드된 프로젝트가 없습니다",
+      "videoCodec": "비디오 코덱",
+      "videoBitrate": "비디오 비트레이트",
+      "audioCodec": "오디오 코덱",
+      "noTechnicalInfo": "기술 정보를 사용할 수 없습니다",
+      "selectedClip": "선택된 클립",
+      "clipName": "클립 이름",
+      "clipDuration": "클립 길이",
+      "clipStartTime": "시작 시간",
+      "clipVolume": "볼륨",
+      "clipSpeed": "속도",
+      "noClipSelected": "선택된 클립이 없습니다"
     }
   },
   "colorGrading": {
