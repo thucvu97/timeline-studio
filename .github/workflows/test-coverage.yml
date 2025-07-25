@@ -49,6 +49,13 @@ jobs:
       - name: Create dist directory
         run: mkdir -p dist
 
+      - name: Build Rust dependencies
+        env:
+          PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig
+        run: |
+          cd src-tauri
+          cargo build --release
+
       - name: Generate TypeScript bindings
         env:
           PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig

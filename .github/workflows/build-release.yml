@@ -375,6 +375,14 @@ jobs:
       - name: Create dist directory
         run: mkdir -p dist
 
+      - name: Build Rust dependencies (Unix)
+        if: runner.os != 'Windows'
+        env:
+          PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig:/opt/homebrew/lib/pkgconfig:/usr/local/lib/pkgconfig
+        run: |
+          cd src-tauri
+          cargo build --release
+
       - name: Generate TypeScript bindings (Unix)
         if: runner.os != 'Windows'
         env:
@@ -382,6 +390,19 @@ jobs:
         run: |
           cd src-tauri
           cargo run --bin generate_types
+
+      - name: Build Rust dependencies (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          FFMPEG_DIR: C:\vcpkg\installed\x64-windows
+          FFMPEG_INCLUDE_DIR: C:\vcpkg\installed\x64-windows\include
+          FFMPEG_LIB_DIR: C:\vcpkg\installed\x64-windows\lib
+          FFMPEG_NO_PKG_CONFIG: 1
+          RUSTFLAGS: -C link-arg=/LIBPATH:C:\vcpkg\installed\x64-windows\lib
+        run: |
+          cd src-tauri
+          cargo build --release
 
       - name: Generate TypeScript bindings (Windows)
         if: runner.os == 'Windows'

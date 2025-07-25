@@ -126,6 +126,11 @@ jobs:
       - name: Create dist directory
         run: mkdir -p dist
 
+      - name: Build Rust dependencies
+        run: |
+          cd src-tauri
+          cargo build --release
+
       - name: Generate TypeScript bindings
         run: |
           cd src-tauri
