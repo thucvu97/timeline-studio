@@ -62,11 +62,8 @@ const createMockMediaFile = (name: string): MediaFile => ({
   name,
   path: `/test/${name}`,
   isVideo: true,
-  isLocal: true,
-  isDirectory: false,
-  size: 1024,
-  extension: "mp4",
-  lastModified: Date.now(),
+  isAudio: false,
+  isImage: false,
 });
 
 describe("useVideoSelection", () => {

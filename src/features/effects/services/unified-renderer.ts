@@ -51,7 +51,7 @@ export class UnifiedEffectsRenderer {
   private initializeWebGL(): void {
     try {
       this.canvas = document.createElement("canvas")
-      this.gl = this.canvas.getContext("webgl") || this.canvas.getContext("experimental-webgl")
+      this.gl = (this.canvas.getContext("webgl") || this.canvas.getContext("experimental-webgl")) as WebGLRenderingContext | null
 
       if (this.gl) {
         this.setupWebGLState()

@@ -779,7 +779,7 @@ describe("Complete Workflow Scenarios", () => {
     expect(actor.getSnapshot().value).toBe("ready")
 
     // 3. Set duration from metadata
-    actor.send({ type: "setDuration", duration: testVideo.duration })
+    actor.send({ type: "setDuration", duration: testVideo.duration || 0 })
     expect(actor.getSnapshot().context.duration).toBe(120)
 
     // 4. Start playback

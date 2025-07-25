@@ -339,7 +339,7 @@ export async function cleanupUnusedResources(params: CleanupParams): Promise<Res
         case "effect": {
           const effectResource = resourcesProvider.effectResources.find((e) => e.resourceId === resource.resourceId)
           if (effectResource) {
-            resourceName = effectResource.effect.name
+            resourceName = (effectResource as any).effect.name
             const isUsedInTimeline = false
             if (!isUsedInTimeline) {
               shouldRemove = true

@@ -14,7 +14,7 @@ export function LinkedClipIndicator({ isLinked, className }: LinkedClipIndicator
     <div
       className={cn("absolute bottom-0 right-0 m-1", "bg-primary/10 border border-primary/30 rounded p-0.5", className)}
     >
-      <Link2 className="h-3 w-3 text-primary" />
+      <Link2 className="h-3 w-3 text-primary" data-testid="link2-icon" />
     </div>
   )
 }

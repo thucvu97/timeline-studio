@@ -96,7 +96,7 @@ export function useTimelineAIAnalysis(): TimelineAIAnalysisHook {
     const initializeEngines = async () => {
       try {
         await sceneEngine.initialize()
-        await orchestrator.initialize()
+        await orchestrator?.initialize()
       } catch (error) {
         console.error("Failed to initialize AI engines:", error)
         setAnalysisState((prev) => ({

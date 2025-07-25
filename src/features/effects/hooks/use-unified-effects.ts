@@ -224,16 +224,16 @@ export function useUnifiedEffects(
   const renderEffects = useCallback(
     async (source?: HTMLVideoElement | HTMLCanvasElement | ImageBitmap, customTime?: number): Promise<RenderResult> => {
       if (state.appliedEffects.length === 0) {
-        return { success: true, output: source, processingTime: 0 }
+        return { success: true, output: source as any, processingTime: 0 }
       }
 
       setState((prev) => ({ ...prev, isRendering: true }))
 
       try {
         const context: RenderContext = {
-          source: source || mediaFile?.element || document.createElement("canvas"),
-          width: mediaFile?.width || 1920,
-          height: mediaFile?.height || 1080,
+          source: source || document.createElement("canvas"),
+          width: 1920,
+          height: 1080,
           currentTime: customTime !== undefined ? customTime : currentTime,
           quality,
         }

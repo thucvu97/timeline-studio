@@ -146,7 +146,7 @@ export function useTimelinePersons(): TimelinePersonsHook {
               startTime: face.timestamp.seconds,
               endTime: face.timestamp.seconds + 1, // Предполагаем 1 секунду длительности
               confidence: identification.confidence,
-              boundingBox: face.boundingBox,
+              boundingBox: face.bbox,
               thumbnailPath: undefined, // TODO: thumbnail не доступен в DetectedFace
               detectedAt: new Date(),
             }

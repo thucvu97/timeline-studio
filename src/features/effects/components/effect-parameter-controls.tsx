@@ -31,8 +31,8 @@ function getParameterConfig(param: EffectParameter): {
   }
 
   const description = {
-    ru: param.description?.ru || param.description?.en || "",
-    en: param.description?.en || "",
+    ru: "",
+    en: "",
   }
 
   switch (param.type) {
@@ -54,14 +54,15 @@ function getParameterConfig(param: EffectParameter): {
         label,
         description,
       }
-    case "select":
-      // Для select используем индексы
+    case "dropdown":
+      // Для dropdown используем индексы опций
       const options = param.options || []
+      const defaultIndex = options.findIndex(opt => opt.value === param.defaultValue)
       return {
         min: 0,
-        max: options.length - 1,
+        max: Math.max(0, options.length - 1),
         step: 1,
-        default: options.indexOf(param.defaultValue) ?? 0,
+        default: defaultIndex >= 0 ? defaultIndex : 0,
         label,
         description,
       }
@@ -279,8 +280,8 @@ export function EffectParameterControls({
             return null
           }
 
-          if (param.type === "select") {
-            // TODO: Добавить select компонент
+          if (param.type === "dropdown") {
+            // TODO: Добавить dropdown компонент с Select
             return null
           }
 
@@ -292,7 +293,11 @@ export function EffectParameterControls({
               <div className="flex items-center justify-between">
                 <Label className="text-sm font-medium">{config.label[currentLang] || config.label.en}</Label>
                 <span className="text-sm text-gray-500 font-mono">
-                  {param.type === "boolean" ? (currentValue ? "Вкл" : "Выкл") : currentValue}
+                  {param.type === "boolean" 
+                    ? (currentValue ? "Вкл" : "Выкл") 
+                    : (param.type as string) === "dropdown" && param.options
+                    ? param.options[currentValue]?.label[currentLang] || param.options[currentValue]?.label.en || currentValue
+                    : currentValue}
                 </span>
               </div>
 
@@ -304,7 +309,7 @@ export function EffectParameterControls({
                         value={[sliderValue]}
                         onValueChange={(value) => {
                           const newValue = param.type === "boolean" ? value[0] === 1 : value[0]
-                          handleParameterChange(param.id, [newValue])
+                          handleParameterChange(param.id, typeof newValue === 'boolean' ? [newValue ? 1 : 0] : [newValue])
                         }}
                         min={config.min}
                         max={config.max}

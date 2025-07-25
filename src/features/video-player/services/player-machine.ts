@@ -221,45 +221,6 @@ export type PlayerEvent =
   | UpdatePlaybackRateEvent
   | SetBasePlaybackRateEvent
 
-// Переиспользуемые actions для применения эффектов/фильтров/шаблонов
-const applyEffectAction = assign({
-  appliedEffects: ({ context, event }: { context: PlayerContextType; event: ApplyEffectEvent }) => [
-    ...context.appliedEffects,
-    event.effect,
-  ],
-})
-
-const applyFilterAction = assign({
-  appliedFilters: ({ context, event }: { context: PlayerContextType; event: ApplyFilterEvent }) => [
-    ...context.appliedFilters,
-    event.filter,
-  ],
-})
-
-const applyTemplateAction = assign({
-  appliedTemplate: ({ event }: { event: ApplyTemplateEvent }) => ({
-    id: event.template.id,
-    name: event.template.name,
-    files: event.files,
-  }),
-})
-
-const clearEffectsAction = assign({ appliedEffects: [] })
-const clearFiltersAction = assign({ appliedFilters: [] })
-const clearTemplateAction = assign({ appliedTemplate: null })
-
-// Speed Ramping actions
-const setSpeedRampingEnabledAction = assign({
-  speedRampingEnabled: ({ event }: { event: SetSpeedRampingEnabledEvent }) => event.enabled,
-})
-
-const updatePlaybackRateAction = assign({
-  currentPlaybackRate: ({ event }: { event: UpdatePlaybackRateEvent }) => event.rate,
-})
-
-const setBasePlaybackRateAction = assign({
-  basePlaybackRate: ({ event }: { event: SetBasePlaybackRateEvent }) => event.rate,
-})
 
 export const playerMachine = setup({
   types: {
@@ -324,6 +285,55 @@ export const playerMachine = setup({
     logVideoReady: ({ context }) => {
       console.log(`[PlayerMachine] Видео ${context.video?.id} готово к воспроизведению`)
     },
+    applyEffectAction: assign(({ context, event }) => {
+      if (event.type === 'applyEffect') {
+        return {
+          appliedEffects: [...context.appliedEffects, event.effect]
+        }
+      }
+      return {}
+    }),
+    applyFilterAction: assign(({ context, event }) => {
+      if (event.type === 'applyFilter') {
+        return {
+          appliedFilters: [...context.appliedFilters, event.filter]
+        }
+      }
+      return {}
+    }),
+    applyTemplateAction: assign(({ event }) => {
+      if (event.type === 'applyTemplate') {
+        return {
+          appliedTemplate: {
+            id: event.template.id,
+            name: event.template.name,
+            files: event.files,
+          }
+        }
+      }
+      return {}
+    }),
+    clearEffectsAction: assign({ appliedEffects: [] }),
+    clearFiltersAction: assign({ appliedFilters: [] }),
+    clearTemplateAction: assign({ appliedTemplate: null }),
+    setSpeedRampingEnabledAction: assign(({ event }) => {
+      if (event.type === 'setSpeedRampingEnabled') {
+        return { speedRampingEnabled: event.enabled }
+      }
+      return {}
+    }),
+    updatePlaybackRateAction: assign(({ event }) => {
+      if (event.type === 'updatePlaybackRate') {
+        return { currentPlaybackRate: event.rate }
+      }
+      return {}
+    }),
+    setBasePlaybackRateAction: assign(({ event }) => {
+      if (event.type === 'setBasePlaybackRate') {
+        return { basePlaybackRate: event.rate }
+      }
+      return {}
+    }),
   },
 }).createMachine({
   id: "player",
@@ -393,55 +403,55 @@ export const playerMachine = setup({
         },
         applyEffect: {
           actions: [
-            applyEffectAction,
+            "applyEffectAction",
             "logEffectApplied"
           ],
         },
         applyFilter: {
           actions: [
-            applyFilterAction,
+            "applyFilterAction",
             "logFilterApplied"
           ],
         },
         applyTemplate: {
           actions: [
-            applyTemplateAction,
+            "applyTemplateAction",
             "logTemplateApplied"
           ],
         },
         clearEffects: {
           actions: [
-            clearEffectsAction,
+            "clearEffectsAction",
             "logEffectsCleared"
           ],
         },
         clearFilters: {
           actions: [
-            clearFiltersAction,
+            "clearFiltersAction",
             "logFiltersCleared"
           ],
         },
         clearTemplate: {
           actions: [
-            clearTemplateAction,
+            "clearTemplateAction",
             "logTemplateCleared"
           ],
         },
         setSpeedRampingEnabled: {
           actions: [
-            setSpeedRampingEnabledAction,
+            "setSpeedRampingEnabledAction",
             "logSpeedRampingToggled"
           ],
         },
         updatePlaybackRate: {
           actions: [
-            updatePlaybackRateAction,
+            "updatePlaybackRateAction",
             "logPlaybackRateUpdated"
           ],
         },
         setBasePlaybackRate: {
           actions: [
-            setBasePlaybackRateAction,
+            "setBasePlaybackRateAction",
             "logBasePlaybackRateSet"
           ],
         },
@@ -514,31 +524,31 @@ export const playerMachine = setup({
           ],
         },
         applyEffect: {
-          actions: [applyEffectAction],
+          actions: ["applyEffectAction"],
         },
         applyFilter: {
-          actions: [applyFilterAction],
+          actions: ["applyFilterAction"],
         },
         applyTemplate: {
-          actions: [applyTemplateAction],
+          actions: ["applyTemplateAction"],
         },
         clearEffects: {
-          actions: [clearEffectsAction],
+          actions: ["clearEffectsAction"],
         },
         clearFilters: {
-          actions: [clearFiltersAction],
+          actions: ["clearFiltersAction"],
         },
         clearTemplate: {
-          actions: [clearTemplateAction],
+          actions: ["clearTemplateAction"],
         },
         setSpeedRampingEnabled: {
-          actions: [setSpeedRampingEnabledAction],
+          actions: ["setSpeedRampingEnabledAction"],
         },
         updatePlaybackRate: {
-          actions: [updatePlaybackRateAction],
+          actions: ["updatePlaybackRateAction"],
         },
         setBasePlaybackRate: {
-          actions: [setBasePlaybackRateAction],
+          actions: ["setBasePlaybackRateAction"],
         },
       },
     },
@@ -605,31 +615,31 @@ export const playerMachine = setup({
           ],
         },
         applyEffect: {
-          actions: [applyEffectAction],
+          actions: ["applyEffectAction"],
         },
         applyFilter: {
-          actions: [applyFilterAction],
+          actions: ["applyFilterAction"],
         },
         applyTemplate: {
-          actions: [applyTemplateAction],
+          actions: ["applyTemplateAction"],
         },
         clearEffects: {
-          actions: [clearEffectsAction],
+          actions: ["clearEffectsAction"],
         },
         clearFilters: {
-          actions: [clearFiltersAction],
+          actions: ["clearFiltersAction"],
         },
         clearTemplate: {
-          actions: [clearTemplateAction],
+          actions: ["clearTemplateAction"],
         },
         setSpeedRampingEnabled: {
-          actions: [setSpeedRampingEnabledAction],
+          actions: ["setSpeedRampingEnabledAction"],
         },
         updatePlaybackRate: {
-          actions: [updatePlaybackRateAction],
+          actions: ["updatePlaybackRateAction"],
         },
         setBasePlaybackRate: {
-          actions: [setBasePlaybackRateAction],
+          actions: ["setBasePlaybackRateAction"],
         },
       },
     },

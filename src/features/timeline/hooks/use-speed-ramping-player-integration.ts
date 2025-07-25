@@ -38,31 +38,32 @@ export interface SpeedRampingPlayerIntegration {
 export function useSpeedRampingPlayerIntegration(): SpeedRampingPlayerIntegration {
   // const { send: sendPlayer } = usePlayer()
   const sendPlayer = () => {} // Мок для отправки команд плееру
-  const { state: timelineState } = useTimeline()
+  const timeline = useTimeline()
 
   const autoUpdateEnabledRef = useRef(true)
   const lastUpdateTimeRef = useRef(0)
-  const updateIntervalRef = useRef<NodeJS.Timeout>()
+  const updateIntervalRef = useRef<NodeJS.Timeout | undefined>(undefined)
 
-  // Получаем speed ramping service из timeline контекста
-  const speedRampingService = timelineState.context.speedRampingService
+  // Получаем speed ramping service из timeline контекста  
+  // Временно убираем, так как нет speedRampingService в новой архитектуре
+  const speedRampingService = null
 
   // Функция для обновления скорости воспроизведения
   const updatePlaybackRateForTime = useCallback(
     (time: number) => {
-      if (!timelineState.context.project || !autoUpdateEnabledRef.current) {
+      if (!timeline.project || !autoUpdateEnabledRef.current) {
         return
       }
 
       // Находим активный клип на текущем времени
-      const activeClip = findActiveClipAtTime(timelineState.context.project, time)
+      const activeClip = findActiveClipAtTime(timeline.project, time)
       if (!activeClip) {
         resetPlaybackRate()
         return
       }
 
       // Проверяем, активен ли speed ramping для этого клипа
-      if (!speedRampingService.isSpeedRampingEnabled(activeClip.id)) {
+      if (!speedRampingService?.isSpeedRampingEnabled(activeClip.id)) {
         resetPlaybackRate()
         return
       }
@@ -71,18 +72,18 @@ export function useSpeedRampingPlayerIntegration(): SpeedRampingPlayerIntegratio
       const clipTime = time - activeClip.startTime + activeClip.offset
 
       // Получаем скорость для этого времени
-      const playbackRate = speedRampingService.getPlaybackRateForTime(activeClip.id, clipTime)
+      const playbackRate = speedRampingService?.getPlaybackRateForTime(
+        activeClip.id,
+        clipTime,
+      ) || 1.0
 
       // Обновляем плеер только если скорость изменилась
       if (Math.abs(playbackRate - lastUpdateTimeRef.current) > 0.001) {
-        sendPlayer({
-          type: "updatePlaybackRate",
-          rate: playbackRate,
-        })
+        sendPlayer()
         lastUpdateTimeRef.current = playbackRate
       }
     },
-    [timelineState.context.project, speedRampingService, sendPlayer],
+    [timeline.project, speedRampingService, sendPlayer],
   )
 
   // Получить текущую скорость воспроизведения
@@ -92,17 +93,14 @@ export function useSpeedRampingPlayerIntegration(): SpeedRampingPlayerIntegratio
 
   // Сбросить скорость воспроизведения
   const resetPlaybackRate = useCallback(() => {
-    sendPlayer({
-      type: "updatePlaybackRate",
-      rate: 1.0,
-    })
+    sendPlayer()
     lastUpdateTimeRef.current = 1.0
   }, [sendPlayer])
 
   // Проверить, активен ли speed ramping для клипа
   const isSpeedRampingActive = useCallback(
     (clipId: string) => {
-      return speedRampingService.isSpeedRampingEnabled(clipId)
+      return speedRampingService?.isSpeedRampingEnabled(clipId) || false
     },
     [speedRampingService],
   )
@@ -115,7 +113,7 @@ export function useSpeedRampingPlayerIntegration(): SpeedRampingPlayerIntegratio
       if (enabled) {
         // Начинаем интервал обновления
         updateIntervalRef.current = setInterval(() => {
-          const currentTime = timelineState.context.currentTime
+          const currentTime = timeline.currentTime
           updatePlaybackRateForTime(currentTime)
         }, 100) // Обновляем каждые 100ms
       } else {
@@ -127,15 +125,19 @@ export function useSpeedRampingPlayerIntegration(): SpeedRampingPlayerIntegratio
         resetPlaybackRate()
       }
     },
-    [timelineState.context.currentTime, updatePlaybackRateForTime, resetPlaybackRate],
+    [
+      timeline.currentTime,
+      updatePlaybackRateForTime,
+      resetPlaybackRate,
+    ],
   )
 
   // Автоматически обновляем скорость при изменении времени
   useEffect(() => {
     if (autoUpdateEnabledRef.current) {
-      updatePlaybackRateForTime(timelineState.context.currentTime)
+      updatePlaybackRateForTime(timeline.currentTime)
     }
-  }, [timelineState.context.currentTime, updatePlaybackRateForTime])
+  }, [timeline.currentTime, updatePlaybackRateForTime])
 
   // Очищаем интервал при размонтировании
   useEffect(() => {

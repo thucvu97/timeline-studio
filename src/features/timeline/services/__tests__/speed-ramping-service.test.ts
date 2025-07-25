@@ -88,7 +88,10 @@ describe("SpeedRampingService", () => {
   it("should interpolate between keyframes", () => {
     const config: SpeedRampingConfig = {
       enabled: true,
-      keyframes: [createSpeedKeyframe(0, 1.0, "linear"), createSpeedKeyframe(10, 2.0, "linear")],
+      keyframes: [
+        createSpeedKeyframe(0, 1.0, "linear"),
+        createSpeedKeyframe(10, 2.0, "linear"),
+      ],
       maintainPitch: true,
       minSpeed: 0.1,
       maxSpeed: 10.0,
@@ -182,7 +185,8 @@ describe("SpeedRampingService", () => {
 
     service.updateSpeedRampingConfig("clip-1", config)
     const newDuration = service.calculateClipDuration(clip)
-    expect(newDuration).toBeGreaterThan(10) // Должно быть больше из-за замедления
+    // Должно быть больше из-за замедления
+    expect(newDuration).toBeGreaterThan(10)
   })
 
   it("should convert time with speed ramping", () => {

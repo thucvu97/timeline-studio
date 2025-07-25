@@ -28,7 +28,6 @@ export interface UseTracksReturn {
   addTrack: (trackType: TrackType, sectionId?: string, name?: string) => void
   removeTrack: (trackId: string) => void
   updateTrack: (trackId: string, updates: Partial<TimelineTrack>) => void
-  reorderTracks: (trackIds: string[]) => void
 
   // Управление состоянием треков
   toggleTrackMute: (trackId: string) => void
@@ -54,7 +53,7 @@ export interface UseTracksReturn {
 }
 
 export function useTracks(): UseTracksReturn {
-  const { project, uiState, addTrack, removeTrack, updateTrack, reorderTracks, selectTracks, clearSelection } =
+  const { project, uiState, addTrack, removeTrack, updateTrack, selectTracks, clearSelection } =
     useTimeline()
 
   // ============================================================================
@@ -82,8 +81,8 @@ export function useTracks(): UseTracksReturn {
   }, [tracks, uiState.selectedTrackIds])
 
   const visibleTracks = useMemo(() => {
-    return tracks.filter((track) => !track.isHidden && uiState.visibleTrackTypes.includes(track.type))
-  }, [tracks, uiState.visibleTrackTypes])
+    return tracks.filter((track) => !track.isHidden)
+  }, [tracks])
 
   // ============================================================================
   // FILTERING FUNCTIONS
@@ -236,10 +235,11 @@ export function useTracks(): UseTracksReturn {
     visibleTracks,
 
     // Действия
-    addTrack,
+    addTrack: (trackType: TrackType, sectionId?: string, name?: string) => {
+      void addTrack(trackType, name)
+    },
     removeTrack,
     updateTrack,
-    reorderTracks,
 
     // Управление состоянием треков
     toggleTrackMute,

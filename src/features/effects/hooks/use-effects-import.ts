@@ -169,7 +169,7 @@ export function useEffectsImport() {
       }
 
       // Регистрируем эффекты в EffectManager
-      const effectManager = EffectManager.getInstance()
+      const effectManager = new EffectManager()
       effects.forEach((effect) => {
         try {
           effectManager.registerEffect(effect)
@@ -265,8 +265,8 @@ export function useEffectsImport() {
             en: baseName,
             ru: baseName,
           },
-          category,
-          scope: "clip",
+          category: category as any,
+          scope: ["clip"],
           version: "1.0.0",
           author: "User",
           description: {
@@ -295,10 +295,8 @@ export function useEffectsImport() {
               },
             },
           },
-          preview: {
-            image: "/effects/lut-preview.jpg",
-            video: "/t1.mp4",
-          },
+          thumbnail: "/effects/lut-preview.jpg",
+          preview: "/t1.mp4",
           compatibility: {
             webgl: false,
             css: false,
@@ -312,7 +310,7 @@ export function useEffectsImport() {
       }
 
       // Регистрируем эффекты в EffectManager
-      const effectManager = EffectManager.getInstance()
+      const effectManager = new EffectManager()
       importedEffects.forEach((effect) => {
         try {
           effectManager.registerEffect(effect)

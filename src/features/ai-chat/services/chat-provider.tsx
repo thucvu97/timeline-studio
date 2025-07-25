@@ -105,10 +105,10 @@ export function ChatProvider({ children }: ChatProviderProps) {
       setError(null)
 
       // Извлекаем сессии чата из состояния проекта
-      // Пока backend не поддерживает чат, используем заглушку
-      if (state.project?.metadata?.chatSessions) {
-        setSessions(state.project.metadata.chatSessions)
-      }
+      // TODO: Пока backend не поддерживает чат, используем локальное хранилище
+      // if (state.project?.metadata?.chatSessions) {
+      //   setSessions(state.project.metadata.chatSessions)
+      // }
     })
 
     return unsubscribe

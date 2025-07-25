@@ -1,4 +1,5 @@
 import React from "react";
+
 import { act, render, renderHook, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -102,14 +103,6 @@ const mockMediaFile: MediaFile = {
   path: "/test/test.mp4",
   isVideo: true,
   duration: 120,
-  size: 1024,
-  metadata: {
-    width: 1920,
-    height: 1080,
-    duration: 120,
-    fps: 30,
-    codec: "h264",
-  },
 };
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (

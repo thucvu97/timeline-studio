@@ -233,7 +233,10 @@ export function TimelineContent() {
                         <CardContent className="pt-6">
                           <div className="text-center">
                             <p className="text-muted-foreground">Треки не найдены</p>
-                            <Button className="mt-4" onClick={() => addTrack("video", undefined, "Видео трек")}>
+                            <Button
+                              className="mt-4"
+                              onClick={() => addTrack("video", { name: "Видео трек" })}
+                            >
                               Добавить видео трек
                             </Button>
                           </div>

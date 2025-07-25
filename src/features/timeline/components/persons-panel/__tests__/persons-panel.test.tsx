@@ -8,13 +8,14 @@ import { vi } from "vitest"
 import type { PersonProfile } from "@/features/person-identification/types/person"
 import type { TimelinePersonAppearance } from "@/features/timeline/hooks/use-timeline-persons"
 // Теперь импортируем компонент
-import { useTimelinePersons } from "@/features/timeline/hooks/use-timeline-persons"
+// import { useTimelinePersons } from "@/features/timeline/hooks/use-timeline-persons"
 
 import { PersonsPanel } from "../persons-panel"
 
 // Mock для хука useTimelinePersons
+const mockUseTimelinePersons = vi.fn()
 vi.mock("@/features/timeline/hooks/use-timeline-persons", () => ({
-  useTimelinePersons: vi.fn(),
+  useTimelinePersons: mockUseTimelinePersons,
 }))
 
 // Mock для UI компонентов
@@ -139,7 +140,6 @@ vi.mock("lucide-react", () => ({
 }))
 
 // Получаем замоканную версию хука
-const mockUseTimelinePersons = vi.mocked(useTimelinePersons)
 
 describe("PersonsPanel", () => {
   const mockPersons: PersonProfile[] = [
@@ -285,7 +285,8 @@ describe("PersonsPanel", () => {
       render(<PersonsPanel />)
 
       expect(screen.getByTestId("card-title")).toHaveTextContent("Персоны (3)")
-      expect(screen.getAllByTestId("users-icon")).toHaveLength(3) // Один в заголовке + 2 для персон без аватара
+      // Один в заголовке + 2 для персон без аватара
+      expect(screen.getAllByTestId("users-icon")).toHaveLength(3)
     })
 
     it("отображает кнопки управления", () => {

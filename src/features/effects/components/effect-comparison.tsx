@@ -67,10 +67,10 @@ export function EffectComparison({
     const mergedEffect = customParams
       ? {
         ...effect,
-        params: {
-          ...effect.params,
-          ...customParams,
-        },
+        parameters: effect.parameters.map(param => ({
+          ...param,
+          defaultValue: customParams[param.id] ?? param.defaultValue
+        })),
       }
       : effect
 

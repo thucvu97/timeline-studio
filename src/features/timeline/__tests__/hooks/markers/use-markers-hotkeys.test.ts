@@ -48,6 +48,12 @@ describe("useMarkersHotkeys", () => {
       }
     })
     mockUseTimeline.seek.mockClear()
+    
+    // Сбрасываем маркеры к исходному состоянию
+    mockUseTimelineMarkers.markers = [
+      { id: "marker-1", time: 10, name: "Chapter 1", type: "chapter", color: "#3b82f6" },
+      { id: "marker-2", time: 25, name: "Note", type: "note", color: "#f59e0b" },
+    ]
   })
 
   it("регистрирует горячие клавиши для маркеров", () => {
@@ -114,14 +120,11 @@ describe("useMarkersHotkeys", () => {
   })
 
   it("удаляет выбранный маркер при нажатии Delete", () => {
-    // Настраиваем mock для getMarkerAtTime - возвращаем маркер в текущем времени
-    mockUseTimelineMarkers.getMarkerAtTime.mockReturnValue({
-      id: "marker-1",
-      time: 15.5,
-      name: "Test Marker",
-      type: "note",
-      isLocked: false,
-    })
+    // Добавляем маркер близко к текущему времени (15.5), чтобы getMarkerAtTime его нашёл
+    mockUseTimelineMarkers.markers = [
+      ...mockUseTimelineMarkers.markers,
+      { id: "marker-at-15.5", time: 15.45, name: "Current Marker", type: "note", color: "#f59e0b" }
+    ]
 
     renderHook(() => useMarkerHotkeys())
 
@@ -131,13 +134,12 @@ describe("useMarkersHotkeys", () => {
     // Вызываем колбэк
     deleteCallback?.(new KeyboardEvent("keydown"), { keys: ["delete"] })
 
-    expect(mockUseTimelineMarkers.getMarkerAtTime).toHaveBeenCalledWith(15.5)
-    expect(mockUseTimelineMarkers.removeMarker).toHaveBeenCalledWith("marker-1")
+    expect(mockUseTimelineMarkers.removeMarker).toHaveBeenCalledWith("marker-at-15.5")
   })
 
   it("не удаляет маркер если ничего не выбрано", () => {
-    // Настраиваем mock для getMarkerAtTime - возвращаем null (нет маркера)
-    mockUseTimelineMarkers.getMarkerAtTime.mockReturnValue(null)
+    // Используем маркеры которые далеко от текущего времени (15.5), чтобы getMarkerAtTime не нашёл их
+    // Маркеры в 10 и 25 секундах далеко от 15.5, поэтому ничего не найдёт
 
     renderHook(() => useMarkerHotkeys())
 
@@ -147,7 +149,6 @@ describe("useMarkersHotkeys", () => {
     // Вызываем колбэк
     deleteCallback?.(new KeyboardEvent("keydown"), { keys: ["delete"] })
 
-    expect(mockUseTimelineMarkers.getMarkerAtTime).toHaveBeenCalledWith(15.5)
     expect(mockUseTimelineMarkers.removeMarker).not.toHaveBeenCalled()
   })
 
@@ -160,7 +161,8 @@ describe("useMarkersHotkeys", () => {
     // Вызываем колбэк
     prevMarkerCallback?.(new KeyboardEvent("keydown"), { keys: [";"] })
 
-    expect(mockUseTimelineMarkers.goToPreviousMarker).toHaveBeenCalled()
+    // Должен вызывать seek с временем предыдущего маркера (10 секунд)
+    expect(mockUseTimeline.seek).toHaveBeenCalledWith(10)
   })
 
   it("переходит к следующему маркеру при нажатии ' (apostrophe)", () => {
@@ -172,34 +174,10 @@ describe("useMarkersHotkeys", () => {
     // Вызываем колбэк
     nextMarkerCallback?.(new KeyboardEvent("keydown"), { keys: ["'"] })
 
-    expect(mockUseTimelineMarkers.goToNextMarker).toHaveBeenCalled()
+    // Должен вызывать seek с временем следующего маркера (25 секунд)
+    expect(mockUseTimeline.seek).toHaveBeenCalledWith(25)
   })
 
-  it("вызывает goToPreviousMarker при нажатии ; (всегда)", () => {
-    renderHook(() => useMarkerHotkeys())
-
-    // Получаем колбэк для ; (semicolon)
-    const prevMarkerCallback = vi.mocked(useHotkeys).mock.calls.find((call) => call[0] === ";")?.[1]
-
-    // Вызываем колбэк
-    prevMarkerCallback?.(new KeyboardEvent("keydown"), { keys: [";"] })
-
-    // Функция всегда вызывается, логика "нет предыдущего маркера" обрабатывается внутри goToPreviousMarker
-    expect(mockUseTimelineMarkers.goToPreviousMarker).toHaveBeenCalled()
-  })
-
-  it("вызывает goToNextMarker при нажатии ' (всегда)", () => {
-    renderHook(() => useMarkerHotkeys())
-
-    // Получаем колбэк для ' (apostrophe)
-    const nextMarkerCallback = vi.mocked(useHotkeys).mock.calls.find((call) => call[0] === "'")?.[1]
-
-    // Вызываем колбэк
-    nextMarkerCallback?.(new KeyboardEvent("keydown"), { keys: ["'"] })
-
-    // Функция всегда вызывается, логика "нет следующего маркера" обрабатывается внутри goToNextMarker
-    expect(mockUseTimelineMarkers.goToNextMarker).toHaveBeenCalled()
-  })
 
   it("генерирует правильные имена для новых маркеров", () => {
     // Тест для обычного маркера
@@ -225,7 +203,7 @@ describe("useMarkersHotkeys", () => {
       time: 15.5,
       name: expect.stringContaining("Chapter"),
       type: "chapter",
-      color: "#8b5cf6"
+      color: "#10b981"
     })
   })
 

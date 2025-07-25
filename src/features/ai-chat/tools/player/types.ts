@@ -2,16 +2,36 @@
  * Типы для Player AI инструментов
  */
 
-import { MediaFile } from "@/features/media/types/media"
-
 /**
  * Интерфейс для текущего медиа в плеере
  */
-export interface CurrentMedia extends MediaFile {
+export interface CurrentMedia {
+  // Базовые свойства медиа файла
+  id: string
+  name: string
+  path: string
+  size?: number
+  duration?: number
+  createdAt?: string
+  isVideo?: boolean
+  isAudio?: boolean
+  probeData?: any
+  
+  // Дополнительные свойства для плеера
   activeEffects?: string[]
   activeFilters?: string[]
   playbackPosition?: number
   type?: string
+  width?: number
+  height?: number
+  fps?: number
+  hasAudio?: boolean
+  metadata?: {
+    title?: string
+    description?: string
+    tags?: string[]
+  }
+  modifiedAt?: string
 }
 
 /**
@@ -102,7 +122,7 @@ export interface PreviewFiltersParams {
  */
 export interface PlayerStateAccess {
   getPlayerState: () => any
-  getCurrentMedia: () => MediaFile | null
+  getCurrentMedia: () => CurrentMedia | null
   getPlaybackStatus: () => any
   getAppliedEffects: () => any
   play: () => void
@@ -114,9 +134,9 @@ export interface PlayerStateAccess {
   removeEffect: (effectId: string) => void
   applyFilter: (filter: any) => void
   removeFilter: (filterId: string) => void
-  applyTemplate: (template: any, files: MediaFile[]) => void
+  applyTemplate: (template: any, files: CurrentMedia[]) => void
   clearTemplate: () => void
-  setMedia: (media: MediaFile) => void
+  setMedia: (media: CurrentMedia) => void
   analyzeMediaQuality: () => any
   getPlayerStats: () => any
 }

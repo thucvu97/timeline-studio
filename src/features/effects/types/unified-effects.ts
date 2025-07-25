@@ -388,6 +388,17 @@ export interface EffectExportData {
   }
 }
 
+export interface EffectImportData {
+  version: string
+  effects: BaseEffect[]
+  presets: EffectPreset[]
+  metadata: {
+    importedAt: Date
+    importedBy?: string
+    description?: string
+  }
+}
+
 // ============================================================================
 // СОБЫТИЯ И КОЛБЕКИ
 // ============================================================================

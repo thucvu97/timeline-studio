@@ -70,7 +70,7 @@ export function EffectManagerPanel({
 
     // Фильтр по области применения
     if (filterScope !== "all") {
-      result = result.filter((effect) => effect.scope === filterScope)
+      result = result.filter((effect) => effect.scope.includes(filterScope as any))
     }
 
     // Поиск

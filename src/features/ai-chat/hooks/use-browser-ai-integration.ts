@@ -71,7 +71,7 @@ export function useBrowserAIIntegration() {
           comparison = a.name.localeCompare(b.name)
           break
         case "date":
-          comparison = (a.lastModified || 0) - (b.lastModified || 0)
+          comparison = (a.lastCheckedAt || 0) - (b.lastCheckedAt || 0)
           break
         case "size":
           comparison = (a.size || 0) - (b.size || 0)

@@ -107,10 +107,10 @@ export function useDragDropTimeline(): UseDragDropTimelineReturn {
             const rect = trackElement.getBoundingClientRect()
             const scrollLeft = trackElement.scrollLeft || 0
 
-            let timePosition = calculateTimelinePosition(mouseX, rect, scrollLeft, uiState.context.timeScale)
+            let timePosition = calculateTimelinePosition(mouseX, rect, scrollLeft, uiState.timeScale)
 
             // Apply snapping if enabled
-            timePosition = snapToGrid(timePosition, uiState.context.snapMode).snappedPosition
+            timePosition = snapToGrid(timePosition, uiState.snapMode)
 
             // Find insertion point (avoiding overlaps)
             const insertionTime = findInsertionPoint(timePosition, dropData.trackId, dragData.mediaFile.duration || 10)
@@ -154,7 +154,7 @@ export function useDragDropTimeline(): UseDragDropTimelineReturn {
             console.log("[DragDrop] Creating new track:", trackName, "for media:", dragData.mediaFile.name)
 
             // Create new track and add media to it
-            void addTrack(trackType as any, undefined, trackName)
+            void addTrack(trackType as any, trackName)
 
             // TODO: We need to get the newly created track ID to add the media
             // For now, we'll add it to the first compatible track

@@ -1,5 +1,6 @@
 import { act, renderHook } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
+
 import { useRecentProjects } from "../../hooks/use-recent-projects";
 // Мокаем storeService
 vi.mock("../../services/store-service", () => ({

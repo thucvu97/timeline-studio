@@ -77,7 +77,26 @@ export function useResourcesAIIntegration() {
   // Функция для добавления любого ресурса
   const addResource = useCallback(
     async (resourceType: string, resource: any) => {
-      return resources.addResource(resourceType as ResourceType, resource)
+      switch (resourceType) {
+        case "media":
+          return resources.addMedia(resource)
+        case "music":
+          return resources.addMusic(resource)
+        case "effect":
+          return resources.addEffect(resource)
+        case "filter":
+          return resources.addFilter(resource)
+        case "transition":
+          return resources.addTransition(resource)
+        case "template":
+          return resources.addTemplate(resource)
+        case "styleTemplate":
+          return resources.addStyleTemplate(resource)
+        case "subtitle":
+          return resources.addSubtitle(resource)
+        default:
+          throw new Error(`Unknown resource type: ${resourceType}`)
+      }
     },
     [resources],
   )

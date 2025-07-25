@@ -15,6 +15,8 @@ import { EffectPresets } from "./effect-presets"
 import { EffectPreview } from "./effect-preview"
 import { prepareEffectForExport, saveUserEffect } from "../utils/user-effects"
 
+import type { BaseEffect } from "../types"
+
 /**
  * Компонент для детального просмотра эффекта с возможностью настройки параметров
  */
@@ -28,6 +30,20 @@ export function EffectDetailModal() {
   const [currentParameters, setCurrentParameters] = useState<Record<string, number>>({})
   const [previewKey, setPreviewKey] = useState(0) // Для обновления превью
   const currentLang = i18n.language as "ru" | "en"
+
+  // Helper функция для получения FFmpeg команды
+  const getEffectFFmpegCommand = (effect: BaseEffect, params: Record<string, number> = {}) => {
+    if (!effect.processors?.ffmpeg) return 'FFmpeg processor not available'
+    
+    // Преобразуем parameters массив в объект значений по умолчанию
+    const defaultParams = effect.parameters.reduce<Record<string, any>>((acc, param) => {
+      acc[param.id] = param.defaultValue
+      return acc
+    }, {})
+    
+    const mergedParams = { ...defaultParams, ...params }
+    return effect.processors.ffmpeg.filter(mergedParams)
+  }
 
   // Обработчик применения пресета
   const handleApplyPreset = useCallback((presetName: string, params: Record<string, number>) => {
@@ -54,7 +70,7 @@ export function EffectDetailModal() {
     (name: string, params: Record<string, number>) => {
       try {
         // Получаем существующие пресеты для этого эффекта
-        const storageKey = `effect_presets_${effect.id}`
+        const storageKey = `effect_presets_${effect?.id}`
         const existingPresets = localStorage.getItem(storageKey)
         const presets = existingPresets ? JSON.parse(existingPresets) : {}
 
@@ -85,7 +101,7 @@ export function EffectDetailModal() {
         console.error("Error saving custom preset:", error)
       }
     },
-    [effect.id, currentLang, t],
+    [effect?.id, currentLang, t],
   )
 
   // Обработчик применения эффекта
@@ -131,7 +147,7 @@ export function EffectDetailModal() {
     <div className="max-w-4xl max-h-[90vh] overflow-y-auto">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <span>{effect?.labels[currentLang] ?? effect?.labels?.en ?? "Unnamed effect"}</span>
+          <span>{effect?.name[currentLang] ?? effect?.name?.en ?? "Unnamed effect"}</span>
           <EffectIndicators effect={effect} size="md" />
         </div>
         <Button variant="ghost" size="sm" onClick={closeModal}>
@@ -155,7 +171,7 @@ export function EffectDetailModal() {
               <div className="aspect-video bg-black rounded-lg overflow-hidden relative">
                 <EffectPreview
                   key={previewKey} // Обновляем превью при изменении параметров
-                  effectType={effect?.type}
+                  effectType={effect?.category}
                   onClick={() => setIsPlaying(!isPlaying)}
                   size={400}
                   customParams={currentParameters} // Передаем текущие параметры
@@ -227,10 +243,7 @@ export function EffectDetailModal() {
           <div className="space-y-2">
             <h3 className="font-medium">{t("effects.detail.ffmpegCommand", "FFmpeg команда")}</h3>
             <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono overflow-x-auto">
-              {effect?.ffmpegCommand({
-                ...effect?.params,
-                ...currentParameters,
-              })}
+              {effect ? getEffectFFmpegCommand(effect, currentParameters) : 'No effect selected'}
             </div>
           </div>
 

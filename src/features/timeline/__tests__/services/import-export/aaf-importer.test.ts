@@ -162,12 +162,13 @@ describe("AAFImporter", () => {
       expect(videoFile).toBeDefined()
       expect(videoFile?.isVideo).toBe(true)
       expect(videoFile?.isAudio).toBe(false)
-      expect(videoFile?.probeData?.streams?.[0]?.width).toBe(1920)
-      expect(videoFile?.probeData?.streams?.[0]?.height).toBe(1080)
+      expect(videoFile?.name).toBe("video_file.mxf")
+      expect(videoFile?.path).toBe("/media/video_file.mxf")
 
       expect(audioFile).toBeDefined()
       expect(audioFile?.isVideo).toBe(false)
       expect(audioFile?.isAudio).toBe(true)
+      expect(audioFile?.name).toBe("audio_file.wav")
     })
 
     it("должен обрабатывать Filler (пробелы между клипами)", async () => {

@@ -160,19 +160,21 @@ describe("MarkerControls", () => {
 
   const defaultMocks = {
     currentTime: 15,
+    seek: vi.fn(),
     markers: mockMarkers,
-    filteredMarkers: mockMarkers,
     addMarker: vi.fn(),
-    goToNextMarker: vi.fn(),
-    goToPreviousMarker: vi.fn(),
-    setFilter: vi.fn(),
-    clearFilter: vi.fn(),
   }
 
   beforeEach(() => {
     vi.clearAllMocks()
-    mockUseTimeline.mockReturnValue({ currentTime: defaultMocks.currentTime })
-    mockUseTimelineMarkers.mockReturnValue(defaultMocks)
+    mockUseTimeline.mockReturnValue({ 
+      currentTime: defaultMocks.currentTime, 
+      seek: defaultMocks.seek 
+    })
+    mockUseTimelineMarkers.mockReturnValue({ 
+      markers: defaultMocks.markers, 
+      addMarker: defaultMocks.addMarker 
+    })
   })
 
   it("рендерит основные элементы управления", () => {
@@ -216,11 +218,12 @@ describe("MarkerControls", () => {
     const submitButton = screen.getAllByText("Add Marker")[2] // Третья кнопка в попапе
     fireEvent.click(submitButton)
 
-    expect(defaultMocks.addMarker).toHaveBeenCalledWith(
-      15, // currentTime
-      "New Chapter",
-      "note", // тип по умолчанию
-    )
+    expect(defaultMocks.addMarker).toHaveBeenCalledWith({
+      time: 15,
+      name: "New Chapter",
+      type: "note",
+      color: "#f59e0b"
+    })
   })
 
   it("добавляет маркер при нажатии Enter", async () => {
@@ -233,7 +236,12 @@ describe("MarkerControls", () => {
     await user.type(input, "Quick Marker")
     fireEvent.keyDown(input, { key: "Enter" })
 
-    expect(defaultMocks.addMarker).toHaveBeenCalledWith(15, "Quick Marker", "note")
+    expect(defaultMocks.addMarker).toHaveBeenCalledWith({
+      time: 15,
+      name: "Quick Marker",
+      type: "note",
+      color: "#f59e0b"
+    })
   })
 
   it("не добавляет маркер с пустым именем", async () => {
@@ -264,7 +272,12 @@ describe("MarkerControls", () => {
     await user.type(screen.getByPlaceholderText("Marker name"), "Test Chapter")
     fireEvent.click(screen.getAllByText("Add Marker")[2])
 
-    expect(defaultMocks.addMarker).toHaveBeenCalledWith(15, "Test Chapter", "chapter")
+    expect(defaultMocks.addMarker).toHaveBeenCalledWith({
+      time: 15,
+      name: "Test Chapter",
+      type: "chapter",
+      color: "#3b82f6"
+    })
   })
 
   it("навигация между маркерами работает корректно", () => {
@@ -276,16 +289,16 @@ describe("MarkerControls", () => {
     const nextButton = buttons.find((btn) => btn.querySelector('[data-icon="ChevronRight"]'))
 
     fireEvent.click(prevButton!)
-    expect(defaultMocks.goToPreviousMarker).toHaveBeenCalled()
+    expect(defaultMocks.seek).toHaveBeenCalledWith(10) // предыдущий маркер на 10с
 
     fireEvent.click(nextButton!)
-    expect(defaultMocks.goToNextMarker).toHaveBeenCalled()
+    expect(defaultMocks.seek).toHaveBeenCalledWith(20) // следующий маркер на 20с
   })
 
   it("отключает навигацию когда нет маркеров", () => {
     mockUseTimelineMarkers.mockReturnValue({
-      ...defaultMocks,
-      filteredMarkers: [],
+      markers: [],
+      addMarker: defaultMocks.addMarker
     })
 
     render(<MarkerControls />)
@@ -319,8 +332,9 @@ describe("MarkerControls", () => {
     const searchInput = screen.getByPlaceholderText("Search markers...")
     await user.type(searchInput, "Chapter")
 
-    expect(defaultMocks.setFilter).toHaveBeenCalledWith({
-      search: "Chapter",
+    // Проверяем, что фильтрация обновила счетчик
+    await waitFor(() => {
+      expect(screen.getByText("1 / 3")).toBeInTheDocument() // 1 маркер с "Chapter" из 3
     })
   })
 
@@ -333,8 +347,9 @@ describe("MarkerControls", () => {
     const chapterCheckbox = screen.getAllByRole("checkbox")[0]
     fireEvent.click(chapterCheckbox)
 
-    expect(defaultMocks.setFilter).toHaveBeenCalledWith({
-      types: ["chapter"],
+    // Проверяем, что фильтрация обновила счетчик
+    await waitFor(() => {
+      expect(screen.getByText("1 / 3")).toBeInTheDocument() // 1 chapter маркер из 3
     })
   })
 
@@ -352,21 +367,12 @@ describe("MarkerControls", () => {
     const clearButton = buttons.find((btn) => btn.querySelector('[data-icon="X"]'))
     fireEvent.click(clearButton!)
 
-    expect(defaultMocks.setFilter).toHaveBeenLastCalledWith({})
+    // Проверяем, что поле поиска очищено
+    expect(searchInput).toHaveValue("")
   })
 
   it("показывает количество активных фильтров", async () => {
-    mockUseTimelineMarkers.mockReturnValue({
-      ...defaultMocks,
-      setFilter: (filter: MarkerFilter) => {
-        if (filter.types?.length || filter.search) {
-          // Симулируем обновление компонента
-        }
-        defaultMocks.setFilter(filter)
-      },
-    })
-
-    const { rerender } = render(<MarkerControls />)
+    render(<MarkerControls />)
 
     fireEvent.click(screen.getByRole("button", { name: /Filter/i }))
 
@@ -374,12 +380,11 @@ describe("MarkerControls", () => {
     const chapterCheckbox = screen.getAllByRole("checkbox")[0]
     fireEvent.click(chapterCheckbox)
 
-    // Перерендерим с обновленным состоянием
-    rerender(<MarkerControls />)
-
     // Проверяем что badge показывает количество фильтров
-    const badge = screen.getByText("1")
-    expect(badge).toBeInTheDocument()
+    await waitFor(() => {
+      const badge = screen.getByText("1")
+      expect(badge).toBeInTheDocument()
+    })
   })
 
   it("очищает все фильтры при клике на Clear all", async () => {
@@ -395,19 +400,25 @@ describe("MarkerControls", () => {
     const clearAllButton = screen.getByText("Clear all")
     fireEvent.click(clearAllButton)
 
-    expect(defaultMocks.clearFilter).toHaveBeenCalled()
+    // Проверяем, что фильтры очищены (нет активных фильтров)
+    await waitFor(() => {
+      expect(screen.getByText("3 / 3")).toBeInTheDocument() // все маркеры видимы
+    })
   })
 
-  it("обновляет счетчик маркеров при фильтрации", () => {
-    mockUseTimelineMarkers.mockReturnValue({
-      ...defaultMocks,
-      markers: mockMarkers,
-      filteredMarkers: [mockMarkers[0]], // Только один отфильтрованный
-    })
-
+  it("обновляет счетчик маркеров при фильтрации", async () => {
+    const user = userEvent.setup()
     render(<MarkerControls />)
 
-    expect(screen.getByText("1 / 3")).toBeInTheDocument()
+    // Фильтруем по поиску
+    fireEvent.click(screen.getByRole("button", { name: /Filter/i }))
+    const searchInput = screen.getByPlaceholderText("Search markers...")
+    await user.type(searchInput, "Chapter")
+
+    // Проверяем обновленный счетчик
+    await waitFor(() => {
+      expect(screen.getByText("1 / 3")).toBeInTheDocument()
+    })
   })
 
   it("сохраняет состояние фильтров между открытиями попапа", async () => {
@@ -444,9 +455,10 @@ describe("MarkerControls", () => {
     const searchInput = screen.getByPlaceholderText("Search markers...")
     await user.type(searchInput, "test")
 
-    expect(defaultMocks.setFilter).toHaveBeenLastCalledWith({
-      types: ["chapter"],
-      search: "test",
+    // Проверяем, что badge показывает 2 активных фильтра (тип + поиск)
+    await waitFor(() => {
+      const badge = screen.getByText("2")
+      expect(badge).toBeInTheDocument()
     })
   })
 

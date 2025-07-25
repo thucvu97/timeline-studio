@@ -48,6 +48,13 @@ export function MarkerControls() {
   const { currentTime, seek } = useTimeline()
   const { markers, addMarker } = useTimelineMarkers()
   
+  // State variables
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [selectedTypes, setSelectedTypes] = useState<MarkerType[]>([])
+  const [newMarkerName, setNewMarkerName] = useState("")
+  const [newMarkerType, setNewMarkerType] = useState<MarkerType>("note")
+  
   // Локальная логика для фильтрации и навигации
   const filteredMarkers = useMemo(() => {
     let filtered = markers
@@ -59,14 +66,15 @@ export function MarkerControls() {
     }
     
     if (selectedTypes.length > 0) {
-      filtered = filtered.filter(marker => selectedTypes.includes(marker.type))
+      filtered = filtered.filter(marker => selectedTypes.includes(marker.type!))
     }
     
     return filtered
   }, [markers, searchQuery, selectedTypes])
   
   const goToNextMarker = () => {
-    const nextMarker = markers.find(marker => marker.time > currentTime)
+    const sortedMarkers = [...markers].sort((a, b) => a.time - b.time)
+    const nextMarker = sortedMarkers.find(marker => marker.time > currentTime)
     if (nextMarker) {
       void seek(nextMarker.time)
     }
@@ -90,16 +98,15 @@ export function MarkerControls() {
     setSelectedTypes([])
   }
 
-  const [isFilterOpen, setIsFilterOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedTypes, setSelectedTypes] = useState<MarkerType[]>([])
-  const [newMarkerName, setNewMarkerName] = useState("")
-  const [newMarkerType, setNewMarkerType] = useState<MarkerType>("note")
-
   const handleAddMarker = () => {
     if (!newMarkerName.trim()) return
 
-    addMarker(currentTime, newMarkerName, newMarkerType)
+    addMarker({
+      time: currentTime,
+      name: newMarkerName,
+      type: newMarkerType,
+      color: MarkerColors[newMarkerType]
+    })
     setNewMarkerName("")
   }
 

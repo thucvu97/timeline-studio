@@ -71,9 +71,9 @@ console.log("\n5. Создание стека эффектов:")
 const effectStack = effectManager.createEffectStack("clip_123", "clip")
 if (effectStack) {
   // Добавляем эффекты в стек
-  effectManager.addEffectToStack(effectStack.id, "effect_brightness")
-  effectManager.addEffectToStack(effectStack.id, "effect_contrast")
-  effectManager.addEffectToStack(effectStack.id, "effect_vintage_film")
+  effectManager.applyEffect("effect_brightness", effectStack.id, "clip", {})
+  effectManager.applyEffect("effect_contrast", effectStack.id, "clip", {})
+  effectManager.applyEffect("effect_vintage_film", effectStack.id, "clip", {})
 
   console.log(`   ✅ Создан стек с ${effectStack.effects.length} эффектами`)
 }
@@ -105,7 +105,7 @@ async function renderExample() {
     targetId: "clip_123",
   }
 
-  const result = await renderer.render(imageBitmap, effectStack.effects, context)
+  const result = await renderer.renderEffectStack(effectStack.effects, new Map(), context)
 
   if (result.success && result.output) {
     console.log("   ✅ Рендеринг успешен")
