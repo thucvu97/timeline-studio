@@ -28,7 +28,12 @@ export function InfoSettings({ selectedMediaFile }: InfoSettingsProps) {
   try {
     const timeline = useTimeline()
     project = timeline.project
-    selectedClips = timeline.selectedClips || []
+    // Используем правильное имя свойства selectedClipIds
+    const selectedClipIds = timeline.selectedClipIds || []
+    // Получаем клипы по их ID
+    selectedClips = selectedClipIds
+      .map((clipId: string) => timeline.clips?.find((clip: any) => clip.id === clipId))
+      .filter(Boolean)
   } catch {
     // TimelineProvider не доступен (например, в тестах)
     project = null

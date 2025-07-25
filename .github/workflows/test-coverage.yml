@@ -55,6 +55,15 @@ jobs:
         run: |
           cd src-tauri
           cargo run --bin generate_types
+          cd ..
+          # Verify TypeScript bindings were generated
+          if [ ! -f "src/types/generated/tauri-bindings.ts" ]; then
+            echo "Error: TypeScript bindings were not generated!"
+            echo "Contents of src/types/generated/:"
+            ls -la src/types/generated/ || echo "Directory does not exist"
+            exit 1
+          fi
+          echo "TypeScript bindings generated successfully"
 
       - name: Create test results directory
         run: mkdir -p test-results
