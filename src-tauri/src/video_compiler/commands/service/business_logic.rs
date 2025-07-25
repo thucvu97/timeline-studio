@@ -1,5 +1,7 @@
 //! Бизнес-логика для команд управления сервисами
 
+#![allow(clippy::explicit_auto_deref)]
+
 use super::types::*;
 use crate::video_compiler::{
   commands::VideoCompilerState,

@@ -1,5 +1,7 @@
 //! Tauri команды для получения информации о системе и компиляторе
 
+#![allow(clippy::explicit_auto_deref)]
+
 use super::super::state::VideoCompilerState;
 use super::business_logic;
 use crate::video_compiler::{
@@ -32,7 +34,7 @@ pub async fn get_ffmpeg_version(state: State<'_, VideoCompilerState>) -> Result<
 #[tauri::command]
 pub async fn check_ffmpeg_available(state: State<'_, VideoCompilerState>) -> Result<bool> {
   let ffmpeg_path = state.ffmpeg_path.read().await;
-  Ok(business_logic::check_ffmpeg_availability(&*ffmpeg_path))
+  Ok(business_logic::check_ffmpeg_availability(&ffmpeg_path))
 }
 
 /// Получить список поддерживаемых форматов

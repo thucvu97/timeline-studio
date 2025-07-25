@@ -1,5 +1,7 @@
 //! Tauri команды для дополнительных операций
 
+#![allow(clippy::explicit_auto_deref)]
+
 use super::super::state::VideoCompilerState;
 use super::business_logic;
 use crate::video_compiler::error::{Result, VideoCompilerError};
