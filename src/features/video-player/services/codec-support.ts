@@ -343,7 +343,11 @@ export class CodecSupportService {
 
       // Получаем информацию о треках
       const videoElementWithTracks = videoElement as any
-      if ("videoTracks" in videoElementWithTracks && videoElementWithTracks.videoTracks && videoElementWithTracks.videoTracks.length > 0) {
+      if (
+        "videoTracks" in videoElementWithTracks &&
+        videoElementWithTracks.videoTracks &&
+        videoElementWithTracks.videoTracks.length > 0
+      ) {
         const videoTrack = videoElementWithTracks.videoTracks[0]
 
         if ("getSettings" in videoTrack) {

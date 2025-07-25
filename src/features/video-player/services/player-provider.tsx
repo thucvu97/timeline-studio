@@ -344,7 +344,7 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
     isSeeking: false,
     duration: 0,
   }
-  
+
   const playbackState = backendState?.playback_state
 
   // Контекстное значение

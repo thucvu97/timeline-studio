@@ -9,6 +9,7 @@ import { SectionType } from "../types"
 import type { ScriptTemplate } from "../../../shared/types/script-generation"
 import type { TemplateSection, TemplateStructure, TemplateVariable } from "../types"
 
+
 // Расширенный тип шаблона для внутреннего использования
 interface ExtendedScriptTemplate extends ScriptTemplate {
   variables?: TemplateVariable[]
@@ -17,7 +18,6 @@ interface ExtendedScriptTemplate extends ScriptTemplate {
 
 export class TemplateEngine {
   private templates = new Map<string, ExtendedScriptTemplate>()
-  private isInitialized = false
 
   async initialize(): Promise<void> {
     // Загружаем встроенные шаблоны
@@ -50,8 +50,8 @@ export class TemplateEngine {
 
     // Применяем переменные к секциям
     if (template.templateStructure?.sections) {
-      const processedSections = template.templateStructure.sections.map((section) => 
-        this.processSection(section, variables)
+      const processedSections = template.templateStructure.sections.map((section) =>
+        this.processSection(section, variables),
       )
 
       return {
@@ -63,7 +63,7 @@ export class TemplateEngine {
     // Если нет templateStructure, возвращаем пустую структуру
     return {
       sections: [],
-      flexibility: "flexible"
+      flexibility: "flexible",
     }
   }
 
@@ -84,12 +84,12 @@ export class TemplateEngine {
       structure: {
         type: NarrativeType.THREE_ACT,
         acts: [],
-        turningPoints: []
+        turningPoints: [],
       },
       defaultParams: {
         genre: [],
         duration: 0,
-        tone: "neutral" as any
+        tone: "neutral" as any,
       },
       templateStructure: structure,
       variables: variables || [],
@@ -121,12 +121,12 @@ export class TemplateEngine {
       structure: {
         type: NarrativeType.THREE_ACT,
         acts: [],
-        turningPoints: []
+        turningPoints: [],
       },
       defaultParams: {
         genre: [],
         duration: 0,
-        tone: "casual" as any
+        tone: "casual" as any,
       },
       templateStructure: {
         sections: [
@@ -222,7 +222,7 @@ export class TemplateEngine {
       ],
       examples: ["Tech review videos", "Tutorial content", "Vlogs"],
     }
-    
+
     this.templates.set("youtube-standard", youtubeTemplate)
 
     // Documentary шаблон
@@ -234,12 +234,12 @@ export class TemplateEngine {
       structure: {
         type: NarrativeType.THREE_ACT,
         acts: [],
-        turningPoints: []
+        turningPoints: [],
       },
       defaultParams: {
         genre: [],
         duration: 0,
-        tone: "serious" as any
+        tone: "serious" as any,
       },
       templateStructure: {
         sections: [
@@ -334,7 +334,7 @@ export class TemplateEngine {
       ],
       examples: ["Nature documentaries", "Historical documentaries", "Social issue documentaries"],
     }
-    
+
     this.templates.set("documentary-standard", documentaryTemplate)
   }
 

@@ -9,7 +9,7 @@ import { EffectPreset, VideoEffect } from "@/features/effects/types"
 
 interface EffectPresetsProps {
   effect: VideoEffect
-  onApplyPreset: (presetName: string, params: Record<string, number>) => void
+  onApplyPreset: (presetName: string, parameters: Record<string, any>) => void
   selectedPreset?: string
 }
 
@@ -23,7 +23,7 @@ interface CustomPreset extends EffectPreset {
 export function EffectPresets({ effect, onApplyPreset, selectedPreset }: EffectPresetsProps) {
   const { i18n, t } = useTranslation()
   const [isExpanded, setIsExpanded] = useState(false)
-  const [customPresets, setCustomPresets] = useState<Record<string, CustomPreset>>({})
+  const [customPresets, setCustomPresets] = useState<CustomPreset[]>([])
   const currentLang = i18n.language as "ru" | "en"
 
   // Загружаем пользовательские пресеты из localStorage
@@ -33,7 +33,18 @@ export function EffectPresets({ effect, onApplyPreset, selectedPreset }: EffectP
       const savedPresets = localStorage.getItem(storageKey)
       if (savedPresets) {
         try {
-          setCustomPresets(JSON.parse(savedPresets))
+          const parsed = JSON.parse(savedPresets)
+          // Поддержка старого формата (объект) и нового (массив)
+          if (Array.isArray(parsed)) {
+            setCustomPresets(parsed)
+          } else {
+            // Конвертируем старый формат в новый
+            const converted = Object.entries(parsed).map(([key, preset]: [string, any]) => ({
+              ...preset,
+              id: key
+            }))
+            setCustomPresets(converted)
+          }
         } catch (parseError) {
           console.error("Error parsing custom presets:", parseError)
         }
@@ -45,42 +56,39 @@ export function EffectPresets({ effect, onApplyPreset, selectedPreset }: EffectP
 
   // Объединяем встроенные и пользовательские пресеты
   const allPresets = useMemo(() => {
-    const combined: Record<string, CustomPreset> = {}
+    const combined: CustomPreset[] = []
 
     // Сначала добавляем встроенные пресеты
     if (effect.presets) {
-      Object.entries(effect.presets).forEach(([key, preset]) => {
-        combined[key] = preset
-      })
+      combined.push(...effect.presets.map(preset => ({
+        ...preset,
+        createdAt: undefined // Встроенные пресеты не имеют времени создания
+      })))
     }
 
     // Затем добавляем пользовательские пресеты
-    Object.entries(customPresets).forEach(([key, preset]) => {
-      combined[key] = preset
-    })
+    combined.push(...customPresets)
 
     return combined
   }, [effect.presets, customPresets])
 
   // Обработчик удаления пользовательского пресета
-  const handleDeleteCustomPreset = (presetKey: string) => {
-    const { [presetKey]: _, ...updatedPresets } = customPresets
+  const handleDeleteCustomPreset = (presetId: string) => {
+    const updatedPresets = customPresets.filter(preset => preset.id !== presetId)
     setCustomPresets(updatedPresets)
 
     // Сохраняем обновленные пресеты в localStorage
     const storageKey = `effect_presets_${effect.id}`
-    if (Object.keys(updatedPresets).length > 0) {
+    if (updatedPresets.length > 0) {
       localStorage.setItem(storageKey, JSON.stringify(updatedPresets))
     } else {
       localStorage.removeItem(storageKey)
     }
   }
 
-  if (Object.keys(allPresets).length === 0) {
+  if (allPresets.length === 0) {
     return null
   }
-
-  const presetEntries = Object.entries(allPresets)
 
   return (
     <div className="border rounded-lg">
@@ -93,27 +101,27 @@ export function EffectPresets({ effect, onApplyPreset, selectedPreset }: EffectP
           {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
           <Settings size={16} />
           <span className="text-sm font-medium">{t("effects.detail.presets", "Пресеты")}</span>
-          <span className="text-xs text-gray-500">({presetEntries.length})</span>
+          <span className="text-xs text-gray-500">({allPresets.length})</span>
         </div>
       </button>
 
       {/* Список пресетов */}
       {isExpanded && (
         <div className="border-t p-2 space-y-2">
-          {presetEntries.map(([presetKey, preset]) => {
-            const isCustom = presetKey.startsWith("custom_")
+          {allPresets.map((preset) => {
+            const isCustom = preset.isUserPreset || preset.createdAt !== undefined
 
             return (
-              <div key={presetKey} className="space-y-1">
+              <div key={preset.id} className="space-y-1">
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="flex items-center gap-2">
                         <Button
-                          variant={selectedPreset === presetKey ? "default" : "outline"}
+                          variant={selectedPreset === preset.id ? "default" : "outline"}
                           size="sm"
                           className="flex-1 justify-start text-left h-auto py-2"
-                          onClick={() => onApplyPreset(presetKey, preset.params)}
+                          onClick={() => onApplyPreset(preset.id, preset.parameters)}
                         >
                           <div className="flex flex-col items-start">
                             <span className="font-medium">
@@ -124,9 +132,11 @@ export function EffectPresets({ effect, onApplyPreset, selectedPreset }: EffectP
                                 </span>
                               )}
                             </span>
-                            <span className="text-xs text-gray-500 font-normal">
-                              {preset.description[currentLang] || preset.description.en}
-                            </span>
+                            {preset.description && (
+                              <span className="text-xs text-gray-500 font-normal">
+                                {preset.description[currentLang] || preset.description.en}
+                              </span>
+                            )}
                           </div>
                         </Button>
                         {isCustom && (
@@ -134,7 +144,7 @@ export function EffectPresets({ effect, onApplyPreset, selectedPreset }: EffectP
                             variant="ghost"
                             size="sm"
                             className="p-1"
-                            onClick={() => handleDeleteCustomPreset(presetKey)}
+                            onClick={() => handleDeleteCustomPreset(preset.id)}
                             title={t("effects.deletePreset", "Удалить пресет")}
                           >
                             <Trash2 size={14} />
@@ -145,10 +155,12 @@ export function EffectPresets({ effect, onApplyPreset, selectedPreset }: EffectP
                     <TooltipContent side="right" className="max-w-xs">
                       <div className="space-y-1">
                         <div className="font-medium">{preset.name[currentLang] || preset.name.en}</div>
-                        <div className="text-sm">{preset.description[currentLang] || preset.description.en}</div>
+                        {preset.description && (
+                          <div className="text-sm">{preset.description[currentLang] || preset.description.en}</div>
+                        )}
                         <div className="text-xs text-gray-400">
                           {t("effects.detail.parameters", "Параметры")}:{" "}
-                          {Object.entries(preset.params)
+                          {Object.entries(preset.parameters)
                             .map(([key, value]) => `${key}: ${String(value)}`)
                             .join(", ")}
                         </div>

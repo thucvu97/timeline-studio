@@ -48,7 +48,7 @@ describe("useMarkersHotkeys", () => {
       }
     })
     mockUseTimeline.seek.mockClear()
-    
+
     // Сбрасываем маркеры к исходному состоянию
     mockUseTimelineMarkers.markers = [
       { id: "marker-1", time: 10, name: "Chapter 1", type: "chapter", color: "#3b82f6" },
@@ -98,7 +98,7 @@ describe("useMarkersHotkeys", () => {
       time: 15.5,
       name: expect.stringContaining("Marker"),
       type: "note",
-      color: "#3b82f6"
+      color: "#3b82f6",
     })
   })
 
@@ -115,7 +115,7 @@ describe("useMarkersHotkeys", () => {
       time: 15.5,
       name: expect.stringContaining("Chapter"),
       type: "chapter",
-      color: "#10b981"
+      color: "#10b981",
     })
   })
 
@@ -123,7 +123,7 @@ describe("useMarkersHotkeys", () => {
     // Добавляем маркер близко к текущему времени (15.5), чтобы getMarkerAtTime его нашёл
     mockUseTimelineMarkers.markers = [
       ...mockUseTimelineMarkers.markers,
-      { id: "marker-at-15.5", time: 15.45, name: "Current Marker", type: "note", color: "#f59e0b" }
+      { id: "marker-at-15.5", time: 15.45, name: "Current Marker", type: "note", color: "#f59e0b" },
     ]
 
     renderHook(() => useMarkerHotkeys())
@@ -178,7 +178,6 @@ describe("useMarkersHotkeys", () => {
     expect(mockUseTimeline.seek).toHaveBeenCalledWith(25)
   })
 
-
   it("генерирует правильные имена для новых маркеров", () => {
     // Тест для обычного маркера
     renderHook(() => useMarkerHotkeys())
@@ -191,7 +190,7 @@ describe("useMarkersHotkeys", () => {
       time: 15.5,
       name: expect.stringContaining("Marker"),
       type: "note",
-      color: "#3b82f6"
+      color: "#3b82f6",
     })
 
     // Тест для маркера главы
@@ -203,7 +202,7 @@ describe("useMarkersHotkeys", () => {
       time: 15.5,
       name: expect.stringContaining("Chapter"),
       type: "chapter",
-      color: "#10b981"
+      color: "#10b981",
     })
   })
 

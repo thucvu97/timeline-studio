@@ -90,12 +90,14 @@ const TopBarComponent = function TopBar() {
       const { open } = await import("@tauri-apps/plugin-dialog")
       const selected = await open({
         multiple: false,
-        filters: [{
-          name: "Timeline Studio Project",
-          extensions: ["tsp"]
-        }]
+        filters: [
+          {
+            name: "Timeline Studio Project",
+            extensions: ["tsp"],
+          },
+        ],
       })
-      
+
       if (selected && typeof selected === "string") {
         // Открываем выбранный проект
         void openProject(selected)

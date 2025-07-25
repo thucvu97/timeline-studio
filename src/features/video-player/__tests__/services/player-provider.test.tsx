@@ -2,8 +2,8 @@ import React from "react";
 
 import { act, render, renderHook, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-
 import { MediaFile } from "@/features/media/types/media";
+
 // Мокаем backend-sync ДО импорта компонентов
 const mockExecuteCommand = vi.fn().mockResolvedValue({ success: true });
 const mockOnStateChange = vi.fn(() => () => {});

@@ -1,7 +1,6 @@
 import { useCallback, useEffect } from "react"
 
 import { useResources } from "@/features/resources/services/resources-provider"
-import { ResourceType } from "@/features/resources/types"
 
 import { setResourcesStateAccess } from "../tools/resource-tools"
 

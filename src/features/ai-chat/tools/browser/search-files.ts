@@ -99,10 +99,10 @@ export async function searchMediaFiles(params: SearchMediaParams): Promise<Brows
               const fileName = advanced.caseSensitive ? file.name : file.name.toLowerCase()
               return fileName === searchTerm
             case "location":
-              const location = advanced.caseSensitive ? (file).location || "" : ((file).location || "").toLowerCase()
+              const location = advanced.caseSensitive ? file.location || "" : (file.location || "").toLowerCase()
               return location === searchTerm
             case "tags":
-              return (file).tags?.some((tag: string) => {
+              return file.tags?.some((tag: string) => {
                 const tagValue = advanced.caseSensitive ? tag : tag.toLowerCase()
                 return tagValue === searchTerm
               })

@@ -51,7 +51,7 @@ const mockMediaFile: MediaFile = {
     format: {
       format_name: "mov,mp4,m4a,3gp,3g2,mj2",
       format_long_name: "QuickTime / MOV",
-      duration: 120.000000,
+      duration: 120.0,
       size: 1024000,
       bit_rate: 68266,
     },

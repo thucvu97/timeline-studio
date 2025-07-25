@@ -47,52 +47,50 @@ const markerTypeOptions: { value: MarkerType; label: string; icon: React.ReactNo
 export function MarkerControls() {
   const { currentTime, seek } = useTimeline()
   const { markers, addMarker } = useTimelineMarkers()
-  
+
   // State variables
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedTypes, setSelectedTypes] = useState<MarkerType[]>([])
   const [newMarkerName, setNewMarkerName] = useState("")
   const [newMarkerType, setNewMarkerType] = useState<MarkerType>("note")
-  
+
   // Локальная логика для фильтрации и навигации
   const filteredMarkers = useMemo(() => {
     let filtered = markers
-    
+
     if (searchQuery) {
-      filtered = filtered.filter(marker => 
-        marker.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      filtered = filtered.filter((marker) => marker.name.toLowerCase().includes(searchQuery.toLowerCase()))
     }
-    
+
     if (selectedTypes.length > 0) {
-      filtered = filtered.filter(marker => selectedTypes.includes(marker.type!))
+      filtered = filtered.filter((marker) => selectedTypes.includes(marker.type!))
     }
-    
+
     return filtered
   }, [markers, searchQuery, selectedTypes])
-  
+
   const goToNextMarker = () => {
     const sortedMarkers = [...markers].sort((a, b) => a.time - b.time)
-    const nextMarker = sortedMarkers.find(marker => marker.time > currentTime)
+    const nextMarker = sortedMarkers.find((marker) => marker.time > currentTime)
     if (nextMarker) {
       void seek(nextMarker.time)
     }
   }
-  
+
   const goToPreviousMarker = () => {
     const sortedMarkers = [...markers].sort((a, b) => b.time - a.time)
-    const prevMarker = sortedMarkers.find(marker => marker.time < currentTime)
+    const prevMarker = sortedMarkers.find((marker) => marker.time < currentTime)
     if (prevMarker) {
       void seek(prevMarker.time)
     }
   }
-  
+
   const setFilter = (filter: { query?: string; types?: MarkerType[] }) => {
     if (filter.query !== undefined) setSearchQuery(filter.query)
     if (filter.types !== undefined) setSelectedTypes(filter.types)
   }
-  
+
   const clearFilter = () => {
     setSearchQuery("")
     setSelectedTypes([])
@@ -105,7 +103,7 @@ export function MarkerControls() {
       time: currentTime,
       name: newMarkerName,
       type: newMarkerType,
-      color: MarkerColors[newMarkerType]
+      color: MarkerColors[newMarkerType],
     })
     setNewMarkerName("")
   }

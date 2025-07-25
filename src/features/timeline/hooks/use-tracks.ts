@@ -53,8 +53,7 @@ export interface UseTracksReturn {
 }
 
 export function useTracks(): UseTracksReturn {
-  const { project, uiState, addTrack, removeTrack, updateTrack, selectTracks, clearSelection } =
-    useTimeline()
+  const { project, uiState, addTrack, removeTrack, updateTrack, selectTracks, clearSelection } = useTimeline()
 
   // ============================================================================
   // COMPUTED VALUES
@@ -235,7 +234,7 @@ export function useTracks(): UseTracksReturn {
     visibleTracks,
 
     // Действия
-    addTrack: (trackType: TrackType, sectionId?: string, name?: string) => {
+    addTrack: (trackType: TrackType, _sectionId?: string, name?: string) => {
       void addTrack(trackType, name)
     },
     removeTrack,

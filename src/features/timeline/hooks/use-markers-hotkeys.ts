@@ -12,7 +12,7 @@ export function useMarkersHotkeys() {
 
   // TODO: В новой архитектуре нет selectedMarkerId, используем маркер на текущем времени
   const getCurrentMarker = () => {
-    return markers.find(marker => Math.abs(marker.time - currentTime) < 0.1)
+    return markers.find((marker) => Math.abs(marker.time - currentTime) < 0.1)
   }
 
   // M - добавить маркер

@@ -57,7 +57,7 @@ function getParameterConfig(param: EffectParameter): {
     case "dropdown":
       // Для dropdown используем индексы опций
       const options = param.options || []
-      const defaultIndex = options.findIndex(opt => opt.value === param.defaultValue)
+      const defaultIndex = options.findIndex((opt) => opt.value === param.defaultValue)
       return {
         min: 0,
         max: Math.max(0, options.length - 1),
@@ -293,11 +293,15 @@ export function EffectParameterControls({
               <div className="flex items-center justify-between">
                 <Label className="text-sm font-medium">{config.label[currentLang] || config.label.en}</Label>
                 <span className="text-sm text-gray-500 font-mono">
-                  {param.type === "boolean" 
-                    ? (currentValue ? "Вкл" : "Выкл") 
+                  {param.type === "boolean"
+                    ? currentValue
+                      ? "Вкл"
+                      : "Выкл"
                     : (param.type as string) === "dropdown" && param.options
-                    ? param.options[currentValue]?.label[currentLang] || param.options[currentValue]?.label.en || currentValue
-                    : currentValue}
+                      ? param.options[currentValue]?.label[currentLang] ||
+                        param.options[currentValue]?.label.en ||
+                        currentValue
+                      : currentValue}
                 </span>
               </div>
 
@@ -309,7 +313,10 @@ export function EffectParameterControls({
                         value={[sliderValue]}
                         onValueChange={(value) => {
                           const newValue = param.type === "boolean" ? value[0] === 1 : value[0]
-                          handleParameterChange(param.id, typeof newValue === 'boolean' ? [newValue ? 1 : 0] : [newValue])
+                          handleParameterChange(
+                            param.id,
+                            typeof newValue === "boolean" ? [newValue ? 1 : 0] : [newValue],
+                          )
                         }}
                         min={config.min}
                         max={config.max}

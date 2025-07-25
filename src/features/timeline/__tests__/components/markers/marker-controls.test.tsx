@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { MarkerControls } from "../../../components/markers/marker-controls"
 import { MarkerColors } from "../../../types/markers"
 
-import type { ExtendedTimelineMarker, MarkerFilter } from "../../../types/markers"
+import type { ExtendedTimelineMarker } from "../../../types/markers"
 
 // Мок для иконок lucide-react
 vi.mock("lucide-react", () => ({
@@ -167,13 +167,13 @@ describe("MarkerControls", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    mockUseTimeline.mockReturnValue({ 
-      currentTime: defaultMocks.currentTime, 
-      seek: defaultMocks.seek 
+    mockUseTimeline.mockReturnValue({
+      currentTime: defaultMocks.currentTime,
+      seek: defaultMocks.seek,
     })
-    mockUseTimelineMarkers.mockReturnValue({ 
-      markers: defaultMocks.markers, 
-      addMarker: defaultMocks.addMarker 
+    mockUseTimelineMarkers.mockReturnValue({
+      markers: defaultMocks.markers,
+      addMarker: defaultMocks.addMarker,
     })
   })
 
@@ -222,7 +222,7 @@ describe("MarkerControls", () => {
       time: 15,
       name: "New Chapter",
       type: "note",
-      color: "#f59e0b"
+      color: "#f59e0b",
     })
   })
 
@@ -240,7 +240,7 @@ describe("MarkerControls", () => {
       time: 15,
       name: "Quick Marker",
       type: "note",
-      color: "#f59e0b"
+      color: "#f59e0b",
     })
   })
 
@@ -276,7 +276,7 @@ describe("MarkerControls", () => {
       time: 15,
       name: "Test Chapter",
       type: "chapter",
-      color: "#3b82f6"
+      color: "#3b82f6",
     })
   })
 
@@ -298,7 +298,7 @@ describe("MarkerControls", () => {
   it("отключает навигацию когда нет маркеров", () => {
     mockUseTimelineMarkers.mockReturnValue({
       markers: [],
-      addMarker: defaultMocks.addMarker
+      addMarker: defaultMocks.addMarker,
     })
 
     render(<MarkerControls />)

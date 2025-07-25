@@ -16,7 +16,7 @@ export interface CurrentMedia {
   isVideo?: boolean
   isAudio?: boolean
   probeData?: any
-  
+
   // Дополнительные свойства для плеера
   activeEffects?: string[]
   activeFilters?: string[]

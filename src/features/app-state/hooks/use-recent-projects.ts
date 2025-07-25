@@ -26,7 +26,7 @@ export function useRecentProjects() {
     recentProjects,
     addRecentProject,
     // TODO: Implement removeRecentProject and clearRecentProjects in store-service
-    removeRecentProject: async (path: string) => {
+    removeRecentProject: async (_path: string) => {
       console.warn("removeRecentProject not implemented yet")
     },
     clearRecentProjects: async () => {

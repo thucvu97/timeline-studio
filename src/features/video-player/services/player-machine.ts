@@ -1,4 +1,4 @@
-import { assign, createMachine, setup } from "xstate"
+import { assign, setup } from "xstate"
 
 import { MediaFile } from "@/features/media/types/media"
 
@@ -221,7 +221,6 @@ export type PlayerEvent =
   | UpdatePlaybackRateEvent
   | SetBasePlaybackRateEvent
 
-
 export const playerMachine = setup({
   types: {
     context: {} as PlayerContextType,
@@ -229,56 +228,56 @@ export const playerMachine = setup({
   },
   actions: {
     logVideoSet: ({ event }) => {
-      if (event.type === 'setVideo') {
+      if (event.type === "setVideo") {
         console.log(`[PlayerMachine] Установлено видео: ${event.video?.id}, path=${event.video?.path}`)
       }
     },
     logPreviewMediaSet: ({ event }) => {
-      if (event.type === 'setPreviewMedia') {
+      if (event.type === "setPreviewMedia") {
         console.log(`[PlayerMachine] Установлено preview media: ${event.media?.id}`)
       }
     },
     logVideoSourceSet: ({ event }) => {
-      if (event.type === 'setVideoSource') {
+      if (event.type === "setVideoSource") {
         console.log(`[PlayerMachine] Установлен источник видео: ${event.source}`)
       }
     },
     logEffectApplied: ({ event }) => {
-      if (event.type === 'applyEffect') {
+      if (event.type === "applyEffect") {
         console.log(`[PlayerMachine] Применен эффект: ${event.effect.name}`)
       }
     },
     logFilterApplied: ({ event }) => {
-      if (event.type === 'applyFilter') {
+      if (event.type === "applyFilter") {
         console.log(`[PlayerMachine] Применен фильтр: ${event.filter.name}`)
       }
     },
     logTemplateApplied: ({ event }) => {
-      if (event.type === 'applyTemplate') {
+      if (event.type === "applyTemplate") {
         console.log(`[PlayerMachine] Применен шаблон: ${event.template.name} с ${event.files.length} файлами`)
       }
     },
     logEffectsCleared: () => {
-      console.log(`[PlayerMachine] Очищены эффекты`)
+      console.log("[PlayerMachine] Очищены эффекты")
     },
     logFiltersCleared: () => {
-      console.log(`[PlayerMachine] Очищены фильтры`)
+      console.log("[PlayerMachine] Очищены фильтры")
     },
     logTemplateCleared: () => {
-      console.log(`[PlayerMachine] Очищен шаблон`)
+      console.log("[PlayerMachine] Очищен шаблон")
     },
     logSpeedRampingToggled: ({ event }) => {
-      if (event.type === 'setSpeedRampingEnabled') {
+      if (event.type === "setSpeedRampingEnabled") {
         console.log(`[PlayerMachine] Speed ramping ${event.enabled ? "включен" : "выключен"}`)
       }
     },
     logPlaybackRateUpdated: ({ event }) => {
-      if (event.type === 'updatePlaybackRate') {
+      if (event.type === "updatePlaybackRate") {
         console.log(`[PlayerMachine] Playback rate обновлен: ${event.rate}`)
       }
     },
     logBasePlaybackRateSet: ({ event }) => {
-      if (event.type === 'setBasePlaybackRate') {
+      if (event.type === "setBasePlaybackRate") {
         console.log(`[PlayerMachine] Base playback rate установлен: ${event.rate}`)
       }
     },
@@ -286,29 +285,29 @@ export const playerMachine = setup({
       console.log(`[PlayerMachine] Видео ${context.video?.id} готово к воспроизведению`)
     },
     applyEffectAction: assign(({ context, event }) => {
-      if (event.type === 'applyEffect') {
+      if (event.type === "applyEffect") {
         return {
-          appliedEffects: [...context.appliedEffects, event.effect]
+          appliedEffects: [...context.appliedEffects, event.effect],
         }
       }
       return {}
     }),
     applyFilterAction: assign(({ context, event }) => {
-      if (event.type === 'applyFilter') {
+      if (event.type === "applyFilter") {
         return {
-          appliedFilters: [...context.appliedFilters, event.filter]
+          appliedFilters: [...context.appliedFilters, event.filter],
         }
       }
       return {}
     }),
     applyTemplateAction: assign(({ event }) => {
-      if (event.type === 'applyTemplate') {
+      if (event.type === "applyTemplate") {
         return {
           appliedTemplate: {
             id: event.template.id,
             name: event.template.name,
             files: event.files,
-          }
+          },
         }
       }
       return {}
@@ -317,19 +316,19 @@ export const playerMachine = setup({
     clearFiltersAction: assign({ appliedFilters: [] }),
     clearTemplateAction: assign({ appliedTemplate: null }),
     setSpeedRampingEnabledAction: assign(({ event }) => {
-      if (event.type === 'setSpeedRampingEnabled') {
+      if (event.type === "setSpeedRampingEnabled") {
         return { speedRampingEnabled: event.enabled }
       }
       return {}
     }),
     updatePlaybackRateAction: assign(({ event }) => {
-      if (event.type === 'updatePlaybackRate') {
+      if (event.type === "updatePlaybackRate") {
         return { currentPlaybackRate: event.rate }
       }
       return {}
     }),
     setBasePlaybackRateAction: assign(({ event }) => {
-      if (event.type === 'setBasePlaybackRate') {
+      if (event.type === "setBasePlaybackRate") {
         return { basePlaybackRate: event.rate }
       }
       return {}
@@ -344,11 +343,7 @@ export const playerMachine = setup({
       on: {
         setVideo: {
           target: "loading",
-          actions: [
-            assign({ video: ({ event }) => event.video }),
-            assign({ isVideoLoading: true }),
-            "logVideoSet"
-          ],
+          actions: [assign({ video: ({ event }) => event.video }), assign({ isVideoLoading: true }), "logVideoSet"],
         },
         setCurrentTime: {
           actions: assign({ currentTime: ({ event }) => event.currentTime }),
@@ -390,70 +385,37 @@ export const playerMachine = setup({
           }),
         },
         setPreviewMedia: {
-          actions: [
-            assign({ previewMedia: ({ event }) => event.media }),
-            "logPreviewMediaSet",
-          ],
+          actions: [assign({ previewMedia: ({ event }) => event.media }), "logPreviewMediaSet"],
         },
         setVideoSource: {
-          actions: [
-            assign({ videoSource: ({ event }) => event.source }),
-            "logVideoSourceSet",
-          ],
+          actions: [assign({ videoSource: ({ event }) => event.source }), "logVideoSourceSet"],
         },
         applyEffect: {
-          actions: [
-            "applyEffectAction",
-            "logEffectApplied"
-          ],
+          actions: ["applyEffectAction", "logEffectApplied"],
         },
         applyFilter: {
-          actions: [
-            "applyFilterAction",
-            "logFilterApplied"
-          ],
+          actions: ["applyFilterAction", "logFilterApplied"],
         },
         applyTemplate: {
-          actions: [
-            "applyTemplateAction",
-            "logTemplateApplied"
-          ],
+          actions: ["applyTemplateAction", "logTemplateApplied"],
         },
         clearEffects: {
-          actions: [
-            "clearEffectsAction",
-            "logEffectsCleared"
-          ],
+          actions: ["clearEffectsAction", "logEffectsCleared"],
         },
         clearFilters: {
-          actions: [
-            "clearFiltersAction",
-            "logFiltersCleared"
-          ],
+          actions: ["clearFiltersAction", "logFiltersCleared"],
         },
         clearTemplate: {
-          actions: [
-            "clearTemplateAction",
-            "logTemplateCleared"
-          ],
+          actions: ["clearTemplateAction", "logTemplateCleared"],
         },
         setSpeedRampingEnabled: {
-          actions: [
-            "setSpeedRampingEnabledAction",
-            "logSpeedRampingToggled"
-          ],
+          actions: ["setSpeedRampingEnabledAction", "logSpeedRampingToggled"],
         },
         updatePlaybackRate: {
-          actions: [
-            "updatePlaybackRateAction",
-            "logPlaybackRateUpdated"
-          ],
+          actions: ["updatePlaybackRateAction", "logPlaybackRateUpdated"],
         },
         setBasePlaybackRate: {
-          actions: [
-            "setBasePlaybackRateAction",
-            "logBasePlaybackRateSet"
-          ],
+          actions: ["setBasePlaybackRateAction", "logBasePlaybackRateSet"],
         },
       },
     },
@@ -464,7 +426,7 @@ export const playerMachine = setup({
           actions: [
             assign({ isVideoReady: true, isVideoLoading: false }),
             // Добавляем логирование
-            "logVideoReady"
+            "logVideoReady",
           ],
         },
         setVideoLoading: {
@@ -512,16 +474,10 @@ export const playerMachine = setup({
           }),
         },
         setPreviewMedia: {
-          actions: [
-            assign({ previewMedia: ({ event }) => event.media }),
-            "logPreviewMediaSet",
-          ],
+          actions: [assign({ previewMedia: ({ event }) => event.media }), "logPreviewMediaSet"],
         },
         setVideoSource: {
-          actions: [
-            assign({ videoSource: ({ event }) => event.source }),
-            "logVideoSourceSet",
-          ],
+          actions: [assign({ videoSource: ({ event }) => event.source }), "logVideoSourceSet"],
         },
         applyEffect: {
           actions: ["applyEffectAction"],
@@ -560,7 +516,7 @@ export const playerMachine = setup({
             assign({ video: ({ event }) => event.video }),
             assign({ isVideoLoading: true }),
             // Добавляем логирование
-            "logVideoSet"
+            "logVideoSet",
           ],
         },
         setIsPlaying: {
@@ -603,16 +559,10 @@ export const playerMachine = setup({
           }),
         },
         setPreviewMedia: {
-          actions: [
-            assign({ previewMedia: ({ event }) => event.media }),
-            "logPreviewMediaSet",
-          ],
+          actions: [assign({ previewMedia: ({ event }) => event.media }), "logPreviewMediaSet"],
         },
         setVideoSource: {
-          actions: [
-            assign({ videoSource: ({ event }) => event.source }),
-            "logVideoSourceSet",
-          ],
+          actions: [assign({ videoSource: ({ event }) => event.source }), "logVideoSourceSet"],
         },
         applyEffect: {
           actions: ["applyEffectAction"],

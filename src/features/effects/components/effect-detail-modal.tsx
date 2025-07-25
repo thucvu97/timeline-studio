@@ -33,14 +33,14 @@ export function EffectDetailModal() {
 
   // Helper функция для получения FFmpeg команды
   const getEffectFFmpegCommand = (effect: BaseEffect, params: Record<string, number> = {}) => {
-    if (!effect.processors?.ffmpeg) return 'FFmpeg processor not available'
-    
+    if (!effect.processors?.ffmpeg) return "FFmpeg processor not available"
+
     // Преобразуем parameters массив в объект значений по умолчанию
     const defaultParams = effect.parameters.reduce<Record<string, any>>((acc, param) => {
       acc[param.id] = param.defaultValue
       return acc
     }, {})
-    
+
     const mergedParams = { ...defaultParams, ...params }
     return effect.processors.ffmpeg.filter(mergedParams)
   }
@@ -243,7 +243,7 @@ export function EffectDetailModal() {
           <div className="space-y-2">
             <h3 className="font-medium">{t("effects.detail.ffmpegCommand", "FFmpeg команда")}</h3>
             <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono overflow-x-auto">
-              {effect ? getEffectFFmpegCommand(effect, currentParameters) : 'No effect selected'}
+              {effect ? getEffectFFmpegCommand(effect, currentParameters) : "No effect selected"}
             </div>
           </div>
 

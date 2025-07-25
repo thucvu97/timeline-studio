@@ -226,13 +226,10 @@ export function useTimelinePersons(): TimelinePersonsHook {
   }, [project, enablePersonDetection, analyzeClipForPersons])
 
   // Показать детали персоны
-  const showPersonDetail = useCallback(
-    (personId: string) => {
-      // TODO: Имплементировать отображение деталей персоны
-      console.log("Show person detail:", personId)
-    },
-    [],
-  )
+  const showPersonDetail = useCallback((personId: string) => {
+    // TODO: Имплементировать отображение деталей персоны
+    console.log("Show person detail:", personId)
+  }, [])
 
   // Очистка анализа персон
   const clearPersonsAnalysis = useCallback(() => {

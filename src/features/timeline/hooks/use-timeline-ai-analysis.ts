@@ -146,12 +146,14 @@ export function useTimelineAIAnalysis(): TimelineAIAnalysisHook {
           console.warn("AIIntelligenceOrchestrator not initialized")
           return
         }
-        
-        const fullAnalysis = await orchestrator.analyzeContent([{
-          path: clip.mediaFile.path,
-          name: clip.mediaFile.name,
-          size: clip.mediaFile.size || 0,
-        }])
+
+        const fullAnalysis = await orchestrator.analyzeContent([
+          {
+            path: clip.mediaFile.path,
+            name: clip.mediaFile.name,
+            size: clip.mediaFile.size || 0,
+          },
+        ])
 
         setAnalysisState((prev) => ({
           ...prev,

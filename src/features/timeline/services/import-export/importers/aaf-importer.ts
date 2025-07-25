@@ -12,9 +12,9 @@ import { ImportError, ImportOptions, ImportResult, ImportWarning, Importer } fro
 
 // Функция для генерации UUID
 function uuidv4(): string {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0
-    const v = c === 'x' ? r : (r & 0x3 | 0x8)
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0
+    const v = c === "x" ? r : (r & 0x3) | 0x8
     return v.toString(16)
   })
 }
@@ -470,25 +470,5 @@ export class AAFImporter implements Importer {
     }
 
     return lastClip
-  }
-
-  private guessMediaType(path: string): string {
-    const ext = path.split(".").pop()?.toLowerCase()
-
-    switch (ext) {
-      case "mp4":
-      case "mov":
-      case "avi":
-      case "mxf":
-        return "video/mp4"
-      case "mp3":
-      case "wav":
-      case "aac":
-      case "aif":
-      case "aiff":
-        return "audio/mp3"
-      default:
-        return "application/octet-stream"
-    }
   }
 }

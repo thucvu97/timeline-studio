@@ -2,8 +2,8 @@ import React from "react";
 
 import { renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-
 import { MediaFile } from "@/features/media/types/media";
+
 // Мокаем backend-sync ДО импорта компонентов
 const mockPlayerState = {
   previewMedia: null as MediaFile | null,

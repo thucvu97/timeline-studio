@@ -66,9 +66,9 @@ export interface ComputedSubtitleStyle {
 
 export function useSubtitleStyles(): UseSubtitleStylesReturn {
   const { project } = useTimeline()
-  
+
   // TODO: В новой архитектуре с backend нужно добавить команды для управления subtitle styles
-  const updateProject = (updatedProject: any) => {
+  const updateProject = (_updatedProject: any) => {
     console.warn("updateProject is not implemented in new architecture - need backend command")
   }
 

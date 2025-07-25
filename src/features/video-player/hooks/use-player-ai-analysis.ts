@@ -87,7 +87,7 @@ export function usePlayerAIAnalysis(): PlayerAIAnalysisHook {
       try {
         // TODO: В новой архитектуре с backend синхронизацией нужно реализовать
         // захват кадров через backend API вместо прямого доступа к video элементу
-        
+
         // Временно отключаем анализ кадров
         console.log(`Frame analysis disabled - needs backend implementation at ${currentTime}s`)
 

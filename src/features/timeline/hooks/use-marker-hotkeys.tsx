@@ -9,12 +9,12 @@ export function useMarkerHotkeys() {
 
   // Получить маркер в указанное время
   const getMarkerAtTime = (time: number) => {
-    return markers.find(marker => Math.abs(marker.time - time) < 0.1)
+    return markers.find((marker) => Math.abs(marker.time - time) < 0.1)
   }
 
   // Перейти к следующему маркеру
   const goToNextMarker = () => {
-    const nextMarker = markers.find(marker => marker.time > currentTime)
+    const nextMarker = markers.find((marker) => marker.time > currentTime)
     if (nextMarker) {
       void seek(nextMarker.time)
     }
@@ -23,7 +23,7 @@ export function useMarkerHotkeys() {
   // Перейти к предыдущему маркеру
   const goToPreviousMarker = () => {
     const sortedMarkers = [...markers].sort((a, b) => b.time - a.time)
-    const prevMarker = sortedMarkers.find(marker => marker.time < currentTime)
+    const prevMarker = sortedMarkers.find((marker) => marker.time < currentTime)
     if (prevMarker) {
       void seek(prevMarker.time)
     }
@@ -39,7 +39,7 @@ export function useMarkerHotkeys() {
         time: currentTime,
         name: markerName,
         type: "note",
-        color: "#3b82f6"
+        color: "#3b82f6",
       })
     },
     {
@@ -58,7 +58,7 @@ export function useMarkerHotkeys() {
         time: currentTime,
         name: markerName,
         type: "chapter",
-        color: "#10b981"
+        color: "#10b981",
       })
     },
     {
@@ -77,7 +77,7 @@ export function useMarkerHotkeys() {
         time: currentTime,
         name: markerName,
         type: "export",
-        color: "#f59e0b"
+        color: "#f59e0b",
       })
     },
     {

@@ -10,11 +10,11 @@ import { useMachine } from "@xstate/react"
 
 import { getBackendSync } from "@/features/app-state/services/backend-sync"
 import { MediaFile } from "@/features/media/types/media"
-import { Clip, Project, ProjectCommand, ProjectState, Track } from "@/types/generated/tauri-bindings"
+import { Clip, Project, ProjectCommand, ProjectState } from "@/types/generated/tauri-bindings"
 
 import { AppliedEffect, TimelineClip, TimelineProject, TimelineSection, TimelineTrack, TrackType } from "../types"
 import { TimelineUIContext, timelineUIMachine } from "./timeline-ui-machine"
-import { copyClips, cutClips, pasteClips } from "../utils/clip-operations"
+import { copyClips } from "../utils/clip-operations"
 
 // Вспомогательная функция для преобразования Clip в TimelineClip
 function convertClipToTimelineClip(clip: Clip, trackId: string): TimelineClip {
@@ -45,12 +45,12 @@ function convertClipToTimelineClip(clip: Clip, trackId: string): TimelineClip {
 
 // Вспомогательная функция для преобразования backend Project в TimelineProject
 function convertProjectToTimelineProject(project: Project): TimelineProject {
-  const tracks: TimelineTrack[] = project.timeline.tracks.map(track => ({
+  const tracks: TimelineTrack[] = project.timeline.tracks.map((track) => ({
     id: track.id,
     name: track.name,
     type: track.track_type.toLowerCase() as TrackType,
     order: 0, // Предполагаем, что порядок определяется индексом в массиве
-    clips: track.clips.map(clip => convertClipToTimelineClip(clip, track.id)),
+    clips: track.clips.map((clip) => convertClipToTimelineClip(clip, track.id)),
     isLocked: track.locked,
     isMuted: !track.enabled,
     isHidden: false,
@@ -281,7 +281,11 @@ export function TimelineProvider({ children }: TimelineProviderV2Props) {
     async (trackType: TrackType, name?: string, index?: number) => {
       await executeCommand({
         type: "AddTrack",
-        params: { name: name || `Track ${Date.now()}`, track_type: trackType.toUpperCase() as any, index: index ?? null },
+        params: {
+          name: name || `Track ${Date.now()}`,
+          track_type: trackType.toUpperCase() as any,
+          index: index ?? null,
+        },
       })
     },
     [executeCommand],
@@ -355,7 +359,7 @@ export function TimelineProvider({ children }: TimelineProviderV2Props) {
   )
 
   const splitClip = useCallback(
-    async (clipId: string, splitTime: number) => {
+    async (_clipId: string, _splitTime: number) => {
       // SplitClip не поддерживается в backend, используем другой подход
       // TODO: Implement split clip functionality
       console.warn("SplitClip not yet implemented in backend")
@@ -676,10 +680,10 @@ export function TimelineProvider({ children }: TimelineProviderV2Props) {
   // Вычисляем все клипы из всех треков
   const allClips = useMemo(() => {
     if (!backendState?.project?.timeline?.tracks) return []
-    
+
     return backendState.project.timeline.tracks.reduce<TimelineClip[]>((acc, track) => {
       if (track.clips && Array.isArray(track.clips)) {
-        const timelineClips = track.clips.map(clip => convertClipToTimelineClip(clip, track.id))
+        const timelineClips = track.clips.map((clip) => convertClipToTimelineClip(clip, track.id))
         return [...acc, ...timelineClips]
       }
       return acc

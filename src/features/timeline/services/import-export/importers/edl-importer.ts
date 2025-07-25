@@ -21,13 +21,12 @@ import {
 } from "../types"
 
 function uuidv4(): string {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0
-    const v = c === 'x' ? r : (r & 0x3 | 0x8)
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0
+    const v = c === "x" ? r : (r & 0x3) | 0x8
     return v.toString(16)
   })
 }
-
 
 export class EDLImporter implements Importer {
   private frameRate = 30
@@ -441,23 +440,6 @@ export class EDLImporter implements Importer {
     }
 
     return mediaFiles
-  }
-
-  private guessMediaType(path: string): string {
-    const ext = path.split(".").pop()?.toLowerCase()
-
-    switch (ext) {
-      case "mp4":
-      case "mov":
-      case "avi":
-        return "video/mp4"
-      case "mp3":
-      case "wav":
-      case "aac":
-        return "audio/mp3"
-      default:
-        return "application/octet-stream"
-    }
   }
 
   private isVideoFile(path: string): boolean {

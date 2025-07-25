@@ -34,7 +34,7 @@ export function PersonForm({ person, isOpen, onClose, onSave, isLoading = false 
 
   const [newTag, setNewTag] = useState("")
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(
-    person?.thumbnails?.find(t => t.isPrimary)?.imageUrl || person?.thumbnails?.[0]?.imageUrl || null
+    person?.thumbnails?.find((t) => t.isPrimary)?.imageUrl || person?.thumbnails?.[0]?.imageUrl || null,
   )
 
   const fileInputRef = useRef<HTMLInputElement>(null)

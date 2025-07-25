@@ -1,5 +1,5 @@
 import { act, renderHook } from "@testing-library/react";
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useRecentProjects } from "../../hooks/use-recent-projects";
 // Мокаем storeService
@@ -14,6 +14,7 @@ vi.mock("../../services/store-service", () => ({
 
 // Импортируем после мока
 import { storeService } from "../../services/store-service";
+
 const mockStoreService = storeService as any;
 
 describe("useRecentProjects", () => {

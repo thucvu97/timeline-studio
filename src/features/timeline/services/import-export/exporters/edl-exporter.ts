@@ -10,7 +10,6 @@ import { EDLEvent, ExportOptions, Exporter, formatTimecode, secondsToTimecode } 
 
 export class EDLExporter implements Exporter {
   private frameRate = 30
-  private eventCounter = 1
 
   async export(project: TimelineProject, options: ExportOptions): Promise<string> {
     this.frameRate = project.fps || 30

@@ -44,7 +44,7 @@ export function useSpeedRampingPlayerIntegration(): SpeedRampingPlayerIntegratio
   const lastUpdateTimeRef = useRef(0)
   const updateIntervalRef = useRef<NodeJS.Timeout | undefined>(undefined)
 
-  // Получаем speed ramping service из timeline контекста  
+  // Получаем speed ramping service из timeline контекста
   // Временно убираем, так как нет speedRampingService в новой архитектуре
   const speedRampingService = null
 
@@ -72,10 +72,7 @@ export function useSpeedRampingPlayerIntegration(): SpeedRampingPlayerIntegratio
       const clipTime = time - activeClip.startTime + activeClip.offset
 
       // Получаем скорость для этого времени
-      const playbackRate = speedRampingService?.getPlaybackRateForTime(
-        activeClip.id,
-        clipTime,
-      ) || 1.0
+      const playbackRate = speedRampingService?.getPlaybackRateForTime(activeClip.id, clipTime) || 1.0
 
       // Обновляем плеер только если скорость изменилась
       if (Math.abs(playbackRate - lastUpdateTimeRef.current) > 0.001) {
@@ -125,11 +122,7 @@ export function useSpeedRampingPlayerIntegration(): SpeedRampingPlayerIntegratio
         resetPlaybackRate()
       }
     },
-    [
-      timeline.currentTime,
-      updatePlaybackRateForTime,
-      resetPlaybackRate,
-    ],
+    [timeline.currentTime, updatePlaybackRateForTime, resetPlaybackRate],
   )
 
   // Автоматически обновляем скорость при изменении времени

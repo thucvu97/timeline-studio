@@ -1,25 +1,18 @@
-import React, { useState } from "react";
+import React, { useState } from "react"
 
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable";
-import { AiChat } from "@/features/ai-chat/components/ai-chat";
-import { ResourcesPanel } from "@/features/resources";
-import { cn } from "@/lib/utils";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
+import { AiChat } from "@/features/ai-chat/components/ai-chat"
+import { ResourcesPanel } from "@/features/resources"
+import { cn } from "@/lib/utils"
 
-import { AISuggestionsPanel } from "./ai-suggestions/ai-suggestions-panel";
-import { AudioMixerView } from "./audio-mixer-view";
-import { TimelineContent } from "./timeline-content";
-import {
-  TimelineWorkspaceTabs,
-  WorkspaceView,
-} from "./timeline-workspace-tabs";
+import { AISuggestionsPanel } from "./ai-suggestions/ai-suggestions-panel"
+import { AudioMixerView } from "./audio-mixer-view"
+import { TimelineContent } from "./timeline-content"
+import { TimelineWorkspaceTabs, WorkspaceView } from "./timeline-workspace-tabs"
 
 interface TimelineProps {
-  className?: string;
-  style?: React.CSSProperties;
+  className?: string
+  style?: React.CSSProperties
 }
 
 /**
@@ -29,7 +22,7 @@ interface TimelineProps {
  * @param style Optional inline styles for the root element.
  */
 export function Timeline({ className, style }: TimelineProps = {}) {
-  const [activeView, setActiveView] = useState<WorkspaceView>("timeline");
+  const [activeView, setActiveView] = useState<WorkspaceView>("timeline")
 
   return (
     <ResizablePanelGroup
@@ -44,26 +37,16 @@ export function Timeline({ className, style }: TimelineProps = {}) {
       <ResizableHandle />
 
       {/* Средняя панель (основная часть) */}
-      <ResizablePanel
-        defaultSize={activeView === "timeline" ? 65 : 80}
-        minSize={40}
-      >
+      <ResizablePanel defaultSize={activeView === "timeline" ? 65 : 80} minSize={40}>
         <div className="flex h-full w-full flex-col">
           {/* Вкладки для переключения видов */}
           <div className="flex-shrink-0">
-            <TimelineWorkspaceTabs
-              activeView={activeView}
-              onViewChange={setActiveView}
-            />
+            <TimelineWorkspaceTabs activeView={activeView} onViewChange={setActiveView} />
           </div>
 
           {/* Основная часть - Timeline контент или Audio Mixer */}
           <div className="w-full flex-grow overflow-hidden">
-            {activeView === "timeline" ? (
-              <TimelineContent />
-            ) : (
-              <AudioMixerView />
-            )}
+            {activeView === "timeline" ? <TimelineContent /> : <AudioMixerView />}
           </div>
         </div>
       </ResizablePanel>
@@ -76,14 +59,9 @@ export function Timeline({ className, style }: TimelineProps = {}) {
       </ResizablePanel>
 
       <ResizableHandle />
-      <ResizablePanel
-        defaultSize={20}
-        minSize={10}
-        maxSize={50}
-        className="flex-shrink-0"
-      >
+      <ResizablePanel defaultSize={20} minSize={10} maxSize={50} className="flex-shrink-0">
         <AiChat />
       </ResizablePanel>
     </ResizablePanelGroup>
-  );
+  )
 }

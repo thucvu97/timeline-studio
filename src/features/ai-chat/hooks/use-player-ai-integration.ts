@@ -1,21 +1,21 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect } from "react"
 
-import { usePlayer } from "../../video-player";
-import { CurrentMedia, PlayerStateAccess } from "../tools/player/types";
-import { setPlayerStateAccess } from "../tools/player/utils/helpers";
+import { usePlayer } from "../../video-player"
+import { CurrentMedia, PlayerStateAccess } from "../tools/player/types"
+import { setPlayerStateAccess } from "../tools/player/utils/helpers"
 
 /**
  * Хук для интеграции Player с AI функциональностью
  * Предоставляет доступ к состоянию плеера для AI инструментов
  */
 export function usePlayerAIIntegration() {
-  const player = usePlayer() as any;
+  const player = usePlayer() as any
 
   // Функция для получения текущего медиа
   const getCurrentMedia = useCallback((): CurrentMedia | null => {
     // Приоритет: previewMedia > currentVideo
-    return player.previewMedia || player.currentVideo;
-  }, [player.previewMedia, player.currentVideo]);
+    return player.previewMedia || player.currentVideo
+  }, [player.previewMedia, player.currentVideo])
 
   // Функция для получения статуса воспроизведения
   const getPlaybackStatus = useCallback(() => {
@@ -28,7 +28,7 @@ export function usePlayerAIIntegration() {
       isSeeking: player.isSeeking,
       isLoading: player.isVideoLoading,
       isReady: player.isVideoReady,
-    };
+    }
   }, [
     player.isPlaying,
     player.currentTime,
@@ -38,7 +38,7 @@ export function usePlayerAIIntegration() {
     player.isSeeking,
     player.isVideoLoading,
     player.isVideoReady,
-  ]);
+  ])
 
   // Функция для получения примененных эффектов
   const getAppliedEffects = useCallback(() => {
@@ -46,35 +46,31 @@ export function usePlayerAIIntegration() {
       effects: player.appliedEffects || [],
       filters: player.appliedFilters || [],
       template: player.appliedTemplate,
-    };
-  }, [player.appliedEffects, player.appliedFilters, player.appliedTemplate]);
+    }
+  }, [player.appliedEffects, player.appliedFilters, player.appliedTemplate])
 
   // Функция для анализа качества медиа
   const analyzeMediaQuality = useCallback((): any => {
-    const media = getCurrentMedia();
-    if (!media) return null;
+    const media = getCurrentMedia()
+    if (!media) return null
 
-    const issues = [];
-    const videoStream = media.probeData?.streams?.find(
-      (s) => s.codec_type === "video",
-    );
-    const audioStream = media.probeData?.streams?.find(
-      (s) => s.codec_type === "audio",
-    );
+    const issues = []
+    const videoStream = media.probeData?.streams?.find((s) => s.codec_type === "video")
+    const audioStream = media.probeData?.streams?.find((s) => s.codec_type === "audio")
 
     // Проверка качества видео
     if (videoStream) {
-      const width = videoStream.width || 0;
-      const height = videoStream.height || 0;
-      const bitrate = Number.parseInt(videoStream.bit_rate || "0") || 0;
-      const fps = eval(videoStream.r_frame_rate || "0") || 0;
+      const width = videoStream.width || 0
+      const height = videoStream.height || 0
+      const bitrate = Number.parseInt(videoStream.bit_rate || "0") || 0
+      const fps = eval(videoStream.r_frame_rate || "0") || 0
 
       if (width < 1280 || height < 720) {
         issues.push({
           type: "low_resolution",
           severity: "warning",
           message: `Низкое разрешение: ${width}x${height}`,
-        });
+        })
       }
 
       if (bitrate < 1000000 && bitrate > 0) {
@@ -82,7 +78,7 @@ export function usePlayerAIIntegration() {
           type: "low_bitrate",
           severity: "warning",
           message: `Низкий битрейт: ${(bitrate / 1000000).toFixed(1)} Mbps`,
-        });
+        })
       }
 
       if (fps < 24 && fps > 0) {
@@ -90,21 +86,21 @@ export function usePlayerAIIntegration() {
           type: "low_fps",
           severity: "warning",
           message: `Низкая частота кадров: ${fps} fps`,
-        });
+        })
       }
     }
 
     // Проверка качества аудио
     if (audioStream) {
-      const sampleRate = Number.parseInt(audioStream.sample_rate || "0") || 0;
-      const bitrate = Number.parseInt(audioStream.bit_rate || "0") || 0;
+      const sampleRate = Number.parseInt(audioStream.sample_rate || "0") || 0
+      const bitrate = Number.parseInt(audioStream.bit_rate || "0") || 0
 
       if (sampleRate < 44100 && sampleRate > 0) {
         issues.push({
           type: "low_sample_rate",
           severity: "info",
           message: `Низкая частота дискретизации: ${sampleRate} Hz`,
-        });
+        })
       }
 
       if (bitrate < 128000 && bitrate > 0) {
@@ -112,28 +108,20 @@ export function usePlayerAIIntegration() {
           type: "low_audio_bitrate",
           severity: "info",
           message: `Низкий битрейт аудио: ${(bitrate / 1000).toFixed(0)} kbps`,
-        });
+        })
       }
     }
 
     return {
       hasIssues: issues.length > 0,
       issues,
-      resolution: videoStream
-        ? `${videoStream.width}x${videoStream.height}`
-        : "unknown",
+      resolution: videoStream ? `${videoStream.width}x${videoStream.height}` : "unknown",
       fps: videoStream ? eval(videoStream.r_frame_rate || "0") || 0 : 0,
-      videoBitrate: videoStream
-        ? Number.parseInt(videoStream.bit_rate || "0") || 0
-        : 0,
-      audioBitrate: audioStream
-        ? Number.parseInt(audioStream.bit_rate || "0") || 0
-        : 0,
-      sampleRate: audioStream
-        ? Number.parseInt(audioStream.sample_rate || "0") || 0
-        : 0,
-    };
-  }, [getCurrentMedia]);
+      videoBitrate: videoStream ? Number.parseInt(videoStream.bit_rate || "0") || 0 : 0,
+      audioBitrate: audioStream ? Number.parseInt(audioStream.bit_rate || "0") || 0 : 0,
+      sampleRate: audioStream ? Number.parseInt(audioStream.sample_rate || "0") || 0 : 0,
+    }
+  }, [getCurrentMedia])
 
   // Эффект для установки доступа к состоянию плеера
   useEffect(() => {
@@ -161,28 +149,24 @@ export function usePlayerAIIntegration() {
       applyEffect: player.applyEffect,
       removeEffect: (effectId: string) => {
         // Удаляем эффект из списка
-        const updatedEffects = player.appliedEffects.filter(
-          (e) => e.id !== effectId,
-        );
-        player.clearEffects();
-        updatedEffects.forEach((e) => player.applyEffect(e));
+        const updatedEffects = player.appliedEffects.filter((e) => e.id !== effectId)
+        player.clearEffects()
+        updatedEffects.forEach((e) => player.applyEffect(e))
       },
       applyFilter: player.applyFilter,
       removeFilter: (filterId: string) => {
         // Удаляем фильтр из списка
-        const updatedFilters = player.appliedFilters.filter(
-          (f) => f.id !== filterId,
-        );
-        player.clearFilters();
-        updatedFilters.forEach((f) => player.applyFilter(f));
+        const updatedFilters = player.appliedFilters.filter((f) => f.id !== filterId)
+        player.clearFilters()
+        updatedFilters.forEach((f) => player.applyFilter(f))
       },
       applyTemplate: (template: any, files: CurrentMedia[]) => {
-        player.applyTemplate(template, files);
+        player.applyTemplate(template, files)
       },
       clearTemplate: player.clearTemplate,
       setMedia: (media: CurrentMedia) => {
-        player.setPreviewMedia(media);
-        player.setVideoSource("browser");
+        player.setPreviewMedia(media)
+        player.setVideoSource("browser")
       },
       analyzeMediaQuality,
       getPlayerStats: () => ({
@@ -193,22 +177,16 @@ export function usePlayerAIIntegration() {
         hasTemplate: player.appliedTemplate !== null,
         speedRampingEnabled: player.speedRampingEnabled,
       }),
-    };
+    }
 
     // Устанавливаем доступ для AI инструментов
-    setPlayerStateAccess(playerAccess);
+    setPlayerStateAccess(playerAccess)
 
     // Очищаем при размонтировании
     return () => {
-      setPlayerStateAccess(null);
-    };
-  }, [
-    player,
-    getCurrentMedia,
-    getPlaybackStatus,
-    getAppliedEffects,
-    analyzeMediaQuality,
-  ]);
+      setPlayerStateAccess(null)
+    }
+  }, [player, getCurrentMedia, getPlaybackStatus, getAppliedEffects, analyzeMediaQuality])
 
   return {
     isReady: player.isVideoReady && getCurrentMedia() !== null,
@@ -216,5 +194,5 @@ export function usePlayerAIIntegration() {
     isPlaying: player.isPlaying,
     effectsCount: player.appliedEffects.length,
     filtersCount: player.appliedFilters.length,
-  };
+  }
 }

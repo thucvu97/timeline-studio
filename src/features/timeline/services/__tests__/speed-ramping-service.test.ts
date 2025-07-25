@@ -88,10 +88,7 @@ describe("SpeedRampingService", () => {
   it("should interpolate between keyframes", () => {
     const config: SpeedRampingConfig = {
       enabled: true,
-      keyframes: [
-        createSpeedKeyframe(0, 1.0, "linear"),
-        createSpeedKeyframe(10, 2.0, "linear"),
-      ],
+      keyframes: [createSpeedKeyframe(0, 1.0, "linear"), createSpeedKeyframe(10, 2.0, "linear")],
       maintainPitch: true,
       minSpeed: 0.1,
       maxSpeed: 10.0,
