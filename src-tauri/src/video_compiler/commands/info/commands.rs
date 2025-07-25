@@ -32,7 +32,7 @@ pub async fn get_ffmpeg_version(state: State<'_, VideoCompilerState>) -> Result<
 #[tauri::command]
 pub async fn check_ffmpeg_available(state: State<'_, VideoCompilerState>) -> Result<bool> {
   let ffmpeg_path = state.ffmpeg_path.read().await;
-  Ok(business_logic::check_ffmpeg_availability(&ffmpeg_path))
+  Ok(business_logic::check_ffmpeg_availability(&*ffmpeg_path))
 }
 
 /// Получить список поддерживаемых форматов

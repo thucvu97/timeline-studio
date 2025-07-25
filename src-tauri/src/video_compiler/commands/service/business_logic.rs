@@ -217,7 +217,7 @@ pub async fn cleanup_completed_jobs_logic(
 /// Проверить здоровье FFmpeg
 pub async fn check_ffmpeg_health(state: &VideoCompilerState) -> ServiceHealth {
   let ffmpeg_path = state.ffmpeg_path.read().await;
-  let ffmpeg_healthy = std::process::Command::new(ffmpeg_path.as_str())
+  let ffmpeg_healthy = std::process::Command::new(&*ffmpeg_path)
     .arg("-version")
     .output()
     .map(|o| o.status.success())

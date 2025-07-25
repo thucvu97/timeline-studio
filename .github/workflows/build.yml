@@ -127,8 +127,14 @@ jobs:
         run: mkdir -p dist
 
       - name: Build Rust dependencies
+        env:
+          PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig
+          RUST_BACKTRACE: 1
         run: |
           cd src-tauri
+          # First check dependencies
+          cargo check --release
+          # Then build
           cargo build --release
 
       - name: Generate TypeScript bindings

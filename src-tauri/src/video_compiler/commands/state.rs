@@ -362,7 +362,7 @@ mod tests {
     assert!(active_pipelines.is_empty());
 
     let ffmpeg_path = state.ffmpeg_path.read().await;
-    assert_eq!(*ffmpeg_path, "ffmpeg");
+    assert_eq!(ffmpeg_path.as_str(), "ffmpeg");
   }
 
   #[tokio::test]
@@ -402,7 +402,7 @@ mod tests {
 
     // Verify the path was updated
     let ffmpeg_path = state.ffmpeg_path.read().await;
-    assert_eq!(*ffmpeg_path, new_path);
+    assert_eq!(ffmpeg_path.as_str(), new_path);
   }
 
   #[tokio::test]
