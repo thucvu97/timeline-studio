@@ -89,9 +89,7 @@ export async function applyAutomaticEnhancements(params: any): Promise<TimelineT
         ? `Применено ${appliedEnhancements.length} улучшений (${modificationsCount} изменений)`
         : "Не удалось применить улучшения - проверьте контент проекта",
       data: {
-        appliedEnhancements,
         modificationsCount,
-        targetElements,
         enhancementDetails: {
           totalTracks: allTracks.length,
           processedElements: getProcessedElementsCount(allTracks, targetElements),

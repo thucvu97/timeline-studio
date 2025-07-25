@@ -84,11 +84,23 @@ const TopBarComponent = function TopBar() {
     }
   }, [saveProject, projectName])
 
-  const handleOpenProject = useCallback(() => {
+  const handleOpenProject = useCallback(async () => {
     try {
-      // Открываем проект
-      void openProject()
-      console.log("Project opened successfully")
+      // Открываем диалог выбора проекта
+      const { open } = await import("@tauri-apps/plugin-dialog")
+      const selected = await open({
+        multiple: false,
+        filters: [{
+          name: "Timeline Studio Project",
+          extensions: ["tsp"]
+        }]
+      })
+      
+      if (selected && typeof selected === "string") {
+        // Открываем выбранный проект
+        void openProject(selected)
+        console.log("Project opened successfully:", selected)
+      }
     } catch (error) {
       console.error("[handleOpenProject] Error opening project:", error)
     }

@@ -8,7 +8,12 @@ import { useTimelineMarkers } from "./use-timeline-markers"
  */
 export function useMarkersHotkeys() {
   const { addMarker, removeMarker, goToMarker, markers } = useTimelineMarkers()
-  const { currentTime, selectedMarkerId } = useTimeline()
+  const { currentTime } = useTimeline()
+
+  // TODO: В новой архитектуре нет selectedMarkerId, используем маркер на текущем времени
+  const getCurrentMarker = () => {
+    return markers.find(marker => Math.abs(marker.time - currentTime) < 0.1)
+  }
 
   // M - добавить маркер
   useHotkeys(
@@ -46,12 +51,13 @@ export function useMarkersHotkeys() {
     },
   )
 
-  // Delete/Backspace - удалить выбранный маркер
+  // Delete/Backspace - удалить маркер на текущем времени
   useHotkeys(
     "del,backspace",
     () => {
-      if (selectedMarkerId) {
-        removeMarker(selectedMarkerId)
+      const currentMarker = getCurrentMarker()
+      if (currentMarker && !currentMarker.isLocked) {
+        removeMarker(currentMarker.id)
       }
     },
     {

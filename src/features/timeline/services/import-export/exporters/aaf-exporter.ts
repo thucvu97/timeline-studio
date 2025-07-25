@@ -10,6 +10,9 @@ import { ExportOptions, Exporter } from "../types"
 
 export class AAFExporter implements Exporter {
   private frameRate = 30
+  private projectWidth = 1920
+  private projectHeight = 1080
+  private mobIDCounter = 1
 
   async export(project: TimelineProject, options: ExportOptions): Promise<string> {
     this.frameRate = project.fps || 30
@@ -142,7 +145,7 @@ export class AAFExporter implements Exporter {
 
     lines.push(`${indentStr}<SourceClip>`)
     lines.push(`${indentStr}  <Name>${this.escapeXml(clip.name)}</Name>`)
-    lines.push(`${indentStr}  <DataDefinition>${clip.mediaFile?.hasVideo ? "Picture" : "Sound"}</DataDefinition>`)
+    lines.push(`${indentStr}  <DataDefinition>${clip.mediaFile?.isVideo ? "Picture" : "Sound"}</DataDefinition>`)
     lines.push(`${indentStr}  <Length>${Math.round(clip.duration * this.frameRate)}</Length>`)
     lines.push(`${indentStr}  <SourceID>${sourceID}</SourceID>`)
     lines.push(`${indentStr}  <SourceTrackID>1</SourceTrackID>`)

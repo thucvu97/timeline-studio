@@ -1,4 +1,4 @@
-import { assign, createMachine } from "xstate"
+import { assign, createMachine, setup } from "xstate"
 
 import { MediaFile } from "@/features/media/types/media"
 
@@ -261,7 +261,71 @@ const setBasePlaybackRateAction = assign({
   basePlaybackRate: ({ event }: { event: SetBasePlaybackRateEvent }) => event.rate,
 })
 
-export const playerMachine = createMachine<PlayerContextType, PlayerEvent>({
+export const playerMachine = setup({
+  types: {
+    context: {} as PlayerContextType,
+    events: {} as PlayerEvent,
+  },
+  actions: {
+    logVideoSet: ({ event }) => {
+      if (event.type === 'setVideo') {
+        console.log(`[PlayerMachine] Установлено видео: ${event.video?.id}, path=${event.video?.path}`)
+      }
+    },
+    logPreviewMediaSet: ({ event }) => {
+      if (event.type === 'setPreviewMedia') {
+        console.log(`[PlayerMachine] Установлено preview media: ${event.media?.id}`)
+      }
+    },
+    logVideoSourceSet: ({ event }) => {
+      if (event.type === 'setVideoSource') {
+        console.log(`[PlayerMachine] Установлен источник видео: ${event.source}`)
+      }
+    },
+    logEffectApplied: ({ event }) => {
+      if (event.type === 'applyEffect') {
+        console.log(`[PlayerMachine] Применен эффект: ${event.effect.name}`)
+      }
+    },
+    logFilterApplied: ({ event }) => {
+      if (event.type === 'applyFilter') {
+        console.log(`[PlayerMachine] Применен фильтр: ${event.filter.name}`)
+      }
+    },
+    logTemplateApplied: ({ event }) => {
+      if (event.type === 'applyTemplate') {
+        console.log(`[PlayerMachine] Применен шаблон: ${event.template.name} с ${event.files.length} файлами`)
+      }
+    },
+    logEffectsCleared: () => {
+      console.log(`[PlayerMachine] Очищены эффекты`)
+    },
+    logFiltersCleared: () => {
+      console.log(`[PlayerMachine] Очищены фильтры`)
+    },
+    logTemplateCleared: () => {
+      console.log(`[PlayerMachine] Очищен шаблон`)
+    },
+    logSpeedRampingToggled: ({ event }) => {
+      if (event.type === 'setSpeedRampingEnabled') {
+        console.log(`[PlayerMachine] Speed ramping ${event.enabled ? "включен" : "выключен"}`)
+      }
+    },
+    logPlaybackRateUpdated: ({ event }) => {
+      if (event.type === 'updatePlaybackRate') {
+        console.log(`[PlayerMachine] Playback rate обновлен: ${event.rate}`)
+      }
+    },
+    logBasePlaybackRateSet: ({ event }) => {
+      if (event.type === 'setBasePlaybackRate') {
+        console.log(`[PlayerMachine] Base playback rate установлен: ${event.rate}`)
+      }
+    },
+    logVideoReady: ({ context }) => {
+      console.log(`[PlayerMachine] Видео ${context.video?.id} готово к воспроизведению`)
+    },
+  },
+}).createMachine({
   id: "player",
   initial: "idle",
   context: initialContext,
@@ -273,10 +337,7 @@ export const playerMachine = createMachine<PlayerContextType, PlayerEvent>({
           actions: [
             assign({ video: ({ event }) => event.video }),
             assign({ isVideoLoading: true }),
-            // Добавляем логирование
-            ({ event }) => {
-              console.log(`[PlayerMachine] Установлено видео: ${event.video?.id}, path=${event.video?.path}`)
-            },
+            "logVideoSet"
           ],
         },
         setCurrentTime: {
@@ -321,89 +382,67 @@ export const playerMachine = createMachine<PlayerContextType, PlayerEvent>({
         setPreviewMedia: {
           actions: [
             assign({ previewMedia: ({ event }) => event.media }),
-            ({ event }) => {
-              console.log(`[PlayerMachine] Установлено preview media: ${event.media?.id}`)
-            },
+            "logPreviewMediaSet",
           ],
         },
         setVideoSource: {
           actions: [
             assign({ videoSource: ({ event }) => event.source }),
-            ({ event }) => {
-              console.log(`[PlayerMachine] Установлен источник видео: ${event.source}`)
-            },
+            "logVideoSourceSet",
           ],
         },
         applyEffect: {
           actions: [
             applyEffectAction,
-            ({ event }) => {
-              console.log(`[PlayerMachine] Применен эффект: ${event.effect.name}`)
-            },
+            "logEffectApplied"
           ],
         },
         applyFilter: {
           actions: [
             applyFilterAction,
-            ({ event }) => {
-              console.log(`[PlayerMachine] Применен фильтр: ${event.filter.name}`)
-            },
+            "logFilterApplied"
           ],
         },
         applyTemplate: {
           actions: [
             applyTemplateAction,
-            ({ event }) => {
-              console.log(`[PlayerMachine] Применен шаблон: ${event.template.name} с ${event.files.length} файлами`)
-            },
+            "logTemplateApplied"
           ],
         },
         clearEffects: {
           actions: [
             clearEffectsAction,
-            () => {
-              console.log("[PlayerMachine] Очищены эффекты")
-            },
+            "logEffectsCleared"
           ],
         },
         clearFilters: {
           actions: [
             clearFiltersAction,
-            () => {
-              console.log("[PlayerMachine] Очищены фильтры")
-            },
+            "logFiltersCleared"
           ],
         },
         clearTemplate: {
           actions: [
             clearTemplateAction,
-            () => {
-              console.log("[PlayerMachine] Очищен шаблон")
-            },
+            "logTemplateCleared"
           ],
         },
         setSpeedRampingEnabled: {
           actions: [
             setSpeedRampingEnabledAction,
-            ({ event }) => {
-              console.log(`[PlayerMachine] Speed ramping ${event.enabled ? "включен" : "выключен"}`)
-            },
+            "logSpeedRampingToggled"
           ],
         },
         updatePlaybackRate: {
           actions: [
             updatePlaybackRateAction,
-            ({ event }) => {
-              console.log(`[PlayerMachine] Playback rate обновлен: ${event.rate}`)
-            },
+            "logPlaybackRateUpdated"
           ],
         },
         setBasePlaybackRate: {
           actions: [
             setBasePlaybackRateAction,
-            ({ event }) => {
-              console.log(`[PlayerMachine] Base playback rate установлен: ${event.rate}`)
-            },
+            "logBasePlaybackRateSet"
           ],
         },
       },
@@ -415,9 +454,7 @@ export const playerMachine = createMachine<PlayerContextType, PlayerEvent>({
           actions: [
             assign({ isVideoReady: true, isVideoLoading: false }),
             // Добавляем логирование
-            ({ context }) => {
-              console.log(`[PlayerMachine] Видео ${context.video?.id} готово к воспроизведению`)
-            },
+            "logVideoReady"
           ],
         },
         setVideoLoading: {
@@ -467,17 +504,13 @@ export const playerMachine = createMachine<PlayerContextType, PlayerEvent>({
         setPreviewMedia: {
           actions: [
             assign({ previewMedia: ({ event }) => event.media }),
-            ({ event }) => {
-              console.log(`[PlayerMachine] Установлено preview media: ${event.media?.id}`)
-            },
+            "logPreviewMediaSet",
           ],
         },
         setVideoSource: {
           actions: [
             assign({ videoSource: ({ event }) => event.source }),
-            ({ event }) => {
-              console.log(`[PlayerMachine] Установлен источник видео: ${event.source}`)
-            },
+            "logVideoSourceSet",
           ],
         },
         applyEffect: {
@@ -517,11 +550,7 @@ export const playerMachine = createMachine<PlayerContextType, PlayerEvent>({
             assign({ video: ({ event }) => event.video }),
             assign({ isVideoLoading: true }),
             // Добавляем логирование
-            ({ event }) => {
-              console.log(
-                `[PlayerMachine] Установлено видео в состоянии ready: ${event.video?.id}, path=${event.video?.path}`,
-              )
-            },
+            "logVideoSet"
           ],
         },
         setIsPlaying: {
@@ -566,17 +595,13 @@ export const playerMachine = createMachine<PlayerContextType, PlayerEvent>({
         setPreviewMedia: {
           actions: [
             assign({ previewMedia: ({ event }) => event.media }),
-            ({ event }) => {
-              console.log(`[PlayerMachine] Установлено preview media: ${event.media?.id}`)
-            },
+            "logPreviewMediaSet",
           ],
         },
         setVideoSource: {
           actions: [
             assign({ videoSource: ({ event }) => event.source }),
-            ({ event }) => {
-              console.log(`[PlayerMachine] Установлен источник видео: ${event.source}`)
-            },
+            "logVideoSourceSet",
           ],
         },
         applyEffect: {

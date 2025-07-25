@@ -1,4 +1,6 @@
-import { useAppSettings } from "./use-app-settings"
+import { useEffect, useState } from "react"
+
+import { storeService } from "../services/store-service"
 
 /**
  * Хук для доступа к списку последних открытых проектов
@@ -7,12 +9,28 @@ import { useAppSettings } from "./use-app-settings"
  * @returns Объект с данными и методами для работы с недавними проектами
  */
 export function useRecentProjects() {
-  const { getRecentProjects, addRecentProject, removeRecentProject, clearRecentProjects } = useAppSettings()
+  const [recentProjects, setRecentProjects] = useState<Array<{ path: string; name: string; lastOpened: string }>>([])
+
+  useEffect(() => {
+    // Загружаем список при монтировании
+    void storeService.getRecentProjects().then(setRecentProjects)
+  }, [])
+
+  const addRecentProject = async (path: string, name: string) => {
+    await storeService.addRecentProject(path, name)
+    const updated = await storeService.getRecentProjects()
+    setRecentProjects(updated)
+  }
 
   return {
-    recentProjects: getRecentProjects(),
+    recentProjects,
     addRecentProject,
-    removeRecentProject,
-    clearRecentProjects,
+    // TODO: Implement removeRecentProject and clearRecentProjects in store-service
+    removeRecentProject: async (path: string) => {
+      console.warn("removeRecentProject not implemented yet")
+    },
+    clearRecentProjects: async () => {
+      console.warn("clearRecentProjects not implemented yet")
+    },
   }
 }

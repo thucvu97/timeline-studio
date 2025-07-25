@@ -28,7 +28,7 @@ export function useVideoCompiler(): UseVideoCompilerReturn {
   const { t } = useTranslation()
   const [isRendering, setIsRendering] = useState(false)
   const [renderProgress, setRenderProgress] = useState<RenderProgress | null>(null)
-  const [activeJobs, setActiveJobs] = useState<RenderJob[]>([])
+  const [activeJobs, setActiveJobs] = useState<VideoRenderJob[]>([])
   const [currentJobId, setCurrentJobId] = useState<string | null>(null)
 
   // Запуск рендеринга
@@ -114,7 +114,7 @@ export function useVideoCompiler(): UseVideoCompilerReturn {
   // Получение списка активных задач
   const refreshActiveJobs = useCallback(async () => {
     try {
-      const jobs = await invoke<RenderJob[]>("get_active_jobs")
+      const jobs = await invoke<VideoRenderJob[]>("get_active_jobs")
       setActiveJobs(jobs)
     } catch (error) {
       console.error("Failed to get active jobs:", error)

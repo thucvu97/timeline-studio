@@ -38,7 +38,11 @@ export function AudioSettings() {
   let selectedClips: any[] = []
   try {
     const timeline = useTimeline()
-    selectedClips = timeline.selectedClips || []
+    const selectedClipIds = timeline.selectedClipIds || []
+    // Получаем клипы по их ID
+    selectedClips = selectedClipIds
+      .map((clipId: string) => timeline.clips?.find((clip: any) => clip.id === clipId))
+      .filter(Boolean)
   } catch {
     // TimelineProvider не доступен (например, в тестах)
     selectedClips = []

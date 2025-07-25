@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useMemo, useState } from "react"
 
 import {
   Bookmark,
@@ -45,9 +45,50 @@ const markerTypeOptions: { value: MarkerType; label: string; icon: React.ReactNo
 ]
 
 export function MarkerControls() {
-  const { currentTime } = useTimeline()
-  const { markers, filteredMarkers, addMarker, goToNextMarker, goToPreviousMarker, setFilter, clearFilter } =
-    useTimelineMarkers()
+  const { currentTime, seek } = useTimeline()
+  const { markers, addMarker } = useTimelineMarkers()
+  
+  // Локальная логика для фильтрации и навигации
+  const filteredMarkers = useMemo(() => {
+    let filtered = markers
+    
+    if (searchQuery) {
+      filtered = filtered.filter(marker => 
+        marker.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    }
+    
+    if (selectedTypes.length > 0) {
+      filtered = filtered.filter(marker => selectedTypes.includes(marker.type))
+    }
+    
+    return filtered
+  }, [markers, searchQuery, selectedTypes])
+  
+  const goToNextMarker = () => {
+    const nextMarker = markers.find(marker => marker.time > currentTime)
+    if (nextMarker) {
+      void seek(nextMarker.time)
+    }
+  }
+  
+  const goToPreviousMarker = () => {
+    const sortedMarkers = [...markers].sort((a, b) => b.time - a.time)
+    const prevMarker = sortedMarkers.find(marker => marker.time < currentTime)
+    if (prevMarker) {
+      void seek(prevMarker.time)
+    }
+  }
+  
+  const setFilter = (filter: { query?: string; types?: MarkerType[] }) => {
+    if (filter.query !== undefined) setSearchQuery(filter.query)
+    if (filter.types !== undefined) setSelectedTypes(filter.types)
+  }
+  
+  const clearFilter = () => {
+    setSearchQuery("")
+    setSelectedTypes([])
+  }
 
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")

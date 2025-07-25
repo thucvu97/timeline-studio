@@ -39,8 +39,8 @@ export function PersonList({
   // Фильтрация персон по поисковому запросу и тегам
   const filteredPersons = persons.filter((person) => {
     const matchesSearch =
-      person.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      person.description?.toLowerCase().includes(searchQuery.toLowerCase())
+      (person.name?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+      (person.notes?.toLowerCase() || "").includes(searchQuery.toLowerCase())
 
     const matchesTag = !filterTag || person.tags?.includes(filterTag)
 
@@ -130,8 +130,8 @@ export function PersonList({
 
                 {/* Информация о персоне */}
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm truncate">{person.name}</p>
-                  {person.description && <p className="text-xs text-muted-foreground truncate">{person.description}</p>}
+                  <p className="font-medium text-sm truncate">{person.name || "Без имени"}</p>
+                  {person.notes && <p className="text-xs text-muted-foreground truncate">{person.notes}</p>}
 
                   {/* Теги */}
                   {person.tags && person.tags.length > 0 && (
@@ -152,8 +152,8 @@ export function PersonList({
 
                 {/* Статистика */}
                 <div className="text-xs text-muted-foreground text-right">
-                  <div>{person.detectedFaces?.length || 0} лиц</div>
-                  <div>{person.appearanceCount || 0} появлений</div>
+                  <div>{person.faceEmbeddings?.length || 0} лиц</div>
+                  <div>{person.appearances?.length || 0} появлений</div>
                 </div>
 
                 {/* Действия */}

@@ -342,11 +342,12 @@ export class CodecSupportService {
       }
 
       // Получаем информацию о треках
-      if ("videoTracks" in videoElement && videoElement.videoTracks && videoElement.videoTracks.length > 0) {
-        const videoTrack = videoElement.videoTracks[0]
+      const videoElementWithTracks = videoElement as any
+      if ("videoTracks" in videoElementWithTracks && videoElementWithTracks.videoTracks && videoElementWithTracks.videoTracks.length > 0) {
+        const videoTrack = videoElementWithTracks.videoTracks[0]
 
         if ("getSettings" in videoTrack) {
-          const settings = (videoTrack as any).getSettings()
+          const settings = videoTrack.getSettings()
 
           result.videoTrack.width = settings.width || result.videoTrack.width
           result.videoTrack.height = settings.height || result.videoTrack.height
@@ -359,9 +360,9 @@ export class CodecSupportService {
         }
       }
 
-      if (videoElement.audioTracks) {
-        for (let i = 0; i < videoElement.audioTracks.length; i++) {
-          const audioTrack = videoElement.audioTracks[i]
+      if (videoElementWithTracks.audioTracks) {
+        for (let i = 0; i < videoElementWithTracks.audioTracks.length; i++) {
+          const audioTrack = videoElementWithTracks.audioTracks[i]
 
           result.audioTracks.push({
             codec: "unknown",

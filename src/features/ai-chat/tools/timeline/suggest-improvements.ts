@@ -117,7 +117,6 @@ export async function suggestTimelineImprovements(params: any): Promise<Timeline
           },
         },
         suggestions: prioritizedSuggestions,
-        actionPlan,
         overallRecommendations,
       },
       warnings: warnings.length > 0 ? warnings : undefined,

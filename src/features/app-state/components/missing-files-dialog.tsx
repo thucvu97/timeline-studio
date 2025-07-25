@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { MediaRestorationService } from "@/features/media/services/media-restoration-service"
+import { promptUserToFindFile } from "@/features/media/services/media-restoration-service"
 import { SavedMediaFile } from "@/features/media/types/saved-media"
 
 interface MissingFilesDialogProps {
@@ -51,7 +51,7 @@ export function MissingFilesDialog({ open, onOpenChange, missingFiles, onResolve
     setResolutions((prev) => prev.map((r, i) => (i === index ? { ...r, isProcessing: true } : r)))
 
     try {
-      const newPath = await MediaRestorationService.promptUserToFindFile(resolution.file)
+      const newPath = await promptUserToFindFile(resolution.file)
 
       setResolutions((prev) =>
         prev.map((r, i) =>

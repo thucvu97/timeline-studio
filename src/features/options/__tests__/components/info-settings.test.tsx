@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 
+import { MediaFile } from "@/features/media/types/media"
 import { renderWithProviders, screen } from "@/test/test-utils"
 
 import { InfoSettings } from "../../components/info-settings"
@@ -20,7 +21,7 @@ global.ResizeObserver = vi.fn().mockImplementation(() => ({
   disconnect: vi.fn(),
 }))
 
-const mockMediaFile = {
+const mockMediaFile: MediaFile = {
   id: "test-media-1",
   name: "test-video.mp4",
   path: "/path/to/test-video.mp4",
@@ -43,16 +44,16 @@ const mockMediaFile = {
         index: 1,
         codec_name: "aac",
         codec_type: "audio",
-        sample_rate: "48000",
+        sample_rate: 48000,
         channels: 2,
       },
     ],
     format: {
       format_name: "mov,mp4,m4a,3gp,3g2,mj2",
       format_long_name: "QuickTime / MOV",
-      duration: "120.000000",
-      size: "1024000",
-      bit_rate: "68266",
+      duration: 120.000000,
+      size: 1024000,
+      bit_rate: 68266,
     },
   },
 }

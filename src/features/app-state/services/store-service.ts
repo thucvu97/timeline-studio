@@ -119,8 +119,10 @@ export class StoreService {
       console.error("[StoreService] Error initializing store:", error)
       // Попытаемся создать новое хранилище
       try {
-        this.store = new Store(USER_SETTINGS_STORE_PATH)
-        await this.store.save()
+        this.store = await load(USER_SETTINGS_STORE_PATH, { autoSave: true })
+        if (this.store) {
+          await this.store.save()
+        }
         this.isInitialized = true
         console.log("[StoreService] Created new store after initialization error")
       } catch (createError) {

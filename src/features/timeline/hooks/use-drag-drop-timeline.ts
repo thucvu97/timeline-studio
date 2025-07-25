@@ -107,10 +107,10 @@ export function useDragDropTimeline(): UseDragDropTimelineReturn {
             const rect = trackElement.getBoundingClientRect()
             const scrollLeft = trackElement.scrollLeft || 0
 
-            let timePosition = calculateTimelinePosition(mouseX, rect, scrollLeft, uiState.timeScale)
+            let timePosition = calculateTimelinePosition(mouseX, rect, scrollLeft, uiState.context.timeScale)
 
             // Apply snapping if enabled
-            timePosition = snapToGrid(timePosition, uiState.snapMode)
+            timePosition = snapToGrid(timePosition, uiState.context.snapMode).snappedPosition
 
             // Find insertion point (avoiding overlaps)
             const insertionTime = findInsertionPoint(timePosition, dropData.trackId, dragData.mediaFile.duration || 10)
@@ -120,7 +120,7 @@ export function useDragDropTimeline(): UseDragDropTimelineReturn {
               dragOverTrack: dropData.trackId,
               dropPosition: {
                 trackId: dropData.trackId,
-                startTime: insertionTime,
+                startTime: insertionTime.insertionTime,
               },
             }))
           }

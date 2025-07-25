@@ -142,9 +142,8 @@ export async function analyzeContentForStory(params: any): Promise<TimelineToolR
       data: {
         analysis,
         suggestions: [...new Set(suggestions)], // Убираем дубликаты
-        elementsCovered: storyElements,
         projectStats: timelineAccess.getProjectStats(),
-      },
+      } as any,
       warnings: warnings.length > 0 ? warnings : undefined,
       nextActions: [
         "Применить рекомендации по улучшению истории",

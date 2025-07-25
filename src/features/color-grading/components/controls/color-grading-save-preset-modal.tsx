@@ -7,10 +7,14 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useModal } from "@/features/modals/services"
 
+interface SavePresetModalData {
+  onSave?: (presetName: string) => void
+}
+
 export function ColorGradingSavePresetModal() {
   const { t } = useTranslation()
   const { modalData, closeModal } = useModal()
-  const { onSave } = modalData || {}
+  const { onSave } = (modalData as SavePresetModalData) || {}
 
   const [presetName, setPresetName] = useState("")
 

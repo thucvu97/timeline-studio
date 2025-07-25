@@ -94,12 +94,6 @@ export async function exportTimelineData(params: any): Promise<TimelineToolResul
       message: `Экспорт данных завершен в формате ${exportFormat.toUpperCase()}`,
       data: {
         exportData: formattedData,
-        exportSettings: {
-          format: exportFormat,
-          scope: exportScope,
-          includeData,
-          fileName,
-        },
         statistics: exportStats,
         fileInfo: {
           name: fileName,
@@ -417,7 +411,7 @@ function objectToXML(obj: any, rootName: string): string {
       xmlLines.push(`  </${key}>`)
     } else if (typeof value === "object") {
       xmlLines.push(`  <${key}>`)
-      for (const [subKey, subValue] of Object.entries(value)) {
+      for (const [subKey, subValue] of Object.entries(value as any)) {
         let safeSubValue = ""
         if (subValue === null || subValue === undefined) {
           safeSubValue = ""

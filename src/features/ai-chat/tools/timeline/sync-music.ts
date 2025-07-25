@@ -87,7 +87,7 @@ export async function synchronizeWithMusic(params: any): Promise<TimelineToolRes
     }
 
     // Найти музыкальный клип
-    const musicClip = musicTrack.clips.find((clip) => clip.mediaFile?.type === "audio")
+    const musicClip = musicTrack.clips.find((clip) => clip.mediaFile?.isAudio)
     if (!musicClip) {
       return {
         success: false,
@@ -127,7 +127,7 @@ export async function synchronizeWithMusic(params: any): Promise<TimelineToolRes
       success: true,
       message: `Синхронизация с музыкой завершена (${modificationsCount} изменений)`,
       data: {
-        musicAnalysis: {
+        analysis: {
           detectedBPM: musicAnalysis.bpm,
           beatMarkers: musicAnalysis.beats.length,
           musicDuration: musicAnalysis.duration,

@@ -2,8 +2,6 @@ import { createContext } from "react"
 
 import { useMachine } from "@xstate/react"
 
-import { useAppSettings } from "@/features/app-state/hooks"
-
 import { BrowserTab, LayoutMode, userSettingsMachine } from "./user-settings-machine"
 
 /**
@@ -97,8 +95,20 @@ export const UserSettingsContext = createContext<UserSettingsContextValue | unde
 export function UserSettingsProvider({ children }: { children: React.ReactNode }) {
   console.log("UserSettingsProvider rendering")
 
-  // Получаем доступ к app settings для сохранения пользовательских настроек
-  const { updateUserSettings: saveUserSettings } = useAppSettings()
+  // Функция для сохранения пользовательских настроек
+  // TODO: Интегрировать с новой системой сохранения настроек
+  const saveUserSettings = (partialSettings: any) => {
+    console.log("Saving user settings:", partialSettings)
+    // Временно сохраняем в localStorage
+    try {
+      const currentSettings = localStorage.getItem("userSettings")
+      const settings = currentSettings ? JSON.parse(currentSettings) : {}
+      const updatedSettings = { ...settings, ...partialSettings }
+      localStorage.setItem("userSettings", JSON.stringify(updatedSettings))
+    } catch (error) {
+      console.error("Failed to save user settings:", error)
+    }
+  }
 
   // Инициализируем машину состояний для управления пользовательскими настройками
   const [state, send] = useMachine(userSettingsMachine)

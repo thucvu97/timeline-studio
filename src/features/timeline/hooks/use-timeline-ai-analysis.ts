@@ -88,7 +88,8 @@ export function useTimelineAIAnalysis(): TimelineAIAnalysisHook {
 
   // Инициализация сервисов
   const [sceneEngine] = useState(() => new SceneAnalysisEngine())
-  const [orchestrator] = useState(() => new AIIntelligenceOrchestrator())
+  // TODO: В новой архитектуре нужно правильно инициализировать AIIntelligenceOrchestrator с actor
+  const [orchestrator] = useState<AIIntelligenceOrchestrator | null>(null)
 
   // Инициализация AI движков
   useEffect(() => {
@@ -141,15 +142,16 @@ export function useTimelineAIAnalysis(): TimelineAIAnalysisHook {
         }))
 
         // Запускаем полный анализ через оркестратор
-        const fullAnalysis = await orchestrator.analyzeContent({
-          mediaFile: {
-            path: clip.mediaFile.path,
-            filename: clip.mediaFile.name,
-            size: clip.mediaFile.size || 0,
-            format: clip.mediaFile.format || "",
-            duration: clip.mediaFile.duration || 0,
-          },
-        })
+        if (!orchestrator) {
+          console.warn("AIIntelligenceOrchestrator not initialized")
+          return
+        }
+        
+        const fullAnalysis = await orchestrator.analyzeContent([{
+          path: clip.mediaFile.path,
+          name: clip.mediaFile.name,
+          size: clip.mediaFile.size || 0,
+        }])
 
         setAnalysisState((prev) => ({
           ...prev,

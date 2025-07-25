@@ -20,7 +20,7 @@ beforeEach(() => {
   // Обновляем мок useTranslation для поддержки интерполяции
   mockUseTranslation.mockReturnValue({
     t: (key: string, options?: any) => {
-      const translations = {
+      const translations: Record<string, string> = {
         "dialogs.voiceRecord.microphoneWithNumber": "Микрофон {{number}}",
         "dialogs.voiceRecord.errorGettingDevices": "Не удалось получить список устройств",
       }
@@ -43,7 +43,22 @@ beforeEach(() => {
 
       return result
     },
-    i18n: {},
+    i18n: {
+      use: vi.fn(),
+      init: vi.fn(),
+      on: vi.fn(),
+      off: vi.fn(),
+      t: vi.fn((key: string) => key),
+      changeLanguage: vi.fn(),
+      language: "ru",
+      languages: ["ru", "en"],
+      services: {
+        resourceStore: {
+          on: vi.fn(),
+          off: vi.fn(),
+        },
+      },
+    } as any,
     ready: true,
   })
 

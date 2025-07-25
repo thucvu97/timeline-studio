@@ -168,7 +168,7 @@ export function useTimelineActions(): UseTimelineActionsReturn {
       const startTime = customStartTime !== undefined ? customStartTime : calculateClipStartTime(targetTrackId)
       const duration = file.duration || (file.isImage ? 5 : 10) // 5 секунд для изображений, 10 для видео/аудио без duration
 
-      void addClip(targetTrackId, file, startTime, duration)
+      void addClip(targetTrackId, file, startTime)
       console.log(`Added ${file.name} to track ${targetTrackId} at time ${startTime} with duration ${duration}`)
     },
     [project, getTrackTypeForMedia, findBestTrackForMedia, addTrack, calculateClipStartTime, addClip, createProject],

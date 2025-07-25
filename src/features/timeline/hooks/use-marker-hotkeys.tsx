@@ -4,8 +4,30 @@ import { useTimeline } from "./use-timeline"
 import { useTimelineMarkers } from "./use-timeline-markers"
 
 export function useMarkerHotkeys() {
-  const { currentTime } = useTimeline()
-  const { addMarker, goToNextMarker, goToPreviousMarker, removeMarker, getMarkerAtTime } = useTimelineMarkers()
+  const { currentTime, seek } = useTimeline()
+  const { addMarker, removeMarker, markers } = useTimelineMarkers()
+
+  // Получить маркер в указанное время
+  const getMarkerAtTime = (time: number) => {
+    return markers.find(marker => Math.abs(marker.time - time) < 0.1)
+  }
+
+  // Перейти к следующему маркеру
+  const goToNextMarker = () => {
+    const nextMarker = markers.find(marker => marker.time > currentTime)
+    if (nextMarker) {
+      void seek(nextMarker.time)
+    }
+  }
+
+  // Перейти к предыдущему маркеру
+  const goToPreviousMarker = () => {
+    const sortedMarkers = [...markers].sort((a, b) => b.time - a.time)
+    const prevMarker = sortedMarkers.find(marker => marker.time < currentTime)
+    if (prevMarker) {
+      void seek(prevMarker.time)
+    }
+  }
 
   // M - Add marker at current time
   useHotkeys(
@@ -13,7 +35,12 @@ export function useMarkerHotkeys() {
     (e) => {
       e.preventDefault()
       const markerName = `Marker ${new Date().toLocaleTimeString()}`
-      addMarker(currentTime, markerName, "note")
+      addMarker({
+        time: currentTime,
+        name: markerName,
+        type: "note",
+        color: "#3b82f6"
+      })
     },
     {
       enableOnFormTags: false,
@@ -27,7 +54,12 @@ export function useMarkerHotkeys() {
     (e) => {
       e.preventDefault()
       const markerName = `Chapter ${new Date().toLocaleTimeString()}`
-      addMarker(currentTime, markerName, "chapter")
+      addMarker({
+        time: currentTime,
+        name: markerName,
+        type: "chapter",
+        color: "#10b981"
+      })
     },
     {
       enableOnFormTags: false,
@@ -41,7 +73,12 @@ export function useMarkerHotkeys() {
     (e) => {
       e.preventDefault()
       const markerName = `Export ${new Date().toLocaleTimeString()}`
-      addMarker(currentTime, markerName, "export")
+      addMarker({
+        time: currentTime,
+        name: markerName,
+        type: "export",
+        color: "#f59e0b"
+      })
     },
     {
       enableOnFormTags: false,

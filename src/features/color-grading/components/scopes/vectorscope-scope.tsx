@@ -8,7 +8,7 @@ interface VectorscopeScopeProps {
 
 export function VectorscopeScope({ width, height, refreshRate }: VectorscopeScopeProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const animationFrameRef = useRef<number>()
+  const animationFrameRef = useRef<number | null>(null)
   const lastUpdateRef = useRef<number>(0)
 
   // Функция для получения данных изображения
@@ -203,6 +203,9 @@ export function VectorscopeScope({ width, height, refreshRate }: VectorscopeScop
       lastUpdateRef.current = now
     }
 
+    if (animationFrameRef.current !== null) {
+      cancelAnimationFrame(animationFrameRef.current)
+    }
     animationFrameRef.current = requestAnimationFrame(animate)
   }, [refreshRate, renderVectorscope])
 

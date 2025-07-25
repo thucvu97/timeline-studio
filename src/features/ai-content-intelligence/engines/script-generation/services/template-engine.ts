@@ -3,11 +3,21 @@
  * Движок для работы с шаблонами сценариев
  */
 
-import type { ScriptTemplate, TemplateCategory } from "../../../shared/types/script-generation"
+import { NarrativeType, TemplateCategory } from "../../../shared/types/script-generation"
+import { SectionType } from "../types"
+
+import type { ScriptTemplate } from "../../../shared/types/script-generation"
 import type { TemplateSection, TemplateStructure, TemplateVariable } from "../types"
 
+// Расширенный тип шаблона для внутреннего использования
+interface ExtendedScriptTemplate extends ScriptTemplate {
+  variables?: TemplateVariable[]
+  templateStructure?: TemplateStructure
+}
+
 export class TemplateEngine {
-  private templates = new Map<string, ScriptTemplate>()
+  private templates = new Map<string, ExtendedScriptTemplate>()
+  private isInitialized = false
 
   async initialize(): Promise<void> {
     // Загружаем встроенные шаблоны
@@ -32,16 +42,28 @@ export class TemplateEngine {
   /**
    * Применить шаблон с переменными
    */
-  applyTemplate(template: ScriptTemplate, variables: Record<string, any>): TemplateStructure {
+  applyTemplate(template: ExtendedScriptTemplate, variables: Record<string, any>): TemplateStructure {
     // Валидация переменных
-    this.validateVariables(template.variables, variables)
+    if (template.variables) {
+      this.validateVariables(template.variables, variables)
+    }
 
     // Применяем переменные к секциям
-    const processedSections = template.structure.sections.map((section) => this.processSection(section, variables))
+    if (template.templateStructure?.sections) {
+      const processedSections = template.templateStructure.sections.map((section) => 
+        this.processSection(section, variables)
+      )
 
+      return {
+        ...template.templateStructure,
+        sections: processedSections,
+      }
+    }
+
+    // Если нет templateStructure, возвращаем пустую структуру
     return {
-      ...template.structure,
-      sections: processedSections,
+      sections: [],
+      flexibility: "flexible"
     }
   }
 
@@ -53,13 +75,23 @@ export class TemplateEngine {
     category: TemplateCategory,
     structure: TemplateStructure,
     variables?: TemplateVariable[],
-  ): ScriptTemplate {
-    const template: ScriptTemplate = {
+  ): ExtendedScriptTemplate {
+    const template: ExtendedScriptTemplate = {
       id: `custom-${Date.now()}`,
       name,
       category,
       description: `Custom template: ${name}`,
-      structure,
+      structure: {
+        type: NarrativeType.THREE_ACT,
+        acts: [],
+        turningPoints: []
+      },
+      defaultParams: {
+        genre: [],
+        duration: 0,
+        tone: "neutral" as any
+      },
+      templateStructure: structure,
       variables: variables || [],
       examples: [],
     }
@@ -81,16 +113,26 @@ export class TemplateEngine {
 
   private loadBuiltinTemplates(): void {
     // YouTube шаблон
-    this.templates.set("youtube-standard", {
+    const youtubeTemplate: ExtendedScriptTemplate = {
       id: "youtube-standard",
       name: "YouTube Standard Video",
-      category: "social_media",
+      category: TemplateCategory.SOCIAL_MEDIA,
       description: "Standard template for YouTube videos with intro, main content, and outro",
       structure: {
+        type: NarrativeType.THREE_ACT,
+        acts: [],
+        turningPoints: []
+      },
+      defaultParams: {
+        genre: [],
+        duration: 0,
+        tone: "casual" as any
+      },
+      templateStructure: {
         sections: [
           {
             id: "intro",
-            type: "intro",
+            type: SectionType.INTRO,
             name: "Introduction",
             description: "Hook and channel intro",
             durationPercentage: 10,
@@ -98,12 +140,12 @@ export class TemplateEngine {
             maxDuration: 30,
             content: [
               {
-                type: "visual_description",
+                type: "visual_description" as any,
                 template: "Opening shot: {{opening_visual}}",
                 variables: ["opening_visual"],
               },
               {
-                type: "narration",
+                type: "narration" as any,
                 template: "{{greeting}} Welcome to {{channel_name}}!",
                 variables: ["greeting", "channel_name"],
               },
@@ -112,13 +154,13 @@ export class TemplateEngine {
           },
           {
             id: "main",
-            type: "main_content",
+            type: SectionType.MAIN_CONTENT,
             name: "Main Content",
             description: "Primary video content",
             durationPercentage: 80,
             content: [
               {
-                type: "narration",
+                type: "narration" as any,
                 template: "{{main_content}}",
                 variables: ["main_content"],
               },
@@ -127,14 +169,14 @@ export class TemplateEngine {
           },
           {
             id: "outro",
-            type: "outro",
+            type: SectionType.OUTRO,
             name: "Outro",
             description: "Call to action and closing",
             durationPercentage: 10,
             maxDuration: 20,
             content: [
               {
-                type: "narration",
+                type: "narration" as any,
                 template: "Thanks for watching! {{cta}}",
                 variables: ["cta"],
               },
@@ -179,25 +221,37 @@ export class TemplateEngine {
         },
       ],
       examples: ["Tech review videos", "Tutorial content", "Vlogs"],
-    })
+    }
+    
+    this.templates.set("youtube-standard", youtubeTemplate)
 
     // Documentary шаблон
-    this.templates.set("documentary-standard", {
+    const documentaryTemplate: ExtendedScriptTemplate = {
       id: "documentary-standard",
       name: "Documentary Standard",
-      category: "film",
+      category: TemplateCategory.FILM,
       description: "Classic documentary structure with narration",
       structure: {
+        type: NarrativeType.THREE_ACT,
+        acts: [],
+        turningPoints: []
+      },
+      defaultParams: {
+        genre: [],
+        duration: 0,
+        tone: "serious" as any
+      },
+      templateStructure: {
         sections: [
           {
             id: "opening",
-            type: "intro",
+            type: SectionType.INTRO,
             name: "Opening Statement",
             description: "Establish the topic and thesis",
             durationPercentage: 5,
             content: [
               {
-                type: "narration",
+                type: "narration" as any,
                 template: "{{opening_statement}}",
                 variables: ["opening_statement"],
               },
@@ -206,13 +260,13 @@ export class TemplateEngine {
           },
           {
             id: "context",
-            type: "main_content",
+            type: SectionType.MAIN_CONTENT,
             name: "Historical Context",
             description: "Background information",
             durationPercentage: 20,
             content: [
               {
-                type: "narration",
+                type: "narration" as any,
                 template: "{{context_narration}}",
                 variables: ["context_narration"],
               },
@@ -221,13 +275,13 @@ export class TemplateEngine {
           },
           {
             id: "exploration",
-            type: "main_content",
+            type: SectionType.MAIN_CONTENT,
             name: "Main Exploration",
             description: "Deep dive into the subject",
             durationPercentage: 60,
             content: [
               {
-                type: "narration",
+                type: "narration" as any,
                 template: "{{main_narration}}",
                 variables: ["main_narration"],
               },
@@ -236,13 +290,13 @@ export class TemplateEngine {
           },
           {
             id: "conclusion",
-            type: "resolution",
+            type: SectionType.RESOLUTION,
             name: "Conclusion",
             description: "Synthesis and closing thoughts",
             durationPercentage: 15,
             content: [
               {
-                type: "narration",
+                type: "narration" as any,
                 template: "{{conclusion}}",
                 variables: ["conclusion"],
               },
@@ -279,7 +333,9 @@ export class TemplateEngine {
         },
       ],
       examples: ["Nature documentaries", "Historical documentaries", "Social issue documentaries"],
-    })
+    }
+    
+    this.templates.set("documentary-standard", documentaryTemplate)
   }
 
   private validateVariables(templateVars: TemplateVariable[], providedVars: Record<string, any>): void {

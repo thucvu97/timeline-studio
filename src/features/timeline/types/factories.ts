@@ -6,11 +6,11 @@ import {
   MusicClip,
   MusicFile,
   ProjectResources,
-  ProjectSettings,
   SubtitleClip,
   SubtitleStyle,
   TimelineClip,
   TimelineProject,
+  TimelineProjectSettings,
   TimelineSection,
   TimelineTrack,
   TrackType,
@@ -23,7 +23,7 @@ import {
 /**
  * Создает новый проект Timeline
  */
-export function createTimelineProject(name: string, settings?: Partial<ProjectSettings>): TimelineProject {
+export function createTimelineProject(name: string, settings?: Partial<TimelineProjectSettings>): TimelineProject {
   return {
     id: `project-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
     name,

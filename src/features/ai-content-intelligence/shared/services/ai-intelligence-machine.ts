@@ -172,6 +172,11 @@ const analyzeContentActor = fromPromise(
         suggestions: [],
         warnings: [],
         opportunities: [],
+        strengths: [],
+        weaknesses: [],
+        recommendations: [],
+        marketingAngles: [],
+        targetDemographics: [],
       },
     }
 
@@ -706,6 +711,11 @@ async function performAIAnalysis(_ffmpegResults: any, _mediaFile: MediaFile, _ai
       suggestions: [],
       warnings: [],
       opportunities: [],
+      strengths: [],
+      weaknesses: [],
+      recommendations: [],
+      marketingAngles: [],
+      targetDemographics: [],
     },
   }
 }

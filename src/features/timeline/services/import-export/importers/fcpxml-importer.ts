@@ -4,12 +4,19 @@
  * Поддерживает импорт Final Cut Pro XML формата
  */
 
-import { v4 as uuidv4 } from "uuid"
-
+// Функция для генерации UUID
 import { MediaFile } from "@/features/media/types/media"
 import { TimelineClip, TimelineProject, TimelineTrack, TrackType } from "@/features/timeline/types/timeline"
 
 import { FCPXMLResource, ImportError, ImportOptions, ImportResult, ImportWarning, Importer } from "../types"
+
+function uuidv4(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0
+    const v = c === 'x' ? r : (r & 0x3 | 0x8)
+    return v.toString(16)
+  })
+}
 
 interface FCPXMLProject {
   name: string
@@ -71,7 +78,7 @@ export class FCPXMLImporter implements Importer {
         project,
         errors: this.errors,
         warnings: this.warnings,
-        mediaFiles: Array.from(this.mediaReferences.values()),
+        mediaFiles: Array.from(this.mediaReferences.values()) as any[],
       }
     } catch (error) {
       this.errors.push({
@@ -83,7 +90,7 @@ export class FCPXMLImporter implements Importer {
         success: false,
         errors: this.errors,
         warnings: this.warnings,
-        mediaFiles: Array.from(this.mediaReferences.values()),
+        mediaFiles: Array.from(this.mediaReferences.values()) as any[],
       }
     }
   }
@@ -161,7 +168,7 @@ export class FCPXMLImporter implements Importer {
         src: this.extractAttributeValue(assetTag, "src") || "",
         hasVideo: this.extractAttributeValue(assetTag, "hasVideo") === "1",
         hasAudio: this.extractAttributeValue(assetTag, "hasAudio") === "1",
-        duration: this.extractAttributeValue(assetTag, "duration"),
+        duration: this.extractAttributeValue(assetTag, "duration") || undefined,
       }
 
       resources.push(resource)
@@ -204,9 +211,9 @@ export class FCPXMLImporter implements Importer {
       const clip: FCPXMLClipItem = {
         name: this.extractAttributeValue(clipTag, "name") || "Unknown Clip",
         ref: this.extractAttributeValue(clipTag, "ref") || "",
-        offset: this.extractAttributeValue(clipTag, "offset"),
-        duration: this.extractAttributeValue(clipTag, "duration"),
-        start: this.extractAttributeValue(clipTag, "start"),
+        offset: this.extractAttributeValue(clipTag, "offset") || undefined,
+        duration: this.extractAttributeValue(clipTag, "duration") || undefined,
+        start: this.extractAttributeValue(clipTag, "start") || undefined,
         enabled: this.extractAttributeValue(clipTag, "enabled") !== "0",
         lane: Number.parseInt(this.extractAttributeValue(clipTag, "lane") || "0", 10),
       }
@@ -228,17 +235,12 @@ export class FCPXMLImporter implements Importer {
       id: resource.id,
       name: resource.name,
       path: resource.src,
-      type: this.guessMediaType(resource.src),
       size: 0,
       duration: this.parseDurationToSeconds(resource.duration || "0s"),
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
       isVideo,
       isAudio,
       isImage: false,
-      videoStreams: isVideo ? 1 : 0,
-      audioStreams: isAudio ? 1 : 0,
-      hasAudio: resource.hasAudio || false,
-      hasVideo: resource.hasVideo || false,
     }
 
     this.mediaReferences.set(resource.id, mediaFile)
@@ -281,7 +283,7 @@ export class FCPXMLImporter implements Importer {
         styleTemplates: [],
         subtitleStyles: [],
         music: [],
-        media: Array.from(this.mediaReferences.values()),
+        media: Array.from(this.mediaReferences.values()) as any[],
       },
       settings: {
         resolution: {
@@ -292,8 +294,12 @@ export class FCPXMLImporter implements Importer {
         aspectRatio: this.calculateAspectRatio(fcpxmlProject.format.width, fcpxmlProject.format.height),
         sampleRate: 48000,
         channels: 2,
-        colorSpace: "sRGB",
-        renderQuality: "high",
+        bitDepth: 16,
+        timeFormat: "timecode" as const,
+        snapToGrid: false,
+        gridSize: 1,
+        autoSave: true,
+        autoSaveInterval: 300,
       },
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -385,6 +391,9 @@ export class FCPXMLImporter implements Importer {
       isSolo: false,
       volume: 1.0,
       height: 60,
+      pan: 0,
+      trackEffects: [],
+      trackFilters: [],
     }
   }
 

@@ -458,7 +458,7 @@ export function useSpeedRamping(): UseSpeedRampingReturn {
             clipId,
             updates: {
               playbackRate: speed,
-              duration: clip.mediaDuration / speed,
+              duration: (clip.mediaDuration || clip.duration) / speed,
               speedRamping: newConfig,
             },
           })
@@ -515,7 +515,7 @@ export function useSpeedRamping(): UseSpeedRampingReturn {
 }
 
 // Утилита для поиска клипа в проекте
-function findClip(project: TimelineProject, clipId: string): TimelineClip | null {
+function findClip(project: TimelineProject | null, clipId: string): TimelineClip | null {
   if (!project) return null
 
   // Ищем в глобальных треках

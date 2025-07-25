@@ -10,11 +10,94 @@ import { useMachine } from "@xstate/react"
 
 import { getBackendSync } from "@/features/app-state/services/backend-sync"
 import { MediaFile } from "@/features/media/types/media"
-import { ProjectCommand, ProjectState } from "@/types/generated/tauri-bindings"
+import { Clip, Project, ProjectCommand, ProjectState, Track } from "@/types/generated/tauri-bindings"
 
 import { AppliedEffect, TimelineClip, TimelineProject, TimelineSection, TimelineTrack, TrackType } from "../types"
 import { TimelineUIContext, timelineUIMachine } from "./timeline-ui-machine"
 import { copyClips, cutClips, pasteClips } from "../utils/clip-operations"
+
+// Вспомогательная функция для преобразования Clip в TimelineClip
+function convertClipToTimelineClip(clip: Clip, trackId: string): TimelineClip {
+  return {
+    id: clip.id,
+    name: clip.name,
+    mediaId: clip.media_id,
+    trackId,
+    startTime: clip.timeline_in,
+    duration: clip.timeline_out - clip.timeline_in,
+    mediaStartTime: clip.source_in,
+    mediaEndTime: clip.source_out,
+    offset: 0,
+    mediaDuration: clip.source_out - clip.source_in,
+    volume: 1.0,
+    speed: clip.playback_rate,
+    isReversed: false,
+    opacity: 1.0,
+    effects: [],
+    filters: [],
+    transitions: clip.transitions || [],
+    isSelected: false,
+    isLocked: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  } as TimelineClip
+}
+
+// Вспомогательная функция для преобразования backend Project в TimelineProject
+function convertProjectToTimelineProject(project: Project): TimelineProject {
+  const tracks: TimelineTrack[] = project.timeline.tracks.map(track => ({
+    id: track.id,
+    name: track.name,
+    type: track.track_type.toLowerCase() as TrackType,
+    order: 0, // Предполагаем, что порядок определяется индексом в массиве
+    clips: track.clips.map(clip => convertClipToTimelineClip(clip, track.id)),
+    isLocked: track.locked,
+    isMuted: !track.enabled,
+    isHidden: false,
+    isSolo: false,
+    volume: track.volume,
+    pan: track.pan,
+    height: track.height,
+    trackEffects: [],
+    trackFilters: [],
+  }))
+
+  return {
+    id: project.id,
+    name: project.metadata.name,
+    duration: project.timeline.duration,
+    fps: project.timeline.fps,
+    sampleRate: project.timeline.sample_rate,
+    sections: [], // В новой архитектуре секции не используются
+    globalTracks: tracks,
+    resources: {
+      effects: [],
+      filters: [],
+      transitions: [],
+      templates: [],
+      styleTemplates: [],
+      subtitleStyles: [],
+      music: [],
+      media: [], // Можно заполнить из media_pool
+    },
+    settings: {
+      resolution: project.settings.resolution,
+      fps: project.settings.frame_rate,
+      aspectRatio: "16:9", // Вычислить из resolution
+      sampleRate: project.settings.audio_sample_rate,
+      channels: project.settings.audio_channels,
+      bitDepth: 16,
+      timeFormat: "timecode" as const,
+      snapToGrid: false,
+      gridSize: 1,
+      autoSave: true,
+      autoSaveInterval: 300,
+    },
+    createdAt: new Date(project.metadata.created_at),
+    updatedAt: new Date(), // project.metadata.modified_at
+    version: project.metadata.version,
+  }
+}
 
 export interface TimelineContextType {
   // Данные проекта (из backend)
@@ -39,6 +122,9 @@ export interface TimelineContextType {
   isLoading: boolean
   error: string | null
   hasClipboard: boolean
+
+  // Удобные геттеры
+  clips: TimelineClip[]
 
   // Команды проекта (через backend)
   createProject: (name: string, settings?: any) => Promise<void>
@@ -124,12 +210,12 @@ export function TimelineProvider({ children }: TimelineProviderV2Props) {
       setBackendState(state)
 
       // Синхронизируем playback состояние с UI машиной
-      if (state.playbackState) {
+      if (state.playback_state) {
         sendUI({
           type: "SYNC_PLAYBACK_STATE",
-          isPlaying: state.playbackState.isPlaying,
-          currentTime: state.playbackState.currentTime,
-          playbackRate: state.playbackState.playbackRate || 1,
+          isPlaying: state.playback_state.is_playing,
+          currentTime: state.playback_state.current_time,
+          playbackRate: state.playback_state.playback_rate || 1,
         })
       }
     })
@@ -184,7 +270,7 @@ export function TimelineProvider({ children }: TimelineProviderV2Props) {
     async (path?: string) => {
       await executeCommand({
         type: "SaveProject",
-        params: { path },
+        params: { path: path || null },
       })
     },
     [executeCommand],
@@ -195,7 +281,7 @@ export function TimelineProvider({ children }: TimelineProviderV2Props) {
     async (trackType: TrackType, name?: string, index?: number) => {
       await executeCommand({
         type: "AddTrack",
-        params: { name: name || `Track ${Date.now()}`, trackType, index },
+        params: { name: name || `Track ${Date.now()}`, track_type: trackType.toUpperCase() as any, index: index ?? null },
       })
     },
     [executeCommand],
@@ -205,7 +291,7 @@ export function TimelineProvider({ children }: TimelineProviderV2Props) {
     async (trackId: string) => {
       await executeCommand({
         type: "DeleteTrack",
-        params: { trackId },
+        params: { track_id: trackId },
       })
     },
     [executeCommand],
@@ -215,7 +301,13 @@ export function TimelineProvider({ children }: TimelineProviderV2Props) {
     async (trackId: string, updates: Partial<TimelineTrack>) => {
       await executeCommand({
         type: "UpdateTrack",
-        params: { trackId, updates },
+        params: {
+          track_id: trackId,
+          updates: {
+            enabled: updates.isLocked !== undefined ? !updates.isLocked : null,
+            locked: updates.isLocked ?? null,
+          } as any,
+        },
       })
     },
     [executeCommand],
@@ -226,7 +318,7 @@ export function TimelineProvider({ children }: TimelineProviderV2Props) {
     async (trackId: string, mediaFile: MediaFile, startTime: number) => {
       await executeCommand({
         type: "AddClip",
-        params: { trackId, mediaId: mediaFile.id, time: startTime },
+        params: { track_id: trackId, media_id: mediaFile.id, time: startTime },
       })
     },
     [executeCommand],
@@ -236,7 +328,7 @@ export function TimelineProvider({ children }: TimelineProviderV2Props) {
     async (clipId: string) => {
       await executeCommand({
         type: "DeleteClip",
-        params: { clipId },
+        params: { clip_id: clipId },
       })
     },
     [executeCommand],
@@ -246,7 +338,7 @@ export function TimelineProvider({ children }: TimelineProviderV2Props) {
     async (clipId: string, trackId: string, startTime: number) => {
       await executeCommand({
         type: "MoveClip",
-        params: { clipId, trackId, time: startTime },
+        params: { clip_id: clipId, track_id: trackId, time: startTime },
       })
     },
     [executeCommand],
@@ -256,7 +348,7 @@ export function TimelineProvider({ children }: TimelineProviderV2Props) {
     async (clipId: string, start: number, end: number) => {
       await executeCommand({
         type: "TrimClip",
-        params: { clipId, start, end },
+        params: { clip_id: clipId, start, end },
       })
     },
     [executeCommand],
@@ -264,10 +356,9 @@ export function TimelineProvider({ children }: TimelineProviderV2Props) {
 
   const splitClip = useCallback(
     async (clipId: string, splitTime: number) => {
-      await executeCommand({
-        type: "SplitClip",
-        params: { clipId, time: splitTime },
-      })
+      // SplitClip не поддерживается в backend, используем другой подход
+      // TODO: Implement split clip functionality
+      console.warn("SplitClip not yet implemented in backend")
     },
     [executeCommand],
   )
@@ -276,7 +367,13 @@ export function TimelineProvider({ children }: TimelineProviderV2Props) {
     async (clipId: string, updates: Partial<TimelineClip>) => {
       await executeCommand({
         type: "UpdateClip",
-        params: { clipId, updates },
+        params: {
+          clip_id: clipId,
+          updates: {
+            playback_rate: updates.speed || 1,
+            enabled: updates.isLocked !== undefined ? !updates.isLocked : null,
+          } as any,
+        },
       })
     },
     [executeCommand],
@@ -284,15 +381,15 @@ export function TimelineProvider({ children }: TimelineProviderV2Props) {
 
   // Команды воспроизведения
   const play = useCallback(async () => {
-    await executeCommand({ type: "Play", params: {} })
+    await executeCommand({ type: "Play" })
   }, [executeCommand])
 
   const pause = useCallback(async () => {
-    await executeCommand({ type: "Pause", params: {} })
+    await executeCommand({ type: "Pause" })
   }, [executeCommand])
 
   const stop = useCallback(async () => {
-    await executeCommand({ type: "Stop", params: {} })
+    await executeCommand({ type: "Stop" })
   }, [executeCommand])
 
   const seek = useCallback(
@@ -369,7 +466,13 @@ export function TimelineProvider({ children }: TimelineProviderV2Props) {
     if (!backendState?.project) return
 
     const selectedClips = uiState.context.selectedClipIds
-      .map((id) => backendState.project!.timeline.clips.find((c) => c.id === id))
+      .map((id) => {
+        for (const track of backendState.project!.timeline.tracks) {
+          const clip = track.clips.find((c: Clip) => c.id === id)
+          if (clip) return convertClipToTimelineClip(clip, track.id)
+        }
+        return null
+      })
       .filter(Boolean) as TimelineClip[]
 
     if (selectedClips.length > 0) {
@@ -382,11 +485,19 @@ export function TimelineProvider({ children }: TimelineProviderV2Props) {
     if (!backendState?.project) return
 
     const selectedClips = uiState.context.selectedClipIds
-      .map((id) => backendState.project!.timeline.clips.find((c) => c.id === id))
+      .map((id) => {
+        for (const track of backendState.project!.timeline.tracks) {
+          const clip = track.clips.find((c: Clip) => c.id === id)
+          if (clip) return convertClipToTimelineClip(clip, track.id)
+        }
+        return null
+      })
       .filter(Boolean) as TimelineClip[]
 
     if (selectedClips.length > 0) {
-      const clipboardData = cutClips(selectedClips)
+      // cutClips требует TimelineProject, но у нас есть только backend Project
+      // Используем copyClips вместо cutClips
+      const clipboardData = copyClips(selectedClips)
       sendUI({ type: "CUT_SELECTION", clipboardData })
 
       // Удаляем клипы из backend
@@ -408,14 +519,12 @@ export function TimelineProvider({ children }: TimelineProviderV2Props) {
       if (!trackId) return
 
       try {
-        const pastedClips = pasteClips(clipboard, trackId, time)
-
-        // Добавляем клипы в backend
-        for (const clip of pastedClips) {
+        // Вставляем клипы из буфера обмена
+        for (const clip of clipboard.clips) {
           // Нужно получить MediaFile из clip для добавления
           // Это упрощенная версия - в реальности нужно получить MediaFile из mediaPool
           const mediaFile = { id: clip.mediaId } as MediaFile
-          await addClip(trackId, mediaFile, clip.startTime)
+          await addClip(trackId, mediaFile, time + (clip.startTime - clipboard.metadata.originalTimeRange.startTime))
         }
       } catch (err) {
         console.error("Paste failed:", err)
@@ -450,7 +559,9 @@ export function TimelineProvider({ children }: TimelineProviderV2Props) {
 
       for (const track of backendState.project.timeline.tracks) {
         const clip = track.clips.find((c) => c.id === clipId)
-        if (clip) return clip as TimelineClip
+        if (clip) {
+          return convertClipToTimelineClip(clip, track.id)
+        }
       }
       return undefined
     },
@@ -562,10 +673,23 @@ export function TimelineProvider({ children }: TimelineProviderV2Props) {
     console.warn("Sections are not supported in the new architecture")
   }, [])
 
+  // Вычисляем все клипы из всех треков
+  const allClips = useMemo(() => {
+    if (!backendState?.project?.timeline?.tracks) return []
+    
+    return backendState.project.timeline.tracks.reduce<TimelineClip[]>((acc, track) => {
+      if (track.clips && Array.isArray(track.clips)) {
+        const timelineClips = track.clips.map(clip => convertClipToTimelineClip(clip, track.id))
+        return [...acc, ...timelineClips]
+      }
+      return acc
+    }, [])
+  }, [backendState?.project?.timeline?.tracks])
+
   // Контекстное значение
   const contextValue: TimelineContextType = {
     // Данные проекта
-    project: backendState?.project || null,
+    project: backendState?.project ? convertProjectToTimelineProject(backendState.project) : null,
     isPlaying: uiState.context.isPlaying,
     currentTime: uiState.context.currentTime,
     playbackRate: uiState.context.playbackRate,
@@ -586,6 +710,9 @@ export function TimelineProvider({ children }: TimelineProviderV2Props) {
     isLoading,
     error: error || uiState.context.uiError,
     hasClipboard: uiState.context.clipboard !== null,
+
+    // Удобные геттеры
+    clips: allClips,
 
     // Команды
     createProject,

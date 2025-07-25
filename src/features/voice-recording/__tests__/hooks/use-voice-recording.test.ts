@@ -41,7 +41,9 @@ beforeEach(() => {
   }
 
   // Мокаем MediaRecorder
-  global.MediaRecorder = vi.fn().mockImplementation(() => mockMediaRecorderInstance)
+  const MockMediaRecorder = vi.fn().mockImplementation(() => mockMediaRecorderInstance) as any
+  MockMediaRecorder.isTypeSupported = vi.fn(() => true)
+  global.MediaRecorder = MockMediaRecorder
 })
 
 afterEach(() => {
@@ -250,12 +252,14 @@ describe("useVoiceRecording", () => {
       const onSaveRecording = vi.fn()
 
       // Мокаем ошибку при создании MediaRecorder с WebM
-      global.MediaRecorder = vi
+      const MockMediaRecorderWithError = vi
         .fn()
         .mockImplementationOnce(() => {
           throw new Error("WebM not supported")
         })
-        .mockImplementationOnce(() => mockMediaRecorderInstance)
+        .mockImplementationOnce(() => mockMediaRecorderInstance) as any
+      MockMediaRecorderWithError.isTypeSupported = vi.fn(() => true)
+      global.MediaRecorder = MockMediaRecorderWithError
 
       const mockStream = {
         getTracks: () => [{ stop: vi.fn() }],
@@ -284,14 +288,16 @@ describe("useVoiceRecording", () => {
       const onSaveRecording = vi.fn()
 
       // Мокаем ошибку при создании MediaRecorder
-      global.MediaRecorder = vi
+      const MockMediaRecorderWithDoubleError = vi
         .fn()
         .mockImplementationOnce(() => {
           throw new Error("WebM not supported")
         })
         .mockImplementationOnce(() => {
           throw new Error("MediaRecorder not supported")
-        })
+        }) as any
+      MockMediaRecorderWithDoubleError.isTypeSupported = vi.fn(() => true)
+      global.MediaRecorder = MockMediaRecorderWithDoubleError
 
       const mockStream = {
         getTracks: () => [{ stop: vi.fn() }],

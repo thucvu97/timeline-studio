@@ -4,7 +4,8 @@
  * Поддерживает импорт CMX 3600 EDL формата
  */
 
-import { v4 as uuidv4 } from "uuid"
+// Функция для генерации UUID
+import { MediaFile } from "@/features/media/types/media"
 
 import { TimelineClip, TimelineProject, TimelineTrack, TrackType } from "../../../types/timeline"
 import {
@@ -19,17 +20,14 @@ import {
   timecodeToSeconds,
 } from "../types"
 
-// Временная заглушка для MediaFile пока модуль недоступен
-interface MediaFile {
-  id: string
-  name: string
-  path: string
-  size: number
-  isVideo?: boolean
-  isAudio?: boolean
-  isImage?: boolean
-  duration?: number
+function uuidv4(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0
+    const v = c === 'x' ? r : (r & 0x3 | 0x8)
+    return v.toString(16)
+  })
 }
+
 
 export class EDLImporter implements Importer {
   private frameRate = 30
@@ -241,8 +239,12 @@ export class EDLImporter implements Importer {
         aspectRatio: "16:9",
         sampleRate: 48000,
         channels: 2,
-        colorSpace: "sRGB",
-        renderQuality: "high",
+        bitDepth: 16,
+        timeFormat: "timecode" as const,
+        snapToGrid: false,
+        gridSize: 1,
+        autoSave: true,
+        autoSaveInterval: 300,
       },
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -306,6 +308,9 @@ export class EDLImporter implements Importer {
       isSolo: false,
       volume: 1.0,
       height: 60,
+      pan: 0,
+      trackEffects: [],
+      trackFilters: [],
     }
   }
 
@@ -351,7 +356,7 @@ export class EDLImporter implements Importer {
     })
   }
 
-  private getOrCreateMediaFile(reel: string, type: "video" | "audio"): MediaFile {
+  private getOrCreateMediaFile(reel: string, type: "video" | "audio"): any {
     // Упрощенная версия - создаем placeholder медиафайл
     const mediaId = `media-${reel}`
 
@@ -359,17 +364,12 @@ export class EDLImporter implements Importer {
       id: mediaId,
       name: reel,
       path: `placeholder://${reel}`,
-      type: type === "video" ? "video/mp4" : "audio/mp3",
       size: 0,
       duration: 0,
       createdAt: new Date(),
       isVideo: type === "video",
       isAudio: type === "audio",
       isImage: false,
-      videoStreams: type === "video" ? 1 : 0,
-      audioStreams: type === "audio" ? 1 : 0,
-      hasAudio: type === "audio",
-      hasVideo: type === "video",
     }
   }
 
@@ -421,7 +421,7 @@ export class EDLImporter implements Importer {
     return lastClip
   }
 
-  private createMediaFiles(): MediaFile[] {
+  private createMediaFiles(): any[] {
     const mediaFiles: MediaFile[] = []
     let index = 0
 
@@ -431,17 +431,12 @@ export class EDLImporter implements Importer {
         id: `media-file-${index++}`,
         name: path.split("/").pop() || path,
         path: reference.resolvedPath || path,
-        type: this.guessMediaType(path),
         size: 0,
         duration: 0,
-        createdAt: new Date(),
+        createdAt: new Date().toISOString(),
         isVideo: this.isVideoFile(path),
         isAudio: this.isAudioFile(path),
         isImage: false,
-        videoStreams: this.isVideoFile(path) ? 1 : 0,
-        audioStreams: this.isAudioFile(path) ? 1 : 0,
-        hasAudio: this.isAudioFile(path),
-        hasVideo: this.isVideoFile(path),
       })
     }
 
@@ -475,7 +470,7 @@ export class EDLImporter implements Importer {
     return ["mp3", "wav", "aac", "m4a", "ogg"].includes(ext || "")
   }
 
-  private createMediaFilesFromReferences(): MediaFile[] {
+  private createMediaFilesFromReferences(): any[] {
     const mediaFiles: MediaFile[] = []
     let index = 0
 
@@ -486,17 +481,12 @@ export class EDLImporter implements Importer {
         id: `imported-media-${index++}`,
         name: fileName,
         path: reference.resolvedPath || reference.originalPath,
-        type: this.guessMediaType(path),
         size: 0,
         duration: 0,
-        createdAt: new Date(),
+        createdAt: new Date().toISOString(),
         isVideo: this.isVideoFile(path),
         isAudio: this.isAudioFile(path),
         isImage: false,
-        videoStreams: this.isVideoFile(path) ? 1 : 0,
-        audioStreams: this.isAudioFile(path) ? 1 : 0,
-        hasAudio: this.isAudioFile(path),
-        hasVideo: this.isVideoFile(path),
       })
     }
 

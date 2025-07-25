@@ -437,17 +437,11 @@ export function AiChat() {
 
         // Если это не ошибка отмены запроса, показываем сообщение об ошибке
         if ((error as Error).name !== "AbortError") {
-          const errorMessage: ChatMessage = {
-            id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-            content: t(
-              "timeline.chat.error",
-              "Произошла ошибка при отправке сообщения. Пожалуйста, проверьте настройки API ключа.",
-            ),
-            role: "assistant",
-            timestamp: new Date(),
-            agent: selectedAgentId as Agent | undefined,
-          }
-          receiveChatMessage(errorMessage)
+          const errorContent = t(
+            "timeline.chat.error",
+            "Произошла ошибка при отправке сообщения. Пожалуйста, проверьте настройки API ключа.",
+          )
+          receiveChatMessage(errorContent)
         }
       } finally {
         setProcessing(false)

@@ -31,6 +31,7 @@ vi.mock("../../../hooks/use-timeline-markers", () => ({
 const mockUseTimeline = {
   currentTime: 15.5,
   selectedMarkerId: null,
+  seek: vi.fn(),
 }
 
 vi.mock("../../../hooks/use-timeline", () => ({
@@ -46,6 +47,7 @@ describe("useMarkersHotkeys", () => {
         mockFn.mockClear()
       }
     })
+    mockUseTimeline.seek.mockClear()
   })
 
   it("регистрирует горячие клавиши для маркеров", () => {
@@ -86,7 +88,12 @@ describe("useMarkersHotkeys", () => {
     // Вызываем колбэк
     addMarkerCallback?.(new KeyboardEvent("keydown"), { keys: ["m"] })
 
-    expect(mockUseTimelineMarkers.addMarker).toHaveBeenCalledWith(15.5, expect.stringContaining("Marker"), "note")
+    expect(mockUseTimelineMarkers.addMarker).toHaveBeenCalledWith({
+      time: 15.5,
+      name: expect.stringContaining("Marker"),
+      type: "note",
+      color: "#3b82f6"
+    })
   })
 
   it("добавляет маркер главы при нажатии Shift+M", () => {
@@ -98,7 +105,12 @@ describe("useMarkersHotkeys", () => {
     // Вызываем колбэк
     addChapterCallback?.(new KeyboardEvent("keydown"), { keys: ["shift+m"] })
 
-    expect(mockUseTimelineMarkers.addMarker).toHaveBeenCalledWith(15.5, expect.stringContaining("Chapter"), "chapter")
+    expect(mockUseTimelineMarkers.addMarker).toHaveBeenCalledWith({
+      time: 15.5,
+      name: expect.stringContaining("Chapter"),
+      type: "chapter",
+      color: "#10b981"
+    })
   })
 
   it("удаляет выбранный маркер при нажатии Delete", () => {
@@ -197,14 +209,24 @@ describe("useMarkersHotkeys", () => {
 
     addMarkerCallback?.(new KeyboardEvent("keydown"), { keys: ["m"] })
 
-    expect(mockUseTimelineMarkers.addMarker).toHaveBeenCalledWith(15.5, expect.stringContaining("Marker"), "note")
+    expect(mockUseTimelineMarkers.addMarker).toHaveBeenCalledWith({
+      time: 15.5,
+      name: expect.stringContaining("Marker"),
+      type: "note",
+      color: "#3b82f6"
+    })
 
     // Тест для маркера главы
     const addChapterCallback = vi.mocked(useHotkeys).mock.calls.find((call) => call[0] === "shift+m")?.[1]
 
     addChapterCallback?.(new KeyboardEvent("keydown"), { keys: ["shift+m"] })
 
-    expect(mockUseTimelineMarkers.addMarker).toHaveBeenCalledWith(15.5, expect.stringContaining("Chapter"), "chapter")
+    expect(mockUseTimelineMarkers.addMarker).toHaveBeenCalledWith({
+      time: 15.5,
+      name: expect.stringContaining("Chapter"),
+      type: "chapter",
+      color: "#8b5cf6"
+    })
   })
 
   it("настраивает правильные опции для горячих клавиш", () => {

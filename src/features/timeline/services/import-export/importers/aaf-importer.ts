@@ -5,29 +5,18 @@
  * Примечание: Это упрощенная реализация AAF XML, не полный бинарный AAF
  */
 
-import { v4 as uuidv4 } from "uuid"
+import { MediaFile } from "@/features/media/types/media"
 
 import { TimelineClip, TimelineProject, TimelineTrack, TrackType } from "../../../types/timeline"
 import { ImportError, ImportOptions, ImportResult, ImportWarning, Importer } from "../types"
 
-// Временная заглушка для MediaFile пока модуль недоступен
-interface MediaFile {
-  id: string
-  name: string
-  path: string
-  type: string
-  size: number
-  duration: number
-  createdAt: Date
-  isVideo: boolean
-  isAudio: boolean
-  isImage: boolean
-  videoStreams: number
-  audioStreams: number
-  hasAudio: boolean
-  hasVideo: boolean
-  width?: number
-  height?: number
+// Функция для генерации UUID
+function uuidv4(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0
+    const v = c === 'x' ? r : (r & 0x3 | 0x8)
+    return v.toString(16)
+  })
 }
 
 // AAF специфичные типы
@@ -106,7 +95,7 @@ export class AAFImporter implements Importer {
         project,
         errors: this.errors,
         warnings: this.warnings,
-        mediaFiles: Array.from(this.mediaFiles.values()),
+        mediaFiles: Array.from(this.mediaFiles.values()) as any[],
       }
     } catch (error) {
       this.errors.push({
@@ -118,7 +107,7 @@ export class AAFImporter implements Importer {
         success: false,
         errors: this.errors,
         warnings: this.warnings,
-        mediaFiles: Array.from(this.mediaFiles.values()),
+        mediaFiles: Array.from(this.mediaFiles.values()) as any[],
       }
     }
   }
@@ -300,23 +289,15 @@ export class AAFImporter implements Importer {
       id: mob.mobID,
       name: mob.name,
       path: descriptor.locator || `aaf://${mob.mobID}`,
-      type: this.guessMediaType(descriptor.locator || mob.name),
       size: 0,
       duration: 0, // AAF не хранит длительность в дескрипторе
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
       isVideo,
       isAudio,
       isImage: false,
-      videoStreams: isVideo ? 1 : 0,
-      audioStreams: isAudio ? 1 : 0,
-      hasAudio: isAudio,
-      hasVideo: isVideo,
     }
 
-    if (descriptor.videoFormat) {
-      mediaFile.width = descriptor.videoFormat.width
-      mediaFile.height = descriptor.videoFormat.height
-    }
+    // descriptor.videoFormat не поддерживается в MediaFile
 
     this.mediaFiles.set(mob.mobID, mediaFile)
   }
@@ -352,8 +333,12 @@ export class AAFImporter implements Importer {
         aspectRatio: "16:9",
         sampleRate: 48000,
         channels: 2,
-        colorSpace: "sRGB",
-        renderQuality: "high",
+        bitDepth: 16,
+        timeFormat: "timecode" as const,
+        snapToGrid: false,
+        gridSize: 1,
+        autoSave: true,
+        autoSaveInterval: 300,
       },
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -388,7 +373,10 @@ export class AAFImporter implements Importer {
         isHidden: false,
         isSolo: false,
         volume: 1.0,
+        pan: 0,
         height: 60,
+        trackEffects: [],
+        trackFilters: [],
       }
 
       // Создаем клипы из сегментов

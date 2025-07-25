@@ -51,8 +51,7 @@ export function LinkedClipsConnector({
   showConnections = true,
   animateConnections = true,
 }: LinkedClipsConnectorProps) {
-  const { state } = useTimeline()
-  const { project } = state?.context || { project: null }
+  const { project } = useTimeline()
 
   const timeToPixel = (time: number) => time * pixelsPerSecond
 
@@ -107,14 +106,8 @@ export function LinkedClipsConnector({
           const { clip: clip2 } = position2
 
           // Определяем тип связи
-          let type: LinkedConnection["type"] = "video-audio"
-          if (clip1.mediaFile?.type === "video" && clip2.mediaFile?.type === "audio") {
-            type = "video-audio"
-          } else if (clip1.mediaFile?.type === "audio" && clip2.mediaFile?.type === "video") {
-            type = "audio-video"
-          } else if (clip1.mediaFile?.type === "video" && clip2.mediaFile?.type === "video") {
-            type = "multi-camera"
-          }
+          // TODO: В новой архитектуре mediaFile не доступен, нужно определять тип по trackId или другим критериям
+          const type: LinkedConnection["type"] = "video-audio" // Временное значение по умолчанию
 
           const connection: LinkedConnection = {
             id: `${clip1.id}-${clip2.id}`,

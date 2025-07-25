@@ -160,14 +160,14 @@ describe("AAFImporter", () => {
       const audioFile = result.mediaFiles.find((f) => f.name === "audio_file.wav")
 
       expect(videoFile).toBeDefined()
-      expect(videoFile?.hasVideo).toBe(true)
-      expect(videoFile?.hasAudio).toBe(false)
-      expect(videoFile?.width).toBe(1920)
-      expect(videoFile?.height).toBe(1080)
+      expect(videoFile?.isVideo).toBe(true)
+      expect(videoFile?.isAudio).toBe(false)
+      expect(videoFile?.probeData?.streams?.[0]?.width).toBe(1920)
+      expect(videoFile?.probeData?.streams?.[0]?.height).toBe(1080)
 
       expect(audioFile).toBeDefined()
-      expect(audioFile?.hasVideo).toBe(false)
-      expect(audioFile?.hasAudio).toBe(true)
+      expect(audioFile?.isVideo).toBe(false)
+      expect(audioFile?.isAudio).toBe(true)
     })
 
     it("должен обрабатывать Filler (пробелы между клипами)", async () => {

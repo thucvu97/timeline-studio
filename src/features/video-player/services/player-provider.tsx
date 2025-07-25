@@ -329,14 +329,14 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
   }
 
   // Извлекаем состояние воспроизведения из backend
-  const playbackState = backendState?.playback_state || {
+  const defaultPlaybackState = {
     currentTime: 0,
     isPlaying: false,
     playbackRate: 1,
     volume: 1.0,
     currentMediaId: null,
     selectedClipId: null,
-    videoSource: "browser",
+    videoSource: "browser" as const,
     appliedEffects: [],
     appliedFilters: [],
     appliedTemplate: null,
@@ -344,23 +344,25 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
     isSeeking: false,
     duration: 0,
   }
+  
+  const playbackState = backendState?.playback_state
 
   // Контекстное значение
   const contextValue: PlayerContextType = {
     // Backend состояние
-    currentTime: playbackState.currentTime,
-    isPlaying: playbackState.isPlaying,
-    playbackRate: playbackState.playbackRate,
+    currentTime: playbackState ? playbackState.current_time : defaultPlaybackState.currentTime,
+    isPlaying: playbackState ? playbackState.is_playing : defaultPlaybackState.isPlaying,
+    playbackRate: playbackState ? playbackState.playback_rate : defaultPlaybackState.playbackRate,
 
     // Локальное состояние с override для backend значений
     ...localState,
 
     // Override некоторых значений из backend (только если backend состояние существует)
-    volume: backendState ? playbackState.volume || localState.volume : localState.volume,
-    videoSource: backendState ? playbackState.videoSource || localState.videoSource : localState.videoSource,
-    duration: playbackState.duration || localState.duration,
-    isSeeking: playbackState.isSeeking || localState.isSeeking,
-    isVideoLoading: playbackState.isLoading || localState.isVideoLoading,
+    volume: playbackState ? playbackState.volume || localState.volume : localState.volume,
+    videoSource: playbackState ? playbackState.video_source || localState.videoSource : localState.videoSource,
+    duration: playbackState ? playbackState.duration : localState.duration,
+    isSeeking: playbackState ? playbackState.is_seeking : localState.isSeeking,
+    isVideoLoading: playbackState ? playbackState.is_loading : localState.isVideoLoading,
 
     // Локальные действия
     setCurrentVideo,

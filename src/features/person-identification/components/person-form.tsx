@@ -27,13 +27,15 @@ interface PersonFormProps {
 export function PersonForm({ person, isOpen, onClose, onSave, isLoading = false }: PersonFormProps) {
   const [formData, setFormData] = useState({
     name: person?.name || "",
-    description: person?.description || "",
+    notes: person?.notes || "",
     tags: person?.tags || [],
-    thumbnailPath: person?.thumbnailPath || "",
+    thumbnails: person?.thumbnails || [],
   })
 
   const [newTag, setNewTag] = useState("")
-  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(person?.thumbnailPath || null)
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(
+    person?.thumbnails?.find(t => t.isPrimary)?.imageUrl || person?.thumbnails?.[0]?.imageUrl || null
+  )
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -68,10 +70,8 @@ export function PersonForm({ person, isOpen, onClose, onSave, isLoading = false 
       // Пока просто создаем URL для предварительного просмотра
       const fileUrl = URL.createObjectURL(file)
       setThumbnailPreview(fileUrl)
-      setFormData((prev) => ({
-        ...prev,
-        thumbnailPath: fileUrl, // В реальности здесь был бы путь к загруженному файлу
-      }))
+      // В реальном приложении здесь создавался бы объект PersonThumbnail
+      // Пока просто обновляем preview
     }
   }
 
@@ -84,11 +84,10 @@ export function PersonForm({ person, isOpen, onClose, onSave, isLoading = false 
 
     try {
       const personData: Partial<PersonProfile> = {
-        ...formData,
-        name: formData.name.trim(),
-        description: formData.description.trim() || undefined,
-        tags: formData.tags.length > 0 ? formData.tags : undefined,
-        thumbnailPath: formData.thumbnailPath || undefined,
+        name: formData.name.trim() || undefined,
+        notes: formData.notes.trim() || undefined,
+        tags: formData.tags.length > 0 ? formData.tags : [],
+        thumbnails: formData.thumbnails,
       }
 
       await onSave(personData)
@@ -137,7 +136,7 @@ export function PersonForm({ person, isOpen, onClose, onSave, isLoading = false 
                   size="sm"
                   onClick={() => {
                     setThumbnailPreview(null)
-                    setFormData((prev) => ({ ...prev, thumbnailPath: "" }))
+                    setFormData((prev) => ({ ...prev, thumbnails: [] }))
                   }}
                 >
                   Удалить
@@ -160,13 +159,13 @@ export function PersonForm({ person, isOpen, onClose, onSave, isLoading = false 
             />
           </div>
 
-          {/* Описание */}
+          {/* Примечания */}
           <div className="space-y-2">
-            <Label htmlFor="description">Описание</Label>
+            <Label htmlFor="notes">Примечания</Label>
             <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => handleInputChange("description", e.target.value)}
+              id="notes"
+              value={formData.notes}
+              onChange={(e) => handleInputChange("notes", e.target.value)}
               placeholder="Дополнительная информация о персоне"
               rows={3}
             />

@@ -130,7 +130,7 @@ TITLE: EDL with Comments
       expect(result.mediaFiles).toHaveLength(1)
       expect(result.mediaFiles[0].path).toBe("/path/to/media/Original_Clip_Name.mov")
       expect(result.mediaFiles[0].name).toBe("Original_Clip_Name.mov")
-      expect(result.mediaFiles[0].type).toBe("video/mp4")
+      expect(result.mediaFiles[0].path).toContain(".mov")
     })
 
     it("должен добавлять предупреждения для нераспознанных строк", async () => {

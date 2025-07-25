@@ -57,7 +57,7 @@ export interface TimelinePersonsHook {
 }
 
 export function useTimelinePersons(): TimelinePersonsHook {
-  const { project, send } = useTimeline()
+  const { project } = useTimeline()
   const {
     persons,
     detectFaces,
@@ -106,7 +106,7 @@ export function useTimelinePersons(): TimelinePersonsHook {
   // Анализ клипа на наличие персон
   const analyzeClipForPersons = useCallback(
     async (clip: TimelineClip) => {
-      if (!clip.mediaFile || !enablePersonDetection || state.isAnalyzing) return
+      if (!clip.mediaId || !enablePersonDetection || state.isAnalyzing) return
 
       setState((prev) => ({
         ...prev,
@@ -119,7 +119,9 @@ export function useTimelinePersons(): TimelinePersonsHook {
         // Этап 1: Обнаружение лиц
         setState((prev) => ({ ...prev, analysisProgress: 20 }))
 
-        const detectedFaces = await detectFaces(clip.mediaFile.path, {
+        // TODO: Получить путь к файлу из mediaId
+        const mediaPath = "" // Нужно получить через MediaFile
+        const detectedFaces = await detectFaces(mediaPath, {
           start: clip.startTime,
           end: clip.startTime + clip.duration,
         })
@@ -145,7 +147,7 @@ export function useTimelinePersons(): TimelinePersonsHook {
               endTime: face.timestamp.seconds + 1, // Предполагаем 1 секунду длительности
               confidence: identification.confidence,
               boundingBox: face.boundingBox,
-              thumbnailPath: face.thumbnail,
+              thumbnailPath: undefined, // TODO: thumbnail не доступен в DetectedFace
               detectedAt: new Date(),
             }
 
@@ -191,7 +193,7 @@ export function useTimelinePersons(): TimelinePersonsHook {
     const allClips = (project.sections || [])
       .flatMap((section) => (section.tracks || []).flatMap((track) => track.clips || []))
       .concat((project.globalTracks || []).flatMap((track) => track.clips || []))
-      .filter((clip) => clip.mediaFile && (clip.mediaFile.format?.startsWith("video/") || clip.type === "video"))
+      .filter((clip) => clip.mediaId) // TODO: Фильтровать по типу трека
 
     if (allClips.length === 0) return
 
@@ -226,16 +228,10 @@ export function useTimelinePersons(): TimelinePersonsHook {
   // Показать детали персоны
   const showPersonDetail = useCallback(
     (personId: string) => {
-      // Здесь можно открыть модал или панель с деталями персоны
-      send({
-        type: "SHOW_MODAL",
-        modal: {
-          type: "person_detail",
-          data: { personId },
-        },
-      })
+      // TODO: Имплементировать отображение деталей персоны
+      console.log("Show person detail:", personId)
     },
-    [send],
+    [],
   )
 
   // Очистка анализа персон
@@ -256,7 +252,7 @@ export function useTimelinePersons(): TimelinePersonsHook {
     const allClips = (project.sections || [])
       .flatMap((section) => (section.tracks || []).flatMap((track) => track.clips || []))
       .concat((project.globalTracks || []).flatMap((track) => track.clips || []))
-      .filter((clip) => clip.mediaFile && (clip.mediaFile.format?.startsWith("video/") || clip.type === "video"))
+      .filter((clip) => clip.mediaId) // TODO: Фильтровать по типу трека
 
     // Находим клипы, которые еще не были проанализированы
     const unanalyzedClips = allClips.filter(

@@ -38,7 +38,7 @@ export interface PlayerAIAnalysisHook {
 }
 
 export function usePlayerAIAnalysis(): PlayerAIAnalysisHook {
-  const { currentTime, isPlaying, duration, videoRef } = usePlayer()
+  const { currentTime, isPlaying, duration } = usePlayer()
 
   const [state, setState] = useState<PlayerAIAnalysisState>({
     isAnalyzing: false,
@@ -85,19 +85,11 @@ export function usePlayerAIAnalysis(): PlayerAIAnalysisHook {
       lastAnalyzedTimeRef.current = currentTime
 
       try {
-        // Захватываем текущий кадр
-        const videoElement = videoRef?.current
-        if (!videoElement) return
-
-        const frameData = frameCaptureService.captureThumbnail(videoElement)
-        if (!frameData) return
-
-        // Анализируем кадр через Scene Engine
-        // TODO: Реализовать метод analyzeFrame в SceneAnalysisEngine
-        console.log(`Analyzing frame at ${currentTime}s`, {
-          width: frameData.width,
-          height: frameData.height,
-        })
+        // TODO: В новой архитектуре с backend синхронизацией нужно реализовать
+        // захват кадров через backend API вместо прямого доступа к video элементу
+        
+        // Временно отключаем анализ кадров
+        console.log(`Frame analysis disabled - needs backend implementation at ${currentTime}s`)
 
         // Временная симуляция анализа
         setState((prev) => ({
@@ -129,7 +121,7 @@ export function usePlayerAIAnalysis(): PlayerAIAnalysisHook {
         console.error("Frame analysis error:", error)
       }
     }, intervalMs)
-  }, [state.isAnalyzing, state.frameAnalysisRate, isPlaying, currentTime, videoRef, frameCaptureService])
+  }, [state.isAnalyzing, state.frameAnalysisRate, isPlaying, currentTime, frameCaptureService])
 
   // Остановка анализа
   const stopRealtimeAnalysis = useCallback(() => {
