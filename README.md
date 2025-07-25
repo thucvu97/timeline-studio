@@ -276,6 +276,9 @@ Timeline Studio is supported by these amazing sponsors:
 <a href="https://github.com/alexk984">
   <img src="https://github.com/alexk984.png" width="80" height="80" alt="alexk984" style="border-radius: 50%; margin: 10px;" />
 </a>
+<a href="https://github.com/andreypeulskiy">
+  <img src="https://github.com/andreypeulskiy.png" width="80" height="80" alt="alexk984" style="border-radius: 50%; margin: 10px;" />
+</a>
 
 Special thanks to our generous crypto sponsors who have contributed $1,000+ to the project development!
 
