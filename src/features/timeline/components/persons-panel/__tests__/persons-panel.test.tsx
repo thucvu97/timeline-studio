@@ -2,21 +2,20 @@
  * Тесты для PersonsPanel компонента
  */
 
+import { describe, expect, it, vi } from "vitest"
+
+// Mock для хука useTimelinePersons
+vi.mock("@/features/timeline/hooks/use-timeline-persons", () => ({
+  useTimelinePersons: vi.fn(),
+}))
+
 import { fireEvent, render, screen } from "@testing-library/react"
-import { vi } from "vitest"
 
 import type { PersonProfile } from "@/features/person-identification/types/person"
 import type { TimelinePersonAppearance } from "@/features/timeline/hooks/use-timeline-persons"
-// Теперь импортируем компонент
-// import { useTimelinePersons } from "@/features/timeline/hooks/use-timeline-persons"
+import { useTimelinePersons } from "@/features/timeline/hooks/use-timeline-persons"
 
 import { PersonsPanel } from "../persons-panel"
-
-// Mock для хука useTimelinePersons
-const mockUseTimelinePersons = vi.fn()
-vi.mock("@/features/timeline/hooks/use-timeline-persons", () => ({
-  useTimelinePersons: mockUseTimelinePersons,
-}))
 
 // Mock для UI компонентов
 vi.mock("@/components/ui/badge", () => ({
@@ -269,7 +268,7 @@ describe("PersonsPanel", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    mockUseTimelinePersons.mockReturnValue(mockHookReturn)
+    vi.mocked(useTimelinePersons).mockReturnValue(mockHookReturn)
   })
 
   describe("Базовое отображение", () => {
@@ -473,7 +472,7 @@ describe("PersonsPanel", () => {
     it("отображает прогресс анализа", () => {
       mockHookReturn.state.isAnalyzing = true
       mockHookReturn.state.analysisProgress = 45
-      mockUseTimelinePersons.mockReturnValue(mockHookReturn)
+      vi.mocked(useTimelinePersons).mockReturnValue(mockHookReturn)
 
       render(<PersonsPanel />)
 
@@ -483,7 +482,7 @@ describe("PersonsPanel", () => {
 
     it("отображает ошибку если есть", () => {
       mockHookReturn.state.error = "Ошибка анализа"
-      mockUseTimelinePersons.mockReturnValue(mockHookReturn)
+      vi.mocked(useTimelinePersons).mockReturnValue(mockHookReturn)
 
       render(<PersonsPanel />)
 
@@ -493,7 +492,7 @@ describe("PersonsPanel", () => {
     it("показывает сообщение когда нет персон", () => {
       mockHookReturn.persons = []
       mockHookReturn.state.appearances = []
-      mockUseTimelinePersons.mockReturnValue(mockHookReturn)
+      vi.mocked(useTimelinePersons).mockReturnValue(mockHookReturn)
 
       render(<PersonsPanel />)
 

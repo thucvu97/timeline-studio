@@ -99,17 +99,23 @@ async function renderExample() {
   const imageBitmap = await createImageBitmap(canvas)
 
   // Рендерим с эффектами
+  const renderCanvas = document.createElement("canvas")
+  renderCanvas.width = 1920
+  renderCanvas.height = 1080
+  
   const context = {
-    timestamp: 0,
-    targetType: "clip" as const,
-    targetId: "clip_123",
+    source: renderCanvas,
+    width: 1920,
+    height: 1080,
+    currentTime: 0,
+    quality: "preview" as const,
   }
 
   const result = await renderer.renderEffectStack(effectStack.effects, new Map(), context)
 
   if (result.success && result.output) {
     console.log("   ✅ Рендеринг успешен")
-    console.log(`   Время рендеринга: ${result.renderTime}ms`)
+    console.log(`   Время рендеринга: ${result.processingTime}ms`)
   }
 }
 

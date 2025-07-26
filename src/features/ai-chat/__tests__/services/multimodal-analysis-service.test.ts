@@ -190,7 +190,7 @@ describe("MultimodalAnalysisService", () => {
     })
 
     it("should throw error when API key is not found", async () => {
-      mockApiKeyLoader.getApiKey.mockResolvedValue(null)
+      mockApiKeyLoader.getApiKey = vi.fn().mockResolvedValue(null)
 
       const params: FrameAnalysisParams = {
         frameImagePath: "/tmp/frame.jpg",

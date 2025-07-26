@@ -220,12 +220,7 @@ describe("ChatProvider", () => {
       const firstMessageId = result.current.chatMessages[0].id
 
       act(() => {
-        result.current.receiveChatMessage({
-          id: "msg-2",
-          content: "Ответ 1",
-          role: "assistant" as const,
-          timestamp: new Date(),
-        })
+        result.current.receiveChatMessage("Ответ 1")
         void result.current.sendChatMessage("Сообщение 2")
       })
 
@@ -248,12 +243,7 @@ describe("ChatProvider", () => {
       // Добавляем сообщения
       act(() => {
         void result.current.sendChatMessage("Сообщение 1")
-        result.current.receiveChatMessage({
-          id: "msg-2",
-          content: "Ответ 1",
-          role: "assistant" as const,
-          timestamp: new Date(),
-        })
+        result.current.receiveChatMessage("Ответ 1")
         void result.current.sendChatMessage("Сообщение 2")
       })
 

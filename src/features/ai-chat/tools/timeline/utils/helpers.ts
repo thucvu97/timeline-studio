@@ -2,10 +2,11 @@
  * Вспомогательные функции для Timeline AI инструментов
  */
 
+import type { TimelineClip, TimelineProject, TimelineTrack } from "@/features/timeline/types/timeline"
+
 import { getTimelineStateAccess } from "../types"
 import { determineContentType } from "./detectors"
 
-import type { TimelineClip, TimelineProject, TimelineTrack } from "@/features/timeline/types/timeline"
 
 export async function getCurrentTimelineProject(): Promise<TimelineProject | null> {
   const timelineStateAccess = getTimelineStateAccess()

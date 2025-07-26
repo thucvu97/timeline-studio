@@ -169,7 +169,7 @@ describe("ChatList Component", () => {
       // Вызовем onClick напрямую
       const onClickProp = copyButton.onclick || copyButton.getAttribute("onclick")
       if (typeof onClickProp === "function") {
-        onClickProp(mockEvent)
+        onClickProp.call(copyButton, mockEvent as any)
       }
 
       // Альтернативный вариант - просто кликнуть

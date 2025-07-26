@@ -131,6 +131,26 @@ export const BUILT_IN_PRESETS: ColorGradingPreset[] = [
           { x: 0, y: 256, id: "start" },
           { x: 256, y: 0, id: "end" },
         ],
+        hueVsHue: [
+          { x: 0, y: 0, id: "start" },
+          { x: 256, y: 256, id: "end" },
+        ],
+        hueVsSaturation: [
+          { x: 0, y: 256, id: "start" },
+          { x: 256, y: 256, id: "end" },
+        ],
+        hueVsLuminance: [
+          { x: 0, y: 256, id: "start" },
+          { x: 256, y: 256, id: "end" },
+        ],
+        luminanceVsSaturation: [
+          { x: 0, y: 256, id: "start" },
+          { x: 256, y: 256, id: "end" },
+        ],
+        saturationVsSaturation: [
+          { x: 0, y: 256, id: "start" },
+          { x: 256, y: 256, id: "end" },
+        ],
       },
     },
   },

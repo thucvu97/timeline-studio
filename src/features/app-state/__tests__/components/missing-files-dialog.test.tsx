@@ -1,17 +1,16 @@
+import { beforeEach, describe, expect, it, vi } from "vitest"
+
+// Мокаем MediaRestorationService
+vi.mock("@/features/media/services/media-restoration-service", () => ({
+  promptUserToFindFile: vi.fn(),
+}))
+
 import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { SavedMediaFile } from "@/features/media/types/saved-media"
 
 import { MissingFilesDialog } from "../../components/missing-files-dialog"
-
-// Мокаем MediaRestorationService
-vi.mock("@/features/media/services/media-restoration-service", () => ({
-  MediaRestorationService: {
-    promptUserToFindFile: vi.fn(),
-  },
-}))
 
 // Мокаем UI компоненты
 vi.mock("@/components/ui/alert-dialog", () => ({
@@ -54,8 +53,8 @@ vi.mock("lucide-react", () => ({
   Trash2: () => <div data-testid="trash-icon" />,
 }))
 
-const { MediaRestorationService } = await import("@/features/media/services/media-restoration-service")
-const mockPromptUserToFindFile = vi.mocked(MediaRestorationService.promptUserToFindFile)
+const { promptUserToFindFile } = await import("@/features/media/services/media-restoration-service")
+const mockPromptUserToFindFile = vi.mocked(promptUserToFindFile)
 
 describe("MissingFilesDialog", () => {
   const mockMissingFiles: SavedMediaFile[] = [

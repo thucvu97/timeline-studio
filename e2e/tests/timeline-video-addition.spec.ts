@@ -1,5 +1,6 @@
+/// <reference path="../types/playwright-window.d.ts" />
 import { test, expect } from "@playwright/test"
-import path from "path"
+import * as path from "path"
 
 test.describe("Timeline Video Addition Tests", () => {
   const testDataPath = path.join(process.cwd(), "test-data")
@@ -103,6 +104,7 @@ test.describe("Timeline Video Addition Tests", () => {
       const originalAddMedia = window.addMediaToTimeline
       if (originalAddMedia) {
         window.addMediaToTimeline = function(...args) {
+          window.__TIMELINE_CALLS__ = window.__TIMELINE_CALLS__ || []
           window.__TIMELINE_CALLS__.push(`addMediaToTimeline called with: ${JSON.stringify(args)}`)
           return originalAddMedia.apply(this, args)
         }
@@ -111,6 +113,7 @@ test.describe("Timeline Video Addition Tests", () => {
       const originalAddSingleMedia = window.addSingleMediaToTimeline
       if (originalAddSingleMedia) {
         window.addSingleMediaToTimeline = function(...args) {
+          window.__TIMELINE_CALLS__ = window.__TIMELINE_CALLS__ || []
           window.__TIMELINE_CALLS__.push(`addSingleMediaToTimeline called with: ${JSON.stringify(args)}`)
           return originalAddSingleMedia.apply(this, args)
         }

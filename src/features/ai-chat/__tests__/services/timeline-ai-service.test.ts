@@ -1,24 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { VideoEffect } from "@/features/effects/types"
-import { VideoFilter } from "@/features/filters/types/filters"
-import { MediaFile } from "@/features/media/types/media"
-import { ResourcesContextType } from "@/features/resources/services/resources-provider"
-import {
-  EffectResource,
-  FilterResource,
-  MediaResource,
-  MusicResource,
-  StyleTemplateResource,
-  TemplateResource,
-  TransitionResource,
-} from "@/features/resources/types"
-import { TimelineProject } from "@/features/timeline/types"
-
-import { ApiKeyLoader } from "../../services/api-key-loader"
-import { CLAUDE_MODELS, ClaudeService } from "../../services/claude-service"
-import { TimelineAIService } from "../../services/timeline-ai-service"
-
 // Mock ClaudeService
 vi.mock("../../services/claude-service", () => ({
   CLAUDE_MODELS: {
@@ -141,6 +122,25 @@ vi.mock("../../tools/workflow-automation-tools", () => ({
   executeWorkflowAutomationTool: vi.fn(),
 }))
 
+import { VideoEffect } from "../../../effects/types"
+import { VideoFilter } from "../../../filters/types/filters"
+import { MediaFile } from "../../../media/types/media"
+import type { ResourcesContextType } from "../../../resources/services/resources-provider"
+import {
+  EffectResource,
+  FilterResource,
+  MediaResource,
+  MusicResource,
+  StyleTemplateResource,
+  TemplateResource,
+  TransitionResource,
+} from "../../../resources/types"
+import { TimelineProject } from "../../../timeline/types"
+
+import { ApiKeyLoader } from "../../services/api-key-loader"
+import { CLAUDE_MODELS, ClaudeService } from "../../services/claude-service"
+import { TimelineAIService } from "../../services/timeline-ai-service"
+
 describe("TimelineAIService", () => {
   let service: TimelineAIService
   let mockClaudeService: any
@@ -154,40 +154,41 @@ describe("TimelineAIService", () => {
     id,
     name,
     path: `/media/${id}`,
-    type: "video",
     duration,
     size: 1000000,
-    extension: "mp4",
-    mime: "video/mp4",
-    width: 1920,
-    height: 1080,
-    frameRate: 30,
-    bitrate: 5000,
-    codec: "h264",
-    hasAudio: true,
-    hasVideo: true,
+    isVideo: true,
+    isAudio: true,
     createdAt: new Date().toISOString(),
-    modifiedAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   })
 
   // Helper function to create mock effect
   const createMockEffect = (id: string, name: string): VideoEffect => ({
     id,
-    name,
-    description: `${name} effect`,
-    category: "visual",
-    parameters: {},
+    name: { en: name, ru: name },
+    description: { en: `${name} effect`, ru: `${name} эффект` },
+    category: "color_correction" as const,
+    scope: ["clip"],
+    processingType: "realtime",
+    version: "1.0.0",
+    tags: [],
+    parameters: [],
     presets: [],
+    complexity: "low" as const,
+    gpuAccelerated: false,
+    processors: {},
   })
 
   // Helper function to create mock filter
   const createMockFilter = (id: string, name: string): VideoFilter => ({
     id,
     name,
-    description: `${name} filter`,
-    category: "color",
-    parameters: {},
-    presets: [],
+    category: "color-correction" as const,
+    complexity: "basic" as const,
+    tags: [],
+    description: { en: `${name} filter` },
+    labels: { en: name },
+    params: {},
   })
 
   // Helper function to create mock resources
@@ -273,20 +274,37 @@ describe("TimelineAIService", () => {
     const mockProject: TimelineProject = {
       id: "project-1",
       name: "Test Project",
-      createdAt: new Date().toISOString(),
-      modifiedAt: new Date().toISOString(),
-      path: "/projects/test.tlp",
+      duration: 0,
+      fps: 30,
+      sampleRate: 48000,
+      sections: [],
+      globalTracks: [],
+      resources: {
+        effects: [],
+        filters: [],
+        transitions: [],
+        templates: [],
+        styleTemplates: [],
+        subtitleStyles: [],
+        music: [],
+        media: [],
+      },
       settings: {
         resolution: { width: 1920, height: 1080 },
         fps: 30,
         aspectRatio: "16:9",
-        duration: 0,
-        audioSampleRate: 48000,
-        audioBitrate: 320,
-        videoBitrate: 5000,
+        sampleRate: 48000,
+        channels: 2,
+        bitDepth: 16,
+        timeFormat: "timecode" as const,
+        snapToGrid: false,
+        gridSize: 1,
+        autoSave: true,
+        autoSaveInterval: 300,
       },
-      sections: [],
-      resources: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      version: "1.0.0",
       metadata: {},
     }
     mockTimelineState = {
@@ -361,7 +379,7 @@ describe("TimelineAIService", () => {
       expect(mockClaudeService.sendRequestWithTools).toHaveBeenCalledWith(
         CLAUDE_MODELS.CLAUDE_4_SONNET,
         [{ role: "user", content: "Create a timeline from my vacation videos" }],
-        service.allTools,
+        (service as any).allTools,
         expect.objectContaining({
           system: expect.stringContaining("Timeline Studio"),
           temperature: 0.7,
@@ -489,7 +507,7 @@ describe("TimelineAIService", () => {
             content: expect.stringContaining("Apply blur effect"),
           },
         ],
-        service.allTools,
+        (service as any).allTools,
         expect.objectContaining({
           temperature: 0.6,
           max_tokens: 3000,
@@ -529,7 +547,7 @@ describe("TimelineAIService", () => {
         text: "Simple text response",
       }
 
-      const result = await service.processClaudeResponse(response, {} as any)
+      const result = await (service as any).processClaudeResponse(response, {} as any)
 
       expect(result).toEqual({
         success: true,
@@ -555,7 +573,7 @@ describe("TimelineAIService", () => {
         data: { addedEffect: "blur" },
       })
 
-      const result = await service.processClaudeResponse(response, {} as any)
+      const result = await (service as any).processClaudeResponse(response, {} as any)
 
       expect(executeToolSpy).toHaveBeenCalledWith(response.tool_use, {})
       expect(result).toEqual({
@@ -577,7 +595,7 @@ describe("TimelineAIService", () => {
       const executeToolSpy = vi.spyOn(service as any, "executeToolFunction")
       executeToolSpy.mockRejectedValueOnce(new Error("Tool execution failed"))
 
-      const result = await service.processClaudeResponse(response, {} as any)
+      const result = await (service as any).processClaudeResponse(response, {} as any)
 
       expect(result).toEqual({
         success: false,
@@ -607,7 +625,7 @@ describe("TimelineAIService", () => {
         warnings: ["Some warning"],
       })
 
-      const result = await service.processClaudeResponse(response, {} as any)
+      const result = await (service as any).processClaudeResponse(response, {} as any)
 
       expect(result).toEqual({
         success: true,
@@ -637,7 +655,7 @@ describe("TimelineAIService", () => {
         warnings: ["Resource may be corrupted"],
       })
 
-      const result = await service.processClaudeResponse(response, {} as any)
+      const result = await (service as any).processClaudeResponse(response, {} as any)
 
       expect(result).toEqual({
         success: false,
@@ -959,7 +977,7 @@ describe("TimelineAIService", () => {
       const executeToolSpy = vi.spyOn(service as any, "executeToolFunction")
       executeToolSpy.mockRejectedValueOnce("Tool string error")
 
-      const result = await service.processClaudeResponse(response, {} as any)
+      const result = await (service as any).processClaudeResponse(response, {} as any)
 
       expect(result.success).toBe(false)
       expect(result.errors).toContain("Ошибка выполнения инструмента: Неизвестная ошибка")
@@ -975,7 +993,7 @@ describe("TimelineAIService", () => {
         expect.objectContaining({
           id: "media-1",
           name: "video1.mp4",
-          type: "video",
+          isVideo: true,
         }),
       )
       expect(service.getFavoriteFiles()).toEqual([])

@@ -110,7 +110,7 @@ describe("OllamaService", () => {
       const mockFetch = vi.mocked(fetch)
       mockFetch.mockResolvedValue({
         ok: true,
-      } as Response)
+      } as unknown as Response)
 
       const result = await service.isAvailable()
 
@@ -139,7 +139,7 @@ describe("OllamaService", () => {
       mockFetch.mockResolvedValue({
         ok: false,
         status: 500,
-      } as Response)
+      } as unknown as Response)
 
       const result = await service.isAvailable()
 
@@ -153,7 +153,7 @@ describe("OllamaService", () => {
       mockFetch.mockResolvedValue({
         ok: true,
         json: async () => mockModelsList,
-      } as Response)
+      } as unknown as Response)
 
       const models = await service.getInstalledModels()
 
@@ -170,7 +170,7 @@ describe("OllamaService", () => {
       mockFetch.mockResolvedValue({
         ok: false,
         status: 500,
-      } as Response)
+      } as unknown as Response)
 
       await expect(service.getInstalledModels()).rejects.toThrow("Ошибка Ollama API: 500")
     })
@@ -193,7 +193,7 @@ describe("OllamaService", () => {
       mockFetch.mockResolvedValue({
         ok: true,
         json: async () => ({}),
-      } as Response)
+      } as unknown as Response)
 
       const models = await service.getInstalledModels()
 
@@ -207,12 +207,12 @@ describe("OllamaService", () => {
       // First call to isAvailable
       mockFetch.mockResolvedValueOnce({
         ok: true,
-      } as Response)
+      } as unknown as Response)
       // Second call to sendRequest
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => mockApiResponse,
-      } as Response)
+      } as unknown as Response)
 
       const result = await service.sendRequest(OLLAMA_MODELS.LLAMA2, mockMessages)
 
@@ -245,7 +245,7 @@ describe("OllamaService", () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => mockApiResponse,
-      } as Response)
+      } as unknown as Response)
 
       const customOptions = {
         temperature: 0.9,
@@ -267,7 +267,7 @@ describe("OllamaService", () => {
       const mockFetch = vi.mocked(fetch)
       mockFetch.mockResolvedValue({
         ok: false,
-      } as Response)
+      } as unknown as Response)
 
       await expect(service.sendRequest(OLLAMA_MODELS.LLAMA2, mockMessages)).rejects.toThrow(
         "Ollama сервер недоступен. Убедитесь, что Ollama запущен на http://localhost:11434",
@@ -281,7 +281,7 @@ describe("OllamaService", () => {
         ok: false,
         status: 404,
         text: async () => "Model not found",
-      } as Response)
+      } as unknown as Response)
 
       await expect(service.sendRequest("unknown-model", mockMessages)).rejects.toThrow(
         "Ошибка Ollama API: 404 Model not found",
@@ -345,7 +345,7 @@ describe("OllamaService", () => {
         body: {
           getReader: () => mockReader,
         },
-      } as Response)
+      } as unknown as Response)
 
       await service.sendStreamingRequest(OLLAMA_MODELS.LLAMA2, mockMessages, streamingOptions)
 
@@ -381,7 +381,7 @@ describe("OllamaService", () => {
         ok: false,
         status: 500,
         text: async () => "Internal server error",
-      } as Response)
+      } as unknown as Response)
 
       await expect(service.sendStreamingRequest(OLLAMA_MODELS.LLAMA2, mockMessages, streamingOptions)).rejects.toThrow(
         "Ошибка Ollama API: 500 Internal server error",
@@ -399,7 +399,7 @@ describe("OllamaService", () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         body: null,
-      } as Response)
+      } as unknown as Response)
 
       await expect(service.sendStreamingRequest(OLLAMA_MODELS.LLAMA2, mockMessages, streamingOptions)).rejects.toThrow(
         "Не удалось получить поток данных",
@@ -427,7 +427,7 @@ describe("OllamaService", () => {
         body: {
           getReader: () => mockReader,
         },
-      } as Response)
+      } as unknown as Response)
 
       await service.sendStreamingRequest(OLLAMA_MODELS.LLAMA2, mockMessages, {
         onContent,
@@ -474,7 +474,7 @@ describe("OllamaService", () => {
         body: {
           getReader: () => mockReader,
         },
-      } as Response)
+      } as unknown as Response)
 
       await service.sendStreamingRequest(OLLAMA_MODELS.LLAMA2, mockMessages, {
         onComplete,
@@ -491,7 +491,7 @@ describe("OllamaService", () => {
         body: {
           getReader: () => createMockReader(['{"done":true}']),
         },
-      } as Response)
+      } as unknown as Response)
 
       const customOptions = {
         temperature: 0.5,
@@ -516,7 +516,7 @@ describe("OllamaService", () => {
       const mockFetch = vi.mocked(fetch)
       mockFetch.mockResolvedValue({
         ok: true,
-      } as Response)
+      } as unknown as Response)
 
       const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {})
 
@@ -540,7 +540,7 @@ describe("OllamaService", () => {
       mockFetch.mockResolvedValue({
         ok: false,
         status: 400,
-      } as Response)
+      } as unknown as Response)
 
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
 
@@ -613,7 +613,7 @@ describe("OllamaService", () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => mockApiResponse,
-      } as Response)
+      } as unknown as Response)
 
       await service.sendRequest(OLLAMA_MODELS.LLAMA2, [])
 
@@ -636,7 +636,7 @@ describe("OllamaService", () => {
         body: {
           getReader: () => mockReader,
         },
-      } as Response)
+      } as unknown as Response)
 
       await service.sendStreamingRequest(OLLAMA_MODELS.LLAMA2, mockMessages, {
         onComplete,

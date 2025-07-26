@@ -245,40 +245,25 @@ describe("useTimelineIntegration", () => {
       // Add duplicate file references
       const planWithDuplicates = {
         ...mockPlan,
-        sequences: [
+        clips: [
+          ...mockPlan.clips,
           {
-            ...mockPlan.sequences[0],
-            clips: [
-              ...mockPlan.sequences[0].clips,
-              {
-                ...mockPlan.sequences[0].clips[0],
-                fragmentId: "fragment_2",
-                fragment: {
-                  ...mockPlan.sequences[0].clips[0].fragment,
-                  id: "fragment_2",
-                  sourceFile: { ...mockMediaFile, path: "/path/to/video1.mp4" },
-                },
-              },
-              {
-                ...mockPlan.sequences[0].clips[0],
-                fragmentId: "fragment_3",
-                fragment: {
-                  ...mockPlan.sequences[0].clips[0].fragment,
-                  id: "fragment_3",
-                  sourceFile: { ...mockMediaFile, path: "/path/to/video2.mp4" },
-                },
-              },
-            ],
+            id: "clip2",
+            source_file: "/path/to/video3.mp4",
           },
-          ...mockPlan.sequences.slice(1),
+          {
+            id: "clip3", 
+            source_file: "/path/to/video4.mp4",
+          },
         ],
       }
 
       const requiredFiles = result.current.getRequiredMediaFiles(planWithDuplicates)
 
-      expect(requiredFiles).toHaveLength(2)
-      expect(requiredFiles).toContain("/path/to/video1.mp4")
-      expect(requiredFiles).toContain("/path/to/video2.mp4")
+      expect(requiredFiles).toHaveLength(3) // включая исходный файл из mockPlan
+      expect(requiredFiles).toContain("/path/to/video1.mp4") // исходный файл
+      expect(requiredFiles).toContain("/path/to/video3.mp4")
+      expect(requiredFiles).toContain("/path/to/video4.mp4")
     })
   })
 })

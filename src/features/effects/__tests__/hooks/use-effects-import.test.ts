@@ -17,11 +17,9 @@ vi.mock("@/features/effects/utils/user-effects", () => ({
 
 // Mock EffectManager
 vi.mock("@/features/effects/services/effect-manager", () => ({
-  EffectManager: {
-    getInstance: vi.fn(() => ({
-      registerEffect: vi.fn(),
-    })),
-  },
+  EffectManager: vi.fn(() => ({
+    registerEffect: vi.fn(),
+  })),
 }))
 
 // Mock fetch for file reading
@@ -475,6 +473,9 @@ describe("useEffectsImport", () => {
         importResult = await result.current.importEffectFile()
       })
 
+      expect(importResult.success).toBe(true)
+      expect(importResult.effects).toHaveLength(1)
+      
       // The code first tries split("/") which returns the whole path for Windows paths
       // Then it tries split("\\") which would give "my-effect.cube"
       // Finally it removes the extension

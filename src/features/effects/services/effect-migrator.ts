@@ -242,7 +242,7 @@ export class EffectMigrator {
     return "hybrid"
   }
 
-  private migrateLabels(labels: Record<string, string>): Record<string, string> {
+  private migrateLabels(labels: Record<string, string>): { [key: string]: string; en: string; ru: string } {
     // Убеждаемся что есть минимум en и ru
     return {
       en: labels.en || labels.ru || "Unknown Effect",

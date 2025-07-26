@@ -123,7 +123,7 @@ export function EffectPreview({
         name: effectName,
         params: {
           ...params,
-          ...(processedEffect.params || {}), // Fallback для старой структуры
+          ...((processedEffect as any).params || {}), // Fallback для старой структуры
         },
       })
     },
@@ -327,7 +327,7 @@ export function EffectPreview({
                 resourceId: processedEffect.id,
                 addedAt: Date.now(),
                 effect: processedEffect as VideoEffect,
-                params: processedEffect.params || {},
+                params: (processedEffect as any).params || {},
               } as EffectResource
             }
             size={size}
@@ -350,7 +350,7 @@ export function EffectPreview({
                   resourceId: processedEffect.id,
                   addedAt: Date.now(),
                   effect: processedEffect as VideoEffect,
-                  params: processedEffect.params || {},
+                  params: (processedEffect as any).params || {},
                 } as EffectResource
               }
               size={size}

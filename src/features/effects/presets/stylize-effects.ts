@@ -38,7 +38,7 @@ export const filmEmulationEffect: BaseEffect = {
     {
       id: "film_stock",
       name: { en: "Film Stock", ru: "Тип пленки" },
-      type: "select",
+      type: "dropdown",
       defaultValue: "kodak_portra",
       options: [
         { value: "kodak_portra", label: { en: "Kodak Portra", ru: "Kodak Portra" } },

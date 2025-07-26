@@ -2,7 +2,7 @@ import { useCallback, useState } from "react"
 
 import { useTranslation } from "react-i18next"
 
-import { COMMON_FRAMERATES, COMMON_RESOLUTIONS, ResolutionOption } from "@/features/project-settings/types/project"
+import { COMMON_FRAMERATES, COMMON_RESOLUTIONS, ResolutionOption } from "../../project-settings/types/project"
 
 // Интерфейс для устройств захвата (камеры, микрофоны)
 export interface CaptureDevice {
@@ -40,7 +40,7 @@ export function useCameraPermissions(getDevices: () => Promise<boolean>): UseCam
         setErrorMessage(
           t("camera.permissionError", "Не удалось получить доступ к камере и микрофону. Проверьте настройки."),
         )
-        return false
+        return
       }
 
       // После получения доступа останавливаем временный поток

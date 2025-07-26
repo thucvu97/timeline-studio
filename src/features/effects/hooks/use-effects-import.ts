@@ -267,6 +267,9 @@ export function useEffectsImport() {
           },
           category: category as any,
           scope: ["clip"],
+          processingType: "render",
+          complexity: "low",
+          gpuAccelerated: false,
           version: "1.0.0",
           author: "User",
           description: {
@@ -295,13 +298,14 @@ export function useEffectsImport() {
               },
             },
           },
+          presets: [],
           thumbnail: "/effects/lut-preview.jpg",
           preview: "/t1.mp4",
-          compatibility: {
-            webgl: false,
-            css: false,
-            ffmpeg: true,
-          },
+          // compatibility: {
+          //   webgl: false,
+          //   css: false,
+          //   ffmpeg: true,
+          // },
         }
 
         importedEffects.push(effect)

@@ -28,7 +28,10 @@ const mockElement = {
 
 const mockImageElement = {
   src: "",
-  style: {},
+  style: {
+    width: "",
+    height: "",
+  },
 }
 
 // Setup global mocks
@@ -42,7 +45,12 @@ describe("DragDropManager", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    mockDocument.createElement.mockReturnValue(mockElement)
+    mockDocument.createElement.mockImplementation((tagName: string) => {
+      if (tagName === "img") {
+        return mockImageElement
+      }
+      return mockElement
+    })
 
     // Reset singleton for each test
     ;(DragDropManager as any).instance = undefined

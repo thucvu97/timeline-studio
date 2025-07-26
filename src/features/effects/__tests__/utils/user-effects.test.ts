@@ -91,7 +91,6 @@ describe("user-effects", () => {
       expect(effectData).toMatchObject({
         id: mockEffect.id,
         name: mockEffect.name,
-        type: mockEffect.type,
         isCustom: true,
       })
       expect(effectData.createdAt).toBeDefined()
@@ -124,7 +123,6 @@ describe("user-effects", () => {
       expect(effectData).toEqual({
         id: mockEffect.id,
         name: mockEffect.name,
-        type: mockEffect.type,
         category: mockEffect.category,
         complexity: mockEffect.complexity,
         description: mockEffect.description,
@@ -173,7 +171,6 @@ describe("user-effects", () => {
           effect: expect.objectContaining({
             id: mockUserEffect.effect.id,
             name: mockUserEffect.effect.name,
-            type: mockUserEffect.effect.type,
           }),
         }),
       )
@@ -417,7 +414,7 @@ describe("user-effects", () => {
 
       const result = prepareEffectForExport(mockEffect, customParams)
 
-      expect(result.presets).toBeUndefined()
+      expect(result.presets).toEqual([])
     })
 
     it("should not add preset if only name provided without params", () => {
@@ -426,7 +423,7 @@ describe("user-effects", () => {
 
       const result = prepareEffectForExport(mockEffect, undefined, presetName)
 
-      expect(result.presets).toBeUndefined()
+      expect(result.presets).toEqual([])
     })
 
     it("should generate unique preset IDs", async () => {
@@ -546,7 +543,6 @@ describe("user-effects", () => {
         expect.objectContaining({
           id: mockEffect.id,
           name: mockEffect.name,
-          type: mockEffect.type,
           isCustom: true,
           // Functions are not preserved in JSON serialization
         }),

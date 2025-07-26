@@ -22,7 +22,7 @@ import type { BaseEffect } from "../types"
  */
 export function EffectDetailModal() {
   const { modalData, closeModal } = useModal()
-  const { effect, onApplyEffect } = modalData || {}
+  const { effect, onApplyEffect } = (modalData as { effect?: BaseEffect; onApplyEffect?: any }) || {}
 
   const { i18n, t } = useTranslation()
   const [selectedPreset, setSelectedPreset] = useState<string | undefined>()
@@ -70,7 +70,7 @@ export function EffectDetailModal() {
     (name: string, params: Record<string, number>) => {
       try {
         // Получаем существующие пресеты для этого эффекта
-        const storageKey = `effect_presets_${effect?.id}`
+        const storageKey = `effect_presets_${(effect)?.id}`
         const existingPresets = localStorage.getItem(storageKey)
         const presets = existingPresets ? JSON.parse(existingPresets) : {}
 
@@ -101,13 +101,13 @@ export function EffectDetailModal() {
         console.error("Error saving custom preset:", error)
       }
     },
-    [effect?.id, currentLang, t],
+    [(effect)?.id, currentLang, t],
   )
 
   // Обработчик применения эффекта
   const handleApplyEffect = useCallback(() => {
     if (onApplyEffect) {
-      onApplyEffect(effect, selectedPreset, currentParameters)
+      onApplyEffect(effect!, selectedPreset, currentParameters)
     }
     closeModal()
   }, [effect, selectedPreset, currentParameters, onApplyEffect, closeModal])
@@ -126,7 +126,7 @@ export function EffectDetailModal() {
       if (!exportName) return
 
       const effectToExport = prepareEffectForExport(
-        effect,
+        effect!,
         Object.keys(currentParameters).length > 0 ? currentParameters : undefined,
         selectedPreset,
       )
@@ -143,12 +143,14 @@ export function EffectDetailModal() {
   // Ранний возврат, если эффект не передан
   if (!effect) return null
 
+  const typedEffect = effect
+
   return (
     <div className="max-w-4xl max-h-[90vh] overflow-y-auto">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <span>{effect?.name[currentLang] ?? effect?.name?.en ?? "Unnamed effect"}</span>
-          <EffectIndicators effect={effect} size="md" />
+          <span>{typedEffect?.name[currentLang] ?? typedEffect?.name?.en ?? "Unnamed effect"}</span>
+          <EffectIndicators effect={typedEffect} size="md" />
         </div>
         <Button variant="ghost" size="sm" onClick={closeModal}>
           <X size={16} />
@@ -171,7 +173,7 @@ export function EffectDetailModal() {
               <div className="aspect-video bg-black rounded-lg overflow-hidden relative">
                 <EffectPreview
                   key={previewKey} // Обновляем превью при изменении параметров
-                  effectType={effect?.category}
+                  effect={typedEffect}
                   onClick={() => setIsPlaying(!isPlaying)}
                   size={400}
                   customParams={currentParameters} // Передаем текущие параметры
@@ -195,7 +197,7 @@ export function EffectDetailModal() {
             </TabsContent>
 
             <TabsContent value="comparison" className="mt-4">
-              <EffectComparison effect={effect} customParams={currentParameters} width={400} height={300} />
+              <EffectComparison effect={typedEffect} customParams={currentParameters} width={400} height={300} />
             </TabsContent>
           </Tabs>
 
@@ -203,7 +205,7 @@ export function EffectDetailModal() {
           <div className="space-y-2">
             <h3 className="font-medium">{t("effects.detail.description", "Описание")}</h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              {effect?.description[currentLang] || effect?.description?.en}
+              {typedEffect?.description?.[currentLang] || typedEffect?.description?.en}
             </p>
           </div>
 
@@ -212,9 +214,9 @@ export function EffectDetailModal() {
             <h3 className="font-medium">{t("effects.detail.category", "Категория")}</h3>
             <div className="flex flex-wrap gap-2">
               <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs rounded">
-                {effect?.category}
+                {typedEffect?.category}
               </span>
-              {effect?.tags.map((tag) => (
+              {typedEffect?.tags?.map((tag) => (
                 <span
                   key={tag}
                   className="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs rounded"
@@ -229,11 +231,11 @@ export function EffectDetailModal() {
         {/* Правая колонка - Настройки */}
         <div className="space-y-4">
           {/* Пресеты */}
-          <EffectPresets effect={effect} onApplyPreset={handleApplyPreset} selectedPreset={selectedPreset} />
+          <EffectPresets effect={typedEffect} onApplyPreset={handleApplyPreset} selectedPreset={selectedPreset} />
 
           {/* Интерактивные контролы параметров */}
           <EffectParameterControls
-            effect={effect}
+            effect={typedEffect}
             onParametersChange={handleParametersChange}
             selectedPreset={selectedPreset}
             onSavePreset={handleSavePreset}
@@ -243,7 +245,7 @@ export function EffectDetailModal() {
           <div className="space-y-2">
             <h3 className="font-medium">{t("effects.detail.ffmpegCommand", "FFmpeg команда")}</h3>
             <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono overflow-x-auto">
-              {effect ? getEffectFFmpegCommand(effect, currentParameters) : "No effect selected"}
+              {typedEffect ? getEffectFFmpegCommand(typedEffect, currentParameters) : "No effect selected"}
             </div>
           </div>
 

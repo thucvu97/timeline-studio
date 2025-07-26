@@ -2,6 +2,8 @@
  * AI инструмент для анализа структуры Timeline
  */
 
+import type { TimelineClip, TimelineProject, TimelineSection, TimelineTrack } from "@/features/timeline/types/timeline"
+
 import { getTimelineStateAccess } from "./types"
 import {
   calculateTimelineDensity,
@@ -10,7 +12,6 @@ import {
   getTrackTypeDistribution,
 } from "./utils/analyzers"
 
-import type { TimelineClip, TimelineSection, TimelineTrack, TimelineProject } from "@/features/timeline/types/timeline"
 import type { TimelineToolResult } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
 

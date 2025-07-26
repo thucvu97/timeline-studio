@@ -240,10 +240,10 @@ describe("useDropZone", () => {
   })
 
   it("should handle different accepted types", () => {
-    const acceptedTypes = [["media"], ["effect", "filter"], ["template", "style-template"]]
+    const acceptedTypes: Array<Array<string>> = [["media"], ["effect", "filter"], ["template", "style-template"]]
 
     acceptedTypes.forEach((accepts) => {
-      const { result } = renderHook(() => useDropZone("test-zone", accepts, mockOnDrop))
+      const { result } = renderHook(() => useDropZone("test-zone", accepts as any, mockOnDrop))
 
       expect(result.current.ref).toBeDefined()
       expect(typeof result.current.onDragOver).toBe("function")

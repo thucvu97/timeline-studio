@@ -2,11 +2,12 @@
  * AI инструмент для создания нового проекта Timeline
  */
 
+import type { TimelineProject } from "@/features/timeline/types/timeline"
+
 import { getTimelineStateAccess } from "./types"
 import { createDefaultTrackStructure } from "./utils/creators"
 import { generateProjectId } from "./utils/generators"
 
-import type { TimelineProject } from "@/features/timeline/types/timeline"
 import type { TimelineToolResult } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
 
