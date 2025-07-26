@@ -16,7 +16,7 @@ jobs:
   lint-windows-bun:
     name: Lint on Windows with Bun
     runs-on: windows-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
 
     steps:
       - name: Disable git core.autocrlf

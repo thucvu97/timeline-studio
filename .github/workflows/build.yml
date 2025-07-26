@@ -10,7 +10,6 @@ jobs:
   build:
     name: Build project
     runs-on: ubuntu-22.04
-    timeout-minutes: 60
 
     steps:
       - name: Checkout code

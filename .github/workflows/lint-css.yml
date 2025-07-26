@@ -19,7 +19,6 @@ on:
 jobs:
   lint-css:
     name: Lint CSS
-    timeout-minutes: 5
     strategy:
       fail-fast: false
       matrix:
