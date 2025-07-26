@@ -9,6 +9,7 @@ import { MediaFile } from "@/features/media/types/media"
 
 import { useTimelineIntegration } from "../../hooks/use-timeline-integration"
 import { EmotionalTone, MONTAGE_STYLES, MomentCategory, MontagePlan } from "../../types"
+import { mockMontagePlan } from "../test-utils"
 
 // Mock timeline hooks
 vi.mock("@/features/timeline/hooks/use-timeline", () => ({
@@ -76,25 +77,11 @@ describe("useTimelineIntegration", () => {
 
     // Create mock montage plan
     mockPlan = {
+      ...mockMontagePlan,
       id: "plan1",
       name: "Test Montage",
       style: MONTAGE_STYLES.dynamicAction,
       totalDuration: 30,
-      metadata: {
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        version: 1,
-      },
-      sequences: [],
-      pacing: {
-        overall: "medium",
-        variability: 50,
-        peaks: [],
-        valleys: [],
-      },
-      qualityScore: 85,
-      engagementScore: 90,
-      coherenceScore: 80,
       // Additional test-specific fields for backward compatibility
       clips: [
         {

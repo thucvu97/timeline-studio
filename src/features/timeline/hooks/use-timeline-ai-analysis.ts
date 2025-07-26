@@ -13,6 +13,7 @@ import type {
   KeyMoment,
   UnifiedContentAnalysis,
 } from "@/features/ai-content-intelligence/shared/types/content-analysis"
+import { KeyMomentType } from "@/features/ai-content-intelligence/shared/types/content-analysis"
 
 import { useTimeline } from "./use-timeline"
 
@@ -324,7 +325,7 @@ export function useTimelineAIAnalysis(): TimelineAIAnalysisHook {
           id: `ai-moment-${moment.id}`,
           type: "chapter",
           timecode: moment.timestamp,
-          name: moment.type === "climax" ? "Кульминация" : moment.description,
+          name: moment.type === KeyMomentType.CLIMAX ? "Кульминация" : moment.description,
           description: `AI обнаружил ключевой момент (${moment.type})`,
           color: getColorForMomentType(moment.type),
         },

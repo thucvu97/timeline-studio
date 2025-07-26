@@ -2,10 +2,10 @@
  * Функции анализа для Timeline AI инструментов
  */
 
+import type { TimelineClip, TimelineProject, TimelineTrack } from "@/features/timeline/types/timeline"
+
 import { getTimelineStateAccess } from "../types"
 import { detectClipOverlaps } from "./detectors"
-
-import type { TimelineClip, TimelineProject, TimelineTrack } from "../types"
 
 export function getTrackTypeDistribution(tracks: TimelineTrack[]): Record<string, number> {
   return tracks.reduce<Record<string, number>>((dist, track) => {

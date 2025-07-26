@@ -2,6 +2,8 @@
  * AI инструмент для синхронизации с музыкой
  */
 
+import type { TimelineProject } from "@/features/timeline/types/timeline"
+
 import type { TimelineToolResult } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
 
@@ -64,8 +66,8 @@ export async function synchronizeWithMusic(params: any): Promise<TimelineToolRes
       }
     }
 
-    const currentProject = timelineAccess.getCurrentProject()
-    if (!currentProject) {
+    const currentProject = timelineAccess.getCurrentProject() as TimelineProject | null
+    if (!currentProject || !currentProject.id) {
       return {
         success: false,
         message: "Нет активного проекта для синхронизации",

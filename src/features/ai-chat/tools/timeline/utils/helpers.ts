@@ -5,13 +5,13 @@
 import { getTimelineStateAccess } from "../types"
 import { determineContentType } from "./detectors"
 
-import type { TimelineClip, TimelineProject, TimelineTrack } from "../types"
+import type { TimelineClip, TimelineProject, TimelineTrack } from "@/features/timeline/types/timeline"
 
 export async function getCurrentTimelineProject(): Promise<TimelineProject | null> {
   const timelineStateAccess = getTimelineStateAccess()
 
   if (timelineStateAccess) {
-    return timelineStateAccess.getCurrentProject()
+    return timelineStateAccess.getCurrentProject() as TimelineProject | null
   }
 
   // Fallback - пытаемся получить из window контекста

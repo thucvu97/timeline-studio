@@ -6,7 +6,18 @@
 import { useEffect, useRef, useState } from "react"
 
 import { AnimatePresence, motion } from "framer-motion"
-import { Activity, AlertTriangle, Camera, Eye, Sparkles, TrendingUp, Users, Volume2, Zap } from "lucide-react"
+import {
+  Activity,
+  AlertTriangle,
+  Camera,
+  Eye,
+  type LucideIcon,
+  Sparkles,
+  TrendingUp,
+  Users,
+  Volume2,
+  Zap,
+} from "lucide-react"
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
@@ -28,7 +39,7 @@ interface AnalysisSegment {
   confidence: number
   label: string
   color: string
-  icon: React.ElementType
+  icon: LucideIcon
   description?: string
   intensity?: number
 }
@@ -249,7 +260,7 @@ export function TimelineAIOverlay({
 }
 
 // Вспомогательные функции для определения иконок и цветов
-function getSceneIcon(type: string): React.ElementType {
+function getSceneIcon(type: string): LucideIcon {
   switch (type) {
     case "action":
       return Zap

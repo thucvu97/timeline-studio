@@ -2,7 +2,7 @@
  * AI инструмент для размещения клипов на Timeline
  */
 
-import type { TimelineClip, TimelineTrack } from "@/features/timeline/types"
+import type { TimelineClip, TimelineTrack } from "@/features/timeline/types/timeline"
 
 import { generateClipId } from "./utils/generators"
 import {

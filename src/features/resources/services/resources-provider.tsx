@@ -250,7 +250,7 @@ export function ResourcesProviderV2({ children }: ResourcesProviderV2Props) {
 
   // Извлекаем ресурсы из backend состояния
   // Пока backend не содержит все типы ресурсов, создаем пустые массивы
-  const mediaPool = backendState?.project?.mediaPool
+  const mediaPool = backendState?.project?.media_pool
   console.log("ResourcesProvider: MediaPool from backend", mediaPool)
 
   // Конвертируем медиа из backend в MediaResource формат
@@ -263,7 +263,6 @@ export function ResourcesProviderV2({ children }: ResourcesProviderV2Props) {
           name: item.name,
           path: item.source.path,
           size: item.metadata.fileSize,
-          type: item.type,
           isVideo: item.type === "video",
           isAudio: false,
           isImage: item.type === "image",
@@ -283,7 +282,6 @@ export function ResourcesProviderV2({ children }: ResourcesProviderV2Props) {
           name: item.name,
           path: item.source.path,
           size: item.metadata.fileSize,
-          type: item.type,
           isVideo: false,
           isAudio: true,
           isImage: false,

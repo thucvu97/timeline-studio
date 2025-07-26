@@ -60,7 +60,7 @@ vi.mock("@/features/app-state/hooks", () => ({
 vi.mock("@/features/timeline/hooks", () => ({
   useTimeline: () => ({
     project: {
-      tracks: [
+      globalTracks: [
         {
           id: "track1",
           type: "video",

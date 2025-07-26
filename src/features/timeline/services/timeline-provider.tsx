@@ -9,16 +9,21 @@ import { createContext, useCallback, useEffect, useMemo } from "react"
 
 import { useMachine } from "@xstate/react"
 
+import { getBackendSync } from "@/features/app-state/services/backend-sync"
+
 import { AppliedEffect, TimelineClip, TimelineProject, TimelineSection, TimelineTrack, TrackType } from "../types"
 import { TimelineUIContext, timelineUIMachine } from "./timeline-ui-machine"
 import { copyClips } from "../utils/clip-operations"
 
-// import { getBackendSync } from "@/features/app-state/services/backend-sync"
 // import { MediaFile } from "@/features/media/types/media"
 // import { Clip, Project, ProjectCommand, ProjectState } from "@/types/generated/tauri-bindings"
 
 // Заглушки для типов
-interface MediaFile { id: string; name: string; path: string }
+interface MediaFile {
+  id: string
+  name: string
+  path: string
+}
 interface Clip {
   id: string
   name: string
@@ -30,10 +35,21 @@ interface Clip {
   playback_rate: number
   transitions?: any[]
 }
+interface Track {
+  id: string
+  name: string
+  track_type: string
+  clips: Clip[]
+  locked: boolean
+  enabled: boolean
+  volume: number
+  pan: number
+  height: number
+}
 interface Project {
   id: string
   metadata: { name: string; created_at: string; version: string }
-  timeline: { tracks: any[]; duration: number; fps: number; sample_rate: number }
+  timeline: { tracks: Track[]; duration: number; fps: number; sample_rate: number }
   settings: {
     resolution: { width: number; height: number }
     frame_rate: number
@@ -41,18 +57,14 @@ interface Project {
     audio_channels: number
   }
 }
-interface ProjectCommand { type: string; params: any }
+interface ProjectCommand {
+  type: string
+  params: any
+}
 interface ProjectState {
   project?: Project
   playback_state?: { is_playing: boolean; current_time: number; playback_rate?: number }
 }
-
-// Заглушка для getBackendSync
-const getBackendSync = () => ({
-  onStateChange: (_callback: (state: ProjectState) => void) => () => {},
-  onEvent: (_callback: (event: any) => void) => () => {},
-  executeCommand: async (_command: ProjectCommand) => ({ success: true, data: null, error: null }),
-})
 
 // Вспомогательная функция для преобразования Clip в TimelineClip
 function convertClipToTimelineClip(clip: Clip, trackId: string): TimelineClip {
@@ -83,11 +95,11 @@ function convertClipToTimelineClip(clip: Clip, trackId: string): TimelineClip {
 
 // Вспомогательная функция для преобразования backend Project в TimelineProject
 function convertProjectToTimelineProject(project: Project): TimelineProject {
-  const tracks: TimelineTrack[] = project.timeline.tracks.map((track) => ({
+  const tracks: TimelineTrack[] = project.timeline.tracks.map((track, index) => ({
     id: track.id,
     name: track.name,
     type: track.track_type.toLowerCase() as TrackType,
-    order: 0, // Предполагаем, что порядок определяется индексом в массиве
+    order: index, // Используем индекс как порядок
     clips: track.clips.map((clip) => convertClipToTimelineClip(clip, track.id)),
     isLocked: track.locked,
     isMuted: !track.enabled,
@@ -244,8 +256,8 @@ export function TimelineProvider({ children }: TimelineProviderV2Props) {
 
   // Подписка на backend состояние
   useEffect(() => {
-    const unsubscribeState = backendSync.onStateChange((state: ProjectState) => {
-      setBackendState(state)
+    const unsubscribeState = backendSync.onStateChange((state: any) => {
+      setBackendState(state as ProjectState)
 
       // Синхронизируем playback состояние с UI машиной
       if (state.playback_state) {

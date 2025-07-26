@@ -72,7 +72,7 @@ export function AIMarkerControls({ className }: AIMarkerControlsProps) {
       // Создаем маркеры из сцен
       if (sceneAnalysis && markerConfig.createSceneMarkers) {
         setGenerationProgress(20)
-        const sceneMarkers = markerService.createMarkersFromScenes(sceneAnalysis.scenes)
+        const sceneMarkers = markerService.createMarkersFromScenes((sceneAnalysis as any).scenes || [])
         allMarkers = [...allMarkers, ...sceneMarkers]
       }
 

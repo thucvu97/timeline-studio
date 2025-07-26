@@ -6,7 +6,8 @@ import { getTimelineStateAccess } from "./types"
 import { createDefaultTrackStructure } from "./utils/creators"
 import { generateProjectId } from "./utils/generators"
 
-import type { TimelineProject, TimelineToolResult } from "./types"
+import type { TimelineProject } from "@/features/timeline/types/timeline"
+import type { TimelineToolResult } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
 
 export const createTimelineProjectTool: ClaudeTool = {
@@ -105,8 +106,8 @@ export async function createTimelineProject(params: any): Promise<TimelineToolRe
         autoSave: true,
         autoSaveInterval: 300,
       },
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
       version: "1.0.0",
     }
 

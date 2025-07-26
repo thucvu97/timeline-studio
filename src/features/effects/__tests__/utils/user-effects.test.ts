@@ -36,28 +36,38 @@ describe("user-effects", () => {
 
   const createMockEffect = (id: string): VideoEffect => ({
     id,
-    name: `Test Effect ${id}`,
-    type: "blur",
-    duration: 1000,
-    category: "artistic",
-    complexity: "basic",
-    tags: ["test"],
+    name: {
+      ru: `Тестовый эффект ${id}`,
+      en: `Test Effect ${id}`,
+    },
     description: {
       ru: "Тестовый эффект",
       en: "Test Effect",
     },
-    ffmpegCommand: () => "blur=5",
-    params: {
-      intensity: 50,
-      amount: 100,
-    },
-    previewPath: "/test.mp4",
-    labels: {
-      ru: "Тестовый",
-      en: "Test",
-      es: "Prueba",
-      fr: "Test",
-      de: "Test",
+    category: "blur_sharpen",
+    scope: ["video"],
+    processingType: "css",
+    version: "1.0.0",
+    tags: ["test"],
+    complexity: "low",
+    gpuAccelerated: false,
+    parameters: [
+      {
+        id: "intensity",
+        name: {
+          ru: "Интенсивность",
+          en: "Intensity",
+        },
+        type: "number",
+        defaultValue: 50,
+        range: { min: 0, max: 100 },
+      },
+    ],
+    presets: [],
+    processors: {
+      css: {
+        shader: "blur({{intensity}}px)",
+      },
     },
   })
 
@@ -379,24 +389,26 @@ describe("user-effects", () => {
 
     it("should merge with existing presets", () => {
       const mockEffect = createMockEffect("test-1")
-      mockEffect.presets = {
-        "existing-preset": {
+      mockEffect.presets = [
+        {
+          id: "existing-preset",
           name: { ru: "Существующий", en: "Existing" },
-          params: { intensity: 50 },
+          parameters: { intensity: 50 },
           description: { ru: "Существующий пресет", en: "Existing preset" },
+          tags: [],
         },
-      }
+      ]
 
       const customParams = { intensity: 90 }
       const presetName = "New Preset"
 
       const result = prepareEffectForExport(mockEffect, customParams, presetName)
 
-      expect(Object.keys(result.presets)).toHaveLength(2)
-      expect(result.presets["existing-preset"]).toBeDefined()
+      expect(result.presets).toHaveLength(2)
+      expect(result.presets[0].id).toBe("existing-preset")
 
-      const customPresetKey = Object.keys(result.presets).find((key) => key.startsWith("custom_"))!
-      expect(result.presets[customPresetKey].parameters).toEqual(customParams)
+      const customPreset = result.presets.find((preset) => preset.id.startsWith("custom_"))!
+      expect(customPreset.parameters).toEqual(customParams)
     })
 
     it("should not add preset if only params provided without name", () => {
@@ -428,12 +440,12 @@ describe("user-effects", () => {
 
       const result2 = prepareEffectForExport(mockEffect, customParams, "Preset 2")
 
-      const keys1 = Object.keys(result1.presets)
-      const keys2 = Object.keys(result2.presets)
+      const id1 = result1.presets[0].id
+      const id2 = result2.presets[0].id
 
-      expect(keys1[0]).not.toBe(keys2[0])
-      expect(keys1[0]).toMatch(/^custom_\d+$/)
-      expect(keys2[0]).toMatch(/^custom_\d+$/)
+      expect(id1).not.toBe(id2)
+      expect(id1).toMatch(/^custom_\d+$/)
+      expect(id2).toMatch(/^custom_\d+$/)
     })
   })
 

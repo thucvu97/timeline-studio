@@ -2,6 +2,8 @@
  * AI инструмент для анализа нарратива и истории в Timeline
  */
 
+import type { TimelineProject } from "@/features/timeline/types/timeline"
+
 import type { TimelineToolResult } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
 
@@ -44,8 +46,8 @@ export async function analyzeContentForStory(params: any): Promise<TimelineToolR
       }
     }
 
-    const currentProject = timelineAccess.getCurrentProject()
-    if (!currentProject) {
+    const currentProject = timelineAccess.getCurrentProject() as TimelineProject | null
+    if (!currentProject || !currentProject.id) {
       return {
         success: false,
         message: "Нет активного проекта для анализа",

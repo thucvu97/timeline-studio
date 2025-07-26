@@ -8,7 +8,6 @@ import { UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service
 import type { Person } from "@/features/montage-planner/types"
 
 // Интеграция с анализом персонажей
-
 import { DialogueGenerator } from "./dialogue-generator"
 import { TemplateEngine } from "./template-engine"
 import {
@@ -40,6 +39,7 @@ import type {
   ScriptImprovement,
   ScriptQuality,
 } from "../types"
+
 
 
 export class ScriptGenerationEngine extends BaseAIEngine {

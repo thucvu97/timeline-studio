@@ -10,7 +10,8 @@ import {
   getTrackTypeDistribution,
 } from "./utils/analyzers"
 
-import type { TimelineClip, TimelineSection, TimelineToolResult, TimelineTrack } from "./types"
+import type { TimelineClip, TimelineSection, TimelineTrack, TimelineProject } from "@/features/timeline/types/timeline"
+import type { TimelineToolResult } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
 
 export const analyzeTimelineStructureTool: ClaudeTool = {
@@ -69,9 +70,9 @@ export async function analyzeTimelineStructure(params: any): Promise<TimelineToo
       }
     }
 
-    const currentProject = timelineStateAccess.getCurrentProject()
+    const currentProject = timelineStateAccess.getCurrentProject() as TimelineProject | null
 
-    if (!currentProject) {
+    if (!currentProject || !currentProject.id) {
       return {
         success: false,
         message: "Нет активного проекта Timeline для анализа",
@@ -87,7 +88,7 @@ export async function analyzeTimelineStructure(params: any): Promise<TimelineToo
         name: currentProject.name,
         duration: currentProject.duration,
         fps: currentProject.fps,
-        resolution: currentProject.settings.resolution,
+        resolution: currentProject.settings?.resolution || { width: 1920, height: 1080 },
         tracks: projectStats.totalTracks,
         sections: projectStats.totalSections,
         clips: projectStats.totalClips,
@@ -100,11 +101,11 @@ export async function analyzeTimelineStructure(params: any): Promise<TimelineToo
         name: track.name,
         type: track.type,
         clipsCount: track.clips.length,
-        isHidden: (track as any).isHidden || false,
-        isMuted: track.muted || false,
-        isLocked: track.locked || false,
+        isHidden: track.isHidden || false,
+        isMuted: track.isMuted || false,
+        isLocked: track.isLocked || false,
         height: track.height || 50,
-        order: (track as any).order || 0,
+        order: track.order || 0,
       }))
       // Добавляем треки из секций
       currentProject.sections.forEach((section) => {

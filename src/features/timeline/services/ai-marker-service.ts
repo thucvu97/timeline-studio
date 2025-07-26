@@ -8,6 +8,7 @@ import type {
   KeyMoment,
   SceneInfo,
 } from "@/features/ai-content-intelligence/shared/types/content-analysis"
+import { KeyMomentType } from "@/features/ai-content-intelligence/shared/types/content-analysis"
 
 import type { TimelineMarker } from "../types/markers"
 
@@ -95,7 +96,7 @@ export class AIMarkerService {
 
       markers.push({
         id: `ai-moment-${moment.id || Date.now()}`,
-        type: moment.type === "climax" ? ("important" as const) : ("note" as const),
+        type: moment.type === KeyMomentType.CLIMAX ? ("important" as const) : ("note" as const),
         time: moment.timestamp,
         name: this.getMomentTypeLabel(moment.type),
         description: moment.description,
@@ -136,10 +137,10 @@ export class AIMarkerService {
             source: "ai-analysis",
             qualityScore: overall,
             metrics: {
-              sharpness: insights.qualityMetrics.sharpness,
-              brightness: insights.qualityMetrics.brightness,
-              contrast: insights.qualityMetrics.contrast,
-              saturation: insights.qualityMetrics.saturation,
+              sharpness: insights.qualityMetrics!.sharpness,
+              brightness: insights.qualityMetrics!.brightness,
+              contrast: insights.qualityMetrics!.contrast,
+              saturation: insights.qualityMetrics!.saturation,
             },
           },
         })

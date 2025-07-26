@@ -1,83 +1,11 @@
 /**
- * Общие типы для Timeline AI инструментов
+ * AI-специфичные типы для Timeline AI инструментов
+ *
+ * Основные типы Timeline (TimelineProject, TimelineSection, TimelineTrack, TimelineClip)
+ * импортируются из @/features/timeline/types/timeline
  */
 
-// Локальные типы для AI Timeline инструментов
-export interface TimelineProject {
-  id: string
-  name: string
-  description?: string
-  duration: number
-  frameRate?: number
-  fps?: number
-  resolution?: { width: number; height: number }
-  audioSampleRate?: number
-  sampleRate?: number
-  createdAt: string
-  updatedAt: string
-  globalTracks: TimelineTrack[]
-  sections: TimelineSection[]
-  markers?: any[]
-  resources?: any
-  settings?: any
-  version?: string
-}
-
-export interface TimelineSection {
-  id: string
-  name: string
-  startTime: number
-  duration: number
-  color?: string
-  description?: string
-  tracks: TimelineTrack[]
-  index?: number
-  endTime?: number
-  isCollapsed?: boolean
-  tags?: string[]
-  realStartTime?: number
-}
-
-export interface TimelineTrack {
-  id: string
-  name: string
-  type: "video" | "audio" | "subtitle" | "music"
-  sectionId?: string
-  height?: number
-  volume?: number
-  muted?: boolean
-  locked?: boolean
-  selected?: boolean
-  clips: TimelineClip[]
-  order?: number
-  isHidden?: boolean
-  isMuted?: boolean
-  isLocked?: boolean
-  isSolo?: boolean
-  pan?: number
-  trackEffects?: any[]
-  trackFilters?: any[]
-}
-
-export interface TimelineClip {
-  id: string
-  name?: string
-  trackId?: string
-  startTime: number
-  duration: number
-  mediaFile?: any
-  volume?: number
-  speed?: number
-  opacity?: number
-  effects?: any[]
-  transitions?: any[]
-  createdAt?: string
-  updatedAt?: string
-  mediaId?: string
-  filters?: any[]
-  isSelected?: boolean
-  isLocked?: boolean
-}
+import type { TimelineClip, TimelineSection, TimelineTrack } from "@/features/timeline/types/timeline"
 
 /**
  * Типы для функций обратного вызова в reduce операциях

@@ -139,7 +139,7 @@ describe("SubtitleAIToolsModal", () => {
               path: clip.mediaFile.path,
               name: clip.mediaFile.name,
               duration: clip.duration,
-              mediaType: track.type === "video" ? "Video" : "Audio",
+              media_type: track.type === "video" ? "Video" : "Audio",
             })
           }
         }
@@ -472,7 +472,7 @@ describe("SubtitleAIToolsModal", () => {
               path: clip.mediaFile.path,
               name: clip.mediaFile.name,
               duration: clip.duration,
-              mediaType: track.type === "video" ? "Video" : "Audio",
+              media_type: track.type === "video" ? "Video" : "Audio",
             })
           }
         }

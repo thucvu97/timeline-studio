@@ -50,16 +50,48 @@ function ResourceItem({ resource, onRemove }: { resource: TimelineResource; onRe
     }
   }
 
+  // Получаем данные для перетаскивания в зависимости от типа ресурса
+  const getDragData = () => {
+    if (resource.type === "media" || resource.type === "music") {
+      return resource.file
+    }
+    if (resource.type === "effect") {
+      return resource.effect
+    }
+    if (resource.type === "filter") {
+      return resource.filter
+    }
+    if (resource.type === "transition") {
+      return resource.transition
+    }
+    if (resource.type === "template") {
+      return resource.template
+    }
+    if (resource.type === "styleTemplate") {
+      return resource.template
+    }
+    if (resource.type === "subtitle") {
+      return resource.style
+    }
+    return null
+  }
+
+  // Получаем URL для превью
+  const getPreviewUrl = () => {
+    const data = getDragData()
+    if (!data) return ""
+
+    if ("path" in data) return data.path
+    if ("thumbnail" in data) return data.thumbnail
+    return ""
+  }
+
   // Используем DragDropManager для перетаскивания
-  const dragProps = useDraggable(
-    getDraggableType(resource.type),
-    () => resource.data,
-    () => ({
-      url: resource.data?.thumbnail || resource.data?.path,
-      width: 120,
-      height: 80,
-    }),
-  )
+  const dragProps = useDraggable(getDraggableType(resource.type), getDragData, () => ({
+    url: getPreviewUrl(),
+    width: 120,
+    height: 80,
+  }))
 
   return (
     <div

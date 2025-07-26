@@ -8,6 +8,7 @@ import type { MidiMessage } from "../midi-engine"
 class MockMidiClock {
   private handlers = new Map<string, Array<(...args: any[]) => void>>()
   private running = false
+  public position = 0
 
   on(event: string, handler: (...args: any[]) => void) {
     if (!this.handlers.has(event)) {

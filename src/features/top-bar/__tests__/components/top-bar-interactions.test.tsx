@@ -10,9 +10,14 @@ const mockToggleBrowserVisibility = vi.fn()
 const mockToggleTimelineVisibility = vi.fn()
 const mockToggleOptionsVisibility = vi.fn()
 const mockSaveProject = vi.fn()
-const mockOpenProject = vi.fn()
+const mockOpenProject = vi.fn().mockResolvedValue(undefined)
 const mockSetProjectDirty = vi.fn()
 const mockCreateNewProject = vi.fn()
+
+// Mock Tauri dialog
+vi.mock("@tauri-apps/plugin-dialog", () => ({
+  open: vi.fn().mockResolvedValue("/test/project.tsp"),
+}))
 
 vi.mock("@/features/modals/services/modal-provider", () => ({
   useModal: () => ({
@@ -134,7 +139,7 @@ describe("TopBar Interactions", () => {
     expect(mockOpenModal).toHaveBeenCalledWith("export")
   })
 
-  it("should handle project operations", () => {
+  it("should handle project operations", async () => {
     render(<TopBar />)
 
     // Save project
@@ -143,7 +148,11 @@ describe("TopBar Interactions", () => {
 
     // Open project
     fireEvent.click(screen.getByTestId("open-project-button"))
-    expect(mockOpenProject).toHaveBeenCalled()
+
+    // Ждем выполнения асинхронной операции
+    await vi.waitFor(() => {
+      expect(mockOpenProject).toHaveBeenCalled()
+    })
   })
 
   it("should handle project name editing", () => {

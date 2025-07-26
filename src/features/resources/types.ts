@@ -143,11 +143,16 @@ export function createEffectResource(effect: VideoEffect): EffectResource {
   return {
     id: `effect-${effect.id}-${Date.now()}`,
     type: "effect",
-    name: effect.name,
+    name: typeof effect.name === "string" ? effect.name : effect.name.en || effect.name.ru || "Effect",
     resourceId: effect.id,
     addedAt: Date.now(),
     effect,
-    params: effect.params ? { ...effect.params } : {},
+    params: effect.parameters
+      ? effect.parameters.reduce<Record<string, any>>((acc, param) => {
+        acc[param.id] = param.defaultValue
+        return acc
+      }, {})
+      : {},
   }
 }
 

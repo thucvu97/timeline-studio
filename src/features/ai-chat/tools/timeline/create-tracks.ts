@@ -2,7 +2,7 @@
  * AI инструмент для создания структуры треков на Timeline
  */
 
-import type { TimelineTrack } from "@/features/timeline/types"
+import type { TimelineTrack } from "@/features/timeline/types/timeline"
 
 import { generateTrackId } from "./utils/generators"
 import { getCurrentTimelineProject, saveTimelineProject } from "./utils/helpers"

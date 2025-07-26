@@ -2,7 +2,7 @@
  * AI инструмент для создания секций на Timeline
  */
 
-import type { TimelineClip, TimelineSection } from "@/features/timeline/types"
+import type { TimelineClip, TimelineSection } from "@/features/timeline/types/timeline"
 
 import { calculateSectionsCoverage } from "./utils/calculators"
 import {

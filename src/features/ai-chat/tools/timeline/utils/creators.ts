@@ -2,12 +2,12 @@
  * Функции создания элементов для Timeline AI инструментов
  */
 
+import type { TimelineClip, TimelineSection, TimelineTrack } from "@/features/timeline/types/timeline"
+
 import { getTimelineStateAccess } from "../types"
 import { determineContentType, getColorForContentType } from "./detectors"
 import { extractDateFromClip } from "./formatters"
 import { generateSectionId, generateTrackId } from "./generators"
-
-import type { TimelineClip, TimelineSection, TimelineTrack } from "../types"
 
 export function createDefaultTrackStructure(templateType: string): TimelineTrack[] {
   const tracks: TimelineTrack[] = []
@@ -208,7 +208,7 @@ export function createSectionsByDate(clips: TimelineClip[], settings: any): Time
       startTime: minStartTime,
       endTime: maxEndTime,
       duration: maxEndTime - minStartTime,
-      realStartTime: new Date(dateKey).getTime(),
+      realStartTime: new Date(dateKey),
       tracks: [],
       isCollapsed: false,
       color: settings.defaultColor || "#4F46E5",

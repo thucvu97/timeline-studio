@@ -4,15 +4,40 @@ import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 // Мокаем backend-sync ДО импорта компонентов
-const mockExecuteCommand = vi.fn().mockResolvedValue({ success: true })
-vi.mock("@/features/app-state/services/backend-sync", () => ({
-  getBackendSync: () => ({
-    onStateChange: vi.fn(() => () => {}),
-    sendCommand: vi.fn(),
-    executeCommand: mockExecuteCommand,
-    onEvent: vi.fn(() => () => {}),
-  }),
-}))
+vi.mock("@/features/app-state/services/backend-sync", () => {
+  const mockExecuteCommand = vi.fn()
+  const mockOnStateChange = vi.fn()
+  const mockOnEvent = vi.fn()
+  const mockConnect = vi.fn()
+  const mockDisconnect = vi.fn()
+  const mockGetProjectState = vi.fn()
+  const mockGetEventHistory = vi.fn()
+
+  // Создаем мок класса BackendSync внутри фабрики
+  class MockBackendSync {
+    onStateChange = mockOnStateChange
+    onEvent = mockOnEvent
+    executeCommand = mockExecuteCommand
+    connect = mockConnect
+    disconnect = mockDisconnect
+    getProjectState = mockGetProjectState
+    getEventHistory = mockGetEventHistory
+  }
+
+  const mockBackendSyncInstance = new MockBackendSync()
+
+  return {
+    getBackendSync: vi.fn(() => mockBackendSyncInstance),
+    BackendSync: MockBackendSync,
+    _mockExecuteCommand: mockExecuteCommand,
+    _mockOnStateChange: mockOnStateChange,
+    _mockOnEvent: mockOnEvent,
+    _mockConnect: mockConnect,
+    _mockDisconnect: mockDisconnect,
+    _mockGetProjectState: mockGetProjectState,
+    _mockGetEventHistory: mockGetEventHistory,
+  }
+})
 
 // Мокаем useMachine для UI машины
 const mockUISend = vi.fn()
@@ -44,12 +69,32 @@ import { MediaFile } from "@/features/media/types/media"
 import { useTimeline } from "../../hooks/use-timeline"
 import { TimelineProvider } from "../../services/timeline-provider"
 
+// Получаем моки из модуля
+const {
+  _mockExecuteCommand: mockExecuteCommand,
+  _mockOnStateChange: mockOnStateChange,
+  _mockOnEvent: mockOnEvent,
+  _mockConnect: mockConnect,
+  _mockDisconnect: mockDisconnect,
+  _mockGetProjectState: mockGetProjectState,
+  _mockGetEventHistory: mockGetEventHistory,
+} = await import("@/features/app-state/services/backend-sync")
+
 const wrapper = ({ children }: { children: React.ReactNode }) => <TimelineProvider>{children}</TimelineProvider>
 
 describe("useTimeline", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockExecuteCommand.mockClear()
+    mockExecuteCommand.mockResolvedValue({ success: true, data: null, error: null })
+    mockOnStateChange.mockClear()
+    mockOnStateChange.mockReturnValue(() => {})
+    mockOnEvent.mockClear()
+    mockOnEvent.mockReturnValue(() => {})
+    mockConnect.mockClear()
+    mockDisconnect.mockClear()
+    mockGetProjectState.mockClear()
+    mockGetEventHistory.mockClear()
     mockUISend.mockClear()
   })
 
@@ -111,7 +156,7 @@ describe("useTimeline", () => {
       expect(mockExecuteCommand).toHaveBeenCalledWith({
         type: "SaveProject",
         params: {
-          path: undefined,
+          path: null,
         },
       })
     })
@@ -167,8 +212,8 @@ describe("useTimeline", () => {
         type: "AddTrack",
         params: {
           name: "Video Track",
-          trackType: "video",
-          index: undefined,
+          track_type: "VIDEO",
+          index: null,
         },
       })
     })
@@ -183,7 +228,7 @@ describe("useTimeline", () => {
       expect(mockExecuteCommand).toHaveBeenCalledWith({
         type: "DeleteTrack",
         params: {
-          trackId: "track-1",
+          track_id: "track-1",
         },
       })
     })
@@ -198,8 +243,11 @@ describe("useTimeline", () => {
       expect(mockExecuteCommand).toHaveBeenCalledWith({
         type: "UpdateTrack",
         params: {
-          trackId: "track-1",
-          updates: { name: "Updated Track" },
+          track_id: "track-1",
+          updates: {
+            enabled: null,
+            locked: null,
+          },
         },
       })
     })
@@ -225,8 +273,8 @@ describe("useTimeline", () => {
       expect(mockExecuteCommand).toHaveBeenCalledWith({
         type: "AddClip",
         params: {
-          trackId: "track-1",
-          mediaId: mockMediaFile.id,
+          track_id: "track-1",
+          media_id: mockMediaFile.id,
           time: 0,
         },
       })
@@ -242,7 +290,7 @@ describe("useTimeline", () => {
       expect(mockExecuteCommand).toHaveBeenCalledWith({
         type: "DeleteClip",
         params: {
-          clipId: "clip-1",
+          clip_id: "clip-1",
         },
       })
     })
@@ -257,8 +305,11 @@ describe("useTimeline", () => {
       expect(mockExecuteCommand).toHaveBeenCalledWith({
         type: "UpdateClip",
         params: {
-          clipId: "clip-1",
-          updates: { volume: 0.5 },
+          clip_id: "clip-1",
+          updates: {
+            playback_rate: 1,
+            enabled: null,
+          },
         },
       })
     })
@@ -273,8 +324,8 @@ describe("useTimeline", () => {
       expect(mockExecuteCommand).toHaveBeenCalledWith({
         type: "MoveClip",
         params: {
-          clipId: "clip-1",
-          trackId: "track-2",
+          clip_id: "clip-1",
+          track_id: "track-2",
           time: 20,
         },
       })
@@ -290,7 +341,7 @@ describe("useTimeline", () => {
       expect(mockExecuteCommand).toHaveBeenCalledWith({
         type: "TrimClip",
         params: {
-          clipId: "clip-1",
+          clip_id: "clip-1",
           start: 2,
           end: 8,
         },

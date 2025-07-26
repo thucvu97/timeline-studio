@@ -310,7 +310,7 @@ describe("useTimelineActions", () => {
         result.current.addSingleMediaToTimeline(mockVideoFile)
       })
 
-      expect(mockTimeline.addClip).toHaveBeenCalledWith("video-track-1", mockVideoFile, 0, 30)
+      expect(mockTimeline.addClip).toHaveBeenCalledWith("video-track-1", mockVideoFile, 0)
     })
 
     it("должен создать новый трек если подходящий не найден", () => {
@@ -333,7 +333,7 @@ describe("useTimelineActions", () => {
         result.current.addSingleMediaToTimeline(mockVideoFile, undefined, 15)
       })
 
-      expect(mockTimeline.addClip).toHaveBeenCalledWith("video-track-1", mockVideoFile, 15, 30)
+      expect(mockTimeline.addClip).toHaveBeenCalledWith("video-track-1", mockVideoFile, 15)
     })
 
     it("должен использовать customTrackId если указан", () => {
@@ -343,7 +343,7 @@ describe("useTimelineActions", () => {
         result.current.addSingleMediaToTimeline(mockVideoFile, "custom-track", 10)
       })
 
-      expect(mockTimeline.addClip).toHaveBeenCalledWith("custom-track", mockVideoFile, 10, 30)
+      expect(mockTimeline.addClip).toHaveBeenCalledWith("custom-track", mockVideoFile, 10)
     })
 
     it("должен использовать дефолтную длительность для изображений", () => {
@@ -354,12 +354,7 @@ describe("useTimelineActions", () => {
         result.current.addSingleMediaToTimeline(mockImageFile)
       })
 
-      expect(mockTimeline.addClip).toHaveBeenCalledWith(
-        "image-track-1",
-        mockImageFile,
-        0,
-        5, // 5 секунд для изображений
-      )
+      expect(mockTimeline.addClip).toHaveBeenCalledWith("image-track-1", mockImageFile, 0)
     })
 
     it("должен использовать дефолтную длительность для файлов без duration", () => {
@@ -371,12 +366,7 @@ describe("useTimelineActions", () => {
         result.current.addSingleMediaToTimeline(fileWithoutDuration)
       })
 
-      expect(mockTimeline.addClip).toHaveBeenCalledWith(
-        "video-track-1",
-        fileWithoutDuration,
-        0,
-        10, // 10 секунд для видео/аудио без duration
-      )
+      expect(mockTimeline.addClip).toHaveBeenCalledWith("video-track-1", fileWithoutDuration, 0)
     })
   })
 
@@ -557,7 +547,7 @@ describe("useTimelineActions", () => {
         result.current.addSingleMediaToTimeline(mockVideoFile)
       })
 
-      expect(mockTimeline.addClip).toHaveBeenCalledWith("video-track-1", mockVideoFile, 10, 30)
+      expect(mockTimeline.addClip).toHaveBeenCalledWith("video-track-1", mockVideoFile, 10)
     })
   })
 })
