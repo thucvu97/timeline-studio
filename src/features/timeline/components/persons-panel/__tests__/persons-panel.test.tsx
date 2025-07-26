@@ -4,12 +4,12 @@
 
 import { describe, expect, it, vi } from "vitest"
 
+import { fireEvent, render, screen } from "@testing-library/react"
+
 // Mock для хука useTimelinePersons
 vi.mock("@/features/timeline/hooks/use-timeline-persons", () => ({
   useTimelinePersons: vi.fn(),
 }))
-
-import { fireEvent, render, screen } from "@testing-library/react"
 
 import type { PersonProfile } from "@/features/person-identification/types/person"
 import type { TimelinePersonAppearance } from "@/features/timeline/hooks/use-timeline-persons"

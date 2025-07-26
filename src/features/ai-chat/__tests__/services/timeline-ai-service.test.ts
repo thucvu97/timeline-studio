@@ -332,32 +332,34 @@ describe("TimelineAIService", () => {
     it("should initialize API key from secure storage", async () => {
       // Mock ApiKeyLoader
       const mockGetApiKey = vi.fn().mockResolvedValue("test-api-key-123")
+      const mockUpdateCache = vi.fn()
       vi.mocked(ApiKeyLoader.getInstance).mockReturnValue({
         getApiKey: mockGetApiKey,
         clearCache: vi.fn(),
-        updateCache: vi.fn(),
+        updateCache: mockUpdateCache,
       } as any)
 
       const result = await service.initializeApiKey()
 
       expect(mockGetApiKey).toHaveBeenCalledWith("claude")
-      expect(mockClaudeService.setApiKey).toHaveBeenCalledWith("test-api-key-123")
+      expect(mockUpdateCache).toHaveBeenCalledWith("claude", "test-api-key-123")
       expect(result).toBe(true)
     })
 
     it("should return false when no API key is found", async () => {
       // Mock ApiKeyLoader
       const mockGetApiKey = vi.fn().mockResolvedValue(null)
+      const mockUpdateCache = vi.fn()
       vi.mocked(ApiKeyLoader.getInstance).mockReturnValue({
         getApiKey: mockGetApiKey,
         clearCache: vi.fn(),
-        updateCache: vi.fn(),
+        updateCache: mockUpdateCache,
       } as any)
 
       const result = await service.initializeApiKey()
 
       expect(mockGetApiKey).toHaveBeenCalledWith("claude")
-      expect(mockClaudeService.setApiKey).not.toHaveBeenCalled()
+      expect(mockUpdateCache).not.toHaveBeenCalled()
       expect(result).toBe(false)
     })
   })
