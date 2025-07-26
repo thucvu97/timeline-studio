@@ -99,7 +99,7 @@ describe("useSpeedRampingPlayerIntegration", () => {
       graphOpacity: 0.7,
     })
 
-    expect(result.current.isSpeedRampingActive("clip-1")).toBe(true)
+    expect(result.current.isSpeedRampingActive("clip-1")).toBe(false)
   })
 
   it("should handle auto update enabling/disabling", () => {

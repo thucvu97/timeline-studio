@@ -503,9 +503,9 @@ function calculateCompressionRatio(data: any, _format: string): number {
 
 function calculateDataSize(data: any): number {
   if (typeof data === "string") {
-    return new Blob([data]).size
+    return new TextEncoder().encode(data).length
   }
-  return new Blob([JSON.stringify(data)]).size
+  return new TextEncoder().encode(JSON.stringify(data)).length
 }
 
 function generateExportRecommendations(format: string, stats: any, includeData: any): string[] {

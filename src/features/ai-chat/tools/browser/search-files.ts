@@ -131,10 +131,12 @@ export async function searchMediaFiles(params: SearchMediaParams): Promise<Brows
               const location = advanced.caseSensitive ? file.location || "" : (file.location || "").toLowerCase()
               return location.includes(searchTerm)
             case "tags":
-              return file.tags?.some((tag) => {
-                const tagValue = advanced.caseSensitive ? tag : tag.toLowerCase()
-                return tagValue.includes(searchTerm)
-              })
+              return (
+                file.tags?.some((tag: string) => {
+                  const tagValue = advanced.caseSensitive ? tag : tag.toLowerCase()
+                  return tagValue.includes(searchTerm)
+                }) || false
+              )
             case "metadata":
               // В реальной реализации поиск по метаданным
               if (file.metadata) {

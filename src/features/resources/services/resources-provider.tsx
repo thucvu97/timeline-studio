@@ -256,8 +256,8 @@ export function ResourcesProviderV2({ children }: ResourcesProviderV2Props) {
   // Конвертируем медиа из backend в MediaResource формат
   const mediaResources: MediaResource[] = mediaPool
     ? Array.from(mediaPool.items.values())
-      .filter((item) => item.type === "video" || item.type === "image")
-      .map((item) =>
+      .filter((item: any) => item.type === "video" || item.type === "image")
+      .map((item: any) =>
         createMediaResource({
           id: item.id,
           name: item.name,
@@ -276,8 +276,8 @@ export function ResourcesProviderV2({ children }: ResourcesProviderV2Props) {
 
   const musicResources: MusicResource[] = mediaPool
     ? Array.from(mediaPool.items.values())
-      .filter((item) => item.type === "audio")
-      .map((item) =>
+      .filter((item: any) => item.type === "audio")
+      .map((item: any) =>
         createMusicResource({
           id: item.id,
           name: item.name,
@@ -347,25 +347,25 @@ export function ResourcesProviderV2({ children }: ResourcesProviderV2Props) {
     getResourceById,
     getResourcesByType,
     isMusicAdded: (file: MediaFile) => {
-      return musicResources.some((resource) => resource.data.path === file.path)
+      return musicResources.some((resource) => (resource as any).data?.path === file.path)
     },
     isSubtitleAdded: (style: SubtitleStyleTemplate) => {
-      return subtitleResources.some((resource) => resource.data.id === style.id)
+      return subtitleResources.some((resource) => (resource as any).data?.id === style.id)
     },
     isTemplateAdded: (template: MediaTemplate) => {
-      return templateResources.some((resource) => resource.data.id === template.id)
+      return templateResources.some((resource) => (resource as any).data?.id === template.id)
     },
     isEffectAdded: (effect: VideoEffect) => {
-      return effectResources.some((resource) => resource.data.id === effect.id)
+      return effectResources.some((resource) => (resource as any).data?.id === effect.id)
     },
     isFilterAdded: (filter: VideoFilter) => {
-      return filterResources.some((resource) => resource.data.id === filter.id)
+      return filterResources.some((resource) => (resource as any).data?.id === filter.id)
     },
     isTransitionAdded: (transition: Transition) => {
-      return transitionResources.some((resource) => resource.data.id === transition.id)
+      return transitionResources.some((resource) => (resource as any).data?.id === transition.id)
     },
     isStyleTemplateAdded: (template: StyleTemplate) => {
-      return styleTemplateResources.some((resource) => resource.data.id === template.id)
+      return styleTemplateResources.some((resource) => (resource as any).data?.id === template.id)
     },
     isAdded: (resourceId: string, type: string) => {
       const resources = getResourcesByType(type)

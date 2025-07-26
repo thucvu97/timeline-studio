@@ -2,12 +2,12 @@
  * Функции создания элементов для Timeline AI инструментов
  */
 
-import type { TimelineClip, TimelineSection, TimelineTrack } from "@/features/timeline/types"
-
 import { getTimelineStateAccess } from "../types"
 import { determineContentType, getColorForContentType } from "./detectors"
 import { extractDateFromClip } from "./formatters"
 import { generateSectionId, generateTrackId } from "./generators"
+
+import type { TimelineClip, TimelineSection, TimelineTrack } from "../types"
 
 export function createDefaultTrackStructure(templateType: string): TimelineTrack[] {
   const tracks: TimelineTrack[] = []
@@ -197,7 +197,7 @@ export function createSectionsByDate(clips: TimelineClip[], settings: any): Time
 
   const sections: TimelineSection[] = []
 
-  for (const [dateKey, dateClips] of dateGroups) {
+  for (const [dateKey, dateClips] of Array.from(dateGroups.entries())) {
     const minStartTime = Math.min(...dateClips.map((c) => c.startTime))
     const maxEndTime = Math.max(...dateClips.map((c) => c.startTime + c.duration))
 
@@ -208,7 +208,7 @@ export function createSectionsByDate(clips: TimelineClip[], settings: any): Time
       startTime: minStartTime,
       endTime: maxEndTime,
       duration: maxEndTime - minStartTime,
-      realStartTime: new Date(dateKey),
+      realStartTime: new Date(dateKey).getTime(),
       tracks: [],
       isCollapsed: false,
       color: settings.defaultColor || "#4F46E5",
@@ -298,7 +298,7 @@ export function createSectionsByContentType(clips: TimelineClip[], _settings: an
 
   const sections: TimelineSection[] = []
 
-  for (const [contentType, contentClips] of contentGroups) {
+  for (const [contentType, contentClips] of Array.from(contentGroups.entries())) {
     const minStartTime = Math.min(...contentClips.map((c) => c.startTime))
     const maxEndTime = Math.max(...contentClips.map((c) => c.startTime + c.duration))
 
@@ -349,7 +349,7 @@ export function createSectionsByLocation(clips: TimelineClip[], settings: any): 
 
   const sections: TimelineSection[] = []
 
-  for (const [location, locationClips] of locationGroups) {
+  for (const [location, locationClips] of Array.from(locationGroups.entries())) {
     const minStartTime = Math.min(...locationClips.map((c) => c.startTime))
     const maxEndTime = Math.max(...locationClips.map((c) => c.startTime + c.duration))
 

@@ -13,8 +13,8 @@ interface EffectPresetsProps {
   selectedPreset?: string
 }
 
-interface CustomPreset extends EffectPreset {
-  createdAt?: string
+interface CustomPreset extends Omit<EffectPreset, "createdAt"> {
+  createdAt?: string | Date
 }
 
 /**
@@ -41,7 +41,7 @@ export function EffectPresets({ effect, onApplyPreset, selectedPreset }: EffectP
             // Конвертируем старый формат в новый
             const converted = Object.entries(parsed).map(([key, preset]: [string, any]) => ({
               ...preset,
-              id: key
+              id: key,
             }))
             setCustomPresets(converted)
           }
@@ -60,10 +60,12 @@ export function EffectPresets({ effect, onApplyPreset, selectedPreset }: EffectP
 
     // Сначала добавляем встроенные пресеты
     if (effect.presets) {
-      combined.push(...effect.presets.map(preset => ({
-        ...preset,
-        createdAt: undefined // Встроенные пресеты не имеют времени создания
-      })))
+      combined.push(
+        ...effect.presets.map((preset) => ({
+          ...preset,
+          createdAt: undefined, // Встроенные пресеты не имеют времени создания
+        })),
+      )
     }
 
     // Затем добавляем пользовательские пресеты
@@ -74,7 +76,7 @@ export function EffectPresets({ effect, onApplyPreset, selectedPreset }: EffectP
 
   // Обработчик удаления пользовательского пресета
   const handleDeleteCustomPreset = (presetId: string) => {
-    const updatedPresets = customPresets.filter(preset => preset.id !== presetId)
+    const updatedPresets = customPresets.filter((preset) => preset.id !== presetId)
     setCustomPresets(updatedPresets)
 
     // Сохраняем обновленные пресеты в localStorage
@@ -166,7 +168,10 @@ export function EffectPresets({ effect, onApplyPreset, selectedPreset }: EffectP
                         </div>
                         {isCustom && preset.createdAt && (
                           <div className="text-xs text-gray-400">
-                            {t("effects.createdAt", "Создано")}: {new Date(preset.createdAt).toLocaleDateString()}
+                            {t("effects.createdAt", "Создано")}:{" "}
+                            {typeof preset.createdAt === "string"
+                              ? new Date(preset.createdAt).toLocaleDateString()
+                              : preset.createdAt.toLocaleDateString()}
                           </div>
                         )}
                       </div>

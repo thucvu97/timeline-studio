@@ -112,8 +112,8 @@ export async function suggestTimelineImprovements(params: any): Promise<Timeline
           statistics: {
             totalTracks: allTracks.length,
             totalClips: allClips.length,
-            totalSections: currentProject.sections.length,
-            projectDuration: currentProject.duration,
+            totalSections: currentProject.sections?.length || 0,
+            projectDuration: currentProject.duration || 0,
           },
         },
         suggestions: prioritizedSuggestions,
@@ -620,9 +620,12 @@ function generateOverallRecommendations(
   const recommendations: string[] = []
 
   // Общие рекомендации на основе баллов
-  const avgScore =
-    Object.values(analysisResults).reduce((sum: number, result: any) => sum + (result.score || 0), 0) /
-    Object.keys(analysisResults).length
+  const results = Object.values(analysisResults)
+  const totalScore: number = results.reduce((sum: number, result: any) => {
+    return sum + (Number(result?.score) || 0)
+  }, 0)
+  const categoryCount: number = Object.keys(analysisResults).length
+  const avgScore: number = categoryCount > 0 ? totalScore / categoryCount : 0
 
   if (avgScore < 50) {
     recommendations.push("Проект требует значительной доработки")

@@ -2,7 +2,7 @@
  * Функции детектирования для Timeline AI инструментов
  */
 
-import type { TimelineClip } from "@/features/timeline/types"
+import type { TimelineClip } from "../types"
 
 export function determineContentType(clip: TimelineClip): string {
   // Определение типа контента на основе метаданных
@@ -82,7 +82,7 @@ export function detectClipOverlaps(clips: TimelineClip[]): any[] {
   })
 
   // Проверяем перекрытия на каждом треке
-  for (const [trackId, trackClipList] of trackClips) {
+  for (const [trackId, trackClipList] of Array.from(trackClips.entries())) {
     const sortedClips = trackClipList.sort((a, b) => a.startTime - b.startTime)
 
     for (let i = 0; i < sortedClips.length - 1; i++) {

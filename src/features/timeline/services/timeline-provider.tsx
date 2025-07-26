@@ -385,15 +385,15 @@ export function TimelineProvider({ children }: TimelineProviderV2Props) {
 
   // Команды воспроизведения
   const play = useCallback(async () => {
-    await executeCommand({ type: "Play" })
+    await executeCommand({ type: "Play", params: {} })
   }, [executeCommand])
 
   const pause = useCallback(async () => {
-    await executeCommand({ type: "Pause" })
+    await executeCommand({ type: "Pause", params: {} })
   }, [executeCommand])
 
   const stop = useCallback(async () => {
-    await executeCommand({ type: "Stop" })
+    await executeCommand({ type: "Stop", params: {} })
   }, [executeCommand])
 
   const seek = useCallback(

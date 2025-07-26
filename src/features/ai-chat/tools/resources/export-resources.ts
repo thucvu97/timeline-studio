@@ -54,7 +54,7 @@ export async function exportResourceList(params: ExportListParams): Promise<Reso
     let resourcesToExport = [...resourcesProvider.resources]
 
     // Применяем фильтры
-    if (filterCriteria.resourceTypes?.length > 0) {
+    if (filterCriteria.resourceTypes && filterCriteria.resourceTypes.length > 0) {
       resourcesToExport = resourcesToExport.filter((r) => filterCriteria.resourceTypes!.includes((r as any).type))
     }
 

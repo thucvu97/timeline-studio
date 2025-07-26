@@ -5,9 +5,9 @@ import { useTranslation } from "react-i18next"
 import subtitleStylesData from "../data/subtitle-styles.json"
 import { SubtitleStyleTemplate } from "../types/subtitles"
 import {
-  createFallbackSubtitleStyle,
-  processSubtitleStyles,
-  validateSubtitleStylesData,
+  createFallbackSubtitleStyleTemplate,
+  processSubtitleStyleTemplates,
+  validateSubtitleStyleTemplatesData,
 } from "../utils/subtitle-processor"
 
 // Импортируем JSON файл напрямую - в Tauri это работает отлично
@@ -41,12 +41,12 @@ export function useSubtitles(): UseSubtitlesReturn {
       const data = subtitleStylesData
 
       // Валидируем данные
-      if (!validateSubtitleStylesData(data)) {
+      if (!validateSubtitleStyleTemplatesData(data)) {
         throw new Error(t("subtitles.errors.invalidStylesData", "Invalid subtitle styles data structure"))
       }
 
       // Обрабатываем стили (преобразуем в типизированные объекты)
-      const processedStyles = processSubtitleStyles(data.styles)
+      const processedStyles = processSubtitleStyleTemplates(data.styles)
 
       setSubtitles(processedStyles)
 
@@ -61,9 +61,9 @@ export function useSubtitles(): UseSubtitlesReturn {
 
       // Создаем fallback стили в случае ошибки
       const fallbackStyles = [
-        createFallbackSubtitleStyle("basic-white"),
-        createFallbackSubtitleStyle("basic-yellow"),
-        createFallbackSubtitleStyle("minimal-clean"),
+        createFallbackSubtitleStyleTemplate("basic-white"),
+        createFallbackSubtitleStyleTemplate("basic-yellow"),
+        createFallbackSubtitleStyleTemplate("minimal-clean"),
       ]
 
       setSubtitles(fallbackStyles)
@@ -101,26 +101,26 @@ export function useSubtitleById(subtitleId: string): SubtitleStyleTemplate | nul
     return null
   }
 
-  return subtitles.find((subtitle: SubtitleStyle) => subtitle.id === subtitleId) || null
+  return subtitles.find((subtitle: SubtitleStyleTemplate) => subtitle.id === subtitleId) || null
 }
 
 /**
  * Хук для получения субтитров по категории
  */
-export function useSubtitlesByCategory(category: string): SubtitleStyle[] {
+export function useSubtitlesByCategory(category: string): SubtitleStyleTemplate[] {
   const { subtitles, isReady } = useSubtitles()
 
   if (!isReady) {
     return []
   }
 
-  return subtitles.filter((subtitle: SubtitleStyle) => subtitle.category === category)
+  return subtitles.filter((subtitle: SubtitleStyleTemplate) => subtitle.category === category)
 }
 
 /**
  * Хук для поиска субтитров
  */
-export function useSubtitlesSearch(query: string, lang: "ru" | "en" = "ru"): SubtitleStyle[] {
+export function useSubtitlesSearch(query: string, lang: "ru" | "en" = "ru"): SubtitleStyleTemplate[] {
   const { subtitles, isReady } = useSubtitles()
 
   if (!isReady || !query.trim()) {
@@ -130,7 +130,7 @@ export function useSubtitlesSearch(query: string, lang: "ru" | "en" = "ru"): Sub
   const lowercaseQuery = query.toLowerCase()
 
   return subtitles.filter(
-    (subtitle: SubtitleStyle) =>
+    (subtitle: SubtitleStyleTemplate) =>
       (subtitle.labels?.[lang] || subtitle.name || "").toLowerCase().includes(lowercaseQuery) ||
       (subtitle.description?.[lang] || "").toLowerCase().includes(lowercaseQuery) ||
       (subtitle.tags || []).some((tag: string) => tag.toLowerCase().includes(lowercaseQuery)),

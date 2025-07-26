@@ -50,25 +50,48 @@ export function usePlayerAIIntegration() {
   }, [player.appliedEffects, player.appliedFilters, player.appliedTemplate])
 
   // Функция для анализа качества медиа
-  const analyzeMediaQuality = useCallback((): any => {
+  const analyzeMediaQuality = useCallback((): {
+    issues: Array<{
+      type: string
+      severity: "low" | "medium" | "high"
+      message: string
+    }>
+    overall: number
+  } | null => {
     const media = getCurrentMedia()
     if (!media) return null
 
-    const issues = []
-    const videoStream = media.probeData?.streams?.find((s) => s.codec_type === "video")
-    const audioStream = media.probeData?.streams?.find((s) => s.codec_type === "audio")
+    const issues: Array<{
+      type: string
+      severity: "low" | "medium" | "high"
+      message: string
+    }> = []
+    const videoStream = media.probeData?.streams?.find((s: any) => s.codec_type === "video")
+    const audioStream = media.probeData?.streams?.find((s: any) => s.codec_type === "audio")
+
+    // Функция для безопасного парсинга frame rate
+    const parseFrameRate = (frameRateStr: string): number => {
+      if (!frameRateStr) return 0
+      const parts = frameRateStr.split("/")
+      if (parts.length === 2) {
+        const numerator = Number.parseFloat(parts[0])
+        const denominator = Number.parseFloat(parts[1])
+        return denominator !== 0 ? numerator / denominator : 0
+      }
+      return Number.parseFloat(frameRateStr) || 0
+    }
 
     // Проверка качества видео
     if (videoStream) {
       const width = videoStream.width || 0
       const height = videoStream.height || 0
       const bitrate = Number.parseInt(videoStream.bit_rate || "0") || 0
-      const fps = eval(videoStream.r_frame_rate || "0") || 0
+      const fps = parseFrameRate(videoStream.r_frame_rate || "0")
 
       if (width < 1280 || height < 720) {
         issues.push({
           type: "low_resolution",
-          severity: "warning",
+          severity: "medium",
           message: `Низкое разрешение: ${width}x${height}`,
         })
       }
@@ -76,7 +99,7 @@ export function usePlayerAIIntegration() {
       if (bitrate < 1000000 && bitrate > 0) {
         issues.push({
           type: "low_bitrate",
-          severity: "warning",
+          severity: "medium",
           message: `Низкий битрейт: ${(bitrate / 1000000).toFixed(1)} Mbps`,
         })
       }
@@ -84,7 +107,7 @@ export function usePlayerAIIntegration() {
       if (fps < 24 && fps > 0) {
         issues.push({
           type: "low_fps",
-          severity: "warning",
+          severity: "medium",
           message: `Низкая частота кадров: ${fps} fps`,
         })
       }
@@ -98,7 +121,7 @@ export function usePlayerAIIntegration() {
       if (sampleRate < 44100 && sampleRate > 0) {
         issues.push({
           type: "low_sample_rate",
-          severity: "info",
+          severity: "low",
           message: `Низкая частота дискретизации: ${sampleRate} Hz`,
         })
       }
@@ -106,20 +129,18 @@ export function usePlayerAIIntegration() {
       if (bitrate < 128000 && bitrate > 0) {
         issues.push({
           type: "low_audio_bitrate",
-          severity: "info",
+          severity: "low",
           message: `Низкий битрейт аудио: ${(bitrate / 1000).toFixed(0)} kbps`,
         })
       }
     }
 
+    // Расчет общего качества (0-100)
+    const overall = Math.max(0, 100 - issues.length * 15)
+
     return {
-      hasIssues: issues.length > 0,
       issues,
-      resolution: videoStream ? `${videoStream.width}x${videoStream.height}` : "unknown",
-      fps: videoStream ? eval(videoStream.r_frame_rate || "0") || 0 : 0,
-      videoBitrate: videoStream ? Number.parseInt(videoStream.bit_rate || "0") || 0 : 0,
-      audioBitrate: audioStream ? Number.parseInt(audioStream.bit_rate || "0") || 0 : 0,
-      sampleRate: audioStream ? Number.parseInt(audioStream.sample_rate || "0") || 0 : 0,
+      overall,
     }
   }, [getCurrentMedia])
 
@@ -149,16 +170,16 @@ export function usePlayerAIIntegration() {
       applyEffect: player.applyEffect,
       removeEffect: (effectId: string) => {
         // Удаляем эффект из списка
-        const updatedEffects = player.appliedEffects.filter((e) => e.id !== effectId)
+        const updatedEffects = (player.appliedEffects || []).filter((e: any) => e.id !== effectId)
         player.clearEffects()
-        updatedEffects.forEach((e) => player.applyEffect(e))
+        updatedEffects.forEach((e: any) => player.applyEffect(e))
       },
       applyFilter: player.applyFilter,
       removeFilter: (filterId: string) => {
         // Удаляем фильтр из списка
-        const updatedFilters = player.appliedFilters.filter((f) => f.id !== filterId)
+        const updatedFilters = (player.appliedFilters || []).filter((f: any) => f.id !== filterId)
         player.clearFilters()
-        updatedFilters.forEach((f) => player.applyFilter(f))
+        updatedFilters.forEach((f: any) => player.applyFilter(f))
       },
       applyTemplate: (template: any, files: CurrentMedia[]) => {
         player.applyTemplate(template, files)
@@ -172,10 +193,10 @@ export function usePlayerAIIntegration() {
       getPlayerStats: () => ({
         totalPlayTime: player.currentTime,
         mediaCount: player.currentVideo ? 1 : 0,
-        effectsCount: player.appliedEffects.length,
-        filtersCount: player.appliedFilters.length,
+        effectsCount: (player.appliedEffects || []).length,
+        filtersCount: (player.appliedFilters || []).length,
         hasTemplate: player.appliedTemplate !== null,
-        speedRampingEnabled: player.speedRampingEnabled,
+        speedRampingEnabled: player.speedRampingEnabled || false,
       }),
     }
 
@@ -192,7 +213,7 @@ export function usePlayerAIIntegration() {
     isReady: player.isVideoReady && getCurrentMedia() !== null,
     hasMedia: getCurrentMedia() !== null,
     isPlaying: player.isPlaying,
-    effectsCount: player.appliedEffects.length,
-    filtersCount: player.appliedFilters.length,
+    effectsCount: (player.appliedEffects || []).length,
+    filtersCount: (player.appliedFilters || []).length,
   }
 }

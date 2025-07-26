@@ -4,7 +4,14 @@
 
 import { assign, fromCallback, fromPromise, setup } from "xstate"
 
-import { ProjectCommand, ProjectEvent, ProjectState } from "@/types/generated/tauri-bindings"
+import {
+  JsonValue,
+  PlayerSource,
+  ProjectCommand,
+  ProjectEvent,
+  ProjectSettings,
+  ProjectState,
+} from "@/types/generated/tauri-bindings"
 
 import { BackendSync, getBackendSync } from "./backend-sync"
 
@@ -273,25 +280,25 @@ export const appMachine = setup({
 // Helper functions for common commands
 export const AppCommands = {
   // Project commands
-  createProject: (name: string, settings: any): ProjectCommand => ({
+  createProject: (name: string, settings: ProjectSettings): ProjectCommand => ({
     type: "CreateProject",
     params: { name, settings },
   }),
 
   saveProject: (path?: string): ProjectCommand => ({
     type: "SaveProject",
-    params: { path },
+    params: { path: path ?? null },
   }),
 
   // Timeline commands
   addClip: (trackId: string, mediaId: string, time: number): ProjectCommand => ({
     type: "AddClip",
-    params: { trackId, mediaId, time },
+    params: { track_id: trackId, media_id: mediaId, time },
   }),
 
   moveClip: (clipId: string, trackId: string, time: number): ProjectCommand => ({
     type: "MoveClip",
-    params: { clipId, trackId, time },
+    params: { clip_id: clipId, track_id: trackId, time },
   }),
 
   // Basic playback commands
@@ -311,7 +318,7 @@ export const AppCommands = {
   // Player commands
   playerSetMedia: (mediaId: string, startTime?: number): ProjectCommand => ({
     type: "PlayerSetMedia",
-    params: { mediaId, startTime },
+    params: { media_id: mediaId, start_time: startTime ?? null },
   }),
 
   playerSetVolume: (volume: number): ProjectCommand => ({
@@ -321,31 +328,31 @@ export const AppCommands = {
 
   playerSelectClip: (clipId: string): ProjectCommand => ({
     type: "PlayerSelectClip",
-    params: { clipId },
+    params: { clip_id: clipId },
   }),
 
   playerClearSelection: (): ProjectCommand => ({
     type: "PlayerClearSelection",
   }),
 
-  playerSetSource: (source: "browser" | "timeline"): ProjectCommand => ({
+  playerSetSource: (source: PlayerSource): ProjectCommand => ({
     type: "PlayerSetSource",
     params: { source },
   }),
 
-  playerApplyEffect: (effectId: string, params: Record<string, any>): ProjectCommand => ({
+  playerApplyEffect: (effectId: string, params: JsonValue): ProjectCommand => ({
     type: "PlayerApplyEffect",
-    params: { effectId, params },
+    params: { effect_id: effectId, params },
   }),
 
-  playerApplyFilter: (filterId: string, params: Record<string, any>): ProjectCommand => ({
+  playerApplyFilter: (filterId: string, params: JsonValue): ProjectCommand => ({
     type: "PlayerApplyFilter",
-    params: { filterId, params },
+    params: { filter_id: filterId, params },
   }),
 
   playerApplyTemplate: (templateId: string, mediaIds: string[]): ProjectCommand => ({
     type: "PlayerApplyTemplate",
-    params: { templateId, mediaIds },
+    params: { template_id: templateId, media_ids: mediaIds },
   }),
 
   playerClearEffects: (): ProjectCommand => ({

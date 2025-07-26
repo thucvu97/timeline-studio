@@ -90,7 +90,7 @@ export function SubtitleAIToolsModal() {
 
   // Фильтруем только видео и аудио файлы для транскрипции
   const audioVideoFiles = mediaFiles
-    .filter((file) => file.mediaType === "Video" || file.mediaType === "Audio")
+    .filter((file) => file.media_type === "Video" || file.media_type === "Audio")
     .map((file) => ({
       id: file.id,
       path: file.path,

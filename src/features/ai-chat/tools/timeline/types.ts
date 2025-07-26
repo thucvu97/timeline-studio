@@ -2,7 +2,82 @@
  * Общие типы для Timeline AI инструментов
  */
 
-import type { TimelineClip, TimelineProject, TimelineSection, TimelineTrack } from "@/features/timeline/types"
+// Локальные типы для AI Timeline инструментов
+export interface TimelineProject {
+  id: string
+  name: string
+  description?: string
+  duration: number
+  frameRate?: number
+  fps?: number
+  resolution?: { width: number; height: number }
+  audioSampleRate?: number
+  sampleRate?: number
+  createdAt: string
+  updatedAt: string
+  globalTracks: TimelineTrack[]
+  sections: TimelineSection[]
+  markers?: any[]
+  resources?: any
+  settings?: any
+  version?: string
+}
+
+export interface TimelineSection {
+  id: string
+  name: string
+  startTime: number
+  duration: number
+  color?: string
+  description?: string
+  tracks: TimelineTrack[]
+  index?: number
+  endTime?: number
+  isCollapsed?: boolean
+  tags?: string[]
+  realStartTime?: number
+}
+
+export interface TimelineTrack {
+  id: string
+  name: string
+  type: "video" | "audio" | "subtitle" | "music"
+  sectionId?: string
+  height?: number
+  volume?: number
+  muted?: boolean
+  locked?: boolean
+  selected?: boolean
+  clips: TimelineClip[]
+  order?: number
+  isHidden?: boolean
+  isMuted?: boolean
+  isLocked?: boolean
+  isSolo?: boolean
+  pan?: number
+  trackEffects?: any[]
+  trackFilters?: any[]
+}
+
+export interface TimelineClip {
+  id: string
+  name?: string
+  trackId?: string
+  startTime: number
+  duration: number
+  mediaFile?: any
+  volume?: number
+  speed?: number
+  opacity?: number
+  effects?: any[]
+  transitions?: any[]
+  createdAt?: string
+  updatedAt?: string
+  mediaId?: string
+  filters?: any[]
+  isSelected?: boolean
+  isLocked?: boolean
+}
 
 /**
  * Типы для функций обратного вызова в reduce операциях
@@ -41,6 +116,13 @@ export interface TimelineToolResult {
     suggestions?: string[]
     modifications?: any[]
     exportData?: any
+    statistics?: any
+    fileInfo?: any
+    modificationsCount?: number
+    enhancementDetails?: any
+    overallRecommendations?: string[]
+    synchronizedElements?: string[]
+    syncOptions?: any
   }
   errors?: string[]
   warnings?: string[]
@@ -51,12 +133,12 @@ export interface TimelineToolResult {
  * Интерфейс для доступа к состоянию Timeline
  */
 export interface TimelineStateAccess {
-  getCurrentProject: () => TimelineProject | null
-  createProject: (project: TimelineProject) => Promise<void>
-  updateProject: (updates: Partial<TimelineProject>) => Promise<void>
-  createSection: (section: Omit<TimelineSection, "id">) => Promise<TimelineSection>
-  createTrack: (track: Omit<TimelineTrack, "id">) => Promise<TimelineTrack>
-  addClip: (clip: Omit<TimelineClip, "id">) => Promise<TimelineClip>
+  getCurrentProject: () => unknown
+  createProject: (project: any) => Promise<void>
+  updateProject: (updates: any) => Promise<void>
+  createSection: (section: any) => Promise<any>
+  createTrack: (track: any) => Promise<any>
+  addClip: (clip: any) => Promise<any>
   getProjectStats: () => {
     totalDuration: number
     totalClips: number

@@ -7,13 +7,13 @@ import React from "react"
 import { Copy, Music, Scissors, Sparkles, Trash2, Volume2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { useModal } from "@/features/modals/services"
 import { convertToAssetUrl } from "@/lib/tauri-utils"
 import { cn } from "@/lib/utils"
 
 import { useClips } from "../../hooks"
 import { timelinePlayerSync } from "../../services/timeline-player-sync"
 import { AppliedEffect, TimelineClip, TimelineTrack } from "../../types"
-import { AudioEffectsEditor } from "../audio-effects-editor"
 import Waveform from "../track/waveform"
 
 interface AudioClipProps {
@@ -34,8 +34,8 @@ interface AudioClipProps {
  */
 export function AudioClip({ clip, track, onUpdate, onRemove }: AudioClipProps) {
   const [isHovered, setIsHovered] = React.useState(false)
-  const [showEffectsEditor, setShowEffectsEditor] = React.useState(false)
   const { updateClip } = useClips()
+  const { openModal } = useModal()
 
   const handleSelect = () => {
     const newIsSelected = !clip.isSelected
@@ -64,7 +64,11 @@ export function AudioClip({ clip, track, onUpdate, onRemove }: AudioClipProps) {
 
   const handleEffects = (e: React.MouseEvent) => {
     e.stopPropagation()
-    setShowEffectsEditor(true)
+    openModal("audio-effects", {
+      clip,
+      track,
+      onApplyEffects: handleApplyEffects,
+    })
   }
 
   const handleApplyEffects = (effects: AppliedEffect[]) => {
@@ -229,15 +233,6 @@ export function AudioClip({ clip, track, onUpdate, onRemove }: AudioClipProps) {
           <div className="absolute right-0 top-0 bottom-0 w-1 bg-white/50 cursor-e-resize" />
         </>
       )}
-
-      {/* Audio Effects Editor Modal */}
-      <AudioEffectsEditor
-        open={showEffectsEditor}
-        onOpenChange={setShowEffectsEditor}
-        clip={clip}
-        track={track}
-        onApplyEffects={handleApplyEffects}
-      />
     </div>
   )
 }

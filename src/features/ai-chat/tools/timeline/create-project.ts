@@ -2,13 +2,11 @@
  * AI инструмент для создания нового проекта Timeline
  */
 
-import type { TimelineProject } from "@/features/timeline/types"
-
 import { getTimelineStateAccess } from "./types"
 import { createDefaultTrackStructure } from "./utils/creators"
 import { generateProjectId } from "./utils/generators"
 
-import type { TimelineToolResult } from "./types"
+import type { TimelineProject, TimelineToolResult } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
 
 export const createTimelineProjectTool: ClaudeTool = {
@@ -107,8 +105,8 @@ export async function createTimelineProject(params: any): Promise<TimelineToolRe
         autoSave: true,
         autoSaveInterval: 300,
       },
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       version: "1.0.0",
     }
 

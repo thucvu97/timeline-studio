@@ -24,7 +24,8 @@ interface VideoClipProps {
 export const VideoClip = memo(
   function VideoClip({ clip, track, onUpdate, onRemove }: VideoClipProps) {
     const [isHovered, setIsHovered] = React.useState(false)
-    const { timelineActor, uiState } = useTimeline()
+    const timeline = useTimeline()
+    const { timelineActor, uiState } = timeline || {}
 
     // Мемоизируем обработчики для предотвращения создания новых функций при каждом рендере
     const handleSelect = useCallback(() => {
@@ -42,7 +43,7 @@ export const VideoClip = memo(
         e.stopPropagation()
 
         // Выделяем клип если он не выделен
-        if (!clip.isSelected) {
+        if (!clip.isSelected && timelineActor) {
           timelineActor.send({
             type: "SELECT_CLIPS",
             clipIds: [clip.id],
@@ -51,7 +52,9 @@ export const VideoClip = memo(
         }
 
         // Копируем выделенные клипы
-        timelineActor.send({ type: "COPY_SELECTION" })
+        if (timelineActor) {
+          timelineActor.send({ type: "COPY_SELECTION" })
+        }
       },
       [clip.id, clip.isSelected, timelineActor],
     )
@@ -63,11 +66,13 @@ export const VideoClip = memo(
         // Разделяем клип в середине
         const splitTime = clip.startTime + clip.duration / 2
 
-        timelineActor.send({
-          type: "SPLIT_CLIP",
-          clipId: clip.id,
-          splitTime: splitTime,
-        })
+        if (timelineActor) {
+          timelineActor.send({
+            type: "SPLIT_CLIP",
+            clipId: clip.id,
+            splitTime: splitTime,
+          })
+        }
       },
       [clip.id, clip.startTime, clip.duration, timelineActor],
     )

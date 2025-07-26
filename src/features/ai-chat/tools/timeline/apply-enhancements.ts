@@ -92,7 +92,7 @@ export async function applyAutomaticEnhancements(params: any): Promise<TimelineT
         modificationsCount,
         enhancementDetails: {
           totalTracks: allTracks.length,
-          processedElements: getProcessedElementsCount(allTracks, targetElements),
+          processedElements: getProcessedElementsCount(allTracks, targetElements ?? "all"),
         },
       },
       warnings: warnings.length > 0 ? warnings : undefined,
@@ -441,15 +441,17 @@ function applyBasicStabilization(clip: any): any {
 function getProcessedElementsCount(allTracks: any[], targetElements: string): number {
   switch (targetElements) {
     case "all":
-      return allTracks.reduce((sum, track) => sum + track.clips.length, 0)
+      return allTracks.reduce((sum, track) => sum + (track.clips?.length || 0), 0)
     case "selected":
-      return allTracks.filter((track) => track.selected === true).reduce((sum, track) => sum + track.clips.length, 0)
+      return allTracks
+        .filter((track) => track.selected === true)
+        .reduce((sum, track) => sum + (track.clips?.length || 0), 0)
     case "section":
       return allTracks
         .filter((track) => track.sectionId !== undefined)
-        .reduce((sum, track) => sum + track.clips.length, 0)
+        .reduce((sum, track) => sum + (track.clips?.length || 0), 0)
     case "track":
-      return allTracks.reduce((sum, track) => sum + track.clips.length, 0)
+      return allTracks.reduce((sum, track) => sum + (track.clips?.length || 0), 0)
     default:
       return 0
   }

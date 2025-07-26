@@ -215,8 +215,8 @@ export class LevelMeter extends EventEmitter {
     const buffer = this.rmsBuffers[channel]
     let sum = 0
 
-    for (const sample of buffer) {
-      sum += sample
+    for (let i = 0; i < buffer.length; i++) {
+      sum += buffer[i]
     }
 
     const rms = Math.sqrt(sum / buffer.length)
@@ -227,8 +227,8 @@ export class LevelMeter extends EventEmitter {
     const buffer = this.vuBuffers[channel]
     let sum = 0
 
-    for (const sample of buffer) {
-      sum += sample
+    for (let i = 0; i < buffer.length; i++) {
+      sum += buffer[i]
     }
 
     const rms = Math.sqrt(sum / buffer.length)

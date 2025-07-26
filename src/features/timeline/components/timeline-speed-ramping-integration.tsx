@@ -47,7 +47,10 @@ export function SpeedRampingIndicator() {
 
   const currentRate = getCurrentPlaybackRate()
   const hasActiveSpeedRamping = timeline.project
-    ? Object.keys(timeline.project.clips || {}).some((clipId) => isSpeedRampingActive(clipId))
+    ? timeline.project.globalTracks?.some((track) => track.clips?.some((clip) => isSpeedRampingActive(clip.id))) ||
+      timeline.project.sections?.some((section) =>
+        section.tracks?.some((track) => track.clips?.some((clip) => isSpeedRampingActive(clip.id))),
+      )
     : false
 
   if (!hasActiveSpeedRamping || currentRate === 1.0) {
@@ -72,7 +75,17 @@ export function TimelineSpeedRampingStatus() {
   const { isSpeedRampingActive } = useSpeedRampingPlayerIntegration()
 
   const activeSpeedRampingClips = timeline.project
-    ? Object.keys(timeline.project.clips || {}).filter((clipId) => isSpeedRampingActive(clipId))
+    ? [
+      ...(timeline.project.globalTracks?.flatMap(
+        (track) => track.clips?.filter((clip) => isSpeedRampingActive(clip.id)).map((clip) => clip.id) || [],
+      ) || []),
+      ...(timeline.project.sections?.flatMap(
+        (section) =>
+          section.tracks?.flatMap(
+            (track) => track.clips?.filter((clip) => isSpeedRampingActive(clip.id)).map((clip) => clip.id) || [],
+          ) || [],
+      ) || []),
+    ]
     : []
 
   if (activeSpeedRampingClips.length === 0) {

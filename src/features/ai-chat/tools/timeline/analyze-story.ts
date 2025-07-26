@@ -141,7 +141,7 @@ export async function analyzeContentForStory(params: any): Promise<TimelineToolR
       message: `Анализ нарратива завершен для области: ${analysisScope}`,
       data: {
         analysis,
-        suggestions: [...new Set(suggestions)], // Убираем дубликаты
+        suggestions: Array.from(new Set(suggestions)), // Убираем дубликаты
         projectStats: timelineAccess.getProjectStats(),
       } as any,
       warnings: warnings.length > 0 ? warnings : undefined,

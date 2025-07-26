@@ -2,7 +2,7 @@
  * Форматирование данных для Timeline
  */
 
-import type { TimelineClip } from "@/features/timeline/types"
+import type { TimelineClip } from "../types"
 
 export function formatTimecode(seconds: number, fps: number): string {
   const hours = Math.floor(seconds / 3600)
@@ -15,7 +15,7 @@ export function formatTimecode(seconds: number, fps: number): string {
 
 export function extractDateFromClip(clip: TimelineClip): Date {
   // Извлечение даты из метаданных клипа
-  if (clip.createdAt) return clip.createdAt
+  if (clip.createdAt) return new Date(clip.createdAt)
 
   // Попытка извлечь дату из mediaFile.createdAt если доступно
   if (clip.mediaFile?.createdAt) {

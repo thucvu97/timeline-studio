@@ -9,7 +9,7 @@ import { storeService } from "../services/store-service"
  * @returns Объект с данными и методами для работы с недавними проектами
  */
 export function useRecentProjects() {
-  const [recentProjects, setRecentProjects] = useState<Array<{ path: string; name: string; lastOpened: string }>>([])
+  const [recentProjects, setRecentProjects] = useState<Array<{ path: string; name: string; lastOpened: number }>>([])
 
   useEffect(() => {
     // Загружаем список при монтировании

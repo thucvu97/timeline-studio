@@ -89,7 +89,7 @@ export async function analyzeCurrentMedia(params: MediaAnalysisParams): Promise<
     }
 
     if (params.includeAudioInfo && currentMedia.hasAudio) {
-      const audioStream = currentMedia.probeData?.streams?.find((s) => s.codec_type === "audio")
+      const audioStream = currentMedia.probeData?.streams?.find((s: any) => s.codec_type === "audio")
       analysis.audio = {
         channels: audioStream?.channels || 0,
         sampleRate: audioStream?.sample_rate || 0,

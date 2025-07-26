@@ -2,8 +2,6 @@
  * AI инструмент для анализа структуры Timeline
  */
 
-import type { TimelineClip, TimelineSection, TimelineTrack } from "@/features/timeline/types"
-
 import { getTimelineStateAccess } from "./types"
 import {
   calculateTimelineDensity,
@@ -12,7 +10,7 @@ import {
   getTrackTypeDistribution,
 } from "./utils/analyzers"
 
-import type { TimelineToolResult } from "./types"
+import type { TimelineClip, TimelineSection, TimelineToolResult, TimelineTrack } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
 
 export const analyzeTimelineStructureTool: ClaudeTool = {
@@ -102,11 +100,11 @@ export async function analyzeTimelineStructure(params: any): Promise<TimelineToo
         name: track.name,
         type: track.type,
         clipsCount: track.clips.length,
-        isHidden: track.isHidden,
-        isMuted: track.isMuted,
-        isLocked: track.isLocked,
-        height: track.height,
-        order: track.order,
+        isHidden: (track as any).isHidden || false,
+        isMuted: track.muted || false,
+        isLocked: track.locked || false,
+        height: track.height || 50,
+        order: (track as any).order || 0,
       }))
       // Добавляем треки из секций
       currentProject.sections.forEach((section) => {
@@ -129,14 +127,14 @@ export async function analyzeTimelineStructure(params: any): Promise<TimelineToo
       analysis.sections = currentProject.sections.map((section: TimelineSection) => ({
         id: section.id,
         name: section.name,
-        index: section.index,
+        index: (section as any).index || 0,
         duration: section.duration,
         startTime: section.startTime,
-        endTime: section.endTime,
+        endTime: (section as any).endTime || section.startTime + section.duration,
         tracksCount: section.tracks.length,
-        isCollapsed: section.isCollapsed,
-        color: section.color,
-        tags: section.tags,
+        isCollapsed: (section as any).isCollapsed || false,
+        color: section.color || "#333",
+        tags: (section as any).tags || [],
       }))
     }
 
@@ -152,16 +150,16 @@ export async function analyzeTimelineStructure(params: any): Promise<TimelineToo
         id: clip.id,
         name: clip.name,
         trackId: clip.trackId,
-        mediaId: clip.mediaId,
+        mediaId: (clip as any).mediaId || clip.mediaFile?.id,
         startTime: clip.startTime,
         duration: clip.duration,
-        volume: clip.volume,
-        speed: clip.speed,
-        hasEffects: clip.effects.length > 0,
-        hasFilters: clip.filters.length > 0,
-        hasTransitions: clip.transitions.length > 0,
-        isSelected: clip.isSelected,
-        isLocked: clip.isLocked,
+        volume: clip.volume || 1.0,
+        speed: clip.speed || 1.0,
+        hasEffects: (clip.effects || []).length > 0,
+        hasFilters: (clip as any).filters?.length > 0 || false,
+        hasTransitions: (clip.transitions || []).length > 0,
+        isSelected: (clip as any).isSelected || false,
+        isLocked: (clip as any).isLocked || false,
       }))
     }
 

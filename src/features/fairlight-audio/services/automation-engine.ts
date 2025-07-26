@@ -219,7 +219,7 @@ export class AutomationEngine {
    * Чтение автоматизации для всех линий
    */
   private readAutomation(time: number) {
-    for (const [laneId, lane] of this.state.lanes) {
+    for (const [laneId, lane] of Array.from(this.state.lanes.entries())) {
       if (!lane.isEnabled) continue
 
       // Пропускаем линии, которые сейчас записываются
@@ -330,7 +330,7 @@ export class AutomationEngine {
    */
   exportAutomation(): Record<string, AutomationLane> {
     const result: Record<string, AutomationLane> = {}
-    for (const [id, lane] of this.state.lanes) {
+    for (const [id, lane] of Array.from(this.state.lanes.entries())) {
       result[id] = { ...lane, points: [...lane.points] }
     }
     return result

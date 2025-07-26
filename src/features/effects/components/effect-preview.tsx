@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 import { ApplyButton } from "@/features"
 import { AddMediaButton } from "@/features/browser/components/layout/add-media-button"
 import { FavoriteButton } from "@/features/browser/components/layout/favorite-button"
-import { BaseEffect } from "@/features/effects/types"
+import { BaseEffect, VideoEffect } from "@/features/effects/types"
 import { useResources } from "@/features/resources"
 import { EffectResource, TimelineResource } from "@/features/resources/types"
 import { usePlayer, useVideoSelection } from "@/features/video-player"
@@ -17,8 +17,8 @@ import { getEffectPreview } from "../utils/effect-previews"
 // Получаем путь к превью видео для конкретного эффекта
 const getPreviewPath = (effect: BaseEffect) => {
   // Используем превью из эффекта или дефолтное
-  if (effect.preview?.video) {
-    return effect.preview.video
+  if (effect.preview) {
+    return effect.preview
   }
   // Fallback на старую систему
   const preview = getEffectPreview(effect.id)
@@ -63,10 +63,26 @@ export function EffectPreview({
     if (!effect) return null
 
     if (customParams && Object.keys(customParams).length > 0) {
+      // Создаем объект с параметрами на основе структуры эффекта
+      const params: Record<string, any> = {}
+
+      // Собираем текущие значения параметров
+      if (effect.parameters) {
+        effect.parameters.forEach((param) => {
+          params[param.id] = param.currentValue ?? param.defaultValue
+        })
+      }
+
       return {
         ...effect,
+        parameters:
+          effect.parameters?.map((param) => ({
+            ...param,
+            currentValue: customParams[param.id] ?? param.currentValue ?? param.defaultValue,
+          })) || [],
+        // Для обратной совместимости создаем params объект
         params: {
-          ...effect.params,
+          ...params,
           ...customParams,
         },
       }
@@ -86,14 +102,32 @@ export function EffectPreview({
     (_resource: TimelineResource, _type: string) => {
       if (!processedEffect) return
 
-      console.log("[EffectPreview] Applying effect:", processedEffect.name)
+      // Получаем имя эффекта для текущего языка
+      const effectName =
+        typeof processedEffect.name === "object"
+          ? processedEffect.name[i18n.language] || processedEffect.name.en || processedEffect.id
+          : processedEffect.name || processedEffect.id
+
+      console.log("[EffectPreview] Applying effect:", effectName)
+
+      // Собираем параметры из новой структуры
+      const params: Record<string, any> = {}
+      if (processedEffect.parameters) {
+        processedEffect.parameters.forEach((param) => {
+          params[param.id] = param.currentValue ?? param.defaultValue
+        })
+      }
+
       applyEffect({
         id: processedEffect.id,
-        name: processedEffect.name,
-        params: processedEffect.params,
+        name: effectName,
+        params: {
+          ...params,
+          ...(processedEffect.params || {}), // Fallback для старой структуры
+        },
       })
     },
-    [processedEffect, applyEffect],
+    [processedEffect, applyEffect, i18n.language],
   )
 
   // Ленивая загрузка видео при наведении
@@ -123,16 +157,30 @@ export function EffectPreview({
       videoElement.playbackRate = 1 // Сбрасываем скорость воспроизведения
 
       // Применяем CSS-фильтр на основе параметров эффекта
-      const cssFilter = generateCSSFilterForEffect(effect)
+      // Собираем параметры для CSS фильтра
+      const effectParams: Record<string, any> = {}
+      if (processedEffect?.parameters) {
+        processedEffect.parameters.forEach((param) => {
+          effectParams[param.id] = param.currentValue ?? param.defaultValue
+        })
+      }
+
+      // Добавляем пользовательские параметры
+      Object.assign(effectParams, customParams)
+
+      const cssFilter = generateCSSFilterForEffect(processedEffect || effect, effectParams)
       if (cssFilter) {
         videoElement.style.filter = cssFilter
       }
 
       // Специальные эффекты, требующие дополнительных CSS-стилей
-      if (processedEffect.type === "vignette") {
+      if (
+        processedEffect?.id === "vignette" ||
+        (processedEffect?.category === "lighting" && processedEffect?.id.includes("vignette"))
+      ) {
         // Создаем эффект виньетки через box-shadow
-        const intensity = customParams?.intensity ?? processedEffect.params?.intensity ?? 0.3
-        const radius = customParams?.radius ?? processedEffect.params?.radius ?? 0.8
+        const intensity = customParams?.intensity ?? effectParams?.intensity ?? 0.3
+        const radius = customParams?.radius ?? effectParams?.radius ?? 0.8
         const shadowSize = Math.round(Math.min(width, height) * (1 - radius) * 0.5)
         const shadowBlur = Math.round(shadowSize * intensity * 2)
         videoElement.style.boxShadow = `inset 0 0 ${shadowBlur}px ${shadowSize}px rgba(0,0,0,${intensity})`
@@ -214,9 +262,11 @@ export function EffectPreview({
             }}
           >
             <div className="text-gray-500 text-xs">
-              {processedEffect?.labels?.[i18n.language as keyof typeof processedEffect.labels] ||
-                processedEffect?.name ||
-                "Effect"}
+              {processedEffect
+                ? typeof processedEffect.name === "object"
+                  ? processedEffect.name[i18n.language] || processedEffect.name.en || processedEffect.id
+                  : processedEffect.name || processedEffect.id
+                : "Effect"}
             </div>
           </div>
         )}
@@ -234,7 +284,9 @@ export function EffectPreview({
                       ? "bg-yellow-500"
                       : processedEffect.complexity === "high"
                         ? "bg-red-500"
-                        : "bg-gray-500"
+                        : processedEffect.complexity === "extreme"
+                          ? "bg-purple-500"
+                          : "bg-gray-500"
                 }`}
                 title={`effects.complexity.${processedEffect.complexity || "low"}`}
               />
@@ -250,7 +302,14 @@ export function EffectPreview({
         {/* Кнопка добавления в избранное */}
         {processedEffect && (
           <FavoriteButton
-            file={{ id: processedEffect.id, path: "", name: processedEffect.name }}
+            file={{
+              id: processedEffect.id,
+              path: "",
+              name:
+                typeof processedEffect.name === "object"
+                  ? processedEffect.name[i18n.language] || processedEffect.name.en || processedEffect.id
+                  : processedEffect.name || processedEffect.id,
+            }}
             size={size}
             type="effect"
           />
@@ -261,7 +320,14 @@ export function EffectPreview({
               {
                 id: processedEffect.id,
                 type: "effect",
-                name: processedEffect.name,
+                name:
+                  typeof processedEffect.name === "object"
+                    ? processedEffect.name[i18n.language] || processedEffect.name.en || processedEffect.id
+                    : processedEffect.name || processedEffect.id,
+                resourceId: processedEffect.id,
+                addedAt: Date.now(),
+                effect: processedEffect as VideoEffect,
+                params: processedEffect.params || {},
               } as EffectResource
             }
             size={size}
@@ -273,7 +339,20 @@ export function EffectPreview({
         <div className={isAdded ? "opacity-100" : "opacity-0 group-hover:opacity-100"}>
           {processedEffect && (
             <AddMediaButton
-              resource={{ id: processedEffect.id, type: "effect", name: processedEffect.name } as EffectResource}
+              resource={
+                {
+                  id: processedEffect.id,
+                  type: "effect",
+                  name:
+                    typeof processedEffect.name === "object"
+                      ? processedEffect.name[i18n.language] || processedEffect.name.en || processedEffect.id
+                      : processedEffect.name || processedEffect.id,
+                  resourceId: processedEffect.id,
+                  addedAt: Date.now(),
+                  effect: processedEffect as VideoEffect,
+                  params: processedEffect.params || {},
+                } as EffectResource
+              }
               size={size}
               type="effect"
             />
@@ -283,7 +362,9 @@ export function EffectPreview({
       {/* Название эффекта */}
       <div className="mt-1 text-xs text-center">
         {processedEffect
-          ? processedEffect.name?.[i18n.language] || processedEffect.name?.en || processedEffect.id || "Effect"
+          ? typeof processedEffect.name === "object"
+            ? processedEffect.name[i18n.language] || processedEffect.name.en || processedEffect.id
+            : processedEffect.name || processedEffect.id
           : "Effect"}
       </div>
     </div>

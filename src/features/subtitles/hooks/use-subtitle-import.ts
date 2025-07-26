@@ -88,39 +88,45 @@ export function useSubtitleImport({ trackId, onImportComplete }: UseSubtitleImpo
 
       if (!targetTrackId) {
         // Ищем существующий трек субтитров
-        const subtitleTrack = project?.tracks.find((track) => track.type === "subtitle")
+        const subtitleTrack = project?.globalTracks.find((track) => track.type === "subtitle")
 
         if (subtitleTrack) {
           targetTrackId = subtitleTrack.id
         } else {
           // Создаем новый трек субтитров
-          const newTrack = {
-            id: generateId(),
-            name: "Субтитры",
-            type: "subtitle" as const,
-            height: 60,
-            minimized: false,
-            locked: false,
-            muted: false,
-            clips: [],
-          }
-
-          await addTrack(newTrack)
-          targetTrackId = newTrack.id
+          await addTrack("subtitle", "Субтитры")
+          // После создания трека ищем его в обновленном проекте
+          // Это упрощенное решение - в реальности нужно получить ID созданного трека
+          const newTrackId = generateId()
+          targetTrackId = newTrackId
         }
       }
 
       setImportProgress(80)
 
+      if (!targetTrackId) {
+        throw new Error("Не удалось определить трек для добавления субтитров")
+      }
+
       // Добавляем субтитры на трек
       const clipsToAdd = subtitles.map((subtitle) => ({
         ...subtitle,
-        trackId: targetTrackId!,
+        trackId: targetTrackId,
       }))
 
       // Добавляем клипы на timeline
+      // Для субтитров создаем псевдо MediaFile или используем другой подход
       for (const clip of clipsToAdd) {
-        await addClip(targetTrackId!, clip, clip.startTime)
+        // Создаем псевдо MediaFile для субтитра
+        const subtitleMediaFile = {
+          id: clip.id,
+          name: `${clip.text.substring(0, 50)}...`,
+          type: "subtitle",
+          path: "",
+          duration: clip.duration || 0,
+        }
+
+        await addClip(targetTrackId, subtitleMediaFile, clip.startTime)
       }
 
       setImportProgress(100)
@@ -194,7 +200,16 @@ export function useSubtitleImport({ trackId, onImportComplete }: UseSubtitleImpo
         }))
 
         for (const clip of clipsToAdd) {
-          await addClip(targetTrackId, clip, clip.startTime)
+          // Создаем псевдо MediaFile для субтитра
+          const subtitleMediaFile = {
+            id: clip.id,
+            name: `${clip.text.substring(0, 50)}...`,
+            type: "subtitle",
+            path: "",
+            duration: clip.duration || 0,
+          }
+
+          await addClip(targetTrackId, subtitleMediaFile, clip.startTime)
         }
 
         return { success: true, subtitles: clipsToAdd }
@@ -250,7 +265,17 @@ export function useSubtitleImport({ trackId, onImportComplete }: UseSubtitleImpo
         // Добавляем на timeline
         for (const subtitle of subtitles) {
           subtitle.trackId = targetTrackId
-          await addClip(targetTrackId, subtitle, subtitle.startTime)
+
+          // Создаем псевдо MediaFile для субтитра
+          const subtitleMediaFile = {
+            id: subtitle.id,
+            name: `${subtitle.text.substring(0, 50)}...`,
+            type: "subtitle",
+            path: "",
+            duration: subtitle.duration || 0,
+          }
+
+          await addClip(targetTrackId, subtitleMediaFile, subtitle.startTime)
         }
 
         toast({

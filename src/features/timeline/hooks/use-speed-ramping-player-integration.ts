@@ -7,6 +7,9 @@ import { useCallback, useEffect, useRef } from "react"
 // import { usePlayer } from "@/features/video-player/hooks/use-player"
 
 import { useTimeline } from "./use-timeline"
+import { getSpeedAtTime } from "../types/speed-ramping"
+
+import type { TimelineClip, TimelineProject } from "../types"
 
 export interface SpeedRampingPlayerIntegration {
   /**
@@ -41,12 +44,41 @@ export function useSpeedRampingPlayerIntegration(): SpeedRampingPlayerIntegratio
   const timeline = useTimeline()
 
   const autoUpdateEnabledRef = useRef(true)
-  const lastUpdateTimeRef = useRef(0)
+  const lastPlaybackRateRef = useRef(1.0) // Исправлено: храним скорость воспроизведения
   const updateIntervalRef = useRef<NodeJS.Timeout | undefined>(undefined)
 
-  // Получаем speed ramping service из timeline контекста
-  // Временно убираем, так как нет speedRampingService в новой архитектуре
-  const speedRampingService = null
+  /**
+   * Проверяет, включен ли speed ramping для клипа
+   */
+  const isSpeedRampingEnabled = useCallback(
+    (clipId: string): boolean => {
+      if (!timeline.project?.speedRampingConfigs) return false
+
+      const config = timeline.project.speedRampingConfigs[clipId]
+      return config?.enabled ?? false
+    },
+    [timeline.project?.speedRampingConfigs],
+  )
+
+  /**
+   * Получает скорость воспроизведения для времени в клипе
+   */
+  const getPlaybackRateForTime = useCallback(
+    (clipId: string, clipTime: number): number => {
+      if (!timeline.project?.speedRampingConfigs) return 1.0
+
+      const config = timeline.project.speedRampingConfigs[clipId]
+      if (!config?.enabled || !config.keyframes || config.keyframes.length === 0) {
+        return 1.0
+      }
+
+      const clip = findClipById(timeline.project, clipId)
+      const clipDuration = clip?.duration ?? 0
+
+      return getSpeedAtTime(config.keyframes, clipTime, clipDuration)
+    },
+    [timeline.project?.speedRampingConfigs, timeline.project],
+  )
 
   // Функция для обновления скорости воспроизведения
   const updatePlaybackRateForTime = useCallback(
@@ -63,7 +95,7 @@ export function useSpeedRampingPlayerIntegration(): SpeedRampingPlayerIntegratio
       }
 
       // Проверяем, активен ли speed ramping для этого клипа
-      if (!speedRampingService?.isSpeedRampingEnabled(activeClip.id)) {
+      if (!isSpeedRampingEnabled(activeClip.id)) {
         resetPlaybackRate()
         return
       }
@@ -72,34 +104,34 @@ export function useSpeedRampingPlayerIntegration(): SpeedRampingPlayerIntegratio
       const clipTime = time - activeClip.startTime + activeClip.offset
 
       // Получаем скорость для этого времени
-      const playbackRate = speedRampingService?.getPlaybackRateForTime(activeClip.id, clipTime) || 1.0
+      const playbackRate = getPlaybackRateForTime(activeClip.id, clipTime)
 
       // Обновляем плеер только если скорость изменилась
-      if (Math.abs(playbackRate - lastUpdateTimeRef.current) > 0.001) {
+      if (Math.abs(playbackRate - lastPlaybackRateRef.current) > 0.001) {
         sendPlayer()
-        lastUpdateTimeRef.current = playbackRate
+        lastPlaybackRateRef.current = playbackRate
       }
     },
-    [timeline.project, speedRampingService, sendPlayer],
+    [timeline.project, isSpeedRampingEnabled, getPlaybackRateForTime, sendPlayer],
   )
 
   // Получить текущую скорость воспроизведения
   const getCurrentPlaybackRate = useCallback(() => {
-    return lastUpdateTimeRef.current || 1.0
+    return lastPlaybackRateRef.current
   }, [])
 
   // Сбросить скорость воспроизведения
   const resetPlaybackRate = useCallback(() => {
     sendPlayer()
-    lastUpdateTimeRef.current = 1.0
+    lastPlaybackRateRef.current = 1.0
   }, [sendPlayer])
 
   // Проверить, активен ли speed ramping для клипа
   const isSpeedRampingActive = useCallback(
     (clipId: string) => {
-      return speedRampingService?.isSpeedRampingEnabled(clipId) || false
+      return isSpeedRampingEnabled(clipId)
     },
-    [speedRampingService],
+    [isSpeedRampingEnabled],
   )
 
   // Включить/выключить автоматическое обновление
@@ -150,23 +182,68 @@ export function useSpeedRampingPlayerIntegration(): SpeedRampingPlayerIntegratio
   }
 }
 
-// Утилита для поиска активного клипа на определенном времени
-function findActiveClipAtTime(project: any, time: number) {
+// Утилита для поиска клипа по ID
+function findClipById(project: TimelineProject, clipId: string): TimelineClip | null {
   // Ищем в глобальных треках
-  for (const track of project.globalTracks) {
-    for (const clip of track.clips) {
-      if (time >= clip.startTime && time < clip.startTime + clip.duration) {
-        return clip
+  if (project.globalTracks) {
+    for (const track of project.globalTracks) {
+      if (track.clips) {
+        for (const clip of track.clips) {
+          if (clip.id === clipId) {
+            return clip
+          }
+        }
       }
     }
   }
 
   // Ищем в секциях
-  for (const section of project.sections) {
-    for (const track of section.tracks) {
-      for (const clip of track.clips) {
-        if (time >= clip.startTime && time < clip.startTime + clip.duration) {
-          return clip
+  if (project.sections) {
+    for (const section of project.sections) {
+      if (section.tracks) {
+        for (const track of section.tracks) {
+          if (track.clips) {
+            for (const clip of track.clips) {
+              if (clip.id === clipId) {
+                return clip
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return null
+}
+
+// Утилита для поиска активного клипа на определенном времени
+function findActiveClipAtTime(project: TimelineProject, time: number): TimelineClip | null {
+  // Ищем в глобальных треках
+  if (project.globalTracks) {
+    for (const track of project.globalTracks) {
+      if (track.clips) {
+        for (const clip of track.clips) {
+          if (time >= clip.startTime && time < clip.startTime + clip.duration) {
+            return clip
+          }
+        }
+      }
+    }
+  }
+
+  // Ищем в секциях
+  if (project.sections) {
+    for (const section of project.sections) {
+      if (section.tracks) {
+        for (const track of section.tracks) {
+          if (track.clips) {
+            for (const clip of track.clips) {
+              if (time >= clip.startTime && time < clip.startTime + clip.duration) {
+                return clip
+              }
+            }
+          }
         }
       }
     }

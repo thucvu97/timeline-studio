@@ -118,7 +118,7 @@ describe("SubtitleAIToolsModal", () => {
   beforeEach(() => {
     vi.clearAllMocks()
 
-    mockedUseModal.mockReturnValue({
+    ;(mockedUseModal as any).mockReturnValue({
       modalData: null,
       closeModal: mockCloseModal,
     })

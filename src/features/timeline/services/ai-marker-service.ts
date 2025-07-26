@@ -63,18 +63,12 @@ export class AIMarkerService {
       if (scene.confidence < this.config.minConfidence) return
 
       markers.push({
-        id: `ai-scene-${scene.id}`,
-        type: "chapter",
+        id: `ai-scene-${scene.id || index}`,
+        type: "chapter" as const,
         time: scene.startTime,
         name: `Сцена ${index + 1}: ${this.getSceneTypeLabel(scene.type)}`,
         description: `Длительность: ${scene.duration.toFixed(1)}с, Уверенность: ${(scene.confidence * 100).toFixed(0)}%`,
         color: this.getSceneColor(scene.type),
-        metadata: {
-          source: "ai-analysis",
-          sceneId: scene.id,
-          sceneType: scene.type,
-          confidence: scene.confidence,
-        },
       })
     })
 
@@ -94,19 +88,12 @@ export class AIMarkerService {
       if (moment.score < this.config.minConfidence) return
 
       markers.push({
-        id: `ai-moment-${moment.id}`,
-        type: (moment.type as string) === "climax" ? "important" : "note",
+        id: `ai-moment-${moment.id || Date.now()}`,
+        type: "note" as const,
         time: moment.timestamp,
         name: this.getMomentTypeLabel(moment.type),
         description: moment.description,
         color: this.getMomentColor(moment.type),
-        metadata: {
-          source: "ai-analysis",
-          momentId: moment.id,
-          momentType: moment.type,
-          score: moment.score,
-          context: moment.context,
-        },
       })
     })
 
@@ -120,24 +107,18 @@ export class AIMarkerService {
     if (!this.config.createQualityMarkers || !insights.qualityMetrics) return []
 
     const markers: TimelineMarker[] = []
-    const { overall, sharpness, brightness, contrast, saturation } = insights.qualityMetrics
+    const { overall } = insights.qualityMetrics
 
     // Маркер для низкого общего качества
     if (overall < this.config.minQualityScore) {
       timestamps.forEach((timestamp, index) => {
         markers.push({
           id: `ai-quality-${index}`,
-          type: "warning",
+          type: "todo" as const,
           time: timestamp,
           name: "Низкое качество видео",
           description: `Общее качество: ${overall}/100. Рекомендуется улучшение.`,
           color: "#ef4444", // Красный
-          metadata: {
-            source: "ai-analysis",
-            qualityType: "overall",
-            score: overall,
-            metrics: { sharpness, brightness, contrast, saturation },
-          },
         })
       })
     }
@@ -156,18 +137,11 @@ export class AIMarkerService {
     if (insights.mood.dominantEmotion && insights.mood.intensity > this.config.minConfidence) {
       markers.push({
         id: `ai-emotion-${Date.now()}`,
-        type: "note",
+        type: "note" as const,
         time: timestamp,
         name: `Эмоция: ${this.getEmotionLabel(insights.mood.dominantEmotion)}`,
         description: `Интенсивность: ${(insights.mood.intensity * 100).toFixed(0)}%`,
         color: this.getEmotionColor(insights.mood.dominantEmotion),
-        metadata: {
-          source: "ai-analysis",
-          emotionType: insights.mood.dominantEmotion,
-          intensity: insights.mood.intensity,
-          valence: insights.mood.valence,
-          arousal: insights.mood.arousal,
-        },
       })
     }
 
@@ -218,21 +192,16 @@ export class AIMarkerService {
    */
   private mergeMarkers(markers: TimelineMarker[]): TimelineMarker {
     const avgTime = markers.reduce((sum: number, m) => sum + Number(m.time), 0) / markers.length
-    const types = [...new Set(markers.map((m) => m.type))]
+    const types = Array.from(new Set(markers.map((m) => m.type)))
     const names = markers.map((m) => m.name).join(", ")
 
     return {
       id: `ai-group-${Date.now()}`,
-      type: types.includes("important") ? "important" : markers[0].type,
+      type: types.includes("chapter") ? "chapter" : markers[0].type || "note",
       time: avgTime,
       name: `Группа событий (${markers.length})`,
       description: names,
-      color: markers[0].color,
-      metadata: {
-        source: "ai-analysis",
-        groupedMarkers: markers.map((m) => m.id),
-        count: markers.length,
-      },
+      color: markers[0].color || "#6b7280",
     }
   }
 

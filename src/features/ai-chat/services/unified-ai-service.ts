@@ -307,11 +307,26 @@ export interface AccessibilityQuality {
 }
 
 export interface ContentInsights {
+  summary: string
+  tags: string[]
   strengths: string[]
   weaknesses: string[]
   recommendations: Recommendation[]
   marketingAngles: string[]
   targetDemographics: string[]
+  qualityMetrics?: {
+    overall: number
+    sharpness: number
+    brightness: number
+    contrast: number
+    saturation: number
+  }
+  mood?: {
+    valence: number
+    arousal: number
+    dominantEmotion: string
+    intensity: number
+  }
 }
 
 export interface Recommendation {
@@ -1061,6 +1076,8 @@ Accessibility Quality:
     } catch (error) {
       console.warn("Ошибка парсинга генерации инсайтов:", error)
       return {
+        summary: "",
+        tags: [],
         strengths: [],
         weaknesses: [],
         recommendations: [],

@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it } from "vitest"
 import { createSpeedKeyframe } from "../../types/speed-ramping"
 import { SpeedRampingServiceImpl } from "../speed-ramping-service"
 
+import type { TimelineClip } from "../../types"
 import type { SpeedRampingConfig } from "../../types/speed-ramping"
 
 describe("SpeedRampingService", () => {
@@ -127,7 +128,7 @@ describe("SpeedRampingService", () => {
   })
 
   it("should calculate clip duration with speed ramping", () => {
-    const clip = {
+    const clip: TimelineClip = {
       id: "clip-1",
       duration: 10,
       name: "Test Clip",
@@ -161,8 +162,8 @@ describe("SpeedRampingService", () => {
       speed: 1.0,
       isReversed: false,
       opacity: 1.0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: "2024-01-01T00:00:00.000Z",
+      updatedAt: "2024-01-01T00:00:00.000Z",
     }
 
     // Без speed ramping должно возвращать оригинальную длительность

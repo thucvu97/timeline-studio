@@ -44,7 +44,7 @@ export interface MusicResource extends Resource {
 // Интерфейс для стилей субтитров
 export interface SubtitleResource extends Resource {
   type: "subtitle"
-  style: SubtitleStyle
+  style: SubtitleStyleTemplate
   params?: Record<string, any> // Параметры стиля субтитров
 }
 

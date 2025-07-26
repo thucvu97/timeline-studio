@@ -403,6 +403,7 @@ export class MidiSequencer extends EventEmitter {
     this.stopRecording()
     this.state.tracks.clear()
     this.playbackEvents.clear()
+    this.nextEventId = 1
     this.emit("cleared")
   }
 

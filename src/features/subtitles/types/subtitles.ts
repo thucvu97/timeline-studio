@@ -95,7 +95,7 @@ export interface Subtitle {
   startTime: number // Время начала (в секундах)
   endTime: number // Время окончания (в секундах)
   text: string // Текст субтитра
-  style?: SubtitleStyle // Стиль субтитра
+  style?: SubtitleStyleTemplate // Стиль субтитра
   speaker?: string // Говорящий (если известно)
   confidence?: number // Уверенность распознавания (0-1)
   language?: string // Язык субтитра

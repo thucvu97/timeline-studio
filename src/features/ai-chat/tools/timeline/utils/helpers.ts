@@ -2,10 +2,10 @@
  * Вспомогательные функции для Timeline AI инструментов
  */
 
-import type { TimelineClip, TimelineProject, TimelineTrack } from "@/features/timeline/types"
-
 import { getTimelineStateAccess } from "../types"
 import { determineContentType } from "./detectors"
+
+import type { TimelineClip, TimelineProject, TimelineTrack } from "../types"
 
 export async function getCurrentTimelineProject(): Promise<TimelineProject | null> {
   const timelineStateAccess = getTimelineStateAccess()
@@ -148,7 +148,7 @@ export function analyzeTransitionFlow(project: TimelineProject): any[] {
   })
 
   // Анализируем переходы на каждом треке
-  for (const [trackId, clips] of trackClips) {
+  for (const [trackId, clips] of Array.from(trackClips.entries())) {
     const sortedClips = clips.sort((a, b) => a.startTime - b.startTime)
 
     for (let i = 0; i < sortedClips.length - 1; i++) {

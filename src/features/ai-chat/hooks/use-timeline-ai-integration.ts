@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from "react"
 
 import { useTimeline } from "../../timeline/hooks"
-import { TimelineClip, TimelineProject, TimelineSection, TimelineTrack } from "../../timeline/types"
+import { TimelineClip, TimelineSection, TimelineTrack } from "../../timeline/types"
 import { TimelineStateAccess, setTimelineStateAccess } from "../tools/timeline/types"
 
 /**
@@ -18,14 +18,18 @@ export function useTimelineAIIntegration() {
     const clips: TimelineClip[] = []
 
     // Клипы из глобальных треков
-    timeline.project.globalTracks?.forEach((track) => {
-      clips.push(...track.clips)
+    timeline.project.globalTracks?.forEach((track: TimelineTrack) => {
+      if (track.clips) {
+        clips.push(...track.clips)
+      }
     })
 
     // Клипы из секций
-    timeline.project.sections?.forEach((section) => {
-      section.tracks?.forEach((track) => {
-        clips.push(...track.clips)
+    timeline.project.sections?.forEach((section: TimelineSection) => {
+      section.tracks?.forEach((track: TimelineTrack) => {
+        if (track.clips) {
+          clips.push(...track.clips)
+        }
       })
     })
 
@@ -44,7 +48,7 @@ export function useTimelineAIIntegration() {
     }
 
     // Треки из секций
-    timeline.project.sections?.forEach((section) => {
+    timeline.project.sections?.forEach((section: TimelineSection) => {
       if (section.tracks) {
         tracks.push(...section.tracks)
       }
@@ -99,28 +103,28 @@ export function useTimelineAIIntegration() {
   useEffect(() => {
     const timelineAccess: TimelineStateAccess = {
       getCurrentProject: () => timeline.project,
-      createProject: async (project: TimelineProject) => {
-        await timeline.createProject(project.name, project.settings)
+      createProject: async (project: any) => {
+        await timeline.createProject(project.name, project.settings || {})
       },
-      updateProject: async (_updates: Partial<TimelineProject>) => {
+      updateProject: async (_updates: any) => {
         // TODO: Implement project update
         console.warn("updateProject not implemented yet")
       },
-      createSection: async (section: Omit<TimelineSection, "id">) => {
+      createSection: async (section: any) => {
         const id = `section_${Date.now()}`
         await timeline.addSection(section.name, section.startTime, section.duration)
-        return { ...section, id } as TimelineSection
+        return { ...section, id }
       },
-      createTrack: async (track: Omit<TimelineTrack, "id">) => {
+      createTrack: async (track: any) => {
         const id = `track_${Date.now()}`
         await timeline.addTrack(track.type, undefined, track.name)
-        return { ...track, id, clips: [] } as TimelineTrack
+        return { ...track, id, clips: [] }
       },
-      addClip: async (clip: Omit<TimelineClip, "id">) => {
+      addClip: async (clip: any) => {
         const id = `clip_${Date.now()}`
         // TODO: Need mediaFile parameter in addClip
         console.warn("addClip needs proper implementation")
-        return { ...clip, id } as TimelineClip
+        return { ...clip, id }
       },
       getProjectStats: () => {
         const clips = getAllClips()

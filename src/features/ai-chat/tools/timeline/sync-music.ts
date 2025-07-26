@@ -128,10 +128,10 @@ export async function synchronizeWithMusic(params: any): Promise<TimelineToolRes
       message: `Синхронизация с музыкой завершена (${modificationsCount} изменений)`,
       data: {
         analysis: {
-          detectedBPM: musicAnalysis.bpm,
-          beatMarkers: musicAnalysis.beats.length,
-          musicDuration: musicAnalysis.duration,
-          rhythmComplexity: musicAnalysis.rhythmComplexity,
+          detectedBPM: musicAnalysis.bpm || 0,
+          beatMarkers: musicAnalysis.beats?.length || 0,
+          musicDuration: musicAnalysis.duration || 0,
+          rhythmComplexity: musicAnalysis.rhythmComplexity || 0,
         },
         synchronizedElements,
         modificationsCount,
