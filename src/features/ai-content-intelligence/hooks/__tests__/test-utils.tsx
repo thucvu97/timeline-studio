@@ -11,8 +11,8 @@ import { AIIntelligenceProvider } from "../../services/ai-intelligence-provider"
 import { ProcessingStatus } from "../../shared/types/pipeline"
 
 import type {
-  AdaptedContent,
   AIConfig,
+  AdaptedContent,
   GeneratedScript,
   IntelligentContent,
   PipelineProgress,

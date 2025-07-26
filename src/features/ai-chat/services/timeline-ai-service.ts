@@ -100,8 +100,9 @@ export class TimelineAIService {
     const apiKey = await apiKeyLoader.getApiKey("claude")
 
     if (apiKey) {
-      // Временно используем deprecated метод для обратной совместимости
-      this.claudeService.setApiKey(apiKey)
+      // Обновляем кэш через API Keys Management
+      const apiKeyLoader = ApiKeyLoader.getInstance()
+      apiKeyLoader.updateCache("claude", apiKey)
       return true
     }
 
@@ -113,7 +114,9 @@ export class TimelineAIService {
    * @param apiKey API ключ
    */
   public setApiKey(apiKey: string): void {
-    this.claudeService.setApiKey(apiKey)
+    // Используем современный API Keys Management
+    const apiKeyLoader = ApiKeyLoader.getInstance()
+    apiKeyLoader.updateCache("claude", apiKey)
   }
 
   /**
