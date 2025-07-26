@@ -363,14 +363,44 @@ jobs:
 
       - name: Install frontend dependencies
         run: |
-          # Создаем файл .npmrc, чтобы указать использование npm
-          echo "engine-strict=false" > .npmrc
           # Configure npm for timeouts
           npm config set fetch-timeout 300000
           npm config set fetch-retries 5
           # Try to install with retries
           npm install --no-audit --no-fund || \
           npm install --no-audit --no-fund --omit=optional
+      
+      - name: Fix Windows dependencies
+        if: matrix.platform == 'windows-latest'
+        shell: pwsh
+        run: |
+          # Force reinstall of lightningcss Windows binary
+          npm rebuild lightningcss-win32-x64-msvc
+          
+          # Verify installation
+          if (Test-Path "node_modules/lightningcss-win32-x64-msvc") {
+            echo "✅ lightningcss Windows binary installed"
+            
+            # Check for the actual binary file
+            $binaryPath = "node_modules/lightningcss-win32-x64-msvc/lightningcss.win32-x64-msvc.node"
+            if (Test-Path $binaryPath) {
+              echo "✅ Binary file exists at: $binaryPath"
+            } else {
+              echo "❌ Binary file not found at: $binaryPath"
+              # Try to manually download it
+              echo "Attempting manual download..."
+              $version = "1.30.1"
+              $url = "https://registry.npmjs.org/lightningcss-win32-x64-msvc/-/lightningcss-win32-x64-msvc-$version.tgz"
+              Invoke-WebRequest -Uri $url -OutFile "lightningcss-win32.tgz"
+              tar -xzf lightningcss-win32.tgz
+              New-Item -ItemType Directory -Force -Path "node_modules/lightningcss-win32-x64-msvc"
+              Copy-Item -Path "package/*" -Destination "node_modules/lightningcss-win32-x64-msvc/" -Recurse -Force
+              Remove-Item -Path "package" -Recurse -Force
+              Remove-Item -Path "lightningcss-win32.tgz"
+            }
+          } else {
+            echo "❌ lightningcss Windows binary not found"
+          }
 
       - name: Create dist directory
         run: mkdir -p dist
@@ -612,6 +642,8 @@ jobs:
           ORT_DYLIB_PATH: C:\onnxruntime\onnxruntime-win-x64-1.19.2\lib\onnxruntime.dll
           RUST_BACKTRACE: 1
           CARGO_PROFILE_RELEASE_BUILD_OVERRIDE_DEBUG: false
+          # Disable CSS minification to avoid lightningcss issues
+          NODE_ENV: development
           # Windows SDK and system headers paths (required for errno.h and other system headers)
           # Note: These paths are set dynamically in the dependencies step above
         with:
