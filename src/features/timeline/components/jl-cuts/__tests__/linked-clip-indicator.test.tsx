@@ -25,8 +25,8 @@ describe("LinkedClipIndicator", () => {
 
     const icon = screen.getByTestId("link2-icon")
     const indicator = icon.parentElement!
-    expect(indicator).toHaveClass("absolute", "bottom-0", "right-0", "m-1")
-    expect(indicator).toHaveClass("bg-primary/10", "border", "border-primary/30", "rounded", "p-0.5")
+    expect(indicator).toHaveClass("absolute bottom-0 right-0 m-1")
+    expect(indicator).toHaveClass("bg-primary/10 border border-primary/30 rounded p-0.5")
   })
 
   it("should apply custom className", () => {
@@ -42,7 +42,7 @@ describe("LinkedClipIndicator", () => {
     render(<LinkedClipIndicator isLinked={true} />)
 
     const icon = screen.getByTestId("link2-icon")
-    expect(icon).toHaveClass("h-3", "w-3", "text-primary")
+    expect(icon).toHaveClass("h-3 w-3 text-primary")
   })
 
   it("should be positioned as an overlay indicator", () => {
@@ -52,7 +52,7 @@ describe("LinkedClipIndicator", () => {
     const indicator = icon.parentElement!
 
     // Проверяем что это абсолютно позиционированный элемент в правом нижнем углу
-    expect(indicator).toHaveClass("absolute", "bottom-0", "right-0")
+    expect(indicator).toHaveClass("absolute bottom-0 right-0")
   })
 
   it("should handle undefined className gracefully", () => {

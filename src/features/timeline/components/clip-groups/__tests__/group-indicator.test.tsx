@@ -121,7 +121,7 @@ describe("GroupIndicator", () => {
       render(<GroupIndicator {...defaultProps} onToggleCollapse={vi.fn()} />)
 
       const collapseButton = screen.getByTitle("Collapse group")
-      expect(collapseButton).toHaveClass("hover:bg-white/20", "transition-colors")
+      expect(collapseButton).toHaveClass("hover:bg-white/20 transition-colors")
     })
   })
 
@@ -184,7 +184,7 @@ describe("GroupIndicator", () => {
       render(<GroupIndicator {...defaultProps} onToggleLock={vi.fn()} />)
 
       const lockButton = screen.getByTitle("Lock group")
-      expect(lockButton).toHaveClass("hover:bg-white/20", "transition-colors", "ml-auto")
+      expect(lockButton).toHaveClass("hover:bg-white/20 transition-colors ml-auto")
     })
 
     it("should show unlock icon with opacity when unlocked", () => {
@@ -205,7 +205,7 @@ describe("GroupIndicator", () => {
       render(<GroupIndicator group={longNameGroup} />)
 
       const nameElement = screen.getByText("Very Long Group Name That Should Be Truncated In The UI")
-      expect(nameElement).toHaveClass("truncate", "max-w-[100px]")
+      expect(nameElement).toHaveClass("truncate max-w-[100px]")
     })
 
     it("should display correct clip count", () => {
@@ -250,16 +250,7 @@ describe("GroupIndicator", () => {
 
       const indicatorElement = container.firstChild as HTMLElement
       expect(indicatorElement).toHaveClass(
-        "flex",
-        "items-center",
-        "gap-1",
-        "px-2",
-        "py-1",
-        "rounded-md",
-        "text-xs",
-        "font-medium",
-        "bg-opacity-20",
-        "border",
+        "flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-opacity-20 border"
       )
     })
 

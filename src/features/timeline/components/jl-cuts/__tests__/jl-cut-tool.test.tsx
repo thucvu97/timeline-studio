@@ -43,6 +43,7 @@ vi.mock("../../../hooks/use-timeline", () => ({
 const createMockClip = (overrides: Partial<TimelineClip> = {}): TimelineClip => ({
   id: "clip-1",
   name: "Test Clip",
+  mediaId: "media-1",
   startTime: 0,
   duration: 10,
   offset: 0,
@@ -51,6 +52,7 @@ const createMockClip = (overrides: Partial<TimelineClip> = {}): TimelineClip => 
     name: "test.mp4",
     path: "/test.mp4",
     duration: 10,
+    size: 1000,
     createdAt: new Date().toISOString(),
     isAudio: false,
     isVideo: true,

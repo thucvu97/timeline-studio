@@ -20,6 +20,7 @@ vi.mock("../../../hooks/use-jl-cuts", () => ({
 const createMockClip = (overrides: Partial<TimelineClip> = {}): TimelineClip => ({
   id: "clip-1",
   name: "Test Clip",
+  mediaId: "media-1",
   startTime: 0,
   duration: 10,
   offset: 0,
@@ -28,11 +29,11 @@ const createMockClip = (overrides: Partial<TimelineClip> = {}): TimelineClip => 
     name: "test.mp4",
     path: "/test.mp4",
     duration: 10,
+    size: 1000,
     createdAt: new Date().toISOString(),
     isAudio: false,
     isVideo: true,
     isImage: false,
-    type: "video/mp4" as const,
   },
   mediaStartTime: 0,
   volume: 1,
@@ -66,7 +67,7 @@ describe("JLCutDragHandle", () => {
       const { container } = render(<JLCutDragHandle {...defaultProps} />)
 
       const handle = container.firstChild as HTMLElement
-      expect(handle).toHaveClass("left-0", "-translate-x-full")
+      expect(handle).toHaveClass("left-0 -translate-x-full")
       expect(handle).toHaveStyle({ marginLeft: "200px" }) // 2 * 100 pixels
     })
 
@@ -89,7 +90,7 @@ describe("JLCutDragHandle", () => {
       const { container } = render(<JLCutDragHandle {...lCutProps} />)
 
       const handle = container.firstChild as HTMLElement
-      expect(handle).toHaveClass("right-0", "translate-x-full")
+      expect(handle).toHaveClass("right-0 translate-x-full")
       expect(handle).toHaveStyle({ marginRight: "150px" }) // Math.abs(-1.5) * 100 pixels
     })
 
@@ -128,7 +129,7 @@ describe("JLCutDragHandle", () => {
       // Проверяем что tooltip появился
       const tooltip = screen.getByText("2.0s")
       expect(tooltip).toBeInTheDocument()
-      expect(tooltip).toHaveClass("bg-popover", "text-popover-foreground")
+      expect(tooltip).toHaveClass("bg-popover text-popover-foreground")
     })
 
     it("should position tooltip correctly for J-Cut", () => {
@@ -141,7 +142,7 @@ describe("JLCutDragHandle", () => {
       })
 
       const tooltip = screen.getByText("2.0s")
-      expect(tooltip).toHaveClass("right-full", "mr-2")
+      expect(tooltip).toHaveClass("right-full mr-2")
     })
 
     it("should position tooltip correctly for L-Cut", () => {
@@ -160,7 +161,7 @@ describe("JLCutDragHandle", () => {
       })
 
       const tooltip = screen.getByText("1.5s")
-      expect(tooltip).toHaveClass("left-full", "ml-2")
+      expect(tooltip).toHaveClass("left-full ml-2")
     })
 
     it("should call createJCut for J-Cut during drag", () => {

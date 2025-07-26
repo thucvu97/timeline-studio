@@ -18,6 +18,7 @@ vi.mock("../../../types/jl-cuts", () => ({
 const createMockClip = (overrides: Partial<TimelineClip> = {}): TimelineClip => ({
   id: "clip-1",
   name: "Test Clip",
+  mediaId: "media-1",
   startTime: 0,
   duration: 10,
   offset: 0,
@@ -26,6 +27,7 @@ const createMockClip = (overrides: Partial<TimelineClip> = {}): TimelineClip => 
     name: "test.mp4",
     path: "/test.mp4",
     duration: 10,
+    size: 1000,
     createdAt: new Date().toISOString(),
     isAudio: false,
     isVideo: true,
@@ -73,7 +75,7 @@ describe("JLCutIndicator", () => {
 
       const indicator = screen.getByText("J")
       expect(indicator).toBeInTheDocument()
-      expect(indicator).toHaveClass("bg-blue-500/20", "text-blue-500")
+      expect(indicator).toHaveClass("bg-blue-500/20 text-blue-500")
     })
 
     it("should calculate correct width for J-Cut", () => {
@@ -125,7 +127,7 @@ describe("JLCutIndicator", () => {
 
       const indicator = screen.getByText("L")
       expect(indicator).toBeInTheDocument()
-      expect(indicator).toHaveClass("bg-red-500/20", "text-red-500")
+      expect(indicator).toHaveClass("bg-red-500/20 text-red-500")
     })
 
     it("should calculate correct width for L-Cut", () => {
@@ -225,7 +227,7 @@ describe("JLCutIndicator", () => {
     const { container } = render(<JLCutIndicator {...props} />)
 
     const indicatorDiv = container.firstChild as HTMLElement
-    expect(indicatorDiv).toHaveClass("absolute", "top-0", "h-full", "pointer-events-none")
+    expect(indicatorDiv).toHaveClass("absolute top-0 h-full pointer-events-none")
   })
 
   it("should render SVG with proper overflow style", () => {
@@ -237,7 +239,7 @@ describe("JLCutIndicator", () => {
     const { container } = render(<JLCutIndicator {...props} />)
 
     const svg = container.querySelector("svg")
-    expect(svg).toHaveClass("absolute", "inset-0", "w-full", "h-full")
+    expect(svg).toHaveClass("absolute inset-0 w-full h-full")
     expect(svg).toHaveStyle({ overflow: "visible" })
   })
 })

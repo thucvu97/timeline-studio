@@ -30,6 +30,7 @@ const createMockGroup = (overrides: Partial<ClipGroup> = {}): ClipGroup => ({
 const createMockClip = (overrides: Partial<TimelineClip> = {}): TimelineClip => ({
   id: "clip-1",
   name: "Test Clip",
+  mediaId: "media-1",
   startTime: 0,
   duration: 10,
   offset: 0,
@@ -111,14 +112,14 @@ describe("CollapsedGroup", () => {
     const { container } = render(<CollapsedGroup {...defaultProps} isSelected={true} />)
 
     const groupElement = container.firstChild as HTMLElement
-    expect(groupElement).toHaveClass("ring-2", "ring-primary", "ring-offset-1")
+    expect(groupElement).toHaveClass("ring-2 ring-primary ring-offset-1")
   })
 
   it("should not show selected state when isSelected is false", () => {
     const { container } = render(<CollapsedGroup {...defaultProps} isSelected={false} />)
 
     const groupElement = container.firstChild as HTMLElement
-    expect(groupElement).not.toHaveClass("ring-2", "ring-primary", "ring-offset-1")
+    expect(groupElement).not.toHaveClass("ring-2 ring-primary ring-offset-1")
   })
 
   it("should show lock indicator when group is locked", () => {
@@ -193,7 +194,7 @@ describe("CollapsedGroup", () => {
     const { container } = render(<CollapsedGroup {...defaultProps} />)
 
     const groupElement = container.firstChild as HTMLElement
-    expect(groupElement).toHaveClass("hover:shadow-md", "transition-all")
+    expect(groupElement).toHaveClass("hover:shadow-md transition-all")
   })
 
   it("should position elements correctly with different time scales", () => {

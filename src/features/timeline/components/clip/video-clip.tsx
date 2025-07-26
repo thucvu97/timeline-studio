@@ -25,7 +25,7 @@ export const VideoClip = memo(
   function VideoClip({ clip, track, onUpdate, onRemove }: VideoClipProps) {
     const [isHovered, setIsHovered] = React.useState(false)
     const timeline = useTimeline()
-    const { timelineActor, uiState } = timeline || {}
+    const { uiState, timelineActor } = timeline || {}
 
     // Мемоизируем обработчики для предотвращения создания новых функций при каждом рендере
     const handleSelect = useCallback(() => {
