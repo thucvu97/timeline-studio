@@ -37,6 +37,7 @@ export interface AnalysisResult {
 export class NoiseReductionEngine extends EventEmitter {
   private context: AudioContext
   private noiseProfiles = new Map<string, NoiseProfile>()
+  private isProcessing = false
 
   // Algorithm processors
   private spectralProcessor: SpectralNoiseGate | null = null
@@ -139,6 +140,8 @@ export class NoiseReductionEngine extends EventEmitter {
     })
   }
 
+  // Method moved below, removing duplicate declaration
+
   private createAdaptiveProcessor(config: NoiseReductionConfig): AudioWorkletNode {
     // Комбинирует несколько алгоритмов
     const adaptiveProcessor = new AdaptiveNoiseReduction(this.context)
@@ -218,10 +221,12 @@ export class NoiseReductionEngine extends EventEmitter {
 
   private async createOfflineAIProcessor(
     context: OfflineAudioContext,
-    _config: NoiseReductionConfig,
+    config: NoiseReductionConfig,
   ): Promise<AudioNode> {
-    // Placeholder for AI processor creation
-    return context.createGain()
+    // For offline processing, we can't use AudioWorklet, so use a gain node as placeholder
+    const processor = context.createGain()
+    processor.gain.value = 1 - (config.strength / 100) * 0.5 // Simple reduction based on strength
+    return processor
   }
 
   dispose(): void {
@@ -335,8 +340,8 @@ class AdaptiveNoiseReduction {
 class NoiseAnalyzer {
   private fftProcessor: FFTProcessor
 
-  constructor() {
-    this.fftProcessor = new FFTProcessor(2048, context.sampleRate)
+  constructor(private context: AudioContext) {
+    this.fftProcessor = new FFTProcessor(2048, this.context.sampleRate)
   }
 
   async analyze(audioBuffer: AudioBuffer): Promise<NoiseProfile> {
@@ -383,6 +388,8 @@ class NoiseAnalyzer {
  * Audio Analyzer for SNR and voice detection
  */
 class AudioAnalyzer {
+  constructor(private context: AudioContext) {}
+
   async analyze(audioBuffer: AudioBuffer): Promise<AnalysisResult> {
     const channelData = audioBuffer.getChannelData(0)
 

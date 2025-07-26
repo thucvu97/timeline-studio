@@ -144,7 +144,7 @@ export function useMusicAdapter(): ListAdapter<MusicListItem> {
   const { isItemFavorite } = useFavorites()
   const { importFile, importDirectory, isImporting } = useMusicImport()
 
-  const allMusicFiles = musicFiles.allFiles || []
+  const allMusicFiles = musicFiles || []
 
   return {
     // Хук для получения данных

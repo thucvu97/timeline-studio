@@ -301,6 +301,7 @@ describe("MidiRouter", () => {
       router.routeMessage("input1", {
         type: "cc",
         channel: 1,
+        timestamp: Date.now(),
         data: { controller: 7, value: 100 },
       })
       expect(callback).toHaveBeenCalledTimes(1)
@@ -330,6 +331,7 @@ describe("MidiRouter", () => {
       router.routeMessage("input1", {
         type: "noteon",
         channel: 1,
+        timestamp: Date.now(),
         data: { note: 59, velocity: 100 },
       })
       expect(callback).not.toHaveBeenCalled()
@@ -338,6 +340,7 @@ describe("MidiRouter", () => {
       router.routeMessage("input1", {
         type: "noteon",
         channel: 1,
+        timestamp: Date.now(),
         data: { note: 65, velocity: 100 },
       })
       expect(callback).toHaveBeenCalledTimes(1)
@@ -346,6 +349,7 @@ describe("MidiRouter", () => {
       router.routeMessage("input1", {
         type: "noteon",
         channel: 1,
+        timestamp: Date.now(),
         data: { note: 73, velocity: 100 },
       })
       expect(callback).toHaveBeenCalledTimes(1)
@@ -374,6 +378,7 @@ describe("MidiRouter", () => {
       router.routeMessage("input1", {
         type: "cc",
         channel: 1,
+        timestamp: Date.now(),
         data: { controller: 7, value: 100 },
       })
       expect(callback).toHaveBeenCalledTimes(1)
@@ -382,6 +387,7 @@ describe("MidiRouter", () => {
       router.routeMessage("input1", {
         type: "cc",
         channel: 1,
+        timestamp: Date.now(),
         data: { controller: 10, value: 100 },
       })
       expect(callback).toHaveBeenCalledTimes(1)
@@ -709,6 +715,7 @@ describe("MidiRouter", () => {
       router.routeMessage("input1", {
         type: "noteon",
         channel: 1,
+        timestamp: Date.now(),
         data: { note: 60, velocity: 64 },
       })
 

@@ -6,6 +6,16 @@
 // This code runs in AudioWorkletGlobalScope
 class NoiseReductionProcessor extends AudioWorkletProcessor {
   private fftSize = 2048
+  private inputBuffer: Float32Array
+  private outputBuffer: Float32Array
+  private overlapBuffer: Float32Array
+  private window: Float32Array
+  private hopSize: number
+  private config: any = {
+    strength: 0.5,
+    preserveVoice: true
+  }
+  private fftProcessor: FFTProcessor
 
   constructor() {
     super()
@@ -15,6 +25,7 @@ class NoiseReductionProcessor extends AudioWorkletProcessor {
     this.outputBuffer = new Float32Array(this.fftSize)
     this.overlapBuffer = new Float32Array(this.fftSize)
     this.window = this.createHannWindow(this.fftSize)
+    this.hopSize = this.fftSize / 2
     this.fftProcessor = new FFTProcessor(this.fftSize)
 
     // Handle parameter changes
@@ -25,17 +36,16 @@ class NoiseReductionProcessor extends AudioWorkletProcessor {
     }
   }
 
+  private updateConfig(config: any): void {
+    this.config = { ...this.config, ...config }
+  }
+
   private createHannWindow(size: number): Float32Array {
     const window = new Float32Array(size)
     for (let i = 0; i < size; i++) {
       window[i] = 0.5 - 0.5 * Math.cos((2 * Math.PI * i) / (size - 1))
     }
     return window
-  }
-
-  private updateConfig(config: any): void {
-    // Update processing parameters
-    this.port.postMessage({ type: "configUpdated", config })
   }
 
   process(inputs: Float32Array[][], outputs: Float32Array[][], _parameters: Record<string, Float32Array>): boolean {

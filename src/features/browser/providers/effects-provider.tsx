@@ -150,13 +150,19 @@ class EffectsProviderImpl implements EffectsProviderAPI {
     if (options.query) {
       const query = options.query.toLowerCase()
       resources = resources.filter((resource) => {
-        const name = "name" in resource ? resource.name?.toLowerCase() || "" : ""
-        const labels = "labels" in resource ? Object.values(resource.labels).join(" ").toLowerCase() : ""
+        const name = "name" in resource 
+          ? typeof resource.name === "object" 
+            ? Object.values(resource.name).join(" ").toLowerCase()
+            : (resource.name as string)?.toLowerCase() || ""
+          : ""
+        const labels = "labels" in resource && typeof resource.labels === "object"
+          ? Object.values(resource.labels).join(" ").toLowerCase() 
+          : ""
         const description =
           "description" in resource
             ? typeof resource.description === "object"
               ? Object.values(resource.description).join(" ").toLowerCase()
-              : resource.description?.toLowerCase() || ""
+              : (resource.description as string)?.toLowerCase() || ""
             : ""
 
         return name.includes(query) || labels.includes(query) || description.includes(query)
@@ -172,7 +178,7 @@ class EffectsProviderImpl implements EffectsProviderAPI {
     if (options.tags && options.tags.length > 0) {
       resources = resources.filter((resource) => {
         if (!("tags" in resource) || !Array.isArray(resource.tags)) return false
-        return options.tags!.some((tag) => resource.tags.includes(tag as any))
+        return options.tags!.some((tag) => (resource as any).tags.includes(tag))
       })
     }
 

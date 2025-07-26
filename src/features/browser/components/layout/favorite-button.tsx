@@ -103,15 +103,15 @@ export const FavoriteButton = memo(function FavoriteButton({ file, size = 150, t
 
       if (isFavorite && isHovering && canShowRemoveButton) {
         // Удаляем из избранного
-        void removeFromFavorites(type, file.id)
+        void removeFromFavorites(file, type)
       } else if (!isFavorite) {
         // Добавляем в избранное
-        void addToFavorites(type, file)
+        void addToFavorites(file, type)
         // Немедленно обновляем визуальное состояние
         setIsRecentlyAdded(true)
       }
     },
-    [isFavorite, isHovering, canShowRemoveButton, removeFromFavorites, addToFavorites, file.id, type],
+    [isFavorite, isHovering, canShowRemoveButton, removeFromFavorites, addToFavorites, file, type],
   )
 
   return (

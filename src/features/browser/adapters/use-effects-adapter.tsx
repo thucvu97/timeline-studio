@@ -175,9 +175,19 @@ export function useEffectsAdapter(): ListAdapter<EffectListItem> {
 
   // Adapter data ready
 
-  return {
-    ...adapter,
+  // Извлекаем только поля, соответствующие ListAdapter
+  const listAdapter: ListAdapter<EffectListItem> = {
+    useData: adapter.useData,
+    PreviewComponent: adapter.PreviewComponent,
+    getSortValue: adapter.getSortValue,
+    getSearchableText: adapter.getSearchableText,
+    getGroupValue: adapter.getGroupValue,
+    matchesFilter: adapter.matchesFilter,
+    importHandlers: adapter.importHandlers,
+    favoriteType: adapter.favoriteType,
     // Проверка избранного (переопределяем)
     isFavorite: (effect: BaseEffect) => isItemFavorite(effect, "effect"),
   }
+
+  return listAdapter
 }

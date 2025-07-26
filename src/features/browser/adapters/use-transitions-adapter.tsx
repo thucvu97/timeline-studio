@@ -179,17 +179,23 @@ export function useTransitionsAdapter(): ListAdapter<TransitionListItem> {
     },
   })
 
-  return {
-    ...restAdapter,
-    // Данные с правильной типизацией
+  // Извлекаем только поля, соответствующие ListAdapter
+  const listAdapter: ListAdapter<TransitionListItem> = {
     useData: () => ({
-      items: items as Transition[],
+      items: items as TransitionListItem[],
       loading,
       error: error ? new Error(error) : null,
     }),
-    // Компонент превью
-    PreviewComponent: TransitionPreviewWrapper,
+    PreviewComponent: TransitionPreviewWrapper as React.ComponentType<PreviewComponentProps<TransitionListItem>>,
+    getSortValue: restAdapter.getSortValue,
+    getSearchableText: restAdapter.getSearchableText,
+    getGroupValue: restAdapter.getGroupValue,
+    matchesFilter: restAdapter.matchesFilter,
+    importHandlers: restAdapter.importHandlers,
+    favoriteType: restAdapter.favoriteType,
     // Проверка избранного (переопределяем)
-    isFavorite: (transition: Transition) => isItemFavorite(transition, "transition"),
+    isFavorite: (transition: TransitionListItem) => isItemFavorite(transition, "transition"),
   }
+
+  return listAdapter
 }

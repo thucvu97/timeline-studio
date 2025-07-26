@@ -52,7 +52,7 @@ export function useMediaAdapter(): ListAdapter<MediaListItem> {
 
   const allMediaFiles = useMemo(
     () =>
-      (projectState?.mediaFiles?.allFiles || []).map((file) => ({
+      (projectState?.mediaFiles?.allFiles || []).map((file: MediaFile) => ({
         ...file,
         isLoadingMetadata: false, // Force isLoadingMetadata to false for all files
       })),
@@ -67,7 +67,7 @@ export function useMediaAdapter(): ListAdapter<MediaListItem> {
     useData: () => ({
       items: allMediaFiles,
       loading: mediaLoading,
-      error: connectionError,
+      error: connectionError ? new Error(connectionError) : null,
     }),
 
     // Компонент превью

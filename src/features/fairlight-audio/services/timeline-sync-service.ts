@@ -21,38 +21,20 @@ function convertTrackEffects(track: TimelineTrack): ChannelEffect[] {
     // Map timeline effect types to audio effect types
     let effectType: "eq" | "compressor" | "reverb" | "delay" | "gate" | undefined
 
-    // Check if we have effect details
-    if (appliedEffect.effect) {
-      switch (appliedEffect.effect.type) {
-        case "equalizer":
-        case "eq":
-        case "audio-eq":
-          effectType = "eq"
-          break
-        case "compressor":
-        case "dynamics":
-        case "audio-compressor":
-          effectType = "compressor"
-          break
-        case "reverb":
-        case "ambience":
-        case "audio-reverb":
-          effectType = "reverb"
-          break
-        case "delay":
-        case "echo":
-        case "audio-delay":
-          effectType = "delay"
-          break
-        case "gate":
-        case "noise-gate":
-        case "audio-gate":
-          effectType = "gate"
-          break
-        default:
-          // Unknown effect type, effectType remains undefined
-          break
-      }
+    // Extract effect type from effect ID or custom params
+    // Since AppliedEffect only has effectId, we need to infer the type
+    const effectId = appliedEffect.effectId.toLowerCase()
+    
+    if (effectId.includes("equalizer") || effectId.includes("eq")) {
+      effectType = "eq"
+    } else if (effectId.includes("compressor") || effectId.includes("dynamics")) {
+      effectType = "compressor"
+    } else if (effectId.includes("reverb") || effectId.includes("ambience")) {
+      effectType = "reverb"
+    } else if (effectId.includes("delay") || effectId.includes("echo")) {
+      effectType = "delay"
+    } else if (effectId.includes("gate") || effectId.includes("noise-gate")) {
+      effectType = "gate"
     }
 
     if (effectType) {
@@ -60,7 +42,7 @@ function convertTrackEffects(track: TimelineTrack): ChannelEffect[] {
         id: appliedEffect.id || `effect-${index}`,
         type: effectType,
         enabled: appliedEffect.enabled,
-        parameters: appliedEffect.settings || {},
+        parameters: appliedEffect.customParams || {},
       })
     }
   })

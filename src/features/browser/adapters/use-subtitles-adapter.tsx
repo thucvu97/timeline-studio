@@ -103,7 +103,7 @@ export function useSubtitlesAdapter(): ListAdapter<SubtitleListItem> {
     useData: () => ({
       items: subtitles,
       loading,
-      error: error || null,
+      error: error ? new Error(error) : null,
     }),
 
     // Компонент превью

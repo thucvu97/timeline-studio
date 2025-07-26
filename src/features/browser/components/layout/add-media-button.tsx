@@ -125,28 +125,28 @@ export const AddMediaButton = memo(function AddMediaButton({
         // Добавляем в добавленные в зависимости от типа
         switch (type) {
           case "media":
-            void addMedia(resource.data)
+            void addMedia(resource)
             break
           case "music":
-            void addMusic(resource.data)
+            void addMusic(resource)
             break
           case "effect":
-            void addEffect(resource.data)
+            void addEffect(resource)
             break
           case "filter":
-            void addFilter(resource.data)
+            void addFilter(resource)
             break
           case "transition":
-            void addTransition(resource.data)
+            void addTransition(resource)
             break
           case "subtitle":
-            void addSubtitle(resource.data)
+            void addSubtitle(resource)
             break
           case "template":
-            void addTemplate(resource.data)
+            void addTemplate(resource)
             break
           case "styleTemplate":
-            void addStyleTemplate(resource.data)
+            void addStyleTemplate(resource)
             break
           default:
             console.warn(`Unknown resource type: ${type}`)

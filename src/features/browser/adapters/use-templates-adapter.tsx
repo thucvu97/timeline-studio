@@ -98,16 +98,16 @@ export function useTemplatesAdapter(): ListAdapter<TemplateListItem> {
     setTemplates(TEMPLATE_MAP[group] || [])
   }, [settings.aspectRatio])
 
-  return {
+  const listAdapter: ListAdapter<TemplateListItem> = {
     // Хук для получения данных
     useData: () => ({
-      items: templates,
+      items: templates as TemplateListItem[],
       loading: false,
       error: null,
     }),
 
     // Компонент превью
-    PreviewComponent: TemplatePreviewWrapper,
+    PreviewComponent: TemplatePreviewWrapper as React.ComponentType<PreviewComponentProps<TemplateListItem>>,
 
     // Функция для получения значения сортировки
     getSortValue: (template, sortBy) => {
@@ -198,4 +198,6 @@ export function useTemplatesAdapter(): ListAdapter<TemplateListItem> {
     // Тип для системы избранного
     favoriteType: "template",
   }
+
+  return listAdapter
 }
