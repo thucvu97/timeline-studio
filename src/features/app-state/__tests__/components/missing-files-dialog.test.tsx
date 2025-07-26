@@ -1,12 +1,11 @@
+import { render, screen, waitFor } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 // Мокаем MediaRestorationService
 vi.mock("@/features/media/services/media-restoration-service", () => ({
   promptUserToFindFile: vi.fn(),
 }))
-
-import { render, screen, waitFor } from "@testing-library/react"
-import userEvent from "@testing-library/user-event"
 
 import { SavedMediaFile } from "@/features/media/types/saved-media"
 

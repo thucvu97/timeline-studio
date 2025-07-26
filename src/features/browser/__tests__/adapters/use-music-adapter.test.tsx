@@ -34,28 +34,26 @@ vi.mock("@/features/app-state", () => ({
     updateMusicFiles: vi.fn(),
   })),
   useMusicFiles: vi.fn(() => ({
-    musicFiles: {
-      allFiles: [
-        {
-          id: "music-1",
-          name: "song.mp3",
-          path: "/music/song.mp3",
-          extension: ".mp3",
-          size: 3145728,
-          createdAt: "2024-01-01T00:00:00Z",
-          probeData: {
-            streams: [],
-            format: {
-              duration: 180,
-              tags: {
-                artist: "Test Artist",
-                title: "Test Song",
-              },
+    musicFiles: [
+      {
+        id: "music-1",
+        name: "song.mp3",
+        path: "/music/song.mp3",
+        extension: ".mp3",
+        size: 3145728,
+        createdAt: "2024-01-01T00:00:00Z",
+        probeData: {
+          streams: [],
+          format: {
+            duration: 180,
+            tags: {
+              artist: "Test Artist",
+              title: "Test Song",
             },
           },
         },
-      ],
-    },
+      },
+    ],
     updateMusicFiles: vi.fn(),
   })),
   useFavorites: vi.fn(() => ({

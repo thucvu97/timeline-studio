@@ -134,6 +134,18 @@ jobs:
           rm -rf target/release/bundle target/universal-apple-darwin/release/bundle
           cd ..
 
+      - name: Remove development binaries before build
+        run: |
+          cd src-tauri
+          # Remove development-only binaries that shouldn't be bundled
+          rm -f target/universal-apple-darwin/release/generate_types
+          rm -f target/universal-apple-darwin/release/export_types
+          rm -f target/x86_64-apple-darwin/release/generate_types
+          rm -f target/x86_64-apple-darwin/release/export_types
+          rm -f target/aarch64-apple-darwin/release/generate_types
+          rm -f target/aarch64-apple-darwin/release/export_types
+          cd ..
+
       - name: Build the app (macOS universal)
         uses: tauri-apps/tauri-action@v0.5.0
         env:

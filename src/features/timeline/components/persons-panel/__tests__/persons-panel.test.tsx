@@ -2,9 +2,9 @@
  * Тесты для PersonsPanel компонента
  */
 
+import { fireEvent, render, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
-import { fireEvent, render, screen } from "@testing-library/react"
 
 // Mock для хука useTimelinePersons
 vi.mock("@/features/timeline/hooks/use-timeline-persons", () => ({

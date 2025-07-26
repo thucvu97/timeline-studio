@@ -153,7 +153,7 @@ class EffectsProviderImpl implements EffectsProviderAPI {
         const name = "name" in resource 
           ? typeof resource.name === "object" 
             ? Object.values(resource.name).join(" ").toLowerCase()
-            : (resource.name as string)?.toLowerCase() || ""
+            : (resource.name)?.toLowerCase() || ""
           : ""
         const labels = "labels" in resource && typeof resource.labels === "object"
           ? Object.values(resource.labels).join(" ").toLowerCase() 
