@@ -132,7 +132,7 @@ describe("TimelineStudioProjectService", () => {
           viewSettings: {} as any,
           stats: {} as any,
         } as any,
-        sequences: { "seq-1": { id: "seq-1", name: "Sequence 1" } },
+        sequences: new Map([["seq-1", { id: "seq-1", name: "Sequence 1" } as any]]),
         activeSequenceId: "seq-1",
         cache: {
           thumbnails: {},
@@ -241,10 +241,12 @@ describe("TimelineStudioProjectService", () => {
 
       // Добавляем клип, использующий медиа
       const sequence = project.sequences.values().next().value
-      sequence.composition.tracks.push({
-        id: "track-1",
-        clips: [{ mediaId: "used-1" }],
-      } as any)
+      if (sequence) {
+        sequence.composition.tracks.push({
+          id: "track-1",
+          clips: [{ mediaId: "used-1" }],
+        } as any)
+      }
 
       const result = service.optimizeProject(project)
 

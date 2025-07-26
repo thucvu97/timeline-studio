@@ -139,7 +139,7 @@ describe("WorkflowAutomationService", () => {
 
       const result = await service.executeWorkflow(params)
 
-      expect(result.success).toBe(true)
+      expect(result?.success).toBe(true)
       expect(result.workflowId).toMatch(/^workflow_\d+_[a-z0-9]+$/)
       expect(result.outputs).toHaveLength(1)
       expect(result.outputs[0].type).toBe("main_video")
@@ -157,7 +157,7 @@ describe("WorkflowAutomationService", () => {
     it("should handle workflow with all preferences", async () => {
       const result = await service.executeWorkflow(mockWorkflowParams)
 
-      expect(result.success).toBe(true)
+      expect(result?.success).toBe(true)
       expect(result.timeline.sectionsCreated).toBe(2) // Based on mock scene detection
       expect(result.timeline.effectsApplied).toBeDefined()
       expect(Array.isArray(result.timeline.effectsApplied)).toBe(true)
@@ -173,7 +173,7 @@ describe("WorkflowAutomationService", () => {
 
       const result = await service.executeWorkflow(params)
 
-      expect(result.success).toBe(true)
+      expect(result?.success).toBe(true)
 
       // Verify platform optimization was called for both platforms
       expect(invoke).toHaveBeenCalledWith(
@@ -203,7 +203,7 @@ describe("WorkflowAutomationService", () => {
 
       const result = await service.executeWorkflow(params)
 
-      expect(result.success).toBe(true)
+      expect(result?.success).toBe(true)
       expect(invoke).toHaveBeenCalledWith("extract_audio_for_whisper", expect.any(Object))
       expect(invoke).toHaveBeenCalledWith(
         "whisper_transcribe_openai",
@@ -236,7 +236,7 @@ describe("WorkflowAutomationService", () => {
 
       const result = await service.executeWorkflow(mockWorkflowParams)
 
-      expect(result.success).toBe(true) // Should still succeed overall
+      expect(result?.success).toBe(true) // Should still succeed overall
       const failedSteps = result.executionLog.filter((log) => log.status === "failed")
       expect(failedSteps.length).toBeGreaterThan(0)
     })
@@ -395,7 +395,7 @@ describe("WorkflowAutomationService", () => {
 
       // Execute workflow and verify it completes successfully
       const result = await service.executeWorkflow(mockWorkflowParams)
-      expect(result.success).toBe(true)
+      expect(result?.success).toBe(true)
 
       // After execution, should still return an array
       const afterCompletion = service.getActiveWorkflows()
@@ -432,9 +432,9 @@ describe("WorkflowAutomationService", () => {
 
       // @ts-expect-error - accessing private property for testing
       const step = service.workflowSteps.get("analyze_input")
-      const result = await step.execute(context)
+      const result = await step?.execute(context)
 
-      expect(result.success).toBe(true)
+      expect(result?.success).toBe(true)
       expect(context.analysisResults.inputAnalysis).toHaveLength(2)
       expect(invoke).toHaveBeenCalledWith("ffmpeg_quick_analysis", { filePath: "/path/to/video1.mp4" })
       expect(invoke).toHaveBeenCalledWith("ffmpeg_quick_analysis", { filePath: "/path/to/video2.mp4" })
@@ -452,9 +452,9 @@ describe("WorkflowAutomationService", () => {
 
       // @ts-expect-error - accessing private property for testing
       const step = service.workflowSteps.get("detect_scenes")
-      const result = await step.execute(context)
+      const result = await step?.execute(context)
 
-      expect(result.success).toBe(true)
+      expect(result?.success).toBe(true)
       expect(context.analysisResults.scenes).toHaveLength(2)
       expect(invoke).toHaveBeenCalledWith(
         "ffmpeg_detect_scenes",
@@ -480,9 +480,9 @@ describe("WorkflowAutomationService", () => {
 
       // @ts-expect-error - accessing private property for testing
       const step = service.workflowSteps.get("generate_subtitles")
-      const result = await step.execute(context)
+      const result = await step?.execute(context)
 
-      expect(result.success).toBe(true)
+      expect(result?.success).toBe(true)
       expect(invoke).not.toHaveBeenCalledWith("extract_audio_for_whisper", expect.any(Object))
     })
 
@@ -500,9 +500,9 @@ describe("WorkflowAutomationService", () => {
 
       // @ts-expect-error - accessing private property for testing
       const step = service.workflowSteps.get("create_timeline")
-      const result = await step.execute(context)
+      const result = await step?.execute(context)
 
-      expect(result.success).toBe(true)
+      expect(result?.success).toBe(true)
       expect(context.timelineData).toBeDefined()
       expect(context.intermediateFiles.projectFile).toBe("/tmp/test/project.json")
       expect(invoke).toHaveBeenCalledWith("create_timeline_project", expect.any(Object))
@@ -520,9 +520,9 @@ describe("WorkflowAutomationService", () => {
 
       // @ts-expect-error - accessing private property for testing
       const step = service.workflowSteps.get("apply_effects")
-      const result = await step.execute(context)
+      const result = await step?.execute(context)
 
-      expect(result.success).toBe(true)
+      expect(result?.success).toBe(true)
       expect(context.timelineData.effects).toHaveLength(2)
       expect(context.timelineData.effects[0].type).toBe("color_correction")
       expect(context.timelineData.effects[0].settings).toMatchObject({
@@ -552,9 +552,9 @@ describe("WorkflowAutomationService", () => {
 
       // @ts-expect-error - accessing private property for testing
       const step = service.workflowSteps.get("add_transitions")
-      const result = await step.execute(context)
+      const result = await step?.execute(context)
 
-      expect(result.success).toBe(true)
+      expect(result?.success).toBe(true)
       expect(context.timelineData.transitions).toHaveLength(2)
       expect(context.timelineData.transitions[0]).toMatchObject({
         type: "dissolve",
@@ -579,9 +579,9 @@ describe("WorkflowAutomationService", () => {
 
       // @ts-expect-error - accessing private property for testing
       const step = service.workflowSteps.get("add_music")
-      const result = await step.execute(context)
+      const result = await step?.execute(context)
 
-      expect(result.success).toBe(true)
+      expect(result?.success).toBe(true)
       expect(context.timelineData.audioTracks).toBeUndefined()
     })
 
@@ -597,9 +597,9 @@ describe("WorkflowAutomationService", () => {
 
       // @ts-expect-error - accessing private property for testing
       const step = service.workflowSteps.get("export_video")
-      const result = await step.execute(context)
+      const result = await step?.execute(context)
 
-      expect(result.success).toBe(true)
+      expect(result?.success).toBe(true)
       expect(context.intermediateFiles.finalVideo).toBe("/path/to/output/final_video.mp4")
       expect(invoke).toHaveBeenCalledWith(
         "compile_workflow_video",
@@ -622,11 +622,11 @@ describe("WorkflowAutomationService", () => {
 
       // @ts-expect-error - accessing private property for testing
       const step = service.workflowSteps.get("optimize_platforms")
-      const result = await step.execute(context)
+      const result = await step?.execute(context)
 
-      expect(result.success).toBe(true)
+      expect(result?.success).toBe(true)
       expect(invoke).toHaveBeenCalledTimes(2) // Once for each platform
-      expect(result.outputs?.platformVersions).toHaveLength(2)
+      expect(result?.outputs?.platformVersions).toHaveLength(2)
     })
 
     it("should skip platform optimization when not requested", async () => {
@@ -644,9 +644,9 @@ describe("WorkflowAutomationService", () => {
 
       // @ts-expect-error - accessing private property for testing
       const step = service.workflowSteps.get("optimize_platforms")
-      const result = await step.execute(context)
+      const result = await step?.execute(context)
 
-      expect(result.success).toBe(true)
+      expect(result?.success).toBe(true)
       expect(invoke).not.toHaveBeenCalledWith("ffmpeg_optimize_for_platform", expect.any(Object))
     })
   })
@@ -766,7 +766,7 @@ describe("WorkflowAutomationService", () => {
     it("should clean up on workflow completion", async () => {
       const result = await service.executeWorkflow(mockWorkflowParams)
 
-      expect(result.success).toBe(true)
+      expect(result?.success).toBe(true)
 
       // Verify workflow is removed from active list
       const activeWorkflows = service.getActiveWorkflows()
@@ -785,7 +785,7 @@ describe("WorkflowAutomationService", () => {
       const result = await service.executeWorkflow(mockWorkflowParams)
 
       // Should still complete but with failed steps
-      expect(result.success).toBe(true)
+      expect(result?.success).toBe(true)
       const failedStep = result.executionLog.find((log) => log.step === "Обнаружение сцен")
       expect(failedStep?.status).toBe("failed")
       expect(failedStep?.details).toContain("Scene detection failed")

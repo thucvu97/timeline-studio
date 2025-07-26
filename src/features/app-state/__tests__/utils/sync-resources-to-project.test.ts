@@ -37,17 +37,10 @@ describe("sync-resources-to-project", () => {
     name: "test-video.mp4",
     path: "/path/to/test-video.mp4",
     size: 1000000,
-    type: "video",
-    mimeType: "video/mp4",
-    lastModified: new Date("2023-01-01"),
-    isOffline: false,
-    metadata: {
-      duration: 30,
-      width: 1920,
-      height: 1080,
-      fps: 30,
-      fileSize: 1000000,
-    },
+    isVideo: true,
+    isAudio: false,
+    isImage: false,
+    duration: 30,
   }
 
   const mockMusicFile: MediaFile = {
@@ -55,14 +48,10 @@ describe("sync-resources-to-project", () => {
     name: "background-music.mp3",
     path: "/path/to/background-music.mp3",
     size: 500000,
-    type: "audio",
-    mimeType: "audio/mp3",
-    lastModified: new Date("2023-01-01"),
-    isOffline: false,
-    metadata: {
-      duration: 120,
-      fileSize: 500000,
-    },
+    isVideo: false,
+    isAudio: true,
+    isImage: false,
+    duration: 120,
   }
 
   const mockMediaPoolItem: MediaPoolItem = {
@@ -109,10 +98,16 @@ describe("sync-resources-to-project", () => {
       duration: 120,
       fileSize: 500000,
       codec: "mp3",
-      bitrate: 128000,
+      bitRate: 128000,
+      createdDate: new Date("2023-01-01"),
+      modifiedDate: new Date("2023-01-01"),
+      importedDate: new Date("2023-01-01"),
     },
-    usageCount: 0,
-    addedAt: new Date("2023-01-01"),
+    usage: {
+      sequences: [],
+      count: 0,
+    },
+    tags: [],
   }
 
   const createMockProject = (): TimelineStudioProject => ({
@@ -126,28 +121,48 @@ describe("sync-resources-to-project", () => {
       appVersion: "1.0.0",
     },
     settings: {
-      video: {
-        resolution: { width: 1920, height: 1080 },
-        frameRate: { numerator: 30, denominator: 1 },
-        aspectRatio: { numerator: 16, denominator: 9 },
-        colorSpace: "Rec. 709",
-        pixelAspectRatio: { numerator: 1, denominator: 1 },
+      aspectRatio: {
+        label: "16:9",
+        textLabel: "Widescreen",
+        description: "YouTube",
+        value: { width: 1920, height: 1080, name: "16:9" },
       },
+      resolution: "1920x1080",
+      frameRate: "30",
+      colorSpace: "sdr",
       audio: {
         sampleRate: 48000,
         channels: 2,
         bitDepth: 24,
+        masterVolume: 1.0,
+        panLaw: "-3dB" as const,
       },
-      folders: {
-        media: "/project/media",
-        exports: "/project/exports",
-        cache: "/project/cache",
-        proxies: "/project/proxies",
+      preview: {
+        resolution: "full" as const,
+        quality: "best" as const,
+        renderDuringPlayback: true,
+        useGPU: true,
       },
+      exportPresets: [],
     },
     mediaPool: {
       items: new Map(),
-      bins: new Map([["root", { id: "root", name: "Root", parentId: null, children: [], items: [] }]]),
+      bins: new Map([["root", { 
+        id: "root", 
+        name: "Root", 
+        parentId: null, 
+        sortOrder: 0,
+        createdDate: new Date("2023-01-01"),
+      }]]),
+      smartCollections: [],
+      viewSettings: {
+        sortBy: "name" as const,
+        sortOrder: "asc" as const,
+        viewMode: "list" as const,
+        thumbnailSize: "medium" as const,
+        showOfflineMedia: true,
+        showProxyBadge: true,
+      },
       stats: {
         totalItems: 0,
         totalSize: 0,
@@ -158,18 +173,34 @@ describe("sync-resources-to-project", () => {
       },
     },
     sequences: new Map(),
-    export: {
-      lastSettings: {
-        format: "mp4",
-        codec: "h264",
-        quality: "high",
-        resolution: { width: 1920, height: 1080 },
-        frameRate: { numerator: 30, denominator: 1 },
-        bitrate: 10000000,
-        audioCodec: "aac",
-        audioSampleRate: 48000,
+    activeSequenceId: "seq-1",
+    cache: {
+      thumbnails: new Map(),
+      waveforms: new Map(),
+      proxies: new Map(),
+      sceneAnalysis: new Map(),
+      totalSize: 0,
+    },
+    workspace: {
+      layout: "edit" as const,
+      panels: {},
+      recentTools: [],
+      grid: {
+        enabled: true,
+        size: 10,
+        snapToGrid: true,
+        snapToClips: true,
+        magneticTimeline: true,
       },
-      history: [],
+    },
+    backup: {
+      autoSave: {
+        enabled: true,
+        interval: 5,
+        keepVersions: 10,
+      },
+      versions: [],
+      lastSaved: new Date("2023-01-01"),
     },
   })
 
@@ -350,7 +381,6 @@ describe("sync-resources-to-project", () => {
       expect(result.metadata.name).toBe(project.metadata.name)
       expect(result.settings).toEqual(project.settings)
       expect(result.sequences).toBe(project.sequences)
-      expect(result.export).toBe(project.export)
     })
   })
 

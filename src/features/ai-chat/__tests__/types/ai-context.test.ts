@@ -2,16 +2,24 @@ import { describe, expect, it } from "vitest"
 
 import type {
   AIToolResult,
-  BrowserContext,
+  AIBrowserContext,
   ContentStoryAnalysis,
-  ResourcesContext,
+  AIResourcesContext,
   TimelineStudioContext,
 } from "../../types/ai-context"
 
 describe("AI Context Types", () => {
-  it("ResourcesContext должен иметь корректную структуру", () => {
-    const context: ResourcesContext = {
-      totalResources: 10,
+  it("AIResourcesContext должен иметь корректную структуру", () => {
+    const context: AIResourcesContext = {
+      availableResources: {
+        media: [],
+        effects: [],
+        filters: [],
+        transitions: [],
+        templates: [],
+        styleTemplates: [],
+        music: [],
+      },
       stats: {
         totalMedia: 5,
         totalDuration: 300,
@@ -24,29 +32,33 @@ describe("AI Context Types", () => {
           template: 1,
           styleTemplate: 0,
           music: 0,
+          subtitle: 0,
         },
       },
       recentlyAdded: [],
-      currentSelection: [],
     }
 
-    expect(context.totalResources).toBe(10)
+    expect(context.availableResources).toBeDefined()
     expect(context.stats.totalMedia).toBe(5)
     expect(context.stats.resourceTypes.media).toBe(5)
   })
 
-  it("BrowserContext должен иметь корректную структуру", () => {
-    const context: BrowserContext = {
+  it("AIBrowserContext должен иметь корректную структуру", () => {
+    const context: AIBrowserContext = {
       activeTab: "media",
       availableMedia: [],
-      filters: {},
-      favorites: [],
-      scanning: false,
+      currentFilters: {
+        searchQuery: "",
+        filterType: "all",
+        sortBy: "name",
+        sortOrder: "asc",
+      },
+      favoriteFiles: [],
     }
 
     expect(context.activeTab).toBe("media")
     expect(Array.isArray(context.availableMedia)).toBe(true)
-    expect(typeof context.scanning).toBe("boolean")
+    expect(context.currentFilters.sortOrder).toBe("asc")
   })
 
   it("AIToolResult должен иметь корректную структуру", () => {
@@ -63,24 +75,60 @@ describe("AI Context Types", () => {
 
   it("ContentStoryAnalysis должен иметь корректную структуру", () => {
     const analysis: ContentStoryAnalysis = {
-      storyStructure: "linear",
-      mainThemes: ["travel", "adventure"],
-      emotionalTone: "positive",
-      pacing: "medium",
-      visualStyle: "cinematic",
-      recommendations: ["add_music", "color_correction"],
+      suggestedStructure: {
+        intro: {
+          duration: 5,
+          suggestedClips: ["clip1"],
+          suggestedEffects: ["fade"],
+        },
+        mainContent: [
+          {
+            title: "Adventure",
+            duration: 60,
+            suggestedClips: ["clip2", "clip3"],
+            keyMoments: [10, 30, 50],
+          },
+        ],
+        outro: {
+          duration: 5,
+          suggestedClips: ["clip4"],
+          suggestedEffects: ["fadeOut"],
+        },
+      },
+      suggestedMusic: {
+        mood: "uplifting",
+        tempo: "medium",
+        genreRecommendations: ["electronic", "ambient"],
+      },
+      detectedThemes: ["travel", "adventure"],
+      keyMoments: [
+        {
+          timestamp: 10,
+          importance: "high",
+          description: "Beautiful sunset",
+          suggestedTreatment: "slow motion",
+        },
+      ],
     }
 
-    expect(analysis.storyStructure).toBe("linear")
-    expect(Array.isArray(analysis.mainThemes)).toBe(true)
-    expect(analysis.mainThemes).toContain("travel")
-    expect(Array.isArray(analysis.recommendations)).toBe(true)
+    expect(analysis.suggestedStructure.intro.duration).toBe(5)
+    expect(Array.isArray(analysis.detectedThemes)).toBe(true)
+    expect(analysis.detectedThemes).toContain("travel")
+    expect(analysis.suggestedMusic.tempo).toBe("medium")
   })
 
   it("TimelineStudioContext должен объединять все контексты", () => {
     const context: TimelineStudioContext = {
       resources: {
-        totalResources: 10,
+        availableResources: {
+          media: [],
+          effects: [],
+          filters: [],
+          transitions: [],
+          templates: [],
+          styleTemplates: [],
+          music: [],
+        },
         stats: {
           totalMedia: 5,
           totalDuration: 300,
@@ -93,40 +141,67 @@ describe("AI Context Types", () => {
             template: 1,
             styleTemplate: 0,
             music: 0,
+            subtitle: 0,
           },
         },
         recentlyAdded: [],
-        currentSelection: [],
       },
       browser: {
         activeTab: "media",
         availableMedia: [],
-        filters: {},
-        favorites: [],
-        scanning: false,
+        currentFilters: {
+          searchQuery: "",
+          filterType: "all",
+          sortBy: "name",
+          sortOrder: "asc",
+        },
+        favoriteFiles: [],
       },
       player: {
         currentVideo: null,
-        isPlaying: false,
-        currentTime: 0,
-        duration: 0,
-        volume: 1,
+        playbackState: {
+          isPlaying: false,
+          currentTime: 0,
+          duration: 0,
+          volume: 1,
+        },
+        previewEffects: [],
+        previewFilters: [],
+        previewTemplate: null,
       },
       timeline: {
         currentProject: null,
-        stats: {
+        projectStats: {
           totalDuration: 0,
           totalClips: 0,
           totalTracks: 0,
           totalSections: 0,
-          usedResources: {},
+          usedResources: {
+            media: 0,
+            effect: 0,
+            filter: 0,
+            transition: 0,
+            template: 0,
+            styleTemplate: 0,
+            music: 0,
+            subtitle: 0,
+          },
         },
         recentChanges: [],
+        issues: [],
       },
       userPreferences: {
-        preferredStyle: "cinematic",
-        defaultDuration: 60,
-        autoEnhancements: true,
+        defaultProjectSettings: {
+          resolution: { width: 1920, height: 1080 },
+          fps: 30,
+          aspectRatio: "16:9",
+        },
+        contentPreferences: {
+          preferredTransitionDuration: 1,
+          autoApplyColorCorrection: true,
+          autoBalanceAudio: true,
+          preferredTrackTypes: ["video", "audio"],
+        },
         aiCommandHistory: [],
       },
     }

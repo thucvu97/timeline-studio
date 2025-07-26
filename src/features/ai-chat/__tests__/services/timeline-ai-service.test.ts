@@ -171,8 +171,8 @@ describe("TimelineAIService", () => {
     name: { en: name, ru: name },
     description: { en: `${name} effect`, ru: `${name} эффект` },
     category: "blur_sharpen" as const,
-    scope: ["video"],
-    processingType: "css",
+    scope: ["clip"],
+    processingType: "hybrid",
     version: "1.0.0",
     tags: [],
     parameters: [],
@@ -181,7 +181,7 @@ describe("TimelineAIService", () => {
     gpuAccelerated: false,
     processors: {
       css: {
-        shader: `filter: ${name.toLowerCase()};`
+        filter: () => `filter: ${name.toLowerCase()};`
       }
     },
   })
@@ -776,8 +776,8 @@ describe("TimelineAIService", () => {
 
   describe("System prompts", () => {
     it("should create comprehensive system prompt", () => {
-      const context = service.createContext()
-      const prompt = service.createSystemPrompt(context)
+      const context = (service as any).createContext()
+      const prompt = (service as any).createSystemPrompt(context)
 
       expect(prompt).toContain("AI ассистент для Timeline Studio")
       expect(prompt).toContain("2 медиафайлов")
@@ -789,8 +789,8 @@ describe("TimelineAIService", () => {
     })
 
     it("should create analysis system prompt", () => {
-      const context = service.createContext()
-      const prompt = service.createAnalysisSystemPrompt(context)
+      const context = (service as any).createContext()
+      const prompt = (service as any).createAnalysisSystemPrompt(context)
 
       expect(prompt).toContain("анализа медиа ресурсов в Timeline Studio")
       expect(prompt).toContain("Медиафайлы: 2")
@@ -803,8 +803,8 @@ describe("TimelineAIService", () => {
       mockPlayerState.video = null
       mockBrowserState.activeTab = null
 
-      const context = service.createContext()
-      const prompt = service.createSystemPrompt(context)
+      const context = (service as any).createContext()
+      const prompt = (service as any).createSystemPrompt(context)
 
       expect(prompt).toContain("отсутствует")
       expect(prompt).toContain("свободен")
@@ -814,7 +814,7 @@ describe("TimelineAIService", () => {
 
   describe("createContext", () => {
     it("should create complete context object", () => {
-      const context = service.createContext()
+      const context = (service as any).createContext()
 
       // Check resources context
       expect(context.resources.availableResources.media).toHaveLength(2)
@@ -856,7 +856,7 @@ describe("TimelineAIService", () => {
         mockTimelineState,
       )
 
-      const context = newService.createContext()
+      const context = (newService as any).createContext()
 
       expect(context.browser.activeTab).toBe("media")
       expect(context.browser.currentFilters).toEqual({})
@@ -875,7 +875,7 @@ describe("TimelineAIService", () => {
         input: { param1: "value1", param2: 123 },
       }
 
-      const result = await service.executeToolFunction(toolUse, {} as any)
+      const result = await (service as any).executeToolFunction(toolUse, {} as any)
 
       expect(consoleSpy).toHaveBeenCalledWith("Executing tool: test_tool with input:", {
         param1: "value1",
@@ -998,19 +998,19 @@ describe("TimelineAIService", () => {
 
   describe("Placeholder methods", () => {
     it("should return appropriate data for service methods", () => {
-      expect(service.getRecentlyAddedResources()).toEqual([])
+      expect((service as any).getRecentlyAddedResources()).toEqual([])
       // getBrowserMedia теперь возвращает медиа файлы из ресурсов
-      expect(service.getBrowserMedia()).toHaveLength(2)
-      expect(service.getBrowserMedia()[0]).toEqual(
+      expect((service as any).getBrowserMedia()).toHaveLength(2)
+      expect((service as any).getBrowserMedia()[0]).toEqual(
         expect.objectContaining({
           id: "media-1",
           name: "video1.mp4",
           isVideo: true,
         }),
       )
-      expect(service.getFavoriteFiles()).toEqual([])
-      expect(service.getRecentTimelineChanges()).toEqual([])
-      expect(service.analyzeTimelineIssues()).toEqual([])
+      expect((service as any).getFavoriteFiles()).toEqual([])
+      expect((service as any).getRecentTimelineChanges()).toEqual([])
+      expect((service as any).analyzeTimelineIssues()).toEqual([])
     })
   })
 })

@@ -87,6 +87,7 @@ describe("StoreService", () => {
       isBrowserVisible: true,
       isOptionsVisible: true,
       isTimelineVisible: true,
+      isAIAssistantVisible: false,
       isLoaded: true,
     },
     recentProjects: [
