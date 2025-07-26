@@ -42,11 +42,16 @@ const mockUiState = {
   },
 }
 
+const mockTimeline = {
+  timelineActor: mockTimelineActor,
+  uiState: mockUiState,
+  selectClips: vi.fn(),
+  copySelection: vi.fn(),
+  splitClip: vi.fn(),
+}
+
 vi.mock("../../../hooks/use-timeline", () => ({
-  useTimeline: () => ({
-    timelineActor: mockTimelineActor,
-    uiState: mockUiState,
-  }),
+  useTimeline: () => mockTimeline,
 }))
 
 import { VideoClip } from "../../../components/clip/video-clip"
@@ -107,6 +112,10 @@ describe("VideoClip", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    // Сбрасываем моки timeline
+    mockTimeline.selectClips.mockClear()
+    mockTimeline.copySelection.mockClear()
+    mockTimeline.splitClip.mockClear()
     mockTimelineActor.send.mockClear()
   })
 
@@ -237,13 +246,9 @@ describe("VideoClip", () => {
       const copyButton = screen.getByTitle("Копировать")
       fireEvent.click(copyButton)
 
-      // Проверяем что была отправлена команда в timelineActor
-      expect(mockTimelineActor.send).toHaveBeenCalledWith({
-        type: "SELECT_CLIPS",
-        clipIds: ["clip-1"],
-        addToSelection: false,
-      })
-      expect(mockTimelineActor.send).toHaveBeenCalledWith({ type: "COPY_SELECTION" })
+      // Проверяем что были вызваны правильные методы
+      expect(mockTimeline.selectClips).toHaveBeenCalledWith(["clip-1"], false)
+      expect(mockTimeline.copySelection).toHaveBeenCalled()
     })
 
     it("should handle split button click", () => {
@@ -255,12 +260,8 @@ describe("VideoClip", () => {
       const splitButton = screen.getByTitle("Разделить")
       fireEvent.click(splitButton)
 
-      // Проверяем что была отправлена команда разделения
-      expect(mockTimelineActor.send).toHaveBeenCalledWith({
-        type: "SPLIT_CLIP",
-        clipId: "clip-1",
-        splitTime: 5, // clip.startTime + clip.duration / 2 = 0 + 10 / 2 = 5
-      })
+      // Проверяем что был вызван метод разделения
+      expect(mockTimeline.splitClip).toHaveBeenCalledWith("clip-1", 5) // clip.startTime + clip.duration / 2 = 0 + 10 / 2 = 5
     })
 
     it("should handle remove button click", () => {

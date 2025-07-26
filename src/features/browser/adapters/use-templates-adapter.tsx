@@ -107,7 +107,7 @@ export function useTemplatesAdapter(): ListAdapter<TemplateListItem> {
     }),
 
     // Компонент превью
-    PreviewComponent: TemplatePreviewWrapper as React.ComponentType<PreviewComponentProps<TemplateListItem>>,
+    PreviewComponent: TemplatePreviewWrapper as unknown as React.ComponentType<PreviewComponentProps<TemplateListItem>>,
 
     // Функция для получения значения сортировки
     getSortValue: (template, sortBy) => {

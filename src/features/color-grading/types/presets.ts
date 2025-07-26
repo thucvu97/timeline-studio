@@ -26,9 +26,9 @@ export const BUILT_IN_PRESETS: ColorGradingPreset[] = [
     updatedAt: new Date(),
     data: {
       colorWheels: {
-        lift: { r: 5, g: 3, b: -5 },
-        gamma: { r: 3, g: 2, b: 0 },
-        gain: { r: 5, g: 3, b: 0 },
+        lift: { r: 0.05, g: 0.03, b: -0.05 },
+        gamma: { r: 0.03, g: 0.02, b: 0 },
+        gain: { r: 0.05, g: 0.03, b: 0 },
         offset: { r: 0, g: 0, b: 0 },
       },
       basicParameters: {
@@ -52,9 +52,9 @@ export const BUILT_IN_PRESETS: ColorGradingPreset[] = [
     updatedAt: new Date(),
     data: {
       colorWheels: {
-        lift: { r: -5, g: 0, b: 8 },
-        gamma: { r: 0, g: 0, b: 2 },
-        gain: { r: 3, g: 5, b: 0 },
+        lift: { r: -0.05, g: 0, b: 0.08 },
+        gamma: { r: 0, g: 0, b: 0.02 },
+        gain: { r: 0.03, g: 0.05, b: 0 },
         offset: { r: 0, g: 0, b: 0 },
       },
       basicParameters: {
@@ -78,9 +78,9 @@ export const BUILT_IN_PRESETS: ColorGradingPreset[] = [
     updatedAt: new Date(),
     data: {
       colorWheels: {
-        lift: { r: 15, g: 12, b: 10 },
-        gamma: { r: -2, g: -3, b: -5 },
-        gain: { r: -10, g: -8, b: -5 },
+        lift: { r: 0.15, g: 0.12, b: 0.10 },
+        gamma: { r: -0.02, g: -0.03, b: -0.05 },
+        gain: { r: -0.10, g: -0.08, b: -0.05 },
         offset: { r: 0, g: 0, b: 0 },
       },
       basicParameters: {
@@ -164,9 +164,9 @@ export const BUILT_IN_PRESETS: ColorGradingPreset[] = [
     updatedAt: new Date(),
     data: {
       colorWheels: {
-        lift: { r: 10, g: -10, b: 20 },
-        gamma: { r: 5, g: 0, b: 10 },
-        gain: { r: -5, g: 10, b: 15 },
+        lift: { r: 0.10, g: -0.10, b: 0.20 },
+        gamma: { r: 0.05, g: 0, b: 0.10 },
+        gain: { r: -0.05, g: 0.10, b: 0.15 },
         offset: { r: 0, g: 0, b: 0 },
       },
       basicParameters: {

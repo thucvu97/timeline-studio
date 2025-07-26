@@ -98,7 +98,11 @@ export async function loadAllResourcesLazy(signal?: AbortSignal): Promise<{
   filters: LoadResult<VideoFilter[]>
   transitions: LoadResult<Transition[]>
 }> {
-  const loadPromises = [loadEffectsLazy(), loadFiltersLazy(), loadTransitionsLazy()]
+  const loadPromises: [
+    Promise<LoadResult<BaseEffect[]>>,
+    Promise<LoadResult<VideoFilter[]>>,
+    Promise<LoadResult<Transition[]>>
+  ] = [loadEffectsLazy(), loadFiltersLazy(), loadTransitionsLazy()]
 
   // Проверяем отмену
   if (signal?.aborted) {
@@ -107,37 +111,43 @@ export async function loadAllResourcesLazy(signal?: AbortSignal): Promise<{
 
   const [effects, filters, transitions] = await Promise.allSettled(loadPromises)
 
+  const effectsResult: LoadResult<BaseEffect[]> =
+    effects.status === "fulfilled"
+      ? effects.value
+      : {
+        success: false,
+        data: [],
+        error: effects.reason ? String(effects.reason) : "Unknown error",
+        source: "built-in",
+        timestamp: Date.now(),
+      }
+
+  const filtersResult: LoadResult<VideoFilter[]> =
+    filters.status === "fulfilled"
+      ? filters.value
+      : {
+        success: false,
+        data: [],
+        error: filters.reason ? String(filters.reason) : "Unknown error",
+        source: "built-in",
+        timestamp: Date.now(),
+      }
+
+  const transitionsResult: LoadResult<Transition[]> =
+    transitions.status === "fulfilled"
+      ? transitions.value
+      : {
+        success: false,
+        data: [],
+        error: transitions.reason ? String(transitions.reason) : "Unknown error",
+        source: "built-in",
+        timestamp: Date.now(),
+      }
+
   return {
-    effects:
-      effects.status === "fulfilled"
-        ? effects.value
-        : {
-          success: false,
-          data: [],
-          error: effects.reason ? String(effects.reason) : "Unknown error",
-          source: "built-in",
-          timestamp: Date.now(),
-        },
-    filters:
-      filters.status === "fulfilled"
-        ? filters.value
-        : {
-          success: false,
-          data: [],
-          error: filters.reason ? String(filters.reason) : "Unknown error",
-          source: "built-in",
-          timestamp: Date.now(),
-        },
-    transitions:
-      transitions.status === "fulfilled"
-        ? transitions.value
-        : {
-          success: false,
-          data: [],
-          error: transitions.reason ? String(transitions.reason) : "Unknown error",
-          source: "built-in",
-          timestamp: Date.now(),
-        },
+    effects: effectsResult,
+    filters: filtersResult,
+    transitions: transitionsResult,
   }
 }
 

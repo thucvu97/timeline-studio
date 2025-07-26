@@ -162,7 +162,7 @@ class EffectsProviderImpl implements EffectsProviderAPI {
           "description" in resource
             ? typeof resource.description === "object"
               ? Object.values(resource.description).join(" ").toLowerCase()
-              : (resource.description as string)?.toLowerCase() || ""
+              : (resource.description as unknown as string)?.toLowerCase() || ""
             : ""
 
         return name.includes(query) || labels.includes(query) || description.includes(query)
@@ -559,7 +559,7 @@ export function resetEffectsProviderState(): void {
 export function EffectsProvider({ children, config = {}, onError }: EffectsProviderProps) {
   const finalConfig = useMemo(() => ({ ...DEFAULT_CONFIG, ...config }), [config])
   const [isInitialized, setIsInitialized] = useState(false)
-  const apiRef = useRef<EffectsProviderImpl>()
+  const apiRef = useRef<EffectsProviderImpl | null>(null)
 
   // Создаем API инстанс
   if (!apiRef.current) {

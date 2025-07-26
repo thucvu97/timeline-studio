@@ -8,7 +8,7 @@ interface WaveformScopeProps {
 
 export function WaveformScope({ width, height, refreshRate }: WaveformScopeProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const animationFrameRef = useRef<number>()
+  const animationFrameRef = useRef<number | null>(null)
   const lastUpdateRef = useRef<number>(0)
 
   // Функция для получения данных изображения из видео плеера

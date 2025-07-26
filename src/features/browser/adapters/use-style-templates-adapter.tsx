@@ -209,7 +209,9 @@ export function useStyleTemplatesAdapter(): ListAdapter<StyleTemplateListItem> {
       loading,
       error: error ? new Error(error) : null,
     }),
-    PreviewComponent: StyleTemplatePreviewWrapper as React.ComponentType<PreviewComponentProps<StyleTemplateListItem>>,
+    PreviewComponent: StyleTemplatePreviewWrapper as unknown as React.ComponentType<
+      PreviewComponentProps<StyleTemplateListItem>
+    >,
     getSortValue: restAdapter.getSortValue,
     getSearchableText: restAdapter.getSearchableText,
     getGroupValue: restAdapter.getGroupValue,
@@ -222,7 +224,7 @@ export function useStyleTemplatesAdapter(): ListAdapter<StyleTemplateListItem> {
         {
           id: template.id,
           path: "",
-          name: typeof template.name === 'string' ? template.name : template.name.ru,
+          name: typeof template.name === 'string' ? template.name : (template.name as any).ru,
         },
         "template",
       ),

@@ -254,40 +254,40 @@ export function ResourcesProviderV2({ children }: ResourcesProviderV2Props) {
   console.log("ResourcesProvider: MediaPool from backend", mediaPool)
 
   // Конвертируем медиа из backend в MediaResource формат
-  const mediaResources: MediaResource[] = mediaPool
-    ? Array.from(mediaPool.items.values())
-      .filter((item: any) => item.type === "video" || item.type === "image")
-      .map((item: any) =>
+  const mediaResources: MediaResource[] = mediaPool?.items
+    ? Object.values(mediaPool.items)
+      .filter((item) => item && (item.media_type === "Video" || item.media_type === "Image"))
+      .map((item) =>
         createMediaResource({
           id: item.id,
           name: item.name,
-          path: item.source.path,
-          size: item.metadata.fileSize,
-          isVideo: item.type === "video",
+          path: item.path,
+          size: 0, // Backend не предоставляет размер файла
+          isVideo: item.media_type === "Video",
           isAudio: false,
-          isImage: item.type === "image",
+          isImage: item.media_type === "Image",
           isLoadingMetadata: false,
           probeData: { streams: [], format: {} },
-          duration: item.metadata.duration,
+          duration: item.duration || 0,
         }),
       )
     : []
 
-  const musicResources: MusicResource[] = mediaPool
-    ? Array.from(mediaPool.items.values())
-      .filter((item: any) => item.type === "audio")
-      .map((item: any) =>
+  const musicResources: MusicResource[] = mediaPool?.items
+    ? Object.values(mediaPool.items)
+      .filter((item) => item && item.media_type === "Audio")
+      .map((item) =>
         createMusicResource({
           id: item.id,
           name: item.name,
-          path: item.source.path,
-          size: item.metadata.fileSize,
+          path: item.path,
+          size: 0, // Backend не предоставляет размер файла
           isVideo: false,
           isAudio: true,
           isImage: false,
           isLoadingMetadata: false,
           probeData: { streams: [], format: {} },
-          duration: item.metadata.duration,
+          duration: item.duration || 0,
         }),
       )
     : []

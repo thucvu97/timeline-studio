@@ -123,33 +123,33 @@ export const AddMediaButton = memo(function AddMediaButton({
         void removeResource(resource.id)
       } else if (!isAdded(resource.id, type) && isHovering) {
         // Добавляем в добавленные в зависимости от типа
-        switch (type) {
+        switch (resource.type) {
           case "media":
-            void addMedia(resource)
+            void addMedia(resource.file)
             break
           case "music":
-            void addMusic(resource)
+            void addMusic(resource.file)
             break
           case "effect":
-            void addEffect(resource)
+            void addEffect(resource.effect)
             break
           case "filter":
-            void addFilter(resource)
+            void addFilter(resource.filter)
             break
           case "transition":
-            void addTransition(resource)
+            void addTransition(resource.transition)
             break
           case "subtitle":
-            void addSubtitle(resource)
+            void addSubtitle(resource.style)
             break
           case "template":
-            void addTemplate(resource)
+            void addTemplate(resource.template)
             break
           case "styleTemplate":
-            void addStyleTemplate(resource)
+            void addStyleTemplate(resource.template)
             break
           default:
-            console.warn(`Unknown resource type: ${type}`)
+            console.warn(`Unknown resource type: ${(resource as any).type}`)
         }
         // Немедленно обновляем визуальное состояние
         setIsRecentlyAdded(true)

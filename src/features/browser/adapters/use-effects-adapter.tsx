@@ -177,8 +177,15 @@ export function useEffectsAdapter(): ListAdapter<EffectListItem> {
 
   // Извлекаем только поля, соответствующие ListAdapter
   const listAdapter: ListAdapter<EffectListItem> = {
-    useData: adapter.useData,
-    PreviewComponent: adapter.PreviewComponent,
+    useData: () => {
+      const result = adapter.useData()
+      return {
+        ...result,
+        items: result.items as EffectListItem[],
+        error: result.error ? new Error(result.error) : null
+      }
+    },
+    PreviewComponent: EffectPreviewWrapper as unknown as React.ComponentType<PreviewComponentProps<EffectListItem>>,
     getSortValue: adapter.getSortValue,
     getSearchableText: adapter.getSearchableText,
     getGroupValue: adapter.getGroupValue,
@@ -186,7 +193,7 @@ export function useEffectsAdapter(): ListAdapter<EffectListItem> {
     importHandlers: adapter.importHandlers,
     favoriteType: adapter.favoriteType,
     // Проверка избранного (переопределяем)
-    isFavorite: (effect: BaseEffect) => isItemFavorite(effect, "effect"),
+    isFavorite: (effect: EffectListItem) => isItemFavorite(effect, "effect"),
   }
 
   return listAdapter
