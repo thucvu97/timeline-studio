@@ -2,7 +2,7 @@
  * Утилиты для создания контекста Timeline для AI
  */
 
-import { TimelineClip, TimelineProject, TimelineSection } from "@/features/timeline/types"
+import { TimelineClip, TimelineProject, TimelineSection } from "@/features/timeline/types/timeline"
 
 /**
  * Создает системный промпт с контекстом Timeline
@@ -101,8 +101,7 @@ function calculateProjectStats(project: TimelineProject) {
       track.clips.forEach((clip) => {
         clipCount++
         effectCount += clip.effects?.length || 0
-        if ((clip as any).transitionIn) transitionCount++
-        if ((clip as any).transitionOut) transitionCount++
+        transitionCount += clip.transitions?.length || 0
       })
     })
   })
@@ -121,7 +120,7 @@ function calculateProjectStats(project: TimelineProject) {
  * Получает описание клипа
  */
 function getClipDescription(clip: TimelineClip): string {
-  const duration = formatDuration(((clip as any).endFrame - (clip as any).startFrame) / 30) // Примерно 30 fps
+  const duration = formatDuration(clip.duration)
   const effects = clip.effects?.length || 0
 
   let description = `"${clip.name}" (${duration})`
@@ -179,9 +178,9 @@ export function createDetailedTimelineContext(
     selectedClips:
       selectedClips?.map((clip) => ({
         name: clip.name,
-        duration: ((clip as any).endFrame - (clip as any).startFrame) / 30,
+        duration: clip.duration,
         effectCount: clip.effects?.length || 0,
-        hasTransitions: !!((clip as any).transitionIn || (clip as any).transitionOut),
+        hasTransitions: (clip.transitions?.length || 0) > 0,
       })) || [],
   }
 }

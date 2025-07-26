@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 
-import { useAppSettings, useMediaFiles, useMusicFiles } from "@/features/app-state/hooks"
+import { useMediaFiles, useMusicFiles } from "@/features/app-state/hooks"
 import { appDirectoriesService } from "@/features/app-state/services"
 import type { MediaFile } from "@/features/media/types/media"
 
@@ -17,7 +17,6 @@ export function useAutoLoadMedia() {
 
   const { updateMediaFiles } = useMediaFiles()
   const { updateMusicFiles } = useMusicFiles()
-  const { state } = useAppSettings()
 
   // Debouncing refs
   const loadTimeoutRef = useRef<NodeJS.Timeout>(null)

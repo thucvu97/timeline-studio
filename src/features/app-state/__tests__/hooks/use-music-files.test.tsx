@@ -19,6 +19,8 @@ const mockMusicFiles: MediaItem[] = [
     metadata: {
       format: "mp3",
       codec: "mp3",
+      resolution: { width: 0, height: 0 },
+      frame_rate: 0,
       bitrate: 320,
       audio_channels: 2,
       sample_rate: 44100,
@@ -35,6 +37,8 @@ const mockMusicFiles: MediaItem[] = [
     metadata: {
       format: "wav",
       codec: "pcm",
+      resolution: { width: 0, height: 0 },
+      frame_rate: 0,
       bitrate: 1411,
       audio_channels: 2,
       sample_rate: 44100,

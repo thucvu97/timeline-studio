@@ -63,7 +63,7 @@ function TestComponent() {
   return (
     <div>
       <div data-testid="connection-status">{app.isConnected ? "Connected" : "Disconnected"}</div>
-      <div data-testid="project-name">{timeline.project?.metadata.name || "No Project"}</div>
+      <div data-testid="project-name">{timeline.project?.name || "No Project"}</div>
       <div data-testid="playback-status">{player.isPlaying ? "Playing" : "Paused"}</div>
       <div data-testid="current-time">{player.currentTime}</div>
       <button data-testid="create-project" onClick={handleCreateProject}>

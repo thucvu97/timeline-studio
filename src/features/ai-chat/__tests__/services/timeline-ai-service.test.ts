@@ -160,6 +160,9 @@ describe("TimelineAIService", () => {
     isAudio: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
+    isIncluded: true,
+    isAddedToTimeline: false,
+    source: "browser" as const,
   })
 
   // Helper function to create mock effect
@@ -167,16 +170,20 @@ describe("TimelineAIService", () => {
     id,
     name: { en: name, ru: name },
     description: { en: `${name} effect`, ru: `${name} эффект` },
-    category: "color_correction" as const,
-    scope: ["clip"],
-    processingType: "realtime",
+    category: "blur_sharpen" as const,
+    scope: ["video"],
+    processingType: "css",
     version: "1.0.0",
     tags: [],
     parameters: [],
     presets: [],
     complexity: "low" as const,
     gpuAccelerated: false,
-    processors: {},
+    processors: {
+      css: {
+        shader: `filter: ${name.toLowerCase()};`
+      }
+    },
   })
 
   // Helper function to create mock filter
@@ -187,8 +194,12 @@ describe("TimelineAIService", () => {
     complexity: "basic" as const,
     tags: [],
     description: { en: `${name} filter` },
-    labels: { en: name },
-    params: {},
+    labels: { en: name, ru: name },
+    params: {
+      brightness: 0,
+      contrast: 0,
+      saturation: 0,
+    },
   })
 
   // Helper function to create mock resources

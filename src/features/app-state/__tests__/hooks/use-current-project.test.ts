@@ -6,7 +6,7 @@ import { useCurrentProject } from "../../hooks/use-current-project"
 // Мокаем useApp
 const mockExecuteCommand = vi.fn()
 const mockProjectState = {
-  project: null,
+  project: null as any,
 }
 
 vi.mock("../../services/app-provider", () => ({
