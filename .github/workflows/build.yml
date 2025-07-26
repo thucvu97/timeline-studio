@@ -98,6 +98,8 @@ jobs:
         uses: Swatinem/rust-cache@v2
         with:
           workspaces: src-tauri
+          cache-on-failure: false
+          key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Clean install dependencies
         run: |
@@ -127,16 +129,46 @@ jobs:
       - name: Create dist directory
         run: mkdir -p dist
 
+      - name: Verify Cargo configuration
+        run: |
+          cd src-tauri
+          echo "=== Cargo.toml content ==="
+          cat Cargo.toml | grep -A 10 -B 2 "tauri"
+          echo ""
+          echo "=== Checking if Cargo.lock exists ==="
+          ls -la Cargo.lock || echo "Cargo.lock not found"
+          echo ""
+          echo "=== Tauri in Cargo.lock ==="
+          grep -A 5 'name = "tauri"' Cargo.lock || echo "Tauri not found in Cargo.lock"
+
       - name: Build Rust dependencies
         env:
           PKG_CONFIG_PATH: /usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig
           RUST_BACKTRACE: 1
+          CARGO_NET_GIT_FETCH_WITH_CLI: true
         run: |
           cd src-tauri
-          # First check dependencies
-          cargo check --release
-          # Then build
-          cargo build --release
+          
+          # Show current directory and files
+          echo "=== Current directory ==="
+          pwd
+          echo "=== Files in directory ==="
+          ls -la
+          
+          # Update dependencies to ensure everything is fetched
+          cargo update
+          
+          # Show what features will be used
+          echo "=== Building with features ==="
+          cargo tree -e features | grep -E "tauri|timeline-studio" | head -20 || echo "Failed to show features"
+          
+          # First check dependencies with default features (includes custom-protocol)
+          echo "=== Running cargo check ==="
+          cargo check --release --verbose
+          
+          # Then build with default features
+          echo "=== Running cargo build ==="
+          cargo build --release --verbose
 
       - name: Generate TypeScript bindings
         run: |

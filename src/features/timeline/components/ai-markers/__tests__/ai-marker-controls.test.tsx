@@ -2,6 +2,8 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import "@testing-library/jest-dom"
 
+import { ContentType, SceneType } from "@/features/ai-content-intelligence/shared/types/content-analysis"
+
 import { AIMarkerControls } from "../ai-marker-controls"
 
 // Mock dependencies
@@ -91,9 +93,55 @@ describe("AIMarkerControls", () => {
     // Setup scene analysis data
     mockAnalysisState.sceneAnalysis = {
       scenes: [
-        { start: 0, end: 5, type: "intro", confidence: 0.9 },
-        { start: 5, end: 10, type: "main", confidence: 0.8 },
+        {
+          id: "scene1",
+          startTime: 0,
+          endTime: 5,
+          duration: 5,
+          type: SceneType.ESTABLISHING,
+          keyFrames: [],
+          quality: { overall: 90, sharpness: 85, brightness: 80, contrast: 75, saturation: 70, stability: 95, noise: 5 },
+          content: { objects: [], faces: [], text: [], activities: [] },
+          transitions: [],
+        },
+        {
+          id: "scene2",
+          startTime: 5,
+          endTime: 10,
+          duration: 5,
+          type: SceneType.ACTION,
+          keyFrames: [],
+          quality: { overall: 85, sharpness: 80, brightness: 75, contrast: 70, saturation: 65, stability: 90, noise: 10 },
+          content: { objects: [], faces: [], text: [], activities: [] },
+          transitions: [],
+        },
       ],
+      keyMoments: [],
+      classification: {
+        contentType: ContentType.NARRATIVE,
+        genres: [],
+        confidence: 0.85,
+      },
+      summary: {
+        totalScenes: 2,
+        averageSceneDuration: 5,
+        dominantColors: [],
+        visualComplexity: 0.5,
+        audioProfile: {
+          hasSpeech: false,
+          hasMusic: false,
+          hasSilence: true,
+          speechPercentage: 0,
+          musicPercentage: 0,
+          averageVolume: 0,
+          dynamicRange: 0,
+        },
+      },
+      timeline: {
+        duration: 10,
+        segments: [],
+        keyframes: [],
+      },
     }
 
     const mockSceneMarkers = [

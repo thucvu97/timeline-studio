@@ -84,9 +84,11 @@ export function AudioEffectsEditorModal() {
   // Получаем данные из modalData
   const clip = modalData?.clip
   const track = modalData?.track
-  const onApplyEffects = modalData?.onApplyEffects
+  const onApplyEffects = modalData?.onApplyEffects as ((effects: AppliedEffect[]) => void) | undefined
 
-  const [activeEffects, setActiveEffects] = useState<Record<string, ActiveAudioEffect>>(modalData?.activeEffects || {})
+  const [activeEffects, setActiveEffects] = useState<Record<string, ActiveAudioEffect>>(
+    (modalData?.activeEffects as Record<string, ActiveAudioEffect>) || {}
+  )
   const [selectedTab, setSelectedTab] = useState("basic")
 
   const toggleEffect = (effectId: string, preset: ActiveAudioEffect) => {

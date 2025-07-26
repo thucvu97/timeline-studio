@@ -44,43 +44,46 @@ describe("AISuggestionsPanel", () => {
     const { container } = render(<AISuggestionsPanel />)
 
     // Check main container has proper classes
-    expect(container.firstChild).toHaveClass(
-      "h-full",
-      "w-full",
-      "bg-muted/30",
-      "border-l",
-      "border-border",
-      "flex",
-      "flex-col",
-    )
+    expect(container.firstChild).toHaveClass("h-full")
+    expect(container.firstChild).toHaveClass("w-full")
+    expect(container.firstChild).toHaveClass("bg-muted/30")
+    expect(container.firstChild).toHaveClass("border-l")
+    expect(container.firstChild).toHaveClass("border-border")
+    expect(container.firstChild).toHaveClass("flex")
+    expect(container.firstChild).toHaveClass("flex-col")
   })
 
   it("has header section with proper styling", () => {
     render(<AISuggestionsPanel />)
 
     const header = screen.getByText("AI Content Intelligence").closest("div")
-    expect(header?.parentElement).toHaveClass("p-4", "border-b", "border-border")
+    expect(header?.parentElement).toHaveClass("p-4")
+    expect(header?.parentElement).toHaveClass("border-b")
+    expect(header?.parentElement).toHaveClass("border-border")
   })
 
   it("has content section with centered text", () => {
     render(<AISuggestionsPanel />)
 
     const developmentText = screen.getByText("🚧 В разработке")
-    expect(developmentText.closest("div")).toHaveClass("text-center", "text-muted-foreground")
+    expect(developmentText.closest("div")).toHaveClass("text-center")
+    expect(developmentText.closest("div")).toHaveClass("text-muted-foreground")
   })
 
   it("header title has correct styling", () => {
     render(<AISuggestionsPanel />)
 
     const title = screen.getByText("AI Content Intelligence")
-    expect(title).toHaveClass("text-lg", "font-semibold")
+    expect(title).toHaveClass("text-lg")
+    expect(title).toHaveClass("font-semibold")
   })
 
   it("subtitle has muted styling", () => {
     render(<AISuggestionsPanel />)
 
     const subtitle = screen.getByText("AI анализ и предложения для улучшения контента")
-    expect(subtitle).toHaveClass("text-sm", "text-muted-foreground")
+    expect(subtitle).toHaveClass("text-sm")
+    expect(subtitle).toHaveClass("text-muted-foreground")
   })
 
   it("content area has flex-1 for proper layout", () => {
@@ -95,6 +98,7 @@ describe("AISuggestionsPanel", () => {
     const { container } = render(<AISuggestionsPanel />)
 
     // Should still render with default classes
-    expect(container.firstChild).toHaveClass("h-full", "w-full")
+    expect(container.firstChild).toHaveClass("h-full")
+    expect(container.firstChild).toHaveClass("w-full")
   })
 })
