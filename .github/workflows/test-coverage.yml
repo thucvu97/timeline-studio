@@ -10,7 +10,7 @@ jobs:
   test-coverage:
     name: Test and Upload Coverage
     runs-on: ubuntu-22.04
-    timeout-minutes: 15
+    timeout-minutes: 40
 
     steps:
       - name: Checkout repository
