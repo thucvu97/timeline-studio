@@ -49,12 +49,7 @@ vi.mock("../../utils/css-effects", () => ({
 describe("EffectComparison", () => {
   const mockEffect: VideoEffect = {
     id: "test-effect",
-    name: "Test Effect",
-    category: "artistic",
-    complexity: "basic",
-    type: "filter",
-    tags: ["test"],
-    labels: {
+    name: {
       ru: "Тестовый эффект",
       en: "Test Effect",
     },
@@ -62,12 +57,35 @@ describe("EffectComparison", () => {
       ru: "Описание тестового эффекта",
       en: "Test effect description",
     },
-    previewImagePath: "/preview.jpg",
-    cssPath: "/effect.css",
-    params: {
-      intensity: 50,
-      brightness: 100,
-    },
+    category: "blur_sharpen",
+    scope: ["video"],
+    processingType: "css",
+    version: "1.0.0",
+    tags: ["test"],
+    complexity: "low",
+    gpuAccelerated: false,
+    parameters: [
+      {
+        id: "intensity",
+        name: { ru: "Интенсивность", en: "Intensity" },
+        type: "number",
+        defaultValue: 50,
+        range: { min: 0, max: 100 }
+      },
+      {
+        id: "brightness", 
+        name: { ru: "Яркость", en: "Brightness" },
+        type: "number",
+        defaultValue: 100,
+        range: { min: 0, max: 200 }
+      }
+    ],
+    presets: [],
+    processors: {
+      css: {
+        shader: "brightness({{brightness}}%) blur({{intensity}}px)"
+      }
+    }
   }
 
   // Создаем мок для HTMLVideoElement
@@ -184,16 +202,16 @@ describe("EffectComparison", () => {
     })
 
     it("должен применять кастомные параметры к эффекту", () => {
-      const customParams = { intensity: 75, saturation: 120 }
+      const customParams = { intensity: 75, brightness: 120 }
 
       render(<EffectComparison effect={mockEffect} customParams={customParams} />)
 
       const expectedEffect = {
         ...mockEffect,
-        params: {
-          ...mockEffect.params,
-          ...customParams,
-        },
+        parameters: mockEffect.parameters.map((param) => ({
+          ...param,
+          defaultValue: customParams[param.id] ?? param.defaultValue,
+        })),
       }
 
       expect(vi.mocked(generateCSSFilterForEffect)).toHaveBeenCalledWith(expectedEffect)

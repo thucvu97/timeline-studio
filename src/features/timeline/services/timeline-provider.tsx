@@ -287,7 +287,7 @@ export function TimelineProvider({ children }: TimelineProviderV2Props) {
         setIsLoading(true)
         setError(null)
 
-        const result = await backendSync.executeCommand(command)
+        const result = await backendSync.executeCommand(command as any)
         if (!result.success) {
           throw new Error(result.error || "Command failed")
         }

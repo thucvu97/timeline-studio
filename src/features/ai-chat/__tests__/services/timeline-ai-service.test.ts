@@ -125,7 +125,6 @@ vi.mock("../../tools/workflow-automation-tools", () => ({
 import { VideoEffect } from "../../../effects/types"
 import { VideoFilter } from "../../../filters/types/filters"
 import { MediaFile } from "../../../media/types/media"
-import type { ResourcesContextType } from "../../../resources/services/resources-provider"
 import {
   EffectResource,
   FilterResource,
@@ -136,10 +135,11 @@ import {
   TransitionResource,
 } from "../../../resources/types"
 import { TimelineProject } from "../../../timeline/types"
-
 import { ApiKeyLoader } from "../../services/api-key-loader"
 import { CLAUDE_MODELS, ClaudeService } from "../../services/claude-service"
 import { TimelineAIService } from "../../services/timeline-ai-service"
+
+import type { ResourcesContextType } from "../../../resources/services/resources-provider"
 
 describe("TimelineAIService", () => {
   let service: TimelineAIService
@@ -305,7 +305,6 @@ describe("TimelineAIService", () => {
       createdAt: new Date(),
       updatedAt: new Date(),
       version: "1.0.0",
-      metadata: {},
     }
     mockTimelineState = {
       project: mockProject,
@@ -670,7 +669,7 @@ describe("TimelineAIService", () => {
   describe("Context creation helpers", () => {
     describe("calculateTotalDuration", () => {
       it("should calculate total duration of media resources", () => {
-        const duration = service.calculateTotalDuration()
+        const duration = (service as any).calculateTotalDuration()
         expect(duration).toBe(75) // 30 + 45 (only media resources, not music)
       })
 
@@ -681,14 +680,14 @@ describe("TimelineAIService", () => {
           { id: "3", file: createMockMediaFile("3", "video3.mp4", 10) },
         ] as MediaResource[]
 
-        const duration = service.calculateTotalDuration()
+        const duration = (service as any).calculateTotalDuration()
         expect(duration).toBe(10) // Only valid duration
       })
     })
 
     describe("calculateTotalSize", () => {
       it("should calculate total size of media resources", () => {
-        const size = service.calculateTotalSize()
+        const size = (service as any).calculateTotalSize()
         expect(size).toBe(2000000) // 1MB * 2 media files (not music)
       })
 
@@ -698,14 +697,14 @@ describe("TimelineAIService", () => {
           { id: "2", file: { ...createMockMediaFile("2", "video2.mp4"), size: 500000 } },
         ] as MediaResource[]
 
-        const size = service.calculateTotalSize()
+        const size = (service as any).calculateTotalSize()
         expect(size).toBe(500000)
       })
     })
 
     describe("calculateResourceTypeStats", () => {
       it("should return correct resource counts", () => {
-        const stats = service.calculateResourceTypeStats()
+        const stats = (service as any).calculateResourceTypeStats()
         expect(stats).toEqual({
           media: 2,
           effect: 2,
@@ -720,7 +719,7 @@ describe("TimelineAIService", () => {
 
     describe("getBrowserFilters", () => {
       it("should return filters for active tab", () => {
-        const filters = service.getBrowserFilters()
+        const filters = (service as any).getBrowserFilters()
         expect(filters).toEqual({
           searchQuery: "test",
           filterType: "all",
@@ -731,7 +730,7 @@ describe("TimelineAIService", () => {
 
       it("should return empty object when no tab settings", () => {
         mockBrowserState.tabSettings = undefined
-        const filters = service.getBrowserFilters()
+        const filters = (service as any).getBrowserFilters()
         expect(filters).toEqual({})
       })
     })
@@ -739,7 +738,7 @@ describe("TimelineAIService", () => {
     describe("calculateProjectStats", () => {
       it("should return empty stats when no project", () => {
         mockTimelineState.project = null
-        const stats = service.calculateProjectStats()
+        const stats = (service as any).calculateProjectStats()
         expect(stats).toEqual({
           totalDuration: 0,
           totalClips: 0,
@@ -750,7 +749,7 @@ describe("TimelineAIService", () => {
       })
 
       it("should return stats placeholder when project exists", () => {
-        const stats = service.calculateProjectStats()
+        const stats = (service as any).calculateProjectStats()
         expect(stats).toEqual({
           totalDuration: 0,
           totalClips: 0,

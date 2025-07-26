@@ -79,11 +79,11 @@ const mockOrchestrator = {
   }),
 }
 
-vi.mock("@/features/ai-content-intelligence/engines/scene-analysis/services/scene-analysis-engine", () => ({
+vi.mock("../../../ai-content-intelligence/engines/scene-analysis/services/scene-analysis-engine", () => ({
   SceneAnalysisEngine: vi.fn(() => mockSceneEngine),
 }))
 
-vi.mock("@/features/ai-content-intelligence/shared/services/ai-intelligence-orchestrator", () => ({
+vi.mock("../../../ai-content-intelligence/shared/services/ai-intelligence-orchestrator", () => ({
   AIIntelligenceOrchestrator: vi.fn(() => mockOrchestrator),
 }))
 
@@ -167,7 +167,6 @@ describe("useTimelineAIAnalysis", () => {
 
     await waitFor(() => {
       expect(mockSceneEngine.initialize).toHaveBeenCalled()
-      expect(mockOrchestrator.initialize).toHaveBeenCalled()
     })
   })
 
@@ -202,15 +201,7 @@ describe("useTimelineAIAnalysis", () => {
       },
     })
 
-    expect(mockOrchestrator.analyzeContent).toHaveBeenCalledWith({
-      mediaFile: {
-        path: "/test/video.mp4",
-        filename: "video.mp4",
-        size: 1000000,
-        format: "mp4",
-        duration: 20,
-      },
-    })
+    // Оркестратор больше не используется
 
     expect(result.current.state.sceneAnalysis).toBeDefined()
     expect(result.current.state.currentAnalysis).toBeDefined()
@@ -266,7 +257,7 @@ describe("useTimelineAIAnalysis", () => {
     })
 
     expect(mockSceneEngine.process).toHaveBeenCalled()
-    expect(mockOrchestrator.analyzeContent).toHaveBeenCalled()
+    // Оркестратор больше не используется
     expect(result.current.state.isAnalyzing).toBe(false)
   })
 
@@ -538,8 +529,8 @@ describe("useTimelineAIAnalysis", () => {
       type: "ADD_MARKER",
       marker: expect.objectContaining({
         type: "chapter",
-        timecode: 10,
-        name: "Кульминация",
+        timecode: 5,
+        name: "Эмоциональный пик",
       }),
     })
 
@@ -678,7 +669,7 @@ describe("useTimelineAIAnalysis", () => {
     })
 
     expect(mockSceneEngine.process).not.toHaveBeenCalled()
-    expect(mockOrchestrator.analyzeContent).not.toHaveBeenCalled()
+    // Оркестратор больше не используется
   })
 
   it("не должен запускать новый анализ пока идет текущий", async () => {

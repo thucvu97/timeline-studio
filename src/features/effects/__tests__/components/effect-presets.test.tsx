@@ -46,33 +46,41 @@ vi.mock("lucide-react", () => ({
 }))
 
 describe("EffectPresets", () => {
-  const mockPresets = {
-    light: {
+  const mockPresets = [
+    {
+      id: "light",
       name: { ru: "Легкий", en: "Light" },
       description: { ru: "Легкий эффект", en: "Light effect" },
-      params: { intensity: 25, brightness: 110 },
+      parameters: { intensity: 25, brightness: 110 },
+      tags: ["basic"],
     },
-    strong: {
+    {
+      id: "strong", 
       name: { ru: "Сильный", en: "Strong" },
       description: { ru: "Сильный эффект", en: "Strong effect" },
-      params: { intensity: 75, brightness: 130 },
+      parameters: { intensity: 75, brightness: 130 },
+      tags: ["intense"],
     },
-  }
+  ]
 
   const baseEffect: VideoEffect = {
     id: "test-effect",
-    name: "Test Effect",
-    type: "blur",
-    category: "artistic",
-    complexity: "basic",
-    tags: ["popular"],
+    name: { ru: "Тестовый эффект", en: "Test Effect" },
     description: { ru: "Тестовый эффект", en: "Test Effect" },
-    labels: { ru: "Тест", en: "Test" },
-    params: {},
-    ffmpegCommand: () => "test",
-    previewPath: "/effects/test.mp4",
-    duration: 0,
+    category: "blur_sharpen",
+    scope: ["video"],
+    processingType: "css",
+    version: "1.0.0",
+    tags: ["popular"],
+    complexity: "low",
+    gpuAccelerated: false,
+    parameters: [],
     presets: mockPresets,
+    processors: {
+      css: {
+        shader: "blur(1px)",
+      },
+    },
   }
 
   const mockProps = {
@@ -341,13 +349,15 @@ describe("EffectPresets", () => {
     it("должен использовать fallback на английский для названий", () => {
       const presetWithoutRu = {
         ...baseEffect,
-        presets: {
-          test: {
+        presets: [
+          {
+            id: "test",
             name: { en: "English Only" },
             description: { ru: "Описание", en: "Description" },
-            params: { intensity: 50 },
+            parameters: { intensity: 50 },
+            tags: [],
           },
-        },
+        ],
       }
 
       render(<EffectPresets {...mockProps} effect={presetWithoutRu} />)
@@ -360,13 +370,15 @@ describe("EffectPresets", () => {
     it("должен использовать fallback на английский для описаний", () => {
       const presetWithoutRu = {
         ...baseEffect,
-        presets: {
-          test: {
+        presets: [
+          {
+            id: "test", 
             name: { ru: "Тест", en: "Test" },
             description: { en: "English Description" },
-            params: { intensity: 50 },
+            parameters: { intensity: 50 },
+            tags: [],
           },
-        },
+        ],
       }
 
       render(<EffectPresets {...mockProps} effect={presetWithoutRu} />)
@@ -401,7 +413,7 @@ describe("EffectPresets", () => {
     })
 
     it("должен обрабатывать пустые пресеты", () => {
-      const effectWithEmptyPresets = { ...baseEffect, presets: {} }
+      const effectWithEmptyPresets = { ...baseEffect, presets: [] }
 
       const { container } = render(<EffectPresets {...mockProps} effect={effectWithEmptyPresets} />)
       expect(container.firstChild).toBeNull()
@@ -504,18 +516,17 @@ describe("EffectPresets", () => {
 
   describe("Производительность", () => {
     it("должен эффективно рендерить большое количество пресетов", () => {
-      const manyPresets = Array.from({ length: 20 }, (_, i) => [
-        `preset-${i}`,
-        {
-          name: { ru: `Пресет ${i}`, en: `Preset ${i}` },
-          description: { ru: `Описание ${i}`, en: `Description ${i}` },
-          params: { intensity: i * 5 },
-        },
-      ])
+      const manyPresets = Array.from({ length: 20 }, (_, i) => ({
+        id: `preset-${i}`,
+        name: { ru: `Пресет ${i}`, en: `Preset ${i}` },
+        description: { ru: `Описание ${i}`, en: `Description ${i}` },
+        parameters: { intensity: i * 5 },
+        tags: [],
+      }))
 
       const effectWithManyPresets = {
         ...baseEffect,
-        presets: Object.fromEntries(manyPresets),
+        presets: manyPresets,
       }
 
       const startTime = performance.now()

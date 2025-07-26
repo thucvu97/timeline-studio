@@ -9,6 +9,15 @@ import { useModal } from "@/features/modals/services"
 
 import { AppliedEffect } from "../types"
 
+// Тип для активного аудио эффекта
+interface ActiveAudioEffect {
+  id: string
+  name: string
+  type: string
+  enabled: boolean
+  params: Record<string, any>
+}
+
 // Предустановленные аудио эффекты
 const audioEffectPresets = {
   fadeIn: {
@@ -77,10 +86,10 @@ export function AudioEffectsEditorModal() {
   const track = modalData?.track
   const onApplyEffects = modalData?.onApplyEffects
 
-  const [activeEffects, setActiveEffects] = useState<Record<string, any>>(modalData?.activeEffects || {})
+  const [activeEffects, setActiveEffects] = useState<Record<string, ActiveAudioEffect>>(modalData?.activeEffects || {})
   const [selectedTab, setSelectedTab] = useState("basic")
 
-  const toggleEffect = (effectId: string, preset: any) => {
+  const toggleEffect = (effectId: string, preset: ActiveAudioEffect) => {
     if (activeEffects[effectId]) {
       const { [effectId]: _, ...rest } = activeEffects
       setActiveEffects(rest)
@@ -111,7 +120,7 @@ export function AudioEffectsEditorModal() {
     const effects: AppliedEffect[] = Object.values(activeEffects).map((effect, index) => ({
       id: `applied-audio-effect-${Date.now()}-${index}`,
       effectId: effect.id,
-      isEnabled: true,
+      enabled: true,
       order: index,
       customParams: effect.params,
     }))

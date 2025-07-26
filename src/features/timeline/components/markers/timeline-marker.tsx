@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react"
 
-import { Bookmark, CheckSquare, Download, FolderOpen, PlayCircle, RefreshCw, StickyNote, Trash2 } from "lucide-react"
+import { AlertCircle, AlertTriangle, Bookmark, CheckSquare, Download, FolderOpen, PlayCircle, RefreshCw, StickyNote, Trash2 } from "lucide-react"
 
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
@@ -25,6 +25,8 @@ const markerIcons: Record<MarkerType, React.ReactNode> = {
   todo: <CheckSquare className="w-3 h-3" />,
   sync: <RefreshCw className="w-3 h-3" />,
   cue: <PlayCircle className="w-3 h-3" />,
+  important: <AlertCircle className="w-3 h-3" />,
+  warning: <AlertTriangle className="w-3 h-3" />,
 }
 
 export function TimelineMarker({ marker, timeScale, isSelected, onDrag, onClick, onDelete }: TimelineMarkerProps) {

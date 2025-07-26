@@ -126,14 +126,17 @@ describe("user-effects", () => {
         category: mockEffect.category,
         complexity: mockEffect.complexity,
         description: mockEffect.description,
-        duration: mockEffect.duration,
-        labels: mockEffect.labels,
-        params: mockEffect.params,
-        previewPath: mockEffect.previewPath,
+        scope: mockEffect.scope,
+        processingType: mockEffect.processingType,
+        version: mockEffect.version,
         tags: mockEffect.tags,
+        gpuAccelerated: mockEffect.gpuAccelerated,
+        parameters: mockEffect.parameters,
+        presets: mockEffect.presets,
+        processors: mockEffect.processors,
+        isCustom: true,
         createdAt: expect.any(String),
         updatedAt: expect.any(String),
-        isCustom: true,
       })
 
       // Verify date format
@@ -362,13 +365,11 @@ describe("user-effects", () => {
       const result = prepareEffectForExport(mockEffect, customParams, presetName)
 
       expect(result.presets).toBeDefined()
-      const presetKeys = Object.keys(result.presets)
-      expect(presetKeys).toHaveLength(1)
+      expect(Array.isArray(result.presets)).toBe(true)
+      expect(result.presets).toHaveLength(1)
 
-      const customPresetKey = presetKeys[0]
-      expect(customPresetKey).toMatch(/^custom_\d+$/)
-
-      const customPreset = result.presets[customPresetKey]
+      const customPreset = result.presets[0]
+      expect(customPreset.id).toMatch(/^custom_\d+$/)
       expect(customPreset).toEqual({
         id: expect.stringMatching(/^custom_\d+$/),
         name: {

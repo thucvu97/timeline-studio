@@ -59,7 +59,7 @@ export function EffectPresets({ effect, onApplyPreset, selectedPreset }: EffectP
     const combined: CustomPreset[] = []
 
     // Сначала добавляем встроенные пресеты
-    if (effect.presets) {
+    if (effect.presets && Array.isArray(effect.presets)) {
       combined.push(
         ...effect.presets.map((preset) => ({
           ...preset,
@@ -162,9 +162,12 @@ export function EffectPresets({ effect, onApplyPreset, selectedPreset }: EffectP
                         )}
                         <div className="text-xs text-gray-400">
                           {t("effects.detail.parameters", "Параметры")}:{" "}
-                          {Object.entries(preset.parameters)
-                            .map(([key, value]) => `${key}: ${String(value)}`)
-                            .join(", ")}
+                          {preset.parameters ? 
+                            Object.entries(preset.parameters)
+                              .map(([key, value]) => `${key}: ${String(value)}`)
+                              .join(", ") : 
+                            t("effects.noParameters", "Нет параметров")
+                          }
                         </div>
                         {isCustom && preset.createdAt && (
                           <div className="text-xs text-gray-400">

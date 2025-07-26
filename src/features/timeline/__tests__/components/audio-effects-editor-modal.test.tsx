@@ -411,13 +411,13 @@ describe("AudioEffectsEditorModal", () => {
       expect(mockOnApplyEffects).toHaveBeenCalledWith([
         expect.objectContaining({
           effectId: "fade-in",
-          isEnabled: true,
+          enabled: true,
           order: 0,
           customParams: { duration: 1.0 },
         }),
         expect.objectContaining({
           effectId: "equalizer",
-          isEnabled: true,
+          enabled: true,
           order: 1,
           customParams: { gain_low: 0, gain_mid: 0, gain_high: 0 },
         }),
