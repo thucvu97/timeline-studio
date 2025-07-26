@@ -158,7 +158,7 @@ describe("FavoriteButton", () => {
       const button = screen.getByRole("button")
       fireEvent.click(button)
 
-      expect(mockAddToFavorites).toHaveBeenCalledWith("media", file)
+      expect(mockAddToFavorites).toHaveBeenCalledWith(file, "media")
     })
 
     it("должен удалять файл из избранного при клике с наведением", async () => {
@@ -179,7 +179,7 @@ describe("FavoriteButton", () => {
       fireEvent.mouseEnter(button)
       fireEvent.click(button)
 
-      expect(mockRemoveFromFavorites).toHaveBeenCalledWith("media", file.id)
+      expect(mockRemoveFromFavorites).toHaveBeenCalledWith(file, "media")
 
       vi.useRealTimers()
     })
@@ -191,7 +191,7 @@ describe("FavoriteButton", () => {
       const button = screen.getByRole("button")
       fireEvent.keyDown(button, { key: "Enter" })
 
-      expect(mockAddToFavorites).toHaveBeenCalledWith("media", file)
+      expect(mockAddToFavorites).toHaveBeenCalledWith(file, "media")
     })
 
     it("должен обрабатывать нажатие пробела", () => {
@@ -201,7 +201,7 @@ describe("FavoriteButton", () => {
       const button = screen.getByRole("button")
       fireEvent.keyDown(button, { key: " " })
 
-      expect(mockAddToFavorites).toHaveBeenCalledWith("media", file)
+      expect(mockAddToFavorites).toHaveBeenCalledWith(file, "media")
     })
   })
 
@@ -283,7 +283,7 @@ describe("FavoriteButton", () => {
       const button = screen.getByRole("button")
       fireEvent.click(button)
 
-      expect(mockAddToFavorites).toHaveBeenCalledWith("music", file)
+      expect(mockAddToFavorites).toHaveBeenCalledWith(file, "music")
     })
 
     it("должен проверять избранное в правильной категории", () => {
@@ -303,7 +303,7 @@ describe("FavoriteButton", () => {
       const file = createMockMediaFile()
 
       // Настраиваем мок, чтобы он обновлял favorites после вызова
-      mockAddToFavorites.mockImplementation((type: keyof typeof mockFavorites, fileToAdd: MediaFile) => {
+      mockAddToFavorites.mockImplementation((fileToAdd: MediaFile, type: keyof typeof mockFavorites) => {
         mockFavorites[type] = [...(mockFavorites[type] || []), fileToAdd]
       })
 
