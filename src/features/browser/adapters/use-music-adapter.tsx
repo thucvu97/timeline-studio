@@ -14,7 +14,10 @@ import { cn } from "@/lib/utils"
 
 import { getDateGroup, getDurationGroup } from "../utils/grouping"
 
-import type { ListAdapter, PreviewComponentProps } from "../types/list"
+import type { ListAdapter, ListItem, PreviewComponentProps } from "../types/list"
+
+// Адаптер типа для MediaFile чтобы соответствовать ListItem
+type MusicListItem = MediaFile & ListItem
 
 /**
  * Компонент превью для музыкальных файлов
@@ -136,7 +139,7 @@ const MusicPreviewWrapper: React.FC<PreviewComponentProps<MediaFile>> = ({
 /**
  * Хук для создания адаптера музыкальных файлов
  */
-export function useMusicAdapter(): ListAdapter<MediaFile> {
+export function useMusicAdapter(): ListAdapter<MusicListItem> {
   const { musicFiles } = useMusicFiles()
   const { isItemFavorite } = useFavorites()
   const { importFile, importDirectory, isImporting } = useMusicImport()

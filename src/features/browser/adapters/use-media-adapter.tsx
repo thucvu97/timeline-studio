@@ -11,7 +11,10 @@ import i18n from "@/i18n"
 
 import { getDateGroup, getDurationGroup } from "../utils/grouping"
 
-import type { ListAdapter, PreviewComponentProps } from "../types/list"
+import type { ListAdapter, ListItem, PreviewComponentProps } from "../types/list"
+
+// Адаптер типа для MediaFile чтобы соответствовать ListItem
+type MediaListItem = MediaFile & ListItem
 
 /**
  * Компонент превью для медиафайлов - адаптер для MediaPreview
@@ -42,7 +45,7 @@ const MediaPreviewWrapper: React.FC<PreviewComponentProps<MediaFile>> = ({ item:
 /**
  * Хук для создания адаптера медиафайлов с использованием React хуков
  */
-export function useMediaAdapter(): ListAdapter<MediaFile> {
+export function useMediaAdapter(): ListAdapter<MediaListItem> {
   const { connectionError, projectState } = useAppSettings()
   const { isItemFavorite } = useFavorites()
   const { importFile, importFolder, isImporting } = useMediaImport()

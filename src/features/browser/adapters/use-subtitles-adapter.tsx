@@ -5,7 +5,10 @@ import { SubtitlePreview } from "@/features/subtitles/components/subtitle-previe
 import { useSubtitles } from "@/features/subtitles/hooks/use-subtitle-styles"
 import { SubtitleStyleTemplate } from "@/features/subtitles/types/subtitles"
 
-import type { ListAdapter, PreviewComponentProps } from "../types/list"
+import type { ListAdapter, ListItem, PreviewComponentProps } from "../types/list"
+
+// Адаптер типа для SubtitleStyleTemplate чтобы соответствовать ListItem
+type SubtitleListItem = SubtitleStyleTemplate & ListItem
 
 /**
  * Компонент превью для стилей субтитров
@@ -91,7 +94,7 @@ const SubtitlePreviewWrapper: React.FC<PreviewComponentProps<SubtitleStyleTempla
 /**
  * Хук для создания адаптера стилей субтитров
  */
-export function useSubtitlesAdapter(): ListAdapter<SubtitleStyleTemplate> {
+export function useSubtitlesAdapter(): ListAdapter<SubtitleListItem> {
   const { subtitles, loading, error } = useSubtitles()
   const { isItemFavorite } = useFavorites()
 

@@ -7,7 +7,10 @@ import { MediaFile } from "@/features/media/types/media"
 import { TransitionPreview } from "@/features/transitions/components/transition-preview"
 import { Transition } from "@/features/transitions/types/transitions"
 
-import type { ListAdapter, PreviewComponentProps } from "../types/list"
+import type { ListAdapter, ListItem, PreviewComponentProps } from "../types/list"
+
+// Адаптер типа для Transition чтобы соответствовать ListItem
+type TransitionListItem = Transition & ListItem
 
 /**
  * Компонент превью для переходов
@@ -100,7 +103,7 @@ const TransitionPreviewWrapper: React.FC<PreviewComponentProps<Transition>> = ({
  * Хук для создания адаптера переходов
  * Мигрирован на унифицированную систему browser-хуков
  */
-export function useTransitionsAdapter(): ListAdapter<Transition> {
+export function useTransitionsAdapter(): ListAdapter<TransitionListItem> {
   const { isItemFavorite } = useFavorites()
 
   // Используем унифицированный адаптер с конфигурацией для переходов

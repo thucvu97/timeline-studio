@@ -5,7 +5,10 @@ import { useProjectSettings } from "@/features/project-settings"
 import { TemplatePreview } from "@/features/templates/components/template-preview"
 import { MediaTemplate, TEMPLATE_MAP } from "@/features/templates/lib/templates"
 
-import type { ListAdapter, PreviewComponentProps } from "../types/list"
+import type { ListAdapter, ListItem, PreviewComponentProps } from "../types/list"
+
+// Адаптер типа для MediaTemplate чтобы соответствовать ListItem
+type TemplateListItem = MediaTemplate & ListItem
 
 /**
  * Преобразует метку соотношения сторон в группу шаблонов
@@ -84,7 +87,7 @@ const TemplatePreviewWrapper: React.FC<PreviewComponentProps<MediaTemplate>> = (
 /**
  * Хук для создания адаптера шаблонов
  */
-export function useTemplatesAdapter(): ListAdapter<MediaTemplate> {
+export function useTemplatesAdapter(): ListAdapter<TemplateListItem> {
   const { settings } = useProjectSettings()
   const { isItemFavorite } = useFavorites()
   const [templates, setTemplates] = useState<MediaTemplate[]>([])

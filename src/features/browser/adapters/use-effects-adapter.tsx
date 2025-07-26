@@ -6,7 +6,10 @@ import { useDraggable } from "@/features/drag-drop"
 import { EffectPreview } from "@/features/effects/components/effect-preview"
 import { BaseEffect } from "@/features/effects/types"
 
-import type { ListAdapter, PreviewComponentProps } from "../types/list"
+import type { ListAdapter, ListItem, PreviewComponentProps } from "../types/list"
+
+// Адаптер типа для BaseEffect чтобы соответствовать ListItem
+type EffectListItem = BaseEffect & ListItem
 
 /**
  * Компонент превью для эффектов
@@ -96,7 +99,7 @@ const EffectPreviewWrapper: React.FC<PreviewComponentProps<BaseEffect>> = ({
  * Хук для создания адаптера эффектов
  * Мигрирован на унифицированную систему browser-хуков
  */
-export function useEffectsAdapter(): ListAdapter<BaseEffect> {
+export function useEffectsAdapter(): ListAdapter<EffectListItem> {
   const { isItemFavorite } = useFavorites()
 
   // Используем унифицированный адаптер с конфигурацией для эффектов

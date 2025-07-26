@@ -6,7 +6,10 @@ import { useDraggable } from "@/features/drag-drop"
 import { StyleTemplatePreview } from "@/features/style-templates/components/style-template-preview"
 import { StyleTemplate } from "@/features/style-templates/types"
 
-import type { ListAdapter, PreviewComponentProps } from "../types/list"
+import type { ListAdapter, ListItem, PreviewComponentProps } from "../types/list"
+
+// Адаптер типа для StyleTemplate чтобы соответствовать ListItem
+type StyleTemplateListItem = StyleTemplate & ListItem
 
 /**
  * Компонент превью для стилистических шаблонов
@@ -108,7 +111,7 @@ const StyleTemplatePreviewWrapper: React.FC<PreviewComponentProps<StyleTemplate>
  * Хук для создания адаптера стилистических шаблонов
  * Мигрирован на унифицированную систему browser-хуков
  */
-export function useStyleTemplatesAdapter(): ListAdapter<StyleTemplate> {
+export function useStyleTemplatesAdapter(): ListAdapter<StyleTemplateListItem> {
   const { isItemFavorite } = useFavorites()
 
   // Используем унифицированный адаптер с конфигурацией для стилистических шаблонов
