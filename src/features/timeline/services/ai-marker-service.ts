@@ -69,6 +69,12 @@ export class AIMarkerService {
         name: `Сцена ${index + 1}: ${this.getSceneTypeLabel(scene.type)}`,
         description: `Длительность: ${scene.duration.toFixed(1)}с, Уверенность: ${(scene.confidence * 100).toFixed(0)}%`,
         color: this.getSceneColor(scene.type),
+        metadata: {
+          source: "ai-analysis",
+          sceneId: scene.id,
+          sceneType: scene.type,
+          confidence: scene.confidence,
+        },
       })
     })
 
@@ -89,11 +95,18 @@ export class AIMarkerService {
 
       markers.push({
         id: `ai-moment-${moment.id || Date.now()}`,
-        type: "note" as const,
+        type: moment.type === "climax" ? ("important" as const) : ("note" as const),
         time: moment.timestamp,
         name: this.getMomentTypeLabel(moment.type),
         description: moment.description,
         color: this.getMomentColor(moment.type),
+        metadata: {
+          source: "ai-analysis",
+          momentId: moment.id,
+          momentType: moment.type,
+          score: moment.score,
+          context: (moment as any).context,
+        },
       })
     })
 
@@ -114,11 +127,21 @@ export class AIMarkerService {
       timestamps.forEach((timestamp, index) => {
         markers.push({
           id: `ai-quality-${index}`,
-          type: "todo" as const,
+          type: "warning" as const,
           time: timestamp,
           name: "Низкое качество видео",
           description: `Общее качество: ${overall}/100. Рекомендуется улучшение.`,
           color: "#ef4444", // Красный
+          metadata: {
+            source: "ai-analysis",
+            qualityScore: overall,
+            metrics: {
+              sharpness: insights.qualityMetrics.sharpness,
+              brightness: insights.qualityMetrics.brightness,
+              contrast: insights.qualityMetrics.contrast,
+              saturation: insights.qualityMetrics.saturation,
+            },
+          },
         })
       })
     }
@@ -142,6 +165,13 @@ export class AIMarkerService {
         name: `Эмоция: ${this.getEmotionLabel(insights.mood.dominantEmotion)}`,
         description: `Интенсивность: ${(insights.mood.intensity * 100).toFixed(0)}%`,
         color: this.getEmotionColor(insights.mood.dominantEmotion),
+        metadata: {
+          source: "ai-analysis",
+          emotionType: insights.mood.dominantEmotion,
+          intensity: insights.mood.intensity,
+          valence: insights.mood.valence,
+          arousal: insights.mood.arousal,
+        },
       })
     }
 
@@ -197,12 +227,44 @@ export class AIMarkerService {
 
     return {
       id: `ai-group-${Date.now()}`,
-      type: types.includes("chapter") ? "chapter" : markers[0].type || "note",
+      type: this.getPriorityType(types),
       time: avgTime,
       name: `Группа событий (${markers.length})`,
       description: names,
       color: markers[0].color || "#6b7280",
+      metadata: {
+        source: "ai-analysis",
+        groupedMarkers: markers.map((m) => m.id),
+        count: markers.length,
+      },
     }
+  }
+
+  /**
+   * Определение приоритетного типа маркера для группы
+   */
+  private getPriorityType(types: Array<TimelineMarker["type"]>): TimelineMarker["type"] {
+    // Приоритет типов (от высшего к низшему)
+    const priority: Array<TimelineMarker["type"]> = [
+      "important",
+      "chapter",
+      "section",
+      "sync",
+      "export",
+      "todo",
+      "note",
+      "cue",
+    ]
+
+    // Ищем первый тип из приоритетного списка, который есть в группе
+    for (const priorityType of priority) {
+      if (types.includes(priorityType)) {
+        return priorityType
+      }
+    }
+
+    // Если ни один приоритетный тип не найден, возвращаем первый тип или "note"
+    return types[0] || "note"
   }
 
   /**

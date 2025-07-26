@@ -5,9 +5,9 @@
 import type { MediaFile } from "@/features/media/types/media"
 
 import {
-  type AnalyzedContent,
   type AudioAnalysis,
   CameraMovement,
+  ClipRole,
   EmotionalTone,
   FlowDirection,
   type Fragment,
@@ -15,9 +15,12 @@ import {
   MomentCategory,
   type MomentScore,
   type MontagePlan,
+  PacingType,
   type Person,
   SceneType,
   type Sequence,
+  SequencePurpose,
+  SequenceType,
   type VideoAnalysis,
 } from "../types"
 
@@ -25,18 +28,41 @@ export const mockMediaFile: MediaFile = {
   id: "file_1",
   name: "video1.mp4",
   path: "/videos/video1.mp4",
-  type: "video",
+  isVideo: true,
   size: 1024 * 1024 * 100, // 100MB
   duration: 120,
-  thumbnail: "/thumbnails/video1.jpg",
-  width: 1920,
-  height: 1080,
-  frameRate: 30,
-  bitrate: 10000000,
-  codec: "h264",
-  hasAudio: true,
-  audioSampleRate: 48000,
-  audioBitDepth: 16,
+  probeData: {
+    format: {
+      filename: "/videos/video1.mp4",
+      nb_streams: 2,
+      format_name: "mp4",
+      start_time: "0",
+      duration: "120",
+      size: "104857600",
+      bit_rate: "7000000",
+    },
+    streams: [
+      {
+        index: 0,
+        codec_type: "video",
+        codec_name: "h264",
+        width: 1920,
+        height: 1080,
+        r_frame_rate: "30/1",
+        avg_frame_rate: "30/1",
+        bit_rate: "10000000",
+        duration: "120",
+      },
+      {
+        index: 1,
+        codec_type: "audio",
+        codec_name: "aac",
+        sample_rate: "48000",
+        channels: 2,
+        bits_per_sample: 16,
+      },
+    ],
+  },
 }
 
 export const mockPerson: Person = {
@@ -58,10 +84,6 @@ export const mockMomentScore: MomentScore = {
     composition: 82,
   },
   totalScore: 84, // weighted average of all scores
-  visualScore: 85,
-  technicalScore: 88,
-  emotionalScore: 75,
-  relevanceScore: 80,
   weight: 1.0,
   rank: 1,
 }
@@ -112,9 +134,7 @@ export const mockVideoAnalysis: VideoAnalysis = {
       },
     ],
     sceneType: SceneType.Outdoor,
-    lighting: LightingCondition.Daylight,
-    compositionScore: 75,
-    aestheticScore: 80,
+    lighting: LightingCondition.Bright,
   },
   motion: {
     cameraMovement: CameraMovement.Pan,
@@ -147,43 +167,80 @@ export const mockAudioAnalysis: AudioAnalysis = {
 
 export const mockSequence: Sequence = {
   id: "seq_1",
-  type: "intro",
+  type: SequenceType.Intro,
   clips: [
     {
-      id: "clip_1",
       fragmentId: "fragment_1",
-      startTime: 0,
-      duration: 5,
-      inPoint: 0,
-      outPoint: 5,
+      fragment: mockFragment,
+      sequenceOrder: 0,
+      role: ClipRole.Hero,
+      importance: 90,
+      adjustments: undefined,
+      suggestions: [],
     },
   ],
   duration: 5,
   energyLevel: 60,
-  purpose: "hook",
+  purpose: SequencePurpose.Hook,
+  emotionalArc: {
+    startEnergy: 50,
+    peakPosition: 0.5,
+    peakEnergy: 70,
+    endEnergy: 60,
+    variability: 20,
+  },
+  transitions: [],
 }
 
 export const mockMontagePlan: MontagePlan = {
   id: "plan_1",
   name: "Action Montage",
-  style: "Dynamic Action",
+  metadata: {
+    createdAt: new Date("2024-01-01"),
+    updatedAt: new Date("2024-01-01"),
+    version: 1,
+    instructions: "Create an action-packed montage",
+    targetDuration: 60,
+  },
+  style: {
+    id: "dynamic-action",
+    name: "Dynamic Action",
+    description: "Fast-paced with frequent cuts and high energy",
+    cutting: {
+      averageShotLength: 2,
+      variability: 60,
+      rhythmComplexity: 80,
+    },
+    transitions: {
+      preferredTypes: ["cut", "whip-pan", "zoom"],
+      frequency: 90,
+      complexity: 60,
+    },
+    emotionalArc: {
+      startEnergy: 70,
+      peakPosition: 0.7,
+      peakEnergy: 95,
+      endEnergy: 80,
+      variability: 70,
+    },
+  },
   sequences: [
     mockSequence,
     {
       ...mockSequence,
       id: "seq_2",
-      type: "main",
+      type: SequenceType.Main,
       duration: 10,
       energyLevel: 80,
-      purpose: "narrative-development",
+      purpose: SequencePurpose.Development,
     },
     {
       ...mockSequence,
       id: "seq_3",
-      type: "climax",
+      type: SequenceType.Climax,
       duration: 8,
       energyLevel: 95,
-      purpose: "emotional-peak",
+      purpose: SequencePurpose.Climax,
     },
   ],
   totalDuration: 23,
@@ -191,46 +248,15 @@ export const mockMontagePlan: MontagePlan = {
   engagementScore: 88,
   coherenceScore: 82,
   pacing: {
-    type: "dynamic",
+    type: PacingType.Variable,
     averageCutDuration: 2.5,
     cutDurationRange: [0.5, 5],
     rhythmComplexity: 75,
   },
-  transitions: [
-    {
-      from: "seq_1",
-      to: "seq_2",
-      style: "dissolve",
-      duration: 1,
-    },
-    {
-      from: "seq_2",
-      to: "seq_3",
-      style: "cut",
-      duration: 0,
-    },
-  ],
-  musicSync: true,
-  createdAt: new Date("2024-01-01"),
-  updatedAt: new Date("2024-01-01"),
 }
 
-export const mockAnalyzedContent: AnalyzedContent = {
-  videoId: "video_1",
-  sourceFile: mockMediaFile,
-  videoAnalysis: mockVideoAnalysis,
-  audioAnalysis: mockAudioAnalysis,
-  detectedScenes: [
-    { startTime: 0, endTime: 5, confidence: 0.9 },
-    { startTime: 5, endTime: 10, confidence: 0.85 },
-    { startTime: 10, endTime: 15, confidence: 0.8 },
-  ],
-  detectedObjects: [
-    { time: 2, objects: ["car", "person"], confidence: 0.9 },
-    { time: 7, objects: ["building"], confidence: 0.85 },
-  ],
-  detectedPeople: [{ time: 3, people: [mockPerson], confidence: 0.95 }],
-}
+// AnalyzedContent type doesn't exist in the types file
+// Remove this mock as it's not used anywhere
 
 export const createMockFragments = (count: number): Fragment[] => {
   const categories = Object.values(MomentCategory)
@@ -253,7 +279,20 @@ export const createMockFragments = (count: number): Fragment[] => {
 }
 
 export const createMockSequences = (count: number): Sequence[] => {
-  const types: Sequence["type"][] = ["intro", "main", "climax", "resolution", "outro"]
+  const types = [
+    SequenceType.Intro,
+    SequenceType.Main,
+    SequenceType.Climax,
+    SequenceType.Resolution,
+    SequenceType.Outro,
+  ]
+  const purposes = [
+    SequencePurpose.Hook,
+    SequencePurpose.Exposition,
+    SequencePurpose.Development,
+    SequencePurpose.Climax,
+    SequencePurpose.Resolution,
+  ]
 
   return Array.from({ length: count }, (_, i) => ({
     id: `seq_${i + 1}`,
@@ -261,7 +300,15 @@ export const createMockSequences = (count: number): Sequence[] => {
     clips: [],
     duration: 5 + Math.random() * 10,
     energyLevel: 50 + Math.random() * 50,
-    purpose: ["hook", "setup", "narrative-development", "emotional-peak", "resolution"][i % 5] as any,
+    purpose: purposes[i % purposes.length],
+    emotionalArc: {
+      startEnergy: 50 + Math.random() * 20,
+      peakPosition: 0.3 + Math.random() * 0.4,
+      peakEnergy: 70 + Math.random() * 30,
+      endEnergy: 40 + Math.random() * 30,
+      variability: 20 + Math.random() * 40,
+    },
+    transitions: [],
   }))
 }
 
@@ -271,6 +318,9 @@ export const createMockPlan = (name = "Test Plan"): MontagePlan => ({
   name,
   sequences: createMockSequences(5),
   totalDuration: 60,
-  createdAt: new Date(),
-  updatedAt: new Date(),
+  metadata: {
+    ...mockMontagePlan.metadata,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
 })

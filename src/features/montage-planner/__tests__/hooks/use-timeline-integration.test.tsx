@@ -258,18 +258,32 @@ describe("useTimelineIntegration", () => {
       // Add duplicate file references
       const planWithDuplicates = {
         ...mockPlan,
-        clips: [
-          ...mockPlan.clips,
+        sequences: [
           {
-            ...mockPlan.clips[0],
-            id: "clip2",
-            source_file: "/path/to/video1.mp4", // Same file
+            ...mockPlan.sequences[0],
+            clips: [
+              ...mockPlan.sequences[0].clips,
+              {
+                ...mockPlan.sequences[0].clips[0],
+                fragmentId: "fragment_2",
+                fragment: {
+                  ...mockPlan.sequences[0].clips[0].fragment,
+                  id: "fragment_2",
+                  sourceFile: { ...mockMediaFile, path: "/path/to/video1.mp4" },
+                },
+              },
+              {
+                ...mockPlan.sequences[0].clips[0],
+                fragmentId: "fragment_3",
+                fragment: {
+                  ...mockPlan.sequences[0].clips[0].fragment,
+                  id: "fragment_3",
+                  sourceFile: { ...mockMediaFile, path: "/path/to/video2.mp4" },
+                },
+              },
+            ],
           },
-          {
-            ...mockPlan.clips[0],
-            id: "clip3",
-            source_file: "/path/to/video2.mp4", // Different file
-          },
+          ...mockPlan.sequences.slice(1),
         ],
       }
 

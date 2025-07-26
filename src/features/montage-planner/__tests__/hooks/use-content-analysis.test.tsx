@@ -9,6 +9,7 @@ import { describe, expect, it, vi } from "vitest"
 
 import { useContentAnalysis } from "../../hooks/use-content-analysis"
 import { MontagePlannerProvider } from "../../services/montage-planner-provider"
+import { MomentCategory } from "../../types"
 import { createMockFragments, mockAudioAnalysis, mockMediaFile, mockVideoAnalysis } from "../test-utils"
 
 vi.mock("@tauri-apps/api/core", () => ({
@@ -96,12 +97,12 @@ describe("useContentAnalysis", () => {
 
     const fragments = createMockFragments(6)
     // Set different categories
-    fragments[0].score.category = "action"
-    fragments[1].score.category = "action"
-    fragments[2].score.category = "drama"
-    fragments[3].score.category = "comedy"
-    fragments[4].score.category = "comedy"
-    fragments[5].score.category = "comedy"
+    fragments[0].score.category = MomentCategory.Action
+    fragments[1].score.category = MomentCategory.Action
+    fragments[2].score.category = MomentCategory.Drama
+    fragments[3].score.category = MomentCategory.Comedy
+    fragments[4].score.category = MomentCategory.Comedy
+    fragments[5].score.category = MomentCategory.Comedy
 
     act(() => {
       const { send } = result.current as any

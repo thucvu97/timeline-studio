@@ -8,7 +8,7 @@ import { TimelineMarker } from "./timeline"
 export type { TimelineMarker } from "./timeline"
 
 // Типы маркеров
-export type MarkerType = "chapter" | "section" | "note" | "export" | "todo" | "sync" | "cue"
+export type MarkerType = "chapter" | "section" | "note" | "export" | "todo" | "sync" | "cue" | "important" | "warning"
 
 // Цвета маркеров по типу
 export const MarkerColors: Record<MarkerType, string> = {
@@ -19,6 +19,8 @@ export const MarkerColors: Record<MarkerType, string> = {
   todo: "#8b5cf6", // purple
   sync: "#06b6d4", // cyan
   cue: "#ec4899", // pink
+  important: "#dc2626", // red-600
+  warning: "#ea580c", // orange-600
 }
 
 // Иконки маркеров по типу
@@ -30,6 +32,8 @@ export const MarkerIcons: Record<MarkerType, string> = {
   todo: "check-square",
   sync: "refresh-cw",
   cue: "play-circle",
+  important: "alert-circle",
+  warning: "alert-triangle",
 }
 
 // Расширенный интерфейс маркера

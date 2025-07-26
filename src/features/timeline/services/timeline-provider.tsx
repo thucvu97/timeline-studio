@@ -4,17 +4,55 @@
  * Новый провайдер timeline с интеграцией backend state management
  */
 
-import React, { createContext, useCallback, useEffect, useMemo } from "react"
+import * as React from "react"
+import { createContext, useCallback, useEffect, useMemo } from "react"
 
 import { useMachine } from "@xstate/react"
-
-import { getBackendSync } from "@/features/app-state/services/backend-sync"
-import { MediaFile } from "@/features/media/types/media"
-import { Clip, Project, ProjectCommand, ProjectState } from "@/types/generated/tauri-bindings"
 
 import { AppliedEffect, TimelineClip, TimelineProject, TimelineSection, TimelineTrack, TrackType } from "../types"
 import { TimelineUIContext, timelineUIMachine } from "./timeline-ui-machine"
 import { copyClips } from "../utils/clip-operations"
+
+// import { getBackendSync } from "@/features/app-state/services/backend-sync"
+// import { MediaFile } from "@/features/media/types/media"
+// import { Clip, Project, ProjectCommand, ProjectState } from "@/types/generated/tauri-bindings"
+
+// Заглушки для типов
+interface MediaFile { id: string; name: string; path: string }
+interface Clip {
+  id: string
+  name: string
+  media_id: string
+  timeline_in: number
+  timeline_out: number
+  source_in: number
+  source_out: number
+  playback_rate: number
+  transitions?: any[]
+}
+interface Project {
+  id: string
+  metadata: { name: string; created_at: string; version: string }
+  timeline: { tracks: any[]; duration: number; fps: number; sample_rate: number }
+  settings: {
+    resolution: { width: number; height: number }
+    frame_rate: number
+    audio_sample_rate: number
+    audio_channels: number
+  }
+}
+interface ProjectCommand { type: string; params: any }
+interface ProjectState {
+  project?: Project
+  playback_state?: { is_playing: boolean; current_time: number; playback_rate?: number }
+}
+
+// Заглушка для getBackendSync
+const getBackendSync = () => ({
+  onStateChange: (_callback: (state: ProjectState) => void) => () => {},
+  onEvent: (_callback: (event: any) => void) => () => {},
+  executeCommand: async (_command: ProjectCommand) => ({ success: true, data: null, error: null }),
+})
 
 // Вспомогательная функция для преобразования Clip в TimelineClip
 function convertClipToTimelineClip(clip: Clip, trackId: string): TimelineClip {

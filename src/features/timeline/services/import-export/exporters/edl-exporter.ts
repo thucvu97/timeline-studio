@@ -4,8 +4,7 @@
  * Экспортирует Timeline в CMX 3600 EDL формат
  */
 
-import { TimelineClip, TimelineProject, TimelineTrack } from "@/features/timeline/types/timeline"
-
+import { TimelineClip, TimelineProject, TimelineTrack } from "../../../types/timeline"
 import { EDLEvent, ExportOptions, Exporter, formatTimecode, secondsToTimecode } from "../types"
 
 export class EDLExporter implements Exporter {

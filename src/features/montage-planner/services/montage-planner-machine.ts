@@ -306,62 +306,77 @@ export const montagePlannerMachine = setup({
   },
   actors: {
     // Video analysis service
-    analyzeVideos: async ({ videoIds, analysisOptions }: any) => {
-      try {
-        const result = await invoke("analyze_montage_videos", {
-          videoIds,
-          options: analysisOptions,
-        })
-        return result
-      } catch (error) {
-        throw new Error(`Video analysis failed: ${String(error)}`)
-      }
+    analyzeVideos: {
+      src: async ({ input }: { input: { videoIds: string[]; analysisOptions: AnalysisOptions } }) => {
+        const { videoIds, analysisOptions } = input
+        try {
+          const result = await invoke("analyze_montage_videos", {
+            videoIds,
+            options: analysisOptions,
+          })
+          return result
+        } catch (error) {
+          throw new Error(`Video analysis failed: ${String(error)}`)
+        }
+      },
     },
 
     // Plan generation service
-    generatePlan: async ({ fragments, generationOptions }: any) => {
-      try {
-        const plan = await invoke("generate_montage_plan", {
-          fragments,
-          options: generationOptions,
-        })
-        return plan
-      } catch (error) {
-        throw new Error(`Plan generation failed: ${String(error)}`)
-      }
+    generatePlan: {
+      src: async ({ input }: { input: { fragments: Fragment[]; generationOptions: PlanGenerationOptions } }) => {
+        const { fragments, generationOptions } = input
+        try {
+          const plan = await invoke("generate_montage_plan", {
+            fragments,
+            options: generationOptions,
+          })
+          return plan
+        } catch (error) {
+          throw new Error(`Plan generation failed: ${String(error)}`)
+        }
+      },
     },
 
     // Plan optimization service
-    optimizePlan: async ({ plan, preferences }: any) => {
-      try {
-        const optimizedPlan = await invoke("optimize_montage_plan", {
-          plan,
-          preferences,
-        })
-        return optimizedPlan
-      } catch (error) {
-        throw new Error(`Plan optimization failed: ${String(error)}`)
-      }
+    optimizePlan: {
+      src: async ({ input }: { input: { plan: MontagePlan; preferences: any } }) => {
+        const { plan, preferences } = input
+        try {
+          const optimizedPlan = await invoke("optimize_montage_plan", {
+            plan,
+            preferences,
+          })
+          return optimizedPlan
+        } catch (error) {
+          throw new Error(`Plan optimization failed: ${String(error)}`)
+        }
+      },
     },
 
     // Validation service
-    validatePlan: async ({ plan }: any) => {
-      try {
-        const validation = await invoke("validate_montage_plan", { plan })
-        return validation
-      } catch (error) {
-        throw new Error(`Plan validation failed: ${String(error)}`)
-      }
+    validatePlan: {
+      src: async ({ input }: { input: { plan: MontagePlan } }) => {
+        const { plan } = input
+        try {
+          const validation = await invoke("validate_montage_plan", { plan })
+          return validation
+        } catch (error) {
+          throw new Error(`Plan validation failed: ${String(error)}`)
+        }
+      },
     },
 
     // Statistics calculation
-    calculateStatistics: async ({ plan }: any) => {
-      try {
-        const statistics = await invoke("calculate_plan_statistics", { plan })
-        return statistics
-      } catch (error) {
-        throw new Error(`Statistics calculation failed: ${String(error)}`)
-      }
+    calculateStatistics: {
+      src: async ({ input }: { input: { plan: MontagePlan } }) => {
+        const { plan } = input
+        try {
+          const statistics = await invoke("calculate_plan_statistics", { plan })
+          return statistics
+        } catch (error) {
+          throw new Error(`Statistics calculation failed: ${String(error)}`)
+        }
+      },
     },
   },
 }).createMachine({
@@ -416,25 +431,25 @@ export const montagePlannerMachine = setup({
     idle: {
       on: {
         ADD_VIDEO: {
-          actions: "addVideo",
+          actions: ["addVideo"],
         },
         REMOVE_VIDEO: {
-          actions: "removeVideo",
+          actions: ["removeVideo"],
         },
         UPDATE_INSTRUCTIONS: {
-          actions: "updateInstructions",
+          actions: ["updateInstructions"],
         },
         SELECT_STYLE: {
-          actions: "selectStyle",
+          actions: ["selectStyle"],
         },
         SET_TARGET_DURATION: {
-          actions: "setTargetDuration",
+          actions: ["setTargetDuration"],
         },
         UPDATE_ANALYSIS_OPTIONS: {
-          actions: "updateAnalysisOptions",
+          actions: ["updateAnalysisOptions"],
         },
         UPDATE_GENERATION_OPTIONS: {
-          actions: "updateGenerationOptions",
+          actions: ["updateGenerationOptions"],
         },
         START_ANALYSIS: {
           target: "analyzing",
@@ -449,53 +464,53 @@ export const montagePlannerMachine = setup({
           guard: ({ context }) => context.currentPlan !== null,
         },
         EDIT_FRAGMENT: {
-          actions: "editFragment",
+          actions: ["editFragment"],
         },
         REORDER_FRAGMENTS: {
-          actions: "reorderFragments",
+          actions: ["reorderFragments"],
         },
         RESET: {
-          actions: "resetContext",
+          actions: ["resetContext"],
         },
         ANALYSIS_PROGRESS: {
-          actions: "updateProgress",
+          actions: ["updateProgress"],
         },
         FRAGMENTS_DETECTED: {
-          actions: "storeFragments",
+          actions: ["storeFragments"],
         },
         VIDEO_ANALYZED: {
-          actions: "storeVideoAnalysis",
+          actions: ["storeVideoAnalysis"],
         },
         AUDIO_ANALYZED: {
-          actions: "storeAudioAnalysis",
+          actions: ["storeAudioAnalysis"],
         },
         MOMENTS_SCORED: {
-          actions: "storeMomentScores",
+          actions: ["storeMomentScores"],
         },
         PLAN_GENERATED: {
-          actions: "storePlan",
+          actions: ["storePlan"],
         },
         PLAN_OPTIMIZED: {
-          actions: "storePlan",
+          actions: ["storePlan"],
         },
         GENERATION_COMPLETE: {
-          actions: "storePlan",
+          actions: ["storePlan"],
         },
         PLAN_VALIDATED: {
-          actions: "storeValidation",
+          actions: ["storeValidation"],
         },
         CLEAR_ERROR: {
-          actions: "clearError",
+          actions: ["clearError"],
         },
         ERROR: {
-          actions: "setError",
+          actions: ["setError"],
         },
       },
     },
 
     analyzing: {
-      entry: "startAnalysis",
-      exit: "stopAnalysis",
+      entry: ["startAnalysis"],
+      exit: ["stopAnalysis"],
       invoke: {
         src: "analyzeVideos",
         input: ({ context }) => ({
@@ -524,19 +539,19 @@ export const montagePlannerMachine = setup({
       },
       on: {
         ANALYSIS_PROGRESS: {
-          actions: "updateProgress",
+          actions: ["updateProgress"],
         },
         VIDEO_ANALYZED: {
-          actions: "storeVideoAnalysis",
+          actions: ["storeVideoAnalysis"],
         },
         AUDIO_ANALYZED: {
-          actions: "storeAudioAnalysis",
+          actions: ["storeAudioAnalysis"],
         },
         FRAGMENTS_DETECTED: {
-          actions: "storeFragments",
+          actions: ["storeFragments"],
         },
         MOMENTS_SCORED: {
-          actions: "storeMomentScores",
+          actions: ["storeMomentScores"],
         },
         CANCEL_ANALYSIS: {
           target: "idle",
@@ -627,10 +642,10 @@ export const montagePlannerMachine = setup({
           },
         },
         EDIT_FRAGMENT: {
-          actions: "editFragment",
+          actions: ["editFragment"],
         },
         REORDER_FRAGMENTS: {
-          actions: "reorderFragments",
+          actions: ["reorderFragments"],
         },
         GENERATE_PLAN: {
           target: "generating",
@@ -640,13 +655,13 @@ export const montagePlannerMachine = setup({
         },
         RESET: {
           target: "idle",
-          actions: "resetContext",
+          actions: ["resetContext"],
         },
         CLEAR_ERROR: {
-          actions: "clearError",
+          actions: ["clearError"],
         },
         ERROR: {
-          actions: "setError",
+          actions: ["setError"],
         },
       },
     },
@@ -675,11 +690,11 @@ export const montagePlannerMachine = setup({
       on: {
         CLEAR_ERROR: {
           target: "idle",
-          actions: "clearError",
+          actions: ["clearError"],
         },
         RESET: {
           target: "idle",
-          actions: "resetContext",
+          actions: ["resetContext"],
         },
       },
     },

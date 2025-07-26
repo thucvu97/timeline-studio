@@ -7,7 +7,13 @@ import { createActor } from "xstate"
 
 import { montagePlannerMachine } from "../../services/montage-planner-machine"
 import { AnalysisPhase } from "../../types"
-import { createMockFragments, mockMediaFile, mockMontagePlan } from "../test-utils"
+import {
+  createMockFragments,
+  mockAudioAnalysis,
+  mockMediaFile,
+  mockMontagePlan,
+  mockVideoAnalysis,
+} from "../test-utils"
 
 vi.mock("@tauri-apps/api/core", () => ({
   invoke: vi.fn(),
@@ -88,12 +94,12 @@ describe("MontagePlannerMachine", () => {
       actor.send({
         type: "VIDEO_ANALYZED",
         videoId: mockMediaFile.id,
-        analysis: {},
+        analysis: mockVideoAnalysis,
       })
       actor.send({
         type: "AUDIO_ANALYZED",
         videoId: mockMediaFile.id,
-        analysis: {},
+        analysis: mockAudioAnalysis,
       })
 
       const snapshot = actor.getSnapshot()
@@ -299,7 +305,7 @@ describe("MontagePlannerMachine", () => {
 
     it("should not generate plan without fragments", () => {
       actor.start()
-      actor.send({ type: "GENERATE_PLAN", preferences: {} as any })
+      actor.send({ type: "GENERATE_PLAN" })
 
       // Should remain in idle state
       expect(actor.getSnapshot().value).toBe("idle")

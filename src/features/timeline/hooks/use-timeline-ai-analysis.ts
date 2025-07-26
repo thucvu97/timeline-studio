@@ -88,8 +88,7 @@ export function useTimelineAIAnalysis(): TimelineAIAnalysisHook {
 
   // Инициализация сервисов
   const [sceneEngine] = useState(() => new SceneAnalysisEngine())
-  // TODO: В новой архитектуре нужно правильно инициализировать AIIntelligenceOrchestrator с actor
-  const [orchestrator] = useState<AIIntelligenceOrchestrator | null>(null)
+  const [orchestrator] = useState(() => new AIIntelligenceOrchestrator())
 
   // Инициализация AI движков
   useEffect(() => {
@@ -147,13 +146,15 @@ export function useTimelineAIAnalysis(): TimelineAIAnalysisHook {
           return
         }
 
-        const fullAnalysis = await orchestrator.analyzeContent([
-          {
+        const fullAnalysis = await orchestrator.analyzeContent({
+          mediaFile: {
             path: clip.mediaFile.path,
-            name: clip.mediaFile.name,
+            filename: clip.mediaFile.name,
             size: clip.mediaFile.size || 0,
+            format: clip.mediaFile.format || "unknown",
+            duration: clip.mediaFile.duration || 0,
           },
-        ])
+        })
 
         setAnalysisState((prev) => ({
           ...prev,
@@ -323,7 +324,7 @@ export function useTimelineAIAnalysis(): TimelineAIAnalysisHook {
           id: `ai-moment-${moment.id}`,
           type: "chapter",
           timecode: moment.timestamp,
-          name: moment.description,
+          name: moment.type === "climax" ? "Кульминация" : moment.description,
           description: `AI обнаружил ключевой момент (${moment.type})`,
           color: getColorForMomentType(moment.type),
         },
