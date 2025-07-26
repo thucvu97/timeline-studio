@@ -2,12 +2,12 @@ import React from "react"
 
 import { Card } from "@/components/ui/card"
 import { useAppSettings } from "@/features/app-state"
+import { parseDuration, parseFileSize } from "@/features/browser/utils"
 import { getFileType } from "@/features/media"
 import { MediaFile } from "@/features/media/types/media"
 import i18n from "@/i18n"
-
 import { cn } from "@/lib/utils"
-import { parseDuration, parseFileSize } from "@/features/browser/utils"
+
 import { getDateGroup, getDurationGroup } from "../utils/grouping"
 
 import type { ListAdapter, PreviewComponentProps } from "../types/list"
