@@ -125,9 +125,9 @@ describe("usePersonIdentification Tauri Integration", () => {
       const detectedFace: DetectedFace = {
         id: "face_no_embed",
         confidence: 0.9,
-        box: { x: 0, y: 0, width: 50, height: 50 },
+        bbox: { x: 0, y: 0, width: 50, height: 50 },
         landmarks: [],
-        timestamp: 5,
+        timestamp: { seconds: 5, frames: 0 },
         // No embedding provided
       }
 
@@ -145,9 +145,9 @@ describe("usePersonIdentification Tauri Integration", () => {
       const detectedFace: DetectedFace = {
         id: "face_new",
         confidence: 0.93,
-        box: { x: 20, y: 20, width: 120, height: 120 },
+        bbox: { x: 20, y: 20, width: 120, height: 120 },
         landmarks: [],
-        timestamp: 25,
+        timestamp: { seconds: 25, frames: 0 },
         clipId: "clip_new",
         frameNumber: 750,
         embedding: [0.6, 0.7, 0.8],
@@ -162,8 +162,8 @@ describe("usePersonIdentification Tauri Integration", () => {
         faceEmbeddings: [],
         appearances: [],
         totalScreenTime: 0,
-        firstSeen: 25,
-        lastSeen: 25,
+        firstSeen: { seconds: 25, frames: 0 },
+        lastSeen: { seconds: 25, frames: 0 },
         tags: ["new"],
         thumbnails: [],
         privacy: {
@@ -195,12 +195,11 @@ describe("usePersonIdentification Tauri Integration", () => {
         "person_new",
         expect.objectContaining({
           faceId: "face_new",
-          personId: "person_new",
           vector: expect.any(Float32Array),
           quality: 0.93,
           clipId: "clip_new",
           frameNumber: 750,
-          timestamp: 25,
+          timestamp: { seconds: 25, frames: 0 },
         }),
       )
 
@@ -246,9 +245,9 @@ describe("usePersonIdentification Tauri Integration", () => {
       const newFace: DetectedFace = {
         id: "face_add",
         confidence: 0.88,
-        box: { x: 30, y: 30, width: 90, height: 90 },
+        bbox: { x: 30, y: 30, width: 90, height: 90 },
         landmarks: [],
-        timestamp: 60,
+        timestamp: { seconds: 60, frames: 0 },
         clipId: "clip_add",
         frameNumber: 1800,
         embedding: [0.4, 0.5, 0.6],
@@ -271,12 +270,11 @@ describe("usePersonIdentification Tauri Integration", () => {
         "person_existing",
         expect.objectContaining({
           faceId: "face_add",
-          personId: "person_existing",
           vector: expect.any(Float32Array),
           quality: 0.88,
           clipId: "clip_add",
           frameNumber: 1800,
-          timestamp: 60,
+          timestamp: { seconds: 60, frames: 0 },
         }),
       )
 
@@ -286,10 +284,10 @@ describe("usePersonIdentification Tauri Integration", () => {
         expect.objectContaining({
           personId: "person_existing",
           clipId: "clip_add",
-          startTime: 60,
-          endTime: 60,
+          startTime: { seconds: 60, frames: 0 },
+          endTime: { seconds: 60, frames: 0 },
           confidence: 0.88,
-          frameCount: 1,
+          detections: [newFace],
         }),
       )
     })

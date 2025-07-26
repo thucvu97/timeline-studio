@@ -85,7 +85,7 @@ describe("PersonDatabaseService Tauri Integration", () => {
 
       expect(invoke).toHaveBeenCalledWith("create_person", {
         name: "Test Person",
-        description: "Test description",
+        notes: "Test description",
         tags: ["test"],
       })
       expect(result).toEqual(mockPerson)
@@ -219,14 +219,13 @@ describe("PersonDatabaseService Tauri Integration", () => {
         id: "appear_123",
         personId: "person_123",
         clipId: "clip_123",
-        startTime: { seconds: 10 },
-        endTime: { seconds: 20 },
+        startTime: { seconds: 10, frames: 0 },
+        endTime: { seconds: 20, frames: 0 },
         duration: 10,
         confidence: 0.9,
         minConfidence: 0.85,
         maxConfidence: 0.95,
         detections: [],
-        frameCount: 300,
         createdAt: new Date().toISOString(),
       }
 
@@ -235,10 +234,10 @@ describe("PersonDatabaseService Tauri Integration", () => {
       expect(invoke).toHaveBeenCalledWith("add_person_appearance", {
         personId: "person_123",
         clipId: "clip_123",
-        startTime: { seconds: 10 },
-        endTime: { seconds: 20 },
+        startTime: { seconds: 10, frames: 0 },
+        endTime: { seconds: 20, frames: 0 },
         confidence: 0.9,
-        frameCount: 300,
+        detectionCount: 0,
       })
       expect(result).toBe(true)
     })
@@ -309,27 +308,27 @@ describe("PersonDatabaseService Tauri Integration", () => {
         {
           id: "face_1",
           confidence: 0.9,
-          box: { x: 0, y: 0, width: 100, height: 100 },
+          bbox: { x: 0, y: 0, width: 100, height: 100 },
           landmarks: [],
-          timestamp: 10,
+          timestamp: { seconds: 10, frames: 0 },
           clipId: "clip_1",
           embedding: [0.1, 0.2, 0.3],
         },
         {
           id: "face_2",
           confidence: 0.85,
-          box: { x: 50, y: 50, width: 100, height: 100 },
+          bbox: { x: 50, y: 50, width: 100, height: 100 },
           landmarks: [],
-          timestamp: 15,
+          timestamp: { seconds: 15, frames: 0 },
           clipId: "clip_1",
           embedding: [0.11, 0.21, 0.31], // Similar to face_1
         },
         {
           id: "face_3",
           confidence: 0.95,
-          box: { x: 200, y: 200, width: 100, height: 100 },
+          bbox: { x: 200, y: 200, width: 100, height: 100 },
           landmarks: [],
-          timestamp: 20,
+          timestamp: { seconds: 20, frames: 0 },
           clipId: "clip_2",
           embedding: [0.9, 0.8, 0.7], // Different person
         },

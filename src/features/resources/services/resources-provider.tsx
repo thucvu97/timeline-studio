@@ -256,7 +256,9 @@ export function ResourcesProviderV2({ children }: ResourcesProviderV2Props) {
   // Конвертируем медиа из backend в MediaResource формат
   const mediaResources: MediaResource[] = mediaPool?.items
     ? Object.values(mediaPool.items)
-      .filter((item) => item && (item.media_type === "Video" || item.media_type === "Image"))
+      .filter((item): item is NonNullable<typeof item> => 
+        item !== null && item !== undefined && (item.media_type === "Video" || item.media_type === "Image")
+      )
       .map((item) =>
         createMediaResource({
           id: item.id,
@@ -275,7 +277,9 @@ export function ResourcesProviderV2({ children }: ResourcesProviderV2Props) {
 
   const musicResources: MusicResource[] = mediaPool?.items
     ? Object.values(mediaPool.items)
-      .filter((item) => item && item.media_type === "Audio")
+      .filter((item): item is NonNullable<typeof item> => 
+        item !== null && item !== undefined && item.media_type === "Audio"
+      )
       .map((item) =>
         createMusicResource({
           id: item.id,

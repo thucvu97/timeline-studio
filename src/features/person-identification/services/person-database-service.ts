@@ -9,6 +9,7 @@ import { invoke } from "@tauri-apps/api/core"
 import {
   DetectedFace,
   FaceEmbedding,
+  FaceMatch,
   PersonAppearance,
   PersonEvent,
   PersonProfile,
@@ -16,6 +17,13 @@ import {
   PersonStats,
   PersonThumbnail,
 } from "../types/person"
+
+// Расширенный тип для лица с embedding
+interface DetectedFaceWithEmbedding extends DetectedFace {
+  embedding?: number[]
+  thumbnailUrl?: string
+  croppedImage?: string
+}
 
 // База данных конфигурация
 export interface DatabaseConfig {
@@ -197,8 +205,8 @@ export class PersonDatabaseService {
     if (this.config.storage === "tauri") {
       const person = await invoke<PersonProfile>("create_person", {
         name: personData.name,
-        description: personData.description,
         tags: personData.tags,
+        notes: (personData as any).description, // Используем notes вместо description
       })
 
       // Кэшируем
@@ -375,8 +383,7 @@ export class PersonDatabaseService {
             results.push({
               person,
               similarity: result.similarity,
-              confidence: result.confidence,
-              distance: 1 - result.similarity, // Преобразуем сходство в расстояние
+              matches: [], // TODO: заполнить matches
             })
           }
         }
@@ -491,7 +498,7 @@ export class PersonDatabaseService {
           startTime: appearance.startTime,
           endTime: appearance.endTime,
           confidence: appearance.confidence,
-          frameCount: appearance.frameCount,
+          detectionCount: appearance.detections.length,
         })
 
         this.emitEvent({
@@ -633,12 +640,12 @@ export class PersonDatabaseService {
   /**
    * Автоматическая кластеризация неопознанных лиц
    */
-  async clusterUnidentifiedFaces(detections: DetectedFace[], threshold = 0.8): Promise<PersonProfile[]> {
+  async clusterUnidentifiedFaces(detections: DetectedFaceWithEmbedding[], threshold = 0.8): Promise<PersonProfile[]> {
     await this.ensureInitialized()
 
     try {
       // Группируем детекции по сходству эмбеддингов
-      const clusters: DetectedFace[][] = []
+      const clusters: DetectedFaceWithEmbedding[][] = []
 
       for (const detection of detections) {
         let addedToCluster = false
@@ -738,8 +745,8 @@ export class PersonDatabaseService {
               await this.addPersonThumbnail(person.id, {
                 imageUrl: face.thumbnailUrl,
                 imageData: face.croppedImage,
-                width: face.box.width,
-                height: face.box.height,
+                width: face.bbox.width,
+                height: face.bbox.height,
                 isPrimary: true,
                 quality: face.confidence,
               })
@@ -1262,7 +1269,7 @@ export class PersonDatabaseService {
 
         // Проверяем сходство со средним эмбеддингом
         let maxSimilarity = 0
-        const matches: PersonMatch[] = []
+        const matches: FaceMatch[] = []
 
         // Если есть средний эмбеддинг, проверяем его
         if (person.averageEmbedding) {
@@ -1301,8 +1308,6 @@ export class PersonDatabaseService {
             person,
             similarity: maxSimilarity,
             matches: matches.slice(0, 5), // Ограничиваем количество совпадений
-            confidence: maxSimilarity,
-            distance: 1 - maxSimilarity,
           })
         }
       }

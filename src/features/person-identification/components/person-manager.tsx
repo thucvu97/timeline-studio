@@ -153,7 +153,7 @@ export function PersonManager({ className }: PersonManagerProps) {
       <div className="w-80 border-r bg-background">
         <PersonList
           persons={persons}
-          selectedPersonId={selectedPersonId}
+          selectedPersonId={selectedPersonId || undefined}
           onSelectPerson={handleSelectPerson}
           onEditPerson={handleEditPerson}
           onDeletePerson={handleDeletePerson}

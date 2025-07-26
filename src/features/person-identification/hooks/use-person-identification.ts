@@ -15,6 +15,13 @@ interface UsePersonIdentificationOptions {
   confidenceThreshold?: number
 }
 
+// Расширенный тип для лица с embedding
+interface DetectedFaceWithEmbedding extends DetectedFace {
+  embedding?: number[]
+  thumbnailUrl?: string
+  croppedImage?: string
+}
+
 export function usePersonIdentification(options: UsePersonIdentificationOptions = {}) {
   const { autoSave = true, confidenceThreshold = 0.7 } = options
 
@@ -143,7 +150,7 @@ export function usePersonIdentification(options: UsePersonIdentificationOptions 
 
   // Идентификация персоны по лицу
   const identifyPerson = useCallback(
-    async (detectedFace: DetectedFace): Promise<{ person: PersonProfile; confidence: number } | null> => {
+    async (detectedFace: DetectedFaceWithEmbedding): Promise<{ person: PersonProfile; confidence: number } | null> => {
       try {
         setError(null)
 
@@ -183,7 +190,7 @@ export function usePersonIdentification(options: UsePersonIdentificationOptions 
   // Создание персоны из обнаруженного лица
   const createPersonFromFace = useCallback(
     async (
-      detectedFace: DetectedFace,
+      detectedFace: DetectedFaceWithEmbedding,
       personData: {
         name: string
         description?: string
@@ -203,14 +210,11 @@ export function usePersonIdentification(options: UsePersonIdentificationOptions 
         if (detectedFace.embedding && detectedFace.embedding.length > 0) {
           await personDatabase.addEmbedding(newPerson.id, {
             faceId: detectedFace.id,
-            personId: newPerson.id,
             vector: new Float32Array(detectedFace.embedding),
             quality: detectedFace.confidence,
             clipId: detectedFace.clipId,
-            frameNumber: detectedFace.frameNumber || 0,
+            frameNumber: detectedFace.frameNumber,
             timestamp: detectedFace.timestamp,
-            landmarks: detectedFace.landmarks,
-            createdAt: new Date().toISOString(),
           })
         }
 
@@ -219,8 +223,8 @@ export function usePersonIdentification(options: UsePersonIdentificationOptions 
           await personDatabase.addPersonThumbnail(newPerson.id, {
             imageUrl: detectedFace.thumbnailUrl,
             imageData: detectedFace.croppedImage,
-            width: detectedFace.box.width,
-            height: detectedFace.box.height,
+            width: detectedFace.bbox.width,
+            height: detectedFace.bbox.height,
             isPrimary: true,
             quality: detectedFace.confidence,
           })
@@ -238,7 +242,7 @@ export function usePersonIdentification(options: UsePersonIdentificationOptions 
 
   // Добавление лица к существующей персоне
   const addFaceToPerson = useCallback(
-    async (personId: string, detectedFace: DetectedFace): Promise<void> => {
+    async (personId: string, detectedFace: DetectedFaceWithEmbedding): Promise<void> => {
       try {
         setError(null)
 
@@ -251,14 +255,11 @@ export function usePersonIdentification(options: UsePersonIdentificationOptions 
         if (detectedFace.embedding && detectedFace.embedding.length > 0) {
           await personDatabase.addEmbedding(personId, {
             faceId: detectedFace.id,
-            personId,
             vector: new Float32Array(detectedFace.embedding),
             quality: detectedFace.confidence,
             clipId: detectedFace.clipId,
-            frameNumber: detectedFace.frameNumber || 0,
+            frameNumber: detectedFace.frameNumber,
             timestamp: detectedFace.timestamp,
-            landmarks: detectedFace.landmarks,
-            createdAt: new Date().toISOString(),
           })
         }
 
@@ -274,7 +275,6 @@ export function usePersonIdentification(options: UsePersonIdentificationOptions 
           minConfidence: detectedFace.confidence,
           maxConfidence: detectedFace.confidence,
           detections: [detectedFace],
-          frameCount: 1,
           createdAt: new Date().toISOString(),
         })
 

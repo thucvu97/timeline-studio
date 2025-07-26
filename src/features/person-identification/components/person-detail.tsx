@@ -13,13 +13,25 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-import type { PersonAppearance, PersonProfile } from "../types/person"
+import type { PersonAppearance, PersonProfile, Timecode } from "../types/person"
 
 interface PersonDetailProps {
   person: PersonProfile
   appearances?: PersonAppearance[]
   onEdit: () => void
   onClose: () => void
+}
+
+// Вспомогательная функция для форматирования Timecode
+function formatTimecode(timecode: Timecode): string {
+  const hours = Math.floor(timecode.seconds / 3600)
+  const minutes = Math.floor((timecode.seconds % 3600) / 60)
+  const seconds = Math.floor(timecode.seconds % 60)
+  
+  if (hours > 0) {
+    return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+  }
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`
 }
 
 export function PersonDetail({ person, appearances = [], onEdit, onClose }: PersonDetailProps) {
@@ -59,7 +71,7 @@ export function PersonDetail({ person, appearances = [], onEdit, onClose }: Pers
           </div>
           <div>
             <h2 className="text-lg font-semibold">{person.name}</h2>
-            {person.description && <p className="text-sm text-muted-foreground">{person.description}</p>}
+            {person.notes && <p className="text-sm text-muted-foreground">{person.notes}</p>}
           </div>
         </div>
 
@@ -78,7 +90,7 @@ export function PersonDetail({ person, appearances = [], onEdit, onClose }: Pers
         <Tabs value={selectedTab} onValueChange={setSelectedTab}>
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="overview">Обзор</TabsTrigger>
-            <TabsTrigger value="faces">Лица ({person.detectedFaces?.length || 0})</TabsTrigger>
+            <TabsTrigger value="faces">Лица ({person.faceEmbeddings?.length || 0})</TabsTrigger>
             <TabsTrigger value="timeline">Появления ({totalAppearances})</TabsTrigger>
           </TabsList>
 
@@ -89,17 +101,17 @@ export function PersonDetail({ person, appearances = [], onEdit, onClose }: Pers
               <div className="space-y-3">
                 <div className="flex items-center space-x-2">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">Создан: {person.createdAt.toLocaleDateString("ru")}</span>
+                  <span className="text-sm">Первое появление: {formatTimecode(person.firstSeen)}</span>
                 </div>
 
                 <div className="flex items-center space-x-2">
                   <Clock className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">Обновлен: {person.updatedAt.toLocaleDateString("ru")}</span>
+                  <span className="text-sm">Последнее появление: {formatTimecode(person.lastSeen)}</span>
                 </div>
 
                 <div className="flex items-center space-x-2">
                   <Camera className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">Лиц обнаружено: {person.detectedFaces?.length || 0}</span>
+                  <span className="text-sm">Лиц обнаружено: {person.faceEmbeddings?.length || 0}</span>
                 </div>
               </div>
 
@@ -141,18 +153,11 @@ export function PersonDetail({ person, appearances = [], onEdit, onClose }: Pers
               </div>
             )}
 
-            {/* Метаданные */}
-            {person.metadata && Object.keys(person.metadata).length > 0 && (
+            {/* Заметки */}
+            {person.notes && (
               <div>
-                <h3 className="text-sm font-medium mb-2">Дополнительная информация</h3>
-                <div className="space-y-1">
-                  {Object.entries(person.metadata).map(([key, value]) => (
-                    <div key={key} className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">{key}:</span>
-                      <span>{String(value)}</span>
-                    </div>
-                  ))}
-                </div>
+                <h3 className="text-sm font-medium mb-2">Заметки</h3>
+                <p className="text-sm text-muted-foreground">{person.notes}</p>
               </div>
             )}
           </TabsContent>
@@ -207,7 +212,7 @@ export function PersonDetail({ person, appearances = [], onEdit, onClose }: Pers
                             <div className="flex items-center space-x-2">
                               <Clock className="h-3 w-3 text-muted-foreground" />
                               <span>
-                                {Math.round(appearance.startTime)}с - {Math.round(appearance.endTime)}с
+                                {formatTimecode(appearance.startTime)} - {formatTimecode(appearance.endTime)}
                               </span>
                             </div>
                             <div className="flex space-x-2">
