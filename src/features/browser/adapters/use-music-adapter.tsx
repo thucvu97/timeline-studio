@@ -58,7 +58,7 @@ const MusicPreviewWrapper: React.FC<PreviewComponentProps<MediaFile>> = ({
     "music",
     () => file,
     () => ({
-      url: file.thumbnail || file.path,
+      url: file.thumbnailPath || file.path,
       width: 120,
       height: 80,
     }),
@@ -225,8 +225,12 @@ export function useMusicAdapter(): ListAdapter<MediaFile> {
 
     // Обработчики импорта
     importHandlers: {
-      importFile,
-      importFolder: importDirectory,
+      importFile: async () => {
+        await importFile()
+      },
+      importFolder: async () => {
+        await importDirectory()
+      },
       isImporting,
     },
 

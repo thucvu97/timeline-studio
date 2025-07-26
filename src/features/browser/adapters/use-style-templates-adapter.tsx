@@ -27,7 +27,7 @@ const StyleTemplatePreviewWrapper: React.FC<PreviewComponentProps<StyleTemplate>
     "template",
     () => template,
     () => ({
-      url: template.thumbnail || `/style-templates/${template.id}.png`,
+      url: template.thumbnailPath || `/style-templates/${template.id}.png`,
       width: 120,
       height: 80,
     }),
@@ -52,8 +52,8 @@ const StyleTemplatePreviewWrapper: React.FC<PreviewComponentProps<StyleTemplate>
       >
         {/* Template preview thumbnail */}
         <div className="flex-shrink-0 w-16 h-9 bg-gray-100 rounded overflow-hidden relative">
-          {template.thumbnail ? (
-            <img src={template.thumbnail} alt={template.name} className="w-full h-full object-cover" />
+          {template.thumbnailPath ? (
+            <img src={template.thumbnailPath} alt={template.name} className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
               <span className="text-white text-xs font-bold">{template.name.substring(0, 2).toUpperCase()}</span>

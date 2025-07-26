@@ -114,7 +114,7 @@ export async function loadAllResourcesLazy(signal?: AbortSignal): Promise<{
         : {
           success: false,
           data: [],
-          error: effects.status === "rejected" ? String(effects.reason) : "Unknown error",
+          error: effects.reason ? String(effects.reason) : "Unknown error",
           source: "built-in",
           timestamp: Date.now(),
         },
@@ -124,7 +124,7 @@ export async function loadAllResourcesLazy(signal?: AbortSignal): Promise<{
         : {
           success: false,
           data: [],
-          error: filters.status === "rejected" ? String(filters.reason) : "Unknown error",
+          error: filters.reason ? String(filters.reason) : "Unknown error",
           source: "built-in",
           timestamp: Date.now(),
         },
@@ -134,7 +134,7 @@ export async function loadAllResourcesLazy(signal?: AbortSignal): Promise<{
         : {
           success: false,
           data: [],
-          error: transitions.status === "rejected" ? String(transitions.reason) : "Unknown error",
+          error: transitions.reason ? String(transitions.reason) : "Unknown error",
           source: "built-in",
           timestamp: Date.now(),
         },

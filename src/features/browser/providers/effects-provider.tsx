@@ -66,6 +66,7 @@ const EffectsProviderContextValue = createContext<EffectsProviderContext | null>
  * Внутренняя реализация EffectsProvider API
  */
 class EffectsProviderImpl implements EffectsProviderAPI {
+  private config: LoadingConfig
   private resources = new Map<string, Resource[]>()
   private cache: ResourceCache = {}
   private loadingState: LoadingState = {

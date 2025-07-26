@@ -1,7 +1,8 @@
 import React from "react"
 
 import { useAppSettings } from "@/features/app-state"
-import { MediaPreview } from "@/features/browser/components/preview/media-preview"
+import { Card } from "@/components/ui/card"
+import { cn } from "@/lib/utils"
 import { parseDuration, parseFileSize } from "@/features/browser/utils"
 import { getFileType } from "@/features/media"
 import { MediaFile } from "@/features/media/types/media"
@@ -25,18 +26,28 @@ const MediaPreviewWrapper: React.FC<PreviewComponentProps<MediaFile>> = ({
   onToggleFavorite,
   onAddToTimeline,
 }) => {
+  const duration = item.duration ? parseDuration(item.duration) : "00:00"
+  const fileSize = item.size ? parseFileSize(item.size) : "0 KB"
+  const fileType = getFileType(item)
+  
   return (
-    <MediaPreview
-      file={item}
-      previewSize={size}
-      viewMode={viewMode}
-      onSelect={() => onClick?.(item)}
-      onDragStart={(e) => onDragStart?.(item, e)}
-      isSelected={isSelected}
-      isFavorite={isFavorite}
-      onToggleFavorite={() => onToggleFavorite?.(item)}
-      onAddToTimeline={() => onAddToTimeline?.(item)}
-    />
+    <Card
+      className={cn(
+        "cursor-pointer transition-all",
+        isSelected && "ring-2 ring-primary",
+        viewMode === "list" ? "p-2" : "p-4"
+      )}
+      onClick={() => onClick?.(item)}
+      onDragStart={(e: React.DragEvent) => onDragStart?.(item, e)}
+      draggable
+    >
+      <div className="flex flex-col gap-2">
+        <h3 className="font-medium truncate">{item.name}</h3>
+        <div className="text-sm text-muted-foreground">
+          <p>{duration} • {fileSize} • {fileType}</p>
+        </div>
+      </div>
+    </Card>
   )
 }
 
@@ -47,12 +58,12 @@ export const MediaAdapter: ListAdapter<MediaFile> = {
   // Хук для получения данных
   useData: () => {
     const { connectionError, projectState } = useAppSettings()
-    const allMediaFiles = projectState?.mediaFiles?.allFiles || []
+    const allMediaFiles = projectState?.mediaFiles || []
 
     return {
       items: allMediaFiles,
       loading: false, // V2 не использует общий loading состояние
-      error: connectionError,
+      error: connectionError ? new Error(connectionError) : null,
     }
   },
 

@@ -4,14 +4,14 @@ import { useFavorites } from "@/features/app-state"
 import { useEffectsAdapter as useUnifiedEffectsAdapter } from "@/features/browser/hooks/use-resources"
 import { useDraggable } from "@/features/drag-drop"
 import { EffectPreview } from "@/features/effects/components/effect-preview"
-import { VideoEffect } from "@/features/effects/types"
+import { BaseEffect } from "@/features/effects/types"
 
 import type { ListAdapter, PreviewComponentProps } from "../types/list"
 
 /**
  * Компонент превью для эффектов
  */
-const EffectPreviewWrapper: React.FC<PreviewComponentProps<VideoEffect>> = ({
+const EffectPreviewWrapper: React.FC<PreviewComponentProps<BaseEffect>> = ({
   item: effect,
   size,
   viewMode,
@@ -96,14 +96,14 @@ const EffectPreviewWrapper: React.FC<PreviewComponentProps<VideoEffect>> = ({
  * Хук для создания адаптера эффектов
  * Мигрирован на унифицированную систему browser-хуков
  */
-export function useEffectsAdapter(): ListAdapter<VideoEffect> {
+export function useEffectsAdapter(): ListAdapter<BaseEffect> {
   const { isItemFavorite } = useFavorites()
 
   // Используем унифицированный адаптер с конфигурацией для эффектов
   const adapter = useUnifiedEffectsAdapter({
     PreviewComponent: EffectPreviewWrapper,
     customHandlers: {
-      getSortValue: (effect: VideoEffect, sortBy: string) => {
+      getSortValue: (effect: BaseEffect, sortBy: string) => {
         switch (sortBy) {
           case "name":
             // effect.name - это объект с локализацией, используем английскую версию
@@ -112,36 +112,35 @@ export function useEffectsAdapter(): ListAdapter<VideoEffect> {
             return effect.category.toLowerCase()
           case "complexity":
             // Определяем порядок сложности: basic < intermediate < advanced
-            const complexityOrder: Record<string, number> = { basic: 0, intermediate: 1, advanced: 2 }
-            return complexityOrder[effect.complexity || "basic"]
-          case "type":
-            return (effect.type || "").toLowerCase()
+            const complexityOrder: Record<string, number> = { low: 0, medium: 1, high: 2, extreme: 3 }
+            return complexityOrder[effect.complexity || "low"]
+          case "processingType":
+            return effect.processingType
           default:
             return (effect.name?.en || effect.name?.ru || "").toLowerCase()
         }
       },
-      getSearchableText: (effect: VideoEffect) => {
+      getSearchableText: (effect: BaseEffect) => {
         const texts = [
           effect.name?.ru || "",
           effect.name?.en || "",
-          effect.labels?.ru || "",
-          effect.labels?.en || "",
+          // labels removed - not in BaseEffect
           effect.description?.ru || "",
           effect.description?.en || "",
           effect.category,
-          effect.type || "",
+          effect.processingType,
           ...(effect.tags || []),
         ]
         return texts.filter(Boolean)
       },
-      getGroupValue: (effect: VideoEffect, groupBy: string) => {
+      getGroupValue: (effect: BaseEffect, groupBy: string) => {
         switch (groupBy) {
           case "category":
             return effect.category || "other"
           case "complexity":
             return effect.complexity || "basic"
-          case "type":
-            return effect.type || "unknown"
+          case "processingType":
+            return effect.processingType || "render"
           case "tags":
             // Группируем по первому тегу или "untagged"
             return effect.tags && effect.tags.length > 0 ? effect.tags[0] : "untagged"
@@ -149,7 +148,7 @@ export function useEffectsAdapter(): ListAdapter<VideoEffect> {
             return ""
         }
       },
-      matchesFilter: (effect: VideoEffect, filterType: string) => {
+      matchesFilter: (effect: BaseEffect, filterType: string) => {
         if (filterType === "all") return true
 
         // Фильтрация по сложности
@@ -176,6 +175,6 @@ export function useEffectsAdapter(): ListAdapter<VideoEffect> {
   return {
     ...adapter,
     // Проверка избранного (переопределяем)
-    isFavorite: (effect: VideoEffect) => isItemFavorite(effect, "effect"),
+    isFavorite: (effect: BaseEffect) => isItemFavorite(effect, "effect"),
   }
 }

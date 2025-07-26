@@ -22,7 +22,7 @@ const MediaPreviewWrapper: React.FC<PreviewComponentProps<MediaFile>> = ({ item:
     "media",
     () => file,
     () => ({
-      url: file.thumbnail || file.path,
+      url: file.thumbnailPath || file.path,
       width: 120,
       height: 80,
     }),
@@ -162,8 +162,12 @@ export function useMediaAdapter(): ListAdapter<MediaFile> {
 
     // Обработчики импорта
     importHandlers: {
-      importFile,
-      importFolder,
+      importFile: async () => {
+        await importFile()
+      },
+      importFolder: async () => {
+        await importFolder()
+      },
       isImporting,
     },
 
