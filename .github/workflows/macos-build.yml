@@ -138,12 +138,34 @@ jobs:
         run: |
           cd src-tauri
           # Remove development-only binaries that shouldn't be bundled
-          rm -f target/universal-apple-darwin/release/generate_types
-          rm -f target/universal-apple-darwin/release/export_types
-          rm -f target/x86_64-apple-darwin/release/generate_types
-          rm -f target/x86_64-apple-darwin/release/export_types
-          rm -f target/aarch64-apple-darwin/release/generate_types
-          rm -f target/aarch64-apple-darwin/release/export_types
+          echo "Cleaning development binaries..."
+          
+          # Clean all possible locations where these binaries might exist
+          for arch in universal-apple-darwin x86_64-apple-darwin aarch64-apple-darwin; do
+            for profile in release debug; do
+              rm -f "target/$arch/$profile/generate_types" 2>/dev/null || true
+              rm -f "target/$arch/$profile/export_types" 2>/dev/null || true
+              rm -f "target/$arch/$profile/test_specta" 2>/dev/null || true
+            done
+          done
+          
+          # Also clean from the general release/debug directories
+          rm -f target/release/generate_types 2>/dev/null || true
+          rm -f target/release/export_types 2>/dev/null || true
+          rm -f target/release/test_specta 2>/dev/null || true
+          rm -f target/debug/generate_types 2>/dev/null || true
+          rm -f target/debug/export_types 2>/dev/null || true
+          rm -f target/debug/test_specta 2>/dev/null || true
+          
+          # Clean fingerprint files that might reference these binaries
+          find target -path "*/.fingerprint/*" -name "*generate_types*.json" -type f -delete 2>/dev/null || true
+          find target -path "*/.fingerprint/*" -name "*export_types*.json" -type f -delete 2>/dev/null || true
+          find target -path "*/.fingerprint/*" -name "*test_specta*.json" -type f -delete 2>/dev/null || true
+          
+          # Final sweep to remove any remaining files
+          find target -name "*generate_types*" -type f -delete 2>/dev/null || true
+          find target -name "*export_types*" -type f -delete 2>/dev/null || true
+          
           cd ..
 
       - name: Build the app (macOS universal)
