@@ -55,13 +55,10 @@ vi.mock("@/components/ui/select", () => ({
   SelectValue: ({ placeholder }: any) => <span>{placeholder}</span>,
 }))
 
-// Mock child components
-vi.mock("../midi-learn-dialog", () => ({
-  MidiLearnDialog: ({ onComplete }: any) => (
-    <button onClick={() => onComplete?.("device1", { type: "cc", channel: 1, data: { controller: 7 } }, "test.param")}>
-      MidiLearnDialog
-    </button>
-  ),
+// Mock useModal hook
+const mockOpenModal = vi.fn()
+vi.mock("@/features/modals/services", () => ({
+  useModal: () => ({ openModal: mockOpenModal }),
 }))
 
 vi.mock("../midi-mapping-editor", () => ({
@@ -125,6 +122,7 @@ vi.mock("../../../hooks/use-midi", () => ({
 describe("MidiSetup", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockOpenModal.mockClear()
     resetSelectStates()
     mockUseMidi.isInitialized = true
     mockUseMidi.error = null
@@ -317,7 +315,7 @@ describe("MidiSetup", () => {
       expect(screen.getByText("fairlightAudio.midi.setup.mappings.addFirstMapping")).toBeInTheDocument()
     })
 
-    it("should render MIDI learn dialog", async () => {
+    it("should render add mapping button", async () => {
       render(<MidiSetup />)
 
       // Click on mappings tab
@@ -329,11 +327,23 @@ describe("MidiSetup", () => {
         expect(screen.getByText("fairlightAudio.midi.setup.mappings.title")).toBeInTheDocument()
       })
 
-      // Check for MidiLearnDialog
-      expect(screen.getByText("MidiLearnDialog")).toBeInTheDocument()
+      // Check for add mapping button
+      expect(screen.getByText("fairlightAudio.midi.setup.mappings.addMapping")).toBeInTheDocument()
     })
 
     it("should handle adding mapping", async () => {
+      // Setup mock to immediately call onComplete
+      mockOpenModal.mockImplementation((modalId, props) => {
+        if (modalId === "midi-learn" && props.onComplete) {
+          // Simulate completing MIDI learn
+          props.onComplete(
+            { id: "device1", name: "MIDI Device 1", type: "input", manufacturer: "Test", state: "connected" },
+            { type: "cc", channel: 1, data: { controller: 7 } },
+            "test.param"
+          )
+        }
+      })
+
       render(<MidiSetup />)
 
       // Click on mappings tab
@@ -345,9 +355,10 @@ describe("MidiSetup", () => {
         expect(screen.getByText("fairlightAudio.midi.setup.mappings.title")).toBeInTheDocument()
       })
 
-      const learnButton = screen.getByText("MidiLearnDialog")
-      fireEvent.click(learnButton)
+      const addButton = screen.getByText("fairlightAudio.midi.setup.mappings.addMapping")
+      fireEvent.click(addButton)
 
+      expect(mockOpenModal).toHaveBeenCalledWith("midi-learn", expect.any(Object))
       expect(mockUseMidi.addMapping).toHaveBeenCalledWith({
         deviceId: "device1",
         messageType: "cc",

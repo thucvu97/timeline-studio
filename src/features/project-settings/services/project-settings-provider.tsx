@@ -91,8 +91,22 @@ export function ProjectSettingsProviderV2({ children }: ProjectSettingsProviderV
     await updateSettings(DEFAULT_PROJECT_SETTINGS)
   }, [updateSettings])
 
-  // Извлекаем настройки из backend состояния
-  const settings: ProjectSettings = backendState?.project?.settings || DEFAULT_PROJECT_SETTINGS
+  // Извлекаем настройки из backend состояния и преобразуем в frontend формат
+  const settings: ProjectSettings = React.useMemo(() => {
+    if (!backendState?.project?.settings) {
+      return DEFAULT_PROJECT_SETTINGS
+    }
+    
+    const backendSettings = backendState.project.settings
+    
+    // Преобразуем backend настройки в frontend формат
+    return {
+      resolution: `${backendSettings.resolution.width}x${backendSettings.resolution.height}`,
+      frameRate: backendSettings.frame_rate.toString() as any,
+      colorSpace: "sdr" as const, // По умолчанию, так как backend не хранит colorSpace
+      aspectRatio: DEFAULT_PROJECT_SETTINGS.aspectRatio, // По умолчанию, так как backend не хранит aspectRatio
+    }
+  }, [backendState?.project?.settings])
 
   // Контекстное значение
   const contextValue: ProjectSettingsContextTypeV2 = {

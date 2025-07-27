@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { usePersonIdentification } from "../../hooks/use-person-identification"
 import { PersonDatabaseService } from "../../services/person-database-service"
 
-import type { DetectedFace, FaceEmbedding, PersonProfile } from "../../types"
+import type { DetectedFace, FaceEmbedding, PersonAppearance, PersonProfile } from "../../types/person"
 
 // Mock PersonDatabaseService
 vi.mock("../../services/person-database-service", () => ({
@@ -67,9 +67,12 @@ describe("usePersonIdentification Tauri Integration", () => {
       const detectedFace: DetectedFace = {
         id: "face_123",
         confidence: 0.95,
-        box: { x: 10, y: 10, width: 100, height: 100 },
+        bbox: { x: 10, y: 10, width: 100, height: 100 },
         landmarks: [],
-        timestamp: 10.5,
+        timestamp: { seconds: 10, frames: 15 },
+        blur: 0,
+        occlusion: 0,
+        pose: { yaw: 0, pitch: 0, roll: 0 },
         clipId: "clip_123",
         frameNumber: 315,
         embedding: [0.1, 0.2, 0.3, 0.4, 0.5], // 5D embedding for test
@@ -299,25 +302,37 @@ describe("usePersonIdentification Tauri Integration", () => {
         {
           id: "face_cluster_1",
           confidence: 0.91,
-          box: { x: 0, y: 0, width: 80, height: 80 },
+          bbox: { x: 0, y: 0, width: 80, height: 80 },
           landmarks: [],
-          timestamp: 10,
+          timestamp: { seconds: 10 },
+          blur: 0,
+          occlusion: 0,
+          pose: { yaw: 0, pitch: 0, roll: 0 },
+          frameNumber: 300,
           embedding: [0.1, 0.2, 0.3],
         },
         {
           id: "face_cluster_2",
           confidence: 0.89,
-          box: { x: 10, y: 10, width: 80, height: 80 },
+          bbox: { x: 10, y: 10, width: 80, height: 80 },
           landmarks: [],
-          timestamp: 15,
+          timestamp: { seconds: 15 },
+          blur: 0,
+          occlusion: 0,
+          pose: { yaw: 0, pitch: 0, roll: 0 },
+          frameNumber: 450,
           embedding: [0.11, 0.21, 0.31], // Similar
         },
         {
           id: "face_cluster_3",
           confidence: 0.92,
-          box: { x: 200, y: 200, width: 80, height: 80 },
+          bbox: { x: 200, y: 200, width: 80, height: 80 },
           landmarks: [],
-          timestamp: 20,
+          timestamp: { seconds: 20 },
+          blur: 0,
+          occlusion: 0,
+          pose: { yaw: 0, pitch: 0, roll: 0 },
+          frameNumber: 600,
           embedding: [0.8, 0.9, 0.7], // Different
         },
       ]
@@ -331,8 +346,8 @@ describe("usePersonIdentification Tauri Integration", () => {
           averageEmbedding: new Float32Array([0.105, 0.205, 0.305]),
           appearances: [],
           totalScreenTime: 0,
-          firstSeen: 10,
-          lastSeen: 15,
+          firstSeen: { seconds: 10 },
+          lastSeen: { seconds: 15 },
           tags: ["auto_generated", "clustered"],
           thumbnails: [],
           privacy: {

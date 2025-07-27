@@ -8,15 +8,16 @@ import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useModal } from "@/features/modals/services"
 
-import { MidiLearnDialog } from "./midi-learn-dialog"
 import { MidiMappingEditor } from "./midi-mapping-editor"
 import { MidiRouterView } from "./midi-router-view"
 import { useMidi } from "../../hooks/use-midi"
-import { MidiDevice } from "../../services/midi/midi-engine"
+import { MidiDevice, MidiMessage } from "../../services/midi/midi-engine"
 
 export function MidiSetup() {
   const { t } = useTranslation()
+  const { openModal } = useModal()
   const {
     devices,
     inputDevices,
@@ -151,21 +152,27 @@ export function MidiSetup() {
         <TabsContent value="mappings" className="space-y-4">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-sm font-semibold text-zinc-100">{t("fairlightAudio.midi.setup.mappings.title")}</h3>
-            <MidiLearnDialog
-              devices={inputDevices}
-              onComplete={(deviceId, message, targetParameter) => {
-                addMapping({
-                  deviceId,
-                  messageType: message.type,
-                  channel: message.channel,
-                  controller: message.data.controller,
-                  targetParameter,
-                  min: 0,
-                  max: 1,
-                  curve: "linear",
+            <Button
+              onClick={() =>
+                openModal("midi-learn", {
+                  devices: inputDevices,
+                  onComplete: (device: MidiDevice, message: MidiMessage, targetParameter: string) => {
+                    addMapping({
+                      deviceId: device.id,
+                      messageType: message.type,
+                      channel: message.channel,
+                      controller: message.data.controller,
+                      targetParameter,
+                      min: 0,
+                      max: 1,
+                      curve: "linear",
+                    })
+                  },
                 })
-              }}
-            />
+              }
+            >
+              {t("fairlightAudio.midi.setup.mappings.addMapping")}
+            </Button>
           </div>
 
           {mappings.length === 0 ? (

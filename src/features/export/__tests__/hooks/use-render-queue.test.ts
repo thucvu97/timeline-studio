@@ -69,7 +69,7 @@ describe("useRenderQueue", () => {
       id: "job-2",
       project_name: "Project 2",
       output_path: "/path/to/output2.mp4",
-      status: RenderStatus.Queued,
+      status: RenderStatus.Pending,
       created_at: new Date().toISOString(),
       progress: {
         job_id: "job-2",
@@ -78,7 +78,7 @@ describe("useRenderQueue", () => {
         current_frame: 0,
         total_frames: 1200,
         elapsed_time: 0,
-        status: RenderStatus.Queued,
+        status: RenderStatus.Pending,
       },
     },
   ]

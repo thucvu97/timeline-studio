@@ -198,6 +198,6 @@ export function getOptimalSettings(): Partial<SocialExportSettings> {
     resolution: "1080",
     frameRate: "30",
     format: "Mp4" as any,
-    quality: "high",
+    quality: "best",
   }
 }

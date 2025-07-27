@@ -8,15 +8,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider"
 import { useModal } from "@/features/modals/services"
 
+import { MidiMapping } from "../../services/midi/midi-engine"
+
 export function MidiMappingEditorModal() {
   const { t } = useTranslation()
   const { modalData, closeModal } = useModal()
 
-  const { mapping, onSave } = modalData || {}
+  const { mapping, onSave } = (modalData || {}) as {
+    mapping?: MidiMapping
+    onSave?: (updates: Partial<MidiMapping>) => void
+  }
 
-  const [min, setMin] = useState(mapping?.min || 0)
-  const [max, setMax] = useState(mapping?.max || 1)
-  const [curve, setCurve] = useState(mapping?.curve || "linear")
+  const [min, setMin] = useState(mapping?.min ?? 0)
+  const [max, setMax] = useState(mapping?.max ?? 1)
+  const [curve, setCurve] = useState<"linear" | "exponential" | "logarithmic">(mapping?.curve ?? "linear")
 
   const handleSave = () => {
     if (onSave) {

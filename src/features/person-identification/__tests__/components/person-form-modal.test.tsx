@@ -198,7 +198,7 @@ describe("PersonFormModal", () => {
     const mockFileReader = {
       readAsDataURL: vi.fn(),
       result: "data:image/png;base64,test",
-      onloadend: null,
+      onloadend: null as ((event: ProgressEvent) => void) | null,
     }
 
     global.FileReader = vi.fn(() => mockFileReader) as any
@@ -208,7 +208,7 @@ describe("PersonFormModal", () => {
     // Trigger onloadend
     await waitFor(() => {
       if (mockFileReader.onloadend) {
-        mockFileReader.onloadend()
+        mockFileReader.onloadend({} as ProgressEvent)
       }
     })
 
@@ -359,7 +359,7 @@ describe("PersonFormModal", () => {
           // Simulate async file reading
           setTimeout(() => {
             if (mockFileReader.onloadend) {
-              mockFileReader.onloadend()
+              mockFileReader.onloadend({} as ProgressEvent)
             }
           }, 0)
         }),

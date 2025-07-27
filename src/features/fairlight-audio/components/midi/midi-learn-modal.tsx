@@ -16,7 +16,10 @@ export function MidiLearnModal() {
   const { modalData, closeModal } = useModal()
   const { startLearning } = useMidi()
 
-  const { devices = [], onComplete } = modalData || {}
+  const { devices = [], onComplete } = (modalData || {}) as {
+    devices?: MidiDevice[]
+    onComplete?: (device: MidiDevice, message: MidiMessage, targetParameter: string) => void
+  }
 
   const PARAMETER_OPTIONS = [
     { value: "channel.1.volume", label: t("fairlightAudio.midi.learnDialog.parameters.channel1Volume") },
@@ -67,8 +70,11 @@ export function MidiLearnModal() {
 
   const handleComplete = () => {
     if (selectedDevice && targetParameter && receivedMessage && onComplete) {
-      onComplete(selectedDevice, receivedMessage, targetParameter)
-      closeModal()
+      const device = devices.find((d: MidiDevice) => d.id === selectedDevice)
+      if (device) {
+        onComplete(device, receivedMessage, targetParameter)
+        closeModal()
+      }
     }
   }
 

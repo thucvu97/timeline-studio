@@ -6,7 +6,7 @@ import { toast } from "sonner"
 
 import { SOCIAL_NETWORKS } from "../constants/export-constants"
 import * as SocialNetworksService from "../services/social-networks-service"
-import { validateExportSettings } from "../services/social-validation-service"
+import { getNetworkLimits as getNetworkLimitsFromService, getOptimalSettings as getOptimalSettingsFromService, validateExportSettings } from "../services/social-validation-service"
 import { SocialExportSettings } from "../types/export-types"
 
 export function useSocialExport() {
@@ -56,15 +56,19 @@ export function useSocialExport() {
         const fileData = await readFile(videoPath)
         const videoBlob = new Blob([fileData], { type: "video/mp4" })
 
-        const result = await SocialNetworksService.uploadVideo(network.id, videoBlob, {
-          title: settings.title || "Untitled Video",
-          description: settings.description || "",
-          tags: settings.tags || [],
-          privacy: settings.privacy || "public",
-          onProgress: (progress: number) => {
+        const result = await SocialNetworksService.uploadVideo(
+          network.id,
+          videoBlob,
+          {
+            title: settings.title || "Untitled Video",
+            description: settings.description || "",
+            tags: settings.tags || [],
+            privacy: settings.privacy || "public",
+          },
+          (progress: number) => {
             setUploadProgress(progress)
           },
-        })
+        )
 
         setIsUploading(false)
         setUploadProgress(100)
@@ -110,11 +114,11 @@ export function useSocialExport() {
   )
 
   const getOptimalSettings = useCallback((networkId: string) => {
-    return getOptimalSettings(networkId)
+    return getOptimalSettingsFromService(networkId)
   }, [])
 
   const getNetworkLimits = useCallback((networkId: string) => {
-    return getNetworkLimits(networkId)
+    return getNetworkLimitsFromService(networkId)
   }, [])
 
   return {

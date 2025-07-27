@@ -35,6 +35,14 @@ export interface Effect {
   blendMode?: string
 }
 
+export interface EffectChain {
+  id: string
+  name: string
+  effects: Effect[]
+  enabled: boolean
+  order: number
+}
+
 export interface ColorCorrectionParams {
   brightness: number // -1 to 1
   contrast: number // 0 to 2

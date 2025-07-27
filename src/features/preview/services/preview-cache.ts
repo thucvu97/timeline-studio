@@ -171,10 +171,13 @@ export class PreviewCache {
    * Evict oldest entry (LRU)
    */
   private evictOldest(): void {
-    const [oldestKey, oldestEntry] = this.cache.entries().next().value
-    if (oldestKey && oldestEntry) {
-      this.cache.delete(oldestKey)
-      this.currentSizeBytes -= oldestEntry.size
+    const entryResult = this.cache.entries().next()
+    if (!entryResult.done) {
+      const [oldestKey, oldestEntry] = entryResult.value
+      if (oldestKey && oldestEntry) {
+        this.cache.delete(oldestKey)
+        this.currentSizeBytes -= oldestEntry.size
+      }
     }
   }
 

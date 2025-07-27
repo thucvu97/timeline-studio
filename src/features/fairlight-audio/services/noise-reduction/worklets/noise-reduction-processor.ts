@@ -3,6 +3,25 @@
  * Modern replacement for ScriptProcessorNode
  */
 
+// Simple FFT processor for worklet
+class FFTProcessor {
+  private size: number
+
+  constructor(size: number) {
+    this.size = size
+  }
+
+  forward(input: Float32Array): Float32Array {
+    // Simple placeholder for FFT forward transform
+    return new Float32Array(this.size)
+  }
+
+  inverse(input: Float32Array): Float32Array {
+    // Simple placeholder for FFT inverse transform
+    return new Float32Array(this.size)
+  }
+}
+
 // This code runs in AudioWorkletGlobalScope
 class NoiseReductionProcessor extends AudioWorkletProcessor {
   private fftSize = 2048

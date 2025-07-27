@@ -280,26 +280,28 @@ export function SocialExportTab({
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Лимиты платформы */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-muted/50 rounded-lg">
-              <div className="text-center">
-                <div className="text-sm font-medium">Max File Size</div>
-                <div className="text-xs text-muted-foreground">
-                  {(networkLimits.maxFileSize / (1024 * 1024 * 1024)).toFixed(1)}GB
+            {networkLimits && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-muted/50 rounded-lg">
+                <div className="text-center">
+                  <div className="text-sm font-medium">Max File Size</div>
+                  <div className="text-xs text-muted-foreground">
+                    {(networkLimits.maxFileSize / (1024 * 1024 * 1024)).toFixed(1)}GB
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-sm font-medium">Max Duration</div>
+                  <div className="text-xs text-muted-foreground">{Math.round(networkLimits.maxDuration / 3600)}h</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-sm font-medium">Max Resolution</div>
+                  <div className="text-xs text-muted-foreground">{networkLimits.maxResolution}</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-sm font-medium">Title Limit</div>
+                  <div className="text-xs text-muted-foreground">{networkLimits.titleMaxLength} chars</div>
                 </div>
               </div>
-              <div className="text-center">
-                <div className="text-sm font-medium">Max Duration</div>
-                <div className="text-xs text-muted-foreground">{Math.round(networkLimits.maxDuration / 3600)}h</div>
-              </div>
-              <div className="text-center">
-                <div className="text-sm font-medium">Max Resolution</div>
-                <div className="text-xs text-muted-foreground">{networkLimits.maxResolution}</div>
-              </div>
-              <div className="text-center">
-                <div className="text-sm font-medium">Title Limit</div>
-                <div className="text-xs text-muted-foreground">{networkLimits.titleMaxLength} chars</div>
-              </div>
-            </div>
+            )}
 
             {/* Ошибки валидации */}
             {!validation.valid && validation.errors && validation.errors.length > 0 && (
@@ -366,12 +368,12 @@ export function SocialExportTab({
                 {networkLimits && (
                   <span
                     className={`text-xs ${
-                      (settings.title || "").length > networkLimits.titleMaxLength
+                      networkLimits && (settings.title || "").length > networkLimits.titleMaxLength
                         ? "text-red-500"
                         : "text-muted-foreground"
                     }`}
                   >
-                    {(settings.title || "").length}/{networkLimits.titleMaxLength}
+                    {(settings.title || "").length}/{networkLimits?.titleMaxLength || 0}
                   </span>
                 )}
               </Label>
@@ -395,12 +397,12 @@ export function SocialExportTab({
                 {networkLimits && (
                   <span
                     className={`text-xs ${
-                      (settings.description || "").length > networkLimits.descriptionMaxLength
+                      networkLimits && (settings.description || "").length > networkLimits.descriptionMaxLength
                         ? "text-red-500"
                         : "text-muted-foreground"
                     }`}
                   >
-                    {(settings.description || "").length}/{networkLimits.descriptionMaxLength}
+                    {(settings.description || "").length}/{networkLimits?.descriptionMaxLength || 0}
                   </span>
                 )}
               </Label>
@@ -445,12 +447,12 @@ export function SocialExportTab({
                   {networkLimits && (
                     <span
                       className={`text-xs ${
-                        (settings.tags || []).length > networkLimits.tagsMaxCount
+                        networkLimits && (settings.tags || []).length > networkLimits.tagsMaxCount
                           ? "text-red-500"
                           : "text-muted-foreground"
                       }`}
                     >
-                      {(settings.tags || []).length}/{networkLimits.tagsMaxCount}
+                      {(settings.tags || []).length}/{networkLimits?.tagsMaxCount || 0}
                     </span>
                   )}
                 </Label>

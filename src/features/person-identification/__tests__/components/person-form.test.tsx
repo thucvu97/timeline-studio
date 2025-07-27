@@ -134,8 +134,8 @@ describe("PersonForm", () => {
     }
 
     const updateField = (field: keyof typeof formState, value: any) => {
-      formState[field] = value
-      formState.isDirty = true
+      ;(formState as any)[field] = value
+      ;(formState as any).isDirty = true
     }
 
     updateField("name", "Jane Doe")

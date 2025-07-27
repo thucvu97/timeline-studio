@@ -277,8 +277,8 @@ function addOptimizationSuggestions(networkId: string, settings: SocialExportSet
       break
 
     case "vimeo":
-      if (settings.quality !== "high") {
-        result.suggestions.push("Vimeo is known for high-quality videos - consider using 'high' quality setting")
+      if (settings.quality !== "best") {
+        result.suggestions.push("Vimeo is known for high-quality videos - consider using 'best' quality setting")
       }
       break
 

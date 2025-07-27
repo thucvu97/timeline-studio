@@ -108,6 +108,11 @@ const nextConfig: NextConfig = {
     // Reduce memory usage
     workerThreads: false,
     cpus: 1,
+    // Conditionally disable CSS features that require lightningcss on Windows CI
+    ...(process.env.DISABLE_LIGHTNINGCSS === 'true' && {
+      cssChunking: false,
+      optimizeCss: false,
+    }),
   },
   // Disable type checking during build to save memory
   typescript: {

@@ -76,7 +76,7 @@ export function useRenderQueue(): UseRenderQueueReturn {
 
       // Проверяем, есть ли активные задачи
       const hasActiveJobs = jobs.some(
-        (job) => job.status === RenderStatus.Processing || job.status === RenderStatus.Queued,
+        (job) => job.status === RenderStatus.Processing || job.status === RenderStatus.Pending,
       )
       setIsProcessing(hasActiveJobs)
     } catch (error) {
@@ -204,7 +204,7 @@ export function useRenderQueue(): UseRenderQueueReturn {
   // Отмена всех активных задач
   const cancelAllJobs = useCallback(async () => {
     const activeJobs = renderJobs.filter(
-      (job) => job.status === RenderStatus.Processing || job.status === RenderStatus.Queued,
+      (job) => job.status === RenderStatus.Processing || job.status === RenderStatus.Pending,
     )
 
     for (const job of activeJobs) {
@@ -215,12 +215,12 @@ export function useRenderQueue(): UseRenderQueueReturn {
   // Очистка завершенных задач
   const clearCompleted = useCallback(() => {
     setRenderJobs((prev) =>
-      prev.filter((job) => job.status === RenderStatus.Processing || job.status === RenderStatus.Queued),
+      prev.filter((job) => job.status === RenderStatus.Processing || job.status === RenderStatus.Pending),
     )
   }, [])
 
   const activeJobsCount = renderJobs.filter(
-    (job) => job.status === RenderStatus.Processing || job.status === RenderStatus.Queued,
+    (job) => job.status === RenderStatus.Processing || job.status === RenderStatus.Pending,
   ).length
 
   return {

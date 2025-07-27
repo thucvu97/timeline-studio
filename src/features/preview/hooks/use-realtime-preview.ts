@@ -13,6 +13,30 @@ import { detectGPUTier } from "../utils/webgl-utils"
 
 import type { Effect, GPUTier, PreviewQuality } from "../types"
 
+// Throttle utility function
+function throttle<T extends (...args: any[]) => any>(func: T, delay: number): T {
+  let timeoutId: NodeJS.Timeout | null = null
+  let lastExecTime = 0
+  
+  return ((...args: Parameters<T>) => {
+    const currentTime = Date.now()
+    
+    if (currentTime - lastExecTime > delay) {
+      lastExecTime = currentTime
+      return func(...args)
+    }
+    
+    if (timeoutId) {
+      clearTimeout(timeoutId)
+    }
+    
+    timeoutId = setTimeout(() => {
+      lastExecTime = Date.now()
+      func(...args)
+    }, delay)
+  }) as T
+}
+
 interface UseRealtimePreviewOptions {
   cacheSize?: number // MB
   prefetchRange?: number // seconds
@@ -49,8 +73,8 @@ export function useRealtimePreview(options: UseRealtimePreviewOptions = {}) {
   const mediaFile = player.currentVideo
   const isPlaying = player.isPlaying
 
-  const getEffectsAtTime = undefined // TODO: Implement when timeline effects API is available
-  const getEffectsForClip = undefined // TODO: Implement when timeline effects API is available
+  const getEffectsAtTime: ((time: number) => Effect[]) | undefined = undefined // TODO: Implement when timeline effects API is available
+  const getEffectsForClip: ((clipId: string) => Effect[]) | undefined = undefined // TODO: Implement when timeline effects API is available
 
   // Get enabled effects at current time
   const activeEffects = useMemo(() => {
@@ -58,7 +82,7 @@ export function useRealtimePreview(options: UseRealtimePreviewOptions = {}) {
     const timelineEffects = getEffectsAtTime ? getEffectsAtTime(currentTime) : []
 
     // Get effects from selected clip if any
-    let clipEffects: any[] = []
+    let clipEffects: Effect[] = []
     if (selectedClipId && getEffectsForClip) {
       clipEffects = getEffectsForClip(selectedClipId)
     }
@@ -221,7 +245,7 @@ export function useRealtimePreview(options: UseRealtimePreviewOptions = {}) {
 
   // Update on time/effects change
   useEffect(() => {
-    updatePreview()
+    void updatePreview()
   }, [updatePreview])
 
   // Prefetch nearby frames

@@ -3,6 +3,14 @@
  */
 
 // Временные заглушки для отсутствующих типов
+
+// Import actual types
+import type { BaseEffect } from "@/features/effects/types/unified-effects"
+import type { VideoFilter } from "@/features/filters/types/filters"
+import type { StyleTemplate } from "@/features/style-templates/types"
+import type { MediaTemplate } from "@/features/templates/lib/templates"
+import type { Transition } from "@/features/transitions/types/transitions"
+
 import {
   AlignX,
   AlignY,
@@ -52,13 +60,6 @@ import {
   TimelineTrack,
   isSubtitleClip,
 } from "../types/timeline"
-
-// Import actual types
-import type { BaseEffect } from "@/features/effects/types/unified-effects"
-import type { VideoFilter } from "@/features/filters/types/filters"
-import type { StyleTemplate } from "@/features/style-templates/types"
-import type { MediaTemplate } from "@/features/templates/lib/templates"
-import type { Transition } from "@/features/transitions/types/transitions"
 
 // Backend Effect type (not exported from video-compiler)
 interface BackendEffect {

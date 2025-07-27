@@ -370,36 +370,211 @@ jobs:
           npm install --no-audit --no-fund || \
           npm install --no-audit --no-fund --omit=optional
       
-      - name: Fix Windows dependencies
+      - name: Fix Windows dependencies and lightningcss
         if: matrix.platform == 'windows-latest'
         shell: pwsh
         run: |
-          # Force reinstall of lightningcss Windows binary
-          npm rebuild lightningcss-win32-x64-msvc
+          # First, try to install lightningcss directly as a primary dependency
+          echo "Installing lightningcss for Windows..."
+          npm install lightningcss@^1.30.1 --save-dev
           
-          # Verify installation
-          if (Test-Path "node_modules/lightningcss-win32-x64-msvc") {
-            echo "✅ lightningcss Windows binary installed"
-            
-            # Check for the actual binary file
-            $binaryPath = "node_modules/lightningcss-win32-x64-msvc/lightningcss.win32-x64-msvc.node"
-            if (Test-Path $binaryPath) {
-              echo "✅ Binary file exists at: $binaryPath"
-            } else {
-              echo "❌ Binary file not found at: $binaryPath"
-              # Try to manually download it
-              echo "Attempting manual download..."
-              $version = "1.30.1"
-              $url = "https://registry.npmjs.org/lightningcss-win32-x64-msvc/-/lightningcss-win32-x64-msvc-$version.tgz"
-              Invoke-WebRequest -Uri $url -OutFile "lightningcss-win32.tgz"
-              tar -xzf lightningcss-win32.tgz
-              New-Item -ItemType Directory -Force -Path "node_modules/lightningcss-win32-x64-msvc"
-              Copy-Item -Path "package/*" -Destination "node_modules/lightningcss-win32-x64-msvc/" -Recurse -Force
-              Remove-Item -Path "package" -Recurse -Force
-              Remove-Item -Path "lightningcss-win32.tgz"
-            }
+          # Force reinstall of lightningcss Windows binary
+          npm rebuild lightningcss-win32-x64-msvc --verbose
+          
+          # Check if lightningcss module exists and has the native binary
+          $lightningcssPath = "node_modules/lightningcss"
+          $binaryPath = "node_modules/lightningcss-win32-x64-msvc/lightningcss.win32-x64-msvc.node"
+          
+          if (Test-Path $lightningcssPath) {
+            echo "✅ lightningcss module found"
           } else {
-            echo "❌ lightningcss Windows binary not found"
+            echo "❌ lightningcss module not found, installing manually..."
+            npm install lightningcss@^1.30.1 --force
+          }
+          
+          if (Test-Path $binaryPath) {
+            echo "✅ Native binary exists at: $binaryPath"
+          } else {
+            echo "❌ Native binary not found, attempting manual installation..."
+            
+            # Clean existing installation
+            if (Test-Path "node_modules/lightningcss-win32-x64-msvc") {
+              Remove-Item -Path "node_modules/lightningcss-win32-x64-msvc" -Recurse -Force
+            }
+            
+            # Download and extract manually
+            $version = "1.30.1"
+            $url = "https://registry.npmjs.org/lightningcss-win32-x64-msvc/-/lightningcss-win32-x64-msvc-$version.tgz"
+            echo "Downloading from: $url"
+            
+            try {
+              Invoke-WebRequest -Uri $url -OutFile "lightningcss-win32.tgz" -UseBasicParsing
+              
+              # Create directory and extract
+              New-Item -ItemType Directory -Force -Path "node_modules/lightningcss-win32-x64-msvc"
+              tar -xzf lightningcss-win32.tgz
+              
+              # Copy package contents
+              if (Test-Path "package") {
+                Copy-Item -Path "package/*" -Destination "node_modules/lightningcss-win32-x64-msvc/" -Recurse -Force
+                echo "✅ Manual installation completed"
+                
+                # Verify the binary exists now
+                if (Test-Path "node_modules/lightningcss-win32-x64-msvc/lightningcss.win32-x64-msvc.node") {
+                  echo "✅ Native binary verified after manual installation"
+                } else {
+                  echo "❌ Native binary still missing after manual installation"
+                  echo "Contents of lightningcss-win32-x64-msvc directory:"
+                  Get-ChildItem "node_modules/lightningcss-win32-x64-msvc" -Recurse | Select-Object Name, FullName | Format-Table
+                }
+              }
+              
+              # Cleanup
+              Remove-Item -Path "package" -Recurse -Force -ErrorAction SilentlyContinue
+              Remove-Item -Path "lightningcss-win32.tgz" -ErrorAction SilentlyContinue
+              
+            } catch {
+              echo "❌ Failed to download lightningcss binary: $_"
+              echo "Falling back to disabling lightningcss..."
+              # Set environment variable to disable lightningcss features
+              echo "DISABLE_LIGHTNINGCSS=true" >> $env:GITHUB_ENV
+              # Create a fallback next.config.ts that disables lightningcss
+              $fallbackConfig = @"
+import type { NextConfig } from "next"
+import { codecovWebpackPlugin } from "@codecov/webpack-plugin"
+
+const nextConfig: NextConfig = {
+  reactStrictMode: false,
+  output: "export",
+  images: {
+    unoptimized: true,
+  },
+  distDir: "dist",
+  // Disable experimental CSS features that require lightningcss
+  experimental: {
+    cssChunking: false,
+    optimizeCss: false,
+    webpackBuildWorker: false,
+    workerThreads: false,
+    cpus: 1,
+  },
+  webpack: (config, { isServer }) => {
+    // Existing webpack config...
+    config.optimization = {
+      ...config.optimization,
+      minimize: true,
+      splitChunks: {
+        chunks: 'async',
+        minSize: 20000,
+        minRemainingSize: 0,
+        minChunks: 1,
+        maxAsyncRequests: 30,
+        maxInitialRequests: 30,
+        enforceSizeThreshold: 50000,
+        cacheGroups: {
+          browserResources: {
+            test: /[\\/](effects|filters|transitions)[\\/]data[\\/].*\.json$/,
+            name: 'browser-resources',
+            chunks: 'async',
+            priority: 20,
+            enforce: true,
+          },
+          defaultVendors: {
+            test: /[\\/]node_modules[\\/]/,
+            priority: -10,
+            reuseExistingChunk: true,
+          },
+          default: {
+            minChunks: 2,
+            priority: -20,
+            reuseExistingChunk: true,
+          },
+        },
+      },
+    };
+    
+    config.parallelism = 1;
+    
+    if (config.optimization.minimizer) {
+      config.optimization.minimizer.forEach((minimizer: any) => {
+        if (minimizer.constructor.name === 'TerserPlugin') {
+          minimizer.options.parallel = 1;
+          minimizer.options.terserOptions = {
+            ...minimizer.options.terserOptions,
+            compress: {
+              drop_console: true,
+              drop_debugger: true,
+            },
+          };
+        }
+      });
+    }
+
+    if (process.env.ANALYZE === "true") {
+      config.stats = {
+        all: false,
+        assets: true,
+        chunks: true,
+        modules: true,
+        timings: true,
+        warnings: true,
+        errors: true,
+        errorDetails: true,
+        entrypoints: true,
+        chunkGroups: true,
+      }
+    }
+
+    if (process.env.CODECOV_TOKEN && !isServer) {
+      config.plugins = config.plugins || []
+      config.plugins.push(
+        codecovWebpackPlugin({
+          enableBundleAnalysis: true,
+          bundleName: "timeline-studio",
+          uploadToken: process.env.CODECOV_TOKEN,
+          gitService: "github",
+          ...(process.env.CI && {
+            uploadOverrides: {
+              sha: process.env.GITHUB_SHA,
+              branch: process.env.GITHUB_REF_NAME?.replace("refs/heads/", ""),
+              pr: process.env.GITHUB_PR_NUMBER,
+              build: process.env.GITHUB_RUN_ID,
+            },
+          }),
+        })
+      )
+    }
+
+    return config
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+}
+
+export default nextConfig
+"@
+              Set-Content -Path "next.config.ts" -Value $fallbackConfig
+              echo "✅ Created fallback Next.js config without lightningcss"
+            }
+          }
+          
+          # Final verification
+          echo "`n=== Final lightningcss verification ==="
+          if (Test-Path "node_modules/lightningcss") {
+            echo "✅ lightningcss module installed"
+            $moduleInfo = Get-ChildItem "node_modules/lightningcss" | Select-Object Name | Format-Table -HideTableHeaders
+            echo "Module contents: $moduleInfo"
+          }
+          
+          if (Test-Path "node_modules/lightningcss-win32-x64-msvc/lightningcss.win32-x64-msvc.node") {
+            echo "✅ Native binary ready for use"
+          } else {
+            echo "⚠️  Native binary not available, setting fallback environment"
+            echo "DISABLE_LIGHTNINGCSS=true" >> $env:GITHUB_ENV
           }
 
       - name: Create dist directory
@@ -644,6 +819,8 @@ jobs:
           CARGO_PROFILE_RELEASE_BUILD_OVERRIDE_DEBUG: false
           # Disable CSS minification to avoid lightningcss issues
           NODE_ENV: development
+          # Conditionally disable lightningcss if binary is not available
+          DISABLE_LIGHTNINGCSS: ${{ env.DISABLE_LIGHTNINGCSS }}
           # Windows SDK and system headers paths (required for errno.h and other system headers)
           # Note: These paths are set dynamically in the dependencies step above
         with:

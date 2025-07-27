@@ -3,7 +3,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { PersonDatabaseService } from "../../services/person-database-service"
 
-import type { DatabaseStats, DetectedFace, PersonProfile } from "../../types"
+import type { DatabaseStats } from "../../services/person-database-service"
+import type { DetectedFace, PersonAppearance, PersonProfile } from "../../types/person"
 
 // Mock Tauri invoke
 vi.mock("@tauri-apps/api/core", () => ({
@@ -342,8 +343,8 @@ describe("PersonDatabaseService Tauri Integration", () => {
         averageEmbedding: new Float32Array([0.105, 0.205, 0.305]),
         appearances: [],
         totalScreenTime: 0,
-        firstSeen: 10,
-        lastSeen: 15,
+        firstSeen: { seconds: 10 },
+        lastSeen: { seconds: 15 },
         tags: ["auto_generated", "clustered"],
         thumbnails: [],
         privacy: {

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { PersonDatabaseService } from "../../services/person-database-service"
 
-import type { DetectedFace, FaceEmbedding, PersonAppearance, PersonProfile } from "../../types"
+import type { DetectedFace, FaceEmbedding, PersonAppearance, PersonProfile } from "../../types/person"
 
 // Mock IndexedDB setup (same as integration test)
 const mockDb = {
@@ -81,8 +81,11 @@ describe("PersonDatabaseService Extended Tests", () => {
       {
         id: "face-1",
         confidence: 0.95,
-        boundingBox: { x: 10, y: 10, width: 100, height: 100 },
-        landmarks: [],
+        bbox: { x: 10, y: 10, width: 100, height: 100 },
+        blur: 0,
+        occlusion: 0,
+        pose: { yaw: 0, pitch: 0, roll: 0 },
+        frameNumber: 300,
         timestamp: { seconds: 10 },
         clipId: "clip-1",
       },
@@ -265,8 +268,11 @@ describe("PersonDatabaseService Extended Tests", () => {
             {
               id: "det-1",
               confidence: 0.9,
-              boundingBox: { x: 10, y: 10, width: 100, height: 100 },
-              landmarks: [],
+              bbox: { x: 10, y: 10, width: 100, height: 100 },
+              blur: 0,
+              occlusion: 0,
+              pose: { yaw: 0, pitch: 0, roll: 0 },
+              frameNumber: 450,
               timestamp: { seconds: 15 },
               emotion: "happy",
             },

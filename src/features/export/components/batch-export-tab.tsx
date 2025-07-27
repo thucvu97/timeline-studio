@@ -156,7 +156,7 @@ export function BatchExportTab({ onClose, defaultSettings }: BatchExportTabProps
   const getStats = () => {
     const completed = renderJobs.filter((job) => job.status === RenderStatus.Completed).length
     const failed = renderJobs.filter((job) => job.status === RenderStatus.Failed).length
-    const queued = renderJobs.filter((job) => job.status === RenderStatus.Queued).length
+    const queued = renderJobs.filter((job) => job.status === RenderStatus.Pending).length
     const processing = renderJobs.filter((job) => job.status === RenderStatus.Processing).length
 
     return { total: renderJobs.length, completed, failed, queued, processing }
@@ -167,7 +167,7 @@ export function BatchExportTab({ onClose, defaultSettings }: BatchExportTabProps
   // Получение иконки статуса
   const getStatusIcon = (status: RenderStatus) => {
     switch (status) {
-      case RenderStatus.Queued:
+      case RenderStatus.Pending:
         return <Square className="h-4 w-4 text-muted-foreground" />
       case RenderStatus.Processing:
         return <Loader2 className="h-4 w-4 text-blue-500 animate-spin" />

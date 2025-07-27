@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import { PersonDatabaseService } from "../../services/person-database-service"
 
-import type { Person } from "../../types"
+import type { PersonProfile as Person } from "../../types/person"
 
 // Simple tests for PersonDatabaseService without complex mocks
 describe("PersonDatabaseService", () => {

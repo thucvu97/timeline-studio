@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { PersonDatabaseService } from "../../services/person-database-service"
 
-import type { PersonProfile } from "../../types"
+import type { PersonProfile } from "../../types/person"
 
 // Mock IndexedDB
 const mockDb = {

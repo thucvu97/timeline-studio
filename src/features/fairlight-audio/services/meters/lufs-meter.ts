@@ -25,6 +25,8 @@ export class LUFSMeter extends EventEmitter {
   private context: AudioContext | null = null
   private analyser: AnalyserNode | null = null
   private processor: AudioWorkletNode | null = null
+  private isRunning = false
+  private lastUpdate = 0
 
   // Фильтры EBU R128
   private preFilter: BiquadFilterNode | null = null
