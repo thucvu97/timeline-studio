@@ -79,13 +79,6 @@ jobs:
       fail-fast: false
       matrix:
         platform: [macos-latest, ubuntu-latest, windows-latest]
-        include:
-          - platform: macos-latest
-            arch: [x64, aarch64]
-          - platform: ubuntu-latest
-            arch: [x64]
-          - platform: windows-latest
-            arch: [x64]
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -438,127 +431,7 @@ jobs:
               echo "Falling back to disabling lightningcss..."
               # Set environment variable to disable lightningcss features
               echo "DISABLE_LIGHTNINGCSS=true" >> $env:GITHUB_ENV
-              # Create a fallback next.config.ts that disables lightningcss
-              $fallbackConfig = @"
-import type { NextConfig } from "next"
-import { codecovWebpackPlugin } from "@codecov/webpack-plugin"
-
-const nextConfig: NextConfig = {
-  reactStrictMode: false,
-  output: "export",
-  images: {
-    unoptimized: true,
-  },
-  distDir: "dist",
-  // Disable experimental CSS features that require lightningcss
-  experimental: {
-    cssChunking: false,
-    optimizeCss: false,
-    webpackBuildWorker: false,
-    workerThreads: false,
-    cpus: 1,
-  },
-  webpack: (config, { isServer }) => {
-    // Existing webpack config...
-    config.optimization = {
-      ...config.optimization,
-      minimize: true,
-      splitChunks: {
-        chunks: 'async',
-        minSize: 20000,
-        minRemainingSize: 0,
-        minChunks: 1,
-        maxAsyncRequests: 30,
-        maxInitialRequests: 30,
-        enforceSizeThreshold: 50000,
-        cacheGroups: {
-          browserResources: {
-            test: /[\\/](effects|filters|transitions)[\\/]data[\\/].*\.json$/,
-            name: 'browser-resources',
-            chunks: 'async',
-            priority: 20,
-            enforce: true,
-          },
-          defaultVendors: {
-            test: /[\\/]node_modules[\\/]/,
-            priority: -10,
-            reuseExistingChunk: true,
-          },
-          default: {
-            minChunks: 2,
-            priority: -20,
-            reuseExistingChunk: true,
-          },
-        },
-      },
-    };
-    
-    config.parallelism = 1;
-    
-    if (config.optimization.minimizer) {
-      config.optimization.minimizer.forEach((minimizer: any) => {
-        if (minimizer.constructor.name === 'TerserPlugin') {
-          minimizer.options.parallel = 1;
-          minimizer.options.terserOptions = {
-            ...minimizer.options.terserOptions,
-            compress: {
-              drop_console: true,
-              drop_debugger: true,
-            },
-          };
-        }
-      });
-    }
-
-    if (process.env.ANALYZE === "true") {
-      config.stats = {
-        all: false,
-        assets: true,
-        chunks: true,
-        modules: true,
-        timings: true,
-        warnings: true,
-        errors: true,
-        errorDetails: true,
-        entrypoints: true,
-        chunkGroups: true,
-      }
-    }
-
-    if (process.env.CODECOV_TOKEN && !isServer) {
-      config.plugins = config.plugins || []
-      config.plugins.push(
-        codecovWebpackPlugin({
-          enableBundleAnalysis: true,
-          bundleName: "timeline-studio",
-          uploadToken: process.env.CODECOV_TOKEN,
-          gitService: "github",
-          ...(process.env.CI && {
-            uploadOverrides: {
-              sha: process.env.GITHUB_SHA,
-              branch: process.env.GITHUB_REF_NAME?.replace("refs/heads/", ""),
-              pr: process.env.GITHUB_PR_NUMBER,
-              build: process.env.GITHUB_RUN_ID,
-            },
-          }),
-        })
-      )
-    }
-
-    return config
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-}
-
-export default nextConfig
-"@
-              Set-Content -Path "next.config.ts" -Value $fallbackConfig
-              echo "✅ Created fallback Next.js config without lightningcss"
+              echo "⚠️  Will continue build without lightningcss optimization"
             }
           }
           
