@@ -4,15 +4,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 interface NavItem {
   label: string;
   href: string;
+  isExternal?: boolean;
+  isScroll?: boolean;
 }
 
 const navItems: NavItem[] = [
-  { label: 'Возможности', href: '#features' },
-  { label: 'AI Монтаж', href: '#ai-editing' },
-  { label: 'Эффекты', href: '#effects' },
-  { label: 'Цены', href: '#pricing' },
-  { label: 'Скачать', href: '#download' },
-  { label: 'Контакты', href: '#contact' }
+  { label: 'AI Монтаж', href: '#ai-editing', isScroll: true },
+  { label: 'Скачать', href: '#download', isScroll: true },
+  { label: 'Changelog', href: '/changelog', isExternal: true },
+  { label: 'Pricing', href: '/pricing', isExternal: true },
+  { label: 'Docs', href: 'https://docs.timelinestudio.app', isExternal: true },
+  { label: 'Blog', href: '/blog', isExternal: true }
 ];
 
 export function Navigation() {
@@ -23,11 +25,11 @@ export function Navigation() {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
       
-      // Определяем активную секцию
-      const sections = navItems.map(item => item.href.slice(1));
+      // Определяем активную секцию только для скролл-элементов
+      const scrollSections = navItems.filter(item => item.isScroll).map(item => item.href.slice(1));
       const scrollPosition = window.scrollY + 100;
       
-      for (const section of sections) {
+      for (const section of scrollSections) {
         const element = document.getElementById(section);
         if (element) {
           const { offsetTop, offsetHeight } = element;
@@ -91,43 +93,61 @@ export function Navigation() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: 0.1 + index * 0.05 }}
               >
-                <a
-                  href={item.href}
-                  onClick={(e) => handleClick(e, item.href)}
-                  className={`relative px-5 py-2.5 text-sm font-medium transition-all duration-200 ${
-                    activeSection === item.href.slice(1)
-                      ? 'text-white'
-                      : 'text-gray-400 hover:text-gray-200'
-                  }`}
-                >
-                  <span className="relative z-10">{item.label}</span>
-                  
-                  {/* Active indicator - subtle underline */}
-                  <AnimatePresence mode="wait">
-                    {activeSection === item.href.slice(1) && (
-                      <motion.div
-                        layoutId="activeNavIndicator"
-                        className="absolute -bottom-px left-5 right-5 h-[2px] bg-white"
-                        initial={{ opacity: 0, scaleX: 0 }}
-                        animate={{ opacity: 1, scaleX: 1 }}
-                        exit={{ opacity: 0, scaleX: 0 }}
-                        transition={{ 
-                          type: "spring",
-                          stiffness: 500,
-                          damping: 30,
-                          opacity: { duration: 0.2 }
-                        }}
-                      />
-                    )}
-                  </AnimatePresence>
-                  
-                  {/* Hover effect - subtle background */}
-                  <motion.div
-                    className="absolute inset-0 bg-white/5 rounded-lg opacity-0"
-                    whileHover={{ opacity: 1 }}
-                    transition={{ duration: 0.15 }}
-                  />
-                </a>
+                {item.isExternal ? (
+                  <a
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="relative px-5 py-2.5 text-sm font-medium text-gray-400 hover:text-gray-200 transition-all duration-200"
+                  >
+                    <span className="relative z-10">{item.label}</span>
+                    
+                    {/* Hover effect - subtle background */}
+                    <motion.div
+                      className="absolute inset-0 bg-white/5 rounded-lg opacity-0"
+                      whileHover={{ opacity: 1 }}
+                      transition={{ duration: 0.15 }}
+                    />
+                  </a>
+                ) : (
+                  <a
+                    href={item.href}
+                    onClick={(e) => handleClick(e, item.href)}
+                    className={`relative px-5 py-2.5 text-sm font-medium transition-all duration-200 ${
+                      activeSection === item.href.slice(1)
+                        ? 'text-white'
+                        : 'text-gray-400 hover:text-gray-200'
+                    }`}
+                  >
+                    <span className="relative z-10">{item.label}</span>
+                    
+                    {/* Active indicator - subtle underline for scroll items only */}
+                    <AnimatePresence mode="wait">
+                      {item.isScroll && activeSection === item.href.slice(1) && (
+                        <motion.div
+                          layoutId="activeNavIndicator"
+                          className="absolute -bottom-px left-5 right-5 h-[2px] bg-white"
+                          initial={{ opacity: 0, scaleX: 0 }}
+                          animate={{ opacity: 1, scaleX: 1 }}
+                          exit={{ opacity: 0, scaleX: 0 }}
+                          transition={{ 
+                            type: "spring",
+                            stiffness: 500,
+                            damping: 30,
+                            opacity: { duration: 0.2 }
+                          }}
+                        />
+                      )}
+                    </AnimatePresence>
+                    
+                    {/* Hover effect - subtle background */}
+                    <motion.div
+                      className="absolute inset-0 bg-white/5 rounded-lg opacity-0"
+                      whileHover={{ opacity: 1 }}
+                      transition={{ duration: 0.15 }}
+                    />
+                  </a>
+                )}
               </motion.li>
             ))}
           </motion.ul>
@@ -138,7 +158,7 @@ export function Navigation() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <button className="relative px-6 py-2.5 rounded-xl text-sm font-medium text-white overflow-hidden group">
+            <button className="relative px-6 py-2.5 rounded-xl text-sm font-medium text-white overflow-hidden group cursor-pointer">
               <span className="relative z-10 flex items-center space-x-2">
                 <span>Скачать бесплатно</span>
                 <svg
