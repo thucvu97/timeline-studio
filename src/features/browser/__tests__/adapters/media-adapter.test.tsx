@@ -10,33 +10,61 @@ vi.mock("@/features/app-state", () => ({
   useAppSettings: vi.fn(() => ({
     connectionError: null,
     projectState: {
-      mediaFiles: {
-        allFiles: [
-          {
-            id: "test-1",
-            name: "test-video.mp4",
-            path: "/test/video.mp4",
-            extension: ".mp4",
-            size: 1024000,
-            createdAt: "2024-01-01T00:00:00Z",
-            startTime: 0,
-            isVideo: true,
-            probeData: {
-              streams: [{ codec_type: "video" }],
-              format: { duration: 120.5 },
+      project: {
+        media_pool: {
+          items: {
+            "test-1": {
+              id: "test-1",
+              name: "test-video.mp4",
+              path: "/test/video.mp4",
+              media_type: "Video",
+              duration: 120.5,
+              metadata: {
+                format: "",
+                codec: null,
+                resolution: null,
+                frame_rate: null,
+                bitrate: null,
+                audio_channels: null,
+                sample_rate: null,
+              },
+              thumbnail: null,
+              usage_count: 0,
+              // Дополнительные поля для совместимости
+              extension: ".mp4",
+              size: 1024000,
+              createdAt: "2024-01-01T00:00:00Z",
+              startTime: 0,
+              probeData: {
+                streams: [{ codec_type: "video" }],
+                format: { duration: 120.5 },
+              },
+            },
+            "test-2": {
+              id: "test-2",
+              name: "test-image.jpg",
+              path: "/test/image.jpg",
+              media_type: "Image",
+              duration: null,
+              metadata: {
+                format: "",
+                codec: null,
+                resolution: null,
+                frame_rate: null,
+                bitrate: null,
+                audio_channels: null,
+                sample_rate: null,
+              },
+              thumbnail: null,
+              usage_count: 0,
+              // Дополнительные поля для совместимости
+              extension: ".jpg",
+              size: 512000,
+              createdAt: "2024-01-02T00:00:00Z",
+              startTime: 0,
             },
           },
-          {
-            id: "test-2",
-            name: "test-image.jpg",
-            path: "/test/image.jpg",
-            extension: ".jpg",
-            size: 512000,
-            createdAt: "2024-01-02T00:00:00Z",
-            startTime: 0,
-            isImage: true,
-          },
-        ],
+        },
       },
     },
   })),

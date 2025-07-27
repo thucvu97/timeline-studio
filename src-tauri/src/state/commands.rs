@@ -245,6 +245,7 @@ impl CommandHandler {
       ProjectCommand::PlayerClearEffects => self.player_clear_effects().await,
       ProjectCommand::PlayerClearFilters => self.player_clear_filters().await,
       ProjectCommand::PlayerClearTemplate => self.player_clear_template().await,
+      ProjectCommand::AddMedia { path, media_type } => self.add_media(path, media_type).await,
 
       _ => CommandResult::error("Command not implemented yet".to_string()),
     }
@@ -822,5 +823,81 @@ impl CommandHandler {
       .ok();
 
     CommandResult::success(None)
+  }
+
+  async fn add_media(&self, path: String, media_type: MediaType) -> CommandResult {
+    use super::project_state::{MediaItem, MediaMetadata};
+    use std::path::Path;
+
+    let mut state = self.state.write().await;
+
+    let project = match state.project.as_mut() {
+      Some(p) => p,
+      None => return CommandResult::error("No project open".to_string()),
+    };
+
+    // Generate unique ID for the media item
+    let media_id = uuid::Uuid::new_v4().to_string();
+
+    // Extract file name from path
+    let file_name = Path::new(&path)
+      .file_name()
+      .and_then(|n| n.to_str())
+      .unwrap_or("Unknown")
+      .to_string();
+
+    // Create media item
+    let media_item = MediaItem {
+      id: media_id.clone(),
+      path: path.clone(),
+      name: file_name.clone(),
+      media_type: media_type.clone(),
+      duration: None, // Will be set by frontend after media loading
+      metadata: MediaMetadata {
+        format: String::new(),
+        codec: None,
+        resolution: None,
+        frame_rate: None,
+        bitrate: None,
+        audio_channels: None,
+        sample_rate: None,
+      },
+      thumbnail: None,
+      usage_count: 0,
+    };
+
+    // Add to media pool
+    project
+      .media_pool
+      .items
+      .insert(media_id.clone(), media_item);
+    state.mark_dirty();
+
+    let version = state.version;
+
+    // Publish event
+    self
+      .event_bus
+      .publish(
+        ProjectEvent::MediaAdded {
+          media: super::events::MediaData {
+            id: media_id.clone(),
+            path: path.clone(),
+            name: file_name.clone(),
+            media_type: match media_type {
+              MediaType::Video => "Video".to_string(),
+              MediaType::Audio => "Audio".to_string(),
+              MediaType::Image => "Image".to_string(),
+            },
+            duration: None,
+          },
+        },
+        "command_handler".to_string(),
+        version,
+      )
+      .await
+      .ok();
+
+    CommandResult::success(Some(serde_json::json!({ "media_id": media_id })))
   }
 }

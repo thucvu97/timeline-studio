@@ -8,24 +8,16 @@ const mockUseAppSettings = vi.fn()
 const mockUseFavorites = vi.fn()
 const mockUseMediaImport = vi.fn()
 
-vi.mock("@/features/app-state", () => ({
-  useAppSettings: (...args: any[]) => mockUseAppSettings(...args),
-  useFavorites: (...args: any[]) => mockUseFavorites(...args),
-  AppSettingsProvider: ({ children }: any) => children,
-}))
-
-vi.mock("@/features/media/hooks/use-media-import", () => ({
-  useMediaImport: (...args: any[]) => mockUseMediaImport(...args),
-}))
-
-vi.mock("@/features/media", () => ({
-  getFileType: vi.fn((file: any) => {
-    if (file.isVideo) return "video"
-    if (file.isAudio) return "audio"
-    if (file.isImage) return "image"
-    return "unknown"
-  }),
-}))
+// Утилитная функция для парсинга duration
+const parseDuration = (duration: string) => {
+  // Convert "00:01:30" to 90 seconds
+  if (!duration) return 0
+  const parts = duration.split(":")
+  if (parts.length === 3) {
+    return Number.parseInt(parts[0]) * 3600 + Number.parseInt(parts[1]) * 60 + Number.parseInt(parts[2])
+  }
+  return 0
+}
 
 vi.mock("@/features/browser/utils", () => ({
   parseDuration: vi.fn((duration: string) => {
@@ -57,6 +49,25 @@ vi.mock("@/features/browser/utils", () => ({
 vi.mock("@/features/browser/utils/grouping", () => ({
   getDateGroup: vi.fn(() => "Январь 2024"),
   getDurationGroup: vi.fn(() => "1-3 минуты"),
+}))
+
+vi.mock("@/features/app-state", () => ({
+  useAppSettings: (...args: any[]) => mockUseAppSettings(...args),
+  useFavorites: (...args: any[]) => mockUseFavorites(...args),
+  AppSettingsProvider: ({ children }: any) => children,
+}))
+
+vi.mock("@/features/media/hooks/use-media-import", () => ({
+  useMediaImport: (...args: any[]) => mockUseMediaImport(...args),
+}))
+
+vi.mock("@/features/media", () => ({
+  getFileType: vi.fn((file: any) => {
+    if (file.isVideo) return "video"
+    if (file.isAudio) return "audio"
+    if (file.isImage) return "image"
+    return "unknown"
+  }),
 }))
 
 vi.mock("@/i18n", () => ({
@@ -137,11 +148,43 @@ describe("useMediaAdapter", () => {
     vi.clearAllMocks()
 
     // Настраиваем моки по умолчанию
+    // Преобразуем тестовые медиа файлы в формат MediaItem для media_pool
+    const mediaFiles = createTestMediaFiles()
+    const mediaPoolItems = mediaFiles.reduce<Record<string, any>>((acc, file) => {
+      acc[file.id] = {
+        id: file.id,
+        name: file.name,
+        path: file.path,
+        media_type: file.isVideo ? "Video" : file.isAudio ? "Audio" : "Image",
+        duration: file.duration === "00:01:30" ? 90 : file.duration === "00:03:45" ? 225 : null,
+        metadata: {
+          format: "",
+          codec: null,
+          resolution: null,
+          frame_rate: null,
+          bitrate: file.probeData?.format?.size && file.duration 
+            ? Math.round((file.probeData.format.size * 8) / parseDuration(file.duration))
+            : null,
+          audio_channels: file.probeData?.streams?.filter((s: any) => s.codec_type === "audio").length || null,
+          sample_rate: null,
+        },
+        thumbnail: null,
+        usage_count: 0,
+        // Сохраняем оригинальные данные для тестов
+        startTime: file.startTime,
+        size: file.size,
+        probeData: file.probeData,
+      }
+      return acc
+    }, {})
+
     mockUseAppSettings.mockReturnValue({
       connectionError: null,
       projectState: {
-        mediaFiles: {
-          allFiles: createTestMediaFiles(),
+        project: {
+          media_pool: {
+            items: mediaPoolItems,
+          },
         },
       },
     })

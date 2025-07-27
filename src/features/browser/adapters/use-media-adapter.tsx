@@ -8,6 +8,7 @@ import { getFileType } from "@/features/media"
 import { useMediaImport } from "@/features/media/hooks/use-media-import"
 import { MediaFile } from "@/features/media/types/media"
 import i18n from "@/i18n"
+import type { MediaItem } from "@/types/generated/tauri-bindings"
 
 import { getDateGroup, getDurationGroup } from "../utils/grouping"
 
@@ -50,14 +51,44 @@ export function useMediaAdapter(): ListAdapter<MediaListItem> {
   const { isItemFavorite } = useFavorites()
   const { importFile, importFolder, isImporting } = useMediaImport()
 
-  const allMediaFiles = useMemo(
-    () =>
-      (projectState?.mediaFiles?.allFiles || []).map((file: MediaFile) => ({
-        ...file,
-        isLoadingMetadata: false, // Force isLoadingMetadata to false for all files
-      })),
-    [projectState?.mediaFiles?.allFiles],
-  )
+  const allMediaFiles = useMemo(() => {
+    // Получаем медиа файлы из media pool в новой архитектуре
+    const mediaItems = projectState?.project?.media_pool?.items || {}
+    
+    // Преобразуем объект MediaItem в массив MediaFile
+    return Object.values(mediaItems).map((item: MediaItem) => {
+      // Конвертируем duration обратно в формат строки времени для совместимости
+      let durationStr = "0"
+      if (item.duration) {
+        const hours = Math.floor(item.duration / 3600)
+        const minutes = Math.floor((item.duration % 3600) / 60)
+        const seconds = Math.floor(item.duration % 60)
+        durationStr = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
+      }
+
+      return {
+        ...item,
+        // Мапим поля из MediaItem в MediaFile
+        startTime: (item as any).startTime || Date.now() / 1000, // Используем сохраненное значение или текущее время
+        size: (item as any).size || (item.metadata?.bitrate ? `${Math.round((item.metadata.bitrate * (item.duration || 0)) / 8 / 1024 / 1024)}MB` : "0MB"),
+        duration: durationStr,
+        thumbnailPath: item.thumbnail,
+        type: item.media_type?.toLowerCase() || "video",
+        isVideo: item.media_type === "Video",
+        isAudio: item.media_type === "Audio",
+        isImage: item.media_type === "Image",
+        isLoadingMetadata: false,
+        // Добавляем probeData для совместимости с тестами
+        probeData: (item as any).probeData || (item.metadata ? {
+          format: {
+            size: item.metadata.bitrate ? (item.metadata.bitrate * (item.duration || 0)) / 8 : 0,
+            tags: {}
+          },
+          streams: []
+        } : undefined),
+      }
+    })
+  }, [projectState?.project?.media_pool?.items])
 
   // V2 не использует общий loading состояние, используем состояние импорта
   const mediaLoading = isImporting

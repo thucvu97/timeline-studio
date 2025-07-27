@@ -47,6 +47,7 @@ export function EffectChainList({ className }: EffectChainListProps) {
       name: `Chain ${chains.length + 1}`,
       effects: [],
       enabled: true,
+      order: chains.length,
     }
 
     setChains([...chains, newChain])

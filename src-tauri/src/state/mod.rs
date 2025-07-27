@@ -38,7 +38,25 @@ impl StateManager {
     // Load or create initial project state
     let project_state = match persistence.load_latest().await {
       Ok(state) => Arc::new(RwLock::new(state)),
-      Err(_) => Arc::new(RwLock::new(ProjectState::default())),
+      Err(_) => {
+        // Create a default project state with a temporary project
+        let mut state = ProjectState::default();
+
+        // Create a temporary project with default settings
+        let default_settings = project_state::ProjectSettings {
+          resolution: project_state::Resolution {
+            width: 1920,
+            height: 1080,
+          },
+          frame_rate: 30.0,
+          audio_sample_rate: 48000,
+          audio_channels: 2,
+        };
+
+        state.create_project("Untitled Project".to_string(), default_settings);
+
+        Arc::new(RwLock::new(state))
+      }
     };
 
     let command_handler = Arc::new(CommandHandler::new(

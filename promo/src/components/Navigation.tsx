@@ -57,11 +57,11 @@ export function Navigation() {
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'py-4' : 'py-6'
+        isScrolled ? 'py-3' : 'py-5'
       }`}
     >
-      <div className="container mx-auto px-6">
-        <div className={`glass-dark rounded-2xl px-8 py-4 flex items-center justify-between ${
+      <div className="px-8 md:px-12 lg:px-16">
+        <div className={`glass-dark rounded-2xl px-6 md:px-10 py-3 flex items-center justify-between ${
           isScrolled ? 'shadow-2xl' : ''
         }`}>
           {/* Logo */}
@@ -82,7 +82,7 @@ export function Navigation() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="hidden md:flex items-center space-x-1"
+            className="hidden md:flex items-center space-x-0"
           >
             {navItems.map((item, index) => (
               <motion.li
@@ -94,30 +94,39 @@ export function Navigation() {
                 <a
                   href={item.href}
                   onClick={(e) => handleClick(e, item.href)}
-                  className="relative px-4 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors duration-200 group"
+                  className={`relative px-5 py-2.5 text-sm font-medium transition-all duration-200 ${
+                    activeSection === item.href.slice(1)
+                      ? 'text-white'
+                      : 'text-gray-400 hover:text-gray-200'
+                  }`}
                 >
                   <span className="relative z-10">{item.label}</span>
                   
-                  {/* Hover effect */}
-                  <motion.div
-                    className="absolute inset-0 bg-white/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  />
-                  
-                  {/* Active indicator */}
-                  <AnimatePresence>
+                  {/* Active indicator - subtle underline */}
+                  <AnimatePresence mode="wait">
                     {activeSection === item.href.slice(1) && (
                       <motion.div
-                        layoutId="activeSection"
-                        className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-600/20 rounded-lg"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.2 }}
+                        layoutId="activeNavIndicator"
+                        className="absolute -bottom-px left-5 right-5 h-[2px] bg-white"
+                        initial={{ opacity: 0, scaleX: 0 }}
+                        animate={{ opacity: 1, scaleX: 1 }}
+                        exit={{ opacity: 0, scaleX: 0 }}
+                        transition={{ 
+                          type: "spring",
+                          stiffness: 500,
+                          damping: 30,
+                          opacity: { duration: 0.2 }
+                        }}
                       />
                     )}
                   </AnimatePresence>
+                  
+                  {/* Hover effect - subtle background */}
+                  <motion.div
+                    className="absolute inset-0 bg-white/5 rounded-lg opacity-0"
+                    whileHover={{ opacity: 1 }}
+                    transition={{ duration: 0.15 }}
+                  />
                 </a>
               </motion.li>
             ))}
@@ -129,21 +138,26 @@ export function Navigation() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <button className="glass glass-glow px-6 py-2.5 rounded-xl text-sm font-medium text-white hover:bg-white/10 transition-all duration-300 flex items-center space-x-2 group">
-              <span>Скачать бесплатно</span>
-              <svg
-                className="w-4 h-4 group-hover:translate-x-0.5 transition-transform"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
-                />
-              </svg>
+            <button className="relative px-6 py-2.5 rounded-xl text-sm font-medium text-white overflow-hidden group">
+              <span className="relative z-10 flex items-center space-x-2">
+                <span>Скачать бесплатно</span>
+                <svg
+                  className="w-4 h-4 group-hover:translate-x-0.5 transition-transform duration-200"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
+                  />
+                </svg>
+              </span>
+              {/* Button background with hover effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 opacity-90 group-hover:opacity-100 transition-opacity duration-200" />
+              <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-200" />
             </button>
           </motion.div>
 

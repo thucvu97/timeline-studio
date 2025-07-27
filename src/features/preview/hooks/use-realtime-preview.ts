@@ -79,7 +79,7 @@ export function useRealtimePreview(options: UseRealtimePreviewOptions = {}) {
   // Get enabled effects at current time
   const activeEffects = useMemo(() => {
     // Get effects from timeline at current time
-    const timelineEffects = getEffectsAtTime ? getEffectsAtTime(currentTime) : []
+    const timelineEffects: Effect[] = [] // TODO: Use getEffectsAtTime when implemented
 
     // Get effects from selected clip if any
     let clipEffects: Effect[] = []
