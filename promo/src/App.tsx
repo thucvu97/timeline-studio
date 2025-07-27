@@ -1,10 +1,9 @@
 import React from "react"
+import { motion } from 'framer-motion'
 import { Navigation } from './components/Navigation'
 import { HeroSection } from './components/HeroSection'
 import { AnimatedSection } from './components/AnimatedSection'
 import { AIEditingSection } from './components/AIEditingSection'
-import { EffectsSection } from './components/EffectsSection'
-import { PricingSection } from './components/PricingSection'
 
 const App: React.FC = () => {
   return (
@@ -14,80 +13,115 @@ const App: React.FC = () => {
         {/* Hero Section */}
         <HeroSection />
 
-        {/* Возможности */}
+
+        {/* AI Editing Section */}
+        <AIEditingSection />
+
+
+        {/* Features Section - Multi-platform & Multi-language */}
         <AnimatedSection>
-          <section id="features" className="py-20 bg-gray-800/50">
+          <section id="features" className="py-20 bg-gray-900">
             <div className="container mx-auto px-4">
               <div className="text-center mb-16">
-                <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Ключевые возможности</h2>
-                <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full" />
+                <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                  Create Once, <span className="text-gradient">Share Globally</span>
+                </h2>
+                <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full mb-6" />
+                <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+                  Export to any platform, translate to any language - all with one click
+                </p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              
+              <div className="grid lg:grid-cols-2 gap-12">
+                {/* Multi-platform Card */}
                 <AnimatedSection animation="fadeUp" delay={0.1}>
-                  <FeatureCard
-                    title="AI-Powered Editing"
-                    description="Умный монтаж с помощью искусственного интеллекта для автоматического создания видео"
-                    icon="🤖"
-                  />
+                  <div className="glass-card p-8 rounded-2xl h-full">
+                    <h3 className="text-2xl font-bold text-white mb-6 flex items-center">
+                      <span className="text-3xl mr-3">🌍</span>
+                      Publish Everywhere
+                    </h3>
+                    <p className="text-gray-400 mb-8">
+                      Automatic optimization for all major platforms with smart format conversion
+                    </p>
+                    <div className="grid grid-cols-4 gap-4">
+                      {[
+                        { name: "YouTube", icon: "🎥" },
+                        { name: "TikTok", icon: "📱" },
+                        { name: "Instagram", icon: "📸" },
+                        { name: "Twitter/X", icon: "🐦" },
+                        { name: "Facebook", icon: "📘" },
+                        { name: "LinkedIn", icon: "💼" },
+                        { name: "Vimeo", icon: "🎬" },
+                        { name: "Telegram", icon: "✈️" }
+                      ].map((platform, index) => (
+                        <motion.div
+                          key={platform.name}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          whileInView={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: index * 0.05 }}
+                          className="glass p-4 rounded-lg text-center hover:bg-white/10 transition-all cursor-pointer"
+                        >
+                          <div className="text-2xl mb-1">{platform.icon}</div>
+                          <p className="text-xs text-gray-300">{platform.name}</p>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
                 </AnimatedSection>
+
+                {/* Multi-language Card */}
                 <AnimatedSection animation="fadeUp" delay={0.2}>
-                  <FeatureCard
-                    title="Multicam Timeline"
-                    description="Профессиональный многокамерный монтаж с синхронизацией по звуку"
-                    icon="🎥"
-                  />
-                </AnimatedSection>
-                <AnimatedSection animation="fadeUp" delay={0.3}>
-                  <FeatureCard
-                    title="Real-time Effects"
-                    description="Более 100 эффектов и фильтров с предпросмотром в реальном времени"
-                    icon="✨"
-                  />
-                </AnimatedSection>
-                <AnimatedSection animation="fadeUp" delay={0.4}>
-                  <FeatureCard 
-                    title="Cloud Sync" 
-                    description="Автоматическая синхронизация проектов между устройствами через облако" 
-                    icon="☁️" 
-                  />
-                </AnimatedSection>
-                <AnimatedSection animation="fadeUp" delay={0.5}>
-                  <FeatureCard
-                    title="4K/8K Support"
-                    description="Поддержка видео сверхвысокого разрешения с GPU-ускорением"
-                    icon="🎞️"
-                  />
-                </AnimatedSection>
-                <AnimatedSection animation="fadeUp" delay={0.6}>
-                  <FeatureCard
-                    title="Audio Studio"
-                    description="Встроенная студия звука с эквалайзером и шумоподавлением"
-                    icon="🎵"
-                  />
+                  <div className="glass-card p-8 rounded-2xl h-full">
+                    <h3 className="text-2xl font-bold text-white mb-6 flex items-center">
+                      <span className="text-3xl mr-3">🗣️</span>
+                      Speak Every Language
+                    </h3>
+                    <p className="text-gray-400 mb-8">
+                      AI-powered translation and subtitle generation in 13+ languages
+                    </p>
+                    <div className="grid grid-cols-4 gap-4">
+                      {[
+                        { lang: "English", flag: "🇺🇸" },
+                        { lang: "Spanish", flag: "🇪🇸" },
+                        { lang: "French", flag: "🇫🇷" },
+                        { lang: "German", flag: "🇩🇪" },
+                        { lang: "Portuguese", flag: "🇵🇹" },
+                        { lang: "Russian", flag: "🇷🇺" },
+                        { lang: "Chinese", flag: "🇨🇳" },
+                        { lang: "Japanese", flag: "🇯🇵" },
+                        { lang: "Korean", flag: "🇰🇷" },
+                        { lang: "Turkish", flag: "🇹🇷" },
+                        { lang: "Arabic", flag: "🇸🇦" },
+                        { lang: "Hindi", flag: "🇮🇳" }
+                      ].map((item, index) => (
+                        <motion.div
+                          key={item.lang}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          whileInView={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: index * 0.05 }}
+                          className="glass p-3 rounded-lg text-center hover:bg-white/10 transition-all cursor-pointer"
+                        >
+                          <div className="text-xl mb-1">{item.flag}</div>
+                          <p className="text-xs text-gray-300">{item.lang}</p>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
                 </AnimatedSection>
               </div>
             </div>
           </section>
         </AnimatedSection>
 
-        {/* AI Editing Section */}
-        <AIEditingSection />
-
-        {/* Effects Section */}
-        <EffectsSection />
-
-        {/* Pricing Section */}
-        <PricingSection />
-
         {/* Скачать */}
         <AnimatedSection animation="fadeIn">
           <section id="download" className="py-20 bg-gray-900">
             <div className="container mx-auto px-4 text-center">
               <div className="mb-16">
-                <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Скачать Timeline Studio</h2>
+                <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Download Timeline Studio</h2>
                 <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full mb-6" />
                 <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-                  Доступно для всех основных операционных систем. Выберите вашу платформу:
+                  Available for all major operating systems. Choose your platform:
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row justify-center gap-6">
@@ -96,80 +130,26 @@ const App: React.FC = () => {
                 <DownloadButton platform="Linux" icon="linux" />
               </div>
               <p className="mt-8 text-gray-400">
-                <span className="font-semibold">Последняя версия: </span>
+                <span className="font-semibold">Latest version: </span>
                 <a
                   href="https://github.com/chatman-media/timeline-studio/releases/latest"
                   className="text-blue-400 hover:text-blue-300 transition-colors"
                 >
-                  Проверить на GitHub
+                  Check on GitHub
                 </a>
                 <span className="mx-2">•</span>
                 <a
                   href="https://github.com/chatman-media/timeline-studio/releases"
                   className="text-blue-400 hover:text-blue-300 transition-colors"
                 >
-                  Все версии
+                  All releases
                 </a>
               </p>
             </div>
           </section>
         </AnimatedSection>
 
-        {/* Документация */}
-        <AnimatedSection animation="fadeUp">
-          <section className="py-20 bg-gray-800/50">
-            <div className="container mx-auto px-4 text-center">
-              <div className="mb-16">
-                <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Документация</h2>
-                <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full mb-6" />
-                <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-                  Подробная документация поможет вам начать работу с Timeline Studio:
-                </p>
-              </div>
-              <div className="flex flex-col sm:flex-row justify-center gap-6">
-                <a
-                  href="https://chatman-media.github.io/timeline-studio/api-docs/"
-                  className="group relative glass glass-glow px-8 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105"
-                >
-                  <span className="relative z-10">API документация</span>
-                </a>
-                <a
-                  href="https://github.com/chatman-media/timeline-studio#начало-работы"
-                  className="group relative glass glass-glow px-8 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105"
-                >
-                  <span className="relative z-10">Руководство пользователя</span>
-                </a>
-              </div>
-            </div>
-          </section>
-        </AnimatedSection>
 
-        {/* Контакты */}
-        <section id="contact" className="py-20 bg-gray-900">
-          <AnimatedSection animation="fadeUp">
-            <div className="container mx-auto px-4 text-center">
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Свяжитесь с нами</h2>
-              <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full mb-8" />
-              <p className="text-xl text-gray-300 mb-8">
-                Есть вопросы или предложения? Мы всегда рады обратной связи!
-              </p>
-              <div className="flex flex-col sm:flex-row justify-center gap-6">
-                <a
-                  href="https://github.com/chatman-media/timeline-studio/issues"
-                  className="glass glass-glow px-6 py-3 rounded-xl text-white hover:bg-white/10 transition-all duration-300"
-                >
-                  GitHub Issues
-                </a>
-                <a
-                  href="mailto:ak.chatman.media@gmail.com"
-                  className="glass glass-glow px-6 py-3 rounded-xl text-white hover:bg-white/10 transition-all duration-300"
-                >
-                  Email
-                </a>
-              </div>
-            </div>
-          </AnimatedSection>
-        </section>
 
         {/* Футер */}
         <footer className="bg-black border-t border-gray-800">
@@ -192,12 +172,12 @@ const App: React.FC = () => {
                   </h2>
                 </div>
                 <p className="text-gray-400 max-w-md">
-                  Профессиональное приложение для создания и редактирования видео с современными технологиями
+                  Professional AI-powered video editing application with cutting-edge technology
                 </p>
               </div>
               <div className="flex flex-col md:flex-row gap-12">
                 <div>
-                  <h3 className="text-lg font-semibold mb-4 text-white">Ресурсы</h3>
+                  <h3 className="text-lg font-semibold mb-4 text-white">Resources</h3>
                   <ul className="space-y-3">
                     <li>
                       <a
@@ -220,20 +200,20 @@ const App: React.FC = () => {
                         href="https://chatman-media.github.io/timeline-studio/api-docs/"
                         className="text-gray-400 hover:text-blue-400 transition-colors"
                       >
-                        Документация
+                        Documentation
                       </a>
                     </li>
                   </ul>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold mb-4 text-white">Связаться</h3>
+                  <h3 className="text-lg font-semibold mb-4 text-white">Contact</h3>
                   <ul className="space-y-3">
                     <li>
                       <a
                         href="https://github.com/chatman-media/timeline-studio/issues"
                         className="text-gray-400 hover:text-blue-400 transition-colors"
                       >
-                        Сообщить о проблеме
+                        Report Issue
                       </a>
                     </li>
                     <li>
@@ -241,7 +221,7 @@ const App: React.FC = () => {
                         href="mailto:ak.chatman.media@gmail.com"
                         className="text-gray-400 hover:text-blue-400 transition-colors"
                       >
-                        Электронная почта
+                        Email
                       </a>
                     </li>
                   </ul>
@@ -249,7 +229,7 @@ const App: React.FC = () => {
               </div>
             </div>
             <div className="border-t border-gray-800 mt-12 pt-8 text-center">
-              <p className="text-gray-500">&copy; {new Date().getFullYear()} Timeline Studio. Все права защищены.</p>
+              <p className="text-gray-500">&copy; {new Date().getFullYear()} Timeline Studio. All rights reserved.</p>
             </div>
           </div>
         </footer>
@@ -257,19 +237,6 @@ const App: React.FC = () => {
   )
 }
 
-// Компонент карточки возможностей
-const FeatureCard: React.FC<{ title: string; description: string; icon: string }> = ({ title, description, icon }) => {
-  return (
-    <div className="group relative glass-card p-8 rounded-2xl shadow-xl hover:shadow-blue-500/10 transition-all duration-300 transform hover:scale-105 hover:-translate-y-2">
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 via-purple-600/5 to-indigo-600/5 rounded-2xl opacity-0 group-hover:opacity-100 transition duration-300" />
-      <div className="relative z-10">
-        <div className="text-5xl mb-6 transform group-hover:scale-110 transition-transform duration-300">{icon}</div>
-        <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-blue-400 transition-colors">{title}</h3>
-        <p className="text-gray-400 leading-relaxed">{description}</p>
-      </div>
-    </div>
-  )
-}
 
 // Компонент кнопки загрузки
 const DownloadButton: React.FC<{ platform: string; icon: string }> = ({ platform, icon }) => {
@@ -300,18 +267,6 @@ const DownloadButton: React.FC<{ platform: string; icon: string }> = ({ platform
     }
   }
 
-  const getGradient = (platform: string) => {
-    switch (platform) {
-      case "Windows":
-        return "from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
-      case "macOS":
-        return "from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800"
-      case "Linux":
-        return "from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700"
-      default:
-        return "from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-    }
-  }
 
   return (
     <a
@@ -322,7 +277,7 @@ const DownloadButton: React.FC<{ platform: string; icon: string }> = ({ platform
         <span className="text-3xl transform group-hover:scale-110 transition-transform duration-300">
           {getIcon(icon)}
         </span>
-        <span className="text-white">Скачать для {platform}</span>
+        <span className="text-white">Download for {platform}</span>
       </span>
     </a>
   )

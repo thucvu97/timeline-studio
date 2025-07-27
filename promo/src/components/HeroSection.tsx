@@ -103,7 +103,7 @@ export function HeroSection() {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="text-xl md:text-2xl text-gray-400 mb-12 max-w-3xl mx-auto"
         >
-          Новое поколение видеоредактора с AI. Создавайте потрясающий контент быстрее, чем когда-либо.
+          Professional video editing powered by 151 AI tools. Create stunning content faster than ever before.
         </motion.p>
 
         <motion.div
@@ -113,7 +113,7 @@ export function HeroSection() {
           className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6"
         >
           <button className="glass glass-glow px-8 py-4 rounded-xl text-lg font-medium text-white hover:bg-white/10 transition-all duration-300 group flex items-center space-x-3">
-            <span>Начать бесплатно</span>
+            <span>Start Free</span>
             <svg
               className="w-5 h-5 group-hover:translate-x-1 transition-transform"
               fill="none"
@@ -149,7 +149,7 @@ export function HeroSection() {
                 d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
-            <span>Смотреть демо</span>
+            <span>Watch Demo</span>
           </button>
         </motion.div>
 
@@ -161,17 +161,17 @@ export function HeroSection() {
         >
           <div className="text-center">
             <div className="text-3xl font-bold text-white">500K+</div>
-            <div className="text-sm text-gray-400">Активных пользователей</div>
+            <div className="text-sm text-gray-400">Active Users</div>
           </div>
           <div className="w-px h-10 bg-gray-700" />
           <div className="text-center">
-            <div className="text-3xl font-bold text-white">150+</div>
-            <div className="text-sm text-gray-400">Инструментов</div>
+            <div className="text-3xl font-bold text-white">151</div>
+            <div className="text-sm text-gray-400">AI Tools</div>
           </div>
           <div className="w-px h-10 bg-gray-700" />
           <div className="text-center">
             <div className="text-3xl font-bold text-white">60 FPS</div>
-            <div className="text-sm text-gray-400">Рендеринг в 8K</div>
+            <div className="text-sm text-gray-400">8K Rendering</div>
           </div>
         </motion.div>
       </motion.div>

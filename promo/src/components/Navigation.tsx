@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 interface NavItem {
   label: string;
@@ -9,11 +9,13 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { label: 'AI Монтаж', href: '#ai-editing', isScroll: true },
-  { label: 'Скачать', href: '#download', isScroll: true },
-  { label: 'Changelog', href: '/changelog', isExternal: true },
-  { label: 'Pricing', href: '/pricing', isExternal: true },
-  { label: 'Docs', href: 'https://docs.timelinestudio.app', isExternal: true },
+  { label: 'AI Editing', href: '#ai-editing', isScroll: true },
+  { label: 'Features', href: '#features', isScroll: true },
+  { label: 'Download', href: '#download', isScroll: true }
+];
+
+const rightNavItems: NavItem[] = [
+  { label: 'Docs', href: 'https://timelinestudio.app/docs', isExternal: true },
   { label: 'Blog', href: '/blog', isExternal: true }
 ];
 
@@ -79,12 +81,12 @@ export function Navigation() {
             <span className="text-white font-semibold text-xl">Timeline Studio</span>
           </motion.div>
 
-          {/* Navigation Items */}
+          {/* Left Navigation Items */}
           <motion.ul
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="hidden md:flex items-center space-x-0"
+            className="hidden md:flex items-center space-x-0 flex-1"
           >
             {navItems.map((item, index) => (
               <motion.li
@@ -98,16 +100,12 @@ export function Navigation() {
                     href={item.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="relative px-5 py-2.5 text-sm font-medium text-gray-400 hover:text-gray-200 transition-all duration-200"
+                    className="relative px-5 py-2.5 text-sm font-medium text-gray-400 hover:text-gray-200 transition-all duration-200 group"
                   >
                     <span className="relative z-10">{item.label}</span>
                     
                     {/* Hover effect - subtle background */}
-                    <motion.div
-                      className="absolute inset-0 bg-white/5 rounded-lg opacity-0"
-                      whileHover={{ opacity: 1 }}
-                      transition={{ duration: 0.15 }}
-                    />
+                    <div className="absolute inset-0 bg-white/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-150" />
                   </a>
                 ) : (
                   <a
@@ -121,33 +119,40 @@ export function Navigation() {
                   >
                     <span className="relative z-10">{item.label}</span>
                     
-                    {/* Active indicator - subtle underline for scroll items only */}
-                    <AnimatePresence mode="wait">
-                      {item.isScroll && activeSection === item.href.slice(1) && (
-                        <motion.div
-                          layoutId="activeNavIndicator"
-                          className="absolute -bottom-px left-5 right-5 h-[2px] bg-white"
-                          initial={{ opacity: 0, scaleX: 0 }}
-                          animate={{ opacity: 1, scaleX: 1 }}
-                          exit={{ opacity: 0, scaleX: 0 }}
-                          transition={{ 
-                            type: "spring",
-                            stiffness: 500,
-                            damping: 30,
-                            opacity: { duration: 0.2 }
-                          }}
-                        />
-                      )}
-                    </AnimatePresence>
                     
                     {/* Hover effect - subtle background */}
-                    <motion.div
-                      className="absolute inset-0 bg-white/5 rounded-lg opacity-0"
-                      whileHover={{ opacity: 1 }}
-                      transition={{ duration: 0.15 }}
-                    />
+                    <div className="absolute inset-0 bg-white/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-150" />
                   </a>
                 )}
+              </motion.li>
+            ))}
+          </motion.ul>
+
+          {/* Right Navigation Items */}
+          <motion.ul
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="hidden md:flex items-center space-x-0 ml-auto"
+          >
+            {rightNavItems.map((item, index) => (
+              <motion.li
+                key={item.href}
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.2 + index * 0.05 }}
+              >
+                <a
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="relative px-5 py-2.5 text-sm font-medium text-gray-400 hover:text-gray-200 transition-all duration-200 group"
+                >
+                  <span className="relative z-10">{item.label}</span>
+                  
+                  {/* Hover effect - subtle background */}
+                  <div className="absolute inset-0 bg-white/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-150" />
+                </a>
               </motion.li>
             ))}
           </motion.ul>
@@ -156,11 +161,12 @@ export function Navigation() {
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="ml-6"
           >
             <button className="relative px-6 py-2.5 rounded-xl text-sm font-medium text-white overflow-hidden group cursor-pointer">
               <span className="relative z-10 flex items-center space-x-2">
-                <span>Скачать бесплатно</span>
+                <span>Download Free</span>
                 <svg
                   className="w-4 h-4 group-hover:translate-x-0.5 transition-transform duration-200"
                   fill="none"

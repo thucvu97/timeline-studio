@@ -15,7 +15,7 @@ export function AIEditingSection() {
             </h2>
             <div className="w-24 h-1 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto rounded-full mb-6" />
             <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-              Искусственный интеллект анализирует ваши видео и автоматически создаёт профессиональный монтаж
+              Transform your raw footage into professional videos with AI that understands your creative vision
             </p>
           </div>
         </AnimatedSection>
@@ -29,8 +29,8 @@ export function AIEditingSection() {
                     <span className="text-2xl">🎯</span>
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-white mb-2">Автоматическая нарезка</h3>
-                    <p className="text-gray-400">AI определяет лучшие моменты и создаёт динамичные клипы</p>
+                    <h3 className="text-xl font-semibold text-white mb-2">Smart Scene Detection</h3>
+                    <p className="text-gray-400">AI identifies the best moments and creates dynamic clips automatically</p>
                   </div>
                 </div>
               </div>
@@ -41,8 +41,8 @@ export function AIEditingSection() {
                     <span className="text-2xl">🎵</span>
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-white mb-2">Синхронизация с музыкой</h3>
-                    <p className="text-gray-400">Автоматическая синхронизация переходов с ритмом музыки</p>
+                    <h3 className="text-xl font-semibold text-white mb-2">Beat Sync Magic</h3>
+                    <p className="text-gray-400">Automatically sync cuts and transitions to the rhythm of your music</p>
                   </div>
                 </div>
               </div>
@@ -53,8 +53,8 @@ export function AIEditingSection() {
                     <span className="text-2xl">🎨</span>
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-white mb-2">Цветокоррекция</h3>
-                    <p className="text-gray-400">Интеллектуальная цветокоррекция для единого стиля</p>
+                    <h3 className="text-xl font-semibold text-white mb-2">Auto Color Grading</h3>
+                    <p className="text-gray-400">Professional color correction that maintains consistent style throughout</p>
                   </div>
                 </div>
               </div>
@@ -83,9 +83,9 @@ export function AIEditingSection() {
                 <div className="mt-6 flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse" />
-                    <span className="text-sm text-gray-400">AI обрабатывает видео...</span>
+                    <span className="text-sm text-gray-400">AI processing your video...</span>
                   </div>
-                  <div className="text-sm text-purple-400 font-medium">78% готово</div>
+                  <div className="text-sm text-purple-400 font-medium">78% complete</div>
                 </div>
               </div>
               
