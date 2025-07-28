@@ -70,7 +70,7 @@ export function EffectDetailModal() {
     (name: string, params: Record<string, number>) => {
       try {
         // Получаем существующие пресеты для этого эффекта
-        const storageKey = `effect_presets_${(effect)?.id}`
+        const storageKey = `effect_presets_${effect?.id}`
         const existingPresets = localStorage.getItem(storageKey)
         const presets = existingPresets ? JSON.parse(existingPresets) : {}
 
@@ -101,7 +101,7 @@ export function EffectDetailModal() {
         console.error("Error saving custom preset:", error)
       }
     },
-    [(effect)?.id, currentLang, t],
+    [effect?.id, currentLang, t],
   )
 
   // Обработчик применения эффекта

@@ -87,7 +87,7 @@ export function AudioEffectsEditorModal() {
   const onApplyEffects = modalData?.onApplyEffects as ((effects: AppliedEffect[]) => void) | undefined
 
   const [activeEffects, setActiveEffects] = useState<Record<string, ActiveAudioEffect>>(
-    (modalData?.activeEffects as Record<string, ActiveAudioEffect>) || {}
+    (modalData?.activeEffects as Record<string, ActiveAudioEffect>) || {},
   )
   const [selectedTab, setSelectedTab] = useState("basic")
 

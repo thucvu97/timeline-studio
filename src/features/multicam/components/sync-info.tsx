@@ -20,36 +20,31 @@ interface SyncInfoProps {
   showDetails?: boolean
 }
 
-export function SyncInfo({ 
-  baseClipId, 
-  mediaFiles,
-  className,
-  showDetails = true 
-}: SyncInfoProps) {
+export function SyncInfo({ baseClipId, mediaFiles, className, showDetails = true }: SyncInfoProps) {
   const multicam = useMulticam(baseClipId)
-  
+
   // Анализируем возможности синхронизации для каждого угла
   const syncCapabilities = useMemo(() => {
-    return multicam.angles.map(angle => {
-      const mediaFile = mediaFiles.find(m => m.id === angle.clip.mediaId)
+    return multicam.angles.map((angle) => {
+      const mediaFile = mediaFiles.find((m) => m.id === angle.clip.mediaId)
       if (!mediaFile) return { angle, hasTimecode: false, hasAudio: false }
-      
+
       const hasTimecode = supportsTimecodeSync(mediaFile)
-      const hasAudio = mediaFile.probeData?.streams.some(s => s.codec_type === "audio") || false
-      
+      const hasAudio = mediaFile.probeData?.streams.some((s) => s.codec_type === "audio") || false
+
       return { angle, hasTimecode, hasAudio }
     })
   }, [multicam.angles, mediaFiles])
-  
+
   // Проверяем общие возможности синхронизации
-  const canSyncByTimecode = syncCapabilities.filter(c => c.hasTimecode).length >= 2
-  const canSyncByAudio = syncCapabilities.filter(c => c.hasAudio).length >= 2
-  const hasSyncOffsets = multicam.syncOffsets.some(offset => Math.abs(offset) > 0.01)
-  
+  const canSyncByTimecode = syncCapabilities.filter((c) => c.hasTimecode).length >= 2
+  const canSyncByAudio = syncCapabilities.filter((c) => c.hasAudio).length >= 2
+  const hasSyncOffsets = multicam.syncOffsets.some((offset) => Math.abs(offset) > 0.01)
+
   if (!multicam.hasMulticamSupport) {
     return null
   }
-  
+
   return (
     <div className={cn("space-y-2", className)}>
       {/* Статус синхронизации */}
@@ -66,25 +61,19 @@ export function SyncInfo({
           </>
         )}
       </div>
-      
+
       {/* Возможности синхронизации */}
       <div className="flex gap-2">
-        <Badge 
-          variant={canSyncByTimecode ? "secondary" : "outline"}
-          className="text-xs"
-        >
+        <Badge variant={canSyncByTimecode ? "secondary" : "outline"} className="text-xs">
           <Clock className="w-3 h-3 mr-1" />
           Таймкод {canSyncByTimecode ? "✓" : "✗"}
         </Badge>
-        <Badge 
-          variant={canSyncByAudio ? "secondary" : "outline"}
-          className="text-xs"
-        >
+        <Badge variant={canSyncByAudio ? "secondary" : "outline"} className="text-xs">
           <Music className="w-3 h-3 mr-1" />
           Аудио {canSyncByAudio ? "✓" : "✗"}
         </Badge>
       </div>
-      
+
       {/* Детальная информация */}
       {showDetails && hasSyncOffsets && (
         <div className="space-y-1 pt-2 border-t">
@@ -92,12 +81,13 @@ export function SyncInfo({
           {multicam.angles.map((angle, index) => {
             const offset = multicam.syncOffsets[index] || 0
             if (Math.abs(offset) < 0.01) return null
-            
+
             return (
               <div key={angle.id} className="flex items-center justify-between text-xs">
                 <span>{angle.name}:</span>
                 <span className="font-mono">
-                  {offset > 0 ? "+" : ""}{offset.toFixed(3)}s
+                  {offset > 0 ? "+" : ""}
+                  {offset.toFixed(3)}s
                 </span>
               </div>
             )

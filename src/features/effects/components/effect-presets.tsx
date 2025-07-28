@@ -162,12 +162,11 @@ export function EffectPresets({ effect, onApplyPreset, selectedPreset }: EffectP
                         )}
                         <div className="text-xs text-gray-400">
                           {t("effects.detail.parameters", "Параметры")}:{" "}
-                          {preset.parameters ? 
-                            Object.entries(preset.parameters)
+                          {preset.parameters
+                            ? Object.entries(preset.parameters)
                               .map(([key, value]) => `${key}: ${String(value)}`)
-                              .join(", ") : 
-                            t("effects.noParameters", "Нет параметров")
-                          }
+                              .join(", ")
+                            : t("effects.noParameters", "Нет параметров")}
                         </div>
                         {isCustom && preset.createdAt && (
                           <div className="text-xs text-gray-400">

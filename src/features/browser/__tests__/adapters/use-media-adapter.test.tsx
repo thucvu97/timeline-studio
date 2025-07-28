@@ -162,9 +162,10 @@ describe("useMediaAdapter", () => {
           codec: null,
           resolution: null,
           frame_rate: null,
-          bitrate: file.probeData?.format?.size && file.duration 
-            ? Math.round((file.probeData.format.size * 8) / parseDuration(file.duration))
-            : null,
+          bitrate:
+            file.probeData?.format?.size && file.duration
+              ? Math.round((file.probeData.format.size * 8) / parseDuration(file.duration))
+              : null,
           audio_channels: file.probeData?.streams?.filter((s: any) => s.codec_type === "audio").length || null,
           sample_rate: null,
         },

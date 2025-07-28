@@ -1,6 +1,17 @@
 import React, { useCallback, useEffect, useRef, useState } from "react"
 
-import { AlertCircle, AlertTriangle, Bookmark, CheckSquare, Download, FolderOpen, PlayCircle, RefreshCw, StickyNote, Trash2 } from "lucide-react"
+import {
+  AlertCircle,
+  AlertTriangle,
+  Bookmark,
+  CheckSquare,
+  Download,
+  FolderOpen,
+  PlayCircle,
+  RefreshCw,
+  StickyNote,
+  Trash2,
+} from "lucide-react"
 
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"

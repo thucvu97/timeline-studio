@@ -175,12 +175,12 @@ export function useTimelineAIAnalysis(): TimelineAIAnalysisHook {
             stability: 80,
             noise: 30,
           },
-          detections: { 
-            objects: [], 
-            faces: [], 
-            text: [], 
+          detections: {
+            objects: [],
+            faces: [],
+            text: [],
             audio: { speech: [], music: [], soundEffects: [], silence: [] },
-            scenes: []
+            scenes: [],
           },
           insights: {
             summary: "Автоматический анализ завершен",

@@ -17,19 +17,19 @@ import type { Effect, GPUTier, PreviewQuality } from "../types"
 function throttle<T extends (...args: any[]) => any>(func: T, delay: number): T {
   let timeoutId: NodeJS.Timeout | null = null
   let lastExecTime = 0
-  
+
   return ((...args: Parameters<T>) => {
     const currentTime = Date.now()
-    
+
     if (currentTime - lastExecTime > delay) {
       lastExecTime = currentTime
       return func(...args)
     }
-    
+
     if (timeoutId) {
       clearTimeout(timeoutId)
     }
-    
+
     timeoutId = setTimeout(() => {
       lastExecTime = Date.now()
       func(...args)

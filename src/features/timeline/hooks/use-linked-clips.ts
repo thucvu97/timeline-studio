@@ -105,59 +105,65 @@ export function useLinkedClips(): UseLinkedClipsReturn {
   }, [project])
 
   // Получаем трек по ID клипа
-  const getTrackByClipId = useCallback((clipId: string): TimelineTrack | null => {
-    if (!project) return null
+  const getTrackByClipId = useCallback(
+    (clipId: string): TimelineTrack | null => {
+      if (!project) return null
 
-    // Проверяем глобальные треки
-    for (const track of project.globalTracks || []) {
-      if (track.clips.some(clip => clip.id === clipId)) {
-        return track
-      }
-    }
-
-    // Проверяем треки в секциях
-    for (const section of project.sections || []) {
-      for (const track of section.tracks || []) {
-        if (track.clips.some(clip => clip.id === clipId)) {
+      // Проверяем глобальные треки
+      for (const track of project.globalTracks || []) {
+        if (track.clips.some((clip) => clip.id === clipId)) {
           return track
         }
       }
-    }
 
-    return null
-  }, [project])
+      // Проверяем треки в секциях
+      for (const section of project.sections || []) {
+        for (const track of section.tracks || []) {
+          if (track.clips.some((clip) => clip.id === clipId)) {
+            return track
+          }
+        }
+      }
+
+      return null
+    },
+    [project],
+  )
 
   // Определяем тип связи на основе типов треков
-  const determineLinkType = useCallback((clip1Id: string, clip2Id: string): LinkedClipsPair["type"] => {
-    const track1 = getTrackByClipId(clip1Id)
-    const track2 = getTrackByClipId(clip2Id)
+  const determineLinkType = useCallback(
+    (clip1Id: string, clip2Id: string): LinkedClipsPair["type"] => {
+      const track1 = getTrackByClipId(clip1Id)
+      const track2 = getTrackByClipId(clip2Id)
 
-    if (!track1 || !track2) {
-      return "video-audio" // Значение по умолчанию
-    }
+      if (!track1 || !track2) {
+        return "video-audio" // Значение по умолчанию
+      }
 
-    const isVideoTrack = (type: string) => type === "video" || type === "image"
-    const isAudioTrack = (type: string) => 
-      type === "audio" || type === "music" || type === "voiceover" || type === "sfx" || type === "ambient"
+      const isVideoTrack = (type: string) => type === "video" || type === "image"
+      const isAudioTrack = (type: string) =>
+        type === "audio" || type === "music" || type === "voiceover" || type === "sfx" || type === "ambient"
 
-    // Проверяем мультикамерную связь - оба трека видео
-    if (isVideoTrack(track1.type) && isVideoTrack(track2.type)) {
-      return "multi-camera"
-    }
+      // Проверяем мультикамерную связь - оба трека видео
+      if (isVideoTrack(track1.type) && isVideoTrack(track2.type)) {
+        return "multi-camera"
+      }
 
-    // Видео-аудио связь
-    if (isVideoTrack(track1.type) && isAudioTrack(track2.type)) {
+      // Видео-аудио связь
+      if (isVideoTrack(track1.type) && isAudioTrack(track2.type)) {
+        return "video-audio"
+      }
+
+      // Аудио-видео связь
+      if (isAudioTrack(track1.type) && isVideoTrack(track2.type)) {
+        return "audio-video"
+      }
+
+      // По умолчанию для других комбинаций
       return "video-audio"
-    }
-
-    // Аудио-видео связь
-    if (isAudioTrack(track1.type) && isVideoTrack(track2.type)) {
-      return "audio-video"
-    }
-
-    // По умолчанию для других комбинаций
-    return "video-audio"
-  }, [getTrackByClipId])
+    },
+    [getTrackByClipId],
+  )
 
   // Получаем все связанные пары
   const linkedPairs = useMemo((): LinkedClipsPair[] => {
@@ -305,13 +311,13 @@ export function useLinkedClips(): UseLinkedClipsReturn {
       // Группируем клипы по типу трека
       const videoClips: TimelineClip[] = []
       const audioClips: TimelineClip[] = []
-      
+
       relatedClips.forEach((clip) => {
         const track = getTrackByClipId(clip.id)
         if (track) {
           const isVideoTrack = track.type === "video" || track.type === "image"
           const isAudioTrack = ["audio", "music", "voiceover", "sfx", "ambient"].includes(track.type)
-          
+
           if (isVideoTrack) {
             videoClips.push(clip)
           } else if (isAudioTrack) {
@@ -536,38 +542,41 @@ export function useLinkedClips(): UseLinkedClipsReturn {
 
   // Получить только мультикамерные связи
   const getMulticamPairs = useCallback((): LinkedClipsPair[] => {
-    return linkedPairs.filter(pair => pair.type === "multi-camera")
+    return linkedPairs.filter((pair) => pair.type === "multi-camera")
   }, [linkedPairs])
 
   // Получить все клипы из мультикамерной группы
-  const getMulticamGroup = useCallback((clipId: string): TimelineClip[] => {
-    const group: TimelineClip[] = []
-    const processed = new Set<string>()
-    
-    const addToGroup = (id: string) => {
-      if (processed.has(id)) return
-      processed.add(id)
-      
-      const clip = getAllClips().find(c => c.id === id)
-      if (!clip) return
-      
-      group.push(clip)
-      
-      // Рекурсивно добавляем все связанные мультикамерные клипы
-      linkedPairs.forEach(pair => {
-        if (pair.type === "multi-camera") {
-          if (pair.clip1.id === id && !processed.has(pair.clip2.id)) {
-            addToGroup(pair.clip2.id)
-          } else if (pair.clip2.id === id && !processed.has(pair.clip1.id)) {
-            addToGroup(pair.clip1.id)
+  const getMulticamGroup = useCallback(
+    (clipId: string): TimelineClip[] => {
+      const group: TimelineClip[] = []
+      const processed = new Set<string>()
+
+      const addToGroup = (id: string) => {
+        if (processed.has(id)) return
+        processed.add(id)
+
+        const clip = getAllClips().find((c) => c.id === id)
+        if (!clip) return
+
+        group.push(clip)
+
+        // Рекурсивно добавляем все связанные мультикамерные клипы
+        linkedPairs.forEach((pair) => {
+          if (pair.type === "multi-camera") {
+            if (pair.clip1.id === id && !processed.has(pair.clip2.id)) {
+              addToGroup(pair.clip2.id)
+            } else if (pair.clip2.id === id && !processed.has(pair.clip1.id)) {
+              addToGroup(pair.clip1.id)
+            }
           }
-        }
-      })
-    }
-    
-    addToGroup(clipId)
-    return group
-  }, [getAllClips, linkedPairs])
+        })
+      }
+
+      addToGroup(clipId)
+      return group
+    },
+    [getAllClips, linkedPairs],
+  )
 
   return {
     linkedPairs,
@@ -595,7 +604,7 @@ export function useLinkedClips(): UseLinkedClipsReturn {
     breakLinkedGroup,
 
     getLinkStats,
-    
+
     // Мультикамерные методы
     getMulticamPairs,
     getMulticamGroup,

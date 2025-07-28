@@ -147,13 +147,18 @@ describe("sync-resources-to-project", () => {
     },
     mediaPool: {
       items: new Map(),
-      bins: new Map([["root", { 
-        id: "root", 
-        name: "Root", 
-        parentId: null, 
-        sortOrder: 0,
-        createdDate: new Date("2023-01-01"),
-      }]]),
+      bins: new Map([
+        [
+          "root",
+          {
+            id: "root",
+            name: "Root",
+            parentId: null,
+            sortOrder: 0,
+            createdDate: new Date("2023-01-01"),
+          },
+        ],
+      ]),
       smartCollections: [],
       viewSettings: {
         sortBy: "name" as const,

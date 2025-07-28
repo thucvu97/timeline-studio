@@ -182,7 +182,7 @@ export function useEffectsAdapter(): ListAdapter<EffectListItem> {
       return {
         ...result,
         items: result.items as EffectListItem[],
-        error: result.error ? new Error(result.error) : null
+        error: result.error ? new Error(result.error) : null,
       }
     },
     PreviewComponent: EffectPreviewWrapper as unknown as React.ComponentType<PreviewComponentProps<EffectListItem>>,

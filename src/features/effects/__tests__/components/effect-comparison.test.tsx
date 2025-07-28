@@ -70,22 +70,22 @@ describe("EffectComparison", () => {
         name: { ru: "Интенсивность", en: "Intensity" },
         type: "number",
         defaultValue: 50,
-        range: { min: 0, max: 100 }
+        range: { min: 0, max: 100 },
       },
       {
-        id: "brightness", 
+        id: "brightness",
         name: { ru: "Яркость", en: "Brightness" },
         type: "number",
         defaultValue: 100,
-        range: { min: 0, max: 200 }
-      }
+        range: { min: 0, max: 200 },
+      },
     ],
     presets: [],
     processors: {
       css: {
-        shader: "brightness({{brightness}}%) blur({{intensity}}px)"
-      }
-    }
+        shader: "brightness({{brightness}}%) blur({{intensity}}px)",
+      },
+    },
   }
 
   // Создаем мок для HTMLVideoElement

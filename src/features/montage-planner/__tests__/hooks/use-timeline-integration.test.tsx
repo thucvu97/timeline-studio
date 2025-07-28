@@ -252,7 +252,7 @@ describe("useTimelineIntegration", () => {
             source_file: "/path/to/video3.mp4",
           },
           {
-            id: "clip3", 
+            id: "clip3",
             source_file: "/path/to/video4.mp4",
           },
         ],

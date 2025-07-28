@@ -17,7 +17,6 @@ import { StyleTemplate } from "../../style-templates/types/style-template"
 import { MediaTemplate } from "../../templates/lib/templates"
 import { Transition } from "../../transitions/types/transitions"
 
-
 // ============================================================================
 // CORE TIMELINE TYPES
 // ============================================================================

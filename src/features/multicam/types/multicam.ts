@@ -2,8 +2,6 @@
  * Типы для мультикамерной системы
  */
 
-import type { TimelineClip } from "@/features/timeline/types/timeline"
-
 /**
  * Метод синхронизации камер
  */
@@ -98,7 +96,7 @@ export interface MulticamPlaybackState {
 /**
  * Команды управления мультикамерой
  */
-export type MulticamCommand = 
+export type MulticamCommand =
   | { type: "switch-camera"; angleIndex: number }
   | { type: "sync-all" }
   | { type: "sync-angle"; angleIndex: number; offset: number }

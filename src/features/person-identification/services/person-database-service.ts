@@ -683,8 +683,8 @@ export class PersonDatabaseService {
 
         // Конвертируем DetectedFace в FaceEmbedding
         const faceEmbeddings: FaceEmbedding[] = cluster
-          .filter((face): face is DetectedFaceWithEmbedding => 
-            face.embedding !== undefined && face.embedding.length > 0
+          .filter(
+            (face): face is DetectedFaceWithEmbedding => face.embedding !== undefined && face.embedding.length > 0,
           )
           .map((face) => ({
             faceId: face.id,

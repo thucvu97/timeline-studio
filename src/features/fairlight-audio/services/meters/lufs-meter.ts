@@ -22,11 +22,8 @@ export interface LUFSConfig {
 
 export class LUFSMeter extends EventEmitter {
   private config: LUFSConfig
-  private context: AudioContext | null = null
   private analyser: AnalyserNode | null = null
   private processor: AudioWorkletNode | null = null
-  private isRunning = false
-  private lastUpdate = 0
 
   // Фильтры EBU R128
   private preFilter: BiquadFilterNode | null = null

@@ -29,13 +29,13 @@ const MediaPreviewWrapper: React.FC<PreviewComponentProps<MediaFile>> = ({
   const duration = item.duration ? parseDuration(item.duration) : "00:00"
   const fileSize = item.size ? parseFileSize(item.size) : "0 KB"
   const fileType = getFileType(item)
-  
+
   return (
     <Card
       className={cn(
         "cursor-pointer transition-all",
         isSelected && "ring-2 ring-primary",
-        viewMode === "list" ? "p-2" : "p-4"
+        viewMode === "list" ? "p-2" : "p-4",
       )}
       onClick={() => onClick?.(item)}
       onDragStart={(e: React.DragEvent) => onDragStart?.(item, e)}
@@ -44,7 +44,9 @@ const MediaPreviewWrapper: React.FC<PreviewComponentProps<MediaFile>> = ({
       <div className="flex flex-col gap-2">
         <h3 className="font-medium truncate">{item.name}</h3>
         <div className="text-sm text-muted-foreground">
-          <p>{duration} • {fileSize} • {fileType}</p>
+          <p>
+            {duration} • {fileSize} • {fileType}
+          </p>
         </div>
       </div>
     </Card>

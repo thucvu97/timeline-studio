@@ -339,7 +339,7 @@ describe("MidiSetup", () => {
           props.onComplete(
             { id: "device1", name: "MIDI Device 1", type: "input", manufacturer: "Test", state: "connected" },
             { type: "cc", channel: 1, data: { controller: 7 } },
-            "test.param"
+            "test.param",
           )
         }
       })

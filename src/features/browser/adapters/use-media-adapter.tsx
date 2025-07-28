@@ -54,7 +54,7 @@ export function useMediaAdapter(): ListAdapter<MediaListItem> {
   const allMediaFiles = useMemo(() => {
     // Получаем медиа файлы из media pool в новой архитектуре
     const mediaItems = projectState?.project?.media_pool?.items || {}
-    
+
     // Преобразуем объект MediaItem в массив MediaFile
     return Object.values(mediaItems).map((item: MediaItem) => {
       // Конвертируем duration обратно в формат строки времени для совместимости
@@ -70,7 +70,11 @@ export function useMediaAdapter(): ListAdapter<MediaListItem> {
         ...item,
         // Мапим поля из MediaItem в MediaFile
         startTime: (item as any).startTime || Date.now() / 1000, // Используем сохраненное значение или текущее время
-        size: (item as any).size || (item.metadata?.bitrate ? `${Math.round((item.metadata.bitrate * (item.duration || 0)) / 8 / 1024 / 1024)}MB` : "0MB"),
+        size:
+          (item as any).size ||
+          (item.metadata?.bitrate
+            ? `${Math.round((item.metadata.bitrate * (item.duration || 0)) / 8 / 1024 / 1024)}MB`
+            : "0MB"),
         duration: durationStr,
         thumbnailPath: item.thumbnail,
         type: item.media_type?.toLowerCase() || "video",
@@ -79,13 +83,17 @@ export function useMediaAdapter(): ListAdapter<MediaListItem> {
         isImage: item.media_type === "Image",
         isLoadingMetadata: false,
         // Добавляем probeData для совместимости с тестами
-        probeData: (item as any).probeData || (item.metadata ? {
-          format: {
-            size: item.metadata.bitrate ? (item.metadata.bitrate * (item.duration || 0)) / 8 : 0,
-            tags: {}
-          },
-          streams: []
-        } : undefined),
+        probeData:
+          (item as any).probeData ||
+          (item.metadata
+            ? {
+              format: {
+                size: item.metadata.bitrate ? (item.metadata.bitrate * (item.duration || 0)) / 8 : 0,
+                tags: {},
+              },
+              streams: [],
+            }
+            : undefined),
       }
     })
   }, [projectState?.project?.media_pool?.items])

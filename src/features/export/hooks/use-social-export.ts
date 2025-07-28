@@ -6,7 +6,11 @@ import { toast } from "sonner"
 
 import { SOCIAL_NETWORKS } from "../constants/export-constants"
 import * as SocialNetworksService from "../services/social-networks-service"
-import { getNetworkLimits as getNetworkLimitsFromService, getOptimalSettings as getOptimalSettingsFromService, validateExportSettings } from "../services/social-validation-service"
+import {
+  getNetworkLimits as getNetworkLimitsFromService,
+  getOptimalSettings as getOptimalSettingsFromService,
+  validateExportSettings,
+} from "../services/social-validation-service"
 import { SocialExportSettings } from "../types/export-types"
 
 export function useSocialExport() {

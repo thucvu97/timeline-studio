@@ -27,11 +27,11 @@ function formatTimecode(timecode: Timecode): string {
   const hours = Math.floor(timecode.seconds / 3600)
   const minutes = Math.floor((timecode.seconds % 3600) / 60)
   const seconds = Math.floor(timecode.seconds % 60)
-  
+
   if (hours > 0) {
-    return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+    return `${hours}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
   }
-  return `${minutes}:${seconds.toString().padStart(2, '0')}`
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`
 }
 
 export function PersonDetail({ person, appearances = [], onEdit, onClose }: PersonDetailProps) {

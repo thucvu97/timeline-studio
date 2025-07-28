@@ -8,13 +8,7 @@ import { AlertCircle, Check, Clock, Hash, Loader2, Music, Wand2 } from "lucide-r
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,19 +45,19 @@ export function SyncControls({ baseClipId, className, onSyncComplete }: SyncCont
     angleIndex: null,
     currentOffset: 0,
   })
-  
+
   // Синхронизация по таймкоду
   const handleTimecodeSync = useCallback(async () => {
     setIsSyncing(true)
     setSyncMethod("timecode")
     setSyncStatus("syncing")
-    
+
     try {
-      await new Promise(resolve => setTimeout(resolve, 500)) // Имитация задержки
+      await new Promise((resolve) => setTimeout(resolve, 500)) // Имитация задержки
       multicam.autoSyncByTimecode()
       setSyncStatus("success")
       onSyncComplete?.()
-      
+
       // Сбросить статус через 3 секунды
       setTimeout(() => {
         setSyncStatus("idle")
@@ -76,22 +70,25 @@ export function SyncControls({ baseClipId, className, onSyncComplete }: SyncCont
       setIsSyncing(false)
     }
   }, [multicam, onSyncComplete])
-  
+
   // Синхронизация по аудио
   const handleAudioSync = useCallback(() => {
     setAudioSyncOpen(true)
   }, [])
-  
+
   // Открытие диалога ручной синхронизации
-  const handleManualSync = useCallback((angleIndex: number) => {
-    const currentOffset = multicam.syncOffsets[angleIndex] || 0
-    setManualSync({
-      isOpen: true,
-      angleIndex,
-      currentOffset,
-    })
-  }, [multicam.syncOffsets])
-  
+  const handleManualSync = useCallback(
+    (angleIndex: number) => {
+      const currentOffset = multicam.syncOffsets[angleIndex] || 0
+      setManualSync({
+        isOpen: true,
+        angleIndex,
+        currentOffset,
+      })
+    },
+    [multicam.syncOffsets],
+  )
+
   // Применение ручной синхронизации
   const applyManualSync = useCallback(() => {
     if (manualSync.angleIndex !== null) {
@@ -101,7 +98,7 @@ export function SyncControls({ baseClipId, className, onSyncComplete }: SyncCont
       onSyncComplete?.()
     }
   }, [manualSync, multicam, onSyncComplete])
-  
+
   // Получение иконки для статуса
   const getStatusIcon = () => {
     switch (syncStatus) {
@@ -115,7 +112,7 @@ export function SyncControls({ baseClipId, className, onSyncComplete }: SyncCont
         return <Wand2 className="w-4 h-4" />
     }
   }
-  
+
   // Получение текста статуса
   const getStatusText = () => {
     if (syncStatus === "syncing") {
@@ -130,45 +127,40 @@ export function SyncControls({ baseClipId, className, onSyncComplete }: SyncCont
           return "Синхронизация..."
       }
     }
-    
+
     if (syncStatus === "success") {
       return "Синхронизировано!"
     }
-    
+
     if (syncStatus === "error") {
       return "Ошибка синхронизации"
     }
-    
+
     return "Синхронизация"
   }
-  
+
   if (!multicam.hasMulticamSupport) {
     return null
   }
-  
+
   // Обработчик завершения аудио синхронизации
   const handleAudioSyncComplete = useCallback(async () => {
     setAudioSyncOpen(false)
     setSyncStatus("success")
     onSyncComplete?.()
-    
+
     // Сбросить статус через 3 секунды
     setTimeout(() => {
       setSyncStatus("idle")
       setSyncMethod(null)
     }, 3000)
   }, [onSyncComplete])
-  
+
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button
-            variant="outline"
-            size="sm"
-            className={cn("gap-2", className)}
-            disabled={isSyncing}
-          >
+          <Button variant="outline" size="sm" className={cn("gap-2", className)} disabled={isSyncing}>
             {getStatusIcon()}
             {getStatusText()}
           </Button>
@@ -191,20 +183,23 @@ export function SyncControls({ baseClipId, className, onSyncComplete }: SyncCont
               disabled={isSyncing || index === multicam.activeAngleIndex}
             >
               <Hash className="w-4 h-4 mr-2" />
-              {angle.name} {Math.abs(multicam.syncOffsets[index] || 0) > 0.01 && 
-                `(${multicam.syncOffsets[index] > 0 ? "+" : ""}${multicam.syncOffsets[index]?.toFixed(2)}s)`
-              }
+              {angle.name}{" "}
+              {Math.abs(multicam.syncOffsets[index] || 0) > 0.01 &&
+                `(${multicam.syncOffsets[index] > 0 ? "+" : ""}${multicam.syncOffsets[index]?.toFixed(2)}s)`}
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
-      
+
       {/* Диалог ручной синхронизации */}
-      <Dialog open={manualSync.isOpen} onOpenChange={(open) => {
-        if (!open) {
-          setManualSync({ isOpen: false, angleIndex: null, currentOffset: 0 })
-        }
-      }}>
+      <Dialog
+        open={manualSync.isOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setManualSync({ isOpen: false, angleIndex: null, currentOffset: 0 })
+          }
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Ручная синхронизация</DialogTitle>
@@ -214,41 +209,42 @@ export function SyncControls({ baseClipId, className, onSyncComplete }: SyncCont
               )}
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <span>Смещение</span>
                 <span className="font-mono">
-                  {manualSync.currentOffset > 0 ? "+" : ""}{manualSync.currentOffset.toFixed(3)}s
+                  {manualSync.currentOffset > 0 ? "+" : ""}
+                  {manualSync.currentOffset.toFixed(3)}s
                 </span>
               </div>
-              
+
               <Slider
                 value={[manualSync.currentOffset]}
                 onValueChange={([value]) => {
-                  setManualSync(prev => ({ ...prev, currentOffset: value }))
+                  setManualSync((prev) => ({ ...prev, currentOffset: value }))
                 }}
                 min={-5}
                 max={5}
                 step={0.001}
                 className="w-full"
               />
-              
+
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>-5s</span>
                 <span>0s</span>
                 <span>+5s</span>
               </div>
             </div>
-            
+
             <Alert>
               <AlertDescription>
-                Используйте положительные значения, чтобы сдвинуть клип вперед, 
-                и отрицательные — чтобы сдвинуть назад относительно базового угла.
+                Используйте положительные значения, чтобы сдвинуть клип вперед, и отрицательные — чтобы сдвинуть назад
+                относительно базового угла.
               </AlertDescription>
             </Alert>
-            
+
             <div className="flex justify-end gap-2">
               <Button
                 variant="outline"
@@ -256,14 +252,12 @@ export function SyncControls({ baseClipId, className, onSyncComplete }: SyncCont
               >
                 Отмена
               </Button>
-              <Button onClick={applyManualSync}>
-                Применить
-              </Button>
+              <Button onClick={applyManualSync}>Применить</Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
-      
+
       {/* Диалог аудио синхронизации */}
       <AudioSyncDialog
         isOpen={audioSyncOpen}

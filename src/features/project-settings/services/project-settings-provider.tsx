@@ -96,9 +96,9 @@ export function ProjectSettingsProviderV2({ children }: ProjectSettingsProviderV
     if (!backendState?.project?.settings) {
       return DEFAULT_PROJECT_SETTINGS
     }
-    
+
     const backendSettings = backendState.project.settings
-    
+
     // Преобразуем backend настройки в frontend формат
     return {
       resolution: `${backendSettings.resolution.width}x${backendSettings.resolution.height}`,

@@ -55,7 +55,7 @@ describe("EffectPresets", () => {
       tags: ["basic"],
     },
     {
-      id: "strong", 
+      id: "strong",
       name: { ru: "Сильный", en: "Strong" },
       description: { ru: "Сильный эффект", en: "Strong effect" },
       parameters: { intensity: 75, brightness: 130 },
@@ -372,7 +372,7 @@ describe("EffectPresets", () => {
         ...baseEffect,
         presets: [
           {
-            id: "test", 
+            id: "test",
             name: { ru: "Тест", en: "Test" },
             description: { en: "English Description" },
             parameters: { intensity: 50 },

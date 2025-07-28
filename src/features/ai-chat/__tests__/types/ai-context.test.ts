@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
 
 import type {
-  AIToolResult,
   AIBrowserContext,
-  ContentStoryAnalysis,
   AIResourcesContext,
+  AIToolResult,
+  ContentStoryAnalysis,
   TimelineStudioContext,
 } from "../../types/ai-context"
 

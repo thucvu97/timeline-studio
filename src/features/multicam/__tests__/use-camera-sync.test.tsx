@@ -2,17 +2,15 @@
  * Тесты для хука управления синхронизацией камер
  */
 
-import { renderHook, act } from "@testing-library/react"
-import { describe, it, expect, vi, beforeEach } from "vitest"
+import { act, renderHook } from "@testing-library/react"
+import { beforeEach, describe, expect, it, vi } from "vitest"
+
 import { useCameraSync } from "../hooks/use-camera-sync"
-import type { SyncResult } from "../types/multicam"
 
 // Мокаем зависимости
 vi.mock("@/features/timeline/hooks/use-linked-clips", () => ({
   useLinkedClips: () => ({
-    getMulticamGroup: vi.fn(() => [
-      { clipId1: "clip1", clipId2: "clip2", type: "multi-camera" as const },
-    ]),
+    getMulticamGroup: vi.fn(() => [{ clipId1: "clip1", clipId2: "clip2", type: "multi-camera" as const }]),
     updateClipStartTime: vi.fn(),
     getClipById: vi.fn((id: string) => ({
       id,
@@ -65,10 +63,12 @@ vi.mock("../services/timecode-sync", () => ({
 }))
 
 vi.mock("../services/audio-sync", () => ({
-  syncByAudio: vi.fn(() => Promise.resolve({
-    offset: -2.5,
-    confidence: 0.85,
-  })),
+  syncByAudio: vi.fn(() =>
+    Promise.resolve({
+      offset: -2.5,
+      confidence: 0.85,
+    }),
+  ),
 }))
 
 describe("useCameraSync", () => {
@@ -77,10 +77,8 @@ describe("useCameraSync", () => {
   })
 
   it("should initialize with idle state", () => {
-    const { result } = renderHook(() => 
-      useCameraSync({ baseClipId: "clip1" })
-    )
-    
+    const { result } = renderHook(() => useCameraSync({ baseClipId: "clip1" }))
+
     expect(result.current.syncStatus).toBe("idle")
     expect(result.current.syncResults).toEqual([])
     expect(result.current.syncProgress).toBe(0)
@@ -88,14 +86,12 @@ describe("useCameraSync", () => {
   })
 
   it("should sync by timecode", async () => {
-    const { result } = renderHook(() => 
-      useCameraSync({ baseClipId: "clip1" })
-    )
-    
+    const { result } = renderHook(() => useCameraSync({ baseClipId: "clip1" }))
+
     await act(async () => {
       await result.current.syncByTimecode()
     })
-    
+
     expect(result.current.syncStatus).toBe("success")
     expect(result.current.syncResults).toHaveLength(1)
     expect(result.current.syncResults[0]).toEqual({
@@ -107,14 +103,12 @@ describe("useCameraSync", () => {
   })
 
   it("should handle manual sync", () => {
-    const { result } = renderHook(() => 
-      useCameraSync({ baseClipId: "clip1" })
-    )
-    
+    const { result } = renderHook(() => useCameraSync({ baseClipId: "clip1" }))
+
     act(() => {
       result.current.syncManual("clip3", 3.5)
     })
-    
+
     expect(result.current.syncResults).toHaveLength(1)
     expect(result.current.syncResults[0]).toEqual({
       clipId: "clip3",
@@ -126,81 +120,71 @@ describe("useCameraSync", () => {
   })
 
   it("should update existing sync result on manual sync", () => {
-    const { result } = renderHook(() => 
-      useCameraSync({ baseClipId: "clip1" })
-    )
-    
+    const { result } = renderHook(() => useCameraSync({ baseClipId: "clip1" }))
+
     // Первая синхронизация
     act(() => {
       result.current.syncManual("clip2", 2.0)
     })
-    
+
     expect(result.current.syncResults).toHaveLength(1)
     expect(result.current.syncResults[0].offset).toBe(2.0)
-    
+
     // Обновление синхронизации
     act(() => {
       result.current.syncManual("clip2", 3.0)
     })
-    
+
     expect(result.current.syncResults).toHaveLength(1)
     expect(result.current.syncResults[0].offset).toBe(3.0)
   })
 
   it("should get sync offset for clip", () => {
-    const { result } = renderHook(() => 
-      useCameraSync({ baseClipId: "clip1" })
-    )
-    
+    const { result } = renderHook(() => useCameraSync({ baseClipId: "clip1" }))
+
     act(() => {
       result.current.syncManual("clip2", 2.5)
     })
-    
+
     expect(result.current.getSyncOffset("clip2")).toBe(2.5)
     expect(result.current.getSyncOffset("clip3")).toBe(0)
   })
 
   it("should check if clip is synced", () => {
-    const { result } = renderHook(() => 
-      useCameraSync({ baseClipId: "clip1" })
-    )
-    
+    const { result } = renderHook(() => useCameraSync({ baseClipId: "clip1" }))
+
     act(() => {
       result.current.syncManual("clip2", 1.0)
     })
-    
+
     expect(result.current.isSynced("clip2")).toBe(true)
     expect(result.current.isSynced("clip3")).toBe(false)
   })
 
   it("should get sync method for clip", () => {
-    const { result } = renderHook(() => 
-      useCameraSync({ baseClipId: "clip1" })
-    )
-    
+    const { result } = renderHook(() => useCameraSync({ baseClipId: "clip1" }))
+
     act(() => {
       result.current.syncManual("clip2", 1.0)
     })
-    
+
     expect(result.current.getSyncMethod("clip2")).toBe("manual")
     expect(result.current.getSyncMethod("clip3")).toBeNull()
   })
 
   it("should clear sync results", () => {
-    const { result } = renderHook(() => 
-      useCameraSync({ baseClipId: "clip1" })
-    )
-    
+    const { result } = renderHook(() => useCameraSync({ baseClipId: "clip1" }))
+
     act(() => {
       result.current.syncManual("clip2", 1.0)
     })
-    
+
     expect(result.current.syncResults).toHaveLength(1)
-    
+
     act(() => {
       result.current.clearSyncResults()
     })
-    
+
     expect(result.current.syncResults).toHaveLength(0)
     expect(result.current.syncStatus).toBe("idle")
     expect(result.current.syncProgress).toBe(0)

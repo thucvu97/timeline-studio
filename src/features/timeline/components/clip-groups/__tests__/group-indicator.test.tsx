@@ -250,7 +250,7 @@ describe("GroupIndicator", () => {
 
       const indicatorElement = container.firstChild as HTMLElement
       expect(indicatorElement).toHaveClass(
-        "flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-opacity-20 border"
+        "flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-opacity-20 border",
       )
     })
 

@@ -28,7 +28,6 @@ import {
   SubtitleStyle as BackendSubtitleStyle,
   Template as BackendTemplate,
   Track as BackendTrack,
-  Transition as BackendTransition,
   ElementAnimation,
   FitMode,
   FontWeight,
@@ -98,10 +97,14 @@ export function timelineToProjectSchema(timeline: TimelineProject): ProjectSchem
   const allEffects = (timeline.resources?.effects || []).map((effect: any) => {
     // Специальный маппинг для некоторых эффектов
     let parameters = effect.params || effect.parameters || {}
-    if (effect.type && ["brightness", "contrast", "saturation"].includes(effect.type) && effect.params?.intensity !== undefined) {
+    if (
+      effect.type &&
+      ["brightness", "contrast", "saturation"].includes(effect.type) &&
+      effect.params?.intensity !== undefined
+    ) {
       parameters = { value: effect.params.intensity }
     }
-    
+
     return {
       ...effect,
       effect_type: effect.type ? toRustEnumCase(effect.type) : effect.category,
@@ -224,14 +227,14 @@ function convertEffects(effects: BaseEffect[]): BackendEffect[] {
   return effects.map((effect) => ({
     id: effect.id,
     effect_type: toRustEnumCase(effect.category),
-    name: typeof effect.name === 'string' ? effect.name : effect.name.ru,
+    name: typeof effect.name === "string" ? effect.name : effect.name.ru,
     enabled: true,
     parameters: convertEffectParameters(effect),
-    ffmpeg_command: effect.processors?.ffmpeg ? 
-      (typeof effect.processors.ffmpeg.filter === 'function' ? 
-        effect.processors.ffmpeg.filter(getDefaultParams(effect)) : 
-        effect.processors.ffmpeg.filter) : 
-      undefined,
+    ffmpeg_command: effect.processors?.ffmpeg
+      ? typeof effect.processors.ffmpeg.filter === "function"
+        ? effect.processors.ffmpeg.filter(getDefaultParams(effect))
+        : effect.processors.ffmpeg.filter
+      : undefined,
   }))
 }
 
@@ -240,7 +243,7 @@ function convertEffects(effects: BaseEffect[]): BackendEffect[] {
  */
 function convertEffectParameters(effect: BaseEffect): Record<string, any> {
   const parameters: Record<string, any> = {}
-  
+
   // Собираем текущие значения параметров
   effect.parameters.forEach((param) => {
     const value = param.currentValue !== undefined ? param.currentValue : param.defaultValue
@@ -248,7 +251,7 @@ function convertEffectParameters(effect: BaseEffect): Record<string, any> {
       parameters[param.id] = value
     }
   })
-  
+
   return parameters
 }
 
@@ -325,7 +328,7 @@ function convertFilters(filters: VideoFilter[]): BackendFilter[] {
 /**
  * Преобразует переходы в формат backend
  */
-function convertTransitions(transitions: Transition[]): Transition[] {
+function convertTransitions(_transitions: Transition[]): Transition[] {
   // Поскольку типы Transition из frontend и backend не совпадают,
   // просто возвращаем пустой массив
   // TODO: Имплементировать корректную конвертацию переходов

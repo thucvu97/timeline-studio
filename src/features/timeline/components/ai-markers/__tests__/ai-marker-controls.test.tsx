@@ -100,9 +100,14 @@ describe("AIMarkerControls", () => {
           duration: 5,
           type: SceneType.ESTABLISHING,
           keyFrames: [],
-          quality: { 
-            overall: 90, sharpness: 85, brightness: 80, contrast: 75, 
-            saturation: 70, stability: 95, noise: 5 
+          quality: {
+            overall: 90,
+            sharpness: 85,
+            brightness: 80,
+            contrast: 75,
+            saturation: 70,
+            stability: 95,
+            noise: 5,
           },
           content: { objects: [], faces: [], text: [], activities: [] },
           transitions: [],
@@ -114,9 +119,14 @@ describe("AIMarkerControls", () => {
           duration: 5,
           type: SceneType.ACTION,
           keyFrames: [],
-          quality: { 
-            overall: 85, sharpness: 80, brightness: 75, contrast: 70, 
-            saturation: 65, stability: 90, noise: 10 
+          quality: {
+            overall: 85,
+            sharpness: 80,
+            brightness: 75,
+            contrast: 70,
+            saturation: 65,
+            stability: 90,
+            noise: 10,
           },
           content: { objects: [], faces: [], text: [], activities: [] },
           transitions: [],

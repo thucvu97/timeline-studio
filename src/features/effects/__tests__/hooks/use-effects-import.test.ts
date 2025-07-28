@@ -475,7 +475,7 @@ describe("useEffectsImport", () => {
 
       expect(importResult.success).toBe(true)
       expect(importResult.effects).toHaveLength(1)
-      
+
       // The code first tries split("/") which returns the whole path for Windows paths
       // Then it tries split("\\") which would give "my-effect.cube"
       // Finally it removes the extension

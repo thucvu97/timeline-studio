@@ -3,35 +3,32 @@
  * Экспорт всех публичных API
  */
 
+export { CameraSelector, MulticamIndicator } from "./components"
 // Компоненты
 export { AngleViewer } from "./components/angle-viewer"
 export { SyncControls } from "./components/sync-controls"
-export { CameraSelector, MulticamIndicator } from "./components"
-
+export type { UseCameraSyncProps, UseCameraSyncReturn } from "./hooks/use-camera-sync"
+export { useCameraSync } from "./hooks/use-camera-sync"
+export type { MulticamAngle, MulticamState, UseMulticamReturn } from "./hooks/use-multicam"
 // Хуки
 export { useMulticam } from "./hooks/use-multicam"
 export { useMulticamShortcuts } from "./hooks/use-multicam-shortcuts"
-export { useCameraSync } from "./hooks/use-camera-sync"
-export type { UseMulticamReturn, MulticamAngle, MulticamState } from "./hooks/use-multicam"
-export type { UseCameraSyncReturn, UseCameraSyncProps } from "./hooks/use-camera-sync"
 
 // Сервисы
 export { multicamManager } from "./services/multicam-manager"
+export type {
+  SyncResult,
+  TimecodeInfo,
+} from "./services/timecode-sync"
 export * from "./services/timecode-sync"
-
 // Типы
 export type {
-  SyncMethod,
-  SyncPoint,
-  MulticamConfig,
   CameraSwitchEvent,
-  SyncAnalysisResult,
+  MulticamCommand,
+  MulticamConfig,
   MulticamDisplaySettings,
   MulticamPlaybackState,
-  MulticamCommand,
+  SyncAnalysisResult,
+  SyncMethod,
+  SyncPoint,
 } from "./types/multicam"
-
-export type {
-  TimecodeInfo,
-  SyncResult
-} from "./services/timecode-sync"

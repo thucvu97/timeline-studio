@@ -106,8 +106,8 @@ describe("timeline-context utils", () => {
                     effectId: "blur",
                     enabled: true,
                     order: 0,
-                    customParams: { intensity: 0.5 }
-                  }
+                    customParams: { intensity: 0.5 },
+                  },
                 ],
                 filters: [],
                 transitions: [
@@ -117,8 +117,8 @@ describe("timeline-context utils", () => {
                     duration: 0.5,
                     type: "in" as const,
                     isEnabled: true,
-                    customParams: {}
-                  }
+                    customParams: {},
+                  },
                 ],
                 isSelected: false,
                 isLocked: false,

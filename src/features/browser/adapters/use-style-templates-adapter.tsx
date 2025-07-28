@@ -56,10 +56,16 @@ const StyleTemplatePreviewWrapper: React.FC<PreviewComponentProps<StyleTemplate>
         {/* Template preview thumbnail */}
         <div className="flex-shrink-0 w-16 h-9 bg-gray-100 rounded overflow-hidden relative">
           {template.thumbnail ? (
-            <img src={template.thumbnail} alt={typeof template.name === 'string' ? template.name : template.name.ru} className="w-full h-full object-cover" />
+            <img
+              src={template.thumbnail}
+              alt={typeof template.name === "string" ? template.name : template.name.ru}
+              className="w-full h-full object-cover"
+            />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-              <span className="text-white text-xs font-bold">{(typeof template.name === 'string' ? template.name : template.name.ru).substring(0, 2).toUpperCase()}</span>
+              <span className="text-white text-xs font-bold">
+                {(typeof template.name === "string" ? template.name : template.name.ru).substring(0, 2).toUpperCase()}
+              </span>
             </div>
           )}
 
@@ -69,9 +75,12 @@ const StyleTemplatePreviewWrapper: React.FC<PreviewComponentProps<StyleTemplate>
 
         {/* Template Info */}
         <div className="flex-1 min-w-0">
-          <div className="font-medium text-sm truncate">{typeof template.name === 'string' ? template.name : template.name.ru}</div>
+          <div className="font-medium text-sm truncate">
+            {typeof template.name === "string" ? template.name : template.name.ru}
+          </div>
           <div className="text-xs text-muted-foreground truncate">
-            {(typeof template.description === 'string' ? template.description : template.description?.ru) || `${template.category} • ${template.style}`}
+            {(typeof template.description === "string" ? template.description : template.description?.ru) ||
+              `${template.category} • ${template.style}`}
           </div>
         </div>
 
@@ -121,7 +130,7 @@ export function useStyleTemplatesAdapter(): ListAdapter<StyleTemplateListItem> {
       getSortValue: (template: StyleTemplate, sortBy: string) => {
         switch (sortBy) {
           case "name":
-            return (typeof template.name === 'string' ? template.name : template.name.ru).toLowerCase()
+            return (typeof template.name === "string" ? template.name : template.name.ru).toLowerCase()
           case "category":
             return template.category.toLowerCase()
           case "style":
@@ -131,20 +140,20 @@ export function useStyleTemplatesAdapter(): ListAdapter<StyleTemplateListItem> {
           case "aspectRatio":
             return template.aspectRatio
           default:
-            return (typeof template.name === 'string' ? template.name : template.name.ru).toLowerCase()
+            return (typeof template.name === "string" ? template.name : template.name.ru).toLowerCase()
         }
       },
       getSearchableText: (template: StyleTemplate) => {
         const texts: string[] = [
-          typeof template.name === 'string' ? template.name : template.name.ru,
-          typeof template.name === 'string' ? '' : template.name.en,
-          typeof template.description === 'string' ? template.description : (template.description?.ru || ''),
-          typeof template.description === 'string' ? '' : (template.description?.en || ''),
+          typeof template.name === "string" ? template.name : template.name.ru,
+          typeof template.name === "string" ? "" : template.name.en,
+          typeof template.description === "string" ? template.description : template.description?.ru || "",
+          typeof template.description === "string" ? "" : template.description?.en || "",
           template.category,
           template.style,
           template.aspectRatio,
-          ...(Array.isArray(template.tags) ? template.tags : (template.tags?.ru || [])),
-          ...(Array.isArray(template.tags) ? [] : (template.tags?.en || [])),
+          ...(Array.isArray(template.tags) ? template.tags : template.tags?.ru || []),
+          ...(Array.isArray(template.tags) ? [] : template.tags?.en || []),
         ]
         return texts.filter(Boolean)
       },
@@ -224,7 +233,7 @@ export function useStyleTemplatesAdapter(): ListAdapter<StyleTemplateListItem> {
         {
           id: template.id,
           path: "",
-          name: typeof template.name === 'string' ? template.name : (template.name as any).ru,
+          name: typeof template.name === "string" ? template.name : (template.name as any).ru,
         },
         "template",
       ),

@@ -24,7 +24,7 @@ function convertTrackEffects(track: TimelineTrack): ChannelEffect[] {
     // Extract effect type from effect ID or custom params
     // Since AppliedEffect only has effectId, we need to infer the type
     const effectId = appliedEffect.effectId?.toLowerCase() || ""
-    
+
     if (effectId.includes("equalizer") || effectId.includes("eq")) {
       effectType = "eq"
     } else if (effectId.includes("compressor") || effectId.includes("dynamics")) {

@@ -37,7 +37,6 @@ export interface AnalysisResult {
 export class NoiseReductionEngine extends EventEmitter {
   private context: AudioContext
   private noiseProfiles = new Map<string, NoiseProfile>()
-  private isProcessing = false
 
   // Algorithm processors
   private spectralProcessor: SpectralNoiseGate | null = null
@@ -388,8 +387,6 @@ class NoiseAnalyzer {
  * Audio Analyzer for SNR and voice detection
  */
 class AudioAnalyzer {
-  constructor(private context: AudioContext) {}
-
   async analyze(audioBuffer: AudioBuffer): Promise<AnalysisResult> {
     const channelData = audioBuffer.getChannelData(0)
 

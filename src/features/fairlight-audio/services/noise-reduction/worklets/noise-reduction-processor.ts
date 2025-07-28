@@ -11,12 +11,12 @@ class FFTProcessor {
     this.size = size
   }
 
-  forward(input: Float32Array): Float32Array {
+  forward(_input: Float32Array): Float32Array {
     // Simple placeholder for FFT forward transform
     return new Float32Array(this.size)
   }
 
-  inverse(input: Float32Array): Float32Array {
+  inverse(_input: Float32Array): Float32Array {
     // Simple placeholder for FFT inverse transform
     return new Float32Array(this.size)
   }
@@ -25,16 +25,10 @@ class FFTProcessor {
 // This code runs in AudioWorkletGlobalScope
 class NoiseReductionProcessor extends AudioWorkletProcessor {
   private fftSize = 2048
-  private inputBuffer: Float32Array
-  private outputBuffer: Float32Array
-  private overlapBuffer: Float32Array
-  private window: Float32Array
-  private hopSize: number
   private config: any = {
     strength: 0.5,
-    preserveVoice: true
+    preserveVoice: true,
   }
-  private fftProcessor: FFTProcessor
 
   constructor() {
     super()

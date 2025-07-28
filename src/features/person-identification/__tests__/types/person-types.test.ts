@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest"
 
-import type { PersonProfile as Person, PersonAppearance as PersonClip, PersonPrivacySettings, PersonStats as PersonStatistics } from "../../types/person"
+import type {
+  PersonProfile as Person,
+  PersonAppearance as PersonClip,
+  PersonPrivacySettings,
+  PersonStats as PersonStatistics,
+} from "../../types/person"
 
 // Tests for Person type definitions and validations
 describe("Person Types", () => {

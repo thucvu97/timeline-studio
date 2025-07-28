@@ -2,7 +2,9 @@
 
 ## 📋 Обзор
 
-Project Version Control - это система управления версиями проектов в Timeline Studio, обеспечивающая автосохранение, историю изменений, восстановление после сбоев и совместную работу. Система работает подобно Git, но оптимизирована для видеопроектов с большими медиафайлами.
+Project Version Control - это система управления версиями проектов в Timeline Studio, интегрированная с существующей backend архитектурой состояния. Система расширяет текущий `ProjectState` и `PersistenceService`, добавляя версионирование, историю изменений, восстановление после сбоев и базовую совместную работу.
+
+**⚠️ СТАТУС**: Активная разработка - адаптация под существующую backend архитектуру
 
 ## 🎯 Цели и задачи
 
@@ -43,19 +45,27 @@ src/features/project-version-control/
     └── version.ts            # Типы данных
 ```
 
-### Backend структура (Rust):
+### Backend интеграция (Rust):
 ```
+# РАСШИРЕНИЕ СУЩЕСТВУЮЩИХ МОДУЛЕЙ:
+src-tauri/src/state/
+├── project_state.rs          # ✅ РАСШИРИТЬ: добавить VersionInfo
+├── commands.rs               # ✅ РАСШИРИТЬ: добавить команды версионирования
+├── persistence.rs            # ✅ РАСШИРИТЬ: методы версионирования
+└── event_bus.rs              # ✅ РАСШИРИТЬ: события версионирования
+
+# НОВЫЙ МОДУЛЬ ВЕРСИОНИРОВАНИЯ:
 src-tauri/src/version_control/
 ├── mod.rs                    # Главный модуль
 ├── repository.rs             # Репозиторий версий
-├── snapshot.rs               # Создание снимков
-├── diff.rs                   # Вычисление различий
-├── merge.rs                  # Слияние версий
-├── storage/                  # Хранилище
-│   ├── object_store.rs       # Объектное хранилище
-│   ├── media_dedup.rs        # Дедупликация медиа
+├── snapshot.rs               # Создание снимков ProjectState
+├── diff.rs                   # Различия между ProjectState
+├── merge.rs                  # Слияние версий ProjectState
+├── storage/                  # Эффективное хранилище
+│   ├── delta_store.rs        # Дельта-сжатие ProjectState
+│   ├── media_dedup.rs        # Дедупликация медиа (интеграция с MediaPool)
 │   └── compression.rs        # Сжатие данных
-└── commands.rs               # Tauri команды
+└── commands.rs               # Tauri команды версионирования
 ```
 
 ## 📐 Функциональные требования
@@ -68,26 +78,41 @@ src-tauri/src/version_control/
 - **Фоновый режим** - без блокировки UI
 - **Умное сохранение** - только при изменениях
 
-#### Сохраняемые данные:
-```typescript
-interface ProjectSnapshot {
-    id: string;
-    timestamp: Date;
-    author: string;
-    message?: string;
+#### Сохраняемые данные (интеграция с ProjectState):
+```rust
+// Расширение существующего ProjectState
+pub struct ProjectState {
+    pub project: Option<Project>,
+    pub ui_state: UiState,
+    pub playback_state: PlaybackState,
+    pub version: u32,
+    // ✅ НОВОЕ: информация о версионировании
+    pub version_info: VersionInfo,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub struct VersionInfo {
+    pub current_version_id: String,
+    pub branch_name: String,
+    pub has_uncommitted_changes: bool,
+    pub last_snapshot_time: DateTime<Utc>,
+    pub auto_save_enabled: bool,
+}
+
+// Снимок версии основан на полном ProjectState
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ProjectSnapshot {
+    pub id: String,
+    pub timestamp: DateTime<Utc>,
+    pub author: String,
+    pub message: Option<String>,
     
-    // Состояние проекта
-    timeline: TimelineState;
-    effects: EffectsState;
-    audio: AudioState;
+    // Полное состояние проекта (используем существующий ProjectState)
+    pub project_state: ProjectState,
     
-    // Метаданные
-    mediaReferences: MediaRef[];
-    projectSettings: Settings;
-    
-    // Дельта от предыдущей версии
-    parentId?: string;
-    changes: Change[];
+    // Дельта от предыдущей версии (для экономии места)
+    pub parent_id: Option<String>,
+    pub delta: Option<ProjectStateDelta>,
 }
 ```
 
@@ -120,14 +145,40 @@ Timeline History
 
 ### 3. Управление изменениями
 
-#### Типы изменений:
-```typescript
-type Change = 
-    | TimelineChange     // Изменения на timeline
-    | EffectChange       // Добавление/удаление эффектов
-    | AudioChange        // Аудио изменения
-    | MediaChange        // Замена медиафайлов
-    | SettingsChange;    // Настройки проекта
+#### Типы изменений (на основе ProjectEvent):
+```rust
+// Используем существующую систему событий, расширяя ProjectEvent
+pub enum ProjectEvent {
+    // ... существующие события ...
+    
+    // ✅ НОВЫЕ: события версионирования
+    SnapshotCreated { 
+        version_id: String, 
+        message: Option<String>,
+        parent_version: Option<String> 
+    },
+    VersionRestored { 
+        version_id: String, 
+        previous_version: String 
+    },
+    BranchCreated { 
+        branch_name: String, 
+        base_version: String 
+    },
+    AutoSaveTriggered { 
+        snapshot_id: String 
+    },
+}
+
+// Дельта изменений между ProjectState
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ProjectStateDelta {
+    pub timeline_changes: Vec<TimelineChange>,
+    pub media_pool_changes: Vec<MediaPoolChange>,
+    pub settings_changes: Vec<SettingsChange>,
+    pub ui_state_changes: Vec<UiStateChange>,
+    pub playback_changes: Vec<PlaybackChange>,
+}
 ```
 
 #### Дельта-сохранение:
@@ -319,31 +370,37 @@ impl MediaStore {
 }
 ```
 
-## 📊 План реализации
+## 📊 План реализации (адаптирован под существующую архитектуру)
 
-### Фаза 1: Базовое версионирование (2 недели)
-- [ ] Структура снимков
-- [ ] Сохранение/загрузка версий
-- [ ] Простая история
-- [ ] Автосохранение
+### Фаза 1: Интеграция с существующим State (1 неделя)
+- [ ] Расширить `ProjectState` добавив `VersionInfo`
+- [ ] Добавить команды версионирования в `ProjectCommand` enum
+- [ ] Расширить `ProjectEvent` событиями версионирования
+- [ ] Обновить `CommandHandler` для обработки новых команд
+- [ ] Базовые unit тесты интеграции
 
-### Фаза 2: Оптимизация хранения (2 недели)
-- [ ] Дельта-сохранение
-- [ ] Медиа дедупликация
-- [ ] Сжатие данных
-- [ ] Управление кэшем
+### Фаза 2: Расширение PersistenceService (1 неделя)
+- [ ] Добавить методы версионирования в `PersistenceService`
+- [ ] Интеграция с существующим автосохранением (`save_checkpoint`)
+- [ ] Расширить систему cleanup для версионированных файлов
+- [ ] История версий через расширенные checkpoints
+- [ ] Тестирование совместимости с существующими проектами
 
-### Фаза 3: UI и восстановление (2 недели)
-- [ ] UI истории версий
-- [ ] Diff viewer
-- [ ] Recovery механизм
-- [ ] Архивирование
+### Фаза 3: Отдельный модуль version_control (2 недели)
+- [ ] Создать модуль `src-tauri/src/version_control/`
+- [ ] `VersionRepository` для управления снимками `ProjectState`
+- [ ] Дельта-сжатие между состояниями проекта
+- [ ] Интеграция с `MediaPool` для дедупликации медиа
+- [ ] Advanced функции: merge, diff, branches
+- [ ] Оптимизация производительности
 
-### Фаза 4: Совместная работа (2 недели)
-- [ ] Merge engine
-- [ ] Conflict resolution
-- [ ] Cloud sync (опционально)
-- [ ] Права доступа
+### Фаза 4: Frontend интеграция (2 недели)
+- [ ] Расширить `BackendSync` методами версионирования
+- [ ] Создать хуки: `useVersionControl`, `useProjectHistory`
+- [ ] UI компоненты: история версий, diff viewer
+- [ ] Интеграция с существующими провайдерами состояния
+- [ ] Recovery механизм через существующий error handling
+- [ ] Тестирование E2E с существующими workflow
 
 ## 🎯 Метрики успеха
 
@@ -364,27 +421,56 @@ impl MediaStore {
 
 ## 🔗 Интеграция
 
-### С другими модулями:
-- **Timeline** - отслеживание изменений
-- **Media** - управление файлами
-- **Export** - версии для экспорта
-- **Cloud** - синхронизация
+### С существующими модулями:
+- **StateManager** - координация версионирования с общим состоянием
+- **PersistenceService** - расширение автосохранения для версионирования  
+- **EventBus** - публикация событий версионирования
+- **CommandHandler** - обработка команд версионирования
+- **MediaPool** - дедупликация медиафайлов между версиями
+- **Timeline Provider** - уведомления о восстановлении версий
+- **BackendSync** - синхронизация версионирования с frontend
 
-### API для плагинов:
+### API интеграция с BackendSync:
 ```typescript
-interface VersionControlAPI {
-    // Создание версий
-    createSnapshot(message?: string): Promise<Version>;
+// ✅ РАСШИРИТЬ существующий BackendSync
+export class BackendSync {
+    // ... существующие методы ...
     
-    // История
-    getHistory(limit?: number): Promise<Version[]>;
-    restoreVersion(versionId: string): Promise<void>;
+    // ✅ НОВЫЕ: методы версионирования
+    async createSnapshot(message?: string): Promise<string> {
+        return this.executeCommand({
+            type: "CreateSnapshot",
+            params: { message }
+        })
+    }
     
-    // Сравнение
-    compareVersions(v1: string, v2: string): Promise<Diff>;
+    async restoreVersion(versionId: string): Promise<void> {
+        return this.executeCommand({
+            type: "RestoreVersion", 
+            params: { version_id: versionId }
+        })
+    }
     
-    // Автосохранение
-    enableAutoSave(interval: number): void;
+    async getVersionHistory(limit?: number): Promise<VersionInfo[]> {
+        return this.executeCommand({
+            type: "GetVersionHistory",
+            params: { limit }
+        })
+    }
+    
+    // События версионирования (расширение существующих)
+    onVersionCreated(handler: (version: VersionInfo) => void): () => void
+    onVersionRestored(handler: (version: VersionInfo) => void): () => void
+}
+
+// ✅ НОВЫЕ команды в ProjectCommand enum
+pub enum ProjectCommand {
+    // ... существующие команды ...
+    
+    CreateSnapshot { message: Option<String> },
+    RestoreVersion { version_id: String },
+    GetVersionHistory { limit: Option<u32> },
+    CompareVersions { version_a: String, version_b: String },
 }
 ```
 
@@ -397,4 +483,22 @@ interface VersionControlAPI {
 
 ---
 
-*Документ будет обновляться по мере разработки модуля*
+## 🔄 Статус интеграции
+
+**Текущий статус**: Активная разработка  
+**Приоритет**: Средний  
+**Зависимости**: 
+- ✅ Существующая backend архитектура (ProjectState, PersistenceService)
+- ✅ Система команд и событий (ProjectCommand, ProjectEvent) 
+- ✅ BackendSync для frontend интеграции
+
+**Ключевые преимущества интеграции**:
+- Использование существующей архитектуры состояния
+- Минимальные breaking changes
+- Совместимость с текущими проектами
+- Расширение, а не замена существующего автосохранения
+
+---
+
+*Обновлено: 28 июля 2025 - адаптировано под существующую backend архитектуру*  
+*Следующее обновление: после завершения Фазы 1*

@@ -12,33 +12,28 @@ interface MulticamIndicatorProps {
    * Текущий индекс камеры
    */
   currentAngle: number
-  
+
   /**
    * Общее количество углов
    */
   totalAngles: number
-  
+
   /**
    * Имя текущей камеры
    */
   angleName?: string
-  
+
   /**
    * Класс для стилизации
    */
   className?: string
 }
 
-export function MulticamIndicator({
-  currentAngle,
-  totalAngles,
-  angleName,
-  className,
-}: MulticamIndicatorProps) {
+export function MulticamIndicator({ currentAngle, totalAngles, angleName, className }: MulticamIndicatorProps) {
   if (totalAngles <= 1) {
     return null
   }
-  
+
   return (
     <div className={cn("flex items-center gap-2", className)}>
       <Camera className="w-4 h-4 text-muted-foreground" />
@@ -47,9 +42,7 @@ export function MulticamIndicator({
         <span className="text-muted-foreground">/</span>
         <span>{totalAngles}</span>
       </Badge>
-      {angleName && (
-        <span className="text-sm text-muted-foreground">{angleName}</span>
-      )}
+      {angleName && <span className="text-sm text-muted-foreground">{angleName}</span>}
     </div>
   )
 }

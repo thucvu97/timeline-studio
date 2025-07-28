@@ -1,9 +1,7 @@
 import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { MediaPoolItem } from "@/features/media/types/media-pool"
 import { ProjectFile } from "@/features/project-settings/types/project"
-import { TimelineStudioProject } from "@/features/project-settings/types/timeline-studio-project"
 
 import {
   createNewProject,
@@ -428,11 +426,11 @@ describe("ProjectFileService", () => {
         ...mockNewProject,
         mediaPool: {
           mediaFiles: Array.from(mockNewProject.mediaPool.items.values())
-            .filter(item => item.type === 'video')
-            .map(item => ({ ...item, size: item.metadata.fileSize })),
+            .filter((item) => item.type === "video")
+            .map((item) => ({ ...item, size: item.metadata.fileSize })),
           musicFiles: Array.from(mockNewProject.mediaPool.items.values())
-            .filter(item => item.type === 'audio')
-            .map(item => ({ ...item, size: item.metadata.fileSize })),
+            .filter((item) => item.type === "audio")
+            .map((item) => ({ ...item, size: item.metadata.fileSize })),
         },
       }
       const stats = getProjectStats(projectWithArrays as any)
@@ -466,7 +464,7 @@ describe("ProjectFileService", () => {
           musicFiles: (mockLegacyProject as any).mediaLibrary?.musicFiles || [],
         },
       }
-      
+
       const currentMediaFiles = [
         ...((mockLegacyProject as any).mediaLibrary?.mediaFiles || []),
         {
@@ -501,7 +499,7 @@ describe("ProjectFileService", () => {
           musicFiles: (mockLegacyProject as any).mediaLibrary?.musicFiles || [],
         },
       }
-      
+
       const hasChanges = hasUnsavedChanges(
         projectWithPool,
         (mockLegacyProject as any).mediaLibrary?.mediaFiles || [],
@@ -544,7 +542,9 @@ describe("ProjectFileService", () => {
 
       vi.mocked(readTextFile).mockResolvedValue(JSON.stringify(projectWithEmptyId))
 
-      await expect(loadProject(mockProjectPath)).rejects.toThrow("Invalid saved media file: id must be a non-empty string")
+      await expect(loadProject(mockProjectPath)).rejects.toThrow(
+        "Invalid saved media file: id must be a non-empty string",
+      )
     })
 
     it("должен проверять тип проекта", async () => {

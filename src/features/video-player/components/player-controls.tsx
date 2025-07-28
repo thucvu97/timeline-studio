@@ -68,7 +68,7 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
   const [localDisplayTime, setLocalDisplayTime] = useState(0)
   const [parallelVideos] = useState<MediaFile[]>([])
   const [activeCameraIndex, setActiveCameraIndex] = useState(0)
-  
+
   // Используем выбранный клип как базовый для мультикамеры
   const multicam = useMulticam(selectedClipId || undefined)
 
@@ -205,14 +205,14 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
       multicam.switchToNextAngle()
       return
     }
-    
+
     // Иначе используем локальную логику (временно)
     if (!parallelVideos || parallelVideos.length <= 1) return
-    
+
     // Переключаемся на следующую камеру по кругу
     const nextIndex = (activeCameraIndex + 1) % parallelVideos.length
     setActiveCameraIndex(nextIndex)
-    
+
     // TODO: Здесь нужно будет вызвать функцию переключения на другой клип
     // через timeline API или player API
     console.log(`[handleSwitchCamera] Переключение на камеру ${nextIndex + 1}`)

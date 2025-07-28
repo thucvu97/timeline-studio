@@ -101,7 +101,7 @@ export async function loadAllResourcesLazy(signal?: AbortSignal): Promise<{
   const loadPromises: [
     Promise<LoadResult<BaseEffect[]>>,
     Promise<LoadResult<VideoFilter[]>>,
-    Promise<LoadResult<Transition[]>>
+    Promise<LoadResult<Transition[]>>,
   ] = [loadEffectsLazy(), loadFiltersLazy(), loadTransitionsLazy()]
 
   // Проверяем отмену

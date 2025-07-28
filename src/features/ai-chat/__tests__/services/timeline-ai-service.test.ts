@@ -181,8 +181,8 @@ describe("TimelineAIService", () => {
     gpuAccelerated: false,
     processors: {
       css: {
-        filter: () => `filter: ${name.toLowerCase()};`
-      }
+        filter: () => `filter: ${name.toLowerCase()};`,
+      },
     },
   })
 

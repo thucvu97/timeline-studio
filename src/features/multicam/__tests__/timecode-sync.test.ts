@@ -2,19 +2,19 @@
  * Тесты для синхронизации по таймкоду
  */
 
-import { describe, it, expect } from "vitest"
+import { describe, expect, it } from "vitest"
 
 import type { MediaFile } from "@/features/media/types/media"
 import type { TimelineClip } from "@/features/timeline/types/timeline"
 
 import {
-  parseTimecode,
-  timecodeToSeconds,
-  extractTimecode,
   extractCreationTime,
-  getFrameRate,
-  syncByTimecode,
+  extractTimecode,
   formatTimecode,
+  getFrameRate,
+  parseTimecode,
+  syncByTimecode,
+  timecodeToSeconds,
 } from "../services/timecode-sync"
 
 describe("timecode-sync", () => {
@@ -28,19 +28,19 @@ describe("timecode-sync", () => {
         totalFrames: 150762, // (1*3600 + 23*60 + 45) * 30 + 12
       })
     })
-    
+
     it("should parse drop frame timecode", () => {
       const result = parseTimecode("01:23:45;12", 29.97)
       expect(result).toBeDefined()
       expect(result?.dropFrame).toBe(true)
     })
-    
+
     it("should return null for invalid timecode", () => {
       expect(parseTimecode("invalid", 30)).toBeNull()
       expect(parseTimecode("1:2:3:4", 30)).toBeNull()
     })
   })
-  
+
   describe("timecodeToSeconds", () => {
     it("should convert timecode to seconds", () => {
       const timecodeInfo = {
@@ -52,7 +52,7 @@ describe("timecode-sync", () => {
       expect(timecodeToSeconds(timecodeInfo)).toBe(30)
     })
   })
-  
+
   describe("extractTimecode", () => {
     it("should extract timecode from stream", () => {
       const mediaFile: MediaFile = {
@@ -72,10 +72,10 @@ describe("timecode-sync", () => {
           },
         },
       }
-      
+
       expect(extractTimecode(mediaFile)).toBe("10:15:30:00")
     })
-    
+
     it("should extract timecode from format tags", () => {
       const mediaFile: MediaFile = {
         id: "1",
@@ -90,10 +90,10 @@ describe("timecode-sync", () => {
           },
         },
       }
-      
+
       expect(extractTimecode(mediaFile)).toBe("12:34:56:00")
     })
-    
+
     it("should return null if no timecode found", () => {
       const mediaFile: MediaFile = {
         id: "1",
@@ -106,11 +106,11 @@ describe("timecode-sync", () => {
           },
         },
       }
-      
+
       expect(extractTimecode(mediaFile)).toBeNull()
     })
   })
-  
+
   describe("extractCreationTime", () => {
     it("should extract creation time from tags", () => {
       const mediaFile: MediaFile = {
@@ -126,13 +126,13 @@ describe("timecode-sync", () => {
           },
         },
       }
-      
+
       const result = extractCreationTime(mediaFile)
       expect(result).toBeInstanceOf(Date)
       expect(result?.toISOString()).toBe("2024-01-01T12:00:00.000Z")
     })
   })
-  
+
   describe("getFrameRate", () => {
     it("should extract frame rate from video stream", () => {
       const mediaFile: MediaFile = {
@@ -150,21 +150,21 @@ describe("timecode-sync", () => {
           format: {},
         },
       }
-      
+
       expect(getFrameRate(mediaFile)).toBeCloseTo(29.97, 2)
     })
-    
+
     it("should return default frame rate if not found", () => {
       const mediaFile: MediaFile = {
         id: "1",
         name: "test.mp4",
         path: "/test.mp4",
       }
-      
+
       expect(getFrameRate(mediaFile)).toBe(30)
     })
   })
-  
+
   describe("syncByTimecode", () => {
     it("should sync clips by timecode", () => {
       const baseClip: TimelineClip = {
@@ -189,7 +189,7 @@ describe("timecode-sync", () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       }
-      
+
       const clips: TimelineClip[] = [
         baseClip,
         {
@@ -215,7 +215,7 @@ describe("timecode-sync", () => {
           updatedAt: new Date(),
         },
       ]
-      
+
       const mediaFiles: MediaFile[] = [
         {
           id: "media1",
@@ -236,9 +236,9 @@ describe("timecode-sync", () => {
           },
         },
       ]
-      
+
       const results = syncByTimecode(baseClip, clips, mediaFiles)
-      
+
       expect(results).toHaveLength(1)
       expect(results[0]).toEqual({
         clipId: "clip2",
@@ -248,7 +248,7 @@ describe("timecode-sync", () => {
       })
     })
   })
-  
+
   describe("formatTimecode", () => {
     it("should format seconds to timecode", () => {
       expect(formatTimecode(3661.5, 30)).toBe("01:01:01:15")

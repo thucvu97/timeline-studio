@@ -102,7 +102,7 @@ async function renderExample() {
   const renderCanvas = document.createElement("canvas")
   renderCanvas.width = 1920
   renderCanvas.height = 1080
-  
+
   const context = {
     source: renderCanvas,
     width: 1920,

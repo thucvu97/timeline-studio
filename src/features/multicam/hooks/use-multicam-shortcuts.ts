@@ -18,7 +18,7 @@ export function useMulticamShortcuts() {
         multicamManager.switchToCameraByNumber(i + 1)
       },
     }))
-    
+
     // Обновляем действия для существующих shortcuts
     shortcuts.forEach(({ id, action }) => {
       const existingShortcut = shortcutsRegistry.get(id)
@@ -30,7 +30,7 @@ export function useMulticamShortcuts() {
         })
       }
     })
-    
+
     // Cleanup - удаляем действия при размонтировании
     return () => {
       shortcuts.forEach(({ id }) => {

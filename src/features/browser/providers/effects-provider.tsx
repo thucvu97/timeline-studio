@@ -66,7 +66,6 @@ const EffectsProviderContextValue = createContext<EffectsProviderContext | null>
  * Внутренняя реализация EffectsProvider API
  */
 class EffectsProviderImpl implements EffectsProviderAPI {
-  private config: LoadingConfig
   private resources = new Map<string, Resource[]>()
   private cache: ResourceCache = {}
   private loadingState: LoadingState = {
@@ -150,14 +149,16 @@ class EffectsProviderImpl implements EffectsProviderAPI {
     if (options.query) {
       const query = options.query.toLowerCase()
       resources = resources.filter((resource) => {
-        const name = "name" in resource 
-          ? typeof resource.name === "object" 
-            ? Object.values(resource.name).join(" ").toLowerCase()
-            : (resource.name)?.toLowerCase() || ""
-          : ""
-        const labels = "labels" in resource && typeof resource.labels === "object"
-          ? Object.values(resource.labels).join(" ").toLowerCase() 
-          : ""
+        const name =
+          "name" in resource
+            ? typeof resource.name === "object"
+              ? Object.values(resource.name).join(" ").toLowerCase()
+              : resource.name?.toLowerCase() || ""
+            : ""
+        const labels =
+          "labels" in resource && typeof resource.labels === "object"
+            ? Object.values(resource.labels).join(" ").toLowerCase()
+            : ""
         const description =
           "description" in resource
             ? typeof resource.description === "object"

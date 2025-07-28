@@ -39,7 +39,6 @@ export interface StereoFieldData {
 
 export class PhaseMeter extends EventEmitter {
   private config: PhaseConfig
-  private context: AudioContext | null = null
   private processor: AudioWorkletNode | null = null
   private analyser: AnalyserNode | null = null
 
@@ -53,7 +52,6 @@ export class PhaseMeter extends EventEmitter {
   private isRunning = false
   private lastUpdate = 0
   private currentCorrelation = 0
-  private currentWidth = 0
   private currentBalance = 0
 
   // Goniometer данные
