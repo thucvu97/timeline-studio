@@ -5,6 +5,8 @@ import "./index.css"
 import App from "./App"
 import About from './pages/About'
 import Changelog from './pages/Changelog'
+import Blog from './pages/Blog'
+import BlogPost from './pages/BlogPost'
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -13,6 +15,8 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/" element={<App />} />
         <Route path="/about" element={<About />} />
         <Route path="/changelog" element={<Changelog />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:slug" element={<BlogPost />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,
