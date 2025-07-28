@@ -51,9 +51,9 @@ export const Logo: React.FC<LogoProps> = ({ size = 'medium', showText = true }) 
               fontSize: 37
             }}
           >
-            Timeline Studio
+            imeline Studio
           </span>
-          <span className="text-[10px] text-gray-500 font-medium px-0 py-0.5 border border-gray-700 rounded-md">
+          <span className="text-[10px] text-gray-500 font-medium px-1.5 ml-1 py-0.5 border border-gray-700 rounded-md">
             BETA
           </span>
         </div>
