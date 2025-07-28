@@ -83,7 +83,7 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3 }}
-          className="text-6xl md:text-8xl font-bold mb-6"
+          className="text-6xl md:text-8xl font-normal mb-6"
         >
           <span className="text-gradient">Timeline Studio</span>
         </motion.h1>
@@ -92,7 +92,7 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="text-xl md:text-2xl text-gray-400 mb-12 max-w-3xl mx-auto"
+          className="text-xl md:text-2xl font-normal text-gray-400 mb-12 max-w-3xl mx-auto"
         >
           Professional video editing powered by 151 AI tools. Create stunning content faster than ever before.
         </motion.p>

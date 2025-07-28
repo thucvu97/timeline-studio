@@ -46,8 +46,9 @@ export const Logo: React.FC<LogoProps> = ({ size = 'medium', showText = true }) 
           <span 
             className={`text-white ${currentSize.text}`}
             style={{
-              fontFamily: 'Verdana, Geneva, Tahoma, sans-serif',
-              fontWeight: '400'
+              fontFamily: 'Brush Script MT, Lucida Handwriting, cursive',
+              fontWeight: '400',
+              fontSize: 37
             }}
           >
             Timeline Studio
