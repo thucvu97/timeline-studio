@@ -10,6 +10,7 @@ import BlogPost from './pages/BlogPost'
 import Pricing from './pages/Pricing'
 import Terms from './pages/Terms'
 import Privacy from './pages/Privacy'
+import ResponsibleAI from './pages/ResponsibleAI'
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -23,6 +24,7 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/blog/:slug" element={<BlogPost />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
+        <Route path="/responsible-ai" element={<ResponsibleAI />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,
