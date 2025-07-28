@@ -6,12 +6,26 @@ use std::collections::HashMap;
 use uuid::Uuid;
 
 /// The complete project state - single source of truth
-#[derive(Debug, Clone, Serialize, Deserialize, Type, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct ProjectState {
   pub project: Option<Project>,
   pub ui_state: UiState,
   pub playback_state: PlaybackState,
   pub version: u32,
+  /// NEW: Version control information
+  pub version_info: VersionInfo,
+}
+
+impl Default for ProjectState {
+  fn default() -> Self {
+    Self {
+      project: None,
+      ui_state: UiState::default(),
+      playback_state: PlaybackState::default(),
+      version: 0,
+      version_info: VersionInfo::default(),
+    }
+  }
 }
 
 /// Main project structure
@@ -277,6 +291,105 @@ impl Default for PlaybackState {
   }
 }
 
+/// Version control information
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub struct VersionInfo {
+  pub current_version_id: String,
+  pub branch_name: String,
+  pub has_uncommitted_changes: bool,
+  pub last_snapshot_time: DateTime<Utc>,
+  pub auto_save_enabled: bool,
+  pub auto_save_interval_seconds: u32,
+}
+
+impl Default for VersionInfo {
+  fn default() -> Self {
+    Self {
+      current_version_id: "initial".to_string(),
+      branch_name: "main".to_string(),
+      has_uncommitted_changes: false,
+      last_snapshot_time: Utc::now(),
+      auto_save_enabled: true,
+      auto_save_interval_seconds: 30,
+    }
+  }
+}
+
+/// Project snapshot for version control
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub struct ProjectSnapshot {
+  pub id: String,
+  pub timestamp: DateTime<Utc>,
+  pub author: String,
+  pub message: Option<String>,
+  pub branch_name: String,
+  
+  /// Complete project state at this version
+  pub project_state: ProjectState,
+  
+  /// Delta from parent version (for storage optimization)
+  pub parent_id: Option<String>,
+  pub delta: Option<ProjectStateDelta>,
+}
+
+/// Delta representing changes between two ProjectState versions
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub struct ProjectStateDelta {
+  pub timeline_changes: Vec<TimelineChange>,
+  pub media_pool_changes: Vec<MediaPoolChange>,
+  pub settings_changes: Vec<SettingsChange>,
+  pub ui_state_changes: Vec<UiStateChange>,
+  pub playback_changes: Vec<PlaybackChange>,
+}
+
+/// Types of changes for delta compression
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub enum TimelineChange {
+  TrackAdded { track: Track },
+  TrackRemoved { track_id: String },
+  TrackModified { track_id: String, changes: serde_json::Value },
+  ClipAdded { track_id: String, clip: Clip },
+  ClipRemoved { clip_id: String },
+  ClipMoved { clip_id: String, new_track_id: String, new_timeline_in: f64 },
+  ClipModified { clip_id: String, changes: serde_json::Value },
+  MarkerAdded { marker: Marker },
+  MarkerRemoved { marker_id: String },
+  MarkerModified { marker_id: String, changes: serde_json::Value },
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub enum MediaPoolChange {
+  MediaAdded { media: MediaItem },
+  MediaRemoved { media_id: String },
+  MediaModified { media_id: String, changes: serde_json::Value },
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub enum SettingsChange {
+  Resolution { old: Resolution, new: Resolution },
+  FrameRate { old: f64, new: f64 },
+  AudioSampleRate { old: u32, new: u32 },
+  AudioChannels { old: u32, new: u32 },
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub enum UiStateChange {
+  Selection { clips: Vec<String>, tracks: Vec<String> },
+  TimelineZoom { zoom: f64 },
+  TimelineScroll { scroll: f64 },
+  ActiveTool { tool: String },
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub enum PlaybackChange {
+  PlayState { is_playing: bool },
+  CurrentTime { time: f64 },
+  PlaybackRate { rate: f64 },
+  Volume { volume: f32 },
+  MediaId { media_id: Option<String> },
+  SelectedClipId { clip_id: Option<String> },
+}
+
 impl ProjectState {
   /// Create a new project
   pub fn create_project(&mut self, name: String, settings: ProjectSettings) -> String {
@@ -309,6 +422,7 @@ impl ProjectState {
 
     self.project = Some(project);
     self.version += 1;
+    self.version_info.has_uncommitted_changes = true;
 
     project_id
   }
@@ -320,6 +434,7 @@ impl ProjectState {
       project.metadata.modified_at = Utc::now();
     }
     self.version += 1;
+    self.version_info.has_uncommitted_changes = true;
   }
 
   /// Update playback state
@@ -327,5 +442,45 @@ impl ProjectState {
     self.playback_state.is_playing = is_playing;
     self.playback_state.current_time = current_time;
     self.version += 1;
+    // Playback changes don't mark project as dirty for version control
+  }
+
+  /// NEW: Create a snapshot of the current state
+  pub fn create_snapshot(
+    &self,
+    author: String,
+    message: Option<String>,
+    parent_id: Option<String>,
+  ) -> ProjectSnapshot {
+    ProjectSnapshot {
+      id: Uuid::new_v4().to_string(),
+      timestamp: Utc::now(),
+      author,
+      message,
+      branch_name: self.version_info.branch_name.clone(),
+      project_state: self.clone(),
+      parent_id,
+      delta: None, // TODO: Calculate delta in advanced implementation
+    }
+  }
+
+  /// NEW: Mark that a snapshot was created
+  pub fn mark_snapshot_created(&mut self, version_id: String) {
+    self.version_info.current_version_id = version_id;
+    self.version_info.has_uncommitted_changes = false;
+    self.version_info.last_snapshot_time = Utc::now();
+  }
+
+  /// NEW: Switch to a different branch
+  pub fn switch_branch(&mut self, branch_name: String) {
+    self.version_info.branch_name = branch_name;
+    self.version_info.has_uncommitted_changes = true;
+    self.version += 1;
+  }
+
+  /// NEW: Configure auto-save settings
+  pub fn configure_auto_save(&mut self, enabled: bool, interval_seconds: u32) {
+    self.version_info.auto_save_enabled = enabled;
+    self.version_info.auto_save_interval_seconds = interval_seconds;
   }
 }

@@ -4,36 +4,59 @@
 
 import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-
+import { TimelineProvider } from "@/features/timeline/services/timeline-provider"
 import { useCameraSync } from "../hooks/use-camera-sync"
 
 // Мокаем зависимости
 vi.mock("@/features/timeline/hooks/use-linked-clips", () => ({
   useLinkedClips: () => ({
-    getMulticamGroup: vi.fn(() => [{ clipId1: "clip1", clipId2: "clip2", type: "multi-camera" as const }]),
-    updateClipStartTime: vi.fn(),
-    getClipById: vi.fn((id: string) => ({
-      id,
-      name: `Clip ${id}`,
-      trackId: "track1",
-      mediaId: `media-${id}`,
-      startTime: 0,
-      duration: 10,
-      mediaStartTime: 0,
-      mediaEndTime: 10,
-      offset: 0,
-      speed: 1,
-      volume: 1,
-      opacity: 1,
-      isReversed: false,
-      isSelected: false,
-      isLocked: false,
-      effects: [],
-      filters: [],
-      transitions: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    })),
+    getMulticamGroup: vi.fn(() => [
+      {
+        id: "clip1",
+        name: "Clip clip1",
+        trackId: "track1",
+        mediaId: "media-clip1",
+        startTime: 0,
+        duration: 10,
+        mediaStartTime: 0,
+        mediaEndTime: 10,
+        offset: 0,
+        speed: 1,
+        volume: 1,
+        opacity: 1,
+        isReversed: false,
+        isSelected: false,
+        isLocked: false,
+        effects: [],
+        filters: [],
+        transitions: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: "clip2", 
+        name: "Clip clip2",
+        trackId: "track2",
+        mediaId: "media-clip2",
+        startTime: 0,
+        duration: 10,
+        mediaStartTime: 0,
+        mediaEndTime: 10,
+        offset: 0,
+        speed: 1,
+        volume: 1,
+        opacity: 1,
+        isReversed: false,
+        isSelected: false,
+        isLocked: false,
+        effects: [],
+        filters: [],
+        transitions: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]),
+    moveLinkedClips: vi.fn(),
   }),
 }))
 
@@ -62,7 +85,7 @@ vi.mock("../services/timecode-sync", () => ({
   ]),
 }))
 
-vi.mock("../services/audio-sync", () => ({
+vi.mock("../services/audio-sync-adapter", () => ({
   syncByAudio: vi.fn(() =>
     Promise.resolve({
       offset: -2.5,
@@ -71,13 +94,70 @@ vi.mock("../services/audio-sync", () => ({
   ),
 }))
 
+vi.mock("../utils/media-mapper", () => ({
+  mediaItemsToMediaFiles: vi.fn((items) => items),
+}))
+
+vi.mock("@/features/timeline/hooks/use-timeline", () => ({
+  useTimeline: () => ({
+    clips: [
+      {
+        id: "clip1",
+        name: "Clip clip1",
+        trackId: "track1",
+        mediaId: "media-clip1",
+        startTime: 0,
+        duration: 10,
+        mediaStartTime: 0,
+        mediaEndTime: 10,
+        offset: 0,
+        speed: 1,
+        volume: 1,
+        opacity: 1,
+        isReversed: false,
+        isSelected: false,
+        isLocked: false,
+        effects: [],
+        filters: [],
+        transitions: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: "clip2", 
+        name: "Clip clip2",
+        trackId: "track2",
+        mediaId: "media-clip2",
+        startTime: 0,
+        duration: 10,
+        mediaStartTime: 0,
+        mediaEndTime: 10,
+        offset: 0,
+        speed: 1,
+        volume: 1,
+        opacity: 1,
+        isReversed: false,
+        isSelected: false,
+        isLocked: false,
+        effects: [],
+        filters: [],
+        transitions: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ],
+  }),
+}))
+
 describe("useCameraSync", () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
   it("should initialize with idle state", () => {
-    const { result } = renderHook(() => useCameraSync({ baseClipId: "clip1" }))
+    const { result } = renderHook(() => useCameraSync({ baseClipId: "clip1" }), {
+      wrapper: TimelineProvider,
+    })
 
     expect(result.current.syncStatus).toBe("idle")
     expect(result.current.syncResults).toEqual([])
@@ -86,7 +166,9 @@ describe("useCameraSync", () => {
   })
 
   it("should sync by timecode", async () => {
-    const { result } = renderHook(() => useCameraSync({ baseClipId: "clip1" }))
+    const { result } = renderHook(() => useCameraSync({ baseClipId: "clip1" }), {
+      wrapper: TimelineProvider,
+    })
 
     await act(async () => {
       await result.current.syncByTimecode()
@@ -103,7 +185,9 @@ describe("useCameraSync", () => {
   })
 
   it("should handle manual sync", () => {
-    const { result } = renderHook(() => useCameraSync({ baseClipId: "clip1" }))
+    const { result } = renderHook(() => useCameraSync({ baseClipId: "clip1" }), {
+      wrapper: TimelineProvider,
+    })
 
     act(() => {
       result.current.syncManual("clip3", 3.5)
@@ -120,7 +204,9 @@ describe("useCameraSync", () => {
   })
 
   it("should update existing sync result on manual sync", () => {
-    const { result } = renderHook(() => useCameraSync({ baseClipId: "clip1" }))
+    const { result } = renderHook(() => useCameraSync({ baseClipId: "clip1" }), {
+      wrapper: TimelineProvider,
+    })
 
     // Первая синхронизация
     act(() => {
@@ -140,7 +226,9 @@ describe("useCameraSync", () => {
   })
 
   it("should get sync offset for clip", () => {
-    const { result } = renderHook(() => useCameraSync({ baseClipId: "clip1" }))
+    const { result } = renderHook(() => useCameraSync({ baseClipId: "clip1" }), {
+      wrapper: TimelineProvider,
+    })
 
     act(() => {
       result.current.syncManual("clip2", 2.5)
@@ -151,7 +239,9 @@ describe("useCameraSync", () => {
   })
 
   it("should check if clip is synced", () => {
-    const { result } = renderHook(() => useCameraSync({ baseClipId: "clip1" }))
+    const { result } = renderHook(() => useCameraSync({ baseClipId: "clip1" }), {
+      wrapper: TimelineProvider,
+    })
 
     act(() => {
       result.current.syncManual("clip2", 1.0)
@@ -162,7 +252,9 @@ describe("useCameraSync", () => {
   })
 
   it("should get sync method for clip", () => {
-    const { result } = renderHook(() => useCameraSync({ baseClipId: "clip1" }))
+    const { result } = renderHook(() => useCameraSync({ baseClipId: "clip1" }), {
+      wrapper: TimelineProvider,
+    })
 
     act(() => {
       result.current.syncManual("clip2", 1.0)
@@ -173,7 +265,9 @@ describe("useCameraSync", () => {
   })
 
   it("should clear sync results", () => {
-    const { result } = renderHook(() => useCameraSync({ baseClipId: "clip1" }))
+    const { result } = renderHook(() => useCameraSync({ baseClipId: "clip1" }), {
+      wrapper: TimelineProvider,
+    })
 
     act(() => {
       result.current.syncManual("clip2", 1.0)
