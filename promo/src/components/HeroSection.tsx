@@ -101,9 +101,12 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.5 }}
-          className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6"
+          className="flex items-center justify-center"
         >
-          <button className="glass glass-glow px-8 py-4 rounded-xl text-lg font-medium text-white hover:bg-white/10 transition-all duration-300 group flex items-center space-x-3">
+          <a 
+            href="#download" 
+            className="glass glass-glow px-8 py-4 rounded-xl text-lg font-medium text-white hover:bg-white/10 transition-all duration-300 group flex items-center space-x-3"
+          >
             <span>Start Free</span>
             <svg
               className="w-5 h-5 group-hover:translate-x-1 transition-transform"
@@ -118,30 +121,7 @@ export function HeroSection() {
                 d="M13 10V3L4 14h7v7l9-11h-7z"
               />
             </svg>
-          </button>
-
-          <button className="px-8 py-4 rounded-xl text-lg font-medium text-gray-300 hover:text-white transition-colors duration-300 flex items-center space-x-3 group">
-            <svg
-              className="w-5 h-5 group-hover:scale-110 transition-transform"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <span>Watch Demo</span>
-          </button>
+          </a>
         </motion.div>
 
         <motion.div

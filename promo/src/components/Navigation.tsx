@@ -12,10 +12,11 @@ interface NavItem {
 const navItems: NavItem[] = [];
 
 const rightNavItems: NavItem[] = [
-  { label: 'Features', href: '#ai-editing', isScroll: true },
-  { label: 'Download', href: '#download', isScroll: true },
-  { label: 'Docs', href: '/api-docs/', isExternal: true },
-  { label: 'Blog', href: '/blog', isExternal: true }
+  { label: 'FEATURES', href: '#ai-editing', isScroll: true },
+  { label: 'DOWNLOAD', href: '#download', isScroll: true },
+  { label: 'CHANGELOG', href: '/changelog', isExternal: true },
+  { label: 'DOCS', href: '/api-docs/', isExternal: true },
+  { label: 'BLOG', href: '/blog', isExternal: true }
 ];
 
 export function Navigation() {
@@ -57,7 +58,7 @@ export function Navigation() {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 transition-all duration-500 py-5">
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled ? 'py-0' : 'py-5'}`}>
       <div className={`transition-all duration-500 ${
         isScrolled ? 'px-6 md:px-8' : 'px-6 md:px-8 lg:px-12'
       }`}>
@@ -91,7 +92,7 @@ export function Navigation() {
                       href={item.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block px-4 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors duration-200 whitespace-nowrap"
+                      className="block px-4 py-2 text-xs font-medium text-gray-300 hover:text-white transition-colors duration-200 whitespace-nowrap tracking-wider"
                     >
                       {item.label}
                     </a>
@@ -99,7 +100,7 @@ export function Navigation() {
                     <a
                       href={item.href}
                       onClick={(e) => handleClick(e, item.href)}
-                      className={`block px-4 py-2 text-sm font-medium transition-colors duration-200 whitespace-nowrap ${
+                      className={`block px-4 py-2 text-xs font-medium transition-colors duration-200 whitespace-nowrap tracking-wider ${
                         activeSection === item.href.slice(1)
                           ? 'text-white'
                           : 'text-gray-300 hover:text-white'
@@ -117,7 +118,8 @@ export function Navigation() {
                 href="https://github.com/chatman-media/timeline-studio/releases/latest"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hidden md:inline-flex px-5 py-2 rounded-xl text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-200"
+                className="hidden md:inline-flex px-5 py-2 rounded-xl text-sm font-medium text-white transition-all duration-200 hover:opacity-90"
+                style={{ backgroundColor: '#8b5cf6' }}
               >
                 Download
               </a>

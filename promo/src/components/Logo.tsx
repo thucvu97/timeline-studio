@@ -42,7 +42,13 @@ export const Logo: React.FC<LogoProps> = ({ size = 'medium', showText = true }) 
       {/* Text */}
       {showText && (
         <div className="flex items-center space-x-2">
-          <span className={`text-white font-semibold ${currentSize.text}`}>
+          <span 
+            className={`text-white ${currentSize.text}`}
+            style={{
+              fontFamily: 'Verdana, Geneva, Tahoma, sans-serif',
+              fontWeight: '400'
+            }}
+          >
             Timeline Studio
           </span>
           <span className="text-[10px] text-gray-500 font-medium px-1.5 py-0.5 border border-gray-700 rounded-md">
