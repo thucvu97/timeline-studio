@@ -117,7 +117,7 @@ export function useMulticam(baseClipId?: string): UseMulticamReturn {
         // Автоматически переключаем плеер на выбранный клип
         const angle = angles[angleIndex]
         if (angle) {
-          playerSelectClip(angle.clipId).catch((error) => {
+          playerSelectClip(angle.clipId).catch((error: unknown) => {
             console.error("[useMulticam] Failed to switch player clip:", error)
           })
         }
@@ -148,7 +148,7 @@ export function useMulticam(baseClipId?: string): UseMulticamReturn {
         if (angle) {
           console.log(`[useMulticam] Switching to angle ${angleIndex + 1}:`, angle.name)
           // Вызываем API плеера для переключения на другой клип
-          playerSelectClip(angle.clipId).catch((error) => {
+          playerSelectClip(angle.clipId).catch((error: unknown) => {
             console.error("[useMulticam] Failed to switch player clip:", error)
           })
         }

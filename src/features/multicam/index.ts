@@ -16,10 +16,6 @@ export { useMulticamShortcuts } from "./hooks/use-multicam-shortcuts"
 
 // Сервисы
 export { multicamManager } from "./services/multicam-manager"
-export type {
-  SyncResult,
-  TimecodeInfo,
-} from "./services/timecode-sync"
 export * from "./services/timecode-sync"
 // Типы
 export type {

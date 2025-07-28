@@ -98,6 +98,8 @@ export function AudioSyncDialog({ isOpen, onClose, onSync, angleCount }: AudioSy
         return <Loader2 className="w-5 h-5 animate-pulse" />
       case "complete":
         return <CheckCircle2 className="w-5 h-5 text-green-500" />
+      default:
+        return <Music className="w-5 h-5" />
     }
   }
 

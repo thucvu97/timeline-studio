@@ -54,7 +54,7 @@ export function SyncControls({ baseClipId, className, onSyncComplete }: SyncCont
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 500)) // Имитация задержки
-      multicam.autoSyncByTimecode()
+      void multicam.autoSyncByTimecode()
       setSyncStatus("success")
       onSyncComplete?.()
 
@@ -139,10 +139,6 @@ export function SyncControls({ baseClipId, className, onSyncComplete }: SyncCont
     return "Синхронизация"
   }
 
-  if (!multicam.hasMulticamSupport) {
-    return null
-  }
-
   // Обработчик завершения аудио синхронизации
   const handleAudioSyncComplete = useCallback(async () => {
     setAudioSyncOpen(false)
@@ -155,6 +151,10 @@ export function SyncControls({ baseClipId, className, onSyncComplete }: SyncCont
       setSyncMethod(null)
     }, 3000)
   }, [onSyncComplete])
+
+  if (!multicam.hasMulticamSupport) {
+    return null
+  }
 
   return (
     <>
@@ -205,7 +205,7 @@ export function SyncControls({ baseClipId, className, onSyncComplete }: SyncCont
             <DialogTitle>Ручная синхронизация</DialogTitle>
             <DialogDescription>
               {manualSync.angleIndex !== null && (
-                <>Настройте смещение для камеры "{multicam.angles[manualSync.angleIndex]?.name}"</>
+                <>Настройте смещение для камеры &quot;{multicam.angles[manualSync.angleIndex]?.name}&quot;</>
               )}
             </DialogDescription>
           </DialogHeader>
@@ -264,7 +264,7 @@ export function SyncControls({ baseClipId, className, onSyncComplete }: SyncCont
         onClose={() => setAudioSyncOpen(false)}
         onSync={async () => {
           const results = await multicam.autoSyncByAudio()
-          handleAudioSyncComplete()
+          void handleAudioSyncComplete()
           return results || []
         }}
         angleCount={multicam.angles.length}
