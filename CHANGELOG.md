@@ -1,3 +1,10 @@
+## [0.37.2](https://github.com/chatman-media/timeline-studio/compare/v0.37.1...v0.37.2) (2025-07-28)
+
+
+### Bug Fixes
+
+* Fix build issues for macOS and Windows ([23efc10](https://github.com/chatman-media/timeline-studio/commit/23efc106a5b4b94cff974b7b01b6b57248030aec))
+
 ## [0.37.1](https://github.com/chatman-media/timeline-studio/compare/v0.37.0...v0.37.1) (2025-07-28)
 
 
