@@ -4,15 +4,30 @@ import { Navigation } from '../components/Navigation'
 import { Footer } from '../components/Footer'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { loadMarkdownFile } from '../utils/loadMarkdown'
 
 export const Changelog: React.FC = () => {
   const [changelogContent, setChangelogContent] = useState('')
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // В продакшене это будет загружаться с сервера
-    // Пока используем статичный контент
-    const content = `# Timeline Studio v0.36.0
+    setIsLoading(true);
+    // Сначала пробуем загрузить последний changelog
+    loadMarkdownFile('/content/changelog/latest.md')
+      .then((content: string) => {
+        setChangelogContent(content);
+        setIsLoading(false);
+      })
+      .catch(() => {
+        // Если нет latest.md, загружаем стандартный
+        loadMarkdownFile('/content/changelog/0.36.0.md')
+          .then((content: string) => {
+            setChangelogContent(content);
+            setIsLoading(false);
+          })
+          .catch(() => {
+            // Если и его нет, используем стандартный контент
+            const fallbackContent = `# Timeline Studio v0.36.0
 
 ## 🚀 New Features
 
@@ -30,10 +45,11 @@ export const Changelog: React.FC = () => {
 
 - Updated to Tauri v2
 - Better performance with GPU acceleration
-- Enhanced test coverage (80%+)`
-    
-    setChangelogContent(content)
-    setIsLoading(false)
+- Enhanced test coverage (80%+)`;
+            setChangelogContent(fallbackContent);
+            setIsLoading(false);
+          });
+      });
   }, [])
 
   return (
