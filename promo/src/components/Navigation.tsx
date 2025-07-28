@@ -16,7 +16,7 @@ const rightNavItems: NavItem[] = [
   // { label: 'FEATURES', href: '#ai-editing', isScroll: true },
   // { label: 'DOWNLOAD', href: '#download', isScroll: true },
   { label: 'CHANGELOG', href: '/changelog', isExternal: false },
-  { label: 'DOCS', href: '/api-docs/', isExternal: true },
+  { label: 'DOCS', href: '/docs', isExternal: false },
   { label: 'BLOG', href: '/blog', isExternal: false }
 ];
 

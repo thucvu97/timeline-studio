@@ -37,7 +37,7 @@ export const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <a href="#download" className="text-sm text-gray-300 hover:text-gray-100 transition-colors">
+                <a href="https://github.com/chatman-media/timeline-studio/releases" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-300 hover:text-gray-100 transition-colors">
                   Downloads
                 </a>
               </li>
@@ -54,9 +54,9 @@ export const Footer: React.FC = () => {
               <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-6">RESOURCES</h3>
               <ul className="space-y-3">
                 <li>
-                  <a href="/api-docs/" className="text-sm text-gray-300 hover:text-gray-100 transition-colors">
+                  <Link to="/docs" className="text-sm text-gray-300 hover:text-gray-100 transition-colors">
                     Documentation
-                  </a>
+                  </Link>
                 </li>
                 <li>
                   <Link to="/blog" className="text-sm text-gray-300 hover:text-gray-100 transition-colors">

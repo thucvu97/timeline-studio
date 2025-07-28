@@ -12,6 +12,7 @@ import Terms from './pages/Terms'
 import Privacy from './pages/Privacy'
 import ResponsibleAI from './pages/ResponsibleAI'
 import FAQ from './pages/FAQ'
+import Docs from './pages/Docs'
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -27,6 +28,7 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/responsible-ai" element={<ResponsibleAI />} />
         <Route path="/faq" element={<FAQ />} />
+        <Route path="/docs" element={<Docs />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,
