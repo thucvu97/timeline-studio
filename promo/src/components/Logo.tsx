@@ -39,12 +39,7 @@ export const Logo: React.FC<LogoProps> = ({ size = 'medium', showText = true }) 
           T
         </span>
       </div> */}
-
-      {/* favicon.svg */}
-
-      <img src="/favicon.svg" alt="Timeline Studio" className="w-12 h-12 mb-2" />
-
-
+      <img src="/favicon.svg" alt="Timeline Studio" className="w-12 h-12 mb-3" />
       {/* Text */}
       {showText && (
         <div className="flex items-center space-x-2 ml-[-17px]">
