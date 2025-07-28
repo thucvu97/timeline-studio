@@ -6,6 +6,7 @@ on:
     paths:
       - 'promo/**'
       - '.github/workflows/deploy-promo.yml'
+      - 'CHANGELOG.md'
   workflow_dispatch:
 
 jobs:
@@ -24,6 +25,16 @@ jobs:
         run: |
           cd promo
           npm install
+
+      - name: Sync changelog
+        run: |
+          node scripts/sync-changelog.js
+
+      - name: Prepare content
+        run: |
+          cd promo
+          mkdir -p public/content
+          cp -r content/changelog public/content/
 
       - name: Build promo page
         run: |
