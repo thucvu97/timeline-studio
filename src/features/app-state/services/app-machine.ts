@@ -75,7 +75,19 @@ export const appMachine = setup({
 
   actors: {
     backendConnection: fromCallback(({ sendBack, input }: { sendBack: any; input: { backendSync: BackendSync } }) => {
+      // Check if input and backendSync are available
+      if (!input || !input.backendSync) {
+        sendBack({ type: "CONNECTION_ERROR", error: "Backend sync service is not available" })
+        return () => {}
+      }
+
       const { backendSync } = input
+
+      // Additional safety check
+      if (!backendSync || typeof backendSync.connect !== 'function') {
+        sendBack({ type: "CONNECTION_ERROR", error: "Backend sync service is not properly initialized" })
+        return () => {}
+      }
 
       // Subscribe to backend events
       const unsubscribeEvent = backendSync.onEvent((event) => {
@@ -88,15 +100,20 @@ export const appMachine = setup({
       })
 
       // Connect to backend
-      backendSync
-        .connect()
-        .then(() => {
-          sendBack({ type: "CONNECT" })
-        })
-        .catch((error: unknown) => {
-          const errorMessage = error instanceof Error ? error.message : String(error)
-          sendBack({ type: "CONNECTION_ERROR", error: errorMessage })
-        })
+      try {
+        backendSync
+          .connect()
+          .then(() => {
+            sendBack({ type: "CONNECT" })
+          })
+          .catch((error: unknown) => {
+            const errorMessage = error instanceof Error ? error.message : String(error)
+            sendBack({ type: "CONNECTION_ERROR", error: errorMessage })
+          })
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        sendBack({ type: "CONNECTION_ERROR", error: errorMessage })
+      }
 
       // Cleanup function
       return () => {

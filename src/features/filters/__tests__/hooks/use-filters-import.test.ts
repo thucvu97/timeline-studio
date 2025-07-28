@@ -7,6 +7,34 @@ import { MediaProviders } from "@/test/test-utils"
 
 import { useFiltersImport } from "../../hooks/use-filters-import"
 
+// Mock AppProvider to avoid backend connection issues
+vi.mock("@/features/app-state/services/app-provider", () => {
+  const React = require("react")
+  
+  const mockContext = {
+    isConnected: false,
+    isConnecting: false,
+    connectionError: null,
+    projectState: null,
+    connect: vi.fn(),
+    disconnect: vi.fn(),
+    retryConnection: vi.fn(),
+    executeCommand: vi.fn(),
+  }
+  
+  const AppContext = React.createContext(mockContext)
+  
+  return {
+    AppProvider: ({ children }: { children: React.ReactNode }) => 
+      React.createElement(AppContext.Provider, { value: mockContext }, children),
+    useApp: () => mockContext,
+    useAppV2: () => mockContext,
+    AppProviderV2: ({ children }: { children: React.ReactNode }) => 
+      React.createElement(AppContext.Provider, { value: mockContext }, children),
+    AppContext,
+  }
+})
+
 // Мокаем Tauri dialog API
 vi.mock("@tauri-apps/plugin-dialog", () => ({
   open: vi.fn(),

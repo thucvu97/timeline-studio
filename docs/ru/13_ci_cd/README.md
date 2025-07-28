@@ -5,6 +5,8 @@
 ## 📋 Содержание
 
 - [ci-cd-setup.md](ci-cd-setup.md) - Настройка CI/CD pipeline
+- [semantic-release.md](semantic-release.md) - Автоматическое версионирование и релизы
+- [codecov-components.md](codecov-components.md) - Настройка покрытия кода
 
 ## 🔄 CI/CD Процессы
 
