@@ -1,3 +1,10 @@
+## [0.38.1](https://github.com/chatman-media/timeline-studio/compare/v0.38.0...v0.38.1) (2025-07-28)
+
+
+### Bug Fixes
+
+* исправлены ошибки в тестах use-filters-import ([3a27b08](https://github.com/chatman-media/timeline-studio/commit/3a27b08d8dc29144862f9bf39fb2dce532157ed9))
+
 # [0.38.0](https://github.com/chatman-media/timeline-studio/compare/v0.37.2...v0.38.0) (2025-07-28)
 
 
