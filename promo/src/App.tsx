@@ -4,6 +4,7 @@ import { Navigation } from './components/Navigation'
 import { HeroSection } from './components/HeroSection'
 import { AnimatedSection } from './components/AnimatedSection'
 import { AIEditingSection } from './components/AIEditingSection'
+import { Footer } from './components/Footer'
 
 const App: React.FC = () => {
   return (
@@ -13,10 +14,8 @@ const App: React.FC = () => {
         {/* Hero Section */}
         <HeroSection />
 
-
         {/* AI Editing Section */}
         <AIEditingSection />
-
 
         {/* Features Section - Multi-platform & Multi-language */}
         <AnimatedSection>
@@ -151,88 +150,8 @@ const App: React.FC = () => {
 
 
 
-        {/* Футер */}
-        <footer className="bg-black border-t border-gray-800">
-          <div className="container mx-auto px-4 py-16">
-            <div className="flex flex-col md:flex-row justify-between items-start">
-              <div className="mb-8 md:mb-0">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m0 0V1a1 1 0 011-1h2a1 1 0 011 1v18a1 1 0 01-1 1H4a1 1 0 01-1-1V1a1 1 0 011-1h2a1 1 0 011 1v3"
-                      />
-                    </svg>
-                  </div>
-                  <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                    Timeline Studio
-                  </h2>
-                </div>
-                <p className="text-gray-400 max-w-md">
-                  Professional AI-powered video editing application with cutting-edge technology
-                </p>
-              </div>
-              <div className="flex flex-col md:flex-row gap-12">
-                <div>
-                  <h3 className="text-lg font-semibold mb-4 text-white">Resources</h3>
-                  <ul className="space-y-3">
-                    <li>
-                      <a
-                        href="https://github.com/chatman-media/timeline-studio"
-                        className="text-gray-400 hover:text-blue-400 transition-colors"
-                      >
-                        GitHub
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="https://www.npmjs.com/package/timeline-studio"
-                        className="text-gray-400 hover:text-blue-400 transition-colors"
-                      >
-                        npm
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="https://chatman-media.github.io/timeline-studio/api-docs/"
-                        className="text-gray-400 hover:text-blue-400 transition-colors"
-                      >
-                        Documentation
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold mb-4 text-white">Contact</h3>
-                  <ul className="space-y-3">
-                    <li>
-                      <a
-                        href="https://github.com/chatman-media/timeline-studio/issues"
-                        className="text-gray-400 hover:text-blue-400 transition-colors"
-                      >
-                        Report Issue
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="mailto:ak.chatman.media@gmail.com"
-                        className="text-gray-400 hover:text-blue-400 transition-colors"
-                      >
-                        Email
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-            <div className="border-t border-gray-800 mt-12 pt-8 text-center">
-              <p className="text-gray-500">&copy; {new Date().getFullYear()} Timeline Studio. All rights reserved.</p>
-            </div>
-          </div>
-        </footer>
+        {/* Footer */}
+        <Footer />
       </div>
   )
 }
@@ -240,15 +159,17 @@ const App: React.FC = () => {
 
 // Компонент кнопки загрузки
 const DownloadButton: React.FC<{ platform: string; icon: string }> = ({ platform, icon }) => {
+  const version = "0.36.0" // Текущая версия из tauri.conf.json
+  
   // Определяем правильный путь к файлу в зависимости от платформы
   const getDownloadPath = () => {
     switch (platform.toLowerCase()) {
       case "windows":
-        return "timeline-studio_x64_en-US.msi"
+        return `timeline-studio_${version}_x64-setup.exe`
       case "macos":
-        return "timeline-studio_universal.dmg"
+        return `timeline-studio_${version}_universal.dmg`
       case "linux":
-        return "timeline-studio_x86_64.AppImage"
+        return `timeline-studio_${version}_amd64.AppImage`
       default:
         return `timeline-studio-${platform.toLowerCase()}.zip`
     }
@@ -270,8 +191,8 @@ const DownloadButton: React.FC<{ platform: string; icon: string }> = ({ platform
 
   return (
     <a
-      href={`https://github.com/chatman-media/timeline-studio/releases/latest/download/${getDownloadPath()}`}
-      className={`group relative glass glass-glow px-8 py-4 rounded-xl font-bold shadow-2xl hover:shadow-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 flex items-center gap-3`}
+      href={`https://github.com/chatman-media/timeline-studio/releases/download/v${version}/${getDownloadPath()}`}
+      className={`group relative glass glass-glow px-8 py-4 rounded-xl font-bold shadow-2xl hover:shadow-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 flex items-center gap-3 cursor-pointer`}
     >
       <span className="relative z-10 flex items-center gap-3">
         <span className="text-3xl transform group-hover:scale-110 transition-transform duration-300">

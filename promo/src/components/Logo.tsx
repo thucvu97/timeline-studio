@@ -1,0 +1,57 @@
+import React from 'react'
+
+interface LogoProps {
+  size?: 'small' | 'medium' | 'large'
+  showText?: boolean
+}
+
+export const Logo: React.FC<LogoProps> = ({ size = 'medium', showText = true }) => {
+  const sizes = {
+    small: { circle: 'w-10 h-10', text: 'text-lg', font: 'text-xl' },
+    medium: { circle: 'w-12 h-12', text: 'text-xl', font: 'text-2xl' },
+    large: { circle: 'w-16 h-16', text: 'text-2xl', font: 'text-3xl' }
+  }
+
+  const currentSize = sizes[size]
+
+  return (
+    <div className="flex items-center space-x-3">
+      {/* Static circle with T */}
+      <div
+        className={`${currentSize.circle} rounded-full flex items-center justify-center overflow-visible`}
+        style={{
+          background: '#8b5cf6',
+          boxShadow: '0 8px 32px 0 rgba(139, 92, 246, 0.4)'
+        }}
+      >
+        <span 
+          className={`text-white`}
+          style={{ 
+            fontFamily: 'Brush Script MT, Lucida Handwriting, cursive',
+            fontWeight: '400',
+            fontSize: '2.8rem',
+            lineHeight: '1',
+            transform: 'translateX(-3px) translateY(2px)',
+            cursor: 'default'
+          }}
+        >
+          T
+        </span>
+      </div>
+
+      {/* Text */}
+      {showText && (
+        <div className="flex items-center space-x-2">
+          <span className={`text-white font-semibold ${currentSize.text}`}>
+            Timeline Studio
+          </span>
+          <span className="text-[10px] text-gray-500 font-medium px-1.5 py-0.5 border border-gray-700 rounded-md">
+            BETA
+          </span>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default Logo

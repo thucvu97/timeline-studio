@@ -32,7 +32,7 @@ export function HeroSection() {
   return (
     <section
       ref={containerRef}
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20"
     >
       {/* Background gradient */}
       <div className="absolute inset-0 hero-gradient" />
@@ -78,15 +78,6 @@ export function HeroSection() {
         style={{ y, opacity }}
         className="relative z-10 text-center px-6 max-w-5xl mx-auto"
       >
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="inline-flex items-center space-x-2 glass px-4 py-2 rounded-full mb-8"
-        >
-          <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-          <span className="text-sm text-gray-300">Now in Beta</span>
-        </motion.div>
 
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
