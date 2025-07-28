@@ -107,7 +107,7 @@ export function HeroSection() {
             href="#download" 
             className="glass glass-glow px-8 py-4 rounded-xl text-lg font-medium text-white hover:bg-white/10 transition-all duration-300 group flex items-center space-x-3"
           >
-            <span>Start Free</span>
+            <span>Get for Free</span>
             <svg
               className="w-5 h-5 group-hover:translate-x-1 transition-transform"
               fill="none"
