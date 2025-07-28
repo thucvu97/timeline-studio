@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Logo } from './Logo';
+import { Link } from 'react-router-dom';
 
 interface NavItem {
   label: string;
@@ -14,9 +15,9 @@ const navItems: NavItem[] = [];
 const rightNavItems: NavItem[] = [
   // { label: 'FEATURES', href: '#ai-editing', isScroll: true },
   // { label: 'DOWNLOAD', href: '#download', isScroll: true },
-  { label: 'CHANGELOG', href: '/changelog', isExternal: true },
+  { label: 'CHANGELOG', href: '/changelog', isExternal: false },
   { label: 'DOCS', href: '/api-docs/', isExternal: true },
-  { label: 'BLOG', href: '/blog', isExternal: true }
+  { label: 'BLOG', href: '/blog', isExternal: false }
 ];
 
 export function Navigation() {
@@ -74,9 +75,9 @@ export function Navigation() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
             >
-              <a href="/" className="inline-block">
+              <Link to="/" className="inline-block">
                 <Logo size="small" />
-              </a>
+              </Link>
             </motion.div>
 
             {/* Right side container */}
@@ -99,7 +100,7 @@ export function Navigation() {
                     >
                       {item.label}
                     </a>
-                  ) : (
+                  ) : item.isScroll ? (
                     <a
                       href={item.href}
                       onClick={(e) => handleClick(e, item.href)}
@@ -111,6 +112,13 @@ export function Navigation() {
                     >
                       {item.label}
                     </a>
+                  ) : (
+                    <Link
+                      to={item.href}
+                      className="block px-2 lg:px-4 py-2 text-xs font-medium text-gray-300 hover:text-white transition-colors duration-200 whitespace-nowrap tracking-wider"
+                    >
+                      {item.label}
+                    </Link>
                   )}
                   </li>
                 ))}
@@ -209,7 +217,7 @@ export function Navigation() {
                     >
                       {item.label}
                     </a>
-                  ) : (
+                  ) : item.isScroll ? (
                     <a
                       href={item.href}
                       onClick={(e) => {
@@ -224,6 +232,14 @@ export function Navigation() {
                     >
                       {item.label}
                     </a>
+                  ) : (
+                    <Link
+                      to={item.href}
+                      className="block px-4 py-2 text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors duration-200"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {item.label}
+                    </Link>
                   )}
                 </li>
               ))}

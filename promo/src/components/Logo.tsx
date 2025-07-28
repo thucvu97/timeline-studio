@@ -15,7 +15,7 @@ export const Logo: React.FC<LogoProps> = ({ size = 'medium', showText = true }) 
   const currentSize = sizes[size]
 
   return (
-    <div className="flex items-center space-x-3">
+    <div className="flex items-center">
       {/* Static circle with T */}
       <div
         className={`${currentSize.circle} rounded-full flex items-center justify-center overflow-visible`}
@@ -42,7 +42,7 @@ export const Logo: React.FC<LogoProps> = ({ size = 'medium', showText = true }) 
 
       {/* Text */}
       {showText && (
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 ml-[-10px]">
           <span 
             className={`text-white ${currentSize.text}`}
             style={{
@@ -53,7 +53,7 @@ export const Logo: React.FC<LogoProps> = ({ size = 'medium', showText = true }) 
           >
             Timeline Studio
           </span>
-          <span className="text-[10px] text-gray-500 font-medium px-1.5 py-0.5 border border-gray-700 rounded-md">
+          <span className="text-[10px] text-gray-500 font-medium px-0 py-0.5 border border-gray-700 rounded-md">
             BETA
           </span>
         </div>
