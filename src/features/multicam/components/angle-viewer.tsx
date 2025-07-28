@@ -3,11 +3,17 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+
+import { Camera, Pause, Play } from "lucide-react"
+
 import { Badge } from "@/components/ui/badge"
-import { Play, Pause, Camera } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+
+
+import { SyncControls } from "./sync-controls"
 import { useMulticam } from "../hooks/use-multicam"
+
 import type { MulticamAngle } from "../hooks/use-multicam"
 
 interface AngleViewerProps {
@@ -123,8 +129,15 @@ export function AngleViewer({
   
   return (
     <div className={cn("relative", className)}>
-      {/* Контролы воспроизведения */}
+      {/* Контролы воспроизведения и синхронизации */}
       <div className="absolute top-2 right-2 z-10 flex gap-2">
+        <SyncControls 
+          baseClipId={baseClipId} 
+          className="shadow-lg"
+          onSyncComplete={() => {
+            console.log("[AngleViewer] Sync completed")
+          }}
+        />
         <Button
           size="sm"
           variant="secondary"
@@ -157,7 +170,9 @@ export function AngleViewer({
             {/* Видео превью */}
             <div className="aspect-video relative">
               <video
-                ref={el => videoRefs.current[index] = el}
+                ref={el => {
+                  videoRefs.current[index] = el
+                }}
                 className="w-full h-full object-cover"
                 muted
                 playsInline

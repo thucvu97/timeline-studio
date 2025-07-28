@@ -2,8 +2,14 @@ import { fireEvent, render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { MediaFile } from "@/features/media/types/media"
+import { TimelineProvider } from "@/features/timeline/services/timeline-provider"
 
 import { PlayerControls } from "../../components/player-controls"
+
+// Вспомогательная функция для рендеринга с провайдерами
+const renderWithProviders = (ui: React.ReactElement) => {
+  return render(<TimelineProvider>{ui}</TimelineProvider>)
+}
 
 // Импортируем централизованный мок иконок
 import "@/test/mocks/libraries/lucide-react"
@@ -50,6 +56,42 @@ vi.mock("../../components/volume-slider", () => ({
       Volume Slider
     </div>
   ),
+}))
+
+// Мокаем TimelineProvider
+vi.mock("@/features/timeline/services/timeline-provider", () => ({
+  TimelineProvider: ({ children }: any) => children,
+  useTimeline: () => ({
+    isPlaying: false,
+    timeline: {
+      tracks: [],
+      duration: 120,
+      fps: 30,
+    },
+    clips: [],
+  }),
+}))
+
+// Мокаем useLinkedClips
+vi.mock("@/features/timeline/hooks/use-linked-clips", () => ({
+  useLinkedClips: () => ({
+    linkedClips: [],
+    isLinked: () => false,
+    linkClips: vi.fn(),
+    unlinkClips: vi.fn(),
+    getLinkedClips: () => [],
+  }),
+}))
+
+// Мокаем useMulticam
+vi.mock("@/features/multicam/hooks/use-multicam", () => ({
+  useMulticam: () => ({
+    isMulticam: false,
+    angles: [],
+    currentAngle: 0,
+    switchAngle: vi.fn(),
+    isChangingCamera: false,
+  }),
 }))
 
 // Мокаем хуки
@@ -119,7 +161,7 @@ describe("PlayerControls", () => {
 
   describe("Отображение элементов управления", () => {
     it("должен отображать все основные элементы управления", () => {
-      render(<PlayerControls currentTime={0} file={mockFile} />)
+      renderWithProviders(<PlayerControls currentTime={0} file={mockFile} />)
 
       expect(screen.getByTestId("stepback-icon")).toBeInTheDocument()
       // Ищем основную play иконку через кнопку
@@ -132,7 +174,7 @@ describe("PlayerControls", () => {
 
     it("должен отображать иконку паузы при воспроизведении", () => {
       mockPlayerContext.isPlaying = true
-      render(<PlayerControls currentTime={0} file={mockFile} />)
+      renderWithProviders(<PlayerControls currentTime={0} file={mockFile} />)
 
       expect(screen.getByTestId("pause-icon")).toBeInTheDocument()
       // Проверяем что основная play кнопка не отображается (но маленькая play иконка в AI Analysis может остаться)
@@ -141,14 +183,14 @@ describe("PlayerControls", () => {
 
     it("должен отображать иконку записи при isRecording", () => {
       mockPlayerContext.isRecording = true
-      render(<PlayerControls currentTime={0} file={mockFile} />)
+      renderWithProviders(<PlayerControls currentTime={0} file={mockFile} />)
 
       expect(screen.getByTestId("circledot-icon")).toBeInTheDocument()
     })
 
     it("должен отображать иконку minimize в полноэкранном режиме", () => {
       mockFullscreen.isFullscreen = true
-      render(<PlayerControls currentTime={0} file={mockFile} />)
+      renderWithProviders(<PlayerControls currentTime={0} file={mockFile} />)
 
       expect(screen.getByTestId("minimize2-icon")).toBeInTheDocument()
       expect(screen.queryByTestId("maximize2-icon")).not.toBeInTheDocument()
@@ -157,7 +199,7 @@ describe("PlayerControls", () => {
 
   describe("Управление воспроизведением", () => {
     it("должен переключать воспроизведение при клике на play/pause", () => {
-      render(<PlayerControls currentTime={0} file={mockFile} />)
+      renderWithProviders(<PlayerControls currentTime={0} file={mockFile} />)
 
       const playButton = screen.getByTitle("timeline.controls.play")
       fireEvent.click(playButton)
@@ -167,7 +209,7 @@ describe("PlayerControls", () => {
 
     it("должен переключать паузу при воспроизведении", () => {
       mockPlayerContext.isPlaying = true
-      render(<PlayerControls currentTime={0} file={mockFile} />)
+      renderWithProviders(<PlayerControls currentTime={0} file={mockFile} />)
 
       const pauseButton = screen.getByTitle("timeline.controls.pause")
       fireEvent.click(pauseButton)
@@ -176,7 +218,7 @@ describe("PlayerControls", () => {
     })
 
     it("должен переключать запись", () => {
-      render(<PlayerControls currentTime={0} file={mockFile} />)
+      renderWithProviders(<PlayerControls currentTime={0} file={mockFile} />)
 
       const recordButton = screen.getByTitle("timeline.controls.record")
       expect(recordButton).not.toBeDisabled() // Проверяем что кнопка активна
@@ -187,7 +229,7 @@ describe("PlayerControls", () => {
 
     it("должен останавливать запись", () => {
       mockPlayerContext.isRecording = true
-      render(<PlayerControls currentTime={0} file={mockFile} />)
+      renderWithProviders(<PlayerControls currentTime={0} file={mockFile} />)
 
       const stopRecordButton = screen.getByTitle("timeline.controls.stopRecord")
       fireEvent.click(stopRecordButton)
@@ -198,7 +240,7 @@ describe("PlayerControls", () => {
 
   describe("Навигация по времени", () => {
     it("должен обновлять время при изменении слайдера", () => {
-      render(<PlayerControls currentTime={30} file={mockFile} />)
+      renderWithProviders(<PlayerControls currentTime={30} file={mockFile} />)
 
       const slider = screen.getByTestId("slider")
       fireEvent.change(slider, { target: { value: "60" } })
@@ -207,7 +249,7 @@ describe("PlayerControls", () => {
     })
 
     it("должен устанавливать isSeeking при начале перемещения", () => {
-      render(<PlayerControls currentTime={0} file={mockFile} />)
+      renderWithProviders(<PlayerControls currentTime={0} file={mockFile} />)
 
       const slider = screen.getByTestId("slider")
       // Мокаем onValueChange для триггера isSeeking
@@ -224,7 +266,7 @@ describe("PlayerControls", () => {
         // Число, а не строка
         duration: 120,
       }
-      render(<PlayerControls currentTime={65.5} file={fileWithTime} />)
+      renderWithProviders(<PlayerControls currentTime={65.5} file={fileWithTime} />)
 
       // Компонент отображает startTime и duration из файла
       expect(screen.getByText("00:01:05:15")).toBeInTheDocument()
@@ -237,7 +279,7 @@ describe("PlayerControls", () => {
         startTime: undefined,
         duration: undefined,
       }
-      render(<PlayerControls currentTime={0} file={fileWithoutTime} />)
+      renderWithProviders(<PlayerControls currentTime={0} file={fileWithoutTime} />)
 
       // Показывает значения по умолчанию - должно быть два элемента с текстом 00:00:00:00
       const defaultTimeElements = screen.getAllByText("00:00:00:00")
@@ -247,14 +289,14 @@ describe("PlayerControls", () => {
 
   describe("Управление громкостью", () => {
     it("должен отображать текущую громкость", () => {
-      render(<PlayerControls currentTime={0} file={mockFile} />)
+      renderWithProviders(<PlayerControls currentTime={0} file={mockFile} />)
 
       const volumeSlider = screen.getByTestId("volume-slider")
       expect(volumeSlider).toHaveAttribute("data-volume", "0.75")
     })
 
     it("должен обновлять громкость при клике на слайдер", () => {
-      render(<PlayerControls currentTime={0} file={mockFile} />)
+      renderWithProviders(<PlayerControls currentTime={0} file={mockFile} />)
 
       const volumeSlider = screen.getByTestId("volume-slider")
       fireEvent.click(volumeSlider)
@@ -270,7 +312,7 @@ describe("PlayerControls", () => {
       mockContainer.className = "media-player-container"
       document.body.appendChild(mockContainer)
 
-      render(<PlayerControls currentTime={0} file={mockFile} />)
+      renderWithProviders(<PlayerControls currentTime={0} file={mockFile} />)
 
       const fullscreenButton = screen.getByTitle("timeline.controls.fullscreen")
       fireEvent.click(fullscreenButton)
@@ -284,7 +326,7 @@ describe("PlayerControls", () => {
     it("должен показывать ошибку если контейнер не найден", () => {
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
 
-      render(<PlayerControls currentTime={0} file={mockFile} />)
+      renderWithProviders(<PlayerControls currentTime={0} file={mockFile} />)
 
       const fullscreenButton = screen.getByTitle("timeline.controls.fullscreen")
       fireEvent.click(fullscreenButton)
@@ -298,7 +340,7 @@ describe("PlayerControls", () => {
 
   describe("Режим изменения размера", () => {
     it("должен переключать режим изменения размера", () => {
-      render(<PlayerControls currentTime={0} file={mockFile} />)
+      renderWithProviders(<PlayerControls currentTime={0} file={mockFile} />)
 
       const resizeButton = screen.getByTitle("timeline.controlsMain.resizableMode")
       fireEvent.click(resizeButton)
@@ -308,7 +350,7 @@ describe("PlayerControls", () => {
 
     it("должен показывать правильную иконку в режиме изменения размера", () => {
       mockPlayerContext.isResizableMode = true
-      render(<PlayerControls currentTime={0} file={mockFile} />)
+      renderWithProviders(<PlayerControls currentTime={0} file={mockFile} />)
 
       // В режиме изменения размера title меняется на fixedSizeMode
       expect(screen.getByTitle("timeline.controlsMain.fixedSizeMode")).toBeInTheDocument()
@@ -317,7 +359,7 @@ describe("PlayerControls", () => {
 
   describe("Переключение источника видео", () => {
     it("должен переключать источник видео при клике", () => {
-      render(<PlayerControls currentTime={0} file={mockFile} />)
+      renderWithProviders(<PlayerControls currentTime={0} file={mockFile} />)
 
       // В режиме timeline показывается иконка TvMinimalPlay
       const sourceButton = screen.getByTestId("tvminimalplay-icon").closest("button")
@@ -328,7 +370,7 @@ describe("PlayerControls", () => {
 
     it("должен переключать обратно на timeline", () => {
       mockPlayerContext.videoSource = "browser" as any
-      render(<PlayerControls currentTime={0} file={mockFile} />)
+      renderWithProviders(<PlayerControls currentTime={0} file={mockFile} />)
 
       // В режиме browser показывается иконка ImagePlay
       const sourceButton = screen.getByTestId("imageplay-icon").closest("button")
@@ -358,7 +400,7 @@ describe("PlayerControls", () => {
     it("должен корректно обрабатывать Unix timestamp", () => {
       // Unix timestamp (больше года в секундах)
       const unixTime = Date.now() / 1000
-      render(<PlayerControls currentTime={unixTime} file={mockFile} />)
+      renderWithProviders(<PlayerControls currentTime={unixTime} file={mockFile} />)
 
       // Проверяем что слайдер использует правильное значение
       const slider = screen.getByTestId("slider")
@@ -373,7 +415,7 @@ describe("PlayerControls", () => {
           streams: [{ r_frame_rate: "60/1" }],
         } as any,
       }
-      render(<PlayerControls currentTime={0} file={fileWith60fps} />)
+      renderWithProviders(<PlayerControls currentTime={0} file={fileWith60fps} />)
 
       // getFrameTime мокнут для возврата 1/30, проверяем что слайдер использует step
       const slider = screen.getByTestId("slider")
@@ -384,7 +426,7 @@ describe("PlayerControls", () => {
   describe("Отключенные состояния", () => {
     it("должен отключать элементы управления при смене камеры", () => {
       mockPlayerContext.isChangingCamera = true
-      render(<PlayerControls currentTime={0} file={mockFile} />)
+      renderWithProviders(<PlayerControls currentTime={0} file={mockFile} />)
 
       const playButton = screen.getByTitle("timeline.controls.play")
       expect(playButton).toBeDisabled()
@@ -394,7 +436,7 @@ describe("PlayerControls", () => {
     })
 
     it("должен показывать prerender controls", () => {
-      render(<PlayerControls currentTime={0} file={mockFile} />)
+      renderWithProviders(<PlayerControls currentTime={0} file={mockFile} />)
 
       expect(screen.getByTestId("prerender-controls")).toBeInTheDocument()
     })

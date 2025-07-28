@@ -10,6 +10,21 @@ import type { TimelineClip } from "@/features/timeline/types/timeline"
 export type SyncMethod = "audio" | "timecode" | "manual" | "clapperboard"
 
 /**
+ * Статус синхронизации
+ */
+export type SyncStatus = "idle" | "syncing" | "success" | "error"
+
+/**
+ * Результат синхронизации клипа
+ */
+export interface SyncResult {
+  clipId: string
+  offset: number // Смещение в секундах
+  confidence: number // 0-1, степень уверенности
+  method: SyncMethod
+}
+
+/**
  * Точка синхронизации
  */
 export interface SyncPoint {

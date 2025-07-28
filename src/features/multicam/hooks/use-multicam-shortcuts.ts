@@ -3,7 +3,9 @@
  */
 
 import { useEffect } from "react"
+
 import { shortcutsRegistry } from "@/features/keyboard-shortcuts/services/shortcuts-registry"
+
 import { multicamManager } from "../services/multicam-manager"
 
 export function useMulticamShortcuts() {
@@ -21,7 +23,11 @@ export function useMulticamShortcuts() {
     shortcuts.forEach(({ id, action }) => {
       const existingShortcut = shortcutsRegistry.get(id)
       if (existingShortcut) {
-        shortcutsRegistry.update(id, { action })
+        // Регистрируем shortcut с новым action
+        shortcutsRegistry.register({
+          ...existingShortcut,
+          action,
+        })
       }
     })
     
@@ -30,7 +36,11 @@ export function useMulticamShortcuts() {
       shortcuts.forEach(({ id }) => {
         const existingShortcut = shortcutsRegistry.get(id)
         if (existingShortcut) {
-          shortcutsRegistry.update(id, { action: undefined })
+          // Регистрируем shortcut без action
+          shortcutsRegistry.register({
+            ...existingShortcut,
+            action: undefined,
+          })
         }
       })
     }

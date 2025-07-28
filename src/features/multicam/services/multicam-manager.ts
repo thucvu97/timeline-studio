@@ -4,6 +4,7 @@
  */
 
 import { EventEmitter } from "events"
+
 import type { MulticamCommand } from "../types/multicam"
 
 export interface MulticamManagerEvents {
@@ -15,7 +16,7 @@ export interface MulticamManagerEvents {
 
 class MulticamManager extends EventEmitter {
   private static instance: MulticamManager
-  private currentAngleIndex: number = 0
+  private currentAngleIndex = 0
   private baseClipId: string | null = null
   
   private constructor() {

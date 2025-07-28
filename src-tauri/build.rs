@@ -104,8 +104,11 @@ fn cleanup_test_binaries() {
           for entry in entries.flatten() {
             let path = entry.path();
             if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
-              if (name.contains("test_specta") || name.contains("generate_types") || name.contains("export_types")) 
-                && (name.ends_with(".d") || name.ends_with(".pdb")) {
+              if (name.contains("test_specta")
+                || name.contains("generate_types")
+                || name.contains("export_types"))
+                && (name.ends_with(".d") || name.ends_with(".pdb"))
+              {
                 if let Err(e) = fs::remove_file(&path) {
                   eprintln!("⚠️  Warning: Failed to remove cache file {path:?}: {e}");
                 } else {

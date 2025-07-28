@@ -25,7 +25,7 @@ export interface SyncResult {
  */
 export function parseTimecode(timecode: string, frameRate: number): TimecodeInfo | null {
   // Проверяем формат таймкода
-  const match = timecode.match(/^(\d{2}):(\d{2}):(\d{2})[:;](\d{2})$/)
+  const match = /^(\d{2}):(\d{2}):(\d{2})[:;](\d{2})$/.exec(timecode)
   if (!match) return null
   
   const [, hours, minutes, seconds, frames] = match
@@ -262,9 +262,9 @@ export function supportsTimecodeSync(mediaFile: MediaFile): boolean {
 /**
  * Форматирует таймкод для отображения
  */
-export function formatTimecode(seconds: number, frameRate: number = 30): string {
+export function formatTimecode(seconds: number, frameRate = 30): string {
   const totalFrames = Math.round(seconds * frameRate)
-  const frames = totalFrames % frameRate
+  const frames = Math.round(totalFrames % frameRate)
   const totalSeconds = Math.floor(totalFrames / frameRate)
   const secs = totalSeconds % 60
   const mins = Math.floor(totalSeconds / 60) % 60

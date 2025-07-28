@@ -4,12 +4,15 @@
  */
 
 import { useCallback, useEffect, useMemo, useState } from "react"
+
 import { useLinkedClips } from "@/features/timeline/hooks/use-linked-clips"
 import { useTimeline } from "@/features/timeline/hooks/use-timeline"
-import { usePlayer } from "@/features/video-player/services/player-provider"
 import type { TimelineClip } from "@/features/timeline/types/timeline"
-import { multicamManager } from "../services/multicam-manager"
+import { usePlayer } from "@/features/video-player/services/player-provider"
+
 import { useMulticamShortcuts } from "./use-multicam-shortcuts"
+import { useCameraSync } from "./use-camera-sync"
+import { multicamManager } from "../services/multicam-manager"
 
 export interface MulticamAngle {
   id: string
@@ -41,7 +44,7 @@ export interface UseMulticamReturn extends MulticamState {
   syncAngles: () => void
   setSyncOffset: (angleIndex: number, offset: number) => void
   autoSyncByAudio: () => Promise<void>
-  autoSyncByTimecode: () => void
+  autoSyncByTimecode: () => Promise<void>
   
   // Управление группой
   addAngle: (clipId: string) => void
@@ -52,6 +55,11 @@ export interface UseMulticamReturn extends MulticamState {
   getAngleByClipId: (clipId: string) => MulticamAngle | null
   isMulticamClip: (clipId: string) => boolean
   hasMulticamSupport: boolean
+  
+  // Состояние синхронизации (делегировано из useCameraSync)
+  syncStatus: import("../types/multicam").SyncStatus
+  syncProgress: number
+  syncError: string | null
 }
 
 export function useMulticam(baseClipId?: string): UseMulticamReturn {
@@ -63,8 +71,11 @@ export function useMulticam(baseClipId?: string): UseMulticamReturn {
     unlinkClips,
   } = useLinkedClips()
   
-  const { currentTime, updateClip, getClipById, project } = useTimeline()
+  const { currentTime, project } = useTimeline()
   const { playerSelectClip } = usePlayer()
+  
+  // Используем хук синхронизации камер
+  const cameraSync = useCameraSync({ baseClipId: baseClipId || "" })
   
   // Регистрируем горячие клавиши
   useMulticamShortcuts()
@@ -72,6 +83,30 @@ export function useMulticam(baseClipId?: string): UseMulticamReturn {
   // Состояние активного угла
   const [activeAngleIndex, setActiveAngleIndex] = useState(0)
   const [syncOffsets, setSyncOffsets] = useState<number[]>([])
+  
+  // Получаем все клипы мультикамерной группы
+  const multicamClips = useMemo(() => {
+    if (!baseClipId) return []
+    return getMulticamGroup(baseClipId)
+  }, [baseClipId, getMulticamGroup])
+  
+  // Преобразуем клипы в углы камер
+  const angles = useMemo((): MulticamAngle[] => {
+    return multicamClips.map((clip, index) => {
+      // Находим медиафайл для клипа
+      const mediaFile = project?.resources.media.find(m => m.id === clip.mediaId)
+      
+      return {
+        id: `angle-${clip.id}`,
+        name: clip.name || `Camera ${index + 1}`,
+        clipId: clip.id,
+        clip,
+        mediaPath: mediaFile?.path,
+        syncOffset: syncOffsets[index] || 0,
+        isActive: index === activeAngleIndex,
+      }
+    })
+  }, [multicamClips, activeAngleIndex, syncOffsets, project])
   
   // Синхронизируем состояние с менеджером
   useEffect(() => {
@@ -103,30 +138,6 @@ export function useMulticam(baseClipId?: string): UseMulticamReturn {
       multicamManager.removeListener("camera-switched", handleCameraSwitch)
     }
   }, [baseClipId, angles, playerSelectClip])
-  
-  // Получаем все клипы мультикамерной группы
-  const multicamClips = useMemo(() => {
-    if (!baseClipId) return []
-    return getMulticamGroup(baseClipId)
-  }, [baseClipId, getMulticamGroup])
-  
-  // Преобразуем клипы в углы камер
-  const angles = useMemo((): MulticamAngle[] => {
-    return multicamClips.map((clip, index) => {
-      // Находим медиафайл для клипа
-      const mediaFile = project?.resources.media.find(m => m.id === clip.mediaId)
-      
-      return {
-        id: `angle-${clip.id}`,
-        name: clip.name || `Camera ${index + 1}`,
-        clipId: clip.id,
-        clip,
-        mediaPath: mediaFile?.path,
-        syncOffset: syncOffsets[index] || 0,
-        isActive: index === activeAngleIndex,
-      }
-    })
-  }, [multicamClips, activeAngleIndex, syncOffsets, project])
   
   const activeAngle = angles[activeAngleIndex] || null
   const hasMulticamSupport = angles.length > 1
@@ -171,66 +182,38 @@ export function useMulticam(baseClipId?: string): UseMulticamReturn {
   
   // Синхронизация всех углов
   const syncAngles = useCallback(() => {
-    if (!activeAngle) return
-    
-    // Синхронизируем все углы относительно активного
-    angles.forEach((angle, index) => {
-      if (index !== activeAngleIndex) {
-        const offset = syncOffsets[index] || 0
-        const syncTime = currentTime + offset
-        
-        syncLinkedClips(angle.clipId, {
-          startTime: angle.clip.startTime + (syncTime - currentTime),
-        })
-      }
-    })
-  }, [angles, activeAngle, activeAngleIndex, currentTime, syncOffsets, syncLinkedClips])
+    if (baseClipId) {
+      cameraSync.applySyncResults()
+    }
+  }, [baseClipId, cameraSync])
   
   // Установка смещения синхронизации для угла
   const setSyncOffset = useCallback((angleIndex: number, offset: number) => {
-    setSyncOffsets(prev => {
-      const newOffsets = [...prev]
-      newOffsets[angleIndex] = offset
-      return newOffsets
-    })
-  }, [])
+    const angle = angles[angleIndex]
+    if (angle) {
+      cameraSync.syncManual(angle.clipId, offset)
+    }
+  }, [angles, cameraSync])
   
   // Автоматическая синхронизация по аудио
   const autoSyncByAudio = useCallback(async () => {
-    // TODO: Реализовать анализ аудиодорожек для синхронизации
-    console.log("[useMulticam] Auto-sync by audio - not implemented yet")
-  }, [])
-  
-  // Автоматическая синхронизация по таймкоду
-  const autoSyncByTimecode = useCallback(() => {
-    if (!activeAngle || angles.length < 2) {
-      console.warn("[useMulticam] Need at least 2 angles for sync")
+    if (!baseClipId || angles.length < 2) {
+      console.warn("[useMulticam] Need base clip and at least 2 angles for sync")
       return
     }
     
-    // Импортируем функцию синхронизации
-    import("../services/timecode-sync").then(({ syncByTimecode }) => {
-      // Получаем все клипы и медиафайлы
-      const clips = angles.map(angle => angle.clip)
-      const mediaFiles = project?.resources.media || []
-      
-      // Используем активный угол как базовый
-      const baseClip = activeAngle.clip
-      const syncResults = syncByTimecode(baseClip, clips, mediaFiles)
-      
-      // Применяем смещения
-      syncResults.forEach(result => {
-        const angleIndex = angles.findIndex(a => a.clipId === result.clipId)
-        if (angleIndex !== -1 && result.confidence > 0) {
-          setSyncOffset(angleIndex, result.offset)
-          console.log(`[useMulticam] Synced angle ${angleIndex + 1} with offset ${result.offset}s (${result.method})`)
-        }
-      })
-      
-      // Применяем синхронизацию к клипам
-      syncAngles()
-    })
-  }, [activeAngle, angles, project, setSyncOffset, syncAngles])
+    await cameraSync.syncByAudio()
+  }, [baseClipId, angles.length, cameraSync])
+  
+  // Автоматическая синхронизация по таймкоду
+  const autoSyncByTimecode = useCallback(async () => {
+    if (!baseClipId || angles.length < 2) {
+      console.warn("[useMulticam] Need base clip and at least 2 angles for sync")
+      return
+    }
+    
+    await cameraSync.syncByTimecode()
+  }, [baseClipId, angles.length, cameraSync])
   
   // Добавление нового угла
   const addAngle = useCallback((clipId: string) => {
@@ -254,7 +237,7 @@ export function useMulticam(baseClipId?: string): UseMulticamReturn {
   }, [angles, unlinkClips])
   
   // Изменение порядка углов
-  const reorderAngles = useCallback((fromIndex: number, toIndex: number) => {
+  const reorderAngles = useCallback((_fromIndex: number, _toIndex: number) => {
     // TODO: Реализовать изменение порядка углов
     console.log("[useMulticam] Reorder angles - not implemented yet")
   }, [])
@@ -274,8 +257,8 @@ export function useMulticam(baseClipId?: string): UseMulticamReturn {
     angles,
     activeAngleIndex,
     activeAngle,
-    isSync: true, // TODO: Определять реальное состояние синхронизации
-    syncOffsets,
+    isSync: cameraSync.syncStatus === "success",
+    syncOffsets: angles.map(angle => cameraSync.getSyncOffset(angle.clipId)),
     
     // Методы переключения
     switchToAngle,
@@ -298,5 +281,10 @@ export function useMulticam(baseClipId?: string): UseMulticamReturn {
     getAngleByClipId,
     isMulticamClip,
     hasMulticamSupport,
+    
+    // Состояние синхронизации (делегировано из useCameraSync)
+    syncStatus: cameraSync.syncStatus,
+    syncProgress: cameraSync.syncProgress,
+    syncError: cameraSync.syncError,
   }
 }
