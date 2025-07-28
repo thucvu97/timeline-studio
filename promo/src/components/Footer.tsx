@@ -1,5 +1,6 @@
 import React from 'react'
 import { Logo } from './Logo'
+import { Link } from 'react-router-dom'
 
 export const Footer: React.FC = () => {
   return (
@@ -9,9 +10,9 @@ export const Footer: React.FC = () => {
       <div className="flex flex-col justify-between md:flex-row">
         {/* Logo on the left */}
         <div className="flex-shrink-0 md:w-1/4">
-          <a href="/" className="inline-block">
+          <Link to="/" className="inline-block">
             <Logo size="medium" showText={false} />
-          </a>
+          </Link>
         </div>
 
         {/* Three columns on the right */}
@@ -21,19 +22,19 @@ export const Footer: React.FC = () => {
             <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-6">PRODUCT</h3>
             <ul className="space-y-3">
               <li>
-                <a href="/about" className="text-sm text-gray-300 hover:text-gray-100 transition-colors">
+                <Link to="/about" className="text-sm text-gray-300 hover:text-gray-100 transition-colors">
                   About
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/pricing" className="text-sm text-gray-300 hover:text-gray-100 transition-colors">
+                <Link to="/pricing" className="text-sm text-gray-300 hover:text-gray-100 transition-colors">
                   Pricing
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="https://github.com/chatman-media/timeline-studio/releases" className="text-sm text-gray-300 hover:text-gray-100 transition-colors">
+                <Link to="/changelog" className="text-sm text-gray-300 hover:text-gray-100 transition-colors">
                   Changelog
-                </a>
+                </Link>
               </li>
               <li>
                 <a href="#download" className="text-sm text-gray-300 hover:text-gray-100 transition-colors">
@@ -58,14 +59,14 @@ export const Footer: React.FC = () => {
                   </a>
                 </li>
                 <li>
-                  <a href="/blog" className="text-sm text-gray-300 hover:text-gray-100 transition-colors">
+                  <Link to="/blog" className="text-sm text-gray-300 hover:text-gray-100 transition-colors">
                     Blog
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="/faq" className="text-sm text-gray-300 hover:text-gray-100 transition-colors">
+                  <Link to="/faq" className="text-sm text-gray-300 hover:text-gray-100 transition-colors">
                     FAQs
-                  </a>
+                  </Link>
                 </li>
                 <li>
                   <a href="https://github.com/chatman-media/timeline-studio/issues" className="text-sm text-gray-300 hover:text-gray-100 transition-colors">
@@ -156,15 +157,15 @@ export const Footer: React.FC = () => {
             <div className="flex items-center gap-6">
               <img src="/fav.svg" alt="Timeline Studio" className="w-7 h-7 invert" />
               <div className="flex flex-wrap gap-x-6 gap-y-2">
-                <a href="/terms" className="text-sm text-gray-400 hover:text-gray-200 transition-colors">
+                <Link to="/terms" className="text-sm text-gray-400 hover:text-gray-200 transition-colors">
                   Terms of Service
-                </a>
-                <a href="/privacy" className="text-sm text-gray-400 hover:text-gray-200 transition-colors">
+                </Link>
+                <Link to="/privacy" className="text-sm text-gray-400 hover:text-gray-200 transition-colors">
                   Privacy Policy
-                </a>
-                <a href="/responsible-ai" className="text-sm text-gray-400 hover:text-gray-200 transition-colors">
+                </Link>
+                <Link to="/responsible-ai" className="text-sm text-gray-400 hover:text-gray-200 transition-colors">
                   Responsible AI Policy
-                </a>
+                </Link>
               </div>
             </div>
             <div className="text-sm text-gray-400">
