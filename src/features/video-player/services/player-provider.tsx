@@ -37,6 +37,7 @@ interface PlayerContextType {
   currentVideo: MediaFile | null
   previewMedia: MediaFile | null
   videoSource: "browser" | "timeline"
+  selectedClipId: string | null
 
   // Эффекты и фильтры (локальные для preview)
   appliedEffects: Array<{ id: string; name: string; params: any }>
@@ -363,6 +364,7 @@ export function PlayerProvider({ children }: PlayerProviderProps) {
     duration: playbackState ? playbackState.duration : localState.duration,
     isSeeking: playbackState ? playbackState.is_seeking : localState.isSeeking,
     isVideoLoading: playbackState ? playbackState.is_loading : localState.isVideoLoading,
+    selectedClipId: playbackState ? playbackState.selected_clip_id || null : null,
 
     // Локальные действия
     setCurrentVideo,

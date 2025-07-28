@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { MediaFile } from "@/features/media/types/media"
 import { getFrameTime } from "@/features/media/utils/video"
+import { useMulticam } from "@/features/multicam"
 import { cn } from "@/lib/utils"
 
 import { PlayerAIControls } from "./player-ai-controls"
@@ -60,12 +61,16 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
     setIsResizableMode,
     videoSource,
     setVideoSource,
+    selectedClipId,
   } = usePlayer()
 
   // Используем состояние для хранения текущего времени воспроизведения
   const [localDisplayTime, setLocalDisplayTime] = useState(0)
-  const [parallelVideos, setParallelVideos] = useState<MediaFile[]>([])
+  const [parallelVideos] = useState<MediaFile[]>([])
   const [activeCameraIndex, setActiveCameraIndex] = useState(0)
+  
+  // Используем выбранный клип как базовый для мультикамеры
+  const multicam = useMulticam(selectedClipId || undefined)
 
   // Используем хук для отслеживания полноэкранного режима
   const { isFullscreen, toggleFullscreen } = useFullscreen()
@@ -192,6 +197,26 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
   const handleToggleSource = useCallback(() => {
     setVideoSource(videoSource === "timeline" ? "browser" : "timeline")
   }, [videoSource, setVideoSource])
+
+  // Функция для переключения камеры в мультикамерном режиме
+  const handleSwitchCamera = useCallback(() => {
+    // Если есть мультикамерная поддержка, используем хук
+    if (multicam.hasMulticamSupport) {
+      multicam.switchToNextAngle()
+      return
+    }
+    
+    // Иначе используем локальную логику (временно)
+    if (!parallelVideos || parallelVideos.length <= 1) return
+    
+    // Переключаемся на следующую камеру по кругу
+    const nextIndex = (activeCameraIndex + 1) % parallelVideos.length
+    setActiveCameraIndex(nextIndex)
+    
+    // TODO: Здесь нужно будет вызвать функцию переключения на другой клип
+    // через timeline API или player API
+    console.log(`[handleSwitchCamera] Переключение на камеру ${nextIndex + 1}`)
+  }, [activeCameraIndex, parallelVideos, multicam])
 
   return (
     <div className="flex w-full flex-col">
@@ -358,10 +383,10 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
                     ? `${t("timeline.controlsMain.switchCamera")} (${parallelVideos.findIndex((v) => v.id === file?.id) + 1}/${parallelVideos.length})`
                     : "Switch Camera"
                 }
-                // onClick={handleSwitchCamera}
-                disabled={isChangingCamera}
+                onClick={handleSwitchCamera}
+                disabled={isChangingCamera || (!multicam.hasMulticamSupport && parallelVideos.length <= 1)}
               >
-                {activeCameraIndex}
+                {multicam.hasMulticamSupport ? multicam.activeAngleIndex + 1 : activeCameraIndex + 1}
               </Button>
             )}
 

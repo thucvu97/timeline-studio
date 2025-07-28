@@ -96,6 +96,17 @@ export const DEFAULT_SHORTCUTS: ShortcutDefinition[] = [
   createMacShortcut("go-to-start", "В начало", "playback", "Home", "Перейти в начало таймлайна"),
   createMacShortcut("go-to-end", "В конец", "playback", "End", "Перейти в конец таймлайна"),
 
+  // Мультикамера
+  createMacShortcut("switch-camera-1", "Переключиться на камеру 1", "multicam", "1", "Переключиться на угол камеры 1"),
+  createMacShortcut("switch-camera-2", "Переключиться на камеру 2", "multicam", "2", "Переключиться на угол камеры 2"),
+  createMacShortcut("switch-camera-3", "Переключиться на камеру 3", "multicam", "3", "Переключиться на угол камеры 3"),
+  createMacShortcut("switch-camera-4", "Переключиться на камеру 4", "multicam", "4", "Переключиться на угол камеры 4"),
+  createMacShortcut("switch-camera-5", "Переключиться на камеру 5", "multicam", "5", "Переключиться на угол камеры 5"),
+  createMacShortcut("switch-camera-6", "Переключиться на камеру 6", "multicam", "6", "Переключиться на угол камеры 6"),
+  createMacShortcut("switch-camera-7", "Переключиться на камеру 7", "multicam", "7", "Переключиться на угол камеры 7"),
+  createMacShortcut("switch-camera-8", "Переключиться на камеру 8", "multicam", "8", "Переключиться на угол камеры 8"),
+  createMacShortcut("switch-camera-9", "Переключиться на камеру 9", "multicam", "9", "Переключиться на угол камеры 9"),
+
   // Инструменты
   createMacShortcut("selection-tool", "Инструмент выделения", "tools", "V", "Активировать инструмент выделения"),
   createMacShortcut("blade-tool", "Инструмент лезвие", "tools", "B", "Активировать инструмент разрезания"),
