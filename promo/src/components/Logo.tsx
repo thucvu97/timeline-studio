@@ -17,7 +17,7 @@ export const Logo: React.FC<LogoProps> = ({ size = 'medium', showText = true }) 
   return (
     <div className="flex items-center">
       {/* Static circle with T */}
-      <div
+      {/* <div
         className={`${currentSize.circle} rounded-full flex items-center justify-center overflow-visible`}
         style={{
           background: '#8b5cf6',
@@ -38,11 +38,16 @@ export const Logo: React.FC<LogoProps> = ({ size = 'medium', showText = true }) 
         >
           T
         </span>
-      </div>
+      </div> */}
+
+      {/* favicon.svg */}
+
+      <img src="/favicon.svg" alt="Timeline Studio" className="w-12 h-12 mb-2" />
+
 
       {/* Text */}
       {showText && (
-        <div className="flex items-center space-x-2 ml-[-10px]">
+        <div className="flex items-center space-x-2 ml-[-17px]">
           <span 
             className={`text-white ${currentSize.text}`}
             style={{
