@@ -94,7 +94,7 @@ export function HeroSection() {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="text-xl md:text-2xl font-normal text-gray-400 mb-12 max-w-3xl mx-auto"
         >
-          Professional video editing powered by 151 AI tools. Create stunning content faster than ever before.
+          Professional video editing powered by 150+ AI tools. Create stunning content faster than ever before.
         </motion.p>
 
         <motion.div
@@ -131,17 +131,17 @@ export function HeroSection() {
           className="mt-16 flex items-center justify-center space-x-8"
         >
           <div className="text-center">
-            <div className="text-3xl font-bold text-white">500K+</div>
+            <div className="text-3xl text-white">500K+</div>
             <div className="text-sm text-gray-400">Active Users</div>
           </div>
           <div className="w-px h-10 bg-gray-700" />
           <div className="text-center">
-            <div className="text-3xl font-bold text-white">151</div>
+            <div className="text-3xl text-white">150+</div>
             <div className="text-sm text-gray-400">AI Tools</div>
           </div>
           <div className="w-px h-10 bg-gray-700" />
           <div className="text-center">
-            <div className="text-3xl font-bold text-white">60 FPS</div>
+            <div className="text-3xl text-white">60 FPS</div>
             <div className="text-sm text-gray-400">8K Rendering</div>
           </div>
         </motion.div>

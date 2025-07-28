@@ -158,7 +158,7 @@ export function Navigation() {
                 href="https://github.com/chatman-media/timeline-studio/releases/latest"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hidden md:inline-flex px-5 py-2 rounded-xl text-sm font-medium text-white transition-all duration-200 hover:opacity-90 mr-0"
+                className="hidden md:inline-flex px-4 py-3 rounded-xl text-sm font-medium text-white transition-all duration-200 hover:opacity-90 mr-0"
                 style={{ backgroundColor: '#8b5cf6' }}
               >
                 Download

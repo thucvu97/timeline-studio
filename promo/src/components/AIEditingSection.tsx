@@ -4,8 +4,11 @@ import { AnimatedSection } from './AnimatedSection';
 export function AIEditingSection() {
   return (
     <section id="ai-editing" className="py-20 bg-gray-900 relative overflow-hidden">
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-gray-900 via-purple-900/10 to-gray-900" />
+      {/* Liquid glass background effects */}
+      <div className="absolute inset-0">
+        <div className="absolute top-1/4 -left-20 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-pink-600/20 rounded-full blur-3xl animate-pulse" />
+      </div>
       
       <div className="container mx-auto px-4 relative z-10">
         <AnimatedSection animation="fadeUp">
@@ -15,90 +18,206 @@ export function AIEditingSection() {
             </h2>
             <div className="w-24 h-1 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto rounded-full mb-6" />
             <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-              Transform your raw footage into professional videos with AI that understands your creative vision
+              Let AI do the heavy lifting while you focus on creativity. Our neural networks analyze, optimize, and perfect every frame.
             </p>
           </div>
         </AnimatedSection>
 
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <AnimatedSection animation="slideInLeft" delay={0.2}>
-            <div className="space-y-8">
-              <div className="glass-card p-6 rounded-xl">
-                <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <span className="text-2xl">🎯</span>
+            <div className="space-y-6">
+              <motion.div 
+                whileHover={{ scale: 1.02 }}
+                className="relative glass p-8 rounded-2xl overflow-hidden group"
+              >
+                {/* Liquid glass effect on hover */}
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 to-pink-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                <div className="relative flex items-start space-x-4">
+                  <div className="w-14 h-14 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                    <span className="text-2xl">🧠</span>
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-white mb-2">Smart Scene Detection</h3>
-                    <p className="text-gray-400">AI identifies the best moments and creates dynamic clips automatically</p>
+                    <h3 className="text-xl font-semibold text-white mb-2">Neural Scene Analysis</h3>
+                    <p className="text-gray-400">Our AI watches your footage like a professional editor, identifying key moments, emotions, and story beats in milliseconds</p>
+                    <div className="mt-3 flex items-center space-x-2">
+                      <span className="text-xs text-purple-400 bg-purple-400/10 px-2 py-1 rounded-full">Deep Learning</span>
+                      <span className="text-xs text-pink-400 bg-pink-400/10 px-2 py-1 rounded-full">Real-time</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="glass-card p-6 rounded-xl">
-                <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <span className="text-2xl">🎵</span>
+              <motion.div 
+                whileHover={{ scale: 1.02 }}
+                className="relative glass p-8 rounded-2xl overflow-hidden group"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 to-pink-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                <div className="relative flex items-start space-x-4">
+                  <div className="w-14 h-14 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                    <span className="text-2xl">🎬</span>
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-white mb-2">Beat Sync Magic</h3>
-                    <p className="text-gray-400">Automatically sync cuts and transitions to the rhythm of your music</p>
+                    <h3 className="text-xl font-semibold text-white mb-2">Cinematic Auto-Edit</h3>
+                    <p className="text-gray-400">Transform raw clips into Hollywood-style sequences with dynamic pacing, perfect timing, and emotional flow</p>
+                    <div className="mt-3 flex items-center space-x-2">
+                      <span className="text-xs text-purple-400 bg-purple-400/10 px-2 py-1 rounded-full">Film Theory</span>
+                      <span className="text-xs text-pink-400 bg-pink-400/10 px-2 py-1 rounded-full">AI Director</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="glass-card p-6 rounded-xl">
-                <div className="flex items-start space-x-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <span className="text-2xl">🎨</span>
+              <motion.div 
+                whileHover={{ scale: 1.02 }}
+                className="relative glass p-8 rounded-2xl overflow-hidden group"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 to-pink-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                <div className="relative flex items-start space-x-4">
+                  <div className="w-14 h-14 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                    <span className="text-2xl">✨</span>
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-white mb-2">Auto Color Grading</h3>
-                    <p className="text-gray-400">Professional color correction that maintains consistent style throughout</p>
+                    <h3 className="text-xl font-semibold text-white mb-2">Magic Enhancement</h3>
+                    <p className="text-gray-400">Upscale to 8K, stabilize shaky footage, remove objects, and enhance audio - all with one-click AI magic</p>
+                    <div className="mt-3 flex items-center space-x-2">
+                      <span className="text-xs text-purple-400 bg-purple-400/10 px-2 py-1 rounded-full">Super Resolution</span>
+                      <span className="text-xs text-pink-400 bg-pink-400/10 px-2 py-1 rounded-full">60 FPS</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </div>
           </AnimatedSection>
 
           <AnimatedSection animation="slideInRight" delay={0.3}>
             <div className="relative">
-              <div className="glass-dark rounded-2xl p-8 backdrop-blur-xl">
-                <div className="aspect-video bg-gradient-to-br from-purple-900/20 to-pink-900/20 rounded-lg flex items-center justify-center">
-                  <motion.div
-                    animate={{ 
-                      scale: [1, 1.1, 1],
-                      rotate: [0, 5, -5, 0]
-                    }}
-                    transition={{ 
-                      duration: 4,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                    className="text-8xl"
-                  >
-                    🤖
-                  </motion.div>
-                </div>
-                <div className="mt-6 flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse" />
-                    <span className="text-sm text-gray-400">AI processing your video...</span>
+              {/* Main liquid glass container */}
+              <div className="glass rounded-3xl p-2 backdrop-blur-xl overflow-hidden">
+                <div className="glass-dark rounded-2xl p-8">
+                  {/* AI Processing visualization */}
+                  <div className="aspect-video relative rounded-xl overflow-hidden">
+                    {/* Animated background gradient */}
+                    <motion.div
+                      animate={{
+                        background: [
+                          'linear-gradient(45deg, #8b5cf6 0%, #ec4899 100%)',
+                          'linear-gradient(45deg, #ec4899 0%, #8b5cf6 100%)',
+                          'linear-gradient(45deg, #8b5cf6 0%, #ec4899 100%)',
+                        ],
+                      }}
+                      transition={{ duration: 5, repeat: Infinity }}
+                      className="absolute inset-0 opacity-20"
+                    />
+                    
+                    {/* Content grid */}
+                    <div className="relative h-full flex items-center justify-center p-8">
+                      <div className="grid grid-cols-3 gap-4 w-full max-w-md">
+                        {[...Array(9)].map((_, i) => (
+                          <motion.div
+                            key={i}
+                            initial={{ opacity: 0, scale: 0 }}
+                            animate={{ 
+                              opacity: [0.3, 0.8, 0.3],
+                              scale: [0.8, 1, 0.8]
+                            }}
+                            transition={{ 
+                              duration: 2,
+                              delay: i * 0.1,
+                              repeat: Infinity
+                            }}
+                            className="aspect-square glass rounded-lg flex items-center justify-center"
+                          >
+                            <span className="text-2xl opacity-60">
+                              {['🎥', '✂️', '🎨', '🎵', '✨', '🎬', '📹', '🎞️', '🎭'][i]}
+                            </span>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Processing overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                        className="w-32 h-32 rounded-full border-4 border-purple-500/30 border-t-purple-500"
+                      />
+                    </div>
                   </div>
-                  <div className="text-sm text-purple-400 font-medium">78% complete</div>
+                  
+                  {/* Status bar */}
+                  <div className="mt-6 space-y-4">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-400">AI Analysis Progress</span>
+                      <span className="text-purple-400 font-medium">87%</span>
+                    </div>
+                    <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: "0%" }}
+                        animate={{ width: "87%" }}
+                        transition={{ duration: 2, ease: "easeOut" }}
+                        className="h-full bg-gradient-to-r from-purple-500 to-pink-500"
+                      />
+                    </div>
+                    
+                    {/* Feature tags */}
+                    <div className="flex flex-wrap gap-2 mt-4">
+                      <motion.span
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.5 }}
+                        className="text-xs bg-purple-500/20 text-purple-400 px-3 py-1 rounded-full"
+                      >
+                        Scene Detection ✓
+                      </motion.span>
+                      <motion.span
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.7 }}
+                        className="text-xs bg-pink-500/20 text-pink-400 px-3 py-1 rounded-full"
+                      >
+                        Color Analysis ✓
+                      </motion.span>
+                      <motion.span
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.9 }}
+                        className="text-xs bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full animate-pulse"
+                      >
+                        Audio Processing...
+                      </motion.span>
+                    </div>
+                  </div>
                 </div>
               </div>
               
-              {/* Floating particles */}
+              {/* Enhanced floating particles */}
               <motion.div
-                animate={{ y: [-10, 10, -10] }}
-                transition={{ duration: 3, repeat: Infinity }}
-                className="absolute -top-4 -right-4 w-20 h-20 bg-purple-500/20 rounded-full blur-xl"
+                animate={{ 
+                  y: [-20, 20, -20],
+                  x: [-10, 10, -10]
+                }}
+                transition={{ duration: 4, repeat: Infinity }}
+                className="absolute -top-8 -right-8 w-32 h-32 bg-gradient-to-br from-purple-500/30 to-pink-500/30 rounded-full blur-3xl"
               />
               <motion.div
-                animate={{ y: [10, -10, 10] }}
-                transition={{ duration: 4, repeat: Infinity }}
-                className="absolute -bottom-4 -left-4 w-24 h-24 bg-pink-500/20 rounded-full blur-xl"
+                animate={{ 
+                  y: [20, -20, 20],
+                  x: [10, -10, 10]
+                }}
+                transition={{ duration: 5, repeat: Infinity }}
+                className="absolute -bottom-8 -left-8 w-40 h-40 bg-gradient-to-br from-pink-500/30 to-purple-500/30 rounded-full blur-3xl"
+              />
+              <motion.div
+                animate={{ 
+                  scale: [1, 1.2, 1],
+                  opacity: [0.3, 0.6, 0.3]
+                }}
+                transition={{ duration: 3, repeat: Infinity }}
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-purple-600/10 rounded-full blur-3xl"
               />
             </div>
           </AnimatedSection>
