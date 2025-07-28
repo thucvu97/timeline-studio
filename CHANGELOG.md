@@ -1,3 +1,10 @@
+## [0.37.1](https://github.com/chatman-media/timeline-studio/compare/v0.37.0...v0.37.1) (2025-07-28)
+
+
+### Bug Fixes
+
+* настроена поддержка SPA роутинга для всех хостингов ([6eca72e](https://github.com/chatman-media/timeline-studio/commit/6eca72e31a9e3e84b8064867e10f117702615588))
+
 # [0.37.0](https://github.com/chatman-media/timeline-studio/compare/v0.36.1...v0.37.0) (2025-07-28)
 
 
