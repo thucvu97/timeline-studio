@@ -1,0 +1,279 @@
+/**
+ * UpdateService - сервис для управления обновлениями приложения
+ * Обеспечивает взаимодействие с Tauri backend для проверки и установки обновлений
+ */
+
+import { invoke } from '@tauri-apps/api/core'
+import { emit, listen } from '@tauri-apps/api/event'
+
+export interface UpdateInfo {
+  version: string
+  notes?: string
+  pub_date?: string
+  signature: string
+  url: string
+}
+
+export interface UpdateCheckResult {
+  available: boolean
+  current_version: string
+  update_info?: UpdateInfo
+}
+
+export interface UpdateProgress {
+  chunk_length: number
+  content_length?: number
+  downloaded: number
+}
+
+export type UpdateStatus = 
+  | 'idle'
+  | 'checking'
+  | 'available'
+  | 'downloading'
+  | 'downloaded'
+  | 'installing'
+  | 'installed'
+  | 'error'
+
+export interface UpdateEventPayload {
+  status: UpdateStatus
+  progress?: UpdateProgress
+  error?: string
+  update_info?: UpdateInfo
+}
+
+/**
+ * Сервис для управления обновлениями приложения
+ */
+export class UpdateService {
+  private static instance: UpdateService | null = null
+  private currentStatus: UpdateStatus = 'idle'
+  private listeners: Array<(payload: UpdateEventPayload) => void> = []
+  private checkInterval: NodeJS.Timeout | null = null
+  private autoCheckEnabled = false
+  private autoCheckIntervalMinutes = 60 // Проверка каждый час по умолчанию
+
+  private constructor() {
+    void this.setupEventListeners()
+  }
+
+  /**
+   * Получить экземпляр сервиса (Singleton)
+   */
+  static getInstance(): UpdateService {
+    if (!UpdateService.instance) {
+      UpdateService.instance = new UpdateService()
+    }
+    return UpdateService.instance
+  }
+
+  /**
+   * Настроить слушатели событий обновления
+   */
+  private async setupEventListeners(): Promise<void> {
+    try {
+      // Слушаем события прогресса загрузки (если они будут добавлены в backend)
+      await listen('update-progress', (event: any) => {
+        const progress = event.payload as UpdateProgress
+        this.updateStatus('downloading', { progress })
+      })
+
+      // Слушаем события завершения загрузки
+      await listen('update-downloaded', () => {
+        this.updateStatus('downloaded')
+      })
+
+      // Слушаем события ошибок
+      await listen('update-error', (event: any) => {
+        this.updateStatus('error', { error: event.payload })
+      })
+    } catch (error) {
+      console.warn('Failed to setup update event listeners:', error)
+    }
+  }
+
+  /**
+   * Проверить доступность обновлений
+   */
+  async checkForUpdates(): Promise<UpdateCheckResult> {
+    try {
+      this.updateStatus('checking')
+      
+      const result = await invoke<UpdateCheckResult>('check_for_update')
+      
+      if (result.available && result.update_info) {
+        this.updateStatus('available', { update_info: result.update_info })
+      } else {
+        this.updateStatus('idle')
+      }
+      
+      return result
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      this.updateStatus('error', { error: errorMessage })
+      throw error
+    }
+  }
+
+  /**
+   * Загрузить и установить обновление
+   */
+  async downloadAndInstall(): Promise<void> {
+    try {
+      this.updateStatus('downloading')
+      
+      await invoke('download_and_install_update')
+      
+      this.updateStatus('installed')
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      this.updateStatus('error', { error: errorMessage })
+      throw error
+    }
+  }
+
+  /**
+   * Получить текущую версию приложения
+   */
+  async getCurrentVersion(): Promise<string> {
+    try {
+      return await invoke<string>('get_current_version')
+    } catch (error) {
+      console.error('Failed to get current version:', error)
+      return 'unknown'
+    }
+  }
+
+  /**
+   * Проверить доступность системы обновлений
+   */
+  async isUpdaterAvailable(): Promise<boolean> {
+    try {
+      return await invoke<boolean>('is_updater_available')
+    } catch (error) {
+      console.error('Failed to check updater availability:', error)
+      return false
+    }
+  }
+
+  /**
+   * Включить автоматическую проверку обновлений
+   */
+  enableAutoCheck(intervalMinutes = 60): void {
+    this.autoCheckEnabled = true
+    this.autoCheckIntervalMinutes = intervalMinutes
+    
+    if (this.checkInterval) {
+      clearInterval(this.checkInterval)
+    }
+    
+    this.checkInterval = setInterval(
+      () => this.checkForUpdatesQuietly(),
+      intervalMinutes * 60 * 1000
+    )
+    
+    // Первая проверка через 30 секунд после включения
+    setTimeout(() => this.checkForUpdatesQuietly(), 30000)
+  }
+
+  /**
+   * Отключить автоматическую проверку обновлений
+   */
+  disableAutoCheck(): void {
+    this.autoCheckEnabled = false
+    
+    if (this.checkInterval) {
+      clearInterval(this.checkInterval)
+      this.checkInterval = null
+    }
+  }
+
+  /**
+   * Тихая проверка обновлений (без изменения статуса UI)
+   */
+  private async checkForUpdatesQuietly(): Promise<void> {
+    try {
+      const result = await invoke<UpdateCheckResult>('check_for_update')
+      
+      if (result.available && result.update_info) {
+        // Отправляем событие о доступном обновлении
+        await emit('update-available', result.update_info)
+        this.updateStatus('available', { update_info: result.update_info })
+      }
+    } catch (error) {
+      console.error('Silent update check failed:', error)
+    }
+  }
+
+  /**
+   * Получить текущий статус обновления
+   */
+  getCurrentStatus(): UpdateStatus {
+    return this.currentStatus
+  }
+
+  /**
+   * Подписаться на события обновления
+   */
+  subscribe(listener: (payload: UpdateEventPayload) => void): () => void {
+    this.listeners.push(listener)
+    
+    // Возвращаем функцию отписки
+    return () => {
+      const index = this.listeners.indexOf(listener)
+      if (index > -1) {
+        this.listeners.splice(index, 1)
+      }
+    }
+  }
+
+  /**
+   * Обновить статус и уведомить слушателей
+   */
+  private updateStatus(status: UpdateStatus, extra?: Partial<UpdateEventPayload>): void {
+    this.currentStatus = status
+    
+    const payload: UpdateEventPayload = {
+      status,
+      ...extra
+    }
+    
+    // Уведомляем всех слушателей
+    this.listeners.forEach(listener => {
+      try {
+        listener(payload)
+      } catch (error) {
+        console.error('Update listener error:', error)
+      }
+    })
+  }
+
+  /**
+   * Сбросить статус в idle
+   */
+  reset(): void {
+    this.updateStatus('idle')
+  }
+
+  /**
+   * Получить настройки автопроверки
+   */
+  getAutoCheckSettings(): { enabled: boolean; intervalMinutes: number } {
+    return {
+      enabled: this.autoCheckEnabled,
+      intervalMinutes: this.autoCheckIntervalMinutes
+    }
+  }
+
+  /**
+   * Очистка ресурсов при завершении работы
+   */
+  dispose(): void {
+    this.disableAutoCheck()
+    this.listeners.length = 0
+  }
+}
+
+// Экспортируем экземпляр для использования в приложении
+export const updateService = UpdateService.getInstance()

@@ -66,6 +66,9 @@ pub mod types_export;
 // Модуль субтитров
 mod subtitles;
 
+// Модуль обновлений приложения
+pub mod updates;
+
 // Simple commands that don't belong to specific modules yet
 
 #[tauri::command]

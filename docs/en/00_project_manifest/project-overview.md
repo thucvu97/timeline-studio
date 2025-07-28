@@ -11,6 +11,7 @@
 3. **⚡ Backend as source of truth** - revolutionary architecture with Event Sourcing
 4. **🔒 100% privacy** - all processing happens locally on your device
 5. **🚀 60 FPS with 50+ clips** - unmatched timeline performance
+6. **🔄 Automatic updates** - silent update system without interrupting your work
 
 ## 🚀 Key Innovation
 
@@ -51,11 +52,12 @@ Timeline Studio is not just an AI assistant, but a complete professional system:
 ## 📊 Current Status (July 2025)
 
 ### General Metrics
-- **Product readiness**: 87%
+- **Product readiness**: 89%
 - **Test coverage**: Frontend 5,000+ tests, Backend 81%
 - **Performance**: 60 FPS with 50+ clips
 - **Language support**: 13 languages
 - **AI tools**: 151 (world leadership)
+- **Completed modules**: 38% of roadmap
 
 ### Completed Modules
 - ✅ **AI Tools Integration** - 151 tools (100%)
@@ -64,10 +66,13 @@ Timeline Studio is not just an AI assistant, but a complete professional system:
 - ✅ **Timeline Integration** - full integration (95%)
 - ✅ **Person Identification** - basic recognition (100%)
 - ✅ **Backend Architecture** - new architecture (100%)
+- ✅ **Advanced Timeline Features** - 8 editing modes (100%)
+- ✅ **Project Version Control** - versioning system (100%)
+- ✅ **Silent Updates** - automatic updates (100%)
 
 ### In Active Development
-- 🔄 **Advanced Timeline Features** - advanced editing capabilities
-- 🔄 **Performance Optimization** - further optimization
+- 🔄 **Stock Footage Integration** - stock materials integration
+- 🔄 **Resources Database** - expanding resource base
 
 ## 🏗️ Architecture
 
@@ -122,6 +127,12 @@ Timeline Studio is not just an AI assistant, but a complete professional system:
 - **Smart optimization** - automatic platform adaptation
 - **Publishing scheduler** - delayed posting
 
+### Update System
+- **Automatic checking** - periodic check for new versions
+- **Background download** - without interrupting work
+- **Smart installation** - update on application close
+- **Configurable notifications** - control over update process
+
 ## 🏆 Project Achievements
 
 ### Technical Breakthroughs
@@ -139,6 +150,10 @@ Timeline Studio is not just an AI assistant, but a complete professional system:
 - ✅ Browser Architecture Refactoring
 - ✅ Advanced Color Grading
 - ✅ Template System (78 templates)
+- ✅ Advanced Timeline Features
+- ✅ Project Version Control
+- ✅ Silent Updates System
+- ✅ Multicam System
 
 ### Community and Ecosystem
 - 13 localization languages
@@ -206,12 +221,12 @@ Timeline Studio is an open source project, and we welcome:
 
 - **GitHub**: [github.com/chatman-media/timeline-studio](https://github.com/chatman-media/timeline-studio)
 - **Telegram**: [t.me/timelinestudio](https://t.me/timelinestudio)
-- **Discord**: [discord.gg/gwJUYxck](https://discord.gg/gwJUYxck)
+- **Discord**: [discord.gg/gwJUYxck](https://discord.gg/BSddjvWk)
 - **Email**: ak.chatman.media@gmail.com
 - **Website**: [timelinestudio.app](https://timelinestudio.app) (in development)
 
 ---
 
-*Last updated: July 25, 2025*  
-*Version: 0.87.0 (Alpha)*  
+*Last updated: July 29, 2025*  
+*Version: 0.37.2 (Alpha)*  
 *Status: Active development focused on reaching Beta*

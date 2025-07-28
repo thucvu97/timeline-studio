@@ -10,7 +10,8 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     .plugin(tauri_plugin_dialog::init())
     .plugin(tauri_plugin_websocket::init())
     .plugin(tauri_plugin_opener::init())
-    .plugin(tauri_plugin_store::Builder::default().build());
+    .plugin(tauri_plugin_store::Builder::default().build())
+    .plugin(tauri_plugin_updater::Builder::new().build());
 
   // Platform-specific plugin registration
   #[cfg(not(any(target_os = "android", target_os = "ios")))]
@@ -318,6 +319,11 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::state::commands_api::execute_command,
     crate::state::commands_api::get_project_state,
     crate::state::commands_api::get_event_history,
+    // Updates commands
+    crate::updates::check_for_update,
+    crate::updates::download_and_install_update,
+    crate::updates::get_current_version,
+    crate::updates::is_updater_available,
     // Misc commands
     crate::greet,
     crate::scan_media_folder,

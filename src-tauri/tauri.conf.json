@@ -39,6 +39,17 @@
       "requireLiteralLeadingDot": false
     },
     "shell": {},
+    "updater": {
+      "active": true,
+      "endpoints": [
+        "https://releases.timeline-studio.app/{{target}}/{{arch}}/{{current_version}}"
+      ],
+      "dialog": true,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDMyNTExRUY3NzgzMkUyODkKUldTN3NTbkhBREF5aG1lZlY4bWx5eGMvUHZJQTlyRGZITmRLZWZWWG1vUUJCeFAzTDNIQlZRCg==",
+      "windows": {
+        "installMode": "passive"
+      }
+    },
     "window": {
       "label": {
         "main": {

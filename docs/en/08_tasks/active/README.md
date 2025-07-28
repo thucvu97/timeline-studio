@@ -6,18 +6,24 @@ This folder contains tasks that are currently in active development. These tasks
 
 ### 🔄 Active Tasks
 
-| Task | Priority | Progress | Responsible | Deadline |
-|------|----------|----------|-------------|----------|
-| [Multicam System](./multicam-system.md) | 🟡 Medium | 0% | Frontend Team | January 31, 2025 |
+*There are currently no active tasks in development.*
 
-### 📋 Recently Completed Tasks (January 17, 2025)
+### 📋 Recently Completed Tasks (July 28, 2025)
 
 | Task | Status | Completion Date | Description |
 |------|--------|----------------|-------------|
-| [Advanced Timeline Features](../completed/advanced-timeline-features.md) | ✅ COMPLETED | January 17, 2025 | **Full implementation** of professional editing features |
+| [Silent Updates](../completed/silent-updates.md) | ✅ COMPLETED | July 28, 2025 | **Automatic updates system** - full implementation with XState and UI components |
+| [Project Version Control](../completed/project-version-control.md) | ✅ COMPLETED | July 28, 2025 | **Project version control system** - full backend architecture integration |
+
+### 📋 Recently Completed Tasks (July 2025)
+
+| Task | Status | Completion Date | Description |
+|------|--------|----------------|-------------|
+| [Advanced Timeline Features](../completed/advanced-timeline-features.md) | ✅ COMPLETED | July 17, 2025 | **Full implementation** of professional editing features |
 | [AI Chat Tools Expansion](../completed/ai-chat-tools-expansion-to-151.md) | ✅ COMPLETED | July 17, 2025 | **151 AI tools** implemented - absolute market leadership |
 | [Resource Types Analysis](../completed/resource-types-analysis.md) | ✅ COMPLETED | July 17, 2025 | Unified all 8 resource types |
-| [Resources Panel Research](../completed/resources-panel-research.md) | ✅ COMPLETED | July 17, 2025 | Integration of Browser and Resources systems |
+| [Resources Panel Research](../completed/resources-panel-research.md) | ✅ COMPLETED | July 28, 2025 | Integration of Browser and Resources systems |
+| [Multicam System](../completed/multicam-system.md) | ✅ COMPLETED | July 28, 2025 | **Full multi-camera system** with timecode and audio synchronization |
 
 ## Task Descriptions
 
@@ -161,10 +167,12 @@ This folder contains tasks that are currently in active development. These tasks
 - Release frequency: Once every 2 weeks
 
 ### 🏆 Important Achievements 2025
-- **January 17, 2025**: Completed **full implementation of Advanced Timeline Features** - 8 edit modes, speed ramping, markers, split edits
+- **July 28, 2025**: Completed **full implementation of Silent Updates** - automatic updates system with XState machine, notifications and settings
+- **July 28, 2025**: Completed **full implementation of Project Version Control** - version control system with dual-level autosave, UI components and full backend integration
+- **July 28, 2025**: Completed **full implementation of Multicam System** - camera switching, timecode and audio synchronization, hotkeys 1-9
+- **July 17, 2025**: Completed **full implementation of Advanced Timeline Features** - 8 edit modes, speed ramping, markers, split edits
 - **July 17, 2025**: Achieved **151 AI tools** - absolute leadership in AI-powered video editors market
 - **July 17, 2025**: Completed resource system unification - all 8 types unified
-- **January 2025**: Created plan for completing Multicam System based on existing infrastructure
 
 ## Team and Responsibilities
 
@@ -192,4 +200,4 @@ This folder contains tasks that are currently in active development. These tasks
 
 ---
 
-*Last updated: January 17, 2025* | *Version: 0.33.3*
+*Last updated: July 28, 2025* | *Version: 0.34.0*

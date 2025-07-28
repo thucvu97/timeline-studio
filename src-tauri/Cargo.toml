@@ -70,6 +70,7 @@ tauri-plugin-notification = "2"
 tauri-plugin-log = "2"
 tauri-plugin-store = "2"
 tauri-plugin-global-shortcut = "2"
+tauri-plugin-updater = "2"
 # Database dependencies
 tauri-plugin-sql = { version = "2", features = ["sqlite"] }
 rusqlite = { version = "0.32", features = ["bundled", "vtab", "load_extension"] }
