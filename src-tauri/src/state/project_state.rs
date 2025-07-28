@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use uuid::Uuid;
 
 /// The complete project state - single source of truth
-#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, Type, Default)]
 pub struct ProjectState {
   pub project: Option<Project>,
   pub ui_state: UiState,
@@ -14,18 +14,6 @@ pub struct ProjectState {
   pub version: u32,
   /// NEW: Version control information
   pub version_info: VersionInfo,
-}
-
-impl Default for ProjectState {
-  fn default() -> Self {
-    Self {
-      project: None,
-      ui_state: UiState::default(),
-      playback_state: PlaybackState::default(),
-      version: 0,
-      version_info: VersionInfo::default(),
-    }
-  }
 }
 
 /// Main project structure
@@ -323,10 +311,10 @@ pub struct ProjectSnapshot {
   pub author: String,
   pub message: Option<String>,
   pub branch_name: String,
-  
+
   /// Complete project state at this version
   pub project_state: ProjectState,
-  
+
   /// Delta from parent version (for storage optimization)
   pub parent_id: Option<String>,
   pub delta: Option<ProjectStateDelta>,
@@ -345,23 +333,56 @@ pub struct ProjectStateDelta {
 /// Types of changes for delta compression
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub enum TimelineChange {
-  TrackAdded { track: Track },
-  TrackRemoved { track_id: String },
-  TrackModified { track_id: String, changes: serde_json::Value },
-  ClipAdded { track_id: String, clip: Clip },
-  ClipRemoved { clip_id: String },
-  ClipMoved { clip_id: String, new_track_id: String, new_timeline_in: f64 },
-  ClipModified { clip_id: String, changes: serde_json::Value },
-  MarkerAdded { marker: Marker },
-  MarkerRemoved { marker_id: String },
-  MarkerModified { marker_id: String, changes: serde_json::Value },
+  TrackAdded {
+    track: Track,
+  },
+  TrackRemoved {
+    track_id: String,
+  },
+  TrackModified {
+    track_id: String,
+    changes: serde_json::Value,
+  },
+  ClipAdded {
+    track_id: String,
+    clip: Clip,
+  },
+  ClipRemoved {
+    clip_id: String,
+  },
+  ClipMoved {
+    clip_id: String,
+    new_track_id: String,
+    new_timeline_in: f64,
+  },
+  ClipModified {
+    clip_id: String,
+    changes: serde_json::Value,
+  },
+  MarkerAdded {
+    marker: Marker,
+  },
+  MarkerRemoved {
+    marker_id: String,
+  },
+  MarkerModified {
+    marker_id: String,
+    changes: serde_json::Value,
+  },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub enum MediaPoolChange {
-  MediaAdded { media: MediaItem },
-  MediaRemoved { media_id: String },
-  MediaModified { media_id: String, changes: serde_json::Value },
+  MediaAdded {
+    media: MediaItem,
+  },
+  MediaRemoved {
+    media_id: String,
+  },
+  MediaModified {
+    media_id: String,
+    changes: serde_json::Value,
+  },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
@@ -374,10 +395,19 @@ pub enum SettingsChange {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub enum UiStateChange {
-  Selection { clips: Vec<String>, tracks: Vec<String> },
-  TimelineZoom { zoom: f64 },
-  TimelineScroll { scroll: f64 },
-  ActiveTool { tool: String },
+  Selection {
+    clips: Vec<String>,
+    tracks: Vec<String>,
+  },
+  TimelineZoom {
+    zoom: f64,
+  },
+  TimelineScroll {
+    scroll: f64,
+  },
+  ActiveTool {
+    tool: String,
+  },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]

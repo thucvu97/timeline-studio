@@ -1,4 +1,5 @@
-use super::ProjectState;
+use super::{project_state::ProjectSnapshot, ProjectState};
+use chrono::{DateTime, Utc};
 use serde_json;
 use std::path::PathBuf;
 use tauri::{AppHandle, Manager};
@@ -8,6 +9,7 @@ use tokio::fs;
 pub struct PersistenceService {
   app_handle: AppHandle,
   autosave_dir: PathBuf,
+  versions_dir: PathBuf,
 }
 
 impl PersistenceService {
@@ -19,14 +21,18 @@ impl PersistenceService {
       .map_err(|e| format!("Failed to get app data dir: {}", e))?;
 
     let autosave_dir = app_dir.join("autosave");
+    let versions_dir = app_dir.join("versions");
 
-    // Create autosave directory if it doesn't exist
+    // Create directories if they don't exist
     std::fs::create_dir_all(&autosave_dir)
       .map_err(|e| format!("Failed to create autosave dir: {}", e))?;
+    std::fs::create_dir_all(&versions_dir)
+      .map_err(|e| format!("Failed to create versions dir: {}", e))?;
 
     Ok(Self {
       app_handle,
       autosave_dir,
+      versions_dir,
     })
   }
 
@@ -164,6 +170,106 @@ impl PersistenceService {
       }
     }
   }
+
+  /// Save a version snapshot to disk
+  pub async fn save_snapshot(&self, snapshot: &ProjectSnapshot) -> Result<(), String> {
+    let filename = format!("snapshot_{}.tlsv", snapshot.id);
+    let path = self.versions_dir.join(filename);
+
+    let content = serde_json::to_string_pretty(snapshot)
+      .map_err(|e| format!("Failed to serialize snapshot: {}", e))?;
+
+    fs::write(path, content)
+      .await
+      .map_err(|e| format!("Failed to write snapshot file: {}", e))?;
+
+    log::info!("Snapshot saved: {}", snapshot.id);
+    Ok(())
+  }
+
+  /// Load a version snapshot from disk
+  pub async fn load_snapshot(&self, version_id: &str) -> Result<ProjectSnapshot, String> {
+    let filename = format!("snapshot_{}.tlsv", version_id);
+    let path = self.versions_dir.join(filename);
+
+    if !path.exists() {
+      return Err(format!("Snapshot not found: {}", version_id));
+    }
+
+    let content = fs::read_to_string(path)
+      .await
+      .map_err(|e| format!("Failed to read snapshot file: {}", e))?;
+
+    let snapshot = serde_json::from_str(&content)
+      .map_err(|e| format!("Failed to deserialize snapshot: {}", e))?;
+
+    log::info!("Snapshot loaded: {}", version_id);
+    Ok(snapshot)
+  }
+
+  /// Get version history (list of available snapshots)
+  pub async fn get_version_history(&self, limit: Option<u32>) -> Result<Vec<VersionInfo>, String> {
+    let mut entries = fs::read_dir(&self.versions_dir)
+      .await
+      .map_err(|e| format!("Failed to read versions dir: {}", e))?;
+
+    let mut snapshots = Vec::new();
+
+    while let Some(entry) = entries.next_entry().await.map_err(|e| e.to_string())? {
+      let path = entry.path();
+      if path.extension().and_then(|s| s.to_str()) == Some("tlsv") {
+        if let Some(name) = path.file_stem().and_then(|s| s.to_str()) {
+          if name.starts_with("snapshot_") {
+            // Extract version ID from filename
+            let version_id = name.strip_prefix("snapshot_").unwrap_or(name);
+
+            // Try to load snapshot metadata only (not full content for performance)
+            if let Ok(snapshot) = self.load_snapshot_metadata(&path).await {
+              snapshots.push(VersionInfo {
+                id: version_id.to_string(),
+                timestamp: snapshot.timestamp,
+                author: snapshot.author,
+                message: snapshot.message,
+                branch_name: snapshot.branch_name,
+              });
+            }
+          }
+        }
+      }
+    }
+
+    // Sort by timestamp (newest first)
+    snapshots.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
+
+    // Apply limit if specified
+    if let Some(limit) = limit {
+      snapshots.truncate(limit as usize);
+    }
+
+    Ok(snapshots)
+  }
+
+  /// Load only snapshot metadata (for performance in listing)
+  async fn load_snapshot_metadata(&self, path: &PathBuf) -> Result<SnapshotMetadata, String> {
+    let content = fs::read_to_string(path)
+      .await
+      .map_err(|e| format!("Failed to read snapshot file: {}", e))?;
+
+    // Parse only the metadata fields we need
+    let value: serde_json::Value = serde_json::from_str(&content)
+      .map_err(|e| format!("Failed to parse snapshot JSON: {}", e))?;
+
+    Ok(SnapshotMetadata {
+      timestamp: DateTime::parse_from_rfc3339(
+        value["timestamp"].as_str().ok_or("Missing timestamp")?,
+      )
+      .map_err(|e| format!("Invalid timestamp format: {}", e))?
+      .with_timezone(&Utc),
+      author: value["author"].as_str().unwrap_or("Unknown").to_string(),
+      message: value["message"].as_str().map(|s| s.to_string()),
+      branch_name: value["branch_name"].as_str().unwrap_or("main").to_string(),
+    })
+  }
 }
 
 /// Supported export formats
@@ -173,6 +279,25 @@ pub enum ExportFormat {
   FinalCutXML,
   AAF,
   EDL,
+}
+
+/// Version information for history listing
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct VersionInfo {
+  pub id: String,
+  pub timestamp: DateTime<Utc>,
+  pub author: String,
+  pub message: Option<String>,
+  pub branch_name: String,
+}
+
+/// Snapshot metadata (for performance optimization)
+#[derive(Debug, Clone)]
+struct SnapshotMetadata {
+  pub timestamp: DateTime<Utc>,
+  pub author: String,
+  pub message: Option<String>,
+  pub branch_name: String,
 }
 
 #[cfg(test)]

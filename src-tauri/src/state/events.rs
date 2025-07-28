@@ -138,6 +138,37 @@ pub enum ProjectEvent {
   StateRestored {
     version: u32,
   },
+
+  // NEW: Version control events
+  SnapshotCreated {
+    version_id: String,
+    message: Option<String>,
+    parent_version: Option<String>,
+  },
+  VersionRestored {
+    version_id: String,
+    previous_version: String,
+  },
+  BranchCreated {
+    branch_name: String,
+    base_version: String,
+  },
+  BranchSwitched {
+    from_branch: String,
+    to_branch: String,
+  },
+  AutoSaveTriggered {
+    snapshot_id: String,
+  },
+  MergeCompleted {
+    source_branch: String,
+    target_branch: String,
+    result_version: String,
+  },
+  AutoSaveConfigChanged {
+    enabled: bool,
+    interval_seconds: u32,
+  },
 }
 
 /// Event metadata

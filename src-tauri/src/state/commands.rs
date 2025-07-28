@@ -1,5 +1,6 @@
 use super::project_state::{Clip, MediaType, ProjectSettings, TrackType};
 use super::{EventBus, PersistenceService, ProjectEvent, ProjectState};
+use chrono;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::sync::Arc;
@@ -133,6 +134,38 @@ pub enum ProjectCommand {
     add_to_selection: bool,
   },
   ClearSelection,
+
+  // NEW: Version control commands
+  CreateSnapshot {
+    message: Option<String>,
+  },
+  RestoreVersion {
+    version_id: String,
+  },
+  GetVersionHistory {
+    limit: Option<u32>,
+  },
+  CompareVersions {
+    version_a: String,
+    version_b: String,
+  },
+  CreateBranch {
+    branch_name: String,
+    from_version: Option<String>,
+  },
+  MergeBranch {
+    source_branch: String,
+    target_branch: String,
+  },
+  SwitchBranch {
+    branch_name: String,
+  },
+  SetAutoSaveInterval {
+    seconds: u32,
+  },
+  EnableAutoSave {
+    enabled: bool,
+  },
 }
 
 /// Result of a command execution
@@ -246,6 +279,26 @@ impl CommandHandler {
       ProjectCommand::PlayerClearFilters => self.player_clear_filters().await,
       ProjectCommand::PlayerClearTemplate => self.player_clear_template().await,
       ProjectCommand::AddMedia { path, media_type } => self.add_media(path, media_type).await,
+
+      // NEW: Version control commands
+      ProjectCommand::CreateSnapshot { message } => self.create_snapshot(message).await,
+      ProjectCommand::RestoreVersion { version_id } => self.restore_version(version_id).await,
+      ProjectCommand::GetVersionHistory { limit } => self.get_version_history(limit).await,
+      ProjectCommand::CompareVersions {
+        version_a,
+        version_b,
+      } => self.compare_versions(version_a, version_b).await,
+      ProjectCommand::CreateBranch {
+        branch_name,
+        from_version,
+      } => self.create_branch(branch_name, from_version).await,
+      ProjectCommand::MergeBranch {
+        source_branch,
+        target_branch,
+      } => self.merge_branch(source_branch, target_branch).await,
+      ProjectCommand::SwitchBranch { branch_name } => self.switch_branch(branch_name).await,
+      ProjectCommand::SetAutoSaveInterval { seconds } => self.set_auto_save_interval(seconds).await,
+      ProjectCommand::EnableAutoSave { enabled } => self.enable_auto_save(enabled).await,
 
       _ => CommandResult::error("Command not implemented yet".to_string()),
     }
@@ -899,5 +952,233 @@ impl CommandHandler {
       .ok();
 
     CommandResult::success(Some(serde_json::json!({ "media_id": media_id })))
+  }
+
+  // NEW: Version control command implementations
+
+  async fn create_snapshot(&self, message: Option<String>) -> CommandResult {
+    let state = self.state.read().await;
+
+    let project = match &state.project {
+      Some(p) => p,
+      None => return CommandResult::error("No project to create snapshot for".to_string()),
+    };
+
+    // Create snapshot
+    let snapshot = state.create_snapshot(
+      "system".to_string(), // TODO: Get actual user info
+      message.clone(),
+      Some(state.version_info.current_version_id.clone()),
+    );
+
+    let snapshot_id = snapshot.id.clone();
+    let project_id = project.id.clone();
+
+    // Save snapshot through persistence service
+    match self.persistence.save_snapshot(&snapshot).await {
+      Ok(_) => {
+        // Update state with new version info
+        drop(state);
+        let mut state = self.state.write().await;
+        state.mark_snapshot_created(snapshot_id.clone());
+
+        let version = state.version;
+
+        // Publish event
+        self
+          .event_bus
+          .publish(
+            ProjectEvent::SnapshotCreated {
+              version_id: snapshot_id.clone(),
+              message,
+              parent_version: Some(state.version_info.current_version_id.clone()),
+            },
+            "command_handler".to_string(),
+            version,
+          )
+          .await
+          .ok();
+
+        CommandResult::success(Some(serde_json::json!({
+          "version_id": snapshot_id,
+          "project_id": project_id
+        })))
+      }
+      Err(e) => CommandResult::error(format!("Failed to create snapshot: {}", e)),
+    }
+  }
+
+  async fn restore_version(&self, version_id: String) -> CommandResult {
+    // Load snapshot from persistence
+    let snapshot = match self.persistence.load_snapshot(&version_id).await {
+      Ok(s) => s,
+      Err(e) => return CommandResult::error(format!("Failed to load version: {}", e)),
+    };
+
+    let previous_version_id = {
+      let state = self.state.read().await;
+      state.version_info.current_version_id.clone()
+    };
+
+    // Replace current state with snapshot state
+    {
+      let mut state = self.state.write().await;
+      *state = snapshot.project_state;
+      state.version += 1; // Increment version for the restore operation
+    }
+
+    let version = {
+      let state = self.state.read().await;
+      state.version
+    };
+
+    // Publish event
+    self
+      .event_bus
+      .publish(
+        ProjectEvent::VersionRestored {
+          version_id: version_id.clone(),
+          previous_version: previous_version_id,
+        },
+        "command_handler".to_string(),
+        version,
+      )
+      .await
+      .ok();
+
+    CommandResult::success(Some(serde_json::json!({
+      "version_id": version_id,
+      "restored_at": chrono::Utc::now().to_rfc3339()
+    })))
+  }
+
+  async fn get_version_history(&self, limit: Option<u32>) -> CommandResult {
+    match self.persistence.get_version_history(limit).await {
+      Ok(versions) => CommandResult::success(Some(serde_json::json!({
+        "versions": versions,
+        "count": versions.len()
+      }))),
+      Err(e) => CommandResult::error(format!("Failed to get version history: {}", e)),
+    }
+  }
+
+  async fn compare_versions(&self, version_a: String, version_b: String) -> CommandResult {
+    // Load both snapshots
+    let snapshot_a = match self.persistence.load_snapshot(&version_a).await {
+      Ok(s) => s,
+      Err(e) => return CommandResult::error(format!("Failed to load version A: {}", e)),
+    };
+
+    let snapshot_b = match self.persistence.load_snapshot(&version_b).await {
+      Ok(s) => s,
+      Err(e) => return CommandResult::error(format!("Failed to load version B: {}", e)),
+    };
+
+    // TODO: Implement actual diff computation
+    // For now, return basic comparison info
+    CommandResult::success(Some(serde_json::json!({
+      "version_a": {
+        "id": snapshot_a.id,
+        "timestamp": snapshot_a.timestamp,
+        "message": snapshot_a.message
+      },
+      "version_b": {
+        "id": snapshot_b.id,
+        "timestamp": snapshot_b.timestamp,
+        "message": snapshot_b.message
+      },
+      "diff_summary": "Diff computation not yet implemented"
+    })))
+  }
+
+  async fn create_branch(
+    &self,
+    branch_name: String,
+    from_version: Option<String>,
+  ) -> CommandResult {
+    let mut state = self.state.write().await;
+
+    // Switch to new branch
+    state.switch_branch(branch_name.clone());
+
+    let base_version =
+      from_version.unwrap_or_else(|| state.version_info.current_version_id.clone());
+    let version = state.version;
+
+    // Publish event
+    self
+      .event_bus
+      .publish(
+        ProjectEvent::BranchCreated {
+          branch_name: branch_name.clone(),
+          base_version: base_version.clone(),
+        },
+        "command_handler".to_string(),
+        version,
+      )
+      .await
+      .ok();
+
+    CommandResult::success(Some(serde_json::json!({
+      "branch_name": branch_name,
+      "base_version": base_version
+    })))
+  }
+
+  async fn merge_branch(&self, _source_branch: String, _target_branch: String) -> CommandResult {
+    // TODO: Implement branch merging
+    // This is a complex operation that would require:
+    // 1. Loading states from both branches
+    // 2. Computing conflicts
+    // 3. Allowing user to resolve conflicts
+    // 4. Creating merged state
+
+    CommandResult::error("Branch merging not yet implemented".to_string())
+  }
+
+  async fn switch_branch(&self, branch_name: String) -> CommandResult {
+    let mut state = self.state.write().await;
+    let old_branch = state.version_info.branch_name.clone();
+
+    state.switch_branch(branch_name.clone());
+    let version = state.version;
+
+    // Publish event
+    self
+      .event_bus
+      .publish(
+        ProjectEvent::BranchSwitched {
+          from_branch: old_branch,
+          to_branch: branch_name.clone(),
+        },
+        "command_handler".to_string(),
+        version,
+      )
+      .await
+      .ok();
+
+    CommandResult::success(Some(serde_json::json!({
+      "branch_name": branch_name
+    })))
+  }
+
+  async fn set_auto_save_interval(&self, seconds: u32) -> CommandResult {
+    let mut state = self.state.write().await;
+    let current_enabled = state.version_info.auto_save_enabled;
+    state.configure_auto_save(current_enabled, seconds);
+
+    CommandResult::success(Some(serde_json::json!({
+      "auto_save_interval_seconds": seconds
+    })))
+  }
+
+  async fn enable_auto_save(&self, enabled: bool) -> CommandResult {
+    let mut state = self.state.write().await;
+    let current_interval = state.version_info.auto_save_interval_seconds;
+    state.configure_auto_save(enabled, current_interval);
+
+    CommandResult::success(Some(serde_json::json!({
+      "auto_save_enabled": enabled
+    })))
   }
 }

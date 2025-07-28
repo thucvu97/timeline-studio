@@ -125,6 +125,109 @@ export class BackendSync {
     }
   }
 
+  // ===========================
+  // VERSION CONTROL METHODS
+  // ===========================
+
+  /**
+   * Create a version snapshot with optional message
+   */
+  async createSnapshot(message?: string): Promise<CommandResult> {
+    const command: ProjectCommand = {
+      type: "CreateSnapshot",
+      params: { message },
+    }
+    return this.executeCommand(command)
+  }
+
+  /**
+   * Restore a specific version
+   */
+  async restoreVersion(versionId: string): Promise<CommandResult> {
+    const command: ProjectCommand = {
+      type: "RestoreVersion",
+      params: { version_id: versionId },
+    }
+    return this.executeCommand(command)
+  }
+
+  /**
+   * Get version history with optional limit
+   */
+  async getVersionHistory(limit?: number): Promise<CommandResult> {
+    const command: ProjectCommand = {
+      type: "GetVersionHistory",
+      params: { limit },
+    }
+    return this.executeCommand(command)
+  }
+
+  /**
+   * Compare two versions and get differences
+   */
+  async compareVersions(versionA: string, versionB: string): Promise<CommandResult> {
+    const command: ProjectCommand = {
+      type: "CompareVersions",
+      params: { version_a: versionA, version_b: versionB },
+    }
+    return this.executeCommand(command)
+  }
+
+  /**
+   * Create a new branch from current or specified version
+   */
+  async createBranch(branchName: string, fromVersion?: string): Promise<CommandResult> {
+    const command: ProjectCommand = {
+      type: "CreateBranch",
+      params: { branch_name: branchName, from_version: fromVersion },
+    }
+    return this.executeCommand(command)
+  }
+
+  /**
+   * Merge one branch into another
+   */
+  async mergeBranch(sourceBranch: string, targetBranch: string): Promise<CommandResult> {
+    const command: ProjectCommand = {
+      type: "MergeBranch",
+      params: { source_branch: sourceBranch, target_branch: targetBranch },
+    }
+    return this.executeCommand(command)
+  }
+
+  /**
+   * Switch to a different branch
+   */
+  async switchBranch(branchName: string): Promise<CommandResult> {
+    const command: ProjectCommand = {
+      type: "SwitchBranch",
+      params: { branch_name: branchName },
+    }
+    return this.executeCommand(command)
+  }
+
+  /**
+   * Set auto-save interval in seconds
+   */
+  async setAutoSaveInterval(seconds: number): Promise<CommandResult> {
+    const command: ProjectCommand = {
+      type: "SetAutoSaveInterval",
+      params: { seconds },
+    }
+    return this.executeCommand(command)
+  }
+
+  /**
+   * Enable or disable auto-save
+   */
+  async enableAutoSave(enabled: boolean): Promise<CommandResult> {
+    const command: ProjectCommand = {
+      type: "EnableAutoSave",
+      params: { enabled },
+    }
+    return this.executeCommand(command)
+  }
+
   /**
    * Subscribe to backend events
    */
@@ -174,10 +277,12 @@ export class BackendSync {
    */
   private isStateChangingEvent(event: ProjectEvent): boolean {
     const stateChangingTypes = [
+      // Project lifecycle events
       "ProjectCreated",
       "ProjectOpened",
       "ProjectSaved",
       "ProjectClosed",
+      // Timeline events
       "ClipAdded",
       "ClipMoved",
       "ClipTrimmed",
@@ -186,10 +291,20 @@ export class BackendSync {
       "TrackAdded",
       "TrackDeleted",
       "TrackUpdated",
+      // Media events
       "MediaAdded",
       "MediaRemoved",
       "MediaUpdated",
+      // State events
       "StateRestored",
+      // Version control events
+      "SnapshotCreated",
+      "VersionRestored",
+      "BranchCreated",
+      "BranchSwitched",
+      "AutoSaveTriggered",
+      "MergeCompleted",
+      "AutoSaveConfigChanged",
     ]
 
     return stateChangingTypes.includes(event.type)

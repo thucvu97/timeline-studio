@@ -4,7 +4,9 @@
 
 import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
+
 import { TimelineProvider } from "@/features/timeline/services/timeline-provider"
+
 import { useCameraSync } from "../hooks/use-camera-sync"
 
 // Мокаем зависимости
