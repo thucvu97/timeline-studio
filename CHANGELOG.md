@@ -1,3 +1,19 @@
+# [0.38.0](https://github.com/chatman-media/timeline-studio/compare/v0.37.2...v0.38.0) (2025-07-28)
+
+
+### Bug Fixes
+
+* Исправлена инициализация nextEventId в MidiSequencer ([7062ad8](https://github.com/chatman-media/timeline-studio/commit/7062ad84e1f2d7e1773e30d968ddac6a897e2bba))
+* Исправлены все ошибки и предупреждения линтера ([3671310](https://github.com/chatman-media/timeline-studio/commit/36713106b3c81c6eea5046c78870217f8fba683b))
+* Исправлены все ошибки линтера ([14fe2e9](https://github.com/chatman-media/timeline-studio/commit/14fe2e9f807136ef612cc06b13a72ff145bc034c))
+* Исправлены ошибки импорта и тесты для multicam ([d7c504c](https://github.com/chatman-media/timeline-studio/commit/d7c504cb0c873914f3a5008fea03fbee6e0e9922))
+* Исправлены тесты use-camera-sync ([8204b49](https://github.com/chatman-media/timeline-studio/commit/8204b498d92c88e6a4dcf65d1c8a421d998250bf))
+
+
+### Features
+
+* implement silent updates system and complete version control ([631f0d4](https://github.com/chatman-media/timeline-studio/commit/631f0d405a213afb8f3f9f304dac37d23d0f08f1))
+
 ## [0.37.2](https://github.com/chatman-media/timeline-studio/compare/v0.37.1...v0.37.2) (2025-07-28)
 
 
