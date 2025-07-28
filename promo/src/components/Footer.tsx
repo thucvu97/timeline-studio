@@ -15,7 +15,7 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Three columns on the right */}
-        <div className="mt-10 grid grid-cols-2 gap-12 md:mb-[120px] md:mt-0 md:flex md:flex-row md:gap-[110px]">
+        <div className="mt-10 grid grid-cols-2 gap-8 sm:grid-cols-3 md:mb-[120px] md:mt-0 md:flex md:flex-row md:gap-[110px]">
           {/* Product Column */}
           <div>
             <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-6">PRODUCT</h3>
@@ -76,9 +76,9 @@ export const Footer: React.FC = () => {
             </div>
 
             {/* Social Column */}
-            <div>
-              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-8">Follow Us</h3>
-              <div className="flex flex-col gap-8 items-center">
+            <div className="col-span-2 sm:col-span-1">
+              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-6 whitespace-nowrap">Follow Us</h3>
+              <div className="flex flex-wrap gap-4">
                 <a
                   href="https://discord.gg/BSddjvWk"
                   className="text-gray-500 hover:text-gray-300 transition-colors duration-200"
