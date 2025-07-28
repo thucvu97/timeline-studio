@@ -97,34 +97,24 @@ const DownloadButton: React.FC<{ platform: string; icon: string }> = ({ platform
       href={`https://github.com/chatman-media/timeline-studio/releases/download/v${version}/${getDownloadPath()}`}
       className="group relative px-10 py-5 rounded-2xl font-semibold text-white overflow-hidden transform transition-all duration-300 hover:scale-105 hover:-translate-y-1 block"
     >
-      {/* Background with glass effect */}
-      <div className="absolute inset-0 bg-white/5 backdrop-blur-md" />
+      {/* Background with purple base */}
+      <div className="absolute inset-0 bg-[#8b5cf6] rounded-2xl" />
       
-      {/* Spreading color effect on hover */}
-      <div className="absolute inset-0 bg-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-        <div className="absolute inset-0 bg-purple-600 scale-0 group-hover:scale-100 transition-transform duration-700 origin-center rounded-2xl" />
-      </div>
-      
-      {/* Ripple effect from center */}
-      <div className="absolute inset-0 overflow-hidden rounded-2xl">
-        <div className="absolute w-full h-full bg-white/10 rounded-full -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2 scale-0 group-hover:scale-[3] transition-all duration-1000" />
-      </div>
+      {/* Kiro-style spreading effect on hover */}
+      <div className="absolute inset-0 z-10 rounded-2xl bg-white transition-transform duration-700 scale-0 group-hover:scale-x-[150%] group-hover:scale-y-[220%]" />
       
       {/* Content */}
-      <div className="relative z-10 flex items-center gap-3">
-        <span className="text-3xl transform group-hover:scale-110 transition-transform duration-300">
+      <div className="relative z-20 flex items-center gap-3">
+        <span className="text-3xl transform group-hover:scale-110 transition-transform duration-300 group-hover:text-[#8b5cf6]">
           {getIcon(icon)}
         </span>
         <div className="text-left">
-          <div className="text-lg font-bold">Download for {platform}</div>
-          <div className="text-sm opacity-80 group-hover:opacity-100 transition-opacity">
+          <div className="text-lg font-bold group-hover:text-[#8b5cf6] transition-colors duration-500">Download for {platform}</div>
+          <div className="text-sm opacity-80 group-hover:opacity-100 group-hover:text-[#8b5cf6] transition-all duration-500">
             Version {version}
           </div>
         </div>
       </div>
-      
-      {/* Simple glow effect */}
-      <div className="absolute inset-0 bg-purple-600 opacity-0 group-hover:opacity-20 blur-2xl transition-opacity duration-700" />
     </a>
   )
 }

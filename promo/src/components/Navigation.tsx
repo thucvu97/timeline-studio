@@ -158,10 +158,16 @@ export function Navigation() {
                 href="https://github.com/chatman-media/timeline-studio/releases/latest"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hidden md:inline-flex px-4 py-3 rounded-xl text-sm font-medium text-white transition-all duration-200 hover:opacity-90 mr-0"
-                style={{ backgroundColor: '#8b5cf6' }}
+                className="group relative hidden md:inline-flex px-4 py-3 rounded-xl text-sm font-medium text-white overflow-hidden mr-0"
               >
-                Download
+                {/* Background with purple base */}
+                <div className="absolute inset-0 bg-[#8b5cf6] rounded-xl" />
+                
+                {/* Kiro-style spreading effect on hover */}
+                <div className="absolute inset-0 z-10 rounded-xl bg-white transition-transform duration-700 scale-0 group-hover:scale-x-[150%] group-hover:scale-y-[220%]" />
+                
+                {/* Text */}
+                <span className="relative z-20 group-hover:text-[#8b5cf6] transition-colors duration-500">Download</span>
               </a>
 
               {/* Mobile menu button */}
@@ -267,11 +273,17 @@ export function Navigation() {
                   href="https://github.com/chatman-media/timeline-studio/releases/latest"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block mx-4 px-5 py-2 rounded-xl text-sm font-medium text-white text-center transition-all duration-200 hover:opacity-90"
-                  style={{ backgroundColor: '#8b5cf6' }}
+                  className="group relative block mx-4 px-5 py-2 rounded-xl text-sm font-medium text-white text-center overflow-hidden"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  Download
+                  {/* Background with purple base */}
+                  <div className="absolute inset-0 bg-[#8b5cf6] rounded-xl" />
+                  
+                  {/* Kiro-style spreading effect on hover */}
+                  <div className="absolute inset-0 z-10 rounded-xl bg-white transition-transform duration-700 scale-0 group-hover:scale-x-[150%] group-hover:scale-y-[220%]" />
+                  
+                  {/* Text */}
+                  <span className="relative z-20 group-hover:text-[#8b5cf6] transition-colors duration-500">Download</span>
                 </a>
               </li>
             </ul>
