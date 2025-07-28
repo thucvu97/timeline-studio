@@ -218,7 +218,7 @@ Style: Cinematic
 
 ### 2. Анимированная инфографика
 ```
-Prompt: "Animated bar chart showing growth from 2020 to 2024, 
+Prompt: "Animated bar chart showing growth from 2020 to 2025, 
 modern flat design, blue color scheme"
 Duration: 5s
 Style: Motion Graphics

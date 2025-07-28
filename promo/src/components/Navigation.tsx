@@ -73,7 +73,9 @@ export function Navigation() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
             >
-              <Logo size="small" />
+              <a href="/" className="inline-block">
+                <Logo size="small" />
+              </a>
             </motion.div>
 
             {/* Right side container */}

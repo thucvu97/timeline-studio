@@ -21,7 +21,8 @@ export const Logo: React.FC<LogoProps> = ({ size = 'medium', showText = true }) 
         className={`${currentSize.circle} rounded-full flex items-center justify-center overflow-visible`}
         style={{
           background: '#8b5cf6',
-          boxShadow: '0 8px 32px 0 rgba(139, 92, 246, 0.4)'
+          boxShadow: '0 8px 32px 0 rgba(139, 92, 246, 0.4)',
+          cursor: 'pointer'
         }}
       >
         <span 
@@ -32,7 +33,7 @@ export const Logo: React.FC<LogoProps> = ({ size = 'medium', showText = true }) 
             fontSize: '2.8rem',
             lineHeight: '1',
             transform: 'translateX(-3px) translateY(2px)',
-            cursor: 'default'
+            cursor: 'pointer'
           }}
         >
           T

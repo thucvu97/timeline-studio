@@ -34,7 +34,7 @@ export const About: React.FC = () => {
               Building the future of creative content with AI-powered tools
             </p>
             <div className="flex items-center justify-center space-x-4 text-gray-400">
-              <span>Founded 2024</span>
+              <span>Founded 2025</span>
               <span>•</span>
               <span>Remote First</span>
               <span>•</span>

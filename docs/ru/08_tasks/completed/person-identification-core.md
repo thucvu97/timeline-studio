@@ -454,5 +454,5 @@ if (matches.length > 0) {
 ---
 
 **Статус**: ✅ **Завершено и готово к использованию**  
-**Дата завершения**: Декабрь 2024  
+**Дата завершения**: Декабрь 2025
 **Следующий этап**: [Person Identification Advanced](../planned/person-identification-advanced.md)

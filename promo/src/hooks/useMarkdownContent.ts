@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { parseMarkdown, Post, PostMetadata } from '../utils/markdown'
+import { parseMarkdown } from '../utils/markdown'
+import type { Post, PostMetadata } from '../utils/markdown'
 
 // Загрузка всех постов блога
 export function useBlogPosts() {
