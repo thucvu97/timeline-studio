@@ -48,11 +48,12 @@ export const Blog: React.FC = () => {
   }, [])
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-gray-900 flex flex-col">
       <Navigation />
       
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 overflow-hidden">
+      <main className="flex-1">
+        {/* Hero Section */}
+        <section className="relative pt-32 pb-20 overflow-hidden">
         {/* Background gradient */}
         <div className="absolute inset-0 hero-gradient opacity-50" />
         
@@ -78,7 +79,7 @@ export const Blog: React.FC = () => {
         <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <div className="max-w-4xl mx-auto">
             {isLoading ? (
-              <div className="glass-card p-8 rounded-2xl text-center">
+              <div className="glass p-8 rounded-2xl text-center">
                 <p className="text-lg text-gray-400">Loading posts...</p>
               </div>
             ) : (
@@ -89,7 +90,7 @@ export const Blog: React.FC = () => {
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="glass-card p-8 rounded-2xl hover:bg-white/5 transition-all duration-300"
+                    className="glass p-8 rounded-2xl hover:bg-white/5 transition-all duration-300"
                   >
                     <Link to={`/blog/${post.slug}`} className="block group">
                       <h2 className="text-2xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors">
@@ -117,8 +118,8 @@ export const Blog: React.FC = () => {
           </div>
         </div>
       </section>
+      </main>
 
-      {/* Footer */}
       <Footer />
     </div>
   )

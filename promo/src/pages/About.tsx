@@ -1,14 +1,16 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { Navigation } from '../components/Navigation'
+import { Footer } from '../components/Footer'
 
 export const About: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-gray-900 flex flex-col">
       <Navigation />
       
-      {/* Hero Banner */}
-      <section className="relative pt-32 pb-20 overflow-hidden">
+      <main className="flex-1">
+        {/* Hero Banner */}
+        <section className="relative pt-32 pb-20 overflow-hidden">
         {/* Background gradient */}
         <div className="absolute inset-0 hero-gradient opacity-50" />
         
@@ -55,7 +57,7 @@ export const About: React.FC = () => {
             <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
               Our Mission
             </h2>
-            <div className="glass-card p-8 md:p-12 rounded-2xl">
+            <div className="glass p-8 md:p-12 rounded-2xl">
               <p className="text-lg text-gray-300 leading-relaxed mb-6">
                 At Timeline Studio, we believe that video editing should be accessible, intuitive, and powerful. 
                 Our mission is to democratize professional video creation by combining cutting-edge AI technology 
@@ -122,7 +124,7 @@ export const About: React.FC = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  className="glass-card p-8 rounded-xl hover:bg-white/5 transition-colors duration-300"
+                  className="glass p-8 rounded-xl hover:bg-white/5 transition-colors duration-300"
                 >
                   <div className="text-4xl mb-4">{value.icon}</div>
                   <h3 className="text-xl font-bold text-white mb-3">{value.title}</h3>
@@ -151,7 +153,7 @@ export const About: React.FC = () => {
               Our team combines expertise in AI, video technology, and user experience design 
               to create tools that truly understand creator needs.
             </p>
-            <div className="glass-card p-8 rounded-2xl inline-block">
+            <div className="glass p-8 rounded-2xl inline-block">
               <div className="flex items-center space-x-6">
                 <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                   <span className="text-2xl font-bold text-white">CM</span>
@@ -189,7 +191,7 @@ export const About: React.FC = () => {
             <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
               <a
                 href="https://github.com/chatman-media/timeline-studio"
-                className="glass glass-glow px-8 py-4 rounded-xl text-lg font-medium text-white hover:bg-white/10 transition-all duration-300 flex items-center space-x-3"
+                className="glass px-8 py-4 rounded-xl text-lg font-medium text-white hover:bg-white/10 transition-all duration-300 flex items-center space-x-3"
               >
                 <span>Contribute on GitHub</span>
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -206,13 +208,9 @@ export const About: React.FC = () => {
           </motion.div>
         </div>
       </section>
+      </main>
 
-      {/* Footer */}
-      <footer className="bg-black border-t border-gray-800 py-8">
-        <div className="container mx-auto px-6 md:px-8 lg:px-12 text-center text-gray-500">
-          <p>&copy; {new Date().getFullYear()} Timeline Studio. All rights reserved.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

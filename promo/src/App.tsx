@@ -8,11 +8,12 @@ import { Footer } from './components/Footer'
 
 const App: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-gray-900 flex flex-col">
         <Navigation />
         
-        {/* Hero Section */}
-        <HeroSection />
+        <main className="flex-1">
+          {/* Hero Section */}
+          <HeroSection />
 
         {/* AI Editing Section */}
         <AIEditingSection />
@@ -147,8 +148,7 @@ const App: React.FC = () => {
             </div>
           </section>
         </AnimatedSection>
-
-
+        </main>
 
         {/* Footer */}
         <Footer />

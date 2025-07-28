@@ -61,28 +61,31 @@ Timeline Studio is available for Windows, macOS, and Linux. Download the latest 
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-900">
+      <div className="min-h-screen bg-gray-900 flex flex-col">
         <Navigation />
-        <div className="pt-32 pb-20">
+        <main className="flex-1">
+          <div className="pt-32 pb-20">
           <div className="container mx-auto px-6 md:px-8 lg:px-12">
             <div className="max-w-4xl mx-auto">
-              <div className="glass-card p-8 rounded-2xl text-center">
+              <div className="glass p-8 rounded-2xl text-center">
                 <p className="text-lg text-gray-400">Loading...</p>
               </div>
             </div>
           </div>
         </div>
+        </main>
         <Footer />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-gray-900 flex flex-col">
       <Navigation />
       
-      {/* Article Header */}
-      <section className="relative pt-32 pb-12 overflow-hidden">
+      <main className="flex-1">
+        {/* Article Header */}
+        <section className="relative pt-32 pb-12 overflow-hidden">
         {/* Background gradient */}
         <div className="absolute inset-0 hero-gradient opacity-50" />
         
@@ -122,7 +125,7 @@ Timeline Studio is available for Windows, macOS, and Linux. Download the latest 
             transition={{ duration: 0.8, delay: 0.2 }}
             className="max-w-4xl mx-auto"
           >
-            <div className="glass-card p-8 md:p-12 rounded-2xl">
+            <div className="glass p-8 md:p-12 rounded-2xl">
               <div className="prose prose-invert prose-lg max-w-none">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
                   {content}
@@ -132,8 +135,8 @@ Timeline Studio is available for Windows, macOS, and Linux. Download the latest 
           </motion.div>
         </div>
       </section>
+      </main>
 
-      {/* Footer */}
       <Footer />
     </div>
   )

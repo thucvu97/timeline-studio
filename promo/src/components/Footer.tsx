@@ -3,42 +3,43 @@ import { Logo } from './Logo'
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="bg-gray-900 border-t border-gray-800">
-      <div className="container mx-auto px-6 md:px-8 lg:px-12 py-16">
-        <div className="flex flex-col md:flex-row gap-12">
-          {/* Logo on the left */}
-          <div className="flex-shrink-0 md:w-1/4">
-            <Logo size="medium" showText={false} />
-          </div>
+    <footer className="bg-gray-900 border-t border-gray-800 mt-auto">
+      <div className="z-10 transition-all duration-300 grid w-full grid-cols-12 gap-2 px-6 md:gap-4 md:px-10 lg:px-12 xl:px-20 xl:gap-6 max-w-[1920px] mx-auto">
+      <div className='col-span-12 mb-8 mt-10 md:mb-0 md:mt-20'>
+      <div className="flex flex-col justify-between md:flex-row">
+        {/* Logo on the left */}
+        <div className="flex-shrink-0 md:w-1/4">
+          <Logo size="medium" showText={false} />
+        </div>
 
-          {/* Three columns on the right */}
-          <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-12">
-            {/* Product Column */}
-            <div>
-              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">PRODUCT</h3>
-              <ul className="space-y-3">
-                <li>
-                  <a href="/about" className="text-sm text-gray-400 hover:text-gray-200 transition-colors">
-                    About Timeline Studio
-                  </a>
-                </li>
-                <li>
-                  <a href="/pricing" className="text-sm text-gray-400 hover:text-gray-200 transition-colors">
-                    Pricing
-                  </a>
-                </li>
-                <li>
-                  <a href="https://github.com/chatman-media/timeline-studio/releases" className="text-sm text-gray-400 hover:text-gray-200 transition-colors">
-                    Changelog
-                  </a>
-                </li>
-                <li>
-                  <a href="#download" className="text-sm text-gray-400 hover:text-gray-200 transition-colors">
-                    Downloads
-                  </a>
-                </li>
-              </ul>
-            </div>
+        {/* Three columns on the right */}
+        <div className="mt-10 grid grid-cols-2 gap-12 md:mb-[230px] md:mt-0 md:flex md:flex-row md:gap-[110px]">
+          {/* Product Column */}
+          <div>
+            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">PRODUCT</h3>
+            <ul className="space-y-3">
+              <li>
+                <a href="/about" className="text-sm text-gray-400 hover:text-gray-200 transition-colors">
+                  About Timeline Studio
+                </a>
+              </li>
+              <li>
+                <a href="/pricing" className="text-sm text-gray-400 hover:text-gray-200 transition-colors">
+                  Pricing
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/chatman-media/timeline-studio/releases" className="text-sm text-gray-400 hover:text-gray-200 transition-colors">
+                  Changelog
+                </a>
+              </li>
+              <li>
+                <a href="#download" className="text-sm text-gray-400 hover:text-gray-200 transition-colors">
+                  Downloads
+                </a>
+              </li>
+            </ul>
+          </div>
 
             {/* Resources Column */}
             <div>
@@ -107,28 +108,11 @@ export const Footer: React.FC = () => {
                     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                   </svg>
                 </a>
-                <a
-                  href="https://youtube.com/@timelinestudio"
-                  className="text-gray-500 hover:text-gray-300 transition-all duration-200 hover:scale-110"
-                  aria-label="YouTube"
-                >
-                  <svg className="w-5 h-5 filter drop-shadow-[0_0_3px_rgba(255,255,255,0.3)]" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                  </svg>
-                </a>
-                <a
-                  href="https://opencollective.com/timeline-studio"
-                  className="text-gray-500 hover:text-gray-300 transition-all duration-200 hover:scale-110"
-                  aria-label="Open Collective"
-                >
-                  <svg className="w-5 h-5 filter drop-shadow-[0_0_3px_rgba(255,255,255,0.3)]" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 2c5.523 0 10 4.477 10 10a9.956 9.956 0 01-1.258 4.884l-7.397-7.397h4.27v-1.97h-6.486V14h1.97V9.73l7.397 7.397A9.956 9.956 0 0112 22C6.477 22 2 17.523 2 12S6.477 2 12 2z"/>
-                  </svg>
-                </a>
               </div>
             </div>
           </div>
         </div>
+      </div>
       </div>
     </footer>
   )

@@ -37,11 +37,12 @@ export const Changelog: React.FC = () => {
   }, [])
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-gray-900 flex flex-col">
       <Navigation />
       
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 overflow-hidden">
+      <main className="flex-1">
+        {/* Hero Section */}
+        <section className="relative pt-32 pb-20 overflow-hidden">
         {/* Background gradient */}
         <div className="absolute inset-0 hero-gradient opacity-50" />
         
@@ -74,11 +75,11 @@ export const Changelog: React.FC = () => {
           >
             {/* Changelog content */}
             {isLoading ? (
-              <div className="glass-card p-8 md:p-12 rounded-2xl text-center">
+              <div className="glass p-8 md:p-12 rounded-2xl text-center">
                 <p className="text-lg text-gray-400">Loading...</p>
               </div>
             ) : (
-              <div className="glass-card p-8 md:p-12 rounded-2xl">
+              <div className="glass p-8 md:p-12 rounded-2xl">
                 <div className="prose prose-invert prose-lg max-w-none">
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {changelogContent}
@@ -89,8 +90,8 @@ export const Changelog: React.FC = () => {
           </motion.div>
         </div>
       </section>
+      </main>
 
-      {/* Footer */}
       <Footer />
     </div>
   )
