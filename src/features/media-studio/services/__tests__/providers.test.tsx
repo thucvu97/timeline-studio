@@ -14,8 +14,8 @@ vi.mock("@/i18n/services/i18n-provider", () => ({
   I18nProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="i18n-provider">{children}</div>,
 }))
 
-vi.mock("@/features/top-bar/components/theme/theme-context", () => ({
-  ThemeProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="theme-provider">{children}</div>,
+vi.mock("next-themes", () => ({
+  ThemeProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="next-theme-provider">{children}</div>,
 }))
 
 vi.mock("@/features/modals/services/modal-provider", () => ({
@@ -87,7 +87,7 @@ describe("Providers", () => {
     // Проверяем наличие основных провайдеров
     expect(screen.getByTestId("tauri-mock-provider")).toBeInTheDocument()
     expect(screen.getByTestId("i18n-provider")).toBeInTheDocument()
-    expect(screen.getByTestId("theme-provider")).toBeInTheDocument()
+    expect(screen.getByTestId("next-theme-provider")).toBeInTheDocument()
     expect(screen.getByTestId("app-provider")).toBeInTheDocument()
     expect(screen.getByTestId("browser-state-provider")).toBeInTheDocument()
     expect(screen.getByTestId("user-settings-provider")).toBeInTheDocument()
@@ -108,7 +108,7 @@ describe("Providers", () => {
 
     // Проверяем вложенность некоторых провайдеров
     const tauriProvider = container.querySelector('[data-testid="tauri-mock-provider"]')
-    const themeProvider = container.querySelector('[data-testid="theme-provider"]')
+    const themeProvider = container.querySelector('[data-testid="next-theme-provider"]')
     const userSettingsProvider = container.querySelector('[data-testid="user-settings-provider"]')
 
     expect(tauriProvider).toBeInTheDocument()

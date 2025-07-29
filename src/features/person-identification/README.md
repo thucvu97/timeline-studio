@@ -254,10 +254,11 @@ const { getPersonsForClip, getAppearancesForClip } = useTimelinePersons()
 
 ### ML Backend Integration
 - ✅ **FaceNet Embeddings** - 512D and 128D face embeddings for high accuracy
-- ✅ **RetinaFace Detection** - advanced face detection with 5-point landmarks
+- ✅ **RetinaFace Detection** - advanced face detection with 5-point landmarks and **real face quality assessment**
 - ✅ **MediaPipe Analysis** - 468 3D facial landmarks and expression analysis
-- ✅ **YOLO Integration** - real-time object and face detection
-- ✅ **Privacy Processor** - 6 types of face blurring for anonymization
+- ✅ **YOLO Integration** - real-time object and face detection with **automatic processor selection**
+- ✅ **Privacy Processor** - 6 types of face blurring for anonymization with **real-time face detection**
+- ✅ **Face Quality Assessment** - comprehensive 4-factor quality scoring (size, sharpness, landmarks, lighting)
 
 ### Tauri Commands for Clustering
 ```typescript
@@ -282,6 +283,22 @@ await invoke('auto_cluster_video_faces', {
   embeddings: videoEmbeddings,
   metadata: faceMetadata,
   saveResults: true
+})
+
+// RetinaFace with quality assessment
+const result = await invoke('get_aligned_face', {
+  imageData: base64Image,
+  landmarks: facialLandmarks,
+  outputSize: 112
+})
+// Returns: { aligned_image: string, size: number, quality_score: number }
+
+// Privacy face blurring with auto-detection
+await invoke('blur_faces_in_image', {
+  imagePath: '/path/to/image.jpg', 
+  outputPath: '/path/to/blurred.jpg',
+  autoDetect: true, // Uses first available YOLO processor
+  faceBoxes: null
 })
 ```
 

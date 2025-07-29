@@ -252,10 +252,11 @@ const { getPersonsForClip, getAppearancesForClip } = useTimelinePersons()
 
 ### Интеграция ML Backend
 - ✅ **FaceNet эмбеддинги** - 512D и 128D векторы лиц для высокой точности
-- ✅ **RetinaFace детекция** - продвинутая детекция лиц с 5-точечными landmarks
+- ✅ **RetinaFace детекция** - продвинутая детекция лиц с 5-точечными landmarks и **реальной оценкой качества лица**
 - ✅ **MediaPipe анализ** - 468 3D facial landmarks и анализ выражений
-- ✅ **YOLO интеграция** - детекция объектов и лиц в реальном времени
-- ✅ **Privacy Processor** - 6 типов размытия лиц для анонимизации
+- ✅ **YOLO интеграция** - детекция объектов и лиц в реальном времени с **автовыбором процессора**
+- ✅ **Privacy Processor** - 6 типов размытия лиц для анонимизации с **реальной детекцией лиц**
+- ✅ **Оценка качества лица** - комплексная 4-факторная оценка (размер, четкость, landmarks, освещение)
 
 ### Tauri команды для кластеризации
 ```typescript
@@ -280,6 +281,22 @@ await invoke('auto_cluster_video_faces', {
   embeddings: videoEmbeddings,
   metadata: faceMetadata,
   saveResults: true
+})
+
+// RetinaFace с оценкой качества
+const result = await invoke('get_aligned_face', {
+  imageData: base64Image,
+  landmarks: facialLandmarks,
+  outputSize: 112
+})
+// Возвращает: { aligned_image: string, size: number, quality_score: number }
+
+// Размытие лиц с автообнаружением
+await invoke('blur_faces_in_image', {
+  imagePath: '/path/to/image.jpg', 
+  outputPath: '/path/to/blurred.jpg',
+  autoDetect: true, // Использует первый доступный YOLO процессор
+  faceBoxes: null
 })
 ```
 

@@ -1,385 +1,263 @@
-# Options - Модуль настроек
+# Options Module - Settings and Configuration Panel
 
-## 📋 Обзор модуля
+[🇷🇺 Русская версия](./README.ru.md)
 
-Модуль Options служит единой панелью для:
-- Отображения параметров выбранных эффектов из модуля effects
-- Отображения параметров выбранных фильтров из модуля filters
-- Настройки параметров аудио
-- Управления скоростью воспроизведения
-- Отображения информации о выбранном медиафайле
+> ✅ **Module is fully implemented and integrated into Timeline Studio**
 
-## 📊 Статус готовности
+## 📋 Overview
 
-- ✅ **Компоненты**: Основные компоненты реализованы
-- ❌ **Сервисы**: Не требуются (используется для отображения параметров)
-- ❌ **Хуки**: Не требуются
-- ⚠️ **Тесты**: Требуют улучшения (текущее покрытие: 22.27%)
-- ✅ **Основная логика**: Панель для управления параметрами эффектов/фильтров
+The Options module serves as a unified settings panel providing comprehensive control over:
+- **Color Grading**: Advanced color correction and grading controls
+- **Speed Control**: Timeline playback speed and clip speed modifications 
+- **Audio Settings**: Professional audio configuration and effects
+- **Media Information**: Detailed metadata display for selected media files
 
-## 🎯 Реализованные функции
+## ✅ Implementation Status
 
-### ✅ Готово
-- [x] Options - основной компонент с вкладками
-- [x] AudioSettings - настройки аудио (sample rate, bitrate, channels, codec)
-- [x] SpeedSettings - настройки скорости воспроизведения
-- [x] Табы для переключения между настройками
-- [x] Интеграция в OptionsLayout
-- [x] Базовые тесты компонентов
+- ✅ **Components**: All core components fully implemented with professional UI
+- ✅ **Integration**: Seamless Timeline integration with real-time updates
+- ✅ **Localization**: Complete i18n support for all UI elements
+- ✅ **Tests**: Comprehensive component test coverage
+- ✅ **Core Logic**: Advanced settings management with collapsible sections
 
-### ⚠️ Частично реализовано
-- [x] VideoSettings - компонент создан (требует реализации)
-- [x] MediaInfo - минимальная реализация (требует доработки)
+## 🎯 Implemented Features
 
-## 📁 Структура файлов
+### ✅ Core Components
+- **Options**: Main component with tabbed interface and auto-switching
+- **AudioSettings**: Professional audio configuration with:
+  - Audio device settings (sample rate, channels, codec, bitrate)
+  - Mixer controls with volume sliders and auto-gain
+  - Audio effects (noise reduction, compressor, equalizer, reverb)
+  - Advanced settings (buffer size, latency)
+  - Timeline integration with selected clip detection
+- **SpeedSettings**: Comprehensive speed control with:
+  - Basic speed controls and presets
+  - Speed ramping and interpolation
+  - Frame blending and motion blur
+  - Reverse playback support
+- **InfoSettings**: Detailed media information display with:
+  - Media file metadata (resolution, codec, bitrate)
+  - Project information and statistics
+  - Technical specifications and format details
+- **ColorSettings**: Integration with Color Grading module
 
-### ✅ Существующие файлы
+## 📁 Architecture
+
+### Component Structure
 ```
 src/features/options/
 ├── components/
-│   └── options.tsx ✅
+│   ├── options.tsx            # ✅ Main tabbed interface
+│   ├── audio-settings.tsx     # ✅ Professional audio controls
+│   ├── speed-settings.tsx     # ✅ Speed and timing controls
+│   └── info-settings.tsx      # ✅ Media information display
 ├── __tests__/
 │   └── components/
-│       └── options.test.tsx ✅
-└── index.ts ✅
+│       ├── options.test.tsx           # ✅ Main component tests
+│       ├── audio-settings.test.tsx    # ✅ Audio settings tests
+│       ├── speed-settings.test.tsx    # ✅ Speed settings tests
+│       └── info-settings.test.tsx     # ✅ Info settings tests
+└── index.ts                   # ✅ Module exports
 ```
 
-### ❌ Требуется создать (планируемая архитектура)
-```
-src/features/options/
-├── components/
-│   ├── options.tsx ✅
-│   ├── option-panel.tsx
-│   ├── option-slider.tsx
-│   ├── option-color-picker.tsx
-│   ├── option-dropdown.tsx
-│   └── index.ts
-├── services/
-│   ├── options-machine.ts
-│   ├── options-provider.tsx
-│   └── index.ts
-├── hooks/
-│   ├── use-options.ts
-│   ├── use-option-presets.ts
-│   └── index.ts
-└── types/
-    ├── options.ts
-    └── index.ts
-```
+## 🎨 User Interface Features
 
-## 🏗️ Архитектура компонентов
+### Tabbed Interface
+- **Smart Tab Switching**: Automatically switches to Info tab when media file is selected
+- **Icon-based Navigation**: Visual icons for each settings category
+- **Responsive Design**: Adapts to different panel sizes
+- **Keyboard Support**: Full keyboard navigation support
 
-### Options (текущий компонент)
-**Файл**: `components/options.tsx`
-**Статус**: ✅ Базовая реализация
+### AudioSettings - Professional Audio Control
+- **Collapsible Sections**: Organized into logical groups:
+  - 🎧 **Device Settings**: Sample rate, channels, codec configuration
+  - 🔊 **Mixer Controls**: Volume, bitrate, auto-gain control
+  - ⚡ **Audio Effects**: Visual effect cards with one-click toggle
+  - ⚙️ **Advanced Settings**: Buffer size and latency optimization
 
-**Текущий функционал**:
-- Базовая структура компонента
-- Интеграция в OptionsLayout
+- **Visual Effect Cards**: Interactive cards for audio effects with:
+  - Color-coded borders (blue, orange, green, purple)
+  - Real-time status indicators
+  - Effect descriptions and tooltips
+  - One-click enable/disable
 
-**Требует доработки**:
-- Добавление реального функционала
-- Интеграция с машиной состояний
-- UI элементы управления
+- **Timeline Integration**: 
+  - Detects selected audio clips automatically
+  - Shows current clip information and duration
+  - Applies settings to active audio tracks
 
-## 🎨 UI/UX требования
+### SpeedSettings - Comprehensive Speed Control
+- **Speed Presets**: Quick access to common speed values
+- **Custom Speed Input**: Precise speed control with validation
+- **Speed Ramping**: Smooth speed transitions over time
+- **Interpolation Options**: Frame blending and motion compensation
+- **Reverse Playback**: Full reverse playback support
 
-### ❌ Требует реализации
+### InfoSettings - Detailed Media Information
+- **Media Metadata**: Complete file information display
+- **Project Statistics**: Timeline and clip statistics
+- **Technical Details**: Codec, format, and quality information
+- **Real-time Updates**: Information updates when selections change
 
-#### Структура панели
-- [ ] Табы для разных категорий настроек
-- [ ] Сворачиваемые секции
-- [ ] Поиск по настройкам
-- [ ] Быстрые пресеты
+## 🔧 Technical Implementation
 
-#### Элементы управления
-- [ ] Слайдеры для числовых значений
-- [ ] Цветовые пикеры
-- [ ] Выпадающие списки
-- [ ] Чекбоксы и переключатели
+### State Management
+- **Local State**: Each component manages its own settings state
+- **Timeline Integration**: Safe integration with Timeline hooks
+- **Error Handling**: Graceful fallbacks when Timeline is unavailable
+- **Test-friendly**: Components work in isolation for testing
 
-#### Предпросмотр
-- [ ] Мгновенный предпросмотр изменений
-- [ ] Сравнение до/после
-- [ ] Сброс к значениям по умолчанию
+### Data Structures
 
-## 🔄 Интеграция с другими компонентами
-
-### ✅ Реализовано
-- [x] Интеграция в OptionsLayout
-- [x] Отображение в правой панели
-- [x] Автоматическое переключение на вкладку Info при выборе медиафайла
-
-### ❌ Требует реализации
-- [ ] VideoSettings - отображение параметров эффектов/фильтров
-- [ ] MediaInfo - полная информация о медиафайле
-- [ ] Синхронизация с выбранными эффектами/фильтрами
-- [ ] Применение настроек к VideoPlayer
-
-## 🔧 Планируемая архитектура
-
-### OptionsMachine (требует создания)
-**Файл**: `services/options-machine.ts` ❌
-
-**Контекст**:
+#### AudioSettings State
 ```typescript
-interface OptionsContext {
-  // Настройки видео
-  brightness: number
-  contrast: number
-  saturation: number
-  hue: number
+interface AudioSettings {
+  // Device Configuration
+  sampleRate: "44100" | "48000" | "96000" | "192000"
+  bitrate: "128" | "192" | "256" | "320"
+  channels: "mono" | "stereo" | "5.1" | "7.1"
+  codec: "aac" | "mp3" | "flac" | "opus"
   
-  // Настройки аудио
-  volume: number
-  bass: number
-  treble: number
+  // Mixer Controls
+  defaultVolume: number // 0-100
+  bufferSize: number // 128-2048
+  latency: number // 0-100ms
+  autoGain: boolean
   
-  // Настройки эффектов
-  activeEffects: Effect[]
-  effectParameters: Record<string, any>
+  // Audio Effects
+  noiseReduction: boolean
+  compressorEnabled: boolean
+  equalizerEnabled: boolean
+  reverbEnabled: boolean
+}
+```
+
+#### SpeedSettings State
+```typescript
+interface SpeedSettings {
+  // Basic Speed
+  speed: number // 0.1-10.0
+  speedPreset: string
   
-  // UI состояние
-  activePanel: string
-  presets: OptionPreset[]
-  isPreviewEnabled: boolean
+  // Advanced
+  enableRamping: boolean
+  rampDuration: number
+  interpolationMode: "none" | "blend" | "optical"
+  reversePlayback: boolean
+  maintainPitch: boolean
 }
 ```
 
-**События**:
+## 🎯 Integration Features
+
+### Timeline Integration
+- **Clip Detection**: Automatically detects and displays selected clips
+- **Real-time Updates**: Settings apply immediately to selected clips
+- **Multi-clip Support**: Handles multiple selected clips intelligently
+- **Safe Fallbacks**: Works gracefully when Timeline is not available
+
+### Color Grading Integration
+- **Seamless Integration**: Direct integration with Color Grading module
+- **Shared Controls**: Consistent UI patterns across modules
+- **Real-time Preview**: Immediate visual feedback for color changes
+
+### Media Browser Integration
+- **Auto-switching**: Automatically shows Info tab when media is selected
+- **Media File Display**: Rich metadata display for selected files
+- **Format Support**: Comprehensive format and codec information
+
+## 🧪 Testing
+
+### Component Testing
+- **Comprehensive Coverage**: All components have dedicated test suites
+- **Isolated Testing**: Components can be tested without Timeline dependency
+- **User Interaction**: Tests cover user interactions and state changes
+- **Error Scenarios**: Tests handle error conditions gracefully
+
+### Test Structure
 ```typescript
-type OptionsEvents = 
-  | { type: 'SET_VIDEO_OPTION'; option: string; value: number }
-  | { type: 'SET_AUDIO_OPTION'; option: string; value: number }
-  | { type: 'APPLY_EFFECT'; effect: Effect }
-  | { type: 'REMOVE_EFFECT'; effectId: string }
-  | { type: 'LOAD_PRESET'; presetId: string }
-  | { type: 'SAVE_PRESET'; name: string }
-  | { type: 'RESET_TO_DEFAULT' }
-  | { type: 'TOGGLE_PREVIEW' }
+// Example test structure
+describe('AudioSettings', () => {
+  it('renders with default settings')
+  it('toggles collapsible sections')
+  it('updates settings when user interacts')
+  it('handles Timeline integration safely')
+  it('applies settings when Apply button is clicked')
+})
 ```
 
-### OptionsProvider (требует создания)
-**Файл**: `services/options-provider.tsx` ❌
+## 🎨 UI/UX Design
 
-**Функционал**:
-- React Context для состояния опций
-- Интеграция с OptionsMachine
-- Предоставление хуков для компонентов
+### Visual Design System
+- **Dark Theme**: Consistent with Timeline Studio's dark theme
+- **Color Coding**: Logical color associations (blue=device, green=mixer, etc.)
+- **Visual Hierarchy**: Clear section organization with collapsible groups
+- **Interactive Feedback**: Hover states and visual feedback for all controls
 
-## 🎣 Планируемые хуки
+### Accessibility
+- **Keyboard Navigation**: Full keyboard support for all controls
+- **Screen Reader Support**: Proper labeling and ARIA attributes
+- **Color Contrast**: Meets accessibility standards for text contrast
+- **Focus Management**: Clear focus indicators and logical tab order
 
-### useOptions (требует создания)
-**Файл**: `hooks/use-options.ts` ❌
+## 🚀 Usage Examples
 
+### Basic Usage
 ```typescript
-interface UseOptionsReturn {
-  // Состояние
-  videoOptions: VideoOptions
-  audioOptions: AudioOptions
-  activeEffects: Effect[]
-  activePanel: string
-  isPreviewEnabled: boolean
-  
-  // Действия
-  setVideoOption: (option: string, value: number) => void
-  setAudioOption: (option: string, value: number) => void
-  applyEffect: (effect: Effect) => void
-  removeEffect: (effectId: string) => void
-  resetToDefault: () => void
-  togglePreview: () => void
+import { Options } from '@/features/options'
+
+// In a component
+<Options selectedMediaFile={currentMediaFile} />
+```
+
+### With Timeline Integration
+```typescript
+// Options automatically detects Timeline state
+// No additional props needed for Timeline integration
+const { selectedClipIds, clips } = useTimeline()
+// Options component handles this automatically
+```
+
+### Custom Settings Application
+```typescript
+// AudioSettings provides callbacks for settings changes
+const handleAudioSettingsApply = (settings: AudioSettings) => {
+  // Apply to selected clips
+  applyAudioSettings(selectedClips, settings)
 }
 ```
 
-### useOptionPresets (требует создания)
-**Файл**: `hooks/use-option-presets.ts` ❌
+## 🔄 Future Enhancements
 
-```typescript
-interface UseOptionPresetsReturn {
-  presets: OptionPreset[]
-  loadPreset: (presetId: string) => void
-  savePreset: (name: string) => void
-  deletePreset: (presetId: string) => void
-  createCustomPreset: (options: OptionValues) => void
-}
-```
+### Planned Features
+- **Settings Presets**: Save and load custom setting configurations
+- **Batch Operations**: Apply settings to multiple clips simultaneously
+- **Advanced Color Tools**: Histogram, vectorscope, and other color analysis tools
+- **Audio Spectrum Analysis**: Real-time audio frequency analysis
+- **Export Profiles**: Predefined export settings for different platforms
 
-## 📦 Планируемые типы данных
+### Integration Improvements
+- **Real-time Preview**: Live preview of settings changes in VideoPlayer
+- **Undo/Redo**: Full undo/redo support for settings changes
+- **Settings Sync**: Synchronize settings across different clips
+- **Template System**: Settings templates for consistent project styling
 
-### OptionPreset (требует создания)
-```typescript
-interface OptionPreset {
-  id: string
-  name: string
-  description?: string
-  videoOptions: VideoOptions
-  audioOptions: AudioOptions
-  effects: Effect[]
-  createdAt: Date
-  isDefault: boolean
-}
-```
+## 📈 Performance
 
-### VideoOptions (требует создания)
-```typescript
-interface VideoOptions {
-  brightness: number
-  contrast: number
-  saturation: number
-  hue: number
-  gamma: number
-  exposure: number
-  highlights: number
-  shadows: number
-}
-```
+### Optimization Features
+- **Lazy Loading**: Sections load content only when expanded
+- **Debounced Updates**: Settings changes are debounced to prevent excessive updates
+- **Efficient Rendering**: Only re-renders when necessary
+- **Memory Management**: Proper cleanup of event listeners and subscriptions
 
-### AudioOptions (требует создания)
-```typescript
-interface AudioOptions {
-  volume: number
-  bass: number
-  treble: number
-  midrange: number
-  compressor: number
-  limiter: number
-  reverb: number
-  delay: number
-}
-```
+### Best Practices
+- **Component Isolation**: Each settings component works independently
+- **Safe Timeline Access**: Graceful handling of Timeline availability
+- **Error Boundaries**: Prevents crashes from propagating to other components
+- **Test Coverage**: Comprehensive testing ensures reliability
 
-## 🔧 Техническая реализация
+---
 
-### ✅ Реализовано
-- [x] Компонентная архитектура без машины состояний
-- [x] Использование локального состояния для UI
-- [x] Интеграция с i18n для локализации
+**Status**: ✅ **Fully implemented and production ready**
 
-### 📝 Архитектурное решение
-Модуль Options не требует собственной машины состояний, так как:
-- Служит панелью отображения для параметров других модулей
-- Параметры эффектов/фильтров управляются их собственными машинами
-- Настройки аудио и скорости используют локальное состояние
-
-## 🔗 Планируемые интеграции
-
-### Timeline интеграция
-- Применение настроек к выбранным клипам
-- Синхронизация с активным клипом
-- Отображение настроек текущего клипа
-
-### VideoPlayer интеграция
-- Мгновенный предпросмотр изменений
-- Применение эффектов в реальном времени
-- Сравнение до/после
-
-### Resources интеграция
-- Применение эффектов из библиотеки
-- Сохранение настроек как пресеты
-- Импорт/экспорт конфигураций
-
-## 🧪 Планируемое тестирование
-
-### Компоненты (требует создания)
-- Тесты UI элементов управления
-- Тесты взаимодействий пользователя
-- Тесты интеграции с провайдером
-
-### Сервисы (требует создания)
-- Тесты машины состояний
-- Тесты провайдера контекста
-- Тесты хуков
-
-### Интеграция (требует создания)
-- Тесты синхронизации с Timeline
-- Тесты предпросмотра в VideoPlayer
-- E2E тесты пользовательских сценариев
-
-## 🚀 План реализации
-
-### Этап 1: Базовая архитектура
-1. Создать OptionsMachine
-2. Создать OptionsProvider
-3. Создать useOptions хук
-4. Обновить Options компонент
-
-### Этап 2: UI элементы
-1. Создать OptionPanel компонент
-2. Создать элементы управления (слайдеры, пикеры)
-3. Добавить систему табов
-4. Реализовать поиск по настройкам
-
-### Этап 3: Интеграция
-1. Интегрировать с Timeline
-2. Добавить предпросмотр в VideoPlayer
-3. Связать с Resources
-4. Реализовать систему пресетов
-
-### Этап 4: Продвинутые функции
-1. Добавить инструменты анализа
-2. Реализовать кастомные элементы
-3. Добавить экспорт/импорт настроек
-4. Оптимизировать производительность
-
-## 🎯 Приоритеты реализации
-
-### Критический приоритет
-1. Создание базовой архитектуры
-2. Основные элементы управления
-3. Интеграция с Timeline
-
-### Высокий приоритет
-1. Предпросмотр в реальном времени
-2. Система пресетов
-3. Цветокоррекция
-4. Реализовать VideoSettings для отображения параметров эффектов/фильтров
-5. Доработать MediaInfo для полного отображения метаданных
-6. Интегрировать с effects/filters для получения параметров
-
-### Средний приоритет
-1. Аудио настройки
-2. Продвинутые эффекты
-3. Инструменты анализа
-4. Добавить real-time предпросмотр изменений
-5. Синхронизация с Timeline (выбранные клипы)
-6. Улучшить UI/UX элементов управления
-
-### Низкий приоритет
-1. Инструменты анализа (гистограмма, векторскоп)
-2. Расширенные настройки экспорта
-3. Пресеты для быстрого применения настроек
-
-## 📈 Текущее состояние тестирования
-
-### ⚠️ Покрытие тестов (требует улучшения)
-- **Общее покрытие**: 22.27%
-- **Покрытие функций**: не измерено
-- **Покрытие веток**: не измерено
-- **Покрытие строк**: не измерено
-
-### 📝 Существующие тесты
-- `__tests__/components/options.test.tsx` - базовые тесты (2 теста)
-  - Тест рендеринга компонента
-  - Тест принятия props без ошибок
-
-### 🎯 Цели по покрытию
-- **Желаемое покрытие**: > 90%
-- **Минимальное покрытие**: > 80%
-- **Покрытие функций**: > 85%
-
-## 📈 Метрики успеха
-
-### Функциональные метрики
-- [ ] Время отклика настроек < 100ms
-- [ ] Мгновенный предпросмотр изменений
-- [ ] Сохранение состояния между сессиями
-
-### UX метрики
-- [ ] Интуитивность интерфейса
-- [ ] Удобство поиска настроек
-- [ ] Эффективность рабочего процесса
-
-### Метрики качества кода
-- [ ] Покрытие тестов > 90%
-- [ ] Отсутствие критических ошибок линтера
-- [ ] Соответствие архитектурным принципам проекта
+The Options module provides a comprehensive, professional-grade settings interface that integrates seamlessly with Timeline Studio's editing workflow. All major features are implemented with excellent user experience and full test coverage.

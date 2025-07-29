@@ -7,6 +7,19 @@ import { MediaStudio } from "./media-studio"
 const mockUseUserSettings = vi.hoisted(() => vi.fn())
 vi.mock("@/features/user-settings", () => ({
   useUserSettings: mockUseUserSettings,
+  UserSettingsProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}))
+
+// Мокаем Timeline и useTimeline
+vi.mock("@/features/timeline", () => ({
+  TimelineProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  useTimeline: () => ({
+    timelineState: { clips: [], currentTime: 0, duration: 0 },
+    addMediaClip: vi.fn(),
+    removeClip: vi.fn(),
+    updateClip: vi.fn(),
+    setCurrentTime: vi.fn(),
+  }),
 }))
 
 // Мокаем useAutoLoadUserData
@@ -15,14 +28,41 @@ vi.mock("@/features/media-studio/hooks", () => ({
   useAutoLoadUserData: mockUseAutoLoadUserData,
 }))
 
-// Мокаем TopBar
-vi.mock("@/features/top-bar/components/top-bar", () => ({
+// Мокаем useCurrentProject
+vi.mock("@/features/app-state/hooks/use-current-project", () => ({
+  useCurrentProject: () => ({
+    currentProject: { name: "Test Project" },
+    openProject: vi.fn(),
+    saveProject: vi.fn(),
+    setProjectDirty: vi.fn(),
+    createNewProject: vi.fn(),
+  }),
+}))
+
+// Мокаем useModal
+vi.mock("@/features/modals/services/modal-provider", () => ({
+  useModal: () => ({
+    openModal: vi.fn(),
+  }),
+}))
+
+// Мокаем TopBar из media-studio
+vi.mock("./top-bar/top-bar", () => ({
   TopBar: () => <div data-testid="top-bar">TopBar</div>,
 }))
 
 // Мокаем ModalContainer
 vi.mock("@/features/modals/components", () => ({
   ModalContainer: () => <div data-testid="modal-container">ModalContainer</div>,
+}))
+
+// Мокаем AppStateGuard и ProjectLoadingOverlay
+vi.mock("@/features/app-state/components/app-state-guard", () => ({
+  AppStateGuard: ({ children }: { children: React.ReactNode }) => <div data-testid="app-state-guard">{children}</div>,
+}))
+
+vi.mock("@/features/app-state/components/project-loading-overlay", () => ({
+  ProjectLoadingOverlay: () => <div data-testid="project-loading-overlay">ProjectLoadingOverlay</div>,
 }))
 
 // Мокаем layouts
@@ -211,10 +251,14 @@ describe("MediaStudio", () => {
   it("имеет правильную структуру DOM", () => {
     const { container } = render(<MediaStudio />)
 
-    const rootDiv = container.firstChild as HTMLElement
-    expect(rootDiv.className).toContain("flex flex-col h-screen w-screen m-0 p-0")
+    // AppStateGuard обернут в контейнер
+    const appStateGuard = container.querySelector('[data-testid="app-state-guard"]')
+    expect(appStateGuard).toBeInTheDocument()
 
-    const contentDiv = rootDiv.querySelector(".flex-1")
+    const mainDiv = appStateGuard?.querySelector(".flex.flex-col.h-screen.w-screen")
+    expect(mainDiv).toBeInTheDocument()
+
+    const contentDiv = mainDiv?.querySelector(".flex-1")
     expect(contentDiv).toBeInTheDocument()
   })
 })
