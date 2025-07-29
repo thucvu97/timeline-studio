@@ -71,6 +71,7 @@ class ShortcutsRegistry {
   
   // Изменение
   updateKeys(id: string, keys: string[]): void
+  updateAction(id: string, action?: HotkeyCallback): void  // NEW
   toggleEnabled(id: string): void
   reset(id: string): void
   resetAll(): void
@@ -108,11 +109,25 @@ createMacShortcut(
   "Мое новое действие",         // Название
   "category",                   // Категория
   "⌘K",                        // Основная комбинация
-  "Описание действия"           // Описание
+  "Описание действия",          // Описание
+  "timeline"                    // Контекст (опционально)
 )
 ```
 
-2. Добавить обработчик в `shortcuts-provider.tsx` или создать отдельный хук:
+2. Для статических действий - добавить обработчик в `shortcuts-provider.tsx`:
+
+```typescript
+case "my-new-action":
+  return {
+    ...shortcut,
+    action: (event: KeyboardEvent) => {
+      event.preventDefault()
+      // Логика действия
+    },
+  }
+```
+
+3. Для динамических действий - использовать `updateAction` в хуке:
 
 ```typescript
 case "my-new-action":
@@ -143,22 +158,61 @@ function MyComponent() {
 
 ### Интеграция с существующими действиями
 
-Для подключения shortcuts к существующим действиям создайте хук:
+Для подключения shortcuts к существующим действиям используйте метод `updateAction`:
 
 ```typescript
 export function useMyFeatureShortcuts() {
   const { doAction } = useMyFeature()
   
   useEffect(() => {
-    const shortcut = shortcutsRegistry.get("my-action")
-    if (shortcut) {
-      shortcut.action = (event) => {
-        event.preventDefault()
-        doAction()
-      }
-      shortcutsRegistry.register(shortcut)
+    const handleShortcut = (event: KeyboardEvent) => {
+      event.preventDefault()
+      doAction()
+    }
+    
+    // Регистрируем действие
+    shortcutsRegistry.updateAction("my-action", handleShortcut)
+    
+    // Очищаем при размонтировании
+    return () => {
+      shortcutsRegistry.updateAction("my-action", undefined)
     }
   }, [doAction])
+}
+```
+
+### Динамическая регистрация действий
+
+Новый подход позволяет динамически обновлять действия без перерегистрации shortcuts:
+
+```typescript
+// В компоненте с контекстно-зависимым действием
+export function useFavoriteShortcut(file: MediaFile) {
+  const { addToFavorites, removeFromFavorites } = useFavorites()
+  const [isFavorite, setIsFavorite] = useState(false)
+  
+  useEffect(() => {
+    const handleToggleFavorite = () => {
+      const activeElement = document.activeElement
+      const buttonElement = document.querySelector(`[data-file-id="${file.id}"]`)
+      
+      // Проверяем, что shortcut вызван в правильном контексте
+      if (buttonElement && (buttonElement === activeElement || 
+          buttonElement.contains(activeElement))) {
+        if (isFavorite) {
+          removeFromFavorites(file)
+        } else {
+          addToFavorites(file)
+        }
+      }
+    }
+    
+    shortcutsRegistry.updateAction("toggle-favorite", handleToggleFavorite)
+    
+    return () => {
+      shortcutsRegistry.updateAction("toggle-favorite", undefined)
+    }
+  }, [file, isFavorite, addToFavorites, removeFromFavorites])
 }
 ```
 
@@ -190,35 +244,50 @@ keys: ["⌘S", "cmd+s", "ctrl+s", "meta+s"]
 
 ### Актуальные тесты
 
+#### ShortcutsRegistry (✅ Полное покрытие)
+- **Файл**: `__tests__/services/shortcuts-registry.test.ts`
+- **Количество тестов**: 26
+- **Покрытие**: Singleton, регистрация, обновление, подписки
+
 #### Adobe Premiere Preset (✅ Полное покрытие)
 - **Файл**: `__tests__/presets/premiere-preset.test.ts`
 - **Количество тестов**: 17
 - **Покрытие**: Все 119 shortcuts в 12 категориях
 
+#### Timeline Hooks (✅ Обновлено)
+- **Файлы**: 
+  - `use-edit-mode.test.tsx` - 15 тестов
+  - `use-group-hotkeys.test.tsx` - 12 тестов  
+  - `use-jl-cut-hotkeys.test.tsx` - 22 теста
+  - `use-speed-ramping-hotkeys.test.ts` - 8 тестов
+  - `use-markers-hotkeys.test.ts` - 9 тестов
+
 ```bash
-# Запуск тестов Adobe Premiere preset
-bun test src/features/keyboard-shortcuts/__tests__/presets/premiere-preset.test.ts
+# Запуск всех тестов keyboard-shortcuts
+bun test src/features/keyboard-shortcuts/
+
+# Запуск тестов timeline hooks
+bun test src/features/timeline/__tests__/hooks/
 ```
 
-### Требуют реализации
+### Методы тестирования
 
-#### ShortcutsRegistry тесты
+#### Тестирование с updateAction
 ```typescript
-describe("ShortcutsRegistry", () => {
-  beforeEach(() => {
-    shortcutsRegistry.clear()
-  })
-  
-  it("should register shortcut", () => {
-    const shortcut = {
-      id: "test",
-      name: "Test",
-      category: "other",
-      keys: ["t"]
-    }
+describe("Dynamic shortcut actions", () => {
+  it("should update action dynamically", () => {
+    renderHook(() => useMyShortcuts())
     
-    shortcutsRegistry.register(shortcut)
-    expect(shortcutsRegistry.get("test")).toEqual(shortcut)
+    const action = vi.mocked(shortcutsRegistry).updateAction.mock.calls
+      .find(call => call[0] === "my-shortcut")?.[1]
+    
+    expect(action).toBeDefined()
+    
+    // Вызываем action
+    action?.()
+    
+    // Проверяем результат
+    expect(myMock).toHaveBeenCalled()
   })
 })
 ```
@@ -277,6 +346,36 @@ console.table(window.__shortcuts__)
 2. Использовать `useEffect` для регистрации
 3. Отписываться от подписок при размонтировании
 
+## 📊 Текущие категории и shortcuts
+
+### Категории
+1. **settings** - Настройки
+2. **file** - Файл
+3. **edit** - Правка
+4. **view** - Вид
+5. **timeline** - Таймлайн (38+ shortcuts)
+6. **playback** - Воспроизведение
+7. **tools** - Инструменты
+8. **markers** - Маркеры (8 shortcuts)
+9. **browser** - Браузер (NEW)
+10. **export** - Экспорт
+11. **other** - Прочее
+
+### Новые Timeline shortcuts
+- Режимы редактирования (V, T, B, R, N, Y, A, S)
+- Управление скоростью (Cmd+Shift+R, Cmd+Alt+R, 5, 2, 4)
+- J/L cuts (J, L, Shift+J, Shift+L, R)
+- Группировка (Cmd+G, Cmd+Shift+G)
+- Работа с клипами (/, Backspace, Cmd+L, X, C, V)
+- Масштабирование (=, -, Cmd+0)
+- Навигация (Up, Down, Left, Right, Home, End, ;, ')
+
+### Browser shortcuts
+- **toggle-favorite** (F) - Добавить в избранное
+
+### AI Chat shortcuts  
+- **send-chat-message** (Enter) - Отправить сообщение
+
 ## 🚀 Планы улучшений
 
 1. **Персистентность**
@@ -287,9 +386,9 @@ console.table(window.__shortcuts__)
    - Автоматическое определение
    - UI для разрешения конфликтов
 
-3. **Контекстность**
-   - Разные shortcuts для разных режимов
-   - Динамическое включение/выключение
+3. **Контекстность** ✅ (Частично реализовано)
+   - Контекст shortcuts через параметр в определении
+   - Динамическое включение/выключение через updateAction
 
 4. **Визуализация**
    - Подсказки в tooltips

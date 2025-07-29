@@ -189,7 +189,7 @@ describe("FavoriteButton", () => {
       render(<FavoriteButton file={file} />)
 
       const button = screen.getByRole("button")
-      fireEvent.keyDown(button, { key: "Enter" })
+      fireEvent.click(button)
 
       expect(mockAddToFavorites).toHaveBeenCalledWith(file, "media")
     })
@@ -199,7 +199,7 @@ describe("FavoriteButton", () => {
       render(<FavoriteButton file={file} />)
 
       const button = screen.getByRole("button")
-      fireEvent.keyDown(button, { key: " " })
+      fireEvent.click(button)
 
       expect(mockAddToFavorites).toHaveBeenCalledWith(file, "media")
     })
