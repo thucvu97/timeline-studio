@@ -9,6 +9,7 @@ pub struct ModelsConfig {
   pub yolo_models: YoloModelsConfig,
   pub facenet_models: FaceNetModelsConfig,
   pub retinaface_models: RetinaFaceModelsConfig,
+  pub mediapipe_models: MediaPipeModelsConfig,
 }
 
 /// Конфигурация YOLO моделей
@@ -56,6 +57,16 @@ pub struct RetinaFaceModelsConfig {
   pub retinaface_r50_enhanced: PathBuf,
 }
 
+/// Конфигурация MediaPipe моделей
+pub struct MediaPipeModelsConfig {
+  pub blazeface_short: PathBuf,
+  pub blazeface_full: PathBuf,
+  pub face_mesh: PathBuf,
+  pub face_mesh_attention: PathBuf,
+  pub selfie_segmentation: PathBuf,
+  pub selfie_segmentation_landscape: PathBuf,
+}
+
 impl Default for ModelsConfig {
   fn default() -> Self {
     let models_dir = PathBuf::from("models");
@@ -99,6 +110,15 @@ impl Default for ModelsConfig {
         retinaface_r50: models_dir.join("retinaface/retinaface-r50.onnx"),
         retinaface_mobile: models_dir.join("retinaface/retinaface-mobile.onnx"),
         retinaface_r50_enhanced: models_dir.join("retinaface/retinaface-r50-enhanced.onnx"),
+      },
+      mediapipe_models: MediaPipeModelsConfig {
+        blazeface_short: models_dir.join("mediapipe/blazeface-short.onnx"),
+        blazeface_full: models_dir.join("mediapipe/blazeface-full.onnx"),
+        face_mesh: models_dir.join("mediapipe/face-mesh.onnx"),
+        face_mesh_attention: models_dir.join("mediapipe/face-mesh-attention.onnx"),
+        selfie_segmentation: models_dir.join("mediapipe/selfie-segmentation.onnx"),
+        selfie_segmentation_landscape: models_dir
+          .join("mediapipe/selfie-segmentation-landscape.onnx"),
       },
       models_dir,
     }
@@ -150,6 +170,15 @@ impl ModelsConfig {
         retinaface_mobile: models_dir.join("retinaface/retinaface-mobile.onnx"),
         retinaface_r50_enhanced: models_dir.join("retinaface/retinaface-r50-enhanced.onnx"),
       },
+      mediapipe_models: MediaPipeModelsConfig {
+        blazeface_short: models_dir.join("mediapipe/blazeface-short.onnx"),
+        blazeface_full: models_dir.join("mediapipe/blazeface-full.onnx"),
+        face_mesh: models_dir.join("mediapipe/face-mesh.onnx"),
+        face_mesh_attention: models_dir.join("mediapipe/face-mesh-attention.onnx"),
+        selfie_segmentation: models_dir.join("mediapipe/selfie-segmentation.onnx"),
+        selfie_segmentation_landscape: models_dir
+          .join("mediapipe/selfie-segmentation-landscape.onnx"),
+      },
       models_dir,
     }
   }
@@ -195,6 +224,22 @@ impl ModelsConfig {
       (
         "RetinaFace R50 Enhanced",
         &self.retinaface_models.retinaface_r50_enhanced,
+      ),
+      // MediaPipe модели
+      ("BlazeFace Short", &self.mediapipe_models.blazeface_short),
+      ("BlazeFace Full", &self.mediapipe_models.blazeface_full),
+      ("Face Mesh", &self.mediapipe_models.face_mesh),
+      (
+        "Face Mesh Attention",
+        &self.mediapipe_models.face_mesh_attention,
+      ),
+      (
+        "Selfie Segmentation",
+        &self.mediapipe_models.selfie_segmentation,
+      ),
+      (
+        "Selfie Segmentation Landscape",
+        &self.mediapipe_models.selfie_segmentation_landscape,
       ),
     ];
 
@@ -280,11 +325,31 @@ impl ModelsConfig {
     }
   }
 
+  /// Получить путь к MediaPipe модели по типу
+  pub fn get_mediapipe_model_path(&self, model_type: &str) -> Option<&PathBuf> {
+    match model_type {
+      "blazeface-short" | "blazeface_short" => Some(&self.mediapipe_models.blazeface_short),
+      "blazeface-full" | "blazeface_full" => Some(&self.mediapipe_models.blazeface_full),
+      "face-mesh" | "face_mesh" => Some(&self.mediapipe_models.face_mesh),
+      "face-mesh-attention" | "face_mesh_attention" => {
+        Some(&self.mediapipe_models.face_mesh_attention)
+      }
+      "selfie-segmentation" | "selfie_segmentation" => {
+        Some(&self.mediapipe_models.selfie_segmentation)
+      }
+      "selfie-segmentation-landscape" | "selfie_segmentation_landscape" => {
+        Some(&self.mediapipe_models.selfie_segmentation_landscape)
+      }
+      _ => None,
+    }
+  }
+
   /// Создать директории для моделей если они не существуют
   pub fn ensure_model_directories(&self) -> Result<(), std::io::Error> {
     std::fs::create_dir_all(self.models_dir.join("yolo"))?;
     std::fs::create_dir_all(self.models_dir.join("facenet"))?;
     std::fs::create_dir_all(self.models_dir.join("retinaface"))?;
+    std::fs::create_dir_all(self.models_dir.join("mediapipe"))?;
     Ok(())
   }
 }
@@ -348,5 +413,9 @@ mod tests {
 
     assert!(config.get_retinaface_model_path("retinaface-r50").is_some());
     assert!(config.get_retinaface_model_path("invalid").is_none());
+
+    assert!(config.get_mediapipe_model_path("blazeface-short").is_some());
+    assert!(config.get_mediapipe_model_path("face-mesh").is_some());
+    assert!(config.get_mediapipe_model_path("invalid").is_none());
   }
 }

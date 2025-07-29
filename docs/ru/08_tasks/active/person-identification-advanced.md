@@ -49,7 +49,7 @@ Person Identification Advanced - это набор продвинутых фун
 - [x] **Multiple YOLO variants** - поддержка всех размеров моделей (n/s/m/l/x) ✅
 - [x] **ArcFace embeddings** - альтернативная модель для embeddings ✅
 - [x] **RetinaFace детектор** - высокоточная детекция с landmarks ✅
-- [ ] **MediaPipe Face** - оптимизированная обработка
+- [x] **MediaPipe Face** - 468-точечные 3D landmarks и анализ выражений ✅
 
 #### Конфигурация моделей:
 ```typescript
@@ -66,6 +66,11 @@ interface AdvancedDetectionConfig {
   
   // RetinaFace модели
   retinaFaceModel: 'retinaface-r50' | 'retinaface-mobile' | 'retinaface-r50-enhanced'
+  
+  // MediaPipe модели
+  mediaPipeModel: 'blazeface-short' | 'blazeface-full' | 'face-mesh' | 
+                  'face-mesh-attention' | 'selfie-segmentation' | 
+                  'selfie-segmentation-landscape'
   
   // Параметры производительности
   useGPU: boolean
@@ -208,9 +213,9 @@ interface AdvancedPrivacySettings {
 ### 📊 Продвинутая аналитика
 
 #### Глубокая аналитика персон:
-- [ ] **Emotion recognition** - распознавание эмоций
+- [x] **Emotion recognition** - распознавание эмоций через MediaPipe ✅
 - [ ] **Age/gender estimation** - определение возраста и пола
-- [ ] **Gaze tracking** - отслеживание направления взгляда
+- [x] **Gaze tracking** - отслеживание направления взгляда через MediaPipe ✅
 - [ ] **Action recognition** - распознавание действий
 
 #### Аналитическая система:
@@ -382,10 +387,12 @@ src-tauri/src/recognition/          # ✅ РЕАЛИЗОВАНО
 ├── commands/                       # ✅ Tauri команды
 │   ├── yolo_commands.rs           # ✅ YOLO обработка
 │   ├── facenet_commands.rs        # ✅ FaceNet embeddings
-│   └── retinaface_commands.rs     # ✅ RetinaFace landmarks
+│   ├── retinaface_commands.rs     # ✅ RetinaFace landmarks
+│   └── mediapipe_commands.rs      # ✅ MediaPipe анализ
 ├── yolo_processor.rs              # ✅ YOLO процессор (все модели)
 ├── facenet_processor.rs           # ✅ FaceNet процессор (512D/128D)
 ├── retinaface_processor.rs        # ✅ RetinaFace процессор с landmarks
+├── mediapipe_processor.rs         # ✅ MediaPipe процессор (468 landmarks)
 └── types.rs                       # ✅ Типы данных
 
 src-tauri/src/models_config.rs     # ✅ Конфигурация моделей
@@ -399,10 +406,17 @@ src-tauri/models/                  # ✅ ONNX модели
 │   ├── facenet-512d.onnx         # ✅ 512D embeddings
 │   ├── facenet-128d.onnx         # ✅ 128D embeddings
 │   └── arcface-512d.onnx         # ✅ ArcFace модель
-└── retinaface/                    # ✅ RetinaFace модели
-    ├── retinaface-r50.onnx       # ✅ ResNet50 backbone
-    ├── retinaface-mobile.onnx    # ✅ MobileNet backbone
-    └── retinaface-r50-enhanced.onnx # ✅ Enhanced версия
+├── retinaface/                    # ✅ RetinaFace модели
+│   ├── retinaface-r50.onnx       # ✅ ResNet50 backbone
+│   ├── retinaface-mobile.onnx    # ✅ MobileNet backbone
+│   └── retinaface-r50-enhanced.onnx # ✅ Enhanced версия
+└── mediapipe/                     # ✅ MediaPipe модели
+    ├── blazeface-short.onnx       # ✅ BlazeFace до 2м
+    ├── blazeface-full.onnx        # ✅ BlazeFace до 5м
+    ├── face-mesh.onnx             # ✅ 468 Face landmarks
+    ├── face-mesh-attention.onnx   # ✅ Face Mesh с attention
+    ├── selfie-segmentation.onnx   # ✅ Selfie segmentation
+    └── selfie-segmentation-landscape.onnx # ✅ Landscape mode
 
 scripts/download-models.sh         # ✅ Автоматическая загрузка моделей
 ```
@@ -437,6 +451,7 @@ src/features/person-identification-advanced/
 - [x] Централизованная система конфигурации моделей ✅
 - [x] Автоматическая загрузка ONNX моделей ✅
 - [x] RetinaFace для высокого качества ✅
+- [x] MediaPipe Face Mesh и BlazeFace ✅
 - [ ] Benchmarking и оптимизация
 
 ### Фаза 2: Продвинутый трекинг (4 недели) - ✅ Завершено
@@ -557,6 +572,7 @@ interface AdvancedPersonAPI extends PersonAPI {
 - ✅ **FaceNet embeddings** - 512D и 128D векторы с ArcFace поддержкой  
 - ✅ **Rust ML backend** - производительные процессоры с ONNX Runtime
 - ✅ **RetinaFace интеграция** - высокоточная детекция лиц с 5-точечными landmarks
+- ✅ **MediaPipe интеграция** - 468 3D landmarks, анализ выражений и head pose
 - ✅ **TypeScript типизация** - полная совместимость с Float32Array  
 - ✅ **Автоматизация** - скрипты загрузки моделей и централизованная конфигурация
-- ✅ **Тестирование** - 25+ успешных тестов для всех компонентов
+- ✅ **Тестирование** - 30+ успешных тестов для всех компонентов

@@ -99,6 +99,13 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::recognition::commands::retinaface_commands::get_aligned_face,
     crate::recognition::commands::retinaface_commands::configure_retinaface_thresholds,
     crate::recognition::commands::retinaface_commands::get_retinaface_processor_info,
+    // MediaPipe commands
+    crate::recognition::commands::mediapipe_commands::init_mediapipe_processor,
+    crate::recognition::commands::mediapipe_commands::detect_faces_blazeface,
+    crate::recognition::commands::mediapipe_commands::extract_face_mesh_landmarks,
+    crate::recognition::commands::mediapipe_commands::analyze_facial_expressions,
+    crate::recognition::commands::mediapipe_commands::configure_mediapipe_settings,
+    crate::recognition::commands::mediapipe_commands::get_mediapipe_processor_info,
     // Recognition advanced commands
     crate::video_compiler::commands::recognition_advanced_commands::get_frame_processor_class_names,
     crate::video_compiler::commands::recognition_advanced_commands::get_recognition_results_by_time_range,

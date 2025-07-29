@@ -235,6 +235,10 @@ pub fn run() {
       use recognition::commands::retinaface_commands::RetinaFaceProcessorState;
       app.manage(RetinaFaceProcessorState::default());
 
+      // Create MediaPipe processor state
+      use recognition::commands::mediapipe_commands::MediaPipeProcessorState;
+      app.manage(MediaPipeProcessorState::default());
+
       // Create Montage Planner State with its own YoloProcessorState instance
       let montage_yolo_state = Arc::new(RwLock::new(YoloProcessorState::default()));
       let montage_state = MontageState::new(montage_yolo_state);

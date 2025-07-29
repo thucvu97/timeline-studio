@@ -488,6 +488,7 @@ impl From<FacialLandmarksRequest> for FacialLandmarks {
 #[cfg(test)]
 mod tests {
   use super::*;
+  use crate::recognition::retinaface_processor::HeadPose;
 
   #[tokio::test]
   async fn test_retinaface_detection_response_conversion() {
