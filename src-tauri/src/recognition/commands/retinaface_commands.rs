@@ -182,11 +182,17 @@ pub async fn get_aligned_face(
   let image = image::load_from_memory(&image_bytes)
     .map_err(|e| format!("Failed to load image from memory: {}", e))?;
 
+  // Клонируем landmarks для использования в двух местах
+  let landmarks_for_alignment = landmarks.clone();
+  let landmarks_converted: crate::recognition::retinaface_processor::FacialLandmarks =
+    landmarks.into();
+
   // Выполняем face alignment
-  let aligned_result =
-    tokio::task::spawn_blocking(move || align_face_with_landmarks(&image, &landmarks.into(), size))
-      .await
-      .map_err(|e| format!("Task join error: {}", e))?;
+  let aligned_result = tokio::task::spawn_blocking(move || {
+    align_face_with_landmarks(&image, &landmarks_for_alignment.into(), size)
+  })
+  .await
+  .map_err(|e| format!("Task join error: {}", e))?;
 
   match aligned_result {
     Ok(aligned_image) => {
@@ -199,10 +205,13 @@ pub async fn get_aligned_face(
 
       let base64_data = BASE64_STANDARD.encode(&buffer);
 
+      // Вычисляем реальную оценку качества
+      let quality_score = calculate_face_quality_score(&aligned_image, &landmarks_converted, size);
+
       Ok(AlignedFaceResponse {
         aligned_image: format!("data:image/jpeg;base64,{}", base64_data),
         size,
-        quality_score: 0.9, // TODO: реальная оценка качества
+        quality_score,
       })
     }
     Err(e) => Err(format!("Failed to align face: {}", e)),
@@ -382,7 +391,7 @@ pub struct HeadPoseResponse {
 }
 
 /// Запрос для face alignment
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, Clone)]
 pub struct FacialLandmarksRequest {
   pub left_eye: Point2DRequest,
   pub right_eye: Point2DRequest,
@@ -391,7 +400,7 @@ pub struct FacialLandmarksRequest {
   pub mouth_right: Point2DRequest,
 }
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, Clone)]
 pub struct Point2DRequest {
   pub x: f32,
   pub y: f32,
@@ -482,6 +491,236 @@ impl From<FacialLandmarksRequest> for FacialLandmarks {
         y: request.mouth_right.y,
       },
     }
+  }
+}
+
+/// Вычисляет оценку качества лица на основе различных факторов
+fn calculate_face_quality_score(
+  face_image: &image::DynamicImage,
+  landmarks: &crate::recognition::retinaface_processor::FacialLandmarks,
+  face_size: u32,
+) -> f32 {
+  let mut quality_score = 0.0;
+  let mut factors_count = 0;
+
+  // 1. Оценка размера лица (больше = лучше)
+  let size_score = if face_size >= 224 {
+    1.0
+  } else if face_size >= 112 {
+    0.8
+  } else if face_size >= 64 {
+    0.6
+  } else if face_size >= 32 {
+    0.4
+  } else {
+    0.2
+  };
+  quality_score += size_score;
+  factors_count += 1;
+
+  // 2. Оценка четкости (на основе анализа краев)
+  let sharpness_score = calculate_sharpness_score(face_image);
+  quality_score += sharpness_score;
+  factors_count += 1;
+
+  // 3. Оценка качества landmarks (симметрия и правдоподобность)
+  let landmarks_score = calculate_landmarks_quality_score(landmarks, face_size);
+  quality_score += landmarks_score;
+  factors_count += 1;
+
+  // 4. Оценка освещения (равномерность)
+  let lighting_score = calculate_lighting_score(face_image);
+  quality_score += lighting_score;
+  factors_count += 1;
+
+  // Возвращаем среднее значение, ограниченное от 0.0 до 1.0
+  (quality_score / factors_count as f32).clamp(0.0, 1.0)
+}
+
+/// Оценка четкости изображения на основе анализа краев
+fn calculate_sharpness_score(image: &image::DynamicImage) -> f32 {
+  let gray_image = image.to_luma8();
+  let (width, height) = gray_image.dimensions();
+
+  if width == 0 || height == 0 {
+    return 0.0;
+  }
+
+  // Простой алгоритм детекции краев (Sobel-подобный)
+  let mut edge_strength_sum = 0.0;
+  let mut pixel_count = 0;
+
+  for y in 1..(height - 1) {
+    for x in 1..(width - 1) {
+      let _current = gray_image.get_pixel(x, y)[0] as f32;
+      let left = gray_image.get_pixel(x - 1, y)[0] as f32;
+      let right = gray_image.get_pixel(x + 1, y)[0] as f32;
+      let top = gray_image.get_pixel(x, y - 1)[0] as f32;
+      let bottom = gray_image.get_pixel(x, y + 1)[0] as f32;
+
+      let dx = right - left;
+      let dy = bottom - top;
+      let edge_strength = (dx * dx + dy * dy).sqrt();
+
+      edge_strength_sum += edge_strength;
+      pixel_count += 1;
+    }
+  }
+
+  if pixel_count == 0 {
+    return 0.0;
+  }
+
+  let average_edge_strength = edge_strength_sum / pixel_count as f32;
+
+  // Нормализуем в диапазон 0.0-1.0 (эмпирически подобранные пороги)
+  if average_edge_strength >= 30.0 {
+    1.0
+  } else if average_edge_strength >= 20.0 {
+    0.8
+  } else if average_edge_strength >= 10.0 {
+    0.6
+  } else if average_edge_strength >= 5.0 {
+    0.4
+  } else {
+    0.2
+  }
+}
+
+/// Оценка качества landmarks на основе симметрии и правдоподобности позиций
+fn calculate_landmarks_quality_score(
+  landmarks: &crate::recognition::retinaface_processor::FacialLandmarks,
+  face_size: u32,
+) -> f32 {
+  let mut score = 0.0;
+  let mut checks = 0;
+
+  // 1. Проверка симметрии глаз
+  let eye_y_difference = (landmarks.left_eye.y - landmarks.right_eye.y).abs();
+  let eye_symmetry_score = if eye_y_difference <= face_size as f32 * 0.05 {
+    1.0 // Глаза на одном уровне
+  } else if eye_y_difference <= face_size as f32 * 0.1 {
+    0.7
+  } else {
+    0.3
+  };
+  score += eye_symmetry_score;
+  checks += 1;
+
+  // 2. Проверка расстояния между глазами (должно быть разумным)
+  let eye_distance = ((landmarks.right_eye.x - landmarks.left_eye.x).powi(2)
+    + (landmarks.right_eye.y - landmarks.left_eye.y).powi(2))
+  .sqrt();
+  let expected_eye_distance = face_size as f32 * 0.3; // ~30% от размера лица
+  let distance_ratio =
+    (eye_distance / expected_eye_distance).min(expected_eye_distance / eye_distance);
+  let eye_distance_score = if distance_ratio >= 0.8 {
+    1.0
+  } else if distance_ratio >= 0.6 {
+    0.7
+  } else {
+    0.4
+  };
+  score += eye_distance_score;
+  checks += 1;
+
+  // 3. Проверка позиции носа (должен быть между глазами по X и ниже по Y)
+  let eyes_center_x = (landmarks.left_eye.x + landmarks.right_eye.x) / 2.0;
+  let _eyes_center_y = (landmarks.left_eye.y + landmarks.right_eye.y) / 2.0;
+
+  let nose_x_offset = (landmarks.nose_tip.x - eyes_center_x).abs();
+  let nose_position_score = if nose_x_offset <= face_size as f32 * 0.1 {
+    1.0 // Нос по центру
+  } else if nose_x_offset <= face_size as f32 * 0.2 {
+    0.7
+  } else {
+    0.4
+  };
+  score += nose_position_score;
+  checks += 1;
+
+  // 4. Проверка позиции рта (должен быть ниже носа)
+  let mouth_center_y = (landmarks.mouth_left.y + landmarks.mouth_right.y) / 2.0;
+  let mouth_below_nose = mouth_center_y > landmarks.nose_tip.y;
+  let mouth_position_score = if mouth_below_nose {
+    1.0
+  } else {
+    0.2 // Рот выше носа - плохое качество
+  };
+  score += mouth_position_score;
+  checks += 1;
+
+  if checks > 0 {
+    score / checks as f32
+  } else {
+    0.5 // Средняя оценка если нет данных
+  }
+}
+
+/// Оценка освещения на основе равномерности распределения яркости
+fn calculate_lighting_score(image: &image::DynamicImage) -> f32 {
+  let gray_image = image.to_luma8();
+  let (width, height) = gray_image.dimensions();
+
+  if width == 0 || height == 0 {
+    return 0.0;
+  }
+
+  // Разбиваем изображение на 9 областей (3x3) и анализируем яркость каждой
+  let region_width = width / 3;
+  let region_height = height / 3;
+  let mut region_brightness = Vec::new();
+
+  for region_y in 0..3 {
+    for region_x in 0..3 {
+      let start_x = region_x * region_width;
+      let start_y = region_y * region_height;
+      let end_x = ((region_x + 1) * region_width).min(width);
+      let end_y = ((region_y + 1) * region_height).min(height);
+
+      let mut brightness_sum = 0u32;
+      let mut pixel_count = 0u32;
+
+      for y in start_y..end_y {
+        for x in start_x..end_x {
+          brightness_sum += gray_image.get_pixel(x, y)[0] as u32;
+          pixel_count += 1;
+        }
+      }
+
+      if pixel_count > 0 {
+        region_brightness.push(brightness_sum as f32 / pixel_count as f32);
+      }
+    }
+  }
+
+  if region_brightness.is_empty() {
+    return 0.5;
+  }
+
+  // Вычисляем стандартное отклонение яркости между регионами
+  let mean_brightness: f32 = region_brightness.iter().sum::<f32>() / region_brightness.len() as f32;
+  let variance: f32 = region_brightness
+    .iter()
+    .map(|&x| (x - mean_brightness).powi(2))
+    .sum::<f32>()
+    / region_brightness.len() as f32;
+  let std_deviation = variance.sqrt();
+
+  // Чем меньше отклонение, тем лучше освещение
+  // Нормализуем относительно диапазона яркости (0-255)
+  let normalized_std = std_deviation / 255.0;
+
+  if normalized_std <= 0.1 {
+    1.0 // Очень равномерное освещение
+  } else if normalized_std <= 0.2 {
+    0.8
+  } else if normalized_std <= 0.3 {
+    0.6
+  } else if normalized_std <= 0.4 {
+    0.4
+  } else {
+    0.2 // Неравномерное освещение
   }
 }
 

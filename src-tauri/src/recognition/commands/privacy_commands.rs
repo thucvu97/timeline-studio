@@ -4,6 +4,7 @@
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use tauri::State;
+use tokio::sync::RwLock;
 
 use crate::recognition::privacy_processor::{
   BlurType, BoundingBox, PrivacyProcessor, PrivacySettings,
@@ -82,9 +83,41 @@ pub async fn blur_faces_in_image(
   // Получаем или детектируем лица
   let face_boxes: Vec<BoundingBox> = if auto_detect {
     // Автоматическая детекция через YOLO
-    // TODO: использовать первый доступный процессор из HashMap
-    // Пока используем заглушку
-    return Err("YOLO auto-detection not implemented yet".to_string());
+    // Получаем первый доступный процессор из HashMap
+    let processors = _yolo_state.processors.read().await;
+    if processors.is_empty() {
+      return Err(
+        "No YOLO processors available. Please initialize a YOLO processor first".to_string(),
+      );
+    }
+
+    // Берем первый доступный процессор
+    let (processor_id, processor_arc) = processors.iter().next().unwrap();
+    let processor = processor_arc.read().await;
+
+    log::info!("Using YOLO processor '{}' for auto-detection", processor_id);
+
+    // Детектируем лица
+    let image = image::open(&input_path).map_err(|e| format!("Failed to load image: {}", e))?;
+
+    match processor.process_image(&image).await {
+      Ok(detections) => {
+        // Фильтруем только детекции лиц (класс "person" часто используется для людей)
+        detections
+          .into_iter()
+          .filter(|det| det.class == "person" || det.class.contains("face"))
+          .map(|det| BoundingBox {
+            x1: det.bbox.x,
+            y1: det.bbox.y,
+            x2: det.bbox.x + det.bbox.width,
+            y2: det.bbox.y + det.bbox.height,
+          })
+          .collect()
+      }
+      Err(e) => {
+        return Err(format!("Face detection failed: {}", e));
+      }
+    }
   } else {
     // Используем переданные bbox
     face_boxes
@@ -206,9 +239,22 @@ pub async fn blur_faces_in_video_frames(
   };
 
   let yolo_arc = if auto_detect {
-    // TODO: использовать первый доступный процессор из HashMap
-    // Пока используем заглушку
-    return Err("YOLO auto-detection not implemented yet for batch processing".to_string());
+    // Получаем первый доступный процессор из HashMap
+    let processors = _yolo_state.processors.read().await;
+    if processors.is_empty() {
+      return Err(
+        "No YOLO processors available. Please initialize a YOLO processor first".to_string(),
+      );
+    }
+
+    // Берем первый доступный процессор
+    let (processor_id, processor_arc) = processors.iter().next().unwrap();
+    log::info!(
+      "Using YOLO processor '{}' for batch auto-detection",
+      processor_id
+    );
+
+    Some(processor_arc.clone())
   } else {
     None
   };
@@ -296,21 +342,37 @@ async fn process_single_frame(
   input_path: PathBuf,
   output_path: PathBuf,
   privacy_processor: Arc<PrivacyProcessor>,
-  yolo_processor: Option<Arc<crate::recognition::yolo_processor::YoloProcessor>>,
+  yolo_processor: Option<Arc<RwLock<crate::recognition::yolo_processor_refactored::YoloProcessor>>>,
 ) -> Result<usize, String> {
   if !input_path.exists() {
     return Err(format!("Frame not found: {}", input_path.display()));
   }
 
-  let image = image::open(&input_path).map_err(|e| format!("Failed to load frame: {}", e))?;
-
   // Детектируем лица если нужно
-  let face_boxes = if let Some(yolo) = yolo_processor {
-    // В yolo_processor нет метода detect_objects_sync, используем mock данные
-    // TODO: добавить реальную детекцию когда будет метод
-    let _ = yolo; // Подавляем предупреждение о неиспользованной переменной
-    let _ = image; // Подавляем предупреждение о неиспользованной переменной
-    vec![]
+  let face_boxes = if let Some(yolo_arc) = yolo_processor {
+    // Используем реальную детекцию через новый YoloProcessor
+    let processor = yolo_arc.read().await;
+    let image = image::open(&input_path).map_err(|e| format!("Failed to load image: {}", e))?;
+
+    match processor.process_image(&image).await {
+      Ok(detections) => {
+        // Фильтруем только детекции лиц (класс "person" часто используется для людей)
+        detections
+          .into_iter()
+          .filter(|det| det.class == "person" || det.class.contains("face"))
+          .map(|det| BoundingBox {
+            x1: det.bbox.x,
+            y1: det.bbox.y,
+            x2: det.bbox.x + det.bbox.width,
+            y2: det.bbox.y + det.bbox.height,
+          })
+          .collect()
+      }
+      Err(e) => {
+        log::warn!("Face detection failed for {}: {}", input_path.display(), e);
+        vec![]
+      }
+    }
   } else {
     Vec::new()
   };
