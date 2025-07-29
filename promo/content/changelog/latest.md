@@ -1,3 +1,13 @@
+# [0.47.0](https://github.com/chatman-media/timeline-studio/compare/v0.46.1...v0.47.0) (2025-07-29)
+
+
+### Features
+
+* **effects:** реализация Effects Library Extension всех фаз ([b161449](https://github.com/chatman-media/timeline-studio/commit/b1614493ad7cb867362142a0e91e4cdeeec5ec11))
+* **motion-graphics:** add keyframe interpolation service ([66ec488](https://github.com/chatman-media/timeline-studio/commit/66ec488c8d92229ab7fe31731fa2e57154e42657))
+* **motion-graphics:** реализация Motion Graphics системы Phase 4 ([cb5d054](https://github.com/chatman-media/timeline-studio/commit/cb5d054a4f475ec42f82aaa8d68f91f98d885eb4))
+* **timeline:** интеграция переходов с треками таймлайна ([d1e7338](https://github.com/chatman-media/timeline-studio/commit/d1e733816a70c2412161be044fdd69a1d99d02cb))
+
 ## [0.46.1](https://github.com/chatman-media/timeline-studio/compare/v0.46.0...v0.46.1) (2025-07-29)
 
 
