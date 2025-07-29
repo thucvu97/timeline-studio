@@ -1,3 +1,10 @@
+## [0.45.2](https://github.com/chatman-media/timeline-studio/compare/v0.45.1...v0.45.2) (2025-07-29)
+
+
+### Bug Fixes
+
+* **tests:** исправить тесты MediaStudio и добавить README файлы ([65682a6](https://github.com/chatman-media/timeline-studio/commit/65682a66d05b0373cb7d3e8eab37c79793e66330))
+
 ## [0.45.1](https://github.com/chatman-media/timeline-studio/compare/v0.45.0...v0.45.1) (2025-07-29)
 
 
