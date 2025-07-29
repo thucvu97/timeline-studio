@@ -246,7 +246,7 @@ impl FaceClusteringEngine {
       if label == -1 {
         noise_points.push(idx);
       } else {
-        clusters_map.entry(label).or_insert_with(Vec::new).push(idx);
+        clusters_map.entry(label).or_default().push(idx);
       }
     }
 

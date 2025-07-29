@@ -270,7 +270,7 @@ pub async fn auto_cluster_video_faces<R: tauri::Runtime>(
   app: tauri::AppHandle<R>,
   file_id: String,
   embeddings: Vec<Vec<f32>>,
-  metadata: Vec<FaceMetadata>,
+  _metadata: Vec<FaceMetadata>,
   save_results: bool,
 ) -> Result<ClusteringResponse, String> {
   // Создаем временный движок с оптимальными параметрами для видео

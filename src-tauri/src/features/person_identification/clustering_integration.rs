@@ -43,6 +43,7 @@ pub struct ClusterMetadata {
 /// Интегратор кластеризации с базой персон
 pub struct ClusteringIntegrator<'a> {
   db: &'a mut PersonDatabase,
+  #[allow(dead_code)]
   similarity_threshold: f32,
 }
 
@@ -182,10 +183,10 @@ impl<'a> ClusteringIntegrator<'a> {
     };
 
     // Используем description из notes для create_person
-    let person_profile = self.db.create_person(
-      person_data.name.clone(),
-      person_data.notes.clone(),
-    ).await?;
+    let person_profile = self
+      .db
+      .create_person(person_data.name.clone(), person_data.notes.clone())
+      .await?;
     let person_id = person_profile.id;
 
     // Добавляем эмбеддинги
@@ -213,10 +214,8 @@ impl<'a> ClusteringIntegrator<'a> {
           self
             .db
             .add_thumbnail(
-              &person_id,
-              image_data,
-              224, // стандартная ширина
-              224, // стандартная высота
+              &person_id, image_data, 224,  // стандартная ширина
+              224,  // стандартная высота
               true, // is_primary
               1.0,  // quality
             )
@@ -275,11 +274,11 @@ impl<'a> ClusteringIntegrator<'a> {
         .filter_map(|&idx| metadata.timestamps.get(idx))
         .map(|&t| t as f64)
         .collect();
-      
+
       if !timestamps.is_empty() {
         let start_time = timestamps.iter().fold(f64::INFINITY, |a, &b| a.min(b));
         let end_time = timestamps.iter().fold(f64::NEG_INFINITY, |a, &b| a.max(b));
-        
+
         self
           .db
           .add_appearance(
@@ -318,7 +317,11 @@ impl<'a> ClusteringIntegrator<'a> {
 
       for result in high_similarity_matches.iter().skip(1) {
         // TODO: Реализовать merge_persons в PersonDatabase
-        log::info!("Would merge person {} into {}", result.person_id, main_person_id);
+        log::info!(
+          "Would merge person {} into {}",
+          result.person_id,
+          main_person_id
+        );
         merged_ids.push(result.person_id.clone());
       }
 

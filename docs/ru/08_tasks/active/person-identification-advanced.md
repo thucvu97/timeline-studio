@@ -21,6 +21,7 @@
 - **MediaPipe Integration**: 468 3D facial landmarks и анализ выражений ✅
 - **Privacy Processor**: 6 типов размытия лиц для анонимизации ✅
 - **Face Clustering**: DBSCAN кластеризация для автоматической группировки лиц ✅
+- **Clustering Integration**: Интеграция кластеризации с PersonDatabase ✅
 
 ### 🚧 В процессе
 - **Real inference**: Переход от mock данных к реальным YOLO инференсам (90% готово)
@@ -38,8 +39,9 @@
   - `MediaPipeProcessor` с 468 3D landmarks и выражениями
   - `PrivacyProcessor` с 6 типами размытия
   - `FaceClusteringEngine` с DBSCAN алгоритмом
+  - `ClusteringIntegrator` - интеграция кластеров с базой персон
   - `ModelsConfig` - централизованная конфигурация моделей
-  - Tauri команды для всех процессоров
+  - Tauri команды для всех процессоров и кластеризации
 - **Типы**: Полная совместимость с Float32Array для embeddings
 - **ML модели**: Заглушки ONNX моделей для разработки
 
@@ -400,13 +402,19 @@ src-tauri/src/recognition/          # ✅ РЕАЛИЗОВАНО
 │   ├── facenet_commands.rs        # ✅ FaceNet embeddings
 │   ├── retinaface_commands.rs     # ✅ RetinaFace landmarks
 │   ├── mediapipe_commands.rs      # ✅ MediaPipe анализ
-│   └── privacy_commands.rs        # ✅ Privacy команды
+│   ├── privacy_commands.rs        # ✅ Privacy команды
+│   └── clustering_commands.rs     # ✅ Clustering команды
 ├── yolo_processor.rs              # ✅ YOLO процессор (все модели)
 ├── facenet_processor.rs           # ✅ FaceNet процессор (512D/128D)
 ├── retinaface_processor.rs        # ✅ RetinaFace процессор с landmarks
 ├── mediapipe_processor.rs         # ✅ MediaPipe процессор (468 landmarks)
 ├── privacy_processor.rs           # ✅ Privacy процессор
+├── face_clustering.rs             # ✅ Face clustering engine
 └── types.rs                       # ✅ Типы данных
+
+src-tauri/src/features/person_identification/
+├── clustering_integration.rs      # ✅ Интеграция кластеризации с базой персон
+└── ...
 
 src-tauri/src/models_config.rs     # ✅ Конфигурация моделей
 src-tauri/models/                  # ✅ ONNX модели
@@ -587,6 +595,8 @@ interface AdvancedPersonAPI extends PersonAPI {
 - ✅ **RetinaFace интеграция** - высокоточная детекция лиц с 5-точечными landmarks
 - ✅ **MediaPipe интеграция** - 468 3D landmarks, анализ выражений и head pose
 - ✅ **Privacy Processor** - размытие лиц 6 способами с адаптивной настройкой
+- ✅ **Face Clustering** - DBSCAN кластеризация с автоматической группировкой лиц
+- ✅ **Clustering Integration** - полная интеграция с PersonDatabase для сохранения результатов
 - ✅ **TypeScript типизация** - полная совместимость с Float32Array  
 - ✅ **Автоматизация** - скрипты загрузки моделей и централизованная конфигурация
 - ✅ **Тестирование** - 30+ успешных тестов для всех компонентов
