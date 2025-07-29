@@ -82,7 +82,7 @@ describe('Optimized Mock System Example', () => {
     it('should start with playing state', () => {
       renderWithAppState(<TestComponent />, {
         mockBackend: {
-          initialState: createTestScenarios.playingState()
+          initialState: createTestScenarios.playingState() as any
         }
       })
       

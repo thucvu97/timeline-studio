@@ -5,9 +5,20 @@
 import { renderHook } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
+import { shortcutsRegistry } from "@/features/keyboard-shortcuts"
+
+import type { ClipGroup, TimelineClip, TimelineProject } from "../../types"
+
 // Mock timeline-machine
 vi.mock("../../services/timeline-machine", () => ({
   timelineMachine: {},
+}))
+
+// Mock shortcuts registry
+vi.mock("@/features/keyboard-shortcuts", () => ({
+  shortcutsRegistry: {
+    updateAction: vi.fn(),
+  },
 }))
 
 // Создаем отдельный модуль для моков
@@ -33,15 +44,6 @@ vi.mock("../../hooks/use-clip-groups", () => ({
     breakApartSequence: vi.fn(),
     isClipInGroup: vi.fn(),
     getClipsInGroup: vi.fn(),
-  }),
-}))
-
-// Mock useHotkeys
-type HotkeyHandler = (event: KeyboardEvent) => void
-const hotkeyHandlers: Record<string, HotkeyHandler> = {}
-vi.mock("react-hotkeys-hook", () => ({
-  useHotkeys: vi.fn((keys: string, handler: HotkeyHandler, _options?: any, _deps?: any[]) => {
-    hotkeyHandlers[keys] = handler
   }),
 }))
 
@@ -115,10 +117,6 @@ import type { TimelineClip, TimelineProject } from "../../types/timeline"
 describe("useGroupHotkeys", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    // Очищаем обработчики
-    Object.keys(hotkeyHandlers).forEach((key) => {
-      delete hotkeyHandlers[key]
-    })
 
     // Сбрасываем выбранные клипы
     mockUiState.selectedClipIds = ["clip-1", "clip-2"]
@@ -145,21 +143,9 @@ describe("useGroupHotkeys", () => {
 
     renderHook(() => useGroupHotkeys(), { wrapper })
 
-    const mockUseHotkeys = vi.mocked(useHotkeys)
-
-    // Проверяем регистрацию хоткеев для группировки
-    expect(mockUseHotkeys).toHaveBeenCalledWith("cmd+g, ctrl+g", expect.any(Function), { enableOnFormTags: false }, [
-      mockProject,
-      mockUiState.selectedClipIds,
-    ])
-
-    // Проверяем регистрацию хоткеев для разгруппировки
-    expect(mockUseHotkeys).toHaveBeenCalledWith(
-      "cmd+shift+g, ctrl+shift+g",
-      expect.any(Function),
-      { enableOnFormTags: false },
-      [mockProject, mockUiState.selectedClipIds],
-    )
+    // Проверяем что были зарегистрированы actions для shortcuts
+    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith("group-clips", expect.any(Function))
+    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith("ungroup-clips", expect.any(Function))
   })
 
   it("должен создавать группу при нажатии Cmd+G с выбранными клипами", () => {
@@ -169,11 +155,13 @@ describe("useGroupHotkeys", () => {
 
     renderHook(() => useGroupHotkeys(), { wrapper })
 
-    // Симулируем нажатие Cmd+G
-    const event = { preventDefault: vi.fn() }
-    hotkeyHandlers["cmd+g, ctrl+g"](event)
+    // Получаем функцию, переданную для group-clips
+    const groupClipsAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(call => call[0] === "group-clips")?.[1]
+    expect(groupClipsAction).toBeDefined()
 
-    expect(event.preventDefault).toHaveBeenCalled()
+    // Симулируем вызов action
+    groupClipsAction?.()
+
     expect(mockCreateGroup).toHaveBeenCalledWith([
       mockProject.sections[0].tracks[0].clips[0],
       mockProject.sections[0].tracks[0].clips[1],
@@ -190,10 +178,11 @@ describe("useGroupHotkeys", () => {
 
     renderHook(() => useGroupHotkeys(), { wrapper })
 
-    const event = { preventDefault: vi.fn() }
-    hotkeyHandlers["cmd+g, ctrl+g"](event)
+    const groupClipsAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(call => call[0] === "group-clips")?.[1]
+    expect(groupClipsAction).toBeDefined()
 
-    expect(event.preventDefault).toHaveBeenCalled()
+    groupClipsAction?.()
+
     expect(mockCreateGroup).not.toHaveBeenCalled()
   })
 
@@ -204,11 +193,12 @@ describe("useGroupHotkeys", () => {
 
     renderHook(() => useGroupHotkeys(), { wrapper })
 
-    // Симулируем нажатие Cmd+Shift+G
-    const event = { preventDefault: vi.fn() }
-    hotkeyHandlers["cmd+shift+g, ctrl+shift+g"](event)
+    // Получаем функцию для ungroup-clips
+    const ungroupClipsAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(call => call[0] === "ungroup-clips")?.[1]
+    expect(ungroupClipsAction).toBeDefined()
 
-    expect(event.preventDefault).toHaveBeenCalled()
+    ungroupClipsAction?.()
+
     expect(mockGetGroupByClip).toHaveBeenCalledWith("clip-1")
     expect(mockUngroupClips).toHaveBeenCalledWith("group-1")
   })
@@ -223,10 +213,11 @@ describe("useGroupHotkeys", () => {
 
     renderHook(() => useGroupHotkeys(), { wrapper })
 
-    const event = { preventDefault: vi.fn() }
-    hotkeyHandlers["cmd+shift+g, ctrl+shift+g"](event)
+    const ungroupClipsAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(call => call[0] === "ungroup-clips")?.[1]
+    expect(ungroupClipsAction).toBeDefined()
 
-    expect(event.preventDefault).toHaveBeenCalled()
+    ungroupClipsAction?.()
+
     expect(mockGetGroupByClip).toHaveBeenCalledWith("clip-1")
     expect(mockUngroupClips).not.toHaveBeenCalled()
   })
@@ -241,10 +232,11 @@ describe("useGroupHotkeys", () => {
 
     renderHook(() => useGroupHotkeys(), { wrapper })
 
-    const event = { preventDefault: vi.fn() }
-    hotkeyHandlers["cmd+shift+g, ctrl+shift+g"](event)
+    const ungroupClipsAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(call => call[0] === "ungroup-clips")?.[1]
+    expect(ungroupClipsAction).toBeDefined()
 
-    expect(event.preventDefault).toHaveBeenCalled()
+    ungroupClipsAction?.()
+
     expect(mockGetGroupByClip).not.toHaveBeenCalled()
     expect(mockUngroupClips).not.toHaveBeenCalled()
   })
@@ -259,8 +251,10 @@ describe("useGroupHotkeys", () => {
 
     renderHook(() => useGroupHotkeys(), { wrapper })
 
-    const event = { preventDefault: vi.fn() }
-    hotkeyHandlers["cmd+g, ctrl+g"](event)
+    const groupClipsAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(call => call[0] === "group-clips")?.[1]
+    expect(groupClipsAction).toBeDefined()
+
+    groupClipsAction?.()
 
     // Проверяем что createGroup был вызван с правильными клипами
     // Порядок: сначала globalTracks, потом sections
@@ -277,22 +271,9 @@ describe("useGroupHotkeys", () => {
 
     renderHook(() => useGroupHotkeys(), { wrapper })
 
-    const mockUseHotkeys = vi.mocked(useHotkeys)
-
-    // Проверяем что зарегистрированы оба варианта (cmd для Mac, ctrl для Windows/Linux)
-    expect(mockUseHotkeys).toHaveBeenCalledWith(
-      expect.stringContaining("cmd+g"),
-      expect.any(Function),
-      expect.any(Object),
-      expect.any(Array),
-    )
-
-    expect(mockUseHotkeys).toHaveBeenCalledWith(
-      expect.stringContaining("ctrl+g"),
-      expect.any(Function),
-      expect.any(Object),
-      expect.any(Array),
-    )
+    // Проверяем что зарегистрированы shortcuts
+    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith("group-clips", expect.any(Function))
+    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith("ungroup-clips", expect.any(Function))
   })
 
   it("должен отключать хоткеи на элементах форм", () => {
@@ -302,14 +283,9 @@ describe("useGroupHotkeys", () => {
 
     renderHook(() => useGroupHotkeys(), { wrapper })
 
-    const mockUseHotkeys = vi.mocked(useHotkeys)
-
-    // Проверяем что enableOnFormTags установлен в false
-    const calls = mockUseHotkeys.mock.calls
-    calls.forEach((call) => {
-      const options = call[2]
-      expect(options.enableOnFormTags).toBe(false)
-    })
+    // В новой системе shortcuts это контролируется контекстом,
+    // проверяем что shortcuts были зарегистрированы
+    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalled()
   })
 
   it("должен корректно обрабатывать отсутствие проекта", () => {
@@ -326,8 +302,10 @@ describe("useGroupHotkeys", () => {
 
     renderHook(() => useGroupHotkeys(), { wrapper })
 
-    const event = { preventDefault: vi.fn() }
-    hotkeyHandlers["cmd+g, ctrl+g"](event)
+    const groupClipsAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(call => call[0] === "group-clips")?.[1]
+    expect(groupClipsAction).toBeDefined()
+
+    groupClipsAction?.()
 
     // Не должно быть вызовов createGroup когда нет клипов
     expect(mockCreateGroup).not.toHaveBeenCalled()
@@ -385,8 +363,10 @@ describe("useGroupHotkeys", () => {
 
     renderHook(() => useGroupHotkeys(), { wrapper })
 
-    const event = { preventDefault: vi.fn() }
-    hotkeyHandlers["cmd+shift+g, ctrl+shift+g"](event)
+    const ungroupClipsAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(call => call[0] === "ungroup-clips")?.[1]
+    expect(ungroupClipsAction).toBeDefined()
+
+    ungroupClipsAction?.()
 
     // Должна использоваться группа первого найденного клипа
     expect(mockGetGroupByClip).toHaveBeenCalledWith("clip-2")
@@ -470,8 +450,10 @@ describe("useGroupHotkeys", () => {
 
     renderHook(() => useGroupHotkeys(), { wrapper })
 
-    const event = { preventDefault: vi.fn() }
-    hotkeyHandlers["cmd+g, ctrl+g"](event)
+    const groupClipsAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(call => call[0] === "group-clips")?.[1]
+    expect(groupClipsAction).toBeDefined()
+
+    groupClipsAction?.()
 
     // Проверяем что createGroup был вызван
     expect(mockCreateGroup).toHaveBeenCalled()

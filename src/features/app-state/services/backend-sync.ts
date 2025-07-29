@@ -136,7 +136,7 @@ export class BackendSync {
     const command: ProjectCommand = {
       type: "CreateSnapshot",
       params: { message },
-    }
+    } as ProjectCommand
     return this.executeCommand(command)
   }
 

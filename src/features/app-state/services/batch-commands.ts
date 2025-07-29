@@ -232,7 +232,7 @@ export const batchOperations = {
               effects: [{ effect_id: effectId, params: effectParams }]
             }
           }
-        }))
+        } as ProjectCommand))
       )
       .execute()
   },

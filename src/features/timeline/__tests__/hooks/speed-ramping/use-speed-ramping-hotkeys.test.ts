@@ -1,12 +1,15 @@
 import { renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
+import { shortcutsRegistry } from "@/features/keyboard-shortcuts"
+
 import { useSpeedRampingHotkeys } from "../../../hooks/use-speed-ramping-hotkeys"
 
-// Mock useHotkeys
-const mockUseHotkeys = vi.fn()
-vi.mock("react-hotkeys-hook", () => ({
-  useHotkeys: (...args: any[]) => mockUseHotkeys(...args),
+// Mock shortcuts registry
+vi.mock("@/features/keyboard-shortcuts", () => ({
+  shortcutsRegistry: {
+    updateAction: vi.fn(),
+  },
 }))
 
 // Mock useSpeedRamping
@@ -39,186 +42,157 @@ describe("useSpeedRampingHotkeys", () => {
   it("регистрирует горячие клавиши", () => {
     renderHook(() => useSpeedRampingHotkeys())
 
-    // Проверяем, что useHotkeys был вызван для каждой комбинации клавиш
-    expect(mockUseHotkeys).toHaveBeenCalledWith(
-      "cmd+shift+r, ctrl+shift+r",
-      expect.any(Function),
-      expect.objectContaining({
-        enableOnFormTags: false,
-        enabled: true,
-      }),
+    // Проверяем, что shortcuts были зарегистрированы
+    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith(
+      "enable-speed-ramping",
+      expect.any(Function)
     )
 
-    expect(mockUseHotkeys).toHaveBeenCalledWith(
-      "cmd+alt+r, ctrl+alt+r",
-      expect.any(Function),
-      expect.objectContaining({
-        enableOnFormTags: false,
-        enabled: true,
-      }),
+    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith(
+      "reset-speed",
+      expect.any(Function)
     )
 
-    expect(mockUseHotkeys).toHaveBeenCalledWith(
-      "5",
-      expect.any(Function),
-      expect.objectContaining({
-        enableOnFormTags: false,
-        enabled: true,
-      }),
+    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith(
+      "speed-half",
+      expect.any(Function)
     )
 
-    expect(mockUseHotkeys).toHaveBeenCalledWith(
-      "2",
-      expect.any(Function),
-      expect.objectContaining({
-        enableOnFormTags: false,
-        enabled: true,
-      }),
+    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith(
+      "speed-double",
+      expect.any(Function)
     )
 
-    expect(mockUseHotkeys).toHaveBeenCalledWith(
-      "4",
-      expect.any(Function),
-      expect.objectContaining({
-        enableOnFormTags: false,
-        enabled: true,
-      }),
+    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith(
+      "speed-quad",
+      expect.any(Function)
     )
 
-    expect(mockUseHotkeys).toHaveBeenCalledWith(
-      "cmd+r, ctrl+r",
-      expect.any(Function),
-      expect.objectContaining({
-        enableOnFormTags: false,
-        enabled: true,
-      }),
+    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith(
+      "reverse-speed",
+      expect.any(Function)
     )
   })
 
   it("включает speed ramping при нажатии Cmd+Shift+R", () => {
     renderHook(() => useSpeedRampingHotkeys())
 
-    // Получаем колбэк для Cmd+Shift+R
-    const toggleCallback = mockUseHotkeys.mock.calls.find((call) => call[0] === "cmd+shift+r, ctrl+shift+r")?.[1]
+    // Получаем action для enable-speed-ramping
+    const enableAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(
+      call => call[0] === "enable-speed-ramping"
+    )?.[1]
+    
+    expect(enableAction).toBeDefined()
 
-    // Создаем фиктивное событие
-    const mockEvent = { preventDefault: vi.fn() }
-
-    // Вызываем колбэк
-    toggleCallback?.(mockEvent)
+    // Вызываем action
+    enableAction?.()
 
     expect(mockSend).toHaveBeenCalledWith({
       type: "ENABLE_SPEED_RAMPING",
       clipId: "test-clip-1",
     })
+
     expect(mockSend).toHaveBeenCalledWith({
       type: "ENABLE_SPEED_RAMPING",
       clipId: "test-clip-2",
     })
-    expect(mockEvent.preventDefault).toHaveBeenCalled()
   })
 
   it("сбрасывает к нормальной скорости при нажатии Cmd+Alt+R", () => {
     renderHook(() => useSpeedRampingHotkeys())
 
-    // Получаем колбэк для Cmd+Alt+R
-    const resetCallback = mockUseHotkeys.mock.calls.find((call) => call[0] === "cmd+alt+r, ctrl+alt+r")?.[1]
+    // Получаем action для reset-speed
+    const resetAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(
+      call => call[0] === "reset-speed"
+    )?.[1]
+    
+    expect(resetAction).toBeDefined()
 
-    // Создаем фиктивное событие
-    const mockEvent = { preventDefault: vi.fn() }
+    // Вызываем action
+    resetAction?.()
 
-    // Вызываем колбэк
-    resetCallback?.(mockEvent)
-
-    expect(mockUseSpeedRamping.resetToConstantSpeed).toHaveBeenCalledWith("test-clip-1", 1.0)
-    expect(mockUseSpeedRamping.resetToConstantSpeed).toHaveBeenCalledWith("test-clip-2", 1.0)
-    expect(mockEvent.preventDefault).toHaveBeenCalled()
+    expect(mockUseSpeedRamping.resetToConstantSpeed).toHaveBeenCalledWith("test-clip-1", 1)
+    expect(mockUseSpeedRamping.resetToConstantSpeed).toHaveBeenCalledWith("test-clip-2", 1)
   })
 
   it("устанавливает скорость 0.5x при нажатии клавиши 5", () => {
     renderHook(() => useSpeedRampingHotkeys())
 
-    // Получаем колбэк для клавиши 5
-    const slowCallback = mockUseHotkeys.mock.calls.find((call) => call[0] === "5")?.[1]
+    // Получаем action для speed-half
+    const slowAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(
+      call => call[0] === "speed-half"
+    )?.[1]
+    
+    expect(slowAction).toBeDefined()
 
-    // Создаем фиктивное событие
-    const mockEvent = { preventDefault: vi.fn() }
-
-    // Вызываем колбэк
-    slowCallback?.(mockEvent)
+    // Вызываем action
+    slowAction?.()
 
     expect(mockUseSpeedRamping.resetToConstantSpeed).toHaveBeenCalledWith("test-clip-1", 0.5)
     expect(mockUseSpeedRamping.resetToConstantSpeed).toHaveBeenCalledWith("test-clip-2", 0.5)
-    expect(mockEvent.preventDefault).toHaveBeenCalled()
   })
 
   it("устанавливает скорость 2x при нажатии клавиши 2", () => {
     renderHook(() => useSpeedRampingHotkeys())
 
-    // Получаем колбэк для клавиши 2
-    const fastCallback = mockUseHotkeys.mock.calls.find((call) => call[0] === "2")?.[1]
+    // Получаем action для speed-double
+    const fastAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(
+      call => call[0] === "speed-double"
+    )?.[1]
+    
+    expect(fastAction).toBeDefined()
 
-    // Создаем фиктивное событие
-    const mockEvent = { preventDefault: vi.fn() }
+    // Вызываем action
+    fastAction?.()
 
-    // Вызываем колбэк
-    fastCallback?.(mockEvent)
-
-    expect(mockUseSpeedRamping.resetToConstantSpeed).toHaveBeenCalledWith("test-clip-1", 2.0)
-    expect(mockUseSpeedRamping.resetToConstantSpeed).toHaveBeenCalledWith("test-clip-2", 2.0)
-    expect(mockEvent.preventDefault).toHaveBeenCalled()
+    expect(mockUseSpeedRamping.resetToConstantSpeed).toHaveBeenCalledWith("test-clip-1", 2)
+    expect(mockUseSpeedRamping.resetToConstantSpeed).toHaveBeenCalledWith("test-clip-2", 2)
   })
 
   it("устанавливает скорость 4x при нажатии клавиши 4", () => {
     renderHook(() => useSpeedRampingHotkeys())
 
-    // Получаем колбэк для клавиши 4
-    const veryFastCallback = mockUseHotkeys.mock.calls.find((call) => call[0] === "4")?.[1]
+    // Получаем action для speed-quad
+    const veryFastAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(
+      call => call[0] === "speed-quad"
+    )?.[1]
+    
+    expect(veryFastAction).toBeDefined()
 
-    // Создаем фиктивное событие
-    const mockEvent = { preventDefault: vi.fn() }
+    // Вызываем action
+    veryFastAction?.()
 
-    // Вызываем колбэк
-    veryFastCallback?.(mockEvent)
-
-    expect(mockUseSpeedRamping.resetToConstantSpeed).toHaveBeenCalledWith("test-clip-1", 4.0)
-    expect(mockUseSpeedRamping.resetToConstantSpeed).toHaveBeenCalledWith("test-clip-2", 4.0)
-    expect(mockEvent.preventDefault).toHaveBeenCalled()
+    expect(mockUseSpeedRamping.resetToConstantSpeed).toHaveBeenCalledWith("test-clip-1", 4)
+    expect(mockUseSpeedRamping.resetToConstantSpeed).toHaveBeenCalledWith("test-clip-2", 4)
   })
 
   it("не выполняет действия если нет выбранных клипов", () => {
-    const originalUiState = mockUseTimeline.uiState
-    mockUseTimeline.uiState = { selectedClipIds: [] }
+    // Временно очищаем выбранные клипы
+    mockUseTimeline.uiState.selectedClipIds = []
 
     renderHook(() => useSpeedRampingHotkeys())
 
-    // Получаем колбэк для включения speed ramping
-    const toggleCallback = mockUseHotkeys.mock.calls.find((call) => call[0] === "cmd+shift+r, ctrl+shift+r")?.[1]
+    // Получаем action для enable-speed-ramping
+    const enableAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(
+      call => call[0] === "enable-speed-ramping"
+    )?.[1]
+    
+    expect(enableAction).toBeDefined()
 
-    // Создаем фиктивное событие
-    const mockEvent = { preventDefault: vi.fn() }
-
-    // Вызываем колбэк
-    toggleCallback?.(mockEvent)
+    // Вызываем action
+    enableAction?.()
 
     // Функции не должны быть вызваны
     expect(mockSend).not.toHaveBeenCalled()
-    expect(mockEvent.preventDefault).toHaveBeenCalled()
 
     // Восстанавливаем состояние
-    mockUseTimeline.uiState = originalUiState
+    mockUseTimeline.uiState.selectedClipIds = ["test-clip-1", "test-clip-2"]
   })
 
   it("настраивает правильные опции для горячих клавиш", () => {
     renderHook(() => useSpeedRampingHotkeys())
 
-    // Проверяем опции для каждого вызова useHotkeys
-    mockUseHotkeys.mock.calls.forEach((call) => {
-      const options = call[2]
-      expect(options).toEqual({
-        enableOnFormTags: false,
-        enabled: true,
-      })
-    })
+    // Проверяем что shortcuts были зарегистрированы
+    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledTimes(6)
   })
 })

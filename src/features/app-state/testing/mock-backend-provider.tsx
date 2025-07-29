@@ -7,7 +7,7 @@
 
 import React, { ReactNode, createContext, useContext } from 'react'
 
-import { vi } from 'vitest'
+import { vi, MockedFunction } from 'vitest'
 
 import type { CommandResult, ProjectCommand, ProjectEvent, ProjectState } from '@/types/generated/tauri-bindings'
 
@@ -58,9 +58,9 @@ export interface MockBackendContext {
   eventHistory: ProjectEvent[]
   
   // Mock functions
-  executeCommand: vi.MockedFunction<(command: ProjectCommand) => Promise<CommandResult>>
-  getProjectState: vi.MockedFunction<() => Promise<ProjectState>>
-  getEventHistory: vi.MockedFunction<() => Promise<ProjectEvent[]>>
+  executeCommand: MockedFunction<(command: ProjectCommand) => Promise<CommandResult>>
+  getProjectState: MockedFunction<() => Promise<ProjectState>>
+  getEventHistory: MockedFunction<() => Promise<ProjectEvent[]>>
   
   // Utilities for tests
   updateProjectState: (updates: Partial<MockProjectState>) => void

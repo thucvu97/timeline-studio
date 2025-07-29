@@ -126,7 +126,7 @@ export function setupTauriMocks(commandMocks: Record<string, any> = {}) {
   }
 
   mockInvoke.mockImplementation((command: string, args?: any) => {
-    const mock = defaultMocks[command]
+    const mock = defaultMocks[command as keyof typeof defaultMocks]
     if (mock) {
       return mock(args)
     }
