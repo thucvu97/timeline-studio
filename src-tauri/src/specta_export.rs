@@ -34,27 +34,55 @@ pub fn get_app_version() -> String {
   env!("CARGO_PKG_VERSION").to_string()
 }
 
-/// Export TypeScript bindings
+/// Export TypeScript bindings with core commands and comprehensive type definitions
 pub fn export_typescript_bindings() {
-  // Remove cfg to always generate types when called
+  // Start with core commands that are guaranteed to exist
   let builder = tauri_specta::Builder::<tauri::Wry>::new()
     .commands(tauri_specta::collect_commands![
+      // Core commands from lib.rs
       get_app_version,
+      crate::greet,
+      crate::scan_media_folder,
+      crate::scan_media_folder_with_thumbnails,
+      crate::test_plugin_system,
+      
+      // State management commands (critical for app-state module)
       crate::state::commands_api::execute_command,
+      crate::state::commands_api::execute_batch_commands,
       crate::state::commands_api::get_project_state,
       crate::state::commands_api::get_event_history,
+      
+      // Media commands (confirmed to exist)
+      crate::media::commands::get_media_files,
+      crate::media::commands::get_media_metadata,
+      
+      // Language commands
+      crate::language_tauri::set_language,
+      crate::language_tauri::get_language,
+      
+      // Security commands  
+      crate::security::commands::store_api_key,
+      crate::security::commands::get_api_key,
+      crate::security::commands::delete_api_key,
     ])
     .events(tauri_specta::collect_events![]);
 
   // Create directory if it doesn't exist
   std::fs::create_dir_all("../src/types/generated").ok();
 
+  // Export with comprehensive type configuration
+  let ts_config = specta_typescript::Typescript::default()
+    .header("// Generated TypeScript bindings for Timeline Studio")
+    .header("// This file is auto-generated - do not edit manually")
+    .header("")
+    .header("import { invoke as TAURI_INVOKE } from '@tauri-apps/api/core'")
+    .header("import type { InvokeArgs } from '@tauri-apps/api/core'")
+    .header("");
+
   builder
-    .export(
-      specta_typescript::Typescript::default(),
-      "../src/types/generated/tauri-bindings.ts",
-    )
+    .export(ts_config, "../src/types/generated/tauri-bindings.ts")
     .expect("Failed to export TypeScript bindings");
 
-  println!("TypeScript bindings exported successfully!");
+  println!("✅ TypeScript bindings exported with enhanced type definitions!");
+  println!("📁 Generated: src/types/generated/tauri-bindings.ts");
 }
