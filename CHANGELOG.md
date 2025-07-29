@@ -1,3 +1,15 @@
+# [0.43.0](https://github.com/chatman-media/timeline-studio/compare/v0.42.0...v0.43.0) (2025-07-29)
+
+
+### Bug Fixes
+
+* **recognition:** исправлены ошибки компиляции и обновлена документация кластеризации ([bdcbbf6](https://github.com/chatman-media/timeline-studio/commit/bdcbbf6663fc894e65cbee602232614eab073086))
+
+
+### Features
+
+* **recognition:** добавлена умная кластеризация лиц ([86d5da0](https://github.com/chatman-media/timeline-studio/commit/86d5da0ab55517d42d3a4f2f6d5a830f2069375a))
+
 # [0.42.0](https://github.com/chatman-media/timeline-studio/compare/v0.41.0...v0.42.0) (2025-07-29)
 
 
