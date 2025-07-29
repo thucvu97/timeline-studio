@@ -39,31 +39,14 @@ pub fn export_typescript_bindings() {
   // Start with core commands that are guaranteed to exist
   let builder = tauri_specta::Builder::<tauri::Wry>::new()
     .commands(tauri_specta::collect_commands![
-      // Core commands from lib.rs
+      // Core commands that definitely exist
       get_app_version,
-      crate::greet,
-      crate::scan_media_folder,
-      crate::scan_media_folder_with_thumbnails,
-      crate::test_plugin_system,
       
       // State management commands (critical for app-state module)
       crate::state::commands_api::execute_command,
       crate::state::commands_api::execute_batch_commands,
       crate::state::commands_api::get_project_state,
       crate::state::commands_api::get_event_history,
-      
-      // Media commands (confirmed to exist)
-      crate::media::commands::get_media_files,
-      crate::media::commands::get_media_metadata,
-      
-      // Language commands
-      crate::language_tauri::set_language,
-      crate::language_tauri::get_language,
-      
-      // Security commands  
-      crate::security::commands::store_api_key,
-      crate::security::commands::get_api_key,
-      crate::security::commands::delete_api_key,
     ])
     .events(tauri_specta::collect_events![]);
 

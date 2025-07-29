@@ -50,7 +50,7 @@ pub async fn execute_batch_commands(
   request: BatchCommandRequest,
 ) -> Result<BatchCommandResult, String> {
   let start_time = std::time::Instant::now();
-  
+
   let mut results = Vec::new();
   let mut success_count = 0;
   let mut error_count = 0;
@@ -64,26 +64,31 @@ pub async fn execute_batch_commands(
 
   // Execute commands sequentially (could be parallelized for independent commands)
   for (index, command) in request.commands.iter().enumerate() {
-    log::debug!("Executing command {}/{}: {:?}", index + 1, request.commands.len(), command);
-    
+    log::debug!(
+      "Executing command {}/{}: {:?}",
+      index + 1,
+      request.commands.len(),
+      command
+    );
+
     let result = state_manager.execute_command(command.clone()).await;
-    
+
     if result.success {
       success_count += 1;
     } else {
       error_count += 1;
-      
+
       if request.stop_on_error {
         batch_error = Some(format!(
-          "Batch stopped at command {} due to error: {}", 
-          index + 1, 
-          result.message
+          "Batch stopped at command {} due to error: {}",
+          index + 1,
+          result.error.clone().unwrap_or_default()
         ));
         results.push(result);
         break;
       }
     }
-    
+
     results.push(result);
   }
 
