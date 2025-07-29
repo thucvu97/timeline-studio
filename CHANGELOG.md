@@ -1,3 +1,15 @@
+# [0.44.0](https://github.com/chatman-media/timeline-studio/compare/v0.43.0...v0.44.0) (2025-07-29)
+
+
+### Bug Fixes
+
+* **recognition:** исправлены тесты кластеризации лиц ([e44a2fd](https://github.com/chatman-media/timeline-studio/commit/e44a2fd32633edf3cfd3ef1aac7fcfcd8040b650))
+
+
+### Features
+
+* **person-identification:** интеграция кластеризации лиц с PersonDatabase ([a80745e](https://github.com/chatman-media/timeline-studio/commit/a80745e68997e26b33251fdead496f3949ffff34))
+
 # [0.43.0](https://github.com/chatman-media/timeline-studio/compare/v0.42.0...v0.43.0) (2025-07-29)
 
 
