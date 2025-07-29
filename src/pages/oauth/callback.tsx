@@ -2,17 +2,7 @@
 
 import { useEffect } from "react"
 
-import { useRouter } from "next/router"
-
-// Отключаем статическую генерацию для этой страницы
-export async function getServerSideProps() {
-  return {
-    props: {},
-  }
-}
-
 export default function OAuthCallback() {
-  const router = useRouter()
 
   useEffect(() => {
     const handleOAuthCallback = async () => {
