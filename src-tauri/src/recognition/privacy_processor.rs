@@ -465,8 +465,10 @@ mod tests {
 
   #[test]
   fn test_adaptive_blur_strength() {
-    let mut settings = PrivacySettings::default();
-    settings.adaptive_blur = true;
+    let settings = PrivacySettings {
+      adaptive_blur: true,
+      ..Default::default()
+    };
     let processor = PrivacyProcessor::new(settings);
 
     let small_face = BoundingBox {
