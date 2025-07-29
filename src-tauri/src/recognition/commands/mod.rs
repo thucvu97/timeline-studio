@@ -1,4 +1,5 @@
 pub mod facenet_commands;
+pub mod retinaface_commands;
 pub mod yolo_commands;
 pub mod yolo_commands_simple;
 

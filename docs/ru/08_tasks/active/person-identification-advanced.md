@@ -48,7 +48,7 @@ Person Identification Advanced - это набор продвинутых фун
 - [x] **FaceNet embeddings** - 512D и 128D векторы для точного распознавания ✅
 - [x] **Multiple YOLO variants** - поддержка всех размеров моделей (n/s/m/l/x) ✅
 - [x] **ArcFace embeddings** - альтернативная модель для embeddings ✅
-- [ ] **RetinaFace детектор** - высокоточная детекция с landmarks
+- [x] **RetinaFace детектор** - высокоточная детекция с landmarks ✅
 - [ ] **MediaPipe Face** - оптимизированная обработка
 
 #### Конфигурация моделей:
@@ -63,6 +63,9 @@ interface AdvancedDetectionConfig {
   
   // Embedding модели
   recognitionModel: 'facenet-512d' | 'facenet-128d' | 'arcface-512d'
+  
+  // RetinaFace модели
+  retinaFaceModel: 'retinaface-r50' | 'retinaface-mobile' | 'retinaface-r50-enhanced'
   
   // Параметры производительности
   useGPU: boolean
@@ -378,9 +381,11 @@ class RealtimePersonRecognition {
 src-tauri/src/recognition/          # ✅ РЕАЛИЗОВАНО
 ├── commands/                       # ✅ Tauri команды
 │   ├── yolo_commands.rs           # ✅ YOLO обработка
-│   └── facenet_commands.rs        # ✅ FaceNet embeddings
+│   ├── facenet_commands.rs        # ✅ FaceNet embeddings
+│   └── retinaface_commands.rs     # ✅ RetinaFace landmarks
 ├── yolo_processor.rs              # ✅ YOLO процессор (все модели)
 ├── facenet_processor.rs           # ✅ FaceNet процессор (512D/128D)
+├── retinaface_processor.rs        # ✅ RetinaFace процессор с landmarks
 └── types.rs                       # ✅ Типы данных
 
 src-tauri/src/models_config.rs     # ✅ Конфигурация моделей
@@ -390,10 +395,14 @@ src-tauri/models/                  # ✅ ONNX модели
 │   ├── yolov8n-face.onnx         # ✅ YOLOv8 Face модели
 │   ├── yolov11n.onnx             # ✅ YOLOv11 модели
 │   └── yolov11n-face.onnx        # ✅ YOLOv11 Face модели
-└── facenet/                       # ✅ FaceNet модели
-    ├── facenet-512d.onnx         # ✅ 512D embeddings
-    ├── facenet-128d.onnx         # ✅ 128D embeddings
-    └── arcface-512d.onnx         # ✅ ArcFace модель
+├── facenet/                       # ✅ FaceNet модели
+│   ├── facenet-512d.onnx         # ✅ 512D embeddings
+│   ├── facenet-128d.onnx         # ✅ 128D embeddings
+│   └── arcface-512d.onnx         # ✅ ArcFace модель
+└── retinaface/                    # ✅ RetinaFace модели
+    ├── retinaface-r50.onnx       # ✅ ResNet50 backbone
+    ├── retinaface-mobile.onnx    # ✅ MobileNet backbone
+    └── retinaface-r50-enhanced.onnx # ✅ Enhanced версия
 
 scripts/download-models.sh         # ✅ Автоматическая загрузка моделей
 ```
@@ -427,7 +436,7 @@ src/features/person-identification-advanced/
 - [x] ArcFace embeddings поддержка ✅
 - [x] Централизованная система конфигурации моделей ✅
 - [x] Автоматическая загрузка ONNX моделей ✅
-- [ ] RetinaFace для высокого качества
+- [x] RetinaFace для высокого качества ✅
 - [ ] Benchmarking и оптимизация
 
 ### Фаза 2: Продвинутый трекинг (4 недели) - ✅ Завершено
@@ -547,6 +556,7 @@ interface AdvancedPersonAPI extends PersonAPI {
 - ✅ **Полная YOLO интеграция** - все размеры моделей (nano→extra) для YOLOv8 и YOLOv11
 - ✅ **FaceNet embeddings** - 512D и 128D векторы с ArcFace поддержкой  
 - ✅ **Rust ML backend** - производительные процессоры с ONNX Runtime
-- ✅ **TypeScript типизация** - полная совместимость с Float32Array
+- ✅ **RetinaFace интеграция** - высокоточная детекция лиц с 5-точечными landmarks
+- ✅ **TypeScript типизация** - полная совместимость с Float32Array  
 - ✅ **Автоматизация** - скрипты загрузки моделей и централизованная конфигурация
-- ✅ **Тестирование** - 22 успешных теста для всех компонентов
+- ✅ **Тестирование** - 25+ успешных тестов для всех компонентов

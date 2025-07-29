@@ -231,6 +231,10 @@ pub fn run() {
       use recognition::commands::facenet_commands::FaceNetProcessorState;
       app.manage(FaceNetProcessorState::default());
 
+      // Create RetinaFace processor state
+      use recognition::commands::retinaface_commands::RetinaFaceProcessorState;
+      app.manage(RetinaFaceProcessorState::default());
+
       // Create Montage Planner State with its own YoloProcessorState instance
       let montage_yolo_state = Arc::new(RwLock::new(YoloProcessorState::default()));
       let montage_state = MontageState::new(montage_yolo_state);

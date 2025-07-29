@@ -8,6 +8,7 @@ pub struct ModelsConfig {
   pub models_dir: PathBuf,
   pub yolo_models: YoloModelsConfig,
   pub facenet_models: FaceNetModelsConfig,
+  pub retinaface_models: RetinaFaceModelsConfig,
 }
 
 /// Конфигурация YOLO моделей
@@ -48,6 +49,13 @@ pub struct FaceNetModelsConfig {
   pub arcface_512d: PathBuf,
 }
 
+/// Конфигурация RetinaFace моделей
+pub struct RetinaFaceModelsConfig {
+  pub retinaface_r50: PathBuf,
+  pub retinaface_mobile: PathBuf,
+  pub retinaface_r50_enhanced: PathBuf,
+}
+
 impl Default for ModelsConfig {
   fn default() -> Self {
     let models_dir = PathBuf::from("models");
@@ -86,6 +94,11 @@ impl Default for ModelsConfig {
         facenet_512d: models_dir.join("facenet/facenet-512d.onnx"),
         facenet_128d: models_dir.join("facenet/facenet-128d.onnx"),
         arcface_512d: models_dir.join("facenet/arcface-512d.onnx"),
+      },
+      retinaface_models: RetinaFaceModelsConfig {
+        retinaface_r50: models_dir.join("retinaface/retinaface-r50.onnx"),
+        retinaface_mobile: models_dir.join("retinaface/retinaface-mobile.onnx"),
+        retinaface_r50_enhanced: models_dir.join("retinaface/retinaface-r50-enhanced.onnx"),
       },
       models_dir,
     }
@@ -132,6 +145,11 @@ impl ModelsConfig {
         facenet_128d: models_dir.join("facenet/facenet-128d.onnx"),
         arcface_512d: models_dir.join("facenet/arcface-512d.onnx"),
       },
+      retinaface_models: RetinaFaceModelsConfig {
+        retinaface_r50: models_dir.join("retinaface/retinaface-r50.onnx"),
+        retinaface_mobile: models_dir.join("retinaface/retinaface-mobile.onnx"),
+        retinaface_r50_enhanced: models_dir.join("retinaface/retinaface-r50-enhanced.onnx"),
+      },
       models_dir,
     }
   }
@@ -168,6 +186,16 @@ impl ModelsConfig {
       ("FaceNet 512D", &self.facenet_models.facenet_512d),
       ("FaceNet 128D", &self.facenet_models.facenet_128d),
       ("ArcFace 512D", &self.facenet_models.arcface_512d),
+      // RetinaFace модели
+      ("RetinaFace R50", &self.retinaface_models.retinaface_r50),
+      (
+        "RetinaFace Mobile",
+        &self.retinaface_models.retinaface_mobile,
+      ),
+      (
+        "RetinaFace R50 Enhanced",
+        &self.retinaface_models.retinaface_r50_enhanced,
+      ),
     ];
 
     let mut missing_models = Vec::new();
@@ -238,10 +266,25 @@ impl ModelsConfig {
     }
   }
 
+  /// Получить путь к RetinaFace модели по типу
+  pub fn get_retinaface_model_path(&self, model_type: &str) -> Option<&PathBuf> {
+    match model_type {
+      "retinaface-r50" | "retinaface-resnet50" => Some(&self.retinaface_models.retinaface_r50),
+      "retinaface-mobile" | "retinaface-mobilenet" => {
+        Some(&self.retinaface_models.retinaface_mobile)
+      }
+      "retinaface-r50-enhanced" | "retinaface-enhanced" => {
+        Some(&self.retinaface_models.retinaface_r50_enhanced)
+      }
+      _ => None,
+    }
+  }
+
   /// Создать директории для моделей если они не существуют
   pub fn ensure_model_directories(&self) -> Result<(), std::io::Error> {
     std::fs::create_dir_all(self.models_dir.join("yolo"))?;
     std::fs::create_dir_all(self.models_dir.join("facenet"))?;
+    std::fs::create_dir_all(self.models_dir.join("retinaface"))?;
     Ok(())
   }
 }
@@ -302,5 +345,8 @@ mod tests {
 
     assert!(config.get_facenet_model_path("facenet-512d").is_some());
     assert!(config.get_facenet_model_path("invalid").is_none());
+
+    assert!(config.get_retinaface_model_path("retinaface-r50").is_some());
+    assert!(config.get_retinaface_model_path("invalid").is_none());
   }
 }

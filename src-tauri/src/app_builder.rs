@@ -92,6 +92,13 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::recognition::commands::facenet_commands::generate_face_embedding_from_base64,
     crate::recognition::commands::facenet_commands::calculate_cosine_similarity,
     crate::recognition::commands::facenet_commands::get_facenet_processor_info,
+    // RetinaFace commands
+    crate::recognition::commands::retinaface_commands::init_retinaface_processor,
+    crate::recognition::commands::retinaface_commands::detect_faces_with_landmarks,
+    crate::recognition::commands::retinaface_commands::detect_faces_with_landmarks_from_base64,
+    crate::recognition::commands::retinaface_commands::get_aligned_face,
+    crate::recognition::commands::retinaface_commands::configure_retinaface_thresholds,
+    crate::recognition::commands::retinaface_commands::get_retinaface_processor_info,
     // Recognition advanced commands
     crate::video_compiler::commands::recognition_advanced_commands::get_frame_processor_class_names,
     crate::video_compiler::commands::recognition_advanced_commands::get_recognition_results_by_time_range,
