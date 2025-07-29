@@ -49,18 +49,68 @@ pub fn init_ort() -> Result<()> {
 /// Поддерживаемые модели YOLO
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum YoloModel {
-  /// YOLOv11 для обнаружения объектов
-  YoloV11Detection,
-  /// YOLOv11 для сегментации
-  YoloV11Segmentation,
-  /// YOLOv11 для обнаружения лиц
-  YoloV11Face,
+  // YOLOv8 модели для объектов
+  /// YOLOv8n - Nano (самая быстрая)
+  YoloV8Nano,
+  /// YOLOv8s - Small
+  YoloV8Small,
+  /// YOLOv8m - Medium
+  YoloV8Medium,
+  /// YOLOv8l - Large
+  YoloV8Large,
+  /// YOLOv8x - Extra Large (самая точная)
+  YoloV8Extra,
+
+  // YOLOv8 модели для лиц
+  /// YOLOv8n для обнаружения лиц
+  YoloV8FaceNano,
+  /// YOLOv8s для обнаружения лиц
+  YoloV8FaceSmall,
+  /// YOLOv8m для обнаружения лиц
+  YoloV8FaceMedium,
+  /// YOLOv8l для обнаружения лиц
+  YoloV8FaceLarge,
+  /// YOLOv8x для обнаружения лиц
+  YoloV8FaceExtra,
+
+  // YOLOv11 модели для объектов
+  /// YOLOv11n - Nano (самая быстрая)
+  YoloV11Nano,
+  /// YOLOv11s - Small
+  YoloV11Small,
+  /// YOLOv11m - Medium
+  YoloV11Medium,
+  /// YOLOv11l - Large
+  YoloV11Large,
+  /// YOLOv11x - Extra Large (самая точная)
+  YoloV11Extra,
+
+  // YOLOv11 модели для лиц
+  /// YOLOv11n для обнаружения лиц
+  YoloV11FaceNano,
+  /// YOLOv11s для обнаружения лиц
+  YoloV11FaceSmall,
+  /// YOLOv11m для обнаружения лиц
+  YoloV11FaceMedium,
+  /// YOLOv11l для обнаружения лиц
+  YoloV11FaceLarge,
+  /// YOLOv11x для обнаружения лиц
+  YoloV11FaceExtra,
+
+  // Обратная совместимость
   /// YOLOv8 для обнаружения объектов (legacy)
   YoloV8Detection,
   /// YOLOv8 для сегментации (legacy)
   YoloV8Segmentation,
   /// YOLOv8 для обнаружения лиц (legacy)
   YoloV8Face,
+  /// YOLOv11 для обнаружения объектов (legacy)
+  YoloV11Detection,
+  /// YOLOv11 для сегментации (legacy)
+  YoloV11Segmentation,
+  /// YOLOv11 для обнаружения лиц (legacy)
+  YoloV11Face,
+
   /// Пользовательская модель
   Custom(PathBuf),
 }
@@ -123,14 +173,120 @@ impl YoloProcessor {
     init_ort()?;
 
     let model_path = match &model_type {
-      YoloModel::YoloV11Detection => {
-        // Пытаемся получить путь из конфигурации, иначе используем дефолтный
-        crate::models_config::get_models_config()
-          .ok()
-          .and_then(|config| config.get_yolo_model_path("yolo-object"))
-          .cloned()
-          .unwrap_or_else(|| PathBuf::from("models/yolo/yolov8n.onnx"))
-      }
+      // YOLOv8 модели для объектов
+      YoloModel::YoloV8Nano => crate::models_config::get_models_config()
+        .ok()
+        .and_then(|config| config.get_yolo_model_path("yolov8n"))
+        .cloned()
+        .unwrap_or_else(|| PathBuf::from("models/yolo/yolov8n.onnx")),
+      YoloModel::YoloV8Small => crate::models_config::get_models_config()
+        .ok()
+        .and_then(|config| config.get_yolo_model_path("yolov8s"))
+        .cloned()
+        .unwrap_or_else(|| PathBuf::from("models/yolo/yolov8s.onnx")),
+      YoloModel::YoloV8Medium => crate::models_config::get_models_config()
+        .ok()
+        .and_then(|config| config.get_yolo_model_path("yolov8m"))
+        .cloned()
+        .unwrap_or_else(|| PathBuf::from("models/yolo/yolov8m.onnx")),
+      YoloModel::YoloV8Large => crate::models_config::get_models_config()
+        .ok()
+        .and_then(|config| config.get_yolo_model_path("yolov8l"))
+        .cloned()
+        .unwrap_or_else(|| PathBuf::from("models/yolo/yolov8l.onnx")),
+      YoloModel::YoloV8Extra => crate::models_config::get_models_config()
+        .ok()
+        .and_then(|config| config.get_yolo_model_path("yolov8x"))
+        .cloned()
+        .unwrap_or_else(|| PathBuf::from("models/yolo/yolov8x.onnx")),
+
+      // YOLOv8 модели для лиц
+      YoloModel::YoloV8FaceNano => crate::models_config::get_models_config()
+        .ok()
+        .and_then(|config| config.get_yolo_model_path("yolov8n-face"))
+        .cloned()
+        .unwrap_or_else(|| PathBuf::from("models/yolo/yolov8n-face.onnx")),
+      YoloModel::YoloV8FaceSmall => crate::models_config::get_models_config()
+        .ok()
+        .and_then(|config| config.get_yolo_model_path("yolov8s-face"))
+        .cloned()
+        .unwrap_or_else(|| PathBuf::from("models/yolo/yolov8s-face.onnx")),
+      YoloModel::YoloV8FaceMedium => crate::models_config::get_models_config()
+        .ok()
+        .and_then(|config| config.get_yolo_model_path("yolov8m-face"))
+        .cloned()
+        .unwrap_or_else(|| PathBuf::from("models/yolo/yolov8m-face.onnx")),
+      YoloModel::YoloV8FaceLarge => crate::models_config::get_models_config()
+        .ok()
+        .and_then(|config| config.get_yolo_model_path("yolov8l-face"))
+        .cloned()
+        .unwrap_or_else(|| PathBuf::from("models/yolo/yolov8l-face.onnx")),
+      YoloModel::YoloV8FaceExtra => crate::models_config::get_models_config()
+        .ok()
+        .and_then(|config| config.get_yolo_model_path("yolov8x-face"))
+        .cloned()
+        .unwrap_or_else(|| PathBuf::from("models/yolo/yolov8x-face.onnx")),
+
+      // YOLOv11 модели для объектов
+      YoloModel::YoloV11Nano => crate::models_config::get_models_config()
+        .ok()
+        .and_then(|config| config.get_yolo_model_path("yolov11n"))
+        .cloned()
+        .unwrap_or_else(|| PathBuf::from("models/yolo/yolov11n.onnx")),
+      YoloModel::YoloV11Small => crate::models_config::get_models_config()
+        .ok()
+        .and_then(|config| config.get_yolo_model_path("yolov11s"))
+        .cloned()
+        .unwrap_or_else(|| PathBuf::from("models/yolo/yolov11s.onnx")),
+      YoloModel::YoloV11Medium => crate::models_config::get_models_config()
+        .ok()
+        .and_then(|config| config.get_yolo_model_path("yolov11m"))
+        .cloned()
+        .unwrap_or_else(|| PathBuf::from("models/yolo/yolov11m.onnx")),
+      YoloModel::YoloV11Large => crate::models_config::get_models_config()
+        .ok()
+        .and_then(|config| config.get_yolo_model_path("yolov11l"))
+        .cloned()
+        .unwrap_or_else(|| PathBuf::from("models/yolo/yolov11l.onnx")),
+      YoloModel::YoloV11Extra => crate::models_config::get_models_config()
+        .ok()
+        .and_then(|config| config.get_yolo_model_path("yolov11x"))
+        .cloned()
+        .unwrap_or_else(|| PathBuf::from("models/yolo/yolov11x.onnx")),
+
+      // YOLOv11 модели для лиц
+      YoloModel::YoloV11FaceNano => crate::models_config::get_models_config()
+        .ok()
+        .and_then(|config| config.get_yolo_model_path("yolov11n-face"))
+        .cloned()
+        .unwrap_or_else(|| PathBuf::from("models/yolo/yolov11n-face.onnx")),
+      YoloModel::YoloV11FaceSmall => crate::models_config::get_models_config()
+        .ok()
+        .and_then(|config| config.get_yolo_model_path("yolov11s-face"))
+        .cloned()
+        .unwrap_or_else(|| PathBuf::from("models/yolo/yolov11s-face.onnx")),
+      YoloModel::YoloV11FaceMedium => crate::models_config::get_models_config()
+        .ok()
+        .and_then(|config| config.get_yolo_model_path("yolov11m-face"))
+        .cloned()
+        .unwrap_or_else(|| PathBuf::from("models/yolo/yolov11m-face.onnx")),
+      YoloModel::YoloV11FaceLarge => crate::models_config::get_models_config()
+        .ok()
+        .and_then(|config| config.get_yolo_model_path("yolov11l-face"))
+        .cloned()
+        .unwrap_or_else(|| PathBuf::from("models/yolo/yolov11l-face.onnx")),
+      YoloModel::YoloV11FaceExtra => crate::models_config::get_models_config()
+        .ok()
+        .and_then(|config| config.get_yolo_model_path("yolov11x-face"))
+        .cloned()
+        .unwrap_or_else(|| PathBuf::from("models/yolo/yolov11x-face.onnx")),
+
+      // Обратная совместимость
+      YoloModel::YoloV11Detection => crate::models_config::get_models_config()
+        .ok()
+        .and_then(|config| config.get_yolo_model_path("yolo-object"))
+        .cloned()
+        .unwrap_or_else(|| PathBuf::from("models/yolo/yolov8n.onnx")),
       YoloModel::YoloV11Segmentation => PathBuf::from("models/yolo/yolo11n-seg.onnx"),
       YoloModel::YoloV11Face => crate::models_config::get_models_config()
         .ok()

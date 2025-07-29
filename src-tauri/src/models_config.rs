@@ -12,9 +12,33 @@ pub struct ModelsConfig {
 
 /// Конфигурация YOLO моделей
 pub struct YoloModelsConfig {
-  pub yolo_face_v8: PathBuf,
-  pub yolo_face_v11: PathBuf,
-  pub yolo_object_detection: PathBuf,
+  // YOLOv8 модели для объектов
+  pub yolo_v8_nano: PathBuf,
+  pub yolo_v8_small: PathBuf,
+  pub yolo_v8_medium: PathBuf,
+  pub yolo_v8_large: PathBuf,
+  pub yolo_v8_extra: PathBuf,
+
+  // YOLOv8 модели для лиц
+  pub yolo_v8_face_nano: PathBuf,
+  pub yolo_v8_face_small: PathBuf,
+  pub yolo_v8_face_medium: PathBuf,
+  pub yolo_v8_face_large: PathBuf,
+  pub yolo_v8_face_extra: PathBuf,
+
+  // YOLOv11 модели для объектов
+  pub yolo_v11_nano: PathBuf,
+  pub yolo_v11_small: PathBuf,
+  pub yolo_v11_medium: PathBuf,
+  pub yolo_v11_large: PathBuf,
+  pub yolo_v11_extra: PathBuf,
+
+  // YOLOv11 модели для лиц
+  pub yolo_v11_face_nano: PathBuf,
+  pub yolo_v11_face_small: PathBuf,
+  pub yolo_v11_face_medium: PathBuf,
+  pub yolo_v11_face_large: PathBuf,
+  pub yolo_v11_face_extra: PathBuf,
 }
 
 /// Конфигурация FaceNet моделей
@@ -30,9 +54,33 @@ impl Default for ModelsConfig {
 
     Self {
       yolo_models: YoloModelsConfig {
-        yolo_face_v8: models_dir.join("yolo/yolov8n-face.onnx"),
-        yolo_face_v11: models_dir.join("yolo/yolov11n-face.onnx"),
-        yolo_object_detection: models_dir.join("yolo/yolov8n.onnx"),
+        // YOLOv8 модели для объектов
+        yolo_v8_nano: models_dir.join("yolo/yolov8n.onnx"),
+        yolo_v8_small: models_dir.join("yolo/yolov8s.onnx"),
+        yolo_v8_medium: models_dir.join("yolo/yolov8m.onnx"),
+        yolo_v8_large: models_dir.join("yolo/yolov8l.onnx"),
+        yolo_v8_extra: models_dir.join("yolo/yolov8x.onnx"),
+
+        // YOLOv8 модели для лиц
+        yolo_v8_face_nano: models_dir.join("yolo/yolov8n-face.onnx"),
+        yolo_v8_face_small: models_dir.join("yolo/yolov8s-face.onnx"),
+        yolo_v8_face_medium: models_dir.join("yolo/yolov8m-face.onnx"),
+        yolo_v8_face_large: models_dir.join("yolo/yolov8l-face.onnx"),
+        yolo_v8_face_extra: models_dir.join("yolo/yolov8x-face.onnx"),
+
+        // YOLOv11 модели для объектов
+        yolo_v11_nano: models_dir.join("yolo/yolov11n.onnx"),
+        yolo_v11_small: models_dir.join("yolo/yolov11s.onnx"),
+        yolo_v11_medium: models_dir.join("yolo/yolov11m.onnx"),
+        yolo_v11_large: models_dir.join("yolo/yolov11l.onnx"),
+        yolo_v11_extra: models_dir.join("yolo/yolov11x.onnx"),
+
+        // YOLOv11 модели для лиц
+        yolo_v11_face_nano: models_dir.join("yolo/yolov11n-face.onnx"),
+        yolo_v11_face_small: models_dir.join("yolo/yolov11s-face.onnx"),
+        yolo_v11_face_medium: models_dir.join("yolo/yolov11m-face.onnx"),
+        yolo_v11_face_large: models_dir.join("yolo/yolov11l-face.onnx"),
+        yolo_v11_face_extra: models_dir.join("yolo/yolov11x-face.onnx"),
       },
       facenet_models: FaceNetModelsConfig {
         facenet_512d: models_dir.join("facenet/facenet-512d.onnx"),
@@ -51,9 +99,33 @@ impl ModelsConfig {
 
     Self {
       yolo_models: YoloModelsConfig {
-        yolo_face_v8: models_dir.join("yolo/yolov8n-face.onnx"),
-        yolo_face_v11: models_dir.join("yolo/yolov11n-face.onnx"),
-        yolo_object_detection: models_dir.join("yolo/yolov8n.onnx"),
+        // YOLOv8 модели для объектов
+        yolo_v8_nano: models_dir.join("yolo/yolov8n.onnx"),
+        yolo_v8_small: models_dir.join("yolo/yolov8s.onnx"),
+        yolo_v8_medium: models_dir.join("yolo/yolov8m.onnx"),
+        yolo_v8_large: models_dir.join("yolo/yolov8l.onnx"),
+        yolo_v8_extra: models_dir.join("yolo/yolov8x.onnx"),
+
+        // YOLOv8 модели для лиц
+        yolo_v8_face_nano: models_dir.join("yolo/yolov8n-face.onnx"),
+        yolo_v8_face_small: models_dir.join("yolo/yolov8s-face.onnx"),
+        yolo_v8_face_medium: models_dir.join("yolo/yolov8m-face.onnx"),
+        yolo_v8_face_large: models_dir.join("yolo/yolov8l-face.onnx"),
+        yolo_v8_face_extra: models_dir.join("yolo/yolov8x-face.onnx"),
+
+        // YOLOv11 модели для объектов
+        yolo_v11_nano: models_dir.join("yolo/yolov11n.onnx"),
+        yolo_v11_small: models_dir.join("yolo/yolov11s.onnx"),
+        yolo_v11_medium: models_dir.join("yolo/yolov11m.onnx"),
+        yolo_v11_large: models_dir.join("yolo/yolov11l.onnx"),
+        yolo_v11_extra: models_dir.join("yolo/yolov11x.onnx"),
+
+        // YOLOv11 модели для лиц
+        yolo_v11_face_nano: models_dir.join("yolo/yolov11n-face.onnx"),
+        yolo_v11_face_small: models_dir.join("yolo/yolov11s-face.onnx"),
+        yolo_v11_face_medium: models_dir.join("yolo/yolov11m-face.onnx"),
+        yolo_v11_face_large: models_dir.join("yolo/yolov11l-face.onnx"),
+        yolo_v11_face_extra: models_dir.join("yolo/yolov11x-face.onnx"),
       },
       facenet_models: FaceNetModelsConfig {
         facenet_512d: models_dir.join("facenet/facenet-512d.onnx"),
@@ -68,12 +140,31 @@ impl ModelsConfig {
   #[allow(dead_code)]
   pub fn validate_models(&self) -> Result<(), String> {
     let models_to_check = [
-      ("YOLO Face v8", &self.yolo_models.yolo_face_v8),
-      ("YOLO Face v11", &self.yolo_models.yolo_face_v11),
-      (
-        "YOLO Object Detection",
-        &self.yolo_models.yolo_object_detection,
-      ),
+      // YOLOv8 объекты
+      ("YOLOv8n", &self.yolo_models.yolo_v8_nano),
+      ("YOLOv8s", &self.yolo_models.yolo_v8_small),
+      ("YOLOv8m", &self.yolo_models.yolo_v8_medium),
+      ("YOLOv8l", &self.yolo_models.yolo_v8_large),
+      ("YOLOv8x", &self.yolo_models.yolo_v8_extra),
+      // YOLOv8 лица
+      ("YOLOv8n-Face", &self.yolo_models.yolo_v8_face_nano),
+      ("YOLOv8s-Face", &self.yolo_models.yolo_v8_face_small),
+      ("YOLOv8m-Face", &self.yolo_models.yolo_v8_face_medium),
+      ("YOLOv8l-Face", &self.yolo_models.yolo_v8_face_large),
+      ("YOLOv8x-Face", &self.yolo_models.yolo_v8_face_extra),
+      // YOLOv11 объекты
+      ("YOLOv11n", &self.yolo_models.yolo_v11_nano),
+      ("YOLOv11s", &self.yolo_models.yolo_v11_small),
+      ("YOLOv11m", &self.yolo_models.yolo_v11_medium),
+      ("YOLOv11l", &self.yolo_models.yolo_v11_large),
+      ("YOLOv11x", &self.yolo_models.yolo_v11_extra),
+      // YOLOv11 лица
+      ("YOLOv11n-Face", &self.yolo_models.yolo_v11_face_nano),
+      ("YOLOv11s-Face", &self.yolo_models.yolo_v11_face_small),
+      ("YOLOv11m-Face", &self.yolo_models.yolo_v11_face_medium),
+      ("YOLOv11l-Face", &self.yolo_models.yolo_v11_face_large),
+      ("YOLOv11x-Face", &self.yolo_models.yolo_v11_face_extra),
+      // FaceNet модели
       ("FaceNet 512D", &self.facenet_models.facenet_512d),
       ("FaceNet 128D", &self.facenet_models.facenet_128d),
       ("ArcFace 512D", &self.facenet_models.arcface_512d),
@@ -100,9 +191,39 @@ impl ModelsConfig {
   /// Получить путь к YOLO модели по типу
   pub fn get_yolo_model_path(&self, model_type: &str) -> Option<&PathBuf> {
     match model_type {
-      "yolo-face-v8" => Some(&self.yolo_models.yolo_face_v8),
-      "yolo-face-v11" => Some(&self.yolo_models.yolo_face_v11),
-      "yolo-object" => Some(&self.yolo_models.yolo_object_detection),
+      // YOLOv8 объекты
+      "yolov8n" | "yolo-v8-nano" => Some(&self.yolo_models.yolo_v8_nano),
+      "yolov8s" | "yolo-v8-small" => Some(&self.yolo_models.yolo_v8_small),
+      "yolov8m" | "yolo-v8-medium" => Some(&self.yolo_models.yolo_v8_medium),
+      "yolov8l" | "yolo-v8-large" => Some(&self.yolo_models.yolo_v8_large),
+      "yolov8x" | "yolo-v8-extra" => Some(&self.yolo_models.yolo_v8_extra),
+
+      // YOLOv8 лица
+      "yolov8n-face" | "yolo-v8-face-nano" => Some(&self.yolo_models.yolo_v8_face_nano),
+      "yolov8s-face" | "yolo-v8-face-small" => Some(&self.yolo_models.yolo_v8_face_small),
+      "yolov8m-face" | "yolo-v8-face-medium" => Some(&self.yolo_models.yolo_v8_face_medium),
+      "yolov8l-face" | "yolo-v8-face-large" => Some(&self.yolo_models.yolo_v8_face_large),
+      "yolov8x-face" | "yolo-v8-face-extra" => Some(&self.yolo_models.yolo_v8_face_extra),
+
+      // YOLOv11 объекты
+      "yolov11n" | "yolo-v11-nano" => Some(&self.yolo_models.yolo_v11_nano),
+      "yolov11s" | "yolo-v11-small" => Some(&self.yolo_models.yolo_v11_small),
+      "yolov11m" | "yolo-v11-medium" => Some(&self.yolo_models.yolo_v11_medium),
+      "yolov11l" | "yolo-v11-large" => Some(&self.yolo_models.yolo_v11_large),
+      "yolov11x" | "yolo-v11-extra" => Some(&self.yolo_models.yolo_v11_extra),
+
+      // YOLOv11 лица
+      "yolov11n-face" | "yolo-v11-face-nano" => Some(&self.yolo_models.yolo_v11_face_nano),
+      "yolov11s-face" | "yolo-v11-face-small" => Some(&self.yolo_models.yolo_v11_face_small),
+      "yolov11m-face" | "yolo-v11-face-medium" => Some(&self.yolo_models.yolo_v11_face_medium),
+      "yolov11l-face" | "yolo-v11-face-large" => Some(&self.yolo_models.yolo_v11_face_large),
+      "yolov11x-face" | "yolo-v11-face-extra" => Some(&self.yolo_models.yolo_v11_face_extra),
+
+      // Обратная совместимость
+      "yolo-face-v8" => Some(&self.yolo_models.yolo_v8_face_nano),
+      "yolo-face-v11" => Some(&self.yolo_models.yolo_v11_face_nano),
+      "yolo-object" => Some(&self.yolo_models.yolo_v8_nano),
+
       _ => None,
     }
   }
@@ -153,7 +274,6 @@ pub fn get_models_config() -> Result<&'static ModelsConfig, String> {
 #[cfg(test)]
 mod tests {
   use super::*;
-  use std::fs;
 
   #[test]
   fn test_models_config_creation() {
@@ -163,7 +283,7 @@ mod tests {
     assert_eq!(config.models_dir, temp_dir.join("models"));
     assert!(config
       .yolo_models
-      .yolo_face_v8
+      .yolo_v8_face_nano
       .to_string_lossy()
       .contains("yolov8n-face.onnx"));
     assert!(config

@@ -18,29 +18,111 @@ mkdir -p "$FACENET_DIR"
 # YOLO Models
 echo "🔍 Загружаем YOLO модели..."
 
-# YOLOv8n для объектов (общее распознавание)
-if [ ! -f "$YOLO_DIR/yolov8n.onnx" ]; then
-    echo "  📥 YOLOv8n (объекты)..."
-    curl -L "https://github.com/ultralytics/assets/releases/download/v8.2.0/yolov8n.onnx" \
-         -o "$YOLO_DIR/yolov8n.onnx"
-fi
+# YOLOv8 объекты - все размеры
+echo "📦 YOLOv8 Object Detection Models:"
 
-# YOLOv8n для лиц (face detection)
-if [ ! -f "$YOLO_DIR/yolov8n-face.onnx" ]; then
-    echo "  📥 YOLOv8n-Face..."
-    # Примечание: Реальную модель лиц нужно тренировать или найти готовую
-    # Пока используем заглушку - копируем обычную YOLOv8n
-    cp "$YOLO_DIR/yolov8n.onnx" "$YOLO_DIR/yolov8n-face.onnx"
-    echo "  ⚠️  Используется заглушка для YOLOv8n-Face"
-fi
+download_yolo_v8_object() {
+    local size=$1
+    local file="yolov8${size}.onnx"
+    
+    if [ ! -f "$YOLO_DIR/$file" ]; then
+        echo "  📥 YOLOv8${size} (объекты)..."
+        curl -L "https://github.com/ultralytics/assets/releases/download/v8.2.0/yolov8${size}.onnx" \
+             -o "$YOLO_DIR/$file" || {
+            echo "  ⚠️  Не удалось загрузить YOLOv8${size}, создаем заглушку"
+            touch "$YOLO_DIR/$file"
+        }
+    fi
+}
 
-# YOLOv11n для лиц 
-if [ ! -f "$YOLO_DIR/yolov11n-face.onnx" ]; then
-    echo "  📥 YOLOv11n-Face..."
-    # YOLOv11 может быть недоступна, используем v8 как fallback
-    cp "$YOLO_DIR/yolov8n.onnx" "$YOLO_DIR/yolov11n-face.onnx" 
-    echo "  ⚠️  Используется YOLOv8n как fallback для YOLOv11n-Face"
-fi
+# Загружаем все размеры YOLOv8 для объектов
+download_yolo_v8_object "n"  # nano
+download_yolo_v8_object "s"  # small  
+download_yolo_v8_object "m"  # medium
+download_yolo_v8_object "l"  # large
+download_yolo_v8_object "x"  # extra
+
+# YOLOv11 объекты - все размеры (fallback к v8)
+echo "📦 YOLOv11 Object Detection Models:"
+
+download_yolo_v11_object() {
+    local size=$1
+    local file="yolov11${size}.onnx"
+    
+    if [ ! -f "$YOLO_DIR/$file" ]; then
+        echo "  📥 YOLOv11${size} (объекты)..."
+        # YOLOv11 может быть недоступна, используем v8 как fallback
+        if [ -f "$YOLO_DIR/yolov8${size}.onnx" ]; then
+            cp "$YOLO_DIR/yolov8${size}.onnx" "$YOLO_DIR/$file"
+            echo "  ⚠️  Используется YOLOv8${size} как fallback для YOLOv11${size}"
+        else
+            touch "$YOLO_DIR/$file"
+            echo "  ⚠️  Создана заглушка для YOLOv11${size}"
+        fi
+    fi
+}
+
+# Загружаем все размеры YOLOv11 для объектов
+download_yolo_v11_object "n"  # nano
+download_yolo_v11_object "s"  # small
+download_yolo_v11_object "m"  # medium 
+download_yolo_v11_object "l"  # large
+download_yolo_v11_object "x"  # extra
+
+# YOLOv8 Face Detection - все размеры
+echo "📦 YOLOv8 Face Detection Models:"
+
+download_yolo_v8_face() {
+    local size=$1
+    local file="yolov8${size}-face.onnx"
+    
+    if [ ! -f "$YOLO_DIR/$file" ]; then
+        echo "  📥 YOLOv8${size}-Face..."
+        # Примечание: Реальные модели лиц нужно найти или тренировать
+        # Пока используем заглушки - копируем обычные YOLOv8
+        if [ -f "$YOLO_DIR/yolov8${size}.onnx" ]; then
+            cp "$YOLO_DIR/yolov8${size}.onnx" "$YOLO_DIR/$file"
+            echo "  ⚠️  Используется YOLOv8${size} как заглушка для Face"
+        else
+            touch "$YOLO_DIR/$file"
+            echo "  ⚠️  Создана заглушка для YOLOv8${size}-Face"
+        fi
+    fi
+}
+
+# Загружаем все размеры YOLOv8 для лиц
+download_yolo_v8_face "n"  # nano
+download_yolo_v8_face "s"  # small
+download_yolo_v8_face "m"  # medium
+download_yolo_v8_face "l"  # large
+download_yolo_v8_face "x"  # extra
+
+# YOLOv11 Face Detection - все размеры
+echo "📦 YOLOv11 Face Detection Models:"
+
+download_yolo_v11_face() {
+    local size=$1
+    local file="yolov11${size}-face.onnx"
+    
+    if [ ! -f "$YOLO_DIR/$file" ]; then
+        echo "  📥 YOLOv11${size}-Face..."
+        # Используем YOLOv8 Face как fallback
+        if [ -f "$YOLO_DIR/yolov8${size}-face.onnx" ]; then
+            cp "$YOLO_DIR/yolov8${size}-face.onnx" "$YOLO_DIR/$file"
+            echo "  ⚠️  Используется YOLOv8${size}-Face как fallback для YOLOv11${size}-Face"
+        else
+            touch "$YOLO_DIR/$file"
+            echo "  ⚠️  Создана заглушка для YOLOv11${size}-Face"
+        fi
+    fi
+}
+
+# Загружаем все размеры YOLOv11 для лиц
+download_yolo_v11_face "n"  # nano
+download_yolo_v11_face "s"  # small
+download_yolo_v11_face "m"  # medium
+download_yolo_v11_face "l"  # large
+download_yolo_v11_face "x"  # extra
 
 # FaceNet Models
 echo "🧠 Загружаем FaceNet модели..."

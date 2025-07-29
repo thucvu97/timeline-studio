@@ -186,7 +186,7 @@ impl FaceNetProcessor {
       // Получаем мутабельную ссылку на сессию через RwLock
       let mut session_ref = self.session.write().unwrap();
       let session = session_ref.as_mut().unwrap();
-      
+
       let outputs = session
         .run(ort::inputs!["input" => input_tensor])
         .map_err(|e| anyhow!("Inference failed: {}", e))?;
@@ -202,7 +202,7 @@ impl FaceNetProcessor {
 
       let vector: Vec<f32> = embedding_data.to_vec();
       let dimension = vector.len();
-      
+
       (vector, dimension)
     };
 
