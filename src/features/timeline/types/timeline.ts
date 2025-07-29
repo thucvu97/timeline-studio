@@ -16,6 +16,7 @@ import { MediaFile } from "../../media/types/media"
 import { StyleTemplate } from "../../style-templates/types/style-template"
 import { MediaTemplate } from "../../templates/lib/templates"
 import { Transition } from "../../transitions/types/transitions"
+import { TimelineTransition } from "./timeline-transition"
 
 // ============================================================================
 // CORE TIMELINE TYPES
@@ -31,8 +32,11 @@ export interface ProjectResources {
   // Фильтры цветокоррекции
   filters: VideoFilter[]
 
-  // Переходы между клипами
+  // Переходы между клипами (базовые)
   transitions: Transition[]
+
+  // Переходы на таймлайне (расширенные)
+  timelineTransitions: TimelineTransition[]
 
   // Шаблоны многокамерных раскладок
   templates: MediaTemplate[]
@@ -139,6 +143,9 @@ export interface TimelineTrack {
 
   // Клипы на треке
   clips: TimelineClip[]
+
+  // Переходы на треке (между клипами и на границах)
+  transitions: string[] // IDs переходов из resources.timelineTransitions
 
   // Настройки трека
   isLocked: boolean

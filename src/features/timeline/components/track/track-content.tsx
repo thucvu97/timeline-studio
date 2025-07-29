@@ -14,8 +14,12 @@ import { useClipGroups } from "../../hooks/use-clip-groups"
 import { useDragDropTimeline } from "../../hooks/use-drag-drop-timeline"
 import { useTimeline } from "../../hooks/use-timeline"
 import { TimelineTrack } from "../../types"
+import { TimelineTransition } from "../../types/timeline-transition"
 import { Clip } from "../clip/clip"
 import { CollapsedGroup } from "../clip-groups/collapsed-group"
+import { TimelineTransitionComponent } from "../transition/timeline-transition"
+import { TransitionDropZone } from "../transition/transition-drop-zone"
+import { getTrackTransitions, addTransitionBetweenClips } from "../../services/timeline-transition-manager"
 
 interface TrackContentProps {
   track: TimelineTrack
@@ -26,7 +30,7 @@ interface TrackContentProps {
 
 export const TrackContent = memo(function TrackContent({ track, timeScale, currentTime, onUpdate }: TrackContentProps) {
   const { dragState, isValidDropTarget } = useDragDropTimeline()
-  const { addClip, selectClips } = useTimeline()
+  const { addClip, selectClips, project, updateProject } = useTimeline()
   const { groups, toggleCollapse } = useClipGroups()
 
   // Setup droppable functionality for @dnd-kit
@@ -59,6 +63,12 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
   // Check if this track is a valid drop target
   const isValidTarget = isValidDropTarget(track.id, track.type)
   const showDropFeedback = dragState.isDragging && isOver && isValidTarget
+
+  // Получаем переходы для этого трека
+  const trackTransitions = useMemo(() => {
+    if (!project) return []
+    return getTrackTransitions(project, track.id)
+  }, [project, track.id])
 
   // Мемоизируем отсортированные клипы и группы
   const { visibleClips, collapsedGroups } = useMemo(() => {
@@ -109,6 +119,27 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
       onUpdate?.({ clips: updatedClips })
     },
     [track.clips, onUpdate],
+  )
+
+  // Обработчик добавления перехода между клипами
+  const handleTransitionDrop = useCallback(
+    (leftClipId: string, rightClipId: string, transition: any) => {
+      if (!project) return
+      
+      try {
+        const result = addTransitionBetweenClips(
+          project,
+          track.id,
+          leftClipId,
+          rightClipId,
+          transition,
+        )
+        updateProject?.(result.project)
+      } catch (error) {
+        console.error("Failed to add transition:", error)
+      }
+    },
+    [project, track.id, updateProject],
   )
 
   // Мемоизируем сетку временной шкалы
@@ -194,6 +225,43 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
             isSelected={clips.some((c) => c.isSelected)}
           />
         ))}
+
+        {/* Переходы */}
+        {trackTransitions.map((transition) => (
+          <TimelineTransitionComponent
+            key={transition.id}
+            transition={transition}
+            timeScale={timeScale}
+            onUpdate={(updates) => {
+              // Обновление перехода через контекст или API
+              console.log("Transition update:", transition.id, updates)
+            }}
+            onDelete={() => {
+              // Удаление перехода
+              console.log("Transition delete:", transition.id)
+            }}
+          />
+        ))}
+
+        {/* Зоны для сброса переходов между клипами */}
+        {visibleClips.length > 1 &&
+          visibleClips
+            .slice(0, -1)
+            .map((leftClip, index) => {
+              const rightClip = visibleClips[index + 1]
+              return (
+                <TransitionDropZone
+                  key={`drop-${leftClip.id}-${rightClip.id}`}
+                  leftClip={leftClip}
+                  rightClip={rightClip}
+                  trackId={track.id}
+                  timeScale={timeScale}
+                  onDrop={(transition) =>
+                    handleTransitionDrop(leftClip.id, rightClip.id, transition)
+                  }
+                />
+              )
+            })}
 
         {/* Roll edit handles between adjacent clips */}
         <TrackRollHandles

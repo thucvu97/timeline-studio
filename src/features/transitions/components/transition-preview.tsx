@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { useTranslation } from "react-i18next"
+import { useDraggable } from "@dnd-kit/core"
 
 import { ApplyButton } from "@/features/browser"
 import { AddMediaButton } from "@/features/browser/components/layout/add-media-button"
@@ -56,6 +57,22 @@ export function TransitionPreview({
   // Получаем переход из пропсов или находим по типу
   const currentTransition =
     transition || transitions.find((t: Transition) => t.id === transitionType || t.type === transitionType)
+
+  // Настраиваем drag & drop
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: `transition-${currentTransition?.id || transitionType}`,
+    data: {
+      type: "transition",
+      data: currentTransition || {
+        id: transitionType,
+        type: transitionType,
+        labels: { ru: transitionType, en: transitionType },
+        category: "basic",
+        complexity: "basic",
+        duration: { min: 0.5, max: 2.0, default: 1.0 },
+      },
+    },
+  })
 
   // Вычисляем размеры превью с учетом aspect ratio
   const { actualWidth, actualHeight } = useMemo(() => {
@@ -367,7 +384,17 @@ export function TransitionPreview({
   }, [isHovering]) // Убираем функции из зависимостей
 
   return (
-    <div className="flex flex-col items-center">
+    <div 
+      ref={setNodeRef}
+      className="flex flex-col items-center"
+      style={{
+        transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
+        opacity: isDragging ? 0.5 : 1,
+        cursor: isDragging ? "grabbing" : "grab",
+      }}
+      {...attributes}
+      {...listeners}
+    >
       <div className="group relative">
         {/* Контейнер превью перехода */}
         <div
