@@ -1,3 +1,16 @@
+# [0.41.0](https://github.com/chatman-media/timeline-studio/compare/v0.40.0...v0.41.0) (2025-07-29)
+
+
+### Bug Fixes
+
+* **promo:** увеличена прозрачность glass навигации ([57a063b](https://github.com/chatman-media/timeline-studio/commit/57a063b923035b50d76f2038ab3f68e123528153))
+
+
+### Features
+
+* **recognition:** добавлен модуль RetinaFace для распознавания лиц ([9d932cd](https://github.com/chatman-media/timeline-studio/commit/9d932cd9c87954becb9bec8c716847554bb90a4b))
+* **recognition:** добавлена поддержка MediaPipe для анализа лиц ([5e6af90](https://github.com/chatman-media/timeline-studio/commit/5e6af90ffd7023088082e11e39ab28b834302d1b))
+
 # [0.40.0](https://github.com/chatman-media/timeline-studio/compare/v0.39.0...v0.40.0) (2025-07-29)
 
 
