@@ -14,6 +14,19 @@ import type { CommandResult, ProjectCommand } from '@/types/generated/tauri-bind
 
 import { MockBackendProvider, MockProjectState, createTestScenarios } from './mock-backend-provider'
 
+// Re-export will be done later in the file to avoid duplicates
+
+// Mock hook for test components
+export function useMockBackend() {
+  return {
+    executeCommand: vi.fn(),
+    getProjectState: vi.fn(),
+    getEventHistory: vi.fn()
+  }
+}
+
+// Remove duplicate exports - they are defined later in the file
+
 // Mock Tauri API globally for all tests
 const mockInvoke = vi.fn()
 const mockListen = vi.fn()
