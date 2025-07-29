@@ -4,10 +4,10 @@ import { AppStateGuard } from "@/features/app-state/components/app-state-guard"
 import { ProjectLoadingOverlay } from "@/features/app-state/components/project-loading-overlay"
 import { useAutoLoadUserData } from "@/features/media-studio/hooks"
 import { ModalContainer } from "@/features/modals/components"
-import { TopBar } from "@/features/top-bar/components/top-bar"
 import { useUserSettings } from "@/features/user-settings"
 
 import { ChatLayout, DefaultLayout, OptionsLayout, VerticalLayout } from "./layout"
+import { TopBar } from "./top-bar/top-bar"
 
 export function MediaStudio() {
   const { layoutMode } = useUserSettings()

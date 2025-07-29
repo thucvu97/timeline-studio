@@ -63,7 +63,7 @@ export const updateMachine = setup({
     // Сохранить результат проверки обновлений
     saveUpdateCheckResult: assign({
       availableUpdate: ({ event }) => {
-        if (event.type === 'xstate.done.actor.checkForUpdates') {
+        if (event.type === 'CHECK_FOR_UPDATES') {
           const result = event.output as UpdateCheckResult
           return result.available ? result.update_info : undefined
         }
@@ -76,8 +76,8 @@ export const updateMachine = setup({
     // Сохранить ошибку
     saveError: assign({
       error: ({ event }) => {
-        if (event.type === 'xstate.error.actor.checkForUpdates' || 
-            event.type === 'xstate.error.actor.downloadAndInstall') {
+        if (event.type === 'CHECK_FOR_UPDATES' || 
+            event.type === 'DOWNLOAD_UPDATE') {
           return event.error instanceof Error ? event.error.message : String(event.error)
         }
         return undefined

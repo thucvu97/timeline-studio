@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { TopBar } from "../../components/top-bar"
+import { TopBar } from "../top-bar"
 
 // Тесты взаимодействий для TopBar
 
@@ -45,7 +45,7 @@ vi.mock("@/features/media-studio", () => ({
   LayoutPreviews: () => <div data-testid="layout-previews">Layout Previews</div>,
 }))
 
-vi.mock("@/features/top-bar/components/theme/theme-toggle", () => ({
+vi.mock("../theme/theme-toggle", () => ({
   ThemeToggle: () => <div data-testid="theme-toggle-component">Theme Toggle</div>,
 }))
 

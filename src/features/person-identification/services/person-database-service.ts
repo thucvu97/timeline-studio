@@ -416,10 +416,27 @@ export class PersonDatabaseService {
         for (const result of searchResults) {
           const person = await this.getPerson(result.personId);
           if (person) {
+            // Создаем FaceMatch из данных результата поиска
+            // Ищем подходящий thumbnail из профиля персоны
+            const thumbnail = person.thumbnails.find(t => 
+              t.sourceClipId === result.embedding.clipId && 
+              Math.abs(t.sourceTimestamp.seconds - result.embedding.timestamp.seconds) < 1
+            )?.imageUrl || person.thumbnails.find(t => t.isPrimary)?.imageUrl;
+
+            const match: FaceMatch = {
+              faceId: result.embedding.faceId,
+              personId: result.personId,
+              similarity: result.similarity,
+              confidence: result.confidence,
+              clipId: result.embedding.clipId || "",
+              timestamp: result.embedding.timestamp,
+              thumbnail,
+            };
+
             results.push({
               person,
               similarity: result.similarity,
-              matches: [], // TODO: заполнить matches
+              matches: [match],
             });
           }
         }
@@ -458,6 +475,12 @@ export class PersonDatabaseService {
         // Найдем персону по эмбеддингу
         const person = await this.findPersonByEmbedding(sim.embedding.faceId);
         if (person) {
+          // Ищем подходящий thumbnail из профиля персоны
+          const thumbnail = person.thumbnails.find(t => 
+            t.sourceClipId === sim.embedding.clipId && 
+            Math.abs(t.sourceTimestamp.seconds - sim.embedding.timestamp.seconds) < 1
+          )?.imageUrl || person.thumbnails.find(t => t.isPrimary)?.imageUrl;
+
           results.push({
             person,
             similarity: sim.similarity,
@@ -469,6 +492,7 @@ export class PersonDatabaseService {
                 confidence: sim.confidence,
                 clipId: sim.embedding.clipId || "",
                 timestamp: sim.embedding.timestamp,
+                thumbnail,
               },
             ],
           });
@@ -1408,6 +1432,12 @@ export class PersonDatabaseService {
               faceSimilarity >=
               (options?.minConfidence || this.config.similarityThreshold)
             ) {
+              // Ищем подходящий thumbnail для этого совпадения
+              const thumbnail = person.thumbnails.find(t => 
+                t.sourceClipId === faceEmbedding.clipId && 
+                Math.abs(t.sourceTimestamp.seconds - faceEmbedding.timestamp.seconds) < 1
+              )?.imageUrl || person.thumbnails.find(t => t.isPrimary)?.imageUrl;
+
               matches.push({
                 faceId: faceEmbedding.faceId,
                 personId: person.id,
@@ -1415,6 +1445,7 @@ export class PersonDatabaseService {
                 confidence: faceSimilarity * faceEmbedding.quality,
                 clipId: faceEmbedding.clipId ?? "",
                 timestamp: faceEmbedding.timestamp,
+                thumbnail,
               });
 
               // Обновляем максимальное сходство

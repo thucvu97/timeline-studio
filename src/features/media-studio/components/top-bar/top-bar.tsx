@@ -28,10 +28,11 @@ import { LayoutPreviews } from "@/features/media-studio"
 import { ModalType } from "@/features/modals"
 import { useModal } from "@/features/modals/services/modal-provider"
 import { useTimeline } from "@/features/timeline/hooks/use-timeline"
-import { ThemeToggle } from "@/features/top-bar/components/theme/theme-toggle"
 import { useUserSettings } from "@/features/user-settings"
 import { GpuStatusBadge, RenderJobsDropdown } from "@/features/video-compiler"
 import { cn } from "@/lib/utils"
+
+import { ThemeToggle } from "./theme/theme-toggle"
 
 export const TOP_BAR_BUTTON_CLASS = "hover:bg-[#D1D1D1] dark:hover:bg-[#464747] h-6 w-6 cursor-pointer m-0.5 p-0"
 
@@ -155,7 +156,7 @@ const TopBarComponent = function TopBar() {
       editingTasks: t("topBar.editingTasks"),
       export: t("topBar.export"),
     }),
-    [t, isBrowserVisible, currentProject?.isDirty],
+    [t, isBrowserVisible, isTimelineVisible, currentProject?.isDirty],
   )
 
   // Мемоизируем CSS классы

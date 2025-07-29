@@ -4,7 +4,7 @@ import { RenderOptions as RTLRenderOptions, render as rtlRender } from "@testing
 
 // Provider imports
 
-import { ThemeProvider } from "@/features/top-bar/components/theme/theme-context"
+import { ThemeProvider } from "@/features/media-studio/components/top-bar/theme/theme-context"
 import { I18nProvider } from "@/i18n/services/i18n-provider"
 
 // Type-safe provider configuration
