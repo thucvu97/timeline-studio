@@ -171,7 +171,10 @@ class SmartPersonClustering {
 ### 🔒 Приватность и анонимизация
 
 #### Продвинутые функции приватности:
-- [ ] **Real-time размытие** - динамическое размытие лиц в видео
+- [x] **Real-time размытие** - динамическое размытие лиц в видео ✅
+- [x] **Privacy Processor** - 6 типов размытия (Gaussian, Box, Pixelate, EyeBar, SolidColor, Mosaic) ✅
+- [x] **Batch processing** - пакетная обработка кадров видео ✅
+- [x] **Адаптивное размытие** - изменение силы в зависимости от размера лица ✅
 - [ ] **Face swapping** - замена лиц на аватары
 - [ ] **Differential privacy** - математически гарантированная приватность
 - [ ] **Federated learning** - обучение без передачи данных
@@ -388,11 +391,13 @@ src-tauri/src/recognition/          # ✅ РЕАЛИЗОВАНО
 │   ├── yolo_commands.rs           # ✅ YOLO обработка
 │   ├── facenet_commands.rs        # ✅ FaceNet embeddings
 │   ├── retinaface_commands.rs     # ✅ RetinaFace landmarks
-│   └── mediapipe_commands.rs      # ✅ MediaPipe анализ
+│   ├── mediapipe_commands.rs      # ✅ MediaPipe анализ
+│   └── privacy_commands.rs        # ✅ Privacy команды
 ├── yolo_processor.rs              # ✅ YOLO процессор (все модели)
 ├── facenet_processor.rs           # ✅ FaceNet процессор (512D/128D)
 ├── retinaface_processor.rs        # ✅ RetinaFace процессор с landmarks
 ├── mediapipe_processor.rs         # ✅ MediaPipe процессор (468 landmarks)
+├── privacy_processor.rs           # ✅ Privacy процессор
 └── types.rs                       # ✅ Типы данных
 
 src-tauri/src/models_config.rs     # ✅ Конфигурация моделей
@@ -573,6 +578,7 @@ interface AdvancedPersonAPI extends PersonAPI {
 - ✅ **Rust ML backend** - производительные процессоры с ONNX Runtime
 - ✅ **RetinaFace интеграция** - высокоточная детекция лиц с 5-точечными landmarks
 - ✅ **MediaPipe интеграция** - 468 3D landmarks, анализ выражений и head pose
+- ✅ **Privacy Processor** - размытие лиц 6 способами с адаптивной настройкой
 - ✅ **TypeScript типизация** - полная совместимость с Float32Array  
 - ✅ **Автоматизация** - скрипты загрузки моделей и централизованная конфигурация
 - ✅ **Тестирование** - 30+ успешных тестов для всех компонентов

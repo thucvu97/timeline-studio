@@ -3,6 +3,7 @@ pub mod recognition_service;
 // pub mod registry; // Not used - commands are registered in app_builder.rs
 pub mod facenet_processor;
 pub mod mediapipe_processor;
+pub mod privacy_processor;
 pub mod retinaface_processor;
 pub mod types;
 pub mod yolo_processor;

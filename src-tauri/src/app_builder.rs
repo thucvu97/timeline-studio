@@ -106,6 +106,12 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::recognition::commands::mediapipe_commands::analyze_facial_expressions,
     crate::recognition::commands::mediapipe_commands::configure_mediapipe_settings,
     crate::recognition::commands::mediapipe_commands::get_mediapipe_processor_info,
+    // Privacy commands
+    crate::recognition::commands::privacy_commands::init_privacy_processor,
+    crate::recognition::commands::privacy_commands::blur_faces_in_image,
+    crate::recognition::commands::privacy_commands::update_privacy_settings,
+    crate::recognition::commands::privacy_commands::blur_faces_in_video_frames,
+    crate::recognition::commands::privacy_commands::get_privacy_processor_info,
     // Recognition advanced commands
     crate::video_compiler::commands::recognition_advanced_commands::get_frame_processor_class_names,
     crate::video_compiler::commands::recognition_advanced_commands::get_recognition_results_by_time_range,

@@ -1,5 +1,6 @@
 pub mod facenet_commands;
 pub mod mediapipe_commands;
+pub mod privacy_commands;
 pub mod retinaface_commands;
 pub mod yolo_commands;
 pub mod yolo_commands_simple;

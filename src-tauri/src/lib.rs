@@ -239,6 +239,10 @@ pub fn run() {
       use recognition::commands::mediapipe_commands::MediaPipeProcessorState;
       app.manage(MediaPipeProcessorState::default());
 
+      // Create Privacy processor state
+      use recognition::commands::privacy_commands::PrivacyProcessorState;
+      app.manage(PrivacyProcessorState::default());
+
       // Create Montage Planner State with its own YoloProcessorState instance
       let montage_yolo_state = Arc::new(RwLock::new(YoloProcessorState::default()));
       let montage_state = MontageState::new(montage_yolo_state);

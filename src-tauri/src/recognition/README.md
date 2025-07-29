@@ -40,6 +40,12 @@
    - 3D head pose с confidence
    - Face geometry анализ
 
+5. **PrivacyProcessor** - Приватность и анонимизация
+   - Размытие лиц различными методами
+   - Адаптивное размытие на основе размера лица
+   - Поддержка batch обработки видео
+   - 6 типов размытия (Gaussian, Box, Pixelate, EyeBar, SolidColor, Mosaic)
+
 ### Структура модуля
 
 ```
@@ -51,11 +57,13 @@ recognition/
 │   ├── yolo_commands_simple.rs   # Упрощенные YOLO команды
 │   ├── facenet_commands.rs       # FaceNet команды
 │   ├── retinaface_commands.rs    # RetinaFace команды
-│   └── mediapipe_commands.rs     # MediaPipe команды
+│   ├── mediapipe_commands.rs     # MediaPipe команды
+│   └── privacy_commands.rs       # Privacy команды
 ├── yolo_processor.rs             # YOLO процессор
 ├── facenet_processor.rs          # FaceNet процессор
 ├── retinaface_processor.rs       # RetinaFace процессор
 ├── mediapipe_processor.rs        # MediaPipe процессор
+├── privacy_processor.rs          # Privacy процессор
 ├── model_manager.rs              # Управление моделями
 ├── frame_processor.rs            # Обработка кадров
 ├── result_aggregator.rs          # Агрегация результатов
@@ -190,6 +198,36 @@ const expressions = await invoke('analyze_facial_expressions', {
 // }
 ```
 
+#### Privacy обработка
+```typescript
+// Инициализация с типом размытия
+await invoke('init_privacy_processor', {
+  blurType: 'gaussian' // 'gaussian', 'box', 'pixelate', 'eye_bar', 'solid_black', 'mosaic'
+});
+
+// Размытие лиц на изображении с автодетекцией
+await invoke('blur_faces_in_image', {
+  imagePath: '/path/to/input.jpg',
+  outputPath: '/path/to/output.jpg',
+  autoDetect: true
+});
+
+// Пакетная обработка кадров видео
+const result = await invoke('blur_faces_in_video_frames', {
+  framePaths: ['/frame1.jpg', '/frame2.jpg'],
+  outputDir: '/output/frames/',
+  autoDetect: true
+});
+
+// result = {
+//   total_frames: 2,
+//   processed_frames: 2,
+//   failed_frames: 0,
+//   total_faces_blurred: 5,
+//   frame_results: [...]
+// }
+```
+
 ## Конфигурация моделей
 
 Все пути к моделям централизованы в `ModelsConfig`:
@@ -299,6 +337,13 @@ const keyMoments = await detectKeyMoments({
 - `extract_face_mesh_landmarks(imageData: string)`
 - `analyze_facial_expressions(imageData: string)`
 - `configure_mediapipe_settings(confidence: number, maxFaces: number)`
+
+### Privacy команды
+- `init_privacy_processor(blurType: string)`
+- `blur_faces_in_image(imagePath: string, outputPath: string, autoDetect: boolean)`
+- `update_privacy_settings(blurType?: string, expandRatio?: number, adaptiveBlur?: boolean)`
+- `blur_faces_in_video_frames(framePaths: string[], outputDir: string, autoDetect: boolean)`
+- `get_privacy_processor_info()`
 
 ## Структуры данных
 
