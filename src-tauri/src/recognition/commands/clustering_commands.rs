@@ -1,3 +1,7 @@
+use crate::features::person_identification::clustering_integration::{
+  ClusterMetadata, ClusteringIntegrator,
+};
+use crate::features::person_identification::database::PersonDatabase;
 /**
  * Clustering Commands - Tauri commands for face clustering
  */
@@ -270,7 +274,7 @@ pub async fn auto_cluster_video_faces<R: tauri::Runtime>(
   app: tauri::AppHandle<R>,
   file_id: String,
   embeddings: Vec<Vec<f32>>,
-  _metadata: Vec<FaceMetadata>,
+  metadata: Vec<FaceMetadata>,
   save_results: bool,
 ) -> Result<ClusteringResponse, String> {
   // Создаем временный движок с оптимальными параметрами для видео
@@ -296,12 +300,22 @@ pub async fn auto_cluster_video_faces<R: tauri::Runtime>(
 
       // Сохраняем результаты если требуется
       if save_results {
-        // TODO: Интеграция с PersonDatabase для сохранения кластеров
-        log::info!(
-          "Would save {} clusters for file {}",
-          result.clusters.len(),
-          file_id
-        );
+        // Интеграция с PersonDatabase для сохранения кластеров
+        match integrate_clustering_results(&file_id, &result, &embeddings, &metadata).await {
+          Ok(integration_result) => {
+            log::info!(
+              "Saved {} clusters for file {}: {} new persons, {} matched, {} embeddings added",
+              result.clusters.len(),
+              file_id,
+              integration_result.stats.new_persons,
+              integration_result.stats.matched_persons,
+              integration_result.embeddings_added
+            );
+          }
+          Err(e) => {
+            log::error!("Failed to save clustering results: {}", e);
+          }
+        }
       }
 
       // Отправляем событие о завершении
@@ -330,6 +344,38 @@ pub async fn auto_cluster_video_faces<R: tauri::Runtime>(
       Err(format!("Video clustering failed: {}", e))
     }
   }
+}
+
+/// Вспомогательная функция для интеграции результатов кластеризации
+async fn integrate_clustering_results(
+  file_id: &str,
+  clustering_result: &ClusteringResult,
+  embeddings: &[Vec<f32>],
+  metadata: &[FaceMetadata],
+) -> Result<
+  crate::features::person_identification::clustering_integration::ClusteringIntegrationResult,
+> {
+  // Получаем доступ к базе данных персон
+  let db_path = std::env::temp_dir().join("timeline_studio_persons.db");
+  let mut db = PersonDatabase::new(db_path).await?;
+
+  // Подготавливаем метаданные для интеграции
+  let cluster_metadata = ClusterMetadata {
+    file_id: file_id.to_string(),
+    timestamps: metadata.iter().map(|m| m.timestamp).collect(),
+    bboxes: metadata.iter().map(|m| m.bbox).collect(),
+    frame_paths: vec![], // Пути к кадрам можно добавить позже
+  };
+
+  // Создаем интегратор
+  let mut integrator = ClusteringIntegrator::new(&mut db, 0.85); // similarity_threshold = 0.85
+
+  // Интегрируем результаты
+  let integration_result = integrator
+    .integrate_clusters(clustering_result, embeddings, &cluster_metadata)
+    .await?;
+
+  Ok(integration_result)
 }
 
 #[cfg(test)]

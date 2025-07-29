@@ -13,6 +13,7 @@ Person Identification is an advanced module for face detection, person identific
 ### 🎯 Core Functionality:
 - ✅ **Automatic Face Detection** - face detection in videos using Scene Analysis Engine
 - ✅ **Person Identification** - matching detected faces with known persons
+- ✅ **Face Clustering** - automatic grouping of faces using DBSCAN algorithm
 - ✅ **Person Profile Management** - create, edit, and delete persons
 - ✅ **Timeline Integration** - display persons on Timeline clips
 - ✅ **Search and Filtering** - quick person search by name and tags
@@ -242,6 +243,47 @@ const { getPersonsForClip, getAppearancesForClip } = useTimelinePersons()
 - ✅ **Notes** - additional person information
 - ✅ **Thumbnails** - multiple person photos
 - ✅ **Verification** - identity confirmation
+
+## 🚀 Advanced Features (In Development)
+
+### Face Clustering Integration
+- ✅ **DBSCAN Algorithm** - density-based clustering for automatic face grouping
+- ✅ **Clustering Integration** - seamless integration with PersonDatabase
+- ✅ **Cluster Quality Metrics** - confidence scores and coverage statistics
+- ✅ **Main Character Detection** - automatic detection based on appearance frequency
+
+### ML Backend Integration
+- ✅ **FaceNet Embeddings** - 512D and 128D face embeddings for high accuracy
+- ✅ **RetinaFace Detection** - advanced face detection with 5-point landmarks
+- ✅ **MediaPipe Analysis** - 468 3D facial landmarks and expression analysis
+- ✅ **YOLO Integration** - real-time object and face detection
+- ✅ **Privacy Processor** - 6 types of face blurring for anonymization
+
+### Tauri Commands for Clustering
+```typescript
+// Initialize clustering engine
+await invoke('init_clustering_engine', { params: { eps: 0.5, min_samples: 3 } })
+
+// Cluster faces
+const result = await invoke('cluster_faces', { 
+  embeddings: faceEmbeddings,
+  params: { eps: 0.5, min_samples: 3, metric: 'cosine' }
+})
+
+// Find nearest cluster
+const nearest = await invoke('find_nearest_cluster', {
+  embedding: newFaceEmbedding,
+  clusters: existingClusters
+})
+
+// Auto-cluster video faces
+await invoke('auto_cluster_video_faces', {
+  fileId: 'video-123',
+  embeddings: videoEmbeddings,
+  metadata: faceMetadata,
+  saveResults: true
+})
+```
 
 ## 🛡️ Security and Privacy
 
