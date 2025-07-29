@@ -1,3 +1,10 @@
+# [0.42.0](https://github.com/chatman-media/timeline-studio/compare/v0.41.0...v0.42.0) (2025-07-29)
+
+
+### Features
+
+* **recognition:** добавлен Privacy Processor для размытия лиц ([95ba8cc](https://github.com/chatman-media/timeline-studio/commit/95ba8cc8a9fa145442c3525f14bac8e10ca44056))
+
 # [0.41.0](https://github.com/chatman-media/timeline-studio/compare/v0.40.0...v0.41.0) (2025-07-29)
 
 
