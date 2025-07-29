@@ -66,6 +66,9 @@ pub mod types_export;
 // Модуль субтитров
 mod subtitles;
 
+// Модуль конфигурации ML моделей
+mod models_config;
+
 // Модуль обновлений приложения
 pub mod updates;
 
@@ -224,6 +227,10 @@ pub fn run() {
         None::<recognition::yolo_processor::YoloProcessor>,
       ));
 
+      // Create FaceNet processor state
+      use recognition::commands::facenet_commands::FaceNetProcessorState;
+      app.manage(FaceNetProcessorState::default());
+
       // Create Montage Planner State with its own YoloProcessorState instance
       let montage_yolo_state = Arc::new(RwLock::new(YoloProcessorState::default()));
       let montage_state = MontageState::new(montage_yolo_state);
@@ -270,6 +277,20 @@ pub fn run() {
         Err(e) => {
           log::error!("Failed to initialize SecureStorage: {e}");
           // Continue running without secure storage
+        }
+      }
+
+      // Initialize Models Configuration
+      match app.handle().path().app_data_dir() {
+        Ok(app_data_dir) => {
+          if let Err(e) = models_config::initialize_models_config(app_data_dir) {
+            log::error!("Failed to initialize models config: {e}");
+          } else {
+            log::info!("Models configuration initialized successfully");
+          }
+        }
+        Err(e) => {
+          log::error!("Failed to get app data dir for models config: {e}");
         }
       }
 

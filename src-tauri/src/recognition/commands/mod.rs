@@ -1,3 +1,4 @@
+pub mod facenet_commands;
 pub mod yolo_commands;
 pub mod yolo_commands_simple;
 

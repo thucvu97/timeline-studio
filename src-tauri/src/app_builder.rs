@@ -86,6 +86,12 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::recognition::commands::yolo_commands_simple::save_yolo_data,
     crate::recognition::commands::yolo_commands_simple::load_yolo_data,
     crate::recognition::commands::yolo_commands_simple::check_gpu_availability,
+    // FaceNet commands
+    crate::recognition::commands::facenet_commands::init_facenet_processor,
+    crate::recognition::commands::facenet_commands::generate_face_embedding,
+    crate::recognition::commands::facenet_commands::generate_face_embedding_from_base64,
+    crate::recognition::commands::facenet_commands::calculate_cosine_similarity,
+    crate::recognition::commands::facenet_commands::get_facenet_processor_info,
     // Recognition advanced commands
     crate::video_compiler::commands::recognition_advanced_commands::get_frame_processor_class_names,
     crate::video_compiler::commands::recognition_advanced_commands::get_recognition_results_by_time_range,

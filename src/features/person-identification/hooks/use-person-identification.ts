@@ -213,8 +213,9 @@ export function usePersonIdentification(options: UsePersonIdentificationOptions 
             vector: detectedFace.embedding,
             quality: detectedFace.confidence,
             clipId: detectedFace.clipId,
-            frameNumber: detectedFace.frameNumber,
+            frameNumber: detectedFace.frameNumber ?? 0,
             timestamp: detectedFace.timestamp,
+            createdAt: new Date().toISOString(),
           })
         }
 
@@ -258,8 +259,9 @@ export function usePersonIdentification(options: UsePersonIdentificationOptions 
             vector: detectedFace.embedding,
             quality: detectedFace.confidence,
             clipId: detectedFace.clipId,
-            frameNumber: detectedFace.frameNumber,
+            frameNumber: detectedFace.frameNumber ?? 0,
             timestamp: detectedFace.timestamp,
+            createdAt: new Date().toISOString(),
           })
         }
 

@@ -10,7 +10,7 @@ use std::sync::{Mutex, Once};
 static INIT: Once = Once::new();
 static INIT_RESULT: Mutex<Option<bool>> = Mutex::new(None);
 
-fn init_ort() -> Result<()> {
+pub fn init_ort() -> Result<()> {
   let mut result = INIT_RESULT.lock().unwrap();
   if let Some(success) = *result {
     return if success {
@@ -121,13 +121,33 @@ impl YoloProcessor {
   pub fn new(model_type: YoloModel, confidence_threshold: f32) -> Result<Self> {
     // Инициализируем ORT при создании процессора
     init_ort()?;
+
     let model_path = match &model_type {
-      YoloModel::YoloV11Detection => PathBuf::from("models/yolo11n.onnx"),
-      YoloModel::YoloV11Segmentation => PathBuf::from("models/yolo11n-seg.onnx"),
-      YoloModel::YoloV11Face => PathBuf::from("models/yolo11n-face.onnx"),
-      YoloModel::YoloV8Detection => PathBuf::from("models/yolov8n.onnx"),
-      YoloModel::YoloV8Segmentation => PathBuf::from("models/yolov8n-seg.onnx"),
-      YoloModel::YoloV8Face => PathBuf::from("models/yolov8n-face.onnx"),
+      YoloModel::YoloV11Detection => {
+        // Пытаемся получить путь из конфигурации, иначе используем дефолтный
+        crate::models_config::get_models_config()
+          .ok()
+          .and_then(|config| config.get_yolo_model_path("yolo-object"))
+          .cloned()
+          .unwrap_or_else(|| PathBuf::from("models/yolo/yolov8n.onnx"))
+      }
+      YoloModel::YoloV11Segmentation => PathBuf::from("models/yolo/yolo11n-seg.onnx"),
+      YoloModel::YoloV11Face => crate::models_config::get_models_config()
+        .ok()
+        .and_then(|config| config.get_yolo_model_path("yolo-face-v11"))
+        .cloned()
+        .unwrap_or_else(|| PathBuf::from("models/yolo/yolov11n-face.onnx")),
+      YoloModel::YoloV8Detection => crate::models_config::get_models_config()
+        .ok()
+        .and_then(|config| config.get_yolo_model_path("yolo-object"))
+        .cloned()
+        .unwrap_or_else(|| PathBuf::from("models/yolo/yolov8n.onnx")),
+      YoloModel::YoloV8Segmentation => PathBuf::from("models/yolo/yolov8n-seg.onnx"),
+      YoloModel::YoloV8Face => crate::models_config::get_models_config()
+        .ok()
+        .and_then(|config| config.get_yolo_model_path("yolo-face-v8"))
+        .cloned()
+        .unwrap_or_else(|| PathBuf::from("models/yolo/yolov8n-face.onnx")),
       YoloModel::Custom(path) => path.clone(),
     };
 

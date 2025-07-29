@@ -182,9 +182,16 @@ export class AdvancedFaceDetectionService {
     if (this.isInitialized) return
 
     try {
-      // Инициализируем модели в Tauri
-      await invoke("init_advanced_face_detection", {
-        config: this.config,
+      // Инициализируем YOLO модель для детекции лиц
+      await invoke("init_yolo_processor", {
+        modelType: "yolo-face-v8",
+        confidenceThreshold: this.config.qualityThreshold,
+      })
+
+      // Инициализируем FaceNet модель для embeddings
+      const facenetModel = this.config.recognitionModel === "arcface" ? "arcface-512d" : "facenet-512d"
+      await invoke("init_facenet_processor", {
+        modelType: facenetModel,
       })
 
       // Проверяем доступность GPU
@@ -304,13 +311,15 @@ export class AdvancedFaceDetectionService {
         base64Data = faceImage
       }
 
-      const embedding = await invoke<number[]>("generate_face_embedding", {
-        faceImage: base64Data,
-        normalize: options?.normalize !== false, // По умолчанию true
-        augment: options?.augment || false,
+      const result = await invoke<{
+        vector: number[]
+        quality: number
+        dimension: number
+      }>("generate_face_embedding_from_base64", {
+        imageData: `data:image/jpeg;base64,${base64Data}`,
       })
 
-      return new Float32Array(embedding)
+      return new Float32Array(result.vector)
     } catch (error) {
       console.error("Ошибка генерации embedding:", error)
       return null
