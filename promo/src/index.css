@@ -102,28 +102,25 @@ html {
 
 /* Glassmorphism эффекты */
 .glass {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgb(255 255 255 / 5%);
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+  border: 1px solid rgb(255 255 255 / 10%);
+  box-shadow: 0 8px 32px 0 rgb(31 38 135 / 20%);
 }
 
 .glass-dark {
-  background: rgba(0, 0, 0, 0.3);
+  background: rgb(0 0 0 / 30%);
   backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+  border: 1px solid rgb(255 255 255 / 5%);
+  box-shadow: 0 8px 32px 0 rgb(0 0 0 / 40%);
 }
 
 /* Специальный glass для навигации - более прозрачный */
 .nav-glass {
-  background: rgba(17, 24, 39, 0.3);
+  background: rgb(17 24 39 / 30%);
   backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  border: 1px solid rgb(255 255 255 / 4%);
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 5%);
 }
 
 .nav-glass-scrolled {
@@ -138,11 +135,10 @@ html {
 }
 
 .glass-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  background: linear-gradient(135deg, rgb(255 255 255 / 10%), rgb(255 255 255 / 5%));
   backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 20px 50px 0 rgba(0, 0, 0, 0.3);
+  border: 1px solid rgb(255 255 255 / 8%);
+  box-shadow: 0 20px 50px 0 rgb(0 0 0 / 30%);
 }
 
 /* Эффекты свечения для glass */
@@ -154,10 +150,7 @@ html {
 .glass-glow::before {
   content: '';
   position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
+  inset: -2px;
   background: linear-gradient(45deg, #3b82f6, #8b5cf6, #3b82f6);
   background-size: 400% 400%;
   opacity: 0;
@@ -185,13 +178,10 @@ html {
 .noise-texture::after {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   opacity: 0.02;
   background-image: 
-    repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255, 255, 255, 0.1) 2px, rgba(255, 255, 255, 0.1) 4px);
+    repeating-linear-gradient(45deg, transparent, transparent 2px, rgb(255 255 255 / 10%) 2px, rgb(255 255 255 / 10%) 4px);
   pointer-events: none;
 }
 
@@ -272,14 +262,14 @@ html {
 }
 
 .prose code {
-  background-color: rgba(55, 65, 81, 0.5);
+  background-color: rgb(55 65 81 / 50%);
   padding: 0.125rem 0.375rem;
   border-radius: 0.25rem;
   font-size: 0.875em;
 }
 
 .prose pre {
-  background-color: rgba(31, 41, 55, 0.8);
+  background-color: rgb(31 41 55 / 80%);
   padding: 1rem;
   border-radius: 0.5rem;
   overflow-x: auto;
