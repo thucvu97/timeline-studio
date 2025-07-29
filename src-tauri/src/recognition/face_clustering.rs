@@ -475,33 +475,64 @@ mod tests {
     // Генерируем тестовые эмбеддинги для 3 человек
     let mut embeddings = Vec::new();
 
-    // Человек 1 (5 лиц)
+    // Человек 1 (5 лиц) - высокие значения в начале вектора
     for i in 0..5 {
-      let mut emb = vec![0.1; 128];
+      let mut emb = vec![0.0; 128];
       emb[0] = 0.9;
-      emb[1] = 0.1 + i as f32 * 0.01; // Небольшая вариация
+      emb[1] = 0.8;
+      emb[2] = 0.7 + i as f32 * 0.02; // Небольшая вариация
+                                      // Нормализуем для косинусного сходства
+      let norm = (emb.iter().map(|&x| x * x).sum::<f32>()).sqrt();
+      for val in &mut emb {
+        *val /= norm;
+      }
       embeddings.push(emb);
     }
 
-    // Человек 2 (3 лица)
+    // Человек 2 (3 лица) - высокие значения в середине вектора
     for i in 0..3 {
-      let mut emb = vec![0.1; 128];
-      emb[10] = 0.9;
-      emb[11] = 0.1 + i as f32 * 0.01;
+      let mut emb = vec![0.0; 128];
+      emb[60] = 0.9;
+      emb[61] = 0.8;
+      emb[62] = 0.7 + i as f32 * 0.02;
+      // Нормализуем
+      let norm = (emb.iter().map(|&x| x * x).sum::<f32>()).sqrt();
+      for val in &mut emb {
+        *val /= norm;
+      }
       embeddings.push(emb);
     }
 
-    // Человек 3 (4 лица)
+    // Человек 3 (4 лица) - высокие значения в конце вектора
     for i in 0..4 {
-      let mut emb = vec![0.1; 128];
-      emb[20] = 0.9;
-      emb[21] = 0.1 + i as f32 * 0.01;
+      let mut emb = vec![0.0; 128];
+      emb[120] = 0.9;
+      emb[121] = 0.8;
+      emb[122] = 0.7 + i as f32 * 0.02;
+      // Нормализуем
+      let norm = (emb.iter().map(|&x| x * x).sum::<f32>()).sqrt();
+      for val in &mut emb {
+        *val /= norm;
+      }
       embeddings.push(emb);
     }
 
-    // Шумовые точки (2 случайных лица)
-    embeddings.push(vec![0.5; 128]);
-    embeddings.push(vec![0.3; 128]);
+    // Шумовые точки (2 случайных лица) - равномерное распределение
+    let mut noise1 = vec![0.1; 128];
+    noise1[30] = 0.5;
+    let norm = (noise1.iter().map(|&x| x * x).sum::<f32>()).sqrt();
+    for val in &mut noise1 {
+      *val /= norm;
+    }
+    embeddings.push(noise1);
+
+    let mut noise2 = vec![0.1; 128];
+    noise2[90] = 0.5;
+    let norm = (noise2.iter().map(|&x| x * x).sum::<f32>()).sqrt();
+    for val in &mut noise2 {
+      *val /= norm;
+    }
+    embeddings.push(noise2);
 
     embeddings
   }
@@ -517,7 +548,7 @@ mod tests {
   #[test]
   fn test_clustering_basic() {
     let params = DBSCANParams {
-      eps: 0.6,
+      eps: 0.1, // Уменьшаем порог для более строгой кластеризации
       min_samples: 2,
       metric: DistanceMetric::Cosine,
     };
@@ -550,7 +581,7 @@ mod tests {
   #[test]
   fn test_find_nearest_cluster() {
     let params = DBSCANParams {
-      eps: 0.6,
+      eps: 0.1,
       min_samples: 2,
       metric: DistanceMetric::Cosine,
     };
@@ -560,8 +591,15 @@ mod tests {
     let result = engine.cluster_faces(&embeddings).unwrap();
 
     // Создаем новый эмбеддинг похожий на первый кластер
-    let mut new_embedding = vec![0.1; 128];
-    new_embedding[0] = 0.88;
+    let mut new_embedding = vec![0.0; 128];
+    new_embedding[0] = 0.9;
+    new_embedding[1] = 0.8;
+    new_embedding[2] = 0.72;
+    // Нормализуем
+    let norm = (new_embedding.iter().map(|&x| x * x).sum::<f32>()).sqrt();
+    for val in &mut new_embedding {
+      *val /= norm;
+    }
 
     let nearest = engine
       .find_nearest_cluster(&new_embedding, &result.clusters)
@@ -576,7 +614,7 @@ mod tests {
   #[test]
   fn test_cluster_coverage() {
     let params = DBSCANParams {
-      eps: 0.6,
+      eps: 0.1,
       min_samples: 2,
       metric: DistanceMetric::Cosine,
     };
@@ -593,7 +631,7 @@ mod tests {
   #[test]
   fn test_significant_clusters() {
     let params = DBSCANParams {
-      eps: 0.6,
+      eps: 0.1,
       min_samples: 2,
       metric: DistanceMetric::Cosine,
     };
