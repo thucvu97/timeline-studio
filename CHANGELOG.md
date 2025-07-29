@@ -1,3 +1,10 @@
+## [0.46.1](https://github.com/chatman-media/timeline-studio/compare/v0.46.0...v0.46.1) (2025-07-29)
+
+
+### Bug Fixes
+
+* fixed tests ([df9a2f1](https://github.com/chatman-media/timeline-studio/commit/df9a2f1188ff29c5e1306a0b18ca7479ebc3da40))
+
 # [0.46.0](https://github.com/chatman-media/timeline-studio/compare/v0.45.2...v0.46.0) (2025-07-29)
 
 
