@@ -17,6 +17,10 @@
 - **YOLO Model Variants**: Поддержка всех размеров YOLO моделей (nano/small/medium/large/extra) ✅
 - **Models Configuration**: Централизованная система конфигурации ML моделей ✅
 - **Model Download Scripts**: Автоматизированная загрузка ONNX моделей ✅
+- **RetinaFace Integration**: Высокоточная детекция лиц с 5 landmarks ✅
+- **MediaPipe Integration**: 468 3D facial landmarks и анализ выражений ✅
+- **Privacy Processor**: 6 типов размытия лиц для анонимизации ✅
+- **Face Clustering**: DBSCAN кластеризация для автоматической группировки лиц ✅
 
 ### 🚧 В процессе
 - **Real inference**: Переход от mock данных к реальным YOLO инференсам (90% готово)
@@ -30,8 +34,12 @@
 - **Rust backend**: 
   - `YoloProcessor` с поддержкой всех моделей (YOLOv8/v11, nano→extra)
   - `FaceNetProcessor` с 512D и 128D embeddings
+  - `RetinaFaceProcessor` с детекцией landmarks и head pose
+  - `MediaPipeProcessor` с 468 3D landmarks и выражениями
+  - `PrivacyProcessor` с 6 типами размытия
+  - `FaceClusteringEngine` с DBSCAN алгоритмом
   - `ModelsConfig` - централизованная конфигурация моделей
-  - Tauri команды для YOLO и FaceNet обработки
+  - Tauri команды для всех процессоров
 - **Типы**: Полная совместимость с Float32Array для embeddings
 - **ML модели**: Заглушки ONNX моделей для разработки
 
@@ -133,10 +141,10 @@ impl AdvancedPersonTracker {
 ### 🧠 Умная кластеризация
 
 #### Автоматическая группировка:
-- [ ] **DBSCAN кластеризация** - автоматическое группирование лиц
-- [ ] **Hierarchical clustering** - иерархическая группировка
-- [ ] **Online clustering** - обновление кластеров в реальном времени
-- [ ] **Quality assessment** - оценка качества кластеров
+- [x] **DBSCAN кластеризация** - автоматическое группирование лиц ✅
+- [x] **Hierarchical clustering** - поддержка объединения кластеров ✅
+- [x] **Online clustering** - обновление кластеров для новых embeddings ✅
+- [x] **Quality assessment** - оценка качества кластеров (coverage, confidence) ✅
 
 #### Алгоритм кластеризации:
 ```typescript

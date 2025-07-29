@@ -112,6 +112,15 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::recognition::commands::privacy_commands::update_privacy_settings,
     crate::recognition::commands::privacy_commands::blur_faces_in_video_frames,
     crate::recognition::commands::privacy_commands::get_privacy_processor_info,
+    // Clustering commands
+    crate::recognition::commands::clustering_commands::init_clustering_engine,
+    crate::recognition::commands::clustering_commands::cluster_faces,
+    crate::recognition::commands::clustering_commands::find_nearest_cluster,
+    crate::recognition::commands::clustering_commands::update_clustering_params,
+    crate::recognition::commands::clustering_commands::get_clustering_engine_info,
+    crate::recognition::commands::clustering_commands::merge_clusters,
+    crate::recognition::commands::clustering_commands::analyze_clustering_quality,
+    crate::recognition::commands::clustering_commands::auto_cluster_video_faces,
     // Recognition advanced commands
     crate::video_compiler::commands::recognition_advanced_commands::get_frame_processor_class_names,
     crate::video_compiler::commands::recognition_advanced_commands::get_recognition_results_by_time_range,

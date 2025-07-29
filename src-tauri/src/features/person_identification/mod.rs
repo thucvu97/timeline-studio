@@ -1,3 +1,4 @@
+pub mod clustering_integration;
 pub mod commands;
 pub mod database;
 pub mod registry;

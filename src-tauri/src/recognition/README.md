@@ -46,6 +46,12 @@
    - Поддержка batch обработки видео
    - 6 типов размытия (Gaussian, Box, Pixelate, EyeBar, SolidColor, Mosaic)
 
+6. **FaceClusteringEngine** - Умная кластеризация лиц
+   - DBSCAN алгоритм для автоматической группировки
+   - Поддержка косинусной и евклидовой метрик
+   - Автоматическое определение главных персонажей
+   - Интеграция с PersonDatabase для сохранения результатов
+
 ### Структура модуля
 
 ```
@@ -58,12 +64,14 @@ recognition/
 │   ├── facenet_commands.rs       # FaceNet команды
 │   ├── retinaface_commands.rs    # RetinaFace команды
 │   ├── mediapipe_commands.rs     # MediaPipe команды
-│   └── privacy_commands.rs       # Privacy команды
+│   ├── privacy_commands.rs       # Privacy команды
+│   └── clustering_commands.rs    # Clustering команды
 ├── yolo_processor.rs             # YOLO процессор
 ├── facenet_processor.rs          # FaceNet процессор
 ├── retinaface_processor.rs       # RetinaFace процессор
 ├── mediapipe_processor.rs        # MediaPipe процессор
 ├── privacy_processor.rs          # Privacy процессор
+├── face_clustering.rs            # Face clustering engine
 ├── model_manager.rs              # Управление моделями
 ├── frame_processor.rs            # Обработка кадров
 ├── result_aggregator.rs          # Агрегация результатов
@@ -344,6 +352,15 @@ const keyMoments = await detectKeyMoments({
 - `update_privacy_settings(blurType?: string, expandRatio?: number, adaptiveBlur?: boolean)`
 - `blur_faces_in_video_frames(framePaths: string[], outputDir: string, autoDetect: boolean)`
 - `get_privacy_processor_info()`
+
+### Clustering команды
+- `init_clustering_engine(params?: DBSCANParams)`
+- `cluster_faces(embeddings: number[][], params?: DBSCANParams)`
+- `find_nearest_cluster(embedding: number[], clusters: FaceCluster[])`
+- `update_clustering_params(params: DBSCANParams)`
+- `merge_clusters(cluster1: FaceCluster, cluster2: FaceCluster, embeddings: number[][])`
+- `analyze_clustering_quality(result: ClusteringResult)`
+- `auto_cluster_video_faces(fileId: string, embeddings: number[][], metadata: FaceMetadata[], saveResults: boolean)`
 
 ## Структуры данных
 

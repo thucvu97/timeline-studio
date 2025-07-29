@@ -243,6 +243,10 @@ pub fn run() {
       use recognition::commands::privacy_commands::PrivacyProcessorState;
       app.manage(PrivacyProcessorState::default());
 
+      // Create Clustering engine state
+      use recognition::commands::clustering_commands::ClusteringEngineState;
+      app.manage(ClusteringEngineState::default());
+
       // Create Montage Planner State with its own YoloProcessorState instance
       let montage_yolo_state = Arc::new(RwLock::new(YoloProcessorState::default()));
       let montage_state = MontageState::new(montage_yolo_state);

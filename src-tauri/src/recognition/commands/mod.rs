@@ -1,3 +1,4 @@
+pub mod clustering_commands;
 pub mod facenet_commands;
 pub mod mediapipe_commands;
 pub mod privacy_commands;

@@ -1,4 +1,15 @@
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+
+/// Данные для создания новой персоны
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PersonData {
+    pub name: String,
+    pub alternative_names: Vec<String>,
+    pub notes: Option<String>,
+    pub tags: Vec<String>,
+    pub metadata: HashMap<String, String>,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PersonProfile {
