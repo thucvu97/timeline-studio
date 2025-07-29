@@ -29,7 +29,7 @@ import type {
   ScriptScene,
   TurningPoint,
 } from "../../../shared/types/script-generation"
-import type { CharacterRelationship } from "../../scene-analysis/types"
+import type { CharacterRelationship } from "../../scene-analysis/services/character-analysis"
 import type {
   ImprovementType,
   ScriptGenerationConfig,
@@ -42,9 +42,6 @@ import type {
 
 
 // Интеграция с анализом персонажей
-
-
-
 export class ScriptGenerationEngine extends BaseAIEngine {
   name = "Script Generation Engine"
   version = "1.0.0"

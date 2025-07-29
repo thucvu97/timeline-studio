@@ -1,9 +1,5 @@
+import { describe, expect, it, vi, beforeEach } from "vitest"
 import { renderHook } from "@testing-library/react"
-import { describe, expect, it, vi } from "vitest"
-
-import { useTransitionById, useTransitions, useTransitionsByCategory } from "../../hooks/use-transitions"
-
-// Now import the hooks after mocks are set up
 
 // Mock i18n
 vi.mock("react-i18next", () => ({
@@ -15,12 +11,19 @@ vi.mock("react-i18next", () => ({
   }),
 }))
 
-// Mock the JSON import before importing the hooks
+// Mock the JSON imports before importing the hooks
+vi.mock("../../data/advanced-transitions.json", () => ({
+  default: {
+    version: "1.0.0",
+    transitions: []
+  }
+}))
+
 vi.mock("../../data/transitions.json", () => ({
   default: {
     version: "1.0.0",
     lastUpdated: "2025-05-31",
-    totalTransitions: 4,
+    totalTransitions: 5,
     categories: ["basic", "advanced", "creative"],
     transitions: [
       {
@@ -82,9 +85,27 @@ vi.mock("../../data/transitions.json", () => ({
         },
         ffmpegTemplate: "rotate=a={rotations}*PI*t/{duration}:c=none:ow=rotw(a):oh=roth(a),fade=t=in:st=0:d={duration}",
       },
+      {
+        id: "kaleidoscope",
+        type: "kaleidoscope",
+        labels: { ru: "Калейдоскоп", en: "Kaleidoscope" },
+        description: { ru: "Эффект калейдоскопа", en: "Kaleidoscope effect" },
+        category: "creative",
+        complexity: "advanced",
+        tags: ["creative", "artistic"],
+        duration: { min: 1.0, max: 4.0, default: 2.0 },
+        parameters: {
+          segments: 6,
+          rotation: 45,
+        },
+        ffmpegTemplate: "kaleidoscope=segments={segments}:angle={rotation}",
+      },
     ],
   },
 }))
+
+// Import hooks after mocks
+import { useTransitionById, useTransitions, useTransitionsByCategory } from "../../hooks/use-transitions"
 
 // Простые тесты для проверки импортов и базовой функциональности
 describe("Transitions Module", () => {
@@ -94,7 +115,7 @@ describe("Transitions Module", () => {
 
       expect(result.current.loading).toBe(false)
       expect(result.current.error).toBeNull()
-      expect(result.current.transitions).toHaveLength(4)
+      expect(result.current.transitions).toHaveLength(5)
       expect(result.current.transitions[0].id).toBe("fade")
       expect(result.current.transitions[1].id).toBe("zoom")
       expect(result.current.transitions[2].id).toBe("slide")
@@ -188,8 +209,9 @@ describe("Transitions Module", () => {
     it("should return transitions for creative category", () => {
       const { result } = renderHook(() => useTransitionsByCategory("creative"))
 
-      expect(result.current).toHaveLength(1)
+      expect(result.current).toHaveLength(2)
       expect(result.current[0].id).toBe("spiral")
+      expect(result.current[1].id).toBe("kaleidoscope")
     })
 
     it("should update when category changes", () => {
@@ -200,8 +222,9 @@ describe("Transitions Module", () => {
       expect(result.current).toHaveLength(2)
 
       rerender({ category: "creative" })
-      expect(result.current).toHaveLength(1)
+      expect(result.current).toHaveLength(2)
       expect(result.current[0].id).toBe("spiral")
+      expect(result.current[1].id).toBe("kaleidoscope")
 
       rerender({ category: "non-existent" })
       expect(result.current).toHaveLength(0)

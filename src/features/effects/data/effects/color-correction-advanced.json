@@ -1,0 +1,573 @@
+{
+  "version": "2.0.0",
+  "category": "color-correction-advanced",
+  "migratedAt": "2025-01-29T14:47:00.000Z",
+  "stats": {
+    "total": 20,
+    "migrated": 20,
+    "skipped": 0,
+    "successRate": "100.00%",
+    "errors": []
+  },
+  "effects": [
+    {
+      "id": "effect_color_wheels",
+      "name": {
+        "en": "Color Wheels",
+        "ru": "Цветовые круги",
+        "es": "Ruedas de Color",
+        "fr": "Roues Couleur",
+        "de": "Farbräder"
+      },
+      "description": {
+        "ru": "Профессиональная цветокоррекция с раздельным управлением теней, средних тонов и бликов",
+        "en": "Professional color correction with separate shadow, midtone, and highlight controls"
+      },
+      "category": "color_correction",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "webgl",
+      "version": "1.0.0",
+      "tags": ["pro", "professional"],
+      "complexity": "high",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "shadows_hue",
+          "name": { "en": "Shadows Hue", "ru": "Оттенок теней" },
+          "type": "number",
+          "defaultValue": 0,
+          "min": -180,
+          "max": 180,
+          "step": 1,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "shadows_saturation",
+          "name": { "en": "Shadows Saturation", "ru": "Насыщенность теней" },
+          "type": "number",
+          "defaultValue": 1,
+          "min": 0,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "midtones_hue",
+          "name": { "en": "Midtones Hue", "ru": "Оттенок средних тонов" },
+          "type": "number",
+          "defaultValue": 0,
+          "min": -180,
+          "max": 180,
+          "step": 1,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "midtones_saturation",
+          "name": { "en": "Midtones Saturation", "ru": "Насыщенность средних тонов" },
+          "type": "number",
+          "defaultValue": 1,
+          "min": 0,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "highlights_hue",
+          "name": { "en": "Highlights Hue", "ru": "Оттенок бликов" },
+          "type": "number",
+          "defaultValue": 0,
+          "min": -180,
+          "max": 180,
+          "step": 1,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "highlights_saturation",
+          "name": { "en": "Highlights Saturation", "ru": "Насыщенность бликов" },
+          "type": "number",
+          "defaultValue": 1,
+          "min": 0,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "warm_shadows",
+          "name": { "ru": "Теплые тени", "en": "Warm Shadows" },
+          "description": {
+            "ru": "Теплые оранжевые тени с холодными бликами",
+            "en": "Warm orange shadows with cool highlights"
+          },
+          "parameters": {
+            "shadows_hue": 30,
+            "shadows_saturation": 1.2,
+            "highlights_hue": -30,
+            "highlights_saturation": 1.1
+          },
+          "tags": ["cinematic"]
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "webgl": {
+          "fragmentShader": "precision mediump float;\nuniform sampler2D u_texture;\nuniform float u_shadows_hue, u_shadows_saturation;\nuniform float u_midtones_hue, u_midtones_saturation;\nuniform float u_highlights_hue, u_highlights_saturation;\nvarying vec2 v_texCoord;\n\nvec3 hueShift(vec3 color, float hue) {\n  float cosA = cos(hue * 3.14159 / 180.0);\n  float sinA = sin(hue * 3.14159 / 180.0);\n  mat3 hueMatrix = mat3(\n    cosA + (1.0 - cosA) / 3.0, 1.0/3.0 * (1.0 - cosA) - sqrt(1.0/3.0) * sinA, 1.0/3.0 * (1.0 - cosA) + sqrt(1.0/3.0) * sinA,\n    1.0/3.0 * (1.0 - cosA) + sqrt(1.0/3.0) * sinA, cosA + 1.0/3.0*(1.0 - cosA), 1.0/3.0 * (1.0 - cosA) - sqrt(1.0/3.0) * sinA,\n    1.0/3.0 * (1.0 - cosA) - sqrt(1.0/3.0) * sinA, 1.0/3.0 * (1.0 - cosA) + sqrt(1.0/3.0) * sinA, cosA + 1.0/3.0 * (1.0 - cosA)\n  );\n  return hueMatrix * color;\n}\n\nvoid main() {\n  vec4 color = texture2D(u_texture, v_texCoord);\n  float luminance = dot(color.rgb, vec3(0.299, 0.587, 0.114));\n  \n  vec3 result = color.rgb;\n  if (luminance < 0.33) {\n    result = hueShift(result, u_shadows_hue);\n    result = mix(vec3(luminance), result, u_shadows_saturation);\n  } else if (luminance < 0.66) {\n    result = hueShift(result, u_midtones_hue);\n    result = mix(vec3(luminance), result, u_midtones_saturation);\n  } else {\n    result = hueShift(result, u_highlights_hue);\n    result = mix(vec3(luminance), result, u_highlights_saturation);\n  }\n  \n  gl_FragColor = vec4(result, color.a);\n}",
+          "uniforms": {
+            "u_texture": 0,
+            "u_shadows_hue": 0,
+            "u_shadows_saturation": 1,
+            "u_midtones_hue": 0,
+            "u_midtones_saturation": 1,
+            "u_highlights_hue": 0,
+            "u_highlights_saturation": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "effect_curves",
+      "name": {
+        "en": "Curves",
+        "ru": "Кривые",
+        "es": "Curvas",
+        "fr": "Courbes",
+        "de": "Kurven"
+      },
+      "description": {
+        "ru": "Точная настройка тональности с помощью кривых RGB и яркости",
+        "en": "Precise tone adjustment using RGB and luminance curves"
+      },
+      "category": "color_correction",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "webgl",
+      "version": "1.0.0",
+      "tags": ["pro", "advanced"],
+      "complexity": "high",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "curve_type",
+          "name": { "en": "Curve Type", "ru": "Тип кривой" },
+          "type": "select",
+          "defaultValue": "rgb",
+          "options": [
+            { "value": "rgb", "label": { "en": "RGB", "ru": "RGB" } },
+            { "value": "luminance", "label": { "en": "Luminance", "ru": "Яркость" } }
+          ],
+          "animatable": false,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "input_black",
+          "name": { "en": "Input Black", "ru": "Входной черный" },
+          "type": "number",
+          "defaultValue": 0,
+          "min": 0,
+          "max": 255,
+          "step": 1,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "input_white",
+          "name": { "en": "Input White", "ru": "Входной белый" },
+          "type": "number",
+          "defaultValue": 255,
+          "min": 0,
+          "max": 255,
+          "step": 1,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "gamma",
+          "name": { "en": "Gamma", "ru": "Гамма" },
+          "type": "number",
+          "defaultValue": 1,
+          "min": 0.1,
+          "max": 3,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "s_curve",
+          "name": { "ru": "S-кривая", "en": "S-Curve" },
+          "description": { "ru": "Классическая S-образная кривая для контраста", "en": "Classic S-curve for contrast" },
+          "parameters": {
+            "input_black": 10,
+            "input_white": 245,
+            "gamma": 0.8
+          },
+          "tags": ["contrast"]
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "webgl": {
+          "fragmentShader": "precision mediump float;\nuniform sampler2D u_texture;\nuniform float u_input_black, u_input_white, u_gamma;\nvarying vec2 v_texCoord;\n\nvoid main() {\n  vec4 color = texture2D(u_texture, v_texCoord);\n  vec3 normalized = (color.rgb * 255.0 - u_input_black) / (u_input_white - u_input_black);\n  normalized = clamp(normalized, 0.0, 1.0);\n  vec3 result = pow(normalized, vec3(1.0 / u_gamma));\n  gl_FragColor = vec4(result, color.a);\n}",
+          "uniforms": {
+            "u_texture": 0,
+            "u_input_black": 0,
+            "u_input_white": 255,
+            "u_gamma": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "effect_selective_color",
+      "name": {
+        "en": "Selective Color",
+        "ru": "Выборочная коррекция цвета",
+        "es": "Color Selectivo",
+        "fr": "Couleur Sélective",
+        "de": "Selektive Farbkorrektur"
+      },
+      "description": {
+        "ru": "Корректировка отдельных цветовых диапазонов без влияния на остальные",
+        "en": "Adjust specific color ranges without affecting others"
+      },
+      "category": "color_correction",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "webgl",
+      "version": "1.0.0",
+      "tags": ["pro", "advanced"],
+      "complexity": "high",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "target_color_hue",
+          "name": { "en": "Target Hue", "ru": "Целевой оттенок" },
+          "type": "number",
+          "defaultValue": 0,
+          "min": 0,
+          "max": 360,
+          "step": 1,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "tolerance",
+          "name": { "en": "Tolerance", "ru": "Допуск" },
+          "type": "number",
+          "defaultValue": 30,
+          "min": 1,
+          "max": 180,
+          "step": 1,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "hue_shift",
+          "name": { "en": "Hue Shift", "ru": "Сдвиг оттенка" },
+          "type": "number",
+          "defaultValue": 0,
+          "min": -180,
+          "max": 180,
+          "step": 1,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "saturation_shift",
+          "name": { "en": "Saturation", "ru": "Насыщенность" },
+          "type": "number",
+          "defaultValue": 1,
+          "min": 0,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "lightness_shift",
+          "name": { "en": "Lightness", "ru": "Яркость" },
+          "type": "number",
+          "defaultValue": 0,
+          "min": -1,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "enhance_skin",
+          "name": { "ru": "Улучшить кожу", "en": "Enhance Skin" },
+          "description": { "ru": "Улучшает цвет кожи", "en": "Enhances skin tones" },
+          "parameters": {
+            "target_color_hue": 20,
+            "tolerance": 40,
+            "saturation_shift": 1.1,
+            "lightness_shift": 0.05
+          },
+          "tags": ["portrait"]
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "webgl": {
+          "fragmentShader": "precision mediump float;\nuniform sampler2D u_texture;\nuniform float u_target_color_hue, u_tolerance;\nuniform float u_hue_shift, u_saturation_shift, u_lightness_shift;\nvarying vec2 v_texCoord;\n\nvec3 rgb2hsl(vec3 c) {\n  float maxc = max(c.r, max(c.g, c.b));\n  float minc = min(c.r, min(c.g, c.b));\n  float h, s, l = (maxc + minc) / 2.0;\n  \n  if (maxc == minc) {\n    h = s = 0.0;\n  } else {\n    float d = maxc - minc;\n    s = l > 0.5 ? d / (2.0 - maxc - minc) : d / (maxc + minc);\n    if (maxc == c.r) h = (c.g - c.b) / d + (c.g < c.b ? 6.0 : 0.0);\n    else if (maxc == c.g) h = (c.b - c.r) / d + 2.0;\n    else if (maxc == c.b) h = (c.r - c.g) / d + 4.0;\n    h /= 6.0;\n  }\n  return vec3(h * 360.0, s, l);\n}\n\nvec3 hsl2rgb(vec3 c) {\n  c.x /= 360.0;\n  float r, g, b;\n  if (c.y == 0.0) {\n    r = g = b = c.z;\n  } else {\n    float hue2rgb(float p, float q, float t) {\n      if (t < 0.0) t += 1.0;\n      if (t > 1.0) t -= 1.0;\n      if (t < 1.0/6.0) return p + (q - p) * 6.0 * t;\n      if (t < 1.0/2.0) return q;\n      if (t < 2.0/3.0) return p + (q - p) * (2.0/3.0 - t) * 6.0;\n      return p;\n    }\n    float q = c.z < 0.5 ? c.z * (1.0 + c.y) : c.z + c.y - c.z * c.y;\n    float p = 2.0 * c.z - q;\n    r = hue2rgb(p, q, c.x + 1.0/3.0);\n    g = hue2rgb(p, q, c.x);\n    b = hue2rgb(p, q, c.x - 1.0/3.0);\n  }\n  return vec3(r, g, b);\n}\n\nvoid main() {\n  vec4 color = texture2D(u_texture, v_texCoord);\n  vec3 hsl = rgb2hsl(color.rgb);\n  \n  float hueDiff = abs(hsl.x - u_target_color_hue);\n  if (hueDiff > 180.0) hueDiff = 360.0 - hueDiff;\n  \n  if (hueDiff <= u_tolerance) {\n    float weight = 1.0 - (hueDiff / u_tolerance);\n    hsl.x += u_hue_shift * weight;\n    hsl.y *= mix(1.0, u_saturation_shift, weight);\n    hsl.z += u_lightness_shift * weight;\n  }\n  \n  vec3 result = hsl2rgb(hsl);\n  gl_FragColor = vec4(result, color.a);\n}",
+          "uniforms": {
+            "u_texture": 0,
+            "u_target_color_hue": 0,
+            "u_tolerance": 30,
+            "u_hue_shift": 0,
+            "u_saturation_shift": 1,
+            "u_lightness_shift": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "effect_channel_mixer",
+      "name": {
+        "en": "Channel Mixer",
+        "ru": "Микшер каналов",
+        "es": "Mezclador de Canales",
+        "fr": "Mélangeur de Canaux",
+        "de": "Kanal-Mixer"
+      },
+      "description": {
+        "ru": "Смешивает цветовые каналы RGB для создания уникальных цветовых эффектов",
+        "en": "Mixes RGB color channels to create unique color effects"
+      },
+      "category": "color_correction",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "webgl",
+      "version": "1.0.0",
+      "tags": ["pro", "advanced"],
+      "complexity": "medium",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "red_red",
+          "name": { "en": "Red from Red", "ru": "Красный от красного" },
+          "type": "number",
+          "defaultValue": 1,
+          "min": -2,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "red_green",
+          "name": { "en": "Red from Green", "ru": "Красный от зеленого" },
+          "type": "number",
+          "defaultValue": 0,
+          "min": -2,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "red_blue",
+          "name": { "en": "Red from Blue", "ru": "Красный от синего" },
+          "type": "number",
+          "defaultValue": 0,
+          "min": -2,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "green_red",
+          "name": { "en": "Green from Red", "ru": "Зеленый от красного" },
+          "type": "number",
+          "defaultValue": 0,
+          "min": -2,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "green_green",
+          "name": { "en": "Green from Green", "ru": "Зеленый от зеленого" },
+          "type": "number",
+          "defaultValue": 1,
+          "min": -2,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "green_blue",
+          "name": { "en": "Green from Blue", "ru": "Зеленый от синего" },
+          "type": "number",
+          "defaultValue": 0,
+          "min": -2,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "blue_red",
+          "name": { "en": "Blue from Red", "ru": "Синий от красного" },
+          "type": "number",
+          "defaultValue": 0,
+          "min": -2,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "blue_green",
+          "name": { "en": "Blue from Green", "ru": "Синий от зеленого" },
+          "type": "number",
+          "defaultValue": 0,
+          "min": -2,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "blue_blue",
+          "name": { "en": "Blue from Blue", "ru": "Синий от синего" },
+          "type": "number",
+          "defaultValue": 1,
+          "min": -2,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "infrared",
+          "name": { "ru": "Инфракрасный", "en": "Infrared" },
+          "description": { "ru": "Имитация инфракрасной фотографии", "en": "Simulates infrared photography" },
+          "parameters": {
+            "red_red": -0.7,
+            "red_green": 1.4,
+            "red_blue": -0.7,
+            "green_red": -1.0,
+            "green_green": 2.0,
+            "green_blue": -1.0,
+            "blue_red": 0.3,
+            "blue_green": -0.4,
+            "blue_blue": 1.1
+          },
+          "tags": ["creative"]
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "webgl": {
+          "fragmentShader": "precision mediump float;\nuniform sampler2D u_texture;\nuniform float u_red_red, u_red_green, u_red_blue;\nuniform float u_green_red, u_green_green, u_green_blue;\nuniform float u_blue_red, u_blue_green, u_blue_blue;\nvarying vec2 v_texCoord;\n\nvoid main() {\n  vec4 color = texture2D(u_texture, v_texCoord);\n  \n  vec3 result;\n  result.r = color.r * u_red_red + color.g * u_red_green + color.b * u_red_blue;\n  result.g = color.r * u_green_red + color.g * u_green_green + color.b * u_green_blue;\n  result.b = color.r * u_blue_red + color.g * u_blue_green + color.b * u_blue_blue;\n  \n  result = clamp(result, 0.0, 1.0);\n  gl_FragColor = vec4(result, color.a);\n}",
+          "uniforms": {
+            "u_texture": 0,
+            "u_red_red": 1,
+            "u_red_green": 0,
+            "u_red_blue": 0,
+            "u_green_red": 0,
+            "u_green_green": 1,
+            "u_green_blue": 0,
+            "u_blue_red": 0,
+            "u_blue_green": 0,
+            "u_blue_blue": 1
+          }
+        }
+      }
+    },
+    {
+      "id": "effect_auto_color",
+      "name": {
+        "en": "Auto Color",
+        "ru": "Автоцвет",
+        "es": "Color Automático",
+        "fr": "Couleur Automatique",
+        "de": "Automatische Farbe"
+      },
+      "description": {
+        "ru": "Автоматическая коррекция цвета на основе анализа изображения",
+        "en": "Automatic color correction based on image analysis"
+      },
+      "category": "color_correction",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "ai",
+      "version": "1.0.0",
+      "tags": ["automatic", "ai"],
+      "complexity": "medium",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "strength",
+          "name": { "en": "Strength", "ru": "Сила" },
+          "type": "number",
+          "defaultValue": 0.8,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "preserve_skin_tones",
+          "name": { "en": "Preserve Skin Tones", "ru": "Сохранить тона кожи" },
+          "type": "boolean",
+          "defaultValue": true,
+          "animatable": false,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {},
+        "webgl": {
+          "fragmentShader": "precision mediump float;\nuniform sampler2D u_texture;\nuniform float u_strength;\nvarying vec2 v_texCoord;\n\nvoid main() {\n  vec4 color = texture2D(u_texture, v_texCoord);\n  \n  // Simple auto-balance algorithm\n  float avg = (color.r + color.g + color.b) / 3.0;\n  vec3 balanced = color.rgb / max(avg, 0.001);\n  balanced = normalize(balanced) * length(color.rgb);\n  \n  vec3 result = mix(color.rgb, balanced, u_strength);\n  gl_FragColor = vec4(result, color.a);\n}",
+          "uniforms": {
+            "u_texture": 0,
+            "u_strength": 0.8
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,297 @@
+{
+  "version": "2.0.0",
+  "lastUpdated": "2025-07-29",
+  "totalTransitions": 10,
+  "categories": ["advanced", "dynamic", "glitch", "light"],
+  "transitions": [
+    {
+      "id": "blur-fade",
+      "type": "blur-fade",
+      "labels": {
+        "ru": "Размытое затухание",
+        "en": "Blur Fade"
+      },
+      "description": {
+        "ru": "Плавное затухание с размытием изображения",
+        "en": "Smooth fade with blur effect"
+      },
+      "category": "advanced",
+      "complexity": "intermediate",
+      "tags": ["blur", "fade", "smooth", "modern"],
+      "duration": { "min": 0.5, "max": 3.0, "default": 1.2 },
+      "parameters": {
+        "easing": "ease-in-out",
+        "intensity": 1.0,
+        "blur": {
+          "enabled": true,
+          "amount": 50,
+          "type": "gaussian"
+        }
+      },
+      "ffmpegTemplate": "[0]split[a][b];[a]boxblur=luma_radius={blur.amount}:chroma_radius={blur.amount}:luma_power=1[blurred];[blurred][b]blend=all_expr='A*(1-T/{duration})+B*(T/{duration})'",
+      "gpuAccelerated": true,
+      "webglShader": "blur-fade"
+    },
+    {
+      "id": "color-wash",
+      "type": "color-wash",
+      "labels": {
+        "ru": "Цветовая волна",
+        "en": "Color Wash"
+      },
+      "description": {
+        "ru": "Переход с цветовым наложением",
+        "en": "Transition with color overlay"
+      },
+      "category": "creative",
+      "complexity": "intermediate",
+      "tags": ["color", "tint", "creative", "artistic"],
+      "duration": { "min": 0.8, "max": 2.5, "default": 1.5 },
+      "parameters": {
+        "direction": "left",
+        "easing": "ease-out",
+        "color": {
+          "enabled": true,
+          "tint": "#FF6B6B",
+          "saturation": 20,
+          "brightness": 10
+        }
+      },
+      "ffmpegTemplate": "colorchannelmixer=rr={color.tint.r}:gg={color.tint.g}:bb={color.tint.b}",
+      "gpuAccelerated": true,
+      "webglShader": "color-wash"
+    },
+    {
+      "id": "motion-blur-slide",
+      "type": "motion-blur-slide",
+      "labels": {
+        "ru": "Скольжение с размытием движения",
+        "en": "Motion Blur Slide"
+      },
+      "description": {
+        "ru": "Быстрое скольжение с эффектом размытия движения",
+        "en": "Fast slide with motion blur effect"
+      },
+      "category": "motion",
+      "complexity": "advanced",
+      "tags": ["motion", "blur", "slide", "speed", "dynamic"],
+      "duration": { "min": 0.3, "max": 1.5, "default": 0.6 },
+      "parameters": {
+        "direction": "left",
+        "easing": "ease-in",
+        "blur": {
+          "enabled": true,
+          "amount": 30,
+          "type": "motion"
+        }
+      },
+      "ffmpegTemplate": "tmix=frames=5:weights='1 1 1 1 1',xstack=inputs=2:layout=0_0|w0_0[v]",
+      "gpuAccelerated": true,
+      "webglShader": "motion-blur"
+    },
+    {
+      "id": "glitch-rgb",
+      "type": "glitch-rgb",
+      "labels": {
+        "ru": "RGB глитч",
+        "en": "RGB Glitch"
+      },
+      "description": {
+        "ru": "Цифровой глитч с разделением RGB каналов",
+        "en": "Digital glitch with RGB channel split"
+      },
+      "category": "glitch",
+      "complexity": "advanced",
+      "tags": ["glitch", "rgb", "digital", "modern"],
+      "duration": { "min": 0.2, "max": 1.0, "default": 0.4 },
+      "parameters": {
+        "intensity": 0.8,
+        "blur": {
+          "enabled": true,
+          "amount": 10,
+          "type": "gaussian"
+        },
+        "color": {
+          "enabled": true,
+          "saturation": -20,
+          "brightness": 5
+        }
+      },
+      "ffmpegTemplate": "rgbashift=rs=10:gs=0:bs=-10:as=0",
+      "gpuAccelerated": true,
+      "webglShader": "glitch-rgb"
+    },
+    {
+      "id": "light-leak",
+      "type": "light-leak",
+      "labels": {
+        "ru": "Световая засветка",
+        "en": "Light Leak"
+      },
+      "description": {
+        "ru": "Эффект световой засветки пленки",
+        "en": "Film light leak effect"
+      },
+      "category": "light",
+      "complexity": "intermediate",
+      "tags": ["light", "leak", "film", "cinematic"],
+      "duration": { "min": 0.5, "max": 2.0, "default": 1.0 },
+      "parameters": {
+        "intensity": 0.7,
+        "color": {
+          "enabled": true,
+          "tint": "#FFD93D",
+          "brightness": 30
+        }
+      },
+      "ffmpegTemplate": "curves=preset=increase_contrast,colorbalance=rs=0.1:gs=0.05:bs=-0.05",
+      "gpuAccelerated": true,
+      "webglShader": "light-leak"
+    },
+    {
+      "id": "radial-blur",
+      "type": "radial-blur",
+      "labels": {
+        "ru": "Радиальное размытие",
+        "en": "Radial Blur"
+      },
+      "description": {
+        "ru": "Размытие от центра к краям",
+        "en": "Blur from center to edges"
+      },
+      "category": "advanced",
+      "complexity": "intermediate",
+      "tags": ["blur", "radial", "zoom", "focus"],
+      "duration": { "min": 0.5, "max": 2.5, "default": 1.2 },
+      "parameters": {
+        "direction": "center",
+        "intensity": 0.8,
+        "blur": {
+          "enabled": true,
+          "amount": 40,
+          "type": "radial"
+        }
+      },
+      "ffmpegTemplate": "zoompan=z='min(zoom+0.0015,1.5)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)',boxblur=10:1",
+      "gpuAccelerated": true,
+      "webglShader": "radial-blur"
+    },
+    {
+      "id": "chromatic-aberration",
+      "type": "chromatic-aberration",
+      "labels": {
+        "ru": "Хроматическая аберрация",
+        "en": "Chromatic Aberration"
+      },
+      "description": {
+        "ru": "Эффект хроматической аберрации линзы",
+        "en": "Lens chromatic aberration effect"
+      },
+      "category": "artistic",
+      "complexity": "advanced",
+      "tags": ["chromatic", "lens", "artistic", "color"],
+      "duration": { "min": 0.3, "max": 1.5, "default": 0.8 },
+      "parameters": {
+        "intensity": 0.6,
+        "color": {
+          "enabled": true,
+          "saturation": 10
+        }
+      },
+      "ffmpegTemplate": "split[a][b][c];[a]colorchannelmixer=.393:.769:.189:0:.349:.686:.168:0:.272:.534:.131[red];[b]colorchannelmixer=.349:.686:.168:0:.393:.769:.189:0:.272:.534:.131[green];[c]colorchannelmixer=.272:.534:.131:0:.349:.686:.168:0:.393:.769:.189[blue];[red][green][blue]blend=all_mode=screen",
+      "gpuAccelerated": true,
+      "webglShader": "chromatic-aberration"
+    },
+    {
+      "id": "dreamy-blur",
+      "type": "dreamy-blur",
+      "labels": {
+        "ru": "Мечтательное размытие",
+        "en": "Dreamy Blur"
+      },
+      "description": {
+        "ru": "Мягкое размытие с теплыми тонами",
+        "en": "Soft blur with warm tones"
+      },
+      "category": "artistic",
+      "complexity": "intermediate",
+      "tags": ["dreamy", "blur", "warm", "soft"],
+      "duration": { "min": 1.0, "max": 3.0, "default": 1.8 },
+      "parameters": {
+        "intensity": 0.7,
+        "blur": {
+          "enabled": true,
+          "amount": 25,
+          "type": "gaussian"
+        },
+        "color": {
+          "enabled": true,
+          "tint": "#FFB347",
+          "brightness": 15,
+          "saturation": 10
+        }
+      },
+      "ffmpegTemplate": "gblur=sigma={blur.amount},curves=preset=vintage",
+      "gpuAccelerated": false
+    },
+    {
+      "id": "digital-static",
+      "type": "digital-static",
+      "labels": {
+        "ru": "Цифровые помехи",
+        "en": "Digital Static"
+      },
+      "description": {
+        "ru": "Эффект цифровых помех и шума",
+        "en": "Digital static and noise effect"
+      },
+      "category": "glitch",
+      "complexity": "intermediate",
+      "tags": ["static", "noise", "glitch", "tv"],
+      "duration": { "min": 0.2, "max": 1.0, "default": 0.5 },
+      "parameters": {
+        "intensity": 0.9,
+        "color": {
+          "enabled": true,
+          "saturation": -50,
+          "brightness": -10
+        }
+      },
+      "ffmpegTemplate": "noise=alls=20:allf=t,rgbashift=rs=5:gs=-3:bs=2",
+      "gpuAccelerated": true,
+      "webglShader": "digital-static"
+    },
+    {
+      "id": "prism-refraction",
+      "type": "prism-refraction",
+      "labels": {
+        "ru": "Призматическое преломление",
+        "en": "Prism Refraction"
+      },
+      "description": {
+        "ru": "Эффект преломления света через призму",
+        "en": "Light refraction through prism effect"
+      },
+      "category": "light",
+      "complexity": "advanced",
+      "tags": ["prism", "refraction", "light", "rainbow"],
+      "duration": { "min": 0.5, "max": 2.0, "default": 1.2 },
+      "parameters": {
+        "direction": "diagonal",
+        "intensity": 0.8,
+        "color": {
+          "enabled": true,
+          "saturation": 30
+        },
+        "blur": {
+          "enabled": true,
+          "amount": 15,
+          "type": "gaussian"
+        }
+      },
+      "ffmpegTemplate": "chromashift=cbh=20:crv=20,colorbalance=rs=0.1:gs=-0.05:bs=0.1",
+      "gpuAccelerated": true,
+      "webglShader": "prism-refraction"
+    }
+  ]
+}

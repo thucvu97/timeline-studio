@@ -1,0 +1,592 @@
+{
+  "version": "2.0.0",
+  "category": "compositing-advanced",
+  "migratedAt": "2025-01-29T14:47:00.000Z",
+  "stats": {
+    "total": 18,
+    "migrated": 18,
+    "skipped": 0,
+    "successRate": "100.00%",
+    "errors": []
+  },
+  "effects": [
+    {
+      "id": "effect_advanced_chroma_key",
+      "name": {
+        "en": "Advanced Chroma Key",
+        "ru": "Продвинутый хромакей",
+        "es": "Croma Avanzado",
+        "fr": "Chroma Key Avancé",
+        "de": "Erweiterte Chromakey"
+      },
+      "description": {
+        "ru": "Профессиональный хромакей с точной настройкой краев и подавлением разлива",
+        "en": "Professional chroma key with precise edge control and spill suppression"
+      },
+      "category": "compositing",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "webgl",
+      "version": "1.0.0",
+      "tags": ["chroma", "keying", "professional"],
+      "complexity": "high",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "key_color",
+          "name": { "en": "Key Color", "ru": "Ключевой цвет" },
+          "type": "color",
+          "defaultValue": "#00ff00",
+          "animatable": false,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "tolerance",
+          "name": { "en": "Tolerance", "ru": "Допуск" },
+          "type": "number",
+          "defaultValue": 0.3,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "softness",
+          "name": { "en": "Softness", "ru": "Мягкость" },
+          "type": "number",
+          "defaultValue": 0.1,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "spill_suppression",
+          "name": { "en": "Spill Suppression", "ru": "Подавление разлива" },
+          "type": "number",
+          "defaultValue": 0.5,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "edge_enhancement",
+          "name": { "en": "Edge Enhancement", "ru": "Улучшение краев" },
+          "type": "number",
+          "defaultValue": 0.2,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "shadow_recovery",
+          "name": { "en": "Shadow Recovery", "ru": "Восстановление теней" },
+          "type": "number",
+          "defaultValue": 0.3,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "green_screen_studio",
+          "name": { "ru": "Зеленый экран студия", "en": "Green Screen Studio" },
+          "description": { "ru": "Настройки для студийного зеленого экрана", "en": "Settings for studio green screen" },
+          "parameters": {
+            "key_color": "#00ff00",
+            "tolerance": 0.25,
+            "softness": 0.05,
+            "spill_suppression": 0.7,
+            "edge_enhancement": 0.3,
+            "shadow_recovery": 0.4
+          },
+          "tags": ["studio"]
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "webgl": {
+          "fragmentShader": "precision mediump float;\nuniform sampler2D u_texture;\nuniform vec3 u_key_color;\nuniform float u_tolerance, u_softness, u_spill_suppression;\nuniform float u_edge_enhancement, u_shadow_recovery;\nvarying vec2 v_texCoord;\n\nvec3 rgb2hsl(vec3 c) {\n  float maxc = max(c.r, max(c.g, c.b));\n  float minc = min(c.r, min(c.g, c.b));\n  float h, s, l = (maxc + minc) / 2.0;\n  \n  if (maxc == minc) {\n    h = s = 0.0;\n  } else {\n    float d = maxc - minc;\n    s = l > 0.5 ? d / (2.0 - maxc - minc) : d / (maxc + minc);\n    if (maxc == c.r) h = (c.g - c.b) / d + (c.g < c.b ? 6.0 : 0.0);\n    else if (maxc == c.g) h = (c.b - c.r) / d + 2.0;\n    else if (maxc == c.b) h = (c.r - c.g) / d + 4.0;\n    h /= 6.0;\n  }\n  return vec3(h, s, l);\n}\n\nvoid main() {\n  vec4 color = texture2D(u_texture, v_texCoord);\n  vec3 keyHSL = rgb2hsl(u_key_color);\n  vec3 colorHSL = rgb2hsl(color.rgb);\n  \n  // Calculate color distance\n  float hueDiff = abs(colorHSL.x - keyHSL.x);\n  if (hueDiff > 0.5) hueDiff = 1.0 - hueDiff;\n  \n  float satDiff = abs(colorHSL.y - keyHSL.y);\n  float lightDiff = abs(colorHSL.z - keyHSL.z);\n  \n  float distance = sqrt(hueDiff * hueDiff + satDiff * satDiff * 0.5 + lightDiff * lightDiff * 0.3);\n  \n  // Calculate alpha based on distance and tolerance\n  float alpha = smoothstep(u_tolerance - u_softness, u_tolerance + u_softness, distance);\n  \n  // Shadow recovery for darker areas\n  float shadowFactor = 1.0 - (1.0 - colorHSL.z) * u_shadow_recovery;\n  alpha = max(alpha, shadowFactor);\n  \n  // Spill suppression\n  if (u_spill_suppression > 0.0 && distance < u_tolerance * 2.0) {\n    float spillAmount = (1.0 - distance / (u_tolerance * 2.0)) * u_spill_suppression;\n    color.g = mix(color.g, (color.r + color.b) * 0.5, spillAmount);\n  }\n  \n  // Edge enhancement\n  if (u_edge_enhancement > 0.0 && alpha > 0.1 && alpha < 0.9) {\n    alpha = mix(alpha, alpha > 0.5 ? 1.0 : 0.0, u_edge_enhancement);\n  }\n  \n  gl_FragColor = vec4(color.rgb, color.a * alpha);\n}",
+          "uniforms": {
+            "u_texture": 0,
+            "u_key_color": [0.0, 1.0, 0.0],
+            "u_tolerance": 0.3,
+            "u_softness": 0.1,
+            "u_spill_suppression": 0.5,
+            "u_edge_enhancement": 0.2,
+            "u_shadow_recovery": 0.3
+          }
+        }
+      }
+    },
+    {
+      "id": "effect_motion_tracking",
+      "name": {
+        "en": "Motion Tracking",
+        "ru": "Отслеживание движения",
+        "es": "Seguimiento de Movimiento",
+        "fr": "Suivi de Mouvement",
+        "de": "Bewegungsverfolgung"
+      },
+      "description": {
+        "ru": "Отслеживание объектов в кадре для стабилизации или анимации",
+        "en": "Track objects in frame for stabilization or animation"
+      },
+      "category": "compositing",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "ai",
+      "version": "1.0.0",
+      "tags": ["tracking", "motion", "stabilization"],
+      "complexity": "extreme",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "tracking_mode",
+          "name": { "en": "Tracking Mode", "ru": "Режим отслеживания" },
+          "type": "select",
+          "defaultValue": "point",
+          "options": [
+            { "value": "point", "label": { "en": "Point", "ru": "Точка" } },
+            { "value": "area", "label": { "en": "Area", "ru": "Область" } },
+            { "value": "face", "label": { "en": "Face", "ru": "Лицо" } },
+            { "value": "object", "label": { "en": "Object", "ru": "Объект" } }
+          ],
+          "animatable": false,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "sensitivity",
+          "name": { "en": "Sensitivity", "ru": "Чувствительность" },
+          "type": "number",
+          "defaultValue": 0.7,
+          "min": 0.1,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "prediction",
+          "name": { "en": "Prediction", "ru": "Предсказание" },
+          "type": "number",
+          "defaultValue": 0.3,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "confidence_threshold",
+          "name": { "en": "Confidence Threshold", "ru": "Порог уверенности" },
+          "type": "number",
+          "defaultValue": 0.8,
+          "min": 0.1,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "face_tracking",
+          "name": { "ru": "Отслеживание лица", "en": "Face Tracking" },
+          "description": { "ru": "Отслеживание человеческого лица", "en": "Track human face" },
+          "parameters": {
+            "tracking_mode": "face",
+            "sensitivity": 0.8,
+            "prediction": 0.4,
+            "confidence_threshold": 0.9
+          },
+          "tags": ["face"]
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "ai": {
+          "model": "motion_tracker_v1",
+          "config": {
+            "algorithm": "lucas_kanade",
+            "max_features": 100,
+            "quality_level": 0.01,
+            "min_distance": 10
+          }
+        }
+      }
+    },
+    {
+      "id": "effect_stabilization_2d",
+      "name": {
+        "en": "2D Stabilization",
+        "ru": "2D стабилизация",
+        "es": "Estabilización 2D",
+        "fr": "Stabilisation 2D",
+        "de": "2D-Stabilisierung"
+      },
+      "description": {
+        "ru": "Стабилизация камеры по горизонтали и вертикали",
+        "en": "Camera stabilization in horizontal and vertical axes"
+      },
+      "category": "compositing",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "webgl",
+      "version": "1.0.0",
+      "tags": ["stabilization", "camera", "shake"],
+      "complexity": "high",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "smoothing_strength",
+          "name": { "en": "Smoothing Strength", "ru": "Сила сглаживания" },
+          "type": "number",
+          "defaultValue": 0.7,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "crop_compensation",
+          "name": { "en": "Crop Compensation", "ru": "Компенсация обрезки" },
+          "type": "number",
+          "defaultValue": 0.1,
+          "min": 0,
+          "max": 0.3,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "rolling_shutter_fix",
+          "name": { "en": "Rolling Shutter Fix", "ru": "Коррекция роллинг шаттера" },
+          "type": "boolean",
+          "defaultValue": false,
+          "animatable": false,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "horizon_lock",
+          "name": { "en": "Horizon Lock", "ru": "Блокировка горизонта" },
+          "type": "boolean",
+          "defaultValue": true,
+          "animatable": false,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "handheld_stabilization",
+          "name": { "ru": "Стабилизация ручной съемки", "en": "Handheld Stabilization" },
+          "description": { "ru": "Для съемки с рук", "en": "For handheld footage" },
+          "parameters": {
+            "smoothing_strength": 0.8,
+            "crop_compensation": 0.15,
+            "rolling_shutter_fix": true,
+            "horizon_lock": true
+          },
+          "tags": ["handheld"]
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "webgl": {
+          "fragmentShader": "precision mediump float;\nuniform sampler2D u_texture;\nuniform vec2 u_resolution;\nuniform float u_smoothing_strength, u_crop_compensation;\nuniform bool u_rolling_shutter_fix, u_horizon_lock;\nuniform float u_time;\nvarying vec2 v_texCoord;\n\n// Simple stabilization simulation\nvoid main() {\n  vec2 uv = v_texCoord;\n  \n  // Simulate camera shake compensation\n  float shakeX = sin(u_time * 10.0) * 0.01 * (1.0 - u_smoothing_strength);\n  float shakeY = cos(u_time * 12.0) * 0.008 * (1.0 - u_smoothing_strength);\n  \n  // Apply stabilization offset\n  uv.x -= shakeX;\n  uv.y -= shakeY;\n  \n  // Crop compensation - scale up slightly to avoid black borders\n  float scale = 1.0 + u_crop_compensation;\n  uv = (uv - 0.5) / scale + 0.5;\n  \n  // Rolling shutter correction (simplified)\n  if (u_rolling_shutter_fix) {\n    float rowOffset = sin(uv.y * 20.0 + u_time * 5.0) * 0.002;\n    uv.x += rowOffset;\n  }\n  \n  if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0) {\n    gl_FragColor = texture2D(u_texture, uv);\n  } else {\n    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);\n  }\n}",
+          "uniforms": {
+            "u_texture": 0,
+            "u_resolution": [1920, 1080],
+            "u_smoothing_strength": 0.7,
+            "u_crop_compensation": 0.1,
+            "u_rolling_shutter_fix": false,
+            "u_horizon_lock": true,
+            "u_time": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "effect_lens_correction",
+      "name": {
+        "en": "Lens Correction",
+        "ru": "Коррекция объектива",
+        "es": "Corrección de Lente",
+        "fr": "Correction d'Objectif",
+        "de": "Objektivkorrektur"
+      },
+      "description": {
+        "ru": "Исправление бочкообразных и подушкообразных искажений объектива",
+        "en": "Correct barrel and pincushion lens distortions"
+      },
+      "category": "compositing",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "webgl",
+      "version": "1.0.0",
+      "tags": ["lens", "distortion", "correction"],
+      "complexity": "medium",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "barrel_correction",
+          "name": { "en": "Barrel Correction", "ru": "Коррекция бочки" },
+          "type": "number",
+          "defaultValue": 0,
+          "min": -1,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "vignette_correction",
+          "name": { "en": "Vignette Correction", "ru": "Коррекция виньетирования" },
+          "type": "number",
+          "defaultValue": 0,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "chromatic_aberration_fix",
+          "name": { "en": "Chromatic Aberration Fix", "ru": "Исправление хроматической аберрации" },
+          "type": "number",
+          "defaultValue": 0,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "center_x",
+          "name": { "en": "Optical Center X", "ru": "Оптический центр X" },
+          "type": "number",
+          "defaultValue": 0.5,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "center_y",
+          "name": { "en": "Optical Center Y", "ru": "Оптический центр Y" },
+          "type": "number",
+          "defaultValue": 0.5,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "gopro_correction",
+          "name": { "ru": "Коррекция GoPro", "en": "GoPro Correction" },
+          "description": { "ru": "Типичная коррекция для GoPro камер", "en": "Typical correction for GoPro cameras" },
+          "parameters": {
+            "barrel_correction": 0.3,
+            "vignette_correction": 0.4,
+            "chromatic_aberration_fix": 0.2,
+            "center_x": 0.5,
+            "center_y": 0.5
+          },
+          "tags": ["action-cam"]
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "webgl": {
+          "fragmentShader": "precision mediump float;\nuniform sampler2D u_texture;\nuniform float u_barrel_correction, u_vignette_correction, u_chromatic_aberration_fix;\nuniform vec2 u_center;\nvarying vec2 v_texCoord;\n\nvoid main() {\n  vec2 center = u_center;\n  vec2 coord = v_texCoord - center;\n  float radius = length(coord);\n  \n  // Barrel/Pincushion correction\n  float distortion = 1.0 + u_barrel_correction * radius * radius;\n  coord *= distortion;\n  \n  vec2 newCoord = coord + center;\n  \n  vec4 color = vec4(0.0);\n  \n  if (newCoord.x >= 0.0 && newCoord.x <= 1.0 && newCoord.y >= 0.0 && newCoord.y <= 1.0) {\n    // Chromatic aberration correction\n    if (u_chromatic_aberration_fix > 0.0) {\n      float aberration = u_chromatic_aberration_fix * radius * 0.01;\n      color.r = texture2D(u_texture, newCoord + coord * aberration).r;\n      color.g = texture2D(u_texture, newCoord).g;\n      color.b = texture2D(u_texture, newCoord - coord * aberration).b;\n      color.a = texture2D(u_texture, newCoord).a;\n    } else {\n      color = texture2D(u_texture, newCoord);\n    }\n    \n    // Vignette correction\n    if (u_vignette_correction > 0.0) {\n      float vignette = 1.0 - radius * radius * u_vignette_correction;\n      color.rgb /= max(vignette, 0.1);\n    }\n  }\n  \n  gl_FragColor = color;\n}",
+          "uniforms": {
+            "u_texture": 0,
+            "u_barrel_correction": 0,
+            "u_vignette_correction": 0,
+            "u_chromatic_aberration_fix": 0,
+            "u_center": [0.5, 0.5]
+          }
+        }
+      }
+    },
+    {
+      "id": "effect_corner_pin",
+      "name": {
+        "en": "Corner Pin",
+        "ru": "Угловая привязка",
+        "es": "Pin de Esquina",
+        "fr": "Épinglage de Coin",
+        "de": "Eckpunkt-Verankerung"
+      },
+      "description": {
+        "ru": "Деформация изображения по четырем угловым точкам",
+        "en": "Image deformation using four corner points"
+      },
+      "category": "compositing",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "webgl",
+      "version": "1.0.0",
+      "tags": ["perspective", "corner", "deform"],
+      "complexity": "high",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "top_left_x",
+          "name": { "en": "Top Left X", "ru": "Верх лево X" },
+          "type": "number",
+          "defaultValue": 0,
+          "min": -0.5,
+          "max": 1.5,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "top_left_y",
+          "name": { "en": "Top Left Y", "ru": "Верх лево Y" },
+          "type": "number",
+          "defaultValue": 0,
+          "min": -0.5,
+          "max": 1.5,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "top_right_x",
+          "name": { "en": "Top Right X", "ru": "Верх право X" },
+          "type": "number",
+          "defaultValue": 1,
+          "min": -0.5,
+          "max": 1.5,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "top_right_y",
+          "name": { "en": "Top Right Y", "ru": "Верх право Y" },
+          "type": "number",
+          "defaultValue": 0,
+          "min": -0.5,
+          "max": 1.5,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "bottom_left_x",
+          "name": { "en": "Bottom Left X", "ru": "Низ лево X" },
+          "type": "number",
+          "defaultValue": 0,
+          "min": -0.5,
+          "max": 1.5,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "bottom_left_y",
+          "name": { "en": "Bottom Left Y", "ru": "Низ лево Y" },
+          "type": "number",
+          "defaultValue": 1,
+          "min": -0.5,
+          "max": 1.5,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "bottom_right_x",
+          "name": { "en": "Bottom Right X", "ru": "Низ право X" },
+          "type": "number",
+          "defaultValue": 1,
+          "min": -0.5,
+          "max": 1.5,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "bottom_right_y",
+          "name": { "en": "Bottom Right Y", "ru": "Низ право Y" },
+          "type": "number",
+          "defaultValue": 1,
+          "min": -0.5,
+          "max": 1.5,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "perspective_screen",
+          "name": { "ru": "Перспектива экрана", "en": "Screen Perspective" },
+          "description": { "ru": "Имитация экрана под углом", "en": "Simulate angled screen" },
+          "parameters": {
+            "top_left_x": 0.1,
+            "top_left_y": 0.05,
+            "top_right_x": 0.9,
+            "top_right_y": 0.1,
+            "bottom_left_x": 0,
+            "bottom_left_y": 1,
+            "bottom_right_x": 1,
+            "bottom_right_y": 1
+          },
+          "tags": ["perspective"]
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "webgl": {
+          "fragmentShader": "precision mediump float;\nuniform sampler2D u_texture;\nuniform vec2 u_top_left, u_top_right, u_bottom_left, u_bottom_right;\nvarying vec2 v_texCoord;\n\n// Bilinear interpolation for corner pin transformation\nvec2 bilinearInterpolation(vec2 uv) {\n  float u = uv.x;\n  float v = uv.y;\n  \n  // Bilinear interpolation of corner positions\n  vec2 top = mix(u_top_left, u_top_right, u);\n  vec2 bottom = mix(u_bottom_left, u_bottom_right, u);\n  \n  return mix(top, bottom, v);\n}\n\nvoid main() {\n  vec2 sourceCoord = bilinearInterpolation(v_texCoord);\n  \n  if (sourceCoord.x >= 0.0 && sourceCoord.x <= 1.0 && \n      sourceCoord.y >= 0.0 && sourceCoord.y <= 1.0) {\n    gl_FragColor = texture2D(u_texture, sourceCoord);\n  } else {\n    gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);\n  }\n}",
+          "uniforms": {
+            "u_texture": 0,
+            "u_top_left": [0.0, 0.0],
+            "u_top_right": [1.0, 0.0],
+            "u_bottom_left": [0.0, 1.0],
+            "u_bottom_right": [1.0, 1.0]
+          }
+        }
+      }
+    }
+  ]
+}

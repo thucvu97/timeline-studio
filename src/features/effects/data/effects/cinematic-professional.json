@@ -1,0 +1,443 @@
+{
+  "version": "2.0.0",
+  "category": "cinematic-professional",
+  "migratedAt": "2025-01-29T14:47:00.000Z",
+  "stats": {
+    "total": 20,
+    "migrated": 20,
+    "skipped": 0,
+    "successRate": "100.00%",
+    "errors": []
+  },
+  "effects": [
+    {
+      "id": "effect_cinema_scope",
+      "name": {
+        "en": "Cinema Scope",
+        "ru": "Синемаскоп",
+        "es": "Cinema Scope",
+        "fr": "Cinema Scope",
+        "de": "Cinemascope"
+      },
+      "description": {
+        "ru": "Широкоформатное кинематографическое соотношение сторон с черными полосами",
+        "en": "Widescreen cinematic aspect ratio with letterbox bars"
+      },
+      "category": "cinematic",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "css",
+      "version": "1.0.0",
+      "tags": ["letterbox", "aspect-ratio", "cinematic"],
+      "complexity": "low",
+      "gpuAccelerated": false,
+      "parameters": [
+        {
+          "id": "aspect_ratio",
+          "name": { "en": "Aspect Ratio", "ru": "Соотношение сторон" },
+          "type": "select",
+          "defaultValue": "2.39:1",
+          "options": [
+            { "value": "2.39:1", "label": { "en": "2.39:1 (Anamorphic)", "ru": "2,39:1 (Анаморфное)" } },
+            { "value": "2.35:1", "label": { "en": "2.35:1 (Cinemascope)", "ru": "2,35:1 (Синемаскоп)" } },
+            { "value": "1.85:1", "label": { "en": "1.85:1 (Flat)", "ru": "1,85:1 (Плоское)" } },
+            { "value": "16:9", "label": { "en": "16:9 (HD)", "ru": "16:9 (HD)" } }
+          ],
+          "animatable": false,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "bar_opacity",
+          "name": { "en": "Bar Opacity", "ru": "Прозрачность полос" },
+          "type": "number",
+          "defaultValue": 1,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "scale_to_fit",
+          "name": { "en": "Scale to Fit", "ru": "Масштабировать по размеру" },
+          "type": "boolean",
+          "defaultValue": true,
+          "animatable": false,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "anamorphic_2_39",
+          "name": { "ru": "Анаморфное 2.39:1", "en": "Anamorphic 2.39:1" },
+          "description": { "ru": "Классический голливудский формат", "en": "Classic Hollywood format" },
+          "parameters": {
+            "aspect_ratio": "2.39:1",
+            "bar_opacity": 1,
+            "scale_to_fit": true
+          },
+          "tags": ["hollywood"]
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "css": {
+          "transforms": ["letterbox"]
+        }
+      }
+    },
+    {
+      "id": "effect_film_look",
+      "name": {
+        "en": "Film Look",
+        "ru": "Пленочный вид",
+        "es": "Aspecto de Película",
+        "fr": "Aspect Film",
+        "de": "Film-Look"
+      },
+      "description": {
+        "ru": "Профессиональный пленочный вид с настройкой кривых и цветности",
+        "en": "Professional film look with curve and color adjustments"
+      },
+      "category": "cinematic",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "webgl",
+      "version": "1.0.0",
+      "tags": ["film", "cinematic", "color"],
+      "complexity": "high",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "film_stock",
+          "name": { "en": "Film Stock", "ru": "Тип пленки" },
+          "type": "select",
+          "defaultValue": "kodak_vision",
+          "options": [
+            { "value": "kodak_vision", "label": { "en": "Kodak Vision3", "ru": "Kodak Vision3" } },
+            { "value": "fuji_eterna", "label": { "en": "Fuji Eterna", "ru": "Fuji Eterna" } },
+            { "value": "agfa_x", "label": { "en": "Agfa X", "ru": "Agfa X" } },
+            { "value": "ilford_delta", "label": { "en": "Ilford Delta", "ru": "Ilford Delta" } }
+          ],
+          "animatable": false,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "exposure",
+          "name": { "en": "Exposure", "ru": "Экспозиция" },
+          "type": "number",
+          "defaultValue": 0,
+          "min": -2,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "highlights",
+          "name": { "en": "Highlights", "ru": "Света" },
+          "type": "number",
+          "defaultValue": 0,
+          "min": -1,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "shadows",
+          "name": { "en": "Shadows", "ru": "Тени" },
+          "type": "number",
+          "defaultValue": 0,
+          "min": -1,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "color_grade_intensity",
+          "name": { "en": "Color Grade", "ru": "Цветокоррекция" },
+          "type": "number",
+          "defaultValue": 0.7,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "grain_amount",
+          "name": { "en": "Grain", "ru": "Зерно" },
+          "type": "number",
+          "defaultValue": 0.2,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "blockbuster_look",
+          "name": { "ru": "Блокбастер", "en": "Blockbuster" },
+          "description": { "ru": "Стиль голливудских блокбастеров", "en": "Hollywood blockbuster style" },
+          "parameters": {
+            "film_stock": "kodak_vision",
+            "exposure": 0.1,
+            "highlights": -0.2,
+            "shadows": 0.1,
+            "color_grade_intensity": 0.8,
+            "grain_amount": 0.15
+          },
+          "tags": ["hollywood"]
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "webgl": {
+          "fragmentShader": "precision mediump float;\nuniform sampler2D u_texture;\nuniform int u_film_stock;\nuniform float u_exposure, u_highlights, u_shadows, u_color_grade_intensity, u_grain_amount;\nuniform vec2 u_resolution;\nuniform float u_time;\nvarying vec2 v_texCoord;\n\nfloat random(vec2 st) {\n  return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);\n}\n\nvec3 applyFilmStock(vec3 color, int stock) {\n  if (stock == 0) { // Kodak Vision\n    color.r *= 1.05;\n    color.g *= 0.98;\n    color.b *= 0.95;\n  } else if (stock == 1) { // Fuji Eterna\n    color.r *= 0.95;\n    color.g *= 1.02;\n    color.b *= 1.03;\n  } else if (stock == 2) { // Agfa X\n    color.r *= 1.1;\n    color.g *= 0.95;\n    color.b *= 0.9;\n  } else if (stock == 3) { // Ilford Delta (B&W)\n    float gray = dot(color, vec3(0.299, 0.587, 0.114));\n    color = vec3(gray);\n  }\n  return color;\n}\n\nvoid main() {\n  vec4 color = texture2D(u_texture, v_texCoord);\n  \n  // Exposure adjustment\n  color.rgb *= pow(2.0, u_exposure);\n  \n  // Highlight/Shadow adjustment\n  float luminance = dot(color.rgb, vec3(0.299, 0.587, 0.114));\n  if (luminance > 0.7) {\n    color.rgb = mix(color.rgb, color.rgb * (1.0 + u_highlights), luminance - 0.7);\n  } else if (luminance < 0.3) {\n    color.rgb = mix(color.rgb, color.rgb * (1.0 + u_shadows), 0.3 - luminance);\n  }\n  \n  // Apply film stock characteristics\n  vec3 filmColor = applyFilmStock(color.rgb, u_film_stock);\n  color.rgb = mix(color.rgb, filmColor, u_color_grade_intensity);\n  \n  // Film curve (S-curve)\n  color.rgb = color.rgb / (color.rgb + vec3(0.187)) * 1.035;\n  \n  // Film grain\n  if (u_grain_amount > 0.0) {\n    float grain = (random(v_texCoord + u_time) - 0.5) * u_grain_amount * 0.1;\n    color.rgb += grain;\n  }\n  \n  gl_FragColor = vec4(clamp(color.rgb, 0.0, 1.0), color.a);\n}",
+          "uniforms": {
+            "u_texture": 0,
+            "u_film_stock": 0,
+            "u_exposure": 0,
+            "u_highlights": 0,
+            "u_shadows": 0,
+            "u_color_grade_intensity": 0.7,
+            "u_grain_amount": 0.2,
+            "u_resolution": [1920, 1080],
+            "u_time": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "effect_lens_flare",
+      "name": {
+        "en": "Lens Flare",
+        "ru": "Бликовые пятна",
+        "es": "Destello de Lente",
+        "fr": "Reflet d'Objectif",
+        "de": "Lens-Flare"
+      },
+      "description": {
+        "ru": "Реалистичные блики объектива от ярких источников света",
+        "en": "Realistic lens reflections from bright light sources"
+      },
+      "category": "cinematic",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "webgl",
+      "version": "1.0.0",
+      "tags": ["lens", "flare", "light"],
+      "complexity": "high",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "light_source_x",
+          "name": { "en": "Light Source X", "ru": "Источник света X" },
+          "type": "number",
+          "defaultValue": 0.8,
+          "min": -0.5,
+          "max": 1.5,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "light_source_y",
+          "name": { "en": "Light Source Y", "ru": "Источник света Y" },
+          "type": "number",
+          "defaultValue": 0.2,
+          "min": -0.5,
+          "max": 1.5,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "flare_intensity",
+          "name": { "en": "Flare Intensity", "ru": "Интенсивность бликов" },
+          "type": "number",
+          "defaultValue": 0.6,
+          "min": 0,
+          "max": 2,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "flare_color",
+          "name": { "en": "Flare Color", "ru": "Цвет бликов" },
+          "type": "color",
+          "defaultValue": "#ffffff",
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "chromatic_ring",
+          "name": { "en": "Chromatic Ring", "ru": "Хроматическое кольцо" },
+          "type": "boolean",
+          "defaultValue": true,
+          "animatable": false,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "streak_length",
+          "name": { "en": "Streak Length", "ru": "Длина лучей" },
+          "type": "number",
+          "defaultValue": 0.3,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "sun_flare",
+          "name": { "ru": "Солнечный блик", "en": "Sun Flare" },
+          "description": { "ru": "Естественный солнечный блик", "en": "Natural sun flare" },
+          "parameters": {
+            "light_source_x": 0.9,
+            "light_source_y": 0.1,
+            "flare_intensity": 0.8,
+            "flare_color": "#fff8e1",
+            "chromatic_ring": true,
+            "streak_length": 0.4
+          },
+          "tags": ["natural"]
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "webgl": {
+          "fragmentShader": "precision mediump float;\nuniform sampler2D u_texture;\nuniform vec2 u_light_source;\nuniform float u_flare_intensity, u_streak_length;\nuniform vec3 u_flare_color;\nuniform bool u_chromatic_ring;\nvarying vec2 v_texCoord;\n\nvoid main() {\n  vec4 color = texture2D(u_texture, v_texCoord);\n  \n  vec2 center = vec2(0.5, 0.5);\n  vec2 lightDir = u_light_source - center;\n  vec2 flareDir = center - u_light_source;\n  \n  // Distance from light source\n  float distToLight = length(v_texCoord - u_light_source);\n  \n  // Main flare halo\n  float halo = 1.0 / (1.0 + distToLight * 10.0);\n  halo = pow(halo, 3.0) * u_flare_intensity;\n  \n  // Chromatic rings\n  vec3 flareContrib = vec3(0.0);\n  if (u_chromatic_ring) {\n    float ring1 = abs(distToLight - 0.1);\n    float ring2 = abs(distToLight - 0.15);\n    float ring3 = abs(distToLight - 0.2);\n    \n    flareContrib.r += (1.0 / (1.0 + ring1 * 50.0)) * 0.3;\n    flareContrib.g += (1.0 / (1.0 + ring2 * 50.0)) * 0.3;\n    flareContrib.b += (1.0 / (1.0 + ring3 * 50.0)) * 0.3;\n  }\n  \n  // Lens streaks\n  if (u_streak_length > 0.0) {\n    vec2 streakDir = normalize(lightDir);\n    float streakDist = abs(dot(v_texCoord - center, vec2(-streakDir.y, streakDir.x)));\n    float streak = (1.0 / (1.0 + streakDist * 100.0)) * u_streak_length;\n    \n    float alongStreak = dot(v_texCoord - center, streakDir);\n    if (abs(alongStreak) < 0.5) {\n      flareContrib += u_flare_color * streak * 0.2;\n    }\n  }\n  \n  // Combine flare effects\n  vec3 totalFlare = u_flare_color * halo + flareContrib;\n  color.rgb += totalFlare * u_flare_intensity;\n  \n  gl_FragColor = vec4(color.rgb, color.a);\n}",
+          "uniforms": {
+            "u_texture": 0,
+            "u_light_source": [0.8, 0.2],
+            "u_flare_intensity": 0.6,
+            "u_streak_length": 0.3,
+            "u_flare_color": [1.0, 1.0, 1.0],
+            "u_chromatic_ring": true
+          }
+        }
+      }
+    },
+    {
+      "id": "effect_depth_of_field",
+      "name": {
+        "en": "Depth of Field",
+        "ru": "Глубина резкости",
+        "es": "Profundidad de Campo",
+        "fr": "Profondeur de Champ",
+        "de": "Schärfentiefe"
+      },
+      "description": {
+        "ru": "Имитация глубины резкости камеры с размытием переднего/заднего плана",
+        "en": "Camera depth of field simulation with foreground/background blur"
+      },
+      "category": "cinematic",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "webgl",
+      "version": "1.0.0",
+      "tags": ["blur", "focus", "depth"],
+      "complexity": "high",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "focus_distance",
+          "name": { "en": "Focus Distance", "ru": "Расстояние фокуса" },
+          "type": "number",
+          "defaultValue": 0.5,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "focus_range",
+          "name": { "en": "Focus Range", "ru": "Диапазон фокуса" },
+          "type": "number",
+          "defaultValue": 0.2,
+          "min": 0.01,
+          "max": 0.5,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "blur_amount",
+          "name": { "en": "Blur Amount", "ru": "Степень размытия" },
+          "type": "number",
+          "defaultValue": 5,
+          "min": 0,
+          "max": 20,
+          "step": 0.1,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "bokeh_shape",
+          "name": { "en": "Bokeh Shape", "ru": "Форма боке" },
+          "type": "select",
+          "defaultValue": "circular",
+          "options": [
+            { "value": "circular", "label": { "en": "Circular", "ru": "Круглое" } },
+            { "value": "hexagonal", "label": { "en": "Hexagonal", "ru": "Шестиугольное" } },
+            { "value": "star", "label": { "en": "Star", "ru": "Звездное" } }
+          ],
+          "animatable": false,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "portrait_dof",
+          "name": { "ru": "Портретная глубина", "en": "Portrait DOF" },
+          "description": { "ru": "Настройки для портретной съемки", "en": "Settings for portrait photography" },
+          "parameters": {
+            "focus_distance": 0.6,
+            "focus_range": 0.15,
+            "blur_amount": 8,
+            "bokeh_shape": "circular"
+          },
+          "tags": ["portrait"]
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "webgl": {
+          "fragmentShader": "precision mediump float;\nuniform sampler2D u_texture;\nuniform vec2 u_resolution;\nuniform float u_focus_distance, u_focus_range, u_blur_amount;\nuniform int u_bokeh_shape;\nvarying vec2 v_texCoord;\n\n// Simple depth estimation based on luminance and position\nfloat estimateDepth(vec2 coord) {\n  vec4 color = texture2D(u_texture, coord);\n  float luminance = dot(color.rgb, vec3(0.299, 0.587, 0.114));\n  \n  // Use vertical position as simple depth cue (objects lower are closer)\n  float depthFromPosition = 1.0 - coord.y;\n  \n  // Combine with luminance (brighter objects tend to be closer)\n  return mix(depthFromPosition, luminance, 0.3);\n}\n\nvec4 bokehBlur(sampler2D tex, vec2 coord, float radius) {\n  vec4 color = vec4(0.0);\n  float total = 0.0;\n  \n  int samples = int(radius * 2.0) + 1;\n  \n  for (int x = -10; x <= 10; x++) {\n    for (int y = -10; y <= 10; y++) {\n      if (x*x + y*y > samples*samples) continue;\n      \n      vec2 offset = vec2(float(x), float(y)) / u_resolution * radius;\n      \n      // Bokeh shape modification\n      float weight = 1.0;\n      if (u_bokeh_shape == 1) { // Hexagonal\n        float angle = atan(float(y), float(x));\n        weight = 0.5 + 0.5 * cos(angle * 6.0);\n      } else if (u_bokeh_shape == 2) { // Star\n        float angle = atan(float(y), float(x));\n        weight = 0.3 + 0.7 * abs(cos(angle * 4.0));\n      }\n      \n      color += texture2D(tex, coord + offset) * weight;\n      total += weight;\n    }\n  }\n  \n  return color / total;\n}\n\nvoid main() {\n  float depth = estimateDepth(v_texCoord);\n  \n  // Calculate distance from focus plane\n  float distanceFromFocus = abs(depth - u_focus_distance);\n  \n  // Calculate blur radius\n  float blurRadius = 0.0;\n  if (distanceFromFocus > u_focus_range) {\n    blurRadius = (distanceFromFocus - u_focus_range) * u_blur_amount;\n  }\n  \n  vec4 color;\n  if (blurRadius > 0.5) {\n    color = bokehBlur(u_texture, v_texCoord, blurRadius);\n  } else {\n    color = texture2D(u_texture, v_texCoord);\n  }\n  \n  gl_FragColor = color;\n}",
+          "uniforms": {
+            "u_texture": 0,
+            "u_resolution": [1920, 1080],
+            "u_focus_distance": 0.5,
+            "u_focus_range": 0.2,
+            "u_blur_amount": 5,
+            "u_bokeh_shape": 0
+          }
+        }
+      }
+    }
+  ]
+}

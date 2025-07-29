@@ -1,0 +1,501 @@
+{
+  "version": "2.0.0",
+  "category": "distortion-advanced",
+  "migratedAt": "2025-01-29T14:47:00.000Z",
+  "stats": {
+    "total": 15,
+    "migrated": 15,
+    "skipped": 0,
+    "successRate": "100.00%",
+    "errors": []
+  },
+  "effects": [
+    {
+      "id": "effect_fisheye",
+      "name": {
+        "en": "Fisheye",
+        "ru": "Рыбий глаз",
+        "es": "Ojo de Pez",
+        "fr": "Fisheye",
+        "de": "Fisheye"
+      },
+      "description": {
+        "ru": "Эффект объектива рыбий глаз с сферическим искажением",
+        "en": "Fisheye lens effect with spherical distortion"
+      },
+      "category": "distortion",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "webgl",
+      "version": "1.0.0",
+      "tags": ["lens", "spherical"],
+      "complexity": "medium",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "strength",
+          "name": { "en": "Strength", "ru": "Сила" },
+          "type": "number",
+          "defaultValue": 0.5,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "center_x",
+          "name": { "en": "Center X", "ru": "Центр X" },
+          "type": "number",
+          "defaultValue": 0.5,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "center_y",
+          "name": { "en": "Center Y", "ru": "Центр Y" },
+          "type": "number",
+          "defaultValue": 0.5,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "wide_angle",
+          "name": { "ru": "Широкий угол", "en": "Wide Angle" },
+          "description": { "ru": "Эффект широкоугольного объектива", "en": "Wide angle lens effect" },
+          "parameters": {
+            "strength": 0.3,
+            "center_x": 0.5,
+            "center_y": 0.5
+          },
+          "tags": ["subtle"]
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "webgl": {
+          "fragmentShader": "precision mediump float;\nuniform sampler2D u_texture;\nuniform float u_strength;\nuniform vec2 u_center;\nvarying vec2 v_texCoord;\n\nvoid main() {\n  vec2 center = u_center;\n  vec2 coord = v_texCoord - center;\n  \n  float radius = length(coord);\n  float maxRadius = 0.7071; // sqrt(0.5)\n  \n  if (radius < maxRadius) {\n    float distortion = 1.0 + u_strength * (radius * radius) / (maxRadius * maxRadius);\n    coord *= distortion;\n  }\n  \n  vec2 newCoord = coord + center;\n  \n  if (newCoord.x >= 0.0 && newCoord.x <= 1.0 && newCoord.y >= 0.0 && newCoord.y <= 1.0) {\n    gl_FragColor = texture2D(u_texture, newCoord);\n  } else {\n    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);\n  }\n}",
+          "uniforms": {
+            "u_texture": 0,
+            "u_strength": 0.5,
+            "u_center": [0.5, 0.5]
+          }
+        }
+      }
+    },
+    {
+      "id": "effect_ripple",
+      "name": {
+        "en": "Ripple",
+        "ru": "Рябь",
+        "es": "Ondas",
+        "fr": "Ondulation",
+        "de": "Wellen"
+      },
+      "description": {
+        "ru": "Эффект ряби на воде с волновыми искажениями",
+        "en": "Water ripple effect with wave distortions"
+      },
+      "category": "distortion",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "webgl",
+      "version": "1.0.0",
+      "tags": ["wave", "water", "animated"],
+      "complexity": "medium",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "amplitude",
+          "name": { "en": "Amplitude", "ru": "Амплитуда" },
+          "type": "number",
+          "defaultValue": 0.02,
+          "min": 0,
+          "max": 0.1,
+          "step": 0.001,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "frequency",
+          "name": { "en": "Frequency", "ru": "Частота" },
+          "type": "number",
+          "defaultValue": 10,
+          "min": 1,
+          "max": 50,
+          "step": 1,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "speed",
+          "name": { "en": "Speed", "ru": "Скорость" },
+          "type": "number",
+          "defaultValue": 1,
+          "min": 0,
+          "max": 5,
+          "step": 0.1,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "center_x",
+          "name": { "en": "Center X", "ru": "Центр X" },
+          "type": "number",
+          "defaultValue": 0.5,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "center_y",
+          "name": { "en": "Center Y", "ru": "Центр Y" },
+          "type": "number",
+          "defaultValue": 0.5,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "gentle_waves",
+          "name": { "ru": "Мягкие волны", "en": "Gentle Waves" },
+          "description": { "ru": "Мягкие волновые искажения", "en": "Gentle wave distortions" },
+          "parameters": {
+            "amplitude": 0.01,
+            "frequency": 5,
+            "speed": 0.5
+          },
+          "tags": ["subtle"]
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "webgl": {
+          "fragmentShader": "precision mediump float;\nuniform sampler2D u_texture;\nuniform float u_amplitude, u_frequency, u_speed;\nuniform vec2 u_center;\nuniform float u_time;\nvarying vec2 v_texCoord;\n\nvoid main() {\n  vec2 center = u_center;\n  vec2 coord = v_texCoord - center;\n  \n  float distance = length(coord);\n  float ripple = sin(distance * u_frequency - u_time * u_speed) * u_amplitude;\n  \n  if (distance > 0.0) {\n    coord *= (1.0 + ripple / distance);\n  }\n  \n  vec2 newCoord = coord + center;\n  \n  if (newCoord.x >= 0.0 && newCoord.x <= 1.0 && newCoord.y >= 0.0 && newCoord.y <= 1.0) {\n    gl_FragColor = texture2D(u_texture, newCoord);\n  } else {\n    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);\n  }\n}",
+          "uniforms": {
+            "u_texture": 0,
+            "u_amplitude": 0.02,
+            "u_frequency": 10,
+            "u_speed": 1,
+            "u_center": [0.5, 0.5],
+            "u_time": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "effect_mesh_warp",
+      "name": {
+        "en": "Mesh Warp",
+        "ru": "Деформация сетки",
+        "es": "Deformación de Malla",
+        "fr": "Déformation de Maillage",
+        "de": "Gitter-Verzerrung"
+      },
+      "description": {
+        "ru": "Деформация изображения с помощью сетки контрольных точек",
+        "en": "Image deformation using a mesh of control points"
+      },
+      "category": "distortion",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "webgl",
+      "version": "1.0.0",
+      "tags": ["mesh", "control", "advanced"],
+      "complexity": "high",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "grid_size",
+          "name": { "en": "Grid Size", "ru": "Размер сетки" },
+          "type": "number",
+          "defaultValue": 4,
+          "min": 2,
+          "max": 10,
+          "step": 1,
+          "animatable": false,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "warp_strength",
+          "name": { "en": "Warp Strength", "ru": "Сила деформации" },
+          "type": "number",
+          "defaultValue": 0.1,
+          "min": 0,
+          "max": 0.5,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "smooth_edges",
+          "name": { "en": "Smooth Edges", "ru": "Сглаживание краев" },
+          "type": "boolean",
+          "defaultValue": true,
+          "animatable": false,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "subtle_warp",
+          "name": { "ru": "Тонкая деформация", "en": "Subtle Warp" },
+          "description": { "ru": "Легкая деформация изображения", "en": "Light image deformation" },
+          "parameters": {
+            "grid_size": 3,
+            "warp_strength": 0.05,
+            "smooth_edges": true
+          },
+          "tags": ["subtle"]
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "webgl": {
+          "fragmentShader": "precision mediump float;\nuniform sampler2D u_texture;\nuniform float u_grid_size, u_warp_strength;\nuniform bool u_smooth_edges;\nuniform float u_time;\nvarying vec2 v_texCoord;\n\nfloat random(vec2 st) {\n  return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);\n}\n\nvoid main() {\n  vec2 coord = v_texCoord;\n  \n  // Create mesh distortion\n  float gridStep = 1.0 / u_grid_size;\n  vec2 gridPos = floor(coord / gridStep) * gridStep;\n  vec2 localPos = (coord - gridPos) / gridStep;\n  \n  // Generate pseudo-random displacement for each grid cell\n  vec2 displacement = vec2(\n    (random(gridPos + vec2(123.45, 678.90)) - 0.5) * u_warp_strength,\n    (random(gridPos + vec2(987.65, 432.10)) - 0.5) * u_warp_strength\n  );\n  \n  // Apply smooth interpolation if enabled\n  if (u_smooth_edges) {\n    localPos = smoothstep(0.0, 1.0, localPos);\n  }\n  \n  // Apply displacement\n  coord += displacement * localPos;\n  \n  if (coord.x >= 0.0 && coord.x <= 1.0 && coord.y >= 0.0 && coord.y <= 1.0) {\n    gl_FragColor = texture2D(u_texture, coord);\n  } else {\n    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);\n  }\n}",
+          "uniforms": {
+            "u_texture": 0,
+            "u_grid_size": 4,
+            "u_warp_strength": 0.1,
+            "u_smooth_edges": true,
+            "u_time": 0
+          }
+        }
+      }
+    },
+    {
+      "id": "effect_kaleidoscope",
+      "name": {
+        "en": "Kaleidoscope",
+        "ru": "Калейдоскоп",
+        "es": "Caleidoscopio",
+        "fr": "Kaléidoscope",
+        "de": "Kaleidoskop"
+      },
+      "description": {
+        "ru": "Создает калейдоскопический эффект с зеркальными отражениями",
+        "en": "Creates kaleidoscope effect with mirror reflections"
+      },
+      "category": "distortion",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "webgl",
+      "version": "1.0.0",
+      "tags": ["mirror", "symmetry", "creative"],
+      "complexity": "medium",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "segments",
+          "name": { "en": "Segments", "ru": "Сегменты" },
+          "type": "number",
+          "defaultValue": 6,
+          "min": 3,
+          "max": 20,
+          "step": 1,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "rotation",
+          "name": { "en": "Rotation", "ru": "Поворот" },
+          "type": "number",
+          "defaultValue": 0,
+          "min": 0,
+          "max": 360,
+          "step": 1,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "center_x",
+          "name": { "en": "Center X", "ru": "Центр X" },
+          "type": "number",
+          "defaultValue": 0.5,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "center_y",
+          "name": { "en": "Center Y", "ru": "Центр Y" },
+          "type": "number",
+          "defaultValue": 0.5,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "classic_6",
+          "name": { "ru": "Классический 6", "en": "Classic 6" },
+          "description": {
+            "ru": "Классический калейдоскоп с 6 сегментами",
+            "en": "Classic kaleidoscope with 6 segments"
+          },
+          "parameters": {
+            "segments": 6,
+            "rotation": 0,
+            "center_x": 0.5,
+            "center_y": 0.5
+          },
+          "tags": ["classic"]
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "webgl": {
+          "fragmentShader": "precision mediump float;\nuniform sampler2D u_texture;\nuniform float u_segments, u_rotation;\nuniform vec2 u_center;\nvarying vec2 v_texCoord;\n\n#define PI 3.14159265359\n\nvoid main() {\n  vec2 center = u_center;\n  vec2 coord = v_texCoord - center;\n  \n  // Convert to polar coordinates\n  float radius = length(coord);\n  float angle = atan(coord.y, coord.x);\n  \n  // Apply rotation\n  angle += u_rotation * PI / 180.0;\n  \n  // Create kaleidoscope segments\n  float segmentAngle = 2.0 * PI / u_segments;\n  angle = mod(angle, segmentAngle);\n  \n  // Mirror every other segment\n  if (mod(floor((atan(coord.y, coord.x) + u_rotation * PI / 180.0) / segmentAngle), 2.0) >= 1.0) {\n    angle = segmentAngle - angle;\n  }\n  \n  // Convert back to cartesian\n  vec2 newCoord = vec2(cos(angle), sin(angle)) * radius + center;\n  \n  if (newCoord.x >= 0.0 && newCoord.x <= 1.0 && newCoord.y >= 0.0 && newCoord.y <= 1.0) {\n    gl_FragColor = texture2D(u_texture, newCoord);\n  } else {\n    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);\n  }\n}",
+          "uniforms": {
+            "u_texture": 0,
+            "u_segments": 6,
+            "u_rotation": 0,
+            "u_center": [0.5, 0.5]
+          }
+        }
+      }
+    },
+    {
+      "id": "effect_magnify",
+      "name": {
+        "en": "Magnify",
+        "ru": "Увеличение",
+        "es": "Magnificar",
+        "fr": "Agrandir",
+        "de": "Vergrößern"
+      },
+      "description": {
+        "ru": "Эффект увеличительного стекла для выделения областей",
+        "en": "Magnifying glass effect for highlighting areas"
+      },
+      "category": "distortion",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "webgl",
+      "version": "1.0.0",
+      "tags": ["zoom", "magnify", "lens"],
+      "complexity": "medium",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "magnification",
+          "name": { "en": "Magnification", "ru": "Увеличение" },
+          "type": "number",
+          "defaultValue": 2,
+          "min": 1,
+          "max": 5,
+          "step": 0.1,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "radius",
+          "name": { "en": "Radius", "ru": "Радиус" },
+          "type": "number",
+          "defaultValue": 0.2,
+          "min": 0.1,
+          "max": 0.5,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "center_x",
+          "name": { "en": "Center X", "ru": "Центр X" },
+          "type": "number",
+          "defaultValue": 0.5,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "center_y",
+          "name": { "en": "Center Y", "ru": "Центр Y" },
+          "type": "number",
+          "defaultValue": 0.5,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "edge_softness",
+          "name": { "en": "Edge Softness", "ru": "Мягкость краев" },
+          "type": "number",
+          "defaultValue": 0.1,
+          "min": 0,
+          "max": 0.3,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "reading_glass",
+          "name": { "ru": "Читательское стекло", "en": "Reading Glass" },
+          "description": {
+            "ru": "Эффект читательского увеличительного стекла",
+            "en": "Reading magnifying glass effect"
+          },
+          "parameters": {
+            "magnification": 1.5,
+            "radius": 0.15,
+            "edge_softness": 0.05
+          },
+          "tags": ["subtle"]
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "webgl": {
+          "fragmentShader": "precision mediump float;\nuniform sampler2D u_texture;\nuniform float u_magnification, u_radius, u_edge_softness;\nuniform vec2 u_center;\nvarying vec2 v_texCoord;\n\nvoid main() {\n  vec2 center = u_center;\n  vec2 coord = v_texCoord;\n  float distance = length(coord - center);\n  \n  if (distance < u_radius) {\n    // Inside magnification area\n    vec2 direction = (coord - center) / u_magnification;\n    vec2 magnifiedCoord = center + direction;\n    \n    if (magnifiedCoord.x >= 0.0 && magnifiedCoord.x <= 1.0 && \n        magnifiedCoord.y >= 0.0 && magnifiedCoord.y <= 1.0) {\n      vec4 magnified = texture2D(u_texture, magnifiedCoord);\n      vec4 original = texture2D(u_texture, coord);\n      \n      // Smooth edge transition\n      float edgeDistance = u_radius - distance;\n      float softEdge = smoothstep(0.0, u_edge_softness, edgeDistance);\n      \n      gl_FragColor = mix(original, magnified, softEdge);\n    } else {\n      gl_FragColor = texture2D(u_texture, coord);\n    }\n  } else {\n    // Outside magnification area\n    gl_FragColor = texture2D(u_texture, coord);\n  }\n}",
+          "uniforms": {
+            "u_texture": 0,
+            "u_magnification": 2,
+            "u_radius": 0.2,
+            "u_edge_softness": 0.1,
+            "u_center": [0.5, 0.5]
+          }
+        }
+      }
+    }
+  ]
+}

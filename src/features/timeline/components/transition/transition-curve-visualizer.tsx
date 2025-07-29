@@ -1,6 +1,7 @@
-import { useMemo, useRef, useEffect } from "react"
-import { cn } from "@/lib/utils"
+import { useEffect, useMemo, useRef } from "react"
+
 import { TransitionCurve } from "@/features/timeline/types/timeline-transition"
+import { cn } from "@/lib/utils"
 
 interface TransitionCurveVisualizerProps {
   curve: TransitionCurve
@@ -98,7 +99,7 @@ export function TransitionCurveVisualizer({
     ctx.strokeStyle = "hsl(var(--border))"
     ctx.lineWidth = 0.5
     ctx.setLineDash([2, 2])
-    
+
     // Вертикальные линии
     for (let i = 0; i <= 10; i++) {
       const x = padding + (i / 10) * (width - 2 * padding)
@@ -187,13 +188,12 @@ export function TransitionCurveVisualizer({
     ctx.textAlign = "center"
     ctx.textBaseline = "top"
     ctx.fillText("Time", width / 2, height - 5)
-    
+
     ctx.save()
     ctx.translate(5, height / 2)
     ctx.rotate(-Math.PI / 2)
     ctx.fillText("Value", 0, 0)
     ctx.restore()
-
   }, [curve, currentTime, duration, width, height, showProgress, showValue, getValueAtTime])
 
   // Обработчик клика для изменения времени
@@ -212,20 +212,15 @@ export function TransitionCurveVisualizer({
     <div className={cn("transition-curve-visualizer", className)}>
       <canvas
         ref={canvasRef}
-        className={cn(
-          "border rounded",
-          onTimeChange && "cursor-pointer",
-        )}
+        className={cn("border rounded", onTimeChange && "cursor-pointer")}
         onClick={handleClick}
       />
-      
+
       {/* Информация о переходе */}
       <div className="mt-2 flex justify-between text-xs text-muted-foreground">
         <span>Тип: {curve.type}</span>
         <span>Длительность: {duration.toFixed(1)}s</span>
-        {showProgress && (
-          <span>Время: {currentTime.toFixed(2)}s</span>
-        )}
+        {showProgress && <span>Время: {currentTime.toFixed(2)}s</span>}
       </div>
     </div>
   )
@@ -239,9 +234,9 @@ function calculateEasing(type: string, t: number): number {
     case "ease-in":
       return t * t * t
     case "ease-out":
-      return 1 - Math.pow(1 - t, 3)
+      return 1 - (1 - t) ** 3
     case "ease-in-out":
-      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
+      return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2
     default:
       return t
   }

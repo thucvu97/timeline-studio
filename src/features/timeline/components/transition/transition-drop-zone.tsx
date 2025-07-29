@@ -1,8 +1,11 @@
-import { useState, useRef, useCallback } from "react"
-import { cn } from "@/lib/utils"
+import { useRef, useState } from "react"
+
 import { useDroppable } from "@dnd-kit/core"
-import { TimelineClip } from "../../types/timeline"
+
 import { Transition } from "@/features/transitions/types/transitions"
+import { cn } from "@/lib/utils"
+
+import { TimelineClip } from "../../types/timeline"
 
 interface TransitionDropZoneProps {
   leftClip: TimelineClip
@@ -65,12 +68,7 @@ export function TransitionDropZone({
           dropZoneRef.current = el
         }
       }}
-      className={cn(
-        "absolute top-0 bottom-0 z-10",
-        "transition-all duration-200",
-        isOver && "scale-110",
-        className,
-      )}
+      className={cn("absolute top-0 bottom-0 z-10", "transition-all duration-200", isOver && "scale-110", className)}
       style={{
         left: left - 15, // Центрируем зону
         width: 30, // Ширина зоны
@@ -95,11 +93,7 @@ export function TransitionDropZone({
           className={cn(
             "absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-0.5",
             "transition-all",
-            isOver
-              ? "bg-primary"
-              : isHovered
-                ? "bg-muted-foreground/50"
-                : "bg-transparent",
+            isOver ? "bg-primary" : isHovered ? "bg-muted-foreground/50" : "bg-transparent",
           )}
         />
 
@@ -110,9 +104,7 @@ export function TransitionDropZone({
               className={cn(
                 "w-6 h-6 rounded-full flex items-center justify-center",
                 "text-xs font-bold",
-                isOver
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted-foreground/20 text-muted-foreground",
+                isOver ? "bg-primary text-primary-foreground" : "bg-muted-foreground/20 text-muted-foreground",
               )}
             >
               +

@@ -1,18 +1,20 @@
 import { useCallback, useMemo } from "react"
-import { useTransitions } from "@/features/transitions/hooks/use-transitions"
+
 import { useAdvancedTransitions } from "@/features/transitions/hooks/use-advanced-transitions"
+import { useTransitions } from "@/features/transitions/hooks/use-transitions"
 import { Transition } from "@/features/transitions/types/transitions"
-import { TimelineTransition } from "../types/timeline-transition"
+
 import {
-  createTimelineTransition,
-  updateTimelineTransitionParameters,
   addKeyframeToTimelineTransition,
-  removeKeyframeFromTimelineTransition,
-  getTimelineTransitionById,
   cloneTimelineTransition,
+  createTimelineTransition,
+  getTimelineTransitionById,
+  removeKeyframeFromTimelineTransition,
+  updateTimelineTransitionParameters,
 } from "../services/resource-manager"
 import { getTrackTransitions as getTrackTransitionsService } from "../services/timeline-transition-manager"
 import { TimelineProject } from "../types/timeline"
+import { TimelineTransition } from "../types/timeline-transition"
 
 /**
  * Hook для работы с переходами на таймлайне
@@ -214,7 +216,7 @@ export function useTimelineTransitions(project: TimelineProject) {
     })
 
     if (stats.total > 0) {
-      stats.averageDuration = stats.averageDuration / stats.total
+      stats.averageDuration /= stats.total
     }
 
     return stats

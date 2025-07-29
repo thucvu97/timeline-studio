@@ -1,0 +1,502 @@
+{
+  "version": "2.0.0",
+  "category": "audio-effects",
+  "migratedAt": "2025-01-29T14:47:00.000Z",
+  "stats": {
+    "total": 15,
+    "migrated": 15,
+    "skipped": 0,
+    "successRate": "100.00%",
+    "errors": []
+  },
+  "effects": [
+    {
+      "id": "effect_audio_reverb",
+      "name": {
+        "en": "Reverb",
+        "ru": "Реверберация",
+        "es": "Reverberación",
+        "fr": "Réverbération",
+        "de": "Hall"
+      },
+      "description": {
+        "ru": "Добавляет пространственный эффект реверберации",
+        "en": "Adds spatial reverb effect"
+      },
+      "category": "audio",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "audio",
+      "version": "1.0.0",
+      "tags": ["space", "ambient", "room"],
+      "complexity": "medium",
+      "gpuAccelerated": false,
+      "parameters": [
+        {
+          "id": "room_size",
+          "name": { "en": "Room Size", "ru": "Размер помещения" },
+          "type": "number",
+          "defaultValue": 0.5,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "decay_time",
+          "name": { "en": "Decay Time", "ru": "Время затухания" },
+          "type": "number",
+          "defaultValue": 1.5,
+          "min": 0.1,
+          "max": 10,
+          "step": 0.1,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "wet_level",
+          "name": { "en": "Wet Level", "ru": "Уровень эффекта" },
+          "type": "number",
+          "defaultValue": 0.3,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "dry_level",
+          "name": { "en": "Dry Level", "ru": "Уровень оригинала" },
+          "type": "number",
+          "defaultValue": 0.7,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "concert_hall",
+          "name": { "ru": "Концертный зал", "en": "Concert Hall" },
+          "description": { "ru": "Реверберация концертного зала", "en": "Concert hall reverb" },
+          "parameters": {
+            "room_size": 0.8,
+            "decay_time": 3.5,
+            "wet_level": 0.4,
+            "dry_level": 0.6
+          },
+          "tags": ["large"]
+        }
+      ],
+      "preview": "/audio-sample.mp3",
+      "processors": {
+        "audio": {
+          "algorithm": "convolution_reverb",
+          "impulse_response": "hall_medium.wav"
+        }
+      }
+    },
+    {
+      "id": "effect_audio_equalizer",
+      "name": {
+        "en": "Equalizer",
+        "ru": "Эквалайзер",
+        "es": "Ecualizador",
+        "fr": "Égaliseur",
+        "de": "Equalizer"
+      },
+      "description": {
+        "ru": "Многополосный эквалайзер для коррекции частот",
+        "en": "Multi-band equalizer for frequency correction"
+      },
+      "category": "audio",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "audio",
+      "version": "1.0.0",
+      "tags": ["frequency", "tone", "correction"],
+      "complexity": "medium",
+      "gpuAccelerated": false,
+      "parameters": [
+        {
+          "id": "low_gain",
+          "name": { "en": "Low (100Hz)", "ru": "Низкие (100Гц)" },
+          "type": "number",
+          "defaultValue": 0,
+          "min": -12,
+          "max": 12,
+          "step": 0.5,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "low_mid_gain",
+          "name": { "en": "Low Mid (500Hz)", "ru": "Низкие средние (500Гц)" },
+          "type": "number",
+          "defaultValue": 0,
+          "min": -12,
+          "max": 12,
+          "step": 0.5,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "mid_gain",
+          "name": { "en": "Mid (1kHz)", "ru": "Средние (1кГц)" },
+          "type": "number",
+          "defaultValue": 0,
+          "min": -12,
+          "max": 12,
+          "step": 0.5,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "high_mid_gain",
+          "name": { "en": "High Mid (3kHz)", "ru": "Высокие средние (3кГц)" },
+          "type": "number",
+          "defaultValue": 0,
+          "min": -12,
+          "max": 12,
+          "step": 0.5,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "high_gain",
+          "name": { "en": "High (10kHz)", "ru": "Высокие (10кГц)" },
+          "type": "number",
+          "defaultValue": 0,
+          "min": -12,
+          "max": 12,
+          "step": 0.5,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "voice_enhance",
+          "name": { "ru": "Улучшение голоса", "en": "Voice Enhancement" },
+          "description": { "ru": "Улучшение разборчивости речи", "en": "Speech clarity enhancement" },
+          "parameters": {
+            "low_gain": -2,
+            "low_mid_gain": 0,
+            "mid_gain": 2,
+            "high_mid_gain": 3,
+            "high_gain": 1
+          },
+          "tags": ["voice"]
+        }
+      ],
+      "preview": "/audio-sample.mp3",
+      "processors": {
+        "audio": {
+          "algorithm": "iir_filter_bank",
+          "bands": 5
+        }
+      }
+    },
+    {
+      "id": "effect_audio_compressor",
+      "name": {
+        "en": "Compressor",
+        "ru": "Компрессор",
+        "es": "Compresor",
+        "fr": "Compresseur",
+        "de": "Kompressor"
+      },
+      "description": {
+        "ru": "Динамический компрессор для выравнивания уровней",
+        "en": "Dynamic compressor for level balancing"
+      },
+      "category": "audio",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "audio",
+      "version": "1.0.0",
+      "tags": ["dynamics", "level", "compression"],
+      "complexity": "high",
+      "gpuAccelerated": false,
+      "parameters": [
+        {
+          "id": "threshold",
+          "name": { "en": "Threshold", "ru": "Порог" },
+          "type": "number",
+          "defaultValue": -18,
+          "min": -40,
+          "max": 0,
+          "step": 1,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "ratio",
+          "name": { "en": "Ratio", "ru": "Коэффициент" },
+          "type": "number",
+          "defaultValue": 4,
+          "min": 1,
+          "max": 20,
+          "step": 0.5,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "attack",
+          "name": { "en": "Attack", "ru": "Атака" },
+          "type": "number",
+          "defaultValue": 10,
+          "min": 0.1,
+          "max": 100,
+          "step": 0.1,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "release",
+          "name": { "en": "Release", "ru": "Спад" },
+          "type": "number",
+          "defaultValue": 100,
+          "min": 10,
+          "max": 1000,
+          "step": 10,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "makeup_gain",
+          "name": { "en": "Makeup Gain", "ru": "Компенсация" },
+          "type": "number",
+          "defaultValue": 0,
+          "min": -12,
+          "max": 12,
+          "step": 0.5,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "vocal_compressor",
+          "name": { "ru": "Вокальный компрессор", "en": "Vocal Compressor" },
+          "description": { "ru": "Настройки для вокала", "en": "Settings for vocals" },
+          "parameters": {
+            "threshold": -15,
+            "ratio": 3,
+            "attack": 5,
+            "release": 80,
+            "makeup_gain": 2
+          },
+          "tags": ["vocal"]
+        }
+      ],
+      "preview": "/audio-sample.mp3",
+      "processors": {
+        "audio": {
+          "algorithm": "peak_compressor",
+          "lookahead": 5
+        }
+      }
+    },
+    {
+      "id": "effect_audio_noise_gate",
+      "name": {
+        "en": "Noise Gate",
+        "ru": "Гейт шума",
+        "es": "Puerta de Ruido",
+        "fr": "Porte de Bruit",
+        "de": "Noise Gate"
+      },
+      "description": {
+        "ru": "Подавляет шум ниже заданного порога",
+        "en": "Suppresses noise below threshold"
+      },
+      "category": "audio",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "audio",
+      "version": "1.0.0",
+      "tags": ["noise", "gate", "cleanup"],
+      "complexity": "medium",
+      "gpuAccelerated": false,
+      "parameters": [
+        {
+          "id": "threshold",
+          "name": { "en": "Threshold", "ru": "Порог" },
+          "type": "number",
+          "defaultValue": -40,
+          "min": -60,
+          "max": -10,
+          "step": 1,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "attack",
+          "name": { "en": "Attack", "ru": "Атака" },
+          "type": "number",
+          "defaultValue": 1,
+          "min": 0.1,
+          "max": 50,
+          "step": 0.1,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "hold",
+          "name": { "en": "Hold", "ru": "Удержание" },
+          "type": "number",
+          "defaultValue": 10,
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "release",
+          "name": { "en": "Release", "ru": "Спад" },
+          "type": "number",
+          "defaultValue": 100,
+          "min": 10,
+          "max": 1000,
+          "step": 10,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "voice_gate",
+          "name": { "ru": "Голосовой гейт", "en": "Voice Gate" },
+          "description": {
+            "ru": "Убирает фоновый шум при записи голоса",
+            "en": "Removes background noise from voice recording"
+          },
+          "parameters": {
+            "threshold": -35,
+            "attack": 2,
+            "hold": 5,
+            "release": 150
+          },
+          "tags": ["voice"]
+        }
+      ],
+      "preview": "/audio-sample.mp3",
+      "processors": {
+        "audio": {
+          "algorithm": "envelope_gate"
+        }
+      }
+    },
+    {
+      "id": "effect_audio_delay",
+      "name": {
+        "en": "Delay",
+        "ru": "Задержка",
+        "es": "Delay",
+        "fr": "Délai",
+        "de": "Delay"
+      },
+      "description": {
+        "ru": "Эффект эхо с настраиваемой задержкой и обратной связью",
+        "en": "Echo effect with adjustable delay and feedback"
+      },
+      "category": "audio",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "audio",
+      "version": "1.0.0",
+      "tags": ["echo", "delay", "time"],
+      "complexity": "medium",
+      "gpuAccelerated": false,
+      "parameters": [
+        {
+          "id": "delay_time",
+          "name": { "en": "Delay Time", "ru": "Время задержки" },
+          "type": "number",
+          "defaultValue": 250,
+          "min": 1,
+          "max": 2000,
+          "step": 1,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "feedback",
+          "name": { "en": "Feedback", "ru": "Обратная связь" },
+          "type": "number",
+          "defaultValue": 0.3,
+          "min": 0,
+          "max": 0.95,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "wet_level",
+          "name": { "en": "Wet Level", "ru": "Уровень эффекта" },
+          "type": "number",
+          "defaultValue": 0.3,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "high_cut",
+          "name": { "en": "High Cut", "ru": "Срез высоких" },
+          "type": "number",
+          "defaultValue": 8000,
+          "min": 1000,
+          "max": 20000,
+          "step": 100,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "slap_delay",
+          "name": { "ru": "Slap delay", "en": "Slap Delay" },
+          "description": { "ru": "Короткая задержка для придания глубины", "en": "Short delay for adding depth" },
+          "parameters": {
+            "delay_time": 120,
+            "feedback": 0.2,
+            "wet_level": 0.25,
+            "high_cut": 6000
+          },
+          "tags": ["subtle"]
+        }
+      ],
+      "preview": "/audio-sample.mp3",
+      "processors": {
+        "audio": {
+          "algorithm": "delay_line",
+          "buffer_size": 2048
+        }
+      }
+    }
+  ]
+}

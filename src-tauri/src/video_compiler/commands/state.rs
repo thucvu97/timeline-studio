@@ -103,6 +103,11 @@ impl VideoCompilerState {
             ffmpeg: Arc::new(crate::video_compiler::services::FfmpegServiceImpl::new(
               ffmpeg_path.clone(),
             )),
+            transition_ffmpeg: Arc::new(
+              crate::video_compiler::services::TransitionFFmpegServiceImpl::new(Arc::new(
+                crate::video_compiler::services::FfmpegServiceImpl::new(ffmpeg_path.clone()),
+              )),
+            ),
             metrics: crate::video_compiler::services::ServiceMetricsContainer {
               render: Arc::new(crate::video_compiler::services::ServiceMetrics::new(
                 "render-service".to_string(),
@@ -121,6 +126,9 @@ impl VideoCompilerState {
               )),
               ffmpeg: Arc::new(crate::video_compiler::services::ServiceMetrics::new(
                 "ffmpeg-service".to_string(),
+              )),
+              transition_ffmpeg: Arc::new(crate::video_compiler::services::ServiceMetrics::new(
+                "transition-ffmpeg-service".to_string(),
               )),
             },
           }),
@@ -188,6 +196,8 @@ impl Default for VideoCompilerState {
       2,
       cache_service.clone(),
     ));
+    let transition_ffmpeg =
+      Arc::new(crate::video_compiler::services::TransitionFFmpegServiceImpl::new(ffmpeg.clone()));
 
     // Создаем метрики
     let metrics = crate::video_compiler::services::ServiceMetricsContainer {
@@ -209,6 +219,9 @@ impl Default for VideoCompilerState {
       ffmpeg: Arc::new(crate::video_compiler::services::ServiceMetrics::new(
         "ffmpeg-service".to_string(),
       )),
+      transition_ffmpeg: Arc::new(crate::video_compiler::services::ServiceMetrics::new(
+        "transition-ffmpeg-service".to_string(),
+      )),
     };
 
     let services = ServiceContainer {
@@ -218,6 +231,7 @@ impl Default for VideoCompilerState {
       preview,
       project,
       ffmpeg,
+      transition_ffmpeg,
       metrics,
     };
 

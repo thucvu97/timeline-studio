@@ -1,14 +1,17 @@
-import { useState, useCallback } from "react"
-import { cn } from "@/lib/utils"
+import { useCallback, useState } from "react"
+
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useTimelineTransitions } from "@/features/timeline/hooks/use-timeline-transitions"
 import { TimelineTransition } from "@/features/timeline/types/timeline-transition"
 import { Transition } from "@/features/transitions/types/transitions"
+import { cn } from "@/lib/utils"
+
 import { TransitionCurveEditor } from "./transition-curve-editor"
 import { TransitionCurveVisualizer } from "./transition-curve-visualizer"
 
@@ -32,18 +35,34 @@ export function TransitionControlPanel({
   className,
 }: TransitionControlPanelProps) {
   const [previewTime, setPreviewTime] = useState(transition.duration / 2)
+  const { updateTransition, removeTransition } = useTimelineTransitions()
+
+  // Обновление перехода через хук
+  const handleUpdate = useCallback(
+    (updates: Partial<TimelineTransition>) => {
+      updateTransition(transition.id, updates)
+      onUpdate?.(updates)
+    },
+    [transition.id, updateTransition, onUpdate],
+  )
+
+  // Удаление перехода через хук
+  const handleDelete = useCallback(() => {
+    removeTransition(transition.id)
+    onDelete?.()
+  }, [transition.id, removeTransition, onDelete])
 
   // Обновление параметров
   const updateParameters = useCallback(
     (paramUpdates: Partial<TimelineTransition["parameters"]>) => {
-      onUpdate({
+      handleUpdate({
         parameters: {
           ...transition.parameters,
           ...paramUpdates,
         },
       })
     },
-    [transition.parameters, onUpdate],
+    [transition.parameters, handleUpdate],
   )
 
   // Обновление blur параметров
@@ -76,14 +95,12 @@ export function TransitionControlPanel({
     <Card className={cn("transition-control-panel", className)}>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          <span>
-            {transitionResource?.labels?.ru || transition.transitionId}
-          </span>
+          <span>{transitionResource?.labels?.ru || transition.transitionId}</span>
           {onDelete && (
             <Button
               variant="ghost"
               size="sm"
-              onClick={onDelete}
+              onClick={handleDelete}
               className="text-destructive hover:text-destructive"
             >
               Удалить
@@ -106,7 +123,7 @@ export function TransitionControlPanel({
               <Label>Длительность: {transition.duration.toFixed(2)}s</Label>
               <Slider
                 value={[transition.duration]}
-                onValueChange={([value]) => onUpdate({ duration: value })}
+                onValueChange={([value]) => handleUpdate({ duration: value })}
                 min={transitionResource?.duration.min || 0.1}
                 max={transitionResource?.duration.max || 5}
                 step={0.1}
@@ -143,7 +160,7 @@ export function TransitionControlPanel({
             <div className="flex items-center space-x-2">
               <Switch
                 checked={transition.isEnabled}
-                onCheckedChange={(checked) => onUpdate({ isEnabled: checked })}
+                onCheckedChange={(checked) => handleUpdate({ isEnabled: checked })}
               />
               <Label>Включен</Label>
             </div>
@@ -153,7 +170,7 @@ export function TransitionControlPanel({
           <TabsContent value="curve" className="space-y-4">
             <TransitionCurveEditor
               curve={transition.curve}
-              onChange={(curve) => onUpdate({ curve })}
+              onChange={(curve) => handleUpdate({ curve })}
               width={300}
               height={200}
               showGrid
@@ -289,15 +306,9 @@ export function TransitionControlPanel({
               <div>ID: {transition.id}</div>
               <div>Тип: {transition.type}</div>
               <div>Позиция: {transition.position.toFixed(2)}s</div>
-              {transitionResource?.gpuAccelerated && (
-                <div className="text-green-600">✓ GPU ускорение</div>
-              )}
-              {transition.keyframes.length > 0 && (
-                <div>Keyframes: {transition.keyframes.length}</div>
-              )}
-              {transition.renderCache?.status && (
-                <div>Кеш: {transition.renderCache.status}</div>
-              )}
+              {transitionResource?.gpuAccelerated && <div className="text-green-600">✓ GPU ускорение</div>}
+              {transition.keyframes.length > 0 && <div>Keyframes: {transition.keyframes.length}</div>}
+              {transition.renderCache?.status && <div>Кеш: {transition.renderCache.status}</div>}
             </div>
           </TabsContent>
         </Tabs>

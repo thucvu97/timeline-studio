@@ -22,6 +22,7 @@ import {
   SubtitleStyle,
   TimelineProject,
 } from "../types/timeline"
+import { TimelineTransition } from "../types/timeline-transition"
 
 /**
  * Создает пустой объект ресурсов
@@ -31,6 +32,7 @@ function createEmptyResources(): ProjectResources {
     effects: [],
     filters: [],
     transitions: [],
+    timelineTransitions: [],
     templates: [],
     styleTemplates: [],
     subtitleStyles: [],
@@ -83,6 +85,25 @@ export function addTransitionToResources(project: TimelineProject, transition: T
   const exists = project.resources.transitions.some((t) => t.id === transition.id)
   if (!exists) {
     project.resources.transitions.push(transition)
+  }
+
+  return project
+}
+
+/**
+ * Добавляет переход таймлайна в ресурсы проекта если его там еще нет
+ */
+export function addTimelineTransitionToResources(
+  project: TimelineProject,
+  timelineTransition: TimelineTransition,
+): TimelineProject {
+  if (!project.resources) {
+    project.resources = createEmptyResources()
+  }
+
+  const exists = project.resources.timelineTransitions.some((t) => t.id === timelineTransition.id)
+  if (!exists) {
+    project.resources.timelineTransitions.push(timelineTransition)
   }
 
   return project
@@ -241,6 +262,52 @@ export function createAppliedTransition(
 }
 
 /**
+ * Создает переход таймлайна с автоматическим добавлением в ресурсы
+ */
+export function createTimelineTransition(
+  project: TimelineProject,
+  transitionResource: Transition,
+  options: {
+    position: number
+    duration: number
+    type: "between" | "in" | "out" | "adjustment"
+    parameters?: TimelineTransition["parameters"]
+    keyframes?: TimelineTransition["keyframes"]
+  },
+): { project: TimelineProject; timelineTransition: TimelineTransition } {
+  // Добавляем базовый переход в ресурсы
+  project = addTransitionToResources(project, transitionResource)
+
+  // Создаем TimelineTransition
+  const timelineTransition: TimelineTransition = {
+    id: `timeline-transition-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
+    transitionId: transitionResource.id,
+    type: options.type,
+    position: options.position,
+    duration: options.duration,
+    parameters: options.parameters || {
+      intensity: transitionResource.parameters?.intensity || 1.0,
+      easing: transitionResource.parameters?.easing || "ease-in-out",
+      ...transitionResource.parameters,
+    },
+    keyframes: options.keyframes || [],
+    curve: {
+      type: transitionResource.parameters?.easing || "ease-in-out",
+      points: [],
+    },
+    isEnabled: true,
+    isSelected: false,
+    isLocked: false,
+    renderCache: null,
+  }
+
+  // Добавляем TimelineTransition в ресурсы
+  project = addTimelineTransitionToResources(project, timelineTransition)
+
+  return { project, timelineTransition }
+}
+
+/**
  * Создает применение стильного шаблона с автоматическим добавлением в ресурсы
  */
 export function createAppliedStyleTemplate(
@@ -272,6 +339,7 @@ export function cleanupUnusedResources(project: TimelineProject): TimelineProjec
   const usedEffectIds = new Set<string>()
   const usedFilterIds = new Set<string>()
   const usedTransitionIds = new Set<string>()
+  const usedTimelineTransitionIds = new Set<string>()
   const usedTemplateIds = new Set<string>()
   const usedStyleTemplateIds = new Set<string>()
   const usedSubtitleStyleIds = new Set<string>()
@@ -303,6 +371,13 @@ export function cleanupUnusedResources(project: TimelineProject): TimelineProjec
           if (clip.mediaId) usedMusicIds.add(clip.mediaId)
         }
       })
+
+      // Переходы таймлайна на треке
+      track.timelineTransitions?.forEach((t: TimelineTransition) => {
+        usedTimelineTransitionIds.add(t.id)
+        // Также добавляем базовый переход, на который ссылается TimelineTransition
+        usedTransitionIds.add(t.transitionId)
+      })
     })
   }
 
@@ -323,6 +398,8 @@ export function cleanupUnusedResources(project: TimelineProject): TimelineProjec
       effects: project.resources.effects.filter((e) => usedEffectIds.has(e.id)),
       filters: project.resources.filters.filter((f) => usedFilterIds.has(f.id)),
       transitions: project.resources.transitions.filter((t) => usedTransitionIds.has(t.id)),
+      timelineTransitions:
+        project.resources.timelineTransitions?.filter((t) => usedTimelineTransitionIds.has(t.id)) || [],
       templates: project.resources.templates.filter((t) => usedTemplateIds.has(t.id)),
       styleTemplates: project.resources.styleTemplates.filter((st) => usedStyleTemplateIds.has(st.id)),
       subtitleStyles: project.resources.subtitleStyles.filter((s) => usedSubtitleStyleIds.has(s.id)),
@@ -330,4 +407,130 @@ export function cleanupUnusedResources(project: TimelineProject): TimelineProjec
       media: project.resources.media.filter((m) => usedMediaIds.has(m.id)),
     },
   }
+}
+
+/**
+ * Обновляет параметры TimelineTransition в ресурсах
+ */
+export function updateTimelineTransitionParameters(
+  project: TimelineProject,
+  transitionId: string,
+  newParameters: Partial<TimelineTransition["parameters"]>,
+): TimelineProject {
+  if (!project.resources?.timelineTransitions) return project
+
+  const transitionIndex = project.resources.timelineTransitions.findIndex((t) => t.id === transitionId)
+  if (transitionIndex === -1) return project
+
+  const updatedTransition = {
+    ...project.resources.timelineTransitions[transitionIndex],
+    parameters: {
+      ...project.resources.timelineTransitions[transitionIndex].parameters,
+      ...newParameters,
+    },
+  }
+
+  const updatedTransitions = [...project.resources.timelineTransitions]
+  updatedTransitions[transitionIndex] = updatedTransition
+
+  return {
+    ...project,
+    resources: {
+      ...project.resources,
+      timelineTransitions: updatedTransitions,
+    },
+  }
+}
+
+/**
+ * Добавляет keyframe к TimelineTransition
+ */
+export function addKeyframeToTimelineTransition(
+  project: TimelineProject,
+  transitionId: string,
+  keyframe: TimelineTransition["keyframes"][0],
+): TimelineProject {
+  if (!project.resources?.timelineTransitions) return project
+
+  const transitionIndex = project.resources.timelineTransitions.findIndex((t) => t.id === transitionId)
+  if (transitionIndex === -1) return project
+
+  const updatedTransition = {
+    ...project.resources.timelineTransitions[transitionIndex],
+    keyframes: [...project.resources.timelineTransitions[transitionIndex].keyframes, keyframe].sort(
+      (a, b) => a.time - b.time,
+    ),
+  }
+
+  const updatedTransitions = [...project.resources.timelineTransitions]
+  updatedTransitions[transitionIndex] = updatedTransition
+
+  return {
+    ...project,
+    resources: {
+      ...project.resources,
+      timelineTransitions: updatedTransitions,
+    },
+  }
+}
+
+/**
+ * Удаляет keyframe из TimelineTransition
+ */
+export function removeKeyframeFromTimelineTransition(
+  project: TimelineProject,
+  transitionId: string,
+  keyframeId: string,
+): TimelineProject {
+  if (!project.resources?.timelineTransitions) return project
+
+  const transitionIndex = project.resources.timelineTransitions.findIndex((t) => t.id === transitionId)
+  if (transitionIndex === -1) return project
+
+  const updatedTransition = {
+    ...project.resources.timelineTransitions[transitionIndex],
+    keyframes: project.resources.timelineTransitions[transitionIndex].keyframes.filter((k) => k.id !== keyframeId),
+  }
+
+  const updatedTransitions = [...project.resources.timelineTransitions]
+  updatedTransitions[transitionIndex] = updatedTransition
+
+  return {
+    ...project,
+    resources: {
+      ...project.resources,
+      timelineTransitions: updatedTransitions,
+    },
+  }
+}
+
+/**
+ * Получает TimelineTransition по ID
+ */
+export function getTimelineTransitionById(project: TimelineProject, transitionId: string): TimelineTransition | null {
+  return project.resources?.timelineTransitions?.find((t) => t.id === transitionId) || null
+}
+
+/**
+ * Клонирует TimelineTransition с новыми параметрами
+ */
+export function cloneTimelineTransition(
+  project: TimelineProject,
+  sourceTransitionId: string,
+  overrides?: Partial<TimelineTransition>,
+): { project: TimelineProject; timelineTransition: TimelineTransition } | null {
+  const sourceTransition = getTimelineTransitionById(project, sourceTransitionId)
+  if (!sourceTransition) return null
+
+  const clonedTransition: TimelineTransition = {
+    ...sourceTransition,
+    id: `timeline-transition-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
+    isSelected: false,
+    renderCache: null,
+    ...overrides,
+  }
+
+  const updatedProject = addTimelineTransitionToResources(project, clonedTransition)
+
+  return { project: updatedProject, timelineTransition: clonedTransition }
 }

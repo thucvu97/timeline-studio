@@ -37,7 +37,7 @@ export function TransitionHandles({
   const handleMouseDown = useCallback(
     (e: React.MouseEvent, handle: "start" | "end") => {
       if (isLocked) return
-      
+
       e.preventDefault()
       e.stopPropagation()
 
@@ -66,24 +66,27 @@ export function TransitionHandles({
       if (isDragging === "start") {
         // Изменяем позицию и длительность
         const newPosition = Math.max(0, dragStartRef.current.position + deltaTime)
-        const newDuration = Math.max(
-          minDuration,
-          Math.min(maxDuration, dragStartRef.current.duration - deltaTime),
-        )
+        const newDuration = Math.max(minDuration, Math.min(maxDuration, dragStartRef.current.duration - deltaTime))
 
         onPositionChange(transitionId, newPosition)
         onDurationChange(transitionId, newDuration)
       } else if (isDragging === "end") {
         // Изменяем только длительность
-        const newDuration = Math.max(
-          minDuration,
-          Math.min(maxDuration, dragStartRef.current.duration + deltaTime),
-        )
+        const newDuration = Math.max(minDuration, Math.min(maxDuration, dragStartRef.current.duration + deltaTime))
 
         onDurationChange(transitionId, newDuration)
       }
     },
-    [isDragging, transitionId, pixelsPerSecond, timelineScale, minDuration, maxDuration, onDurationChange, onPositionChange],
+    [
+      isDragging,
+      transitionId,
+      pixelsPerSecond,
+      timelineScale,
+      minDuration,
+      maxDuration,
+      onDurationChange,
+      onPositionChange,
+    ],
   )
 
   // Обработчик отпускания мыши
@@ -138,9 +141,7 @@ export function TransitionHandles({
 
       {/* Индикатор длительности при перетаскивании */}
       {isDragging && (
-        <div
-          className="absolute -top-6 left-1/2 -translate-x-1/2 bg-black/80 text-white text-xs px-2 py-1 rounded pointer-events-none z-50"
-        >
+        <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-black/80 text-white text-xs px-2 py-1 rounded pointer-events-none z-50">
           {duration.toFixed(2)}s
         </div>
       )}

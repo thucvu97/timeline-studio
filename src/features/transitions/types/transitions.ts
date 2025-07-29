@@ -6,9 +6,15 @@ export type TransitionCategory =
   | "3d" // 3D
   | "artistic" // Художественные
   | "cinematic" // Кинематографические
+  | "dynamic" // Динамические (particles, liquid, organic)
+  | "glitch" // Глитч эффекты (digital artifacts, distortions)
+  | "light" // Световые (light leaks, lens flares)
+  | "film" // Пленочные (film burns, projector effects)
+  | "motion" // Движение (motion blur, speed effects)
+  | "seamless" // Бесшовные (content-aware transitions)
 
 // Сложность перехода
-export type TransitionComplexity = "basic" | "intermediate" | "advanced"
+export type TransitionComplexity = "basic" | "intermediate" | "advanced" | "gpu-required"
 
 // Теги для переходов
 export type TransitionTag =
@@ -114,13 +120,38 @@ export interface Transition {
     default: number // длительность по умолчанию
   }
   parameters?: {
-    direction?: "left" | "right" | "up" | "down" | "center"
+    // Базовые параметры
+    direction?: "left" | "right" | "up" | "down" | "center" | "radial"
     easing?: "linear" | "ease-in" | "ease-out" | "ease-in-out" | "bounce"
     intensity?: number // от 0 до 1
     scale?: number // масштаб для zoom эффектов
     smoothness?: number // плавность перехода
+
+    // Расширенные параметры
+    blur?: {
+      enabled?: boolean
+      amount?: number // 0-100
+      type?: "gaussian" | "motion" | "radial"
+    }
+
+    color?: {
+      enabled?: boolean
+      tint?: string // Hex color
+      saturation?: number // -100 to 100
+      brightness?: number // -100 to 100
+    }
+
+    // 3D параметры (для будущего использования)
+    perspective?: {
+      enabled?: boolean
+      rotationX?: number
+      rotationY?: number
+      rotationZ?: number
+    }
   }
   // FFmpeg команда для применения перехода
   ffmpegCommand: (params: { fps: number; width?: number; height?: number; scale?: number; duration?: number }) => string
   previewPath?: string // Путь к превью (для обратной совместимости)
+  gpuAccelerated?: boolean // Поддержка GPU ускорения
+  webglShader?: string // Имя WebGL шейдера для превью
 }

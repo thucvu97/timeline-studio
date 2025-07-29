@@ -31,8 +31,27 @@ interface RawTransitionData {
     intensity?: number
     scale?: number
     smoothness?: number
+    blur?: {
+      enabled?: boolean
+      amount?: number
+      type?: string
+    }
+    color?: {
+      enabled?: boolean
+      tint?: string
+      saturation?: number
+      brightness?: number
+    }
+    perspective?: {
+      enabled?: boolean
+      rotationX?: number
+      rotationY?: number
+      rotationZ?: number
+    }
   }
   ffmpegTemplate: string // Шаблон FFmpeg команды
+  gpuAccelerated?: boolean
+  webglShader?: string
 }
 
 /**
@@ -62,7 +81,14 @@ export function processTransitions(rawTransitions: RawTransitionData[]): Transit
     tags: rawTransition.tags as Transition["tags"],
     duration: rawTransition.duration,
     parameters: {
-      direction: rawTransition.parameters?.direction as "left" | "right" | "up" | "down" | "center" | undefined,
+      direction: rawTransition.parameters?.direction as
+        | "left"
+        | "right"
+        | "up"
+        | "down"
+        | "center"
+        | "radial"
+        | undefined,
       easing: rawTransition.parameters?.easing as
         | "linear"
         | "ease-in"
@@ -73,17 +99,43 @@ export function processTransitions(rawTransitions: RawTransitionData[]): Transit
       intensity: rawTransition.parameters?.intensity,
       scale: rawTransition.parameters?.scale,
       smoothness: rawTransition.parameters?.smoothness,
+      blur: rawTransition.parameters?.blur
+        ? {
+          enabled: rawTransition.parameters.blur.enabled,
+          amount: rawTransition.parameters.blur.amount,
+          type: rawTransition.parameters.blur.type as "gaussian" | "motion" | "radial" | undefined,
+        }
+        : undefined,
+      color: rawTransition.parameters?.color
+        ? {
+          enabled: rawTransition.parameters.color.enabled,
+          tint: rawTransition.parameters.color.tint,
+          saturation: rawTransition.parameters.color.saturation,
+          brightness: rawTransition.parameters.color.brightness,
+        }
+        : undefined,
+      perspective: rawTransition.parameters?.perspective
+        ? {
+          enabled: rawTransition.parameters.perspective.enabled,
+          rotationX: rawTransition.parameters.perspective.rotationX,
+          rotationY: rawTransition.parameters.perspective.rotationY,
+          rotationZ: rawTransition.parameters.perspective.rotationZ,
+        }
+        : undefined,
     },
-    ffmpegCommand: createFFmpegCommand(rawTransition.ffmpegTemplate),
+    ffmpegCommand: createFFmpegCommand(rawTransition.ffmpegTemplate, rawTransition.parameters),
+    gpuAccelerated: rawTransition.gpuAccelerated,
+    webglShader: rawTransition.webglShader,
   }))
 }
 
 /**
  * Создает функцию FFmpeg команды из шаблона
  * @param template - Шаблон FFmpeg команды
+ * @param parameters - Параметры перехода
  * @returns Функция, которая генерирует FFmpeg команду
  */
-function createFFmpegCommand(template: string | undefined | null) {
+function createFFmpegCommand(template: string | undefined | null, parameters?: RawTransitionData["parameters"]) {
   return (params: { fps: number; width?: number; height?: number; scale?: number; duration?: number }) => {
     // Return empty string if template is not a string
     if (typeof template !== "string") {
@@ -93,12 +145,37 @@ function createFFmpegCommand(template: string | undefined | null) {
 
     let command = template
 
-    // Заменяем плейсхолдеры на реальные значения
+    // Заменяем базовые плейсхолдеры на реальные значения
     command = command.replace(/{fps}/g, params.fps.toString())
     command = command.replace(/{width}/g, (params.width || 1920).toString())
     command = command.replace(/{height}/g, (params.height || 1080).toString())
     command = command.replace(/{scale}/g, (params.scale || 1.0).toString())
     command = command.replace(/{duration}/g, (params.duration || 1.0).toString())
+
+    // Заменяем blur параметры
+    if (parameters?.blur) {
+      command = command.replace(/{blur\.amount}/g, (parameters.blur.amount || 0).toString())
+      command = command.replace(/{blur\.type}/g, parameters.blur.type || "gaussian")
+    }
+
+    // Заменяем color параметры
+    if (parameters?.color) {
+      command = command.replace(/{color\.tint}/g, parameters.color.tint || "#FFFFFF")
+      command = command.replace(/{color\.saturation}/g, (parameters.color.saturation || 0).toString())
+      command = command.replace(/{color\.brightness}/g, (parameters.color.brightness || 0).toString())
+
+      // Конвертируем hex цвет в RGB компоненты для FFmpeg
+      if (parameters.color.tint) {
+        const hex = parameters.color.tint.replace("#", "")
+        const r = Number.parseInt(hex.substring(0, 2), 16) / 255
+        const g = Number.parseInt(hex.substring(2, 4), 16) / 255
+        const b = Number.parseInt(hex.substring(4, 6), 16) / 255
+
+        command = command.replace(/{color\.tint\.r}/g, r.toFixed(3))
+        command = command.replace(/{color\.tint\.g}/g, g.toFixed(3))
+        command = command.replace(/{color\.tint\.b}/g, b.toFixed(3))
+      }
+    }
 
     return command
   }

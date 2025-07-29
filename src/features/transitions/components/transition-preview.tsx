@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
-import { useTranslation } from "react-i18next"
 import { useDraggable } from "@dnd-kit/core"
+import { useTranslation } from "react-i18next"
 
 import { ApplyButton } from "@/features/browser"
 import { AddMediaButton } from "@/features/browser/components/layout/add-media-button"
@@ -384,7 +384,7 @@ export function TransitionPreview({
   }, [isHovering]) // Убираем функции из зависимостей
 
   return (
-    <div 
+    <div
       ref={setNodeRef}
       className="flex flex-col items-center"
       style={{

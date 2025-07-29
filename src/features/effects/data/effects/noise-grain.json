@@ -1,0 +1,386 @@
+{
+  "version": "2.0.0",
+  "category": "noise-grain",
+  "migratedAt": "2025-01-29T14:47:00.000Z",
+  "stats": {
+    "total": 12,
+    "migrated": 12,
+    "skipped": 0,
+    "successRate": "100.00%",
+    "errors": []
+  },
+  "effects": [
+    {
+      "id": "effect_film_grain",
+      "name": {
+        "en": "Film Grain",
+        "ru": "Пленочное зерно",
+        "es": "Grano de Película",
+        "fr": "Grain de Film",
+        "de": "Filmkorn"
+      },
+      "description": {
+        "ru": "Реалистичное пленочное зерно различных типов пленки",
+        "en": "Realistic film grain of various film types"
+      },
+      "category": "noise",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "webgl",
+      "version": "1.0.0",
+      "tags": ["film", "texture", "analog"],
+      "complexity": "medium",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "grain_size",
+          "name": { "en": "Grain Size", "ru": "Размер зерна" },
+          "type": "number",
+          "defaultValue": 0.5,
+          "min": 0.1,
+          "max": 2,
+          "step": 0.1,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "grain_amount",
+          "name": { "en": "Grain Amount", "ru": "Количество зерна" },
+          "type": "number",
+          "defaultValue": 0.3,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "grain_type",
+          "name": { "en": "Grain Type", "ru": "Тип зерна" },
+          "type": "select",
+          "defaultValue": "35mm",
+          "options": [
+            { "value": "16mm", "label": { "en": "16mm", "ru": "16мм" } },
+            { "value": "35mm", "label": { "en": "35mm", "ru": "35мм" } },
+            { "value": "65mm", "label": { "en": "65mm", "ru": "65мм" } },
+            { "value": "digital", "label": { "en": "Digital", "ru": "Цифровой" } }
+          ],
+          "animatable": false,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "color_grain",
+          "name": { "en": "Color Grain", "ru": "Цветное зерно" },
+          "type": "boolean",
+          "defaultValue": true,
+          "animatable": false,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "vintage_16mm",
+          "name": { "ru": "Винтаж 16мм", "en": "Vintage 16mm" },
+          "description": { "ru": "Грубое зерно 16мм пленки", "en": "Coarse 16mm film grain" },
+          "parameters": {
+            "grain_size": 1.2,
+            "grain_amount": 0.5,
+            "grain_type": "16mm",
+            "color_grain": true
+          },
+          "tags": ["vintage"]
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "webgl": {
+          "fragmentShader": "precision mediump float;\nuniform sampler2D u_texture;\nuniform vec2 u_resolution;\nuniform float u_time;\nuniform float u_grain_size, u_grain_amount;\nuniform int u_grain_type;\nuniform bool u_color_grain;\nvarying vec2 v_texCoord;\n\nfloat random(vec2 st) {\n  return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);\n}\n\nvec3 generateGrain(vec2 coord, float time) {\n  vec2 grainCoord = coord * u_resolution * u_grain_size;\n  \n  float grain1 = (random(grainCoord + time) - 0.5) * 2.0;\n  float grain2 = (random(grainCoord + time + 123.456) - 0.5) * 2.0;\n  float grain3 = (random(grainCoord + time + 456.789) - 0.5) * 2.0;\n  \n  if (u_color_grain) {\n    return vec3(grain1, grain2, grain3) * u_grain_amount;\n  } else {\n    return vec3(grain1) * u_grain_amount;\n  }\n}\n\nvoid main() {\n  vec4 color = texture2D(u_texture, v_texCoord);\n  \n  vec3 grain = generateGrain(v_texCoord, u_time);\n  \n  // Adjust grain intensity based on luminance (darker areas get more grain)\n  float luminance = dot(color.rgb, vec3(0.299, 0.587, 0.114));\n  float grainMultiplier = mix(1.5, 0.5, luminance);\n  \n  color.rgb += grain * grainMultiplier;\n  \n  gl_FragColor = vec4(clamp(color.rgb, 0.0, 1.0), color.a);\n}",
+          "uniforms": {
+            "u_texture": 0,
+            "u_resolution": [1920, 1080],
+            "u_time": 0,
+            "u_grain_size": 0.5,
+            "u_grain_amount": 0.3,
+            "u_grain_type": 1,
+            "u_color_grain": true
+          }
+        }
+      }
+    },
+    {
+      "id": "effect_vhs_artifacts",
+      "name": {
+        "en": "VHS Artifacts",
+        "ru": "VHS артефакты",
+        "es": "Artefactos VHS",
+        "fr": "Artéfacts VHS",
+        "de": "VHS-Artefakte"
+      },
+      "description": {
+        "ru": "Артефакты VHS кассет: полосы, шум, искажения",
+        "en": "VHS tape artifacts: bands, noise, distortions"
+      },
+      "category": "noise",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "webgl",
+      "version": "1.0.0",
+      "tags": ["retro", "vhs", "glitch"],
+      "complexity": "medium",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "tape_noise",
+          "name": { "en": "Tape Noise", "ru": "Шум ленты" },
+          "type": "number",
+          "defaultValue": 0.4,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "tracking_lines",
+          "name": { "en": "Tracking Lines", "ru": "Линии дорожек" },
+          "type": "number",
+          "defaultValue": 0.3,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "color_bleeding",
+          "name": { "en": "Color Bleeding", "ru": "Растекание цвета" },
+          "type": "number",
+          "defaultValue": 0.2,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "jitter",
+          "name": { "en": "Jitter", "ru": "Дрожание" },
+          "type": "number",
+          "defaultValue": 0.1,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "worn_tape",
+          "name": { "ru": "Изношенная кассета", "en": "Worn Tape" },
+          "description": { "ru": "Сильно изношенная VHS кассета", "en": "Heavily worn VHS tape" },
+          "parameters": {
+            "tape_noise": 0.6,
+            "tracking_lines": 0.5,
+            "color_bleeding": 0.4,
+            "jitter": 0.3
+          },
+          "tags": ["heavy"]
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "webgl": {
+          "fragmentShader": "precision mediump float;\nuniform sampler2D u_texture;\nuniform vec2 u_resolution;\nuniform float u_time;\nuniform float u_tape_noise, u_tracking_lines, u_color_bleeding, u_jitter;\nvarying vec2 v_texCoord;\n\nfloat random(vec2 st) {\n  return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);\n}\n\nvoid main() {\n  vec2 uv = v_texCoord;\n  \n  // Jitter effect\n  float jitterOffset = (random(vec2(floor(u_time * 60.0))) - 0.5) * u_jitter * 0.01;\n  uv.x += jitterOffset;\n  \n  // Color bleeding (horizontal blur)\n  vec4 color = texture2D(u_texture, uv);\n  if (u_color_bleeding > 0.0) {\n    vec2 texelSize = 1.0 / u_resolution;\n    vec4 bleed = vec4(0.0);\n    for (float i = -2.0; i <= 2.0; i += 1.0) {\n      bleed += texture2D(u_texture, uv + vec2(i * texelSize.x * u_color_bleeding * 3.0, 0.0));\n    }\n    bleed /= 5.0;\n    color = mix(color, bleed, u_color_bleeding * 0.5);\n  }\n  \n  // Tracking lines\n  float trackingLine = sin(uv.y * u_resolution.y * 0.5 + u_time * 10.0);\n  trackingLine = smoothstep(0.8, 1.0, trackingLine);\n  color.rgb = mix(color.rgb, color.rgb * 0.5, trackingLine * u_tracking_lines);\n  \n  // Tape noise\n  float noise = (random(uv + u_time) - 0.5) * u_tape_noise * 0.3;\n  color.rgb += noise;\n  \n  // VHS color characteristics\n  color.r *= 1.1;\n  color.g *= 0.95;\n  color.b *= 0.9;\n  \n  gl_FragColor = vec4(clamp(color.rgb, 0.0, 1.0), color.a);\n}",
+          "uniforms": {
+            "u_texture": 0,
+            "u_resolution": [1920, 1080],
+            "u_time": 0,
+            "u_tape_noise": 0.4,
+            "u_tracking_lines": 0.3,
+            "u_color_bleeding": 0.2,
+            "u_jitter": 0.1
+          }
+        }
+      }
+    },
+    {
+      "id": "effect_digital_noise",
+      "name": {
+        "en": "Digital Noise",
+        "ru": "Цифровой шум",
+        "es": "Ruido Digital",
+        "fr": "Bruit Numérique",
+        "de": "Digitales Rauschen"
+      },
+      "description": {
+        "ru": "Цифровой шум и артефакты сжатия",
+        "en": "Digital noise and compression artifacts"
+      },
+      "category": "noise",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "webgl",
+      "version": "1.0.0",
+      "tags": ["digital", "compression", "glitch"],
+      "complexity": "medium",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "noise_intensity",
+          "name": { "en": "Noise Intensity", "ru": "Интенсивность шума" },
+          "type": "number",
+          "defaultValue": 0.2,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "block_size",
+          "name": { "en": "Block Size", "ru": "Размер блоков" },
+          "type": "number",
+          "defaultValue": 8,
+          "min": 2,
+          "max": 32,
+          "step": 2,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "compression_artifacts",
+          "name": { "en": "Compression Artifacts", "ru": "Артефакты сжатия" },
+          "type": "number",
+          "defaultValue": 0.3,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "low_quality_stream",
+          "name": { "ru": "Низкокачественный стрим", "en": "Low Quality Stream" },
+          "description": { "ru": "Имитация плохого интернет-стрима", "en": "Simulates poor internet stream" },
+          "parameters": {
+            "noise_intensity": 0.4,
+            "block_size": 16,
+            "compression_artifacts": 0.6
+          },
+          "tags": ["streaming"]
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "webgl": {
+          "fragmentShader": "precision mediump float;\nuniform sampler2D u_texture;\nuniform vec2 u_resolution;\nuniform float u_time;\nuniform float u_noise_intensity, u_block_size, u_compression_artifacts;\nvarying vec2 v_texCoord;\n\nfloat random(vec2 st) {\n  return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);\n}\n\nvoid main() {\n  vec2 uv = v_texCoord;\n  \n  // Block-based compression artifacts\n  if (u_compression_artifacts > 0.0) {\n    vec2 blockSize = vec2(u_block_size) / u_resolution;\n    vec2 blockUV = floor(uv / blockSize) * blockSize;\n    \n    // Sample from block center\n    vec4 blockColor = texture2D(u_texture, blockUV + blockSize * 0.5);\n    vec4 originalColor = texture2D(u_texture, uv);\n    \n    uv = mix(uv, blockUV + blockSize * 0.5, u_compression_artifacts * 0.5);\n  }\n  \n  vec4 color = texture2D(u_texture, uv);\n  \n  // Digital noise (random pixels)\n  float pixelNoise = random(floor(uv * u_resolution) + u_time);\n  if (pixelNoise > (1.0 - u_noise_intensity * 0.1)) {\n    color.rgb = vec3(random(uv + u_time));\n  }\n  \n  // Quantization noise\n  if (u_noise_intensity > 0.0) {\n    float levels = mix(256.0, 16.0, u_noise_intensity);\n    color.rgb = floor(color.rgb * levels) / levels;\n  }\n  \n  gl_FragColor = color;\n}",
+          "uniforms": {
+            "u_texture": 0,
+            "u_resolution": [1920, 1080],
+            "u_time": 0,
+            "u_noise_intensity": 0.2,
+            "u_block_size": 8,
+            "u_compression_artifacts": 0.3
+          }
+        }
+      }
+    },
+    {
+      "id": "effect_static_interference",
+      "name": {
+        "en": "Static Interference",
+        "ru": "Статическая помеха",
+        "es": "Interferencia Estática",
+        "fr": "Interférence Statique",
+        "de": "Statische Störung"
+      },
+      "description": {
+        "ru": "Телевизионные помехи и статический шум",
+        "en": "Television interference and static noise"
+      },
+      "category": "noise",
+      "scope": ["clip", "track", "sequence"],
+      "processingType": "webgl",
+      "version": "1.0.0",
+      "tags": ["tv", "static", "interference"],
+      "complexity": "medium",
+      "gpuAccelerated": true,
+      "parameters": [
+        {
+          "id": "static_amount",
+          "name": { "en": "Static Amount", "ru": "Количество статики" },
+          "type": "number",
+          "defaultValue": 0.5,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "interference_frequency",
+          "name": { "en": "Interference Frequency", "ru": "Частота помех" },
+          "type": "number",
+          "defaultValue": 20,
+          "min": 1,
+          "max": 100,
+          "step": 1,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        },
+        {
+          "id": "signal_loss",
+          "name": { "en": "Signal Loss", "ru": "Потеря сигнала" },
+          "type": "number",
+          "defaultValue": 0.1,
+          "min": 0,
+          "max": 1,
+          "step": 0.01,
+          "animatable": true,
+          "visible": true,
+          "enabled": true
+        }
+      ],
+      "presets": [
+        {
+          "id": "bad_reception",
+          "name": { "ru": "Плохой прием", "en": "Bad Reception" },
+          "description": { "ru": "Плохой телевизионный прием", "en": "Poor TV reception" },
+          "parameters": {
+            "static_amount": 0.7,
+            "interference_frequency": 30,
+            "signal_loss": 0.3
+          },
+          "tags": ["heavy"]
+        }
+      ],
+      "preview": "/t1.mp4",
+      "processors": {
+        "webgl": {
+          "fragmentShader": "precision mediump float;\nuniform sampler2D u_texture;\nuniform vec2 u_resolution;\nuniform float u_time;\nuniform float u_static_amount, u_interference_frequency, u_signal_loss;\nvarying vec2 v_texCoord;\n\nfloat random(vec2 st) {\n  return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);\n}\n\nvoid main() {\n  vec2 uv = v_texCoord;\n  vec4 color = texture2D(u_texture, uv);\n  \n  // Static noise\n  float staticNoise = random(uv + u_time);\n  vec3 staticColor = vec3(staticNoise);\n  \n  // Interference bands\n  float interference = sin(uv.y * u_interference_frequency + u_time * 5.0);\n  interference = smoothstep(0.7, 1.0, interference);\n  \n  // Mix static with original image\n  color.rgb = mix(color.rgb, staticColor, u_static_amount * staticNoise);\n  \n  // Apply interference\n  color.rgb = mix(color.rgb, staticColor * 0.5, interference * u_static_amount);\n  \n  // Signal loss (random blackouts)\n  float signalLoss = random(vec2(floor(u_time * 10.0)));\n  if (signalLoss < u_signal_loss) {\n    color.rgb *= 0.1;\n  }\n  \n  gl_FragColor = color;\n}",
+          "uniforms": {
+            "u_texture": 0,
+            "u_resolution": [1920, 1080],
+            "u_time": 0,
+            "u_static_amount": 0.5,
+            "u_interference_frequency": 20,
+            "u_signal_loss": 0.1
+          }
+        }
+      }
+    }
+  ]
+}

@@ -4,10 +4,11 @@ import { useTranslation } from "react-i18next"
 
 import { Transition } from "@/features/transitions/types/transitions"
 
+import advancedTransitionsData from "../data/advanced-transitions.json"
 import transitionsData from "../data/transitions.json"
 import { createFallbackTransition, processTransitions, validateTransitionsData } from "../utils/transition-processor"
 
-// Импортируем JSON файл напрямую - в Tauri это работает отлично
+// Импортируем JSON файлы напрямую - в Tauri это работает отлично
 
 // Глобальное состояние для переходов чтобы избежать рекурсивных вызовов
 let globalTransitions: Transition[] = []
@@ -41,16 +42,30 @@ function initializeTransitions(t: (key: string, fallback?: string, options?: any
   if (globalInitialized) return
 
   try {
-    // Используем импортированные данные - в Tauri это работает мгновенно
-    const data = transitionsData
-
-    // Валидируем данные
-    if (!validateTransitionsData(data)) {
-      throw new Error(t("transitions.errors.invalidTransitionsData", "Invalid transitions data structure"))
+    // Загружаем базовые переходы
+    const baseData = transitionsData
+    if (!validateTransitionsData(baseData)) {
+      throw new Error(t("transitions.errors.invalidTransitionsData", "Invalid base transitions data structure"))
     }
 
+    // Загружаем расширенные переходы
+    const advancedData = advancedTransitionsData
+    if (!validateTransitionsData(advancedData)) {
+      console.warn("Invalid advanced transitions data, skipping advanced transitions")
+    }
+
+    // Объединяем переходы из обоих файлов
+    const allTransitions = [
+      ...baseData.transitions,
+      ...(advancedData && validateTransitionsData(advancedData) ? advancedData.transitions : []),
+    ]
+
+    console.log(
+      `Loading ${baseData.transitions.length} base + ${advancedData?.transitions?.length || 0} advanced transitions`,
+    )
+
     // Обрабатываем переходы (преобразуем в типизированные объекты)
-    globalTransitions = processTransitions(data.transitions)
+    globalTransitions = processTransitions(allTransitions)
     globalError = null
 
     console.log(

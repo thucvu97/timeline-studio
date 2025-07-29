@@ -3,14 +3,15 @@
  * Управление переходами на треках таймлайна
  */
 
-import { TimelineProject, TimelineTrack, TimelineClip } from "../types/timeline"
-import { TimelineTransition } from "../types/timeline-transition"
 import { Transition } from "@/features/transitions/types/transitions"
+
 import {
-  createTimelineTransition,
   addTimelineTransitionToResources,
+  createTimelineTransition,
   updateTimelineTransitionParameters,
 } from "./resource-manager"
+import { TimelineProject, TimelineTrack } from "../types/timeline"
+import { TimelineTransition } from "../types/timeline-transition"
 
 /**
  * Добавить переход между клипами
@@ -47,21 +48,17 @@ export function addTransitionBetweenClips(
   const transitionDuration = duration || transitionResource.duration.default
   const position = leftEnd - transitionDuration / 2
 
-  const { project: updatedProject, timelineTransition } = createTimelineTransition(
-    project,
-    transitionResource,
-    {
-      position,
-      duration: transitionDuration,
-      type: "between",
-      parameters: {
-        direction: transitionResource.parameters?.direction,
-        intensity: transitionResource.parameters?.intensity || 1,
-        blur: transitionResource.parameters?.blur,
-        color: transitionResource.parameters?.color,
-      },
+  const { project: updatedProject, timelineTransition } = createTimelineTransition(project, transitionResource, {
+    position,
+    duration: transitionDuration,
+    type: "between",
+    parameters: {
+      direction: transitionResource.parameters?.direction,
+      intensity: transitionResource.parameters?.intensity || 1,
+      blur: transitionResource.parameters?.blur,
+      color: transitionResource.parameters?.color,
     },
-  )
+  })
 
   // Обновляем связи с клипами
   const transition = {
@@ -104,16 +101,12 @@ export function addTransitionIn(
   const transitionDuration = duration || transitionResource.duration.default
   const position = clip.startTime
 
-  const { project: updatedProject, timelineTransition } = createTimelineTransition(
-    project,
-    transitionResource,
-    {
-      position,
-      duration: transitionDuration,
-      type: "in",
-      parameters: transitionResource.parameters || {},
-    },
-  )
+  const { project: updatedProject, timelineTransition } = createTimelineTransition(project, transitionResource, {
+    position,
+    duration: transitionDuration,
+    type: "in",
+    parameters: transitionResource.parameters || {},
+  })
 
   // Обновляем связи
   const transition = {
@@ -155,16 +148,12 @@ export function addTransitionOut(
   const transitionDuration = duration || transitionResource.duration.default
   const position = clip.startTime + clip.duration - transitionDuration
 
-  const { project: updatedProject, timelineTransition } = createTimelineTransition(
-    project,
-    transitionResource,
-    {
-      position,
-      duration: transitionDuration,
-      type: "out",
-      parameters: transitionResource.parameters || {},
-    },
-  )
+  const { project: updatedProject, timelineTransition } = createTimelineTransition(project, transitionResource, {
+    position,
+    duration: transitionDuration,
+    type: "out",
+    parameters: transitionResource.parameters || {},
+  })
 
   // Обновляем связи
   const transition = {
@@ -186,10 +175,7 @@ export function addTransitionOut(
 /**
  * Получить переходы трека
  */
-export function getTrackTransitions(
-  project: TimelineProject,
-  trackId: string,
-): TimelineTransition[] {
+export function getTrackTransitions(project: TimelineProject, trackId: string): TimelineTransition[] {
   const track = findTrack(project, trackId)
   if (!track || !track.transitions) {
     return []
@@ -241,7 +227,7 @@ export function adjustTransitionsForClipChange(
 
   transitions.forEach((transition) => {
     let needsUpdate = false
-    let updates: Partial<TimelineTransition> = {}
+    const updates: Partial<TimelineTransition> = {}
 
     // Переход между клипами
     if (transition.type === "between") {
@@ -269,11 +255,7 @@ export function adjustTransitionsForClipChange(
     }
 
     if (needsUpdate) {
-      updatedProject = updateTimelineTransitionParameters(
-        updatedProject,
-        transition.id,
-        updates,
-      )
+      updatedProject = updateTimelineTransitionParameters(updatedProject, transition.id, updates)
     }
   })
 
@@ -283,15 +265,13 @@ export function adjustTransitionsForClipChange(
 /**
  * Удалить переход
  */
-export function removeTransition(
-  project: TimelineProject,
-  transitionId: string,
-): TimelineProject {
-  let updatedProject = { ...project }
+export function removeTransition(project: TimelineProject, transitionId: string): TimelineProject {
+  const updatedProject = { ...project }
 
   // Удаляем из ресурсов
-  updatedProject.resources.timelineTransitions =
-    updatedProject.resources.timelineTransitions.filter((t) => t.id !== transitionId)
+  updatedProject.resources.timelineTransitions = updatedProject.resources.timelineTransitions.filter(
+    (t) => t.id !== transitionId,
+  )
 
   // Удаляем из треков
   updatedProject.sections.forEach((section) => {
@@ -314,10 +294,7 @@ export function removeTransition(
 /**
  * Найти трек в проекте
  */
-function findTrack(
-  project: TimelineProject,
-  trackId: string,
-): TimelineTrack | undefined {
+function findTrack(project: TimelineProject, trackId: string): TimelineTrack | undefined {
   // Ищем в секциях
   for (const section of project.sections) {
     const track = section.tracks.find((t) => t.id === trackId)
@@ -345,12 +322,8 @@ export function getClipTransitions(
   return {
     in: transitions.find((t) => t.type === "in" && t.endClipId === clipId) || null,
     out: transitions.find((t) => t.type === "out" && t.startClipId === clipId) || null,
-    betweenBefore: transitions.find(
-      (t) => t.type === "between" && t.endClipId === clipId,
-    ) || null,
-    betweenAfter: transitions.find(
-      (t) => t.type === "between" && t.startClipId === clipId,
-    ) || null,
+    betweenBefore: transitions.find((t) => t.type === "between" && t.endClipId === clipId) || null,
+    betweenAfter: transitions.find((t) => t.type === "between" && t.startClipId === clipId) || null,
   }
 }
 

@@ -13,13 +13,14 @@ import { TrackRollHandles } from "./track-roll-handles"
 import { useClipGroups } from "../../hooks/use-clip-groups"
 import { useDragDropTimeline } from "../../hooks/use-drag-drop-timeline"
 import { useTimeline } from "../../hooks/use-timeline"
+import { useTrackTransitionCollisions } from "../../hooks/use-transition-collisions"
+import { addTransitionBetweenClips, getTrackTransitions } from "../../services/timeline-transition-manager"
 import { TimelineTrack } from "../../types"
-import { TimelineTransition } from "../../types/timeline-transition"
 import { Clip } from "../clip/clip"
 import { CollapsedGroup } from "../clip-groups/collapsed-group"
 import { TimelineTransitionComponent } from "../transition/timeline-transition"
+import { TransitionCollisionIndicator } from "../transition/transition-collision-indicator"
 import { TransitionDropZone } from "../transition/transition-drop-zone"
-import { getTrackTransitions, addTransitionBetweenClips } from "../../services/timeline-transition-manager"
 
 interface TrackContentProps {
   track: TimelineTrack
@@ -32,6 +33,9 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
   const { dragState, isValidDropTarget } = useDragDropTimeline()
   const { addClip, selectClips, project, updateProject } = useTimeline()
   const { groups, toggleCollapse } = useClipGroups()
+
+  // Обнаружение коллизий переходов на треке
+  const collisions = useTrackTransitionCollisions(track.id)
 
   // Setup droppable functionality for @dnd-kit
   const { isOver, setNodeRef } = useDroppable({
@@ -125,15 +129,9 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
   const handleTransitionDrop = useCallback(
     (leftClipId: string, rightClipId: string, transition: any) => {
       if (!project) return
-      
+
       try {
-        const result = addTransitionBetweenClips(
-          project,
-          track.id,
-          leftClipId,
-          rightClipId,
-          transition,
-        )
+        const result = addTransitionBetweenClips(project, track.id, leftClipId, rightClipId, transition)
         updateProject?.(result.project)
       } catch (error) {
         console.error("Failed to add transition:", error)
@@ -245,23 +243,19 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
 
         {/* Зоны для сброса переходов между клипами */}
         {visibleClips.length > 1 &&
-          visibleClips
-            .slice(0, -1)
-            .map((leftClip, index) => {
-              const rightClip = visibleClips[index + 1]
-              return (
-                <TransitionDropZone
-                  key={`drop-${leftClip.id}-${rightClip.id}`}
-                  leftClip={leftClip}
-                  rightClip={rightClip}
-                  trackId={track.id}
-                  timeScale={timeScale}
-                  onDrop={(transition) =>
-                    handleTransitionDrop(leftClip.id, rightClip.id, transition)
-                  }
-                />
-              )
-            })}
+          visibleClips.slice(0, -1).map((leftClip, index) => {
+            const rightClip = visibleClips[index + 1]
+            return (
+              <TransitionDropZone
+                key={`drop-${leftClip.id}-${rightClip.id}`}
+                leftClip={leftClip}
+                rightClip={rightClip}
+                trackId={track.id}
+                timeScale={timeScale}
+                onDrop={(transition) => handleTransitionDrop(leftClip.id, rightClip.id, transition)}
+              />
+            )
+          })}
 
         {/* Roll edit handles between adjacent clips */}
         <TrackRollHandles
@@ -273,6 +267,20 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
           }}
         />
       </div>
+
+      {/* Индикатор коллизий переходов */}
+      {collisions.length > 0 && (
+        <div className="absolute top-1 right-1 z-30">
+          <TransitionCollisionIndicator
+            collisions={collisions}
+            compact
+            onResolve={(collision) => {
+              console.log("Resolve collision:", collision)
+              // TODO: Интегрировать с системой исправления коллизий
+            }}
+          />
+        </div>
+      )}
 
       {/* Область для добавления клипов (drop zone) */}
       {track.clips.length === 0 && (

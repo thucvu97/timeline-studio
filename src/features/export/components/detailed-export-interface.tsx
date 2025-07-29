@@ -12,15 +12,18 @@ import { Progress } from "@/components/ui/progress"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { TimelineProject } from "@/features/timeline/types/timeline"
 import { cn } from "@/lib/utils"
 import { OutputFormat } from "@/types/video-compiler"
 
 import { ExportPresets } from "./export-presets"
+import { TransitionExportSettingsComponent } from "./transition-export-settings"
 import { FORMAT_OPTIONS, FRAME_RATE_OPTIONS, RESOLUTION_PRESETS } from "../constants/export-constants"
 import { ExportProgress, ExportSettings } from "../types/export-types"
+import { TransitionExportSettings } from "../types/transition-export-types"
 
 interface DetailedExportInterfaceProps {
-  settings: ExportSettings & {
+  settings: TransitionExportSettings & {
     exportVideo?: boolean
     exportAudio?: boolean
     bitrateMode?: "auto" | "limit"
@@ -44,7 +47,7 @@ interface DetailedExportInterfaceProps {
     embedInfoAsProject?: boolean
     chaptersByMarkers?: boolean
   }
-  onSettingsChange: (updates: Partial<ExportSettings>) => void
+  onSettingsChange: (updates: Partial<TransitionExportSettings>) => void
   onChooseFolder: () => void
   onExport: () => void
   onCancelExport: () => void
@@ -52,6 +55,7 @@ interface DetailedExportInterfaceProps {
   isRendering: boolean
   renderProgress: ExportProgress | null
   hasProject: boolean
+  project?: TimelineProject
 }
 
 export function DetailedExportInterface({
@@ -64,13 +68,14 @@ export function DetailedExportInterface({
   isRendering,
   renderProgress,
   hasProject,
+  project,
 }: DetailedExportInterfaceProps) {
   const { t } = useTranslation()
   const [selectedPresetId, setSelectedPresetId] = useState("custom")
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false)
   const [showSubtitlesSettings, setShowSubtitlesSettings] = useState(false)
   const [renderMode, setRenderMode] = useState<"single" | "individual">("single")
-  const [activeTab, setActiveTab] = useState<"video" | "audio" | "file">("video")
+  const [activeTab, setActiveTab] = useState<"video" | "audio" | "file" | "transitions">("video")
 
   // Обработчик выбора пресета
   const handlePresetSelect = (preset: any) => {
@@ -178,12 +183,13 @@ export function DetailedExportInterface({
             </RadioGroup>
           </div>
 
-          {/* Вкладки Видео/Аудио/Файл */}
+          {/* Вкладки Видео/Аудио/Файл/Переходы */}
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="video">{t("dialogs.export.video")}</TabsTrigger>
               <TabsTrigger value="audio">{t("dialogs.export.audio")}</TabsTrigger>
               <TabsTrigger value="file">{t("dialogs.export.file")}</TabsTrigger>
+              <TabsTrigger value="transitions">{t("dialogs.export.transitions")}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="video" className="space-y-4">
@@ -686,6 +692,15 @@ export function DetailedExportInterface({
                   </Label>
                 </div>
               </div>
+            </TabsContent>
+
+            {/* Вкладка переходов */}
+            <TabsContent value="transitions" className="space-y-4">
+              <TransitionExportSettingsComponent
+                settings={settings}
+                onSettingsChange={onSettingsChange}
+                project={project}
+              />
             </TabsContent>
           </Tabs>
 

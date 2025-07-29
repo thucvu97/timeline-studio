@@ -11,6 +11,7 @@ pub mod monitoring;
 pub mod preview_service;
 pub mod project_service;
 pub mod render_service;
+pub mod transition_ffmpeg_service;
 
 // Re-export основных типов и трейтов
 pub use cache_service::{CacheService, CacheServiceImpl};
@@ -20,6 +21,10 @@ pub use monitoring::{ServiceMetrics, METRICS};
 pub use preview_service::{PreviewService, PreviewServiceImpl};
 pub use project_service::{ProjectService, ProjectServiceImpl};
 pub use render_service::{RenderService, RenderServiceImpl};
+pub use transition_ffmpeg_service::{
+  TransitionExportResult, TransitionFFmpegCommand, TransitionFFmpegConfig, TransitionFFmpegService,
+  TransitionFFmpegServiceImpl, TransitionStatus,
+};
 
 use crate::video_compiler::Result;
 use async_trait::async_trait;
@@ -46,6 +51,7 @@ pub struct ServiceContainer {
   pub preview: Arc<dyn PreviewService>,
   pub project: Arc<dyn ProjectService>,
   pub ffmpeg: Arc<dyn FfmpegService>,
+  pub transition_ffmpeg: Arc<dyn TransitionFFmpegService>,
   /// Метрики для каждого сервиса
   pub metrics: ServiceMetricsContainer,
 }
@@ -58,6 +64,7 @@ pub struct ServiceMetricsContainer {
   pub preview: Arc<ServiceMetrics>,
   pub project: Arc<ServiceMetrics>,
   pub ffmpeg: Arc<ServiceMetrics>,
+  pub transition_ffmpeg: Arc<ServiceMetrics>,
 }
 
 impl ServiceContainer {
@@ -73,6 +80,7 @@ impl ServiceContainer {
     let gpu = Arc::new(GpuServiceImpl::new(ffmpeg_path));
     let preview = Arc::new(PreviewServiceImpl::new(ffmpeg.clone()));
     let project = Arc::new(ProjectServiceImpl::new());
+    let transition_ffmpeg = Arc::new(TransitionFFmpegServiceImpl::new(ffmpeg.clone()));
     let render = Arc::new(RenderServiceImpl::new(
       ffmpeg.clone(),
       max_concurrent_jobs,
@@ -91,6 +99,9 @@ impl ServiceContainer {
         .register_service("project-service".to_string())
         .await,
       ffmpeg: METRICS.register_service("ffmpeg-service".to_string()).await,
+      transition_ffmpeg: METRICS
+        .register_service("transition-ffmpeg-service".to_string())
+        .await,
     };
 
     Ok(Self {
@@ -100,6 +111,7 @@ impl ServiceContainer {
       preview,
       project,
       ffmpeg,
+      transition_ffmpeg,
       metrics,
     })
   }
@@ -112,6 +124,7 @@ impl ServiceContainer {
     self.gpu.initialize().await?;
     self.preview.initialize().await?;
     self.project.initialize().await?;
+    self.transition_ffmpeg.initialize().await?;
     self.render.initialize().await?;
 
     log::info!("Все сервисы успешно инициализированы");
@@ -125,6 +138,7 @@ impl ServiceContainer {
     self.gpu.health_check().await?;
     self.preview.health_check().await?;
     self.project.health_check().await?;
+    self.transition_ffmpeg.health_check().await?;
     self.render.health_check().await?;
 
     Ok(())
@@ -134,6 +148,7 @@ impl ServiceContainer {
   pub async fn shutdown_all(&self) -> Result<()> {
     // Останавливаем сервисы в обратном порядке
     self.render.shutdown().await?;
+    self.transition_ffmpeg.shutdown().await?;
     self.project.shutdown().await?;
     self.preview.shutdown().await?;
     self.gpu.shutdown().await?;
@@ -172,6 +187,11 @@ impl ServiceContainer {
   /// Получить FfmpegService
   pub fn get_ffmpeg_service(&self) -> Option<Arc<dyn FfmpegService>> {
     Some(self.ffmpeg.clone())
+  }
+
+  /// Получить TransitionFFmpegService
+  pub fn get_transition_ffmpeg_service(&self) -> Option<Arc<dyn TransitionFFmpegService>> {
+    Some(self.transition_ffmpeg.clone())
   }
 
   /// Обновить путь к FFmpeg во всех сервисах

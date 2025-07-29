@@ -1,9 +1,10 @@
 import { memo, useCallback, useMemo, useRef } from "react"
 
-import { cn } from "@/lib/utils"
-import { useTimelineSettings } from "@/features/timeline/hooks/use-timeline-settings"
+import { useTimeline } from "@/features/timeline/hooks/use-timeline"
 import { TimelineTransition } from "@/features/timeline/types/timeline-transition"
 import { Transition } from "@/features/transitions/types/transitions"
+import { cn } from "@/lib/utils"
+
 import { TransitionHandles } from "./transition-handles"
 
 interface TimelineTransitionProps {
@@ -31,7 +32,8 @@ export const TimelineTransitionComponent = memo(function TimelineTransitionCompo
   onPositionChange,
   onDelete,
 }: TimelineTransitionProps) {
-  const { timelineScale } = useTimelineSettings()
+  const { uiState } = useTimeline()
+  const timelineScale = uiState?.scale || 1
   const containerRef = useRef<HTMLDivElement>(null)
 
   // Вычисляем размеры и позицию
@@ -74,7 +76,8 @@ export const TimelineTransitionComponent = memo(function TimelineTransitionCompo
   const curvePathData = useMemo(() => {
     if (transition.curve.type === "linear") {
       return `M 0,${trackHeight} L ${width},0`
-    } else if (transition.curve.type === "custom" && transition.curve.points.length > 0) {
+    }
+    if (transition.curve.type === "custom" && transition.curve.points.length > 0) {
       // Генерируем path из точек кривой
       const points = transition.curve.points
       let path = `M ${points[0].x * width},${(1 - points[0].y) * trackHeight}`
@@ -95,10 +98,9 @@ export const TimelineTransitionComponent = memo(function TimelineTransitionCompo
       }
 
       return path
-    } else {
-      // Стандартные easing кривые
-      return generateEasingCurve(transition.curve.type, width, trackHeight)
     }
+    // Стандартные easing кривые
+    return generateEasingCurve(transition.curve.type, width, trackHeight)
   }, [transition.curve, width, trackHeight])
 
   return (
@@ -171,12 +173,8 @@ export const TimelineTransitionComponent = memo(function TimelineTransitionCompo
       {/* Параметры при наведении */}
       {transition.isSelected && (
         <div className="absolute bottom-1 left-1 right-1 text-xs text-white/80 space-y-0.5">
-          {transition.parameters.blur?.enabled && (
-            <div>Blur: {transition.parameters.blur.amount}%</div>
-          )}
-          {transition.parameters.color?.enabled && (
-            <div>Color: {transition.parameters.color.tint}</div>
-          )}
+          {transition.parameters.blur?.enabled && <div>Blur: {transition.parameters.blur.amount}%</div>}
+          {transition.parameters.color?.enabled && <div>Color: {transition.parameters.color.tint}</div>}
         </div>
       )}
 
@@ -208,7 +206,10 @@ export const TimelineTransitionComponent = memo(function TimelineTransitionCompo
 
       {/* Индикатор GPU */}
       {transitionResource?.gpuAccelerated && (
-        <div className="absolute bottom-1 right-1 w-4 h-4 bg-green-500/50 rounded-sm flex items-center justify-center" title="GPU Accelerated">
+        <div
+          className="absolute bottom-1 right-1 w-4 h-4 bg-green-500/50 rounded-sm flex items-center justify-center"
+          title="GPU Accelerated"
+        >
           <span className="text-xs text-white">G</span>
         </div>
       )}
@@ -246,7 +247,7 @@ function getTransitionColor(category: string): string {
  * Настроить яркость цвета
  */
 function adjustColor(color: string, amount: number): string {
-  const num = parseInt(color.replace("#", ""), 16)
+  const num = Number.parseInt(color.replace("#", ""), 16)
   const r = Math.min(255, Math.max(0, (num >> 16) + amount))
   const g = Math.min(255, Math.max(0, ((num >> 8) & 0x00ff) + amount))
   const b = Math.min(255, Math.max(0, (num & 0x0000ff) + amount))
@@ -273,7 +274,7 @@ function generateEasingCurve(type: string, width: number, height: number): strin
         y = (1 - (1 - t) * (1 - t)) * height
         break
       case "ease-in-out":
-        y = (1 - (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2)) * height
+        y = (1 - (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2)) * height
         break
       default:
         y = (1 - t) * height

@@ -1,6 +1,7 @@
-import { useState, useCallback, useRef, useMemo, useEffect } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+
+import { CurvePoint, TransitionCurve } from "@/features/timeline/types/timeline-transition"
 import { cn } from "@/lib/utils"
-import { TransitionCurve, CurvePoint } from "@/features/timeline/types/timeline-transition"
 
 interface TransitionCurveEditorProps {
   curve: TransitionCurve
@@ -184,23 +185,25 @@ export function TransitionCurveEditor({
             y: norm.y,
             handleIn: point.handleIn
               ? {
-                  x: point.handleIn.x + deltaX,
-                  y: point.handleIn.y + deltaY,
-                }
+                x: point.handleIn.x + deltaX,
+                y: point.handleIn.y + deltaY,
+              }
               : undefined,
             handleOut: point.handleOut
               ? {
-                  x: point.handleOut.x + deltaX,
-                  y: point.handleOut.y + deltaY,
-                }
+                x: point.handleOut.x + deltaX,
+                y: point.handleOut.y + deltaY,
+              }
               : undefined,
           }
-        } else if (dragType === "handleIn" && point.handleIn) {
+        }
+        if (dragType === "handleIn" && point.handleIn) {
           return {
             ...point,
             handleIn: { x: norm.x, y: norm.y },
           }
-        } else if (dragType === "handleOut" && point.handleOut) {
+        }
+        if (dragType === "handleOut" && point.handleOut) {
           return {
             ...point,
             handleOut: { x: norm.x, y: norm.y },
@@ -333,10 +336,7 @@ export function TransitionCurveEditor({
         width={width}
         height={height}
         viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
-        className={cn(
-          "border rounded bg-background",
-          !isReadOnly && "cursor-crosshair",
-        )}
+        className={cn("border rounded bg-background", !isReadOnly && "cursor-crosshair")}
         onDoubleClick={addPoint}
       >
         {/* Сетка */}
@@ -388,16 +388,10 @@ export function TransitionCurveEditor({
         </g>
 
         {/* Кривая */}
-        <path
-          d={curvePath}
-          fill="none"
-          stroke="hsl(var(--primary))"
-          strokeWidth={3}
-          className="pointer-events-none"
-        />
+        <path d={curvePath} fill="none" stroke="hsl(var(--primary))" strokeWidth={3} className="pointer-events-none" />
 
         {/* Точки и handles */}
-        {curve.points.map((point, index) => {
+        {curve.points.map((point, _index) => {
           const svgPoint = normToSvg(point.x, point.y)
           const isSelected = selectedPointId === point.id
 
@@ -469,11 +463,7 @@ export function TransitionCurveEditor({
                 fill="hsl(var(--background))"
                 stroke="hsl(var(--primary))"
                 strokeWidth={2}
-                className={cn(
-                  "transition-all",
-                  !isReadOnly && "cursor-move hover:r-7",
-                  isSelected && "fill-primary",
-                )}
+                className={cn("transition-all", !isReadOnly && "cursor-move hover:r-7", isSelected && "fill-primary")}
                 onMouseDown={(e) => handleMouseDown(e, point.id, "point")}
                 onDoubleClick={(e) => {
                   e.stopPropagation()

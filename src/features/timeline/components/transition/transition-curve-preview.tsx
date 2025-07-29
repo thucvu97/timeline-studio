@@ -1,6 +1,7 @@
 import { useMemo } from "react"
-import { cn } from "@/lib/utils"
+
 import { TransitionCurve } from "@/features/timeline/types/timeline-transition"
+import { cn } from "@/lib/utils"
 
 interface TransitionCurvePreviewProps {
   curve: TransitionCurve
@@ -120,20 +121,8 @@ export function TransitionCurvePreview({
       />
 
       {/* Точки начала и конца */}
-      <circle
-        cx={normToSvg(0, 0).x}
-        cy={normToSvg(0, 0).y}
-        r={strokeWidth}
-        fill={strokeColor}
-        className="opacity-50"
-      />
-      <circle
-        cx={normToSvg(1, 1).x}
-        cy={normToSvg(1, 1).y}
-        r={strokeWidth}
-        fill={strokeColor}
-        className="opacity-50"
-      />
+      <circle cx={normToSvg(0, 0).x} cy={normToSvg(0, 0).y} r={strokeWidth} fill={strokeColor} className="opacity-50" />
+      <circle cx={normToSvg(1, 1).x} cy={normToSvg(1, 1).y} r={strokeWidth} fill={strokeColor} className="opacity-50" />
     </svg>
   )
 }
@@ -141,12 +130,7 @@ export function TransitionCurvePreview({
 /**
  * Генерация пути для стандартных easing функций
  */
-function generateEasingPath(
-  type: string,
-  width: number,
-  height: number,
-  padding: number,
-): string {
+function generateEasingPath(type: string, width: number, height: number, padding: number): string {
   const steps = 30
   const points: Array<{ x: number; y: number }> = []
 
@@ -202,21 +186,18 @@ function bounce(t: number): number {
 
   if (t < 1 / d1) {
     return n1 * t * t
-  } else if (t < 2 / d1) {
-    return n1 * (t -= 1.5 / d1) * t + 0.75
-  } else if (t < 2.5 / d1) {
-    return n1 * (t -= 2.25 / d1) * t + 0.9375
-  } else {
-    return n1 * (t -= 2.625 / d1) * t + 0.984375
   }
+  if (t < 2 / d1) {
+    return n1 * (t -= 1.5 / d1) * t + 0.75
+  }
+  if (t < 2.5 / d1) {
+    return n1 * (t -= 2.25 / d1) * t + 0.9375
+  }
+  return n1 * (t -= 2.625 / d1) * t + 0.984375
 }
 
 function elastic(t: number): number {
   const c4 = (2 * Math.PI) / 3
 
-  return t === 0
-    ? 0
-    : t === 1
-    ? 1
-    : Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * c4) + 1
+  return t === 0 ? 0 : t === 1 ? 1 : 2 ** (-10 * t) * Math.sin((t * 10 - 0.75) * c4) + 1
 }
