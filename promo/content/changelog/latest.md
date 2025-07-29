@@ -1,3 +1,10 @@
+## [0.45.1](https://github.com/chatman-media/timeline-studio/compare/v0.45.0...v0.45.1) (2025-07-29)
+
+
+### Bug Fixes
+
+* **tests:** исправить тест MediaStudio и добавить .serena/ в .gitignore ([ce8da7a](https://github.com/chatman-media/timeline-studio/commit/ce8da7afbc8dc61cbdd61432e60c997218a3b548))
+
 # [0.45.0](https://github.com/chatman-media/timeline-studio/compare/v0.44.0...v0.45.0) (2025-07-29)
 
 
