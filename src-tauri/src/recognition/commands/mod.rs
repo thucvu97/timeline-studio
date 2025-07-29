@@ -1,6 +1,12 @@
 pub mod yolo_commands;
+pub mod yolo_commands_simple;
 
 // Re-export YOLO commands for convenience
+pub use yolo_commands_simple::{
+  analyze_video_with_yolo, check_gpu_availability, detect_objects_in_image,
+  get_yolo_class_names_advanced, init_yolo_processor, load_yolo_data, save_yolo_data,
+  update_yolo_confidence_threshold,
+};
 
 use anyhow::Result;
 use serde_json::Value;

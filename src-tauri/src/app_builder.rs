@@ -63,7 +63,7 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::recognition::commands::process_video_recognition,
     crate::recognition::commands::process_yolo_batch,
     crate::recognition::commands::set_yolo_target_classes,
-    // New YOLO processor commands
+    // New YOLO processor commands from yolo_commands.rs
     crate::recognition::commands::yolo_commands::create_yolo_processor,
     crate::recognition::commands::yolo_commands::process_image_with_yolo,
     crate::recognition::commands::yolo_commands::process_video_file_with_yolo,
@@ -77,6 +77,15 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::recognition::commands::yolo_commands::list_active_yolo_processors,
     crate::recognition::commands::yolo_commands::cleanup_yolo_processors,
     crate::recognition::commands::yolo_commands::create_yolo_processor_with_builder,
+    // Simple YOLO commands from yolo_commands_simple.rs
+    crate::recognition::commands::yolo_commands_simple::init_yolo_processor,
+    crate::recognition::commands::yolo_commands_simple::detect_objects_in_image,
+    crate::recognition::commands::yolo_commands_simple::analyze_video_with_yolo,
+    crate::recognition::commands::yolo_commands_simple::get_yolo_class_names_advanced,
+    crate::recognition::commands::yolo_commands_simple::update_yolo_confidence_threshold,
+    crate::recognition::commands::yolo_commands_simple::save_yolo_data,
+    crate::recognition::commands::yolo_commands_simple::load_yolo_data,
+    crate::recognition::commands::yolo_commands_simple::check_gpu_availability,
     // Recognition advanced commands
     crate::video_compiler::commands::recognition_advanced_commands::get_frame_processor_class_names,
     crate::video_compiler::commands::recognition_advanced_commands::get_recognition_results_by_time_range,

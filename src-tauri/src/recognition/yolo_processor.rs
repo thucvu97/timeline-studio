@@ -197,6 +197,11 @@ impl YoloProcessor {
     self.target_classes = classes;
   }
 
+  /// Установить порог уверенности
+  pub fn set_confidence_threshold(&mut self, threshold: f32) {
+    self.confidence_threshold = threshold;
+  }
+
   /// Обработать изображение
   pub async fn process_image(&mut self, image_path: &Path) -> Result<Vec<Detection>> {
     // Проверяем, загружена ли модель

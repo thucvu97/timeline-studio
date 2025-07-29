@@ -40,9 +40,26 @@ export interface DetectedFace {
   pose: HeadPose // Поворот головы
 
   // Метаданные
-  frameNumber: number
+  frameNumber?: number
   timestamp: Timecode
   clipId?: string
+  
+  // Продвинутые атрибуты (для совместимости с AdvancedFaceDetection)
+  personId?: string
+  name?: string
+  embedding?: Float32Array
+  thumbnailUrl?: string
+}
+
+// Базовые атрибуты лица
+export interface FaceAttributes {
+  age?: number
+  gender?: "male" | "female" | "unknown"
+  emotion?: "happy" | "sad" | "angry" | "surprised" | "neutral" | "fear" | "disgust"
+  ethnicity?: string
+  glasses?: boolean
+  mask?: boolean
+  smile?: number // 0-1
 }
 
 // Facial landmarks (68 точек)
@@ -63,6 +80,49 @@ export interface HeadPose {
   roll: number // Поворот по часовой стрелке (-180 до 180)
 }
 
+// 3D поза лица
+export interface Face3DPose {
+  yaw: number   // Поворот влево/вправо
+  pitch: number // Наклон вверх/вниз
+  roll: number  // Наклон влево/вправо
+  
+  // 3D позиция
+  translation?: {
+    x: number
+    y: number
+    z: number
+  }
+  
+  // Матрица поворота
+  rotationMatrix?: number[][]
+  
+  // Уверенность оценки позы
+  confidence: number
+}
+
+// Качество изображения лица
+export interface FaceImageQuality {
+  sharpness: number    // Резкость (0-1)
+  brightness: number   // Яркость (0-1)
+  contrast: number     // Контрастность (0-1)
+  
+  // Условия освещения
+  lighting: {
+    frontLit: number
+    leftLit: number
+    rightLit: number
+    topLit: number
+    bottomLit: number
+  }
+  
+  // Общая оценка качества
+  overall: number // Общая оценка качества (0-1)
+  
+  // Рекомендации
+  usableForRecognition: boolean
+  usableForIdentification: boolean
+}
+
 // Face Embedding - векторное представление лица
 export interface FaceEmbedding {
   vector: Float32Array // 128D или 512D вектор
@@ -70,9 +130,12 @@ export interface FaceEmbedding {
 
   // Связь с детекцией
   faceId: string
+  personId?: string // ID персоны (может быть не установлен)
   timestamp: Timecode
   frameNumber: number
   clipId?: string
+  landmarks?: FacialLandmarks
+  createdAt: string
 }
 
 // Person Profile - профиль персоны

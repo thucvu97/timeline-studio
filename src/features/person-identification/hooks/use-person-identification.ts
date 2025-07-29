@@ -17,7 +17,7 @@ interface UsePersonIdentificationOptions {
 
 // Расширенный тип для лица с embedding
 interface DetectedFaceWithEmbedding extends DetectedFace {
-  embedding?: number[]
+  embedding?: Float32Array
   thumbnailUrl?: string
   croppedImage?: string
 }
@@ -160,8 +160,8 @@ export function usePersonIdentification(options: UsePersonIdentificationOptions 
           return null
         }
 
-        // Преобразуем embedding в Float32Array
-        const embedding = new Float32Array(detectedFace.embedding)
+        // Используем embedding напрямую
+        const embedding = detectedFace.embedding
 
         // Находим наиболее похожую персону
         const results = await personDatabase.findSimilarPersons(embedding, {
@@ -210,7 +210,7 @@ export function usePersonIdentification(options: UsePersonIdentificationOptions 
         if (detectedFace.embedding && detectedFace.embedding.length > 0) {
           await personDatabase.addEmbedding(newPerson.id, {
             faceId: detectedFace.id,
-            vector: new Float32Array(detectedFace.embedding),
+            vector: detectedFace.embedding,
             quality: detectedFace.confidence,
             clipId: detectedFace.clipId,
             frameNumber: detectedFace.frameNumber,
@@ -255,7 +255,7 @@ export function usePersonIdentification(options: UsePersonIdentificationOptions 
         if (detectedFace.embedding && detectedFace.embedding.length > 0) {
           await personDatabase.addEmbedding(personId, {
             faceId: detectedFace.id,
-            vector: new Float32Array(detectedFace.embedding),
+            vector: detectedFace.embedding,
             quality: detectedFace.confidence,
             clipId: detectedFace.clipId,
             frameNumber: detectedFace.frameNumber,

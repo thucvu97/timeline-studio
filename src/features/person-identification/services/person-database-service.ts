@@ -4,7 +4,7 @@
  * Обеспечивает CRUD операции, поиск по эмбеддингам, кластеризацию и синхронизацию.
  */
 
-import { invoke } from "@tauri-apps/api/core"
+import { invoke } from "@tauri-apps/api/core";
 
 import {
   DetectedFace,
@@ -16,64 +16,64 @@ import {
   PersonSearchResult,
   PersonStats,
   PersonThumbnail,
-} from "../types/person"
+} from "../types/person";
 
 // Расширенный тип для лица с embedding
 interface DetectedFaceWithEmbedding extends DetectedFace {
-  embedding?: number[]
-  thumbnailUrl?: string
-  croppedImage?: string
+  embedding?: Float32Array;
+  thumbnailUrl?: string;
+  croppedImage?: string;
 }
 
 // База данных конфигурация
 export interface DatabaseConfig {
   // Хранение
-  storage: "indexeddb" | "memory" | "tauri"
-  dbName: string
-  version: number
+  storage: "indexeddb" | "memory" | "tauri";
+  dbName: string;
+  version: number;
 
   // Эмбеддинги
-  embeddingDimension: number
-  similarityThreshold: number
+  embeddingDimension: number;
+  similarityThreshold: number;
 
   // Кэширование
-  enableCache: boolean
-  cacheSize: number
-  cacheTTL: number
+  enableCache: boolean;
+  cacheSize: number;
+  cacheTTL: number;
 
   // Синхронизация
-  enableSync: boolean
-  syncInterval: number
+  enableSync: boolean;
+  syncInterval: number;
 }
 
 // Результат поиска по сходству
 export interface SimilaritySearchResult {
-  personId: string
-  similarity: number
-  embedding: FaceEmbedding
-  confidence: number
+  personId: string;
+  similarity: number;
+  embedding: FaceEmbedding;
+  confidence: number;
 }
 
 // Статистика базы данных
 export interface DatabaseStats {
-  totalPersons: number
-  totalEmbeddings: number
-  totalAppearances: number
-  averageEmbeddingsPerPerson: number
-  storageSize: number
-  lastUpdated: string
+  totalPersons: number;
+  totalEmbeddings: number;
+  totalAppearances: number;
+  averageEmbeddingsPerPerson: number;
+  storageSize: number;
+  lastUpdated: string;
 }
 
 /**
  * Person Database Service
  */
 export class PersonDatabaseService {
-  private static instance: PersonDatabaseService
-  private config: DatabaseConfig
-  private db: IDBDatabase | null = null
-  private cache = new Map<string, PersonProfile>()
-  private eventListeners: ((event: PersonEvent) => void)[] = []
-  private isInitialized = false
+  private static instance: PersonDatabaseService;
+  private config: DatabaseConfig;
+  private db: IDBDatabase | null = null;
+  private cache = new Map<string, PersonProfile>();
+  private eventListeners: ((event: PersonEvent) => void)[] = [];
+  private isInitialized = false;
 
   private defaultConfig: DatabaseConfig = {
     storage: "indexeddb",
@@ -86,40 +86,42 @@ export class PersonDatabaseService {
     cacheTTL: 30 * 60 * 1000, // 30 минут
     enableSync: false,
     syncInterval: 5 * 60 * 1000, // 5 минут
-  }
+  };
 
   private constructor(config: Partial<DatabaseConfig> = {}) {
-    this.config = { ...this.defaultConfig, ...config }
+    this.config = { ...this.defaultConfig, ...config };
   }
 
   /**
    * Получить экземпляр сервиса (Singleton)
    */
-  public static getInstance(config: Partial<DatabaseConfig> = {}): PersonDatabaseService {
+  public static getInstance(
+    config: Partial<DatabaseConfig> = {},
+  ): PersonDatabaseService {
     if (!PersonDatabaseService.instance) {
-      PersonDatabaseService.instance = new PersonDatabaseService(config)
+      PersonDatabaseService.instance = new PersonDatabaseService(config);
     }
-    return PersonDatabaseService.instance
+    return PersonDatabaseService.instance;
   }
 
   /**
    * Инициализация базы данных
    */
   async initialize(): Promise<void> {
-    if (this.isInitialized) return
+    if (this.isInitialized) return;
 
     try {
       if (this.config.storage === "indexeddb") {
-        await this.initializeIndexedDB()
+        await this.initializeIndexedDB();
       } else if (this.config.storage === "tauri") {
-        await this.initializeTauriDB()
+        await this.initializeTauriDB();
       }
 
-      this.isInitialized = true
-      console.log("Person Database Service инициализирован")
+      this.isInitialized = true;
+      console.log("Person Database Service инициализирован");
     } catch (error) {
-      console.error("Ошибка инициализации Person Database Service:", error)
-      throw error
+      console.error("Ошибка инициализации Person Database Service:", error);
+      throw error;
     }
   }
 
@@ -128,7 +130,7 @@ export class PersonDatabaseService {
    */
   private async ensureInitialized(): Promise<void> {
     if (!this.isInitialized) {
-      await this.initialize()
+      await this.initialize();
     }
   }
 
@@ -137,50 +139,69 @@ export class PersonDatabaseService {
    */
   private async initializeIndexedDB(): Promise<void> {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open(this.config.dbName, this.config.version)
+      const request = indexedDB.open(this.config.dbName, this.config.version);
 
-      request.onerror = () => reject(new Error(request.error?.message || "Database error"))
+      request.onerror = () =>
+        reject(new Error(request.error?.message || "Database error"));
       request.onsuccess = () => {
-        this.db = request.result
-        resolve()
-      }
+        this.db = request.result;
+        resolve();
+      };
 
       request.onupgradeneeded = (event) => {
-        const db = (event.target as IDBOpenDBRequest).result
+        const db = (event.target as IDBOpenDBRequest).result;
 
         // Таблица персон
         if (!db.objectStoreNames.contains("persons")) {
-          const personStore = db.createObjectStore("persons", { keyPath: "id" })
-          personStore.createIndex("name", "name", { unique: false })
-          personStore.createIndex("isVerified", "isVerified", { unique: false })
-          personStore.createIndex("createdAt", "createdAt", { unique: false })
+          const personStore = db.createObjectStore("persons", {
+            keyPath: "id",
+          });
+          personStore.createIndex("name", "name", { unique: false });
+          personStore.createIndex("isVerified", "isVerified", {
+            unique: false,
+          });
+          personStore.createIndex("createdAt", "createdAt", { unique: false });
         }
 
         // Таблица эмбеддингов
         if (!db.objectStoreNames.contains("embeddings")) {
-          const embeddingStore = db.createObjectStore("embeddings", { keyPath: "faceId" })
-          embeddingStore.createIndex("personId", "personId", { unique: false })
-          embeddingStore.createIndex("quality", "quality", { unique: false })
-          embeddingStore.createIndex("timestamp", "timestamp", { unique: false })
+          const embeddingStore = db.createObjectStore("embeddings", {
+            keyPath: "faceId",
+          });
+          embeddingStore.createIndex("personId", "personId", { unique: false });
+          embeddingStore.createIndex("quality", "quality", { unique: false });
+          embeddingStore.createIndex("timestamp", "timestamp", {
+            unique: false,
+          });
         }
 
         // Таблица появлений
         if (!db.objectStoreNames.contains("appearances")) {
-          const appearanceStore = db.createObjectStore("appearances", { keyPath: "id" })
-          appearanceStore.createIndex("personId", "personId", { unique: false })
-          appearanceStore.createIndex("clipId", "clipId", { unique: false })
-          appearanceStore.createIndex("confidence", "confidence", { unique: false })
+          const appearanceStore = db.createObjectStore("appearances", {
+            keyPath: "id",
+          });
+          appearanceStore.createIndex("personId", "personId", {
+            unique: false,
+          });
+          appearanceStore.createIndex("clipId", "clipId", { unique: false });
+          appearanceStore.createIndex("confidence", "confidence", {
+            unique: false,
+          });
         }
 
         // Таблица детекций
         if (!db.objectStoreNames.contains("detections")) {
-          const detectionStore = db.createObjectStore("detections", { keyPath: "id" })
-          detectionStore.createIndex("personId", "personId", { unique: false })
-          detectionStore.createIndex("clipId", "clipId", { unique: false })
-          detectionStore.createIndex("frameNumber", "frameNumber", { unique: false })
+          const detectionStore = db.createObjectStore("detections", {
+            keyPath: "id",
+          });
+          detectionStore.createIndex("personId", "personId", { unique: false });
+          detectionStore.createIndex("clipId", "clipId", { unique: false });
+          detectionStore.createIndex("frameNumber", "frameNumber", {
+            unique: false,
+          });
         }
-      }
-    })
+      };
+    });
   }
 
   /**
@@ -188,34 +209,36 @@ export class PersonDatabaseService {
    */
   private async initializeTauriDB(): Promise<void> {
     try {
-      await invoke("init_person_database")
-      console.log("Tauri база данных инициализирована")
+      await invoke("init_person_database");
+      console.log("Tauri база данных инициализирована");
     } catch (error) {
-      console.error("Ошибка инициализации Tauri базы данных:", error)
-      throw error
+      console.error("Ошибка инициализации Tauri базы данных:", error);
+      throw error;
     }
   }
 
   /**
    * Создание нового профиля персоны
    */
-  async createPerson(personData: Omit<PersonProfile, "id" | "createdAt" | "updatedAt">): Promise<PersonProfile> {
-    await this.ensureInitialized()
+  async createPerson(
+    personData: Omit<PersonProfile, "id" | "createdAt" | "updatedAt">,
+  ): Promise<PersonProfile> {
+    await this.ensureInitialized();
 
     if (this.config.storage === "tauri") {
       const person = await invoke<PersonProfile>("create_person", {
         name: personData.name,
         tags: personData.tags,
         notes: (personData as any).description, // Используем notes вместо description
-      })
+      });
 
       // Кэшируем
       if (this.config.enableCache) {
-        this.cache.set(person.id, person)
+        this.cache.set(person.id, person);
       }
 
-      this.emitEvent({ type: "person_created", data: { person } })
-      return person
+      this.emitEvent({ type: "person_created", data: { person } });
+      return person;
     }
     // Fallback to IndexedDB
     const person: PersonProfile = {
@@ -223,91 +246,94 @@ export class PersonDatabaseService {
       id: `person_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-    }
+    };
 
-    await this.storePerson(person)
+    await this.storePerson(person);
 
     // Кэшируем
     if (this.config.enableCache) {
-      this.cache.set(person.id, person)
+      this.cache.set(person.id, person);
     }
 
-    this.emitEvent({ type: "person_created", data: { person } })
-    return person
+    this.emitEvent({ type: "person_created", data: { person } });
+    return person;
   }
 
   /**
    * Получение персоны по ID
    */
   async getPerson(personId: string): Promise<PersonProfile | null> {
-    await this.ensureInitialized()
+    await this.ensureInitialized();
 
     // Проверяем кэш
     if (this.config.enableCache && this.cache.has(personId)) {
-      return this.cache.get(personId)!
+      return this.cache.get(personId)!;
     }
 
     try {
-      let person: PersonProfile | null = null
+      let person: PersonProfile | null = null;
 
       if (this.config.storage === "tauri") {
-        person = await invoke<PersonProfile | null>("get_person", { personId })
+        person = await invoke<PersonProfile | null>("get_person", { personId });
       } else {
-        person = await this.loadPerson(personId)
+        person = await this.loadPerson(personId);
       }
 
       // Кэшируем результат
       if (person && this.config.enableCache) {
-        this.cache.set(personId, person)
+        this.cache.set(personId, person);
       }
 
-      return person
+      return person;
     } catch (error) {
-      console.error(`Ошибка получения персоны ${personId}:`, error)
-      return null
+      console.error(`Ошибка получения персоны ${personId}:`, error);
+      return null;
     }
   }
 
   /**
    * Обновление персоны
    */
-  async updatePerson(personId: string, updates: Partial<PersonProfile>): Promise<PersonProfile | null> {
-    await this.ensureInitialized()
+  async updatePerson(
+    personId: string,
+    updates: Partial<PersonProfile>,
+  ): Promise<PersonProfile | null> {
+    await this.ensureInitialized();
 
-    const existingPerson = await this.getPerson(personId)
-    if (!existingPerson) return null
+    const existingPerson = await this.getPerson(personId);
+    if (!existingPerson) return null;
 
     const updatedPerson: PersonProfile = {
       ...existingPerson,
       ...updates,
       id: personId, // Нельзя изменить ID
       updatedAt: new Date().toISOString(),
-    }
+    };
 
-    await this.storePerson(updatedPerson)
+    await this.storePerson(updatedPerson);
 
     // Обновляем кэш
     if (this.config.enableCache) {
-      this.cache.set(personId, updatedPerson)
+      this.cache.set(personId, updatedPerson);
     }
 
     this.emitEvent({
       type: "person_updated",
       data: { personId, changes: updates },
-    })
+    });
 
-    return updatedPerson
+    return updatedPerson;
   }
 
   /**
    * Удаление персоны
    */
   async deletePerson(personId: string): Promise<boolean> {
-    await this.ensureInitialized()
+    await this.ensureInitialized();
 
     try {
       if (this.config.storage === "tauri") {
-        await invoke("delete_person", { personId })
+        await invoke("delete_person", { personId });
       } else {
         // Удаляем связанные данные
         // Обрабатываем ошибки для каждой операции отдельно
@@ -321,38 +347,45 @@ export class PersonDatabaseService {
           this.deletePersonDetections(personId).catch((err: unknown) =>
             console.warn(`Не удалось удалить детекции для ${personId}:`, err),
           ),
-        ]
+        ];
 
-        await Promise.all(deleteOperations)
+        await Promise.all(deleteOperations);
 
         // Удаляем саму персону
-        await this.removePersonFromStore(personId)
+        await this.removePersonFromStore(personId);
       }
 
       // Удаляем из кэша
-      this.cache.delete(personId)
+      this.cache.delete(personId);
 
-      this.emitEvent({ type: "person_deleted", data: { personId } })
-      return true
+      this.emitEvent({ type: "person_deleted", data: { personId } });
+      return true;
     } catch (error) {
-      console.error(`Ошибка удаления персоны ${personId}:`, error)
-      return false
+      console.error(`Ошибка удаления персоны ${personId}:`, error);
+      return false;
     }
   }
 
   /**
    * Поиск персон по имени
    */
-  async searchPersonsByName(query: string, limit = 10): Promise<PersonProfile[]> {
-    await this.ensureInitialized()
+  async searchPersonsByName(
+    query: string,
+    limit = 10,
+  ): Promise<PersonProfile[]> {
+    await this.ensureInitialized();
 
-    if (!query.trim()) return []
+    if (!query.trim()) return [];
 
     try {
-      return await this.searchPersonsInStore("name", query.toLowerCase(), limit)
+      return await this.searchPersonsInStore(
+        "name",
+        query.toLowerCase(),
+        limit,
+      );
     } catch (error) {
-      console.error("Ошибка поиска персон по имени:", error)
-      return []
+      console.error("Ошибка поиска персон по имени:", error);
+      return [];
     }
   }
 
@@ -364,40 +397,46 @@ export class PersonDatabaseService {
     threshold = this.config.similarityThreshold,
     limit = 5,
   ): Promise<PersonSearchResult[]> {
-    await this.ensureInitialized()
+    await this.ensureInitialized();
 
     try {
       if (this.config.storage === "tauri") {
         // Используем Tauri базу данных
-        const searchResults = await invoke<SimilaritySearchResult[]>("search_similar_persons", {
-          embedding: Array.from(embedding),
-          topK: limit,
-          useCosine: true,
-        })
+        const searchResults = await invoke<SimilaritySearchResult[]>(
+          "search_similar_persons",
+          {
+            embedding: Array.from(embedding),
+            topK: limit,
+            useCosine: true,
+          },
+        );
 
         // Получаем персон для каждого результата
-        const results: PersonSearchResult[] = []
+        const results: PersonSearchResult[] = [];
         for (const result of searchResults) {
-          const person = await this.getPerson(result.personId)
+          const person = await this.getPerson(result.personId);
           if (person) {
             results.push({
               person,
               similarity: result.similarity,
               matches: [], // TODO: заполнить matches
-            })
+            });
           }
         }
-        return results
+        return results;
       }
       // Fallback to IndexedDB
       // Получаем все эмбеддинги
-      const allEmbeddings = await this.getAllEmbeddings()
+      const allEmbeddings = await this.getAllEmbeddings();
 
       // Вычисляем сходство
-      const similarities: SimilaritySearchResult[] = []
+      const similarities: SimilaritySearchResult[] = [];
 
       for (const storedEmbedding of allEmbeddings) {
-        const similarity = this.calculateCosineSimilarity(embedding, storedEmbedding.vector)
+        const similarity = this.calculateCosineSimilarity(
+          embedding,
+          storedEmbedding.vector,
+        );
 
         if (similarity >= threshold) {
           similarities.push({
@@ -405,19 +444,19 @@ export class PersonDatabaseService {
             similarity,
             embedding: storedEmbedding,
             confidence: storedEmbedding.quality * similarity,
-          })
+          });
         }
       }
 
       // Сортируем по сходству
-      similarities.sort((a, b) => b.similarity - a.similarity)
+      similarities.sort((a, b) => b.similarity - a.similarity);
 
       // Получаем персон и создаем результаты
-      const results: PersonSearchResult[] = []
+      const results: PersonSearchResult[] = [];
 
       for (const sim of similarities.slice(0, limit)) {
         // Найдем персону по эмбеддингу
-        const person = await this.findPersonByEmbedding(sim.embedding.faceId)
+        const person = await this.findPersonByEmbedding(sim.embedding.faceId);
         if (person) {
           results.push({
             person,
@@ -432,22 +471,25 @@ export class PersonDatabaseService {
                 timestamp: sim.embedding.timestamp,
               },
             ],
-          })
+          });
         }
       }
 
-      return results
+      return results;
     } catch (error) {
-      console.error("Ошибка поиска по эмбеддингу:", error)
-      return []
+      console.error("Ошибка поиска по эмбеддингу:", error);
+      return [];
     }
   }
 
   /**
    * Добавление эмбеддинга к персоне
    */
-  async addEmbedding(personId: string, embedding: FaceEmbedding): Promise<boolean> {
-    await this.ensureInitialized()
+  async addEmbedding(
+    personId: string,
+    embedding: FaceEmbedding,
+  ): Promise<boolean> {
+    await this.ensureInitialized();
 
     try {
       if (this.config.storage === "tauri") {
@@ -458,37 +500,41 @@ export class PersonDatabaseService {
           sourceClipId: embedding.clipId || "",
           frameNumber: embedding.frameNumber || 0,
           timestamp: embedding.timestamp,
-        })
-        return true
+        });
+        return true;
       }
-      const person = await this.getPerson(personId)
-      if (!person) return false
+      const person = await this.getPerson(personId);
+      if (!person) return false;
 
       // Сохраняем эмбеддинг
-      await this.storeEmbedding(embedding)
+      await this.storeEmbedding(embedding);
 
       // Обновляем персону
-      const updatedEmbeddings = [...person.faceEmbeddings, embedding]
-      const averageEmbedding = this.calculateAverageEmbedding(updatedEmbeddings)
+      const updatedEmbeddings = [...person.faceEmbeddings, embedding];
+      const averageEmbedding =
+        this.calculateAverageEmbedding(updatedEmbeddings);
 
       await this.updatePerson(personId, {
         faceEmbeddings: updatedEmbeddings,
         averageEmbedding,
         updatedAt: new Date().toISOString(),
-      })
+      });
 
-      return true
+      return true;
     } catch (error) {
-      console.error("Ошибка добавления эмбеддинга:", error)
-      return false
+      console.error("Ошибка добавления эмбеддинга:", error);
+      return false;
     }
   }
 
   /**
    * Добавление появления персоны
    */
-  async addAppearance(personId: string, appearance: PersonAppearance): Promise<boolean> {
-    await this.ensureInitialized()
+  async addAppearance(
+    personId: string,
+    appearance: PersonAppearance,
+  ): Promise<boolean> {
+    await this.ensureInitialized();
 
     try {
       if (this.config.storage === "tauri") {
@@ -499,41 +545,44 @@ export class PersonDatabaseService {
           endTime: appearance.endTime,
           confidence: appearance.confidence,
           detectionCount: appearance.detections.length,
-        })
+        });
 
         this.emitEvent({
           type: "person_detected",
           data: { personId, appearance },
-        })
+        });
 
-        return true
+        return true;
       }
-      const person = await this.getPerson(personId)
-      if (!person) return false
+      const person = await this.getPerson(personId);
+      if (!person) return false;
 
       // Сохраняем появление
-      await this.storeAppearance(appearance)
+      await this.storeAppearance(appearance);
 
       // Обновляем персону
-      const updatedAppearances = [...person.appearances, appearance]
-      const totalScreenTime = updatedAppearances.reduce((sum, app) => sum + app.duration, 0)
+      const updatedAppearances = [...person.appearances, appearance];
+      const totalScreenTime = updatedAppearances.reduce(
+        (sum, app) => sum + app.duration,
+        0,
+      );
 
       await this.updatePerson(personId, {
         appearances: updatedAppearances,
         totalScreenTime,
         lastSeen: appearance.endTime,
         updatedAt: new Date().toISOString(),
-      })
+      });
 
       this.emitEvent({
         type: "person_detected",
         data: { personId, appearance },
-      })
+      });
 
-      return true
+      return true;
     } catch (error) {
-      console.error("Ошибка добавления появления:", error)
-      return false
+      console.error("Ошибка добавления появления:", error);
+      return false;
     }
   }
 
@@ -541,23 +590,27 @@ export class PersonDatabaseService {
    * Получение статистики персоны
    */
   async getPersonStats(personId: string): Promise<PersonStats | null> {
-    await this.ensureInitialized()
+    await this.ensureInitialized();
 
     try {
-      const person = await this.getPerson(personId)
-      if (!person) return null
+      const person = await this.getPerson(personId);
+      if (!person) return null;
 
-      const appearances = person.appearances
-      const confidences = appearances.map((a) => a.confidence)
+      const appearances = person.appearances;
+      const confidences = appearances.map((a) => a.confidence);
 
       const stats: PersonStats = {
         personId,
         totalAppearances: appearances.length,
         totalScreenTime: person.totalScreenTime,
-        averageAppearanceLength: appearances.length > 0 ? person.totalScreenTime / appearances.length : 0,
+        averageAppearanceLength:
+          appearances.length > 0
+            ? person.totalScreenTime / appearances.length
+            : 0,
         clipsCount: new Set(appearances.map((a) => a.clipId)).size,
         clipIds: Array.from(new Set(appearances.map((a) => a.clipId))),
-        averageConfidence: confidences.reduce((sum, c) => sum + c, 0) / confidences.length,
+        averageConfidence:
+          confidences.reduce((sum, c) => sum + c, 0) / confidences.length,
         bestConfidence: Math.max(...confidences),
         worstConfidence: Math.min(...confidences),
         firstAppearance: person.firstSeen,
@@ -565,12 +618,12 @@ export class PersonDatabaseService {
         emotionDistribution: this.calculateEmotionDistribution(appearances),
         screenTimePercentage: 0, // Будет вычислено относительно общего времени проекта
         appearanceFrequency: 0, // Будет вычислено относительно общего времени проекта
-      }
+      };
 
-      return stats
+      return stats;
     } catch (error) {
-      console.error("Ошибка получения статистики персоны:", error)
-      return null
+      console.error("Ошибка получения статистики персоны:", error);
+      return null;
     }
   }
 
@@ -578,38 +631,47 @@ export class PersonDatabaseService {
    * Получение всех персон
    */
   async getAllPersons(): Promise<PersonProfile[]> {
-    await this.ensureInitialized()
+    await this.ensureInitialized();
 
     try {
-      return await this.loadAllPersons()
+      return await this.loadAllPersons();
     } catch (error) {
-      console.error("Ошибка получения всех персон:", error)
-      return []
+      console.error("Ошибка получения всех персон:", error);
+      return [];
     }
   }
 
   /**
    * Объединение персон
    */
-  async mergePersons(targetPersonId: string, sourcePersonIds: string[]): Promise<boolean> {
-    await this.ensureInitialized()
+  async mergePersons(
+    targetPersonId: string,
+    sourcePersonIds: string[],
+  ): Promise<boolean> {
+    await this.ensureInitialized();
 
     try {
-      const targetPerson = await this.getPerson(targetPersonId)
-      if (!targetPerson) return false
+      const targetPerson = await this.getPerson(targetPersonId);
+      if (!targetPerson) return false;
 
-      const sourcePersons = await Promise.all(sourcePersonIds.map((id) => this.getPerson(id)))
+      const sourcePersons = await Promise.all(
+        sourcePersonIds.map((id) => this.getPerson(id)),
+      );
 
       // Объединяем данные
-      const mergedEmbeddings: FaceEmbedding[] = [...targetPerson.faceEmbeddings]
-      const mergedAppearances: PersonAppearance[] = [...targetPerson.appearances]
-      const mergedThumbnails: PersonThumbnail[] = [...targetPerson.thumbnails]
+      const mergedEmbeddings: FaceEmbedding[] = [
+        ...targetPerson.faceEmbeddings,
+      ];
+      const mergedAppearances: PersonAppearance[] = [
+        ...targetPerson.appearances,
+      ];
+      const mergedThumbnails: PersonThumbnail[] = [...targetPerson.thumbnails];
 
       for (const sourcePerson of sourcePersons) {
         if (sourcePerson) {
-          mergedEmbeddings.push(...sourcePerson.faceEmbeddings)
-          mergedAppearances.push(...sourcePerson.appearances)
-          mergedThumbnails.push(...sourcePerson.thumbnails)
+          mergedEmbeddings.push(...sourcePerson.faceEmbeddings);
+          mergedAppearances.push(...sourcePerson.appearances);
+          mergedThumbnails.push(...sourcePerson.thumbnails);
         }
       }
 
@@ -619,39 +681,45 @@ export class PersonDatabaseService {
         appearances: mergedAppearances,
         thumbnails: mergedThumbnails,
         averageEmbedding: this.calculateAverageEmbedding(mergedEmbeddings),
-        totalScreenTime: mergedAppearances.reduce((sum, app) => sum + app.duration, 0),
-      })
+        totalScreenTime: mergedAppearances.reduce(
+          (sum, app) => sum + app.duration,
+          0,
+        ),
+      });
 
       // Удаляем исходные персоны
-      await Promise.all(sourcePersonIds.map((id) => this.deletePerson(id)))
+      await Promise.all(sourcePersonIds.map((id) => this.deletePerson(id)));
 
       this.emitEvent({
         type: "person_merged",
         data: { targetPersonId, mergedPersonIds: sourcePersonIds },
-      })
+      });
 
-      return true
+      return true;
     } catch (error) {
-      console.error("Ошибка объединения персон:", error)
-      return false
+      console.error("Ошибка объединения персон:", error);
+      return false;
     }
   }
 
   /**
    * Автоматическая кластеризация неопознанных лиц
    */
-  async clusterUnidentifiedFaces(detections: DetectedFaceWithEmbedding[], threshold = 0.8): Promise<PersonProfile[]> {
-    await this.ensureInitialized()
+  async clusterUnidentifiedFaces(
+    detections: DetectedFaceWithEmbedding[],
+    threshold = 0.8,
+  ): Promise<PersonProfile[]> {
+    await this.ensureInitialized();
 
     try {
       // Группируем детекции по сходству эмбеддингов
-      const clusters: DetectedFaceWithEmbedding[][] = []
+      const clusters: DetectedFaceWithEmbedding[][] = [];
 
       for (const detection of detections) {
-        let addedToCluster = false
+        let addedToCluster = false;
 
         for (const cluster of clusters) {
-          const representative = cluster[0]
+          const representative = cluster[0];
           // Здесь должен быть расчет сходства между detection и representative
           // Пока используем заглушку
           // Используем реальный расчет сходства
@@ -661,30 +729,31 @@ export class PersonDatabaseService {
                 new Float32Array(detection.embedding),
                 new Float32Array(representative.embedding),
               )
-              : 0
+              : 0;
 
           if (similarity >= threshold) {
-            cluster.push(detection)
-            addedToCluster = true
-            break
+            cluster.push(detection);
+            addedToCluster = true;
+            break;
           }
         }
 
         if (!addedToCluster) {
-          clusters.push([detection])
+          clusters.push([detection]);
         }
       }
 
       // Создаем персон для кластеров
-      const newPersons: PersonProfile[] = []
+      const newPersons: PersonProfile[] = [];
 
       for (const cluster of clusters) {
-        if (cluster.length < 2) continue // Игнорируем одиночные детекции
+        if (cluster.length < 2) continue; // Игнорируем одиночные детекции
 
         // Конвертируем DetectedFace в FaceEmbedding
         const faceEmbeddings: FaceEmbedding[] = cluster
           .filter(
-            (face): face is DetectedFaceWithEmbedding => face.embedding !== undefined && face.embedding.length > 0,
+            (face): face is DetectedFaceWithEmbedding =>
+              face.embedding !== undefined && face.embedding.length > 0,
           )
           .map((face) => ({
             faceId: face.id,
@@ -696,12 +765,12 @@ export class PersonDatabaseService {
             timestamp: face.timestamp,
             landmarks: face.landmarks,
             createdAt: new Date().toISOString(),
-          }))
+          }));
 
         // Вычисляем средний эмбеддинг если есть
-        let averageEmbedding: Float32Array | undefined
+        let averageEmbedding: Float32Array | undefined;
         if (faceEmbeddings.length > 0) {
-          averageEmbedding = this.calculateAverageEmbedding(faceEmbeddings)
+          averageEmbedding = this.calculateAverageEmbedding(faceEmbeddings);
         }
 
         const person = await this.createPerson({
@@ -722,7 +791,7 @@ export class PersonDatabaseService {
             blurIntensity: 5,
             blurTracking: true,
           },
-        })
+        });
 
         // Добавляем эмбеддинги и миниатюры после создания персоны
         if (this.config.storage === "tauri") {
@@ -739,11 +808,14 @@ export class PersonDatabaseService {
                 timestamp: face.timestamp,
                 landmarks: face.landmarks,
                 createdAt: new Date().toISOString(),
-              })
+              });
             }
 
             // Добавляем первую миниатюру как основную
-            if (newPersons.length === 0 && (face.thumbnailUrl || face.croppedImage)) {
+            if (
+              newPersons.length === 0 &&
+              (face.thumbnailUrl || face.croppedImage)
+            ) {
               await this.addPersonThumbnail(person.id, {
                 imageUrl: face.thumbnailUrl,
                 imageData: face.croppedImage,
@@ -751,18 +823,18 @@ export class PersonDatabaseService {
                 height: face.bbox.height,
                 isPrimary: true,
                 quality: face.confidence,
-              })
+              });
             }
           }
         }
 
-        newPersons.push(person)
+        newPersons.push(person);
       }
 
-      return newPersons
+      return newPersons;
     } catch (error) {
-      console.error("Ошибка кластеризации лиц:", error)
-      return []
+      console.error("Ошибка кластеризации лиц:", error);
+      return [];
     }
   }
 
@@ -770,26 +842,33 @@ export class PersonDatabaseService {
    * Получение статистики базы данных
    */
   async getDatabaseStats(): Promise<DatabaseStats> {
-    await this.ensureInitialized()
+    await this.ensureInitialized();
 
     try {
       if (this.config.storage === "tauri") {
-        return await invoke<DatabaseStats>("get_person_database_stats")
+        return await invoke<DatabaseStats>("get_person_database_stats");
       }
-      const persons = await this.getAllPersons()
-      const totalEmbeddings = persons.reduce((sum, p) => sum + p.faceEmbeddings.length, 0)
-      const totalAppearances = persons.reduce((sum, p) => sum + p.appearances.length, 0)
+      const persons = await this.getAllPersons();
+      const totalEmbeddings = persons.reduce(
+        (sum, p) => sum + p.faceEmbeddings.length,
+        0,
+      );
+      const totalAppearances = persons.reduce(
+        (sum, p) => sum + p.appearances.length,
+        0,
+      );
 
       return {
         totalPersons: persons.length,
         totalEmbeddings,
         totalAppearances,
-        averageEmbeddingsPerPerson: persons.length > 0 ? totalEmbeddings / persons.length : 0,
+        averageEmbeddingsPerPerson:
+          persons.length > 0 ? totalEmbeddings / persons.length : 0,
         storageSize: 0,
         lastUpdated: new Date().toISOString(),
-      }
+      };
     } catch (error) {
-      console.error("Ошибка получения статистики базы данных:", error)
+      console.error("Ошибка получения статистики базы данных:", error);
       return {
         totalPersons: 0,
         totalEmbeddings: 0,
@@ -797,7 +876,7 @@ export class PersonDatabaseService {
         averageEmbeddingsPerPerson: 0,
         storageSize: 0,
         lastUpdated: new Date().toISOString(),
-      }
+      };
     }
   }
 
@@ -805,24 +884,24 @@ export class PersonDatabaseService {
    * События
    */
   addEventListener(listener: (event: PersonEvent) => void): void {
-    this.eventListeners.push(listener)
+    this.eventListeners.push(listener);
   }
 
   removeEventListener(listener: (event: PersonEvent) => void): void {
-    const index = this.eventListeners.indexOf(listener)
+    const index = this.eventListeners.indexOf(listener);
     if (index > -1) {
-      this.eventListeners.splice(index, 1)
+      this.eventListeners.splice(index, 1);
     }
   }
 
   private emitEvent(event: PersonEvent): void {
     this.eventListeners.forEach((listener) => {
       try {
-        listener(event)
+        listener(event);
       } catch (error) {
-        console.error("Ошибка в обработчике события персоны:", error)
+        console.error("Ошибка в обработчике события персоны:", error);
       }
-    })
+    });
   }
 
   /**
@@ -830,232 +909,256 @@ export class PersonDatabaseService {
    */
 
   private async storePerson(person: PersonProfile): Promise<void> {
-    if (!this.db) throw new Error("База данных не инициализирована")
+    if (!this.db) throw new Error("База данных не инициализирована");
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(["persons"], "readwrite")
-      const store = transaction.objectStore("persons")
-      const request = store.put(person)
+      const transaction = this.db!.transaction(["persons"], "readwrite");
+      const store = transaction.objectStore("persons");
+      const request = store.put(person);
 
-      request.onsuccess = () => resolve()
-      request.onerror = () => reject(new Error(request.error?.message || "Database error"))
-    })
+      request.onsuccess = () => resolve();
+      request.onerror = () =>
+        reject(new Error(request.error?.message || "Database error"));
+    });
   }
 
   private async loadPerson(personId: string): Promise<PersonProfile | null> {
-    if (!this.db) throw new Error("База данных не инициализирована")
+    if (!this.db) throw new Error("База данных не инициализирована");
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(["persons"], "readonly")
-      const store = transaction.objectStore("persons")
-      const request = store.get(personId)
+      const transaction = this.db!.transaction(["persons"], "readonly");
+      const store = transaction.objectStore("persons");
+      const request = store.get(personId);
 
-      request.onsuccess = () => resolve(request.result || null)
-      request.onerror = () => reject(new Error(request.error?.message || "Database error"))
-    })
+      request.onsuccess = () => resolve(request.result || null);
+      request.onerror = () =>
+        reject(new Error(request.error?.message || "Database error"));
+    });
   }
 
   private async loadAllPersons(): Promise<PersonProfile[]> {
-    if (!this.db) throw new Error("База данных не инициализирована")
+    if (!this.db) throw new Error("База данных не инициализирована");
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(["persons"], "readonly")
-      const store = transaction.objectStore("persons")
-      const request = store.getAll()
+      const transaction = this.db!.transaction(["persons"], "readonly");
+      const store = transaction.objectStore("persons");
+      const request = store.getAll();
 
-      request.onsuccess = () => resolve(request.result || [])
-      request.onerror = () => reject(new Error(request.error?.message || "Database error"))
-    })
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () =>
+        reject(new Error(request.error?.message || "Database error"));
+    });
   }
 
   private async removePersonFromStore(personId: string): Promise<void> {
-    if (!this.db) throw new Error("База данных не инициализирована")
+    if (!this.db) throw new Error("База данных не инициализирована");
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(["persons"], "readwrite")
-      const store = transaction.objectStore("persons")
-      const request = store.delete(personId)
+      const transaction = this.db!.transaction(["persons"], "readwrite");
+      const store = transaction.objectStore("persons");
+      const request = store.delete(personId);
 
-      request.onsuccess = () => resolve()
-      request.onerror = () => reject(new Error(request.error?.message || "Database error"))
-    })
+      request.onsuccess = () => resolve();
+      request.onerror = () =>
+        reject(new Error(request.error?.message || "Database error"));
+    });
   }
 
-  private async searchPersonsInStore(indexName: string, query: string, limit: number): Promise<PersonProfile[]> {
-    if (!this.db) throw new Error("База данных не инициализирована")
+  private async searchPersonsInStore(
+    indexName: string,
+    query: string,
+    limit: number,
+  ): Promise<PersonProfile[]> {
+    if (!this.db) throw new Error("База данных не инициализирована");
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(["persons"], "readonly")
-      const store = transaction.objectStore("persons")
-      const index = store.index(indexName)
-      const request = index.getAll()
+      const transaction = this.db!.transaction(["persons"], "readonly");
+      const store = transaction.objectStore("persons");
+      const index = store.index(indexName);
+      const request = index.getAll();
 
       request.onsuccess = () => {
         const results = request.result
-          .filter((person: PersonProfile) => person.name?.toLowerCase().includes(query))
-          .slice(0, limit)
-        resolve(results)
-      }
-      request.onerror = () => reject(new Error(request.error?.message || "Database error"))
-    })
+          .filter((person: PersonProfile) =>
+            person.name?.toLowerCase().includes(query),
+          )
+          .slice(0, limit);
+        resolve(results);
+      };
+      request.onerror = () =>
+        reject(new Error(request.error?.message || "Database error"));
+    });
   }
 
   private async storeEmbedding(embedding: FaceEmbedding): Promise<void> {
-    if (!this.db) throw new Error("База данных не инициализирована")
+    if (!this.db) throw new Error("База данных не инициализирована");
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(["embeddings"], "readwrite")
-      const store = transaction.objectStore("embeddings")
-      const request = store.put(embedding)
+      const transaction = this.db!.transaction(["embeddings"], "readwrite");
+      const store = transaction.objectStore("embeddings");
+      const request = store.put(embedding);
 
-      request.onsuccess = () => resolve()
-      request.onerror = () => reject(new Error(request.error?.message || "Database error"))
-    })
+      request.onsuccess = () => resolve();
+      request.onerror = () =>
+        reject(new Error(request.error?.message || "Database error"));
+    });
   }
 
   private async getAllEmbeddings(): Promise<FaceEmbedding[]> {
-    if (!this.db) throw new Error("База данных не инициализирована")
+    if (!this.db) throw new Error("База данных не инициализирована");
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(["embeddings"], "readonly")
-      const store = transaction.objectStore("embeddings")
-      const request = store.getAll()
+      const transaction = this.db!.transaction(["embeddings"], "readonly");
+      const store = transaction.objectStore("embeddings");
+      const request = store.getAll();
 
-      request.onsuccess = () => resolve(request.result || [])
-      request.onerror = () => reject(new Error(request.error?.message || "Database error"))
-    })
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () =>
+        reject(new Error(request.error?.message || "Database error"));
+    });
   }
 
   private async storeAppearance(appearance: PersonAppearance): Promise<void> {
-    if (!this.db) throw new Error("База данных не инициализирована")
+    if (!this.db) throw new Error("База данных не инициализирована");
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(["appearances"], "readwrite")
-      const store = transaction.objectStore("appearances")
-      const request = store.put(appearance)
+      const transaction = this.db!.transaction(["appearances"], "readwrite");
+      const store = transaction.objectStore("appearances");
+      const request = store.put(appearance);
 
-      request.onsuccess = () => resolve()
-      request.onerror = () => reject(new Error(request.error?.message || "Database error"))
-    })
+      request.onsuccess = () => resolve();
+      request.onerror = () =>
+        reject(new Error(request.error?.message || "Database error"));
+    });
   }
 
   private async deletePersonEmbeddings(personId: string): Promise<void> {
     if (!this.db) {
       // База данных не инициализирована, просто возвращаемся
-      return Promise.resolve()
+      return Promise.resolve();
     }
 
     return new Promise((resolve, reject) => {
       try {
-        const transaction = this.db!.transaction(["embeddings"], "readwrite")
-        const store = transaction.objectStore("embeddings")
-        const index = store.index("personId")
-        const request = index.openCursor(IDBKeyRange.only(personId))
+        const transaction = this.db!.transaction(["embeddings"], "readwrite");
+        const store = transaction.objectStore("embeddings");
+        const index = store.index("personId");
+        const request = index.openCursor(IDBKeyRange.only(personId));
 
         request.onsuccess = () => {
-          const cursor = request.result
+          const cursor = request.result;
           if (cursor) {
-            cursor.delete()
-            cursor.continue()
+            cursor.delete();
+            cursor.continue();
           } else {
-            resolve()
+            resolve();
           }
-        }
-        request.onerror = () => reject(new Error(request.error?.message || "Database error"))
+        };
+        request.onerror = () =>
+          reject(new Error(request.error?.message || "Database error"));
       } catch (error) {
         // Если таблица или индекс не существует, просто разрешаем промис
-        console.warn(`Не удалось удалить эмбеддинги: ${String(error)}`)
-        resolve()
+        console.warn(`Не удалось удалить эмбеддинги: ${String(error)}`);
+        resolve();
       }
-    })
+    });
   }
 
   private async deletePersonAppearances(personId: string): Promise<void> {
     if (!this.db) {
       // База данных не инициализирована, просто возвращаемся
-      return Promise.resolve()
+      return Promise.resolve();
     }
 
     return new Promise((resolve, reject) => {
       try {
-        const transaction = this.db!.transaction(["appearances"], "readwrite")
-        const store = transaction.objectStore("appearances")
-        const index = store.index("personId")
-        const request = index.openCursor(IDBKeyRange.only(personId))
+        const transaction = this.db!.transaction(["appearances"], "readwrite");
+        const store = transaction.objectStore("appearances");
+        const index = store.index("personId");
+        const request = index.openCursor(IDBKeyRange.only(personId));
 
         request.onsuccess = () => {
-          const cursor = request.result
+          const cursor = request.result;
           if (cursor) {
-            cursor.delete()
-            cursor.continue()
+            cursor.delete();
+            cursor.continue();
           } else {
-            resolve()
+            resolve();
           }
-        }
-        request.onerror = () => reject(new Error(request.error?.message || "Database error"))
+        };
+        request.onerror = () =>
+          reject(new Error(request.error?.message || "Database error"));
       } catch (error) {
         // Если таблица или индекс не существует, просто разрешаем промис
-        console.warn(`Не удалось удалить появления: ${String(error)}`)
-        resolve()
+        console.warn(`Не удалось удалить появления: ${String(error)}`);
+        resolve();
       }
-    })
+    });
   }
 
   private async deletePersonDetections(personId: string): Promise<void> {
     if (!this.db) {
       // База данных не инициализирована, просто возвращаемся
-      return Promise.resolve()
+      return Promise.resolve();
     }
 
     return new Promise((resolve, reject) => {
       try {
-        const transaction = this.db!.transaction(["detections"], "readwrite")
-        const store = transaction.objectStore("detections")
-        const index = store.index("personId")
-        const request = index.openCursor(IDBKeyRange.only(personId))
+        const transaction = this.db!.transaction(["detections"], "readwrite");
+        const store = transaction.objectStore("detections");
+        const index = store.index("personId");
+        const request = index.openCursor(IDBKeyRange.only(personId));
 
         request.onsuccess = () => {
-          const cursor = request.result
+          const cursor = request.result;
           if (cursor) {
-            cursor.delete()
-            cursor.continue()
+            cursor.delete();
+            cursor.continue();
           } else {
-            resolve()
+            resolve();
           }
-        }
-        request.onerror = () => reject(new Error(request.error?.message || "Database error"))
+        };
+        request.onerror = () =>
+          reject(new Error(request.error?.message || "Database error"));
       } catch (error) {
         // Если таблица или индекс не существует, просто разрешаем промис
-        console.warn(`Не удалось удалить детекции: ${String(error)}`)
-        resolve()
+        console.warn(`Не удалось удалить детекции: ${String(error)}`);
+        resolve();
       }
-    })
+    });
   }
 
-  private async findPersonByEmbedding(faceId: string): Promise<PersonProfile | null> {
-    if (!this.db) return null
+  private async findPersonByEmbedding(
+    faceId: string,
+  ): Promise<PersonProfile | null> {
+    if (!this.db) return null;
 
     return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction(["embeddings", "persons"], "readonly")
-      const embeddingStore = transaction.objectStore("embeddings")
-      const personStore = transaction.objectStore("persons")
+      const transaction = this.db!.transaction(
+        ["embeddings", "persons"],
+        "readonly",
+      );
+      const embeddingStore = transaction.objectStore("embeddings");
+      const personStore = transaction.objectStore("persons");
 
-      const embeddingRequest = embeddingStore.get(faceId)
+      const embeddingRequest = embeddingStore.get(faceId);
 
       embeddingRequest.onsuccess = () => {
-        const embedding = embeddingRequest.result
+        const embedding = embeddingRequest.result;
         if (!embedding) {
-          resolve(null)
-          return
+          resolve(null);
+          return;
         }
 
-        const personRequest = personStore.get(embedding.personId)
-        personRequest.onsuccess = () => resolve(personRequest.result || null)
-        personRequest.onerror = () => reject(new Error(personRequest.error?.message || "Database error"))
-      }
+        const personRequest = personStore.get(embedding.personId);
+        personRequest.onsuccess = () => resolve(personRequest.result || null);
+        personRequest.onerror = () =>
+          reject(new Error(personRequest.error?.message || "Database error"));
+      };
 
-      embeddingRequest.onerror = () => reject(new Error(embeddingRequest.error?.message || "Database error"))
-    })
+      embeddingRequest.onerror = () =>
+        reject(new Error(embeddingRequest.error?.message || "Database error"));
+    });
   }
 
   /**
@@ -1063,9 +1166,9 @@ export class PersonDatabaseService {
    */
   async setSimilarityThreshold(threshold: number): Promise<void> {
     if (this.config.storage === "tauri") {
-      await invoke("set_similarity_threshold", { threshold })
+      await invoke("set_similarity_threshold", { threshold });
     }
-    this.config.similarityThreshold = threshold
+    this.config.similarityThreshold = threshold;
   }
 
   /**
@@ -1074,31 +1177,31 @@ export class PersonDatabaseService {
   async addPersonThumbnail(
     personId: string,
     thumbnailData: {
-      imageUrl?: string
-      imageData?: string // base64
-      width: number
-      height: number
-      isPrimary?: boolean
-      quality?: number
+      imageUrl?: string;
+      imageData?: string; // base64
+      width: number;
+      height: number;
+      isPrimary?: boolean;
+      quality?: number;
     },
   ): Promise<boolean> {
-    await this.ensureInitialized()
+    await this.ensureInitialized();
 
     try {
       if (this.config.storage === "tauri") {
         if (!thumbnailData.imageData) {
           // Конвертируем URL в base64 если нужно
           if (thumbnailData.imageUrl) {
-            const response = await fetch(thumbnailData.imageUrl)
-            const blob = await response.blob()
-            const reader = new FileReader()
+            const response = await fetch(thumbnailData.imageUrl);
+            const blob = await response.blob();
+            const reader = new FileReader();
             const base64 = await new Promise<string>((resolve) => {
-              reader.onloadend = () => resolve(reader.result as string)
-              reader.readAsDataURL(blob)
-            })
-            thumbnailData.imageData = base64.split(",")[1]
+              reader.onloadend = () => resolve(reader.result as string);
+              reader.readAsDataURL(blob);
+            });
+            thumbnailData.imageData = base64.split(",")[1];
           } else {
-            return false
+            return false;
           }
         }
 
@@ -1109,13 +1212,13 @@ export class PersonDatabaseService {
           height: thumbnailData.height,
           isPrimary: thumbnailData.isPrimary || false,
           quality: thumbnailData.quality || 1.0,
-        })
+        });
 
-        return true
+        return true;
       }
       // Fallback to IndexedDB implementation
-      const person = await this.getPerson(personId)
-      if (!person) return false
+      const person = await this.getPerson(personId);
+      if (!person) return false;
 
       const thumbnail: PersonThumbnail = {
         id: `thumb_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
@@ -1127,18 +1230,18 @@ export class PersonDatabaseService {
         quality: thumbnailData.quality || 1,
         isPrimary: thumbnailData.isPrimary || false,
         isGenerated: false,
-      }
+      };
 
-      const updatedThumbnails = [...person.thumbnails, thumbnail]
+      const updatedThumbnails = [...person.thumbnails, thumbnail];
       await this.updatePerson(personId, {
         thumbnails: updatedThumbnails,
         updatedAt: new Date().toISOString(),
-      })
+      });
 
-      return true
+      return true;
     } catch (error) {
-      console.error("Ошибка добавления миниатюры:", error)
-      return false
+      console.error("Ошибка добавления миниатюры:", error);
+      return false;
     }
   }
 
@@ -1146,11 +1249,11 @@ export class PersonDatabaseService {
    * Добавление персоны (алиас для createPerson)
    */
   async addPerson(personData: {
-    name: string
-    description?: string
-    tags?: string[]
-    thumbnailPath?: string
-    detectedFaces?: DetectedFace[]
+    name: string;
+    description?: string;
+    tags?: string[];
+    thumbnailPath?: string;
+    detectedFaces?: DetectedFace[];
   }): Promise<PersonProfile> {
     const thumbnails: PersonThumbnail[] = personData.thumbnailPath
       ? [
@@ -1166,7 +1269,7 @@ export class PersonDatabaseService {
           isGenerated: false,
         },
       ]
-      : []
+      : [];
 
     const appearances: PersonAppearance[] = personData.detectedFaces
       ? personData.detectedFaces.map((face) => ({
@@ -1182,7 +1285,7 @@ export class PersonDatabaseService {
         detections: [face],
         createdAt: new Date().toISOString(),
       }))
-      : []
+      : [];
 
     const profile = await this.createPerson({
       name: personData.name,
@@ -1202,50 +1305,59 @@ export class PersonDatabaseService {
         blurIntensity: 5,
         blurTracking: true,
       },
-    })
+    });
 
     // Обновляем personId в appearances
     if (appearances.length > 0) {
-      const updatedAppearances = appearances.map((app) => ({ ...app, personId: profile.id }))
-      await this.updatePerson(profile.id, { appearances: updatedAppearances })
+      const updatedAppearances = appearances.map((app) => ({
+        ...app,
+        personId: profile.id,
+      }));
+      await this.updatePerson(profile.id, { appearances: updatedAppearances });
     }
 
-    return profile
+    return profile;
   }
 
   /**
    * Поиск персон по имени и тегам
    */
-  async searchPersons(query: string, options?: { tags?: string[]; limit?: number }): Promise<PersonProfile[]> {
-    await this.ensureInitialized()
+  async searchPersons(
+    query: string,
+    options?: { tags?: string[]; limit?: number },
+  ): Promise<PersonProfile[]> {
+    await this.ensureInitialized();
 
     try {
-      const allPersons = await this.getAllPersons()
-      let results = allPersons
+      const allPersons = await this.getAllPersons();
+      let results = allPersons;
 
       // Фильтр по имени
       if (query) {
-        const lowerQuery = query.toLowerCase()
+        const lowerQuery = query.toLowerCase();
         results = results.filter(
           (person) =>
-            person.name?.toLowerCase().includes(lowerQuery) || person.notes?.toLowerCase().includes(lowerQuery),
-        )
+            person.name?.toLowerCase().includes(lowerQuery) ||
+            person.notes?.toLowerCase().includes(lowerQuery),
+        );
       }
 
       // Фильтр по тегам
       if (options?.tags && options.tags.length > 0) {
-        results = results.filter((person) => options.tags!.some((tag) => person.tags.includes(tag)))
+        results = results.filter((person) =>
+          options.tags!.some((tag) => person.tags.includes(tag)),
+        );
       }
 
       // Лимит результатов
       if (options?.limit) {
-        results = results.slice(0, options.limit)
+        results = results.slice(0, options.limit);
       }
 
-      return results
+      return results;
     } catch (error) {
-      console.error("Ошибка поиска персон:", error)
-      return []
+      console.error("Ошибка поиска персон:", error);
+      return [];
     }
   }
 
@@ -1256,76 +1368,92 @@ export class PersonDatabaseService {
     embedding: Float32Array | undefined,
     options?: { limit?: number; minConfidence?: number },
   ): Promise<PersonSearchResult[]> {
-    if (!embedding) return []
+    if (!embedding) return [];
 
-    await this.ensureInitialized()
+    await this.ensureInitialized();
 
     try {
-      const allPersons = await this.getAllPersons()
-      const results: PersonSearchResult[] = []
+      const allPersons = await this.getAllPersons();
+      const results: PersonSearchResult[] = [];
 
       for (const person of allPersons) {
-        if (!person.averageEmbedding && (!person.faceEmbeddings || person.faceEmbeddings.length === 0)) {
-          continue
+        if (
+          !person.averageEmbedding &&
+          (!person.faceEmbeddings || person.faceEmbeddings.length === 0)
+        ) {
+          continue;
         }
 
         // Проверяем сходство со средним эмбеддингом
-        let maxSimilarity = 0
-        const matches: FaceMatch[] = []
+        let maxSimilarity = 0;
+        const matches: FaceMatch[] = [];
 
         // Если есть средний эмбеддинг, проверяем его
         if (person.averageEmbedding) {
-          maxSimilarity = this.calculateCosineSimilarity(embedding, person.averageEmbedding)
+          maxSimilarity = this.calculateCosineSimilarity(
+            embedding,
+            person.averageEmbedding,
+          );
         }
 
         // Проверяем каждый эмбеддинг лица для более точных совпадений
         if (person.faceEmbeddings && person.faceEmbeddings.length > 0) {
           for (const faceEmbedding of person.faceEmbeddings) {
-            const faceSimilarity = this.calculateCosineSimilarity(embedding, faceEmbedding.vector)
+            const faceSimilarity = this.calculateCosineSimilarity(
+              embedding,
+              faceEmbedding.vector,
+            );
 
-            if (faceSimilarity >= (options?.minConfidence || this.config.similarityThreshold)) {
+            if (
+              faceSimilarity >=
+              (options?.minConfidence || this.config.similarityThreshold)
+            ) {
               matches.push({
                 faceId: faceEmbedding.faceId,
                 personId: person.id,
                 similarity: faceSimilarity,
                 confidence: faceSimilarity * faceEmbedding.quality,
-                clipId: faceEmbedding.clipId,
+                clipId: faceEmbedding.clipId ?? "",
                 timestamp: faceEmbedding.timestamp,
-              })
+              });
 
               // Обновляем максимальное сходство
               if (faceSimilarity > maxSimilarity) {
-                maxSimilarity = faceSimilarity
+                maxSimilarity = faceSimilarity;
               }
             }
           }
         }
 
         // Добавляем в результаты если есть хотя бы одно совпадение или высокое среднее сходство
-        if (maxSimilarity >= (options?.minConfidence || this.config.similarityThreshold) || matches.length > 0) {
+        if (
+          maxSimilarity >=
+            (options?.minConfidence || this.config.similarityThreshold) ||
+          matches.length > 0
+        ) {
           // Сортируем совпадения по убыванию сходства
-          matches.sort((a, b) => b.similarity - a.similarity)
+          matches.sort((a, b) => b.similarity - a.similarity);
 
           results.push({
             person,
             similarity: maxSimilarity,
             matches: matches.slice(0, 5), // Ограничиваем количество совпадений
-          })
+          });
         }
       }
 
       // Сортируем по убыванию сходства
-      results.sort((a, b) => b.similarity - a.similarity)
+      results.sort((a, b) => b.similarity - a.similarity);
 
       // Ограничиваем количество результатов
       if (options?.limit) {
-        return results.slice(0, options.limit)
+        return results.slice(0, options.limit);
       }
 
-      return results
+      return results;
     } catch (error) {
-      console.error("Ошибка поиска похожих персон:", error)
-      return []
+      console.error("Ошибка поиска похожих персон:", error);
+      return [];
     }
   }
 
@@ -1334,69 +1462,74 @@ export class PersonDatabaseService {
    */
 
   private calculateCosineSimilarity(a: Float32Array, b: Float32Array): number {
-    if (a.length !== b.length) return 0
+    if (a.length !== b.length) return 0;
 
-    let dotProduct = 0
-    let normA = 0
-    let normB = 0
+    let dotProduct = 0;
+    let normA = 0;
+    let normB = 0;
 
     for (let i = 0; i < a.length; i++) {
-      dotProduct += a[i] * b[i]
-      normA += a[i] * a[i]
-      normB += b[i] * b[i]
+      dotProduct += a[i] * b[i];
+      normA += a[i] * a[i];
+      normB += b[i] * b[i];
     }
 
-    const magnitude = Math.sqrt(normA) * Math.sqrt(normB)
-    return magnitude > 0 ? dotProduct / magnitude : 0
+    const magnitude = Math.sqrt(normA) * Math.sqrt(normB);
+    return magnitude > 0 ? dotProduct / magnitude : 0;
   }
 
-  private calculateAverageEmbedding(embeddings: FaceEmbedding[]): Float32Array | undefined {
-    if (embeddings.length === 0) return undefined
+  private calculateAverageEmbedding(
+    embeddings: FaceEmbedding[],
+  ): Float32Array | undefined {
+    if (embeddings.length === 0) return undefined;
 
-    const dimension = embeddings[0].vector.length
-    const average = new Float32Array(dimension)
+    const dimension = embeddings[0].vector.length;
+    const average = new Float32Array(dimension);
 
     for (const embedding of embeddings) {
       for (let i = 0; i < dimension; i++) {
-        average[i] += embedding.vector[i]
+        average[i] += embedding.vector[i];
       }
     }
 
     for (let i = 0; i < dimension; i++) {
-      average[i] /= embeddings.length
+      average[i] /= embeddings.length;
     }
 
-    return average
+    return average;
   }
 
-  private calculateEmotionDistribution(appearances: PersonAppearance[]): Record<string, number> {
-    const distribution: Record<string, number> = {}
+  private calculateEmotionDistribution(
+    appearances: PersonAppearance[],
+  ): Record<string, number> {
+    const distribution: Record<string, number> = {};
 
     for (const appearance of appearances) {
       for (const detection of appearance.detections) {
         if (detection.emotion) {
-          distribution[detection.emotion] = (distribution[detection.emotion] || 0) + 1
+          distribution[detection.emotion] =
+            (distribution[detection.emotion] || 0) + 1;
         }
       }
     }
 
-    return distribution
+    return distribution;
   }
 
   /**
    * Очистка ресурсов
    */
   async cleanup(): Promise<void> {
-    this.cache.clear()
-    this.eventListeners.length = 0
+    this.cache.clear();
+    this.eventListeners.length = 0;
 
     if (this.db) {
-      this.db.close()
-      this.db = null
+      this.db.close();
+      this.db = null;
     }
 
-    this.isInitialized = false
+    this.isInitialized = false;
   }
 }
 
-export default PersonDatabaseService
+export default PersonDatabaseService;

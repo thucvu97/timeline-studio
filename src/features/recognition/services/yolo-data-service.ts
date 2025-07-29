@@ -13,6 +13,9 @@ export class YoloDataService {
 
   // Счетчик для отслеживания количества сообщений о ненайденных данных YOLO
   private missingDataCount = 0
+  
+  // Флаг инициализации YOLO процессора
+  private yoloInitialized = false
 
   /**
    * Найти ближайший кадр к указанной временной метке
@@ -51,7 +54,7 @@ export class YoloDataService {
    * @param videoPath Путь к видеофайлу (опционально)
    * @returns Данные YOLO или null, если не найдены
    */
-  public async loadYoloData(videoId: string, _videoPath?: string): Promise<YoloVideoData | null> {
+  public async loadYoloData(videoId: string, videoPath?: string): Promise<YoloVideoData | null> {
     // Проверяем кэш
     if (this.yoloDataCache[videoId]) {
       return this.yoloDataCache[videoId]
@@ -63,24 +66,69 @@ export class YoloDataService {
     }
 
     try {
-      // Здесь должна быть логика загрузки данных YOLO из файла или API
-      // Пока возвращаем null, так как реальная загрузка не реализована
+      // Пытаемся загрузить сохраненные данные из Tauri
+      const { invoke } = await import("@tauri-apps/api/core")
+      const savedData = await invoke<any>("load_yolo_data", { videoId })
+      
+      if (savedData) {
+        const yoloData = savedData as YoloVideoData
+        this.yoloDataCache[videoId] = yoloData
+        return yoloData
+      }
 
-      // Пример структуры данных, которые могли бы быть загружены:
-      // const yoloData: YoloVideoData = {
-      //   videoId,
-      //   videoName: videoPath ? path.basename(videoPath) : videoId,
-      //   videoPath: videoPath || "",
-      //   frames: [], // Загруженные кадры с обнаружениями
-      //   metadata: {
-      //     model: "YOLOv8",
-      //     version: "8.0",
-      //     processedAt: new Date().toISOString(),
-      //   }
-      // }
+      // Если сохраненных данных нет и есть путь к видео, анализируем видео
+      if (videoPath) {
+        console.log(`[YoloDataService] Анализируем видео ${videoPath} с YOLO`)
+        
+        // Инициализируем YOLO процессор если еще не инициализирован
+        const isInitialized = await this.ensureYoloInitialized()
+        if (!isInitialized) {
+          console.error("[YoloDataService] Не удалось инициализировать YOLO процессор")
+          this.nonExistentFiles[videoId] = true
+          return null
+        }
 
-      // this.yoloDataCache[videoId] = yoloData
-      // return yoloData
+        // Анализируем видео
+        const results = await invoke<any[]>("analyze_video_with_yolo", {
+          request: {
+            video_path: videoPath,
+            confidence_threshold: 0.5,
+            skip_frames: 10, // Анализируем каждый 10-й кадр для производительности
+          }
+        })
+
+        // Преобразуем результаты в формат YoloVideoData
+        const frames: YoloFrameData[] = results.map(result => ({
+          frameNumber: result.frame_number,
+          timestamp: result.timestamp,
+          detections: result.detections.map((det: any) => ({
+            id: `${result.frame_number}_${det.class_id}_${Math.random().toString(36).substring(7)}`,
+            class: det.class,
+            classId: det.class_id,
+            confidence: det.confidence,
+            bbox: det.bbox,
+            trackId: det.track_id,
+          })),
+        }))
+
+        const yoloData: YoloVideoData = {
+          videoId,
+          videoName: videoPath.split("/").pop() || videoId,
+          videoPath: videoPath,
+          frames,
+          metadata: {
+            model: "YOLOv11",
+            version: "11.0",
+            processedAt: new Date().toISOString(),
+          }
+        }
+
+        // Сохраняем данные
+        await invoke("save_yolo_data", { videoId, data: yoloData })
+        
+        this.yoloDataCache[videoId] = yoloData
+        return yoloData
+      }
 
       // Отмечаем, что данные для этого видео отсутствуют
       this.nonExistentFiles[videoId] = true
@@ -271,5 +319,30 @@ export class YoloDataService {
     }
 
     console.log(`[YoloDataService] Данные YOLO сохранены для видео ${videoId}`)
+  }
+
+  /**
+   * Инициализировать YOLO процессор
+   * @returns true если инициализация успешна
+   */
+  private async ensureYoloInitialized(): Promise<boolean> {
+    if (this.yoloInitialized) return true
+
+    try {
+      const { invoke } = await import("@tauri-apps/api/core")
+      
+      // Инициализируем YOLO процессор с моделью для детекции лиц
+      await invoke("init_yolo_processor", {
+        model_type: "yolo11-face",
+        confidence_threshold: 0.5,
+      })
+
+      this.yoloInitialized = true
+      console.log("[YoloDataService] YOLO процессор успешно инициализирован")
+      return true
+    } catch (error) {
+      console.error("[YoloDataService] Ошибка инициализации YOLO процессора:", error)
+      return false
+    }
   }
 }

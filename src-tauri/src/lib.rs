@@ -218,6 +218,12 @@ pub fn run() {
       let yolo_processor_state = YoloProcessorState::default();
       app.manage(yolo_processor_state);
 
+      // Create simple YOLO processor state for new commands
+      use std::sync::Mutex;
+      app.manage(Mutex::new(
+        None::<recognition::yolo_processor::YoloProcessor>,
+      ));
+
       // Create Montage Planner State with its own YoloProcessorState instance
       let montage_yolo_state = Arc::new(RwLock::new(YoloProcessorState::default()));
       let montage_state = MontageState::new(montage_yolo_state);
