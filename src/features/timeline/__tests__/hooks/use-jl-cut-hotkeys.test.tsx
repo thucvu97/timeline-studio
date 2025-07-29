@@ -5,13 +5,6 @@
 import { renderHook } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { shortcutsRegistry } from "@/features/keyboard-shortcuts"
-
-import { useJLCutHotkeys } from "../../hooks/use-jl-cut-hotkeys"
-import { MockTimelineProvider } from "../test-providers"
-
-import type { TimelineClip, TimelineProject, TimelineTrack } from "../../types/timeline"
-
 // Mock timeline-machine
 vi.mock("../../services/timeline-machine", () => ({
   timelineMachine: {},
@@ -23,6 +16,17 @@ vi.mock("@/features/keyboard-shortcuts", () => ({
     updateAction: vi.fn(),
   },
 }))
+
+import { shortcutsRegistry } from "@/features/keyboard-shortcuts"
+
+import { useJLCutHotkeys } from "../../hooks/use-jl-cut-hotkeys"
+import { MockTimelineProvider } from "../test-providers"
+
+import type { TimelineClip, TimelineProject, TimelineTrack } from "../../types/timeline"
+
+// Mock keyboard event
+const mockKeyboardEvent = new KeyboardEvent('keydown', { key: 'Enter' })
+const mockHotkeyEvent = { keys: ['enter'], scope: 'all', element: null }
 
 // Mock functions
 const mockCreateJCut = vi.fn()
@@ -158,7 +162,7 @@ describe("useJLCutHotkeys", () => {
     const jCutAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find((call) => call[0] === "j-cut")?.[1]
     expect(jCutAction).toBeDefined()
 
-    jCutAction?.()
+    jCutAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
     expect(mockGetLinkedPair).toHaveBeenCalledWith("video-clip-1")
     expect(mockCreateJCut).toHaveBeenCalledWith("video-clip-1", 0.5)
   })
@@ -173,7 +177,7 @@ describe("useJLCutHotkeys", () => {
     const lCutAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find((call) => call[0] === "l-cut")?.[1]
     expect(lCutAction).toBeDefined()
 
-    lCutAction?.()
+    lCutAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
     expect(mockGetLinkedPair).toHaveBeenCalledWith("video-clip-1")
     expect(mockCreateLCut).toHaveBeenCalledWith("video-clip-1", 0.5)
   })
@@ -190,7 +194,7 @@ describe("useJLCutHotkeys", () => {
       .updateAction.mock.calls.find((call) => call[0] === "j-cut-large")?.[1]
     expect(jCutLargeAction).toBeDefined()
 
-    jCutLargeAction?.()
+    jCutLargeAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
     expect(mockGetLinkedPair).toHaveBeenCalledWith("video-clip-1")
     expect(mockCreateJCut).toHaveBeenCalledWith("video-clip-1", 1.5)
   })
@@ -207,7 +211,7 @@ describe("useJLCutHotkeys", () => {
       .updateAction.mock.calls.find((call) => call[0] === "l-cut-large")?.[1]
     expect(lCutLargeAction).toBeDefined()
 
-    lCutLargeAction?.()
+    lCutLargeAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
     expect(mockGetLinkedPair).toHaveBeenCalledWith("video-clip-1")
     expect(mockCreateLCut).toHaveBeenCalledWith("video-clip-1", 1.5)
   })
@@ -225,7 +229,7 @@ describe("useJLCutHotkeys", () => {
     const jCutAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find((call) => call[0] === "j-cut")?.[1]
     expect(jCutAction).toBeDefined()
 
-    jCutAction?.()
+    jCutAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     expect(mockGetLinkedPair).toHaveBeenCalledWith("video-clip-1")
     expect(mockCreateJCut).not.toHaveBeenCalled()
@@ -233,7 +237,7 @@ describe("useJLCutHotkeys", () => {
     const lCutAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find((call) => call[0] === "l-cut")?.[1]
     expect(lCutAction).toBeDefined()
 
-    lCutAction?.()
+    lCutAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
     expect(mockCreateLCut).not.toHaveBeenCalled()
   })
 
@@ -250,7 +254,7 @@ describe("useJLCutHotkeys", () => {
     const jCutAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find((call) => call[0] === "j-cut")?.[1]
     expect(jCutAction).toBeDefined()
 
-    jCutAction?.()
+    jCutAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     expect(mockGetLinkedPair).not.toHaveBeenCalled()
     expect(mockCreateJCut).not.toHaveBeenCalled()
@@ -269,7 +273,7 @@ describe("useJLCutHotkeys", () => {
     const jCutAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find((call) => call[0] === "j-cut")?.[1]
     expect(jCutAction).toBeDefined()
 
-    jCutAction?.()
+    jCutAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     expect(mockGetLinkedPair).not.toHaveBeenCalled()
     expect(mockCreateJCut).not.toHaveBeenCalled()
@@ -287,7 +291,7 @@ describe("useJLCutHotkeys", () => {
       .updateAction.mock.calls.find((call) => call[0] === "reset-cut")?.[1]
     expect(resetCutAction).toBeDefined()
 
-    resetCutAction?.()
+    resetCutAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
     expect(mockResetCut).toHaveBeenCalledWith("video-clip-1")
   })
 
@@ -305,7 +309,7 @@ describe("useJLCutHotkeys", () => {
       .updateAction.mock.calls.find((call) => call[0] === "reset-cut")?.[1]
     expect(resetCutAction).toBeDefined()
 
-    resetCutAction?.()
+    resetCutAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
     expect(mockResetCut).not.toHaveBeenCalled()
   })
 
@@ -324,7 +328,7 @@ describe("useJLCutHotkeys", () => {
       .updateAction.mock.calls.find((call) => call[0] === "link-clips")?.[1]
     expect(linkClipsAction).toBeDefined()
 
-    linkClipsAction?.()
+    linkClipsAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
     expect(mockLinkClips).toHaveBeenCalledWith("video-clip-1", "audio-clip-1")
   })
 
@@ -343,7 +347,7 @@ describe("useJLCutHotkeys", () => {
       .updateAction.mock.calls.find((call) => call[0] === "link-clips")?.[1]
     expect(linkClipsAction).toBeDefined()
 
-    linkClipsAction?.()
+    linkClipsAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     // Должен автоматически определить правильный порядок
     expect(mockLinkClips).toHaveBeenCalledWith("video-clip-1", "audio-clip-1")
@@ -364,7 +368,7 @@ describe("useJLCutHotkeys", () => {
       .updateAction.mock.calls.find((call) => call[0] === "link-clips")?.[1]
     expect(linkClipsAction).toBeDefined()
 
-    linkClipsAction?.()
+    linkClipsAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     expect(mockLinkClips).toHaveBeenCalledWith("video-clip-1", "music-clip-1")
   })
@@ -384,14 +388,14 @@ describe("useJLCutHotkeys", () => {
       .updateAction.mock.calls.find((call) => call[0] === "link-clips")?.[1]
     expect(linkClipsAction).toBeDefined()
 
-    linkClipsAction?.()
+    linkClipsAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     expect(mockLinkClips).not.toHaveBeenCalled()
 
     // Выбрано три клипа
     mockUiState.selectedClipIds = ["video-clip-1", "audio-clip-1", "music-clip-1"]
 
-    linkClipsAction?.()
+    linkClipsAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     expect(mockLinkClips).not.toHaveBeenCalled()
   })
@@ -420,7 +424,7 @@ describe("useJLCutHotkeys", () => {
       .updateAction.mock.calls.find((call) => call[0] === "link-clips")?.[1]
     expect(linkClipsAction).toBeDefined()
 
-    linkClipsAction?.()
+    linkClipsAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     expect(mockLinkClips).not.toHaveBeenCalled()
 
@@ -440,7 +444,7 @@ describe("useJLCutHotkeys", () => {
       .updateAction.mock.calls.find((call) => call[0] === "unlink-clips")?.[1]
     expect(unlinkClipsAction).toBeDefined()
 
-    unlinkClipsAction?.()
+    unlinkClipsAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
     expect(mockUnlinkClips).toHaveBeenCalledWith("video-clip-1")
   })
 
@@ -458,7 +462,7 @@ describe("useJLCutHotkeys", () => {
       .updateAction.mock.calls.find((call) => call[0] === "unlink-clips")?.[1]
     expect(unlinkClipsAction).toBeDefined()
 
-    unlinkClipsAction?.()
+    unlinkClipsAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     expect(mockUnlinkClips).toHaveBeenCalledWith("video-clip-1")
   })
@@ -477,7 +481,7 @@ describe("useJLCutHotkeys", () => {
       .updateAction.mock.calls.find((call) => call[0] === "unlink-clips")?.[1]
     expect(unlinkClipsAction).toBeDefined()
 
-    unlinkClipsAction?.()
+    unlinkClipsAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     expect(mockUnlinkClips).not.toHaveBeenCalled()
   })
@@ -500,7 +504,7 @@ describe("useJLCutHotkeys", () => {
     const jCutAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find((call) => call[0] === "j-cut")?.[1]
     expect(jCutAction).toBeDefined()
 
-    jCutAction?.()
+    jCutAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     // Функция может быть вызвана, но это нормально -
     // хук не проверяет существование клипов в проекте
@@ -528,7 +532,7 @@ describe("useJLCutHotkeys", () => {
     const jCutAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find((call) => call[0] === "j-cut")?.[1]
     expect(jCutAction).toBeDefined()
 
-    jCutAction?.()
+    jCutAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     expect(mockGetLinkedPair).toHaveBeenCalledWith("music-clip-1")
     expect(mockCreateJCut).toHaveBeenCalledWith("music-clip-1", 0.5)
@@ -577,7 +581,7 @@ describe("useJLCutHotkeys", () => {
         .updateAction.mock.calls.find((call) => call[0] === "link-clips")?.[1]
       expect(linkClipsAction).toBeDefined()
 
-      linkClipsAction?.()
+      linkClipsAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
       expect(mockLinkClips).toHaveBeenNthCalledWith(index + 1, "video-clip-1", `${type}-clip`)
 
@@ -639,7 +643,7 @@ describe("useJLCutHotkeys", () => {
       .updateAction.mock.calls.find((call) => call[0] === "link-clips")?.[1]
     expect(linkClipsAction).toBeDefined()
 
-    linkClipsAction?.()
+    linkClipsAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     expect(mockLinkClips).toHaveBeenCalledWith("image-clip-1", "audio-clip-1")
 

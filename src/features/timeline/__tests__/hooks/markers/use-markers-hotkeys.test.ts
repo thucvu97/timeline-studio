@@ -1,16 +1,20 @@
 import { renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { shortcutsRegistry } from "@/features/keyboard-shortcuts"
-
-import { useMarkerHotkeys } from "../../../hooks/use-marker-hotkeys"
-
 // Mock shortcuts registry
 vi.mock("@/features/keyboard-shortcuts", () => ({
   shortcutsRegistry: {
     updateAction: vi.fn(),
   },
 }))
+
+import { shortcutsRegistry } from "@/features/keyboard-shortcuts"
+
+import { useMarkerHotkeys } from "../../../hooks/use-marker-hotkeys"
+
+// Mock keyboard event
+const mockKeyboardEvent = new KeyboardEvent('keydown', { key: 'Enter' })
+const mockHotkeyEvent = { keys: ['enter'], scope: 'all', element: null }
 
 // Mock timeline hook
 const mockUseTimeline = {
@@ -87,7 +91,7 @@ describe("useMarkersHotkeys", () => {
     expect(addMarkerAction).toBeDefined()
 
     // Вызываем action
-    addMarkerAction?.()
+    addMarkerAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     expect(mockUseTimelineMarkers.addMarker).toHaveBeenCalledWith({
       time: 15.5,
@@ -108,7 +112,7 @@ describe("useMarkersHotkeys", () => {
     expect(addChapterAction).toBeDefined()
 
     // Вызываем action
-    addChapterAction?.()
+    addChapterAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     expect(mockUseTimelineMarkers.addMarker).toHaveBeenCalledWith({
       time: 15.5,
@@ -129,7 +133,7 @@ describe("useMarkersHotkeys", () => {
     expect(deleteAction).toBeDefined()
 
     // Вызываем action
-    deleteAction?.()
+    deleteAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     expect(mockUseTimelineMarkers.removeMarker).toHaveBeenCalledWith("marker-at-15.5")
   })
@@ -145,7 +149,7 @@ describe("useMarkersHotkeys", () => {
 
     expect(deleteAction).toBeDefined()
 
-    deleteAction?.()
+    deleteAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     expect(mockUseTimelineMarkers.removeMarker).not.toHaveBeenCalled()
   })
@@ -160,7 +164,7 @@ describe("useMarkersHotkeys", () => {
 
     expect(prevMarkerAction).toBeDefined()
 
-    prevMarkerAction?.()
+    prevMarkerAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     // Должен вызывать seek с временем предыдущего маркера (10 секунд)
     expect(mockUseTimeline.seek).toHaveBeenCalledWith(10)
@@ -176,7 +180,7 @@ describe("useMarkersHotkeys", () => {
 
     expect(nextMarkerAction).toBeDefined()
 
-    nextMarkerAction?.()
+    nextMarkerAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     // Должен вызывать seek с временем следующего маркера (25 секунд)
     expect(mockUseTimeline.seek).toHaveBeenCalledWith(25)
@@ -191,7 +195,7 @@ describe("useMarkersHotkeys", () => {
 
     expect(addMarkerAction).toBeDefined()
 
-    addMarkerAction?.()
+    addMarkerAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     expect(mockUseTimelineMarkers.addMarker).toHaveBeenCalledWith({
       time: 15.5,

@@ -1,16 +1,20 @@
 import { renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { shortcutsRegistry } from "@/features/keyboard-shortcuts"
-
-import { useSpeedRampingHotkeys } from "../../../hooks/use-speed-ramping-hotkeys"
-
 // Mock shortcuts registry
 vi.mock("@/features/keyboard-shortcuts", () => ({
   shortcutsRegistry: {
     updateAction: vi.fn(),
   },
 }))
+
+import { shortcutsRegistry } from "@/features/keyboard-shortcuts"
+
+import { useSpeedRampingHotkeys } from "../../../hooks/use-speed-ramping-hotkeys"
+
+// Mock keyboard event
+const mockKeyboardEvent = new KeyboardEvent('keydown', { key: 'Enter' })
+const mockHotkeyEvent = { keys: ['enter'], scope: 'all', element: null }
 
 // Mock useSpeedRamping
 const mockUseSpeedRamping = {
@@ -67,7 +71,7 @@ describe("useSpeedRampingHotkeys", () => {
     expect(enableAction).toBeDefined()
 
     // Вызываем action
-    enableAction?.()
+    enableAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     expect(mockSend).toHaveBeenCalledWith({
       type: "ENABLE_SPEED_RAMPING",
@@ -91,7 +95,7 @@ describe("useSpeedRampingHotkeys", () => {
     expect(resetAction).toBeDefined()
 
     // Вызываем action
-    resetAction?.()
+    resetAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     expect(mockUseSpeedRamping.resetToConstantSpeed).toHaveBeenCalledWith("test-clip-1", 1)
     expect(mockUseSpeedRamping.resetToConstantSpeed).toHaveBeenCalledWith("test-clip-2", 1)
@@ -108,7 +112,7 @@ describe("useSpeedRampingHotkeys", () => {
     expect(slowAction).toBeDefined()
 
     // Вызываем action
-    slowAction?.()
+    slowAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     expect(mockUseSpeedRamping.resetToConstantSpeed).toHaveBeenCalledWith("test-clip-1", 0.5)
     expect(mockUseSpeedRamping.resetToConstantSpeed).toHaveBeenCalledWith("test-clip-2", 0.5)
@@ -125,7 +129,7 @@ describe("useSpeedRampingHotkeys", () => {
     expect(fastAction).toBeDefined()
 
     // Вызываем action
-    fastAction?.()
+    fastAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     expect(mockUseSpeedRamping.resetToConstantSpeed).toHaveBeenCalledWith("test-clip-1", 2)
     expect(mockUseSpeedRamping.resetToConstantSpeed).toHaveBeenCalledWith("test-clip-2", 2)
@@ -142,7 +146,7 @@ describe("useSpeedRampingHotkeys", () => {
     expect(veryFastAction).toBeDefined()
 
     // Вызываем action
-    veryFastAction?.()
+    veryFastAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     expect(mockUseSpeedRamping.resetToConstantSpeed).toHaveBeenCalledWith("test-clip-1", 4)
     expect(mockUseSpeedRamping.resetToConstantSpeed).toHaveBeenCalledWith("test-clip-2", 4)
@@ -162,7 +166,7 @@ describe("useSpeedRampingHotkeys", () => {
     expect(enableAction).toBeDefined()
 
     // Вызываем action
-    enableAction?.()
+    enableAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     // Функции не должны быть вызваны
     expect(mockSend).not.toHaveBeenCalled()

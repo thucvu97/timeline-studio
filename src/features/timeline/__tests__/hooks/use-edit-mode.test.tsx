@@ -3,9 +3,6 @@ import { ReactNode } from "react"
 import { act, renderHook } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { EditModeProvider, useEditMode, useEditModeContext } from "../../hooks/use-edit-mode"
-import { EDIT_MODE_CONFIGS, EDIT_MODES } from "../../types/edit-modes"
-
 // Мок для shortcuts registry
 vi.mock("@/features/keyboard-shortcuts", () => ({
   shortcutsRegistry: {
@@ -13,8 +10,15 @@ vi.mock("@/features/keyboard-shortcuts", () => ({
   },
 }))
 
+import { EditModeProvider, useEditMode, useEditModeContext } from "../../hooks/use-edit-mode"
+import { EDIT_MODE_CONFIGS, EDIT_MODES } from "../../types/edit-modes"
+
 import { shortcutsRegistry } from "@/features/keyboard-shortcuts"
 const mockShortcutsRegistry = vi.mocked(shortcutsRegistry)
+
+// Mock keyboard event
+const mockKeyboardEvent = new KeyboardEvent('keydown', { key: 'Enter' })
+const mockHotkeyEvent = { keys: ['enter'], scope: 'all', element: null }
 
 describe("use-edit-mode", () => {
   beforeEach(() => {
@@ -124,7 +128,7 @@ describe("use-edit-mode", () => {
 
       act(() => {
         if (trimCallback) {
-          trimCallback()
+          trimCallback(mockKeyboardEvent, mockHotkeyEvent as any)
         }
       })
 
@@ -145,7 +149,7 @@ describe("use-edit-mode", () => {
 
       act(() => {
         if (escapeCallback) {
-          escapeCallback()
+          escapeCallback(mockKeyboardEvent, mockHotkeyEvent as any)
         }
       })
 
@@ -220,7 +224,7 @@ describe("use-edit-mode", () => {
 
       act(() => {
         if (rollCallback) {
-          rollCallback()
+          rollCallback(mockKeyboardEvent, mockHotkeyEvent as any)
         }
       })
 
@@ -233,7 +237,7 @@ describe("use-edit-mode", () => {
 
       act(() => {
         if (escapeCallback) {
-          escapeCallback()
+          escapeCallback(mockKeyboardEvent, mockHotkeyEvent as any)
         }
       })
 

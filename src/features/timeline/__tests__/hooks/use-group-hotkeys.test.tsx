@@ -5,8 +5,6 @@
 import { renderHook } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { shortcutsRegistry } from "@/features/keyboard-shortcuts"
-
 // Mock timeline-machine
 vi.mock("../../services/timeline-machine", () => ({
   timelineMachine: {},
@@ -18,6 +16,12 @@ vi.mock("@/features/keyboard-shortcuts", () => ({
     updateAction: vi.fn(),
   },
 }))
+
+import { shortcutsRegistry } from "@/features/keyboard-shortcuts"
+
+// Mock keyboard event
+const mockKeyboardEvent = new KeyboardEvent('keydown', { key: 'Enter' })
+const mockHotkeyEvent = { keys: ['enter'], scope: 'all', element: null }
 
 // Создаем отдельный модуль для моков
 const mockCreateGroup = vi.fn()
@@ -160,7 +164,7 @@ describe("useGroupHotkeys", () => {
     expect(groupClipsAction).toBeDefined()
 
     // Симулируем вызов action
-    groupClipsAction?.()
+    groupClipsAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     expect(mockCreateGroup).toHaveBeenCalledWith([
       mockProject.sections[0].tracks[0].clips[0],
@@ -183,7 +187,7 @@ describe("useGroupHotkeys", () => {
       .updateAction.mock.calls.find((call) => call[0] === "group-clips")?.[1]
     expect(groupClipsAction).toBeDefined()
 
-    groupClipsAction?.()
+    groupClipsAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     expect(mockCreateGroup).not.toHaveBeenCalled()
   })
@@ -201,7 +205,7 @@ describe("useGroupHotkeys", () => {
       .updateAction.mock.calls.find((call) => call[0] === "ungroup-clips")?.[1]
     expect(ungroupClipsAction).toBeDefined()
 
-    ungroupClipsAction?.()
+    ungroupClipsAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     expect(mockGetGroupByClip).toHaveBeenCalledWith("clip-1")
     expect(mockUngroupClips).toHaveBeenCalledWith("group-1")
@@ -222,7 +226,7 @@ describe("useGroupHotkeys", () => {
       .updateAction.mock.calls.find((call) => call[0] === "ungroup-clips")?.[1]
     expect(ungroupClipsAction).toBeDefined()
 
-    ungroupClipsAction?.()
+    ungroupClipsAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     expect(mockGetGroupByClip).toHaveBeenCalledWith("clip-1")
     expect(mockUngroupClips).not.toHaveBeenCalled()
@@ -243,7 +247,7 @@ describe("useGroupHotkeys", () => {
       .updateAction.mock.calls.find((call) => call[0] === "ungroup-clips")?.[1]
     expect(ungroupClipsAction).toBeDefined()
 
-    ungroupClipsAction?.()
+    ungroupClipsAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     expect(mockGetGroupByClip).not.toHaveBeenCalled()
     expect(mockUngroupClips).not.toHaveBeenCalled()
@@ -264,7 +268,7 @@ describe("useGroupHotkeys", () => {
       .updateAction.mock.calls.find((call) => call[0] === "group-clips")?.[1]
     expect(groupClipsAction).toBeDefined()
 
-    groupClipsAction?.()
+    groupClipsAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     // Проверяем что createGroup был вызван с правильными клипами
     // Порядок: сначала globalTracks, потом sections
@@ -317,7 +321,7 @@ describe("useGroupHotkeys", () => {
       .updateAction.mock.calls.find((call) => call[0] === "group-clips")?.[1]
     expect(groupClipsAction).toBeDefined()
 
-    groupClipsAction?.()
+    groupClipsAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     // Не должно быть вызовов createGroup когда нет клипов
     expect(mockCreateGroup).not.toHaveBeenCalled()
@@ -380,7 +384,7 @@ describe("useGroupHotkeys", () => {
       .updateAction.mock.calls.find((call) => call[0] === "ungroup-clips")?.[1]
     expect(ungroupClipsAction).toBeDefined()
 
-    ungroupClipsAction?.()
+    ungroupClipsAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     // Должна использоваться группа первого найденного клипа
     expect(mockGetGroupByClip).toHaveBeenCalledWith("clip-2")
@@ -469,7 +473,7 @@ describe("useGroupHotkeys", () => {
       .updateAction.mock.calls.find((call) => call[0] === "group-clips")?.[1]
     expect(groupClipsAction).toBeDefined()
 
-    groupClipsAction?.()
+    groupClipsAction?.(mockKeyboardEvent, mockHotkeyEvent as any)
 
     // Проверяем что createGroup был вызван
     expect(mockCreateGroup).toHaveBeenCalled()
