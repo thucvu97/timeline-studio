@@ -10,7 +10,7 @@ import { useFiltersImport } from "../../hooks/use-filters-import"
 // Mock AppProvider to avoid backend connection issues
 vi.mock("@/features/app-state/services/app-provider", async () => {
   const React = await import("react")
-  
+
   const mockContext = {
     isConnected: false,
     isConnecting: false,
@@ -21,15 +21,15 @@ vi.mock("@/features/app-state/services/app-provider", async () => {
     retryConnection: vi.fn(),
     executeCommand: vi.fn(),
   }
-  
+
   const AppContext = React.createContext(mockContext)
-  
+
   return {
-    AppProvider: ({ children }: { children: React.ReactNode }) => 
+    AppProvider: ({ children }: { children: React.ReactNode }) =>
       React.createElement(AppContext.Provider, { value: mockContext }, children),
     useApp: () => mockContext,
     useAppV2: () => mockContext,
-    AppProviderV2: ({ children }: { children: React.ReactNode }) => 
+    AppProviderV2: ({ children }: { children: React.ReactNode }) =>
       React.createElement(AppContext.Provider, { value: mockContext }, children),
     AppContext,
   }

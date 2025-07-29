@@ -170,7 +170,7 @@ describe("PersonDatabaseService Tauri Integration", () => {
           confidence: 0.9,
           embedding: {
             faceId: "face_123",
-            clipId: "clip_123", 
+            clipId: "clip_123",
             timestamp: { seconds: 10.5 },
             vector: new Float32Array([0.1, 0.2, 0.3]),
             quality: 0.95,

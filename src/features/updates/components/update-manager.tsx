@@ -3,16 +3,16 @@
  * Автоматически показывает уведомления в зависимости от состояния обновлений
  */
 
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from "react"
 
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion } from "framer-motion"
 
-import { UpdateNotification } from './update-notification'
-import { useUpdateManager } from '../hooks/use-update-manager'
+import { UpdateNotification } from "./update-notification"
+import { useUpdateManager } from "../hooks/use-update-manager"
 
 interface UpdateManagerProps {
   /** Позиция уведомления на экране */
-  position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left'
+  position?: "top-right" | "top-left" | "bottom-right" | "bottom-left"
   /** Автоматически скрывать уведомление через указанное время (мс) */
   autoHideDelay?: number
   /** Показывать ли прогресс загрузки */
@@ -25,27 +25,20 @@ interface UpdateManagerProps {
  * Менеджер уведомлений об обновлениях
  */
 export function UpdateManager({
-  position = 'top-right',
+  position = "top-right",
   autoHideDelay,
   showProgress = true,
   className,
 }: UpdateManagerProps) {
-  const {
-    isUpdateAvailable,
-    isDownloading,
-    isReadyToInstall,
-    isInstalling,
-    isInstalled,
-    isError,
-    enableAutoCheck,
-  } = useUpdateManager()
+  const { isUpdateAvailable, isDownloading, isReadyToInstall, isInstalling, isInstalled, isError, enableAutoCheck } =
+    useUpdateManager()
 
   const [isVisible, setIsVisible] = useState(false)
   const [autoHideTimer, setAutoHideTimer] = useState<NodeJS.Timeout | null>(null)
 
   // Определяем, должно ли быть видно уведомление
-  const shouldShowNotification = isUpdateAvailable || isDownloading || 
-    isReadyToInstall || isInstalling || isInstalled || isError
+  const shouldShowNotification =
+    isUpdateAvailable || isDownloading || isReadyToInstall || isInstalling || isInstalled || isError
 
   // Включаем автопроверку при монтировании компонента
   useEffect(() => {
@@ -56,13 +49,13 @@ export function UpdateManager({
   useEffect(() => {
     if (shouldShowNotification) {
       setIsVisible(true)
-      
+
       // Очищаем предыдущий таймер
       if (autoHideTimer) {
         clearTimeout(autoHideTimer)
         setAutoHideTimer(null)
       }
-      
+
       // Устанавливаем новый таймер для автоскрытия (только для некритичных состояний)
       if (autoHideDelay && (isInstalled || isError)) {
         const timer = setTimeout(() => {
@@ -91,15 +84,15 @@ export function UpdateManager({
 
   // Позиционирование уведомления
   const getPositionClasses = () => {
-    const base = 'fixed z-50'
+    const base = "fixed z-50"
     switch (position) {
-      case 'top-left':
+      case "top-left":
         return `${base} top-4 left-4`
-      case 'top-right':
+      case "top-right":
         return `${base} top-4 right-4`
-      case 'bottom-left':
+      case "bottom-left":
         return `${base} bottom-4 left-4`
-      case 'bottom-right':
+      case "bottom-right":
         return `${base} bottom-4 right-4`
       default:
         return `${base} top-4 right-4`
@@ -108,9 +101,9 @@ export function UpdateManager({
 
   // Анимация появления/исчезновения
   const getAnimationProps = () => {
-    const isTop = position.includes('top')
-    const isRight = position.includes('right')
-    
+    const isTop = position.includes("top")
+    const isRight = position.includes("right")
+
     return {
       initial: {
         opacity: 0,
@@ -131,7 +124,7 @@ export function UpdateManager({
         y: isTop ? -20 : 20,
       },
       transition: {
-        type: 'spring' as const,
+        type: "spring" as const,
         stiffness: 300,
         damping: 30,
       },
@@ -143,11 +136,7 @@ export function UpdateManager({
       <AnimatePresence mode="wait">
         {isVisible && (
           <motion.div {...getAnimationProps()}>
-            <UpdateNotification
-              className={className}
-              onClose={handleClose}
-              showProgress={showProgress}
-            />
+            <UpdateNotification className={className} onClose={handleClose} showProgress={showProgress} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -159,14 +148,7 @@ export function UpdateManager({
  * Упрощенный компонент менеджера обновлений для встраивания в другие компоненты
  */
 export function InlineUpdateManager({ className }: { className?: string }) {
-  const {
-    isUpdateAvailable,
-    isDownloading,
-    isReadyToInstall,
-    isInstalling,
-    isInstalled,
-    isError,
-  } = useUpdateManager()
+  const { isUpdateAvailable, isDownloading, isReadyToInstall, isInstalling, isInstalled, isError } = useUpdateManager()
 
   const shouldShow = isUpdateAvailable || isDownloading || isReadyToInstall || isInstalling || isInstalled || isError
 

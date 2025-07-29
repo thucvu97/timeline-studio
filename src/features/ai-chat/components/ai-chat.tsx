@@ -487,10 +487,12 @@ export function AiChat() {
     const handleSendShortcut = () => {
       // Проверяем, что фокус на textarea чата
       const activeElement = document.activeElement
-      const chatInputs = document.querySelectorAll('[data-testid="chat-input"], [data-testid="chat-input-with-messages"]')
-      
-      const isInChatInput = Array.from(chatInputs).some(input => input === activeElement)
-      
+      const chatInputs = document.querySelectorAll(
+        '[data-testid="chat-input"], [data-testid="chat-input-with-messages"]',
+      )
+
+      const isInChatInput = Array.from(chatInputs).some((input) => input === activeElement)
+
       if (isInChatInput && !isProcessing && !isStreaming) {
         handleSendMessage()
       }
@@ -504,21 +506,18 @@ export function AiChat() {
   }, [handleSendMessage, isProcessing, isStreaming])
 
   // Обработчик нажатия Enter (для Shift+Enter)
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      // Shift+Enter добавляет новую строку
-      if (e.key === "Enter" && e.shiftKey) {
-        // Позволяем стандартное поведение для новой строки
-        return
-      }
-      // Enter без Shift обрабатывается через shortcuts registry
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault()
-        // Обработка через shortcuts registry
-      }
-    },
-    [],
-  )
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    // Shift+Enter добавляет новую строку
+    if (e.key === "Enter" && e.shiftKey) {
+      // Позволяем стандартное поведение для новой строки
+      return
+    }
+    // Enter без Shift обрабатывается через shortcuts registry
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault()
+      // Обработка через shortcuts registry
+    }
+  }, [])
 
   // Форматирование времени
   const formatTime = (timestamp: Date) => {

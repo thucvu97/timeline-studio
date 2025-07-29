@@ -27,8 +27,8 @@ export class TauriGlobalShortcuts {
 
     try {
       const shortcuts = shortcutsRegistry.getAll()
-      const globalShortcuts = shortcuts.filter((shortcut) => 
-        shortcut.context === "global" && shortcut.enabled !== false
+      const globalShortcuts = shortcuts.filter(
+        (shortcut) => shortcut.context === "global" && shortcut.enabled !== false,
       )
 
       for (const shortcut of globalShortcuts) {
@@ -85,7 +85,7 @@ export class TauriGlobalShortcuts {
 
       // Конвертируем macOS символы в формат Tauri
       const tauriKeys = this.convertKeysToTauriFormat(primaryKeys)
-      
+
       // Проверяем, не занят ли уже этот shortcut
       const alreadyRegistered = await isRegistered(tauriKeys)
       if (alreadyRegistered) {
@@ -102,7 +102,7 @@ export class TauriGlobalShortcuts {
             bubbles: false,
             cancelable: false,
           })
-          
+
           shortcut.action(syntheticEvent as any)
         }
       })
@@ -127,7 +127,7 @@ export class TauriGlobalShortcuts {
       if (!primaryKeys) return
 
       const tauriKeys = this.convertKeysToTauriFormat(primaryKeys)
-      
+
       await unregister(tauriKeys)
       this.registeredShortcuts.delete(shortcut.id)
       console.log(`Unregistered global shortcut: ${shortcut.name} (${tauriKeys})`)
@@ -141,13 +141,13 @@ export class TauriGlobalShortcuts {
    */
   private convertKeysToTauriFormat(keys: string): string {
     let converted = keys
-    
+
     // Заменяем macOS символы на Tauri формат
     converted = converted.replace(/⌘/g, "CommandOrControl")
     converted = converted.replace(/⌥/g, "Alt")
     converted = converted.replace(/⇧/g, "Shift")
     converted = converted.replace(/⌃/g, "Ctrl")
-    
+
     // Заменяем текстовые модификаторы
     converted = converted.replace(/cmd\+/g, "CommandOrControl+")
     converted = converted.replace(/command\+/g, "CommandOrControl+")
@@ -157,7 +157,7 @@ export class TauriGlobalShortcuts {
     converted = converted.replace(/opt\+/g, "Alt+")
     converted = converted.replace(/shift\+/g, "Shift+")
     converted = converted.replace(/ctrl\+/g, "Ctrl+")
-    
+
     // Заменяем специальные клавиши
     converted = converted.replace(/Space/g, "Space")
     converted = converted.replace(/→/g, "ArrowRight")
@@ -167,7 +167,7 @@ export class TauriGlobalShortcuts {
     converted = converted.replace(/Delete/g, "Delete")
     converted = converted.replace(/Home/g, "Home")
     converted = converted.replace(/End/g, "End")
-    
+
     return converted
   }
 

@@ -249,15 +249,165 @@ const { favorites } = useFavorites()           // ✅ Работает
 ### Запланированные улучшения
 1. **Полная типизация Specta** - автогенерация типов из Rust ✅ ЗАВЕРШЕНО
 2. **Optimized Mock System** - упрощение тестирования ✅ ЗАВЕРШЕНО  
-3. **Batch Commands** - группировка операций для производительности
+3. **Batch Commands** - группировка операций для производительности ✅ ЗАВЕРШЕНО
 4. **Plugin System** - расширяемость через плагины
 5. **Collaborative Editing** - мультипользовательское редактирование
+
+### Доменное разделение (Domain-Driven Design)
+
+Хотя текущая архитектура использует единое состояние в backend, в будущем можно ввести логическое доменное разделение:
+
+#### 1. **Project Domain** (Домен проекта)
+```typescript
+// Команды проектного домена
+type ProjectDomainCommands = 
+  | CreateProject
+  | OpenProject
+  | SaveProject
+  | CloseProject
+  | ExportProject
+
+// События проектного домена  
+type ProjectDomainEvents =
+  | ProjectCreated
+  | ProjectOpened
+  | ProjectSaved
+  | ProjectClosed
+```
+
+#### 2. **Timeline Domain** (Домен таймлайна)
+```typescript
+// Команды редактирования
+type TimelineDomainCommands =
+  | AddClip
+  | RemoveClip
+  | MoveClip
+  | SplitClip
+  | ApplyEffect
+
+// События редактирования
+type TimelineDomainEvents =
+  | ClipAdded
+  | ClipRemoved
+  | ClipMoved
+  | EffectApplied
+```
+
+#### 3. **Media Domain** (Домен медиа)
+```typescript
+// Команды медиа библиотеки
+type MediaDomainCommands =
+  | ImportMedia
+  | DeleteMedia
+  | TranscodeMedia
+  | AnalyzeMedia
+
+// События медиа
+type MediaDomainEvents =
+  | MediaImported
+  | MediaAnalyzed
+  | MediaTranscoded
+```
+
+#### 4. **Playback Domain** (Домен воспроизведения)
+```typescript
+// Команды воспроизведения
+type PlaybackDomainCommands =
+  | Play
+  | Pause
+  | Seek
+  | SetLoop
+  | SetPlaybackRate
+
+// События воспроизведения
+type PlaybackDomainEvents =
+  | PlaybackStarted
+  | PlaybackPaused
+  | PlaybackSeeked
+```
+
+#### 5. **User Preferences Domain** (Домен настроек)
+```typescript
+// Команды настроек
+type PreferencesDomainCommands =
+  | UpdateTheme
+  | SetLanguage
+  | ConfigureShortcuts
+  | SetAutoSave
+
+// События настроек
+type PreferencesDomainEvents =
+  | ThemeChanged
+  | LanguageChanged
+  | ShortcutsUpdated
+```
+
+#### Преимущества доменного разделения:
+
+1. **Модульность** - каждый домен может развиваться независимо
+2. **Тестируемость** - изолированное тестирование доменов
+3. **Масштабируемость** - легко добавлять новые домены
+4. **Понимаемость** - четкие границы ответственности
+5. **Переиспользование** - домены могут использоваться в других проектах
+
+#### Реализация через Command Routing:
+
+```rust
+// Backend: маршрутизация команд по доменам
+impl CommandRouter {
+    pub fn route(&self, command: ProjectCommand) -> Result<ProjectEvent> {
+        match command {
+            // Project Domain
+            ProjectCommand::CreateProject { .. } => 
+                self.project_domain.handle(command),
+            
+            // Timeline Domain
+            ProjectCommand::AddClip { .. } => 
+                self.timeline_domain.handle(command),
+            
+            // Media Domain
+            ProjectCommand::ImportMedia { .. } => 
+                self.media_domain.handle(command),
+            
+            // Playback Domain
+            ProjectCommand::Play => 
+                self.playback_domain.handle(command),
+        }
+    }
+}
+```
+
+```typescript
+// Frontend: доменные хуки
+function useProjectDomain() {
+  const { executeCommand } = useBackend()
+  
+  return {
+    createProject: (name: string) => 
+      executeCommand({ type: 'CreateProject', params: { name } }),
+    saveProject: () => 
+      executeCommand({ type: 'SaveProject' })
+  }
+}
+
+function useTimelineDomain() {
+  const { executeCommand, subscribe } = useBackend()
+  
+  return {
+    addClip: (clip: ClipData) => 
+      executeCommand({ type: 'AddClip', params: clip }),
+    onClipAdded: (handler: (event: ClipAddedEvent) => void) =>
+      subscribe('ClipAdded', handler)
+  }
+}
+```
 
 ### Возможные расширения
 - **Cloud Sync** - синхронизация между устройствами
 - **Advanced Undo/Redo** - продвинутая система отмены
 - **Conflict Resolution** - разрешение конфликтов при коллаборации
 - **Performance Analytics** - встроенная аналитика производительности
+- **Domain Plugins** - плагины для расширения доменов
 
 ## 📈 Оценка результата
 

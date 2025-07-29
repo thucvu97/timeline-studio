@@ -104,17 +104,14 @@ describe("use-edit-mode", () => {
         "edit-mode-slide",
         "edit-mode-split",
         "edit-mode-rate",
-        "edit-mode-escape"
+        "edit-mode-escape",
       ]
 
       expect(mockShortcutsRegistry.updateAction).toHaveBeenCalledTimes(expectedShortcuts.length)
 
       // Проверяем регистрацию каждого shortcut
       expectedShortcuts.forEach((shortcutId) => {
-        expect(mockShortcutsRegistry.updateAction).toHaveBeenCalledWith(
-          shortcutId,
-          expect.any(Function)
-        )
+        expect(mockShortcutsRegistry.updateAction).toHaveBeenCalledWith(shortcutId, expect.any(Function))
       })
     })
 
@@ -122,9 +119,7 @@ describe("use-edit-mode", () => {
       const { result } = renderHook(() => useEditMode())
 
       // Получаем callback для edit-mode-trim
-      const trimCall = mockShortcutsRegistry.updateAction.mock.calls.find(
-        (call) => call[0] === "edit-mode-trim"
-      )
+      const trimCall = mockShortcutsRegistry.updateAction.mock.calls.find((call) => call[0] === "edit-mode-trim")
       const trimCallback = trimCall?.[1]
 
       act(() => {
@@ -145,9 +140,7 @@ describe("use-edit-mode", () => {
       })
 
       // Находим callback для Escape
-      const escapeCall = mockShortcutsRegistry.updateAction.mock.calls.find(
-        (call) => call[0] === "edit-mode-escape"
-      )
+      const escapeCall = mockShortcutsRegistry.updateAction.mock.calls.find((call) => call[0] === "edit-mode-escape")
       const escapeCallback = escapeCall?.[1]
 
       act(() => {
@@ -222,9 +215,7 @@ describe("use-edit-mode", () => {
       expect(document.body.style.cursor).toBe("grab")
 
       // Переключение через горячую клавишу
-      const rollCall = mockShortcutsRegistry.updateAction.mock.calls.find(
-        (call) => call[0] === "edit-mode-roll"
-      )
+      const rollCall = mockShortcutsRegistry.updateAction.mock.calls.find((call) => call[0] === "edit-mode-roll")
       const rollCallback = rollCall?.[1]
 
       act(() => {
@@ -237,9 +228,7 @@ describe("use-edit-mode", () => {
       expect(document.body.style.cursor).toBe("col-resize")
 
       // Возврат в SELECT через Escape
-      const escapeCall = mockShortcutsRegistry.updateAction.mock.calls.find(
-        (call) => call[0] === "edit-mode-escape"
-      )
+      const escapeCall = mockShortcutsRegistry.updateAction.mock.calls.find((call) => call[0] === "edit-mode-escape")
       const escapeCallback = escapeCall?.[1]
 
       act(() => {

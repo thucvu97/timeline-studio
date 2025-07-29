@@ -13,7 +13,7 @@ export class YoloDataService {
 
   // Счетчик для отслеживания количества сообщений о ненайденных данных YOLO
   private missingDataCount = 0
-  
+
   // Флаг инициализации YOLO процессора
   private yoloInitialized = false
 
@@ -69,7 +69,7 @@ export class YoloDataService {
       // Пытаемся загрузить сохраненные данные из Tauri
       const { invoke } = await import("@tauri-apps/api/core")
       const savedData = await invoke<any>("load_yolo_data", { videoId })
-      
+
       if (savedData) {
         const yoloData = savedData as YoloVideoData
         this.yoloDataCache[videoId] = yoloData
@@ -79,7 +79,7 @@ export class YoloDataService {
       // Если сохраненных данных нет и есть путь к видео, анализируем видео
       if (videoPath) {
         console.log(`[YoloDataService] Анализируем видео ${videoPath} с YOLO`)
-        
+
         // Инициализируем YOLO процессор если еще не инициализирован
         const isInitialized = await this.ensureYoloInitialized()
         if (!isInitialized) {
@@ -94,11 +94,11 @@ export class YoloDataService {
             video_path: videoPath,
             confidence_threshold: 0.5,
             skip_frames: 10, // Анализируем каждый 10-й кадр для производительности
-          }
+          },
         })
 
         // Преобразуем результаты в формат YoloVideoData
-        const frames: YoloFrameData[] = results.map(result => ({
+        const frames: YoloFrameData[] = results.map((result) => ({
           frameNumber: result.frame_number,
           timestamp: result.timestamp,
           detections: result.detections.map((det: any) => ({
@@ -120,12 +120,12 @@ export class YoloDataService {
             model: "YOLOv11",
             version: "11.0",
             processedAt: new Date().toISOString(),
-          }
+          },
         }
 
         // Сохраняем данные
         await invoke("save_yolo_data", { videoId, data: yoloData })
-        
+
         this.yoloDataCache[videoId] = yoloData
         return yoloData
       }
@@ -330,7 +330,7 @@ export class YoloDataService {
 
     try {
       const { invoke } = await import("@tauri-apps/api/core")
-      
+
       // Инициализируем YOLO процессор с моделью для детекции лиц
       await invoke("init_yolo_processor", {
         model_type: "yolo11-face",

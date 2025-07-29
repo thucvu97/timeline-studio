@@ -10,7 +10,7 @@ import { RecordingFormat, RecordingQuality } from "./types"
 export const SUPPORTED_VIDEO_FORMATS: RecordingFormat[] = [
   {
     mimeType: "video/webm;codecs=vp8,opus",
-    extension: "webm", 
+    extension: "webm",
     label: "WebM (VP8/Opus)",
     isSupported: typeof MediaRecorder !== "undefined" && MediaRecorder.isTypeSupported("video/webm;codecs=vp8,opus"),
   },
@@ -34,7 +34,7 @@ export const SUPPORTED_VIDEO_FORMATS: RecordingFormat[] = [
   },
   {
     mimeType: "video/mp4",
-    extension: "mp4", 
+    extension: "mp4",
     label: "MP4",
     isSupported: typeof MediaRecorder !== "undefined" && MediaRecorder.isTypeSupported("video/mp4"),
   },
@@ -46,19 +46,19 @@ export const SUPPORTED_VIDEO_FORMATS: RecordingFormat[] = [
 export const RECORDING_QUALITY_PRESETS: Record<string, RecordingQuality> = {
   low: {
     videoBitsPerSecond: 2500000, // 2.5 Mbps
-    audioBitsPerSecond: 128000,  // 128 kbps
+    audioBitsPerSecond: 128000, // 128 kbps
   },
   medium: {
     videoBitsPerSecond: 5000000, // 5 Mbps
-    audioBitsPerSecond: 192000,  // 192 kbps
+    audioBitsPerSecond: 192000, // 192 kbps
   },
   high: {
     videoBitsPerSecond: 8000000, // 8 Mbps
-    audioBitsPerSecond: 256000,  // 256 kbps
+    audioBitsPerSecond: 256000, // 256 kbps
   },
   ultraHigh: {
     videoBitsPerSecond: 15000000, // 15 Mbps
-    audioBitsPerSecond: 320000,   // 320 kbps
+    audioBitsPerSecond: 320000, // 320 kbps
   },
 }
 
@@ -84,7 +84,7 @@ export const FRAME_RATES = [15, 24, 30, 60] as const
 export const MAX_RECORDING_DURATION = 3600000 // 1 час
 
 /**
- * Минимальное время записи (в миллисекундах) 
+ * Минимальное время записи (в миллисекундах)
  */
 export const MIN_RECORDING_DURATION = 1000 // 1 секунда
 
@@ -109,7 +109,7 @@ export const RECORDING_TIME_UPDATE_INTERVAL = 100
 export const SCREEN_CAPTURE_DEFAULTS = {
   video: {
     width: { ideal: 1920 },
-    height: { ideal: 1080 }, 
+    height: { ideal: 1080 },
     frameRate: { ideal: 30 },
   },
   audio: {

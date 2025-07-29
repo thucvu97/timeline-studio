@@ -104,7 +104,7 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
         const savedSettings = await shortcutsRegistry.loadSettings()
         if (savedSettings) {
           setIsGlobalEnabled(savedSettings.globalEnabled)
-          
+
           // Включаем глобальные shortcuts если они были включены
           if (savedSettings.globalEnabled) {
             try {
@@ -151,7 +151,7 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
         await tauriGlobalShortcuts.disableGlobal()
       }
       setIsGlobalEnabled(enabled)
-      
+
       // Автосохранение настроек
       await shortcutsRegistry.saveSettings(enabled)
     } catch (error) {
@@ -164,7 +164,7 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
 
   const updateShortcutKeys = (id: string, keys: string[]) => {
     shortcutsRegistry.updateKeys(id, keys)
-    
+
     // Обновляем глобальные shortcuts если они включены
     if (isGlobalEnabled) {
       tauriGlobalShortcuts.updateGlobalShortcuts().catch(console.error)
@@ -202,7 +202,7 @@ export function ShortcutsProvider({ children }: ShortcutsProviderProps) {
     const savedSettings = await shortcutsRegistry.loadSettings()
     if (savedSettings) {
       setIsGlobalEnabled(savedSettings.globalEnabled)
-      
+
       // Синхронизируем глобальные shortcuts
       if (savedSettings.globalEnabled !== tauriGlobalShortcuts.isEnabled()) {
         try {

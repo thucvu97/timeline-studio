@@ -145,7 +145,6 @@ vi.mock("@/features/app-state", async (importOriginal) => {
   }
 })
 
-
 vi.mock("@/features/app-state/services", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/features/app-state/services")>()
   return {
@@ -157,7 +156,6 @@ vi.mock("@/features/app-state/services", async (importOriginal) => {
     },
   }
 })
-
 
 // Mock AI Content Intelligence services globally
 vi.mock("@/features/ai-chat/services/unified-ai-service", () => ({

@@ -3,15 +3,13 @@
  * Показывает компактную информацию о состоянии обновлений
  */
 
-import React from 'react'
+import { AlertCircle, CheckCircle, Download, Loader2, RefreshCw } from "lucide-react"
 
-import { AlertCircle, CheckCircle, Download, Loader2, RefreshCw } from 'lucide-react'
- 
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
-import { useUpdateManager } from '../hooks/use-update-manager'
+import { useUpdateManager } from "../hooks/use-update-manager"
 
 interface UpdateStatusIndicatorProps {
   /** Показывать ли текст рядом с иконкой */
@@ -68,26 +66,26 @@ export function UpdateStatusIndicator({
   }
 
   const getText = () => {
-    if (isError) return 'Ошибка'
-    if (isInstalled) return 'Установлено'
-    if (isInstalling) return 'Установка...'
-    if (isReadyToInstall) return 'Готово'
-    if (isDownloading) return 'Загрузка...'
-    if (isChecking) return 'Проверка...'
-    if (isUpdateAvailable) return 'Обновление'
-    return 'Проверить'
+    if (isError) return "Ошибка"
+    if (isInstalled) return "Установлено"
+    if (isInstalling) return "Установка..."
+    if (isReadyToInstall) return "Готово"
+    if (isDownloading) return "Загрузка..."
+    if (isChecking) return "Проверка..."
+    if (isUpdateAvailable) return "Обновление"
+    return "Проверить"
   }
 
   const getTooltipContent = () => {
-    if (isError) return `Ошибка обновления: ${error || 'Неизвестная ошибка'}`
-    if (isInstalled) return 'Обновление установлено. Перезапустите приложение.'
-    if (isInstalling) return 'Установка обновления...'
-    if (isReadyToInstall) return 'Обновление готово к установке'
+    if (isError) return `Ошибка обновления: ${error || "Неизвестная ошибка"}`
+    if (isInstalled) return "Обновление установлено. Перезапустите приложение."
+    if (isInstalling) return "Установка обновления..."
+    if (isReadyToInstall) return "Обновление готово к установке"
     if (isDownloading) {
-      const progressText = progress ? ` (${progress.percentage}%)` : ''
+      const progressText = progress ? ` (${progress.percentage}%)` : ""
       return `Загрузка обновления${progressText}`
     }
-    if (isChecking) return 'Проверка доступных обновлений...'
+    if (isChecking) return "Проверка доступных обновлений..."
     if (isUpdateAvailable && availableUpdate) {
       return `Доступна версия ${availableUpdate.version}`
     }
@@ -111,9 +109,9 @@ export function UpdateStatusIndicator({
   }
 
   const getVariant = () => {
-    if (isError) return 'destructive' as const
-    if (isUpdateAvailable || isReadyToInstall) return 'default' as const
-    return 'ghost' as const
+    if (isError) return "destructive" as const
+    if (isUpdateAvailable || isReadyToInstall) return "default" as const
+    return "ghost" as const
   }
 
   // Компактный режим - только иконка
@@ -154,11 +152,7 @@ export function UpdateStatusIndicator({
           >
             <div className="flex items-center gap-1.5">
               {getIcon()}
-              {showText && (
-                <span className="text-xs font-medium">
-                  {getText()}
-                </span>
-              )}
+              {showText && <span className="text-xs font-medium">{getText()}</span>}
               {isUpdateAvailable && availableUpdate && (
                 <Badge variant="secondary" className="h-4 px-1 text-xs">
                   {availableUpdate.version}
@@ -179,22 +173,12 @@ export function UpdateStatusIndicator({
  * Простой индикатор только с иконкой для встраивания в тесные места
  */
 export function UpdateIconIndicator({ className }: { className?: string }) {
-  return (
-    <UpdateStatusIndicator
-      compact={true}
-      className={className}
-    />
-  )
+  return <UpdateStatusIndicator compact={true} className={className} />
 }
 
 /**
  * Индикатор с текстом для более широких панелей
  */
 export function UpdateTextIndicator({ className }: { className?: string }) {
-  return (
-    <UpdateStatusIndicator
-      showText={true}
-      className={className}
-    />
-  )
+  return <UpdateStatusIndicator showText={true} className={className} />
 }

@@ -3,7 +3,6 @@
 import { useEffect } from "react"
 
 export default function OAuthCallback() {
-
   useEffect(() => {
     const handleOAuthCallback = async () => {
       try {

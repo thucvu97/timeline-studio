@@ -20,12 +20,14 @@ export interface RecordingConstraints {
     height?: { ideal: number }
     frameRate?: { ideal: number }
   }
-  audio?: {
-    deviceId?: { exact: string }
-    echoCancellation?: boolean
-    noiseSuppression?: boolean
-    autoGainControl?: boolean
-  } | false
+  audio?:
+    | {
+        deviceId?: { exact: string }
+        echoCancellation?: boolean
+        noiseSuppression?: boolean
+        autoGainControl?: boolean
+      }
+    | false
 }
 
 /**
@@ -95,7 +97,7 @@ export interface DeviceCapabilities {
 /**
  * Ошибки камеры
  */
-export type CameraError = 
+export type CameraError =
   | "NotAllowedError"
   | "NotFoundError"
   | "NotReadableError"

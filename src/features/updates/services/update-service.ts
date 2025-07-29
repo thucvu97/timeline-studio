@@ -3,8 +3,8 @@
  * Обеспечивает взаимодействие с Tauri backend для проверки и установки обновлений
  */
 
-import { invoke } from '@tauri-apps/api/core'
-import { emit, listen } from '@tauri-apps/api/event'
+import { invoke } from "@tauri-apps/api/core"
+import { emit, listen } from "@tauri-apps/api/event"
 
 export interface UpdateInfo {
   version: string
@@ -26,15 +26,15 @@ export interface UpdateProgress {
   downloaded: number
 }
 
-export type UpdateStatus = 
-  | 'idle'
-  | 'checking'
-  | 'available'
-  | 'downloading'
-  | 'downloaded'
-  | 'installing'
-  | 'installed'
-  | 'error'
+export type UpdateStatus =
+  | "idle"
+  | "checking"
+  | "available"
+  | "downloading"
+  | "downloaded"
+  | "installing"
+  | "installed"
+  | "error"
 
 export interface UpdateEventPayload {
   status: UpdateStatus
@@ -48,7 +48,7 @@ export interface UpdateEventPayload {
  */
 export class UpdateService {
   private static instance: UpdateService | null = null
-  private currentStatus: UpdateStatus = 'idle'
+  private currentStatus: UpdateStatus = "idle"
   private listeners: Array<(payload: UpdateEventPayload) => void> = []
   private checkInterval: NodeJS.Timeout | null = null
   private autoCheckEnabled = false
@@ -74,22 +74,22 @@ export class UpdateService {
   private async setupEventListeners(): Promise<void> {
     try {
       // Слушаем события прогресса загрузки (если они будут добавлены в backend)
-      await listen('update-progress', (event: any) => {
+      await listen("update-progress", (event: any) => {
         const progress = event.payload as UpdateProgress
-        this.updateStatus('downloading', { progress })
+        this.updateStatus("downloading", { progress })
       })
 
       // Слушаем события завершения загрузки
-      await listen('update-downloaded', () => {
-        this.updateStatus('downloaded')
+      await listen("update-downloaded", () => {
+        this.updateStatus("downloaded")
       })
 
       // Слушаем события ошибок
-      await listen('update-error', (event: any) => {
-        this.updateStatus('error', { error: event.payload })
+      await listen("update-error", (event: any) => {
+        this.updateStatus("error", { error: event.payload })
       })
     } catch (error) {
-      console.warn('Failed to setup update event listeners:', error)
+      console.warn("Failed to setup update event listeners:", error)
     }
   }
 
@@ -98,20 +98,20 @@ export class UpdateService {
    */
   async checkForUpdates(): Promise<UpdateCheckResult> {
     try {
-      this.updateStatus('checking')
-      
-      const result = await invoke<UpdateCheckResult>('check_for_update')
-      
+      this.updateStatus("checking")
+
+      const result = await invoke<UpdateCheckResult>("check_for_update")
+
       if (result.available && result.update_info) {
-        this.updateStatus('available', { update_info: result.update_info })
+        this.updateStatus("available", { update_info: result.update_info })
       } else {
-        this.updateStatus('idle')
+        this.updateStatus("idle")
       }
-      
+
       return result
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error)
-      this.updateStatus('error', { error: errorMessage })
+      this.updateStatus("error", { error: errorMessage })
       throw error
     }
   }
@@ -121,14 +121,14 @@ export class UpdateService {
    */
   async downloadAndInstall(): Promise<void> {
     try {
-      this.updateStatus('downloading')
-      
-      await invoke('download_and_install_update')
-      
-      this.updateStatus('installed')
+      this.updateStatus("downloading")
+
+      await invoke("download_and_install_update")
+
+      this.updateStatus("installed")
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error)
-      this.updateStatus('error', { error: errorMessage })
+      this.updateStatus("error", { error: errorMessage })
       throw error
     }
   }
@@ -138,10 +138,10 @@ export class UpdateService {
    */
   async getCurrentVersion(): Promise<string> {
     try {
-      return await invoke<string>('get_current_version')
+      return await invoke<string>("get_current_version")
     } catch (error) {
-      console.error('Failed to get current version:', error)
-      return 'unknown'
+      console.error("Failed to get current version:", error)
+      return "unknown"
     }
   }
 
@@ -150,9 +150,9 @@ export class UpdateService {
    */
   async isUpdaterAvailable(): Promise<boolean> {
     try {
-      return await invoke<boolean>('is_updater_available')
+      return await invoke<boolean>("is_updater_available")
     } catch (error) {
-      console.error('Failed to check updater availability:', error)
+      console.error("Failed to check updater availability:", error)
       return false
     }
   }
@@ -163,16 +163,13 @@ export class UpdateService {
   enableAutoCheck(intervalMinutes = 60): void {
     this.autoCheckEnabled = true
     this.autoCheckIntervalMinutes = intervalMinutes
-    
+
     if (this.checkInterval) {
       clearInterval(this.checkInterval)
     }
-    
-    this.checkInterval = setInterval(
-      () => this.checkForUpdatesQuietly(),
-      intervalMinutes * 60 * 1000
-    )
-    
+
+    this.checkInterval = setInterval(() => this.checkForUpdatesQuietly(), intervalMinutes * 60 * 1000)
+
     // Первая проверка через 30 секунд после включения
     setTimeout(() => this.checkForUpdatesQuietly(), 30000)
   }
@@ -182,7 +179,7 @@ export class UpdateService {
    */
   disableAutoCheck(): void {
     this.autoCheckEnabled = false
-    
+
     if (this.checkInterval) {
       clearInterval(this.checkInterval)
       this.checkInterval = null
@@ -194,15 +191,15 @@ export class UpdateService {
    */
   private async checkForUpdatesQuietly(): Promise<void> {
     try {
-      const result = await invoke<UpdateCheckResult>('check_for_update')
-      
+      const result = await invoke<UpdateCheckResult>("check_for_update")
+
       if (result.available && result.update_info) {
         // Отправляем событие о доступном обновлении
-        await emit('update-available', result.update_info)
-        this.updateStatus('available', { update_info: result.update_info })
+        await emit("update-available", result.update_info)
+        this.updateStatus("available", { update_info: result.update_info })
       }
     } catch (error) {
-      console.error('Silent update check failed:', error)
+      console.error("Silent update check failed:", error)
     }
   }
 
@@ -218,7 +215,7 @@ export class UpdateService {
    */
   subscribe(listener: (payload: UpdateEventPayload) => void): () => void {
     this.listeners.push(listener)
-    
+
     // Возвращаем функцию отписки
     return () => {
       const index = this.listeners.indexOf(listener)
@@ -233,18 +230,18 @@ export class UpdateService {
    */
   private updateStatus(status: UpdateStatus, extra?: Partial<UpdateEventPayload>): void {
     this.currentStatus = status
-    
+
     const payload: UpdateEventPayload = {
       status,
-      ...extra
+      ...extra,
     }
-    
+
     // Уведомляем всех слушателей
-    this.listeners.forEach(listener => {
+    this.listeners.forEach((listener) => {
       try {
         listener(payload)
       } catch (error) {
-        console.error('Update listener error:', error)
+        console.error("Update listener error:", error)
       }
     })
   }
@@ -253,7 +250,7 @@ export class UpdateService {
    * Сбросить статус в idle
    */
   reset(): void {
-    this.updateStatus('idle')
+    this.updateStatus("idle")
   }
 
   /**
@@ -262,7 +259,7 @@ export class UpdateService {
   getAutoCheckSettings(): { enabled: boolean; intervalMinutes: number } {
     return {
       enabled: this.autoCheckEnabled,
-      intervalMinutes: this.autoCheckIntervalMinutes
+      intervalMinutes: this.autoCheckIntervalMinutes,
     }
   }
 

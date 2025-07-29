@@ -103,7 +103,7 @@ export const FavoriteButton = memo(function FavoriteButton({ file, size = 150, t
       // Проверяем, что кнопка или её родительский элемент в фокусе
       const activeElement = document.activeElement
       const buttonElement = document.querySelector(`[data-file-id="${file.id}"]`)
-      
+
       if (buttonElement && (buttonElement === activeElement || buttonElement.contains(activeElement))) {
         if (isFavorite && isHovering && canShowRemoveButton) {
           void removeFromFavorites(file, type)

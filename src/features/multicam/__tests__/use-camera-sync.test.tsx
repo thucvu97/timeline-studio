@@ -36,7 +36,7 @@ vi.mock("@/features/timeline/hooks/use-linked-clips", () => ({
         updatedAt: new Date(),
       },
       {
-        id: "clip2", 
+        id: "clip2",
         name: "Clip clip2",
         trackId: "track2",
         mediaId: "media-clip2",
@@ -126,7 +126,7 @@ vi.mock("@/features/timeline/hooks/use-timeline", () => ({
         updatedAt: new Date(),
       },
       {
-        id: "clip2", 
+        id: "clip2",
         name: "Clip clip2",
         trackId: "track2",
         mediaId: "media-clip2",

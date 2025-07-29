@@ -11,7 +11,7 @@ export function cleanupMediaStream(stream: MediaStream | null, logPrefix = "Medi
   if (!stream) return
 
   console.log(`${logPrefix}: Остановка ${stream.getTracks().length} треков`)
-  
+
   stream.getTracks().forEach((track, index) => {
     if (track.readyState !== "ended") {
       try {
@@ -39,11 +39,11 @@ export function cleanupVideoElement(videoElement: HTMLVideoElement | null, logPr
       console.log(`${logPrefix}: Очистка srcObject`)
       videoElement.srcObject = null
     }
-    
+
     if (!videoElement.paused) {
       videoElement.pause()
     }
-    
+
     videoElement.currentTime = 0
   } catch (error) {
     console.warn(`${logPrefix}: Ошибка при очистке видео элемента:`, error)
@@ -59,7 +59,7 @@ export function formatRecordingTime(timeInMs: number): string {
   const totalSeconds = Math.floor(timeInMs / 1000)
   const minutes = Math.floor(totalSeconds / 60)
   const seconds = totalSeconds % 60
-  
+
   return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
 }
 
@@ -68,11 +68,7 @@ export function formatRecordingTime(timeInMs: number): string {
  * @returns true если API поддерживается
  */
 export function isMediaDevicesSupported(): boolean {
-  return !!(
-    navigator.mediaDevices && 
-    navigator.mediaDevices.getUserMedia &&
-    window.MediaRecorder
-  )
+  return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder)
 }
 
 /**
@@ -99,7 +95,7 @@ export function isMimeTypeSupported(mimeType: string): boolean {
  * @returns Лучший поддерживаемый MIME тип или undefined
  */
 export function getBestSupportedMimeType(mimeTypes: string[]): string | undefined {
-  return mimeTypes.find(mimeType => isMimeTypeSupported(mimeType))
+  return mimeTypes.find((mimeType) => isMimeTypeSupported(mimeType))
 }
 
 /**
@@ -131,10 +127,10 @@ export async function blobToUint8Array(blob: Blob): Promise<Uint8Array> {
 export function parseResolution(resolutionString: string): { width: number; height: number } | null {
   const match = /(\d+)x(\d+)/.exec(resolutionString)
   if (!match || match.length < 3) return null
-  
+
   return {
-    width: parseInt(match[1], 10),
-    height: parseInt(match[2], 10),
+    width: Number.parseInt(match[1], 10),
+    height: Number.parseInt(match[2], 10),
   }
 }
 
@@ -146,21 +142,21 @@ export function parseResolution(resolutionString: string): { width: number; heig
  */
 export function getTrackSettings(stream: MediaStream | null, trackKind: "video" | "audio"): MediaTrackSettings | null {
   if (!stream) return null
-  
+
   const tracks = trackKind === "video" ? stream.getVideoTracks() : stream.getAudioTracks()
   if (tracks.length === 0) return null
-  
+
   return tracks[0].getSettings()
 }
 
 /**
  * Вычисляет соотношение сторон из разрешения
  * @param width - Ширина
- * @param height - Высота  
+ * @param height - Высота
  * @returns Соотношение сторон как строка (например "16:9")
  */
 export function calculateAspectRatio(width: number, height: number): string {
-  const gcd = (a: number, b: number): number => b === 0 ? a : gcd(b, a % b)
+  const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b))
   const divisor = gcd(width, height)
   return `${width / divisor}:${height / divisor}`
 }
@@ -172,18 +168,18 @@ export function calculateAspectRatio(width: number, height: number): string {
  */
 export function parseMediaError(error: unknown): { type: string; message: string } | null {
   if (!(error instanceof Error)) return null
-  
+
   const errorMessages: Record<string, string> = {
     NotAllowedError: "Доступ к устройству запрещён пользователем",
     NotFoundError: "Устройство не найдено",
-    NotReadableError: "Устройство используется другим приложением", 
+    NotReadableError: "Устройство используется другим приложением",
     OverconstrainedError: "Устройство не поддерживает запрошенные настройки",
     SecurityError: "Доступ заблокирован по соображениям безопасности",
     AbortError: "Операция была прервана",
   }
-  
+
   const message = errorMessages[error.name] || error.message || "Неизвестная ошибка"
-  
+
   return {
     type: error.name,
     message,
@@ -196,12 +192,9 @@ export function parseMediaError(error: unknown): { type: string; message: string
  * @param delay - Задержка в мс
  * @returns Debounced функция
  */
-export function debounce<T extends (...args: any[]) => any>(
-  func: T,
-  delay: number
-): (...args: Parameters<T>) => void {
+export function debounce<T extends (...args: any[]) => any>(func: T, delay: number): (...args: Parameters<T>) => void {
   let timeoutId: NodeJS.Timeout
-  
+
   return (...args: Parameters<T>) => {
     clearTimeout(timeoutId)
     timeoutId = setTimeout(() => func(...args), delay)

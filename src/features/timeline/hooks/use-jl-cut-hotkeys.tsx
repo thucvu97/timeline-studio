@@ -128,14 +128,5 @@ export function useJLCutHotkeys() {
         shortcutsRegistry.updateAction(id, undefined)
       })
     }
-  }, [
-    uiState.selectedClipIds,
-    project,
-    getLinkedPair,
-    createJCut,
-    createLCut,
-    resetCut,
-    linkClips,
-    unlinkClips,
-  ])
+  }, [uiState.selectedClipIds, project, getLinkedPair, createJCut, createLCut, resetCut, linkClips, unlinkClips])
 }

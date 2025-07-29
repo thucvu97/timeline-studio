@@ -3,18 +3,18 @@
  * Предоставляет интерфейс для работы с XState машиной обновлений
  */
 
-import { useEffect } from 'react'
+import { useEffect } from "react"
 
-import { useMachine } from '@xstate/react'
+import { useMachine } from "@xstate/react"
 
-import { UpdateMachineContext, updateMachine } from '../services/update-machine'
-import { UpdateEventPayload, updateService } from '../services/update-service'
+import { UpdateMachineContext, updateMachine } from "../services/update-machine"
+import { UpdateEventPayload, updateService } from "../services/update-service"
 
 export interface UseUpdateManagerReturn {
   // Состояние
   state: string
   context: UpdateMachineContext
-  
+
   // Флаги состояния
   isInitializing: boolean
   isIdle: boolean
@@ -25,17 +25,17 @@ export interface UseUpdateManagerReturn {
   isInstalling: boolean
   isInstalled: boolean
   isError: boolean
-  
+
   // Данные
   currentVersion: string
-  availableUpdate?: UpdateMachineContext['availableUpdate']
+  availableUpdate?: UpdateMachineContext["availableUpdate"]
   error?: string
-  progress?: UpdateMachineContext['progress']
+  progress?: UpdateMachineContext["progress"]
   autoCheckSettings: {
     enabled: boolean
     intervalMinutes: number
   }
-  
+
   // Действия
   checkForUpdates: () => void
   downloadUpdate: () => void
@@ -52,9 +52,9 @@ export interface UseUpdateManagerReturn {
  */
 export function useUpdateManager(): UseUpdateManagerReturn {
   const [state, send] = useMachine(updateMachine)
-  
+
   const { context } = state
-  
+
   // Подписка на события UpdateService для синхронизации прогресса
   useEffect(() => {
     const unsubscribe = updateService.subscribe((payload: UpdateEventPayload) => {
@@ -63,19 +63,19 @@ export function useUpdateManager(): UseUpdateManagerReturn {
         const progress = {
           downloaded: payload.progress.downloaded,
           total: payload.progress.content_length,
-          percentage: payload.progress.content_length 
+          percentage: payload.progress.content_length
             ? Math.round((payload.progress.downloaded / payload.progress.content_length) * 100)
-            : 0
+            : 0,
         }
-        
+
         // Здесь можно отправить событие в машину для обновления прогресса
         // send({ type: 'UPDATE_PROGRESS', progress })
       }
     })
-    
+
     return unsubscribe
   }, [])
-  
+
   // Настройка автопроверки при изменении настроек
   useEffect(() => {
     if (context.autoCheckEnabled) {
@@ -83,61 +83,61 @@ export function useUpdateManager(): UseUpdateManagerReturn {
     } else {
       updateService.disableAutoCheck()
     }
-    
+
     return () => {
       updateService.disableAutoCheck()
     }
   }, [context.autoCheckEnabled, context.autoCheckInterval])
-  
+
   // Флаги состояния для удобства использования
-  const isInitializing = state.matches('initializing')
-  const isIdle = state.matches('idle')
-  const isChecking = state.matches('checking')
-  const isUpdateAvailable = state.matches('updateAvailable')
-  const isDownloading = state.matches('downloading')
-  const isReadyToInstall = state.matches('readyToInstall')
-  const isInstalling = state.matches('installing') 
-  const isInstalled = state.matches('installed')
-  const isError = state.matches('error')
-  
+  const isInitializing = state.matches("initializing")
+  const isIdle = state.matches("idle")
+  const isChecking = state.matches("checking")
+  const isUpdateAvailable = state.matches("updateAvailable")
+  const isDownloading = state.matches("downloading")
+  const isReadyToInstall = state.matches("readyToInstall")
+  const isInstalling = state.matches("installing")
+  const isInstalled = state.matches("installed")
+  const isError = state.matches("error")
+
   // Действия
   const checkForUpdates = () => {
-    send({ type: 'CHECK_FOR_UPDATES' })
+    send({ type: "CHECK_FOR_UPDATES" })
   }
-  
+
   const downloadUpdate = () => {
-    send({ type: 'DOWNLOAD_UPDATE' })
+    send({ type: "DOWNLOAD_UPDATE" })
   }
-  
+
   const installUpdate = () => {
-    send({ type: 'INSTALL_UPDATE' })
+    send({ type: "INSTALL_UPDATE" })
   }
-  
+
   const cancelUpdate = () => {
-    send({ type: 'CANCEL_UPDATE' })
+    send({ type: "CANCEL_UPDATE" })
   }
-  
+
   const retry = () => {
-    send({ type: 'RETRY' })
+    send({ type: "RETRY" })
   }
-  
+
   const dismiss = () => {
-    send({ type: 'DISMISS' })
+    send({ type: "DISMISS" })
   }
-  
+
   const enableAutoCheck = (intervalMinutes = 60) => {
-    send({ type: 'ENABLE_AUTO_CHECK', intervalMinutes })
+    send({ type: "ENABLE_AUTO_CHECK", intervalMinutes })
   }
-  
+
   const disableAutoCheck = () => {
-    send({ type: 'DISABLE_AUTO_CHECK' })
+    send({ type: "DISABLE_AUTO_CHECK" })
   }
-  
+
   return {
     // Состояние
     state: state.value as string,
     context,
-    
+
     // Флаги состояния
     isInitializing,
     isIdle,
@@ -148,7 +148,7 @@ export function useUpdateManager(): UseUpdateManagerReturn {
     isInstalling,
     isInstalled,
     isError,
-    
+
     // Данные
     currentVersion: context.currentVersion,
     availableUpdate: context.availableUpdate,
@@ -158,7 +158,7 @@ export function useUpdateManager(): UseUpdateManagerReturn {
       enabled: context.autoCheckEnabled,
       intervalMinutes: context.autoCheckInterval,
     },
-    
+
     // Действия
     checkForUpdates,
     downloadUpdate,
@@ -176,13 +176,8 @@ export function useUpdateManager(): UseUpdateManagerReturn {
  * Упрощенная версия для компонентов, которым нужна только информация о доступности
  */
 export function useUpdateAvailability() {
-  const { 
-    isUpdateAvailable, 
-    availableUpdate, 
-    checkForUpdates,
-    currentVersion 
-  } = useUpdateManager()
-  
+  const { isUpdateAvailable, availableUpdate, checkForUpdates, currentVersion } = useUpdateManager()
+
   return {
     hasUpdate: isUpdateAvailable,
     updateInfo: availableUpdate,

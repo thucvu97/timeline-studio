@@ -43,7 +43,7 @@ export interface DetectedFace {
   frameNumber?: number
   timestamp: Timecode
   clipId?: string
-  
+
   // Продвинутые атрибуты (для совместимости с AdvancedFaceDetection)
   personId?: string
   name?: string
@@ -82,30 +82,30 @@ export interface HeadPose {
 
 // 3D поза лица
 export interface Face3DPose {
-  yaw: number   // Поворот влево/вправо
+  yaw: number // Поворот влево/вправо
   pitch: number // Наклон вверх/вниз
-  roll: number  // Наклон влево/вправо
-  
+  roll: number // Наклон влево/вправо
+
   // 3D позиция
   translation?: {
     x: number
     y: number
     z: number
   }
-  
+
   // Матрица поворота
   rotationMatrix?: number[][]
-  
+
   // Уверенность оценки позы
   confidence: number
 }
 
 // Качество изображения лица
 export interface FaceImageQuality {
-  sharpness: number    // Резкость (0-1)
-  brightness: number   // Яркость (0-1)
-  contrast: number     // Контрастность (0-1)
-  
+  sharpness: number // Резкость (0-1)
+  brightness: number // Яркость (0-1)
+  contrast: number // Контрастность (0-1)
+
   // Условия освещения
   lighting: {
     frontLit: number
@@ -114,10 +114,10 @@ export interface FaceImageQuality {
     topLit: number
     bottomLit: number
   }
-  
+
   // Общая оценка качества
   overall: number // Общая оценка качества (0-1)
-  
+
   // Рекомендации
   usableForRecognition: boolean
   usableForIdentification: boolean

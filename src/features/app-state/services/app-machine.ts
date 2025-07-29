@@ -84,7 +84,7 @@ export const appMachine = setup({
       const { backendSync } = input
 
       // Additional safety check
-      if (!backendSync || typeof backendSync.connect !== 'function') {
+      if (!backendSync || typeof backendSync.connect !== "function") {
         sendBack({ type: "CONNECTION_ERROR", error: "Backend sync service is not properly initialized" })
         return () => {}
       }

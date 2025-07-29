@@ -8,13 +8,13 @@ import { HotkeyCallback, Options as HotkeyOptions } from "react-hotkeys-hook"
 import { shortcutsPersistence } from "./shortcuts-persistence"
 
 // Типы контекстов приложения
-export type ShortcutContext = 
-  | "global"      // Работают везде
-  | "timeline"    // Только в режиме редактирования таймлайна
-  | "browser"     // Только в режиме браузера медиафайлов
-  | "player"      // Только при фокусе на плеере
-  | "chat"        // Только в AI чате
-  | "modal"       // Только в модальных окнах
+export type ShortcutContext =
+  | "global" // Работают везде
+  | "timeline" // Только в режиме редактирования таймлайна
+  | "browser" // Только в режиме браузера медиафайлов
+  | "player" // Только при фокусе на плеере
+  | "chat" // Только в AI чате
+  | "modal" // Только в модальных окнах
 
 export interface ShortcutDefinition {
   id: string
@@ -271,7 +271,7 @@ class ShortcutsRegistry {
       // Применяем настройки к существующим shortcuts
       const currentShortcuts = this.getAll()
       const updatedShortcuts = shortcutsPersistence.applySettings(currentShortcuts, settings)
-      
+
       // Обновляем реестр
       this.shortcuts.clear()
       updatedShortcuts.forEach((shortcut) => {

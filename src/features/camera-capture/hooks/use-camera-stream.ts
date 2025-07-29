@@ -32,12 +32,15 @@ export function useCameraStream(
   const streamRef = useRef<MediaStream | null>(null)
   const initializingRef = useRef<boolean>(false)
   const abortControllerRef = useRef<AbortController | null>(null)
-  
+
   // Синхронизируем локальное состояние ошибки с внешним
-  const updateErrorMessage = useCallback((message: string) => {
-    setLocalErrorMessage(message)
-    setErrorMessage(message)
-  }, [setErrorMessage])
+  const updateErrorMessage = useCallback(
+    (message: string) => {
+      setLocalErrorMessage(message)
+      setErrorMessage(message)
+    },
+    [setErrorMessage],
+  )
 
   // Инициализация потока с камеры
   const initCamera = useCallback(async () => {
@@ -67,12 +70,12 @@ export function useCameraStream(
 
     // Устанавливаем флаг инициализации
     initializingRef.current = true
-    
+
     // Отменяем предыдущий запрос, если есть
     if (abortControllerRef.current) {
       abortControllerRef.current.abort()
     }
-    
+
     // Создаём новый AbortController для текущего запроса
     abortControllerRef.current = new AbortController()
     const currentAbortController = abortControllerRef.current
@@ -165,7 +168,7 @@ export function useCameraStream(
       console.log("Запрашиваем медиа-поток с ограничениями:", constraints)
       try {
         const stream = await navigator.mediaDevices?.getUserMedia?.(constraints)
-        
+
         // Проверяем после асинхронной операции
         if (currentAbortController.signal.aborted) {
           console.log("Инициализация камеры отменена после получения потока")
@@ -174,7 +177,7 @@ export function useCameraStream(
           }
           return
         }
-        
+
         console.log("Поток получен:", stream)
 
         if (!stream) {
@@ -199,7 +202,7 @@ export function useCameraStream(
           console.log("Инициализация камеры отменена во время обработки ошибки")
           return
         }
-        
+
         console.error("Ошибка при получении потока с запрошенным разрешением:", error)
         updateErrorMessage(
           t(
@@ -219,7 +222,7 @@ export function useCameraStream(
 
         try {
           const stream = await navigator.mediaDevices?.getUserMedia?.(fallbackConstraints)
-          
+
           // Проверяем после асинхронной операции
           if (currentAbortController.signal.aborted) {
             console.log("Инициализация камеры отменена после получения fallback потока")
@@ -228,7 +231,7 @@ export function useCameraStream(
             }
             return
           }
-          
+
           console.log("Поток получен с резервными настройками:", stream)
 
           if (!stream) {
@@ -243,7 +246,7 @@ export function useCameraStream(
             console.log("Инициализация камеры отменена во время обработки fallback ошибки")
             return
           }
-          
+
           console.error("Ошибка при получении потока с резервными настройками:", fallbackError)
           updateErrorMessage(
             t(
@@ -276,7 +279,7 @@ export function useCameraStream(
               console.log("Инициализация камеры отменена в onloadedmetadata")
               return
             }
-            
+
             console.log("Видео метаданные загружены, начинаем воспроизведение")
             video.play().catch((e: unknown) => console.error("Ошибка воспроизведения:", e))
 
@@ -313,7 +316,7 @@ export function useCameraStream(
         console.log("Инициализация камеры отменена в блоке catch")
         return
       }
-      
+
       console.error("Ошибка при инициализации камеры:", error)
       updateErrorMessage(
         t(
@@ -351,13 +354,13 @@ export function useCameraStream(
         cleanupMediaStream(streamRef.current, "Camera stream device change cleanup")
         streamRef.current = null
       }
-      
+
       // Отменяем текущую инициализацию при изменении устройства
       if (abortControllerRef.current) {
         abortControllerRef.current.abort()
         abortControllerRef.current = null
       }
-      
+
       initializingRef.current = false
     }
   }, [selectedDevice, selectedAudioDevice])
@@ -369,13 +372,13 @@ export function useCameraStream(
         cleanupMediaStream(streamRef.current, "Camera stream final cleanup")
         streamRef.current = null
       }
-      
+
       // Отменяем любую текущую инициализацию при размонтировании
       if (abortControllerRef.current) {
         abortControllerRef.current.abort()
         abortControllerRef.current = null
       }
-      
+
       initializingRef.current = false
     }
   }, [])

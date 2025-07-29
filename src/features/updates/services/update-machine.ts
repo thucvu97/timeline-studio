@@ -3,20 +3,20 @@
  * Управляет состояниями проверки, загрузки и установки обновлений
  */
 
-import { assign, fromPromise, setup } from 'xstate'
+import { assign, fromPromise, setup } from "xstate"
 
-import { UpdateCheckResult, UpdateInfo, updateService } from './update-service'
+import { UpdateCheckResult, UpdateInfo, updateService } from "./update-service"
 
 // Типы событий для машины
 export type UpdateMachineEvent =
-  | { type: 'CHECK_FOR_UPDATES' }
-  | { type: 'DOWNLOAD_UPDATE' }
-  | { type: 'INSTALL_UPDATE' }
-  | { type: 'CANCEL_UPDATE' }
-  | { type: 'RETRY' }
-  | { type: 'DISMISS' }
-  | { type: 'ENABLE_AUTO_CHECK'; intervalMinutes: number }
-  | { type: 'DISABLE_AUTO_CHECK' }
+  | { type: "CHECK_FOR_UPDATES" }
+  | { type: "DOWNLOAD_UPDATE" }
+  | { type: "INSTALL_UPDATE" }
+  | { type: "CANCEL_UPDATE" }
+  | { type: "RETRY" }
+  | { type: "DISMISS" }
+  | { type: "ENABLE_AUTO_CHECK"; intervalMinutes: number }
+  | { type: "DISABLE_AUTO_CHECK" }
 
 // Контекст машины
 export interface UpdateMachineContext {
@@ -63,7 +63,7 @@ export const updateMachine = setup({
     // Сохранить результат проверки обновлений
     saveUpdateCheckResult: assign({
       availableUpdate: ({ event }) => {
-        if (event.type === 'CHECK_FOR_UPDATES') {
+        if (event.type === "CHECK_FOR_UPDATES") {
           const result = event.output as UpdateCheckResult
           return result.available ? result.update_info : undefined
         }
@@ -76,8 +76,7 @@ export const updateMachine = setup({
     // Сохранить ошибку
     saveError: assign({
       error: ({ event }) => {
-        if (event.type === 'CHECK_FOR_UPDATES' || 
-            event.type === 'DOWNLOAD_UPDATE') {
+        if (event.type === "CHECK_FOR_UPDATES" || event.type === "DOWNLOAD_UPDATE") {
           return event.error instanceof Error ? event.error.message : String(event.error)
         }
         return undefined
@@ -92,10 +91,10 @@ export const updateMachine = setup({
     // Сохранить текущую версию
     saveCurrentVersion: assign({
       currentVersion: ({ event }) => {
-        if (event.type === 'xstate.done.actor.getCurrentVersion') {
+        if (event.type === "xstate.done.actor.getCurrentVersion") {
           return event.output as string
         }
-        return 'unknown'
+        return "unknown"
       },
     }),
 
@@ -103,7 +102,7 @@ export const updateMachine = setup({
     enableAutoCheck: assign({
       autoCheckEnabled: () => true,
       autoCheckInterval: ({ event }) => {
-        return event.type === 'ENABLE_AUTO_CHECK' ? event.intervalMinutes : 60
+        return event.type === "ENABLE_AUTO_CHECK" ? event.intervalMinutes : 60
       },
     }),
 
@@ -138,29 +137,29 @@ export const updateMachine = setup({
     },
   },
 }).createMachine({
-  id: 'updateMachine',
-  
+  id: "updateMachine",
+
   context: {
-    currentVersion: 'unknown',
+    currentVersion: "unknown",
     autoCheckEnabled: false,
     autoCheckInterval: 60,
   },
 
-  initial: 'initializing',
+  initial: "initializing",
 
   states: {
     // Инициализация - получение текущей версии
     initializing: {
       invoke: {
-        id: 'getCurrentVersion',
-        src: 'getCurrentVersion',
+        id: "getCurrentVersion",
+        src: "getCurrentVersion",
         onDone: {
-          target: 'idle',
-          actions: 'saveCurrentVersion',
+          target: "idle",
+          actions: "saveCurrentVersion",
         },
         onError: {
-          target: 'idle',
-          actions: 'saveError',
+          target: "idle",
+          actions: "saveError",
         },
       },
     },
@@ -168,12 +167,12 @@ export const updateMachine = setup({
     // Ожидание действий пользователя
     idle: {
       on: {
-        CHECK_FOR_UPDATES: 'checking',
+        CHECK_FOR_UPDATES: "checking",
         ENABLE_AUTO_CHECK: {
-          actions: ['enableAutoCheck'],
+          actions: ["enableAutoCheck"],
         },
         DISABLE_AUTO_CHECK: {
-          actions: ['disableAutoCheck'],
+          actions: ["disableAutoCheck"],
         },
       },
     },
@@ -181,65 +180,65 @@ export const updateMachine = setup({
     // Проверка обновлений
     checking: {
       invoke: {
-        id: 'checkForUpdates',
-        src: 'checkForUpdates',
+        id: "checkForUpdates",
+        src: "checkForUpdates",
         onDone: [
           {
-            target: 'updateAvailable',
+            target: "updateAvailable",
             guard: ({ event }) => {
               const result = event.output
               return result.available
             },
-            actions: 'saveUpdateCheckResult',
+            actions: "saveUpdateCheckResult",
           },
           {
-            target: 'idle',
-            actions: 'saveUpdateCheckResult',
+            target: "idle",
+            actions: "saveUpdateCheckResult",
           },
         ],
         onError: {
-          target: 'error',
-          actions: 'saveError',
+          target: "error",
+          actions: "saveError",
         },
       },
       on: {
-        CANCEL_UPDATE: 'idle',
+        CANCEL_UPDATE: "idle",
       },
     },
 
     // Обновление доступно
     updateAvailable: {
       on: {
-        DOWNLOAD_UPDATE: 'downloading',
-        DISMISS: 'idle',
-        CHECK_FOR_UPDATES: 'checking',
+        DOWNLOAD_UPDATE: "downloading",
+        DISMISS: "idle",
+        CHECK_FOR_UPDATES: "checking",
       },
     },
 
     // Загрузка обновления
     downloading: {
       invoke: {
-        id: 'downloadAndInstall',
-        src: 'downloadAndInstall',
+        id: "downloadAndInstall",
+        src: "downloadAndInstall",
         onDone: {
-          target: 'readyToInstall',
-          actions: 'clearError',
+          target: "readyToInstall",
+          actions: "clearError",
         },
         onError: {
-          target: 'error',
-          actions: 'saveError',
+          target: "error",
+          actions: "saveError",
         },
       },
       on: {
-        CANCEL_UPDATE: 'updateAvailable',
+        CANCEL_UPDATE: "updateAvailable",
       },
     },
 
     // Готово к установке
     readyToInstall: {
       on: {
-        INSTALL_UPDATE: 'installing',
-        CANCEL_UPDATE: 'updateAvailable',
+        INSTALL_UPDATE: "installing",
+        CANCEL_UPDATE: "updateAvailable",
       },
     },
 
@@ -247,10 +246,10 @@ export const updateMachine = setup({
     installing: {
       // В реальной реализации здесь может быть отдельный сервис для установки
       after: {
-        2000: 'installed', // Симуляция времени установки
+        2000: "installed", // Симуляция времени установки
       },
       on: {
-        CANCEL_UPDATE: 'readyToInstall',
+        CANCEL_UPDATE: "readyToInstall",
       },
     },
 
@@ -258,8 +257,8 @@ export const updateMachine = setup({
     installed: {
       on: {
         DISMISS: {
-          target: 'idle',
-          actions: 'clearAvailableUpdate',
+          target: "idle",
+          actions: "clearAvailableUpdate",
         },
       },
     },
@@ -267,14 +266,14 @@ export const updateMachine = setup({
     // Состояние ошибки
     error: {
       on: {
-        RETRY: 'idle',
+        RETRY: "idle",
         DISMISS: {
-          target: 'idle',
-          actions: 'clearError',
+          target: "idle",
+          actions: "clearError",
         },
         CHECK_FOR_UPDATES: {
-          target: 'checking',
-          actions: 'clearError',
+          target: "checking",
+          actions: "clearError",
         },
       },
     },

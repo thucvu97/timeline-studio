@@ -3,15 +3,13 @@
  * Показывает информацию об обновлении и предоставляет действия для пользователя
  */
 
-import React from 'react'
+import { X } from "lucide-react"
 
-import { X } from 'lucide-react'
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-
-import { useUpdateManager } from '../hooks/use-update-manager'
+import { useUpdateManager } from "../hooks/use-update-manager"
 
 interface UpdateNotificationProps {
   className?: string
@@ -22,11 +20,7 @@ interface UpdateNotificationProps {
 /**
  * Компонент уведомления об обновлении
  */
-export function UpdateNotification({ 
-  className, 
-  onClose, 
-  showProgress = true 
-}: UpdateNotificationProps) {
+export function UpdateNotification({ className, onClose, showProgress = true }: UpdateNotificationProps) {
   const {
     isUpdateAvailable,
     isDownloading,
@@ -54,24 +48,24 @@ export function UpdateNotification({
   }
 
   const getTitle = () => {
-    if (isError) return 'Ошибка обновления'
-    if (isInstalled) return 'Обновление установлено'
-    if (isInstalling) return 'Установка обновления...'
-    if (isReadyToInstall) return 'Готово к установке'
-    if (isDownloading) return 'Загрузка обновления...'
-    return 'Доступно обновление'
+    if (isError) return "Ошибка обновления"
+    if (isInstalled) return "Обновление установлено"
+    if (isInstalling) return "Установка обновления..."
+    if (isReadyToInstall) return "Готово к установке"
+    if (isDownloading) return "Загрузка обновления..."
+    return "Доступно обновление"
   }
 
   const getDescription = () => {
-    if (isError) return error || 'Произошла ошибка при обновлении'
-    if (isInstalled) return 'Обновление успешно установлено. Перезапустите приложение для применения изменений.'
-    if (isInstalling) return 'Пожалуйста, подождите...'
-    if (isReadyToInstall) return 'Обновление загружено и готово к установке'
-    if (isDownloading) return 'Загружается новая версия приложения'
+    if (isError) return error || "Произошла ошибка при обновлении"
+    if (isInstalled) return "Обновление успешно установлено. Перезапустите приложение для применения изменений."
+    if (isInstalling) return "Пожалуйста, подождите..."
+    if (isReadyToInstall) return "Обновление загружено и готово к установке"
+    if (isDownloading) return "Загружается новая версия приложения"
     if (availableUpdate) {
       return `Версия ${availableUpdate.version} готова к загрузке`
     }
-    return 'Новая версия приложения готова к загрузке'
+    return "Новая версия приложения готова к загрузке"
   }
 
   const getActionButtons = () => {
@@ -139,19 +133,19 @@ export function UpdateNotification({
   }
 
   const getBadgeVariant = () => {
-    if (isError) return 'destructive' as const
-    if (isInstalled) return 'default' as const
-    if (isInstalling || isDownloading) return 'secondary' as const
-    return 'default' as const
+    if (isError) return "destructive" as const
+    if (isInstalled) return "default" as const
+    if (isInstalling || isDownloading) return "secondary" as const
+    return "default" as const
   }
 
   const getBadgeText = () => {
-    if (isError) return 'Ошибка'
-    if (isInstalled) return 'Установлено'
-    if (isInstalling) return 'Установка'
-    if (isReadyToInstall) return 'Готово'
-    if (isDownloading) return 'Загрузка'
-    return 'Новое'
+    if (isError) return "Ошибка"
+    if (isInstalled) return "Установлено"
+    if (isInstalling) return "Установка"
+    if (isReadyToInstall) return "Готово"
+    if (isDownloading) return "Загрузка"
+    return "Новое"
   }
 
   return (
@@ -159,25 +153,16 @@ export function UpdateNotification({
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2">
-            <CardTitle className="text-sm font-medium">
-              {getTitle()}
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">{getTitle()}</CardTitle>
             <Badge variant={getBadgeVariant()} className="text-xs">
               {getBadgeText()}
             </Badge>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-6 w-6 p-0"
-            onClick={handleClose}
-          >
+          <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={handleClose}>
             <X className="h-3 w-3" />
           </Button>
         </div>
-        <CardDescription className="text-xs">
-          {getDescription()}
-        </CardDescription>
+        <CardDescription className="text-xs">{getDescription()}</CardDescription>
       </CardHeader>
 
       <CardContent className="pt-0">
@@ -207,22 +192,18 @@ export function UpdateNotification({
           <div className="mb-3 p-2 bg-muted rounded-md">
             <div className="text-xs font-medium">Версия {availableUpdate.version}</div>
             {availableUpdate.notes && (
-              <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                {availableUpdate.notes}
-              </div>
+              <div className="text-xs text-muted-foreground mt-1 line-clamp-2">{availableUpdate.notes}</div>
             )}
             {availableUpdate.pub_date && (
               <div className="text-xs text-muted-foreground mt-1">
-                {new Date(availableUpdate.pub_date).toLocaleDateString('ru-RU')}
+                {new Date(availableUpdate.pub_date).toLocaleDateString("ru-RU")}
               </div>
             )}
           </div>
         )}
 
         {/* Кнопки действий */}
-        <div className="flex justify-end">
-          {getActionButtons()}
-        </div>
+        <div className="flex justify-end">{getActionButtons()}</div>
       </CardContent>
     </Card>
   )
@@ -232,11 +213,11 @@ export function UpdateNotification({
  * Утилита для форматирования размера файла
  */
 function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 Bytes'
+  if (bytes === 0) return "0 Bytes"
 
   const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB']
+  const sizes = ["Bytes", "KB", "MB", "GB"]
   const i = Math.floor(Math.log(bytes) / Math.log(k))
 
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`
+  return `${Number.parseFloat((bytes / k ** i).toFixed(1))} ${sizes[i]}`
 }

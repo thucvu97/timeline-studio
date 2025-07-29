@@ -43,45 +43,27 @@ describe("useSpeedRampingHotkeys", () => {
     renderHook(() => useSpeedRampingHotkeys())
 
     // Проверяем, что shortcuts были зарегистрированы
-    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith(
-      "enable-speed-ramping",
-      expect.any(Function)
-    )
+    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith("enable-speed-ramping", expect.any(Function))
 
-    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith(
-      "reset-speed",
-      expect.any(Function)
-    )
+    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith("reset-speed", expect.any(Function))
 
-    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith(
-      "speed-half",
-      expect.any(Function)
-    )
+    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith("speed-half", expect.any(Function))
 
-    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith(
-      "speed-double",
-      expect.any(Function)
-    )
+    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith("speed-double", expect.any(Function))
 
-    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith(
-      "speed-quad",
-      expect.any(Function)
-    )
+    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith("speed-quad", expect.any(Function))
 
-    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith(
-      "reverse-speed",
-      expect.any(Function)
-    )
+    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith("reverse-speed", expect.any(Function))
   })
 
   it("включает speed ramping при нажатии Cmd+Shift+R", () => {
     renderHook(() => useSpeedRampingHotkeys())
 
     // Получаем action для enable-speed-ramping
-    const enableAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(
-      call => call[0] === "enable-speed-ramping"
-    )?.[1]
-    
+    const enableAction = vi
+      .mocked(shortcutsRegistry)
+      .updateAction.mock.calls.find((call) => call[0] === "enable-speed-ramping")?.[1]
+
     expect(enableAction).toBeDefined()
 
     // Вызываем action
@@ -102,10 +84,10 @@ describe("useSpeedRampingHotkeys", () => {
     renderHook(() => useSpeedRampingHotkeys())
 
     // Получаем action для reset-speed
-    const resetAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(
-      call => call[0] === "reset-speed"
-    )?.[1]
-    
+    const resetAction = vi
+      .mocked(shortcutsRegistry)
+      .updateAction.mock.calls.find((call) => call[0] === "reset-speed")?.[1]
+
     expect(resetAction).toBeDefined()
 
     // Вызываем action
@@ -119,10 +101,10 @@ describe("useSpeedRampingHotkeys", () => {
     renderHook(() => useSpeedRampingHotkeys())
 
     // Получаем action для speed-half
-    const slowAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(
-      call => call[0] === "speed-half"
-    )?.[1]
-    
+    const slowAction = vi
+      .mocked(shortcutsRegistry)
+      .updateAction.mock.calls.find((call) => call[0] === "speed-half")?.[1]
+
     expect(slowAction).toBeDefined()
 
     // Вызываем action
@@ -136,10 +118,10 @@ describe("useSpeedRampingHotkeys", () => {
     renderHook(() => useSpeedRampingHotkeys())
 
     // Получаем action для speed-double
-    const fastAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(
-      call => call[0] === "speed-double"
-    )?.[1]
-    
+    const fastAction = vi
+      .mocked(shortcutsRegistry)
+      .updateAction.mock.calls.find((call) => call[0] === "speed-double")?.[1]
+
     expect(fastAction).toBeDefined()
 
     // Вызываем action
@@ -153,10 +135,10 @@ describe("useSpeedRampingHotkeys", () => {
     renderHook(() => useSpeedRampingHotkeys())
 
     // Получаем action для speed-quad
-    const veryFastAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(
-      call => call[0] === "speed-quad"
-    )?.[1]
-    
+    const veryFastAction = vi
+      .mocked(shortcutsRegistry)
+      .updateAction.mock.calls.find((call) => call[0] === "speed-quad")?.[1]
+
     expect(veryFastAction).toBeDefined()
 
     // Вызываем action
@@ -173,10 +155,10 @@ describe("useSpeedRampingHotkeys", () => {
     renderHook(() => useSpeedRampingHotkeys())
 
     // Получаем action для enable-speed-ramping
-    const enableAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(
-      call => call[0] === "enable-speed-ramping"
-    )?.[1]
-    
+    const enableAction = vi
+      .mocked(shortcutsRegistry)
+      .updateAction.mock.calls.find((call) => call[0] === "enable-speed-ramping")?.[1]
+
     expect(enableAction).toBeDefined()
 
     // Вызываем action

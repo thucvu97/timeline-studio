@@ -5,16 +5,7 @@
 
 import { useCallback, useEffect, useState } from "react"
 
-import { 
-  Clock, 
-  GitBranch, 
-  History, 
-  MessageCircle, 
-  Plus,
-  RotateCcw,
-  Settings,
-  User
-} from "lucide-react"
+import { Clock, GitBranch, History, MessageCircle, Plus, RotateCcw, Settings, User } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -32,7 +23,7 @@ const formatTimeAgo = (date: Date): string => {
   const diffMinutes = Math.floor(diffMs / (1000 * 60))
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-  
+
   if (diffMinutes < 1) return "только что"
   if (diffMinutes < 60) return `${diffMinutes} мин. назад`
   if (diffHours < 24) return `${diffHours} ч. назад`
@@ -93,14 +84,17 @@ export function VersionHistoryPanel({ className }: VersionHistoryPanelProps) {
   }, [createSnapshot, snapshotMessage, loadVersionHistory])
 
   // Handle restore version
-  const handleRestoreVersion = useCallback(async (versionId: string) => {
-    if (window.confirm(`Восстановить проект до версии ${versionId}? Все несохранённые изменения будут потеряны.`)) {
-      const success = await restoreVersion(versionId)
-      if (success) {
-        void loadVersionHistory() // Refresh list
+  const handleRestoreVersion = useCallback(
+    async (versionId: string) => {
+      if (window.confirm(`Восстановить проект до версии ${versionId}? Все несохранённые изменения будут потеряны.`)) {
+        const success = await restoreVersion(versionId)
+        if (success) {
+          void loadVersionHistory() // Refresh list
+        }
       }
-    }
-  }, [restoreVersion, loadVersionHistory])
+    },
+    [restoreVersion, loadVersionHistory],
+  )
 
   // Handle auto-save toggle
   const handleToggleAutoSave = useCallback(async () => {
@@ -108,9 +102,12 @@ export function VersionHistoryPanel({ className }: VersionHistoryPanelProps) {
   }, [enableAutoSave, autoSaveEnabled])
 
   // Handle auto-save interval change
-  const handleIntervalChange = useCallback(async (newInterval: number) => {
-    await setAutoSaveInterval(newInterval)
-  }, [setAutoSaveInterval])
+  const handleIntervalChange = useCallback(
+    async (newInterval: number) => {
+      await setAutoSaveInterval(newInterval)
+    },
+    [setAutoSaveInterval],
+  )
 
   return (
     <Card className={className}>
@@ -127,7 +124,7 @@ export function VersionHistoryPanel({ className }: VersionHistoryPanelProps) {
           </Badge>
         </div>
       </CardHeader>
-      
+
       <CardContent className="space-y-4">
         {/* Auto-save status */}
         <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
@@ -138,11 +135,7 @@ export function VersionHistoryPanel({ className }: VersionHistoryPanelProps) {
               {autoSaveEnabled && ` (${autoSaveIntervalSeconds}с)`}
             </span>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowAutoSaveSettings(!showAutoSaveSettings)}
-          >
+          <Button variant="ghost" size="sm" onClick={() => setShowAutoSaveSettings(!showAutoSaveSettings)}>
             <Settings className="h-3 w-3" />
           </Button>
         </div>
@@ -161,7 +154,7 @@ export function VersionHistoryPanel({ className }: VersionHistoryPanelProps) {
                 {autoSaveEnabled ? "Вкл" : "Выкл"}
               </Button>
             </div>
-            
+
             {autoSaveEnabled && (
               <div className="space-y-2">
                 <label className="text-sm">Интервал (секунды)</label>
@@ -194,11 +187,7 @@ export function VersionHistoryPanel({ className }: VersionHistoryPanelProps) {
               className="flex-1 px-3 py-2 text-sm border rounded-md"
               disabled={isLoading}
             />
-            <Button
-              onClick={handleCreateSnapshot}
-              disabled={isLoading}
-              size="sm"
-            >
+            <Button onClick={handleCreateSnapshot} disabled={isLoading} size="sm">
               <Plus className="h-3 w-3 mr-1" />
               Создать
             </Button>
@@ -210,18 +199,12 @@ export function VersionHistoryPanel({ className }: VersionHistoryPanelProps) {
         {/* Version history */}
         <div className="space-y-2">
           <h4 className="text-sm font-medium">История версий</h4>
-          
-          {error && (
-            <div className="p-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded">
-              {error}
-            </div>
-          )}
+
+          {error && <div className="p-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded">{error}</div>}
 
           <ScrollArea className="h-64">
             {loadingVersions ? (
-              <div className="flex items-center justify-center p-4 text-sm text-muted-foreground">
-                Загрузка...
-              </div>
+              <div className="flex items-center justify-center p-4 text-sm text-muted-foreground">Загрузка...</div>
             ) : versions.length === 0 ? (
               <div className="flex items-center justify-center p-4 text-sm text-muted-foreground">
                 Нет сохранённых версий
@@ -232,17 +215,12 @@ export function VersionHistoryPanel({ className }: VersionHistoryPanelProps) {
                   <div
                     key={version.id}
                     className={`p-3 border rounded-lg space-y-2 ${
-                      version.id === currentVersionId 
-                        ? "bg-blue-50 border-blue-200" 
-                        : "hover:bg-muted/50"
+                      version.id === currentVersionId ? "bg-blue-50 border-blue-200" : "hover:bg-muted/50"
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Badge 
-                          variant={version.id === currentVersionId ? "default" : "outline"}
-                          className="text-xs"
-                        >
+                        <Badge variant={version.id === currentVersionId ? "default" : "outline"} className="text-xs">
                           {version.id.slice(0, 8)}
                         </Badge>
                         {version.id === currentVersionId && (
@@ -251,7 +229,7 @@ export function VersionHistoryPanel({ className }: VersionHistoryPanelProps) {
                           </Badge>
                         )}
                       </div>
-                      
+
                       {version.id !== currentVersionId && (
                         <Button
                           variant="ghost"
@@ -269,11 +247,9 @@ export function VersionHistoryPanel({ className }: VersionHistoryPanelProps) {
                         <User className="h-3 w-3" />
                         <span>{version.author}</span>
                         <Clock className="h-3 w-3" />
-                        <span>
-                          {formatTimeAgo(new Date(version.timestamp))}
-                        </span>
+                        <span>{formatTimeAgo(new Date(version.timestamp))}</span>
                       </div>
-                      
+
                       {version.message && (
                         <div className="flex items-start gap-2 text-xs">
                           <MessageCircle className="h-3 w-3 mt-0.5 flex-shrink-0" />
@@ -290,10 +266,7 @@ export function VersionHistoryPanel({ className }: VersionHistoryPanelProps) {
 
         {/* Last snapshot info */}
         {lastSnapshotTime && (
-          <div className="text-xs text-muted-foreground">
-            Последний снапшот:{" "}
-            {formatTimeAgo(lastSnapshotTime)}
-          </div>
+          <div className="text-xs text-muted-foreground">Последний снапшот: {formatTimeAgo(lastSnapshotTime)}</div>
         )}
       </CardContent>
     </Card>

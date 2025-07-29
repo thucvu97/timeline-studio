@@ -1,15 +1,15 @@
 /**
  * Centralized Mock Backend Provider for app-state testing
- * 
+ *
  * This provider simplifies testing of components that depend on the backend integration.
  * It provides consistent mocks for all Tauri commands and events used by the app-state module.
  */
 
-import React, { ReactNode, createContext, useContext } from 'react'
+import React, { ReactNode, createContext, useContext } from "react"
 
-import { vi, MockedFunction } from 'vitest'
+import { MockedFunction, vi } from "vitest"
 
-import type { CommandResult, ProjectCommand, ProjectEvent, ProjectState } from '@/types/generated/tauri-bindings'
+import type { CommandResult, ProjectCommand, ProjectEvent, ProjectState } from "@/types/generated/tauri-bindings"
 
 // Mock data types
 export interface MockProjectState {
@@ -56,12 +56,12 @@ export interface MockBackendContext {
   // Current state
   projectState: MockProjectState
   eventHistory: ProjectEvent[]
-  
+
   // Mock functions
   executeCommand: MockedFunction<(command: ProjectCommand) => Promise<CommandResult>>
   getProjectState: MockedFunction<() => Promise<ProjectState>>
   getEventHistory: MockedFunction<() => Promise<ProjectEvent[]>>
-  
+
   // Utilities for tests
   updateProjectState: (updates: Partial<MockProjectState>) => void
   addEvent: (event: ProjectEvent) => void
@@ -72,23 +72,23 @@ export interface MockBackendContext {
 // Default mock state
 const createDefaultMockState = (): MockProjectState => ({
   project: {
-    id: 'test-project-123',
-    name: 'Test Project',
+    id: "test-project-123",
+    name: "Test Project",
     metadata: {
-      name: 'Test Project',
-      description: 'A test project for unit testing',
-      created_at: '2025-01-22T12:00:00.000Z',
-      modified_at: '2025-01-22T12:00:00.000Z',
-      file_path: '/test/path/project.tls',
+      name: "Test Project",
+      description: "A test project for unit testing",
+      created_at: "2025-01-22T12:00:00.000Z",
+      modified_at: "2025-01-22T12:00:00.000Z",
+      file_path: "/test/path/project.tls",
       is_dirty: false,
-      version: '1.0.0'
-    }
+      version: "1.0.0",
+    },
   },
   ui_state: {
     selected_clips: [],
     selected_tracks: [],
     timeline_zoom: 1.0,
-    timeline_scroll: 0
+    timeline_scroll: 0,
   },
   playback_state: {
     is_playing: false,
@@ -99,15 +99,15 @@ const createDefaultMockState = (): MockProjectState => ({
     loop_end: null,
     volume: 0.8,
     current_media_id: null,
-    selected_clip_id: null
+    selected_clip_id: null,
   },
   version: 1,
   version_info: {
-    current_version: 'v1.0.0',
-    current_branch: 'main',
+    current_version: "v1.0.0",
+    current_branch: "main",
     has_unsaved_changes: false,
-    last_save_time: '2025-01-22T12:00:00.000Z'
-  }
+    last_save_time: "2025-01-22T12:00:00.000Z",
+  },
 })
 
 const MockBackendContext = createContext<MockBackendContext | null>(null)
@@ -118,16 +118,12 @@ interface MockBackendProviderProps {
   onCommand?: (command: ProjectCommand) => CommandResult | Promise<CommandResult>
 }
 
-export function MockBackendProvider({ 
-  children, 
-  initialState,
-  onCommand 
-}: MockBackendProviderProps) {
+export function MockBackendProvider({ children, initialState, onCommand }: MockBackendProviderProps) {
   const [projectState, setProjectState] = React.useState<MockProjectState>(() => ({
     ...createDefaultMockState(),
-    ...initialState
+    ...initialState,
   }))
-  
+
   const [eventHistory, setEventHistory] = React.useState<ProjectEvent[]>([])
 
   // Mock command execution
@@ -140,7 +136,7 @@ export function MockBackendProvider({
 
     // Default command handling for common operations
     switch (command.type) {
-      case 'CreateProject':
+      case "CreateProject":
         const newProject = {
           id: `project-${Date.now()}`,
           name: command.params.name,
@@ -151,32 +147,32 @@ export function MockBackendProvider({
             modified_at: new Date().toISOString(),
             file_path: null,
             is_dirty: false,
-            version: '1.0.0'
-          }
+            version: "1.0.0",
+          },
         }
-        setProjectState(prev => ({ ...prev, project: newProject }))
-        return { success: true, message: 'Project created successfully' }
+        setProjectState((prev) => ({ ...prev, project: newProject }))
+        return { success: true, message: "Project created successfully" }
 
-      case 'Play':
-        setProjectState(prev => ({
+      case "Play":
+        setProjectState((prev) => ({
           ...prev,
-          playback_state: { ...prev.playback_state, is_playing: true }
+          playback_state: { ...prev.playback_state, is_playing: true },
         }))
-        return { success: true, message: 'Playback started' }
+        return { success: true, message: "Playback started" }
 
-      case 'Pause':
-        setProjectState(prev => ({
+      case "Pause":
+        setProjectState((prev) => ({
           ...prev,
-          playback_state: { ...prev.playback_state, is_playing: false }
+          playback_state: { ...prev.playback_state, is_playing: false },
         }))
-        return { success: true, message: 'Playback paused' }
+        return { success: true, message: "Playback paused" }
 
-      case 'Seek':
-        setProjectState(prev => ({
+      case "Seek":
+        setProjectState((prev) => ({
           ...prev,
-          playback_state: { ...prev.playback_state, current_time: command.params.time }
+          playback_state: { ...prev.playback_state, current_time: command.params.time },
         }))
-        return { success: true, message: 'Playback seeked' }
+        return { success: true, message: "Playback seeked" }
 
       default:
         return { success: true, message: `Command ${command.type} executed successfully` }
@@ -188,11 +184,11 @@ export function MockBackendProvider({
 
   // Utility functions for tests
   const updateProjectState = (updates: Partial<MockProjectState>) => {
-    setProjectState(prev => ({ ...prev, ...updates }))
+    setProjectState((prev) => ({ ...prev, ...updates }))
   }
 
   const addEvent = (event: ProjectEvent) => {
-    setEventHistory(prev => [...prev, event])
+    setEventHistory((prev) => [...prev, event])
   }
 
   const clearHistory = () => {
@@ -214,21 +210,17 @@ export function MockBackendProvider({
     updateProjectState,
     addEvent,
     clearHistory,
-    reset
+    reset,
   }
 
-  return (
-    <MockBackendContext.Provider value={contextValue}>
-      {children}
-    </MockBackendContext.Provider>
-  )
+  return <MockBackendContext.Provider value={contextValue}>{children}</MockBackendContext.Provider>
 }
 
 // Hook to use the mock backend in tests
 export function useMockBackend(): MockBackendContext {
   const context = useContext(MockBackendContext)
   if (!context) {
-    throw new Error('useMockBackend must be used within a MockBackendProvider')
+    throw new Error("useMockBackend must be used within a MockBackendProvider")
   }
   return context
 }
@@ -239,7 +231,7 @@ export function withMockBackend<P extends object>(
   mockOptions?: {
     initialState?: Partial<MockProjectState>
     onCommand?: (command: ProjectCommand) => CommandResult | Promise<CommandResult>
-  }
+  },
 ) {
   return function MockedComponent(props: P) {
     return (
@@ -255,24 +247,24 @@ export const createTestScenarios = {
   // Empty project state
   emptyProject: (): Partial<MockProjectState> => ({
     project: null,
-    version: 0
+    version: 0,
   }),
 
   // Project with media
   projectWithMedia: (): Partial<MockProjectState> => ({
     project: {
-      id: 'project-with-media',
-      name: 'Project with Media',
+      id: "project-with-media",
+      name: "Project with Media",
       metadata: {
-        name: 'Project with Media',
-        description: 'Test project containing media files',
-        created_at: '2025-01-22T12:00:00.000Z',
-        modified_at: '2025-01-22T12:30:00.000Z',
-        file_path: '/test/media-project.tls',
+        name: "Project with Media",
+        description: "Test project containing media files",
+        created_at: "2025-01-22T12:00:00.000Z",
+        modified_at: "2025-01-22T12:30:00.000Z",
+        file_path: "/test/media-project.tls",
         is_dirty: true,
-        version: '1.0.0'
-      }
-    }
+        version: "1.0.0",
+      },
+    },
   }),
 
   // Playing state
@@ -285,31 +277,31 @@ export const createTestScenarios = {
       loop_start: null,
       loop_end: null,
       volume: 0.8,
-      current_media_id: 'media-123',
-      selected_clip_id: 'clip-456'
-    }
+      current_media_id: "media-123",
+      selected_clip_id: "clip-456",
+    },
   }),
 
   // Dirty project state
   dirtyProject: (): Partial<MockProjectState> => ({
     project: {
-      id: 'dirty-project',
-      name: 'Dirty Project',
+      id: "dirty-project",
+      name: "Dirty Project",
       metadata: {
-        name: 'Dirty Project',
-        description: 'Project with unsaved changes',
-        created_at: '2025-01-22T12:00:00.000Z',
-        modified_at: '2025-01-22T13:00:00.000Z',
-        file_path: '/test/dirty-project.tls',
+        name: "Dirty Project",
+        description: "Project with unsaved changes",
+        created_at: "2025-01-22T12:00:00.000Z",
+        modified_at: "2025-01-22T13:00:00.000Z",
+        file_path: "/test/dirty-project.tls",
         is_dirty: true,
-        version: '1.0.0'
-      }
+        version: "1.0.0",
+      },
     },
     version_info: {
-      current_version: 'v1.2.0',
-      current_branch: 'feature/test',
+      current_version: "v1.2.0",
+      current_branch: "feature/test",
       has_unsaved_changes: true,
-      last_save_time: '2025-01-22T12:45:00.000Z'
-    }
-  })
+      last_save_time: "2025-01-22T12:45:00.000Z",
+    },
+  }),
 }

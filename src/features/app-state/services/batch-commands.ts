@@ -1,17 +1,15 @@
 /**
  * Batch command execution utilities for app-state
- * 
+ *
  * Provides utilities for efficient batch execution of multiple commands
  * with better performance and atomic operations.
  */
 
-import React from 'react'
+import React from "react"
 
-import { invoke } from '@tauri-apps/api/core'
+import { invoke } from "@tauri-apps/api/core"
 
-import type { 
-  ProjectCommand 
-} from '@/types/generated/tauri-bindings'
+import type { ProjectCommand } from "@/types/generated/tauri-bindings"
 
 // Local type definitions until Specta export is updated
 export interface BatchCommandRequest {
@@ -80,19 +78,19 @@ export class BatchCommandBuilder {
    */
   async execute(): Promise<BatchCommandResult> {
     if (this.commands.length === 0) {
-      throw new Error('Cannot execute empty batch')
+      throw new Error("Cannot execute empty batch")
     }
 
     const request: BatchCommandRequest = {
       commands: this.commands,
       stop_on_error: this.stopOnError,
-      transaction_name: this.transactionName
+      transaction_name: this.transactionName,
     }
 
-    const result = await invoke('execute_batch_commands', { request })
-    
-    if (typeof result !== 'object' || result === null) {
-      throw new Error('Invalid batch command result')
+    const result = await invoke("execute_batch_commands", { request })
+
+    if (typeof result !== "object" || result === null) {
+      throw new Error("Invalid batch command result")
     }
 
     return result as BatchCommandResult
@@ -133,12 +131,9 @@ export async function executeBatch(
   options: {
     stopOnError?: boolean
     transactionName?: string
-  } = {}
+  } = {},
 ): Promise<BatchCommandResult> {
-  return createBatch(options.transactionName)
-    .addAll(commands)
-    .setContinueOnError(!options.stopOnError)
-    .execute()
+  return createBatch(options.transactionName).addAll(commands).setContinueOnError(!options.stopOnError).execute()
 }
 
 /**
@@ -148,28 +143,25 @@ export const batchOperations = {
   /**
    * Create a new project with media files
    */
-  createProjectWithMedia: async (
-    projectName: string,
-    mediaPaths: string[]
-  ): Promise<BatchCommandResult> => {
-    return createBatch('Create Project with Media')
+  createProjectWithMedia: async (projectName: string, mediaPaths: string[]): Promise<BatchCommandResult> => {
+    return createBatch("Create Project with Media")
       .add({
-        type: 'CreateProject',
+        type: "CreateProject",
         params: {
           name: projectName,
           settings: {
             resolution: { width: 1920, height: 1080 },
             frame_rate: 30,
             audio_sample_rate: 48000,
-            audio_channels: 2
-          }
-        }
+            audio_channels: 2,
+          },
+        },
       })
       .addAll(
-        mediaPaths.map(path => ({
-          type: 'AddMedia' as const,
-          params: { path, media_type: 'Video' as const }
-        }))
+        mediaPaths.map((path) => ({
+          type: "AddMedia" as const,
+          params: { path, media_type: "Video" as const },
+        })),
       )
       .execute()
   },
@@ -182,18 +174,18 @@ export const batchOperations = {
       trackId: string
       mediaId: string
       time: number
-    }>
+    }>,
   ): Promise<BatchCommandResult> => {
-    return createBatch('Add Multiple Clips')
+    return createBatch("Add Multiple Clips")
       .addAll(
-        clips.map(clip => ({
-          type: 'AddClip' as const,
+        clips.map((clip) => ({
+          type: "AddClip" as const,
           params: {
             track_id: clip.trackId,
             media_id: clip.mediaId,
-            time: clip.time
-          }
-        }))
+            time: clip.time,
+          },
+        })),
       )
       .execute()
   },
@@ -201,15 +193,13 @@ export const batchOperations = {
   /**
    * Delete multiple clips at once
    */
-  deleteMultipleClips: async (
-    clipIds: string[]
-  ): Promise<BatchCommandResult> => {
-    return createBatch('Delete Multiple Clips')
+  deleteMultipleClips: async (clipIds: string[]): Promise<BatchCommandResult> => {
+    return createBatch("Delete Multiple Clips")
       .addAll(
-        clipIds.map(clipId => ({
-          type: 'DeleteClip' as const,
-          params: { clip_id: clipId }
-        }))
+        clipIds.map((clipId) => ({
+          type: "DeleteClip" as const,
+          params: { clip_id: clipId },
+        })),
       )
       .execute()
   },
@@ -217,22 +207,21 @@ export const batchOperations = {
   /**
    * Apply effect to multiple clips
    */
-  applyEffectToClips: async (
-    clipIds: string[],
-    effectId: string,
-    effectParams: any
-  ): Promise<BatchCommandResult> => {
-    return createBatch('Apply Effect to Multiple Clips')
+  applyEffectToClips: async (clipIds: string[], effectId: string, effectParams: any): Promise<BatchCommandResult> => {
+    return createBatch("Apply Effect to Multiple Clips")
       .addAll(
-        clipIds.map(clipId => ({
-          type: 'UpdateClip' as const,
-          params: {
-            clip_id: clipId,
-            updates: {
-              effects: [{ effect_id: effectId, params: effectParams }]
-            }
-          }
-        } as ProjectCommand))
+        clipIds.map(
+          (clipId) =>
+            ({
+              type: "UpdateClip" as const,
+              params: {
+                clip_id: clipId,
+                updates: {
+                  effects: [{ effect_id: effectId, params: effectParams }],
+                },
+              },
+            }) as ProjectCommand,
+        ),
       )
       .execute()
   },
@@ -243,20 +232,20 @@ export const batchOperations = {
   createMultipleTracks: async (
     tracks: Array<{
       name: string
-      trackType: 'Video' | 'Audio'
+      trackType: "Video" | "Audio"
       index?: number
-    }>
+    }>,
   ): Promise<BatchCommandResult> => {
-    return createBatch('Create Multiple Tracks')
+    return createBatch("Create Multiple Tracks")
       .addAll(
-        tracks.map(track => ({
-          type: 'AddTrack' as const,
+        tracks.map((track) => ({
+          type: "AddTrack" as const,
           params: {
             name: track.name,
             track_type: track.trackType,
-            index: track.index || null
-          }
-        }))
+            index: track.index || null,
+          },
+        })),
       )
       .execute()
   },
@@ -264,44 +253,42 @@ export const batchOperations = {
   /**
    * Bulk timeline operations (add tracks, add media, add clips)
    */
-  setupTimelineWithContent: async (
-    config: {
-      tracks: Array<{ name: string; type: 'Video' | 'Audio' }>
-      media: Array<{ path: string; type: 'Video' | 'Audio' | 'Image' }>
-      clips: Array<{ trackIndex: number; mediaIndex: number; time: number }>
-    }
-  ): Promise<BatchCommandResult> => {
-    const batch = createBatch('Setup Timeline with Content')
-    
+  setupTimelineWithContent: async (config: {
+    tracks: Array<{ name: string; type: "Video" | "Audio" }>
+    media: Array<{ path: string; type: "Video" | "Audio" | "Image" }>
+    clips: Array<{ trackIndex: number; mediaIndex: number; time: number }>
+  }): Promise<BatchCommandResult> => {
+    const batch = createBatch("Setup Timeline with Content")
+
     // Add tracks first
     config.tracks.forEach((track, index) => {
       batch.add({
-        type: 'AddTrack',
+        type: "AddTrack",
         params: {
           name: track.name,
           track_type: track.type,
-          index
-        }
+          index,
+        },
       })
     })
-    
+
     // Add media files
-    config.media.forEach(media => {
+    config.media.forEach((media) => {
       batch.add({
-        type: 'AddMedia',
+        type: "AddMedia",
         params: {
           path: media.path,
-          media_type: media.type
-        }
+          media_type: media.type,
+        },
       })
     })
-    
+
     // Note: Clips would need track_id and media_id from the results
     // This is a limitation of batch operations - they can't reference results from previous commands
     // For now, clips should be added in a separate batch after getting IDs
-    
+
     return batch.execute()
-  }
+  },
 }
 
 /**
@@ -320,17 +307,17 @@ export const batchUtils = {
    */
   getErrorMessages: (result: BatchCommandResult): string[] => {
     const errors: string[] = []
-    
+
     if (result.error_message) {
       errors.push(result.error_message)
     }
-    
+
     result.results.forEach((commandResult, index) => {
       if (!commandResult.success) {
         errors.push(`Command ${index + 1}: ${commandResult.message}`)
       }
     })
-    
+
     return errors
   },
 
@@ -356,9 +343,9 @@ export const batchUtils = {
   throwIfFailed: (result: BatchCommandResult): void => {
     if (!result.success) {
       const errors = batchUtils.getErrorMessages(result)
-      throw new Error(`Batch execution failed: ${errors.join('; ')}`)
+      throw new Error(`Batch execution failed: ${errors.join("; ")}`)
     }
-  }
+  },
 }
 
 /**
@@ -370,7 +357,7 @@ export function useBatchCommands() {
 
   const executeBatchWithState = async (
     commands: ProjectCommand[],
-    options?: { stopOnError?: boolean; transactionName?: string }
+    options?: { stopOnError?: boolean; transactionName?: string },
   ): Promise<BatchCommandResult> => {
     setIsExecuting(true)
     try {
@@ -382,9 +369,7 @@ export function useBatchCommands() {
     }
   }
 
-  const executeBuilderWithState = async (
-    builder: BatchCommandBuilder
-  ): Promise<BatchCommandResult> => {
+  const executeBuilderWithState = async (builder: BatchCommandBuilder): Promise<BatchCommandResult> => {
     setIsExecuting(true)
     try {
       const result = await builder.execute()
@@ -402,6 +387,6 @@ export function useBatchCommands() {
     executeBuilder: executeBuilderWithState,
     createBatch,
     operations: batchOperations,
-    utils: batchUtils
+    utils: batchUtils,
   }
 }

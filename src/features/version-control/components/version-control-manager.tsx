@@ -5,15 +5,7 @@
 
 import { useState } from "react"
 
-import { 
-  AlertCircle, 
-  Clock,
-  GitBranch,
-  GitCommit,
-  GitMerge,
-  History,
-  Settings
-} from "lucide-react"
+import { AlertCircle, Clock, GitBranch, GitCommit, GitMerge, History, Settings } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -62,18 +54,16 @@ export function VersionControlManager({ className }: VersionControlManagerProps)
               </Badge>
             </div>
           </CardTitle>
-          
+
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
               <GitBranch className="h-3 w-3" />
               <span>{branchName}</span>
             </div>
-            
+
             <div className="flex items-center gap-1">
               <Clock className="h-3 w-3" />
-              <span>
-                Автосохранение: {autoSaveEnabled ? `${autoSaveIntervalSeconds}с` : "выкл"}
-              </span>
+              <span>Автосохранение: {autoSaveEnabled ? `${autoSaveIntervalSeconds}с` : "выкл"}</span>
             </div>
           </div>
         </CardHeader>
@@ -115,18 +105,13 @@ export function VersionControlManager({ className }: VersionControlManagerProps)
 
 // Branch management component
 function BranchManager() {
-  const {
-    branchName,
-    createBranch,
-    switchBranch,
-    isLoading,
-  } = useVersionControl()
+  const { branchName, createBranch, switchBranch, isLoading } = useVersionControl()
 
   const [newBranchName, setNewBranchName] = useState("")
 
   const handleCreateBranch = async () => {
     if (!newBranchName.trim()) return
-    
+
     const success = await createBranch(newBranchName.trim())
     if (success) {
       setNewBranchName("")
@@ -155,11 +140,7 @@ function BranchManager() {
             className="flex-1 px-3 py-2 text-sm border rounded-md"
             disabled={isLoading}
           />
-          <Button
-            onClick={handleCreateBranch}
-            disabled={isLoading || !newBranchName.trim()}
-            size="sm"
-          >
+          <Button onClick={handleCreateBranch} disabled={isLoading || !newBranchName.trim()} size="sm">
             <GitBranch className="h-3 w-3 mr-1" />
             Создать
           </Button>
@@ -179,13 +160,8 @@ function BranchManager() {
 
 // Version control settings component
 function VersionControlSettings() {
-  const {
-    autoSaveEnabled,
-    autoSaveIntervalSeconds,
-    enableAutoSave,
-    setAutoSaveInterval,
-    isLoading,
-  } = useVersionControl()
+  const { autoSaveEnabled, autoSaveIntervalSeconds, enableAutoSave, setAutoSaveInterval, isLoading } =
+    useVersionControl()
 
   const intervalOptions = [
     { value: 30, label: "30 секунд" },
@@ -249,9 +225,7 @@ function VersionControlSettings() {
             <span>Сжатие старых версий:</span>
             <span>Включено</span>
           </div>
-          <div className="text-xs text-muted-foreground">
-            Старые версии автоматически сжимаются для экономии места
-          </div>
+          <div className="text-xs text-muted-foreground">Старые версии автоматически сжимаются для экономии места</div>
         </div>
       </div>
 
@@ -264,9 +238,7 @@ function VersionControlSettings() {
           <Button variant="outline" size="sm" disabled>
             Импортировать версии
           </Button>
-          <div className="text-xs text-muted-foreground">
-            Функции экспорта/импорта пока не реализованы
-          </div>
+          <div className="text-xs text-muted-foreground">Функции экспорта/импорта пока не реализованы</div>
         </div>
       </div>
     </div>

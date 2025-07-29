@@ -3,39 +3,32 @@
  * Экспорт всех компонентов, хуков и сервисов для работы с обновлениями
  */
 
-// Сервисы
-export { UpdateService, updateService } from './services/update-service'
-export { updateMachine } from './services/update-machine'
-
-// Хуки
-export { useUpdateManager, useUpdateAvailability } from './hooks/use-update-manager'
-
+export { InlineUpdateManager, UpdateManager } from "./components/update-manager"
 // Компоненты
-export { UpdateNotification } from './components/update-notification'
-export { UpdateManager, InlineUpdateManager } from './components/update-manager'
-export { 
-  UpdateStatusIndicator, 
-  UpdateIconIndicator, 
-  UpdateTextIndicator 
-} from './components/update-status-indicator'
-export { UpdateSettings, CompactUpdateSettings } from './components/update-settings'
-
-// Типы
+export { UpdateNotification } from "./components/update-notification"
+export { CompactUpdateSettings, UpdateSettings } from "./components/update-settings"
+export {
+  UpdateIconIndicator,
+  UpdateStatusIndicator,
+  UpdateTextIndicator,
+} from "./components/update-status-indicator"
+export type { UseUpdateManagerReturn } from "./hooks/use-update-manager"
+// Хуки
+export { useUpdateAvailability, useUpdateManager } from "./hooks/use-update-manager"
 export type {
-  UpdateInfo,
-  UpdateCheckResult,
-  UpdateProgress,
-  UpdateStatus,
-  UpdateEventPayload,
-} from './services/update-service'
-
-export type {
-  UpdateMachineEvent,
-  UpdateMachineContext,
   UpdateMachine,
   UpdateMachineActor,
-} from './services/update-machine'
-
+  UpdateMachineContext,
+  UpdateMachineEvent,
+} from "./services/update-machine"
+export { updateMachine } from "./services/update-machine"
+// Типы
 export type {
-  UseUpdateManagerReturn,
-} from './hooks/use-update-manager'
+  UpdateCheckResult,
+  UpdateEventPayload,
+  UpdateInfo,
+  UpdateProgress,
+  UpdateStatus,
+} from "./services/update-service"
+// Сервисы
+export { UpdateService, updateService } from "./services/update-service"

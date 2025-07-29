@@ -11,21 +11,21 @@ import { DetectedFace, PersonAppearance } from "../types/person"
 export interface TrackingConfig {
   // Алгоритм трекинга
   algorithm: "deepsort" | "sort" | "iou" | "kalman"
-  
+
   // Параметры трекинга
   maxAge: number // Максимальное количество кадров без детекции
   minHits: number // Минимальное количество детекций для подтверждения трека
   iouThreshold: number // IoU порог для сопоставления
-  
+
   // DeepSORT параметры
   useAppearanceFeatures: boolean
   appearanceThreshold: number
-  
+
   // Kalman фильтр параметры
   useKalmanFilter: boolean
   processNoise: number
   measurementNoise: number
-  
+
   // Производительность
   maxTracks: number
   skipFrames: number
@@ -97,7 +97,7 @@ export interface TrackingStatistics {
 }
 
 // События трекинга
-export type TrackingEvent = 
+export type TrackingEvent =
   | { type: "track_created"; trackId: string; box: BoundingBox }
   | { type: "track_updated"; trackId: string; box: BoundingBox }
   | { type: "track_confirmed"; trackId: string }
@@ -198,7 +198,7 @@ export class AdvancedTrackingService {
     detections: DetectedFace[],
     frameNumber: number,
     timestamp: number,
-    frameImage?: string | ArrayBuffer
+    frameImage?: string | ArrayBuffer,
   ): Promise<FrameTrackingResult> {
     await this.ensureInitialized()
 
@@ -210,7 +210,7 @@ export class AdvancedTrackingService {
 
     try {
       // Подготавливаем данные для backend
-      const detectionData = detections.map(face => ({
+      const detectionData = detections.map((face) => ({
         id: face.id,
         bbox: face.bbox,
         confidence: face.confidence,
@@ -284,14 +284,13 @@ export class AdvancedTrackingService {
 
     try {
       const trackIds = Array.from(this.tracks.keys())
-      const predictedBoxes = await invoke<Array<{ trackId: string; box: BoundingBox }>>(
-        "predict_track_positions",
-        { trackIds }
-      )
+      const predictedBoxes = await invoke<Array<{ trackId: string; box: BoundingBox }>>("predict_track_positions", {
+        trackIds,
+      })
 
       for (const { trackId, box } of predictedBoxes) {
         predictions.set(trackId, box)
-        
+
         // Обновляем предсказанную позицию в треке
         const track = this.tracks.get(trackId)
         if (track) {
@@ -300,7 +299,7 @@ export class AdvancedTrackingService {
       }
     } catch (error) {
       console.error("Ошибка предсказания позиций:", error)
-      
+
       // Fallback: простая линейная экстраполяция
       for (const [trackId, track] of this.tracks) {
         if (track.velocity) {
@@ -392,28 +391,20 @@ export class AdvancedTrackingService {
    * Получить все активные треки
    */
   getActiveTracks(): TrackedPerson[] {
-    return Array.from(this.tracks.values()).filter(
-      track => track.state.state !== "deleted"
-    )
+    return Array.from(this.tracks.values()).filter((track) => track.state.state !== "deleted")
   }
 
   /**
    * Получить треки для персоны
    */
   getTracksForPerson(personId: string): TrackedPerson[] {
-    return Array.from(this.tracks.values()).filter(
-      track => track.personId === personId
-    )
+    return Array.from(this.tracks.values()).filter((track) => track.personId === personId)
   }
 
   /**
    * Интерполировать пропущенные позиции
    */
-  async interpolateMissingPositions(
-    trackId: string,
-    startFrame: number,
-    endFrame: number
-  ): Promise<TrajectoryPoint[]> {
+  async interpolateMissingPositions(trackId: string, startFrame: number, endFrame: number): Promise<TrajectoryPoint[]> {
     await this.ensureInitialized()
 
     const track = this.tracks.get(trackId)
@@ -431,12 +422,10 @@ export class AdvancedTrackingService {
       // Добавляем интерполированные точки в траекторию
       for (const point of interpolated) {
         point.isInterpolated = true
-        
+
         // Вставляем в правильное место в траектории
-        const insertIndex = track.trajectory.findIndex(
-          p => p.frameNumber > point.frameNumber
-        )
-        
+        const insertIndex = track.trajectory.findIndex((p) => p.frameNumber > point.frameNumber)
+
         if (insertIndex === -1) {
           track.trajectory.push(point)
         } else {
@@ -471,16 +460,19 @@ export class AdvancedTrackingService {
         endTime: { seconds: lastPoint.timestamp },
         duration: lastPoint.timestamp - firstPoint.timestamp,
         confidence: track.state.confidence,
-        minConfidence: Math.min(...track.trajectory.map(p => p.confidence)),
-        maxConfidence: Math.max(...track.trajectory.map(p => p.confidence)),
-        detections: track.trajectory.map(point => ({
-          id: `det_${track.trackId}_${point.frameNumber}`,
-          personId: track.personId,
-          confidence: point.confidence,
-          bbox: point.box,
-          timestamp: { seconds: point.timestamp },
-          frameNumber: point.frameNumber,
-        } as DetectedFace)),
+        minConfidence: Math.min(...track.trajectory.map((p) => p.confidence)),
+        maxConfidence: Math.max(...track.trajectory.map((p) => p.confidence)),
+        detections: track.trajectory.map(
+          (point) =>
+            ({
+              id: `det_${track.trackId}_${point.frameNumber}`,
+              personId: track.personId,
+              confidence: point.confidence,
+              bbox: point.box,
+              timestamp: { seconds: point.timestamp },
+              frameNumber: point.frameNumber,
+            }) as DetectedFace,
+        ),
         createdAt: new Date().toISOString(),
       }
 
@@ -500,7 +492,7 @@ export class AdvancedTrackingService {
       await invoke("stop_person_tracking")
 
       this.isTracking = false
-      
+
       // Сохраняем финальное состояние треков
       const finalTracks = this.getActiveTracks()
       console.log(`Трекинг остановлен. Финальных треков: ${finalTracks.length}`)
@@ -541,7 +533,7 @@ export class AdvancedTrackingService {
   }
 
   private emitEvent(event: TrackingEvent): void {
-    this.eventListeners.forEach(listener => {
+    this.eventListeners.forEach((listener) => {
       try {
         listener(event)
       } catch (error) {
@@ -560,11 +552,7 @@ export class AdvancedTrackingService {
     }
   }
 
-  private updateOrCreateTrack(
-    trackData: any,
-    frameNumber: number,
-    timestamp: number
-  ): TrackedPerson {
+  private updateOrCreateTrack(trackData: any, frameNumber: number, timestamp: number): TrackedPerson {
     let track = this.tracks.get(trackData.id)
 
     if (!track) {
@@ -630,13 +618,13 @@ export class AdvancedTrackingService {
       if (dt > 0) {
         const vx = (curr.box.x - prev.box.x) / dt
         const vy = (curr.box.y - prev.box.y) / dt
-        
+
         if (track.velocity) {
           const ax = (vx - track.velocity.x) / dt
           const ay = (vy - track.velocity.y) / dt
           track.acceleration = { x: ax, y: ay }
         }
-        
+
         track.velocity = { x: vx, y: vy }
       }
     }

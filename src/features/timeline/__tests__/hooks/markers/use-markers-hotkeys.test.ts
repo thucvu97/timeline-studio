@@ -69,35 +69,20 @@ describe("useMarkersHotkeys", () => {
     expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledTimes(8)
 
     // Проверяем некоторые ключевые shortcuts
-    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith(
-      "add-marker",
-      expect.any(Function)
-    )
-    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith(
-      "add-chapter-marker",
-      expect.any(Function)
-    )
-    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith(
-      "delete-marker",
-      expect.any(Function)
-    )
-    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith(
-      "next-marker",
-      expect.any(Function)
-    )
-    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith(
-      "previous-marker",
-      expect.any(Function)
-    )
+    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith("add-marker", expect.any(Function))
+    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith("add-chapter-marker", expect.any(Function))
+    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith("delete-marker", expect.any(Function))
+    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith("next-marker", expect.any(Function))
+    expect(vi.mocked(shortcutsRegistry).updateAction).toHaveBeenCalledWith("previous-marker", expect.any(Function))
   })
 
   it("добавляет маркер при нажатии M", () => {
     renderHook(() => useMarkerHotkeys())
 
     // Получаем action для add-marker
-    const addMarkerAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(
-      call => call[0] === "add-marker"
-    )?.[1]
+    const addMarkerAction = vi
+      .mocked(shortcutsRegistry)
+      .updateAction.mock.calls.find((call) => call[0] === "add-marker")?.[1]
 
     expect(addMarkerAction).toBeDefined()
 
@@ -116,9 +101,9 @@ describe("useMarkersHotkeys", () => {
     renderHook(() => useMarkerHotkeys())
 
     // Получаем action для add-chapter-marker
-    const addChapterAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(
-      call => call[0] === "add-chapter-marker"
-    )?.[1]
+    const addChapterAction = vi
+      .mocked(shortcutsRegistry)
+      .updateAction.mock.calls.find((call) => call[0] === "add-chapter-marker")?.[1]
 
     expect(addChapterAction).toBeDefined()
 
@@ -137,9 +122,9 @@ describe("useMarkersHotkeys", () => {
     renderHook(() => useMarkerHotkeys())
 
     // Получаем action для delete-marker
-    const deleteAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(
-      call => call[0] === "delete-marker"
-    )?.[1]
+    const deleteAction = vi
+      .mocked(shortcutsRegistry)
+      .updateAction.mock.calls.find((call) => call[0] === "delete-marker")?.[1]
 
     expect(deleteAction).toBeDefined()
 
@@ -154,9 +139,9 @@ describe("useMarkersHotkeys", () => {
 
     renderHook(() => useMarkerHotkeys())
 
-    const deleteAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(
-      call => call[0] === "delete-marker"
-    )?.[1]
+    const deleteAction = vi
+      .mocked(shortcutsRegistry)
+      .updateAction.mock.calls.find((call) => call[0] === "delete-marker")?.[1]
 
     expect(deleteAction).toBeDefined()
 
@@ -169,9 +154,9 @@ describe("useMarkersHotkeys", () => {
     renderHook(() => useMarkerHotkeys())
 
     // Получаем action для previous-marker
-    const prevMarkerAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(
-      call => call[0] === "previous-marker"
-    )?.[1]
+    const prevMarkerAction = vi
+      .mocked(shortcutsRegistry)
+      .updateAction.mock.calls.find((call) => call[0] === "previous-marker")?.[1]
 
     expect(prevMarkerAction).toBeDefined()
 
@@ -185,9 +170,9 @@ describe("useMarkersHotkeys", () => {
     renderHook(() => useMarkerHotkeys())
 
     // Получаем action для next-marker
-    const nextMarkerAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(
-      call => call[0] === "next-marker"
-    )?.[1]
+    const nextMarkerAction = vi
+      .mocked(shortcutsRegistry)
+      .updateAction.mock.calls.find((call) => call[0] === "next-marker")?.[1]
 
     expect(nextMarkerAction).toBeDefined()
 
@@ -200,9 +185,9 @@ describe("useMarkersHotkeys", () => {
   it("генерирует правильные имена для новых маркеров", () => {
     renderHook(() => useMarkerHotkeys())
 
-    const addMarkerAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(
-      call => call[0] === "add-marker"
-    )?.[1]
+    const addMarkerAction = vi
+      .mocked(shortcutsRegistry)
+      .updateAction.mock.calls.find((call) => call[0] === "add-marker")?.[1]
 
     expect(addMarkerAction).toBeDefined()
 

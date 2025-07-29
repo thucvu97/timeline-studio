@@ -5,24 +5,24 @@
 
 import { invoke } from "@tauri-apps/api/core"
 
-import { DetectedFace, FaceAttributes, FaceEmbedding } from "../types/person"
+import { DetectedFace, FaceAttributes } from "../types/person"
 
 // Конфигурация продвинутой детекции
 export interface AdvancedDetectionConfig {
   // Модели
   faceDetectionModel: "yolo-face" | "retinaface" | "mtcnn" | "mediapipe"
   recognitionModel: "facenet" | "arcface" | "cosface" | "sphereface"
-  
+
   // Параметры производительности
   useGPU: boolean
   batchSize: number
   maxFPS: number
-  
+
   // Качество
   minFaceSize: number
   maxFaces: number
   qualityThreshold: number
-  
+
   // Дополнительный анализ
   detectEmotions: boolean
   detectAgeGender: boolean
@@ -54,31 +54,31 @@ export interface AdvancedFaceAttributes extends FaceAttributes {
     disgusted: number
     surprised: number
   }
-  
+
   // Детальная информация о возрасте и поле
   ageRange?: { min: number; max: number }
   genderConfidence?: number
-  
+
   // Направление взгляда
   gazeDirection?: {
     yaw: number
     pitch: number
     confidence: number
   }
-  
+
   // Дополнительные атрибуты
   facialHair?: {
     mustache: number
     beard: number
     sideburns: number
   }
-  
+
   accessories?: {
     glasses: number
     sunglasses: number
     headwear: number
   }
-  
+
   makeup?: {
     eyeMakeup: number
     lipMakeup: number
@@ -87,15 +87,15 @@ export interface AdvancedFaceAttributes extends FaceAttributes {
 
 export interface Face3DPose {
   // Углы поворота головы
-  yaw: number   // Поворот влево/вправо
+  yaw: number // Поворот влево/вправо
   pitch: number // Наклон вверх/вниз
-  roll: number  // Наклон влево/вправо
-  
+  roll: number // Наклон влево/вправо
+
   // 3D позиция
   translationX: number
   translationY: number
   translationZ: number
-  
+
   // Уверенность
   confidence: number
 }
@@ -103,18 +103,18 @@ export interface Face3DPose {
 export interface FaceImageQuality {
   // Общее качество (0-1)
   overall: number
-  
+
   // Детали качества
   sharpness: number
   brightness: number
   contrast: number
-  
+
   // Проблемы
   isBlurry: boolean
   isTooDark: boolean
   isTooBright: boolean
   isOccluded: boolean
-  
+
   // Рекомендации
   suitableForRecognition: boolean
   suitableForEnrollment: boolean
@@ -220,7 +220,7 @@ export class AdvancedFaceDetectionService {
       returnEmbeddings?: boolean
       returnCroppedFaces?: boolean
       minConfidence?: number
-    }
+    },
   ): Promise<AdvancedFaceDetection[]> {
     await this.ensureInitialized()
 
@@ -255,16 +255,16 @@ export class AdvancedFaceDetectionService {
     options?: {
       returnEmbeddings?: boolean
       progressCallback?: (progress: number) => void
-    }
+    },
   ): Promise<Map<string, AdvancedFaceDetection[]>> {
     await this.ensureInitialized()
 
     const results = new Map<string, AdvancedFaceDetection[]>()
     const batchSize = this.config.batchSize
-    
+
     for (let i = 0; i < images.length; i += batchSize) {
       const batch = images.slice(i, i + batchSize)
-      
+
       // Обрабатываем батч
       const batchResults = await Promise.all(
         batch.map(async (image) => {
@@ -272,7 +272,7 @@ export class AdvancedFaceDetectionService {
             returnEmbeddings: options?.returnEmbeddings,
           })
           return { id: image.id, faces }
-        })
+        }),
       )
 
       // Сохраняем результаты
@@ -295,10 +295,10 @@ export class AdvancedFaceDetectionService {
    */
   async generateFaceEmbedding(
     faceImage: string | ArrayBuffer,
-    options?: {
+    _options?: {
       normalize?: boolean
       augment?: boolean
-    }
+    },
   ): Promise<Float32Array | null> {
     await this.ensureInitialized()
 
@@ -373,7 +373,7 @@ export class AdvancedFaceDetectionService {
       onFaceDetected?: (faces: AdvancedFaceDetection[]) => void
       onStatusUpdate?: (status: RealtimeProcessingStatus) => void
       onError?: (error: Error) => void
-    }
+    },
   ): Promise<void> {
     await this.ensureInitialized()
 
@@ -405,7 +405,7 @@ export class AdvancedFaceDetectionService {
 
     try {
       await invoke("stop_realtime_face_detection")
-      
+
       this.realtimeStatus.isProcessing = false
 
       // Отписываемся от событий
@@ -448,7 +448,7 @@ export class AdvancedFaceDetectionService {
     }
   }
 
-  private async setupRealtimeListeners(callbacks: {
+  private async setupRealtimeListeners(_callbacks: {
     onFaceDetected?: (faces: AdvancedFaceDetection[]) => void
     onStatusUpdate?: (status: RealtimeProcessingStatus) => void
     onError?: (error: Error) => void
@@ -469,7 +469,7 @@ export class AdvancedFaceDetectionService {
       blurIntensity?: number
       blurType?: "gaussian" | "pixelate" | "solid"
       faceIds?: string[] // Размыть только определенные лица
-    }
+    },
   ): Promise<string> {
     await this.ensureInitialized()
 

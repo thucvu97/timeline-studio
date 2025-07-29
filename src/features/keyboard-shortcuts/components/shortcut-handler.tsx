@@ -15,7 +15,7 @@ export function ShortcutHandler({ shortcut, enabled }: ShortcutHandlerProps) {
   // Регистрируем все комбинации клавиш одним вызовом useHotkeys
   // react-hotkeys-hook поддерживает массив комбинаций или строку с разделителями запятой
   const keysString = shortcut.keys.join(", ")
-  
+
   useHotkeys(
     keysString,
     shortcut.action || (() => {}),

@@ -50,7 +50,7 @@ export class ShortcutsPersistence {
       console.log("Shortcuts settings saved successfully")
     } catch (error) {
       console.error("Failed to save shortcuts settings:", error)
-      
+
       // Fallback на localStorage в случае ошибки
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(settings))
@@ -151,16 +151,14 @@ export class ShortcutsPersistence {
   async importSettings(jsonString: string): Promise<void> {
     try {
       const settings: ShortcutSettings = JSON.parse(jsonString)
-      
+
       // Валидация структуры
       if (!settings.shortcuts || !settings.version) {
         throw new Error("Invalid settings format")
       }
 
       // Мигрируем при необходимости
-      const migratedSettings = settings.version !== this.currentVersion 
-        ? this.migrateSettings(settings)
-        : settings
+      const migratedSettings = settings.version !== this.currentVersion ? this.migrateSettings(settings) : settings
 
       // Сохраняем
       if (typeof window !== "undefined" && (window as any).__TAURI__) {

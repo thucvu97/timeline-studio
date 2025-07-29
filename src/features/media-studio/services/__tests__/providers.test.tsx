@@ -15,7 +15,9 @@ vi.mock("@/i18n/services/i18n-provider", () => ({
 }))
 
 vi.mock("next-themes", () => ({
-  ThemeProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="next-theme-provider">{children}</div>,
+  ThemeProvider: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="next-theme-provider">{children}</div>
+  ),
 }))
 
 vi.mock("@/features/modals/services/modal-provider", () => ({

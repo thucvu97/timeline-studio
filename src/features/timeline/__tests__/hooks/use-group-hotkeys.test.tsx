@@ -7,8 +7,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { shortcutsRegistry } from "@/features/keyboard-shortcuts"
 
-import type { ClipGroup, TimelineClip, TimelineProject } from "../../types"
-
 // Mock timeline-machine
 vi.mock("../../services/timeline-machine", () => ({
   timelineMachine: {},
@@ -156,7 +154,9 @@ describe("useGroupHotkeys", () => {
     renderHook(() => useGroupHotkeys(), { wrapper })
 
     // Получаем функцию, переданную для group-clips
-    const groupClipsAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(call => call[0] === "group-clips")?.[1]
+    const groupClipsAction = vi
+      .mocked(shortcutsRegistry)
+      .updateAction.mock.calls.find((call) => call[0] === "group-clips")?.[1]
     expect(groupClipsAction).toBeDefined()
 
     // Симулируем вызов action
@@ -178,7 +178,9 @@ describe("useGroupHotkeys", () => {
 
     renderHook(() => useGroupHotkeys(), { wrapper })
 
-    const groupClipsAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(call => call[0] === "group-clips")?.[1]
+    const groupClipsAction = vi
+      .mocked(shortcutsRegistry)
+      .updateAction.mock.calls.find((call) => call[0] === "group-clips")?.[1]
     expect(groupClipsAction).toBeDefined()
 
     groupClipsAction?.()
@@ -194,7 +196,9 @@ describe("useGroupHotkeys", () => {
     renderHook(() => useGroupHotkeys(), { wrapper })
 
     // Получаем функцию для ungroup-clips
-    const ungroupClipsAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(call => call[0] === "ungroup-clips")?.[1]
+    const ungroupClipsAction = vi
+      .mocked(shortcutsRegistry)
+      .updateAction.mock.calls.find((call) => call[0] === "ungroup-clips")?.[1]
     expect(ungroupClipsAction).toBeDefined()
 
     ungroupClipsAction?.()
@@ -213,7 +217,9 @@ describe("useGroupHotkeys", () => {
 
     renderHook(() => useGroupHotkeys(), { wrapper })
 
-    const ungroupClipsAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(call => call[0] === "ungroup-clips")?.[1]
+    const ungroupClipsAction = vi
+      .mocked(shortcutsRegistry)
+      .updateAction.mock.calls.find((call) => call[0] === "ungroup-clips")?.[1]
     expect(ungroupClipsAction).toBeDefined()
 
     ungroupClipsAction?.()
@@ -232,7 +238,9 @@ describe("useGroupHotkeys", () => {
 
     renderHook(() => useGroupHotkeys(), { wrapper })
 
-    const ungroupClipsAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(call => call[0] === "ungroup-clips")?.[1]
+    const ungroupClipsAction = vi
+      .mocked(shortcutsRegistry)
+      .updateAction.mock.calls.find((call) => call[0] === "ungroup-clips")?.[1]
     expect(ungroupClipsAction).toBeDefined()
 
     ungroupClipsAction?.()
@@ -251,7 +259,9 @@ describe("useGroupHotkeys", () => {
 
     renderHook(() => useGroupHotkeys(), { wrapper })
 
-    const groupClipsAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(call => call[0] === "group-clips")?.[1]
+    const groupClipsAction = vi
+      .mocked(shortcutsRegistry)
+      .updateAction.mock.calls.find((call) => call[0] === "group-clips")?.[1]
     expect(groupClipsAction).toBeDefined()
 
     groupClipsAction?.()
@@ -302,7 +312,9 @@ describe("useGroupHotkeys", () => {
 
     renderHook(() => useGroupHotkeys(), { wrapper })
 
-    const groupClipsAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(call => call[0] === "group-clips")?.[1]
+    const groupClipsAction = vi
+      .mocked(shortcutsRegistry)
+      .updateAction.mock.calls.find((call) => call[0] === "group-clips")?.[1]
     expect(groupClipsAction).toBeDefined()
 
     groupClipsAction?.()
@@ -363,7 +375,9 @@ describe("useGroupHotkeys", () => {
 
     renderHook(() => useGroupHotkeys(), { wrapper })
 
-    const ungroupClipsAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(call => call[0] === "ungroup-clips")?.[1]
+    const ungroupClipsAction = vi
+      .mocked(shortcutsRegistry)
+      .updateAction.mock.calls.find((call) => call[0] === "ungroup-clips")?.[1]
     expect(ungroupClipsAction).toBeDefined()
 
     ungroupClipsAction?.()
@@ -450,7 +464,9 @@ describe("useGroupHotkeys", () => {
 
     renderHook(() => useGroupHotkeys(), { wrapper })
 
-    const groupClipsAction = vi.mocked(shortcutsRegistry).updateAction.mock.calls.find(call => call[0] === "group-clips")?.[1]
+    const groupClipsAction = vi
+      .mocked(shortcutsRegistry)
+      .updateAction.mock.calls.find((call) => call[0] === "group-clips")?.[1]
     expect(groupClipsAction).toBeDefined()
 
     groupClipsAction?.()
