@@ -1,3 +1,19 @@
+# [0.46.0](https://github.com/chatman-media/timeline-studio/compare/v0.45.2...v0.46.0) (2025-07-29)
+
+
+### Bug Fixes
+
+* **app-state:** исправить TypeScript ошибку в batch-commands.ts ([ad6fc0e](https://github.com/chatman-media/timeline-studio/commit/ad6fc0e38935bad6159fcb0b3a2cd7f7e4b35cdc))
+* **app-state:** исправить типовые ошибки в модуле app-state ([68a2c59](https://github.com/chatman-media/timeline-studio/commit/68a2c59430803f71e22e01bc260669acfa659fd2))
+* **rust:** исправить ошибки компиляции Rust backend ([b1561de](https://github.com/chatman-media/timeline-studio/commit/b1561de11cd975a0c0439a0b53803897fe33de2a))
+* **tests:** исправить ошибки типов в тестах timeline модуля ([63eb399](https://github.com/chatman-media/timeline-studio/commit/63eb39999ce31893dcc0920505036dad8694f114))
+
+
+### Features
+
+* **app-state:** завершить рефакторинг модуля с 10/10 оценкой ([4375e9c](https://github.com/chatman-media/timeline-studio/commit/4375e9c0a8b0c694406a0052a5405700db02bb1c))
+* **keyboard-shortcuts:** полностью переработать систему горячих клавиш ([b47b6b8](https://github.com/chatman-media/timeline-studio/commit/b47b6b8cdc04aeea3128649dcb696fd684a4077f))
+
 ## [0.45.2](https://github.com/chatman-media/timeline-studio/compare/v0.45.1...v0.45.2) (2025-07-29)
 
 
