@@ -1,3 +1,10 @@
+## [0.47.1](https://github.com/chatman-media/timeline-studio/compare/v0.47.0...v0.47.1) (2025-07-29)
+
+
+### Bug Fixes
+
+* **rust:** исправить типы для Specta экспорта ([f4d2c8e](https://github.com/chatman-media/timeline-studio/commit/f4d2c8ef31f6b1ba9853836c81c3a5a5336117bf))
+
 # [0.47.0](https://github.com/chatman-media/timeline-studio/compare/v0.46.1...v0.47.0) (2025-07-29)
 
 
