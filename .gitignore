@@ -68,3 +68,6 @@ claude_desktop_config.json
 # Generated TypeScript types from Rust
 /src/types/generated/
 /videos/*
+
+# Serena cache
+.serena/
