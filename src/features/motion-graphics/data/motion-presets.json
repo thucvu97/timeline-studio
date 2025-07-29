@@ -1,0 +1,720 @@
+{
+  "version": "1.0.0",
+  "categories": [
+    {
+      "id": "text-animations",
+      "name": "Text Animations",
+      "icon": "Type"
+    },
+    {
+      "id": "transitions",
+      "name": "Transitions",
+      "icon": "ArrowRightLeft"
+    },
+    {
+      "id": "transforms",
+      "name": "Transforms",
+      "icon": "Move"
+    },
+    {
+      "id": "effects",
+      "name": "Effects",
+      "icon": "Sparkles"
+    },
+    {
+      "id": "behaviors",
+      "name": "Behaviors",
+      "icon": "Activity"
+    }
+  ],
+  "presets": [
+    {
+      "id": "typewriter",
+      "name": "Typewriter",
+      "description": "Text appears character by character",
+      "category": "text-animations",
+      "tags": ["text", "reveal", "type"],
+      "duration": 2,
+      "scalable": true,
+      "customizable": true,
+      "properties": [
+        {
+          "id": "opacity",
+          "name": "Opacity",
+          "path": "opacity",
+          "type": "number",
+          "keyframes": [
+            {
+              "id": "kf1",
+              "time": 0,
+              "value": 0,
+              "interpolation": "hold"
+            },
+            {
+              "id": "kf2",
+              "time": 0.1,
+              "value": 1,
+              "interpolation": "hold"
+            }
+          ],
+          "enabled": true,
+          "expression": "Math.floor(time * 10) >= index ? 1 : 0",
+          "expressionEnabled": true
+        }
+      ],
+      "preview": {
+        "before": 0,
+        "after": 1
+      }
+    },
+    {
+      "id": "fade-in",
+      "name": "Fade In",
+      "description": "Smooth opacity fade from 0 to 100%",
+      "category": "transitions",
+      "tags": ["fade", "opacity", "basic"],
+      "duration": 1,
+      "scalable": true,
+      "customizable": true,
+      "properties": [
+        {
+          "id": "opacity",
+          "name": "Opacity",
+          "path": "opacity",
+          "type": "number",
+          "keyframes": [
+            {
+              "id": "kf1",
+              "time": 0,
+              "value": 0,
+              "interpolation": "ease-out"
+            },
+            {
+              "id": "kf2",
+              "time": 1,
+              "value": 1,
+              "interpolation": "linear"
+            }
+          ],
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": "slide-in-left",
+      "name": "Slide In Left",
+      "description": "Slide in from left with easing",
+      "category": "transitions",
+      "tags": ["slide", "position", "left"],
+      "duration": 0.8,
+      "scalable": true,
+      "customizable": true,
+      "properties": [
+        {
+          "id": "position",
+          "name": "Position",
+          "path": "transform.position",
+          "type": "vec2",
+          "keyframes": [
+            {
+              "id": "kf1",
+              "time": 0,
+              "value": [-1920, 0],
+              "interpolation": "ease-out"
+            },
+            {
+              "id": "kf2",
+              "time": 0.8,
+              "value": [0, 0],
+              "interpolation": "linear"
+            }
+          ],
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": "scale-bounce",
+      "name": "Scale Bounce",
+      "description": "Scale with bounce effect",
+      "category": "transforms",
+      "tags": ["scale", "bounce", "elastic"],
+      "duration": 1.2,
+      "scalable": true,
+      "customizable": true,
+      "properties": [
+        {
+          "id": "scale",
+          "name": "Scale",
+          "path": "transform.scale",
+          "type": "vec2",
+          "keyframes": [
+            {
+              "id": "kf1",
+              "time": 0,
+              "value": [0, 0],
+              "interpolation": "ease-out"
+            },
+            {
+              "id": "kf2",
+              "time": 0.6,
+              "value": [1.2, 1.2],
+              "interpolation": "ease-in-out"
+            },
+            {
+              "id": "kf3",
+              "time": 0.8,
+              "value": [0.9, 0.9],
+              "interpolation": "ease-in-out"
+            },
+            {
+              "id": "kf4",
+              "time": 1.0,
+              "value": [1.05, 1.05],
+              "interpolation": "ease-in-out"
+            },
+            {
+              "id": "kf5",
+              "time": 1.2,
+              "value": [1, 1],
+              "interpolation": "linear"
+            }
+          ],
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": "rotate-3d",
+      "name": "3D Rotation",
+      "description": "Smooth 3D rotation on Y axis",
+      "category": "transforms",
+      "tags": ["rotate", "3d", "perspective"],
+      "duration": 2,
+      "scalable": true,
+      "customizable": true,
+      "properties": [
+        {
+          "id": "rotationY",
+          "name": "Rotation Y",
+          "path": "transform.rotation.y",
+          "type": "number",
+          "keyframes": [
+            {
+              "id": "kf1",
+              "time": 0,
+              "value": 0,
+              "interpolation": "ease-in-out"
+            },
+            {
+              "id": "kf2",
+              "time": 2,
+              "value": 360,
+              "interpolation": "linear"
+            }
+          ],
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": "wiggle",
+      "name": "Wiggle",
+      "description": "Random position wiggle",
+      "category": "behaviors",
+      "tags": ["wiggle", "random", "shake"],
+      "duration": 0,
+      "scalable": false,
+      "customizable": true,
+      "properties": [
+        {
+          "id": "position",
+          "name": "Position",
+          "path": "transform.position",
+          "type": "vec2",
+          "keyframes": [],
+          "enabled": true,
+          "expression": "value + [wiggle(2, 50), wiggle(2, 50, 1)]",
+          "expressionEnabled": true
+        }
+      ]
+    },
+    {
+      "id": "pulse",
+      "name": "Pulse",
+      "description": "Rhythmic scale pulsing",
+      "category": "behaviors",
+      "tags": ["pulse", "scale", "rhythm"],
+      "duration": 0,
+      "scalable": false,
+      "customizable": true,
+      "properties": [
+        {
+          "id": "scale",
+          "name": "Scale",
+          "path": "transform.scale",
+          "type": "vec2",
+          "keyframes": [],
+          "enabled": true,
+          "expression": "const s = 1 + sin(time * 4 * Math.PI) * 0.1; [s, s]",
+          "expressionEnabled": true
+        }
+      ]
+    },
+    {
+      "id": "blur-in",
+      "name": "Blur In",
+      "description": "Fade in with blur effect",
+      "category": "effects",
+      "tags": ["blur", "focus", "fade"],
+      "duration": 1.5,
+      "scalable": true,
+      "customizable": true,
+      "properties": [
+        {
+          "id": "blur",
+          "name": "Blur",
+          "path": "effects.blur.amount",
+          "type": "number",
+          "keyframes": [
+            {
+              "id": "kf1",
+              "time": 0,
+              "value": 20,
+              "interpolation": "ease-out"
+            },
+            {
+              "id": "kf2",
+              "time": 1.5,
+              "value": 0,
+              "interpolation": "linear"
+            }
+          ],
+          "enabled": true
+        },
+        {
+          "id": "opacity",
+          "name": "Opacity",
+          "path": "opacity",
+          "type": "number",
+          "keyframes": [
+            {
+              "id": "kf1",
+              "time": 0,
+              "value": 0,
+              "interpolation": "ease-out"
+            },
+            {
+              "id": "kf2",
+              "time": 1,
+              "value": 1,
+              "interpolation": "linear"
+            }
+          ],
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": "glitch",
+      "name": "Glitch",
+      "description": "Digital glitch effect",
+      "category": "effects",
+      "tags": ["glitch", "digital", "distortion"],
+      "duration": 0.5,
+      "scalable": true,
+      "customizable": true,
+      "properties": [
+        {
+          "id": "position",
+          "name": "Position",
+          "path": "transform.position",
+          "type": "vec2",
+          "keyframes": [
+            {
+              "id": "kf1",
+              "time": 0,
+              "value": [0, 0],
+              "interpolation": "hold"
+            },
+            {
+              "id": "kf2",
+              "time": 0.1,
+              "value": [10, -5],
+              "interpolation": "hold"
+            },
+            {
+              "id": "kf3",
+              "time": 0.15,
+              "value": [-8, 3],
+              "interpolation": "hold"
+            },
+            {
+              "id": "kf4",
+              "time": 0.2,
+              "value": [5, 8],
+              "interpolation": "hold"
+            },
+            {
+              "id": "kf5",
+              "time": 0.25,
+              "value": [0, 0],
+              "interpolation": "linear"
+            }
+          ],
+          "enabled": true
+        },
+        {
+          "id": "chromatic",
+          "name": "Chromatic Aberration",
+          "path": "effects.chromatic.amount",
+          "type": "number",
+          "keyframes": [
+            {
+              "id": "kf1",
+              "time": 0,
+              "value": 0,
+              "interpolation": "hold"
+            },
+            {
+              "id": "kf2",
+              "time": 0.1,
+              "value": 5,
+              "interpolation": "hold"
+            },
+            {
+              "id": "kf3",
+              "time": 0.25,
+              "value": 0,
+              "interpolation": "linear"
+            }
+          ],
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": "drop-shadow",
+      "name": "Drop Shadow",
+      "description": "Animated drop shadow",
+      "category": "effects",
+      "tags": ["shadow", "depth", "3d"],
+      "duration": 0,
+      "scalable": false,
+      "customizable": true,
+      "properties": [
+        {
+          "id": "shadow",
+          "name": "Shadow",
+          "path": "effects.shadow",
+          "type": "vec4",
+          "keyframes": [],
+          "enabled": true,
+          "expression": "[10 + sin(time * 2) * 5, 10 + cos(time * 2) * 5, 20, 0.5]",
+          "expressionEnabled": true
+        }
+      ]
+    },
+    {
+      "id": "text-scramble",
+      "name": "Text Scramble",
+      "description": "Scrambled text reveal",
+      "category": "text-animations",
+      "tags": ["text", "scramble", "decode"],
+      "duration": 2,
+      "scalable": true,
+      "customizable": true,
+      "properties": [
+        {
+          "id": "text",
+          "name": "Text",
+          "path": "text.content",
+          "type": "text",
+          "keyframes": [],
+          "enabled": true,
+          "expression": "const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'; const progress = clamp(time / 2, 0, 1); let result = ''; for (let i = 0; i < value.length; i++) { if (i / value.length < progress) { result += value[i]; } else { result += chars[Math.floor(random() * chars.length)]; } } result",
+          "expressionEnabled": true
+        }
+      ]
+    },
+    {
+      "id": "wave-text",
+      "name": "Wave Text",
+      "description": "Text characters wave animation",
+      "category": "text-animations",
+      "tags": ["text", "wave", "motion"],
+      "duration": 0,
+      "scalable": false,
+      "customizable": true,
+      "properties": [
+        {
+          "id": "position",
+          "name": "Position Y",
+          "path": "transform.position.y",
+          "type": "number",
+          "keyframes": [],
+          "enabled": true,
+          "expression": "sin((time * 2 + index * 0.2) * Math.PI) * 20",
+          "expressionEnabled": true
+        }
+      ]
+    },
+    {
+      "id": "zoom-blur",
+      "name": "Zoom Blur",
+      "description": "Radial zoom with motion blur",
+      "category": "transitions",
+      "tags": ["zoom", "blur", "radial"],
+      "duration": 1,
+      "scalable": true,
+      "customizable": true,
+      "properties": [
+        {
+          "id": "scale",
+          "name": "Scale",
+          "path": "transform.scale",
+          "type": "vec2",
+          "keyframes": [
+            {
+              "id": "kf1",
+              "time": 0,
+              "value": [0.5, 0.5],
+              "interpolation": "expo"
+            },
+            {
+              "id": "kf2",
+              "time": 1,
+              "value": [1, 1],
+              "interpolation": "linear"
+            }
+          ],
+          "enabled": true
+        },
+        {
+          "id": "radialBlur",
+          "name": "Radial Blur",
+          "path": "effects.radialBlur.amount",
+          "type": "number",
+          "keyframes": [
+            {
+              "id": "kf1",
+              "time": 0,
+              "value": 50,
+              "interpolation": "ease-out"
+            },
+            {
+              "id": "kf2",
+              "time": 0.8,
+              "value": 0,
+              "interpolation": "linear"
+            }
+          ],
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": "flip-card",
+      "name": "Flip Card",
+      "description": "3D card flip animation",
+      "category": "transforms",
+      "tags": ["3d", "flip", "card"],
+      "duration": 1,
+      "scalable": true,
+      "customizable": true,
+      "properties": [
+        {
+          "id": "rotationY",
+          "name": "Rotation Y",
+          "path": "transform.rotation.y",
+          "type": "number",
+          "keyframes": [
+            {
+              "id": "kf1",
+              "time": 0,
+              "value": 0,
+              "interpolation": "ease-in-out"
+            },
+            {
+              "id": "kf2",
+              "time": 1,
+              "value": 180,
+              "interpolation": "linear"
+            }
+          ],
+          "enabled": true
+        },
+        {
+          "id": "opacity",
+          "name": "Opacity",
+          "path": "opacity",
+          "type": "number",
+          "keyframes": [
+            {
+              "id": "kf1",
+              "time": 0,
+              "value": 1,
+              "interpolation": "linear"
+            },
+            {
+              "id": "kf2",
+              "time": 0.49,
+              "value": 1,
+              "interpolation": "hold"
+            },
+            {
+              "id": "kf3",
+              "time": 0.51,
+              "value": 0,
+              "interpolation": "linear"
+            }
+          ],
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": "pendulum",
+      "name": "Pendulum Swing",
+      "description": "Physics-based pendulum motion",
+      "category": "behaviors",
+      "tags": ["physics", "pendulum", "swing"],
+      "duration": 0,
+      "scalable": false,
+      "customizable": true,
+      "properties": [
+        {
+          "id": "rotation",
+          "name": "Rotation",
+          "path": "transform.rotation.z",
+          "type": "number",
+          "keyframes": [],
+          "enabled": true,
+          "expression": "const A = 30; const P = 2; const D = 0.05; A * Math.exp(-D * time) * sin(2 * Math.PI * time / P)",
+          "expressionEnabled": true
+        }
+      ]
+    },
+    {
+      "id": "elastic-scale",
+      "name": "Elastic Scale",
+      "description": "Elastic overshoot scaling",
+      "category": "transforms",
+      "tags": ["scale", "elastic", "overshoot"],
+      "duration": 1.5,
+      "scalable": true,
+      "customizable": true,
+      "properties": [
+        {
+          "id": "scale",
+          "name": "Scale",
+          "path": "transform.scale",
+          "type": "vec2",
+          "keyframes": [
+            {
+              "id": "kf1",
+              "time": 0,
+              "value": [0, 0],
+              "interpolation": "elastic"
+            },
+            {
+              "id": "kf2",
+              "time": 1.5,
+              "value": [1, 1],
+              "interpolation": "linear"
+            }
+          ],
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": "color-shift",
+      "name": "Color Shift",
+      "description": "Smooth color transition",
+      "category": "effects",
+      "tags": ["color", "hue", "transition"],
+      "duration": 3,
+      "scalable": true,
+      "customizable": true,
+      "properties": [
+        {
+          "id": "hue",
+          "name": "Hue Shift",
+          "path": "effects.color.hue",
+          "type": "number",
+          "keyframes": [
+            {
+              "id": "kf1",
+              "time": 0,
+              "value": 0,
+              "interpolation": "linear"
+            },
+            {
+              "id": "kf2",
+              "time": 3,
+              "value": 360,
+              "interpolation": "linear"
+            }
+          ],
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": "parallax",
+      "name": "Parallax",
+      "description": "Multi-layer parallax effect",
+      "category": "behaviors",
+      "tags": ["parallax", "depth", "layers"],
+      "duration": 0,
+      "scalable": false,
+      "customizable": true,
+      "properties": [
+        {
+          "id": "position",
+          "name": "Position",
+          "path": "transform.position",
+          "type": "vec2",
+          "keyframes": [],
+          "enabled": true,
+          "expression": "const depth = thisLayer('depth') || 1; const mouseX = thisComp('mouseX') || comp.width / 2; const mouseY = thisComp('mouseY') || comp.height / 2; const offsetX = (mouseX - comp.width / 2) * 0.1 * depth; const offsetY = (mouseY - comp.height / 2) * 0.1 * depth; [value[0] + offsetX, value[1] + offsetY]",
+          "expressionEnabled": true
+        }
+      ]
+    },
+    {
+      "id": "morph-shape",
+      "name": "Shape Morph",
+      "description": "Smooth shape morphing",
+      "category": "transforms",
+      "tags": ["morph", "shape", "path"],
+      "duration": 2,
+      "scalable": true,
+      "customizable": true,
+      "properties": [
+        {
+          "id": "path",
+          "name": "Path",
+          "path": "shape.path",
+          "type": "text",
+          "keyframes": [
+            {
+              "id": "kf1",
+              "time": 0,
+              "value": "M50,50 L150,50 L150,150 L50,150 Z",
+              "interpolation": "ease-in-out"
+            },
+            {
+              "id": "kf2",
+              "time": 2,
+              "value": "M100,25 L175,100 L100,175 L25,100 Z",
+              "interpolation": "linear"
+            }
+          ],
+          "enabled": true
+        }
+      ]
+    }
+  ]
+}
