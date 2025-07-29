@@ -21,9 +21,9 @@ pub struct BatchCommandResult {
   /// Results of each command (may be shorter than input if stopped on error)
   pub results: Vec<CommandResult>,
   /// Number of successfully executed commands
-  pub success_count: usize,
+  pub success_count: u32,
   /// Number of failed commands
-  pub error_count: usize,
+  pub error_count: u32,
   /// Total execution time in milliseconds
   pub execution_time_ms: u64,
   /// Whether the entire batch was successful
@@ -52,8 +52,8 @@ pub async fn execute_batch_commands(
   let start_time = std::time::Instant::now();
 
   let mut results = Vec::new();
-  let mut success_count = 0;
-  let mut error_count = 0;
+  let mut success_count = 0u32;
+  let mut error_count = 0u32;
   let mut batch_error = None;
 
   log::info!(
