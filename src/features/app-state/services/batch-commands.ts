@@ -10,10 +10,30 @@ import React from 'react'
 import { invoke } from '@tauri-apps/api/core'
 
 import type { 
-  BatchCommandRequest, 
-  BatchCommandResult, 
   ProjectCommand 
 } from '@/types/generated/tauri-bindings'
+
+// Local type definitions until Specta export is updated
+export interface BatchCommandRequest {
+  commands: ProjectCommand[]
+  stop_on_error: boolean
+  transaction_name?: string
+}
+
+export interface CommandResult {
+  success: boolean
+  message: string
+  data?: any
+}
+
+export interface BatchCommandResult {
+  results: CommandResult[]
+  success_count: number
+  error_count: number
+  execution_time_ms: number
+  success: boolean
+  error_message?: string
+}
 
 /**
  * Builder for batch command requests
