@@ -5,6 +5,17 @@
 
 import { HotkeyCallback, Options as HotkeyOptions } from "react-hotkeys-hook"
 
+import { shortcutsPersistence } from "./shortcuts-persistence"
+
+// Типы контекстов приложения
+export type ShortcutContext = 
+  | "global"      // Работают везде
+  | "timeline"    // Только в режиме редактирования таймлайна
+  | "browser"     // Только в режиме браузера медиафайлов
+  | "player"      // Только при фокусе на плеере
+  | "chat"        // Только в AI чате
+  | "modal"       // Только в модальных окнах
+
 export interface ShortcutDefinition {
   id: string
   name: string
@@ -14,6 +25,7 @@ export interface ShortcutDefinition {
   action?: HotkeyCallback
   options?: HotkeyOptions
   enabled?: boolean
+  context?: ShortcutContext // Контекст активации shortcut
 }
 
 export interface ShortcutCategory {
@@ -27,6 +39,8 @@ class ShortcutsRegistry {
   private shortcuts = new Map<string, ShortcutDefinition>()
   private categories = new Map<string, ShortcutCategory>()
   private listeners: ((shortcuts: ShortcutDefinition[]) => void)[] = []
+  private currentContext: ShortcutContext = "global"
+  private contextStack: ShortcutContext[] = ["global"]
 
   private constructor() {
     this.initializeCategories()
@@ -166,10 +180,131 @@ class ShortcutsRegistry {
   }
 
   /**
+   * Устанавливает текущий контекст для shortcuts
+   */
+  setContext(context: ShortcutContext): void {
+    this.currentContext = context
+    this.notifyListeners()
+  }
+
+  /**
+   * Получает текущий контекст
+   */
+  getCurrentContext(): ShortcutContext {
+    return this.currentContext
+  }
+
+  /**
+   * Входит в новый контекст (добавляет в стек)
+   */
+  enterContext(context: ShortcutContext): void {
+    this.contextStack.push(context)
+    this.currentContext = context
+    this.notifyListeners()
+  }
+
+  /**
+   * Выходит из текущего контекста (убирает из стека)
+   */
+  exitContext(): void {
+    if (this.contextStack.length > 1) {
+      this.contextStack.pop()
+      this.currentContext = this.contextStack[this.contextStack.length - 1]
+      this.notifyListeners()
+    }
+  }
+
+  /**
+   * Получает shortcuts для текущего контекста
+   */
+  getActiveShortcuts(): ShortcutDefinition[] {
+    return this.getAll().filter((shortcut) => {
+      // Если контекст не указан, считаем что это global
+      const context = shortcut.context || "global"
+      return context === "global" || context === this.currentContext
+    })
+  }
+
+  /**
+   * Получает shortcuts по контексту
+   */
+  getByContext(context: ShortcutContext): ShortcutDefinition[] {
+    return this.getAll().filter((shortcut) => {
+      const shortcutContext = shortcut.context || "global"
+      return shortcutContext === context || shortcutContext === "global"
+    })
+  }
+
+  /**
+   * Сохранение настроек shortcuts
+   */
+  async saveSettings(globalEnabled = false): Promise<void> {
+    try {
+      const shortcuts = this.getAll()
+      await shortcutsPersistence.saveSettings(shortcuts, globalEnabled)
+    } catch (error) {
+      console.error("Failed to save shortcuts settings:", error)
+      throw error
+    }
+  }
+
+  /**
+   * Загрузка настроек shortcuts
+   */
+  async loadSettings(): Promise<{ globalEnabled: boolean } | null> {
+    try {
+      const settings = await shortcutsPersistence.loadSettings()
+      if (!settings) return null
+
+      // Применяем настройки к существующим shortcuts
+      const currentShortcuts = this.getAll()
+      const updatedShortcuts = shortcutsPersistence.applySettings(currentShortcuts, settings)
+      
+      // Обновляем реестр
+      this.shortcuts.clear()
+      updatedShortcuts.forEach((shortcut) => {
+        this.shortcuts.set(shortcut.id, shortcut)
+      })
+
+      this.notifyListeners()
+
+      return { globalEnabled: settings.globalEnabled }
+    } catch (error) {
+      console.error("Failed to load shortcuts settings:", error)
+      return null
+    }
+  }
+
+  /**
+   * Экспорт настроек shortcuts
+   */
+  async exportSettings(): Promise<string> {
+    return shortcutsPersistence.exportSettings()
+  }
+
+  /**
+   * Импорт настроек shortcuts
+   */
+  async importSettings(jsonString: string): Promise<void> {
+    await shortcutsPersistence.importSettings(jsonString)
+    // Перезагружаем настройки после импорта
+    await this.loadSettings()
+  }
+
+  /**
+   * Очистка сохраненных настроек
+   */
+  async clearSettings(): Promise<void> {
+    await shortcutsPersistence.clearSettings()
+  }
+
+  /**
    * Очищает все shortcuts (для тестов)
    */
   clear(): void {
     this.shortcuts.clear()
+    this.currentContext = "global"
+    this.contextStack = ["global"]
     this.initializeCategories()
     this.notifyListeners()
   }

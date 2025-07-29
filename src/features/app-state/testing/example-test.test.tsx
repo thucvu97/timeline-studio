@@ -5,8 +5,9 @@
  * It serves as both documentation and a working example of the testing patterns.
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
 import { screen, fireEvent, waitFor } from '@testing-library/react'
+import { describe, it, expect, beforeEach } from 'vitest'
+
 import { 
   renderWithAppState, 
   setupTauriMocks, 

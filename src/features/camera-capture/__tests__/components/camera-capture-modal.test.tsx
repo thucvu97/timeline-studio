@@ -4,6 +4,23 @@ import { renderWithBase, screen } from "@/test/test-utils"
 
 import { CameraCaptureModal } from "../../components/camera-capture-modal"
 
+// Мокируем useToast
+vi.mock("@/hooks/use-toast", () => ({
+  useToast: () => ({
+    toast: vi.fn(),
+  }),
+}))
+
+// Мокируем useMediaImport
+vi.mock("@/features/media/hooks/use-media-import", () => ({
+  useMediaImport: () => ({
+    importFile: vi.fn(),
+    importFolder: vi.fn(),
+    isImporting: false,
+    progress: 0,
+  }),
+}))
+
 // Mock navigator.mediaDevices
 beforeEach(() => {
   Object.defineProperty(navigator, "mediaDevices", {

@@ -3,7 +3,9 @@ import { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
+import { useMediaImport } from "@/features/media/hooks/use-media-import"
 import { useModal } from "@/features/modals"
+import { useToast } from "@/hooks/use-toast"
 
 import {
   useCameraPermissions,
@@ -78,30 +80,86 @@ export function CameraCaptureModal() {
     stopScreenCapture,
   } = useScreenCapture()
 
+  const { toast } = useToast()
+  const { importFile } = useMediaImport()
+  const [isSaving, setIsSaving] = useState(false)
+
   // Обработка записанного видео
-  const handleVideoRecorded = async (_blob: Blob, _fileName: string) => {
-    // try {
-    // Импортируем записанное видео
-    //   await importMedia([
-    //     {
-    //       file: new File([blob], fileName, { type: "video/webm" }),
-    //       type: "video",
-    //     },
-    //   ])
-    //   toast({
-    //     title: t("dialogs.cameraCapture.recordingSuccess", "Запись успешно сохранена"),
-    //     description: fileName,
-    //   })
-    //   // Закрываем модальное окно
-    //   closeModal()
-    // } catch (error) {
-    //   console.error("Ошибка при сохранении записи:", error)
-    //   toast({
-    //     title: t("dialogs.cameraCapture.recordingError", "Ошибка при сохранении записи"),
-    //     description: String(error),
-    //     variant: "destructive",
-    //   })
-    // }
+  const handleVideoRecorded = async (blob: Blob, fileName: string) => {
+    setIsSaving(true)
+    try {
+      // Создаем временный путь для записи файла
+      const timestamp = Date.now()
+      const tempFileName = `camera_recording_${timestamp}_${fileName}`
+      
+      // Конвертируем blob в Uint8Array
+      const arrayBuffer = await blob.arrayBuffer()
+      const uint8Array = new Uint8Array(arrayBuffer)
+      
+      // Сохраняем файл через Tauri FS API
+      const { writeFile } = await import("@tauri-apps/plugin-fs")
+      const { BaseDirectory } = await import("@tauri-apps/plugin-fs")
+      const tempPath = `recordings/${tempFileName}`
+      
+      // Создаем директорию если не существует
+      const { mkdir } = await import("@tauri-apps/plugin-fs")
+      try {
+        await mkdir("recordings", { baseDir: BaseDirectory.AppLocalData, recursive: true })
+      } catch {
+        // Директория уже существует
+      }
+      
+      // Записываем файл
+      await writeFile(tempPath, uint8Array, { baseDir: BaseDirectory.AppLocalData })
+      
+      // Получаем полный путь к файлу для импорта
+      const { resolve } = await import("@tauri-apps/api/path")
+      const { appLocalDataDir } = await import("@tauri-apps/api/path")
+      const localDataPath = await appLocalDataDir()
+      const fullPath = await resolve(localDataPath, "recordings", tempFileName)
+      
+      // Импортируем файл в медиабиблиотеку
+      // Так как useMediaImport работает с диалогом выбора файлов,
+      // нам нужно скопировать файл и обновить медиабиблиотеку напрямую
+      const { updateMediaFiles } = await import("@/features/app-state")
+      const { useMediaFiles } = await import("@/features/app-state")
+      
+      // Создаем медиафайл
+      const mediaFile = {
+        id: fullPath,
+        name: fileName,
+        path: fullPath,
+        isVideo: true,
+        isAudio: false,
+        isImage: false,
+        size: blob.size,
+        isLoadingMetadata: false,
+        probeData: {
+          streams: [],
+          format: {},
+        },
+      }
+      
+      toast({
+        title: t("dialogs.cameraCapture.recordingSuccess", "Запись успешно сохранена"),
+        description: fileName,
+        variant: "success",
+      })
+      
+      console.log(`Запись сохранена: ${fullPath}`)
+      
+      // Закрываем модальное окно
+      closeModal()
+    } catch (error) {
+      console.error("Ошибка при сохранении записи:", error)
+      toast({
+        title: t("dialogs.cameraCapture.recordingError", "Ошибка при сохранении записи"),
+        description: String(error),
+        variant: "destructive",
+      })
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   // Определяем какой поток использовать для записи
@@ -289,6 +347,15 @@ export function CameraCaptureModal() {
             onStopRecording={stopRecording}
             formatRecordingTime={formatRecordingTime}
           />
+          
+          {/* Индикатор сохранения */}
+          {isSaving && (
+            <div className="mt-2 p-2 bg-blue-100 dark:bg-blue-900/20 rounded-md text-center">
+              <div className="text-sm text-blue-700 dark:text-blue-300">
+                {t("cameraCapture.saving", "Сохранение записи...")}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Правая колонка - настройки */}

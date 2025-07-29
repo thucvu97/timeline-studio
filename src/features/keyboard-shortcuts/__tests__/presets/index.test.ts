@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 describe("createPresets", () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.resetModules()
   })
 
   it("should return an object with all three presets", async () => {

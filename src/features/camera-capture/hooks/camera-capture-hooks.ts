@@ -3,12 +3,7 @@ import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { COMMON_FRAMERATES, COMMON_RESOLUTIONS, ResolutionOption } from "../../project-settings/types/project"
-
-// Интерфейс для устройств захвата (камеры, микрофоны)
-export interface CaptureDevice {
-  deviceId: string
-  label: string
-}
+import { CaptureDevice } from "../types"
 
 interface UseCameraPermissionsResult {
   permissionStatus: "pending" | "granted" | "denied" | "error"

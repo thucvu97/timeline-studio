@@ -26,7 +26,14 @@ export function useCameraStream(
 ): UseCameraStreamResult {
   const { t } = useTranslation()
   const [isDeviceReady, setIsDeviceReady] = useState<boolean>(false)
+  const [errorMessage, setLocalErrorMessage] = useState<string>("")
   const streamRef = useRef<MediaStream | null>(null)
+  
+  // Синхронизируем локальное состояние ошибки с внешним
+  const updateErrorMessage = useCallback((message: string) => {
+    setLocalErrorMessage(message)
+    setErrorMessage(message)
+  }, [setErrorMessage])
 
   // Инициализация потока с камеры
   const initCamera = useCallback(async () => {
@@ -38,7 +45,7 @@ export function useCameraStream(
     // Проверяем доступность API mediaDevices
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       console.error("MediaDevices API недоступен")
-      setErrorMessage(
+      updateErrorMessage(
         t(
           "dialogs.cameraCapture.mediaDevicesNotSupported",
           "Запись с камеры не поддерживается в данном приложении. Функция доступна только в веб-браузере.",
@@ -144,7 +151,7 @@ export function useCameraStream(
         }
       } catch (error) {
         console.error("Ошибка при получении потока с запрошенным разрешением:", error)
-        setErrorMessage(
+        updateErrorMessage(
           t(
             "dialogs.cameraCapture.errorRequestingStream",
             "Не удалось получить поток с запрошенным разрешением. Пробуем получить поток с настройками по умолчанию.",
@@ -172,7 +179,7 @@ export function useCameraStream(
           streamRef.current = stream
         } catch (fallbackError) {
           console.error("Ошибка при получении потока с резервными настройками:", fallbackError)
-          setErrorMessage(
+          updateErrorMessage(
             t(
               "dialogs.cameraCapture.errorRequestingStreamFallback",
               "Не удалось получить поток с камеры. Пожалуйста, проверьте настройки камеры и разрешения.",
@@ -206,7 +213,7 @@ export function useCameraStream(
           // Добавляем обработчик ошибок
           video.onerror = (e) => {
             console.error("Ошибка видео элемента:", e)
-            setErrorMessage(
+            updateErrorMessage(
               t(
                 "dialogs.cameraCapture.videoElementError",
                 "Ошибка при инициализации видео элемента. Пожалуйста, попробуйте другое устройство или разрешение.",
@@ -224,7 +231,7 @@ export function useCameraStream(
       }
     } catch (error) {
       console.error("Ошибка при инициализации камеры:", error)
-      setErrorMessage(
+      updateErrorMessage(
         t(
           "dialogs.cameraCapture.cameraInitError",
           "Ошибка при инициализации камеры. Пожалуйста, проверьте настройки камеры и разрешения.",
@@ -240,7 +247,7 @@ export function useCameraStream(
     availableResolutions,
     videoRef,
     t,
-    setErrorMessage,
+    updateErrorMessage,
   ])
 
   // Очищаем ресурсы при размонтировании
@@ -255,7 +262,7 @@ export function useCameraStream(
   return {
     isDeviceReady,
     setIsDeviceReady,
-    errorMessage: "",
+    errorMessage,
     initCamera,
     streamRef,
   }

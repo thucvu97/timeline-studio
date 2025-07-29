@@ -9,24 +9,24 @@ interface ShortcutHandlerProps {
 
 /**
  * Компонент для регистрации отдельного shortcut
- * Обходит ограничение React hooks в циклах
+ * Правильно обрабатывает множественные комбинации клавиш
  */
 export function ShortcutHandler({ shortcut, enabled }: ShortcutHandlerProps) {
-  // Регистрируем каждую комбинацию клавиш для данного shortcut
-  shortcut.keys.forEach((keys) => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useHotkeys(
-      keys,
-      shortcut.action || (() => {}),
-      {
-        enableOnFormTags: ["INPUT", "TEXTAREA", "SELECT"],
-        preventDefault: true,
-        enabled: enabled && shortcut.enabled,
-        ...shortcut.options,
-      },
-      [enabled, shortcut.action, shortcut.enabled],
-    )
-  })
+  // Регистрируем все комбинации клавиш одним вызовом useHotkeys
+  // react-hotkeys-hook поддерживает массив комбинаций или строку с разделителями запятой
+  const keysString = shortcut.keys.join(", ")
+  
+  useHotkeys(
+    keysString,
+    shortcut.action || (() => {}),
+    {
+      enableOnFormTags: false, // Исправлено: отключаем для полей ввода по умолчанию
+      preventDefault: true,
+      enabled: enabled && shortcut.enabled !== false,
+      ...shortcut.options,
+    },
+    [enabled, shortcut.action, shortcut.enabled, keysString],
+  )
 
   return null
 }

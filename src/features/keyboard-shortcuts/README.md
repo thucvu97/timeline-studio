@@ -12,7 +12,6 @@ keyboard-shortcuts/
 ├── constants/
 │   └── default-shortcuts.ts      # Дефолтные клавиатурные сочетания
 ├── hooks/
-│   ├── use-app-hotkeys.tsx      # Основной хук для shortcuts (deprecated)
 │   └── use-panel-shortcuts.ts   # Хук для shortcuts панелей
 ├── presets/
 │   ├── index.ts                 # Экспорт всех preset функций
@@ -22,7 +21,8 @@ keyboard-shortcuts/
 │   └── premiere-preset.ts       # Предустановка Adobe Premiere Pro (119 shortcuts)
 ├── services/
 │   ├── shortcuts-registry.ts    # Централизованный реестр shortcuts
-│   └── shortcuts-provider.tsx   # React провайдер для shortcuts
+│   ├── shortcuts-provider.tsx   # React провайдер для shortcuts
+│   └── tauri-global-shortcuts.ts # Сервис для глобальных shortcuts через Tauri
 └── types/
     └── shortcuts.ts             # TypeScript типы
 ```

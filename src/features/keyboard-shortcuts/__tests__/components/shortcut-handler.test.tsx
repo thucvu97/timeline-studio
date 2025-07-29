@@ -50,15 +50,15 @@ describe("ShortcutHandler", () => {
         "cmd+t",
         mockAction,
         expect.objectContaining({
-          enableOnFormTags: ["INPUT", "TEXTAREA", "SELECT"],
+          enableOnFormTags: false,
           preventDefault: true,
           enabled: true,
         }),
-        expect.arrayContaining([true, mockAction, true]),
+        expect.arrayContaining([true, mockAction, true, "cmd+t"]),
       )
     })
 
-    it("should register hotkeys for multiple key combinations", () => {
+    it("should register hotkeys for multiple key combinations as comma-separated string", () => {
       const mockAction = vi.fn()
       const shortcut: ShortcutDefinition = {
         id: "test",
@@ -70,14 +70,18 @@ describe("ShortcutHandler", () => {
 
       render(<ShortcutHandler shortcut={shortcut} enabled={true} />)
 
-      // Should be called 3 times, once for each key combination
-      expect(mockUseHotkeys).toHaveBeenCalledTimes(3)
+      // Should be called once with comma-separated keys
+      expect(mockUseHotkeys).toHaveBeenCalledTimes(1)
 
-      expect(mockUseHotkeys).toHaveBeenCalledWith("cmd+t", mockAction, expect.any(Object), expect.any(Array))
-
-      expect(mockUseHotkeys).toHaveBeenCalledWith("ctrl+t", mockAction, expect.any(Object), expect.any(Array))
-
-      expect(mockUseHotkeys).toHaveBeenCalledWith("alt+t", mockAction, expect.any(Object), expect.any(Array))
+      expect(mockUseHotkeys).toHaveBeenCalledWith(
+        "cmd+t, ctrl+t, alt+t", 
+        mockAction, 
+        expect.objectContaining({
+          enableOnFormTags: false,
+          preventDefault: true,
+        }), 
+        expect.arrayContaining([true, mockAction, undefined, "cmd+t, ctrl+t, alt+t"])
+      )
     })
 
     it("should use empty function when no action provided", () => {
@@ -115,6 +119,7 @@ describe("ShortcutHandler", () => {
         expect.any(String),
         expect.any(Function),
         expect.objectContaining({
+          enableOnFormTags: false,
           enabled: true,
         }),
         expect.any(Array),
@@ -136,6 +141,7 @@ describe("ShortcutHandler", () => {
         expect.any(String),
         expect.any(Function),
         expect.objectContaining({
+          enableOnFormTags: false,
           enabled: false,
         }),
         expect.any(Array),
@@ -157,6 +163,7 @@ describe("ShortcutHandler", () => {
         expect.any(String),
         expect.any(Function),
         expect.objectContaining({
+          enableOnFormTags: false,
           enabled: false,
         }),
         expect.any(Array),
@@ -178,7 +185,8 @@ describe("ShortcutHandler", () => {
         expect.any(String),
         expect.any(Function),
         expect.objectContaining({
-          enabled: undefined,
+          enableOnFormTags: false,
+          enabled: true, // undefined !== false, so it should be true
         }),
         expect.any(Array),
       )
@@ -205,7 +213,7 @@ describe("ShortcutHandler", () => {
         expect.any(String),
         expect.any(Function),
         expect.objectContaining({
-          enableOnFormTags: ["INPUT", "TEXTAREA", "SELECT"],
+          enableOnFormTags: false,
           preventDefault: true,
           enabled: false, // Should respect the combined enabled state
           // Custom options should be spread in
@@ -229,9 +237,9 @@ describe("ShortcutHandler", () => {
         expect.any(String),
         expect.any(Function),
         expect.objectContaining({
-          enableOnFormTags: ["INPUT", "TEXTAREA", "SELECT"],
+          enableOnFormTags: false,
           preventDefault: true,
-          enabled: undefined,
+          enabled: true, // undefined !== false, so it should be true
         }),
         expect.any(Array),
       )
@@ -254,7 +262,7 @@ describe("ShortcutHandler", () => {
 
       const dependencies = mockUseHotkeys.mock.calls[0][3]
 
-      expect(dependencies).toEqual([true, mockAction, true])
+      expect(dependencies).toEqual([true, mockAction, true, "cmd+t"])
     })
 
     it("should update dependencies when props change", () => {
@@ -276,7 +284,7 @@ describe("ShortcutHandler", () => {
       rerender(<ShortcutHandler shortcut={shortcut} enabled={false} />)
 
       const dependencies = mockUseHotkeys.mock.calls[0][3]
-      expect(dependencies).toEqual([false, mockAction, true])
+      expect(dependencies).toEqual([false, mockAction, true, "cmd+t"])
     })
   })
 
@@ -291,8 +299,13 @@ describe("ShortcutHandler", () => {
 
       render(<ShortcutHandler shortcut={shortcut} enabled={true} />)
 
-      // Should not call useHotkeys when there are no keys
-      expect(mockUseHotkeys).not.toHaveBeenCalled()
+      // Should call useHotkeys with empty string
+      expect(mockUseHotkeys).toHaveBeenCalledWith(
+        "",
+        expect.any(Function),
+        expect.any(Object),
+        expect.any(Array)
+      )
     })
 
     it("should handle shortcut with many key combinations", () => {
@@ -306,7 +319,14 @@ describe("ShortcutHandler", () => {
 
       render(<ShortcutHandler shortcut={shortcut} enabled={true} />)
 
-      expect(mockUseHotkeys).toHaveBeenCalledTimes(10)
+      // Should be called once with comma-separated keys
+      expect(mockUseHotkeys).toHaveBeenCalledTimes(1)
+      expect(mockUseHotkeys).toHaveBeenCalledWith(
+        keys.join(", "),
+        expect.any(Function),
+        expect.any(Object),
+        expect.any(Array)
+      )
     })
   })
 })

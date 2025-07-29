@@ -10,6 +10,7 @@ import "@/test/mocks/backend-sync"
 import "@/test/mocks/tauri"
 import "@/test/mocks/browser"
 import "@/test/mocks/libraries"
+import "@/test/mocks/libraries/react-hotkeys-hook"
 
 // Mock scrollIntoView globally for all tests (needed for Radix UI components)
 beforeAll(() => {

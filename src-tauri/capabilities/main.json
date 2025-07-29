@@ -16,6 +16,9 @@
     "fs:allow-read-dir",
     "fs:allow-stat",
     "core:path:default",
-    "dialog:default"
+    "dialog:default",
+    "global-shortcut:allow-is-registered",
+    "global-shortcut:allow-register",
+    "global-shortcut:allow-unregister"
   ]
 }

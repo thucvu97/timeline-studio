@@ -4,10 +4,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ResolutionOption } from "@/features/project-settings/types/project"
 
-interface CaptureDevice {
-  deviceId: string
-  label: string
-}
+import { CaptureDevice } from "../types"
 
 interface CameraSettingsProps {
   devices: CaptureDevice[]

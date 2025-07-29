@@ -3,7 +3,7 @@
  * Централизованное место для всех shortcuts
  */
 
-import { ShortcutDefinition } from "../services/shortcuts-registry"
+import { ShortcutContext, ShortcutDefinition } from "../services/shortcuts-registry"
 
 // Утилита для создания shortcuts с разными вариантами для macOS
 const createMacShortcut = (
@@ -12,6 +12,7 @@ const createMacShortcut = (
   category: string,
   primaryKeys: string,
   description?: string,
+  context: ShortcutContext = "global",
 ): ShortcutDefinition => {
   // Генерируем варианты для macOS
   const keys = [primaryKeys]
@@ -29,7 +30,7 @@ const createMacShortcut = (
     keys.push(primaryKeys.replace("⌥", "opt+"))
   }
 
-  return { id, name, category, keys, description }
+  return { id, name, category, keys, description, context }
 }
 
 export const DEFAULT_SHORTCUTS: ShortcutDefinition[] = [
@@ -76,11 +77,11 @@ export const DEFAULT_SHORTCUTS: ShortcutDefinition[] = [
   createMacShortcut("select-all", "Выделить все", "edit", "⌘A", "Выделить все элементы"),
 
   // Таймлайн
-  createMacShortcut("split-clip", "Разрезать клип", "timeline", "S", "Разрезать клип в позиции курсора"),
-  createMacShortcut("delete-clip", "Удалить клип", "timeline", "X", "Удалить выделенный клип"),
-  createMacShortcut("ripple-delete", "Удалить со сдвигом", "timeline", "⇧X", "Удалить клип и сдвинуть остальные"),
-  createMacShortcut("add-marker", "Добавить маркер", "timeline", "M", "Добавить маркер в текущей позиции"),
-  createMacShortcut("snap-toggle", "Привязка", "timeline", "N", "Включить/выключить привязку"),
+  createMacShortcut("split-clip", "Разрезать клип", "timeline", "S", "Разрезать клип в позиции курсора", "timeline"),
+  createMacShortcut("delete-clip", "Удалить клип", "timeline", "X", "Удалить выделенный клип", "timeline"),
+  createMacShortcut("ripple-delete", "Удалить со сдвигом", "timeline", "⇧X", "Удалить клип и сдвинуть остальные", "timeline"),
+  createMacShortcut("add-marker", "Добавить маркер", "timeline", "M", "Добавить маркер в текущей позиции", "timeline"),
+  createMacShortcut("snap-toggle", "Привязка", "timeline", "N", "Включить/выключить привязку", "timeline"),
 
   // Воспроизведение
   createMacShortcut(
@@ -89,12 +90,13 @@ export const DEFAULT_SHORTCUTS: ShortcutDefinition[] = [
     "playback",
     "Space",
     "Начать или приостановить воспроизведение",
+    "player",
   ),
-  createMacShortcut("stop", "Стоп", "playback", "K", "Остановить воспроизведение"),
-  createMacShortcut("next-frame", "Следующий кадр", "playback", "→", "Перейти к следующему кадру"),
-  createMacShortcut("previous-frame", "Предыдущий кадр", "playback", "←", "Перейти к предыдущему кадру"),
-  createMacShortcut("go-to-start", "В начало", "playback", "Home", "Перейти в начало таймлайна"),
-  createMacShortcut("go-to-end", "В конец", "playback", "End", "Перейти в конец таймлайна"),
+  createMacShortcut("stop", "Стоп", "playback", "K", "Остановить воспроизведение", "player"),
+  createMacShortcut("next-frame", "Следующий кадр", "playback", "→", "Перейти к следующему кадру", "player"),
+  createMacShortcut("previous-frame", "Предыдущий кадр", "playback", "←", "Перейти к предыдущему кадру", "player"),
+  createMacShortcut("go-to-start", "В начало", "playback", "Home", "Перейти в начало таймлайна", "player"),
+  createMacShortcut("go-to-end", "В конец", "playback", "End", "Перейти в конец таймлайна", "player"),
 
   // Мультикамера
   createMacShortcut("switch-camera-1", "Переключиться на камеру 1", "multicam", "1", "Переключиться на угол камеры 1"),

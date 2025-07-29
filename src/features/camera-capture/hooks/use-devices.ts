@@ -2,10 +2,7 @@ import { useCallback, useState } from "react"
 
 import { useTranslation } from "react-i18next"
 
-interface CaptureDevice {
-  deviceId: string
-  label: string
-}
+import { CaptureDevice } from "../types"
 
 interface UseDevicesResult {
   devices: CaptureDevice[]
