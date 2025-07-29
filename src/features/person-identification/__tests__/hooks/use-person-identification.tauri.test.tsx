@@ -75,7 +75,7 @@ describe("usePersonIdentification Tauri Integration", () => {
         pose: { yaw: 0, pitch: 0, roll: 0 },
         clipId: "clip_123",
         frameNumber: 315,
-        embedding: [0.1, 0.2, 0.3, 0.4, 0.5], // 5D embedding for test
+        embedding: new Float32Array([0.1, 0.2, 0.3, 0.4, 0.5]), // 5D embedding for test
       }
 
       mockDatabaseService.findSimilarPersons.mockResolvedValue([
@@ -153,7 +153,7 @@ describe("usePersonIdentification Tauri Integration", () => {
         timestamp: { seconds: 25, frames: 0 },
         clipId: "clip_new",
         frameNumber: 750,
-        embedding: [0.6, 0.7, 0.8],
+        embedding: new Float32Array([0.6, 0.7, 0.8]),
         thumbnailUrl: "blob://thumbnail123",
         croppedImage: "base64imagedata",
       }
@@ -253,7 +253,7 @@ describe("usePersonIdentification Tauri Integration", () => {
         timestamp: { seconds: 60, frames: 0 },
         clipId: "clip_add",
         frameNumber: 1800,
-        embedding: [0.4, 0.5, 0.6],
+        embedding: new Float32Array([0.4, 0.5, 0.6]),
       }
 
       mockDatabaseService.getAllPersons.mockResolvedValue([existingPerson])
@@ -309,7 +309,7 @@ describe("usePersonIdentification Tauri Integration", () => {
           occlusion: 0,
           pose: { yaw: 0, pitch: 0, roll: 0 },
           frameNumber: 300,
-          embedding: [0.1, 0.2, 0.3],
+          embedding: new Float32Array([0.1, 0.2, 0.3]),
         },
         {
           id: "face_cluster_2",
@@ -321,7 +321,7 @@ describe("usePersonIdentification Tauri Integration", () => {
           occlusion: 0,
           pose: { yaw: 0, pitch: 0, roll: 0 },
           frameNumber: 450,
-          embedding: [0.11, 0.21, 0.31], // Similar
+          embedding: new Float32Array([0.11, 0.21, 0.31]), // Similar
         },
         {
           id: "face_cluster_3",
@@ -333,7 +333,7 @@ describe("usePersonIdentification Tauri Integration", () => {
           occlusion: 0,
           pose: { yaw: 0, pitch: 0, roll: 0 },
           frameNumber: 600,
-          embedding: [0.8, 0.9, 0.7], // Different
+          embedding: new Float32Array([0.8, 0.9, 0.7]), // Different
         },
       ]
 

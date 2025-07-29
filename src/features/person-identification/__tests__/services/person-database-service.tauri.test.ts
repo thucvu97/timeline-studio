@@ -313,7 +313,7 @@ describe("PersonDatabaseService Tauri Integration", () => {
           landmarks: [],
           timestamp: { seconds: 10, frames: 0 },
           clipId: "clip_1",
-          embedding: [0.1, 0.2, 0.3],
+          embedding: new Float32Array([0.1, 0.2, 0.3]),
         },
         {
           id: "face_2",
@@ -322,7 +322,7 @@ describe("PersonDatabaseService Tauri Integration", () => {
           landmarks: [],
           timestamp: { seconds: 15, frames: 0 },
           clipId: "clip_1",
-          embedding: [0.11, 0.21, 0.31], // Similar to face_1
+          embedding: new Float32Array([0.11, 0.21, 0.31]), // Similar to face_1
         },
         {
           id: "face_3",
@@ -331,7 +331,7 @@ describe("PersonDatabaseService Tauri Integration", () => {
           landmarks: [],
           timestamp: { seconds: 20, frames: 0 },
           clipId: "clip_2",
-          embedding: [0.9, 0.8, 0.7], // Different person
+          embedding: new Float32Array([0.9, 0.8, 0.7]), // Different person
         },
       ]
 
