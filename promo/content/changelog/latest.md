@@ -1,3 +1,10 @@
+# [0.45.0](https://github.com/chatman-media/timeline-studio/compare/v0.44.0...v0.45.0) (2025-07-29)
+
+
+### Features
+
+* **recognition:** реализовать реальную оценку качества лица в RetinaFace ([0ef8cc4](https://github.com/chatman-media/timeline-studio/commit/0ef8cc4a504ce699bcd8533a834a109e6b12af49))
+
 # [0.44.0](https://github.com/chatman-media/timeline-studio/compare/v0.43.0...v0.44.0) (2025-07-29)
 
 
