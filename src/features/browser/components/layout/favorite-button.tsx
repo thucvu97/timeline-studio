@@ -4,6 +4,7 @@ import { Star, StarOff } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 import { useFavorites } from "@/features/app-state"
+import { shortcutsRegistry } from "@/features/keyboard-shortcuts"
 import { MediaFile } from "@/features/media/types/media"
 import { cn } from "@/lib/utils"
 
@@ -96,6 +97,30 @@ export const FavoriteButton = memo(function FavoriteButton({ file, size = 150, t
   // Не показываем кнопку удаления в течение 3 секунд после добавления
   const canShowRemoveButton = !isRecentlyAdded
 
+  // Регистрируем shortcut action когда кнопка в фокусе
+  useEffect(() => {
+    const handleToggleFavoriteShortcut = () => {
+      // Проверяем, что кнопка или её родительский элемент в фокусе
+      const activeElement = document.activeElement
+      const buttonElement = document.querySelector(`[data-file-id="${file.id}"]`)
+      
+      if (buttonElement && (buttonElement === activeElement || buttonElement.contains(activeElement))) {
+        if (isFavorite && isHovering && canShowRemoveButton) {
+          void removeFromFavorites(file, type)
+        } else if (!isFavorite) {
+          void addToFavorites(file, type)
+          setIsRecentlyAdded(true)
+        }
+      }
+    }
+
+    shortcutsRegistry.updateAction("toggle-favorite", handleToggleFavoriteShortcut)
+
+    return () => {
+      shortcutsRegistry.updateAction("toggle-favorite", undefined)
+    }
+  }, [isFavorite, isHovering, canShowRemoveButton, removeFromFavorites, addToFavorites, file, type])
+
   const handleToggleFavorite = useCallback(
     (e: React.MouseEvent | React.KeyboardEvent) => {
       e.stopPropagation()
@@ -127,13 +152,9 @@ export const FavoriteButton = memo(function FavoriteButton({ file, size = 150, t
       )}
       style={{ color: "#ffffff" }}
       onClick={handleToggleFavorite}
-      onKeyDown={(e: React.KeyboardEvent<HTMLButtonElement>) => {
-        if (e.key === "Enter" || e.key === " ") {
-          handleToggleFavorite(e)
-        }
-      }}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
+      data-file-id={file.id}
       title={
         isFavorite
           ? isHovering && canShowRemoveButton

@@ -1,4 +1,6 @@
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
+
+import { cleanupMediaStream } from "../utils"
 
 interface ScreenCaptureOptions {
   video?: boolean | MediaTrackConstraints
@@ -99,10 +101,7 @@ export function useScreenCapture() {
 
   const stopScreenCapture = useCallback(() => {
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => {
-        track.stop()
-        console.log(`Остановлен трек: ${track.kind}`)
-      })
+      cleanupMediaStream(streamRef.current, "Screen capture stop")
       streamRef.current = null
       setScreenStream(null)
     }
@@ -127,6 +126,25 @@ export function useScreenCapture() {
       cursor: settings.cursor, // 'always', 'motion', 'never'
     }
   }, [screenStream])
+
+  // Очищаем ресурсы при размонтировании компонента
+  useEffect(() => {
+    return () => {
+      if (streamRef.current) {
+        cleanupMediaStream(streamRef.current, "Screen capture unmount cleanup")
+        streamRef.current = null
+      }
+    }
+  }, [])
+
+  // Очищаем ресурсы при остановке потока
+  useEffect(() => {
+    if (!isScreenSharing && streamRef.current) {
+      cleanupMediaStream(streamRef.current, "Screen capture auto cleanup")
+      streamRef.current = null
+      setScreenStream(null)
+    }
+  }, [isScreenSharing])
 
   return {
     screenStream,

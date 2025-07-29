@@ -41,7 +41,6 @@ pub fn export_typescript_bindings() {
     .commands(tauri_specta::collect_commands![
       // Core commands that definitely exist
       get_app_version,
-      
       // State management commands (critical for app-state module)
       crate::state::commands_api::execute_command,
       crate::state::commands_api::execute_batch_commands,

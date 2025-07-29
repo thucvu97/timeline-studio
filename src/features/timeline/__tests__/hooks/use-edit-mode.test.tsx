@@ -1,18 +1,20 @@
 import { ReactNode } from "react"
 
 import { act, renderHook } from "@testing-library/react"
-import { useHotkeys } from "react-hotkeys-hook"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { EditModeProvider, useEditMode, useEditModeContext } from "../../hooks/use-edit-mode"
 import { EDIT_MODE_CONFIGS, EDIT_MODES } from "../../types/edit-modes"
 
-// Мок для react-hotkeys-hook
-vi.mock("react-hotkeys-hook", () => ({
-  useHotkeys: vi.fn(),
+// Мок для shortcuts registry
+vi.mock("@/features/keyboard-shortcuts", () => ({
+  shortcutsRegistry: {
+    updateAction: vi.fn(),
+  },
 }))
 
-const mockUseHotkeys = vi.mocked(useHotkeys)
+import { shortcutsRegistry } from "@/features/keyboard-shortcuts"
+const mockShortcutsRegistry = vi.mocked(shortcutsRegistry)
 
 describe("use-edit-mode", () => {
   beforeEach(() => {
@@ -92,46 +94,42 @@ describe("use-edit-mode", () => {
     it("регистрирует горячие клавиши для всех режимов", () => {
       renderHook(() => useEditMode())
 
-      // Проверяем, что useHotkeys вызван для каждого режима + Escape
-      const totalModes = Object.values(EDIT_MODE_CONFIGS).length
-      expect(mockUseHotkeys).toHaveBeenCalledTimes(totalModes + 1)
+      // Проверяем, что updateAction вызван для каждого режима
+      const expectedShortcuts = [
+        "edit-mode-select",
+        "edit-mode-trim",
+        "edit-mode-ripple",
+        "edit-mode-roll",
+        "edit-mode-slip",
+        "edit-mode-slide",
+        "edit-mode-split",
+        "edit-mode-rate",
+        "edit-mode-escape"
+      ]
 
-      // Проверяем регистрацию горячих клавиш для каждого режима
-      Object.values(EDIT_MODE_CONFIGS).forEach((config, index) => {
-        expect(mockUseHotkeys).toHaveBeenNthCalledWith(
-          index + 1,
-          config.hotkey.toLowerCase(),
-          expect.any(Function),
-          {
-            preventDefault: true,
-            enableOnFormTags: false,
-          },
-          [expect.any(Function)],
+      expect(mockShortcutsRegistry.updateAction).toHaveBeenCalledTimes(expectedShortcuts.length)
+
+      // Проверяем регистрацию каждого shortcut
+      expectedShortcuts.forEach((shortcutId) => {
+        expect(mockShortcutsRegistry.updateAction).toHaveBeenCalledWith(
+          shortcutId,
+          expect.any(Function)
         )
       })
-
-      // Проверяем регистрацию Escape
-      expect(mockUseHotkeys).toHaveBeenLastCalledWith(
-        "escape",
-        expect.any(Function),
-        {
-          preventDefault: true,
-          enableOnFormTags: false,
-        },
-        [expect.any(Function)],
-      )
     })
 
     it("переключает режимы при вызове горячих клавиш", () => {
       const { result } = renderHook(() => useEditMode())
 
-      // Получаем callback для горячей клавиши T (Trim)
-      const trimHotkeyCall = mockUseHotkeys.mock.calls.find((call) => call[0] === "t")
-      const trimCallback = trimHotkeyCall?.[1]
+      // Получаем callback для edit-mode-trim
+      const trimCall = mockShortcutsRegistry.updateAction.mock.calls.find(
+        (call) => call[0] === "edit-mode-trim"
+      )
+      const trimCallback = trimCall?.[1]
 
       act(() => {
         if (trimCallback) {
-          trimCallback({} as KeyboardEvent, { keys: ["t"], scope: "", element: null } as any)
+          trimCallback()
         }
       })
 
@@ -147,12 +145,14 @@ describe("use-edit-mode", () => {
       })
 
       // Находим callback для Escape
-      const escapeCall = mockUseHotkeys.mock.calls.find((call) => call[0] === "escape")
+      const escapeCall = mockShortcutsRegistry.updateAction.mock.calls.find(
+        (call) => call[0] === "edit-mode-escape"
+      )
       const escapeCallback = escapeCall?.[1]
 
       act(() => {
         if (escapeCallback) {
-          escapeCallback({} as KeyboardEvent, { keys: ["escape"], scope: "", element: null } as any)
+          escapeCallback()
         }
       })
 
@@ -222,12 +222,14 @@ describe("use-edit-mode", () => {
       expect(document.body.style.cursor).toBe("grab")
 
       // Переключение через горячую клавишу
-      const rollHotkeyCall = mockUseHotkeys.mock.calls.find((call) => call[0] === "w")
-      const rollCallback = rollHotkeyCall?.[1]
+      const rollCall = mockShortcutsRegistry.updateAction.mock.calls.find(
+        (call) => call[0] === "edit-mode-roll"
+      )
+      const rollCallback = rollCall?.[1]
 
       act(() => {
         if (rollCallback) {
-          rollCallback({} as KeyboardEvent, { keys: ["w"], scope: "", element: null } as any)
+          rollCallback()
         }
       })
 
@@ -235,12 +237,14 @@ describe("use-edit-mode", () => {
       expect(document.body.style.cursor).toBe("col-resize")
 
       // Возврат в SELECT через Escape
-      const escapeCall = mockUseHotkeys.mock.calls.find((call) => call[0] === "escape")
+      const escapeCall = mockShortcutsRegistry.updateAction.mock.calls.find(
+        (call) => call[0] === "edit-mode-escape"
+      )
       const escapeCallback = escapeCall?.[1]
 
       act(() => {
         if (escapeCallback) {
-          escapeCallback({} as KeyboardEvent, { keys: ["escape"], scope: "", element: null } as any)
+          escapeCallback()
         }
       })
 

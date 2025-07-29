@@ -7,6 +7,8 @@ import { useMediaImport } from "@/features/media/hooks/use-media-import"
 import { useModal } from "@/features/modals"
 import { useToast } from "@/hooks/use-toast"
 
+import { cleanupMediaStream, cleanupVideoElement } from "../utils"
+
 import {
   useCameraPermissions,
   useCameraStream,
@@ -166,6 +168,9 @@ export function CameraCaptureModal() {
   const activeStreamRef = useRef<MediaStream | null>(null)
 
   useEffect(() => {
+    // Очищаем предыдущую ссылку
+    activeStreamRef.current = null
+    
     if (captureMode === "screen" && screenStream) {
       activeStreamRef.current = screenStream
       // Устанавливаем поток экрана в video элемент
@@ -175,6 +180,9 @@ export function CameraCaptureModal() {
     } else if (captureMode === "camera" && streamRef.current) {
       activeStreamRef.current = streamRef.current
       // Поток камеры уже устанавливается в useCameraStream
+    } else {
+      // Очищаем video элемент если нет активного потока
+      cleanupVideoElement(videoRef.current, "Stream switch video cleanup")
     }
   }, [captureMode, screenStream, streamRef])
 
@@ -202,18 +210,36 @@ export function CameraCaptureModal() {
     if (isOpen) {
       void requestPermissions()
     } else {
-      // Останавливаем все треки при закрытии модального окна
+      console.log("Закрытие модального окна - полная очистка ресурсов")
+      
+      // Останавливаем текущую запись
+      if (isRecording) {
+        stopRecording()
+      }
+      
+      // Очищаем activeStreamRef
+      activeStreamRef.current = null
+      
+      // Останавливаем все треки камеры
       if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop())
+        cleanupMediaStream(streamRef.current, "Modal close camera cleanup")
         streamRef.current = null
       }
+      
+      // Останавливаем запись экрана
       if (isScreenSharing) {
         stopScreenCapture()
       }
+      
+      // Очищаем video элемент
+      cleanupVideoElement(videoRef.current, "Modal close video cleanup")
+      
+      // Сбрасываем состояния
       setIsDeviceReady(false)
       setCaptureMode("camera") // Сбрасываем на камеру
+      setErrorMessage("") // Очищаем ошибки
     }
-  }, [isOpen, requestPermissions, streamRef, isScreenSharing, stopScreenCapture])
+  }, [isOpen, requestPermissions, streamRef, isScreenSharing, stopScreenCapture, isRecording, stopRecording])
 
   // Обработчик изменения устройства
   const handleDeviceChange = (deviceId: string) => {
@@ -248,14 +274,22 @@ export function CameraCaptureModal() {
       stopRecording()
     }
 
-    // Останавливаем текущий поток
+    // Очищаем activeStreamRef перед переключением
+    activeStreamRef.current = null
+
+    // Останавливаем текущий поток с улучшенной очисткой
     if (captureMode === "screen" && isScreenSharing) {
+      console.log("Остановка screen capture при переключении режима")
       stopScreenCapture()
     } else if (captureMode === "camera" && streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop())
+      console.log("Остановка camera stream при переключении режима")
+      cleanupMediaStream(streamRef.current, "Mode switch camera cleanup")
       streamRef.current = null
       setIsDeviceReady(false)
     }
+
+    // Очищаем video элемент
+    cleanupVideoElement(videoRef.current, "Mode switch video cleanup")
 
     // Меняем режим
     setCaptureMode(mode)

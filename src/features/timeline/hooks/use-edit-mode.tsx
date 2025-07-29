@@ -1,6 +1,6 @@
 import { ReactNode, createContext, useCallback, useContext, useEffect, useState } from "react"
 
-import { useHotkeys } from "react-hotkeys-hook"
+import { shortcutsRegistry } from "@/features/keyboard-shortcuts"
 
 import { EDIT_MODES, EDIT_MODE_CONFIGS, EditMode } from "../types/edit-modes"
 
@@ -20,19 +20,59 @@ export function useEditMode(initialMode: EditMode = EDIT_MODES.SELECT): UseEditM
   // Helper to check if we're in a specific mode
   const isEditMode = useCallback((mode: EditMode) => editMode === mode, [editMode])
 
-  // Set up keyboard shortcuts for all edit modes
-  Object.values(EDIT_MODE_CONFIGS).forEach((config) => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useHotkeys(
-      config.hotkey.toLowerCase(),
-      () => setEditMode(config.mode),
+  // Register keyboard shortcuts for all edit modes
+  useEffect(() => {
+    const shortcuts = [
       {
-        preventDefault: true,
-        enableOnFormTags: false,
+        id: "edit-mode-select",
+        action: () => setEditMode(EDIT_MODES.SELECT),
       },
-      [setEditMode],
-    )
-  })
+      {
+        id: "edit-mode-trim",
+        action: () => setEditMode(EDIT_MODES.TRIM),
+      },
+      {
+        id: "edit-mode-ripple",
+        action: () => setEditMode(EDIT_MODES.RIPPLE),
+      },
+      {
+        id: "edit-mode-roll",
+        action: () => setEditMode(EDIT_MODES.ROLL),
+      },
+      {
+        id: "edit-mode-slip",
+        action: () => setEditMode(EDIT_MODES.SLIP),
+      },
+      {
+        id: "edit-mode-slide",
+        action: () => setEditMode(EDIT_MODES.SLIDE),
+      },
+      {
+        id: "edit-mode-split",
+        action: () => setEditMode(EDIT_MODES.SPLIT),
+      },
+      {
+        id: "edit-mode-rate",
+        action: () => setEditMode(EDIT_MODES.RATE),
+      },
+      {
+        id: "edit-mode-escape",
+        action: () => setEditMode(EDIT_MODES.SELECT),
+      },
+    ]
+
+    // Регистрируем все shortcuts
+    shortcuts.forEach(({ id, action }) => {
+      shortcutsRegistry.updateAction(id, action)
+    })
+
+    // Очищаем actions при размонтировании
+    return () => {
+      shortcuts.forEach(({ id }) => {
+        shortcutsRegistry.updateAction(id, undefined)
+      })
+    }
+  }, [setEditMode, shortcutsRegistry])
 
   // Update document cursor based on edit mode
   useEffect(() => {
@@ -43,17 +83,6 @@ export function useEditMode(initialMode: EditMode = EDIT_MODES.SELECT): UseEditM
       document.body.style.cursor = prevCursor
     }
   }, [cursor])
-
-  // Escape key to return to select mode
-  useHotkeys(
-    "escape",
-    () => setEditMode(EDIT_MODES.SELECT),
-    {
-      preventDefault: true,
-      enableOnFormTags: false,
-    },
-    [setEditMode],
-  )
 
   return {
     editMode,

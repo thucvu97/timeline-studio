@@ -63,8 +63,9 @@ class ShortcutsRegistry {
       { id: "playback", name: "Воспроизведение", order: 6 },
       { id: "tools", name: "Инструменты", order: 7 },
       { id: "markers", name: "Маркеры", order: 8 },
-      { id: "export", name: "Экспорт", order: 9 },
-      { id: "other", name: "Прочее", order: 10 },
+      { id: "browser", name: "Браузер", order: 9 },
+      { id: "export", name: "Экспорт", order: 10 },
+      { id: "other", name: "Прочее", order: 11 },
     ]
 
     defaultCategories.forEach((category) => {
@@ -143,6 +144,17 @@ class ShortcutsRegistry {
     const shortcut = this.shortcuts.get(id)
     if (shortcut) {
       shortcut.enabled = !shortcut.enabled
+      this.notifyListeners()
+    }
+  }
+
+  /**
+   * Обновляет action для shortcut
+   */
+  updateAction(id: string, action?: HotkeyCallback): void {
+    const shortcut = this.shortcuts.get(id)
+    if (shortcut) {
+      shortcut.action = action
       this.notifyListeners()
     }
   }

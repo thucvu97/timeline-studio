@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { shortcutsRegistry } from "@/features/keyboard-shortcuts"
 import { useMediaImport } from "@/features/media/hooks/use-media-import"
 import { useModal } from "@/features/modals"
 import { useApiKeys } from "@/features/user-settings/hooks/use-api-keys"
@@ -481,15 +482,42 @@ export function AiChat() {
     setStreamingContent("")
   }, [setProcessing])
 
-  // Обработчик нажатия Enter
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault()
+  // Регистрируем shortcut для отправки сообщения
+  useEffect(() => {
+    const handleSendShortcut = () => {
+      // Проверяем, что фокус на textarea чата
+      const activeElement = document.activeElement
+      const chatInputs = document.querySelectorAll('[data-testid="chat-input"], [data-testid="chat-input-with-messages"]')
+      
+      const isInChatInput = Array.from(chatInputs).some(input => input === activeElement)
+      
+      if (isInChatInput && !isProcessing && !isStreaming) {
         handleSendMessage()
       }
+    }
+
+    shortcutsRegistry.updateAction("send-chat-message", handleSendShortcut)
+
+    return () => {
+      shortcutsRegistry.updateAction("send-chat-message", undefined)
+    }
+  }, [handleSendMessage, isProcessing, isStreaming])
+
+  // Обработчик нажатия Enter (для Shift+Enter)
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      // Shift+Enter добавляет новую строку
+      if (e.key === "Enter" && e.shiftKey) {
+        // Позволяем стандартное поведение для новой строки
+        return
+      }
+      // Enter без Shift обрабатывается через shortcuts registry
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault()
+        // Обработка через shortcuts registry
+      }
     },
-    [handleSendMessage],
+    [],
   )
 
   // Форматирование времени

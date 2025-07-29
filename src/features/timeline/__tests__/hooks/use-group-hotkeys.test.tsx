@@ -3,7 +3,6 @@
  */
 
 import { renderHook } from "@testing-library/react"
-import { useHotkeys } from "react-hotkeys-hook"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 // Mock timeline-machine

@@ -1,4 +1,6 @@
-import { useHotkeys } from "react-hotkeys-hook"
+import { useEffect } from "react"
+
+import { shortcutsRegistry } from "@/features/keyboard-shortcuts"
 
 import { useClipGroups } from "./use-clip-groups"
 import { useTimeline } from "./use-timeline"
@@ -38,41 +40,43 @@ export function useGroupHotkeys() {
     return selectedClips
   }
 
-  // Cmd/Ctrl + G - Create group
-  useHotkeys(
-    "cmd+g, ctrl+g",
-    (e) => {
-      e.preventDefault()
-      const selectedClips = getSelectedClips()
+  // Register keyboard shortcuts for grouping operations
+  useEffect(() => {
+    const shortcuts = [
+      {
+        id: "group-clips",
+        action: () => {
+          const selectedClips = getSelectedClips()
+          if (selectedClips.length >= 2) {
+            createGroup(selectedClips)
+          }
+        },
+      },
+      {
+        id: "ungroup-clips",
+        action: () => {
+          const selectedClips = getSelectedClips()
+          if (selectedClips.length > 0) {
+            // Find the group of the first selected clip
+            const group = getGroupByClip(selectedClips[0].id)
+            if (group) {
+              ungroupClips(group.id)
+            }
+          }
+        },
+      },
+    ]
 
-      if (selectedClips.length >= 2) {
-        createGroup(selectedClips)
-      }
-    },
-    {
-      enableOnFormTags: false,
-    },
-    [project, uiState.selectedClipIds],
-  )
+    // Регистрируем все shortcuts
+    shortcuts.forEach(({ id, action }) => {
+      shortcutsRegistry.updateAction(id, action)
+    })
 
-  // Cmd/Ctrl + Shift + G - Ungroup
-  useHotkeys(
-    "cmd+shift+g, ctrl+shift+g",
-    (e) => {
-      e.preventDefault()
-      const selectedClips = getSelectedClips()
-
-      if (selectedClips.length > 0) {
-        // Find the group of the first selected clip
-        const group = getGroupByClip(selectedClips[0].id)
-        if (group) {
-          ungroupClips(group.id)
-        }
-      }
-    },
-    {
-      enableOnFormTags: false,
-    },
-    [project, uiState.selectedClipIds],
-  )
+    // Очищаем actions при размонтировании
+    return () => {
+      shortcuts.forEach(({ id }) => {
+        shortcutsRegistry.updateAction(id, undefined)
+      })
+    }
+  }, [project, uiState.selectedClipIds, createGroup, ungroupClips, getGroupByClip])
 }

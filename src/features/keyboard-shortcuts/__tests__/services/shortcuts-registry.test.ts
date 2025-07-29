@@ -20,7 +20,7 @@ describe("ShortcutsRegistry", () => {
     it("should initialize with default categories", () => {
       const categories = shortcutsRegistry.getCategories()
 
-      expect(categories).toHaveLength(10)
+      expect(categories).toHaveLength(11)
       expect(categories.map((c) => c.id)).toEqual([
         "settings",
         "file",
@@ -30,6 +30,7 @@ describe("ShortcutsRegistry", () => {
         "playback",
         "tools",
         "markers",
+        "browser",
         "export",
         "other",
       ])
@@ -357,7 +358,7 @@ describe("ShortcutsRegistry", () => {
       shortcutsRegistry.clear()
 
       expect(shortcutsRegistry.getAll()).toHaveLength(0)
-      expect(shortcutsRegistry.getCategories()).toHaveLength(10) // Default categories restored
+      expect(shortcutsRegistry.getCategories()).toHaveLength(11) // Default categories restored
     })
 
     it("should notify listeners on clear", () => {

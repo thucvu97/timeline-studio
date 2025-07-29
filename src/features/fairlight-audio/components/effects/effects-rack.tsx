@@ -40,7 +40,7 @@ export function EffectsRack({
   const [effects, setEffects] = useState<Effect[]>([])
   const [showAddMenu, setShowAddMenu] = useState(false)
   const [gainReductions, setGainReductions] = useState<Record<string, number>>({})
-  const animationFrameRef = useRef<number>()
+  const animationFrameRef = useRef<number | null>(null)
 
   const AVAILABLE_EFFECTS: { type: EffectType; label: string }[] = [
     { type: "equalizer", label: t("fairlightAudio.effectsRack.effects.eq") },
