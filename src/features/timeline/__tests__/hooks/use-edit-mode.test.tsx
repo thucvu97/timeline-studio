@@ -10,15 +10,16 @@ vi.mock("@/features/keyboard-shortcuts", () => ({
   },
 }))
 
+import { shortcutsRegistry } from "@/features/keyboard-shortcuts"
+
 import { EditModeProvider, useEditMode, useEditModeContext } from "../../hooks/use-edit-mode"
 import { EDIT_MODE_CONFIGS, EDIT_MODES } from "../../types/edit-modes"
 
-import { shortcutsRegistry } from "@/features/keyboard-shortcuts"
 const mockShortcutsRegistry = vi.mocked(shortcutsRegistry)
 
 // Mock keyboard event
-const mockKeyboardEvent = new KeyboardEvent('keydown', { key: 'Enter' })
-const mockHotkeyEvent = { keys: ['enter'], scope: 'all', element: null }
+const mockKeyboardEvent = new KeyboardEvent("keydown", { key: "Enter" })
+const mockHotkeyEvent = { keys: ["enter"], scope: "all", element: null }
 
 describe("use-edit-mode", () => {
   beforeEach(() => {

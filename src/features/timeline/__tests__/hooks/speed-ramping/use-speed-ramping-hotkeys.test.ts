@@ -13,8 +13,8 @@ import { shortcutsRegistry } from "@/features/keyboard-shortcuts"
 import { useSpeedRampingHotkeys } from "../../../hooks/use-speed-ramping-hotkeys"
 
 // Mock keyboard event
-const mockKeyboardEvent = new KeyboardEvent('keydown', { key: 'Enter' })
-const mockHotkeyEvent = { keys: ['enter'], scope: 'all', element: null }
+const mockKeyboardEvent = new KeyboardEvent("keydown", { key: "Enter" })
+const mockHotkeyEvent = { keys: ["enter"], scope: "all", element: null }
 
 // Mock useSpeedRamping
 const mockUseSpeedRamping = {

@@ -25,8 +25,8 @@ import { MockTimelineProvider } from "../test-providers"
 import type { TimelineClip, TimelineProject, TimelineTrack } from "../../types/timeline"
 
 // Mock keyboard event
-const mockKeyboardEvent = new KeyboardEvent('keydown', { key: 'Enter' })
-const mockHotkeyEvent = { keys: ['enter'], scope: 'all', element: null }
+const mockKeyboardEvent = new KeyboardEvent("keydown", { key: "Enter" })
+const mockHotkeyEvent = { keys: ["enter"], scope: "all", element: null }
 
 // Mock functions
 const mockCreateJCut = vi.fn()

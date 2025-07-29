@@ -20,8 +20,8 @@ vi.mock("@/features/keyboard-shortcuts", () => ({
 import { shortcutsRegistry } from "@/features/keyboard-shortcuts"
 
 // Mock keyboard event
-const mockKeyboardEvent = new KeyboardEvent('keydown', { key: 'Enter' })
-const mockHotkeyEvent = { keys: ['enter'], scope: 'all', element: null }
+const mockKeyboardEvent = new KeyboardEvent("keydown", { key: "Enter" })
+const mockHotkeyEvent = { keys: ["enter"], scope: "all", element: null }
 
 // Создаем отдельный модуль для моков
 const mockCreateGroup = vi.fn()
