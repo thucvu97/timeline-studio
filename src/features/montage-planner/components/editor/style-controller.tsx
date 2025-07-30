@@ -3,7 +3,9 @@
  * Manages montage style settings and visual preferences
  */
 
-import { Camera, Film, Heart, Mountain, Music, Palette, Sparkles, Zap } from "lucide-react"
+import React from "react"
+
+import { Camera, Film, Music, Palette, Sparkles, Zap } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -17,7 +19,7 @@ import { cn } from "@/lib/utils"
 
 import { MONTAGE_STYLES } from "../../types"
 
-import type { MontagePreferences, MontageStyle, StyleParameters, VisualParameters } from "../../types"
+import type { MontagePreferences, StyleParameters, VisualParameters } from "../../types"
 
 interface StyleControllerProps {
   preferences: MontagePreferences
@@ -26,18 +28,16 @@ interface StyleControllerProps {
 }
 
 export function StyleController({ preferences, onPreferencesChange, className }: StyleControllerProps) {
-  const getStyleIcon = (style: MontageStyle) => {
-    const icons = {
+  const getStyleIcon = (styleName: string) => {
+    const icons: Record<string, React.ReactNode> = {
       "Dynamic Action": <Zap className="h-5 w-5" />,
       "Cinematic Drama": <Film className="h-5 w-5" />,
       "Music Video": <Music className="h-5 w-5" />,
       Documentary: <Camera className="h-5 w-5" />,
-      "Emotional Journey": <Heart className="h-5 w-5" />,
-      "Travel Montage": <Mountain className="h-5 w-5" />,
       Corporate: <Sparkles className="h-5 w-5" />,
       "Social Media": <Palette className="h-5 w-5" />,
     }
-    return icons[style] || <Film className="h-5 w-5" />
+    return icons[styleName] || <Film className="h-5 w-5" />
   }
 
   const updateStyleParameters = (updates: Partial<StyleParameters>) => {
@@ -57,8 +57,6 @@ export function StyleController({ preferences, onPreferencesChange, className }:
       },
     })
   }
-
-  const selectedStyleConfig = MONTAGE_STYLES[preferences.style]
 
   return (
     <Card className={cn("", className)}>
@@ -81,33 +79,33 @@ export function StyleController({ preferences, onPreferencesChange, className }:
               <Label>Montage Style</Label>
               <RadioGroup
                 value={preferences.style}
-                onValueChange={(value: MontageStyle) => onPreferencesChange({ style: value })}
+                onValueChange={(value: string) => onPreferencesChange({ style: value })}
               >
                 <div className="grid gap-3">
-                  {Object.entries(MONTAGE_STYLES).map(([style, config]) => (
-                    <div key={style} className="relative">
-                      <RadioGroupItem value={style} id={style} className="peer sr-only" />
+                  {Object.entries(MONTAGE_STYLES).map(([styleId, config]) => (
+                    <div key={styleId} className="relative">
+                      <RadioGroupItem value={styleId} id={styleId} className="peer sr-only" />
                       <Label
-                        htmlFor={style}
+                        htmlFor={styleId}
                         className={cn(
                           "flex items-start gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all",
                           "hover:bg-accent",
                           "peer-checked:border-primary peer-checked:bg-accent",
                         )}
                       >
-                        <div className="mt-0.5">{getStyleIcon(style as MontageStyle)}</div>
+                        <div className="mt-0.5">{getStyleIcon(config.name)}</div>
                         <div className="flex-1 space-y-1">
-                          <div className="font-medium">{style}</div>
+                          <div className="font-medium">{config.name}</div>
                           <div className="text-sm text-muted-foreground">{config.description}</div>
                           <div className="flex flex-wrap gap-1 mt-2">
                             <Badge variant="outline" className="text-xs">
-                              Pace: {config.params.pacePreference}
+                              Pace: {config.params?.pacePreference || "medium"}
                             </Badge>
                             <Badge variant="outline" className="text-xs">
-                              Energy: {config.params.energyRange[0]}-{config.params.energyRange[1]}
+                              Energy: {config.params?.energyRange?.[0] || 0}-{config.params?.energyRange?.[1] || 100}
                             </Badge>
                             <Badge variant="outline" className="text-xs">
-                              Cuts: {config.params.cutFrequency}
+                              Cuts: {config.params?.cutFrequency || "medium"}
                             </Badge>
                           </div>
                         </div>
@@ -186,7 +184,9 @@ export function StyleController({ preferences, onPreferencesChange, className }:
               <Label>Color Grading Preference</Label>
               <RadioGroup
                 value={preferences.visualParameters.colorGrading}
-                onValueChange={(value) => updateVisualParameters({ colorGrading: value })}
+                onValueChange={(value) =>
+                  updateVisualParameters({ colorGrading: value as VisualParameters["colorGrading"] })
+                }
               >
                 <div className="grid grid-cols-2 gap-3">
                   {["neutral", "warm", "cool", "vibrant", "muted", "cinematic"].map((grade) => (
@@ -354,13 +354,15 @@ export function StyleController({ preferences, onPreferencesChange, className }:
                 className="w-full"
                 onClick={() => {
                   const defaultStyle = MONTAGE_STYLES[preferences.style]
-                  onPreferencesChange({
-                    styleParameters: defaultStyle.params,
-                    visualParameters: defaultStyle.visual,
-                  })
+                  if (defaultStyle?.params && defaultStyle?.visual) {
+                    onPreferencesChange({
+                      styleParameters: defaultStyle.params,
+                      visualParameters: defaultStyle.visual,
+                    })
+                  }
                 }}
               >
-                Reset to {preferences.style} Defaults
+                Reset to {MONTAGE_STYLES[preferences.style]?.name || preferences.style} Defaults
               </Button>
             </div>
           </TabsContent>

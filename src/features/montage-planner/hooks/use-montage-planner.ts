@@ -29,7 +29,18 @@ export function useMontagePlanner() {
     progressMessage,
   } = useMontagePlannerContext()
 
-  const context = state?.context || {}
+  const context = state?.context || {
+    mediaFiles: new Map<string, MediaFile>(),
+    fragments: [],
+    videoIds: [],
+    currentPlan: null,
+    instructions: "",
+    selectedStyle: "dynamic",
+    targetDuration: null,
+    error: null,
+    planValidation: null,
+    planStatistics: null,
+  }
 
   // Video management
   const addVideo = useCallback(
@@ -121,7 +132,7 @@ export function useMontagePlanner() {
 
   const exportPlan = useCallback(
     (format: ExportFormat) => {
-      send({ type: "EXPORT_PLAN", format: format as string })
+      send({ type: "EXPORT_PLAN", format })
     },
     [send],
   )
@@ -146,25 +157,29 @@ export function useMontagePlanner() {
 
   // Computed values
   const totalVideoDuration = useMemo(() => {
-    return Array.from(context.mediaFiles.values()).reduce((total, file) => {
-      return Number(total) + Number(file?.duration || 0)
+    if (!context.mediaFiles) return 0
+    const files = Array.from(context.mediaFiles.values())
+    return files.reduce((total: number, file: MediaFile) => {
+      return total + (file?.duration || 0)
     }, 0)
   }, [context.mediaFiles])
 
   const totalFragmentsDuration = useMemo(() => {
-    return context.fragments.reduce((total, fragment) => {
-      return Number(total) + Number(fragment.duration || 0)
+    if (!context.fragments) return 0
+    return context.fragments.reduce((total: number, fragment: Fragment) => {
+      return total + (fragment.duration || 0)
     }, 0)
   }, [context.fragments])
 
   const utilizationRate = useMemo(() => {
-    if (totalVideoDuration === 0) return 0
-    return (totalFragmentsDuration / totalVideoDuration) * 100
+    const videoDuration = totalVideoDuration
+    if (videoDuration === 0) return 0
+    return (totalFragmentsDuration / videoDuration) * 100
   }, [totalFragmentsDuration, totalVideoDuration])
 
   const planDuration = context.currentPlan?.totalDuration || 0
-  const fragmentCount = context.fragments.length
-  const videoCount = context.videoIds.length
+  const fragmentCount = context.fragments?.length || 0
+  const videoCount = context.videoIds?.length || 0
 
   // Format helpers
   const formatDuration = useCallback((seconds: number) => {
@@ -172,7 +187,7 @@ export function useMontagePlanner() {
   }, [])
 
   const getStyleName = useCallback((styleId: string) => {
-    return (MONTAGE_STYLES as any)[styleId]?.name || styleId
+    return styleId in MONTAGE_STYLES ? MONTAGE_STYLES[styleId].name : styleId
   }, [])
 
   return {
@@ -182,7 +197,7 @@ export function useMontagePlanner() {
     send, // Expose send for tests
     currentPlan: context.currentPlan,
     fragments: context.fragments,
-    videos: Array.from(context.mediaFiles.values()),
+    videos: context.mediaFiles ? Array.from(context.mediaFiles.values()) : [],
     instructions: context.instructions,
     selectedStyle: context.selectedStyle,
     targetDuration: context.targetDuration,
@@ -242,6 +257,6 @@ export function useMontagePlanner() {
     planStatistics: context.planStatistics,
 
     // Available styles
-    availableStyles: Object.keys(MONTAGE_STYLES as any),
+    availableStyles: Object.keys(MONTAGE_STYLES),
   }
 }

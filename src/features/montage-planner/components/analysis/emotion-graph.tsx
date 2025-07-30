@@ -66,19 +66,31 @@ export function EmotionGraph({ plan, emotionalArc, className }: EmotionGraphProp
   const emotionalJourney =
     emotionalArc?.map((point, index) => {
       const nextPoint = emotionalArc[index + 1]
+      const currentEnergy = point.peakEnergy ?? point.emotionalIntensity
+      const nextEnergy = nextPoint ? (nextPoint.peakEnergy ?? nextPoint.emotionalIntensity) : currentEnergy
+
       const trend = nextPoint
-        ? nextPoint.peakEnergy > point.peakEnergy
+        ? nextEnergy > currentEnergy
           ? "rising"
-          : nextPoint.peakEnergy < point.peakEnergy
+          : nextEnergy < currentEnergy
             ? "falling"
             : "stable"
         : "stable"
 
+      // Calculate emotion intensity and dominant emotion
+      const emotionIntensity = point.emotionalWeights
+        ? Math.max(...Object.values(point.emotionalWeights))
+        : point.emotionalIntensity
+
+      const dominantEmotion = point.emotionalWeights
+        ? Object.entries(point.emotionalWeights).reduce((a, b) => (a[1] > b[1] ? a : b))[0]
+        : point.category
+
       return {
         ...point,
         trend,
-        emotionIntensity: Math.max(...Object.values(point.emotionalWeights)),
-        dominantEmotion: Object.entries(point.emotionalWeights).reduce((a, b) => (a[1] > b[1] ? a : b))[0],
+        emotionIntensity,
+        dominantEmotion,
       }
     }) || []
 
@@ -215,7 +227,7 @@ export function EmotionGraph({ plan, emotionalArc, className }: EmotionGraphProp
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-medium capitalize">{point.dominantEmotion}</span>
                         <Badge variant="outline" className="text-xs">
-                          {(point.emotionIntensity * 100).toFixed(0)}%
+                          {point.emotionIntensity.toFixed(0)}%
                         </Badge>
                       </div>
                     </div>

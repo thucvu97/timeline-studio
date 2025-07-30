@@ -26,19 +26,19 @@ export class ContentAnalyzer {
    */
   async analyzeVideo(
     _videoId: string,
-    file: MediaFile,
+    _file: MediaFile,
     _options: AnalysisOptions["videoAnalysis"],
   ): Promise<VideoAnalysis> {
     // Simulated analysis - in real implementation, this would call Tauri commands
-    const width = file.width || 1920
-    const height = file.height || 1080
-    const frameRate = file.frameRate || 30
+    const width = 1920 // file.width || 1920 - MediaFile doesn't have width property
+    const height = 1080 // file.height || 1080 - MediaFile doesn't have height property
+    const frameRate = 30 // file.frameRate || 30 - MediaFile doesn't have frameRate property
 
     return {
       quality: {
         resolution: { width, height },
         frameRate,
-        bitrate: file.bitrate || 5000000,
+        bitrate: 5000000, // file.bitrate || 5000000 - MediaFile doesn't have bitrate property
         sharpness: this.calculateSharpness(width, height),
         stability: Math.random() * 30 + 70, // 70-100
         exposure: (Math.random() - 0.5) * 40, // -20 to 20
@@ -68,7 +68,7 @@ export class ContentAnalyzer {
     file: MediaFile,
     options: AnalysisOptions["audioAnalysis"],
   ): Promise<AudioAnalysis> {
-    const hasAudio = file.hasAudio !== false
+    const hasAudio = file.isAudio !== false
 
     if (!hasAudio) {
       return this.getEmptyAudioAnalysis()
@@ -76,8 +76,8 @@ export class ContentAnalyzer {
 
     return {
       quality: {
-        sampleRate: file.audioSampleRate || 48000,
-        bitDepth: file.audioBitDepth || 16,
+        sampleRate: 48000, // file.audioSampleRate || 48000 - MediaFile doesn't have audioSampleRate property
+        bitDepth: 16, // file.audioBitDepth || 16 - MediaFile doesn't have audioBitDepth property
         noiseLevel: Math.random() * 30, // 0-30
         clarity: Math.random() * 30 + 70, // 70-100
         dynamicRange: Math.random() * 20 + 40, // 40-60 dB

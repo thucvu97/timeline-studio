@@ -15,9 +15,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { formatTime } from "@/lib/date"
 import { cn } from "@/lib/utils"
 
-import type { MontagePlan, Pacing, TransitionStyle } from "../../types"
+import { PacingType } from "../../types"
+
+import type { MontagePlan, PacingProfile, TransitionStyle } from "../../types"
 
 interface TimingAdjusterProps {
   plan: MontagePlan
@@ -33,23 +36,22 @@ export function TimingAdjuster({ plan, onPlanUpdate, onPreview, isPlaying = fals
   const transitionStyles: TransitionStyle[] = ["cut", "dissolve", "fade", "wipe", "slide", "zoom", "blur", "glitch"]
 
   const pacingTypes = [
-    { value: "slow", label: "Slow", description: "Contemplative, dramatic" },
-    { value: "steady", label: "Steady", description: "Balanced rhythm" },
-    { value: "dynamic", label: "Dynamic", description: "Varied pacing" },
-    { value: "fast", label: "Fast", description: "Quick cuts, high energy" },
+    { value: PacingType.Steady, label: "Steady", description: "Balanced rhythm" },
+    { value: PacingType.Variable, label: "Variable", description: "Varied pacing" },
+    { value: PacingType.Rhythmic, label: "Rhythmic", description: "Musical rhythm" },
     {
-      value: "accelerating",
+      value: PacingType.Accelerating,
       label: "Accelerating",
       description: "Building momentum",
     },
     {
-      value: "decelerating",
+      value: PacingType.Decelerating,
       label: "Decelerating",
       description: "Slowing down",
     },
   ]
 
-  const updatePacing = (updates: Partial<Pacing>) => {
+  const updatePacing = (updates: Partial<PacingProfile>) => {
     onPlanUpdate({
       pacing: {
         ...plan.pacing,
@@ -148,7 +150,7 @@ export function TimingAdjuster({ plan, onPlanUpdate, onPreview, isPlaying = fals
             {/* Pacing Type */}
             <div className="space-y-2">
               <Label>Pacing Style</Label>
-              <Select value={plan.pacing.type} onValueChange={(value) => updatePacing({ type: value as any })}>
+              <Select value={plan.pacing.type} onValueChange={(value) => updatePacing({ type: value as PacingType })}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

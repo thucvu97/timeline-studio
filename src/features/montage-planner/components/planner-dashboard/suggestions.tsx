@@ -101,7 +101,7 @@ export function Suggestions() {
                 <div className="pt-2 border-t">
                   <p className="text-sm font-medium mb-2">Top Unused Fragments</p>
                   <div className="space-y-1">
-                    {fragmentUsage.unusedFragments.slice(0, 3).map((fragment) => (
+                    {fragmentUsage.unusedFragments.slice(0, 3).map((fragment: any) => (
                       <div key={fragment.id} className="text-xs text-muted-foreground">
                         • {fragment.videoId} ({fragment.startTime.toFixed(1)}s - Score:{" "}
                         {fragment.score.totalScore.toFixed(0)})

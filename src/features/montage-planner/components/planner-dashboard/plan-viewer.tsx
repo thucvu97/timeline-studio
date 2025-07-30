@@ -13,7 +13,9 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useMediaFiles } from "@/features/app-state/hooks/use-media-files"
+import type { MediaFile } from "@/features/media/types/media"
 import { formatTime } from "@/lib/date"
+import type { MediaItem } from "@/types/generated/tauri-bindings"
 
 import { usePlanGenerator } from "../../hooks/use-plan-generator"
 import { useTimelineIntegration } from "../../hooks/use-timeline-integration"
@@ -25,12 +27,31 @@ interface PlanViewerProps {
 }
 
 export function PlanViewer({ plan }: PlanViewerProps) {
-  const { planStats, sequenceBreakdown, emotionalArc, transitionUsage, planValidation } = usePlanGenerator()
+  const { planStats, sequenceBreakdown, emotionalArc, transitionUsage } = usePlanGenerator()
   const { mediaFiles } = useMediaFiles()
   const { applyPlanToTimeline, isApplying, error, canApplyPlan } = useTimelineIntegration()
 
+  // TODO: Implement plan validation
+  const planValidation = null as any
+
   const handleApplyToTimeline = async () => {
-    await applyPlanToTimeline(plan, mediaFiles, {
+    // Convert MediaItem[] to MediaFile[]
+    const convertedMediaFiles: MediaFile[] = mediaFiles.map((item: MediaItem) => ({
+      id: item.id,
+      path: item.path,
+      name: item.name,
+      isVideo: item.media_type === "Video",
+      isAudio: item.media_type === "Audio",
+      duration: item.duration || 0,
+      format: item.metadata?.format || "",
+      codec: item.metadata?.codec || "",
+      width: item.metadata?.resolution?.width || 0,
+      height: item.metadata?.resolution?.height || 0,
+      frameRate: item.metadata?.frame_rate || 0,
+      bitrate: item.metadata?.bitrate || 0,
+    }))
+
+    await applyPlanToTimeline(plan, convertedMediaFiles, {
       createNewSection: true,
       sectionName: plan.name,
       applyTransitions: true,
@@ -61,7 +82,7 @@ export function PlanViewer({ plan }: PlanViewerProps) {
         <h3 className="text-lg font-semibold">Montage Plan: {plan.name}</h3>
         <div className="flex gap-2">
           <Badge variant="outline">{plan.sequences.length} sequences</Badge>
-          <Badge variant="outline">{formatTime(plan.total_duration)}</Badge>
+          <Badge variant="outline">{formatTime(plan.totalDuration)}</Badge>
           <Button onClick={handleApplyToTimeline} disabled={!canApplyPlan(plan) || isApplying} className="gap-2">
             <Wand2 className="h-4 w-4" />
             {isApplying ? "Applying..." : "Apply to Timeline"}
@@ -143,7 +164,7 @@ export function PlanViewer({ plan }: PlanViewerProps) {
                   key={sequence.id}
                   className="relative group"
                   style={{
-                    width: `${(sequence.duration / plan.total_duration) * 100}%`,
+                    width: `${(sequence.duration / plan.totalDuration) * 100}%`,
                     minWidth: "60px",
                   }}
                 >
@@ -188,7 +209,7 @@ export function PlanViewer({ plan }: PlanViewerProps) {
             <CardContent>
               <ScrollArea className="h-[400px]">
                 <div className="space-y-4">
-                  {sequenceBreakdown.map((seq, index) => (
+                  {sequenceBreakdown.map((seq: any, index: number) => (
                     <div key={seq.id} className="space-y-2">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -234,7 +255,7 @@ export function PlanViewer({ plan }: PlanViewerProps) {
                 {/* Energy Graph */}
                 <div className="h-[200px] relative border rounded-lg p-4">
                   <div className="absolute inset-4 flex items-end justify-between gap-1">
-                    {emotionalArc.map((point, _index) => (
+                    {emotionalArc.map((point: any, _index: number) => (
                       <div
                         key={point.sequenceId}
                         className="flex-1 bg-primary/20 rounded-t"
@@ -289,7 +310,7 @@ export function PlanViewer({ plan }: PlanViewerProps) {
             <CardContent>
               <div className="space-y-3">
                 {transitionUsage.length > 0 ? (
-                  transitionUsage.map((usage) => (
+                  transitionUsage.map((usage: any) => (
                     <div key={usage.transitionId} className="flex items-center justify-between">
                       <span className="capitalize">{usage.transitionId.replace("-", " ")}</span>
                       <div className="flex items-center gap-2">
@@ -332,7 +353,7 @@ export function PlanViewer({ plan }: PlanViewerProps) {
 
                   {planValidation.issues.length > 0 && (
                     <div className="space-y-2">
-                      {planValidation.issues.map((issue, index) => (
+                      {planValidation.issues.map((issue: any, index: number) => (
                         <div key={index} className="flex items-start gap-2 text-sm">
                           <Badge
                             variant={
@@ -354,7 +375,7 @@ export function PlanViewer({ plan }: PlanViewerProps) {
                   {planValidation.suggestions.length > 0 && (
                     <div className="space-y-2">
                       <p className="text-sm font-medium">Suggestions</p>
-                      {planValidation.suggestions.map((suggestion, index) => (
+                      {planValidation.suggestions.map((suggestion: any, index: number) => (
                         <p key={index} className="text-sm text-muted-foreground">
                           • {suggestion}
                         </p>

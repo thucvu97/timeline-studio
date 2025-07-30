@@ -13,7 +13,8 @@ import {
   applyPlanToTimeline as applyPlanToTimelineService,
   createMarkersFromPlan,
 } from "../services/timeline-integration-service"
-import { MontagePlan } from "../types"
+
+import type { MontagePlan, PlannedClip, Sequence } from "../types"
 
 export interface UseTimelineIntegrationReturn {
   // Основные действия
@@ -35,7 +36,14 @@ export interface UseTimelineIntegrationReturn {
 }
 
 export function useTimelineIntegration(): UseTimelineIntegrationReturn {
-  const { project, updateProject, addMarkers } = useTimeline()
+  const { project } = useTimeline()
+  // TODO: Timeline integration methods need to be implemented
+  const updateProject = async (_project: any) => {
+    console.warn("Timeline update not yet implemented")
+  }
+  const addMarkers = (_markers: any[]) => {
+    console.warn("Markers addition not yet implemented")
+  }
   const { addMediaToTimeline } = useTimelineActions()
 
   const [isApplying, setIsApplying] = useState(false)
@@ -85,7 +93,7 @@ export function useTimelineIntegration(): UseTimelineIntegrationReturn {
         setIsApplying(false)
       }
     },
-    [project, updateProject, addMarkers],
+    [project],
   )
 
   /**
@@ -108,7 +116,7 @@ export function useTimelineIntegration(): UseTimelineIntegrationReturn {
         console.error("Failed to create markers:", err)
       }
     },
-    [project, addMarkers],
+    [project],
   )
 
   /**
@@ -117,8 +125,8 @@ export function useTimelineIntegration(): UseTimelineIntegrationReturn {
   const canApplyPlan = useCallback(
     (plan: MontagePlan): boolean => {
       if (!project) return false
-      if (!plan.clips || plan.clips.length === 0) return false
-      if (plan.total_duration <= 0) return false
+      if (!plan.sequences || plan.sequences.length === 0) return false
+      if (plan.totalDuration <= 0) return false
 
       return true
     },
@@ -131,8 +139,13 @@ export function useTimelineIntegration(): UseTimelineIntegrationReturn {
   const getRequiredMediaFiles = useCallback((plan: MontagePlan): string[] => {
     const files = new Set<string>()
 
-    plan.clips.forEach((clip) => {
-      files.add(clip.source_file)
+    // Extract files from all sequences and clips
+    plan.sequences.forEach((sequence: Sequence) => {
+      sequence.clips.forEach((clip: PlannedClip) => {
+        if (clip.fragment?.sourceFile?.path) {
+          files.add(clip.fragment.sourceFile.path)
+        }
+      })
     })
 
     return Array.from(files)

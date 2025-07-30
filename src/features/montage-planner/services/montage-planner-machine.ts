@@ -115,7 +115,7 @@ export const montagePlannerMachine = setup({
     removeVideo: assign({
       videoIds: ({ context, event }) => {
         if (event.type !== "REMOVE_VIDEO") return context.videoIds
-        return context.videoIds.filter((id) => id !== event.videoId)
+        return context.videoIds.filter((id: string) => id !== event.videoId)
       },
       mediaFiles: ({ context, event }) => {
         if (event.type !== "REMOVE_VIDEO") return context.mediaFiles
@@ -250,7 +250,7 @@ export const montagePlannerMachine = setup({
     editFragment: assign({
       fragments: ({ context, event }) => {
         if (event.type !== "EDIT_FRAGMENT") return context.fragments
-        return context.fragments.map((fragment) =>
+        return context.fragments.map((fragment: Fragment) =>
           fragment.id === event.fragmentId ? { ...fragment, ...event.updates } : fragment,
         )
       },
@@ -315,7 +315,7 @@ export const montagePlannerMachine = setup({
             options: analysisOptions,
           })
           return result
-        } catch (error) {
+        } catch (error: unknown) {
           throw new Error(`Video analysis failed: ${String(error)}`)
         }
       },
@@ -331,7 +331,7 @@ export const montagePlannerMachine = setup({
             options: generationOptions,
           })
           return plan
-        } catch (error) {
+        } catch (error: unknown) {
           throw new Error(`Plan generation failed: ${String(error)}`)
         }
       },
@@ -347,7 +347,7 @@ export const montagePlannerMachine = setup({
             preferences,
           })
           return optimizedPlan
-        } catch (error) {
+        } catch (error: unknown) {
           throw new Error(`Plan optimization failed: ${String(error)}`)
         }
       },
@@ -360,7 +360,7 @@ export const montagePlannerMachine = setup({
         try {
           const validation = await invoke("validate_montage_plan", { plan })
           return validation
-        } catch (error) {
+        } catch (error: unknown) {
           throw new Error(`Plan validation failed: ${String(error)}`)
         }
       },
@@ -373,7 +373,7 @@ export const montagePlannerMachine = setup({
         try {
           const statistics = await invoke("calculate_plan_statistics", { plan })
           return statistics
-        } catch (error) {
+        } catch (error: unknown) {
           throw new Error(`Statistics calculation failed: ${String(error)}`)
         }
       },

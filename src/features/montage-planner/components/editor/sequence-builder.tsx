@@ -17,7 +17,9 @@ import { Slider } from "@/components/ui/slider"
 import { formatTime } from "@/lib/date"
 import { cn } from "@/lib/utils"
 
-import type { Fragment, Sequence, SequenceType } from "../../types"
+import { ClipRole, SequencePurpose, SequenceType } from "../../types"
+
+import type { Fragment, PlannedClip, Sequence } from "../../types"
 
 interface SequenceBuilderProps {
   sequences: Sequence[]
@@ -30,15 +32,22 @@ export function SequenceBuilder({ sequences, availableFragments, onSequencesChan
   const [expandedSequences, setExpandedSequences] = useState<Set<string>>(new Set())
   const [editingSequence, setEditingSequence] = useState<string | null>(null)
 
-  const sequenceTypes: SequenceType[] = ["intro", "main", "climax", "resolution", "outro", "montage"]
+  const sequenceTypes: SequenceType[] = [
+    SequenceType.Intro,
+    SequenceType.Main,
+    SequenceType.Climax,
+    SequenceType.Resolution,
+    SequenceType.Outro,
+    SequenceType.Montage,
+  ]
 
-  const sequenceColors = {
-    intro: "bg-blue-500",
-    main: "bg-green-500",
-    climax: "bg-red-500",
-    resolution: "bg-purple-500",
-    outro: "bg-indigo-500",
-    montage: "bg-yellow-500",
+  const sequenceColors: Record<SequenceType, string> = {
+    [SequenceType.Intro]: "bg-blue-500",
+    [SequenceType.Main]: "bg-green-500",
+    [SequenceType.Climax]: "bg-red-500",
+    [SequenceType.Resolution]: "bg-purple-500",
+    [SequenceType.Outro]: "bg-indigo-500",
+    [SequenceType.Montage]: "bg-yellow-500",
   }
 
   const toggleSequenceExpanded = (sequenceId: string) => {
@@ -54,11 +63,19 @@ export function SequenceBuilder({ sequences, availableFragments, onSequencesChan
   const addSequence = () => {
     const newSequence: Sequence = {
       id: `seq_${Date.now()}`,
-      type: "main",
+      type: SequenceType.Main,
       clips: [],
       duration: 0,
       energyLevel: 50,
-      purpose: "narrative-development",
+      purpose: SequencePurpose.Development,
+      emotionalArc: {
+        startEnergy: 50,
+        peakPosition: 0.5,
+        peakEnergy: 70,
+        endEnergy: 50,
+        variability: 30,
+      },
+      transitions: [],
     }
     onSequencesChange([...sequences, newSequence])
   }
@@ -96,13 +113,13 @@ export function SequenceBuilder({ sequences, availableFragments, onSequencesChan
     const sequence = sequences.find((seq) => seq.id === sequenceId)
     if (!sequence) return
 
-    const newClip = {
-      id: `clip_${Date.now()}`,
+    const newClip: PlannedClip = {
       fragmentId: fragment.id,
-      startTime: sequence.duration,
-      duration: fragment.duration,
-      inPoint: 0,
-      outPoint: fragment.duration,
+      fragment: fragment,
+      sequenceOrder: sequence.clips.length,
+      role: ClipRole.Supporting,
+      importance: fragment.score?.totalScore || 50,
+      suggestions: [],
     }
 
     updateSequence(sequenceId, {
@@ -111,15 +128,20 @@ export function SequenceBuilder({ sequences, availableFragments, onSequencesChan
     })
   }
 
-  const removeClipFromSequence = (sequenceId: string, clipId: string) => {
+  const removeClipFromSequence = (sequenceId: string, fragmentId: string) => {
     const sequence = sequences.find((seq) => seq.id === sequenceId)
     if (!sequence) return
 
-    const clipToRemove = sequence.clips.find((clip) => clip.id === clipId)
+    const clipToRemove = sequence.clips.find((clip) => clip.fragmentId === fragmentId)
     if (!clipToRemove) return
 
-    const newClips = sequence.clips.filter((clip) => clip.id !== clipId)
-    const newDuration = newClips.reduce((sum, clip) => sum + Number(clip.duration || 0), 0)
+    const newClips = sequence.clips.filter((clip) => clip.fragmentId !== fragmentId)
+    const newDuration = newClips.reduce((sum, clip) => sum + (clip.fragment?.duration || 0), 0)
+
+    // Update sequence orders
+    newClips.forEach((clip, index) => {
+      clip.sequenceOrder = index
+    })
 
     updateSequence(sequenceId, {
       clips: newClips,
@@ -272,18 +294,18 @@ export function SequenceBuilder({ sequences, availableFragments, onSequencesChan
                           <Label>Purpose</Label>
                           <Select
                             value={sequence.purpose}
-                            onValueChange={(value) => updateSequence(sequence.id, { purpose: value })}
+                            onValueChange={(value: SequencePurpose) => updateSequence(sequence.id, { purpose: value })}
                           >
                             <SelectTrigger>
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="hook">Hook</SelectItem>
-                              <SelectItem value="setup">Setup</SelectItem>
-                              <SelectItem value="narrative-development">Narrative Development</SelectItem>
-                              <SelectItem value="emotional-peak">Emotional Peak</SelectItem>
-                              <SelectItem value="resolution">Resolution</SelectItem>
-                              <SelectItem value="call-to-action">Call to Action</SelectItem>
+                              <SelectItem value={SequencePurpose.Hook}>Hook</SelectItem>
+                              <SelectItem value={SequencePurpose.Exposition}>Exposition</SelectItem>
+                              <SelectItem value={SequencePurpose.Development}>Development</SelectItem>
+                              <SelectItem value={SequencePurpose.Climax}>Climax</SelectItem>
+                              <SelectItem value={SequencePurpose.Resolution}>Resolution</SelectItem>
+                              <SelectItem value={SequencePurpose.CallToAction}>Call to Action</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
@@ -298,18 +320,22 @@ export function SequenceBuilder({ sequences, availableFragments, onSequencesChan
                           ) : (
                             <div className="space-y-1">
                               {sequence.clips.map((clip) => {
-                                const fragment = availableFragments.find((f) => f.id === clip.fragmentId)
+                                const fragment =
+                                  clip.fragment || availableFragments.find((f) => f.id === clip.fragmentId)
                                 return (
-                                  <div key={clip.id} className="flex items-center justify-between p-2 rounded border">
+                                  <div
+                                    key={clip.fragmentId}
+                                    className="flex items-center justify-between p-2 rounded border"
+                                  >
                                     <span className="text-sm">
-                                      {fragment?.videoId || "Unknown"} • {formatTime(clip.startTime)} -{" "}
-                                      {formatTime(Number(clip.startTime || 0) + Number(clip.duration || 0))}
+                                      {fragment?.videoId || "Unknown"} • {formatTime(fragment?.startTime || 0)} -{" "}
+                                      {formatTime((fragment?.startTime || 0) + (fragment?.duration || 0))}
                                     </span>
                                     <Button
                                       variant="ghost"
                                       size="icon"
                                       className="h-6 w-6"
-                                      onClick={() => removeClipFromSequence(sequence.id, clip.id)}
+                                      onClick={() => removeClipFromSequence(sequence.id, clip.fragmentId)}
                                     >
                                       <Trash2 className="h-3 w-3" />
                                     </Button>

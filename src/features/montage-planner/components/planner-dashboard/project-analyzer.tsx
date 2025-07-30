@@ -193,7 +193,7 @@ export function ProjectAnalyzer() {
             <CardContent>
               <ScrollArea className="h-[300px]">
                 <div className="space-y-2">
-                  {fragments.map((fragment) => (
+                  {fragments.map((fragment: any) => (
                     <div key={fragment.id} className="flex items-center justify-between rounded-lg border p-3">
                       <div className="flex-1">
                         <p className="font-medium">{fragment.videoId}</p>
@@ -202,7 +202,7 @@ export function ProjectAnalyzer() {
                           {fragment.description && ` • ${fragment.description}`}
                         </p>
                         <div className="mt-1 flex gap-1">
-                          {fragment.tags.slice(0, 3).map((tag) => (
+                          {fragment.tags.slice(0, 3).map((tag: any) => (
                             <Badge key={tag} variant="outline" className="text-xs">
                               {tag}
                             </Badge>

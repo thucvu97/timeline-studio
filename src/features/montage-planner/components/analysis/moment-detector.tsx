@@ -69,14 +69,17 @@ export function MomentDetector({ fragments, className }: MomentDetectorProps) {
     return acc
   }, {})
 
-  const fragmentsByType = fragments.reduce<Record<MomentCategory, Fragment[]>>((acc, fragment) => {
-    const type = fragment.score.category
-    if (!acc[type]) {
-      acc[type] = []
-    }
-    acc[type].push(fragment)
-    return acc
-  }, {})
+  const fragmentsByType = fragments.reduce<Record<MomentCategory, Fragment[]>>(
+    (acc, fragment) => {
+      const type = fragment.score.category
+      if (!acc[type]) {
+        acc[type] = []
+      }
+      acc[type].push(fragment)
+      return acc
+    },
+    {} as Record<MomentCategory, Fragment[]>,
+  )
 
   // Sort fragments by score
   const topMoments = [...fragments].sort((a, b) => b.score.totalScore - a.score.totalScore).slice(0, 10)
@@ -161,8 +164,8 @@ export function MomentDetector({ fragments, className }: MomentDetectorProps) {
                     <div className="flex-1 space-y-2">
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-2">
-                          <div className={cn("p-1 rounded", getMomentColor(fragment.score.momentType))}>
-                            {getMomentIcon(fragment.score.momentType)}
+                          <div className={cn("p-1 rounded", getMomentColor(fragment.score.category))}>
+                            {getMomentIcon(fragment.score.category)}
                           </div>
                           <span className="font-medium">{fragment.videoId}</span>
                           <span className="text-sm text-muted-foreground">
@@ -177,10 +180,10 @@ export function MomentDetector({ fragments, className }: MomentDetectorProps) {
                       {fragment.description && <p className="text-sm text-muted-foreground">{fragment.description}</p>}
 
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <span>Visual: {fragment.score.visualScore.toFixed(0)}</span>
-                        <span>Technical: {fragment.score.technicalScore.toFixed(0)}</span>
-                        <span>Emotional: {fragment.score.emotionalScore.toFixed(0)}</span>
-                        <span>Relevance: {fragment.score.relevanceScore.toFixed(0)}</span>
+                        <span>Visual: {fragment.score.scores.visual.toFixed(0)}</span>
+                        <span>Technical: {fragment.score.scores.technical.toFixed(0)}</span>
+                        <span>Emotional: {fragment.score.scores.emotional.toFixed(0)}</span>
+                        <span>Narrative: {fragment.score.scores.narrative.toFixed(0)}</span>
                       </div>
 
                       {fragment.tags.length > 0 && (
@@ -216,7 +219,7 @@ export function MomentDetector({ fragments, className }: MomentDetectorProps) {
                           key={fragment.id}
                           className={cn(
                             "absolute top-1 h-6 rounded",
-                            getMomentColor(fragment.score.momentType),
+                            getMomentColor(fragment.score.category),
                             "opacity-80 hover:opacity-100 transition-opacity cursor-pointer",
                           )}
                           style={{
@@ -224,7 +227,7 @@ export function MomentDetector({ fragments, className }: MomentDetectorProps) {
                             width: `${width}%`,
                             minWidth: "2px",
                           }}
-                          title={`${fragment.score.momentType} - Score: ${fragment.score.totalScore.toFixed(0)}`}
+                          title={`${fragment.score.category} - Score: ${fragment.score.totalScore.toFixed(0)}`}
                         />
                       )
                     })}
@@ -240,8 +243,8 @@ export function MomentDetector({ fragments, className }: MomentDetectorProps) {
               <div className="flex flex-wrap gap-2 pt-4 border-t">
                 {Object.keys(fragmentsByType).map((type) => (
                   <div key={type} className="flex items-center gap-1">
-                    <div className={cn("p-1 rounded", getMomentColor(type as MomentType))}>
-                      {getMomentIcon(type as MomentType)}
+                    <div className={cn("p-1 rounded", getMomentColor(type as MomentCategory))}>
+                      {getMomentIcon(type as MomentCategory)}
                     </div>
                     <span className="text-xs">{type}</span>
                   </div>

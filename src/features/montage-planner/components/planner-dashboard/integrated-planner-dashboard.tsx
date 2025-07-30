@@ -13,6 +13,8 @@ import { Progress } from "@/components/ui/progress"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
 import { useMediaFiles } from "@/features/app-state/hooks/use-media-files"
+import type { MediaFile } from "@/features/media/types/media"
+import type { MediaItem } from "@/types/generated/tauri-bindings"
 
 import { PlanViewer } from "./plan-viewer"
 import { ProjectAnalyzer } from "./project-analyzer"
@@ -40,7 +42,7 @@ export function IntegratedPlannerDashboard() {
   const [selectedStyle, setSelectedStyle] = React.useState("dynamic")
   const [targetDuration, setTargetDuration] = React.useState([120]) // в секундах
 
-  const hasMedia = mediaFiles.allFiles.length > 0
+  const hasMedia = mediaFiles.length > 0
   const hasAnalysis = analysisResults !== null
   const hasPlan = planGenerator.currentPlan !== null
   const canAnalyze = hasMedia && !isAnalyzing && !isGenerating
@@ -51,7 +53,23 @@ export function IntegratedPlannerDashboard() {
    */
   const handleAnalyzeProject = async () => {
     try {
-      await analyzeProject(mediaFiles.allFiles)
+      // Convert MediaItem[] to MediaFile[]
+      const convertedMediaFiles: MediaFile[] = mediaFiles.map((item: MediaItem) => ({
+        id: item.id,
+        path: item.path,
+        name: item.name,
+        isVideo: item.media_type === "Video",
+        isAudio: item.media_type === "Audio",
+        duration: item.duration || 0,
+        format: item.metadata?.format || "",
+        codec: item.metadata?.codec || "",
+        width: item.metadata?.resolution?.width || 0,
+        height: item.metadata?.resolution?.height || 0,
+        frameRate: item.metadata?.frame_rate || 0,
+        bitrate: item.metadata?.bitrate || 0,
+      }))
+
+      await analyzeProject(convertedMediaFiles)
     } catch (error) {
       console.error("Analysis failed:", error)
     }
@@ -152,13 +170,13 @@ export function IntegratedPlannerDashboard() {
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Media Files</span>
-                <span className="font-medium">{mediaFiles.allFiles.length}</span>
+                <span className="font-medium">{mediaFiles.length}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Total Duration</span>
                 <span className="font-medium">
                   {formatDuration(
-                    mediaFiles.allFiles.reduce((sum: number, file) => {
+                    mediaFiles.reduce((sum: number, file: MediaItem) => {
                       const duration = file.duration
                       return sum + (typeof duration === "number" ? duration : 0)
                     }, 0),
@@ -212,7 +230,11 @@ export function IntegratedPlannerDashboard() {
                     ))}
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-muted-foreground">{(MONTAGE_STYLES as any)[selectedStyle]?.description}</p>
+                <p className="text-xs text-muted-foreground">
+                  {selectedStyle in MONTAGE_STYLES
+                    ? MONTAGE_STYLES[selectedStyle].description
+                    : ""}
+                </p>
               </div>
 
               {/* Target Duration */}

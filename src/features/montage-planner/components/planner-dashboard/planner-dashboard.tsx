@@ -15,7 +15,7 @@ import { PlanViewer } from "./plan-viewer"
 import { ProjectAnalyzer } from "./project-analyzer"
 import { Suggestions } from "./suggestions"
 import { useMontagePlanner } from "../../hooks/use-montage-planner"
-import { MONTAGE_STYLES } from "../../types"
+import { ExportFormat, MONTAGE_STYLES } from "../../types"
 
 export function PlannerDashboard() {
   const { t } = useTranslation()
@@ -70,7 +70,7 @@ export function PlannerDashboard() {
   }
 
   const handleExport = () => {
-    exportPlan("JSON")
+    exportPlan(ExportFormat.JSON)
     // TODO: Show export dialog with format options
   }
 

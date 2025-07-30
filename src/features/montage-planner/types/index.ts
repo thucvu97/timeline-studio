@@ -168,6 +168,8 @@ export interface MontagePlan {
   qualityScore: number
   engagementScore: number
   coherenceScore: number
+  transitions?: SequenceTransition[]
+  musicSync?: boolean
 }
 
 export interface PlanMetadata {
@@ -328,6 +330,55 @@ export interface MontageStyle {
     style: string
     intensity: number // 0-100
   }
+  params?: StyleParameters
+  visual?: VisualParameters
+}
+
+// Style parameters for customization
+export interface StyleParameters {
+  pacePreference: "slow" | "medium" | "fast" | "mixed"
+  energyRange: [number, number] // min and max energy levels
+  cutFrequency: "slow" | "medium" | "fast" | "mixed"
+  emotionFocus: number // 0-100
+}
+
+// Visual parameters for rendering
+export interface VisualParameters {
+  colorGrading: "neutral" | "warm" | "cool" | "vibrant" | "muted" | "cinematic"
+  contrastLevel: number // 0-100
+  saturationLevel: number // 0-100
+  stabilization: boolean
+  grainIntensity: number // 0-100
+}
+
+// Montage preferences combining all settings
+export interface MontagePreferences {
+  style: string // style id
+  styleParameters: StyleParameters
+  visualParameters: VisualParameters
+  qualityThreshold: number // 0-100
+  targetDuration: number // seconds
+  autoBalance?: boolean
+  diversityBoost?: boolean
+  narrativeCoherence?: boolean
+}
+
+// Transition style types
+export type TransitionStyle = "cut" | "dissolve" | "fade" | "wipe" | "slide" | "zoom" | "blur" | "glitch"
+
+// Pacing configuration
+export interface Pacing {
+  type: "slow" | "steady" | "dynamic" | "fast" | "accelerating" | "decelerating"
+  averageClipDuration: number // seconds
+  variability: number // 0-100
+}
+
+// Transition between sequences
+export interface SequenceTransition {
+  from: string // sequence id
+  to: string // sequence id
+  style: TransitionStyle
+  duration: number // seconds
 }
 
 export interface EmotionalCurve {
@@ -376,6 +427,19 @@ export const MONTAGE_STYLES: Record<string, MontageStyle> = {
       endEnergy: 80,
       variability: 70,
     },
+    params: {
+      pacePreference: "fast",
+      energyRange: [70, 95],
+      cutFrequency: "fast",
+      emotionFocus: 80,
+    },
+    visual: {
+      colorGrading: "vibrant",
+      contrastLevel: 75,
+      saturationLevel: 85,
+      stabilization: true,
+      grainIntensity: 0,
+    },
   },
   cinematicDrama: {
     id: "cinematic-drama",
@@ -397,6 +461,19 @@ export const MONTAGE_STYLES: Record<string, MontageStyle> = {
       peakEnergy: 85,
       endEnergy: 20,
       variability: 50,
+    },
+    params: {
+      pacePreference: "slow",
+      energyRange: [20, 85],
+      cutFrequency: "slow",
+      emotionFocus: 90,
+    },
+    visual: {
+      colorGrading: "cinematic",
+      contrastLevel: 85,
+      saturationLevel: 60,
+      stabilization: true,
+      grainIntensity: 15,
     },
   },
   musicVideo: {
@@ -420,6 +497,19 @@ export const MONTAGE_STYLES: Record<string, MontageStyle> = {
       endEnergy: 70,
       variability: 80,
     },
+    params: {
+      pacePreference: "mixed",
+      energyRange: [60, 90],
+      cutFrequency: "fast",
+      emotionFocus: 70,
+    },
+    visual: {
+      colorGrading: "vibrant",
+      contrastLevel: 80,
+      saturationLevel: 90,
+      stabilization: false,
+      grainIntensity: 0,
+    },
   },
   documentary: {
     id: "documentary",
@@ -441,6 +531,19 @@ export const MONTAGE_STYLES: Record<string, MontageStyle> = {
       peakEnergy: 60,
       endEnergy: 40,
       variability: 30,
+    },
+    params: {
+      pacePreference: "medium",
+      energyRange: [30, 60],
+      cutFrequency: "medium",
+      emotionFocus: 50,
+    },
+    visual: {
+      colorGrading: "neutral",
+      contrastLevel: 60,
+      saturationLevel: 70,
+      stabilization: true,
+      grainIntensity: 5,
     },
   },
   socialMedia: {
@@ -464,6 +567,19 @@ export const MONTAGE_STYLES: Record<string, MontageStyle> = {
       endEnergy: 90,
       variability: 60,
     },
+    params: {
+      pacePreference: "fast",
+      energyRange: [85, 95],
+      cutFrequency: "fast",
+      emotionFocus: 75,
+    },
+    visual: {
+      colorGrading: "vibrant",
+      contrastLevel: 85,
+      saturationLevel: 95,
+      stabilization: true,
+      grainIntensity: 0,
+    },
   },
   corporate: {
     id: "corporate",
@@ -485,6 +601,19 @@ export const MONTAGE_STYLES: Record<string, MontageStyle> = {
       peakEnergy: 70,
       endEnergy: 60,
       variability: 20,
+    },
+    params: {
+      pacePreference: "medium",
+      energyRange: [50, 70],
+      cutFrequency: "medium",
+      emotionFocus: 40,
+    },
+    visual: {
+      colorGrading: "neutral",
+      contrastLevel: 65,
+      saturationLevel: 75,
+      stabilization: true,
+      grainIntensity: 0,
     },
   },
 }
@@ -731,9 +860,11 @@ export interface MomentCluster {
 // Emotional arc data for visualizations
 export interface EmotionalArc {
   timestamp: number
-  emotionalIntensity: number
-  category: MomentCategory
-  score: number
+  emotionalIntensity: number // 0-100
+  category: MomentCategory | string
+  score: number // average score
+  peakEnergy?: number // peak energy value
+  emotionalWeights?: Record<string, number> // weights for different emotions
 }
 
 // Enhanced plan statistics for components

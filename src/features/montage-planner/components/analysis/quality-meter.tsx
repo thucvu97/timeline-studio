@@ -134,11 +134,11 @@ export function QualityMeter({ videoAnalysis, audioAnalysis, momentScore, classN
               <span className="text-sm text-muted-foreground">{t("montage-planner.quality.composition")}</span>
               <div className="grid grid-cols-3 gap-2">
                 <div className="text-center">
-                  <Progress value={videoAnalysis.content?.compositionScore || 0} className="h-2" />
+                  <Progress value={momentScore?.scores.composition || 0} className="h-2" />
                   <span className="text-xs text-muted-foreground mt-1">{t("common.ruleOfThirds")}</span>
                 </div>
                 <div className="text-center">
-                  <Progress value={videoAnalysis.content?.aestheticScore || 0} className="h-2" />
+                  <Progress value={momentScore?.scores.visual || 0} className="h-2" />
                   <span className="text-xs text-muted-foreground mt-1">{t("common.balance")}</span>
                 </div>
                 <div className="text-center">
@@ -200,7 +200,12 @@ export function QualityMeter({ videoAnalysis, audioAnalysis, momentScore, classN
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">{t("common.silenceRatio")}</span>
                   <span className="font-medium">
-                    {(100 - audioAnalysis.content.speechPresence - audioAnalysis.content.musicPresence).toFixed(0)}%
+                    {(
+                      100 -
+                      (audioAnalysis.content?.speechPresence || 0) -
+                      (audioAnalysis.content?.musicPresence || 0)
+                    ).toFixed(0)}
+                    %
                   </span>
                 </div>
               </div>
