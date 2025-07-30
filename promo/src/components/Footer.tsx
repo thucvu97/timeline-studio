@@ -81,7 +81,7 @@ export const Footer: React.FC = () => {
               <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-6 whitespace-nowrap">Follow Us</h3>
               <div className="flex flex-wrap gap-4">
                 <a
-                  href="https://discord.gg/BSddjvWk"
+                  href="https://discord.gg/uvSBCw6e"
                   className="text-gray-500 hover:text-gray-300 transition-colors duration-200"
                   aria-label="Discord"
                 >

@@ -129,7 +129,7 @@ export function Navigation() {
               {/* Social Icons */}
               <div className="hidden md:flex items-center mr-2">
                 <a
-                  href="https://discord.gg/BSddjvWk"
+                  href="https://discord.gg/uvSBCw6e"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-gray-400 hover:text-white transition-colors duration-200"
@@ -250,7 +250,7 @@ export function Navigation() {
               <li className="pt-2 border-t border-gray-700">
                 <div className="flex space-x-4 px-4 py-2">
                   <a
-                    href="https://discord.gg/BSddjvWk"
+                    href="https://discord.gg/uvSBCw6e"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-gray-400 hover:text-white transition-colors duration-200"

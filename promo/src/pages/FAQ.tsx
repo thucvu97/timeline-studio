@@ -85,7 +85,7 @@ const FAQ: React.FC = () => {
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                       <a
-                        href="https://discord.gg/BSddjvWk"
+                        href="https://discord.gg/uvSBCw6e"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="px-6 py-3 bg-[#5865F2] text-white font-medium rounded-xl hover:bg-[#4752C4] transition-colors"

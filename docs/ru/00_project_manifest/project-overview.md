@@ -221,7 +221,7 @@ Timeline Studio - это open source проект, и мы приветству�
 
 - **GitHub**: [github.com/chatman-media/timeline-studio](https://github.com/chatman-media/timeline-studio)
 - **Telegram**: [t.me/timelinestudio](https://t.me/timelinestudio)
-- **Discord**: [discord.gg/gwJUYxck](https://discord.gg/BSddjvWk)
+- **Discord**: [discord.gg/gwJUYxck](https://discord.gg/uvSBCw6e)
 - **Email**: ak.chatman.media@gmail.com
 - **Website**: [timelinestudio.app](https://timelinestudio.app) (в разработке)
 
