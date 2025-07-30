@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  --primary: #3b82f6;
+  --primary: #5e7ff6;
   --primary-dark: #1d4ed8;
-  --secondary: #8b5cf6;
+  --secondary: #ca51f5;
   --background: #111827;
   --text: #f9fafb;
 }
@@ -342,3 +342,21 @@ html {
 .glass-card-content {
   @apply relative p-6;
 }
+
+.primary-0 { color: #8b5cf6 }		/* Основной Цвет */
+.primary-1 { color: #7c62b9 }
+.primary-2 { color: #451ea0 }		/* Вторичный Цвет С */
+.primary-3 { color: #a885fb }
+.primary-4 { color: #bea4fb }
+
+.secondary-a-0 { color: #ca51f5 }	/* Вторичный Цвет A */
+.secondary-a-1 { color: #a05bb8 }
+.secondary-a-2 { color: #7c1a9f }
+.secondary-a-3 { color: #d97cfa }
+.secondary-a-4 { color: #e29efa }
+
+.secondary-b-0 { color: #5e7ff6 }	/* Вторичный Цвет B */
+.secondary-b-1 { color: #6375b8 }
+.secondary-b-2 { color: #1f3aa0 }
+.secondary-b-3 { color: #879ffa }
+.secondary-b-4 { color: #a5b8fa }
