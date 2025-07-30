@@ -41,6 +41,7 @@ import type {
 
 
 
+
 // Интеграция с анализом персонажей
 export class ScriptGenerationEngine extends BaseAIEngine {
   name = "Script Generation Engine"
