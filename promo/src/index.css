@@ -187,21 +187,36 @@ html {
 
 /* Кастомный скроллбар */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #1f2937;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-  border-radius: 4px;
+  background: linear-gradient(180deg, rgba(94, 127, 246, 0.2), rgba(202, 81, 245, 0.2));
+  border-radius: 3px;
+  transition: all 0.3s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  background: linear-gradient(180deg, rgba(94, 127, 246, 0.3), rgba(202, 81, 245, 0.3));
 }
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 92, 246, 0.2) transparent;
+}
+
+/* Auto-hide scrollbar when not scrolling */
+body {
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
 
 /* Prose styles for markdown content */
 .prose {

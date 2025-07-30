@@ -13,7 +13,6 @@ import Privacy from './pages/Privacy'
 import ResponsibleAI from './pages/ResponsibleAI'
 import FAQ from './pages/FAQ'
 import Docs from './pages/Docs'
-import Demo from './pages/Demo'
 import { ScrollToTop } from './components/ScrollToTop'
 
 createRoot(document.getElementById("root")!).render(
@@ -32,7 +31,6 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/responsible-ai" element={<ResponsibleAI />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/docs" element={<Docs />} />
-        <Route path="/demo" element={<Demo />} />
       </Routes>
     </HashRouter>
   </StrictMode>,

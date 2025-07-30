@@ -83,68 +83,62 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3 }}
-          className="text-6xl md:text-8xl font-normal mb-6 tracking-tight"
+          className="page-title"
         >
-          <span className="text-gradient">Timeline Studio</span>
+          <span className="text-gradient">
+            AI-Powered Video Creation
+          </span>
         </motion.h1>
 
         <motion.p
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="text-xl md:text-2xl font-normal text-gray-400 mb-12 max-w-3xl mx-auto"
+          className="text-xl md:text-2xl text-gray-300 mb-4 max-w-4xl mx-auto"
         >
-          Professional video editing powered by 150+ AI tools. Create stunning content faster than ever before.
+          Watch how Timeline Studio AI helps you create viral content in seconds
+        </motion.p>
+        
+        <motion.p
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+          className="text-lg text-gray-400 mb-12"
+        >
+          Type your idea and let AI do the magic ✨
         </motion.p>
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
-          className="flex items-center justify-center"
+          transition={{ duration: 0.8, delay: 0.6 }}
+          className="flex flex-col items-center justify-center gap-4"
         >
           <a 
             href="#download" 
-            className="glass glass-glow px-8 py-4 rounded-xl text-lg font-medium text-white hover:bg-white/10 transition-all duration-300 group flex items-center space-x-3"
+            className="group relative px-8 py-4 rounded-xl text-lg font-medium text-white overflow-hidden transform hover:scale-[1.02] transition-transform"
           >
-            <span>Get for Free</span>
-            <svg
-              className="w-5 h-5 group-hover:translate-x-1 transition-transform"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 10V3L4 14h7v7l9-11h-7z"
-              />
-            </svg>
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl" />
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <span className="relative z-10 flex items-center gap-2">
+              Download Free
+              <svg
+                className="w-5 h-5 group-hover:translate-x-1 transition-transform"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
+              </svg>
+            </span>
           </a>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.8 }}
-          className="mt-16 flex items-center justify-center space-x-8"
-        >
-          <div className="text-center">
-            <div className="text-3xl text-white">500K+</div>
-            <div className="text-sm text-gray-400">Active Users</div>
-          </div>
-          <div className="w-px h-10 bg-gray-700" />
-          <div className="text-center">
-            <div className="text-3xl text-white">150+</div>
-            <div className="text-sm text-gray-400">AI Tools</div>
-          </div>
-          <div className="w-px h-10 bg-gray-700" />
-          <div className="text-center">
-            <div className="text-3xl text-white">60 FPS</div>
-            <div className="text-sm text-gray-400">8K Rendering</div>
-          </div>
-        </motion.div>
       </motion.div>
 
       {/* Scroll indicator */}

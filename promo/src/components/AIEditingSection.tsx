@@ -13,12 +13,14 @@ export function AIEditingSection() {
       <div className="container mx-auto px-4 relative z-10">
         <AnimatedSection animation="fadeUp">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            <h2 className="section-title">
               AI-Powered <span className="text-gradient">Smart Editing</span>
             </h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-purple-500 to-pink-500 mx-auto rounded-full mb-6" />
-            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-              Let AI do the heavy lifting while you focus on creativity. Our neural networks analyze, optimize, and perfect every frame.
+            <p className="text-xl md:text-2xl text-gray-300 mb-4 max-w-3xl mx-auto">
+              Let AI do the heavy lifting while you focus on creativity
+            </p>
+            <p className="text-lg text-gray-400 max-w-3xl mx-auto">
+              Our neural networks analyze, optimize, and perfect every frame 🤖
             </p>
           </div>
         </AnimatedSection>
@@ -38,8 +40,8 @@ export function AIEditingSection() {
                     <span className="text-2xl">🧠</span>
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-white mb-2">Neural Scene Analysis</h3>
-                    <p className="text-gray-400">Our AI watches your footage like a professional editor, identifying key moments, emotions, and story beats in milliseconds</p>
+                    <h3 className="text-2xl font-medium text-white mb-2">Neural Scene Analysis</h3>
+                    <p className="text-gray-400 text-sm">Our AI watches your footage like a professional editor, identifying key moments, emotions, and story beats in milliseconds</p>
                     <div className="mt-3 flex items-center space-x-2">
                       <span className="text-xs text-purple-400 bg-purple-400/10 px-2 py-1 rounded-full">Deep Learning</span>
                       <span className="text-xs text-pink-400 bg-pink-400/10 px-2 py-1 rounded-full">Real-time</span>
@@ -59,8 +61,8 @@ export function AIEditingSection() {
                     <span className="text-2xl">🎬</span>
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-white mb-2">Cinematic Auto-Edit</h3>
-                    <p className="text-gray-400">Transform raw clips into Hollywood-style sequences with dynamic pacing, perfect timing, and emotional flow</p>
+                    <h3 className="text-2xl font-medium text-white mb-2">Cinematic Auto-Edit</h3>
+                    <p className="text-gray-400 text-sm">Transform raw clips into Hollywood-style sequences with dynamic pacing, perfect timing, and emotional flow</p>
                     <div className="mt-3 flex items-center space-x-2">
                       <span className="text-xs text-purple-400 bg-purple-400/10 px-2 py-1 rounded-full">Film Theory</span>
                       <span className="text-xs text-pink-400 bg-pink-400/10 px-2 py-1 rounded-full">AI Director</span>
@@ -80,8 +82,8 @@ export function AIEditingSection() {
                     <span className="text-2xl">✨</span>
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-white mb-2">Magic Enhancement</h3>
-                    <p className="text-gray-400">Upscale to 8K, stabilize shaky footage, remove objects, and enhance audio - all with one-click AI magic</p>
+                    <h3 className="text-2xl font-medium text-white mb-2">Magic Enhancement</h3>
+                    <p className="text-gray-400 text-sm">Upscale to 8K, stabilize shaky footage, remove objects, and enhance audio - all with one-click AI magic</p>
                     <div className="mt-3 flex items-center space-x-2">
                       <span className="text-xs text-purple-400 bg-purple-400/10 px-2 py-1 rounded-full">Super Resolution</span>
                       <span className="text-xs text-pink-400 bg-pink-400/10 px-2 py-1 rounded-full">60 FPS</span>

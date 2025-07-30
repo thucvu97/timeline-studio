@@ -15,7 +15,6 @@ const navItems: NavItem[] = [];
 const rightNavItems: NavItem[] = [
   // { label: 'FEATURES', href: '#ai-editing', isScroll: true },
   // { label: 'DOWNLOAD', href: '#download', isScroll: true },
-  { label: 'DEMO', href: '/demo', isExternal: false },
   { label: 'PRICING', href: '/pricing', isExternal: false },
   { label: 'CHANGELOG', href: '/changelog', isExternal: false },
   { label: 'DOCS', href: '/docs', isExternal: false },
