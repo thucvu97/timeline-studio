@@ -103,18 +103,13 @@ export const Blog: React.FC = () => {
         <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <div className="max-w-4xl mx-auto">
             {isLoading ? (
-              <div className="relative overflow-hidden rounded-xl">
-                {/* Glassmorphism background */}
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-blue-500/10 to-pink-500/10 backdrop-blur-xl" />
-                <div className="absolute inset-0 bg-white/[0.02]" />
-                
-                {/* Border gradient */}
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/20 via-transparent to-blue-500/20 p-[1px]">
-                  <div className="h-full w-full rounded-xl bg-[#12192C]/90 backdrop-blur-xl" />
+              <div className="glass-card">
+                <div className="glass-card-bg" />
+                <div className="glass-card-overlay" />
+                <div className="glass-card-border">
+                  <div className="glass-card-inner" />
                 </div>
-                
-                {/* Content */}
-                <div className="relative p-8 text-center">
+                <div className="glass-card-content text-center">
                   <p className="text-lg text-gray-400">Loading posts...</p>
                 </div>
               </div>
@@ -126,19 +121,15 @@ export const Blog: React.FC = () => {
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="relative overflow-hidden rounded-xl"
+                    className="glass-card"
                   >
-                    {/* Glassmorphism background */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-blue-500/10 to-pink-500/10 backdrop-blur-xl" />
-                    <div className="absolute inset-0 bg-white/[0.02]" />
-                    
-                    {/* Border gradient */}
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/20 via-transparent to-blue-500/20 p-[1px]">
-                      <div className="h-full w-full rounded-xl bg-[#12192C]/90 backdrop-blur-xl" />
+                    <div className="glass-card-bg" />
+                    <div className="glass-card-overlay" />
+                    <div className="glass-card-border">
+                      <div className="glass-card-inner" />
                     </div>
                     
-                    {/* Content */}
-                    <Link to={`/blog/${post.slug}`} className="relative block group p-8">
+                    <Link to={`/blog/${post.slug}`} className="relative block group glass-card-content">
                       <div className="flex items-center justify-between mb-4">
                         <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-purple-500/10 text-purple-400 border border-purple-500/20">
                           {post.category}

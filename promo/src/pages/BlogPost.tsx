@@ -139,11 +139,24 @@ Timeline Studio is available for Windows, macOS, and Linux. Download the latest 
                 <div className="glass-card-inner" />
               </div>
               <div className="relative p-8 md:p-12">
-                <div className="prose prose-invert prose-lg max-w-none">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                <article className="prose prose-invert prose-lg max-w-none">
+                  <ReactMarkdown 
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      h1: ({children}) => <h1 className="text-4xl font-light text-white mb-6">{children}</h1>,
+                      h2: ({children}) => <h2 className="text-2xl font-light text-white mt-8 mb-4">{children}</h2>,
+                      h3: ({children}) => <h3 className="text-xl font-medium text-white mt-6 mb-3">{children}</h3>,
+                      p: ({children}) => <p className="text-gray-300 mb-4 leading-relaxed">{children}</p>,
+                      ul: ({children}) => <ul className="list-disc list-inside space-y-2 mb-4 text-gray-300">{children}</ul>,
+                      li: ({children}) => <li className="text-gray-300">{children}</li>,
+                      strong: ({children}) => <strong className="text-white font-semibold">{children}</strong>,
+                      code: ({children}) => <code className="bg-gray-800/50 px-1.5 py-0.5 rounded text-purple-400 text-sm">{children}</code>,
+                      a: ({children, href}) => <a href={href} className="text-purple-400 hover:text-purple-300 underline transition-colors">{children}</a>,
+                    }}
+                  >
                     {content}
                   </ReactMarkdown>
-                </div>
+                </article>
               </div>
             </div>
           </motion.div>
