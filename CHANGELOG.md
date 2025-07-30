@@ -1,3 +1,15 @@
+# [0.50.0](https://github.com/chatman-media/timeline-studio/compare/v0.49.0...v0.50.0) (2025-07-30)
+
+
+### Bug Fixes
+
+* исправить ошибку SSR с window is not defined в UpdateService ([261b473](https://github.com/chatman-media/timeline-studio/commit/261b473753883602fa3c3f3ff3f6f10a9742a444))
+
+
+### Features
+
+* **promo:** добавить ссылку Pricing в навигационное меню ([dd87c65](https://github.com/chatman-media/timeline-studio/commit/dd87c65419c5e653b5f855452745ce928bff806b))
+
 # [0.49.0](https://github.com/chatman-media/timeline-studio/compare/v0.48.1...v0.49.0) (2025-07-30)
 
 
