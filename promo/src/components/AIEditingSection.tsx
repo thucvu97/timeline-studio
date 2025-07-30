@@ -28,14 +28,18 @@ export function AIEditingSection() {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <AnimatedSection animation="slideInLeft" delay={0.2}>
             <div className="space-y-6">
-              <motion.div 
-                whileHover={{ scale: 1.02 }}
-                className="relative glass p-8 rounded-2xl overflow-hidden group"
-              >
-                {/* Liquid glass effect on hover */}
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 to-pink-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative overflow-hidden rounded-xl">
+                {/* Glassmorphism background */}
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-blue-500/10 to-pink-500/10 backdrop-blur-xl" />
+                <div className="absolute inset-0 bg-white/[0.02]" />
                 
-                <div className="relative flex items-start space-x-4">
+                {/* Border gradient */}
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/20 via-transparent to-blue-500/20 p-[1px]">
+                  <div className="h-full w-full rounded-xl bg-[#12192C]/90 backdrop-blur-xl" />
+                </div>
+                
+                {/* Content */}
+                <div className="relative p-8 flex items-start space-x-4">
                   <div className="w-14 h-14 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg">
                     <span className="text-2xl">🧠</span>
                   </div>
@@ -48,15 +52,20 @@ export function AIEditingSection() {
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
 
-              <motion.div 
-                whileHover={{ scale: 1.02 }}
-                className="relative glass p-8 rounded-2xl overflow-hidden group"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 to-pink-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative overflow-hidden rounded-xl">
+                {/* Glassmorphism background */}
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-blue-500/10 to-pink-500/10 backdrop-blur-xl" />
+                <div className="absolute inset-0 bg-white/[0.02]" />
                 
-                <div className="relative flex items-start space-x-4">
+                {/* Border gradient */}
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/20 via-transparent to-blue-500/20 p-[1px]">
+                  <div className="h-full w-full rounded-xl bg-[#12192C]/90 backdrop-blur-xl" />
+                </div>
+                
+                {/* Content */}
+                <div className="relative p-8 flex items-start space-x-4">
                   <div className="w-14 h-14 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg">
                     <span className="text-2xl">🎬</span>
                   </div>
@@ -69,15 +78,20 @@ export function AIEditingSection() {
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
 
-              <motion.div 
-                whileHover={{ scale: 1.02 }}
-                className="relative glass p-8 rounded-2xl overflow-hidden group"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 to-pink-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative overflow-hidden rounded-xl">
+                {/* Glassmorphism background */}
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-blue-500/10 to-pink-500/10 backdrop-blur-xl" />
+                <div className="absolute inset-0 bg-white/[0.02]" />
                 
-                <div className="relative flex items-start space-x-4">
+                {/* Border gradient */}
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/20 via-transparent to-blue-500/20 p-[1px]">
+                  <div className="h-full w-full rounded-xl bg-[#12192C]/90 backdrop-blur-xl" />
+                </div>
+                
+                {/* Content */}
+                <div className="relative p-8 flex items-start space-x-4">
                   <div className="w-14 h-14 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg">
                     <span className="text-2xl">✨</span>
                   </div>
@@ -90,7 +104,7 @@ export function AIEditingSection() {
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             </div>
           </AnimatedSection>
 

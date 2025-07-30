@@ -81,10 +81,13 @@ export const Blog: React.FC = () => {
             <h1 className="page-title">
               <span className="text-gradient">Blog</span>
             </h1>
-            <p className="text-xl md:text-2xl text-gray-300 mb-8">
+            <p className="text-xl md:text-2xl text-gray-300 mb-4">
               News, tutorials, and insights from the Timeline Studio team
             </p>
-            <div className="flex items-center justify-center space-x-4 text-gray-400">
+            <p className="text-lg text-gray-400 mb-8">
+              Stay updated with the latest features and best practices 📰
+            </p>
+            <div className="flex items-center justify-center space-x-4 text-gray-400 text-sm">
               <span>Updated Weekly</span>
               <span>•</span>
               <span>Developer Insights</span>
@@ -100,11 +103,14 @@ export const Blog: React.FC = () => {
         <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <div className="max-w-4xl mx-auto">
             {isLoading ? (
-              <div className="glass-card">
-                <div className="glass-card-bg" />
-                <div className="glass-card-overlay" />
-                <div className="glass-card-border">
-                  <div className="glass-card-inner" />
+              <div className="relative overflow-hidden rounded-xl">
+                {/* Glassmorphism background */}
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-blue-500/10 to-pink-500/10 backdrop-blur-xl" />
+                <div className="absolute inset-0 bg-white/[0.02]" />
+                
+                {/* Border gradient */}
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/20 via-transparent to-blue-500/20 p-[1px]">
+                  <div className="h-full w-full rounded-xl bg-[#12192C]/90 backdrop-blur-xl" />
                 </div>
                 
                 {/* Content */}
@@ -120,23 +126,26 @@ export const Blog: React.FC = () => {
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="glass-card"
+                    className="relative overflow-hidden rounded-xl"
                   >
-                    <div className="glass-card-bg" />
-                    <div className="glass-card-overlay" />
-                    <div className="glass-card-border">
-                      <div className="glass-card-inner" />
+                    {/* Glassmorphism background */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-blue-500/10 to-pink-500/10 backdrop-blur-xl" />
+                    <div className="absolute inset-0 bg-white/[0.02]" />
+                    
+                    {/* Border gradient */}
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/20 via-transparent to-blue-500/20 p-[1px]">
+                      <div className="h-full w-full rounded-xl bg-[#12192C]/90 backdrop-blur-xl" />
                     </div>
                     
                     {/* Content */}
                     <Link to={`/blog/${post.slug}`} className="relative block group p-8">
                       <div className="flex items-center justify-between mb-4">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs bg-purple-500/10 text-purple-400 border border-purple-500/20">
                           {post.category}
                         </span>
                         <span className="text-sm text-gray-500">{post.readTime}</span>
                       </div>
-                      <h2 className="card-title mb-3 group-hover:text-blue-400 transition-colors">
+                      <h2 className="text-2xl font-medium text-white mb-3 group-hover:text-purple-400 transition-colors">
                         {post.title}
                       </h2>
                       <div className="flex items-center space-x-4 text-sm text-gray-400 mb-4">
@@ -147,7 +156,7 @@ export const Blog: React.FC = () => {
                       <p className="text-gray-300 leading-relaxed mb-4">
                         {post.excerpt}
                       </p>
-                      <span className="text-blue-400 group-hover:text-blue-300 transition-colors flex items-center space-x-2">
+                      <span className="text-purple-400 group-hover:text-purple-300 transition-colors flex items-center space-x-2">
                         <span>Read more</span>
                         <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
