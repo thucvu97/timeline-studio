@@ -110,7 +110,7 @@ Timeline Studio is available for Windows, macOS, and Linux. Download the latest 
               <span>Back to Blog</span>
             </Link>
             
-            <h1 className="page-title">
+            <h1 className="page-title" style={{fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}>
               {metadata.title}
             </h1>
             
@@ -143,14 +143,14 @@ Timeline Studio is available for Windows, macOS, and Linux. Download the latest 
                   <ReactMarkdown 
                     remarkPlugins={[remarkGfm]}
                     components={{
-                      h1: ({children}) => <h1 className="text-4xl font-light text-white mb-6">{children}</h1>,
-                      h2: ({children}) => <h2 className="text-2xl font-light text-white mt-8 mb-4">{children}</h2>,
-                      h3: ({children}) => <h3 className="text-xl font-medium text-white mt-6 mb-3">{children}</h3>,
-                      p: ({children}) => <p className="text-gray-300 mb-4 leading-relaxed">{children}</p>,
-                      ul: ({children}) => <ul className="list-disc list-inside space-y-2 mb-4 text-gray-300">{children}</ul>,
-                      li: ({children}) => <li className="text-gray-300">{children}</li>,
+                      h1: ({children}) => <h1 className="text-4xl font-light text-white mb-6" style={{fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}>{children}</h1>,
+                      h2: ({children}) => <h2 className="text-2xl font-light text-white mt-8 mb-4" style={{fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}>{children}</h2>,
+                      h3: ({children}) => <h3 className="text-xl font-medium text-white mt-6 mb-3" style={{fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}>{children}</h3>,
+                      p: ({children}) => <p className="text-gray-300 mb-4 leading-relaxed text-base" style={{fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}>{children}</p>,
+                      ul: ({children}) => <ul className="list-disc list-inside space-y-2 mb-4 text-gray-300" style={{fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}>{children}</ul>,
+                      li: ({children}) => <li className="text-gray-300" style={{fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}>{children}</li>,
                       strong: ({children}) => <strong className="text-white font-semibold">{children}</strong>,
-                      code: ({children}) => <code className="bg-gray-800/50 px-1.5 py-0.5 rounded text-purple-400 text-sm">{children}</code>,
+                      code: ({children}) => <code className="bg-gray-800/50 px-1.5 py-0.5 rounded text-purple-400 text-sm font-mono">{children}</code>,
                       a: ({children, href}) => <a href={href} className="text-purple-400 hover:text-purple-300 underline transition-colors">{children}</a>,
                     }}
                   >

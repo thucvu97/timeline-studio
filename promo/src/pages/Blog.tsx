@@ -136,7 +136,7 @@ export const Blog: React.FC = () => {
                         </span>
                         <span className="text-sm text-gray-500">{post.readTime}</span>
                       </div>
-                      <h2 className="text-2xl font-medium text-white mb-3 group-hover:text-purple-400 transition-colors">
+                      <h2 className="text-2xl font-medium text-white mb-3 group-hover:text-purple-400 transition-colors" style={{fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}>
                         {post.title}
                       </h2>
                       <div className="flex items-center space-x-4 text-sm text-gray-400 mb-4">
@@ -144,7 +144,7 @@ export const Blog: React.FC = () => {
                         <span>•</span>
                         <span>{post.author}</span>
                       </div>
-                      <p className="text-gray-300 leading-relaxed mb-4">
+                      <p className="text-gray-300 leading-relaxed mb-4" style={{fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'}}>
                         {post.excerpt}
                       </p>
                       <span className="text-purple-400 group-hover:text-purple-300 transition-colors flex items-center space-x-2">
