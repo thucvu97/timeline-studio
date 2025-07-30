@@ -21,8 +21,8 @@ export const Privacy: React.FC = () => {
               transition={{ duration: 0.8 }}
               className="max-w-4xl mx-auto"
             >
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                Privacy Policy
+              <h1 className="text-5xl md:text-7xl text-white mb-4 tracking-tight">
+                <span className="font-['Bebas_Neue'] uppercase tracking-wider">Privacy Policy</span>
               </h1>
               <p className="text-gray-400">
                 Last updated: July 28, 2025
@@ -42,7 +42,7 @@ export const Privacy: React.FC = () => {
             >
               <div className="space-y-8 text-gray-300">
                 <div>
-                  <h2 className="text-2xl font-bold text-white mb-4">1. Introduction</h2>
+                  <h2 className="text-3xl text-white mb-4 font-['Bebas_Neue'] tracking-wide">1. Introduction</h2>
                   <p>
                     Timeline Studio, Inc. ("we," "us," or "our") respects your privacy and is committed to protecting your 
                     personal data. This privacy policy explains how we collect, use, disclose, and safeguard your information 
@@ -51,7 +51,7 @@ export const Privacy: React.FC = () => {
                 </div>
 
                 <div>
-                  <h2 className="text-2xl font-bold text-white mb-4">2. Information We Collect</h2>
+                  <h2 className="text-3xl text-white mb-4 font-['Bebas_Neue'] tracking-wide">2. Information We Collect</h2>
                   <p>We collect information you provide directly to us, such as:</p>
                   <ul className="list-disc ml-6 mt-3 space-y-2">
                     <li><strong>Account Information:</strong> Name, email address, and password when you create an account</li>
@@ -63,7 +63,7 @@ export const Privacy: React.FC = () => {
                 </div>
 
                 <div>
-                  <h2 className="text-2xl font-bold text-white mb-4">3. How We Use Your Information</h2>
+                  <h2 className="text-3xl text-white mb-4 font-['Bebas_Neue'] tracking-wide">3. How We Use Your Information</h2>
                   <p>We use the information we collect to:</p>
                   <ul className="list-disc ml-6 mt-3 space-y-2">
                     <li>Provide, maintain, and improve Timeline Studio</li>
@@ -77,7 +77,7 @@ export const Privacy: React.FC = () => {
                 </div>
 
                 <div>
-                  <h2 className="text-2xl font-bold text-white mb-4">4. Data Storage and Security</h2>
+                  <h2 className="text-3xl text-white mb-4 font-['Bebas_Neue'] tracking-wide">4. Data Storage and Security</h2>
                   <p>
                     We implement appropriate technical and organizational measures to protect your personal data:
                   </p>

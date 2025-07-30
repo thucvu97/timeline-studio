@@ -21,8 +21,8 @@ export const Terms: React.FC = () => {
               transition={{ duration: 0.8 }}
               className="max-w-4xl mx-auto"
             >
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                Terms of Service
+              <h1 className="text-5xl md:text-7xl text-white mb-4 tracking-tight">
+                <span className="font-['Bebas_Neue'] uppercase tracking-wider">Terms of Service</span>
               </h1>
               <p className="text-gray-400">
                 Last updated: July 28, 2025
@@ -42,7 +42,7 @@ export const Terms: React.FC = () => {
             >
               <div className="space-y-8 text-gray-300">
                 <div>
-                  <h2 className="text-2xl font-bold text-white mb-4">1. Acceptance of Terms</h2>
+                  <h2 className="text-3xl text-white mb-4 font-['Bebas_Neue'] tracking-wide">1. Acceptance of Terms</h2>
                   <p>
                     By accessing or using Timeline Studio ("the Service"), you agree to be bound by these Terms of Service ("Terms"). 
                     If you do not agree to these Terms, please do not use the Service. Timeline Studio, Inc. ("we," "us," or "our") 
@@ -51,7 +51,7 @@ export const Terms: React.FC = () => {
                 </div>
 
                 <div>
-                  <h2 className="text-2xl font-bold text-white mb-4">2. Description of Service</h2>
+                  <h2 className="text-3xl text-white mb-4 font-['Bebas_Neue'] tracking-wide">2. Description of Service</h2>
                   <p>
                     Timeline Studio is a desktop video editing application that provides AI-powered editing tools, multi-platform 
                     export capabilities, and cloud storage services. The Service includes both free and paid subscription options 
@@ -60,7 +60,7 @@ export const Terms: React.FC = () => {
                 </div>
 
                 <div>
-                  <h2 className="text-2xl font-bold text-white mb-4">3. User Accounts</h2>
+                  <h2 className="text-3xl text-white mb-4 font-['Bebas_Neue'] tracking-wide">3. User Accounts</h2>
                   <p>
                     To access certain features of the Service, you may be required to create an account. You are responsible for:
                   </p>
@@ -73,7 +73,7 @@ export const Terms: React.FC = () => {
                 </div>
 
                 <div>
-                  <h2 className="text-2xl font-bold text-white mb-4">4. Acceptable Use</h2>
+                  <h2 className="text-3xl text-white mb-4 font-['Bebas_Neue'] tracking-wide">4. Acceptable Use</h2>
                   <p>
                     You agree not to use Timeline Studio to:
                   </p>

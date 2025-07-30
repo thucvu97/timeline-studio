@@ -103,7 +103,7 @@ Timeline Studio is available for Windows, macOS, and Linux. Download the latest 
               <span>Back to Blog</span>
             </Link>
             
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
+            <h1 className="text-4xl md:text-6xl text-white mb-6 font-['Inter'] font-bold leading-tight">
               {metadata.title}
             </h1>
             
