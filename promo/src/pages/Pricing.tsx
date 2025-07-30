@@ -18,61 +18,65 @@ interface PricingTier {
 
 const pricingTiers: PricingTier[] = [
   {
-    name: 'Starter',
+    name: 'FREE',
     price: '$0',
-    period: 'forever',
-    description: 'Perfect for beginners and personal projects',
+    period: 'навсегда',
+    description: 'Всё что работает локально - бесплатно',
     features: [
-      'Timeline Studio desktop app',
-      'Unlimited local projects',
-      'Basic AI features',
-      'Community support',
-      'Export up to 1080p',
-      'Basic templates'
+      '151 AI инструмент (локально)',
+      'Экспорт 4K/8K без водяных знаков',
+      'Fairlight Audio профи редактор',
+      '40+ переходов и 100+ эффектов',
+      'Распознавание лиц и объектов',
+      'Smart Montage AI автосборка',
+      'Бесплатная Stock библиотека HD',
+      'Прямая публикация в соцсети',
+      'GPU ускорение'
     ],
-    cloudStorage: '5 GB',
-    aiTokens: 'Free models only',
-    buttonText: 'Download Free'
+    cloudStorage: 'Локальное хранение',
+    aiTokens: 'Локальные AI (Ollama)',
+    buttonText: 'Скачать бесплатно'
   },
   {
-    name: 'Professional',
+    name: 'PRO',
     price: '$19',
-    period: '/month',
-    description: 'For content creators and professionals',
+    period: '/месяц',
+    description: 'Облачные функции и премиум AI',
     features: [
-      'Everything in Starter',
-      'Advanced AI features',
-      'Priority support',
-      'Export up to 4K',
-      'Premium templates',
-      'Multi-camera editing',
-      'Advanced color grading',
-      'Custom branding'
+      'Всё из FREE +',
+      'Claude 3.5 - 50K токенов/мес',
+      'GPT-4o - 30K токенов/мес', 
+      'AI аватары - 10 часов/мес',
+      'AI видео - 100 клипов/мес',
+      '34 премиум перехода (3D, glitch)',
+      'Stock 4K/8K - 100 загрузок/мес',
+      'Облачная синхронизация 100 ГБ',
+      'Приоритетная поддержка'
     ],
-    cloudStorage: '100 GB',
-    aiTokens: '50,000 tokens/month',
-    buttonText: 'Start Free Trial',
+    cloudStorage: '100 ГБ',
+    aiTokens: '50K Claude + 30K GPT-4',
+    buttonText: 'Начать бесплатно',
     highlighted: true
   },
   {
-    name: 'Team',
-    price: '$49',
-    period: '/month',
-    description: 'For teams and businesses',
+    name: 'MAX',
+    price: '$99',
+    period: '/месяц',
+    description: 'Безлимитное использование всех AI',
     features: [
-      'Everything in Professional',
-      'Unlimited AI tokens',
-      'Team collaboration',
-      'Custom AI training',
-      'Enterprise support',
-      'API access',
-      'Advanced analytics',
-      'Custom integrations',
-      'SSO authentication'
+      'Всё из PRO +',
+      'Безлимитные AI токены',
+      'Безлимитная генерация аватаров',
+      'Безлимитная генерация видео',
+      'Безлимитный Stock footage',
+      '1TB облачного хранилища',
+      '100 часов рендеринга/мес',
+      'Beta-доступ к новым AI',
+      'Персональный Discord канал'
     ],
     cloudStorage: '1 TB',
-    aiTokens: 'Unlimited',
-    buttonText: 'Contact Sales'
+    aiTokens: 'Безлимит',
+    buttonText: 'Попробовать MAX'
   }
 ]
 
@@ -101,10 +105,10 @@ export const Pricing: React.FC = () => {
               className="max-w-4xl mx-auto text-center"
             >
               <h1 className="text-6xl md:text-8xl mb-6 tracking-tight">
-                <span className="text-gradient font-['Bebas_Neue'] uppercase tracking-wider">Simple Pricing</span>
+                <span className="text-gradient font-['Bebas_Neue'] uppercase tracking-wider">Честные цены</span>
               </h1>
               <p className="text-xl md:text-2xl text-gray-300 mb-8">
-                Choose the perfect plan for your video editing needs
+                Локально - бесплатно. Облачно - платно. Всё прозрачно.
               </p>
             </motion.div>
           </div>
@@ -195,6 +199,125 @@ export const Pricing: React.FC = () => {
               ))}
             </div>
 
+            {/* Team & Enterprise Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="max-w-7xl mx-auto mt-20"
+            >
+              <h2 className="text-4xl md:text-5xl mb-12 text-center">
+                <span className="text-gradient font-['Bebas_Neue'] uppercase tracking-wider">Для команд и компаний</span>
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Team Plan */}
+                <div className="relative overflow-hidden rounded-2xl">
+                  <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 via-teal-500/10 to-blue-500/10 backdrop-blur-xl" />
+                  <div className="absolute inset-0 bg-white/[0.02]" />
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-green-500/20 via-transparent to-teal-500/20 p-[1px]">
+                    <div className="h-full w-full rounded-2xl bg-[#12192C]/90 backdrop-blur-xl" />
+                  </div>
+                  
+                  <div className="relative p-8">
+                    <div className="flex items-center justify-between mb-6">
+                      <div>
+                        <h3 className="text-3xl text-white font-['Bebas_Neue'] tracking-wide">TEAM</h3>
+                        <p className="text-gray-400">Для командной работы</p>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-4xl font-bold text-white">$39</span>
+                        <span className="text-gray-400">/польз/мес</span>
+                      </div>
+                    </div>
+                    
+                    <ul className="space-y-3 mb-8">
+                      <li className="flex items-start">
+                        <CheckIcon className="w-5 h-5 text-green-400 mr-3 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-300">Всё из PRO плана</span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckIcon className="w-5 h-5 text-green-400 mr-3 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-300">Совместная работа в реальном времени</span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckIcon className="w-5 h-5 text-green-400 mr-3 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-300">500 ГБ на пользователя</span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckIcon className="w-5 h-5 text-green-400 mr-3 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-300">50 часов облачного рендеринга/мес</span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckIcon className="w-5 h-5 text-green-400 mr-3 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-300">Командные библиотеки ресурсов</span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckIcon className="w-5 h-5 text-green-400 mr-3 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-300">SSO авторизация</span>
+                      </li>
+                    </ul>
+                    
+                    <button className="w-full py-3 px-6 rounded-xl font-semibold bg-gradient-to-r from-green-500 to-teal-500 text-white hover:from-green-600 hover:to-teal-600 transition-all duration-300">
+                      Начать с Team
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Enterprise Plan */}
+                <div className="relative overflow-hidden rounded-2xl">
+                  <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-red-500/10 backdrop-blur-xl" />
+                  <div className="absolute inset-0 bg-white/[0.02]" />
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-amber-500/20 via-transparent to-orange-500/20 p-[1px]">
+                    <div className="h-full w-full rounded-2xl bg-[#12192C]/90 backdrop-blur-xl" />
+                  </div>
+                  
+                  <div className="relative p-8">
+                    <div className="flex items-center justify-between mb-6">
+                      <div>
+                        <h3 className="text-3xl text-white font-['Bebas_Neue'] tracking-wide">ENTERPRISE</h3>
+                        <p className="text-gray-400">Корпоративные решения</p>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-2xl font-bold text-white">По запросу</span>
+                      </div>
+                    </div>
+                    
+                    <ul className="space-y-3 mb-8">
+                      <li className="flex items-start">
+                        <CheckIcon className="w-5 h-5 text-amber-400 mr-3 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-300">On-premise установка</span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckIcon className="w-5 h-5 text-amber-400 mr-3 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-300">Неограниченное хранилище и рендеринг</span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckIcon className="w-5 h-5 text-amber-400 mr-3 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-300">Кастомные AI модели</span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckIcon className="w-5 h-5 text-amber-400 mr-3 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-300">API доступ</span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckIcon className="w-5 h-5 text-amber-400 mr-3 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-300">Выделенный менеджер и SLA</span>
+                      </li>
+                      <li className="flex items-start">
+                        <CheckIcon className="w-5 h-5 text-amber-400 mr-3 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-300">Кастомизация под бренд</span>
+                      </li>
+                    </ul>
+                    
+                    <button className="w-full py-3 px-6 rounded-xl font-semibold bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600 transition-all duration-300">
+                      Связаться с отделом продаж
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
             {/* FAQ Section */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -220,12 +343,12 @@ export const Pricing: React.FC = () => {
                   {/* Content */}
                   <div className="relative p-6">
                   <h3 className="text-lg font-semibold text-white mb-2 font-['Inter']">
-                    What are AI tokens?
+                    Что такое AI токены?
                   </h3>
                   <p className="text-gray-400">
-                    AI tokens are used for advanced features like auto-editing, scene detection, 
-                    content generation, and smart montage creation. Each AI operation consumes 
-                    a certain number of tokens based on complexity.
+                    AI токены используются для премиум AI моделей (Claude, GPT-4). Локальные AI 
+                    через Ollama работают бесплатно и не требуют токенов. В PRO входит 80K токенов/мес,
+                    в MAX - безлимит.
                   </p>
                   </div>
                 </div>
@@ -243,12 +366,12 @@ export const Pricing: React.FC = () => {
                   {/* Content */}
                   <div className="relative p-6">
                   <h3 className="text-lg font-semibold text-white mb-2 font-['Inter']">
-                    Can I upgrade or downgrade my plan?
+                    Можно ли сменить тариф?
                   </h3>
                   <p className="text-gray-400">
-                    Yes! You can change your plan at any time. When upgrading, you'll get 
-                    immediate access to new features. When downgrading, changes take effect 
-                    at the next billing cycle.
+                    Да! Вы можете изменить тариф в любое время. При апгрейде вы получите 
+                    мгновенный доступ к новым функциям. При даунгрейде изменения вступят 
+                    в силу в следующем платежном цикле.
                   </p>
                   </div>
                 </div>
@@ -266,12 +389,12 @@ export const Pricing: React.FC = () => {
                   {/* Content */}
                   <div className="relative p-6">
                   <h3 className="text-lg font-semibold text-white mb-2 font-['Inter']">
-                    What happens if I exceed my cloud storage?
+                    Почему бесплатная версия такая мощная?
                   </h3>
                   <p className="text-gray-400">
-                    You'll receive notifications before reaching your limit. You can either 
-                    upgrade your plan or purchase additional storage. Your existing projects 
-                    remain accessible even if you exceed the limit.
+                    Мы верим в прозрачность. Всё что может работать на вашем компьютере - 
+                    бесплатно. Вы платите только за облачные сервисы и API сторонних 
+                    сервисов, которые требуют наших затрат.
                   </p>
                   </div>
                 </div>
