@@ -32,4 +32,10 @@ tauriConf.version = version;
 fs.writeFileSync(tauriConfPath, JSON.stringify(tauriConf, null, 2));
 console.log('✓ Обновлен tauri.conf.json');
 
+// Обновляем version.json
+const versionJsonPath = path.join(__dirname, '..', 'version.json');
+const versionJson = { version };
+fs.writeFileSync(versionJsonPath, JSON.stringify(versionJson, null, 2));
+console.log('✓ Обновлен version.json');
+
 console.log('Синхронизация версий завершена!');

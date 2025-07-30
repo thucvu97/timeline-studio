@@ -4,6 +4,7 @@ import { HeroSection } from './components/HeroSection'
 import { AnimatedSection } from './components/AnimatedSection'
 import { AIEditingSection } from './components/AIEditingSection'
 import { Footer } from './components/Footer'
+import versionData from '../../version.json'
 
 const App: React.FC = () => {
   return (
@@ -63,7 +64,7 @@ const App: React.FC = () => {
 
 // Компонент кнопки загрузки
 const DownloadButton: React.FC<{ platform: string; icon: string }> = ({ platform }) => {
-  const version = "0.36.0" // Текущая версия из tauri.conf.json
+  const version = versionData.version // Версия из version.json
   
   // Определяем правильный путь к файлу в зависимости от платформы
   const getDownloadPath = () => {
