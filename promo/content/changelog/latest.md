@@ -1,3 +1,10 @@
+## [0.47.2](https://github.com/chatman-media/timeline-studio/compare/v0.47.1...v0.47.2) (2025-07-30)
+
+
+### Bug Fixes
+
+* **rust:** исправить u64 на u32 для execution_time_ms ([94627d6](https://github.com/chatman-media/timeline-studio/commit/94627d655907f992c3ac5c99f935cc9b179bd80c))
+
 ## [0.47.1](https://github.com/chatman-media/timeline-studio/compare/v0.47.0...v0.47.1) (2025-07-29)
 
 
