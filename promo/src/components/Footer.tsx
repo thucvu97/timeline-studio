@@ -11,7 +11,7 @@ export const Footer: React.FC = () => {
         {/* Logo on the left */}
         <div className="flex-shrink-0 md:w-1/4">
           <Link to="/" className="inline-block">
-            <Logo size="medium" showText={false} />
+            <Logo size="small" showText={false} />
           </Link>
         </div>
 

@@ -76,7 +76,7 @@ export function Navigation() {
               transition={{ duration: 0.6, ease: "easeOut" }}
             >
               <Link to="/" className="inline-block">
-                <Logo size="small" />
+                <Logo size="medium" />
               </Link>
             </motion.div>
 
