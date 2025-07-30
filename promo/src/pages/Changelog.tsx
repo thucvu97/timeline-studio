@@ -94,8 +94,8 @@ export const Changelog: React.FC = () => {
               transition={{ duration: 0.8 }}
               className="max-w-6xl mx-auto text-center"
             >
-              <h1 className="text-5xl md:text-7xl font-bold mb-6">
-                <span className="text-gradient">Changelog</span>
+              <h1 className="text-6xl md:text-8xl mb-6 tracking-tight">
+                <span className="text-gradient font-['Bebas_Neue'] uppercase tracking-wider">Changelog</span>
               </h1>
               <p className="text-xl md:text-2xl text-gray-300 mb-8">
                 Track all updates and improvements to Timeline Studio
@@ -134,7 +134,7 @@ export const Changelog: React.FC = () => {
                         {/* Header */}
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
                           <div className="flex items-center gap-4 mb-2 sm:mb-0">
-                            <h3 className="text-3xl font-bold text-white">v{version.version}</h3>
+                            <h3 className="text-4xl font-['Bebas_Neue'] text-white tracking-wide">v{version.version}</h3>
                             {index === 0 && (
                               <span className="px-3 py-1 text-xs font-semibold bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full">
                                 LATEST
@@ -147,8 +147,9 @@ export const Changelog: React.FC = () => {
                         {/* Features */}
                         {version.features.length > 0 && (
                           <div className="mb-6">
-                            <h4 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-                              <span className="text-2xl">🚀</span> New Features
+                            <h4 className="text-xl font-medium text-white mb-3 flex items-center gap-2">
+                              <span className="text-2xl">🚀</span> 
+                              <span className="font-['Inter'] tracking-tight">New Features</span>
                             </h4>
                             <ul className="space-y-2">
                               {version.features.map((feature, i) => (
@@ -171,8 +172,9 @@ export const Changelog: React.FC = () => {
                         {/* Bug Fixes */}
                         {version.fixes.length > 0 && (
                           <div className="mb-6">
-                            <h4 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-                              <span className="text-2xl">🐛</span> Bug Fixes
+                            <h4 className="text-xl font-medium text-white mb-3 flex items-center gap-2">
+                              <span className="text-2xl">🐛</span> 
+                              <span className="font-['Inter'] tracking-tight">Bug Fixes</span>
                             </h4>
                             <ul className="space-y-2">
                               {version.fixes.map((fix, i) => (
@@ -195,8 +197,9 @@ export const Changelog: React.FC = () => {
                         {/* Improvements */}
                         {version.improvements.length > 0 && (
                           <div className="mb-6">
-                            <h4 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-                              <span className="text-2xl">🔧</span> Improvements
+                            <h4 className="text-xl font-medium text-white mb-3 flex items-center gap-2">
+                              <span className="text-2xl">🔧</span> 
+                              <span className="font-['Inter'] tracking-tight">Improvements</span>
                             </h4>
                             <ul className="space-y-2">
                               {version.improvements.map((improvement, i) => (
@@ -219,8 +222,9 @@ export const Changelog: React.FC = () => {
                         {/* Breaking Changes */}
                         {version.breaking && version.breaking.length > 0 && (
                           <div className="mb-6">
-                            <h4 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-                              <span className="text-2xl">⚠️</span> Breaking Changes
+                            <h4 className="text-xl font-medium text-white mb-3 flex items-center gap-2">
+                              <span className="text-2xl">⚠️</span> 
+                              <span className="font-['Inter'] tracking-tight">Breaking Changes</span>
                             </h4>
                             <ul className="space-y-2">
                               {version.breaking.map((change, i) => (
