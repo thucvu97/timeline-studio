@@ -71,10 +71,10 @@ export interface DynamicRenderParams {
   targetTexture: WebGLTexture
   progress: number
   shaderType: DynamicShaderType
-  parameters: TransitionParameters & {
+  parameters: {
     particles?: ParticleSystemParams
     physics?: PhysicsParams
-  }
+  } & Record<string, any>
 }
 
 export class DynamicTransitionService {
@@ -96,7 +96,7 @@ export class DynamicTransitionService {
   /**
    * Инициализация WebGL2 контекста
    */
-  public initialize(canvas: HTMLCanvasElement): boolean {
+  public async initialize(canvas: HTMLCanvasElement): Promise<boolean> {
     try {
       this.gl = canvas.getContext("webgl2", {
         alpha: true,
@@ -126,7 +126,7 @@ export class DynamicTransitionService {
       this.gl.clearColor(0, 0, 0, 0)
 
       // Компилируем динамические шейдеры
-      this.compileDynamicShaders()
+      await this.compileDynamicShaders()
 
       return true
     } catch (error) {
@@ -484,7 +484,7 @@ export class DynamicTransitionService {
 
       // 3D effects
       case "page-flip":
-        this.setUniform(program, "u_flipDirection", parameters.flipDirection || 1) // 0=left, 1=right, 2=up, 3=down
+        this.setUniform(program, "u_flipDirection", parameters.flipDirection ?? 1) // 0=left, 1=right, 2=up, 3=down
         this.setUniform(program, "u_perspective", parameters.perspective || 1000)
         this.setUniform(program, "u_curvature", parameters.curvature || 0.6)
         this.setUniform(program, "u_shadowIntensity", parameters.shadowIntensity || 0.4)
@@ -493,7 +493,7 @@ export class DynamicTransitionService {
 
       case "card-shuffle":
         this.setUniform(program, "u_cardCount", parameters.cardCount || 16)
-        this.setUniform(program, "u_shufflePattern", parameters.shufflePattern || 0) // 0=riffle, 1=overhand, 2=spiral, 3=random
+        this.setUniform(program, "u_shufflePattern", parameters.shufflePattern ?? 0) // 0=riffle, 1=overhand, 2=spiral, 3=random
         this.setUniform(program, "u_rotationChaos", parameters.rotationChaos || 0.7)
         this.setUniform(program, "u_gravity", parameters.gravity || 0.5)
         this.setUniform(program, "u_time", Date.now() / 1000)
@@ -502,7 +502,7 @@ export class DynamicTransitionService {
       case "helix-spin":
         this.setUniform(program, "u_helixTurns", parameters.helixTurns || 2)
         this.setUniform(program, "u_radius", parameters.radius || 0.3)
-        this.setUniform(program, "u_axis", parameters.axis || 1) // 0=horizontal, 1=vertical, 2=diagonal
+        this.setUniform(program, "u_axis", parameters.axis ?? 1) // 0=horizontal, 1=vertical, 2=diagonal
         this.setUniform(program, "u_twist", parameters.twist || 1)
         this.setUniform(program, "u_time", Date.now() / 1000)
         break
@@ -513,6 +513,11 @@ export class DynamicTransitionService {
         this.setUniform(program, "u_lightPosition", parameters.lightPosition || [0.5, -0.5, 1.0])
         this.setUniform(program, "u_reflectivity", parameters.reflectivity || 0.3)
         this.setUniform(program, "u_time", Date.now() / 1000)
+        break
+
+      default:
+        // Неизвестный тип шейдера - используем базовые uniforms
+        console.warn(`Unknown shader type: ${shaderType}`)
         break
     }
   }
@@ -538,6 +543,9 @@ export class DynamicTransitionService {
           break
         case 4:
           this.gl.uniform4fv(location, value)
+          break
+        default:
+          console.warn(`Unsupported array length for uniform ${name}: ${value.length}`)
           break
       }
     }

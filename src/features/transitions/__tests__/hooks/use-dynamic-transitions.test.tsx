@@ -55,7 +55,9 @@ describe("useDynamicTransitions", () => {
     } as any
 
     // Мокаем createElement только для canvas
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     const originalCreateElement = document.createElement.bind(document)
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     document.createElement = vi.fn((tagName: string) => {
       if (tagName === "canvas") {
         return mockCanvas
@@ -65,6 +67,7 @@ describe("useDynamicTransitions", () => {
 
     // Мокаем appendChild чтобы не добавлять canvas в DOM, но только для canvas
     const originalAppendChild = document.body.appendChild.bind(document.body)
+     
     document.body.appendChild = vi.fn((child: Node) => {
       if (child === mockCanvas) {
         return child

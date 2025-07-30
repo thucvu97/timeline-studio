@@ -7,6 +7,7 @@ import { useCallback, useState } from "react"
 import { MediaFile } from "@/features/media/types/media"
 import { useTimeline } from "@/features/timeline/hooks/use-timeline"
 import { useTimelineActions } from "@/features/timeline/hooks/use-timeline-actions"
+import { useTimelineMarkers } from "@/features/timeline/hooks/use-timeline-markers"
 
 import {
   TimelineIntegrationOptions,
@@ -36,15 +37,29 @@ export interface UseTimelineIntegrationReturn {
 }
 
 export function useTimelineIntegration(): UseTimelineIntegrationReturn {
-  const { project } = useTimeline()
-  // TODO: Timeline integration methods need to be implemented
-  const updateProject = async (_project: any) => {
-    console.warn("Timeline update not yet implemented")
-  }
-  const addMarkers = (_markers: any[]) => {
-    console.warn("Markers addition not yet implemented")
-  }
+  const { project, saveProject } = useTimeline()
   const { addMediaToTimeline } = useTimelineActions()
+  const { addMarker } = useTimelineMarkers()
+
+  // Функция для обновления проекта
+  const updateProject = useCallback(async (updatedProject: any) => {
+    // Сохраняем проект в timeline
+    await saveProject()
+  }, [saveProject])
+
+  // Функция для добавления маркеров
+  const addMarkers = useCallback((markers: any[]) => {
+    markers.forEach((marker) => {
+      addMarker({
+        name: marker.name,
+        time: marker.time,
+        type: marker.type || 'comment',
+        trackId: marker.trackId,
+        color: marker.color,
+        description: marker.description || '',
+      })
+    })
+  }, [addMarker])
 
   const [isApplying, setIsApplying] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -65,9 +80,9 @@ export function useTimelineIntegration(): UseTimelineIntegrationReturn {
       try {
         // Проверяем наличие всех необходимых медиафайлов
         const requiredFiles = getRequiredMediaFiles(plan)
-        const availableFiles = new Set(mediaFiles.map((f) => f.path))
+        const availableFiles = new Set(mediaFiles.map((f) => f.id))
 
-        const missingFiles = requiredFiles.filter((path) => !availableFiles.has(path))
+        const missingFiles = requiredFiles.filter((id) => !availableFiles.has(id))
         if (missingFiles.length > 0) {
           throw new Error(`Missing media files: ${missingFiles.join(", ")}`)
         }
@@ -93,7 +108,7 @@ export function useTimelineIntegration(): UseTimelineIntegrationReturn {
         setIsApplying(false)
       }
     },
-    [project],
+    [project, updateProject, addMarkers],
   )
 
   /**
@@ -116,7 +131,7 @@ export function useTimelineIntegration(): UseTimelineIntegrationReturn {
         console.error("Failed to create markers:", err)
       }
     },
-    [project],
+    [project, addMarkers],
   )
 
   /**
@@ -142,8 +157,8 @@ export function useTimelineIntegration(): UseTimelineIntegrationReturn {
     // Extract files from all sequences and clips
     plan.sequences.forEach((sequence: Sequence) => {
       sequence.clips.forEach((clip: PlannedClip) => {
-        if (clip.fragment?.sourceFile?.path) {
-          files.add(clip.fragment.sourceFile.path)
+        if (clip.fragment?.sourceFile?.id) {
+          files.add(clip.fragment.sourceFile.id)
         }
       })
     })

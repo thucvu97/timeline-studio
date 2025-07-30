@@ -9,20 +9,25 @@ import { MediaFile } from "@/features/media/types/media"
 
 import { useTimelineIntegration } from "../../hooks/use-timeline-integration"
 import { EmotionalTone, MONTAGE_STYLES, MomentCategory, MontagePlan } from "../../types"
-import { mockMontagePlan } from "../test-utils"
+import { mockMontagePlan, mockMediaFile } from "../test-utils"
 
 // Mock timeline hooks
 vi.mock("@/features/timeline/hooks/use-timeline", () => ({
   useTimeline: vi.fn(() => ({
-    project: mockTimelineProject,
-    updateProject: vi.fn(),
-    addMarkers: vi.fn(),
+    project: null,
+    saveProject: vi.fn(),
   })),
 }))
 
 vi.mock("@/features/timeline/hooks/use-timeline-actions", () => ({
   useTimelineActions: vi.fn(() => ({
     addMediaToTimeline: vi.fn(),
+  })),
+}))
+
+vi.mock("@/features/timeline/hooks/use-timeline-markers", () => ({
+  useTimelineMarkers: vi.fn(() => ({
+    addMarker: vi.fn(),
   })),
 }))
 
@@ -60,18 +65,10 @@ describe("useTimelineIntegration", () => {
     // Create mock media files
     mockMediaFiles = [
       {
+        ...mockMediaFile,
         id: "video1",
         name: "video1.mp4",
         path: "/path/to/video1.mp4",
-        isVideo: true,
-        isAudio: false,
-        isImage: false,
-        duration: 60,
-        size: 1000000,
-        type: "video",
-        format: "mp4",
-        createdAt: new Date(),
-        updatedAt: new Date(),
       },
     ]
 
@@ -82,57 +79,70 @@ describe("useTimelineIntegration", () => {
       name: "Test Montage",
       style: MONTAGE_STYLES.dynamicAction,
       totalDuration: 30,
-      // Additional test-specific fields for backward compatibility
-      clips: [
+      sequences: [
         {
-          id: "clip1",
-          source_file: "/path/to/video1.mp4",
-          start_time: 0,
-          end_time: 10,
-          duration: 10,
-          order: 0,
-          moment: {
-            id: "moment1",
-            timestamp: 5,
-            duration: 10,
-            category: MomentCategory.Action,
-            emotionalTone: EmotionalTone.Energetic,
-            totalScore: 85,
-            scores: {
-              visual: 90,
-              technical: 80,
-              emotional: 85,
-              narrative: 75,
-              action: 95,
-              composition: 88,
+          id: "sequence1",
+          type: "main",
+          startTime: 0,
+          duration: 30,
+          transitions: [],
+          clips: [
+            {
+              id: "clip1",
+              fragmentId: "fragment1",
+              startTime: 0,
+              duration: 10,
+              priority: 1,
+              transitionIn: null,
+              transitionOut: null,
+              effects: [],
+              fragment: {
+                id: "fragment1",
+                videoId: "video1",
+                sourceFile: mockMediaFiles[0], // Ссылка на медиафайл
+                startTime: 0,
+                endTime: 10,
+                duration: 10,
+                objects: [],
+                people: [],
+                score: {
+                  timestamp: 5,
+                  duration: 10,
+                  category: MomentCategory.Action,
+                  scores: {
+                    visual: 90,
+                    technical: 80,
+                    emotional: 85,
+                    narrative: 75,
+                    action: 95,
+                    composition: 88,
+                  },
+                  totalScore: 85,
+                },
+                tags: [],
+              },
             },
-            detections: [],
-            qualityAnalysis: {
-              sharpness: 85,
-              stability: 90,
-              exposure: 50,
-              colorGrading: 80,
-              noiseLevel: 15,
-              dynamicRange: 75,
-            },
-          },
-          adjustments: {},
+          ],
         },
       ],
-      transitions: [],
     } as any
   })
 
   describe("applyPlanToTimeline", () => {
     it("should apply plan to timeline successfully", async () => {
       const { useTimeline } = await import("@/features/timeline/hooks/use-timeline")
-      const updateProjectMock = vi.fn()
-      const addMarkersMock = vi.fn()
+      const { useTimelineMarkers } = await import("@/features/timeline/hooks/use-timeline-markers")
+      
+      const saveProjectMock = vi.fn().mockResolvedValue(undefined)
+      const addMarkerMock = vi.fn()
 
       vi.mocked(useTimeline).mockReturnValue({
         project: mockTimelineProject,
-        updateProject: updateProjectMock,
-        addMarkers: addMarkersMock,
+        saveProject: saveProjectMock,
+      } as any)
+
+      vi.mocked(useTimelineMarkers).mockReturnValue({
+        addMarker: addMarkerMock,
       } as any)
 
       const { result } = renderHook(() => useTimelineIntegration())
@@ -144,14 +154,20 @@ describe("useTimelineIntegration", () => {
         })
       })
 
-      await waitFor(() => {
-        expect(updateProjectMock).toHaveBeenCalled()
-        expect(addMarkersMock).toHaveBeenCalled()
-        expect(result.current.error).toBeNull()
-      })
+      // Проверяем, что сохранение и добавление маркеров были вызваны
+      expect(saveProjectMock).toHaveBeenCalled()
+      expect(addMarkerMock).toHaveBeenCalled()
+      expect(result.current.error).toBeNull()
     })
 
     it("should handle missing media files", async () => {
+      const { useTimeline } = await import("@/features/timeline/hooks/use-timeline")
+      
+      vi.mocked(useTimeline).mockReturnValue({
+        project: mockTimelineProject,
+        saveProject: vi.fn(),
+      } as any)
+      
       const { result } = renderHook(() => useTimelineIntegration())
 
       // Use empty media files array
@@ -159,9 +175,7 @@ describe("useTimelineIntegration", () => {
         await result.current.applyPlanToTimeline(mockPlan, [])
       })
 
-      await waitFor(() => {
-        expect(result.current.error).toContain("Missing media files")
-      })
+      expect(result.current.error).toContain("Missing media files")
     })
 
     it("should handle missing project", async () => {
@@ -169,8 +183,7 @@ describe("useTimelineIntegration", () => {
 
       vi.mocked(useTimeline).mockReturnValue({
         project: null,
-        updateProject: vi.fn(),
-        addMarkers: vi.fn(),
+        saveProject: vi.fn(),
       } as any)
 
       const { result } = renderHook(() => useTimelineIntegration())
@@ -186,12 +199,16 @@ describe("useTimelineIntegration", () => {
   describe("createMarkersFromPlan", () => {
     it("should create markers from plan", async () => {
       const { useTimeline } = await import("@/features/timeline/hooks/use-timeline")
-      const addMarkersMock = vi.fn()
+      const { useTimelineMarkers } = await import("@/features/timeline/hooks/use-timeline-markers")
+      const addMarkerMock = vi.fn()
 
       vi.mocked(useTimeline).mockReturnValue({
         project: mockTimelineProject,
-        updateProject: vi.fn(),
-        addMarkers: addMarkersMock,
+        saveProject: vi.fn(),
+      } as any)
+
+      vi.mocked(useTimelineMarkers).mockReturnValue({
+        addMarker: addMarkerMock,
       } as any)
 
       const { result } = renderHook(() => useTimelineIntegration())
@@ -200,26 +217,31 @@ describe("useTimelineIntegration", () => {
         result.current.createMarkersFromPlan(mockPlan, 10)
       })
 
-      expect(addMarkersMock).toHaveBeenCalledWith(
-        expect.arrayContaining([
-          expect.objectContaining({ name: expect.stringContaining("Start") }),
-          expect.objectContaining({ name: expect.stringContaining("End") }),
-        ]),
-      )
+      // Проверяем что addMarkerMock был вызван несколько раз (начало, моменты, конец)
+      expect(addMarkerMock).toHaveBeenCalled()
+      // Ожидаем вызовы для: start marker + key moments + end marker = 3 вызова
+      expect(addMarkerMock).toHaveBeenCalledTimes(3)
     })
   })
 
   describe("canApplyPlan", () => {
-    it("should return true for valid plan", () => {
+    it("should return true for valid plan", async () => {
+      const { useTimeline } = await import("@/features/timeline/hooks/use-timeline")
+
+      vi.mocked(useTimeline).mockReturnValue({
+        project: mockTimelineProject,
+        saveProject: vi.fn(),
+      } as any)
+
       const { result } = renderHook(() => useTimelineIntegration())
 
       expect(result.current.canApplyPlan(mockPlan)).toBe(true)
     })
 
-    it("should return false for plan without clips", () => {
+    it("should return false for plan without sequences", () => {
       const { result } = renderHook(() => useTimelineIntegration())
 
-      const invalidPlan = { ...mockPlan, clips: [] }
+      const invalidPlan = { ...mockPlan, sequences: [] }
       expect(result.current.canApplyPlan(invalidPlan)).toBe(false)
     })
 
@@ -228,8 +250,7 @@ describe("useTimelineIntegration", () => {
 
       vi.mocked(useTimeline).mockReturnValue({
         project: null,
-        updateProject: vi.fn(),
-        addMarkers: vi.fn(),
+        saveProject: vi.fn(),
       } as any)
 
       const { result } = renderHook(() => useTimelineIntegration())
@@ -242,28 +263,11 @@ describe("useTimelineIntegration", () => {
     it("should return unique media file paths", () => {
       const { result } = renderHook(() => useTimelineIntegration())
 
-      // Add duplicate file references
-      const planWithDuplicates = {
-        ...mockPlan,
-        clips: [
-          ...mockPlan.clips,
-          {
-            id: "clip2",
-            source_file: "/path/to/video3.mp4",
-          },
-          {
-            id: "clip3",
-            source_file: "/path/to/video4.mp4",
-          },
-        ],
-      }
+      const requiredFiles = result.current.getRequiredMediaFiles(mockPlan)
 
-      const requiredFiles = result.current.getRequiredMediaFiles(planWithDuplicates)
-
-      expect(requiredFiles).toHaveLength(3) // включая исходный файл из mockPlan
-      expect(requiredFiles).toContain("/path/to/video1.mp4") // исходный файл
-      expect(requiredFiles).toContain("/path/to/video3.mp4")
-      expect(requiredFiles).toContain("/path/to/video4.mp4")
+      // Наш mockPlan содержит один клип с mediaFileId: "video1"
+      expect(requiredFiles).toHaveLength(1) 
+      expect(requiredFiles).toContain("video1") // id медиафайла из fragment.sourceFile
     })
   })
 })

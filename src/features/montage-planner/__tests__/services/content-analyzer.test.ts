@@ -90,7 +90,7 @@ describe("ContentAnalyzer", () => {
     })
 
     it("should return empty analysis for files without audio", async () => {
-      const fileWithoutAudio = { ...mockMediaFile, hasAudio: false }
+      const fileWithoutAudio = { ...mockMediaFile, isAudio: false }
       const result = await analyzer.analyzeAudio("video_1", fileWithoutAudio, {})
 
       expect(result.quality.sampleRate).toBe(0)
