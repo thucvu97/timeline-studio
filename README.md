@@ -1,6 +1,19 @@
 <div align="center">
 
-[![](public/logo2.png)](https://timelinestudio.pro/)
+  <!-- Основное изображение с горой -->
+  <a href="https://timelinestudio.pro/">
+    <img src="public/mountain.png" alt="Timeline Studio" width="100%" style="max-width: 800px; border-radius: 10px; box-shadow: 0 20px 40px rgba(139, 92, 246, 0.3);" />
+  </a>
+  
+  <!-- Анимированный текст Timeline Studio -->
+  <a href="https://timelinestudio.pro/">
+    <img src="https://readme-typing-svg.herokuapp.com?font=Brush+Script+MT&size=80&pause=2000&color=8B5CF6&center=true&vCenter=true&width=800&height=100&lines=Timeline+Studio&duration=4000" alt="Timeline Studio" />
+  </a>
+  
+  <!-- Подзаголовок -->
+  <p align="center">
+    <b>🎬 AI-Powered Video Editor • 🚀 Multi-Platform Export • ⚡ GPU Acceleration</b>
+  </p>
 
 </div>
 
