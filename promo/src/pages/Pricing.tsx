@@ -94,8 +94,8 @@ export const Pricing: React.FC = () => {
               transition={{ duration: 0.8 }}
               className="max-w-4xl mx-auto text-center"
             >
-              <h1 className="text-5xl md:text-7xl font-bold mb-6">
-                <span className="text-gradient">Simple Pricing</span>
+              <h1 className="text-6xl md:text-8xl mb-6 tracking-tight">
+                <span className="text-gradient font-['Bebas_Neue'] uppercase tracking-wider">Simple Pricing</span>
               </h1>
               <p className="text-xl md:text-2xl text-gray-300 mb-8">
                 Choose the perfect plan for your video editing needs

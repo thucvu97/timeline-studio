@@ -27,8 +27,8 @@ export const About: React.FC = () => {
             transition={{ duration: 0.8 }}
             className="max-w-4xl mx-auto text-center"
           >
-            <h1 className="text-5xl md:text-7xl font-bold mb-6">
-              <span className="text-gradient">Redefining Video Editing</span>
+            <h1 className="text-6xl md:text-8xl mb-6 tracking-tight">
+              <span className="text-gradient font-['Bebas_Neue'] uppercase tracking-wider">Redefining Video Editing</span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-300 mb-8">
               Building the future of creative content with AI-powered tools
@@ -54,8 +54,8 @@ export const About: React.FC = () => {
             viewport={{ once: true }}
             className="max-w-4xl mx-auto"
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
-              Our Mission
+            <h2 className="text-4xl md:text-5xl mb-12 text-center">
+              <span className="font-['Bebas_Neue'] uppercase tracking-wide">Our Mission</span>
             </h2>
             <div className="glass p-8 md:p-12 rounded-2xl">
               <p className="text-lg text-gray-300 leading-relaxed mb-6">
@@ -82,8 +82,8 @@ export const About: React.FC = () => {
             viewport={{ once: true }}
             className="max-w-6xl mx-auto"
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
-              Our Values
+            <h2 className="text-4xl md:text-5xl mb-12 text-center">
+              <span className="font-['Bebas_Neue'] uppercase tracking-wide">Our Values</span>
             </h2>
             <div className="grid md:grid-cols-3 gap-8">
               {[

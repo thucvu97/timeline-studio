@@ -48,8 +48,8 @@ const FAQ: React.FC = () => {
           <section className="py-20 bg-[#12192C]">
             <div className="container mx-auto px-4">
               <div className="max-w-4xl mx-auto">
-                <h1 className="text-4xl md:text-5xl font-bold text-white text-center mb-4">
-                  Frequently Asked Questions
+                <h1 className="text-5xl md:text-7xl text-white text-center mb-4 tracking-tight">
+                  <span className="font-['Bebas_Neue'] uppercase tracking-wider">Frequently Asked Questions</span>
                 </h1>
                 <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full mb-12" />
                 
@@ -70,8 +70,8 @@ const FAQ: React.FC = () => {
                 
                 <AnimatedSection animation="fadeUp" delay={0.5}>
                   <div className="mt-16 text-center">
-                    <h2 className="text-2xl font-semibold text-white mb-4">
-                      Still have questions?
+                    <h2 className="text-3xl text-white mb-4">
+                      <span className="font-['Bebas_Neue'] uppercase tracking-wide">Still have questions?</span>
                     </h2>
                     <p className="text-gray-300 mb-8">
                       Feel free to reach out to our community or check our documentation.
