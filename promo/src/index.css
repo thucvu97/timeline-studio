@@ -185,6 +185,163 @@ html {
   pointer-events: none;
 }
 
+/* 3D Text Effects */
+.text-3d {
+  transform-style: preserve-3d;
+  transform: perspective(1000px);
+}
+
+.text-3d-shadow {
+  text-shadow: 
+    0 1px 0 #ccc,
+    0 2px 0 #c9c9c9,
+    0 3px 0 #bbb,
+    0 4px 0 #b9b9b9,
+    0 5px 0 #aaa,
+    0 6px 1px rgba(0,0,0,.1),
+    0 0 5px rgba(0,0,0,.1),
+    0 1px 3px rgba(0,0,0,.3),
+    0 3px 5px rgba(0,0,0,.2),
+    0 5px 10px rgba(0,0,0,.25),
+    0 10px 10px rgba(0,0,0,.2),
+    0 20px 20px rgba(0,0,0,.15);
+}
+
+/* Animated gradient shift for 3D background */
+@keyframes gradient-3d-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+    filter: hue-rotate(0deg);
+  }
+  33% {
+    background-position: 100% 50%;
+    filter: hue-rotate(120deg);
+  }
+  66% {
+    background-position: 50% 100%;
+    filter: hue-rotate(240deg);
+  }
+}
+
+.animate-gradient-3d {
+  background-size: 400% 400%;
+  animation: gradient-3d-shift 15s ease infinite;
+}
+
+/* Cloud animations */
+@keyframes cloud-float {
+  0% {
+    transform: translateX(0) translateY(0);
+    opacity: 0.3;
+  }
+  25% {
+    transform: translateX(50px) translateY(-10px);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateX(100px) translateY(0);
+    opacity: 0.4;
+  }
+  75% {
+    transform: translateX(50px) translateY(10px);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateX(0) translateY(0);
+    opacity: 0.3;
+  }
+}
+
+.cloud-float {
+  animation: cloud-float 20s ease-in-out infinite;
+}
+
+/* 3D hover effects */
+.hover-3d {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transform-style: preserve-3d;
+}
+
+.hover-3d:hover {
+  transform: perspective(1000px) rotateX(10deg) rotateY(-10deg) translateZ(50px);
+  box-shadow: 
+    0 50px 100px -20px rgba(0, 0, 0, 0.5),
+    0 30px 60px -30px rgba(0, 0, 0, 0.7);
+}
+
+/* Mountain depth effect */
+.mountain-depth {
+  position: relative;
+  overflow: hidden;
+}
+
+.mountain-depth::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 0.1) 30%,
+    rgba(0, 0, 0, 0.4) 70%,
+    rgba(0, 0, 0, 0.8) 100%
+  );
+  pointer-events: none;
+}
+
+/* Glow effects */
+.glow-effect {
+  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
+}
+
+.glow-effect-gold {
+  filter: drop-shadow(0 0 30px rgba(251, 191, 36, 0.6));
+}
+
+/* Cloud floating animations */
+@keyframes floatCloud1 {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(100vw + 320px));
+  }
+}
+
+@keyframes floatCloud2 {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-100vw - 384px));
+  }
+}
+
+@keyframes floatCloud3 {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(100vw + 288px));
+  }
+}
+
+/* Shimmer effect for clouds */
+@keyframes cloudShimmer {
+  0%, 100% {
+    opacity: 0.3;
+    filter: blur(20px);
+  }
+  50% {
+    opacity: 0.6;
+    filter: blur(30px);
+  }
+}
+
+.cloud-shimmer {
+  animation: cloudShimmer 8s ease-in-out infinite;
+}
+
 /* Кастомный скроллбар */
 ::-webkit-scrollbar {
   width: 6px;
