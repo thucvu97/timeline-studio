@@ -25,7 +25,7 @@ pub struct BatchCommandResult {
   /// Number of failed commands
   pub error_count: u32,
   /// Total execution time in milliseconds
-  pub execution_time_ms: u64,
+  pub execution_time_ms: u32,
   /// Whether the entire batch was successful
   pub success: bool,
   /// Error message if batch failed
@@ -92,7 +92,7 @@ pub async fn execute_batch_commands(
     results.push(result);
   }
 
-  let execution_time_ms = start_time.elapsed().as_millis() as u64;
+  let execution_time_ms = start_time.elapsed().as_millis() as u32;
   let overall_success = error_count == 0 && batch_error.is_none();
 
   log::info!(
