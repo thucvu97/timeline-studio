@@ -136,7 +136,7 @@ export const Hero3DLogo: React.FC = () => {
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.5, delay: 0.5 }}
-          style={{ marginTop: '5%' }}
+          style={{ marginTop: '0' }}
         >
           <h1 
             className="text-9xl md:text-[16rem] text-3d-shadow"
