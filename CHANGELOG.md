@@ -1,3 +1,10 @@
+## [0.48.1](https://github.com/chatman-media/timeline-studio/compare/v0.48.0...v0.48.1) (2025-07-30)
+
+
+### Bug Fixes
+
+* **tests:** исправлены падающие тесты в нескольких модулях ([ec271bc](https://github.com/chatman-media/timeline-studio/commit/ec271bc15a43aa9716eae5ed507802c9580effe3))
+
 # [0.48.0](https://github.com/chatman-media/timeline-studio/compare/v0.47.2...v0.48.0) (2025-07-30)
 
 
