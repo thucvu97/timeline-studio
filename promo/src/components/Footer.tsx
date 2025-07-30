@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="bg-gray-900 border-t border-gray-800 mt-auto" style={{ fontFamily: 'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"' }}>
+    <footer className="bg-[#12192C] border-t border-gray-800 mt-auto" style={{ fontFamily: 'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"' }}>
       <div className="z-10 transition-all duration-300 grid w-full grid-cols-12 gap-2 px-6 md:gap-4 md:px-10 lg:px-12 xl:px-20 xl:gap-6 max-w-[1920px] mx-auto">
       <div className='col-span-12 mb-8 mt-10 md:mb-0 md:mt-14'>
       <div className="flex flex-col justify-between md:flex-row">

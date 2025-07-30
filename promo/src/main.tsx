@@ -13,10 +13,12 @@ import Privacy from './pages/Privacy'
 import ResponsibleAI from './pages/ResponsibleAI'
 import FAQ from './pages/FAQ'
 import Docs from './pages/Docs'
+import { ScrollToTop } from './components/ScrollToTop'
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/about" element={<About />} />

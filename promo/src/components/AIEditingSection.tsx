@@ -3,7 +3,7 @@ import { AnimatedSection } from './AnimatedSection';
 
 export function AIEditingSection() {
   return (
-    <section id="ai-editing" className="py-20 bg-gray-900 relative overflow-hidden">
+    <section id="ai-editing" className="py-20 bg-[#12192C] relative overflow-hidden">
       {/* Liquid glass background effects */}
       <div className="absolute inset-0">
         <div className="absolute top-1/4 -left-20 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl animate-pulse" />

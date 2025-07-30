@@ -48,7 +48,7 @@ export const Blog: React.FC = () => {
   }, [])
 
   return (
-    <div className="min-h-screen bg-gray-900 flex flex-col">
+    <div className="min-h-screen bg-[#12192C] flex flex-col">
       <Navigation />
       
       <main className="flex-1">

@@ -40,12 +40,12 @@ const FAQ: React.FC = () => {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-900 flex flex-col">
+    <div className="min-h-screen bg-[#12192C] flex flex-col">
       <Navigation />
       
       <main className="flex-1">
         <AnimatedSection animation="fadeIn">
-          <section className="py-20 bg-gray-900">
+          <section className="py-20 bg-[#12192C]">
             <div className="container mx-auto px-4">
               <div className="max-w-4xl mx-auto">
                 <h1 className="text-4xl md:text-5xl font-bold text-white text-center mb-4">

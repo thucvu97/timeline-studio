@@ -61,7 +61,7 @@ Timeline Studio is available for Windows, macOS, and Linux. Download the latest 
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-900 flex flex-col">
+      <div className="min-h-screen bg-[#12192C] flex flex-col">
         <Navigation />
         <main className="flex-1">
           <div className="pt-32 pb-20">
@@ -80,7 +80,7 @@ Timeline Studio is available for Windows, macOS, and Linux. Download the latest 
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 flex flex-col">
+    <div className="min-h-screen bg-[#12192C] flex flex-col">
       <Navigation />
       
       <main className="flex-1">
