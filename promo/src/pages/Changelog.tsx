@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Navigation } from '../components/Navigation'
 import { Footer } from '../components/Footer'
+import { parseChangelog, capitalizeFirst } from '../utils/parseChangelog'
 
 interface VersionData {
   version: string
@@ -12,71 +13,79 @@ interface VersionData {
   breaking?: string[]
 }
 
-const versions: VersionData[] = [
+// Default versions for fallback
+const defaultVersions: VersionData[] = [
   {
-    version: "0.38.2",
-    date: "2025-01-29",
+    version: "0.51.0",
+    date: "2025-01-30",
     features: [
-      "Motion Graphics система с keyframe анимацией",
-      "Node-based композитинг (48 типов нодов)",
-      "GLSL Shader Editor с WebGL2",
-      "124 новых эффекта в JSON формате",
-      "Поддержка Bezier кривых для анимации"
+      "Централизованное управление версией приложения",
+      "Оптимизация для GitHub Pages"
     ],
     fixes: [
-      "Исправлена BigInt ошибка в Rust типах",
-      "Улучшена интерполяция keyframes",
-      "Исправлены deprecated методы в shader системе"
+      "Исправлена синхронизация версий между package.json, Cargo.toml и tauri.conf.json",
+      "Оптимизирован промо-сайт для GitHub Pages"
     ],
-    improvements: [
-      "Оптимизирована загрузка эффектов",
-      "Добавлен Expression Engine для процедурной анимации",
-      "Улучшен UI для Timeline с новыми контролами"
-    ]
+    improvements: []
   },
   {
-    version: "0.36.0",
-    date: "2025-01-15",
+    version: "0.50.0",
+    date: "2025-01-30",
     features: [
-      "AI Chat Integration - поддержка Claude/OpenAI/DeepSeek/Ollama",
-      "Smart Montage Planner - AI-генерация монтажа",
-      "Enhanced Timeline - полное редактирование с AI",
-      "Новый промо-сайт с glassmorphism эффектами"
+      "Добавлена ссылка Pricing в навигационное меню промо-сайта"
     ],
     fixes: [
-      "Исправлены проблемы сборки на macOS с FFmpeg",
-      "Улучшена навигация при скролле",
-      "Исправлены hover эффекты в UI компонентах"
+      "Исправлена ошибка SSR с window is not defined в UpdateService"
     ],
-    improvements: [
-      "Обновление до Tauri v2",
-      "Улучшена производительность с GPU ускорением",
-      "Покрытие тестами увеличено до 80%+"
-    ]
+    improvements: []
   },
   {
-    version: "0.35.0",
-    date: "2024-12-20",
+    version: "0.49.0",
+    date: "2025-01-30",
     features: [
-      "Поддержка 10 языков интерфейса",
-      "Новая система шаблонов стилей",
-      "Экспорт в различные форматы",
-      "Batch обработка видео"
+      "Glassmorphism эффект на FAQ странице",
+      "Унификация шрифтов на всех страницах промо-сайта",
+      "Обновлен дизайн страницы Changelog с glassmorphism эффектом"
     ],
-    fixes: [
-      "Стабильность при работе с 4K видео",
-      "Исправлена утечка памяти в preview",
-      "Улучшена синхронизация аудио"
-    ],
+    fixes: [],
     improvements: [
-      "Ускорение рендеринга на 40%",
-      "Оптимизация использования памяти",
-      "Новые горячие клавиши"
+      "Улучшен общий дизайн промо-сайта"
     ]
   }
 ]
 
 export const Changelog: React.FC = () => {
+  const [versions, setVersions] = useState<VersionData[]>(defaultVersions)
+  const [loading, setLoading] = useState(true)
+  
+  useEffect(() => {
+    // Load changelog from markdown file
+    fetch('/content/changelog/latest.md')
+      .then(response => {
+        if (!response.ok) throw new Error('Failed to load changelog')
+        return response.text()
+      })
+      .then(markdown => {
+        const parsed = parseChangelog(markdown)
+        if (parsed.length > 0) {
+          // Take only the latest 10 versions for performance
+          setVersions(parsed.slice(0, 10).map(v => ({
+            ...v,
+            features: v.features.map(capitalizeFirst),
+            fixes: v.fixes.map(capitalizeFirst),
+            improvements: v.improvements.map(capitalizeFirst),
+            breaking: v.breaking?.map(capitalizeFirst)
+          })))
+        }
+      })
+      .catch(error => {
+        console.error('Failed to load changelog:', error)
+        // Keep default versions on error
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }, [])
   return (
     <div className="min-h-screen bg-[#12192C] flex flex-col">
       <Navigation />
@@ -108,8 +117,13 @@ export const Changelog: React.FC = () => {
         <section className="py-20">
           <div className="container mx-auto px-6 md:px-8 lg:px-12">
             <div className="max-w-6xl mx-auto">
-              <div className="grid gap-6 md:gap-8">
-                {versions.map((version, index) => (
+              {loading ? (
+                <div className="flex justify-center items-center py-20">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
+                </div>
+              ) : (
+                <div className="grid gap-6 md:gap-8">
+                  {versions.map((version, index) => (
                   <motion.div
                     key={version.version}
                     initial={{ opacity: 0, y: 30 }}
@@ -261,11 +275,13 @@ export const Changelog: React.FC = () => {
                       </div>
                     </div>
                   </motion.div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
               
               {/* Load more / View all releases */}
-              <motion.div
+              {!loading && (
+                <motion.div
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 transition={{ duration: 0.5 }}
@@ -283,7 +299,8 @@ export const Changelog: React.FC = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
                 </a>
-              </motion.div>
+                </motion.div>
+              )}
             </div>
           </div>
         </section>

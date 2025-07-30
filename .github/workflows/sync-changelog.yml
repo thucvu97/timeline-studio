@@ -1,0 +1,29 @@
+name: Sync Changelog to Promo Site
+
+on:
+  push:
+    paths:
+      - 'CHANGELOG.md'
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  sync-changelog:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Copy CHANGELOG.md to promo directories
+        run: |
+          cp CHANGELOG.md promo/content/changelog/latest.md
+          cp CHANGELOG.md promo/public/content/changelog/latest.md
+          
+      - name: Commit and push if changed
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add promo/content/changelog/latest.md promo/public/content/changelog/latest.md
+          git diff --staged --quiet || (git commit -m "chore: sync CHANGELOG.md to promo site" && git push)
