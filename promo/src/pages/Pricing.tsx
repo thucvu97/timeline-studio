@@ -117,18 +117,18 @@ export const Pricing: React.FC = () => {
         {/* Pricing Cards */}
         <section className="py-20">
           <div className="container mx-auto px-6 md:px-8 lg:px-12">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto items-stretch">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 max-w-7xl mx-auto items-stretch">
               {pricingTiers.map((tier, index) => (
                 <motion.div
                   key={tier.name}
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className={`relative flex flex-col ${tier.highlighted ? 'pt-3' : ''}`}
+                  className="relative flex flex-col"
 >
                   {tier.highlighted && (
                     <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
-                      <span className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-sm font-semibold px-4 py-1 rounded-full">
+                      <span className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs font-medium px-3 py-1 rounded-full uppercase tracking-wider">
                         MOST POPULAR
                       </span>
                     </div>
@@ -157,21 +157,21 @@ export const Pricing: React.FC = () => {
                     <div className="text-center mb-8">
                       <h3 className="card-title">{tier.name}</h3>
                     <div className="flex items-baseline justify-center mb-4">
-                      <span className="text-5xl font-bold text-white">{tier.price}</span>
+                      <span className="text-5xl font-light text-white tracking-tight">{tier.price}</span>
                       <span className="text-gray-400 ml-2">{tier.period}</span>
                     </div>
                     <p className="card-description">{tier.description}</p>
                     </div>
 
                     {/* Cloud Storage & AI Tokens */}
-                    <div className="grid grid-cols-2 gap-4 mb-8 p-4 bg-white/5 rounded-lg">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8 p-4 bg-white/5 rounded-lg">
                     <div className="text-center">
                       <p className="text-xs text-gray-400 uppercase mb-1">Cloud Storage</p>
-                      <p className="text-lg font-semibold text-white">{tier.cloudStorage}</p>
+                      <p className="text-sm sm:text-lg font-normal text-white break-words">{tier.cloudStorage}</p>
                     </div>
                     <div className="text-center">
                       <p className="text-xs text-gray-400 uppercase mb-1">AI Tokens</p>
-                      <p className="text-lg font-semibold text-white">{tier.aiTokens}</p>
+                      <p className="text-sm sm:text-lg font-normal text-white break-words">{tier.aiTokens}</p>
                     </div>
                     </div>
 
@@ -186,7 +186,7 @@ export const Pricing: React.FC = () => {
                     </ul>
 
                     {/* CTA Button */}
-                    <button className={`w-full py-3 px-6 rounded-xl font-semibold transition-all duration-300 cursor-pointer ${
+                    <button className={`w-full py-3 px-6 rounded-xl font-medium transition-all duration-300 cursor-pointer ${
                       tier.highlighted
                         ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600'
                         : 'bg-white/10 text-white hover:bg-white/20'
@@ -226,7 +226,7 @@ export const Pricing: React.FC = () => {
                         <p className="text-gray-400 text-sm">For collaborative work</p>
                       </div>
                       <div className="text-right">
-                        <span className="text-4xl font-bold text-white">$39</span>
+                        <span className="text-4xl font-light text-white tracking-tight">$39</span>
                         <span className="text-gray-400">/user/month</span>
                       </div>
                     </div>
@@ -258,7 +258,7 @@ export const Pricing: React.FC = () => {
                       </li>
                     </ul>
                     
-                    <button className="relative group w-full py-4 px-8 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold transition-all duration-300 overflow-hidden transform hover:scale-[1.02]">
+                    <button className="relative group w-full py-4 px-8 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium transition-all duration-300 overflow-hidden transform hover:scale-[1.02]">
                       <span className="relative z-10">Start with Team</span>
                       <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     </button>
@@ -280,7 +280,7 @@ export const Pricing: React.FC = () => {
                         <p className="text-gray-400 text-sm">Custom solutions</p>
                       </div>
                       <div className="text-right">
-                        <span className="text-2xl font-bold text-white">Contact us</span>
+                        <span className="text-2xl font-light text-white">Contact us</span>
                       </div>
                     </div>
                     
@@ -311,7 +311,7 @@ export const Pricing: React.FC = () => {
                       </li>
                     </ul>
                     
-                    <button className="relative group w-full py-4 px-8 rounded-xl bg-white/10 text-white font-semibold transition-all duration-300 overflow-hidden transform hover:scale-[1.02] hover:bg-white/20">
+                    <button className="relative group w-full py-4 px-8 rounded-xl bg-white/10 text-white font-medium transition-all duration-300 overflow-hidden transform hover:scale-[1.02] hover:bg-white/20">
                       <span className="relative z-10">Contact Sales</span>
                     </button>
                   </div>
