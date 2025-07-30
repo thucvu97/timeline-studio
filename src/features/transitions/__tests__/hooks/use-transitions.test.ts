@@ -1,5 +1,5 @@
-import { describe, expect, it, vi, beforeEach } from "vitest"
 import { renderHook } from "@testing-library/react"
+import { describe, expect, it, vi } from "vitest"
 
 // Mock i18n
 vi.mock("react-i18next", () => ({
@@ -15,8 +15,15 @@ vi.mock("react-i18next", () => ({
 vi.mock("../../data/advanced-transitions.json", () => ({
   default: {
     version: "1.0.0",
-    transitions: []
-  }
+    transitions: [],
+  },
+}))
+
+vi.mock("../../data/dynamic-transitions.json", () => ({
+  default: {
+    version: "1.0.0",
+    transitions: [],
+  },
 }))
 
 vi.mock("../../data/transitions.json", () => ({

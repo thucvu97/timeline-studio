@@ -1,0 +1,538 @@
+{
+  "version": "1.0.0",
+  "category": "Glitch Effects",
+  "description": "Digital artifacts, distortions, and glitch effects",
+  "totalTransitions": 10,
+  "transitions": [
+    {
+      "id": "digital-glitch",
+      "type": "digital-glitch",
+      "labels": {
+        "ru": "Цифровой глитч",
+        "en": "Digital Glitch"
+      },
+      "description": {
+        "ru": "Цифровые искажения с блоками и артефактами",
+        "en": "Digital distortions with blocks and artifacts"
+      },
+      "category": "glitch",
+      "complexity": "advanced",
+      "tags": ["digital", "distortion", "artifacts"],
+      "duration": {
+        "min": 0.3,
+        "max": 2.0,
+        "default": 0.8
+      },
+      "parameters": {
+        "blockSize": {
+          "type": "number",
+          "default": 16,
+          "min": 4,
+          "max": 64,
+          "description": "Size of glitch blocks"
+        },
+        "intensity": {
+          "type": "number",
+          "default": 0.5,
+          "min": 0,
+          "max": 1,
+          "description": "Glitch intensity"
+        },
+        "frequency": {
+          "type": "number",
+          "default": 0.3,
+          "min": 0,
+          "max": 1,
+          "description": "Frequency of glitches"
+        },
+        "colorShift": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable color channel shifting"
+        }
+      },
+      "gpuAccelerated": true,
+      "previewSettings": {
+        "fps": 30,
+        "resolution": [640, 360]
+      }
+    },
+    {
+      "id": "rgb-split",
+      "type": "rgb-split",
+      "labels": {
+        "ru": "RGB разделение",
+        "en": "RGB Split"
+      },
+      "description": {
+        "ru": "Разделение цветовых каналов с искажением",
+        "en": "Color channel separation with distortion"
+      },
+      "category": "glitch",
+      "complexity": "intermediate",
+      "tags": ["color", "split", "chromatic"],
+      "duration": {
+        "min": 0.3,
+        "max": 2.0,
+        "default": 0.6
+      },
+      "parameters": {
+        "separation": {
+          "type": "number",
+          "default": 10,
+          "min": 0,
+          "max": 50,
+          "description": "Channel separation distance"
+        },
+        "angle": {
+          "type": "number",
+          "default": 0,
+          "min": -180,
+          "max": 180,
+          "description": "Split angle in degrees"
+        },
+        "animate": {
+          "type": "boolean",
+          "default": true,
+          "description": "Animate the split effect"
+        },
+        "aberration": {
+          "type": "number",
+          "default": 0.5,
+          "min": 0,
+          "max": 1,
+          "description": "Chromatic aberration amount"
+        }
+      },
+      "gpuAccelerated": true,
+      "previewSettings": {
+        "fps": 30,
+        "resolution": [640, 360]
+      }
+    },
+    {
+      "id": "data-corruption",
+      "type": "data-corruption",
+      "labels": {
+        "ru": "Повреждение данных",
+        "en": "Data Corruption"
+      },
+      "description": {
+        "ru": "Эффект повреждения цифровых данных",
+        "en": "Digital data corruption effect"
+      },
+      "category": "glitch",
+      "complexity": "advanced",
+      "tags": ["corruption", "data", "digital"],
+      "duration": {
+        "min": 0.3,
+        "max": 2.0,
+        "default": 0.7
+      },
+      "parameters": {
+        "corruptionLevel": {
+          "type": "number",
+          "default": 0.3,
+          "min": 0,
+          "max": 1,
+          "description": "Level of data corruption"
+        },
+        "scanLines": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show scan lines"
+        },
+        "noiseAmount": {
+          "type": "number",
+          "default": 0.2,
+          "min": 0,
+          "max": 1,
+          "description": "Digital noise amount"
+        },
+        "pixelSort": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable pixel sorting effect"
+        }
+      },
+      "gpuAccelerated": true,
+      "previewSettings": {
+        "fps": 30,
+        "resolution": [640, 360]
+      }
+    },
+    {
+      "id": "analog-distortion",
+      "type": "analog-distortion",
+      "labels": {
+        "ru": "Аналоговые помехи",
+        "en": "Analog Distortion"
+      },
+      "description": {
+        "ru": "Эффект старого аналогового сигнала",
+        "en": "Old analog signal distortion effect"
+      },
+      "category": "glitch",
+      "complexity": "intermediate",
+      "tags": ["analog", "vhs", "distortion"],
+      "duration": {
+        "min": 0.5,
+        "max": 3.0,
+        "default": 1.0
+      },
+      "parameters": {
+        "tracking": {
+          "type": "number",
+          "default": 0.3,
+          "min": 0,
+          "max": 1,
+          "description": "VHS tracking error"
+        },
+        "jitter": {
+          "type": "number",
+          "default": 0.2,
+          "min": 0,
+          "max": 1,
+          "description": "Horizontal jitter amount"
+        },
+        "colorBleed": {
+          "type": "number",
+          "default": 0.5,
+          "min": 0,
+          "max": 1,
+          "description": "Color bleeding effect"
+        },
+        "static": {
+          "type": "number",
+          "default": 0.1,
+          "min": 0,
+          "max": 1,
+          "description": "Static noise level"
+        }
+      },
+      "gpuAccelerated": true,
+      "previewSettings": {
+        "fps": 30,
+        "resolution": [640, 360]
+      }
+    },
+    {
+      "id": "signal-interference",
+      "type": "signal-interference",
+      "labels": {
+        "ru": "Помехи сигнала",
+        "en": "Signal Interference"
+      },
+      "description": {
+        "ru": "Электромагнитные помехи и интерференция",
+        "en": "Electromagnetic interference and signal noise"
+      },
+      "category": "glitch",
+      "complexity": "advanced",
+      "tags": ["interference", "signal", "noise"],
+      "duration": {
+        "min": 0.3,
+        "max": 2.0,
+        "default": 0.8
+      },
+      "parameters": {
+        "waveFrequency": {
+          "type": "number",
+          "default": 5,
+          "min": 0.1,
+          "max": 20,
+          "description": "Interference wave frequency"
+        },
+        "waveAmplitude": {
+          "type": "number",
+          "default": 0.3,
+          "min": 0,
+          "max": 1,
+          "description": "Wave amplitude"
+        },
+        "ghosting": {
+          "type": "number",
+          "default": 0.2,
+          "min": 0,
+          "max": 1,
+          "description": "Ghost image intensity"
+        },
+        "sync": {
+          "type": "number",
+          "default": 0.9,
+          "min": 0,
+          "max": 1,
+          "description": "Sync stability"
+        }
+      },
+      "gpuAccelerated": true,
+      "previewSettings": {
+        "fps": 30,
+        "resolution": [640, 360]
+      }
+    },
+    {
+      "id": "pixel-storm",
+      "type": "pixel-storm",
+      "labels": {
+        "ru": "Пиксельный шторм",
+        "en": "Pixel Storm"
+      },
+      "description": {
+        "ru": "Хаотичное движение пикселей",
+        "en": "Chaotic pixel movement and displacement"
+      },
+      "category": "glitch",
+      "complexity": "advanced",
+      "tags": ["pixels", "chaos", "storm"],
+      "duration": {
+        "min": 0.3,
+        "max": 2.0,
+        "default": 0.6
+      },
+      "parameters": {
+        "pixelSize": {
+          "type": "number",
+          "default": 4,
+          "min": 1,
+          "max": 16,
+          "description": "Size of displaced pixels"
+        },
+        "chaos": {
+          "type": "number",
+          "default": 0.5,
+          "min": 0,
+          "max": 1,
+          "description": "Chaos level"
+        },
+        "speed": {
+          "type": "number",
+          "default": 1,
+          "min": 0.1,
+          "max": 5,
+          "description": "Storm speed"
+        },
+        "colorMix": {
+          "type": "boolean",
+          "default": true,
+          "description": "Mix colors during displacement"
+        }
+      },
+      "gpuAccelerated": true,
+      "previewSettings": {
+        "fps": 30,
+        "resolution": [640, 360]
+      }
+    },
+    {
+      "id": "codec-error",
+      "type": "codec-error",
+      "labels": {
+        "ru": "Ошибка кодека",
+        "en": "Codec Error"
+      },
+      "description": {
+        "ru": "Имитация ошибок видеокодека",
+        "en": "Video codec error simulation"
+      },
+      "category": "glitch",
+      "complexity": "advanced",
+      "tags": ["codec", "compression", "error"],
+      "duration": {
+        "min": 0.3,
+        "max": 1.5,
+        "default": 0.5
+      },
+      "parameters": {
+        "macroblockSize": {
+          "type": "number",
+          "default": 16,
+          "min": 8,
+          "max": 32,
+          "description": "Macroblock size"
+        },
+        "compressionArtifacts": {
+          "type": "number",
+          "default": 0.4,
+          "min": 0,
+          "max": 1,
+          "description": "Compression artifact intensity"
+        },
+        "keyframeError": {
+          "type": "boolean",
+          "default": true,
+          "description": "Simulate keyframe errors"
+        },
+        "motionVector": {
+          "type": "number",
+          "default": 0.3,
+          "min": 0,
+          "max": 1,
+          "description": "Motion vector corruption"
+        }
+      },
+      "gpuAccelerated": true,
+      "previewSettings": {
+        "fps": 30,
+        "resolution": [640, 360]
+      }
+    },
+    {
+      "id": "matrix-rain",
+      "type": "matrix-rain",
+      "labels": {
+        "ru": "Матричный дождь",
+        "en": "Matrix Rain"
+      },
+      "description": {
+        "ru": "Эффект падающих символов из Матрицы",
+        "en": "Falling digital rain effect from The Matrix"
+      },
+      "category": "glitch",
+      "complexity": "advanced",
+      "tags": ["matrix", "digital", "rain"],
+      "duration": {
+        "min": 0.5,
+        "max": 3.0,
+        "default": 1.2
+      },
+      "parameters": {
+        "density": {
+          "type": "number",
+          "default": 0.5,
+          "min": 0.1,
+          "max": 1,
+          "description": "Rain density"
+        },
+        "speed": {
+          "type": "number",
+          "default": 1,
+          "min": 0.1,
+          "max": 3,
+          "description": "Fall speed"
+        },
+        "colorTint": {
+          "type": "string",
+          "default": "#00ff00",
+          "description": "Rain color tint"
+        },
+        "textMode": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show as text characters"
+        }
+      },
+      "gpuAccelerated": true,
+      "previewSettings": {
+        "fps": 30,
+        "resolution": [640, 360]
+      }
+    },
+    {
+      "id": "screen-tear",
+      "type": "screen-tear",
+      "labels": {
+        "ru": "Разрыв экрана",
+        "en": "Screen Tear"
+      },
+      "description": {
+        "ru": "Эффект разрыва изображения",
+        "en": "Screen tearing and sync issues"
+      },
+      "category": "glitch",
+      "complexity": "intermediate",
+      "tags": ["tear", "sync", "display"],
+      "duration": {
+        "min": 0.2,
+        "max": 1.5,
+        "default": 0.4
+      },
+      "parameters": {
+        "tearCount": {
+          "type": "number",
+          "default": 3,
+          "min": 1,
+          "max": 10,
+          "description": "Number of tear lines"
+        },
+        "displacement": {
+          "type": "number",
+          "default": 20,
+          "min": 5,
+          "max": 100,
+          "description": "Maximum displacement"
+        },
+        "wobble": {
+          "type": "number",
+          "default": 0.3,
+          "min": 0,
+          "max": 1,
+          "description": "Wobble intensity"
+        },
+        "flicker": {
+          "type": "boolean",
+          "default": true,
+          "description": "Add flicker effect"
+        }
+      },
+      "gpuAccelerated": true,
+      "previewSettings": {
+        "fps": 30,
+        "resolution": [640, 360]
+      }
+    },
+    {
+      "id": "bit-crush",
+      "type": "bit-crush",
+      "labels": {
+        "ru": "Битовое дробление",
+        "en": "Bit Crush"
+      },
+      "description": {
+        "ru": "Снижение битности изображения",
+        "en": "Bit depth reduction and crushing"
+      },
+      "category": "glitch",
+      "complexity": "intermediate",
+      "tags": ["bits", "crush", "retro"],
+      "duration": {
+        "min": 0.3,
+        "max": 2.0,
+        "default": 0.6
+      },
+      "parameters": {
+        "bitDepth": {
+          "type": "number",
+          "default": 4,
+          "min": 1,
+          "max": 8,
+          "description": "Target bit depth"
+        },
+        "colorPalette": {
+          "type": "number",
+          "default": 16,
+          "min": 2,
+          "max": 256,
+          "description": "Number of colors"
+        },
+        "dithering": {
+          "type": "boolean",
+          "default": true,
+          "description": "Apply dithering"
+        },
+        "posterize": {
+          "type": "number",
+          "default": 0.5,
+          "min": 0,
+          "max": 1,
+          "description": "Posterization amount"
+        }
+      },
+      "gpuAccelerated": true,
+      "previewSettings": {
+        "fps": 30,
+        "resolution": [640, 360]
+      }
+    }
+  ]
+}

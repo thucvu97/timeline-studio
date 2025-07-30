@@ -1,0 +1,504 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-01-30",
+  "totalTransitions": 15,
+  "categories": ["dynamic", "particle", "organic", "destruction", "elemental"],
+  "transitions": [
+    {
+      "id": "particle-dissolve",
+      "type": "particle-dissolve",
+      "labels": {
+        "ru": "Растворение частицами",
+        "en": "Particle Dissolve"
+      },
+      "description": {
+        "ru": "Изображение распадается на тысячи частиц",
+        "en": "Image dissolves into thousands of particles"
+      },
+      "category": "particle",
+      "complexity": "advanced",
+      "tags": ["particles", "dissolve", "dynamic", "modern"],
+      "duration": { "min": 0.8, "max": 3.0, "default": 1.5 },
+      "parameters": {
+        "particles": {
+          "count": 5000,
+          "size": 2,
+          "speed": 1.5,
+          "gravity": 0.2,
+          "turbulence": 0.3,
+          "fadeOut": true
+        },
+        "direction": "radial",
+        "intensity": 1.0,
+        "blur": {
+          "enabled": true,
+          "amount": 5,
+          "type": "gaussian"
+        }
+      },
+      "ffmpegTemplate": "crop=iw:ih:0:0,scale=iw:ih,setpts=PTS-STARTPTS",
+      "gpuAccelerated": true,
+      "webglShader": "particle-dissolve",
+      "requiresCompute": true
+    },
+    {
+      "id": "liquid-morph",
+      "type": "liquid-morph",
+      "labels": {
+        "ru": "Жидкое превращение",
+        "en": "Liquid Morph"
+      },
+      "description": {
+        "ru": "Плавное перетекание как жидкость",
+        "en": "Smooth morphing like liquid"
+      },
+      "category": "organic",
+      "complexity": "advanced",
+      "tags": ["liquid", "morph", "fluid", "smooth"],
+      "duration": { "min": 1.0, "max": 3.0, "default": 1.8 },
+      "parameters": {
+        "viscosity": 0.8,
+        "turbulence": 0.4,
+        "waveHeight": 20,
+        "waveFrequency": 3,
+        "direction": "horizontal",
+        "color": {
+          "enabled": true,
+          "tint": "#4ECDC4",
+          "saturation": 10
+        }
+      },
+      "ffmpegTemplate": "minterpolate=fps=60:mi_mode=mci,waves=a=0.1:r=30",
+      "gpuAccelerated": true,
+      "webglShader": "liquid-morph"
+    },
+    {
+      "id": "organic-growth",
+      "type": "organic-growth",
+      "labels": {
+        "ru": "Органический рост",
+        "en": "Organic Growth"
+      },
+      "description": {
+        "ru": "Естественный рост как у растений",
+        "en": "Natural growth like plants"
+      },
+      "category": "organic",
+      "complexity": "advanced",
+      "tags": ["organic", "growth", "nature", "smooth"],
+      "duration": { "min": 1.2, "max": 4.0, "default": 2.0 },
+      "parameters": {
+        "growthPattern": "fractal",
+        "branches": 5,
+        "recursionDepth": 3,
+        "speed": 1.0,
+        "randomness": 0.3,
+        "color": {
+          "enabled": true,
+          "tint": "#52C41A",
+          "brightness": 10
+        }
+      },
+      "ffmpegTemplate": "scale=iw:ih,curves=preset=increase_contrast",
+      "gpuAccelerated": true,
+      "webglShader": "organic-growth"
+    },
+    {
+      "id": "glass-shatter",
+      "type": "glass-shatter",
+      "labels": {
+        "ru": "Разбитое стекло",
+        "en": "Glass Shatter"
+      },
+      "description": {
+        "ru": "Эффект разбивающегося стекла",
+        "en": "Breaking glass effect"
+      },
+      "category": "destruction",
+      "complexity": "advanced",
+      "tags": ["glass", "shatter", "break", "destruction"],
+      "duration": { "min": 0.5, "max": 2.0, "default": 1.0 },
+      "parameters": {
+        "shards": {
+          "count": 150,
+          "minSize": 10,
+          "maxSize": 50,
+          "rotation": true,
+          "gravity": 0.5,
+          "explosionForce": 2.0
+        },
+        "impactPoint": { "x": 0.5, "y": 0.5 },
+        "soundEffect": true,
+        "blur": {
+          "enabled": true,
+          "amount": 8,
+          "type": "motion"
+        }
+      },
+      "ffmpegTemplate": "crop=iw:ih:0:0,scale=iw:ih",
+      "gpuAccelerated": true,
+      "webglShader": "glass-shatter",
+      "requiresPhysics": true
+    },
+    {
+      "id": "fire-burn",
+      "type": "fire-burn",
+      "labels": {
+        "ru": "Огненное выгорание",
+        "en": "Fire Burn"
+      },
+      "description": {
+        "ru": "Изображение сгорает в пламени",
+        "en": "Image burns away in flames"
+      },
+      "category": "elemental",
+      "complexity": "advanced",
+      "tags": ["fire", "burn", "flame", "heat"],
+      "duration": { "min": 0.8, "max": 2.5, "default": 1.5 },
+      "parameters": {
+        "fire": {
+          "intensity": 0.8,
+          "spread": 1.2,
+          "turbulence": 0.6,
+          "height": 30,
+          "heatDistortion": true
+        },
+        "burnDirection": "bottom-up",
+        "ashEffect": true,
+        "color": {
+          "enabled": true,
+          "tint": "#FF6B35",
+          "brightness": 20
+        }
+      },
+      "ffmpegTemplate": "colorchannelmixer=rr=1.5:rb=0.2,curves=preset=darker",
+      "gpuAccelerated": true,
+      "webglShader": "fire-burn"
+    },
+    {
+      "id": "water-drop",
+      "type": "water-drop",
+      "labels": {
+        "ru": "Капля воды",
+        "en": "Water Drop"
+      },
+      "description": {
+        "ru": "Эффект падающей капли с волнами",
+        "en": "Falling drop with ripple waves"
+      },
+      "category": "elemental",
+      "complexity": "intermediate",
+      "tags": ["water", "drop", "ripple", "waves"],
+      "duration": { "min": 1.0, "max": 3.0, "default": 1.8 },
+      "parameters": {
+        "dropPoint": { "x": 0.5, "y": 0.5 },
+        "ripples": {
+          "count": 3,
+          "amplitude": 20,
+          "frequency": 2,
+          "damping": 0.8
+        },
+        "refraction": 1.33,
+        "blur": {
+          "enabled": true,
+          "amount": 10,
+          "type": "radial"
+        }
+      },
+      "ffmpegTemplate": "vignette,waves=a=0.03:r=40",
+      "gpuAccelerated": true,
+      "webglShader": "water-drop"
+    },
+    {
+      "id": "smoke-reveal",
+      "type": "smoke-reveal",
+      "labels": {
+        "ru": "Дымовое появление",
+        "en": "Smoke Reveal"
+      },
+      "description": {
+        "ru": "Появление сквозь клубы дыма",
+        "en": "Reveal through smoke clouds"
+      },
+      "category": "elemental",
+      "complexity": "advanced",
+      "tags": ["smoke", "clouds", "reveal", "mystery"],
+      "duration": { "min": 1.2, "max": 3.5, "default": 2.0 },
+      "parameters": {
+        "smoke": {
+          "density": 0.7,
+          "turbulence": 0.5,
+          "speed": 1.0,
+          "dissipation": 0.9
+        },
+        "direction": "bottom-up",
+        "color": {
+          "enabled": true,
+          "tint": "#E0E0E0",
+          "saturation": -20
+        }
+      },
+      "ffmpegTemplate": "blend=all_mode=overlay,colorbalance=rs=-0.1:gs=-0.1:bs=-0.1",
+      "gpuAccelerated": true,
+      "webglShader": "smoke-reveal"
+    },
+    {
+      "id": "sand-dispersion",
+      "type": "sand-dispersion",
+      "labels": {
+        "ru": "Песчаная дисперсия",
+        "en": "Sand Dispersion"
+      },
+      "description": {
+        "ru": "Распад на песчинки под ветром",
+        "en": "Dispersion into sand particles by wind"
+      },
+      "category": "particle",
+      "complexity": "advanced",
+      "tags": ["sand", "particles", "wind", "desert"],
+      "duration": { "min": 1.0, "max": 3.0, "default": 1.8 },
+      "parameters": {
+        "particles": {
+          "count": 8000,
+          "size": 1,
+          "color": "#C4A57B",
+          "windForce": 2.0,
+          "windDirection": 45,
+          "gravity": 0.3
+        },
+        "turbulence": 0.4,
+        "color": {
+          "enabled": true,
+          "tint": "#D4A574",
+          "brightness": 5
+        }
+      },
+      "ffmpegTemplate": "noise=alls=10:allf=t,colorbalance=rs=0.1:gs=0.05:bs=-0.05",
+      "gpuAccelerated": true,
+      "webglShader": "sand-dispersion"
+    },
+    {
+      "id": "crystal-formation",
+      "type": "crystal-formation",
+      "labels": {
+        "ru": "Кристаллизация",
+        "en": "Crystal Formation"
+      },
+      "description": {
+        "ru": "Формирование кристаллической структуры",
+        "en": "Crystal structure formation"
+      },
+      "category": "organic",
+      "complexity": "advanced",
+      "tags": ["crystal", "formation", "geometric", "ice"],
+      "duration": { "min": 1.0, "max": 3.0, "default": 1.6 },
+      "parameters": {
+        "crystalPattern": "hexagonal",
+        "growthSpeed": 1.2,
+        "branches": 6,
+        "symmetry": true,
+        "refraction": 1.5,
+        "color": {
+          "enabled": true,
+          "tint": "#B8E3FF",
+          "saturation": 15
+        }
+      },
+      "ffmpegTemplate": "edgedetect=low=0.1:high=0.4,colorkey=0x000000:0.01:0.1",
+      "gpuAccelerated": true,
+      "webglShader": "crystal-formation"
+    },
+    {
+      "id": "tornado-twist",
+      "type": "tornado-twist",
+      "labels": {
+        "ru": "Торнадо закручивание",
+        "en": "Tornado Twist"
+      },
+      "description": {
+        "ru": "Закручивание в спираль торнадо",
+        "en": "Twisting into tornado spiral"
+      },
+      "category": "dynamic",
+      "complexity": "advanced",
+      "tags": ["tornado", "twist", "spiral", "vortex"],
+      "duration": { "min": 0.8, "max": 2.5, "default": 1.4 },
+      "parameters": {
+        "twistCenter": { "x": 0.5, "y": 0.5 },
+        "rotationSpeed": 3.0,
+        "spiralTightness": 0.8,
+        "pullStrength": 1.5,
+        "debris": true,
+        "blur": {
+          "enabled": true,
+          "amount": 15,
+          "type": "motion"
+        }
+      },
+      "ffmpegTemplate": "rotate=PI*t:c=none:ow=rotw(PI*t):oh=roth(PI*t)",
+      "gpuAccelerated": true,
+      "webglShader": "tornado-twist"
+    },
+    {
+      "id": "electric-discharge",
+      "type": "electric-discharge",
+      "labels": {
+        "ru": "Электрический разряд",
+        "en": "Electric Discharge"
+      },
+      "description": {
+        "ru": "Молниеносный электрический переход",
+        "en": "Lightning electric transition"
+      },
+      "category": "elemental",
+      "complexity": "advanced",
+      "tags": ["electric", "lightning", "energy", "plasma"],
+      "duration": { "min": 0.3, "max": 1.5, "default": 0.6 },
+      "parameters": {
+        "lightning": {
+          "branches": 5,
+          "intensity": 0.9,
+          "frequency": 3,
+          "color": "#00D4FF",
+          "glow": true
+        },
+        "plasmaEffect": true,
+        "color": {
+          "enabled": true,
+          "tint": "#00A8E8",
+          "brightness": 30
+        }
+      },
+      "ffmpegTemplate": "curves=preset=increase_contrast,colorbalance=rs=-0.2:bs=0.3",
+      "gpuAccelerated": true,
+      "webglShader": "electric-discharge"
+    },
+    {
+      "id": "magnetic-field",
+      "type": "magnetic-field",
+      "labels": {
+        "ru": "Магнитное поле",
+        "en": "Magnetic Field"
+      },
+      "description": {
+        "ru": "Искажение магнитным полем",
+        "en": "Magnetic field distortion"
+      },
+      "category": "dynamic",
+      "complexity": "intermediate",
+      "tags": ["magnetic", "field", "distortion", "waves"],
+      "duration": { "min": 0.8, "max": 2.5, "default": 1.5 },
+      "parameters": {
+        "fieldStrength": 1.5,
+        "fieldLines": 8,
+        "oscillation": 0.5,
+        "polarization": "circular",
+        "color": {
+          "enabled": true,
+          "saturation": -10,
+          "brightness": 5
+        }
+      },
+      "ffmpegTemplate": "lenscorrection=k1=-0.15:k2=-0.15",
+      "gpuAccelerated": true,
+      "webglShader": "magnetic-field"
+    },
+    {
+      "id": "bubble-pop",
+      "type": "bubble-pop",
+      "labels": {
+        "ru": "Лопающиеся пузыри",
+        "en": "Bubble Pop"
+      },
+      "description": {
+        "ru": "Переход через лопающиеся мыльные пузыри",
+        "en": "Transition through popping soap bubbles"
+      },
+      "category": "organic",
+      "complexity": "intermediate",
+      "tags": ["bubble", "pop", "soap", "playful"],
+      "duration": { "min": 0.8, "max": 2.5, "default": 1.4 },
+      "parameters": {
+        "bubbles": {
+          "count": 20,
+          "minSize": 30,
+          "maxSize": 100,
+          "popSpeed": 0.5,
+          "iridescence": true
+        },
+        "physics": {
+          "gravity": -0.1,
+          "windForce": 0.2
+        },
+        "color": {
+          "enabled": true,
+          "saturation": 20
+        }
+      },
+      "ffmpegTemplate": "drawbox=x=0:y=0:w=iw:h=ih:color=white@0.1:t=fill",
+      "gpuAccelerated": true,
+      "webglShader": "bubble-pop"
+    },
+    {
+      "id": "ink-splash",
+      "type": "ink-splash",
+      "labels": {
+        "ru": "Чернильный всплеск",
+        "en": "Ink Splash"
+      },
+      "description": {
+        "ru": "Расплывание чернил в воде",
+        "en": "Ink spreading in water"
+      },
+      "category": "organic",
+      "complexity": "advanced",
+      "tags": ["ink", "splash", "fluid", "artistic"],
+      "duration": { "min": 1.0, "max": 3.0, "default": 1.8 },
+      "parameters": {
+        "inkColor": "#000000",
+        "viscosity": 0.6,
+        "diffusion": 1.2,
+        "turbulence": 0.4,
+        "splashPoints": 3,
+        "blur": {
+          "enabled": true,
+          "amount": 12,
+          "type": "gaussian"
+        }
+      },
+      "ffmpegTemplate": "colorlevels=rimax=0.5:gimax=0.5:bimax=0.5",
+      "gpuAccelerated": true,
+      "webglShader": "ink-splash"
+    },
+    {
+      "id": "paper-fold",
+      "type": "paper-fold",
+      "labels": {
+        "ru": "Складывание бумаги",
+        "en": "Paper Fold"
+      },
+      "description": {
+        "ru": "Эффект складывания листа бумаги",
+        "en": "Paper sheet folding effect"
+      },
+      "category": "dynamic",
+      "complexity": "intermediate",
+      "tags": ["paper", "fold", "origami", "3d"],
+      "duration": { "min": 0.8, "max": 2.0, "default": 1.2 },
+      "parameters": {
+        "foldDirection": "horizontal",
+        "foldCount": 1,
+        "perspective": 800,
+        "shadow": true,
+        "paperTexture": true,
+        "color": {
+          "enabled": true,
+          "brightness": -5
+        }
+      },
+      "ffmpegTemplate": "perspective=x0=0:y0=0:x1=W:y1=0:x2=0:y2=H:x3=W:y3=H",
+      "gpuAccelerated": true,
+      "webglShader": "paper-fold"
+    }
+  ]
+}

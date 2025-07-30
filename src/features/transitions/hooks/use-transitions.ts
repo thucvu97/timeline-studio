@@ -5,6 +5,8 @@ import { useTranslation } from "react-i18next"
 import { Transition } from "@/features/transitions/types/transitions"
 
 import advancedTransitionsData from "../data/advanced-transitions.json"
+import dynamicTransitionsData from "../data/dynamic-transitions.json"
+import glitchTransitionsData from "../data/glitch-transitions.json"
 import transitionsData from "../data/transitions.json"
 import { createFallbackTransition, processTransitions, validateTransitionsData } from "../utils/transition-processor"
 
@@ -54,14 +56,28 @@ function initializeTransitions(t: (key: string, fallback?: string, options?: any
       console.warn("Invalid advanced transitions data, skipping advanced transitions")
     }
 
-    // Объединяем переходы из обоих файлов
+    // Загружаем динамические переходы
+    const dynamicData = dynamicTransitionsData
+    if (!validateTransitionsData(dynamicData)) {
+      console.warn("Invalid dynamic transitions data, skipping dynamic transitions")
+    }
+
+    // Загружаем glitch переходы
+    const glitchData = glitchTransitionsData
+    if (!validateTransitionsData(glitchData)) {
+      console.warn("Invalid glitch transitions data, skipping glitch transitions")
+    }
+
+    // Объединяем переходы из всех файлов
     const allTransitions = [
       ...baseData.transitions,
       ...(advancedData && validateTransitionsData(advancedData) ? advancedData.transitions : []),
+      ...(dynamicData && validateTransitionsData(dynamicData) ? dynamicData.transitions : []),
+      ...(glitchData && validateTransitionsData(glitchData) ? glitchData.transitions : []),
     ]
 
     console.log(
-      `Loading ${baseData.transitions.length} base + ${advancedData?.transitions?.length || 0} advanced transitions`,
+      `Loading ${baseData.transitions.length} base + ${advancedData?.transitions?.length || 0} advanced + ${dynamicData?.transitions?.length || 0} dynamic + ${glitchData?.transitions?.length || 0} glitch transitions`,
     )
 
     // Обрабатываем переходы (преобразуем в типизированные объекты)

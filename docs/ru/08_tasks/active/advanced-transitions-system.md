@@ -102,6 +102,77 @@
    - `/src/features/timeline/hooks/use-timeline-transitions.ts` - добавлен getTrackTransitions
    - `/src/features/transitions/components/transition-preview.tsx` - drag поддержка
 
+### Обновление 30.01.2025 - Export System Integration ✅
+
+Реализована полная интеграция системы экспорта переходов:
+
+1. **Экспорт переходов через FFmpeg**
+   - TransitionExportService - сервис для экспорта переходов
+   - TransitionExportSettings - расширенные настройки экспорта
+   - Маппинг переходов Timeline -> FFmpeg команды
+   - Поддержка GPU ускорения для переходов
+
+2. **UI компоненты экспорта**
+   - TransitionExportSettingsComponent - настройки переходов в экспорт модале
+   - Интеграция с DetailedExportInterface
+   - Отдельная вкладка "Переходы" в экспорт модале
+   - Индикаторы статуса и прогресса экспорта
+
+3. **Хуки для экспорта**
+   - useTransitionExport - управление экспортом переходов
+   - Отслеживание прогресса экспорта
+   - Статистика и аналитика экспорта
+   - Оптимизация производительности
+
+4. **Backend интеграция**
+   - TransitionFFmpegService - Rust сервис для обработки переходов
+   - Интеграция с video_compiler модулем
+   - Поддержка всех типов переходов
+   - Конвертация параметров Timeline -> FFmpeg
+
+5. **Новые файлы экспорта**
+   - `/src/features/export/types/transition-export-types.ts` - типы экспорта
+   - `/src/features/export/services/transition-export-service.ts` - сервис экспорта
+   - `/src/features/export/hooks/use-transition-export.ts` - хук экспорта
+   - `/src/features/export/components/transition-export-settings.tsx` - UI настройки
+   - `/src-tauri/src/video_compiler/services/transition_ffmpeg_service.rs` - Rust сервис
+
+### Обновление 30.01.2025 - Dynamic Transitions Implementation ✅
+
+Реализованы динамические переходы с GPU ускорением:
+
+1. **WebGL2 сервис для сложных эффектов**
+   - DynamicTransitionService - управление WebGL2 контекстом
+   - Компиляция и кеширование шейдеров
+   - Particle системы с GPU вычислениями (до 10000 частиц)
+   - Оптимизация производительности и управление памятью
+
+2. **15 новых динамических переходов**
+   - **Particle эффекты**: particle-dissolve, sand-dispersion, bubble-pop
+   - **Жидкие эффекты**: liquid-morph, water-drop, ink-splash
+   - **Физические эффекты**: glass-shatter, fire-burn, smoke-reveal
+   - **Природные эффекты**: organic-growth, crystal-formation, tornado-twist
+   - **Энергетические**: electric-discharge, magnetic-field
+   - **Геометрические**: paper-fold
+
+3. **WebGL шейдеры**
+   - particle-dissolve.glsl - растворение с турбулентностью
+   - liquid-morph.glsl - вязкая жидкость с рефракцией
+   - glass-shatter.glsl - Voronoi разбиение для реалистичных осколков
+
+4. **React хук для управления**
+   - useDynamicTransitions - инициализация и рендеринг
+   - Автоматическая оптимизация для слабых систем
+   - Мониторинг производительности в реальном времени
+   - Поддержка пакетного рендеринга для экспорта
+
+5. **Новые файлы динамических переходов**
+   - `/src/features/transitions/data/dynamic-transitions.json` - определения переходов
+   - `/src/features/transitions/services/dynamic-transition-service.ts` - WebGL2 сервис
+   - `/src/features/transitions/hooks/use-dynamic-transitions.ts` - React хук
+   - `/src/features/transitions/shaders/*.glsl` - WebGL шейдеры
+   - `/src/features/transitions/__tests__/hooks/use-dynamic-transitions.test.tsx` - тесты
+
 ## Архитектурные изменения
 
 ### 1. Новая модель данных
@@ -378,64 +449,79 @@ interface TransitionEditor {
 
 ## Реализация
 
-### Фаза 1: Базовые улучшения (2-3 недели)
+### Фаза 1: Базовые улучшения (2-3 недели) ✅ ВЫПОЛНЕНО
 
 #### Задачи:
 1. **Улучшение визуализации на таймлайне**
-   - [ ] Отрисовка переходов как отдельных объектов
-   - [ ] Handles для изменения длительности
-   - [ ] Превью при наведении
-   - [ ] Цветовая индикация типов
+   - ✅ Отрисовка переходов как отдельных объектов
+   - ✅ Handles для изменения длительности
+   - ✅ Превью при наведении
+   - ✅ Цветовая индикация типов
 
 2. **Расширение параметров**
-   - [ ] Добавление blur параметров
-   - [ ] Цветовая коррекция в переходах
-   - [ ] Расширенные easing функции (20+)
-   - [ ] Параметры маски
+   - ✅ Добавление blur параметров
+   - ✅ Цветовая коррекция в переходах
+   - ✅ Расширенные easing функции (20+)
+   - ✅ Параметры маски
 
 3. **UI браузера переходов**
-   - [ ] Живые превью всех переходов
-   - [ ] Улучшенная категоризация
-   - [ ] Избранные и недавние
-   - [ ] Быстрый поиск
+   - ✅ Живые превью всех переходов
+   - ✅ Улучшенная категоризация
+   - ✅ Избранные и недавние
+   - ✅ Быстрый поиск
 
-### Фаза 2: Архитектурные изменения (3-4 недели)
+### Фаза 2: Архитектурные изменения (3-4 недели) ✅ ВЫПОЛНЕНО
 
 #### Задачи:
 1. **Новая модель данных**
-   - [ ] Миграция на TimelineTransition
-   - [ ] Поддержка keyframes
-   - [ ] Система кривых
-   - [ ] Кеширование рендера
+   - ✅ Миграция на TimelineTransition
+   - ✅ Поддержка keyframes
+   - ✅ Система кривых
+   - ✅ Кеширование рендера
 
 2. **GPU Pipeline**
-   - [ ] Интеграция WebGPU
-   - [ ] Compute shaders для particles
-   - [ ] Оптимизация производительности
-   - [ ] Fallback на WebGL2
+   - ✅ Интеграция WebGL (WebGPU в планах)
+   - ✅ Шейдеры для размытия и цветовых эффектов
+   - ✅ Оптимизация производительности
+   - ✅ Fallback на WebGL2
 
 3. **Редактор переходов**
-   - [ ] Панель параметров
-   - [ ] Редактор кривых
-   - [ ] Keyframe timeline
-   - [ ] Сплит-превью
+   - ✅ Панель параметров
+   - ✅ Редактор кривых
+   - ✅ Keyframe timeline
+   - ✅ Сплит-превью
 
-### Фаза 3: Новые переходы (4-6 недель)
+### Фаза 3: Новые переходы (4-6 недель) ⚠️ ЧАСТИЧНО ВЫПОЛНЕНО
 
 #### Задачи:
-1. **Динамические переходы (15 штук)**
-   - [ ] Particle dissolve
-   - [ ] Liquid morph
-   - [ ] Glass shatter
-   - [ ] Organic growth
-   - [ ] Fire burn
+1. **Динамические переходы (15 штук)** ✅ ВЫПОЛНЕНО (30.01.2025)
+   - ✅ Particle dissolve - растворение на тысячи частиц
+   - ✅ Liquid morph - жидкое превращение
+   - ✅ Glass shatter - разбивание стекла
+   - ✅ Organic growth - органический рост
+   - ✅ Fire burn - огненное выгорание
+   - ✅ Water drop - капля воды
+   - ✅ Smoke reveal - дымовое появление
+   - ✅ Sand dispersion - песчаная дисперсия
+   - ✅ Crystal formation - кристаллизация
+   - ✅ Tornado twist - торнадо
+   - ✅ Electric discharge - электрический разряд
+   - ✅ Magnetic field - магнитное поле
+   - ✅ Bubble pop - лопание пузырей
+   - ✅ Ink splash - чернильный всплеск
+   - ✅ Paper fold - складывание бумаги
 
-2. **Glitch переходы (10 штук)**
-   - [ ] Digital glitch
-   - [ ] RGB split
-   - [ ] Data corruption
-   - [ ] Analog distortion
-   - [ ] Signal interference
+2. **Glitch переходы (10 штук)** ✅ ВЫПОЛНЕНО (30.01.2025)
+   - [x] Digital glitch - цифровые артефакты и блочные искажения
+   - [x] RGB split - разделение цветовых каналов
+   - [x] Data corruption - повреждение данных и датамош
+   - [x] Analog distortion - VHS помехи и трекинг
+   - [x] Signal interference - электромагнитные помехи
+   - [x] Pixel storm - хаотичное движение пикселей
+   - [x] Codec error - ошибки видеокодека с макроблоками
+   - [x] Matrix rain - эффект из фильма "Матрица"
+   - [x] Screen tear - разрывы экрана и десинхронизация
+   - [x] Bit crush - снижение битности и постеризация
 
 3. **3D переходы (10 штук)**
    - [ ] Cube rotation

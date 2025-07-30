@@ -1,14 +1,17 @@
 // Компоненты
-
 export * from "./components/transition-group"
 // export * from "./components/transition-list" // Removed - replaced by adapter pattern
 export * from "./components/transition-preview"
-export * from "./hooks/use-advanced-transitions"
+
 // Хуки
+export * from "./hooks/use-advanced-transitions"
+export * from "./hooks/use-dynamic-transitions"
 export * from "./hooks/use-transitions"
 
 // Сервисы
+export * from "./services/dynamic-transition-service"
 export * from "./services/webgl-transition-service"
-
+// Типы
+export * from "./types/transitions"
 // Утилиты
 export * from "./utils/transition-processor"
