@@ -18,8 +18,8 @@ export const Demo: React.FC = () => {
           
           {/* Animated background elements */}
           <div className="absolute inset-0">
-            <div className="absolute top-20 left-10 w-72 h-72 bg-yellow-500/20 rounded-full blur-3xl animate-pulse" />
-            <div className="absolute bottom-20 right-10 w-96 h-96 bg-orange-500/20 rounded-full blur-3xl animate-pulse delay-700" />
+            <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/20 rounded-full blur-3xl animate-pulse" />
+            <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-700" />
           </div>
           
           <div className="relative container mx-auto px-6 md:px-8 lg:px-12">
@@ -59,13 +59,18 @@ export const Demo: React.FC = () => {
               transition={{ duration: 0.8, delay: 0.6 }}
               className="max-w-6xl mx-auto mt-20 grid grid-cols-1 md:grid-cols-3 gap-8"
             >
-              <div className="glass-card">
-                <div className="glass-card-bg" />
-                <div className="glass-card-overlay" />
-                <div className="glass-card-border">
-                  <div className="glass-card-inner" />
+              <div className="relative overflow-hidden rounded-xl">
+                {/* Glassmorphism background */}
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-blue-500/10 to-pink-500/10 backdrop-blur-xl" />
+                <div className="absolute inset-0 bg-white/[0.02]" />
+                
+                {/* Border gradient */}
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/20 via-transparent to-blue-500/20 p-[1px]">
+                  <div className="h-full w-full rounded-xl bg-[#12192C]/90 backdrop-blur-xl" />
                 </div>
-                <div className="glass-card-content">
+                
+                {/* Content */}
+                <div className="relative p-8">
                   <div className="text-4xl mb-4">🎯</div>
                   <h3 className="card-title">Smart Analysis</h3>
                   <p className="card-description">
@@ -74,13 +79,18 @@ export const Demo: React.FC = () => {
                 </div>
               </div>
 
-              <div className="glass-card">
-                <div className="glass-card-bg-yellow" />
-                <div className="glass-card-overlay" />
-                <div className="glass-card-border-yellow">
-                  <div className="glass-card-inner" />
+              <div className="relative overflow-hidden rounded-xl">
+                {/* Glassmorphism background */}
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-blue-500/10 to-pink-500/10 backdrop-blur-xl" />
+                <div className="absolute inset-0 bg-white/[0.02]" />
+                
+                {/* Border gradient */}
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/20 via-transparent to-blue-500/20 p-[1px]">
+                  <div className="h-full w-full rounded-xl bg-[#12192C]/90 backdrop-blur-xl" />
                 </div>
-                <div className="glass-card-content">
+                
+                {/* Content */}
+                <div className="relative p-8">
                   <div className="text-4xl mb-4">⚡</div>
                   <h3 className="card-title">Instant Creation</h3>
                   <p className="card-description">
@@ -89,13 +99,18 @@ export const Demo: React.FC = () => {
                 </div>
               </div>
 
-              <div className="glass-card">
-                <div className="glass-card-bg-green" />
-                <div className="glass-card-overlay" />
-                <div className="glass-card-border-green">
-                  <div className="glass-card-inner" />
+              <div className="relative overflow-hidden rounded-xl">
+                {/* Glassmorphism background */}
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-blue-500/10 to-pink-500/10 backdrop-blur-xl" />
+                <div className="absolute inset-0 bg-white/[0.02]" />
+                
+                {/* Border gradient */}
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/20 via-transparent to-blue-500/20 p-[1px]">
+                  <div className="h-full w-full rounded-xl bg-[#12192C]/90 backdrop-blur-xl" />
                 </div>
-                <div className="glass-card-content">
+                
+                {/* Content */}
+                <div className="relative p-8">
                   <div className="text-4xl mb-4">📈</div>
                   <h3 className="card-title">Viral Optimization</h3>
                   <p className="card-description">
