@@ -36,8 +36,6 @@
 
 </div>
 
-# [Timeline Studio](https://timelinestudio.pro/)
-
 ## 🎬 About the Project
 
 ### What is Timeline Studio?
