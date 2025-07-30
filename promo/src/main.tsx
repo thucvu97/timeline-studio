@@ -1,6 +1,6 @@
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { HashRouter, Routes, Route } from 'react-router-dom'
 import "./index.css"
 import App from "./App"
 import About from './pages/About'
@@ -17,7 +17,7 @@ import { ScrollToTop } from './components/ScrollToTop'
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <BrowserRouter>
+    <HashRouter>
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<App />} />
@@ -32,6 +32,6 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/faq" element={<FAQ />} />
         <Route path="/docs" element={<Docs />} />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   </StrictMode>,
 )
