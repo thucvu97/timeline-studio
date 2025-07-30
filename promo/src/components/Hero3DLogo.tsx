@@ -52,7 +52,7 @@ export const Hero3DLogo: React.FC = () => {
         {/* Mountain image - static */}
         <div className="relative w-full h-full">
           <img 
-            src="/mountain1.png" 
+            src="/mountain.png" 
             alt="Nepal Mountain"
             className="absolute inset-0 w-full h-full object-contain drop-shadow-2xl"
           />
