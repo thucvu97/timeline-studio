@@ -104,8 +104,8 @@ export const Pricing: React.FC = () => {
               transition={{ duration: 0.8 }}
               className="max-w-4xl mx-auto text-center"
             >
-              <h1 className="text-6xl md:text-8xl mb-6 tracking-tight">
-                <span className="text-gradient font-['Bebas_Neue'] uppercase tracking-wider">Simple Pricing</span>
+              <h1 className="page-title">
+                <span className="text-gradient">Simple Pricing</span>
               </h1>
               <p className="text-xl md:text-2xl text-gray-300 mb-8">
                 Local features free. Cloud features paid. Everything transparent.
@@ -155,12 +155,12 @@ export const Pricing: React.FC = () => {
                   {/* Content */}
                   <div className="relative p-8 h-full flex flex-col">
                     <div className="text-center mb-8">
-                      <h3 className="text-3xl text-white mb-2 font-['Bebas_Neue'] tracking-wide">{tier.name}</h3>
+                      <h3 className="card-title">{tier.name}</h3>
                     <div className="flex items-baseline justify-center mb-4">
                       <span className="text-5xl font-bold text-white">{tier.price}</span>
                       <span className="text-gray-400 ml-2">{tier.period}</span>
                     </div>
-                    <p className="text-gray-400">{tier.description}</p>
+                    <p className="card-description">{tier.description}</p>
                     </div>
 
                     {/* Cloud Storage & AI Tokens */}
@@ -206,8 +206,8 @@ export const Pricing: React.FC = () => {
               transition={{ duration: 0.8, delay: 0.6 }}
               className="max-w-7xl mx-auto mt-20"
             >
-              <h2 className="text-5xl md:text-6xl mb-12 text-center">
-                <span className="text-gradient font-['Bebas_Neue'] uppercase tracking-wider">For Teams & Enterprise</span>
+              <h2 className="section-title">
+                <span className="text-gradient">For Teams & Enterprise</span>
               </h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -222,8 +222,8 @@ export const Pricing: React.FC = () => {
                   <div className="relative p-8">
                     <div className="flex items-center justify-between mb-6">
                       <div>
-                        <h3 className="text-3xl text-white font-['Bebas_Neue'] tracking-wide">TEAM</h3>
-                        <p className="text-gray-400">For collaborative work</p>
+                        <h3 className="text-2xl font-medium text-white">TEAM</h3>
+                        <p className="text-gray-400 text-sm">For collaborative work</p>
                       </div>
                       <div className="text-right">
                         <span className="text-4xl font-bold text-white">$39</span>
@@ -276,8 +276,8 @@ export const Pricing: React.FC = () => {
                   <div className="relative p-8">
                     <div className="flex items-center justify-between mb-6">
                       <div>
-                        <h3 className="text-3xl text-white font-['Bebas_Neue'] tracking-wide">ENTERPRISE</h3>
-                        <p className="text-gray-400">Custom solutions</p>
+                        <h3 className="text-2xl font-medium text-white">ENTERPRISE</h3>
+                        <p className="text-gray-400 text-sm">Custom solutions</p>
                       </div>
                       <div className="text-right">
                         <span className="text-2xl font-bold text-white">Contact us</span>
@@ -326,8 +326,8 @@ export const Pricing: React.FC = () => {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="max-w-4xl mx-auto mt-20"
             >
-              <h2 className="text-4xl md:text-5xl mb-12 text-center">
-                <span className="text-gradient font-['Bebas_Neue'] uppercase tracking-wider">Frequently Asked Questions</span>
+              <h2 className="section-title">
+                <span className="text-gradient">Frequently Asked Questions</span>
               </h2>
               
               <div className="space-y-6">
@@ -343,10 +343,10 @@ export const Pricing: React.FC = () => {
                   
                   {/* Content */}
                   <div className="relative p-6">
-                  <h3 className="text-lg font-semibold text-white mb-2 font-['Inter']">
+                  <h3 className="card-title">
                     What are AI tokens?
                   </h3>
-                  <p className="text-gray-400">
+                  <p className="card-description">
                     AI tokens are used for premium AI models (Claude, GPT-4). Local AI 
                     through Ollama works free and doesn't require tokens. PRO includes 80K tokens/mo,
                     MAX has unlimited.
@@ -366,10 +366,10 @@ export const Pricing: React.FC = () => {
                   
                   {/* Content */}
                   <div className="relative p-6">
-                  <h3 className="text-lg font-semibold text-white mb-2 font-['Inter']">
+                  <h3 className="card-title">
                     Can I upgrade or downgrade?
                   </h3>
-                  <p className="text-gray-400">
+                  <p className="card-description">
                     Yes! You can change your plan anytime. When upgrading, you'll get 
                     instant access to new features. When downgrading, changes take effect 
                     at the next billing cycle.
@@ -389,10 +389,10 @@ export const Pricing: React.FC = () => {
                   
                   {/* Content */}
                   <div className="relative p-6">
-                  <h3 className="text-lg font-semibold text-white mb-2 font-['Inter']">
+                  <h3 className="card-title">
                     Why is the free version so powerful?
                   </h3>
-                  <p className="text-gray-400">
+                  <p className="card-description">
                     We believe in transparency. Everything that can run on your computer is 
                     free. You only pay for cloud services and third-party APIs 
                     that require our infrastructure costs.
@@ -412,10 +412,10 @@ export const Pricing: React.FC = () => {
                   
                   {/* Content */}
                   <div className="relative p-6">
-                  <h3 className="text-lg font-semibold text-white mb-2 font-['Inter']">
+                  <h3 className="card-title">
                     Is there a free trial?
                   </h3>
-                  <p className="text-gray-400">
+                  <p className="card-description">
                     Yes! PRO, MAX and TEAM plans come with a 14-day free trial. 
                     No credit card required. Cancel anytime. Plus, get 3 months free 
                     when switching from competitors.

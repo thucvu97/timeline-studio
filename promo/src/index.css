@@ -284,3 +284,61 @@ html {
 .prose a:hover {
   color: #93bbfc;
 }
+
+/* Common heading styles */
+.page-title {
+  @apply text-5xl md:text-7xl font-light mb-6 tracking-tight;
+}
+
+.section-title {
+  @apply text-4xl md:text-5xl mb-12 text-center;
+}
+
+.card-title {
+  @apply text-2xl font-medium text-white mb-2;
+}
+
+.card-description {
+  @apply text-gray-400 text-sm;
+}
+
+/* Glass card styles */
+.glass-card {
+  @apply relative overflow-hidden rounded-2xl;
+}
+
+.glass-card-bg {
+  @apply absolute inset-0 bg-gradient-to-br from-purple-500/10 via-blue-500/10 to-pink-500/10 backdrop-blur-xl;
+}
+
+.glass-card-bg-yellow {
+  @apply absolute inset-0 bg-gradient-to-br from-yellow-500/10 via-orange-500/10 to-red-500/10 backdrop-blur-xl;
+}
+
+.glass-card-bg-green {
+  @apply absolute inset-0 bg-gradient-to-br from-green-500/10 via-teal-500/10 to-blue-500/10 backdrop-blur-xl;
+}
+
+.glass-card-overlay {
+  @apply absolute inset-0 bg-white/[0.02];
+}
+
+.glass-card-border {
+  @apply absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-500/20 via-transparent to-blue-500/20 p-[1px];
+}
+
+.glass-card-border-yellow {
+  @apply absolute inset-0 rounded-2xl bg-gradient-to-br from-yellow-500/20 via-transparent to-orange-500/20 p-[1px];
+}
+
+.glass-card-border-green {
+  @apply absolute inset-0 rounded-2xl bg-gradient-to-br from-green-500/20 via-transparent to-teal-500/20 p-[1px];
+}
+
+.glass-card-inner {
+  @apply h-full w-full rounded-2xl bg-[#12192C]/90 backdrop-blur-xl;
+}
+
+.glass-card-content {
+  @apply relative p-6;
+}

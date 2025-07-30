@@ -48,30 +48,25 @@ const FAQ: React.FC = () => {
           <section className="py-20 bg-[#12192C]">
             <div className="container mx-auto px-4">
               <div className="max-w-4xl mx-auto">
-                <h1 className="text-5xl md:text-7xl text-white text-center mb-4 tracking-tight">
-                  <span className="font-['Bebas_Neue'] uppercase tracking-wider">Frequently Asked Questions</span>
+                <h1 className="page-title text-center">
+                  <span className="text-gradient">Frequently Asked Questions</span>
                 </h1>
                 <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full mb-12" />
                 
                 <div className="space-y-6">
                   {faqs.map((faq, index) => (
                     <AnimatedSection key={index} animation="fadeUp" delay={index * 0.1}>
-                      <div className="relative overflow-hidden rounded-xl">
-                        {/* Glassmorphism background */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-blue-500/10 to-pink-500/10 backdrop-blur-xl" />
-                        <div className="absolute inset-0 bg-white/[0.02]" />
-                        
-                        {/* Border gradient */}
-                        <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/20 via-transparent to-blue-500/20 p-[1px]">
-                          <div className="h-full w-full rounded-xl bg-[#12192C]/90 backdrop-blur-xl" />
+                      <div className="glass-card">
+                        <div className="glass-card-bg" />
+                        <div className="glass-card-overlay" />
+                        <div className="glass-card-border">
+                          <div className="glass-card-inner" />
                         </div>
-                        
-                        {/* Content */}
-                        <div className="relative p-6">
-                        <h3 className="text-xl font-medium text-white mb-3 font-['Inter']">
+                        <div className="glass-card-content">
+                        <h3 className="card-title">
                           {faq.question}
                         </h3>
-                        <p className="text-gray-300 leading-relaxed">
+                        <p className="card-description">
                           {faq.answer}
                         </p>
                         </div>
@@ -82,8 +77,8 @@ const FAQ: React.FC = () => {
                 
                 <AnimatedSection animation="fadeUp" delay={0.5}>
                   <div className="mt-16 text-center">
-                    <h2 className="text-3xl text-white mb-4">
-                      <span className="font-['Bebas_Neue'] uppercase tracking-wide">Still have questions?</span>
+                    <h2 className="section-title mb-4">
+                      <span className="text-gradient">Still have questions?</span>
                     </h2>
                     <p className="text-gray-300 mb-8">
                       Feel free to reach out to our community or check our documentation.

@@ -27,8 +27,8 @@ export const About: React.FC = () => {
             transition={{ duration: 0.8 }}
             className="max-w-4xl mx-auto text-center"
           >
-            <h1 className="text-6xl md:text-8xl mb-6 tracking-tight">
-              <span className="text-gradient font-['Bebas_Neue'] uppercase tracking-wider">Redefining Video Editing</span>
+            <h1 className="page-title">
+              <span className="text-gradient">Redefining Video Editing</span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-300 mb-8">
               Building the future of creative content with AI-powered tools
@@ -55,7 +55,7 @@ export const About: React.FC = () => {
             className="max-w-4xl mx-auto"
           >
             <h2 className="text-4xl md:text-5xl mb-12 text-center">
-              <span className="text-gradient font-['Bebas_Neue'] uppercase tracking-wider">Our Mission</span>
+              <span className="text-gradient">Our Mission</span>
             </h2>
             <div className="relative overflow-hidden rounded-2xl">
               {/* Glassmorphism background */}
@@ -95,7 +95,7 @@ export const About: React.FC = () => {
             className="max-w-6xl mx-auto"
           >
             <h2 className="text-4xl md:text-5xl mb-12 text-center">
-              <span className="text-gradient font-['Bebas_Neue'] uppercase tracking-wider">Our Values</span>
+              <span className="text-gradient">Our Values</span>
             </h2>
             <div className="grid md:grid-cols-3 gap-8">
               {[
@@ -150,8 +150,8 @@ export const About: React.FC = () => {
                   {/* Content */}
                   <div className="relative p-8">
                     <div className="text-4xl mb-4">{value.icon}</div>
-                    <h3 className="text-xl font-bold text-white mb-3">{value.title}</h3>
-                    <p className="text-gray-400">{value.description}</p>
+                    <h3 className="text-2xl font-medium text-white mb-2">{value.title}</h3>
+                    <p className="text-gray-400 text-sm">{value.description}</p>
                   </div>
                 </motion.div>
               ))}
@@ -171,7 +171,7 @@ export const About: React.FC = () => {
             className="max-w-4xl mx-auto text-center"
           >
             <h2 className="text-4xl md:text-5xl mb-6 text-center">
-              <span className="text-gradient font-['Bebas_Neue'] uppercase tracking-wider">Built by Creators, for Creators</span>
+              <span className="text-gradient">Built by Creators, for Creators</span>
             </h2>
             <p className="text-lg text-gray-300 mb-12">
               Our team combines expertise in AI, video technology, and user experience design 
@@ -194,8 +194,8 @@ export const About: React.FC = () => {
                   <span className="text-2xl font-bold text-white">AK</span>
                 </div>
                 <div className="text-left">
-                  <h3 className="text-xl font-bold text-white">Alexander Kireyev</h3>
-                  <p className="text-gray-400">Founder & Lead Developer</p>
+                  <h3 className="text-2xl font-medium text-white">Alexander Kireyev</h3>
+                  <p className="text-gray-400 text-sm">Founder & Lead Developer</p>
                   <a href="mailto:ak.chatman.media@gmail.com" className="text-blue-400 hover:text-blue-300 transition-colors">
                     ak.chatman.media@gmail.com
                   </a>
@@ -218,7 +218,7 @@ export const About: React.FC = () => {
             className="max-w-4xl mx-auto text-center"
           >
             <h2 className="text-4xl md:text-5xl mb-6 text-center">
-              <span className="text-gradient font-['Bebas_Neue'] uppercase tracking-wider">Join Our Journey</span>
+              <span className="text-gradient">Join Our Journey</span>
             </h2>
             <p className="text-lg text-gray-300 mb-8">
               Whether you're a content creator, developer, or just passionate about the future of video, 

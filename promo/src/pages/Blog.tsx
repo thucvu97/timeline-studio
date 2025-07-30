@@ -78,8 +78,8 @@ export const Blog: React.FC = () => {
             transition={{ duration: 0.8 }}
             className="max-w-4xl mx-auto text-center"
           >
-            <h1 className="text-6xl md:text-8xl mb-6 tracking-tight">
-              <span className="text-gradient font-['Bebas_Neue'] uppercase tracking-wider">Blog</span>
+            <h1 className="page-title">
+              <span className="text-gradient">Blog</span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-300 mb-8">
               News, tutorials, and insights from the Timeline Studio team
@@ -100,14 +100,11 @@ export const Blog: React.FC = () => {
         <div className="container mx-auto px-6 md:px-8 lg:px-12">
           <div className="max-w-4xl mx-auto">
             {isLoading ? (
-              <div className="relative overflow-hidden rounded-2xl">
-                {/* Glassmorphism background */}
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-blue-500/10 to-pink-500/10 backdrop-blur-xl" />
-                <div className="absolute inset-0 bg-white/[0.02]" />
-                
-                {/* Border gradient */}
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-500/20 via-transparent to-blue-500/20 p-[1px]">
-                  <div className="h-full w-full rounded-2xl bg-[#12192C]/90 backdrop-blur-xl" />
+              <div className="glass-card">
+                <div className="glass-card-bg" />
+                <div className="glass-card-overlay" />
+                <div className="glass-card-border">
+                  <div className="glass-card-inner" />
                 </div>
                 
                 {/* Content */}
@@ -123,15 +120,12 @@ export const Blog: React.FC = () => {
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="relative overflow-hidden rounded-2xl"
+                    className="glass-card"
                   >
-                    {/* Glassmorphism background */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-blue-500/10 to-pink-500/10 backdrop-blur-xl" />
-                    <div className="absolute inset-0 bg-white/[0.02]" />
-                    
-                    {/* Border gradient */}
-                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-500/20 via-transparent to-blue-500/20 p-[1px]">
-                      <div className="h-full w-full rounded-2xl bg-[#12192C]/90 backdrop-blur-xl" />
+                    <div className="glass-card-bg" />
+                    <div className="glass-card-overlay" />
+                    <div className="glass-card-border">
+                      <div className="glass-card-inner" />
                     </div>
                     
                     {/* Content */}
@@ -142,7 +136,7 @@ export const Blog: React.FC = () => {
                         </span>
                         <span className="text-sm text-gray-500">{post.readTime}</span>
                       </div>
-                      <h2 className="text-2xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors font-['Inter']">
+                      <h2 className="card-title mb-3 group-hover:text-blue-400 transition-colors">
                         {post.title}
                       </h2>
                       <div className="flex items-center space-x-4 text-sm text-gray-400 mb-4">

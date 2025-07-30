@@ -28,8 +28,8 @@ export const Demo: React.FC = () => {
               transition={{ duration: 0.8 }}
               className="max-w-4xl mx-auto text-center mb-12"
             >
-              <h1 className="text-5xl md:text-7xl mb-6 tracking-tight">
-                <span className="text-gradient font-['Bebas_Neue'] uppercase tracking-wider">
+              <h1 className="page-title">
+                <span className="text-gradient">
                   AI-Powered Video Creation
                 </span>
               </h1>
@@ -58,46 +58,46 @@ export const Demo: React.FC = () => {
               transition={{ duration: 0.8, delay: 0.6 }}
               className="max-w-6xl mx-auto mt-20 grid grid-cols-1 md:grid-cols-3 gap-8"
             >
-              <div className="relative overflow-hidden rounded-2xl">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-blue-500/10 to-pink-500/10 backdrop-blur-xl" />
-                <div className="absolute inset-0 bg-white/[0.02]" />
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-500/20 via-transparent to-blue-500/20 p-[1px]">
-                  <div className="h-full w-full rounded-2xl bg-[#12192C]/90 backdrop-blur-xl" />
+              <div className="glass-card">
+                <div className="glass-card-bg" />
+                <div className="glass-card-overlay" />
+                <div className="glass-card-border">
+                  <div className="glass-card-inner" />
                 </div>
-                <div className="relative p-6">
+                <div className="glass-card-content">
                   <div className="text-4xl mb-4">🎯</div>
-                  <h3 className="text-xl font-semibold text-white mb-2">Smart Analysis</h3>
-                  <p className="text-gray-400 text-sm">
+                  <h3 className="card-title">Smart Analysis</h3>
+                  <p className="card-description">
                     AI analyzes trends and suggests the best content strategy for maximum engagement
                   </p>
                 </div>
               </div>
 
-              <div className="relative overflow-hidden rounded-2xl">
-                <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 via-orange-500/10 to-red-500/10 backdrop-blur-xl" />
-                <div className="absolute inset-0 bg-white/[0.02]" />
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-yellow-500/20 via-transparent to-orange-500/20 p-[1px]">
-                  <div className="h-full w-full rounded-2xl bg-[#12192C]/90 backdrop-blur-xl" />
+              <div className="glass-card">
+                <div className="glass-card-bg-yellow" />
+                <div className="glass-card-overlay" />
+                <div className="glass-card-border-yellow">
+                  <div className="glass-card-inner" />
                 </div>
-                <div className="relative p-6">
+                <div className="glass-card-content">
                   <div className="text-4xl mb-4">⚡</div>
-                  <h3 className="text-xl font-semibold text-white mb-2">Instant Creation</h3>
-                  <p className="text-gray-400 text-sm">
+                  <h3 className="card-title">Instant Creation</h3>
+                  <p className="card-description">
                     Generate professional videos with trending effects and transitions in seconds
                   </p>
                 </div>
               </div>
 
-              <div className="relative overflow-hidden rounded-2xl">
-                <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 via-teal-500/10 to-blue-500/10 backdrop-blur-xl" />
-                <div className="absolute inset-0 bg-white/[0.02]" />
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-green-500/20 via-transparent to-teal-500/20 p-[1px]">
-                  <div className="h-full w-full rounded-2xl bg-[#12192C]/90 backdrop-blur-xl" />
+              <div className="glass-card">
+                <div className="glass-card-bg-green" />
+                <div className="glass-card-overlay" />
+                <div className="glass-card-border-green">
+                  <div className="glass-card-inner" />
                 </div>
-                <div className="relative p-6">
+                <div className="glass-card-content">
                   <div className="text-4xl mb-4">📈</div>
-                  <h3 className="text-xl font-semibold text-white mb-2">Viral Optimization</h3>
-                  <p className="text-gray-400 text-sm">
+                  <h3 className="card-title">Viral Optimization</h3>
+                  <p className="card-description">
                     Optimize timing, hashtags, and content format for each social platform
                   </p>
                 </div>
@@ -111,8 +111,8 @@ export const Demo: React.FC = () => {
               transition={{ duration: 0.8, delay: 0.8 }}
               className="max-w-4xl mx-auto mt-20 text-center"
             >
-              <h2 className="text-3xl md:text-4xl mb-6">
-                <span className="text-gradient font-['Bebas_Neue'] uppercase tracking-wider">
+              <h2 className="section-title">
+                <span className="text-gradient">
                   Ready to Go Viral?
                 </span>
               </h2>

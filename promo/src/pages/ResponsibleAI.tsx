@@ -21,8 +21,8 @@ export const ResponsibleAI: React.FC = () => {
               transition={{ duration: 0.8 }}
               className="max-w-4xl mx-auto"
             >
-              <h1 className="text-5xl md:text-7xl text-white mb-4 tracking-tight">
-                <span className="font-['Bebas_Neue'] uppercase tracking-wider">Responsible AI Policy</span>
+              <h1 className="page-title">
+                <span className="text-gradient">Responsible AI Policy</span>
               </h1>
               <p className="text-gray-400">
                 Last updated: July 28, 2025
@@ -50,7 +50,7 @@ export const ResponsibleAI: React.FC = () => {
                 </div>
 
                 <div>
-                  <h2 className="text-3xl text-white mb-4 font-['Bebas_Neue'] tracking-wide">1. Our AI Principles</h2>
+                  <h2 className="text-3xl text-white mb-4">1. Our AI Principles</h2>
                   <p>
                     Timeline Studio's AI development and deployment are guided by the following core principles:
                   </p>
@@ -65,7 +65,7 @@ export const ResponsibleAI: React.FC = () => {
                 </div>
 
                 <div>
-                  <h2 className="text-3xl text-white mb-4 font-['Bebas_Neue'] tracking-wide">2. Ethical AI Use</h2>
+                  <h2 className="text-3xl text-white mb-4">2. Ethical AI Use</h2>
                   <p>
                     We design our AI features to promote ethical use and prevent harm:
                   </p>
@@ -79,7 +79,7 @@ export const ResponsibleAI: React.FC = () => {
                 </div>
 
                 <div>
-                  <h2 className="text-2xl font-bold text-white mb-4">3. Data Privacy and Security</h2>
+                  <h2 className="text-3xl text-white mb-4">3. Data Privacy and Security</h2>
                   <p>
                     Your content and data are protected throughout the AI processing pipeline:
                   </p>
@@ -93,7 +93,7 @@ export const ResponsibleAI: React.FC = () => {
                 </div>
 
                 <div>
-                  <h2 className="text-2xl font-bold text-white mb-4">4. AI Feature Transparency</h2>
+                  <h2 className="text-3xl text-white mb-4">4. AI Feature Transparency</h2>
                   <p>
                     We believe in being transparent about our AI capabilities and limitations:
                   </p>

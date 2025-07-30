@@ -67,8 +67,15 @@ Timeline Studio is available for Windows, macOS, and Linux. Download the latest 
           <div className="pt-32 pb-20">
           <div className="container mx-auto px-6 md:px-8 lg:px-12">
             <div className="max-w-4xl mx-auto">
-              <div className="glass p-8 rounded-2xl text-center">
-                <p className="text-lg text-gray-400">Loading...</p>
+              <div className="glass-card">
+                <div className="glass-card-bg" />
+                <div className="glass-card-overlay" />
+                <div className="glass-card-border">
+                  <div className="glass-card-inner" />
+                </div>
+                <div className="glass-card-content text-center">
+                  <p className="text-lg text-gray-400">Loading...</p>
+                </div>
               </div>
             </div>
           </div>
@@ -103,7 +110,7 @@ Timeline Studio is available for Windows, macOS, and Linux. Download the latest 
               <span>Back to Blog</span>
             </Link>
             
-            <h1 className="text-4xl md:text-6xl text-white mb-6 font-['Inter'] font-bold leading-tight">
+            <h1 className="page-title">
               {metadata.title}
             </h1>
             
@@ -125,11 +132,18 @@ Timeline Studio is available for Windows, macOS, and Linux. Download the latest 
             transition={{ duration: 0.8, delay: 0.2 }}
             className="max-w-4xl mx-auto"
           >
-            <div className="glass p-8 md:p-12 rounded-2xl">
-              <div className="prose prose-invert prose-lg max-w-none">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {content}
-                </ReactMarkdown>
+            <div className="glass-card">
+              <div className="glass-card-bg" />
+              <div className="glass-card-overlay" />
+              <div className="glass-card-border">
+                <div className="glass-card-inner" />
+              </div>
+              <div className="relative p-8 md:p-12">
+                <div className="prose prose-invert prose-lg max-w-none">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {content}
+                  </ReactMarkdown>
+                </div>
               </div>
             </div>
           </motion.div>
