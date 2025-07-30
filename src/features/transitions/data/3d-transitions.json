@@ -1,0 +1,378 @@
+{
+  "version": "1.0.0",
+  "category": "3d",
+  "description": "3D переходы с объемными эффектами и perspective трансформациями",
+  "totalTransitions": 9,
+  "transitions": [
+    {
+      "id": "page-flip",
+      "name": "Page Flip",
+      "nameRu": "Переворот страницы", 
+      "type": "page-flip",
+      "category": "3d",
+      "description": "3D переворот страницы с реалистичной физикой",
+      "descriptionRu": "Трехмерный переворот страницы с реалистичной физикой и тенями",
+      "gpuAccelerated": true,
+      "complexity": "high",
+      "duration": {
+        "min": 0.5,
+        "max": 3.0,
+        "default": 1.2
+      },
+      "parameters": {
+        "flipDirection": {
+          "type": "select",
+          "options": ["left", "right", "up", "down"],
+          "default": "right",
+          "description": "Направление переворота страницы"
+        },
+        "perspective": {
+          "type": "number",
+          "min": 500,
+          "max": 2000,
+          "default": 1000,
+          "description": "Сила 3D перспективы"
+        },
+        "curvature": {
+          "type": "number", 
+          "min": 0,
+          "max": 1,
+          "default": 0.6,
+          "description": "Изгиб страницы при повороте"
+        },
+        "shadowIntensity": {
+          "type": "number",
+          "min": 0,
+          "max": 1,
+          "default": 0.4,
+          "description": "Интенсивность теней"
+        }
+      }
+    },
+    {
+      "id": "card-shuffle",
+      "name": "Card Shuffle",
+      "nameRu": "Перетасовка карт",
+      "type": "card-shuffle", 
+      "category": "3d",
+      "description": "Эффект перетасовки игральных карт с 3D анимацией",
+      "descriptionRu": "Эффект перетасовки игральных карт с трехмерной анимацией полета",
+      "gpuAccelerated": true,
+      "complexity": "high",
+      "duration": {
+        "min": 0.8,
+        "max": 2.5,
+        "default": 1.5
+      },
+      "parameters": {
+        "cardCount": {
+          "type": "number",
+          "min": 8,
+          "max": 32,
+          "default": 16,
+          "description": "Количество карт"
+        },
+        "shufflePattern": {
+          "type": "select",
+          "options": ["riffle", "overhand", "spiral", "random"],
+          "default": "riffle",
+          "description": "Тип перетасовки"
+        },
+        "rotationChaos": {
+          "type": "number",
+          "min": 0,
+          "max": 1,
+          "default": 0.7,
+          "description": "Хаотичность вращения карт"
+        },
+        "gravity": {
+          "type": "number", 
+          "min": 0,
+          "max": 2,
+          "default": 0.5,
+          "description": "Сила гравитации"
+        }
+      }
+    },
+    {
+      "id": "helix-spin",
+      "name": "Helix Spin",
+      "nameRu": "Спиральное вращение",
+      "type": "helix-spin",
+      "category": "3d", 
+      "description": "Спиральное вращение с DNA-подобной траекторией",
+      "descriptionRu": "Спиральное вращение изображения по траектории двойной спирали",
+      "gpuAccelerated": true,
+      "complexity": "medium",
+      "duration": {
+        "min": 0.6,
+        "max": 2.0,
+        "default": 1.0
+      },
+      "parameters": {
+        "helixTurns": {
+          "type": "number",
+          "min": 1,
+          "max": 5,
+          "default": 2,
+          "description": "Количество витков спирали"
+        },
+        "radius": {
+          "type": "number",
+          "min": 0.1,
+          "max": 0.8,
+          "default": 0.3,
+          "description": "Радиус спирали"
+        },
+        "axis": {
+          "type": "select",
+          "options": ["horizontal", "vertical", "diagonal"],
+          "default": "vertical",
+          "description": "Ось вращения спирали"
+        },
+        "twist": {
+          "type": "number",
+          "min": 0,
+          "max": 4,
+          "default": 1,
+          "description": "Скручивание текстуры"
+        }
+      }
+    },
+    {
+      "id": "sphere-mapping",
+      "name": "Sphere Mapping", 
+      "nameRu": "Сферическая проекция",
+      "type": "sphere-mapping",
+      "category": "3d",
+      "description": "Проекция изображения на сферу с 3D вращением",
+      "descriptionRu": "Проекция изображения на трехмерную сферу с реалистичным освещением",
+      "gpuAccelerated": true,
+      "complexity": "high",
+      "duration": {
+        "min": 0.8,
+        "max": 2.5,
+        "default": 1.3
+      },
+      "parameters": {
+        "sphereRadius": {
+          "type": "number",
+          "min": 0.3,
+          "max": 1.2,
+          "default": 0.8,
+          "description": "Радиус сферы"
+        },
+        "rotationSpeed": {
+          "type": "number",
+          "min": 0.2,
+          "max": 3.0,
+          "default": 1.0,
+          "description": "Скорость вращения"
+        },
+        "lightPosition": {
+          "type": "vector3",
+          "default": [0.5, -0.5, 1.0],
+          "description": "Позиция источника света"
+        },
+        "reflectivity": {
+          "type": "number",
+          "min": 0,
+          "max": 1,
+          "default": 0.3,
+          "description": "Отражательная способность"
+        }
+      }
+    },
+    {
+      "id": "book-open",
+      "name": "Book Open",
+      "nameRu": "Раскрытие книги",
+      "type": "book-open",
+      "category": "3d",
+      "description": "3D эффект раскрытия книги с перспективой",
+      "descriptionRu": "Трехмерный эффект раскрытия книги с реалистичной перспективой",
+      "gpuAccelerated": true,
+      "complexity": "medium",
+      "duration": {
+        "min": 0.8,
+        "max": 2.0,
+        "default": 1.2
+      },
+      "parameters": {
+        "openAngle": {
+          "type": "number", 
+          "min": 90,
+          "max": 180,
+          "default": 130,
+          "description": "Угол раскрытия книги"
+        },
+        "spineThickness": {
+          "type": "number",
+          "min": 0.02,
+          "max": 0.1,
+          "default": 0.05,
+          "description": "Толщина корешка"
+        },
+        "pageWarp": {
+          "type": "number",
+          "min": 0,
+          "max": 0.3,
+          "default": 0.1,
+          "description": "Изгиб страниц"
+        }
+      }
+    },
+    {
+      "id": "cylinder-roll",
+      "name": "Cylinder Roll",
+      "nameRu": "Цилиндрическая прокрутка", 
+      "type": "cylinder-roll",
+      "category": "3d",
+      "description": "Прокрутка изображения по цилиндрической поверхности",
+      "descriptionRu": "Прокрутка изображения по трехмерной цилиндрической поверхности",
+      "gpuAccelerated": true,
+      "complexity": "medium",
+      "duration": {
+        "min": 0.5,
+        "max": 1.8,
+        "default": 1.0
+      },
+      "parameters": {
+        "rollDirection": {
+          "type": "select",
+          "options": ["horizontal", "vertical"],
+          "default": "horizontal",
+          "description": "Направление прокрутки"
+        },
+        "cylinderRadius": {
+          "type": "number",
+          "min": 0.2,
+          "max": 0.8,
+          "default": 0.4,
+          "description": "Радиус цилиндра"
+        },
+        "segments": {
+          "type": "number",
+          "min": 16,
+          "max": 64,
+          "default": 32,
+          "description": "Количество сегментов"
+        }
+      }
+    },
+    {
+      "id": "origami-fold",
+      "name": "Origami Fold",
+      "nameRu": "Оригами складывание",
+      "type": "origami-fold", 
+      "category": "3d",
+      "description": "Сложная геометрическая трансформация в стиле оригами",
+      "descriptionRu": "Сложная геометрическая трансформация изображения в стиле японского оригами",
+      "gpuAccelerated": true,
+      "complexity": "high",
+      "duration": {
+        "min": 1.0,
+        "max": 3.0,
+        "default": 1.8
+      },
+      "parameters": {
+        "foldPattern": {
+          "type": "select",
+          "options": ["crane", "lotus", "butterfly", "geometric"],
+          "default": "geometric",
+          "description": "Паттерн складывания"
+        },
+        "foldSteps": {
+          "type": "number",
+          "min": 3,
+          "max": 12,
+          "default": 6,
+          "description": "Количество этапов складывания"
+        },
+        "precision": {
+          "type": "number",
+          "min": 0.5,
+          "max": 1.0,
+          "default": 0.8,
+          "description": "Точность складок"
+        }
+      }
+    },
+    {
+      "id": "polyhedron-transform",
+      "name": "Polyhedron Transform",
+      "nameRu": "Многогранная трансформация",
+      "type": "polyhedron-transform",
+      "category": "3d",
+      "description": "Трансформация через различные 3D многогранники",
+      "descriptionRu": "Трансформация изображения через различные трехмерные многогранники",
+      "gpuAccelerated": true,
+      "complexity": "high", 
+      "duration": {
+        "min": 0.8,
+        "max": 2.2,
+        "default": 1.4
+      },
+      "parameters": {
+        "polyhedronType": {
+          "type": "select",
+          "options": ["tetrahedron", "octahedron", "dodecahedron", "icosahedron"],
+          "default": "octahedron",
+          "description": "Тип многогранника"
+        },
+        "morphSpeed": {
+          "type": "number",
+          "min": 0.3,
+          "max": 2.0,
+          "default": 1.0,
+          "description": "Скорость морфинга"
+        },
+        "facetDetail": {
+          "type": "number",
+          "min": 1,
+          "max": 4,
+          "default": 2,
+          "description": "Детализация граней"
+        }
+      }
+    },
+    {
+      "id": "mobius-strip",
+      "name": "Mobius Strip",
+      "nameRu": "Лента Мёбиуса",
+      "type": "mobius-strip",
+      "category": "3d",
+      "description": "Трансформация по ленте Мёбиуса с топологическими эффектами",
+      "descriptionRu": "Трансформация изображения по математической ленте Мёбиуса",
+      "gpuAccelerated": true,
+      "complexity": "expert",
+      "duration": {
+        "min": 1.2,
+        "max": 3.5,
+        "default": 2.0
+      },
+      "parameters": {
+        "twists": {
+          "type": "number",
+          "min": 1,
+          "max": 3,
+          "default": 1,
+          "description": "Количество поворотов ленты"
+        },
+        "stripWidth": {
+          "type": "number",
+          "min": 0.1,
+          "max": 0.5,
+          "default": 0.2,
+          "description": "Ширина ленты"
+        },
+        "topology": {
+          "type": "select",
+          "options": ["classic", "twisted", "infinite"],
+          "default": "classic",
+          "description": "Топологический вариант"
+        }
+      }
+    }
+  ]
+}

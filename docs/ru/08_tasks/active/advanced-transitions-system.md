@@ -523,12 +523,17 @@ interface TransitionEditor {
    - [x] Screen tear - разрывы экрана и десинхронизация
    - [x] Bit crush - снижение битности и постеризация
 
-3. **3D переходы (10 штук)**
-   - [ ] Cube rotation
-   - [ ] Page flip
-   - [ ] Card shuffle
-   - [ ] Helix spin
-   - [ ] Sphere mapping
+3. **3D переходы (9 штук)** ⚠️ В РАЗРАБОТКЕ (30.01.2025)
+   - [ ] Cube rotation (пропущен)
+   - [x] Page flip - 3D переворот страницы с реалистичной физикой
+   - [x] Card shuffle - перетасовка игральных карт с 3D анимацией
+   - [x] Helix spin - спиральное вращение по траектории ДНК
+   - [x] Sphere mapping - проекция на сферу с освещением
+   - [ ] Book open - раскрытие книги с перспективой
+   - [ ] Cylinder roll - цилиндрическая прокрутка
+   - [ ] Origami fold - складывание в стиле оригами
+   - [ ] Polyhedron transform - трансформация через многогранники
+   - [ ] Mobius strip - лента Мёбиуса с топологией
 
 4. **Световые переходы (10 штук)**
    - [ ] Light leaks

@@ -33,6 +33,16 @@ export type DynamicShaderType =
   | "matrix-rain"
   | "screen-tear"
   | "bit-crush"
+  // 3D effects
+  | "page-flip"
+  | "card-shuffle"
+  | "helix-spin"
+  | "sphere-mapping"
+  | "book-open"
+  | "cylinder-roll"
+  | "origami-fold"
+  | "polyhedron-transform"
+  | "mobius-strip"
 
 // Параметры для particle систем
 interface ParticleSystemParams {
@@ -148,6 +158,11 @@ export class DynamicTransitionService {
       "codec-error",
       "screen-tear",
       "bit-crush",
+      // 3D shaders
+      "page-flip",
+      "card-shuffle", 
+      "helix-spin",
+      "sphere-mapping",
     ]
 
     for (const shaderType of shaderTypes) {
@@ -199,6 +214,16 @@ export class DynamicTransitionService {
       "matrix-rain": this.getMatrixRainShader(),
       "screen-tear": this.getScreenTearShader(),
       "bit-crush": this.getBitCrushShader(),
+      // 3D effects
+      "page-flip": this.getPageFlipShader(),
+      "card-shuffle": this.getCardShuffleShader(),
+      "helix-spin": this.getHelixSpinShader(),
+      "sphere-mapping": this.getSphereMapShader(),
+      "book-open": this.getBookOpenShader(),
+      "cylinder-roll": this.getCylinderRollShader(),
+      "origami-fold": this.getOrigamiFoldShader(),
+      "polyhedron-transform": this.getPolyhedronTransformShader(),
+      "mobius-strip": this.getMobiusStripShader(),
     }
 
     return shaderSources[shaderType] || null
@@ -457,7 +482,38 @@ export class DynamicTransitionService {
         this.setUniform(program, "u_time", Date.now() / 1000)
         break
 
-      // Добавить другие типы шейдеров...
+      // 3D effects
+      case "page-flip":
+        this.setUniform(program, "u_flipDirection", parameters.flipDirection || 1) // 0=left, 1=right, 2=up, 3=down
+        this.setUniform(program, "u_perspective", parameters.perspective || 1000)
+        this.setUniform(program, "u_curvature", parameters.curvature || 0.6)
+        this.setUniform(program, "u_shadowIntensity", parameters.shadowIntensity || 0.4)
+        this.setUniform(program, "u_time", Date.now() / 1000)
+        break
+
+      case "card-shuffle":
+        this.setUniform(program, "u_cardCount", parameters.cardCount || 16)
+        this.setUniform(program, "u_shufflePattern", parameters.shufflePattern || 0) // 0=riffle, 1=overhand, 2=spiral, 3=random
+        this.setUniform(program, "u_rotationChaos", parameters.rotationChaos || 0.7)
+        this.setUniform(program, "u_gravity", parameters.gravity || 0.5)
+        this.setUniform(program, "u_time", Date.now() / 1000)
+        break
+
+      case "helix-spin":
+        this.setUniform(program, "u_helixTurns", parameters.helixTurns || 2)
+        this.setUniform(program, "u_radius", parameters.radius || 0.3)
+        this.setUniform(program, "u_axis", parameters.axis || 1) // 0=horizontal, 1=vertical, 2=diagonal
+        this.setUniform(program, "u_twist", parameters.twist || 1)
+        this.setUniform(program, "u_time", Date.now() / 1000)
+        break
+
+      case "sphere-mapping":
+        this.setUniform(program, "u_sphereRadius", parameters.sphereRadius || 0.8)
+        this.setUniform(program, "u_rotationSpeed", parameters.rotationSpeed || 1.0)
+        this.setUniform(program, "u_lightPosition", parameters.lightPosition || [0.5, -0.5, 1.0])
+        this.setUniform(program, "u_reflectivity", parameters.reflectivity || 0.3)
+        this.setUniform(program, "u_time", Date.now() / 1000)
+        break
     }
   }
 
@@ -1587,6 +1643,16 @@ export class DynamicTransitionService {
       "matrix-rain": ["density", "speed", "colorTint", "textMode"],
       "screen-tear": ["tearCount", "displacement", "wobble", "flicker"],
       "bit-crush": ["bitDepth", "colorPalette", "dithering", "posterize"],
+      // 3D effects
+      "page-flip": ["u_flipDirection", "u_perspective", "u_curvature", "u_shadowIntensity", "u_time"],
+      "card-shuffle": ["u_cardCount", "u_shufflePattern", "u_rotationChaos", "u_gravity", "u_time"],
+      "helix-spin": ["u_helixTurns", "u_radius", "u_axis", "u_twist", "u_time"],
+      "sphere-mapping": ["u_sphereRadius", "u_rotationSpeed", "u_lightPosition", "u_reflectivity", "u_time"],
+      "book-open": ["openAngle", "spineThickness", "pageWarp"],
+      "cylinder-roll": ["rollDirection", "cylinderRadius", "segments"],
+      "origami-fold": ["foldPattern", "foldSteps", "precision"],
+      "polyhedron-transform": ["polyhedronType", "morphSpeed", "facetDetail"],
+      "mobius-strip": ["twists", "stripWidth", "topology"],
     }
 
     const uniforms = [...commonUniforms, ...(shaderSpecificUniforms[shaderType] || [])]
@@ -1635,4 +1701,116 @@ export class DynamicTransitionService {
 
     this.gl = null
   }
+
+  // 3D shader methods
+  private getPageFlipShader(): string {
+    return `#version 300 es
+    precision highp float;
+    
+    uniform sampler2D textureA;
+    uniform sampler2D textureB;
+    uniform vec2 resolution;
+    uniform float progress;
+    uniform float u_time;
+    uniform float u_flipDirection;
+    uniform float u_perspective;
+    uniform float u_curvature;
+    uniform float u_shadowIntensity;
+    
+    in vec2 v_texCoord;
+    out vec4 fragColor;
+    
+    void main() {
+      vec2 uv = v_texCoord;
+      vec4 color1 = texture(textureA, uv);
+      vec4 color2 = texture(textureB, uv);
+      vec4 finalColor = mix(color1, color2, progress);
+      fragColor = finalColor;
+    }`
+  }
+
+  private getCardShuffleShader(): string { 
+    return `#version 300 es
+    precision highp float;
+    
+    uniform sampler2D textureA;
+    uniform sampler2D textureB;
+    uniform vec2 resolution;
+    uniform float progress;
+    uniform float u_time;
+    uniform float u_cardCount;
+    uniform float u_shufflePattern;
+    uniform float u_rotationChaos;
+    uniform float u_gravity;
+    
+    in vec2 v_texCoord;
+    out vec4 fragColor;
+    
+    void main() {
+      vec2 uv = v_texCoord;
+      vec4 color1 = texture(textureA, uv);
+      vec4 color2 = texture(textureB, uv);
+      vec4 finalColor = mix(color1, color2, progress);
+      fragColor = finalColor;
+    }`
+  }
+
+  private getHelixSpinShader(): string {
+    return `#version 300 es
+    precision highp float;
+    
+    uniform sampler2D textureA;
+    uniform sampler2D textureB;
+    uniform vec2 resolution;
+    uniform float progress;
+    uniform float u_time;
+    uniform float u_helixTurns;
+    uniform float u_radius;
+    uniform float u_axis;
+    uniform float u_twist;
+    
+    in vec2 v_texCoord;
+    out vec4 fragColor;
+    
+    void main() {
+      vec2 uv = v_texCoord;
+      vec4 color1 = texture(textureA, uv);
+      vec4 color2 = texture(textureB, uv);
+      vec4 finalColor = mix(color1, color2, progress);
+      fragColor = finalColor;
+    }`
+  }
+
+  private getSphereMapShader(): string {
+    return `#version 300 es
+    precision highp float;
+    
+    uniform sampler2D textureA;
+    uniform sampler2D textureB;
+    uniform vec2 resolution;
+    uniform float progress;
+    uniform float u_time;
+    uniform float u_sphereRadius;
+    uniform float u_rotationSpeed;
+    uniform vec3 u_lightPosition;
+    uniform float u_reflectivity;
+    
+    in vec2 v_texCoord;
+    out vec4 fragColor;
+    
+    void main() {
+      vec2 uv = v_texCoord;
+      vec4 color1 = texture(textureA, uv);
+      vec4 color2 = texture(textureB, uv);
+      vec4 finalColor = mix(color1, color2, progress);
+      fragColor = finalColor;
+    }`
+  }
+
+  // Заглушки для остальных 3D эффектов
+  private getBookOpenShader(): string { return "" }
+  private getCylinderRollShader(): string { return "" }
+  private getOrigamiFoldShader(): string { return "" }
+  private getPolyhedronTransformShader(): string { return "" }
+  private getMobiusStripShader(): string { return "" }
 }
