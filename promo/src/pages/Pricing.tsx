@@ -20,63 +20,63 @@ const pricingTiers: PricingTier[] = [
   {
     name: 'FREE',
     price: '$0',
-    period: 'навсегда',
-    description: 'Всё что работает локально - бесплатно',
+    period: 'forever',
+    description: 'Everything that runs locally is free',
     features: [
-      '151 AI инструмент (локально)',
-      'Экспорт 4K/8K без водяных знаков',
-      'Fairlight Audio профи редактор',
-      '40+ переходов и 100+ эффектов',
-      'Распознавание лиц и объектов',
-      'Smart Montage AI автосборка',
-      'Бесплатная Stock библиотека HD',
-      'Прямая публикация в соцсети',
-      'GPU ускорение'
+      '151 AI tools (run locally)',
+      '4K/8K export without watermarks',
+      'Fairlight Audio professional editor',
+      '40+ transitions & 100+ effects',
+      'Face & object recognition',
+      'Smart Montage AI auto-editing',
+      'Free HD Stock library',
+      'Direct social media publishing',
+      'GPU acceleration'
     ],
-    cloudStorage: 'Локальное хранение',
-    aiTokens: 'Локальные AI (Ollama)',
-    buttonText: 'Скачать бесплатно'
+    cloudStorage: 'Local storage',
+    aiTokens: 'Local AI (Ollama)',
+    buttonText: 'Download Free'
   },
   {
     name: 'PRO',
     price: '$19',
-    period: '/месяц',
-    description: 'Облачные функции и премиум AI',
+    period: '/month',
+    description: 'Cloud features and premium AI',
     features: [
-      'Всё из FREE +',
-      'Claude 3.5 - 50K токенов/мес',
-      'GPT-4o - 30K токенов/мес', 
-      'AI аватары - 10 часов/мес',
-      'AI видео - 100 клипов/мес',
-      '34 премиум перехода (3D, glitch)',
-      'Stock 4K/8K - 100 загрузок/мес',
-      'Облачная синхронизация 100 ГБ',
-      'Приоритетная поддержка'
+      'Everything in FREE +',
+      'Claude 3.5 - 50K tokens/mo',
+      'GPT-4o - 30K tokens/mo', 
+      'AI avatars - 10 hours/mo',
+      'AI video - 100 clips/mo',
+      '34 premium transitions (3D, glitch)',
+      'Stock 4K/8K - 100 downloads/mo',
+      'Cloud sync 100GB',
+      'Priority support'
     ],
-    cloudStorage: '100 ГБ',
+    cloudStorage: '100GB',
     aiTokens: '50K Claude + 30K GPT-4',
-    buttonText: 'Начать бесплатно',
+    buttonText: 'Start Free Trial',
     highlighted: true
   },
   {
     name: 'MAX',
     price: '$99',
-    period: '/месяц',
-    description: 'Безлимитное использование всех AI',
+    period: '/month',
+    description: 'Unlimited AI usage for power users',
     features: [
-      'Всё из PRO +',
-      'Безлимитные AI токены',
-      'Безлимитная генерация аватаров',
-      'Безлимитная генерация видео',
-      'Безлимитный Stock footage',
-      '1TB облачного хранилища',
-      '100 часов рендеринга/мес',
-      'Beta-доступ к новым AI',
-      'Персональный Discord канал'
+      'Everything in PRO +',
+      'Unlimited AI tokens',
+      'Unlimited avatar generation',
+      'Unlimited video generation',
+      'Unlimited Stock footage',
+      '1TB cloud storage',
+      '100 hours rendering/mo',
+      'Beta access to new AI',
+      'Personal Discord channel'
     ],
-    cloudStorage: '1 TB',
-    aiTokens: 'Безлимит',
-    buttonText: 'Попробовать MAX'
+    cloudStorage: '1TB',
+    aiTokens: 'Unlimited',
+    buttonText: 'Try MAX'
   }
 ]
 
@@ -105,10 +105,10 @@ export const Pricing: React.FC = () => {
               className="max-w-4xl mx-auto text-center"
             >
               <h1 className="text-6xl md:text-8xl mb-6 tracking-tight">
-                <span className="text-gradient font-['Bebas_Neue'] uppercase tracking-wider">Честные цены</span>
+                <span className="text-gradient font-['Bebas_Neue'] uppercase tracking-wider">Simple Pricing</span>
               </h1>
               <p className="text-xl md:text-2xl text-gray-300 mb-8">
-                Локально - бесплатно. Облачно - платно. Всё прозрачно.
+                Local features free. Cloud features paid. Everything transparent.
               </p>
             </motion.div>
           </div>
@@ -206,8 +206,8 @@ export const Pricing: React.FC = () => {
               transition={{ duration: 0.8, delay: 0.6 }}
               className="max-w-7xl mx-auto mt-20"
             >
-              <h2 className="text-4xl md:text-5xl mb-12 text-center">
-                <span className="text-gradient font-['Bebas_Neue'] uppercase tracking-wider">Для команд и компаний</span>
+              <h2 className="text-5xl md:text-6xl mb-12 text-center">
+                <span className="text-gradient font-['Bebas_Neue'] uppercase tracking-wider">For Teams & Enterprise</span>
               </h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -223,43 +223,44 @@ export const Pricing: React.FC = () => {
                     <div className="flex items-center justify-between mb-6">
                       <div>
                         <h3 className="text-3xl text-white font-['Bebas_Neue'] tracking-wide">TEAM</h3>
-                        <p className="text-gray-400">Для командной работы</p>
+                        <p className="text-gray-400">For collaborative work</p>
                       </div>
                       <div className="text-right">
                         <span className="text-4xl font-bold text-white">$39</span>
-                        <span className="text-gray-400">/польз/мес</span>
+                        <span className="text-gray-400">/user/month</span>
                       </div>
                     </div>
                     
                     <ul className="space-y-3 mb-8">
                       <li className="flex items-start">
                         <CheckIcon className="w-5 h-5 text-green-400 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-300">Всё из PRO плана</span>
+                        <span className="text-gray-300">Everything in PRO</span>
                       </li>
                       <li className="flex items-start">
                         <CheckIcon className="w-5 h-5 text-green-400 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-300">Совместная работа в реальном времени</span>
+                        <span className="text-gray-300">Real-time collaboration</span>
                       </li>
                       <li className="flex items-start">
                         <CheckIcon className="w-5 h-5 text-green-400 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-300">500 ГБ на пользователя</span>
+                        <span className="text-gray-300">500GB per user</span>
                       </li>
                       <li className="flex items-start">
                         <CheckIcon className="w-5 h-5 text-green-400 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-300">50 часов облачного рендеринга/мес</span>
+                        <span className="text-gray-300">50 hours cloud rendering/month</span>
                       </li>
                       <li className="flex items-start">
                         <CheckIcon className="w-5 h-5 text-green-400 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-300">Командные библиотеки ресурсов</span>
+                        <span className="text-gray-300">Team resource libraries</span>
                       </li>
                       <li className="flex items-start">
                         <CheckIcon className="w-5 h-5 text-green-400 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-300">SSO авторизация</span>
+                        <span className="text-gray-300">SSO authentication</span>
                       </li>
                     </ul>
                     
-                    <button className="w-full py-3 px-6 rounded-xl font-semibold bg-gradient-to-r from-green-500 to-teal-500 text-white hover:from-green-600 hover:to-teal-600 transition-all duration-300">
-                      Начать с Team
+                    <button className="relative group w-full py-4 px-8 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold transition-all duration-300 overflow-hidden transform hover:scale-[1.02]">
+                      <span className="relative z-10">Start with Team</span>
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     </button>
                   </div>
                 </div>
@@ -276,42 +277,42 @@ export const Pricing: React.FC = () => {
                     <div className="flex items-center justify-between mb-6">
                       <div>
                         <h3 className="text-3xl text-white font-['Bebas_Neue'] tracking-wide">ENTERPRISE</h3>
-                        <p className="text-gray-400">Корпоративные решения</p>
+                        <p className="text-gray-400">Custom solutions</p>
                       </div>
                       <div className="text-right">
-                        <span className="text-2xl font-bold text-white">По запросу</span>
+                        <span className="text-2xl font-bold text-white">Contact us</span>
                       </div>
                     </div>
                     
                     <ul className="space-y-3 mb-8">
                       <li className="flex items-start">
                         <CheckIcon className="w-5 h-5 text-amber-400 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-300">On-premise установка</span>
+                        <span className="text-gray-300">On-premise deployment</span>
                       </li>
                       <li className="flex items-start">
                         <CheckIcon className="w-5 h-5 text-amber-400 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-300">Неограниченное хранилище и рендеринг</span>
+                        <span className="text-gray-300">Unlimited storage & rendering</span>
                       </li>
                       <li className="flex items-start">
                         <CheckIcon className="w-5 h-5 text-amber-400 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-300">Кастомные AI модели</span>
+                        <span className="text-gray-300">Custom AI models</span>
                       </li>
                       <li className="flex items-start">
                         <CheckIcon className="w-5 h-5 text-amber-400 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-300">API доступ</span>
+                        <span className="text-gray-300">API access</span>
                       </li>
                       <li className="flex items-start">
                         <CheckIcon className="w-5 h-5 text-amber-400 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-300">Выделенный менеджер и SLA</span>
+                        <span className="text-gray-300">Dedicated manager & SLA</span>
                       </li>
                       <li className="flex items-start">
                         <CheckIcon className="w-5 h-5 text-amber-400 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-300">Кастомизация под бренд</span>
+                        <span className="text-gray-300">White-label customization</span>
                       </li>
                     </ul>
                     
-                    <button className="w-full py-3 px-6 rounded-xl font-semibold bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600 transition-all duration-300">
-                      Связаться с отделом продаж
+                    <button className="relative group w-full py-4 px-8 rounded-xl bg-white/10 text-white font-semibold transition-all duration-300 overflow-hidden transform hover:scale-[1.02] hover:bg-white/20">
+                      <span className="relative z-10">Contact Sales</span>
                     </button>
                   </div>
                 </div>
@@ -343,12 +344,12 @@ export const Pricing: React.FC = () => {
                   {/* Content */}
                   <div className="relative p-6">
                   <h3 className="text-lg font-semibold text-white mb-2 font-['Inter']">
-                    Что такое AI токены?
+                    What are AI tokens?
                   </h3>
                   <p className="text-gray-400">
-                    AI токены используются для премиум AI моделей (Claude, GPT-4). Локальные AI 
-                    через Ollama работают бесплатно и не требуют токенов. В PRO входит 80K токенов/мес,
-                    в MAX - безлимит.
+                    AI tokens are used for premium AI models (Claude, GPT-4). Local AI 
+                    through Ollama works free and doesn't require tokens. PRO includes 80K tokens/mo,
+                    MAX has unlimited.
                   </p>
                   </div>
                 </div>
@@ -366,12 +367,12 @@ export const Pricing: React.FC = () => {
                   {/* Content */}
                   <div className="relative p-6">
                   <h3 className="text-lg font-semibold text-white mb-2 font-['Inter']">
-                    Можно ли сменить тариф?
+                    Can I upgrade or downgrade?
                   </h3>
                   <p className="text-gray-400">
-                    Да! Вы можете изменить тариф в любое время. При апгрейде вы получите 
-                    мгновенный доступ к новым функциям. При даунгрейде изменения вступят 
-                    в силу в следующем платежном цикле.
+                    Yes! You can change your plan anytime. When upgrading, you'll get 
+                    instant access to new features. When downgrading, changes take effect 
+                    at the next billing cycle.
                   </p>
                   </div>
                 </div>
@@ -389,12 +390,12 @@ export const Pricing: React.FC = () => {
                   {/* Content */}
                   <div className="relative p-6">
                   <h3 className="text-lg font-semibold text-white mb-2 font-['Inter']">
-                    Почему бесплатная версия такая мощная?
+                    Why is the free version so powerful?
                   </h3>
                   <p className="text-gray-400">
-                    Мы верим в прозрачность. Всё что может работать на вашем компьютере - 
-                    бесплатно. Вы платите только за облачные сервисы и API сторонних 
-                    сервисов, которые требуют наших затрат.
+                    We believe in transparency. Everything that can run on your computer is 
+                    free. You only pay for cloud services and third-party APIs 
+                    that require our infrastructure costs.
                   </p>
                   </div>
                 </div>
@@ -412,12 +413,12 @@ export const Pricing: React.FC = () => {
                   {/* Content */}
                   <div className="relative p-6">
                   <h3 className="text-lg font-semibold text-white mb-2 font-['Inter']">
-                    Is there a free trial for paid plans?
+                    Is there a free trial?
                   </h3>
                   <p className="text-gray-400">
-                    Yes! Professional and Team plans come with a 14-day free trial. 
-                    No credit card required. You'll have full access to all features 
-                    during the trial period.
+                    Yes! PRO, MAX and TEAM plans come with a 14-day free trial. 
+                    No credit card required. Cancel anytime. Plus, get 3 months free 
+                    when switching from competitors.
                   </p>
                   </div>
                 </div>
