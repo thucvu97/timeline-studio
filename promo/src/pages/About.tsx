@@ -55,9 +55,20 @@ export const About: React.FC = () => {
             className="max-w-4xl mx-auto"
           >
             <h2 className="text-4xl md:text-5xl mb-12 text-center">
-              <span className="font-['Bebas_Neue'] uppercase tracking-wide">Our Mission</span>
+              <span className="text-gradient font-['Bebas_Neue'] uppercase tracking-wider">Our Mission</span>
             </h2>
-            <div className="glass p-8 md:p-12 rounded-2xl">
+            <div className="relative overflow-hidden rounded-2xl">
+              {/* Glassmorphism background */}
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-blue-500/10 to-pink-500/10 backdrop-blur-xl" />
+              <div className="absolute inset-0 bg-white/[0.02]" />
+              
+              {/* Border gradient */}
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-500/20 via-transparent to-blue-500/20 p-[1px]">
+                <div className="h-full w-full rounded-2xl bg-[#12192C]/90 backdrop-blur-xl" />
+              </div>
+              
+              {/* Content */}
+              <div className="relative p-8 md:p-12">
               <p className="text-lg text-gray-300 leading-relaxed mb-6">
                 At Timeline Studio, we believe that video editing should be accessible, intuitive, and powerful. 
                 Our mission is to democratize professional video creation by combining cutting-edge AI technology 
@@ -67,6 +78,7 @@ export const About: React.FC = () => {
                 We're building more than just software – we're creating a platform that empowers creators, 
                 streamlines workflows, and pushes the boundaries of what's possible in digital storytelling.
               </p>
+              </div>
             </div>
           </motion.div>
         </div>
@@ -83,7 +95,7 @@ export const About: React.FC = () => {
             className="max-w-6xl mx-auto"
           >
             <h2 className="text-4xl md:text-5xl mb-12 text-center">
-              <span className="font-['Bebas_Neue'] uppercase tracking-wide">Our Values</span>
+              <span className="text-gradient font-['Bebas_Neue'] uppercase tracking-wider">Our Values</span>
             </h2>
             <div className="grid md:grid-cols-3 gap-8">
               {[
@@ -124,11 +136,23 @@ export const About: React.FC = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  className="glass p-8 rounded-xl hover:bg-white/5 transition-colors duration-300"
-                >
-                  <div className="text-4xl mb-4">{value.icon}</div>
-                  <h3 className="text-xl font-bold text-white mb-3">{value.title}</h3>
-                  <p className="text-gray-400">{value.description}</p>
+                  className="relative overflow-hidden rounded-xl"
+>
+                  {/* Glassmorphism background */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-blue-500/10 to-pink-500/10 backdrop-blur-xl" />
+                  <div className="absolute inset-0 bg-white/[0.02]" />
+                  
+                  {/* Border gradient */}
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/20 via-transparent to-blue-500/20 p-[1px]">
+                    <div className="h-full w-full rounded-xl bg-[#12192C]/90 backdrop-blur-xl" />
+                  </div>
+                  
+                  {/* Content */}
+                  <div className="relative p-8">
+                    <div className="text-4xl mb-4">{value.icon}</div>
+                    <h3 className="text-xl font-bold text-white mb-3">{value.title}</h3>
+                    <p className="text-gray-400">{value.description}</p>
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -146,24 +170,36 @@ export const About: React.FC = () => {
             viewport={{ once: true }}
             className="max-w-4xl mx-auto text-center"
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              Built by Creators, for Creators
+            <h2 className="text-4xl md:text-5xl mb-6 text-center">
+              <span className="text-gradient font-['Bebas_Neue'] uppercase tracking-wider">Built by Creators, for Creators</span>
             </h2>
             <p className="text-lg text-gray-300 mb-12">
               Our team combines expertise in AI, video technology, and user experience design 
               to create tools that truly understand creator needs.
             </p>
-            <div className="glass p-8 rounded-2xl inline-block">
-              <div className="flex items-center space-x-6">
+            <div className="relative overflow-hidden rounded-2xl inline-block">
+              {/* Glassmorphism background */}
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-blue-500/10 to-pink-500/10 backdrop-blur-xl" />
+              <div className="absolute inset-0 bg-white/[0.02]" />
+              
+              {/* Border gradient */}
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-500/20 via-transparent to-blue-500/20 p-[1px]">
+                <div className="h-full w-full rounded-2xl bg-[#12192C]/90 backdrop-blur-xl" />
+              </div>
+              
+              {/* Content */}
+              <div className="relative p-8">
+                <div className="flex items-center space-x-6">
                 <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                  <span className="text-2xl font-bold text-white">CM</span>
+                  <span className="text-2xl font-bold text-white">AK</span>
                 </div>
                 <div className="text-left">
-                  <h3 className="text-xl font-bold text-white">Chatman Media</h3>
+                  <h3 className="text-xl font-bold text-white">Alexander Kireyev</h3>
                   <p className="text-gray-400">Founder & Lead Developer</p>
                   <a href="mailto:ak.chatman.media@gmail.com" className="text-blue-400 hover:text-blue-300 transition-colors">
                     ak.chatman.media@gmail.com
                   </a>
+                </div>
                 </div>
               </div>
             </div>
@@ -181,17 +217,19 @@ export const About: React.FC = () => {
             viewport={{ once: true }}
             className="max-w-4xl mx-auto text-center"
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              Join Our Journey
+            <h2 className="text-4xl md:text-5xl mb-6 text-center">
+              <span className="text-gradient font-['Bebas_Neue'] uppercase tracking-wider">Join Our Journey</span>
             </h2>
             <p className="text-lg text-gray-300 mb-8">
               Whether you're a content creator, developer, or just passionate about the future of video, 
               we'd love to have you as part of our community.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
                 href="https://github.com/chatman-media/timeline-studio"
-                className="glass px-8 py-4 rounded-xl text-lg font-medium text-white hover:bg-white/10 transition-all duration-300 flex items-center space-x-3"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-6 py-3 bg-gray-700 text-white font-medium rounded-xl hover:bg-gray-600 transition-colors flex items-center space-x-2"
               >
                 <span>Contribute on GitHub</span>
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -200,7 +238,7 @@ export const About: React.FC = () => {
               </a>
               <a
                 href="#download"
-                className="px-8 py-4 rounded-xl text-lg font-medium text-gray-300 hover:text-white transition-colors duration-300"
+                className="px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors"
               >
                 Try Timeline Studio
               </a>

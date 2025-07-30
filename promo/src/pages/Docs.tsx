@@ -69,8 +69,8 @@ const Docs: React.FC = () => {
             <div className="container mx-auto px-4">
               <div className="max-w-6xl mx-auto">
                 <div className="text-center mb-16">
-                  <h1 className="text-5xl md:text-7xl text-white mb-4 tracking-tight">
-                    <span className="font-['Bebas_Neue'] uppercase tracking-wider">Documentation</span>
+                  <h1 className="text-6xl md:text-8xl mb-6 tracking-tight">
+                    <span className="text-gradient font-['Bebas_Neue'] uppercase tracking-wider">Documentation</span>
                   </h1>
                   <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full mb-6" />
                   <p className="text-xl text-gray-300 max-w-3xl mx-auto">
@@ -81,10 +81,21 @@ const Docs: React.FC = () => {
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {docSections.map((section, index) => (
                     <AnimatedSection key={index} animation="fadeUp" delay={index * 0.1}>
-                      <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
+                      <div className="relative overflow-hidden rounded-xl">
+                        {/* Glassmorphism background */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-blue-500/10 to-pink-500/10 backdrop-blur-xl" />
+                        <div className="absolute inset-0 bg-white/[0.02]" />
+                        
+                        {/* Border gradient */}
+                        <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/20 via-transparent to-blue-500/20 p-[1px]">
+                          <div className="h-full w-full rounded-xl bg-[#12192C]/90 backdrop-blur-xl" />
+                        </div>
+                        
+                        {/* Content */}
+                        <div className="relative p-6">
                         <div className="flex items-center gap-3 mb-4">
                           <span className="text-3xl">{section.icon}</span>
-                          <h3 className="text-xl font-semibold text-white">
+                          <h3 className="text-xl font-bold text-white font-['Inter']">
                             {section.title}
                           </h3>
                         </div>
@@ -119,6 +130,7 @@ const Docs: React.FC = () => {
                             </li>
                           ))}
                         </ul>
+                        </div>
                       </div>
                     </AnimatedSection>
                   ))}
@@ -126,9 +138,20 @@ const Docs: React.FC = () => {
                 
                 <AnimatedSection animation="fadeUp" delay={0.5}>
                   <div className="mt-16 text-center">
-                    <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-8 border border-gray-700 inline-block">
-                      <h2 className="text-2xl font-semibold text-white mb-4">
-                        Want to contribute?
+                    <div className="relative overflow-hidden rounded-xl inline-block">
+                      {/* Glassmorphism background */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-blue-500/10 to-pink-500/10 backdrop-blur-xl" />
+                      <div className="absolute inset-0 bg-white/[0.02]" />
+                      
+                      {/* Border gradient */}
+                      <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/20 via-transparent to-blue-500/20 p-[1px]">
+                        <div className="h-full w-full rounded-xl bg-[#12192C]/90 backdrop-blur-xl" />
+                      </div>
+                      
+                      {/* Content */}
+                      <div className="relative p-8">
+                      <h2 className="text-3xl mb-4">
+                        <span className="font-['Bebas_Neue'] uppercase tracking-wide text-white">Want to contribute?</span>
                       </h2>
                       <p className="text-gray-300 mb-6">
                         Help us improve Timeline Studio by contributing to the documentation or codebase.
@@ -153,6 +176,7 @@ const Docs: React.FC = () => {
                         >
                           Contributing Guide
                         </a>
+                      </div>
                       </div>
                     </div>
                   </div>

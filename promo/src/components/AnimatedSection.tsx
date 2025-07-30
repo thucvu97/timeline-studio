@@ -1,5 +1,5 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { ReactNode, useRef } from 'react';
+import { type ReactNode, useRef } from 'react';
 
 interface AnimatedSectionProps {
   children: ReactNode;
