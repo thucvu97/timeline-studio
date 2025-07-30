@@ -7,6 +7,8 @@ on:
       - 'promo/**'
       - '.github/workflows/deploy-promo.yml'
       - 'CHANGELOG.md'
+  release:
+    types: [published]
   workflow_dispatch:
 
 jobs:
@@ -16,30 +18,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
         with:
-          node-version: '20'
+          bun-version: latest
 
       - name: Install dependencies
         run: |
           cd promo
-          npm install
+          bun install
 
       - name: Sync changelog
         run: |
-          node scripts/sync-changelog.js
-
-      - name: Prepare content
-        run: |
-          cd promo
-          mkdir -p public/content
-          cp -r content/changelog public/content/
+          cp CHANGELOG.md promo/content/changelog/latest.md
+          cp CHANGELOG.md promo/public/content/changelog/latest.md
 
       - name: Build promo page
         run: |
           cd promo
-          npm run build
+          bun run build
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
