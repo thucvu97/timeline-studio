@@ -2,7 +2,40 @@ import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Navigation } from '../components/Navigation'
 import { Footer } from '../components/Footer'
-import { parseChangelog, capitalizeFirst } from '../utils/parseChangelog'
+import { parseChangelog } from '../utils/parseChangelog'
+
+// Format changelog item text with proper markdown link parsing
+function formatChangelogItem(text: string): React.ReactNode {
+  // Parse markdown links [text](url)
+  const parts = text.split(/(\[[^\]]+\]\([^)]+\))/g)
+  
+  return parts.map((part, index) => {
+    const linkMatch = part.match(/\[([^\]]+)\]\(([^)]+)\)/)
+    if (linkMatch) {
+      const [, linkText, url] = linkMatch
+      return (
+        <a
+          key={index}
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-purple-400 hover:text-purple-300 underline"
+        >
+          {linkText}
+        </a>
+      )
+    }
+    
+    // Parse bold text **text**
+    const boldParts = part.split(/(\*\*[^*]+\*\*)/g)
+    return boldParts.map((boldPart, boldIndex) => {
+      if (boldPart.startsWith('**') && boldPart.endsWith('**')) {
+        return <strong key={`${index}-${boldIndex}`}>{boldPart.slice(2, -2)}</strong>
+      }
+      return <span key={`${index}-${boldIndex}`}>{boldPart}</span>
+    })
+  })
+}
 
 interface VersionData {
   version: string
@@ -69,13 +102,7 @@ export const Changelog: React.FC = () => {
         const parsed = parseChangelog(markdown)
         if (parsed.length > 0) {
           // Take only the latest 10 versions for performance
-          setVersions(parsed.slice(0, 10).map(v => ({
-            ...v,
-            features: v.features.map(capitalizeFirst),
-            fixes: v.fixes.map(capitalizeFirst),
-            improvements: v.improvements.map(capitalizeFirst),
-            breaking: v.breaking?.map(capitalizeFirst)
-          })))
+          setVersions(parsed.slice(0, 10))
         }
       })
       .catch(error => {
@@ -176,7 +203,7 @@ export const Changelog: React.FC = () => {
                                   className="flex items-start gap-2 text-gray-300"
                                 >
                                   <span className="text-purple-400 mt-1">•</span>
-                                  <span>{feature}</span>
+                                  <span>{formatChangelogItem(feature)}</span>
                                 </motion.li>
                               ))}
                             </ul>
@@ -201,7 +228,7 @@ export const Changelog: React.FC = () => {
                                   className="flex items-start gap-2 text-gray-300"
                                 >
                                   <span className="text-blue-400 mt-1">•</span>
-                                  <span>{fix}</span>
+                                  <span>{formatChangelogItem(fix)}</span>
                                 </motion.li>
                               ))}
                             </ul>
@@ -226,7 +253,7 @@ export const Changelog: React.FC = () => {
                                   className="flex items-start gap-2 text-gray-300"
                                 >
                                   <span className="text-green-400 mt-1">•</span>
-                                  <span>{improvement}</span>
+                                  <span>{formatChangelogItem(improvement)}</span>
                                 </motion.li>
                               ))}
                             </ul>
@@ -251,7 +278,7 @@ export const Changelog: React.FC = () => {
                                   className="flex items-start gap-2 text-gray-300"
                                 >
                                   <span className="text-red-400 mt-1">•</span>
-                                  <span>{change}</span>
+                                  <span>{formatChangelogItem(change)}</span>
                                 </motion.li>
                               ))}
                             </ul>

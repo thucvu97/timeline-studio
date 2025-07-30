@@ -26,12 +26,8 @@ export function parseChangelog(markdown: string): ParsedVersion[] {
     if (featuresMatch) {
       const items = featuresMatch[1].match(/^\* (.+)$/gm) || []
       features.push(...items.map(item => {
-        // Remove commit prefix like "**promo:**" and hash
-        return item
-          .replace(/^\* /, '')
-          .replace(/\*\*[^:]+:\*\* /, '')
-          .replace(/ \([a-f0-9]{7,}\)$/, '')
-          .trim()
+        // Remove the "* " prefix but keep the rest including markdown links
+        return item.replace(/^\* /, '').trim()
       }))
     }
     
@@ -40,11 +36,8 @@ export function parseChangelog(markdown: string): ParsedVersion[] {
     if (fixesMatch) {
       const items = fixesMatch[1].match(/^\* (.+)$/gm) || []
       fixes.push(...items.map(item => {
-        return item
-          .replace(/^\* /, '')
-          .replace(/\*\*[^:]+:\*\* /, '')
-          .replace(/ \([a-f0-9]{7,}\)$/, '')
-          .trim()
+        // Remove the "* " prefix but keep the rest including markdown links
+        return item.replace(/^\* /, '').trim()
       }))
     }
     
@@ -53,11 +46,8 @@ export function parseChangelog(markdown: string): ParsedVersion[] {
     if (improvementsMatch) {
       const items = improvementsMatch[2].match(/^\* (.+)$/gm) || []
       improvements.push(...items.map(item => {
-        return item
-          .replace(/^\* /, '')
-          .replace(/\*\*[^:]+:\*\* /, '')
-          .replace(/ \([a-f0-9]{7,}\)$/, '')
-          .trim()
+        // Remove the "* " prefix but keep the rest including markdown links
+        return item.replace(/^\* /, '').trim()
       }))
     }
     
@@ -66,11 +56,8 @@ export function parseChangelog(markdown: string): ParsedVersion[] {
     if (breakingMatch) {
       const items = breakingMatch[1].match(/^\* (.+)$/gm) || []
       breaking.push(...items.map(item => {
-        return item
-          .replace(/^\* /, '')
-          .replace(/\*\*[^:]+:\*\* /, '')
-          .replace(/ \([a-f0-9]{7,}\)$/, '')
-          .trim()
+        // Remove the "* " prefix but keep the rest including markdown links
+        return item.replace(/^\* /, '').trim()
       }))
     }
     
