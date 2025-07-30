@@ -167,3 +167,6 @@ export { customRender as render }
 
 // Алиас для совместимости с существующими тестами
 export { renderWithTemplates as renderWithProviders }
+
+// Экспорт wrapper для использования в renderHook
+export { BaseProviders as wrapper }

@@ -397,15 +397,17 @@ function calculateEasingProgress(t: number, easingType: InterpolationType, overs
       t -= 2.625 / 2.75
       return 7.5625 * t * t + 0.984375
 
-    case "elastic":
+    case "elastic": {
       if (t === 0 || t === 1) return t
       const p = 0.3 * overshoot
       const s = p / 4
       return 2 ** (-10 * t) * Math.sin(((t - s) * (2 * Math.PI)) / p) + 1
+    }
 
-    case "back":
+    case "back": {
       const s = 1.70158 * overshoot
       return t * t * ((s + 1) * t - s)
+    }
 
     default:
       return t

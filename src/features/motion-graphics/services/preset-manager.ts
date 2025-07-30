@@ -9,7 +9,13 @@ import { createAnimationLayer } from "./animation-layers"
 import { offsetKeyframesToTime, scaleKeyframesToDuration } from "./keyframe-manager"
 import motionPresetsData from "../data/motion-presets.json"
 
-import type { AnimatedProperty, AnimationLayer, MotionPreset } from "../types/keyframe"
+import type {
+  AnimatedProperty,
+  AnimationLayer,
+  InterpolationType,
+  KeyframeValue,
+  MotionPreset,
+} from "../types/keyframe"
 
 /**
  * Preset categories
@@ -34,7 +40,32 @@ export function getAllPresets(): MotionPreset[] {
   return motionPresetsData.presets.map((preset) => ({
     ...preset,
     preview: preset.preview || { before: 0, after: 1 },
+    properties: preset.properties.map((prop) => ({
+      ...prop,
+      type: prop.type as "number" | "vec2" | "vec3" | "vec4" | "color" | "boolean" | "text",
+      keyframes: prop.keyframes.map((kf) => ({
+        ...kf,
+        interpolation: kf.interpolation as InterpolationType,
+        value: normalizeKeyframeValue(kf.value, prop.type),
+      })),
+    })),
   }))
+}
+
+/**
+ * Normalize keyframe value to proper type
+ */
+function normalizeKeyframeValue(value: any, type: string): KeyframeValue {
+  if (type === "vec2" && Array.isArray(value) && value.length === 2) {
+    return [value[0], value[1]] as [number, number]
+  }
+  if (type === "vec3" && Array.isArray(value) && value.length === 3) {
+    return [value[0], value[1], value[2]] as [number, number, number]
+  }
+  if (type === "vec4" && Array.isArray(value) && value.length === 4) {
+    return [value[0], value[1], value[2], value[3]] as [number, number, number, number]
+  }
+  return value as KeyframeValue
 }
 
 /**

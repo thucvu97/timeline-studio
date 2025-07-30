@@ -3,6 +3,10 @@
  * Professional keyframe animation system for Timeline Studio
  */
 
+import { createKeyframe } from "./services/keyframe-manager"
+import { applyPreset, getPresetById } from "./services/preset-manager"
+import { AnimatedProperty, InterpolationType } from "./types/keyframe"
+
 // Components
 export { CurveEditor } from "./components/curve-editor"
 export { MotionGraphicsPanel } from "./components/motion-graphics-panel"

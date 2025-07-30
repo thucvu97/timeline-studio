@@ -234,9 +234,22 @@ export class ExpressionEvaluator {
         return context.value
       },
 
-      loopOut: (type: "cycle" | "pingpong" | "offset" | "continue" = "cycle", numKeyframes = 0) => {
+      loopOut: (type: "cycle" | "pingpong" | "offset" | "continue" = "cycle", _numKeyframes = 0) => {
         // Similar to loopIn but for post-animation
-        return this.loopIn(type, numKeyframes)
+        const period =
+          context.property.keyframes.length > 0
+            ? context.property.keyframes[context.property.keyframes.length - 1].time
+            : 1
+
+        if (type === "cycle") {
+          return context.value
+        }
+        if (type === "pingpong") {
+          const cycles = Math.floor(context.time / period)
+          return cycles % 2 === 0 ? context.value : context.property.keyframes[0]?.value
+        }
+
+        return context.value
       },
     }
   }

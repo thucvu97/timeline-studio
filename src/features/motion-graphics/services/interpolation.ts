@@ -117,7 +117,12 @@ export function interpolateKeyframes<T extends KeyframeValue>(
   }
 
   // Get easing function
-  const easingFn = easingFunctions[keyframe1.interpolation] || easingFunctions.linear
+  const easingFn =
+    keyframe1.interpolation === "bezier"
+      ? easingFunctions.linear
+      : keyframe1.interpolation in easingFunctions
+        ? easingFunctions[keyframe1.interpolation]
+        : easingFunctions.linear
   const easedT =
     keyframe1.interpolation === "bezier" && keyframe1.easeOut && keyframe2.easeIn
       ? cubicBezier(keyframe1.easeOut[0], keyframe1.easeOut[1], keyframe2.easeIn[0], keyframe2.easeIn[1])(t)
