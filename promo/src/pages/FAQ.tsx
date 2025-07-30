@@ -56,13 +56,25 @@ const FAQ: React.FC = () => {
                 <div className="space-y-6">
                   {faqs.map((faq, index) => (
                     <AnimatedSection key={index} animation="fadeUp" delay={index * 0.1}>
-                      <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700">
-                        <h3 className="text-xl font-semibold text-white mb-3">
+                      <div className="relative overflow-hidden rounded-xl">
+                        {/* Glassmorphism background */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-blue-500/10 to-pink-500/10 backdrop-blur-xl" />
+                        <div className="absolute inset-0 bg-white/[0.02]" />
+                        
+                        {/* Border gradient */}
+                        <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/20 via-transparent to-blue-500/20 p-[1px]">
+                          <div className="h-full w-full rounded-xl bg-[#12192C]/90 backdrop-blur-xl" />
+                        </div>
+                        
+                        {/* Content */}
+                        <div className="relative p-6">
+                        <h3 className="text-xl font-medium text-white mb-3 font-['Inter']">
                           {faq.question}
                         </h3>
                         <p className="text-gray-300 leading-relaxed">
                           {faq.answer}
                         </p>
+                        </div>
                       </div>
                     </AnimatedSection>
                   ))}

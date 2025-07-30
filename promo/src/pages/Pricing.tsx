@@ -129,7 +129,7 @@ export const Pricing: React.FC = () => {
                   )}
 
                   <div className="text-center mb-8">
-                    <h3 className="text-2xl font-bold text-white mb-2">{tier.name}</h3>
+                    <h3 className="text-3xl text-white mb-2 font-['Bebas_Neue'] tracking-wide">{tier.name}</h3>
                     <div className="flex items-baseline justify-center mb-4">
                       <span className="text-5xl font-bold text-white">{tier.price}</span>
                       <span className="text-gray-400 ml-2">{tier.period}</span>
@@ -178,8 +178,8 @@ export const Pricing: React.FC = () => {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="max-w-4xl mx-auto mt-20"
             >
-              <h2 className="text-3xl font-bold text-center text-white mb-12">
-                Frequently Asked Questions
+              <h2 className="text-4xl text-center text-white mb-12">
+                <span className="font-['Bebas_Neue'] uppercase tracking-wider">Frequently Asked Questions</span>
               </h2>
               
               <div className="space-y-6">
