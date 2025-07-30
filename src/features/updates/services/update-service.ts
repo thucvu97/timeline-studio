@@ -55,7 +55,10 @@ export class UpdateService {
   private autoCheckIntervalMinutes = 60 // Проверка каждый час по умолчанию
 
   private constructor() {
-    void this.setupEventListeners()
+    // Инициализируем слушатели только на клиенте
+    if (typeof window !== 'undefined') {
+      void this.setupEventListeners()
+    }
   }
 
   /**
@@ -273,4 +276,7 @@ export class UpdateService {
 }
 
 // Экспортируем экземпляр для использования в приложении
-export const updateService = UpdateService.getInstance()
+// Создаем только на клиенте для избежания ошибок SSR
+export const updateService = typeof window !== 'undefined' 
+  ? UpdateService.getInstance() 
+  : null as unknown as UpdateService
