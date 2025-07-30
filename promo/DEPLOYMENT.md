@@ -1,45 +1,35 @@
 # Deployment Guide for Timeline Studio Promo Site
 
-## Problem
-When you refresh the page on routes like `/changelog`, `/blog`, etc., you get a blank page or 404 error. This is because the server doesn't know how to handle SPA routes.
+## GitHub Pages Deployment
 
-## Solution by Hosting Provider
+The promo site is optimized for GitHub Pages hosting with the following configuration:
 
-### Netlify
-Already configured with `_redirects` file in public folder:
-```
-/*    /index.html   200
-```
+### HashRouter Implementation
+The site uses React HashRouter instead of BrowserRouter to ensure compatibility with GitHub Pages static hosting. This means:
+- All routes use hash navigation: `#/changelog`, `#/pricing`, `#/blog`, etc.
+- Page refresh works correctly on all routes
+- No additional server configuration needed
 
-### Vercel
-Already configured with `vercel.json` in public folder:
-```json
-{
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
-}
-```
+### Required Files
+- `404.html` - Copy of index.html for fallback routing
+- Standard build output in `dist/` folder
 
-### GitHub Pages
-Already configured with `404.html` (copy of index.html)
-
-### Apache Server
-Already configured with `.htaccess` in public folder
-
-### Nginx
-Use the provided `nginx.conf` configuration:
-```nginx
-location / {
-    try_files $uri $uri/ /index.html;
-}
+### Deployment Process
+1. Build the project:
+```bash
+cd promo
+bun run build
 ```
 
-### Cloudflare Pages
-Should work automatically with the SPA mode
+2. The `dist` folder is ready for GitHub Pages deployment
 
-### Firebase Hosting
-Use the provided `firebase.json` configuration
+### URL Structure
+- Homepage: `https://timelinestudio.pro/`
+- Changelog: `https://timelinestudio.pro/#/changelog`
+- Pricing: `https://timelinestudio.pro/#/pricing`
+- Blog: `https://timelinestudio.pro/#/blog`
+- About: `https://timelinestudio.pro/#/about`
+- Docs: `https://timelinestudio.pro/#/docs`
 
 ## Content Synchronization
 

@@ -1,54 +1,116 @@
-# React + TypeScript + Vite
+# Timeline Studio Promo Site
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Официальный промо-сайт Timeline Studio - профессионального AI-powered видеоредактора.
 
-Currently, two official plugins are available:
+## 🌐 Живая версия
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Сайт доступен по адресу: [https://timelinestudio.pro](https://timelinestudio.pro)
 
-## Expanding the ESLint configuration
+## 🛠️ Технологии
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **React 19** с TypeScript
+- **Vite** для быстрой сборки
+- **React Router** с HashRouter для GitHub Pages
+- **Tailwind CSS v4** для стилизации
+- **Framer Motion** для анимаций
+- **GitHub Pages** для хостинга
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## 🚀 Начало работы
+
+### Установка зависимостей
+
+```bash
+cd promo
+bun install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Локальная разработка
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+```bash
+bun run dev
 ```
+
+Сайт будет доступен по адресу: http://localhost:5173
+
+### Сборка для продакшена
+
+```bash
+bun run build
+```
+
+Готовые файлы будут в папке `dist/`
+
+### Предпросмотр собранной версии
+
+```bash
+bun run preview
+```
+
+## 📁 Структура проекта
+
+```
+promo/
+├── src/
+│   ├── components/     # React компоненты
+│   ├── pages/         # Страницы сайта
+│   ├── hooks/         # Custom hooks
+│   ├── utils/         # Утилиты
+│   └── main.tsx       # Точка входа
+├── public/            # Статические файлы
+│   ├── favicon/       # Иконки сайта
+│   └── 404.html       # Fallback для GitHub Pages
+├── content/           # Markdown контент
+│   ├── blog/          # Статьи блога
+│   └── changelog/     # История изменений
+└── dist/              # Собранный сайт (gitignored)
+```
+
+## 🔗 Навигация
+
+Сайт использует HashRouter для совместимости с GitHub Pages:
+
+- Главная: `https://timelinestudio.pro/`
+- О продукте: `https://timelinestudio.pro/#/about`
+- Цены: `https://timelinestudio.pro/#/pricing`
+- Changelog: `https://timelinestudio.pro/#/changelog`
+- Блог: `https://timelinestudio.pro/#/blog`
+- Документация: `https://timelinestudio.pro/#/docs`
+- FAQ: `https://timelinestudio.pro/#/faq`
+
+## 📝 Контент
+
+### Блог
+
+Статьи блога хранятся в `content/blog/` в формате Markdown. Для добавления новой статьи:
+
+1. Создайте файл `content/blog/your-article-slug.md`
+2. Добавьте метаданные в начало файла:
+```markdown
+---
+title: "Заголовок статьи"
+date: "2025-07-30"
+excerpt: "Краткое описание"
+author: "Имя автора"
+---
+
+Содержание статьи...
+```
+
+### Changelog
+
+История изменений автоматически синхронизируется из основного репозитория.
+
+## 🚀 Деплой
+
+Сайт автоматически деплоится на GitHub Pages при пуше в основной репозиторий. См. [DEPLOYMENT.md](./DEPLOYMENT.md) для подробностей.
+
+## 🎨 Дизайн
+
+- **Цветовая схема**: Темная тема с фиолетовыми акцентами
+- **Типографика**: Bebas Neue для заголовков, Inter для текста
+- **Анимации**: Плавные переходы и glassmorphism эффекты
+- **Адаптивность**: Полностью респонсивный дизайн
+
+## 📄 Лицензия
+
+Все права защищены © 2025 Timeline Studio
