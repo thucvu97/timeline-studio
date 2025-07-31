@@ -6,6 +6,7 @@ import { useDraggable } from "@/features/drag-drop"
 import { MediaFile } from "@/features/media/types/media"
 import { TransitionPreview } from "@/features/transitions/components/transition-preview"
 import { Transition } from "@/features/transitions/types/transitions"
+import { convertVideoSrc } from "@/lib/tauri-utils"
 
 import type { ListAdapter, ListItem, PreviewComponentProps } from "../types/list"
 
@@ -37,9 +38,10 @@ const TransitionPreviewWrapper: React.FC<PreviewComponentProps<Transition>> = ({
   )
 
   // Демонстрационные видео для превью переходов
+  // В development режиме используем прямые пути, в production - через public
   const demoVideos = {
-    source: { path: "/t1.mp4" } as MediaFile,
-    target: { path: "/t2.mp4" } as MediaFile,
+    source: { path: window.location.hostname === "localhost" ? "/t1.mp4" : "./t1.mp4" } as MediaFile,
+    target: { path: window.location.hostname === "localhost" ? "/t2.mp4" : "./t2.mp4" } as MediaFile,
   }
 
   // Для переходов TransitionPreview ожидает другие пропсы
@@ -56,7 +58,13 @@ const TransitionPreviewWrapper: React.FC<PreviewComponentProps<Transition>> = ({
       >
         {/* Transition preview thumbnail */}
         <div className="flex-shrink-0 w-12 h-9 bg-gray-200 rounded overflow-hidden relative">
-          <video src="/t1.mp4" className="w-full h-full object-cover" muted playsInline preload="metadata" />
+          <video 
+            src={convertVideoSrc(window.location.hostname === "localhost" ? "/t1.mp4" : "./t1.mp4")} 
+            className="w-full h-full object-cover" 
+            muted 
+            playsInline 
+            preload="metadata" 
+          />
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse" />
         </div>
 

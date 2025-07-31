@@ -128,6 +128,95 @@ This creates an optimized production build for your platform.
    - Object recognition
    - Auto-subtitles with Whisper
 
+## 🚀 Advanced Features
+
+### AI-Powered Tools
+
+#### AI Content Intelligence
+Smart content analysis using artificial intelligence:
+
+- **Automatic scene detection** - Identifies scene changes and key frames
+- **Object recognition** - Detects objects in video using YOLO/ONNX models
+- **Script generation** - Automatically creates descriptions and dialogues
+- **Platform adaptation** - Optimizes content for YouTube, TikTok, Instagram
+- **OCR capabilities** - Text recognition in video frames
+
+#### Smart Montage Planner
+AI-driven editing assistant for automatic professional video creation:
+
+- **Material analysis** - Automatic analysis of all imported files
+- **Plan generation** - Creates montage plans in various styles
+- **Best moments detection** - Automatically finds interesting shots
+- **Rhythm recommendations** - Suggests optimal pacing
+- **Timeline integration** - Apply plans with one click
+
+#### Person Identification
+Face recognition and character identification system:
+
+- **Automatic face detection** - Finds all faces in video
+- **Character identification** - Matches with known profiles
+- **Profile management** - Create and edit character cards
+- **Appearance statistics** - Analyze screen time per character
+- **Timeline integration** - Character markers on clips
+
+### Professional Tools
+
+#### Fairlight Audio
+Professional audio mixing suite with comprehensive tools:
+
+- **7-band parametric EQ** - Precise frequency control
+- **Effects suite** - Compressor, reverb, AI noise reduction
+- **Surround Sound** - Support for Stereo, 5.1, 7.1
+- **MIDI integration** - Full MIDI controller support
+- **Professional meters** - LUFS, spectrum analyzer, phase correlation
+
+#### Color Grading
+Professional color correction at DaVinci Resolve level:
+
+- **Color wheels** - Lift/Gamma/Gain/Offset controls
+- **Curves** - RGB and tonal curves with Bézier interpolation
+- **HSL adjustments** - Temperature, tint, contrast, saturation
+- **LUT support** - Import .cube files
+- **Professional scopes** - Waveform, Vectorscope, Histogram
+
+#### Motion Graphics
+Keyframe-based animation system:
+
+- **Complete keyframe system** - Animate any parameter
+- **Interpolation types** - Linear, Bezier, Ease, Bounce, Elastic
+- **Expression engine** - JavaScript for procedural animation
+- **Preset library** - Ready-to-use animation effects
+- **Visual curve editor** - Fine-tune animations
+
+### Additional Features
+
+#### Multicam Editing
+Professional multi-camera project support:
+
+- **Quick switching** - Hotkeys 1-9 for angle changes
+- **Synchronization** - By timecode or audio
+- **Visual grid** - Preview all cameras simultaneously
+- **Manual adjustment** - Offset correction per camera
+- **Linked clips** - Automatic timeline synchronization
+
+#### Camera Capture
+Record video directly in Timeline Studio:
+
+- **Device selection** - Choose camera and microphone
+- **Quality settings** - Resolution and FPS control
+- **Screen recording** - Capture screen, window, or browser tab
+- **Real-time preview** - Monitor while recording
+- **WebM format** - Optimal quality and size
+
+#### Voice Recording
+Professional voiceover recording:
+
+- **Microphone selection** - From all available devices
+- **Countdown timer** - 0 to 10 seconds before recording
+- **Visual indicators** - Signal level and recording time
+- **Up to 5 minutes** - Optimal for commentary
+- **Auto-save** - Directly to project media library
+
 ## 🔧 Common Issues
 
 ### FFmpeg Not Found

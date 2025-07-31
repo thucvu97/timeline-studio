@@ -9,6 +9,7 @@ import { FavoriteButton } from "@/features/browser/components/layout/favorite-bu
 import { MediaFile } from "@/features/media/types/media"
 import { TransitionResource } from "@/features/resources/types"
 import { Transition } from "@/features/transitions/types/transitions"
+import { convertVideoSrc } from "@/lib/tauri-utils"
 
 import { useTransitions } from "../hooks/use-transitions"
 
@@ -292,6 +293,102 @@ export function TransitionPreview({
           targetVideo.style.mixBlendMode = "screen"
           sourceVideo.style.opacity = "0"
           break
+          
+        // 3D эффекты
+        case "cube-3d":
+          // Эффект 3D куба: вращение как грани куба
+          sourceVideo.style.transform = "perspective(1000px) rotateY(-90deg) translateZ(200px)"
+          sourceVideo.style.opacity = "0"
+          targetVideo.style.transform = "perspective(1000px) rotateY(0deg) translateZ(0)"
+          break
+          
+        case "page-turn":
+          // Эффект переворота страницы
+          sourceVideo.style.transform = "perspective(1000px) rotateY(-180deg)"
+          sourceVideo.style.transformOrigin = "right center"
+          sourceVideo.style.opacity = "0"
+          break
+          
+        case "shatter":
+          // Эффект разбития стекла
+          sourceVideo.style.transform = "scale(1.2)"
+          sourceVideo.style.filter = "blur(4px)"
+          sourceVideo.style.opacity = "0"
+          break
+          
+        // Дополнительные эффекты из JSON
+        case "wipe-horizontal":
+          sourceVideo.style.clipPath = "inset(0 100% 0 0)"
+          break
+          
+        case "wipe-vertical":
+          sourceVideo.style.clipPath = "inset(100% 0 0 0)"
+          break
+          
+        case "wipe-diagonal":
+          sourceVideo.style.clipPath = "polygon(0 0, 0 0, 0 100%, 0 100%)"
+          break
+          
+        case "radial-wipe":
+          sourceVideo.style.clipPath = "circle(0% at 50% 50%)"
+          break
+          
+        case "ripple":
+          sourceVideo.style.filter = "blur(8px)"
+          sourceVideo.style.transform = "scale(1.1)"
+          sourceVideo.style.opacity = "0"
+          break
+          
+        case "pixelize":
+          sourceVideo.style.imageRendering = "pixelated"
+          sourceVideo.style.transform = "scale(0.1) scale(10)"
+          sourceVideo.style.opacity = "0"
+          break
+          
+        case "morph":
+          sourceVideo.style.filter = "blur(10px)"
+          sourceVideo.style.transform = "scale(0.8)"
+          sourceVideo.style.opacity = "0"
+          break
+          
+        case "glitch":
+          sourceVideo.style.filter = "hue-rotate(90deg) saturate(2)"
+          sourceVideo.style.transform = "translateX(5px) translateY(-5px)"
+          sourceVideo.style.opacity = "0"
+          break
+          
+        case "kaleidoscope":
+          sourceVideo.style.transform = "rotate(180deg) scale(0.5)"
+          sourceVideo.style.filter = "hue-rotate(180deg)"
+          sourceVideo.style.opacity = "0"
+          break
+          
+        case "burn":
+          sourceVideo.style.filter = "brightness(2) contrast(2) sepia(1)"
+          sourceVideo.style.opacity = "0"
+          break
+          
+        case "blinds":
+          sourceVideo.style.clipPath = "repeating-linear-gradient(0deg, transparent 0px, transparent 10px, black 10px, black 20px)"
+          sourceVideo.style.opacity = "0"
+          break
+          
+        case "iris":
+          sourceVideo.style.clipPath = "circle(0% at 50% 50%)"
+          targetVideo.style.clipPath = "circle(100% at 50% 50%)"
+          break
+          
+        case "zoom-blur":
+          sourceVideo.style.filter = "blur(20px)"
+          sourceVideo.style.transform = "scale(2)"
+          sourceVideo.style.opacity = "0"
+          break
+          
+        case "tv-static":
+          sourceVideo.style.filter = "contrast(100) grayscale(1)"
+          sourceVideo.style.opacity = "0"
+          break
+          
         default:
           // Неизвестный тип перехода, используем fade по умолчанию
           sourceVideo.style.opacity = "0"
@@ -324,7 +421,34 @@ export function TransitionPreview({
 
     // Функция обработки ошибок загрузки видео
     const handleError = (e: Event) => {
-      console.error(`🎬 [TransitionPreview] Ошибка загрузки видео для ${transitionType}:`, e)
+      const target = e.target as HTMLVideoElement
+      const errorInfo = {
+        transition: transitionType,
+        src: target.src,
+        error: target.error,
+        networkState: target.networkState,
+        readyState: target.readyState,
+      }
+      console.error(`🎬 [TransitionPreview] Ошибка загрузки видео:`, errorInfo)
+      
+      // Дополнительная информация об ошибке
+      if (target.error) {
+        switch (target.error.code) {
+          case target.error.MEDIA_ERR_ABORTED:
+            console.error("Загрузка видео была прервана")
+            break
+          case target.error.MEDIA_ERR_NETWORK:
+            console.error("Сетевая ошибка при загрузке видео")
+            break
+          case target.error.MEDIA_ERR_DECODE:
+            console.error("Ошибка декодирования видео")
+            break
+          case target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
+            console.error("Формат видео не поддерживается или файл не найден")
+            break
+        }
+      }
+      
       setIsError(true)
     }
 
@@ -448,7 +572,7 @@ export function TransitionPreview({
               {/* Исходное видео (видимое в начале) */}
               <video
                 ref={sourceVideoRef}
-                src={sourceVideo.path}
+                src={convertVideoSrc(sourceVideo.path)}
                 className="h-full w-full origin-center object-cover transition-all duration-1000"
                 muted
                 loop
@@ -460,7 +584,7 @@ export function TransitionPreview({
               {/* Целевое видео (появляется при переходе) */}
               <video
                 ref={targetVideoRef}
-                src={targetVideo.path}
+                src={convertVideoSrc(targetVideo.path)}
                 className="absolute inset-0 h-full w-full origin-center object-cover opacity-0 transition-all duration-1000"
                 muted
                 loop

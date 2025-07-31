@@ -37,6 +37,15 @@ src/features/
 ├── video-player/      # Видеоплеер
 ├── media-studio/      # Главный интерфейс
 ├── ai-chat/          # AI ассистент
+├── ai-content-intelligence/  # Интеллектуальный анализ контента
+├── montage-planner/   # AI-планировщик монтажа
+├── person-identification/    # Распознавание персонажей
+├── fairlight-audio/   # Профессиональный аудио микшер
+├── color-grading/     # Цветокоррекция
+├── motion-graphics/   # Анимация и графика
+├── multicam/          # Многокамерная съемка
+├── camera-capture/    # Захват с камеры
+├── voice-recording/   # Запись голоса
 └── ...               # Другие функции
 ```
 
@@ -44,8 +53,8 @@ src/features/
 
 - **XState v5** для сложной логики (timeline, player, browser)
 - **React Context** для глобального состояния
-- **React Query** для серверных данных
-- **Local Storage** для настроек пользователя
+- **Tauri Store** для персистентного хранения данных
+- **Local Storage** для временных настроек пользователя
 
 ### UI архитектура
 
@@ -53,6 +62,23 @@ src/features/
 - **Tailwind CSS v4** - утилитарные стили
 - **CSS Variables** - темизация
 - **Framer Motion** - анимации
+
+### Ключевые модули
+
+#### AI модули
+- **AI Content Intelligence** - анализ контента, распознавание сцен/объектов (YOLO/ONNX), генерация скриптов
+- **Montage Planner** - автоматическая генерация монтажных планов с AI-анализом материалов
+- **Person Identification** - детекция и идентификация лиц, кластеризация DBSCAN
+
+#### Профессиональные инструменты
+- **Fairlight Audio** - полноценный аудио микшер с Web Audio API, эффектами и MIDI
+- **Color Grading** - профессиональная цветокоррекция с LUT, кривыми и скоупами
+- **Motion Graphics** - система ключевых кадров с expression engine
+
+#### Дополнительные возможности
+- **Multicam** - синхронизация многокамерной съемки по таймкоду/аудио
+- **Camera Capture** - захват видео с камеры и экрана через WebRTC
+- **Voice Recording** - профессиональная запись закадрового голоса
 
 ## ⚙️ Backend архитектура
 
@@ -78,8 +104,22 @@ src-tauri/src/
 │   ├── core/         # GPU, pipeline, кодеки
 │   ├── services/     # Сервисный слой
 │   └── cache/        # LRU кеш
-└── recognition/       # AI распознавание
-    └── yolo_processor.rs  # YOLO модели
+├── recognition/       # AI распознавание
+│   ├── yolo_processor.rs    # YOLO модели
+│   ├── face_detection.rs    # Детекция лиц
+│   └── scene_analysis.rs    # Анализ сцен
+├── audio/             # Аудио обработка
+│   ├── fairlight_engine.rs  # Аудио движок
+│   ├── effects_chain.rs     # Цепь эффектов
+│   └── midi_handler.rs      # MIDI контроллеры
+├── color/             # Цветокоррекция
+│   ├── grading_engine.rs    # Движок цветокоррекции
+│   ├── lut_processor.rs     # Обработка LUT
+│   └── scopes.rs            # Профессиональные скоупы
+└── montage/           # Монтажный планировщик
+    ├── content_analyzer.rs   # Анализ контента
+    ├── plan_generator.rs     # Генератор планов
+    └── rhythm_calculator.rs  # Расчет ритма
 ```
 
 ### Ключевые компоненты
@@ -89,6 +129,10 @@ src-tauri/src/
 3. **Plugin System** - расширяемость через плагины
 4. **Security Layer** - безопасное хранение и OAuth
 5. **Media Pipeline** - конвейер обработки медиа
+6. **AI Recognition** - YOLO/ONNX модели для анализа контента
+7. **Fairlight Engine** - профессиональная аудио обработка
+8. **Color Engine** - GPU-ускоренная цветокоррекция
+9. **Montage AI** - интеллектуальный анализ и планирование
 
 ## 🔌 Коммуникация Frontend ↔ Backend
 

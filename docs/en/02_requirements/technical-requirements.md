@@ -6,27 +6,33 @@
 
 #### Operating System
 - **Windows**: Windows 10 version 1809+ (64-bit)
-- **macOS**: macOS 10.15 Catalina+
+- **macOS**: macOS 10.15 Catalina+ (Intel and Apple Silicon)
 - **Linux**: Ubuntu 20.04+, Fedora 34+, Debian 11+
 
 #### Hardware
-- **Processor**: Intel Core i5 6th gen or AMD Ryzen 5 2600
+- **Processor**: 
+  - Intel Core i5 6th gen / AMD Ryzen 5 2600
+  - Apple M1 (for macOS)
 - **Memory**: 8 GB RAM
 - **Graphics**: 
   - NVIDIA GTX 1050 / AMD RX 560 (for GPU acceleration)
   - Intel HD Graphics 620 (basic operation)
-- **Storage**: 2 GB for installation + project storage
+  - Apple GPU (M1/M2/M3)
+- **Storage**: 4 GB for installation + project storage
 - **Display**: 1920x1080 or higher
 
 ### Recommended Requirements
 
 #### Hardware
-- **Processor**: Intel Core i7 10th gen or AMD Ryzen 7 3700X
+- **Processor**: 
+  - Intel Core i7 10th gen / AMD Ryzen 7 3700X
+  - Apple M1 Pro/M2/M3 (for macOS)
 - **Memory**: 16 GB RAM (32 GB for 4K)
 - **Graphics**: 
   - NVIDIA RTX 3060 / AMD RX 6600 XT
-  - NVENC/AMF support for acceleration
-- **Storage**: SSD with 10 GB free space
+  - NVENC/AMF/VideoToolbox support for acceleration
+  - Apple GPU with 16+ GB unified memory
+- **Storage**: NVMe SSD with 50 GB free space
 - **Display**: 2560x1440 or 4K
 
 ## 🛠️ Development Dependencies
@@ -36,6 +42,7 @@
 - **Bun**: Latest
 - **Rust**: 1.81.0+
 - **FFmpeg**: 6.0+ with development libraries
+- **ONNX Runtime**: 1.16+ (for AI features)
 
 ### Platform-Specific Dependencies
 
@@ -70,10 +77,19 @@
 - **GPU rendering**: 80-100% (expected)
 
 ### Processing Speed
-- **HD export (1080p)**: 2-3x realtime with GPU
-- **4K export**: 0.5-1x realtime with GPU
-- **Preview generation**: 10x realtime
-- **AI analysis**: 5-10 fps
+- **HD export (1080p)**: 
+  - 3-5x realtime with NVENC/VideoToolbox
+  - 2-3x realtime with QuickSync/AMF
+  - 1x realtime CPU only
+- **4K export**: 
+  - 1-2x realtime with NVENC/VideoToolbox
+  - 0.5-1x realtime with QuickSync/AMF
+  - 0.2x realtime CPU only
+- **Preview generation**: 10-20x realtime
+- **AI analysis**: 
+  - YOLO detection: 15-30 fps
+  - Scene analysis: 5-10 fps
+  - Face recognition: 10-20 fps
 
 ## 🔒 Security Requirements
 
@@ -129,10 +145,11 @@
 ## 📊 Scalability
 
 ### Project Limits
-- **Track count**: Up to 100
+- **Track count**: Up to 128 (including audio)
 - **Timeline length**: Up to 24 hours
-- **Project size**: Up to 1 GB
+- **Project size**: Up to 10 GB
 - **Clip count**: Up to 10,000
+- **AI tools**: 151 tools
 
 ### Optimization
 - **Proxy files**: Automatic for 4K+
@@ -142,4 +159,34 @@
 
 ---
 
-*Last updated: January 2025*
+## 🎮 GPU Acceleration
+
+### Supported Technologies
+- **NVIDIA**: NVENC (GTX 1050+)
+- **AMD**: AMF (RX 400+)
+- **Intel**: Quick Sync (6th gen+)
+- **Apple**: VideoToolbox (M1/M2/M3)
+
+### GPU Performance
+- **NVENC**: Up to 5x realtime for 1080p
+- **VideoToolbox**: Up to 4x realtime for 1080p
+- **Quick Sync**: Up to 3x realtime for 1080p
+- **AMF**: Up to 3x realtime for 1080p
+
+## 🤖 AI Processing
+
+### AI Feature Requirements
+- **YOLO v11**: 2GB VRAM for detection
+- **Whisper**: 4GB VRAM for transcription
+- **AI Chat**: 10 Mbps internet
+- **ONNX Runtime**: CUDA 11.6+ or CoreML
+
+### AI Performance
+- **Object detection**: 30 fps (RTX 3060)
+- **Face recognition**: 20 fps (RTX 3060)
+- **Whisper transcription**: 5x realtime
+- **AI montage**: 2-5 seconds per minute of video
+
+---
+
+*Last updated: July 31, 2025*

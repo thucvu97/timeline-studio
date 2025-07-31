@@ -49,7 +49,7 @@ Timeline Studio is not just an AI assistant, but a complete professional system:
 - **Modular architecture** - easily add new features
 - **Modern stack** - Tauri v2, Next.js 15, React 19, Rust
 
-## 📊 Current Status (July 2025)
+## 📊 Current Status (July 31, 2025)
 
 ### General Metrics
 - **Product readiness**: 89%
@@ -227,6 +227,6 @@ Timeline Studio is an open source project, and we welcome:
 
 ---
 
-*Last updated: July 29, 2025*  
-*Version: 0.37.2 (Alpha)*  
+*Last updated: July 31, 2025*  
+*Version: 0.49.0 (Alpha)*  
 *Status: Active development focused on reaching Beta*

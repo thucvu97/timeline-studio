@@ -45,6 +45,22 @@
 - Необходим для функций распознавания объектов
 - Можно пропустить для базовой функциональности
 
+### 5. Дополнительные инструменты
+
+#### Для разработки
+- **Git** - система контроля версий
+- **pkg-config** - для поиска библиотек при компиляции
+
+#### Для Windows
+- **Visual Studio 2022** - с рабочей нагрузкой C++
+- **Windows SDK** - для нативной разработки
+- **pkg-config** - через chocolatey или vcpkg
+
+#### Для Linux
+- **build-essential** - базовые инструменты сборки
+- **libssl-dev** - для криптографии
+- **GTK3 и WebKit2GTK** - для UI Tauri
+
 ## 🍎 macOS
 
 ### Автоматическая установка (рекомендуется)
@@ -59,9 +75,30 @@ brew install node rust ffmpeg onnxruntime
 # Установка Bun
 curl -fsSL https://bun.sh/install | bash
 
-# Добавление ONNX Runtime в PATH
+# Настройка переменных окружения для разных оболочек
+
+## Для Zsh (по умолчанию в macOS)
 echo 'export ORT_DYLIB_PATH=/opt/homebrew/lib/libonnxruntime.dylib' >> ~/.zshrc
 source ~/.zshrc
+
+## Для Bash
+echo 'export ORT_DYLIB_PATH=/opt/homebrew/lib/libonnxruntime.dylib' >> ~/.bashrc
+source ~/.bashrc
+
+## Для Fish
+echo 'set -gx ORT_DYLIB_PATH /opt/homebrew/lib/libonnxruntime.dylib' >> ~/.config/fish/config.fish
+source ~/.config/fish/config.fish
+
+# Настройка FFmpeg для разработки (опционально)
+# Нужно только если возникают проблемы при сборке
+
+## Для Apple Silicon (M1/M2/M3)
+export FFMPEG_DIR=/opt/homebrew/opt/ffmpeg
+export PKG_CONFIG_PATH=/opt/homebrew/opt/ffmpeg/lib/pkgconfig:$PKG_CONFIG_PATH
+
+## Для Intel Mac
+export FFMPEG_DIR=/usr/local/opt/ffmpeg
+export PKG_CONFIG_PATH=/usr/local/opt/ffmpeg/lib/pkgconfig:$PKG_CONFIG_PATH
 ```
 
 ### Ручная установка
@@ -95,10 +132,16 @@ Set-ExecutionPolicy Bypass -Scope Process -Force
 iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 
 # Установка зависимостей
-choco install nodejs rust ffmpeg
+choco install nodejs rust ffmpeg git pkgconfiglite
 
 # Установка Bun
 powershell -c "irm bun.sh/install.ps1 | iex"
+
+# Установка vcpkg для управления C++ библиотеками
+git clone https://github.com/Microsoft/vcpkg.git C:\vcpkg
+cd C:\vcpkg
+.\bootstrap-vcpkg.bat
+.\vcpkg integrate install
 ```
 
 ### Ручная установка
@@ -150,6 +193,22 @@ sudo apt install -y libgtk-3-dev libwebkit2gtk-4.1-dev \
 
 # Bun
 curl -fsSL https://bun.sh/install | bash
+
+# ONNX Runtime (опционально)
+sudo apt install -y libonnxruntime-dev
+
+# Настройка переменных окружения
+## Для Bash
+echo 'export PATH="$HOME/.bun/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+
+## Для Zsh
+echo 'export PATH="$HOME/.bun/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+
+## Для Fish
+echo 'set -gx PATH "$HOME/.bun/bin" $PATH' >> ~/.config/fish/config.fish
+source ~/.config/fish/config.fish
 ```
 
 ### Fedora
@@ -190,22 +249,32 @@ yay -S bun-bin
 ```bash
 # Node.js
 node --version  # Должно быть 18.0.0 или выше
+npm --version   # Проверка npm
 
 # Bun
 bun --version   # Любая последняя версия
 
 # Rust
 rustc --version # Должно быть 1.81.0 или выше
-cargo --version
+cargo --version # Проверка Cargo
 
 # FFmpeg
 ffmpeg -version # Должна отобразиться информация о версии
+
+# Git
+git --version   # Система контроля версий
+
+# pkg-config
+pkg-config --version # Для поиска библиотек
 
 # ONNX Runtime (опционально)
 # macOS/Linux
 echo $ORT_DYLIB_PATH
 # Windows
 echo %ORT_DYLIB_PATH%
+
+# Проверка Tauri CLI (после установки проекта)
+cargo tauri --version
 ```
 
 ## 🚨 Решение проблем
@@ -232,6 +301,32 @@ sudo ldconfig
 ### ONNX Runtime ошибки
 - Это опциональная зависимость, можно продолжить без неё
 - Для полной функциональности следуйте инструкциям для вашей ОС
+
+### Bun: "command not found"
+```bash
+# Перезапустите терминал или выполните:
+# Bash/Zsh
+source ~/.bashrc  # или ~/.zshrc
+# Fish
+source ~/.config/fish/config.fish
+```
+
+### Windows: Ошибки компиляции FFmpeg
+- Убедитесь, что установлен Visual Studio 2022 с C++ tools
+- Проверьте переменные окружения FFMPEG_DIR и PKG_CONFIG_PATH
+- Используйте vcpkg для установки FFmpeg: `vcpkg install ffmpeg:x64-windows`
+
+### Linux: Ошибка "webkit2gtk-4.1 not found"
+```bash
+# Ubuntu 22.04+
+sudo apt install libwebkit2gtk-4.1-dev
+# Для старых версий используйте webkit2gtk-4.0
+sudo apt install libwebkit2gtk-4.0-dev
+```
+
+### macOS: Проблемы с Apple Silicon
+- Убедитесь, что все инструменты установлены для архитектуры arm64
+- Используйте Homebrew для arm64: `/opt/homebrew` вместо `/usr/local`
 
 ## 📌 Следующие шаги
 
