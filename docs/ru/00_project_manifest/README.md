@@ -223,7 +223,7 @@ Timeline Studio - это open source проект, и мы приветству�
 - **Telegram**: [t.me/timelinestudio](https://t.me/timelinestudio)
 - **Discord**: [discord.gg/gwJUYxck](https://discord.gg/uvSBCw6e)
 - **Email**: ak.chatman.media@gmail.com
-- **Website**: [timelinestudio.app](https://timelinestudio.app) (в разработке)
+- **Website**: [timelinestudio.pro](https://timelinestudio.pro)
 
 ---
 
