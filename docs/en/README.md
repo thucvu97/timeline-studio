@@ -49,7 +49,7 @@ Project requirements and specifications:
 
 ### [04_api_reference/](04_api_reference/)
 All API documentation:
-- **[Media API](04_api_reference/media_api.md)** - API for working with media files
+- **[Media API](04_api_reference/media-api.md)** - API for working with media files
 
 ### [05_development/](05_development/)
 Developer guides:

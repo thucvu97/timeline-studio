@@ -37,7 +37,7 @@
 
 ### [04_api_reference/](04_api_reference/)
 Документация всех API:
-- **[Media API](04_api_reference/media_api.md)** - API для работы с медиафайлами
+- **[Media API](04_api_reference/media-api.md)** - API для работы с медиафайлами
 
 ### [05_development/](05_development/)
 Руководства для разработчиков:
