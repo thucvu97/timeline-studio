@@ -1,3 +1,93 @@
+# [0.59.0](https://github.com/chatman-media/timeline-studio/compare/v0.58.2...v0.59.0) (2025-07-30)
+
+
+### Features
+
+* обновить README с новым 3D лого ([40dd47a](https://github.com/chatman-media/timeline-studio/commit/40dd47a40fccecd904354e5fee9f209cbb958817))
+
+## [0.58.2](https://github.com/chatman-media/timeline-studio/compare/v0.58.1...v0.58.2) (2025-07-30)
+
+
+### Bug Fixes
+
+* **promo:** обновить позиционирование текста в 3D лого ([ed48df0](https://github.com/chatman-media/timeline-studio/commit/ed48df09a550d80af40f4156330157fd1fca619c))
+
+## [0.58.1](https://github.com/chatman-media/timeline-studio/compare/v0.58.0...v0.58.1) (2025-07-30)
+
+
+### Bug Fixes
+
+* **promo:** исправить стили блога ([f69786a](https://github.com/chatman-media/timeline-studio/commit/f69786aecf540121d0bc2df9d792eb20f7bc1265))
+* **promo:** обновить шрифты в блоге ([dcb3467](https://github.com/chatman-media/timeline-studio/commit/dcb34678abdba2612a00561488d38c29a859d837))
+
+# [0.58.0](https://github.com/chatman-media/timeline-studio/compare/v0.57.0...v0.58.0) (2025-07-30)
+
+
+### Features
+
+* **promo:** добавить 3D лого с горой из Непала ([5986b12](https://github.com/chatman-media/timeline-studio/commit/5986b1228a9176d8708104ed23fe378206ad82f3))
+
+# [0.57.0](https://github.com/chatman-media/timeline-studio/compare/v0.56.0...v0.57.0) (2025-07-30)
+
+
+### Features
+
+* **promo:** обновить стили Blog страницы под glassmorphism дизайн ([b1ca887](https://github.com/chatman-media/timeline-studio/commit/b1ca88713293e85005ba211789a1ee88660d779f))
+
+# [0.56.0](https://github.com/chatman-media/timeline-studio/compare/v0.55.0...v0.56.0) (2025-07-30)
+
+
+### Bug Fixes
+
+* обновить ссылку на Discord сервер ([05dfe6c](https://github.com/chatman-media/timeline-studio/commit/05dfe6c306745bce61e830de3e608e613341d7f2))
+
+
+### Features
+
+* **promo:** обновить главную страницу и навигацию ([0e13138](https://github.com/chatman-media/timeline-studio/commit/0e1313857bb32de8da5316787ba40f26efce271b))
+
+# [0.55.0](https://github.com/chatman-media/timeline-studio/compare/v0.54.0...v0.55.0) (2025-07-30)
+
+
+### Bug Fixes
+
+* **promo:** использовать Link вместо a для внутренней навигации ([da784cf](https://github.com/chatman-media/timeline-studio/commit/da784cf3410d00fd9180829e33a9f42fc72d22d8))
+* **promo:** модернизировать страницу Documentation ([c5dffe4](https://github.com/chatman-media/timeline-studio/commit/c5dffe44faf2ae7af8d04ea5e15982b851a0bcf4))
+* **promo:** улучшить респонсивность тарифной сетки ([f747860](https://github.com/chatman-media/timeline-studio/commit/f747860a8065c7204b32c29a0f3e65dd0e2bf2fb))
+
+
+### Features
+
+* **promo:** улучшить страницы Demo и Pricing ([aae207c](https://github.com/chatman-media/timeline-studio/commit/aae207ce7653974499ccd8bc96a3dfd2e97d45ed))
+
+# [0.54.0](https://github.com/chatman-media/timeline-studio/compare/v0.53.1...v0.54.0) (2025-07-30)
+
+
+### Features
+
+* **promo:** добавить страницу Demo с интерактивной демонстрацией поиска ([2f6d9a7](https://github.com/chatman-media/timeline-studio/commit/2f6d9a743ddc11dd3b46a968898ea82efd14fd62))
+
+## [0.53.1](https://github.com/chatman-media/timeline-studio/compare/v0.53.0...v0.53.1) (2025-07-30)
+
+
+### Bug Fixes
+
+* **promo:** исправить стили и перевести Pricing на английский ([4a57239](https://github.com/chatman-media/timeline-studio/commit/4a572393d5fa796127335416fbc8825e3e6fc070))
+
+# [0.53.0](https://github.com/chatman-media/timeline-studio/compare/v0.52.1...v0.53.0) (2025-07-30)
+
+
+### Features
+
+* обновить тарифную сетку Timeline Studio ([19cb154](https://github.com/chatman-media/timeline-studio/commit/19cb1543135136f5d8c220d240009aaf440d074d))
+
+## [0.52.1](https://github.com/chatman-media/timeline-studio/compare/v0.52.0...v0.52.1) (2025-07-30)
+
+
+### Bug Fixes
+
+* **promo:** исправить отображение markdown ссылок в changelog ([8f22023](https://github.com/chatman-media/timeline-studio/commit/8f22023a5894eabc440e0ccb07d8d389e8e7bfe9))
+
 # [0.52.0](https://github.com/chatman-media/timeline-studio/compare/v0.51.1...v0.52.0) (2025-07-30)
 
 
