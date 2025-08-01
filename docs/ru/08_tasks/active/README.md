@@ -6,7 +6,22 @@
 
 ### 🔄 Активные задачи
 
-*В настоящее время нет активных задач в разработке.*
+| Задача | Статус | Прогресс | Описание |
+|--------|--------|----------|----------|
+| [Person Identification Advanced](person-identification-advanced.md) | 🚀 В разработке | ~70% | **Продвинутые ML функции** - YOLO, FaceNet, кластеризация, privacy |
+
+### ✅ Недавно завершенные в этой папке
+
+| Задача | Статус | Дата завершения | Описание |
+|--------|--------|-----------------|----------|
+| [Advanced Transitions System](advanced-transitions-system.md) | ✅ ЗАВЕРШЕНО | 30 января 2025 | **Продвинутая система переходов** - 100+ переходов, GPU ускорение, динамические эффекты |
+
+> ⚠️ **Примечание**: advanced-transitions-system.md нужно переместить в папку completed
+
+**Следующие приоритетные задачи для начала разработки:**
+1. **[Stock Footage Integrations](../planned/stock-footage-integrations.md)** - интеграция с Shutterstock, Unsplash, Epidemic Sound (4-5 недель)
+2. **[Comprehensive Resources Database](../planned/comprehensive-resources-database.md)** - обширная база ресурсов (8-12 недель)
+3. **[Effects Library Extension](../planned/effects-library-extension.md)** - расширение библиотеки эффектов (2 дня)
 
 ### 📋 Последние завершенные задачи (28 июля 2025)
 
@@ -184,4 +199,4 @@
 
 ---
 
-*Последнее обновление: 28 июля 2025* | *Версия: 0.34.0*
+*Последнее обновление: 1 августа 2025* | *Версия: 0.53.0*
