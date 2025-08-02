@@ -126,7 +126,7 @@
         "noNamespace": "error",
         "noNegationElse": "off",
         "noNonNullAssertion": "off",
-        "noParameterAssign": "warn",
+        "noParameterAssign": "off",
         "noRestrictedGlobals": "error",
         "noShoutyConstants": "off",
         "noUnusedTemplateLiteral": "error",
