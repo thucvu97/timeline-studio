@@ -8,6 +8,9 @@
 const fs = require("fs")
 const path = require("path")
 
+// Базовая директория проекта (2 уровня вверх от scripts/ci/)
+const rootDir = path.join(__dirname, "..", "..")
+
 // Получаем новую версию из аргументов
 const newVersion = process.argv[2]
 
@@ -31,26 +34,31 @@ console.log(`🚀 Обновление версии приложения до ${
 // Файлы для обновления
 const filesToUpdate = [
   {
-    path: "package.json",
+    path: path.join(rootDir, "package.json"),
     type: "json",
     field: "version",
   },
   {
-    path: "src-tauri/Cargo.toml",
+    path: path.join(rootDir, "src-tauri/Cargo.toml"),
     type: "toml",
     pattern: /^version = ".*"$/m,
     replacement: `version = "${newVersion}"`,
   },
   {
-    path: "src-tauri/tauri.conf.json",
+    path: path.join(rootDir, "src-tauri/tauri.conf.json"),
     type: "json",
     field: "version",
   },
   {
-    path: "src/test/mocks/tauri/api/app.ts",
+    path: path.join(rootDir, "version.json"),
+    type: "json",
+    field: "version",
+  },
+  {
+    path: path.join(rootDir, "src/test/mocks/tauri/api/app.ts"),
     type: "typescript",
-    pattern: /return Promise\.resolve\("[\d.]+(?:-[a-zA-Z0-9-.]+)?"\)/,
-    replacement: `return Promise.resolve("${newVersion}")`,
+    pattern: /\.mockResolvedValue\("[\d.]+(?:-[a-zA-Z0-9-.]+)?"\)/,
+    replacement: `.mockResolvedValue("${newVersion}")`,
   },
 ]
 
@@ -94,10 +102,11 @@ function updateFileWithRegex(filePath, pattern, replacement) {
 
 // Обновляем каждый файл
 filesToUpdate.forEach((file) => {
-  const fullPath = path.join(process.cwd(), file.path)
+  // file.path уже содержит полный путь после наших изменений
+  const fullPath = file.path
 
   if (!fs.existsSync(fullPath)) {
-    console.warn(`⚠️  Файл не найден: ${file.path}`)
+    console.warn(`⚠️  Файл не найден: ${fullPath}`)
     return
   }
 
@@ -114,7 +123,7 @@ filesToUpdate.forEach((file) => {
 
 // Специальная обработка для файла с TODO
 const projectServicePath = path.join(
-  process.cwd(),
+  rootDir,
   "src/features/app-state/services/timeline-studio-project-service.ts",
 )
 if (fs.existsSync(projectServicePath)) {

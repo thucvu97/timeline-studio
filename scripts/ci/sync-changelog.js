@@ -7,9 +7,9 @@ import { fileURLToPath } from "url"
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-// Пути к файлам
-const sourceChangelog = path.join(__dirname, "..", "CHANGELOG.md")
-const targetDir = path.join(__dirname, "..", "promo", "content", "changelog")
+// Пути к файлам (2 уровня вверх от scripts/ci/)
+const sourceChangelog = path.join(__dirname, "..", "..", "CHANGELOG.md")
+const targetDir = path.join(__dirname, "..", "..", "promo", "content", "changelog")
 const targetFile = path.join(targetDir, "latest.md")
 
 // Создаём директорию, если её нет

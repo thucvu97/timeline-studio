@@ -12,7 +12,7 @@ import { fileURLToPath } from "url"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
-const rootDir = join(__dirname, "..")
+const rootDir = join(__dirname, "..", "..")
 
 // Конфигурация
 const config = {
@@ -21,6 +21,7 @@ const config = {
     package: "package.json",
     cargo: "src-tauri/Cargo.toml",
     tauri: "src-tauri/tauri.conf.json",
+    version: "version.json",
     mock: "src/test/mocks/tauri/api/app.ts",
   },
 }
@@ -159,6 +160,10 @@ async function main() {
       console.log("ℹ️  tauri.conf.json использует версию из Cargo.toml")
     }
   }
+
+  // version.json
+  const versionResult = updateVersion(config.files.version, version, updaters.json)
+  versionResult ? success++ : failed++
 
   // Тестовый мок
   const result = updateVersion(config.files.mock, version, updaters.typescript)
