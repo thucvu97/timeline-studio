@@ -1,3 +1,10 @@
+## [0.59.8](https://github.com/chatman-media/timeline-studio/compare/v0.59.7...v0.59.8) (2025-08-02)
+
+
+### Bug Fixes
+
+* исправить типы и методы в Script Generation Engine ([bfda2a2](https://github.com/chatman-media/timeline-studio/commit/bfda2a2cccf5db0675fd57115533787d9b70242f))
+
 ## [0.59.7](https://github.com/chatman-media/timeline-studio/compare/v0.59.6...v0.59.7) (2025-08-02)
 
 
