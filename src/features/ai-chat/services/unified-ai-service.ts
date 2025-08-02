@@ -311,6 +311,17 @@ export interface ContentInsights {
   tags: string[]
   strengths: string[]
   weaknesses: string[]
+  highlights: string[]
+  suggestions: Array<{
+    type: string
+    priority: "low" | "medium" | "high"
+    description: string
+  }>
+  warnings: Array<{
+    type: string
+    severity: "low" | "medium" | "high"
+    description: string
+  }>
   recommendations: Recommendation[]
   marketingAngles: string[]
   targetDemographics: string[]
@@ -1080,6 +1091,9 @@ Accessibility Quality:
         tags: [],
         strengths: [],
         weaknesses: [],
+        highlights: [],
+        suggestions: [],
+        warnings: [],
         recommendations: [],
         marketingAngles: [],
         targetDemographics: [],

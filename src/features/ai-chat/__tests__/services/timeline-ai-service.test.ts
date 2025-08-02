@@ -293,6 +293,7 @@ describe("TimelineAIService", () => {
         effects: [],
         filters: [],
         transitions: [],
+        timelineTransitions: [],
         templates: [],
         styleTemplates: [],
         subtitleStyles: [],

@@ -185,6 +185,7 @@ export interface UnifiedContentAnalysis {
 export interface MediaFileInfo {
   path: string
   filename: string
+  name: string
   size: number
   format: string
   duration: number

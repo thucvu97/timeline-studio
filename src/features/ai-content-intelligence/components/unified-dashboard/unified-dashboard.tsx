@@ -33,7 +33,7 @@ import { cn } from "@/lib/utils"
 import { useAIIntelligence } from "../../hooks/use-ai-intelligence"
 import { useContentPipeline } from "../../hooks/use-content-pipeline"
 import type {
-  AIIntelligenceConfig,
+  AIConfig,
   IntelligentContent,
   MediaFileInfo,
   PipelineProgress,
@@ -130,7 +130,7 @@ export const UnifiedDashboard: FC<UnifiedDashboardProps> = ({
       setProcessingStatus("analyzing")
       setActiveView("processing")
 
-      const config: Partial<AIIntelligenceConfig> = {
+      const config: Partial<AIConfig> = {
         analysis: {
           enableSceneDetection: true,
           enableObjectDetection: true,
@@ -167,7 +167,7 @@ export const UnifiedDashboard: FC<UnifiedDashboardProps> = ({
       setProcessingStatus("analyzing")
       setActiveView("processing")
 
-      const config: Partial<AIIntelligenceConfig> = {
+      const config: Partial<AIConfig> = {
         analysis: {
           enableSceneDetection: true,
           enableObjectDetection: true,

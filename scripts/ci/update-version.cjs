@@ -122,10 +122,7 @@ filesToUpdate.forEach((file) => {
 })
 
 // Специальная обработка для файла с TODO
-const projectServicePath = path.join(
-  rootDir,
-  "src/features/app-state/services/timeline-studio-project-service.ts",
-)
+const projectServicePath = path.join(rootDir, "src/features/app-state/services/timeline-studio-project-service.ts")
 if (fs.existsSync(projectServicePath)) {
   console.log("\n📋 Проверка timeline-studio-project-service.ts...")
   const content = fs.readFileSync(projectServicePath, "utf8")

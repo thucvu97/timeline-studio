@@ -86,6 +86,7 @@ export async function createTimelineProject(params: any): Promise<TimelineToolRe
         effects: [],
         filters: [],
         transitions: [],
+        timelineTransitions: [],
         templates: [],
         styleTemplates: [],
         subtitleStyles: [],

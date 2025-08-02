@@ -239,6 +239,16 @@
       }
     },
     {
+      "includes": ["promo/src/types/three.d.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noNamespace": "off"
+          }
+        }
+      }
+    },
+    {
       "includes": ["scripts/**/*.js", "scripts/**/*.cjs", "scripts/**/*.mjs"],
       "linter": {
         "enabled": false
