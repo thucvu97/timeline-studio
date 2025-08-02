@@ -1,3 +1,10 @@
+## [0.59.9](https://github.com/chatman-media/timeline-studio/compare/v0.59.8...v0.59.9) (2025-08-02)
+
+
+### Bug Fixes
+
+* исправить скрипт sync-version для добавления переносов строк в JSON файлы ([9015a55](https://github.com/chatman-media/timeline-studio/commit/9015a557a5b76d5d06799fbc0838f88ca83b6553))
+
 ## [0.59.8](https://github.com/chatman-media/timeline-studio/compare/v0.59.7...v0.59.8) (2025-08-02)
 
 
