@@ -11,10 +11,10 @@ import { fileURLToPath } from "url"
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-// Читаем версию из package.json
+// Получаем версию из аргументов или из package.json
 const packageJsonPath = path.join(__dirname, "..", "..", "package.json")
 const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"))
-const version = packageJson.version
+const version = process.argv[2] || packageJson.version
 
 console.log(`Синхронизация версии: ${version}`)
 
