@@ -446,6 +446,9 @@ export function TransitionPreview({
           case target.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
             console.error("Формат видео не поддерживается или файл не найден")
             break
+          default:
+            console.error(`Неизвестная ошибка видео: код ${target.error.code}`)
+            break
         }
       }
       

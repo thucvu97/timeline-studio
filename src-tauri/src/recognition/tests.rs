@@ -1,3 +1,4 @@
+use crate::recognition::ort_manager::OrtManager;
 use crate::recognition::recognition_service::{RecognitionEvent, RecognitionService};
 use crate::recognition::types::{
   BoundingBox, DetectedFace, DetectedObject, DetectedScene, RecognitionResults,
@@ -8,8 +9,8 @@ use tempfile::TempDir;
 
 /// Проверяет доступность ONNX Runtime
 fn is_ort_available() -> bool {
-  // Используем catch_unwind для перехвата паники при отсутствии ORT
-  std::panic::catch_unwind(|| ort::init().commit().is_ok()).unwrap_or(false)
+  // Используем OrtManager для проверки
+  OrtManager::ensure_initialized().is_ok()
 }
 
 #[tokio::test]

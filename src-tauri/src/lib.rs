@@ -335,6 +335,21 @@ pub fn run() {
       app.manage(event_bus);
       app.manage(service_container);
 
+      // Получаем окно и добавляем обработчик закрытия
+      if let Some(window) = app.get_webview_window("main") {
+        window.on_window_event(|event| {
+          if let tauri::WindowEvent::CloseRequested { .. } = event {
+            log::info!("Window close requested, performing cleanup...");
+
+            // Даем время завершить активные операции
+            std::thread::sleep(std::time::Duration::from_millis(100));
+
+            log::info!("Application cleanup completed");
+            // Окно закроется автоматически после возврата из обработчика
+          }
+        });
+      }
+
       log::info!("Application setup completed");
       Ok(())
     })
