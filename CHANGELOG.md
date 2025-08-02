@@ -1,3 +1,11 @@
+## [0.59.6](https://github.com/chatman-media/timeline-studio/compare/v0.59.5...v0.59.6) (2025-08-02)
+
+
+### Bug Fixes
+
+* исправить ошибки Biome CI и добавить недостающие типы ([b1e8f0e](https://github.com/chatman-media/timeline-studio/commit/b1e8f0e5f7dd3f4cd795db8875feafff2be721e4))
+* исправить ошибки типов в AI Content Intelligence модуле ([12d0c27](https://github.com/chatman-media/timeline-studio/commit/12d0c27e3e001928ed8524f8afc30ee211b2e144))
+
 ## [0.59.5](https://github.com/chatman-media/timeline-studio/compare/v0.59.4...v0.59.5) (2025-08-02)
 
 
