@@ -1,3 +1,10 @@
+## [0.59.3](https://github.com/chatman-media/timeline-studio/compare/v0.59.2...v0.59.3) (2025-08-02)
+
+
+### Bug Fixes
+
+* исправить формирование version.json в скрипте синхронизации версий ([9f1f2cb](https://github.com/chatman-media/timeline-studio/commit/9f1f2cb8f1688c6c47ad06606e7390fba8823fac))
+
 ## [0.59.2](https://github.com/chatman-media/timeline-studio/compare/v0.59.1...v0.59.2) (2025-08-02)
 
 
