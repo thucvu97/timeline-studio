@@ -1,3 +1,15 @@
+## [0.59.1](https://github.com/chatman-media/timeline-studio/compare/v0.59.0...v0.59.1) (2025-08-02)
+
+
+### Bug Fixes
+
+* исправить тесты после замены div на семантические button элементы ([862541c](https://github.com/chatman-media/timeline-studio/commit/862541c1318f61e74c4df4d3d2601f2e5c52b4e0))
+
+
+### Reverts
+
+* откат обновления пакета ([396670d](https://github.com/chatman-media/timeline-studio/commit/396670dabfc923861249d4ec3288a6d699c881c8))
+
 # [0.59.0](https://github.com/chatman-media/timeline-studio/compare/v0.58.2...v0.59.0) (2025-07-30)
 
 
