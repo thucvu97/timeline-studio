@@ -1,3 +1,11 @@
+## [0.59.4](https://github.com/chatman-media/timeline-studio/compare/v0.59.3...v0.59.4) (2025-08-02)
+
+
+### Bug Fixes
+
+* исправить ошибки типов и добавить отсутствующие свойства ([775b6f8](https://github.com/chatman-media/timeline-studio/commit/775b6f8de37f2786e30b24d6da4f76c54f678706))
+* обновить пути к CI скриптам в semantic-release конфигурации ([9a550f6](https://github.com/chatman-media/timeline-studio/commit/9a550f63556b58d8eb1bc627e5d81f983f5fee7a))
+
 ## [0.59.3](https://github.com/chatman-media/timeline-studio/compare/v0.59.2...v0.59.3) (2025-08-02)
 
 
