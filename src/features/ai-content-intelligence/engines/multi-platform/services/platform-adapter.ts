@@ -147,7 +147,7 @@ export class PlatformAdapter {
       },
       optimizations: {
         compressed: true,
-        enhanced: strategy.videoStrategy.enhancementFilters?.length > 0,
+        enhanced: (strategy.videoStrategy.enhancementFilters?.length ?? 0) > 0,
         aiProcessed: true,
       },
       processingDetails: {

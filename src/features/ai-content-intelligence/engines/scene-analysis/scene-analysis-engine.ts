@@ -546,7 +546,7 @@ export class SceneAnalysisEngine {
             quality: detection.confidence,
             faceId: detection.id,
             timestamp: detection.timestamp,
-            frameNumber: detection.frameNumber,
+            frameNumber: detection.frameNumber ?? 0,
             clipId: detection.clipId,
           }
 

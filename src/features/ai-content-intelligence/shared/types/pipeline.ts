@@ -117,6 +117,7 @@ export interface PipelineProgress {
   steps: StepProgress[]
   estimatedTimeRemaining?: number // seconds
   messages: ProgressMessage[]
+  details?: string // Additional details about current progress
 }
 
 export interface StepProgress {

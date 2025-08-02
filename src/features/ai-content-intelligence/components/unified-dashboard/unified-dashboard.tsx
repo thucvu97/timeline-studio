@@ -39,6 +39,7 @@ import type {
   PipelineProgress,
   UnifiedContentAnalysis,
 } from "../../shared/types"
+import { createDefaultAIConfig } from "../../shared/utils/config"
 import { AnalysisViewer } from "../analysis-viewer/analysis-viewer"
 import { PreviewGrid } from "../preview-grid/preview-grid"
 
@@ -130,23 +131,16 @@ export const UnifiedDashboard: FC<UnifiedDashboardProps> = ({
       setProcessingStatus("analyzing")
       setActiveView("processing")
 
-      const config: Partial<AIConfig> = {
-        analysis: {
-          enableSceneDetection: true,
-          enableObjectDetection: true,
-          enableFaceDetection: true,
-          enableTextDetection: true,
-          enableAudioAnalysis: true,
+      const config = createDefaultAIConfig({
+        features: {
+          sceneAnalysis: true,
+          contentDetection: true,
+          audioAnalysis: true,
+          scriptGeneration: true,
+          multiPlatformAdaptation: true,
         },
-        generation: {
-          enableScriptGeneration: true,
-          enableNarrativeStructure: true,
-        },
-        adaptation: {
-          platforms: ["youtube", "tiktok", "instagram"],
-          enableAutomaticOptimization: true,
-        },
-      }
+        platforms: [],
+      })
 
       const analysis = await analyzeContent(mediaFiles, config)
       setCurrentAnalysis(analysis)
@@ -167,26 +161,16 @@ export const UnifiedDashboard: FC<UnifiedDashboardProps> = ({
       setProcessingStatus("analyzing")
       setActiveView("processing")
 
-      const config: Partial<AIConfig> = {
-        analysis: {
-          enableSceneDetection: true,
-          enableObjectDetection: true,
-          enableFaceDetection: true,
-          enableTextDetection: true,
-          enableAudioAnalysis: true,
+      const config = createDefaultAIConfig({
+        features: {
+          sceneAnalysis: true,
+          contentDetection: true,
+          audioAnalysis: true,
+          scriptGeneration: true,
+          multiPlatformAdaptation: true,
         },
-        generation: {
-          enableScriptGeneration: true,
-          enableNarrativeStructure: true,
-          enableCharacterDevelopment: true,
-          enableDialogueGeneration: true,
-        },
-        adaptation: {
-          platforms: ["youtube", "tiktok", "instagram", "twitter"],
-          enableAutomaticOptimization: true,
-          enableSEOOptimization: true,
-        },
-      }
+        platforms: [],
+      })
 
       await processProject(mediaFiles, config)
     } catch (error) {

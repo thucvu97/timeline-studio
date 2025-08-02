@@ -85,6 +85,7 @@ export interface ContentElements {
   faces: FaceDetection[]
   text: TextDetection[]
   activities: ActivityDetection[]
+  identifiedPersons?: any[] // For person tracking
 }
 
 export interface ObjectDetection {
