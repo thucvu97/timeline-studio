@@ -1,7 +1,7 @@
 import {
   ArrowLeftRight,
   Gauge,
-  LucideIcon,
+  type LucideIcon,
   Minimize2,
   MousePointer,
   Move,

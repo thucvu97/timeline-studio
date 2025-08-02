@@ -6,7 +6,7 @@ import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { DEFAULT_PROJECT_SETTINGS } from "@/features/project-settings/types/project"
-import { TimelineStudioProject } from "@/features/project-settings/types/timeline-studio-project"
+import type { TimelineStudioProject } from "@/features/project-settings/types/timeline-studio-project"
 
 import { TimelineStudioProjectService } from "../../services/timeline-studio-project-service"
 

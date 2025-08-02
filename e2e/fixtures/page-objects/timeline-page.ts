@@ -1,4 +1,4 @@
-import { Locator, Page } from "@playwright/test"
+import type { Locator, Page } from "@playwright/test"
 
 export class TimelinePage {
   readonly page: Page
@@ -29,7 +29,7 @@ export class TimelinePage {
     this.playhead = page.locator('[data-testid="playhead"], [class*="playhead"], [class*="cursor"]').first()
   }
 
-  async addClipToTimeline(mediaItemSelector: Locator, trackIndex: number = 0) {
+  async addClipToTimeline(mediaItemSelector: Locator, trackIndex = 0) {
     // Перетаскиваем медиа элемент на таймлайн
     const track = this.tracks.nth(trackIndex)
     await mediaItemSelector.dragTo(track)

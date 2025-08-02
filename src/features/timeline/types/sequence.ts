@@ -3,11 +3,11 @@
  * Основная единица редактирования в проекте
  */
 
-import { VideoEffect } from "@/features/effects/types"
-import { VideoFilter } from "@/features/filters/types/filters"
-import { Transition } from "@/features/transitions/types/transitions"
+import type { VideoEffect } from "@/features/effects/types"
+import type { VideoFilter } from "@/features/filters/types/filters"
+import type { Transition } from "@/features/transitions/types/transitions"
 
-import { TimelineClip, TimelineTrack } from "./timeline"
+import type { TimelineClip, TimelineTrack } from "./timeline"
 
 /**
  * Тип секвенции

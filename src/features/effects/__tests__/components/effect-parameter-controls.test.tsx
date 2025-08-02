@@ -2,7 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { VideoEffect } from "@/features/effects/types"
+import type { VideoEffect } from "@/features/effects/types"
 import { BrowserProviders } from "@/test/test-utils"
 
 import { EffectParameterControls } from "../../components/effect-parameter-controls"

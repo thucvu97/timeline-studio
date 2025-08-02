@@ -13,7 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { useVersionControl } from "@/features/app-state/hooks/use-version-control"
 
-import { VersionInfo } from "../types"
+import type { VersionInfo } from "../types"
 
 // Простая функция форматирования времени без date-fns
 const formatTimeAgo = (date: Date): string => {

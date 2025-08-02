@@ -2,7 +2,7 @@ import { useCallback, useState } from "react"
 
 import { cn } from "@/lib/utils"
 import { useAudioClipEditor } from "../../hooks/use-audio-clip-editor"
-import { AudioClip } from "../../services/audio-clip-editor"
+import type { AudioClip } from "../../services/audio-clip-editor"
 import { AudioClipEditorComponent } from "../editor/audio-clip-editor"
 import { AudioClipComponent } from "./audio-clip"
 

@@ -8,7 +8,7 @@
 import { SceneAnalysisEngine } from "@/features/ai-content-intelligence/engines/scene-analysis/scene-analysis-engine"
 import { PersonDatabaseService } from "@/features/person-identification/services/person-database-service"
 
-import { type ClaudeTool } from "../services/claude-service"
+import type { ClaudeTool } from "../services/claude-service"
 
 // Сервисы будут инициализированы по требованию
 let personDatabase: PersonDatabaseService | null = null

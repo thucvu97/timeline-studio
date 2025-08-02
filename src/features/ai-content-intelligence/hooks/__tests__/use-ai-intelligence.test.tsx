@@ -100,7 +100,7 @@ describe("useAIIntelligence", () => {
       const mediaFiles = [createMockMediaFile()]
       const config = { analysis: { enableSceneDetection: true } }
 
-      let analysis
+      let analysis: any
       await act(async () => {
         analysis = await result.current.analyzeContent(mediaFiles, config)
       })
@@ -188,7 +188,7 @@ describe("useAIIntelligence", () => {
         duration: 120,
       }
 
-      let script
+      let script: any
       await act(async () => {
         script = await result.current.generateScript(analysis, params)
       })
@@ -235,7 +235,7 @@ describe("useAIIntelligence", () => {
       }
       const platforms = ["youtube", "tiktok"] as any[]
 
-      let adaptations
+      let adaptations: any
       await act(async () => {
         adaptations = await result.current.adaptForPlatforms(content, platforms)
       })
@@ -258,7 +258,7 @@ describe("useAIIntelligence", () => {
       const mediaFiles = [createMockMediaFile()]
       const config = createMockAIConfig()
 
-      let intelligentContent
+      let intelligentContent: any
       await act(async () => {
         intelligentContent = await result.current.processProject(mediaFiles, config)
       })

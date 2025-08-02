@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { TimelineMarkersLayer } from "../../../components/markers/timeline-markers-layer"
-import { ExtendedTimelineMarker } from "../../../types/markers"
+import type { ExtendedTimelineMarker } from "../../../types/markers"
 
 // Mock компонента TimelineMarker
 vi.mock("../../../components/markers/timeline-marker", () => ({

@@ -17,10 +17,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
 
 import {
-  AdvancedDetectionConfig,
-  AdvancedFaceDetection,
+  type AdvancedDetectionConfig,
+  type AdvancedFaceDetection,
   AdvancedFaceDetectionService,
-  RealtimeProcessingStatus,
+  type RealtimeProcessingStatus,
 } from "../services/advanced-face-detection-service"
 import { PersonDatabaseService } from "../services/person-database-service"
 

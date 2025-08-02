@@ -1,6 +1,6 @@
 import { Loader2 } from "lucide-react"
 
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 import { cn } from "@/lib/utils"
 
 import { AudioPreview } from "./audio-preview"

@@ -43,13 +43,14 @@ export function assignTrackForClip(tracks: TimelineTrack[], clipConfig: any, str
   const contentType = clipConfig.contentType || determineContentType(clipConfig)
 
   switch (strategy) {
-    case "content_type":
+    case "content_type": {
       // Поиск трека по типу контента
       const typeTrack = tracks.find((track) => track.type.toLowerCase().includes(contentType.toLowerCase()))
       if (typeTrack) return typeTrack.id
       break
+    }
 
-    case "least_used":
+    case "least_used": {
       // Назначение на наименее используемый трек
       const trackUsage = tracks.map((track: TimelineTrack) => ({
         id: track.id,
@@ -57,8 +58,9 @@ export function assignTrackForClip(tracks: TimelineTrack[], clipConfig: any, str
       }))
       const leastUsed = trackUsage.reduce((min, current) => (current.clipCount < min.clipCount ? current : min))
       return leastUsed.id
+    }
 
-    case "time_based":
+    case "time_based": {
       // Назначение на основе времени (избегаем перекрытий)
       const targetTime = clipConfig.startTime || 0
       const duration = clipConfig.duration || 10
@@ -72,8 +74,9 @@ export function assignTrackForClip(tracks: TimelineTrack[], clipConfig: any, str
         if (!hasOverlap) return track.id
       }
       break
+    }
 
-    case "smart":
+    case "smart": {
       // Комбинированная стратегия
       // 1. Сначала по типу контента
       const smartTypeTrack = tracks.find((track) => track.type.toLowerCase().includes(contentType.toLowerCase()))
@@ -98,13 +101,15 @@ export function assignTrackForClip(tracks: TimelineTrack[], clipConfig: any, str
         current.clipCount < min.clipCount ? current : min,
       )
       return smartLeastUsed.id
+    }
 
-    case "sequential":
+    case "sequential": {
       // Последовательное распределение по трекам
       const clipCounts = tracks.map((t) => t.clips?.length || 0)
       const minCount = Math.min(...clipCounts)
       const trackIndex = clipCounts.indexOf(minCount)
       return tracks[trackIndex].id
+    }
 
     default:
       // По умолчанию - первый подходящий трек

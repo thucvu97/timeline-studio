@@ -13,7 +13,7 @@ import {
   ZoomIn,
   ZoomOut,
 } from "lucide-react"
-import React from "react"
+import type React from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
@@ -27,7 +27,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
-import { ViewMode } from "@/shared/types/browser-context"
+import type { ViewMode } from "@/shared/types/browser-context"
 
 // Конфигурация режимов просмотра
 export interface ViewModeConfig {

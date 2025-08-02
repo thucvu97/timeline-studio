@@ -1,11 +1,11 @@
-import React from "react"
+import type React from "react"
 
 import { useFavorites } from "@/features/app-state"
 import { useTransitionsAdapter as useUnifiedTransitionsAdapter } from "@/features/browser/hooks/use-resources"
 import { useDraggable } from "@/features/drag-drop"
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 import { TransitionPreview } from "@/features/transitions/components/transition-preview"
-import { Transition } from "@/features/transitions/types/transitions"
+import type { Transition } from "@/features/transitions/types/transitions"
 import { convertVideoSrc } from "@/lib/tauri-utils"
 
 import type { ListAdapter, ListItem, PreviewComponentProps } from "../types/list"
@@ -124,10 +124,11 @@ export function useTransitionsAdapter(): ListAdapter<TransitionListItem> {
             return (transition.labels?.ru || transition.labels?.en || transition.name || "").toLowerCase()
           case "category":
             return transition.category.toLowerCase()
-          case "complexity":
+          case "complexity": {
             // Определяем порядок сложности: basic < intermediate < advanced
             const complexityOrder: Record<string, number> = { basic: 0, intermediate: 1, advanced: 2 }
             return complexityOrder[transition.complexity || "basic"]
+          }
           case "duration":
             return transition.duration?.default || 1
           case "type":
@@ -160,11 +161,12 @@ export function useTransitionsAdapter(): ListAdapter<TransitionListItem> {
           case "tags":
             // Группируем по первому тегу или "untagged"
             return transition.tags && transition.tags.length > 0 ? transition.tags[0] : "untagged"
-          case "duration":
+          case "duration": {
             const duration = transition.duration?.default || 1
             if (duration <= 1) return "Короткие (≤1с)"
             if (duration <= 3) return "Средние (1-3с)"
             return "Длинные (>3с)"
+          }
           default:
             return ""
         }

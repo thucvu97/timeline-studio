@@ -1,5 +1,6 @@
 import { fireEvent, screen } from "@testing-library/react"
-import React, { createRef } from "react"
+import type React from "react"
+import { createRef } from "react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { render } from "@/test/test-utils"

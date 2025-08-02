@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useEffect, useRef, useState } from "react"
+import type React from "react"
+import { createContext, useContext, useEffect, useRef, useState } from "react"
 
 import { DEFAULT_PREVIEW_SIZE_INDEX, PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"
-import { BrowserTab } from "@/shared/types/browser"
+import type { BrowserTab } from "@/shared/types/browser"
 import type { BrowserContext, ViewMode } from "@/shared/types/browser-context"
 
 /**

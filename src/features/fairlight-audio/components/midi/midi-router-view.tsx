@@ -61,9 +61,10 @@ function RouteItem({ route, onUpdate, onDelete, devices }: RouteItemProps) {
 
   const getDestinationLabel = (dest: MidiDestination) => {
     switch (dest.type) {
-      case "device":
+      case "device": {
         const device = devices.find((d) => d.id === dest.deviceId)
         return device?.name || dest.deviceId || "Unknown"
+      }
       case "channel":
         return `${t("fairlightAudio.midi.router.destination.channel")} ${dest.targetChannel}`
       case "virtual":

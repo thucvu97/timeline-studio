@@ -81,7 +81,7 @@ export function useClipEditing(clipId: string, options: UseClipEditingOptions = 
       let newOffset = editStartRef.current.offset
 
       switch (editMode) {
-        case EDIT_MODES.TRIM:
+        case EDIT_MODES.TRIM: {
           // Simple trim without ripple
           const bounds = getClipTrimBounds(clip, "start", track)
 
@@ -97,6 +97,7 @@ export function useClipEditing(clipId: string, options: UseClipEditingOptions = 
             newOffset = editStartRef.current.offset + (newStartTime - editStartRef.current.startTime)
           }
           break
+        }
 
         case EDIT_MODES.RIPPLE:
           // Ripple trim affects subsequent clips
@@ -106,18 +107,20 @@ export function useClipEditing(clipId: string, options: UseClipEditingOptions = 
           newOffset = editStartRef.current.offset + timeDelta
           break
 
-        case EDIT_MODES.SLIP:
+        case EDIT_MODES.SLIP: {
           // Slip only changes offset
           const slipBounds = getSlipBounds(clip)
           newOffset = Math.max(slipBounds.min, Math.min(slipBounds.max, editStartRef.current.offset + timeDelta))
           break
+        }
 
-        case EDIT_MODES.SLIDE:
+        case EDIT_MODES.SLIDE: {
           // Slide moves clip and adjusts neighbors
           const slideBounds = getSlideBounds(clip, track)
           const slideAmount = Math.max(slideBounds.min, Math.min(slideBounds.max, timeDelta))
           newStartTime = editStartRef.current.startTime + slideAmount
           break
+        }
 
         default:
           // No changes for other modes

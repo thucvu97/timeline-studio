@@ -5,7 +5,7 @@
 
 import { invoke } from "@tauri-apps/api/core"
 
-import { DetectedFace, PersonAppearance } from "../types/person"
+import type { DetectedFace, PersonAppearance } from "../types/person"
 
 // Трекинг конфигурация
 export interface TrackingConfig {

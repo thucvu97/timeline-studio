@@ -92,7 +92,7 @@ export const timeRemapProcessor: NodeProcessor = {
           remappedFrame %= duration
           if (remappedFrame < 0) remappedFrame += duration
           break
-        case "ping_pong":
+        case "ping_pong": {
           const cycle = Math.floor(remappedFrame / duration)
           if (cycle % 2 === 1) {
             remappedFrame = duration - (remappedFrame % duration)
@@ -100,6 +100,7 @@ export const timeRemapProcessor: NodeProcessor = {
             remappedFrame %= duration
           }
           break
+        }
         case "freeze":
           remappedFrame = Math.max(0, Math.min(duration - 1, remappedFrame))
           break
@@ -497,18 +498,20 @@ export const timeExpressionProcessor: NodeProcessor = {
       case "sawtooth":
         value = ((time * frequency) % 1) * 2 - 1
         break
-      case "triangle":
+      case "triangle": {
         const saw = (time * frequency) % 1
         value = saw < 0.5 ? saw * 4 - 1 : 3 - saw * 4
         break
+      }
       case "square":
         value = Math.sin(time * frequency * Math.PI * 2) > 0 ? 1 : -1
         break
-      case "noise":
+      case "noise": {
         // Simple pseudo-random noise
         const seed = Math.floor(time * frequency * context.frameRate)
         value = ((Math.sin(seed * 12.9898 + 78.233) * 43758.5453) % 1) * 2 - 1
         break
+      }
       default:
         console.warn(`Unknown expression type: ${expression}`)
         value = time * frequency

@@ -7,13 +7,13 @@ import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs"
 import { nanoid } from "nanoid"
 
 import { createEmptyMediaPool } from "@/features/media/utils/media-pool-utils"
-import { DEFAULT_PROJECT_SETTINGS, ProjectSettings } from "@/features/project-settings/types/project"
-import {
+import { DEFAULT_PROJECT_SETTINGS, type ProjectSettings } from "@/features/project-settings/types/project"
+import type {
   ProjectMetadata,
   ProjectOperations,
   TimelineStudioProject,
 } from "@/features/project-settings/types/timeline-studio-project"
-import { Sequence } from "@/features/timeline/types/sequence"
+import type { Sequence } from "@/features/timeline/types/sequence"
 
 /**
  * Класс сервиса для управления проектами Timeline Studio

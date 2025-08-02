@@ -2,11 +2,19 @@
  * Сервис для работы с локальными AI моделями через Ollama
  */
 
-import { AiMessage } from "../types/ai-message"
-import { StreamingOptions } from "../types/streaming"
+import type { AiMessage } from "../types/ai-message"
+import type { StreamingOptions } from "../types/streaming"
 
-// Популярные модели Ollama
+// Популярные модели Ollama (обновлено для альфа-релиза)
 export const OLLAMA_MODELS = {
+  // Рекомендуемые для альфа-релиза (маленькие и быстрые)
+  LLAMA3_2: "llama3.2", // Новая модель, быстрая и эффективная
+  LLAMA3_2_VISION: "llama3.2-vision", // С поддержкой изображений
+  PHI3: "phi3", // Microsoft Phi-3, очень быстрая
+  GEMMA2: "gemma2:2b", // Google Gemma 2B, компактная
+  QWEN2_5: "qwen2.5:0.5b", // Самая маленькая, для тестов
+
+  // Классические модели
   LLAMA2: "llama2",
   LLAMA2_13B: "llama2:13b",
   LLAMA2_70B: "llama2:70b",
@@ -340,8 +348,51 @@ export class OllamaService {
   /**
    * Получить информацию о доступных моделях для скачивания
    */
-  public getAvailableModels(): Array<{ id: string; name: string; description: string; size: string }> {
+  public getAvailableModels(): Array<{
+    id: string
+    name: string
+    description: string
+    size: string
+    recommended?: boolean
+  }> {
     return [
+      // Рекомендуемые модели для альфа-релиза
+      {
+        id: OLLAMA_MODELS.QWEN2_5,
+        name: "Qwen 2.5 (0.5B)",
+        description: "⚡ Самая быстрая модель для тестирования",
+        size: "400MB",
+        recommended: true,
+      },
+      {
+        id: OLLAMA_MODELS.GEMMA2,
+        name: "Gemma 2 (2B)",
+        description: "🎯 Оптимальный баланс скорости и качества",
+        size: "1.6GB",
+        recommended: true,
+      },
+      {
+        id: OLLAMA_MODELS.PHI3,
+        name: "Phi-3 (3.8B)",
+        description: "🚀 Microsoft модель, отличная производительность",
+        size: "2.3GB",
+        recommended: true,
+      },
+      {
+        id: OLLAMA_MODELS.LLAMA3_2,
+        name: "Llama 3.2 (3B)",
+        description: "🦙 Новейшая модель Meta для видео анализа",
+        size: "2GB",
+        recommended: true,
+      },
+      {
+        id: OLLAMA_MODELS.LLAMA3_2_VISION,
+        name: "Llama 3.2 Vision (11B)",
+        description: "👁️ С поддержкой анализа изображений",
+        size: "7GB",
+        recommended: false,
+      },
+      // Классические модели
       {
         id: OLLAMA_MODELS.LLAMA2,
         name: "Llama 2 (7B)",
@@ -391,5 +442,124 @@ export class OllamaService {
         size: "4.1GB",
       },
     ]
+  }
+
+  /**
+   * Анализ видео контента (для альфа-релиза)
+   */
+  public async analyzeVideoContent(
+    description: string,
+    duration: number,
+  ): Promise<{
+    scenes: Array<{ start: number; end: number; description: string }>
+    keyMoments: Array<{ time: number; description: string }>
+    tags: string[]
+    summary: string
+  }> {
+    const prompt = `Проанализируй видео контент:
+Описание: ${description}
+Длительность: ${duration} секунд
+
+Задачи:
+1. Определи основные сцены (начало и конец каждой)
+2. Найди ключевые моменты
+3. Предложи теги для видео
+4. Создай краткое описание
+
+Формат ответа JSON:
+{
+  "scenes": [{"start": 0, "end": 10, "description": "..."}],
+  "keyMoments": [{"time": 5, "description": "..."}],
+  "tags": ["tag1", "tag2"],
+  "summary": "..."
+}`
+
+    try {
+      const response = await this.sendRequest(
+        OLLAMA_MODELS.LLAMA3_2,
+        [
+          { role: "system", content: "Ты - эксперт по анализу видео контента. Отвечай только в формате JSON." },
+          { role: "user", content: prompt },
+        ],
+        { temperature: 0.3 },
+      )
+
+      // Парсим JSON ответ
+      const jsonMatch = response.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[0])
+      }
+
+      // Fallback если не удалось распарсить
+      return {
+        scenes: [{ start: 0, end: duration, description: "Основная сцена" }],
+        keyMoments: [],
+        tags: ["видео"],
+        summary: description,
+      }
+    } catch (error) {
+      console.error("Ошибка анализа видео:", error)
+      // Возвращаем базовый результат при ошибке
+      return {
+        scenes: [{ start: 0, end: duration, description: "Полное видео" }],
+        keyMoments: [],
+        tags: [],
+        summary: "Ошибка анализа",
+      }
+    }
+  }
+
+  /**
+   * Генерация субтитров на основе транскрипции
+   */
+  public async generateSubtitles(
+    transcript: string,
+    duration: number,
+  ): Promise<Array<{ start: number; end: number; text: string }>> {
+    const prompt = `Создай субтитры для видео.
+Транскрипция: ${transcript}
+Длительность: ${duration} секунд
+
+Раздели текст на фрагменты по 3-5 секунд.
+Формат ответа JSON:
+[{"start": 0, "end": 3, "text": "..."}, ...]`
+
+    try {
+      const response = await this.sendRequest(
+        OLLAMA_MODELS.GEMMA2,
+        [
+          { role: "system", content: "Создавай субтитры в формате JSON." },
+          { role: "user", content: prompt },
+        ],
+        { temperature: 0.1 },
+      )
+
+      const jsonMatch = response.match(/\[[\s\S]*\]/)
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[0])
+      }
+
+      // Простой fallback
+      const words = transcript.split(" ")
+      const wordsPerSubtitle = Math.ceil(words.length / (duration / 3))
+      const subtitles = []
+      let currentTime = 0
+
+      for (let i = 0; i < words.length; i += wordsPerSubtitle) {
+        const text = words.slice(i, i + wordsPerSubtitle).join(" ")
+        const endTime = Math.min(currentTime + 3, duration)
+        subtitles.push({
+          start: currentTime,
+          end: endTime,
+          text,
+        })
+        currentTime = endTime
+      }
+
+      return subtitles
+    } catch (error) {
+      console.error("Ошибка генерации субтитров:", error)
+      return []
+    }
   }
 }

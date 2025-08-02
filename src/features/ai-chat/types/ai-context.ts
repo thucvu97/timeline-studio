@@ -5,14 +5,14 @@
  * различными компонентами приложения и AI агентом
  */
 
-import { VideoEffect } from "@/features/effects/types"
-import { VideoFilter } from "@/features/filters/types/filters"
-import { MediaFile } from "@/features/media/types/media"
-import { ResourceType } from "@/features/resources/types"
-import { StyleTemplate } from "@/features/style-templates/types/style-template"
-import { MediaTemplate } from "@/features/templates/lib/templates"
-import { TimelineProject } from "@/features/timeline/types"
-import { Transition } from "@/features/transitions/types/transitions"
+import type { VideoEffect } from "@/features/effects/types"
+import type { VideoFilter } from "@/features/filters/types/filters"
+import type { MediaFile } from "@/features/media/types/media"
+import type { ResourceType } from "@/features/resources/types"
+import type { StyleTemplate } from "@/features/style-templates/types/style-template"
+import type { MediaTemplate } from "@/features/templates/lib/templates"
+import type { TimelineProject } from "@/features/timeline/types"
+import type { Transition } from "@/features/transitions/types/transitions"
 
 // ============================================================================
 // CORE AI CONTEXT TYPES

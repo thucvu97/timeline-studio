@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react"
 
 import { useTranslation } from "react-i18next"
 
-import { BaseEffect } from "@/features/effects/types"
+import type { BaseEffect } from "@/features/effects/types"
 
 import { allMigratedEffects, migratedEffects } from "../data/effects-loader"
 

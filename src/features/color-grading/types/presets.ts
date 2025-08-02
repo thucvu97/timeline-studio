@@ -1,4 +1,4 @@
-import { ColorGradingState } from "./color-grading"
+import type { ColorGradingState } from "./color-grading"
 
 export interface ColorGradingPreset {
   id: string

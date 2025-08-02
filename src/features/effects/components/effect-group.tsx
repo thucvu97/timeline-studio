@@ -1,7 +1,7 @@
-import React from "react"
+import type React from "react"
 
 import { ContentGroup } from "@/features/browser/components/content-group"
-import { BaseEffect } from "@/features/effects/types"
+import type { BaseEffect } from "@/features/effects/types"
 
 import { EffectPreview } from "./effect-preview"
 

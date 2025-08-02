@@ -7,9 +7,9 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react"
 
 import { getBackendSync } from "@/features/app-state/services/backend-sync"
-import { ProjectState } from "@/types/generated/tauri-bindings"
+import type { ProjectState } from "@/types/generated/tauri-bindings"
 
-import { DEFAULT_PROJECT_SETTINGS, ProjectSettings } from "../types/project"
+import { DEFAULT_PROJECT_SETTINGS, type ProjectSettings } from "../types/project"
 
 interface ProjectSettingsContextTypeV2 {
   // Настройки проекта (синхронизированы с backend)

@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider"
 
 import { useAudioEngine } from "../../hooks/use-audio-engine"
-import { AudioClip, FadeOptions } from "../../services/audio-clip-editor"
+import type { AudioClip, FadeOptions } from "../../services/audio-clip-editor"
 
 interface AudioClipEditorProps {
   clip: AudioClip

@@ -3,7 +3,7 @@ import { nanoid } from "nanoid"
 import { calculateTimeRanges } from "@/features/media/utils/video"
 import i18n from "@/i18n"
 import type { MediaFile } from "../types/media"
-import { Sector } from "../types/types"
+import type { Sector } from "../types/types"
 import { doTimeRangesOverlap } from "./media-utils"
 
 /**

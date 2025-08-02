@@ -30,7 +30,7 @@ import {
   TrackType,
 } from "@/types/video-compiler"
 
-import { SubtitleClip, TimelineClip, TimelineProject, TimelineTrack } from "../../types/timeline"
+import type { SubtitleClip, TimelineClip, TimelineProject, TimelineTrack } from "../../types/timeline"
 import { timelineToProjectSchema } from "../../utils/timeline-to-project"
 
 describe("timelineToProjectSchema", () => {

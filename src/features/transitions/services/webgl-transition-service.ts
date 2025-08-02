@@ -1,4 +1,4 @@
-import { Transition } from "@/features/transitions/types/transitions"
+import type { Transition } from "@/features/transitions/types/transitions"
 
 /**
  * Параметры для рендеринга перехода

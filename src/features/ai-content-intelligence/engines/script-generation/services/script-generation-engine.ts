@@ -8,16 +8,16 @@ import { UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service
 import type { Person } from "@/features/montage-planner/types"
 import type { UnifiedContentAnalysis } from "../../../shared/types/content-analysis"
 import {
-  Act,
+  type Act,
   AudioElementType as AudioElementTypeEnum,
-  GeneratedScript,
-  NarrativeStructure,
+  type GeneratedScript,
+  type NarrativeStructure,
   NarrativeType,
   PaceType,
-  Pacing,
-  ScriptGenerationParams,
-  ScriptScene,
-  TurningPoint,
+  type Pacing,
+  type ScriptGenerationParams,
+  type ScriptScene,
+  type TurningPoint,
   TurningPointType,
   VisualElementType as VisualElementTypeEnum,
 } from "../../../shared/types/script-generation"
@@ -903,7 +903,7 @@ Return only the voiceover text.`
     const focusPersons: string[] = []
     const reducePersons: string[] = []
 
-    let match
+    let match: RegExpExecArray | null
     while ((match = focusOnRegex.exec(instructions)) !== null) {
       focusPersons.push(match[1].toLowerCase().trim())
     }

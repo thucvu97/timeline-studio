@@ -344,7 +344,7 @@ export class IntentRecognitionService {
     const normalizedText = text.toLowerCase()
 
     switch (intent) {
-      case "remove_pauses":
+      case "remove_pauses": {
         // Ищем числа, которые могут означать длительность пауз
         const durationPattern = /(\d+)\s*(сек|секунд|с|seconds?)/i
         const durationMatch = durationPattern.exec(normalizedText)
@@ -352,6 +352,7 @@ export class IntentRecognitionService {
           params.pauseDuration = Number.parseInt(durationMatch[1])
         }
         break
+      }
 
       case "platform_adaptation":
         // Определяем целевую платформу

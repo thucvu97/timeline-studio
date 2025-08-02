@@ -5,7 +5,7 @@
  * и оптимизации аудио контента в проекте
  */
 
-import { ClaudeTool } from "../services/claude-service"
+import type { ClaudeTool } from "../services/claude-service"
 
 /**
  * Audio Processing Tools - 12 инструментов для работы со звуком

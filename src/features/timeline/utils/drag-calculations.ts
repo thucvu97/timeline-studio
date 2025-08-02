@@ -2,9 +2,9 @@
  * Utilities for drag and drop position calculations
  */
 
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 
-import { TimelineClip, TimelineProject, TrackType } from "../types"
+import type { TimelineClip, TimelineProject, TrackType } from "../types"
 
 import type { TimelineMarker } from "../types/markers"
 

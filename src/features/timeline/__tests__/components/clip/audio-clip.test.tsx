@@ -7,7 +7,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { AudioClip } from "@/features/timeline/components/clip/audio-clip"
 
-import { TimelineClip, TimelineTrack, TrackType } from "../../../types"
+import type { TimelineClip, TimelineTrack, TrackType } from "../../../types"
 
 // Mock hooks
 vi.mock("../../../hooks", () => ({

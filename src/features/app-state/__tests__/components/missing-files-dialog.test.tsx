@@ -7,7 +7,7 @@ vi.mock("@/features/media/services/media-restoration-service", () => ({
   promptUserToFindFile: vi.fn(),
 }))
 
-import { SavedMediaFile } from "@/features/media/types/saved-media"
+import type { SavedMediaFile } from "@/features/media/types/saved-media"
 
 import { MissingFilesDialog } from "../../components/missing-files-dialog"
 

@@ -5,7 +5,7 @@
  * стилизации и создания визуальных эффектов
  */
 
-import { ClaudeTool } from "../services/claude-service"
+import type { ClaudeTool } from "../services/claude-service"
 
 /**
  * Color & Style Tools - 6 инструментов для работы с цветом и стилем

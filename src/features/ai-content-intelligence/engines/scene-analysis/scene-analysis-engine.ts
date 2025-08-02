@@ -7,11 +7,11 @@
 
 import { type MediaInput, type SceneAnalysis, UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service"
 import { PersonDatabaseService } from "@/features/person-identification/services/person-database-service"
-import {
-  type DetectedFace,
-  type FaceEmbedding,
-  type PersonAppearance,
-  type PersonProfile,
+import type {
+  DetectedFace,
+  FaceEmbedding,
+  PersonAppearance,
+  PersonProfile,
 } from "@/features/person-identification/types/person"
 
 // Дополнительные типы для Scene Analysis

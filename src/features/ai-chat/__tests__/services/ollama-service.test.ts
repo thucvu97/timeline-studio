@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { OLLAMA_MODELS, OllamaService } from "../../services/ollama-service"
-import { AiMessage } from "../../types/ai-message"
-import { StreamingOptions } from "../../types/streaming"
+import type { AiMessage } from "../../types/ai-message"
+import type { StreamingOptions } from "../../types/streaming"
 
 // Mock fetch globally
 global.fetch = vi.fn()

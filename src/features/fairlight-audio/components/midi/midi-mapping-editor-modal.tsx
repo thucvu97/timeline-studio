@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider"
 import { useModal } from "@/features/modals/services"
 
-import { MidiMapping } from "../../services/midi/midi-engine"
+import type { MidiMapping } from "../../services/midi/midi-engine"
 
 export function MidiMappingEditorModal() {
   const { t } = useTranslation()

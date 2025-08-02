@@ -1,10 +1,11 @@
 import { Eye, EyeOff, Lock, Unlock } from "lucide-react"
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import type React from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
-import { AutomationLane, AutomationPoint } from "../../services/automation-engine"
+import type { AutomationLane, AutomationPoint } from "../../services/automation-engine"
 
 interface AutomationLaneProps {
   lane: AutomationLane

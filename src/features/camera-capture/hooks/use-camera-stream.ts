@@ -1,8 +1,8 @@
-import { RefObject, useCallback, useEffect, useRef, useState } from "react"
+import { type RefObject, useCallback, useEffect, useRef, useState } from "react"
 
 import { useTranslation } from "react-i18next"
 
-import { ResolutionOption } from "@/features/project-settings/types/project"
+import type { ResolutionOption } from "@/features/project-settings/types/project"
 
 import { cleanupMediaStream } from "../utils"
 

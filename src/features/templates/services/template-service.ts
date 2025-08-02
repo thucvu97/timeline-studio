@@ -1,6 +1,6 @@
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 
-import { CellConfig, MediaTemplate } from "../lib/templates"
+import type { CellConfig, MediaTemplate } from "../lib/templates"
 
 // Интерфейс для хранения информации о применяемом шаблоне
 export interface AppliedTemplate {

@@ -3,9 +3,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { ApplyButton } from "@/features/browser"
-import { VideoFilter } from "@/features/filters/types/filters"
+import type { VideoFilter } from "@/features/filters/types/filters"
 import { useResources } from "@/features/resources"
-import { FilterResource, TimelineResource } from "@/features/resources/types"
+import type { FilterResource, TimelineResource } from "@/features/resources/types"
 import { usePlayer, useVideoSelection } from "@/features/video-player"
 import { convertVideoSrc } from "@/lib/tauri-utils"
 

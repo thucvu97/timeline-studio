@@ -3,20 +3,20 @@
  * Конвертирует Timeline переходы в FFmpeg команды
  */
 
-import { TimelineProject } from "@/features/timeline/types/timeline"
-import { TimelineTransition } from "@/features/timeline/types/timeline-transition"
+import type { TimelineProject } from "@/features/timeline/types/timeline"
+import type { TimelineTransition } from "@/features/timeline/types/timeline-transition"
 
-import { ExportSettings } from "../types/export-types"
+import type { ExportSettings } from "../types/export-types"
 import {
   FFMPEG_TRANSITION_TEMPLATES,
-  FFmpegTransitionCommand,
-  FFmpegTransitionConfig,
+  type FFmpegTransitionCommand,
+  type FFmpegTransitionConfig,
   TRANSITION_FFMPEG_MAPPING,
-  TransitionExportInfo,
-  TransitionExportResult,
-  TransitionExportStatus,
-  TransitionOptimizationSettings,
-  TransitionType,
+  type TransitionExportInfo,
+  type TransitionExportResult,
+  type TransitionExportStatus,
+  type TransitionOptimizationSettings,
+  type TransitionType,
 } from "../types/transition-export-types"
 
 export class TransitionExportService {

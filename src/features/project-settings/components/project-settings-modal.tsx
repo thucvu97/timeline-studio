@@ -11,12 +11,12 @@ import { useModal } from "@/features/modals/services/modal-provider"
 import {
   ASPECT_RATIOS,
   COLOR_SPACES,
-  ColorSpace,
+  type ColorSpace,
   FRAME_RATES,
-  FrameRate,
+  type FrameRate,
   getDefaultResolutionForAspectRatio,
   getResolutionsForAspectRatio,
-  ResolutionOption,
+  type ResolutionOption,
 } from "@/features/project-settings/types/project"
 
 import { useProjectSettings } from "../hooks/use-project-settings"

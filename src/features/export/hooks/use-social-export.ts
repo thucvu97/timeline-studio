@@ -10,7 +10,7 @@ import {
   getOptimalSettings as getOptimalSettingsFromService,
   validateExportSettings,
 } from "../services/social-validation-service"
-import { SocialExportSettings } from "../types/export-types"
+import type { SocialExportSettings } from "../types/export-types"
 
 export function useSocialExport() {
   const { t } = useTranslation()

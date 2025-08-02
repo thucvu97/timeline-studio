@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react"
+import type React from "react"
+import { useEffect, useState } from "react"
 
 import { useFavorites } from "@/features/app-state"
 import { useProjectSettings } from "@/features/project-settings"
 import { TemplatePreview } from "@/features/templates/components/template-preview"
-import { MediaTemplate, TEMPLATE_MAP } from "@/features/templates/lib/templates"
+import { type MediaTemplate, TEMPLATE_MAP } from "@/features/templates/lib/templates"
 
 import type { ListAdapter, ListItem, PreviewComponentProps } from "../types/list"
 

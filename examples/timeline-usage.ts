@@ -9,8 +9,8 @@ import {
   createTimelineProject,
   createTimelineSection,
   createTimelineTrack,
-  TimelineProject,
-  TrackType,
+  type TimelineProject,
+  type TrackType,
 } from "../src/features/timeline/types"
 
 import {

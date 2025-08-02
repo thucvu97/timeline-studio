@@ -4,11 +4,11 @@
 
 import { beforeEach, describe, expect, it } from "vitest"
 
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 import { createTimelineProject } from "@/features/timeline/types"
 
 import { applyPlanToTimeline, createMarkersFromPlan } from "../../services/timeline-integration-service"
-import { MONTAGE_STYLES, MomentCategory, MontagePlan } from "../../types"
+import { MONTAGE_STYLES, MomentCategory, type MontagePlan } from "../../types"
 
 describe("TimelineIntegrationService", () => {
   let mockProject: any

@@ -4,7 +4,7 @@
  * Синхронизирует выбранный клип в timeline с video player
  */
 
-import { TimelineClip } from "../types"
+import type { TimelineClip } from "../types"
 import { interpolateSpeed } from "../utils/speed-ramping-utils"
 
 interface PlayerContext {

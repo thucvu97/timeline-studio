@@ -1,7 +1,7 @@
-import { load, Store } from "@tauri-apps/plugin-store"
+import { load, type Store } from "@tauri-apps/plugin-store"
 
-import { MediaFile } from "@/features/media"
-import { UserSettingsContextType } from "@/features/user-settings/services/user-settings-machine"
+import type { MediaFile } from "@/features/media"
+import type { UserSettingsContextType } from "@/features/user-settings/services/user-settings-machine"
 
 /**
  * Путь к файлу хранилища пользовательских настроек

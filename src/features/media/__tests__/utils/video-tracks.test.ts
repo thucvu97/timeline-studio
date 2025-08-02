@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { MediaFile } from "@/features/media/types/media"
-import { Sector, Track } from "@/features/media/types/types"
+import type { MediaFile } from "@/features/media/types/media"
+import type { Sector, Track } from "@/features/media/types/types"
 
 import { processVideoFiles } from "../../utils/video-tracks"
 

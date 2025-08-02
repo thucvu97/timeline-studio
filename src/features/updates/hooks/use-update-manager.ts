@@ -6,8 +6,8 @@
 import { useMachine } from "@xstate/react"
 import { useEffect } from "react"
 
-import { UpdateMachineContext, updateMachine } from "../services/update-machine"
-import { UpdateEventPayload, updateService } from "../services/update-service"
+import { type UpdateMachineContext, updateMachine } from "../services/update-machine"
+import { type UpdateEventPayload, updateService } from "../services/update-service"
 
 export interface UseUpdateManagerReturn {
   // Состояние

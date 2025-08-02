@@ -2,8 +2,14 @@
  * Утилиты для работы с Timeline
  */
 
-import { MediaFile } from "@/features/media/types/media"
-import { TimelineClip, TimelineProject, TimelineSection, TimelineTrack, TrackType } from "@/features/timeline/types"
+import type { MediaFile } from "@/features/media/types/media"
+import type {
+  TimelineClip,
+  TimelineProject,
+  TimelineSection,
+  TimelineTrack,
+  TrackType,
+} from "@/features/timeline/types"
 
 // ============================================================================
 // PROJECT UTILITIES

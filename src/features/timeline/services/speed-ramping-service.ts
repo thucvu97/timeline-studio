@@ -2,8 +2,8 @@
  * Сервис для интеграции Speed Ramping с плеером
  */
 
-import { TimelineClip } from "../types"
-import { getSpeedAtTime, SpeedRampingConfig } from "../types/speed-ramping"
+import type { TimelineClip } from "../types"
+import { getSpeedAtTime, type SpeedRampingConfig } from "../types/speed-ramping"
 
 export interface SpeedRampingService {
   /**

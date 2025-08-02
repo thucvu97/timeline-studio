@@ -5,7 +5,7 @@
 
 import { createKeyframe } from "./services/keyframe-manager"
 import { applyPreset, getPresetById } from "./services/preset-manager"
-import { AnimatedProperty, InterpolationType } from "./types/keyframe"
+import type { AnimatedProperty, InterpolationType } from "./types/keyframe"
 
 // Components
 export { CurveEditor } from "./components/curve-editor"

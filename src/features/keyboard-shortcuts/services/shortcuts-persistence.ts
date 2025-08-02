@@ -3,7 +3,7 @@
  * Поддерживает localStorage и Tauri Store API
  */
 
-import { ShortcutDefinition } from "./shortcuts-registry"
+import type { ShortcutDefinition } from "./shortcuts-registry"
 
 const STORAGE_KEY = "timeline-studio-shortcuts"
 const GLOBAL_SHORTCUTS_KEY = "timeline-studio-global-shortcuts-enabled"

@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 import { useMidi } from "../../hooks/use-midi"
-import { MidiDevice, MidiMessage } from "../../services/midi/midi-engine"
+import type { MidiDevice, MidiMessage } from "../../services/midi/midi-engine"
 
 interface MidiLearnDialogProps {
   open: boolean

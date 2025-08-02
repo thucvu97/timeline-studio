@@ -317,10 +317,11 @@ export class BatchProcessingService {
           timestampGranularities: ["segment"],
         })
 
-      case "subtitle_generation":
+      case "subtitle_generation": {
         // Сначала транскрибируем, затем генерируем субтитры
         const transcription = await this.processingleClip(clipId, "whisper_transcription", options)
         return this.generateSubtitlesFromTranscription(transcription.text, options)
+      }
 
       case "quality_analysis":
         return await invoke("ffmpeg_analyze_quality", {
@@ -350,7 +351,7 @@ export class BatchProcessingService {
           enableDynamicsAnalysis: true,
         })
 
-      case "language_detection":
+      case "language_detection": {
         const audioPath = await this.extractAudioPath(clipId)
         const result = await invoke("whisper_transcribe_openai", {
           audioFilePath: audioPath,
@@ -361,8 +362,9 @@ export class BatchProcessingService {
           timestampGranularities: ["segment"],
         })
         return { language: (result as any)?.language || "unknown", confidence: 0.9 }
+      }
 
-      case "comprehensive_analysis":
+      case "comprehensive_analysis": {
         // Комплексный анализ - запускаем несколько операций параллельно
         const [videoAnalysis, audioAnalysis, qualityAnalysis] = await Promise.all([
           this.processingleClip(clipId, "video_analysis", options),
@@ -377,6 +379,7 @@ export class BatchProcessingService {
           clipId,
           timestamp: new Date().toISOString(),
         }
+      }
 
       default:
         throw new Error(`Unknown batch operation: ${operation}`)

@@ -3,13 +3,13 @@
  * Анализ кадров, создание описаний, выбор превью
  */
 
-import { ClaudeTool } from "../services/claude-service"
+import type { ClaudeTool } from "../services/claude-service"
 import {
-  FrameAnalysisParams,
+  type FrameAnalysisParams,
   MultimodalAnalysisService,
-  MultimodalAnalysisType,
-  ThumbnailSuggestionParams,
-  VideoAnalysisParams,
+  type MultimodalAnalysisType,
+  type ThumbnailSuggestionParams,
+  type VideoAnalysisParams,
 } from "../services/multimodal-analysis-service"
 
 /**

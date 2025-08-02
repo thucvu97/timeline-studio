@@ -7,7 +7,7 @@ import { appDataDir, basename, join } from "@tauri-apps/api/path"
 import { open, save } from "@tauri-apps/plugin-dialog"
 import { exists, readTextFile, writeTextFile } from "@tauri-apps/plugin-fs"
 import { act, renderHook, waitFor } from "@testing-library/react"
-import { ReactNode } from "react"
+import type { ReactNode } from "react"
 // Import Tauri modules - они автоматически мокаются через алиасы в vitest.config.ts
 import { beforeEach, describe, expect, it, vi } from "vitest"
 

@@ -3,7 +3,7 @@ import { Settings, Users, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
-import { ChannelGroup } from "../../services/bus-router"
+import type { ChannelGroup } from "../../services/bus-router"
 import { Fader } from "../mixer/fader"
 
 interface GroupStripProps {

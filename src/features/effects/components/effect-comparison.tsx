@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
-import { VideoEffect } from "@/features/effects/types"
+import type { VideoEffect } from "@/features/effects/types"
 
 import { generateCSSFilterForEffect, getPlaybackRate } from "../utils/css-effects"
 

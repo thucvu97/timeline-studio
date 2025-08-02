@@ -89,9 +89,10 @@ vi.mock("../../hooks/use-resources", () => ({
               return item.name.toLowerCase()
             case "category":
               return item.category.toLowerCase()
-            case "complexity":
+            case "complexity": {
               const complexityOrder: Record<string, number> = { low: 0, medium: 1, high: 2, extreme: 3 }
               return complexityOrder[item.complexity || "low"]
+            }
             case "type":
               return item.type.toLowerCase()
             default:

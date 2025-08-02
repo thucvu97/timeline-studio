@@ -5,7 +5,7 @@
 
 import { invoke } from "@tauri-apps/api/core"
 
-import { ClaudeTool } from "../services/claude-service"
+import type { ClaudeTool } from "../services/claude-service"
 
 /**
  * Структура субтитра

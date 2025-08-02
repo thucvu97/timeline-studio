@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 
-import { Transition } from "../../types/transitions"
+import type { Transition } from "../../types/transitions"
 import {
   createFallbackTransition,
   groupTransitions,

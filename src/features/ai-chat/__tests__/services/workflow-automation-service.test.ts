@@ -2,9 +2,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import {
   WorkflowAutomationService,
-  WorkflowContext,
-  WorkflowParams,
-  WorkflowType,
+  type WorkflowContext,
+  type WorkflowParams,
+  type WorkflowType,
 } from "../../services/workflow-automation-service"
 
 // Mock Tauri API

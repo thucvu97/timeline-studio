@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
-import { TimelineClip, TimelineTrack } from "../../types"
-import { DEFAULT_EDIT_CONSTRAINTS, EditConstraints } from "../../types/edit-modes"
+import type { TimelineClip, TimelineTrack } from "../../types"
+import { DEFAULT_EDIT_CONSTRAINTS, type EditConstraints } from "../../types/edit-modes"
 import {
   calculateRollDelta,
   clipsOverlap,

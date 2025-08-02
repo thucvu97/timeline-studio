@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { FCPXMLImporter } from "../../../services/import-export/importers/fcpxml-importer"
-import { ImportOptions } from "../../../services/import-export/types"
+import type { ImportOptions } from "../../../services/import-export/types"
 
 describe("FCPXMLImporter", () => {
   const importer = new FCPXMLImporter()

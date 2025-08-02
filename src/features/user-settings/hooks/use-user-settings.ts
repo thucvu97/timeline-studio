@@ -1,6 +1,6 @@
 import { useContext } from "react"
 
-import { UserSettingsContext, UserSettingsContextValue } from "../services/user-settings-provider"
+import { UserSettingsContext, type UserSettingsContextValue } from "../services/user-settings-provider"
 
 /**
  * Хук для доступа к пользовательским настройкам

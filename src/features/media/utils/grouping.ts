@@ -1,7 +1,7 @@
 import i18n from "@/i18n"
 import { formatDateByLanguage } from "@/i18n/constants"
 import type { MediaFile } from "../types/media"
-import { DateGroup } from "../types/types"
+import type { DateGroup } from "../types/types"
 
 /**
  * Группирует файлы по дате создания

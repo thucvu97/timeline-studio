@@ -8,7 +8,7 @@ import { AlertCircle, AlertTriangle } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { TimelineTransition } from "@/features/timeline/types/timeline-transition"
+import type { TimelineTransition } from "@/features/timeline/types/timeline-transition"
 import { cn } from "@/lib/utils"
 
 interface TransitionCollision {

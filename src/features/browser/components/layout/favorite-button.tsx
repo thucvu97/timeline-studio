@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 
 import { useFavorites } from "@/features/app-state"
 import { shortcutsRegistry } from "@/features/keyboard-shortcuts"
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 import { cn } from "@/lib/utils"
 
 interface FavoriteButtonProps {

@@ -1,9 +1,10 @@
-import React, { useEffect, useRef, useState } from "react"
+import type React from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
-import { YoloVideoData } from "@/features/recognition/types/yolo"
+import type { YoloVideoData } from "@/features/recognition/types/yolo"
 
 interface YoloTrackOverlayProps {
   yoloData: YoloVideoData

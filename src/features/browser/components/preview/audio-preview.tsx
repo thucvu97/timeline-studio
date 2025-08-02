@@ -3,8 +3,8 @@ import { Music } from "lucide-react"
 import { memo, useCallback, useEffect, useRef, useState } from "react"
 import { LiveAudioVisualizer } from "react-audio-visualize"
 
-import { MediaFile } from "@/features/media/types/media"
-import { TimelineResource } from "@/features/resources/types"
+import type { MediaFile } from "@/features/media/types/media"
+import type { TimelineResource } from "@/features/resources/types"
 import { usePlayer } from "@/features/video-player"
 import { convertToAssetUrl } from "@/lib/tauri-utils"
 

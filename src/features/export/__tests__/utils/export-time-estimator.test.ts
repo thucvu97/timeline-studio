@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { ExportSettings } from "../../types/export-types"
+import type { ExportSettings } from "../../types/export-types"
 import {
   estimateExportTime,
   formatEstimatedTime,

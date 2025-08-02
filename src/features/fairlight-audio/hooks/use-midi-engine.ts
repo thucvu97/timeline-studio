@@ -5,7 +5,7 @@
 
 import { useEffect, useState } from "react"
 
-import { MidiDevice, MidiEngine } from "../services/midi/midi-engine"
+import { type MidiDevice, MidiEngine } from "../services/midi/midi-engine"
 import { MidiRouter } from "../services/midi/midi-router"
 
 // Global instance for the MIDI engine

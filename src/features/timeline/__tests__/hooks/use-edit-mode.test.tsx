@@ -1,5 +1,5 @@
 import { act, renderHook } from "@testing-library/react"
-import { ReactNode } from "react"
+import type { ReactNode } from "react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 // Мок для shortcuts registry

@@ -5,7 +5,7 @@
  * оптимизации и создания визуальных эффектов
  */
 
-import { ClaudeTool } from "../services/claude-service"
+import type { ClaudeTool } from "../services/claude-service"
 
 // Типы для эффектов и фильтров
 export interface EffectPreset {
@@ -851,13 +851,14 @@ async function effectChainOptimizer(params: any): Promise<EffectsToolResult> {
       optimizations.push("Повышено качество всех эффектов")
       break
 
-    case "balanced":
+    case "balanced": {
       // Балансируем качество и производительность
       const heavyEffects = optimizedChain.filter((e) => e.renderCost > 0.6)
       if (heavyEffects.length > 2) {
         optimizations.push("Рекомендуется снизить количество тяжелых эффектов")
       }
       break
+    }
 
     default:
       // Для неизвестных целей используем сбалансированный подход

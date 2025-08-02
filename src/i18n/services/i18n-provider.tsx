@@ -1,6 +1,6 @@
 "use client"
 
-import { ReactNode, useEffect, useState } from "react"
+import { type ReactNode, useEffect, useState } from "react"
 
 import { I18nextProvider } from "react-i18next"
 

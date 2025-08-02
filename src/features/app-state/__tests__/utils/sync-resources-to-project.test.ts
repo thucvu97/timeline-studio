@@ -5,11 +5,11 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { MediaFile } from "@/features/media/types/media"
-import { MediaPoolItem } from "@/features/media/types/media-pool"
+import type { MediaFile } from "@/features/media/types/media"
+import type { MediaPoolItem } from "@/features/media/types/media-pool"
 import { convertMediaFileToPoolItem } from "@/features/media/utils/media-pool-utils"
-import { TimelineStudioProject } from "@/features/project-settings/types/timeline-studio-project"
-import { MediaResource, MusicResource } from "@/features/resources/types"
+import type { TimelineStudioProject } from "@/features/project-settings/types/timeline-studio-project"
+import type { MediaResource, MusicResource } from "@/features/resources/types"
 
 import { getResourcesFromStorage, syncResourcesToProject } from "../../utils/sync-resources-to-project"
 

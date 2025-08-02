@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { MidiMapping } from "../../../services/midi/midi-engine"
+import type { MidiMapping } from "../../../services/midi/midi-engine"
 import { MidiMappingEditor } from "../midi-mapping-editor"
 import { mockUIComponents, resetSelectStates } from "./test-utils/mocks"
 

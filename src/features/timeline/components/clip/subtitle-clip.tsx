@@ -1,11 +1,12 @@
-import React, { useCallback, useRef, useState } from "react"
+import type React from "react"
+import { useCallback, useRef, useState } from "react"
 
 import { cn } from "@/lib/utils"
 
 import { useSubtitleStyles } from "../../hooks/use-subtitle-styles"
 import { useTimeline } from "../../hooks/use-timeline"
 import { useTimelineSelection } from "../../hooks/use-timeline-selection"
-import { SubtitleClip as SubtitleClipType } from "../../types/timeline"
+import type { SubtitleClip as SubtitleClipType } from "../../types/timeline"
 
 interface SubtitleClipProps {
   clip: SubtitleClipType

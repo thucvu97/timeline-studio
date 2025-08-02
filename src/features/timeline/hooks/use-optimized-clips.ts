@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef } from "react"
 
-import { TimelineClip } from "../types"
+import type { TimelineClip } from "../types"
 
 interface UseOptimizedClipsProps {
   clips: TimelineClip[]

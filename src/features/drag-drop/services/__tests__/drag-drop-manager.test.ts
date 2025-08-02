@@ -1,6 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { DragDropManager, DraggableItem, DraggableType, DropTarget, getDragDropManager } from "../drag-drop-manager"
+import {
+  DragDropManager,
+  type DraggableItem,
+  type DraggableType,
+  type DropTarget,
+  getDragDropManager,
+} from "../drag-drop-manager"
 
 // Mock DOM APIs
 const mockDocument = {

@@ -4,10 +4,10 @@
 
 import { useCallback } from "react"
 
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 
 import { useTimeline } from "../hooks/use-timeline"
-import { TrackType } from "../types"
+import type { TrackType } from "../types"
 import { useClips } from "./use-clips"
 import { useTracks } from "./use-tracks"
 

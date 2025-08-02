@@ -4,7 +4,7 @@
 
 import { describe, expect, it } from "vitest"
 
-import {
+import type {
   AutomationRegion,
   ColorGrade,
   Generator,

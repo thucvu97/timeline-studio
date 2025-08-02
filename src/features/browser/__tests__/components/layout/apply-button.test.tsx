@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
 import { ApplyButton } from "@/features/browser/components/layout/apply-button"
-import { ResourceType, TimelineResource } from "@/features/resources/types"
+import type { ResourceType, TimelineResource } from "@/features/resources/types"
 
 describe("ApplyButton", () => {
   const mockResource: TimelineResource = {

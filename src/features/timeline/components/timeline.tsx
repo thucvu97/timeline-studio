@@ -1,4 +1,5 @@
-import React, { useState } from "react"
+import type React from "react"
+import { useState } from "react"
 
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { AiChat } from "@/features/ai-chat/components/ai-chat"
@@ -8,7 +9,7 @@ import { cn } from "@/lib/utils"
 import { AISuggestionsPanel } from "./ai-suggestions/ai-suggestions-panel"
 import { AudioMixerView } from "./audio-mixer-view"
 import { TimelineContent } from "./timeline-content"
-import { TimelineWorkspaceTabs, WorkspaceView } from "./timeline-workspace-tabs"
+import { TimelineWorkspaceTabs, type WorkspaceView } from "./timeline-workspace-tabs"
 
 interface TimelineProps {
   className?: string

@@ -1,10 +1,10 @@
 import { useCallback, useEffect } from "react"
 
-import { BrowserStateAccess } from "@/features/ai-chat/tools/browser/types"
+import type { BrowserStateAccess } from "@/features/ai-chat/tools/browser/types"
 import { setBrowserStateAccess } from "@/features/ai-chat/tools/browser/utils/helpers"
 import { useApp } from "@/features/app-state/services/app-provider"
 import { useBrowserState } from "@/features/browser/services/browser-state-provider"
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 
 /**
  * Хук для интеграции Browser с AI функциональностью
@@ -145,10 +145,11 @@ export function useBrowserAIIntegration() {
             case "type":
               groupKey = file.isVideo ? "video" : file.isAudio ? "audio" : file.isImage ? "image" : "other"
               break
-            case "date":
+            case "date": {
               const date = new Date(file.createdAt || file.updatedAt || Date.now())
               groupKey = date.toISOString().split("T")[0]
               break
+            }
             default:
               groupKey = "all"
           }

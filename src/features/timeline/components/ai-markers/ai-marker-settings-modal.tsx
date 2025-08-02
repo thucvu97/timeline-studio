@@ -11,7 +11,7 @@ import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { useModal } from "@/features/modals/services"
 
-import { type AIMarkerConfig } from "../../services/ai-marker-service"
+import type { AIMarkerConfig } from "../../services/ai-marker-service"
 
 export function AIMarkerSettingsModal() {
   const { modalData, closeModal } = useModal()

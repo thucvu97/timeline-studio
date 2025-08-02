@@ -1,5 +1,5 @@
-import { RenderOptions as RTLRenderOptions, render as rtlRender } from "@testing-library/react"
-import React from "react"
+import { type RenderOptions as RTLRenderOptions, render as rtlRender } from "@testing-library/react"
+import type React from "react"
 
 // Provider imports
 

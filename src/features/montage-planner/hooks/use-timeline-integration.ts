@@ -4,7 +4,7 @@
 
 import { useCallback, useState } from "react"
 
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 import { useTimeline } from "@/features/timeline/hooks/use-timeline"
 import { useTimelineActions } from "@/features/timeline/hooks/use-timeline-actions"
 import { useTimelineMarkers } from "@/features/timeline/hooks/use-timeline-markers"
@@ -12,7 +12,7 @@ import { useTimelineMarkers } from "@/features/timeline/hooks/use-timeline-marke
 import {
   applyPlanToTimeline as applyPlanToTimelineService,
   createMarkersFromPlan,
-  TimelineIntegrationOptions,
+  type TimelineIntegrationOptions,
 } from "../services/timeline-integration-service"
 
 import type { MontagePlan, PlannedClip, Sequence } from "../types"

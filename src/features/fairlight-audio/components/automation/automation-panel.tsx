@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 
-import { AutomationLane, AutomationMode } from "../../services/automation-engine"
+import type { AutomationLane, AutomationMode } from "../../services/automation-engine"
 
 interface AutomationPanelProps {
   mode: AutomationMode

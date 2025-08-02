@@ -493,7 +493,7 @@ describe("useContentPipeline", () => {
         continueOnError: false,
       }
 
-      let error
+      let error: any
       try {
         await act(async () => {
           await result.current.processBatch(config)
@@ -635,7 +635,7 @@ describe("useContentPipeline", () => {
         })
       })
 
-      let blob
+      let blob: any
       await act(async () => {
         blob = await result.current.exportResults("json")
       })
@@ -655,7 +655,7 @@ describe("useContentPipeline", () => {
         })
       })
 
-      let blob
+      let blob: any
       await act(async () => {
         blob = await result.current.exportResults("csv")
       })

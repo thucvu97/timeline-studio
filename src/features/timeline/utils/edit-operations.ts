@@ -1,5 +1,5 @@
-import { TimelineClip, TimelineTrack } from "../types"
-import { DEFAULT_EDIT_CONSTRAINTS, EditConstraints } from "../types/edit-modes"
+import type { TimelineClip, TimelineTrack } from "../types"
+import { DEFAULT_EDIT_CONSTRAINTS, type EditConstraints } from "../types/edit-modes"
 
 /**
  * Check if two clips overlap in time
@@ -197,7 +197,7 @@ export function validateEdit(
   }
 
   switch (operation) {
-    case "trim":
+    case "trim": {
       const trimClip = track.clips.find((c) => c.id === params.clipId)
       if (!trimClip) {
         errors.push("Clip not found")
@@ -222,8 +222,9 @@ export function validateEdit(
         }
       }
       break
+    }
 
-    case "ripple":
+    case "ripple": {
       // Ripple validation
       const rippleClip = track.clips.find((c) => c.id === params.clipId)
       if (!rippleClip) {
@@ -236,6 +237,7 @@ export function validateEdit(
         }
       }
       break
+    }
 
     default:
       // Unknown operation type

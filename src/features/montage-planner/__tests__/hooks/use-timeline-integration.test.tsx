@@ -5,10 +5,10 @@
 import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 
 import { useTimelineIntegration } from "../../hooks/use-timeline-integration"
-import { MONTAGE_STYLES, MomentCategory, MontagePlan } from "../../types"
+import { MONTAGE_STYLES, MomentCategory, type MontagePlan } from "../../types"
 import { mockMediaFile, mockMontagePlan } from "../test-utils"
 
 // Mock timeline hooks

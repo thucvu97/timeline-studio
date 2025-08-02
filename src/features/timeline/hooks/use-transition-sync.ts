@@ -10,7 +10,7 @@ import {
   syncTransitionsOnClipSplit,
   syncTransitionsOnClipTrim,
 } from "../services/clip-transition-sync"
-import { TimelineClip, TimelineProject } from "../types/timeline"
+import type { TimelineClip, TimelineProject } from "../types/timeline"
 
 interface UseTransitionSyncProps {
   project: TimelineProject | null

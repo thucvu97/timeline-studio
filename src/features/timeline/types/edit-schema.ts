@@ -8,7 +8,7 @@
  * субтитры и анализ звуковой волны для интеллектуального монтажа.
  */
 
-import { ObjectTrack, Subtitle } from "../../recognition/types/video-analysis"
+import type { ObjectTrack, Subtitle } from "../../recognition/types/video-analysis"
 
 /**
  * Сегмент видео (участок финального монтажа)

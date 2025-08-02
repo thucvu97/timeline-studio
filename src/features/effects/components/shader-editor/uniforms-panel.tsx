@@ -149,7 +149,7 @@ export function UniformsPanel({ uniforms, onChange, className }: UniformsPanelPr
           </div>
         )
 
-      case "vec3":
+      case "vec3": {
         const isColor = uniform.name.toLowerCase().includes("color") || uniform.name.toLowerCase().includes("tint")
 
         if (isColor) {
@@ -229,8 +229,9 @@ export function UniformsPanel({ uniforms, onChange, className }: UniformsPanelPr
             {uniform.description && <p className="text-xs text-gray-500">{uniform.description}</p>}
           </div>
         )
+      }
 
-      case "vec4":
+      case "vec4": {
         const isColorWithAlpha =
           uniform.name.toLowerCase().includes("color") || uniform.name.toLowerCase().includes("tint")
 
@@ -338,6 +339,7 @@ export function UniformsPanel({ uniforms, onChange, className }: UniformsPanelPr
             {uniform.description && <p className="text-xs text-gray-500">{uniform.description}</p>}
           </div>
         )
+      }
 
       default:
         return <div className="text-xs text-gray-500">Unsupported uniform type: {uniform.type}</div>

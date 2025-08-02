@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { AAFImporter } from "../../../services/import-export/importers/aaf-importer"
-import { ImportOptions } from "../../../services/import-export/types"
+import type { ImportOptions } from "../../../services/import-export/types"
 
 describe("AAFImporter", () => {
   const importer = new AAFImporter()

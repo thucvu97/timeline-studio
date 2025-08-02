@@ -1,5 +1,5 @@
 import { act, renderHook } from "@testing-library/react"
-import React from "react"
+import type React from "react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 // Мокаем backend-sync ДО импорта компонентов
@@ -63,7 +63,7 @@ vi.mock("@xstate/react", () => ({
   useMachine: vi.fn(() => [mockUIState, mockUISend]),
 }))
 
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 
 import { useTimeline } from "../../hooks/use-timeline"
 import { TimelineProvider } from "../../services/timeline-provider"

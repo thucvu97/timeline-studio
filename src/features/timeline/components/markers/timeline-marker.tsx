@@ -10,13 +10,14 @@ import {
   StickyNote,
   Trash2,
 } from "lucide-react"
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import type React from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 
-import { ExtendedTimelineMarker, MarkerColors, MarkerType } from "../../types/markers"
+import { type ExtendedTimelineMarker, MarkerColors, type MarkerType } from "../../types/markers"
 
 interface TimelineMarkerProps {
   marker: ExtendedTimelineMarker

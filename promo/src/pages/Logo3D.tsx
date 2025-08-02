@@ -1,4 +1,4 @@
-import React from "react"
+import type React from "react"
 import { Hero3DLogo } from "../components/Hero3DLogo"
 
 export const Logo3D: React.FC = () => {

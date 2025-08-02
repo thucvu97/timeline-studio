@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useModal } from "@/features/modals/services"
 
 import { useMidi } from "../../hooks/use-midi"
-import { MidiDevice, MidiMessage } from "../../services/midi/midi-engine"
+import type { MidiDevice, MidiMessage } from "../../services/midi/midi-engine"
 
 export function MidiLearnModal() {
   const { t } = useTranslation()

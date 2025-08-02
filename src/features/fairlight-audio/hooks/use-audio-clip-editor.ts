@@ -1,5 +1,5 @@
 import { useCallback } from "react"
-import { AudioClip, FadeOptions } from "../services/audio-clip-editor"
+import type { AudioClip, FadeOptions } from "../services/audio-clip-editor"
 import { useAudioEngine } from "./use-audio-engine"
 
 export function useAudioClipEditor() {

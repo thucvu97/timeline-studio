@@ -2,7 +2,7 @@
  * Drag and Drop Types for Timeline
  */
 
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 
 export type DragType = "video" | "audio" | "image"
 

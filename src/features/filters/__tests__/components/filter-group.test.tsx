@@ -1,7 +1,7 @@
 import { act } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
-import { VideoFilter } from "@/features/filters/types/filters"
+import type { VideoFilter } from "@/features/filters/types/filters"
 import { renderWithBase, screen } from "@/test/test-utils"
 
 import { FilterGroup } from "../../components/filter-group"

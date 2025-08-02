@@ -4,7 +4,8 @@
  * Добавляет возможность изменения высоты трека перетаскиванием нижней границы
  */
 
-import React, { useCallback, useRef, useState } from "react"
+import type React from "react"
+import { useCallback, useRef, useState } from "react"
 
 import { cn } from "@/lib/utils"
 

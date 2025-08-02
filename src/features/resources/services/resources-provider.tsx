@@ -4,30 +4,31 @@
  * Новая версия с интеграцией backend state management
  */
 
-import React, { createContext, useCallback, useContext, useEffect, useState } from "react"
+import type React from "react"
+import { createContext, useCallback, useContext, useEffect, useState } from "react"
 
 import { getBackendSync } from "@/features/app-state/services/backend-sync"
-import { VideoEffect } from "@/features/effects/types"
-import { VideoFilter } from "@/features/filters/types/filters"
-import { MediaFile } from "@/features/media/types/media"
-import { StyleTemplate } from "@/features/style-templates/types"
-import { SubtitleStyleTemplate } from "@/features/subtitles/types"
-import { MediaTemplate } from "@/features/templates/lib/templates"
-import { Transition } from "@/features/transitions/types/transitions"
-import { ProjectState } from "@/types/generated/tauri-bindings"
+import type { VideoEffect } from "@/features/effects/types"
+import type { VideoFilter } from "@/features/filters/types/filters"
+import type { MediaFile } from "@/features/media/types/media"
+import type { StyleTemplate } from "@/features/style-templates/types"
+import type { SubtitleStyleTemplate } from "@/features/subtitles/types"
+import type { MediaTemplate } from "@/features/templates/lib/templates"
+import type { Transition } from "@/features/transitions/types/transitions"
+import type { ProjectState } from "@/types/generated/tauri-bindings"
 
 import {
   createMediaResource,
   createMusicResource,
-  EffectResource,
-  FilterResource,
-  MediaResource,
-  MusicResource,
-  StyleTemplateResource,
-  SubtitleResource,
-  TemplateResource,
-  TimelineResource,
-  TransitionResource,
+  type EffectResource,
+  type FilterResource,
+  type MediaResource,
+  type MusicResource,
+  type StyleTemplateResource,
+  type SubtitleResource,
+  type TemplateResource,
+  type TimelineResource,
+  type TransitionResource,
 } from "../types"
 
 interface ResourcesContextType {

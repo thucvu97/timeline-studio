@@ -23,10 +23,10 @@ import { Switch } from "@/components/ui/switch"
 import { EffectManagerPanel } from "@/features/effects/components/effect-manager-panel"
 import { EffectParameterControls } from "@/features/effects/components/effect-parameter-controls"
 import { useEffects } from "@/features/effects/hooks/use-effects"
-import { BaseEffect } from "@/features/effects/types"
+import type { BaseEffect } from "@/features/effects/types"
 
 import { useTimeline } from "../hooks/use-timeline"
-import { AppliedEffect, TimelineClip } from "../types"
+import type { AppliedEffect, TimelineClip } from "../types"
 
 interface ClipEffectsPanelProps {
   clip: TimelineClip | null

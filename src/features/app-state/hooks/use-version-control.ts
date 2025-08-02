@@ -5,9 +5,9 @@
 
 import { useCallback, useEffect, useState } from "react"
 
-import { VersionInfo } from "@/features/version-control/types"
+import type { VersionInfo } from "@/features/version-control/types"
 import { useToast } from "@/hooks/use-toast"
-import { CommandResult, ProjectEvent } from "@/types/generated/tauri-bindings"
+import type { CommandResult, ProjectEvent } from "@/types/generated/tauri-bindings"
 
 import { getBackendSync } from "../services/backend-sync"
 

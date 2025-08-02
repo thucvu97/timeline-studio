@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils"
 
 import { useClips } from "../../hooks"
 import { timelinePlayerSync } from "../../services/timeline-player-sync"
-import { AppliedEffect, TimelineClip, TimelineTrack } from "../../types"
+import type { AppliedEffect, TimelineClip, TimelineTrack } from "../../types"
 import Waveform from "../track/waveform"
 
 interface AudioClipProps {

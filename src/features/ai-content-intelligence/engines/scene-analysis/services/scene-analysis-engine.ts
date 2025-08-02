@@ -12,10 +12,10 @@ import {
   ContentType,
   Emotion,
   Genre,
-  KeyMoment,
+  type KeyMoment,
   KeyMomentType,
-  QualityMetrics,
-  SceneAnalysis,
+  type QualityMetrics,
+  type SceneAnalysis,
   SceneType,
 } from "../../../shared/types/content-analysis"
 import { BaseAIEngine, type EngineCapabilities } from "../../types"

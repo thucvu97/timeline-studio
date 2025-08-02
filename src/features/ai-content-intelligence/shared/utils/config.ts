@@ -1,7 +1,8 @@
 import type { AIConfig } from "../types/ai-config"
 
-enum AIProvider {
+export enum AIProvider {
   LOCAL = "local",
+  OLLAMA = "ollama", // Добавлен для альфа-релиза
   OPENAI = "openai",
   ANTHROPIC = "anthropic",
 }
@@ -10,6 +11,13 @@ export function createDefaultAIConfig(overrides?: Partial<AIConfig>): AIConfig {
   const defaultConfig: AIConfig = {
     providers: [
       {
+        provider: AIProvider.OLLAMA, // Используем Ollama по умолчанию для альфа-релиза
+        model: "llama3.2", // Быстрая модель для альфы
+        maxTokens: 2048, // Уменьшено для скорости
+        temperature: 0.7,
+        stream: false,
+      },
+      {
         provider: AIProvider.LOCAL,
         model: "default",
         maxTokens: 4096,
@@ -17,7 +25,7 @@ export function createDefaultAIConfig(overrides?: Partial<AIConfig>): AIConfig {
         stream: false,
       },
     ],
-    defaultProvider: AIProvider.LOCAL,
+    defaultProvider: AIProvider.OLLAMA, // Ollama по умолчанию
     features: {
       sceneAnalysis: true,
       qualityAnalysis: true,

@@ -4,10 +4,10 @@ import {
   createSpeedKeyframe,
   getSpeedAtTime,
   SPEED_RAMPING_PRESETS,
-  SpeedInterpolationType,
-  SpeedKeyframe,
-  SpeedRampingConfig,
-  SpeedRampingPreset,
+  type SpeedInterpolationType,
+  type SpeedKeyframe,
+  type SpeedRampingConfig,
+  type SpeedRampingPreset,
 } from "../types/speed-ramping"
 import type { TimelineClip, TimelineProject } from "../types/timeline"
 import { useTimeline } from "./use-timeline"

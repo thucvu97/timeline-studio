@@ -1,5 +1,6 @@
 import { motion, useMotionValue, useSpring } from "framer-motion"
-import React, { useEffect, useRef, useState } from "react"
+import type React from "react"
+import { useEffect, useRef, useState } from "react"
 
 export const Hero3DLogo: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null)

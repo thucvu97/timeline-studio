@@ -5,7 +5,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 
-import { DynamicShaderType, DynamicTransitionService } from "../services/dynamic-transition-service"
+import { type DynamicShaderType, DynamicTransitionService } from "../services/dynamic-transition-service"
 
 interface UseDynamicTransitionsOptions {
   autoInitialize?: boolean

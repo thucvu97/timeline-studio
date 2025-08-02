@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider"
 import { cn } from "@/lib/utils"
 
-import { AudioBus, ChannelSend } from "../../services/bus-router"
+import type { AudioBus, ChannelSend } from "../../services/bus-router"
 
 interface SendPanelProps {
   channelId: string

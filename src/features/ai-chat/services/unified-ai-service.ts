@@ -5,8 +5,8 @@
 
 import { contentIntelligenceTools } from "../tools/content-intelligence-tools"
 import { personIdentificationTools } from "../tools/person-identification-tools"
-import { AiMessage } from "../types/ai-message"
-import { StreamingOptions } from "../types/streaming"
+import type { AiMessage } from "../types/ai-message"
+import type { StreamingOptions } from "../types/streaming"
 import { CLAUDE_MODELS, ClaudeService } from "./claude-service"
 import { DEEPSEEK_MODELS, DeepSeekService } from "./deepseek-service"
 import { OllamaService } from "./ollama-service"

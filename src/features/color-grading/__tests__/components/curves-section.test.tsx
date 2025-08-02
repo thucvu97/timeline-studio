@@ -3,7 +3,7 @@ import { userEvent } from "@testing-library/user-event"
 import React from "react"
 import { describe, expect, it, vi } from "vitest"
 
-import { CurvePoint } from "../../components/curves/curve-editor"
+import type { CurvePoint } from "../../components/curves/curve-editor"
 import { CurvesSection } from "../../components/curves/curves-section"
 
 // Мокаем хук useTranslation

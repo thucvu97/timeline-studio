@@ -1,4 +1,4 @@
-import { SubtitleStyleTemplate } from "../types/subtitles"
+import type { SubtitleStyleTemplate } from "../types/subtitles"
 
 /**
  * Интерфейс для сырых данных стиля субтитров из JSON
@@ -205,24 +205,27 @@ export function sortSubtitleStyleTemplates(
     let result = 0
 
     switch (sortBy) {
-      case "name":
+      case "name": {
         const nameA = a.name.toLowerCase()
         const nameB = b.name.toLowerCase()
         result = nameA.localeCompare(nameB)
         break
+      }
 
-      case "complexity":
+      case "complexity": {
         const complexityOrder = { basic: 0, intermediate: 1, advanced: 2 }
         const complexityA = complexityOrder[a.complexity || "basic"]
         const complexityB = complexityOrder[b.complexity || "basic"]
         result = complexityA - complexityB
         break
+      }
 
-      case "category":
+      case "category": {
         const categoryA = (a.category || "").toLowerCase()
         const categoryB = (b.category || "").toLowerCase()
         result = categoryA.localeCompare(categoryB)
         break
+      }
 
       default:
         result = 0

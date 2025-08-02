@@ -1,10 +1,11 @@
-import React, { createContext, useContext, useEffect, useState } from "react"
+import type React from "react"
+import { createContext, useContext, useEffect, useState } from "react"
 
 import { useModal } from "@/features/modals/services/modal-provider"
 import { ShortcutHandler } from "../components/shortcut-handler"
 import { DEFAULT_SHORTCUTS } from "../constants/default-shortcuts"
 import { usePanelShortcuts } from "../hooks/use-panel-shortcuts"
-import { ShortcutContext, ShortcutDefinition, shortcutsRegistry } from "./shortcuts-registry"
+import { type ShortcutContext, type ShortcutDefinition, shortcutsRegistry } from "./shortcuts-registry"
 import { tauriGlobalShortcuts } from "./tauri-global-shortcuts"
 
 interface ShortcutsContextType {

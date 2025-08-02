@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { AiMessage } from "../../types/ai-message"
+import type { AiMessage } from "../../types/ai-message"
 import {
   calculateMessagesTokens,
   compressContext,

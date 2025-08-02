@@ -7,10 +7,10 @@ import { useCallback, useEffect, useRef, useState } from "react"
 
 import { useToast } from "@/hooks/use-toast"
 
-import { AdvancedFaceDetection, AdvancedFaceDetectionService } from "../services/advanced-face-detection-service"
-import { AdvancedTrackingService, TrackedPerson } from "../services/advanced-tracking-service"
+import { type AdvancedFaceDetection, AdvancedFaceDetectionService } from "../services/advanced-face-detection-service"
+import { AdvancedTrackingService, type TrackedPerson } from "../services/advanced-tracking-service"
 import { PersonDatabaseService } from "../services/person-database-service"
-import { DetectedFace, PersonProfile, PersonSearchResult } from "../types/person"
+import type { DetectedFace, PersonProfile, PersonSearchResult } from "../types/person"
 
 export interface UseAdvancedPersonIdentificationOptions {
   // Конфигурация детекции

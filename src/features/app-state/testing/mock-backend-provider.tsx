@@ -5,9 +5,9 @@
  * It provides consistent mocks for all Tauri commands and events used by the app-state module.
  */
 
-import React, { createContext, ReactNode, useContext } from "react"
+import React, { createContext, type ReactNode, useContext } from "react"
 
-import { MockedFunction, vi } from "vitest"
+import { type MockedFunction, vi } from "vitest"
 
 import type { CommandResult, ProjectCommand, ProjectEvent, ProjectState } from "@/types/generated/tauri-bindings"
 
@@ -136,7 +136,7 @@ export function MockBackendProvider({ children, initialState, onCommand }: MockB
 
     // Default command handling for common operations
     switch (command.type) {
-      case "CreateProject":
+      case "CreateProject": {
         const newProject = {
           id: `project-${Date.now()}`,
           name: command.params.name,
@@ -152,6 +152,7 @@ export function MockBackendProvider({ children, initialState, onCommand }: MockB
         }
         setProjectState((prev) => ({ ...prev, project: newProject }))
         return { success: true, message: "Project created successfully" }
+      }
 
       case "Play":
         setProjectState((prev) => ({

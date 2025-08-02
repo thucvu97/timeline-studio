@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 
-import { StyleTemplate, StyleTemplateFilter, StyleTemplateSortBy, StyleTemplateSortOrder } from "../types"
+import type { StyleTemplate, StyleTemplateFilter, StyleTemplateSortBy, StyleTemplateSortOrder } from "../types"
 
 interface UseStyleTemplatesReturn {
   templates: StyleTemplate[]
@@ -178,12 +178,13 @@ export function useStyleTemplates(): UseStyleTemplatesReturn {
       let comparison = 0
 
       switch (sortBy) {
-        case "name":
+        case "name": {
           // Обрабатываем name как объект с языками
           const nameA = typeof a.name === "string" ? a.name : a.name?.ru || a.name?.en || ""
           const nameB = typeof b.name === "string" ? b.name : b.name?.ru || b.name?.en || ""
           comparison = nameA.localeCompare(nameB)
           break
+        }
         case "duration":
           comparison = a.duration - b.duration
           break

@@ -55,7 +55,7 @@ vi.mock("../../../hooks/use-timeline", () => ({
 }))
 
 import { VideoClip } from "../../../components/clip/video-clip"
-import { TimelineClip, TimelineTrack, TrackType } from "../../../types"
+import type { TimelineClip, TimelineTrack, TrackType } from "../../../types"
 
 // Mock data
 const mockVideoClip: TimelineClip = {

@@ -1,4 +1,4 @@
-import { SpeedInterpolationType, SpeedKeyframe } from "../types/speed-ramping"
+import type { SpeedInterpolationType, SpeedKeyframe } from "../types/speed-ramping"
 
 /**
  * Вычисляет значение скорости в заданное время на основе keyframes

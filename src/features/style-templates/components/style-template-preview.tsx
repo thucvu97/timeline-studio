@@ -6,9 +6,9 @@ import { ApplyButton } from "@/features"
 import { AddMediaButton } from "@/features/browser/components/layout/add-media-button"
 import { FavoriteButton } from "@/features/browser/components/layout/favorite-button"
 import { useResources } from "@/features/resources"
-import { StyleTemplateResource } from "@/features/resources/types"
+import type { StyleTemplateResource } from "@/features/resources/types"
 
-import { StyleTemplate } from "../types"
+import type { StyleTemplate } from "../types"
 
 interface StyleTemplatePreviewProps {
   template: StyleTemplate

@@ -11,7 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 import { RenderStatus } from "@/types/video-compiler"
 import { useRenderQueue } from "../hooks/use-render-queue"
-import { ExportSettings } from "../types/export-types"
+import type { ExportSettings } from "../types/export-types"
 import { ExportPresets } from "./export-presets"
 
 interface BatchExportTabProps {

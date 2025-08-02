@@ -16,7 +16,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { promptUserToFindFile } from "@/features/media/services/media-restoration-service"
-import { SavedMediaFile } from "@/features/media/types/saved-media"
+import type { SavedMediaFile } from "@/features/media/types/saved-media"
 
 interface MissingFilesDialogProps {
   open: boolean

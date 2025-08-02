@@ -1,7 +1,7 @@
 // Сервис для валидации контента перед загрузкой в социальные сети
 
 import { SOCIAL_NETWORKS } from "../constants/export-constants"
-import { SocialExportSettings } from "../types/export-types"
+import type { SocialExportSettings } from "../types/export-types"
 
 export interface ValidationResult {
   isValid: boolean

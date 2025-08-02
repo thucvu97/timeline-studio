@@ -6,7 +6,7 @@
 
 import { assign, setup } from "xstate"
 
-import { ClipboardData } from "../utils/clip-operations"
+import type { ClipboardData } from "../utils/clip-operations"
 
 // UI состояние timeline
 export interface TimelineUIContext {

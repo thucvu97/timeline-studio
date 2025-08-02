@@ -2,9 +2,9 @@ import { useTranslation } from "react-i18next"
 
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ResolutionOption } from "@/features/project-settings/types/project"
+import type { ResolutionOption } from "@/features/project-settings/types/project"
 
-import { CaptureDevice } from "../types"
+import type { CaptureDevice } from "../types"
 
 interface CameraSettingsProps {
   devices: CaptureDevice[]

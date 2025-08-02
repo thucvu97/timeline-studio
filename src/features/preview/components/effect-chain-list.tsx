@@ -3,7 +3,8 @@
  */
 
 import { ChevronDown, ChevronRight, Copy, GripVertical, MoreVertical, Plus, Trash2 } from "lucide-react"
-import React, { useRef, useState } from "react"
+import type React from "react"
+import { useRef, useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"

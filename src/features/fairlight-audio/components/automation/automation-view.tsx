@@ -1,7 +1,7 @@
 import { useMemo } from "react"
 
 import { useTranslation } from "react-i18next"
-import { AutomationEngine, AutomationMode } from "../../services/automation-engine"
+import type { AutomationEngine, AutomationMode } from "../../services/automation-engine"
 import { AutomationLaneComponent } from "./automation-lane"
 import { AutomationPanel } from "./automation-panel"
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import * as SocialValidationService from "../../services/social-validation-service"
-import { SocialExportSettings } from "../../types/export-types"
+import type { SocialExportSettings } from "../../types/export-types"
 
 describe("SocialValidationService", () => {
   describe("validateExportSettings", () => {

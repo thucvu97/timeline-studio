@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Slider } from "@/components/ui/slider"
 import { cn } from "@/lib/utils"
 
-import { TimelineTrack, TrackType } from "../../types"
+import type { TimelineTrack, TrackType } from "../../types"
 
 interface TrackHeaderProps {
   track: TimelineTrack

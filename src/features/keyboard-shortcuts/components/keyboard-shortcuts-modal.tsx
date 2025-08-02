@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useModal } from "@/features/modals/services/modal-provider"
 
-import { createPresets, PresetType } from "../presets"
+import { createPresets, type PresetType } from "../presets"
 
 export function KeyboardShortcutsModal() {
   const { t } = useTranslation()

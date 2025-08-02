@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { BaseProviders } from "@/test/test-utils"
 
-import { ModalType } from "../../services/modal-machine"
+import type { ModalType } from "../../services/modal-machine"
 import { ModalContainer } from "../modal-container"
 
 // Mock useModal hook

@@ -418,7 +418,7 @@ export class EffectPipelineManager {
     const errors: string[] = []
 
     switch (effect.type) {
-      case "color_correction":
+      case "color_correction": {
         const cc = effect.parameters
         if (cc.brightness && (cc.brightness < -1 || cc.brightness > 1)) {
           errors.push("Brightness must be between -1 and 1")
@@ -430,6 +430,7 @@ export class EffectPipelineManager {
           errors.push("Saturation must be between 0 and 3")
         }
         break
+      }
 
       case "blur":
         if (effect.parameters.radius && effect.parameters.radius < 0) {
@@ -437,12 +438,13 @@ export class EffectPipelineManager {
         }
         break
 
-      case "vignette":
+      case "vignette": {
         const v = effect.parameters
         if (v.intensity && (v.intensity < 0 || v.intensity > 1)) {
           errors.push("Vignette intensity must be between 0 and 1")
         }
         break
+      }
 
       default:
         // No specific validation for other effect types

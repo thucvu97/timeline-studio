@@ -5,7 +5,7 @@
  * управления проектами и системными параметрами
  */
 
-import { ClaudeTool } from "../services/claude-service"
+import type { ClaudeTool } from "../services/claude-service"
 
 /**
  * Settings & Configuration Tools - 8 инструментов для настройки системы

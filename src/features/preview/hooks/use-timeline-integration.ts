@@ -9,8 +9,8 @@ import { useTimeline } from "@/features/timeline/hooks/use-timeline"
 import { useTimelineSelection } from "@/features/timeline/hooks/use-timeline-selection"
 import { usePlayer } from "@/features/video-player/services/player-provider"
 
-import { EffectPipelineManager } from "../services/effect-pipeline-manager"
-import { PreviewRenderer } from "../services/preview-renderer"
+import type { EffectPipelineManager } from "../services/effect-pipeline-manager"
+import type { PreviewRenderer } from "../services/preview-renderer"
 
 import type { Effect, GPUTier, PreviewQuality } from "../types"
 

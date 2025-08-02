@@ -3,7 +3,7 @@
  * Предоставляет возможности анализа качества, сцен, движения и автоматического улучшения
  */
 
-import { ClaudeTool } from "../services/claude-service"
+import type { ClaudeTool } from "../services/claude-service"
 import type {
   AudioAnalysisResult,
   MotionAnalysisResult,
@@ -576,7 +576,7 @@ export async function executeVideoAnalysisTool(toolName: string, input: Record<s
         enableDynamicsAnalysis: input.enableDynamics,
       })
 
-    case "comprehensive_video_analysis":
+    case "comprehensive_video_analysis": {
       const options: VideoAnalysisOptions = {}
       if (!input.includeScenes) options.sceneDetection = undefined
       if (!input.includeQuality) options.qualityAnalysis = undefined
@@ -592,11 +592,12 @@ export async function executeVideoAnalysisTool(toolName: string, input: Record<s
         }
       }
       return result
+    }
 
     case "quick_video_preview":
       return await ffmpegService.quickAnalysis(filePath)
 
-    case "generate_improvement_suggestions":
+    case "generate_improvement_suggestions": {
       const analysisForSuggestions = await ffmpegService.comprehensiveAnalysis(filePath)
       const suggestions = ffmpegService.generateImprovementSuggestions({
         quality: analysisForSuggestions.quality,
@@ -609,8 +610,9 @@ export async function executeVideoAnalysisTool(toolName: string, input: Record<s
         return suggestions.filter((s) => s.type === input.focusArea)
       }
       return suggestions
+    }
 
-    case "auto_cut_by_scenes":
+    case "auto_cut_by_scenes": {
       const scenes = await ffmpegService.detectScenes(filePath, {
         threshold: input.sensitivity,
         minSceneLength: input.minSceneLength,
@@ -630,8 +632,9 @@ export async function executeVideoAnalysisTool(toolName: string, input: Record<s
         clipsCreated,
         scenes: scenes.scenes,
       }
+    }
 
-    case "remove_silence_pauses":
+    case "remove_silence_pauses": {
       const silences = await ffmpegService.detectSilence(filePath, {
         threshold: input.silenceThreshold,
         minDuration: input.maxPauseDuration,
@@ -685,6 +688,7 @@ export async function executeVideoAnalysisTool(toolName: string, input: Record<s
         originalDuration,
         compressionRatio: `${((totalSilenceDuration / originalDuration) * 100).toFixed(1)}%`,
       }
+    }
 
     case "auto_stabilize_video":
       // Реализуем стабилизацию через FFmpeg
@@ -866,7 +870,7 @@ export async function executeVideoAnalysisTool(toolName: string, input: Record<s
         }
       }
 
-    case "generate_video_thumbnails":
+    case "generate_video_thumbnails": {
       const keyFrames = await ffmpegService.extractKeyFrames(filePath, {
         count: input.thumbnailCount,
         quality: input.size === "small" ? "low" : input.size === "large" ? "high" : "medium",
@@ -878,6 +882,7 @@ export async function executeVideoAnalysisTool(toolName: string, input: Record<s
         bestThumbnail: input.selectBest ? keyFrames.thumbnailPath : null,
         totalGenerated: keyFrames.keyFrames.length,
       }
+    }
 
     default:
       throw new Error(`Неизвестный инструмент анализа видео: ${toolName}`)

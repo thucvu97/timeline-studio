@@ -6,9 +6,9 @@
 
 import { describe, expect, it } from "vitest"
 
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 
-import { TimelineClip, TimelineProject, TimelineSection, TimelineTrack } from "../../types/timeline"
+import type { TimelineClip, TimelineProject, TimelineSection, TimelineTrack } from "../../types/timeline"
 import {
   calculateProjectDuration,
   canPlaceClipOnTrack,

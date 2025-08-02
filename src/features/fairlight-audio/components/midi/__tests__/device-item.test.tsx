@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react"
 import { describe, expect, it } from "vitest"
 
-import { MidiDevice } from "../../../services/midi/midi-engine"
+import type { MidiDevice } from "../../../services/midi/midi-engine"
 
 // Extract DeviceItem component for testing
 function DeviceItem({ device }: { device: MidiDevice }) {

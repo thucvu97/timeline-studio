@@ -5,8 +5,8 @@
 
 import { EventEmitter } from "events"
 
-import { MidiClock } from "./midi-clock"
-import { MidiMessage } from "./midi-engine"
+import type { MidiClock } from "./midi-clock"
+import type { MidiMessage } from "./midi-engine"
 
 export interface MidiEvent {
   id: string

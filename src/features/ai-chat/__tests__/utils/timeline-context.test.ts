@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { TimelineClip, TimelineProject, TimelineSection } from "@/features/timeline/types/timeline"
+import type { TimelineClip, TimelineProject, TimelineSection } from "@/features/timeline/types/timeline"
 
 import { createDetailedTimelineContext, createTimelineContextPrompt } from "../../utils/timeline-context"
 

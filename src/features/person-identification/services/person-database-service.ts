@@ -6,7 +6,7 @@
 
 import { invoke } from "@tauri-apps/api/core"
 
-import {
+import type {
   DetectedFace,
   FaceEmbedding,
   FaceMatch,

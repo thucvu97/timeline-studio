@@ -4,11 +4,11 @@
  * Отображает трек с заголовком и содержимым (клипами)
  */
 
-import React from "react"
+import type React from "react"
 
 import { cn } from "@/lib/utils"
 
-import { TimelineTrack } from "../../types"
+import type { TimelineTrack } from "../../types"
 import { TrackHeightAdjuster } from "../track-height-adjuster"
 import { TrackContent } from "./track-content"
 import { TrackHeader } from "./track-header"

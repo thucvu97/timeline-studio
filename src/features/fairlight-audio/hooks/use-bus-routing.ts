@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react"
-import { AudioBus, BusRouter, ChannelGroup, ChannelSend } from "../services/bus-router"
+import { type AudioBus, BusRouter, type ChannelGroup, type ChannelSend } from "../services/bus-router"
 import { useAudioEngine } from "./use-audio-engine"
 
 export function useBusRouting() {

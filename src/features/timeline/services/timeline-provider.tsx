@@ -10,9 +10,9 @@ import { createContext, useCallback, useEffect, useMemo } from "react"
 
 import { getBackendSync } from "@/features/app-state/services/backend-sync"
 
-import { AppliedEffect, TimelineClip, TimelineProject, TimelineSection, TimelineTrack, TrackType } from "../types"
+import type { AppliedEffect, TimelineClip, TimelineProject, TimelineSection, TimelineTrack, TrackType } from "../types"
 import { copyClips } from "../utils/clip-operations"
-import { TimelineUIContext, timelineUIMachine } from "./timeline-ui-machine"
+import { type TimelineUIContext, timelineUIMachine } from "./timeline-ui-machine"
 
 // import { MediaFile } from "@/features/media/types/media"
 // import { Clip, Project, ProjectCommand, ProjectState } from "@/types/generated/tauri-bindings"

@@ -2,7 +2,7 @@ import React from "react"
 
 import { cn } from "@/lib/utils"
 
-import { CellConfiguration, MediaTemplateConfig } from "../lib/template-config"
+import type { CellConfiguration, MediaTemplateConfig } from "../lib/template-config"
 
 interface TemplateRendererProps {
   config: MediaTemplateConfig
@@ -144,7 +144,7 @@ export function TemplateRenderer({ config, renderCell, className }: TemplateRend
         </div>
       )
 
-    case "grid":
+    case "grid": {
       if (!gridConfig) {
         console.warn("Grid template requires gridConfig")
         return null
@@ -164,8 +164,9 @@ export function TemplateRenderer({ config, renderCell, className }: TemplateRend
           {cellConfigs.map((cellConfig, index) => renderCellWithConfig(index, cellConfig))}
         </div>
       )
+    }
 
-    case "diagonal":
+    case "diagonal": {
       if (!config.splitPoints || config.splitPoints.length < 2) {
         console.warn("Diagonal template requires at least 2 split points")
         return null
@@ -214,8 +215,9 @@ export function TemplateRenderer({ config, renderCell, className }: TemplateRend
           )}
         </div>
       )
+    }
 
-    case "custom":
+    case "custom": {
       // Для кастомных шаблонов используем cellLayouts если они определены
       if (config.cellLayouts && config.cellLayouts.length > 0) {
         // Используем абсолютное позиционирование с cellLayouts
@@ -302,6 +304,7 @@ export function TemplateRenderer({ config, renderCell, className }: TemplateRend
           {cellConfigs.map((cellConfig, index) => renderCellWithConfig(index, cellConfig, getCellStyle(index)))}
         </div>
       )
+    }
 
     default:
       console.warn(`Unknown split type: ${split}`)

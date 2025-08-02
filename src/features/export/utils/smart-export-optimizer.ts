@@ -3,7 +3,7 @@
  * Автоматически подбирает оптимальные параметры на основе характеристик проекта
  */
 
-import { ExportSettings } from "../types/export-types"
+import type { ExportSettings } from "../types/export-types"
 
 export interface ProjectAnalysis {
   // Характеристики проекта

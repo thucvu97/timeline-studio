@@ -15,11 +15,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator"
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
-import { TimelineProject } from "@/features/timeline/types/timeline"
+import type { TimelineProject } from "@/features/timeline/types/timeline"
 import { cn } from "@/lib/utils"
 
 import { useTransitionExport } from "../hooks/use-transition-export"
-import { TransitionExportSettings } from "../types/transition-export-types"
+import type { TransitionExportSettings } from "../types/transition-export-types"
 
 interface TransitionExportSettingsProps {
   settings: TransitionExportSettings

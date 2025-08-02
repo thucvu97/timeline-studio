@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { TimelineMarker } from "../../../components/markers/timeline-marker"
-import { ExtendedTimelineMarker } from "../../../types/markers"
+import type { ExtendedTimelineMarker } from "../../../types/markers"
 
 // Mock компонентов
 vi.mock("@/components/ui/tooltip", () => ({

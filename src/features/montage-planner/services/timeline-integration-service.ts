@@ -4,19 +4,19 @@
  * Сервис для применения монтажных планов к Timeline
  */
 
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 import {
   createTimelineClip,
   createTimelineSection,
   createTimelineTrack,
-  TimelineClip,
-  TimelineProject,
-  TimelineSection,
-  TimelineTrack,
-  TrackType,
+  type TimelineClip,
+  type TimelineProject,
+  type TimelineSection,
+  type TimelineTrack,
+  type TrackType,
 } from "@/features/timeline/types"
 
-import { EmotionalTone, MontagePlan, PlannedClip, TransitionPlan } from "../types"
+import { EmotionalTone, type MontagePlan, type PlannedClip, type TransitionPlan } from "../types"
 
 export interface TimelineIntegrationOptions {
   // Создать новую секцию для плана

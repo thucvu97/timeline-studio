@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea"
 
 import { SOCIAL_NETWORKS } from "../constants/export-constants"
 import { useSocialExport } from "../hooks/use-social-export"
-import { ExportProgress, SocialExportSettings } from "../types/export-types"
+import type { ExportProgress, SocialExportSettings } from "../types/export-types"
 
 // Иконка YouTube
 const YouTubeIcon = () => (

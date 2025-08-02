@@ -1,4 +1,4 @@
-import { SubtitleStyleTemplate } from "../types/subtitles"
+import type { SubtitleStyleTemplate } from "../types/subtitles"
 
 /**
  * Интерфейс для CSS стилей субтитров

@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { SocialExportTab } from "../../components/social-export-tab"
-import { SocialExportSettings } from "../../types/export-types"
+import type { SocialExportSettings } from "../../types/export-types"
 
 // Mock translations
 vi.mock("react-i18next", () => ({

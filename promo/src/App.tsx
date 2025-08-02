@@ -1,5 +1,5 @@
 import { motion } from "framer-motion"
-import React from "react"
+import type React from "react"
 import versionData from "../../version.json"
 import { AIEditingSection } from "./components/AIEditingSection"
 import { Footer } from "./components/Footer"

@@ -2,7 +2,7 @@
  * Утилита для оценки времени экспорта видео
  */
 
-import { ExportSettings } from "../types/export-types"
+import type { ExportSettings } from "../types/export-types"
 
 export interface TimeEstimate {
   estimatedSeconds: number

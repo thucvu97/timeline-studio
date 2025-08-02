@@ -5,7 +5,7 @@
  * сжатия и технической обработки медиафайлов
  */
 
-import { ClaudeTool } from "../services/claude-service"
+import type { ClaudeTool } from "../services/claude-service"
 
 /**
  * Media Processing Tools - 6 инструментов для обработки медиа

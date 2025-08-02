@@ -86,10 +86,11 @@ export class CompressorProcessor {
       case "knee":
         this.compressor.knee.setValueAtTime(value, currentTime)
         break
-      case "makeup":
+      case "makeup": {
         const linearGain = 10 ** (value / 20)
         this.makeupGain.gain.setValueAtTime(linearGain, currentTime)
         break
+      }
       default:
         // No action needed for unknown parameters
         break

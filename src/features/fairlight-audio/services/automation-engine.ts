@@ -139,12 +139,13 @@ export class AutomationEngine {
         shouldWrite = this.latchedLanes.has(laneId) || this.recordingLanes.has(laneId)
         break
 
-      case "trim":
+      case "trim": {
         // Относительные изменения
         const currentValue = this.readValueAtTime(laneId, time)
         value = Math.max(0, Math.min(1, currentValue + (value - 0.5) * 0.1))
         shouldWrite = this.state.isRecording
         break
+      }
 
       default:
         // Default case for "off" and "read" modes
@@ -281,10 +282,11 @@ export class AutomationEngine {
       case "linear":
         return pointA.value + (pointB.value - pointA.value) * progress
 
-      case "bezier":
+      case "bezier": {
         // Простая S-кривая
         const smoothProgress = progress * progress * (3 - 2 * progress)
         return pointA.value + (pointB.value - pointA.value) * smoothProgress
+      }
 
       default:
         return pointA.value + (pointB.value - pointA.value) * progress

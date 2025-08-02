@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
-import { CurvePoint, TransitionCurve } from "@/features/timeline/types/timeline-transition"
+import type { CurvePoint, TransitionCurve } from "@/features/timeline/types/timeline-transition"
 import { cn } from "@/lib/utils"
 
 interface TransitionCurveEditorProps {

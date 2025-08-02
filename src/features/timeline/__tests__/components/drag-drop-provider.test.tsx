@@ -5,7 +5,7 @@
  */
 
 import { act, fireEvent, render, screen } from "@testing-library/react"
-import { afterEach, beforeEach, describe, expect, it, Mock, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from "vitest"
 
 import { DragDropProvider } from "../../components/drag-drop-provider"
 import { useDragDropTimeline } from "../../hooks/use-drag-drop-timeline"

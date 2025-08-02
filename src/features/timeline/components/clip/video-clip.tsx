@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils"
 
 import { useTimeline } from "../../hooks/use-timeline"
 import { timelinePlayerSync } from "../../services/timeline-player-sync"
-import { TimelineClip, TimelineTrack } from "../../types"
+import type { TimelineClip, TimelineTrack } from "../../types"
 
 interface VideoClipProps {
   clip: TimelineClip

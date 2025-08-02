@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 
-import { SubtitleStyleTemplate } from "../../types/subtitles"
+import type { SubtitleStyleTemplate } from "../../types/subtitles"
 import {
   applySubtitleStyleTemplate,
   generateSubtitleCSS,

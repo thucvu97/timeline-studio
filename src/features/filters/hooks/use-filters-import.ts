@@ -4,7 +4,7 @@ import { useCallback, useState } from "react"
 
 import { useResources } from "@/features/resources"
 
-import { VideoFilter } from "../types/filters"
+import type { VideoFilter } from "../types/filters"
 
 /**
  * Хук для импорта пользовательских фильтров

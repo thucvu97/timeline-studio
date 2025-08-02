@@ -1,5 +1,5 @@
 import { Clock, Download, Grid3X3, Heart, List, Play, Search, Share2, Star } from "lucide-react"
-import { FC, useMemo, useState } from "react"
+import { type FC, useMemo, useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"

@@ -1,5 +1,5 @@
 import { Edit2, FolderClosed, FolderOpen, Layers, Lock, Palette, Ungroup, Unlock, Users } from "lucide-react"
-import React from "react"
+import type React from "react"
 
 import {
   ContextMenu,

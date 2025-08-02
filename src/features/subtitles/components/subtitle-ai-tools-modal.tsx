@@ -128,7 +128,7 @@ export function SubtitleAIToolsModal() {
       }
 
       // Выбираем метод транскрипции
-      let transcriptionResult
+      let transcriptionResult: Awaited<ReturnType<typeof whisperService.transcribe>>
 
       if (!useLocalModel && whisperService.hasApiKey()) {
         // Используем OpenAI API

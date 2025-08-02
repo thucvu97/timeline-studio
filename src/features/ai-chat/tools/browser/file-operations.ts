@@ -270,7 +270,7 @@ function analyzeFileRelationshipsData(files: any[], analysisType: string): any {
   }
 
   switch (analysisType) {
-    case "series":
+    case "series": {
       // Analyze series relationships
       const seriesGroups = groupFilesBySeries(files)
       relationships.totalRelationships = seriesGroups.length
@@ -279,20 +279,23 @@ function analyzeFileRelationshipsData(files: any[], analysisType: string): any {
         (file) => !seriesGroups.some((group) => group.files.some((f: any) => f.id === file.id)),
       )
       break
+    }
 
-    case "temporal":
+    case "temporal": {
       // Analyze temporal relationships
       const temporalGroups = groupFilesByTime(files)
       relationships.totalRelationships = temporalGroups.length
       relationships.relatedGroups = temporalGroups
       break
+    }
 
-    case "format":
+    case "format": {
       // Analyze format relationships
       const formatGroups = groupFilesByFormat(files)
       relationships.totalRelationships = formatGroups.length
       relationships.relatedGroups = formatGroups
       break
+    }
 
     case "custom":
       // Custom analysis logic
@@ -525,10 +528,11 @@ export async function bulkSelectFiles(params: BulkSelectParams): Promise<Browser
         }
         break
 
-      case "random":
+      case "random": {
         const count = selectionCriteria.count || 10
         filesToProcess = getRandomFiles(files, count)
         break
+      }
 
       case "smart":
         // Умный выбор - комбинация критериев
@@ -563,7 +567,7 @@ export async function bulkSelectFiles(params: BulkSelectParams): Promise<Browser
         processedCount = fileIds.length
         break
 
-      case "toggle":
+      case "toggle": {
         // В реальной реализации нужно проверить текущее состояние каждого файла
         const currentlySelected = browserStateAccess.getSelectedFiles().map((f) => f.id)
         const toSelect = fileIds.filter((id) => !currentlySelected.includes(id))
@@ -577,6 +581,7 @@ export async function bulkSelectFiles(params: BulkSelectParams): Promise<Browser
         }
         processedCount = fileIds.length
         break
+      }
 
       default:
         throw new Error(`Неизвестное действие: ${action}`)

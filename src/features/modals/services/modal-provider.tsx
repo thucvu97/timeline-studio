@@ -1,7 +1,7 @@
 import { useMachine } from "@xstate/react"
 import { createContext, useContext, useMemo } from "react"
 
-import { ModalData, ModalType, modalMachine } from "./modal-machine"
+import { type ModalData, type ModalType, modalMachine } from "./modal-machine"
 
 /**
  * Интерфейс для контекста модальных окон

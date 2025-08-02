@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { useLanguage } from "@/features/language"
 import { useModal } from "@/features/modals/services/modal-provider"
-import { LanguageCode, SUPPORTED_LANGUAGES } from "@/i18n/constants"
+import { type LanguageCode, SUPPORTED_LANGUAGES } from "@/i18n/constants"
 
 import { useUserSettings } from "../../hooks/use-user-settings"
 

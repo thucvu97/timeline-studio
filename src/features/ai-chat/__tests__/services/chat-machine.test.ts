@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { createActor } from "xstate"
 
 import { chatMachine } from "../../services/chat-machine"
-import { ChatMessage } from "../../types/chat"
+import type { ChatMessage } from "../../types/chat"
 
 describe("ChatMachine", () => {
   beforeEach(() => {

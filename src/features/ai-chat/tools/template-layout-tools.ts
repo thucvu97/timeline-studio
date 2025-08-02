@@ -5,7 +5,7 @@
  * и управления визуальными шаблонами и макетами проекта
  */
 
-import { ClaudeTool } from "../services/claude-service"
+import type { ClaudeTool } from "../services/claude-service"
 
 /**
  * Template & Layout Tools - 10 инструментов для работы с шаблонами

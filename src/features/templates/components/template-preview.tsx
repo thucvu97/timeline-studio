@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 import { calculateDimensionsWithAspectRatio } from "@/features/media/utils/preview-sizes"
 import { useResources } from "@/features/resources"
-import { TemplateResource, TimelineResource } from "@/features/resources/types"
+import type { TemplateResource, TimelineResource } from "@/features/resources/types"
 import { usePlayer, useVideoSelection } from "@/features/video-player"
 
 import { AddMediaButton, ApplyButton, FavoriteButton } from "../../browser/components/layout"
-import { MediaTemplate } from "../lib/templates"
+import type { MediaTemplate } from "../lib/templates"
 
 /**
  * Интерфейс пропсов для компонента TemplatePreview

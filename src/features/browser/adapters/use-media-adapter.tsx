@@ -1,4 +1,5 @@
-import React, { useMemo } from "react"
+import type React from "react"
+import { useMemo } from "react"
 
 import { useAppSettings, useFavorites } from "@/features/app-state"
 import { MediaPreview } from "@/features/browser/components/preview/media-preview"
@@ -6,7 +7,7 @@ import { parseDuration, parseFileSize } from "@/features/browser/utils"
 import { useDraggable } from "@/features/drag-drop"
 import { getFileType } from "@/features/media"
 import { useMediaImport } from "@/features/media/hooks/use-media-import"
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 import i18n from "@/i18n"
 import type { MediaItem } from "@/types/generated/tauri-bindings"
 import type { ListAdapter, ListItem, PreviewComponentProps } from "../types/list"
@@ -147,11 +148,12 @@ export function useMediaAdapter(): ListAdapter<MediaListItem> {
       const currentLanguage = i18n.language || "ru"
 
       switch (groupBy) {
-        case "type":
+        case "type": {
           const fileType = getFileType(file)
           return i18n.t(`browser.media.${fileType}`)
+        }
 
-        case "date":
+        case "date": {
           // Для изображений используем дату создания файла, если она доступна
           let timestamp = file.startTime
           if (!timestamp && /\.(jpg|jpeg|png|gif|webp)$/i.exec(file.name)) {
@@ -161,10 +163,12 @@ export function useMediaAdapter(): ListAdapter<MediaListItem> {
               : 0
           }
           return getDateGroup(timestamp, currentLanguage)
+        }
 
-        case "duration":
+        case "duration": {
           const duration = parseDuration(file.duration)
           return getDurationGroup(duration)
+        }
 
         default:
           return ""

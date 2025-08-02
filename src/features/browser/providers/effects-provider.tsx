@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState } from 
 
 import type { VideoEffect } from "@/features/effects/types"
 import type { VideoFilter } from "@/features/filters/types/filters"
-import { ResourceType } from "@/features/resources/types"
+import type { ResourceType } from "@/features/resources/types"
 import type { Transition } from "@/features/transitions/types/transitions"
 
 import type {

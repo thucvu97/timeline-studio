@@ -2,10 +2,10 @@
  * Типы для экспорта переходов через FFmpeg
  */
 
-import { TimelineTransition } from "@/features/timeline/types/timeline-transition"
-import { Transition } from "@/features/transitions/types/transitions"
+import type { TimelineTransition } from "@/features/timeline/types/timeline-transition"
+import type { Transition } from "@/features/transitions/types/transitions"
 
-import { ExportSettings } from "./export-types"
+import type { ExportSettings } from "./export-types"
 
 /**
  * Расширенные настройки экспорта с поддержкой переходов

@@ -3,9 +3,9 @@
  * Управление переходами на треках таймлайна
  */
 
-import { Transition } from "@/features/transitions/types/transitions"
-import { TimelineProject, TimelineTrack } from "../types/timeline"
-import { TimelineTransition } from "../types/timeline-transition"
+import type { Transition } from "@/features/transitions/types/transitions"
+import type { TimelineProject, TimelineTrack } from "../types/timeline"
+import type { TimelineTransition } from "../types/timeline-transition"
 import {
   addTimelineTransitionToResources,
   createTimelineTransition,

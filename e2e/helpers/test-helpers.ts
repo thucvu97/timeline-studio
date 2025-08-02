@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test"
+import type { Page } from "@playwright/test"
 
 /**
  * Clear all browser storage before test

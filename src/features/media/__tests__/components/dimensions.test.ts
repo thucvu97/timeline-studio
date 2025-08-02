@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { VideoStream } from "../../types/types"
+import type { VideoStream } from "../../types/types"
 import { calculateRealDimensions } from "../../utils"
 
 describe("calculateRealDimensions", () => {

@@ -3,7 +3,7 @@
  * Управляет регистрацией, хранением и выполнением shortcuts
  */
 
-import { HotkeyCallback, Options as HotkeyOptions } from "react-hotkeys-hook"
+import type { HotkeyCallback, Options as HotkeyOptions } from "react-hotkeys-hook"
 
 import { shortcutsPersistence } from "./shortcuts-persistence"
 

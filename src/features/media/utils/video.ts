@@ -1,4 +1,4 @@
-import { FfprobeStream } from "@/features/media/types/ffprobe"
+import type { FfprobeStream } from "@/features/media/types/ffprobe"
 import type { MediaFile } from "@/features/media/types/media"
 import type { TimeRange } from "@/features/media/types/time-range"
 

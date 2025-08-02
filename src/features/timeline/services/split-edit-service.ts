@@ -187,9 +187,10 @@ export class SplitEditServiceImpl implements SplitEditService {
           default:
             return { success: false, error: "Unknown split type" }
         }
-      case "remove":
+      case "remove": {
         const removed = this.removeSplitEdit(operation.clipId)
         return { success: removed }
+      }
       case "adjust":
         // Реализация корректировки split edit
         return { success: true }

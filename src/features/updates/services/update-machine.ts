@@ -5,7 +5,7 @@
 
 import { assign, fromPromise, setup } from "xstate"
 
-import { UpdateCheckResult, UpdateInfo, updateService } from "./update-service"
+import { type UpdateCheckResult, type UpdateInfo, updateService } from "./update-service"
 
 // Типы событий для машины
 export type UpdateMachineEvent =

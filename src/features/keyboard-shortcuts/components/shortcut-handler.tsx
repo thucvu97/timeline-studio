@@ -1,6 +1,6 @@
 import { useHotkeys } from "react-hotkeys-hook"
 
-import { ShortcutDefinition } from "../services/shortcuts-registry"
+import type { ShortcutDefinition } from "../services/shortcuts-registry"
 
 interface ShortcutHandlerProps {
   shortcut: ShortcutDefinition

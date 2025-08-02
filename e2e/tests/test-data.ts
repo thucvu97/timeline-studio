@@ -47,7 +47,7 @@ export function getRandomFile(type?: "video" | "image" | "audio") {
 }
 
 // Получить смешанный набор файлов
-export function getMixedFiles(count: number = 3) {
+export function getMixedFiles(count = 3) {
   const allFiles = getAllMediaFiles()
   const shuffled = [...allFiles].sort(() => Math.random() - 0.5)
   return shuffled.slice(0, count)

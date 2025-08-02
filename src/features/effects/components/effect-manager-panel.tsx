@@ -16,7 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import { useEffectCategories, useEffects } from "../hooks/use-effects"
 import { useEffectsImport } from "../hooks/use-effects-import"
-import { BaseEffect } from "../types"
+import type { BaseEffect } from "../types"
 import { EffectDetail } from "./effect-detail"
 import { EffectGroup } from "./effect-group"
 

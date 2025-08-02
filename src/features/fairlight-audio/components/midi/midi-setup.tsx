@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useModal } from "@/features/modals/services"
 import { useMidi } from "../../hooks/use-midi"
-import { MidiDevice, MidiMessage } from "../../services/midi/midi-engine"
+import type { MidiDevice, MidiMessage } from "../../services/midi/midi-engine"
 import { MidiMappingEditor } from "./midi-mapping-editor"
 import { MidiRouterView } from "./midi-router-view"
 

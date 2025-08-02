@@ -1,10 +1,10 @@
-import React from "react"
+import type React from "react"
 
 import { useFavorites } from "@/features/app-state"
 import { useFiltersAdapter as useUnifiedFiltersAdapter } from "@/features/browser/hooks/use-resources"
 import { useDraggable } from "@/features/drag-drop"
 import { FilterPreview } from "@/features/filters/components/filter-preview"
-import { VideoFilter } from "@/features/filters/types/filters"
+import type { VideoFilter } from "@/features/filters/types/filters"
 
 import type { ListAdapter, PreviewComponentProps } from "../types/list"
 
@@ -132,10 +132,11 @@ export function useFiltersAdapter(): ListAdapter<VideoFilter> {
             return filter.name.toLowerCase()
           case "category":
             return filter.category.toLowerCase()
-          case "complexity":
+          case "complexity": {
             // Определяем порядок сложности: basic < intermediate < advanced
             const complexityOrder: Record<string, number> = { basic: 0, intermediate: 1, advanced: 2 }
             return complexityOrder[filter.complexity || "basic"]
+          }
           default:
             return filter.name.toLowerCase()
         }

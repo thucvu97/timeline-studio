@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { CacheStatistics, IndexedDBCacheService } from "../../services/indexeddb-cache-service"
+import { type CacheStatistics, IndexedDBCacheService } from "../../services/indexeddb-cache-service"
 
 // Mock idb-keyval
 vi.mock("idb-keyval", () => {

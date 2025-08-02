@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from "react"
 
 import { ResizableHandle as PanelResizeHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 import { usePlayer } from "@/features/video-player/services/player-provider"
 import { getAllTemplateConfig } from "../lib/all-template-configs"
-import { CellConfiguration } from "../lib/template-config"
-import { AppliedTemplate } from "../services/template-service"
+import type { CellConfiguration } from "../lib/template-config"
+import type { AppliedTemplate } from "../services/template-service"
 import { TemplateRenderer } from "./template-renderer"
 import { VideoPanelComponent } from "./video-panel-component"
 

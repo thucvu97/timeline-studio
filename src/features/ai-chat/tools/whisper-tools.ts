@@ -3,7 +3,7 @@
  * Управление моделями, транскрипция и перевод аудио
  */
 
-import { ClaudeTool } from "../services/claude-service"
+import type { ClaudeTool } from "../services/claude-service"
 import { WhisperService } from "../services/whisper-service"
 
 /**

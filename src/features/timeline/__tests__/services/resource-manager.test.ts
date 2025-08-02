@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest"
 
-import { VideoEffect } from "@/features/effects/types"
-import { VideoFilter } from "@/features/filters/types/filters"
-import { MediaFile } from "@/features/media/types/media"
-import { StyleTemplate } from "@/features/style-templates/types/style-template"
-import { MediaTemplate } from "@/features/templates/lib/templates"
-import { Transition } from "@/features/transitions/types/transitions"
+import type { VideoEffect } from "@/features/effects/types"
+import type { VideoFilter } from "@/features/filters/types/filters"
+import type { MediaFile } from "@/features/media/types/media"
+import type { StyleTemplate } from "@/features/style-templates/types/style-template"
+import type { MediaTemplate } from "@/features/templates/lib/templates"
+import type { Transition } from "@/features/transitions/types/transitions"
 
 import {
   addEffectToResources,
@@ -20,7 +20,7 @@ import {
   createAppliedStyleTemplate,
   createAppliedTransition,
 } from "../../services/resource-manager"
-import { TimelineProject } from "../../types/timeline"
+import type { TimelineProject } from "../../types/timeline"
 
 describe("resource-manager", () => {
   let mockProject: TimelineProject

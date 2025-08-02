@@ -8,9 +8,9 @@ import {
   detectAllCollisions,
   detectTrackCollisions,
   suggestCollisionFixes,
-  TransitionCollision,
+  type TransitionCollision,
 } from "../services/transition-collision-detector"
-import { TimelineTrack } from "../types/timeline"
+import type { TimelineTrack } from "../types/timeline"
 import { useTimeline } from "./use-timeline"
 
 interface UseTransitionCollisionsReturn {

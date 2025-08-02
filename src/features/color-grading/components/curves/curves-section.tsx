@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useColorGrading } from "../../services/color-grading-provider"
-import { CurveEditor, CurvePoint } from "./curve-editor"
+import { CurveEditor, type CurvePoint } from "./curve-editor"
 
 // Цвета для разных типов кривых
 const CURVE_COLORS = {

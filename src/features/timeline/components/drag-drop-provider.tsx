@@ -6,9 +6,9 @@
 
 import { DndContext, DragOverlay, MouseSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { createSnapModifier } from "@dnd-kit/modifiers"
-import React from "react"
+import type React from "react"
 
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 
 import { useDragDropTimeline } from "../hooks/use-drag-drop-timeline"
 

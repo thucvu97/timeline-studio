@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from "react"
-import { AutomationEngine, AutomationMode } from "../services/automation-engine"
+import { AutomationEngine, type AutomationMode } from "../services/automation-engine"
 import { useAudioEngine } from "./use-audio-engine"
 
 export function useAutomation() {

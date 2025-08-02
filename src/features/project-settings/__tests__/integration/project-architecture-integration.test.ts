@@ -7,7 +7,7 @@ import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { TimelineStudioProjectService } from "@/features/app-state/services/timeline-studio-project-service"
-import { MediaPoolItem } from "@/features/media/types/media-pool"
+import type { MediaPoolItem } from "@/features/media/types/media-pool"
 import {
   addItemToPool,
   createMediaBin,
@@ -15,8 +15,8 @@ import {
   searchMediaPool,
   updateItemUsage,
 } from "@/features/media/utils/media-pool-utils"
-import { Sequence } from "@/features/timeline/types/sequence"
-import { TimelineClip } from "@/features/timeline/types/timeline"
+import type { Sequence } from "@/features/timeline/types/sequence"
+import type { TimelineClip } from "@/features/timeline/types/timeline"
 
 // Mock Tauri API
 vi.mock("@tauri-apps/plugin-fs", () => ({

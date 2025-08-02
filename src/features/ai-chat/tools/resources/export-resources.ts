@@ -167,7 +167,7 @@ export async function exportResourceList(params: ExportListParams): Promise<Reso
         fileExtension = "json"
         break
 
-      case "csv":
+      case "csv": {
         // Создаем CSV с заголовками
         const headers = ["ID", "Type", "Name", "Added At", "Size", "Duration", "Category"]
         const rows = exportItems.map((item) => [
@@ -183,8 +183,9 @@ export async function exportResourceList(params: ExportListParams): Promise<Reso
         mimeType = "text/csv"
         fileExtension = "csv"
         break
+      }
 
-      case "markdown":
+      case "markdown": {
         exportContent = `# Timeline Studio Resources Export
 
 **Export Date:** ${new Date().toISOString()}  
@@ -207,6 +208,7 @@ export async function exportResourceList(params: ExportListParams): Promise<Reso
         mimeType = "text/markdown"
         fileExtension = "md"
         break
+      }
       default:
         exportContent = `Timeline Studio Resources Export
 ================================

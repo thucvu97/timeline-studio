@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { render } from "@/test/test-utils"
 
 import { SlipSlideHandles } from "../../../components/edit-tools/slip-slide-handles"
-import { TimelineClip } from "../../../types"
+import type { TimelineClip } from "../../../types"
 import { EDIT_MODES } from "../../../types/edit-modes"
 
 // Мокаем useEditModeContext

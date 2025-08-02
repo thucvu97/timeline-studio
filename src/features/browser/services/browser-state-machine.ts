@@ -1,7 +1,7 @@
 import { assign, setup } from "xstate"
 
 import { DEFAULT_PREVIEW_SIZE_INDEX, getPreviewSizeIndex } from "@/features/media/utils/preview-sizes"
-import { BrowserTab } from "@/shared/types/browser"
+import type { BrowserTab } from "@/shared/types/browser"
 import type { BrowserContext, ViewMode } from "@/shared/types/browser-context"
 
 /**

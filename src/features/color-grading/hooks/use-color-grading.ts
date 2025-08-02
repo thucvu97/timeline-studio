@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react"
 
-import {
+import type {
   BasicParametersState,
   ColorGradingState,
   ColorWheelType,
@@ -8,7 +8,7 @@ import {
   CurveType,
   RGBValue,
 } from "../types/color-grading"
-import { BUILT_IN_PRESETS, ColorGradingPreset } from "../types/presets"
+import { BUILT_IN_PRESETS, type ColorGradingPreset } from "../types/presets"
 
 // Начальные значения
 const DEFAULT_RGB: RGBValue = { r: 0, g: 0, b: 0 }

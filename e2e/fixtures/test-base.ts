@@ -1,8 +1,8 @@
 import { test as base } from "@playwright/test"
 
 type TestFixtures = {
-  autoGoto: void
-  mockTauriAPI: void
+  autoGoto: undefined
+  mockTauriAPI: undefined
 }
 
 // Расширяем базовый тест с полезными фикстурами

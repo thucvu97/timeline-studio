@@ -1,10 +1,10 @@
 import { useDroppable } from "@dnd-kit/core"
 import { useRef, useState } from "react"
 
-import { Transition } from "@/features/transitions/types/transitions"
+import type { Transition } from "@/features/transitions/types/transitions"
 import { cn } from "@/lib/utils"
 
-import { TimelineClip } from "../../types/timeline"
+import type { TimelineClip } from "../../types/timeline"
 
 interface TransitionDropZoneProps {
   leftClip: TimelineClip

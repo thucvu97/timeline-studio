@@ -5,9 +5,9 @@
  * ресурсами, браузером, плеером и таймлайном
  */
 
-import { MediaFile } from "@/features/media/types/media"
-import { ResourcesContextType } from "@/features/resources/services/resources-provider"
-import { TimelineProject } from "@/features/timeline/types"
+import type { MediaFile } from "@/features/media/types/media"
+import type { ResourcesContextType } from "@/features/resources/services/resources-provider"
+import type { TimelineProject } from "@/features/timeline/types"
 import { batchProcessingTools, executeBatchProcessingTool } from "../tools/batch-processing-tools"
 import { browserTools, executeBrowserTool } from "../tools/browser-tools"
 import { contentIntelligenceTools, executeContentIntelligenceTool } from "../tools/content-intelligence-tools"
@@ -23,7 +23,7 @@ import { executeTimelineTool, timelineTools } from "../tools/timeline-tools"
 import { executeVideoAnalysisTool, videoAnalysisTools } from "../tools/video-analysis-tools"
 import { executeWhisperTool, whisperTools } from "../tools/whisper-tools"
 import { executeWorkflowAutomationTool, workflowAutomationTools } from "../tools/workflow-automation-tools"
-import {
+import type {
   AIBrowserContext,
   AIPlayerContext,
   AIResourcesContext,
@@ -33,7 +33,7 @@ import {
   TimelineStudioContext,
 } from "../types/ai-context"
 import { ApiKeyLoader } from "./api-key-loader"
-import { CLAUDE_MODELS, ClaudeService, ClaudeTool } from "./claude-service"
+import { CLAUDE_MODELS, ClaudeService, type ClaudeTool } from "./claude-service"
 
 /**
  * Результат выполнения AI команды Timeline

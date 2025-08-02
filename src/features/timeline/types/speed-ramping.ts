@@ -175,25 +175,29 @@ export function interpolateSpeed(
     case "linear":
       return keyframe1.value + (keyframe2.value - keyframe1.value) * t
 
-    case "ease":
+    case "ease": {
       // Cubic ease in-out
       const easeT = t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2
       return keyframe1.value + (keyframe2.value - keyframe1.value) * easeT
+    }
 
-    case "ease-in":
+    case "ease-in": {
       // Cubic ease in
       const easeInT = t * t * t
       return keyframe1.value + (keyframe2.value - keyframe1.value) * easeInT
+    }
 
-    case "ease-out":
+    case "ease-out": {
       // Cubic ease out
       const easeOutT = 1 - (1 - t) ** 3
       return keyframe1.value + (keyframe2.value - keyframe1.value) * easeOutT
+    }
 
-    case "ease-in-out":
+    case "ease-in-out": {
       // Cubic ease in-out
       const easeInOutT = t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2
       return keyframe1.value + (keyframe2.value - keyframe1.value) * easeInOutT
+    }
 
     case "bezier":
       // Simplified bezier (would need proper implementation)

@@ -741,7 +741,7 @@ async function generateFullScriptHandler(input: Record<string, unknown>): Promis
       { temperature: 0.4 },
     )
 
-    let generatedScript
+    let generatedScript: any
     try {
       generatedScript = JSON.parse(scriptRequest.content)
     } catch (parseError) {
@@ -864,7 +864,7 @@ ${String(script_content)}
       { temperature: 0.3 },
     )
 
-    let realShotList
+    let realShotList: any
     try {
       realShotList = JSON.parse(shotListRequest.content)
     } catch (parseError) {
@@ -954,7 +954,7 @@ async function adaptContentToPlatformHandler(input: Record<string, unknown>): Pr
       { temperature: 0.3 },
     )
 
-    let realAdaptation
+    let realAdaptation: any
     try {
       realAdaptation = JSON.parse(adaptationRequest.content)
     } catch (parseError) {

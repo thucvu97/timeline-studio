@@ -36,9 +36,10 @@ const mockGetSortValue = vi.fn((transition: any, sortBy: string) => {
       return (transition.labels?.ru || transition.labels?.en || transition.name || "").toLowerCase()
     case "category":
       return transition.category.toLowerCase()
-    case "complexity":
+    case "complexity": {
       const complexityOrder: Record<string, number> = { basic: 0, intermediate: 1, advanced: 2 }
       return complexityOrder[transition.complexity || "basic"]
+    }
     case "duration":
       return transition.duration?.default || 1
     case "type":
@@ -72,11 +73,12 @@ const mockGetGroupValue = vi.fn((transition: any, groupBy: string) => {
       return transition.type || "unknown"
     case "tags":
       return transition.tags && transition.tags.length > 0 ? transition.tags[0] : "untagged"
-    case "duration":
+    case "duration": {
       const duration = transition.duration?.default || 1
       if (duration <= 1) return "Короткие (≤1с)"
       if (duration <= 3) return "Средние (1-3с)"
       return "Длинные (>3с)"
+    }
     default:
       return ""
   }

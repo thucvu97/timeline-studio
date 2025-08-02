@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils"
 import { useChannelAudio } from "../../hooks/use-channel-audio"
 import { SimpleWaveform } from "../waveform/simple-waveform"
-import { ChannelStrip, ChannelStripProps } from "./channel-strip"
+import { ChannelStrip, type ChannelStripProps } from "./channel-strip"
 
 interface ChannelWithAudioProps extends ChannelStripProps {
   trackId?: string

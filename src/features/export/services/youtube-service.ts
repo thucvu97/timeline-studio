@@ -1,6 +1,6 @@
 // YouTube API сервис для загрузки видео
 
-import { SocialExportSettings } from "../types/export-types"
+import type { SocialExportSettings } from "../types/export-types"
 import { OAuthService } from "./oauth-service"
 
 interface YouTubeVideoMetadata {

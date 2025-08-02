@@ -111,29 +111,33 @@ export function useMediaProcessor(options: UseMediaProcessorOptions = {}) {
           onFilesDiscovered?.((data as FilesDiscoveredData).files)
           break
 
-        case "MetadataReady":
+        case "MetadataReady": {
           const metadataData = data as MetadataReadyData
           // Cache the metadata for future use
           void cacheMetadataIfValid(metadataData.metadata)
           onMetadataReady?.(metadataData.file_id, metadataData.metadata)
           break
+        }
 
-        case "ThumbnailReady":
+        case "ThumbnailReady": {
           const thumbnailData = data as ThumbnailReadyData
           onThumbnailReady?.(thumbnailData.file_id, thumbnailData.thumbnail_path, thumbnailData.thumbnail_data)
           break
+        }
 
-        case "ProcessingError":
+        case "ProcessingError": {
           const errorData = data as ProcessingErrorData
           setErrors((prev) => new Map(prev).set(errorData.file_id, errorData.error))
           onError?.(errorData.file_id, errorData.error)
           break
+        }
 
-        case "ScanProgress":
+        case "ScanProgress": {
           const progressData = data as ScanProgressData
           setProgress({ current: progressData.current, total: progressData.total })
           onProgress?.(progressData.current, progressData.total)
           break
+        }
         default:
           // Неизвестный тип события, игнорируем
           break

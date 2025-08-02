@@ -1,8 +1,8 @@
 import { act } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
-import { MediaFile } from "@/features/media/types/media"
-import { Transition } from "@/features/transitions/types/transitions"
+import type { MediaFile } from "@/features/media/types/media"
+import type { Transition } from "@/features/transitions/types/transitions"
 import { renderWithBase, screen } from "@/test/test-utils"
 
 import { TransitionGroup } from "../../components/transition-group"

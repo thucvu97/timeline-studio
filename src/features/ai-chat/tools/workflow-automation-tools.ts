@@ -2,8 +2,12 @@
  * Claude Tools для автоматизации рабочих процессов видеомонтажа
  */
 
-import { ClaudeTool } from "../services/claude-service"
-import { WorkflowAutomationService, WorkflowParams, WorkflowType } from "../services/workflow-automation-service"
+import type { ClaudeTool } from "../services/claude-service"
+import {
+  WorkflowAutomationService,
+  type WorkflowParams,
+  type WorkflowType,
+} from "../services/workflow-automation-service"
 
 const workflowService = WorkflowAutomationService.getInstance()
 
@@ -428,7 +432,7 @@ export const workflowAutomationTools: ClaudeTool[] = [
 export async function executeWorkflowAutomationTool(toolName: string, input: any): Promise<any> {
   try {
     switch (toolName) {
-      case "get_available_workflows":
+      case "get_available_workflows": {
         const workflows = workflowService.getAvailableWorkflows()
 
         // Фильтрация по сложности
@@ -459,8 +463,9 @@ export async function executeWorkflowAutomationTool(toolName: string, input: any
           categories: Object.keys(categorizedWorkflows),
           filters: { complexity: input.complexity, category: input.category },
         }
+      }
 
-      case "execute_workflow":
+      case "execute_workflow": {
         const workflowParams: WorkflowParams = {
           inputVideos: input.inputVideos,
           workflowType: input.workflowType as WorkflowType,
@@ -470,8 +475,9 @@ export async function executeWorkflowAutomationTool(toolName: string, input: any
         }
 
         return await workflowService.executeWorkflow(workflowParams)
+      }
 
-      case "get_workflow_status":
+      case "get_workflow_status": {
         const activeWorkflows = workflowService.getActiveWorkflows()
 
         if (input.workflowId) {
@@ -484,8 +490,9 @@ export async function executeWorkflowAutomationTool(toolName: string, input: any
           totalActive: activeWorkflows.length,
           includeCompleted: input.includeCompleted || false,
         }
+      }
 
-      case "cancel_workflow":
+      case "cancel_workflow": {
         const cancelled = await workflowService.cancelWorkflow(input.workflowId)
         return {
           success: cancelled,
@@ -493,6 +500,7 @@ export async function executeWorkflowAutomationTool(toolName: string, input: any
           reason: input.reason,
           message: cancelled ? "Workflow successfully cancelled" : "Workflow not found or already completed",
         }
+      }
 
       case "create_custom_workflow":
         // Здесь был бы функционал создания пользовательских workflow
@@ -505,7 +513,7 @@ export async function executeWorkflowAutomationTool(toolName: string, input: any
           message: "Custom workflow template created successfully",
         }
 
-      case "analyze_video_for_workflow":
+      case "analyze_video_for_workflow": {
         // Анализируем видео и предлагаем подходящие workflow
         const analysis = await analyzeVideoContent(input.videoPath, input.analysisDepth)
         const recommendations = generateWorkflowRecommendations(analysis, input.userIntent)
@@ -516,8 +524,9 @@ export async function executeWorkflowAutomationTool(toolName: string, input: any
           analysisDepth: input.analysisDepth,
           confidence: calculateRecommendationConfidence(analysis, recommendations),
         }
+      }
 
-      case "get_workflow_suggestions":
+      case "get_workflow_suggestions": {
         const suggestions = generateWorkflowOptimizationSuggestions(
           input.workflowType,
           input.inputCharacteristics,
@@ -531,6 +540,7 @@ export async function executeWorkflowAutomationTool(toolName: string, input: any
           optimizationPotential: calculateOptimizationPotential(suggestions),
           estimatedImprovement: "15-30% faster processing",
         }
+      }
 
       case "export_workflow_results":
         // Экспорт результатов workflow

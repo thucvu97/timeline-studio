@@ -3,9 +3,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import {
   getAIService,
   getFFmpegService,
-  IFFmpegAnalysisService,
-  IUnifiedAIService,
-  ServiceFactory,
+  type IFFmpegAnalysisService,
+  type IUnifiedAIService,
+  type ServiceFactory,
   setServiceFactory,
 } from "../media-analysis-interface"
 

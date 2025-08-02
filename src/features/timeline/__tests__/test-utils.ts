@@ -1,6 +1,6 @@
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 
-import { TimelineClip, TimelineTrack, TrackType } from "../types"
+import type { TimelineClip, TimelineTrack, TrackType } from "../types"
 
 // Test data creation utilities
 

@@ -8,7 +8,7 @@
  * - Оптимизация производительности
  */
 
-import { TimelineClip } from "@/features/timeline/types/timeline"
+import type { TimelineClip } from "@/features/timeline/types/timeline"
 
 export interface EffectShader {
   name: string

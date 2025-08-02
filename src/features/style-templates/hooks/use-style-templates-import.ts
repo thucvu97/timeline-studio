@@ -4,7 +4,7 @@ import { useCallback, useState } from "react"
 
 import { useResources } from "@/features/resources"
 
-import { StyleTemplate } from "../types"
+import type { StyleTemplate } from "../types"
 
 /**
  * Хук для импорта пользовательских стилистических шаблонов

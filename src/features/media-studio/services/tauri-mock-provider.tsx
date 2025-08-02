@@ -326,10 +326,11 @@ export function TauriMockProvider({ children }: { children: React.ReactNode }) {
                 tempProjectCreated = true
               }
               return null
-            case "plugin:path|join":
+            case "plugin:path|join": {
               // Join path segments
               const paths = args?.paths || []
               return paths.join("/")
+            }
             case "plugin:store|set":
               // Mock storing values
               return null

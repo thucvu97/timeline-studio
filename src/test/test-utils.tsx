@@ -1,5 +1,5 @@
-import { RenderOptions, render } from "@testing-library/react"
-import { ReactElement, ReactNode } from "react"
+import { type RenderOptions, render } from "@testing-library/react"
+import type { ReactElement, ReactNode } from "react"
 
 import { ChatProvider } from "@/features/ai-chat/services/chat-provider"
 import { AppProvider } from "@/features/app-state/services/app-provider"

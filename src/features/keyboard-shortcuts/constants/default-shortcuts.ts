@@ -3,7 +3,7 @@
  * Централизованное место для всех shortcuts
  */
 
-import { ShortcutContext, ShortcutDefinition } from "../services/shortcuts-registry"
+import type { ShortcutContext, ShortcutDefinition } from "../services/shortcuts-registry"
 
 // Утилита для создания shortcuts с разными вариантами для macOS
 const createMacShortcut = (

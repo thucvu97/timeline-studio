@@ -3,7 +3,7 @@
  * Этот файл содержит конфигурации для всех 78 шаблонов
  */
 
-import { createCellConfig, createDividerConfig, MediaTemplateConfig, PRESET_STYLES } from "./template-config"
+import { createCellConfig, createDividerConfig, type MediaTemplateConfig, PRESET_STYLES } from "./template-config"
 
 // ===== БАЗОВЫЕ ШАБЛОНЫ =====
 

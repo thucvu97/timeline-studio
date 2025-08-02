@@ -184,10 +184,11 @@ export function groupFiles(files: BrowserFileInfo[], groupBy: string): FileGroup
       case "type":
         key = getFileTypeCategory(file.type)
         break
-      case "date":
+      case "date": {
         const date = file.modifiedAt || file.createdAt
         key = date ? formatDateKey(date) : "Без даты"
         break
+      }
       case "size":
         key = getSizeCategory(file.size || 0)
         break

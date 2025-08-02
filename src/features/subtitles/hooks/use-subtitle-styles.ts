@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import subtitleStylesData from "../data/subtitle-styles.json"
-import { SubtitleStyleTemplate } from "../types/subtitles"
+import type { SubtitleStyleTemplate } from "../types/subtitles"
 import {
   createFallbackSubtitleStyleTemplate,
   processSubtitleStyleTemplates,

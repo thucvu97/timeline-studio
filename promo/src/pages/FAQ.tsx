@@ -1,4 +1,4 @@
-import React from "react"
+import type React from "react"
 import { AnimatedSection } from "../components/AnimatedSection"
 import { Footer } from "../components/Footer"
 import { Navigation } from "../components/Navigation"

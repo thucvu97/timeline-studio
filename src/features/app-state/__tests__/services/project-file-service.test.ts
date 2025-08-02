@@ -1,7 +1,7 @@
 import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { ProjectFile } from "@/features/project-settings/types/project"
+import type { ProjectFile } from "@/features/project-settings/types/project"
 
 import {
   createNewProject,

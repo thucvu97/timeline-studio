@@ -191,7 +191,7 @@ export class PreviewRenderer {
   private getUniformNames(shaderSource: string): string[] {
     const uniformRegex = /uniform\s+\w+\s+(\w+);/g
     const names: string[] = []
-    let match
+    let match: RegExpExecArray | null
 
     while ((match = uniformRegex.exec(shaderSource)) !== null) {
       names.push(match[1])
@@ -352,7 +352,7 @@ export class PreviewRenderer {
         }
         break
 
-      case "chroma_key":
+      case "chroma_key": {
         shaderName = "chromaKey"
         const keyColor = effect.parameters.keyColor || [0, 1, 0] // Default green
         uniforms = {
@@ -361,8 +361,9 @@ export class PreviewRenderer {
           u_smoothness: effect.parameters.smoothness || 0.1,
         }
         break
+      }
 
-      case "color_grading":
+      case "color_grading": {
         shaderName = "colorGrading"
         const params = effect.parameters
         uniforms = {
@@ -375,6 +376,7 @@ export class PreviewRenderer {
           u_gainLum: params.gain?.luminance || 1,
         }
         break
+      }
 
       case "glow":
         shaderName = "glow"

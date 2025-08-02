@@ -1,8 +1,8 @@
 import { dirname } from "@tauri-apps/api/path"
 import { open } from "@tauri-apps/plugin-dialog"
 
-import { MediaFile } from "@/features/media/types/media"
-import { SavedMediaFile, SavedMusicFile } from "@/features/media/types/saved-media"
+import type { MediaFile } from "@/features/media/types/media"
+import type { SavedMediaFile, SavedMusicFile } from "@/features/media/types/saved-media"
 
 import {
   convertFromSavedMediaFile,

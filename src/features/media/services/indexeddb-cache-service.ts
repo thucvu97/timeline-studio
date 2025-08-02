@@ -1,4 +1,4 @@
-import { clear as clearStore, createStore, del, entries, get, set, UseStore } from "idb-keyval"
+import { clear as clearStore, createStore, del, entries, get, set, type UseStore } from "idb-keyval"
 
 import type {
   RecognitionFrame,

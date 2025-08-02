@@ -4,11 +4,11 @@
 
 import { invoke } from "@tauri-apps/api/core"
 
-import { ClaudeTool } from "../services/claude-service"
+import type { ClaudeTool } from "../services/claude-service"
 import {
-  ContentCategory,
+  type ContentCategory,
   PlatformOptimizationService,
-  SupportedPlatform,
+  type SupportedPlatform,
 } from "../services/platform-optimization-service"
 
 const platformService = PlatformOptimizationService.getInstance()
@@ -461,7 +461,7 @@ export async function executePlatformOptimizationTool(toolName: string, input: a
           (input.contentCategory as ContentCategory) || "standard",
         )
 
-      case "generate_platform_thumbnail":
+      case "generate_platform_thumbnail": {
         const specs = platformService.getPlatformSpecs(input.platform as SupportedPlatform)
         return await invoke("ffmpeg_generate_platform_thumbnail", {
           videoPath: input.videoPath,
@@ -473,8 +473,9 @@ export async function executePlatformOptimizationTool(toolName: string, input: a
           addOverlay: input.addOverlay || false,
           platformName: specs.displayName,
         })
+      }
 
-      case "check_platform_compliance":
+      case "check_platform_compliance": {
         const metadata = await invoke("ffmpeg_get_metadata", {
           filePath: input.videoPath,
         })
@@ -486,6 +487,7 @@ export async function executePlatformOptimizationTool(toolName: string, input: a
           compliance: checkCompliance(metadata, platformSpecs),
           recommendations: generateComplianceRecommendations(metadata, platformSpecs),
         }
+      }
 
       case "get_optimization_stats":
         // Здесь должна быть логика получения статистики из базы данных
