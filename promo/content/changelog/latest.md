@@ -1,3 +1,10 @@
+## [0.59.2](https://github.com/chatman-media/timeline-studio/compare/v0.59.1...v0.59.2) (2025-08-02)
+
+
+### Bug Fixes
+
+* исправить mutex lock failed ошибку в Rust тестах на macOS ([c07270d](https://github.com/chatman-media/timeline-studio/commit/c07270d4e8b125e9a067b84e7cb1412673c72375))
+
 ## [0.59.1](https://github.com/chatman-media/timeline-studio/compare/v0.59.0...v0.59.1) (2025-08-02)
 
 
