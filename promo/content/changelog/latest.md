@@ -1,3 +1,10 @@
+## [0.59.5](https://github.com/chatman-media/timeline-studio/compare/v0.59.4...v0.59.5) (2025-08-02)
+
+
+### Bug Fixes
+
+* настроить автоматическое обновление версии в package.json ([147e548](https://github.com/chatman-media/timeline-studio/commit/147e5486efc8ee07c182033a1a8dfd4f20b54da9))
+
 ## [0.59.4](https://github.com/chatman-media/timeline-studio/compare/v0.59.3...v0.59.4) (2025-08-02)
 
 
