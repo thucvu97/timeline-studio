@@ -3,6 +3,7 @@
  * Основной движок для адаптации контента под различные платформы
  */
 
+import { UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service"
 import type { AdaptedContent, Platform, PlatformId } from "../../../shared/types/platform-adaptation"
 import { getOptimalAspectRatio, getOptimalResolution, getPlatformConfig } from "../platform-configs"
 import type {
@@ -15,7 +16,6 @@ import type {
   PlatformOptimizationResult,
   TrendingElements,
 } from "../types"
-import { UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service"
 
 import { BatchProcessor } from "./batch-processor"
 import { LanguageAdapter } from "./language-adapter"
@@ -26,7 +26,6 @@ export class MultiPlatformEngine {
   private languageAdapter: LanguageAdapter
   private batchProcessor: BatchProcessor
   private config: MultiPlatformConfig
-  private aiService: UnifiedAIService
   private isInitialized = false
 
   constructor(config?: Partial<MultiPlatformConfig>) {
@@ -142,7 +141,10 @@ export class MultiPlatformEngine {
         preferred: true,
       },
       cropStrategy: this.determineCropStrategy(context.analysis, optimalAspectRatio),
-      qualityPreset: this.config.adaptation.preserveOriginalQuality ? "preserve" : "optimize",
+      qualityPreset: (this.config.adaptation.preserveOriginalQuality ? "preserve" : "optimize") as
+        | "preserve"
+        | "optimize"
+        | "compress",
       enhancementFilters: this.selectEnhancements(context.analysis),
     }
 
@@ -760,7 +762,7 @@ export class MultiPlatformEngine {
       // Use pattern-based language detection
       // A real implementation would use the AI service API
       const detectedLanguage = await this.analyzeLanguagePatterns(textSamples)
-      
+
       if (detectedLanguage) {
         return detectedLanguage
       }

@@ -1,4 +1,10 @@
-import type { AIConfig, AIProvider } from "../types/ai-config"
+import type { AIConfig } from "../types/ai-config"
+
+enum AIProvider {
+  LOCAL = "local",
+  OPENAI = "openai",
+  ANTHROPIC = "anthropic",
+}
 
 export function createDefaultAIConfig(overrides?: Partial<AIConfig>): AIConfig {
   const defaultConfig: AIConfig = {

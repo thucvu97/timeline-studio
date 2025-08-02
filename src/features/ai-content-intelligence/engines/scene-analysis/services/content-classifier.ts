@@ -45,7 +45,6 @@ interface ClassificationFeatures {
 
 export class ContentClassifier {
   private static instance: ContentClassifier
-  private aiService: UnifiedAIService
   private config: ClassifierConfig
   private cache = new Map<string, ClassificationResult>()
 
@@ -479,28 +478,6 @@ Format your response as JSON with this structure:
   "confidence": number,
   "reasoning": "string"
 }`
-  }
-
-  private parseAIResponse(response: string): ClassificationResult {
-    try {
-      const jsonMatch = /```json\n([\s\S]*?)\n```/.exec(response)
-      const jsonStr = jsonMatch ? jsonMatch[1] : response
-      const parsed = JSON.parse(jsonStr)
-
-      return {
-        category: parsed.contentType || ContentType.NARRATIVE,
-        subcategory: parsed.genres?.[0],
-        confidence: parsed.confidence || 0.7,
-        reasoning: parsed.reasoning || "AI classification completed",
-      }
-    } catch (error) {
-      console.error("Failed to parse AI response:", error)
-      return {
-        category: ContentType.NARRATIVE,
-        confidence: 0.5,
-        reasoning: "Failed to parse AI response",
-      }
-    }
   }
 
   private buildClassification(result: ClassificationResult): ContentClassification {

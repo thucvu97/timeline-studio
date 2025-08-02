@@ -32,13 +32,7 @@ import { cn } from "@/lib/utils"
 
 import { useAIIntelligence } from "../../hooks/use-ai-intelligence"
 import { useContentPipeline } from "../../hooks/use-content-pipeline"
-import type {
-  AIConfig,
-  IntelligentContent,
-  MediaFileInfo,
-  PipelineProgress,
-  UnifiedContentAnalysis,
-} from "../../shared/types"
+import type { IntelligentContent, MediaFileInfo, PipelineProgress, UnifiedContentAnalysis } from "../../shared/types"
 import { createDefaultAIConfig } from "../../shared/utils/config"
 import { AnalysisViewer } from "../analysis-viewer/analysis-viewer"
 import { PreviewGrid } from "../preview-grid/preview-grid"
