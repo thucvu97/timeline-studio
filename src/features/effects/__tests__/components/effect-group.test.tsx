@@ -262,7 +262,8 @@ describe("EffectGroup", () => {
     const effectElements = screen.getAllByRole("button")
 
     effectElements.forEach((element, index) => {
-      expect(element).toHaveAttribute("tabIndex", "0")
+      // Semantic button elements don't need explicit tabIndex="0"
+      expect(element.tagName).toBe("BUTTON")
       expect(element).toHaveAttribute(
         "aria-label",
         `${mockEffects[index].labels?.en || mockEffects[index].name} effect`,
