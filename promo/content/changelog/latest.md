@@ -1,3 +1,11 @@
+## [0.60.1](https://github.com/chatman-media/timeline-studio/compare/v0.60.0...v0.60.1) (2025-08-02)
+
+
+### Bug Fixes
+
+* добавить обновление Cargo.lock в скрипт синхронизации версий ([0858087](https://github.com/chatman-media/timeline-studio/commit/0858087b6b7e13410261e906a6aefed9e8398daa))
+* исправлены критические TypeScript ошибки в продакшн коде ([6eb9bcf](https://github.com/chatman-media/timeline-studio/commit/6eb9bcf06c034ff58c3369e1df0ff2b43c15cc48))
+
 # [0.60.0](https://github.com/chatman-media/timeline-studio/compare/v0.59.9...v0.60.0) (2025-08-02)
 
 
