@@ -31,6 +31,7 @@
           "bun.lockb",
           "promo/content/changelog/latest.md",
           "src-tauri/Cargo.toml",
+          "src-tauri/Cargo.lock",
           "src-tauri/tauri.conf.json",
           "version.json",
           "src/test/mocks/tauri/api/app.ts"

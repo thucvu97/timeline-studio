@@ -38,4 +38,15 @@ const versionJson = { version }
 fs.writeFileSync(versionJsonPath, JSON.stringify(versionJson, null, 2) + "\n")
 console.log("✓ Обновлен version.json")
 
+// Обновляем Cargo.lock
+const cargoLockPath = path.join(__dirname, "..", "..", "src-tauri", "Cargo.lock")
+if (fs.existsSync(cargoLockPath)) {
+  let cargoLock = fs.readFileSync(cargoLockPath, "utf8")
+  // Ищем и заменяем версию для пакета timeline-studio
+  const regex = /(\[\[package\]\]\nname = "timeline-studio"\nversion = )"[^"]+"/
+  cargoLock = cargoLock.replace(regex, `$1"${version}"`)
+  fs.writeFileSync(cargoLockPath, cargoLock)
+  console.log("✓ Обновлен Cargo.lock")
+}
+
 console.log("Синхронизация версий завершена!")
