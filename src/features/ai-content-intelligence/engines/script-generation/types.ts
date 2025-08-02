@@ -2,8 +2,12 @@
  * Типы для Script Generation Engine
  */
 
+import type { Person } from "@/features/montage-planner/types"
 import type { ContentType, SceneAnalysis } from "../../shared/types/content-analysis"
 import type { Character, GeneratedScript, NarrativeType } from "../../shared/types/script-generation"
+
+// Реэкспортируем ScriptGenerationParams для обратной совместимости
+export type { ScriptGenerationParams } from "../../shared/types/script-generation"
 
 export interface ScriptGenerationConfig {
   // AI настройки
@@ -47,6 +51,37 @@ export interface ScriptGenerationContext {
   userPrompt?: string
   references?: ScriptReference[]
   constraints?: ScriptConstraints
+  // Дополнительные поля для работы с персонажами и сценами
+  detectedPersons?: Person[]
+  personStats?: PersonStatistics
+  scenes?: SceneAnalysis[]
+  characters?: CharacterInfo[]
+  location?: string
+  timeOfDay?: string
+  mediaFile?: MediaFile
+  targetAudience?: string
+}
+
+// Дополнительные типы для работы с персонажами
+export interface PersonStatistics {
+  personAppearances?: Record<string, number>
+  screenTimeByPerson?: Record<string, number>
+  totalPersons?: number
+}
+
+export interface CharacterInfo {
+  id: string
+  name: string
+  role: string
+  screenTime: number
+  appearances: number
+}
+
+export interface MediaFile {
+  filename: string
+  duration: number
+  path?: string
+  format?: string
 }
 
 // VideoMetadata импортируется из общих типов
@@ -196,6 +231,7 @@ export interface ScriptQuality {
   coherence: number
   creativity: number
   audienceAppeal: number
+  dialogue?: number // Качество диалогов
 }
 
 export interface ScriptAlternative {

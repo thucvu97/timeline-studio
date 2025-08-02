@@ -27,6 +27,7 @@ export class MultiPlatformEngine {
   private batchProcessor: BatchProcessor
   private config: MultiPlatformConfig
   private isInitialized = false
+  aiService: UnifiedAIService
 
   constructor(config?: Partial<MultiPlatformConfig>) {
     this.config = this.getDefaultConfig(config)

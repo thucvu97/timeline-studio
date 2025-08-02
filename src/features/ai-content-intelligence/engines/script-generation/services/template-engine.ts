@@ -20,7 +20,6 @@ export class TemplateEngine {
   async initialize(): Promise<void> {
     // Загружаем встроенные шаблоны
     this.loadBuiltinTemplates()
-    this.isInitialized = true
   }
 
   /**
