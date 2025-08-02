@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useState } from "react"
-
 import { invoke } from "@tauri-apps/api/core"
 import { open } from "@tauri-apps/plugin-dialog"
+import { useCallback, useEffect, useState } from "react"
 
 import { loadProject } from "@/features/app-state/services/project-file-service"
 import { calculateAspectRatio } from "@/features/project-settings/utils/aspect-ratio-utils"

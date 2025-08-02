@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react"
-
 import { Search, X } from "lucide-react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
@@ -8,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useModal } from "@/features/modals/services/modal-provider"
 
-import { PresetType, createPresets } from "../presets"
+import { createPresets, PresetType } from "../presets"
 
 export function KeyboardShortcutsModal() {
   const { t } = useTranslation()
@@ -39,15 +38,15 @@ export function KeyboardShortcutsModal() {
   const filteredCategories = useMemo(() => {
     return searchQuery
       ? categories
-        .map((category) => ({
-          ...category,
-          shortcuts: category.shortcuts.filter(
-            (shortcut) =>
-              shortcut.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          .map((category) => ({
+            ...category,
+            shortcuts: category.shortcuts.filter(
+              (shortcut) =>
+                shortcut.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 shortcut.keys.toLowerCase().includes(searchQuery.toLowerCase()),
-          ),
-        }))
-        .filter((category) => category.shortcuts.length > 0)
+            ),
+          }))
+          .filter((category) => category.shortcuts.length > 0)
       : categories
   }, [categories, searchQuery])
 
@@ -517,9 +516,10 @@ export function KeyboardShortcutsModal() {
                       editingShortcut.shortcutIndex === shortcutIndex
 
                     return (
-                      <div
+                      <button
                         key={shortcut.id}
-                        className={`flex items-center justify-between rounded border-b border-gray-100 px-3 py-1.5 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800 ${isEditing ? "ring-2 ring-[#00CCC0]" : ""} cursor-pointer`}
+                        type="button"
+                        className={`flex items-center justify-between rounded border-b border-gray-100 px-3 py-1.5 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800 ${isEditing ? "ring-2 ring-[#00CCC0]" : ""} cursor-pointer w-full text-left`}
                         onClick={(e) => {
                           e.stopPropagation()
                           startEditing(index, shortcutIndex)
@@ -528,8 +528,6 @@ export function KeyboardShortcutsModal() {
                           e.stopPropagation()
                           handleKeyDown(e)
                         }}
-                        tabIndex={0}
-                        role="button"
                         aria-label={`Edit shortcut ${shortcut.name}`}
                       >
                         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{shortcut.name}</span>
@@ -544,7 +542,7 @@ export function KeyboardShortcutsModal() {
                             <span className="font-medium tracking-wide">{shortcut.keys}</span>
                           )}
                         </div>
-                      </div>
+                      </button>
                     )
                   })}
                 </div>

@@ -3,9 +3,8 @@
  * Allows visual construction and editing of montage sequences
  */
 
-import { useState } from "react"
-
 import { ChevronDown, ChevronUp, Copy, GripVertical, Plus, Trash2 } from "lucide-react"
+import { useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -16,10 +15,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider"
 import { formatTime } from "@/lib/date"
 import { cn } from "@/lib/utils"
-
-import { ClipRole, SequencePurpose, SequenceType } from "../../types"
-
 import type { Fragment, PlannedClip, Sequence } from "../../types"
+import { ClipRole, SequencePurpose, SequenceType } from "../../types"
 
 interface SequenceBuilderProps {
   sequences: Sequence[]

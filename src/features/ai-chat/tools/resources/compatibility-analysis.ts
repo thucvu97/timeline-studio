@@ -2,16 +2,15 @@
  * AI инструмент для анализа совместимости ресурсов
  */
 
+import type { ClaudeTool } from "../../services/claude-service"
+
+import type { CompatibilityParams, ResourceToolResult } from "./types"
 import {
   checkResourceCompatibility,
   getResourceDetails,
   getResourcesProvider,
   hasResourcesAccess,
 } from "./utils/helpers"
-
-import type { CompatibilityParams, ResourceToolResult } from "./types"
-import type { ClaudeTool } from "../../services/claude-service"
-
 
 export const analyzeResourceCompatibilityTool: ClaudeTool = {
   name: "analyze_resource_compatibility",

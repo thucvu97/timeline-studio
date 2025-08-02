@@ -1,13 +1,12 @@
 // Объединяющий сервис для всех социальных сетей
 
 import { toast } from "sonner"
-
+import { SocialExportSettings } from "../types/export-types"
 import { OAuthService } from "./oauth-service"
 import * as TelegramService from "./telegram-service"
 import * as TikTokService from "./tiktok-service"
 import * as VimeoService from "./vimeo-service"
 import * as YouTubeService from "./youtube-service"
-import { SocialExportSettings } from "../types/export-types"
 
 export interface SocialUploadResult {
   success: boolean

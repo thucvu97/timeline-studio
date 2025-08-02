@@ -1,6 +1,5 @@
-import { useState } from "react"
-
 import { Clock, Minus, Plus, RotateCcw } from "lucide-react"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 

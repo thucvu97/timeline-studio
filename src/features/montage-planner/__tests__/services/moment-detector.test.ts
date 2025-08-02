@@ -5,10 +5,9 @@
 import { beforeEach, describe, expect, it } from "vitest"
 
 import { MomentDetector } from "../../services/moment-detector"
+import type { AnalysisOptions, MomentScore } from "../../types"
 import { MomentCategory } from "../../types"
 import { mockAudioAnalysis, mockMomentScore, mockVideoAnalysis } from "../test-utils"
-
-import type { AnalysisOptions, MomentScore } from "../../types"
 
 describe("MomentDetector", () => {
   let detector: MomentDetector

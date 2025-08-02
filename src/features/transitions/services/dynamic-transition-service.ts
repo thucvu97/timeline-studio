@@ -3,8 +3,6 @@
  * Поддерживает particle systems, physics simulation и complex shaders
  */
 
-import { TransitionParameters } from "../types/transitions"
-
 // Типы динамических шейдеров
 export type DynamicShaderType =
   | "particle-dissolve"
@@ -160,7 +158,7 @@ export class DynamicTransitionService {
       "bit-crush",
       // 3D shaders
       "page-flip",
-      "card-shuffle", 
+      "card-shuffle",
       "helix-spin",
       "sphere-mapping",
     ]
@@ -558,10 +556,10 @@ export class DynamicTransitionService {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
     return result
       ? [
-        Number.parseInt(result[1], 16) / 255,
-        Number.parseInt(result[2], 16) / 255,
-        Number.parseInt(result[3], 16) / 255,
-      ]
+          Number.parseInt(result[1], 16) / 255,
+          Number.parseInt(result[2], 16) / 255,
+          Number.parseInt(result[3], 16) / 255,
+        ]
       : [1, 1, 1]
   }
 
@@ -1737,7 +1735,7 @@ export class DynamicTransitionService {
     }`
   }
 
-  private getCardShuffleShader(): string { 
+  private getCardShuffleShader(): string {
     return `#version 300 es
     precision highp float;
     
@@ -1816,9 +1814,19 @@ export class DynamicTransitionService {
   }
 
   // Заглушки для остальных 3D эффектов
-  private getBookOpenShader(): string { return "" }
-  private getCylinderRollShader(): string { return "" }
-  private getOrigamiFoldShader(): string { return "" }
-  private getPolyhedronTransformShader(): string { return "" }
-  private getMobiusStripShader(): string { return "" }
+  private getBookOpenShader(): string {
+    return ""
+  }
+  private getCylinderRollShader(): string {
+    return ""
+  }
+  private getOrigamiFoldShader(): string {
+    return ""
+  }
+  private getPolyhedronTransformShader(): string {
+    return ""
+  }
+  private getMobiusStripShader(): string {
+    return ""
+  }
 }

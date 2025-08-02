@@ -1,6 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from "react"
-
 import { Download, Maximize2, Pause, Play, RotateCcw } from "lucide-react"
+import React, { useCallback, useEffect, useRef, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"

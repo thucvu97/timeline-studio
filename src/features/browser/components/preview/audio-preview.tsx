@@ -1,7 +1,6 @@
-import { memo, useCallback, useEffect, useRef, useState } from "react"
-
 import { readFile } from "@tauri-apps/plugin-fs"
 import { Music } from "lucide-react"
+import { memo, useCallback, useEffect, useRef, useState } from "react"
 import { LiveAudioVisualizer } from "react-audio-visualize"
 
 import { MediaFile } from "@/features/media/types/media"

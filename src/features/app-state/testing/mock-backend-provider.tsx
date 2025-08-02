@@ -5,7 +5,7 @@
  * It provides consistent mocks for all Tauri commands and events used by the app-state module.
  */
 
-import React, { ReactNode, createContext, useContext } from "react"
+import React, { createContext, ReactNode, useContext } from "react"
 
 import { MockedFunction, vi } from "vitest"
 

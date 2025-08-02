@@ -3,13 +3,11 @@
  */
 
 import type { TimelineProject } from "@/features/timeline/types/timeline"
-
+import type { ClaudeTool } from "../../services/claude-service"
+import type { TimelineToolResult } from "./types"
 import { getTimelineStateAccess } from "./types"
 import { createDefaultTrackStructure } from "./utils/creators"
 import { generateProjectId } from "./utils/generators"
-
-import type { TimelineToolResult } from "./types"
-import type { ClaudeTool } from "../../services/claude-service"
 
 export const createTimelineProjectTool: ClaudeTool = {
   name: "create_timeline_project",

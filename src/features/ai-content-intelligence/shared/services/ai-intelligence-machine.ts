@@ -4,22 +4,19 @@
  */
 
 import { assign, emit, fromPromise, setup } from "xstate"
-
-import { ProcessingStatus } from "../types"
-import {
-  type IFFmpegAnalysisService,
-  type IUnifiedAIService,
-  getAIService,
-  getFFmpegService,
-} from "./media-analysis-interface"
-import { ContentType, Emotion } from "../types/content-analysis"
-import { NarrativeType, PaceType } from "../types/script-generation"
-
 import type { AIConfig, IntelligentContent, PipelineProgress, ProcessingError, ProcessingStep } from "../types"
+import { ProcessingStatus } from "../types"
 import type { UnifiedContentAnalysis } from "../types/content-analysis"
+import { ContentType, Emotion } from "../types/content-analysis"
 import type { AdaptedContent, PlatformId } from "../types/platform-adaptation"
 import type { GeneratedScript, ScriptGenerationParams } from "../types/script-generation"
-
+import { NarrativeType, PaceType } from "../types/script-generation"
+import {
+  getAIService,
+  getFFmpegService,
+  type IFFmpegAnalysisService,
+  type IUnifiedAIService,
+} from "./media-analysis-interface"
 
 // Context типы
 export interface AIIntelligenceContext {

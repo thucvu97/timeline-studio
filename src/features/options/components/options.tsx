@@ -1,6 +1,5 @@
-import { JSX, useEffect, useState } from "react"
-
 import { AudioLines, Gauge, Info, Palette } from "lucide-react"
+import { JSX, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"

@@ -6,14 +6,14 @@
 
 import { MediaFile } from "@/features/media/types/media"
 import {
+  createTimelineClip,
+  createTimelineSection,
+  createTimelineTrack,
   TimelineClip,
   TimelineProject,
   TimelineSection,
   TimelineTrack,
   TrackType,
-  createTimelineClip,
-  createTimelineSection,
-  createTimelineTrack,
 } from "@/features/timeline/types"
 
 import { EmotionalTone, MontagePlan, PlannedClip, TransitionPlan } from "../types"

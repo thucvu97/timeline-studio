@@ -2,6 +2,13 @@
  * Сервис для управления Split Edit операциями
  */
 
+import type {
+  SplitEdit,
+  SplitEditConfig,
+  SplitEditOperation,
+  SplitEditToolSettings,
+  SplitEditVisual,
+} from "../types/split-edit"
 import {
   calculateJCutParams,
   calculateLCutParams,
@@ -11,14 +18,6 @@ import {
   createSplitEdit,
   getSplitEditsForClip,
   removeSplitEdit,
-} from "../types/split-edit"
-
-import type {
-  SplitEdit,
-  SplitEditConfig,
-  SplitEditOperation,
-  SplitEditToolSettings,
-  SplitEditVisual,
 } from "../types/split-edit"
 import type { TimelineClip } from "../types/timeline"
 
@@ -188,7 +187,6 @@ export class SplitEditServiceImpl implements SplitEditService {
           default:
             return { success: false, error: "Unknown split type" }
         }
-        break
       case "remove":
         const removed = this.removeSplitEdit(operation.clipId)
         return { success: removed }
@@ -198,8 +196,6 @@ export class SplitEditServiceImpl implements SplitEditService {
       default:
         return { success: false, error: "Unknown operation type" }
     }
-
-    return { success: false, error: "Unknown operation type" }
   }
 
   createLCut(

@@ -9,10 +9,8 @@ import { useMediaImport } from "@/features/media/hooks/use-media-import"
 import { MediaFile } from "@/features/media/types/media"
 import i18n from "@/i18n"
 import type { MediaItem } from "@/types/generated/tauri-bindings"
-
-import { getDateGroup, getDurationGroup } from "../utils/grouping"
-
 import type { ListAdapter, ListItem, PreviewComponentProps } from "../types/list"
+import { getDateGroup, getDurationGroup } from "../utils/grouping"
 
 // Адаптер типа для MediaFile чтобы соответствовать ListItem
 type MediaListItem = MediaFile & ListItem
@@ -87,12 +85,12 @@ export function useMediaAdapter(): ListAdapter<MediaListItem> {
           (item as any).probeData ||
           (item.metadata
             ? {
-              format: {
-                size: item.metadata.bitrate ? (item.metadata.bitrate * (item.duration || 0)) / 8 : 0,
-                tags: {},
-              },
-              streams: [],
-            }
+                format: {
+                  size: item.metadata.bitrate ? (item.metadata.bitrate * (item.duration || 0)) / 8 : 0,
+                  tags: {},
+                },
+                streams: [],
+              }
             : undefined),
       }
     })

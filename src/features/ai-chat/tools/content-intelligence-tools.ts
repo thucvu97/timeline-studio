@@ -5,9 +5,8 @@
  * для комплексного анализа контента, генерации скриптов и адаптации под платформы.
  */
 
-import { UnifiedAIService } from "../services/unified-ai-service"
-
 import type { ClaudeTool } from "../services/claude-service"
+import { UnifiedAIService } from "../services/unified-ai-service"
 
 /**
  * Полный AI анализ контента с Scene Analysis, Script Generation и Multi-Platform адаптацией
@@ -512,15 +511,15 @@ async function analyzeContentIntelligenceHandler(
       },
       scriptGeneration: analysis.script
         ? {
-          generatedScript: analysis.script.title,
-          style: analysis.script.style,
-          structure: analysis.script.structure,
-          tone: analysis.script.tone,
-          scenes: analysis.script.scenes,
-          shotList: analysis.script.shotList || [],
-          duration: `${String(analysis.script.metadata.estimatedDuration)} мин`,
-          metadata: analysis.script.metadata,
-        }
+            generatedScript: analysis.script.title,
+            style: analysis.script.style,
+            structure: analysis.script.structure,
+            tone: analysis.script.tone,
+            scenes: analysis.script.scenes,
+            shotList: analysis.script.shotList || [],
+            duration: `${String(analysis.script.metadata.estimatedDuration)} мин`,
+            metadata: analysis.script.metadata,
+          }
         : null,
       platformAdaptation: analysis.platformVariants || [],
       multiLanguage: analysis.platformVariants?.filter((v) => languages.includes(v.platform)) || [],
@@ -796,11 +795,11 @@ async function generateFullScriptHandler(input: Record<string, unknown>): Promis
       ],
       shotList: include_shot_list
         ? generatedScript.shotList || [
-          "INT. STUDIO - DAY - WIDE SHOT",
-          "MEDIUM SHOT - PRESENTER",
-          "CLOSE-UP - PRESENTATION MATERIALS",
-          "WIDE SHOT - CONCLUSION",
-        ]
+            "INT. STUDIO - DAY - WIDE SHOT",
+            "MEDIUM SHOT - PRESENTER",
+            "CLOSE-UP - PRESENTATION MATERIALS",
+            "WIDE SHOT - CONCLUSION",
+          ]
         : undefined,
       metadata: generatedScript.metadata || {
         estimatedDuration: target_duration || 180,
@@ -889,13 +888,10 @@ ${String(script_content)}
           totalDuration: "5-8 минут",
           shotTypeBreakdown:
             shot_types.length > 0
-              ? shot_types.reduce<Record<string, number>>(
-                (acc, type) => ({
-                  ...acc,
-                  [type]: Math.floor(Math.random() * 5) + 1,
-                }),
-                {},
-              )
+              ? shot_types.reduce<Record<string, number>>((acc, type) => {
+                  acc[type] = Math.floor(Math.random() * 5) + 1
+                  return acc
+                }, {})
               : { wide: 2, medium: 4, "close-up": 2 },
           productionTime: production_notes ? "2-3 часа" : "1-2 часа",
         },
@@ -975,10 +971,10 @@ async function adaptContentToPlatformHandler(input: Record<string, unknown>): Pr
         },
         seoData: include_seo
           ? {
-            keywords: [`${String(target_platform)} ключевые слова`],
-            tags: [`#${String(target_platform)}`],
-            category: "общее",
-          }
+              keywords: [`${String(target_platform)} ключевые слова`],
+              tags: [`#${String(target_platform)}`],
+              category: "общее",
+            }
           : null,
       }
     }
@@ -1047,10 +1043,10 @@ async function generateMultiLanguageBatchHandler(
         },
         culturalAdaptations: cultural_sensitivity
           ? [
-            `Адаптация для культуры ${String(lang)}`,
-            `Местные референсы для ${String(lang)}`,
-            `Культурно-чувствительная лексика для ${String(lang)}`,
-          ]
+              `Адаптация для культуры ${String(lang)}`,
+              `Местные референсы для ${String(lang)}`,
+              `Культурно-чувствительная лексика для ${String(lang)}`,
+            ]
           : [],
         qualityScore: 0.8 + Math.random() * 0.2,
         estimatedAccuracy: localization_level === "cultural_adaptation" ? "95%" : "90%",
@@ -1124,11 +1120,11 @@ async function generateContentVariantsHandler(input: Record<string, unknown>): P
       platformSpecific:
         platform_context !== "general"
           ? {
-            platform: platform_context,
-            optimization: `Оптимизировано для алгоритмов ${String(platform_context)}`,
-            bestPostingTime: "14:00-16:00",
-            expectedPerformance: "Высокое",
-          }
+              platform: platform_context,
+              optimization: `Оптимизировано для алгоритмов ${String(platform_context)}`,
+              bestPostingTime: "14:00-16:00",
+              expectedPerformance: "Высокое",
+            }
           : null,
       abTestRecommendations: {
         testDuration: "7 дней",
@@ -1212,16 +1208,16 @@ async function analyzeContentQualityHandler(input: Record<string, unknown>): Pro
       aspectScores: qualityScores,
       recommendations: generate_actionable_recommendations
         ? quality_aspects.map((aspect: string) => ({
-          aspect: aspect,
-          priority: Math.random() > 0.5 ? "high" : "medium",
-          recommendation: `Улучшить ${String(aspect)} аспект контента`,
-          actionItems: [
-            `Конкретная рекомендация 1 для ${String(aspect)}`,
-            `Конкретная рекомендация 2 для ${String(aspect)}`,
-          ],
-          estimatedImpact: "Повышение на 10-15%",
-          effort: Math.random() > 0.5 ? "low" : "medium",
-        }))
+            aspect: aspect,
+            priority: Math.random() > 0.5 ? "high" : "medium",
+            recommendation: `Улучшить ${String(aspect)} аспект контента`,
+            actionItems: [
+              `Конкретная рекомендация 1 для ${String(aspect)}`,
+              `Конкретная рекомендация 2 для ${String(aspect)}`,
+            ],
+            estimatedImpact: "Повышение на 10-15%",
+            effort: Math.random() > 0.5 ? "low" : "medium",
+          }))
         : [],
       complianceChecks: {
         accessibility: true,

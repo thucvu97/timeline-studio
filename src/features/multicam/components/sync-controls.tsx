@@ -2,9 +2,8 @@
  * Компонент управления синхронизацией мультикамерных углов
  */
 
-import { useCallback, useState } from "react"
-
 import { AlertCircle, Check, Clock, Hash, Loader2, Music, Wand2 } from "lucide-react"
+import { useCallback, useState } from "react"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -18,9 +17,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Slider } from "@/components/ui/slider"
 import { cn } from "@/lib/utils"
-
-import { AudioSyncDialog } from "./audio-sync-dialog"
 import { useMulticam } from "../hooks/use-multicam"
+import { AudioSyncDialog } from "./audio-sync-dialog"
 
 interface SyncControlsProps {
   baseClipId: string

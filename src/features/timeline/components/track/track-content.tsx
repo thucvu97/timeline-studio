@@ -2,14 +2,11 @@
  * TrackContent - Содержимое трека (клипы на временной шкале)
  */
 
-import { memo, useCallback, useMemo } from "react"
-
 import { useDroppable } from "@dnd-kit/core"
+import { memo, useCallback, useMemo } from "react"
 
 import { useDropZone } from "@/features/drag-drop"
 import { cn } from "@/lib/utils"
-
-import { TrackRollHandles } from "./track-roll-handles"
 import { useClipGroups } from "../../hooks/use-clip-groups"
 import { useDragDropTimeline } from "../../hooks/use-drag-drop-timeline"
 import { useTimeline } from "../../hooks/use-timeline"
@@ -21,6 +18,7 @@ import { CollapsedGroup } from "../clip-groups/collapsed-group"
 import { TimelineTransitionComponent } from "../transition/timeline-transition"
 import { TransitionCollisionIndicator } from "../transition/transition-collision-indicator"
 import { TransitionDropZone } from "../transition/transition-drop-zone"
+import { TrackRollHandles } from "./track-roll-handles"
 
 interface TrackContentProps {
   track: TimelineTrack

@@ -1,5 +1,3 @@
-import { FC, useCallback, useMemo, useState } from "react"
-
 import {
   AlertCircle,
   CheckCircle,
@@ -13,6 +11,7 @@ import {
   Users,
   Wand2,
 } from "lucide-react"
+import { FC, useCallback, useMemo, useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -28,6 +27,14 @@ import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 
 import { useAIIntelligence } from "../../hooks/use-ai-intelligence"
+import type {
+  EmotionalTone,
+  GeneratedScript,
+  ScriptGenerationParams,
+  ScriptStyle,
+  ScriptTemplate,
+  UnifiedContentAnalysis,
+} from "../../shared/types"
 import { Emotion, Genre } from "../../shared/types/content-analysis"
 import {
   EditingStyle,
@@ -37,15 +44,6 @@ import {
   TemplateCategory,
   VisualStyle,
 } from "../../shared/types/script-generation"
-
-import type {
-  EmotionalTone,
-  GeneratedScript,
-  ScriptGenerationParams,
-  ScriptStyle,
-  ScriptTemplate,
-  UnifiedContentAnalysis,
-} from "../../shared/types"
 
 interface GenerationWizardProps {
   className?: string

@@ -4,11 +4,7 @@
  */
 
 import { nanoid } from "nanoid"
-
-import { createAnimationLayer } from "./animation-layers"
-import { offsetKeyframesToTime, scaleKeyframesToDuration } from "./keyframe-manager"
 import motionPresetsData from "../data/motion-presets.json"
-
 import type {
   AnimatedProperty,
   AnimationLayer,
@@ -16,6 +12,8 @@ import type {
   KeyframeValue,
   MotionPreset,
 } from "../types/keyframe"
+import { createAnimationLayer } from "./animation-layers"
+import { offsetKeyframesToTime, scaleKeyframesToDuration } from "./keyframe-manager"
 
 /**
  * Preset categories

@@ -3,9 +3,8 @@
  * Интегрирует новую унифицированную систему эффектов
  */
 
-import { useCallback, useMemo, useState } from "react"
-
 import { Filter, Plus, Search, Settings2, Upload } from "lucide-react"
+import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"

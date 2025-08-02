@@ -5,9 +5,8 @@
  * with better performance and atomic operations.
  */
 
-import React from "react"
-
 import { invoke } from "@tauri-apps/api/core"
+import React from "react"
 
 import type { ProjectCommand } from "@/types/generated/tauri-bindings"
 

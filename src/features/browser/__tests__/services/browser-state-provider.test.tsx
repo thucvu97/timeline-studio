@@ -1,6 +1,5 @@
-import React from "react"
-
 import { act, renderHook } from "@testing-library/react"
+import React from "react"
 import { beforeEach, describe, expect, it, MockedFunction, vi } from "vitest"
 
 import { useAppSettings } from "@/features/app-state/hooks"

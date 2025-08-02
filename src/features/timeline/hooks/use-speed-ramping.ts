@@ -1,18 +1,16 @@
 import { useCallback, useState } from "react"
-
-import { useTimeline } from "./use-timeline"
 import {
+  calculateNewDuration,
+  createSpeedKeyframe,
+  getSpeedAtTime,
   SPEED_RAMPING_PRESETS,
   SpeedInterpolationType,
   SpeedKeyframe,
   SpeedRampingConfig,
   SpeedRampingPreset,
-  calculateNewDuration,
-  createSpeedKeyframe,
-  getSpeedAtTime,
 } from "../types/speed-ramping"
-
 import type { TimelineClip, TimelineProject } from "../types/timeline"
+import { useTimeline } from "./use-timeline"
 
 export interface UseSpeedRampingReturn {
   // Конфигурация

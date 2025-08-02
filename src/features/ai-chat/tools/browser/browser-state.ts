@@ -2,11 +2,10 @@
  * AI инструменты для управления состоянием браузера
  */
 
-import { getBrowserStateAccess, getBrowserStats, getCurrentTab, hasBrowserAccess } from "./utils/helpers"
-
-import type { BrowserToolResult, UpdateFiltersParams } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
 
+import type { BrowserToolResult, UpdateFiltersParams } from "./types"
+import { getBrowserStateAccess, getBrowserStats, getCurrentTab, hasBrowserAccess } from "./utils/helpers"
 
 export const getBrowserStateTool: ClaudeTool = {
   name: "get_browser_state",

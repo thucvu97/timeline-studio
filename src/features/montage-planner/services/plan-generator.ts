@@ -5,8 +5,6 @@
 
 // Using crypto.randomUUID() instead of uuid package (native in modern browsers/Node.js)
 
-import { ClipRole, MONTAGE_STYLES, SequencePurpose, SequenceType, TargetPlatform } from "../types"
-
 import type {
   EmotionalCurve,
   Fragment,
@@ -18,6 +16,7 @@ import type {
   Sequence,
   TransitionPlan,
 } from "../types"
+import { ClipRole, MONTAGE_STYLES, SequencePurpose, SequenceType, TargetPlatform } from "../types"
 
 // Fallback UUID generator in case crypto.randomUUID is not available
 

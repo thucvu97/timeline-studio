@@ -189,8 +189,8 @@ export function processEffect(rawEffect: RawEffectData): BaseEffect {
     processors: {
       css: rawEffect.cssFilter
         ? {
-          filter: createFunctionFromTemplate(rawEffect.cssFilter),
-        }
+            filter: createFunctionFromTemplate(rawEffect.cssFilter),
+          }
         : undefined,
       ffmpeg: {
         filter: createFunctionFromTemplate(rawEffect.ffmpegCommand),

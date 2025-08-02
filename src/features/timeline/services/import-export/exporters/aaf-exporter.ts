@@ -6,7 +6,7 @@
  */
 
 import { TimelineClip, TimelineProject, TimelineTrack } from "../../../types/timeline"
-import { ExportOptions, Exporter } from "../types"
+import { Exporter, ExportOptions } from "../types"
 
 export class AAFExporter implements Exporter {
   private frameRate = 30

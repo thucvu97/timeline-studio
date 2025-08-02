@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest"
-
-import { getAudioOffsetForCut, getCutType } from "../../types/jl-cuts"
-
 import type { CutType, JLCutConfig, JLCutOperation, JLCutPreview, LinkedClipPair } from "../../types/jl-cuts"
+import { getAudioOffsetForCut, getCutType } from "../../types/jl-cuts"
 
 describe("jl-cuts", () => {
   describe("getCutType", () => {

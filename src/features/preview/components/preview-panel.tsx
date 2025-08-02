@@ -2,18 +2,16 @@
  * Preview Panel - Main UI for real-time preview
  */
 
-import { useEffect, useRef, useState } from "react"
-
 import { Eye, EyeOff, Layers, Monitor, Settings, Zap } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-
+import { useRealtimePreview } from "../hooks/use-realtime-preview"
 import { EffectChainList } from "./effect-chain-list"
 import { PresetGallery } from "./preset-gallery"
 import { QualityControls } from "./quality-controls"
-import { useRealtimePreview } from "../hooks/use-realtime-preview"
 
 interface PreviewPanelProps {
   className?: string

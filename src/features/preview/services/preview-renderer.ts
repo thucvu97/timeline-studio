@@ -23,6 +23,7 @@ import {
   transformFragmentShader,
   vignetteFragmentShader,
 } from "../shaders/base"
+import type { Effect, GPUTier, PreviewConfig, RenderPass, ShaderProgram, TextureInfo } from "../types"
 import {
   createFramebuffer,
   createProgram,
@@ -33,8 +34,6 @@ import {
   setupQuadAttributes,
   uploadImageToTexture,
 } from "../utils/webgl-utils"
-
-import type { Effect, GPUTier, PreviewConfig, RenderPass, ShaderProgram, TextureInfo } from "../types"
 
 export class PreviewRenderer {
   private gl: WebGLRenderingContext
@@ -466,11 +465,11 @@ export class PreviewRenderer {
       },
       output: outputTexture
         ? {
-          texture: outputTexture,
-          width: this.canvas.width,
-          height: this.canvas.height,
-          format: this.gl.RGBA,
-        }
+            texture: outputTexture,
+            width: this.canvas.width,
+            height: this.canvas.height,
+            format: this.gl.RGBA,
+          }
         : null,
       shader,
       uniforms,

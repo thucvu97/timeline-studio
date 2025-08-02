@@ -1,21 +1,18 @@
-import { useCallback, useState } from "react"
-
 import { Download, Pause, Play, RotateCcw, SplitSquareHorizontal, X } from "lucide-react"
+import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useModal } from "@/features/modals/services"
-
+import type { BaseEffect } from "../types"
+import { prepareEffectForExport, saveUserEffect } from "../utils/user-effects"
 import { EffectComparison } from "./effect-comparison"
 import { EffectIndicators } from "./effect-indicators"
 import { EffectParameterControls } from "./effect-parameter-controls"
 import { EffectPresets } from "./effect-presets"
 import { EffectPreview } from "./effect-preview"
-import { prepareEffectForExport, saveUserEffect } from "../utils/user-effects"
-
-import type { BaseEffect } from "../types"
 
 /**
  * Компонент для детального просмотра эффекта с возможностью настройки параметров

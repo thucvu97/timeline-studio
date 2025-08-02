@@ -3,12 +3,10 @@
  * Движок для работы с шаблонами сценариев
  */
 
-import { NarrativeType, TemplateCategory } from "../../../shared/types/script-generation"
-import { SectionType } from "../types"
-
 import type { ScriptTemplate } from "../../../shared/types/script-generation"
+import { NarrativeType, TemplateCategory } from "../../../shared/types/script-generation"
 import type { TemplateSection, TemplateStructure, TemplateVariable } from "../types"
-
+import { SectionType } from "../types"
 
 // Расширенный тип шаблона для внутреннего использования
 interface ExtendedScriptTemplate extends ScriptTemplate {

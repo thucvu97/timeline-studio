@@ -90,44 +90,44 @@ export function getResourceDetails(resourceId: string) {
           provider.musicResources.find((m) => m.resourceId === resourceId)
         return mediaResource
           ? {
-            ...resource,
-            file: mediaResource.file,
-            name: mediaResource.file.name,
-            size: mediaResource.file.size,
-            duration: mediaResource.file.duration,
-          }
+              ...resource,
+              file: mediaResource.file,
+              name: mediaResource.file.name,
+              size: mediaResource.file.size,
+              duration: mediaResource.file.duration,
+            }
           : null
       }
       case "effect": {
         const effectResource = provider.effectResources.find((e) => e.resourceId === resourceId)
         return effectResource
           ? {
-            ...resource,
-            effect: effectResource.effect,
-            name: effectResource.effect.name,
-            category: effectResource.effect.category,
-          }
+              ...resource,
+              effect: effectResource.effect,
+              name: effectResource.effect.name,
+              category: effectResource.effect.category,
+            }
           : null
       }
       case "filter": {
         const filterResource = provider.filterResources.find((f) => f.resourceId === resourceId)
         return filterResource
           ? {
-            ...resource,
-            filter: filterResource.filter,
-            name: filterResource.filter.name,
-            category: filterResource.filter.category,
-          }
+              ...resource,
+              filter: filterResource.filter,
+              name: filterResource.filter.name,
+              category: filterResource.filter.category,
+            }
           : null
       }
       case "transition": {
         const transitionResource = provider.transitionResources.find((t) => t.resourceId === resourceId)
         return transitionResource
           ? {
-            ...resource,
-            transition: transitionResource.transition,
-            name: transitionResource.transition.name || transitionResource.transition.type,
-          }
+              ...resource,
+              transition: transitionResource.transition,
+              name: transitionResource.transition.name || transitionResource.transition.type,
+            }
           : null
       }
       default:

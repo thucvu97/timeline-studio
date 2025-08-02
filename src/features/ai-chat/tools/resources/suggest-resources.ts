@@ -2,6 +2,9 @@
  * AI инструмент для предложения дополнительных ресурсов
  */
 
+import type { ClaudeTool } from "../../services/claude-service"
+
+import type { ResourceToolResult, SuggestResourcesParams } from "./types"
 import {
   getMoodEffects,
   getProjectTypeResources,
@@ -9,10 +12,6 @@ import {
   getResourcesStats,
   hasResourcesAccess,
 } from "./utils/helpers"
-
-import type { ResourceToolResult, SuggestResourcesParams } from "./types"
-import type { ClaudeTool } from "../../services/claude-service"
-
 
 export const suggestComplementaryResourcesTool: ClaudeTool = {
   name: "suggest_complementary_resources",

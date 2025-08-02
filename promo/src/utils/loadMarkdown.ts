@@ -9,8 +9,8 @@ export async function loadMarkdownFile(path: string): Promise<string> {
     }
     return await response.text()
   } catch (error) {
-    console.error('Error loading markdown file:', error)
-    return ''
+    console.error("Error loading markdown file:", error)
+    return ""
   }
 }
 

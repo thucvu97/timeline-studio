@@ -3,9 +3,8 @@
  * Позволяет пользователю создавать новых персон или редактировать существующих
  */
 
-import { useEffect, useRef, useState } from "react"
-
 import { Tag as TagIcon, Upload, User, X } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -101,18 +100,18 @@ export function PersonFormModal() {
       // В реальном приложении здесь должна быть логика создания thumbnails
       thumbnails: formData.thumbnailUrl
         ? [
-          {
-            id: crypto.randomUUID(),
-            imageUrl: formData.thumbnailUrl,
-            width: 150,
-            height: 150,
-            sourceClipId: "",
-            sourceTimestamp: { seconds: 0 },
-            quality: 1,
-            isPrimary: true,
-            isGenerated: false,
-          },
-        ]
+            {
+              id: crypto.randomUUID(),
+              imageUrl: formData.thumbnailUrl,
+              width: 150,
+              height: 150,
+              sourceClipId: "",
+              sourceTimestamp: { seconds: 0 },
+              quality: 1,
+              isPrimary: true,
+              isGenerated: false,
+            },
+          ]
         : undefined,
     }
 

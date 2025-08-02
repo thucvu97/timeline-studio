@@ -3,7 +3,8 @@
  */
 
 import type { TimelineClip, TimelineSection } from "@/features/timeline/types/timeline"
-
+import type { ClaudeTool } from "../../services/claude-service"
+import type { TimelineToolResult } from "./types"
 import { calculateSectionsCoverage } from "./utils/calculators"
 import {
   createManualSections,
@@ -14,9 +15,6 @@ import {
   createSmartSections,
 } from "./utils/creators"
 import { getCurrentTimelineProject, saveTimelineProject } from "./utils/helpers"
-
-import type { TimelineToolResult } from "./types"
-import type { ClaudeTool } from "../../services/claude-service"
 
 export const createSectionsByStrategyTool: ClaudeTool = {
   name: "create_sections_by_strategy",

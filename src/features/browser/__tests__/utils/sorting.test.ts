@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest"
-
-import { getComplexityOrder, parseDuration, parseFileSize, sortItems } from "../../utils/sorting"
-
 import type { ListItem } from "../../types/list"
+import { getComplexityOrder, parseDuration, parseFileSize, sortItems } from "../../utils/sorting"
 
 // Тестовые данные
 interface TestItem extends ListItem {

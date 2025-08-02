@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react"
-
 import { Loader2, Music } from "lucide-react"
+import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"

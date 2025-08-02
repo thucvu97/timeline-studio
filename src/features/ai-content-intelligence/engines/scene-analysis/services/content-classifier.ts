@@ -4,9 +4,6 @@
  */
 
 import { UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service"
-
-import { ContentType, Emotion, Genre } from "../../../shared/types/content-analysis"
-
 import type {
   Audience,
   ClassificationResult,
@@ -14,6 +11,7 @@ import type {
   EmotionalTone,
   SceneAnalysis,
 } from "../../../shared/types/content-analysis"
+import { ContentType, Emotion, Genre } from "../../../shared/types/content-analysis"
 
 interface ClassifierConfig {
   useAI: boolean
@@ -456,9 +454,9 @@ Structure:
 - Has outro: ${features.hasOutro}
 
 Scene Types: ${scenes
-    .slice(0, 10)
-    .map((s) => s.type)
-    .join(", ")}
+      .slice(0, 10)
+      .map((s) => s.type)
+      .join(", ")}
 
 Please classify this content and provide:
 1. Content type (documentary, vlog, tutorial, music video, etc.)

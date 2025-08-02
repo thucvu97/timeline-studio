@@ -3,9 +3,8 @@
  * Fine-tune timing, transitions, and pacing of montage sequences
  */
 
-import { useState } from "react"
-
 import { Film, Music, Pause, Play, Settings2, Zap } from "lucide-react"
+import { useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -17,10 +16,8 @@ import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { formatTime } from "@/lib/date"
 import { cn } from "@/lib/utils"
-
-import { PacingType } from "../../types"
-
 import type { MontagePlan, PacingProfile, TransitionStyle } from "../../types"
+import { PacingType } from "../../types"
 
 interface TimingAdjusterProps {
   plan: MontagePlan

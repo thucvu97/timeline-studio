@@ -704,9 +704,9 @@ export class PersonDatabaseService {
           const similarity =
             detection.embedding && representative.embedding
               ? this.calculateCosineSimilarity(
-                new Float32Array(detection.embedding),
-                new Float32Array(representative.embedding),
-              )
+                  new Float32Array(detection.embedding),
+                  new Float32Array(representative.embedding),
+                )
               : 0
 
           if (similarity >= threshold) {
@@ -1200,34 +1200,34 @@ export class PersonDatabaseService {
   }): Promise<PersonProfile> {
     const thumbnails: PersonThumbnail[] = personData.thumbnailPath
       ? [
-        {
-          id: `thumb_${Date.now()}`,
-          imageUrl: personData.thumbnailPath,
-          width: 200,
-          height: 200,
-          sourceClipId: "",
-          sourceTimestamp: { seconds: 0 },
-          quality: 1,
-          isPrimary: true,
-          isGenerated: false,
-        },
-      ]
+          {
+            id: `thumb_${Date.now()}`,
+            imageUrl: personData.thumbnailPath,
+            width: 200,
+            height: 200,
+            sourceClipId: "",
+            sourceTimestamp: { seconds: 0 },
+            quality: 1,
+            isPrimary: true,
+            isGenerated: false,
+          },
+        ]
       : []
 
     const appearances: PersonAppearance[] = personData.detectedFaces
       ? personData.detectedFaces.map((face) => ({
-        id: `appearance_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
-        personId: "", // Будет установлен после создания персоны
-        clipId: face.clipId || "",
-        startTime: face.timestamp,
-        endTime: face.timestamp,
-        duration: 0,
-        confidence: face.confidence,
-        minConfidence: face.confidence,
-        maxConfidence: face.confidence,
-        detections: [face],
-        createdAt: new Date().toISOString(),
-      }))
+          id: `appearance_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+          personId: "", // Будет установлен после создания персоны
+          clipId: face.clipId || "",
+          startTime: face.timestamp,
+          endTime: face.timestamp,
+          duration: 0,
+          confidence: face.confidence,
+          minConfidence: face.confidence,
+          maxConfidence: face.confidence,
+          detections: [face],
+          createdAt: new Date().toISOString(),
+        }))
       : []
 
     const profile = await this.createPerson({

@@ -3,7 +3,7 @@
  */
 
 import { TimelineClip } from "../types"
-import { SpeedRampingConfig, getSpeedAtTime } from "../types/speed-ramping"
+import { getSpeedAtTime, SpeedRampingConfig } from "../types/speed-ramping"
 
 export interface SpeedRampingService {
   /**

@@ -142,7 +142,7 @@ export class BatchProcessor {
     queueSize: number
     cacheSize: number
     processing: number
-    } {
+  } {
     return {
       queueSize: this.processingQueue.size,
       cacheSize: this.cache.size,

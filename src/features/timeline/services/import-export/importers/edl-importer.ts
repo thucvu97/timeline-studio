@@ -11,10 +11,10 @@ import { TimelineClip, TimelineProject, TimelineTrack, TrackType } from "../../.
 import {
   EDLEvent,
   ImportError,
+  Importer,
   ImportOptions,
   ImportResult,
   ImportWarning,
-  Importer,
   MediaReference,
   parseTimecode,
   timecodeToSeconds,

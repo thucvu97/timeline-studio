@@ -724,7 +724,7 @@ export async function executeAudioTool(toolName: string, input: Record<string, a
  * Анализирует уровни громкости аудио дорожек
  */
 async function analyzeAudioLevels(input: Record<string, any>): Promise<AudioToolResult> {
-  const { targetTracks, analysisType = "comprehensive", timeRange, includeRecommendations = true } = input
+  const { targetTracks, analysisType = "comprehensive", includeRecommendations = true } = input
 
   if (!audioSystemAccess) {
     return {

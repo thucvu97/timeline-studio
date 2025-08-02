@@ -10,17 +10,16 @@ import { TransitionGroup } from "../../components/transition-group"
 // Мокаем TransitionPreview компонент
 vi.mock("../../components/transition-preview", () => ({
   TransitionPreview: ({ transition, onClick, size, previewWidth, previewHeight }: any) => (
-    <div
+    <button
       data-testid={`transition-preview-${transition.id}`}
       data-size={size}
       data-width={previewWidth}
       data-height={previewHeight}
       onClick={onClick}
-      role="button"
-      tabIndex={0}
+      type="button"
     >
       {transition.labels.ru}
-    </div>
+    </button>
   ),
 }))
 

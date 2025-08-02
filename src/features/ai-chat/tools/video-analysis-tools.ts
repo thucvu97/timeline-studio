@@ -4,8 +4,6 @@
  */
 
 import { ClaudeTool } from "../services/claude-service"
-import { FFmpegAnalysisService } from "../services/ffmpeg-analysis-service"
-
 import type {
   AudioAnalysisResult,
   MotionAnalysisResult,
@@ -14,6 +12,7 @@ import type {
   VideoAnalysisOptions,
   VideoMetadata,
 } from "../services/ffmpeg-analysis-service"
+import { FFmpegAnalysisService } from "../services/ffmpeg-analysis-service"
 
 /**
  * Инструменты для анализа видео

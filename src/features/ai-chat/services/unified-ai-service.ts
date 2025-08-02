@@ -3,14 +3,14 @@
  * Обеспечивает единую точку входа, fallback и балансировку нагрузки
  */
 
-import { CLAUDE_MODELS, ClaudeService } from "./claude-service"
-import { DEEPSEEK_MODELS, DeepSeekService } from "./deepseek-service"
-import { OllamaService } from "./ollama-service"
-import { AI_MODELS, OpenAiService } from "./open-ai-service"
 import { contentIntelligenceTools } from "../tools/content-intelligence-tools"
 import { personIdentificationTools } from "../tools/person-identification-tools"
 import { AiMessage } from "../types/ai-message"
 import { StreamingOptions } from "../types/streaming"
+import { CLAUDE_MODELS, ClaudeService } from "./claude-service"
+import { DEEPSEEK_MODELS, DeepSeekService } from "./deepseek-service"
+import { OllamaService } from "./ollama-service"
+import { AI_MODELS, OpenAiService } from "./open-ai-service"
 
 // Типы AI провайдеров
 export type AIProvider = "claude" | "openai" | "deepseek" | "ollama"

@@ -23,10 +23,9 @@ import { TooltipProvider } from "@/components/ui/tooltip"
 import { useProjectSettings } from "@/features/project-settings"
 import { TimelineClip } from "@/features/timeline/types/timeline"
 import { convertVideoSrc } from "@/lib/tauri-utils"
-
-import { PlayerControls } from "./player-controls"
 import { EffectPreviewOptions, getEffectsPreviewService } from "../services/effects-preview"
 import { usePlayer } from "../services/player-provider"
+import { PlayerControls } from "./player-controls"
 
 interface EffectParameter {
   name: string

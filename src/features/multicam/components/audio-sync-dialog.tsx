@@ -2,9 +2,8 @@
  * Диалог синхронизации по аудио с визуализацией процесса
  */
 
-import { useCallback, useEffect, useState } from "react"
-
 import { CheckCircle2, Loader2, Music, XCircle } from "lucide-react"
+import { useCallback, useEffect, useState } from "react"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"

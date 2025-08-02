@@ -1,8 +1,7 @@
 import { renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-
-import { createMockMediaFile } from "./test-utils"
 import { useMediaAdapter } from "../../adapters/use-media-adapter"
+import { createMockMediaFile } from "./test-utils"
 
 // Мокаем все зависимости напрямую
 vi.mock("@/features/app-state", () => ({

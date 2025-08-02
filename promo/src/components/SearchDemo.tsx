@@ -1,11 +1,11 @@
-import React from 'react'
-import { motion } from 'framer-motion'
+import { motion } from "framer-motion"
+import React from "react"
 
 interface SearchDemoProps {
   className?: string
 }
 
-export const SearchDemo: React.FC<SearchDemoProps> = ({ className = '' }) => {
+export const SearchDemo: React.FC<SearchDemoProps> = ({ className = "" }) => {
   return (
     <div className={`relative ${className}`}>
       {/* Main screenshot container */}
@@ -19,15 +19,11 @@ export const SearchDemo: React.FC<SearchDemoProps> = ({ className = '' }) => {
         <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 p-[2px]">
           <div className="h-full w-full rounded-2xl bg-[#12192C]" />
         </div>
-        
+
         {/* Screenshot */}
         <div className="relative">
-          <img 
-            src="/screen5.png" 
-            alt="Timeline Studio AI Interface" 
-            className="w-full h-auto rounded-2xl"
-          />
-          
+          <img src="/screen5.png" alt="Timeline Studio AI Interface" className="w-full h-auto rounded-2xl" />
+
           {/* Animated overlay badges */}
           <motion.div
             initial={{ opacity: 0, scale: 0 }}
@@ -37,7 +33,7 @@ export const SearchDemo: React.FC<SearchDemoProps> = ({ className = '' }) => {
           >
             🔥 AI-Powered Editor
           </motion.div>
-          
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -78,7 +74,7 @@ export const SearchDemo: React.FC<SearchDemoProps> = ({ className = '' }) => {
       >
         🎬 Pro Quality
       </motion.div>
-      
+
       <motion.div
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}

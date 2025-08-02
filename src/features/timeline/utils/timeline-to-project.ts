@@ -52,12 +52,12 @@ import {
 } from "../../../types/video-compiler"
 import {
   AppliedTransition,
+  isSubtitleClip,
   ProjectResources,
   SubtitleClip,
   TimelineClip,
   TimelineProject,
   TimelineTrack,
-  isSubtitleClip,
 } from "../types/timeline"
 
 // Backend Effect type (not exported from video-compiler)
@@ -804,8 +804,8 @@ function collectAllSubtitles(timeline: TimelineProject): BackendSubtitle[] {
             : createDefaultSubtitlePosition(),
           style: subtitleClip?.subtitleStyleId
             ? convertSubtitleStyle(
-              timeline.resources.subtitleStyles?.find((s) => s.id === subtitleClip.subtitleStyleId),
-            )
+                timeline.resources.subtitleStyles?.find((s) => s.id === subtitleClip.subtitleStyleId),
+              )
             : createDefaultSubtitleStyle(subtitleClip?.formatting),
           enabled: true,
           animations: subtitleClip

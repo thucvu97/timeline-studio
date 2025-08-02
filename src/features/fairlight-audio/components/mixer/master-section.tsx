@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next"
-
-import { Fader } from "./fader"
 import { useMixerState } from "../../hooks/use-mixer-state"
+import { Fader } from "./fader"
 
 export function MasterSection() {
   const { t } = useTranslation()

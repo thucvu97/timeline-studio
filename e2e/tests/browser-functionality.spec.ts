@@ -32,7 +32,7 @@ test.describe("Browser Functionality", () => {
     await expect(browserPage.effectsTab).toBeVisible()
     await expect(browserPage.transitionsTab).toBeVisible()
     await expect(browserPage.templatesTab).toBeVisible()
-    
+
     // Переключаемся на Effects
     await browserPage.selectTab("Effects")
     await expect(browserPage.effectsTab).toHaveAttribute("data-state", "active")
@@ -52,13 +52,13 @@ test.describe("Browser Functionality", () => {
   test("should display effects in grid layout", async ({ page }) => {
     // Сначала убедимся, что вкладка Effects видима
     await expect(browserPage.effectsTab).toBeVisible()
-    
+
     await browserPage.selectTab("Effects")
 
     // Ждем загрузки контента эффектов
     const effectsContent = page.locator("text=/effect|filter|blur|color|brightness/i").first()
     const gridContent = page.locator('[class*="effect"], [class*="grid"]').first()
-    
+
     // Проверяем что хотя бы один из элементов появился
     await expect(effectsContent.or(gridContent)).toBeVisible({ timeout: 10000 })
   })
@@ -80,7 +80,7 @@ test.describe("Browser Functionality", () => {
   test("should display templates categories", async ({ page }) => {
     // Сначала убедимся, что вкладка Templates видима
     await expect(browserPage.templatesTab).toBeVisible()
-    
+
     await browserPage.selectTab("Templates")
 
     // Ждем загрузки контента и проверяем наличие категорий шаблонов

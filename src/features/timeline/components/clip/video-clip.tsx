@@ -2,9 +2,8 @@
  * VideoClip - Компонент видео клипа
  */
 
-import React, { memo, useCallback, useMemo } from "react"
-
 import { Copy, Image, Scissors, Trash2, Video } from "lucide-react"
+import React, { memo, useCallback, useMemo } from "react"
 
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"

@@ -1,9 +1,7 @@
 import { describe, expect, it } from "vitest"
-
-import { updateSectorTimeRange } from "../tracks-utils"
-
 import type { MediaFile } from "../../types/media"
 import type { Sector } from "../../types/types"
+import { updateSectorTimeRange } from "../tracks-utils"
 
 describe("tracks-utils", () => {
   const createMockMediaFile = (startTime: number, duration: number, id = "media-1"): MediaFile => ({

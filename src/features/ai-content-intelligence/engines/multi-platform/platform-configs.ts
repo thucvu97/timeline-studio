@@ -4,6 +4,7 @@
  */
 
 import { ContentType } from "../../shared/types/content-analysis"
+import type { Platform } from "../../shared/types/platform-adaptation"
 import {
   CTAType,
   DayOfWeek,
@@ -12,8 +13,6 @@ import {
   PlatformImportance,
   SignalType,
 } from "../../shared/types/platform-adaptation"
-
-import type { Platform } from "../../shared/types/platform-adaptation"
 
 type PlatformIdString =
   | "youtube"

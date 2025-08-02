@@ -61,16 +61,16 @@ export function SubtitleEditor({ open, onOpenChange, subtitle, onSave, available
       animationIn:
         animationIn !== "none"
           ? {
-            type: animationIn,
-            duration: animationInDuration,
-          }
+              type: animationIn,
+              duration: animationInDuration,
+            }
           : undefined,
       animationOut:
         animationOut !== "none"
           ? {
-            type: animationOut,
-            duration: animationOutDuration,
-          }
+              type: animationOut,
+              duration: animationOutDuration,
+            }
           : undefined,
       subtitlePosition: {
         alignment: position,

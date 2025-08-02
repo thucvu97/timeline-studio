@@ -1,15 +1,15 @@
-import React from 'react'
+import React from "react"
 
 interface LogoProps {
-  size?: 'small' | 'medium' | 'large'
+  size?: "small" | "medium" | "large"
   showText?: boolean
 }
 
-export const Logo: React.FC<LogoProps> = ({ size = 'medium', showText = true }) => {
+export const Logo: React.FC<LogoProps> = ({ size = "medium", showText = true }) => {
   const sizes = {
-    small: { circle: 'w-10 h-10', text: 'text-lg', font: 43 },
-    medium: { circle: 'w-12 h-12', text: 'text-xl', font: 52 },
-    large: { circle: 'w-16 h-16', text: 'text-2xl', font: 'text-3xl' }
+    small: { circle: "w-10 h-10", text: "text-lg", font: 43 },
+    medium: { circle: "w-12 h-12", text: "text-xl", font: 52 },
+    large: { circle: "w-16 h-16", text: "text-2xl", font: "text-3xl" },
   }
 
   const currentSize = sizes[size]
@@ -20,20 +20,20 @@ export const Logo: React.FC<LogoProps> = ({ size = 'medium', showText = true }) 
       <div
         className={`${currentSize.circle} mb-1 rounded-full flex items-center justify-center overflow-visible`}
         style={{
-          background: '#8b5cf6',
-          boxShadow: '0 8px 32px 0 rgba(139, 92, 246, 0.4)',
-          cursor: 'pointer'
+          background: "#8b5cf6",
+          boxShadow: "0 8px 32px 0 rgba(139, 92, 246, 0.4)",
+          cursor: "pointer",
         }}
       >
-        <span 
-          className={`text-white`}
-          style={{ 
-            fontFamily: 'Brush Script MT, Lucida Handwriting, cursive',
-            fontWeight: '400',
+        <span
+          className={"text-white"}
+          style={{
+            fontFamily: "Brush Script MT, Lucida Handwriting, cursive",
+            fontWeight: "400",
             fontSize: currentSize.font,
-            lineHeight: '1',
-            transform: 'translateX(-3px) translateY(2px)',
-            cursor: 'pointer'
+            lineHeight: "1",
+            transform: "translateX(-3px) translateY(2px)",
+            cursor: "pointer",
           }}
         >
           T
@@ -43,12 +43,12 @@ export const Logo: React.FC<LogoProps> = ({ size = 'medium', showText = true }) 
       {/* Text */}
       {showText && (
         <div className="flex items-center space-x-2 ml-[-15px] mt-0.5">
-          <span 
+          <span
             className={`text-white ${currentSize.text}`}
             style={{
-              fontFamily: 'Brush Script MT, Lucida Handwriting, cursive',
-              fontWeight: '400',
-              fontSize: 38
+              fontFamily: "Brush Script MT, Lucida Handwriting, cursive",
+              fontWeight: "400",
+              fontSize: 38,
             }}
           >
             imeline Studio

@@ -3,14 +3,13 @@ import { useCallback, useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
 import { cn } from "@/lib/utils"
-
-import { ChannelWithAudio } from "./channel-with-audio"
-import { MasterSection } from "./master-section"
 import { useAudioEngine } from "../../hooks/use-audio-engine"
 import { useMidiIntegration } from "../../hooks/use-midi-integration"
 import { useMixerState } from "../../hooks/use-mixer-state"
 import { useTimelineMixerSync } from "../../services/timeline-sync-service"
 import { MidiIndicator } from "../midi/midi-indicator"
+import { ChannelWithAudio } from "./channel-with-audio"
+import { MasterSection } from "./master-section"
 
 interface MixerConsoleProps {
   className?: string

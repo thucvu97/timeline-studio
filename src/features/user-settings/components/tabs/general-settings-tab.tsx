@@ -1,7 +1,6 @@
-import { useState } from "react"
-
 import { open } from "@tauri-apps/plugin-dialog"
 import { Database, Folder, Save, X } from "lucide-react"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"

@@ -3,9 +3,8 @@
  * Provides UI for viewing and managing project versions
  */
 
-import { useCallback, useEffect, useState } from "react"
-
 import { Clock, GitBranch, History, MessageCircle, Plus, RotateCcw, Settings, User } from "lucide-react"
+import { useCallback, useEffect, useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"

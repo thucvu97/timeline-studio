@@ -2,9 +2,8 @@
  * Simple working test for app-state testing system
  */
 
-import React from "react"
-
 import { fireEvent, screen } from "@testing-library/react"
+import React from "react"
 import { describe, expect, it } from "vitest"
 
 import { renderWithAppState } from "./test-utils"

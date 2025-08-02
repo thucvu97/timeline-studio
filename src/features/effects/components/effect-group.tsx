@@ -51,17 +51,17 @@ export const EffectGroup: React.FC<EffectGroupProps> = ({
     const actualIndex = startIndex + index
 
     return (
-      <div
+      <button
         key={effect.id}
         ref={(el) => {
           if (el && effectRefs) {
             effectRefs.current.set(effect.id, el)
           }
         }}
-        tabIndex={0}
-        role="button"
+        type="button"
         aria-label={`${effect.name.en || effect.name.ru} effect`}
-        className="focus:outline-none focus:ring-2 focus:ring-primary rounded-sm"
+        className="focus:outline-none focus:ring-2 focus:ring-primary rounded-sm p-0 border-0 bg-transparent"
+        onClick={() => onEffectClick(effect, actualIndex)}
       >
         <EffectPreview
           effect={effect}
@@ -70,7 +70,7 @@ export const EffectGroup: React.FC<EffectGroupProps> = ({
           width={previewWidth}
           height={previewHeight}
         />
-      </div>
+      </button>
     )
   }
 

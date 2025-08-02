@@ -3,9 +3,8 @@
  * Visual keyframe editing with bezier curves
  */
 
-import { useCallback, useEffect, useRef, useState } from "react"
-
 import { Grid, Lock, Maximize2, Pause, Play, SkipBack, SkipForward, Unlock } from "lucide-react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -38,7 +37,7 @@ export function CurveEditor({
   onTimeChange,
   onKeyframeAdd,
   onKeyframeUpdate,
-  onKeyframeDelete,
+  _onKeyframeDelete,
   onCurveSelect,
   selectedCurveId,
   height = 400,

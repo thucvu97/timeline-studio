@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useTimeline } from "@/features/timeline/hooks/use-timeline"
 import { TimelineTransition } from "@/features/timeline/types/timeline-transition"
 
-import { TransitionParams, getTransitionsPreviewService } from "../services/transitions-preview"
+import { getTransitionsPreviewService, TransitionParams } from "../services/transitions-preview"
 
 interface TransitionPreviewState {
   activeTransition: TimelineTransition | null

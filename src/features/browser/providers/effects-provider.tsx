@@ -11,9 +11,9 @@ import type {
   EffectsProviderAPI,
   EffectsProviderContext,
   EffectsProviderProps,
-  LoadResult,
   LoadingConfig,
   LoadingState,
+  LoadResult,
   Resource,
   ResourceCache,
   ResourceSource,
@@ -81,10 +81,10 @@ class EffectsProviderImpl implements EffectsProviderAPI {
     resourcesUpdate: ((type: ResourceType, resources: Resource[]) => void)[]
     error: ((error: string, source?: ResourceSource) => void)[]
   } = {
-      loadingStateChange: [],
-      resourcesUpdate: [],
-      error: [],
-    }
+    loadingStateChange: [],
+    resourcesUpdate: [],
+    error: [],
+  }
 
   constructor(config: LoadingConfig) {
     this.config = config

@@ -1,6 +1,5 @@
-import React, { useRef, useState } from "react"
-
 import { CirclePause, CirclePlay } from "lucide-react"
+import React, { useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useFavorites, useMusicFiles } from "@/features/app-state"
@@ -11,10 +10,8 @@ import { MediaFile } from "@/features/media/types/media"
 import { useResources } from "@/features/resources"
 import { formatTime } from "@/lib/date"
 import { cn } from "@/lib/utils"
-
-import { getDateGroup, getDurationGroup } from "../utils/grouping"
-
 import type { ListAdapter, ListItem, PreviewComponentProps } from "../types/list"
+import { getDateGroup, getDurationGroup } from "../utils/grouping"
 
 // Адаптер типа для MediaFile чтобы соответствовать ListItem
 type MusicListItem = MediaFile & ListItem

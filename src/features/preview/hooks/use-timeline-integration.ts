@@ -21,7 +21,7 @@ interface UseTimelineIntegrationOptions {
   quality: PreviewQuality
 }
 
-export function useTimelineIntegration({ renderer, pipelineManager, gpuTier, quality }: UseTimelineIntegrationOptions) {
+export function useTimelineIntegration({ renderer, pipelineManager, quality }: UseTimelineIntegrationOptions) {
   const { currentTime } = useTimeline()
   const { selectedClips } = useTimelineSelection()
   const { isPlaying, currentVideo } = usePlayer()

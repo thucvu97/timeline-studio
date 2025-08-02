@@ -82,7 +82,7 @@ export function syncResourcesToProject(
 export function getResourcesFromStorage(): {
   mediaResources: MediaResource[]
   musicResources: MusicResource[]
-  } {
+} {
   // Check if we're on the client side
   if (typeof window === "undefined" || typeof localStorage === "undefined") {
     return {

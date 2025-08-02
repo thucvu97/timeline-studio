@@ -3,9 +3,8 @@
  * Professional noise reduction interface with multiple algorithms
  */
 
-import { useCallback, useState } from "react"
-
 import { Activity, AlertCircle, Brain, Mic, MicOff, Volume2, Waves, Zap } from "lucide-react"
+import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"

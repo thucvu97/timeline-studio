@@ -1,5 +1,5 @@
-import { motion } from 'framer-motion';
-import { AnimatedSection } from './AnimatedSection';
+import { motion } from "framer-motion"
+import { AnimatedSection } from "./AnimatedSection"
 
 export function AIEditingSection() {
   return (
@@ -9,7 +9,7 @@ export function AIEditingSection() {
         <div className="absolute top-1/4 -left-20 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-pink-600/20 rounded-full blur-3xl animate-pulse" />
       </div>
-      
+
       <div className="container mx-auto px-4 relative z-10">
         <AnimatedSection animation="fadeUp">
           <div className="text-center mb-16">
@@ -32,12 +32,12 @@ export function AIEditingSection() {
                 {/* Glassmorphism background */}
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-blue-500/10 to-pink-500/10 backdrop-blur-xl" />
                 <div className="absolute inset-0 bg-white/[0.02]" />
-                
+
                 {/* Border gradient */}
                 <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/20 via-transparent to-blue-500/20 p-[1px]">
                   <div className="h-full w-full rounded-xl bg-[#12192C]/90 backdrop-blur-xl" />
                 </div>
-                
+
                 {/* Content */}
                 <div className="relative p-8 flex items-start space-x-4">
                   <div className="w-14 h-14 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg">
@@ -45,9 +45,14 @@ export function AIEditingSection() {
                   </div>
                   <div>
                     <h3 className="text-2xl font-medium text-white mb-2">Neural Scene Analysis</h3>
-                    <p className="text-gray-400 text-sm">Our AI watches your footage like a professional editor, identifying key moments, emotions, and story beats in milliseconds</p>
+                    <p className="text-gray-400 text-sm">
+                      Our AI watches your footage like a professional editor, identifying key moments, emotions, and
+                      story beats in milliseconds
+                    </p>
                     <div className="mt-3 flex items-center space-x-2">
-                      <span className="text-xs text-purple-400 bg-purple-400/10 px-2 py-1 rounded-full">Deep Learning</span>
+                      <span className="text-xs text-purple-400 bg-purple-400/10 px-2 py-1 rounded-full">
+                        Deep Learning
+                      </span>
                       <span className="text-xs text-pink-400 bg-pink-400/10 px-2 py-1 rounded-full">Real-time</span>
                     </div>
                   </div>
@@ -58,12 +63,12 @@ export function AIEditingSection() {
                 {/* Glassmorphism background */}
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-blue-500/10 to-pink-500/10 backdrop-blur-xl" />
                 <div className="absolute inset-0 bg-white/[0.02]" />
-                
+
                 {/* Border gradient */}
                 <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/20 via-transparent to-blue-500/20 p-[1px]">
                   <div className="h-full w-full rounded-xl bg-[#12192C]/90 backdrop-blur-xl" />
                 </div>
-                
+
                 {/* Content */}
                 <div className="relative p-8 flex items-start space-x-4">
                   <div className="w-14 h-14 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg">
@@ -71,9 +76,14 @@ export function AIEditingSection() {
                   </div>
                   <div>
                     <h3 className="text-2xl font-medium text-white mb-2">Cinematic Auto-Edit</h3>
-                    <p className="text-gray-400 text-sm">Transform raw clips into Hollywood-style sequences with dynamic pacing, perfect timing, and emotional flow</p>
+                    <p className="text-gray-400 text-sm">
+                      Transform raw clips into Hollywood-style sequences with dynamic pacing, perfect timing, and
+                      emotional flow
+                    </p>
                     <div className="mt-3 flex items-center space-x-2">
-                      <span className="text-xs text-purple-400 bg-purple-400/10 px-2 py-1 rounded-full">Film Theory</span>
+                      <span className="text-xs text-purple-400 bg-purple-400/10 px-2 py-1 rounded-full">
+                        Film Theory
+                      </span>
                       <span className="text-xs text-pink-400 bg-pink-400/10 px-2 py-1 rounded-full">AI Director</span>
                     </div>
                   </div>
@@ -84,12 +94,12 @@ export function AIEditingSection() {
                 {/* Glassmorphism background */}
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-blue-500/10 to-pink-500/10 backdrop-blur-xl" />
                 <div className="absolute inset-0 bg-white/[0.02]" />
-                
+
                 {/* Border gradient */}
                 <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/20 via-transparent to-blue-500/20 p-[1px]">
                   <div className="h-full w-full rounded-xl bg-[#12192C]/90 backdrop-blur-xl" />
                 </div>
-                
+
                 {/* Content */}
                 <div className="relative p-8 flex items-start space-x-4">
                   <div className="w-14 h-14 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg">
@@ -97,9 +107,14 @@ export function AIEditingSection() {
                   </div>
                   <div>
                     <h3 className="text-2xl font-medium text-white mb-2">Magic Enhancement</h3>
-                    <p className="text-gray-400 text-sm">Upscale to 8K, stabilize shaky footage, remove objects, and enhance audio - all with one-click AI magic</p>
+                    <p className="text-gray-400 text-sm">
+                      Upscale to 8K, stabilize shaky footage, remove objects, and enhance audio - all with one-click AI
+                      magic
+                    </p>
                     <div className="mt-3 flex items-center space-x-2">
-                      <span className="text-xs text-purple-400 bg-purple-400/10 px-2 py-1 rounded-full">Super Resolution</span>
+                      <span className="text-xs text-purple-400 bg-purple-400/10 px-2 py-1 rounded-full">
+                        Super Resolution
+                      </span>
                       <span className="text-xs text-pink-400 bg-pink-400/10 px-2 py-1 rounded-full">60 FPS</span>
                     </div>
                   </div>
@@ -119,15 +134,15 @@ export function AIEditingSection() {
                     <motion.div
                       animate={{
                         background: [
-                          'linear-gradient(45deg, #8b5cf6 0%, #ec4899 100%)',
-                          'linear-gradient(45deg, #ec4899 0%, #8b5cf6 100%)',
-                          'linear-gradient(45deg, #8b5cf6 0%, #ec4899 100%)',
+                          "linear-gradient(45deg, #8b5cf6 0%, #ec4899 100%)",
+                          "linear-gradient(45deg, #ec4899 0%, #8b5cf6 100%)",
+                          "linear-gradient(45deg, #8b5cf6 0%, #ec4899 100%)",
                         ],
                       }}
-                      transition={{ duration: 5, repeat: Infinity }}
+                      transition={{ duration: 5, repeat: Number.POSITIVE_INFINITY }}
                       className="absolute inset-0 opacity-20"
                     />
-                    
+
                     {/* Content grid */}
                     <div className="relative h-full flex items-center justify-center p-8">
                       <div className="grid grid-cols-3 gap-4 w-full max-w-md">
@@ -135,35 +150,35 @@ export function AIEditingSection() {
                           <motion.div
                             key={i}
                             initial={{ opacity: 0, scale: 0 }}
-                            animate={{ 
+                            animate={{
                               opacity: [0.3, 0.8, 0.3],
-                              scale: [0.8, 1, 0.8]
+                              scale: [0.8, 1, 0.8],
                             }}
-                            transition={{ 
+                            transition={{
                               duration: 2,
                               delay: i * 0.1,
-                              repeat: Infinity
+                              repeat: Number.POSITIVE_INFINITY,
                             }}
                             className="aspect-square glass rounded-lg flex items-center justify-center"
                           >
                             <span className="text-2xl opacity-60">
-                              {['🎥', '✂️', '🎨', '🎵', '✨', '🎬', '📹', '🎞️', '🎭'][i]}
+                              {["🎥", "✂️", "🎨", "🎵", "✨", "🎬", "📹", "🎞️", "🎭"][i]}
                             </span>
                           </motion.div>
                         ))}
                       </div>
                     </div>
-                    
+
                     {/* Processing overlay */}
                     <div className="absolute inset-0 flex items-center justify-center">
                       <motion.div
                         animate={{ rotate: 360 }}
-                        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                        transition={{ duration: 8, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
                         className="w-32 h-32 rounded-full border-4 border-purple-500/30 border-t-purple-500"
                       />
                     </div>
                   </div>
-                  
+
                   {/* Status bar */}
                   <div className="mt-6 space-y-4">
                     <div className="flex items-center justify-between text-sm">
@@ -178,7 +193,7 @@ export function AIEditingSection() {
                         className="h-full bg-gradient-to-r from-purple-500 to-pink-500"
                       />
                     </div>
-                    
+
                     {/* Feature tags */}
                     <div className="flex flex-wrap gap-2 mt-4">
                       <motion.span
@@ -209,30 +224,30 @@ export function AIEditingSection() {
                   </div>
                 </div>
               </div>
-              
+
               {/* Enhanced floating particles */}
               <motion.div
-                animate={{ 
+                animate={{
                   y: [-20, 20, -20],
-                  x: [-10, 10, -10]
+                  x: [-10, 10, -10],
                 }}
-                transition={{ duration: 4, repeat: Infinity }}
+                transition={{ duration: 4, repeat: Number.POSITIVE_INFINITY }}
                 className="absolute -top-8 -right-8 w-32 h-32 bg-gradient-to-br from-purple-500/30 to-pink-500/30 rounded-full blur-3xl"
               />
               <motion.div
-                animate={{ 
+                animate={{
                   y: [20, -20, 20],
-                  x: [10, -10, 10]
+                  x: [10, -10, 10],
                 }}
-                transition={{ duration: 5, repeat: Infinity }}
+                transition={{ duration: 5, repeat: Number.POSITIVE_INFINITY }}
                 className="absolute -bottom-8 -left-8 w-40 h-40 bg-gradient-to-br from-pink-500/30 to-purple-500/30 rounded-full blur-3xl"
               />
               <motion.div
-                animate={{ 
+                animate={{
                   scale: [1, 1.2, 1],
-                  opacity: [0.3, 0.6, 0.3]
+                  opacity: [0.3, 0.6, 0.3],
                 }}
-                transition={{ duration: 3, repeat: Infinity }}
+                transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY }}
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-purple-600/10 rounded-full blur-3xl"
               />
             </div>
@@ -240,5 +255,5 @@ export function AIEditingSection() {
         </div>
       </div>
     </section>
-  );
+  )
 }

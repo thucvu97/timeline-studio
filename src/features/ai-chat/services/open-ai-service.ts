@@ -1,6 +1,6 @@
-import { ApiKeyLoader } from "./api-key-loader"
 import { AiMessage } from "../types/ai-message"
 import { OpenAIStreamingEvent, StreamingOptions, StreamingRequest } from "../types/streaming"
+import { ApiKeyLoader } from "./api-key-loader"
 
 // Интерфейс для запроса к API
 interface OpenAiApiRequest {

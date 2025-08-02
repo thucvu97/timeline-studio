@@ -1,9 +1,7 @@
 import { renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-
-import { useAudioClipEditor } from "../use-audio-clip-editor"
-
 import type { AudioClip, FadeOptions } from "../../services/audio-clip-editor"
+import { useAudioClipEditor } from "../use-audio-clip-editor"
 
 // Mock dependencies using vi.hoisted
 const { mockUseAudioEngine, mockAudioEngine, mockClipEditor } = vi.hoisted(() => ({

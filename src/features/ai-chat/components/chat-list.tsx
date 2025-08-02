@@ -1,6 +1,5 @@
-import { useState } from "react"
-
 import { Copy, Loader2, Trash2 } from "lucide-react"
+import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"

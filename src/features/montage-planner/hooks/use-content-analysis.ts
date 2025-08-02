@@ -4,10 +4,8 @@
  */
 
 import { useMemo } from "react"
-
-import { useMontagePlanner } from "./use-montage-planner"
-
 import type { AudioAnalysis, Fragment, MomentScore, VideoAnalysis } from "../types"
+import { useMontagePlanner } from "./use-montage-planner"
 
 export function useContentAnalysis() {
   const { context, isAnalyzing, progress, progressMessage, send } = useMontagePlanner()
@@ -107,8 +105,8 @@ export function useContentAnalysis() {
 
   // Content statistics
   const contentStats = useMemo(() => {
-    const videoAnalyses = context.videoAnalyses ? (Array.from(context.videoAnalyses.values())) : []
-    const audioAnalyses = context.audioAnalyses ? (Array.from(context.audioAnalyses.values())) : []
+    const videoAnalyses = context.videoAnalyses ? Array.from(context.videoAnalyses.values()) : []
+    const audioAnalyses = context.audioAnalyses ? Array.from(context.audioAnalyses.values()) : []
 
     return {
       totalVideos: context.videoIds?.length || 0,

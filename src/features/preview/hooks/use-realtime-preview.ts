@@ -9,9 +9,8 @@ import { usePlayer } from "@/features/video-player"
 
 import { PreviewCache } from "../services/preview-cache"
 import { PreviewRenderer } from "../services/preview-renderer"
-import { detectGPUTier } from "../utils/webgl-utils"
-
 import type { Effect, GPUTier, PreviewQuality } from "../types"
+import { detectGPUTier } from "../utils/webgl-utils"
 
 // Throttle utility function
 function throttle<T extends (...args: any[]) => any>(func: T, delay: number): T {

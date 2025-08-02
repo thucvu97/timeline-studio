@@ -1,10 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import type { Subtitle } from "@/types/video-compiler"
-
-import { ExtractionPurpose, frameExtractionService } from "../../services/frame-extraction-service"
-
 import type { RecognitionFrame, TimelineFrame } from "../../services/frame-extraction-service"
+import { ExtractionPurpose, frameExtractionService } from "../../services/frame-extraction-service"
 
 // Мокаем Tauri API
 vi.mock("@tauri-apps/api/core", () => ({

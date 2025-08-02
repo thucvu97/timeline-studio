@@ -56,7 +56,7 @@ export class UpdateService {
 
   private constructor() {
     // Инициализируем слушатели только на клиенте
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       void this.setupEventListeners()
     }
   }
@@ -277,6 +277,5 @@ export class UpdateService {
 
 // Экспортируем экземпляр для использования в приложении
 // Создаем только на клиенте для избежания ошибок SSR
-export const updateService = typeof window !== 'undefined' 
-  ? UpdateService.getInstance() 
-  : null as unknown as UpdateService
+export const updateService =
+  typeof window !== "undefined" ? UpdateService.getInstance() : (null as unknown as UpdateService)

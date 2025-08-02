@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react"
-
 import { Lock, Unlock } from "lucide-react"
+import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
@@ -15,9 +14,9 @@ import {
   ColorSpace,
   FRAME_RATES,
   FrameRate,
-  ResolutionOption,
   getDefaultResolutionForAspectRatio,
   getResolutionsForAspectRatio,
+  ResolutionOption,
 } from "@/features/project-settings/types/project"
 
 import { useProjectSettings } from "../hooks/use-project-settings"
@@ -384,11 +383,11 @@ export function ProjectSettingsModal() {
               <span className="text-[#00CCC0]">
                 {settings.aspectRatio.label !== "custom"
                   ? t("dialogs.projectSettings.aspectRatioLocked", {
-                    ratio: settings.aspectRatio.label,
-                  })
+                      ratio: settings.aspectRatio.label,
+                    })
                   : t("dialogs.projectSettings.aspectRatioLocked", {
-                    ratio: getAspectRatioString(customWidth, customHeight),
-                  })}
+                      ratio: getAspectRatioString(customWidth, customHeight),
+                    })}
               </span>
             </>
           ) : (
@@ -397,11 +396,11 @@ export function ProjectSettingsModal() {
               <Unlock className="mr-1 h-3 w-3" />
               {settings.aspectRatio.label !== "custom"
                 ? t("dialogs.projectSettings.aspectRatioUnlocked", {
-                  ratio: settings.aspectRatio.label,
-                })
+                    ratio: settings.aspectRatio.label,
+                  })
                 : t("dialogs.projectSettings.aspectRatioUnlocked", {
-                  ratio: getAspectRatioString(customWidth, customHeight),
-                })}
+                    ratio: getAspectRatioString(customWidth, customHeight),
+                  })}
             </>
           )}
         </div>

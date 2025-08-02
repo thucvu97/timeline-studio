@@ -1,6 +1,5 @@
-import { useState } from "react"
-
 import { Info, Loader2, Music, Trash2 } from "lucide-react"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
@@ -9,11 +8,10 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useModal } from "@/features/modals/services"
-
-import { MidiMappingEditor } from "./midi-mapping-editor"
-import { MidiRouterView } from "./midi-router-view"
 import { useMidi } from "../../hooks/use-midi"
 import { MidiDevice, MidiMessage } from "../../services/midi/midi-engine"
+import { MidiMappingEditor } from "./midi-mapping-editor"
+import { MidiRouterView } from "./midi-router-view"
 
 export function MidiSetup() {
   const { t } = useTranslation()

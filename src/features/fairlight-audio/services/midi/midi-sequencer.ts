@@ -52,7 +52,7 @@ export class MidiSequencer extends EventEmitter {
   private clock: MidiClock
   private playbackEvents = new Map<string, NodeJS.Timeout>()
   private recordBuffer: MidiEvent[] = []
-  private nextEventId = 1
+  public nextEventId = 1
 
   constructor(clock: MidiClock) {
     super()

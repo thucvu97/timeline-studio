@@ -3,16 +3,15 @@
  */
 
 import { useCallback, useEffect, useMemo, useState } from "react"
-
-import { useTimeline } from "./use-timeline"
 import {
-  TransitionCollision,
   autoFixCollisions,
   detectAllCollisions,
   detectTrackCollisions,
   suggestCollisionFixes,
+  TransitionCollision,
 } from "../services/transition-collision-detector"
 import { TimelineTrack } from "../types/timeline"
+import { useTimeline } from "./use-timeline"
 
 interface UseTransitionCollisionsReturn {
   // Все коллизии в проекте

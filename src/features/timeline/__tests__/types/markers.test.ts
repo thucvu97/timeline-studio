@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
-
+import type { ExtendedTimelineMarker, MarkerFilter } from "../../types/markers"
 import {
   createMarker,
   filterMarkers,
@@ -10,8 +10,6 @@ import {
   parseMarkerTime,
   sortMarkersByTime,
 } from "../../types/markers"
-
-import type { ExtendedTimelineMarker, MarkerFilter } from "../../types/markers"
 
 describe("markers", () => {
   describe("MarkerColors", () => {

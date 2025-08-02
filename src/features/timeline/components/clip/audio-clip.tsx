@@ -2,9 +2,8 @@
  * AudioClip - Компонент аудио клипа
  */
 
-import React from "react"
-
 import { Copy, Music, Scissors, Sparkles, Trash2, Volume2 } from "lucide-react"
+import React from "react"
 
 import { Button } from "@/components/ui/button"
 import { useModal } from "@/features/modals/services"

@@ -2,6 +2,9 @@
  * AI инструменты для статистики и управления использованием ресурсов
  */
 
+import type { ClaudeTool } from "../../services/claude-service"
+
+import type { CleanupParams, ResourceToolResult, UsageStatsParams } from "./types"
 import {
   formatFileSize,
   getResourcesProvider,
@@ -9,10 +12,6 @@ import {
   getResourcesStats,
   hasResourcesAccess,
 } from "./utils/helpers"
-
-import type { CleanupParams, ResourceToolResult, UsageStatsParams } from "./types"
-import type { ClaudeTool } from "../../services/claude-service"
-
 
 export const getResourceUsageStatsTool: ClaudeTool = {
   name: "get_resource_usage_stats",

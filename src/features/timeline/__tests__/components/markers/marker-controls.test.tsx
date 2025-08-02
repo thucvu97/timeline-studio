@@ -3,9 +3,8 @@ import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { MarkerControls } from "../../../components/markers/marker-controls"
-import { MarkerColors } from "../../../types/markers"
-
 import type { ExtendedTimelineMarker } from "../../../types/markers"
+import { MarkerColors } from "../../../types/markers"
 
 // Мок для иконок lucide-react
 vi.mock("lucide-react", () => ({

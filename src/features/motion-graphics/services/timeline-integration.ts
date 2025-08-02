@@ -4,11 +4,9 @@
  */
 
 import type { TimelineClip, TimelineProject } from "@/features/timeline/types/timeline"
-
+import type { AnimatedProperty, AnimationTrack, MotionPreset } from "../types/keyframe"
 import { createAnimationTrack, evaluateTrackAtTime } from "./animation-layers"
 import { applyPreset } from "./preset-manager"
-
-import type { AnimatedProperty, AnimationTrack, MotionPreset } from "../types/keyframe"
 
 /**
  * Motion Graphics data extension for timeline clips

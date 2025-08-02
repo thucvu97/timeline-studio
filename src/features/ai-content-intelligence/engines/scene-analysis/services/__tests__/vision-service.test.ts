@@ -1,9 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-
+import type { BoundingBox, ObjectDetection } from "../../../../shared/types/content-analysis"
 import { ONNXRuntimeService } from "../onnx-runtime-service"
 import { VisionService } from "../vision-service"
-
-import type { BoundingBox, ObjectDetection } from "../../../../shared/types/content-analysis"
 
 // Mock ONNXRuntimeService
 vi.mock("../onnx-runtime-service")

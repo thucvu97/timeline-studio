@@ -1,10 +1,8 @@
 import React from "react"
 
 import { vi } from "vitest"
-
-import { mockTimelineService } from "./services"
-
 import type { TimelineClip, TimelineProject } from "../types"
+import { mockTimelineService } from "./services"
 
 // Mock useTimeline hook
 export const mockUseTimeline = vi.fn(() => ({

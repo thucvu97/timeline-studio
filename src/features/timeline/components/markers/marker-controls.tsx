@@ -1,5 +1,3 @@
-import React, { useMemo, useState } from "react"
-
 import {
   Bookmark,
   CheckSquare,
@@ -15,6 +13,7 @@ import {
   StickyNote,
   X,
 } from "lucide-react"
+import React, { useMemo, useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -30,9 +29,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 
 import { useTimeline } from "../../hooks/use-timeline"
 import { useTimelineMarkers } from "../../hooks/use-timeline-markers"
-import { MarkerColors } from "../../types/markers"
-
 import type { MarkerFilter, MarkerType } from "../../types/markers"
+import { MarkerColors } from "../../types/markers"
 
 const markerTypeOptions: { value: MarkerType; label: string; icon: React.ReactNode }[] = [
   { value: "chapter", label: "Chapter", icon: <Bookmark className="h-4 w-4" /> },

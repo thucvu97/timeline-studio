@@ -1,9 +1,7 @@
 import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-
-import { EffectPreview } from "../effect-preview"
-
 import type { BaseEffect } from "../../types"
+import { EffectPreview } from "../effect-preview"
 
 // Мокаем react-i18next
 vi.mock("react-i18next", () => ({

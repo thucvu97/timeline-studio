@@ -1,5 +1,5 @@
 /// <reference path="../types/playwright-window.d.ts" />
-import { test, expect } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 import * as path from "path"
 
 test.describe("Timeline Video Addition Tests", () => {
@@ -33,10 +33,10 @@ test.describe("Timeline Video Addition Tests", () => {
               codec_type: "video",
               width: 1920,
               height: 1080,
-              display_aspect_ratio: "16:9"
-            }
-          ]
-        }
+              display_aspect_ratio: "16:9",
+            },
+          ],
+        },
       }
 
       // Добавляем файл в состояние браузера
@@ -48,8 +48,8 @@ test.describe("Timeline Video Addition Tests", () => {
 
     // Консоль для отслеживания ошибок
     const consoleErrors: string[] = []
-    page.on('console', msg => {
-      if (msg.type() === 'error') {
+    page.on("console", (msg) => {
+      if (msg.type() === "error") {
         consoleErrors.push(msg.text())
       }
     })
@@ -58,35 +58,33 @@ test.describe("Timeline Video Addition Tests", () => {
     try {
       // Симулируем выбор медиа файла
       const mediaItem = page.locator('[data-testid^="media-file-"]').first()
-      
-      if (await mediaItem.count() > 0) {
+
+      if ((await mediaItem.count()) > 0) {
         await mediaItem.click()
-        
+
         // Ждем немного для обработки
         await page.waitForTimeout(1000)
-        
+
         // Проверяем, что не произошло ошибки files.forEach
-        const hasForEachError = consoleErrors.some(error => 
-          error.includes('forEach is not a function') || 
-          error.includes('files.forEach')
+        const hasForEachError = consoleErrors.some(
+          (error) => error.includes("forEach is not a function") || error.includes("files.forEach"),
         )
-        
+
         if (hasForEachError) {
-          console.log('Detected files.forEach error:', consoleErrors)
-          throw new Error('files.forEach error occurred when adding media to timeline')
+          console.log("Detected files.forEach error:", consoleErrors)
+          throw new Error("files.forEach error occurred when adding media to timeline")
         }
       }
     } catch (error) {
-      console.log('Console errors during test:', consoleErrors)
+      console.log("Console errors during test:", consoleErrors)
       throw error
     }
 
     // Проверяем, что нет критических ошибок в консоли
-    const criticalErrors = consoleErrors.filter(error => 
-      error.includes('TypeError') || 
-      error.includes('is not a function')
+    const criticalErrors = consoleErrors.filter(
+      (error) => error.includes("TypeError") || error.includes("is not a function"),
     )
-    
+
     expect(criticalErrors.length).toBe(0)
   })
 
@@ -96,14 +94,14 @@ test.describe("Timeline Video Addition Tests", () => {
 
     // Отслеживаем вызовы функций timeline
     const timelineCalls: string[] = []
-    
+
     await page.addInitScript(() => {
       // Перехватываем вызовы timeline actions
       window.__TIMELINE_CALLS__ = []
-      
+
       const originalAddMedia = window.addMediaToTimeline
       if (originalAddMedia) {
-        window.addMediaToTimeline = function(...args) {
+        window.addMediaToTimeline = function (...args) {
           window.__TIMELINE_CALLS__ = window.__TIMELINE_CALLS__ || []
           window.__TIMELINE_CALLS__.push(`addMediaToTimeline called with: ${JSON.stringify(args)}`)
           return originalAddMedia.apply(this, args)
@@ -112,7 +110,7 @@ test.describe("Timeline Video Addition Tests", () => {
 
       const originalAddSingleMedia = window.addSingleMediaToTimeline
       if (originalAddSingleMedia) {
-        window.addSingleMediaToTimeline = function(...args) {
+        window.addSingleMediaToTimeline = function (...args) {
           window.__TIMELINE_CALLS__ = window.__TIMELINE_CALLS__ || []
           window.__TIMELINE_CALLS__.push(`addSingleMediaToTimeline called with: ${JSON.stringify(args)}`)
           return originalAddSingleMedia.apply(this, args)
@@ -124,16 +122,16 @@ test.describe("Timeline Video Addition Tests", () => {
     await page.evaluate(() => {
       const testFile = {
         id: "test-video-2",
-        path: "test-data/Kate.mp4", 
+        path: "test-data/Kate.mp4",
         name: "Kate.mp4",
         type: "video/mp4",
         size: 25000000,
         duration: 15.2,
-        isLoadingMetadata: false
+        isLoadingMetadata: false,
       }
 
       // Имитируем клик по файлу в браузере
-      const event = new CustomEvent('media-file-select', { detail: testFile })
+      const event = new CustomEvent("media-file-select", { detail: testFile })
       document.dispatchEvent(event)
     })
 
@@ -141,24 +139,23 @@ test.describe("Timeline Video Addition Tests", () => {
 
     // Получаем информацию о вызовах функций
     const timelineCallsData = await page.evaluate(() => window.__TIMELINE_CALLS__ || [])
-    console.log('Timeline function calls:', timelineCallsData)
+    console.log("Timeline function calls:", timelineCallsData)
 
     // Проверяем, что используется правильная функция для одного файла
-    const hasCorrectCalls = timelineCallsData.some((call: string) => 
-      call.includes('addSingleMediaToTimeline') || 
-      call.includes('addMediaToTimeline')
+    const hasCorrectCalls = timelineCallsData.some(
+      (call: string) => call.includes("addSingleMediaToTimeline") || call.includes("addMediaToTimeline"),
     )
-    
+
     // Если есть вызовы, проверяем их корректность
     if (hasCorrectCalls) {
-      console.log('Timeline functions were called correctly')
+      console.log("Timeline functions were called correctly")
     }
   })
 
   test("should load project with video files without errors", async ({ page }) => {
     const consoleErrors: string[] = []
-    page.on('console', msg => {
-      if (msg.type() === 'error') {
+    page.on("console", (msg) => {
+      if (msg.type() === "error") {
         consoleErrors.push(msg.text())
       }
     })
@@ -172,7 +169,7 @@ test.describe("Timeline Video Addition Tests", () => {
           tracks: [
             {
               id: "video-track-1",
-              name: "Video Track 1", 
+              name: "Video Track 1",
               type: "video",
               clips: [
                 {
@@ -183,15 +180,15 @@ test.describe("Timeline Video Addition Tests", () => {
                     path: "test-data/C0666.MP4",
                     name: "C0666.MP4",
                     type: "video/mp4",
-                    isLoadingMetadata: false
+                    isLoadingMetadata: false,
                   },
                   startTime: 0,
-                  duration: 30.5
-                }
-              ]
-            }
-          ]
-        }
+                  duration: 30.5,
+                },
+              ],
+            },
+          ],
+        },
       }
 
       // Имитируем загрузку проекта
@@ -202,26 +199,24 @@ test.describe("Timeline Video Addition Tests", () => {
 
     // Проверяем Timeline
     const timelineElement = page.locator('[data-testid="timeline"]')
-    if (await timelineElement.count() > 0) {
+    if ((await timelineElement.count()) > 0) {
       await expect(timelineElement).toBeVisible()
     }
 
     // Проверяем отсутствие ошибок forEach
-    const forEachErrors = consoleErrors.filter(error => 
-      error.includes('forEach is not a function')
-    )
-    
+    const forEachErrors = consoleErrors.filter((error) => error.includes("forEach is not a function"))
+
     expect(forEachErrors.length).toBe(0)
-    
+
     if (forEachErrors.length > 0) {
-      console.log('ForEach errors found:', forEachErrors)
+      console.log("ForEach errors found:", forEachErrors)
     }
   })
 
   test("should handle Cyrillic video files correctly", async ({ page }) => {
     const consoleErrors: string[] = []
-    page.on('console', msg => {
-      if (msg.type() === 'error') {
+    page.on("console", (msg) => {
+      if (msg.type() === "error") {
         consoleErrors.push(msg.text())
       }
     })
@@ -234,11 +229,11 @@ test.describe("Timeline Video Addition Tests", () => {
       const cyrillicFile = {
         id: "cyrillic-video-1",
         path: "test-data/проводка после лобби.mp4",
-        name: "проводка после лобби.mp4", 
+        name: "проводка после лобби.mp4",
         type: "video/mp4",
         size: 75000000,
         duration: 45.8,
-        isLoadingMetadata: false
+        isLoadingMetadata: false,
       }
 
       window.__TEST_ADD_CYRILLIC_FILE__ = cyrillicFile
@@ -247,25 +242,23 @@ test.describe("Timeline Video Addition Tests", () => {
     await page.waitForTimeout(2000)
 
     // Проверяем, что нет ошибок кодировки
-    const encodingErrors = consoleErrors.filter(error => 
-      error.includes('decode') || 
-      error.includes('encode') ||
-      error.includes('localhost')
+    const encodingErrors = consoleErrors.filter(
+      (error) => error.includes("decode") || error.includes("encode") || error.includes("localhost"),
     )
 
     expect(encodingErrors.length).toBe(0)
 
     // Проверяем URL генерацию для кириллических файлов
-    const videoElements = page.locator('video[src]')
+    const videoElements = page.locator("video[src]")
     const count = await videoElements.count()
 
     for (let i = 0; i < count; i++) {
       const video = videoElements.nth(i)
-      const src = await video.getAttribute('src')
-      
-      if (src && src.includes('проводка')) {
+      const src = await video.getAttribute("src")
+
+      if (src && src.includes("проводка")) {
         expect(src).toMatch(/^asset:\/\//)
-        expect(src).not.toContain('localhost')
+        expect(src).not.toContain("localhost")
         console.log(`Cyrillic file URL: ${src}`)
       }
     }

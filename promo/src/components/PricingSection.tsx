@@ -1,54 +1,48 @@
-import { motion } from 'framer-motion';
-import { AnimatedSection } from './AnimatedSection';
+import { motion } from "framer-motion"
+import { AnimatedSection } from "./AnimatedSection"
 
 const plans = [
   {
-    name: 'Free',
-    price: '0',
-    description: 'Для начинающих',
-    features: [
-      'До 1080p экспорт',
-      'Базовые эффекты',
-      '5 проектов в месяц',
-      'Водяной знак',
-      'Базовая поддержка'
-    ],
-    buttonText: 'Начать бесплатно',
-    featured: false
+    name: "Free",
+    price: "0",
+    description: "Для начинающих",
+    features: ["До 1080p экспорт", "Базовые эффекты", "5 проектов в месяц", "Водяной знак", "Базовая поддержка"],
+    buttonText: "Начать бесплатно",
+    featured: false,
   },
   {
-    name: 'Pro',
-    price: '29',
-    description: 'Для профессионалов',
+    name: "Pro",
+    price: "29",
+    description: "Для профессионалов",
     features: [
-      '4K/8K экспорт',
-      'Все 150+ эффектов',
-      'Неограниченные проекты',
-      'Без водяного знака',
-      'AI инструменты',
-      'Приоритетная поддержка',
-      'Cloud синхронизация'
+      "4K/8K экспорт",
+      "Все 150+ эффектов",
+      "Неограниченные проекты",
+      "Без водяного знака",
+      "AI инструменты",
+      "Приоритетная поддержка",
+      "Cloud синхронизация",
     ],
-    buttonText: 'Попробовать Pro',
-    featured: true
+    buttonText: "Попробовать Pro",
+    featured: true,
   },
   {
-    name: 'Team',
-    price: '79',
-    description: 'Для команд',
+    name: "Team",
+    price: "79",
+    description: "Для команд",
     features: [
-      'Всё из Pro',
-      'До 10 пользователей',
-      'Совместная работа',
-      'Общее облачное хранилище',
-      'Админ панель',
-      'API доступ',
-      'Персональный менеджер'
+      "Всё из Pro",
+      "До 10 пользователей",
+      "Совместная работа",
+      "Общее облачное хранилище",
+      "Админ панель",
+      "API доступ",
+      "Персональный менеджер",
     ],
-    buttonText: 'Связаться с нами',
-    featured: false
-  }
-];
+    buttonText: "Связаться с нами",
+    featured: false,
+  },
+]
 
 export function PricingSection() {
   return (
@@ -60,19 +54,14 @@ export function PricingSection() {
               Выберите свой <span className="text-gradient">план</span>
             </h2>
             <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full mb-6" />
-            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-              Начните бесплатно и обновитесь в любое время
-            </p>
+            <p className="text-xl text-gray-400 max-w-3xl mx-auto">Начните бесплатно и обновитесь в любое время</p>
           </div>
         </AnimatedSection>
 
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {plans.map((plan, index) => (
             <AnimatedSection key={plan.name} animation="fadeUp" delay={index * 0.1}>
-              <motion.div
-                whileHover={{ y: -10 }}
-                className={`relative ${plan.featured ? 'scale-105' : ''}`}
-              >
+              <motion.div whileHover={{ y: -10 }} className={`relative ${plan.featured ? "scale-105" : ""}`}>
                 {plan.featured && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                     <span className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-sm px-4 py-1 rounded-full">
@@ -80,10 +69,10 @@ export function PricingSection() {
                     </span>
                   </div>
                 )}
-                
-                <div className={`glass-card p-8 rounded-2xl h-full ${
-                  plan.featured ? 'border-2 border-blue-500/50' : ''
-                }`}>
+
+                <div
+                  className={`glass-card p-8 rounded-2xl h-full ${plan.featured ? "border-2 border-blue-500/50" : ""}`}
+                >
                   <div className="text-center mb-8">
                     <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
                     <p className="text-gray-400 mb-4">{plan.description}</p>
@@ -96,7 +85,12 @@ export function PricingSection() {
                   <ul className="space-y-4 mb-8">
                     {plan.features.map((feature, i) => (
                       <li key={i} className="flex items-start">
-                        <svg className="w-5 h-5 text-green-400 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg
+                          className="w-5 h-5 text-green-400 mr-3 mt-0.5 flex-shrink-0"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                         <span className="text-gray-300">{feature}</span>
@@ -104,11 +98,13 @@ export function PricingSection() {
                     ))}
                   </ul>
 
-                  <button className={`w-full py-3 px-6 rounded-xl font-medium transition-all duration-300 ${
-                    plan.featured 
-                      ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:shadow-lg hover:shadow-blue-500/25'
-                      : 'glass text-white hover:bg-white/10'
-                  }`}>
+                  <button
+                    className={`w-full py-3 px-6 rounded-xl font-medium transition-all duration-300 ${
+                      plan.featured
+                        ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:shadow-lg hover:shadow-blue-500/25"
+                        : "glass text-white hover:bg-white/10"
+                    }`}
+                  >
                     {plan.buttonText}
                   </button>
                 </div>
@@ -120,8 +116,8 @@ export function PricingSection() {
         <AnimatedSection animation="fadeUp" delay={0.4}>
           <div className="mt-16 text-center">
             <p className="text-gray-400">
-              Все планы включают 14-дневную гарантию возврата денег.{' '}
-              <a href="#" className="text-blue-400 hover:text-blue-300 transition-colors">
+              Все планы включают 14-дневную гарантию возврата денег.{" "}
+              <a href="/pricing" className="text-blue-400 hover:text-blue-300 transition-colors">
                 Подробнее о ценах →
               </a>
             </p>
@@ -129,5 +125,5 @@ export function PricingSection() {
         </AnimatedSection>
       </div>
     </section>
-  );
+  )
 }

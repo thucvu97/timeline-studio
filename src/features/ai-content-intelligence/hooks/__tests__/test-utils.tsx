@@ -2,14 +2,11 @@
  * Test utilities for AI Content Intelligence hooks
  */
 
-import { ReactNode } from "react"
-
 import { renderHook } from "@testing-library/react"
+import { ReactNode } from "react"
 import { vi } from "vitest"
 
 import { AIIntelligenceProvider } from "../../services/ai-intelligence-provider"
-import { ProcessingStatus } from "../../shared/types/pipeline"
-
 import type {
   AdaptedContent,
   AIConfig,
@@ -20,6 +17,7 @@ import type {
   ScriptGenerationParams,
   UnifiedContentAnalysis,
 } from "../../shared/types"
+import { ProcessingStatus } from "../../shared/types/pipeline"
 
 // Import ProcessingStatus enum
 

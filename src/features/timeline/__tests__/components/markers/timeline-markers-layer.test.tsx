@@ -6,7 +6,7 @@ import { ExtendedTimelineMarker } from "../../../types/markers"
 
 // Mock компонента TimelineMarker
 vi.mock("../../../components/markers/timeline-marker", () => ({
-  TimelineMarker: ({ marker, onDrag, onClick, onDelete }: any) => (
+  TimelineMarker: ({ marker, onClick }: any) => (
     <div data-testid={`marker-${marker.id}`} onClick={() => onClick?.(marker.id)}>
       {marker.name}
     </div>

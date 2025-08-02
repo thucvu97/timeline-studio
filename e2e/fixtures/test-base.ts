@@ -12,16 +12,19 @@ export const test = base.extend<TestFixtures>({
     async ({ page }, use) => {
       await page.goto("/")
       await page.waitForLoadState("networkidle")
-      
+
       // Wait for the app to be ready
       await page.waitForSelector('[role="tablist"]', { timeout: 30000 })
-      
+
       // Wait for i18n to initialize (check for any translated text)
-      await page.waitForFunction(() => {
-        const tabs = document.querySelectorAll('[role="tab"]')
-        return tabs.length > 0 && Array.from(tabs).some(tab => tab.textContent && tab.textContent.length > 0)
-      }, { timeout: 30000 })
-      
+      await page.waitForFunction(
+        () => {
+          const tabs = document.querySelectorAll('[role="tab"]')
+          return tabs.length > 0 && Array.from(tabs).some((tab) => tab.textContent && tab.textContent.length > 0)
+        },
+        { timeout: 30000 },
+      )
+
       await use()
     },
     { auto: true },
@@ -33,12 +36,15 @@ export const test = base.extend<TestFixtures>({
     // уже предоставляет все необходимые моки через window.__TAURI_INTERNALS__
     // Просто ждем инициализации приложения
     await page.waitForLoadState("networkidle")
-    
+
     // Ждем, пока TauriMockProvider инициализируется
-    await page.waitForFunction(() => {
-      return (window as any).__TAURI_INTERNALS__ !== undefined
-    }, { timeout: 10000 })
-    
+    await page.waitForFunction(
+      () => {
+        return (window as any).__TAURI_INTERNALS__ !== undefined
+      },
+      { timeout: 10000 },
+    )
+
     await use()
   },
 })

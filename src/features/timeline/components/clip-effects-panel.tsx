@@ -3,9 +3,8 @@
  * Позволяет просматривать, добавлять и настраивать эффекты для выбранного клипа
  */
 
-import { useCallback, useEffect, useMemo, useState } from "react"
-
 import { GripVertical, Plus, Trash2 } from "lucide-react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"

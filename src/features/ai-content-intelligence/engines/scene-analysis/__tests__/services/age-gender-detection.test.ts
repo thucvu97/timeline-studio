@@ -3,7 +3,7 @@
  */
 
 import { beforeEach, describe, expect, it } from "vitest"
-
+import type { FaceDetection } from "../../../../shared/types/content-analysis"
 import {
   type AgeGenderConfig,
   AgeGenderDetectionService,
@@ -11,8 +11,6 @@ import {
   type DemographicStats,
   type FrameAgeGenderResult,
 } from "../../services/age-gender-detection"
-
-import type { FaceDetection } from "../../../../shared/types/content-analysis"
 
 // Mock face detection data
 const createMockFace = (id: string, bbox: { x: number; y: number; width: number; height: number }): FaceDetection => ({

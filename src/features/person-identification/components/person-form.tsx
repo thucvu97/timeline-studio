@@ -3,9 +3,8 @@
  * Позволяет пользователю создавать новых персон или редактировать существующих
  */
 
-import { useRef, useState } from "react"
-
 import { Tag as TagIcon, Upload, User, X } from "lucide-react"
+import { useRef, useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"

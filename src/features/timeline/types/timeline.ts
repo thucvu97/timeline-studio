@@ -9,14 +9,14 @@
  * 5. Интеграция с системой ресурсов (эффекты, фильтры, переходы)
  */
 
-import { SpeedRampingConfig } from "./speed-ramping"
-import { TimelineTransition } from "./timeline-transition"
 import { VideoEffect } from "../../effects/types"
 import { VideoFilter } from "../../filters/types/filters"
 import { MediaFile } from "../../media/types/media"
 import { StyleTemplate } from "../../style-templates/types/style-template"
 import { MediaTemplate } from "../../templates/lib/templates"
 import { Transition } from "../../transitions/types/transitions"
+import { SpeedRampingConfig } from "./speed-ramping"
+import { TimelineTransition } from "./timeline-transition"
 
 // ============================================================================
 // CORE TIMELINE TYPES

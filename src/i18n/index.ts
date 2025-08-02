@@ -3,7 +3,7 @@ import LanguageDetector from "i18next-browser-languagedetector"
 import { initReactI18next } from "react-i18next"
 
 // Импорт констант для языков
-import { DEFAULT_LANGUAGE, LanguageCode, isSupportedLanguage } from "./constants"
+import { DEFAULT_LANGUAGE, isSupportedLanguage, LanguageCode } from "./constants"
 // Импорт ресурсов переводов
 import translationDE from "./locales/de.json"
 import translationEN from "./locales/en.json"

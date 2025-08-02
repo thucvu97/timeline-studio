@@ -7,7 +7,7 @@
     {
       "id": "page-flip",
       "name": "Page Flip",
-      "nameRu": "Переворот страницы", 
+      "nameRu": "Переворот страницы",
       "type": "page-flip",
       "category": "3d",
       "description": "3D переворот страницы с реалистичной физикой",
@@ -34,7 +34,7 @@
           "description": "Сила 3D перспективы"
         },
         "curvature": {
-          "type": "number", 
+          "type": "number",
           "min": 0,
           "max": 1,
           "default": 0.6,
@@ -53,7 +53,7 @@
       "id": "card-shuffle",
       "name": "Card Shuffle",
       "nameRu": "Перетасовка карт",
-      "type": "card-shuffle", 
+      "type": "card-shuffle",
       "category": "3d",
       "description": "Эффект перетасовки игральных карт с 3D анимацией",
       "descriptionRu": "Эффект перетасовки игральных карт с трехмерной анимацией полета",
@@ -86,7 +86,7 @@
           "description": "Хаотичность вращения карт"
         },
         "gravity": {
-          "type": "number", 
+          "type": "number",
           "min": 0,
           "max": 2,
           "default": 0.5,
@@ -99,7 +99,7 @@
       "name": "Helix Spin",
       "nameRu": "Спиральное вращение",
       "type": "helix-spin",
-      "category": "3d", 
+      "category": "3d",
       "description": "Спиральное вращение с DNA-подобной траекторией",
       "descriptionRu": "Спиральное вращение изображения по траектории двойной спирали",
       "gpuAccelerated": true,
@@ -141,7 +141,7 @@
     },
     {
       "id": "sphere-mapping",
-      "name": "Sphere Mapping", 
+      "name": "Sphere Mapping",
       "nameRu": "Сферическая проекция",
       "type": "sphere-mapping",
       "category": "3d",
@@ -200,7 +200,7 @@
       },
       "parameters": {
         "openAngle": {
-          "type": "number", 
+          "type": "number",
           "min": 90,
           "max": 180,
           "default": 130,
@@ -225,7 +225,7 @@
     {
       "id": "cylinder-roll",
       "name": "Cylinder Roll",
-      "nameRu": "Цилиндрическая прокрутка", 
+      "nameRu": "Цилиндрическая прокрутка",
       "type": "cylinder-roll",
       "category": "3d",
       "description": "Прокрутка изображения по цилиндрической поверхности",
@@ -264,7 +264,7 @@
       "id": "origami-fold",
       "name": "Origami Fold",
       "nameRu": "Оригами складывание",
-      "type": "origami-fold", 
+      "type": "origami-fold",
       "category": "3d",
       "description": "Сложная геометрическая трансформация в стиле оригами",
       "descriptionRu": "Сложная геометрическая трансформация изображения в стиле японского оригами",
@@ -307,7 +307,7 @@
       "description": "Трансформация через различные 3D многогранники",
       "descriptionRu": "Трансформация изображения через различные трехмерные многогранники",
       "gpuAccelerated": true,
-      "complexity": "high", 
+      "complexity": "high",
       "duration": {
         "min": 0.8,
         "max": 2.2,

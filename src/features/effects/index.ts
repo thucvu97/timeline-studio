@@ -323,22 +323,22 @@ export function migrateVideoEffect(oldEffect: any): BaseEffect {
     parameters: migrateParameters(oldEffect.params || {}),
     presets: oldEffect.presets
       ? Object.entries(oldEffect.presets).map(([id, preset]: [string, any]) => ({
-        id,
-        name: preset.name || { en: id, ru: id },
-        parameters: preset.params || {},
-        tags: [],
-      }))
+          id,
+          name: preset.name || { en: id, ru: id },
+          parameters: preset.params || {},
+          tags: [],
+        }))
       : [],
     processors: {
       css: oldEffect.cssFilter
         ? {
-          filter: oldEffect.cssFilter,
-        }
+            filter: oldEffect.cssFilter,
+          }
         : undefined,
       ffmpeg: oldEffect.ffmpegCommand
         ? {
-          filter: oldEffect.ffmpegCommand,
-        }
+            filter: oldEffect.ffmpegCommand,
+          }
         : undefined,
     },
   }

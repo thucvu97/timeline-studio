@@ -1,17 +1,15 @@
-import { useState } from "react"
-
 import { LayoutGrid, Radio, Settings, Users } from "lucide-react"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
-import { MixerConsole } from "./mixer-console"
 import { useBusRouting } from "../../hooks/use-bus-routing"
 import { useMixerState } from "../../hooks/use-mixer-state"
 import { GroupStrip } from "../routing/group-strip"
 import { RoutingMatrix } from "../routing/routing-matrix"
 import { SendPanel } from "../routing/send-panel"
+import { MixerConsole } from "./mixer-console"
 
 interface MixerWithRoutingProps {
   className?: string

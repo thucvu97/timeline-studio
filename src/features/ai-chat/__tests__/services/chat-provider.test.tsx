@@ -1,6 +1,5 @@
-import React, { act } from "react"
-
 import { render, renderHook, waitFor } from "@testing-library/react"
+import React, { act } from "react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { renderWithChat } from "@/test/test-utils"

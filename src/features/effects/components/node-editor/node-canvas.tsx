@@ -1,12 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from "react"
 
 import { cn } from "@/lib/utils"
-
+import { useNodeEditor } from "../../hooks/use-node-editor"
+import type { NodeConnection, NodeGraph } from "../../types/node-compositing"
 import { ConnectionLine } from "./connection-line"
 import { NodeComponent } from "./node-component"
-import { useNodeEditor } from "../../hooks/use-node-editor"
-
-import type { NodeConnection, NodeGraph } from "../../types/node-compositing"
 
 interface NodeCanvasProps {
   graph: NodeGraph

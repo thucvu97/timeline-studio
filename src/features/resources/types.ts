@@ -149,9 +149,9 @@ export function createEffectResource(effect: VideoEffect): EffectResource {
     effect,
     params: effect.parameters
       ? effect.parameters.reduce<Record<string, any>>((acc, param) => {
-        acc[param.id] = param.defaultValue
-        return acc
-      }, {})
+          acc[param.id] = param.defaultValue
+          return acc
+        }, {})
       : {},
   }
 }

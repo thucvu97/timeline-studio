@@ -1,20 +1,20 @@
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
-import { HashRouter, Routes, Route } from 'react-router-dom'
+import { HashRouter, Route, Routes } from "react-router-dom"
 import "./index.css"
 import App from "./App"
-import About from './pages/About'
-import Changelog from './pages/Changelog'
-import Blog from './pages/Blog'
-import BlogPost from './pages/BlogPost'
-import Pricing from './pages/Pricing'
-import Terms from './pages/Terms'
-import Privacy from './pages/Privacy'
-import ResponsibleAI from './pages/ResponsibleAI'
-import FAQ from './pages/FAQ'
-import Docs from './pages/Docs'
-import Logo3D from './pages/Logo3D'
-import { ScrollToTop } from './components/ScrollToTop'
+import { ScrollToTop } from "./components/ScrollToTop"
+import About from "./pages/About"
+import Blog from "./pages/Blog"
+import BlogPost from "./pages/BlogPost"
+import Changelog from "./pages/Changelog"
+import Docs from "./pages/Docs"
+import FAQ from "./pages/FAQ"
+import Logo3D from "./pages/Logo3D"
+import Pricing from "./pages/Pricing"
+import Privacy from "./pages/Privacy"
+import ResponsibleAI from "./pages/ResponsibleAI"
+import Terms from "./pages/Terms"
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

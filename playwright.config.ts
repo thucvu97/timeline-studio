@@ -8,7 +8,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 1,
   workers: process.env.CI ? 1 : 2,
   reporter: [["html"], ["list"], ["junit", { outputFile: "test-results/junit.xml" }]],
-  
+
   // Глобальный таймаут для каждого теста
   timeout: 60000,
 

@@ -5,7 +5,7 @@
  */
 
 import { TimelineClip, TimelineProject, TimelineTrack } from "../../../types/timeline"
-import { EDLEvent, ExportOptions, Exporter, formatTimecode, secondsToTimecode } from "../types"
+import { EDLEvent, Exporter, ExportOptions, formatTimecode, secondsToTimecode } from "../types"
 
 export class EDLExporter implements Exporter {
   private frameRate = 30

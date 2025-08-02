@@ -8,7 +8,7 @@
 import { MediaFile } from "@/features/media/types/media"
 
 import { TimelineClip, TimelineProject, TimelineTrack, TrackType } from "../../../types/timeline"
-import { ImportError, ImportOptions, ImportResult, ImportWarning, Importer } from "../types"
+import { ImportError, Importer, ImportOptions, ImportResult, ImportWarning } from "../types"
 
 // Функция для генерации UUID
 function uuidv4(): string {

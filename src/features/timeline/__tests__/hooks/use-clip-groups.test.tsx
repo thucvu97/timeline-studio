@@ -7,10 +7,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { useClipGroups } from "../../hooks/use-clip-groups"
 import { TimelineGroupManager } from "../../services/group-manager"
-import { MockTimelineProvider } from "../test-providers"
-
 import type { ClipGroup } from "../../types/clip-groups"
 import type { TimelineClip, TimelineProject } from "../../types/timeline"
+import { MockTimelineProvider } from "../test-providers"
 
 // Mock timeline-machine
 vi.mock("../../services/timeline-machine", () => ({

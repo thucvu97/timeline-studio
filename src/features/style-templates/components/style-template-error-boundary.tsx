@@ -1,6 +1,5 @@
-import React, { Component, ErrorInfo, ReactNode } from "react"
-
 import { AlertTriangle, RefreshCw } from "lucide-react"
+import React, { Component, ErrorInfo, ReactNode } from "react"
 
 interface Props {
   children: ReactNode

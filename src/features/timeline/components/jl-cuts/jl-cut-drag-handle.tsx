@@ -18,7 +18,7 @@ interface JLCutDragHandleProps {
 
 export function JLCutDragHandle({
   clip,
-  linkedClip,
+  _linkedClip,
   cutType,
   pixelsPerSecond,
   onOffsetChange,

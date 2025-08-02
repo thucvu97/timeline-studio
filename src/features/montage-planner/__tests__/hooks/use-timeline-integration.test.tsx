@@ -2,14 +2,14 @@
  * Tests for useTimelineIntegration hook
  */
 
-import { act, renderHook, waitFor } from "@testing-library/react"
+import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { MediaFile } from "@/features/media/types/media"
 
 import { useTimelineIntegration } from "../../hooks/use-timeline-integration"
-import { EmotionalTone, MONTAGE_STYLES, MomentCategory, MontagePlan } from "../../types"
-import { mockMontagePlan, mockMediaFile } from "../test-utils"
+import { MONTAGE_STYLES, MomentCategory, MontagePlan } from "../../types"
+import { mockMediaFile, mockMontagePlan } from "../test-utils"
 
 // Mock timeline hooks
 vi.mock("@/features/timeline/hooks/use-timeline", () => ({
@@ -132,7 +132,7 @@ describe("useTimelineIntegration", () => {
     it("should apply plan to timeline successfully", async () => {
       const { useTimeline } = await import("@/features/timeline/hooks/use-timeline")
       const { useTimelineMarkers } = await import("@/features/timeline/hooks/use-timeline-markers")
-      
+
       const saveProjectMock = vi.fn().mockResolvedValue(undefined)
       const addMarkerMock = vi.fn()
 
@@ -162,12 +162,12 @@ describe("useTimelineIntegration", () => {
 
     it("should handle missing media files", async () => {
       const { useTimeline } = await import("@/features/timeline/hooks/use-timeline")
-      
+
       vi.mocked(useTimeline).mockReturnValue({
         project: mockTimelineProject,
         saveProject: vi.fn(),
       } as any)
-      
+
       const { result } = renderHook(() => useTimelineIntegration())
 
       // Use empty media files array
@@ -266,7 +266,7 @@ describe("useTimelineIntegration", () => {
       const requiredFiles = result.current.getRequiredMediaFiles(mockPlan)
 
       // Наш mockPlan содержит один клип с mediaFileId: "video1"
-      expect(requiredFiles).toHaveLength(1) 
+      expect(requiredFiles).toHaveLength(1)
       expect(requiredFiles).toContain("video1") // id медиафайла из fragment.sourceFile
     })
   })

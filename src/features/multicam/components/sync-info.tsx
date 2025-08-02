@@ -2,9 +2,8 @@
  * Компонент отображения информации о синхронизации
  */
 
-import { useMemo } from "react"
-
 import { AlertCircle, CheckCircle2, Clock, Music } from "lucide-react"
+import { useMemo } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import type { MediaFile } from "@/features/media/types/media"

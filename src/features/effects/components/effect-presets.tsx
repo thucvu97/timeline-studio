@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useState } from "react"
-
 import { ChevronDown, ChevronRight, Settings, Trash2 } from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
@@ -164,8 +163,8 @@ export function EffectPresets({ effect, onApplyPreset, selectedPreset }: EffectP
                           {t("effects.detail.parameters", "Параметры")}:{" "}
                           {preset.parameters
                             ? Object.entries(preset.parameters)
-                              .map(([key, value]) => `${key}: ${String(value)}`)
-                              .join(", ")
+                                .map(([key, value]) => `${key}: ${String(value)}`)
+                                .join(", ")
                             : t("effects.noParameters", "Нет параметров")}
                         </div>
                         {isCustom && preset.createdAt && (

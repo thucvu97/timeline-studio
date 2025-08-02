@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react"
-
 import { render, screen, waitFor } from "@testing-library/react"
+import { useEffect, useState } from "react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { resetTransitionsState } from "@/features/transitions/hooks/use-transitions"

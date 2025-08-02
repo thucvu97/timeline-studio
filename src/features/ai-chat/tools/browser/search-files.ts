@@ -2,11 +2,10 @@
  * AI инструменты для поиска файлов в браузере
  */
 
-import { findFilesByPattern, getBrowserFiles, getBrowserStateAccess, hasBrowserAccess } from "./utils/helpers"
-
-import type { BrowserToolResult, SearchMediaParams } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
 
+import type { BrowserToolResult, SearchMediaParams } from "./types"
+import { findFilesByPattern, getBrowserFiles, getBrowserStateAccess, hasBrowserAccess } from "./utils/helpers"
 
 export const searchMediaFilesTool: ClaudeTool = {
   name: "search_media_files",

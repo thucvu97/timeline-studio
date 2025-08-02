@@ -232,10 +232,10 @@ describe("useDragDropTimeline", () => {
       },
       over: overData
         ? {
-          id: "drop-zone-1",
-          data: { current: overData },
-          rect: { left: 100, right: 500, top: 50, bottom: 150, width: 400, height: 100 },
-        }
+            id: "drop-zone-1",
+            data: { current: overData },
+            rect: { left: 100, right: 500, top: 50, bottom: 150, width: 400, height: 100 },
+          }
         : null,
       delta: { x: 0, y: 0 },
       activatorEvent: new MouseEvent("mousemove", { clientX: 200 }),
@@ -364,10 +364,10 @@ describe("useDragDropTimeline", () => {
       },
       over: overData
         ? {
-          id: "drop-zone-1",
-          data: { current: overData },
-          rect: { left: 100, right: 500, top: 50, bottom: 150, width: 400, height: 100 },
-        }
+            id: "drop-zone-1",
+            data: { current: overData },
+            rect: { left: 100, right: 500, top: 50, bottom: 150, width: 400, height: 100 },
+          }
         : null,
       delta: { x: 100, y: 0 },
       activatorEvent: new MouseEvent("mouseup"),

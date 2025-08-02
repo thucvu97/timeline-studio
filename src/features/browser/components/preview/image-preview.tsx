@@ -1,9 +1,8 @@
 // import { convertFileSrc } from "@tauri-apps/api/core"
 
-import { memo, useCallback, useEffect, useState } from "react"
-
 import { readFile } from "@tauri-apps/plugin-fs"
 import { Image } from "lucide-react"
+import { memo, useCallback, useEffect, useState } from "react"
 
 import { MediaFile } from "@/features/media/types/media"
 import { TimelineResource } from "@/features/resources/types"

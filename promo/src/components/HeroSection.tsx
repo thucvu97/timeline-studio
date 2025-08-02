@@ -1,7 +1,7 @@
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { useRef } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { Float, OrbitControls, Sphere } from '@react-three/drei';
+import { Float, OrbitControls, Sphere } from "@react-three/drei"
+import { Canvas } from "@react-three/fiber"
+import { motion, useScroll, useTransform } from "framer-motion"
+import { useRef } from "react"
 
 function FloatingOrb() {
   return (
@@ -16,18 +16,18 @@ function FloatingOrb() {
         />
       </Sphere>
     </Float>
-  );
+  )
 }
 
 export function HeroSection() {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ["start start", "end start"]
-  });
+    offset: ["start start", "end start"],
+  })
 
-  const y = useTransform(scrollYProgress, [0, 1], [0, 300]);
-  const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.5, 0]);
+  const y = useTransform(scrollYProgress, [0, 1], [0, 300])
+  const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.5, 0])
 
   return (
     <section
@@ -36,7 +36,7 @@ export function HeroSection() {
     >
       {/* Background gradient */}
       <div className="absolute inset-0 hero-gradient" />
-      
+
       {/* 3D Background */}
       <div className="absolute inset-0 opacity-30">
         <Canvas camera={{ position: [0, 0, 5] }}>
@@ -62,7 +62,7 @@ export function HeroSection() {
             }}
             transition={{
               duration: Math.random() * 20 + 10,
-              repeat: Infinity,
+              repeat: Number.POSITIVE_INFINITY,
               ease: "linear",
               delay: Math.random() * 5,
             }}
@@ -74,20 +74,14 @@ export function HeroSection() {
       </div>
 
       {/* Content */}
-      <motion.div
-        style={{ y, opacity }}
-        className="relative z-10 text-center px-6 max-w-5xl mx-auto"
-      >
-
+      <motion.div style={{ y, opacity }} className="relative z-10 text-center px-6 max-w-5xl mx-auto">
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3 }}
           className="page-title"
         >
-          <span className="text-gradient">
-            AI-Powered Video Creation
-          </span>
+          <span className="text-gradient">AI-Powered Video Creation</span>
         </motion.h1>
 
         <motion.p
@@ -98,7 +92,7 @@ export function HeroSection() {
         >
           Watch how Timeline Studio AI helps you create viral content in seconds
         </motion.p>
-        
+
         <motion.p
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -114,8 +108,8 @@ export function HeroSection() {
           transition={{ duration: 0.8, delay: 0.6 }}
           className="flex flex-col items-center justify-center gap-4"
         >
-          <a 
-            href="#download" 
+          <a
+            href="#download"
             className="group relative px-8 py-4 rounded-xl text-lg font-medium text-white overflow-hidden transform hover:scale-[1.02] transition-transform"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl" />
@@ -128,17 +122,11 @@ export function HeroSection() {
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </span>
           </a>
         </motion.div>
-
       </motion.div>
 
       {/* Scroll indicator */}
@@ -150,12 +138,12 @@ export function HeroSection() {
       >
         <motion.div
           animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
+          transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY }}
           className="w-6 h-10 border-2 border-gray-400 rounded-full flex justify-center"
         >
           <div className="w-1 h-3 bg-gray-400 rounded-full mt-2" />
         </motion.div>
       </motion.div>
     </section>
-  );
+  )
 }

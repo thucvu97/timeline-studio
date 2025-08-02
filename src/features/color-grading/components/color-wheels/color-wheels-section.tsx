@@ -1,8 +1,7 @@
 import { useTranslation } from "react-i18next"
-
-import { ColorWheel } from "./color-wheel"
 import { useColorGradingContext } from "../../services/color-grading-provider"
 import { ParameterSlider } from "../controls/parameter-slider"
+import { ColorWheel } from "./color-wheel"
 
 export function ColorWheelsSection() {
   const { t } = useTranslation()

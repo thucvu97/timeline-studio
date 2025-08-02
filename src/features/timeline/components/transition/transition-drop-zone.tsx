@@ -1,6 +1,5 @@
-import { useRef, useState } from "react"
-
 import { useDroppable } from "@dnd-kit/core"
+import { useRef, useState } from "react"
 
 import { Transition } from "@/features/transitions/types/transitions"
 import { cn } from "@/lib/utils"
@@ -25,7 +24,7 @@ export function TransitionDropZone({
   rightClip,
   trackId,
   timeScale,
-  onDrop,
+  _onDrop,
   disabled = false,
   className,
 }: TransitionDropZoneProps) {

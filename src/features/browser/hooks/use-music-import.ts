@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react"
-
 import { invoke } from "@tauri-apps/api/core"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 import { useCurrentProject } from "@/features/app-state/hooks/use-current-project"
 import { useMusicFiles } from "@/features/app-state/hooks/use-music-files"

@@ -4,11 +4,9 @@
  */
 
 import { nanoid } from "nanoid"
-
+import type { AnimatedProperty, AnimationLayer, AnimationState, AnimationTrack, KeyframeValue } from "../types/keyframe"
 import { expressionEvaluator } from "./expression-engine"
 import { getValueAtTime } from "./interpolation"
-
-import type { AnimatedProperty, AnimationLayer, AnimationState, AnimationTrack, KeyframeValue } from "../types/keyframe"
 
 /**
  * Create a new animation layer

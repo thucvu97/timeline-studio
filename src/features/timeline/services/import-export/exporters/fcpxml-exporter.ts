@@ -6,7 +6,7 @@
 
 import { TimelineClip, TimelineProject, TimelineTrack } from "@/features/timeline/types/timeline"
 
-import { ExportOptions, Exporter } from "../types"
+import { Exporter, ExportOptions } from "../types"
 
 export class FCPXMLExporter implements Exporter {
   private frameRate = 30

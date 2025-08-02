@@ -3,7 +3,8 @@
  */
 
 import type { TimelineClip, TimelineTrack } from "@/features/timeline/types/timeline"
-
+import type { ClaudeTool } from "../../services/claude-service"
+import type { TimelineToolResult } from "./types"
 import { generateClipId } from "./utils/generators"
 import {
   assignTrackForClip,
@@ -11,9 +12,6 @@ import {
   getCurrentTimelineProject,
   saveTimelineProject,
 } from "./utils/helpers"
-
-import type { TimelineToolResult } from "./types"
-import type { ClaudeTool } from "../../services/claude-service"
 
 // import { createTimelineClip } from "@/features/timeline/types" // TODO: Fix when available
 

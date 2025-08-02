@@ -4,14 +4,14 @@
  * Централизованный менеджер для импорта и экспорта Timeline в различные форматы
  */
 
+import { TimelineProject } from "../../types/timeline"
 import { AAFExporter } from "./exporters/aaf-exporter"
 import { EDLExporter } from "./exporters/edl-exporter"
 import { FCPXMLExporter } from "./exporters/fcpxml-exporter"
 import { AAFImporter } from "./importers/aaf-importer"
 import { EDLImporter } from "./importers/edl-importer"
 import { FCPXMLImporter } from "./importers/fcpxml-importer"
-import { ExportFormat, ExportOptions, Exporter, ImportFormat, ImportOptions, ImportResult, Importer } from "./types"
-import { TimelineProject } from "../../types/timeline"
+import { Exporter, ExportFormat, ExportOptions, Importer, ImportFormat, ImportOptions, ImportResult } from "./types"
 
 export class ImportExportManager {
   private importers = new Map<ImportFormat, Importer>()

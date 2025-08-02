@@ -173,17 +173,10 @@ jobs:
           cd src-tauri
           cargo run --bin generate_types
 
-      - name: Run lint step on Unix
-        if: runner.os != 'Windows'
+      - name: Run lint step
         env:
           NODE_OPTIONS: '--max-old-space-size=4096'
         run: npm run lint:ci
-
-      - name: Run lint step on Windows
-        if: runner.os == 'Windows'
-        env:
-          NODE_OPTIONS: '--max-old-space-size=4096'
-        run: npm run lint:windows
 
   check-rust:
     name: Check Rust

@@ -170,10 +170,10 @@ export function createDetailedTimelineContext(
     },
     activeSection: activeSection
       ? {
-        name: activeSection.name,
-        duration: activeSection.duration,
-        trackCount: activeSection.tracks.length,
-      }
+          name: activeSection.name,
+          duration: activeSection.duration,
+          trackCount: activeSection.tracks.length,
+        }
       : null,
     selectedClips:
       selectedClips?.map((clip) => ({

@@ -2,14 +2,7 @@
  * AI инструменты для управления ресурсами (добавление, удаление, обновление)
  */
 
-import {
-  filterResources,
-  findResource,
-  getResourcesProvider,
-  getResourcesStateAccess,
-  hasResourcesAccess,
-  resourceExists,
-} from "./utils/helpers"
+import type { ClaudeTool } from "../../services/claude-service"
 
 import type {
   AddResourceParams,
@@ -18,8 +11,14 @@ import type {
   ResourceToolResult,
   UpdateResourceParams,
 } from "./types"
-import type { ClaudeTool } from "../../services/claude-service"
-
+import {
+  filterResources,
+  findResource,
+  getResourcesProvider,
+  getResourcesStateAccess,
+  hasResourcesAccess,
+  resourceExists,
+} from "./utils/helpers"
 
 export const addResourceToPoolTool: ClaudeTool = {
   name: "add_resource_to_pool",

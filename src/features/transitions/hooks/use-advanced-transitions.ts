@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
-
-import { useTransitions } from "./use-transitions"
 import { webglTransitionService } from "../services/webgl-transition-service"
 import { Transition } from "../types/transitions"
+import { useTransitions } from "./use-transitions"
 
 /**
  * Параметры для предварительного просмотра перехода

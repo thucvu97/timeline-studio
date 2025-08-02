@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-
+import type { MediaMetadata } from "../../../../types/media"
+import type { CacheMemoryUsage } from "../../types/cache"
 import {
   cacheMediaMetadata,
   cacheMultipleMetadata,
@@ -9,9 +10,6 @@ import {
   getCacheMemoryUsage,
   invalidateFileCache,
 } from "../metadata-cache-service"
-
-import type { MediaMetadata } from "../../../../types/media"
-import type { CacheMemoryUsage } from "../../types/cache"
 
 vi.mock("@tauri-apps/api/core", () => ({
   invoke: vi.fn(),

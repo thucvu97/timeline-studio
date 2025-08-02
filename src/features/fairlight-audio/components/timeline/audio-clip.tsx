@@ -1,6 +1,5 @@
-import React, { useEffect, useRef, useState } from "react"
-
 import { Volume2, VolumeX } from "lucide-react"
+import React, { useEffect, useRef, useState } from "react"
 
 import { cn } from "@/lib/utils"
 

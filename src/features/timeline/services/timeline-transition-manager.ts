@@ -4,14 +4,13 @@
  */
 
 import { Transition } from "@/features/transitions/types/transitions"
-
+import { TimelineProject, TimelineTrack } from "../types/timeline"
+import { TimelineTransition } from "../types/timeline-transition"
 import {
   addTimelineTransitionToResources,
   createTimelineTransition,
   updateTimelineTransitionParameters,
 } from "./resource-manager"
-import { TimelineProject, TimelineTrack } from "../types/timeline"
-import { TimelineTransition } from "../types/timeline-transition"
 
 /**
  * Добавить переход между клипами

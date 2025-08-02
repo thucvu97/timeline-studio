@@ -1,8 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
-
-import { getDateGroup, getDurationGroup, getScreensGroup, getSizeGroup, groupItems } from "../../utils/grouping"
-
 import type { ListItem } from "../../types/list"
+import { getDateGroup, getDurationGroup, getScreensGroup, getSizeGroup, groupItems } from "../../utils/grouping"
 
 // Тестовые данные
 const testItems: ListItem[] = [

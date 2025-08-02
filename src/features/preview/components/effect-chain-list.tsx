@@ -2,9 +2,8 @@
  * Effect Chain List - Manage effect chains and their order
  */
 
-import React, { useRef, useState } from "react"
-
 import { ChevronDown, ChevronRight, Copy, GripVertical, MoreVertical, Plus, Trash2 } from "lucide-react"
+import React, { useRef, useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -76,11 +75,11 @@ export function EffectChainList({ className }: EffectChainListProps) {
       prev.map((chain) =>
         chain.id === chainId
           ? {
-            ...chain,
-            effects: chain.effects.map((effect) =>
-              effect.id === effectId ? { ...effect, enabled: !effect.enabled } : effect,
-            ),
-          }
+              ...chain,
+              effects: chain.effects.map((effect) =>
+                effect.id === effectId ? { ...effect, enabled: !effect.enabled } : effect,
+              ),
+            }
           : chain,
       ),
     )
@@ -91,9 +90,9 @@ export function EffectChainList({ className }: EffectChainListProps) {
       prev.map((chain) =>
         chain.id === chainId
           ? {
-            ...chain,
-            effects: chain.effects.map((effect) => (effect.id === effectId ? { ...effect, intensity } : effect)),
-          }
+              ...chain,
+              effects: chain.effects.map((effect) => (effect.id === effectId ? { ...effect, intensity } : effect)),
+            }
           : chain,
       ),
     )

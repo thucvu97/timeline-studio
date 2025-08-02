@@ -3,9 +3,8 @@
  * Панель управления AI анализом в плеере
  */
 
-import { useState } from "react"
-
 import { Eye, EyeOff, Gauge, Pause, Play, Settings, Sparkles } from "lucide-react"
+import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import {

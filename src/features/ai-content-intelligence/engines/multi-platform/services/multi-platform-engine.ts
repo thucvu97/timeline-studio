@@ -4,12 +4,8 @@
  */
 
 import { UnifiedAIService } from "../../../../ai-chat/services/unified-ai-service"
-import { getOptimalAspectRatio, getOptimalResolution, getPlatformConfig } from "../platform-configs"
-import { BatchProcessor } from "./batch-processor"
-import { LanguageAdapter } from "./language-adapter"
-import { PlatformAdapter } from "./platform-adapter"
-
 import type { AdaptedContent, Platform, PlatformId } from "../../../shared/types/platform-adaptation"
+import { getOptimalAspectRatio, getOptimalResolution, getPlatformConfig } from "../platform-configs"
 import type {
   AdaptationResult,
   AdaptationStrategy,
@@ -20,6 +16,9 @@ import type {
   PlatformOptimizationResult,
   TrendingElements,
 } from "../types"
+import { BatchProcessor } from "./batch-processor"
+import { LanguageAdapter } from "./language-adapter"
+import { PlatformAdapter } from "./platform-adapter"
 
 export class MultiPlatformEngine {
   private platformAdapter: PlatformAdapter

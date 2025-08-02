@@ -9,10 +9,9 @@ import { BaseEffect, VideoEffect } from "@/features/effects/types"
 import { useResources } from "@/features/resources"
 import { EffectResource, TimelineResource } from "@/features/resources/types"
 import { usePlayer, useVideoSelection } from "@/features/video-player"
-
-import { EffectIndicators } from "./effect-indicators"
 import { generateCSSFilterForEffect, getPlaybackRate } from "../utils/css-effects"
 import { getEffectPreview } from "../utils/effect-previews"
+import { EffectIndicators } from "./effect-indicators"
 
 // Получаем путь к превью видео для конкретного эффекта
 const getPreviewPath = (effect: BaseEffect) => {

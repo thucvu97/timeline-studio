@@ -3,9 +3,8 @@
  * Компонент для управления созданием маркеров из AI анализа
  */
 
-import { useState } from "react"
-
 import { AlertCircle, Bookmark, CheckCircle, Settings, Sparkles, X } from "lucide-react"
+import { useState } from "react"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"

@@ -2,9 +2,8 @@
  * TrackHeader - Заголовок трека с элементами управления
  */
 
-import React from "react"
-
 import { Eye, EyeOff, Image, Lock, Mic, Music, Type, Unlock, Video, Volume2, VolumeX } from "lucide-react"
+import React from "react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"

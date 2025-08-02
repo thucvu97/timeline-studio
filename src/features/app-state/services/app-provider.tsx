@@ -4,9 +4,8 @@
  * Главный провайдер с новой архитектурой backend state management
  */
 
-import React, { ReactNode, useEffect } from "react"
-
 import { useMachine } from "@xstate/react"
+import React, { ReactNode, useEffect } from "react"
 
 import { appMachine } from "./app-machine"
 

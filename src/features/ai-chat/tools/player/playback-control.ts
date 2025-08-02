@@ -2,11 +2,10 @@
  * AI инструмент для управления воспроизведением
  */
 
-import { getPlayerState, hasLoadedMedia, setPlayerState } from "./utils/helpers"
-
-import type { PlaybackControlParams, PlayerToolResult } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
 
+import type { PlaybackControlParams, PlayerToolResult } from "./types"
+import { getPlayerState, hasLoadedMedia, setPlayerState } from "./utils/helpers"
 
 export const controlPlaybackTool: ClaudeTool = {
   name: "control_playback",

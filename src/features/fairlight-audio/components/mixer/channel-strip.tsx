@@ -1,12 +1,10 @@
-import { useState } from "react"
-
 import { Settings } from "lucide-react"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { cn } from "@/lib/utils"
-
-import { Fader } from "./fader"
 import { LevelMeter } from "../meters/level-meter"
+import { Fader } from "./fader"
 
 export interface ChannelStripProps {
   channelId: string

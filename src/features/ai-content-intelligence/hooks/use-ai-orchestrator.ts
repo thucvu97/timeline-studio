@@ -4,11 +4,9 @@
  */
 
 import { useCallback, useRef, useState } from "react"
-
+import type { AIEngine } from "../engines/types"
 import { useAIIntelligence as useAIIntelligenceContext } from "../services/ai-intelligence-provider"
 import { AIIntelligenceOrchestrator } from "../shared/services/ai-intelligence-orchestrator"
-
-import type { AIEngine } from "../engines/types"
 
 interface UseAIOrchestratorOptions {
   engines?: {

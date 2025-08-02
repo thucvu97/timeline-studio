@@ -37,13 +37,13 @@ export function TemplateRenderer({ config, renderCell, className }: TemplateRend
       opacity: dividers.opacity,
       ...(orientation === "horizontal"
         ? {
-          height: dividers.width || "1px",
-          width: "100%",
-        }
+            height: dividers.width || "1px",
+            width: "100%",
+          }
         : {
-          width: dividers.width || "1px",
-          height: "100%",
-        }),
+            width: dividers.width || "1px",
+            height: "100%",
+          }),
       ...(dividers.style === "dashed" && {
         backgroundImage: `repeating-linear-gradient(
           ${orientation === "horizontal" ? "to right" : "to bottom"},

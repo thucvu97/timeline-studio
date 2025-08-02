@@ -1,8 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
-
-import { useTimeline } from "./use-timeline"
 import { TimelineGroupManager } from "../services/group-manager"
-
 import type {
   ClipGroup,
   ClipReference,
@@ -12,6 +9,7 @@ import type {
   NestedSequence,
 } from "../types/clip-groups"
 import type { TimelineClip, TimelineSection, TimelineTrack } from "../types/timeline"
+import { useTimeline } from "./use-timeline"
 
 export interface UseClipGroupsReturn {
   groups: ClipGroup[]

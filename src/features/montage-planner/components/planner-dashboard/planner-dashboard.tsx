@@ -10,12 +10,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-
+import { useMontagePlanner } from "../../hooks/use-montage-planner"
+import { ExportFormat, MONTAGE_STYLES } from "../../types"
 import { PlanViewer } from "./plan-viewer"
 import { ProjectAnalyzer } from "./project-analyzer"
 import { Suggestions } from "./suggestions"
-import { useMontagePlanner } from "../../hooks/use-montage-planner"
-import { ExportFormat, MONTAGE_STYLES } from "../../types"
 
 export function PlannerDashboard() {
   const { t } = useTranslation()

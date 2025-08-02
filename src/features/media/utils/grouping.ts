@@ -1,9 +1,7 @@
 import i18n from "@/i18n"
 import { formatDateByLanguage } from "@/i18n/constants"
-
-import { DateGroup } from "../types/types"
-
 import type { MediaFile } from "../types/media"
+import { DateGroup } from "../types/types"
 
 /**
  * Группирует файлы по дате создания
@@ -18,9 +16,9 @@ export const groupFilesByDate = (media: MediaFile[]): DateGroup[] => {
     // Форматируем дату с помощью универсального метода
     const date = file.startTime
       ? formatDateByLanguage(new Date(file.startTime * 1000), currentLanguage, {
-        includeYear: true,
-        longFormat: true,
-      })
+          includeYear: true,
+          longFormat: true,
+        })
       : noDateText
 
     if (!acc[date]) {

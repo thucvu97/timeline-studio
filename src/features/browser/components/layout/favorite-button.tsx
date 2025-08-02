@@ -1,6 +1,5 @@
-import { memo, useCallback, useEffect, useRef, useState } from "react"
-
 import { Star, StarOff } from "lucide-react"
+import { memo, useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useFavorites } from "@/features/app-state"

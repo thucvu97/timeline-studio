@@ -2,7 +2,7 @@ import { useCallback, useEffect } from "react"
 
 import { useTimeline } from "../../timeline/hooks"
 import { TimelineClip, TimelineSection, TimelineTrack } from "../../timeline/types"
-import { TimelineStateAccess, setTimelineStateAccess } from "../tools/timeline/types"
+import { setTimelineStateAccess, TimelineStateAccess } from "../tools/timeline/types"
 
 /**
  * Хук для интеграции Timeline с AI функциональностью

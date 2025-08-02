@@ -5,14 +5,13 @@
  * with proper backend integration mocks.
  */
 
-import React, { ReactElement } from "react"
-
 import { RenderOptions, RenderResult, render } from "@testing-library/react"
+import React, { ReactElement } from "react"
 import { vi } from "vitest"
 
 import type { CommandResult, ProjectCommand } from "@/types/generated/tauri-bindings"
 
-import { MockBackendProvider, MockProjectState, createTestScenarios } from "./mock-backend-provider"
+import { createTestScenarios, MockBackendProvider, MockProjectState } from "./mock-backend-provider"
 
 // Re-export will be done later in the file to avoid duplicates
 

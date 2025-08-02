@@ -1,6 +1,5 @@
-import React from "react"
-
 import { RenderOptions as RTLRenderOptions, render as rtlRender } from "@testing-library/react"
+import React from "react"
 
 // Provider imports
 
@@ -62,49 +61,49 @@ const getProviders = async () => {
   try {
     const { TimelineProvider } = await import("@/features/timeline/services/timeline-provider")
     providers.TimelineProvider = TimelineProvider
-  } catch (e) {
+  } catch (_e) {
     // Provider not available
   }
 
   try {
     const { BrowserStateProvider } = await import("@/features/browser/services/browser-state-provider")
     providers.BrowserStateProvider = BrowserStateProvider
-  } catch (e) {
+  } catch (_e) {
     // Provider not available
   }
 
   try {
     const { PlayerProvider } = await import("@/features/video-player/services/player-provider")
     providers.PlayerProvider = PlayerProvider
-  } catch (e) {
+  } catch (_e) {
     // Provider not available
   }
 
   try {
     const { AppProvider } = await import("@/features/app-state/services/app-provider")
     providers.AppSettingsProvider = AppProvider
-  } catch (e) {
+  } catch (_e) {
     // Provider not available
   }
 
   try {
     const { UserSettingsProvider } = await import("@/features/user-settings/services/user-settings-provider")
     providers.UserSettingsProvider = UserSettingsProvider
-  } catch (e) {
+  } catch (_e) {
     // Provider not available
   }
 
   try {
     const { ProjectSettingsProvider } = await import("@/features/project-settings/services/project-settings-provider")
     providers.ProjectSettingsProvider = ProjectSettingsProvider
-  } catch (e) {
+  } catch (_e) {
     // Provider not available
   }
 
   try {
     const { ResourcesProvider } = await import("@/features/resources/services/resources-provider")
     providers.ResourcesProvider = ResourcesProvider
-  } catch (e) {
+  } catch (_e) {
     // Provider not available
   }
 
@@ -112,7 +111,7 @@ const getProviders = async () => {
 }
 
 export function createWrapper(options: RenderOptions = {}) {
-  const { providers = ["theme", "i18n"], providerConfig = {} } = options
+  const { providers = ["theme", "i18n"] } = options
 
   return ({ children }: { children: React.ReactNode }) => {
     let wrapped = children

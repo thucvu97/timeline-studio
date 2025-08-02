@@ -1,6 +1,5 @@
-import React, { ReactElement } from "react"
-
 import { RenderOptions, render } from "@testing-library/react"
+import React, { ReactElement } from "react"
 import { vi } from "vitest"
 
 /**

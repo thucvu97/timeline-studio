@@ -1,5 +1,5 @@
-import { TimelineMarks } from "./timeline-marks"
 import { useTimelineScale } from "../../hooks/use-timeline-scale"
+import { TimelineMarks } from "./timeline-marks"
 
 interface TimeRange {
   startTime: number

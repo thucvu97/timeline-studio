@@ -3,9 +3,8 @@
  * Manages montage style settings and visual preferences
  */
 
-import React from "react"
-
 import { Camera, Film, Music, Palette, Sparkles, Zap } from "lucide-react"
+import React from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -16,10 +15,8 @@ import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
-
-import { MONTAGE_STYLES } from "../../types"
-
 import type { MontagePreferences, StyleParameters, VisualParameters } from "../../types"
+import { MONTAGE_STYLES } from "../../types"
 
 interface StyleControllerProps {
   preferences: MontagePreferences

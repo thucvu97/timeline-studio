@@ -3,16 +3,16 @@
  * Handles communication with Rust backend state management
  */
 
-import { UnlistenFn, listen } from "@tauri-apps/api/event"
+import { listen, UnlistenFn } from "@tauri-apps/api/event"
 
 // Use generated types from Specta
 import {
   CommandResult,
+  commands,
   EventEnvelope,
   ProjectCommand,
   ProjectEvent,
   ProjectState,
-  commands,
 } from "@/types/generated/tauri-bindings"
 
 export type EventHandler = (event: ProjectEvent) => void

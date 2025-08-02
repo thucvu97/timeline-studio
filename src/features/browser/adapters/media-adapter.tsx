@@ -7,24 +7,18 @@ import { getFileType } from "@/features/media"
 import { MediaFile } from "@/features/media/types/media"
 import i18n from "@/i18n"
 import { cn } from "@/lib/utils"
-
-import { getDateGroup, getDurationGroup } from "../utils/grouping"
-
 import type { ListAdapter, PreviewComponentProps } from "../types/list"
+import { getDateGroup, getDurationGroup } from "../utils/grouping"
 
 /**
  * Компонент превью для медиафайлов
  */
 const MediaPreviewWrapper: React.FC<PreviewComponentProps<MediaFile>> = ({
   item,
-  size,
   viewMode,
   onClick,
   onDragStart,
   isSelected,
-  isFavorite,
-  onToggleFavorite,
-  onAddToTimeline,
 }) => {
   const duration = item.duration ? parseDuration(item.duration) : "00:00"
   const fileSize = item.size ? parseFileSize(item.size) : "0 KB"

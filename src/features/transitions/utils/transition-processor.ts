@@ -101,26 +101,26 @@ export function processTransitions(rawTransitions: RawTransitionData[]): Transit
       smoothness: rawTransition.parameters?.smoothness,
       blur: rawTransition.parameters?.blur
         ? {
-          enabled: rawTransition.parameters.blur.enabled,
-          amount: rawTransition.parameters.blur.amount,
-          type: rawTransition.parameters.blur.type as "gaussian" | "motion" | "radial" | undefined,
-        }
+            enabled: rawTransition.parameters.blur.enabled,
+            amount: rawTransition.parameters.blur.amount,
+            type: rawTransition.parameters.blur.type as "gaussian" | "motion" | "radial" | undefined,
+          }
         : undefined,
       color: rawTransition.parameters?.color
         ? {
-          enabled: rawTransition.parameters.color.enabled,
-          tint: rawTransition.parameters.color.tint,
-          saturation: rawTransition.parameters.color.saturation,
-          brightness: rawTransition.parameters.color.brightness,
-        }
+            enabled: rawTransition.parameters.color.enabled,
+            tint: rawTransition.parameters.color.tint,
+            saturation: rawTransition.parameters.color.saturation,
+            brightness: rawTransition.parameters.color.brightness,
+          }
         : undefined,
       perspective: rawTransition.parameters?.perspective
         ? {
-          enabled: rawTransition.parameters.perspective.enabled,
-          rotationX: rawTransition.parameters.perspective.rotationX,
-          rotationY: rawTransition.parameters.perspective.rotationY,
-          rotationZ: rawTransition.parameters.perspective.rotationZ,
-        }
+            enabled: rawTransition.parameters.perspective.enabled,
+            rotationX: rawTransition.parameters.perspective.rotationX,
+            rotationY: rawTransition.parameters.perspective.rotationY,
+            rotationZ: rawTransition.parameters.perspective.rotationZ,
+          }
         : undefined,
     },
     ffmpegCommand: createFFmpegCommand(rawTransition.ffmpegTemplate, rawTransition.parameters),

@@ -67,7 +67,7 @@ describe("useDynamicTransitions", () => {
 
     // Мокаем appendChild чтобы не добавлять canvas в DOM, но только для canvas
     const originalAppendChild = document.body.appendChild.bind(document.body)
-     
+
     document.body.appendChild = vi.fn((child: Node) => {
       if (child === mockCanvas) {
         return child

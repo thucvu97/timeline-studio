@@ -13,10 +13,9 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { cn } from "@/lib/utils"
-
-import { PersonsPanel } from "./persons-panel"
 import { useTimeline } from "../hooks/use-timeline"
 import { useTracks } from "../hooks/use-tracks"
+import { PersonsPanel } from "./persons-panel"
 
 // Типы треков с иконками и цветами
 const TRACK_TYPES = [

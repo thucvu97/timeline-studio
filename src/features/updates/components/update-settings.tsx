@@ -3,9 +3,8 @@
  * Позволяет пользователю настроить автоматическую проверку обновлений
  */
 
-import { useState } from "react"
-
 import { Clock, Download, Info, RefreshCw, Settings } from "lucide-react"
+import { useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"

@@ -1,5 +1,3 @@
-import { FC, useCallback, useMemo, useState } from "react"
-
 import {
   Activity,
   AlertCircle,
@@ -22,6 +20,7 @@ import {
   Upload,
   Zap,
 } from "lucide-react"
+import { FC, useCallback, useMemo, useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -33,9 +32,6 @@ import { cn } from "@/lib/utils"
 
 import { useAIIntelligence } from "../../hooks/use-ai-intelligence"
 import { useContentPipeline } from "../../hooks/use-content-pipeline"
-import { AnalysisViewer } from "../analysis-viewer/analysis-viewer"
-import { PreviewGrid } from "../preview-grid/preview-grid"
-
 import type {
   AIIntelligenceConfig,
   IntelligentContent,
@@ -43,6 +39,8 @@ import type {
   PipelineProgress,
   UnifiedContentAnalysis,
 } from "../../shared/types"
+import { AnalysisViewer } from "../analysis-viewer/analysis-viewer"
+import { PreviewGrid } from "../preview-grid/preview-grid"
 
 interface UnifiedDashboardProps {
   className?: string

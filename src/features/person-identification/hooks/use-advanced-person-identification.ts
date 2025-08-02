@@ -415,18 +415,18 @@ export function useAdvancedPersonIdentification(options: UseAdvancedPersonIdenti
           isVerified: true,
           faceEmbeddings: face.embedding
             ? [
-              {
-                faceId: face.id,
-                personId: "", // Будет установлен после создания
-                vector: face.embedding,
-                quality: face.confidence,
-                clipId: face.clipId || "",
-                frameNumber: face.frameNumber || 0,
-                timestamp: face.timestamp,
-                landmarks: face.landmarks,
-                createdAt: new Date().toISOString(),
-              },
-            ]
+                {
+                  faceId: face.id,
+                  personId: "", // Будет установлен после создания
+                  vector: face.embedding,
+                  quality: face.confidence,
+                  clipId: face.clipId || "",
+                  frameNumber: face.frameNumber || 0,
+                  timestamp: face.timestamp,
+                  landmarks: face.landmarks,
+                  createdAt: new Date().toISOString(),
+                },
+              ]
             : [],
           averageEmbedding: face.embedding,
           appearances: [],
@@ -437,18 +437,18 @@ export function useAdvancedPersonIdentification(options: UseAdvancedPersonIdenti
           notes: personData.description,
           thumbnails: face.thumbnailUrl
             ? [
-              {
-                id: `thumb_${Date.now()}`,
-                imageUrl: face.thumbnailUrl,
-                width: face.bbox.width,
-                height: face.bbox.height,
-                sourceClipId: face.clipId || "",
-                sourceTimestamp: face.timestamp,
-                quality: face.confidence,
-                isPrimary: true,
-                isGenerated: false,
-              },
-            ]
+                {
+                  id: `thumb_${Date.now()}`,
+                  imageUrl: face.thumbnailUrl,
+                  width: face.bbox.width,
+                  height: face.bbox.height,
+                  sourceClipId: face.clipId || "",
+                  sourceTimestamp: face.timestamp,
+                  quality: face.confidence,
+                  isPrimary: true,
+                  isGenerated: false,
+                },
+              ]
             : [],
           privacy: {
             blurFace: false,

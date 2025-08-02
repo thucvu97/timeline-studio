@@ -10,8 +10,8 @@ import {
   cacheMediaMetadata,
   cacheMultipleMetadata,
   checkCachedFiles,
-  getCacheMemoryUsage,
   getCachedMetadata,
+  getCacheMemoryUsage,
 } from "../services/metadata-cache-service"
 
 import type { CacheMemoryUsage } from "../types/cache"

@@ -113,7 +113,7 @@ export const updateMachine = setup({
 
     // Обновить прогресс загрузки
     updateProgress: assign({
-      progress: ({ event, context }) => {
+      progress: ({ _event, context }) => {
         // В реальной реализации здесь будет обновление прогресса
         // Пока что возвращаем заглушку
         return context.progress

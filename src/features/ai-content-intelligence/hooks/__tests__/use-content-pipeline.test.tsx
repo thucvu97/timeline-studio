@@ -4,12 +4,10 @@
 
 import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-
+import type { PipelineConfig, StepType } from "../../shared/types"
 import { useAIIntelligence } from "../use-ai-intelligence"
 import { useContentPipeline } from "../use-content-pipeline"
 import { createMockIntelligentContent, createMockMediaFile, createMockProgress } from "./test-utils"
-
-import type { PipelineConfig, StepType } from "../../shared/types"
 
 // First mock modules before importing
 vi.mock("../use-ai-intelligence", () => ({

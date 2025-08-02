@@ -3,21 +3,19 @@
  * Modern replacement for ScriptProcessorNode
  */
 
-// Simple FFT processor for worklet
+// Minimal FFT implementation for worklet
 class FFTProcessor {
-  private size: number
+  constructor(private size: number) {}
 
-  constructor(size: number) {
-    this.size = size
+  forward(input: Float32Array): { real: Float32Array; imag: Float32Array } {
+    // Simplified FFT for worklet context
+    const real = new Float32Array(this.size)
+    const imag = new Float32Array(this.size)
+    real.set(input)
+    return { real, imag }
   }
 
-  forward(_input: Float32Array): Float32Array {
-    // Simple placeholder for FFT forward transform
-    return new Float32Array(this.size)
-  }
-
-  inverse(_input: Float32Array): Float32Array {
-    // Simple placeholder for FFT inverse transform
+  inverse(_real: Float32Array, _imag: Float32Array): Float32Array {
     return new Float32Array(this.size)
   }
 }
@@ -78,23 +76,6 @@ class NoiseReductionProcessor extends AudioWorkletProcessor {
     }
 
     return true
-  }
-}
-
-// Minimal FFT implementation for worklet
-class FFTProcessor {
-  constructor(private size: number) {}
-
-  forward(input: Float32Array): { real: Float32Array; imag: Float32Array } {
-    // Simplified FFT for worklet context
-    const real = new Float32Array(this.size)
-    const imag = new Float32Array(this.size)
-    real.set(input)
-    return { real, imag }
-  }
-
-  inverse(_real: Float32Array, _imag: Float32Array): Float32Array {
-    return new Float32Array(this.size)
   }
 }
 

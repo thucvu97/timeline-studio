@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useState } from "react"
-
 import { open } from "@tauri-apps/plugin-dialog"
 import { CheckSquare, FileVideo, Folder, Loader2, Pause, RefreshCw, Square, Trash2, X } from "lucide-react"
+import { useCallback, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
@@ -11,10 +10,9 @@ import { Progress } from "@/components/ui/progress"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 import { RenderStatus } from "@/types/video-compiler"
-
-import { ExportPresets } from "./export-presets"
 import { useRenderQueue } from "../hooks/use-render-queue"
 import { ExportSettings } from "../types/export-types"
+import { ExportPresets } from "./export-presets"
 
 interface BatchExportTabProps {
   onClose: () => void

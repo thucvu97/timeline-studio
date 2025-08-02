@@ -1,11 +1,9 @@
 import { useCallback, useEffect, useRef } from "react"
-
+import type { Effect, EffectType } from "../components/effects/effects-rack"
 import { AudioEngine } from "../services/audio-engine"
 import { CompressorProcessor } from "../services/effects/compressor-processor"
 import { EqualizerProcessor } from "../services/effects/equalizer-processor"
 import { ReverbProcessor } from "../services/effects/reverb-processor"
-
-import type { Effect, EffectType } from "../components/effects/effects-rack"
 
 interface EffectProcessor {
   processor: EqualizerProcessor | CompressorProcessor | ReverbProcessor

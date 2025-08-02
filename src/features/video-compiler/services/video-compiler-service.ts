@@ -5,10 +5,8 @@
 import { invoke } from "@tauri-apps/api/core"
 
 import type { ProjectSchema } from "@/types/video-compiler"
-
-import { RenderStatus } from "../types/render"
-
 import type { RenderProgress } from "../types/render"
+import { RenderStatus } from "../types/render"
 
 /**
  * Запуск рендеринга проекта

@@ -2,6 +2,9 @@
  * AI инструменты для операций с файлами в браузере
  */
 
+import type { ClaudeTool } from "../../services/claude-service"
+
+import type { AnalyzeRelationshipsParams, BrowserToolResult, BulkSelectParams, GetFileGroupsParams } from "./types"
 import {
   filterFiles,
   findFilesByPattern,
@@ -12,10 +15,6 @@ import {
   groupFiles,
   hasBrowserAccess,
 } from "./utils/helpers"
-
-import type { AnalyzeRelationshipsParams, BrowserToolResult, BulkSelectParams, GetFileGroupsParams } from "./types"
-import type { ClaudeTool } from "../../services/claude-service"
-
 
 export const getFileGroupsTool: ClaudeTool = {
   name: "get_file_groups",
@@ -179,10 +178,10 @@ export async function getFileGroups(params: GetFileGroupsParams): Promise<Browse
       largestGroup:
         filteredGroups.length > 0
           ? {
-            name: filteredGroups[0].name,
-            count: filteredGroups[0].count,
-            percentage: Math.round((filteredGroups[0].count / files.length) * 100),
-          }
+              name: filteredGroups[0].name,
+              count: filteredGroups[0].count,
+              percentage: Math.round((filteredGroups[0].count / files.length) * 100),
+            }
           : null,
       averageGroupSize:
         filteredGroups.length > 0

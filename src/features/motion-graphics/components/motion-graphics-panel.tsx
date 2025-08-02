@@ -3,8 +3,6 @@
  * Main UI for managing motion graphics animations
  */
 
-import { useCallback, useState } from "react"
-
 import {
   Download,
   Filter,
@@ -21,6 +19,7 @@ import {
   Square,
   Upload,
 } from "lucide-react"
+import { useCallback, useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -29,11 +28,9 @@ import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
-import { CurveEditor } from "./curve-editor"
 import { getAllPresets, getPresetCategories, getPresetsByCategory, searchPresets } from "../services/preset-manager"
-
 import type { AnimationLayer, AnimationTrack, MotionPreset } from "../types/keyframe"
+import { CurveEditor } from "./curve-editor"
 
 interface MotionGraphicsPanelProps {
   tracks: AnimationTrack[]
@@ -60,10 +57,6 @@ export function MotionGraphicsPanel({
   onPlayPause,
   onStop,
   onReset,
-  onTrackAdd,
-  onTrackUpdate,
-  onLayerAdd,
-  onLayerUpdate,
   onPresetApply,
 }: MotionGraphicsPanelProps) {
   const [selectedTrackId, setSelectedTrackId] = useState<string>()

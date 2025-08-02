@@ -1,6 +1,5 @@
-import { useState } from "react"
-
 import { Code, Cpu, Package } from "lucide-react"
+import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -355,11 +354,11 @@ function generatePresets(project: ShaderProject): any[] {
     {
       name: "Default",
       values: project.uniforms.reduce(
-        (acc, u) => ({
-          ...acc,
-          [u.name]: u.defaultValue || u.value,
-        }),
-        {},
+        (acc, u) => {
+          acc[u.name] = u.defaultValue || u.value
+          return acc
+        },
+        {} as Record<string, any>,
       ),
     },
   ]
@@ -373,22 +372,22 @@ function generatePresets(project: ShaderProject): any[] {
     presets.push({
       name: "Minimal",
       values: project.uniforms.reduce(
-        (acc, u) => ({
-          ...acc,
-          [u.name]: u.min !== undefined ? u.min : u.value,
-        }),
-        {},
+        (acc, u) => {
+          acc[u.name] = u.min !== undefined ? u.min : u.value
+          return acc
+        },
+        {} as Record<string, any>,
       ),
     })
 
     presets.push({
       name: "Maximum",
       values: project.uniforms.reduce(
-        (acc, u) => ({
-          ...acc,
-          [u.name]: u.max !== undefined ? u.max : u.value,
-        }),
-        {},
+        (acc, u) => {
+          acc[u.name] = u.max !== undefined ? u.max : u.value
+          return acc
+        },
+        {} as Record<string, any>,
       ),
     })
   }

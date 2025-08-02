@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-
+import type { MediaFile } from "../../types/media"
 import {
   doTimeRangesOverlap,
   getFileType,
@@ -7,8 +7,6 @@ import {
   hasAudioStream,
   isHorizontalVideo,
 } from "../../utils/media-utils"
-
-import type { MediaFile } from "../../types/media"
 
 describe("media-utils", () => {
   const createMockMediaFile = (overrides: Partial<MediaFile> = {}): MediaFile => ({

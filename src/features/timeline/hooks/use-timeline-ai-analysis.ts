@@ -14,10 +14,8 @@ import type {
   UnifiedContentAnalysis,
 } from "@/features/ai-content-intelligence/shared/types/content-analysis"
 import { KeyMomentType } from "@/features/ai-content-intelligence/shared/types/content-analysis"
-
-import { useTimeline } from "./use-timeline"
-
 import type { TimelineClip } from "../types/timeline"
+import { useTimeline } from "./use-timeline"
 
 interface TimelineAnalysisState {
   isAnalyzing: boolean

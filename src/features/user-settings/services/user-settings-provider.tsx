@@ -1,6 +1,5 @@
-import { createContext } from "react"
-
 import { useMachine } from "@xstate/react"
+import { createContext } from "react"
 
 import { BrowserTab, LayoutMode, userSettingsMachine } from "./user-settings-machine"
 

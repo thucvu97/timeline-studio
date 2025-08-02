@@ -5,11 +5,9 @@ vi.mock("../../hooks/use-player-ai-analysis", () => ({
 
 import { render, screen } from "@testing-library/react"
 import { vi } from "vitest"
-
+import type { PlayerAIAnalysisHook } from "../../hooks/use-player-ai-analysis"
 import { usePlayerAIAnalysis } from "../../hooks/use-player-ai-analysis"
 import { PlayerAIOverlay } from "../player-ai-overlay"
-
-import type { PlayerAIAnalysisHook } from "../../hooks/use-player-ai-analysis"
 
 describe("PlayerAIOverlay", () => {
   const mockAIAnalysis: PlayerAIAnalysisHook = {

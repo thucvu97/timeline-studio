@@ -19,14 +19,6 @@ import {
   SceneType,
 } from "../../../shared/types/content-analysis"
 import { BaseAIEngine, type EngineCapabilities } from "../../types"
-import { CameraMovementType, LightingType, MotionDirection } from "../types"
-import { AgeGenderDetectionService, type DemographicStats } from "./age-gender-detection"
-import { type CharacterAnalysisResult, CharacterAnalysisService } from "./character-analysis"
-import { MusicDetectionService } from "./music-detection"
-import { ObjectTrackingService } from "./object-tracking"
-import { SceneDetectionService } from "./scene-detection"
-import { VisionService } from "./vision-service"
-
 import type {
   AudioProfile,
   KeyframeData,
@@ -35,6 +27,13 @@ import type {
   TimelineSegment,
   VisualFeatures,
 } from "../types"
+import { CameraMovementType, LightingType, MotionDirection } from "../types"
+import { AgeGenderDetectionService, type DemographicStats } from "./age-gender-detection"
+import { type CharacterAnalysisResult, CharacterAnalysisService } from "./character-analysis"
+import { MusicDetectionService } from "./music-detection"
+import { ObjectTrackingService } from "./object-tracking"
+import { SceneDetectionService } from "./scene-detection"
+import { VisionService } from "./vision-service"
 
 // Расширенный тип для content с дополнительными полями
 interface ExtendedContentElements {
@@ -780,10 +779,10 @@ export class SceneAnalysisEngine extends BaseAIEngine {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
     return result
       ? {
-        r: Number.parseInt(result[1], 16),
-        g: Number.parseInt(result[2], 16),
-        b: Number.parseInt(result[3], 16),
-      }
+          r: Number.parseInt(result[1], 16),
+          g: Number.parseInt(result[2], 16),
+          b: Number.parseInt(result[3], 16),
+        }
       : null
   }
 

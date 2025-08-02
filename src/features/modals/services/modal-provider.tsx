@@ -1,6 +1,5 @@
-import { createContext, useContext, useMemo } from "react"
-
 import { useMachine } from "@xstate/react"
+import { createContext, useContext, useMemo } from "react"
 
 import { ModalData, ModalType, modalMachine } from "./modal-machine"
 

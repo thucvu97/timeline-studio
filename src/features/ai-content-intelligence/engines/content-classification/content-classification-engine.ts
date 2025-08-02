@@ -349,9 +349,9 @@ ${scenes ? `Типы сцен: ${scenes.map((s) => s.type).join(", ")}` : ""}
 ${
   scenes
     ? `Сцены: ${scenes
-      .map((s) => `${s.type}: ${s.description}`)
-      .slice(0, 5)
-      .join("; ")}`
+        .map((s) => `${s.type}: ${s.description}`)
+        .slice(0, 5)
+        .join("; ")}`
     : ""
 }
 

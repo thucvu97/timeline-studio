@@ -3,9 +3,8 @@
  * Отображает список всех персон с возможностью поиска и фильтрации
  */
 
-import { useState } from "react"
-
 import { Edit, Search, Trash2, User } from "lucide-react"
+import { useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"

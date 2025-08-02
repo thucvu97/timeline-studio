@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-
 import { useDraggable } from "@dnd-kit/core"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { ApplyButton } from "@/features/browser"
@@ -293,7 +292,7 @@ export function TransitionPreview({
           targetVideo.style.mixBlendMode = "screen"
           sourceVideo.style.opacity = "0"
           break
-          
+
         // 3D эффекты
         case "cube-3d":
           // Эффект 3D куба: вращение как грани куба
@@ -301,94 +300,95 @@ export function TransitionPreview({
           sourceVideo.style.opacity = "0"
           targetVideo.style.transform = "perspective(1000px) rotateY(0deg) translateZ(0)"
           break
-          
+
         case "page-turn":
           // Эффект переворота страницы
           sourceVideo.style.transform = "perspective(1000px) rotateY(-180deg)"
           sourceVideo.style.transformOrigin = "right center"
           sourceVideo.style.opacity = "0"
           break
-          
+
         case "shatter":
           // Эффект разбития стекла
           sourceVideo.style.transform = "scale(1.2)"
           sourceVideo.style.filter = "blur(4px)"
           sourceVideo.style.opacity = "0"
           break
-          
+
         // Дополнительные эффекты из JSON
         case "wipe-horizontal":
           sourceVideo.style.clipPath = "inset(0 100% 0 0)"
           break
-          
+
         case "wipe-vertical":
           sourceVideo.style.clipPath = "inset(100% 0 0 0)"
           break
-          
+
         case "wipe-diagonal":
           sourceVideo.style.clipPath = "polygon(0 0, 0 0, 0 100%, 0 100%)"
           break
-          
+
         case "radial-wipe":
           sourceVideo.style.clipPath = "circle(0% at 50% 50%)"
           break
-          
+
         case "ripple":
           sourceVideo.style.filter = "blur(8px)"
           sourceVideo.style.transform = "scale(1.1)"
           sourceVideo.style.opacity = "0"
           break
-          
+
         case "pixelize":
           sourceVideo.style.imageRendering = "pixelated"
           sourceVideo.style.transform = "scale(0.1) scale(10)"
           sourceVideo.style.opacity = "0"
           break
-          
+
         case "morph":
           sourceVideo.style.filter = "blur(10px)"
           sourceVideo.style.transform = "scale(0.8)"
           sourceVideo.style.opacity = "0"
           break
-          
+
         case "glitch":
           sourceVideo.style.filter = "hue-rotate(90deg) saturate(2)"
           sourceVideo.style.transform = "translateX(5px) translateY(-5px)"
           sourceVideo.style.opacity = "0"
           break
-          
+
         case "kaleidoscope":
           sourceVideo.style.transform = "rotate(180deg) scale(0.5)"
           sourceVideo.style.filter = "hue-rotate(180deg)"
           sourceVideo.style.opacity = "0"
           break
-          
+
         case "burn":
           sourceVideo.style.filter = "brightness(2) contrast(2) sepia(1)"
           sourceVideo.style.opacity = "0"
           break
-          
+
         case "blinds":
-          sourceVideo.style.clipPath = "repeating-linear-gradient(0deg, transparent 0px, transparent 10px, black 10px, black 20px)"
+          sourceVideo.style.clipPath =
+            "repeating-linear-gradient(0deg, transparent 0px, transparent 10px, black 10px, black 20px)"
           sourceVideo.style.opacity = "0"
           break
-          
+
         case "iris":
           sourceVideo.style.clipPath = "circle(0% at 50% 50%)"
           targetVideo.style.clipPath = "circle(100% at 50% 50%)"
           break
-          
+
         case "zoom-blur":
           sourceVideo.style.filter = "blur(20px)"
           sourceVideo.style.transform = "scale(2)"
           sourceVideo.style.opacity = "0"
           break
-          
+
         case "tv-static":
           sourceVideo.style.filter = "contrast(100) grayscale(1)"
           sourceVideo.style.opacity = "0"
           break
-          
+
         default:
           // Неизвестный тип перехода, используем fade по умолчанию
           sourceVideo.style.opacity = "0"
@@ -429,8 +429,8 @@ export function TransitionPreview({
         networkState: target.networkState,
         readyState: target.readyState,
       }
-      console.error(`🎬 [TransitionPreview] Ошибка загрузки видео:`, errorInfo)
-      
+      console.error("🎬 [TransitionPreview] Ошибка загрузки видео:", errorInfo)
+
       // Дополнительная информация об ошибке
       if (target.error) {
         switch (target.error.code) {
@@ -451,7 +451,7 @@ export function TransitionPreview({
             break
         }
       }
-      
+
       setIsError(true)
     }
 

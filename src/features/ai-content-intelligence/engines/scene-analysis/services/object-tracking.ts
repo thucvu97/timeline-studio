@@ -261,7 +261,7 @@ export class ObjectTrackingService {
     averageTrackLength: number
     longestTrack: number
     objectCategories: Map<string, number>
-    } {
+  } {
     const allTracks = [...this.completedTracks, ...this.activeTracks.values()]
     const trackLengths = allTracks.map((track) => track.trajectory.length)
     const categories = new Map<string, number>()

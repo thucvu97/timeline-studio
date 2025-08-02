@@ -1,6 +1,5 @@
-import { useCallback, useState } from "react"
-
 import { invoke } from "@tauri-apps/api/core"
+import { useCallback, useState } from "react"
 
 import { useMediaPreview } from "@/features/media/hooks/use-media-preview"
 import type { RecognitionResults } from "@/features/media/types/preview"
@@ -28,11 +27,11 @@ function convertRecognitionResultsToYoloData(
             confidence: obj.confidence,
             bbox: obj.bounding_boxes[index]
               ? {
-                x: obj.bounding_boxes[index].x,
-                y: obj.bounding_boxes[index].y,
-                width: obj.bounding_boxes[index].width,
-                height: obj.bounding_boxes[index].height,
-              }
+                  x: obj.bounding_boxes[index].x,
+                  y: obj.bounding_boxes[index].y,
+                  width: obj.bounding_boxes[index].width,
+                  height: obj.bounding_boxes[index].height,
+                }
               : { x: 0, y: 0, width: 0, height: 0 },
           },
         ],

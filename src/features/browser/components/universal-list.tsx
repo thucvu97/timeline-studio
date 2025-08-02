@@ -5,12 +5,10 @@ import { useTranslation } from "react-i18next"
 import { useBrowserState } from "@/features/browser/services/browser-state-provider"
 import { PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"
 import { cn } from "@/lib/utils"
-
+import type { ListItem, UniversalListProps } from "../types/list"
 import { filterItems, groupItems, sortItems } from "../utils"
 import { ContentGroup } from "./content-group"
 import { NoFiles } from "./no-files"
-
-import type { ListItem, UniversalListProps } from "../types/list"
 
 /**
  * Универсальный компонент списка для отображения любого типа контента

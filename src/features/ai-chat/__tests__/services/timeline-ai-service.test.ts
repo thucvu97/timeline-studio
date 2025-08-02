@@ -125,6 +125,7 @@ vi.mock("../../tools/workflow-automation-tools", () => ({
 import { VideoEffect } from "../../../effects/types"
 import { VideoFilter } from "../../../filters/types/filters"
 import { MediaFile } from "../../../media/types/media"
+import type { ResourcesContextType } from "../../../resources/services/resources-provider"
 import {
   EffectResource,
   FilterResource,
@@ -138,8 +139,6 @@ import { TimelineProject } from "../../../timeline/types"
 import { ApiKeyLoader } from "../../services/api-key-loader"
 import { CLAUDE_MODELS, ClaudeService } from "../../services/claude-service"
 import { TimelineAIService } from "../../services/timeline-ai-service"
-
-import type { ResourcesContextType } from "../../../resources/services/resources-provider"
 
 describe("TimelineAIService", () => {
   let service: TimelineAIService

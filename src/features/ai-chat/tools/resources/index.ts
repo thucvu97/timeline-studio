@@ -16,14 +16,13 @@ import {
   updateResourceParametersTool,
 } from "./manage-resources"
 import { suggestComplementaryResources, suggestComplementaryResourcesTool } from "./suggest-resources"
+import type { ResourceToolResult } from "./types"
 import {
   cleanupUnusedResources,
   cleanupUnusedResourcesTool,
   getResourceUsageStats,
   getResourceUsageStatsTool,
 } from "./usage-stats"
-
-import type { ResourceToolResult } from "./types"
 
 export { analyzeAvailableResources, analyzeAvailableResourcesTool } from "./analyze-resources"
 export { analyzeResourceCompatibility, analyzeResourceCompatibilityTool } from "./compatibility-analysis"

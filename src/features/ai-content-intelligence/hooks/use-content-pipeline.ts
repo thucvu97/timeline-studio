@@ -4,11 +4,6 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react"
-
-import { useAIIntelligence } from "./use-ai-intelligence"
-import { AIProvider, AccuracyLevel, AnalysisDepth, SpeedPriority, StepType } from "../shared/types"
-import { ProcessingStatus } from "../shared/types/pipeline"
-
 import type {
   AIConfig,
   BatchProcessingConfig,
@@ -18,6 +13,9 @@ import type {
   PipelineEvent,
   PipelineProgress,
 } from "../shared/types"
+import { AccuracyLevel, AIProvider, AnalysisDepth, SpeedPriority, StepType } from "../shared/types"
+import { ProcessingStatus } from "../shared/types/pipeline"
+import { useAIIntelligence } from "./use-ai-intelligence"
 
 interface UseContentPipelineOptions {
   config?: PipelineConfig
@@ -202,9 +200,9 @@ export function useContentPipeline(options: UseContentPipelineOptions = {}): Use
           try {
             const aiConfig = item.config
               ? {
-                ...convertPipelineConfigToAIConfig(defaultConfig!),
-                ...item.config,
-              }
+                  ...convertPipelineConfigToAIConfig(defaultConfig!),
+                  ...item.config,
+                }
               : convertPipelineConfigToAIConfig(defaultConfig!)
 
             const result = await ai.processProject(

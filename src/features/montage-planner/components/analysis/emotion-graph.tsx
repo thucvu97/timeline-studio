@@ -3,9 +3,8 @@
  * Visualizes emotional arc and intensity throughout the montage
  */
 
-import React from "react"
-
 import { Activity, Frown, Heart, Smile, Sparkles, Zap } from "lucide-react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"
