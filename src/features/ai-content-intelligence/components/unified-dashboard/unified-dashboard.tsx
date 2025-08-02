@@ -128,11 +128,11 @@ export const UnifiedDashboard: FC<UnifiedDashboardProps> = ({
       const config = createDefaultAIConfig({
         features: {
           sceneAnalysis: true,
-          qualityAnalysis: true,
-          contentDetection: true,
-          audioAnalysis: true,
           scriptGeneration: true,
-          multiPlatformAdaptation: true,
+          multiPlatform: true,
+          contentClassification: true,
+          qualityEnhancement: true,
+          autoSuggestions: false,
         },
         platforms: [],
       })
@@ -159,11 +159,11 @@ export const UnifiedDashboard: FC<UnifiedDashboardProps> = ({
       const config = createDefaultAIConfig({
         features: {
           sceneAnalysis: true,
-          qualityAnalysis: true,
-          contentDetection: true,
-          audioAnalysis: true,
           scriptGeneration: true,
-          multiPlatformAdaptation: true,
+          multiPlatform: true,
+          contentClassification: true,
+          qualityEnhancement: true,
+          autoSuggestions: false,
         },
         platforms: [],
       })

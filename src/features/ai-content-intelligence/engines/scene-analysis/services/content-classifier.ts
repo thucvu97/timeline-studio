@@ -47,6 +47,7 @@ export class ContentClassifier {
   private static instance: ContentClassifier
   private config: ClassifierConfig
   private cache = new Map<string, ClassificationResult>()
+  private aiService: UnifiedAIService
 
   private constructor(config?: Partial<ClassifierConfig>) {
     this.aiService = UnifiedAIService.getInstance()
@@ -93,7 +94,7 @@ export class ContentClassifier {
     if (this.config.useAI) {
       result = await this.classifyWithAI(extractedFeatures, scenes, metadata)
     } else {
-      result = this.classifyWithHeuristics(extractedFeatures)
+      result = await this.classifyWithHeuristics(extractedFeatures)
     }
 
     // Сохраняем в кэш
