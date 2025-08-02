@@ -17,7 +17,9 @@
       "*.min.js",
       "*.min.css",
       "public/**",
-      "src-tauri/target/**"
+      "src-tauri/**",
+      ".claude/**",
+      "version.json"
     ]
   },
   "formatter": {
