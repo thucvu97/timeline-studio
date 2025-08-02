@@ -38,8 +38,5 @@ jobs:
       - name: Run lint step
         run: bun run lint
 
-      - name: Run TypeScript check
-        run: bun run typecheck || echo "TypeScript check not configured"
-
       - name: Run tests
         run: bun run test
