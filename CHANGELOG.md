@@ -1,3 +1,10 @@
+## [0.59.7](https://github.com/chatman-media/timeline-studio/compare/v0.59.6...v0.59.7) (2025-08-02)
+
+
+### Bug Fixes
+
+* исправить тесты UnifiedDashboard после изменения структуры конфига ([ec9319d](https://github.com/chatman-media/timeline-studio/commit/ec9319dc24144182587b4909c0ebe888e4c4b359))
+
 ## [0.59.6](https://github.com/chatman-media/timeline-studio/compare/v0.59.5...v0.59.6) (2025-08-02)
 
 
