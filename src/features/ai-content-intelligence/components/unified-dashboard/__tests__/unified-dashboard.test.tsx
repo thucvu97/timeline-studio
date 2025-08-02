@@ -294,13 +294,15 @@ describe("UnifiedDashboard", () => {
         expect(mockAnalyzeContent).toHaveBeenCalledWith(
           mockMediaFiles,
           expect.objectContaining({
-            analysis: expect.objectContaining({
-              enableSceneDetection: true,
-              enableObjectDetection: true,
-              enableFaceDetection: true,
-              enableTextDetection: true,
-              enableAudioAnalysis: true,
+            features: expect.objectContaining({
+              qualityAnalysis: true,
+              sceneAnalysis: true,
+              contentDetection: true,
+              audioAnalysis: true,
+              scriptGeneration: true,
+              multiPlatformAdaptation: true,
             }),
+            platforms: [],
           }),
         )
       })
@@ -318,9 +320,15 @@ describe("UnifiedDashboard", () => {
         expect(mockProcessProject).toHaveBeenCalledWith(
           mockMediaFiles,
           expect.objectContaining({
-            analysis: expect.any(Object),
-            generation: expect.any(Object),
-            adaptation: expect.any(Object),
+            features: expect.objectContaining({
+              sceneAnalysis: true,
+              qualityAnalysis: true,
+              contentDetection: true,
+              audioAnalysis: true,
+              scriptGeneration: true,
+              multiPlatformAdaptation: true,
+            }),
+            platforms: [],
           }),
         )
       })
