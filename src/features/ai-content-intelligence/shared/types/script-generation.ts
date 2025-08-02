@@ -31,6 +31,7 @@ export enum NarrativeType {
   NONLINEAR = "nonlinear",
   EPISODIC = "episodic",
   CIRCULAR = "circular",
+  LINEAR = "LINEAR",
 }
 
 export interface Act {
