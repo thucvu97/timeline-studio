@@ -12,7 +12,7 @@
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "node scripts/sync-changelog.js && node scripts/sync-version.js"
+        "prepareCmd": "node scripts/ci/sync-changelog.js && node scripts/ci/sync-version.js"
       }
     ],
     [
