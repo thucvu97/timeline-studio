@@ -42,7 +42,7 @@
     "test:coverage:codecov": "CODECOV_TOKEN=$CODECOV_TOKEN vitest run --coverage",
     "test:coverage:report": "npm run test:coverage && npm run test:coverage:upload",
     "test:coverage:upload": "./scripts/upload-coverage.sh",
-    "test:rust": "cd src-tauri && cargo test",
+    "test:rust": "cd src-tauri && ./run-tests.sh",
     "test:rust:watch": "cd src-tauri && cargo watch -x test",
     "semantic-release": "semantic-release",
     "semantic-release:dry": "semantic-release --dry-run",
