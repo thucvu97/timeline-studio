@@ -420,7 +420,9 @@ describe("ScriptGenerationEngine", () => {
       const result = await engine.process({ analysis: mockAnalysis, context: mockContext }, mockParams)
 
       // detectedPersonsCount может быть undefined если не обнаружено
-      expect(result.metadata.detectedPersonsCount).toBeGreaterThanOrEqual(0)
+      if (result.metadata.detectedPersonsCount !== undefined) {
+        expect(result.metadata.detectedPersonsCount).toBeGreaterThanOrEqual(0)
+      }
       expect(result.characters).toBeDefined()
     })
 
@@ -462,8 +464,8 @@ describe("ScriptGenerationEngine", () => {
       const adaptedScript = engine.adaptScriptToPersonInstructions(mockScript, "фокус на John", mockContext)
 
       expect(adaptedScript).toBeDefined()
-      expect(adaptedScript.metadata.adaptedForPersons).toBe(true)
-      expect(adaptedScript.metadata.personInstructions).toBe("фокус на John")
+      expect(adaptedScript.metadata?.adaptedForPersons).toBe(true)
+      expect(adaptedScript.metadata?.personInstructions).toBe("фокус на John")
     })
   })
 })

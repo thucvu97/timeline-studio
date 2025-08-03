@@ -295,12 +295,11 @@ describe("UnifiedDashboard", () => {
           mockMediaFiles,
           expect.objectContaining({
             features: expect.objectContaining({
-              qualityAnalysis: true,
               sceneAnalysis: true,
-              contentDetection: true,
-              audioAnalysis: true,
               scriptGeneration: true,
-              multiPlatformAdaptation: true,
+              contentClassification: true,
+              multiPlatform: true,
+              qualityEnhancement: true,
             }),
             platforms: [],
           }),
@@ -322,11 +321,10 @@ describe("UnifiedDashboard", () => {
           expect.objectContaining({
             features: expect.objectContaining({
               sceneAnalysis: true,
-              qualityAnalysis: true,
-              contentDetection: true,
-              audioAnalysis: true,
               scriptGeneration: true,
-              multiPlatformAdaptation: true,
+              contentClassification: true,
+              multiPlatform: true,
+              qualityEnhancement: true,
             }),
             platforms: [],
           }),
