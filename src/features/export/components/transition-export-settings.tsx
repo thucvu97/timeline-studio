@@ -62,12 +62,12 @@ export function TransitionExportSettingsComponent({
     const hasGPUTransitions = transitionInfo.gpuAccelerated > 0
 
     return {
-      transitionQuality: isComplexProject ? "high" : "medium",
-      transitionRenderMode: hasGPUTransitions ? "gpu" : "auto",
+      transitionQuality: (isComplexProject ? "high" : "medium") as "high" | "medium",
+      transitionRenderMode: (hasGPUTransitions ? "gpu" : "auto") as "gpu" | "auto",
       optimizeTransitions: true,
       parallelTransitionProcessing: transitionInfo.totalTransitions > 5,
       maxConcurrentTransitions: Math.min(4, Math.max(1, Math.floor(transitionInfo.totalTransitions / 3))),
-    }
+    } as Partial<TransitionExportSettings>
   }
 
   const applyRecommendedSettings = () => {

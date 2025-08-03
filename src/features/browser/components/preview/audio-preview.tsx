@@ -111,7 +111,7 @@ export const AudioPreview = memo(function AudioPreview({
     try {
       console.log("[AudioPreview] Чтение файла через readFile:", path)
       const fileData = await readFile(path)
-      const blob = new Blob([fileData], { type: "audio/mp3" }) // Можно определить тип по расширению файла
+      const blob = new Blob([fileData as BlobPart], { type: "audio/mp3" }) // Можно определить тип по расширению файла
       const url = URL.createObjectURL(blob)
       console.log("[AudioPreview] Создан объект URL:", url)
       return url

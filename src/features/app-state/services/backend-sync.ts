@@ -157,7 +157,7 @@ export class BackendSync {
   async getVersionHistory(limit?: number): Promise<CommandResult> {
     const command: ProjectCommand = {
       type: "GetVersionHistory",
-      params: { limit },
+      params: { limit: limit ?? null },
     }
     return this.executeCommand(command)
   }
@@ -179,7 +179,7 @@ export class BackendSync {
   async createBranch(branchName: string, fromVersion?: string): Promise<CommandResult> {
     const command: ProjectCommand = {
       type: "CreateBranch",
-      params: { branch_name: branchName, from_version: fromVersion },
+      params: { branch_name: branchName, from_version: fromVersion ?? null },
     }
     return this.executeCommand(command)
   }

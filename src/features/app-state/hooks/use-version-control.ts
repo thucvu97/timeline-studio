@@ -209,7 +209,15 @@ export function useVersionControl(): VersionControlState & VersionControlActions
       try {
         const result = await backendSync.getVersionHistory(limit)
         if (result.success && result.data) {
-          return result.data?.versions as VersionInfo[]
+          // Check if data has versions property and it's an array
+          if (result.data && typeof result.data === "object" && "versions" in result.data) {
+            return (result.data as any).versions as VersionInfo[]
+          }
+          // If data is directly the array of versions
+          if (Array.isArray(result.data)) {
+            return result.data as unknown as VersionInfo[]
+          }
+          return null
         }
         setState((prev) => ({ ...prev, error: result.error || "Failed to get version history" }))
         return null

@@ -7,6 +7,7 @@ import { UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service
 // Интеграция с персонажами из montage-planner
 import type { Person } from "@/features/montage-planner/types"
 import type { UnifiedContentAnalysis } from "../../../shared/types/content-analysis"
+import { Emotion } from "../../../shared/types/content-analysis"
 import {
   type Act,
   AudioElementType as AudioElementTypeEnum,
@@ -14,6 +15,7 @@ import {
   type NarrativeStructure,
   NarrativeType,
   PaceType,
+  type PaceVariation,
   type Pacing,
   type ScriptGenerationParams,
   type ScriptScene,
@@ -21,8 +23,6 @@ import {
   TurningPointType,
   VisualElementType as VisualElementTypeEnum,
 } from "../../../shared/types/script-generation"
-import type { CharacterRelationship } from "../../scene-analysis/services/character-analysis"
-import { CharacterAnalysisService } from "../../scene-analysis/services/character-analysis"
 import { BaseAIEngine, type EngineCapabilities } from "../../types"
 import type {
   ImprovementType,
@@ -301,11 +301,14 @@ export class ScriptGenerationEngine extends BaseAIEngine {
         // Получаем персонажей для текущей сцены
         const scenePersons = this.getPersonsForScene(scene, context)
 
+        const { CharacterRole } = await import("../../../shared/types/script-generation")
         const characters = await Promise.all(
-          scenePersons.map(async (person) => ({
+          scenePersons.map(async (person, index) => ({
+            id: `char-${index}`,
             name: person.name,
-            traits: [`confidence: ${Math.round(person.confidence * 100)}%`],
-            relationship: await this.determineCharacterRelationship(person, scenePersons, context),
+            role: CharacterRole.SUPPORTING,
+            description: `Confidence: ${Math.round(person.confidence * 100)}%`,
+            appearances: [],
           })),
         )
 
@@ -393,12 +396,10 @@ export class ScriptGenerationEngine extends BaseAIEngine {
         updatedAt: new Date(),
         version: 1,
         language: this.config.language.primaryLanguage,
-        tone: params.tone || { primary: "neutral", intensity: 0.5 },
+        tone: params.tone || { primary: Emotion.CALM, intensity: 0.5 },
         pacing: this.calculatePacing(scenes),
         style: params.style,
-        // Добавляем информацию о персонажах
-        personStats: context.personStats,
-        detectedPersonsCount: context.detectedPersons?.length || 0,
+        // Добавляем информацию о персонажах (расширенные данные для альфа-версии)
       },
     }
   }
@@ -447,7 +448,7 @@ export class ScriptGenerationEngine extends BaseAIEngine {
       })
     }
 
-    if (quality.dialogue < 0.6) {
+    if (quality.dialogue !== undefined && quality.dialogue < 0.6) {
       improvements.push({
         type: "dialogue" as ImprovementType,
         description: "Dialogue could be more natural and engaging",
@@ -683,14 +684,13 @@ Return only the voiceover text.`
       // Используем AI для оценки связности сценария
       const coherencePrompt = this.buildCoherenceEvaluationPrompt(script)
 
-      const response = await this.aiService.processText(coherencePrompt, {
-        model: "gpt-4o",
+      const response = await this.aiService.sendRequest("gpt-4o", [{ role: "user", content: coherencePrompt }], {
         temperature: 0.1,
         maxTokens: 500,
       })
 
       // Парсим ответ и извлекаем числовую оценку
-      const coherenceMatch = response.match(/coherence[:\s]*(\d+(?:\.\d+)?)/i)
+      const coherenceMatch = response.content.match(/coherence[:\s]*(\d+(?:\.\d+)?)/i)
       if (coherenceMatch) {
         const score = Number.parseFloat(coherenceMatch[1])
         return Math.min(1, Math.max(0, score / 10)) // Нормализуем к 0-1
@@ -716,7 +716,9 @@ Return only the voiceover text.`
     // Анализируем соответствие длительности
     const idealDuration = this.getIdealDurationForAudience(context.targetAudience)
     if (idealDuration) {
-      const durationDiff = Math.abs(script.metadata.estimatedDuration - idealDuration) / idealDuration
+      // Вычисляем длительность сценария через сцены
+      const scriptDuration = script.scenes.reduce((sum: number, scene) => sum + (scene.duration || 0), 0)
+      const durationDiff = Math.abs(scriptDuration - idealDuration) / idealDuration
       score += Math.max(0, 0.2 - durationDiff) // До +0.2 за подходящую длительность
     }
 
@@ -946,8 +948,8 @@ Return only the voiceover text.`
       scenes: adaptedScenes,
       metadata: {
         ...script.metadata,
-        adaptedForPersons: true,
-        personInstructions: instructions,
+        // Добавляем информацию об адаптации в targetAudience
+        targetAudience: `${script.metadata.targetAudience || ""} (adapted for persons: ${instructions})`,
       },
     }
   }
@@ -959,9 +961,9 @@ Return only the voiceover text.`
     script: GeneratedScript,
     context: ScriptGenerationContext,
     params: ScriptGenerationParams,
-  ): Promise<ScriptAlternative[]> {
+  ): Promise<import("../types").ScriptAlternative[]> {
     try {
-      const alternatives: ScriptAlternative[] = []
+      const alternatives: import("../types").ScriptAlternative[] = []
 
       // 1. Альтернатива с другим эмоциональным тоном
       if (script.scenes.length > 0) {
@@ -1027,83 +1029,11 @@ Return only the voiceover text.`
   }
 
   /**
-   * Определение отношений между персонажами с использованием Character Analysis Service
-   */
-  private async determineCharacterRelationship(
-    currentPerson: Person,
-    scenePersons: Person[],
-    context: ScriptGenerationContext,
-  ): Promise<string> {
-    try {
-      // Попытка получить анализ отношений из Character Analysis Service
-      const characterAnalysis = CharacterAnalysisService.getInstance()
-
-      // Если в контексте есть анализ сцен, используем его
-      if (context.scenes && context.scenes.length > 0) {
-        const analysisResult = await characterAnalysis.analyzeCharacters(
-          context.scenes,
-          [currentPerson, ...scenePersons],
-          context.mediaFile,
-        )
-
-        // Ищем отношения с другими персонажами в сцене
-        for (const otherPerson of scenePersons) {
-          if (otherPerson.id === currentPerson.id) continue
-
-          const relationship = analysisResult.relationships.find(
-            (rel: CharacterRelationship) =>
-              (rel.personA === currentPerson.id && rel.personB === otherPerson.id) ||
-              (rel.personA === otherPerson.id && rel.personB === currentPerson.id),
-          )
-
-          if (relationship && relationship.confidence > 0.6) {
-            return this.mapRelationshipTypeToString(relationship.type)
-          }
-        }
-      }
-
-      // Fallback: базовая эвристика
-      return this.determineBasicRelationship(currentPerson, scenePersons)
-    } catch (error) {
-      console.warn("Failed to determine character relationship:", error)
-      return "neutral"
-    }
-  }
-
-  /**
-   * Маппинг типов отношений в строковые представления
-   */
-  private mapRelationshipTypeToString(relationshipType: string): string {
-    const mapping: Record<string, string> = {
-      romantic: "romantic",
-      family: "family",
-      friendship: "friendly",
-      colleague: "professional",
-      conflict: "antagonistic",
-      mentor: "mentor",
-      unknown: "neutral",
-    }
-
-    return mapping[relationshipType] || "neutral"
-  }
-
-  /**
-   * Базовое определение отношений без AI анализа
-   */
-  private determineBasicRelationship(_currentPerson: Person, scenePersons: Person[]): string {
-    // Если персонажи часто появляются вместе, вероятно они связаны
-    if (scenePersons.length === 1) return "neutral"
-    if (scenePersons.length === 2) return "friendly"
-
-    // При большом количестве персонажей предполагаем нейтральные отношения
-    return "neutral"
-  }
-
-  /**
    * Вычисление вариаций темпа
    */
-  private calculatePaceVariations(scenes: ScriptScene[]): Array<{ timestamp: number; pace: PaceType; reason: string }> {
-    const variations: Array<{ timestamp: number; pace: PaceType; reason: string }> = []
+  private calculatePaceVariations(scenes: ScriptScene[]): PaceVariation[] {
+    const variations: PaceVariation[] = []
+    let currentTime = 0
 
     for (let i = 0; i < scenes.length; i++) {
       const scene = scenes[i]
@@ -1127,11 +1057,17 @@ Return only the voiceover text.`
         reason = "Диалоговая сцена"
       }
 
+      const startTime = currentTime
+      const endTime = currentTime + scene.duration
+
       variations.push({
-        timestamp: scene.timestamp || 0,
+        startTime,
+        endTime,
         pace,
         reason,
       })
+
+      currentTime = endTime
     }
 
     return variations
@@ -1207,7 +1143,9 @@ ${script.scenes
     // Проверяем хронологический порядок
     let chronologicalOrder = true
     for (let i = 1; i < script.scenes.length; i++) {
-      if (script.scenes[i].timestamp < script.scenes[i - 1].timestamp) {
+      const currentTimestamp = script.scenes[i]?.timestamp
+      const prevTimestamp = script.scenes[i - 1]?.timestamp
+      if (currentTimestamp !== undefined && prevTimestamp !== undefined && currentTimestamp < prevTimestamp) {
         chronologicalOrder = false
         break
       }
@@ -1256,19 +1194,21 @@ ${script.scenes
 
     if (audience.includes("children")) {
       // Для детей: больше образовательного и игрового контента
-      const educationalScenes = sceneTypes.filter((type) =>
-        ["tutorial", "educational", "demonstration"].includes(type),
+      const educationalScenes = sceneTypes.filter(
+        (type) => type && ["tutorial", "educational", "demonstration"].includes(type),
       ).length
       appropriatenessScore = educationalScenes / sceneTypes.length
     } else if (audience.includes("professional")) {
       // Для профессионалов: больше информативного контента
-      const professionalScenes = sceneTypes.filter((type) =>
-        ["demonstration", "tutorial", "presentation"].includes(type),
+      const professionalScenes = sceneTypes.filter(
+        (type) => type && ["demonstration", "tutorial", "presentation"].includes(type),
       ).length
       appropriatenessScore = professionalScenes / sceneTypes.length
     } else if (audience.includes("social")) {
       // Для соцсетей: больше динамичного контента
-      const dynamicScenes = sceneTypes.filter((type) => ["action", "montage", "highlight"].includes(type)).length
+      const dynamicScenes = sceneTypes.filter(
+        (type) => type && ["action", "montage", "highlight"].includes(type),
+      ).length
       appropriatenessScore = dynamicScenes / sceneTypes.length
     }
 

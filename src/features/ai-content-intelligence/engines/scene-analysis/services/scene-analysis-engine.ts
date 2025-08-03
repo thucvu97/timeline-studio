@@ -534,20 +534,20 @@ export class SceneAnalysisEngine extends BaseAIEngine {
 
     // Подсчитываем эмоции и их уверенность
     faces.forEach((face) => {
-      if (face.emotion && Object.prototype.hasOwnProperty.call(emotions, face.emotion)) {
+      if (face.emotion && face.emotion in emotions) {
         const confidence = face.emotionConfidence || 0.5
-        emotions[face.emotion] += confidence
+        emotions[face.emotion as keyof typeof emotions] += confidence
       }
     })
 
     // Нормализуем на количество лиц
     Object.keys(emotions).forEach((emotion) => {
-      emotions[emotion] /= faces.length
+      emotions[emotion as keyof typeof emotions] /= faces.length
     })
 
     // Определяем доминирующую эмоцию
     const dominantEmotion = Object.entries(emotions).sort(([, a], [, b]) => b - a)[0][0]
-    const confidence = emotions[dominantEmotion]
+    const confidence = emotions[dominantEmotion as keyof typeof emotions]
 
     return { emotions, dominantEmotion, confidence }
   }

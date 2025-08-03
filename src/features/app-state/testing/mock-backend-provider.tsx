@@ -31,6 +31,7 @@ export interface MockProjectState {
     selected_tracks: string[]
     timeline_zoom: number
     timeline_scroll: number
+    active_tool: string
   }
   playback_state: {
     is_playing: boolean
@@ -89,6 +90,7 @@ const createDefaultMockState = (): MockProjectState => ({
     selected_tracks: [],
     timeline_zoom: 1.0,
     timeline_scroll: 0,
+    active_tool: "select",
   },
   playback_state: {
     is_playing: false,
@@ -151,7 +153,7 @@ export function MockBackendProvider({ children, initialState, onCommand }: MockB
           },
         }
         setProjectState((prev) => ({ ...prev, project: newProject }))
-        return { success: true, message: "Project created successfully" }
+        return { success: true, error: null, data: null }
       }
 
       case "Play":
@@ -159,28 +161,28 @@ export function MockBackendProvider({ children, initialState, onCommand }: MockB
           ...prev,
           playback_state: { ...prev.playback_state, is_playing: true },
         }))
-        return { success: true, message: "Playback started" }
+        return { success: true, error: null, data: null }
 
       case "Pause":
         setProjectState((prev) => ({
           ...prev,
           playback_state: { ...prev.playback_state, is_playing: false },
         }))
-        return { success: true, message: "Playback paused" }
+        return { success: true, error: null, data: null }
 
       case "Seek":
         setProjectState((prev) => ({
           ...prev,
           playback_state: { ...prev.playback_state, current_time: command.params.time },
         }))
-        return { success: true, message: "Playback seeked" }
+        return { success: true, error: null, data: null }
 
       default:
-        return { success: true, message: `Command ${command.type} executed successfully` }
+        return { success: true, error: null, data: null }
     }
   })
 
-  const getProjectState = vi.fn().mockResolvedValue(projectState as ProjectState)
+  const getProjectState = vi.fn().mockResolvedValue(projectState as unknown as ProjectState)
   const getEventHistory = vi.fn().mockResolvedValue(eventHistory)
 
   // Utility functions for tests

@@ -24,7 +24,7 @@ export interface ONNXModel {
 }
 
 export interface ModelSession {
-  session: ort.InferenceSession
+  session: InferenceSession
   model: ONNXModel
 }
 

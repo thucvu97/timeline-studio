@@ -8297,10 +8297,14 @@ dependencies = [
 [[package]]
 name = "timeline-studio"
 <<<<<<< HEAD
+<<<<<<< HEAD
 version = "0.60.1"
 =======
 version = "0.60.0"
 >>>>>>> 089e6c845d (chore: обновление версии до 0.60.0 для альфа-релиза)
+=======
+version = "0.60.0"
+>>>>>>> alpha-release-v0.60.0
 dependencies = [
  "aes-gcm",
  "anyhow",

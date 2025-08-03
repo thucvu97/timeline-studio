@@ -3,7 +3,6 @@
  * Классификация контента с использованием AI и эвристических методов
  */
 
-import { UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service"
 import type {
   Audience,
   ClassificationResult,
@@ -47,10 +46,8 @@ export class ContentClassifier {
   private static instance: ContentClassifier
   private config: ClassifierConfig
   private cache = new Map<string, ClassificationResult>()
-  private aiService: UnifiedAIService
 
   private constructor(config?: Partial<ClassifierConfig>) {
-    this.aiService = UnifiedAIService.getInstance()
     this.config = {
       useAI: true,
       aiModel: "gpt-4",

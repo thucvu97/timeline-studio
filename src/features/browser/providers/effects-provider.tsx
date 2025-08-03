@@ -86,9 +86,7 @@ class EffectsProviderImpl implements EffectsProviderAPI {
     error: [],
   }
 
-  constructor(config: LoadingConfig) {
-    this.config = config
-  }
+  constructor(private config: LoadingConfig) {}
 
   // === Получение ресурсов ===
 

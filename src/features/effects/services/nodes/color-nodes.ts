@@ -299,7 +299,7 @@ export const curvesProcessor: NodeProcessor = {
     const curveData = node.parameters.find((p) => p.id === "curve_data")?.value || "0,0;1,1"
 
     // Parse curve points
-    const points = curveData.split(";").map((p) => {
+    const points = curveData.split(";").map((p: string) => {
       const [x, y] = p.split(",").map(Number)
       return { x, y }
     })

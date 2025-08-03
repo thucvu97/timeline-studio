@@ -57,7 +57,7 @@ export const ImagePreview = memo(function ImagePreview({
     try {
       console.log("[ImagePreview] Чтение файла через readFile:", path)
       const fileData = await readFile(path)
-      const blob = new Blob([fileData], { type: "image/jpeg" }) // Можно определить тип по расширению файла
+      const blob = new Blob([fileData as BlobPart], { type: "image/jpeg" }) // Можно определить тип по расширению файла
       const url = URL.createObjectURL(blob)
       console.log("[ImagePreview] Создан объект URL:", url)
       return url

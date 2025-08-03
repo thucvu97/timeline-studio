@@ -239,7 +239,6 @@ export function VideoPlayerWithTransitions({
           path: video.path,
           name: video.name || "Video",
           size: video.size || 0,
-          type: video.type || "video/mp4",
         }}
       />
     </div>

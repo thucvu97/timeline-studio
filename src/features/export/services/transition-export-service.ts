@@ -86,7 +86,7 @@ export class TransitionExportService {
           targetClipId: transition.endClipId,
           renderQuality: this.calculateTransitionQuality(transition, resource),
           gpuAccelerated: resource.gpuAccelerated || false,
-          shaderType: resource.shaderType || "basic",
+          shaderType: (resource as any).shaderType || "basic",
           customParameters: transition.parameters || {},
         }
 
@@ -160,7 +160,7 @@ export class TransitionExportService {
       output: this.generateOutputPath(transition.id, exportSettings),
       quality: this.getQualityValue(exportSettings.quality),
       resolution: this.getResolution(exportSettings),
-      useGpu: exportSettings.enableGPU && resource.gpuAccelerated,
+      useGpu: !!(exportSettings.enableGPU && resource.gpuAccelerated),
       gpuDevice: exportSettings.enableGPU ? "auto" : undefined,
     }
 
@@ -462,7 +462,7 @@ export class TransitionExportService {
 
     // Учитываем сложность перехода
     if (resource.gpuAccelerated) quality += 5
-    if (transition.parameters?.blur?.enabled) quality -= 5
+    if (transition.parameters?.blur) quality -= 5
     if (transition.duration < 0.5) quality -= 10
 
     return Math.max(50, Math.min(100, quality))

@@ -17,15 +17,14 @@ import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
-
-import type { Effect } from "../../types/effects"
 import type { ShaderExportOptions, ShaderProject } from "../../types/shader-system"
+import type { BaseEffect } from "../../types/unified-effects"
 
 interface ShaderExportDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   project: ShaderProject
-  onExport: (effect: Effect) => void
+  onExport: (effect: BaseEffect) => void
 }
 
 export function ShaderExportDialog({ open, onOpenChange, project, onExport }: ShaderExportDialogProps) {
@@ -45,7 +44,7 @@ export function ShaderExportDialog({ open, onOpenChange, project, onExport }: Sh
 
   const handleExport = () => {
     // Convert shader to effect format
-    const effect: Effect = {
+    const effect: BaseEffect = {
       id: `shader-${project.id}`,
       name: project.name,
       category: effectMetadata.category,

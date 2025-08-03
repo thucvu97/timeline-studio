@@ -57,17 +57,12 @@ export function useSocialExport() {
 
         // Читаем файл через Tauri API
         const fileData = await readFile(videoPath)
-        const videoBlob = new Blob([fileData], { type: "video/mp4" })
+        const videoBlob = new Blob([fileData as BlobPart], { type: "video/mp4" })
 
         const result = await SocialNetworksService.uploadVideo(
           network.id,
           videoBlob,
-          {
-            title: settings.title || "Untitled Video",
-            description: settings.description || "",
-            tags: settings.tags || [],
-            privacy: settings.privacy || "public",
-          },
+          settings as any,
           (progress: number) => {
             setUploadProgress(progress)
           },

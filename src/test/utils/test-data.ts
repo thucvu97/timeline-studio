@@ -93,6 +93,7 @@ export const TEST_TIMELINE_DATA = {
     height: 60,
     trackEffects: [],
     trackFilters: [],
+    transitions: [],
   } as TimelineTrack,
 
   clip: {
