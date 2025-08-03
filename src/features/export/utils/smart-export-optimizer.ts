@@ -50,7 +50,7 @@ export function optimizeSettings(analysis: ProjectAnalysis): OptimizationResult 
   const { format, codec } = determineOptimalFormat(analysis, reasons)
   settings.format = format as any
   if (codec) {
-    (settings as any).codec = codec
+    ;(settings as any).codec = codec
   }
 
   // Определяем качество
@@ -59,7 +59,7 @@ export function optimizeSettings(analysis: ProjectAnalysis): OptimizationResult 
 
   // Определяем FPS
   const fps = determineOptimalFPS(analysis, reasons)
-  (settings as any).fps = fps
+  ;(settings as any).fps = fps
 
   // Определяем битрейт
   const bitrate = calculateOptimalBitrate(analysis, targetResolution, quality, reasons)
@@ -69,7 +69,7 @@ export function optimizeSettings(analysis: ProjectAnalysis): OptimizationResult 
 
   // Определяем использование GPU
   const useGPU = shouldUseGPU(analysis, reasons)
-  (settings as any).useGPU = useGPU
+  ;(settings as any).useGPU = useGPU
 
   // Альтернативные варианты
   const alternativeOptions = generateAlternatives(analysis, settings)
