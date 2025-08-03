@@ -716,7 +716,9 @@ Return only the voiceover text.`
     // Анализируем соответствие длительности
     const idealDuration = this.getIdealDurationForAudience(context.targetAudience)
     if (idealDuration) {
-      const durationDiff = Math.abs(script.metadata.estimatedDuration - idealDuration) / idealDuration
+      // Вычисляем длительность сценария через сцены
+      const scriptDuration = script.scenes.reduce((sum: number, scene) => sum + (scene.duration || 0), 0)
+      const durationDiff = Math.abs(scriptDuration - idealDuration) / idealDuration
       score += Math.max(0, 0.2 - durationDiff) // До +0.2 за подходящую длительность
     }
 
@@ -946,8 +948,8 @@ Return only the voiceover text.`
       scenes: adaptedScenes,
       metadata: {
         ...script.metadata,
-        adaptedForPersons: true,
-        personInstructions: instructions,
+        // Добавляем информацию об адаптации в targetAudience
+        targetAudience: `${script.metadata.targetAudience || ""} (adapted for persons: ${instructions})`,
       },
     }
   }
@@ -959,9 +961,9 @@ Return only the voiceover text.`
     script: GeneratedScript,
     context: ScriptGenerationContext,
     params: ScriptGenerationParams,
-  ): Promise<ScriptAlternative[]> {
+  ): Promise<import("../types").ScriptAlternative[]> {
     try {
-      const alternatives: ScriptAlternative[] = []
+      const alternatives: import("../types").ScriptAlternative[] = []
 
       // 1. Альтернатива с другим эмоциональным тоном
       if (script.scenes.length > 0) {

@@ -17,9 +17,8 @@ import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
-
-import type { Effect } from "../../types/effects"
 import type { ShaderExportOptions, ShaderProject } from "../../types/shader-system"
+import type { Effect } from "../../types/unified-effects"
 
 interface ShaderExportDialogProps {
   open: boolean

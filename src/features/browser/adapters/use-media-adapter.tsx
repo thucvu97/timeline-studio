@@ -55,23 +55,24 @@ export function useMediaAdapter(): ListAdapter<MediaListItem> {
     const mediaItems = projectState?.project?.media_pool?.items || {}
 
     // Преобразуем объект MediaItem в массив MediaFile
-    return Object.values(mediaItems).map((item: MediaItem) => {
+    return Object.values(mediaItems).map((item) => {
+      const mediaItem = item as MediaItem
       // Конвертируем duration обратно в формат строки времени для совместимости
       let durationStr = "0"
-      if (item.duration) {
-        const hours = Math.floor(item.duration / 3600)
-        const minutes = Math.floor((item.duration % 3600) / 60)
-        const seconds = Math.floor(item.duration % 60)
+      if (mediaItem.duration) {
+        const hours = Math.floor(mediaItem.duration / 3600)
+        const minutes = Math.floor((mediaItem.duration % 3600) / 60)
+        const seconds = Math.floor(mediaItem.duration % 60)
         durationStr = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
       }
 
       return {
-        ...item,
+        ...mediaItem,
         // Мапим поля из MediaItem в MediaFile
-        startTime: (item as any).startTime || Date.now() / 1000, // Используем сохраненное значение или текущее время
+        startTime: (mediaItem as any).startTime || Date.now() / 1000, // Используем сохраненное значение или текущее время
         size:
-          (item as any).size ||
-          (item.metadata?.bitrate
+          (mediaItem as any).size ||
+          (mediaItem.metadata?.bitrate
             ? `${Math.round((item.metadata.bitrate * (item.duration || 0)) / 8 / 1024 / 1024)}MB`
             : "0MB"),
         duration: durationStr,
