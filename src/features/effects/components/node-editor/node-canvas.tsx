@@ -85,7 +85,7 @@ export function NodeCanvas({ graph, onGraphChange, onNodeSelect, onNodeDelete, c
       // Middle mouse or Alt+Left for panning
       setIsPanning(true)
       e.preventDefault()
-    } else if (e.button === 0 && !e.target.closest(".node-component")) {
+    } else if (e.button === 0 && !(e.target as HTMLElement).closest(".node-component")) {
       // Start selection box
       const rect = canvasRef.current!.getBoundingClientRect()
       const x = e.clientX - rect.left

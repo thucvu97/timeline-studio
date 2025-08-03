@@ -24,7 +24,7 @@ interface EffectGroupProps {
   /** Функция для добавления всех эффектов группы */
   onAddAllEffects?: (effects: BaseEffect[]) => void
   /** Map для refs элементов */
-  effectRefs?: React.RefObject<Map<string, HTMLDivElement>>
+  effectRefs?: React.RefObject<Map<string, HTMLElement>>
   /** Начальный индекс эффектов в общем списке */
   startIndex?: number
 }
