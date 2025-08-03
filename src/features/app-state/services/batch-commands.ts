@@ -206,7 +206,7 @@ export const batchOperations = {
   /**
    * Apply effect to multiple clips
    */
-  applyEffectToClips: async (clipIds: string[], effectId: string, effectParams: any): Promise<BatchCommandResult> => {
+  applyEffectToClips: async (clipIds: string[], _effectId: string, _effectParams: any): Promise<BatchCommandResult> => {
     return createBatch("Apply Effect to Multiple Clips")
       .addAll(
         clipIds.map((clipId) => ({

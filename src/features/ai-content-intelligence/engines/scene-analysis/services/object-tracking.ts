@@ -135,8 +135,6 @@ export class ObjectTrackingService {
   private activeTracks = new Map<string, TrackedObject>()
   private completedTracks: TrackedObject[] = []
   private currentFrame = 0
-  private frameWidth = 0
-  private frameHeight = 0
 
   constructor(config?: Partial<ObjectTrackingConfig>) {
     this.config = {

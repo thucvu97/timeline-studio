@@ -210,7 +210,7 @@ export function useVersionControl(): VersionControlState & VersionControlActions
         const result = await backendSync.getVersionHistory(limit)
         if (result.success && result.data) {
           // Check if data has versions property and it's an array
-          if (result.data && typeof result.data === 'object' && 'versions' in result.data) {
+          if (result.data && typeof result.data === "object" && "versions" in result.data) {
             return (result.data as any).versions as VersionInfo[]
           }
           // If data is directly the array of versions

@@ -230,10 +230,8 @@ interface CharacterAnalysisConfig {
 export class CharacterAnalysisService {
   private static instance: CharacterAnalysisService
   private config: CharacterAnalysisConfig
-  private aiService: UnifiedAIService
 
   private constructor() {
-    this.aiService = UnifiedAIService.getInstance()
     this.config = {
       enableRelationshipDetection: true,
       enableInteractionAnalysis: true,

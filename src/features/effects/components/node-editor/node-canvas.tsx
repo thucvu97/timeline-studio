@@ -277,14 +277,16 @@ export function NodeCanvas({ graph, onGraphChange, onNodeSelect, onNodeDelete, c
       {/* Grid background */}
       <div
         className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: `
+        style={
+          {
+            backgroundImage: `
             linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
             linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)
           `,
-          backgroundSize: `${20 * viewport.zoom}px ${20 * viewport.zoom}px`,
-          backgroundPosition: `${viewport.x}px ${viewport.y}px`,
-        } as React.CSSProperties}
+            backgroundSize: `${20 * viewport.zoom}px ${20 * viewport.zoom}px`,
+            backgroundPosition: `${viewport.x}px ${viewport.y}px`,
+          } as React.CSSProperties
+        }
       />
 
       {/* Canvas transform container */}

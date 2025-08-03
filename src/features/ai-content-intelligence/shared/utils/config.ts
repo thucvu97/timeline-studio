@@ -1,5 +1,5 @@
 import type { AIConfig } from "../types/ai-config"
-import { AnalysisDepth, AccuracyLevel, SpeedPriority } from "../types/ai-config"
+import { AccuracyLevel, AnalysisDepth, SpeedPriority } from "../types/ai-config"
 
 export enum AIProvider {
   LOCAL = "local",
