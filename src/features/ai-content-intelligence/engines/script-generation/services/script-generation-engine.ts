@@ -948,8 +948,10 @@ Return only the voiceover text.`
       scenes: adaptedScenes,
       metadata: {
         ...script.metadata,
-        // Добавляем информацию об адаптации в targetAudience
+        // Добавляем информацию об адаптации
         targetAudience: `${script.metadata.targetAudience || ""} (adapted for persons: ${instructions})`,
+        adaptedForPersons: true,
+        personInstructions: instructions,
       },
     }
   }

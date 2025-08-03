@@ -237,6 +237,9 @@ export interface ScriptMetadata {
   tone: EmotionalTone
   pacing: Pacing
   style: ScriptStyle
+  adaptedForPersons?: boolean
+  personInstructions?: string
+  detectedPersonsCount?: number
 }
 
 export interface Pacing {
