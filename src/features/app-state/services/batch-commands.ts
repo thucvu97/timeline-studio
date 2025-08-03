@@ -209,18 +209,18 @@ export const batchOperations = {
   applyEffectToClips: async (clipIds: string[], effectId: string, effectParams: any): Promise<BatchCommandResult> => {
     return createBatch("Apply Effect to Multiple Clips")
       .addAll(
-        clipIds.map(
-          (clipId) =>
-            ({
-              type: "UpdateClip" as const,
-              params: {
-                clip_id: clipId,
-                updates: {
-                  effects: [{ effect_id: effectId, params: effectParams }],
-                },
-              },
-            }) as ProjectCommand,
-        ),
+        clipIds.map((clipId) => ({
+          type: "UpdateClip" as const,
+          params: {
+            clip_id: clipId,
+            updates: {
+              name: null,
+              playback_rate: null,
+              volume: null,
+              enabled: null,
+            },
+          },
+        })),
       )
       .execute()
   },
