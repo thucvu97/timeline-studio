@@ -3,7 +3,6 @@
  * Анализ персонажей и определение отношений между ними
  */
 
-import { UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service"
 import type { Person } from "@/features/montage-planner/types"
 import type { DetectedFace, PersonProfile } from "@/features/person-identification/types/person"
 

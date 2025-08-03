@@ -3,7 +3,6 @@
  * Классификация контента с использованием AI и эвристических методов
  */
 
-import { UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service"
 import type {
   Audience,
   ClassificationResult,
