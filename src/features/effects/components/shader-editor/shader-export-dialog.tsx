@@ -44,7 +44,7 @@ export function ShaderExportDialog({ open, onOpenChange, project, onExport }: Sh
 
   const handleExport = () => {
     // Convert shader to effect format
-    const effect: Effect = {
+    const effect: BaseEffect = {
       id: `shader-${project.id}`,
       name: project.name,
       category: effectMetadata.category,
