@@ -87,7 +87,7 @@ export class TemplateEngine {
         genre: [],
         duration: 0,
         tone: "neutral" as any,
-        style: "standard",
+        style: "standard" as import('../../../shared/types/script-generation').ScriptStyle,
       },
       templateStructure: structure,
       variables: variables || [],
@@ -125,7 +125,7 @@ export class TemplateEngine {
         genre: [],
         duration: 0,
         tone: "casual" as any,
-        style: "vlog",
+        style: "vlog" as import('../../../shared/types/script-generation').ScriptStyle,
       },
       templateStructure: {
         sections: [
@@ -239,7 +239,7 @@ export class TemplateEngine {
         genre: [],
         duration: 0,
         tone: "serious" as any,
-        style: "documentary",
+        style: "documentary" as import('../../../shared/types/script-generation').ScriptStyle,
       },
       templateStructure: {
         sections: [

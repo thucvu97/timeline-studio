@@ -139,7 +139,7 @@ In the process of developing Timeline Studio, an innovative technical documentat
 15_security/            → Security guidelines + audits
 16_user_documentation/   → End-user guides + tutorials
 17_releases/            → Release management + changelogs
-18_marketing_strategies/ → Marketing and promotion strategies
+18_marketing/ → Marketing and promotion strategies
 ```
 
 #### **✨ TDF Unique Capabilities**

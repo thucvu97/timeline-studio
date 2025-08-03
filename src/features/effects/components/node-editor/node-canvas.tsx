@@ -284,7 +284,7 @@ export function NodeCanvas({ graph, onGraphChange, onNodeSelect, onNodeDelete, c
           `,
           backgroundSize: `${20 * viewport.zoom}px ${20 * viewport.zoom}px`,
           backgroundPosition: `${viewport.x}px ${viewport.y}px`,
-        }}
+        } as React.CSSProperties}
       />
 
       {/* Canvas transform container */}

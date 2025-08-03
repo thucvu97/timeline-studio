@@ -686,14 +686,17 @@ Return only the voiceover text.`
       // Используем AI для оценки связности сценария
       const coherencePrompt = this.buildCoherenceEvaluationPrompt(script)
 
-      const response = await this.aiService.processText(coherencePrompt, {
-        model: "gpt-4o",
-        temperature: 0.1,
-        maxTokens: 500,
-      })
+      const response = await this.aiService.sendRequest(
+        "gpt-4o",
+        [{ role: "user", content: coherencePrompt }],
+        {
+          temperature: 0.1,
+          maxTokens: 500,
+        }
+      )
 
       // Парсим ответ и извлекаем числовую оценку
-      const coherenceMatch = response.match(/coherence[:\s]*(\d+(?:\.\d+)?)/i)
+      const coherenceMatch = response.content.match(/coherence[:\s]*(\d+(?:\.\d+)?)/i)
       if (coherenceMatch) {
         const score = Number.parseFloat(coherenceMatch[1])
         return Math.min(1, Math.max(0, score / 10)) // Нормализуем к 0-1
@@ -1217,7 +1220,9 @@ ${script.scenes
     // Проверяем хронологический порядок
     let chronologicalOrder = true
     for (let i = 1; i < script.scenes.length; i++) {
-      if (script.scenes[i].timestamp < script.scenes[i - 1].timestamp) {
+      const currentTimestamp = script.scenes[i]?.timestamp
+      const prevTimestamp = script.scenes[i - 1]?.timestamp
+      if (currentTimestamp !== undefined && prevTimestamp !== undefined && currentTimestamp < prevTimestamp) {
         chronologicalOrder = false
         break
       }
@@ -1267,18 +1272,18 @@ ${script.scenes
     if (audience.includes("children")) {
       // Для детей: больше образовательного и игрового контента
       const educationalScenes = sceneTypes.filter((type) =>
-        ["tutorial", "educational", "demonstration"].includes(type),
+        type && ["tutorial", "educational", "demonstration"].includes(type),
       ).length
       appropriatenessScore = educationalScenes / sceneTypes.length
     } else if (audience.includes("professional")) {
       // Для профессионалов: больше информативного контента
       const professionalScenes = sceneTypes.filter((type) =>
-        ["demonstration", "tutorial", "presentation"].includes(type),
+        type && ["demonstration", "tutorial", "presentation"].includes(type),
       ).length
       appropriatenessScore = professionalScenes / sceneTypes.length
     } else if (audience.includes("social")) {
       // Для соцсетей: больше динамичного контента
-      const dynamicScenes = sceneTypes.filter((type) => ["action", "montage", "highlight"].includes(type)).length
+      const dynamicScenes = sceneTypes.filter((type) => type && ["action", "montage", "highlight"].includes(type)).length
       appropriatenessScore = dynamicScenes / sceneTypes.length
     }
 

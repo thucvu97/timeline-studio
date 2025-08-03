@@ -71,7 +71,7 @@ export function createDefaultAIConfig(overrides?: Partial<AIConfig>): AIConfig {
       features: { ...defaultConfig.features, ...overrides.features },
       processing: { ...defaultConfig.processing, ...overrides.processing },
       quality: { ...defaultConfig.quality, ...overrides.quality },
-      languages: { ...defaultConfig.languages, ...overrides.languages },
+      languages: overrides.languages ? { ...defaultConfig.languages, ...overrides.languages } : defaultConfig.languages,
     }
   }
 

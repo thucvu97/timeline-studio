@@ -108,6 +108,7 @@ const analyzeContentActor = fromPromise(
     const unifiedAnalysis: UnifiedContentAnalysis = {
       mediaFile: {
         path: mediaFiles[0].path,
+        name: mediaFiles[0].name,
         filename: mediaFiles[0].name,
         size: mediaFiles[0].size || 0,
         format: ffmpegAnalysis.metadata.format,
@@ -165,6 +166,7 @@ const analyzeContentActor = fromPromise(
       },
       insights: aiAnalysis.insights || {
         summary: "Analysis completed",
+        tags: [],
         highlights: [],
         suggestions: [],
         warnings: [],
