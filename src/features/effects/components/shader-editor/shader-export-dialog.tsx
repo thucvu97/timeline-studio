@@ -18,13 +18,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 import type { ShaderExportOptions, ShaderProject } from "../../types/shader-system"
-import type { Effect } from "../../types/unified-effects"
+import type { BaseEffect } from "../../types/unified-effects"
 
 interface ShaderExportDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   project: ShaderProject
-  onExport: (effect: Effect) => void
+  onExport: (effect: BaseEffect) => void
 }
 
 export function ShaderExportDialog({ open, onOpenChange, project, onExport }: ShaderExportDialogProps) {

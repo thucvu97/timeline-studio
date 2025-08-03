@@ -73,22 +73,22 @@ export function useMediaAdapter(): ListAdapter<MediaListItem> {
         size:
           (mediaItem as any).size ||
           (mediaItem.metadata?.bitrate
-            ? `${Math.round((item.metadata.bitrate * (item.duration || 0)) / 8 / 1024 / 1024)}MB`
+            ? `${Math.round((mediaItem.metadata.bitrate * (mediaItem.duration || 0)) / 8 / 1024 / 1024)}MB`
             : "0MB"),
         duration: durationStr,
-        thumbnailPath: item.thumbnail,
-        type: item.media_type?.toLowerCase() || "video",
-        isVideo: item.media_type === "Video",
-        isAudio: item.media_type === "Audio",
-        isImage: item.media_type === "Image",
+        thumbnailPath: mediaItem.thumbnail,
+        type: mediaItem.media_type?.toLowerCase() || "video",
+        isVideo: mediaItem.media_type === "Video",
+        isAudio: mediaItem.media_type === "Audio",
+        isImage: mediaItem.media_type === "Image",
         isLoadingMetadata: false,
         // Добавляем probeData для совместимости с тестами
         probeData:
-          (item as any).probeData ||
-          (item.metadata
+          (mediaItem as any).probeData ||
+          (mediaItem.metadata
             ? {
                 format: {
-                  size: item.metadata.bitrate ? (item.metadata.bitrate * (item.duration || 0)) / 8 : 0,
+                  size: mediaItem.metadata.bitrate ? (mediaItem.metadata.bitrate * (mediaItem.duration || 0)) / 8 : 0,
                   tags: {},
                 },
                 streams: [],

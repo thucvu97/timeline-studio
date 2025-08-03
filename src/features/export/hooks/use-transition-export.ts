@@ -40,8 +40,8 @@ export function useTransitionExport(options: UseTransitionExportOptions = {}) {
     statuses: new Map(),
   })
 
-  const serviceRef = useRef<TransitionExportService>()
-  const abortControllerRef = useRef<AbortController>()
+  const serviceRef = useRef<TransitionExportService | null>(null)
+  const abortControllerRef = useRef<AbortController | null>(null)
 
   // Получаем instance сервиса
   const service = useMemo(() => {
