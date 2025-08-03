@@ -197,7 +197,11 @@ export function MidiSetup() {
                       </p>
                     </div>
                     <div className="flex items-center gap-1">
-                      <MidiMappingEditor mapping={mapping} onSave={(updates) => updateMapping(mapping.id, updates)} onClose={() => {}} />
+                      <MidiMappingEditor
+                        mapping={mapping}
+                        onSave={(updates) => updateMapping(mapping.id, updates)}
+                        onClose={() => {}}
+                      />
                       <Button size="sm" variant="ghost" onClick={() => removeMapping(mapping.id)}>
                         <Trash2 className="w-3 h-3" />
                       </Button>
