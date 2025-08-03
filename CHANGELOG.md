@@ -1,3 +1,10 @@
+## [0.61.1](https://github.com/chatman-media/timeline-studio/compare/v0.61.0...v0.61.1) (2025-08-03)
+
+
+### Bug Fixes
+
+* добавлены недостающие поля в ScriptMetadata ([a70b853](https://github.com/chatman-media/timeline-studio/commit/a70b85363194e1f48c5b6ce4957290b9a8abb27a))
+
 # [0.61.0](https://github.com/chatman-media/timeline-studio/compare/v0.60.1...v0.61.0) (2025-08-03)
 
 
