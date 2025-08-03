@@ -1,4 +1,5 @@
 import type { AIConfig } from "../types/ai-config"
+import { AnalysisDepth } from "../types/ai-config"
 
 export enum AIProvider {
   LOCAL = "local",
@@ -28,7 +29,6 @@ export function createDefaultAIConfig(overrides?: Partial<AIConfig>): AIConfig {
     defaultProvider: AIProvider.OLLAMA, // Ollama по умолчанию
     features: {
       sceneAnalysis: true,
-      qualityAnalysis: true,
       contentDetection: true,
       audioAnalysis: true,
       scriptGeneration: false,
@@ -36,7 +36,7 @@ export function createDefaultAIConfig(overrides?: Partial<AIConfig>): AIConfig {
     },
     processing: {
       parallel: true,
-      maxConcurrency: 4,
+      maxConcurrent: 4,
       timeout: 300000, // 5 minutes
       retryAttempts: 3,
       retryDelay: 1000,
@@ -44,14 +44,15 @@ export function createDefaultAIConfig(overrides?: Partial<AIConfig>): AIConfig {
     quality: {
       videoQuality: "high",
       audioQuality: "high",
-      analysisDepth: "medium",
+      analysisDepth: AnalysisDepth.STANDARD,
       outputFormat: "optimized",
     },
     platforms: [],
     languages: {
-      primary: "ru",
-      secondary: ["en"],
+      source: "ru",
+      targets: ["en"],
       autoDetect: true,
+      preserveOriginal: true,
     },
   }
 

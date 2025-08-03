@@ -548,7 +548,7 @@ export class SceneAnalysisEngine {
             timestamp: detection.timestamp,
             frameNumber: detection.frameNumber ?? 0,
             clipId: detection.clipId,
-            createdAt: new Date(),
+            createdAt: new Date().toISOString(),
           }
 
           await this.personDatabase.addEmbedding(appearance.personId, fakeEmbedding)

@@ -7,6 +7,7 @@ import { UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service
 // Интеграция с персонажами из montage-planner
 import type { Person } from "@/features/montage-planner/types"
 import type { UnifiedContentAnalysis } from "../../../shared/types/content-analysis"
+import { Emotion } from "../../../shared/types/content-analysis"
 import {
   type Act,
   AudioElementType as AudioElementTypeEnum,
@@ -301,11 +302,14 @@ export class ScriptGenerationEngine extends BaseAIEngine {
         // Получаем персонажей для текущей сцены
         const scenePersons = this.getPersonsForScene(scene, context)
 
+        const { CharacterRole } = await import("../../../shared/types/script-generation")
         const characters = await Promise.all(
-          scenePersons.map(async (person) => ({
+          scenePersons.map(async (person, index) => ({
+            id: `char-${index}`,
             name: person.name,
-            traits: [`confidence: ${Math.round(person.confidence * 100)}%`],
-            relationship: await this.determineCharacterRelationship(person, scenePersons, context),
+            role: CharacterRole.SUPPORTING,
+            description: `Confidence: ${Math.round(person.confidence * 100)}%`,
+            appearances: [],
           })),
         )
 
@@ -393,7 +397,7 @@ export class ScriptGenerationEngine extends BaseAIEngine {
         updatedAt: new Date(),
         version: 1,
         language: this.config.language.primaryLanguage,
-        tone: params.tone || { primary: "neutral", intensity: 0.5 },
+        tone: params.tone || { primary: Emotion.CALM, intensity: 0.5 },
         pacing: this.calculatePacing(scenes),
         style: params.style,
         // Добавляем информацию о персонажах
