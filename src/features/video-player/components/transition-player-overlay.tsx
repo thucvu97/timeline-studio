@@ -111,7 +111,7 @@ export function TransitionPlayerOverlay({
                       <span className="capitalize">{transition.parameters.direction}</span>
                     </div>
                   )}
-                  {transition.parameters.blur?.enabled && (
+                  {transition.parameters.blur && (
                     <div className="flex justify-between">
                       <span>Размытие:</span>
                       <span>{transition.parameters.blur.amount}%</span>
