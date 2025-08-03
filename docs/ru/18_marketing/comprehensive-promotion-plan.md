@@ -91,132 +91,139 @@
 
 ---
 
-## 🏗️ Timeline Documentation Framework (TDF)
+## 🏗️ Claude Flow Multilang Framework
 
-### **Уникальная методология документирования**
+### **Революционный мультиязычный AI фреймворк**
 
-В процессе разработки Timeline Studio была создана инновационная система организации технической документации — **Timeline Documentation Framework (TDF)**. Эта методология стала органичным развитием из практического опыта создания сложного мультимедийного приложения.
+В процессе разработки Timeline Studio был создан инновационный фреймворк для построения мультиязычных AI-приложений — **Claude Flow Multilang**. Это развитие оригинального Claude Flow с фокусом на глобальную доступность и DDD принципы.
 
-#### **🎯 Происхождение и философия TDF**
+#### **🎯 Происхождение и философия Claude Flow Multilang**
 
-**TDF родилась из реальных потребностей:**
-- Необходимость структурировать документацию сложного проекта (94% готовности, полное покрытие тестами)
-- Билингвальные требования (русский + английский рынки)
-- Специфика мультимедийных приложений (video/audio processing, performance-критичность)
-- Современные DevOps практики (CI/CD, автоматизация, качество)
+**Claude Flow Multilang родился из реальных потребностей:**
+- Необходимость в нативной мультиязычной поддержке (10+ языков)
+- Интеграция AI агентов, понимающих культурный контекст
+- DDD архитектура для масштабируемости enterprise-решений
+- Documentation-Driven Development для генерации кода из документации
+- Глобальная экспансия Timeline Studio на азиатские и европейские рынки
 
-#### **🔥 Ключевые отличия от существующих методологий**
+#### **🔥 Ключевые отличия от существующих фреймворков**
 
-**TDF vs Claude Simone/традиционные подходы:**
+**Claude Flow Multilang vs традиционные подходы:**
 
-| Аспект | Традиционные | TDF |
-|--------|-------------|-----|
-| **Фокус** | Универсальность | Техническая специализация |
-| **Структура** | 00-09 секций | 00-18 детализированных секций |
-| **Языки** | Моноязычность | Билингвальность из коробки |
-| **Интеграция** | Документация отдельно | Живая связь с кодом |
-| **Аудитория** | Общая | Профессиональные dev-команды |
+| Аспект | Claude Flow Original | Claude Flow Multilang | Традиционные |
+|--------|---------------------|----------------------|--------------|
+| **AI агенты** | 87 MCP tools | 87+ tools + Polyglot agents | Базовые интеграции |
+| **Языки** | Английский | 10+ языков нативно | Файлы переводов |
+| **Архитектура** | Swarm-based | DDD + Swarm | Монолитная |
+| **Документация** | Английская | Синхронизированная мультиязычная | Отдельная |
+| **Команды** | English only | Родной язык пользователя | English only |
+| **Культурный контекст** | Нет | Встроенный | Нет |
 
-#### **🏗️ Техническая архитектура TDF**
+#### **🏗️ Техническая архитектура Claude Flow Multilang**
 
-**18 специализированных секций:**
+**Ключевые компоненты фреймворка:**
 ```
-00_project_manifest/     → Расширенный технический манифест
-01_project_docs/         → Документация + roadmap + vision
-02_getting_started/      → Developer onboarding + setup
-03_architecture/         → Frontend/Backend/Database детали
-04_api_reference/        → Полная API документация
-05_development/          → Guides, tools, contributing
-06_user_interface/       → UI/UX + design system
-07_integrations/         → Third-party integrations
-08_tasks/               → Project management (agile-compatible)
-09_troubleshooting/      → Debug guides + common issues  
-10_advanced_features/    → Expert-level functionality
-11_performance/          → Optimization + benchmarks
-12_testing/             → Unit/Integration/E2E strategies
-13_ci_cd/               → DevOps + automation
-14_quality_assurance/    → QA processes + standards
-15_security/            → Security guidelines + audits
-16_user_documentation/   → End-user guides + tutorials
-17_releases/            → Release management + changelogs
-18_marketing/ → Marketing and promotion strategies
+Core Components:
+├── Polyglot Agents      → AI агенты с мультиязычной поддержкой
+├── DDD Modules          → Domain-Driven Design архитектура
+├── Language Parsers     → Парсеры команд на родных языках
+├── Doc Synchronizer     → Синхронизация документации между языками
+├── Cultural Context     → Учёт культурных особенностей
+├── Code Generator       → Генерация кода из документации
+└── MCP Tools (87+)      → Расширенный набор инструментов
+
+Supported Languages (v1.0):
+├── English (en)         → Базовый язык
+├── Russian (ru)         → Полная поддержка
+├── Chinese (zh)         → 简体中文 + 繁體中文
+├── Japanese (ja)        → 日本語 с учётом кейго
+├── Korean (ko)          → 한국어
+├── German (de)          → Deutsch
+├── French (fr)          → Français
+├── Spanish (es)         → Español
+├── Portuguese (pt)      → Português
+└── Turkish (tr)         → Türkçe
 ```
 
-#### **✨ Уникальные возможности TDF**
+#### **✨ Уникальные возможности Claude Flow Multilang**
 
-**1. Media-First Architecture**
-- Специализация на multimedia проектах
-- Учет специфики video/audio workflows
-- Performance-ориентированная документация
+**1. Native Multilingual Architecture**
+- Команды на родном языке пользователя
+- AI понимает культурный контекст
+- Автоматический перевод между языками
+- Синхронизация документации в реальном времени
 
-**2. Bilingual by Design**
-- Встроенная ru/en структура (каждая секция содержит ru/ и en/ папки)
-- Синхронизация переводов через CLAUDE.md
-- Глобальная доступность проектов
+**2. DDD + Documentation-Driven**
+- Чёткие bounded contexts и aggregates
+- Генерация кода из документации
+- Event sourcing для отслеживания изменений
+- Ubiquitous language с мультиязычной поддержкой
 
-**3. Developer Experience Focus**
-- IDE-friendly структура
-- Автоматические linkи между кодом и документацией
-- Integration с современными dev tools
+**3. AI-Powered Development**
+- Queen Agent координирует разработку
+- Polyglot Agent переводит и адаптирует
+- Domain Expert валидирует DDD паттерны
+- Code Generator создаёт boilerplate
 
-**4. Scalability & Evolution**
-- Можно начать с MVP (секции 00-05) и расширять
-- Адаптивная архитектура под рост проекта
-- Enterprise-ready из коробки
+**4. Enterprise Scalability**
+- Микросервисная архитектура
+- Kubernetes-ready deployment
+- Multi-tenant поддержка
+- White-label возможности
 
-#### **🎥 Контентные возможности TDF**
+#### **🎥 Контентные возможности Claude Flow Multilang**
 
 **Новые серии видео:**
-- **"TDF Deep Dive"** - детальные разборы каждой секции TDF
-- **"Documentation Best Practices"** - применение TDF в реальных проектах  
-- **"Before/After TDF"** - трансформация проектов с хаотичной документацией
-- **"TDF для Enterprise"** - кейсы применения в крупных компаниях
+- **"Building with Claude Flow Multilang"** - создание мультиязычных приложений
+- **"Polyglot AI Agents"** - работа с AI на родном языке
+- **"DDD in Practice"** - применение Domain-Driven Design
+- **"Global App Development"** - стратегии международной экспансии
 
 **Статьи и материалы:**
-- "Timeline Documentation Framework: революция в техдокументации"
-- "От Timeline Studio к TDF: как родилась методология"
-- "TDF Specification" - полная техническая спецификация
-- "TDF Implementation Guide" - практическое руководство по внедрению
+- "Claude Flow Multilang: революция в мультиязычной разработке"
+- "От Timeline Studio к глобальному фреймворку"
+- "Polyglot AI: будущее разработки ПО"
+- "DDD + Documentation-Driven: новая парадигма"
 
-#### **💰 Бизнес-потенциал TDF**
+#### **💰 Бизнес-потенциал Claude Flow Multilang**
 
 **Дополнительные источники дохода:**
-1. **TDF Consulting** - внедрение в компаниях ($5,000-50,000 за проект)
-2. **TDF Certification** - обучающие программы ($500-2,000 за курс)
-3. **TDF Enterprise Tools** - расширенный тулинг ($1,000-10,000/год)
-4. **TDF Templates & Generators** - готовые шаблоны ($100-500 за комплект)
+1. **Framework Licensing** - коммерческие лицензии ($99-999/месяц)
+2. **Multilingual Consulting** - локализация приложений ($10,000-100,000 за проект)
+3. **AI Agent Development** - кастомные polyglot агенты ($5,000-50,000)
+4. **Enterprise Training** - обучение команд ($2,000-10,000 за курс)
 
 **Партнерские возможности:**
-- DevTools интеграция (GitHub, GitLab, Notion)
-- Enterprise consulting partnerships
-- Educational institutions licensing
-- Open source community sponsorships
+- AI провайдеры (OpenAI, Anthropic, Google)
+- Локализационные платформы (Crowdin, Lokalise)
+- Cloud providers (AWS, Azure, GCP)
+- Enterprise clients (Fortune 500)
 
-#### **📈 SEO и продвижение TDF**
+#### **📈 SEO и продвижение Claude Flow Multilang**
 
 **Новые ключевые запросы:**
-- "timeline documentation framework"
-- "professional technical documentation"
-- "bilingual documentation system"  
-- "multimedia project documentation"
-- "TDF methodology"
+- "claude flow multilang framework"
+- "multilingual ai development"
+- "polyglot ai agents"
+- "ddd documentation driven"
+- "native language programming"
 
 **Community building:**
-- TDF Working Group в Discord Timeline Studio
-- Ежемесячные TDF Meetups (онлайн)
-- Open source TDF tools и utilities
-- TDF Certification Program
+- Claude Flow Multilang Working Group
+- Regional ambassadors программа
+- Hackathons по языкам и регионам
+- Certification для разработчиков
 
 #### **🎯 Позиционирование как конкурентное преимущество**
 
-**Timeline Studio + TDF = Complete Professional Ecosystem:**
-- Не просто видеоредактор, а комплексное решение для professional teams
-- Demonstration of engineering excellence через качество документации
-- Thought leadership в области documentation best practices
-- Дополнительный revenue stream независимо от основного продукта
+**Timeline Studio + Claude Flow Multilang = Global Development Platform:**
+- Первый видеоредактор с нативной мультиязычной AI поддержкой
+- Демонстрация возможностей фреймворка на реальном продукте
+- Thought leadership в области глобальной разработки
+- Экосистема для международной экспансии
 
 **Messaging:**
-*"Timeline Studio создал не только современный видеоредактор, но и новый стандарт документирования сложных технических проектов. TDF - это результат реального опыта разработки enterprise-grade приложения."*
+*"Timeline Studio не просто создал видеоредактор - мы построили фреймворк для глобальной разработки. Claude Flow Multilang делает AI доступным на любом языке, открывая двери к мировым рынкам."*
 
 ---
 
@@ -234,26 +241,27 @@
 - "Tauri vs Electron: почему мы выбрали Rust"
 - "State Machines в UI: опыт использования XState"
 - "Open Source vs Commercial: стратегия разработки"
-- "Timeline Documentation Framework: новый стандарт техдокументации"
-- "Как мы создали TDF: от хаоса документации к порядку"
-- "Билингвальная документация: опыт Timeline Studio"
+- "Claude Flow Multilang: мультиязычный AI фреймворк нового поколения"
+- "Как мы сделали Timeline Studio доступным на 10 языках"
+- "DDD + Documentation-Driven: опыт Timeline Studio"
 
 ### **Dev.to (англоязычные разработчики)**
 - "Building a Video Editor with Tauri and React"
 - "Managing Complex State with XState v5"
 - "Cross-platform Desktop Apps in 2025"
 - "FFmpeg Integration Patterns in Rust"
-- "Timeline Documentation Framework: Professional Technical Documentation"
-- "From Chaos to Order: How We Created TDF"
-- "Bilingual Documentation Architecture for Global Projects"
+- "Claude Flow Multilang: Building Global Apps with AI"
+- "Polyglot AI Agents: Making Software Truly Multilingual"
+- "DDD in Practice: Timeline Studio Architecture"
 
 ### **Reddit стратегия**
 - r/VideoEditing: Демонстрации и tutorials
 - r/rust: Технические посты о Tauri
 - r/reactjs: State management с XState
 - r/OpenSource: Community updates
-- r/devops: TDF для DevOps команд
-- r/programming: TDF methodology discussions
+- r/MachineLearning: Polyglot AI agents
+- r/programming: Claude Flow Multilang discussions
+- r/webdev: Multilingual app development
 
 ### **Twitter/X активность**
 - Daily progress updates
@@ -289,9 +297,9 @@
 3. **Обучающие курсы** и сертификация
 4. **Консалтинг** по video workflows
 5. **Hardware partnerships** (рекомендованное железо)
-6. **TDF Consulting** - внедрение методологии документирования
-7. **TDF Certification Program** - профессиональная сертификация
-8. **TDF Enterprise Tools** - корпоративные инструменты документирования
+6. **Claude Flow Multilang Licensing** - коммерческие лицензии фреймворка
+7. **Multilingual AI Development** - разработка polyglot агентов
+8. **Global Expansion Consulting** - помощь в международной экспансии
 
 ### **Premium функции (идеи)**
 - Advanced AI features (автоматические субтитры, scene detection)
@@ -317,11 +325,11 @@
 - "AI video editing software"
 - "tauri video editor"
 - "rust видеомонтаж"
-- "timeline documentation framework"
-- "TDF methodology"
-- "professional technical documentation"
-- "bilingual documentation system"
-- "documentation best practices"
+- "claude flow multilang"
+- "multilingual ai framework"
+- "polyglot ai agents"
+- "ddd documentation driven development"
+- "native language programming"
 
 **Оптимизация:**
 - Custom thumbnails с единым стилем
@@ -376,24 +384,24 @@
 - [ ] Туториал по AI возможностям
 - [ ] Техническая статья для Хабр
 - [ ] Оптимизация GitHub README
-- [ ] "Timeline Documentation Framework: архитектура и принципы" видео
-- [ ] Подготовка TDF specification документа
+- [ ] "Claude Flow Multilang: введение" видео
+- [ ] Подготовка framework specification документа
 
 ### **Неделя 3: Community**
 - [ ] Запуск Discord сервера
 - [ ] Активизация GitHub Discussions
 - [ ] Первый AMA session
 - [ ] Reddit активность начать
-- [ ] TDF Working Group в Discord
-- [ ] Публикация TDF на Dev.to
+- [ ] Claude Flow Multilang Working Group в Discord
+- [ ] Публикация фреймворка на Dev.to
 
 ### **Неделя 4: Партнерства**
 - [ ] Outreach к техно-блогерам
 - [ ] Подготовка пресс-кита
 - [ ] Планирование коллабораций
 - [ ] Анализ результатов месяца
-- [ ] Первый TDF Meetup (онлайн)
-- [ ] TDF consulting предложения для enterprise
+- [ ] Первый Claude Flow Multilang Meetup (онлайн)
+- [ ] Framework consulting предложения для enterprise
 
 ---
 
@@ -404,9 +412,9 @@
 - **"Community Spotlight"** - Интервью с пользователями
 - **"Feature Friday"** - Еженедельные deep dives в новые фичи
 - **"Rust & Video"** - Техническая серия о video processing
-- **"TDF Deep Dive"** - Детальные разборы секций TDF
-- **"Documentation Transformation"** - Before/After кейсы применения TDF
-- **"TDF Masterclass"** - Обучающая серия по методологии
+- **"Building with Claude Flow"** - Создание мультиязычных приложений
+- **"Polyglot AI Show"** - Демо AI агентов на разных языках
+- **"Global App Development"** - Стратегии международной экспансии
 
 ### **Интерактивный контент**
 - Live coding sessions
