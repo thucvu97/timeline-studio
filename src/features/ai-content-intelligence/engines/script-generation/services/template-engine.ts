@@ -87,6 +87,7 @@ export class TemplateEngine {
         genre: [],
         duration: 0,
         tone: "neutral" as any,
+        style: "standard",
       },
       templateStructure: structure,
       variables: variables || [],
@@ -124,6 +125,7 @@ export class TemplateEngine {
         genre: [],
         duration: 0,
         tone: "casual" as any,
+        style: "vlog",
       },
       templateStructure: {
         sections: [
@@ -237,6 +239,7 @@ export class TemplateEngine {
         genre: [],
         duration: 0,
         tone: "serious" as any,
+        style: "documentary",
       },
       templateStructure: {
         sections: [

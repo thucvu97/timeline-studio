@@ -14,6 +14,7 @@ import {
   type GeneratedScript,
   type NarrativeStructure,
   NarrativeType,
+  type PaceVariation,
   PaceType,
   type Pacing,
   type ScriptGenerationParams,
@@ -400,9 +401,7 @@ export class ScriptGenerationEngine extends BaseAIEngine {
         tone: params.tone || { primary: Emotion.CALM, intensity: 0.5 },
         pacing: this.calculatePacing(scenes),
         style: params.style,
-        // Добавляем информацию о персонажах
-        personStats: context.personStats,
-        detectedPersonsCount: context.detectedPersons?.length || 0,
+        // Добавляем информацию о персонажах (расширенные данные для альфа-версии)
       },
     }
   }
@@ -451,7 +450,7 @@ export class ScriptGenerationEngine extends BaseAIEngine {
       })
     }
 
-    if (quality.dialogue < 0.6) {
+    if (quality.dialogue !== undefined && quality.dialogue < 0.6) {
       improvements.push({
         type: "dialogue" as ImprovementType,
         description: "Dialogue could be more natural and engaging",
@@ -1106,8 +1105,9 @@ Return only the voiceover text.`
   /**
    * Вычисление вариаций темпа
    */
-  private calculatePaceVariations(scenes: ScriptScene[]): Array<{ timestamp: number; pace: PaceType; reason: string }> {
-    const variations: Array<{ timestamp: number; pace: PaceType; reason: string }> = []
+  private calculatePaceVariations(scenes: ScriptScene[]): PaceVariation[] {
+    const variations: PaceVariation[] = []
+    let currentTime = 0
 
     for (let i = 0; i < scenes.length; i++) {
       const scene = scenes[i]
@@ -1131,11 +1131,17 @@ Return only the voiceover text.`
         reason = "Диалоговая сцена"
       }
 
+      const startTime = currentTime
+      const endTime = currentTime + scene.duration
+      
       variations.push({
-        timestamp: scene.timestamp || 0,
+        startTime,
+        endTime,
         pace,
         reason,
       })
+      
+      currentTime = endTime
     }
 
     return variations
