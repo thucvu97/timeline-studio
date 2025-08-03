@@ -7,6 +7,8 @@ export interface PostMetadata {
   slug: string
   excerpt?: string
   version?: string
+  category?: string
+  readTime?: string
 }
 
 export interface Post {
@@ -26,6 +28,8 @@ export function parseMarkdown(fileContent: string): Post {
       slug: data.slug || "",
       excerpt: data.excerpt,
       version: data.version,
+      category: data.category,
+      readTime: data.readTime,
     },
     content,
   }

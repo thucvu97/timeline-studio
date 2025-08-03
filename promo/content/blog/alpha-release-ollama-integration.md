@@ -1,3 +1,13 @@
+---
+title: "Timeline Studio Alpha v0.60.0: Полноценный видеоредактор с бесплатным локальным AI"
+date: "2025-08-03"
+author: "Timeline Team"
+slug: "alpha-release-ollama-integration"
+excerpt: "Первый публичный альфа-релиз Timeline Studio с революционным подходом к AI: всё работает локально и бесплатно через Ollama!"
+category: "Product Launch"
+readTime: "7 min read"
+---
+
 # Timeline Studio Alpha v0.60.0: Полноценный видеоредактор с бесплатным локальным AI
 
 *3 августа 2025*

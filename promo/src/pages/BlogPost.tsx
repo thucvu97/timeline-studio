@@ -1,66 +1,17 @@
 import { motion } from "framer-motion"
 import type React from "react"
-import { useEffect, useState } from "react"
 import ReactMarkdown from "react-markdown"
 import { Link, useParams } from "react-router-dom"
 import remarkGfm from "remark-gfm"
 import { Footer } from "../components/Footer"
 import { Navigation } from "../components/Navigation"
+import { useBlogPost } from "../hooks/useMarkdownContent"
 
 export const BlogPost: React.FC = () => {
   const { slug } = useParams<{ slug: string }>()
-  const [content, setContent] = useState("")
-  const [metadata, setMetadata] = useState<any>({})
-  const [isLoading, setIsLoading] = useState(true)
+  const { post, isLoading } = useBlogPost(slug || "")
 
-  useEffect(() => {
-    // В продакшене это будет загружаться с сервера
-    // Пока используем статичный контент
-    if (slug === "introducing-timeline-studio") {
-      setMetadata({
-        title: "Introducing Timeline Studio - AI-Powered Video Editor",
-        date: "2025-01-28",
-        author: "Chatman Media",
-      })
-      setContent(`# Introducing Timeline Studio
-
-We're excited to announce Timeline Studio, a next-generation video editor that brings together the power of AI and professional editing tools in one seamless application.
-
-## Why Timeline Studio?
-
-Creating video content for multiple platforms has never been more challenging. Each platform has its own requirements, formats, and audience expectations. Timeline Studio solves this by offering:
-
-- **One Upload, Multiple Outputs** - Automatically adapt your content for TikTok, YouTube, Instagram, and more
-- **AI-Powered Editing** - 151 specialized AI tools to automate tedious tasks
-- **Professional Quality** - GPU acceleration, 8K rendering, and 60 FPS support
-
-## Key Features
-
-### 🤖 AI Integration
-- Support for Claude, OpenAI, DeepSeek, and Ollama
-- Smart montage planning
-- Automatic scene detection
-- Content-aware editing suggestions
-
-### ⚡ Performance
-- Hardware acceleration with NVENC, QuickSync, VideoToolbox
-- Real-time preview with GPU processing
-- Efficient memory management
-
-### 🌍 Multi-Platform Export
-- Optimized presets for all major platforms
-- Automatic format conversion
-- Direct upload integration
-
-## Get Started
-
-Timeline Studio is available for Windows, macOS, and Linux. Download the latest version and start creating amazing content today!`)
-    }
-
-    setIsLoading(false)
-  }, [slug])
-
-  if (isLoading) {
+  if (isLoading || !post) {
     return (
       <div className="min-h-screen bg-[#12192C] flex flex-col">
         <Navigation />
@@ -121,13 +72,13 @@ Timeline Studio is available for Windows, macOS, and Linux. Download the latest 
                     '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
                 }}
               >
-                {metadata.title}
+                {post.metadata.title}
               </h1>
 
               <div className="flex items-center space-x-4 text-gray-400">
-                <span>{new Date(metadata.date).toLocaleDateString()}</span>
+                <span>{new Date(post.metadata.date).toLocaleDateString()}</span>
                 <span>•</span>
-                <span>{metadata.author}</span>
+                <span>{post.metadata.author || "Timeline Team"}</span>
               </div>
             </motion.div>
           </div>
@@ -232,7 +183,7 @@ Timeline Studio is available for Windows, macOS, and Linux. Download the latest 
                         ),
                       }}
                     >
-                      {content}
+                      {post.content}
                     </ReactMarkdown>
                   </article>
                 </div>

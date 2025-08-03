@@ -1,63 +1,12 @@
 import { motion } from "framer-motion"
 import type React from "react"
-import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { Footer } from "../components/Footer"
 import { Navigation } from "../components/Navigation"
-
-interface BlogPost {
-  title: string
-  date: string
-  author: string
-  slug: string
-  excerpt: string
-  category: string
-  readTime: string
-}
+import { useBlogPosts } from "../hooks/useMarkdownContent"
 
 export const Blog: React.FC = () => {
-  const [posts, setPosts] = useState<BlogPost[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    // В продакшене это будет загружаться с сервера
-    // Пока используем статичные данные
-    const mockPosts: BlogPost[] = [
-      {
-        title: "Introducing Timeline Studio - AI-Powered Video Editor",
-        date: "2025-01-28",
-        author: "Alexander Kireyev",
-        slug: "introducing-timeline-studio",
-        excerpt:
-          "Meet Timeline Studio - a revolutionary video editor that combines professional tools with 151 AI features to transform how you create content.",
-        category: "Product Launch",
-        readTime: "5 min read",
-      },
-      {
-        title: "Getting Started with AI Video Editing",
-        date: "2025-01-25",
-        author: "Timeline Team",
-        slug: "getting-started-ai-editing",
-        excerpt:
-          "Learn how to use AI tools in Timeline Studio to speed up your video editing workflow and create professional content faster.",
-        category: "Tutorial",
-        readTime: "8 min read",
-      },
-      {
-        title: "Multi-Platform Export Guide",
-        date: "2025-01-20",
-        author: "Timeline Team",
-        slug: "multi-platform-export",
-        excerpt:
-          "Master the art of creating once and publishing everywhere. This guide covers optimal export settings for every major platform.",
-        category: "Guide",
-        readTime: "12 min read",
-      },
-    ]
-
-    setPosts(mockPosts)
-    setIsLoading(false)
-  }, [])
+  const { posts, isLoading } = useBlogPosts()
 
   return (
     <div className="min-h-screen bg-[#12192C] flex flex-col">

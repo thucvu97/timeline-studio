@@ -4,6 +4,8 @@ date: 2025-01-25
 author: Timeline Team
 slug: getting-started-ai-editing
 excerpt: Learn how to use AI tools in Timeline Studio to speed up your video editing workflow and create professional content faster.
+category: Tutorial
+readTime: 8 min read
 ---
 
 # Getting Started with AI Video Editing
