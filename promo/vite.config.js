@@ -7,4 +7,15 @@ export default defineConfig({
   plugins: [mdx(), react()],
   base: "", // Пустая строка для относительных путей
   assetsInclude: ["**/*.md"],
+  define: {
+    global: 'globalThis',
+  },
+  resolve: {
+    alias: {
+      buffer: 'buffer',
+    },
+  },
+  optimizeDeps: {
+    include: ['buffer'],
+  },
 })

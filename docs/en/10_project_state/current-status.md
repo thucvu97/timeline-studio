@@ -12,7 +12,7 @@
 | **Test coverage** | 80%+ |
 | **Number of tests** | 8,000+ |
 | **AI tools** | 151 ✅ |
-| **Language support** | 13 |
+| **Language support** | 15 (with RTL) |
 | **TypeScript errors** | ~1860 (non-critical) |
 
 ## 🎉 ALPHA RELEASE LAUNCHED!
@@ -42,7 +42,7 @@
 - **AI Content Intelligence** - **4 engines**: Content Classification, Scene Analysis, Script Generation, Multi-Platform ✅
 - **Person Identification** - Face recognition and person management ✅
 - **Recognition** - YOLO object detection
-- **i18n** - 15 language localization
+- **i18n** - 15 language localization (including Arabic & Persian with RTL support)
 - And more...
 
 #### Backend (22 modules)

@@ -1,8 +1,12 @@
+import { Buffer } from 'buffer'
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { HashRouter, Route, Routes } from "react-router-dom"
 import "./index.css"
 import App from "./App"
+
+// Полифилл Buffer для браузера
+window.Buffer = Buffer
 import { ScrollToTop } from "./components/ScrollToTop"
 import About from "./pages/About"
 import Blog from "./pages/Blog"

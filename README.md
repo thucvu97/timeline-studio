@@ -49,7 +49,7 @@
 - **🤖 151 AI Tools** - complete video production automation with multi-provider support
 - **⚡ GPU Acceleration** - hardware encoding NVENC, QuickSync, VideoToolbox
 - **🔌 Plugin System** - extend functionality without changing code
-- **🌐 15 Language Interface** - complete localization for global audience
+- **🌐 15 Language Interface** - complete localization for global audience with RTL support
 - **🔒 Local Processing** - your content stays private
 - **📊 80%+ Test Coverage** - professional-level reliability
 

@@ -28,7 +28,7 @@ Timeline Studio is a modern video editor combining:
 - ✅ Smart Montage Planner - AI-powered automatic montage
 - ✅ Export to major formats
 - ✅ OAuth social media publishing
-- ✅ 15 language localization
+- ✅ 15 language localization (Phase 2 completed with Arabic & Persian RTL support)
 - ✅ **Unified resource system** - 8 types with single API
 - ✅ **Biome** - unified linting and formatting tool
 - ✅ **GitHub Actions** - automated builds for all platforms
@@ -142,6 +142,7 @@ Timeline Studio is a modern video editor combining:
 ### Help needed with:
 - **Alpha version testing** on different platforms
 - **Feedback** on Ollama integration
+- **RTL language testing** - Arabic and Persian UI testing
 - Translations to new languages
 - Creating tutorials and documentation
 - Plugin development

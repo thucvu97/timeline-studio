@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import type { Post, PostMetadata } from "../utils/markdown"
 import { parseMarkdown } from "../utils/markdown"
+import { blogPostsList, blogPostsRaw } from "../data/blog-posts"
 
 // Загрузка всех постов блога
 export function useBlogPosts() {
@@ -10,24 +11,17 @@ export function useBlogPosts() {
   useEffect(() => {
     async function loadPosts() {
       try {
-        // Используем import.meta.glob для загрузки всех markdown файлов
-        // Путь относительно src директории (где находится этот файл)
-        const postFiles = import.meta.glob("../../content/blog/*.md", { 
-          query: "?raw", 
-          import: "default" 
-        })
-
+        // Используем явно импортированные посты
         const loadedPosts: PostMetadata[] = []
-
-        for (const path in postFiles) {
-          const module = await postFiles[path]()
-          const content = (module as any) as string
+        
+        for (const content of blogPostsList) {
           const { metadata } = parseMarkdown(content)
-
-          // Извлекаем slug из пути файла
-          const filename = path.split("/").pop()?.replace(".md", "") || ""
-          metadata.slug = metadata.slug || filename
-
+          
+          // Если slug не задан, генерируем из заголовка
+          if (!metadata.slug) {
+            metadata.slug = metadata.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+          }
+          
           loadedPosts.push(metadata)
         }
 
@@ -56,20 +50,14 @@ export function useBlogPost(slug: string) {
   useEffect(() => {
     async function loadPost() {
       try {
-        const postFiles = import.meta.glob("../../content/blog/*.md", { 
-          query: "?raw", 
-          import: "default" 
-        })
-
-        // Ищем файл по slug
-        for (const path in postFiles) {
-          if (path.includes(slug)) {
-            const module = await postFiles[path]()
-            const content = (module as any) as string
-            const parsedPost = parseMarkdown(content)
-            setPost(parsedPost)
-            break
-          }
+        // Используем явные импорты
+        const content = blogPostsRaw[slug as keyof typeof blogPostsRaw]
+        
+        if (content) {
+          const parsedPost = parseMarkdown(content)
+          setPost(parsedPost)
+        } else {
+          console.error("Post not found for slug:", slug)
         }
       } catch (error) {
         console.error("Error loading blog post:", error)
@@ -93,15 +81,13 @@ export function useChangelogEntries() {
     async function loadEntries() {
       try {
         const changelogFiles = import.meta.glob("../../content/changelog/*.md", { 
-          query: "?raw", 
-          import: "default" 
+          as: "raw"
         })
 
         const loadedEntries: Post[] = []
 
         for (const path in changelogFiles) {
-          const module = await changelogFiles[path]()
-          const content = (module as any) as string
+          const content = await changelogFiles[path]() as string
           const entry = parseMarkdown(content)
           loadedEntries.push(entry)
         }
