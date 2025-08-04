@@ -11,12 +11,17 @@ export function useBlogPosts() {
     async function loadPosts() {
       try {
         // Используем import.meta.glob для загрузки всех markdown файлов
-        const postFiles = import.meta.glob("/content/blog/*.md", { as: "raw" })
+        // Путь относительно src директории (где находится этот файл)
+        const postFiles = import.meta.glob("../../content/blog/*.md", { 
+          query: "?raw", 
+          import: "default" 
+        })
 
         const loadedPosts: PostMetadata[] = []
 
         for (const path in postFiles) {
-          const content = (await postFiles[path]()) as string
+          const module = await postFiles[path]()
+          const content = (module as any) as string
           const { metadata } = parseMarkdown(content)
 
           // Извлекаем slug из пути файла
@@ -51,12 +56,16 @@ export function useBlogPost(slug: string) {
   useEffect(() => {
     async function loadPost() {
       try {
-        const postFiles = import.meta.glob("/content/blog/*.md", { as: "raw" })
+        const postFiles = import.meta.glob("../../content/blog/*.md", { 
+          query: "?raw", 
+          import: "default" 
+        })
 
         // Ищем файл по slug
         for (const path in postFiles) {
           if (path.includes(slug)) {
-            const content = (await postFiles[path]()) as string
+            const module = await postFiles[path]()
+            const content = (module as any) as string
             const parsedPost = parseMarkdown(content)
             setPost(parsedPost)
             break
@@ -83,12 +92,16 @@ export function useChangelogEntries() {
   useEffect(() => {
     async function loadEntries() {
       try {
-        const changelogFiles = import.meta.glob("/content/changelog/*.md", { as: "raw" })
+        const changelogFiles = import.meta.glob("../../content/changelog/*.md", { 
+          query: "?raw", 
+          import: "default" 
+        })
 
         const loadedEntries: Post[] = []
 
         for (const path in changelogFiles) {
-          const content = (await changelogFiles[path]()) as string
+          const module = await changelogFiles[path]()
+          const content = (module as any) as string
           const entry = parseMarkdown(content)
           loadedEntries.push(entry)
         }
