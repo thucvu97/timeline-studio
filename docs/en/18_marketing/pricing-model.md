@@ -37,7 +37,7 @@ Timeline Studio follows the principle **"Local for free, cloud for a fee"**:
   - WebGL acceleration for smooth performance
 - ✅ **Multicam editing** up to 4 cameras
 - ✅ **Color Grading** - complete toolset
-- ✅ **13 language translations** for interface
+- ✅ **15 language translations** for interface
 - ✅ **Subtitles** - auto-generation via Whisper (locally)
 - ✅ **Face recognition and identification** - complete feature set:
   - YOLO/RetinaFace face detection

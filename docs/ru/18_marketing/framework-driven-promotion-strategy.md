@@ -51,7 +51,7 @@ Timeline Studio + Claude Flow Multilang:
 - Ep1: "Архитектура мультиязычного видеоредактора"
 - Ep2: "DDD в практике: домены Timeline Studio"
 - Ep3: "Polyglot AI агенты для видеомонтажа"
-- Ep4: "Синхронизация документации на 10 языках"
+- Ep4: "Синхронизация документации на 3 языках"
 - Ep5: "От документации к коду: генерация модулей"
 
 #### 2. **"Framework Fridays"** - технические стримы
@@ -144,14 +144,14 @@ Timeline Studio + Claude Flow Multilang:
 **Хабр серия**:
 - "Claude Flow Multilang: мультиязычный AI фреймворк"
 - "DDD + Documentation-Driven: новый подход к разработке"
-- "Как мы сделали Timeline Studio доступным на 10 языках"
+- "Как мы сделали Timeline Studio доступным на 15 языках"
 - "Polyglot AI агенты: архитектура и реализация"
 
 **Dev.to series**:
 - "Building Multilingual Apps with Claude Flow"
 - "DDD in Practice: Timeline Studio Case Study"
 - "From Docs to Code: Documentation-Driven Development"
-- "Scaling to 10 Languages: Lessons Learned"
+- "Scaling to 15 Languages: Lessons Learned"
 
 **Medium публикации**:
 - "The Future of Multilingual Software Development"
@@ -201,7 +201,6 @@ Timeline Studio + Claude Flow Multilang:
    - Community support
 
 2. **Timeline Studio PRO** ($19/месяц)
-   - Все 10+ языков
    - Premium AI модели
    - Priority support на родном языке
    - Claude Flow Multilang лицензия
@@ -244,7 +243,7 @@ Timeline Studio + Claude Flow Multilang:
 - "От России до мира: глобальная экспансия"
 
 **Press release темы**:
-1. "Timeline Studio запускает поддержку 10 языков через AI"
+1. "Timeline Studio запускает поддержку 15 языков"
 2. "Claude Flow Multilang: новый стандарт разработки"
 3. "Как российский стартап захватывает азиатские рынки"
 4. "DDD революция в видеоредакторах"
@@ -317,7 +316,7 @@ Timeline Studio + Claude Flow Multilang:
 - [ ] Технические статьи на Хабр/Dev.to
 
 ### **Месяц 3-4: Expansion**
-- [ ] 10 языков поддержка
+- [ ] 40+ языков поддержка
 - [ ] Ambassador программа запуск
 - [ ] Первый международный хакатон
 - [ ] Партнёрства с региональными платформами

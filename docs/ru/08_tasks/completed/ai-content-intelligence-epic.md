@@ -43,7 +43,7 @@ AI Content Intelligence Suite - это единый эпик, объединяю
 │   └── Template system
 └── 🌍 Multi-Platform Generator (высокий уровень)
     ├── Использует Scene Analysis + Script Generation
-    ├── Языковая адаптация (12+ языков)
+    ├── Языковая адаптация (15 языков)
     ├── Платформенная оптимизация
     ├── Batch processing
     └── Автоматическая генерация вариантов
@@ -405,7 +405,7 @@ class AIContentPipeline {
 
 ### Фаза 3: Multi-Platform Extensions (4 недели) ✅
 - [x] Multi-Platform Engine с полной интеграцией
-- [x] Языковая адаптация (12+ языков)
+- [x] Языковая адаптация (15 языков)
 - [x] Платформенная оптимизация (YouTube, TikTok, Instagram, etc.)
 - [x] Batch processing для массовой генерации
 - [x] UI для управления платформами
@@ -521,7 +521,7 @@ class AIContentPipeline {
 
 4. **Multi-Platform Engine**
    - Адаптация под YouTube, TikTok, Instagram, Telegram
-   - Языковая адаптация для 12+ языков
+   - Языковая адаптация для 15 языков
    - Оптимизация контента под требования платформ
 
 5. **Интеграция с Timeline**

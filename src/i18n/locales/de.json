@@ -1099,6 +1099,7 @@
     "ko": "Koreanisch",
     "pt": "Portugiesisch",
     "ar": "Arabisch",
+    "fa": "Persisch",
     "hi": "Hindi",
     "tr": "Türkisch",
     "th": "Thailändisch",
@@ -1114,6 +1115,7 @@
       "ko": "한국어",
       "pt": "Português",
       "ar": "العربية",
+      "fa": "فارسی",
       "hi": "हिन्दी",
       "tr": "Türkçe",
       "th": "ไทย"

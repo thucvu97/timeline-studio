@@ -28,7 +28,7 @@ Timeline Studio is a modern video editor combining:
 - ✅ Smart Montage Planner - AI-powered automatic montage
 - ✅ Export to major formats
 - ✅ OAuth social media publishing
-- ✅ 13 language localization
+- ✅ 15 language localization
 - ✅ **Unified resource system** - 8 types with single API
 - ✅ **Biome** - unified linting and formatting tool
 - ✅ **GitHub Actions** - automated builds for all platforms

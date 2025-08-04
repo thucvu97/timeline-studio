@@ -21,7 +21,7 @@
 > - Analyzes all footage and finds the best moments
 > - Synchronizes video with music at beat level
 > - Applies professional color grading
-> - Generates subtitles and translates to 13 languages
+> - Generates subtitles and translates to 15 languages
 > - Optimizes for all social networks
 
 ### Professional tools
@@ -55,7 +55,7 @@ Timeline Studio is not just an AI assistant, but a complete professional system:
 - **Product readiness**: 89%
 - **Test coverage**: Frontend 5,000+ tests, Backend 81%
 - **Performance**: 60 FPS with 50+ clips
-- **Language support**: 13 languages
+- **Language support**: 15 languages
 - **AI tools**: 151 (world leadership)
 - **Completed modules**: 38% of roadmap
 

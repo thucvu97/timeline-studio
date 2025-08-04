@@ -6,8 +6,8 @@ use std::sync::Mutex;
 use tauri::State;
 
 // Поддерживаемые языки
-const SUPPORTED_LANGUAGES: [&str; 13] = [
-  "en", "ru", "es", "pt", "fr", "de", "zh", "ja", "ko", "tr", "th", "it", "hi",
+const SUPPORTED_LANGUAGES: [&str; 15] = [
+  "en", "ru", "es", "pt", "fr", "de", "zh", "ja", "ko", "tr", "th", "it", "hi", "ar", "fa",
 ];
 const DEFAULT_LANGUAGE: &str = "en";
 
@@ -129,13 +129,17 @@ mod tests {
 
     // Test unsupported languages
     assert!(!is_supported_language("pl"));
-    assert!(!is_supported_language("ar"));
+    assert!(!is_supported_language("nl"));
     assert!(!is_supported_language(""));
+
+    // Test newly added Phase 2 languages
+    assert!(is_supported_language("ar"));
+    assert!(is_supported_language("fa"));
   }
 
   #[test]
   fn test_supported_languages_constant() {
-    assert_eq!(SUPPORTED_LANGUAGES.len(), 13);
+    assert_eq!(SUPPORTED_LANGUAGES.len(), 15);
     assert!(SUPPORTED_LANGUAGES.contains(&"en"));
     assert!(SUPPORTED_LANGUAGES.contains(&"ru"));
     assert!(SUPPORTED_LANGUAGES.contains(&"es"));
@@ -149,6 +153,8 @@ mod tests {
     assert!(SUPPORTED_LANGUAGES.contains(&"th"));
     assert!(SUPPORTED_LANGUAGES.contains(&"it"));
     assert!(SUPPORTED_LANGUAGES.contains(&"hi"));
+    assert!(SUPPORTED_LANGUAGES.contains(&"ar"));
+    assert!(SUPPORTED_LANGUAGES.contains(&"fa"));
   }
 
   #[test]
@@ -525,6 +531,8 @@ mod tests {
       ("th_TH", "th"),
       ("it_IT", "it"),
       ("hi_IN", "hi"),
+      ("ar_SA", "ar"),
+      ("fa_IR", "fa"),
     ];
 
     for (locale, expected) in test_cases {

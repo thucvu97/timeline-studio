@@ -242,7 +242,7 @@ Supported Languages (v1.0):
 - "State Machines в UI: опыт использования XState"
 - "Open Source vs Commercial: стратегия разработки"
 - "Claude Flow Multilang: мультиязычный AI фреймворк нового поколения"
-- "Как мы сделали Timeline Studio доступным на 10 языках"
+- "Как мы сделали Timeline Studio доступным на 15 языках"
 - "DDD + Documentation-Driven: опыт Timeline Studio"
 
 ### **Dev.to (англоязычные разработчики)**

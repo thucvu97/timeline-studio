@@ -42,7 +42,7 @@
 - **AI Content Intelligence** - **4 engines**: Content Classification, Scene Analysis, Script Generation, Multi-Platform ✅
 - **Person Identification** - Face recognition and person management ✅
 - **Recognition** - YOLO object detection
-- **i18n** - 13 language localization
+- **i18n** - 15 language localization
 - And more...
 
 #### Backend (22 modules)
