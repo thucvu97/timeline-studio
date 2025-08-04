@@ -4,9 +4,11 @@ import { Link } from "react-router-dom"
 import { Footer } from "../components/Footer"
 import { Navigation } from "../components/Navigation"
 import { useBlogPosts } from "../hooks/useMarkdownContent"
+import { useLanguage } from "../contexts/LanguageContext"
 
 export const Blog: React.FC = () => {
   const { posts, isLoading } = useBlogPosts()
+  const { t } = useLanguage()
 
   return (
     <div className="min-h-screen bg-[#12192C] flex flex-col">
@@ -32,18 +34,18 @@ export const Blog: React.FC = () => {
               className="max-w-4xl mx-auto text-center"
             >
               <h1 className="page-title">
-                <span className="text-gradient">Blog</span>
+                <span className="text-gradient">{t('blog.title')}</span>
               </h1>
               <p className="text-xl md:text-2xl text-gray-300 mb-4">
-                News, tutorials, and insights from the Timeline Studio team
+                {t('blog.subtitle')}
               </p>
-              <p className="text-lg text-gray-400 mb-8">Stay updated with the latest features and best practices 📰</p>
+              <p className="text-lg text-gray-400 mb-8">{t('blog.tagline')} 📰</p>
               <div className="flex items-center justify-center space-x-4 text-gray-400 text-sm">
-                <span>Updated Weekly</span>
+                <span>{t('blog.updatedWeekly')}</span>
                 <span>•</span>
-                <span>Developer Insights</span>
+                <span>{t('blog.developerInsights')}</span>
                 <span>•</span>
-                <span>Tutorials</span>
+                <span>{t('blog.tutorials')}</span>
               </div>
             </motion.div>
           </div>
@@ -61,7 +63,7 @@ export const Blog: React.FC = () => {
                     <div className="glass-card-inner" />
                   </div>
                   <div className="glass-card-content text-center">
-                    <p className="text-lg text-gray-400">Loading posts...</p>
+                    <p className="text-lg text-gray-400">{t('blog.loading')}</p>
                   </div>
                 </div>
               ) : (
@@ -111,7 +113,7 @@ export const Blog: React.FC = () => {
                           {post.excerpt}
                         </p>
                         <span className="text-purple-400 group-hover:text-purple-300 transition-colors flex items-center space-x-2">
-                          <span>Read more</span>
+                          <span>{t('blog.readMore')}</span>
                           <svg
                             className="w-4 h-4 group-hover:translate-x-1 transition-transform"
                             fill="none"

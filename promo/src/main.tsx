@@ -4,10 +4,11 @@ import { createRoot } from "react-dom/client"
 import { HashRouter, Route, Routes } from "react-router-dom"
 import "./index.css"
 import App from "./App"
+import { ScrollToTop } from "./components/ScrollToTop"
+import { LanguageProvider } from "./contexts/LanguageContext"
 
 // Полифилл Buffer для браузера
 window.Buffer = Buffer
-import { ScrollToTop } from "./components/ScrollToTop"
 import About from "./pages/About"
 import Blog from "./pages/Blog"
 import BlogPost from "./pages/BlogPost"
@@ -22,9 +23,10 @@ import Terms from "./pages/Terms"
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <HashRouter>
-      <ScrollToTop />
-      <Routes>
+    <LanguageProvider>
+      <HashRouter>
+        <ScrollToTop />
+        <Routes>
         <Route path="/" element={<App />} />
         <Route path="/about" element={<About />} />
         <Route path="/pricing" element={<Pricing />} />
@@ -39,5 +41,6 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/logo3d" element={<Logo3D />} />
       </Routes>
     </HashRouter>
+    </LanguageProvider>
   </StrictMode>,
 )

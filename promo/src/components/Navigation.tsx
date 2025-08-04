@@ -2,6 +2,7 @@ import { motion } from "framer-motion"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { Logo } from "./Logo"
+import { useLanguage } from "../contexts/LanguageContext"
 
 interface NavItem {
   label: string
@@ -12,19 +13,20 @@ interface NavItem {
 
 const navItems: NavItem[] = []
 
-const rightNavItems: NavItem[] = [
-  // { label: 'FEATURES', href: '#ai-editing', isScroll: true },
-  // { label: 'DOWNLOAD', href: '#download', isScroll: true },
-  { label: "PRICING", href: "/pricing", isExternal: false },
-  { label: "CHANGELOG", href: "/changelog", isExternal: false },
-  { label: "DOCS", href: "/docs", isExternal: false },
-  { label: "BLOG", href: "/blog", isExternal: false },
-]
+// Moved inside component to access translations
 
 export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [activeSection, setActiveSection] = useState("")
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const { language, setLanguage, t } = useLanguage()
+
+  const rightNavItems: NavItem[] = [
+    { label: t('nav.pricing').toUpperCase(), href: "/pricing", isExternal: false },
+    { label: t('nav.changelog').toUpperCase(), href: "/changelog", isExternal: false },
+    { label: t('nav.docs').toUpperCase(), href: "/docs", isExternal: false },
+    { label: t('nav.blog').toUpperCase(), href: "/blog", isExternal: false },
+  ]
 
   useEffect(() => {
     const handleScroll = () => {
@@ -158,6 +160,31 @@ export function Navigation() {
               </a>
             </div>
 
+            {/* Language Switcher */}
+            <div className="flex items-center space-x-1 mr-2 lg:mr-4">
+              <button
+                onClick={() => setLanguage('en')}
+                className={`px-2 py-1 text-xs font-medium rounded transition-all duration-200 ${
+                  language === 'en' 
+                    ? 'text-white bg-white/20' 
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                EN
+              </button>
+              <span className="text-gray-500">/</span>
+              <button
+                onClick={() => setLanguage('ru')}
+                className={`px-2 py-1 text-xs font-medium rounded transition-all duration-200 ${
+                  language === 'ru' 
+                    ? 'text-white bg-white/20' 
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                RU
+              </button>
+            </div>
+
             {/* Download Button */}
             <a
               href="https://github.com/chatman-media/timeline-studio/releases/latest"
@@ -172,7 +199,7 @@ export function Navigation() {
               <div className="absolute inset-0 z-10 rounded-xl bg-white transition-transform duration-500 translate-y-[50%] scale-0 group-hover:scale-x-[150%] group-hover:scale-y-[220%]" />
 
               {/* Text */}
-              <span className="relative z-20 group-hover:text-[#8b5cf6] transition-colors duration-500">Download</span>
+              <span className="relative z-20 group-hover:text-[#8b5cf6] transition-colors duration-500">{t('nav.download')}</span>
             </a>
 
             {/* Mobile menu button */}

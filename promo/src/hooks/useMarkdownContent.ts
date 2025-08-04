@@ -2,19 +2,22 @@ import { useEffect, useState } from "react"
 import type { Post, PostMetadata } from "../utils/markdown"
 import { parseMarkdown } from "../utils/markdown"
 import { blogPostsList, blogPostsRaw } from "../data/blog-posts"
+import { useLanguage } from "../contexts/LanguageContext"
 
 // Загрузка всех постов блога
 export function useBlogPosts() {
+  const { language } = useLanguage()
   const [posts, setPosts] = useState<PostMetadata[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     async function loadPosts() {
       try {
-        // Используем явно импортированные посты
+        // Используем явно импортированные посты для текущего языка
+        const langPosts = blogPostsList[language as 'en' | 'ru'] || blogPostsList.en
         const loadedPosts: PostMetadata[] = []
         
-        for (const content of blogPostsList) {
+        for (const content of langPosts) {
           const { metadata } = parseMarkdown(content)
           
           // Если slug не задан, генерируем из заголовка
@@ -37,27 +40,29 @@ export function useBlogPosts() {
     }
 
     loadPosts()
-  }, [])
+  }, [language]) // Перезагружаем посты при смене языка
 
   return { posts, isLoading }
 }
 
 // Загрузка одного поста
 export function useBlogPost(slug: string) {
+  const { language } = useLanguage()
   const [post, setPost] = useState<Post | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     async function loadPost() {
       try {
-        // Используем явные импорты
-        const content = blogPostsRaw[slug as keyof typeof blogPostsRaw]
+        // Используем явные импорты для текущего языка
+        const langPosts = blogPostsRaw[language as 'en' | 'ru'] || blogPostsRaw.en
+        const content = langPosts[slug as keyof typeof langPosts]
         
         if (content) {
           const parsedPost = parseMarkdown(content)
           setPost(parsedPost)
         } else {
-          console.error("Post not found for slug:", slug)
+          console.error("Post not found for slug:", slug, "in language:", language)
         }
       } catch (error) {
         console.error("Error loading blog post:", error)
@@ -67,7 +72,7 @@ export function useBlogPost(slug: string) {
     }
 
     loadPost()
-  }, [slug])
+  }, [slug, language]) // Перезагружаем пост при смене языка
 
   return { post, isLoading }
 }
