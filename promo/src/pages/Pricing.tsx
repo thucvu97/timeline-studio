@@ -3,6 +3,7 @@ import { motion } from "framer-motion"
 import type React from "react"
 import { Footer } from "../components/Footer"
 import { Navigation } from "../components/Navigation"
+import { useTranslation } from "../hooks/useTranslation"
 
 interface PricingTier {
   name: string
@@ -16,71 +17,73 @@ interface PricingTier {
   highlighted?: boolean
 }
 
-const pricingTiers: PricingTier[] = [
-  {
-    name: "FREE",
-    price: "$0",
-    period: "forever",
-    description: "Everything that runs locally is free",
-    features: [
-      "151 AI tools (run locally)",
-      "4K/8K export without watermarks",
-      "Fairlight Audio professional editor",
-      "40+ transitions & 100+ effects",
-      "Face & object recognition",
-      "Smart Montage AI auto-editing",
-      "Free HD Stock library",
-      "Direct social media publishing",
-      "GPU acceleration",
-    ],
-    cloudStorage: "Local storage",
-    aiTokens: "Local AI (Ollama)",
-    buttonText: "Download Free",
-  },
-  {
-    name: "PRO",
-    price: "$19",
-    period: "/month",
-    description: "Cloud features and premium AI",
-    features: [
-      "Everything in FREE +",
-      "Claude 3.5 - 50K tokens/mo",
-      "GPT-4o - 30K tokens/mo",
-      "AI avatars - 10 hours/mo",
-      "AI video - 100 clips/mo",
-      "34 premium transitions (3D, glitch)",
-      "Stock 4K/8K - 100 downloads/mo",
-      "Cloud sync 100GB",
-      "Priority support",
-    ],
-    cloudStorage: "100GB",
-    aiTokens: "50K Claude\n30K GPT-4",
-    buttonText: "Start Free Trial",
-    highlighted: true,
-  },
-  {
-    name: "MAX",
-    price: "$99",
-    period: "/month",
-    description: "Maximum AI power for professionals",
-    features: [
-      "Everything in PRO +",
-      "500K AI tokens/mo",
-      "100 hours avatar generation",
-      "1000 video clips/mo",
-      "Unlimited Stock footage",
-      "1TB cloud storage",
-      "100 hours rendering/mo",
-      "Beta access to new AI",
-      "Personal Discord channel",
-    ],
-    cloudStorage: "1TB",
-    aiTokens: "500K tokens\n100 hours",
-    buttonText: "Try MAX",
-  },
-]
-
 export const Pricing: React.FC = () => {
+  const { t } = useTranslation()
+
+  const pricingTiers: PricingTier[] = [
+    {
+      name: t("pricing.tiers.free.name"),
+      price: t("pricing.tiers.free.price"),
+      period: t("pricing.tiers.free.period"),
+      description: t("pricing.tiers.free.description"),
+      features: [
+        "151 AI tools (run locally)",
+        "4K/8K export without watermarks",
+        "Fairlight Audio professional editor",
+        "40+ transitions & 100+ effects",
+        "Face & object recognition",
+        "Smart Montage AI auto-editing",
+        "Free HD Stock library",
+        "Direct social media publishing",
+        "GPU acceleration",
+      ],
+      cloudStorage: t("pricing.localStorage"),
+      aiTokens: t("pricing.localAI"),
+      buttonText: t("pricing.tiers.free.buttonText"),
+    },
+    {
+      name: t("pricing.tiers.pro.name"),
+      price: t("pricing.tiers.pro.price"),
+      period: t("pricing.tiers.pro.period"),
+      description: t("pricing.tiers.pro.description"),
+      features: [
+        t("pricing.features.everythingInFree"),
+        "Claude 3.5 - 50K tokens/mo",
+        "GPT-4o - 30K tokens/mo",
+        "AI avatars - 10 hours/mo",
+        "AI video - 100 clips/mo",
+        "34 premium transitions (3D, glitch)",
+        "Stock 4K/8K - 100 downloads/mo",
+        "Cloud sync 100GB",
+        "Priority support",
+      ],
+      cloudStorage: "100GB",
+      aiTokens: "50K Claude\n30K GPT-4",
+      buttonText: t("pricing.tiers.pro.buttonText"),
+      highlighted: true,
+    },
+    {
+      name: t("pricing.tiers.max.name"),
+      price: t("pricing.tiers.max.price"),
+      period: t("pricing.tiers.max.period"),
+      description: t("pricing.tiers.max.description"),
+      features: [
+        t("pricing.features.everythingInPro"),
+        "500K AI tokens/mo",
+        "100 hours avatar generation",
+        "1000 video clips/mo",
+        "Unlimited Stock footage",
+        "1TB cloud storage",
+        "100 hours rendering/mo",
+        "Beta access to new AI",
+        "Personal Discord channel",
+      ],
+      cloudStorage: "1TB",
+      aiTokens: "500K tokens\n100 hours",
+      buttonText: t("pricing.tiers.max.buttonText"),
+    },
+  ]
+
   return (
     <div className="min-h-screen bg-[#12192C] flex flex-col">
       <Navigation />
@@ -105,15 +108,13 @@ export const Pricing: React.FC = () => {
               className="max-w-4xl mx-auto text-center"
             >
               <h1 className="page-title">
-                <span className="text-gradient">Simple Pricing</span>
+                <span className="text-gradient">{t("pricing.title")}</span>
               </h1>
               <p className="text-xl md:text-2xl text-gray-300 mb-4">
-                Local features free. Cloud features paid. Everything transparent.
+                {t("pricing.subtitle")}
               </p>
               <p className="text-lg text-gray-400">
-                AI avatars, video generation, one-click export to TikTok/YouTube
-                <br />
-                Everything you need to dominate social media ⚡
+                {t("pricing.description")} ⚡
               </p>
             </motion.div>
           </div>
@@ -134,7 +135,7 @@ export const Pricing: React.FC = () => {
                   {tier.highlighted && (
                     <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
                       <span className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs font-medium px-3 py-1 rounded-full uppercase tracking-wider">
-                        MOST POPULAR
+                        {t("pricing.mostPopular")}
                       </span>
                     </div>
                   )}
@@ -175,11 +176,11 @@ export const Pricing: React.FC = () => {
                       {/* Cloud Storage & AI Tokens */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8 p-4 bg-white/5 rounded-lg">
                         <div className="text-center">
-                          <p className="text-xs text-gray-400 uppercase mb-1">Cloud Storage</p>
+                          <p className="text-xs text-gray-400 uppercase mb-1">{t("pricing.cloudStorage")}</p>
                           <p className="text-sm sm:text-lg font-normal text-white break-words">{tier.cloudStorage}</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-xs text-gray-400 uppercase mb-1">AI Tokens</p>
+                          <p className="text-xs text-gray-400 uppercase mb-1">{t("pricing.aiTokens")}</p>
                           <p className="text-sm sm:text-lg font-normal text-white break-words whitespace-pre-line">
                             {tier.aiTokens}
                           </p>
@@ -220,7 +221,7 @@ export const Pricing: React.FC = () => {
               className="max-w-full mx-auto mt-20"
             >
               <h2 className="section-title">
-                <span className="text-gradient">For Teams & Enterprise</span>
+                <span className="text-gradient">{t("pricing.teamsEnterprise")}</span>
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -235,23 +236,23 @@ export const Pricing: React.FC = () => {
                   <div className="relative p-8">
                     <div className="flex items-center justify-between mb-6">
                       <div>
-                        <h3 className="text-2xl font-medium text-white">TEAM</h3>
-                        <p className="text-gray-400 text-sm">For collaborative work</p>
+                        <h3 className="text-2xl font-medium text-white">{t("pricing.tiers.team.name")}</h3>
+                        <p className="text-gray-400 text-sm">{t("pricing.tiers.team.description")}</p>
                       </div>
                       <div className="text-right">
-                        <span className="text-4xl font-light text-white tracking-tight">$39</span>
-                        <span className="text-gray-400">/user/month</span>
+                        <span className="text-4xl font-light text-white tracking-tight">{t("pricing.tiers.team.price")}</span>
+                        <span className="text-gray-400">{t("pricing.perUserMonth")}</span>
                       </div>
                     </div>
 
                     <ul className="space-y-3 mb-8">
                       <li className="flex items-start">
                         <CheckIcon className="w-5 h-5 text-green-400 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-300 text-sm">Everything in PRO</span>
+                        <span className="text-gray-300 text-sm">{t("pricing.features.everythingInProBase")}</span>
                       </li>
                       <li className="flex items-start">
                         <CheckIcon className="w-5 h-5 text-green-400 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-300 text-sm">Real-time collaboration</span>
+                        <span className="text-gray-300 text-sm">{t("pricing.features.realTimeCollaboration")}</span>
                       </li>
                       <li className="flex items-start">
                         <CheckIcon className="w-5 h-5 text-green-400 mr-3 mt-0.5 flex-shrink-0" />
@@ -263,16 +264,16 @@ export const Pricing: React.FC = () => {
                       </li>
                       <li className="flex items-start">
                         <CheckIcon className="w-5 h-5 text-green-400 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-300 text-sm">Team resource libraries</span>
+                        <span className="text-gray-300 text-sm">{t("pricing.features.teamResourceLibraries")}</span>
                       </li>
                       <li className="flex items-start">
                         <CheckIcon className="w-5 h-5 text-green-400 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-300 text-sm">SSO authentication</span>
+                        <span className="text-gray-300 text-sm">{t("pricing.features.ssoAuthentication")}</span>
                       </li>
                     </ul>
 
                     <button className="relative group w-full py-4 px-8 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium transition-all duration-300 overflow-hidden transform hover:scale-[1.02]">
-                      <span className="relative z-10">Start with Team</span>
+                      <span className="relative z-10">{t("pricing.tiers.team.buttonText")}</span>
                       <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     </button>
                   </div>
@@ -289,43 +290,43 @@ export const Pricing: React.FC = () => {
                   <div className="relative p-8">
                     <div className="flex items-center justify-between mb-6">
                       <div>
-                        <h3 className="text-2xl font-medium text-white">ENTERPRISE</h3>
-                        <p className="text-gray-400 text-sm">Custom solutions</p>
+                        <h3 className="text-2xl font-medium text-white">{t("pricing.tiers.enterprise.name")}</h3>
+                        <p className="text-gray-400 text-sm">{t("pricing.tiers.enterprise.description")}</p>
                       </div>
                       <div className="text-right">
-                        <span className="text-2xl font-light text-white">Contact us</span>
+                        <span className="text-2xl font-light text-white">{t("pricing.contactUs")}</span>
                       </div>
                     </div>
 
                     <ul className="space-y-3 mb-8">
                       <li className="flex items-start">
                         <CheckIcon className="w-5 h-5 text-amber-400 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-300 text-sm">On-premise deployment</span>
+                        <span className="text-gray-300 text-sm">{t("pricing.features.onPremiseDeployment")}</span>
                       </li>
                       <li className="flex items-start">
                         <CheckIcon className="w-5 h-5 text-amber-400 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-300 text-sm">Unlimited storage & rendering</span>
+                        <span className="text-gray-300 text-sm">{t("pricing.features.unlimitedStorageRendering")}</span>
                       </li>
                       <li className="flex items-start">
                         <CheckIcon className="w-5 h-5 text-amber-400 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-300 text-sm">Custom AI models</span>
+                        <span className="text-gray-300 text-sm">{t("pricing.features.customAiModels")}</span>
                       </li>
                       <li className="flex items-start">
                         <CheckIcon className="w-5 h-5 text-amber-400 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-300 text-sm">API access</span>
+                        <span className="text-gray-300 text-sm">{t("pricing.features.apiAccess")}</span>
                       </li>
                       <li className="flex items-start">
                         <CheckIcon className="w-5 h-5 text-amber-400 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-300 text-sm">Dedicated manager & SLA</span>
+                        <span className="text-gray-300 text-sm">{t("pricing.features.dedicatedManagerSla")}</span>
                       </li>
                       <li className="flex items-start">
                         <CheckIcon className="w-5 h-5 text-amber-400 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-300 text-sm">White-label customization</span>
+                        <span className="text-gray-300 text-sm">{t("pricing.features.whiteLabelCustomization")}</span>
                       </li>
                     </ul>
 
                     <button className="relative group w-full py-4 px-8 rounded-xl bg-white/10 text-white font-medium transition-all duration-300 overflow-hidden transform hover:scale-[1.02] hover:bg-white/20">
-                      <span className="relative z-10">Contact Sales</span>
+                      <span className="relative z-10">{t("pricing.tiers.enterprise.buttonText")}</span>
                     </button>
                   </div>
                 </div>
@@ -340,7 +341,7 @@ export const Pricing: React.FC = () => {
               className="max-w-6xl mx-auto mt-20"
             >
               <h2 className="section-title">
-                <span className="text-gradient">Frequently Asked Questions</span>
+                <span className="text-gradient">{t("pricing.faq.title")}</span>
               </h2>
 
               <div className="space-y-6">
@@ -356,10 +357,9 @@ export const Pricing: React.FC = () => {
 
                   {/* Content */}
                   <div className="relative p-6">
-                    <h3 className="card-title">What are AI tokens?</h3>
+                    <h3 className="card-title">{t("pricing.faq.whatAreTokens.question")}</h3>
                     <p className="card-description">
-                      AI tokens are used for premium AI models (Claude, GPT-4). Local AI through Ollama works free and
-                      doesn't require tokens. PRO includes 80K tokens/mo, MAX provides 500K tokens/mo for power users.
+                      {t("pricing.faq.whatAreTokens.answer")}
                     </p>
                   </div>
                 </div>
@@ -376,10 +376,9 @@ export const Pricing: React.FC = () => {
 
                   {/* Content */}
                   <div className="relative p-6">
-                    <h3 className="card-title">Can I upgrade or downgrade?</h3>
+                    <h3 className="card-title">{t("pricing.faq.canUpgradeDowngrade.question")}</h3>
                     <p className="card-description">
-                      Yes! You can change your plan anytime. When upgrading, you'll get instant access to new features.
-                      When downgrading, changes take effect at the next billing cycle.
+                      {t("pricing.faq.canUpgradeDowngrade.answer")}
                     </p>
                   </div>
                 </div>
@@ -396,10 +395,9 @@ export const Pricing: React.FC = () => {
 
                   {/* Content */}
                   <div className="relative p-6">
-                    <h3 className="card-title">Why is the free version so powerful?</h3>
+                    <h3 className="card-title">{t("pricing.faq.whyFreePowerful.question")}</h3>
                     <p className="card-description">
-                      We believe in transparency. Everything that can run on your computer is free. You only pay for
-                      cloud services and third-party APIs that require our infrastructure costs.
+                      {t("pricing.faq.whyFreePowerful.answer")}
                     </p>
                   </div>
                 </div>
@@ -416,10 +414,9 @@ export const Pricing: React.FC = () => {
 
                   {/* Content */}
                   <div className="relative p-6">
-                    <h3 className="card-title">Is there a free trial?</h3>
+                    <h3 className="card-title">{t("pricing.faq.isThereFreeTrial.question")}</h3>
                     <p className="card-description">
-                      Yes! PRO, MAX and TEAM plans come with a 14-day free trial. No credit card required. Cancel
-                      anytime. Plus, get 3 months free when switching from competitors.
+                      {t("pricing.faq.isThereFreeTrial.answer")}
                     </p>
                   </div>
                 </div>

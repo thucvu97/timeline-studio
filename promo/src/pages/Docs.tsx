@@ -27,6 +27,24 @@ const Docs: React.FC = () => {
       ],
     },
     {
+      title: t("docs.sections.requirements.title"),
+      icon: "📋",
+      items: [
+        {
+          name: t("docs.sections.requirements.functional"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/02_requirements/functional-requirements.md`,
+        },
+        {
+          name: t("docs.sections.requirements.technical"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/02_requirements/technical-requirements.md`,
+        },
+        {
+          name: t("docs.sections.requirements.features"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/02_requirements/feature-specification.md`,
+        },
+      ],
+    },
+    {
       title: t("docs.sections.architecture.title"),
       icon: "🏗️",
       items: [
@@ -60,6 +78,18 @@ const Docs: React.FC = () => {
           name: t("docs.sections.development.plugins"),
           href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/05_development/plugin-development.md`,
         },
+        {
+          name: t("docs.sections.development.codingStandards"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/05_development/coding-standards.md`,
+        },
+        {
+          name: t("docs.sections.development.performance"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/05_development/performance.md`,
+        },
+        {
+          name: t("docs.sections.development.testing"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/05_development/testing.md`,
+        },
       ],
     },
     {
@@ -68,9 +98,47 @@ const Docs: React.FC = () => {
       items: [
         {
           name: t("docs.sections.api.media"),
-          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/04_api_reference/media_api.md`,
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/04_api_reference/media-api.md`,
+        },
+        {
+          name: t("docs.sections.api.timeline"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/04_api_reference/timeline-api.md`,
+        },
+        {
+          name: t("docs.sections.api.recognition"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/04_api_reference/recognition-api.md`,
+        },
+        {
+          name: t("docs.sections.api.aiChat"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/04_api_reference/ai-chat-api.md`,
+        },
+        {
+          name: t("docs.sections.api.export"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/04_api_reference/export-api.md`,
         },
         { name: t("docs.sections.api.generated"), href: "/api-docs/", external: true },
+      ],
+    },
+    {
+      title: t("docs.sections.integrations.title"),
+      icon: "🔗",
+      items: [
+        {
+          name: t("docs.sections.integrations.claude"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/04_api_reference/integrations/claude-api.md`,
+        },
+        {
+          name: t("docs.sections.integrations.openai"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/04_api_reference/integrations/openai-api.md`,
+        },
+        {
+          name: t("docs.sections.integrations.youtube"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/04_api_reference/integrations/youtube-api.md`,
+        },
+        {
+          name: t("docs.sections.integrations.telegram"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/04_api_reference/integrations/telegram-api.md`,
+        },
       ],
     },
     {
@@ -79,15 +147,23 @@ const Docs: React.FC = () => {
       items: [
         {
           name: t("docs.sections.deployment.build"),
-          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/06_deployment/build_guide.md`,
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/06_deployment/build-guide.md`,
         },
         {
           name: t("docs.sections.deployment.windows"),
           href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/06_deployment/platforms/windows.md`,
         },
         {
+          name: t("docs.sections.deployment.macos"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/06_deployment/platforms/macos.md`,
+        },
+        {
+          name: t("docs.sections.deployment.linux"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/06_deployment/platforms/linux.md`,
+        },
+        {
           name: t("docs.sections.deployment.oauth"),
-          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/06_deployment/oauth_setup.md`,
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/06_deployment/oauth-setup.md`,
         },
       ],
     },
@@ -102,6 +178,62 @@ const Docs: React.FC = () => {
         {
           name: t("docs.sections.testing.backend"),
           href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/12_testing/backend-testing.md`,
+        },
+        {
+          name: t("docs.sections.testing.realMedia"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/12_testing/testing-real-media.md`,
+        },
+      ],
+    },
+    {
+      title: t("docs.sections.cicd.title"),
+      icon: "🔄",
+      items: [
+        {
+          name: t("docs.sections.cicd.setup"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/13_ci_cd/ci-cd-setup.md`,
+        },
+        {
+          name: t("docs.sections.cicd.codecov"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/13_ci_cd/codecov-components.md`,
+        },
+      ],
+    },
+    {
+      title: t("docs.sections.quality.title"),
+      icon: "✅",
+      items: [
+        {
+          name: t("docs.sections.quality.alphaGuide"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/14_quality_assurance/alpha-testing-guide.md`,
+        },
+      ],
+    },
+    {
+      title: t("docs.sections.security.title"),
+      icon: "🔒",
+      items: [
+        {
+          name: t("docs.sections.security.guidelines"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/15_security/security-guidelines.md`,
+        },
+        {
+          name: t("docs.sections.security.architecture"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/03_architecture/backend/security-architecture.md`,
+        },
+      ],
+    },
+    {
+      title: t("docs.sections.tasks.title"),
+      icon: "📋",
+      items: [
+        {
+          name: t("docs.sections.tasks.active"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/08_tasks/active/README.md`,
+        },
+        {
+          name: t("docs.sections.tasks.roadmap"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/10_project_state/roadmap.md`,
         },
       ],
     },

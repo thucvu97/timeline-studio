@@ -3,6 +3,7 @@ import type React from "react"
 import { useEffect, useState } from "react"
 import { Footer } from "../components/Footer"
 import { Navigation } from "../components/Navigation"
+import { useTranslation } from "../hooks/useTranslation"
 import { parseChangelog } from "../utils/parseChangelog"
 
 // Format changelog item text with proper markdown link parsing
@@ -80,6 +81,7 @@ const defaultVersions: VersionData[] = [
 ]
 
 export const Changelog: React.FC = () => {
+  const { t } = useTranslation()
   const [versions, setVersions] = useState<VersionData[]>(defaultVersions)
   const [loading, setLoading] = useState(true)
 
@@ -123,10 +125,10 @@ export const Changelog: React.FC = () => {
               className="max-w-6xl mx-auto text-center"
             >
               <h1 className="page-title">
-                <span className="text-gradient">Changelog</span>
+                <span className="text-gradient">{t("changelog.title")}</span>
               </h1>
               <p className="text-xl md:text-2xl text-gray-300 mb-8">
-                Track all updates and improvements to Timeline Studio
+                {t("changelog.subtitle")}
               </p>
             </motion.div>
           </div>
@@ -170,7 +172,7 @@ export const Changelog: React.FC = () => {
                               <h3 className="text-2xl font-medium text-white">v{version.version}</h3>
                               {index === 0 && (
                                 <span className="px-3 py-1 text-xs font-semibold bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full">
-                                  LATEST
+                                  {t("changelog.latest")}
                                 </span>
                               )}
                             </div>
@@ -182,7 +184,7 @@ export const Changelog: React.FC = () => {
                             <div className="mb-6">
                               <h4 className="text-xl font-medium text-white mb-3 flex items-center gap-2">
                                 <span className="text-2xl">🚀</span>
-                                <span>New Features</span>
+                                <span>{t("changelog.newFeatures")}</span>
                               </h4>
                               <ul className="space-y-2">
                                 {version.features.map((feature, i) => (
@@ -207,7 +209,7 @@ export const Changelog: React.FC = () => {
                             <div className="mb-6">
                               <h4 className="text-xl font-medium text-white mb-3 flex items-center gap-2">
                                 <span className="text-2xl">🐛</span>
-                                <span>Bug Fixes</span>
+                                <span>{t("changelog.bugFixes")}</span>
                               </h4>
                               <ul className="space-y-2">
                                 {version.fixes.map((fix, i) => (
@@ -232,7 +234,7 @@ export const Changelog: React.FC = () => {
                             <div className="mb-6">
                               <h4 className="text-xl font-medium text-white mb-3 flex items-center gap-2">
                                 <span className="text-2xl">🔧</span>
-                                <span>Improvements</span>
+                                <span>{t("changelog.improvements")}</span>
                               </h4>
                               <ul className="space-y-2">
                                 {version.improvements.map((improvement, i) => (
@@ -257,7 +259,7 @@ export const Changelog: React.FC = () => {
                             <div className="mb-6">
                               <h4 className="text-xl font-medium text-white mb-3 flex items-center gap-2">
                                 <span className="text-2xl">⚠️</span>
-                                <span>Breaking Changes</span>
+                                <span>{t("changelog.breakingChanges")}</span>
                               </h4>
                               <ul className="space-y-2">
                                 {version.breaking.map((change, i) => (
@@ -285,7 +287,7 @@ export const Changelog: React.FC = () => {
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105"
                             >
-                              View Release
+                              {t("changelog.viewRelease")}
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path
                                   strokeLinecap="round"
@@ -318,7 +320,7 @@ export const Changelog: React.FC = () => {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-colors"
                   >
-                    View all releases on GitHub
+                    {t("changelog.viewAllReleases")}
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
