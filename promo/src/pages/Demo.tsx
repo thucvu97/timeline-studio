@@ -142,7 +142,7 @@ export const Demo: React.FC = () => {
                 </a>
                 <Link
                   to="/pricing"
-                  className="px-8 py-4 rounded-xl text-lg font-medium text-white bg-white/10 hover:bg-white/20 transition-colors transform hover:scale-[1.02] transition-transform"
+                  className="px-8 py-4 rounded-xl text-lg font-medium text-white bg-white/10 hover:bg-white/20 transition-colors transform hover:scale-[1.02]"
                 >
                   View Pricing
                 </Link>

@@ -238,6 +238,33 @@ export const translations = {
         },
       },
     },
+    footer: {
+      product: {
+        title: "PRODUCT",
+        about: "About",
+        pricing: "Pricing",
+        changelog: "Changelog",
+        downloads: "Downloads",
+        contact: "Contact",
+      },
+      resources: {
+        title: "RESOURCES",
+        documentation: "Documentation",
+        blog: "Blog",
+        faqs: "FAQs",
+        submitFeedback: "Submit feedback",
+      },
+      social: {
+        title: "Follow Us",
+      },
+      copyright: "© 2025 Timeline Studio, Inc.",
+    },
+    hero: {
+      title: "AI-Powered Video Creation",
+      subtitle: "Watch how Timeline Studio AI helps you create viral content in seconds",
+      description: "Type your idea and let AI do the magic",
+      downloadFree: "Download Free",
+    },
   },
   ru: {
     docs: {
@@ -479,6 +506,33 @@ export const translations = {
           answer: "Да! Тарифы PRO, MAX и КОМАНДА включают 14-дневный бесплатный триал. Кредитная карта не требуется. Отмена в любое время. Плюс, получите 3 месяца бесплатно при переходе от конкурентов.",
         },
       },
+    },
+    footer: {
+      product: {
+        title: "ПРОДУКТ",
+        about: "О нас",
+        pricing: "Цены",
+        changelog: "История изменений",
+        downloads: "Загрузки",
+        contact: "Контакты",
+      },
+      resources: {
+        title: "РЕСУРСЫ",
+        documentation: "Документация",
+        blog: "Блог",
+        faqs: "Частые вопросы",
+        submitFeedback: "Отправить отзыв",
+      },
+      social: {
+        title: "Подписывайтесь",
+      },
+      copyright: "© 2025 Timeline Studio, Inc.",
+    },
+    hero: {
+      title: "Создание видео с помощью ИИ",
+      subtitle: "Посмотрите, как ИИ Timeline Studio помогает создавать виральный контент за секунды",
+      description: "Напишите свою идею и позвольте ИИ сделать волшебство",
+      downloadFree: "Скачать бесплатно",
     },
   },
 } as const

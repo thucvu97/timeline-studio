@@ -30,6 +30,7 @@ const App: React.FC = () => {
               transition={{ duration: 1 }}
               viewport={{ once: true }}
               className="max-w-6xl mx-auto"
+              style={{ position: "relative" }}
             >
               <SearchDemo />
             </motion.div>
@@ -41,6 +42,7 @@ const App: React.FC = () => {
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
               className="max-w-6xl mx-auto mt-20 grid grid-cols-1 md:grid-cols-3 gap-8"
+              style={{ position: "relative" }}
             >
               <div className="relative overflow-hidden rounded-xl">
                 {/* Glassmorphism background */}
@@ -126,6 +128,7 @@ const App: React.FC = () => {
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
               className="text-center"
+              style={{ position: "relative" }}
             >
               <h2 className="section-title">
                 <span className="text-gradient">Download for free</span>
@@ -193,6 +196,7 @@ const DownloadButton: React.FC<{ platform: string; icon: string }> = ({ platform
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       className="group relative px-8 py-4 rounded-xl text-lg font-medium text-white overflow-hidden block"
+      style={{ position: "relative" }}
     >
       <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl" />
       <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />

@@ -75,6 +75,7 @@ export function Navigation() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
+            style={{ position: "relative" }}
           >
             <Link to="/" className="inline-block">
               <Logo size="medium" />
@@ -87,6 +88,7 @@ export function Navigation() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
             className="flex items-center space-x-2 lg:space-x-6"
+            style={{ position: "relative" }}
           >
             {/* Navigation Items */}
             <ul className="hidden md:flex items-center">
@@ -200,6 +202,7 @@ export function Navigation() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
+            style={{ position: "relative" }}
             className="md:hidden mt-2 nav-glass-scrolled rounded-2xl p-4"
           >
             <ul className="space-y-2">
