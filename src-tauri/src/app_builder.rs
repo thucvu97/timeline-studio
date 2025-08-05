@@ -240,6 +240,9 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::video_compiler::commands::get_pipeline_execution_summary,
     crate::video_compiler::commands::get_pipeline_progress,
     crate::video_compiler::commands::cleanup_completed_pipelines,
+    // Frame extraction commands
+    crate::video_compiler::commands::extract_timeline_frames,
+    crate::video_compiler::commands::extract_subtitle_frames,
     // Service commands
     crate::video_compiler::commands::get_active_jobs,
     crate::video_compiler::commands::get_render_progress,

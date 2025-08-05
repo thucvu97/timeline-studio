@@ -60,16 +60,6 @@ import {
   type TimelineTrack,
 } from "../types/timeline"
 
-// Backend Effect type (not exported from video-compiler)
-interface BackendEffect {
-  id: string
-  effect_type: string
-  name: string
-  enabled: boolean
-  parameters: Record<string, any>
-  ffmpeg_command?: string
-}
-
 /**
  * Преобразует проект Timeline в схему для Video Compiler
  */
@@ -92,27 +82,8 @@ export function timelineToProjectSchema(timeline: TimelineProject): ProjectSchem
   })
 
   // Преобразуем ресурсы проекта в формат backend
-  // FIXME: ProjectSchema ожидает BaseEffect[], а не BackendEffect[]
-  // Временно используем простую конвертацию для совместимости с тестами
-  const allEffects = (timeline.resources?.effects || []).map((effect: any) => {
-    // Специальный маппинг для некоторых эффектов
-    let parameters = effect.params || effect.parameters || {}
-    if (
-      effect.type &&
-      ["brightness", "contrast", "saturation"].includes(effect.type) &&
-      effect.params?.intensity !== undefined
-    ) {
-      parameters = { value: effect.params.intensity }
-    }
-
-    return {
-      ...effect,
-      effect_type: effect.type ? toRustEnumCase(effect.type) : effect.category,
-      parameters,
-      enabled: true,
-      ffmpeg_command: effect.ffmpegCommand || effect.ffmpeg_command,
-    }
-  })
+  // Правильная конвертация BaseEffect[] в формат, совместимый с ProjectSchema
+  const allEffects = convertEffects(timeline.resources?.effects || [])
   const allFilters: BackendFilter[] = convertFilters(timeline.resources?.filters || [])
   // FIXME: Frontend и backend Transition типы не совместимы
   const allTransitions = [] as any[]
@@ -222,8 +193,9 @@ function convertClipTransitions(transitions?: AppliedTransition[]): string[] {
 
 /**
  * Преобразует эффекты в формат backend
+ * Возвращает массив в формате, совместимом с ProjectSchema
  */
-function convertEffects(effects: BaseEffect[]): BackendEffect[] {
+function convertEffects(effects: BaseEffect[]): any[] {
   return effects.map((effect) => ({
     id: effect.id,
     effect_type: toRustEnumCase(effect.category),

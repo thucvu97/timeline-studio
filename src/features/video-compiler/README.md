@@ -66,6 +66,28 @@ src/features/video-compiler/
 
 ## 🔗 API и хуки
 
+### Tauri команды
+Модуль использует следующие команды для взаимодействия с Rust backend:
+
+| Команда | Описание |
+|---------|----------|
+| `compile_video` | Запуск рендеринга проекта |
+| `cancel_render` | Отмена активного рендеринга |
+| `get_render_progress` | Получение прогресса рендеринга |
+| `get_gpu_capabilities_full` | Полная информация о GPU |
+| `check_gpu_encoder_availability` | Проверка доступности кодировщика |
+| `update_compiler_settings_advanced` | Обновление настроек компилятора |
+| `extract_timeline_frames` | Извлечение кадров для timeline |
+| `extract_recognition_frames` | Извлечение кадров для AI |
+| `extract_subtitle_frames` | Извлечение кадров для субтитров |
+| `get_cache_stats` | Статистика кеша |
+| `clear_preview_cache` | Очистка кеша превью |
+| `clear_media_metadata_cache` | Очистка кеша метаданных |
+| `clear_all_cache` | Полная очистка кеша |
+| `get_active_jobs` | Список активных задач |
+| `get_render_job` | Информация о конкретной задаче |
+| `get_disk_space` | Свободное место на диске |
+
 ### useVideoCompiler()
 Основной хук для операций рендеринга видео:
 
@@ -612,9 +634,9 @@ interface FrameExtractionResult {
 Основной сервис для операций рендеринга:
 
 ```typescript
-// Основные функции сервиса
+// Основные функции сервиса (используют актуальные Tauri команды)
 export const VideoCompilerService = {
-  // Рендеринг проекта
+  // Рендеринг проекта (использует команду 'compile_video')
   async renderProject(schema: ProjectSchema, outputPath: string, settings: RenderSettings): Promise<RenderResult>,
   
   // Отмена рендеринга
@@ -623,10 +645,10 @@ export const VideoCompilerService = {
   // Получение прогресса
   async getRenderProgress(jobId: string): Promise<RenderProgress>,
   
-  // Проверка возможностей
+  // Проверка возможностей GPU (использует 'get_gpu_capabilities_full')
   async checkCapabilities(): Promise<GpuCapabilities>,
   
-  // Настройка параметров
+  // Настройка параметров (использует 'update_compiler_settings_advanced')
   async updateRenderSettings(settings: Partial<RenderSettings>): Promise<void>
 };
 ```
