@@ -181,7 +181,7 @@ export const Footer: React.FC = () => {
         <div className="px-6 md:px-10 lg:px-12 xl:px-20 max-w-[1920px] mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="flex items-center gap-6">
-              <img src="/fav.svg" alt="Timeline Studio" className="w-7 h-7 invert" />
+              <img src="/fav.svg" alt="Timeline Studio Logo" className="w-7 h-7 invert" />
               <div className="flex flex-wrap gap-x-6 gap-y-2">
                 <Link to="/terms" className="text-sm text-gray-400 hover:text-gray-200 transition-colors">
                   Terms of Service
