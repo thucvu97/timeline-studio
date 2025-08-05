@@ -1,3 +1,10 @@
+## [0.67.2](https://github.com/chatman-media/timeline-studio/compare/v0.67.1...v0.67.2) (2025-08-05)
+
+
+### Bug Fixes
+
+* **promo:** обновление логотипа и форматирование кода ([d7086dc](https://github.com/chatman-media/timeline-studio/commit/d7086dcddd4277ba3319014514ded2e0c266fdff))
+
 ## [0.67.1](https://github.com/chatman-media/timeline-studio/compare/v0.67.0...v0.67.1) (2025-08-05)
 
 
