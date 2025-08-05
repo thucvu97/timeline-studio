@@ -126,7 +126,7 @@ jobs:
         shell: pwsh
         run: |
           Write-Host "Running setup-rust-env-windows.ps1..."
-          ./scripts/setup-rust-env-windows.ps1 -FFmpegDir C:\ffmpeg
+          ./scripts/ci/setup-rust-env-windows.ps1 -FFmpegDir C:\ffmpeg
           
       - name: Create dist directory
         run: mkdir -p dist
