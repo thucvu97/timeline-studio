@@ -44,7 +44,7 @@ const translations = {
     "nav.features": "Возможности",
     "nav.pricing": "Цены",
     "nav.blog": "Блог",
-    "nav.docs": "Документация",
+    "nav.docs": "Доки",
     "nav.about": "О нас",
     "nav.changelog": "Изменения",
     "nav.download": "Скачать бесплатно",
