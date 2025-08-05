@@ -413,10 +413,11 @@ describe("PersonFormModal", () => {
     )
 
     const uploadButton = screen.getByRole("button", { name: "Upload" })
-    const fileInput = document.querySelector('input[type="file"]')!
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
 
     // Mock click on file input
-    const clickSpy = vi.spyOn(fileInput, "click")
+    const clickSpy = vi.fn()
+    fileInput.click = clickSpy
 
     fireEvent.click(uploadButton)
 
