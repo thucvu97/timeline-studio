@@ -297,7 +297,7 @@ const Docs: React.FC = () => {
                       <div className="relative p-6">
                         <div className="flex items-center gap-3 mb-4">
                           <span className="text-3xl">{section.icon}</span>
-                          <h3 className="card-title">{section.title}</h3>
+                          <div className="card-title">{section.title}</div>
                         </div>
                         <ul className="space-y-2">
                           {section.items.map((item, itemIndex) => (

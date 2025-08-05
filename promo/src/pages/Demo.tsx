@@ -49,6 +49,7 @@ export const Demo: React.FC = () => {
             </motion.div>
 
             {/* Features Grid */}
+            <h2 className="sr-only">Key Features</h2>
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -68,7 +69,7 @@ export const Demo: React.FC = () => {
                 {/* Content */}
                 <div className="relative p-8">
                   <div className="text-4xl mb-4">🎯</div>
-                  <h3 className="card-title">Smart Analysis</h3>
+                  <div className="card-title">Smart Analysis</div>
                   <p className="card-description">
                     AI analyzes trends and suggests the best content strategy for maximum engagement
                   </p>
@@ -88,7 +89,7 @@ export const Demo: React.FC = () => {
                 {/* Content */}
                 <div className="relative p-8">
                   <div className="text-4xl mb-4">⚡</div>
-                  <h3 className="card-title">Instant Creation</h3>
+                  <div className="card-title">Instant Creation</div>
                   <p className="card-description">
                     Generate professional videos with trending effects and transitions in seconds
                   </p>
@@ -108,7 +109,7 @@ export const Demo: React.FC = () => {
                 {/* Content */}
                 <div className="relative p-8">
                   <div className="text-4xl mb-4">📈</div>
-                  <h3 className="card-title">Viral Optimization</h3>
+                  <div className="card-title">Viral Optimization</div>
                   <p className="card-description">
                     Optimize timing, hashtags, and content format for each social platform
                   </p>

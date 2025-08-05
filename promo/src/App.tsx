@@ -6,8 +6,10 @@ import { Footer } from "./components/Footer"
 import { HeroSection } from "./components/HeroSection"
 import { Navigation } from "./components/Navigation"
 import { SearchDemo } from "./components/SearchDemo"
+import { useTranslation } from "./hooks/useTranslation"
 
 const App: React.FC = () => {
+  const { t } = useTranslation()
   return (
     <div className="min-h-screen bg-[#12192C] flex flex-col">
       <Navigation />
@@ -36,6 +38,7 @@ const App: React.FC = () => {
             </motion.div>
 
             {/* Features Grid */}
+            <h2 className="sr-only">Key Features</h2>
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -57,10 +60,8 @@ const App: React.FC = () => {
                 {/* Content */}
                 <div className="relative p-8">
                   <div className="text-4xl mb-4">🎯</div>
-                  <h3 className="card-title">Smart Analysis</h3>
-                  <p className="card-description">
-                    AI analyzes trends and suggests the best content strategy for maximum engagement
-                  </p>
+                  <div className="card-title">{t("mainPage.features.smartAnalysis.title")}</div>
+                  <p className="card-description">{t("mainPage.features.smartAnalysis.description")}</p>
                 </div>
               </div>
 
@@ -77,10 +78,8 @@ const App: React.FC = () => {
                 {/* Content */}
                 <div className="relative p-8">
                   <div className="text-4xl mb-4">⚡</div>
-                  <h3 className="card-title">Instant Creation</h3>
-                  <p className="card-description">
-                    Generate professional videos with trending effects and transitions in seconds
-                  </p>
+                  <div className="card-title">{t("mainPage.features.instantCreation.title")}</div>
+                  <p className="card-description">{t("mainPage.features.instantCreation.description")}</p>
                 </div>
               </div>
 
@@ -97,10 +96,8 @@ const App: React.FC = () => {
                 {/* Content */}
                 <div className="relative p-8">
                   <div className="text-4xl mb-4">📈</div>
-                  <h3 className="card-title">Viral Optimization</h3>
-                  <p className="card-description">
-                    Optimize timing, hashtags, and content format for each social platform
-                  </p>
+                  <div className="card-title">{t("mainPage.features.viralOptimization.title")}</div>
+                  <p className="card-description">{t("mainPage.features.viralOptimization.description")}</p>
                 </div>
               </div>
             </motion.div>
@@ -131,34 +128,34 @@ const App: React.FC = () => {
               style={{ position: "relative" }}
             >
               <h2 className="section-title">
-                <span className="text-gradient">Download for free</span>
+                <span className="text-gradient">{t("mainPage.download.title")}</span>
               </h2>
               <p className="text-xl md:text-2xl text-gray-300 mb-4 max-w-3xl mx-auto">
-                Available for all major operating systems
+                {t("mainPage.download.subtitle")}
               </p>
-              <p className="text-lg text-gray-400 mb-12">
-                Choose your platform and start creating amazing videos today ⚡
-              </p>
+              <p className="text-lg text-gray-400 mb-12">{t("mainPage.download.description")} ⚡</p>
               <div className="flex flex-col sm:flex-row justify-center gap-8">
                 <DownloadButton platform="Windows" icon="windows" />
                 <DownloadButton platform="macOS" icon="apple" />
                 <DownloadButton platform="Linux" icon="linux" />
               </div>
               <p className="mt-8 text-gray-400 text-sm">
-                <span className="font-medium">Latest version: v{versionData.version}</span>
+                <span className="font-medium">
+                  {t("mainPage.download.latestVersion")}: v{versionData.version}
+                </span>
                 <span className="mx-2">•</span>
                 <a
                   href="https://github.com/chatman-media/timeline-studio/releases/latest"
                   className="text-blue-400 hover:text-blue-300 transition-colors"
                 >
-                  Check on GitHub
+                  {t("mainPage.download.checkGithub")}
                 </a>
                 <span className="mx-2">•</span>
                 <a
                   href="https://github.com/chatman-media/timeline-studio/releases"
                   className="text-blue-400 hover:text-blue-300 transition-colors"
                 >
-                  All releases
+                  {t("mainPage.download.allReleases")}
                 </a>
               </p>
             </motion.div>
@@ -174,6 +171,7 @@ const App: React.FC = () => {
 
 // Компонент кнопки загрузки
 const DownloadButton: React.FC<{ platform: string; icon: string }> = ({ platform }) => {
+  const { t } = useTranslation()
   const version = versionData.version // Версия из version.json
 
   // Определяем правильный путь к файлу в зависимости от платформы
@@ -216,7 +214,7 @@ const DownloadButton: React.FC<{ platform: string; icon: string }> = ({ platform
             <path d="M12 5c-1.11 0-2 .89-2 2v.18c-.14.05-.26.09-.37.14-.55.25-1.04.58-1.47.97-.41.38-.78.81-1.08 1.28-.12.19-.23.38-.33.58-.06.1-.1.2-.16.3-.14.25-.27.52-.38.79-.13.31-.24.63-.33.96-.04.16-.08.32-.11.48-.03.17-.05.34-.07.51-.02.19-.04.38-.04.58v.18c.01.12.01.25.02.37.02.25.05.49.1.73.04.19.09.38.15.56.11.38.25.74.42 1.08.12.26.26.51.41.75.06.1.11.19.17.28.07.1.14.2.22.3.14.19.29.37.45.55.2.22.41.43.64.62.44.38.92.71 1.44.96.26.13.53.23.8.32.14.04.27.08.41.11V19c0 1.11.89 2 2 2s2-.89 2-2v-1.28c.14-.03.27-.07.41-.11.27-.09.54-.19.8-.32.52-.25 1-.58 1.44-.96.23-.19.44-.4.64-.62.16-.18.31-.36.45-.55.08-.1.15-.2.22-.3.06-.09.11-.18.17-.28.15-.24.29-.49.41-.75.17-.34.31-.7.42-1.08.06-.18.11-.37.15-.56.05-.24.08-.48.1-.73.01-.12.01-.25.02-.37v-.18c0-.2-.02-.39-.04-.58-.02-.17-.04-.34-.07-.51-.03-.16-.07-.32-.11-.48-.09-.33-.2-.65-.33-.96-.11-.27-.24-.54-.38-.79-.06-.1-.1-.2-.16-.3-.1-.2-.21-.39-.33-.58-.3-.47-.67-.9-1.08-1.28-.43-.39-.92-.72-1.47-.97-.11-.05-.23-.09-.37-.14V7c0-1.11-.89-2-2-2zm-1 2c0-.55.45-1 1-1s1 .45 1 1-.45 1-1 1-1-.45-1-1z" />
           </svg>
         )}
-        Download for {platform}
+        {t("mainPage.download.downloadFor")} {platform}
       </div>
     </motion.a>
   )

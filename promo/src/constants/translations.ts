@@ -270,6 +270,82 @@ export const translations = {
       description: "Type your idea and let AI do the magic",
       downloadFree: "Download Free",
     },
+    mainPage: {
+      features: {
+        smartAnalysis: {
+          title: "Smart Analysis",
+          description: "AI analyzes trends and suggests the best content strategy for maximum engagement",
+        },
+        instantCreation: {
+          title: "Instant Creation",
+          description: "Generate professional videos with trending effects and transitions in seconds",
+        },
+        viralOptimization: {
+          title: "Viral Optimization",
+          description: "Optimize timing, hashtags, and content format for each social platform",
+        },
+      },
+      download: {
+        title: "Download for free",
+        subtitle: "Available for all major operating systems",
+        description: "Choose your platform and start creating amazing videos today",
+        latestVersion: "Latest version",
+        checkGithub: "Check on GitHub",
+        allReleases: "All releases",
+        downloadFor: "Download for",
+      },
+    },
+    faq: {
+      title: "Frequently Asked Questions",
+      questions: {
+        whatIs: {
+          question: "What is Timeline Studio?",
+          answer:
+            "Timeline Studio is an AI-powered video editing application that helps you create professional-quality videos faster than ever. With over 150 AI tools, it automates tedious tasks while giving you creative control.",
+        },
+        isFree: {
+          question: "Is Timeline Studio free?",
+          answer:
+            "Yes! Timeline Studio is completely free and open-source. You can download it for Windows, macOS, and Linux without any cost or subscription fees.",
+        },
+        formats: {
+          question: "What video formats are supported?",
+          answer:
+            "Timeline Studio supports all major video formats including MP4, MOV, AVI, MKV, WebM, and more. It can also export to various formats optimized for different platforms.",
+        },
+        commercial: {
+          question: "Can I use Timeline Studio for commercial projects?",
+          answer:
+            "Absolutely! Timeline Studio is released under a permissive license that allows both personal and commercial use without restrictions.",
+        },
+        requirements: {
+          question: "What are the system requirements?",
+          answer:
+            "Timeline Studio runs on Windows 10+, macOS 10.15+, and most Linux distributions. We recommend at least 8GB RAM and a dedicated graphics card for optimal performance with AI features.",
+        },
+        aiHow: {
+          question: "How does the AI video editing work?",
+          answer:
+            "Our AI analyzes your footage to identify key moments, suggests cuts, applies effects, and can even generate entire edited sequences based on your preferences. You maintain full control and can override any AI decisions.",
+        },
+        dataSafe: {
+          question: "Is my data safe?",
+          answer:
+            "Yes! Timeline Studio processes everything locally on your computer. Your videos and projects never leave your device, ensuring complete privacy and security.",
+        },
+        contribute: {
+          question: "Can I contribute to the project?",
+          answer:
+            "We welcome contributions! Timeline Studio is open-source on GitHub. You can submit bug reports, feature requests, or even contribute code to help improve the software.",
+        },
+      },
+      stillQuestions: {
+        title: "Still have questions?",
+        description: "Feel free to reach out to our community or check our documentation.",
+        joinDiscord: "Join Discord Community",
+        openIssue: "Open GitHub Issue",
+      },
+    },
   },
   ru: {
     docs: {
@@ -543,6 +619,82 @@ export const translations = {
       subtitle: "Посмотрите, как ИИ Timeline Studio помогает создавать виральный контент за секунды",
       description: "Напишите свою идею и позвольте ИИ сделать волшебство",
       downloadFree: "Скачать бесплатно",
+    },
+    mainPage: {
+      features: {
+        smartAnalysis: {
+          title: "Умный анализ",
+          description: "ИИ анализирует тренды и предлагает лучшую контент-стратегию для максимального охвата",
+        },
+        instantCreation: {
+          title: "Мгновенное создание",
+          description: "Генерируйте профессиональные видео с трендовыми эффектами и переходами за секунды",
+        },
+        viralOptimization: {
+          title: "Вирусная оптимизация",
+          description: "Оптимизируйте тайминг, хештеги и формат контента для каждой социальной платформы",
+        },
+      },
+      download: {
+        title: "Скачать бесплатно",
+        subtitle: "Доступно для всех основных операционных систем",
+        description: "Выберите вашу платформу и начните создавать удивительные видео сегодня",
+        latestVersion: "Последняя версия",
+        checkGithub: "Проверить на GitHub",
+        allReleases: "Все релизы",
+        downloadFor: "Скачать для",
+      },
+    },
+    faq: {
+      title: "Часто задаваемые вопросы",
+      questions: {
+        whatIs: {
+          question: "Что такое Timeline Studio?",
+          answer:
+            "Timeline Studio — это видеоредактор с поддержкой ИИ, который помогает создавать профессиональные видео быстрее, чем когда-либо. С более чем 150 ИИ-инструментами он автоматизирует рутинные задачи, сохраняя творческий контроль в ваших руках.",
+        },
+        isFree: {
+          question: "Timeline Studio бесплатный?",
+          answer:
+            "Да! Timeline Studio полностью бесплатный и с открытым исходным кодом. Вы можете скачать его для Windows, macOS и Linux без каких-либо затрат или подписок.",
+        },
+        formats: {
+          question: "Какие форматы видео поддерживаются?",
+          answer:
+            "Timeline Studio поддерживает все основные форматы видео, включая MP4, MOV, AVI, MKV, WebM и другие. Также можно экспортировать в различные форматы, оптимизированные для разных платформ.",
+        },
+        commercial: {
+          question: "Могу ли я использовать Timeline Studio для коммерческих проектов?",
+          answer:
+            "Конечно! Timeline Studio выпущен под свободной лицензией, которая позволяет как личное, так и коммерческое использование без ограничений.",
+        },
+        requirements: {
+          question: "Каковы системные требования?",
+          answer:
+            "Timeline Studio работает на Windows 10+, macOS 10.15+ и большинстве дистрибутивов Linux. Мы рекомендуем минимум 8 ГБ оперативной памяти и выделенную видеокарту для оптимальной работы ИИ-функций.",
+        },
+        aiHow: {
+          question: "Как работает ИИ-монтаж видео?",
+          answer:
+            "Наш ИИ анализирует ваши кадры для определения ключевых моментов, предлагает нарезки, применяет эффекты и может даже генерировать целые смонтированные последовательности на основе ваших предпочтений. Вы сохраняете полный контроль и можете отменить любые решения ИИ.",
+        },
+        dataSafe: {
+          question: "Мои данные в безопасности?",
+          answer:
+            "Да! Timeline Studio обрабатывает всё локально на вашем компьютере. Ваши видео и проекты никогда не покидают ваше устройство, обеспечивая полную конфиденциальность и безопасность.",
+        },
+        contribute: {
+          question: "Могу ли я внести вклад в проект?",
+          answer:
+            "Мы приветствуем вклад! Timeline Studio с открытым исходным кодом на GitHub. Вы можете отправлять отчеты об ошибках, запросы функций или даже вносить код для улучшения программы.",
+        },
+      },
+      stillQuestions: {
+        title: "Остались вопросы?",
+        description: "Не стесняйтесь обращаться к нашему сообществу или проверить документацию.",
+        joinDiscord: "Присоединиться к Discord",
+        openIssue: "Открыть issue на GitHub",
+      },
     },
   },
 } as const

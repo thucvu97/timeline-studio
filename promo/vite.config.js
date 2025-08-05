@@ -51,8 +51,8 @@ export default defineConfig({
     },
     // Генерация source maps только для продакшена при необходимости
     sourcemap: false,
-    // Оптимизация CSS
-    cssCodeSplit: true,
+    // Оптимизация CSS - отключаем разделение для уменьшения блокирующих запросов
+    cssCodeSplit: false,
     // Анализ размера бандла (опционально)
     // chunkSizeWarningLimit: 500,
   },
