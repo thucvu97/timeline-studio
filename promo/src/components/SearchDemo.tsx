@@ -22,7 +22,13 @@ export const SearchDemo: React.FC<SearchDemoProps> = ({ className = "" }) => {
 
         {/* Screenshot */}
         <div className="relative">
-          <img src="/screen5.png" alt="Timeline Studio AI Interface" className="w-full h-auto rounded-2xl" />
+          <img 
+            src="/screen5.png" 
+            alt="Timeline Studio AI Interface" 
+            width="4112"
+            height="2572"
+            className="w-full h-auto rounded-2xl" 
+          />
 
           {/* Animated overlay badges */}
           <motion.div
