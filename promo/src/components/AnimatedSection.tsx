@@ -1,5 +1,5 @@
-import { motion, useScroll, useTransform } from "framer-motion"
-import { type ReactNode, useRef } from "react"
+import { motion } from "framer-motion"
+import { type ReactNode } from "react"
 
 interface AnimatedSectionProps {
   children: ReactNode
@@ -9,15 +9,6 @@ interface AnimatedSectionProps {
 }
 
 export function AnimatedSection({ children, className = "", animation = "fadeUp", delay = 0 }: AnimatedSectionProps) {
-  const ref = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"],
-  })
-
-  const y = useTransform(scrollYProgress, [0, 1], [100, -100])
-  const opacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 1, 1, 0])
-
   const variants = {
     fadeUp: {
       hidden: { y: 50, opacity: 0 },
@@ -43,14 +34,12 @@ export function AnimatedSection({ children, className = "", animation = "fadeUp"
 
   return (
     <motion.div
-      ref={ref}
       className={className}
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.3 }}
       transition={{ duration: 0.6, delay, ease: "easeOut" }}
       variants={variants[animation]}
-      style={{ opacity }}
     >
       {children}
     </motion.div>

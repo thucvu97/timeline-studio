@@ -39,6 +39,10 @@ export default defineConfig({
           // Остальные большие библиотеки
           vendor: ["framer-motion", "@heroicons/react"],
         },
+        // Настройка имен файлов с хешами для кеширования
+        entryFileNames: "assets/[name]-[hash].js",
+        chunkFileNames: "assets/[name]-[hash].js",
+        assetFileNames: "assets/[name]-[hash][extname]",
       },
     },
     // Минификация
