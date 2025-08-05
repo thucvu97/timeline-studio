@@ -1,9 +1,9 @@
 import { invoke } from "@tauri-apps/api/core"
 import { useCallback, useEffect, useState } from "react"
 
-import type { CacheStats } from "../types/cache"
+import type { VideoCompilerCacheStats } from "../types/cache"
 
-export interface CacheStatsWithRatios extends CacheStats {
+export interface CacheStatsWithRatios extends VideoCompilerCacheStats {
   hit_ratio: number
   preview_hit_ratio: number
 }

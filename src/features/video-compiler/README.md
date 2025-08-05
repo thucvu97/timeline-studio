@@ -1,95 +1,97 @@
 # Video Compiler Module
 
-Модуль Video Compiler - это комплексная система рендеринга видео для Timeline Studio, обеспечивающая высокопроизводительную компиляцию видео с поддержкой GPU ускорения, кеширования и расширенных возможностей обработки медиа.
+**English** | [Русский](./README.ru.md)
 
-## 📊 Статус модуля
+The Video Compiler module is a comprehensive video rendering system for Timeline Studio, providing high-performance video compilation with GPU acceleration support, caching, and advanced media processing capabilities.
 
-- ✅ **Готовность**: Полностью реализован и готов к использованию
-- ✅ **Компоненты**: 3 UI компонента для управления рендерингом
-- ✅ **Хуки**: 7 специализированных хуков для различных аспектов видеообработки
-- ✅ **Сервисы**: 5 сервисов для взаимодействия с Rust backend
-- ✅ **Тестовое покрытие**: 144 теста (142 проходят, 2 пропущено), ~98% покрытие
-- ✅ **GPU поддержка**: NVIDIA NVENC, Intel QuickSync, AMD AMF, Apple VideoToolbox
-- ✅ **Кеширование**: Многоуровневая система кеширования с IndexedDB
+## 📊 Module Status
 
-## 📁 Архитектура модуля
+- ✅ **Readiness**: Fully implemented and ready for use
+- ✅ **Components**: 3 UI components for rendering management
+- ✅ **Hooks**: 7 specialized hooks for various video processing aspects
+- ✅ **Services**: 5 services for Rust backend interaction
+- ✅ **Test Coverage**: 144 tests (142 passing, 2 skipped), ~98% coverage
+- ✅ **GPU Support**: NVIDIA NVENC, Intel QuickSync, AMD AMF, Apple VideoToolbox
+- ✅ **Caching**: Multi-level caching system with IndexedDB
+
+## 📁 Module Architecture
 
 ```
 src/features/video-compiler/
-├── components/                    # UI компоненты
-│   ├── cache-statistics-modal.tsx    # Модал статистики кеша
-│   ├── gpu-status.tsx                # Отображение статуса GPU
-│   └── render-jobs-dropdown.tsx      # Выпадающий список задач рендеринга
-├── hooks/                         # React хуки
-│   ├── use-cache-stats.ts            # Статистика и управление кешем
-│   ├── use-frame-extraction.ts       # Извлечение кадров для превью
-│   ├── use-gpu-capabilities.ts       # Определение возможностей GPU
-│   ├── use-metadata-cache.ts         # Кеширование метаданных
-│   ├── use-prerender.ts              # Пререндеринг сегментов
-│   ├── use-render-jobs.ts            # Управление задачами рендеринга
-│   └── use-video-compiler.ts         # Основной хук компилятора
-├── services/                      # Сервисы для backend взаимодействия
-│   ├── cache-service.ts              # Управление кешем
-│   ├── frame-extraction-service.ts   # Сервис извлечения кадров
-│   ├── metadata-cache-service.ts     # Кеширование метаданных видео
-│   └── video-compiler-service.ts     # Основной сервис компиляции
-├── types/                         # TypeScript типы
-│   ├── cache.ts                      # Типы кеширования
-│   ├── compiler.ts                   # Типы компилятора
-│   └── render.ts                     # Типы рендеринга
-├── __tests__/                     # Комплексное тестирование
-│   ├── components/                   # Тесты UI компонентов
-│   ├── hooks/                        # Тесты React хуков
-│   └── services/                     # Тесты сервисов
-└── index.ts                       # Главный экспорт модуля
+├── components/                    # UI components
+│   ├── cache-statistics-modal.tsx    # Cache statistics modal
+│   ├── gpu-status.tsx                # GPU status display
+│   └── render-jobs-dropdown.tsx      # Render jobs dropdown list
+├── hooks/                         # React hooks
+│   ├── use-cache-stats.ts            # Cache statistics and management
+│   ├── use-frame-extraction.ts       # Frame extraction for previews
+│   ├── use-gpu-capabilities.ts       # GPU capabilities detection
+│   ├── use-metadata-cache.ts         # Metadata caching
+│   ├── use-prerender.ts              # Segment prerendering
+│   ├── use-render-jobs.ts            # Render jobs management
+│   └── use-video-compiler.ts         # Main compiler hook
+├── services/                      # Backend interaction services
+│   ├── cache-service.ts              # Cache management
+│   ├── frame-extraction-service.ts   # Frame extraction service
+│   ├── metadata-cache-service.ts     # Video metadata caching
+│   └── video-compiler-service.ts     # Main compilation service
+├── types/                         # TypeScript types
+│   ├── cache.ts                      # Caching types
+│   ├── compiler.ts                   # Compiler types
+│   └── render.ts                     # Rendering types
+├── __tests__/                     # Comprehensive testing
+│   ├── components/                   # UI component tests
+│   ├── hooks/                        # React hooks tests
+│   └── services/                     # Service tests
+└── index.ts                       # Main module export
 ```
 
-## 🚀 Ключевые возможности
+## 🚀 Key Features
 
-### GPU Ускорение
-- **Автоматическое определение**: Поддержка NVIDIA NVENC, Intel QuickSync, AMD AMF, Apple VideoToolbox
-- **Интеллектуальный откат**: Плавное переключение на CPU при недоступности GPU
-- **Оптимизация в реальном времени**: Мониторинг использования GPU и автонастройка параметров
-- **Мульти-GPU поддержка**: Возможность использования нескольких GPU для рендеринга
+### GPU Acceleration
+- **Automatic Detection**: Support for NVIDIA NVENC, Intel QuickSync, AMD AMF, Apple VideoToolbox
+- **Intelligent Fallback**: Smooth switching to CPU when GPU is unavailable
+- **Real-time Optimization**: GPU usage monitoring and auto-tuning parameters
+- **Multi-GPU Support**: Ability to use multiple GPUs for rendering
 
-### Возможности рендеринга
-- **Полный рендеринг проекта**: Эффекты, фильтры, переходы, субтитры
-- **Пререндеринг сегментов**: Быстрое генерирование превью для timeline
-- **Извлечение кадров**: Поддержка timeline, распознавания объектов, субтитров
-- **Многозадачность**: Параллельные задачи рендеринга с приоритизацией
+### Rendering Capabilities
+- **Full Project Rendering**: Effects, filters, transitions, subtitles
+- **Segment Prerendering**: Fast preview generation for timeline
+- **Frame Extraction**: Support for timeline, object recognition, subtitles
+- **Multitasking**: Parallel rendering tasks with prioritization
 
-### Система кеширования
-- **Многоуровневое кеширование**: Память, IndexedDB, файловая система
-- **Интеллектуальное управление**: TTL, LRU, автоочистка
-- **Статистика производительности**: Коэффициенты попаданий, использование памяти
-- **Оптимизация хранилища**: Сжатие и дедупликация данных
+### Caching System
+- **Multi-level Caching**: Memory, IndexedDB, file system
+- **Intelligent Management**: TTL, LRU, auto-cleanup
+- **Performance Statistics**: Hit ratios, memory usage
+- **Storage Optimization**: Data compression and deduplication
 
-## 🔗 API и хуки
+## 🔗 API and Hooks
 
-### Tauri команды
-Модуль использует следующие команды для взаимодействия с Rust backend:
+### Tauri Commands
+The module uses the following commands for Rust backend interaction:
 
-| Команда | Описание |
+| Command | Description |
 |---------|----------|
-| `compile_video` | Запуск рендеринга проекта |
-| `cancel_render` | Отмена активного рендеринга |
-| `get_render_progress` | Получение прогресса рендеринга |
-| `get_gpu_capabilities_full` | Полная информация о GPU |
-| `check_gpu_encoder_availability` | Проверка доступности кодировщика |
-| `update_compiler_settings_advanced` | Обновление настроек компилятора |
-| `extract_timeline_frames` | Извлечение кадров для timeline |
-| `extract_recognition_frames` | Извлечение кадров для AI |
-| `extract_subtitle_frames` | Извлечение кадров для субтитров |
-| `get_cache_stats` | Статистика кеша |
-| `clear_preview_cache` | Очистка кеша превью |
-| `clear_media_metadata_cache` | Очистка кеша метаданных |
-| `clear_all_cache` | Полная очистка кеша |
-| `get_active_jobs` | Список активных задач |
-| `get_render_job` | Информация о конкретной задаче |
-| `get_disk_space` | Свободное место на диске |
+| `compile_video` | Start project rendering |
+| `cancel_render` | Cancel active rendering |
+| `get_render_progress` | Get rendering progress |
+| `get_gpu_capabilities_full` | Full GPU information |
+| `check_gpu_encoder_availability` | Check encoder availability |
+| `update_compiler_settings_advanced` | Update compiler settings |
+| `extract_timeline_frames` | Extract frames for timeline |
+| `extract_recognition_frames` | Extract frames for AI |
+| `extract_subtitle_frames` | Extract frames for subtitles |
+| `get_cache_stats` | Cache statistics |
+| `clear_preview_cache` | Clear preview cache |
+| `clear_media_metadata_cache` | Clear metadata cache |
+| `clear_all_cache` | Full cache cleanup |
+| `get_active_jobs` | List of active jobs |
+| `get_render_job` | Specific job information |
+| `get_disk_space` | Free disk space |
 
 ### useVideoCompiler()
-Основной хук для операций рендеринга видео:
+Main hook for video rendering operations:
 
 ```typescript
 import { useVideoCompiler } from '@/features/video-compiler';
@@ -116,8 +118,8 @@ function ExportButton() {
   return (
     <Button onClick={handleExport} disabled={isRendering}>
       {isRendering 
-        ? `Рендеринг ${renderProgress?.percentage}%` 
-        : 'Экспорт видео'
+        ? `Rendering ${renderProgress?.percentage}%` 
+        : 'Export Video'
       }
     </Button>
   );
@@ -125,7 +127,7 @@ function ExportButton() {
 ```
 
 ### useGpuCapabilities()
-Управление определением и конфигурацией GPU:
+GPU detection and configuration management:
 
 ```typescript
 import { useGpuCapabilities } from '@/features/video-compiler';
@@ -152,8 +154,8 @@ function GpuSettings() {
       {gpuCapabilities?.hardware_acceleration_supported ? (
         <div>
           <h3>GPU: {gpuCapabilities.current_gpu?.name}</h3>
-          <p>Память: {gpuCapabilities.current_gpu?.memory_mb}MB</p>
-          <p>Кодировщик: {gpuCapabilities.recommended_encoder}</p>
+          <p>Memory: {gpuCapabilities.current_gpu?.memory_mb}MB</p>
+          <p>Encoder: {gpuCapabilities.recommended_encoder}</p>
           <Select onValueChange={handleEncoderChange}>
             {gpuCapabilities.available_encoders.map(encoder => (
               <SelectItem key={encoder} value={encoder}>
@@ -166,7 +168,7 @@ function GpuSettings() {
         <Alert>
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
-            GPU ускорение недоступно. Используется CPU кодирование.
+            GPU acceleration unavailable. Using CPU encoding.
           </AlertDescription>
         </Alert>
       )}
@@ -176,7 +178,7 @@ function GpuSettings() {
 ```
 
 ### usePrerender()
-Обработка пререндеринга сегментов для превью timeline:
+Handling segment prerendering for timeline preview:
 
 ```typescript
 import { usePrerender } from '@/features/video-compiler';
@@ -192,7 +194,7 @@ function TimelinePreview({ segment }) {
   const handlePrerender = async () => {
     await prerender({
       segment,
-      quality: 75, // Быстрый пререндеринг
+      quality: 75, // Fast prerendering
       resolution: '720p',
       cache: true
     });
@@ -201,7 +203,7 @@ function TimelinePreview({ segment }) {
   return (
     <div>
       <Button onClick={handlePrerender} disabled={isRendering}>
-        {isRendering ? `Пререндеринг ${progress}%` : 'Создать превью'}
+        {isRendering ? `Prerendering ${progress}%` : 'Create Preview'}
       </Button>
       {isRendering && (
         <Progress value={progress} className="mt-2" />
@@ -212,7 +214,7 @@ function TimelinePreview({ segment }) {
 ```
 
 ### useFrameExtraction()
-Извлечение кадров для различных целей:
+Frame extraction for various purposes:
 
 ```typescript
 import { useFrameExtraction } from '@/features/video-compiler';
@@ -231,16 +233,16 @@ function VideoAnalysis({ videoPath, duration }) {
   });
   
   useEffect(() => {
-    // Извлечение кадров для timeline превью
+    // Extract frames for timeline preview
     extractTimelineFrames(videoPath, {
-      interval: 1.0, // Каждую секунду
+      interval: 1.0, // Every second
       maxFrames: 100,
       quality: 'medium'
     });
     
-    // Извлечение для AI распознавания
+    // Extract for AI recognition
     extractRecognitionFrames(videoPath, {
-      interval: 5.0, // Каждые 5 секунд
+      interval: 5.0, // Every 5 seconds
       resolution: '512x512',
       format: 'jpg'
     });
@@ -292,7 +294,7 @@ function VideoAnalysis({ videoPath, duration }) {
 ```
 
 ### useRenderJobs()
-Управление несколькими задачами рендеринга:
+Managing multiple rendering tasks:
 
 ```typescript
 import { useRenderJobs } from '@/features/video-compiler';
@@ -309,15 +311,15 @@ function RenderJobsManager() {
   
   const handleCancelJob = async (jobId: string) => {
     await cancelJob(jobId);
-    toast.success('Задача отменена');
+    toast.success('Job cancelled');
   };
   
   return (
     <div className="space-y-2">
       <div className="flex justify-between items-center">
-        <h3>Активные задачи ({jobs.length})</h3>
+        <h3>Active Jobs ({jobs.length})</h3>
         <Button onClick={refreshJobs} variant="outline" size="sm">
-          Обновить
+          Refresh
         </Button>
       </div>
       
@@ -348,7 +350,7 @@ function RenderJobsManager() {
                   variant="outline" 
                   size="sm"
                 >
-                  Отменить
+                  Cancel
                 </Button>
               )}
             </div>
@@ -368,14 +370,14 @@ function RenderJobsManager() {
 ```
 
 ### useCacheStats()
-Мониторинг и управление кешем рендеринга:
+Rendering cache monitoring and management:
 
 ```typescript
 import { useCacheStats } from '@/features/video-compiler';
 
 function CacheManager() {
   const {
-    stats, // Включает hit_ratio и preview_hit_ratio
+    stats, // Includes hit_ratio and preview_hit_ratio
     isLoading,
     error,
     refreshStats,
@@ -390,30 +392,30 @@ function CacheManager() {
   return (
     <Card className="p-4">
       <div className="flex justify-between items-center mb-4">
-        <h3>Статистика кеша</h3>
+        <h3>Cache Statistics</h3>
         <Button onClick={refreshStats} variant="outline" size="sm">
-          Обновить
+          Refresh
         </Button>
       </div>
       
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
-          <h4 className="font-medium">Производительность</h4>
+          <h4 className="font-medium">Performance</h4>
           <div className="space-y-1 text-sm">
-            <div>Общий коэффициент: {(stats?.hit_ratio * 100 ?? 0).toFixed(1)}%</div>
-            <div>Превью: {(stats?.preview_hit_ratio * 100 ?? 0).toFixed(1)}%</div>
-            <div>Всего записей: {stats?.total_entries ?? 0}</div>
+            <div>Overall hit ratio: {(stats?.hit_ratio * 100 ?? 0).toFixed(1)}%</div>
+            <div>Preview: {(stats?.preview_hit_ratio * 100 ?? 0).toFixed(1)}%</div>
+            <div>Total entries: {stats?.total_entries ?? 0}</div>
           </div>
         </div>
         
         <div>
-          <h4 className="font-medium">Использование памяти</h4>
+          <h4 className="font-medium">Memory Usage</h4>
           <div className="space-y-1 text-sm">
-            <div>Превью: {formatBytes(stats?.memory_usage.preview_bytes ?? 0)}</div>
-            <div>Метаданные: {formatBytes(stats?.memory_usage.metadata_bytes ?? 0)}</div>
-            <div>Рендеринг: {formatBytes(stats?.memory_usage.render_bytes ?? 0)}</div>
+            <div>Preview: {formatBytes(stats?.memory_usage.preview_bytes ?? 0)}</div>
+            <div>Metadata: {formatBytes(stats?.memory_usage.metadata_bytes ?? 0)}</div>
+            <div>Rendering: {formatBytes(stats?.memory_usage.render_bytes ?? 0)}</div>
             <div className="font-medium">
-              Всего: {formatBytes(stats?.memory_usage.total_bytes ?? 0)}
+              Total: {formatBytes(stats?.memory_usage.total_bytes ?? 0)}
             </div>
           </div>
         </div>
@@ -421,14 +423,14 @@ function CacheManager() {
       
       <div className="flex gap-2">
         <Button onClick={clearPreviewCache} variant="outline">
-          Очистить превью
+          Clear Preview
         </Button>
         <Button 
           onClick={clearAllCache} 
           variant="destructive"
           className="ml-auto"
         >
-          Очистить всё
+          Clear All
         </Button>
       </div>
     </Card>
@@ -437,7 +439,7 @@ function CacheManager() {
 ```
 
 ### useMetadataCache()
-Специализированное кеширование метаданных видео:
+Specialized video metadata caching:
 
 ```typescript
 import { useMetadataCache } from '@/features/video-compiler';
@@ -469,10 +471,10 @@ function VideoMetadataProvider({ children, videoPath }) {
 }
 ```
 
-## 🧩 Компоненты
+## 🧩 Components
 
 ### RenderJobsDropdown
-Компонент для отображения и управления активными задачами рендеринга:
+Component for displaying and managing active rendering tasks:
 
 ```typescript
 import { RenderJobsDropdown } from '@/features/video-compiler';
@@ -487,15 +489,15 @@ function TopBar() {
 }
 ```
 
-**Возможности**:
-- Отображение списка активных задач с прогрессом
-- Реальные названия проектов и пути вывода
-- Локализованные статусы задач
-- Кнопки отмены для выполняющихся задач
-- Автообновление каждые 2 секунды
+**Features**:
+- Display list of active jobs with progress
+- Real project names and output paths
+- Localized job statuses
+- Cancel buttons for running jobs
+- Auto-refresh every 2 seconds
 
 ### GpuStatus
-Индикатор статуса GPU ускорения:
+GPU acceleration status indicator:
 
 ```typescript
 import { GpuStatus } from '@/features/video-compiler';
@@ -512,14 +514,14 @@ function ToolBar() {
 }
 ```
 
-**Возможности**:
-- Визуальный индикатор доступности GPU
-- Отображение текущего кодировщика
-- Информация о памяти GPU
-- Клик для открытия настроек
+**Features**:
+- Visual indicator of GPU availability
+- Display current encoder
+- GPU memory information
+- Click to open settings
 
 ### CacheStatisticsModal
-Модальное окно с детальной статистикой кеша:
+Modal window with detailed cache statistics:
 
 ```typescript
 import { CacheStatisticsModal } from '@/features/video-compiler';
@@ -530,7 +532,7 @@ function CacheSettings() {
   return (
     <>
       <Button onClick={() => setIsOpen(true)}>
-        Статистика кеша
+        Cache Statistics
       </Button>
       <CacheStatisticsModal 
         isOpen={isOpen}
@@ -541,240 +543,240 @@ function CacheSettings() {
 }
 ```
 
-## 📦 Типы данных
+## 📦 Data Types
 
 ### RenderProgress
-Детальная информация о прогрессе рендеринга:
+Detailed rendering progress information:
 
 ```typescript
 interface RenderProgress {
-  jobId: string;                 // Уникальный ID задачи
-  status: RenderStatus;          // Статус выполнения
-  percentage: number;            // Процент завершения (0-100)
-  currentFrame: number;          // Текущий обрабатываемый кадр
-  totalFrames: number;           // Общее количество кадров
-  fps: number;                   // Скорость обработки (кадров/сек)
-  eta: number;                   // Оценочное время завершения (сек)
-  message?: string;              // Дополнительное сообщение
-  gpu_usage?: number;            // Использование GPU (0-100%)
-  memory_usage?: number;         // Использование памяти GPU (MB)
+  jobId: string;                 // Unique job ID
+  status: RenderStatus;          // Execution status
+  percentage: number;            // Completion percentage (0-100)
+  currentFrame: number;          // Current frame being processed
+  totalFrames: number;           // Total number of frames
+  fps: number;                   // Processing speed (frames/sec)
+  eta: number;                   // Estimated time to completion (sec)
+  message?: string;              // Additional message
+  gpu_usage?: number;            // GPU usage (0-100%)
+  memory_usage?: number;         // GPU memory usage (MB)
 }
 ```
 
 ### GpuCapabilities
-Информация о возможностях GPU:
+GPU capabilities information:
 
 ```typescript
 interface GpuCapabilities {
-  hardware_acceleration_supported: boolean;  // Поддержка аппаратного ускорения
-  available_encoders: GpuEncoder[];          // Доступные кодировщики
-  recommended_encoder: GpuEncoder | null;    // Рекомендуемый кодировщик
-  current_gpu: GpuInfo | null;               // Информация о текущем GPU
-  gpus: GpuInfo[];                           // Все доступные GPU
-  ffmpeg_version: string;                    // Версия FFmpeg
-  supported_formats: string[];               // Поддерживаемые форматы
+  hardware_acceleration_supported: boolean;  // Hardware acceleration support
+  available_encoders: GpuEncoder[];          // Available encoders
+  recommended_encoder: GpuEncoder | null;    // Recommended encoder
+  current_gpu: GpuInfo | null;               // Current GPU info
+  gpus: GpuInfo[];                           // All available GPUs
+  ffmpeg_version: string;                    // FFmpeg version
+  supported_formats: string[];               // Supported formats
 }
 
 interface GpuInfo {
-  id: string;                    // Уникальный ID GPU
-  name: string;                  // Название GPU
-  vendor: GpuVendor;             // Производитель (NVIDIA, Intel, AMD, Apple)
-  memory_mb: number;             // Объем памяти в MB
-  compute_capability?: string;   // Compute Capability (для NVIDIA)
-  driver_version?: string;       // Версия драйвера
+  id: string;                    // Unique GPU ID
+  name: string;                  // GPU name
+  vendor: GpuVendor;             // Vendor (NVIDIA, Intel, AMD, Apple)
+  memory_mb: number;             // Memory size in MB
+  compute_capability?: string;   // Compute Capability (for NVIDIA)
+  driver_version?: string;       // Driver version
 }
 ```
 
-### CacheStats
-Расширенная статистика кеша:
+### VideoCompilerCacheStats
+Extended cache statistics:
 
 ```typescript
-interface CacheStats {
-  total_entries: number;          // Общее количество записей
-  preview_hits: number;           // Попадания в кеш превью
-  preview_misses: number;         // Промахи кеша превью
-  metadata_hits: number;          // Попадания в кеш метаданных
-  metadata_misses: number;        // Промахи кеша метаданных
+interface VideoCompilerCacheStats {
+  total_entries: number;          // Total number of entries
+  preview_hits: number;           // Preview cache hits
+  preview_misses: number;         // Preview cache misses
+  metadata_hits: number;          // Metadata cache hits
+  metadata_misses: number;        // Metadata cache misses
   memory_usage: {
-    preview_bytes: number;        // Размер кеша превью в байтах
-    metadata_bytes: number;       // Размер кеша метаданных в байтах
-    render_bytes: number;         // Размер кеша рендеринга в байтах
-    total_bytes: number;          // Общий размер в байтах
+    preview_bytes: number;        // Preview cache size in bytes
+    metadata_bytes: number;       // Metadata cache size in bytes
+    render_bytes: number;         // Render cache size in bytes
+    total_bytes: number;          // Total size in bytes
   };
-  cache_size_mb: number;          // Общий размер кеша в MB
-  hit_ratio: number;              // Общий коэффициент попадания (0-1)
-  preview_hit_ratio: number;      // Коэффициент попадания превью (0-1)
-  oldest_entry?: number;          // Timestamp самой старой записи
-  cleanup_count: number;          // Количество автоочисток
+  cache_size_mb: number;          // Total cache size in MB
+  hit_ratio: number;              // Overall hit ratio (0-1)
+  preview_hit_ratio: number;      // Preview hit ratio (0-1)
+  oldest_entry?: number;          // Timestamp of oldest entry
+  cleanup_count: number;          // Number of auto-cleanups
 }
 ```
 
 ### FrameExtractionResult
-Результат извлечения кадров:
+Frame extraction result:
 
 ```typescript
 interface FrameExtractionResult {
-  timestamp: number;              // Временная метка кадра (секунды)
-  frameData: string;              // Base64 данные изображения
-  frameIndex: number;             // Индекс кадра в видео
-  resolution: {                   // Разрешение кадра
+  timestamp: number;              // Frame timestamp (seconds)
+  frameData: string;              // Base64 image data
+  frameIndex: number;             // Frame index in video
+  resolution: {                   // Frame resolution
     width: number;
     height: number;
   };
-  format: 'jpg' | 'png' | 'webp'; // Формат изображения
-  size_bytes: number;             // Размер изображения в байтах
-  extraction_time_ms: number;     // Время извлечения в миллисекундах
-  cached: boolean;                // Был ли кадр получен из кеша
+  format: 'jpg' | 'png' | 'webp'; // Image format
+  size_bytes: number;             // Image size in bytes
+  extraction_time_ms: number;     // Extraction time in milliseconds
+  cached: boolean;                // Whether frame was retrieved from cache
 }
 ```
 
-## 🛠️ Сервисы
+## 🛠️ Services
 
 ### video-compiler-service.ts
-Основной сервис для операций рендеринга:
+Main service for rendering operations:
 
 ```typescript
-// Основные функции сервиса (используют актуальные Tauri команды)
+// Main service functions (using actual Tauri commands)
 export const VideoCompilerService = {
-  // Рендеринг проекта (использует команду 'compile_video')
+  // Render project (uses 'compile_video' command)
   async renderProject(schema: ProjectSchema, outputPath: string, settings: RenderSettings): Promise<RenderResult>,
   
-  // Отмена рендеринга
+  // Cancel render
   async cancelRender(jobId: string): Promise<void>,
   
-  // Получение прогресса
+  // Get progress
   async getRenderProgress(jobId: string): Promise<RenderProgress>,
   
-  // Проверка возможностей GPU (использует 'get_gpu_capabilities_full')
+  // Check GPU capabilities (uses 'get_gpu_capabilities_full')
   async checkCapabilities(): Promise<GpuCapabilities>,
   
-  // Настройка параметров (использует 'update_compiler_settings_advanced')
+  // Configure settings (uses 'update_compiler_settings_advanced')
   async updateRenderSettings(settings: Partial<RenderSettings>): Promise<void>
 };
 ```
 
 ### frame-extraction-service.ts
-Сервис для извлечения кадров с поддержкой кеширования:
+Frame extraction service with caching support:
 
 ```typescript
 export const FrameExtractionService = {
-  // Извлечение кадров для timeline
+  // Extract frames for timeline
   async extractTimelineFrames(
     videoPath: string, 
     options: TimelineExtractionOptions
   ): Promise<FrameExtractionResult[]>,
   
-  // Извлечение для распознавания
+  // Extract for recognition
   async extractRecognitionFrames(
     videoPath: string, 
     options: RecognitionExtractionOptions
   ): Promise<FrameExtractionResult[]>,
   
-  // Извлечение для субтитров
+  // Extract for subtitles
   async extractSubtitleFrames(
     videoPath: string, 
     timestamps: number[]
   ): Promise<FrameExtractionResult[]>,
   
-  // Управление кешем
+  // Cache management
   async getCachedFrame(videoPath: string, timestamp: number): Promise<FrameExtractionResult | null>,
   async clearFrameCache(videoPath?: string): Promise<void>
 };
 ```
 
 ### cache-service.ts
-Управление многоуровневым кешем:
+Multi-level cache management:
 
 ```typescript
 export const CacheService = {
-  // Статистика кеша
-  async getCacheStats(): Promise<CacheStats>,
+  // Cache statistics
+  async getCacheStats(): Promise<VideoCompilerCacheStats>,
   
-  // Очистка кеша
+  // Cache clearing
   async clearPreviewCache(): Promise<void>,
   async clearMetadataCache(): Promise<void>,
   async clearAllCache(): Promise<void>,
   
-  // Оптимизация
+  // Optimization
   async optimizeCache(): Promise<void>,
   async validateCacheIntegrity(): Promise<boolean>,
   
-  // Настройки
+  // Settings
   async setCacheSettings(settings: CacheSettings): Promise<void>
 };
 ```
 
-## 🧪 Тестирование
+## 🧪 Testing
 
-### Статус тестов ✅
+### Test Status ✅
 
-Модуль Video Compiler имеет **отличное покрытие тестами**:
+The Video Compiler module has **excellent test coverage**:
 
-- **Всего тестов**: 144 (142 ✅ проходят, 2 ⏭️ пропущены)
-- **Покрытие**: ~98% функциональности протестировано
-- **Статус**: Все основные функции протестированы и работают стабильно
+- **Total tests**: 144 (142 ✅ passing, 2 ⏭️ skipped)
+- **Coverage**: ~98% functionality tested
+- **Status**: All core functions tested and working stably
 
-### Структура тестирования
+### Test Structure
 
 ```
 video-compiler/__tests__/
-├── components/                         # UI компоненты
-│   ├── gpu-status.test.tsx               # 17 тестов ✅
-│   └── render-jobs-dropdown.test.tsx     # 11 тестов ✅
-├── hooks/                              # React хуки
-│   ├── use-cache-stats.test.ts           # 16 тестов ✅
-│   ├── use-frame-extraction.test.ts      # 14 тестов ✅ + 2 пропущены
-│   ├── use-frame-extraction-simple.test.ts # 2 теста ✅
-│   ├── use-gpu-capabilities.test.ts      # 18 тестов ✅
-│   ├── use-prerender.test.ts             # 18 тестов ✅
-│   ├── use-render-jobs.test.ts           # 12 тестов ✅
-│   └── use-video-compiler.test.ts        # 6 тестов ✅
-└── services/                           # Сервисы backend
-    ├── frame-extraction-service.test.ts  # 16 тестов ✅
-    └── video-compiler-service.test.ts    # 14 тестов ✅
+├── components/                         # UI components
+│   ├── gpu-status.test.tsx               # 17 tests ✅
+│   └── render-jobs-dropdown.test.tsx     # 11 tests ✅
+├── hooks/                              # React hooks
+│   ├── use-cache-stats.test.ts           # 16 tests ✅
+│   ├── use-frame-extraction.test.ts      # 14 tests ✅ + 2 skipped
+│   ├── use-frame-extraction-simple.test.ts # 2 tests ✅
+│   ├── use-gpu-capabilities.test.ts      # 18 tests ✅
+│   ├── use-prerender.test.ts             # 18 tests ✅
+│   ├── use-render-jobs.test.ts           # 12 tests ✅
+│   └── use-video-compiler.test.ts        # 6 tests ✅
+└── services/                           # Backend services
+    ├── frame-extraction-service.test.ts  # 16 tests ✅
+    └── video-compiler-service.test.ts    # 14 tests ✅
 ```
 
-### Покрытые функциональности
+### Covered Functionality
 
-✅ **Render Jobs (Задачи рендеринга)**
-- Создание, отслеживание и отмена задач рендеринга
-- Dropdown компонент с реальными данными проектов
-- Автообновление статуса каждые 2 секунды
-- Локализация статусов задач на 15 языках
+✅ **Render Jobs**
+- Create, track and cancel rendering tasks
+- Dropdown component with real project data
+- Auto-refresh status every 2 seconds
+- Localized job statuses in 15 languages
 
-✅ **GPU Capabilities (Возможности GPU)**
-- Автоопределение GPU всех основных производителей
-- Проверка аппаратных кодировщиков и их возможностей
-- Системная информация и рекомендации по настройкам
-- Обработка ошибок и fallback на CPU
+✅ **GPU Capabilities**
+- Auto-detect GPUs from all major vendors
+- Check hardware encoders and capabilities
+- System information and configuration recommendations
+- Error handling and CPU fallback
 
-✅ **Frame Extraction (Извлечение кадров)**
-- Timeline превью с оптимизированным кешированием в IndexedDB
-- Распознавание объектов и анализ сцен для AI функций
-- Субтитры с временными метками и превью кадров
-- Batch обработка и параллельные запросы
+✅ **Frame Extraction**
+- Timeline preview with optimized IndexedDB caching
+- Object recognition and scene analysis for AI features
+- Subtitles with timestamps and frame previews
+- Batch processing and parallel requests
 
-✅ **Cache Management (Управление кешем)**
-- Детальная статистика попаданий/промахов
-- Управление памятью с TTL и автоочисткой
-- Оптимизация хранилища и дедупликация
-- Мониторинг производительности
+✅ **Cache Management**
+- Detailed hit/miss statistics
+- Memory management with TTL and auto-cleanup
+- Storage optimization and deduplication
+- Performance monitoring
 
-✅ **Prerender (Пререндеринг)**
-- Генерация превью сегментов для быстрого воспроизведения
-- Кеширование пререндеренных файлов
-- Управление временными файлами и очистка
+✅ **Prerender**
+- Generate segment previews for fast playback
+- Cache prerendered files
+- Manage temporary files and cleanup
 
-### Примеры тестирования
+### Testing Examples
 
 ```typescript
-// Тест компонента render jobs dropdown
+// Test render jobs dropdown component
 describe('RenderJobsDropdown', () => {
   it('should display real project names and progress', async () => {
     const jobs = [
       {
         id: '1',
-        project_name: 'My Video Project', // Реальное имя проекта
+        project_name: 'My Video Project', // Real project name
         output_path: '/output/video.mp4',
         status: RenderStatus.Processing,
         progress: { percentage: 65, fps: 30 }
@@ -792,11 +794,11 @@ describe('RenderJobsDropdown', () => {
   
   it('should use localized status labels', () => {
     const status = getJobStatusLabel(RenderStatus.Processing, t);
-    expect(status).toBe('Обработка'); // Локализованный текст
+    expect(status).toBe('Processing'); // Localized text
   });
 });
 
-// Тест GPU capabilities
+// Test GPU capabilities
 describe('useGpuCapabilities', () => {
   it('should detect NVIDIA GPU correctly', async () => {
     const { result } = renderHook(() => useGpuCapabilities());
@@ -822,7 +824,7 @@ describe('useGpuCapabilities', () => {
   });
 });
 
-// Тест кеширования кадров
+// Test frame caching
 describe('useFrameExtraction', () => {
   it('should cache extracted frames correctly', async () => {
     const { result } = renderHook(() => useFrameExtraction({ 
@@ -836,12 +838,12 @@ describe('useFrameExtraction', () => {
       await result.current.extractTimelineFrames(videoPath, duration);
     });
     
-    // Проверяем, что кадры сохранены в кеш
+    // Check frames saved to cache
     expect(mockIndexedDB.get).toHaveBeenCalledWith(
       expect.stringContaining(videoPath)
     );
     
-    // Повторный запрос должен использовать кеш
+    // Repeat request should use cache
     await act(async () => {
       await result.current.extractTimelineFrames(videoPath, duration);
     });
@@ -851,55 +853,55 @@ describe('useFrameExtraction', () => {
 });
 ```
 
-### Запуск тестов
+### Running Tests
 
 ```bash
-# Все тесты модуля
+# All module tests
 bun run test src/features/video-compiler/__tests__/
 
-# По категориям
+# By category
 bun run test src/features/video-compiler/__tests__/hooks/
 bun run test src/features/video-compiler/__tests__/components/
 bun run test src/features/video-compiler/__tests__/services/
 
-# Конкретный тест с детальным выводом
+# Specific test with detailed output
 bun run test src/features/video-compiler/__tests__/hooks/use-render-jobs.test.ts --verbose
 
-# В режиме наблюдения для разработки
+# Watch mode for development
 bun run test:watch src/features/video-compiler/__tests__/
 
-# Генерация отчета покрытия
+# Generate coverage report
 bun run test:coverage src/features/video-compiler/__tests__/
 ```
 
-## 🚀 Производительность и оптимизация
+## 🚀 Performance and Optimization
 
-### Реализованные оптимизации
+### Implemented Optimizations
 
-#### GPU ускорение
-- **Автоматический выбор кодировщика**: Система выбирает оптимальный кодировщик на основе доступного оборудования
-- **Адаптивное качество**: Настройка параметров в зависимости от возможностей GPU
-- **Мониторинг ресурсов**: Отслеживание использования GPU памяти и загрузки
+#### GPU Acceleration
+- **Automatic encoder selection**: System selects optimal encoder based on available hardware
+- **Adaptive quality**: Parameter tuning based on GPU capabilities
+- **Resource monitoring**: Track GPU memory usage and load
 
-#### Система кеширования
-- **Многоуровневое кеширование**: Память → IndexedDB → Файловая система
-- **Интеллектуальная очистка**: LRU алгоритм с TTL для автоматической очистки
-- **Компрессия данных**: Сжатие кадров и метаданных для экономии места
-- **Дедупликация**: Избежание дублирования идентичных данных
+#### Caching System
+- **Multi-level caching**: Memory → IndexedDB → File system
+- **Intelligent cleanup**: LRU algorithm with TTL for automatic cleanup
+- **Data compression**: Compress frames and metadata to save space
+- **Deduplication**: Avoid duplicating identical data
 
-#### Извлечение кадров
-- **Batch обработка**: Групповое извлечение кадров для снижения накладных расходов
-- **Параллельные запросы**: Одновременная обработка нескольких видео
-- **Адаптивное качество**: Автоматический выбор разрешения в зависимости от цели
+#### Frame Extraction
+- **Batch processing**: Group frame extraction to reduce overhead
+- **Parallel requests**: Process multiple videos simultaneously
+- **Adaptive quality**: Automatic resolution selection based on purpose
 
-### Рекомендации по использованию
+### Usage Recommendations
 
-#### Настройки GPU
+#### GPU Settings
 
 ```typescript
-// Оптимальные настройки для разных сценариев
+// Optimal settings for different scenarios
 const RENDER_PRESETS = {
-  // Быстрый пререндеринг для превью
+  // Fast preview prerendering
   PREVIEW: {
     quality: 70,
     resolution_scale: 0.5,
@@ -907,15 +909,15 @@ const RENDER_PRESETS = {
     encoder: 'auto'
   },
   
-  // Финальный рендеринг высокого качества
+  // High quality final render
   FINAL: {
     quality: 90,
     resolution_scale: 1.0,
     hardware_acceleration: true,
-    encoder: 'nvenc_h264' // или auto
+    encoder: 'nvenc_h264' // or auto
   },
   
-  // Экономичный режим для слабых GPU
+  // Economy mode for weak GPUs
   ECONOMY: {
     quality: 75,
     resolution_scale: 0.75,
@@ -925,132 +927,132 @@ const RENDER_PRESETS = {
 };
 ```
 
-#### Управление памятью
+#### Memory Management
 
 ```typescript
-// Мониторинг и оптимизация использования памяти
+// Monitor and optimize memory usage
 const optimizeMemoryUsage = async () => {
   const stats = await getCacheStats();
   const memoryUsage = stats.memory_usage.total_bytes;
   const MAX_CACHE_SIZE = 2 * 1024 * 1024 * 1024; // 2GB
   
   if (memoryUsage > MAX_CACHE_SIZE) {
-    // Очистка старых записей превью
+    // Clear old preview entries
     await clearPreviewCache();
     
-    // Оптимизация кеша
+    // Optimize cache
     await optimizeCache();
   }
 };
 ```
 
-#### Производительность извлечения кадров
+#### Frame Extraction Performance
 
 ```typescript
-// Оптимальные параметры для разных целей
+// Optimal parameters for different purposes
 const FRAME_EXTRACTION_PRESETS = {
   TIMELINE: {
-    interval: 1.0,           // Каждую секунду
-    maxFrames: 100,          // Максимум 100 кадров
-    quality: 'medium',       // Среднее качество для превью
-    resolution: '320x180',   // Низкое разрешение для быстрой загрузки
+    interval: 1.0,           // Every second
+    maxFrames: 100,          // Maximum 100 frames
+    quality: 'medium',       // Medium quality for previews
+    resolution: '320x180',   // Low resolution for fast loading
     cache: true
   },
   
   RECOGNITION: {
-    interval: 5.0,           // Каждые 5 секунд
-    maxFrames: 50,           // Меньше кадров для AI
-    quality: 'high',         // Высокое качество для точности
-    resolution: '512x512',   // Квадратное разрешение для AI моделей
+    interval: 5.0,           // Every 5 seconds
+    maxFrames: 50,           // Fewer frames for AI
+    quality: 'high',         // High quality for accuracy
+    resolution: '512x512',   // Square resolution for AI models
     cache: true
   },
   
   SUBTITLES: {
-    timestamps: [],          // Конкретные временные метки
-    quality: 'medium',       // Среднее качество
-    resolution: '640x360',   // Разрешение для предпросмотра
+    timestamps: [],          // Specific timestamps
+    quality: 'medium',       // Medium quality
+    resolution: '640x360',   // Preview resolution
     cache: true
   }
 };
 ```
 
-## 📋 Roadmap и планы развития
+## 📋 Roadmap and Development Plans
 
-### Краткосрочные задачи (Q1-Q2)
+### Short-term Tasks (Q1-Q2)
 
-1. **Улучшение GPU поддержки**:
-   - [ ] Поддержка мульти-GPU рендеринга
-   - [ ] Динамическая балансировка нагрузки между GPU
-   - [ ] UI выбора конкретного GPU для рендеринга
-   - [ ] Профилирование производительности разных кодировщиков
+1. **Improved GPU Support**:
+   - [ ] Multi-GPU rendering support
+   - [ ] Dynamic load balancing between GPUs
+   - [ ] UI for selecting specific GPU for rendering
+   - [ ] Performance profiling for different encoders
 
-2. **Расширенное кеширование**:
-   - [ ] Облачное хранилище кеша для синхронизации между устройствами
-   - [ ] Общий кеш между проектами для экономии места
-   - [ ] Умная предзагрузка кеша на основе паттернов использования
-   - [ ] Сжатие кеша с потерями для экономии места
+2. **Extended Caching**:
+   - [ ] Cloud cache storage for device synchronization
+   - [ ] Shared cache between projects to save space
+   - [ ] Smart cache preloading based on usage patterns
+   - [ ] Lossy cache compression to save space
 
-3. **Пользовательский опыт**:
-   - [ ] Пресеты рендеринга для разных платформ (YouTube, Vimeo, Instagram)
-   - [ ] Пакетный рендеринг с разными настройками
-   - [ ] Расширенный preview с поддержкой эффектов реального времени
-   - [ ] Уведомления о завершении рендеринга
+3. **User Experience**:
+   - [ ] Render presets for different platforms (YouTube, Vimeo, Instagram)
+   - [ ] Batch rendering with different settings
+   - [ ] Extended preview with real-time effects support
+   - [ ] Render completion notifications
 
-### Долгосрочные планы (Q3-Q4)
+### Long-term Plans (Q3-Q4)
 
-1. **Аналитика и мониторинг**:
-   - [ ] Детальная статистика рендеринга и производительности
-   - [ ] Графики использования GPU и CPU в реальном времени
-   - [ ] Определение узких мест в конвейере рендеринга
-   - [ ] Автоматические рекомендации по оптимизации
+1. **Analytics and Monitoring**:
+   - [ ] Detailed rendering and performance statistics
+   - [ ] Real-time GPU and CPU usage graphs
+   - [ ] Bottleneck detection in rendering pipeline
+   - [ ] Automatic optimization recommendations
 
-2. **Продвинутые возможности**:
-   - [ ] Распределенный рендеринг между несколькими машинами
-   - [ ] AI-ускоренная обработка с использованием Tensor cores
-   - [ ] Поддержка 8K и HDR рендеринга
-   - [ ] Интеграция с облачными GPU сервисами
+2. **Advanced Features**:
+   - [ ] Distributed rendering across multiple machines
+   - [ ] AI-accelerated processing using Tensor cores
+   - [ ] 8K and HDR rendering support
+   - [ ] Cloud GPU service integration
 
-3. **Интеграция с Timeline**:
-   - [ ] Real-time превью эффектов без пререндеринга
-   - [ ] Интерактивная система отслеживания прогресса
-   - [ ] Оценка размера файла в реальном времени
-   - [ ] Прогресс по трекам и отдельным эффектам
+3. **Timeline Integration**:
+   - [ ] Real-time effect preview without prerendering
+   - [ ] Interactive progress tracking system
+   - [ ] Real-time file size estimation
+   - [ ] Progress by tracks and individual effects
 
-### Техническая модернизация
+### Technical Modernization
 
-1. **Архитектурные улучшения**:
-   - [ ] Извлечение общих паттернов в shared утилиты
-   - [ ] Консолидация логики обработки ошибок
-   - [ ] Улучшение типизации для ответов сервисов
-   - [ ] Рефакторинг сервисов для лучшей переиспользуемости
+1. **Architectural Improvements**:
+   - [ ] Extract common patterns to shared utilities
+   - [ ] Consolidate error handling logic
+   - [ ] Improve typing for service responses
+   - [ ] Refactor services for better reusability
 
-2. **Расширение тестирования**:
-   - [ ] Интеграционные тесты для полного конвейера рендеринга
-   - [ ] Тестирование сценариев отката GPU
-   - [ ] Тесты регрессии производительности
-   - [ ] E2E тесты с реальными видеофайлами
+2. **Extended Testing**:
+   - [ ] Integration tests for full rendering pipeline
+   - [ ] GPU fallback scenario testing
+   - [ ] Performance regression tests
+   - [ ] E2E tests with real video files
 
-3. **Документация и DevEx**:
-   - [ ] Добавление встроенной документации для сложных алгоритмов
-   - [ ] Создание диаграмм архитектуры и data flow
-   - [ ] Документирование построения команд FFmpeg
-   - [ ] Создание playground для тестирования рендеринга
+3. **Documentation and DevEx**:
+   - [ ] Add inline documentation for complex algorithms
+   - [ ] Create architecture and data flow diagrams
+   - [ ] Document FFmpeg command construction
+   - [ ] Create rendering testing playground
 
-## 🔧 Руководство по разработке
+## 🔧 Development Guide
 
-### Архитектурные принципы
+### Architectural Principles
 
-Модуль следует принципам:
+The module follows these principles:
 
-1. **Разделение ответственности**: Каждый хук отвечает за конкретную область функциональности
-2. **Типобезопасность**: Строгая типизация всех структур данных и API
-3. **Обработка ошибок**: Комплексная система обработки ошибок на всех уровнях
-4. **Производительность**: Оптимизация для работы с большими видеофайлами
-5. **Тестируемость**: Полное покрытие тестами всех критических путей
+1. **Separation of Concerns**: Each hook handles a specific functionality area
+2. **Type Safety**: Strict typing for all data structures and APIs
+3. **Error Handling**: Comprehensive error handling at all levels
+4. **Performance**: Optimization for large video files
+5. **Testability**: Full test coverage for all critical paths
 
-### Паттерны разработки
+### Development Patterns
 
-#### Стандартный паттерн хука
+#### Standard Hook Pattern
 
 ```typescript
 export function useFeature(options?: FeatureOptions): FeatureReturn {
@@ -1061,10 +1063,10 @@ export function useFeature(options?: FeatureOptions): FeatureReturn {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }));
       
-      // Валидация входных данных
+      // Validate input data
       validateParams(params);
       
-      // Основная логика
+      // Main logic
       const result = await service.performAction(params);
       
       setState(prev => ({ 
@@ -1073,7 +1075,7 @@ export function useFeature(options?: FeatureOptions): FeatureReturn {
         loading: false 
       }));
       
-      // Уведомление об успехе
+      // Success notification
       toast.success(t('videoCompiler.feature.success'));
       
       return result;
@@ -1085,7 +1087,7 @@ export function useFeature(options?: FeatureOptions): FeatureReturn {
         loading: false 
       }));
       
-      // Уведомление об ошибке
+      // Error notification
       toast.error(t('videoCompiler.feature.error'), {
         description: errorMessage
       });
@@ -1097,17 +1099,17 @@ export function useFeature(options?: FeatureOptions): FeatureReturn {
   return { 
     ...state, 
     action,
-    // Дополнительные utility функции
+    // Additional utility functions
     retry: () => action(lastParams),
     reset: () => setState(initialState)
   };
 }
 ```
 
-#### Обработка ошибок
+#### Error Handling
 
 ```typescript
-// Типизированные ошибки
+// Typed errors
 class VideoCompilerError extends Error {
   constructor(
     message: string,
@@ -1119,7 +1121,7 @@ class VideoCompilerError extends Error {
   }
 }
 
-// Централизованная обработка ошибок
+// Centralized error handling
 const handleError = (error: unknown, context: string): string => {
   console.error(`[VideoCompiler:${context}]`, error);
   
@@ -1131,14 +1133,14 @@ const handleError = (error: unknown, context: string): string => {
     return `${context}: ${error.message}`;
   }
   
-  return `Неизвестная ошибка в ${context}`;
+  return `Unknown error in ${context}`;
 };
 ```
 
-#### Коммуникация с Rust backend
+#### Rust Backend Communication
 
 ```typescript
-// Типизированные вызовы Tauri
+// Typed Tauri calls
 const invokeRust = async <T>(
   command: string, 
   args?: Record<string, any>
@@ -1147,26 +1149,26 @@ const invokeRust = async <T>(
     return await invoke<T>(command, args);
   } catch (error) {
     throw new VideoCompilerError(
-      `Ошибка выполнения команды ${command}`,
+      `Error executing command ${command}`,
       'RUST_COMMAND_ERROR',
       { command, args, error }
     );
   }
 };
 
-// Использование
-const result = await invokeRust<RenderResult>('render_project', {
+// Usage
+const result = await invokeRust<RenderResult>('compile_video', {
   projectSchema: schema,
   outputPath: path,
   settings: settings
 });
 ```
 
-### Добавление новых функций
+### Adding New Features
 
-При добавлении новых возможностей следуйте этому checklist:
+When adding new capabilities, follow this checklist:
 
-1. **Определите типы** в `types/`:
+1. **Define types** in `types/`:
    ```typescript
    // types/my-feature.ts
    export interface MyFeatureOptions {
@@ -1180,7 +1182,7 @@ const result = await invokeRust<RenderResult>('render_project', {
    }
    ```
 
-2. **Создайте сервис** в `services/`:
+2. **Create service** in `services/`:
    ```typescript
    // services/my-feature-service.ts
    export const MyFeatureService = {
@@ -1190,51 +1192,51 @@ const result = await invokeRust<RenderResult>('render_project', {
    };
    ```
 
-3. **Реализуйте хук** в `hooks/`:
+3. **Implement hook** in `hooks/`:
    ```typescript
    // hooks/use-my-feature.ts
    export function useMyFeature(options?: MyFeatureOptions) {
-     // Следуйте стандартному паттерну
+     // Follow standard pattern
    }
    ```
 
-4. **Добавьте UI компонент** в `components/` (если нужно):
+4. **Add UI component** in `components/` (if needed):
    ```typescript
    // components/my-feature-component.tsx
    export function MyFeatureComponent() {
      const { data, action } = useMyFeature();
-     // Реализация UI
+     // UI implementation
    }
    ```
 
-5. **Напишите тесты** в `__tests__/`:
+5. **Write tests** in `__tests__/`:
    ```typescript
    // __tests__/hooks/use-my-feature.test.ts
    describe('useMyFeature', () => {
      it('should handle success case', async () => {
-       // Тестирование
+       // Testing
      });
    });
    ```
 
-6. **Обновите переводы** во всех локалях:
+6. **Update translations** in all locales:
    ```json
    {
      "videoCompiler": {
        "myFeature": {
-         "success": "Операция выполнена успешно",
-         "error": "Ошибка выполнения операции"
+         "success": "Operation completed successfully",
+         "error": "Operation failed"
        }
      }
    }
    ```
 
-### Отладка и профилирование
+### Debugging and Profiling
 
-#### Логирование
+#### Logging
 
 ```typescript
-// Условное логирование для разработки
+// Conditional logging for development
 const DEBUG = process.env.NODE_ENV === 'development';
 
 const log = {
@@ -1245,10 +1247,10 @@ const log = {
 };
 ```
 
-#### Мониторинг производительности
+#### Performance Monitoring
 
 ```typescript
-// Измерение времени выполнения
+// Measure execution time
 const measurePerformance = async <T>(
   name: string, 
   fn: () => Promise<T>
@@ -1267,30 +1269,30 @@ const measurePerformance = async <T>(
 };
 ```
 
-#### Инструменты для отладки
+#### Debugging Tools
 
-1. **GPU мониторинг**: GPU-Z, nvidia-smi, Intel Graphics Command Center
-2. **FFmpeg тестирование**: Прямое тестирование команд в терминале
-3. **React DevTools**: Профилирование компонентов и хуков
-4. **Tauri DevTools**: Мониторинг IPC вызовов
-5. **IndexedDB Inspector**: Проверка состояния кеша в браузере
+1. **GPU monitoring**: GPU-Z, nvidia-smi, Intel Graphics Command Center
+2. **FFmpeg testing**: Direct command testing in terminal
+3. **React DevTools**: Component and hook profiling
+4. **Tauri DevTools**: IPC call monitoring
+5. **IndexedDB Inspector**: Browser cache state inspection
 
-## 🔌 Интеграция с системой
+## 🔌 System Integration
 
-### Зависимости
+### Dependencies
 
-Модуль интегрируется со следующими системами:
+The module integrates with the following systems:
 
-- **AppSettingsProvider**: Локализация интерфейса и пользовательские настройки
-- **ProjectSettingsProvider**: Настройки проекта и параметры рендеринга
-- **TimelineProvider**: Интеграция с timeline для пререндеринга
-- **MediaProvider**: Работа с медиафайлами и метаданными
-- **NotificationProvider**: Уведомления о завершении рендеринга
+- **AppSettingsProvider**: UI localization and user settings
+- **ProjectSettingsProvider**: Project settings and render parameters
+- **TimelineProvider**: Timeline integration for prerendering
+- **MediaProvider**: Media file and metadata handling
+- **NotificationProvider**: Render completion notifications
 
-### Использование в приложении
+### Application Usage
 
 ```typescript
-// В главном провайдере приложения
+// In main application provider
 function App() {
   return (
     <AppSettingsProvider>
@@ -1307,7 +1309,7 @@ function App() {
   );
 }
 
-// В компонентах приложения
+// In application components
 function ExportMenu() {
   const { startRender } = useVideoCompiler();
   const { currentProject } = useProjectSettings();
@@ -1316,7 +1318,7 @@ function ExportMenu() {
     <DropdownMenu>
       <DropdownMenuContent>
         <DropdownMenuItem onClick={() => startRender(currentProject, '/output/video.mp4')}>
-          Экспорт видео
+          Export Video
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -1324,22 +1326,22 @@ function ExportMenu() {
 }
 ```
 
-## 🚨 Устранение неполадок
+## 🚨 Troubleshooting
 
-### Распространенные проблемы
+### Common Issues
 
-#### GPU не определяется
+#### GPU Not Detected
 
-**Симптомы**: Показывается "GPU ускорение недоступно" несмотря на наличие GPU
+**Symptoms**: Shows "GPU acceleration unavailable" despite having GPU
 
-**Решения**:
-1. Проверьте драйверы GPU (обновите до последней версии)
-2. Убедитесь, что FFmpeg собран с поддержкой аппаратного ускорения
-3. Проверьте права доступа приложения к GPU
-4. Перезапустите приложение после обновления драйверов
+**Solutions**:
+1. Check GPU drivers (update to latest version)
+2. Ensure FFmpeg is built with hardware acceleration support
+3. Check application GPU access permissions
+4. Restart application after driver update
 
 ```typescript
-// Диагностика GPU
+// GPU diagnostics
 const { refreshCapabilities } = useGpuCapabilities();
 const capabilities = await refreshCapabilities();
 
@@ -1347,62 +1349,62 @@ console.log('FFmpeg encoders:', capabilities.ffmpeg_capabilities?.encoders);
 console.log('Available GPUs:', capabilities.gpus);
 ```
 
-#### Рендеринг завершается с ошибкой
+#### Render Fails with Error
 
-**Симптомы**: Рендеринг начинается, но прерывается с ошибкой
+**Symptoms**: Render starts but stops with error
 
-**Возможные причины и решения**:
+**Possible causes and solutions**:
 
-1. **Недостаток места на диске**:
+1. **Insufficient disk space**:
    ```typescript
-   // Проверка свободного места
+   // Check free space
    const freespace = await invoke('get_disk_space', { path: outputPath });
    if (freespace < estimatedFileSize) {
-     throw new Error('Недостаточно места на диске');
+     throw new Error('Insufficient disk space');
    }
    ```
 
-2. **Недостаток памяти GPU**:
+2. **Insufficient GPU memory**:
    ```typescript
-   // Снижение качества для экономии VRAM
+   // Reduce quality to save VRAM
    const settings = {
-     quality: 70, // Вместо 90
-     resolution_scale: 0.8, // Вместо 1.0
-     max_concurrent_jobs: 1 // Вместо 2
+     quality: 70, // Instead of 90
+     resolution_scale: 0.8, // Instead of 1.0
+     max_concurrent_jobs: 1 // Instead of 2
    };
    ```
 
-3. **Повреждение исходных файлов**:
+3. **Corrupted source files**:
    ```typescript
-   // Валидация медиафайлов перед рендерингом
+   // Validate media files before rendering
    const validateMedia = async (mediaFiles: string[]) => {
      for (const file of mediaFiles) {
        const isValid = await invoke('validate_media_file', { path: file });
        if (!isValid) {
-         throw new Error(`Поврежден файл: ${file}`);
+         throw new Error(`Corrupted file: ${file}`);
        }
      }
    };
    ```
 
-#### Низкая производительность рендеринга
+#### Low Render Performance
 
-**Симптомы**: Рендеринг выполняется очень медленно
+**Symptoms**: Rendering is very slow
 
-**Оптимизации**:
+**Optimizations**:
 
-1. **Включите GPU ускорение**:
+1. **Enable GPU acceleration**:
    ```typescript
    const optimizeSettings = {
      hardware_acceleration: true,
-     preferred_encoder: GpuEncoder.Auto, // Пусть система выберет лучший
-     quality: 85, // Баланс между качеством и скоростью
+     preferred_encoder: GpuEncoder.Auto, // Let system choose best
+     quality: 85, // Balance between quality and speed
    };
    ```
 
-2. **Оптимизируйте проект**:
+2. **Optimize project**:
    ```typescript
-   // Пререндер сложных эффектов
+   // Prerender complex effects
    const { prerender } = usePrerender();
    await prerender({
      segment: heavyEffectsSegment,
@@ -1411,71 +1413,71 @@ console.log('Available GPUs:', capabilities.gpus);
    });
    ```
 
-3. **Настройте кеш**:
+3. **Configure cache**:
    ```typescript
-   // Очистка переполненного кеша
+   // Clear overflowing cache
    const { stats, clearPreviewCache } = useCacheStats();
    if (stats?.cache_size_mb > 2048) { // > 2GB
      await clearPreviewCache();
    }
    ```
 
-#### Проблемы с кешем
+#### Cache Issues
 
-**Симптомы**: Превью не загружаются или загружаются медленно
+**Symptoms**: Previews don't load or load slowly
 
-**Решения**:
+**Solutions**:
 
-1. **Очистка поврежденного кеша**:
+1. **Clear corrupted cache**:
    ```typescript
    const { clearAllCache } = useCacheStats();
    await clearAllCache();
    ```
 
-2. **Проверка целостности**:
+2. **Check integrity**:
    ```typescript
    const isValid = await invoke('validate_cache_integrity');
    if (!isValid) {
      await clearAllCache();
-     toast.info('Кеш очищен из-за повреждения данных');
+     toast.info('Cache cleared due to data corruption');
    }
    ```
 
-3. **Оптимизация настроек**:
+3. **Optimize settings**:
    ```typescript
    const cacheSettings = {
-     max_size_mb: 1024, // 1GB максимум
-     ttl_hours: 24, // Хранить 24 часа
-     compression: true, // Включить сжатие
+     max_size_mb: 1024, // 1GB maximum
+     ttl_hours: 24, // Keep for 24 hours
+     compression: true, // Enable compression
    };
    await setCacheSettings(cacheSettings);
    ```
 
-### Диагностические команды
+### Diagnostic Commands
 
 ```bash
-# Проверка возможностей FFmpeg
+# Check FFmpeg capabilities
 ffmpeg -encoders | grep nvenc  # NVIDIA
 ffmpeg -encoders | grep qsv    # Intel QuickSync
 ffmpeg -encoders | grep amf    # AMD
 
-# Информация о GPU
+# GPU information
 nvidia-smi                     # NVIDIA
 intel_gpu_top                  # Intel
 radeontop                      # AMD
 
-# Мониторинг ресурсов во время рендеринга
-htop                           # CPU и память
-iotop                          # Дисковая активность
+# Monitor resources during rendering
+htop                           # CPU and memory
+iotop                          # Disk activity
 ```
 
-## 🎯 Заключение
+## 🎯 Conclusion
 
-Модуль Video Compiler представляет собой полнофункциональную систему рендеринга видео для Timeline Studio, объединяющую:
+The Video Compiler module represents a comprehensive video rendering system for Timeline Studio, combining:
 
-- **Высокую производительность** благодаря GPU ускорению и оптимизированному кешированию
-- **Надежность** с комплексным тестированием (98% покрытие) и обработкой ошибок
-- **Гибкость** с поддержкой различных форматов, кодировщиков и настроек качества
-- **Удобство использования** с интуитивным API и автоматической оптимизацией
+- **High performance** through GPU acceleration and optimized caching
+- **Reliability** with comprehensive testing (98% coverage) and error handling
+- **Flexibility** with support for various formats, encoders and quality settings
+- **Ease of use** with intuitive API and automatic optimization
 
-Модуль готов для использования в продакшене и продолжает активно развиваться с учетом потребностей пользователей и технологических тенденций в области видеообработки.
+The module is ready for production use and continues to actively evolve based on user needs and technological trends in video processing.

@@ -1,8 +1,8 @@
 /**
- * Типы для системы кэширования
+ * Типы для системы кэширования video-compiler
  */
 
-export interface CacheStats {
+export interface VideoCompilerCacheStats {
   total_entries: number
   preview_hits: number
   preview_misses: number

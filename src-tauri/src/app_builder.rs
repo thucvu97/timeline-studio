@@ -35,6 +35,9 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::app_dirs::get_app_directories,
     crate::app_dirs::get_directory_sizes,
     crate::app_dirs::clear_app_cache,
+    // Voice recording commands
+    crate::voice_recording::save_voice_recording,
+    crate::voice_recording::get_supported_audio_formats,
     // Media commands
     crate::media::commands::get_media_files,
     crate::media::commands::get_media_metadata,
