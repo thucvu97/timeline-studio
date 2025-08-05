@@ -5,7 +5,6 @@
 // Временные заглушки для отсутствующих типов
 
 // Import actual types
-import type { BaseEffect } from "@/features/effects/types/unified-effects"
 import type { VideoFilter } from "@/features/filters/types/filters"
 import type { StyleTemplate } from "@/features/style-templates/types"
 import type { MediaTemplate } from "@/features/templates/lib/templates"
@@ -198,15 +197,21 @@ function convertClipTransitions(transitions?: AppliedTransition[]): string[] {
 function convertEffects(effects: any[]): any[] {
   return effects.map((effect) => ({
     id: effect.id,
-    effect_type: effect.category ? toRustEnumCase(effect.category) : effect.type ? toRustEnumCase(effect.type) : "Custom",
+    effect_type: effect.category
+      ? toRustEnumCase(effect.category)
+      : effect.type
+        ? toRustEnumCase(effect.type)
+        : "Custom",
     name: typeof effect.name === "string" ? effect.name : effect.name?.ru || "Unnamed Effect",
     enabled: true,
     parameters: convertEffectParameters(effect),
-    ffmpeg_command: effect.ffmpegCommand || (effect.processors?.ffmpeg
-      ? typeof effect.processors.ffmpeg.filter === "function"
-        ? effect.processors.ffmpeg.filter(getDefaultParams(effect))
-        : effect.processors.ffmpeg.filter
-      : undefined),
+    ffmpeg_command:
+      effect.ffmpegCommand ||
+      (effect.processors?.ffmpeg
+        ? typeof effect.processors.ffmpeg.filter === "function"
+          ? effect.processors.ffmpeg.filter(getDefaultParams(effect))
+          : effect.processors.ffmpeg.filter
+        : undefined),
   }))
 }
 
@@ -217,13 +222,13 @@ function convertEffectParameters(effect: any): Record<string, any> {
   // Если это простой объект из теста с полем params
   if (effect.params && !effect.parameters) {
     const params = { ...effect.params }
-    
+
     // Специальное преобразование для тестов: intensity -> value
-    if ('intensity' in params && !('value' in params)) {
+    if ("intensity" in params && !("value" in params)) {
       params.value = params.intensity
       delete params.intensity
     }
-    
+
     return params
   }
 
@@ -231,7 +236,7 @@ function convertEffectParameters(effect: any): Record<string, any> {
 
   // Если есть массив parameters как в BaseEffect
   if (Array.isArray(effect.parameters)) {
-    effect.parameters.forEach((param) => {
+    effect.parameters.forEach((param: any) => {
       const value = param.currentValue !== undefined ? param.currentValue : param.defaultValue
       if (value !== undefined) {
         parameters[param.id] = value
@@ -252,13 +257,13 @@ function getDefaultParams(effect: any): Record<string, any> {
   }
 
   const params: Record<string, any> = {}
-  
+
   if (Array.isArray(effect.parameters)) {
-    effect.parameters.forEach((param) => {
+    effect.parameters.forEach((param: any) => {
       params[param.id] = param.currentValue !== undefined ? param.currentValue : param.defaultValue
     })
   }
-  
+
   return params
 }
 

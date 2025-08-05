@@ -34,6 +34,9 @@ mod filesystem;
 // Модуль управления директориями приложения
 mod app_dirs;
 
+// Модуль для работы с голосовыми записями
+mod voice_recording;
+
 // Модуль Video Compiler
 pub mod video_compiler;
 use video_compiler::VideoCompilerState;

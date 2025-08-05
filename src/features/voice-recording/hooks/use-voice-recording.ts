@@ -7,6 +7,7 @@ interface UseVoiceRecordingProps {
   isMuted: boolean
   setErrorMessage: (message: string) => void
   onSaveRecording: (blob: Blob, fileName: string) => Promise<void>
+  audioFormat?: string
 }
 
 export function useVoiceRecording({
@@ -14,6 +15,7 @@ export function useVoiceRecording({
   isMuted,
   setErrorMessage,
   onSaveRecording,
+  audioFormat = "webm",
 }: UseVoiceRecordingProps) {
   const { t } = useTranslation()
   const [isRecording, setIsRecording] = useState<boolean>(false)
@@ -58,16 +60,38 @@ export function useVoiceRecording({
 
     chunksRef.current = []
 
-    const options = { mimeType: "audio/webm" }
+    // Определяем MIME тип на основе формата
+    const mimeTypes: Record<string, string> = {
+      webm: "audio/webm",
+      mp3: "audio/mpeg",
+      wav: "audio/wav",
+      ogg: "audio/ogg",
+      m4a: "audio/mp4",
+    }
+    const mimeType = mimeTypes[audioFormat] || "audio/webm"
+
+    // Пробуем создать MediaRecorder с нужным форматом
+    let options: MediaRecorderOptions = { mimeType }
+
+    // Для WebM пробуем разные кодеки
+    if (audioFormat === "webm") {
+      if (MediaRecorder.isTypeSupported("audio/webm;codecs=opus")) {
+        options = { mimeType: "audio/webm;codecs=opus" }
+      } else if (MediaRecorder.isTypeSupported("audio/webm;codecs=vorbis")) {
+        options = { mimeType: "audio/webm;codecs=vorbis" }
+      }
+    }
+
     try {
       mediaRecorderRef.current = new MediaRecorder(streamRef.current, options)
     } catch (e) {
       console.error("MediaRecorder не поддерживает данный формат:", e)
       try {
-        // Пробуем другой формат
+        // Пробуем без опций
         mediaRecorderRef.current = new MediaRecorder(streamRef.current)
       } catch (e) {
         console.error("MediaRecorder не поддерживается браузером:", e)
+        setErrorMessage(t("dialogs.voiceRecord.recordingNotSupported", "Запись не поддерживается браузером"))
         return
       }
     }
@@ -79,9 +103,10 @@ export function useVoiceRecording({
     }
 
     mediaRecorderRef.current.onstop = () => {
-      const blob = new Blob(chunksRef.current, { type: "audio/webm" })
+      const blobType = mimeType.split(";")[0] // Убираем кодеки из MIME типа
+      const blob = new Blob(chunksRef.current, { type: blobType })
       const now = new Date()
-      const fileName = `voice_recording_${now.toISOString().replace(/:/g, "-")}.webm`
+      const fileName = `voice_recording_${now.toISOString().replace(/:/g, "-")}.${audioFormat}`
       void onSaveRecording(blob, fileName)
     }
 
@@ -94,7 +119,7 @@ export function useVoiceRecording({
       seconds++
       setRecordingTime(seconds)
     }, 1000)
-  }, [onSaveRecording])
+  }, [onSaveRecording, audioFormat, setErrorMessage, t])
 
   // Запускаем обратный отсчет перед записью
   const startCountdown = useCallback(() => {
