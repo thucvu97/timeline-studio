@@ -2,103 +2,106 @@ import { motion } from "framer-motion"
 import type React from "react"
 import { Footer } from "../components/Footer"
 import { Navigation } from "../components/Navigation"
+import { useTranslation } from "../hooks/useTranslation"
 
 const Docs: React.FC = () => {
+  const { t, language } = useTranslation()
+
   const docSections = [
     {
-      title: "Getting Started",
+      title: t("docs.sections.gettingStarted.title"),
       icon: "🚀",
       items: [
         {
-          name: "Quick Start Guide",
-          href: "https://github.com/chatman-media/timeline-studio/blob/main/docs/en/01_project_docs/quick-start.md",
+          name: t("docs.sections.gettingStarted.quickStart"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/01_project_docs/quick-start.md`,
         },
         {
-          name: "Installation",
-          href: "https://github.com/chatman-media/timeline-studio/blob/main/docs/en/01_project_docs/installation.md",
+          name: t("docs.sections.gettingStarted.installation"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/01_project_docs/installation.md`,
         },
         {
-          name: "Project Structure",
-          href: "https://github.com/chatman-media/timeline-studio/blob/main/docs/en/01_project_docs/project-structure.md",
+          name: t("docs.sections.gettingStarted.projectStructure"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/01_project_docs/project-structure.md`,
         },
       ],
     },
     {
-      title: "Architecture",
+      title: t("docs.sections.architecture.title"),
       icon: "🏗️",
       items: [
         {
-          name: "Architecture Overview",
-          href: "https://github.com/chatman-media/timeline-studio/blob/main/docs/en/01_project_docs/architecture-overview.md",
+          name: t("docs.sections.architecture.overview"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/01_project_docs/architecture-overview.md`,
         },
         {
-          name: "Frontend Architecture",
-          href: "https://github.com/chatman-media/timeline-studio/blob/main/docs/en/03_architecture/frontend/overview.md",
+          name: t("docs.sections.architecture.frontend"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/03_architecture/frontend/overview.md`,
         },
         {
-          name: "Backend Architecture",
-          href: "https://github.com/chatman-media/timeline-studio/blob/main/docs/en/03_architecture/backend/overview.md",
+          name: t("docs.sections.architecture.backend"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/03_architecture/backend/overview.md`,
         },
       ],
     },
     {
-      title: "Development",
+      title: t("docs.sections.development.title"),
       icon: "💻",
       items: [
         {
-          name: "Development Guide",
-          href: "https://github.com/chatman-media/timeline-studio/blob/main/docs/en/05_development/README.md",
+          name: t("docs.sections.development.guide"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/05_development/README.md`,
         },
         {
-          name: "Development Commands",
-          href: "https://github.com/chatman-media/timeline-studio/blob/main/docs/en/05_development/development-commands.md",
+          name: t("docs.sections.development.commands"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/05_development/development-commands.md`,
         },
         {
-          name: "Plugin Development",
-          href: "https://github.com/chatman-media/timeline-studio/blob/main/docs/en/05_development/plugin-development.md",
+          name: t("docs.sections.development.plugins"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/05_development/plugin-development.md`,
         },
       ],
     },
     {
-      title: "API Reference",
+      title: t("docs.sections.api.title"),
       icon: "📚",
       items: [
         {
-          name: "Media API",
-          href: "https://github.com/chatman-media/timeline-studio/blob/main/docs/en/04_api_reference/media_api.md",
+          name: t("docs.sections.api.media"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/04_api_reference/media_api.md`,
         },
-        { name: "Generated API Docs", href: "/api-docs/", external: true },
+        { name: t("docs.sections.api.generated"), href: "/api-docs/", external: true },
       ],
     },
     {
-      title: "Deployment",
+      title: t("docs.sections.deployment.title"),
       icon: "🚢",
       items: [
         {
-          name: "Build Guide",
-          href: "https://github.com/chatman-media/timeline-studio/blob/main/docs/en/06_deployment/build_guide.md",
+          name: t("docs.sections.deployment.build"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/06_deployment/build_guide.md`,
         },
         {
-          name: "Windows Build",
-          href: "https://github.com/chatman-media/timeline-studio/blob/main/docs/en/06_deployment/platforms/windows.md",
+          name: t("docs.sections.deployment.windows"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/06_deployment/platforms/windows.md`,
         },
         {
-          name: "OAuth Setup",
-          href: "https://github.com/chatman-media/timeline-studio/blob/main/docs/en/06_deployment/oauth_setup.md",
+          name: t("docs.sections.deployment.oauth"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/06_deployment/oauth_setup.md`,
         },
       ],
     },
     {
-      title: "Testing",
+      title: t("docs.sections.testing.title"),
       icon: "🧪",
       items: [
         {
-          name: "Testing Guide",
-          href: "https://github.com/chatman-media/timeline-studio/blob/main/docs/en/12_testing/README.md",
+          name: t("docs.sections.testing.guide"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/12_testing/README.md`,
         },
         {
-          name: "Backend Testing",
-          href: "https://github.com/chatman-media/timeline-studio/blob/main/docs/en/12_testing/backend-testing.md",
+          name: t("docs.sections.testing.backend"),
+          href: `https://github.com/chatman-media/timeline-studio/blob/main/docs/${language}/12_testing/backend-testing.md`,
         },
       ],
     },
@@ -128,12 +131,10 @@ const Docs: React.FC = () => {
               className="max-w-4xl mx-auto text-center"
             >
               <h1 className="page-title">
-                <span className="text-gradient">Documentation</span>
+                <span className="text-gradient">{t("docs.title")}</span>
               </h1>
-              <p className="text-xl md:text-2xl text-gray-300 mb-4">
-                Everything you need to know about Timeline Studio
-              </p>
-              <p className="text-lg text-gray-400">Development guides, API reference, and best practices 📚</p>
+              <p className="text-xl md:text-2xl text-gray-300 mb-4">{t("docs.subtitle")}</p>
+              <p className="text-lg text-gray-400">{t("docs.description")} 📚</p>
             </motion.div>
           </div>
         </section>
@@ -221,10 +222,8 @@ const Docs: React.FC = () => {
 
                   {/* Content */}
                   <div className="relative p-8">
-                    <h2 className="text-3xl font-medium text-white mb-4">Want to contribute?</h2>
-                    <p className="text-gray-400 mb-6 text-sm">
-                      Help us improve Timeline Studio by contributing to the documentation or codebase.
-                    </p>
+                    <h2 className="text-3xl font-medium text-white mb-4">{t("docs.contribute.title")}</h2>
+                    <p className="text-gray-400 mb-6 text-sm">{t("docs.contribute.description")}</p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                       <a
                         href="https://github.com/chatman-media/timeline-studio/tree/main/docs"
@@ -235,7 +234,7 @@ const Docs: React.FC = () => {
                         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
                         </svg>
-                        View on GitHub
+                        {t("docs.contribute.viewGithub")}
                       </a>
                       <a
                         href="https://github.com/chatman-media/timeline-studio/blob/main/CONTRIBUTING.md"
@@ -243,7 +242,7 @@ const Docs: React.FC = () => {
                         rel="noopener noreferrer"
                         className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all"
                       >
-                        Contributing Guide
+                        {t("docs.contribute.contributingGuide")}
                       </a>
                     </div>
                   </div>
