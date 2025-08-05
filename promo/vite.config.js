@@ -10,11 +10,16 @@ export default defineConfig({
   assetsInclude: ["**/*.md"],
   define: {
     global: "globalThis",
+    "process.env": {},
   },
   resolve: {
     alias: {
       buffer: "buffer",
+      // Убеждаемся, что используется одна версия React
+      react: "react",
+      "react-dom": "react-dom",
     },
+    dedupe: ["react", "react-dom"],
   },
   optimizeDeps: {
     include: ["buffer", "use-sync-external-store/shim/with-selector"],
@@ -25,32 +30,14 @@ export default defineConfig({
     // Оптимизация размера бандла
     rollupOptions: {
       output: {
-        manualChunks: (id) => {
-          // Более агрессивное разделение кода
-          if (id.includes("node_modules")) {
-            if (id.includes("react-router") || id.includes("react-dom")) {
-              return "react-vendor"
-            }
-            if (id.includes("framer-motion")) {
-              return "motion"
-            }
-            if (id.includes("three") || id.includes("@react-three")) {
-              return "three-vendor"
-            }
-            if (id.includes("mdx") || id.includes("remark") || id.includes("rehype")) {
-              return "mdx-vendor"
-            }
-            if (id.includes("heroicons")) {
-              return "icons"
-            }
-            // Остальные вендорные библиотеки
-            return "vendor"
-          }
-        },
-        // Оптимизация размера чанков
-        chunkFileNames: (chunkInfo) => {
-          const facadeModuleId = chunkInfo.facadeModuleId ? chunkInfo.facadeModuleId.split("/").pop() : "chunk"
-          return `assets/js/${facadeModuleId}-[hash].js`
+        // Упрощенная стратегия разделения кода
+        manualChunks: {
+          // React должен быть в одном месте
+          react: ["react", "react-dom"],
+          // Router отдельно
+          router: ["react-router-dom"],
+          // Остальные большие библиотеки
+          vendor: ["framer-motion", "@heroicons/react"],
         },
       },
     },

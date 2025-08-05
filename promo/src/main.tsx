@@ -9,7 +9,9 @@ import { ScrollToTop } from "./components/ScrollToTop"
 import { LanguageProvider } from "./contexts/LanguageContext"
 
 // Полифилл Buffer для браузера
-window.Buffer = Buffer
+if (typeof window !== "undefined") {
+  window.Buffer = Buffer
+}
 
 // Lazy load all route components except the main page
 const About = lazy(() => import("./pages/About"))
