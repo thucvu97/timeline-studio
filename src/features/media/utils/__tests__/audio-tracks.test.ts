@@ -58,11 +58,11 @@ describe("audio-tracks", () => {
     id,
     path: `/path/to/${id}.mp3`,
     name: `${id}.mp3`,
-    type: "audio",
+    isAudio: true,
     size: 1024000,
     startTime,
     duration,
-    createdAt: Date.now(),
+    createdAt: Date.now().toLocaleString(),
   })
 
   const createMockSector = (id: string, name: string, tracks: any[] = []): Sector => ({

@@ -1,3 +1,3 @@
 interface Window {
-  Buffer: typeof Buffer;
+  Buffer: typeof Buffer
 }

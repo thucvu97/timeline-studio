@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
+import { useLanguage } from "../contexts/LanguageContext"
+import { blogPostsList, blogPostsRaw } from "../data/blog-posts"
 import type { Post, PostMetadata } from "../utils/markdown"
 import { parseMarkdown } from "../utils/markdown"
-import { blogPostsList, blogPostsRaw } from "../data/blog-posts"
-import { useLanguage } from "../contexts/LanguageContext"
 
 // Загрузка всех постов блога
 export function useBlogPosts() {
@@ -14,17 +14,20 @@ export function useBlogPosts() {
     async function loadPosts() {
       try {
         // Используем явно импортированные посты для текущего языка
-        const langPosts = blogPostsList[language as 'en' | 'ru'] || blogPostsList.en
+        const langPosts = blogPostsList[language as "en" | "ru"] || blogPostsList.en
         const loadedPosts: PostMetadata[] = []
-        
+
         for (const content of langPosts) {
           const { metadata } = parseMarkdown(content)
-          
+
           // Если slug не задан, генерируем из заголовка
           if (!metadata.slug) {
-            metadata.slug = metadata.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+            metadata.slug = metadata.title
+              .toLowerCase()
+              .replace(/\s+/g, "-")
+              .replace(/[^a-z0-9-]/g, "")
           }
-          
+
           loadedPosts.push(metadata)
         }
 
@@ -55,9 +58,9 @@ export function useBlogPost(slug: string) {
     async function loadPost() {
       try {
         // Используем явные импорты для текущего языка
-        const langPosts = blogPostsRaw[language as 'en' | 'ru'] || blogPostsRaw.en
+        const langPosts = blogPostsRaw[language as "en" | "ru"] || blogPostsRaw.en
         const content = langPosts[slug as keyof typeof langPosts]
-        
+
         if (content) {
           const parsedPost = parseMarkdown(content)
           setPost(parsedPost)
@@ -85,14 +88,14 @@ export function useChangelogEntries() {
   useEffect(() => {
     async function loadEntries() {
       try {
-        const changelogFiles = import.meta.glob("../../content/changelog/*.md", { 
-          as: "raw"
+        const changelogFiles = import.meta.glob("../../content/changelog/*.md", {
+          as: "raw",
         })
 
         const loadedEntries: Post[] = []
 
         for (const path in changelogFiles) {
-          const content = await changelogFiles[path]() as string
+          const content = (await changelogFiles[path]()) as string
           const entry = parseMarkdown(content)
           loadedEntries.push(entry)
         }

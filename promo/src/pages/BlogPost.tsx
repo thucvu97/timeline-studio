@@ -5,8 +5,8 @@ import { Link, useParams } from "react-router-dom"
 import remarkGfm from "remark-gfm"
 import { Footer } from "../components/Footer"
 import { Navigation } from "../components/Navigation"
-import { useBlogPost } from "../hooks/useMarkdownContent"
 import { useLanguage } from "../contexts/LanguageContext"
+import { useBlogPost } from "../hooks/useMarkdownContent"
 
 export const BlogPost: React.FC = () => {
   const { slug } = useParams<{ slug: string }>()
@@ -28,7 +28,7 @@ export const BlogPost: React.FC = () => {
                     <div className="glass-card-inner" />
                   </div>
                   <div className="glass-card-content text-center">
-                    <p className="text-lg text-gray-400">{t('blog.loading')}</p>
+                    <p className="text-lg text-gray-400">{t("blog.loading")}</p>
                   </div>
                 </div>
               </div>
@@ -64,7 +64,7 @@ export const BlogPost: React.FC = () => {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
-                <span>{t('blog.backToBlog')}</span>
+                <span>{t("blog.backToBlog")}</span>
               </Link>
 
               <h1

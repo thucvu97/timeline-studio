@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer'
+import { Buffer } from "buffer"
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { HashRouter, Route, Routes } from "react-router-dom"
@@ -9,6 +9,7 @@ import { LanguageProvider } from "./contexts/LanguageContext"
 
 // Полифилл Buffer для браузера
 window.Buffer = Buffer
+
 import About from "./pages/About"
 import Blog from "./pages/Blog"
 import BlogPost from "./pages/BlogPost"
@@ -27,20 +28,20 @@ createRoot(document.getElementById("root")!).render(
       <HashRouter>
         <ScrollToTop />
         <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/pricing" element={<Pricing />} />
-        <Route path="/changelog" element={<Changelog />} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/blog/:slug" element={<BlogPost />} />
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/privacy" element={<Privacy />} />
-        <Route path="/responsible-ai" element={<ResponsibleAI />} />
-        <Route path="/faq" element={<FAQ />} />
-        <Route path="/docs" element={<Docs />} />
-        <Route path="/logo3d" element={<Logo3D />} />
-      </Routes>
-    </HashRouter>
+          <Route path="/" element={<App />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/changelog" element={<Changelog />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/responsible-ai" element={<ResponsibleAI />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/docs" element={<Docs />} />
+          <Route path="/logo3d" element={<Logo3D />} />
+        </Routes>
+      </HashRouter>
     </LanguageProvider>
   </StrictMode>,
 )

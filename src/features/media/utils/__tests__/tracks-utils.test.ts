@@ -8,11 +8,11 @@ describe("tracks-utils", () => {
     id,
     path: `/path/to/${id}.mp4`,
     name: `${id}.mp4`,
-    type: "video",
+    isVideo: true,
     size: 1024000,
     startTime,
     duration,
-    createdAt: Date.now(),
+    createdAt: Date.now().toLocaleString(),
   })
 
   const createMockSector = (tracks: any[] = []): Sector => ({

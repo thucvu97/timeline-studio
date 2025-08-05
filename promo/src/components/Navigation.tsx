@@ -1,8 +1,8 @@
 import { motion } from "framer-motion"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import { Logo } from "./Logo"
 import { useLanguage } from "../contexts/LanguageContext"
+import { Logo } from "./Logo"
 
 interface NavItem {
   label: string
@@ -22,10 +22,10 @@ export function Navigation() {
   const { t } = useLanguage()
 
   const rightNavItems: NavItem[] = [
-    { label: t('nav.pricing').toUpperCase(), href: "/pricing", isExternal: false },
-    { label: t('nav.changelog').toUpperCase(), href: "/changelog", isExternal: false },
-    { label: t('nav.docs').toUpperCase(), href: "/docs", isExternal: false },
-    { label: t('nav.blog').toUpperCase(), href: "/blog", isExternal: false },
+    { label: t("nav.pricing").toUpperCase(), href: "/pricing", isExternal: false },
+    { label: t("nav.changelog").toUpperCase(), href: "/changelog", isExternal: false },
+    { label: t("nav.docs").toUpperCase(), href: "/docs", isExternal: false },
+    { label: t("nav.blog").toUpperCase(), href: "/blog", isExternal: false },
   ]
 
   useEffect(() => {
@@ -174,7 +174,9 @@ export function Navigation() {
               <div className="absolute inset-0 z-10 rounded-xl bg-white transition-transform duration-500 translate-y-[50%] scale-0 group-hover:scale-x-[150%] group-hover:scale-y-[220%]" />
 
               {/* Text */}
-              <span className="relative z-20 group-hover:text-[#8b5cf6] transition-colors duration-500">{t('nav.download')}</span>
+              <span className="relative z-20 group-hover:text-[#8b5cf6] transition-colors duration-500">
+                {t("nav.download")}
+              </span>
             </a>
 
             {/* Mobile menu button */}

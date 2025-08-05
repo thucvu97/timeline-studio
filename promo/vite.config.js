@@ -8,14 +8,14 @@ export default defineConfig({
   base: "", // Пустая строка для относительных путей
   assetsInclude: ["**/*.md"],
   define: {
-    global: 'globalThis',
+    global: "globalThis",
   },
   resolve: {
     alias: {
-      buffer: 'buffer',
+      buffer: "buffer",
     },
   },
   optimizeDeps: {
-    include: ['buffer'],
+    include: ["buffer"],
   },
 })
