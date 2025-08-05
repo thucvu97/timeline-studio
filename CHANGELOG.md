@@ -1,3 +1,15 @@
+# [0.68.0](https://github.com/chatman-media/timeline-studio/compare/v0.67.4...v0.68.0) (2025-08-05)
+
+
+### Bug Fixes
+
+* **effects:** исправление WebGL2EffectProcessor и Tauri команд ([81dae60](https://github.com/chatman-media/timeline-studio/commit/81dae600f70dd42f4b58c7ee0396438ccab21e73))
+
+
+### Features
+
+* **webgl2:** complete WebGL2 migration and unified architecture ([fa1c751](https://github.com/chatman-media/timeline-studio/commit/fa1c751bfa63908591ec24a974c14e686c2176f5))
+
 ## [0.67.4](https://github.com/chatman-media/timeline-studio/compare/v0.67.3...v0.67.4) (2025-08-05)
 
 
