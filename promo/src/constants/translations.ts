@@ -161,7 +161,8 @@ export const translations = {
     pricing: {
       title: "Simple Pricing",
       subtitle: "Local features free. Cloud features paid. Everything transparent.",
-      description: "AI avatars, video generation, one-click export to TikTok/YouTube\nEverything you need to dominate social media",
+      description:
+        "AI avatars, video generation, one-click export to TikTok/YouTube\nEverything you need to dominate social media",
       mostPopular: "MOST POPULAR",
       cloudStorage: "Cloud Storage",
       aiTokens: "AI Tokens",
@@ -222,19 +223,23 @@ export const translations = {
         title: "Frequently Asked Questions",
         whatAreTokens: {
           question: "What are AI tokens?",
-          answer: "AI tokens are used for premium AI models (Claude, GPT-4). Local AI through Ollama works free and doesn't require tokens. PRO includes 80K tokens/mo, MAX provides 500K tokens/mo for power users.",
+          answer:
+            "AI tokens are used for premium AI models (Claude, GPT-4). Local AI through Ollama works free and doesn't require tokens. PRO includes 80K tokens/mo, MAX provides 500K tokens/mo for power users.",
         },
         canUpgradeDowngrade: {
           question: "Can I upgrade or downgrade?",
-          answer: "Yes! You can change your plan anytime. When upgrading, you'll get instant access to new features. When downgrading, changes take effect at the next billing cycle.",
+          answer:
+            "Yes! You can change your plan anytime. When upgrading, you'll get instant access to new features. When downgrading, changes take effect at the next billing cycle.",
         },
         whyFreePowerful: {
           question: "Why is the free version so powerful?",
-          answer: "We believe in transparency. Everything that can run on your computer is free. You only pay for cloud services and third-party APIs that require our infrastructure costs.",
+          answer:
+            "We believe in transparency. Everything that can run on your computer is free. You only pay for cloud services and third-party APIs that require our infrastructure costs.",
         },
         isThereFreeTrial: {
           question: "Is there a free trial?",
-          answer: "Yes! PRO, MAX and TEAM plans come with a 14-day free trial. No credit card required. Cancel anytime. Plus, get 3 months free when switching from competitors.",
+          answer:
+            "Yes! PRO, MAX and TEAM plans come with a 14-day free trial. No credit card required. Cancel anytime. Plus, get 3 months free when switching from competitors.",
         },
       },
     },
@@ -430,7 +435,8 @@ export const translations = {
     pricing: {
       title: "Простые цены",
       subtitle: "Локальные функции бесплатно. Облачные функции платно. Всё прозрачно.",
-      description: "ИИ-аватары, генерация видео, экспорт в TikTok/YouTube одним кликом\nВсё, что нужно для доминирования в соцсетях",
+      description:
+        "ИИ-аватары, генерация видео, экспорт в TikTok/YouTube одним кликом\nВсё, что нужно для доминирования в соцсетях",
       mostPopular: "САМЫЙ ПОПУЛЯРНЫЙ",
       cloudStorage: "Облачное хранилище",
       aiTokens: "Токены ИИ",
@@ -491,19 +497,23 @@ export const translations = {
         title: "Часто задаваемые вопросы",
         whatAreTokens: {
           question: "Что такое токены ИИ?",
-          answer: "Токены ИИ используются для премиум ИИ-моделей (Claude, GPT-4). Локальный ИИ через Ollama работает бесплатно и не требует токенов. PRO включает 80тыс токенов/мес, MAX предоставляет 500тыс токенов/мес для опытных пользователей.",
+          answer:
+            "Токены ИИ используются для премиум ИИ-моделей (Claude, GPT-4). Локальный ИИ через Ollama работает бесплатно и не требует токенов. PRO включает 80тыс токенов/мес, MAX предоставляет 500тыс токенов/мес для опытных пользователей.",
         },
         canUpgradeDowngrade: {
           question: "Могу ли я изменить тариф?",
-          answer: "Да! Вы можете изменить свой тариф в любое время. При повышении тарифа вы сразу получите доступ к новым функциям. При понижении тарифа изменения вступят в силу со следующего расчетного периода.",
+          answer:
+            "Да! Вы можете изменить свой тариф в любое время. При повышении тарифа вы сразу получите доступ к новым функциям. При понижении тарифа изменения вступят в силу со следующего расчетного периода.",
         },
         whyFreePowerful: {
           question: "Почему бесплатная версия такая мощная?",
-          answer: "Мы верим в прозрачность. Всё, что может работать на вашем компьютере, бесплатно. Вы платите только за облачные сервисы и сторонние API, которые требуют затрат на нашу инфраструктуру.",
+          answer:
+            "Мы верим в прозрачность. Всё, что может работать на вашем компьютере, бесплатно. Вы платите только за облачные сервисы и сторонние API, которые требуют затрат на нашу инфраструктуру.",
         },
         isThereFreeTrial: {
           question: "Есть ли бесплатный триал?",
-          answer: "Да! Тарифы PRO, MAX и КОМАНДА включают 14-дневный бесплатный триал. Кредитная карта не требуется. Отмена в любое время. Плюс, получите 3 месяца бесплатно при переходе от конкурентов.",
+          answer:
+            "Да! Тарифы PRO, MAX и КОМАНДА включают 14-дневный бесплатный триал. Кредитная карта не требуется. Отмена в любое время. Плюс, получите 3 месяца бесплатно при переходе от конкурентов.",
         },
       },
     },

@@ -89,7 +89,8 @@ export function useChangelogEntries() {
     async function loadEntries() {
       try {
         const changelogFiles = import.meta.glob("../../content/changelog/*.md", {
-          as: "raw",
+          query: "?raw",
+          import: "default",
         })
 
         const loadedEntries: Post[] = []

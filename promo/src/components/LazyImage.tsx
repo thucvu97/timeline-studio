@@ -40,7 +40,7 @@ export const LazyImage: React.FC<LazyImageProps> = ({
         },
         {
           rootMargin: "50px",
-        }
+        },
       )
 
       observerRef.current.observe(imageRef)

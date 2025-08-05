@@ -9,7 +9,7 @@ export function HeroSection() {
   const [, setShowCanvas] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const prefersReducedMotion = useReducedMotion()
-  
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"],
@@ -17,25 +17,25 @@ export function HeroSection() {
 
   const y = useTransform(scrollYProgress, [0, 1], [0, 300])
   const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.5, 0])
-  
+
   useEffect(() => {
     // Check if mobile and disable 3D on mobile for performance
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768)
     }
-    
+
     checkMobile()
-    window.addEventListener('resize', checkMobile)
-    
+    window.addEventListener("resize", checkMobile)
+
     // Delay loading 3D content for better initial page load
     const timer = setTimeout(() => {
       if (!isMobile) {
         setShowCanvas(true)
       }
     }, 100)
-    
+
     return () => {
-      window.removeEventListener('resize', checkMobile)
+      window.removeEventListener("resize", checkMobile)
       clearTimeout(timer)
     }
   }, [isMobile])

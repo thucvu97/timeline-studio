@@ -127,9 +127,7 @@ export const Changelog: React.FC = () => {
               <h1 className="page-title">
                 <span className="text-gradient">{t("changelog.title")}</span>
               </h1>
-              <p className="text-xl md:text-2xl text-gray-300 mb-8">
-                {t("changelog.subtitle")}
-              </p>
+              <p className="text-xl md:text-2xl text-gray-300 mb-8">{t("changelog.subtitle")}</p>
             </motion.div>
           </div>
         </section>

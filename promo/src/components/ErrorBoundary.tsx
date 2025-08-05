@@ -30,9 +30,7 @@ export class ErrorBoundary extends Component<Props, State> {
         <div className="min-h-screen bg-[#12192C] flex items-center justify-center px-6">
           <div className="max-w-md text-center">
             <h1 className="text-3xl font-bold text-white mb-4">Что-то пошло не так</h1>
-            <p className="text-gray-400 mb-6">
-              Произошла ошибка при загрузке страницы. Попробуйте обновить страницу.
-            </p>
+            <p className="text-gray-400 mb-6">Произошла ошибка при загрузке страницы. Попробуйте обновить страницу.</p>
             <button
               onClick={() => window.location.reload()}
               className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"

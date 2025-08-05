@@ -17,12 +17,12 @@ const blogPostsEager = import.meta.glob("/content/blog/*.md", { eager: true })
 // }
 
 // 3. Загрузить как строки (raw text)
-const blogPostsRaw = import.meta.glob("/content/blog/*.md", { as: "raw" })
+const blogPostsRaw = import.meta.glob("/content/blog/*.md", { query: "?raw", import: "default" })
 // Результат: промисы, которые возвращают содержимое файлов как строки
 
 // 4. Пример использования в компоненте
 export async function loadAllBlogPosts() {
-  const posts = import.meta.glob("/content/blog/*.md", { as: "raw" })
+  const posts = import.meta.glob("/content/blog/*.md", { query: "?raw", import: "default" })
 
   const loadedPosts = []
   for (const path in posts) {

@@ -27,30 +27,30 @@ export default defineConfig({
       output: {
         manualChunks: (id) => {
           // Более агрессивное разделение кода
-          if (id.includes('node_modules')) {
-            if (id.includes('react-router') || id.includes('react-dom')) {
-              return 'react-vendor';
+          if (id.includes("node_modules")) {
+            if (id.includes("react-router") || id.includes("react-dom")) {
+              return "react-vendor"
             }
-            if (id.includes('framer-motion')) {
-              return 'motion';
+            if (id.includes("framer-motion")) {
+              return "motion"
             }
-            if (id.includes('three') || id.includes('@react-three')) {
-              return 'three-vendor';
+            if (id.includes("three") || id.includes("@react-three")) {
+              return "three-vendor"
             }
-            if (id.includes('mdx') || id.includes('remark') || id.includes('rehype')) {
-              return 'mdx-vendor';
+            if (id.includes("mdx") || id.includes("remark") || id.includes("rehype")) {
+              return "mdx-vendor"
             }
-            if (id.includes('heroicons')) {
-              return 'icons';
+            if (id.includes("heroicons")) {
+              return "icons"
             }
             // Остальные вендорные библиотеки
-            return 'vendor';
+            return "vendor"
           }
         },
         // Оптимизация размера чанков
         chunkFileNames: (chunkInfo) => {
-          const facadeModuleId = chunkInfo.facadeModuleId ? chunkInfo.facadeModuleId.split('/').pop() : 'chunk';
-          return `assets/js/${facadeModuleId}-[hash].js`;
+          const facadeModuleId = chunkInfo.facadeModuleId ? chunkInfo.facadeModuleId.split("/").pop() : "chunk"
+          return `assets/js/${facadeModuleId}-[hash].js`
         },
       },
     },

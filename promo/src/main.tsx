@@ -27,16 +27,17 @@ const Terms = lazy(() => import("./pages/Terms"))
 // Loading component
 const LoadingFallback = () => (
   <div className="min-h-screen bg-[#12192C] flex items-center justify-center">
-    <div className="w-12 h-12 border-3 border-gray-700 border-t-purple-500 rounded-full animate-spin"></div>
+    <div className="w-12 h-12 border-3 border-gray-700 border-t-purple-500 rounded-full animate-spin" />
   </div>
 )
 
 // Регистрация Service Worker для кэширования
-if ('serviceWorker' in navigator && import.meta.env.PROD) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(registration => console.log('SW registered:', registration))
-      .catch(error => console.log('SW registration failed:', error))
+if ("serviceWorker" in navigator && import.meta.env.PROD) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("/sw.js")
+      .then((registration) => console.log("SW registered:", registration))
+      .catch((error) => console.log("SW registration failed:", error))
   })
 }
 

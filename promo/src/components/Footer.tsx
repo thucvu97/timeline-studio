@@ -5,7 +5,7 @@ import { Logo } from "./Logo"
 
 export const Footer: React.FC = () => {
   const { t } = useTranslation()
-  
+
   return (
     <footer
       className="bg-[#12192C] border-t border-gray-800 mt-auto"
@@ -28,7 +28,9 @@ export const Footer: React.FC = () => {
             <div className="mt-10 grid grid-cols-2 gap-8 sm:grid-cols-3 md:mb-[120px] md:mt-0 md:flex md:flex-row md:gap-[110px]">
               {/* Product Column */}
               <div>
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-6">{t("footer.product.title")}</h3>
+                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-6">
+                  {t("footer.product.title")}
+                </h3>
                 <ul className="space-y-3">
                   <li>
                     <Link to="/about" className="text-sm text-gray-300 hover:text-gray-100 transition-colors">
@@ -68,7 +70,9 @@ export const Footer: React.FC = () => {
 
               {/* Resources Column */}
               <div>
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-6">{t("footer.resources.title")}</h3>
+                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-6">
+                  {t("footer.resources.title")}
+                </h3>
                 <ul className="space-y-3">
                   <li>
                     <Link to="/docs" className="text-sm text-gray-300 hover:text-gray-100 transition-colors">

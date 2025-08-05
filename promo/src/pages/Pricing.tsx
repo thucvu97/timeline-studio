@@ -110,12 +110,8 @@ export const Pricing: React.FC = () => {
               <h1 className="page-title">
                 <span className="text-gradient">{t("pricing.title")}</span>
               </h1>
-              <p className="text-xl md:text-2xl text-gray-300 mb-4">
-                {t("pricing.subtitle")}
-              </p>
-              <p className="text-lg text-gray-400">
-                {t("pricing.description")} ⚡
-              </p>
+              <p className="text-xl md:text-2xl text-gray-300 mb-4">{t("pricing.subtitle")}</p>
+              <p className="text-lg text-gray-400">{t("pricing.description")} ⚡</p>
             </motion.div>
           </div>
         </section>
@@ -240,7 +236,9 @@ export const Pricing: React.FC = () => {
                         <p className="text-gray-400 text-sm">{t("pricing.tiers.team.description")}</p>
                       </div>
                       <div className="text-right">
-                        <span className="text-4xl font-light text-white tracking-tight">{t("pricing.tiers.team.price")}</span>
+                        <span className="text-4xl font-light text-white tracking-tight">
+                          {t("pricing.tiers.team.price")}
+                        </span>
                         <span className="text-gray-400">{t("pricing.perUserMonth")}</span>
                       </div>
                     </div>
@@ -358,9 +356,7 @@ export const Pricing: React.FC = () => {
                   {/* Content */}
                   <div className="relative p-6">
                     <h3 className="card-title">{t("pricing.faq.whatAreTokens.question")}</h3>
-                    <p className="card-description">
-                      {t("pricing.faq.whatAreTokens.answer")}
-                    </p>
+                    <p className="card-description">{t("pricing.faq.whatAreTokens.answer")}</p>
                   </div>
                 </div>
 
@@ -377,9 +373,7 @@ export const Pricing: React.FC = () => {
                   {/* Content */}
                   <div className="relative p-6">
                     <h3 className="card-title">{t("pricing.faq.canUpgradeDowngrade.question")}</h3>
-                    <p className="card-description">
-                      {t("pricing.faq.canUpgradeDowngrade.answer")}
-                    </p>
+                    <p className="card-description">{t("pricing.faq.canUpgradeDowngrade.answer")}</p>
                   </div>
                 </div>
 
@@ -396,9 +390,7 @@ export const Pricing: React.FC = () => {
                   {/* Content */}
                   <div className="relative p-6">
                     <h3 className="card-title">{t("pricing.faq.whyFreePowerful.question")}</h3>
-                    <p className="card-description">
-                      {t("pricing.faq.whyFreePowerful.answer")}
-                    </p>
+                    <p className="card-description">{t("pricing.faq.whyFreePowerful.answer")}</p>
                   </div>
                 </div>
 
@@ -415,9 +407,7 @@ export const Pricing: React.FC = () => {
                   {/* Content */}
                   <div className="relative p-6">
                     <h3 className="card-title">{t("pricing.faq.isThereFreeTrial.question")}</h3>
-                    <p className="card-description">
-                      {t("pricing.faq.isThereFreeTrial.answer")}
-                    </p>
+                    <p className="card-description">{t("pricing.faq.isThereFreeTrial.answer")}</p>
                   </div>
                 </div>
               </div>
