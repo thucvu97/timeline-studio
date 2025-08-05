@@ -1,3 +1,10 @@
+## [0.67.3](https://github.com/chatman-media/timeline-studio/compare/v0.67.2...v0.67.3) (2025-08-05)
+
+
+### Bug Fixes
+
+* **ci:** исправлен путь к скрипту setup-rust-env-windows.ps1 ([9c81ec8](https://github.com/chatman-media/timeline-studio/commit/9c81ec8f51a89202eb508ae7b9de5761a555a0e7))
+
 ## [0.67.2](https://github.com/chatman-media/timeline-studio/compare/v0.67.1...v0.67.2) (2025-08-05)
 
 
