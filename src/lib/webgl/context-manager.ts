@@ -77,7 +77,7 @@ export class ContextManager extends EventEmitter {
     try {
       // Создаем или используем существующий canvas
       this.canvas = config.canvas || this.createCanvas()
-      
+
       // Атрибуты контекста по умолчанию
       const contextAttributes: WebGLContextAttributes = {
         alpha: false,
@@ -100,21 +100,21 @@ export class ContextManager extends EventEmitter {
       }
 
       this.gl = gl
-      
+
       // Детектируем возможности GPU
       this.capabilities = this.detectCapabilities()
-      
+
       // Настраиваем контекст
       this.setupContext()
-      
+
       // Настраиваем обработчики событий
       this.setupEventHandlers()
-      
+
       this.isInitialized = true
       this.emit("initialized", this.capabilities)
-      
+
       console.log("WebGL2 контекст инициализирован:", this.capabilities)
-      
+
       return true
     } catch (error) {
       console.error("Ошибка инициализации WebGL2 контекста:", error)
@@ -152,22 +152,22 @@ export class ContextManager extends EventEmitter {
    */
   public resize(width: number, height: number): void {
     if (!this.canvas || !this.gl) return
-    
+
     // Учитываем device pixel ratio для четкого изображения
     const dpr = window.devicePixelRatio || 1
     const displayWidth = Math.floor(width * dpr)
     const displayHeight = Math.floor(height * dpr)
-    
+
     // Изменяем размер canvas
     if (this.canvas.width !== displayWidth || this.canvas.height !== displayHeight) {
       this.canvas.width = displayWidth
       this.canvas.height = displayHeight
       this.canvas.style.width = `${width}px`
       this.canvas.style.height = `${height}px`
-      
+
       // Обновляем viewport
       this.gl.viewport(0, 0, displayWidth, displayHeight)
-      
+
       this.emit("resize", { width: displayWidth, height: displayHeight, dpr })
     }
   }
@@ -185,18 +185,18 @@ export class ContextManager extends EventEmitter {
         this.canvas.removeEventListener("webglcontextrestored", this.contextRestoredHandler)
       }
     }
-    
+
     // Теряем контекст намеренно для освобождения ресурсов
     const loseContext = this.gl?.getExtension("WEBGL_lose_context")
     if (loseContext) {
       loseContext.loseContext()
     }
-    
+
     this.gl = null
     this.canvas = null
     this.capabilities = null
     this.isInitialized = false
-    
+
     this.removeAllListeners()
   }
 
@@ -227,23 +227,23 @@ export class ContextManager extends EventEmitter {
     const debugInfo = gl.getExtension("WEBGL_debug_renderer_info")
     const textureFloatLinear = !!gl.getExtension("OES_texture_float_linear")
     const anisotropic = gl.getExtension("EXT_texture_filter_anisotropic")
-    
+
     // Получаем основные параметры
     const maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE)
     const maxTextureUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS)
     const renderer = debugInfo ? String(gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)) : "Unknown"
     const vendor = debugInfo ? String(gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL)) : "Unknown"
-    
+
     // Определяем производительность GPU
     let tier: "low" | "medium" | "high" = "medium"
-    
+
     // Простая эвристика для определения уровня GPU
     if (maxTextureSize >= 16384 && maxTextureUnits >= 32) {
       tier = "high"
     } else if (maxTextureSize <= 4096 || maxTextureUnits <= 8) {
       tier = "low"
     }
-    
+
     // Проверяем известные GPU
     const rendererLower = renderer.toLowerCase()
     if (rendererLower.includes("nvidia") || rendererLower.includes("radeon") || rendererLower.includes("geforce")) {
@@ -251,7 +251,7 @@ export class ContextManager extends EventEmitter {
     } else if (rendererLower.includes("intel") && !rendererLower.includes("iris")) {
       tier = "low"
     }
-    
+
     return {
       maxTextureSize,
       maxTextureUnits,
@@ -268,7 +268,9 @@ export class ContextManager extends EventEmitter {
       version: gl.getParameter(gl.VERSION),
       shadingLanguageVersion: gl.getParameter(gl.SHADING_LANGUAGE_VERSION),
       supportsFloatTextures: !!(gl.getExtension("EXT_color_buffer_float") || gl.getExtension("OES_texture_float")),
-      supportsHalfFloatTextures: !!(gl.getExtension("EXT_color_buffer_half_float") || gl.getExtension("OES_texture_half_float")),
+      supportsHalfFloatTextures: !!(
+        gl.getExtension("EXT_color_buffer_half_float") || gl.getExtension("OES_texture_half_float")
+      ),
       supportsDepthTextures: true, // WebGL2 всегда поддерживает
       supportsAnisotropicFiltering: !!anisotropic,
       supportsTextureFloatLinear: textureFloatLinear,
@@ -282,30 +284,30 @@ export class ContextManager extends EventEmitter {
    */
   private setupContext(): void {
     if (!this.gl) return
-    
+
     const gl = this.gl
-    
+
     // Включаем необходимые расширения
     gl.getExtension("EXT_color_buffer_float")
     gl.getExtension("OES_texture_float_linear")
     gl.getExtension("EXT_texture_filter_anisotropic")
-    
+
     // Базовые настройки для обработки видео
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true)
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false)
     gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, gl.NONE)
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1)
-    
+
     // Отключаем ненужные тесты для 2D рендеринга
     gl.disable(gl.DEPTH_TEST)
     gl.disable(gl.CULL_FACE)
     gl.disable(gl.STENCIL_TEST)
-    
+
     // Настройка блендинга по умолчанию
     gl.enable(gl.BLEND)
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
     gl.blendEquation(gl.FUNC_ADD)
-    
+
     // Очищаем начальное состояние
     gl.clearColor(0, 0, 0, 0)
     gl.clear(gl.COLOR_BUFFER_BIT)
@@ -316,24 +318,24 @@ export class ContextManager extends EventEmitter {
    */
   private setupEventHandlers(): void {
     if (!this.canvas) return
-    
+
     // Обработчик потери контекста
     this.contextLostHandler = (event: Event) => {
       event.preventDefault()
       console.warn("WebGL контекст потерян")
       this.emit("contextLost")
     }
-    
+
     // Обработчик восстановления контекста
     this.contextRestoredHandler = () => {
       console.log("WebGL контекст восстановлен")
-      
+
       // Переинициализируем контекст
       this.initialize({ canvas: this.canvas! })
-      
+
       this.emit("contextRestored")
     }
-    
+
     this.canvas.addEventListener("webglcontextlost", this.contextLostHandler)
     this.canvas.addEventListener("webglcontextrestored", this.contextRestoredHandler)
   }

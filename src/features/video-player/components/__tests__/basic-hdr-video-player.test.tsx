@@ -2,8 +2,8 @@
  * Basic tests for HDRVideoPlayer component
  */
 
-import { fireEvent, render, screen, waitFor } from "@testing-library/react"
-import { describe, expect, it, vi, beforeEach } from "vitest"
+import { fireEvent, render, screen } from "@testing-library/react"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { HDRVideoPlayer } from "../hdr-video-player"
 
@@ -81,8 +81,8 @@ describe("HDRVideoPlayer - Basic Tests", () => {
 
   const defaultMockSettings = {
     settings: {
-      aspectRatio: { 
-        value: { width: 16, height: 9 } 
+      aspectRatio: {
+        value: { width: 16, height: 9 },
       },
     },
   }
@@ -116,7 +116,7 @@ describe("HDRVideoPlayer - Basic Tests", () => {
     expect(screen.getByTestId("aspect-ratio")).toBeInTheDocument()
     expect(screen.getByTestId("player-controls")).toBeInTheDocument()
     expect(screen.getByTestId("player-ai-overlay")).toBeInTheDocument()
-    const video = document.querySelector('video')
+    const video = document.querySelector("video")
     expect(video).toBeInTheDocument()
   })
 
@@ -131,7 +131,7 @@ describe("HDRVideoPlayer - Basic Tests", () => {
     render(<HDRVideoPlayer />)
 
     const hdrButton = screen.getByRole("button", { name: /HDR настройки/i })
-    
+
     // Просто проверяем, что кнопка работает
     expect(hdrButton).toBeInTheDocument()
     fireEvent.click(hdrButton)
@@ -153,7 +153,7 @@ describe("HDRVideoPlayer - Basic Tests", () => {
     render(<HDRVideoPlayer />)
 
     expect(screen.getByText("Нет видео")).toBeInTheDocument()
-    expect(document.querySelector('video')).not.toBeInTheDocument()
+    expect(document.querySelector("video")).not.toBeInTheDocument()
   })
 
   it("detects HDR format on mount", async () => {
@@ -168,7 +168,7 @@ describe("HDRVideoPlayer - Basic Tests", () => {
 
     // Очищаем счетчик вызовов
     mockHDRSupportService.dispose.mockClear()
-    
+
     unmount()
 
     // Просто проверяем, что компонент размонтирован
@@ -178,7 +178,7 @@ describe("HDRVideoPlayer - Basic Tests", () => {
   it("converts video source path", () => {
     render(<HDRVideoPlayer />)
 
-    const video = document.querySelector('video') as HTMLVideoElement
+    const video = document.querySelector("video") as HTMLVideoElement
     expect(video.src).toContain("converted:/path/to/hdr-video.mp4")
   })
 

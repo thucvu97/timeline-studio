@@ -3,8 +3,8 @@
  * Единый рендерер эффектов на базе новой WebGL2 библиотеки
  */
 
-import { WebGL2EffectProcessor } from "./webgl2-effect-processor"
 import type { AppliedEffect, BaseEffect, EffectProcessingType, WebGLProcessor } from "../types/unified-effects"
+import { WebGL2EffectProcessor } from "./webgl2-effect-processor"
 
 export interface RenderContext {
   // Источник
@@ -48,7 +48,7 @@ export class WebGL2UnifiedRenderer {
 
   async initialize(): Promise<void> {
     if (this.isInitialized) return
-    
+
     await this.processor.initialize()
     this.isInitialized = true
   }
@@ -130,11 +130,8 @@ export class WebGL2UnifiedRenderer {
         if (!baseEffect?.processors.webgl) continue
 
         // Компилируем шейдер если есть
-        const success = await this.processor.compileEffect(appliedEffect.effectId, {
-          fragmentShader: baseEffect.processors.webgl.fragmentShader,
-          vertexShader: baseEffect.processors.webgl.vertexShader,
-          uniforms: baseEffect.processors.webgl.uniforms,
-        })
+        const convertedProcessor = this.convertWebGLProcessor(baseEffect.processors.webgl)
+        const success = await this.processor.compileEffect(appliedEffect.effectId, convertedProcessor)
 
         if (!success) {
           console.warn(`Failed to compile shader for effect ${appliedEffect.effectId}`)
@@ -143,7 +140,7 @@ export class WebGL2UnifiedRenderer {
 
       // Обрабатываем изображение последовательно через все эффекты
       let currentResult: any = context.source
-      
+
       for (const appliedEffect of appliedEffects) {
         const baseEffect = baseEffects.get(appliedEffect.effectId)
         if (!baseEffect) continue
@@ -151,30 +148,22 @@ export class WebGL2UnifiedRenderer {
         // Получаем параметры с учетом анимации
         const params = this.getParametersAtTime(appliedEffect, context.currentTime)
 
-        // Конвертируем в формат нового API
-        const effect = {
-          id: appliedEffect.effectId,
-          type: baseEffect.type || appliedEffect.effectId,
-          enabled: appliedEffect.enabled,
-          intensity: params.intensity ?? 1,
-          params,
-          parameters: params, // Для совместимости
+        // Создаем полный объект AppliedEffect с обновленными параметрами
+        const effectWithParams = {
+          ...appliedEffect,
+          parameters: params,
         }
 
         // Обрабатываем эффект
-        const result = await this.processor.processImage(currentResult, effect)
-        
+        const result = await this.processor.processImage(currentResult, effectWithParams)
+
         if (!result.success) {
           throw new Error(`Effect ${appliedEffect.effectId} failed: ${result.error}`)
         }
 
         // Экспортируем результат как ImageData для следующего эффекта
-        const imageData = await this.processor.exportAsImageData(
-          result.texture,
-          result.width,
-          result.height
-        )
-        
+        const imageData = await this.processor.exportAsImageData(result.texture, result.width, result.height)
+
         currentResult = await createImageBitmap(imageData)
       }
 
@@ -236,7 +225,7 @@ export class WebGL2UnifiedRenderer {
       tempCanvas.height = context.height
       const tempCtx = tempCanvas.getContext("2d")!
       tempCtx.drawImage(canvas, 0, 0)
-      
+
       ctx.clearRect(0, 0, context.width, context.height)
       ctx.drawImage(tempCanvas, 0, 0)
     }
@@ -310,10 +299,10 @@ export class WebGL2UnifiedRenderer {
       result = await this.renderRealtimeEffects(realtimeEffects, baseEffects, context)
       if (!result.success) return result
     } else {
-      result = { 
-        success: true, 
-        output: context.source instanceof ImageBitmap ? context.source : await createImageBitmap(context.source), 
-        processingTime: 0 
+      result = {
+        success: true,
+        output: context.source instanceof ImageBitmap ? context.source : await createImageBitmap(context.source),
+        processingTime: 0,
       }
     }
 
@@ -383,7 +372,7 @@ export class WebGL2UnifiedRenderer {
 
         // Для массивов (цвета и т.д.)
         if (Array.isArray(current.value) && Array.isArray(next.value)) {
-          return current.value.map((v, idx) => {
+          return current.value.map((v: any, idx: number) => {
             if (typeof v === "number" && typeof next.value[idx] === "number") {
               return v + (next.value[idx] - v) * progress
             }
@@ -409,9 +398,9 @@ export class WebGL2UnifiedRenderer {
   } {
     // Конвертируем WebGL1 шейдеры в WebGL2
     const fragmentShader = this.convertToWebGL2Shader(processor.fragmentShader, "fragment")
-    const vertexShader = processor.vertexShader ? 
-      this.convertToWebGL2Shader(processor.vertexShader, "vertex") : 
-      undefined
+    const vertexShader = processor.vertexShader
+      ? this.convertToWebGL2Shader(processor.vertexShader, "vertex")
+      : undefined
 
     return {
       fragmentShader,
@@ -423,14 +412,12 @@ export class WebGL2UnifiedRenderer {
   private convertToWebGL2Shader(shaderSource: string, type: "vertex" | "fragment"): string {
     // Добавляем версию если нет
     if (!shaderSource.includes("#version")) {
-      shaderSource = "#version 300 es\n" + shaderSource
+      shaderSource = `#version 300 es\n${shaderSource}`
     }
 
     // Заменяем старый синтаксис на новый
     if (type === "vertex") {
-      shaderSource = shaderSource
-        .replace(/attribute\s+/g, "in ")
-        .replace(/varying\s+/g, "out ")
+      shaderSource = shaderSource.replace(/attribute\s+/g, "in ").replace(/varying\s+/g, "out ")
     } else {
       shaderSource = shaderSource
         .replace(/varying\s+/g, "in ")
@@ -441,10 +428,7 @@ export class WebGL2UnifiedRenderer {
       if (!shaderSource.includes("out vec4 fragColor")) {
         const precisionMatch = shaderSource.match(/precision\s+\w+\s+float;/)
         const insertPos = precisionMatch ? precisionMatch.index! + precisionMatch[0].length : 0
-        shaderSource = 
-          shaderSource.slice(0, insertPos) + 
-          "\nout vec4 fragColor;\n" + 
-          shaderSource.slice(insertPos)
+        shaderSource = `${shaderSource.slice(0, insertPos)}\nout vec4 fragColor;\n${shaderSource.slice(insertPos)}`
       }
     }
 

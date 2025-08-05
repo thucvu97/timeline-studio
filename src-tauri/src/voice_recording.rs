@@ -7,7 +7,6 @@ use base64::{engine::general_purpose, Engine as _};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
-use tauri::AppHandle;
 
 /// Поддерживаемые форматы аудио
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -37,6 +36,7 @@ impl AudioFormat {
   }
 
   /// Получить MIME тип для формата
+  #[allow(dead_code)]
   pub fn mime_type(&self) -> &'static str {
     match self {
       AudioFormat::WebM => "audio/webm",
@@ -78,10 +78,7 @@ pub struct SaveAudioResult {
 
 /// Сохранить аудио запись в директории проекта
 #[tauri::command]
-pub async fn save_voice_recording(
-  _app: AppHandle,
-  params: SaveAudioParams,
-) -> Result<SaveAudioResult, String> {
+pub async fn save_voice_recording(params: SaveAudioParams) -> Result<SaveAudioResult, String> {
   // Получаем директории приложения
   let app_dirs = AppDirectories::get_or_create()
     .map_err(|e| format!("Не удалось получить директории приложения: {}", e))?;

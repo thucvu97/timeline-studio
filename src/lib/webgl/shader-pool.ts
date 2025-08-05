@@ -361,23 +361,23 @@ export class ShaderPool {
    */
   public clear(): void {
     const gl = contextManager.getContext()
-    
+
     // Удаляем все программы
     if (gl) {
       for (const program of this.programs.values()) {
         gl.deleteProgram(program.program)
       }
     }
-    
+
     this.programs.clear()
-    
+
     // Удаляем все кэшированные шейдеры
     if (gl) {
       for (const shader of this.shaderCache.values()) {
         gl.deleteShader(shader)
       }
     }
-    
+
     this.shaderCache.clear()
   }
 
@@ -445,7 +445,7 @@ export class ShaderPool {
 
     // Генерируем ключ для кэша
     const cacheKey = `${type}:${source}`
-    
+
     // Проверяем кэш
     if (this.shaderCache.has(cacheKey)) {
       return this.shaderCache.get(cacheKey)!
@@ -466,20 +466,20 @@ export class ShaderPool {
         const info = gl.getShaderInfoLog(shader)
         const shaderType = type === gl.VERTEX_SHADER ? "vertex" : "fragment"
         console.error(`Ошибка компиляции ${shaderType} шейдера:`, info)
-        
+
         // Выводим исходный код с номерами строк для отладки
         const lines = source.split("\n")
         lines.forEach((line, index) => {
           console.log(`${index + 1}: ${line}`)
         })
-        
+
         gl.deleteShader(shader)
         return null
       }
 
       // Сохраняем в кэш
       this.shaderCache.set(cacheKey, shader)
-      
+
       return shader
     } catch (error) {
       console.error("Ошибка компиляции шейдера:", error)

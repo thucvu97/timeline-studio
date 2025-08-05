@@ -61,13 +61,13 @@ export type {
 // ============================================================================
 
 export { EffectManager } from "./services/effect-manager"
+export { WebGL2EffectProcessor } from "./services/webgl2-effect-processor"
 export {
   type RenderContext,
   type RenderResult,
+  WebGL2UnifiedRenderer,
+  WebGL2UnifiedRenderer as UnifiedEffectsRenderer,
 } from "./services/webgl2-unified-renderer"
-export { WebGL2UnifiedRenderer } from "./services/webgl2-unified-renderer"
-export { WebGL2UnifiedRenderer as UnifiedEffectsRenderer } from "./services/webgl2-unified-renderer" // Alias for backward compatibility
-export { WebGL2EffectProcessor } from "./services/webgl2-effect-processor"
 
 // ============================================================================
 // ХУКИ

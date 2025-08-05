@@ -105,7 +105,7 @@ export function useWebGL2Preview(options: UseWebGL2PreviewOptions = {}) {
     if (!canvasRef.current) return
 
     const canvas = canvasRef.current
-    
+
     // Create WebGL2 renderer
     const renderer = new WebGL2PreviewRenderer({
       name: "preview",
@@ -127,12 +127,12 @@ export function useWebGL2Preview(options: UseWebGL2PreviewOptions = {}) {
         const capabilities = renderer.getCapabilities()
         if (capabilities) {
           setGpuTier(capabilities.tier)
-          
+
           // Adjust quality based on GPU
           const newQuality = getQualityForGPU(capabilities.tier)
           setQuality(newQuality)
         }
-        
+
         setIsInitialized(true)
       })
       .catch((err: unknown) => {
@@ -184,7 +184,7 @@ export function useWebGL2Preview(options: UseWebGL2PreviewOptions = {}) {
           rendererRef.current!.setVideoSource(videoRef.current!)
           rendererRef.current!.setSegments(timeline.segments || [])
           rendererRef.current!.setCurrentTime(time)
-          
+
           // Apply quality settings
           let processedEffects = effects
           if (quality.effects === "basic") {
@@ -196,11 +196,11 @@ export function useWebGL2Preview(options: UseWebGL2PreviewOptions = {}) {
 
           // Render frame
           rendererRef.current!.render(0)
-          
+
           // Capture frame
           const result = await rendererRef.current!.captureFrame()
           if (!result) throw new Error("Failed to capture frame")
-          
+
           return result.bitmap
         })
 
@@ -241,10 +241,10 @@ export function useWebGL2Preview(options: UseWebGL2PreviewOptions = {}) {
         // Set time and render
         rendererRef.current!.setCurrentTime(time)
         rendererRef.current!.render(0)
-        
+
         const result = await rendererRef.current!.captureFrame()
         if (!result) throw new Error("Failed to capture frame")
-        
+
         return result.bitmap
       })
     }
@@ -267,11 +267,11 @@ export function useWebGL2Preview(options: UseWebGL2PreviewOptions = {}) {
     const resizeObserver = new ResizeObserver((entries) => {
       const entry = entries[0]
       const { width, height } = entry.contentRect
-      
+
       // Apply quality resolution scale
       const scaledWidth = Math.floor(width * quality.resolution)
       const scaledHeight = Math.floor(height * quality.resolution)
-      
+
       rendererRef.current!.resize(scaledWidth, scaledHeight)
     })
 

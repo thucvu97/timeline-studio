@@ -3,7 +3,7 @@
  */
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
-import { describe, expect, it, vi, beforeEach } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { EffectsPreviewPlayer } from "../effects-preview-player"
 
@@ -80,8 +80,8 @@ describe("EffectsPreviewPlayer - Basic Tests", () => {
 
   const defaultMockSettings = {
     settings: {
-      aspectRatio: { 
-        value: { width: 16, height: 9 } 
+      aspectRatio: {
+        value: { width: 16, height: 9 },
       },
     },
   }
@@ -99,7 +99,7 @@ describe("EffectsPreviewPlayer - Basic Tests", () => {
 
     expect(screen.getByTestId("aspect-ratio")).toBeInTheDocument()
     expect(screen.getByTestId("player-controls")).toBeInTheDocument()
-    const video = document.querySelector('video')
+    const video = document.querySelector("video")
     expect(video).toBeInTheDocument()
   })
 
@@ -130,7 +130,7 @@ describe("EffectsPreviewPlayer - Basic Tests", () => {
     render(<EffectsPreviewPlayer />)
 
     expect(screen.getByText("Нет видео")).toBeInTheDocument()
-    expect(document.querySelector('video')).not.toBeInTheDocument()
+    expect(document.querySelector("video")).not.toBeInTheDocument()
   })
 
   it("calls getAvailableEffects on mount", () => {
@@ -144,7 +144,7 @@ describe("EffectsPreviewPlayer - Basic Tests", () => {
 
     // Сбрасываем счетчик вызовов перед размонтированием
     mockEffectsPreviewService.stopRealTimePreview.mockClear()
-    
+
     unmount()
 
     expect(mockEffectsPreviewService.stopRealTimePreview).toHaveBeenCalled()
@@ -153,7 +153,7 @@ describe("EffectsPreviewPlayer - Basic Tests", () => {
   it("converts video source path", () => {
     render(<EffectsPreviewPlayer />)
 
-    const video = document.querySelector('video') as HTMLVideoElement
+    const video = document.querySelector("video") as HTMLVideoElement
     expect(video.src).toContain("converted:/path/to/video.mp4")
   })
 

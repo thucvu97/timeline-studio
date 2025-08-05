@@ -2,8 +2,8 @@
  * Tests for HDRVideoPlayer component
  */
 
-import { fireEvent, render, screen, waitFor } from "@testing-library/react"
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest"
+import { fireEvent, render, screen } from "@testing-library/react"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { HDRVideoPlayer } from "../hdr-video-player"
 
@@ -92,8 +92,8 @@ describe("HDRVideoPlayer", () => {
 
   const defaultMockSettings = {
     settings: {
-      aspectRatio: { 
-        value: { width: 16, height: 9 } 
+      aspectRatio: {
+        value: { width: 16, height: 9 },
       },
     },
   }
@@ -150,8 +150,8 @@ describe("HDRVideoPlayer", () => {
     expect(screen.getByTestId("aspect-ratio")).toBeInTheDocument()
     expect(screen.getByTestId("player-controls")).toBeInTheDocument()
     expect(screen.getByTestId("player-ai-overlay")).toBeInTheDocument()
-    
-    const video = document.querySelector('video') as HTMLVideoElement
+
+    const video = document.querySelector("video") as HTMLVideoElement
     expect(video).toBeInTheDocument()
   })
 
@@ -166,7 +166,7 @@ describe("HDRVideoPlayer", () => {
     render(<HDRVideoPlayer />)
 
     const hdrButton = screen.getByRole("button", { name: /HDR настройки/i })
-    
+
     // Просто проверяем, что кнопка кликабельна
     expect(hdrButton).toBeInTheDocument()
     fireEvent.click(hdrButton)
@@ -312,7 +312,7 @@ describe("HDRVideoPlayer", () => {
     render(<HDRVideoPlayer />)
 
     expect(screen.getByText("Нет видео")).toBeInTheDocument()
-    expect(document.querySelector('video')).not.toBeInTheDocument()
+    expect(document.querySelector("video")).not.toBeInTheDocument()
   })
 
   it("disposes HDR support service on unmount", () => {

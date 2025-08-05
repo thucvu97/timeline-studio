@@ -2,8 +2,8 @@
  * Tests for EnhancedVideoPlayer component
  */
 
-import { fireEvent, render, screen, waitFor } from "@testing-library/react"
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest"
+import { fireEvent, render, screen } from "@testing-library/react"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { EnhancedVideoPlayer } from "../enhanced-video-player"
 
@@ -93,8 +93,8 @@ describe("EnhancedVideoPlayer", () => {
 
   const defaultMockSettings = {
     settings: {
-      aspectRatio: { 
-        value: { width: 16, height: 9 } 
+      aspectRatio: {
+        value: { width: 16, height: 9 },
       },
     },
   }
@@ -146,8 +146,8 @@ describe("EnhancedVideoPlayer", () => {
 
     expect(screen.getByTestId("aspect-ratio")).toBeInTheDocument()
     expect(screen.getByTestId("player-controls")).toBeInTheDocument()
-    
-    const video = document.querySelector('video') as HTMLVideoElement
+
+    const video = document.querySelector("video") as HTMLVideoElement
     expect(video).toBeInTheDocument()
     expect(video.src).toContain("converted:/path/to/video.mp4")
   })
@@ -161,7 +161,7 @@ describe("EnhancedVideoPlayer", () => {
     render(<EnhancedVideoPlayer />)
 
     expect(screen.getByText("Нет видео")).toBeInTheDocument()
-    expect(document.querySelector('video')).not.toBeInTheDocument()
+    expect(document.querySelector("video")).not.toBeInTheDocument()
   })
 
   it("shows prerender button when video is loaded", () => {
@@ -280,7 +280,7 @@ describe("EnhancedVideoPlayer", () => {
     rerender(<EnhancedVideoPlayer />)
 
     // Проверяем что видео отрендерилось
-    const video = document.querySelector('video') as HTMLVideoElement
+    const video = document.querySelector("video") as HTMLVideoElement
     expect(video).toBeInTheDocument()
   })
 
@@ -306,8 +306,8 @@ describe("EnhancedVideoPlayer", () => {
   it("updates video time on timeupdate event", () => {
     render(<EnhancedVideoPlayer />)
 
-    const video = document.querySelector('video') as HTMLVideoElement
-    
+    const video = document.querySelector("video") as HTMLVideoElement
+
     // Simulate timeupdate event
     fireEvent.timeUpdate(video, { target: { currentTime: 25 } })
 
@@ -319,7 +319,7 @@ describe("EnhancedVideoPlayer", () => {
     render(<EnhancedVideoPlayer />)
 
     // Просто проверяем что видео отображается
-    const video = document.querySelector('video') as HTMLVideoElement
+    const video = document.querySelector("video") as HTMLVideoElement
     expect(video.src).toContain("converted:/path/to/video.mp4")
   })
 

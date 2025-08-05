@@ -9,20 +9,18 @@ export { PresetGallery } from "./components/preset-gallery"
 export { PreviewPanel } from "./components/preview-panel"
 export { QualityControls } from "./components/quality-controls"
 export { TimelinePreviewIntegration } from "./components/timeline-preview-integration"
-// Hooks
-export { useWebGL2Preview } from "./hooks/use-webgl2-preview"
-export { useWebGL2Preview as useRealtimePreview } from "./hooks/use-webgl2-preview" // Alias for backward compatibility
 export { useTimelineIntegration } from "./hooks/use-timeline-integration"
+// Hooks
+export { useWebGL2Preview, useWebGL2Preview as useRealtimePreview } from "./hooks/use-webgl2-preview"
 export type {
   EffectChain,
   EffectPreset,
 } from "./services/effect-pipeline-manager"
 export { EffectPipelineManager } from "./services/effect-pipeline-manager"
 export { PreviewCache } from "./services/preview-cache"
-// Services
-export { WebGL2PreviewRenderer } from "./services/webgl2-preview-renderer"
-export { WebGL2PreviewRenderer as PreviewRenderer } from "./services/webgl2-preview-renderer" // Alias for backward compatibility
 export { TexturePool } from "./services/texture-pool"
+// Services
+export { WebGL2PreviewRenderer, WebGL2PreviewRenderer as PreviewRenderer } from "./services/webgl2-preview-renderer"
 export * from "./shaders/base"
 // Types
 export type {

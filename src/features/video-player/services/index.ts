@@ -26,5 +26,5 @@ export {
 } from "./player-provider"
 export type { EasingFunction, TransitionParams, TransitionShader } from "./transitions-preview"
 export { getTransitionsPreviewService } from "./transitions-preview"
-export { WebGLVideoRenderer } from "./webgl-video-renderer"
 export type { VideoFrame } from "./webgl-video-renderer"
+export { WebGLVideoRenderer } from "./webgl-video-renderer"

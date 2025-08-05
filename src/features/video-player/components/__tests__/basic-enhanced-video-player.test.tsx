@@ -2,8 +2,8 @@
  * Basic tests for EnhancedVideoPlayer component
  */
 
-import { fireEvent, render, screen, waitFor } from "@testing-library/react"
-import { describe, expect, it, vi, beforeEach } from "vitest"
+import { render, screen } from "@testing-library/react"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { EnhancedVideoPlayer } from "../enhanced-video-player"
 
@@ -85,8 +85,8 @@ describe("EnhancedVideoPlayer - Basic Tests", () => {
 
   const defaultMockSettings = {
     settings: {
-      aspectRatio: { 
-        value: { width: 16, height: 9 } 
+      aspectRatio: {
+        value: { width: 16, height: 9 },
       },
     },
   }
@@ -132,7 +132,7 @@ describe("EnhancedVideoPlayer - Basic Tests", () => {
 
     expect(screen.getByTestId("aspect-ratio")).toBeInTheDocument()
     expect(screen.getByTestId("player-controls")).toBeInTheDocument()
-    const video = document.querySelector('video')
+    const video = document.querySelector("video")
     expect(video).toBeInTheDocument()
   })
 
@@ -145,13 +145,13 @@ describe("EnhancedVideoPlayer - Basic Tests", () => {
     render(<EnhancedVideoPlayer />)
 
     expect(screen.getByText("Нет видео")).toBeInTheDocument()
-    expect(document.querySelector('video')).not.toBeInTheDocument()
+    expect(document.querySelector("video")).not.toBeInTheDocument()
   })
 
   it("converts video source path", () => {
     render(<EnhancedVideoPlayer />)
 
-    const video = document.querySelector('video') as HTMLVideoElement
+    const video = document.querySelector("video") as HTMLVideoElement
     expect(video.src).toContain("converted:/path/to/video.mp4")
   })
 
@@ -186,8 +186,8 @@ describe("EnhancedVideoPlayer - Basic Tests", () => {
   it("passes correct props to video element", () => {
     render(<EnhancedVideoPlayer />)
 
-    const video = document.querySelector('video') as HTMLVideoElement
-    
+    const video = document.querySelector("video") as HTMLVideoElement
+
     // Video should have correct attributes
     expect(video).toHaveAttribute("preload", "auto")
     expect(video).toHaveAttribute("playsInline")

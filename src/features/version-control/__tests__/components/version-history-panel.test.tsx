@@ -85,7 +85,7 @@ describe("VersionHistoryPanel", () => {
     // There are multiple elements with "История версий", check at least one exists
     const historyTexts = screen.getAllByText("История версий")
     expect(historyTexts.length).toBeGreaterThan(0)
-    
+
     expect(screen.getByText("Ветка: main")).toBeInTheDocument()
     expect(screen.getByText("version-1")).toBeInTheDocument()
   })
@@ -113,9 +113,9 @@ describe("VersionHistoryPanel", () => {
     // Find the settings button by looking for the button next to auto-save status
     const autoSaveContainer = screen.getByText("Автосохранение: включено (30с)").closest("div")?.parentElement
     const settingsButton = autoSaveContainer?.querySelector("button")
-    
+
     expect(settingsButton).toBeInTheDocument()
-    
+
     // Initially settings are hidden
     expect(screen.queryByText("Включить автосохранение")).not.toBeInTheDocument()
 
@@ -138,7 +138,7 @@ describe("VersionHistoryPanel", () => {
     // Open settings
     const autoSaveContainer = screen.getByText("Автосохранение: включено (30с)").closest("div")?.parentElement
     const settingsButton = autoSaveContainer?.querySelector("button")
-    
+
     if (settingsButton) {
       fireEvent.click(settingsButton)
     }
@@ -155,7 +155,7 @@ describe("VersionHistoryPanel", () => {
     // Open settings
     const autoSaveContainer = screen.getByText("Автосохранение: включено (30с)").closest("div")?.parentElement
     const settingsButton = autoSaveContainer?.querySelector("button")
-    
+
     if (settingsButton) {
       fireEvent.click(settingsButton)
     }
@@ -295,7 +295,7 @@ describe("VersionHistoryPanel", () => {
     // Find restore button for "Added new feature" version (not current)
     const versionText = screen.getByText("Added new feature")
     const versionCard = versionText.closest("div[class*='border']")
-    
+
     // Find button within the card - it should be the only button (restore button)
     const restoreButton = versionCard?.querySelector("button")
 
@@ -349,21 +349,21 @@ describe("VersionHistoryPanel", () => {
         timestamp: now.toISOString(),
         author: "user",
         branch_name: "main",
-        message: "Just created"
+        message: "Just created",
       },
       {
         id: "v3",
         timestamp: new Date(now.getTime() - 3600000).toISOString(), // 1 hour ago
         author: "user",
         branch_name: "main",
-        message: "One hour ago"
+        message: "One hour ago",
       },
       {
         id: "v4",
         timestamp: new Date(now.getTime() - 86400000).toISOString(), // 1 day ago
         author: "user",
         branch_name: "main",
-        message: "One day ago"
+        message: "One day ago",
       },
     ]
 

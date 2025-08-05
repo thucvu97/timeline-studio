@@ -3,7 +3,7 @@
  */
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { EffectsPreviewPlayer } from "../effects-preview-player"
 
@@ -98,8 +98,8 @@ describe("EffectsPreviewPlayer", () => {
 
   const defaultMockSettings = {
     settings: {
-      aspectRatio: { 
-        value: { width: 16, height: 9 } 
+      aspectRatio: {
+        value: { width: 16, height: 9 },
       },
     },
   }
@@ -248,7 +248,7 @@ describe("EffectsPreviewPlayer", () => {
   it("handles video source conversion", () => {
     render(<EffectsPreviewPlayer />)
 
-    const video = document.querySelector('video') as HTMLVideoElement
+    const video = document.querySelector("video") as HTMLVideoElement
     expect(video.src).toContain("converted:/path/to/video.mp4")
   })
 

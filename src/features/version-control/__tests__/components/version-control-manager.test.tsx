@@ -3,9 +3,9 @@
  */
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { VersionControlManager, BranchManager, VersionControlSettings } from "../../components/version-control-manager"
+import { BranchManager, VersionControlManager, VersionControlSettings } from "../../components/version-control-manager"
 
 // Mock the useVersionControl hook
 const mockUseVersionControl = vi.fn()
@@ -107,11 +107,11 @@ describe("VersionControlManager", () => {
     const branchesTab = screen.getByRole("tab", { name: /Ветки/i })
     const settingsTab = screen.getByRole("tab", { name: /Настройки/i })
     const historyTab = screen.getByRole("tab", { name: /История/i })
-    
+
     expect(branchesTab).toBeInTheDocument()
     expect(settingsTab).toBeInTheDocument()
     expect(historyTab).toBeInTheDocument()
-    
+
     // Check initial state
     expect(historyTab).toHaveAttribute("aria-selected", "true")
     expect(branchesTab).toHaveAttribute("aria-selected", "false")
@@ -137,7 +137,7 @@ describe("VersionControlManager", () => {
     })
 
     render(<VersionControlManager />)
-    
+
     // Just check that the component renders in loading state
     expect(screen.getByText("Контроль версий")).toBeInTheDocument()
   })
@@ -197,7 +197,7 @@ describe("BranchManager", () => {
 
     // Type branch name
     fireEvent.change(input, { target: { value: "feature/new-branch" } })
-    
+
     // Button should be enabled
     expect(createButton).toBeEnabled()
 
@@ -289,7 +289,7 @@ describe("VersionControlSettings", () => {
 
   it("renders settings directly", () => {
     render(<VersionControlSettings />)
-    
+
     expect(screen.getByText("Автоматическое сохранение")).toBeInTheDocument()
     expect(screen.getByText("Включить автосохранение")).toBeInTheDocument()
   })
@@ -320,7 +320,7 @@ describe("VersionControlSettings", () => {
     })
 
     render(<VersionControlSettings />)
-    
+
     expect(screen.getByText("Интервал автосохранения")).toBeInTheDocument()
 
     // Click on 2 minutes button
@@ -350,7 +350,7 @@ describe("VersionControlSettings", () => {
     })
 
     render(<VersionControlSettings />)
-    
+
     expect(screen.getByText("Интервал автосохранения")).toBeInTheDocument()
 
     // Check that 5 minutes button has default variant
@@ -364,7 +364,7 @@ describe("VersionControlSettings", () => {
 
   it("displays version storage info", () => {
     render(<VersionControlSettings />)
-    
+
     expect(screen.getByText("Хранение версий")).toBeInTheDocument()
     expect(screen.getByText("Максимальное количество версий:")).toBeInTheDocument()
     expect(screen.getByText("100 (по умолчанию)")).toBeInTheDocument()
@@ -376,7 +376,7 @@ describe("VersionControlSettings", () => {
 
   it("displays disabled export/import buttons", () => {
     render(<VersionControlSettings />)
-    
+
     expect(screen.getByText("Экспорт / Импорт")).toBeInTheDocument()
 
     const exportButton = screen.getByRole("button", { name: /Экспортировать историю версий/i })
@@ -402,7 +402,7 @@ describe("VersionControlSettings", () => {
 
     // Interval buttons should also be disabled
     const intervalButtons = screen.getAllByRole("button", { name: /минут|секунд/i })
-    intervalButtons.forEach(button => {
+    intervalButtons.forEach((button) => {
       expect(button).toBeDisabled()
     })
   })

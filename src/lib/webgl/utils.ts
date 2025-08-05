@@ -13,7 +13,7 @@ export function isPowerOfTwo(value: number): boolean {
  * Получить ближайшую степень двойки
  */
 export function nearestPowerOfTwo(value: number): number {
-  return Math.pow(2, Math.ceil(Math.log2(value)))
+  return 2 ** Math.ceil(Math.log2(value))
 }
 
 /**
@@ -25,17 +25,29 @@ export function createOrthographicMatrix(
   bottom: number,
   top: number,
   near: number,
-  far: number
+  far: number,
 ): Float32Array {
   const lr = 1 / (left - right)
   const bt = 1 / (bottom - top)
   const nf = 1 / (near - far)
-  
+
   return new Float32Array([
-    -2 * lr, 0, 0, 0,
-    0, -2 * bt, 0, 0,
-    0, 0, 2 * nf, 0,
-    (left + right) * lr, (top + bottom) * bt, (far + near) * nf, 1,
+    -2 * lr,
+    0,
+    0,
+    0,
+    0,
+    -2 * bt,
+    0,
+    0,
+    0,
+    0,
+    2 * nf,
+    0,
+    (left + right) * lr,
+    (top + bottom) * bt,
+    (far + near) * nf,
+    1,
   ])
 }
 
@@ -43,36 +55,21 @@ export function createOrthographicMatrix(
  * Создать единичную матрицу
  */
 export function createIdentityMatrix(): Float32Array {
-  return new Float32Array([
-    1, 0, 0, 0,
-    0, 1, 0, 0,
-    0, 0, 1, 0,
-    0, 0, 0, 1,
-  ])
+  return new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1])
 }
 
 /**
  * Создать матрицу масштабирования
  */
 export function createScaleMatrix(sx: number, sy: number, sz: number = 1): Float32Array {
-  return new Float32Array([
-    sx, 0, 0, 0,
-    0, sy, 0, 0,
-    0, 0, sz, 0,
-    0, 0, 0, 1,
-  ])
+  return new Float32Array([sx, 0, 0, 0, 0, sy, 0, 0, 0, 0, sz, 0, 0, 0, 0, 1])
 }
 
 /**
  * Создать матрицу переноса
  */
 export function createTranslationMatrix(tx: number, ty: number, tz: number = 0): Float32Array {
-  return new Float32Array([
-    1, 0, 0, 0,
-    0, 1, 0, 0,
-    0, 0, 1, 0,
-    tx, ty, tz, 1,
-  ])
+  return new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, tx, ty, tz, 1])
 }
 
 /**
@@ -81,13 +78,8 @@ export function createTranslationMatrix(tx: number, ty: number, tz: number = 0):
 export function createRotationMatrix(angleInRadians: number): Float32Array {
   const c = Math.cos(angleInRadians)
   const s = Math.sin(angleInRadians)
-  
-  return new Float32Array([
-    c, s, 0, 0,
-    -s, c, 0, 0,
-    0, 0, 1, 0,
-    0, 0, 0, 1,
-  ])
+
+  return new Float32Array([c, s, 0, 0, -s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1])
 }
 
 /**
@@ -95,7 +87,7 @@ export function createRotationMatrix(angleInRadians: number): Float32Array {
  */
 export function multiplyMatrices(a: Float32Array, b: Float32Array): Float32Array {
   const result = new Float32Array(16)
-  
+
   for (let i = 0; i < 4; i++) {
     for (let j = 0; j < 4; j++) {
       let sum = 0
@@ -105,7 +97,7 @@ export function multiplyMatrices(a: Float32Array, b: Float32Array): Float32Array
       result[i * 4 + j] = sum
     }
   }
-  
+
   return result
 }
 
@@ -115,11 +107,11 @@ export function multiplyMatrices(a: Float32Array, b: Float32Array): Float32Array
 export function hexToRgb(hex: string): [number, number, number] {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
   if (!result) return [0, 0, 0]
-  
+
   return [
-    parseInt(result[1], 16) / 255,
-    parseInt(result[2], 16) / 255,
-    parseInt(result[3], 16) / 255,
+    Number.parseInt(result[1], 16) / 255,
+    Number.parseInt(result[2], 16) / 255,
+    Number.parseInt(result[3], 16) / 255,
   ]
 }
 
@@ -129,9 +121,9 @@ export function hexToRgb(hex: string): [number, number, number] {
 export function rgbToHex(r: number, g: number, b: number): string {
   const toHex = (c: number) => {
     const hex = Math.round(c * 255).toString(16)
-    return hex.length === 1 ? "0" + hex : hex
+    return hex.length === 1 ? `0${hex}` : hex
   }
-  
+
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`
 }
 
@@ -178,25 +170,15 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
 /**
  * Создать текстуру из видео элемента
  */
-export function createVideoTexture(
-  gl: WebGL2RenderingContext,
-  video: HTMLVideoElement
-): WebGLTexture | null {
+export function createVideoTexture(gl: WebGL2RenderingContext, video: HTMLVideoElement): WebGLTexture | null {
   const texture = gl.createTexture()
   if (!texture) return null
-  
+
   gl.bindTexture(gl.TEXTURE_2D, texture)
-  
+
   // Загружаем текущий кадр видео
-  gl.texImage2D(
-    gl.TEXTURE_2D,
-    0,
-    gl.RGBA,
-    gl.RGBA,
-    gl.UNSIGNED_BYTE,
-    video
-  )
-  
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video)
+
   // Настраиваем параметры для не-степени двойки
   if (!isPowerOfTwo(video.videoWidth) || !isPowerOfTwo(video.videoHeight)) {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
@@ -208,27 +190,16 @@ export function createVideoTexture(
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
   }
-  
+
   return texture
 }
 
 /**
  * Обновить текстуру видео
  */
-export function updateVideoTexture(
-  gl: WebGL2RenderingContext,
-  texture: WebGLTexture,
-  video: HTMLVideoElement
-): void {
+export function updateVideoTexture(gl: WebGL2RenderingContext, texture: WebGLTexture, video: HTMLVideoElement): void {
   gl.bindTexture(gl.TEXTURE_2D, texture)
-  gl.texImage2D(
-    gl.TEXTURE_2D,
-    0,
-    gl.RGBA,
-    gl.RGBA,
-    gl.UNSIGNED_BYTE,
-    video
-  )
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video)
 }
 
 /**
@@ -268,12 +239,9 @@ export function checkWebGLError(gl: WebGL2RenderingContext, operation: string): 
 /**
  * Измерить производительность операции
  */
-export async function measurePerformance<T>(
-  operation: () => T | Promise<T>,
-  label: string
-): Promise<T> {
+export async function measurePerformance<T>(operation: () => T | Promise<T>, label: string): Promise<T> {
   const start = performance.now()
-  
+
   try {
     const result = await operation()
     const duration = performance.now() - start

@@ -2,60 +2,60 @@
  * Tests for WebGL2 Context Manager
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { ContextManager } from "../context-manager"
 
 // Mock WebGL2 context
 const createMockGL = () => ({
   // Constants
-  TEXTURE_2D: 0x0DE1,
+  TEXTURE_2D: 0x0de1,
   RGBA: 0x1908,
   UNSIGNED_BYTE: 0x1401,
-  MAX_TEXTURE_SIZE: 0x0D33,
+  MAX_TEXTURE_SIZE: 0x0d33,
   MAX_TEXTURE_IMAGE_UNITS: 0x8872,
   MAX_VERTEX_ATTRIBS: 0x8869,
-  MAX_VARYING_VECTORS: 0x8DFC,
-  MAX_VERTEX_UNIFORM_VECTORS: 0x8DFB,
-  MAX_FRAGMENT_UNIFORM_VECTORS: 0x8DFD,
+  MAX_VARYING_VECTORS: 0x8dfc,
+  MAX_VERTEX_UNIFORM_VECTORS: 0x8dfb,
+  MAX_FRAGMENT_UNIFORM_VECTORS: 0x8dfd,
   MAX_DRAW_BUFFERS: 0x8824,
-  MAX_COLOR_ATTACHMENTS: 0x8CDF,
-  MAX_SAMPLES: 0x8D57,
-  VERSION: 0x1F02,
-  SHADING_LANGUAGE_VERSION: 0x8B8C,
-  DEPTH_TEST: 0x0B71,
-  CULL_FACE: 0x0B44,
-  STENCIL_TEST: 0x0B90,
-  BLEND: 0x0BE2,
+  MAX_COLOR_ATTACHMENTS: 0x8cdf,
+  MAX_SAMPLES: 0x8d57,
+  VERSION: 0x1f02,
+  SHADING_LANGUAGE_VERSION: 0x8b8c,
+  DEPTH_TEST: 0x0b71,
+  CULL_FACE: 0x0b44,
+  STENCIL_TEST: 0x0b90,
+  BLEND: 0x0be2,
   SRC_ALPHA: 0x0302,
   ONE_MINUS_SRC_ALPHA: 0x0303,
   FUNC_ADD: 0x8006,
   UNPACK_FLIP_Y_WEBGL: 0x9240,
   UNPACK_PREMULTIPLY_ALPHA_WEBGL: 0x9241,
   UNPACK_COLORSPACE_CONVERSION_WEBGL: 0x9243,
-  UNPACK_ALIGNMENT: 0x0CF5,
+  UNPACK_ALIGNMENT: 0x0cf5,
   NONE: 0,
   COLOR_BUFFER_BIT: 0x00004000,
 
   // Methods
   getParameter: vi.fn((param) => {
     const values: Record<number, any> = {
-      0x0D33: 16384, // MAX_TEXTURE_SIZE
-      0x8872: 32, // MAX_TEXTURE_IMAGE_UNITS
-      0x8869: 16, // MAX_VERTEX_ATTRIBS
-      0x8DFC: 15, // MAX_VARYING_VECTORS
-      0x8DFB: 1024, // MAX_VERTEX_UNIFORM_VECTORS
-      0x8DFD: 1024, // MAX_FRAGMENT_UNIFORM_VECTORS
-      0x8824: 8, // MAX_DRAW_BUFFERS
-      0x8CDF: 8, // MAX_COLOR_ATTACHMENTS
-      0x8D57: 8, // MAX_SAMPLES
-      0x1F02: "WebGL 2.0", // VERSION
-      0x8B8C: "WebGL GLSL ES 3.00", // SHADING_LANGUAGE_VERSION
-      0x9246: "NVIDIA GeForce GTX 1080", // UNMASKED_RENDERER_WEBGL
-      0x9245: "NVIDIA Corporation", // UNMASKED_VENDOR_WEBGL
+      3379: 16384, // MAX_TEXTURE_SIZE
+      34930: 32, // MAX_TEXTURE_IMAGE_UNITS
+      34921: 16, // MAX_VERTEX_ATTRIBS
+      36348: 15, // MAX_VARYING_VECTORS
+      36347: 1024, // MAX_VERTEX_UNIFORM_VECTORS
+      36349: 1024, // MAX_FRAGMENT_UNIFORM_VECTORS
+      34852: 8, // MAX_DRAW_BUFFERS
+      36063: 8, // MAX_COLOR_ATTACHMENTS
+      36183: 8, // MAX_SAMPLES
+      7938: "WebGL 2.0", // VERSION
+      35724: "WebGL GLSL ES 3.00", // SHADING_LANGUAGE_VERSION
+      37446: "NVIDIA GeForce GTX 1080", // UNMASKED_RENDERER_WEBGL
+      37445: "NVIDIA Corporation", // UNMASKED_VENDOR_WEBGL
     }
     return values[param] || 0
   }),
-  
+
   getExtension: vi.fn((name) => {
     if (name === "WEBGL_debug_renderer_info") {
       return {
@@ -65,13 +65,13 @@ const createMockGL = () => ({
     }
     if (name === "EXT_texture_filter_anisotropic") {
       return {
-        MAX_TEXTURE_MAX_ANISOTROPY_EXT: 0x84FF,
+        MAX_TEXTURE_MAX_ANISOTROPY_EXT: 0x84ff,
       }
     }
     if (name === "WEBGL_lose_context") {
       return {
         loseContext: vi.fn(),
-        restoreContext: vi.fn()
+        restoreContext: vi.fn(),
       }
     }
     if (name === "EXT_color_buffer_float" || name === "OES_texture_float") {
@@ -82,15 +82,15 @@ const createMockGL = () => ({
     }
     return null
   }),
-  
+
   getSupportedExtensions: vi.fn(() => [
     "EXT_color_buffer_float",
     "OES_texture_float_linear",
-    "EXT_texture_filter_anisotropic"
+    "EXT_texture_filter_anisotropic",
   ]),
-  
+
   isContextLost: vi.fn(() => false),
-  
+
   pixelStorei: vi.fn(),
   disable: vi.fn(),
   enable: vi.fn(),
@@ -128,9 +128,9 @@ describe("ContextManager", () => {
   describe("initialization", () => {
     it("should initialize with canvas", () => {
       const success = manager.initialize({
-        canvas: mockCanvas as any
+        canvas: mockCanvas as any,
       })
-      
+
       expect(success).toBe(true)
       expect(mockCanvas.getContext).toHaveBeenCalledWith("webgl2", expect.any(Object))
     })
@@ -140,33 +140,33 @@ describe("ContextManager", () => {
       const originalCreateElement = document.createElement
       const mockCreatedCanvas = createMockCanvas()
       document.createElement = vi.fn(() => mockCreatedCanvas as any)
-      
+
       const success = manager.initialize()
-      
+
       expect(success).toBe(true)
       expect(document.createElement).toHaveBeenCalledWith("canvas")
-      
+
       // Restore
       document.createElement = originalCreateElement
     })
 
     it("should return false if WebGL2 not supported", () => {
       mockCanvas.getContext = vi.fn(() => null)
-      
+
       const success = manager.initialize({
-        canvas: mockCanvas as any
+        canvas: mockCanvas as any,
       })
-      
+
       expect(success).toBe(false)
     })
 
     it("should detect GPU capabilities", () => {
       manager.initialize({
-        canvas: mockCanvas as any
+        canvas: mockCanvas as any,
       })
-      
+
       const capabilities = manager.getCapabilities()
-      
+
       expect(capabilities).toBeDefined()
       expect(capabilities?.tier).toBe("high") // Based on mock values
       expect(capabilities?.maxTextureSize).toBe(16384)
@@ -177,9 +177,9 @@ describe("ContextManager", () => {
   describe("context management", () => {
     it("should return context after initialization", () => {
       manager.initialize({
-        canvas: mockCanvas as any
+        canvas: mockCanvas as any,
       })
-      
+
       const gl = manager.getContext()
       expect(gl).toBeDefined()
     })
@@ -191,9 +191,9 @@ describe("ContextManager", () => {
 
     it("should return canvas", () => {
       manager.initialize({
-        canvas: mockCanvas as any
+        canvas: mockCanvas as any,
       })
-      
+
       const canvas = manager.getCanvas()
       expect(canvas).toBe(mockCanvas)
     })
@@ -204,15 +204,15 @@ describe("ContextManager", () => {
       // Mock devicePixelRatio
       Object.defineProperty(window, "devicePixelRatio", {
         value: 2,
-        configurable: true
+        configurable: true,
       })
-      
+
       manager.initialize({
-        canvas: mockCanvas as any
+        canvas: mockCanvas as any,
       })
-      
+
       manager.resize(640, 480)
-      
+
       expect(mockCanvas.width).toBe(1280) // 640 * 2
       expect(mockCanvas.height).toBe(960) // 480 * 2
       expect(mockCanvas.style.width).toBe("640px")
@@ -223,16 +223,16 @@ describe("ContextManager", () => {
       // Mock devicePixelRatio
       Object.defineProperty(window, "devicePixelRatio", {
         value: 2,
-        configurable: true
+        configurable: true,
       })
-      
+
       manager.initialize({
-        canvas: mockCanvas as any
+        canvas: mockCanvas as any,
       })
-      
+
       const gl = manager.getContext()
       manager.resize(800, 600)
-      
+
       expect(gl?.viewport).toHaveBeenCalledWith(0, 0, 1600, 1200) // 800 * 2, 600 * 2
     })
   })
@@ -240,40 +240,40 @@ describe("ContextManager", () => {
   describe("event handling", () => {
     it("should handle context lost event", () => {
       manager.initialize({
-        canvas: mockCanvas as any
+        canvas: mockCanvas as any,
       })
-      
+
       const contextLostSpy = vi.fn()
       manager.on("contextLost", contextLostSpy)
-      
+
       // Simulate context lost
       const contextLostHandler = mockCanvas.addEventListener.mock.calls.find(
-        call => call[0] === "webglcontextlost"
+        (call) => call[0] === "webglcontextlost",
       )?.[1]
-      
+
       const event = new Event("webglcontextlost")
       event.preventDefault = vi.fn()
       contextLostHandler?.(event)
-      
+
       expect(event.preventDefault).toHaveBeenCalled()
       expect(contextLostSpy).toHaveBeenCalled()
     })
 
     it("should handle context restored event", () => {
       manager.initialize({
-        canvas: mockCanvas as any
+        canvas: mockCanvas as any,
       })
-      
+
       const contextRestoredSpy = vi.fn()
       manager.on("contextRestored", contextRestoredSpy)
-      
+
       // Simulate context restored
       const contextRestoredHandler = mockCanvas.addEventListener.mock.calls.find(
-        call => call[0] === "webglcontextrestored"
+        (call) => call[0] === "webglcontextrestored",
       )?.[1]
-      
+
       contextRestoredHandler?.()
-      
+
       expect(contextRestoredSpy).toHaveBeenCalled()
     })
   })
@@ -281,13 +281,13 @@ describe("ContextManager", () => {
   describe("cleanup", () => {
     it("should dispose resources", () => {
       manager.initialize({
-        canvas: mockCanvas as any
+        canvas: mockCanvas as any,
       })
-      
+
       // Получаем контекст перед dispose
       const gl = manager.getContext() as any
       expect(gl).not.toBeNull()
-      
+
       // Мокаем loseContext перед вызовом dispose
       const loseContextSpy = vi.fn()
       const originalGetExtension = gl.getExtension
@@ -297,9 +297,9 @@ describe("ContextManager", () => {
         }
         return originalGetExtension.call(gl, name)
       })
-      
+
       manager.dispose()
-      
+
       expect(loseContextSpy).toHaveBeenCalled()
       expect(manager.getContext()).toBeNull()
       expect(manager.getCanvas()).toBeNull()
@@ -307,19 +307,13 @@ describe("ContextManager", () => {
 
     it("should remove event listeners", () => {
       manager.initialize({
-        canvas: mockCanvas as any
+        canvas: mockCanvas as any,
       })
-      
+
       manager.dispose()
-      
-      expect(mockCanvas.removeEventListener).toHaveBeenCalledWith(
-        "webglcontextlost",
-        expect.any(Function)
-      )
-      expect(mockCanvas.removeEventListener).toHaveBeenCalledWith(
-        "webglcontextrestored",
-        expect.any(Function)
-      )
+
+      expect(mockCanvas.removeEventListener).toHaveBeenCalledWith("webglcontextlost", expect.any(Function))
+      expect(mockCanvas.removeEventListener).toHaveBeenCalledWith("webglcontextrestored", expect.any(Function))
     })
   })
 
@@ -328,15 +322,15 @@ describe("ContextManager", () => {
       mockCanvas.getContext = vi.fn(() => {
         const gl = createMockGL()
         gl.getParameter = vi.fn((param) => {
-          if (param === 0x0D33) return 16384 // MAX_TEXTURE_SIZE
+          if (param === 0x0d33) return 16384 // MAX_TEXTURE_SIZE
           if (param === 0x8872) return 32 // MAX_TEXTURE_IMAGE_UNITS
           return 0
         })
         return gl
       })
-      
+
       manager.initialize({ canvas: mockCanvas as any })
-      
+
       const capabilities = manager.getCapabilities()
       expect(capabilities?.tier).toBe("high")
     })
@@ -345,15 +339,15 @@ describe("ContextManager", () => {
       mockCanvas.getContext = vi.fn(() => {
         const gl = createMockGL()
         gl.getParameter = vi.fn((param) => {
-          if (param === 0x0D33) return 4096 // MAX_TEXTURE_SIZE
+          if (param === 0x0d33) return 4096 // MAX_TEXTURE_SIZE
           if (param === 0x8872) return 8 // MAX_TEXTURE_IMAGE_UNITS
           return 0
         })
         return gl
       })
-      
+
       manager.initialize({ canvas: mockCanvas as any })
-      
+
       const capabilities = manager.getCapabilities()
       expect(capabilities?.tier).toBe("low")
     })

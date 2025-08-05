@@ -1,3 +1,5 @@
+import { Gauge } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -6,8 +8,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Gauge } from "lucide-react"
-import { useTranslation } from "react-i18next"
 
 import { usePlayerSpeedRamping } from "../hooks/use-player-speed-ramping"
 
@@ -63,9 +63,9 @@ export function PlaybackSpeedControl() {
             <span className="text-sm">{speed.label}</span>
           </DropdownMenuItem>
         ))}
-        
+
         <DropdownMenuSeparator />
-        
+
         <DropdownMenuItem className="text-xs text-muted-foreground" disabled>
           {t("timeline.speed.advancedOptions", "For advanced options use Options panel")}
         </DropdownMenuItem>

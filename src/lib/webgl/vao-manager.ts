@@ -66,11 +66,7 @@ export class VAOManager {
   /**
    * Создать или получить существующий VAO
    */
-  public getVAO(
-    name: string,
-    geometry: GeometryDescriptor,
-    program: ShaderProgram
-  ): WebGLVertexArrayObject | null {
+  public getVAO(name: string, geometry: GeometryDescriptor, program: ShaderProgram): WebGLVertexArrayObject | null {
     // Проверяем существующий VAO
     if (this.vaos.has(name)) {
       const managed = this.vaos.get(name)!
@@ -145,10 +141,22 @@ export class VAOManager {
     // Вершины и текстурные координаты в одном буфере
     const quadData = new Float32Array([
       // x, y, u, v
-      -1, -1, 0, 0,  // Нижний левый
-       1, -1, 1, 0,  // Нижний правый
-      -1,  1, 0, 1,  // Верхний левый
-       1,  1, 1, 1,  // Верхний правый
+      -1,
+      -1,
+      0,
+      0, // Нижний левый
+      1,
+      -1,
+      1,
+      0, // Нижний правый
+      -1,
+      1,
+      0,
+      1, // Верхний левый
+      1,
+      1,
+      1,
+      1, // Верхний правый
     ])
 
     gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffer)
@@ -186,7 +194,7 @@ export class VAOManager {
   public createParticleVAO(
     particleBuffer: WebGLBuffer,
     instanceBuffer: WebGLBuffer,
-    program: ShaderProgram
+    program: ShaderProgram,
   ): WebGLVertexArrayObject | null {
     const gl = contextManager.getContext()
     if (!gl) return null
@@ -253,13 +261,13 @@ export class VAOManager {
    */
   public clear(): void {
     const gl = contextManager.getContext()
-    
+
     if (gl) {
       for (const managed of this.vaos.values()) {
         gl.deleteVertexArray(managed.vao)
       }
     }
-    
+
     this.vaos.clear()
     this.currentVAO = null
   }
@@ -305,17 +313,11 @@ export class VAOManager {
           attribute.type,
           attribute.normalized,
           attribute.stride,
-          attribute.offset
+          attribute.offset,
         )
       } else {
         // Для целочисленных типов
-        gl.vertexAttribIPointer(
-          location,
-          attribute.size,
-          attribute.type,
-          attribute.stride,
-          attribute.offset
-        )
+        gl.vertexAttribIPointer(location, attribute.size, attribute.type, attribute.stride, attribute.offset)
       }
 
       // Настраиваем делитель для instanced rendering
@@ -373,7 +375,7 @@ export class VAOManager {
    */
   public createIndexBuffer(
     indices: Uint16Array | Uint32Array,
-    usage: number = WebGL2RenderingContext.STATIC_DRAW
+    usage: number = WebGL2RenderingContext.STATIC_DRAW,
   ): WebGLBuffer | null {
     const gl = contextManager.getContext()
     if (!gl) return null
@@ -391,11 +393,7 @@ export class VAOManager {
   /**
    * Обновить данные буфера
    */
-  public updateBuffer(
-    buffer: WebGLBuffer,
-    data: ArrayBufferView,
-    offset: number = 0
-  ): void {
+  public updateBuffer(buffer: WebGLBuffer, data: ArrayBufferView, offset: number = 0): void {
     const gl = contextManager.getContext()
     if (!gl) return
 
