@@ -13,7 +13,7 @@ import { basicEffectsLibrary } from "./presets/basic-effects"
 import { colorCorrectionEffectsLibrary } from "./presets/color-correction-effects"
 import { stylizeEffectsLibrary } from "./presets/stylize-effects"
 import { EffectManager } from "./services/effect-manager"
-import { UnifiedEffectsRenderer } from "./services/unified-renderer"
+import { WebGL2UnifiedRenderer } from "./services/webgl2-unified-renderer"
 
 // Импорт типов для утилит
 import type {
@@ -64,8 +64,10 @@ export { EffectManager } from "./services/effect-manager"
 export {
   type RenderContext,
   type RenderResult,
-  UnifiedEffectsRenderer,
-} from "./services/unified-renderer"
+} from "./services/webgl2-unified-renderer"
+export { WebGL2UnifiedRenderer } from "./services/webgl2-unified-renderer"
+export { WebGL2UnifiedRenderer as UnifiedEffectsRenderer } from "./services/webgl2-unified-renderer" // Alias for backward compatibility
+export { WebGL2EffectProcessor } from "./services/webgl2-effect-processor"
 
 // ============================================================================
 // ХУКИ
@@ -140,8 +142,15 @@ export function createEffectManager(
 /**
  * Создает новый рендерер эффектов
  */
-export function createEffectRenderer(): UnifiedEffectsRenderer {
-  return new UnifiedEffectsRenderer()
+export function createEffectRenderer(): WebGL2UnifiedRenderer {
+  return new WebGL2UnifiedRenderer()
+}
+
+/**
+ * Создает новый WebGL2 рендерер эффектов
+ */
+export function createWebGL2EffectRenderer(): WebGL2UnifiedRenderer {
+  return new WebGL2UnifiedRenderer()
 }
 
 /**

@@ -1,5 +1,6 @@
 /**
- * React hook for real-time preview functionality
+ * React hook for WebGL2-based real-time preview
+ * Использует новую унифицированную WebGL2 библиотеку
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
@@ -8,9 +9,8 @@ import { useTimeline } from "@/features/timeline/hooks/use-timeline"
 import { usePlayer } from "@/features/video-player"
 
 import { PreviewCache } from "../services/preview-cache"
-import { PreviewRenderer } from "../services/preview-renderer"
+import { WebGL2PreviewRenderer } from "../services/webgl2-preview-renderer"
 import type { Effect, GPUTier, PreviewQuality } from "../types"
-import { detectGPUTier } from "../utils/webgl-utils"
 
 // Throttle utility function
 function throttle<T extends (...args: any[]) => any>(func: T, delay: number): T {
@@ -36,13 +36,13 @@ function throttle<T extends (...args: any[]) => any>(func: T, delay: number): T 
   }) as T
 }
 
-interface UseRealtimePreviewOptions {
+interface UseWebGL2PreviewOptions {
   cacheSize?: number // MB
   prefetchRange?: number // seconds
   updateInterval?: number // ms
 }
 
-export function useRealtimePreview(options: UseRealtimePreviewOptions = {}) {
+export function useWebGL2Preview(options: UseWebGL2PreviewOptions = {}) {
   const {
     cacheSize = 100,
     prefetchRange = 2,
@@ -50,8 +50,8 @@ export function useRealtimePreview(options: UseRealtimePreviewOptions = {}) {
   } = options
 
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const rendererRef = useRef<PreviewRenderer>(null)
-  const cacheRef = useRef<PreviewCache>(null)
+  const rendererRef = useRef<WebGL2PreviewRenderer | null>(null)
+  const cacheRef = useRef<PreviewCache | null>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   const [previewFrame, setPreviewFrame] = useState<ImageBitmap | null>(null)
@@ -100,31 +100,17 @@ export function useRealtimePreview(options: UseRealtimePreviewOptions = {}) {
       }))
   }, [currentTime, selectedClipId, getEffectsAtTime, getEffectsForClip])
 
-  // Initialize renderer
+  // Initialize WebGL2 renderer
   useEffect(() => {
     if (!canvasRef.current) return
 
     const canvas = canvasRef.current
-    const gl = canvas.getContext("webgl")
-    if (!gl) {
-      console.error("WebGL not supported")
-      return
-    }
-
-    // Detect GPU capabilities
-    const detectedTier = detectGPUTier(gl)
-    setGpuTier(detectedTier)
-
-    // Adjust quality based on GPU
-    const newQuality = getQualityForGPU(detectedTier)
-    setQuality(newQuality)
-
-    // Create renderer
-    const renderer = new PreviewRenderer({
+    
+    // Create WebGL2 renderer
+    const renderer = new WebGL2PreviewRenderer({
+      name: "preview",
       canvas,
-      quality: newQuality,
-      cacheSize,
-      gpuTier: detectedTier,
+      antialias: quality.antialiasing,
     })
 
     // Create cache
@@ -137,10 +123,20 @@ export function useRealtimePreview(options: UseRealtimePreviewOptions = {}) {
     renderer
       .initialize()
       .then(() => {
+        // Get GPU capabilities
+        const capabilities = renderer.getCapabilities()
+        if (capabilities) {
+          setGpuTier(capabilities.tier)
+          
+          // Adjust quality based on GPU
+          const newQuality = getQualityForGPU(capabilities.tier)
+          setQuality(newQuality)
+        }
+        
         setIsInitialized(true)
       })
       .catch((err: unknown) => {
-        console.error("Failed to initialize preview renderer:", err)
+        console.error("Failed to initialize WebGL2 preview renderer:", err)
       })
 
     return () => {
@@ -179,44 +175,33 @@ export function useRealtimePreview(options: UseRealtimePreviewOptions = {}) {
   // Render frame with effects
   const renderFrame = useCallback(
     async (time: number, effects: Effect[]): Promise<ImageBitmap | null> => {
-      if (!rendererRef.current || !cacheRef.current || !isInitialized) return null
+      if (!rendererRef.current || !cacheRef.current || !isInitialized || !videoRef.current) return null
 
       try {
         // Try cache first
         const cached = await cacheRef.current.getOrCompute(time, effects, async () => {
-          // Extract video frame
-          const frame = await extractFrame(time)
-          if (!frame) throw new Error("Failed to extract frame")
-
+          // Set video source and segments
+          rendererRef.current!.setVideoSource(videoRef.current!)
+          rendererRef.current!.setSegments(timeline.segments || [])
+          rendererRef.current!.setCurrentTime(time)
+          
           // Apply quality settings
-          let processedFrame = frame
-          if (quality.resolution < 1) {
-            // Downscale for performance
-            const scaledWidth = Math.floor(frame.width * quality.resolution)
-            const scaledHeight = Math.floor(frame.height * quality.resolution)
-
-            const canvas = document.createElement("canvas")
-            canvas.width = scaledWidth
-            canvas.height = scaledHeight
-
-            const ctx = canvas.getContext("2d")
-            if (ctx) {
-              ctx.drawImage(frame, 0, 0, scaledWidth, scaledHeight)
-              processedFrame = await createImageBitmap(canvas)
-            }
-          }
-
-          // Filter effects based on quality
-          let filteredEffects = effects
+          let processedEffects = effects
           if (quality.effects === "basic") {
             // Only color correction and transform
-            filteredEffects = effects.filter((e) => e.type === "color_correction" || e.type === "transform")
+            processedEffects = effects.filter((e) => e.type === "color_correction" || e.type === "transform")
           } else if (quality.effects === "none") {
-            filteredEffects = []
+            processedEffects = []
           }
 
-          // Render with effects
-          return rendererRef.current.renderFrame(processedFrame, filteredEffects, time)
+          // Render frame
+          rendererRef.current!.render(0)
+          
+          // Capture frame
+          const result = await rendererRef.current!.captureFrame()
+          if (!result) throw new Error("Failed to capture frame")
+          
+          return result.bitmap
         })
 
         return cached
@@ -225,7 +210,7 @@ export function useRealtimePreview(options: UseRealtimePreviewOptions = {}) {
         return null
       }
     },
-    [isInitialized, extractFrame, quality],
+    [isInitialized, timeline.segments, quality],
   )
 
   // Update preview (throttled)
@@ -249,26 +234,50 @@ export function useRealtimePreview(options: UseRealtimePreviewOptions = {}) {
 
   // Prefetch nearby frames
   useEffect(() => {
-    if (!isInitialized || !mediaFile || !cacheRef.current) return
+    if (!isInitialized || !mediaFile || !cacheRef.current || !rendererRef.current) return
 
     const prefetch = async () => {
-      await cacheRef.current.prefetch(currentTime, prefetchRange, quality.fps, activeEffects, async (time) => {
-        const frame = await extractFrame(time)
-        if (!frame) throw new Error("Failed to extract frame")
-        return rendererRef.current.renderFrame(frame, activeEffects, time)
+      await cacheRef.current!.prefetch(currentTime, prefetchRange, quality.fps, activeEffects, async (time) => {
+        // Set time and render
+        rendererRef.current!.setCurrentTime(time)
+        rendererRef.current!.render(0)
+        
+        const result = await rendererRef.current!.captureFrame()
+        if (!result) throw new Error("Failed to capture frame")
+        
+        return result.bitmap
       })
     }
 
     // Debounce prefetch
     const timeout = setTimeout(prefetch, 500)
     return () => clearTimeout(timeout)
-  }, [currentTime, activeEffects, isInitialized, mediaFile, prefetchRange, quality.fps, extractFrame])
+  }, [currentTime, activeEffects, isInitialized, mediaFile, prefetchRange, quality.fps])
 
   // Invalidate cache when effects change significantly
   useEffect(() => {
     if (!cacheRef.current) return
     cacheRef.current.invalidate(activeEffects)
   }, [activeEffects])
+
+  // Resize handler
+  useEffect(() => {
+    if (!canvasRef.current || !rendererRef.current || !isInitialized) return
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      const entry = entries[0]
+      const { width, height } = entry.contentRect
+      
+      // Apply quality resolution scale
+      const scaledWidth = Math.floor(width * quality.resolution)
+      const scaledHeight = Math.floor(height * quality.resolution)
+      
+      rendererRef.current!.resize(scaledWidth, scaledHeight)
+    })
+
+    resizeObserver.observe(canvasRef.current)
+    return () => resizeObserver.disconnect()
+  }, [isInitialized, quality.resolution])
 
   // Canvas ref callback
   const setCanvasRef = useCallback((canvas: HTMLCanvasElement | null) => {

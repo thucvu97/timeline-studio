@@ -103,7 +103,7 @@ export function VersionControlManager({ className }: VersionControlManagerProps)
 }
 
 // Branch management component
-function BranchManager() {
+export function BranchManager() {
   const { branchName, createBranch, switchBranch, isLoading } = useVersionControl()
 
   const [newBranchName, setNewBranchName] = useState("")
@@ -158,7 +158,7 @@ function BranchManager() {
 }
 
 // Version control settings component
-function VersionControlSettings() {
+export function VersionControlSettings() {
   const { autoSaveEnabled, autoSaveIntervalSeconds, enableAutoSave, setAutoSaveInterval, isLoading } =
     useVersionControl()
 

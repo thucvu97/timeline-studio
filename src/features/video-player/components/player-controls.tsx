@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils"
 import { useFullscreen } from "../hooks/use-fullscreen"
 import { usePlayer } from "../services/player-provider"
 import { PlayerAIControls } from "./player-ai-controls"
+import { PlaybackSpeedControl } from "./playback-speed-control"
 import { PrerenderControls } from "./prerender-controls"
 import { VolumeSlider } from "./volume-slider"
 
@@ -297,6 +298,11 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
               {<UnfoldHorizontal className="h-8 w-8" />}
             </Button>
             <PrerenderControls currentTime={currentTime} duration={file.duration ?? 0} />
+            
+            {/* Управление скоростью воспроизведения */}
+            {file.probeData && (
+              <PlaybackSpeedControl />
+            )}
             {/* Кнопка снимка экрана */}
             <Button
               className="h-8 w-8 cursor-pointer"

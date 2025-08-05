@@ -11,7 +11,8 @@ import type { CommandResult, ProjectEvent } from "@/types/generated/tauri-bindin
 
 import { getBackendSync } from "../services/backend-sync"
 
-export interface VersionControlState {
+// This is a different interface for hook state, not the same as backend VersionControlState
+export interface VersionControlHookState {
   currentVersionId: string
   branchName: string
   hasUncommittedChanges: boolean
@@ -34,8 +35,8 @@ export interface VersionControlActions {
   enableAutoSave: (enabled: boolean) => Promise<boolean>
 }
 
-export function useVersionControl(): VersionControlState & VersionControlActions {
-  const [state, setState] = useState<VersionControlState>({
+export function useVersionControl(): VersionControlHookState & VersionControlActions {
+  const [state, setState] = useState<VersionControlHookState>({
     currentVersionId: "initial",
     branchName: "main",
     hasUncommittedChanges: false,

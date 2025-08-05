@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { useRealtimePreview } from "../hooks/use-realtime-preview"
+import { useWebGL2Preview } from "../hooks/use-webgl2-preview"
 import { EffectChainList } from "./effect-chain-list"
 import { PresetGallery } from "./preset-gallery"
 import { QualityControls } from "./quality-controls"
@@ -24,7 +24,7 @@ export function PreviewPanel({ className }: PreviewPanelProps) {
   const [previewEnabled, setPreviewEnabled] = useState(true)
 
   const { canvasRef, videoRef, previewFrame, isInitialized, gpuTier, quality, setQuality, cacheStats } =
-    useRealtimePreview({
+    useWebGL2Preview({
       cacheSize: 100,
       prefetchRange: 2,
       updateInterval: 33,

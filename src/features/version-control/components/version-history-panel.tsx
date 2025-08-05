@@ -265,7 +265,9 @@ export function VersionHistoryPanel({ className }: VersionHistoryPanelProps) {
 
         {/* Last snapshot info */}
         {lastSnapshotTime && (
-          <div className="text-xs text-muted-foreground">Последний снапшот: {formatTimeAgo(lastSnapshotTime)}</div>
+          <div className="text-xs text-muted-foreground">
+            Последний снапшот: {formatTimeAgo(new Date(lastSnapshotTime))}
+          </div>
         )}
       </CardContent>
     </Card>

@@ -10,7 +10,8 @@ export { PreviewPanel } from "./components/preview-panel"
 export { QualityControls } from "./components/quality-controls"
 export { TimelinePreviewIntegration } from "./components/timeline-preview-integration"
 // Hooks
-export { useRealtimePreview } from "./hooks/use-realtime-preview"
+export { useWebGL2Preview } from "./hooks/use-webgl2-preview"
+export { useWebGL2Preview as useRealtimePreview } from "./hooks/use-webgl2-preview" // Alias for backward compatibility
 export { useTimelineIntegration } from "./hooks/use-timeline-integration"
 export type {
   EffectChain,
@@ -19,7 +20,8 @@ export type {
 export { EffectPipelineManager } from "./services/effect-pipeline-manager"
 export { PreviewCache } from "./services/preview-cache"
 // Services
-export { PreviewRenderer } from "./services/preview-renderer"
+export { WebGL2PreviewRenderer } from "./services/webgl2-preview-renderer"
+export { WebGL2PreviewRenderer as PreviewRenderer } from "./services/webgl2-preview-renderer" // Alias for backward compatibility
 export { TexturePool } from "./services/texture-pool"
 export * from "./shaders/base"
 // Types
@@ -39,4 +41,4 @@ export type {
   TransformParams,
 } from "./types"
 // Utilities
-export * from "./utils/webgl-utils"
+// WebGL utilities are now in @/lib/webgl
