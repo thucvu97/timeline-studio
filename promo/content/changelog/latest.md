@@ -1,3 +1,13 @@
+## [0.67.4](https://github.com/chatman-media/timeline-studio/compare/v0.67.3...v0.67.4) (2025-08-05)
+
+
+### Bug Fixes
+
+* **timeline:** исправление обработки эффектов в timeline-to-project ([3e6d34c](https://github.com/chatman-media/timeline-studio/commit/3e6d34c2feee8fe44b61c8b17977537ec5157dbf))
+* **video-compiler:** обновление API команд и устранение конфликта типов ([80cff56](https://github.com/chatman-media/timeline-studio/commit/80cff566390025ba131837529d5697a3c2cea087))
+* **voice-recording:** удаление несуществующего поля extension из MediaFile ([34768d5](https://github.com/chatman-media/timeline-studio/commit/34768d5d25f265ed48c5bbe6a890ce8e9e17b596))
+* исправление TypeScript ошибок и добавление voice-recording модуля ([d9dba1b](https://github.com/chatman-media/timeline-studio/commit/d9dba1b9ae4e41385ef2a874d0e6cf6faf553cdc))
+
 ## [0.67.3](https://github.com/chatman-media/timeline-studio/compare/v0.67.2...v0.67.3) (2025-08-05)
 
 
