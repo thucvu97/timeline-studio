@@ -253,6 +253,12 @@
       "linter": {
         "enabled": false
       }
+    },
+    {
+      "includes": ["src-tauri/tauri.conf.json"],
+      "linter": {
+        "enabled": false
+      }
     }
   ]
 }
