@@ -108,12 +108,20 @@ export class HDRSupportService {
     supportedFormats: string[]
     maxDisplayMasteringLuminance: number
     colorGamut: string
+    hdr10Support: boolean
+    hdr10PlusSupport: boolean
+    dolbyVisionSupport: boolean
+    hlgSupport: boolean
   }> {
     const capabilities = {
       isHDRSupported: false,
       supportedFormats: [] as string[],
       maxDisplayMasteringLuminance: 100, // SDR default
       colorGamut: "srgb",
+      hdr10Support: false,
+      hdr10PlusSupport: false,
+      dolbyVisionSupport: false,
+      hlgSupport: false,
     }
 
     try {
@@ -154,6 +162,11 @@ export class HDRSupportService {
 
             if (result.supported) {
               capabilities.supportedFormats.push(`${format.codec}-${format.profile}`)
+
+              // Определяем поддержку конкретных HDR форматов
+              if (format.codec === "hevc" && format.profile === "main10") {
+                capabilities.hdr10Support = true
+              }
             }
           } catch (e) {
             // Формат не поддерживается
