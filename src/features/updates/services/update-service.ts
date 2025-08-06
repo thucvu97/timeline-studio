@@ -6,42 +6,8 @@
 import { invoke } from "@tauri-apps/api/core"
 import { emit, listen } from "@tauri-apps/api/event"
 
-export interface UpdateInfo {
-  version: string
-  notes?: string
-  pub_date?: string
-  signature: string
-  url: string
-}
-
-export interface UpdateCheckResult {
-  available: boolean
-  current_version: string
-  update_info?: UpdateInfo
-}
-
-export interface UpdateProgress {
-  chunk_length: number
-  content_length?: number
-  downloaded: number
-}
-
-export type UpdateStatus =
-  | "idle"
-  | "checking"
-  | "available"
-  | "downloading"
-  | "downloaded"
-  | "installing"
-  | "installed"
-  | "error"
-
-export interface UpdateEventPayload {
-  status: UpdateStatus
-  progress?: UpdateProgress
-  error?: string
-  update_info?: UpdateInfo
-}
+// biome-ignore lint/correctness/noUnusedImports: UpdateInfo используется в UpdateEventPayload
+import type { UpdateCheckResult, UpdateEventPayload, UpdateInfo, UpdateProgress, UpdateStatus } from "../types"
 
 /**
  * Сервис для управления обновлениями приложения

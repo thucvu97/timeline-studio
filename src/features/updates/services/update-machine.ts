@@ -3,35 +3,10 @@
  * Управляет состояниями проверки, загрузки и установки обновлений
  */
 
-import { assign, fromPromise, setup } from "xstate"
+import { type Actor, assign, fromPromise, setup } from "xstate"
 
-import { type UpdateCheckResult, type UpdateInfo, updateService } from "./update-service"
-
-// Типы событий для машины
-export type UpdateMachineEvent =
-  | { type: "CHECK_FOR_UPDATES" }
-  | { type: "DOWNLOAD_UPDATE" }
-  | { type: "INSTALL_UPDATE" }
-  | { type: "CANCEL_UPDATE" }
-  | { type: "RETRY" }
-  | { type: "DISMISS" }
-  | { type: "ENABLE_AUTO_CHECK"; intervalMinutes: number }
-  | { type: "DISABLE_AUTO_CHECK" }
-
-// Контекст машины
-export interface UpdateMachineContext {
-  currentVersion: string
-  availableUpdate?: UpdateInfo
-  error?: string
-  progress?: {
-    downloaded: number
-    total?: number
-    percentage: number
-  }
-  autoCheckEnabled: boolean
-  autoCheckInterval: number
-  lastCheckTime?: Date
-}
+import type { UpdateCheckResult, UpdateMachineContext, UpdateMachineEvent } from "../types"
+import { updateService } from "./update-service"
 
 // Типы для услуг (services)
 const checkForUpdatesService = fromPromise(async (): Promise<UpdateCheckResult> => {
@@ -62,8 +37,8 @@ export const updateMachine = setup({
   actions: {
     // Сохранить результат проверки обновлений
     saveUpdateCheckResult: assign({
-      availableUpdate: ({ event }) => {
-        if (event.type === "CHECK_FOR_UPDATES") {
+      availableUpdate: ({ event }: { event: any }) => {
+        if (event.type === "xstate.done.actor.checkForUpdates") {
           const result = event.output as UpdateCheckResult
           return result.available ? result.update_info : undefined
         }
@@ -75,8 +50,11 @@ export const updateMachine = setup({
 
     // Сохранить ошибку
     saveError: assign({
-      error: ({ event }) => {
-        if (event.type === "CHECK_FOR_UPDATES" || event.type === "DOWNLOAD_UPDATE") {
+      error: ({ event }: { event: any }) => {
+        if (
+          event.type === "xstate.error.actor.checkForUpdates" ||
+          event.type === "xstate.error.actor.downloadAndInstall"
+        ) {
           return event.error instanceof Error ? event.error.message : String(event.error)
         }
         return undefined
@@ -90,7 +68,7 @@ export const updateMachine = setup({
 
     // Сохранить текущую версию
     saveCurrentVersion: assign({
-      currentVersion: ({ event }) => {
+      currentVersion: ({ event }: { event: any }) => {
         if (event.type === "xstate.done.actor.getCurrentVersion") {
           return event.output as string
         }
@@ -113,10 +91,11 @@ export const updateMachine = setup({
 
     // Обновить прогресс загрузки
     updateProgress: assign({
-      progress: ({ _event, context }) => {
-        // В реальной реализации здесь будет обновление прогресса
-        // Пока что возвращаем заглушку
-        return context.progress
+      progress: ({ event }) => {
+        if (event.type === "UPDATE_PROGRESS") {
+          return event.progress
+        }
+        return undefined
       },
     }),
 
@@ -231,6 +210,9 @@ export const updateMachine = setup({
       },
       on: {
         CANCEL_UPDATE: "updateAvailable",
+        UPDATE_PROGRESS: {
+          actions: "updateProgress",
+        },
       },
     },
 
@@ -281,4 +263,4 @@ export const updateMachine = setup({
 })
 
 export type UpdateMachine = typeof updateMachine
-export type UpdateMachineActor = ReturnType<typeof updateMachine.createActor>
+export type UpdateMachineActor = Actor<typeof updateMachine>

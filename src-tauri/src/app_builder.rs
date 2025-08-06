@@ -355,6 +355,16 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::montage_planner::commands::generate_montage_plan,
     crate::montage_planner::commands::get_analysis_progress,
     crate::montage_planner::commands::update_composition_weights,
+    // Audio analysis commands
+    crate::commands::audio_analysis::analyze_audio_peaks,
+    crate::commands::audio_analysis::detect_speech_onsets,
+    // Faster Whisper transcription commands
+    crate::commands::transcription::init_whisper_python,
+    crate::commands::transcription::transcribe_with_faster_whisper,
+    crate::commands::transcription::get_whisper_models,
+    crate::commands::transcription::download_whisper_model,
+    crate::commands::transcription::prepare_audio_for_whisper,
+    crate::commands::transcription::generate_subtitles_from_transcription,
     // Person Identification commands
     crate::features::person_identification::commands::create_person,
     crate::features::person_identification::commands::get_person,

@@ -4,6 +4,7 @@
 
 import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
+import type { UpdateMachineContext } from "../../types"
 import { useUpdateAvailability, useUpdateManager } from "../use-update-manager"
 
 // Мокаем XState
@@ -27,13 +28,13 @@ describe("useUpdateManager", () => {
     matches: vi.fn((state: string) => state === "idle"),
     context: {
       currentVersion: "1.0.0",
-      availableUpdate: null,
-      error: null,
-      progress: null,
+      availableUpdate: undefined,
+      error: undefined,
+      progress: undefined,
       autoCheckEnabled: false,
       autoCheckInterval: 60,
-      lastCheckTime: null,
-    },
+      lastCheckTime: undefined,
+    } as UpdateMachineContext,
   }
 
   beforeEach(async () => {
@@ -199,7 +200,8 @@ describe("useUpdateManager", () => {
   })
 
   it("возвращает данные контекста", () => {
-    mockState.context = {
+    // Создаем новый контекст с обновленными данными
+    const updatedContext: UpdateMachineContext = {
       currentVersion: "1.2.3",
       availableUpdate: {
         version: "1.3.0",
@@ -213,11 +215,16 @@ describe("useUpdateManager", () => {
         downloaded: 50,
         total: 100,
         percentage: 50,
+        chunk_length: 1024,
+        content_length: 100,
       },
       autoCheckEnabled: true,
       autoCheckInterval: 180,
       lastCheckTime: new Date(),
     }
+
+    // Обновляем контекст в mockState
+    mockState.context = updatedContext
 
     const { result } = renderHook(() => useUpdateManager())
 
@@ -240,13 +247,19 @@ describe("useUpdateAvailability", () => {
       matches: (state: string) => state === "updateAvailable",
       context: {
         currentVersion: "1.0.0",
-        availableUpdate: { version: "1.1.0" },
-        error: null,
-        progress: null,
+        availableUpdate: {
+          version: "1.1.0",
+          notes: "Bug fixes",
+          pub_date: "2024-01-01",
+          signature: "sig123",
+          url: "http://example.com/update",
+        },
+        error: undefined,
+        progress: undefined,
         autoCheckEnabled: false,
         autoCheckInterval: 60,
-        lastCheckTime: null,
-      },
+        lastCheckTime: undefined,
+      } satisfies UpdateMachineContext,
     }
     const mockSend = vi.fn()
 
@@ -258,7 +271,13 @@ describe("useUpdateAvailability", () => {
 
     expect(result.current).toEqual({
       hasUpdate: true,
-      updateInfo: { version: "1.1.0" },
+      updateInfo: {
+        version: "1.1.0",
+        notes: "Bug fixes",
+        pub_date: "2024-01-01",
+        signature: "sig123",
+        url: "http://example.com/update",
+      },
       currentVersion: "1.0.0",
       checkForUpdates: expect.any(Function),
     })
@@ -271,13 +290,13 @@ describe("useUpdateAvailability", () => {
       matches: (state: string) => state === "idle",
       context: {
         currentVersion: "1.0.0",
-        availableUpdate: null,
-        error: null,
-        progress: null,
+        availableUpdate: undefined,
+        error: undefined,
+        progress: undefined,
         autoCheckEnabled: false,
         autoCheckInterval: 60,
-        lastCheckTime: null,
-      },
+        lastCheckTime: undefined,
+      } satisfies UpdateMachineContext,
     }
     const mockSend = vi.fn()
 

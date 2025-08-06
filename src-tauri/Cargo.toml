@@ -98,6 +98,8 @@ tower-http = { version = "0.5", features = ["cors", "fs"] }
 md5 = "0.7"
 dirs = "5.0"
 anyhow = "1.0"
+# Python interop for Faster Whisper
+pyo3 = { version = "0.22", features = ["auto-initialize"] }
 # Security and API keys management
 aes-gcm = "0.10"
 argon2 = "0.5"
@@ -140,6 +142,8 @@ specta-typescript = { version = "0.0.9" }
 tauri-specta = { version = "2.0.0-rc.21", features = ["derive", "typescript"] }
 # Compression
 zstd = "0.13"
+# Audio processing
+symphonia = { version = "0.5", features = ["all"] }
 
 [features]
 # by default Tauri runs in production mode
