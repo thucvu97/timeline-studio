@@ -9,6 +9,9 @@ export type DragType = "video" | "audio" | "image"
 export interface DragData {
   type: DragType
   mediaFile: MediaFile
+  // Для multi-select drag & drop
+  isMultiSelect?: boolean
+  selectedFiles?: MediaFile[]
 }
 
 export interface DropPosition {
@@ -21,6 +24,11 @@ export interface DragState {
   draggedItem: DragData | null
   dragOverTrack: string | null
   dropPosition: DropPosition | null
+  // Для multi-select визуализации
+  draggedCount?: number
+  // Для snap feedback
+  snapPoint?: any | null
+  snapActive?: boolean
 }
 
 export interface TimelineDropTarget {

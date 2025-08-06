@@ -103,6 +103,8 @@ describe("useDragDropTimeline", () => {
         draggedItem: null,
         dragOverTrack: null,
         dropPosition: null,
+        snapPoint: null,
+        snapActive: false,
       })
     })
 

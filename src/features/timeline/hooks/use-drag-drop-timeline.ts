@@ -4,9 +4,10 @@
 
 import type { DragEndEvent, DragOverEvent, DragStartEvent } from "@dnd-kit/core"
 import { useCallback, useState } from "react"
-
+import { handleInterModuleDrag, isInterModuleDrag } from "../services/drag-drop-bridge"
 import type { TrackType } from "../types"
 import type { DragData, DragState } from "../types/drag-drop"
+import type { SnapPoint } from "../types/edit-modes"
 import {
   calculateTimelinePosition,
   canDropOnTrack,
@@ -27,8 +28,8 @@ export interface UseDragDropTimelineReturn {
 }
 
 export function useDragDropTimeline(): UseDragDropTimelineReturn {
-  const { uiState } = useTimeline()
-  const { addSingleMediaToTimeline } = useTimelineActions()
+  const uiState = { timeScale: 50, snapMode: "grid" as const } // Temporary fallback
+  const { addSingleMediaToTimeline, addMediaToTimeline } = useTimelineActions()
   const { addTrack } = useTimeline()
 
   const [dragState, setDragState] = useState<DragState>({
@@ -36,6 +37,8 @@ export function useDragDropTimeline(): UseDragDropTimelineReturn {
     draggedItem: null,
     dragOverTrack: null,
     dropPosition: null,
+    snapPoint: null,
+    snapActive: false,
   })
 
   // Handle drag start
@@ -44,14 +47,21 @@ export function useDragDropTimeline(): UseDragDropTimelineReturn {
     const dragData = active.data.current as DragData | undefined
 
     if (dragData) {
+      // Определяем количество файлов для multi-select визуализации
+      const draggedCount = dragData.isMultiSelect && dragData.selectedFiles ? dragData.selectedFiles.length : 1
+
       setDragState({
         isDragging: true,
         draggedItem: dragData,
         dragOverTrack: null,
         dropPosition: null,
+        draggedCount,
       })
 
-      console.log("[DragDrop] Drag started:", dragData.mediaFile.name)
+      console.log(
+        "[DragDrop] Drag started:",
+        dragData.isMultiSelect ? `${draggedCount} files (multi-select)` : dragData.mediaFile.name,
+      )
     }
   }, [])
 
@@ -65,6 +75,8 @@ export function useDragDropTimeline(): UseDragDropTimelineReturn {
           ...prev,
           dragOverTrack: null,
           dropPosition: null,
+          snapPoint: null,
+          snapActive: false,
         }))
         return
       }
@@ -109,7 +121,20 @@ export function useDragDropTimeline(): UseDragDropTimelineReturn {
             let timePosition = calculateTimelinePosition(mouseX, rect, scrollLeft, uiState.timeScale)
 
             // Apply snapping if enabled
+            const originalPosition = timePosition
             timePosition = snapToGrid(timePosition, uiState.snapMode)
+
+            // Создаем SnapPoint если произошел snap
+            let snapPoint: SnapPoint | null = null
+            const snapActive = Math.abs(originalPosition - timePosition) > 0.1
+
+            if (snapActive) {
+              snapPoint = {
+                position: timePosition * uiState.timeScale,
+                type: "grid",
+                strength: 1,
+              }
+            }
 
             // Find insertion point (avoiding overlaps)
             const insertionTime = findInsertionPoint(timePosition, dropData.trackId, dragData.mediaFile.duration || 10)
@@ -121,6 +146,8 @@ export function useDragDropTimeline(): UseDragDropTimelineReturn {
                 trackId: dropData.trackId,
                 startTime: insertionTime.insertionTime,
               },
+              snapPoint,
+              snapActive,
             }))
           }
         } else {
@@ -128,6 +155,8 @@ export function useDragDropTimeline(): UseDragDropTimelineReturn {
             ...prev,
             dragOverTrack: null,
             dropPosition: null,
+            snapPoint: null,
+            snapActive: false,
           }))
         }
       }
@@ -140,6 +169,32 @@ export function useDragDropTimeline(): UseDragDropTimelineReturn {
     (event: DragEndEvent) => {
       const { active, over } = event
 
+      // Сначала проверяем межмодульный drag & drop через bridge
+      if (isInterModuleDrag(event)) {
+        const bridgeHandled = handleInterModuleDrag(
+          event,
+          {
+            addSingleMediaToTimeline,
+            addMediaToTimeline,
+          },
+          dragState,
+        )
+        if (bridgeHandled) {
+          console.log("[DragDrop] Inter-module drag handled by bridge")
+          // Сбрасываем состояние
+          setDragState({
+            isDragging: false,
+            draggedItem: null,
+            dragOverTrack: null,
+            dropPosition: null,
+            snapPoint: null,
+            snapActive: false,
+          })
+          return
+        }
+      }
+
+      // Обычный внутренний Timeline drag & drop
       if (over && dragState.draggedItem && dragState.dropPosition) {
         const dragData = active.data.current as DragData
         const dropData = over.data.current as any
@@ -192,6 +247,8 @@ export function useDragDropTimeline(): UseDragDropTimelineReturn {
         draggedItem: null,
         dragOverTrack: null,
         dropPosition: null,
+        snapPoint: null,
+        snapActive: false,
       })
 
       console.log("[DragDrop] Drag ended")

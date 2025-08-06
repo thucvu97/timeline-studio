@@ -15,7 +15,8 @@ interface TimelineTransitionProps {
   onSelect?: (id: string) => void
   onDurationChange?: (id: string, duration: number) => void
   onPositionChange?: (id: string, position: number) => void
-  onDelete?: (id: string) => void
+  onUpdate?: (updates: Record<string, any>) => void
+  onDelete?: () => void
 }
 
 /**
@@ -30,6 +31,7 @@ export const TimelineTransitionComponent = memo(function TimelineTransitionCompo
   onSelect,
   onDurationChange,
   onPositionChange,
+  onUpdate,
   onDelete,
 }: TimelineTransitionProps) {
   const { uiState } = useTimeline()

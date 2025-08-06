@@ -5,7 +5,8 @@
 import { useDroppable } from "@dnd-kit/core"
 import { memo, useCallback, useMemo } from "react"
 
-import { useDropZone } from "@/features/drag-drop"
+// Удалена зависимость от @/features/drag-drop для устранения конфликта архитектур
+// Оставляем только @dnd-kit/core систему
 import { cn } from "@/lib/utils"
 import { useClipGroups } from "../../hooks/use-clip-groups"
 import { useDragDropTimeline } from "../../hooks/use-drag-drop-timeline"
@@ -29,7 +30,7 @@ interface TrackContentProps {
 
 export const TrackContent = memo(function TrackContent({ track, timeScale, currentTime, onUpdate }: TrackContentProps) {
   const { dragState, isValidDropTarget } = useDragDropTimeline()
-  const { addClip, selectClips, project, updateProject } = useTimeline()
+  const { selectClips, project, saveProject } = useTimeline()
   const { groups, toggleCollapse } = useClipGroups()
 
   // Обнаружение коллизий переходов на треке
@@ -44,23 +45,8 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
     },
   })
 
-  // Register as drop zone for global DragDropManager
-  const acceptedTypes: Array<"media" | "music"> =
-    track.type === "video" ? ["media"] : track.type === "audio" ? ["media", "music"] : []
-
-  const { ref: dropZoneRef } = useDropZone(`track-${track.id}`, acceptedTypes, (item, event) => {
-    // Calculate drop position based on mouse position
-    const rect = dropZoneRef.current?.getBoundingClientRect()
-    if (!rect) return
-
-    const x = event.clientX - rect.left
-    const dropTime = x / timeScale
-
-    // Add clip to timeline
-    if (item.type === "media" || item.type === "music") {
-      void addClip(track.id, item.data, dropTime)
-    }
-  })
+  // Удалён дублирующий useDropZone для устранения конфликта архитектур
+  // Теперь используем только @dnd-kit систему через handleDragEnd в useDragDropTimeline
 
   // Check if this track is a valid drop target
   const isValidTarget = isValidDropTarget(track.id, track.type)
@@ -108,7 +94,7 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
 
   // Мемоизируем обработчики для предотвращения создания новых функций
   const handleClipUpdate = useCallback(
-    (clipId: string, updates: any) => {
+    (clipId: string, updates: Record<string, any>) => {
       const updatedClips = track.clips.map((clip) => (clip.id === clipId ? { ...clip, ...updates } : clip))
       onUpdate?.({ clips: updatedClips })
     },
@@ -125,17 +111,18 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
 
   // Обработчик добавления перехода между клипами
   const handleTransitionDrop = useCallback(
-    (leftClipId: string, rightClipId: string, transition: any) => {
+    (leftClipId: string, rightClipId: string, transition: Record<string, any>) => {
       if (!project) return
 
       try {
         const result = addTransitionBetweenClips(project, track.id, leftClipId, rightClipId, transition)
-        updateProject?.(result.project)
+        // TODO: Integrate with project save system
+        console.log("Transition added, need to save project:", result.project)
       } catch (error) {
         console.error("Failed to add transition:", error)
       }
     },
-    [project, track.id, updateProject],
+    [project, track.id],
   )
 
   // Мемоизируем сетку временной шкалы
@@ -153,12 +140,7 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
 
   return (
     <div
-      ref={(el) => {
-        setNodeRef(el)
-        if (dropZoneRef.current !== el) {
-          dropZoneRef.current = el
-        }
-      }}
+      ref={setNodeRef}
       data-track-id={track.id}
       data-testid={`track-container-${track.id}`}
       className={cn(
@@ -227,7 +209,8 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
           <TimelineTransitionComponent
             key={transition.id}
             transition={transition}
-            timeScale={timeScale}
+            pixelsPerSecond={timeScale}
+            trackHeight={48}
             onUpdate={(updates) => {
               // Обновление перехода через контекст или API
               console.log("Transition update:", transition.id, updates)

@@ -7,10 +7,12 @@
 import { DndContext, DragOverlay, MouseSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { createSnapModifier } from "@dnd-kit/modifiers"
 import type React from "react"
+import { useEffect } from "react"
 
 import type { MediaFile } from "@/features/media/types/media"
 
 import { useDragDropTimeline } from "../hooks/use-drag-drop-timeline"
+import { initializeDragDropBridge } from "../services/drag-drop-bridge"
 
 interface DragDropProviderProps {
   children: React.ReactNode
@@ -19,19 +21,28 @@ interface DragDropProviderProps {
 /**
  * Drag overlay component showing the dragged video
  */
-function DraggedVideoOverlay({ mediaFile }: { mediaFile: MediaFile }) {
+function DraggedVideoOverlay({ mediaFile, count }: { mediaFile: MediaFile; count?: number }) {
+  const isMultiSelect = count && count > 1
+
   return (
     <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-2 opacity-90">
       <div className="flex items-center gap-2">
-        <div className="w-16 h-10 bg-gray-100 dark:bg-gray-700 rounded flex items-center justify-center">
-          <span className="text-xs text-gray-500 dark:text-gray-400">Video</span>
+        <div className="w-16 h-10 bg-gray-100 dark:bg-gray-700 rounded flex items-center justify-center relative">
+          <span className="text-xs text-gray-500 dark:text-gray-400">
+            {mediaFile.isVideo ? "Video" : mediaFile.isAudio ? "Audio" : "Image"}
+          </span>
+          {isMultiSelect && (
+            <div className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              {count}
+            </div>
+          )}
         </div>
         <div className="flex flex-col">
           <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate max-w-32">
-            {mediaFile.name}
+            {isMultiSelect ? `${count} files` : mediaFile.name}
           </span>
           <span className="text-xs text-gray-500 dark:text-gray-400">
-            {mediaFile.duration ? `${Math.round(mediaFile.duration)}s` : ""}
+            {isMultiSelect ? "Multiple files selected" : mediaFile.duration ? `${Math.round(mediaFile.duration)}s` : ""}
           </span>
         </div>
       </div>
@@ -41,6 +52,11 @@ function DraggedVideoOverlay({ mediaFile }: { mediaFile: MediaFile }) {
 
 export function DragDropProvider({ children }: DragDropProviderProps) {
   const { dragState, handleDragStart, handleDragOver, handleDragEnd } = useDragDropTimeline()
+
+  // Инициализируем bridge при монтировании провайдера
+  useEffect(() => {
+    initializeDragDropBridge()
+  }, [])
 
   // Configure sensors for mouse and touch
   const mouseSensor = useSensor(MouseSensor, {
@@ -73,7 +89,7 @@ export function DragDropProvider({ children }: DragDropProviderProps) {
 
       <DragOverlay>
         {dragState.isDragging && dragState.draggedItem ? (
-          <DraggedVideoOverlay mediaFile={dragState.draggedItem.mediaFile} />
+          <DraggedVideoOverlay mediaFile={dragState.draggedItem.mediaFile} count={dragState.draggedCount} />
         ) : null}
       </DragOverlay>
     </DndContext>
