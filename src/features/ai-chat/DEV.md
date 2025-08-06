@@ -133,7 +133,7 @@ class DeepSeekProvider implements AIProvider { /* ... */ }
 
 - [x] **Унифицировать Error Handling** ✅
   - [x] Создать BaseAITool абстрактный класс ✅
-  - [ ] Рефакторить все tool executors (24 из 67 готов - 36% выполнено)
+  - [ ] Рефакторить все tool executors (29 из 67 готов - 43% выполнено)
     - [x] timeline-analysis-tool.ts ✅
     - [x] export-data.ts ✅ 
     - [x] detect-scenes.ts ✅
@@ -161,7 +161,11 @@ class DeepSeekProvider implements AIProvider { /* ... */ }
     - [x] settings-configuration-tools.ts ✅
     - [x] subtitle-tools.ts ✅
     - [x] video-analysis-tools.ts ✅
-    - [ ] 43 remaining инструментов
+    - [x] effects-filters-tools.ts ✅
+    - [x] export-management-tools.ts ✅
+    - [x] media-processing-tools.ts ✅
+    - [x] multimodal-analysis-tools.ts ✅
+    - [ ] 38 remaining инструментов
   - [x] Добавить централизованное логирование ошибок ✅
 
 - [x] **Стандартизировать типы результатов** ✅

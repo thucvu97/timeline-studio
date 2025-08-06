@@ -1,16 +1,484 @@
 /**
- * AI инструменты для обработки медиа контента
+ * AI инструменты для обработки медиа контента с использованием BaseAITool
  *
  * Предоставляет Claude возможности для конвертации,
  * сжатия и технической обработки медиафайлов
  */
 
-import type { ClaudeTool } from "../services/claude-service"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "./base-ai-tool"
+
+// Типы для операций обработки медиа
+export interface MediaProcessingInput {
+  operation:
+    | "analyze_quality"
+    | "optimize_compression"
+    | "convert_formats"
+    | "repair_corrupted"
+    | "batch_process"
+    | "create_derivatives"
+  targetFiles?: string[]
+  sourceFiles?: string[]
+  batchFiles?: string[]
+  damagedFiles?: string[]
+  qualityMetrics?: string[]
+  analysisDepth?: "quick" | "standard" | "comprehensive" | "forensic"
+  samplingRate?: "every-frame" | "keyframes-only" | "custom-interval" | "scene-changes"
+  optimizationGoal?: string
+  targetPlatforms?: string[]
+  compressionSettings?: any
+  conversionTargets?: any[]
+  conversionQuality?: "lossless" | "high" | "medium" | "optimized" | "draft"
+  damageTypes?: string[]
+  repairMethods?: string[]
+  processingTasks?: any[]
+  derivativeTypes?: any[]
+  executionSettings?: any
+  errorHandling?: any
+  monitoringSettings?: any
+  reason?: string
+}
+
+export interface MediaProcessingResult {
+  operation: string
+  success: boolean
+  qualityAnalysis?: any
+  compressionResults?: any
+  conversionResults?: any
+  repairResults?: any
+  batchResults?: any
+  derivativeFiles?: string[]
+  recommendations: string[]
+  warnings?: string[]
+  processingStats?: any
+  message: string
+}
 
 /**
- * Media Processing Tools - 6 инструментов для обработки медиа
+ * AI инструмент для обработки медиа с унифицированной обработкой ошибок
  */
-export const mediaProcessingTools: ClaudeTool[] = [
+export class MediaProcessingTool extends BaseAITool {
+  constructor(logger?: AIToolLogger) {
+    super("MediaProcessingTool", logger)
+  }
+
+  /**
+   * Выполняет операции обработки медиа
+   */
+  public async processMedia(
+    input: MediaProcessingInput,
+    options: AIToolExecutionOptions = {}
+  ): Promise<AIToolResult<MediaProcessingResult>> {
+    // Валидация входных данных
+    const validation = this.validateInput(input, (data) => {
+      const errors: string[] = []
+
+      const validOperations = [
+        "analyze_quality",
+        "optimize_compression",
+        "convert_formats",
+        "repair_corrupted",
+        "batch_process",
+        "create_derivatives",
+      ]
+      if (!validOperations.includes(data.operation)) {
+        errors.push(`Неподдерживаемая операция: ${data.operation}`)
+      }
+
+      // Специфические валидации
+      switch (data.operation) {
+        case "analyze_quality":
+          if (!data.targetFiles || data.targetFiles.length === 0) {
+            errors.push("Требуются targetFiles для анализа качества")
+          }
+          break
+        case "optimize_compression":
+          if (!data.targetFiles || !data.optimizationGoal) {
+            errors.push("Требуются targetFiles и optimizationGoal")
+          }
+          break
+        case "convert_formats":
+          if (!data.sourceFiles || !data.conversionTargets) {
+            errors.push("Требуются sourceFiles и conversionTargets")
+          }
+          break
+        case "repair_corrupted":
+          if (!data.damagedFiles) {
+            errors.push("Требуются damagedFiles для восстановления")
+          }
+          break
+        case "batch_process":
+          if (!data.batchFiles || !data.processingTasks) {
+            errors.push("Требуются batchFiles и processingTasks")
+          }
+          break
+        case "create_derivatives":
+          if (!data.sourceFiles || !data.derivativeTypes) {
+            errors.push("Требуются sourceFiles и derivativeTypes")
+          }
+          break
+      }
+
+      if (!data.reason) {
+        errors.push("Требуется указать причину операции")
+      }
+
+      return {
+        isValid: errors.length === 0,
+        errors,
+      }
+    })
+
+    if (!validation.isValid) {
+      return {
+        success: false,
+        errors: validation.errors,
+        message: "Ошибка валидации входных данных для обработки медиа",
+        executionTime: 0,
+        toolName: this.toolName,
+      }
+    }
+
+    const operation = input.operation
+
+    // Выполняем операцию с унифицированной обработкой ошибок
+    return this.executeWithErrorHandling(
+      async (context) => {
+        context.logger?.("info", "Начинаем обработку медиа", {
+          operation,
+          fileCount: input.targetFiles?.length || input.sourceFiles?.length || 0,
+        })
+
+        let result: MediaProcessingResult
+        const recommendations: string[] = []
+        const warnings: string[] = []
+
+        switch (operation) {
+          case "analyze_quality":
+            result = await this.analyzeMediaQuality(input, context)
+            break
+
+          case "optimize_compression":
+            result = await this.optimizeMediaCompression(input, context)
+            if (input.targetPlatforms?.includes("mobile")) {
+              recommendations.push("Рассмотрите использование адаптивного битрейта")
+            }
+            break
+
+          case "convert_formats":
+            result = await this.convertMediaFormats(input, context)
+            break
+
+          case "repair_corrupted":
+            result = await this.repairCorruptedMedia(input, context)
+            warnings.push("Некоторые данные могут быть невосстановимы")
+            break
+
+          case "batch_process":
+            result = await this.batchProcessMedia(input, context)
+            if (input.batchFiles && input.batchFiles.length > 100) {
+              warnings.push("Большое количество файлов может замедлить обработку")
+            }
+            break
+
+          case "create_derivatives":
+            result = await this.createMediaDerivatives(input, context)
+            recommendations.push("Проверьте качество производных файлов")
+            break
+
+          default:
+            throw new Error(`Неподдерживаемая операция: ${operation}`)
+        }
+
+        result.recommendations = [...result.recommendations, ...recommendations]
+        result.warnings = warnings.length > 0 ? warnings : undefined
+
+        context.logger?.("info", "Обработка медиа завершена", {
+          operation,
+          success: result.success,
+        })
+
+        return result
+      },
+      {
+        timeout: options.timeout || 300000, // 5 минут для обработки медиа
+        retries: options.retries || 1,
+        retryDelay: options.retryDelay || 5000,
+        enableLogging: options.enableLogging !== false,
+        metadata: {
+          operation,
+          ...options.metadata,
+        },
+      }
+    )
+  }
+
+  /**
+   * Анализ качества медиа
+   */
+  private async analyzeMediaQuality(input: MediaProcessingInput, context: any): Promise<MediaProcessingResult> {
+    context.logger?.("info", "Анализируем качество медиа", {
+      fileCount: input.targetFiles?.length,
+      metrics: input.qualityMetrics,
+    })
+
+    // Заглушка для анализа
+    const qualityAnalysis = {
+      files: input.targetFiles?.map((file) => ({
+        id: file,
+        resolution: "1920x1080",
+        bitrate: 8000000,
+        codec: "h264",
+        quality: {
+          sharpness: 0.85,
+          noise: 0.15,
+          artifacts: 0.05,
+          overall: 0.88,
+        },
+      })),
+      summary: {
+        averageQuality: 0.88,
+        issues: ["Небольшой шум в темных областях"],
+        recommendations: ["Применить шумоподавление"],
+      },
+    }
+
+    return {
+      operation: "analyze_quality",
+      success: true,
+      qualityAnalysis,
+      message: "Анализ качества завершен",
+      recommendations: qualityAnalysis.summary.recommendations,
+    }
+  }
+
+  /**
+   * Оптимизация сжатия медиа
+   */
+  private async optimizeMediaCompression(input: MediaProcessingInput, context: any): Promise<MediaProcessingResult> {
+    context.logger?.("info", "Оптимизируем сжатие", {
+      goal: input.optimizationGoal,
+      platforms: input.targetPlatforms,
+    })
+
+    // Заглушка для оптимизации
+    const compressionResults = {
+      originalSize: 1000000000, // 1GB
+      compressedSize: 250000000, // 250MB
+      compressionRatio: 4,
+      quality: "high",
+      settings: {
+        codec: "h265",
+        bitrate: 5000000,
+        twoPass: true,
+      },
+    }
+
+    return {
+      operation: "optimize_compression",
+      success: true,
+      compressionResults,
+      message: `Сжатие оптимизировано для ${input.optimizationGoal}`,
+      recommendations: [],
+    }
+  }
+
+  /**
+   * Конвертация форматов медиа
+   */
+  private async convertMediaFormats(input: MediaProcessingInput, context: any): Promise<MediaProcessingResult> {
+    context.logger?.("info", "Конвертируем форматы", {
+      sourceCount: input.sourceFiles?.length,
+      targetCount: input.conversionTargets?.length,
+    })
+
+    // Заглушка для конвертации
+    const conversionResults = {
+      conversions: input.conversionTargets?.map((target, index) => ({
+        source: input.sourceFiles?.[index] || "unknown",
+        target: target.outputFormat,
+        status: "completed",
+        outputPath: `/converted/file_${index}.${target.outputFormat}`,
+      })),
+      summary: {
+        total: input.conversionTargets?.length || 0,
+        successful: input.conversionTargets?.length || 0,
+        failed: 0,
+      },
+    }
+
+    return {
+      operation: "convert_formats",
+      success: true,
+      conversionResults,
+      message: "Конвертация форматов завершена",
+      recommendations: [],
+    }
+  }
+
+  /**
+   * Восстановление поврежденных медиа
+   */
+  private async repairCorruptedMedia(input: MediaProcessingInput, context: any): Promise<MediaProcessingResult> {
+    context.logger?.("info", "Восстанавливаем поврежденные файлы", {
+      fileCount: input.damagedFiles?.length,
+      methods: input.repairMethods,
+    })
+
+    // Заглушка для восстановления
+    const repairResults = {
+      repaired: input.damagedFiles?.map((file) => ({
+        id: file,
+        status: "partially_recovered",
+        recoveryRate: 0.85,
+        issues: ["Некоторые кадры потеряны"],
+      })),
+      summary: {
+        totalFiles: input.damagedFiles?.length || 0,
+        fullyRecovered: 0,
+        partiallyRecovered: input.damagedFiles?.length || 0,
+        failed: 0,
+      },
+    }
+
+    return {
+      operation: "repair_corrupted",
+      success: true,
+      repairResults,
+      message: "Восстановление завершено",
+      recommendations: ["Создайте резервные копии восстановленных файлов"],
+    }
+  }
+
+  /**
+   * Пакетная обработка медиа
+   */
+  private async batchProcessMedia(input: MediaProcessingInput, context: any): Promise<MediaProcessingResult> {
+    context.logger?.("info", "Выполняем пакетную обработку", {
+      fileCount: input.batchFiles?.length,
+      taskCount: input.processingTasks?.length,
+    })
+
+    // Заглушка для пакетной обработки
+    const batchResults = {
+      processed: input.batchFiles?.length || 0,
+      successful: (input.batchFiles?.length || 0) - 1,
+      failed: 1,
+      duration: 1234567, // в миллисекундах
+      tasks: input.processingTasks?.map((task) => ({
+        type: task.taskType,
+        completed: true,
+      })),
+    }
+
+    return {
+      operation: "batch_process",
+      success: true,
+      batchResults,
+      message: "Пакетная обработка завершена",
+      recommendations: [],
+    }
+  }
+
+  /**
+   * Создание производных медиа
+   */
+  private async createMediaDerivatives(input: MediaProcessingInput, context: any): Promise<MediaProcessingResult> {
+    context.logger?.("info", "Создаем производные файлы", {
+      sourceCount: input.sourceFiles?.length,
+      typeCount: input.derivativeTypes?.length,
+    })
+
+    // Заглушка для создания производных
+    const derivativeFiles: string[] = []
+    input.derivativeTypes?.forEach((type, index) => {
+      derivativeFiles.push(`/derivatives/${type.type}_${index}.${type.specifications?.format || "mp4"}`)
+    })
+
+    return {
+      operation: "create_derivatives",
+      success: true,
+      derivativeFiles,
+      message: `Создано ${derivativeFiles.length} производных файлов`,
+      recommendations: [],
+    }
+  }
+}
+
+// Экспортируем готовый экземпляр для использования
+export const mediaProcessingTool = new MediaProcessingTool()
+
+// Функции-обертки для обратной совместимости
+export async function analyzeMediaQuality(params: any): Promise<AIToolResult<MediaProcessingResult>> {
+  const input: MediaProcessingInput = {
+    operation: "analyze_quality",
+    targetFiles: params.targetFiles,
+    qualityMetrics: params.qualityMetrics,
+    analysisDepth: params.analysisDepth,
+    samplingRate: params.samplingRate,
+    reason: params.reason || "Анализ качества медиафайлов",
+  }
+  return mediaProcessingTool.processMedia(input)
+}
+
+export async function optimizeMediaCompression(params: any): Promise<AIToolResult<MediaProcessingResult>> {
+  const input: MediaProcessingInput = {
+    operation: "optimize_compression",
+    targetFiles: params.targetFiles,
+    optimizationGoal: params.optimizationGoal,
+    targetPlatforms: params.targetPlatforms,
+    compressionSettings: params.compressionSettings,
+    reason: params.reason || "Оптимизация сжатия медиа",
+  }
+  return mediaProcessingTool.processMedia(input)
+}
+
+export async function convertMediaFormats(params: any): Promise<AIToolResult<MediaProcessingResult>> {
+  const input: MediaProcessingInput = {
+    operation: "convert_formats",
+    sourceFiles: params.sourceFiles,
+    conversionTargets: params.conversionTargets,
+    conversionQuality: params.conversionQuality,
+    reason: params.reason || "Конвертация форматов медиа",
+  }
+  return mediaProcessingTool.processMedia(input)
+}
+
+export async function repairCorruptedMedia(params: any): Promise<AIToolResult<MediaProcessingResult>> {
+  const input: MediaProcessingInput = {
+    operation: "repair_corrupted",
+    damagedFiles: params.damagedFiles,
+    damageTypes: params.damageTypes,
+    repairMethods: params.repairMethods,
+    reason: params.reason || "Восстановление поврежденных медиа",
+  }
+  return mediaProcessingTool.processMedia(input)
+}
+
+export async function batchProcessMedia(params: any): Promise<AIToolResult<MediaProcessingResult>> {
+  const input: MediaProcessingInput = {
+    operation: "batch_process",
+    batchFiles: params.batchFiles,
+    processingTasks: params.processingTasks,
+    executionSettings: params.executionSettings,
+    errorHandling: params.errorHandling,
+    monitoringSettings: params.monitoringSettings,
+    reason: params.reason || "Пакетная обработка медиа",
+  }
+  return mediaProcessingTool.processMedia(input)
+}
+
+export async function createMediaDerivatives(params: any): Promise<AIToolResult<MediaProcessingResult>> {
+  const input: MediaProcessingInput = {
+    operation: "create_derivatives",
+    sourceFiles: params.sourceFiles,
+    derivativeTypes: params.derivativeTypes,
+    reason: params.reason || "Создание производных медиафайлов",
+  }
+  return mediaProcessingTool.processMedia(input)
+}
+
+// Экспортируем массив инструментов для обратной совместимости
+export const mediaProcessingTools: any[] = [
   {
     name: "analyze_media_quality",
     description: "Анализирует техническое качество медиафайлов и выявляет проблемы",
@@ -505,112 +973,56 @@ export const mediaProcessingTools: ClaudeTool[] = [
       required: ["sourceFiles", "derivativeTypes", "reason"],
     },
   },
+  {
+    name: "optimize_media_compression",
+    description: "Оптимизирует сжатие медиафайлов для различных целей и платформ",
+  },
+  {
+    name: "convert_media_formats",
+    description: "Конвертирует медиафайлы между различными форматами с сохранением качества",
+  },
+  {
+    name: "repair_corrupted_media",
+    description: "Восстанавливает поврежденные медиафайлы и исправляет ошибки",
+  },
+  {
+    name: "batch_process_media",
+    description: "Выполняет пакетную обработку множества медиафайлов с различными операциями",
+  },
+  {
+    name: "create_media_derivatives",
+    description: "Создает производные версии медиафайлов для различных целей и устройств",
+  },
 ]
 
 /**
- * Типы результатов выполнения media processing инструментов
+ * Функция для обработки выполнения инструментов обработки медиа (legacy API)
  */
-export interface MediaProcessingToolResult {
-  success: boolean
-  message: string
-  data?: {
-    qualityAnalysis?: any
-    compressionResults?: any
-    conversionResults?: any
-    repairResults?: any
-    batchResults?: any
-    derivativeFiles?: string[]
-    recommendations?: string[]
-    warnings?: string[]
-    processingStats?: any
-  }
-  errors?: string[]
-  nextActions?: string[]
-}
-
-/**
- * Интерфейс для доступа к системе обработки медиа
- */
-interface MediaProcessingSystemAccess {
-  analyzeMediaQuality: (files: string[], metrics: string[], depth: string) => Promise<any>
-  optimizeCompression: (files: string[], goal: string, platforms: string[], settings: any) => Promise<any>
-  convertMediaFormats: (sources: string[], targets: any[], quality: string, options: any) => Promise<any>
-  repairCorruptedMedia: (files: string[], types: string[], methods: string[], settings: any) => Promise<any>
-  batchProcessMedia: (files: string[], tasks: any[], execution: any, monitoring: any) => Promise<any>
-  createMediaDerivatives: (sources: string[], types: any[], settings: any, quality: any) => Promise<any>
-  getMediaInfo: (fileId: string) => any
-  validateMediaFile: (fileId: string) => Promise<boolean>
-  getProcessingCapabilities: () => any
-}
-
-// Глобальная переменная для доступа к системе обработки медиа
-let mediaProcessingSystemAccess: MediaProcessingSystemAccess | null = null
-
-/**
- * Устанавливает доступ к системе обработки медиа
- */
-export function setMediaProcessingSystemAccess(access: MediaProcessingSystemAccess | null) {
-  mediaProcessingSystemAccess = access
-}
-
-/**
- * Выполняет media processing инструмент
- */
-export async function executeMediaProcessingTool(
-  toolName: string,
-  input: Record<string, any>,
-): Promise<MediaProcessingToolResult> {
+export async function executeMediaProcessingTool(toolName: string, input: Record<string, any>): Promise<any> {
   try {
-    switch (toolName) {
-      case "analyze_media_quality":
-        return await analyzeMediaQuality(input)
-      case "optimize_media_compression":
-        return await optimizeMediaCompression(input)
-      case "convert_media_formats":
-        return await convertMediaFormats(input)
-      case "repair_corrupted_media":
-        return await repairCorruptedMedia(input)
-      case "batch_process_media":
-        return await batchProcessMedia(input)
-      case "create_media_derivatives":
-        return await createMediaDerivatives(input)
-      default:
-        return {
-          success: false,
-          message: `Неизвестный media processing инструмент: ${toolName}`,
-          errors: [`Инструмент ${toolName} не найден`],
-        }
+    // Маппинг старых названий на новые функции
+    const functionMap: Record<string, () => Promise<any>> = {
+      analyze_media_quality: () => analyzeMediaQuality(input),
+      optimize_media_compression: () => optimizeMediaCompression(input),
+      convert_media_formats: () => convertMediaFormats(input),
+      repair_corrupted_media: () => repairCorruptedMedia(input),
+      batch_process_media: () => batchProcessMedia(input),
+      create_media_derivatives: () => createMediaDerivatives(input),
     }
+
+    const func = functionMap[toolName]
+    if (!func) {
+      throw new Error(`Неизвестный инструмент обработки медиа: ${toolName}`)
+    }
+
+    const result = await func()
+    
+    // Преобразуем AIToolResult в старый формат если нужно
+    if (result && result.success !== undefined) {
+      return result.data || result
+    }
+    return result
   } catch (error) {
-    return {
-      success: false,
-      message: `Ошибка выполнения media processing инструмента ${toolName}: ${error instanceof Error ? error.message : String(error)}`,
-      errors: [error instanceof Error ? error.message : String(error)],
-    }
+    throw new Error(`Ошибка выполнения ${toolName}: ${error instanceof Error ? error.message : String(error)}`)
   }
-}
-
-// Заглушки для функций (в реальной реализации они будут полностью развернуты)
-async function analyzeMediaQuality(_input: Record<string, any>): Promise<MediaProcessingToolResult> {
-  return { success: true, message: "Media quality analyzed", data: { qualityAnalysis: {} } }
-}
-
-async function optimizeMediaCompression(_input: Record<string, any>): Promise<MediaProcessingToolResult> {
-  return { success: true, message: "Media compression optimized", data: { compressionResults: {} } }
-}
-
-async function convertMediaFormats(_input: Record<string, any>): Promise<MediaProcessingToolResult> {
-  return { success: true, message: "Media formats converted", data: { conversionResults: {} } }
-}
-
-async function repairCorruptedMedia(_input: Record<string, any>): Promise<MediaProcessingToolResult> {
-  return { success: true, message: "Corrupted media repaired", data: { repairResults: {} } }
-}
-
-async function batchProcessMedia(_input: Record<string, any>): Promise<MediaProcessingToolResult> {
-  return { success: true, message: "Batch processing completed", data: { batchResults: {} } }
-}
-
-async function createMediaDerivatives(_input: Record<string, any>): Promise<MediaProcessingToolResult> {
-  return { success: true, message: "Media derivatives created", data: { derivativeFiles: [] } }
 }
