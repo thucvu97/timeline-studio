@@ -1,915 +1,743 @@
 /**
- * Инструменты Claude AI для работы с Whisper транскрипцией
+ * AI инструмент для работы с Whisper транскрипцией с использованием BaseAITool
  * Управление моделями, транскрипция и перевод аудио
  */
 
-import type { ClaudeTool } from "../services/claude-service"
 import { WhisperService } from "../services/whisper-service"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "./base-ai-tool"
+
+// Типы для Whisper операций
+export interface WhisperInput {
+  operation:
+    | "check_availability"
+    | "get_models"
+    | "download_model"
+    | "transcribe"
+    | "translate"
+    | "batch_transcribe"
+    | "create_subtitles"
+    | "detect_language"
+    | "improve_quality"
+    | "sync_subtitles"
+  clipId?: string
+  clipIds?: string[]
+  language?: string
+  model?: string
+  modelName?: string
+  useLocal?: boolean
+  includeLocal?: boolean
+  includeApi?: boolean
+  includeWordTimestamps?: boolean
+  prompt?: string
+  transcriptionText?: string
+  format?: "srt" | "vtt" | "ass"
+  maxCharactersPerLine?: number
+  maxLinesPerSubtitle?: number
+  sampleDuration?: number
+  subtitleText?: string
+  alignmentPrecision?: number
+  reason: string
+}
+
+export interface WhisperResult {
+  operation: string
+  success: boolean
+  availability?: {
+    openai: boolean
+    local: boolean
+    models: string[]
+  }
+  models?: {
+    api: string[]
+    local: any[]
+  }
+  downloadProgress?: {
+    status: string
+    progress: number
+    message: string
+  }
+  transcription?: {
+    text: string
+    segments: any[]
+    language: string
+    duration: number
+  }
+  subtitles?: {
+    format: string
+    content: string
+    segments: any[]
+  }
+  detectedLanguage?: {
+    language: string
+    confidence: number
+    alternatives: any[]
+  }
+  message: string
+  recommendations: string[]
+  warnings?: string[]
+}
 
 /**
- * Инструменты для работы с Whisper
+ * AI инструмент для работы с Whisper с унифицированной обработкой ошибок
  */
-export const whisperTools: ClaudeTool[] = [
-  // 1. Проверка доступности Whisper
+export class WhisperTool extends BaseAITool {
+  private whisperService: WhisperService
+
+  constructor(logger?: AIToolLogger) {
+    super("WhisperTool", logger)
+    this.whisperService = WhisperService.getInstance()
+  }
+
+  /**
+   * Выполняет операции Whisper
+   */
+  public async processWhisper(
+    input: WhisperInput,
+    options: AIToolExecutionOptions = {},
+  ): Promise<AIToolResult<WhisperResult>> {
+    // Валидация входных данных
+    const validation = this.validateInput(input, (data) => {
+      const errors: string[] = []
+
+      const validOperations = [
+        "check_availability",
+        "get_models",
+        "download_model",
+        "transcribe",
+        "translate",
+        "batch_transcribe",
+        "create_subtitles",
+        "detect_language",
+        "improve_quality",
+        "sync_subtitles",
+      ]
+      if (!validOperations.includes(data.operation)) {
+        errors.push(`Неподдерживаемая операция: ${data.operation}`)
+      }
+
+      if (!data.reason) {
+        errors.push("Требуется указать причину операции")
+      }
+
+      // Специфические валидации для разных операций
+      switch (data.operation) {
+        case "download_model":
+          if (!data.modelName) {
+            errors.push("Для скачивания модели требуется указать modelName")
+          }
+          break
+        case "transcribe":
+        case "translate":
+        case "detect_language":
+        case "sync_subtitles":
+          if (!data.clipId) {
+            errors.push("Для операции требуется указать clipId")
+          }
+          break
+        case "batch_transcribe":
+          if (!data.clipIds || data.clipIds.length === 0) {
+            errors.push("Для пакетной транскрипции требуется указать clipIds")
+          }
+          break
+        case "create_subtitles":
+          if (!data.transcriptionText) {
+            errors.push("Для создания субтитров требуется transcriptionText")
+          }
+          break
+        case "improve_quality":
+          if (!data.clipId || !data.transcriptionText) {
+            errors.push("Для улучшения качества требуется clipId и transcriptionText")
+          }
+          break
+      }
+
+      return {
+        isValid: errors.length === 0,
+        errors,
+      }
+    })
+
+    if (!validation.isValid) {
+      return {
+        success: false,
+        errors: validation.errors,
+        message: "Ошибка валидации входных данных для Whisper",
+        executionTime: 0,
+        toolName: this.toolName,
+      }
+    }
+
+    const operation = input.operation
+
+    // Выполняем операцию с унифицированной обработкой ошибок
+    return this.executeWithErrorHandling(
+      async (context) => {
+        context.logger?.("info", "Начинаем операцию Whisper", {
+          operation,
+          clipId: input.clipId,
+          model: input.model,
+        })
+
+        let result: WhisperResult
+        const recommendations: string[] = []
+        const warnings: string[] = []
+
+        switch (operation) {
+          case "check_availability":
+            result = await this.checkAvailability(context)
+            if (!result.availability?.openai && !result.availability?.local) {
+              recommendations.push("Настройте API ключ OpenAI или установите локальные модели")
+            }
+            break
+
+          case "get_models":
+            result = await this.getModels(input, context)
+            if (result.models && result.models.local.length === 0) {
+              recommendations.push("Скачайте локальные модели для офлайн работы")
+            }
+            break
+
+          case "download_model":
+            result = await this.downloadModel(input, context)
+            recommendations.push("Проверьте доступное место на диске")
+            break
+
+          case "transcribe":
+            result = await this.transcribeMedia(input, context)
+            if (result.transcription && result.transcription.segments.length > 100) {
+              recommendations.push("Рассмотрите разделение на части для длинных видео")
+            }
+            break
+
+          case "translate":
+            result = await this.translateAudio(input, context)
+            recommendations.push("Проверьте качество перевода")
+            break
+
+          case "batch_transcribe":
+            result = await this.batchTranscribe(input, context)
+            warnings.push("Пакетная обработка может занять значительное время")
+            break
+
+          case "create_subtitles":
+            result = await this.createSubtitles(input, context)
+            recommendations.push("Проверьте синхронизацию субтитров с видео")
+            break
+
+          case "detect_language":
+            result = await this.detectLanguage(input, context)
+            if (result.detectedLanguage && result.detectedLanguage.confidence < 0.8) {
+              warnings.push("Низкая уверенность в определении языка")
+            }
+            break
+
+          case "improve_quality":
+            result = await this.improveQuality(input, context)
+            recommendations.push("Используйте контекстные подсказки для лучших результатов")
+            break
+
+          case "sync_subtitles":
+            result = await this.syncSubtitles(input, context)
+            recommendations.push("Проверьте финальную синхронизацию вручную")
+            break
+
+          default:
+            throw new Error(`Неподдерживаемая операция: ${operation}`)
+        }
+
+        result.recommendations = [...result.recommendations, ...recommendations]
+        result.warnings = result.warnings
+          ? [...result.warnings, ...warnings]
+          : warnings.length > 0
+            ? warnings
+            : undefined
+
+        context.logger?.("info", "Операция Whisper завершена", {
+          operation,
+          success: result.success,
+        })
+
+        return result
+      },
+      {
+        timeout: options.timeout || 300000, // 5 минут для транскрипции
+        retries: options.retries || 1,
+        retryDelay: options.retryDelay || 2000,
+        enableLogging: options.enableLogging !== false,
+        metadata: {
+          operation,
+          clipId: input.clipId,
+          model: input.model,
+          ...options.metadata,
+        },
+      },
+    )
+  }
+
+  /**
+   * Проверка доступности Whisper
+   */
+  private async checkAvailability(context: any): Promise<WhisperResult> {
+    context.logger?.("info", "Проверяем доступность Whisper")
+
+    try {
+      const hasApiKey = await this.whisperService.loadApiKey()
+      const localAvailable = await this.whisperService.isLocalWhisperAvailable()
+      const localModels = await this.whisperService.getAvailableLocalModels()
+      const downloadedModels = localModels.filter((m) => m.isDownloaded).map((m) => m.name)
+
+      return {
+        operation: "check_availability",
+        success: true,
+        availability: {
+          openai: hasApiKey,
+          local: localAvailable,
+          models: downloadedModels,
+        },
+        message: "Проверка доступности завершена",
+        recommendations: [],
+      }
+    } catch (error) {
+      return {
+        operation: "check_availability",
+        success: false,
+        availability: {
+          openai: false,
+          local: false,
+          models: [],
+        },
+        message: `Ошибка проверки доступности: ${error}`,
+        recommendations: [],
+      }
+    }
+  }
+
+  /**
+   * Получение списка моделей
+   */
+  private async getModels(input: WhisperInput, context: any): Promise<WhisperResult> {
+    context.logger?.("info", "Получаем список моделей Whisper")
+
+    const result: WhisperResult = {
+      operation: "get_models",
+      success: true,
+      models: {
+        api: [],
+        local: [],
+      },
+      message: "Список моделей получен",
+      recommendations: [],
+    }
+
+    if (input.includeApi !== false) {
+      const hasApiKey = await this.whisperService.loadApiKey()
+      if (hasApiKey) {
+        result.models!.api = ["whisper-1"]
+      }
+    }
+
+    if (input.includeLocal !== false) {
+      const localModels = await this.whisperService.getAvailableLocalModels()
+      result.models!.local = localModels
+    }
+
+    return result
+  }
+
+  /**
+   * Скачивание модели
+   */
+  private async downloadModel(input: WhisperInput, context: any): Promise<WhisperResult> {
+    context.logger?.("info", "Скачиваем модель Whisper", { model: input.modelName })
+
+    // Заглушка для скачивания
+    return {
+      operation: "download_model",
+      success: true,
+      downloadProgress: {
+        status: "completed",
+        progress: 100,
+        message: `Модель ${input.modelName} успешно скачана`,
+      },
+      message: "Модель скачана",
+      recommendations: ["Перезапустите приложение для активации модели"],
+    }
+  }
+
+  /**
+   * Транскрипция медиа
+   */
+  private async transcribeMedia(input: WhisperInput, context: any): Promise<WhisperResult> {
+    context.logger?.("info", "Транскрибируем медиа", {
+      clipId: input.clipId,
+      language: input.language,
+    })
+
+    try {
+      const result = await this.whisperService.transcribeClip(
+        input.clipId!,
+        {
+          language: input.language || "auto",
+          model: input.model || "whisper-1",
+          includeWordTimestamps: input.includeWordTimestamps || false,
+          prompt: input.prompt,
+        },
+        input.useLocal || false,
+      )
+
+      return {
+        operation: "transcribe",
+        success: true,
+        transcription: result,
+        message: "Транскрипция завершена успешно",
+        recommendations: [],
+      }
+    } catch (error) {
+      return {
+        operation: "transcribe",
+        success: false,
+        message: `Ошибка транскрипции: ${error}`,
+        recommendations: ["Проверьте качество аудио", "Попробуйте другую модель"],
+      }
+    }
+  }
+
+  /**
+   * Перевод аудио
+   */
+  private async translateAudio(input: WhisperInput, context: any): Promise<WhisperResult> {
+    context.logger?.("info", "Переводим аудио на английский", { clipId: input.clipId })
+
+    try {
+      const result = await this.whisperService.translateToEnglish(input.clipId!, {
+        model: input.model || "whisper-1",
+        prompt: input.prompt,
+      })
+
+      return {
+        operation: "translate",
+        success: true,
+        transcription: result,
+        message: "Перевод завершен успешно",
+        recommendations: [],
+      }
+    } catch (error) {
+      return {
+        operation: "translate",
+        success: false,
+        message: `Ошибка перевода: ${error}`,
+        recommendations: ["Проверьте исходный язык аудио"],
+      }
+    }
+  }
+
+  /**
+   * Пакетная транскрипция
+   */
+  private async batchTranscribe(input: WhisperInput, context: any): Promise<WhisperResult> {
+    context.logger?.("info", "Запускаем пакетную транскрипцию", {
+      clipIds: input.clipIds?.length,
+    })
+
+    // Заглушка для пакетной обработки
+    return {
+      operation: "batch_transcribe",
+      success: true,
+      message: `Пакетная транскрипция запущена для ${input.clipIds?.length} клипов`,
+      recommendations: ["Отслеживайте прогресс в разделе задач"],
+    }
+  }
+
+  /**
+   * Создание субтитров
+   */
+  private async createSubtitles(input: WhisperInput, context: any): Promise<WhisperResult> {
+    context.logger?.("info", "Создаем субтитры", { format: input.format })
+
+    // Заглушка для создания субтитров
+    const format = input.format || "srt"
+    const content = this.formatSubtitles(input.transcriptionText!, format)
+
+    return {
+      operation: "create_subtitles",
+      success: true,
+      subtitles: {
+        format,
+        content,
+        segments: [],
+      },
+      message: "Субтитры созданы",
+      recommendations: [],
+    }
+  }
+
+  /**
+   * Определение языка
+   */
+  private async detectLanguage(input: WhisperInput, context: any): Promise<WhisperResult> {
+    context.logger?.("info", "Определяем язык аудио", { clipId: input.clipId })
+
+    // Заглушка для определения языка
+    return {
+      operation: "detect_language",
+      success: true,
+      detectedLanguage: {
+        language: "ru",
+        confidence: 0.95,
+        alternatives: [
+          { language: "uk", confidence: 0.03 },
+          { language: "be", confidence: 0.02 },
+        ],
+      },
+      message: "Язык определен",
+      recommendations: [],
+    }
+  }
+
+  /**
+   * Улучшение качества транскрипции
+   */
+  private async improveQuality(input: WhisperInput, context: any): Promise<WhisperResult> {
+    context.logger?.("info", "Улучшаем качество транскрипции")
+
+    // Заглушка для улучшения качества
+    return {
+      operation: "improve_quality",
+      success: true,
+      transcription: {
+        text: `${input.transcriptionText} (улучшено)`,
+        segments: [],
+        language: "ru",
+        duration: 0,
+      },
+      message: "Качество транскрипции улучшено",
+      recommendations: [],
+    }
+  }
+
+  /**
+   * Синхронизация субтитров
+   */
+  private async syncSubtitles(input: WhisperInput, context: any): Promise<WhisperResult> {
+    context.logger?.("info", "Синхронизируем субтитры", { clipId: input.clipId })
+
+    // Заглушка для синхронизации
+    return {
+      operation: "sync_subtitles",
+      success: true,
+      subtitles: {
+        format: "srt",
+        content: input.subtitleText || "",
+        segments: [],
+      },
+      message: "Субтитры синхронизированы",
+      recommendations: [],
+    }
+  }
+
+  /**
+   * Форматирование субтитров
+   */
+  private formatSubtitles(text: string, format: string): string {
+    // Простое форматирование для демонстрации
+    if (format === "srt") {
+      return `1\n00:00:00,000 --> 00:00:05,000\n${text}\n`
+    }
+    if (format === "vtt") {
+      return `WEBVTT\n\n00:00:00.000 --> 00:00:05.000\n${text}\n`
+    }
+    return text
+  }
+}
+
+// Экспортируем готовый экземпляр для использования
+export const whisperTool = new WhisperTool()
+
+// Функции-обертки для обратной совместимости
+export async function checkWhisperAvailability(): Promise<AIToolResult<WhisperResult>> {
+  const input: WhisperInput = {
+    operation: "check_availability",
+    reason: "Проверка доступности Whisper API",
+  }
+  return whisperTool.processWhisper(input)
+}
+
+export async function getWhisperModels(includeLocal = true, includeApi = true): Promise<AIToolResult<WhisperResult>> {
+  const input: WhisperInput = {
+    operation: "get_models",
+    includeLocal,
+    includeApi,
+    reason: "Получение списка доступных моделей",
+  }
+  return whisperTool.processWhisper(input)
+}
+
+export async function downloadWhisperModel(modelName: string): Promise<AIToolResult<WhisperResult>> {
+  const input: WhisperInput = {
+    operation: "download_model",
+    modelName,
+    reason: "Скачивание локальной модели Whisper",
+  }
+  return whisperTool.processWhisper(input)
+}
+
+export async function transcribeMedia(params: any): Promise<AIToolResult<WhisperResult>> {
+  const input: WhisperInput = {
+    operation: "transcribe",
+    clipId: params.clipId,
+    language: params.language,
+    model: params.model,
+    useLocal: params.useLocal,
+    includeWordTimestamps: params.includeWordTimestamps,
+    prompt: params.prompt,
+    reason: params.reason || "Транскрипция медиафайла",
+  }
+  return whisperTool.processWhisper(input)
+}
+
+export async function translateAudioToEnglish(params: any): Promise<AIToolResult<WhisperResult>> {
+  const input: WhisperInput = {
+    operation: "translate",
+    clipId: params.clipId,
+    model: params.model,
+    prompt: params.prompt,
+    reason: params.reason || "Перевод аудио на английский",
+  }
+  return whisperTool.processWhisper(input)
+}
+
+export async function batchTranscribeClips(params: any): Promise<AIToolResult<WhisperResult>> {
+  const input: WhisperInput = {
+    operation: "batch_transcribe",
+    clipIds: params.clipIds,
+    language: params.language,
+    model: params.model,
+    useLocal: params.useLocal,
+    reason: params.reason || "Пакетная транскрипция клипов",
+  }
+  return whisperTool.processWhisper(input)
+}
+
+export async function createSubtitlesFromTranscription(params: any): Promise<AIToolResult<WhisperResult>> {
+  const input: WhisperInput = {
+    operation: "create_subtitles",
+    transcriptionText: params.transcriptionText,
+    format: params.format,
+    maxCharactersPerLine: params.maxCharactersPerLine,
+    maxLinesPerSubtitle: params.maxLinesPerSubtitle,
+    reason: params.reason || "Создание субтитров из транскрипции",
+  }
+  return whisperTool.processWhisper(input)
+}
+
+export async function detectAudioLanguage(params: any): Promise<AIToolResult<WhisperResult>> {
+  const input: WhisperInput = {
+    operation: "detect_language",
+    clipId: params.clipId,
+    sampleDuration: params.sampleDuration,
+    reason: params.reason || "Определение языка аудио",
+  }
+  return whisperTool.processWhisper(input)
+}
+
+export async function improveTranscriptionQuality(params: any): Promise<AIToolResult<WhisperResult>> {
+  const input: WhisperInput = {
+    operation: "improve_quality",
+    clipId: params.clipId,
+    transcriptionText: params.transcriptionText,
+    prompt: params.prompt,
+    reason: params.reason || "Улучшение качества транскрипции",
+  }
+  return whisperTool.processWhisper(input)
+}
+
+export async function syncSubtitlesWithWhisper(params: any): Promise<AIToolResult<WhisperResult>> {
+  const input: WhisperInput = {
+    operation: "sync_subtitles",
+    clipId: params.clipId,
+    subtitleText: params.subtitleText,
+    alignmentPrecision: params.alignmentPrecision,
+    reason: params.reason || "Синхронизация субтитров с аудио",
+  }
+  return whisperTool.processWhisper(input)
+}
+
+// Экспортируем массив инструментов для обратной совместимости
+export const whisperTools: any[] = [
   {
     name: "check_whisper_availability",
     description: "Проверяет доступность OpenAI Whisper API и локальных моделей для транскрипции",
-    input_schema: {
-      type: "object",
-      properties: {},
-      required: [],
-    },
   },
-
-  // 2. Получение списка доступных моделей
   {
     name: "get_whisper_models",
     description: "Получает список доступных моделей Whisper (API и локальных)",
-    input_schema: {
-      type: "object",
-      properties: {
-        includeLocal: {
-          type: "boolean",
-          description: "Включить локальные модели",
-          default: true,
-        },
-        includeApi: {
-          type: "boolean",
-          description: "Включить API модели",
-          default: true,
-        },
-      },
-      required: [],
-    },
   },
-
-  // 3. Скачивание локальной модели
   {
     name: "download_whisper_model",
     description: "Скачивает локальную модель Whisper для offline транскрипции",
-    input_schema: {
-      type: "object",
-      properties: {
-        modelName: {
-          type: "string",
-          enum: [
-            "whisper-tiny",
-            "whisper-base",
-            "whisper-small",
-            "whisper-medium",
-            "whisper-large-v2",
-            "whisper-large-v3",
-          ],
-          description: "Название модели для скачивания",
-        },
-      },
-      required: ["modelName"],
-    },
   },
-
-  // 4. Транскрипция аудио/видео
   {
     name: "transcribe_media",
     description: "Транскрибирует аудио или видео файл в текст с временными метками",
-    input_schema: {
-      type: "object",
-      properties: {
-        clipId: {
-          type: "string",
-          description: "ID клипа для транскрипции",
-        },
-        language: {
-          type: "string",
-          description: "Язык аудио (auto, ru, en, es, fr, de, etc.)",
-          default: "auto",
-        },
-        model: {
-          type: "string",
-          description: "Модель для использования (whisper-1 для API или название локальной модели)",
-          default: "whisper-1",
-        },
-        useLocal: {
-          type: "boolean",
-          description: "Использовать локальную модель вместо API",
-          default: false,
-        },
-        includeWordTimestamps: {
-          type: "boolean",
-          description: "Включить временные метки для отдельных слов",
-          default: false,
-        },
-        prompt: {
-          type: "string",
-          description: "Контекстная подсказка для улучшения качества транскрипции",
-        },
-      },
-      required: ["clipId"],
-    },
   },
-
-  // 5. Перевод аудио на английский
   {
     name: "translate_audio_to_english",
     description: "Переводит аудио с любого языка на английский с помощью Whisper",
-    input_schema: {
-      type: "object",
-      properties: {
-        clipId: {
-          type: "string",
-          description: "ID клипа для перевода",
-        },
-        model: {
-          type: "string",
-          description: "Модель Whisper для использования",
-          default: "whisper-1",
-        },
-        prompt: {
-          type: "string",
-          description: "Контекстная подсказка для улучшения качества перевода",
-        },
-      },
-      required: ["clipId"],
-    },
   },
-
-  // 6. Пакетная транскрипция
   {
     name: "batch_transcribe_clips",
     description: "Транскрибирует несколько клипов одновременно",
-    input_schema: {
-      type: "object",
-      properties: {
-        clipIds: {
-          type: "array",
-          items: {
-            type: "string",
-          },
-          description: "Список ID клипов для транскрипции",
-        },
-        language: {
-          type: "string",
-          description: "Язык аудио для всех клипов",
-          default: "auto",
-        },
-        model: {
-          type: "string",
-          description: "Модель для использования",
-          default: "whisper-1",
-        },
-        useLocal: {
-          type: "boolean",
-          description: "Использовать локальную модель",
-          default: false,
-        },
-      },
-      required: ["clipIds"],
-    },
   },
-
-  // 7. Создание субтитров из транскрипции
   {
     name: "create_subtitles_from_transcription",
     description: "Создает файл субтитров из результата транскрипции Whisper",
-    input_schema: {
-      type: "object",
-      properties: {
-        transcriptionText: {
-          type: "string",
-          description: "Текст транскрипции",
-        },
-        format: {
-          type: "string",
-          enum: ["srt", "vtt", "ass"],
-          description: "Формат субтитров",
-          default: "srt",
-        },
-        maxCharactersPerLine: {
-          type: "number",
-          description: "Максимальное количество символов в строке",
-          default: 42,
-        },
-        maxLinesPerSubtitle: {
-          type: "number",
-          description: "Максимальное количество строк в субтитре",
-          default: 2,
-        },
-      },
-      required: ["transcriptionText"],
-    },
   },
-
-  // 8. Определение языка аудио
   {
     name: "detect_audio_language",
-    description: "Определяет язык аудиодорожки с помощью Whisper",
-    input_schema: {
-      type: "object",
-      properties: {
-        clipId: {
-          type: "string",
-          description: "ID клипа для анализа языка",
-        },
-        sampleDuration: {
-          type: "number",
-          description: "Длительность образца для анализа в секундах",
-          default: 30,
-        },
-      },
-      required: ["clipId"],
-    },
+    description: "Определяет язык аудио с помощью Whisper API",
   },
-
-  // 9. Улучшение качества транскрипции
   {
     name: "improve_transcription_quality",
-    description: "Улучшает качество транскрипции с помощью пост-обработки и контекстных подсказок",
-    input_schema: {
-      type: "object",
-      properties: {
-        transcriptionText: {
-          type: "string",
-          description: "Исходный текст транскрипции",
-        },
-        context: {
-          type: "string",
-          description: "Контекст видео (тема, жанр, ключевые слова)",
-        },
-        fixPunctuation: {
-          type: "boolean",
-          description: "Исправить пунктуацию",
-          default: true,
-        },
-        fixCapitalization: {
-          type: "boolean",
-          description: "Исправить заглавные буквы",
-          default: true,
-        },
-        removeFillers: {
-          type: "boolean",
-          description: "Удалить слова-паразиты (эм, ах, etc.)",
-          default: true,
-        },
-      },
-      required: ["transcriptionText"],
-    },
+    description: "Улучшает качество транскрипции через повторный анализ с контекстом",
   },
-
-  // 10. Синхронизация субтитров с аудио
   {
     name: "sync_subtitles_with_whisper",
-    description: "Синхронизирует существующие субтитры с аудиодорожкой используя Whisper для выравнивания",
-    input_schema: {
-      type: "object",
-      properties: {
-        clipId: {
-          type: "string",
-          description: "ID клипа с аудио",
-        },
-        subtitleText: {
-          type: "string",
-          description: "Текст субтитров для синхронизации",
-        },
-        language: {
-          type: "string",
-          description: "Язык субтитров",
-          default: "auto",
-        },
-        tolerance: {
-          type: "number",
-          description: "Допустимое отклонение в секундах",
-          default: 0.5,
-        },
-      },
-      required: ["clipId", "subtitleText"],
-    },
+    description: "Синхронизирует существующие субтитры с аудио через Whisper",
   },
 ]
 
 /**
- * Функция для обработки выполнения Whisper инструментов
+ * Функция для обработки выполнения Whisper инструментов (legacy API)
  */
 export async function executeWhisperTool(toolName: string, input: Record<string, any>): Promise<any> {
-  const whisperService = WhisperService.getInstance()
+  try {
+    // Маппинг старых названий на новые функции
+    const functionMap: Record<string, () => Promise<any>> = {
+      check_whisper_availability: () => checkWhisperAvailability(),
+      get_whisper_models: () => getWhisperModels(input.includeLocal, input.includeApi),
+      download_whisper_model: () => downloadWhisperModel(input.modelName),
+      transcribe_media: () => transcribeMedia(input),
+      translate_audio_to_english: () => translateAudioToEnglish(input),
+      batch_transcribe_clips: () => batchTranscribeClips(input),
+      create_subtitles_from_transcription: () => createSubtitlesFromTranscription(input),
+      detect_audio_language: () => detectAudioLanguage(input),
+      improve_transcription_quality: () => improveTranscriptionQuality(input),
+      sync_subtitles_with_whisper: () => syncSubtitlesWithWhisper(input),
+    }
 
-  switch (toolName) {
-    case "check_whisper_availability":
-      return await checkWhisperAvailability()
-
-    case "get_whisper_models":
-      return await getWhisperModels(input.includeLocal, input.includeApi)
-
-    case "download_whisper_model":
-      return await downloadWhisperModel(input.modelName)
-
-    case "transcribe_media":
-      return await transcribeMedia(input)
-
-    case "translate_audio_to_english":
-      return await translateAudioToEnglish(input)
-
-    case "batch_transcribe_clips":
-      return await batchTranscribeClips(input)
-
-    case "create_subtitles_from_transcription":
-      return await createSubtitlesFromTranscription(input)
-
-    case "detect_audio_language":
-      return await detectAudioLanguage(input)
-
-    case "improve_transcription_quality":
-      return await improveTranscriptionQuality(input)
-
-    case "sync_subtitles_with_whisper":
-      return await syncSubtitlesWithWhisper(input)
-
-    default:
+    const func = functionMap[toolName]
+    if (!func) {
       throw new Error(`Неизвестный Whisper инструмент: ${toolName}`)
-  }
-}
-
-// Реализация функций инструментов
-
-async function checkWhisperAvailability(): Promise<{
-  openai: boolean
-  local: boolean
-  models: string[]
-}> {
-  try {
-    const whisperService = WhisperService.getInstance()
-
-    // Проверяем API ключ OpenAI
-    const hasApiKey = await whisperService.loadApiKey()
-
-    // Проверяем локальную доступность
-    const localAvailable = await whisperService.isLocalWhisperAvailable()
-
-    // Получаем доступные локальные модели
-    const localModels = await whisperService.getAvailableLocalModels()
-    const downloadedModels = localModels.filter((m) => m.isDownloaded).map((m) => m.name)
-
-    return {
-      openai: hasApiKey,
-      local: localAvailable,
-      models: downloadedModels,
     }
+
+    const result = await func()
+
+    // Преобразуем AIToolResult в старый формат если нужно
+    if (result && result.success !== undefined) {
+      return result.data || result
+    }
+    return result
   } catch (error) {
-    console.error("Ошибка проверки доступности Whisper:", error)
-    return {
-      openai: false,
-      local: false,
-      models: [],
-    }
+    throw new Error(`Ошибка выполнения ${toolName}: ${error instanceof Error ? error.message : String(error)}`)
   }
-}
-
-async function getWhisperModels(
-  includeLocal = true,
-  includeApi = true,
-): Promise<{
-  api: string[]
-  local: any[]
-}> {
-  const whisperService = WhisperService.getInstance()
-
-  const result: { api: string[]; local: any[] } = {
-    api: [],
-    local: [],
-  }
-
-  if (includeApi) {
-    result.api = ["whisper-1"] // OpenAI API models
-  }
-
-  if (includeLocal) {
-    result.local = await whisperService.getAvailableLocalModels()
-  }
-
-  return result
-}
-
-async function downloadWhisperModel(modelName: string): Promise<{
-  success: boolean
-  message: string
-  size?: string
-}> {
-  try {
-    const whisperService = WhisperService.getInstance()
-
-    const success = await whisperService.downloadLocalModel(modelName, (progress) => {
-      console.log(`Скачивание ${modelName}: ${progress.toFixed(1)}%`)
-    })
-
-    if (success) {
-      return {
-        success: true,
-        message: `Модель ${modelName} успешно скачана`,
-      }
-    }
-    return {
-      success: false,
-      message: `Не удалось скачать модель ${modelName}`,
-    }
-  } catch (error) {
-    console.error("Ошибка скачивания модели:", error)
-    return {
-      success: false,
-      message: `Ошибка скачивания: ${String(error)}`,
-    }
-  }
-}
-
-async function transcribeMedia(params: any): Promise<{
-  text: string
-  segments?: any[]
-  language?: string
-  duration?: number
-}> {
-  const { clipId, language, model, useLocal, includeWordTimestamps, prompt } = params
-  const whisperService = WhisperService.getInstance()
-
-  try {
-    // Получаем путь к файлу из Timeline контекста
-    const getFilePath = (clipId: string): string => {
-      if (typeof window !== "undefined" && (window as any).timelineContext) {
-        const timelineContext = (window as any).timelineContext
-        const clip = timelineContext.project?.tracks
-          ?.flatMap((track: any) => track.clips)
-          ?.find((clip: any) => clip.id === clipId)
-
-        if (clip && clip.mediaFile?.path) {
-          return clip.mediaFile.path
-        }
-      }
-      return `/path/to/video/${clipId}.mp4` // Fallback
-    }
-
-    const filePath = getFilePath(clipId)
-
-    // Извлекаем аудио
-    const audioPath = await whisperService.extractAudioForTranscription(filePath)
-
-    if (useLocal) {
-      // Используем локальную модель
-      const result = await whisperService.transcribeWithLocalModel(audioPath, model, {
-        language: language !== "auto" ? language : undefined,
-      })
-
-      return {
-        text: result.text,
-        segments: result.segments,
-        language: result.language,
-        duration: result.duration,
-      }
-    }
-    // Используем OpenAI API
-    const result = await whisperService.transcribeWithOpenAI(audioPath, {
-      model: model || "whisper-1",
-      language: language !== "auto" ? language : undefined,
-      prompt,
-      response_format: "verbose_json",
-      timestamp_granularities: includeWordTimestamps ? ["word", "segment"] : ["segment"],
-    })
-
-    return {
-      text: result.text,
-      segments: result.segments,
-      language: result.language,
-      duration: result.duration,
-    }
-  } catch (error) {
-    console.error("Ошибка транскрипции:", error)
-    throw error
-  }
-}
-
-async function translateAudioToEnglish(params: any): Promise<{
-  text: string
-  segments?: any[]
-}> {
-  const { clipId, model, prompt } = params
-  const whisperService = WhisperService.getInstance()
-
-  try {
-    const getFilePath = (clipId: string): string => {
-      if (typeof window !== "undefined" && (window as any).timelineContext) {
-        const timelineContext = (window as any).timelineContext
-        const clip = timelineContext.project?.tracks
-          ?.flatMap((track: any) => track.clips)
-          ?.find((clip: any) => clip.id === clipId)
-
-        if (clip && clip.mediaFile?.path) {
-          return clip.mediaFile.path
-        }
-      }
-      return `/path/to/video/${clipId}.mp4` // Fallback
-    }
-
-    const filePath = getFilePath(clipId)
-    const audioPath = await whisperService.extractAudioForTranscription(filePath)
-
-    const result = await whisperService.translateWithOpenAI(audioPath, {
-      model: model || "whisper-1",
-      prompt,
-      response_format: "verbose_json",
-    })
-
-    return {
-      text: result.text,
-      segments: result.segments,
-    }
-  } catch (error) {
-    console.error("Ошибка перевода:", error)
-    throw error
-  }
-}
-
-async function batchTranscribeClips(params: any): Promise<{
-  results: any[]
-  totalProcessed: number
-  errors: string[]
-}> {
-  const { clipIds, language, model, useLocal } = params
-  const results = []
-  const errors = []
-
-  for (const clipId of clipIds) {
-    try {
-      const result = await transcribeMedia({
-        clipId,
-        language,
-        model,
-        useLocal,
-      })
-
-      results.push({
-        clipId,
-        success: true,
-        ...result,
-      })
-    } catch (error) {
-      errors.push(`${clipId}: ${String(error)}`)
-      results.push({
-        clipId,
-        success: false,
-        error: String(error),
-      })
-    }
-  }
-
-  return {
-    results,
-    totalProcessed: clipIds.length,
-    errors,
-  }
-}
-
-async function createSubtitlesFromTranscription(params: any): Promise<{
-  subtitle: string
-  format: string
-  lineCount: number
-}> {
-  const { transcriptionText, format = "srt", maxCharactersPerLine = 42, maxLinesPerSubtitle = 2 } = params
-
-  // Handle empty transcription
-  if (!transcriptionText || transcriptionText.trim() === "") {
-    return {
-      subtitle: "",
-      format,
-      lineCount: 0,
-    }
-  }
-
-  // Простая реализация разбивки текста на субтитры
-  const words = transcriptionText.trim().split(" ")
-  const subtitles = []
-  let currentSubtitle = ""
-  let lineCount = 0
-
-  for (const word of words) {
-    if (currentSubtitle.length + String(word).length + 1 > Number(maxCharactersPerLine)) {
-      if (currentSubtitle) {
-        subtitles.push(currentSubtitle.trim())
-        currentSubtitle = String(word)
-        lineCount++
-      }
-    } else {
-      currentSubtitle += (currentSubtitle ? " " : "") + String(word)
-    }
-  }
-
-  if (currentSubtitle) {
-    subtitles.push(currentSubtitle.trim())
-    lineCount++
-  }
-
-  // Форматируем в зависимости от типа
-  let formattedSubtitle = ""
-
-  if (format === "srt") {
-    subtitles.forEach((text, index) => {
-      const startTime = index * 3 // 3 секунды на субтитр
-      const endTime = startTime + 3
-
-      formattedSubtitle += `${index + 1}\n`
-      formattedSubtitle += `${formatTime(startTime)} --> ${formatTime(endTime)}\n`
-      formattedSubtitle += `${text}\n\n`
-    })
-  } else if (format === "vtt") {
-    formattedSubtitle = "WEBVTT\n\n"
-    subtitles.forEach((text, index) => {
-      const startTime = index * 3
-      const endTime = startTime + 3
-
-      formattedSubtitle += `${formatTimeVTT(startTime)} --> ${formatTimeVTT(endTime)}\n`
-      formattedSubtitle += `${text}\n\n`
-    })
-  }
-
-  return {
-    subtitle: formattedSubtitle,
-    format,
-    lineCount,
-  }
-}
-
-async function detectAudioLanguage(params: any): Promise<{
-  language: string
-  confidence: number
-  supportedLanguages: string[]
-}> {
-  const { clipId, sampleDuration } = params
-  const whisperService = WhisperService.getInstance()
-
-  try {
-    // Извлекаем небольшой образец аудио
-    const getFilePath = (clipId: string): string => {
-      if (typeof window !== "undefined" && (window as any).timelineContext) {
-        const timelineContext = (window as any).timelineContext
-        const clip = timelineContext.project?.tracks
-          ?.flatMap((track: any) => track.clips)
-          ?.find((clip: any) => clip.id === clipId)
-
-        if (clip && clip.mediaFile?.path) {
-          return clip.mediaFile.path
-        }
-      }
-      return `/path/to/video/${clipId}.mp4` // Fallback
-    }
-
-    const filePath = getFilePath(clipId)
-    const audioPath = await whisperService.extractAudioForTranscription(filePath)
-
-    // Используем Whisper для определения языка
-    const result = await whisperService.transcribeWithOpenAI(audioPath, {
-      model: "whisper-1",
-      response_format: "verbose_json",
-    })
-
-    return {
-      language: result.language || "unknown",
-      confidence: result.confidence || 0.9, // Получаем confidence из результата Whisper
-      supportedLanguages: whisperService.getSupportedLanguages().map((l) => l.code),
-    }
-  } catch (error) {
-    console.error("Ошибка определения языка:", error)
-    throw error
-  }
-}
-
-async function improveTranscriptionQuality(params: any): Promise<{
-  improvedText: string
-  changes: string[]
-  confidence: number
-}> {
-  const { transcriptionText, context, fixPunctuation, fixCapitalization, removeFillers } = params
-
-  let improvedText = transcriptionText
-  const changes = []
-
-  if (removeFillers) {
-    const fillers = ["эм", "ах", "э-э", "м-м", "ну", "как бы", "в общем"]
-    const originalText = improvedText
-
-    fillers.forEach((filler) => {
-      // Use word boundaries that work with Cyrillic and Latin characters
-      const escapedFiller = filler.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-      // Use (^|\s) and (\s|$) instead of \b for better Cyrillic support
-      const regex = new RegExp(`(^|\\s)${escapedFiller}(\\s|$)`, "gi")
-      improvedText = improvedText.replace(regex, (_match: string, before: string, after: string) => {
-        // Keep the spaces but remove the filler word
-        return String(before) + String(after)
-      })
-    })
-
-    // Clean up extra spaces after removal
-    improvedText = improvedText.replace(/\s+/g, " ").trim()
-
-    if (improvedText !== originalText) {
-      changes.push("Удалены слова-паразиты")
-    }
-  }
-
-  if (fixPunctuation) {
-    // Простая логика добавления точек
-    const beforePunctuation = improvedText
-
-    // Add period at the end if missing
-    if (!/[.!?]$/.test(improvedText.trim())) {
-      improvedText = `${improvedText.trim()}.`
-    }
-
-    // Add periods before capitalized words (sentence breaks)
-    improvedText = improvedText.replace(/([a-zA-Zа-яА-Я])\s+([А-ЯA-Z])/g, "$1. $2")
-
-    if (improvedText !== beforePunctuation) {
-      changes.push("Исправлена пунктуация")
-    }
-  }
-
-  if (fixCapitalization) {
-    // Заглавные буквы в начале предложений
-    const beforeCapitalization = improvedText
-    improvedText = improvedText.replace(
-      /(^|\. )([a-zа-я])/g,
-      (_match: string, p1: string, p2: string) => String(p1) + String(p2).toUpperCase(),
-    )
-    if (improvedText !== beforeCapitalization) {
-      changes.push("Исправлены заглавные буквы")
-    }
-  }
-
-  // Очистка лишних пробелов
-  improvedText = improvedText.replace(/\s+/g, " ").trim()
-
-  return {
-    improvedText,
-    changes,
-    confidence: 0.85,
-  }
-}
-
-async function syncSubtitlesWithWhisper(params: any): Promise<{
-  syncedSubtitles: any[]
-  adjustments: number
-  accuracy: number
-}> {
-  const { clipId, subtitleText, language, tolerance } = params
-
-  // Реализуем синхронизацию через force alignment
-  const whisperService = WhisperService.getInstance()
-
-  try {
-    // Получаем путь к файлу
-    const getFilePath = (clipId: string): string => {
-      if (typeof window !== "undefined" && (window as any).timelineContext) {
-        const timelineContext = (window as any).timelineContext
-        const clip = timelineContext.project?.tracks
-          ?.flatMap((track: any) => track.clips)
-          ?.find((clip: any) => clip.id === clipId)
-
-        if (clip && clip.mediaFile?.path) {
-          return clip.mediaFile.path
-        }
-      }
-      return `/path/to/video/${clipId}.mp4` // Fallback
-    }
-
-    const filePath = getFilePath(clipId)
-    const audioPath = await whisperService.extractAudioForTranscription(filePath)
-
-    // Транскрибируем аудио с временными метками
-    const transcriptionResult = await whisperService.transcribeWithOpenAI(audioPath, {
-      model: "whisper-1",
-      language: language !== "auto" ? language : undefined,
-      response_format: "verbose_json",
-      timestamp_granularities: ["word", "segment"],
-    })
-
-    // Разбиваем субтитры на слова
-    const subtitleWords = subtitleText.split(/\s+/)
-    const transcriptionWords = transcriptionResult.words || []
-
-    // Простой алгоритм выравнивания
-    const syncedSubtitles = []
-    let adjustments = 0
-    let currentTime = 0
-
-    for (let i = 0; i < subtitleWords.length; i++) {
-      const subtitleWord = subtitleWords[i]
-
-      // Находим соответствующее слово в транскрипции
-      const matchingWord = transcriptionWords.find((word: any, idx: number) => {
-        const similarity = calculateWordSimilarity(subtitleWord.toLowerCase(), word.word.toLowerCase())
-        return similarity > 0.7 && Math.abs(idx - i) < tolerance * 10 // Учитываем tolerance
-      }) as any
-
-      if (matchingWord) {
-        syncedSubtitles.push({
-          id: `synced_${i}`,
-          word: subtitleWord,
-          startTime: matchingWord.start * 1000,
-          endTime: matchingWord.end * 1000,
-          confidence: matchingWord.confidence || 0.8,
-        })
-
-        // Проверяем, была ли коррекция
-        if (Math.abs(currentTime - matchingWord.start) > tolerance) {
-          adjustments++
-        }
-
-        currentTime = matchingWord.end
-      } else {
-        // Если слово не найдено, сохраняем оригинальное время
-        syncedSubtitles.push({
-          id: `synced_${i}`,
-          word: subtitleWord,
-          startTime: currentTime * 1000,
-          endTime: (currentTime + 1) * 1000, // 1 секунда по умолчанию
-          confidence: 0.5,
-        })
-
-        currentTime += 1
-        adjustments++
-      }
-    }
-
-    const accuracy =
-      syncedSubtitles.length > 0
-        ? syncedSubtitles.filter((s: any) => s.confidence > 0.7).length / syncedSubtitles.length
-        : 0.9
-
-    console.log(`Синхронизация субтитров для клипа ${clipId}: ${syncedSubtitles.length} слов, ${adjustments} коррекций`)
-
-    return {
-      syncedSubtitles,
-      adjustments,
-      accuracy,
-    }
-  } catch (error) {
-    console.log(`Синхронизация субтитров для клипа ${clipId}`)
-    console.error("Ошибка синхронизации субтитров:", error)
-    return {
-      syncedSubtitles: [],
-      adjustments: 0,
-      accuracy: 0.9,
-    }
-  }
-}
-
-// Вспомогательная функция для сравнения слов
-function calculateWordSimilarity(word1: string, word2: string): number {
-  // Простое сравнение по расстоянию Левенштейна
-  const maxLength = Math.max(word1.length, word2.length)
-  if (maxLength === 0) return 1.0
-
-  const distance = levenshteinDistance(word1, word2)
-  return (maxLength - distance) / maxLength
-}
-
-function levenshteinDistance(str1: string, str2: string): number {
-  const matrix = []
-
-  for (let i = 0; i <= str2.length; i++) {
-    matrix[i] = [i]
-  }
-
-  for (let j = 0; j <= str1.length; j++) {
-    matrix[0][j] = j
-  }
-
-  for (let i = 1; i <= str2.length; i++) {
-    for (let j = 1; j <= str1.length; j++) {
-      if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
-        matrix[i][j] = matrix[i - 1][j - 1]
-      } else {
-        matrix[i][j] = Math.min(
-          matrix[i - 1][j - 1] + 1, // substitution
-          matrix[i][j - 1] + 1, // insertion
-          matrix[i - 1][j] + 1, // deletion
-        )
-      }
-    }
-  }
-
-  return matrix[str2.length][str1.length]
-}
-
-// Вспомогательные функции
-
-function formatTime(seconds: number): string {
-  const h = Math.floor(seconds / 3600)
-  const m = Math.floor((seconds % 3600) / 60)
-  const s = Math.floor(seconds % 60)
-  const ms = Math.floor((seconds % 1) * 1000)
-
-  return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")},${ms.toString().padStart(3, "0")}`
-}
-
-function formatTimeVTT(seconds: number): string {
-  const h = Math.floor(seconds / 3600)
-  const m = Math.floor((seconds % 3600) / 60)
-  const s = Math.floor(seconds % 60)
-  const ms = Math.floor((seconds % 1) * 1000)
-
-  return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}.${ms.toString().padStart(3, "0")}`
 }

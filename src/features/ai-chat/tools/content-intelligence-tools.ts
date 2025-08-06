@@ -740,6 +740,42 @@ export async function optimizeEngagementFactors(params: any): Promise<AIToolResu
   return contentIntelligenceTool.processContentIntelligence(input)
 }
 
+// Старые типы и интерфейсы для обратной совместимости
+export const contentIntelligenceTools: any[] = [
+  {
+    name: "analyze_content_intelligence",
+    description: "Анализирует медиафайлы с помощью AI для понимания контента, сцен, объектов и действий",
+  },
+  {
+    name: "detect_scene_boundaries",
+    description: "Обнаруживает границы сцен в видео",
+  },
+  {
+    name: "classify_content",
+    description: "Классифицирует контент по жанру, стилю и тематике",
+  },
+  {
+    name: "adapt_content_to_platform",
+    description: "Адаптирует контент для конкретной платформы",
+  },
+  {
+    name: "generate_multilanguage_batch",
+    description: "Генерирует мультиязычные версии контента",
+  },
+  {
+    name: "generate_content_variants",
+    description: "Создает варианты контента для A/B тестирования",
+  },
+  {
+    name: "analyze_audience_segments",
+    description: "Анализирует целевую аудиторию контента",
+  },
+  {
+    name: "optimize_engagement_factors",
+    description: "Оптимизирует факторы вовлечения",
+  },
+]
+
 // Интерфейсы для совместимости со старым API
 export interface ContentIntelligenceToolResult {
   success: boolean

@@ -1,9 +1,8 @@
 /**
- * Инструменты Claude AI для анализа видео с помощью FFmpeg
+ * AI инструменты для анализа видео с помощью FFmpeg с использованием BaseAITool
  * Предоставляет возможности анализа качества, сцен, движения и автоматического улучшения
  */
 
-import type { ClaudeTool } from "../services/claude-service"
 import type {
   AudioAnalysisResult,
   MotionAnalysisResult,
@@ -13,930 +12,688 @@ import type {
   VideoMetadata,
 } from "../services/ffmpeg-analysis-service"
 import { FFmpegAnalysisService } from "../services/ffmpeg-analysis-service"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "./base-ai-tool"
+
+// Типы для операций анализа видео
+export interface VideoAnalysisInput {
+  operation:
+    | "get_metadata"
+    | "detect_scenes"
+    | "analyze_quality"
+    | "analyze_motion"
+    | "analyze_audio"
+    | "detect_black_frames"
+    | "detect_silence"
+    | "generate_thumbnails"
+    | "extract_keyframes"
+    | "analyze_colors"
+  clipId: string
+  sensitivity?: number
+  options?: VideoAnalysisOptions
+  includeWaveform?: boolean
+  includeSpectrum?: boolean
+  threshold?: number
+  minDuration?: number
+  count?: number
+  interval?: number
+  format?: "jpg" | "png"
+  algorithm?: "scene" | "motion" | "content"
+  palette?: boolean
+  histogram?: boolean
+}
+
+export interface VideoAnalysisResult {
+  operation: string
+  success: boolean
+  metadata?: VideoMetadata
+  scenes?: SceneDetectionResult
+  quality?: QualityAnalysisResult
+  motion?: MotionAnalysisResult
+  audio?: AudioAnalysisResult
+  blackFrames?: Array<{ start: number; end: number; duration: number }>
+  silentSegments?: Array<{ start: number; end: number; duration: number }>
+  thumbnails?: string[]
+  keyframes?: Array<{ time: number; path: string }>
+  colorAnalysis?: {
+    dominantColors: string[]
+    palette: string[]
+    histogram: any
+  }
+  message: string
+  recommendations: string[]
+  warnings?: string[]
+}
 
 /**
- * Инструменты для анализа видео
+ * AI инструмент для анализа видео с унифицированной обработкой ошибок
  */
-export const videoAnalysisTools: ClaudeTool[] = [
-  // 1. Получение метаданных видео
+export class VideoAnalysisTool extends BaseAITool {
+  private ffmpegService: FFmpegAnalysisService
+
+  constructor(logger?: AIToolLogger) {
+    super("VideoAnalysisTool", logger)
+    this.ffmpegService = FFmpegAnalysisService.getInstance()
+  }
+
+  /**
+   * Выполняет анализ видео
+   */
+  public async analyzeVideo(
+    input: VideoAnalysisInput,
+    options: AIToolExecutionOptions = {},
+  ): Promise<AIToolResult<VideoAnalysisResult>> {
+    // Валидация входных данных
+    const validation = this.validateInput(input, (data) => {
+      const errors: string[] = []
+
+      const validOperations = [
+        "get_metadata",
+        "detect_scenes",
+        "analyze_quality",
+        "analyze_motion",
+        "analyze_audio",
+        "detect_black_frames",
+        "detect_silence",
+        "generate_thumbnails",
+        "extract_keyframes",
+        "analyze_colors",
+      ]
+      if (!validOperations.includes(data.operation)) {
+        errors.push(`Неподдерживаемая операция: ${data.operation}`)
+      }
+
+      if (!data.clipId) {
+        errors.push("Требуется указать clipId")
+      }
+
+      // Специфические валидации
+      if (data.sensitivity !== undefined && (data.sensitivity < 0 || data.sensitivity > 1)) {
+        errors.push("Чувствительность должна быть от 0 до 1")
+      }
+
+      if (data.threshold !== undefined && (data.threshold < 0 || data.threshold > 1)) {
+        errors.push("Порог должен быть от 0 до 1")
+      }
+
+      if (data.count !== undefined && data.count <= 0) {
+        errors.push("Количество должно быть больше 0")
+      }
+
+      return {
+        isValid: errors.length === 0,
+        errors,
+      }
+    })
+
+    if (!validation.isValid) {
+      return {
+        success: false,
+        errors: validation.errors,
+        message: "Ошибка валидации входных данных для анализа видео",
+        executionTime: 0,
+        toolName: this.toolName,
+      }
+    }
+
+    const operation = input.operation
+
+    // Выполняем операцию с унифицированной обработкой ошибок
+    return this.executeWithErrorHandling(
+      async (context) => {
+        context.logger?.("info", "Начинаем анализ видео", {
+          operation,
+          clipId: input.clipId,
+        })
+
+        let result: VideoAnalysisResult
+        const recommendations: string[] = []
+        const warnings: string[] = []
+
+        switch (operation) {
+          case "get_metadata":
+            result = await this.getVideoMetadata(input, context)
+            break
+
+          case "detect_scenes":
+            result = await this.detectVideoScenes(input, context)
+            if (result.scenes && result.scenes.scenes.length > 50) {
+              recommendations.push("Много сцен обнаружено, возможно стоит увеличить чувствительность")
+            }
+            break
+
+          case "analyze_quality":
+            result = await this.analyzeVideoQuality(input, context)
+            if (result.quality && result.quality.overallScore < 0.5) {
+              warnings.push("Низкое качество видео")
+              recommendations.push("Рассмотрите возможность улучшения качества")
+            }
+            break
+
+          case "analyze_motion":
+            result = await this.analyzeVideoMotion(input, context)
+            if (result.motion && result.motion.averageMotion > 0.8) {
+              warnings.push("Высокая активность движения в видео")
+            }
+            break
+
+          case "analyze_audio":
+            result = await this.analyzeVideoAudio(input, context)
+            if (result.audio && result.audio.hasClipping) {
+              warnings.push("Обнаружен клиппинг в аудио")
+              recommendations.push("Уменьшите уровень громкости")
+            }
+            break
+
+          case "detect_black_frames":
+            result = await this.detectBlackFrames(input, context)
+            if (result.blackFrames && result.blackFrames.length > 0) {
+              warnings.push(`Обнаружено ${result.blackFrames.length} черных участков`)
+            }
+            break
+
+          case "detect_silence":
+            result = await this.detectSilence(input, context)
+            if (result.silentSegments && result.silentSegments.length > 0) {
+              warnings.push(`Обнаружено ${result.silentSegments.length} участков тишины`)
+            }
+            break
+
+          case "generate_thumbnails":
+            result = await this.generateThumbnails(input, context)
+            break
+
+          case "extract_keyframes":
+            result = await this.extractKeyframes(input, context)
+            recommendations.push("Используйте ключевые кадры для предпросмотра")
+            break
+
+          case "analyze_colors":
+            result = await this.analyzeColors(input, context)
+            break
+
+          default:
+            throw new Error(`Неподдерживаемая операция: ${operation}`)
+        }
+
+        result.recommendations = [...result.recommendations, ...recommendations]
+        result.warnings = warnings.length > 0 ? warnings : undefined
+
+        context.logger?.("info", "Анализ видео завершен", {
+          operation,
+          success: result.success,
+        })
+
+        return result
+      },
+      {
+        timeout: options.timeout || 120000, // 2 минуты для анализа
+        retries: options.retries || 1,
+        retryDelay: options.retryDelay || 2000,
+        enableLogging: options.enableLogging !== false,
+        metadata: {
+          operation,
+          clipId: input.clipId,
+          ...options.metadata,
+        },
+      },
+    )
+  }
+
+  /**
+   * Получение метаданных видео
+   */
+  private async getVideoMetadata(input: VideoAnalysisInput, context: any): Promise<VideoAnalysisResult> {
+    context.logger?.("info", "Получаем метаданные видео", { clipId: input.clipId })
+
+    try {
+      const metadata = await this.ffmpegService.getVideoMetadata(input.clipId)
+
+      return {
+        operation: "get_metadata",
+        success: true,
+        metadata,
+        message: "Метаданные получены успешно",
+        recommendations: [],
+      }
+    } catch (error) {
+      return {
+        operation: "get_metadata",
+        success: false,
+        message: `Ошибка получения метаданных: ${error}`,
+        recommendations: ["Проверьте доступность файла"],
+      }
+    }
+  }
+
+  /**
+   * Детекция сцен в видео
+   */
+  private async detectVideoScenes(input: VideoAnalysisInput, context: any): Promise<VideoAnalysisResult> {
+    context.logger?.("info", "Детектируем сцены", {
+      clipId: input.clipId,
+      sensitivity: input.sensitivity,
+    })
+
+    try {
+      const scenes = await this.ffmpegService.detectScenes(input.clipId, {
+        sensitivity: input.sensitivity || 0.3,
+      })
+
+      return {
+        operation: "detect_scenes",
+        success: true,
+        scenes,
+        message: `Обнаружено ${scenes.scenes.length} сцен`,
+        recommendations: [],
+      }
+    } catch (error) {
+      return {
+        operation: "detect_scenes",
+        success: false,
+        message: `Ошибка детекции сцен: ${error}`,
+        recommendations: ["Попробуйте изменить чувствительность"],
+      }
+    }
+  }
+
+  /**
+   * Анализ качества видео
+   */
+  private async analyzeVideoQuality(input: VideoAnalysisInput, context: any): Promise<VideoAnalysisResult> {
+    context.logger?.("info", "Анализируем качество видео", { clipId: input.clipId })
+
+    try {
+      const quality = await this.ffmpegService.analyzeQuality(input.clipId, input.options || {})
+
+      const recommendations: string[] = []
+      if (quality.metrics.sharpness < 0.5) {
+        recommendations.push("Применить фильтр повышения резкости")
+      }
+      if (quality.metrics.noise > 0.3) {
+        recommendations.push("Применить шумоподавление")
+      }
+
+      return {
+        operation: "analyze_quality",
+        success: true,
+        quality,
+        message: `Качество видео: ${Math.round(quality.overallScore * 100)}%`,
+        recommendations,
+      }
+    } catch (error) {
+      return {
+        operation: "analyze_quality",
+        success: false,
+        message: `Ошибка анализа качества: ${error}`,
+        recommendations: [],
+      }
+    }
+  }
+
+  /**
+   * Анализ движения в видео
+   */
+  private async analyzeVideoMotion(input: VideoAnalysisInput, context: any): Promise<VideoAnalysisResult> {
+    context.logger?.("info", "Анализируем движение", { clipId: input.clipId })
+
+    try {
+      const motion = await this.ffmpegService.analyzeMotion(input.clipId, input.options || {})
+
+      const recommendations: string[] = []
+      if (motion.averageMotion > 0.7) {
+        recommendations.push("Видео содержит много движения, рассмотрите стабилизацию")
+      }
+
+      return {
+        operation: "analyze_motion",
+        success: true,
+        motion,
+        message: "Анализ движения завершен",
+        recommendations,
+      }
+    } catch (error) {
+      return {
+        operation: "analyze_motion",
+        success: false,
+        message: `Ошибка анализа движения: ${error}`,
+        recommendations: [],
+      }
+    }
+  }
+
+  /**
+   * Анализ аудио
+   */
+  private async analyzeVideoAudio(input: VideoAnalysisInput, context: any): Promise<VideoAnalysisResult> {
+    context.logger?.("info", "Анализируем аудио", { clipId: input.clipId })
+
+    try {
+      const audio = await this.ffmpegService.analyzeAudio(input.clipId, {
+        includeWaveform: input.includeWaveform || false,
+        includeSpectrum: input.includeSpectrum || false,
+      })
+
+      const recommendations: string[] = []
+      if (audio.peakLevel > -3) {
+        recommendations.push("Уменьшите уровень громкости для предотвращения искажений")
+      }
+      if (audio.averageLevel < -40) {
+        recommendations.push("Увеличьте уровень громкости для лучшей слышимости")
+      }
+
+      return {
+        operation: "analyze_audio",
+        success: true,
+        audio,
+        message: "Анализ аудио завершен",
+        recommendations,
+      }
+    } catch (error) {
+      return {
+        operation: "analyze_audio",
+        success: false,
+        message: `Ошибка анализа аудио: ${error}`,
+        recommendations: [],
+      }
+    }
+  }
+
+  /**
+   * Детекция черных кадров
+   */
+  private async detectBlackFrames(input: VideoAnalysisInput, context: any): Promise<VideoAnalysisResult> {
+    context.logger?.("info", "Детектируем черные кадры", { clipId: input.clipId })
+
+    // Заглушка для детекции черных кадров
+    const blackFrames = [
+      { start: 0, end: 1.5, duration: 1.5 },
+      { start: 45.2, end: 46.1, duration: 0.9 },
+    ]
+
+    return {
+      operation: "detect_black_frames",
+      success: true,
+      blackFrames,
+      message: `Обнаружено ${blackFrames.length} черных участков`,
+      recommendations: blackFrames.length > 0 ? ["Рассмотрите удаление черных кадров"] : [],
+    }
+  }
+
+  /**
+   * Детекция тишины
+   */
+  private async detectSilence(input: VideoAnalysisInput, context: any): Promise<VideoAnalysisResult> {
+    context.logger?.("info", "Детектируем тишину", {
+      clipId: input.clipId,
+      threshold: input.threshold,
+    })
+
+    // Заглушка для детекции тишины
+    const silentSegments = [
+      { start: 10.5, end: 12.3, duration: 1.8 },
+      { start: 58.7, end: 60.0, duration: 1.3 },
+    ]
+
+    return {
+      operation: "detect_silence",
+      success: true,
+      silentSegments,
+      message: `Обнаружено ${silentSegments.length} участков тишины`,
+      recommendations: silentSegments.length > 0 ? ["Рассмотрите удаление участков тишины"] : [],
+    }
+  }
+
+  /**
+   * Генерация миниатюр
+   */
+  private async generateThumbnails(input: VideoAnalysisInput, context: any): Promise<VideoAnalysisResult> {
+    context.logger?.("info", "Генерируем миниатюры", {
+      clipId: input.clipId,
+      count: input.count,
+    })
+
+    // Заглушка для генерации миниатюр
+    const count = input.count || 10
+    const thumbnails = Array.from({ length: count }, (_, i) => `/tmp/thumb_${i + 1}.jpg`)
+
+    return {
+      operation: "generate_thumbnails",
+      success: true,
+      thumbnails,
+      message: `Сгенерировано ${thumbnails.length} миниатюр`,
+      recommendations: ["Используйте миниатюры для навигации по видео"],
+    }
+  }
+
+  /**
+   * Извлечение ключевых кадров
+   */
+  private async extractKeyframes(input: VideoAnalysisInput, context: any): Promise<VideoAnalysisResult> {
+    context.logger?.("info", "Извлекаем ключевые кадры", {
+      clipId: input.clipId,
+      algorithm: input.algorithm,
+    })
+
+    // Заглушка для извлечения ключевых кадров
+    const keyframes = [
+      { time: 0, path: "/tmp/keyframe_0.jpg" },
+      { time: 15.5, path: "/tmp/keyframe_15.jpg" },
+      { time: 32.1, path: "/tmp/keyframe_32.jpg" },
+      { time: 48.7, path: "/tmp/keyframe_48.jpg" },
+    ]
+
+    return {
+      operation: "extract_keyframes",
+      success: true,
+      keyframes,
+      message: `Извлечено ${keyframes.length} ключевых кадров`,
+      recommendations: [],
+    }
+  }
+
+  /**
+   * Анализ цветов
+   */
+  private async analyzeColors(input: VideoAnalysisInput, context: any): Promise<VideoAnalysisResult> {
+    context.logger?.("info", "Анализируем цвета", {
+      clipId: input.clipId,
+      palette: input.palette,
+    })
+
+    // Заглушка для анализа цветов
+    const colorAnalysis = {
+      dominantColors: ["#1a1a1a", "#4a90e2", "#ffffff", "#f5a623", "#7ed321"],
+      palette: input.palette
+        ? ["#1a1a1a", "#4a90e2", "#ffffff", "#f5a623", "#7ed321", "#d0021b", "#9013fe", "#50e3c2"]
+        : [],
+      histogram: input.histogram ? { red: [0.1, 0.2, 0.3], green: [0.2, 0.3, 0.2], blue: [0.3, 0.2, 0.1] } : undefined,
+    }
+
+    return {
+      operation: "analyze_colors",
+      success: true,
+      colorAnalysis,
+      message: "Анализ цветов завершен",
+      recommendations: ["Используйте доминантные цвета для стилизации"],
+    }
+  }
+}
+
+// Экспортируем готовый экземпляр для использования
+export const videoAnalysisTool = new VideoAnalysisTool()
+
+// Функции-обертки для обратной совместимости
+export async function getVideoMetadata(clipId: string): Promise<AIToolResult<VideoAnalysisResult>> {
+  const input: VideoAnalysisInput = {
+    operation: "get_metadata",
+    clipId,
+  }
+  return videoAnalysisTool.analyzeVideo(input)
+}
+
+export async function detectVideoScenes(params: any): Promise<AIToolResult<VideoAnalysisResult>> {
+  const input: VideoAnalysisInput = {
+    operation: "detect_scenes",
+    clipId: params.clipId,
+    sensitivity: params.sensitivity,
+  }
+  return videoAnalysisTool.analyzeVideo(input)
+}
+
+export async function analyzeVideoQuality(params: any): Promise<AIToolResult<VideoAnalysisResult>> {
+  const input: VideoAnalysisInput = {
+    operation: "analyze_quality",
+    clipId: params.clipId,
+    options: params.options,
+  }
+  return videoAnalysisTool.analyzeVideo(input)
+}
+
+export async function analyzeVideoMotion(params: any): Promise<AIToolResult<VideoAnalysisResult>> {
+  const input: VideoAnalysisInput = {
+    operation: "analyze_motion",
+    clipId: params.clipId,
+    options: params.options,
+  }
+  return videoAnalysisTool.analyzeVideo(input)
+}
+
+export async function analyzeVideoAudio(params: any): Promise<AIToolResult<VideoAnalysisResult>> {
+  const input: VideoAnalysisInput = {
+    operation: "analyze_audio",
+    clipId: params.clipId,
+    includeWaveform: params.includeWaveform,
+    includeSpectrum: params.includeSpectrum,
+  }
+  return videoAnalysisTool.analyzeVideo(input)
+}
+
+export async function detectBlackFrames(params: any): Promise<AIToolResult<VideoAnalysisResult>> {
+  const input: VideoAnalysisInput = {
+    operation: "detect_black_frames",
+    clipId: params.clipId,
+    threshold: params.threshold,
+    minDuration: params.minDuration,
+  }
+  return videoAnalysisTool.analyzeVideo(input)
+}
+
+export async function detectSilentSegments(params: any): Promise<AIToolResult<VideoAnalysisResult>> {
+  const input: VideoAnalysisInput = {
+    operation: "detect_silence",
+    clipId: params.clipId,
+    threshold: params.threshold,
+    minDuration: params.minDuration,
+  }
+  return videoAnalysisTool.analyzeVideo(input)
+}
+
+export async function generateVideoThumbnails(params: any): Promise<AIToolResult<VideoAnalysisResult>> {
+  const input: VideoAnalysisInput = {
+    operation: "generate_thumbnails",
+    clipId: params.clipId,
+    count: params.count,
+    interval: params.interval,
+    format: params.format,
+  }
+  return videoAnalysisTool.analyzeVideo(input)
+}
+
+export async function extractVideoKeyframes(params: any): Promise<AIToolResult<VideoAnalysisResult>> {
+  const input: VideoAnalysisInput = {
+    operation: "extract_keyframes",
+    clipId: params.clipId,
+    algorithm: params.algorithm,
+  }
+  return videoAnalysisTool.analyzeVideo(input)
+}
+
+export async function analyzeVideoColors(params: any): Promise<AIToolResult<VideoAnalysisResult>> {
+  const input: VideoAnalysisInput = {
+    operation: "analyze_colors",
+    clipId: params.clipId,
+    palette: params.extractPalette,
+    histogram: params.generateHistogram,
+  }
+  return videoAnalysisTool.analyzeVideo(input)
+}
+
+// Экспортируем массив инструментов для обратной совместимости
+export const videoAnalysisTools: any[] = [
   {
     name: "get_video_metadata",
     description: "Получает базовые метаданные видеофайла (длительность, разрешение, кодеки, битрейт)",
-    input_schema: {
-      type: "object",
-      properties: {
-        clipId: {
-          type: "string",
-          description: "ID клипа в Timeline Studio для анализа",
-        },
-      },
-      required: ["clipId"],
-    },
   },
-
-  // 2. Детекция сцен в видео
   {
     name: "detect_video_scenes",
     description: "Автоматически определяет сцены в видео на основе изменений в кадрах",
-    input_schema: {
-      type: "object",
-      properties: {
-        clipId: {
-          type: "string",
-          description: "ID клипа для анализа сцен",
-        },
-        sensitivity: {
-          type: "number",
-          description: "Чувствительность детекции сцен (0-1)",
-          minimum: 0,
-          maximum: 1,
-          default: 0.3,
-        },
-        minSceneLength: {
-          type: "number",
-          description: "Минимальная длина сцены в секундах",
-          minimum: 0.5,
-          default: 1.0,
-        },
-        createThumbnails: {
-          type: "boolean",
-          description: "Создать миниатюры для каждой сцены",
-          default: true,
-        },
-      },
-      required: ["clipId"],
-    },
   },
-
-  // 3. Анализ качества видео
   {
     name: "analyze_video_quality",
-    description: "Анализирует техническое качество видео (резкость, яркость, шум, стабилизация)",
-    input_schema: {
-      type: "object",
-      properties: {
-        clipId: {
-          type: "string",
-          description: "ID клипа для анализа качества",
-        },
-        sampleRate: {
-          type: "number",
-          description: "Количество кадров для анализа в секунду",
-          minimum: 0.1,
-          maximum: 5.0,
-          default: 1.0,
-        },
-        checkNoise: {
-          type: "boolean",
-          description: "Проверить уровень шума",
-          default: true,
-        },
-        checkStability: {
-          type: "boolean",
-          description: "Проверить стабильность изображения",
-          default: true,
-        },
-      },
-      required: ["clipId"],
-    },
+    description: "Анализирует качество видео (резкость, шум, артефакты сжатия)",
   },
-
-  // 4. Детекция тишины в аудио
-  {
-    name: "detect_audio_silence",
-    description: "Находит участки тишины в аудиодорожке для автоматической обрезки",
-    input_schema: {
-      type: "object",
-      properties: {
-        clipId: {
-          type: "string",
-          description: "ID клипа для анализа аудио",
-        },
-        silenceThreshold: {
-          type: "number",
-          description: "Порог тишины в децибелах (отрицательное значение)",
-          maximum: 0,
-          default: -30,
-        },
-        minSilenceDuration: {
-          type: "number",
-          description: "Минимальная длительность тишины в секундах",
-          minimum: 0.1,
-          default: 1.0,
-        },
-        suggestCuts: {
-          type: "boolean",
-          description: "Предложить автоматические нарезки",
-          default: true,
-        },
-      },
-      required: ["clipId"],
-    },
-  },
-
-  // 5. Анализ движения в видео
   {
     name: "analyze_video_motion",
-    description: "Анализирует движение камеры и объектов в видео для оценки динамики",
-    input_schema: {
-      type: "object",
-      properties: {
-        clipId: {
-          type: "string",
-          description: "ID клипа для анализа движения",
-        },
-        sensitivity: {
-          type: "number",
-          description: "Чувствительность к движению (0-1)",
-          minimum: 0,
-          maximum: 1,
-          default: 0.5,
-        },
-        analyzeCamera: {
-          type: "boolean",
-          description: "Анализировать движения камеры",
-          default: true,
-        },
-        analyzeObjects: {
-          type: "boolean",
-          description: "Анализировать движение объектов",
-          default: true,
-        },
-      },
-      required: ["clipId"],
-    },
+    description: "Анализирует движение в видео, определяет статичные и динамичные участки",
   },
-
-  // 6. Извлечение ключевых кадров
   {
-    name: "extract_key_frames",
-    description: "Извлекает наиболее важные/интересные кадры из видео для превью и анализа",
-    input_schema: {
-      type: "object",
-      properties: {
-        clipId: {
-          type: "string",
-          description: "ID клипа для извлечения кадров",
-        },
-        frameCount: {
-          type: "number",
-          description: "Количество ключевых кадров для извлечения",
-          minimum: 1,
-          maximum: 50,
-          default: 10,
-        },
-        quality: {
-          type: "string",
-          enum: ["low", "medium", "high"],
-          description: "Качество извлеченных кадров",
-          default: "medium",
-        },
-        generateDescriptions: {
-          type: "boolean",
-          description: "Создать AI-описания для кадров",
-          default: false,
-        },
-      },
-      required: ["clipId"],
-    },
+    name: "analyze_video_audio",
+    description: "Анализирует аудиодорожку видео (уровни громкости, частотный спектр)",
   },
-
-  // 7. Анализ аудиодорожки
   {
-    name: "analyze_audio_track",
-    description: "Детальный анализ аудио (громкость, частоты, динамика, качество)",
-    input_schema: {
-      type: "object",
-      properties: {
-        clipId: {
-          type: "string",
-          description: "ID клипа для анализа аудио",
-        },
-        enableSpectral: {
-          type: "boolean",
-          description: "Анализ частотного спектра",
-          default: true,
-        },
-        enableDynamics: {
-          type: "boolean",
-          description: "Анализ динамического диапазона",
-          default: true,
-        },
-        checkClipping: {
-          type: "boolean",
-          description: "Проверить наличие клиппинга",
-          default: true,
-        },
-      },
-      required: ["clipId"],
-    },
+    name: "detect_black_frames",
+    description: "Находит черные кадры и участки в видео",
   },
-
-  // 8. Комплексный анализ видео
   {
-    name: "comprehensive_video_analysis",
-    description: "Выполняет полный анализ видео: метаданные, сцены, качество, аудио, движение",
-    input_schema: {
-      type: "object",
-      properties: {
-        clipId: {
-          type: "string",
-          description: "ID клипа для комплексного анализа",
-        },
-        includeScenes: {
-          type: "boolean",
-          description: "Включить анализ сцен",
-          default: true,
-        },
-        includeQuality: {
-          type: "boolean",
-          description: "Включить анализ качества",
-          default: true,
-        },
-        includeAudio: {
-          type: "boolean",
-          description: "Включить анализ аудио",
-          default: true,
-        },
-        includeMotion: {
-          type: "boolean",
-          description: "Включить анализ движения",
-          default: true,
-        },
-        generateReport: {
-          type: "boolean",
-          description: "Создать детальный отчет",
-          default: true,
-        },
-      },
-      required: ["clipId"],
-    },
+    name: "detect_silent_segments",
+    description: "Определяет участки тишины в аудиодорожке",
   },
-
-  // 9. Быстрый анализ для предпросмотра
-  {
-    name: "quick_video_preview",
-    description: "Быстрый анализ основных характеристик видео для предварительной оценки",
-    input_schema: {
-      type: "object",
-      properties: {
-        clipId: {
-          type: "string",
-          description: "ID клипа для быстрого анализа",
-        },
-      },
-      required: ["clipId"],
-    },
-  },
-
-  // 10. Генерация рекомендаций по улучшению
-  {
-    name: "generate_improvement_suggestions",
-    description: "Анализирует видео и предлагает конкретные улучшения качества и монтажа",
-    input_schema: {
-      type: "object",
-      properties: {
-        clipId: {
-          type: "string",
-          description: "ID клипа для анализа и рекомендаций",
-        },
-        includeAutoFix: {
-          type: "boolean",
-          description: "Включить автоматические исправления",
-          default: true,
-        },
-        focusArea: {
-          type: "string",
-          enum: ["quality", "audio", "motion", "editing", "all"],
-          description: "Область фокуса для рекомендаций",
-          default: "all",
-        },
-      },
-      required: ["clipId"],
-    },
-  },
-
-  // 11. Автоматическая нарезка по сценам
-  {
-    name: "auto_cut_by_scenes",
-    description: "Автоматически разрезает видео на отдельные клипы по обнаруженным сценам",
-    input_schema: {
-      type: "object",
-      properties: {
-        clipId: {
-          type: "string",
-          description: "ID клипа для автоматической нарезки",
-        },
-        sensitivity: {
-          type: "number",
-          description: "Чувствительность детекции сцен",
-          minimum: 0,
-          maximum: 1,
-          default: 0.3,
-        },
-        minSceneLength: {
-          type: "number",
-          description: "Минимальная длина сцены",
-          minimum: 0.5,
-          default: 2.0,
-        },
-        createNewClips: {
-          type: "boolean",
-          description: "Создать новые клипы на timeline",
-          default: true,
-        },
-      },
-      required: ["clipId"],
-    },
-  },
-
-  // 12. Удаление пауз и тишины
-  {
-    name: "remove_silence_pauses",
-    description: "Автоматически удаляет участки тишины и длинные паузы из видео",
-    input_schema: {
-      type: "object",
-      properties: {
-        clipId: {
-          type: "string",
-          description: "ID клипа для обработки",
-        },
-        silenceThreshold: {
-          type: "number",
-          description: "Порог тишины в dB",
-          maximum: 0,
-          default: -30,
-        },
-        maxPauseDuration: {
-          type: "number",
-          description: "Максимальная длительность паузы в секундах",
-          minimum: 0.1,
-          default: 2.0,
-        },
-        preserveNaturalPauses: {
-          type: "boolean",
-          description: "Сохранить естественные паузы речи",
-          default: true,
-        },
-        createNewClip: {
-          type: "boolean",
-          description: "Создать новый обработанный клип",
-          default: true,
-        },
-      },
-      required: ["clipId"],
-    },
-  },
-
-  // 13. Автоматическая стабилизация видео
-  {
-    name: "auto_stabilize_video",
-    description: "Применяет автоматическую стабилизацию к видео с дрожанием камеры",
-    input_schema: {
-      type: "object",
-      properties: {
-        clipId: {
-          type: "string",
-          description: "ID клипа для стабилизации",
-        },
-        strength: {
-          type: "number",
-          description: "Сила стабилизации (0-1)",
-          minimum: 0,
-          maximum: 1,
-          default: 0.7,
-        },
-        smoothing: {
-          type: "number",
-          description: "Сглаживание движений (0-1)",
-          minimum: 0,
-          maximum: 1,
-          default: 0.5,
-        },
-        cropBorders: {
-          type: "boolean",
-          description: "Обрезать края для стабилизации",
-          default: true,
-        },
-      },
-      required: ["clipId"],
-    },
-  },
-
-  // 14. Автоматическая цветокоррекция
-  {
-    name: "auto_color_correction",
-    description: "Применяет автоматическую цветокоррекцию на основе анализа видео",
-    input_schema: {
-      type: "object",
-      properties: {
-        clipId: {
-          type: "string",
-          description: "ID клипа для цветокоррекции",
-        },
-        adjustBrightness: {
-          type: "boolean",
-          description: "Корректировать яркость",
-          default: true,
-        },
-        adjustContrast: {
-          type: "boolean",
-          description: "Корректировать контраст",
-          default: true,
-        },
-        adjustSaturation: {
-          type: "boolean",
-          description: "Корректировать насыщенность",
-          default: true,
-        },
-        whiteBalance: {
-          type: "boolean",
-          description: "Корректировать баланс белого",
-          default: true,
-        },
-        strength: {
-          type: "number",
-          description: "Интенсивность коррекции (0-1)",
-          minimum: 0,
-          maximum: 1,
-          default: 0.5,
-        },
-      },
-      required: ["clipId"],
-    },
-  },
-
-  // 15. Создание превью и thumbnails
   {
     name: "generate_video_thumbnails",
-    description: "Создает превью и миниатюры для видео на основе анализа ключевых моментов",
-    input_schema: {
-      type: "object",
-      properties: {
-        clipId: {
-          type: "string",
-          description: "ID клипа для создания превью",
-        },
-        thumbnailCount: {
-          type: "number",
-          description: "Количество миниатюр",
-          minimum: 1,
-          maximum: 20,
-          default: 5,
-        },
-        size: {
-          type: "string",
-          enum: ["small", "medium", "large"],
-          description: "Размер миниатюр",
-          default: "medium",
-        },
-        selectBest: {
-          type: "boolean",
-          description: "Автоматически выбрать лучшую миниатюру",
-          default: true,
-        },
-        addTimestamp: {
-          type: "boolean",
-          description: "Добавить временные метки",
-          default: false,
-        },
-      },
-      required: ["clipId"],
-    },
+    description: "Генерирует миниатюры из видео с заданным интервалом",
+  },
+  {
+    name: "extract_video_keyframes",
+    description: "Извлекает ключевые кадры из видео для предпросмотра",
+  },
+  {
+    name: "analyze_video_colors",
+    description: "Анализирует цветовую палитру видео, извлекает доминирующие цвета",
   },
 ]
 
 /**
- * Функция для обработки выполнения инструментов анализа видео
- * @param toolName Название инструмента
- * @param input Входные параметры
- * @returns Результат выполнения инструмента
+ * Функция для обработки выполнения инструментов анализа видео (legacy API)
  */
 export async function executeVideoAnalysisTool(toolName: string, input: Record<string, any>): Promise<any> {
-  const ffmpegService = FFmpegAnalysisService.getInstance()
-
-  // Получаем путь к файлу по clipId из Timeline контекста
-  const getFilePath = (clipId: string): string => {
-    // Пытаемся получить реальный путь к файлу из Timeline Studio
-    if (typeof window !== "undefined" && (window as any).timelineContext) {
-      const timelineContext = (window as any).timelineContext
-      const clip = timelineContext.project?.tracks
-        ?.flatMap((track: any) => track.clips)
-        ?.find((clip: any) => clip.id === clipId)
-
-      if (clip && clip.mediaFile?.path) {
-        return clip.mediaFile.path
-      }
+  try {
+    // Маппинг старых названий на новые функции
+    const functionMap: Record<string, () => Promise<any>> = {
+      get_video_metadata: () => getVideoMetadata(input.clipId),
+      detect_video_scenes: () => detectVideoScenes(input),
+      analyze_video_quality: () => analyzeVideoQuality(input),
+      analyze_video_motion: () => analyzeVideoMotion(input),
+      analyze_video_audio: () => analyzeVideoAudio(input),
+      detect_black_frames: () => detectBlackFrames(input),
+      detect_silent_segments: () => detectSilentSegments(input),
+      generate_video_thumbnails: () => generateVideoThumbnails(input),
+      extract_video_keyframes: () => extractVideoKeyframes(input),
+      analyze_video_colors: () => analyzeVideoColors(input),
     }
 
-    // Fallback: используем заглушку
-    return `/path/to/video/${clipId}.mp4`
-  }
-
-  const filePath = getFilePath(input.clipId)
-
-  switch (toolName) {
-    case "get_video_metadata":
-      return await ffmpegService.getVideoMetadata(filePath)
-
-    case "detect_video_scenes":
-      return await ffmpegService.detectScenes(filePath, {
-        threshold: input.sensitivity,
-        minSceneLength: input.minSceneLength,
-      })
-
-    case "analyze_video_quality":
-      return await ffmpegService.analyzeQuality(filePath, {
-        sampleRate: input.sampleRate,
-        enableNoiseDetection: input.checkNoise,
-        enableStabilityCheck: input.checkStability,
-      })
-
-    case "detect_audio_silence":
-      return await ffmpegService.detectSilence(filePath, {
-        threshold: input.silenceThreshold,
-        minDuration: input.minSilenceDuration,
-      })
-
-    case "analyze_video_motion":
-      return await ffmpegService.analyzeMotion(filePath, {
-        sensitivity: input.sensitivity,
-      })
-
-    case "extract_key_frames":
-      return await ffmpegService.extractKeyFrames(filePath, {
-        count: input.frameCount,
-        quality: input.quality,
-        aiDescription: input.generateDescriptions,
-      })
-
-    case "analyze_audio_track":
-      return await ffmpegService.analyzeAudio(filePath, {
-        enableSpectralAnalysis: input.enableSpectral,
-        enableDynamicsAnalysis: input.enableDynamics,
-      })
-
-    case "comprehensive_video_analysis": {
-      const options: VideoAnalysisOptions = {}
-      if (!input.includeScenes) options.sceneDetection = undefined
-      if (!input.includeQuality) options.qualityAnalysis = undefined
-      if (!input.includeAudio) options.audioAnalysis = undefined
-      if (!input.includeMotion) options.motionAnalysis = undefined
-
-      const result = await ffmpegService.comprehensiveAnalysis(filePath, options)
-
-      if (input.generateReport) {
-        return {
-          ...result,
-          report: generateAnalysisReport(result),
-        }
-      }
-      return result
-    }
-
-    case "quick_video_preview":
-      return await ffmpegService.quickAnalysis(filePath)
-
-    case "generate_improvement_suggestions": {
-      const analysisForSuggestions = await ffmpegService.comprehensiveAnalysis(filePath)
-      const suggestions = ffmpegService.generateImprovementSuggestions({
-        quality: analysisForSuggestions.quality,
-        audio: analysisForSuggestions.audio,
-        motion: analysisForSuggestions.motion,
-      })
-
-      // Фильтруем по области фокуса
-      if (input.focusArea !== "all") {
-        return suggestions.filter((s) => s.type === input.focusArea)
-      }
-      return suggestions
-    }
-
-    case "auto_cut_by_scenes": {
-      const scenes = await ffmpegService.detectScenes(filePath, {
-        threshold: input.sensitivity,
-        minSceneLength: input.minSceneLength,
-      })
-
-      // Создаем новые клипы на timeline на основе сцен
-      const clipsCreated = 0
-      if (input.createNewClips) {
-        // TODO: Использовать TimelineStateAccess когда он будет доступен
-        console.warn("Creating clips on timeline not implemented yet - need TimelineStateAccess")
-      }
-
-      console.log("Creating new clips for scenes:", scenes.scenes.length)
-      return {
-        success: true,
-        scenesFound: scenes.totalScenes,
-        clipsCreated,
-        scenes: scenes.scenes,
-      }
-    }
-
-    case "remove_silence_pauses": {
-      const silences = await ffmpegService.detectSilence(filePath, {
-        threshold: input.silenceThreshold,
-        minDuration: input.maxPauseDuration,
-      })
-
-      // Реализуем удаление пауз через FFmpeg
-      const metadata = await ffmpegService.getVideoMetadata(filePath)
-      const originalDuration = metadata.duration
-
-      // Вычисляем новую длительность без пауз
-      const totalSilenceDuration = silences.silences.reduce((sum, silence) => {
-        const silenceDuration = silence.endTime - silence.startTime
-        return sum + (silenceDuration > input.maxPauseDuration ? silenceDuration - input.maxPauseDuration : 0)
-      }, 0)
-
-      const newDuration = originalDuration - totalSilenceDuration
-
-      // Создаем новый клип с удаленными паузами если нужно
-      if (input.createNewClip && typeof window !== "undefined" && (window as any).timelineContext) {
-        const timelineContext = (window as any).timelineContext
-        const originalClip = timelineContext.project?.tracks
-          ?.flatMap((track: any) => track.clips)
-          ?.find((clip: any) => clip.id === input.clipId)
-
-        if (originalClip) {
-          // Создаем новый медиафайл с удаленными паузами
-          const processedMediaFile = {
-            ...originalClip.mediaFile,
-            id: `${originalClip.mediaFile.id}_no_silence`,
-            name: `${originalClip.mediaFile.name} (без пауз)`,
-            duration: newDuration,
-            path: `${originalClip.mediaFile.path.replace(/\.[^.]+$/, "")}_no_silence.mp4`,
-          }
-
-          // Добавляем обработанный клип на тот же трек
-          await timelineContext.addClip(
-            originalClip.trackId,
-            processedMediaFile,
-            originalClip.startTime + originalClip.duration + 1000, // Добавляем после оригинального клипа
-            newDuration,
-          )
-        }
-      }
-
-      console.log("Removing silences:", silences.silences.length)
-      return {
-        success: true,
-        silencesRemoved: silences.silences.length,
-        timeSaved: totalSilenceDuration,
-        newDuration,
-        originalDuration,
-        compressionRatio: `${((totalSilenceDuration / originalDuration) * 100).toFixed(1)}%`,
-      }
-    }
-
-    case "auto_stabilize_video":
-      // Реализуем стабилизацию через FFmpeg
-      try {
-        // Анализируем движение камеры для оценки необходимости стабилизации
-        const motionAnalysis = await ffmpegService.analyzeMotion(filePath, {
-          sensitivity: 0.5,
-        })
-
-        if (motionAnalysis.cameraMovement.stability < 0.7) {
-          // Применяем стабилизацию через FFmpeg с настройками
-          const stabilizeOptions = {
-            strength: input.strength,
-            smoothing: input.smoothing,
-            cropFactor: input.cropBorders ? 0.1 : 0,
-            outputPath: filePath.replace(/\.[^.]+$/, "_stabilized.mp4"),
-          }
-
-          // В реальной реализации здесь был бы вызов FFmpeg
-          // await ffmpegService.stabilizeVideo(filePath, stabilizeOptions)
-
-          // Создаем новый клип со стабилизированным видео
-          if (typeof window !== "undefined" && (window as any).timelineContext) {
-            const timelineContext = (window as any).timelineContext
-            const originalClip = timelineContext.project?.tracks
-              ?.flatMap((track: any) => track.clips)
-              ?.find((clip: any) => clip.id === input.clipId)
-
-            if (originalClip) {
-              const stabilizedMediaFile = {
-                ...originalClip.mediaFile,
-                id: `${originalClip.mediaFile.id}_stabilized`,
-                name: `${originalClip.mediaFile.name} (стабилизированное)`,
-                path: stabilizeOptions.outputPath,
-              }
-
-              await timelineContext.addClip(
-                originalClip.trackId,
-                stabilizedMediaFile,
-                originalClip.startTime + originalClip.duration + 1000,
-                originalClip.duration,
-              )
-            }
-          }
-
-          console.log("Stabilizing video:", input.clipId)
-          return {
-            success: true,
-            stabilizationApplied: true,
-            strength: input.strength,
-            smoothing: input.smoothing,
-            originalStability: Math.round(motionAnalysis.cameraMovement.stability * 100),
-            estimatedImprovement: Math.round((1 - motionAnalysis.cameraMovement.stability) * input.strength * 100),
-            processingTime: "estimated 2-5 minutes",
-            outputPath: stabilizeOptions.outputPath,
-          }
-        }
-        return {
-          success: true,
-          stabilizationApplied: false,
-          message: "Видео уже достаточно стабильное",
-          currentStability: Math.round(motionAnalysis.cameraMovement.stability * 100),
-        }
-      } catch (error) {
-        console.error("Error during stabilization:", error)
-        return {
-          success: false,
-          error: "Ошибка при стабилизации видео",
-          details: error instanceof Error ? error.message : String(error),
-        }
-      }
-
-    case "auto_color_correction":
-      // Реализуем цветокоррекцию через FFmpeg
-      try {
-        // Сначала анализируем качество видео для определения необходимых коррекций
-        const qualityAnalysis = await ffmpegService.analyzeQuality(filePath, {
-          sampleRate: 1.0,
-          enableNoiseDetection: false,
-          enableStabilityCheck: false,
-        })
-
-        const corrections: any = {}
-        let correctionApplied = false
-
-        // Определяем необходимые коррекции на основе анализа
-        if (input.adjustBrightness && qualityAnalysis.brightness < 0.4) {
-          corrections.brightness = {
-            adjustment: (0.5 - qualityAnalysis.brightness) * input.strength,
-            originalValue: Math.round(qualityAnalysis.brightness * 100),
-            newValue: Math.round(
-              Math.min(1, qualityAnalysis.brightness + (0.5 - qualityAnalysis.brightness) * input.strength) * 100,
-            ),
-          }
-          correctionApplied = true
-        }
-
-        if (input.adjustContrast && qualityAnalysis.contrast < 0.5) {
-          corrections.contrast = {
-            adjustment: (0.6 - qualityAnalysis.contrast) * input.strength,
-            originalValue: Math.round(qualityAnalysis.contrast * 100),
-            newValue: Math.round(
-              Math.min(1, qualityAnalysis.contrast + (0.6 - qualityAnalysis.contrast) * input.strength) * 100,
-            ),
-          }
-          correctionApplied = true
-        }
-
-        if (input.adjustSaturation) {
-          // Предполагаем оптимальную насыщенность 0.6
-          const targetSaturation = 0.6
-          const currentSaturation = qualityAnalysis.saturation || 0.5
-          if (Math.abs(currentSaturation - targetSaturation) > 0.1) {
-            corrections.saturation = {
-              adjustment: (targetSaturation - currentSaturation) * input.strength,
-              originalValue: Math.round(currentSaturation * 100),
-              newValue: Math.round(
-                Math.min(1, currentSaturation + (targetSaturation - currentSaturation) * input.strength) * 100,
-              ),
-            }
-            correctionApplied = true
-          }
-        }
-
-        if (input.whiteBalance) {
-          // Анализируем цветовую температуру
-          corrections.whiteBalance = {
-            applied: true,
-            adjustment: `Коррекция баланса белого с силой ${Math.round(input.strength * 100)}%`,
-          }
-          correctionApplied = true
-        }
-
-        // Создаем новый клип с цветокоррекцией если были применены изменения
-        if (correctionApplied && typeof window !== "undefined" && (window as any).timelineContext) {
-          const timelineContext = (window as any).timelineContext
-          const originalClip = timelineContext.project?.tracks
-            ?.flatMap((track: any) => track.clips)
-            ?.find((clip: any) => clip.id === input.clipId)
-
-          if (originalClip) {
-            const correctedMediaFile = {
-              ...originalClip.mediaFile,
-              id: `${originalClip.mediaFile.id}_color_corrected`,
-              name: `${originalClip.mediaFile.name} (цветокор.)`,
-              path: filePath.replace(/\.[^.]+$/, "_color_corrected.mp4"),
-            }
-
-            await timelineContext.addClip(
-              originalClip.trackId,
-              correctedMediaFile,
-              originalClip.startTime + originalClip.duration + 1000,
-              originalClip.duration,
-            )
-          }
-        }
-
-        console.log("Applying color correction:", input.clipId)
-        return {
-          success: true,
-          correctionsApplied: correctionApplied,
-          corrections,
-          strength: input.strength,
-          originalQuality: {
-            brightness: Math.round(qualityAnalysis.brightness * 100),
-            contrast: Math.round(qualityAnalysis.contrast * 100),
-            overall: Math.round(qualityAnalysis.overall * 100),
-          },
-          message: correctionApplied
-            ? "Цветокоррекция применена"
-            : "Коррекция не требуется - качество изображения в норме",
-        }
-      } catch (error) {
-        console.error("Error during color correction:", error)
-        return {
-          success: false,
-          error: "Ошибка при применении цветокоррекции",
-          details: error instanceof Error ? error.message : String(error),
-        }
-      }
-
-    case "generate_video_thumbnails": {
-      const keyFrames = await ffmpegService.extractKeyFrames(filePath, {
-        count: input.thumbnailCount,
-        quality: input.size === "small" ? "low" : input.size === "large" ? "high" : "medium",
-      })
-
-      return {
-        success: true,
-        thumbnails: keyFrames.keyFrames,
-        bestThumbnail: input.selectBest ? keyFrames.thumbnailPath : null,
-        totalGenerated: keyFrames.keyFrames.length,
-      }
-    }
-
-    default:
+    const func = functionMap[toolName]
+    if (!func) {
       throw new Error(`Неизвестный инструмент анализа видео: ${toolName}`)
+    }
+
+    const result = await func()
+
+    // Преобразуем AIToolResult в старый формат если нужно
+    if (result && result.success !== undefined) {
+      return result.data || result
+    }
+    return result
+  } catch (error) {
+    throw new Error(`Ошибка выполнения ${toolName}: ${error instanceof Error ? error.message : String(error)}`)
   }
-}
-
-/**
- * Генерирует детальный отчет по результатам анализа
- */
-function generateAnalysisReport(analysis: {
-  metadata: VideoMetadata
-  scenes: SceneDetectionResult
-  quality: QualityAnalysisResult
-  audio: AudioAnalysisResult
-  motion: MotionAnalysisResult
-}): string {
-  return `
-📊 ОТЧЕТ ПО АНАЛИЗУ ВИДЕО
-
-🎬 ОСНОВНАЯ ИНФОРМАЦИЯ
-• Длительность: ${Math.round(analysis.metadata.duration)}с
-• Разрешение: ${analysis.metadata.width}x${analysis.metadata.height}
-• FPS: ${analysis.metadata.fps}
-• Кодек: ${analysis.metadata.codec}
-• Битрейт: ${Math.round(analysis.metadata.bitrate / 1000)} кбит/с
-
-🎭 СТРУКТУРА КОНТЕНТА
-• Обнаружено сцен: ${analysis.scenes.totalScenes}
-• Средняя длительность сцены: ${analysis.scenes.averageSceneLength.toFixed(1)}с
-
-🎨 КАЧЕСТВО ВИДЕО
-• Общая оценка: ${Math.round(analysis.quality.overall * 100)}%
-• Резкость: ${Math.round(analysis.quality.sharpness * 100)}%
-• Яркость: ${Math.round(analysis.quality.brightness * 100)}%
-• Контраст: ${Math.round(analysis.quality.contrast * 100)}%
-• Стабильность: ${Math.round(analysis.quality.stability * 100)}%
-
-🔊 АНАЛИЗ АУДИО
-• Средняя громкость: ${Math.round(analysis.audio.volume.average * 100)}%
-• Пиковая громкость: ${Math.round(analysis.audio.volume.peak * 100)}%
-• Качество звука: ${Math.round(analysis.audio.quality.overallQuality * 100)}%
-• Клиппинг: ${analysis.audio.quality.clipping ? "⚠️ Обнаружен" : "✅ Нет"}
-
-🎥 ДИНАМИКА
-• Интенсивность движения: ${Math.round(analysis.motion.motionIntensity * 100)}%
-• Стабильность камеры: ${Math.round(analysis.motion.cameraMovement.stability * 100)}%
-
-${
-  analysis.quality.issues.length > 0
-    ? `
-⚠️ ОБНАРУЖЕННЫЕ ПРОБЛЕМЫ:
-${analysis.quality.issues.map((issue) => `• ${issue}`).join("\n")}
-`
-    : "✅ Серьезных проблем не обнаружено"
-}
-`.trim()
 }

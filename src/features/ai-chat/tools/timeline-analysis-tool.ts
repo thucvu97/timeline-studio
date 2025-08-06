@@ -355,3 +355,11 @@ export async function executeTimelineAnalysis(
 ): Promise<AIToolResult<TimelineAnalysisResult>> {
   return timelineAnalysisTool.analyzeTimeline(input)
 }
+
+// Экспортируем массив инструментов для обратной совместимости
+export const timelineAnalysisTools: any[] = [
+  {
+    name: "analyze_timeline",
+    description: "Анализирует структуру, производительность и качество timeline проекта",
+  },
+]

@@ -770,6 +770,58 @@ export async function clearBatchHistory(params: any): Promise<AIToolResult<Batch
   return batchProcessingTool.processBatch(input)
 }
 
+// Экспортируем массив инструментов для обратной совместимости
+export const batchProcessingTools: any[] = [
+  {
+    name: "start_batch_operation",
+    description: "Запускает пакетную операцию обработки медиафайлов",
+  },
+  {
+    name: "get_batch_progress",
+    description: "Получает прогресс выполнения пакетной операции",
+  },
+  {
+    name: "cancel_batch_operation",
+    description: "Отменяет выполняющуюся пакетную операцию",
+  },
+  {
+    name: "get_batch_processing_stats",
+    description: "Получает общую статистику пакетной обработки",
+  },
+  {
+    name: "get_batch_history",
+    description: "Получает историю пакетных операций",
+  },
+  {
+    name: "batch_analyze_videos",
+    description: "Запускает пакетный анализ видеофайлов",
+  },
+  {
+    name: "batch_transcribe_videos",
+    description: "Запускает пакетную транскрипцию видео",
+  },
+  {
+    name: "batch_generate_subtitles",
+    description: "Запускает пакетную генерацию субтитров",
+  },
+  {
+    name: "batch_detect_languages",
+    description: "Запускает пакетное определение языка в видео",
+  },
+  {
+    name: "batch_detect_scenes",
+    description: "Запускает пакетную детекцию сцен",
+  },
+  {
+    name: "create_batch_report",
+    description: "Создает отчет о выполненной пакетной операции",
+  },
+  {
+    name: "clear_batch_history",
+    description: "Очищает историю пакетных операций",
+  },
+]
+
 // Интерфейсы для совместимости со старым API
 export interface BatchOperationParams {
   clipIds: string[]

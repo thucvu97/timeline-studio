@@ -924,3 +924,63 @@ export async function executeAudioTool(toolName: string, input: Record<string, a
     }
   }
 }
+
+// Экспортируем массив инструментов для обратной совместимости
+export const audioProcessingTools: any[] = [
+  {
+    name: "analyze_audio_levels",
+    description: "Анализирует уровни громкости аудио треков",
+  },
+  {
+    name: "normalize_audio",
+    description: "Нормализует громкость аудио треков",
+  },
+  {
+    name: "remove_noise",
+    description: "Удаляет фоновый шум из аудио",
+  },
+  {
+    name: "detect_audio_issues",
+    description: "Обнаруживает проблемы в аудио (клиппинг, тишина и т.д.)",
+  },
+  {
+    name: "enhance_audio_quality",
+    description: "Улучшает качество аудио",
+  },
+  {
+    name: "sync_audio_video",
+    description: "Синхронизирует аудио и видео дорожки",
+  },
+  {
+    name: "extract_audio_features",
+    description: "Извлекает характеристики аудио (темп, тональность и т.д.)",
+  },
+  {
+    name: "apply_audio_effects",
+    description: "Применяет аудио эффекты (реверберация, эхо и т.д.)",
+  },
+  {
+    name: "mix_audio_tracks",
+    description: "Микширует несколько аудио треков",
+  },
+  {
+    name: "create_audio_crossfade",
+    description: "Создает плавные переходы между аудио клипами",
+  },
+  {
+    name: "analyze_audio_spectrum",
+    description: "Анализирует частотный спектр аудио",
+  },
+  {
+    name: "repair_audio_artifacts",
+    description: "Исправляет артефакты в аудио",
+  },
+  {
+    name: "balance_stereo_field",
+    description: "Балансирует стерео поле аудио",
+  },
+  {
+    name: "generate_audio_ducking",
+    description: "Создает эффект ducking для фоновой музыки",
+  },
+]

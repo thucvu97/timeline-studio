@@ -121,7 +121,7 @@ class DeepSeekProvider implements AIProvider { /* ... */ }
 
 ## 📅 План рефакторинга
 
-### Фаза 1: Критические исправления ✅ **ЗАВЕРШЕНО (90%)**
+### Фаза 1: Критические исправления ⏳ **В ПРОЦЕССЕ (73%)**
 **Цель**: Устранить основные архитектурные проблемы
 
 - [x] **Разделить UnifiedAIService** на 5 сервисов ✅
@@ -133,7 +133,7 @@ class DeepSeekProvider implements AIProvider { /* ... */ }
 
 - [x] **Унифицировать Error Handling** ✅
   - [x] Создать BaseAITool абстрактный класс ✅
-  - [ ] Рефакторить все tool executors (19 из 67 готов - 70% прогресс Фазы 1)
+  - [ ] Рефакторить все tool executors (24 из 67 готов - 36% выполнено)
     - [x] timeline-analysis-tool.ts ✅
     - [x] export-data.ts ✅ 
     - [x] detect-scenes.ts ✅
@@ -155,7 +155,13 @@ class DeepSeekProvider implements AIProvider { /* ... */ }
     - [x] color-style-tools.ts ✅
     - [x] content-intelligence-tools.ts ✅
     - [x] Создан паттерн для rapid рефакторинга ✅
-    - [ ] 48 remaining инструментов
+    - [x] audio-processing-tools.ts ✅
+    - [x] whisper-tools.ts ✅
+    - [x] search-files.ts (browser) ✅
+    - [x] settings-configuration-tools.ts ✅
+    - [x] subtitle-tools.ts ✅
+    - [x] video-analysis-tools.ts ✅
+    - [ ] 43 remaining инструментов
   - [x] Добавить централизованное логирование ошибок ✅
 
 - [x] **Стандартизировать типы результатов** ✅

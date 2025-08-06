@@ -1,70 +1,175 @@
 /**
- * AI инструменты для поиска файлов в браузере
+ * AI инструменты для поиска файлов в браузере с использованием BaseAITool
  */
 
-import type { ClaudeTool } from "../../services/claude-service"
-
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 import type { BrowserToolResult, SearchMediaParams } from "./types"
 import { findFilesByPattern, getBrowserFiles, getBrowserStateAccess, hasBrowserAccess } from "./utils/helpers"
 
-export const searchMediaFilesTool: ClaudeTool = {
-  name: "search_media_files",
-  description: "Выполняет поиск медиафайлов в браузере по различным критериям",
-  input_schema: {
-    type: "object",
-    properties: {
-      query: {
-        type: "string",
-        description: "Поисковый запрос",
-      },
-      searchIn: {
-        type: "array",
-        items: { type: "string", enum: ["filename", "metadata", "tags", "location"] },
-        description: "Области поиска",
-        default: ["filename"],
-      },
-      tab: {
-        type: "string",
-        enum: ["media", "effects", "filters", "transitions", "templates", "music"],
-        description: "Вкладка для поиска (если не указана, поиск во всех)",
-      },
-      advanced: {
-        type: "object",
-        properties: {
-          exactMatch: {
-            type: "boolean",
-            description: "Точное соответствие",
-            default: false,
-          },
-          caseSensitive: {
-            type: "boolean",
-            description: "Учитывать регистр",
-            default: false,
-          },
-          includeHidden: {
-            type: "boolean",
-            description: "Включить скрытые файлы",
-            default: false,
-          },
-          searchSubfolders: {
-            type: "boolean",
-            description: "Поиск в подпапках",
-            default: true,
-          },
-        },
-        description: "Расширенные настройки поиска",
-      },
-      maxResults: {
-        type: "number",
-        description: "Максимальное количество результатов",
-        default: 100,
-      },
-    },
-    required: ["query"],
-  },
+// Типы для поисковых операций
+export interface FileSearchInput {
+  query: string
+  searchIn?: ("filename" | "metadata" | "tags" | "location")[]
+  tab?: "media" | "effects" | "filters" | "transitions" | "templates" | "music"
+  advanced?: {
+    exactMatch?: boolean
+    caseSensitive?: boolean
+    includeHidden?: boolean
+    searchSubfolders?: boolean
+  }
+  maxResults?: number
 }
 
-export async function searchMediaFiles(params: SearchMediaParams): Promise<BrowserToolResult> {
+export interface FileSearchResult {
+  files: any[]
+  analysis: {
+    query: string
+    searchAreas: string[]
+    tab: string
+    settings: any
+    totalMatches: number
+    wasTruncated: boolean
+    fileTypeBreakdown: Record<string, number>
+  }
+  suggestions: string[]
+}
+
+/**
+ * AI инструмент для поиска файлов в браузере с унифицированной обработкой ошибок
+ */
+export class FileSearchTool extends BaseAITool {
+  constructor(logger?: AIToolLogger) {
+    super("FileSearchTool", logger)
+  }
+
+  /**
+   * Выполняет поиск медиафайлов
+   */
+  public async searchFiles(
+    input: FileSearchInput,
+    options: AIToolExecutionOptions = {},
+  ): Promise<AIToolResult<FileSearchResult>> {
+    // Валидация входных данных
+    const validation = this.validateInput(input, (data) => {
+      const errors: string[] = []
+
+      if (!data.query || data.query.trim().length === 0) {
+        errors.push("Поисковый запрос не может быть пустым")
+      }
+
+      if (data.searchIn) {
+        const validAreas = ["filename", "metadata", "tags", "location"]
+        const invalidAreas = data.searchIn.filter((area) => !validAreas.includes(area))
+        if (invalidAreas.length > 0) {
+          errors.push(`Неверные области поиска: ${invalidAreas.join(", ")}`)
+        }
+      }
+
+      if (data.tab) {
+        const validTabs = ["media", "effects", "filters", "transitions", "templates", "music"]
+        if (!validTabs.includes(data.tab)) {
+          errors.push(`Неверная вкладка: ${data.tab}`)
+        }
+      }
+
+      if (data.maxResults && data.maxResults <= 0) {
+        errors.push("Максимальное количество результатов должно быть больше 0")
+      }
+
+      return {
+        isValid: errors.length === 0,
+        errors,
+      }
+    })
+
+    if (!validation.isValid) {
+      return {
+        success: false,
+        errors: validation.errors,
+        message: "Ошибка валидации входных данных для поиска файлов",
+        executionTime: 0,
+        toolName: this.toolName,
+      }
+    }
+
+    // Выполняем поиск с унифицированной обработкой ошибок
+    return this.executeWithErrorHandling(
+      async (context) => {
+        context.logger?.("info", "Начинаем поиск файлов", {
+          query: input.query,
+          searchIn: input.searchIn,
+          tab: input.tab,
+        })
+
+        const result = await this.performSearch(input, context)
+
+        context.logger?.("info", "Поиск файлов завершен", {
+          query: input.query,
+          totalMatches: result.analysis.totalMatches,
+        })
+
+        return result
+      },
+      {
+        timeout: options.timeout || 30000,
+        retries: options.retries || 1,
+        retryDelay: options.retryDelay || 1000,
+        enableLogging: options.enableLogging !== false,
+        metadata: {
+          query: input.query,
+          tab: input.tab,
+          ...options.metadata,
+        },
+      },
+    )
+  }
+
+  /**
+   * Выполняет поиск файлов
+   */
+  private async performSearch(input: FileSearchInput, _context: any): Promise<FileSearchResult> {
+    const params: SearchMediaParams = {
+      query: input.query,
+      searchIn: input.searchIn || ["filename"],
+      tab: input.tab,
+      advanced: input.advanced || {},
+      maxResults: input.maxResults || 100,
+    }
+
+    const result = await searchMediaFiles(params)
+
+    if (!result.success) {
+      throw new Error(result.message || "Ошибка поиска файлов")
+    }
+
+    return result.data as FileSearchResult
+  }
+}
+
+// Экспортируем готовый экземпляр для использования
+export const fileSearchTool = new FileSearchTool()
+
+// Функция-обертка для обратной совместимости
+export async function searchMediaFilesWrapper(params: SearchMediaParams): Promise<AIToolResult<FileSearchResult>> {
+  const input: FileSearchInput = {
+    query: params.query,
+    searchIn: params.searchIn,
+    tab: params.tab,
+    advanced: params.advanced,
+    maxResults: params.maxResults,
+  }
+  return fileSearchTool.searchFiles(input)
+}
+
+// Экспортируем массив инструментов для обратной совместимости
+export const searchMediaFilesTool: any = {
+  name: "search_media_files",
+  description: "Выполняет поиск медиафайлов в браузере по различным критериям",
+}
+
+export const browserSearchTools: any[] = [searchMediaFilesTool]
+
+async function searchMediaFiles(params: SearchMediaParams): Promise<BrowserToolResult> {
   const { query, searchIn = ["filename"], tab, advanced = {}, maxResults = 100 } = params
 
   if (!hasBrowserAccess()) {
