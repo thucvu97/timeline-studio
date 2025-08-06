@@ -495,14 +495,15 @@ describe("timelineToProjectSchema", () => {
   it("собирает субтитры из треков субтитров", () => {
     const subtitleClip: SubtitleClip = {
       id: "subtitle-1",
-      name: "Subtitle",
+      trackId: "track-1",
+      type: "subtitle",
       startTime: 5,
       duration: 3,
       text: "Hello, world!",
       formatting: {
         fontSize: 32,
         color: "#ffff00",
-        bold: true,
+        fontWeight: "bold",
       },
       subtitlePosition: {
         alignment: "top-center",
@@ -603,7 +604,8 @@ describe("timelineToProjectSchema", () => {
     positions.forEach(({ alignment, expected }) => {
       const subtitleClip: SubtitleClip = {
         id: "subtitle-1",
-        name: "Subtitle",
+        trackId: "track-1",
+        type: "subtitle",
         startTime: 0,
         duration: 1,
         text: "Test",

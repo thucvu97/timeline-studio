@@ -1130,7 +1130,7 @@ function createDefaultSubtitleStyle(formatting?: SubtitleClip["formatting"]): Ba
   return {
     font_family: "Arial",
     font_size: formatting?.fontSize || 24.0,
-    font_weight: formatting?.bold ? SubtitleFontWeight.Bold : SubtitleFontWeight.Normal,
+    font_weight: formatting?.fontWeight ? convertFontWeight(formatting.fontWeight) : SubtitleFontWeight.Normal,
     color: formatting?.color || "#FFFFFF",
     stroke_color: "#000000",
     stroke_width: 2.0,

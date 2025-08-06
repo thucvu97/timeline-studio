@@ -9,6 +9,8 @@
  * 5. Интеграция с системой ресурсов (эффекты, фильтры, переходы)
  */
 
+import type { SubtitleClip } from "@/features/subtitles/types"
+
 import type { VideoEffect } from "../../effects/types"
 import type { VideoFilter } from "../../filters/types/filters"
 import type { MediaFile } from "../../media/types/media"
@@ -172,6 +174,7 @@ export interface TimelineTrack {
 export interface TimelineClip {
   id: string
   name: string
+  type?: "video" | "audio" | "image" | "subtitle" | "title" // Тип клипа
 
   // Связь с медиафайлом
   mediaId: string
@@ -463,68 +466,12 @@ export interface TimelineKeyframe {
 
 // ============================================================================
 // SUBTITLE TYPES
-// ============================================================================
-
-/**
- * Расширенный интерфейс для субтитровых клипов
- */
-export interface SubtitleClip extends TimelineClip {
-  // Текст субтитра
-  text: string
-
-  // Стиль субтитра (ссылка на стиль из ресурсов)
-  subtitleStyleId?: string
-
-  // Переопределение позиции для конкретного субтитра
-  subtitlePosition?: {
-    alignment:
-      | "top-left"
-      | "top-center"
-      | "top-right"
-      | "middle-left"
-      | "middle-center"
-      | "middle-right"
-      | "bottom-left"
-      | "bottom-center"
-      | "bottom-right"
-    marginX: number // Отступ по горизонтали в пикселях
-    marginY: number // Отступ по вертикали в пикселях
-  }
-
-  // Анимации входа и выхода
-  animationIn?: {
-    type: "fade" | "slide" | "typewriter" | "scale" | "wave"
-    duration: number // В секундах
-    easing?: "linear" | "ease" | "ease-in" | "ease-out" | "ease-in-out"
-  }
-
-  animationOut?: {
-    type: "fade" | "slide" | "scale"
-    duration: number // В секундах
-    easing?: "linear" | "ease" | "ease-in" | "ease-out" | "ease-in-out"
-  }
-
-  // Дополнительные настройки для субтитров
-  wordWrap?: boolean // Перенос слов
-  maxWidth?: number // Максимальная ширина в процентах от экрана
-
-  // Форматирование текста (переопределяет стиль)
-  formatting?: {
-    bold?: boolean
-    italic?: boolean
-    underline?: boolean
-    fontSize?: number // Переопределение размера шрифта
-    color?: string // Переопределение цвета
-  }
-}
-
 /**
  * Тип для проверки, является ли клип субтитром
  */
 export function isSubtitleClip(clip: TimelineClip): clip is SubtitleClip {
-  const track = clip.trackId // В реальном коде нужно получить трек по ID
-  // Проверяем по типу трека или наличию текста
-  return "text" in clip
+  // Проверяем по типу клипа
+  return clip.type === "subtitle" && "text" in clip
 }
 
 /**

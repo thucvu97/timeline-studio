@@ -5,81 +5,93 @@
 ## 📊 Статус модуля
 
 - ✅ **Готовность**: Полностью реализован и готов к использованию
-- ✅ **Компоненты**: 3 компонента (SubtitleList, SubtitleGroup, SubtitlePreview)
-- ✅ **Хуки**: 4 хука для работы с данными субтитров
-- ✅ **Тестовое покрытие**: 91 тест (83 проходит, 8 пропущено), ~70% покрытие кода
+- ✅ **Компоненты**: 9 компонентов для работы с субтитрами
+- ✅ **Хуки**: 5 хуков для управления стилями, импорта и экспорта
+- ✅ **Утилиты**: 5 утилит для обработки, парсинга и экспорта
+- ✅ **Тестовое покрытие**: 17 тестовых файлов, ~70% покрытие кода
 - ✅ **Интернационализация**: Поддержка 15 языков
-- ✅ **Стили субтитров**: 72 профессиональных стиля в 6 категориях
+- ✅ **Стили субтитров**: 12 профессиональных стилей в 6 категориях (планируется расширение до 72)
+- ✅ **Форматы**: Полная поддержка SRT, VTT, ASS для импорта/экспорта
 
 ## 📁 Архитектура модуля
 
 ```
 src/features/subtitles/
-├── components/                # React компоненты
-│   ├── subtitle-list.tsx     # Основной список субтитров с фильтрацией
-│   ├── subtitle-group.tsx    # Группировка субтитров по категориям
-│   └── subtitle-preview.tsx  # Превью субтитра с демо-текстом
-├── hooks/                    # React хуки
-│   ├── use-subtitle-styles.ts      # Основные хуки для работы со стилями
-│   └── use-subtitles-import.ts     # Хуки для импорта данных
-├── utils/                    # Утилиты и обработка данных
-│   ├── css-styles.ts         # CSS-утилиты и конвертация стилей
-│   └── subtitle-processor.ts # Обработка, валидация и поиск данных
-├── data/                     # JSON данные
-│   ├── subtitle-styles.json  # 72 профессиональных стиля субтитров
-│   └── subtitle-categories.json # 6 категорий с переводами
-├── types/                    # TypeScript типы
-│   ├── index.ts             # Экспорты типов
-│   └── subtitles.ts         # Основные интерфейсы
-├── __tests__/               # Тесты модуля
-│   ├── components/          # Тесты компонентов
-│   ├── hooks/              # Тесты хуков
-│   └── utils/              # Тесты утилит
-└── index.ts                # Главный экспорт модуля
+├── components/                      # React компоненты (9 файлов)
+│   ├── subtitle-ai-tools.tsx       # AI инструменты для субтитров
+│   ├── subtitle-ai-tools-modal.tsx # Модальное окно AI инструментов
+│   ├── subtitle-auto-sync.tsx      # Автоматическая синхронизация с аудио
+│   ├── subtitle-group.tsx          # Группировка субтитров по категориям
+│   ├── subtitle-import-button.tsx  # Кнопка импорта субтитров
+│   ├── subtitle-preview.tsx        # Превью субтитра с демо-текстом
+│   ├── subtitle-sync-tools.tsx     # Инструменты синхронизации
+│   ├── subtitle-toolbar.tsx        # Панель инструментов субтитров
+│   └── subtitle-tools.tsx          # Общие инструменты субтитров
+├── hooks/                          # React хуки (5 файлов)
+│   ├── use-subtitle-styles.ts      # Загрузка стилей из JSON
+│   ├── use-subtitle-style-manager.ts # Управление стилями (useSubtitleStyles)
+│   ├── use-subtitle-import.ts      # Импорт субтитров (старая версия)
+│   ├── use-subtitles-import.ts     # Импорт субтитров (основная)
+│   └── use-subtitles-export.ts     # Экспорт субтитров
+├── utils/                          # Утилиты и обработка данных (5 файлов)
+│   ├── css-styles.ts               # CSS-утилиты и конвертация стилей
+│   ├── subtitle-processor.ts       # Обработка, валидация и поиск данных
+│   ├── subtitle-parsers.ts         # Парсеры SRT, VTT, ASS форматов
+│   ├── subtitle-exporters.ts       # Экспорт в SRT, VTT, ASS форматы
+│   └── subtitle-importers.ts       # Импорт субтитров через Tauri
+├── data/                           # JSON данные (2 файла)
+│   ├── subtitle-styles.json        # 12 профессиональных стилей субтитров
+│   └── subtitle-categories.json    # 6 категорий с переводами
+├── types/                          # TypeScript типы (2 файла)
+│   ├── index.ts                    # Экспорты типов
+│   └── subtitles.ts                # Основные интерфейсы и типы
+├── __tests__/                      # Тесты модуля (17 файлов)
+│   ├── components/                 # Тесты компонентов (5 файлов)
+│   ├── hooks/                      # Тесты хуков (3 файла)
+│   ├── utils/                      # Тесты утилит (5 файлов)
+│   ├── types/                      # Тесты типов (1 файл)
+│   ├── data/                       # Тесты данных (1 файл)
+│   └── index.test.ts               # Тесты экспортов модуля
+├── index.ts                        # Главный экспорт модуля
+└── README.md                       # Документация модуля
 ```
 
 ## 🎨 Категории субтитров
 
-### Basic (Базовые) - 12 стилей
+### Basic (Базовые) - 2 стиля
 Простые и универсальные стили для повседневного использования:
-- Basic White, Basic Yellow, Basic Black
-- Classic Shadow, Bold Border, Outline Style
+- Basic White, Basic Yellow
 
-### Cinematic (Кинематографические) - 12 стилей  
+### Cinematic (Кинематографические) - 2 стиля
 Профессиональные стили для кино и видео:
-- Elegant Serif, Bold Sans, Dramatic Shadow
-- Classic Movie, Film Noir, Retro Cinema
+- Elegant Serif, Bold Sans
 
-### Stylized (Стилизованные) - 12 стилей
+### Stylized (Стилизованные) - 2 стиля
 Креативные и художественные стили:
-- Neon Glow, Graffiti Style, Comic Book
-- Glitch Effect, Cyberpunk, Street Art
+- Neon Glow, Graffiti Style
 
-### Minimal (Минималистичные) - 12 стилей
+### Minimal (Минималистичные) - 2 стиля
 Чистые и ненавязчивые стили:
-- Clean Sans, Thin Border, Transparent Background
-- Subtle Shadow, Light Outline, Pure Minimal
+- Clean Sans, Transparent Background
 
-### Animated (Анимированные) - 12 стилей
+### Animated (Анимированные) - 2 стиля
 Динамические стили с CSS-анимациями:
-- Typewriter Effect, Fade In/Out, Slide Up
-- Bounce In, Zoom Effect, Pulse Animation
+- Typewriter Effect, Fade In/Out
 
-### Modern (Современные) - 12 стилей
+### Modern (Современные) - 2 стиля
 Актуальные градиентные и стильные эффекты:
-- Gradient Rainbow, Holographic, Modern Sans
-- Glass Morphism, Neon Gradient, Tech Style
+- Gradient Rainbow, Glass Morphism
 
 ## 🔗 API и хуки
 
-### useSubtitleStyles()
-Основной хук для загрузки всех стилей субтитров:
+### useSubtitles()
+Основной хук для загрузки всех стилей субтитров из JSON:
 
 ```typescript
-import { useSubtitleStyles } from '@/features/subtitles';
+import { useSubtitles } from '@/features/subtitles';
 
 function MyComponent() {
-  const { styles, loading, error, reload, isReady } = useSubtitleStyles();
+  const { subtitles: styles, loading, error, reload, isReady } = useSubtitles();
 
   if (loading) return <div>Загрузка стилей...</div>;
   if (error) return <div>Ошибка: {error}</div>;
@@ -97,14 +109,88 @@ function MyComponent() {
 }
 ```
 
-### useSubtitleStyleById(id: string)
+### useSubtitleStyles() / useSubtitleStyleManager()
+Хук для управления стилями субтитров с расширенной функциональностью:
+
+```typescript
+import { useSubtitleStyles } from '@/features/subtitles';
+
+function StyleManager() {
+  const {
+    subtitleStyles,
+    getStyleById,
+    getComputedStyle,
+    getDefaultStyle
+  } = useSubtitleStyles();
+
+  const defaultStyle = getDefaultStyle();
+  const computed = getComputedStyle('basic-white', { fontSize: 32 });
+
+  return (
+    <div>
+      <h3>Стиль по умолчанию: {defaultStyle?.name}</h3>
+      <p>Вычисленный размер шрифта: {computed.fontSize}px</p>
+    </div>
+  );
+}
+```
+
+### useSubtitlesImport()
+Импорт субтитров из файлов:
+
+```typescript
+import { useSubtitlesImport } from '@/features/subtitles';
+
+function ImportButton() {
+  const { importSubtitleFile, isImporting } = useSubtitlesImport();
+
+  const handleImport = async () => {
+    await importSubtitleFile(); // Автоматически определит формат
+  };
+
+  return (
+    <button onClick={handleImport} disabled={isImporting}>
+      Импортировать субтитры
+    </button>
+  );
+}
+```
+
+### useSubtitlesExport()
+Экспорт субтитров в различные форматы:
+
+```typescript
+import { useSubtitlesExport } from '@/features/subtitles';
+
+function ExportButton() {
+  const {
+    exportSubtitleFile,
+    exportSelectedSubtitles,
+    exportSubtitlesByTimeRange,
+    isExporting
+  } = useSubtitlesExport();
+
+  return (
+    <div>
+      <button
+        onClick={() => exportSubtitleFile('srt')}
+        disabled={isExporting}
+      >
+        Экспорт в SRT
+      </button>
+    </div>
+  );
+}
+```
+
+### useSubtitleById(id: string)
 Получение конкретного стиля по ID:
 
 ```typescript
-import { useSubtitleStyleById } from '@/features/subtitles';
+import { useSubtitleById } from '@/features/subtitles';
 
 function StyleDetail({ styleId }: { styleId: string }) {
-  const style = useSubtitleStyleById(styleId);
+  const style = useSubtitleById(styleId);
 
   if (!style) return <div>Стиль не найден</div>;
 
@@ -119,80 +205,42 @@ function StyleDetail({ styleId }: { styleId: string }) {
 }
 ```
 
-### useSubtitleStylesByCategory(category: string)
-Получение стилей определенной категории:
-
-```typescript
-import { useSubtitleStylesByCategory } from '@/features/subtitles';
-
-function CategoryStyles({ category }: { category: string }) {
-  const styles = useSubtitleStylesByCategory(category);
-
-  return (
-    <div>
-      <h3>Стили категории "{category}"</h3>
-      {styles.map(style => (
-        <div key={style.id}>{style.labels.ru}</div>
-      ))}
-    </div>
-  );
-}
-```
-
-### useSubtitleStylesSearch(query: string, lang?: string)
-Поиск стилей по запросу:
-
-```typescript
-import { useState } from 'react';
-import { useSubtitleStylesSearch } from '@/features/subtitles';
-
-function StyleSearch() {
-  const [query, setQuery] = useState('');
-  const results = useSubtitleStylesSearch(query, 'ru');
-
-  return (
-    <div>
-      <input
-        type="text"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Поиск стилей..."
-      />
-      <div>
-        Найдено: {results.length} стилей
-        {results.map(style => (
-          <div key={style.id}>{style.labels.ru}</div>
-        ))}
-      </div>
-    </div>
-  );
-}
-```
-
 ## 🧩 Компоненты
 
-### SubtitleList
-**Файл**: `components/subtitle-list.tsx`  
-**Статус**: ✅ Полностью реализован  
-**Тестовое покрытие**: 56.81%
+### SubtitleAITools
+**Файл**: `components/subtitle-ai-tools.tsx`
+**Статус**: ✅ Полностью реализован
 
-Основной компонент для отображения списка стилей субтитров с возможностями:
-- Фильтрация по категориям
-- Поиск по названию и описанию
-- Группировка стилей
-- Интеграция с Browser компонентом
-- Поддержка избранного
+AI инструменты для работы с субтитрами:
+- Автоматическая генерация субтитров
+- Транскрипция аудио
+- Перевод субтитров
+- Синхронизация с видео
 
-```typescript
-import { SubtitleList } from '@/features/subtitles';
+### SubtitleAIToolsModal
+**Файл**: `components/subtitle-ai-tools-modal.tsx`
+**Статус**: ✅ Полностью реализован
 
-// Использование в браузере ресурсов
-<SubtitleList />
-```
+Модальное окно для AI инструментов:
+- Настройки генерации
+- Выбор языка и модели
+- Прогресс обработки
+- Предпросмотр результатов
+
+### SubtitleAutoSync
+**Файл**: `components/subtitle-auto-sync.tsx`
+**Статус**: ✅ Полностью реализован
+
+Автоматическая синхронизация субтитров с аудио:
+- Анализ аудио волны для определения речи
+- Три режима синхронизации: голос, паузы, ритм
+- Настраиваемая чувствительность
+- Визуализация прогресса
+- Поддержка аудио треков и медиафайлов
 
 ### SubtitleGroup
-**Файл**: `components/subtitle-group.tsx`  
-**Статус**: ✅ Полностью реализован  
+**Файл**: `components/subtitle-group.tsx`
+**Статус**: ✅ Полностью реализован
 **Тестовое покрытие**: ✅ Покрыт
 
 Компонент для группировки субтитров по категориям:
@@ -200,9 +248,19 @@ import { SubtitleList } from '@/features/subtitles';
 - Раскрывающиеся секции
 - Локализованные названия категорий
 
+### SubtitleImportButton
+**Файл**: `components/subtitle-import-button.tsx`
+**Статус**: ✅ Полностью реализован
+
+Кнопка для импорта субтитров:
+- Поддержка SRT, VTT, ASS форматов
+- Автоопределение формата
+- Добавление на таймлайн
+- Уведомления о статусе
+
 ### SubtitlePreview
-**Файл**: `components/subtitle-preview.tsx`  
-**Статус**: ✅ Полностью реализован  
+**Файл**: `components/subtitle-preview.tsx`
+**Статус**: ✅ Полностью реализован
 **Тестовое покрытие**: 82.17% ✅
 
 Компонент предпросмотра стиля субтитра:
@@ -210,6 +268,36 @@ import { SubtitleList } from '@/features/subtitles';
 - Индикаторы сложности и категории
 - Кнопки добавления в проект и избранное
 - Адаптивный дизайн для разных соотношений сторон
+
+### SubtitleSyncTools
+**Файл**: `components/subtitle-sync-tools.tsx`
+**Статус**: ✅ Полностью реализован
+
+Инструменты синхронизации субтитров:
+- Сдвиг времени всех субтитров
+- Синхронизация с аудиодорожкой
+- Автоматическое выравнивание
+- Корректировка скорости
+
+### SubtitleToolbar
+**Файл**: `components/subtitle-toolbar.tsx`
+**Статус**: ✅ Полностью реализован
+
+Панель инструментов для работы с субтитрами:
+- Добавление субтитров
+- Импорт/экспорт
+- Управление стилями
+- Инструменты редактирования
+
+### SubtitleTools
+**Файл**: `components/subtitle-tools.tsx`
+**Статус**: ✅ Полностью реализован
+
+Общие инструменты для субтитров:
+- Создание субтитров
+- Редактирование текста
+- Применение стилей
+- Управление таймингом
 
 ## 📦 Типы данных
 
@@ -294,21 +382,20 @@ interface SubtitleCategory {
 ## 🧪 Тестирование
 
 ### Общая статистика
-- **Всего тестов**: 91 (83 проходят, 8 пропущены)
-- **Общее покрытие**: ~70% (значительно улучшено с 8.4%)
+- **Всего тестов**: 17 тестовых файлов
+- **Общее покрытие**: ~70%
 
-### Покрытие по компонентам
-- **SubtitleList**: 56.81% - тесты фильтрации и избранного
-- **SubtitlePreview**: 82.17% ✅ - хорошо покрыт
-- **SubtitleGroup**: ✅ Полностью покрыт
-
-### Покрытие утилит
-- **css-styles.ts**: 92.06% ✅ - отличное покрытие
-- **subtitle-processor.ts**: ✅ Тесты добавлены
-
-### Покрытие хуков
-- **use-subtitle-styles.ts**: ✅ Тесты добавлены
-- **use-subtitles-import.ts**: ✅ Тесты добавлены
+### Тестовое покрытие по категориям
+- **Компоненты**: 5 тестовых файлов
+  - SubtitleGroup, SubtitlePreview (82.17%), SubtitleSyncTools
+  - SubtitleToolbar, SubtitleTools
+- **Хуки**: 3 тестовых файла
+  - use-subtitle-styles, use-subtitles-export, use-subtitles-import
+- **Утилиты**: 5 тестовых файлов
+  - css-styles (92.06% ✅), subtitle-exporters, subtitle-importers
+  - subtitle-parsers, subtitle-processor
+- **Типы**: 1 тестовый файл
+- **Данные**: 1 тестовый файл
 
 ## 🔌 Интеграция с системой
 
@@ -334,148 +421,127 @@ function ResourceBrowser() {
 }
 ```
 
-## 💡 Примеры использования
+## 💡 Использование модуля
 
-### Создание превью стиля
+### Основные возможности
+
+Модуль субтитров предоставляет полный набор инструментов для работы с субтитрами:
+- 📝 **12 профессиональных стилей** в 6 категориях
+- 🎨 **CSS анимации** для динамических эффектов
+- 📄 **Импорт/экспорт** форматов SRT, VTT, ASS
+- 🤖 **AI транскрипция** через Whisper API
+- 🎯 **Автосинхронизация** с аудио
+- 🌍 **15 языков** интерфейса
+
+### Быстрый старт
+
 ```typescript
-import { subtitleStyleToCSS } from '@/features/subtitles/utils/css-styles';
+import { useSubtitles, SubtitlePreview } from '@/features/subtitles';
 
-function StylePreview({ style }: { style: SubtitleStyle }) {
-  const cssStyle = subtitleStyleToCSS(style);
-
-  return (
-    <div className="preview-container">
-      <div className="subtitle-preview" style={cssStyle}>
-        Пример текста субтитров
-      </div>
-      <div className="style-info">
-        <h4>{style.labels.ru}</h4>
-        <p>Категория: {style.category}</p>
-        <p>Сложность: {style.complexity}</p>
-      </div>
-    </div>
-  );
-}
-```
-
-### Работа с анимациями
-```typescript
-import { subtitleAnimations } from '@/features/subtitles/utils/css-styles';
-
-function AnimatedSubtitle({ text, animationType }) {
-  return (
-    <div
-      className="animated-subtitle"
-      style={{
-        animation: `${animationType} 2s ease-in-out infinite`
-      }}
-    >
-      {text}
-    </div>
-  );
-}
-```
-
-### Комплексная фильтрация
-```typescript
-import { useState } from 'react';
-import { useSubtitleStyles, useSubtitleStylesSearch } from '@/features/subtitles';
-
-function AdvancedStyleBrowser() {
-  const { styles, loading, error } = useSubtitleStyles();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-
-  const categoryFiltered = selectedCategory === 'all'
-    ? styles
-    : styles.filter(s => s.category === selectedCategory);
-
-  const searchResults = useSubtitleStylesSearch(searchQuery, 'ru');
-  const finalResults = searchQuery
-    ? searchResults.filter(s => selectedCategory === 'all' || s.category === selectedCategory)
-    : categoryFiltered;
+function MyComponent() {
+  const { subtitles, loading, error } = useSubtitles();
 
   return (
     <div>
-      <input
-        type="text"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        placeholder="Поиск стилей..."
-      />
-      
-      <select
-        value={selectedCategory}
-        onChange={(e) => setSelectedCategory(e.target.value)}
-      >
-        <option value="all">Все категории</option>
-        <option value="basic">Базовые</option>
-        <option value="cinematic">Кинематографические</option>
-        <option value="stylized">Стилизованные</option>
-        <option value="minimal">Минималистичные</option>
-        <option value="animated">Анимированные</option>
-        <option value="modern">Современные</option>
-      </select>
-
-      <div>
-        Найдено: {finalResults.length} стилей
-        {finalResults.map(style => (
-          <div key={style.id} className="border p-2 m-1">
-            <h4>{style.labels.ru}</h4>
-            <p>{style.description.ru}</p>
-            <span className="text-sm text-gray-500">
-              {style.category} • {style.complexity}
-            </span>
-          </div>
-        ))}
-      </div>
+      {subtitles.map(style => (
+        <SubtitlePreview key={style.id} style={style} />
+      ))}
     </div>
   );
 }
 ```
 
-## 🚀 Производительность и оптимизация
+### Примеры использования
 
-### Реализованные оптимизации
-- ✅ Мемоизация CSS стилей в компонентах
-- ✅ Ленивая загрузка данных субтитров
-- ✅ Оптимизированные алгоритмы поиска и фильтрации
-- ✅ TypeScript строгая типизация для производительности
+#### Импорт субтитров
+```typescript
+import { useSubtitlesImport } from '@/features/subtitles';
 
-### Планируемые улучшения
-- [ ] Виртуализация списка для больших наборов данных
-- [ ] Кеширование превью стилей
-- [ ] Оптимизация рендеринга групп категорий
+function ImportButton() {
+  const { importSubtitleFile, isImporting } = useSubtitlesImport();
 
-## 📋 Roadmap и TODO
+  return (
+    <button onClick={importSubtitleFile} disabled={isImporting}>
+      Импортировать субтитры
+    </button>
+  );
+}
+```
 
-### Краткосрочные задачи
-1. **Улучшение тестового покрытия**:
-   - [x] Тесты для всех хуков ✅
-   - [x] Покрытие утилит на 90%+ ✅
-   - [ ] Повышение покрытия SubtitleList до 80%
+#### Экспорт субтитров
+```typescript
+import { useSubtitlesExport } from '@/features/subtitles';
 
-2. **Функциональные улучшения**:
-   - [ ] Предпросмотр анимаций в реальном времени
-   - [ ] Экспорт/импорт пользовательских стилей
-   - [ ] Редактор стилей субтитров
+function ExportButton() {
+  const { exportSubtitleFile, isExporting } = useSubtitlesExport();
 
-### Долгосрочные планы
-1. **Интеграция с Timeline**:
-   - [ ] Отображение субтитров на временной шкале
-   - [ ] Синхронизация с VideoPlayer
-   - [ ] Редактирование времени показа
+  return (
+    <button onClick={() => exportSubtitleFile('srt')} disabled={isExporting}>
+      Экспорт в SRT
+    </button>
+  );
+}
+```
 
-2. **Расширенная функциональность**:
-   - [ ] Создание новых стилей субтитров
-   - [ ] Экспорт в форматы SRT, VTT, ASS
-   - [ ] Автоматическая генерация субтитров
+#### AI транскрипция
+```typescript
+import { SubtitleAITools } from '@/features/subtitles';
 
-3. **Оптимизация**:
-   - [ ] Виртуализация для работы с тысячами стилей
-   - [ ] WebWorker для обработки больших файлов субтитров
-   - [ ] Кеширование и оффлайн режим
+function TranscriptionPanel() {
+  return <SubtitleAITools />;
+}
+```
+
+## 🚀 Возможности
+
+### ✅ Реализовано
+
+1. **Стили субтитров**
+   - 12 профессиональных стилей в 6 категориях
+   - Поддержка CSS анимаций и эффектов
+   - Превью стилей с демо-текстом
+   - Группировка по категориям
+
+2. **Импорт/экспорт**
+   - Полная поддержка SRT, VTT, ASS
+   - Автоопределение формата
+   - Сохранение стилей и позиционирования
+   - Batch операции
+
+3. **AI функции**
+   - Транскрипция через OpenAI Whisper
+   - Поддержка локальных моделей
+   - Интеграция Faster Whisper (4x быстрее)
+   - Автоопределение языка
+   - Word-level timestamps
+
+4. **Интеграция**
+   - Полная интеграция с Timeline
+   - Синхронизация с VideoPlayer
+   - Редактирование на таймлайне
+   - Визуальные индикаторы
+
+### 🚧 В разработке
+
+- Предпросмотр анимаций в реальном времени
+- Редактор пользовательских стилей
+- Расширение до 72 стилей
+- Виртуализация для больших списков
+- WebWorker для обработки файлов
+
+## 📖 Документация
+
+- **Для пользователей**: См. этот файл
+- **Для разработчиков**: См. [DEV.md](./DEV.md)
+- **API Reference**: См. раздел "API и хуки" выше
+- **Примеры кода**: См. раздел "Использование модуля"
 
 ## 🎯 Заключение
 
-Модуль субтитров представляет собой полнофункциональную систему для работы с профессиональными стилями субтитров в Timeline Studio. Он готов для использования в продакшене и обладает хорошим тестовым покрытием, современной архитектурой и удобным API.
+Модуль субтитров представляет собой полнофункциональную систему для работы с профессиональными стилями субтитров в Timeline Studio. Он готов для использования в продакшене и обладает современной архитектурой, удобным API и отличной производительностью.
+
+---
+
+**Версия:** 0.68.1
+**Последнее обновление:** 7 августа 2025
+**Разработано с ❤️ командой Timeline Studio**

@@ -171,6 +171,7 @@ describe("Clip", () => {
       const subtitleTrack = { ...baseTrack, type: "subtitle" as const }
       const subtitleClip: SubtitleClip = {
         ...baseClip,
+        type: "subtitle",
         text: "Test subtitle",
         style: {},
       }
@@ -194,6 +195,7 @@ describe("Clip", () => {
       const titleTrack = { ...baseTrack, type: "title" as const }
       const titleClip: SubtitleClip = {
         ...baseClip,
+        type: "subtitle",
         text: "Test title",
         style: {},
       }
@@ -254,6 +256,7 @@ describe("Clip", () => {
       const subtitleTrack = { ...baseTrack, type: "subtitle" as const }
       const selectedSubtitleClip: SubtitleClip = {
         ...baseClip,
+        type: "subtitle",
         text: "Test",
         style: {},
         isSelected: true,
