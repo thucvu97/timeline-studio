@@ -13,51 +13,104 @@ Timeline feature для видеоредактора с новой архите�
 
 ## 📁 Структура файлов
 
-### ✅ Реализованные файлы
-
 ```
 src/features/timeline/
-├── components/
-│   ├── timeline.tsx ✅
-│   └── index.ts ✅
-├── hooks/ ✅
-│   ├── use-tracks.ts ✅
-│   ├── use-clips.ts ✅
-│   ├── use-timeline-selection.ts ✅
-│   └── index.ts ✅
-├── services/ ✅
-│   └── timeline-machine.ts ✅ (20 тестов прошли)
-├── timeline-provider.tsx ✅
-├── tests/
-│   └── timeline-machine.test.ts ✅
-└── index.ts ✅
+├── components/                    # UI компоненты
+│   ├── ai-analysis/              # AI анализ клипов
+│   ├── ai-markers/               # AI маркеры
+│   ├── ai-suggestions/           # AI предложения
+│   ├── clip/                     # Клипы (video, audio, subtitle)
+│   ├── clip-groups/              # Группировка клипов
+│   ├── edit-tools/               # Инструменты редактирования
+│   ├── jl-cuts/                  # J/L-срезы
+│   ├── markers/                  # Маркеры на таймлайне
+│   ├── person-indicators/        # Индикаторы персон
+│   ├── persons-panel/            # Панель персон
+│   ├── speed-ramping/            # Управление скоростью
+│   ├── timeline-content.tsx      # Основной контент
+│   ├── timeline-scale.tsx        # Временная шкала
+│   └── ...                       # Другие компоненты
+│
+├── hooks/                        # React хуки
+│   ├── use-timeline.ts          # Главный хук для работы с Timeline
+│   ├── use-clips.ts             # Управление клипами
+│   ├── use-tracks.ts            # Управление треками
+│   ├── use-timeline-selection.ts # Управление выделением
+│   ├── use-clip-groups.tsx      # Группировка клипов
+│   ├── use-jl-cuts.ts           # J/L-срезы
+│   ├── use-markers.ts           # Маркеры
+│   └── ...                      # Другие хуки
+│
+├── services/                    # Бизнес-логика и сервисы
+│   ├── providers/              # Модульные провайдеры (новая архитектура)
+│   │   ├── timeline-provider.tsx      # Главный провайдер
+│   │   ├── timeline-project-provider.tsx
+│   │   ├── timeline-selection-provider.tsx
+│   │   ├── timeline-playback-provider.tsx
+│   │   ├── timeline-clips-provider.tsx
+│   │   ├── timeline-tracks-provider.tsx
+│   │   └── timeline-effects-provider.tsx
+│   ├── timeline-ui-machine.ts  # XState машина для UI
+│   ├── speed-ramping-service.ts # Сервис управления скоростью
+│   ├── timeline-player-sync.ts # Синхронизация с плеером
+│   └── ...                     # Другие сервисы
+│
+├── types/                      # TypeScript типы
+│   ├── timeline.ts            # Основные типы Timeline
+│   ├── clip-groups.ts         # Типы для групп
+│   ├── markers.ts             # Типы маркеров
+│   ├── speed-ramping.ts       # Типы для скорости
+│   └── ...                    # Другие типы
+│
+├── utils/                     # Утилиты
+│   ├── clip-operations.ts     # Операции с клипами
+│   ├── timeline-to-project.ts # Конвертация данных
+│   ├── snap-engine.ts         # Привязка элементов
+│   └── ...                    # Другие утилиты
+│
+├── __tests__/                 # Тесты (1793 тестов)
+│   ├── components/            # Тесты компонентов
+│   ├── hooks/                 # Тесты хуков
+│   ├── services/              # Тесты сервисов
+│   └── utils/                 # Тесты утилит
+│
+├── README.md                  # Документация функциональности
+├── DEV.md                     # Техническая документация (этот файл)
+└── index.ts                   # Точка входа модуля
 
-src/types/
-└── timeline.ts ✅ (новая архитектура)
-
-src/lib/timeline/
-└── utils.ts ✅ (утилиты для работы с данными)
-
-examples/
-└── timeline-usage.ts ✅ (примеры использования)
-
-docs/
-└── timeline-architecture.md ✅ (документация архитектуры)
+📚 Дополнительная документация в поддиректориях:
+- components/README.md    # Документация компонентов
+- hooks/README.md        # Документация хуков
+- services/README.md     # Документация сервисов
+- services/providers/README.md # Документация провайдеров
+- types/README.md        # Документация типов
+- utils/README.md        # Документация утилит
 ```
 
-## 🏗️ Архитектура компонентов
+## 🏗️ Архитектура Timeline
 
-### Timeline (корневой компонент)
+### Модульная структура
 
-**Файл**: `components/timeline.tsx`
-**Статус**: ✅ Базовая структура готова
+Timeline построен на модульной архитектуре с четким разделением ответственности:
 
-**Текущая реализация**:
+1. **Components** - UI компоненты для отображения
+2. **Hooks** - React хуки для бизнес-логики
+3. **Services** - Сервисы и провайдеры состояния
+4. **Types** - TypeScript типы и интерфейсы
+5. **Utils** - Вспомогательные функции
 
-- ResizablePanelGroup с тремя панелями
-- TimelineResources (левая панель)
-- Основная область (средняя панель)
-- AiChat (правая панель)
+### Поток данных
+
+```
+User Action → Hook → Service/Provider → State Update → Component Re-render
+```
+
+### Ключевые принципы
+
+- ✅ **Модульность** - каждый модуль отвечает за свою область
+- ✅ **Типобезопасность** - строгая типизация всех данных
+- ✅ **Тестируемость** - 100% покрытие тестами
+- ✅ **Производительность** - оптимизация ре-рендеров
 
 **Требует доработки**:
 
