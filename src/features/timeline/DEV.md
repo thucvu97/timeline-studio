@@ -20,9 +20,9 @@ Timeline feature для видеоредактора с новой архите�
 ### ✅ Частично реализовано
 - **Timeline компоненты**: 70% (основные есть, нужна оптимизация)
 - **Редактирование клипов**: 77% (split, trim, speed ramping, J/L cuts хорошо реализованы)
+- **Интеграция с Resources**: 35% (drag & drop медиа работает, эффекты/фильтры частично)
 
 ### ❌ Не реализовано
-- **Интеграция с Resources**: 0% (применение эффектов/фильтров) 
 - **Многодорожечное аудио**: 0% (микшер, аудио эффекты)
 - **Экспорт в видео**: 0% (FFmpeg интеграция)
 
@@ -894,3 +894,157 @@ src/features/timeline/services/timeline-transition-manager.ts - Переходы
 - ✅ **XState integration** - управление сложными состояниями
 - ✅ **Testing coverage** - хорошее покрытие тестами
 - ✅ **Performance optimization** - оптимизированные операции
+
+### ✅ АНАЛИЗ: Интеграция с Resources (35%)
+
+**Детальная оценка интеграции Resources модуля с Timeline**
+
+#### 🎯 Drag & Drop инфраструктура - 85% (Отлично реализовано)
+```typescript
+// Ключевые файлы
+src/features/timeline/services/drag-drop-bridge.ts - Мост между системами
+src/features/resources/components/resources-panel.tsx - Resources drag support
+src/features/timeline/components/track/track-content.tsx - Drop zones
+```
+
+**Реализованные функции:**
+- ✅ **Resources Panel drag**: Полная поддержка всех типов ресурсов
+- ✅ **Multi-format support**: media, music, effect, filter, transition, template
+- ✅ **DragDropBridge integration**: Медиа файлы полностью работают
+- ✅ **Multi-select drag**: Перетаскивание множественных медиа файлов
+- ✅ **Type validation**: Проверка совместимости типов при drop
+
+#### 🎯 Media Resources Integration - 90% (Отлично работает)
+```typescript
+// Ключевые файлы  
+src/features/resources/services/resources-provider-v2.tsx - Backend sync
+src/features/timeline/hooks/use-timeline-actions.ts - Media actions
+src/features/browser/components/preview/video-preview.tsx - Media drag
+```
+
+**Реализованные функции:**
+- ✅ **Media drag & drop**: Video/Audio/Image файлы полностью работают
+- ✅ **Automatic track creation**: Создание треков по типу медиа
+- ✅ **Backend synchronization**: Медиа синхронизируется с ProjectState
+- ✅ **Position calculation**: Точное позиционирование на timeline
+- ✅ **Resources Provider V2**: Централизованное управление
+
+#### 🎯 Effects/Filters Application - 20% (Только заглушки)
+```typescript
+// Файлы с заглушками
+src/features/timeline/services/providers/timeline-effects-provider.tsx
+```
+
+**Текущее состояние:**
+- ❌ **Effect application**: Только заглушки и консольные логи
+- ❌ **Filter application**: Backend команды не реализованы
+- ❌ **Visual feedback**: Нет UI для управления примененными эффектами
+- ✅ **Effect indicators**: Индикаторы на клипах показываются статично
+- ❌ **Drop zones на клипах**: VideoClip не поддерживает droppable
+
+#### 🎯 Transitions System - 15% (Базовая инфраструктура)
+```typescript
+// Файлы переходов
+src/features/timeline/services/timeline-transition-manager.ts - Менеджер
+src/features/timeline/components/transition/timeline-transition.tsx - UI
+```
+
+**Реализованные функции:**
+- ✅ **Transition data structure**: Типы и интерфейсы готовы
+- ✅ **Basic UI components**: Компоненты переходов существуют
+- ❌ **Transition drop zones**: Нет drop zones между клипами
+- ❌ **Transition application**: Только заглушки для применения
+- ❌ **Visual transition editing**: Нет UI для редактирования переходов
+
+#### 🎯 Clip Resource Management - 30% (Частично реализовано)
+```typescript
+// Ключевые компоненты
+src/features/timeline/components/clip/video-clip.tsx - Индикаторы ресурсов
+src/features/timeline/components/clip-effects-panel.tsx - Панель эффектов
+```
+
+**Реализованные функции:**
+- ✅ **Resource indicators**: Визуальные индикаторы эффектов на клипах
+- ✅ **Effects panel UI**: Панель управления эффектами через диалог
+- ❌ **Direct resource management**: Нет прямого управления на клипах
+- ❌ **Drag to remove**: Нельзя удалить ресурс drag & drop
+- ❌ **Resource parameters**: Нет UI для настройки параметров ресурсов
+
+### 📊 Детальная оценка по компонентам
+
+| **Компонент** | **%** | **Статус** |
+|---------------|-------|------------|
+| Resources Panel Drag | 95% | ✅ Полная поддержка всех типов |
+| Timeline Media Drop | 90% | ✅ Медиа файлы работают отлично |
+| Backend Media Sync | 85% | ✅ ProjectState интеграция |
+| Effects Application | 20% | ❌ Только заглушки и UI |
+| Filters Application | 20% | ❌ Только заглушки и UI |
+| Transitions System | 15% | ❌ Базовая инфраструктура |
+| Clip Resource UI | 30% | ⚠️ Индикаторы есть, управления нет |
+| Resource Parameters | 10% | ❌ Нет UI для настройки |
+
+### 🎯 Приоритеты для улучшения интеграции
+
+#### **Высокий приоритет (для достижения 70%)**
+```typescript
+// Критически важные улучшения:
+
+1. Реализовать droppable zones на клипах:
+   - Добавить useDroppable в VideoClip/AudioClip компоненты
+   - Обработка drop эффектов/фильтров на клипы
+   - Визуальная обратная связь при hover
+
+2. Доработать Timeline Effects Provider:
+   - Реализовать реальные backend команды
+   - Интегрировать с ProjectState для persistence
+   - Добавить apply/remove/update операции
+
+3. Transition drop zones:
+   - Drop zones между клипами для переходов
+   - Auto-generated transition points
+   - Transition preview и editing UI
+```
+
+#### **Средний приоритет (для достижения 85%)**
+```typescript
+// Улучшения пользовательского опыта:
+
+1. Resource management UI:
+   - Прямое управление ресурсами на клипах
+   - Parameter tuning для эффектов/фильтров
+   - Visual preview эффектов при hover
+
+2. Enhanced drag & drop:
+   - Preview эффектов при drag over клип
+   - Smart drop zones (различные области клипа)
+   - Batch application ресурсов на множественные клипы
+```
+
+#### **Низкий приоритет (для достижения 95%)**
+```typescript
+// Продвинутые функции:
+
+1. Advanced resource features:
+   - Resource presets и пользовательские наборы
+   - Keyframe анимация параметров ресурсов
+   - Resource templates и smart suggestions
+
+2. Performance optimizations:
+   - Lazy loading heavy effects
+   - GPU acceleration для filters
+   - Real-time preview optimization
+```
+
+### 💡 Рекомендации по улучшению
+
+**Архитектурные решения:**
+- ✅ **Текущий DragDropBridge** - отличное решение, расширить на эффекты/фильтры
+- ✅ **Resources Provider V2** - хорошая база, добавить effects/filters sync
+- ⚠️ **Timeline Effects Provider** - требует полной реализации
+
+**Пользовательский опыт:**
+- Добавить visual feedback при drag effects на клипы
+- Реализовать contextual menus для resource management
+- Улучшить indication примененных ресурсов на клипах
+
+**Общий вывод**: Медиа интеграция работает отлично (90%), но эффекты/фильтры/переходы требуют значительной доработки для полноценной функциональности.
