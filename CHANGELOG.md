@@ -1,3 +1,16 @@
+# [0.69.0](https://github.com/chatman-media/timeline-studio/compare/v0.68.1...v0.69.0) (2025-08-06)
+
+
+### Bug Fixes
+
+* **multicam:** исправлены типы и ошибки в тестах мультикамеры ([250c123](https://github.com/chatman-media/timeline-studio/commit/250c123b2df54dee128f9de9a0239537136591ed))
+* **tests:** исправлены падающие тесты в timeline и subtitles ([9a6cd52](https://github.com/chatman-media/timeline-studio/commit/9a6cd5292b6eef21f1212c750b1cd1b8ffab486a))
+
+
+### Features
+
+* добавлены новые тесты и компоненты транскрипции ([3223ca8](https://github.com/chatman-media/timeline-studio/commit/3223ca8b225e36c7086329ca9fc47090f8efb313))
+
 ## [0.68.1](https://github.com/chatman-media/timeline-studio/compare/v0.68.0...v0.68.1) (2025-08-06)
 
 
