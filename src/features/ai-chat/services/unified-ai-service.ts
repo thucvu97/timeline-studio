@@ -1,131 +1,39 @@
 /**
  * Унифицированный сервис для работы со всеми AI провайдерами
- * Обеспечивает единую точку входа, fallback и балансировку нагрузки
+ * Рефакторинг: разделен на отдельные сервисы для лучшей архитектуры
  */
 
 import { contentIntelligenceTools } from "../tools/content-intelligence-tools"
 import { personIdentificationTools } from "../tools/person-identification-tools"
 import type { AiMessage } from "../types/ai-message"
 import type { StreamingOptions } from "../types/streaming"
+import { AIResponseProcessor, type UnifiedResponse } from "./ai-response-processor"
 import { CLAUDE_MODELS, ClaudeService } from "./claude-service"
+import { ContentIntelligenceService, type AIServiceInterface, type MediaInput, type UnifiedContentAnalysis } from "./content-intelligence-service"
 import { DEEPSEEK_MODELS, DeepSeekService } from "./deepseek-service"
+import { ModelConfigurationManager, type AIProvider, type ModelConfig } from "./model-configuration-manager"
 import { OllamaService } from "./ollama-service"
 import { AI_MODELS, OpenAiService } from "./open-ai-service"
+import { ProviderManager } from "./provider-manager"
 
-// Типы AI провайдеров
-export type AIProvider = "claude" | "openai" | "deepseek" | "ollama"
+// Экспортируем типы из отдельных сервисов
+export type { AIProvider, ModelConfig } from "./model-configuration-manager"
+export type { UnifiedResponse } from "./ai-response-processor"
+export type { MediaInput, UnifiedContentAnalysis } from "./content-intelligence-service"
 
-// Конфигурация модели
-export interface ModelConfig {
-  id: string
-  name: string
-  provider: AIProvider
-  isLocal: boolean
-  supportsStreaming: boolean
-  supportsTools: boolean
-  maxTokens: number
-  description?: string
-}
+// Все доступные модели теперь управляются через ModelConfigurationManager
+export const UNIFIED_MODELS: Record<string, ModelConfig> = {}
 
-// Все доступные модели
-export const UNIFIED_MODELS: Record<string, ModelConfig> = {
-  // Claude модели
-  [CLAUDE_MODELS.CLAUDE_4_SONNET]: {
-    id: CLAUDE_MODELS.CLAUDE_4_SONNET,
-    name: "Claude 4 Sonnet",
-    provider: "claude",
-    isLocal: false,
-    supportsStreaming: true,
-    supportsTools: true,
-    maxTokens: 200000,
-    description: "Самая производительная модель Claude",
-  },
-  [CLAUDE_MODELS.CLAUDE_4_OPUS]: {
-    id: CLAUDE_MODELS.CLAUDE_4_OPUS,
-    name: "Claude 4 Opus",
-    provider: "claude",
-    isLocal: false,
-    supportsStreaming: true,
-    supportsTools: true,
-    maxTokens: 200000,
-    description: "Премиум модель Claude с максимальными возможностями",
-  },
-
-  // OpenAI модели
-  [AI_MODELS.GPT_4]: {
-    id: AI_MODELS.GPT_4,
-    name: "GPT-4",
-    provider: "openai",
-    isLocal: false,
-    supportsStreaming: true,
-    supportsTools: false,
-    maxTokens: 8192,
-    description: "Мощная модель OpenAI GPT-4",
-  },
-  [AI_MODELS.GPT_4O]: {
-    id: AI_MODELS.GPT_4O,
-    name: "GPT-4o",
-    provider: "openai",
-    isLocal: false,
-    supportsStreaming: true,
-    supportsTools: false,
-    maxTokens: 128000,
-    description: "Мультимодальная модель GPT-4 Omni",
-  },
-  [AI_MODELS.GPT_3_5]: {
-    id: AI_MODELS.GPT_3_5,
-    name: "GPT-3.5 Turbo",
-    provider: "openai",
-    isLocal: false,
-    supportsStreaming: true,
-    supportsTools: false,
-    maxTokens: 16385,
-    description: "Быстрая и экономичная модель",
-  },
-  [AI_MODELS.O3]: {
-    id: AI_MODELS.O3,
-    name: "o3",
-    provider: "openai",
-    isLocal: false,
-    supportsStreaming: true,
-    supportsTools: false,
-    maxTokens: 128000,
-    description: "Новейшая модель OpenAI o3",
-  },
-
-  // DeepSeek модели
-  [DEEPSEEK_MODELS.DEEPSEEK_R1]: {
-    id: DEEPSEEK_MODELS.DEEPSEEK_R1,
-    name: "DeepSeek R1",
-    provider: "deepseek",
-    isLocal: false,
-    supportsStreaming: true,
-    supportsTools: false,
-    maxTokens: 65536,
-    description: "Последняя модель DeepSeek с улучшенными возможностями рассуждения",
-  },
-  [DEEPSEEK_MODELS.DEEPSEEK_CHAT]: {
-    id: DEEPSEEK_MODELS.DEEPSEEK_CHAT,
-    name: "DeepSeek Chat",
-    provider: "deepseek",
-    isLocal: false,
-    supportsStreaming: true,
-    supportsTools: false,
-    maxTokens: 32768,
-    description: "Базовая модель DeepSeek для общения",
-  },
-  [DEEPSEEK_MODELS.DEEPSEEK_CODER]: {
-    id: DEEPSEEK_MODELS.DEEPSEEK_CODER,
-    name: "DeepSeek Coder",
-    provider: "deepseek",
-    isLocal: false,
-    supportsStreaming: true,
-    supportsTools: false,
-    maxTokens: 32768,
-    description: "Специализированная модель для программирования",
-  },
-
-  // Ollama модели (будут добавлены динамически)
+// Функция для получения статических моделей (для обратной совместимости)
+export function getUnifiedModels(): Record<string, ModelConfig> {
+  const modelManager = ModelConfigurationManager.create({
+    isClaudeAvailable: () => ClaudeService.getInstance().hasApiKey(),
+    isOpenAIAvailable: (model: string) => OpenAiService.getInstance().hasApiKey(model),
+    isDeepSeekAvailable: () => DeepSeekService.getInstance().hasApiKey(),
+    isOllamaAvailable: () => OllamaService.getInstance().isAvailable(),
+    getOllamaModels: () => OllamaService.getInstance().getInstalledModels()
+  })
+  return modelManager.getStaticModels()
 }
 
 // Опции для запроса
@@ -137,245 +45,7 @@ export interface UnifiedRequestOptions {
   retryAttempts?: number
 }
 
-// Результат запроса
-export interface UnifiedResponse {
-  content: string
-  model: string
-  provider: AIProvider
-  usage?: {
-    promptTokens?: number
-    completionTokens?: number
-    totalTokens?: number
-  }
-  responseTime: number
-}
-
-// Content Intelligence специфические типы
-export interface MediaInput {
-  path: string
-  filename: string
-  duration?: number
-  type: "video" | "audio" | "image"
-}
-
-export interface UnifiedContentAnalysis {
-  id: string
-  mediaFile: MediaInput
-  scenes: SceneAnalysis[]
-  classification: ContentClassification
-  script?: GeneratedScript
-  platformVariants?: PlatformVariant[]
-  qualityMetrics: QualityMetrics
-  insights: ContentInsights
-}
-
-export interface SceneAnalysis {
-  id: string
-  startTime: number
-  endTime: number
-  type: "dialog" | "action" | "landscape" | "closeup" | "transition"
-  confidence: number
-  keyFrames: string[]
-  description: string
-  objects?: DetectedObject[]
-  persons?: DetectedPerson[]
-}
-
-export interface ContentClassification {
-  genre: string
-  style: string
-  emotion: string
-  audience: string
-  technicalQuality: string
-  contentRating: string
-  confidence: Record<string, number>
-}
-
-export interface GeneratedScript {
-  id: string
-  title: string
-  style: string
-  structure: string
-  tone: string
-  scenes: ScriptScene[]
-  shotList?: ShotListItem[]
-  metadata: ScriptMetadata
-}
-
-export interface ScriptScene {
-  id: string
-  sceneNumber: number
-  location: string
-  timeOfDay: string
-  description: string
-  dialogue?: DialogueLine[]
-  action: string[]
-  notes: string[]
-}
-
-export interface DialogueLine {
-  character: string
-  text: string
-  direction?: string
-}
-
-export interface ShotListItem {
-  shotNumber: number
-  type: "wide" | "medium" | "close-up" | "extreme-close-up" | "over-shoulder" | "point-of-view" | "establishing"
-  description: string
-  cameraMovement?: string
-  duration: number
-  notes?: string
-}
-
-export interface ScriptMetadata {
-  estimatedDuration: number
-  targetAudience: string
-  genre: string
-  createdAt: string
-  version: string
-}
-
-export interface PlatformVariant {
-  platform: string
-  adaptations: PlatformAdaptation[]
-  seoData?: SEOData
-  variants?: ContentVariant[]
-}
-
-export interface PlatformAdaptation {
-  type: "title" | "description" | "tags" | "duration" | "format" | "content"
-  original: string
-  adapted: string
-  reason: string
-}
-
-export interface SEOData {
-  title: string
-  description: string
-  tags: string[]
-  thumbnail?: string
-  category: string
-}
-
-export interface ContentVariant {
-  id: string
-  type: "tone_variation" | "length_variation" | "structure_variation" | "style_variation"
-  changes: string[]
-  targetMetric: string
-  description: string
-}
-
-export interface QualityMetrics {
-  technical: TechnicalQuality
-  narrative: NarrativeQuality
-  engagement: EngagementQuality
-  accessibility: AccessibilityQuality
-}
-
-export interface TechnicalQuality {
-  videoQuality: number
-  audioQuality: number
-  stabilization: number
-  colorCorrection: number
-  lighting: number
-  overallScore: number
-}
-
-export interface NarrativeQuality {
-  structure: number
-  pacing: number
-  clarity: number
-  engagement: number
-  overallScore: number
-}
-
-export interface EngagementQuality {
-  hookStrength: number
-  retentionPotential: number
-  emotionalImpact: number
-  callToActionEffectiveness: number
-  overallScore: number
-}
-
-export interface AccessibilityQuality {
-  subtitleQuality: number
-  audioClarity: number
-  visualClarity: number
-  languageSimplicity: number
-  overallScore: number
-}
-
-export interface ContentInsights {
-  summary: string
-  tags: string[]
-  strengths: string[]
-  weaknesses: string[]
-  highlights: string[]
-  suggestions: Array<{
-    type: string
-    priority: "low" | "medium" | "high"
-    description: string
-  }>
-  warnings: Array<{
-    type: string
-    severity: "low" | "medium" | "high"
-    description: string
-  }>
-  recommendations: Recommendation[]
-  marketingAngles: string[]
-  targetDemographics: string[]
-  qualityMetrics?: {
-    overall: number
-    sharpness: number
-    brightness: number
-    contrast: number
-    saturation: number
-  }
-  mood?: {
-    valence: number
-    arousal: number
-    dominantEmotion: string
-    intensity: number
-  }
-}
-
-export interface Recommendation {
-  category: "technical" | "narrative" | "engagement" | "marketing"
-  priority: "high" | "medium" | "low"
-  title: string
-  description: string
-  actionSteps: string[]
-  estimatedImpact: string
-}
-
-export interface DetectedObject {
-  class: string
-  confidence: number
-  boundingBox: BoundingBox
-  timestamp: number
-}
-
-export interface DetectedPerson {
-  id: string
-  confidence: number
-  boundingBox: BoundingBox
-  timestamp: number
-  characteristics?: PersonCharacteristics
-}
-
-export interface BoundingBox {
-  x: number
-  y: number
-  width: number
-  height: number
-}
-
-export interface PersonCharacteristics {
-  age?: "child" | "teenager" | "adult" | "senior"
-  gender?: "male" | "female" | "unknown"
-  emotion?: "happy" | "sad" | "angry" | "surprised" | "neutral"
-}
+// Content Intelligence типы теперь импортируются из отдельного сервиса
 
 /**
  * Унифицированный сервис для работы со всеми AI провайдерами

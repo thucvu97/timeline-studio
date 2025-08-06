@@ -1,127 +1,173 @@
 /**
- * AI инструмент для детектирования и разделения сцен
+ * AI инструмент для детектирования и разделения сцен с использованием BaseAITool
  */
 
 import type { TimelineProject } from "@/features/timeline/types/timeline"
-import type { ClaudeTool } from "../../services/claude-service"
-import type { TimelineToolResult } from "./types"
+import { BaseAITool, type AIToolExecutionOptions, type AIToolLogger, type AIToolResult } from "../base-ai-tool"
 
-export const detectAndSplitScenesTool: ClaudeTool = {
-  name: "detect_and_split_scenes",
-  description: "Детектирует смены сцен в клипах и разделяет их при необходимости",
-  input_schema: {
-    type: "object",
-    properties: {
-      targetClips: {
-        type: "array",
-        items: { type: "string" },
-        description: "ID клипов для анализа (пустой массив = все клипы)",
-      },
-      sensitivity: {
-        type: "string",
-        enum: ["low", "medium", "high"],
-        description: "Чувствительность детекции сцен",
-      },
-      autoSplit: {
-        type: "boolean",
-        description: "Автоматически разделить клипы по сценам",
-      },
-    },
-  },
+// Типы для детекции сцен
+export interface SceneDetectionInput {
+  targetClips?: string[]
+  sensitivity?: "low" | "medium" | "high"
+  autoSplit?: boolean
 }
 
-export async function detectAndSplitScenes(params: any): Promise<TimelineToolResult> {
-  const { targetClips = [], sensitivity = "medium", autoSplit = false } = params
+export interface SceneInfo {
+  startTime: number
+  endTime: number
+  duration: number
+  confidence: number
+  sceneType: "quick-cut" | "short-scene" | "medium-scene" | "long-scene"
+  clipRelativeStart: number
+  clipRelativeEnd: number
+}
 
-  try {
-    const { getTimelineStateAccess } = await import("./types")
+export interface DetectedScenes {
+  clipId: string
+  clipName: string
+  scenes: SceneInfo[]
+  confidence: number
+}
 
-    const timelineAccess = getTimelineStateAccess()
-    if (!timelineAccess) {
+export interface SplitResult {
+  success: boolean
+  newClips?: any[]
+  originalClipId: string
+  splitCount?: number
+  error?: string
+}
+
+export interface SceneDetectionResult {
+  detectedScenes: DetectedScenes[]
+  splitResults?: SplitResult[]
+  analysisSettings: {
+    sensitivity: string
+    autoSplit: boolean
+    analyzedClips: number
+    targetClips: string[] | "all"
+  }
+  statistics: {
+    totalScenesDetected: number
+    clipsWithScenes: number
+    averageScenesPerClip: string
+  }
+  warnings?: string[]
+  recommendations: string[]
+}
+
+/**
+ * AI инструмент для детектирования и разделения сцен с унифицированной обработкой ошибок
+ */
+export class SceneDetectionTool extends BaseAITool {
+  constructor(logger?: AIToolLogger) {
+    super("SceneDetectionTool", logger)
+  }
+
+  /**
+   * Детектирует сцены в видео клипах и при необходимости разделяет их
+   */
+  public async detectAndSplitScenes(
+    input: SceneDetectionInput,
+    options: AIToolExecutionOptions = {}
+  ): Promise<AIToolResult<SceneDetectionResult>> {
+    // Валидация входных данных
+    const validation = this.validateInput(input, (data) => {
+      const errors: string[] = []
+
+      if (data.sensitivity && !["low", "medium", "high"].includes(data.sensitivity)) {
+        errors.push(`Неподдерживаемый уровень чувствительности: ${data.sensitivity}`)
+      }
+
+      if (data.targetClips && !Array.isArray(data.targetClips)) {
+        errors.push("targetClips должен быть массивом строк")
+      }
+
+      return {
+        isValid: errors.length === 0,
+        errors
+      }
+    })
+
+    if (!validation.isValid) {
       return {
         success: false,
-        message: "Timeline state access не настроен",
-        errors: ["Доступ к timeline не сконфигурирован"],
+        errors: validation.errors,
+        message: "Ошибка валидации входных данных для детекции сцен",
+        executionTime: 0,
+        toolName: this.toolName
       }
     }
 
-    const currentProject = timelineAccess.getCurrentProject() as TimelineProject | null
-    if (!currentProject || !currentProject.id) {
-      return {
-        success: false,
-        message: "Нет активного проекта для детекции сцен",
-        errors: ["Откройте или создайте проект в timeline"],
-      }
-    }
+    // Устанавливаем значения по умолчанию
+    const targetClips = input.targetClips || []
+    const sensitivity = input.sensitivity || "medium"
+    const autoSplit = input.autoSplit || false
 
-    // Получаем все треки и клипы для анализа
-    const allTracks = [...currentProject.globalTracks]
-    currentProject.sections.forEach((section) => allTracks.push(...section.tracks))
-
-    // Находим видео клипы для анализа
-    const videoClips = getVideoClipsForAnalysis(allTracks, targetClips)
-
-    if (videoClips.length === 0) {
-      return {
-        success: false,
-        message: "Нет видео клипов для детекции сцен",
-        errors: ["Добавьте видео клипы на timeline или укажите корректные ID клипов"],
-      }
-    }
-
-    const detectedScenes: any[] = []
-    const splitResults: any[] = []
-    const recommendations: string[] = []
-    const warnings: string[] = []
-    let totalScenesDetected = 0
-
-    // Анализируем каждый клип
-    for (const clip of videoClips) {
-      const sceneAnalysis = await analyzeClipForScenes(clip, sensitivity)
-
-      if (sceneAnalysis.scenes.length > 0) {
-        detectedScenes.push({
-          clipId: clip.id,
-          clipName: clip.name || clip.mediaFile?.name || "Неизвестный клип",
-          scenes: sceneAnalysis.scenes,
-          confidence: sceneAnalysis.confidence,
+    // Выполняем детекцию сцен с унифицированной обработкой ошибок
+    return this.executeWithErrorHandling(
+      async (context) => {
+        context.logger?.("info", "Начинаем детекцию сцен", {
+          sensitivity,
+          autoSplit,
+          targetClipsCount: targetClips.length
         })
 
-        totalScenesDetected += sceneAnalysis.scenes.length
-
-        // Если включено автоматическое разделение
-        if (autoSplit) {
-          const splitResult = await splitClipByScenes(clip, sceneAnalysis.scenes)
-          splitResults.push(splitResult)
-
-          if (splitResult.success) {
-            recommendations.push(`Клип "${clip.name || clip.id}" разделен на ${splitResult.newClips.length} частей`)
-          } else {
-            warnings.push(`Не удалось разделить клип "${clip.name || clip.id}": ${splitResult.error}`)
-          }
-        } else {
-          recommendations.push(
-            `Найдено ${sceneAnalysis.scenes.length} сцен в клипе "${clip.name || clip.id}" - рассмотрите разделение`,
-          )
+        const { getTimelineStateAccess } = await import("./types")
+        const timelineAccess = getTimelineStateAccess()
+        
+        if (!timelineAccess) {
+          throw new Error("Timeline state access не настроен. Доступ к timeline не сконфигурирован")
         }
-      } else {
-        warnings.push(`Сцены не обнаружены в клипе "${clip.name || clip.id}"`)
-      }
-    }
 
-    // Генерируем дополнительные рекомендации
-    const additionalRecommendations = generateSceneDetectionRecommendations(detectedScenes, sensitivity, autoSplit)
-    recommendations.push(...additionalRecommendations)
+        const currentProject = timelineAccess.getCurrentProject() as TimelineProject | null
+        if (!currentProject || !currentProject.id) {
+          throw new Error("Нет активного проекта для детекции сцен. Откройте или создайте проект в timeline")
+        }
 
-    const success = totalScenesDetected > 0
+        // Получаем все треки и клипы для анализа
+        const allTracks = [...currentProject.globalTracks]
+        currentProject.sections.forEach((section) => allTracks.push(...section.tracks))
 
-    return {
-      success,
-      message: success
-        ? `Детекция сцен завершена: найдено ${totalScenesDetected} сцен в ${detectedScenes.length} клипах`
-        : "Сцены не обнаружены в анализируемых клипах",
-      data: {
-        analysis: {
+        // Находим видео клипы для анализа
+        const videoClips = this.getVideoClipsForAnalysis(allTracks, targetClips)
+
+        if (videoClips.length === 0) {
+          throw new Error("Нет видео клипов для детекции сцен. Добавьте видео клипы на timeline или укажите корректные ID клипов")
+        }
+
+        const detectedScenes: DetectedScenes[] = []
+        const splitResults: SplitResult[] = []
+        const warnings: string[] = []
+        let totalScenesDetected = 0
+
+        // Анализируем каждый клип
+        for (const clip of videoClips) {
+          const sceneAnalysis = await this.analyzeClipForScenes(clip, sensitivity)
+
+          if (sceneAnalysis.scenes.length > 0) {
+            detectedScenes.push({
+              clipId: clip.id,
+              clipName: clip.name || clip.mediaFile?.name || "Неизвестный клип",
+              scenes: sceneAnalysis.scenes,
+              confidence: sceneAnalysis.confidence,
+            })
+
+            totalScenesDetected += sceneAnalysis.scenes.length
+
+            // Если включено автоматическое разделение
+            if (autoSplit) {
+              const splitResult = await this.splitClipByScenes(clip, sceneAnalysis.scenes)
+              splitResults.push(splitResult)
+            }
+          } else {
+            warnings.push(`Сцены не обнаружены в клипе "${clip.name || clip.id}"`)
+          }
+        }
+
+        // Генерируем рекомендации
+        const recommendations = this.generateSceneDetectionRecommendations(detectedScenes, sensitivity, autoSplit)
+
+        const result: SceneDetectionResult = {
           detectedScenes,
           splitResults: autoSplit ? splitResults : undefined,
           analysisSettings: {
@@ -134,29 +180,40 @@ export async function detectAndSplitScenes(params: any): Promise<TimelineToolRes
             totalScenesDetected,
             clipsWithScenes: detectedScenes.length,
             averageScenesPerClip:
-              detectedScenes.length > 0 ? (totalScenesDetected / detectedScenes.length).toFixed(1) : 0,
+              detectedScenes.length > 0 ? (totalScenesDetected / detectedScenes.length).toFixed(1) : "0",
           },
-        },
-      },
-      warnings: warnings.length > 0 ? warnings : undefined,
-      nextActions: [
-        autoSplit ? "Просмотреть разделенные клипы" : "Применить автоматическое разделение",
-        "Настроить чувствительность детекции",
-        "Проанализировать отдельные сцены",
-        "Создать маркеры для найденных сцен",
-      ],
-    }
-  } catch (error) {
-    return {
-      success: false,
-      message: `Ошибка детекции сцен: ${error instanceof Error ? error.message : String(error)}`,
-      errors: [error instanceof Error ? error.message : String(error)],
-    }
-  }
-}
+          warnings: warnings.length > 0 ? warnings : undefined,
+          recommendations
+        }
 
-// Получает видео клипы для анализа
-function getVideoClipsForAnalysis(allTracks: any[], targetClips: string[]): any[] {
+        context.logger?.("info", "Детекция сцен завершена", {
+          totalScenesDetected,
+          clipsWithScenes: detectedScenes.length,
+          splitPerformed: autoSplit,
+          warningsCount: warnings.length
+        })
+
+        return result
+      },
+      {
+        timeout: options.timeout || 60000,
+        retries: options.retries || 1,
+        retryDelay: options.retryDelay || 1000,
+        enableLogging: options.enableLogging !== false,
+        metadata: {
+          sensitivity,
+          autoSplit,
+          targetClipsCount: targetClips.length,
+          ...options.metadata
+        }
+      }
+    )
+  }
+
+  /**
+   * Получает видео клипы для анализа
+   */
+  private getVideoClipsForAnalysis(allTracks: any[], targetClips: string[]): any[] {
   const videoClips: any[] = []
 
   for (const track of allTracks) {
@@ -172,21 +229,23 @@ function getVideoClipsForAnalysis(allTracks: any[], targetClips: string[]): any[
     }
   }
 
-  return videoClips
-}
+    return videoClips
+  }
 
-// Анализирует клип для детекции сцен
-async function analyzeClipForScenes(clip: any, sensitivity: string): Promise<any> {
+  /**
+   * Анализирует клип для детекции сцен
+   */
+  private async analyzeClipForScenes(clip: any, sensitivity: string): Promise<any> {
   const scenes: any[] = []
   const duration = clip.duration
   const confidence = getSensitivityThreshold(sensitivity)
 
   // Простая эвристика для детекции сцен на основе длительности
-  const minSceneDuration = getMinSceneDuration(sensitivity)
-  const maxSceneDuration = getMaxSceneDuration(sensitivity)
+    const minSceneDuration = this.getMinSceneDuration(sensitivity)
+    const maxSceneDuration = this.getMaxSceneDuration(sensitivity)
 
-  // Генерируем потенциальные точки смены сцен
-  const sceneChangePoints = generateSceneChangePoints(duration, minSceneDuration, maxSceneDuration, confidence)
+    // Генерируем потенциальные точки смены сцен
+    const sceneChangePoints = this.generateSceneChangePoints(duration, minSceneDuration, maxSceneDuration, confidence)
 
   // Создаем сцены на основе найденных точек
   let currentStart = 0
@@ -197,7 +256,7 @@ async function analyzeClipForScenes(clip: any, sensitivity: string): Promise<any
         endTime: clip.startTime + changePoint.time,
         duration: changePoint.time - currentStart,
         confidence: changePoint.confidence,
-        sceneType: determineSceneType(changePoint.time - currentStart),
+        sceneType: this.determineSceneType(changePoint.time - currentStart),
         clipRelativeStart: currentStart,
         clipRelativeEnd: changePoint.time,
       })
@@ -212,7 +271,7 @@ async function analyzeClipForScenes(clip: any, sensitivity: string): Promise<any
       endTime: clip.startTime + duration,
       duration: duration - currentStart,
       confidence: confidence,
-      sceneType: determineSceneType(duration - currentStart),
+      sceneType: this.determineSceneType(duration - currentStart),
       clipRelativeStart: currentStart,
       clipRelativeEnd: duration,
     })
@@ -222,12 +281,14 @@ async function analyzeClipForScenes(clip: any, sensitivity: string): Promise<any
     scenes,
     confidence,
     analysisMethod: "duration-based",
-    clipDuration: duration,
+      clipDuration: duration,
+    }
   }
-}
 
-// Разделяет клип по найденным сценам
-async function splitClipByScenes(clip: any, scenes: any[]): Promise<any> {
+  /**
+   * Разделяет клип по найденным сценам
+   */
+  private async splitClipByScenes(clip: any, scenes: any[]): Promise<any> {
   try {
     const newClips: any[] = []
 
@@ -261,20 +322,21 @@ async function splitClipByScenes(clip: any, scenes: any[]): Promise<any> {
       success: true,
       newClips,
       originalClipId: clip.id,
-      splitCount: newClips.length,
-    }
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : String(error),
-      originalClipId: clip.id,
+        splitCount: newClips.length,
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+        originalClipId: clip.id,
+      }
     }
   }
-}
 
-// Вспомогательные функции
-
-function getSensitivityThreshold(sensitivity: string): number {
+  /**
+   * Получает порог чувствительности
+   */
+  private getSensitivityThreshold(sensitivity: string): number {
   switch (sensitivity) {
     case "low":
       return 0.3
@@ -284,10 +346,13 @@ function getSensitivityThreshold(sensitivity: string): number {
       return 0.7
     default:
       return 0.5
+    }
   }
-}
 
-function getMinSceneDuration(sensitivity: string): number {
+  /**
+   * Получает минимальную длительность сцены
+   */
+  private getMinSceneDuration(sensitivity: string): number {
   switch (sensitivity) {
     case "low":
       return 10 // 10 секунд минимум
@@ -297,10 +362,13 @@ function getMinSceneDuration(sensitivity: string): number {
       return 2 // 2 секунды минимум
     default:
       return 5
+    }
   }
-}
 
-function getMaxSceneDuration(sensitivity: string): number {
+  /**
+   * Получает максимальную длительность сцены
+   */
+  private getMaxSceneDuration(sensitivity: string): number {
   switch (sensitivity) {
     case "low":
       return 120 // 2 минуты максимум
@@ -310,15 +378,18 @@ function getMaxSceneDuration(sensitivity: string): number {
       return 30 // 30 секунд максимум
     default:
       return 60
+    }
   }
-}
 
-function generateSceneChangePoints(
-  duration: number,
-  minDuration: number,
-  maxDuration: number,
-  confidence: number,
-): any[] {
+  /**
+   * Генерирует точки смены сцен
+   */
+  private generateSceneChangePoints(
+    duration: number,
+    minDuration: number,
+    maxDuration: number,
+    confidence: number,
+  ): any[] {
   const changePoints: any[] = []
   let currentTime = 0
 
@@ -336,10 +407,13 @@ function generateSceneChangePoints(
     }
   }
 
-  return changePoints
-}
+    return changePoints
+  }
 
-function determineSceneType(duration: number): string {
+  /**
+   * Определяет тип сцены по длительности
+   */
+  private determineSceneType(duration: number): "quick-cut" | "short-scene" | "medium-scene" | "long-scene" {
   if (duration < 5) {
     return "quick-cut"
   }
@@ -349,14 +423,17 @@ function determineSceneType(duration: number): string {
   if (duration < 45) {
     return "medium-scene"
   }
-  return "long-scene"
-}
+    return "long-scene"
+  }
 
-function generateSceneDetectionRecommendations(
-  detectedScenes: any[],
-  sensitivity: string,
-  autoSplit: boolean,
-): string[] {
+  /**
+   * Генерирует рекомендации по детекции сцен
+   */
+  private generateSceneDetectionRecommendations(
+    detectedScenes: DetectedScenes[],
+    sensitivity: string,
+    autoSplit: boolean,
+  ): string[] {
   const recommendations: string[] = []
 
   // Рекомендации на основе найденных сцен
@@ -401,5 +478,20 @@ function generateSceneDetectionRecommendations(
     recommendations.push("Проверьте точность детекции перед окончательным разделением")
   }
 
-  return recommendations
+    return recommendations
+  }
+}
+
+// Экспортируем готовый экземпляр для использования
+export const sceneDetectionTool = new SceneDetectionTool()
+
+// Функция-обертка для обратной совместимости
+export async function detectAndSplitScenes(params: any): Promise<AIToolResult<SceneDetectionResult>> {
+  const input: SceneDetectionInput = {
+    targetClips: params.targetClips,
+    sensitivity: params.sensitivity,
+    autoSplit: params.autoSplit
+  }
+  
+  return sceneDetectionTool.detectAndSplitScenes(input)
 }

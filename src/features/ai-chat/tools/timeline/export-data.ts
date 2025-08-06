@@ -1,48 +1,98 @@
 /**
- * AI инструмент для экспорта данных Timeline
+ * AI инструмент для экспорта данных Timeline с использованием BaseAITool
  */
 
 import type { TimelineProject } from "@/features/timeline/types/timeline"
-import type { ClaudeTool } from "../../services/claude-service"
-import type { TimelineToolResult } from "./types"
+import { BaseAITool, type AIToolExecutionOptions, type AIToolLogger, type AIToolResult } from "../base-ai-tool"
 
-export const exportTimelineDataTool: ClaudeTool = {
-  name: "export_timeline_data",
-  description: "Экспортирует данные таймлайна в различных форматах",
-  input_schema: {
-    type: "object",
-    properties: {
-      exportFormat: {
-        type: "string",
-        enum: ["json", "xml", "csv", "edl", "fcpxml", "davinci-resolve"],
-        description: "Формат экспорта данных",
-      },
-      includeData: {
-        type: "object",
-        properties: {
-          projectSettings: { type: "boolean" },
-          sections: { type: "boolean" },
-          tracks: { type: "boolean" },
-          clips: { type: "boolean" },
-          effects: { type: "boolean" },
-          transitions: { type: "boolean" },
-          metadata: { type: "boolean" },
-        },
-      },
-      exportScope: {
-        type: "string",
-        enum: ["full-project", "selected-elements", "time-range"],
-        description: "Область экспорта",
-      },
-    },
-    required: ["exportFormat"],
-  },
+// Типы для экспорта данных Timeline
+export interface TimelineExportInput {
+  exportFormat: "json" | "xml" | "csv" | "edl" | "fcpxml" | "davinci-resolve"
+  includeData?: {
+    projectSettings?: boolean
+    sections?: boolean
+    tracks?: boolean
+    clips?: boolean
+    effects?: boolean
+    transitions?: boolean
+    metadata?: boolean
+  }
+  exportScope?: "full-project" | "selected-elements" | "time-range"
 }
 
-export async function exportTimelineData(params: any): Promise<TimelineToolResult> {
-  const {
-    exportFormat = "json",
-    includeData = {
+export interface TimelineExportResult {
+  exportData: string
+  statistics: {
+    totalElements: number
+    includedSections: number
+    includedTracks: number
+    includedClips: number
+    includedEffects: number
+    includedTransitions: number
+    format: string
+    compressionRatio: number
+  }
+  fileInfo: {
+    name: string
+    format: string
+    size: number
+    timestamp: string
+  }
+  recommendations: string[]
+}
+
+/**
+ * AI инструмент для экспорта данных Timeline с унифицированной обработкой ошибок
+ */
+export class TimelineExportTool extends BaseAITool {
+  constructor(logger?: AIToolLogger) {
+    super("TimelineExportTool", logger)
+  }
+
+  /**
+   * Экспортирует данные Timeline в указанном формате
+   */
+  public async exportTimelineData(
+    input: TimelineExportInput,
+    options: AIToolExecutionOptions = {}
+  ): Promise<AIToolResult<TimelineExportResult>> {
+    // Валидация входных данных
+    const validation = this.validateInput(input, (data) => {
+      const errors: string[] = []
+
+      if (!data.exportFormat) {
+        errors.push("Не указан формат экспорта")
+      }
+
+      const validFormats = ["json", "xml", "csv", "edl", "fcpxml", "davinci-resolve"]
+      if (data.exportFormat && !validFormats.includes(data.exportFormat)) {
+        errors.push(`Неподдерживаемый формат экспорта: ${data.exportFormat}`)
+      }
+
+      const validScopes = ["full-project", "selected-elements", "time-range"]
+      if (data.exportScope && !validScopes.includes(data.exportScope)) {
+        errors.push(`Неподдерживаемая область экспорта: ${data.exportScope}`)
+      }
+
+      return {
+        isValid: errors.length === 0,
+        errors
+      }
+    })
+
+    if (!validation.isValid) {
+      return {
+        success: false,
+        errors: validation.errors,
+        message: "Ошибка валидации входных данных для экспорта",
+        executionTime: 0,
+        toolName: this.toolName
+      }
+    }
+
+    // Устанавливаем значения по умолчанию
+    const exportFormat = input.exportFormat
+    const includeData = {
       projectSettings: true,
       sections: true,
       tracks: true,
@@ -50,77 +100,86 @@ export async function exportTimelineData(params: any): Promise<TimelineToolResul
       effects: true,
       transitions: true,
       metadata: true,
-    },
-    exportScope = "full-project",
-  } = params
-
-  try {
-    const { getTimelineStateAccess } = await import("./types")
-
-    const timelineAccess = getTimelineStateAccess()
-    if (!timelineAccess) {
-      return {
-        success: false,
-        message: "Timeline state access не настроен",
-        errors: ["Доступ к timeline не сконфигурирован"],
-      }
+      ...input.includeData
     }
+    const exportScope = input.exportScope || "full-project"
 
-    const currentProject = timelineAccess.getCurrentProject() as TimelineProject | null
-    if (!currentProject || !currentProject.id) {
-      return {
-        success: false,
-        message: "Нет активного проекта для экспорта",
-        errors: ["Откройте или создайте проект в timeline"],
-      }
-    }
-
-    // Подготавливаем данные для экспорта
-    const exportData = await prepareExportData(currentProject, includeData, exportScope)
-
-    // Форматируем данные в соответствии с выбранным форматом
-    const formattedData = await formatExportData(exportData, exportFormat)
-
-    // Генерируем имя файла
-    const fileName = generateExportFileName(currentProject.name || "timeline", exportFormat)
-
-    // Получаем статистику экспорта
-    const exportStats = calculateExportStats(exportData, exportFormat)
-
-    // Генерируем рекомендации
-    const recommendations = generateExportRecommendations(exportFormat, exportStats, includeData)
-
-    return {
-      success: true,
-      message: `Экспорт данных завершен в формате ${exportFormat.toUpperCase()}`,
-      data: {
-        exportData: formattedData,
-        statistics: exportStats,
-        fileInfo: {
-          name: fileName,
+    // Выполняем экспорт с унифицированной обработкой ошибок
+    return this.executeWithErrorHandling(
+      async (context) => {
+        context.logger?.("info", "Начинаем экспорт данных Timeline", {
           format: exportFormat,
-          size: calculateDataSize(formattedData),
-          timestamp: new Date().toISOString(),
-        },
-      },
-      nextActions: [
-        "Сохранить экспортированные данные",
-        "Проверить содержимое экспорта",
-        "Импортировать в другую систему",
-        "Создать резервную копию проекта",
-      ],
-    }
-  } catch (error) {
-    return {
-      success: false,
-      message: `Ошибка экспорта данных: ${error instanceof Error ? error.message : String(error)}`,
-      errors: [error instanceof Error ? error.message : String(error)],
-    }
-  }
-}
+          scope: exportScope,
+          includeDataKeys: Object.keys(includeData).filter(key => includeData[key as keyof typeof includeData])
+        })
 
-// Подготавливает данные для экспорта
-async function prepareExportData(project: any, includeData: any, exportScope: string): Promise<any> {
+        const { getTimelineStateAccess } = await import("./types")
+        const timelineAccess = getTimelineStateAccess()
+        
+        if (!timelineAccess) {
+          throw new Error("Timeline state access не настроен. Доступ к timeline не сконфигурирован")
+        }
+
+        const currentProject = timelineAccess.getCurrentProject() as TimelineProject | null
+        if (!currentProject || !currentProject.id) {
+          throw new Error("Нет активного проекта для экспорта. Откройте или создайте проект в timeline")
+        }
+
+        // Подготавливаем данные для экспорта
+        const exportData = await this.prepareExportData(currentProject, includeData, exportScope)
+
+        // Форматируем данные в соответствии с выбранным форматом
+        const formattedData = await this.formatExportData(exportData, exportFormat)
+
+        // Генерируем имя файла
+        const fileName = this.generateExportFileName(currentProject.name || "timeline", exportFormat)
+
+        // Получаем статистику экспорта
+        const exportStats = this.calculateExportStats(exportData, exportFormat)
+
+        // Генерируем рекомендации
+        const recommendations = this.generateExportRecommendations(exportFormat, exportStats, includeData)
+
+        const result: TimelineExportResult = {
+          exportData: formattedData,
+          statistics: exportStats,
+          fileInfo: {
+            name: fileName,
+            format: exportFormat,
+            size: this.calculateDataSize(formattedData),
+            timestamp: new Date().toISOString(),
+          },
+          recommendations
+        }
+
+        context.logger?.("info", "Экспорт данных Timeline завершен", {
+          format: exportFormat,
+          fileSize: result.fileInfo.size,
+          elementsCount: exportStats.totalElements,
+          recommendationsCount: recommendations.length
+        })
+
+        return result
+      },
+      {
+        timeout: options.timeout || 30000,
+        retries: options.retries || 1,
+        retryDelay: options.retryDelay || 1000,
+        enableLogging: options.enableLogging !== false,
+        metadata: {
+          exportFormat,
+          exportScope,
+          projectId: input.exportFormat, // Будет заменен реальным ID проекта внутри executeWithErrorHandling
+          ...options.metadata
+        }
+      }
+    )
+  }
+
+  /**
+   * Подготавливает данные для экспорта
+   */
+  private async prepareExportData(project: any, includeData: any, exportScope: string): Promise<any> {
   const exportData: any = {
     version: "1.0.0",
     exportTimestamp: new Date().toISOString(),
@@ -250,44 +309,50 @@ async function prepareExportData(project: any, includeData: any, exportScope: st
     }
   }
 
-  return exportData
-}
+    return exportData
+  }
 
-// Форматирует данные в соответствии с выбранным форматом
-async function formatExportData(exportData: any, format: string): Promise<any> {
+  /**
+   * Форматирует данные в соответствии с выбранным форматом
+   */
+  private async formatExportData(exportData: any, format: string): Promise<any> {
   switch (format) {
     case "json":
       return JSON.stringify(exportData, null, 2)
 
     case "xml":
-      return convertToXML(exportData)
+      return this.convertToXML(exportData)
 
     case "csv":
-      return convertToCSV(exportData)
+      return this.convertToCSV(exportData)
 
     case "edl":
-      return convertToEDL(exportData)
+      return this.convertToEDL(exportData)
 
     case "fcpxml":
-      return convertToFCPXML(exportData)
+      return this.convertToFCPXML(exportData)
 
     case "davinci-resolve":
-      return convertToDaVinciResolve(exportData)
+      return this.convertToDaVinciResolve(exportData)
 
     default:
       return JSON.stringify(exportData, null, 2)
+    }
   }
-}
 
-// Конвертирует данные в XML формат
-function convertToXML(data: any): string {
-  const xmlHeader = '<?xml version="1.0" encoding="UTF-8"?>\n'
-  const xmlContent = objectToXML(data, "timeline")
-  return xmlHeader + xmlContent
-}
+  /**
+   * Конвертирует данные в XML формат
+   */
+  private convertToXML(data: any): string {
+    const xmlHeader = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    const xmlContent = this.objectToXML(data, "timeline")
+    return xmlHeader + xmlContent
+  }
 
-// Конвертирует данные в CSV формат
-function convertToCSV(data: any): string {
+  /**
+   * Конвертирует данные в CSV формат
+   */
+  private convertToCSV(data: any): string {
   const csvLines: string[] = []
 
   // Заголовки CSV
@@ -307,11 +372,13 @@ function convertToCSV(data: any): string {
     })
   }
 
-  return csvLines.join("\n")
-}
+    return csvLines.join("\n")
+  }
 
-// Конвертирует данные в EDL формат
-function convertToEDL(data: any): string {
+  /**
+   * Конвертирует данные в EDL формат
+   */
+  private convertToEDL(data: any): string {
   const edlLines: string[] = []
   edlLines.push("TITLE: Timeline Studio Export")
   edlLines.push("FCM: NON-DROP FRAME")
@@ -320,18 +387,20 @@ function convertToEDL(data: any): string {
   if (data.clips) {
     data.clips.forEach((clip: any, index: number) => {
       const editNumber = String(index + 1).padStart(3, "0")
-      const timecode = formatTimecode(clip.startTime)
-      const duration = formatTimecode(clip.duration)
+      const timecode = this.formatTimecode(clip.startTime)
+      const duration = this.formatTimecode(clip.duration)
 
       edlLines.push(`${editNumber}  ${clip.name || "CLIP"} V     C        ${timecode} ${duration}`)
     })
   }
 
-  return edlLines.join("\n")
-}
+    return edlLines.join("\n")
+  }
 
-// Конвертирует данные в FCPXML формат
-function convertToFCPXML(data: any): string {
+  /**
+   * Конвертирует данные в FCPXML формат
+   */
+  private convertToFCPXML(data: any): string {
   const fcpxmlContent = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE fcpxml>
 <fcpxml version="1.8">
@@ -360,11 +429,13 @@ function convertToFCPXML(data: any): string {
   </library>
 </fcpxml>`
 
-  return fcpxmlContent
-}
+    return fcpxmlContent
+  }
 
-// Конвертирует данные в DaVinci Resolve формат
-function convertToDaVinciResolve(data: any): string {
+  /**
+   * Конвертирует данные в DaVinci Resolve формат
+   */
+  private convertToDaVinciResolve(data: any): string {
   const resolveData = {
     version: "1.0",
     timelineData: {
@@ -377,12 +448,13 @@ function convertToDaVinciResolve(data: any): string {
     metadata: data.metadata || {},
   }
 
-  return JSON.stringify(resolveData, null, 2)
-}
+    return JSON.stringify(resolveData, null, 2)
+  }
 
-// Вспомогательные функции
-
-function objectToXML(obj: any, rootName: string): string {
+  /**
+   * Преобразует объект в XML формат
+   */
+  private objectToXML(obj: any, rootName: string): string {
   const xmlLines: string[] = []
   xmlLines.push(`<${rootName}>`)
 
@@ -443,115 +515,152 @@ function objectToXML(obj: any, rootName: string): string {
     }
   }
 
-  xmlLines.push(`</${rootName}>`)
-  return xmlLines.join("\n")
-}
+    xmlLines.push(`</${rootName}>`)
+    return xmlLines.join("\n")
+  }
 
-function formatTimecode(seconds: number): string {
-  const hours = Math.floor(seconds / 3600)
+  /**
+   * Форматирует время в формат timecode
+   */
+  private formatTimecode(seconds: number): string {
+    const hours = Math.floor(seconds / 3600)
   const mins = Math.floor((seconds % 3600) / 60)
   const secs = Math.floor(seconds % 60)
   const frames = Math.floor((seconds % 1) * 24) // Assuming 24fps
 
-  return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}:${frames.toString().padStart(2, "0")}`
-}
+    return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}:${frames.toString().padStart(2, "0")}`
+  }
 
-function generateExportFileName(projectName: string, format: string): string {
-  const timestamp = new Date().toISOString().replace(/[:.]/g, "-").split("T")[0]
-  const extension = getFileExtension(format)
-  const sanitizedName = projectName.replace(/[^a-zA-Z0-9_-]/g, "_")
+  /**
+   * Генерирует имя файла для экспорта
+   */
+  private generateExportFileName(projectName: string, format: string): string {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-").split("T")[0]
+    const extension = this.getFileExtension(format)
+    const sanitizedName = projectName.replace(/[^a-zA-Z0-9_-]/g, "_")
 
-  return `${sanitizedName}_export_${timestamp}.${extension}`
-}
+    return `${sanitizedName}_export_${timestamp}.${extension}`
+  }
 
-function getFileExtension(format: string): string {
-  switch (format) {
-    case "json":
-      return "json"
-    case "xml":
-      return "xml"
-    case "csv":
-      return "csv"
-    case "edl":
-      return "edl"
-    case "fcpxml":
-      return "fcpxml"
-    case "davinci-resolve":
-      return "resolve"
-    default:
-      return "txt"
+  /**
+   * Определяет расширение файла по формату
+   */
+  private getFileExtension(format: string): string {
+    switch (format) {
+      case "json":
+        return "json"
+      case "xml":
+        return "xml"
+      case "csv":
+        return "csv"
+      case "edl":
+        return "edl"
+      case "fcpxml":
+        return "fcpxml"
+      case "davinci-resolve":
+        return "resolve"
+      default:
+        return "txt"
+    }
+  }
+
+  /**
+   * Вычисляет статистику экспорта
+   */
+  private calculateExportStats(exportData: any, format: string): any {
+    return {
+      totalElements: Object.keys(exportData).length,
+      includedSections: exportData.sections?.length || 0,
+      includedTracks: exportData.tracks?.length || 0,
+      includedClips: exportData.clips?.length || 0,
+      includedEffects: exportData.effects?.length || 0,
+      includedTransitions: exportData.transitions?.length || 0,
+      format,
+      compressionRatio: this.calculateCompressionRatio(exportData, format),
+    }
+  }
+
+  /**
+   * Вычисляет степень сжатия данных
+   */
+  private calculateCompressionRatio(data: any, _format: string): number {
+    const jsonSize = JSON.stringify(data).length
+    const formattedSize = this.calculateDataSize(data)
+    return formattedSize / jsonSize
+  }
+
+  /**
+   * Вычисляет размер данных в байтах
+   */
+  private calculateDataSize(data: any): number {
+    if (typeof data === "string") {
+      return new TextEncoder().encode(data).length
+    }
+    return new TextEncoder().encode(JSON.stringify(data)).length
+  }
+
+  /**
+   * Генерирует рекомендации по экспорту
+   */
+  private generateExportRecommendations(format: string, stats: any, includeData: any): string[] {
+    const recommendations: string[] = []
+
+    // Рекомендации по форматам
+    switch (format) {
+      case "json":
+        recommendations.push("JSON формат подходит для резервного копирования и импорта в Timeline Studio")
+        break
+      case "xml":
+        recommendations.push("XML формат обеспечивает структурированный обмен данными")
+        break
+      case "csv":
+        recommendations.push("CSV формат подходит для анализа данных в электронных таблицах")
+        break
+      case "edl":
+        recommendations.push("EDL формат совместим с большинством профессиональных видеоредакторов")
+        break
+      case "fcpxml":
+        recommendations.push("FCPXML формат предназначен для Final Cut Pro X")
+        break
+      case "davinci-resolve":
+        recommendations.push("Формат DaVinci Resolve для импорта в DaVinci Resolve")
+        break
+      default:
+        recommendations.push("Выбранный формат подходит для экспорта данных")
+        break
+    }
+
+    // Рекомендации по содержимому
+    if (stats.includedClips > 100) {
+      recommendations.push("Большое количество клипов - рассмотрите разделение на несколько файлов")
+    }
+
+    if (stats.includedEffects > 50) {
+      recommendations.push("Много эффектов - проверьте совместимость с целевой системой")
+    }
+
+    if (!includeData.metadata) {
+      recommendations.push("Включите метаданные для лучшей совместимости")
+    }
+
+    recommendations.push("Сохраните экспортированные данные в безопасном месте")
+    recommendations.push("Проверьте целостность данных перед использованием")
+
+    return recommendations
   }
 }
 
-function calculateExportStats(exportData: any, format: string): any {
-  return {
-    totalElements: Object.keys(exportData).length,
-    includedSections: exportData.sections?.length || 0,
-    includedTracks: exportData.tracks?.length || 0,
-    includedClips: exportData.clips?.length || 0,
-    includedEffects: exportData.effects?.length || 0,
-    includedTransitions: exportData.transitions?.length || 0,
-    format,
-    compressionRatio: calculateCompressionRatio(exportData, format),
+// Экспортируем готовый экземпляр для использования
+export const timelineExportTool = new TimelineExportTool()
+
+// Функция-обертка для обратной совместимости
+export async function exportTimelineData(params: any): Promise<AIToolResult<TimelineExportResult>> {
+  // Преобразуем старые параметры в новый формат
+  const input: TimelineExportInput = {
+    exportFormat: params.exportFormat || "json",
+    includeData: params.includeData,
+    exportScope: params.exportScope
   }
-}
-
-function calculateCompressionRatio(data: any, _format: string): number {
-  const jsonSize = JSON.stringify(data).length
-  const formattedSize = calculateDataSize(data)
-  return formattedSize / jsonSize
-}
-
-function calculateDataSize(data: any): number {
-  if (typeof data === "string") {
-    return new TextEncoder().encode(data).length
-  }
-  return new TextEncoder().encode(JSON.stringify(data)).length
-}
-
-function generateExportRecommendations(format: string, stats: any, includeData: any): string[] {
-  const recommendations: string[] = []
-
-  // Рекомендации по форматам
-  switch (format) {
-    case "json":
-      recommendations.push("JSON формат подходит для резервного копирования и импорта в Timeline Studio")
-      break
-    case "xml":
-      recommendations.push("XML формат обеспечивает структурированный обмен данными")
-      break
-    case "csv":
-      recommendations.push("CSV формат подходит для анализа данных в электронных таблицах")
-      break
-    case "edl":
-      recommendations.push("EDL формат совместим с большинством профессиональных видеоредакторов")
-      break
-    case "fcpxml":
-      recommendations.push("FCPXML формат предназначен для Final Cut Pro X")
-      break
-    case "davinci-resolve":
-      recommendations.push("Формат DaVinci Resolve для импорта в DaVinci Resolve")
-      break
-    default:
-      recommendations.push("Выбранный формат подходит для экспорта данных")
-      break
-  }
-
-  // Рекомендации по содержимому
-  if (stats.includedClips > 100) {
-    recommendations.push("Большое количество клипов - рассмотрите разделение на несколько файлов")
-  }
-
-  if (stats.includedEffects > 50) {
-    recommendations.push("Много эффектов - проверьте совместимость с целевой системой")
-  }
-
-  if (!includeData.metadata) {
-    recommendations.push("Включите метаданные для лучшей совместимости")
-  }
-
-  recommendations.push("Сохраните экспортированные данные в безопасном месте")
-  recommendations.push("Проверьте целостность данных перед использованием")
-
-  return recommendations
+  
+  return timelineExportTool.exportTimelineData(input)
 }
