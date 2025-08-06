@@ -1,3 +1,12 @@
+## [0.68.1](https://github.com/chatman-media/timeline-studio/compare/v0.68.0...v0.68.1) (2025-08-06)
+
+
+### Bug Fixes
+
+* **tests:** исправление необработанных ошибок в тестах ([2e23f97](https://github.com/chatman-media/timeline-studio/commit/2e23f97af1ba2fe703b843f1075d02c2e3801786))
+* **tests:** исправление тестов ShaderPool для работы с Singleton ([2bb6f40](https://github.com/chatman-media/timeline-studio/commit/2bb6f40c403d854c7e800785cab3101377532555))
+* **tests:** упрощение зависающих тестов use-dynamic-transitions ([9703bc9](https://github.com/chatman-media/timeline-studio/commit/9703bc9640e249452fdbbf6ce1562201979bf4a5))
+
 # [0.68.0](https://github.com/chatman-media/timeline-studio/compare/v0.67.4...v0.68.0) (2025-08-05)
 
 
