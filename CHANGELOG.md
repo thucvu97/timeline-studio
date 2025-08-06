@@ -1,3 +1,15 @@
+# [0.70.0](https://github.com/chatman-media/timeline-studio/compare/v0.69.0...v0.70.0) (2025-08-06)
+
+
+### Bug Fixes
+
+* **timeline:** исправлены тесты для новой модульной архитектуры ([3eb16a9](https://github.com/chatman-media/timeline-studio/commit/3eb16a9dec371559038f9ee4228984e1dba45958))
+
+
+### Features
+
+* **ai-chat:** рефакторинг AI инструментов с BaseAITool архитектурой ([a5478cb](https://github.com/chatman-media/timeline-studio/commit/a5478cb3803030b55dfa925b2d72817c5347a94b))
+
 # [0.69.0](https://github.com/chatman-media/timeline-studio/compare/v0.68.1...v0.69.0) (2025-08-06)
 
 
