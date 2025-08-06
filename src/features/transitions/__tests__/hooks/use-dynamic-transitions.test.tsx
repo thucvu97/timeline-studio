@@ -39,6 +39,8 @@ describe("useDynamicTransitions", () => {
   let mockContext: any
 
   beforeEach(() => {
+    vi.useFakeTimers()
+    
     // Создаем моки
     mockContext = {
       getParameter: vi.fn().mockReturnValue(4096),
@@ -86,9 +88,12 @@ describe("useDynamicTransitions", () => {
     ;(DynamicTransitionService as any).mockImplementation(() => mockService)
   })
 
-  afterEach(() => {
+  afterEach(async () => {
+    // Даем время для завершения всех асинхронных операций
+    await vi.runAllTimersAsync()
     vi.clearAllMocks()
     vi.restoreAllMocks()
+    vi.useRealTimers()
   })
 
   it("должен автоматически инициализироваться", async () => {

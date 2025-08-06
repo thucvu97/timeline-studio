@@ -238,6 +238,21 @@ beforeAll(() => {
       clearTimeout(id)
     }) as any
   }
+
+  // Mock requestAnimationFrame and cancelAnimationFrame
+  if (typeof global.requestAnimationFrame === "undefined") {
+    let animationFrameId = 0
+    global.requestAnimationFrame = vi.fn((callback: FrameRequestCallback) => {
+      animationFrameId++
+      const id = animationFrameId
+      setTimeout(() => callback(Date.now()), 16)
+      return id
+    }) as any
+  }
+
+  if (typeof global.cancelAnimationFrame === "undefined") {
+    global.cancelAnimationFrame = vi.fn() as any
+  }
 })
 
 afterEach(() => {
