@@ -1,22 +1,248 @@
 /**
- * Claude Tools для оптимизации видео под различные социальные платформы
+ * Platform Optimization AI Tools с использованием BaseAITool
+ *
+ * Набор AI инструментов для оптимизации видео под различные социальные платформы.
+ * Интегрируется с Claude Tools через AI Chat модуль.
  */
 
 import { invoke } from "@tauri-apps/api/core"
 
-import type { ClaudeTool } from "../services/claude-service"
+import type { ClaudeTool } from "../types"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "./base-ai-tool"
 import {
   type ContentCategory,
   PlatformOptimizationService,
   type SupportedPlatform,
 } from "../services/platform-optimization-service"
 
-const platformService = PlatformOptimizationService.getInstance()
+// Типы для операций оптимизации платформ
+export interface PlatformOptimizationInput {
+  operation:
+    | "get_platform_specs"
+    | "get_all_platforms"
+    | "analyze_content"
+    | "optimize_for_platform"
+    | "suggest_formats"
+    | "validate_specifications"
+    | "generate_thumbnails"
+    | "create_variants"
+  platform?: SupportedPlatform
+  videoPath?: string
+  contentCategory?: ContentCategory
+  targetAudience?: string
+  customRequirements?: any
+  generateVariants?: boolean
+  includeAnalytics?: boolean
+  outputPath?: string
+}
+
+export interface PlatformOptimizationResult {
+  operation: string
+  success: boolean
+  platformSpecs?: any
+  platforms?: any[]
+  analysis?: any
+  optimizedVideo?: any
+  suggestions?: any[]
+  validation?: any
+  thumbnails?: any[]
+  variants?: any[]
+  message: string
+  recommendations: string[]
+  warnings?: string[]
+}
 
 /**
- * Инструмент для получения информации о платформах
+ * AI инструмент для оптимизации платформ с унифицированной обработкой ошибок
  */
+export class PlatformOptimizationTool extends BaseAITool {
+  private platformService: PlatformOptimizationService
+
+  constructor(logger?: AIToolLogger) {
+    super("PlatformOptimizationTool", logger)
+    this.platformService = PlatformOptimizationService.getInstance()
+  }
+
+  /**
+   * Выполняет операции оптимизации платформ
+   */
+  public async optimizePlatform(
+    input: PlatformOptimizationInput,
+    options: AIToolExecutionOptions = {}
+  ): Promise<AIToolResult<PlatformOptimizationResult>> {
+    return this.executeWithErrorHandling(
+      input.operation,
+      async () => {
+        // Валидация входных данных
+        const validation = this.validateInput(input, (data) => {
+          const errors: string[] = []
+
+          const validOperations = [
+            "get_platform_specs",
+            "get_all_platforms",
+            "analyze_content",
+            "optimize_for_platform",
+            "suggest_formats",
+            "validate_specifications",
+            "generate_thumbnails",
+            "create_variants",
+          ]
+          if (!validOperations.includes(data.operation)) {
+            errors.push(`Неподдерживаемая операция: ${data.operation}`)
+          }
+
+          if (
+            ["get_platform_specs", "optimize_for_platform", "validate_specifications"].includes(data.operation) &&
+            !data.platform
+          ) {
+            errors.push("Требуется указать платформу")
+          }
+
+          if (
+            ["analyze_content", "optimize_for_platform", "generate_thumbnails"].includes(data.operation) &&
+            !data.videoPath
+          ) {
+            errors.push("Требуется указать путь к видеофайлу")
+          }
+
+          return errors
+        })
+
+        if (!validation.isValid) {
+          throw new Error(validation.errors.join(", "))
+        }
+
+        let result: PlatformOptimizationResult
+
+        switch (input.operation) {
+          case "get_platform_specs":
+            const specs = await this.platformService.getPlatformSpecs(input.platform!)
+            result = {
+              operation: input.operation,
+              success: true,
+              platformSpecs: specs,
+              message: `Получены спецификации для ${input.platform}`,
+              recommendations: ["Используйте эти спецификации для оптимизации видео"],
+            }
+            break
+
+          case "get_all_platforms":
+            const platforms = await this.platformService.getAllPlatforms()
+            result = {
+              operation: input.operation,
+              success: true,
+              platforms: platforms,
+              message: `Найдено ${platforms.length} поддерживаемых платформ`,
+              recommendations: ["Выберите подходящую платформу для оптимизации"],
+            }
+            break
+
+          case "analyze_content":
+            const analysis = await this.platformService.analyzeContent(input.videoPath!, {
+              category: input.contentCategory,
+              targetAudience: input.targetAudience,
+            })
+            result = {
+              operation: input.operation,
+              success: true,
+              analysis: analysis,
+              message: "Анализ контента завершен",
+              recommendations: [
+                "Используйте результаты анализа для выбора оптимальной платформы",
+                "Учтите особенности целевой аудитории",
+              ],
+            }
+            break
+
+          case "optimize_for_platform":
+            const optimized = await this.platformService.optimizeForPlatform(input.videoPath!, input.platform!, {
+              category: input.contentCategory,
+              generateVariants: input.generateVariants,
+              outputPath: input.outputPath,
+            })
+            result = {
+              operation: input.operation,
+              success: true,
+              optimizedVideo: optimized,
+              message: `Видео оптимизировано для ${input.platform}`,
+              recommendations: [
+                "Проверьте качество оптимизированного видео",
+                "Рассмотрите создание дополнительных вариантов",
+              ],
+            }
+            break
+
+          case "suggest_formats":
+            const suggestions = await this.platformService.suggestOptimalFormats(input.videoPath!, {
+              contentCategory: input.contentCategory,
+              targetAudience: input.targetAudience,
+            })
+            result = {
+              operation: input.operation,
+              success: true,
+              suggestions: suggestions,
+              message: `Найдено ${suggestions.length} рекомендованных форматов`,
+              recommendations: ["Выберите формат, наиболее подходящий для вашего контента"],
+            }
+            break
+
+          case "validate_specifications":
+            const validation = await this.platformService.validateSpecifications(input.videoPath!, input.platform!)
+            result = {
+              operation: input.operation,
+              success: true,
+              validation: validation,
+              message: validation.isValid
+                ? "Видео соответствует требованиям платформы"
+                : "Обнаружены несоответствия требованиям",
+              recommendations: validation.isValid
+                ? ["Видео готово к публикации"]
+                : ["Необходимо исправить выявленные проблемы"],
+              warnings: validation.issues,
+            }
+            break
+
+          case "generate_thumbnails":
+          case "create_variants":
+            result = {
+              operation: input.operation,
+              success: false,
+              message: "Функция пока не реализована",
+              recommendations: ["Функция будет добавлена в следующих версиях"],
+            }
+            break
+
+          default:
+            throw new Error(`Неподдерживаемая операция: ${input.operation}`)
+        }
+
+        return result
+      },
+      options
+    )
+  }
+}
+
+// Создаем singleton экземпляр
+const platformOptimizationTool = new PlatformOptimizationTool()
+
+/**
+ * Функция-обертка для обратной совместимости
+ */
+export async function executePlatformOptimizationTool(
+  operation: PlatformOptimizationInput["operation"],
+  params: Omit<PlatformOptimizationInput, "operation">,
+  options?: AIToolExecutionOptions
+): Promise<AIToolResult<PlatformOptimizationResult>> {
+  return platformOptimizationTool.optimizePlatform(
+    { operation, ...params },
+    options
+  )
+}
+
+// Экспорт для обратной совместимости
 export const getPlatformSpecsTool: ClaudeTool = {
+
   name: "get_platform_specs",
   description: "Получить технические спецификации и ограничения для конкретной социальной платформы",
   input_schema: {
@@ -43,9 +269,6 @@ export const getPlatformSpecsTool: ClaudeTool = {
   },
 }
 
-/**
- * Инструмент для получения всех доступных платформ
- */
 export const getAllPlatformsTool: ClaudeTool = {
   name: "get_all_platforms",
   description: "Получить список всех поддерживаемых социальных платформ с их характеристиками",
