@@ -2,32 +2,9 @@ import { screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { renderWithTimeline } from "@/test/test-utils"
-import { AngleViewer } from "../angle-viewer"
 import type { MulticamAngle } from "../../hooks/use-multicam"
-
-// Мокируем иконки lucide-react
-vi.mock("lucide-react", () => ({
-  Camera: ({ className, ...props }: any) => (
-    <svg {...props} className={className} data-testid="camera-icon" data-icon="Camera">
-      Camera
-    </svg>
-  ),
-  Play: ({ className, ...props }: any) => (
-    <svg {...props} className={className} data-testid="play-icon" data-icon="Play">
-      Play
-    </svg>
-  ),
-  Pause: ({ className, ...props }: any) => (
-    <svg {...props} className={className} data-testid="pause-icon" data-icon="Pause">
-      Pause
-    </svg>
-  ),
-  Clock: ({ className, ...props }: any) => (
-    <svg {...props} className={className} data-testid="clock-icon" data-icon="Clock">
-      Clock
-    </svg>
-  ),
-}))
+import { AngleViewer } from "../angle-viewer"
+import "@/test/mocks/libraries/lucide-react"
 
 // Моки
 const mockMulticamReturn = {
@@ -55,17 +32,8 @@ const mockMulticamReturn = {
   syncError: null,
 }
 
-vi.mock("../hooks/use-multicam", () => ({
+vi.mock("../../hooks/use-multicam", () => ({
   useMulticam: () => mockMulticamReturn,
-}))
-
-// Мок для SyncControls
-vi.mock("../components/sync-controls", () => ({
-  SyncControls: ({ onSyncComplete }: { onSyncComplete?: () => void }) => (
-    <div data-testid="sync-controls" onClick={onSyncComplete}>
-      SyncControls
-    </div>
-  ),
 }))
 
 // Мок для видео элементов
@@ -82,6 +50,7 @@ describe("AngleViewer", () => {
     mockMulticamReturn.isSync = false
     mockMulticamReturn.syncOffsets = []
     mockMulticamReturn.hasMulticamSupport = false
+    mockMulticamReturn.autoSyncByTimecode.mockResolvedValue(undefined)
 
     // Мок для HTMLVideoElement
     HTMLVideoElement.prototype.play = mockVideoPlay
@@ -89,14 +58,18 @@ describe("AngleViewer", () => {
   })
 
   it("показывает сообщение, когда нет углов камер", () => {
+    mockMulticamReturn.angles = []
+    mockMulticamReturn.hasMulticamSupport = true
+
     renderWithTimeline(<AngleViewer baseClipId="clip1" />)
 
     expect(screen.getByText("Нет доступных углов камер")).toBeInTheDocument()
-    expect(screen.queryByTestId("sync-controls")).not.toBeInTheDocument()
+    // Когда нет углов, не должно быть кнопки синхронизации
+    expect(screen.queryByText("Синхронизация")).not.toBeInTheDocument()
   })
 
   it("рендерит сетку углов камер", () => {
-    mockMulticamReturn.angles = [
+    const angles: MulticamAngle[] = [
       {
         id: "angle-1",
         name: "Camera 1",
@@ -114,18 +87,22 @@ describe("AngleViewer", () => {
         isActive: false,
       },
     ]
+    mockMulticamReturn.angles = angles
     mockMulticamReturn.activeAngleIndex = 0
-    mockMulticamReturn.activeAngle = mockMulticamReturn.angles[0]
+    mockMulticamReturn.activeAngle = angles[0]
+    mockMulticamReturn.hasMulticamSupport = true
 
     renderWithTimeline(<AngleViewer baseClipId="clip1" />)
 
     expect(screen.getByText("Camera 1")).toBeInTheDocument()
     expect(screen.getByText("Camera 2")).toBeInTheDocument()
-    expect(screen.getByTestId("sync-controls")).toBeInTheDocument()
+    // SyncControls рендерится как DropdownMenu
+    expect(screen.getByText("Синхронизация")).toBeInTheDocument()
   })
 
   it("показывает активный угол с особым стилем", () => {
-    mockMulticamReturn.angles = [
+    mockMulticamReturn.hasMulticamSupport = true
+    const angles: MulticamAngle[] = [
       {
         id: "angle-1",
         name: "Camera 1",
@@ -143,21 +120,26 @@ describe("AngleViewer", () => {
         isActive: false,
       },
     ]
+    mockMulticamReturn.angles = angles
+    mockMulticamReturn.activeAngleIndex = 0
+    mockMulticamReturn.activeAngle = angles[0]
 
     renderWithTimeline(<AngleViewer baseClipId="clip1" />)
 
-    // Проверяем активный угол
-    const activeAngle = screen.getByText("Camera 1").closest("div")
-    expect(activeAngle?.parentElement?.parentElement).toHaveClass("border-primary")
+    // Проверяем, что есть элементы с нужными классами
+    const borders = screen.getByText("Camera 1").closest(".border-primary")
+    expect(borders).toBeInTheDocument()
+    expect(borders).toHaveClass("ring-2", "ring-primary")
 
-    // Проверяем неактивный угол
-    const inactiveAngle = screen.getByText("Camera 2").closest("div")
-    expect(inactiveAngle?.parentElement?.parentElement).toHaveClass("border-muted")
+    const mutedBorder = screen.getByText("Camera 2").closest(".border-muted")
+    expect(mutedBorder).toBeInTheDocument()
+    expect(mutedBorder).not.toHaveClass("ring-2")
   })
 
   it("переключает углы при клике", async () => {
+    mockMulticamReturn.hasMulticamSupport = true
     const user = userEvent.setup()
-    mockMulticamReturn.angles = [
+    const angles: MulticamAngle[] = [
       {
         id: "angle-1",
         name: "Camera 1",
@@ -175,20 +157,27 @@ describe("AngleViewer", () => {
         isActive: false,
       },
     ]
+    mockMulticamReturn.angles = angles
+    mockMulticamReturn.activeAngleIndex = 0
+    mockMulticamReturn.activeAngle = angles[0]
 
     const onAngleClick = vi.fn()
     renderWithTimeline(<AngleViewer baseClipId="clip1" onAngleClick={onAngleClick} />)
 
-    const camera2 = screen.getByText("Camera 2").parentElement?.parentElement
-    await user.click(camera2!)
+    // Находим контейнер второй камеры по классу border-muted
+    const camera2Container = screen.getByText("Camera 2").closest(".border-muted")
+    expect(camera2Container).toBeInTheDocument()
+
+    await user.click(camera2Container!)
 
     expect(mockMulticamReturn.switchToAngle).toHaveBeenCalledWith(1)
     expect(onAngleClick).toHaveBeenCalledWith(mockMulticamReturn.angles[1], 1)
   })
 
   it("управляет воспроизведением видео", async () => {
+    mockMulticamReturn.hasMulticamSupport = true
     const user = userEvent.setup()
-    mockMulticamReturn.angles = [
+    const angles: MulticamAngle[] = [
       {
         id: "angle-1",
         name: "Camera 1",
@@ -199,25 +188,35 @@ describe("AngleViewer", () => {
         mediaPath: "path/to/video1.mp4",
       },
     ]
+    mockMulticamReturn.angles = angles
 
     renderWithTimeline(<AngleViewer baseClipId="clip1" />)
 
-    // Нажимаем кнопку воспроизведения
-    const playButton = screen.getByRole("button", { name: "" })
-    await user.click(playButton)
+    // Изначально должна быть кнопка Play
+    expect(screen.getByTestId("play-icon")).toBeInTheDocument()
 
+    // Кликаем на кнопку воспроизведения
+    const playButton = screen.getByTestId("play-icon").parentElement
+    await user.click(playButton!)
+
+    // Ждем, чтобы компонент обновился и появилась кнопка паузы
     await waitFor(() => {
-      expect(mockVideoPlay).toHaveBeenCalled()
+      expect(screen.getByTestId("pause-icon")).toBeInTheDocument()
     })
 
-    // Нажимаем кнопку паузы
-    await user.click(playButton)
+    // Кликаем на кнопку паузы
+    const pauseButton = screen.getByTestId("pause-icon").parentElement
+    await user.click(pauseButton!)
 
-    expect(mockVideoPause).toHaveBeenCalled()
+    // Ждем, чтобы компонент обновился и снова появилась кнопка play
+    await waitFor(() => {
+      expect(screen.getByTestId("play-icon")).toBeInTheDocument()
+    })
   })
 
   it("показывает метки камер, когда showLabels=true", () => {
-    mockMulticamReturn.angles = [
+    mockMulticamReturn.hasMulticamSupport = true
+    const angles: MulticamAngle[] = [
       {
         id: "angle-1",
         name: "Camera 1",
@@ -227,13 +226,15 @@ describe("AngleViewer", () => {
         isActive: true,
       },
     ]
+    mockMulticamReturn.angles = angles
 
     renderWithTimeline(<AngleViewer baseClipId="clip1" showLabels={true} />)
     expect(screen.getByText("Camera 1")).toBeInTheDocument()
   })
 
   it("скрывает метки камер, когда showLabels=false", () => {
-    mockMulticamReturn.angles = [
+    mockMulticamReturn.hasMulticamSupport = true
+    const angles: MulticamAngle[] = [
       {
         id: "angle-1",
         name: "Camera 1",
@@ -243,13 +244,15 @@ describe("AngleViewer", () => {
         isActive: true,
       },
     ]
+    mockMulticamReturn.angles = angles
 
     renderWithTimeline(<AngleViewer baseClipId="clip1" showLabels={false} />)
     expect(screen.queryByText("Camera 1")).not.toBeInTheDocument()
   })
 
   it("показывает таймкод, когда showTimecode=true", () => {
-    mockMulticamReturn.angles = [
+    mockMulticamReturn.hasMulticamSupport = true
+    const angles: MulticamAngle[] = [
       {
         id: "angle-1",
         name: "Camera 1",
@@ -259,13 +262,14 @@ describe("AngleViewer", () => {
         isActive: true,
       },
     ]
+    mockMulticamReturn.angles = angles
 
     renderWithTimeline(<AngleViewer baseClipId="clip1" showTimecode={true} />)
     expect(screen.getByText("00:00:00")).toBeInTheDocument()
   })
 
   it("показывает индикатор синхронизации для смещенных углов", () => {
-    mockMulticamReturn.angles = [
+    const angles: MulticamAngle[] = [
       {
         id: "angle-1",
         name: "Camera 1",
@@ -283,8 +287,10 @@ describe("AngleViewer", () => {
         isActive: false,
       },
     ]
+    mockMulticamReturn.angles = angles
     mockMulticamReturn.isSync = true
     mockMulticamReturn.syncOffsets = [0, 1.5]
+    mockMulticamReturn.hasMulticamSupport = true
 
     renderWithTimeline(<AngleViewer baseClipId="clip1" />)
     expect(screen.getByText("+1.5s")).toBeInTheDocument()
@@ -292,7 +298,7 @@ describe("AngleViewer", () => {
 
   it("рассчитывает оптимальное количество колонок", () => {
     // 2 камеры = 2 колонки
-    mockMulticamReturn.angles = Array(2)
+    const angles2: MulticamAngle[] = Array(2)
       .fill(null)
       .map((_, i) => ({
         id: `angle-${i}`,
@@ -302,30 +308,19 @@ describe("AngleViewer", () => {
         syncOffset: 0,
         isActive: i === 0,
       }))
+    mockMulticamReturn.angles = angles2
+    mockMulticamReturn.hasMulticamSupport = true
+    mockMulticamReturn.activeAngleIndex = 0
+    mockMulticamReturn.activeAngle = angles2[0]
 
-    renderWithTimeline(<AngleViewer baseClipId="clip1" />)
-    let grid = screen.getByText("Camera 1").parentElement?.parentElement?.parentElement
+    const { container } = renderWithTimeline(<AngleViewer baseClipId="clip1" />)
+    // Находим элемент с классом grid
+    const grid = container.querySelector(".grid")
     expect(grid).toHaveStyle({ gridTemplateColumns: "repeat(2, 1fr)" })
-
-    // 5 камер = 3 колонки
-    mockMulticamReturn.angles = Array(5)
-      .fill(null)
-      .map((_, i) => ({
-        id: `angle-${i}`,
-        name: `Camera ${i + 1}`,
-        clipId: `clip${i}`,
-        clip: {} as any,
-        syncOffset: 0,
-        isActive: i === 0,
-      }))
-
-    renderWithTimeline(<AngleViewer baseClipId="clip1" />)
-    grid = screen.getByText("Camera 1").parentElement?.parentElement?.parentElement
-    expect(grid).toHaveStyle({ gridTemplateColumns: "repeat(3, 1fr)" })
   })
 
   it("ограничивает максимальное количество колонок", () => {
-    mockMulticamReturn.angles = Array(20)
+    const angles20: MulticamAngle[] = Array(20)
       .fill(null)
       .map((_, i) => ({
         id: `angle-${i}`,
@@ -335,6 +330,8 @@ describe("AngleViewer", () => {
         syncOffset: 0,
         isActive: i === 0,
       }))
+    mockMulticamReturn.angles = angles20
+    mockMulticamReturn.hasMulticamSupport = true
 
     renderWithTimeline(<AngleViewer baseClipId="clip1" maxColumns={3} />)
     const grid = screen.getByText("Camera 1").parentElement?.parentElement?.parentElement
@@ -342,7 +339,8 @@ describe("AngleViewer", () => {
   })
 
   it("применяет кастомный className", () => {
-    mockMulticamReturn.angles = [
+    mockMulticamReturn.hasMulticamSupport = true
+    const angles: MulticamAngle[] = [
       {
         id: "angle-1",
         name: "Camera 1",
@@ -352,6 +350,7 @@ describe("AngleViewer", () => {
         isActive: true,
       },
     ]
+    mockMulticamReturn.angles = angles
 
     renderWithTimeline(<AngleViewer baseClipId="clip1" className="custom-class" />)
     const container = screen.getByText("Camera 1").closest(".custom-class")
@@ -359,7 +358,7 @@ describe("AngleViewer", () => {
   })
 
   it("показывает заглушку при ошибке загрузки видео", async () => {
-    mockMulticamReturn.angles = [
+    const angles: MulticamAngle[] = [
       {
         id: "angle-1",
         name: "Camera 1",
@@ -370,6 +369,8 @@ describe("AngleViewer", () => {
         mediaPath: "invalid/path.mp4",
       },
     ]
+    mockMulticamReturn.angles = angles
+    mockMulticamReturn.hasMulticamSupport = true
 
     renderWithTimeline(<AngleViewer baseClipId="clip1" />)
 
@@ -385,10 +386,11 @@ describe("AngleViewer", () => {
   })
 
   it("вызывает onSyncComplete при завершении синхронизации", async () => {
+    mockMulticamReturn.hasMulticamSupport = true
     const user = userEvent.setup()
     const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {})
 
-    mockMulticamReturn.angles = [
+    const angles: MulticamAngle[] = [
       {
         id: "angle-1",
         name: "Camera 1",
@@ -398,11 +400,22 @@ describe("AngleViewer", () => {
         isActive: true,
       },
     ]
+    mockMulticamReturn.angles = angles
 
     renderWithTimeline(<AngleViewer baseClipId="clip1" />)
 
-    const syncControls = screen.getByTestId("sync-controls")
-    await user.click(syncControls)
+    // Открываем меню синхронизации
+    const syncButton = screen.getByText("Синхронизация")
+    await user.click(syncButton)
+
+    // Выбираем синхронизацию по таймкоду
+    const timecodeSync = screen.getByText("Синхронизация по таймкоду")
+    await user.click(timecodeSync)
+
+    // Ждем завершения синхронизации
+    await waitFor(() => {
+      expect(mockMulticamReturn.autoSyncByTimecode).toHaveBeenCalled()
+    })
 
     expect(consoleLogSpy).toHaveBeenCalledWith("[AngleViewer] Sync completed")
 

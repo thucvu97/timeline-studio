@@ -1,6 +1,6 @@
 /**
  * Сервис для распознавания речи с помощью Whisper API
- * Поддерживает OpenAI Whisper API и локальные модели
+ * Поддерживает OpenAI Whisper API, локальные модели и Faster Whisper
  */
 
 import { invoke } from "@tauri-apps/api/core"
@@ -121,12 +121,34 @@ export const AVAILABLE_LOCAL_MODELS: LocalWhisperModel[] = [
   },
 ]
 
+// Тип провайдера транскрипции
+export type TranscriptionProvider = "openai" | "local" | "faster-whisper"
+
+// Опции для Faster Whisper
+export interface FasterWhisperOptions {
+  device?: "auto" | "cpu" | "cuda" | "mps"
+  computeType?: "auto" | "int8" | "float16" | "float32"
+  beamSize?: number
+  bestOf?: number
+  patience?: number
+  vadFilter?: boolean
+  vadParameters?: {
+    threshold?: number
+    minSpeechDurationMs?: number
+    maxSpeechDurationS?: number
+    minSilenceDurationMs?: number
+    windowSizeSamples?: number
+    speechPadMs?: number
+  }
+}
+
 /**
  * Сервис для работы с Whisper API
  */
 export class WhisperService {
   private static instance: WhisperService
   private apiKey: string | null = null
+  private fasterWhisperInitialized = false
 
   private constructor() {}
 
@@ -367,6 +389,197 @@ export class WhisperService {
     } catch (error) {
       console.warn("Локальный Whisper недоступен:", error)
       return false
+    }
+  }
+
+  /**
+   * Инициализировать Faster Whisper
+   */
+  public async initFasterWhisper(): Promise<boolean> {
+    try {
+      const result = await invoke<boolean>("init_whisper_python")
+      this.fasterWhisperInitialized = result
+      return result
+    } catch (error) {
+      console.error("Ошибка инициализации Faster Whisper:", error)
+      return false
+    }
+  }
+
+  /**
+   * Проверить инициализацию Faster Whisper
+   */
+  public isFasterWhisperInitialized(): boolean {
+    return this.fasterWhisperInitialized
+  }
+
+  /**
+   * Транскрипция через Faster Whisper
+   */
+  public async transcribeWithFasterWhisper(
+    audioFilePath: string,
+    options: WhisperTranscriptionOptions & FasterWhisperOptions = {},
+  ): Promise<WhisperTranscriptionResult> {
+    if (!this.fasterWhisperInitialized) {
+      const initialized = await this.initFasterWhisper()
+      if (!initialized) {
+        throw new Error("Не удалось инициализировать Faster Whisper")
+      }
+    }
+
+    const startTime = Date.now()
+    console.log(`Начинаем транскрипцию через Faster Whisper: ${audioFilePath}`)
+
+    try {
+      const transcriptionOptions = {
+        language: options.language,
+        task: options.task || "transcribe",
+        modelSize: options.model || "base",
+        device: options.device || "auto",
+        computeType: options.computeType || "auto",
+        beamSize: options.beamSize || 5,
+        bestOf: options.bestOf || 5,
+        patience: options.patience || 1.0,
+        temperature: options.temperature || [0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
+        compressionRatioThreshold: 2.4,
+        logProbThreshold: -1.0,
+        noSpeechThreshold: 0.6,
+        wordTimestamps: options.timestamp_granularities?.includes("word") ?? true,
+        vadFilter: options.vadFilter ?? true,
+        maxNewTokens: undefined,
+        hotwords: undefined,
+      }
+
+      const result = await invoke<WhisperTranscriptionResult>("transcribe_with_faster_whisper", {
+        audioPath: audioFilePath,
+        options: transcriptionOptions,
+      })
+
+      const endTime = Date.now()
+      const processingTime = endTime - startTime
+
+      console.log(`Транскрипция через Faster Whisper завершена за ${processingTime}мс`)
+
+      return {
+        ...result,
+        processingTime,
+        processingDetails: {
+          startTime,
+          endTime,
+          durationMs: processingTime,
+          model: options.model || "base",
+          apiProvider: "local",
+        },
+      }
+    } catch (error) {
+      const endTime = Date.now()
+      const processingTime = endTime - startTime
+      console.error(`Ошибка транскрипции через Faster Whisper (${processingTime}мс):`, error)
+      throw new Error(`Не удалось выполнить транскрипцию: ${String(error)}`)
+    }
+  }
+
+  /**
+   * Получить доступные модели Faster Whisper
+   */
+  public async getFasterWhisperModels(): Promise<LocalWhisperModel[]> {
+    try {
+      const models = await invoke<any[]>("get_whisper_models")
+      return models.map((model) => ({
+        name: model.name,
+        size: model.size,
+        languages: model.english_only ? ["english"] : ["multilingual"],
+        isDownloaded: model.is_downloaded,
+      }))
+    } catch (error) {
+      console.warn("Ошибка получения моделей Faster Whisper:", error)
+      return []
+    }
+  }
+
+  /**
+   * Скачать модель Faster Whisper
+   */
+  public async downloadFasterWhisperModel(
+    modelName: string,
+    onProgress?: (progress: number) => void,
+  ): Promise<boolean> {
+    try {
+      if (onProgress) {
+        const { listen } = await import("@tauri-apps/api/event")
+
+        const unlisten = await listen<{ model: string; progress: number }>(
+          "whisper_model_download_progress",
+          (event) => {
+            if (event.payload.model === modelName) {
+              onProgress(event.payload.progress)
+            }
+          },
+        )
+
+        const success = await invoke<boolean>("download_whisper_model", {
+          modelName,
+        })
+
+        unlisten()
+        return success
+      }
+
+      return await invoke<boolean>("download_whisper_model", {
+        modelName,
+      })
+    } catch (error) {
+      console.error("Ошибка скачивания модели Faster Whisper:", error)
+      throw new Error(`Не удалось скачать модель ${modelName}: ${String(error)}`)
+    }
+  }
+
+  /**
+   * Автоматически выбрать лучший провайдер для транскрипции
+   */
+  public async autoSelectProvider(): Promise<TranscriptionProvider> {
+    // Приоритеты:
+    // 1. Faster Whisper (если инициализирован)
+    // 2. OpenAI (если есть API ключ)
+    // 3. Локальный Whisper (если доступен)
+
+    if (this.fasterWhisperInitialized || (await this.initFasterWhisper())) {
+      return "faster-whisper"
+    }
+
+    if (this.hasApiKey()) {
+      return "openai"
+    }
+
+    if (await this.isLocalWhisperAvailable()) {
+      return "local"
+    }
+
+    throw new Error("Нет доступных провайдеров для транскрипции")
+  }
+
+  /**
+   * Универсальный метод транскрипции с автовыбором провайдера
+   */
+  public async transcribe(
+    audioFilePath: string,
+    options: WhisperTranscriptionOptions & FasterWhisperOptions & { provider?: TranscriptionProvider } = {},
+  ): Promise<WhisperTranscriptionResult> {
+    const provider = options.provider || (await this.autoSelectProvider())
+
+    switch (provider) {
+      case "faster-whisper":
+        return this.transcribeWithFasterWhisper(audioFilePath, options)
+      case "openai":
+        return this.transcribeWithOpenAI(audioFilePath, options)
+      case "local":
+        return this.transcribeWithLocalModel(audioFilePath, options.model || "base", {
+          language: options.language,
+          threads: 4,
+          outputFormat: "json",
+        })
+      default:
+        throw new Error(`Неизвестный провайдер: ${provider}`)
     }
   }
 

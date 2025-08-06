@@ -84,7 +84,7 @@ describe("MulticamIndicator", () => {
     // Проверяем текущий номер камеры (100)
     const currentNumber = screen.getAllByText("100")[0]
     expect(currentNumber).toHaveClass("font-bold")
-    
+
     // Проверяем общее количество
     const totalNumber = screen.getAllByText("100")[1]
     expect(totalNumber).toBeInTheDocument()

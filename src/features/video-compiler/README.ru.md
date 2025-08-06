@@ -105,7 +105,7 @@ function ExportButton() {
     cancelRender,
     generatePreview
   } = useVideoCompiler();
-  
+
   const handleExport = async () => {
     const outputPath = await selectSaveLocation();
     await startRender(project, outputPath, {
@@ -114,11 +114,11 @@ function ExportButton() {
       format: 'mp4'
     });
   };
-  
+
   return (
     <Button onClick={handleExport} disabled={isRendering}>
-      {isRendering 
-        ? `Рендеринг ${renderProgress?.percentage}%` 
+      {isRendering
+        ? `Рендеринг ${renderProgress?.percentage}%`
         : 'Экспорт видео'
       }
     </Button>
@@ -141,14 +141,14 @@ function GpuSettings() {
     refreshCapabilities,
     updateSettings
   } = useGpuCapabilities();
-  
+
   const handleEncoderChange = async (encoder: GpuEncoder) => {
     await updateSettings({
       preferred_encoder: encoder,
       quality: encoder === GpuEncoder.NVENC ? 90 : 85
     });
   };
-  
+
   return (
     <div>
       {gpuCapabilities?.hardware_acceleration_supported ? (
@@ -190,7 +190,7 @@ function TimelinePreview({ segment }) {
     prerender,
     clearResult
   } = usePrerender();
-  
+
   const handlePrerender = async () => {
     await prerender({
       segment,
@@ -199,7 +199,7 @@ function TimelinePreview({ segment }) {
       cache: true
     });
   };
-  
+
   return (
     <div>
       <Button onClick={handlePrerender} disabled={isRendering}>
@@ -231,7 +231,7 @@ function VideoAnalysis({ videoPath, duration }) {
     cacheResults: true,
     maxConcurrent: 3
   });
-  
+
   useEffect(() => {
     // Извлечение кадров для timeline превью
     extractTimelineFrames(videoPath, {
@@ -239,7 +239,7 @@ function VideoAnalysis({ videoPath, duration }) {
       maxFrames: 100,
       quality: 'medium'
     });
-    
+
     // Извлечение для AI распознавания
     extractRecognitionFrames(videoPath, {
       interval: 5.0, // Каждые 5 секунд
@@ -247,42 +247,42 @@ function VideoAnalysis({ videoPath, duration }) {
       format: 'jpg'
     });
   }, [videoPath, duration]);
-  
+
   return (
     <div className="grid grid-cols-3 gap-4">
       <div>
         <h3>Timeline Frames</h3>
         <div className="flex flex-wrap gap-1">
           {timelineFrames.map(frame => (
-            <img 
-              key={frame.timestamp} 
-              src={frame.frameData} 
+            <img
+              key={frame.timestamp}
+              src={frame.frameData}
               className="w-16 h-12 object-cover rounded"
             />
           ))}
         </div>
       </div>
-      
+
       <div>
         <h3>Recognition Frames</h3>
         <div className="flex flex-wrap gap-1">
           {recognitionFrames.map(frame => (
-            <img 
-              key={frame.timestamp} 
-              src={frame.frameData} 
+            <img
+              key={frame.timestamp}
+              src={frame.frameData}
               className="w-16 h-12 object-cover rounded"
             />
           ))}
         </div>
       </div>
-      
+
       <div>
         <h3>Subtitle Frames</h3>
         <div className="flex flex-wrap gap-1">
           {subtitleFrames.map(frame => (
-            <img 
-              key={frame.timestamp} 
-              src={frame.frameData} 
+            <img
+              key={frame.timestamp}
+              src={frame.frameData}
               className="w-16 h-12 object-cover rounded"
             />
           ))}
@@ -308,12 +308,12 @@ function RenderJobsManager() {
     getJob,
     cancelJob
   } = useRenderJobs();
-  
+
   const handleCancelJob = async (jobId: string) => {
     await cancelJob(jobId);
     toast.success('Задача отменена');
   };
-  
+
   return (
     <div className="space-y-2">
       <div className="flex justify-between items-center">
@@ -322,7 +322,7 @@ function RenderJobsManager() {
           Обновить
         </Button>
       </div>
-      
+
       {jobs.map(job => (
         <Card key={job.id} className="p-3">
           <div className="flex justify-between items-start">
@@ -342,12 +342,12 @@ function RenderJobsManager() {
                 )}
               </div>
             </div>
-            
+
             <div className="flex gap-1">
               {job.status === RenderStatus.Processing && (
-                <Button 
+                <Button
                   onClick={() => handleCancelJob(job.id)}
-                  variant="outline" 
+                  variant="outline"
                   size="sm"
                 >
                   Отменить
@@ -355,11 +355,11 @@ function RenderJobsManager() {
               )}
             </div>
           </div>
-          
+
           {job.progress && (
-            <Progress 
-              value={job.progress.percentage} 
-              className="mt-2" 
+            <Progress
+              value={job.progress.percentage}
+              className="mt-2"
             />
           )}
         </Card>
@@ -384,11 +384,11 @@ function CacheManager() {
     clearPreviewCache,
     clearAllCache
   } = useCacheStats();
-  
+
   const formatBytes = (bytes: number) => {
     return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
   };
-  
+
   return (
     <Card className="p-4">
       <div className="flex justify-between items-center mb-4">
@@ -397,7 +397,7 @@ function CacheManager() {
           Обновить
         </Button>
       </div>
-      
+
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
           <h4 className="font-medium">Производительность</h4>
@@ -407,7 +407,7 @@ function CacheManager() {
             <div>Всего записей: {stats?.total_entries ?? 0}</div>
           </div>
         </div>
-        
+
         <div>
           <h4 className="font-medium">Использование памяти</h4>
           <div className="space-y-1 text-sm">
@@ -420,13 +420,13 @@ function CacheManager() {
           </div>
         </div>
       </div>
-      
+
       <div className="flex gap-2">
         <Button onClick={clearPreviewCache} variant="outline">
           Очистить превью
         </Button>
-        <Button 
-          onClick={clearAllCache} 
+        <Button
+          onClick={clearAllCache}
           variant="destructive"
           className="ml-auto"
         >
@@ -453,16 +453,16 @@ function VideoMetadataProvider({ children, videoPath }) {
     preloadMetadata,
     clearMetadata
   } = useMetadataCache();
-  
+
   useEffect(() => {
     if (videoPath) {
       getMetadata(videoPath);
     }
   }, [videoPath]);
-  
+
   if (isLoading) return <LoadingSpinner />;
   if (error) return <ErrorMessage error={error} />;
-  
+
   return (
     <VideoMetadataContext.Provider value={metadata}>
       {children}
@@ -505,7 +505,7 @@ import { GpuStatus } from '@/features/video-compiler';
 function ToolBar() {
   return (
     <div className="flex items-center gap-2">
-      <GpuStatus 
+      <GpuStatus
         showDetails={true}
         onClick={openGpuSettings}
       />
@@ -528,13 +528,13 @@ import { CacheStatisticsModal } from '@/features/video-compiler';
 
 function CacheSettings() {
   const [isOpen, setIsOpen] = useState(false);
-  
+
   return (
     <>
       <Button onClick={() => setIsOpen(true)}>
         Статистика кеша
       </Button>
-      <CacheStatisticsModal 
+      <CacheStatisticsModal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
       />
@@ -640,16 +640,16 @@ interface FrameExtractionResult {
 export const VideoCompilerService = {
   // Рендеринг проекта (использует команду 'compile_video')
   async renderProject(schema: ProjectSchema, outputPath: string, settings: RenderSettings): Promise<RenderResult>,
-  
+
   // Отмена рендеринга
   async cancelRender(jobId: string): Promise<void>,
-  
+
   // Получение прогресса
   async getRenderProgress(jobId: string): Promise<RenderProgress>,
-  
+
   // Проверка возможностей GPU (использует 'get_gpu_capabilities_full')
   async checkCapabilities(): Promise<GpuCapabilities>,
-  
+
   // Настройка параметров (использует 'update_compiler_settings_advanced')
   async updateRenderSettings(settings: Partial<RenderSettings>): Promise<void>
 };
@@ -662,22 +662,22 @@ export const VideoCompilerService = {
 export const FrameExtractionService = {
   // Извлечение кадров для timeline
   async extractTimelineFrames(
-    videoPath: string, 
+    videoPath: string,
     options: TimelineExtractionOptions
   ): Promise<FrameExtractionResult[]>,
-  
+
   // Извлечение для распознавания
   async extractRecognitionFrames(
-    videoPath: string, 
+    videoPath: string,
     options: RecognitionExtractionOptions
   ): Promise<FrameExtractionResult[]>,
-  
+
   // Извлечение для субтитров
   async extractSubtitleFrames(
-    videoPath: string, 
+    videoPath: string,
     timestamps: number[]
   ): Promise<FrameExtractionResult[]>,
-  
+
   // Управление кешем
   async getCachedFrame(videoPath: string, timestamp: number): Promise<FrameExtractionResult | null>,
   async clearFrameCache(videoPath?: string): Promise<void>
@@ -691,16 +691,16 @@ export const FrameExtractionService = {
 export const CacheService = {
   // Статистика кеша
   async getCacheStats(): Promise<VideoCompilerCacheStats>,
-  
+
   // Очистка кеша
   async clearPreviewCache(): Promise<void>,
   async clearMetadataCache(): Promise<void>,
   async clearAllCache(): Promise<void>,
-  
+
   // Оптимизация
   async optimizeCache(): Promise<void>,
   async validateCacheIntegrity(): Promise<boolean>,
-  
+
   // Настройки
   async setCacheSettings(settings: CacheSettings): Promise<void>
 };
@@ -782,16 +782,16 @@ describe('RenderJobsDropdown', () => {
         progress: { percentage: 65, fps: 30 }
       }
     ];
-    
-    render(<RenderJobsDropdown />, { 
-      initialState: { renderJobs: jobs } 
+
+    render(<RenderJobsDropdown />, {
+      initialState: { renderJobs: jobs }
     });
-    
+
     expect(screen.getByText('My Video Project')).toBeInTheDocument();
     expect(screen.getByText('65%')).toBeInTheDocument();
     expect(screen.getByText('30 FPS')).toBeInTheDocument();
   });
-  
+
   it('should use localized status labels', () => {
     const status = getJobStatusLabel(RenderStatus.Processing, t);
     expect(status).toBe('Обработка'); // Локализованный текст
@@ -802,7 +802,7 @@ describe('RenderJobsDropdown', () => {
 describe('useGpuCapabilities', () => {
   it('should detect NVIDIA GPU correctly', async () => {
     const { result } = renderHook(() => useGpuCapabilities());
-    
+
     act(() => {
       mockTauriInvoke.mockResolvedValueOnce({
         hardware_acceleration_supported: true,
@@ -814,7 +814,7 @@ describe('useGpuCapabilities', () => {
         recommended_encoder: GpuEncoder.NVENC
       });
     });
-    
+
     await waitFor(() => {
       expect(result.current.gpuCapabilities?.current_gpu?.name)
         .toBe('NVIDIA GeForce RTX 4090');
@@ -827,27 +827,27 @@ describe('useGpuCapabilities', () => {
 // Тест кеширования кадров
 describe('useFrameExtraction', () => {
   it('should cache extracted frames correctly', async () => {
-    const { result } = renderHook(() => useFrameExtraction({ 
-      cacheResults: true 
+    const { result } = renderHook(() => useFrameExtraction({
+      cacheResults: true
     }));
-    
+
     const videoPath = '/test/video.mp4';
     const duration = 10;
-    
+
     await act(async () => {
       await result.current.extractTimelineFrames(videoPath, duration);
     });
-    
+
     // Проверяем, что кадры сохранены в кеш
     expect(mockIndexedDB.get).toHaveBeenCalledWith(
       expect.stringContaining(videoPath)
     );
-    
+
     // Повторный запрос должен использовать кеш
     await act(async () => {
       await result.current.extractTimelineFrames(videoPath, duration);
     });
-    
+
     expect(result.current.timelineFrames[0].cached).toBe(true);
   });
 });
@@ -908,7 +908,7 @@ const RENDER_PRESETS = {
     hardware_acceleration: true,
     encoder: 'auto'
   },
-  
+
   // Финальный рендеринг высокого качества
   FINAL: {
     quality: 90,
@@ -916,7 +916,7 @@ const RENDER_PRESETS = {
     hardware_acceleration: true,
     encoder: 'nvenc_h264' // или auto
   },
-  
+
   // Экономичный режим для слабых GPU
   ECONOMY: {
     quality: 75,
@@ -935,11 +935,11 @@ const optimizeMemoryUsage = async () => {
   const stats = await getCacheStats();
   const memoryUsage = stats.memory_usage.total_bytes;
   const MAX_CACHE_SIZE = 2 * 1024 * 1024 * 1024; // 2GB
-  
+
   if (memoryUsage > MAX_CACHE_SIZE) {
     // Очистка старых записей превью
     await clearPreviewCache();
-    
+
     // Оптимизация кеша
     await optimizeCache();
   }
@@ -958,7 +958,7 @@ const FRAME_EXTRACTION_PRESETS = {
     resolution: '320x180',   // Низкое разрешение для быстрой загрузки
     cache: true
   },
-  
+
   RECOGNITION: {
     interval: 5.0,           // Каждые 5 секунд
     maxFrames: 50,           // Меньше кадров для AI
@@ -966,7 +966,7 @@ const FRAME_EXTRACTION_PRESETS = {
     resolution: '512x512',   // Квадратное разрешение для AI моделей
     cache: true
   },
-  
+
   SUBTITLES: {
     timestamps: [],          // Конкретные временные метки
     quality: 'medium',       // Среднее качество
@@ -1058,46 +1058,46 @@ const FRAME_EXTRACTION_PRESETS = {
 export function useFeature(options?: FeatureOptions): FeatureReturn {
   const { t } = useTranslation();
   const [state, setState] = useState<State>(initialState);
-  
+
   const action = useCallback(async (params: ActionParams) => {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }));
-      
+
       // Валидация входных данных
       validateParams(params);
-      
+
       // Основная логика
       const result = await service.performAction(params);
-      
-      setState(prev => ({ 
-        ...prev, 
-        data: result, 
-        loading: false 
+
+      setState(prev => ({
+        ...prev,
+        data: result,
+        loading: false
       }));
-      
+
       // Уведомление об успехе
       toast.success(t('videoCompiler.feature.success'));
-      
+
       return result;
     } catch (error) {
       const errorMessage = getErrorMessage(error);
-      setState(prev => ({ 
-        ...prev, 
-        error: errorMessage, 
-        loading: false 
+      setState(prev => ({
+        ...prev,
+        error: errorMessage,
+        loading: false
       }));
-      
+
       // Уведомление об ошибке
       toast.error(t('videoCompiler.feature.error'), {
         description: errorMessage
       });
-      
+
       throw error;
     }
   }, [service, t]);
-  
-  return { 
-    ...state, 
+
+  return {
+    ...state,
     action,
     // Дополнительные utility функции
     retry: () => action(lastParams),
@@ -1124,15 +1124,15 @@ class VideoCompilerError extends Error {
 // Централизованная обработка ошибок
 const handleError = (error: unknown, context: string): string => {
   console.error(`[VideoCompiler:${context}]`, error);
-  
+
   if (error instanceof VideoCompilerError) {
     return error.message;
   }
-  
+
   if (error instanceof Error) {
     return `${context}: ${error.message}`;
   }
-  
+
   return `Неизвестная ошибка в ${context}`;
 };
 ```
@@ -1142,7 +1142,7 @@ const handleError = (error: unknown, context: string): string => {
 ```typescript
 // Типизированные вызовы Tauri
 const invokeRust = async <T>(
-  command: string, 
+  command: string,
   args?: Record<string, any>
 ): Promise<T> => {
   try {
@@ -1175,7 +1175,7 @@ const result = await invokeRust<RenderResult>('render_project', {
      param1: string;
      param2?: number;
    }
-   
+
    export interface MyFeatureResult {
      data: string;
      metadata: object;
@@ -1252,7 +1252,7 @@ const log = {
 ```typescript
 // Измерение времени выполнения
 const measurePerformance = async <T>(
-  name: string, 
+  name: string,
   fn: () => Promise<T>
 ): Promise<T> => {
   const start = performance.now();
@@ -1313,7 +1313,7 @@ function App() {
 function ExportMenu() {
   const { startRender } = useVideoCompiler();
   const { currentProject } = useProjectSettings();
-  
+
   return (
     <DropdownMenu>
       <DropdownMenuContent>
@@ -1481,3 +1481,7 @@ iotop                          # Дисковая активность
 - **Удобство использования** с интуитивным API и автоматической оптимизацией
 
 Модуль готов для использования в продакшене и продолжает активно развиваться с учетом потребностей пользователей и технологических тенденций в области видеообработки.
+
+**Версия:** 0.68.1
+**Последнее обновление:** 7 августа 2025
+**Разработано с ❤️ командой Timeline Studio**

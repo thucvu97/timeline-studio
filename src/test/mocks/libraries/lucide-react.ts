@@ -79,6 +79,7 @@ export const Grid3X3 = createMockIcon("Grid3X3")
 export const GripVertical = createMockIcon("GripVertical")
 export const GripVerticalIcon = createMockIcon("GripVerticalIcon")
 export const HardDrive = createMockIcon("HardDrive")
+export const Hash = createMockIcon("Hash")
 export const History = createMockIcon("History")
 export const Image = createMockIcon("Image")
 export const ImagePlay = createMockIcon("ImagePlay")
@@ -232,6 +233,7 @@ vi.mock("lucide-react", () => ({
   GripVertical,
   GripVerticalIcon,
   HardDrive,
+  Hash,
   History,
   Image,
   ImagePlay,

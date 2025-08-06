@@ -1,8 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-
+import type { SubtitleClip as SubtitleClipType } from "@/features/subtitles/types"
 import { SubtitleClip } from "../../../components/clip/subtitle-clip"
-import type { SubtitleClip as SubtitleClipType } from "../../../types/timeline"
 
 // Мокаем хуки timeline
 const mockSelectClip = vi.fn()
@@ -24,7 +23,7 @@ vi.mock("../../../hooks/use-timeline-selection", () => ({
 }))
 
 // Мокаем useSubtitleStyles
-vi.mock("../../../hooks/use-subtitle-styles", () => ({
+vi.mock("@/features/subtitles", () => ({
   useSubtitleStyles: () => ({
     getComputedStyle: vi.fn(() => ({})),
     getStyleById: vi.fn((id: string) => {
