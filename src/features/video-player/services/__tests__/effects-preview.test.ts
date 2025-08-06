@@ -136,13 +136,27 @@ describe("EffectsPreviewService", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.useFakeTimers()
 
     // Mock requestAnimationFrame and cancelAnimationFrame
+    let animationFrameId = 0
+    const animationFrameCallbacks = new Map<number, number>()
+
     global.requestAnimationFrame = vi.fn((callback) => {
-      setTimeout(callback, 16)
-      return 1
+      animationFrameId++
+      const id = animationFrameId
+      const timeoutId = setTimeout(() => callback(Date.now()), 16) as unknown as number
+      animationFrameCallbacks.set(id, timeoutId)
+      return id
     })
-    global.cancelAnimationFrame = vi.fn()
+
+    global.cancelAnimationFrame = vi.fn((id) => {
+      const timeoutId = animationFrameCallbacks.get(id)
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+        animationFrameCallbacks.delete(id)
+      }
+    })
 
     // Mock document.createElement for canvas
     if (typeof document !== "undefined") {
@@ -160,7 +174,7 @@ describe("EffectsPreviewService", () => {
     mockGL.getProgramParameter.mockReturnValue(true)
 
     // Mock successful WebGL operations
-    mockGL.createShader.mockReturnValue({ _isShader: true })
+    mockGL.createShader.mockReturnValue({ type: 35633, _isShader: true })
     mockGL.createProgram.mockReturnValue({ _isProgram: true })
     mockGL.createTexture.mockReturnValue({ _isTexture: true })
     mockGL.createBuffer.mockReturnValue({ _isBuffer: true })
@@ -178,9 +192,20 @@ describe("EffectsPreviewService", () => {
   })
 
   afterEach(() => {
+    // Останавливаем все активные превью перед очисткой
     if (service) {
+      service.stopRealTimePreview()
       service.dispose()
     }
+
+    // Очищаем все таймеры
+    vi.clearAllTimers()
+
+    // Восстанавливаем все моки
+    vi.restoreAllMocks()
+
+    // Возвращаемся к реальным таймерам
+    vi.useRealTimers()
   })
 
   describe("initialization", () => {
@@ -208,7 +233,7 @@ describe("EffectsPreviewService", () => {
         getContext: vi.fn(() => null),
       }))
 
-      document.createElement = mockCreateElement
+      document.createElement = mockCreateElement as any
 
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {})
 
@@ -438,7 +463,7 @@ describe("EffectsPreviewService", () => {
       const mockContext = {
         drawImage: vi.fn(),
       }
-      mockCanvas.getContext = vi.fn(() => mockContext)
+      mockCanvas.getContext = vi.fn(() => mockContext) as any
 
       const success = await service.applyEffectChain(mockVideo, effectChain, mockCanvas)
 
@@ -509,7 +534,7 @@ describe("EffectsPreviewService", () => {
             customParams: { brightness: 0.1, intensity: 1.0 },
           },
         ],
-      } as TimelineClip
+      } as unknown as TimelineClip
 
       const options: EffectPreviewOptions = {
         enabled: true,

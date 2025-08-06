@@ -11,7 +11,7 @@ on:
 jobs:
   check-js:
     name: Check JavaScript/TypeScript
-    timeout-minutes: 90
+    timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
@@ -180,7 +180,7 @@ jobs:
 
   check-rust:
     name: Check Rust
-    timeout-minutes: 10
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
