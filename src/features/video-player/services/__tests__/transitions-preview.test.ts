@@ -111,14 +111,14 @@ describe("TransitionsPreviewService", () => {
     // Mock requestAnimationFrame and cancelAnimationFrame
     let animationFrameId = 0
     const animationFrameCallbacks = new Map<number, number>()
-    
+
     global.requestAnimationFrame = vi.fn((callback) => {
       animationFrameId++
       const timeoutId = setTimeout(() => callback(Date.now()), 16)
       animationFrameCallbacks.set(animationFrameId, timeoutId)
       return animationFrameId
     })
-    
+
     global.cancelAnimationFrame = vi.fn((id) => {
       const timeoutId = animationFrameCallbacks.get(id)
       if (timeoutId) {
@@ -409,10 +409,10 @@ describe("TransitionsPreviewService", () => {
 
       // Find the uniform1f call that sets progress
       // Filter only numeric values that could be progress (exclude intensity which is always 1.0)
-      const progressCalls = mockGL.uniform1f.mock.calls.filter((call: any[]) => 
-        typeof call[1] === 'number' && call[1] !== 1.0
+      const progressCalls = mockGL.uniform1f.mock.calls.filter(
+        (call: any[]) => typeof call[1] === "number" && call[1] !== 1.0,
       )
-      
+
       expect(progressCalls.length).toBeGreaterThan(0)
       const actualProgress = progressCalls[0][1]
       expect(actualProgress).toBeCloseTo(expectedValue, 5)
@@ -434,7 +434,7 @@ describe("TransitionsPreviewService", () => {
       // Test first half
       mockGL.uniform1f.mockClear()
       await testEasing("easeInOut", 0.25, 0.125) // For t < 0.5: 2 * 0.25^2 = 0.125
-      
+
       // Test second half
       mockGL.uniform1f.mockClear()
       await testEasing("easeInOut", 0.75, 0.875) // For t > 0.5: 1 - (-2*0.75+2)^2/2 = 0.875
@@ -711,7 +711,13 @@ describe("TransitionsPreviewService", () => {
         customParams: {},
       }
 
-      await serviceWithUnsupported.applyTransition(mockElementA, mockElementB, "test-unsupported", params, mockOutputCanvas)
+      await serviceWithUnsupported.applyTransition(
+        mockElementA,
+        mockElementB,
+        "test-unsupported",
+        params,
+        mockOutputCanvas,
+      )
 
       expect(consoleSpy).toHaveBeenCalledWith("Unsupported uniform type: mat4")
 

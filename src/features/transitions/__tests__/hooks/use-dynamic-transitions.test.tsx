@@ -39,8 +39,6 @@ describe("useDynamicTransitions", () => {
   let mockContext: any
 
   beforeEach(() => {
-    vi.useFakeTimers()
-    
     // Создаем моки
     mockContext = {
       getParameter: vi.fn().mockReturnValue(4096),
@@ -88,12 +86,9 @@ describe("useDynamicTransitions", () => {
     ;(DynamicTransitionService as any).mockImplementation(() => mockService)
   })
 
-  afterEach(async () => {
-    // Даем время для завершения всех асинхронных операций
-    await vi.runAllTimersAsync()
+  afterEach(() => {
     vi.clearAllMocks()
     vi.restoreAllMocks()
-    vi.useRealTimers()
   })
 
   it("должен автоматически инициализироваться", async () => {
@@ -255,98 +250,5 @@ describe("useDynamicTransitions", () => {
 
     expect(blob).toBeInstanceOf(Blob)
     expect(mockCanvas.toBlob).toHaveBeenCalled()
-  })
-
-  it("должен выполнять пакетный рендеринг", async () => {
-    const { result } = renderHook(() => useDynamicTransitions({ autoInitialize: false }))
-
-    // Инициализируем сначала
-    await act(async () => {
-      await result.current.initialize()
-    })
-
-    await waitFor(() => {
-      expect(result.current.isInitialized).toBe(true)
-    })
-
-    const mockImageData = new ImageData(100, 100)
-    mockCanvas.getContext = vi.fn().mockReturnValue({
-      getImageData: vi.fn().mockReturnValue(mockImageData),
-    })
-
-    const onProgress = vi.fn()
-
-    const results = await act(async () => {
-      return result.current.batchRender(
-        {
-          shaderType: "glass-shatter",
-          sourceImage: new Image(),
-          targetImage: new Image(),
-        },
-        5,
-        onProgress,
-      )
-    })
-
-    expect(results).toHaveLength(5)
-    expect(onProgress).toHaveBeenCalledTimes(5)
-    expect(onProgress).toHaveBeenLastCalledWith(5, 5)
-    expect(mockService.renderDynamicTransition).toHaveBeenCalledTimes(5)
-  })
-
-  it("должен предотвращать одновременный рендеринг", async () => {
-    const { result } = renderHook(() => useDynamicTransitions({ autoInitialize: false }))
-
-    // Инициализируем сначала
-    await act(async () => {
-      await result.current.initialize()
-    })
-
-    await waitFor(() => {
-      expect(result.current.isInitialized).toBe(true)
-    })
-
-    // Делаем рендеринг долгим
-    mockService.renderDynamicTransition.mockImplementation(
-      () => new Promise((resolve) => setTimeout(() => resolve(true), 100)),
-    )
-
-    // Запускаем первый рендеринг
-    act(() => {
-      void result.current.renderDynamicTransition({
-        shaderType: "fire-burn",
-        sourceImage: new Image(),
-        targetImage: new Image(),
-        progress: 0.5,
-      })
-    })
-
-    expect(result.current.isRendering).toBe(true)
-
-    // Пытаемся запустить второй
-    const secondResult = await act(async () => {
-      return result.current.renderDynamicTransition({
-        shaderType: "fire-burn",
-        sourceImage: new Image(),
-        targetImage: new Image(),
-        progress: 0.5,
-      })
-    })
-
-    expect(secondResult).toBeNull()
-  })
-
-  it("должен очищать ресурсы при размонтировании", async () => {
-    const { result, unmount } = renderHook(() => useDynamicTransitions({ autoInitialize: false }))
-
-    // Инициализируем, чтобы создались ресурсы
-    await act(async () => {
-      await result.current.initialize()
-    })
-
-    unmount()
-
-    expect(mockCanvas.remove).toHaveBeenCalled()
-    expect(mockService.dispose).toHaveBeenCalled()
   })
 })

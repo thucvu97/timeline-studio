@@ -5,7 +5,7 @@
 import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
-import { UpdateStatusIndicator, UpdateIconIndicator, UpdateTextIndicator } from "../update-status-indicator"
+import { UpdateIconIndicator, UpdateStatusIndicator, UpdateTextIndicator } from "../update-status-indicator"
 
 // Мокаем хук
 const mockUseUpdateManager = vi.fn()
@@ -167,10 +167,10 @@ describe("UpdateStatusIndicator", () => {
     })
 
     render(<UpdateStatusIndicator />)
-    
+
     const button = screen.getByRole("button")
     await user.hover(button)
-    
+
     // Тултип должен содержать информацию о прогрессе
     expect(button).toBeInTheDocument()
   })
@@ -183,14 +183,14 @@ describe("UpdateStatusIndicator", () => {
     })
 
     render(<UpdateStatusIndicator compact />)
-    
+
     const button = screen.getByRole("button")
     expect(button).toHaveClass("h-6 w-6 p-0")
   })
 
   it("применяет переданные классы", () => {
     render(<UpdateStatusIndicator onClick={() => {}} className="custom-class" />)
-    
+
     const button = screen.getByRole("button")
     expect(button).toHaveClass("custom-class")
   })
@@ -217,7 +217,7 @@ describe("UpdateIconIndicator", () => {
     })
 
     render(<UpdateIconIndicator />)
-    
+
     const button = screen.getByRole("button")
     expect(button).toHaveClass("h-6 w-6 p-0")
   })
@@ -244,7 +244,7 @@ describe("UpdateTextIndicator", () => {
     })
 
     render(<UpdateTextIndicator />)
-    
+
     expect(screen.getByText("Обновление")).toBeInTheDocument()
   })
 })

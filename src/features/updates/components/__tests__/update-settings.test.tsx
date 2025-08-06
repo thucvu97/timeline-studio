@@ -5,7 +5,7 @@
 import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
-import { UpdateSettings, CompactUpdateSettings } from "../update-settings"
+import { CompactUpdateSettings, UpdateSettings } from "../update-settings"
 
 // Мокаем хук
 const mockUseUpdateManager = vi.fn()
@@ -34,7 +34,7 @@ describe("UpdateSettings", () => {
 
   it("рендерится без ошибок", () => {
     render(<UpdateSettings />)
-    
+
     expect(screen.getByText("Настройки обновлений")).toBeInTheDocument()
     expect(screen.getByText("Информация о версии")).toBeInTheDocument()
     expect(screen.getByText("Автоматическая проверка")).toBeInTheDocument()
@@ -42,7 +42,7 @@ describe("UpdateSettings", () => {
 
   it("показывает текущую версию", () => {
     render(<UpdateSettings />)
-    
+
     expect(screen.getByText("1.0.0")).toBeInTheDocument()
   })
 
@@ -55,7 +55,7 @@ describe("UpdateSettings", () => {
     })
 
     render(<UpdateSettings />)
-    
+
     await user.click(screen.getByText("Проверить обновления"))
     expect(checkForUpdates).toHaveBeenCalled()
   })
@@ -67,7 +67,7 @@ describe("UpdateSettings", () => {
     })
 
     render(<UpdateSettings />)
-    
+
     const button = screen.getByText("Проверить обновления")
     expect(button).toBeDisabled()
   })
@@ -84,7 +84,7 @@ describe("UpdateSettings", () => {
     })
 
     render(<UpdateSettings />)
-    
+
     expect(screen.getByText("Доступна 1.1.0")).toBeInTheDocument()
     expect(screen.getByText("Версия 1.1.0")).toBeInTheDocument()
     expect(screen.getByText("Исправления багов")).toBeInTheDocument()
@@ -94,7 +94,7 @@ describe("UpdateSettings", () => {
     const user = userEvent.setup()
     const enableAutoCheck = vi.fn()
     const disableAutoCheck = vi.fn()
-    
+
     // Сначала рендерим с выключенной автопроверкой
     mockUseUpdateManager.mockReturnValue({
       ...defaultMockReturn,
@@ -103,15 +103,15 @@ describe("UpdateSettings", () => {
     })
 
     const { rerender } = render(<UpdateSettings />)
-    
+
     // Находим первый switch на странице (для автоматической проверки)
     const switches = screen.getAllByRole("switch")
     const switchElement = switches[0]
-    
+
     // Включаем
     await user.click(switchElement)
     expect(enableAutoCheck).toHaveBeenCalledWith(60)
-    
+
     // Теперь обновляем мок для состояния с включенной автопроверкой
     mockUseUpdateManager.mockReturnValue({
       ...defaultMockReturn,
@@ -119,14 +119,14 @@ describe("UpdateSettings", () => {
       enableAutoCheck,
       disableAutoCheck,
     })
-    
+
     // Ререндерим с новым состоянием
     rerender(<UpdateSettings />)
-    
+
     // Находим switch снова
     const switchesUpdated = screen.getAllByRole("switch")
     const switchElementUpdated = switchesUpdated[0]
-    
+
     // Выключаем
     await user.click(switchElementUpdated)
     expect(disableAutoCheck).toHaveBeenCalled()
@@ -142,24 +142,24 @@ describe("UpdateSettings", () => {
     })
 
     render(<UpdateSettings />)
-    
+
     const select = screen.getByRole("combobox")
     await user.click(select)
     await user.click(screen.getByText("Каждые 3 часа"))
-    
+
     expect(enableAutoCheck).toHaveBeenCalledWith(180)
   })
 
   it("применяет переданные классы", () => {
     const { container } = render(<UpdateSettings className="custom-class" />)
-    
+
     const settings = container.querySelector(".custom-class")
     expect(settings).toBeInTheDocument()
   })
 
   it("показывает дополнительные настройки", () => {
     render(<UpdateSettings />)
-    
+
     expect(screen.getByText("Дополнительные настройки")).toBeInTheDocument()
     expect(screen.getByText("Уведомления")).toBeInTheDocument()
     expect(screen.getByText("Автоматическая загрузка")).toBeInTheDocument()
@@ -183,7 +183,7 @@ describe("CompactUpdateSettings", () => {
 
   it("рендерится в компактном виде", () => {
     render(<CompactUpdateSettings />)
-    
+
     expect(screen.getByText("Автоматическая проверка обновлений")).toBeInTheDocument()
     expect(screen.getByText("Проверять обновления в фоновом режиме")).toBeInTheDocument()
   })
@@ -195,14 +195,14 @@ describe("CompactUpdateSettings", () => {
     })
 
     render(<CompactUpdateSettings />)
-    
+
     expect(screen.getByText("Интервал проверки")).toBeInTheDocument()
     expect(screen.getByRole("combobox")).toBeInTheDocument()
   })
 
   it("скрывает селектор интервала при выключенной автопроверке", () => {
     render(<CompactUpdateSettings />)
-    
+
     expect(screen.queryByText("Интервал проверки")).not.toBeInTheDocument()
     expect(screen.queryByRole("combobox")).not.toBeInTheDocument()
   })
@@ -218,10 +218,10 @@ describe("CompactUpdateSettings", () => {
     })
 
     render(<CompactUpdateSettings />)
-    
+
     const switchElement = screen.getByRole("switch")
     await user.click(switchElement)
-    
+
     expect(enableAutoCheck).toHaveBeenCalledWith(60)
   })
 })

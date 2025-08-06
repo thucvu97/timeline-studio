@@ -2,9 +2,9 @@
  * Тесты для компонента UpdateManager
  */
 
-import { render, screen, waitFor, act } from "@testing-library/react"
+import { act, render, screen, waitFor } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
-import { UpdateManager, InlineUpdateManager } from "../update-manager"
+import { InlineUpdateManager, UpdateManager } from "../update-manager"
 
 // Мокаем хук
 vi.mock("../../hooks/use-update-manager", () => ({
@@ -57,7 +57,7 @@ describe("UpdateManager", () => {
     } as any)
 
     render(<UpdateManager />)
-    
+
     await waitFor(() => {
       expect(screen.getByTestId("update-notification")).toBeInTheDocument()
     })
@@ -71,7 +71,7 @@ describe("UpdateManager", () => {
 
   it("автоматически скрывает уведомление после установки", async () => {
     vi.useFakeTimers()
-    
+
     const { useUpdateManager } = await import("../../hooks/use-update-manager")
     vi.mocked(useUpdateManager).mockReturnValue({
       isUpdateAvailable: false,
@@ -84,17 +84,17 @@ describe("UpdateManager", () => {
     } as any)
 
     const { rerender } = render(<UpdateManager autoHideDelay={1000} />)
-    
+
     expect(screen.getByTestId("update-notification")).toBeInTheDocument()
-    
+
     await act(async () => {
       vi.advanceTimersByTime(1100)
     })
-    
+
     rerender(<UpdateManager autoHideDelay={1000} />)
-    
+
     expect(screen.queryByTestId("update-notification")).not.toBeInTheDocument()
-    
+
     vi.useRealTimers()
   })
 
@@ -111,7 +111,7 @@ describe("UpdateManager", () => {
     } as any)
 
     render(<UpdateManager showProgress={true} />)
-    
+
     await waitFor(() => {
       expect(screen.getByText("Прогресс")).toBeInTheDocument()
     })
@@ -131,7 +131,7 @@ describe("UpdateManager", () => {
     } as any)
 
     render(<UpdateManager />)
-    
+
     expect(enableAutoCheck).toHaveBeenCalledWith(60)
   })
 })
@@ -154,7 +154,7 @@ describe("InlineUpdateManager", () => {
     } as any)
 
     render(<InlineUpdateManager />)
-    
+
     expect(screen.getByTestId("update-notification")).toBeInTheDocument()
   })
 
@@ -170,7 +170,7 @@ describe("InlineUpdateManager", () => {
     } as any)
 
     const { container } = render(<InlineUpdateManager className="custom-class" />)
-    
+
     const wrapper = container.firstChild as HTMLElement
     expect(wrapper.className).toContain("custom-class")
   })

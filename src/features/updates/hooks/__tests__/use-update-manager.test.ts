@@ -3,8 +3,8 @@
  */
 
 import { act, renderHook } from "@testing-library/react"
-import { describe, expect, it, vi, beforeEach, Mock } from "vitest"
-import { useUpdateManager, useUpdateAvailability } from "../use-update-manager"
+import { beforeEach, describe, expect, it, vi } from "vitest"
+import { useUpdateAvailability, useUpdateManager } from "../use-update-manager"
 
 // Мокаем XState
 vi.mock("@xstate/react", () => ({
@@ -184,7 +184,7 @@ describe("useUpdateManager", () => {
 
   it("включает/выключает автопроверку в сервисе", async () => {
     const { updateService } = await import("../../services/update-service")
-    
+
     // Автопроверка выключена
     renderHook(() => useUpdateManager())
     expect(updateService.disableAutoCheck).toHaveBeenCalled()
@@ -249,7 +249,7 @@ describe("useUpdateAvailability", () => {
       },
     }
     const mockSend = vi.fn()
-    
+
     // Переопределяем возвращаемое значение useMachine
     const { useMachine } = await import("@xstate/react")
     vi.mocked(useMachine).mockReturnValue([mockState, mockSend] as any)
@@ -280,7 +280,7 @@ describe("useUpdateAvailability", () => {
       },
     }
     const mockSend = vi.fn()
-    
+
     // Переопределяем возвращаемое значение useMachine
     const { useMachine } = await import("@xstate/react")
     vi.mocked(useMachine).mockReturnValue([mockState, mockSend] as any)
