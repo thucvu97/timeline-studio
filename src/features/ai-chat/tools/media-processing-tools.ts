@@ -66,7 +66,7 @@ export class MediaProcessingTool extends BaseAITool {
    */
   public async processMedia(
     input: MediaProcessingInput,
-    options: AIToolExecutionOptions = {}
+    options: AIToolExecutionOptions = {},
   ): Promise<AIToolResult<MediaProcessingResult>> {
     // Валидация входных данных
     const validation = this.validateInput(input, (data) => {
@@ -208,7 +208,7 @@ export class MediaProcessingTool extends BaseAITool {
           operation,
           ...options.metadata,
         },
-      }
+      },
     )
   }
 
@@ -1016,7 +1016,7 @@ export async function executeMediaProcessingTool(toolName: string, input: Record
     }
 
     const result = await func()
-    
+
     // Преобразуем AIToolResult в старый формат если нужно
     if (result && result.success !== undefined) {
       return result.data || result

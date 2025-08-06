@@ -6,14 +6,13 @@
  */
 
 import { invoke } from "@tauri-apps/api/core"
-
-import type { ClaudeTool } from "../types"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "./base-ai-tool"
 import {
   type ContentCategory,
   PlatformOptimizationService,
   type SupportedPlatform,
 } from "../services/platform-optimization-service"
+import type { ClaudeTool } from "../types"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "./base-ai-tool"
 
 // Типы для операций оптимизации платформ
 export interface PlatformOptimizationInput {
@@ -68,7 +67,7 @@ export class PlatformOptimizationTool extends BaseAITool {
    */
   public async optimizePlatform(
     input: PlatformOptimizationInput,
-    options: AIToolExecutionOptions = {}
+    options: AIToolExecutionOptions = {},
   ): Promise<AIToolResult<PlatformOptimizationResult>> {
     return this.executeWithErrorHandling(
       input.operation,
@@ -218,7 +217,7 @@ export class PlatformOptimizationTool extends BaseAITool {
 
         return result
       },
-      options
+      options,
     )
   }
 }
@@ -232,17 +231,13 @@ const platformOptimizationTool = new PlatformOptimizationTool()
 export async function executePlatformOptimizationTool(
   operation: PlatformOptimizationInput["operation"],
   params: Omit<PlatformOptimizationInput, "operation">,
-  options?: AIToolExecutionOptions
+  options?: AIToolExecutionOptions,
 ): Promise<AIToolResult<PlatformOptimizationResult>> {
-  return platformOptimizationTool.optimizePlatform(
-    { operation, ...params },
-    options
-  )
+  return platformOptimizationTool.optimizePlatform({ operation, ...params }, options)
 }
 
 // Экспорт для обратной совместимости
 export const getPlatformSpecsTool: ClaudeTool = {
-
   name: "get_platform_specs",
   description: "Получить технические спецификации и ограничения для конкретной социальной платформы",
   input_schema: {
@@ -640,9 +635,11 @@ export const platformOptimizationTools: ClaudeTool[] = [
 ]
 
 /**
- * Выполнение инструментов оптимизации платформ
+ * Выполнение инструментов оптимизации платформ (старая функция для совместимости)
  */
-export async function executePlatformOptimizationTool(toolName: string, input: any): Promise<any> {
+async function executePlatformOptimizationToolOld(toolName: string, input: any): Promise<any> {
+  // Объявление платформенного сервиса
+  const platformService = PlatformOptimizationService.getInstance()
   try {
     switch (toolName) {
       case "get_platform_specs":
@@ -832,6 +829,7 @@ async function generateMetadataForPlatform(
 ): Promise<any> {
   // Анализируем видео для получения контекста
   const _analysis = await invoke("ffmpeg_quick_analysis", { filePath: videoPath })
+  const platformService = PlatformOptimizationService.getInstance()
   const specs = platformService.getPlatformSpecs(platform)
 
   // Генерируем заголовок в зависимости от платформы
