@@ -8,7 +8,7 @@ import {
   detectTrackCollisions,
   suggestCollisionFixes,
   type TransitionCollision,
-} from "../transition-collision-detector"
+} from "../../services/transition-collision-detector"
 
 // Тестовые данные
 const createMockClip = (id: string, startTime: number, duration: number): TimelineClip => ({

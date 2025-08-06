@@ -469,7 +469,6 @@ describe("useTimeline", () => {
 
       expect(mockExecuteCommand).toHaveBeenCalledWith({
         type: "Play",
-        params: {},
       })
     })
 
@@ -482,7 +481,6 @@ describe("useTimeline", () => {
 
       expect(mockExecuteCommand).toHaveBeenCalledWith({
         type: "Pause",
-        params: {},
       })
     })
 

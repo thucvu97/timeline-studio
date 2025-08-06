@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import { createActor } from "xstate"
 
-import { timelineUIMachine } from "../timeline-ui-machine"
+import { timelineUIMachine } from "../../services/timeline-ui-machine"
 
 describe("timelineUIMachine", () => {
   let actor: ReturnType<typeof createActor<typeof timelineUIMachine>>

@@ -9,10 +9,10 @@ import {
   syncTransitionsOnClipMove,
   syncTransitionsOnClipSplit,
   syncTransitionsOnClipTrim,
-} from "../clip-transition-sync"
+} from "../../services/clip-transition-sync"
 
 // Mock модулей
-vi.mock("../resource-manager", () => ({
+vi.mock("../../services/resource-manager", () => ({
   updateTimelineTransitionParameters: vi.fn((project: TimelineProject, transitionId: string, updates: any) => {
     const updatedProject = { ...project }
     const transition = updatedProject.resources.timelineTransitions.find((t) => t.id === transitionId)

@@ -249,7 +249,21 @@ export function adjustTransitionsForClipChange(
     }
     // Переход на выход
     else if (transition.type === "out" && transition.startClipId === clipId) {
-      updates.position = newPosition + newDuration - transition.duration
+      const positionChanged = newPosition !== oldPosition
+      const durationChanged = newDuration !== oldDuration
+      
+      if (positionChanged && !durationChanged) {
+        // Только позиция изменилась (trim начала) - сдвигаем переход
+        const shift = newPosition - oldPosition
+        updates.position = transition.position + shift
+      } else if (positionChanged && durationChanged) {
+        // Изменилось и то и другое (trim с обеих сторон) - сдвигаем на изменение позиции
+        const shift = newPosition - oldPosition
+        updates.position = transition.position + shift
+      } else if (durationChanged) {
+        // Только длительность изменилась (trim конца) - пересчитываем по концу клипа
+        updates.position = newPosition + newDuration - transition.duration
+      }
       needsUpdate = true
     }
 

@@ -53,11 +53,11 @@ import {
   type AppliedTransition,
   isSubtitleClip,
   type ProjectResources,
-  type SubtitleClip,
   type TimelineClip,
   type TimelineProject,
   type TimelineTrack,
 } from "../types/timeline"
+import { SubtitleClip } from "@/features/subtitles"
 
 /**
  * Преобразует проект Timeline в схему для Video Compiler

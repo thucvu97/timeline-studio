@@ -14,10 +14,10 @@ import {
   getClipTransitions,
   getTrackTransitions,
   removeTransition,
-} from "../timeline-transition-manager"
+} from "../../services/timeline-transition-manager"
 
 // Mock модуля resource-manager
-vi.mock("../resource-manager", () => ({
+vi.mock("../../services/resource-manager", () => ({
   createTimelineTransition: vi.fn((project: TimelineProject, resource: Transition, config: any) => {
     const timelineTransition: TimelineTransition = {
       id: `transition-${Date.now()}`,
