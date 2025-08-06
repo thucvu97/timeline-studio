@@ -48,8 +48,17 @@ export function TimelineSelectionProvider({ children }: TimelineSelectionProvide
   // Clipboard operations
   const copySelectedClips = useCallback(async () => {
     const selectedClips = clips.filter(clip => selectedClipIds.includes(clip.id))
-    const clipboardData = copyClips(selectedClips)
-    setClipboardData(clipboardData)
+    if (selectedClips.length === 0) {
+      console.warn("No clips selected for copying")
+      return
+    }
+    
+    try {
+      const clipboardData = copyClips(selectedClips)
+      setClipboardData(clipboardData)
+    } catch (error) {
+      console.error("Failed to copy clips:", error)
+    }
   }, [clips, selectedClipIds])
 
   const cutClips = useCallback(async () => {
