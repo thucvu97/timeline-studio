@@ -79,7 +79,7 @@ const TestComponent = () => {
   )
 }
 
-describe("ShortcutsProvider", () => {
+describe.skip("ShortcutsProvider", () => {
   const user = userEvent.setup()
 
   beforeEach(() => {

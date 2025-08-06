@@ -216,7 +216,7 @@ describe("SubtitleEditorModal", () => {
 
     // Проверяем, что функция была вызвана
     expect(mockModalData.onSave).toHaveBeenCalled()
-    
+
     // Проверяем что текст сохранился
     const savedData = mockModalData.onSave.mock.calls[0][0]
     expect(savedData.text).toBe("Тест")
