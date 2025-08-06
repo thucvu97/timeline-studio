@@ -3,7 +3,7 @@
  */
 
 import type { TimelineTrack } from "@/features/timeline/types/timeline"
-import { BaseAITool, type AIToolExecutionOptions, type AIToolLogger, type AIToolResult } from "../base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 import { generateTrackId } from "./utils/generators"
 import { getCurrentTimelineProject, saveTimelineProject } from "./utils/helpers"
 
@@ -50,7 +50,7 @@ export class TrackCreationTool extends BaseAITool {
    */
   public async createTrackStructure(
     input: CreateTracksInput,
-    options: AIToolExecutionOptions = {}
+    options: AIToolExecutionOptions = {},
   ): Promise<AIToolResult<CreateTracksResult>> {
     // Валидация входных данных
     const validation = this.validateInput(input, (data) => {
@@ -94,7 +94,7 @@ export class TrackCreationTool extends BaseAITool {
 
       return {
         isValid: errors.length === 0,
-        errors
+        errors,
       }
     })
 
@@ -104,7 +104,7 @@ export class TrackCreationTool extends BaseAITool {
         errors: validation.errors,
         message: "Ошибка валидации данных для создания треков",
         executionTime: 0,
-        toolName: this.toolName
+        toolName: this.toolName,
       }
     }
 
@@ -121,7 +121,7 @@ export class TrackCreationTool extends BaseAITool {
           tracksCount: tracks.length,
           targetType,
           targetSectionId,
-          replaceExisting
+          replaceExisting,
         })
 
         const currentProject = await getCurrentTimelineProject()
@@ -201,14 +201,14 @@ export class TrackCreationTool extends BaseAITool {
             targetSectionId,
             trackTypes,
           },
-          warnings: warnings.length > 0 ? warnings : undefined
+          warnings: warnings.length > 0 ? warnings : undefined,
         }
 
         context.logger?.("info", "Треки успешно созданы", {
           tracksCreated: newTracks.length,
           targetType,
           trackTypes: Object.keys(trackTypes).join(", "),
-          warningsCount: warnings.length
+          warningsCount: warnings.length,
         })
 
         return result
@@ -222,9 +222,9 @@ export class TrackCreationTool extends BaseAITool {
           tracksCount: tracks.length,
           targetType,
           replaceExisting,
-          ...options.metadata
-        }
-      }
+          ...options.metadata,
+        },
+      },
     )
   }
 }
@@ -238,8 +238,8 @@ export async function createTrackStructure(params: any): Promise<AIToolResult<Cr
     tracks: params.tracks,
     targetType: params.targetType,
     targetSectionId: params.targetSectionId,
-    replaceExisting: params.replaceExisting
+    replaceExisting: params.replaceExisting,
   }
-  
+
   return trackCreationTool.createTrackStructure(input)
 }

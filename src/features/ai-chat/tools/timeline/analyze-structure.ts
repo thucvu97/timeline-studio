@@ -3,7 +3,7 @@
  */
 
 import type { TimelineClip, TimelineProject, TimelineSection, TimelineTrack } from "@/features/timeline/types/timeline"
-import { BaseAITool, type AIToolExecutionOptions, type AIToolLogger, type AIToolResult } from "../base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 import { getTimelineStateAccess } from "./types"
 import {
   calculateTimelineDensity,
@@ -115,7 +115,7 @@ export class StructureAnalysisTool extends BaseAITool {
    */
   public async analyzeTimelineStructure(
     input: StructureAnalysisInput,
-    options: AIToolExecutionOptions = {}
+    options: AIToolExecutionOptions = {},
   ): Promise<AIToolResult<StructureAnalysisResult>> {
     // Валидация входных данных
     const validation = this.validateInput(input, (data) => {
@@ -128,7 +128,7 @@ export class StructureAnalysisTool extends BaseAITool {
 
       return {
         isValid: errors.length === 0,
-        errors
+        errors,
       }
     })
 
@@ -138,7 +138,7 @@ export class StructureAnalysisTool extends BaseAITool {
         errors: validation.errors,
         message: "Ошибка валидации параметров анализа структуры",
         executionTime: 0,
-        toolName: this.toolName
+        toolName: this.toolName,
       }
     }
 
@@ -156,7 +156,7 @@ export class StructureAnalysisTool extends BaseAITool {
           includeClips,
           includeTracks,
           includeSections,
-          includeResources
+          includeResources,
         })
 
         const timelineStateAccess = getTimelineStateAccess()
@@ -186,13 +186,13 @@ export class StructureAnalysisTool extends BaseAITool {
         }
 
         const result: StructureAnalysisResult = {
-          projectInfo
+          projectInfo,
         }
 
         // Собираем информацию о треках
         if (includeTracks) {
           const tracks: TrackInfo[] = []
-          
+
           // Глобальные треки
           currentProject.globalTracks.forEach((track: TimelineTrack) => {
             tracks.push({
@@ -229,24 +229,26 @@ export class StructureAnalysisTool extends BaseAITool {
 
         // Собираем информацию о секциях
         if (includeSections) {
-          result.sections = currentProject.sections.map((section: TimelineSection): SectionInfo => ({
-            id: section.id,
-            name: section.name,
-            index: (section as any).index || 0,
-            duration: section.duration,
-            startTime: section.startTime,
-            endTime: (section as any).endTime || section.startTime + section.duration,
-            tracksCount: section.tracks.length,
-            isCollapsed: (section as any).isCollapsed || false,
-            color: section.color || "#333",
-            tags: (section as any).tags || [],
-          }))
+          result.sections = currentProject.sections.map(
+            (section: TimelineSection): SectionInfo => ({
+              id: section.id,
+              name: section.name,
+              index: (section as any).index || 0,
+              duration: section.duration,
+              startTime: section.startTime,
+              endTime: (section as any).endTime || section.startTime + section.duration,
+              tracksCount: section.tracks.length,
+              isCollapsed: (section as any).isCollapsed || false,
+              color: section.color || "#333",
+              tags: (section as any).tags || [],
+            }),
+          )
         }
 
         // Собираем информацию о клипах
         if (includeClips) {
           const clips: ClipInfo[] = []
-          
+
           // Клипы с глобальных треков
           currentProject.globalTracks.forEach((track) => {
             track.clips.forEach((clip: TimelineClip) => {
@@ -306,7 +308,8 @@ export class StructureAnalysisTool extends BaseAITool {
           currentProject.sections.forEach((section) => allTracks.push(...section.tracks))
 
           result.statistics = {
-            averageClipDuration: allClips.length > 0 ? allClips.reduce((sum, clip) => sum + clip.duration, 0) / allClips.length : 0,
+            averageClipDuration:
+              allClips.length > 0 ? allClips.reduce((sum, clip) => sum + clip.duration, 0) / allClips.length : 0,
             trackTypeDistribution: getTrackTypeDistribution(allTracks),
             timelineDensity: calculateTimelineDensity(currentProject),
             usedResources: {
@@ -332,7 +335,7 @@ export class StructureAnalysisTool extends BaseAITool {
           clipsIncluded: !!result.clips,
           statisticsIncluded: !!result.statistics,
           recommendationsCount: result.recommendations?.length || 0,
-          issuesCount: result.issues?.length || 0
+          issuesCount: result.issues?.length || 0,
         })
 
         return result
@@ -344,10 +347,15 @@ export class StructureAnalysisTool extends BaseAITool {
         enableLogging: options.enableLogging !== false,
         metadata: {
           analysisDepth,
-          componentsIncluded: [includeClips && "clips", includeTracks && "tracks", includeSections && "sections", includeResources && "resources"].filter(Boolean),
-          ...options.metadata
-        }
-      }
+          componentsIncluded: [
+            includeClips && "clips",
+            includeTracks && "tracks",
+            includeSections && "sections",
+            includeResources && "resources",
+          ].filter(Boolean),
+          ...options.metadata,
+        },
+      },
     )
   }
 }
@@ -362,8 +370,8 @@ export async function analyzeTimelineStructure(params: any): Promise<AIToolResul
     includeTracks: params.includeTracks,
     includeSections: params.includeSections,
     includeResources: params.includeResources,
-    analysisDepth: params.analysisDepth
+    analysisDepth: params.analysisDepth,
   }
-  
+
   return structureAnalysisTool.analyzeTimelineStructure(input)
 }

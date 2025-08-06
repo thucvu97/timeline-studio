@@ -234,18 +234,13 @@ export interface PersonCharacteristics {
 
 // Интерфейс для взаимодействия с AI сервисом
 export interface AIServiceInterface {
-  sendRequest(
-    model: string,
-    messages: AiMessage[],
-    options?: { temperature?: number }
-  ): Promise<{ content: string }>
+  sendRequest(model: string, messages: AiMessage[], options?: { temperature?: number }): Promise<{ content: string }>
 }
 
 /**
  * Сервис для анализа контента и Content Intelligence
  */
 export class ContentIntelligenceService {
-  private static instance: ContentIntelligenceService
   private aiService: AIServiceInterface
 
   private constructor(aiService: AIServiceInterface) {

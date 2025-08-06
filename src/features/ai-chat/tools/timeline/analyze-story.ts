@@ -3,7 +3,7 @@
  */
 
 import type { TimelineProject } from "@/features/timeline/types/timeline"
-import { BaseAITool, type AIToolExecutionOptions, type AIToolLogger, type AIToolResult } from "../base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 // Типы для анализа истории
 export interface StoryAnalysisInput {
@@ -78,7 +78,7 @@ export class StoryAnalysisTool extends BaseAITool {
    */
   public async analyzeStoryContent(
     input: StoryAnalysisInput,
-    options: AIToolExecutionOptions = {}
+    options: AIToolExecutionOptions = {},
   ): Promise<AIToolResult<StoryAnalysisResult>> {
     // Валидация входных данных
     const validation = this.validateInput(input, (data) => {
@@ -96,7 +96,7 @@ export class StoryAnalysisTool extends BaseAITool {
 
       return {
         isValid: errors.length === 0,
-        errors
+        errors,
       }
     })
 
@@ -106,7 +106,7 @@ export class StoryAnalysisTool extends BaseAITool {
         errors: validation.errors,
         message: "Ошибка валидации параметров анализа истории",
         executionTime: 0,
-        toolName: this.toolName
+        toolName: this.toolName,
       }
     }
 
@@ -119,12 +119,12 @@ export class StoryAnalysisTool extends BaseAITool {
         context.logger?.("info", "Начинаем анализ нарративной структуры", {
           scope: analysisScope,
           elementsCount: storyElements.length,
-          elements: storyElements.join(", ")
+          elements: storyElements.join(", "),
         })
 
         const { getTimelineStateAccess } = await import("./types")
         const timelineAccess = getTimelineStateAccess()
-        
+
         if (!timelineAccess) {
           throw new Error("Timeline state access не настроен")
         }
@@ -145,7 +145,7 @@ export class StoryAnalysisTool extends BaseAITool {
         context.logger?.("info", "Анализируем структуру проекта", {
           tracksCount: allTracks.length,
           clipsCount: allClips.length,
-          sectionsCount: currentProject.sections?.length || 0
+          sectionsCount: currentProject.sections?.length || 0,
         })
 
         // Создаем базовую структуру результата
@@ -154,7 +154,7 @@ export class StoryAnalysisTool extends BaseAITool {
           analyzedElements: storyElements,
           timestamp: new Date().toISOString(),
           overallRecommendations: [],
-          projectStats: timelineAccess.getProjectStats()
+          projectStats: timelineAccess.getProjectStats(),
         }
 
         const warnings: string[] = []
@@ -201,17 +201,22 @@ export class StoryAnalysisTool extends BaseAITool {
         }
 
         // Генерируем общие рекомендации
-        analysis.overallRecommendations = this.generateOverallStoryRecommendations(analysis, currentProject, allTracks, allClips)
+        analysis.overallRecommendations = this.generateOverallStoryRecommendations(
+          analysis,
+          currentProject,
+          allTracks,
+          allClips,
+        )
 
         context.logger?.("info", "Анализ нарративной структуры завершен", {
           scope: analysisScope,
           warningsCount: warnings.length,
-          recommendationsCount: analysis.overallRecommendations.length
+          recommendationsCount: analysis.overallRecommendations.length,
         })
 
         return {
           ...analysis,
-          warnings: warnings.length > 0 ? warnings : undefined
+          warnings: warnings.length > 0 ? warnings : undefined,
         }
       },
       {
@@ -222,22 +227,22 @@ export class StoryAnalysisTool extends BaseAITool {
         metadata: {
           scope: analysisScope,
           elementsCount: storyElements.length,
-          ...options.metadata
-        }
-      }
+          ...options.metadata,
+        },
+      },
     )
   }
 
   /**
    * Анализирует нарративную структуру проекта
    */
-  private analyzeNarrativeStructure(project: TimelineProject, allTracks: any[], allClips: any[]): NarrativeStructure {
+  private analyzeNarrativeStructure(project: TimelineProject, _allTracks: any[], allClips: any[]): NarrativeStructure {
     const sectionsCount = project.sections?.length || 0
     const totalDuration = project.duration || 0
-    
+
     // Определяем наличие нарративной структуры
     const hasNarrative = sectionsCount >= 3 && totalDuration > 60 && allClips.length >= 10
-    
+
     // Определяем тип структуры
     let structure = "неопределена"
     if (sectionsCount === 0) {
@@ -272,20 +277,20 @@ export class StoryAnalysisTool extends BaseAITool {
       hasNarrative,
       structure,
       suggestions,
-      strength: Math.min(10, strength)
+      strength: Math.min(10, strength),
     }
   }
 
   /**
    * Анализирует темп и ритм проекта
    */
-  private analyzePacing(allTracks: any[], allClips: any[]): PacingAnalysis {
+  private analyzePacing(_allTracks: any[], allClips: any[]): PacingAnalysis {
     if (allClips.length === 0) {
       return {
         rhythm: "none",
         tempo: "slow",
         averageShotLength: 0,
-        recommendations: ["Добавьте клипы для анализа темпа"]
+        recommendations: ["Добавьте клипы для анализа темпа"],
       }
     }
 
@@ -306,7 +311,7 @@ export class StoryAnalysisTool extends BaseAITool {
     }
 
     const recommendations: string[] = []
-    
+
     if (rhythm === "fast" && tempo === "very-fast") {
       recommendations.push("Слишком быстрый ритм может утомлять зрителей - рассмотрите добавление пауз")
     } else if (rhythm === "slow" && tempo === "very-slow") {
@@ -319,7 +324,7 @@ export class StoryAnalysisTool extends BaseAITool {
       rhythm,
       tempo,
       averageShotLength,
-      recommendations
+      recommendations,
     }
   }
 
@@ -329,10 +334,10 @@ export class StoryAnalysisTool extends BaseAITool {
   private analyzeEmotionalFlow(project: TimelineProject): EmotionalFlow {
     const sections = project.sections || []
     const hasEmotionalArc = sections.length >= 3
-    
+
     // Упрощенный анализ эмоциональной дуги на основе секций
     let overallArc: EmotionalFlow["overallArc"] = "flat"
-    
+
     if (sections.length >= 3) {
       // Предполагаем классическую структуру: setup -> conflict -> resolution
       overallArc = "rising"
@@ -340,14 +345,14 @@ export class StoryAnalysisTool extends BaseAITool {
       overallArc = "rising"
     }
 
-    const keyMoments: EmotionalFlow["keyMoments"] = sections.map((section, index) => ({
-      time: index * (project.duration || 0) / sections.length,
+    const keyMoments: EmotionalFlow["keyMoments"] = sections.map((_section, index) => ({
+      time: (index * (project.duration || 0)) / sections.length,
       emotion: index === 0 ? "setup" : index === sections.length - 1 ? "resolution" : "conflict",
-      intensity: index === Math.floor(sections.length / 2) ? 8 : 5
+      intensity: index === Math.floor(sections.length / 2) ? 8 : 5,
     }))
 
     const recommendations: string[] = []
-    
+
     if (!hasEmotionalArc) {
       recommendations.push("Создайте секции для структурирования эмоционального потока")
     } else {
@@ -362,14 +367,14 @@ export class StoryAnalysisTool extends BaseAITool {
       hasEmotionalArc,
       overallArc,
       keyMoments,
-      recommendations
+      recommendations,
     }
   }
 
   /**
    * Анализирует визуальную непрерывность
    */
-  private analyzeVisualContinuity(project: TimelineProject, allTracks: any[]): VisualContinuity {
+  private analyzeVisualContinuity(_project: TimelineProject, allTracks: any[]): VisualContinuity {
     const videoTracks = allTracks.filter((track) => track.type === "video")
     const suggestions: string[] = []
 
@@ -394,7 +399,7 @@ export class StoryAnalysisTool extends BaseAITool {
     })
 
     const totalClips = videoTracks.reduce((sum, track) => sum + track.clips.length, 0)
-    const continuityScore = Math.max(0, 1 - (abruptTransitions * 0.1))
+    const continuityScore = Math.max(0, 1 - abruptTransitions * 0.1)
 
     if (abruptTransitions > totalClips * 0.5) {
       suggestions.push("Рассмотрите добавление переходов между клипами для плавности")
@@ -406,7 +411,7 @@ export class StoryAnalysisTool extends BaseAITool {
       hasVisualContent: true,
       abruptTransitions,
       continuityScore,
-      suggestions
+      suggestions,
     }
   }
 
@@ -424,7 +429,7 @@ export class StoryAnalysisTool extends BaseAITool {
 
     // Анализируем покрытие аудио
     const allAudioClips = audioTracks.reduce((clips, track) => clips.concat(track.clips || []), [])
-    
+
     if (allAudioClips.length === 0) {
       suggestions.push("Добавьте аудио клипы на аудио треки")
       return { hasAudioContent: false, audioCoverage: 0, audioGaps: 0, consistencyScore: 0, suggestions }
@@ -440,7 +445,7 @@ export class StoryAnalysisTool extends BaseAITool {
     if (audioCoverage < 0.8) {
       suggestions.push("Увеличьте аудио покрытие проекта для лучшего восприятия")
     }
-    
+
     if (audioGaps.length > 0) {
       suggestions.push(`Обнаружено ${audioGaps.length} пробелов в аудио - добавьте фоновую музыку или звуки`)
     }
@@ -454,7 +459,7 @@ export class StoryAnalysisTool extends BaseAITool {
       audioCoverage,
       audioGaps: audioGaps.length,
       consistencyScore,
-      suggestions
+      suggestions,
     }
   }
 
@@ -464,8 +469,8 @@ export class StoryAnalysisTool extends BaseAITool {
   private generateOverallStoryRecommendations(
     analysis: StoryAnalysisResult,
     project: TimelineProject,
-    allTracks: any[],
-    allClips: any[]
+    _allTracks: any[],
+    allClips: any[],
   ): string[] {
     const recommendations: string[] = []
 
@@ -546,9 +551,8 @@ export const storyAnalysisTool = new StoryAnalysisTool()
 export async function analyzeContentForStory(params: any): Promise<AIToolResult<StoryAnalysisResult>> {
   const input: StoryAnalysisInput = {
     analysisScope: params.analysisScope,
-    storyElements: params.storyElements
+    storyElements: params.storyElements,
   }
-  
+
   return storyAnalysisTool.analyzeStoryContent(input)
 }
-

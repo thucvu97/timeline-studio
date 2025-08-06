@@ -214,9 +214,9 @@ export interface ContextualResult<T = any> extends ResultWithMetrics<T> {
 }
 
 // Типы ошибок
-export type ErrorType = 
+export type ErrorType =
   | "validation"
-  | "authentication" 
+  | "authentication"
   | "authorization"
   | "network"
   | "timeout"
@@ -290,49 +290,47 @@ export interface RetriableResult<T = any> extends ResultWithMetrics<T> {
 }
 
 // Утилиты для работы с результатами
-export namespace ResultUtils {
-  export function isSuccess<T>(result: BaseResult<T>): result is BaseResult<T> & { success: true; data: T } {
-    return result.success === true
-  }
+export function isSuccess<T>(result: BaseResult<T>): result is BaseResult<T> & { success: true; data: T } {
+  return result.success === true
+}
 
-  export function isFailure<T>(result: BaseResult<T>): result is BaseResult<T> & { success: false } {
-    return result.success === false
-  }
+export function isFailure<T>(result: BaseResult<T>): result is BaseResult<T> & { success: false } {
+  return result.success === false
+}
 
-  export function hasWarnings<T>(result: BaseResult<T>): boolean {
-    return (result.warnings?.length || 0) > 0
-  }
+export function hasWarnings<T>(result: BaseResult<T>): boolean {
+  return (result.warnings?.length || 0) > 0
+}
 
-  export function hasErrors<T>(result: BaseResult<T>): boolean {
-    return (result.errors?.length || 0) > 0
-  }
+export function hasErrors<T>(result: BaseResult<T>): boolean {
+  return (result.errors?.length || 0) > 0
+}
 
-  export function createSuccess<T>(data: T, message?: string, warnings?: string[]): BaseResult<T> {
-    return {
-      success: true,
-      data,
-      message,
-      warnings
-    }
+export function createSuccess<T>(data: T, message?: string, warnings?: string[]): BaseResult<T> {
+  return {
+    success: true,
+    data,
+    message,
+    warnings,
   }
+}
 
-  export function createFailure<T>(errors: string[], message?: string): BaseResult<T> {
-    return {
-      success: false,
-      errors,
-      message: message || errors.join("; ")
-    }
+export function createFailure<T>(errors: string[], message?: string): BaseResult<T> {
+  return {
+    success: false,
+    errors,
+    message: message || errors.join("; "),
   }
+}
 
-  export function createWithMetrics<T>(
-    result: BaseResult<T>, 
-    executionTime: number, 
-    metadata?: Record<string, any>
-  ): ResultWithMetrics<T> {
-    return {
-      ...result,
-      executionTime,
-      metadata
-    }
+export function createWithMetrics<T>(
+  result: BaseResult<T>,
+  executionTime: number,
+  metadata?: Record<string, any>,
+): ResultWithMetrics<T> {
+  return {
+    ...result,
+    executionTime,
+    metadata,
   }
 }

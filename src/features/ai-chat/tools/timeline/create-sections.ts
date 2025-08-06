@@ -3,7 +3,7 @@
  */
 
 import type { TimelineClip, TimelineSection } from "@/features/timeline/types/timeline"
-import { BaseAITool, type AIToolExecutionOptions, type AIToolLogger, type AIToolResult } from "../base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 import { calculateSectionsCoverage } from "./utils/calculators"
 import {
   createManualSections,
@@ -61,7 +61,7 @@ export class SectionCreationTool extends BaseAITool {
    */
   public async createSectionsByStrategy(
     input: CreateSectionsInput,
-    options: AIToolExecutionOptions = {}
+    options: AIToolExecutionOptions = {},
   ): Promise<AIToolResult<CreateSectionsResult>> {
     // Валидация входных данных
     const validation = this.validateInput(input, (data) => {
@@ -80,7 +80,10 @@ export class SectionCreationTool extends BaseAITool {
         errors.push("Длительность секции должна быть положительным числом")
       }
 
-      if (data.strategy === "manual" && (!data.sectionSettings?.sections || data.sectionSettings.sections.length === 0)) {
+      if (
+        data.strategy === "manual" &&
+        (!data.sectionSettings?.sections || data.sectionSettings.sections.length === 0)
+      ) {
         errors.push("Для manual стратегии необходимо указать массив секций")
       }
 
@@ -90,7 +93,7 @@ export class SectionCreationTool extends BaseAITool {
 
       return {
         isValid: errors.length === 0,
-        errors
+        errors,
       }
     })
 
@@ -100,7 +103,7 @@ export class SectionCreationTool extends BaseAITool {
         errors: validation.errors,
         message: "Ошибка валидации данных для создания секций",
         executionTime: 0,
-        toolName: this.toolName
+        toolName: this.toolName,
       }
     }
 
@@ -114,7 +117,7 @@ export class SectionCreationTool extends BaseAITool {
         context.logger?.("info", "Начинаем создание секций", {
           strategy,
           targetClipsCount: targetClips.length,
-          sectionSettings: Object.keys(sectionSettings)
+          sectionSettings: Object.keys(sectionSettings),
         })
 
         const currentProject = await getCurrentTimelineProject()
@@ -131,9 +134,8 @@ export class SectionCreationTool extends BaseAITool {
         })
 
         // Фильтруем клипы если указаны конкретные
-        const clipsToProcess = targetClips.length > 0 
-          ? allClips.filter((clip) => targetClips.includes(clip.id)) 
-          : allClips
+        const clipsToProcess =
+          targetClips.length > 0 ? allClips.filter((clip) => targetClips.includes(clip.id)) : allClips
 
         if (targetClips.length > 0 && clipsToProcess.length === 0) {
           throw new Error("Указанные клипы не найдены в проекте")
@@ -199,7 +201,7 @@ export class SectionCreationTool extends BaseAITool {
           strategy,
           sectionsCount: sections.length,
           totalCoverage,
-          warningsCount: warnings.length
+          warningsCount: warnings.length,
         })
 
         return result
@@ -212,9 +214,9 @@ export class SectionCreationTool extends BaseAITool {
         metadata: {
           strategy,
           targetClipsCount: targetClips.length,
-          ...options.metadata
-        }
-      }
+          ...options.metadata,
+        },
+      },
     )
   }
 }
@@ -227,8 +229,8 @@ export async function createSectionsByStrategy(params: any): Promise<AIToolResul
   const input: CreateSectionsInput = {
     strategy: params.strategy,
     sectionSettings: params.sectionSettings,
-    targetClips: params.targetClips
+    targetClips: params.targetClips,
   }
-  
+
   return sectionCreationTool.createSectionsByStrategy(input)
 }

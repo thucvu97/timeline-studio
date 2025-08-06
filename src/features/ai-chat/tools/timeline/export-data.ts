@@ -3,7 +3,7 @@
  */
 
 import type { TimelineProject } from "@/features/timeline/types/timeline"
-import { BaseAITool, type AIToolExecutionOptions, type AIToolLogger, type AIToolResult } from "../base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 // Типы для экспорта данных Timeline
 export interface TimelineExportInput {
@@ -54,7 +54,7 @@ export class TimelineExportTool extends BaseAITool {
    */
   public async exportTimelineData(
     input: TimelineExportInput,
-    options: AIToolExecutionOptions = {}
+    options: AIToolExecutionOptions = {},
   ): Promise<AIToolResult<TimelineExportResult>> {
     // Валидация входных данных
     const validation = this.validateInput(input, (data) => {
@@ -76,7 +76,7 @@ export class TimelineExportTool extends BaseAITool {
 
       return {
         isValid: errors.length === 0,
-        errors
+        errors,
       }
     })
 
@@ -86,7 +86,7 @@ export class TimelineExportTool extends BaseAITool {
         errors: validation.errors,
         message: "Ошибка валидации входных данных для экспорта",
         executionTime: 0,
-        toolName: this.toolName
+        toolName: this.toolName,
       }
     }
 
@@ -100,7 +100,7 @@ export class TimelineExportTool extends BaseAITool {
       effects: true,
       transitions: true,
       metadata: true,
-      ...input.includeData
+      ...input.includeData,
     }
     const exportScope = input.exportScope || "full-project"
 
@@ -110,12 +110,12 @@ export class TimelineExportTool extends BaseAITool {
         context.logger?.("info", "Начинаем экспорт данных Timeline", {
           format: exportFormat,
           scope: exportScope,
-          includeDataKeys: Object.keys(includeData).filter(key => includeData[key as keyof typeof includeData])
+          includeDataKeys: Object.keys(includeData).filter((key) => includeData[key as keyof typeof includeData]),
         })
 
         const { getTimelineStateAccess } = await import("./types")
         const timelineAccess = getTimelineStateAccess()
-        
+
         if (!timelineAccess) {
           throw new Error("Timeline state access не настроен. Доступ к timeline не сконфигурирован")
         }
@@ -149,14 +149,14 @@ export class TimelineExportTool extends BaseAITool {
             size: this.calculateDataSize(formattedData),
             timestamp: new Date().toISOString(),
           },
-          recommendations
+          recommendations,
         }
 
         context.logger?.("info", "Экспорт данных Timeline завершен", {
           format: exportFormat,
           fileSize: result.fileInfo.size,
           elementsCount: exportStats.totalElements,
-          recommendationsCount: recommendations.length
+          recommendationsCount: recommendations.length,
         })
 
         return result
@@ -170,9 +170,9 @@ export class TimelineExportTool extends BaseAITool {
           exportFormat,
           exportScope,
           projectId: input.exportFormat, // Будет заменен реальным ID проекта внутри executeWithErrorHandling
-          ...options.metadata
-        }
-      }
+          ...options.metadata,
+        },
+      },
     )
   }
 
@@ -180,134 +180,134 @@ export class TimelineExportTool extends BaseAITool {
    * Подготавливает данные для экспорта
    */
   private async prepareExportData(project: any, includeData: any, exportScope: string): Promise<any> {
-  const exportData: any = {
-    version: "1.0.0",
-    exportTimestamp: new Date().toISOString(),
-    exportScope,
-  }
-
-  // Настройки проекта
-  if (includeData.projectSettings) {
-    exportData.projectSettings = {
-      name: project.name,
-      id: project.id,
-      duration: project.duration,
-      frameRate: project.frameRate,
-      resolution: project.resolution,
-      audioSampleRate: project.audioSampleRate,
-      createdAt: project.createdAt,
-      updatedAt: project.updatedAt,
+    const exportData: any = {
+      version: "1.0.0",
+      exportTimestamp: new Date().toISOString(),
+      exportScope,
     }
-  }
 
-  // Получаем все треки
-  const allTracks = [...project.globalTracks]
-  project.sections.forEach((section: any) => allTracks.push(...section.tracks))
-
-  // Секции
-  if (includeData.sections) {
-    exportData.sections = project.sections.map((section: any) => ({
-      id: section.id,
-      name: section.name,
-      startTime: section.startTime,
-      duration: section.duration,
-      color: section.color,
-      description: section.description,
-      trackIds: section.tracks.map((track: any) => track.id),
-    }))
-  }
-
-  // Треки
-  if (includeData.tracks) {
-    exportData.tracks = allTracks.map((track: any) => ({
-      id: track.id,
-      name: track.name,
-      type: track.type,
-      sectionId: track.sectionId,
-      height: track.height,
-      volume: track.volume,
-      muted: track.muted,
-      locked: track.locked,
-      clipIds: track.clips.map((clip: any) => clip.id),
-    }))
-  }
-
-  // Клипы
-  if (includeData.clips) {
-    const allClips: any[] = []
-    allTracks.forEach((track) => allClips.push(...track.clips))
-
-    exportData.clips = allClips.map((clip: any) => ({
-      id: clip.id,
-      name: clip.name,
-      trackId: clip.trackId,
-      startTime: clip.startTime,
-      duration: clip.duration,
-      mediaFile: clip.mediaFile,
-      volume: clip.volume,
-      speed: clip.speed,
-      opacity: clip.opacity,
-      effectIds: clip.effects?.map((effect: any) => effect.id) || [],
-      transitionIds: clip.transitions?.map((transition: any) => transition.id) || [],
-    }))
-  }
-
-  // Эффекты
-  if (includeData.effects) {
-    const allEffects: any[] = []
-    allTracks.forEach((track) => {
-      track.clips.forEach((clip: any) => {
-        if (clip.effects) {
-          allEffects.push(...clip.effects)
-        }
-      })
-    })
-
-    exportData.effects = allEffects.map((effect: any) => ({
-      id: effect.id,
-      type: effect.type,
-      name: effect.name,
-      parameters: effect.parameters,
-      enabled: effect.enabled,
-      startTime: effect.startTime,
-      duration: effect.duration,
-    }))
-  }
-
-  // Переходы
-  if (includeData.transitions) {
-    const allTransitions: any[] = []
-    allTracks.forEach((track) => {
-      track.clips.forEach((clip: any) => {
-        if (clip.transitions) {
-          allTransitions.push(...clip.transitions)
-        }
-      })
-    })
-
-    exportData.transitions = allTransitions.map((transition: any) => ({
-      id: transition.id,
-      type: transition.type,
-      name: transition.name,
-      duration: transition.duration,
-      startTime: transition.startTime,
-      endTime: transition.endTime,
-      parameters: transition.parameters,
-    }))
-  }
-
-  // Метаданные
-  if (includeData.metadata) {
-    exportData.metadata = {
-      totalTracks: allTracks.length,
-      totalClips: allTracks.reduce((sum: number, track: any) => sum + track.clips.length, 0),
-      totalSections: project.sections.length,
-      videoTracks: allTracks.filter((track: any) => track.type === "video").length,
-      audioTracks: allTracks.filter((track: any) => track.type === "audio").length,
-      projectDuration: project.duration,
-      exportedBy: "Timeline Studio AI",
+    // Настройки проекта
+    if (includeData.projectSettings) {
+      exportData.projectSettings = {
+        name: project.name,
+        id: project.id,
+        duration: project.duration,
+        frameRate: project.frameRate,
+        resolution: project.resolution,
+        audioSampleRate: project.audioSampleRate,
+        createdAt: project.createdAt,
+        updatedAt: project.updatedAt,
+      }
     }
-  }
+
+    // Получаем все треки
+    const allTracks = [...project.globalTracks]
+    project.sections.forEach((section: any) => allTracks.push(...section.tracks))
+
+    // Секции
+    if (includeData.sections) {
+      exportData.sections = project.sections.map((section: any) => ({
+        id: section.id,
+        name: section.name,
+        startTime: section.startTime,
+        duration: section.duration,
+        color: section.color,
+        description: section.description,
+        trackIds: section.tracks.map((track: any) => track.id),
+      }))
+    }
+
+    // Треки
+    if (includeData.tracks) {
+      exportData.tracks = allTracks.map((track: any) => ({
+        id: track.id,
+        name: track.name,
+        type: track.type,
+        sectionId: track.sectionId,
+        height: track.height,
+        volume: track.volume,
+        muted: track.muted,
+        locked: track.locked,
+        clipIds: track.clips.map((clip: any) => clip.id),
+      }))
+    }
+
+    // Клипы
+    if (includeData.clips) {
+      const allClips: any[] = []
+      allTracks.forEach((track) => allClips.push(...track.clips))
+
+      exportData.clips = allClips.map((clip: any) => ({
+        id: clip.id,
+        name: clip.name,
+        trackId: clip.trackId,
+        startTime: clip.startTime,
+        duration: clip.duration,
+        mediaFile: clip.mediaFile,
+        volume: clip.volume,
+        speed: clip.speed,
+        opacity: clip.opacity,
+        effectIds: clip.effects?.map((effect: any) => effect.id) || [],
+        transitionIds: clip.transitions?.map((transition: any) => transition.id) || [],
+      }))
+    }
+
+    // Эффекты
+    if (includeData.effects) {
+      const allEffects: any[] = []
+      allTracks.forEach((track) => {
+        track.clips.forEach((clip: any) => {
+          if (clip.effects) {
+            allEffects.push(...clip.effects)
+          }
+        })
+      })
+
+      exportData.effects = allEffects.map((effect: any) => ({
+        id: effect.id,
+        type: effect.type,
+        name: effect.name,
+        parameters: effect.parameters,
+        enabled: effect.enabled,
+        startTime: effect.startTime,
+        duration: effect.duration,
+      }))
+    }
+
+    // Переходы
+    if (includeData.transitions) {
+      const allTransitions: any[] = []
+      allTracks.forEach((track) => {
+        track.clips.forEach((clip: any) => {
+          if (clip.transitions) {
+            allTransitions.push(...clip.transitions)
+          }
+        })
+      })
+
+      exportData.transitions = allTransitions.map((transition: any) => ({
+        id: transition.id,
+        type: transition.type,
+        name: transition.name,
+        duration: transition.duration,
+        startTime: transition.startTime,
+        endTime: transition.endTime,
+        parameters: transition.parameters,
+      }))
+    }
+
+    // Метаданные
+    if (includeData.metadata) {
+      exportData.metadata = {
+        totalTracks: allTracks.length,
+        totalClips: allTracks.reduce((sum: number, track: any) => sum + track.clips.length, 0),
+        totalSections: project.sections.length,
+        videoTracks: allTracks.filter((track: any) => track.type === "video").length,
+        audioTracks: allTracks.filter((track: any) => track.type === "audio").length,
+        projectDuration: project.duration,
+        exportedBy: "Timeline Studio AI",
+      }
+    }
 
     return exportData
   }
@@ -316,27 +316,27 @@ export class TimelineExportTool extends BaseAITool {
    * Форматирует данные в соответствии с выбранным форматом
    */
   private async formatExportData(exportData: any, format: string): Promise<any> {
-  switch (format) {
-    case "json":
-      return JSON.stringify(exportData, null, 2)
+    switch (format) {
+      case "json":
+        return JSON.stringify(exportData, null, 2)
 
-    case "xml":
-      return this.convertToXML(exportData)
+      case "xml":
+        return this.convertToXML(exportData)
 
-    case "csv":
-      return this.convertToCSV(exportData)
+      case "csv":
+        return this.convertToCSV(exportData)
 
-    case "edl":
-      return this.convertToEDL(exportData)
+      case "edl":
+        return this.convertToEDL(exportData)
 
-    case "fcpxml":
-      return this.convertToFCPXML(exportData)
+      case "fcpxml":
+        return this.convertToFCPXML(exportData)
 
-    case "davinci-resolve":
-      return this.convertToDaVinciResolve(exportData)
+      case "davinci-resolve":
+        return this.convertToDaVinciResolve(exportData)
 
-    default:
-      return JSON.stringify(exportData, null, 2)
+      default:
+        return JSON.stringify(exportData, null, 2)
     }
   }
 
@@ -353,24 +353,24 @@ export class TimelineExportTool extends BaseAITool {
    * Конвертирует данные в CSV формат
    */
   private convertToCSV(data: any): string {
-  const csvLines: string[] = []
+    const csvLines: string[] = []
 
-  // Заголовки CSV
-  csvLines.push("Type,ID,Name,StartTime,Duration,TrackType,SectionId")
+    // Заголовки CSV
+    csvLines.push("Type,ID,Name,StartTime,Duration,TrackType,SectionId")
 
-  // Клипы
-  if (data.clips) {
-    data.clips.forEach((clip: any) => {
-      csvLines.push(["Clip", clip.id, clip.name || "", clip.startTime, clip.duration, "", ""].join(","))
-    })
-  }
+    // Клипы
+    if (data.clips) {
+      data.clips.forEach((clip: any) => {
+        csvLines.push(["Clip", clip.id, clip.name || "", clip.startTime, clip.duration, "", ""].join(","))
+      })
+    }
 
-  // Треки
-  if (data.tracks) {
-    data.tracks.forEach((track: any) => {
-      csvLines.push(["Track", track.id, track.name || "", "", "", track.type, track.sectionId || ""].join(","))
-    })
-  }
+    // Треки
+    if (data.tracks) {
+      data.tracks.forEach((track: any) => {
+        csvLines.push(["Track", track.id, track.name || "", "", "", track.type, track.sectionId || ""].join(","))
+      })
+    }
 
     return csvLines.join("\n")
   }
@@ -379,20 +379,20 @@ export class TimelineExportTool extends BaseAITool {
    * Конвертирует данные в EDL формат
    */
   private convertToEDL(data: any): string {
-  const edlLines: string[] = []
-  edlLines.push("TITLE: Timeline Studio Export")
-  edlLines.push("FCM: NON-DROP FRAME")
-  edlLines.push("")
+    const edlLines: string[] = []
+    edlLines.push("TITLE: Timeline Studio Export")
+    edlLines.push("FCM: NON-DROP FRAME")
+    edlLines.push("")
 
-  if (data.clips) {
-    data.clips.forEach((clip: any, index: number) => {
-      const editNumber = String(index + 1).padStart(3, "0")
-      const timecode = this.formatTimecode(clip.startTime)
-      const duration = this.formatTimecode(clip.duration)
+    if (data.clips) {
+      data.clips.forEach((clip: any, index: number) => {
+        const editNumber = String(index + 1).padStart(3, "0")
+        const timecode = this.formatTimecode(clip.startTime)
+        const duration = this.formatTimecode(clip.duration)
 
-      edlLines.push(`${editNumber}  ${clip.name || "CLIP"} V     C        ${timecode} ${duration}`)
-    })
-  }
+        edlLines.push(`${editNumber}  ${clip.name || "CLIP"} V     C        ${timecode} ${duration}`)
+      })
+    }
 
     return edlLines.join("\n")
   }
@@ -401,7 +401,7 @@ export class TimelineExportTool extends BaseAITool {
    * Конвертирует данные в FCPXML формат
    */
   private convertToFCPXML(data: any): string {
-  const fcpxmlContent = `<?xml version="1.0" encoding="UTF-8"?>
+    const fcpxmlContent = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE fcpxml>
 <fcpxml version="1.8">
   <resources>
@@ -436,17 +436,17 @@ export class TimelineExportTool extends BaseAITool {
    * Конвертирует данные в DaVinci Resolve формат
    */
   private convertToDaVinciResolve(data: any): string {
-  const resolveData = {
-    version: "1.0",
-    timelineData: {
-      name: data.projectSettings?.name || "Exported Timeline",
-      frameRate: data.projectSettings?.frameRate || 24,
-      resolution: data.projectSettings?.resolution || { width: 1920, height: 1080 },
-      tracks: data.tracks || [],
-      clips: data.clips || [],
-    },
-    metadata: data.metadata || {},
-  }
+    const resolveData = {
+      version: "1.0",
+      timelineData: {
+        name: data.projectSettings?.name || "Exported Timeline",
+        frameRate: data.projectSettings?.frameRate || 24,
+        resolution: data.projectSettings?.resolution || { width: 1920, height: 1080 },
+        tracks: data.tracks || [],
+        clips: data.clips || [],
+      },
+      metadata: data.metadata || {},
+    }
 
     return JSON.stringify(resolveData, null, 2)
   }
@@ -455,65 +455,65 @@ export class TimelineExportTool extends BaseAITool {
    * Преобразует объект в XML формат
    */
   private objectToXML(obj: any, rootName: string): string {
-  const xmlLines: string[] = []
-  xmlLines.push(`<${rootName}>`)
+    const xmlLines: string[] = []
+    xmlLines.push(`<${rootName}>`)
 
-  for (const [key, value] of Object.entries(obj)) {
-    if (Array.isArray(value)) {
-      xmlLines.push(`  <${key}>`)
-      value.forEach((item: any) => {
-        xmlLines.push("    <item>")
-        if (typeof item === "object") {
-          for (const [itemKey, itemValue] of Object.entries(item)) {
-            let safeValue = ""
-            if (itemValue !== null && itemValue !== undefined) {
-              if (typeof itemValue === "object") {
-                safeValue = JSON.stringify(itemValue)
-              } else {
-                // Type is string, number, boolean, etc - safe to stringify
-                safeValue = String(itemValue as string | number | boolean)
+    for (const [key, value] of Object.entries(obj)) {
+      if (Array.isArray(value)) {
+        xmlLines.push(`  <${key}>`)
+        value.forEach((item: any) => {
+          xmlLines.push("    <item>")
+          if (typeof item === "object") {
+            for (const [itemKey, itemValue] of Object.entries(item)) {
+              let safeValue = ""
+              if (itemValue !== null && itemValue !== undefined) {
+                if (typeof itemValue === "object") {
+                  safeValue = JSON.stringify(itemValue)
+                } else {
+                  // Type is string, number, boolean, etc - safe to stringify
+                  safeValue = String(itemValue as string | number | boolean)
+                }
               }
+              xmlLines.push(`      <${itemKey}>${safeValue}</${itemKey}>`)
             }
-            xmlLines.push(`      <${itemKey}>${safeValue}</${itemKey}>`)
+          } else {
+            xmlLines.push(`      ${item}`)
           }
-        } else {
-          xmlLines.push(`      ${item}`)
-        }
-        xmlLines.push("    </item>")
-      })
-      xmlLines.push(`  </${key}>`)
-    } else if (typeof value === "object") {
-      xmlLines.push(`  <${key}>`)
-      for (const [subKey, subValue] of Object.entries(value as any)) {
-        let safeSubValue = ""
-        if (subValue === null || subValue === undefined) {
-          safeSubValue = ""
-        } else if (typeof subValue === "object") {
-          safeSubValue = JSON.stringify(subValue)
-        } else {
-          safeSubValue =
-            typeof subValue === "string" || typeof subValue === "number" || typeof subValue === "boolean"
-              ? String(subValue)
-              : JSON.stringify(subValue)
-        }
-        xmlLines.push(`    <${subKey}>${safeSubValue}</${subKey}>`)
-      }
-      xmlLines.push(`  </${key}>`)
-    } else {
-      let safeValue = ""
-      if (value === null || value === undefined) {
-        safeValue = ""
+          xmlLines.push("    </item>")
+        })
+        xmlLines.push(`  </${key}>`)
       } else if (typeof value === "object") {
-        safeValue = JSON.stringify(value)
+        xmlLines.push(`  <${key}>`)
+        for (const [subKey, subValue] of Object.entries(value as any)) {
+          let safeSubValue = ""
+          if (subValue === null || subValue === undefined) {
+            safeSubValue = ""
+          } else if (typeof subValue === "object") {
+            safeSubValue = JSON.stringify(subValue)
+          } else {
+            safeSubValue =
+              typeof subValue === "string" || typeof subValue === "number" || typeof subValue === "boolean"
+                ? String(subValue)
+                : JSON.stringify(subValue)
+          }
+          xmlLines.push(`    <${subKey}>${safeSubValue}</${subKey}>`)
+        }
+        xmlLines.push(`  </${key}>`)
       } else {
-        safeValue =
-          typeof value === "string" || typeof value === "number" || typeof value === "boolean"
-            ? String(value)
-            : JSON.stringify(value)
+        let safeValue = ""
+        if (value === null || value === undefined) {
+          safeValue = ""
+        } else if (typeof value === "object") {
+          safeValue = JSON.stringify(value)
+        } else {
+          safeValue =
+            typeof value === "string" || typeof value === "number" || typeof value === "boolean"
+              ? String(value)
+              : JSON.stringify(value)
+        }
+        xmlLines.push(`  <${key}>${safeValue}</${key}>`)
       }
-      xmlLines.push(`  <${key}>${safeValue}</${key}>`)
     }
-  }
 
     xmlLines.push(`</${rootName}>`)
     return xmlLines.join("\n")
@@ -524,9 +524,9 @@ export class TimelineExportTool extends BaseAITool {
    */
   private formatTimecode(seconds: number): string {
     const hours = Math.floor(seconds / 3600)
-  const mins = Math.floor((seconds % 3600) / 60)
-  const secs = Math.floor(seconds % 60)
-  const frames = Math.floor((seconds % 1) * 24) // Assuming 24fps
+    const mins = Math.floor((seconds % 3600) / 60)
+    const secs = Math.floor(seconds % 60)
+    const frames = Math.floor((seconds % 1) * 24) // Assuming 24fps
 
     return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}:${frames.toString().padStart(2, "0")}`
   }
@@ -659,8 +659,8 @@ export async function exportTimelineData(params: any): Promise<AIToolResult<Time
   const input: TimelineExportInput = {
     exportFormat: params.exportFormat || "json",
     includeData: params.includeData,
-    exportScope: params.exportScope
+    exportScope: params.exportScope,
   }
-  
+
   return timelineExportTool.exportTimelineData(input)
 }

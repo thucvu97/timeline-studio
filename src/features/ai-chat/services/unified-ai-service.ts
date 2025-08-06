@@ -7,19 +7,18 @@ import { contentIntelligenceTools } from "../tools/content-intelligence-tools"
 import { personIdentificationTools } from "../tools/person-identification-tools"
 import type { AiMessage } from "../types/ai-message"
 import type { StreamingOptions } from "../types/streaming"
-import { AIResponseProcessor, type UnifiedResponse } from "./ai-response-processor"
-import { CLAUDE_MODELS, ClaudeService } from "./claude-service"
-import { ContentIntelligenceService, type AIServiceInterface, type MediaInput, type UnifiedContentAnalysis } from "./content-intelligence-service"
-import { DEEPSEEK_MODELS, DeepSeekService } from "./deepseek-service"
-import { ModelConfigurationManager, type AIProvider, type ModelConfig } from "./model-configuration-manager"
+import { type UnifiedResponse } from "./ai-response-processor"
+import { ClaudeService } from "./claude-service"
+import { type MediaInput, type UnifiedContentAnalysis } from "./content-intelligence-service"
+import { DeepSeekService } from "./deepseek-service"
+import { type AIProvider, type ModelConfig, ModelConfigurationManager } from "./model-configuration-manager"
 import { OllamaService } from "./ollama-service"
-import { AI_MODELS, OpenAiService } from "./open-ai-service"
-import { ProviderManager } from "./provider-manager"
+import { OpenAiService } from "./open-ai-service"
 
-// Экспортируем типы из отдельных сервисов
-export type { AIProvider, ModelConfig } from "./model-configuration-manager"
 export type { UnifiedResponse } from "./ai-response-processor"
 export type { MediaInput, UnifiedContentAnalysis } from "./content-intelligence-service"
+// Экспортируем типы из отдельных сервисов
+export type { AIProvider, ModelConfig } from "./model-configuration-manager"
 
 // Все доступные модели теперь управляются через ModelConfigurationManager
 export const UNIFIED_MODELS: Record<string, ModelConfig> = {}
@@ -31,7 +30,7 @@ export function getUnifiedModels(): Record<string, ModelConfig> {
     isOpenAIAvailable: (model: string) => OpenAiService.getInstance().hasApiKey(model),
     isDeepSeekAvailable: () => DeepSeekService.getInstance().hasApiKey(),
     isOllamaAvailable: () => OllamaService.getInstance().isAvailable(),
-    getOllamaModels: () => OllamaService.getInstance().getInstalledModels()
+    getOllamaModels: () => OllamaService.getInstance().getInstalledModels(),
   })
   return modelManager.getStaticModels()
 }

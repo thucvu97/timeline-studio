@@ -36,7 +36,7 @@ export interface AIToolContext {
   startTime: number
   attempt: number
   maxRetries: number
-  logger?: (level: 'info' | 'warn' | 'error', message: string, data?: any) => void
+  logger?: (level: "info" | "warn" | "error", message: string, data?: any) => void
 }
 
 // Интерфейс для логгера
@@ -63,14 +63,14 @@ export abstract class BaseAITool {
    */
   protected async executeWithErrorHandling<T>(
     executor: (context: AIToolContext) => Promise<T>,
-    options: AIToolExecutionOptions = {}
+    options: AIToolExecutionOptions = {},
   ): Promise<AIToolResult<T>> {
     const {
       timeout = 30000, // 30 секунд по умолчанию
       retries = 1,
       retryDelay = 1000,
       enableLogging = true,
-      metadata = {}
+      metadata = {},
     } = options
 
     const startTime = Date.now()
@@ -82,7 +82,7 @@ export abstract class BaseAITool {
       startTime,
       attempt: 0,
       maxRetries: retries,
-      logger: enableLogging ? this.createContextLogger() : undefined
+      logger: enableLogging ? this.createContextLogger() : undefined,
     }
 
     for (let attempt = 0; attempt < retries; attempt++) {
@@ -94,7 +94,7 @@ export abstract class BaseAITool {
           this.logger.info(`Выполнение инструмента ${this.toolName}`, {
             attempt: attempt + 1,
             maxRetries: retries,
-            timeout
+            timeout,
           })
         }
 
@@ -107,7 +107,7 @@ export abstract class BaseAITool {
         if (enableLogging && this.logger) {
           this.logger.info(`Инструмент ${this.toolName} выполнен успешно`, {
             executionTime,
-            attempt: attempt + 1
+            attempt: attempt + 1,
           })
         }
 
@@ -120,10 +120,9 @@ export abstract class BaseAITool {
           metadata: {
             ...metadata,
             attempt: attempt + 1,
-            maxRetries: retries
-          }
+            maxRetries: retries,
+          },
         }
-
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error))
         const executionTime = Date.now() - startTime
@@ -132,7 +131,7 @@ export abstract class BaseAITool {
         if (enableLogging && this.logger) {
           this.logger.warn(`Попытка ${attempt + 1}/${retries} не удалась для инструмента ${this.toolName}`, {
             error: lastError.message,
-            executionTime
+            executionTime,
           })
         }
 
@@ -141,7 +140,7 @@ export abstract class BaseAITool {
           if (enableLogging && this.logger) {
             this.logger.error(`Все попытки исчерпаны для инструмента ${this.toolName}`, {
               error: lastError.message,
-              totalExecutionTime: executionTime
+              totalExecutionTime: executionTime,
             })
           }
 
@@ -161,7 +160,7 @@ export abstract class BaseAITool {
       Date.now() - startTime,
       metadata,
       retries,
-      retries
+      retries,
     )
   }
 
@@ -171,7 +170,7 @@ export abstract class BaseAITool {
   private async executeWithTimeout<T>(
     executor: (context: AIToolContext) => Promise<T>,
     context: AIToolContext,
-    timeout: number
+    timeout: number,
   ): Promise<T> {
     return new Promise<T>((resolve, reject) => {
       const timer = setTimeout(() => {
@@ -179,11 +178,11 @@ export abstract class BaseAITool {
       }, timeout)
 
       executor(context)
-        .then(result => {
+        .then((result) => {
           clearTimeout(timer)
           resolve(result)
         })
-        .catch(error => {
+        .catch((error) => {
           clearTimeout(timer)
           reject(error)
         })
@@ -198,10 +197,10 @@ export abstract class BaseAITool {
     executionTime: number,
     metadata: Record<string, any>,
     attempts: number,
-    maxRetries: number
+    maxRetries: number,
   ): AIToolResult<never> {
     const errorMessage = error.message || "Неизвестная ошибка"
-    
+
     return {
       success: false,
       message: `Ошибка выполнения инструмента ${this.toolName}: ${errorMessage}`,
@@ -212,15 +211,15 @@ export abstract class BaseAITool {
         ...metadata,
         attempts,
         maxRetries,
-        errorType: error.constructor.name
-      }
+        errorType: error.constructor.name,
+      },
     }
   }
 
   /**
    * Создать контекстный логгер
    */
-  private createContextLogger(): (level: 'info' | 'warn' | 'error', message: string, data?: any) => void {
+  private createContextLogger(): (level: "info" | "warn" | "error", message: string, data?: any) => void {
     return (level, message, data) => {
       if (this.logger) {
         this.logger[level](`[${this.toolName}] ${message}`, data)
@@ -232,7 +231,7 @@ export abstract class BaseAITool {
    * Задержка выполнения
    */
   private sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms))
+    return new Promise((resolve) => setTimeout(resolve, ms))
   }
 
   /**
@@ -240,14 +239,14 @@ export abstract class BaseAITool {
    */
   protected validateInput<T>(
     input: T,
-    validator: (input: T) => { isValid: boolean; errors: string[] }
+    validator: (input: T) => { isValid: boolean; errors: string[] },
   ): { isValid: boolean; errors: string[] } {
     try {
       return validator(input)
     } catch (error) {
       return {
         isValid: false,
-        errors: [`Ошибка валидации: ${error instanceof Error ? error.message : String(error)}`]
+        errors: [`Ошибка валидации: ${error instanceof Error ? error.message : String(error)}`],
       }
     }
   }
@@ -259,14 +258,14 @@ export abstract class BaseAITool {
     data: T,
     message?: string,
     metadata?: Record<string, any>,
-    warnings?: string[]
-  ): Omit<AIToolResult<T>, 'executionTime' | 'toolName'> {
+    warnings?: string[],
+  ): Omit<AIToolResult<T>, "executionTime" | "toolName"> {
     return {
       success: true,
       data,
       message: message || `Инструмент ${this.toolName} выполнен успешно`,
       warnings,
-      metadata
+      metadata,
     }
   }
 
@@ -277,14 +276,14 @@ export abstract class BaseAITool {
     data: T,
     warnings: string[],
     message?: string,
-    metadata?: Record<string, any>
-  ): Omit<AIToolResult<T>, 'executionTime' | 'toolName'> {
+    metadata?: Record<string, any>,
+  ): Omit<AIToolResult<T>, "executionTime" | "toolName"> {
     return {
       success: true,
       data,
       message: message || `Инструмент ${this.toolName} выполнен с предупреждениями`,
       warnings,
-      metadata
+      metadata,
     }
   }
 
@@ -299,7 +298,7 @@ export abstract class BaseAITool {
       return {
         success: false,
         data: fallback,
-        error: `Ошибка парсинга JSON: ${error instanceof Error ? error.message : String(error)}`
+        error: `Ошибка парсинга JSON: ${error instanceof Error ? error.message : String(error)}`,
       }
     }
   }
@@ -308,7 +307,7 @@ export abstract class BaseAITool {
    * Нормализация строки для консистентности
    */
   protected normalizeString(str: string): string {
-    return str.trim().replace(/\s+/g, ' ')
+    return str.trim().replace(/\s+/g, " ")
   }
 
   /**
@@ -316,9 +315,9 @@ export abstract class BaseAITool {
    */
   protected isEmpty(value: any): boolean {
     if (value === null || value === undefined) return true
-    if (typeof value === 'string') return value.trim() === ''
+    if (typeof value === "string") return value.trim() === ""
     if (Array.isArray(value)) return value.length === 0
-    if (typeof value === 'object') return Object.keys(value).length === 0
+    if (typeof value === "object") return Object.keys(value).length === 0
     return false
   }
 

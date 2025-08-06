@@ -3,7 +3,7 @@
  */
 
 import type { TimelineProject } from "@/features/timeline/types/timeline"
-import { BaseAITool, type AIToolExecutionOptions, type AIToolLogger, type AIToolResult } from "../base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 // Типы для детекции сцен
 export interface SceneDetectionInput {
@@ -68,7 +68,7 @@ export class SceneDetectionTool extends BaseAITool {
    */
   public async detectAndSplitScenes(
     input: SceneDetectionInput,
-    options: AIToolExecutionOptions = {}
+    options: AIToolExecutionOptions = {},
   ): Promise<AIToolResult<SceneDetectionResult>> {
     // Валидация входных данных
     const validation = this.validateInput(input, (data) => {
@@ -84,7 +84,7 @@ export class SceneDetectionTool extends BaseAITool {
 
       return {
         isValid: errors.length === 0,
-        errors
+        errors,
       }
     })
 
@@ -94,7 +94,7 @@ export class SceneDetectionTool extends BaseAITool {
         errors: validation.errors,
         message: "Ошибка валидации входных данных для детекции сцен",
         executionTime: 0,
-        toolName: this.toolName
+        toolName: this.toolName,
       }
     }
 
@@ -109,12 +109,12 @@ export class SceneDetectionTool extends BaseAITool {
         context.logger?.("info", "Начинаем детекцию сцен", {
           sensitivity,
           autoSplit,
-          targetClipsCount: targetClips.length
+          targetClipsCount: targetClips.length,
         })
 
         const { getTimelineStateAccess } = await import("./types")
         const timelineAccess = getTimelineStateAccess()
-        
+
         if (!timelineAccess) {
           throw new Error("Timeline state access не настроен. Доступ к timeline не сконфигурирован")
         }
@@ -132,7 +132,9 @@ export class SceneDetectionTool extends BaseAITool {
         const videoClips = this.getVideoClipsForAnalysis(allTracks, targetClips)
 
         if (videoClips.length === 0) {
-          throw new Error("Нет видео клипов для детекции сцен. Добавьте видео клипы на timeline или укажите корректные ID клипов")
+          throw new Error(
+            "Нет видео клипов для детекции сцен. Добавьте видео клипы на timeline или укажите корректные ID клипов",
+          )
         }
 
         const detectedScenes: DetectedScenes[] = []
@@ -183,14 +185,14 @@ export class SceneDetectionTool extends BaseAITool {
               detectedScenes.length > 0 ? (totalScenesDetected / detectedScenes.length).toFixed(1) : "0",
           },
           warnings: warnings.length > 0 ? warnings : undefined,
-          recommendations
+          recommendations,
         }
 
         context.logger?.("info", "Детекция сцен завершена", {
           totalScenesDetected,
           clipsWithScenes: detectedScenes.length,
           splitPerformed: autoSplit,
-          warningsCount: warnings.length
+          warningsCount: warnings.length,
         })
 
         return result
@@ -204,9 +206,9 @@ export class SceneDetectionTool extends BaseAITool {
           sensitivity,
           autoSplit,
           targetClipsCount: targetClips.length,
-          ...options.metadata
-        }
-      }
+          ...options.metadata,
+        },
+      },
     )
   }
 
@@ -214,20 +216,20 @@ export class SceneDetectionTool extends BaseAITool {
    * Получает видео клипы для анализа
    */
   private getVideoClipsForAnalysis(allTracks: any[], targetClips: string[]): any[] {
-  const videoClips: any[] = []
+    const videoClips: any[] = []
 
-  for (const track of allTracks) {
-    if (track.type === "video") {
-      for (const clip of track.clips) {
-        if (clip.mediaFile?.type === "video") {
-          // Если указаны конкретные клипы, фильтруем по ID
-          if (targetClips.length === 0 || targetClips.includes(clip.id)) {
-            videoClips.push(clip)
+    for (const track of allTracks) {
+      if (track.type === "video") {
+        for (const clip of track.clips) {
+          if (clip.mediaFile?.type === "video") {
+            // Если указаны конкретные клипы, фильтруем по ID
+            if (targetClips.length === 0 || targetClips.includes(clip.id)) {
+              videoClips.push(clip)
+            }
           }
         }
       }
     }
-  }
 
     return videoClips
   }
@@ -236,51 +238,51 @@ export class SceneDetectionTool extends BaseAITool {
    * Анализирует клип для детекции сцен
    */
   private async analyzeClipForScenes(clip: any, sensitivity: string): Promise<any> {
-  const scenes: any[] = []
-  const duration = clip.duration
-  const confidence = getSensitivityThreshold(sensitivity)
+    const scenes: any[] = []
+    const duration = clip.duration
+    const confidence = this.getSensitivityThreshold(sensitivity)
 
-  // Простая эвристика для детекции сцен на основе длительности
+    // Простая эвристика для детекции сцен на основе длительности
     const minSceneDuration = this.getMinSceneDuration(sensitivity)
     const maxSceneDuration = this.getMaxSceneDuration(sensitivity)
 
     // Генерируем потенциальные точки смены сцен
     const sceneChangePoints = this.generateSceneChangePoints(duration, minSceneDuration, maxSceneDuration, confidence)
 
-  // Создаем сцены на основе найденных точек
-  let currentStart = 0
-  for (const changePoint of sceneChangePoints) {
-    if (changePoint.time > currentStart + minSceneDuration) {
+    // Создаем сцены на основе найденных точек
+    let currentStart = 0
+    for (const changePoint of sceneChangePoints) {
+      if (changePoint.time > currentStart + minSceneDuration) {
+        scenes.push({
+          startTime: clip.startTime + currentStart,
+          endTime: clip.startTime + changePoint.time,
+          duration: changePoint.time - currentStart,
+          confidence: changePoint.confidence,
+          sceneType: this.determineSceneType(changePoint.time - currentStart),
+          clipRelativeStart: currentStart,
+          clipRelativeEnd: changePoint.time,
+        })
+        currentStart = changePoint.time
+      }
+    }
+
+    // Добавляем последнюю сцену
+    if (currentStart < duration) {
       scenes.push({
         startTime: clip.startTime + currentStart,
-        endTime: clip.startTime + changePoint.time,
-        duration: changePoint.time - currentStart,
-        confidence: changePoint.confidence,
-        sceneType: this.determineSceneType(changePoint.time - currentStart),
+        endTime: clip.startTime + duration,
+        duration: duration - currentStart,
+        confidence: confidence,
+        sceneType: this.determineSceneType(duration - currentStart),
         clipRelativeStart: currentStart,
-        clipRelativeEnd: changePoint.time,
+        clipRelativeEnd: duration,
       })
-      currentStart = changePoint.time
     }
-  }
 
-  // Добавляем последнюю сцену
-  if (currentStart < duration) {
-    scenes.push({
-      startTime: clip.startTime + currentStart,
-      endTime: clip.startTime + duration,
-      duration: duration - currentStart,
-      confidence: confidence,
-      sceneType: this.determineSceneType(duration - currentStart),
-      clipRelativeStart: currentStart,
-      clipRelativeEnd: duration,
-    })
-  }
-
-  return {
-    scenes,
-    confidence,
-    analysisMethod: "duration-based",
+    return {
+      scenes,
+      confidence,
+      analysisMethod: "duration-based",
       clipDuration: duration,
     }
   }
@@ -289,39 +291,39 @@ export class SceneDetectionTool extends BaseAITool {
    * Разделяет клип по найденным сценам
    */
   private async splitClipByScenes(clip: any, scenes: any[]): Promise<any> {
-  try {
-    const newClips: any[] = []
+    try {
+      const newClips: any[] = []
 
-    for (let i = 0; i < scenes.length; i++) {
-      const scene = scenes[i]
-      const newClip = {
-        ...clip,
-        id: `${clip.id}_scene_${i + 1}`,
-        name: `${clip.name || clip.id} - Сцена ${i + 1}`,
-        startTime: scene.startTime,
-        duration: scene.duration,
-        mediaFile: {
-          ...clip.mediaFile,
-          trimStart: (clip.mediaFile?.trimStart || 0) + scene.clipRelativeStart,
-          trimEnd:
-            (clip.mediaFile?.trimEnd || clip.mediaFile?.duration || scene.clipRelativeEnd) -
-            (clip.mediaFile?.duration || scene.clipRelativeEnd - scene.clipRelativeStart),
-        },
-        sceneInfo: {
-          sceneNumber: i + 1,
-          originalClipId: clip.id,
-          sceneType: scene.sceneType,
-          confidence: scene.confidence,
-        },
+      for (let i = 0; i < scenes.length; i++) {
+        const scene = scenes[i]
+        const newClip = {
+          ...clip,
+          id: `${clip.id}_scene_${i + 1}`,
+          name: `${clip.name || clip.id} - Сцена ${i + 1}`,
+          startTime: scene.startTime,
+          duration: scene.duration,
+          mediaFile: {
+            ...clip.mediaFile,
+            trimStart: (clip.mediaFile?.trimStart || 0) + scene.clipRelativeStart,
+            trimEnd:
+              (clip.mediaFile?.trimEnd || clip.mediaFile?.duration || scene.clipRelativeEnd) -
+              (clip.mediaFile?.duration || scene.clipRelativeEnd - scene.clipRelativeStart),
+          },
+          sceneInfo: {
+            sceneNumber: i + 1,
+            originalClipId: clip.id,
+            sceneType: scene.sceneType,
+            confidence: scene.confidence,
+          },
+        }
+
+        newClips.push(newClip)
       }
 
-      newClips.push(newClip)
-    }
-
-    return {
-      success: true,
-      newClips,
-      originalClipId: clip.id,
+      return {
+        success: true,
+        newClips,
+        originalClipId: clip.id,
         splitCount: newClips.length,
       }
     } catch (error) {
@@ -334,34 +336,18 @@ export class SceneDetectionTool extends BaseAITool {
   }
 
   /**
-   * Получает порог чувствительности
-   */
-  private getSensitivityThreshold(sensitivity: string): number {
-  switch (sensitivity) {
-    case "low":
-      return 0.3
-    case "medium":
-      return 0.5
-    case "high":
-      return 0.7
-    default:
-      return 0.5
-    }
-  }
-
-  /**
    * Получает минимальную длительность сцены
    */
   private getMinSceneDuration(sensitivity: string): number {
-  switch (sensitivity) {
-    case "low":
-      return 10 // 10 секунд минимум
-    case "medium":
-      return 5 // 5 секунд минимум
-    case "high":
-      return 2 // 2 секунды минимум
-    default:
-      return 5
+    switch (sensitivity) {
+      case "low":
+        return 10 // 10 секунд минимум
+      case "medium":
+        return 5 // 5 секунд минимум
+      case "high":
+        return 2 // 2 секунды минимум
+      default:
+        return 5
     }
   }
 
@@ -369,15 +355,15 @@ export class SceneDetectionTool extends BaseAITool {
    * Получает максимальную длительность сцены
    */
   private getMaxSceneDuration(sensitivity: string): number {
-  switch (sensitivity) {
-    case "low":
-      return 120 // 2 минуты максимум
-    case "medium":
-      return 60 // 1 минута максимум
-    case "high":
-      return 30 // 30 секунд максимум
-    default:
-      return 60
+    switch (sensitivity) {
+      case "low":
+        return 120 // 2 минуты максимум
+      case "medium":
+        return 60 // 1 минута максимум
+      case "high":
+        return 30 // 30 секунд максимум
+      default:
+        return 60
     }
   }
 
@@ -390,22 +376,22 @@ export class SceneDetectionTool extends BaseAITool {
     maxDuration: number,
     confidence: number,
   ): any[] {
-  const changePoints: any[] = []
-  let currentTime = 0
+    const changePoints: any[] = []
+    let currentTime = 0
 
-  while (currentTime < duration) {
-    // Генерируем случайную длительность сцены в пределах лимитов
-    const sceneDuration = Math.random() * (maxDuration - minDuration) + minDuration
-    currentTime += sceneDuration
+    while (currentTime < duration) {
+      // Генерируем случайную длительность сцены в пределах лимитов
+      const sceneDuration = Math.random() * (maxDuration - minDuration) + minDuration
+      currentTime += sceneDuration
 
-    if (currentTime < duration) {
-      changePoints.push({
-        time: currentTime,
-        confidence: confidence + (Math.random() - 0.5) * 0.2, // Небольшая вариация уверенности
-        reason: "content-change", // В реальности это был бы результат анализа
-      })
+      if (currentTime < duration) {
+        changePoints.push({
+          time: currentTime,
+          confidence: confidence + (Math.random() - 0.5) * 0.2, // Небольшая вариация уверенности
+          reason: "content-change", // В реальности это был бы результат анализа
+        })
+      }
     }
-  }
 
     return changePoints
   }
@@ -414,15 +400,15 @@ export class SceneDetectionTool extends BaseAITool {
    * Определяет тип сцены по длительности
    */
   private determineSceneType(duration: number): "quick-cut" | "short-scene" | "medium-scene" | "long-scene" {
-  if (duration < 5) {
-    return "quick-cut"
-  }
-  if (duration < 15) {
-    return "short-scene"
-  }
-  if (duration < 45) {
-    return "medium-scene"
-  }
+    if (duration < 5) {
+      return "quick-cut"
+    }
+    if (duration < 15) {
+      return "short-scene"
+    }
+    if (duration < 45) {
+      return "medium-scene"
+    }
     return "long-scene"
   }
 
@@ -434,49 +420,49 @@ export class SceneDetectionTool extends BaseAITool {
     sensitivity: string,
     autoSplit: boolean,
   ): string[] {
-  const recommendations: string[] = []
+    const recommendations: string[] = []
 
-  // Рекомендации на основе найденных сцен
-  const totalScenes = detectedScenes.reduce((sum, item) => sum + item.scenes.length, 0)
+    // Рекомендации на основе найденных сцен
+    const totalScenes = detectedScenes.reduce((sum, item) => sum + item.scenes.length, 0)
 
-  if (totalScenes === 0) {
-    recommendations.push("Сцены не найдены - попробуйте изменить чувствительность детекции")
+    if (totalScenes === 0) {
+      recommendations.push("Сцены не найдены - попробуйте изменить чувствительность детекции")
 
-    if (sensitivity === "low") {
-      recommendations.push("Увеличьте чувствительность для обнаружения большего количества сцен")
+      if (sensitivity === "low") {
+        recommendations.push("Увеличьте чувствительность для обнаружения большего количества сцен")
+      }
+    } else {
+      // Анализ качества детекции
+      const avgScenesPerClip = totalScenes / detectedScenes.length
+
+      if (avgScenesPerClip < 2) {
+        recommendations.push("Мало сцен обнаружено - рассмотрите увеличение чувствительности")
+      } else if (avgScenesPerClip > 10) {
+        recommendations.push("Много сцен обнаружено - рассмотрите уменьшение чувствительности")
+      }
+
+      // Рекомендации по типам сцен
+      const sceneTypes = new Set()
+      detectedScenes.forEach((item) => {
+        item.scenes.forEach((scene: any) => sceneTypes.add(scene.sceneType))
+      })
+
+      if (sceneTypes.has("quick-cut")) {
+        recommendations.push("Обнаружены быстрые склейки - проверьте точность детекции")
+      }
+
+      if (sceneTypes.has("long-scene")) {
+        recommendations.push("Обнаружены длинные сцены - рассмотрите дополнительное разделение")
+      }
+
+      // Рекомендации по действиям
+      if (!autoSplit) {
+        recommendations.push("Включите автоматическое разделение для создания отдельных клипов")
+      }
+
+      recommendations.push("Создайте маркеры для найденных сцен")
+      recommendations.push("Проверьте точность детекции перед окончательным разделением")
     }
-  } else {
-    // Анализ качества детекции
-    const avgScenesPerClip = totalScenes / detectedScenes.length
-
-    if (avgScenesPerClip < 2) {
-      recommendations.push("Мало сцен обнаружено - рассмотрите увеличение чувствительности")
-    } else if (avgScenesPerClip > 10) {
-      recommendations.push("Много сцен обнаружено - рассмотрите уменьшение чувствительности")
-    }
-
-    // Рекомендации по типам сцен
-    const sceneTypes = new Set()
-    detectedScenes.forEach((item) => {
-      item.scenes.forEach((scene: any) => sceneTypes.add(scene.sceneType))
-    })
-
-    if (sceneTypes.has("quick-cut")) {
-      recommendations.push("Обнаружены быстрые склейки - проверьте точность детекции")
-    }
-
-    if (sceneTypes.has("long-scene")) {
-      recommendations.push("Обнаружены длинные сцены - рассмотрите дополнительное разделение")
-    }
-
-    // Рекомендации по действиям
-    if (!autoSplit) {
-      recommendations.push("Включите автоматическое разделение для создания отдельных клипов")
-    }
-
-    recommendations.push("Создайте маркеры для найденных сцен")
-    recommendations.push("Проверьте точность детекции перед окончательным разделением")
-  }
 
     return recommendations
   }
@@ -490,8 +476,8 @@ export async function detectAndSplitScenes(params: any): Promise<AIToolResult<Sc
   const input: SceneDetectionInput = {
     targetClips: params.targetClips,
     sensitivity: params.sensitivity,
-    autoSplit: params.autoSplit
+    autoSplit: params.autoSplit,
   }
-  
+
   return sceneDetectionTool.detectAndSplitScenes(input)
 }

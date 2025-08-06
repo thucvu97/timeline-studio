@@ -3,7 +3,7 @@
  */
 
 import type { TimelineProject } from "@/features/timeline/types/timeline"
-import { BaseAITool, type AIToolExecutionOptions, type AIToolLogger, type AIToolResult } from "../base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 // Типы для синхронизации с музыкой
 export interface MusicSyncInput {
@@ -72,7 +72,7 @@ export class MusicSyncTool extends BaseAITool {
    */
   public async synchronizeTimelineWithMusic(
     input: MusicSyncInput,
-    options: AIToolExecutionOptions = {}
+    options: AIToolExecutionOptions = {},
   ): Promise<AIToolResult<MusicSyncResult>> {
     // Валидация входных данных
     const validation = this.validateInput(input, (data) => {
@@ -97,7 +97,7 @@ export class MusicSyncTool extends BaseAITool {
 
       return {
         isValid: errors.length === 0,
-        errors
+        errors,
       }
     })
 
@@ -107,7 +107,7 @@ export class MusicSyncTool extends BaseAITool {
         errors: validation.errors,
         message: "Ошибка валидации параметров синхронизации с музыкой",
         executionTime: 0,
-        toolName: this.toolName
+        toolName: this.toolName,
       }
     }
 
@@ -116,7 +116,7 @@ export class MusicSyncTool extends BaseAITool {
       syncCuts: input.syncOptions?.syncCuts !== false, // По умолчанию true
       syncTransitions: input.syncOptions?.syncTransitions !== false, // По умолчанию true
       beatDetection: input.syncOptions?.beatDetection || "auto",
-      targetBPM: input.syncOptions?.targetBPM
+      targetBPM: input.syncOptions?.targetBPM,
     }
 
     // Выполняем синхронизацию с унифицированной обработкой ошибок
@@ -127,12 +127,12 @@ export class MusicSyncTool extends BaseAITool {
           syncCuts: syncOptions.syncCuts,
           syncTransitions: syncOptions.syncTransitions,
           beatDetection: syncOptions.beatDetection,
-          targetBPM: syncOptions.targetBPM
+          targetBPM: syncOptions.targetBPM,
         })
 
         const { getTimelineStateAccess } = await import("./types")
         const timelineAccess = getTimelineStateAccess()
-        
+
         if (!timelineAccess) {
           throw new Error("Timeline state access не настроен")
         }
@@ -152,7 +152,9 @@ export class MusicSyncTool extends BaseAITool {
         }
 
         // Найти музыкальный клип
-        const musicClip = musicTrack.clips.find((clip: any) => clip.mediaFile?.isAudio || clip.mediaFile?.type === "audio")
+        const musicClip = musicTrack.clips.find(
+          (clip: any) => clip.mediaFile?.isAudio || clip.mediaFile?.type === "audio",
+        )
         if (!musicClip) {
           throw new Error("Аудио клип не найден на указанном треке")
         }
@@ -160,7 +162,7 @@ export class MusicSyncTool extends BaseAITool {
         context.logger?.("info", "Анализируем музыку для синхронизации", {
           clipId: musicClip.id,
           duration: musicClip.duration,
-          beatDetection: syncOptions.beatDetection
+          beatDetection: syncOptions.beatDetection,
         })
 
         // Анализ музыки и детекция битов
@@ -174,7 +176,7 @@ export class MusicSyncTool extends BaseAITool {
         // Синхронизация монтажных склеек
         if (syncOptions.syncCuts) {
           context.logger?.("info", "Синхронизируем монтажные склейки с битами")
-          
+
           const cutSyncResult = await this.syncCutsWithBeats(currentProject, musicAnalysis)
           syncResults.cutsSync = cutSyncResult
           synchronizedElements.push(...cutSyncResult.modifiedClips)
@@ -184,7 +186,7 @@ export class MusicSyncTool extends BaseAITool {
         // Синхронизация переходов
         if (syncOptions.syncTransitions) {
           context.logger?.("info", "Синхронизируем переходы с музыкой")
-          
+
           const transitionSyncResult = await this.syncTransitionsWithMusic(currentProject, musicAnalysis)
           syncResults.transitionsSync = transitionSyncResult
           synchronizedElements.push(...transitionSyncResult.modifiedTransitions)
@@ -208,21 +210,21 @@ export class MusicSyncTool extends BaseAITool {
             beatMarkers: musicAnalysis.beats.length,
             musicDuration: musicAnalysis.duration,
             rhythmComplexity: musicAnalysis.rhythmComplexity,
-            detectionMethod: musicAnalysis.detectionMethod
+            detectionMethod: musicAnalysis.detectionMethod,
           },
           synchronizedElements,
           syncResults,
           totalModifications,
           syncOptions,
           overallRecommendations,
-          warnings: warnings.length > 0 ? warnings : undefined
+          warnings: warnings.length > 0 ? warnings : undefined,
         }
 
         context.logger?.("info", "Синхронизация с музыкой завершена", {
           totalModifications,
           synchronizedElements: synchronizedElements.length,
           detectedBPM: musicAnalysis.bpm,
-          warningsCount: warnings.length
+          warningsCount: warnings.length,
         })
 
         return result
@@ -234,17 +236,22 @@ export class MusicSyncTool extends BaseAITool {
         enableLogging: options.enableLogging !== false,
         metadata: {
           musicTrackId,
-          syncOptionsUsed: Object.keys(syncOptions).filter(key => syncOptions[key as keyof typeof syncOptions] === true).join(","),
-          ...options.metadata
-        }
-      }
+          syncOptionsUsed: Object.keys(syncOptions)
+            .filter((key) => syncOptions[key as keyof typeof syncOptions] === true)
+            .join(","),
+          ...options.metadata,
+        },
+      },
     )
   }
 
   /**
    * Анализирует музыку для синхронизации
    */
-  private async analyzeMusicForSync(musicClip: any, syncOptions: MusicSyncInput["syncOptions"]): Promise<MusicAnalysis> {
+  private async analyzeMusicForSync(
+    musicClip: any,
+    syncOptions: MusicSyncInput["syncOptions"],
+  ): Promise<MusicAnalysis> {
     const duration = musicClip.duration
     const detectionMethod = syncOptions?.beatDetection || "auto"
 
@@ -268,7 +275,7 @@ export class MusicSyncTool extends BaseAITool {
       duration,
       rhythmComplexity,
       musicClip,
-      detectionMethod
+      detectionMethod,
     }
   }
 
@@ -347,7 +354,7 @@ export class MusicSyncTool extends BaseAITool {
     const strongBeats = musicAnalysis.beats.filter((beat) => beat.strength > 0.7)
     if (strongBeats.length > 0 && modificationsCount === 0) {
       recommendations.push(
-        `Найдено ${strongBeats.length} сильных битов - рассмотрите добавление переходов на эти моменты`
+        `Найдено ${strongBeats.length} сильных битов - рассмотрите добавление переходов на эти моменты`,
       )
     }
 
@@ -390,7 +397,7 @@ export class MusicSyncTool extends BaseAITool {
       beats.push({
         time,
         strength: Math.random() * 0.5 + 0.5, // Случайная сила бита от 0.5 до 1
-        isDownbeat: beats.length % 4 === 0 // Каждый 4-й бит - сильная доля
+        isDownbeat: beats.length % 4 === 0, // Каждый 4-й бит - сильная доля
       })
     }
 
@@ -400,7 +407,7 @@ export class MusicSyncTool extends BaseAITool {
   /**
    * Вычисляет сложность ритма
    */
-  private calculateRhythmComplexity(bpm: number, duration: number): "low" | "medium" | "high" {
+  private calculateRhythmComplexity(bpm: number, _duration: number): "low" | "medium" | "high" {
     // Оценка сложности ритма на основе BPM и длительности
     if (bpm > 140) {
       return "high" // Быстрая музыка = сложная синхронизация
@@ -414,7 +421,7 @@ export class MusicSyncTool extends BaseAITool {
   /**
    * Синхронизирует клипы трека с битами
    */
-  private syncTrackClipsWithBeats(track: any, beats: BeatMarker[]): { modifiedClips: string[], count: number } {
+  private syncTrackClipsWithBeats(track: any, beats: BeatMarker[]): { modifiedClips: string[]; count: number } {
     const modifiedClips: string[] = []
     let count = 0
 
@@ -510,8 +517,8 @@ export const musicSyncTool = new MusicSyncTool()
 export async function synchronizeWithMusic(params: any): Promise<AIToolResult<MusicSyncResult>> {
   const input: MusicSyncInput = {
     musicTrackId: params.musicTrackId,
-    syncOptions: params.syncOptions
+    syncOptions: params.syncOptions,
   }
-  
+
   return musicSyncTool.synchronizeTimelineWithMusic(input)
 }

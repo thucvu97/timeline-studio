@@ -35,7 +35,6 @@ export interface ProviderAvailabilityChecker {
  * Менеджер конфигурации моделей AI
  */
 export class ModelConfigurationManager {
-  private static instance: ModelConfigurationManager
   private availabilityChecker: ProviderAvailabilityChecker
   private _modelsCache: ModelConfig[] | null = null
   private _cacheExpiry: number = 0
@@ -257,7 +256,7 @@ export class ModelConfigurationManager {
    */
   public async getModelsByProvider(provider: AIProvider, forceRefresh = false): Promise<ModelConfig[]> {
     const allModels = await this.getAvailableModels(forceRefresh)
-    return allModels.filter(model => model.provider === provider)
+    return allModels.filter((model) => model.provider === provider)
   }
 
   /**
@@ -270,12 +269,12 @@ export class ModelConfigurationManager {
       maxTokens?: number
       requiresStreaming?: boolean
       requiresTools?: boolean
-    } = {}
+    } = {},
   ): Promise<ModelConfig | null> {
     const availableModels = await this.getAvailableModels()
-    
+
     // Фильтруем по требованиям
-    let candidates = availableModels.filter(model => {
+    const candidates = availableModels.filter((model) => {
       if (options.preferLocal !== undefined && model.isLocal !== options.preferLocal) {
         return false
       }
@@ -307,7 +306,7 @@ export class ModelConfigurationManager {
           return b.maxTokens - a.maxTokens
         })
         break
-      
+
       case "generation":
         // Для генерации предпочитаем Claude 4 Opus
         candidates.sort((a, b) => {
@@ -331,8 +330,6 @@ export class ModelConfigurationManager {
           return b.maxTokens - a.maxTokens
         })
         break
-
-      case "chat":
       default:
         // Для чата сортируем по мощности
         candidates.sort((a, b) => {
@@ -355,7 +352,7 @@ export class ModelConfigurationManager {
   /**
    * Получить статистику кэша
    */
-  public getCacheStats(): { 
+  public getCacheStats(): {
     isCached: boolean
     modelsCount: number
     cacheExpiry: number
@@ -366,7 +363,7 @@ export class ModelConfigurationManager {
       isCached: this._modelsCache !== null && now < this._cacheExpiry,
       modelsCount: this._modelsCache?.length || 0,
       cacheExpiry: this._cacheExpiry,
-      timeToExpiry: Math.max(0, this._cacheExpiry - now)
+      timeToExpiry: Math.max(0, this._cacheExpiry - now),
     }
   }
 
@@ -395,7 +392,7 @@ export class ModelConfigurationManager {
       isValid: errors.length === 0,
       provider,
       config,
-      errors
+      errors,
     }
   }
 }

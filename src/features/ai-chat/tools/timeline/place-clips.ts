@@ -2,14 +2,10 @@
  * AI инструмент для размещения клипов на Timeline с использованием BaseAITool
  */
 
-import type { TimelineClip, TimelineTrack } from "@/features/timeline/types/timeline"
-import { BaseAITool, type AIToolExecutionOptions, type AIToolLogger, type AIToolResult } from "../base-ai-tool"
+import type { TimelineClip } from "@/features/timeline/types/timeline"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 import { generateClipId } from "./utils/generators"
-import {
-  assignTrackForClip,
-  getCurrentTimelineProject,
-  saveTimelineProject,
-} from "./utils/helpers"
+import { getCurrentTimelineProject, saveTimelineProject } from "./utils/helpers"
 
 // Типы для размещения клипов
 export interface ClipPlacementConfig {
@@ -60,7 +56,7 @@ export class ClipPlacementTool extends BaseAITool {
    */
   public async placeClipsOnTimeline(
     input: PlaceClipsInput,
-    options: AIToolExecutionOptions = {}
+    options: AIToolExecutionOptions = {},
   ): Promise<AIToolResult<PlaceClipsResult>> {
     // Валидация входных данных
     const validation = this.validateInput(input, (data) => {
@@ -98,7 +94,7 @@ export class ClipPlacementTool extends BaseAITool {
 
       return {
         isValid: errors.length === 0,
-        errors
+        errors,
       }
     })
 
@@ -108,7 +104,7 @@ export class ClipPlacementTool extends BaseAITool {
         errors: validation.errors,
         message: "Ошибка валидации данных для размещения клипов",
         executionTime: 0,
-        toolName: this.toolName
+        toolName: this.toolName,
       }
     }
 
@@ -126,13 +122,15 @@ export class ClipPlacementTool extends BaseAITool {
           strategy,
           trackAssignment,
           spacing,
-          preventOverlaps
+          preventOverlaps,
         })
 
         const currentProject = await getCurrentTimelineProject()
 
         if (!currentProject) {
-          throw new Error("Нет активного проекта для размещения клипов. Создайте проект Timeline перед размещением клипов")
+          throw new Error(
+            "Нет активного проекта для размещения клипов. Создайте проект Timeline перед размещением клипов",
+          )
         }
 
         const placedClips: TimelineClip[] = []
@@ -175,14 +173,14 @@ export class ClipPlacementTool extends BaseAITool {
 
             placedClips.push(clip)
             trackDistribution[clip.trackId] = (trackDistribution[clip.trackId] || 0) + 1
-            
+
             if (strategy === "sequential") {
               currentTime += clip.duration + spacing
             }
           } catch (error) {
             skippedClips.push({
               config: clipConfig,
-              reason: error instanceof Error ? error.message : "Неизвестная ошибка"
+              reason: error instanceof Error ? error.message : "Неизвестная ошибка",
             })
           }
         }
@@ -210,7 +208,7 @@ export class ClipPlacementTool extends BaseAITool {
         context.logger?.("info", "Размещение клипов завершено", {
           placedCount: placedClips.length,
           skippedCount: skippedClips.length,
-          strategy
+          strategy,
         })
 
         return result
@@ -223,9 +221,9 @@ export class ClipPlacementTool extends BaseAITool {
         metadata: {
           strategy,
           clipsCount: clips.length,
-          ...options.metadata
-        }
-      }
+          ...options.metadata,
+        },
+      },
     )
   }
 }
@@ -240,8 +238,8 @@ export async function placeClipsOnTimeline(params: any): Promise<AIToolResult<Pl
     strategy: params.strategy,
     trackAssignment: params.trackAssignment,
     spacing: params.spacing,
-    preventOverlaps: params.preventOverlaps
+    preventOverlaps: params.preventOverlaps,
   }
-  
+
   return clipPlacementTool.placeClipsOnTimeline(input)
 }

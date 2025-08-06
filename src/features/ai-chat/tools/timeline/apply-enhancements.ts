@@ -3,7 +3,7 @@
  */
 
 import type { TimelineProject } from "@/features/timeline/types/timeline"
-import { BaseAITool, type AIToolExecutionOptions, type AIToolLogger, type AIToolResult } from "../base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 // Типы для применения улучшений
 export interface EnhancementsInput {
@@ -52,7 +52,7 @@ export class EnhancementApplicationTool extends BaseAITool {
    */
   public async applyTimelineEnhancements(
     input: EnhancementsInput,
-    options: AIToolExecutionOptions = {}
+    options: AIToolExecutionOptions = {},
   ): Promise<AIToolResult<EnhancementsApplicationResult>> {
     // Валидация входных данных
     const validation = this.validateInput(input, (data) => {
@@ -70,7 +70,7 @@ export class EnhancementApplicationTool extends BaseAITool {
 
       return {
         isValid: errors.length === 0,
-        errors
+        errors,
       }
     })
 
@@ -80,7 +80,7 @@ export class EnhancementApplicationTool extends BaseAITool {
         errors: validation.errors,
         message: "Ошибка валидации параметров применения улучшений",
         executionTime: 0,
-        toolName: this.toolName
+        toolName: this.toolName,
       }
     }
 
@@ -93,12 +93,12 @@ export class EnhancementApplicationTool extends BaseAITool {
         context.logger?.("info", "Начинаем применение автоматических улучшений", {
           enhancementTypes: enhancementTypes.join(", "),
           targetElements,
-          enhancementsCount: enhancementTypes.length
+          enhancementsCount: enhancementTypes.length,
         })
 
         const { getTimelineStateAccess } = await import("./types")
         const timelineAccess = getTimelineStateAccess()
-        
+
         if (!timelineAccess) {
           throw new Error("Timeline state access не настроен")
         }
@@ -114,8 +114,8 @@ export class EnhancementApplicationTool extends BaseAITool {
 
         context.logger?.("info", "Анализируем структуру проекта для улучшений", {
           totalTracks: allTracks.length,
-          videoTracks: allTracks.filter(t => t.type === "video").length,
-          audioTracks: allTracks.filter(t => t.type === "audio").length
+          videoTracks: allTracks.filter((t) => t.type === "video").length,
+          audioTracks: allTracks.filter((t) => t.type === "audio").length,
         })
 
         const appliedEnhancements: string[] = []
@@ -128,10 +128,10 @@ export class EnhancementApplicationTool extends BaseAITool {
           context.logger?.("info", `Применяем улучшение: ${enhancementType}`)
 
           const enhancementResult = await this.applyEnhancementType(
-            enhancementType, 
-            allTracks, 
-            targetElements, 
-            currentProject
+            enhancementType,
+            allTracks,
+            targetElements,
+            currentProject,
           )
 
           if (enhancementResult.applied) {
@@ -144,8 +144,8 @@ export class EnhancementApplicationTool extends BaseAITool {
 
             // Записываем результаты по трекам
             const affectedTracks = this.getAffectedTracks(allTracks, enhancementType, targetElements)
-            affectedTracks.forEach(track => {
-              const existingResult = trackResults.find(r => r.trackId === track.id)
+            affectedTracks.forEach((track) => {
+              const existingResult = trackResults.find((r) => r.trackId === track.id)
               if (existingResult) {
                 existingResult.enhancementsApplied.push(enhancementType)
                 existingResult.modificationsCount += enhancementResult.modificationsCount
@@ -154,7 +154,7 @@ export class EnhancementApplicationTool extends BaseAITool {
                   trackId: track.id,
                   trackName: track.name || track.id,
                   enhancementsApplied: [enhancementType],
-                  modificationsCount: enhancementResult.modificationsCount
+                  modificationsCount: enhancementResult.modificationsCount,
                 })
               }
             })
@@ -163,9 +163,9 @@ export class EnhancementApplicationTool extends BaseAITool {
 
         // Генерируем общие рекомендации
         const overallRecommendations = this.generateEnhancementRecommendations(
-          appliedEnhancements, 
-          currentProject, 
-          allTracks
+          appliedEnhancements,
+          currentProject,
+          allTracks,
         )
 
         const result: EnhancementsApplicationResult = {
@@ -175,18 +175,22 @@ export class EnhancementApplicationTool extends BaseAITool {
           enhancementDetails: {
             totalTracks: allTracks.length,
             processedElements: this.getProcessedElementsCount(allTracks, targetElements),
-            videoTracksProcessed: allTracks.filter(t => t.type === "video" && this.shouldProcessTrack(t, targetElements)).length,
-            audioTracksProcessed: allTracks.filter(t => t.type === "audio" && this.shouldProcessTrack(t, targetElements)).length
+            videoTracksProcessed: allTracks.filter(
+              (t) => t.type === "video" && this.shouldProcessTrack(t, targetElements),
+            ).length,
+            audioTracksProcessed: allTracks.filter(
+              (t) => t.type === "audio" && this.shouldProcessTrack(t, targetElements),
+            ).length,
           },
           overallRecommendations,
-          warnings: warnings.length > 0 ? warnings : undefined
+          warnings: warnings.length > 0 ? warnings : undefined,
         }
 
         context.logger?.("info", "Применение улучшений завершено", {
           appliedCount: appliedEnhancements.length,
           totalModifications,
           warningsCount: warnings.length,
-          tracksProcessed: trackResults.length
+          tracksProcessed: trackResults.length,
         })
 
         return result
@@ -199,9 +203,9 @@ export class EnhancementApplicationTool extends BaseAITool {
         metadata: {
           enhancementTypes: enhancementTypes.join(","),
           targetElements,
-          ...options.metadata
-        }
-      }
+          ...options.metadata,
+        },
+      },
     )
   }
 
@@ -212,7 +216,7 @@ export class EnhancementApplicationTool extends BaseAITool {
     enhancementType: string,
     allTracks: any[],
     targetElements: string,
-    project: TimelineProject
+    _project: TimelineProject,
   ): Promise<EnhancementResult> {
     switch (enhancementType) {
       case "transitions":
@@ -232,7 +236,7 @@ export class EnhancementApplicationTool extends BaseAITool {
           applied: false,
           modificationsCount: 0,
           recommendations: [`Неизвестный тип улучшения: ${enhancementType}`],
-          warnings: [`Пропущен неподдерживаемый тип улучшения: ${enhancementType}`]
+          warnings: [`Пропущен неподдерживаемый тип улучшения: ${enhancementType}`],
         }
     }
   }
@@ -252,7 +256,7 @@ export class EnhancementApplicationTool extends BaseAITool {
         applied: false,
         modificationsCount: 0,
         recommendations: [],
-        warnings: ["Нет видео треков для применения переходов"]
+        warnings: ["Нет видео треков для применения переходов"],
       }
     }
 
@@ -264,7 +268,7 @@ export class EnhancementApplicationTool extends BaseAITool {
 
         if (transitionResult.addedTransitions > 0) {
           recommendations.push(
-            `Добавлено ${transitionResult.addedTransitions} переходов на трек "${track.name || track.id}"`
+            `Добавлено ${transitionResult.addedTransitions} переходов на трек "${track.name || track.id}"`,
           )
         }
       }
@@ -274,7 +278,7 @@ export class EnhancementApplicationTool extends BaseAITool {
       applied: modificationsCount > 0,
       modificationsCount,
       recommendations,
-      warnings
+      warnings,
     }
   }
 
@@ -293,7 +297,7 @@ export class EnhancementApplicationTool extends BaseAITool {
         applied: false,
         modificationsCount: 0,
         recommendations: [],
-        warnings: ["Нет видео треков для цветокоррекции"]
+        warnings: ["Нет видео треков для цветокоррекции"],
       }
     }
 
@@ -320,7 +324,7 @@ export class EnhancementApplicationTool extends BaseAITool {
       applied: modificationsCount > 0,
       modificationsCount,
       recommendations,
-      warnings
+      warnings,
     }
   }
 
@@ -339,7 +343,7 @@ export class EnhancementApplicationTool extends BaseAITool {
         applied: false,
         modificationsCount: 0,
         recommendations: [],
-        warnings: ["Нет аудио треков для балансировки"]
+        warnings: ["Нет аудио треков для балансировки"],
       }
     }
 
@@ -351,7 +355,7 @@ export class EnhancementApplicationTool extends BaseAITool {
 
         if (audioResult.normalizedClips > 0) {
           recommendations.push(
-            `Нормализовано ${audioResult.normalizedClips} аудио клипов на треке "${track.name || track.id}"`
+            `Нормализовано ${audioResult.normalizedClips} аудио клипов на треке "${track.name || track.id}"`,
           )
         }
       }
@@ -361,7 +365,7 @@ export class EnhancementApplicationTool extends BaseAITool {
       applied: modificationsCount > 0,
       modificationsCount,
       recommendations,
-      warnings
+      warnings,
     }
   }
 
@@ -380,7 +384,7 @@ export class EnhancementApplicationTool extends BaseAITool {
         applied: false,
         modificationsCount: 0,
         recommendations: [],
-        warnings: ["Нет видео треков для стабилизации"]
+        warnings: ["Нет видео треков для стабилизации"],
       }
     }
 
@@ -407,7 +411,7 @@ export class EnhancementApplicationTool extends BaseAITool {
       applied: modificationsCount > 0,
       modificationsCount,
       recommendations,
-      warnings
+      warnings,
     }
   }
 
@@ -449,7 +453,7 @@ export class EnhancementApplicationTool extends BaseAITool {
           type: "fade",
           duration: 0.5,
           startTime: currentClip.startTime - 0.25,
-          endTime: currentClip.startTime + 0.25
+          endTime: currentClip.startTime + 0.25,
         })
         addedTransitions++
       }
@@ -469,7 +473,7 @@ export class EnhancementApplicationTool extends BaseAITool {
 
     // Проверяем, нет ли уже цветокоррекции
     const hasColorCorrection = clip.effects.some(
-      (effect: any) => effect.type === "color-correction" || effect.type === "color-balance"
+      (effect: any) => effect.type === "color-correction" || effect.type === "color-balance",
     )
 
     if (!hasColorCorrection) {
@@ -480,9 +484,9 @@ export class EnhancementApplicationTool extends BaseAITool {
           brightness: 0,
           contrast: 0.1,
           saturation: 0.05,
-          temperature: 0
+          temperature: 0,
         },
-        enabled: true
+        enabled: true,
       })
       return { applied: true }
     }
@@ -504,7 +508,7 @@ export class EnhancementApplicationTool extends BaseAITool {
         }
 
         const hasNormalization = clip.effects.some(
-          (effect: any) => effect.type === "audio-normalize" || effect.type === "volume"
+          (effect: any) => effect.type === "audio-normalize" || effect.type === "volume",
         )
 
         if (!hasNormalization) {
@@ -513,9 +517,9 @@ export class EnhancementApplicationTool extends BaseAITool {
             type: "audio-normalize",
             parameters: {
               targetLevel: -23, // LUFS стандарт
-              limitPeak: -3
+              limitPeak: -3,
             },
-            enabled: true
+            enabled: true,
           })
           normalizedClips++
         }
@@ -535,7 +539,7 @@ export class EnhancementApplicationTool extends BaseAITool {
     }
 
     const hasStabilization = clip.effects.some(
-      (effect: any) => effect.type === "stabilization" || effect.type === "image-stabilizer"
+      (effect: any) => effect.type === "stabilization" || effect.type === "image-stabilizer",
     )
 
     if (!hasStabilization) {
@@ -545,9 +549,9 @@ export class EnhancementApplicationTool extends BaseAITool {
         parameters: {
           strength: 0.5,
           smoothing: 0.3,
-          cropMode: "auto"
+          cropMode: "auto",
         },
-        enabled: true
+        enabled: true,
       })
       return { applied: true }
     }
@@ -559,15 +563,15 @@ export class EnhancementApplicationTool extends BaseAITool {
    * Возвращает затронутые треки для типа улучшения
    */
   private getAffectedTracks(allTracks: any[], enhancementType: string, targetElements: string): any[] {
-    const filteredTracks = allTracks.filter(track => this.shouldProcessTrack(track, targetElements))
-    
+    const filteredTracks = allTracks.filter((track) => this.shouldProcessTrack(track, targetElements))
+
     switch (enhancementType) {
       case "transitions":
       case "color-correction":
       case "stabilization":
-        return filteredTracks.filter(track => track.type === "video")
+        return filteredTracks.filter((track) => track.type === "video")
       case "audio-balance":
-        return filteredTracks.filter(track => track.type === "audio")
+        return filteredTracks.filter((track) => track.type === "audio")
       default:
         return filteredTracks
     }
@@ -600,8 +604,8 @@ export class EnhancementApplicationTool extends BaseAITool {
    */
   private generateEnhancementRecommendations(
     appliedEnhancements: string[],
-    project: TimelineProject,
-    allTracks: any[]
+    _project: TimelineProject,
+    allTracks: any[],
   ): string[] {
     const recommendations: string[] = []
 
@@ -650,8 +654,8 @@ export const enhancementApplicationTool = new EnhancementApplicationTool()
 export async function applyAutomaticEnhancements(params: any): Promise<AIToolResult<EnhancementsApplicationResult>> {
   const input: EnhancementsInput = {
     enhancementTypes: params.enhancementTypes,
-    targetElements: params.targetElements
+    targetElements: params.targetElements,
   }
-  
+
   return enhancementApplicationTool.applyTimelineEnhancements(input)
 }

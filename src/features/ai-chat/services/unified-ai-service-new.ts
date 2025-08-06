@@ -8,14 +8,19 @@ import { personIdentificationTools } from "../tools/person-identification-tools"
 import type { AiMessage } from "../types/ai-message"
 import type { StreamingOptions } from "../types/streaming"
 import { AIResponseProcessor, type ProcessingOptions, type UnifiedResponse } from "./ai-response-processor"
-import { ContentIntelligenceService, type AIServiceInterface, type MediaInput, type UnifiedContentAnalysis } from "./content-intelligence-service"
-import { ModelConfigurationManager, type AIProvider, type ModelConfig } from "./model-configuration-manager"
+import {
+  type AIServiceInterface,
+  ContentIntelligenceService,
+  type MediaInput,
+  type UnifiedContentAnalysis,
+} from "./content-intelligence-service"
+import { type ModelConfig, ModelConfigurationManager } from "./model-configuration-manager"
 import { ProviderManager } from "./provider-manager"
 
-// Реэкспортируем типы для обратной совместимости
-export type { AIProvider, ModelConfig } from "./model-configuration-manager"
 export type { UnifiedResponse } from "./ai-response-processor"
 export type { MediaInput, UnifiedContentAnalysis } from "./content-intelligence-service"
+// Реэкспортируем типы для обратной совместимости
+export type { AIProvider, ModelConfig } from "./model-configuration-manager"
 
 // Опции для запроса
 export interface UnifiedRequestOptions {
@@ -34,13 +39,13 @@ export const UNIFIED_MODELS: Record<string, ModelConfig> = {}
  */
 export class UnifiedAIService {
   private static instance: UnifiedAIService
-  
+
   // Компоненты архитектуры
   private modelManager: ModelConfigurationManager
   private providerManager: ProviderManager
   private responseProcessor: AIResponseProcessor
   private contentIntelligenceService: ContentIntelligenceService
-  
+
   // Кэширование
   private responseCache = new Map<string, { response: UnifiedResponse; timestamp: number }>()
   private cacheTimeout = 5 * 60 * 1000 // 5 минут
@@ -75,17 +80,17 @@ export class UnifiedAIService {
       isOpenAIAvailable: (model: string) => OpenAiService.getInstance().hasApiKey(model),
       isDeepSeekAvailable: () => DeepSeekService.getInstance().hasApiKey(),
       isOllamaAvailable: () => OllamaService.getInstance().isAvailable(),
-      getOllamaModels: () => OllamaService.getInstance().getInstalledModels()
+      getOllamaModels: () => OllamaService.getInstance().getInstalledModels(),
     }
-    
+
     // Инициализируем сервисы
     this.modelManager = ModelConfigurationManager.create(availabilityChecker)
     this.providerManager = ProviderManager.getInstance()
     this.responseProcessor = AIResponseProcessor.getInstance()
-    
+
     // Создаем адаптер для AI сервиса в ContentIntelligenceService
     const aiServiceAdapter: AIServiceInterface = {
-      sendRequest: this.sendRequest.bind(this)
+      sendRequest: this.sendRequest.bind(this),
     }
     this.contentIntelligenceService = ContentIntelligenceService.create(aiServiceAdapter)
   }
@@ -119,16 +124,11 @@ export class UnifiedAIService {
 
       for (let attempt = 0; attempt < maxRetries; attempt++) {
         try {
-          const providerResponse = await this.providerManager.sendRequest(
-            provider,
-            currentModel,
-            messages,
-            {
-              temperature: options.temperature,
-              maxTokens: options.maxTokens,
-              timeout: options.timeout,
-            }
-          )
+          const providerResponse = await this.providerManager.sendRequest(provider, currentModel, messages, {
+            temperature: options.temperature,
+            maxTokens: options.maxTokens,
+            timeout: options.timeout,
+          })
 
           const response: UnifiedResponse = {
             content: providerResponse.content,
@@ -170,30 +170,22 @@ export class UnifiedAIService {
     options: UnifiedRequestOptions & StreamingOptions = {},
   ): Promise<void> {
     const provider = this.modelManager.getProviderByModel(model)
-    
-    return this.providerManager.sendStreamingRequest(
-      provider,
-      model,
-      messages,
-      {
-        temperature: options.temperature,
-        maxTokens: options.maxTokens,
-        timeout: options.timeout,
-        onContent: options.onContent,
-        onComplete: options.onComplete,
-        onError: options.onError,
-        signal: options.signal,
-      }
-    )
+
+    return this.providerManager.sendStreamingRequest(provider, model, messages, {
+      temperature: options.temperature,
+      maxTokens: options.maxTokens,
+      timeout: options.timeout,
+      onContent: options.onContent,
+      onComplete: options.onComplete,
+      onError: options.onError,
+      signal: options.signal,
+    })
   }
 
   /**
    * Обработать ответ AI с форматированием и валидацией
    */
-  public async processResponse(
-    response: UnifiedResponse,
-    options: ProcessingOptions = {}
-  ) {
+  public async processResponse(response: UnifiedResponse, options: ProcessingOptions = {}) {
     return this.responseProcessor.processResponse(response, options)
   }
 
@@ -225,7 +217,7 @@ export class UnifiedAIService {
       maxTokens?: number
       requiresStreaming?: boolean
       requiresTools?: boolean
-    } = {}
+    } = {},
   ): Promise<ModelConfig | null> {
     return this.modelManager.getBestModelForTask(task, options)
   }
@@ -305,7 +297,7 @@ export class UnifiedAIService {
         timeout: this.cacheTimeout,
       },
       models: this.modelManager.getCacheStats(),
-      providers: this.providerManager.getCacheStats()
+      providers: this.providerManager.getCacheStats(),
     }
   }
 

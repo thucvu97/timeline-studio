@@ -70,10 +70,7 @@ export class AIResponseProcessor {
   /**
    * Обработать ответ AI
    */
-  public async processResponse(
-    response: UnifiedResponse,
-    options: ProcessingOptions = {}
-  ): Promise<ProcessedResponse> {
+  public async processResponse(response: UnifiedResponse, options: ProcessingOptions = {}): Promise<ProcessedResponse> {
     const processingStartTime = Date.now()
 
     const processedResponse: ProcessedResponse = {
@@ -83,10 +80,10 @@ export class AIResponseProcessor {
         responseTime: response.responseTime,
         provider: response.provider,
         model: response.model,
-        processingTime: 0
+        processingTime: 0,
       },
       errors: [],
-      warnings: []
+      warnings: [],
     }
 
     try {
@@ -133,9 +130,10 @@ export class AIResponseProcessor {
       // Обновляем метрики
       processedResponse.metrics.processingTime = Date.now() - processingStartTime
       processedResponse.metrics.tokenCount = this.estimateTokenCount(content)
-
     } catch (error) {
-      processedResponse.errors?.push(`Ошибка обработки ответа: ${error instanceof Error ? error.message : String(error)}`)
+      processedResponse.errors?.push(
+        `Ошибка обработки ответа: ${error instanceof Error ? error.message : String(error)}`,
+      )
     }
 
     return processedResponse
@@ -146,11 +144,11 @@ export class AIResponseProcessor {
    */
   private sanitizeContent(content: string): string {
     // Удаляем потенциально опасные теги
-    let sanitized = content.replace(/<script[^>]*>.*?<\/script>/gi, '')
-    sanitized = sanitized.replace(/<iframe[^>]*>.*?<\/iframe>/gi, '')
-    sanitized = sanitized.replace(/javascript:/gi, '')
-    sanitized = sanitized.replace(/on\w+\s*=/gi, '')
-    
+    let sanitized = content.replace(/<script[^>]*>.*?<\/script>/gi, "")
+    sanitized = sanitized.replace(/<iframe[^>]*>.*?<\/iframe>/gi, "")
+    sanitized = sanitized.replace(/javascript:/gi, "")
+    sanitized = sanitized.replace(/on\w+\s*=/gi, "")
+
     return sanitized
   }
 
@@ -172,8 +170,6 @@ export class AIResponseProcessor {
 
       case "html":
         return this.formatAsHtml(content)
-
-      case "text":
       default:
         return content
     }
@@ -187,14 +183,14 @@ export class AIResponseProcessor {
     let markdown = content
 
     // Конвертируем заголовки
-    markdown = markdown.replace(/^(#{1,6})\s*(.+)$/gm, '$1 $2')
-    
+    markdown = markdown.replace(/^(#{1,6})\s*(.+)$/gm, "$1 $2")
+
     // Конвертируем списки
-    markdown = markdown.replace(/^\*\s*(.+)$/gm, '- $1')
-    
+    markdown = markdown.replace(/^\*\s*(.+)$/gm, "- $1")
+
     // Конвертируем жирный текст
-    markdown = markdown.replace(/\*\*([^*]+)\*\*/g, '**$1**')
-    
+    markdown = markdown.replace(/\*\*([^*]+)\*\*/g, "**$1**")
+
     return markdown
   }
 
@@ -206,16 +202,16 @@ export class AIResponseProcessor {
     let html = content
 
     // Экранируем HTML теги
-    html = html.replace(/&/g, '&amp;')
-    html = html.replace(/</g, '&lt;')
-    html = html.replace(/>/g, '&gt;')
-    
+    html = html.replace(/&/g, "&amp;")
+    html = html.replace(/</g, "&lt;")
+    html = html.replace(/>/g, "&gt;")
+
     // Конвертируем переносы строк в <br>
-    html = html.replace(/\n/g, '<br>')
-    
+    html = html.replace(/\n/g, "<br>")
+
     // Конвертируем жирный текст
-    html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    
+    html = html.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+
     return html
   }
 
@@ -227,9 +223,9 @@ export class AIResponseProcessor {
       const data = JSON.parse(content)
       return { isValid: true, data }
     } catch (error) {
-      return { 
-        isValid: false, 
-        error: error instanceof Error ? error.message : "Неизвестная ошибка парсинга JSON" 
+      return {
+        isValid: false,
+        error: error instanceof Error ? error.message : "Неизвестная ошибка парсинга JSON",
       }
     }
   }
@@ -240,9 +236,9 @@ export class AIResponseProcessor {
   private extractMetadata(content: string, format?: string): Record<string, any> {
     const metadata: Record<string, any> = {
       length: content.length,
-      lines: content.split('\n').length,
+      lines: content.split("\n").length,
       words: content.split(/\s+/).length,
-      format: format || "text"
+      format: format || "text",
     }
 
     // Извлекаем метаданные для JSON
@@ -257,7 +253,7 @@ export class AIResponseProcessor {
     // Извлекаем метаданные для Markdown
     if (format === "markdown") {
       metadata.headers = (content.match(/^#{1,6}\s+.+$/gm) || []).length
-      metadata.lists = (content.match(/^\s*[\*\-\+]\s+/gm) || []).length
+      metadata.lists = (content.match(/^\s*[*\-+]\s+/gm) || []).length
       metadata.codeBlocks = (content.match(/```[^`]*```/g) || []).length
     }
 
@@ -290,16 +286,16 @@ export class AIResponseProcessor {
       links: [] as string[],
       mentions: [] as string[],
       hashtags: [] as string[],
-      numbers: [] as number[]
+      numbers: [] as number[],
     }
 
     // Извлекаем блоки кода
     const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g
-    let codeMatch
+    let codeMatch: RegExpExecArray | null
     while ((codeMatch = codeBlockRegex.exec(content)) !== null) {
       result.codeBlocks.push({
         language: codeMatch[1] || "text",
-        code: codeMatch[2].trim()
+        code: codeMatch[2].trim(),
       })
     }
 
@@ -310,17 +306,17 @@ export class AIResponseProcessor {
     // Извлекаем упоминания
     const mentionRegex = /@(\w+)/g
     const mentions = content.match(mentionRegex)
-    result.mentions = mentions ? mentions.map(m => m.substring(1)) : []
+    result.mentions = mentions ? mentions.map((m) => m.substring(1)) : []
 
     // Извлекаем хештеги
     const hashtagRegex = /#(\w+)/g
     const hashtags = content.match(hashtagRegex)
-    result.hashtags = hashtags ? hashtags.map(h => h.substring(1)) : []
+    result.hashtags = hashtags ? hashtags.map((h) => h.substring(1)) : []
 
     // Извлекаем числа
     const numberRegex = /\b\d+(?:\.\d+)?\b/g
     const numbers = content.match(numberRegex)
-    result.numbers = numbers ? numbers.map(Number).filter(n => !isNaN(n)) : []
+    result.numbers = numbers ? numbers.map(Number).filter((n) => !Number.isNaN(n)) : []
 
     return result
   }
@@ -346,7 +342,7 @@ export class AIResponseProcessor {
       tokenEstimate: response.metrics.tokenCount || 0,
       format: response.metadata?.format,
       provider: response.metrics.provider,
-      model: response.metrics.model
+      model: response.metrics.model,
     }
   }
 
@@ -369,13 +365,13 @@ export class AIResponseProcessor {
     const sorted = [...responses]
 
     return {
-      shortest: sorted.reduce((a, b) => a.content.length < b.content.length ? a : b),
-      longest: sorted.reduce((a, b) => a.content.length > b.content.length ? a : b),
-      fastest: sorted.reduce((a, b) => a.metrics.responseTime < b.metrics.responseTime ? a : b),
-      slowest: sorted.reduce((a, b) => a.metrics.responseTime > b.metrics.responseTime ? a : b),
+      shortest: sorted.reduce((a, b) => (a.content.length < b.content.length ? a : b)),
+      longest: sorted.reduce((a, b) => (a.content.length > b.content.length ? a : b)),
+      fastest: sorted.reduce((a, b) => (a.metrics.responseTime < b.metrics.responseTime ? a : b)),
+      slowest: sorted.reduce((a, b) => (a.metrics.responseTime > b.metrics.responseTime ? a : b)),
       averageLength: responses.reduce((sum, r) => sum + r.content.length, 0) / responses.length,
       averageTime: responses.reduce((sum, r) => sum + r.metrics.responseTime, 0) / responses.length,
-      providers: [...new Set(responses.map(r => r.metrics.provider))]
+      providers: [...new Set(responses.map((r) => r.metrics.provider))],
     }
   }
 }

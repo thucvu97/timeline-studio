@@ -3,7 +3,7 @@
  */
 
 import type { TimelineProject } from "@/features/timeline/types/timeline"
-import { BaseAITool, type AIToolExecutionOptions, type AIToolLogger, type AIToolResult } from "../base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 // Типы для создания проекта
 export interface ProjectCreationInput {
@@ -71,7 +71,7 @@ export class ProjectCreationTool extends BaseAITool {
    */
   public async createNewTimelineProject(
     input: ProjectCreationInput,
-    options: AIToolExecutionOptions = {}
+    options: AIToolExecutionOptions = {},
   ): Promise<AIToolResult<ProjectCreationResult>> {
     // Валидация входных данных
     const validation = this.validateInput(input, (data) => {
@@ -110,12 +110,14 @@ export class ProjectCreationTool extends BaseAITool {
       // Проверка типа шаблона
       const validTemplates = ["empty", "basic", "advanced", "custom"]
       if (data.templateType && !validTemplates.includes(data.templateType)) {
-        errors.push(`Неподдерживаемый тип шаблона: ${data.templateType}. Допустимые значения: ${validTemplates.join(", ")}`)
+        errors.push(
+          `Неподдерживаемый тип шаблона: ${data.templateType}. Допустимые значения: ${validTemplates.join(", ")}`,
+        )
       }
 
       return {
         isValid: errors.length === 0,
-        errors
+        errors,
       }
     })
 
@@ -125,7 +127,7 @@ export class ProjectCreationTool extends BaseAITool {
         errors: validation.errors,
         message: "Ошибка валидации параметров создания проекта",
         executionTime: 0,
-        toolName: this.toolName
+        toolName: this.toolName,
       }
     }
 
@@ -140,19 +142,19 @@ export class ProjectCreationTool extends BaseAITool {
           resolution: `${input.projectSettings.resolution.width}x${input.projectSettings.resolution.height}`,
           fps: input.projectSettings.fps,
           templateType,
-          autoCreateStructure
+          autoCreateStructure,
         })
 
         const { getTimelineStateAccess } = await import("./types")
         const timelineStateAccess = getTimelineStateAccess()
-        
+
         if (!timelineStateAccess) {
           throw new Error("Timeline state access не настроен")
         }
 
         // Генерируем уникальный ID проекта
         const projectId = this.generateProjectId()
-        
+
         context.logger?.("info", "Создаем структуру проекта", { projectId })
 
         // Создаем настройки проекта
@@ -161,10 +163,9 @@ export class ProjectCreationTool extends BaseAITool {
           description: input.projectSettings.description,
           resolution: input.projectSettings.resolution,
           fps: input.projectSettings.fps,
-          aspectRatio: input.projectSettings.aspectRatio || this.calculateAspectRatio(
-            input.projectSettings.resolution.width,
-            input.projectSettings.resolution.height
-          ),
+          aspectRatio:
+            input.projectSettings.aspectRatio ||
+            this.calculateAspectRatio(input.projectSettings.resolution.width, input.projectSettings.resolution.height),
           duration: input.projectSettings.duration || 0,
           sampleRate: input.projectSettings.sampleRate || 48000,
           channels: 2,
@@ -173,7 +174,7 @@ export class ProjectCreationTool extends BaseAITool {
           snapToGrid: true,
           gridSize: 1,
           autoSave: true,
-          autoSaveInterval: 300
+          autoSaveInterval: 300,
         }
 
         // Создаем базовую структуру проекта
@@ -196,7 +197,7 @@ export class ProjectCreationTool extends BaseAITool {
             styleTemplates: [],
             subtitleStyles: [],
             music: [],
-            media: []
+            media: [],
           },
           settings: {
             resolution: projectSettings.resolution,
@@ -205,37 +206,37 @@ export class ProjectCreationTool extends BaseAITool {
             sampleRate: projectSettings.sampleRate,
             channels: projectSettings.channels,
             bitDepth: projectSettings.bitDepth,
-            timeFormat: projectSettings.timeFormat,
+            timeFormat: projectSettings.timeFormat as "timecode" | "seconds" | "frames",
             snapToGrid: projectSettings.snapToGrid,
             gridSize: projectSettings.gridSize,
             autoSave: projectSettings.autoSave,
-            autoSaveInterval: projectSettings.autoSaveInterval
+            autoSaveInterval: projectSettings.autoSaveInterval,
           },
           createdAt: new Date(),
           updatedAt: new Date(),
-          version: "1.0.0"
+          version: "1.0.0",
         }
 
         const createdElements: string[] = []
-        let trackStructure = {
+        const trackStructure = {
           globalTracks: 0,
           videoTracks: 0,
           audioTracks: 0,
-          subtitleTracks: 0
+          subtitleTracks: 0,
         }
 
         // Автоматически создаем базовую структуру треков
         if (autoCreateStructure) {
           context.logger?.("info", "Создаем базовую структуру треков", { templateType })
-          
+
           const tracks = this.createDefaultTrackStructure(templateType)
           project.globalTracks = tracks
-          
+
           // Подсчитываем созданные треки
-          tracks.forEach(track => {
+          tracks.forEach((track) => {
             createdElements.push(track.id)
             trackStructure.globalTracks++
-            
+
             switch (track.type) {
               case "video":
                 trackStructure.videoTracks++
@@ -251,11 +252,11 @@ export class ProjectCreationTool extends BaseAITool {
         }
 
         // Сохраняем проект
-        context.logger?.("info", "Сохраняем проект в Timeline", { 
+        context.logger?.("info", "Сохраняем проект в Timeline", {
           projectId,
-          tracksCreated: createdElements.length 
+          tracksCreated: createdElements.length,
         })
-        
+
         await timelineStateAccess.createProject(project)
 
         // Генерируем рекомендации для нового проекта
@@ -268,14 +269,14 @@ export class ProjectCreationTool extends BaseAITool {
           trackStructure,
           projectSettings,
           templateApplied: templateType,
-          recommendations
+          recommendations,
         }
 
         context.logger?.("info", "Проект успешно создан", {
           projectId,
           projectName: result.projectName,
           elementsCreated: createdElements.length,
-          template: templateType
+          template: templateType,
         })
 
         return result
@@ -290,9 +291,9 @@ export class ProjectCreationTool extends BaseAITool {
           templateType,
           resolution: `${input.projectSettings.resolution.width}x${input.projectSettings.resolution.height}`,
           fps: input.projectSettings.fps,
-          ...options.metadata
-        }
-      }
+          ...options.metadata,
+        },
+      },
     )
   }
 
@@ -310,7 +311,7 @@ export class ProjectCreationTool extends BaseAITool {
    */
   private calculateAspectRatio(width: number, height: number): string {
     // Находим НОД для упрощения дроби
-    const gcd = (a: number, b: number): number => b === 0 ? a : gcd(b, a % b)
+    const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b))
     const divisor = gcd(width, height)
     const aspectWidth = width / divisor
     const aspectHeight = height / divisor
@@ -318,11 +319,11 @@ export class ProjectCreationTool extends BaseAITool {
     // Известные соотношения сторон
     const knownRatios: Record<string, string> = {
       "16:9": "16:9",
-      "4:3": "4:3", 
+      "4:3": "4:3",
       "21:9": "21:9",
       "1:1": "1:1",
       "3:2": "3:2",
-      "5:4": "5:4"
+      "5:4": "5:4",
     }
 
     const ratio = `${aspectWidth}:${aspectHeight}`
@@ -349,12 +350,12 @@ export class ProjectCreationTool extends BaseAITool {
           locked: false,
           height: 60,
           expanded: true,
-          color: "#3B82F6"
+          color: "#3B82F6",
         })
-        
+
         tracks.push({
           id: `audio_track_${baseId + 1}`,
-          name: "Аудио 1", 
+          name: "Аудио 1",
           type: "audio",
           clips: [],
           muted: false,
@@ -362,7 +363,7 @@ export class ProjectCreationTool extends BaseAITool {
           locked: false,
           height: 60,
           expanded: true,
-          color: "#10B981"
+          color: "#10B981",
         })
         break
 
@@ -379,7 +380,7 @@ export class ProjectCreationTool extends BaseAITool {
             locked: false,
             height: 60,
             expanded: true,
-            color: i === 0 ? "#3B82F6" : "#6366F1"
+            color: i === 0 ? "#3B82F6" : "#6366F1",
           })
         }
 
@@ -387,14 +388,14 @@ export class ProjectCreationTool extends BaseAITool {
           tracks.push({
             id: `audio_track_${baseId + i + 2}`,
             name: `Аудио ${i + 1}`,
-            type: "audio", 
+            type: "audio",
             clips: [],
             muted: false,
             solo: false,
             locked: false,
             height: 60,
             expanded: true,
-            color: i === 0 ? "#10B981" : "#14B8A6"
+            color: i === 0 ? "#10B981" : "#14B8A6",
           })
         }
 
@@ -408,7 +409,7 @@ export class ProjectCreationTool extends BaseAITool {
           locked: false,
           height: 40,
           expanded: true,
-          color: "#F59E0B"
+          color: "#F59E0B",
         })
         break
 
@@ -425,7 +426,7 @@ export class ProjectCreationTool extends BaseAITool {
             locked: false,
             height: 60,
             expanded: true,
-            color: ["#3B82F6", "#6366F1", "#8B5CF6", "#A855F7"][i]
+            color: ["#3B82F6", "#6366F1", "#8B5CF6", "#A855F7"][i],
           })
         }
 
@@ -436,11 +437,11 @@ export class ProjectCreationTool extends BaseAITool {
             type: "audio",
             clips: [],
             muted: false,
-            solo: false, 
+            solo: false,
             locked: false,
             height: 60,
             expanded: true,
-            color: ["#10B981", "#14B8A6", "#06B6D4", "#0EA5E9"][i]
+            color: ["#10B981", "#14B8A6", "#06B6D4", "#0EA5E9"][i],
           })
         }
 
@@ -455,7 +456,7 @@ export class ProjectCreationTool extends BaseAITool {
             locked: false,
             height: 40,
             expanded: true,
-            color: i === 0 ? "#F59E0B" : "#EF4444"
+            color: i === 0 ? "#F59E0B" : "#EF4444",
           })
         }
         break
@@ -472,7 +473,7 @@ export class ProjectCreationTool extends BaseAITool {
           locked: false,
           height: 60,
           expanded: true,
-          color: "#3B82F6"
+          color: "#3B82F6",
         })
         break
     }
@@ -546,8 +547,8 @@ export async function createTimelineProject(params: any): Promise<AIToolResult<P
   const input: ProjectCreationInput = {
     projectSettings: params.projectSettings,
     autoCreateStructure: params.autoCreateStructure,
-    templateType: params.templateType
+    templateType: params.templateType,
   }
-  
+
   return projectCreationTool.createNewTimelineProject(input)
 }

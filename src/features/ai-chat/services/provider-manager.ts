@@ -46,16 +46,8 @@ export interface ProviderStatus {
 // Интерфейс для базового AI провайдера
 export interface BaseAIProvider {
   name: AIProvider
-  sendRequest(
-    model: string,
-    messages: AiMessage[],
-    options?: ProviderRequestOptions
-  ): Promise<string>
-  sendStreamingRequest(
-    model: string,
-    messages: AiMessage[],
-    options?: ProviderStreamingOptions
-  ): Promise<void>
+  sendRequest(model: string, messages: AiMessage[], options?: ProviderRequestOptions): Promise<string>
+  sendStreamingRequest(model: string, messages: AiMessage[], options?: ProviderStreamingOptions): Promise<void>
   isAvailable(): Promise<boolean>
   hasApiKey(...args: any[]): Promise<boolean>
   getInstalledModels?(): Promise<Array<{ name: string; details: { parameter_size: string } }>>
@@ -153,7 +145,7 @@ export class ProviderManager {
     provider: AIProvider,
     model: string,
     messages: AiMessage[],
-    options: ProviderRequestOptions = {}
+    options: ProviderRequestOptions = {},
   ): Promise<ProviderResponse> {
     const aiProvider = this.getProvider(provider)
     if (!aiProvider) {
@@ -161,7 +153,7 @@ export class ProviderManager {
     }
 
     const startTime = Date.now()
-    
+
     try {
       let content: string
 
@@ -219,7 +211,7 @@ export class ProviderManager {
     provider: AIProvider,
     model: string,
     messages: AiMessage[],
-    options: ProviderStreamingOptions = {}
+    options: ProviderStreamingOptions = {},
   ): Promise<void> {
     const aiProvider = this.getProvider(provider)
     if (!aiProvider) {
@@ -322,7 +314,7 @@ export class ProviderManager {
     try {
       // Проверяем наличие API ключа
       status.hasApiKey = await aiProvider.hasApiKey()
-      
+
       // Проверяем доступность
       status.available = await aiProvider.isAvailable()
 
@@ -330,12 +322,11 @@ export class ProviderManager {
       if (provider === "ollama" && aiProvider.getInstalledModels) {
         try {
           const models = await aiProvider.getInstalledModels()
-          status.models = models.map(m => m.name)
+          status.models = models.map((m) => m.name)
         } catch (error) {
           // Игнорируем ошибки получения моделей
         }
       }
-
     } catch (error) {
       status.error = error instanceof Error ? error.message : String(error)
       status.available = false
@@ -353,12 +344,12 @@ export class ProviderManager {
     const statuses = new Map<AIProvider, ProviderStatus>()
 
     const providers: AIProvider[] = ["claude", "openai", "deepseek", "ollama"]
-    
+
     await Promise.all(
       providers.map(async (provider) => {
         const status = await this.getProviderStatus(provider, forceRefresh)
         statuses.set(provider, status)
-      })
+      }),
     )
 
     return statuses
@@ -382,10 +373,10 @@ export class ProviderManager {
     options: {
       preferLocal?: boolean
       requiresStreaming?: boolean
-    } = {}
+    } = {},
   ): Promise<AIProvider | null> {
     const availableProviders = await this.getAvailableProviders()
-    
+
     if (availableProviders.length === 0) {
       return null
     }
@@ -394,7 +385,7 @@ export class ProviderManager {
     let candidates = availableProviders
 
     if (options.preferLocal) {
-      const localProviders = candidates.filter(p => p === "ollama")
+      const localProviders = candidates.filter((p) => p === "ollama")
       if (localProviders.length > 0) {
         candidates = localProviders
       }
@@ -402,7 +393,7 @@ export class ProviderManager {
 
     // Сортируем по предпочтениям для разных задач
     const providerOrder = this.getProviderOrderForTask(task)
-    
+
     for (const provider of providerOrder) {
       if (candidates.includes(provider)) {
         return provider
@@ -419,14 +410,12 @@ export class ProviderManager {
     switch (task) {
       case "analysis":
         return ["claude", "openai", "deepseek", "ollama"]
-      
+
       case "generation":
         return ["claude", "openai", "deepseek", "ollama"]
 
       case "code":
         return ["deepseek", "claude", "openai", "ollama"]
-
-      case "chat":
       default:
         return ["claude", "openai", "deepseek", "ollama"]
     }
@@ -449,16 +438,14 @@ export class ProviderManager {
     newestEntry?: Date
   } {
     const statuses = Array.from(this.statusCache.values())
-    
+
     return {
       cachedProviders: this.statusCache.size,
       cacheTimeout: this.cacheTimeout,
-      oldestEntry: statuses.length > 0 
-        ? new Date(Math.min(...statuses.map(s => s.lastChecked.getTime())))
-        : undefined,
-      newestEntry: statuses.length > 0
-        ? new Date(Math.max(...statuses.map(s => s.lastChecked.getTime())))
-        : undefined
+      oldestEntry:
+        statuses.length > 0 ? new Date(Math.min(...statuses.map((s) => s.lastChecked.getTime()))) : undefined,
+      newestEntry:
+        statuses.length > 0 ? new Date(Math.max(...statuses.map((s) => s.lastChecked.getTime()))) : undefined,
     }
   }
 
@@ -480,23 +467,26 @@ export class ProviderManager {
     try {
       // Отправляем простой тестовый запрос
       await aiProvider.sendRequest(
-        provider === "claude" ? "claude-4-sonnet" : 
-        provider === "openai" ? "gpt-3.5-turbo" :
-        provider === "deepseek" ? "deepseek-chat" : 
-        "llama2", // для ollama
+        provider === "claude"
+          ? "claude-4-sonnet"
+          : provider === "openai"
+            ? "gpt-3.5-turbo"
+            : provider === "deepseek"
+              ? "deepseek-chat"
+              : "llama2", // для ollama
         [{ role: "user", content: "Тест соединения. Ответь одним словом: OK" }],
-        { temperature: 0, maxTokens: 10 }
+        { temperature: 0, maxTokens: 10 },
       )
 
       return {
         success: true,
-        responseTime: Date.now() - startTime
+        responseTime: Date.now() - startTime,
       }
     } catch (error) {
       return {
         success: false,
         responseTime: Date.now() - startTime,
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       }
     }
   }

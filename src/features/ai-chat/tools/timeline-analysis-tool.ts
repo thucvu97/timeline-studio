@@ -4,7 +4,7 @@
  */
 
 import type { TimelineProject } from "@/features/timeline/types"
-import { BaseAITool, type AIToolExecutionOptions, type AIToolLogger, type AIToolResult } from "./base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "./base-ai-tool"
 
 // Типы для анализа timeline
 export interface TimelineAnalysisInput {
@@ -58,7 +58,7 @@ export class TimelineAnalysisTool extends BaseAITool {
    */
   public async analyzeTimeline(
     input: TimelineAnalysisInput,
-    options: AIToolExecutionOptions = {}
+    options: AIToolExecutionOptions = {},
   ): Promise<AIToolResult<TimelineAnalysisResult>> {
     // Валидация входных данных
     const validation = this.validateInput(input, (data) => {
@@ -78,7 +78,7 @@ export class TimelineAnalysisTool extends BaseAITool {
 
       return {
         isValid: errors.length === 0,
-        errors
+        errors,
       }
     })
 
@@ -88,7 +88,7 @@ export class TimelineAnalysisTool extends BaseAITool {
         errors: validation.errors,
         message: "Ошибка валидации входных данных",
         executionTime: 0,
-        toolName: this.toolName
+        toolName: this.toolName,
       }
     }
 
@@ -98,7 +98,7 @@ export class TimelineAnalysisTool extends BaseAITool {
         context.logger?.("info", "Начинаем анализ timeline проекта", {
           analysisType: input.analysisType || "full",
           projectDuration: input.project.duration,
-          tracksCount: input.project.globalTracks.length
+          tracksCount: input.project.globalTracks.length,
         })
 
         // Выполняем различные виды анализа
@@ -106,7 +106,7 @@ export class TimelineAnalysisTool extends BaseAITool {
           this.analyzeOverview(input.project),
           this.analyzeStructure(input.project),
           this.analyzePerformance(input.project),
-          this.analyzeQuality(input.project)
+          this.analyzeQuality(input.project),
         ])
 
         const [overview, structure, performance, quality] = analysisResults
@@ -126,7 +126,7 @@ export class TimelineAnalysisTool extends BaseAITool {
         context.logger?.("info", "Анализ timeline завершен", {
           overallScore: quality.overallScore,
           complexity: overview.complexity,
-          recommendationsCount: result.recommendations?.length || 0
+          recommendationsCount: result.recommendations?.length || 0,
         })
 
         return result
@@ -139,9 +139,9 @@ export class TimelineAnalysisTool extends BaseAITool {
         metadata: {
           analysisType: input.analysisType,
           projectId: input.project.id,
-          ...options.metadata
-        }
-      }
+          ...options.metadata,
+        },
+      },
     )
   }
 
@@ -150,7 +150,7 @@ export class TimelineAnalysisTool extends BaseAITool {
    */
   private async analyzeOverview(project: TimelineProject): Promise<TimelineAnalysisResult["overview"]> {
     const totalClips = project.globalTracks.reduce((count, track) => count + track.clips.length, 0)
-    
+
     // Определяем сложность проекта
     let complexity: "low" | "medium" | "high" = "low"
     if (totalClips > 100 || project.globalTracks.length > 10) {
@@ -163,7 +163,7 @@ export class TimelineAnalysisTool extends BaseAITool {
       totalDuration: project.duration,
       tracksCount: project.globalTracks.length,
       clipsCount: totalClips,
-      complexity
+      complexity,
     }
   }
 
@@ -204,7 +204,7 @@ export class TimelineAnalysisTool extends BaseAITool {
       isWellOrganized: !hasGaps && overlapIssues === 0,
       hasGaps,
       overlapIssues,
-      trackUtilization
+      trackUtilization,
     }
   }
 
@@ -215,7 +215,7 @@ export class TimelineAnalysisTool extends BaseAITool {
     const totalClips = project.globalTracks.reduce((count, track) => count + track.clips.length, 0)
     const effectsCount = project.globalTracks.reduce(
       (count, track) => count + track.clips.reduce((clipCount, clip) => clipCount + clip.effects.length, 0),
-      0
+      0,
     )
 
     // Примерная оценка времени рендера (в секундах)
@@ -237,7 +237,7 @@ export class TimelineAnalysisTool extends BaseAITool {
     return {
       estimatedRenderTime,
       resourceIntensity,
-      bottlenecks
+      bottlenecks,
     }
   }
 
@@ -246,17 +246,16 @@ export class TimelineAnalysisTool extends BaseAITool {
    */
   private async analyzeQuality(project: TimelineProject): Promise<TimelineAnalysisResult["quality"]> {
     // Простые метрики качества (можно расширить)
-    const audioTracks = project.globalTracks.filter(track => track.type === "audio")
-    const videoTracks = project.globalTracks.filter(track => track.type === "video")
+    const audioTracks = project.globalTracks.filter((track) => track.type === "audio")
+    const videoTracks = project.globalTracks.filter((track) => track.type === "video")
 
     // Баланс аудио треков
-    const audioBalance = audioTracks.length > 0 ? 
-      Math.min(1, audioTracks.length / Math.max(videoTracks.length, 1)) : 0
+    const audioBalance = audioTracks.length > 0 ? Math.min(1, audioTracks.length / Math.max(videoTracks.length, 1)) : 0
 
     // Визуальная консистентность (базируется на количестве переходов)
     const totalTransitions = project.globalTracks.reduce(
       (count, track) => count + track.clips.reduce((clipCount, clip) => clipCount + clip.transitions.length, 0),
-      0
+      0,
     )
     const visualConsistency = Math.min(1, totalTransitions / Math.max(videoTracks.length, 1))
 
@@ -270,7 +269,7 @@ export class TimelineAnalysisTool extends BaseAITool {
       audioBalance: Math.round(audioBalance * 10),
       visualConsistency: Math.round(visualConsistency * 10),
       transitionSmootness: Math.round(transitionSmootness * 10),
-      overallScore
+      overallScore,
     }
   }
 
@@ -278,7 +277,7 @@ export class TimelineAnalysisTool extends BaseAITool {
    * Генерация рекомендаций на основе анализа
    */
   private async generateRecommendations(
-    analysis: Omit<TimelineAnalysisResult, "recommendations">
+    analysis: Omit<TimelineAnalysisResult, "recommendations">,
   ): Promise<TimelineAnalysisResult["recommendations"]> {
     const recommendations: TimelineAnalysisResult["recommendations"] = []
 
@@ -288,7 +287,7 @@ export class TimelineAnalysisTool extends BaseAITool {
         category: "Структура",
         priority: "medium",
         description: "Обнаружены пробелы между клипами",
-        action: "Проверьте и устраните пробелы для плавного воспроизведения"
+        action: "Проверьте и устраните пробелы для плавного воспроизведения",
       })
     }
 
@@ -297,7 +296,7 @@ export class TimelineAnalysisTool extends BaseAITool {
         category: "Структура",
         priority: "high",
         description: `Обнаружено ${analysis.structure.overlapIssues} пересечений клипов`,
-        action: "Исправьте пересечения клипов для избежания конфликтов"
+        action: "Исправьте пересечения клипов для избежания конфликтов",
       })
     }
 
@@ -307,7 +306,7 @@ export class TimelineAnalysisTool extends BaseAITool {
         category: "Производительность",
         priority: "medium",
         description: "Высокая нагрузка на ресурсы системы",
-        action: "Рассмотрите оптимизацию эффектов или разделение на части"
+        action: "Рассмотрите оптимизацию эффектов или разделение на части",
       })
     }
 
@@ -317,7 +316,7 @@ export class TimelineAnalysisTool extends BaseAITool {
         category: "Качество",
         priority: "high",
         description: "Низкая общая оценка качества проекта",
-        action: "Улучшите баланс треков и добавьте переходы"
+        action: "Улучшите баланс треков и добавьте переходы",
       })
     }
 
@@ -331,17 +330,19 @@ export class TimelineAnalysisTool extends BaseAITool {
     const { overview, quality, structure, performance } = result
 
     return [
-      `📊 Анализ Timeline проекта:`,
+      "📊 Анализ Timeline проекта:",
       `• Длительность: ${Math.round(overview.totalDuration)}с`,
       `• Треков: ${overview.tracksCount}, Клипов: ${overview.clipsCount}`,
       `• Сложность: ${overview.complexity}`,
       `• Качество: ${quality.overallScore}/10`,
       `• Структура: ${structure.isWellOrganized ? "✅ Хорошо организована" : "⚠️ Требует внимания"}`,
       `• Производительность: ${performance.resourceIntensity} нагрузка`,
-      result.recommendations && result.recommendations.length > 0 
+      result.recommendations && result.recommendations.length > 0
         ? `• Рекомендации: ${result.recommendations.length}`
-        : ""
-    ].filter(Boolean).join("\n")
+        : "",
+    ]
+      .filter(Boolean)
+      .join("\n")
   }
 }
 
@@ -349,6 +350,8 @@ export class TimelineAnalysisTool extends BaseAITool {
 export const timelineAnalysisTool = new TimelineAnalysisTool()
 
 // Функция-обертка для обратной совместимости с существующими инструментами
-export async function executeTimelineAnalysis(input: TimelineAnalysisInput): Promise<AIToolResult<TimelineAnalysisResult>> {
+export async function executeTimelineAnalysis(
+  input: TimelineAnalysisInput,
+): Promise<AIToolResult<TimelineAnalysisResult>> {
   return timelineAnalysisTool.analyzeTimeline(input)
 }
