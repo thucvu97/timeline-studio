@@ -1,16 +1,41 @@
 import { screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { AngleViewer } from "../angle-viewer"
 import { renderWithTimeline } from "@/test/test-utils"
+import { AngleViewer } from "../angle-viewer"
+import type { MulticamAngle } from "../../hooks/use-multicam"
+
+// Мокируем иконки lucide-react
+vi.mock("lucide-react", () => ({
+  Camera: ({ className, ...props }: any) => (
+    <svg {...props} className={className} data-testid="camera-icon" data-icon="Camera">
+      Camera
+    </svg>
+  ),
+  Play: ({ className, ...props }: any) => (
+    <svg {...props} className={className} data-testid="play-icon" data-icon="Play">
+      Play
+    </svg>
+  ),
+  Pause: ({ className, ...props }: any) => (
+    <svg {...props} className={className} data-testid="pause-icon" data-icon="Pause">
+      Pause
+    </svg>
+  ),
+  Clock: ({ className, ...props }: any) => (
+    <svg {...props} className={className} data-testid="clock-icon" data-icon="Clock">
+      Clock
+    </svg>
+  ),
+}))
 
 // Моки
 const mockMulticamReturn = {
-  angles: [],
+  angles: [] as MulticamAngle[],
   activeAngleIndex: 0,
-  activeAngle: null,
+  activeAngle: null as MulticamAngle | null,
   isSync: false,
-  syncOffsets: [],
+  syncOffsets: [] as number[],
   switchToAngle: vi.fn(),
   switchToNextAngle: vi.fn(),
   switchToPreviousAngle: vi.fn(),
@@ -278,9 +303,9 @@ describe("AngleViewer", () => {
         isActive: i === 0,
       }))
 
-    const { rerender } = renderWithTimeline(<AngleViewer baseClipId="clip1" />)
+    renderWithTimeline(<AngleViewer baseClipId="clip1" />)
     let grid = screen.getByText("Camera 1").parentElement?.parentElement?.parentElement
-    expect(grid).toHaveStyle("grid-template-columns: repeat(2, 1fr)")
+    expect(grid).toHaveStyle({ gridTemplateColumns: "repeat(2, 1fr)" })
 
     // 5 камер = 3 колонки
     mockMulticamReturn.angles = Array(5)
@@ -294,9 +319,9 @@ describe("AngleViewer", () => {
         isActive: i === 0,
       }))
 
-    rerenderWithTimeline(<AngleViewer baseClipId="clip1" />)
+    renderWithTimeline(<AngleViewer baseClipId="clip1" />)
     grid = screen.getByText("Camera 1").parentElement?.parentElement?.parentElement
-    expect(grid).toHaveStyle("grid-template-columns: repeat(3, 1fr)")
+    expect(grid).toHaveStyle({ gridTemplateColumns: "repeat(3, 1fr)" })
   })
 
   it("ограничивает максимальное количество колонок", () => {
@@ -313,7 +338,7 @@ describe("AngleViewer", () => {
 
     renderWithTimeline(<AngleViewer baseClipId="clip1" maxColumns={3} />)
     const grid = screen.getByText("Camera 1").parentElement?.parentElement?.parentElement
-    expect(grid).toHaveStyle("grid-template-columns: repeat(3, 1fr)")
+    expect(grid).toHaveStyle({ gridTemplateColumns: "repeat(3, 1fr)" })
   })
 
   it("применяет кастомный className", () => {
@@ -348,15 +373,13 @@ describe("AngleViewer", () => {
 
     renderWithTimeline(<AngleViewer baseClipId="clip1" />)
 
-    const video = screen.getByText("Camera 1")
-      .parentElement?.parentElement?.querySelector("video") as HTMLVideoElement
+    const video = screen.getByText("Camera 1").parentElement?.parentElement?.querySelector("video") as HTMLVideoElement
 
     // Эмулируем ошибку загрузки видео
     video.dispatchEvent(new Event("error"))
 
     await waitFor(() => {
-      const errorIcon = screen.getByText("Camera 1")
-        .parentElement?.parentElement?.querySelector(".bg-muted")
+      const errorIcon = screen.getByText("Camera 1").parentElement?.parentElement?.querySelector(".bg-muted")
       expect(errorIcon).toBeInTheDocument()
     })
   })

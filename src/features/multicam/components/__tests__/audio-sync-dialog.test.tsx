@@ -19,7 +19,7 @@ describe("AudioSyncDialog", () => {
 
   it("не рендерится, когда isOpen=false", () => {
     const { container } = render(
-      <AudioSyncDialog isOpen={false} onClose={mockOnClose} onSync={mockOnSync} angleCount={3} />
+      <AudioSyncDialog isOpen={false} onClose={mockOnClose} onSync={mockOnSync} angleCount={3} />,
     )
 
     expect(container.firstChild).toBeNull()
@@ -74,13 +74,13 @@ describe("AudioSyncDialog", () => {
 
     // Проходим через все шаги анимации
     vi.advanceTimersByTime(800) // Первый шаг
-    vi.advanceTimersByTime(800) // Второй шаг  
+    vi.advanceTimersByTime(800) // Второй шаг
     vi.advanceTimersByTime(800) // Третий шаг
 
     await waitFor(() => {
       expect(screen.getByText("Результаты синхронизации")).toBeInTheDocument()
     })
-    
+
     expect(screen.getByText("Камера 2")).toBeInTheDocument()
     expect(screen.getByText("Камера 3")).toBeInTheDocument()
     expect(screen.getByText("+1.234s")).toBeInTheDocument()
@@ -109,9 +109,7 @@ describe("AudioSyncDialog", () => {
 
   it("показывает кнопку Применить после синхронизации", async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
-    mockOnSync.mockResolvedValue([
-      { offset: 1.0, confidence: 0.8, method: "audio" as const },
-    ])
+    mockOnSync.mockResolvedValue([{ offset: 1.0, confidence: 0.8, method: "audio" as const }])
 
     render(<AudioSyncDialog isOpen={true} onClose={mockOnClose} onSync={mockOnSync} angleCount={2} />)
 
@@ -142,7 +140,7 @@ describe("AudioSyncDialog", () => {
   it("блокирует закрытие диалога во время обработки", async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
     // Делаем задержку для имитации долгой обработки
-    mockOnSync.mockImplementation(() => new Promise(resolve => setTimeout(() => resolve([]), 5000)))
+    mockOnSync.mockImplementation(() => new Promise((resolve) => setTimeout(() => resolve([]), 5000)))
 
     render(<AudioSyncDialog isOpen={true} onClose={mockOnClose} onSync={mockOnSync} angleCount={3} />)
 
@@ -150,7 +148,7 @@ describe("AudioSyncDialog", () => {
 
     // Пытаемся закрыть диалог во время обработки
     const dialog = screen.getByRole("dialog")
-    await user.keyboard('{Escape}')
+    await user.keyboard("{Escape}")
 
     expect(mockOnClose).not.toHaveBeenCalled()
   })
@@ -202,9 +200,7 @@ describe("AudioSyncDialog", () => {
 
   it("показывает бейдж для аудио метода", async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
-    mockOnSync.mockResolvedValue([
-      { offset: 1.0, confidence: 0.8, method: "audio" as const },
-    ])
+    mockOnSync.mockResolvedValue([{ offset: 1.0, confidence: 0.8, method: "audio" as const }])
 
     render(<AudioSyncDialog isOpen={true} onClose={mockOnClose} onSync={mockOnSync} angleCount={2} />)
 
@@ -217,12 +213,10 @@ describe("AudioSyncDialog", () => {
 
   it("сбрасывает состояние при закрытии", async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
-    mockOnSync.mockResolvedValue([
-      { offset: 1.0, confidence: 0.8, method: "audio" as const },
-    ])
+    mockOnSync.mockResolvedValue([{ offset: 1.0, confidence: 0.8, method: "audio" as const }])
 
     const { rerender } = render(
-      <AudioSyncDialog isOpen={true} onClose={mockOnClose} onSync={mockOnSync} angleCount={2} />
+      <AudioSyncDialog isOpen={true} onClose={mockOnClose} onSync={mockOnSync} angleCount={2} />,
     )
 
     // Запускаем синхронизацию

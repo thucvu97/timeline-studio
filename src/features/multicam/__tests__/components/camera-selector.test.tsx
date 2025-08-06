@@ -37,36 +37,36 @@ describe("CameraSelector", () => {
   describe("основной рендеринг", () => {
     it("должен возвращать null когда только один угол или меньше", () => {
       const { container } = render(
-        <CameraSelector angles={createMockAngles(1)} activeAngleIndex={0} onSelectAngle={vi.fn()} />
+        <CameraSelector angles={createMockAngles(1)} activeAngleIndex={0} onSelectAngle={vi.fn()} />,
       )
-      
+
       expect(container.firstChild).toBeNull()
     })
 
     it("должен отображать кнопку с информацией о текущей камере", () => {
       render(<CameraSelector {...defaultProps} />)
-      
+
       const button = screen.getByRole("button")
       expect(button).toBeInTheDocument()
-      
+
       // Проверяем иконку камеры
       expect(screen.getByTestId("camera-icon")).toBeInTheDocument()
-      
+
       // Проверяем отображение номера камеры
       expect(screen.getByText("1/3")).toBeInTheDocument()
-      
+
       // Проверяем имя камеры
       expect(screen.getByText("Camera 1")).toBeInTheDocument()
     })
 
     it("должен корректно отображать информацию для разных активных камер", () => {
       const { rerender } = render(<CameraSelector {...defaultProps} activeAngleIndex={1} />)
-      
+
       expect(screen.getByText("2/3")).toBeInTheDocument()
       expect(screen.getByText("Camera 2")).toBeInTheDocument()
-      
+
       rerender(<CameraSelector {...defaultProps} activeAngleIndex={2} />)
-      
+
       expect(screen.getByText("3/3")).toBeInTheDocument()
       expect(screen.getByText("Camera 3")).toBeInTheDocument()
     })
@@ -75,14 +75,14 @@ describe("CameraSelector", () => {
   describe("состояние disabled", () => {
     it("должен отключать кнопку когда disabled=true", () => {
       render(<CameraSelector {...defaultProps} disabled={true} />)
-      
+
       const button = screen.getByRole("button")
       expect(button).toBeDisabled()
     })
 
     it("должен быть активным по умолчанию", () => {
       render(<CameraSelector {...defaultProps} />)
-      
+
       const button = screen.getByRole("button")
       expect(button).not.toBeDisabled()
     })
@@ -91,28 +91,28 @@ describe("CameraSelector", () => {
   describe("выпадающее меню", () => {
     it("должен открывать меню при клике на кнопку", () => {
       render(<CameraSelector {...defaultProps} />)
-      
+
       // Изначально меню не видно
       expect(screen.queryByText("Выберите камеру")).not.toBeInTheDocument()
-      
+
       // Кликаем на кнопку
       const button = screen.getByRole("button")
       fireEvent.click(button)
-      
+
       // Проверяем что меню открылось
       expect(screen.getByText("Выберите камеру")).toBeInTheDocument()
     })
 
     it("должен отображать все камеры в меню", () => {
       render(<CameraSelector {...defaultProps} />)
-      
+
       const button = screen.getByRole("button")
       fireEvent.click(button)
-      
+
       // Проверяем что все три камеры отображаются
       const menuItems = screen.getAllByTestId("dropdown-menu-item")
       expect(menuItems).toHaveLength(3)
-      
+
       defaultProps.angles.forEach((angle, index) => {
         expect(menuItems[index]).toHaveTextContent(angle.name)
         expect(menuItems[index]).toHaveTextContent(`${index + 1}`)
@@ -121,14 +121,14 @@ describe("CameraSelector", () => {
 
     it("должен показывать галочку рядом с активной камерой", () => {
       render(<CameraSelector {...defaultProps} />)
-      
+
       const button = screen.getByRole("button")
       fireEvent.click(button)
-      
+
       // Находим иконки Check
       const checkIcons = screen.getAllByTestId("check-icon")
       expect(checkIcons).toHaveLength(1) // Только одна галочка
-      
+
       // Проверяем что галочка рядом с первой камерой
       const firstMenuItem = screen.getAllByTestId("dropdown-menu-item")[0]
       expect(firstMenuItem).toContainElement(checkIcons[0])
@@ -136,10 +136,10 @@ describe("CameraSelector", () => {
 
     it("должен отображать смещение синхронизации для камер", () => {
       render(<CameraSelector {...defaultProps} />)
-      
+
       const button = screen.getByRole("button")
       fireEvent.click(button)
-      
+
       // Третья камера имеет смещение 0.5s
       expect(screen.getByText("+0.5s")).toBeInTheDocument()
     })
@@ -147,14 +147,14 @@ describe("CameraSelector", () => {
     it("должен вызывать onSelectAngle при выборе камеры", () => {
       const onSelectAngle = vi.fn()
       render(<CameraSelector {...defaultProps} onSelectAngle={onSelectAngle} />)
-      
+
       const button = screen.getByRole("button")
       fireEvent.click(button)
-      
+
       // Кликаем на вторую камеру
       const menuItems = screen.getAllByTestId("dropdown-menu-item")
       fireEvent.click(menuItems[1])
-      
+
       expect(onSelectAngle).toHaveBeenCalledWith(1)
       expect(onSelectAngle).toHaveBeenCalledTimes(1)
     })
@@ -162,14 +162,14 @@ describe("CameraSelector", () => {
     it("не должен вызывать onSelectAngle при клике на уже активную камеру", () => {
       const onSelectAngle = vi.fn()
       render(<CameraSelector {...defaultProps} onSelectAngle={onSelectAngle} />)
-      
+
       const button = screen.getByRole("button")
       fireEvent.click(button)
-      
+
       // Кликаем на первую (активную) камеру
       const menuItems = screen.getAllByTestId("dropdown-menu-item")
       fireEvent.click(menuItems[0])
-      
+
       // onSelectAngle все равно должен быть вызван
       expect(onSelectAngle).toHaveBeenCalledWith(0)
     })
@@ -178,7 +178,7 @@ describe("CameraSelector", () => {
   describe("кастомные классы", () => {
     it("должен применять кастомные классы к кнопке", () => {
       render(<CameraSelector {...defaultProps} className="custom-class-1 custom-class-2" />)
-      
+
       const button = screen.getByRole("button")
       expect(button).toHaveClass("custom-class-1", "custom-class-2")
       // Также должны сохраняться базовые классы
@@ -188,19 +188,13 @@ describe("CameraSelector", () => {
 
   describe("отображение без имени камеры", () => {
     it("должен корректно работать когда у камеры нет имени", () => {
-      const anglesWithoutNames = createMockAngles(2).map(angle => ({
+      const anglesWithoutNames = createMockAngles(2).map((angle) => ({
         ...angle,
         name: "",
       }))
-      
-      render(
-        <CameraSelector 
-          angles={anglesWithoutNames} 
-          activeAngleIndex={0} 
-          onSelectAngle={vi.fn()} 
-        />
-      )
-      
+
+      render(<CameraSelector angles={anglesWithoutNames} activeAngleIndex={0} onSelectAngle={vi.fn()} />)
+
       const button = screen.getByRole("button")
       expect(button).toBeInTheDocument()
       expect(screen.getByText("1/2")).toBeInTheDocument()
@@ -215,14 +209,8 @@ describe("CameraSelector", () => {
   describe("граничные случаи", () => {
     it("должен корректно обрабатывать большое количество камер", () => {
       const manyAngles = createMockAngles(10)
-      render(
-        <CameraSelector 
-          angles={manyAngles} 
-          activeAngleIndex={9} 
-          onSelectAngle={vi.fn()} 
-        />
-      )
-      
+      render(<CameraSelector angles={manyAngles} activeAngleIndex={9} onSelectAngle={vi.fn()} />)
+
       expect(screen.getByText("10/10")).toBeInTheDocument()
       expect(screen.getByText("Camera 10")).toBeInTheDocument()
     })
@@ -230,27 +218,21 @@ describe("CameraSelector", () => {
     it("должен корректно отображать отрицательное смещение", () => {
       const anglesWithNegativeOffset = createMockAngles(2)
       anglesWithNegativeOffset[1].syncOffset = -1.5
-      
-      render(
-        <CameraSelector 
-          angles={anglesWithNegativeOffset} 
-          activeAngleIndex={0} 
-          onSelectAngle={vi.fn()} 
-        />
-      )
-      
+
+      render(<CameraSelector angles={anglesWithNegativeOffset} activeAngleIndex={0} onSelectAngle={vi.fn()} />)
+
       const button = screen.getByRole("button")
       fireEvent.click(button)
-      
+
       expect(screen.getByText("-1.5s")).toBeInTheDocument()
     })
 
     it("не должен отображать смещение если оно равно 0", () => {
       render(<CameraSelector {...defaultProps} />)
-      
+
       const button = screen.getByRole("button")
       fireEvent.click(button)
-      
+
       // Первая и вторая камеры имеют смещение 0
       const menuItems = screen.getAllByTestId("dropdown-menu-item")
       expect(menuItems[0]).not.toHaveTextContent("0.0s")
