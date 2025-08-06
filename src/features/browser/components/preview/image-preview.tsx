@@ -1,12 +1,11 @@
 // import { convertFileSrc } from "@tauri-apps/api/core"
 
-import { memo, useCallback, useEffect, useState } from "react"
-
 import { readFile } from "@tauri-apps/plugin-fs"
 import { Image } from "lucide-react"
+import { memo, useCallback, useEffect, useState } from "react"
 
-import { MediaFile } from "@/features/media/types/media"
-import { TimelineResource } from "@/features/resources/types"
+import type { MediaFile } from "@/features/media/types/media"
+import type { TimelineResource } from "@/features/resources/types"
 import { usePlayer } from "@/features/video-player"
 import { convertToAssetUrl } from "@/lib/tauri-utils"
 
@@ -58,7 +57,7 @@ export const ImagePreview = memo(function ImagePreview({
     try {
       console.log("[ImagePreview] Чтение файла через readFile:", path)
       const fileData = await readFile(path)
-      const blob = new Blob([fileData], { type: "image/jpeg" }) // Можно определить тип по расширению файла
+      const blob = new Blob([fileData as BlobPart], { type: "image/jpeg" }) // Можно определить тип по расширению файла
       const url = URL.createObjectURL(blob)
       console.log("[ImagePreview] Создан объект URL:", url)
       return url

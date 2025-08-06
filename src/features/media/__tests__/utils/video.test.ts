@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
-import { FfprobeStream } from "@/features/media/types/ffprobe"
-import { MediaFile } from "@/features/media/types/media"
+import type { FfprobeStream } from "@/features/media/types/ffprobe"
+import type { MediaFile } from "@/features/media/types/media"
 
 import {
   calculateAdaptiveWidth,

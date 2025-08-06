@@ -1,30 +1,24 @@
-import React from "react"
+import type React from "react"
 
 import { Card } from "@/components/ui/card"
 import { useAppSettings } from "@/features/app-state"
 import { parseDuration, parseFileSize } from "@/features/browser/utils"
 import { getFileType } from "@/features/media"
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 import i18n from "@/i18n"
 import { cn } from "@/lib/utils"
-
-import { getDateGroup, getDurationGroup } from "../utils/grouping"
-
 import type { ListAdapter, PreviewComponentProps } from "../types/list"
+import { getDateGroup, getDurationGroup } from "../utils/grouping"
 
 /**
  * Компонент превью для медиафайлов
  */
 const MediaPreviewWrapper: React.FC<PreviewComponentProps<MediaFile>> = ({
   item,
-  size,
   viewMode,
   onClick,
   onDragStart,
   isSelected,
-  isFavorite,
-  onToggleFavorite,
-  onAddToTimeline,
 }) => {
   const duration = item.duration ? parseDuration(item.duration) : "00:00"
   const fileSize = item.size ? parseFileSize(item.size) : "0 KB"
@@ -109,11 +103,12 @@ export const MediaAdapter: ListAdapter<MediaFile> = {
     const currentLanguage = i18n.language || "ru"
 
     switch (groupBy) {
-      case "type":
+      case "type": {
         const fileType = getFileType(file)
         return i18n.t(`browser.media.${fileType}`)
+      }
 
-      case "date":
+      case "date": {
         // Для изображений используем дату создания файла, если она доступна
         let timestamp = file.startTime
         if (!timestamp && /\.(jpg|jpeg|png|gif|webp)$/i.exec(file.name)) {
@@ -123,10 +118,12 @@ export const MediaAdapter: ListAdapter<MediaFile> = {
             : 0
         }
         return getDateGroup(timestamp, currentLanguage)
+      }
 
-      case "duration":
+      case "duration": {
         const duration = parseDuration(file.duration)
         return getDurationGroup(duration)
+      }
 
       default:
         return ""

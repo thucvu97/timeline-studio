@@ -1,5 +1,3 @@
-import { useState } from "react"
-
 import {
   AudioLines,
   ChevronDown,
@@ -13,6 +11,7 @@ import {
   Waves,
   Zap,
 } from "lucide-react"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"

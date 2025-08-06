@@ -5,12 +5,12 @@
 import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 import { TimelineProviders } from "@/test/test-utils"
 
 import { useClips } from "../../hooks/use-clips"
 import { useTimeline } from "../../hooks/use-timeline"
-import { TimelineClip, TimelineProject, TrackType } from "../../types"
+import type { TimelineClip, TimelineProject, TrackType } from "../../types"
 
 // Mock useTimeline hook
 vi.mock("../../hooks/use-timeline")

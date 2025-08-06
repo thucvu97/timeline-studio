@@ -4,13 +4,14 @@
  * Новая версия player provider с синхронизацией через backend
  */
 
-import React, { createContext, useContext, useEffect, useState } from "react"
+import type React from "react"
+import { createContext, useContext, useEffect, useState } from "react"
 
 import { AppCommands } from "@/features/app-state/services/app-machine"
 import { getBackendSync } from "@/features/app-state/services/backend-sync"
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 import { useUserSettings } from "@/features/user-settings"
-import { ProjectState } from "@/types/generated/tauri-bindings"
+import type { ProjectState } from "@/types/generated/tauri-bindings"
 
 interface PlayerContextType {
   // Состояние воспроизведения (синхронизировано с backend)

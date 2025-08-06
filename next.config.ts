@@ -1,5 +1,5 @@
-import type { NextConfig } from "next"
 import { codecovWebpackPlugin } from "@codecov/webpack-plugin"
+import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
   reactStrictMode: false,
@@ -14,7 +14,7 @@ const nextConfig: NextConfig = {
       ...config.optimization,
       minimize: true,
       splitChunks: {
-        chunks: 'async',
+        chunks: "async",
         minSize: 20000,
         minRemainingSize: 0,
         minChunks: 1,
@@ -25,8 +25,8 @@ const nextConfig: NextConfig = {
           // Отдельный чанк для больших JSON ресурсов
           browserResources: {
             test: /[\\/](effects|filters|transitions)[\\/]data[\\/].*\.json$/,
-            name: 'browser-resources',
-            chunks: 'async',
+            name: "browser-resources",
+            chunks: "async",
             priority: 20,
             enforce: true,
           },
@@ -42,25 +42,25 @@ const nextConfig: NextConfig = {
           },
         },
       },
-    };
-    
+    }
+
     // Limit parallelism to reduce memory usage
-    config.parallelism = 1;
-    
+    config.parallelism = 1
+
     // Limit memory usage for terser
     if (config.optimization.minimizer) {
       config.optimization.minimizer.forEach((minimizer: any) => {
-        if (minimizer.constructor.name === 'TerserPlugin') {
-          minimizer.options.parallel = 1;
+        if (minimizer.constructor.name === "TerserPlugin") {
+          minimizer.options.parallel = 1
           minimizer.options.terserOptions = {
             ...minimizer.options.terserOptions,
             compress: {
               drop_console: true,
               drop_debugger: true,
             },
-          };
+          }
         }
-      });
+      })
     }
 
     // Generate webpack stats for bundle analysis
@@ -96,7 +96,7 @@ const nextConfig: NextConfig = {
               build: process.env.GITHUB_RUN_ID,
             },
           }),
-        })
+        }),
       )
     }
 
@@ -109,7 +109,7 @@ const nextConfig: NextConfig = {
     workerThreads: false,
     cpus: 1,
     // Conditionally disable CSS features that require lightningcss on Windows CI
-    ...(process.env.DISABLE_LIGHTNINGCSS === 'true' && {
+    ...(process.env.DISABLE_LIGHTNINGCSS === "true" && {
       cssChunking: false,
       optimizeCss: false,
     }),

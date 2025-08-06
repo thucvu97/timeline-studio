@@ -2,7 +2,7 @@ import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { useTimelineMarkers } from "../../../hooks/use-timeline-markers"
-import { MarkerType } from "../../../types/markers"
+import type { MarkerType } from "../../../types/markers"
 
 // Mock useTimeline хук
 const mockSend = vi.fn()

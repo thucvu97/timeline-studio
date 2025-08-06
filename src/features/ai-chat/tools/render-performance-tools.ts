@@ -5,7 +5,7 @@
  * оптимизации рендеринга и управления ресурсами системы
  */
 
-import { ClaudeTool } from "../services/claude-service"
+import type { ClaudeTool } from "../services/claude-service"
 
 /**
  * Render & Performance Tools - 8 инструментов для оптимизации

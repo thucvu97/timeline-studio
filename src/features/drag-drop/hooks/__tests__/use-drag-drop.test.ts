@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { DraggableItem } from "../../services/drag-drop-manager"
+import type { DraggableItem } from "../../services/drag-drop-manager"
 import { useDragDropState, useDraggable, useDropZone } from "../use-drag-drop"
 
 // Mock the drag-drop manager

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react"
 
 import { useTranslation } from "react-i18next"
 
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 
 interface VideoPanelProps {
   video: MediaFile

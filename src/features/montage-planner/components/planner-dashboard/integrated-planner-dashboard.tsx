@@ -2,9 +2,8 @@
  * Интегрированный Smart Montage Planner с подключением к backend
  */
 
-import * as React from "react"
-
 import { AlertCircle, Download, Settings, Upload, Wand2 } from "lucide-react"
+import * as React from "react"
 
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -15,12 +14,11 @@ import { Slider } from "@/components/ui/slider"
 import { useMediaFiles } from "@/features/app-state/hooks/use-media-files"
 import type { MediaFile } from "@/features/media/types/media"
 import type { MediaItem } from "@/types/generated/tauri-bindings"
-
+import { useIntegratedAnalysis } from "../../hooks/use-integrated-analysis"
+import { MONTAGE_STYLES } from "../../types"
 import { PlanViewer } from "./plan-viewer"
 import { ProjectAnalyzer } from "./project-analyzer"
 import { Suggestions } from "./suggestions"
-import { useIntegratedAnalysis } from "../../hooks/use-integrated-analysis"
-import { MONTAGE_STYLES } from "../../types"
 
 // Добавляем React import для useState
 
@@ -231,9 +229,7 @@ export function IntegratedPlannerDashboard() {
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">
-                  {selectedStyle in MONTAGE_STYLES
-                    ? MONTAGE_STYLES[selectedStyle].description
-                    : ""}
+                  {selectedStyle in MONTAGE_STYLES ? MONTAGE_STYLES[selectedStyle].description : ""}
                 </p>
               </div>
 

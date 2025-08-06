@@ -7,10 +7,10 @@ import { useCallback, useEffect, useRef, useState } from "react"
 
 import { useToast } from "@/hooks/use-toast"
 
-import { AdvancedFaceDetection, AdvancedFaceDetectionService } from "../services/advanced-face-detection-service"
-import { AdvancedTrackingService, TrackedPerson } from "../services/advanced-tracking-service"
+import { type AdvancedFaceDetection, AdvancedFaceDetectionService } from "../services/advanced-face-detection-service"
+import { AdvancedTrackingService, type TrackedPerson } from "../services/advanced-tracking-service"
 import { PersonDatabaseService } from "../services/person-database-service"
-import { DetectedFace, PersonProfile, PersonSearchResult } from "../types/person"
+import type { DetectedFace, PersonProfile, PersonSearchResult } from "../types/person"
 
 export interface UseAdvancedPersonIdentificationOptions {
   // Конфигурация детекции
@@ -415,18 +415,18 @@ export function useAdvancedPersonIdentification(options: UseAdvancedPersonIdenti
           isVerified: true,
           faceEmbeddings: face.embedding
             ? [
-              {
-                faceId: face.id,
-                personId: "", // Будет установлен после создания
-                vector: face.embedding,
-                quality: face.confidence,
-                clipId: face.clipId || "",
-                frameNumber: face.frameNumber || 0,
-                timestamp: face.timestamp,
-                landmarks: face.landmarks,
-                createdAt: new Date().toISOString(),
-              },
-            ]
+                {
+                  faceId: face.id,
+                  personId: "", // Будет установлен после создания
+                  vector: face.embedding,
+                  quality: face.confidence,
+                  clipId: face.clipId || "",
+                  frameNumber: face.frameNumber || 0,
+                  timestamp: face.timestamp,
+                  landmarks: face.landmarks,
+                  createdAt: new Date().toISOString(),
+                },
+              ]
             : [],
           averageEmbedding: face.embedding,
           appearances: [],
@@ -437,18 +437,18 @@ export function useAdvancedPersonIdentification(options: UseAdvancedPersonIdenti
           notes: personData.description,
           thumbnails: face.thumbnailUrl
             ? [
-              {
-                id: `thumb_${Date.now()}`,
-                imageUrl: face.thumbnailUrl,
-                width: face.bbox.width,
-                height: face.bbox.height,
-                sourceClipId: face.clipId || "",
-                sourceTimestamp: face.timestamp,
-                quality: face.confidence,
-                isPrimary: true,
-                isGenerated: false,
-              },
-            ]
+                {
+                  id: `thumb_${Date.now()}`,
+                  imageUrl: face.thumbnailUrl,
+                  width: face.bbox.width,
+                  height: face.bbox.height,
+                  sourceClipId: face.clipId || "",
+                  sourceTimestamp: face.timestamp,
+                  quality: face.confidence,
+                  isPrimary: true,
+                  isGenerated: false,
+                },
+              ]
             : [],
           privacy: {
             blurFace: false,

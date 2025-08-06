@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { BaseEffect } from "@/features/effects/types"
+import type { BaseEffect } from "@/features/effects/types"
 import { useModal } from "@/features/modals/services"
 
 interface EffectDetailProps {

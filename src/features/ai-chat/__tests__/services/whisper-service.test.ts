@@ -2,13 +2,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import {
   AVAILABLE_LOCAL_MODELS,
-  LocalWhisperModel,
-  WhisperSegment,
+  type LocalWhisperModel,
+  type WhisperSegment,
   WhisperService,
-  WhisperTranscriptionOptions,
-  WhisperTranscriptionResult,
-  WhisperTranslationOptions,
-  WhisperTranslationResult,
+  type WhisperTranscriptionOptions,
+  type WhisperTranscriptionResult,
+  type WhisperTranslationOptions,
+  type WhisperTranslationResult,
 } from "../../services/whisper-service"
 
 // Mock Tauri API

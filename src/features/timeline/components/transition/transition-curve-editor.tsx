@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
-import { CurvePoint, TransitionCurve } from "@/features/timeline/types/timeline-transition"
+import type { CurvePoint, TransitionCurve } from "@/features/timeline/types/timeline-transition"
 import { cn } from "@/lib/utils"
 
 interface TransitionCurveEditorProps {
@@ -185,15 +185,15 @@ export function TransitionCurveEditor({
             y: norm.y,
             handleIn: point.handleIn
               ? {
-                x: point.handleIn.x + deltaX,
-                y: point.handleIn.y + deltaY,
-              }
+                  x: point.handleIn.x + deltaX,
+                  y: point.handleIn.y + deltaY,
+                }
               : undefined,
             handleOut: point.handleOut
               ? {
-                x: point.handleOut.x + deltaX,
-                y: point.handleOut.y + deltaY,
-              }
+                  x: point.handleOut.x + deltaX,
+                  y: point.handleOut.y + deltaY,
+                }
               : undefined,
           }
         }

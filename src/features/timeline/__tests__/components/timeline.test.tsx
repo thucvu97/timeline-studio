@@ -2,9 +2,8 @@
  * Тесты для Timeline компонента
  */
 
-import React from "react"
-
 import { screen } from "@testing-library/react"
+import React from "react"
 import { describe, expect, it } from "vitest"
 
 // Import mocks before components

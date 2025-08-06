@@ -5,8 +5,8 @@
  * Примечание: Это упрощенная реализация AAF XML, не полный бинарный AAF
  */
 
-import { TimelineClip, TimelineProject, TimelineTrack } from "../../../types/timeline"
-import { ExportOptions, Exporter } from "../types"
+import type { TimelineClip, TimelineProject, TimelineTrack } from "../../../types/timeline"
+import type { Exporter, ExportOptions } from "../types"
 
 export class AAFExporter implements Exporter {
   private frameRate = 30

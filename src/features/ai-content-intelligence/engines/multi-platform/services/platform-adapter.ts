@@ -4,8 +4,6 @@
  */
 
 import { UnifiedAIService } from "../../../../ai-chat/services/unified-ai-service"
-import { CaptionPosition } from "../../../shared/types/platform-adaptation"
-
 import type { UnifiedContentAnalysis } from "../../../shared/types/content-analysis"
 import type {
   AdaptedContent,
@@ -14,6 +12,7 @@ import type {
   PlatformResolution,
   VideoSpecs,
 } from "../../../shared/types/platform-adaptation"
+import { CaptionPosition } from "../../../shared/types/platform-adaptation"
 import type {
   AdaptationStrategy,
   AudioAdaptationStrategy,
@@ -148,7 +147,7 @@ export class PlatformAdapter {
       },
       optimizations: {
         compressed: true,
-        enhanced: strategy.videoStrategy.enhancementFilters?.length > 0,
+        enhanced: (strategy.videoStrategy.enhancementFilters?.length ?? 0) > 0,
         aiProcessed: true,
       },
       processingDetails: {

@@ -164,7 +164,7 @@ const { learnMode, startLearning, stopLearning } = useMidiIntegration(mixerState
 
 ## Интернационализация (i18n)
 
-Модуль полностью поддерживает интернационализацию на 10 языках:
+Модуль полностью поддерживает интернационализацию на 15 языках:
 - Все компоненты используют `useTranslation` хук из react-i18next
 - Переводы организованы в секции `fairlightAudio` в файлах локализации
 - Поддерживаются: EN, RU, ES, FR, DE, PT, ZH, JA, KO, TR

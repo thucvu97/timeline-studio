@@ -1,6 +1,6 @@
 // Telegram Bot API service для загрузки видео
 
-import { SocialExportSettings } from "../types/export-types"
+import type { SocialExportSettings } from "../types/export-types"
 
 export interface TelegramUploadResult {
   success: boolean

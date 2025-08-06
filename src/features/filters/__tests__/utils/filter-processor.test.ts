@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { VideoFilter } from "@/features/filters/types/filters"
+import type { VideoFilter } from "@/features/filters/types/filters"
 
 import {
   createFallbackFilter,

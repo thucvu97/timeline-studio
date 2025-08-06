@@ -53,6 +53,13 @@ Timeline Studio aims to combine:
 | [Live Streaming](live-streaming.md) | 🔴 High | ⭐⭐⭐⭐⭐ | 4-6 months | 📋 Planned |
 | ~~[Silent Updates](../completed/silent-updates.md)~~ | 🟡 Medium | ⭐⭐⭐⭐ | 1 month | ✅ **Completed** |
 | [Telegram Mini App](telegram-mini-app.md) | 🟡 Medium | ⭐⭐⭐⭐⭐ | 8 days | 📋 Planned |
+| [Mobile App Adaptation](mobile-app-adaptation.md) | 🔴 High | ⭐⭐ | 2 months | 📋 Planned |
+
+### 🤖 UX and Automation
+| Module | Priority | Complexity | Development Time | Status |
+|--------|----------|------------|------------------|--------|
+| [Easy Mode AI Editor](easy-mode-ai-editor.md) | 🔴 High | ⭐⭐⭐ | 5 weeks | 📋 Planned |
+| [User Preferences AI Automation](user-preferences-ai-automation.md) | 🔴 High | ⭐⭐⭐⭐ | 5 weeks | 📋 Planned |
 
 ## 📈 Priority Roadmap
 
@@ -112,12 +119,22 @@ Timeline Studio aims to combine:
 
 **Expected result:** Full-featured ecosystem for streaming and cloud work
 
-### Phase 6: Mobile Expansion (8 days)
-**Goal:** Mobile platforms
-**Timeline:** July 2026
+### Phase 6: Mobile Expansion and UX Simplification (4-5 months)
+**Goal:** Mobile platforms and accessibility for beginners
+**Timeline:** July - November 2026
 
-1. **Telegram Mini App** - mobile expansion (8 days)
-2. **Person Identification Advanced** - advanced ML features (20-24 weeks)
+1. **Mobile App Adaptation** - native iOS/Android apps on Tauri (2 months)
+2. **Easy Mode AI Editor** - timeline-free interface via AI chat (5 weeks)  
+3. **User Preferences AI Automation** - automatic video creation (5 weeks)
+4. **Telegram Mini App** - mobile expansion (8 days)
+
+**Expected result:** Accessibility on all platforms with simplified interface for beginners
+
+### Phase 7: Advanced ML Features (20-24 weeks)
+**Goal:** Cutting-edge machine learning capabilities
+**Timeline:** December 2026 - May 2027
+
+1. **Person Identification Advanced** - advanced ML features (20-24 weeks)
 
 **Expected result:** Complete ecosystem for professionals and enthusiasts
 
@@ -135,15 +152,15 @@ Timeline Studio aims to combine:
 - ✅ **Person Identification Core:** Completed early
 
 ### By Priority:
-- 🔴 **High priority:** 7 modules (1 in active development)
-- 🟡 **Medium priority:** 8 modules  
+- 🔴 **High priority:** 10 modules
+- 🟡 **Medium priority:** 9 modules  
 - 🟢 **Low priority:** 0 modules
 
 ### By Completion Status:
 - ✅ **Completed:** 6 modules (AI Chat Integration, AI Chat Tools Expansion, Person Identification Core, Advanced Timeline Features, Project Version Control, Silent Updates)
 - 🔄 **In active development:** 0 modules
-- 📋 **Planned:** 10 modules
-- **Progress:** 38% of total plan
+- 📋 **Planned:** 13 modules
+- **Progress:** 32% of total plan
 
 ## 🎯 Key Technologies
 
@@ -202,13 +219,16 @@ Each module document contains:
 ### 📋 Planned:
 6. **Live Streaming** - live broadcast system (4-6 months, high priority)
 7. **Cloud Storage & Sync** - cloud storage and synchronization (6-8 weeks, high priority)
-8. **Advanced Multicam Templates** - advanced multi-camera templates (3-4 months)
-9. **Advanced Transitions System** - next-generation transitions system (3-4 months)
-10. **Person Identification Advanced** - advanced ML features (20-24 weeks)
-11. **Plugin System** - plugin system (2 days)
-12. **EventBus API Extensions** - API extension (1 day)
-13. **Cloud Rendering** - cloud processing (11 days)
-14. **Telegram Mini App** - mobile platform (8 days)
+8. **Mobile App Adaptation** - mobile version on Tauri (2 months, high priority)
+9. **Easy Mode AI Editor** - simplified chat-based mode (5 weeks, high priority)
+10. **User Preferences AI Automation** - preference-based automation (5 weeks, high priority)
+11. **Advanced Multicam Templates** - advanced multi-camera templates (3-4 months)
+12. **Advanced Transitions System** - next-generation transitions system (3-4 months)
+13. **Person Identification Advanced** - advanced ML features (20-24 weeks)
+14. **Plugin System** - plugin system (2 days)
+15. **EventBus API Extensions** - API extension (1 day)
+16. **Cloud Rendering** - cloud processing (11 days)
+17. **Telegram Mini App** - mobile platform (8 days)
 
 ## 📞 Contacts
 
@@ -220,4 +240,4 @@ For questions about planned modules:
 ---
 
 *Planned modules documentation is updated as the project evolves*  
-*Last update: July 28, 2025*
+*Last update: August 1, 2025*

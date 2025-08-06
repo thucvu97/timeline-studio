@@ -2,10 +2,8 @@ import { renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import type { TimelineTrack } from "@/features/timeline/types"
-
-import { convertTrackToChannel, useTimelineMixerSync } from "../timeline-sync-service"
-
 import type { AudioChannel } from "../../types"
+import { convertTrackToChannel, useTimelineMixerSync } from "../timeline-sync-service"
 
 // Mock timeline hook
 const mockTimeline = {

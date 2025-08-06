@@ -1,7 +1,6 @@
-import { useState } from "react"
-
 import { open } from "@tauri-apps/plugin-dialog"
 import { Database, Folder, Save, X } from "lucide-react"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
@@ -12,7 +11,7 @@ import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { useLanguage } from "@/features/language"
 import { useModal } from "@/features/modals/services/modal-provider"
-import { LanguageCode, SUPPORTED_LANGUAGES } from "@/i18n/constants"
+import { type LanguageCode, SUPPORTED_LANGUAGES } from "@/i18n/constants"
 
 import { useUserSettings } from "../../hooks/use-user-settings"
 

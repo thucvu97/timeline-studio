@@ -3,14 +3,14 @@
  * Обеспечивает единую точку входа, fallback и балансировку нагрузки
  */
 
+import { contentIntelligenceTools } from "../tools/content-intelligence-tools"
+import { personIdentificationTools } from "../tools/person-identification-tools"
+import type { AiMessage } from "../types/ai-message"
+import type { StreamingOptions } from "../types/streaming"
 import { CLAUDE_MODELS, ClaudeService } from "./claude-service"
 import { DEEPSEEK_MODELS, DeepSeekService } from "./deepseek-service"
 import { OllamaService } from "./ollama-service"
 import { AI_MODELS, OpenAiService } from "./open-ai-service"
-import { contentIntelligenceTools } from "../tools/content-intelligence-tools"
-import { personIdentificationTools } from "../tools/person-identification-tools"
-import { AiMessage } from "../types/ai-message"
-import { StreamingOptions } from "../types/streaming"
 
 // Типы AI провайдеров
 export type AIProvider = "claude" | "openai" | "deepseek" | "ollama"
@@ -311,6 +311,17 @@ export interface ContentInsights {
   tags: string[]
   strengths: string[]
   weaknesses: string[]
+  highlights: string[]
+  suggestions: Array<{
+    type: string
+    priority: "low" | "medium" | "high"
+    description: string
+  }>
+  warnings: Array<{
+    type: string
+    severity: "low" | "medium" | "high"
+    description: string
+  }>
   recommendations: Recommendation[]
   marketingAngles: string[]
   targetDemographics: string[]
@@ -1080,6 +1091,9 @@ Accessibility Quality:
         tags: [],
         strengths: [],
         weaknesses: [],
+        highlights: [],
+        suggestions: [],
+        warnings: [],
         recommendations: [],
         marketingAngles: [],
         targetDemographics: [],

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { TimelineClip, TimelineProject, TimelineSection } from "@/features/timeline/types/timeline"
+import type { TimelineClip, TimelineProject, TimelineSection } from "@/features/timeline/types/timeline"
 
 import { createDetailedTimelineContext, createTimelineContextPrompt } from "../../utils/timeline-context"
 
@@ -29,6 +29,7 @@ describe("timeline-context utils", () => {
       effects: [],
       filters: [],
       transitions: [],
+      timelineTransitions: [],
       templates: [],
       styleTemplates: [],
       subtitleStyles: [],
@@ -63,6 +64,7 @@ describe("timeline-context utils", () => {
             height: 100,
             trackEffects: [],
             trackFilters: [],
+            transitions: [],
             clips: [
               {
                 id: "clip-1",

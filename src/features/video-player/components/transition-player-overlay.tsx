@@ -7,7 +7,7 @@ import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { TimelineTransition } from "@/features/timeline/types/timeline-transition"
+import type { TimelineTransition } from "@/features/timeline/types/timeline-transition"
 import { cn } from "@/lib/utils"
 
 interface TransitionPlayerOverlayProps {
@@ -111,7 +111,7 @@ export function TransitionPlayerOverlay({
                       <span className="capitalize">{transition.parameters.direction}</span>
                     </div>
                   )}
-                  {transition.parameters.blur?.enabled && (
+                  {transition.parameters.blur && (
                     <div className="flex justify-between">
                       <span>Размытие:</span>
                       <span>{transition.parameters.blur.amount}%</span>

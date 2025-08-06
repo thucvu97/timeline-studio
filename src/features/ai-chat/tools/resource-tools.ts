@@ -16,8 +16,6 @@ import {
   updateResourceParameters,
 } from "./resources/manage-resources"
 import { suggestComplementaryResources } from "./resources/suggest-resources"
-import { cleanupUnusedResources, getResourceUsageStats } from "./resources/usage-stats"
-
 import type {
   AddResourceParams,
   AnalyzeResourcesParams,
@@ -31,6 +29,7 @@ import type {
   UpdateResourceParams,
   UsageStatsParams,
 } from "./resources/types"
+import { cleanupUnusedResources, getResourceUsageStats } from "./resources/usage-stats"
 
 // Экспортируем инструменты для обратной совместимости
 export {

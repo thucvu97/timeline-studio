@@ -2,7 +2,7 @@
  * Утилиты для управления размером контекста AI чатов
  */
 
-import { AiMessage } from "../types/ai-message"
+import type { AiMessage } from "../types/ai-message"
 
 // Примерные лимиты токенов для разных моделей
 const MODEL_CONTEXT_LIMITS = {

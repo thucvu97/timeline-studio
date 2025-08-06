@@ -3,10 +3,8 @@
  */
 
 import { useCallback, useMemo } from "react"
-
-import { useTimeline } from "./use-timeline"
-
 import type { TimelineClip, TimelineSection, TimelineTrack } from "../types/timeline"
+import { useTimeline } from "./use-timeline"
 
 export interface LinkedClipsPair {
   id: string

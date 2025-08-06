@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest"
 
-import { TimelineClip, TimelineProject, TimelineTrack } from "../../types"
-import { SnapPoint } from "../../types/edit-modes"
+import type { TimelineClip, TimelineProject, TimelineTrack } from "../../types"
+import type { SnapPoint } from "../../types/edit-modes"
 import {
   DEFAULT_SNAP_CONFIG,
   findClosestSnapPoint,
   findMagneticAlignment,
   findSnapPoints,
   getClipEdgeSnapPoints,
-  SnapConfig,
+  type SnapConfig,
   snapPosition,
   snapTime,
 } from "../../utils/snap-engine"

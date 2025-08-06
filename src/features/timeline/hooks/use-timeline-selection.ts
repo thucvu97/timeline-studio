@@ -5,7 +5,7 @@
 import { useMemo } from "react"
 
 import { useTimeline } from "../hooks/use-timeline"
-import { TimelineClip, TimelineSection, TimelineTrack } from "../types"
+import type { TimelineClip, TimelineSection, TimelineTrack } from "../types"
 import { useClips } from "./use-clips"
 import { useTracks } from "./use-tracks"
 

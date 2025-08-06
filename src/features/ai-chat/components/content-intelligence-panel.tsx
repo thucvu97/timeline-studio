@@ -5,9 +5,8 @@
  * прямо в AI Chat интерфейсе.
  */
 
-import { useState } from "react"
-
 import { Airplay, Bot, FileVideo, Layers, Settings, Sparkles, Target } from "lucide-react"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"

@@ -1,13 +1,11 @@
 import { act, renderHook, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-
-import { useChannelNoiseReduction, useNoiseReduction } from "../use-noise-reduction"
-
 import type {
   AnalysisResult,
   NoiseProfile,
   NoiseReductionConfig,
 } from "../../services/noise-reduction/noise-reduction-engine"
+import { useChannelNoiseReduction, useNoiseReduction } from "../use-noise-reduction"
 
 // Mock noise reduction engine using vi.hoisted
 const { mockNoiseReductionEngine, MockNoiseReductionEngine } = vi.hoisted(() => {

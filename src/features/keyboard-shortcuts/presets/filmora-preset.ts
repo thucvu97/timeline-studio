@@ -1,4 +1,4 @@
-import { CreatePresetsFunction, ShortcutCategory } from "./types"
+import type { CreatePresetsFunction, ShortcutCategory } from "./types"
 
 // Функция для создания предустановки Wondershare Filmora
 export const createFilmoraPreset: CreatePresetsFunction = (t: any): ShortcutCategory[] => [

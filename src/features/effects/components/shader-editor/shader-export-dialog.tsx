@@ -1,6 +1,5 @@
-import { useState } from "react"
-
 import { Code, Cpu, Package } from "lucide-react"
+import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -18,15 +17,14 @@ import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
-
-import type { Effect } from "../../types/effects"
 import type { ShaderExportOptions, ShaderProject } from "../../types/shader-system"
+import type { BaseEffect } from "../../types/unified-effects"
 
 interface ShaderExportDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   project: ShaderProject
-  onExport: (effect: Effect) => void
+  onExport: (effect: BaseEffect) => void
 }
 
 export function ShaderExportDialog({ open, onOpenChange, project, onExport }: ShaderExportDialogProps) {
@@ -46,7 +44,7 @@ export function ShaderExportDialog({ open, onOpenChange, project, onExport }: Sh
 
   const handleExport = () => {
     // Convert shader to effect format
-    const effect: Effect = {
+    const effect: BaseEffect = {
       id: `shader-${project.id}`,
       name: project.name,
       category: effectMetadata.category,
@@ -355,11 +353,11 @@ function generatePresets(project: ShaderProject): any[] {
     {
       name: "Default",
       values: project.uniforms.reduce(
-        (acc, u) => ({
-          ...acc,
-          [u.name]: u.defaultValue || u.value,
-        }),
-        {},
+        (acc, u) => {
+          acc[u.name] = u.defaultValue || u.value
+          return acc
+        },
+        {} as Record<string, any>,
       ),
     },
   ]
@@ -373,22 +371,22 @@ function generatePresets(project: ShaderProject): any[] {
     presets.push({
       name: "Minimal",
       values: project.uniforms.reduce(
-        (acc, u) => ({
-          ...acc,
-          [u.name]: u.min !== undefined ? u.min : u.value,
-        }),
-        {},
+        (acc, u) => {
+          acc[u.name] = u.min !== undefined ? u.min : u.value
+          return acc
+        },
+        {} as Record<string, any>,
       ),
     })
 
     presets.push({
       name: "Maximum",
       values: project.uniforms.reduce(
-        (acc, u) => ({
-          ...acc,
-          [u.name]: u.max !== undefined ? u.max : u.value,
-        }),
-        {},
+        (acc, u) => {
+          acc[u.name] = u.max !== undefined ? u.max : u.value
+          return acc
+        },
+        {} as Record<string, any>,
       ),
     })
   }

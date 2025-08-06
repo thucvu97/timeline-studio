@@ -1,6 +1,5 @@
-import { useContext } from "react"
-
 import { renderHook } from "@testing-library/react"
+import { useContext } from "react"
 import { describe, expect, it, vi } from "vitest"
 
 import { useAppSettings } from "../../hooks/use-app-settings"

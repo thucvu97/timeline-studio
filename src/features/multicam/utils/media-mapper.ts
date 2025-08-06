@@ -26,9 +26,9 @@ export function mediaItemToMediaFile(item: MediaItem): MediaFile {
     codec: undefined,
     probeData: item.probe_data
       ? {
-        streams: item.probe_data.streams || [],
-        format: item.probe_data.format || {},
-      }
+          streams: item.probe_data.streams || [],
+          format: item.probe_data.format || {},
+        }
       : undefined,
     thumbnailPath: item.thumbnail_path ?? undefined,
     createdAt: new Date(item.created_at),

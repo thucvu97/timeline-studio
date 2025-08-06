@@ -3,7 +3,7 @@
  */
 
 // Временная заглушка для MediaFile пока модуль недоступен
-import { TimelineProject } from "../../types/timeline"
+import type { TimelineProject } from "../../types/timeline"
 
 interface MediaFile {
   id: string

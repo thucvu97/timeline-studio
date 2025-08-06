@@ -2,9 +2,8 @@
  * Tests for useContentAnalysis hook
  */
 
-import type { ReactNode } from "react"
-
 import { act, renderHook } from "@testing-library/react"
+import type { ReactNode } from "react"
 import { describe, expect, it, vi } from "vitest"
 
 import { useContentAnalysis } from "../../hooks/use-content-analysis"

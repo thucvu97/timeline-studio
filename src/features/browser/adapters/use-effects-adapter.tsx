@@ -1,10 +1,10 @@
-import React from "react"
+import type React from "react"
 
 import { useFavorites } from "@/features/app-state"
 import { useEffectsAdapter as useUnifiedEffectsAdapter } from "@/features/browser/hooks/use-resources"
 import { useDraggable } from "@/features/drag-drop"
 import { EffectPreview } from "@/features/effects/components/effect-preview"
-import { BaseEffect } from "@/features/effects/types"
+import type { BaseEffect } from "@/features/effects/types"
 
 import type { ListAdapter, ListItem, PreviewComponentProps } from "../types/list"
 
@@ -113,10 +113,11 @@ export function useEffectsAdapter(): ListAdapter<EffectListItem> {
             return (effect.name?.en || effect.name?.ru || "").toLowerCase()
           case "category":
             return effect.category.toLowerCase()
-          case "complexity":
+          case "complexity": {
             // Определяем порядок сложности: basic < intermediate < advanced
             const complexityOrder: Record<string, number> = { low: 0, medium: 1, high: 2, extreme: 3 }
             return complexityOrder[effect.complexity || "low"]
+          }
           case "processingType":
             return effect.processingType
           default:

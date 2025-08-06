@@ -5,10 +5,8 @@
 import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
-
-import { AnalysisViewer } from "../analysis-viewer"
-
 import type { UnifiedContentAnalysis } from "../../../shared/types"
+import { AnalysisViewer } from "../analysis-viewer"
 
 // Mock lucide-react icons
 vi.mock("lucide-react", async (importOriginal) => {

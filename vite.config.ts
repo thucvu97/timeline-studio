@@ -17,7 +17,7 @@ export default defineConfig({
         uploadOverrides: {
           // Override the commit SHA if needed
           sha: process.env.GITHUB_SHA,
-          // Override the branch name if needed  
+          // Override the branch name if needed
           branch: process.env.GITHUB_REF_NAME?.replace("refs/heads/", ""),
           // Add PR number if available
           pr: process.env.GITHUB_PR_NUMBER,

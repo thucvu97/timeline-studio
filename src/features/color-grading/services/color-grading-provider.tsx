@@ -1,7 +1,7 @@
-import { ReactNode, createContext, useContext } from "react"
+import { createContext, type ReactNode, useContext } from "react"
 
 import { useColorGrading } from "../hooks/use-color-grading"
-import {
+import type {
   BasicParametersState,
   ColorGradingState,
   ColorWheelType,
@@ -9,7 +9,7 @@ import {
   CurveType,
   RGBValue,
 } from "../types/color-grading"
-import { ColorGradingPreset } from "../types/presets"
+import type { ColorGradingPreset } from "../types/presets"
 
 interface ColorGradingContextValue {
   state: ColorGradingState

@@ -1,5 +1,3 @@
-import React from "react"
-
 import {
   ArrowDownUp,
   ArrowUpDown,
@@ -15,6 +13,7 @@ import {
   ZoomIn,
   ZoomOut,
 } from "lucide-react"
+import type React from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
@@ -28,7 +27,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
-import { ViewMode } from "@/shared/types/browser-context"
+import type { ViewMode } from "@/shared/types/browser-context"
 
 // Конфигурация режимов просмотра
 export interface ViewModeConfig {
@@ -368,22 +367,22 @@ export function MediaToolbar({
                 {/* Кастомные опции фильтров (для медиа) */}
                 {filterOptions
                   ? filterOptions.map((option) => (
-                    <DropdownMenuItem key={option.value} onClick={() => onFilter(option.value)}>
-                      <div className="flex items-center gap-2">
-                        {filterType === option.value && <Check className="h-4 w-4" />}
-                        <span>{t(option.label)}</span>
-                      </div>
-                    </DropdownMenuItem>
-                  ))
+                      <DropdownMenuItem key={option.value} onClick={() => onFilter(option.value)}>
+                        <div className="flex items-center gap-2">
+                          {filterType === option.value && <Check className="h-4 w-4" />}
+                          <span>{t(option.label)}</span>
+                        </div>
+                      </DropdownMenuItem>
+                    ))
                   : /* Дефолтные фильтры по расширениям (для музыки) */
-                  availableExtensions.map((extension) => (
-                    <DropdownMenuItem key={extension} onClick={() => onFilter(extension)}>
-                      <div className="flex items-center gap-2">
-                        {filterType === extension && <Check className="h-4 w-4" />}
-                        <span>{extension.toUpperCase()}</span>
-                      </div>
-                    </DropdownMenuItem>
-                  ))}
+                    availableExtensions.map((extension) => (
+                      <DropdownMenuItem key={extension} onClick={() => onFilter(extension)}>
+                        <div className="flex items-center gap-2">
+                          {filterType === extension && <Check className="h-4 w-4" />}
+                          <span>{extension.toUpperCase()}</span>
+                        </div>
+                      </DropdownMenuItem>
+                    ))}
               </DropdownMenuContent>
             </DropdownMenu>
           </Tooltip>

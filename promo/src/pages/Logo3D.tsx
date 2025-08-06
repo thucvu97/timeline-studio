@@ -1,11 +1,11 @@
-import React from 'react'
-import { Hero3DLogo } from '../components/Hero3DLogo'
+import type React from "react"
+import { Hero3DLogo } from "../components/Hero3DLogo"
 
 export const Logo3D: React.FC = () => {
   return (
     <div className="min-h-screen bg-black">
       <Hero3DLogo />
-      
+
       {/* Info panel */}
       {/* <div className="fixed bottom-10 left-10 right-10 z-50">
         <div className="glass rounded-2xl p-6 max-w-2xl mx-auto">

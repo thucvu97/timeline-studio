@@ -1,6 +1,6 @@
 import { AudioClipEditor } from "./audio-clip-editor"
-import { EqualizerProcessor } from "./effects/equalizer-processor"
-import { SurroundAudioProcessor, SurroundFormat, SurroundPosition } from "./surround/surround-processor"
+import type { EqualizerProcessor } from "./effects/equalizer-processor"
+import { SurroundAudioProcessor, type SurroundFormat, type SurroundPosition } from "./surround/surround-processor"
 
 export interface ChannelNode {
   id: string

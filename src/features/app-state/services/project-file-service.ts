@@ -1,7 +1,7 @@
 import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs"
 
-import { SavedMediaFile, SavedMusicFile } from "@/features/media/types/saved-media"
-import { ProjectFile } from "@/features/project-settings/types/project"
+import type { SavedMediaFile, SavedMusicFile } from "@/features/media/types/saved-media"
+import type { ProjectFile } from "@/features/project-settings/types/project"
 
 /**
  * Сервис для работы с файлами проектов (.tls)

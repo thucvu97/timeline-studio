@@ -122,6 +122,9 @@ export interface ShaderProject {
     license?: string
     tags?: string[]
   }
+  // Runtime properties
+  isDirty?: boolean
+  compilationResult?: ShaderCompilationResult
 }
 
 /**

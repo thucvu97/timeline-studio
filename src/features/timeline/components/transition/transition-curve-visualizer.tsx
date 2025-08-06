@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from "react"
 
-import { TransitionCurve } from "@/features/timeline/types/timeline-transition"
+import type { TransitionCurve } from "@/features/timeline/types/timeline-transition"
 import { cn } from "@/lib/utils"
 
 interface TransitionCurveVisualizerProps {

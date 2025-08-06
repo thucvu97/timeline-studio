@@ -85,6 +85,7 @@ export interface ContentElements {
   faces: FaceDetection[]
   text: TextDetection[]
   activities: ActivityDetection[]
+  identifiedPersons?: any[] // For person tracking
 }
 
 export interface ObjectDetection {
@@ -185,6 +186,7 @@ export interface UnifiedContentAnalysis {
 export interface MediaFileInfo {
   path: string
   filename: string
+  name: string
   size: number
   format: string
   duration: number

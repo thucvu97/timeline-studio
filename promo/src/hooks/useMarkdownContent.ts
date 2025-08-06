@@ -1,78 +1,81 @@
-import { useState, useEffect } from 'react'
-import { parseMarkdown } from '../utils/markdown'
-import type { Post, PostMetadata } from '../utils/markdown'
+import { useEffect, useState } from "react"
+import { useLanguage } from "../contexts/LanguageContext"
+import { blogPostsList, blogPostsRaw } from "../data/blog-posts"
+import type { Post, PostMetadata } from "../utils/markdown"
+import { parseMarkdown } from "../utils/markdown"
 
 // Загрузка всех постов блога
 export function useBlogPosts() {
+  const { language } = useLanguage()
   const [posts, setPosts] = useState<PostMetadata[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     async function loadPosts() {
       try {
-        // Используем import.meta.glob для загрузки всех markdown файлов
-        const postFiles = import.meta.glob('/content/blog/*.md', { as: 'raw' })
-        
+        // Используем явно импортированные посты для текущего языка
+        const langPosts = blogPostsList[language as "en" | "ru"] || blogPostsList.en
         const loadedPosts: PostMetadata[] = []
-        
-        for (const path in postFiles) {
-          const content = await postFiles[path]() as string
+
+        for (const content of langPosts) {
           const { metadata } = parseMarkdown(content)
-          
-          // Извлекаем slug из пути файла
-          const filename = path.split('/').pop()?.replace('.md', '') || ''
-          metadata.slug = metadata.slug || filename
-          
+
+          // Если slug не задан, генерируем из заголовка
+          if (!metadata.slug) {
+            metadata.slug = metadata.title
+              .toLowerCase()
+              .replace(/\s+/g, "-")
+              .replace(/[^a-z0-9-]/g, "")
+          }
+
           loadedPosts.push(metadata)
         }
-        
+
         // Сортируем по дате (новые первые)
-        loadedPosts.sort((a, b) => 
-          new Date(b.date).getTime() - new Date(a.date).getTime()
-        )
-        
+        loadedPosts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+
         setPosts(loadedPosts)
       } catch (error) {
-        console.error('Error loading blog posts:', error)
+        console.error("Error loading blog posts:", error)
       } finally {
         setIsLoading(false)
       }
     }
 
     loadPosts()
-  }, [])
+  }, [language]) // Перезагружаем посты при смене языка
 
   return { posts, isLoading }
 }
 
 // Загрузка одного поста
 export function useBlogPost(slug: string) {
+  const { language } = useLanguage()
   const [post, setPost] = useState<Post | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     async function loadPost() {
       try {
-        const postFiles = import.meta.glob('/content/blog/*.md', { as: 'raw' })
-        
-        // Ищем файл по slug
-        for (const path in postFiles) {
-          if (path.includes(slug)) {
-            const content = await postFiles[path]() as string
-            const parsedPost = parseMarkdown(content)
-            setPost(parsedPost)
-            break
-          }
+        // Используем явные импорты для текущего языка
+        const langPosts = blogPostsRaw[language as "en" | "ru"] || blogPostsRaw.en
+        const content = langPosts[slug as keyof typeof langPosts]
+
+        if (content) {
+          const parsedPost = parseMarkdown(content)
+          setPost(parsedPost)
+        } else {
+          console.error("Post not found for slug:", slug, "in language:", language)
         }
       } catch (error) {
-        console.error('Error loading blog post:', error)
+        console.error("Error loading blog post:", error)
       } finally {
         setIsLoading(false)
       }
     }
 
     loadPost()
-  }, [slug])
+  }, [slug, language]) // Перезагружаем пост при смене языка
 
   return { post, isLoading }
 }
@@ -85,16 +88,19 @@ export function useChangelogEntries() {
   useEffect(() => {
     async function loadEntries() {
       try {
-        const changelogFiles = import.meta.glob('/content/changelog/*.md', { as: 'raw' })
-        
+        const changelogFiles = import.meta.glob("../../content/changelog/*.md", {
+          query: "?raw",
+          import: "default",
+        })
+
         const loadedEntries: Post[] = []
-        
+
         for (const path in changelogFiles) {
-          const content = await changelogFiles[path]() as string
+          const content = (await changelogFiles[path]()) as string
           const entry = parseMarkdown(content)
           loadedEntries.push(entry)
         }
-        
+
         // Сортируем по версии или дате
         loadedEntries.sort((a, b) => {
           if (a.metadata.version && b.metadata.version) {
@@ -102,10 +108,10 @@ export function useChangelogEntries() {
           }
           return new Date(b.metadata.date).getTime() - new Date(a.metadata.date).getTime()
         })
-        
+
         setEntries(loadedEntries)
       } catch (error) {
-        console.error('Error loading changelog entries:', error)
+        console.error("Error loading changelog entries:", error)
       } finally {
         setIsLoading(false)
       }

@@ -1,5 +1,3 @@
-import { useCallback, useMemo, useRef, useState } from "react"
-
 import {
   Camera,
   ChevronFirst,
@@ -17,20 +15,21 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react"
+import { useCallback, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 import { getFrameTime } from "@/features/media/utils/video"
 import { useMulticam } from "@/features/multicam"
 import { cn } from "@/lib/utils"
-
+import { useFullscreen } from "../hooks/use-fullscreen"
+import { usePlayer } from "../services/player-provider"
+import { PlaybackSpeedControl } from "./playback-speed-control"
 import { PlayerAIControls } from "./player-ai-controls"
 import { PrerenderControls } from "./prerender-controls"
 import { VolumeSlider } from "./volume-slider"
-import { useFullscreen } from "../hooks/use-fullscreen"
-import { usePlayer } from "../services/player-provider"
 
 interface PlayerControlsProps {
   /**
@@ -299,6 +298,9 @@ export function PlayerControls({ currentTime, file }: PlayerControlsProps) {
               {<UnfoldHorizontal className="h-8 w-8" />}
             </Button>
             <PrerenderControls currentTime={currentTime} duration={file.duration ?? 0} />
+
+            {/* Управление скоростью воспроизведения */}
+            {file.probeData && <PlaybackSpeedControl />}
             {/* Кнопка снимка экрана */}
             <Button
               className="h-8 w-8 cursor-pointer"

@@ -2,11 +2,10 @@
  * AI инструменты для применения эффектов и фильтров в превью
  */
 
-import { getCurrentMedia, hasLoadedMedia } from "./utils/helpers"
-
-import type { EffectApplicationParams, PlayerToolResult } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
 
+import type { EffectApplicationParams, PlayerToolResult } from "./types"
+import { getCurrentMedia, hasLoadedMedia } from "./utils/helpers"
 
 export const applyPreviewEffectsTool: ClaudeTool = {
   name: "apply_preview_effects",

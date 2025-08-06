@@ -1,6 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from "react"
-
 import { ChevronDown, Gauge, Lock, Plus, RotateCcw, Trash2, Unlock } from "lucide-react"
+import React, { useCallback, useEffect, useRef, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -14,9 +13,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { cn } from "@/lib/utils"
 
 import { useSpeedRamping } from "../../hooks/use-speed-ramping"
-import { SPEED_RAMPING_PRESETS } from "../../types/speed-ramping"
-
 import type { SpeedInterpolationType } from "../../types/speed-ramping"
+import { SPEED_RAMPING_PRESETS } from "../../types/speed-ramping"
 
 interface SpeedCurveEditorProps {
   clipId: string

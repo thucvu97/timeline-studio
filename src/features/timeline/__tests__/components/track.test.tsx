@@ -3,7 +3,7 @@
  */
 
 import { render, screen } from "@testing-library/react"
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 
 // Import mocks before components
 import "@/test/mocks/dnd-kit"
@@ -216,15 +216,18 @@ describe("Track Component", () => {
       const trackElement = screen.getByTestId("timeline-track")
       expect(trackElement).toBeInTheDocument()
 
-      // Проверяем базовые атрибуты доступности
-      expect(trackElement.getAttribute("role")).toBeTruthy()
+      // Семантический button элемент имеет встроенную доступность
+      expect(trackElement.tagName).toBe("BUTTON")
     })
 
     it("should be keyboard accessible", () => {
       render(<Track track={mockTrack} />)
 
       const trackElement = screen.getByTestId("timeline-track")
-      expect(trackElement.tabIndex).toBeGreaterThanOrEqual(-1)
+      // Button элементы по умолчанию доступны с клавиатуры
+      expect(trackElement.tagName).toBe("BUTTON")
+      // Button элементы имеют tabIndex 0 по умолчанию
+      expect(trackElement).toBeInTheDocument()
     })
   })
 })

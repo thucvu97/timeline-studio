@@ -3,10 +3,10 @@
  * Вдохновлено лучшими практиками DaVinci Resolve, Adobe Premiere Pro и Final Cut Pro
  */
 
-import { MediaPool, MediaPoolItem } from "@/features/media/types/media-pool"
-import { Sequence } from "@/features/timeline/types/sequence"
+import type { MediaPool, MediaPoolItem } from "@/features/media/types/media-pool"
+import type { Sequence } from "@/features/timeline/types/sequence"
 
-import { ProjectSettings } from "./project"
+import type { ProjectSettings } from "./project"
 
 /**
  * Метаданные проекта

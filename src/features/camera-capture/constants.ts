@@ -1,4 +1,4 @@
-import { RecordingFormat, RecordingQuality } from "./types"
+import type { RecordingFormat, RecordingQuality } from "./types"
 
 /**
  * Константы для модуля camera-capture

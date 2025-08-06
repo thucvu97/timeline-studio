@@ -1,0 +1,18 @@
+# Jekyll configuration for GitHub Pages
+plugins:
+  - jekyll-redirect-from
+
+# Include files that start with underscore
+include:
+  - _headers
+
+# Exclude source files
+exclude:
+  - node_modules
+  - src
+  - package.json
+  - package-lock.json
+  - vite.config.js
+  - tsconfig.json
+  - README.md
+  - .gitignore

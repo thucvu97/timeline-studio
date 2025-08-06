@@ -1,5 +1,20 @@
 // Типы для языков
-export type LanguageCode = "ru" | "en" | "es" | "fr" | "de" | "pt" | "zh" | "ja" | "ko" | "tr" | "th" | "it" | "hi"
+export type LanguageCode =
+  | "ru"
+  | "en"
+  | "es"
+  | "fr"
+  | "de"
+  | "pt"
+  | "zh"
+  | "ja"
+  | "ko"
+  | "tr"
+  | "th"
+  | "it"
+  | "hi"
+  | "ar"
+  | "fa"
 
 // Список поддерживаемых языков
 export const SUPPORTED_LANGUAGES: LanguageCode[] = [
@@ -16,7 +31,12 @@ export const SUPPORTED_LANGUAGES: LanguageCode[] = [
   "th",
   "it",
   "hi",
+  "ar", // Арабский (Phase 2)
+  "fa", // Персидский/Фарси (Phase 2)
 ]
+
+// Языки с направлением письма справа налево (RTL)
+export const RTL_LANGUAGES: LanguageCode[] = ["ar", "fa"]
 
 // Язык по умолчанию
 export const DEFAULT_LANGUAGE: LanguageCode = "en"
@@ -36,6 +56,8 @@ export const LANGUAGE_LOCALES: Record<LanguageCode, string> = {
   th: "th-TH",
   it: "it-IT",
   hi: "hi-IN",
+  ar: "ar-SA", // Арабский (Саудовская Аравия)
+  fa: "fa-IR", // Персидский (Иран)
 }
 
 // Функция для получения локали по коду языка
@@ -46,6 +68,16 @@ export function getLocaleByLanguage(language: string): string {
 // Функция для проверки, является ли язык поддерживаемым
 export function isSupportedLanguage(language: string): boolean {
   return SUPPORTED_LANGUAGES.includes(language as LanguageCode)
+}
+
+// Функция для проверки, является ли язык RTL (справа налево)
+export function isRTLLanguage(language: string): boolean {
+  return RTL_LANGUAGES.includes(language as LanguageCode)
+}
+
+// Функция для получения направления текста
+export function getTextDirection(language: string): "ltr" | "rtl" {
+  return isRTLLanguage(language) ? "rtl" : "ltr"
 }
 
 // Интерфейс для опций форматирования даты

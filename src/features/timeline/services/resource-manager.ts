@@ -5,14 +5,14 @@
  * Автоматически добавляет используемые ресурсы в проект
  */
 
-import { VideoEffect } from "@/features/effects/types"
-import { VideoFilter } from "@/features/filters/types/filters"
-import { MediaFile } from "@/features/media/types/media"
-import { StyleTemplate } from "@/features/style-templates/types/style-template"
-import { MediaTemplate } from "@/features/templates/lib/templates"
-import { Transition } from "@/features/transitions/types/transitions"
+import type { VideoEffect } from "@/features/effects/types"
+import type { VideoFilter } from "@/features/filters/types/filters"
+import type { MediaFile } from "@/features/media/types/media"
+import type { StyleTemplate } from "@/features/style-templates/types/style-template"
+import type { MediaTemplate } from "@/features/templates/lib/templates"
+import type { Transition } from "@/features/transitions/types/transitions"
 
-import {
+import type {
   AppliedEffect,
   AppliedFilter,
   AppliedStyleTemplate,
@@ -22,7 +22,7 @@ import {
   SubtitleStyle,
   TimelineProject,
 } from "../types/timeline"
-import { TimelineTransition } from "../types/timeline-transition"
+import type { TimelineTransition } from "../types/timeline-transition"
 
 /**
  * Создает пустой объект ресурсов

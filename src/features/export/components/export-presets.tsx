@@ -5,9 +5,8 @@
  * Предоставляет готовые настройки для популярных платформ и форматов.
  */
 
-import React from "react"
-
 import { Cpu, FileVideo, Film, HardDrive, Play, Settings2 } from "lucide-react"
+import type React from "react"
 
 import { cn } from "@/lib/utils"
 

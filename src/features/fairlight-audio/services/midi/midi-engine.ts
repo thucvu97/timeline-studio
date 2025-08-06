@@ -7,7 +7,7 @@ import { EventEmitter } from "events"
 
 import { MidiClock } from "./midi-clock"
 import { MidiFile } from "./midi-file"
-import { MidiRouter } from "./midi-router"
+import type { MidiRouter } from "./midi-router"
 import { MidiSequencer } from "./midi-sequencer"
 
 export interface MidiDevice {

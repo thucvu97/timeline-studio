@@ -3,9 +3,8 @@
  */
 
 import type { TimelineProject } from "@/features/timeline/types/timeline"
-
-import type { TimelineToolResult } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
+import type { TimelineToolResult } from "./types"
 
 export const analyzeContentForStoryTool: ClaudeTool = {
   name: "analyze_content_for_story",
@@ -67,7 +66,7 @@ export async function analyzeContentForStory(params: any): Promise<TimelineToolR
     // Анализируем выбранные элементы истории
     for (const element of storyElements) {
       switch (element) {
-        case "narrative-arc":
+        case "narrative-arc": {
           const narrativeAnalysis = analyzeNarrativeStructure(currentProject)
           analysis.narrativeStructure = narrativeAnalysis
 
@@ -78,8 +77,9 @@ export async function analyzeContentForStory(params: any): Promise<TimelineToolR
             suggestions.push(...narrativeAnalysis.suggestions)
           }
           break
+        }
 
-        case "pacing":
+        case "pacing": {
           const pacingAnalysis = analyzePacing(currentProject)
           analysis.pacing = pacingAnalysis
 
@@ -97,8 +97,9 @@ export async function analyzeContentForStory(params: any): Promise<TimelineToolR
             }
           }
           break
+        }
 
-        case "emotional-flow":
+        case "emotional-flow": {
           const emotionalAnalysis = analyzeEmotionalFlow(currentProject)
           analysis.emotionalFlow = emotionalAnalysis
 
@@ -113,20 +114,23 @@ export async function analyzeContentForStory(params: any): Promise<TimelineToolR
             }
           }
           break
+        }
 
-        case "visual-continuity":
+        case "visual-continuity": {
           // Анализ визуальной непрерывности
           const visualAnalysis = analyzeVisualContinuity(currentProject)
           analysis.visualContinuity = visualAnalysis
           suggestions.push(...visualAnalysis.suggestions)
           break
+        }
 
-        case "audio-consistency":
+        case "audio-consistency": {
           // Анализ аудио согласованности
           const audioAnalysis = analyzeAudioConsistency(currentProject)
           analysis.audioConsistency = audioAnalysis
           suggestions.push(...audioAnalysis.suggestions)
           break
+        }
 
         default:
           // Неизвестный элемент истории - пропускаем

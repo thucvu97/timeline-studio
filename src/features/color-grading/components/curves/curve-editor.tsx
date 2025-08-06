@@ -1,4 +1,4 @@
-import { MouseEvent, useCallback, useId, useRef, useState } from "react"
+import { type MouseEvent, useCallback, useId, useRef, useState } from "react"
 
 import { cn } from "@/lib/utils"
 

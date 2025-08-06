@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-
+import type { FilterConfig, ListItem } from "../../types/list"
 import {
   filterItems,
   matchesAnyExtension,
@@ -9,8 +9,6 @@ import {
   matchesTag,
   safeStringValue,
 } from "../../utils/filtering"
-
-import type { FilterConfig, ListItem } from "../../types/list"
 
 // Тестовые данные
 const testItems: ListItem[] = [

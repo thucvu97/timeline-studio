@@ -37,7 +37,7 @@
 
 ### [04_api_reference/](04_api_reference/)
 Документация всех API:
-- **[Media API](04_api_reference/media_api.md)** - API для работы с медиафайлами
+- **[Media API](04_api_reference/media-api.md)** - API для работы с медиафайлами
 
 ### [05_development/](05_development/)
 Руководства для разработчиков:
@@ -100,16 +100,16 @@
 Управление релизами:
 - **[Релизы](17_releases/README.md)** - Управление версиями и релизами
 
-### [18_marketing_strategies/](18_marketing_strategies/) ⭐
-- **[Стратегия продвижения](18_marketing_strategies/timeline-studio-promotion-strategy.md)** - Стратегический план продвижения
-- **[Комплексный план](18_marketing_strategies/comprehensive-promotion-plan.md)** - Детальный маркетинговый план
+### [18_marketing/](18_marketing/) ⭐
+- **[Стратегия продвижения](18_marketing/timeline-studio-promotion-strategy.md)** - Стратегический план продвижения
+- **[Комплексный план](18_marketing/comprehensive-promotion-plan.md)** - Детальный маркетинговый план
 
 ## 🚀 С чего начать?
 
 1. **Новичкам** → [Быстрый старт](01_project_docs/quick-start.md)
 2. **Разработчикам** → [Обзор архитектуры](01_project_docs/architecture-overview.md)
 3. **Контрибьюторам** → [Руководство разработчика](05_development/README.md)
-4. **Маркетологам** → [Стратегии продвижения](18_marketing_strategies/)
+4. **Маркетологам** → [Стратегии продвижения](18_marketing/)
 
 ## 📊 Ключевые метрики
 
@@ -143,7 +143,7 @@
 ## 🔗 Полезные ссылки
 
 - **GitHub**: https://github.com/chatman-media/timeline-studio
-- **Маркетинговые стратегии**: [18_marketing_strategies/](18_marketing_strategies/)
+- **Маркетинговые стратегии**: [18_marketing/](18_marketing/)
 - **Английская версия**: [../en/](../en/)
 
 ---

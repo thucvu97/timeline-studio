@@ -3,12 +3,10 @@
  * Автоматически показывает уведомления в зависимости от состояния обновлений
  */
 
-import { useEffect, useState } from "react"
-
 import { AnimatePresence, motion } from "framer-motion"
-
-import { UpdateNotification } from "./update-notification"
+import { useEffect, useState } from "react"
 import { useUpdateManager } from "../hooks/use-update-manager"
+import { UpdateNotification } from "./update-notification"
 
 interface UpdateManagerProps {
   /** Позиция уведомления на экране */

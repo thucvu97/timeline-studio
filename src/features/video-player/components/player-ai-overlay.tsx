@@ -3,9 +3,8 @@
  * Компонент для отображения real-time AI анализа поверх видео
  */
 
-import { useEffect, useState } from "react"
-
 import { Activity, AlertCircle, Eye, Sparkles } from "lucide-react"
+import { useEffect, useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"

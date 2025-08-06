@@ -3,9 +3,8 @@
  */
 
 import type { TimelineProject } from "@/features/timeline/types/timeline"
-
-import type { TimelineToolResult } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
+import type { TimelineToolResult } from "./types"
 
 export const synchronizeWithMusicTool: ClaudeTool = {
   name: "synchronize_with_music",

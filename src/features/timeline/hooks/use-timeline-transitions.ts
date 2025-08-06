@@ -2,7 +2,7 @@ import { useCallback, useMemo } from "react"
 
 import { useAdvancedTransitions } from "@/features/transitions/hooks/use-advanced-transitions"
 import { useTransitions } from "@/features/transitions/hooks/use-transitions"
-import { Transition } from "@/features/transitions/types/transitions"
+import type { Transition } from "@/features/transitions/types/transitions"
 
 import {
   addKeyframeToTimelineTransition,
@@ -13,8 +13,8 @@ import {
   updateTimelineTransitionParameters,
 } from "../services/resource-manager"
 import { getTrackTransitions as getTrackTransitionsService } from "../services/timeline-transition-manager"
-import { TimelineProject } from "../types/timeline"
-import { TimelineTransition } from "../types/timeline-transition"
+import type { TimelineProject } from "../types/timeline"
+import type { TimelineTransition } from "../types/timeline-transition"
 
 /**
  * Hook для работы с переходами на таймлайне

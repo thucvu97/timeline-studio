@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react"
-
 import { AlertCircle, Database, HardDrive, RefreshCw, Trash2 } from "lucide-react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 

@@ -2,6 +2,15 @@
 
 This document provides instructions for setting up continuous integration and deployment for Timeline Studio.
 
+*Updated: August 3, 2025 for alpha release v0.60.0*
+
+## 🚀 Alpha Release Changes
+
+- **Migration to Biome** - replaced ESLint for linting and formatting
+- **TypeScript checking disabled** - ~1860 errors, will be fixed before Beta
+- **Windows build optimization** - pre-built FFmpeg libraries instead of vcpkg
+- **New workflow** - `alpha-release.yml` for automated alpha builds
+
 ## CI/CD Setup for Windows
 
 ### GitHub Actions Configuration

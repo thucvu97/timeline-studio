@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test"
+import type { Page } from "@playwright/test"
 
 /**
  * Clear all browser storage before test
@@ -12,8 +12,8 @@ export async function clearBrowserStorage(page: Page) {
     sessionStorage.clear()
     // Clear IndexedDB if needed
     if (window.indexedDB) {
-      indexedDB.databases().then(databases => {
-        databases.forEach(db => {
+      indexedDB.databases().then((databases) => {
+        databases.forEach((db) => {
           if (db.name) {
             indexedDB.deleteDatabase(db.name)
           }

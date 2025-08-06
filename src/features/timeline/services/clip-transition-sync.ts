@@ -3,6 +3,8 @@
  * Синхронизация переходов при операциях с клипами
  */
 
+import type { TimelineProject } from "../types/timeline"
+import type { TimelineTransition } from "../types/timeline-transition"
 import { updateTimelineTransitionParameters } from "./resource-manager"
 import {
   adjustTransitionsForClipChange,
@@ -10,8 +12,6 @@ import {
   getClipTransitions,
   removeTransition,
 } from "./timeline-transition-manager"
-import { TimelineProject } from "../types/timeline"
-import { TimelineTransition } from "../types/timeline-transition"
 
 /**
  * Обновить переходы при перемещении клипа

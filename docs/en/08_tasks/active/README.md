@@ -6,7 +6,22 @@ This folder contains tasks that are currently in active development. These tasks
 
 ### 🔄 Active Tasks
 
-*There are currently no active tasks in development.*
+| Task | Status | Progress | Description |
+|------|--------|----------|-------------|
+| [Person Identification Advanced](person-identification-advanced.md) | 🚀 In Development | ~70% | **Advanced ML features** - YOLO, FaceNet, clustering, privacy |
+
+### ✅ Recently Completed in This Folder
+
+| Task | Status | Completion Date | Description |
+|------|--------|----------------|-------------|
+| [Advanced Transitions System](advanced-transitions-system.md) | ✅ COMPLETED | January 30, 2025 | **Advanced transitions system** - 100+ transitions, GPU acceleration, dynamic effects |
+
+> ⚠️ **Note**: advanced-transitions-system.md needs to be moved to the completed folder
+
+**Next priority tasks to start development:**
+1. **[Stock Footage Integrations](../planned/stock-footage-integrations.md)** - integration with Shutterstock, Unsplash, Epidemic Sound (4-5 weeks)
+2. **[Comprehensive Resources Database](../planned/comprehensive-resources-database.md)** - extensive resource database (8-12 weeks)
+3. **[Effects Library Extension](../planned/effects-library-extension.md)** - effects library extension (2 days)
 
 ### 📋 Recently Completed Tasks (July 28, 2025)
 
@@ -81,22 +96,6 @@ This folder contains tasks that are currently in active development. These tasks
 
 **📄 Moved to:** [completed tasks](../completed/advanced-timeline-features.md)
 
-### 🎬 Multicam System - Multi-camera System
-**Status:** In planning  
-**Progress:** 0% complete  
-**Description:** Completing the implementation of the multi-camera system based on existing linked clips infrastructure.
-
-**What's already there:**
-- ✅ Linked clips infrastructure (100%)
-- ✅ Multi-camera data types (60%)
-- ✅ Keyboard shortcuts (90%)
-- ✅ Player button placeholder (30%)
-
-**Planned:**
-- ❌ Complete player switching button
-- ❌ Angle viewer for simultaneous angle viewing
-- ❌ Automatic audio synchronization
-- ❌ Multi-camera management hooks
 
 ### ✅ Montage Planner Translations - Smart Montage Planner Translations (COMPLETED!)
 **Status:** ✅ FULLY COMPLETED!  
@@ -105,7 +104,7 @@ This folder contains tasks that are currently in active development. These tasks
 **Description:** Added interface translations for the Smart Montage Planner module in all 13 project languages.
 
 **🎉 MAIN ACHIEVEMENTS:**
-- ✅ **All 13 languages (100%)** - Added translations for all supported languages
+- ✅ **All 15 languages (100%)** - Added translations for all supported languages
 - ✅ **Complete structure (100%)** - Navigation, analysis, planning, styles, quality
 - ✅ **Professional terminology (100%)** - Adapted for each language
 - ✅ **Cultural adaptation (100%)** - Considered specifics of each region
@@ -200,4 +199,4 @@ This folder contains tasks that are currently in active development. These tasks
 
 ---
 
-*Last updated: July 28, 2025* | *Version: 0.34.0*
+*Last updated: August 1, 2025* | *Version: 0.53.0*

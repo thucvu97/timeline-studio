@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest"
 import { OutputFormat } from "@/types/video-compiler"
 
 import { AUDIO_BITRATE } from "../../constants/export-constants"
+import type { ExportSettings } from "../../types/export-types"
 import {
   formatToOutputFormat,
   getDefaultExportSettings,
@@ -10,8 +11,6 @@ import {
   ProjectSchemaBuilder,
   qualityToNumber,
 } from "../project-schema-builder"
-
-import type { ExportSettings } from "../../types/export-types"
 
 // Mock timelineToProjectSchema
 vi.mock("@/features/timeline/utils/timeline-to-project", () => ({

@@ -1,7 +1,6 @@
 import { useMemo } from "react"
-
+import { createMarker, type ExtendedTimelineMarker, type MarkerType } from "../types/markers"
 import { useTimeline } from "./use-timeline"
-import { ExtendedTimelineMarker, MarkerType, createMarker } from "../types/markers"
 
 export interface AddMarkerData {
   time: number

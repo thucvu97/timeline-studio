@@ -2,7 +2,7 @@ import { memo, useMemo } from "react"
 
 import { useFavorites } from "@/features/app-state"
 import { MediaPreview } from "@/features/browser"
-import { MediaFile } from "@/features/media"
+import type { MediaFile } from "@/features/media"
 import { useProjectSettings } from "@/features/project-settings/hooks/use-project-settings"
 import { cn } from "@/lib/utils"
 

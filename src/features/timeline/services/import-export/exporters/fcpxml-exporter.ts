@@ -4,9 +4,9 @@
  * Экспортирует Timeline в Final Cut Pro XML формат
  */
 
-import { TimelineClip, TimelineProject, TimelineTrack } from "@/features/timeline/types/timeline"
+import type { TimelineClip, TimelineProject, TimelineTrack } from "@/features/timeline/types/timeline"
 
-import { ExportOptions, Exporter } from "../types"
+import type { Exporter, ExportOptions } from "../types"
 
 export class FCPXMLExporter implements Exporter {
   private frameRate = 30

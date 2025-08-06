@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { SubtitleClip } from "../../../components/clip/subtitle-clip"
-import { SubtitleClip as SubtitleClipType } from "../../../types/timeline"
+import type { SubtitleClip as SubtitleClipType } from "../../../types/timeline"
 
 // Мокаем хуки timeline
 const mockSelectClip = vi.fn()

@@ -4,7 +4,7 @@
 
 import { assign, fromCallback, fromPromise, setup } from "xstate"
 
-import {
+import type {
   JsonValue,
   PlayerSource,
   ProjectCommand,
@@ -13,7 +13,7 @@ import {
   ProjectState,
 } from "@/types/generated/tauri-bindings"
 
-import { BackendSync, getBackendSync } from "./backend-sync"
+import { type BackendSync, getBackendSync } from "./backend-sync"
 
 // Context for the app machine
 export interface AppMachineContext {

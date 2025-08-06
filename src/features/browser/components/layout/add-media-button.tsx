@@ -1,10 +1,9 @@
-import { memo, useCallback, useEffect, useRef, useState } from "react"
-
 import { Check, Plus, X } from "lucide-react"
+import { memo, useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useResources } from "@/features/resources"
-import { ResourceType, TimelineResource } from "@/features/resources/types"
+import type { ResourceType, TimelineResource } from "@/features/resources/types"
 import { cn } from "@/lib/utils"
 
 interface AddMediaButtonProps {

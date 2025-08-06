@@ -4,7 +4,7 @@
 
 import { useMemo } from "react"
 
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 import {
   canPlaceClipOnTrack,
   findClipById,
@@ -14,7 +14,7 @@ import {
 } from "@/features/timeline/utils/utils"
 
 import { useTimeline } from "../hooks/use-timeline"
-import { TimelineClip, TrackType } from "../types"
+import type { TimelineClip, TrackType } from "../types"
 
 export interface UseClipsReturn {
   // Данные

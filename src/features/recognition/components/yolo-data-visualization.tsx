@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react"
 
 import { useTranslation } from "react-i18next"
 
-import { YoloVideoData } from "@/features/recognition/types/yolo"
+import type { YoloVideoData } from "@/features/recognition/types/yolo"
 
 interface YoloDataVisualizationProps {
   yoloData: YoloVideoData

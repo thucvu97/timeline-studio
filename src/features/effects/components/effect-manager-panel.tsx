@@ -3,9 +3,8 @@
  * Интегрирует новую унифицированную систему эффектов
  */
 
-import { useCallback, useMemo, useState } from "react"
-
 import { Filter, Plus, Search, Settings2, Upload } from "lucide-react"
+import { useCallback, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"
@@ -17,7 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import { useEffectCategories, useEffects } from "../hooks/use-effects"
 import { useEffectsImport } from "../hooks/use-effects-import"
-import { BaseEffect } from "../types"
+import type { BaseEffect } from "../types"
 import { EffectDetail } from "./effect-detail"
 import { EffectGroup } from "./effect-group"
 

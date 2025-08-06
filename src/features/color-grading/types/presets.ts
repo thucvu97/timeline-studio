@@ -1,4 +1,4 @@
-import { ColorGradingState } from "./color-grading"
+import type { ColorGradingState } from "./color-grading"
 
 export interface ColorGradingPreset {
   id: string
@@ -215,6 +215,11 @@ export const BUILT_IN_PRESETS: ColorGradingPreset[] = [
           { x: 0, y: 256, id: "start" },
           { x: 256, y: 0, id: "end" },
         ],
+        hueVsHue: [],
+        hueVsSaturation: [],
+        hueVsLuminance: [],
+        luminanceVsSaturation: [],
+        saturationVsSaturation: [],
       },
     },
   },

@@ -15,11 +15,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator"
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
-import { TimelineProject } from "@/features/timeline/types/timeline"
+import type { TimelineProject } from "@/features/timeline/types/timeline"
 import { cn } from "@/lib/utils"
 
 import { useTransitionExport } from "../hooks/use-transition-export"
-import { TransitionExportSettings } from "../types/transition-export-types"
+import type { TransitionExportSettings } from "../types/transition-export-types"
 
 interface TransitionExportSettingsProps {
   settings: TransitionExportSettings
@@ -62,12 +62,12 @@ export function TransitionExportSettingsComponent({
     const hasGPUTransitions = transitionInfo.gpuAccelerated > 0
 
     return {
-      transitionQuality: isComplexProject ? "high" : "medium",
-      transitionRenderMode: hasGPUTransitions ? "gpu" : "auto",
+      transitionQuality: (isComplexProject ? "high" : "medium") as "high" | "medium",
+      transitionRenderMode: (hasGPUTransitions ? "gpu" : "auto") as "gpu" | "auto",
       optimizeTransitions: true,
       parallelTransitionProcessing: transitionInfo.totalTransitions > 5,
       maxConcurrentTransitions: Math.min(4, Math.max(1, Math.floor(transitionInfo.totalTransitions / 3))),
-    }
+    } as Partial<TransitionExportSettings>
   }
 
   const applyRecommendedSettings = () => {

@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 
 import { useTimeline } from "@/features/timeline/hooks"
-
-import { useAudioEngine } from "./use-audio-engine"
 import { AudioFileManager } from "../services/audio-file-manager"
+import { useAudioEngine } from "./use-audio-engine"
 
 export function useChannelAudio(channelId: string, trackId?: string) {
   const timeline = useTimeline()

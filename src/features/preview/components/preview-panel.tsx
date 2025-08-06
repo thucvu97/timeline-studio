@@ -2,18 +2,16 @@
  * Preview Panel - Main UI for real-time preview
  */
 
-import { useEffect, useRef, useState } from "react"
-
 import { Eye, EyeOff, Layers, Monitor, Settings, Zap } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-
+import { useWebGL2Preview } from "../hooks/use-webgl2-preview"
 import { EffectChainList } from "./effect-chain-list"
 import { PresetGallery } from "./preset-gallery"
 import { QualityControls } from "./quality-controls"
-import { useRealtimePreview } from "../hooks/use-realtime-preview"
 
 interface PreviewPanelProps {
   className?: string
@@ -26,7 +24,7 @@ export function PreviewPanel({ className }: PreviewPanelProps) {
   const [previewEnabled, setPreviewEnabled] = useState(true)
 
   const { canvasRef, videoRef, previewFrame, isInitialized, gpuTier, quality, setQuality, cacheStats } =
-    useRealtimePreview({
+    useWebGL2Preview({
       cacheSize: 100,
       prefetchRange: 2,
       updateInterval: 33,

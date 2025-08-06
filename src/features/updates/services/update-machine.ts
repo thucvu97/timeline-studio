@@ -5,7 +5,7 @@
 
 import { assign, fromPromise, setup } from "xstate"
 
-import { UpdateCheckResult, UpdateInfo, updateService } from "./update-service"
+import { type UpdateCheckResult, type UpdateInfo, updateService } from "./update-service"
 
 // Типы событий для машины
 export type UpdateMachineEvent =
@@ -113,7 +113,7 @@ export const updateMachine = setup({
 
     // Обновить прогресс загрузки
     updateProgress: assign({
-      progress: ({ event, context }) => {
+      progress: ({ _event, context }) => {
         // В реальной реализации здесь будет обновление прогресса
         // Пока что возвращаем заглушку
         return context.progress

@@ -1,8 +1,8 @@
 import { act } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
-import { MediaFile } from "@/features/media/types/media"
-import { Transition } from "@/features/transitions/types/transitions"
+import type { MediaFile } from "@/features/media/types/media"
+import type { Transition } from "@/features/transitions/types/transitions"
 import { renderWithBase, screen } from "@/test/test-utils"
 
 import { TransitionGroup } from "../../components/transition-group"
@@ -10,17 +10,16 @@ import { TransitionGroup } from "../../components/transition-group"
 // Мокаем TransitionPreview компонент
 vi.mock("../../components/transition-preview", () => ({
   TransitionPreview: ({ transition, onClick, size, previewWidth, previewHeight }: any) => (
-    <div
+    <button
       data-testid={`transition-preview-${transition.id}`}
       data-size={size}
       data-width={previewWidth}
       data-height={previewHeight}
       onClick={onClick}
-      role="button"
-      tabIndex={0}
+      type="button"
     >
       {transition.labels.ru}
-    </div>
+    </button>
   ),
 }))
 

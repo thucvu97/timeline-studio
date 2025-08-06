@@ -1,9 +1,7 @@
 import { render, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
-
-import { JLCutIndicator } from "../jl-cut-indicator"
-
 import type { TimelineClip } from "../../../types/timeline"
+import { JLCutIndicator } from "../jl-cut-indicator"
 
 // Mock getCutType утилиту
 vi.mock("../../../types/jl-cuts", () => ({

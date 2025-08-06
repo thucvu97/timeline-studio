@@ -7,7 +7,7 @@ import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useModal } from "@/features/modals/services"
 
-import { AppliedEffect } from "../types"
+import type { AppliedEffect } from "../types"
 
 // Тип для активного аудио эффекта
 interface ActiveAudioEffect {

@@ -26,14 +26,14 @@ const MockAudioMixerView = React.forwardRef<HTMLDivElement, React.HTMLAttributes
 const MockTimelineWorkspaceTabs = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & { activeView?: string; onViewChange?: (view: string) => void }
-    >(function MockTimelineWorkspaceTabs({ activeView, onViewChange, ...props }, ref) {
-      return React.createElement("div", {
-        ...props,
-        ref,
-        "data-testid": "timeline-workspace-tabs",
-        "data-active-view": activeView,
-      })
-    })
+>(function MockTimelineWorkspaceTabs({ activeView, onViewChange, ...props }, ref) {
+  return React.createElement("div", {
+    ...props,
+    ref,
+    "data-testid": "timeline-workspace-tabs",
+    "data-active-view": activeView,
+  })
+})
 
 const MockResourcesPanel = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   function MockResourcesPanel(props, ref) {

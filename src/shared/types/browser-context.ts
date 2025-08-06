@@ -2,7 +2,7 @@
  * Общие типы для браузера, выделенные для избежания циклических зависимостей
  */
 
-import { BrowserTab } from "./browser"
+import type { BrowserTab } from "./browser"
 
 export type ViewMode = "list" | "grid" | "thumbnails"
 

@@ -4,6 +4,7 @@ pub mod recognition_service;
 pub mod face_clustering;
 pub mod facenet_processor;
 pub mod mediapipe_processor;
+pub mod ort_manager;
 pub mod privacy_processor;
 pub mod retinaface_processor;
 pub mod types;

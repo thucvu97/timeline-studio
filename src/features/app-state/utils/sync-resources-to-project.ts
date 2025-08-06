@@ -3,8 +3,8 @@
  */
 
 import { convertMediaFileToPoolItem } from "@/features/media/utils/media-pool-utils"
-import { TimelineStudioProject } from "@/features/project-settings/types/timeline-studio-project"
-import { MediaResource, MusicResource } from "@/features/resources/types"
+import type { TimelineStudioProject } from "@/features/project-settings/types/timeline-studio-project"
+import type { MediaResource, MusicResource } from "@/features/resources/types"
 
 /**
  * Синхронизирует ресурсы из ResourcesProvider с MediaPool проекта
@@ -82,7 +82,7 @@ export function syncResourcesToProject(
 export function getResourcesFromStorage(): {
   mediaResources: MediaResource[]
   musicResources: MusicResource[]
-  } {
+} {
   // Check if we're on the client side
   if (typeof window === "undefined" || typeof localStorage === "undefined") {
     return {

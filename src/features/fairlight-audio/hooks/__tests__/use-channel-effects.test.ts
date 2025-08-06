@@ -1,9 +1,7 @@
 import { renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-
-import { useChannelEffects } from "../use-channel-effects"
-
 import type { Effect } from "../../components/effects/effects-rack"
+import { useChannelEffects } from "../use-channel-effects"
 
 // Mock dependencies using vi.hoisted
 const { mockAudioEngine, mockEqualizerProcessor, mockCompressorProcessor, mockReverbProcessor } = vi.hoisted(() => ({

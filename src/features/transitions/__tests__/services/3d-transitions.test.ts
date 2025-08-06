@@ -83,13 +83,13 @@ describe("3D Transitions Service", () => {
         premultipliedAlpha: false,
         preserveDrawingBuffer: true,
         antialias: true,
-        powerPreference: "high-performance"
+        powerPreference: "high-performance",
       })
     })
 
     it("должен вернуть false если WebGL2 недоступен", async () => {
       const mockCanvasNoWebGL = {
-        getContext: vi.fn(() => null)
+        getContext: vi.fn(() => null),
       } as unknown as HTMLCanvasElement
 
       const result = await service.initialize(mockCanvasNoWebGL)
@@ -113,8 +113,8 @@ describe("3D Transitions Service", () => {
           flipDirection: 1, // right
           perspective: 1000,
           curvature: 0.6,
-          shadowIntensity: 0.4
-        }
+          shadowIntensity: 0.4,
+        },
       })
 
       expect(result).toBe(true)
@@ -133,8 +133,8 @@ describe("3D Transitions Service", () => {
           cardCount: 16,
           shufflePattern: 0, // riffle
           rotationChaos: 0.7,
-          gravity: 0.5
-        }
+          gravity: 0.5,
+        },
       })
 
       expect(result).toBe(true)
@@ -151,8 +151,8 @@ describe("3D Transitions Service", () => {
           helixTurns: 2,
           radius: 0.3,
           axis: 1, // vertical
-          twist: 1
-        }
+          twist: 1,
+        },
       })
 
       expect(result).toBe(true)
@@ -169,8 +169,8 @@ describe("3D Transitions Service", () => {
           sphereRadius: 0.8,
           rotationSpeed: 1.0,
           lightPosition: [0.5, -0.5, 1.0],
-          reflectivity: 0.3
-        }
+          reflectivity: 0.3,
+        },
       })
 
       expect(result).toBe(true)
@@ -183,7 +183,7 @@ describe("3D Transitions Service", () => {
         targetTexture: mockTexture,
         progress: 0.5,
         shaderType: "page-flip",
-        parameters: {} // Пустые параметры - должны использоваться defaults
+        parameters: {}, // Пустые параметры - должны использоваться defaults
       })
 
       expect(result).toBe(true)
@@ -195,14 +195,9 @@ describe("3D Transitions Service", () => {
       await service.initialize(mockCanvas)
     })
 
-    const threeDShaderTypes = [
-      "page-flip",
-      "card-shuffle", 
-      "helix-spin",
-      "sphere-mapping"
-    ]
+    const threeDShaderTypes = ["page-flip", "card-shuffle", "helix-spin", "sphere-mapping"]
 
-    threeDShaderTypes.forEach(shaderType => {
+    threeDShaderTypes.forEach((shaderType) => {
       it(`должен поддерживать ${shaderType} шейдер`, async () => {
         const result = await service.renderDynamicTransition({
           canvas: mockCanvas,
@@ -210,7 +205,7 @@ describe("3D Transitions Service", () => {
           targetTexture: mockTexture,
           progress: 0.5,
           shaderType: shaderType as any,
-          parameters: {}
+          parameters: {},
         })
 
         expect(result).toBe(true)
@@ -230,15 +225,15 @@ describe("3D Transitions Service", () => {
         targetTexture: mockTexture,
         progress: 0.5,
         shaderType: "page-flip",
-        parameters: {}
+        parameters: {},
       })
 
       // Проверяем что uniform1f был вызван с default параметрами
       const calls = mockWebGL2Context.uniform1f.mock.calls
-      const values = calls.map(call => call[1])
-      
+      const values = calls.map((call) => call[1])
+
       expect(values).toContain(1) // flipDirection default
-      expect(values).toContain(1000) // perspective default  
+      expect(values).toContain(1000) // perspective default
       expect(values).toContain(0.6) // curvature default
       expect(values).toContain(0.4) // shadowIntensity default
     })
@@ -248,7 +243,7 @@ describe("3D Transitions Service", () => {
         flipDirection: 0, // left
         perspective: 1500,
         curvature: 0.8,
-        shadowIntensity: 0.6
+        shadowIntensity: 0.6,
       }
 
       await service.renderDynamicTransition({
@@ -257,15 +252,15 @@ describe("3D Transitions Service", () => {
         targetTexture: mockTexture,
         progress: 0.5,
         shaderType: "page-flip",
-        parameters: customParams
+        parameters: customParams,
       })
 
       // Проверяем что uniform1f был вызван с нашими параметрами
       const calls = mockWebGL2Context.uniform1f.mock.calls
-      const values = calls.map(call => call[1])
-      
+      const values = calls.map((call) => call[1])
+
       expect(values).toContain(0) // custom flipDirection
-      expect(values).toContain(1500) // custom perspective  
+      expect(values).toContain(1500) // custom perspective
       expect(values).toContain(0.8) // custom curvature
       expect(values).toContain(0.6) // custom shadowIntensity
     })
@@ -281,7 +276,7 @@ describe("3D Transitions Service", () => {
         targetTexture: mockTexture,
         progress: 0.5,
         shaderType: "unknown-3d-effect" as any,
-        parameters: {}
+        parameters: {},
       })
 
       expect(result).toBe(false)
@@ -301,7 +296,7 @@ describe("3D Transitions Service", () => {
         targetTexture: mockTexture,
         progress: 0.5,
         shaderType: "page-flip",
-        parameters: {}
+        parameters: {},
       })
 
       expect(result).toBe(false)
@@ -326,8 +321,8 @@ describe("3D Transitions Service", () => {
           helixTurns: 3,
           radius: 0.4,
           axis: 2, // diagonal
-          twist: 2
-        }
+          twist: 2,
+        },
       })
 
       const endTime = performance.now()
@@ -341,7 +336,7 @@ describe("3D Transitions Service", () => {
   describe("Memory Management", () => {
     it("должен правильно очищать ресурсы", async () => {
       await service.initialize(mockCanvas)
-      
+
       // Сначала сделаем рендеринг, чтобы создались ресурсы
       await service.renderDynamicTransition({
         canvas: mockCanvas,
@@ -349,9 +344,9 @@ describe("3D Transitions Service", () => {
         targetTexture: mockTexture,
         progress: 0.5,
         shaderType: "page-flip",
-        parameters: {}
+        parameters: {},
       })
-      
+
       // Теперь очищаем ресурсы
       service.dispose()
 

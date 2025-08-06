@@ -10,7 +10,7 @@ import { usePlayer } from "@/features/video-player"
 
 import { basicEffectsLibrary } from "../presets/basic-effects"
 import { EffectManager } from "../services/effect-manager"
-import { type RenderContext, type RenderResult, UnifiedEffectsRenderer } from "../services/unified-renderer"
+import { type RenderContext, type RenderResult, UnifiedEffectsRenderer } from "../services/webgl2-unified-renderer"
 
 import type {
   AppliedEffect,

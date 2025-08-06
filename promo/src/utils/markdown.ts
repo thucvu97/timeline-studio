@@ -1,4 +1,4 @@
-import matter from 'gray-matter'
+import matter from "gray-matter"
 
 export interface PostMetadata {
   title: string
@@ -7,6 +7,8 @@ export interface PostMetadata {
   slug: string
   excerpt?: string
   version?: string
+  category?: string
+  readTime?: string
 }
 
 export interface Post {
@@ -17,17 +19,19 @@ export interface Post {
 // Функция для парсинга markdown с frontmatter
 export function parseMarkdown(fileContent: string): Post {
   const { data, content } = matter(fileContent)
-  
+
   return {
     metadata: {
-      title: data.title || 'Untitled',
+      title: data.title || "Untitled",
       date: data.date || new Date().toISOString(),
       author: data.author,
-      slug: data.slug || '',
+      slug: data.slug || "",
       excerpt: data.excerpt,
-      version: data.version
+      version: data.version,
+      category: data.category,
+      readTime: data.readTime,
     },
-    content
+    content,
   }
 }
 
@@ -39,7 +43,7 @@ export async function loadBlogPosts(): Promise<PostMetadata[]> {
 
 export async function loadBlogPost(slug: string): Promise<Post | null> {
   // TODO: Implement actual file loading
-  console.log('Loading post with slug:', slug)
+  console.log("Loading post with slug:", slug)
   return null
 }
 

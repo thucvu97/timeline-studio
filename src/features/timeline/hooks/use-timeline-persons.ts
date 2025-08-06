@@ -7,10 +7,8 @@ import { useCallback, useEffect, useState } from "react"
 
 import { usePersonIdentification } from "@/features/person-identification/hooks/use-person-identification"
 import type { BoundingBox, PersonProfile } from "@/features/person-identification/types/person"
-
-import { useTimeline } from "./use-timeline"
-
 import type { TimelineClip } from "../types/timeline"
+import { useTimeline } from "./use-timeline"
 
 // Упрощенная версия PersonAppearance для Timeline (использует numbers вместо Timecode)
 export interface TimelinePersonAppearance {

@@ -1,10 +1,10 @@
 import { fireEvent, render, screen } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 
 import { TransitionPreview } from "../../components/transition-preview"
-import { Transition } from "../../types/transitions"
+import type { Transition } from "../../types/transitions"
 
 // Mock dependencies
 vi.mock("react-i18next", () => ({

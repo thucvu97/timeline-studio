@@ -12,21 +12,13 @@ import {
   ContentType,
   Emotion,
   Genre,
-  KeyMoment,
+  type KeyMoment,
   KeyMomentType,
-  QualityMetrics,
-  SceneAnalysis,
+  type QualityMetrics,
+  type SceneAnalysis,
   SceneType,
 } from "../../../shared/types/content-analysis"
 import { BaseAIEngine, type EngineCapabilities } from "../../types"
-import { CameraMovementType, LightingType, MotionDirection } from "../types"
-import { AgeGenderDetectionService, type DemographicStats } from "./age-gender-detection"
-import { type CharacterAnalysisResult, CharacterAnalysisService } from "./character-analysis"
-import { MusicDetectionService } from "./music-detection"
-import { ObjectTrackingService } from "./object-tracking"
-import { SceneDetectionService } from "./scene-detection"
-import { VisionService } from "./vision-service"
-
 import type {
   AudioProfile,
   KeyframeData,
@@ -35,6 +27,13 @@ import type {
   TimelineSegment,
   VisualFeatures,
 } from "../types"
+import { CameraMovementType, LightingType, MotionDirection } from "../types"
+import { AgeGenderDetectionService, type DemographicStats } from "./age-gender-detection"
+import { type CharacterAnalysisResult, CharacterAnalysisService } from "./character-analysis"
+import { MusicDetectionService } from "./music-detection"
+import { ObjectTrackingService } from "./object-tracking"
+import { SceneDetectionService } from "./scene-detection"
+import { VisionService } from "./vision-service"
 
 // Расширенный тип для content с дополнительными полями
 interface ExtendedContentElements {
@@ -535,20 +534,20 @@ export class SceneAnalysisEngine extends BaseAIEngine {
 
     // Подсчитываем эмоции и их уверенность
     faces.forEach((face) => {
-      if (face.emotion && Object.prototype.hasOwnProperty.call(emotions, face.emotion)) {
+      if (face.emotion && face.emotion in emotions) {
         const confidence = face.emotionConfidence || 0.5
-        emotions[face.emotion] += confidence
+        emotions[face.emotion as keyof typeof emotions] += confidence
       }
     })
 
     // Нормализуем на количество лиц
     Object.keys(emotions).forEach((emotion) => {
-      emotions[emotion] /= faces.length
+      emotions[emotion as keyof typeof emotions] /= faces.length
     })
 
     // Определяем доминирующую эмоцию
     const dominantEmotion = Object.entries(emotions).sort(([, a], [, b]) => b - a)[0][0]
-    const confidence = emotions[dominantEmotion]
+    const confidence = emotions[dominantEmotion as keyof typeof emotions]
 
     return { emotions, dominantEmotion, confidence }
   }
@@ -780,10 +779,10 @@ export class SceneAnalysisEngine extends BaseAIEngine {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
     return result
       ? {
-        r: Number.parseInt(result[1], 16),
-        g: Number.parseInt(result[2], 16),
-        b: Number.parseInt(result[3], 16),
-      }
+          r: Number.parseInt(result[1], 16),
+          g: Number.parseInt(result[2], 16),
+          b: Number.parseInt(result[3], 16),
+        }
       : null
   }
 

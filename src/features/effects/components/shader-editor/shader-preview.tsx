@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useRef, useState } from "react"
-
 import { Download, Maximize2, Pause, Play, RotateCcw } from "lucide-react"
+import type React from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -27,7 +27,7 @@ export function ShaderPreview({
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const glRef = useRef<WebGL2RenderingContext | null>(null)
   const programRef = useRef<WebGLProgram | null>(null)
-  const animationFrameRef = useRef<number>()
+  const animationFrameRef = useRef<number>(0)
   const startTimeRef = useRef<number>(0)
 
   const [isPlaying, setIsPlaying] = useState(true)

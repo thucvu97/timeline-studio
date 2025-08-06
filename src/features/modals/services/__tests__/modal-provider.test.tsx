@@ -6,7 +6,7 @@ vi.unmock("@/features/modals")
 vi.unmock("@/features/modals/services/modal-provider")
 vi.unmock("@/features/modals/services")
 
-import { ModalType } from "../modal-machine"
+import type { ModalType } from "../modal-machine"
 import { ModalProvider, useModal } from "../modal-provider"
 
 // Мокаем консоль для проверки логов

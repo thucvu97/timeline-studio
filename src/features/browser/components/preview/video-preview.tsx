@@ -1,15 +1,14 @@
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
-
 import { useDraggable } from "@dnd-kit/core"
 import { Film } from "lucide-react"
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { useResources } from "@/features"
 import { useMediaPreview } from "@/features/media/hooks/use-media-preview"
-import { FfprobeStream } from "@/features/media/types/ffprobe"
-import { MediaFile } from "@/features/media/types/media"
+import type { FfprobeStream } from "@/features/media/types/ffprobe"
+import type { MediaFile } from "@/features/media/types/media"
 import { calculateAdaptiveWidth, calculateWidth, parseRotation } from "@/features/media/utils/video"
-import { TimelineResource } from "@/features/resources/types"
-import { DragData } from "@/features/timeline/types/drag-drop"
+import type { TimelineResource } from "@/features/resources/types"
+import type { DragData } from "@/features/timeline/types/drag-drop"
 import { getTrackTypeForMediaFile } from "@/features/timeline/utils/drag-calculations"
 import { usePlayer } from "@/features/video-player"
 import { formatDuration } from "@/lib/date"
@@ -271,9 +270,9 @@ export const VideoPreview = memo(
     // Transform style for drag feedback
     const style = transform
       ? {
-        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-        opacity: isDragging ? 0.5 : 1,
-      }
+          transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+          opacity: isDragging ? 0.5 : 1,
+        }
       : undefined
 
     return (
@@ -638,20 +637,20 @@ export const VideoPreview = memo(
                   {file.duration &&
                     file.duration > 0 &&
                     !(isMultipleStreams && typeof stream.index !== "undefined" && stream.index !== 0) && (
-                    <div
-                      className={cn(
-                        "pointer-events-none absolute rounded-xs bg-black/60 text-xs leading-[16px]",
-                        size > 100 ? "top-1 right-1 px-[4px] py-[2px]" : "top-0.5 right-0.5 px-[2px] py-0",
-                      )}
-                      style={{
-                        fontSize: size > 100 ? "13px" : "11px",
-                        color: "#ffffff", // Явно задаем чисто белый цвет для Tauri
-                        zIndex: 20,
-                      }}
-                    >
-                      {formatDuration(file.duration, 0, true)}
-                    </div>
-                  )}
+                      <div
+                        className={cn(
+                          "pointer-events-none absolute rounded-xs bg-black/60 text-xs leading-[16px]",
+                          size > 100 ? "top-1 right-1 px-[4px] py-[2px]" : "top-0.5 right-0.5 px-[2px] py-0",
+                        )}
+                        style={{
+                          fontSize: size > 100 ? "13px" : "11px",
+                          color: "#ffffff", // Явно задаем чисто белый цвет для Tauri
+                          zIndex: 20,
+                        }}
+                      >
+                        {formatDuration(file.duration, 0, true)}
+                      </div>
+                    )}
 
                   {/* Иконка видео */}
                   {!(isMultipleStreams && typeof stream.index !== "undefined" && stream.index !== 0) && (
@@ -695,21 +694,21 @@ export const VideoPreview = memo(
                   {/* Имя файла */}
                   {showFileName &&
                     !(isMultipleStreams && typeof stream.index !== "undefined" && stream.index !== 0) && (
-                    <div
-                      className={`absolute font-medium ${size > 100 ? "top-1" : "top-0.5"} ${
-                        size > 100 ? "left-1" : "left-0.5"
-                      } ${
-                        size > 100 ? "px-[4px] py-[2px]" : "px-[2px] py-0"
-                      } line-clamp-1 rounded-xs bg-black/60 text-xs leading-[16px] ${isMultipleStreams ? "max-w-[100%]" : "max-w-[60%]"}`}
-                      style={{
-                        fontSize: size > 100 ? "12px" : "11px",
-                        color: "#ffffff", // Явно задаем чисто белый цвет для Tauri
-                        zIndex: 10,
-                      }}
-                    >
-                      {file.name}
-                    </div>
-                  )}
+                      <div
+                        className={`absolute font-medium ${size > 100 ? "top-1" : "top-0.5"} ${
+                          size > 100 ? "left-1" : "left-0.5"
+                        } ${
+                          size > 100 ? "px-[4px] py-[2px]" : "px-[2px] py-0"
+                        } line-clamp-1 rounded-xs bg-black/60 text-xs leading-[16px] ${isMultipleStreams ? "max-w-[100%]" : "max-w-[60%]"}`}
+                        style={{
+                          fontSize: size > 100 ? "12px" : "11px",
+                          color: "#ffffff", // Явно задаем чисто белый цвет для Tauri
+                          zIndex: 10,
+                        }}
+                      >
+                        {file.name}
+                      </div>
+                    )}
 
                   <ApplyButton
                     resource={{ id: file.id, type: "media" } as TimelineResource}
@@ -723,12 +722,12 @@ export const VideoPreview = memo(
                     typeof stream.index !== "undefined" &&
                     stream.index ===
                       (file.probeData?.streams.filter((s) => s.codec_type === "video").length ?? 0) - 1 && (
-                    <AddMediaButton
-                      resource={{ id: file.id, type: "media", name: file.name } as TimelineResource}
-                      size={size}
-                      type="media"
-                    />
-                  )}
+                      <AddMediaButton
+                        resource={{ id: file.id, type: "media", name: file.name } as TimelineResource}
+                        size={size}
+                        type="media"
+                      />
+                    )}
                 </div>
               </div>
             )

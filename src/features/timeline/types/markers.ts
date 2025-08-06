@@ -2,7 +2,7 @@
  * Расширенные типы для системы маркеров Timeline
  */
 
-import { TimelineMarker } from "./timeline"
+import type { TimelineMarker } from "./timeline"
 
 // Реэкспорт базового типа
 export type { TimelineMarker } from "./timeline"

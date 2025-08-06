@@ -1,11 +1,10 @@
-import { useEffect, useRef, useState } from "react"
-
 import { Pause, Play, RotateCcw } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
-import { VideoEffect } from "@/features/effects/types"
+import type { VideoEffect } from "@/features/effects/types"
 
 import { generateCSSFilterForEffect, getPlaybackRate } from "../utils/css-effects"
 
@@ -66,12 +65,12 @@ export function EffectComparison({
     // Создаем эффект с объединенными параметрами
     const mergedEffect = customParams
       ? {
-        ...effect,
-        parameters: (effect.parameters || []).map((param) => ({
-          ...param,
-          defaultValue: customParams[param.id] ?? param.defaultValue,
-        })),
-      }
+          ...effect,
+          parameters: (effect.parameters || []).map((param) => ({
+            ...param,
+            defaultValue: customParams[param.id] ?? param.defaultValue,
+          })),
+        }
       : effect
 
     // Применяем CSS фильтры

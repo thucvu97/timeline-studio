@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { AutomationEngine, AutomationMode } from "../automation-engine"
+import { AutomationEngine, type AutomationMode } from "../automation-engine"
 
 describe("AutomationEngine", () => {
   let engine: AutomationEngine

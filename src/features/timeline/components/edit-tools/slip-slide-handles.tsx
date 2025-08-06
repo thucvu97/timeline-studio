@@ -4,7 +4,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { cn } from "@/lib/utils"
 
 import { useEditModeContext } from "../../hooks/use-edit-mode"
-import { TimelineClip } from "../../types"
+import type { TimelineClip } from "../../types"
 import { EDIT_MODES } from "../../types/edit-modes"
 
 interface SlipSlideHandlesProps {

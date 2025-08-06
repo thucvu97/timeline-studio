@@ -236,7 +236,7 @@ export class SpectrumAnalyzer extends EventEmitter {
     warmth: number // Соотношение низких к средним частотам
     clarity: number // Энергия в области 2-6kHz
     presence: number // Энергия в области 4-8kHz
-    } {
+  } {
     const subBass = this.getBandMagnitude(20, 60)
     const bass = this.getBandMagnitude(60, 250)
     const lowMid = this.getBandMagnitude(250, 1000)

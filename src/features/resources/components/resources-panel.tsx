@@ -16,9 +16,9 @@ import {
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
-import { DraggableType, useDraggable } from "@/features/drag-drop"
+import { type DraggableType, useDraggable } from "@/features/drag-drop"
 import { useResources } from "@/features/resources"
-import { TimelineResource } from "@/features/resources/types"
+import type { TimelineResource } from "@/features/resources/types"
 
 /**
  * Компонент для отдельного ресурса с поддержкой drag

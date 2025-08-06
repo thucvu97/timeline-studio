@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next"
 
-import { VideoEffect } from "@/features/effects/types"
+import type { VideoEffect } from "@/features/effects/types"
 
 interface EffectIndicatorsProps {
   effect: VideoEffect

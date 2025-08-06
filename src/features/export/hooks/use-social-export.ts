@@ -1,6 +1,5 @@
-import { useCallback, useState } from "react"
-
 import { readFile } from "@tauri-apps/plugin-fs"
+import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
@@ -11,7 +10,7 @@ import {
   getOptimalSettings as getOptimalSettingsFromService,
   validateExportSettings,
 } from "../services/social-validation-service"
-import { SocialExportSettings } from "../types/export-types"
+import type { SocialExportSettings } from "../types/export-types"
 
 export function useSocialExport() {
   const { t } = useTranslation()
@@ -58,17 +57,12 @@ export function useSocialExport() {
 
         // Читаем файл через Tauri API
         const fileData = await readFile(videoPath)
-        const videoBlob = new Blob([fileData], { type: "video/mp4" })
+        const videoBlob = new Blob([fileData as BlobPart], { type: "video/mp4" })
 
         const result = await SocialNetworksService.uploadVideo(
           network.id,
           videoBlob,
-          {
-            title: settings.title || "Untitled Video",
-            description: settings.description || "",
-            tags: settings.tags || [],
-            privacy: settings.privacy || "public",
-          },
+          settings as any,
           (progress: number) => {
             setUploadProgress(progress)
           },

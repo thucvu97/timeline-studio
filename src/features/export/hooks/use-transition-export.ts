@@ -5,11 +5,11 @@
 
 import { useCallback, useMemo, useRef, useState } from "react"
 
-import { TimelineProject } from "@/features/timeline/types/timeline"
+import type { TimelineProject } from "@/features/timeline/types/timeline"
 
 import { TransitionExportService } from "../services/transition-export-service"
-import { ExportSettings } from "../types/export-types"
-import {
+import type { ExportSettings } from "../types/export-types"
+import type {
   TransitionExportResult,
   TransitionExportSettings,
   TransitionExportStatus,
@@ -40,8 +40,8 @@ export function useTransitionExport(options: UseTransitionExportOptions = {}) {
     statuses: new Map(),
   })
 
-  const serviceRef = useRef<TransitionExportService>()
-  const abortControllerRef = useRef<AbortController>()
+  const serviceRef = useRef<TransitionExportService | null>(null)
+  const abortControllerRef = useRef<AbortController | null>(null)
 
   // Получаем instance сервиса
   const service = useMemo(() => {

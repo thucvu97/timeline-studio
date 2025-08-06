@@ -3,7 +3,7 @@ import { memo } from "react"
 import { MediaToolbar } from "@/features/browser/components/media-toolbar"
 import { getToolbarConfigForContent } from "@/features/browser/components/media-toolbar-configs"
 import { PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"
-import { BrowserTab } from "@/shared/types/browser"
+import type { BrowserTab } from "@/shared/types/browser"
 
 interface BrowserToolbarWrapperProps {
   activeTab: BrowserTab

@@ -1,8 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-
-import { BaseMidiProcessor, MidiRouter } from "../midi-router"
-
 import type { MidiMessage } from "../midi-engine"
+import { BaseMidiProcessor, MidiRouter } from "../midi-router"
 
 describe("MidiRouter", () => {
   let router: MidiRouter

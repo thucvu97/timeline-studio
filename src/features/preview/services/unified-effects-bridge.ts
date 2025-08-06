@@ -3,7 +3,7 @@
  * Конвертирует эффекты из унифицированной системы в формат preview
  */
 
-import { EffectManager } from "@/features/effects/services/effect-manager"
+import type { EffectManager } from "@/features/effects/services/effect-manager"
 import type { AppliedEffect, BaseEffect, EffectCategory, EffectScope } from "@/features/effects/types/unified-effects"
 
 import type { Effect, EffectType } from "../types"

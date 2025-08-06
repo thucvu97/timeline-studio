@@ -2,9 +2,8 @@
  * Tests for useMontagePlanner hook
  */
 
-import type { ReactNode } from "react"
-
 import { act, renderHook } from "@testing-library/react"
+import type { ReactNode } from "react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { useMontagePlanner } from "../../hooks/use-montage-planner"

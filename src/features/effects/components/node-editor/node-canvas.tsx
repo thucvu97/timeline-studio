@@ -1,12 +1,11 @@
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import type React from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 import { cn } from "@/lib/utils"
-
+import { useNodeEditor } from "../../hooks/use-node-editor"
+import type { NodeConnection, NodeGraph } from "../../types/node-compositing"
 import { ConnectionLine } from "./connection-line"
 import { NodeComponent } from "./node-component"
-import { useNodeEditor } from "../../hooks/use-node-editor"
-
-import type { NodeConnection, NodeGraph } from "../../types/node-compositing"
 
 interface NodeCanvasProps {
   graph: NodeGraph
@@ -86,7 +85,7 @@ export function NodeCanvas({ graph, onGraphChange, onNodeSelect, onNodeDelete, c
       // Middle mouse or Alt+Left for panning
       setIsPanning(true)
       e.preventDefault()
-    } else if (e.button === 0 && !e.target.closest(".node-component")) {
+    } else if (e.button === 0 && !(e.target as HTMLElement).closest(".node-component")) {
       // Start selection box
       const rect = canvasRef.current!.getBoundingClientRect()
       const x = e.clientX - rect.left
@@ -278,14 +277,16 @@ export function NodeCanvas({ graph, onGraphChange, onNodeSelect, onNodeDelete, c
       {/* Grid background */}
       <div
         className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: `
+        style={
+          {
+            backgroundImage: `
             linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
             linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)
           `,
-          backgroundSize: `${20 * viewport.zoom}px ${20 * viewport.zoom}px`,
-          backgroundPosition: `${viewport.x}px ${viewport.y}px`,
-        }}
+            backgroundSize: `${20 * viewport.zoom}px ${20 * viewport.zoom}px`,
+            backgroundPosition: `${viewport.x}px ${viewport.y}px`,
+          } as React.CSSProperties
+        }
       />
 
       {/* Canvas transform container */}

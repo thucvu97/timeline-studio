@@ -1,4 +1,4 @@
-import { VideoFilter } from "@/features/filters/types/filters"
+import type { VideoFilter } from "@/features/filters/types/filters"
 
 /**
  * Интерфейс для параметров CSS-фильтра

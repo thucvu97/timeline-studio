@@ -4,13 +4,13 @@
  */
 
 import {
-  BatchOperationParams,
-  BatchOperationResult,
-  BatchOperationType,
+  type BatchOperationParams,
+  type BatchOperationResult,
+  type BatchOperationType,
   BatchProcessingService,
-  BatchProgress,
+  type BatchProgress,
 } from "../services/batch-processing-service"
-import { ClaudeTool } from "../services/claude-service"
+import type { ClaudeTool } from "../services/claude-service"
 
 /**
  * Инструменты для пакетной обработки

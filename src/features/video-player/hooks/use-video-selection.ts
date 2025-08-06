@@ -1,6 +1,6 @@
 import { useCallback } from "react"
 
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 
 import { usePlayer } from "../services/player-provider"
 

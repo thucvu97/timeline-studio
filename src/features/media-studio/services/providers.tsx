@@ -6,7 +6,7 @@
 
 "use client"
 
-import { ReactNode, useEffect } from "react"
+import { type ReactNode, useEffect } from "react"
 
 import { ChatProvider } from "@/features/ai-chat/services/chat-provider"
 import { AIIntelligenceProvider } from "@/features/ai-content-intelligence"

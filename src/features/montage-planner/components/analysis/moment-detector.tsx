@@ -13,10 +13,8 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { formatTime } from "@/lib/date"
 import { cn } from "@/lib/utils"
-
-import { MomentCategory } from "../../types"
-
 import type { Fragment } from "../../types"
+import { MomentCategory } from "../../types"
 
 interface MomentDetectorProps {
   fragments: Fragment[]

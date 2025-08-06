@@ -180,9 +180,9 @@ test.describe("Media Browser Functionality", () => {
       '[class*="media-browser"]',
       '[data-testid="media-browser"]',
       'button:has-text("Import")',
-      'text=/no media|drag.*drop/i',
+      "text=/no media|drag.*drop/i",
     ])
-    
+
     expect(mediaBrowserVisible).toBe(true)
   })
 

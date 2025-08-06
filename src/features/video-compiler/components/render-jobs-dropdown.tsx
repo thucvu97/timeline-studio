@@ -1,6 +1,5 @@
-import React from "react"
-
 import { AlertCircle, CheckCircle2, Clock, FileVideo, ListTodo, Loader2, StopCircle, XCircle } from "lucide-react"
+import type React from "react"
 import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"

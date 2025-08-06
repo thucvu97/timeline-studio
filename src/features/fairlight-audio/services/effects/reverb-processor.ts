@@ -173,10 +173,11 @@ export class ReverbProcessor {
       case "predelay":
         this.predelayNode.delayTime.setValueAtTime(value / 1000, currentTime)
         break
-      case "damping":
+      case "damping": {
         const cutoffFreq = 20000 - value * 195
         this.dampingFilter.frequency.setValueAtTime(cutoffFreq, currentTime)
         break
+      }
       case "roomSize":
       case "decay":
         this.updateImpulseResponse(this.config.roomSize, this.config.decay)

@@ -2,11 +2,10 @@
  * AI инструмент для анализа доступных ресурсов
  */
 
-import { getResourcesProvider, getResourcesStats, hasResourcesAccess } from "./utils/helpers"
-
-import type { AnalyzeResourcesParams, ResourceToolResult } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
 
+import type { AnalyzeResourcesParams, ResourceToolResult } from "./types"
+import { getResourcesProvider, getResourcesStats, hasResourcesAccess } from "./utils/helpers"
 
 export const analyzeAvailableResourcesTool: ClaudeTool = {
   name: "analyze_available_resources",

@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react"
-
 import { Bot, ChevronDown, History, Plus, Send, Settings, StopCircle, User } from "lucide-react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
@@ -14,7 +13,6 @@ import { useApiKeys } from "@/features/user-settings/hooks/use-api-keys"
 import { cn } from "@/lib/utils"
 
 import { useChat } from ".."
-import { ChatList } from "./chat-list"
 import { useResourcesAIIntegration } from "../hooks/use-resources-ai-integration"
 import { useSafeTimeline } from "../hooks/use-safe-timeline"
 import { chatStorageService } from "../services/chat-storage-service"
@@ -22,9 +20,10 @@ import { CLAUDE_MODELS, ClaudeService } from "../services/claude-service"
 import { DEEPSEEK_MODELS, DeepSeekService } from "../services/deepseek-service"
 import { OLLAMA_MODELS, OllamaService } from "../services/ollama-service"
 import { AI_MODELS, OpenAiService } from "../services/open-ai-service"
-import { Agent, ChatMessage } from "../types/chat"
+import type { Agent, ChatMessage } from "../types/chat"
 import { compressContext, isContextOverLimit } from "../utils/context-manager"
 import { createTimelineContextPrompt } from "../utils/timeline-context"
+import { ChatList } from "./chat-list"
 
 const AVAILABLE_AGENTS = [
   // Claude модели

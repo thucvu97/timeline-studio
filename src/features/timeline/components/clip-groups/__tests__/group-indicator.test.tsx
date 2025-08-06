@@ -1,10 +1,8 @@
 import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
-
-import { GroupIndicator } from "../group-indicator"
-
 import type { ClipGroup } from "../../../types/clip-groups"
+import { GroupIndicator } from "../group-indicator"
 
 // Создаем mock данные
 const createMockGroup = (overrides: Partial<ClipGroup> = {}): ClipGroup => ({

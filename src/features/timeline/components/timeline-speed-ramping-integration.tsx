@@ -76,16 +76,16 @@ export function TimelineSpeedRampingStatus() {
 
   const activeSpeedRampingClips = timeline.project
     ? [
-      ...(timeline.project.globalTracks?.flatMap(
-        (track) => track.clips?.filter((clip) => isSpeedRampingActive(clip.id)).map((clip) => clip.id) || [],
-      ) || []),
-      ...(timeline.project.sections?.flatMap(
-        (section) =>
-          section.tracks?.flatMap(
-            (track) => track.clips?.filter((clip) => isSpeedRampingActive(clip.id)).map((clip) => clip.id) || [],
-          ) || [],
-      ) || []),
-    ]
+        ...(timeline.project.globalTracks?.flatMap(
+          (track) => track.clips?.filter((clip) => isSpeedRampingActive(clip.id)).map((clip) => clip.id) || [],
+        ) || []),
+        ...(timeline.project.sections?.flatMap(
+          (section) =>
+            section.tracks?.flatMap(
+              (track) => track.clips?.filter((clip) => isSpeedRampingActive(clip.id)).map((clip) => clip.id) || [],
+            ) || [],
+        ) || []),
+      ]
     : []
 
   if (activeSpeedRampingClips.length === 0) {

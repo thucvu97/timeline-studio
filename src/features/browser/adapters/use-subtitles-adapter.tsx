@@ -1,9 +1,9 @@
-import React from "react"
+import type React from "react"
 
 import { useFavorites } from "@/features/app-state"
 import { SubtitlePreview } from "@/features/subtitles/components/subtitle-preview"
 import { useSubtitles } from "@/features/subtitles/hooks/use-subtitle-styles"
-import { SubtitleStyleTemplate } from "@/features/subtitles/types/subtitles"
+import type { SubtitleStyleTemplate } from "@/features/subtitles/types/subtitles"
 
 import type { ListAdapter, ListItem, PreviewComponentProps } from "../types/list"
 
@@ -118,10 +118,11 @@ export function useSubtitlesAdapter(): ListAdapter<SubtitleListItem> {
         case "category":
           return style.category.toLowerCase()
 
-        case "complexity":
+        case "complexity": {
           // Определяем порядок сложности: basic < intermediate < advanced
           const complexityOrder = { basic: 0, intermediate: 1, advanced: 2 }
           return complexityOrder[style.complexity || "basic"]
+        }
 
         case "font":
           return (style.style.fontFamily || "default").toLowerCase()

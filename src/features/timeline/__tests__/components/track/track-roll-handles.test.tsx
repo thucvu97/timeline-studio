@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { RollEditHandle } from "../../../components/edit-tools/roll-edit-handle"
 import { TrackRollHandles } from "../../../components/track/track-roll-handles"
 import { useEditModeContext } from "../../../hooks/use-edit-mode"
-import { TimelineClip, TimelineTrack, TrackType } from "../../../types"
+import type { TimelineClip, TimelineTrack, TrackType } from "../../../types"
 import { EDIT_MODES } from "../../../types/edit-modes"
 
 const mockRollEditHandle = vi.mocked(RollEditHandle)

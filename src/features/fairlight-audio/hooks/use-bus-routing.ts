@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react"
-
+import { type AudioBus, BusRouter, type ChannelGroup, type ChannelSend } from "../services/bus-router"
 import { useAudioEngine } from "./use-audio-engine"
-import { AudioBus, BusRouter, ChannelGroup, ChannelSend } from "../services/bus-router"
 
 export function useBusRouting() {
   const { engine: audioEngine } = useAudioEngine()

@@ -1,9 +1,7 @@
 import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-
-import { useMidi } from "../use-midi"
-
 import type { MidiDevice, MidiMapping } from "../../services/midi/midi-engine"
+import { useMidi } from "../use-midi"
 
 // Mock the MidiEngine service using vi.hoisted
 const { mockMidiEngine, mockIsSupported, MockMidiEngine } = vi.hoisted(() => {

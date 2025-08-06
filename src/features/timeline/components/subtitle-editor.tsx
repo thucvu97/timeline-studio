@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 
-import { SubtitleClip } from "../types/timeline"
+import type { SubtitleClip } from "../types/timeline"
 
 interface SubtitleEditorProps {
   open: boolean
@@ -61,16 +61,16 @@ export function SubtitleEditor({ open, onOpenChange, subtitle, onSave, available
       animationIn:
         animationIn !== "none"
           ? {
-            type: animationIn,
-            duration: animationInDuration,
-          }
+              type: animationIn,
+              duration: animationInDuration,
+            }
           : undefined,
       animationOut:
         animationOut !== "none"
           ? {
-            type: animationOut,
-            duration: animationOutDuration,
-          }
+              type: animationOut,
+              duration: animationOutDuration,
+            }
           : undefined,
       subtitlePosition: {
         alignment: position,

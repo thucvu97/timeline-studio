@@ -1,5 +1,3 @@
-import { useCallback, useEffect, useId, useMemo, useState } from "react"
-
 import {
   FilePlus,
   FolderOpen,
@@ -19,13 +17,14 @@ import {
   UserCog,
   Webcam,
 } from "lucide-react"
+import { useCallback, useEffect, useId, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useCurrentProject } from "@/features/app-state/hooks/use-current-project"
 import { LayoutPreviews } from "@/features/media-studio"
-import { ModalType } from "@/features/modals"
+import type { ModalType } from "@/features/modals"
 import { useModal } from "@/features/modals/services/modal-provider"
 import { useTimeline } from "@/features/timeline/hooks/use-timeline"
 import { useUserSettings } from "@/features/user-settings"

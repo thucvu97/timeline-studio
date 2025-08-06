@@ -11,7 +11,7 @@ interface JLCutIndicatorProps {
   className?: string
 }
 
-export function JLCutIndicator({ videoClip, audioClip, pixelsPerSecond, className }: JLCutIndicatorProps) {
+export function JLCutIndicator({ _videoClip, audioClip, pixelsPerSecond, className }: JLCutIndicatorProps) {
   const audioOffset = audioClip.audioOffset || 0
 
   if (audioOffset === 0) return null
@@ -30,13 +30,13 @@ export function JLCutIndicator({ videoClip, audioClip, pixelsPerSecond, classNam
         width: `${offsetPixels}px`,
         ...(isJCut
           ? {
-            right: "100%",
-            borderRight: "2px dashed rgba(59, 130, 246, 0.5)",
-          }
+              right: "100%",
+              borderRight: "2px dashed rgba(59, 130, 246, 0.5)",
+            }
           : {
-            left: "100%",
-            borderLeft: "2px dashed rgba(239, 68, 68, 0.5)",
-          }),
+              left: "100%",
+              borderLeft: "2px dashed rgba(239, 68, 68, 0.5)",
+            }),
       }}
     >
       {/* Визуальный индикатор типа cut */}

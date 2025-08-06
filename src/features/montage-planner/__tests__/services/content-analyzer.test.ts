@@ -5,9 +5,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { ContentAnalyzer } from "../../services/content-analyzer"
-import { mockAudioAnalysis, mockMediaFile, mockMomentScore, mockVideoAnalysis } from "../test-utils"
-
 import type { AnalysisOptions } from "../../types"
+import { mockAudioAnalysis, mockMediaFile, mockMomentScore, mockVideoAnalysis } from "../test-utils"
 
 vi.mock("@tauri-apps/api/core", () => ({
   invoke: vi.fn(),

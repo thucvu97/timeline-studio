@@ -6,7 +6,7 @@
 
 import { useContext } from "react"
 
-import { TimelineContext, TimelineContextType } from "../services/timeline-provider"
+import { TimelineContext, type TimelineContextType } from "../services/timeline-provider"
 
 export function useTimeline(): TimelineContextType {
   const context = useContext(TimelineContext)

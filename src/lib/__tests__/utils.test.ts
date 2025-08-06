@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { FfprobeData } from "@/features/media/types/ffprobe"
+import type { FfprobeData } from "@/features/media/types/ffprobe"
 
 import {
   cn,

@@ -2,11 +2,10 @@
  * AI инструмент для анализа медиа в плеере
  */
 
-import { getCurrentMedia, parseFps } from "./utils/helpers"
-
-import type { MediaAnalysisParams, PlayerToolResult } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
 
+import type { MediaAnalysisParams, PlayerToolResult } from "./types"
+import { getCurrentMedia, parseFps } from "./utils/helpers"
 
 export const analyzeCurrentMediaTool: ClaudeTool = {
   name: "analyze_current_media",

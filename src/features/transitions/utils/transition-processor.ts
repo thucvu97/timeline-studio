@@ -1,4 +1,4 @@
-import { Transition } from "@/features/transitions/types/transitions"
+import type { Transition } from "@/features/transitions/types/transitions"
 
 /**
  * Интерфейс для сырых данных перехода из JSON
@@ -101,26 +101,26 @@ export function processTransitions(rawTransitions: RawTransitionData[]): Transit
       smoothness: rawTransition.parameters?.smoothness,
       blur: rawTransition.parameters?.blur
         ? {
-          enabled: rawTransition.parameters.blur.enabled,
-          amount: rawTransition.parameters.blur.amount,
-          type: rawTransition.parameters.blur.type as "gaussian" | "motion" | "radial" | undefined,
-        }
+            enabled: rawTransition.parameters.blur.enabled,
+            amount: rawTransition.parameters.blur.amount,
+            type: rawTransition.parameters.blur.type as "gaussian" | "motion" | "radial" | undefined,
+          }
         : undefined,
       color: rawTransition.parameters?.color
         ? {
-          enabled: rawTransition.parameters.color.enabled,
-          tint: rawTransition.parameters.color.tint,
-          saturation: rawTransition.parameters.color.saturation,
-          brightness: rawTransition.parameters.color.brightness,
-        }
+            enabled: rawTransition.parameters.color.enabled,
+            tint: rawTransition.parameters.color.tint,
+            saturation: rawTransition.parameters.color.saturation,
+            brightness: rawTransition.parameters.color.brightness,
+          }
         : undefined,
       perspective: rawTransition.parameters?.perspective
         ? {
-          enabled: rawTransition.parameters.perspective.enabled,
-          rotationX: rawTransition.parameters.perspective.rotationX,
-          rotationY: rawTransition.parameters.perspective.rotationY,
-          rotationZ: rawTransition.parameters.perspective.rotationZ,
-        }
+            enabled: rawTransition.parameters.perspective.enabled,
+            rotationX: rawTransition.parameters.perspective.rotationX,
+            rotationY: rawTransition.parameters.perspective.rotationY,
+            rotationZ: rawTransition.parameters.perspective.rotationZ,
+          }
         : undefined,
     },
     ffmpegCommand: createFFmpegCommand(rawTransition.ffmpegTemplate, rawTransition.parameters),
@@ -302,12 +302,13 @@ export function groupTransitions(
       case "tags":
         groupKey = transition.tags && transition.tags.length > 0 ? transition.tags[0] : "untagged"
         break
-      case "duration":
+      case "duration": {
         const duration = transition.duration?.default || 1.0
         if (duration < 1.0) groupKey = "short"
         else if (duration < 2.0) groupKey = "medium"
         else groupKey = "long"
         break
+      }
       default:
         groupKey = "ungrouped"
     }
@@ -337,30 +338,34 @@ export function sortTransitions(
     let result = 0
 
     switch (sortBy) {
-      case "name":
+      case "name": {
         const nameA = (a.labels?.ru || a.id).toLowerCase()
         const nameB = (b.labels?.ru || b.id).toLowerCase()
         result = nameA.localeCompare(nameB)
         break
+      }
 
-      case "complexity":
+      case "complexity": {
         const complexityOrder = { basic: 0, intermediate: 1, advanced: 2 }
         const complexityA = complexityOrder[a.complexity || "basic"]
         const complexityB = complexityOrder[b.complexity || "basic"]
         result = complexityA - complexityB
         break
+      }
 
-      case "category":
+      case "category": {
         const categoryA = (a.category || "").toLowerCase()
         const categoryB = (b.category || "").toLowerCase()
         result = categoryA.localeCompare(categoryB)
         break
+      }
 
-      case "duration":
+      case "duration": {
         const durationA = a.duration?.default || 1.0
         const durationB = b.duration?.default || 1.0
         result = durationA - durationB
         break
+      }
 
       default:
         result = 0

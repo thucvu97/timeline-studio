@@ -6,7 +6,7 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { SnapMode } from "../../types"
+import type { SnapMode } from "../../types"
 import {
   calculateTimelinePosition,
   canDropOnTrack,

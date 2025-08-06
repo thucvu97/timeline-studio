@@ -2,10 +2,9 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { useMidiEngine } from "../../../hooks/use-midi-engine"
+import type { MidiRoute } from "../../../services/midi/midi-router"
 import { MidiRouterView } from "../midi-router-view"
 import { mockUIComponents, resetSelectStates } from "./test-utils/mocks"
-
-import type { MidiRoute } from "../../../services/midi/midi-router"
 
 // Setup all UI mocks
 mockUIComponents()

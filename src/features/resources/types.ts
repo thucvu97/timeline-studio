@@ -1,11 +1,11 @@
-import { VideoEffect } from "@/features/effects/types"
-import { MediaFile } from "@/features/media/types/media"
-import { StyleTemplate } from "@/features/style-templates/types"
-import { SubtitleStyleTemplate } from "@/features/subtitles/types"
-import { MediaTemplate } from "@/features/templates/lib/templates"
-import { Transition } from "@/features/transitions/types/transitions"
+import type { VideoEffect } from "@/features/effects/types"
+import type { MediaFile } from "@/features/media/types/media"
+import type { StyleTemplate } from "@/features/style-templates/types"
+import type { SubtitleStyleTemplate } from "@/features/subtitles/types"
+import type { MediaTemplate } from "@/features/templates/lib/templates"
+import type { Transition } from "@/features/transitions/types/transitions"
 
-import { VideoFilter } from "../filters/types/filters"
+import type { VideoFilter } from "../filters/types/filters"
 
 // Общий интерфейс для всех ресурсов
 export interface Resource {
@@ -149,9 +149,9 @@ export function createEffectResource(effect: VideoEffect): EffectResource {
     effect,
     params: effect.parameters
       ? effect.parameters.reduce<Record<string, any>>((acc, param) => {
-        acc[param.id] = param.defaultValue
-        return acc
-      }, {})
+          acc[param.id] = param.defaultValue
+          return acc
+        }, {})
       : {},
   }
 }

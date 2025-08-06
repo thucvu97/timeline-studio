@@ -2,6 +2,9 @@
  * AI инструмент для анализа медиа браузера
  */
 
+import type { ClaudeTool } from "../../services/claude-service"
+
+import type { AnalyzeBrowserParams, BrowserToolResult } from "./types"
 import {
   filterFiles,
   formatDuration,
@@ -11,10 +14,6 @@ import {
   hasBrowserAccess,
   sortFiles,
 } from "./utils/helpers"
-
-import type { AnalyzeBrowserParams, BrowserToolResult } from "./types"
-import type { ClaudeTool } from "../../services/claude-service"
-
 
 export const analyzeMediaBrowserTool: ClaudeTool = {
   name: "analyze_media_browser",
@@ -176,12 +175,12 @@ export async function analyzeMediaBrowser(params: AnalyzeBrowserParams): Promise
     const resultFiles = includeMetadata
       ? files
       : files.map((f) => ({
-        id: f.id,
-        name: f.name,
-        type: f.type,
-        size: f.size,
-        duration: f.duration,
-      }))
+          id: f.id,
+          name: f.name,
+          type: f.type,
+          size: f.size,
+          duration: f.duration,
+        }))
 
     // Генерируем предложения
     const suggestions: string[] = []

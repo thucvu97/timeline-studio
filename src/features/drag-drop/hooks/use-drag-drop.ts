@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 
-import { DraggableItem, DraggableType, DropTarget, getDragDropManager } from "../services/drag-drop-manager"
+import {
+  type DraggableItem,
+  type DraggableType,
+  type DropTarget,
+  getDragDropManager,
+} from "../services/drag-drop-manager"
 
 /**
  * Хук для элементов которые можно перетаскивать

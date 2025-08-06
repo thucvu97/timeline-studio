@@ -4,7 +4,7 @@
  * Утилиты для операций с клипами: копирование, вырезание, вставка, разделение
  */
 
-import { TimelineClip, TimelineProject, TimelineTrack } from "../types/timeline"
+import type { TimelineClip, TimelineProject, TimelineTrack } from "../types/timeline"
 
 // ============================================================================
 // ТИПЫ ДЛЯ ОПЕРАЦИЙ С КЛИПАМИ

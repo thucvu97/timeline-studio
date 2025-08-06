@@ -9,9 +9,8 @@ import type { MediaFile } from "@/features/media/types/media"
 import { formatTime } from "@/lib/date"
 
 import { useMontagePlanner as useMontagePlannerContext } from "../services/montage-planner-provider"
-import { MONTAGE_STYLES } from "../types"
-
 import type { AnalysisOptions, ExportFormat, Fragment, PlanGenerationOptions } from "../types"
+import { MONTAGE_STYLES } from "../types"
 
 export function useMontagePlanner() {
   const {

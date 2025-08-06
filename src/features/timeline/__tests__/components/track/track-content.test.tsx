@@ -7,7 +7,7 @@ import { renderWithProviders } from "@/test/test-utils"
 
 import { mockUseDragDropTimeline } from "../../../__mocks__/hooks"
 import { TrackContent } from "../../../components/track/track-content"
-import { TimelineClip, TimelineTrack } from "../../../types"
+import type { TimelineClip, TimelineTrack } from "../../../types"
 
 // Import the global mock
 

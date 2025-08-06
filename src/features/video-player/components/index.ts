@@ -1,6 +1,7 @@
 export * from "./effects-preview-player"
 export * from "./enhanced-video-player"
 export * from "./hdr-video-player"
+export * from "./playback-speed-control"
 export * from "./player-ai-controls"
 export * from "./player-ai-overlay"
 export * from "./player-controls"

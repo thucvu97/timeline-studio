@@ -7,15 +7,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useModal } from "@/features/modals/services"
 import { useTimeline } from "@/features/timeline/hooks/use-timeline"
 import { useVideoCompiler } from "@/features/video-compiler/hooks/use-video-compiler"
-
+import { useExportSettings } from "../hooks/use-export-settings"
+import { useSocialExport } from "../hooks/use-social-export"
+import type { ExportSettings, SocialExportSettings } from "../types/export-types"
+import { ProjectSchemaBuilder } from "../utils/project-schema-builder"
 import { BatchExportTab } from "./batch-export-tab"
 import { DetailedExportInterface } from "./detailed-export-interface"
 import { SectionExportTab } from "./section-export-tab"
 import { SocialExportTab } from "./social-export-tab"
-import { useExportSettings } from "../hooks/use-export-settings"
-import { useSocialExport } from "../hooks/use-social-export"
-import { ExportSettings, SocialExportSettings } from "../types/export-types"
-import { ProjectSchemaBuilder } from "../utils/project-schema-builder"
 
 export function ExportModal() {
   const { t } = useTranslation()

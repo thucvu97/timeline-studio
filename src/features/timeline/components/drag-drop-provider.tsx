@@ -4,12 +4,11 @@
  * Wraps the timeline with DndContext and provides drag overlay
  */
 
-import React from "react"
-
 import { DndContext, DragOverlay, MouseSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { createSnapModifier } from "@dnd-kit/modifiers"
+import type React from "react"
 
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 
 import { useDragDropTimeline } from "../hooks/use-drag-drop-timeline"
 

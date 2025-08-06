@@ -2,9 +2,9 @@
  * Специализированный сервис для работы с DeepSeek API
  */
 
+import type { AiMessage } from "../types/ai-message"
+import type { StreamingOptions } from "../types/streaming"
 import { ApiKeyLoader } from "./api-key-loader"
-import { AiMessage } from "../types/ai-message"
-import { StreamingOptions } from "../types/streaming"
 
 // Доступные модели DeepSeek
 export const DEEPSEEK_MODELS = {

@@ -3,9 +3,8 @@
  * Main interface for version control functionality
  */
 
-import { useState } from "react"
-
 import { AlertCircle, Clock, GitBranch, GitCommit, GitMerge, History, Settings } from "lucide-react"
+import { useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -104,7 +103,7 @@ export function VersionControlManager({ className }: VersionControlManagerProps)
 }
 
 // Branch management component
-function BranchManager() {
+export function BranchManager() {
   const { branchName, createBranch, switchBranch, isLoading } = useVersionControl()
 
   const [newBranchName, setNewBranchName] = useState("")
@@ -159,7 +158,7 @@ function BranchManager() {
 }
 
 // Version control settings component
-function VersionControlSettings() {
+export function VersionControlSettings() {
   const { autoSaveEnabled, autoSaveIntervalSeconds, enableAutoSave, setAutoSaveInterval, isLoading } =
     useVersionControl()
 

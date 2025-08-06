@@ -1,6 +1,5 @@
-import { useCallback, useState } from "react"
-
 import { open } from "@tauri-apps/plugin-dialog"
+import { useCallback, useState } from "react"
 
 /**
  * Хук для импорта пользовательских многокамерных шаблонов

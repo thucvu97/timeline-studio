@@ -3,10 +3,8 @@
  */
 
 import { beforeEach, describe, expect, it } from "vitest"
-
-import { InteractionType, MovementPattern, MovementType, ObjectTrackingService } from "../../services/object-tracking"
-
 import type { ObjectDetection } from "../../../../shared/types/content-analysis"
+import { InteractionType, MovementPattern, MovementType, ObjectTrackingService } from "../../services/object-tracking"
 
 describe("ObjectTrackingService", () => {
   let service: ObjectTrackingService

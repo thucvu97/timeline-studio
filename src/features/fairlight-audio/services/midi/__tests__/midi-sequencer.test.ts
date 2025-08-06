@@ -1,8 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-
-import { MidiSequencer } from "../midi-sequencer"
-
 import type { MidiMessage } from "../midi-engine"
+import { MidiSequencer } from "../midi-sequencer"
 
 // Mock MidiClock
 class MockMidiClock {

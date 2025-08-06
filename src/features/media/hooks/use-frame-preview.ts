@@ -1,11 +1,10 @@
-import { useCallback, useState } from "react"
-
 import { invoke } from "@tauri-apps/api/core"
+import { useCallback, useState } from "react"
 
 import {
   ExtractionPurpose,
   FrameExtractionService,
-  TimelineFrame,
+  type TimelineFrame,
 } from "@/features/video-compiler/services/frame-extraction-service"
 
 import { useMediaPreview } from "./use-media-preview"

@@ -1,13 +1,12 @@
-import { useCallback, useState } from "react"
-
 import { save } from "@tauri-apps/plugin-dialog"
+import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
 import { OutputFormat } from "@/types/video-compiler"
 
 import { QUALITY_PRESETS, RESOLUTION_PRESETS } from "../constants/export-constants"
-import { ExportSettings } from "../types/export-types"
+import type { ExportSettings } from "../types/export-types"
 
 const DEFAULT_EXPORT_SETTINGS: ExportSettings = {
   fileName: "",

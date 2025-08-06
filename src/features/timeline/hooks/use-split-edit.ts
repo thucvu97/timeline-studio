@@ -3,10 +3,7 @@
  */
 
 import { useCallback, useEffect, useState } from "react"
-
-import { useTimeline } from "./use-timeline"
 import { SplitEditServiceImpl } from "../services/split-edit-service"
-
 import type {
   SplitEdit,
   SplitEditConfig,
@@ -14,6 +11,7 @@ import type {
   SplitEditToolSettings,
   SplitEditVisual,
 } from "../types/split-edit"
+import { useTimeline } from "./use-timeline"
 
 export interface UseSplitEditReturn {
   /** Текущая конфигурация split edit */

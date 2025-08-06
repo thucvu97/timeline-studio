@@ -68,7 +68,7 @@ export const mockUIComponents = () => {
         {children}
       </div>
     ),
-    DropdownMenuTrigger: ({ children, asChild }: any) => <div data-testid="dropdown-trigger">{children}</div>,
+    DropdownMenuTrigger: ({ children, _asChild }: any) => <div data-testid="dropdown-trigger">{children}</div>,
   }))
 
   vi.mock("@/components/ui/label", () => ({

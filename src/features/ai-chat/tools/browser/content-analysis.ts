@@ -2,11 +2,10 @@
  * AI инструменты для анализа контента и предложения источников
  */
 
-import { formatFileSize, getBrowserFiles, getBrowserStats, hasBrowserAccess } from "./utils/helpers"
-
-import type { AnalyzeMissingContentParams, BrowserToolResult, ExportFileListParams, SuggestImportParams } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
 
+import type { AnalyzeMissingContentParams, BrowserToolResult, ExportFileListParams, SuggestImportParams } from "./types"
+import { formatFileSize, getBrowserFiles, getBrowserStats, hasBrowserAccess } from "./utils/helpers"
 
 export const analyzeMissingContentTool: ClaudeTool = {
   name: "analyze_missing_content",
@@ -689,7 +688,7 @@ export async function exportFileList(params: ExportFileListParams): Promise<Brow
         fileExtension = "json"
         break
 
-      case "csv":
+      case "csv": {
         const headers = ["ID", "Name", "Type", "Size", "Path"]
         if (includeMetadata) {
           headers.push("Duration", "Created", "Modified", "Tags", "Location")
@@ -713,28 +712,29 @@ export async function exportFileList(params: ExportFileListParams): Promise<Brow
         mimeType = "text/csv"
         fileExtension = "csv"
         break
+      }
 
       case "xml":
         exportContent = `<?xml version="1.0" encoding="UTF-8"?>
 <files timestamp="${new Date().toISOString()}" total="${exportData.length}">
 ${exportData
-    .map(
-      (file) => `  <file>
+  .map(
+    (file) => `  <file>
     <id>${file.id}</id>
     <name>${file.name}</name>
     <type>${file.type}</type>
     <size>${file.size || 0}</size>
     <path>${file.path}</path>
     ${
-  includeMetadata
-    ? `<duration>${file.duration || 0}</duration>
+      includeMetadata
+        ? `<duration>${file.duration || 0}</duration>
     <tags>${(file.tags || []).join(",")}</tags>
     <location>${file.location || ""}</location>`
-    : ""
-}
+        : ""
+    }
   </file>`,
-    )
-    .join("\n")}
+  )
+  .join("\n")}
 </files>`
         mimeType = "application/xml"
         fileExtension = "xml"

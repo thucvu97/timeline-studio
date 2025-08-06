@@ -4,10 +4,8 @@
  */
 
 import { useCallback, useMemo } from "react"
-
-import { useMontagePlanner } from "./use-montage-planner"
-
 import type { Fragment, PlannedClip, Sequence, TransitionPlan } from "../types"
+import { useMontagePlanner } from "./use-montage-planner"
 
 export function usePlanGenerator() {
   const {

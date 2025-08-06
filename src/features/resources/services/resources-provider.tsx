@@ -4,30 +4,31 @@
  * Новая версия с интеграцией backend state management
  */
 
-import React, { createContext, useCallback, useContext, useEffect, useState } from "react"
+import type React from "react"
+import { createContext, useCallback, useContext, useEffect, useState } from "react"
 
 import { getBackendSync } from "@/features/app-state/services/backend-sync"
-import { VideoEffect } from "@/features/effects/types"
-import { VideoFilter } from "@/features/filters/types/filters"
-import { MediaFile } from "@/features/media/types/media"
-import { StyleTemplate } from "@/features/style-templates/types"
-import { SubtitleStyleTemplate } from "@/features/subtitles/types"
-import { MediaTemplate } from "@/features/templates/lib/templates"
-import { Transition } from "@/features/transitions/types/transitions"
-import { ProjectState } from "@/types/generated/tauri-bindings"
+import type { VideoEffect } from "@/features/effects/types"
+import type { VideoFilter } from "@/features/filters/types/filters"
+import type { MediaFile } from "@/features/media/types/media"
+import type { StyleTemplate } from "@/features/style-templates/types"
+import type { SubtitleStyleTemplate } from "@/features/subtitles/types"
+import type { MediaTemplate } from "@/features/templates/lib/templates"
+import type { Transition } from "@/features/transitions/types/transitions"
+import type { ProjectState } from "@/types/generated/tauri-bindings"
 
 import {
-  EffectResource,
-  FilterResource,
-  MediaResource,
-  MusicResource,
-  StyleTemplateResource,
-  SubtitleResource,
-  TemplateResource,
-  TimelineResource,
-  TransitionResource,
   createMediaResource,
   createMusicResource,
+  type EffectResource,
+  type FilterResource,
+  type MediaResource,
+  type MusicResource,
+  type StyleTemplateResource,
+  type SubtitleResource,
+  type TemplateResource,
+  type TimelineResource,
+  type TransitionResource,
 } from "../types"
 
 interface ResourcesContextType {
@@ -256,46 +257,46 @@ export function ResourcesProviderV2({ children }: ResourcesProviderV2Props) {
   // Конвертируем медиа из backend в MediaResource формат
   const mediaResources: MediaResource[] = mediaPool?.items
     ? Object.values(mediaPool.items)
-      .filter(
-        (item): item is NonNullable<typeof item> =>
-          item !== null && item !== undefined && (item.media_type === "Video" || item.media_type === "Image"),
-      )
-      .map((item) =>
-        createMediaResource({
-          id: item.id,
-          name: item.name,
-          path: item.path,
-          size: 0, // Backend не предоставляет размер файла
-          isVideo: item.media_type === "Video",
-          isAudio: false,
-          isImage: item.media_type === "Image",
-          isLoadingMetadata: false,
-          probeData: { streams: [], format: {} },
-          duration: item.duration || 0,
-        }),
-      )
+        .filter(
+          (item): item is NonNullable<typeof item> =>
+            item !== null && item !== undefined && (item.media_type === "Video" || item.media_type === "Image"),
+        )
+        .map((item) =>
+          createMediaResource({
+            id: item.id,
+            name: item.name,
+            path: item.path,
+            size: 0, // Backend не предоставляет размер файла
+            isVideo: item.media_type === "Video",
+            isAudio: false,
+            isImage: item.media_type === "Image",
+            isLoadingMetadata: false,
+            probeData: { streams: [], format: {} },
+            duration: item.duration || 0,
+          }),
+        )
     : []
 
   const musicResources: MusicResource[] = mediaPool?.items
     ? Object.values(mediaPool.items)
-      .filter(
-        (item): item is NonNullable<typeof item> =>
-          item !== null && item !== undefined && item.media_type === "Audio",
-      )
-      .map((item) =>
-        createMusicResource({
-          id: item.id,
-          name: item.name,
-          path: item.path,
-          size: 0, // Backend не предоставляет размер файла
-          isVideo: false,
-          isAudio: true,
-          isImage: false,
-          isLoadingMetadata: false,
-          probeData: { streams: [], format: {} },
-          duration: item.duration || 0,
-        }),
-      )
+        .filter(
+          (item): item is NonNullable<typeof item> =>
+            item !== null && item !== undefined && item.media_type === "Audio",
+        )
+        .map((item) =>
+          createMusicResource({
+            id: item.id,
+            name: item.name,
+            path: item.path,
+            size: 0, // Backend не предоставляет размер файла
+            isVideo: false,
+            isAudio: true,
+            isImage: false,
+            isLoadingMetadata: false,
+            probeData: { streams: [], format: {} },
+            duration: item.duration || 0,
+          }),
+        )
     : []
 
   // Остальные ресурсы пока пустые (будут добавлены позже)

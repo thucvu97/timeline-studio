@@ -4,10 +4,8 @@
  */
 
 import { cn } from "@/lib/utils"
-
-import { ProcessingStatus } from "../../shared/types"
-
 import type { PipelineProgress } from "../../shared/types"
+import { ProcessingStatus } from "../../shared/types"
 
 interface PipelineStatusProps {
   progress: PipelineProgress | null

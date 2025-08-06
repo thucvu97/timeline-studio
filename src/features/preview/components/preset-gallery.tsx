@@ -2,19 +2,16 @@
  * Preset Gallery - Browse and apply effect presets
  */
 
-import { useRef, useState } from "react"
-
 import { Paintbrush, Palette, Plus, Search, Sparkles, Star, Wrench } from "lucide-react"
+import { useRef, useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-
-import { EffectPipelineManager } from "../services/effect-pipeline-manager"
-
 import type { EffectPreset } from "../services/effect-pipeline-manager"
+import { EffectPipelineManager } from "../services/effect-pipeline-manager"
 
 interface PresetGalleryProps {
   onPresetApplied?: (presetId: string) => void

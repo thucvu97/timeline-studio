@@ -4,15 +4,15 @@
 
 import { useCallback, useState } from "react"
 
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 import { useTimeline } from "@/features/timeline/hooks/use-timeline"
 import { useTimelineActions } from "@/features/timeline/hooks/use-timeline-actions"
 import { useTimelineMarkers } from "@/features/timeline/hooks/use-timeline-markers"
 
 import {
-  TimelineIntegrationOptions,
   applyPlanToTimeline as applyPlanToTimelineService,
   createMarkersFromPlan,
+  type TimelineIntegrationOptions,
 } from "../services/timeline-integration-service"
 
 import type { MontagePlan, PlannedClip, Sequence } from "../types"
@@ -42,24 +42,30 @@ export function useTimelineIntegration(): UseTimelineIntegrationReturn {
   const { addMarker } = useTimelineMarkers()
 
   // Функция для обновления проекта
-  const updateProject = useCallback(async (updatedProject: any) => {
-    // Сохраняем проект в timeline
-    await saveProject()
-  }, [saveProject])
+  const updateProject = useCallback(
+    async (_updatedProject: any) => {
+      // Сохраняем проект в timeline
+      await saveProject()
+    },
+    [saveProject],
+  )
 
   // Функция для добавления маркеров
-  const addMarkers = useCallback((markers: any[]) => {
-    markers.forEach((marker) => {
-      addMarker({
-        name: marker.name,
-        time: marker.time,
-        type: marker.type || 'comment',
-        trackId: marker.trackId,
-        color: marker.color,
-        description: marker.description || '',
+  const addMarkers = useCallback(
+    (markers: any[]) => {
+      markers.forEach((marker) => {
+        addMarker({
+          name: marker.name,
+          time: marker.time,
+          type: marker.type || "comment",
+          trackId: marker.trackId,
+          color: marker.color,
+          description: marker.description || "",
+        })
       })
-    })
-  }, [addMarker])
+    },
+    [addMarker],
+  )
 
   const [isApplying, setIsApplying] = useState(false)
   const [error, setError] = useState<string | null>(null)

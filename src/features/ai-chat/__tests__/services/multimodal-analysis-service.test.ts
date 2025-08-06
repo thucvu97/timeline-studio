@@ -2,12 +2,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { ApiKeyLoader } from "../../services/api-key-loader"
 import {
-  FrameAnalysisParams,
-  FrameAnalysisResult,
+  type FrameAnalysisParams,
+  type FrameAnalysisResult,
   MultimodalAnalysisService,
-  MultimodalAnalysisType,
-  ThumbnailSuggestionParams,
-  VideoAnalysisParams,
+  type MultimodalAnalysisType,
+  type ThumbnailSuggestionParams,
+  type VideoAnalysisParams,
 } from "../../services/multimodal-analysis-service"
 
 // Mock dependencies

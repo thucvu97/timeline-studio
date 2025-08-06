@@ -2,7 +2,7 @@ import React from "react"
 
 import { vi } from "vitest"
 
-import { ChatContextType } from "../services/chat-provider"
+import type { ChatContextType } from "../services/chat-provider"
 
 export const mockChatContext: ChatContextType = {
   // Текущая сессия (локальное состояние)

@@ -1,7 +1,7 @@
 // TikTok API сервис для загрузки видео
 
+import type { SocialExportSettings } from "../types/export-types"
 import { OAuthService } from "./oauth-service"
-import { SocialExportSettings } from "../types/export-types"
 
 interface TikTokVideoMetadata {
   title: string

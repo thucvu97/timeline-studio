@@ -3,7 +3,7 @@
  */
 
 import { usePersonIdentification } from "./hooks/use-person-identification"
-import { DetectedFace } from "./types/person"
+import type { DetectedFace } from "./types/person"
 
 export function PersonIdentificationExample() {
   const {

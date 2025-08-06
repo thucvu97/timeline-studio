@@ -9,10 +9,9 @@ import { useLinkedClips } from "@/features/timeline/hooks/use-linked-clips"
 import { useTimeline } from "@/features/timeline/hooks/use-timeline"
 import type { TimelineClip } from "@/features/timeline/types/timeline"
 import { usePlayer } from "@/features/video-player/services/player-provider"
-
+import { multicamManager } from "../services/multicam-manager"
 import { useCameraSync } from "./use-camera-sync"
 import { useMulticamShortcuts } from "./use-multicam-shortcuts"
-import { multicamManager } from "../services/multicam-manager"
 
 export interface MulticamAngle {
   id: string

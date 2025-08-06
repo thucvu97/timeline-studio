@@ -1,7 +1,7 @@
 import {
   ArrowLeftRight,
   Gauge,
-  LucideIcon,
+  type LucideIcon,
   Minimize2,
   MousePointer,
   Move,
@@ -104,7 +104,7 @@ export function EditModeButtonGroup({ className }: EditModeButtonGroupProps) {
 
   return (
     <div className={cn("flex items-center", className)}>
-      <div className="flex rounded-md shadow-sm" role="group">
+      <section className="flex rounded-md shadow-sm" aria-label="Edit mode selection">
         {Object.values(EDIT_MODE_CONFIGS)
           .slice(0, 4)
           .map((config, index) => {
@@ -130,7 +130,7 @@ export function EditModeButtonGroup({ className }: EditModeButtonGroupProps) {
               </Button>
             )
           })}
-      </div>
+      </section>
     </div>
   )
 }

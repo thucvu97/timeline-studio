@@ -1,8 +1,7 @@
 import "@testing-library/jest-dom"
 
-import React from "react"
-
 import { cleanup } from "@testing-library/react"
+import type React from "react"
 import { afterEach, beforeAll, vi } from "vitest"
 
 // Import modular mocks

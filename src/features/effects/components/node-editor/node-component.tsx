@@ -1,10 +1,8 @@
 import React, { useCallback, useRef, useState } from "react"
 
 import { cn } from "@/lib/utils"
-
-import { NodeParameterControl } from "./node-parameter-control"
-
 import type { CompositeNode, NodePort } from "../../types/node-compositing"
+import { NodeParameterControl } from "./node-parameter-control"
 
 interface NodeComponentProps {
   node: CompositeNode

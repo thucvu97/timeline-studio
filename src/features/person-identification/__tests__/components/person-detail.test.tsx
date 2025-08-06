@@ -93,10 +93,11 @@ describe("PersonDetail", () => {
       switch (type) {
         case "appearances":
           return `${value} time${value !== 1 ? "s" : ""}`
-        case "screenTime":
+        case "screenTime": {
           const minutes = Math.floor(value / 60)
           const seconds = value % 60
           return minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`
+        }
         case "percentage":
           return `${value.toFixed(1)}%`
         default:

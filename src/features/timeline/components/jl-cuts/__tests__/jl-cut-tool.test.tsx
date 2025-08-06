@@ -1,10 +1,8 @@
 import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
-
-import { JLCutTool } from "../jl-cut-tool"
-
 import type { TimelineClip } from "../../../types/timeline"
+import { JLCutTool } from "../jl-cut-tool"
 
 // Mock hooks
 const mockCreateJCut = vi.fn()

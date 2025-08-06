@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils"
 
 import { useEditModeContext } from "../../hooks/use-edit-mode"
-import { EDIT_MODES, EDIT_MODE_CONFIGS } from "../../types/edit-modes"
+import { EDIT_MODE_CONFIGS, EDIT_MODES } from "../../types/edit-modes"
 
 interface EditModeOverlayProps {
   className?: string

@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useState } from "react"
 
-import { YoloDetection, YoloVideoData, YoloVideoSummary } from "@/features/recognition/types/yolo"
-
-import { useRecognitionPreview } from "./use-recognition-preview"
+import type { YoloDetection, YoloVideoData, YoloVideoSummary } from "@/features/recognition/types/yolo"
 import { YoloDataService } from "../services/yolo-data-service"
+import { useRecognitionPreview } from "./use-recognition-preview"
 
 /**
  * Хук для работы с данными YOLO

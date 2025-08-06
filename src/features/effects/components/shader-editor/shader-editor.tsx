@@ -1,19 +1,16 @@
-import { useCallback, useEffect, useState } from "react"
-
 import { BookOpen, Code, FileText, Package, Save } from "lucide-react"
+import { useCallback, useEffect, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
-
+import { useShaderEditor } from "../../hooks/use-shader-editor"
+import { ShaderCompiler } from "../../services/shader-compiler"
+import type { ShaderExportOptions, ShaderProject } from "../../types/shader-system"
 import { GLSLCodeEditor } from "./glsl-code-editor"
 import { ShaderPreview } from "./shader-preview"
 import { UniformsPanel } from "./uniforms-panel"
-import { useShaderEditor } from "../../hooks/use-shader-editor"
-import { ShaderCompiler } from "../../services/shader-compiler"
-
-import type { ShaderExportOptions, ShaderProject } from "../../types/shader-system"
 
 interface ShaderEditorProps {
   initialProject?: ShaderProject

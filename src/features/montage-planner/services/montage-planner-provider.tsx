@@ -3,15 +3,12 @@
  * Manages the XState machine and provides context to child components
  */
 
-import React, { createContext, useContext, useEffect } from "react"
-
 import { listen } from "@tauri-apps/api/event"
 import { useActor } from "@xstate/react"
-
-import { type MontagePlannerEvent, montagePlannerMachine } from "./montage-planner-machine"
-
+import type React from "react"
+import { createContext, useContext, useEffect } from "react"
 import type { AnalysisProgress } from "../types"
-
+import { type MontagePlannerEvent, montagePlannerMachine } from "./montage-planner-machine"
 
 // Context type
 interface MontagePlannerContextType {

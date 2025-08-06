@@ -3,6 +3,7 @@
  * Автоматически загружает все эффекты из JSON файлов
  */
 
+import type { BaseEffect } from "../types/unified-effects"
 // Импорт эффектов по категориям
 import artisticEffects from "./effects/artistic-effects.json"
 import cinematicEffects from "./effects/cinematic-effects.json"
@@ -12,8 +13,6 @@ import distortionEffects from "./effects/distortion-effects.json"
 import motionEffects from "./effects/motion-effects.json"
 import technicalEffects from "./effects/technical-effects.json"
 import vintageEffects from "./effects/vintage-effects.json"
-
-import type { BaseEffect } from "../types/unified-effects"
 
 // Типизация для мигрированных данных
 interface MigratedEffectsData {

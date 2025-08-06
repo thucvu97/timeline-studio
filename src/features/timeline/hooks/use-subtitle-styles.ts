@@ -3,9 +3,8 @@
  */
 
 import { useCallback, useMemo } from "react"
-
+import type { SubtitleStyle } from "../types/timeline"
 import { useTimeline } from "./use-timeline"
-import { SubtitleStyle } from "../types/timeline"
 
 interface UseSubtitleStylesReturn {
   // Данные

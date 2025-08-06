@@ -5,7 +5,43 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { setTranslations } from "@/test/mocks/libraries/i18n"
 import { renderWithModal } from "@/test/test-utils"
 
-import { VoiceRecordModal } from "../../components/voice-recording-modal"
+// Сначала импортируем и настраиваем моки до импорта компонента
+import { mockUseResources, resetResourcesMocks } from "../../__mocks__/resources"
+import {
+  mockBlobToBase64,
+  mockGetSupportedAudioFormats,
+  mockSaveVoiceRecording,
+  resetTauriMocks,
+} from "../../__mocks__/tauri"
+
+// Мокаем модули до их использования
+vi.mock("@/features/resources", () => ({
+  useResources: vi.fn(() => mockUseResources),
+  useResourcesV2: vi.fn(() => mockUseResources),
+  ResourcesProvider: ({ children }: any) => children,
+  ResourcesProviderV2: ({ children }: any) => children,
+}))
+
+vi.mock("../../types/tauri", () => ({
+  saveVoiceRecording: mockSaveVoiceRecording,
+  getSupportedAudioFormats: mockGetSupportedAudioFormats,
+  blobToBase64: mockBlobToBase64,
+  formatFileName: vi.fn((prefix = "voice_recording") => `${prefix}_test`),
+  getMimeTypeForFormat: vi.fn((format) => {
+    const mimeTypes: Record<string, string> = {
+      webm: "audio/webm",
+      mp3: "audio/mpeg",
+      wav: "audio/wav",
+      ogg: "audio/ogg",
+      m4a: "audio/mp4",
+    }
+    return mimeTypes[format] || "audio/webm"
+  }),
+  isFormatSupportedByMediaRecorder: vi.fn((format) => {
+    return format === "webm"
+  }),
+  getMediaRecorderOptions: vi.fn((format) => ({ mimeType: `audio/${format}` })),
+}))
 
 // Создаем моки функций
 const mockRequestPermissions = vi.fn().mockResolvedValue(true)
@@ -85,10 +121,10 @@ vi.mock("../../hooks/use-voice-recording", () => ({
 
 // Мокаем модальную систему
 vi.mock("@/features/modals", () => ({
-  useModal: () => ({
+  useModal: vi.fn(() => ({
     isOpen: true,
     closeModal: mockCloseModal,
-  }),
+  })),
 }))
 
 // Мокаем AudioPermissionRequest компонент
@@ -100,6 +136,9 @@ vi.mock("../../components/audio-permission-request", () => ({
     </div>
   ),
 }))
+
+// Импортируем компонент ПОСЛЕ всех моков
+import { VoiceRecordModal } from "../../components/voice-recording-modal"
 
 // Мокаем navigator.mediaDevices глобально
 Object.defineProperty(global.navigator, "mediaDevices", {
@@ -113,6 +152,8 @@ Object.defineProperty(global.navigator, "mediaDevices", {
 describe("VoiceRecordModal", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    resetResourcesMocks()
+    resetTauriMocks()
 
     // Убеждаемся что MediaDevices поддерживается по умолчанию
     Object.defineProperty(global.navigator, "mediaDevices", {
@@ -123,6 +164,16 @@ describe("VoiceRecordModal", () => {
       },
     })
 
+    // Мокаем MediaRecorder
+    global.MediaRecorder = vi.fn().mockImplementation(() => ({
+      start: vi.fn(),
+      stop: vi.fn(),
+      ondataavailable: vi.fn(),
+      onstop: vi.fn(),
+      state: "inactive",
+    })) as any
+    global.MediaRecorder.isTypeSupported = vi.fn().mockReturnValue(true)
+
     // Настраиваем переводы
     setTranslations({
       "dialogs.voiceRecord.notSupported": "Запись звука недоступна",
@@ -132,10 +183,12 @@ describe("VoiceRecordModal", () => {
       "dialogs.voiceRecord.refreshDevices": "Обновить устройства",
       "dialogs.voiceRecord.savePath": "Сохранить в",
       "dialogs.voiceRecord.countdown": "Обратный отсчет",
+      "dialogs.voiceRecord.format": "Формат",
       "dialogs.voiceRecord.startRecording": "Начать запись",
       "dialogs.voiceRecord.stopRecording": "Остановить запись",
       "dialogs.voiceRecord.recordingTime": "Время записи",
       "dialogs.voiceRecord.hint": "Нажмите кнопку записи для начала.",
+      "dialogs.voiceRecord.saveError": "Ошибка при сохранении аудиозаписи",
     })
 
     // Сбрасываем состояние моков
@@ -214,21 +267,24 @@ describe("VoiceRecordModal", () => {
     it("должен отображать список аудиоустройств", () => {
       renderWithModal(<VoiceRecordModal />)
 
-      const deviceSelect = screen.getByRole("combobox")
-      expect(deviceSelect).toBeInTheDocument()
-      // Не проверяем значение, так как Select компонент может отображать его по-разному
+      const deviceSelects = screen.getAllByRole("combobox")
+      // Первый select - это выбор устройства
+      expect(deviceSelects[0]).toBeInTheDocument()
+      // Проверяем что отображается название устройства
+      expect(screen.getByText("Microphone 1")).toBeInTheDocument()
     })
 
     it("должен вызывать setSelectedAudioDevice при выборе устройства", async () => {
       const user = userEvent.setup()
       renderWithModal(<VoiceRecordModal />)
 
-      const deviceSelect = screen.getByRole("combobox")
-      await user.click(deviceSelect)
+      const deviceSelects = screen.getAllByRole("combobox")
+      // Первый select - это выбор устройства
+      await user.click(deviceSelects[0])
 
       // В реальности здесь нужно было бы тестировать выбор из списка,
       // но это сложно с мокированными Select компонентами
-      expect(deviceSelect).toBeInTheDocument()
+      expect(deviceSelects[0]).toBeInTheDocument()
     })
 
     it("должен отключать выбор устройств во время записи", () => {
@@ -236,8 +292,11 @@ describe("VoiceRecordModal", () => {
 
       renderWithModal(<VoiceRecordModal />)
 
-      const deviceSelect = screen.getByRole("combobox")
-      expect(deviceSelect).toBeDisabled()
+      const deviceSelects = screen.getAllByRole("combobox")
+      // Первый select - это выбор устройства
+      expect(deviceSelects[0]).toBeDisabled()
+      // Второй select (формат) тоже должен быть отключен
+      expect(deviceSelects[1]).toBeDisabled()
     })
 
     it("должен вызывать getDevices при клике на кнопку обновления", async () => {

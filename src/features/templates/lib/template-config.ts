@@ -2,7 +2,7 @@
  * Конфигурационные интерфейсы для системы шаблонов
  */
 
-import { JSX } from "react"
+import type { JSX } from "react"
 
 // Существующие интерфейсы
 export interface SplitPoint {

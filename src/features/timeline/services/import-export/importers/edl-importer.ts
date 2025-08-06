@@ -5,17 +5,17 @@
  */
 
 // Функция для генерации UUID
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 
-import { TimelineClip, TimelineProject, TimelineTrack, TrackType } from "../../../types/timeline"
+import type { TimelineClip, TimelineProject, TimelineTrack, TrackType } from "../../../types/timeline"
 import {
-  EDLEvent,
-  ImportError,
-  ImportOptions,
-  ImportResult,
-  ImportWarning,
-  Importer,
-  MediaReference,
+  type EDLEvent,
+  type ImportError,
+  type Importer,
+  type ImportOptions,
+  type ImportResult,
+  type ImportWarning,
+  type MediaReference,
   parseTimecode,
   timecodeToSeconds,
 } from "../types"

@@ -24,6 +24,12 @@ export class LUFSMeter extends EventEmitter {
   private config: LUFSConfig
   private analyser: AnalyserNode | null = null
   private processor: AudioWorkletNode | null = null
+  // biome-ignore lint/correctness/noUnusedPrivateClassMembers: для восстановления контекста
+  private context?: AudioContext
+  // biome-ignore lint/correctness/noUnusedPrivateClassMembers: для отслеживания состояния
+  private isRunning = false
+  // biome-ignore lint/correctness/noUnusedPrivateClassMembers: для оптимизации обновлений
+  private lastUpdate = 0
 
   // Фильтры EBU R128
   private preFilter: BiquadFilterNode | null = null

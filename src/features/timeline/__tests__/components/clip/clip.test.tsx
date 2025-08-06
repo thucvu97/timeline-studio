@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest"
 import "../../../__mocks__/hooks"
 
 import { Clip } from "../../../components/clip/clip"
-import { SubtitleClip, TimelineClip, TimelineTrack } from "../../../types"
+import type { SubtitleClip, TimelineClip, TimelineTrack } from "../../../types"
 
 // Мокаем дочерние компоненты
 vi.mock("../../../components/clip/video-clip", () => ({

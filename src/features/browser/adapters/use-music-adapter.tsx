@@ -1,20 +1,18 @@
-import React, { useRef, useState } from "react"
-
 import { CirclePause, CirclePlay } from "lucide-react"
+import type React from "react"
+import { useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useFavorites, useMusicFiles } from "@/features/app-state"
 import { useMusicImport } from "@/features/browser/hooks/use-music-import"
 import { parseDuration, parseFileSize } from "@/features/browser/utils"
 import { useDraggable } from "@/features/drag-drop"
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 import { useResources } from "@/features/resources"
 import { formatTime } from "@/lib/date"
 import { cn } from "@/lib/utils"
-
-import { getDateGroup, getDurationGroup } from "../utils/grouping"
-
 import type { ListAdapter, ListItem, PreviewComponentProps } from "../types/list"
+import { getDateGroup, getDurationGroup } from "../utils/grouping"
 
 // Адаптер типа для MediaFile чтобы соответствовать ListItem
 type MusicListItem = MediaFile & ListItem
@@ -194,24 +192,28 @@ export function useMusicAdapter(): ListAdapter<MusicListItem> {
     // Функция для получения значения группировки
     getGroupValue: (file, groupBy) => {
       switch (groupBy) {
-        case "artist":
+        case "artist": {
           const artist = String(file.probeData?.format.tags?.artist || "")
           return artist || "Неизвестный исполнитель"
+        }
 
-        case "genre":
+        case "genre": {
           const genre = String(file.probeData?.format.tags?.genre || "")
           return genre || "Без жанра"
+        }
 
-        case "album":
+        case "album": {
           const album = String(file.probeData?.format.tags?.album || "")
           return album || "Без альбома"
+        }
 
         case "date":
           return getDateGroup(file.startTime)
 
-        case "duration":
+        case "duration": {
           const duration = parseDuration(file.probeData?.format.duration)
           return getDurationGroup(duration)
+        }
 
         default:
           return ""

@@ -1,9 +1,8 @@
 import { useCallback, useRef } from "react"
 
 import { cn } from "@/lib/utils"
-
-import { TimelineMarker } from "./timeline-marker"
 import { useTimelineMarkers } from "../../hooks/use-timeline-markers"
+import { TimelineMarker } from "./timeline-marker"
 
 interface TimelineMarkersLayerProps {
   timeScale: number
@@ -17,7 +16,7 @@ interface TimelineMarkersLayerProps {
 export function TimelineMarkersLayer({
   timeScale,
   scrollOffset,
-  containerWidth,
+  _containerWidth,
   currentTime,
   duration,
   className,

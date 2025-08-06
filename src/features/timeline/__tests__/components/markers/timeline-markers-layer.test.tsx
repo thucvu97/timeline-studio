@@ -2,11 +2,11 @@ import { render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { TimelineMarkersLayer } from "../../../components/markers/timeline-markers-layer"
-import { ExtendedTimelineMarker } from "../../../types/markers"
+import type { ExtendedTimelineMarker } from "../../../types/markers"
 
 // Mock компонента TimelineMarker
 vi.mock("../../../components/markers/timeline-marker", () => ({
-  TimelineMarker: ({ marker, onDrag, onClick, onDelete }: any) => (
+  TimelineMarker: ({ marker, onClick }: any) => (
     <div data-testid={`marker-${marker.id}`} onClick={() => onClick?.(marker.id)}>
       {marker.name}
     </div>

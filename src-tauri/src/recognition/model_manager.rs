@@ -4,11 +4,8 @@ use anyhow::{anyhow, Result};
 use ort::session::{builder::GraphOptimizationLevel, Session};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
-use std::sync::{Mutex, Once};
 
-// Инициализация ORT
-static INIT: Once = Once::new();
-static INIT_RESULT: Mutex<Option<bool>> = Mutex::new(None);
+use super::ort_manager::OrtManager;
 
 /// Поддерживаемые модели YOLO
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -108,7 +105,7 @@ pub struct ModelManager {
 impl ModelManager {
   /// Создать новый менеджер моделей
   pub fn new(model_type: YoloModel) -> Result<Self> {
-    init_ort()?;
+    OrtManager::ensure_initialized()?;
     Ok(Self {
       session: None,
       model_type,
@@ -160,39 +157,6 @@ impl ModelManager {
   /// Проверить, загружена ли модель
   pub fn is_loaded(&self) -> bool {
     self.session.is_some()
-  }
-}
-
-/// Инициализировать ONNX Runtime
-fn init_ort() -> Result<()> {
-  let mut result = INIT_RESULT.lock().unwrap();
-  if let Some(success) = *result {
-    return if success {
-      Ok(())
-    } else {
-      Err(anyhow!("ONNX Runtime initialization failed"))
-    };
-  }
-
-  let init_res = std::panic::catch_unwind(|| {
-    INIT.call_once(|| {
-      if let Err(e) = ort::init().commit() {
-        if cfg!(test) {
-          eprintln!("Warning: Failed to initialize ONNX Runtime in test mode: {e}");
-        } else {
-          panic!("Failed to initialize ORT: {e}");
-        }
-      }
-    });
-  });
-
-  let success = init_res.is_ok();
-  *result = Some(success);
-
-  if success {
-    Ok(())
-  } else {
-    Err(anyhow!("Failed to initialize ONNX Runtime"))
   }
 }
 

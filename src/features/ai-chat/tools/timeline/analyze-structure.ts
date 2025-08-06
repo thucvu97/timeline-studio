@@ -3,7 +3,8 @@
  */
 
 import type { TimelineClip, TimelineProject, TimelineSection, TimelineTrack } from "@/features/timeline/types/timeline"
-
+import type { ClaudeTool } from "../../services/claude-service"
+import type { TimelineToolResult } from "./types"
 import { getTimelineStateAccess } from "./types"
 import {
   calculateTimelineDensity,
@@ -11,9 +12,6 @@ import {
   generateStructureRecommendations,
   getTrackTypeDistribution,
 } from "./utils/analyzers"
-
-import type { TimelineToolResult } from "./types"
-import type { ClaudeTool } from "../../services/claude-service"
 
 export const analyzeTimelineStructureTool: ClaudeTool = {
   name: "analyze_timeline_structure",

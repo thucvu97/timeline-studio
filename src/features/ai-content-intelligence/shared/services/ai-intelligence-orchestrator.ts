@@ -3,14 +3,10 @@
  * Использует XState машину состояний для управления процессом
  */
 
-import { Actor } from "xstate"
-
-import { AIProvider, AccuracyLevel, AnalysisDepth, ProcessingStatus, SpeedPriority } from "../types"
-import { type AIIntelligenceContext, aiIntelligenceMachine } from "./ai-intelligence-machine"
-
+import type { Actor } from "xstate"
 import type {
-  AIConfig,
   AdaptedContent,
+  AIConfig,
   GeneratedScript,
   IntelligentContent,
   PipelineControl,
@@ -20,6 +16,8 @@ import type {
   ScriptGenerationParams,
   UnifiedContentAnalysis,
 } from "../types"
+import { AccuracyLevel, AIProvider, AnalysisDepth, ProcessingStatus, SpeedPriority } from "../types"
+import type { AIIntelligenceContext, aiIntelligenceMachine } from "./ai-intelligence-machine"
 
 // Интерфейс для движков (сохраняем для совместимости)
 interface AIEngine {

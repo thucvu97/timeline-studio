@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { vi } from "vitest"
 
-import { VideoEffect } from "@/features/effects/types"
+import type { VideoEffect } from "@/features/effects/types"
 import { BrowserProviders } from "@/test/test-utils"
 
 import { EffectGroup } from "../../components/effect-group"
@@ -262,7 +262,8 @@ describe("EffectGroup", () => {
     const effectElements = screen.getAllByRole("button")
 
     effectElements.forEach((element, index) => {
-      expect(element).toHaveAttribute("tabIndex", "0")
+      // Semantic button elements don't need explicit tabIndex="0"
+      expect(element.tagName).toBe("BUTTON")
       expect(element).toHaveAttribute(
         "aria-label",
         `${mockEffects[index].labels?.en || mockEffects[index].name} effect`,

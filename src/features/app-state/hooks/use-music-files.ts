@@ -15,8 +15,8 @@ export function useMusicFiles() {
   // Извлекаем только аудио файлы из media_pool (музыка - это аудио)
   const musicFiles: MediaItem[] = projectState?.project?.media_pool?.items
     ? Object.values(projectState.project.media_pool.items).filter(
-      (item): item is MediaItem => (item as MediaItem).media_type === "Audio",
-    )
+        (item): item is MediaItem => (item as MediaItem).media_type === "Audio",
+      )
     : []
 
   // Добавление музыкального файла

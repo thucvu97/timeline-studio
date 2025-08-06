@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react"
-
 import { Activity } from "lucide-react"
+import { useEffect, useState } from "react"
 
 import { useMidi } from "../../hooks/use-midi"
 

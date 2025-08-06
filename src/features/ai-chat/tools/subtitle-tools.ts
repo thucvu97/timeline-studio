@@ -5,7 +5,7 @@
 
 import { invoke } from "@tauri-apps/api/core"
 
-import { ClaudeTool } from "../services/claude-service"
+import type { ClaudeTool } from "../services/claude-service"
 
 /**
  * Структура субтитра
@@ -603,27 +603,27 @@ async function analyzeAudioForTranscription(params: any): Promise<AiAudioAnalysi
       speakers: detectSpeakers ? ["Speaker 1", "Speaker 2"] : ["Speaker 1"],
       speechSegments: detectSpeakers
         ? [
-          {
-            speaker: "Speaker 1",
-            startTime: 0,
-            endTime: 30000,
-            confidence: 0.85,
-          },
-          {
-            speaker: "Speaker 2",
-            startTime: 35000,
-            endTime: 60000,
-            confidence: 0.78,
-          },
-        ]
+            {
+              speaker: "Speaker 1",
+              startTime: 0,
+              endTime: 30000,
+              confidence: 0.85,
+            },
+            {
+              speaker: "Speaker 2",
+              startTime: 35000,
+              endTime: 60000,
+              confidence: 0.78,
+            },
+          ]
         : [
-          {
-            speaker: "Speaker 1",
-            startTime: 0,
-            endTime: (audioAnalysis as any)?.duration || 60000,
-            confidence: 0.9,
-          },
-        ],
+            {
+              speaker: "Speaker 1",
+              startTime: 0,
+              endTime: (audioAnalysis as any)?.duration || 60000,
+              confidence: 0.9,
+            },
+          ],
       silenceSegments:
         (silenceDetection as any)?.silences?.map((silence: any) => ({
           startTime: silence.start_time * 1000,

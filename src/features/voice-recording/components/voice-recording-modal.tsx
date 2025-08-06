@@ -1,23 +1,34 @@
-import { useCallback, useEffect, useState } from "react"
-
 import { RefreshCw } from "lucide-react"
+import { useCallback, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import type { MediaFile } from "@/features/media/types/media"
 import { useModal } from "@/features/modals"
-
-import { AudioPermissionRequest } from "./audio-permission-request"
+import { useResources } from "@/features/resources"
 import { useAudioDevices } from "../hooks/use-audio-devices"
 import { useAudioPermissions } from "../hooks/use-audio-permissions"
 import { useVoiceRecording } from "../hooks/use-voice-recording"
+import {
+  type AudioFormat,
+  type AudioFormatInfo,
+  blobToBase64,
+  getSupportedAudioFormats,
+  isFormatSupportedByMediaRecorder,
+  saveVoiceRecording,
+} from "../types/tauri"
+import { AudioPermissionRequest } from "./audio-permission-request"
 
 export function VoiceRecordModal() {
   const { t } = useTranslation()
   const [savePath, setSavePath] = useState<string>("")
   const [isMuted] = useState<boolean>(true)
+  const [selectedFormat, setSelectedFormat] = useState<AudioFormat>("webm")
+  const [audioFormats, setAudioFormats] = useState<AudioFormatInfo[]>([])
   const { isOpen, closeModal } = useModal()
+  const { addMedia } = useResources()
 
   // Проверяем поддержку MediaDevices API
   const [isMediaDevicesSupported] = useState(() => {
@@ -32,21 +43,41 @@ export function VoiceRecordModal() {
     setErrorMessage,
   })
 
-  // Функция для сохранения аудиозаписи (временная заглушка)
+  // Функция для сохранения аудиозаписи через Tauri
   const saveAudioToServer = useCallback(
     async (blob: Blob, fileName: string) => {
       try {
-        // Создаем URL для предпросмотра записи
-        const audioUrl = URL.createObjectURL(blob)
+        // Конвертируем blob в base64
+        const base64Data = await blobToBase64(blob)
 
-        // В реальном приложении здесь будет код для сохранения файла
-        console.log("Аудиозапись создана:", { fileName, size: blob.size, url: audioUrl })
+        // Убираем расширение из имени файла если есть
+        const fileNameWithoutExt = fileName.replace(/\.[^/.]+$/, "")
 
-        // Можно добавить код для скачивания файла
-        // const a = document.createElement("a")
-        // a.href = audioUrl
-        // a.download = fileName
-        // a.click()
+        // Сохраняем через Tauri
+        const result = await saveVoiceRecording({
+          audioData: base64Data,
+          fileName: fileNameWithoutExt,
+          format: selectedFormat,
+          useSubdirectory: true,
+        })
+
+        console.log("Аудиозапись сохранена:", result)
+
+        // Создаем объект MediaFile для добавления в медиатеку
+        const mediaFile: MediaFile = {
+          id: `audio-${Date.now()}`, // Генерируем временный ID
+          path: result.filePath,
+          name: result.fileName,
+          size: result.fileSize,
+          isAudio: true,
+          isVideo: false,
+          isImage: false,
+          createdAt: new Date().toISOString(),
+          // Дополнительные поля можно будет заполнить позже через getMediaMetadata
+        }
+
+        // Добавляем в медиатеку
+        await addMedia(mediaFile)
 
         // Закрываем диалог после успешного сохранения
         closeModal()
@@ -55,7 +86,7 @@ export function VoiceRecordModal() {
         setErrorMessage(t("dialogs.voiceRecord.saveError", "Ошибка при сохранении аудиозаписи"))
       }
     },
-    [closeModal, setErrorMessage, t],
+    [closeModal, setErrorMessage, t, selectedFormat, addMedia],
   )
 
   // Используем хук для управления записью голоса
@@ -77,6 +108,7 @@ export function VoiceRecordModal() {
     isMuted,
     setErrorMessage,
     onSaveRecording: saveAudioToServer,
+    audioFormat: selectedFormat,
   })
 
   // Получаем устройства после получения разрешений
@@ -93,6 +125,22 @@ export function VoiceRecordModal() {
       console.error("Ошибка при получении устройств после разрешений:", error)
     }
   }, [requestPermissions, getDevices])
+
+  // Загружаем поддерживаемые форматы при открытии
+  useEffect(() => {
+    if (isOpen) {
+      void getSupportedAudioFormats().then((formats) => {
+        // Фильтруем форматы, которые поддерживаются MediaRecorder
+        const supportedFormats = formats.filter((format) => isFormatSupportedByMediaRecorder(format.format))
+        setAudioFormats(supportedFormats)
+
+        // Если текущий формат не поддерживается, выбираем первый доступный
+        if (!supportedFormats.some((f) => f.format === selectedFormat)) {
+          setSelectedFormat(supportedFormats[0]?.format || "webm")
+        }
+      })
+    }
+  }, [isOpen, selectedFormat])
 
   // Запрашиваем устройства и запускаем микрофон при открытии модального окна
   useEffect(() => {
@@ -204,6 +252,31 @@ export function VoiceRecordModal() {
               className="w-20 border-[#444] bg-[#222] text-white focus:border-[#666]"
               disabled={isRecording}
             />
+
+            <div className="text-sm text-gray-300">{t("dialogs.voiceRecord.format", { defaultValue: "Format" })}:</div>
+            <Select
+              value={selectedFormat}
+              onValueChange={(value) => setSelectedFormat(value as AudioFormat)}
+              disabled={isRecording}
+            >
+              <SelectTrigger className="w-full border-[#444] bg-[#222] focus:ring-0 focus:ring-offset-0">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="w-full border-[#444] bg-[#222]">
+                {audioFormats.map((format) => (
+                  <SelectItem
+                    key={format.format}
+                    value={format.format}
+                    className="text-white hover:bg-[#333] focus:bg-[#333]"
+                  >
+                    <div className="flex flex-col items-start">
+                      <span>{format.name}</span>
+                      <span className="text-xs text-gray-400">{format.description}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Запись */}

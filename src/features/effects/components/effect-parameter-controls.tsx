@@ -1,13 +1,12 @@
-import { useCallback, useEffect, useState } from "react"
-
 import { RotateCcw, Save } from "lucide-react"
+import { useCallback, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { BaseEffect, EffectParameter } from "@/features/effects/types"
+import type { BaseEffect, EffectParameter } from "@/features/effects/types"
 
 interface EffectParameterControlsProps {
   effect: BaseEffect
@@ -54,7 +53,7 @@ function getParameterConfig(param: EffectParameter): {
         label,
         description,
       }
-    case "dropdown":
+    case "dropdown": {
       // Для dropdown используем индексы опций
       const options = param.options || []
       const defaultIndex = options.findIndex((opt) => opt.value === param.defaultValue)
@@ -66,6 +65,7 @@ function getParameterConfig(param: EffectParameter): {
         label,
         description,
       }
+    }
     case "color":
       // Для цвета будем использовать другой компонент
       return {

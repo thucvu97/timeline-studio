@@ -1,5 +1,3 @@
-import { FC, useCallback, useMemo, useState } from "react"
-
 import {
   Activity,
   AlertCircle,
@@ -22,6 +20,7 @@ import {
   Upload,
   Zap,
 } from "lucide-react"
+import { type FC, useCallback, useMemo, useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -33,16 +32,10 @@ import { cn } from "@/lib/utils"
 
 import { useAIIntelligence } from "../../hooks/use-ai-intelligence"
 import { useContentPipeline } from "../../hooks/use-content-pipeline"
+import type { IntelligentContent, MediaFileInfo, PipelineProgress, UnifiedContentAnalysis } from "../../shared/types"
+import { createDefaultAIConfig } from "../../shared/utils/config"
 import { AnalysisViewer } from "../analysis-viewer/analysis-viewer"
 import { PreviewGrid } from "../preview-grid/preview-grid"
-
-import type {
-  AIIntelligenceConfig,
-  IntelligentContent,
-  MediaFileInfo,
-  PipelineProgress,
-  UnifiedContentAnalysis,
-} from "../../shared/types"
 
 interface UnifiedDashboardProps {
   className?: string
@@ -132,23 +125,17 @@ export const UnifiedDashboard: FC<UnifiedDashboardProps> = ({
       setProcessingStatus("analyzing")
       setActiveView("processing")
 
-      const config: Partial<AIIntelligenceConfig> = {
-        analysis: {
-          enableSceneDetection: true,
-          enableObjectDetection: true,
-          enableFaceDetection: true,
-          enableTextDetection: true,
-          enableAudioAnalysis: true,
+      const config = createDefaultAIConfig({
+        features: {
+          sceneAnalysis: true,
+          scriptGeneration: true,
+          multiPlatform: true,
+          contentClassification: true,
+          qualityEnhancement: true,
+          autoSuggestions: false,
         },
-        generation: {
-          enableScriptGeneration: true,
-          enableNarrativeStructure: true,
-        },
-        adaptation: {
-          platforms: ["youtube", "tiktok", "instagram"],
-          enableAutomaticOptimization: true,
-        },
-      }
+        platforms: [],
+      })
 
       const analysis = await analyzeContent(mediaFiles, config)
       setCurrentAnalysis(analysis)
@@ -169,26 +156,17 @@ export const UnifiedDashboard: FC<UnifiedDashboardProps> = ({
       setProcessingStatus("analyzing")
       setActiveView("processing")
 
-      const config: Partial<AIIntelligenceConfig> = {
-        analysis: {
-          enableSceneDetection: true,
-          enableObjectDetection: true,
-          enableFaceDetection: true,
-          enableTextDetection: true,
-          enableAudioAnalysis: true,
+      const config = createDefaultAIConfig({
+        features: {
+          sceneAnalysis: true,
+          scriptGeneration: true,
+          multiPlatform: true,
+          contentClassification: true,
+          qualityEnhancement: true,
+          autoSuggestions: false,
         },
-        generation: {
-          enableScriptGeneration: true,
-          enableNarrativeStructure: true,
-          enableCharacterDevelopment: true,
-          enableDialogueGeneration: true,
-        },
-        adaptation: {
-          platforms: ["youtube", "tiktok", "instagram", "twitter"],
-          enableAutomaticOptimization: true,
-          enableSEOOptimization: true,
-        },
-      }
+        platforms: [],
+      })
 
       await processProject(mediaFiles, config)
     } catch (error) {

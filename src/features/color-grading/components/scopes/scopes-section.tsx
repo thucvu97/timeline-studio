@@ -1,15 +1,13 @@
-import { useCallback, useState } from "react"
-
 import { Activity, BarChart3, CircleDot, Settings } from "lucide-react"
+import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
-
-import { ScopeViewer } from "./scope-viewer"
 import { useColorGrading } from "../../services/color-grading-provider"
+import { ScopeViewer } from "./scope-viewer"
 
 type ScopeType = "waveform" | "vectorscope" | "histogram"
 

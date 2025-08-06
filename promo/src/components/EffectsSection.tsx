@@ -1,14 +1,14 @@
-import { motion } from 'framer-motion';
-import { AnimatedSection } from './AnimatedSection';
+import { motion } from "framer-motion"
+import { AnimatedSection } from "./AnimatedSection"
 
 const effects = [
-  { name: 'Glitch', icon: '⚡', color: 'from-red-500 to-orange-500' },
-  { name: 'Blur', icon: '💫', color: 'from-blue-500 to-cyan-500' },
-  { name: 'Vintage', icon: '📽️', color: 'from-amber-500 to-yellow-500' },
-  { name: 'Neon', icon: '🌟', color: 'from-purple-500 to-pink-500' },
-  { name: 'Matrix', icon: '💚', color: 'from-green-500 to-emerald-500' },
-  { name: 'Hologram', icon: '🔮', color: 'from-indigo-500 to-purple-500' }
-];
+  { name: "Glitch", icon: "⚡", color: "from-red-500 to-orange-500" },
+  { name: "Blur", icon: "💫", color: "from-blue-500 to-cyan-500" },
+  { name: "Vintage", icon: "📽️", color: "from-amber-500 to-yellow-500" },
+  { name: "Neon", icon: "🌟", color: "from-purple-500 to-pink-500" },
+  { name: "Matrix", icon: "💚", color: "from-green-500 to-emerald-500" },
+  { name: "Hologram", icon: "🔮", color: "from-indigo-500 to-purple-500" },
+]
 
 export function EffectsSection() {
   return (
@@ -35,7 +35,9 @@ export function EffectsSection() {
                 whileTap={{ scale: 0.95 }}
                 className="glass-card p-6 rounded-xl text-center cursor-pointer group"
               >
-                <div className={`w-16 h-16 mx-auto mb-3 bg-gradient-to-r ${effect.color} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                <div
+                  className={`w-16 h-16 mx-auto mb-3 bg-gradient-to-r ${effect.color} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}
+                >
                   <span className="text-3xl">{effect.icon}</span>
                 </div>
                 <p className="text-white font-medium">{effect.name}</p>
@@ -51,8 +53,8 @@ export function EffectsSection() {
               <div>
                 <h3 className="text-2xl font-bold text-white mb-4">Realtime Preview</h3>
                 <p className="text-gray-400 mb-6">
-                  Применяйте эффекты мгновенно и видьте результат без рендеринга. 
-                  GPU-ускорение обеспечивает плавную работу даже с 4K видео.
+                  Применяйте эффекты мгновенно и видьте результат без рендеринга. GPU-ускорение обеспечивает плавную
+                  работу даже с 4K видео.
                 </p>
                 <ul className="space-y-3">
                   <li className="flex items-center text-gray-300">
@@ -80,7 +82,7 @@ export function EffectsSection() {
                   <motion.div
                     className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
                     animate={{ x: [-400, 400] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                    transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
                   />
                   <div className="absolute inset-0 flex items-center justify-center">
                     <span className="text-6xl">✨</span>
@@ -100,5 +102,5 @@ export function EffectsSection() {
         </AnimatedSection>
       </div>
     </section>
-  );
+  )
 }

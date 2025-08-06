@@ -13,7 +13,7 @@ declare global {
       isLoadingMetadata: boolean
       probeData?: any
     }
-    
+
     __TEST_ADD_CYRILLIC_FILE__?: {
       id: string
       path: string
@@ -23,7 +23,7 @@ declare global {
       duration: number
       isLoadingMetadata: boolean
     }
-    
+
     __LOAD_TEST_PROJECT__?: {
       id: string
       name: string
@@ -48,10 +48,10 @@ declare global {
         }>
       }
     }
-    
+
     // Test helper for tracking timeline calls
     __TIMELINE_CALLS__?: string[]
-    
+
     // Timeline functions that may be available in test environment
     addMediaToTimeline?: (...args: any[]) => any
     addSingleMediaToTimeline?: (...args: any[]) => any

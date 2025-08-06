@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { EDLImporter } from "../../../services/import-export/importers/edl-importer"
-import { ImportOptions } from "../../../services/import-export/types"
+import type { ImportOptions } from "../../../services/import-export/types"
 
 describe("EDLImporter", () => {
   const importer = new EDLImporter()

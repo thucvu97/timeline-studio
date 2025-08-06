@@ -5,7 +5,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import type { Person } from "@/features/montage-planner/types"
-
+import type { SceneAnalysis } from "../../../../shared/types/content-analysis"
 import {
   CharacterAnalysisService,
   CharacterRole,
@@ -14,8 +14,6 @@ import {
   InteractionType,
   RelationshipType,
 } from "../character-analysis"
-
-import type { SceneAnalysis } from "../../../../shared/types/content-analysis"
 
 // Mock dependencies
 vi.mock("@/features/ai-chat/services/unified-ai-service", () => ({

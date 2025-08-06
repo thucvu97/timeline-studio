@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { MediaFile } from "@/features/media/types/media"
-import { Sector, Track } from "@/features/media/types/types"
+import type { MediaFile } from "@/features/media/types/media"
+import type { Sector, Track } from "@/features/media/types/types"
 
 import { processVideoFiles } from "../../utils/video-tracks"
 
@@ -93,23 +93,23 @@ describe("video-tracks", () => {
     probeData:
       width && height
         ? {
-          streams: [
-            {
-              codec_type: "video",
-              width,
-              height,
-              duration: duration,
+            streams: [
+              {
+                codec_type: "video",
+                width,
+                height,
+                duration: duration,
+                bit_rate: "1000000",
+                codec_name: "h264",
+              },
+            ],
+            format: {
+              duration: duration.toString(),
+              size: "1000000",
               bit_rate: "1000000",
-              codec_name: "h264",
+              format_name: "mp4",
             },
-          ],
-          format: {
-            duration: duration.toString(),
-            size: "1000000",
-            bit_rate: "1000000",
-            format_name: "mp4",
-          },
-        }
+          }
         : undefined,
   })
 

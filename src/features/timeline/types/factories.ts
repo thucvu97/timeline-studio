@@ -2,7 +2,7 @@
  * Factory functions for creating Timeline objects
  */
 
-import {
+import type {
   MusicClip,
   MusicFile,
   ProjectResources,

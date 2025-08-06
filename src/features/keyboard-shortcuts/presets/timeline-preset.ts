@@ -1,6 +1,6 @@
 // eslint-disable @typescript-eslint/no-unsafe-assignment
 
-import { CreatePresetsFunction, ShortcutCategory } from "./types"
+import type { CreatePresetsFunction, ShortcutCategory } from "./types"
 
 // Функция для создания предустановки Timeline
 export const createTimelinePreset: CreatePresetsFunction = (t: any): ShortcutCategory[] => [

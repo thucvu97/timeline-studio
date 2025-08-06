@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 
-import { MidiDevice, MidiEngine, MidiMapping, MidiMessage } from "../services/midi/midi-engine"
+import { type MidiDevice, MidiEngine, type MidiMapping, type MidiMessage } from "../services/midi/midi-engine"
 
 interface MidiState {
   devices: MidiDevice[]

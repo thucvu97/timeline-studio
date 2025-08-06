@@ -5,7 +5,7 @@
  * Расширяет функциональность Timeline, Player, Resources и Browser
  */
 
-import { ClaudeTool } from "../services/claude-service"
+import type { ClaudeTool } from "../services/claude-service"
 
 /**
  * Extended Tools - 11 дополнительных инструментов для существующих категорий

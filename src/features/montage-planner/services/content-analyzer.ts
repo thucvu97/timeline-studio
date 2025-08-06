@@ -4,10 +4,8 @@
  */
 
 import type { MediaFile } from "@/features/media/types/media"
-
-import { CameraMovement, EmotionalTone, FlowDirection, LightingCondition, SceneType } from "../types"
-
 import type { AnalysisOptions, AudioAnalysis, Fragment, MomentScore, VideoAnalysis } from "../types"
+import { CameraMovement, EmotionalTone, FlowDirection, LightingCondition, SceneType } from "../types"
 
 export class ContentAnalyzer {
   private static instance: ContentAnalyzer
@@ -90,10 +88,10 @@ export class ContentAnalyzer {
       },
       music: options?.enableMusicAnalysis
         ? {
-          tempo: Math.floor(Math.random() * 80) + 80, // 80-160 BPM
-          energy: Math.random() * 100,
-          beatMarkers: this.generateBeatMarkers(file.duration || 0),
-        }
+            tempo: Math.floor(Math.random() * 80) + 80, // 80-160 BPM
+            energy: Math.random() * 100,
+            beatMarkers: this.generateBeatMarkers(file.duration || 0),
+          }
         : undefined,
     }
   }

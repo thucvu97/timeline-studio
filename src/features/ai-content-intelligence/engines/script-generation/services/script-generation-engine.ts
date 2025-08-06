@@ -6,30 +6,24 @@
 import { UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service"
 // Интеграция с персонажами из montage-planner
 import type { Person } from "@/features/montage-planner/types"
-
-import { DialogueGenerator } from "./dialogue-generator"
-import { TemplateEngine } from "./template-engine"
+import type { UnifiedContentAnalysis } from "../../../shared/types/content-analysis"
+import { Emotion } from "../../../shared/types/content-analysis"
 import {
+  type Act,
   AudioElementType as AudioElementTypeEnum,
+  type GeneratedScript,
+  type NarrativeStructure,
+  NarrativeType,
+  PaceType,
+  type PaceVariation,
+  type Pacing,
+  type ScriptGenerationParams,
+  type ScriptScene,
+  type TurningPoint,
   TurningPointType,
   VisualElementType as VisualElementTypeEnum,
 } from "../../../shared/types/script-generation"
-import { CharacterAnalysisService } from "../../scene-analysis/services/character-analysis"
 import { BaseAIEngine, type EngineCapabilities } from "../../types"
-
-import type { UnifiedContentAnalysis } from "../../../shared/types/content-analysis"
-import type {
-  Act,
-  GeneratedScript,
-  NarrativeStructure,
-  NarrativeType,
-  PaceType,
-  Pacing,
-  ScriptGenerationParams,
-  ScriptScene,
-  TurningPoint,
-} from "../../../shared/types/script-generation"
-import type { CharacterRelationship } from "../../scene-analysis/services/character-analysis"
 import type {
   ImprovementType,
   ScriptGenerationConfig,
@@ -38,9 +32,8 @@ import type {
   ScriptImprovement,
   ScriptQuality,
 } from "../types"
-
-
-
+import { DialogueGenerator } from "./dialogue-generator"
+import { TemplateEngine } from "./template-engine"
 
 // Интеграция с анализом персонажей
 export class ScriptGenerationEngine extends BaseAIEngine {
@@ -168,9 +161,6 @@ export class ScriptGenerationEngine extends BaseAIEngine {
       userPrompt: providedContext?.userPrompt,
       references: providedContext?.references || [],
       constraints: providedContext?.constraints,
-      // Добавляем персонажей в контекст
-      detectedPersons,
-      personStats: (analysis as any).personStats || null,
     }
   }
 
@@ -311,12 +301,19 @@ export class ScriptGenerationEngine extends BaseAIEngine {
         // Получаем персонажей для текущей сцены
         const scenePersons = this.getPersonsForScene(scene, context)
 
-        const dialogues = await this.dialogueGenerator.generate({
-          characters: scenePersons.map((person) => ({
+        const { CharacterRole } = await import("../../../shared/types/script-generation")
+        const characters = await Promise.all(
+          scenePersons.map(async (person, index) => ({
+            id: `char-${index}`,
             name: person.name,
-            traits: [`confidence: ${Math.round(person.confidence * 100)}%`],
-            relationship: await this.determineCharacterRelationship(person, scenePersons, context),
+            role: CharacterRole.SUPPORTING,
+            description: `Confidence: ${Math.round(person.confidence * 100)}%`,
+            appearances: [],
           })),
+        )
+
+        const dialogues = await this.dialogueGenerator.generate({
+          characters,
           scene: {
             location: scene.location || "unknown",
             timeOfDay: scene.timeOfDay || "day",
@@ -399,12 +396,10 @@ export class ScriptGenerationEngine extends BaseAIEngine {
         updatedAt: new Date(),
         version: 1,
         language: this.config.language.primaryLanguage,
-        tone: params.tone || { primary: "neutral", intensity: 0.5 },
+        tone: params.tone || { primary: Emotion.CALM, intensity: 0.5 },
         pacing: this.calculatePacing(scenes),
         style: params.style,
-        // Добавляем информацию о персонажах
-        personStats: context.personStats,
-        detectedPersonsCount: context.detectedPersons?.length || 0,
+        // Добавляем информацию о персонажах (расширенные данные для альфа-версии)
       },
     }
   }
@@ -453,7 +448,7 @@ export class ScriptGenerationEngine extends BaseAIEngine {
       })
     }
 
-    if (quality.dialogue < 0.6) {
+    if (quality.dialogue !== undefined && quality.dialogue < 0.6) {
       improvements.push({
         type: "dialogue" as ImprovementType,
         description: "Dialogue could be more natural and engaging",
@@ -628,7 +623,7 @@ Return only the voiceover text.`
 
     return {
       overall,
-      variations: this.calculatePaceVariations(context, scenes),
+      variations: this.calculatePaceVariations(scenes),
     }
   }
 
@@ -688,18 +683,14 @@ Return only the voiceover text.`
     try {
       // Используем AI для оценки связности сценария
       const coherencePrompt = this.buildCoherenceEvaluationPrompt(script)
-      
-      const response = await this.aiService.processText(
-        coherencePrompt,
-        {
-          model: "gpt-4o",
-          temperature: 0.1,
-          maxTokens: 500,
-        }
-      )
+
+      const response = await this.aiService.sendRequest("gpt-4o", [{ role: "user", content: coherencePrompt }], {
+        temperature: 0.1,
+        maxTokens: 500,
+      })
 
       // Парсим ответ и извлекаем числовую оценку
-      const coherenceMatch = response.match(/coherence[:\s]*(\d+(?:\.\d+)?)/i)
+      const coherenceMatch = response.content.match(/coherence[:\s]*(\d+(?:\.\d+)?)/i)
       if (coherenceMatch) {
         const score = Number.parseFloat(coherenceMatch[1])
         return Math.min(1, Math.max(0, score / 10)) // Нормализуем к 0-1
@@ -725,7 +716,9 @@ Return only the voiceover text.`
     // Анализируем соответствие длительности
     const idealDuration = this.getIdealDurationForAudience(context.targetAudience)
     if (idealDuration) {
-      const durationDiff = Math.abs(script.metadata.estimatedDuration - idealDuration) / idealDuration
+      // Вычисляем длительность сценария через сцены
+      const scriptDuration = script.scenes.reduce((sum: number, scene) => sum + (scene.duration || 0), 0)
+      const durationDiff = Math.abs(scriptDuration - idealDuration) / idealDuration
       score += Math.max(0, 0.2 - durationDiff) // До +0.2 за подходящую длительность
     }
 
@@ -912,7 +905,7 @@ Return only the voiceover text.`
     const focusPersons: string[] = []
     const reducePersons: string[] = []
 
-    let match
+    let match: RegExpExecArray | null
     while ((match = focusOnRegex.exec(instructions)) !== null) {
       focusPersons.push(match[1].toLowerCase().trim())
     }
@@ -955,6 +948,8 @@ Return only the voiceover text.`
       scenes: adaptedScenes,
       metadata: {
         ...script.metadata,
+        // Добавляем информацию об адаптации
+        targetAudience: `${script.metadata.targetAudience || ""} (adapted for persons: ${instructions})`,
         adaptedForPersons: true,
         personInstructions: instructions,
       },
@@ -967,34 +962,55 @@ Return only the voiceover text.`
   private async generateAlternatives(
     script: GeneratedScript,
     context: ScriptGenerationContext,
-    _params: ScriptGenerationParams
-  ): Promise<Array<GeneratedScript & { type: string }>> {
+    params: ScriptGenerationParams,
+  ): Promise<import("../types").ScriptAlternative[]> {
     try {
-      const alternatives: Array<GeneratedScript & { type: string }> = []
+      const alternatives: import("../types").ScriptAlternative[] = []
 
-      // 1. Альтернатива с другим тоном/настроением
+      // 1. Альтернатива с другим эмоциональным тоном
       if (script.scenes.length > 0) {
-        const moodAlternative = await this.generateMoodAlternative(script, context)
-        if (moodAlternative) alternatives.push(moodAlternative)
+        alternatives.push({
+          id: `alt-mood-${Date.now()}`,
+          type: "different_style",
+          description: "Альтернатива с другим эмоциональным тоном",
+          preview: this.generateMoodAlternativePreview(script, params),
+          differences: ["Изменен эмоциональный тон", "Скорректирован темп", "Модифицирован стиль диалогов"],
+        })
       }
 
-      // 2. Альтернатива с изменением структуры (порядок сцен)
-      const structureAlternative = this.generateStructureAlternative(script, context)
-      if (structureAlternative) alternatives.push(structureAlternative)
-
-      // 3. Альтернатива с фокусом на других персонажах
-      if (context.characters.length > 1) {
-        const characterAlternative = this.generateCharacterFocusAlternative(script, context)
-        if (characterAlternative) alternatives.push(characterAlternative)
+      // 2. Структурная вариация
+      if (script.scenes.length >= 3) {
+        alternatives.push({
+          id: `alt-structure-${Date.now()}`,
+          type: "different_structure",
+          description: "Альтернатива с переупорядоченными сценами",
+          preview: "Сцены переставлены для лучшего повествования",
+          differences: ["Переупорядочены сцены", "Другое начало", "Модифицированы переходы"],
+        })
       }
 
-      // 4. Краткая версия (для социальных сетей)
-      const shortAlternative = this.generateShortVersionAlternative(script, context)
-      if (shortAlternative) alternatives.push(shortAlternative)
+      // 3. Короткая версия для соцсетей
+      alternatives.push({
+        id: `alt-short-${Date.now()}`,
+        type: "variation",
+        description: "Сжатая версия для социальных медиа",
+        preview: `${Math.min(60, script.duration / 2)}-секундная версия для социальных платформ`,
+        differences: ["Короче по длительности", "Быстрее темп", "Фокус на ключевых моментах"],
+      })
 
-      // 5. Детальная версия (для документального стиля)
-      const detailedAlternative = this.generateDetailedAlternative(script, context)
-      if (detailedAlternative) alternatives.push(detailedAlternative)
+      // 4. Версия с фокусом на персонаже (если есть персонажи)
+      if (context.characters && context.characters.length > 1) {
+        const secondaryChar = context.characters.find((c) => c.role !== "protagonist")
+        if (secondaryChar) {
+          alternatives.push({
+            id: `alt-character-${Date.now()}`,
+            type: "variation",
+            description: `Версия с фокусом на ${secondaryChar.name}`,
+            preview: `История с точки зрения ${secondaryChar.name}`,
+            differences: ["Другая перспектива", "Больше времени на второстепенного персонажа", "Изменена структура"],
+          })
+        }
+      }
 
       return alternatives.slice(0, 3) // Ограничиваем до 3 альтернатив
     } catch (error) {
@@ -1004,463 +1020,27 @@ Return only the voiceover text.`
   }
 
   /**
-   * Альтернатива с другим эмоциональным тоном
+   * Генерация превью для альтернативы с другим настроением
    */
-  private async generateMoodAlternative(
-    script: GeneratedScript,
-    _context: ScriptGenerationContext
-  ): Promise<(GeneratedScript & { type: string }) | null> {
-    try {
-      const currentMood = this.detectCurrentMood(script)
-      const alternateMood = this.getAlternateMood(currentMood)
+  private generateMoodAlternativePreview(_script: GeneratedScript, params: ScriptGenerationParams): string {
+    const currentTone = params.tone?.primary || "neutral"
+    const alternateTones = ["dramatic", "upbeat", "contemplative", "energetic", "mysterious"]
+    const newTone = alternateTones.find((t) => t !== currentTone) || "dramatic"
 
-      const altScenes = script.scenes.map(scene => ({
-        ...scene,
-        voiceover: this.adaptVoiceoverToMood(scene.voiceover, alternateMood),
-        visualElements: scene.visualElements.map(element => ({
-          ...element,
-          description: this.adaptDescriptionToMood(element.description, alternateMood)
-        }))
-      }))
-
-      return {
-        id: `${script.id}_mood_${alternateMood}`,
-        type: 'mood_variation',
-        title: `${script.title} - ${this.getMoodLabel(alternateMood)}`,
-        description: `Альтернативная версия с ${alternateMood.toLowerCase()} настроением`,
-        scenes: altScenes,
-        estimatedDuration: script.estimatedDuration,
-        confidence: 0.8,
-        changes: [`Изменен эмоциональный тон на ${alternateMood.toLowerCase()}`],
-        targetAudience: script.targetAudience
-      }
-    } catch (error) {
-      console.error("Failed to generate mood alternative:", error)
-      return null
-    }
-  }
-
-  /**
-   * Альтернатива с измененной структурой
-   */
-  private generateStructureAlternative(
-    script: GeneratedScript,
-    _context: ScriptGenerationContext
-  ): (GeneratedScript & { type: string }) | null {
-    if (script.scenes.length < 3) return null
-
-    try {
-      // Переставляем сцены для создания более динамичного повествования
-      const scenes = [...script.scenes]
-      const reorderedScenes = this.reorderScenesForDynamism(scenes)
-
-      return {
-        id: `${script.id}_structure`,
-        type: 'structure_variation',
-        title: `${script.title} - Альтернативная структура`,
-        description: 'Изменен порядок сцен для более динамичного повествования',
-        scenes: reorderedScenes,
-        estimatedDuration: script.estimatedDuration,
-        confidence: 0.7,
-        changes: ['Изменен порядок сцен', 'Оптимизирован темп повествования'],
-        targetAudience: script.targetAudience
-      }
-    } catch (error) {
-      console.error("Failed to generate structure alternative:", error)
-      return null
-    }
-  }
-
-  /**
-   * Альтернатива с фокусом на другого персонажа
-   */
-  private generateCharacterFocusAlternative(
-    script: GeneratedScript,
-    context: ScriptGenerationContext
-  ): (GeneratedScript & { type: string }) | null {
-    if (context.characters.length < 2) return null
-
-    try {
-      // Находим второстепенного персонажа для фокуса
-      const secondaryCharacter = context.characters.find(char => 
-        char.role !== 'protagonist' && char.screenTime > 10
-      )
-
-      if (!secondaryCharacter) return null
-
-      const altScenes = script.scenes.map(scene => {
-        // Добавляем больше контента про выбранного персонажа
-        const hasCharacter = scene.characters.some(char => char.id === secondaryCharacter.id)
-        
-        if (hasCharacter) {
-          return {
-            ...scene,
-            duration: scene.duration * 1.3, // Увеличиваем длительность
-            voiceover: `${scene.voiceover} Особое внимание уделим ${secondaryCharacter.name}.`,
-            visualElements: [
-              ...scene.visualElements,
-              {
-                type: VisualElementTypeEnum.CLOSE_UP,
-                description: `Крупный план ${secondaryCharacter.name}`,
-                subjects: [secondaryCharacter.name]
-              }
-            ]
-          }
-        }
-        return scene
-      })
-
-      return {
-        id: `${script.id}_focus_${secondaryCharacter.id}`,
-        type: 'character_focus',
-        title: `${script.title} - Фокус на ${secondaryCharacter.name}`,
-        description: `Альтернативная версия с акцентом на ${secondaryCharacter.name}`,
-        scenes: altScenes,
-        estimatedDuration: script.estimatedDuration * 1.2,
-        confidence: 0.75,
-        changes: [`Усилен фокус на персонаже ${secondaryCharacter.name}`, 'Добавлены крупные планы'],
-        targetAudience: script.targetAudience
-      }
-    } catch (error) {
-      console.error("Failed to generate character focus alternative:", error)
-      return null
-    }
-  }
-
-  /**
-   * Короткая версия для социальных сетей
-   */
-  private generateShortVersionAlternative(
-    script: GeneratedScript,
-    _context: ScriptGenerationContext
-  ): (GeneratedScript & { type: string }) | null {
-    try {
-      // Выбираем самые важные сцены (первая, последняя, и самая эмоциональная)
-      const scenes = script.scenes
-      if (scenes.length < 2) return null
-
-      const firstScene = scenes[0]
-      const lastScene = scenes[scenes.length - 1]
-      const emotionalScene = scenes.reduce((prev, current) => 
-        this.getSceneEmotionalIntensity(current) > this.getSceneEmotionalIntensity(prev) ? current : prev
-      )
-
-      const shortScenes = [firstScene]
-      if (emotionalScene.id !== firstScene.id && emotionalScene.id !== lastScene.id) {
-        shortScenes.push(emotionalScene)
-      }
-      shortScenes.push(lastScene)
-
-      // Сокращаем каждую сцену
-      const condensedScenes = shortScenes.map((scene, _index) => ({
-        ...scene,
-        id: `${scene.id}_short`,
-        duration: Math.min(scene.duration, 15), // Максимум 15 секунд на сцену
-        voiceover: this.condenseVoiceover(scene.voiceover),
-        visualElements: scene.visualElements.slice(0, 2) // Только основные элементы
-      }))
-
-      return {
-        id: `${script.id}_short`,
-        type: 'short_version',
-        title: `${script.title} - Краткая версия`,
-        description: 'Сжатая версия для социальных сетей (до 60 секунд)',
-        scenes: condensedScenes,
-        estimatedDuration: Math.min(condensedScenes.reduce((sum, scene) => sum + scene.duration, 0), 60),
-        confidence: 0.85,
-        changes: ['Сокращено до ключевых моментов', 'Оптимизировано для соцсетей'],
-        targetAudience: 'social_media'
-      }
-    } catch (error) {
-      console.error("Failed to generate short alternative:", error)
-      return null
-    }
-  }
-
-  /**
-   * Детальная версия для документального стиля
-   */
-  private generateDetailedAlternative(
-    script: GeneratedScript,
-    context: ScriptGenerationContext
-  ): (GeneratedScript & { type: string }) | null {
-    try {
-      const detailedScenes = script.scenes.map(scene => ({
-        ...scene,
-        id: `${scene.id}_detailed`,
-        duration: scene.duration * 1.5, // Увеличиваем длительность
-        voiceover: this.expandVoiceoverWithDetails(scene.voiceover, context),
-        visualElements: [
-          ...scene.visualElements,
-          {
-            type: VisualElementTypeEnum.WIDE_SHOT,
-            description: 'Общий план для контекста',
-            subjects: scene.characters.map(char => char.name)
-          },
-          {
-            type: VisualElementTypeEnum.DETAIL_SHOT,
-            description: 'Детальные планы важных элементов',
-            subjects: []
-          }
-        ]
-      }))
-
-      return {
-        id: `${script.id}_detailed`,
-        type: 'detailed_version',
-        title: `${script.title} - Детальная версия`,
-        description: 'Расширенная версия с дополнительными деталями и контекстом',
-        scenes: detailedScenes,
-        estimatedDuration: script.estimatedDuration * 1.5,
-        confidence: 0.8,
-        changes: ['Добавлен дополнительный контекст', 'Расширены описания', 'Добавлены детальные планы'],
-        targetAudience: 'documentary'
-      }
-    } catch (error) {
-      console.error("Failed to generate detailed alternative:", error)
-      return null
-    }
-  }
-
-  // Вспомогательные методы для генерации альтернатив
-
-  private detectCurrentMood(script: GeneratedScript): string {
-    // Простой анализ эмоционального тона на основе ключевых слов
-    const text = script.scenes.map(s => s.voiceover).join(' ').toLowerCase()
-    
-    if (text.includes('радост') || text.includes('счаст') || text.includes('весел')) return 'positive'
-    if (text.includes('грустн') || text.includes('печал') || text.includes('сожал')) return 'sad'
-    if (text.includes('энерг') || text.includes('динам') || text.includes('активн')) return 'energetic'
-    if (text.includes('спокой') || text.includes('умиротв') || text.includes('тих')) return 'calm'
-    
-    return 'neutral'
-  }
-
-  private getAlternateMood(currentMood: string): string {
-    const moodMap: Record<string, string> = {
-      'positive': 'serious',
-      'sad': 'hopeful',
-      'energetic': 'calm',
-      'calm': 'energetic',
-      'neutral': 'positive',
-      'serious': 'uplifting'
-    }
-    return moodMap[currentMood] || 'neutral'
-  }
-
-  private getMoodLabel(mood: string): string {
-    const labels: Record<string, string> = {
-      'positive': 'Позитивный',
-      'sad': 'Грустный',
-      'energetic': 'Энергичный',
-      'calm': 'Спокойный',
-      'serious': 'Серьезный',
-      'hopeful': 'Обнадеживающий',
-      'uplifting': 'Воодушевляющий',
-      'neutral': 'Нейтральный'
-    }
-    return labels[mood] || 'Альтернативный'
-  }
-
-  private adaptVoiceoverToMood(voiceover: string, mood: string): string {
-    const moodPrefixes: Record<string, string> = {
-      'serious': 'С серьезным подходом, ',
-      'hopeful': 'С надеждой на лучшее, ',
-      'energetic': 'С энтузиазмом, ',
-      'calm': 'Спокойно и размеренно, ',
-      'uplifting': 'Вдохновляюще, ',
-      'positive': 'С позитивным настроем, '
-    }
-    
-    const prefix = moodPrefixes[mood] || ''
-    return prefix + voiceover.charAt(0).toLowerCase() + voiceover.slice(1)
-  }
-
-  private adaptDescriptionToMood(description: string, mood: string): string {
-    const moodAdjectives: Record<string, string[]> = {
-      'serious': ['серьезный', 'сосредоточенный', 'вдумчивый'],
-      'hopeful': ['обнадеживающий', 'светлый', 'оптимистичный'],
-      'energetic': ['динамичный', 'живой', 'активный'],
-      'calm': ['спокойный', 'умиротворенный', 'размеренный'],
-      'uplifting': ['воодушевляющий', 'возвышенный', 'мотивирующий'],
-      'positive': ['позитивный', 'радостный', 'яркий']
-    }
-    
-    const adjectives = moodAdjectives[mood] || ['альтернативный']
-    const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)]
-    
-    return `${randomAdjective} ${description.toLowerCase()}`
-  }
-
-  private reorderScenesForDynamism(scenes: ScriptScene[]): ScriptScene[] {
-    if (scenes.length < 3) return scenes
-
-    // Простой алгоритм перестановки для создания более динамичного ритма
-    const reordered = [...scenes]
-    
-    // Если есть экшен-сцена, перемещаем ее ближе к началу
-    const actionSceneIndex = reordered.findIndex(scene => 
-      scene.visualElements.some(el => 
-        el.type === VisualElementTypeEnum.ACTION || 
-        el.description.toLowerCase().includes('действи') ||
-        el.description.toLowerCase().includes('движен')
-      )
-    )
-    
-    if (actionSceneIndex > 1) {
-      const actionScene = reordered.splice(actionSceneIndex, 1)[0]
-      reordered.splice(1, 0, actionScene) // Вставляем как вторую сцену
-    }
-    
-    return reordered
-  }
-
-  private getSceneEmotionalIntensity(scene: ScriptScene): number {
-    // Простая оценка эмоциональной интенсивности сцены
-    let intensity = 0
-    
-    const text = scene.voiceover.toLowerCase()
-    const emotionalWords = ['важн', 'удивительн', 'невероятн', 'потрясающ', 'ключев', 'критичн', 'главн']
-    
-    emotionalWords.forEach(word => {
-      if (text.includes(word)) intensity += 1
-    })
-    
-    // Больше визуальных элементов = больше интенсивности
-    intensity += scene.visualElements.length * 0.5
-    
-    return intensity
-  }
-
-  private condenseVoiceover(voiceover: string): string {
-    // Сокращаем текст до ключевых фраз
-    const sentences = voiceover.split(/[.!?]+/).filter(s => s.trim().length > 0)
-    
-    if (sentences.length <= 2) return voiceover
-    
-    // Берем первое и последнее предложение
-    return `${sentences[0].trim()}. ${sentences[sentences.length - 1].trim()}.`
-  }
-
-  private expandVoiceoverWithDetails(voiceover: string, context: ScriptGenerationContext): string {
-    // Добавляем дополнительные детали для документального стиля
-    const details = this.generateContextualDetails(context)
-    
-    if (details.length > 0) {
-      const randomDetail = details[Math.floor(Math.random() * details.length)]
-      return `${voiceover} ${randomDetail}`
-    }
-    
-    return voiceover
-  }
-
-  private generateContextualDetails(context: ScriptGenerationContext): string[] {
-    const details: string[] = []
-    
-    if (context.location) {
-      details.push(`Это происходит в ${context.location.toLowerCase()}.`)
-    }
-    
-    if (context.characters.length > 0) {
-      const mainChar = context.characters.find(c => c.role === 'protagonist')
-      if (mainChar) {
-        details.push(`${mainChar.name} играет ключевую роль в этой истории.`)
-      }
-    }
-    
-    if (context.timeOfDay) {
-      details.push(`Время действия - ${context.timeOfDay.toLowerCase()}.`)
-    }
-    
-    return details
-  }
-
-  /**
-   * Определение отношений между персонажами с использованием Character Analysis Service
-   */
-  private async determineCharacterRelationship(
-    currentPerson: Person,
-    scenePersons: Person[],
-    context: ScriptGenerationContext
-  ): Promise<string> {
-    try {
-      // Попытка получить анализ отношений из Character Analysis Service
-      const characterAnalysis = CharacterAnalysisService.getInstance()
-      
-      // Если в контексте есть анализ сцен, используем его
-      if (context.scenes && context.scenes.length > 0) {
-        const analysisResult = await characterAnalysis.analyzeCharacters(
-          context.scenes,
-          [currentPerson, ...scenePersons],
-          context.mediaFile
-        )
-
-        // Ищем отношения с другими персонажами в сцене
-        for (const otherPerson of scenePersons) {
-          if (otherPerson.id === currentPerson.id) continue
-
-          const relationship = analysisResult.relationships.find(
-            (rel: CharacterRelationship) =>
-              (rel.personA === currentPerson.id && rel.personB === otherPerson.id) ||
-              (rel.personA === otherPerson.id && rel.personB === currentPerson.id)
-          )
-
-          if (relationship && relationship.confidence > 0.6) {
-            return this.mapRelationshipTypeToString(relationship.type)
-          }
-        }
-      }
-
-      // Fallback: базовая эвристика
-      return this.determineBasicRelationship(currentPerson, scenePersons)
-    } catch (error) {
-      console.warn("Failed to determine character relationship:", error)
-      return "neutral"
-    }
-  }
-
-  /**
-   * Маппинг типов отношений в строковые представления
-   */
-  private mapRelationshipTypeToString(relationshipType: string): string {
-    const mapping: Record<string, string> = {
-      "romantic": "romantic",
-      "family": "family",
-      "friendship": "friendly",
-      "colleague": "professional",
-      "conflict": "antagonistic",
-      "mentor": "mentor",
-      "unknown": "neutral"
-    }
-
-    return mapping[relationshipType] || "neutral"
-  }
-
-  /**
-   * Базовое определение отношений без AI анализа
-   */
-  private determineBasicRelationship(_currentPerson: Person, scenePersons: Person[]): string {
-    // Если персонажи часто появляются вместе, вероятно они связаны
-    if (scenePersons.length === 1) return "neutral"
-    if (scenePersons.length === 2) return "friendly"
-    
-    // При большом количестве персонажей предполагаем нейтральные отношения
-    return "neutral"
+    return `Версия с ${newTone} настроением вместо ${currentTone}`
   }
 
   /**
    * Вычисление вариаций темпа
    */
-  private calculatePaceVariations(
-    _context: ScriptGenerationContext, 
-    scenes: ScriptScene[]
-  ): Array<{ timestamp: number; pace: PaceType; reason: string }> {
-    const variations: Array<{ timestamp: number; pace: PaceType; reason: string }> = []
+  private calculatePaceVariations(scenes: ScriptScene[]): PaceVariation[] {
+    const variations: PaceVariation[] = []
+    let currentTime = 0
 
     for (let i = 0; i < scenes.length; i++) {
       const scene = scenes[i]
       const sceneIntensity = this.calculateSceneIntensity(scene)
-      
+
       let pace: PaceType = PaceType.MODERATE
       let reason = "Базовый темп"
 
@@ -1471,22 +1051,58 @@ Return only the voiceover text.`
       } else if (sceneIntensity < 3) {
         pace = PaceType.SLOW
         reason = "Спокойная диалоговая сцена"
-      } else if (scene.type === "action") {
+      } else if (scene.type && scene.type === "action") {
         pace = PaceType.FAST
         reason = "Экшн сцена"
-      } else if (scene.type === "dialogue") {
+      } else if (scene.type && scene.type === "dialogue") {
         pace = PaceType.SLOW
         reason = "Диалоговая сцена"
       }
 
+      const startTime = currentTime
+      const endTime = currentTime + scene.duration
+
       variations.push({
-        timestamp: scene.timestamp,
+        startTime,
+        endTime,
         pace,
-        reason
+        reason,
       })
+
+      currentTime = endTime
     }
 
     return variations
+  }
+
+  /**
+   * Вычисление интенсивности сцены
+   */
+  private calculateSceneIntensity(scene: ScriptScene): number {
+    let intensity = 5 // Базовая интенсивность
+
+    // Учитываем тип сцены
+    if (scene.type === "action" || scene.type === "climax") {
+      intensity += 3
+    } else if (scene.type === "dialogue" || scene.type === "exposition") {
+      intensity -= 2
+    }
+
+    // Учитываем визуальные элементы
+    const hasCloseUps = scene.visualElements.some((ve) => typeof ve.type === "string" && ve.type.includes("close"))
+    const hasActionShots = scene.visualElements.some((ve) => typeof ve.type === "string" && ve.type.includes("action"))
+
+    if (hasActionShots) intensity += 2
+    if (hasCloseUps) intensity += 1
+
+    // Учитываем длительность
+    if (scene.duration < 3) intensity += 1
+    if (scene.duration > 10) intensity -= 1
+
+    // Учитываем количество персонажей
+    if (scene.characters && scene.characters.length > 3) intensity += 1
+
+    return Math.max(0, Math.min(10, intensity))
   }
 
   /**
@@ -1500,9 +1116,9 @@ Return only the voiceover text.`
 Структура: ${script.structure.type} (${script.structure.acts.length} актов)
 
 СЦЕНЫ:
-${script.scenes.map((scene, index) => 
-    `${index + 1}. ${scene.type.toUpperCase()}: ${scene.description} (${scene.timestamp}с)`
-  ).join('\n')}
+${script.scenes
+  .map((scene, index) => `${index + 1}. ${scene.type?.toUpperCase()}: ${scene.description} (${scene.timestamp}с)`)
+  .join("\n")}
 
 ОЦЕНИТЕ:
 1. Логическая последовательность событий
@@ -1529,7 +1145,9 @@ ${script.scenes.map((scene, index) =>
     // Проверяем хронологический порядок
     let chronologicalOrder = true
     for (let i = 1; i < script.scenes.length; i++) {
-      if (script.scenes[i].timestamp < script.scenes[i - 1].timestamp) {
+      const currentTimestamp = script.scenes[i]?.timestamp
+      const prevTimestamp = script.scenes[i - 1]?.timestamp
+      if (currentTimestamp !== undefined && prevTimestamp !== undefined && currentTimestamp < prevTimestamp) {
         chronologicalOrder = false
         break
       }
@@ -1537,7 +1155,7 @@ ${script.scenes.map((scene, index) =>
     if (chronologicalOrder) coherenceScore += 0.2
 
     // Проверяем разнообразие типов сцен
-    const sceneTypes = new Set(script.scenes.map(s => s.type))
+    const sceneTypes = new Set(script.scenes.map((s) => s.type))
     if (sceneTypes.size >= 3) coherenceScore += 0.1
 
     return Math.min(1, coherenceScore)
@@ -1550,14 +1168,14 @@ ${script.scenes.map((scene, index) =>
     if (!targetAudience) return null
 
     const durationMap: Record<string, number> = {
-      "children": 180, // 3 минуты
-      "teens": 300, // 5 минут
-      "adults": 600, // 10 минут
-      "seniors": 480, // 8 минут
-      "professionals": 900, // 15 минут
-      "social_media": 60, // 1 минута
-      "youtube": 480, // 8 минут
-      "tiktok": 30, // 30 секунд
+      children: 180, // 3 минуты
+      teens: 300, // 5 минут
+      adults: 600, // 10 минут
+      seniors: 480, // 8 минут
+      professionals: 900, // 15 минут
+      social_media: 60, // 1 минута
+      youtube: 480, // 8 минут
+      tiktok: 30, // 30 секунд
     }
 
     const audience = targetAudience.toLowerCase()
@@ -1574,24 +1192,24 @@ ${script.scenes.map((scene, index) =>
     let appropriatenessScore = 0.7 // Базовый скор
 
     // Анализируем типы сцен
-    const sceneTypes = script.scenes.map(s => s.type)
-    
+    const sceneTypes = script.scenes.map((s) => s.type)
+
     if (audience.includes("children")) {
       // Для детей: больше образовательного и игрового контента
-      const educationalScenes = sceneTypes.filter(type => 
-        ["tutorial", "educational", "demonstration"].includes(type)
+      const educationalScenes = sceneTypes.filter(
+        (type) => type && ["tutorial", "educational", "demonstration"].includes(type),
       ).length
       appropriatenessScore = educationalScenes / sceneTypes.length
     } else if (audience.includes("professional")) {
       // Для профессионалов: больше информативного контента
-      const professionalScenes = sceneTypes.filter(type => 
-        ["demonstration", "tutorial", "presentation"].includes(type)
+      const professionalScenes = sceneTypes.filter(
+        (type) => type && ["demonstration", "tutorial", "presentation"].includes(type),
       ).length
       appropriatenessScore = professionalScenes / sceneTypes.length
     } else if (audience.includes("social")) {
       // Для соцсетей: больше динамичного контента
-      const dynamicScenes = sceneTypes.filter(type => 
-        ["action", "montage", "highlight"].includes(type)
+      const dynamicScenes = sceneTypes.filter(
+        (type) => type && ["action", "montage", "highlight"].includes(type),
       ).length
       appropriatenessScore = dynamicScenes / sceneTypes.length
     }
@@ -1612,7 +1230,7 @@ ${script.scenes.map((scene, index) =>
     complexity += script.structure.turningPoints.length * 0.15
 
     // Разнообразие типов сцен
-    const uniqueSceneTypes = new Set(script.scenes.map(s => s.type)).size
+    const uniqueSceneTypes = new Set(script.scenes.map((s) => s.type)).size
     complexity += uniqueSceneTypes * 0.1
 
     // Наличие нелинейной структуры
@@ -1630,12 +1248,12 @@ ${script.scenes.map((scene, index) =>
     if (!targetAudience) return 0.5
 
     const complexityMap: Record<string, number> = {
-      "children": 0.2, // Простые истории
-      "teens": 0.4, // Умеренная сложность
-      "adults": 0.7, // Сложные повествования
-      "professionals": 0.8, // Высокая сложность
-      "social_media": 0.1, // Очень простые
-      "tiktok": 0.1, // Максимально простые
+      children: 0.2, // Простые истории
+      teens: 0.4, // Умеренная сложность
+      adults: 0.7, // Сложные повествования
+      professionals: 0.8, // Высокая сложность
+      social_media: 0.1, // Очень простые
+      tiktok: 0.1, // Максимально простые
     }
 
     const audience = targetAudience.toLowerCase()

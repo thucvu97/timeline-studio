@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react"
 
 import { useTranslation } from "react-i18next"
 
-import { VideoFilter } from "@/features/filters/types/filters"
+import type { VideoFilter } from "@/features/filters/types/filters"
 
 import filtersData from "../data/filters.json"
 import { createFallbackFilter, processFilters, validateFiltersData } from "../utils/filter-processor"

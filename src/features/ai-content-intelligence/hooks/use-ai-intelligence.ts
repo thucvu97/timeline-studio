@@ -8,8 +8,8 @@ import { useAIIntelligence as useAIIntelligenceContext } from "../services/ai-in
 import { AIIntelligenceOrchestrator } from "../shared/services/ai-intelligence-orchestrator"
 
 import type {
-  AIConfig,
   AdaptedContent,
+  AIConfig,
   GeneratedScript,
   IntelligentContent,
   PipelineControl,

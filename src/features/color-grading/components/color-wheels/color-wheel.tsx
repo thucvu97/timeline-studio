@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 
-import { ColorWheelType, RGBValue } from "../../types/color-grading"
+import type { ColorWheelType, RGBValue } from "../../types/color-grading"
 
 interface ColorWheelProps {
   type: ColorWheelType

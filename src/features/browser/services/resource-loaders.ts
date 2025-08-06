@@ -115,34 +115,34 @@ export async function loadAllResourcesLazy(signal?: AbortSignal): Promise<{
     effects.status === "fulfilled"
       ? effects.value
       : {
-        success: false,
-        data: [],
-        error: effects.reason ? String(effects.reason) : "Unknown error",
-        source: "built-in",
-        timestamp: Date.now(),
-      }
+          success: false,
+          data: [],
+          error: effects.reason ? String(effects.reason) : "Unknown error",
+          source: "built-in",
+          timestamp: Date.now(),
+        }
 
   const filtersResult: LoadResult<VideoFilter[]> =
     filters.status === "fulfilled"
       ? filters.value
       : {
-        success: false,
-        data: [],
-        error: filters.reason ? String(filters.reason) : "Unknown error",
-        source: "built-in",
-        timestamp: Date.now(),
-      }
+          success: false,
+          data: [],
+          error: filters.reason ? String(filters.reason) : "Unknown error",
+          source: "built-in",
+          timestamp: Date.now(),
+        }
 
   const transitionsResult: LoadResult<Transition[]> =
     transitions.status === "fulfilled"
       ? transitions.value
       : {
-        success: false,
-        data: [],
-        error: transitions.reason ? String(transitions.reason) : "Unknown error",
-        source: "built-in",
-        timestamp: Date.now(),
-      }
+          success: false,
+          data: [],
+          error: transitions.reason ? String(transitions.reason) : "Unknown error",
+          source: "built-in",
+          timestamp: Date.now(),
+        }
 
   return {
     effects: effectsResult,

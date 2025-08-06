@@ -3,9 +3,8 @@
  * Показывает всех обнаруженных персон и их статистику
  */
 
-import { useState } from "react"
-
 import { Eye, EyeOff, Filter, Search, Settings, Users } from "lucide-react"
+import { useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -212,9 +211,9 @@ export function PersonsPanel({ className }: PersonsPanelProps) {
                 const avgConfidence =
                   personAppearances.length > 0
                     ? Math.round(
-                      (personAppearances.reduce((sum, app) => sum + app.confidence, 0) / personAppearances.length) *
+                        (personAppearances.reduce((sum, app) => sum + app.confidence, 0) / personAppearances.length) *
                           100,
-                    )
+                      )
                     : 0
 
                 return (

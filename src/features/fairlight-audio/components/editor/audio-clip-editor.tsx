@@ -1,6 +1,5 @@
-import { useState } from "react"
-
 import { Scissors, TrendingDown, TrendingUp, Volume2, Zap } from "lucide-react"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
@@ -8,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider"
 
 import { useAudioEngine } from "../../hooks/use-audio-engine"
-import { AudioClip, FadeOptions } from "../../services/audio-clip-editor"
+import type { AudioClip, FadeOptions } from "../../services/audio-clip-editor"
 
 interface AudioClipEditorProps {
   clip: AudioClip

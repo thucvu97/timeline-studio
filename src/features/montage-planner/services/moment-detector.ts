@@ -3,8 +3,6 @@
  * Identifies key moments and scores them for montage selection
  */
 
-import { CameraMovement, EmotionalTone, LightingCondition, MomentCategory, SceneType } from "../types"
-
 import type {
   AnalysisOptions,
   AudioAnalysis,
@@ -14,6 +12,7 @@ import type {
   TimeGap,
   VideoAnalysis,
 } from "../types"
+import { CameraMovement, EmotionalTone, LightingCondition, MomentCategory, SceneType } from "../types"
 
 export class MomentDetector {
   private static instance: MomentDetector

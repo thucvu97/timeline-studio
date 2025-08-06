@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { OLLAMA_MODELS, OllamaService } from "../../services/ollama-service"
-import { AiMessage } from "../../types/ai-message"
-import { StreamingOptions } from "../../types/streaming"
+import type { AiMessage } from "../../types/ai-message"
+import type { StreamingOptions } from "../../types/streaming"
 
 // Mock fetch globally
 global.fetch = vi.fn()
@@ -563,12 +563,13 @@ describe("OllamaService", () => {
     it("should return list of available models", () => {
       const models = service.getAvailableModels()
 
-      expect(models).toHaveLength(8)
+      expect(models).toHaveLength(13)
       expect(models[0]).toEqual({
-        id: OLLAMA_MODELS.LLAMA2,
-        name: "Llama 2 (7B)",
-        description: "Базовая модель Meta Llama 2 с 7 миллиардами параметров",
-        size: "3.8GB",
+        id: OLLAMA_MODELS.QWEN2_5,
+        name: "Qwen 2.5 (0.5B)",
+        description: "⚡ Самая быстрая модель для тестирования",
+        size: "400MB",
+        recommended: true,
       })
 
       expect(models.find((m) => m.id === OLLAMA_MODELS.MISTRAL)).toEqual({

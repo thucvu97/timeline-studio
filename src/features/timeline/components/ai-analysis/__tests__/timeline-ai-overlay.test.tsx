@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState } from "react"
-
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { Camera, Sparkles } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 // Mock framer-motion

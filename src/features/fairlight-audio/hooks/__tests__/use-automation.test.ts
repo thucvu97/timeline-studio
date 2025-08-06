@@ -1,9 +1,7 @@
 import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-
-import { useAutomation } from "../use-automation"
-
 import type { AutomationMode } from "../../services/automation-engine"
+import { useAutomation } from "../use-automation"
 
 // Mock dependencies using vi.hoisted
 const { mockUseAudioEngine, mockAudioEngine, mockAutomationEngine } = vi.hoisted(() => ({

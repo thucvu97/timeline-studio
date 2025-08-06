@@ -16,13 +16,7 @@ interface SplitEditIndicatorsProps {
   currentTime: number
 }
 
-export function SplitEditIndicators({
-  className,
-  timelineWidth,
-  timelineHeight,
-  pixelsPerSecond,
-  currentTime,
-}: SplitEditIndicatorsProps) {
+export function SplitEditIndicators({ className, timelineHeight, pixelsPerSecond }: SplitEditIndicatorsProps) {
   const { config, toolSettings, visualSettings, activeSplitEdits, isEnabled } = useSplitEdit()
 
   if (!isEnabled) return null

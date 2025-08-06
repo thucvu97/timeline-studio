@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import {
-  BatchOperationParams,
-  BatchOperationType,
+  type BatchOperationParams,
+  type BatchOperationType,
   BatchProcessingService,
 } from "../../services/batch-processing-service"
 

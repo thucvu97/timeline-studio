@@ -3,9 +3,8 @@
  * Provides UI for viewing and managing project versions
  */
 
-import { useCallback, useEffect, useState } from "react"
-
 import { Clock, GitBranch, History, MessageCircle, Plus, RotateCcw, Settings, User } from "lucide-react"
+import { useCallback, useEffect, useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -14,7 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { useVersionControl } from "@/features/app-state/hooks/use-version-control"
 
-import { VersionInfo } from "../types"
+import type { VersionInfo } from "../types"
 
 // Простая функция форматирования времени без date-fns
 const formatTimeAgo = (date: Date): string => {
@@ -266,7 +265,9 @@ export function VersionHistoryPanel({ className }: VersionHistoryPanelProps) {
 
         {/* Last snapshot info */}
         {lastSnapshotTime && (
-          <div className="text-xs text-muted-foreground">Последний снапшот: {formatTimeAgo(lastSnapshotTime)}</div>
+          <div className="text-xs text-muted-foreground">
+            Последний снапшот: {formatTimeAgo(new Date(lastSnapshotTime))}
+          </div>
         )}
       </CardContent>
     </Card>

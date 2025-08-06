@@ -1,6 +1,6 @@
 import dayjs from "dayjs"
 
-import { DEFAULT_LANGUAGE, LanguageCode, formatDateByLanguage } from "@/i18n/constants"
+import { DEFAULT_LANGUAGE, formatDateByLanguage, type LanguageCode } from "@/i18n/constants"
 
 /**
  * Форматирует UNIX-timestamp в строку даты с учетом текущего языка приложения

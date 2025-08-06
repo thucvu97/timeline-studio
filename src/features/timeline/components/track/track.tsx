@@ -4,11 +4,11 @@
  * Отображает трек с заголовком и содержимым (клипами)
  */
 
-import React from "react"
+import type React from "react"
 
 import { cn } from "@/lib/utils"
 
-import { TimelineTrack } from "../../types"
+import type { TimelineTrack } from "../../types"
 import { TrackHeightAdjuster } from "../track-height-adjuster"
 import { TrackContent } from "./track-content"
 import { TrackHeader } from "./track-header"
@@ -60,19 +60,19 @@ export function Track({
   }
 
   return (
-    <div
+    <button
       data-testid="timeline-track"
+      type="button"
       className={cn(
         "flex border-b border-border bg-background track relative",
         "hover:bg-accent/5 transition-colors",
         isSelected && "bg-accent/10 border-accent",
         track.isHidden && "opacity-50",
+        "w-full text-left p-0",
         className,
       )}
       style={{ height: track.height, ...style }}
       onClick={handleSelect}
-      role="button"
-      tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault()
@@ -94,6 +94,6 @@ export function Track({
       {onHeightChange && (
         <TrackHeightAdjuster trackId={track.id} currentHeight={track.height} onHeightChange={onHeightChange} />
       )}
-    </div>
+    </button>
   )
 }

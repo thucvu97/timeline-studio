@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { SubtitleClip } from "../../types/subtitles"
+import type { SubtitleClip } from "../../types/subtitles"
 import {
   exportSubtitles,
   exportToASS,

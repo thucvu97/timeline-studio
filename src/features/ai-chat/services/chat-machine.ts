@@ -1,6 +1,6 @@
 import { assign, setup } from "xstate"
 
-import { ChatListItem, ChatMessage } from "../types/chat"
+import type { ChatListItem, ChatMessage } from "../types/chat"
 
 // Интерфейс контекста машины состояний чата
 export interface ChatMachineContext {

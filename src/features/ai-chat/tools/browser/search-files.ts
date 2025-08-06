@@ -2,11 +2,10 @@
  * AI инструменты для поиска файлов в браузере
  */
 
-import { findFilesByPattern, getBrowserFiles, getBrowserStateAccess, hasBrowserAccess } from "./utils/helpers"
-
-import type { BrowserToolResult, SearchMediaParams } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
 
+import type { BrowserToolResult, SearchMediaParams } from "./types"
+import { findFilesByPattern, getBrowserFiles, getBrowserStateAccess, hasBrowserAccess } from "./utils/helpers"
 
 export const searchMediaFilesTool: ClaudeTool = {
   name: "search_media_files",
@@ -95,12 +94,14 @@ export async function searchMediaFiles(params: SearchMediaParams): Promise<Brows
       searchResults = files.filter((file) => {
         return searchIn.some((area) => {
           switch (area) {
-            case "filename":
+            case "filename": {
               const fileName = advanced.caseSensitive ? file.name : file.name.toLowerCase()
               return fileName === searchTerm
-            case "location":
+            }
+            case "location": {
               const location = advanced.caseSensitive ? file.location || "" : (file.location || "").toLowerCase()
               return location === searchTerm
+            }
             case "tags":
               return file.tags?.some((tag: string) => {
                 const tagValue = advanced.caseSensitive ? tag : tag.toLowerCase()
@@ -124,12 +125,14 @@ export async function searchMediaFiles(params: SearchMediaParams): Promise<Brows
       searchResults = files.filter((file) => {
         return searchIn.some((area) => {
           switch (area) {
-            case "filename":
+            case "filename": {
               const fileName = advanced.caseSensitive ? file.name : file.name.toLowerCase()
               return fileName.includes(searchTerm)
-            case "location":
+            }
+            case "location": {
               const location = advanced.caseSensitive ? file.location || "" : (file.location || "").toLowerCase()
               return location.includes(searchTerm)
+            }
             case "tags":
               return (
                 file.tags?.some((tag: string) => {
@@ -182,9 +185,10 @@ export async function searchMediaFiles(params: SearchMediaParams): Promise<Brows
           searchIn.some((area) => {
             const searchTerm = advanced.caseSensitive ? query : query.toLowerCase()
             switch (area) {
-              case "filename":
+              case "filename": {
                 const fileName = advanced.caseSensitive ? file.name : file.name.toLowerCase()
                 return fileName.includes(searchTerm)
+              }
               default:
                 return false
             }

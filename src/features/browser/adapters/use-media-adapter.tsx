@@ -1,4 +1,5 @@
-import React, { useMemo } from "react"
+import type React from "react"
+import { useMemo } from "react"
 
 import { useAppSettings, useFavorites } from "@/features/app-state"
 import { MediaPreview } from "@/features/browser/components/preview/media-preview"
@@ -6,13 +7,11 @@ import { parseDuration, parseFileSize } from "@/features/browser/utils"
 import { useDraggable } from "@/features/drag-drop"
 import { getFileType } from "@/features/media"
 import { useMediaImport } from "@/features/media/hooks/use-media-import"
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 import i18n from "@/i18n"
 import type { MediaItem } from "@/types/generated/tauri-bindings"
-
-import { getDateGroup, getDurationGroup } from "../utils/grouping"
-
 import type { ListAdapter, ListItem, PreviewComponentProps } from "../types/list"
+import { getDateGroup, getDurationGroup } from "../utils/grouping"
 
 // Адаптер типа для MediaFile чтобы соответствовать ListItem
 type MediaListItem = MediaFile & ListItem
@@ -56,43 +55,44 @@ export function useMediaAdapter(): ListAdapter<MediaListItem> {
     const mediaItems = projectState?.project?.media_pool?.items || {}
 
     // Преобразуем объект MediaItem в массив MediaFile
-    return Object.values(mediaItems).map((item: MediaItem) => {
+    return Object.values(mediaItems).map((item) => {
+      const mediaItem = item as MediaItem
       // Конвертируем duration обратно в формат строки времени для совместимости
       let durationStr = "0"
-      if (item.duration) {
-        const hours = Math.floor(item.duration / 3600)
-        const minutes = Math.floor((item.duration % 3600) / 60)
-        const seconds = Math.floor(item.duration % 60)
+      if (mediaItem.duration) {
+        const hours = Math.floor(mediaItem.duration / 3600)
+        const minutes = Math.floor((mediaItem.duration % 3600) / 60)
+        const seconds = Math.floor(mediaItem.duration % 60)
         durationStr = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
       }
 
       return {
-        ...item,
+        ...mediaItem,
         // Мапим поля из MediaItem в MediaFile
-        startTime: (item as any).startTime || Date.now() / 1000, // Используем сохраненное значение или текущее время
+        startTime: (mediaItem as any).startTime || Date.now() / 1000, // Используем сохраненное значение или текущее время
         size:
-          (item as any).size ||
-          (item.metadata?.bitrate
-            ? `${Math.round((item.metadata.bitrate * (item.duration || 0)) / 8 / 1024 / 1024)}MB`
+          (mediaItem as any).size ||
+          (mediaItem.metadata?.bitrate
+            ? `${Math.round((mediaItem.metadata.bitrate * (mediaItem.duration || 0)) / 8 / 1024 / 1024)}MB`
             : "0MB"),
         duration: durationStr,
-        thumbnailPath: item.thumbnail,
-        type: item.media_type?.toLowerCase() || "video",
-        isVideo: item.media_type === "Video",
-        isAudio: item.media_type === "Audio",
-        isImage: item.media_type === "Image",
+        thumbnailPath: mediaItem.thumbnail,
+        type: mediaItem.media_type?.toLowerCase() || "video",
+        isVideo: mediaItem.media_type === "Video",
+        isAudio: mediaItem.media_type === "Audio",
+        isImage: mediaItem.media_type === "Image",
         isLoadingMetadata: false,
         // Добавляем probeData для совместимости с тестами
         probeData:
-          (item as any).probeData ||
-          (item.metadata
+          (mediaItem as any).probeData ||
+          (mediaItem.metadata
             ? {
-              format: {
-                size: item.metadata.bitrate ? (item.metadata.bitrate * (item.duration || 0)) / 8 : 0,
-                tags: {},
-              },
-              streams: [],
-            }
+                format: {
+                  size: mediaItem.metadata.bitrate ? (mediaItem.metadata.bitrate * (mediaItem.duration || 0)) / 8 : 0,
+                  tags: {},
+                },
+                streams: [],
+              }
             : undefined),
       }
     })
@@ -104,7 +104,7 @@ export function useMediaAdapter(): ListAdapter<MediaListItem> {
   return {
     // Хук для получения данных
     useData: () => ({
-      items: allMediaFiles,
+      items: allMediaFiles as MediaListItem[],
       loading: mediaLoading,
       error: connectionError ? new Error(connectionError) : null,
     }),
@@ -149,11 +149,12 @@ export function useMediaAdapter(): ListAdapter<MediaListItem> {
       const currentLanguage = i18n.language || "ru"
 
       switch (groupBy) {
-        case "type":
+        case "type": {
           const fileType = getFileType(file)
           return i18n.t(`browser.media.${fileType}`)
+        }
 
-        case "date":
+        case "date": {
           // Для изображений используем дату создания файла, если она доступна
           let timestamp = file.startTime
           if (!timestamp && /\.(jpg|jpeg|png|gif|webp)$/i.exec(file.name)) {
@@ -163,10 +164,12 @@ export function useMediaAdapter(): ListAdapter<MediaListItem> {
               : 0
           }
           return getDateGroup(timestamp, currentLanguage)
+        }
 
-        case "duration":
+        case "duration": {
           const duration = parseDuration(file.duration)
           return getDurationGroup(duration)
+        }
 
         default:
           return ""

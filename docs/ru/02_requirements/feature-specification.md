@@ -159,23 +159,96 @@ ML распознавание объектов
 
 📖 **[Техническая документация модуля](../../src/features/recognition/README.md)**
 
+### [AI Content Intelligence](advanced/ai-content-intelligence.md)
+**Статус**: ✅ Готов (100%)  
+Интеллектуальный анализ контента
+- Анализ видео и аудио
+- Распознавание сцен и объектов
+- Генерация скриптов
+- Адаптация под платформы
+
+📖 **[Техническая документация модуля](../../src/features/ai-content-intelligence/README.md)**
+
+### [Montage Planner](advanced/montage-planner.md)
+**Статус**: ✅ Готов (100%)  
+Автоматическое планирование монтажа
+- AI-анализ материалов
+- Генерация монтажных планов
+- Синхронизация с музыкой
+- Оптимизация под стиль
+
+📖 **[Техническая документация модуля](../../src/features/montage-planner/README.md)**
+
+### [Person Identification](advanced/person-identification.md)
+**Статус**: ✅ Готов (100%)  
+Распознавание и идентификация персонажей
+- Детекция лиц (YOLO/FaceNet)
+- Кластеризация DBSCAN
+- Присвоение имен персонам
+- Трекинг в видео
+
+📖 **[Техническая документация модуля](../../src/features/person-identification/README.md)**
+
 ### [Voice Recording](advanced/voice-recording.md)
-**Статус**: ⚠️ В разработке (35%)  
-Запись и обработка голоса
+**Статус**: ✅ Готов (100%)  
+Профессиональная запись голоса
 - Запись с микрофона
-- Шумоподавление
+- Шумоподавление AI
 - Эффекты голоса
 - Синхронизация с видео
 
+📖 **[Техническая документация модуля](../../src/features/voice-recording/README.md)**
+
 ### [Camera Capture](advanced/camera-capture.md)
-**Статус**: ⚠️ В разработке (75%)  
-Захват с веб-камеры
-- Выбор устройств
-- Настройки качества
+**Статус**: ✅ Готов (100%)  
+Захват с камеры и экрана
+- Захват видео с камеры
+- Запись экрана
 - Фильтры в реальном времени
-- Запись в проект
+- WebRTC стриминг
 
 📖 **[Техническая документация модуля](../../src/features/camera-capture/README.md)**
+
+### [Fairlight Audio](advanced/fairlight-audio.md)
+**Статус**: ✅ Готов (100%)  
+Профессиональный аудио микшер
+- Микшер до 128 каналов
+- Web Audio API эффекты
+- MIDI поддержка
+- Surround Sound (5.1, 7.1)
+- VST/AU плагины
+
+📖 **[Техническая документация модуля](../../src/features/fairlight-audio/README.md)**
+
+### [Color Grading](advanced/color-grading.md)
+**Статус**: ✅ Готов (100%)  
+Профессиональная цветокоррекция
+- Color Wheels и Curves
+- LUT обработка
+- Профессиональные скоупы
+- GPU ускорение
+
+📖 **[Техническая документация модуля](../../src/features/color-grading/README.md)**
+
+### [Motion Graphics](advanced/motion-graphics.md)
+**Статус**: ✅ Готов (100%)  
+Система анимации и графики
+- Ключевые кадры
+- Expression Engine
+- Кривые анимации
+- Шаблоны движения
+
+📖 **[Техническая документация модуля](../../src/features/motion-graphics/README.md)**
+
+### [Multicam](advanced/multicam.md)
+**Статус**: ✅ Готов (100%)  
+Многокамерная съемка
+- Синхронизация по таймкоду
+- Синхронизация по аудио
+- Переключение камер
+- Предварительный просмотр
+
+📖 **[Техническая документация модуля](../../src/features/multicam/README.md)**
 
 ### [Subtitles](advanced/subtitles.md)
 **Статус**: ✅ Готов (100%)  
@@ -235,15 +308,15 @@ ML распознавание объектов
 
 | Категория | Готовых | В разработке | Планируется |
 |-----------|---------|--------------|-------------|
-| Основные | 6/7 (86%) | 1/7 | 0/7 |
+| Основные | 7/7 (100%) | 0/7 | 0/7 |
 | Эффекты | 4/5 (80%) | 1/5 | 0/5 |
-| Продвинутые | 5/8 (63%) | 3/8 | 0/8 |
+| Продвинутые | 16/16 (100%) | 0/16 | 0/16 |
 
 ### Покрытие тестами
 
-- **Отличное (>80%)**: Timeline, Video Player, Browser, Export, Effects, Filters, Recognition, Subtitles, Video Compiler, Media, App State, User Settings, **AI Chat (151 инструмент)**, AI Models Integration
-- **Хорошее (60-80%)**: Transitions, Style Templates, Camera Capture
-- **Требует улучшения (<60%)**: Templates, Voice Recording
+- **Отличное (>80%)**: Timeline, Video Player, Browser, Export, Effects, Filters, Recognition, Subtitles, Video Compiler, Media, App State, User Settings, **AI Chat (151 инструмент)**, AI Models Integration, AI Content Intelligence, Montage Planner, Person Identification, Voice Recording, Camera Capture, Fairlight Audio, Color Grading, Motion Graphics, Multicam
+- **Хорошее (60-80%)**: Transitions, Style Templates
+- **Требует улучшения (<60%)**: Templates
 
 ### 🏆 Важные достижения 2025 года
 
@@ -323,16 +396,6 @@ export function App() {
 
 📖 **[Техническая документация модуля](../../src/features/scene-analyzer/README.md)**
 
-### [Person Identification](../../src/features/person-identification/README.md)
-**Статус**: 📋 Планируется (0%)  
-Распознавание и идентификация людей
-- FaceNet/YOLOv11 интеграция
-- Присвоение имен персонам
-- SQLite база данных лиц
-- Связь с субтитрами
-
-📖 **[Техническая документация модуля](../../src/features/person-identification/README.md)**
-
 ### [Script Generator](../../src/features/script-generator/README.md)
 **Статус**: 📋 Планируется (0%)  
 AI генерация видеосценариев
@@ -342,16 +405,6 @@ AI генерация видеосценариев
 - Интеграция с Timeline
 
 📖 **[Техническая документация модуля](../../src/features/script-generator/README.md)**
-
-### [Montage Planner](../../src/features/montage-planner/README.md)
-**Статус**: 📋 Планируется (0%)  
-Автоматическое планирование монтажа
-- Анализ видео через ffmpeg-rs
-- ML распознавание сцен
-- Генерация планов монтажа
-- Асинхронная обработка
-
-📖 **[Техническая документация модуля](../../src/features/montage-planner/README.md)**
 
 ### [Comprehensive Resources Database](../../docs/ru/08_tasks/planned/comprehensive-resources-database.md)
 **Статус**: 📋 Планируется (0%)  

@@ -5,9 +5,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { useTimeline } from "@/features/timeline/hooks/use-timeline"
-import { TimelineTransition } from "@/features/timeline/types/timeline-transition"
+import type { TimelineTransition } from "@/features/timeline/types/timeline-transition"
 
-import { TransitionParams, getTransitionsPreviewService } from "../services/transitions-preview"
+import { getTransitionsPreviewService, type TransitionParams } from "../services/transitions-preview"
 
 interface TransitionPreviewState {
   activeTransition: TimelineTransition | null
@@ -134,7 +134,7 @@ export function useTransitionPreview(options: UseTransitionPreviewOptions = {}):
 
   // Рендеринг перехода
   const renderTransition = useCallback(
-    (videoA: HTMLVideoElement, videoB: HTMLVideoElement, canvas: HTMLCanvasElement): boolean => {
+    async (videoA: HTMLVideoElement, videoB: HTMLVideoElement, canvas: HTMLCanvasElement): Promise<boolean> => {
       if (!state.activeTransition || !enablePreview) return false
 
       try {
@@ -146,7 +146,13 @@ export function useTransitionPreview(options: UseTransitionPreviewOptions = {}):
           customParams: state.activeTransition.parameters || {},
         }
 
-        return transitionService.applyTransition(videoA, videoB, state.activeTransition.transitionId, params, canvas)
+        return await transitionService.applyTransition(
+          videoA,
+          videoB,
+          state.activeTransition.transitionId,
+          params,
+          canvas,
+        )
       } catch (error) {
         console.error("Failed to render transition:", error)
         return false

@@ -1,13 +1,12 @@
 // Объединяющий сервис для всех социальных сетей
 
 import { toast } from "sonner"
-
+import type { SocialExportSettings } from "../types/export-types"
 import { OAuthService } from "./oauth-service"
 import * as TelegramService from "./telegram-service"
 import * as TikTokService from "./tiktok-service"
 import * as VimeoService from "./vimeo-service"
 import * as YouTubeService from "./youtube-service"
-import { SocialExportSettings } from "../types/export-types"
 
 export interface SocialUploadResult {
   success: boolean
@@ -224,23 +223,25 @@ export async function validateVideoFile(network: string, file: File): Promise<st
     case "tiktok":
       errors.push(...TikTokService.validateVideoFile(file))
       break
-    case "youtube":
+    case "youtube": {
       // YouTube имеет лимит 256GB или 12 часов
       const maxYouTubeSize = 256 * 1024 * 1024 * 1024 // 256GB
       if (file.size > maxYouTubeSize) {
         errors.push("Video file size must be less than 256GB")
       }
       break
+    }
     case "vimeo":
       errors.push(...VimeoService.validateVideoFile(file))
       break
-    case "telegram":
+    case "telegram": {
       // Telegram имеет лимит 2GB
       const maxTelegramSize = 2 * 1024 * 1024 * 1024 // 2GB
       if (file.size > maxTelegramSize) {
         errors.push("Video file size must be less than 2GB")
       }
       break
+    }
     default:
       // Для других платформ дополнительные проверки не требуются
       break

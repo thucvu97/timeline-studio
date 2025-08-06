@@ -4,13 +4,11 @@
 
 import { useCallback, useState } from "react"
 
-import { MediaFile } from "@/features/media/types/media"
-
+import type { MediaFile } from "@/features/media/types/media"
+import type { Fragment, MontagePlan } from "../types"
 import { useContentAnalysis } from "./use-content-analysis"
 import { useMontagePlanner } from "./use-montage-planner"
 import { usePlanGenerator } from "./use-plan-generator"
-
-import type { Fragment, MontagePlan } from "../types"
 
 export interface UseIntegratedAnalysisReturn {
   // Основные действия

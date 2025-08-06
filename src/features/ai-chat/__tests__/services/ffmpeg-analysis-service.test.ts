@@ -1,15 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import {
-  AudioAnalysisResult,
+  type AudioAnalysisResult,
   FFmpegAnalysisService,
-  KeyFrameExtractionResult,
-  MotionAnalysisResult,
-  QualityAnalysisResult,
-  SceneDetectionResult,
-  SilenceDetectionResult,
-  VideoAnalysisOptions,
-  VideoMetadata,
+  type KeyFrameExtractionResult,
+  type MotionAnalysisResult,
+  type QualityAnalysisResult,
+  type SceneDetectionResult,
+  type SilenceDetectionResult,
+  type VideoAnalysisOptions,
+  type VideoMetadata,
 } from "../../services/ffmpeg-analysis-service"
 
 // Mock Tauri API

@@ -21,7 +21,7 @@ import { UserSettingsModal } from "@/features/user-settings"
 import { CacheStatisticsModal } from "@/features/video-compiler/components/cache-statistics-modal"
 import { VoiceRecordModal } from "@/features/voice-recording"
 
-import { ModalType, useModal } from "../services"
+import { type ModalType, useModal } from "../services"
 
 /**
  * Контейнер для модальных окон

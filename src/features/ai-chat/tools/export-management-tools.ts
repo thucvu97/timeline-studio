@@ -5,7 +5,7 @@
  * процессом экспорта видео на различные платформы
  */
 
-import { ClaudeTool } from "../services/claude-service"
+import type { ClaudeTool } from "../services/claude-service"
 
 // Типы для экспорта
 export interface ExportSettings {

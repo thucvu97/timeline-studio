@@ -4,16 +4,16 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState } from 
 
 import type { VideoEffect } from "@/features/effects/types"
 import type { VideoFilter } from "@/features/filters/types/filters"
-import { ResourceType } from "@/features/resources/types"
+import type { ResourceType } from "@/features/resources/types"
 import type { Transition } from "@/features/transitions/types/transitions"
 
 import type {
   EffectsProviderAPI,
   EffectsProviderContext,
   EffectsProviderProps,
-  LoadResult,
   LoadingConfig,
   LoadingState,
+  LoadResult,
   Resource,
   ResourceCache,
   ResourceSource,
@@ -81,14 +81,13 @@ class EffectsProviderImpl implements EffectsProviderAPI {
     resourcesUpdate: ((type: ResourceType, resources: Resource[]) => void)[]
     error: ((error: string, source?: ResourceSource) => void)[]
   } = {
-      loadingStateChange: [],
-      resourcesUpdate: [],
-      error: [],
-    }
-
-  constructor(config: LoadingConfig) {
-    this.config = config
+    loadingStateChange: [],
+    resourcesUpdate: [],
+    error: [],
   }
+
+  // biome-ignore lint/correctness/noUnusedPrivateClassMembers: конфигурация для будущего использования
+  constructor(private config: LoadingConfig) {}
 
   // === Получение ресурсов ===
 

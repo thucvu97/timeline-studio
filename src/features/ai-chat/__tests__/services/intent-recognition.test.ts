@@ -1,8 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest"
-
-import { IntentRecognitionService } from "../../services/intent-recognition"
-
 import type { UserIntent } from "../../services/intent-recognition"
+import { IntentRecognitionService } from "../../services/intent-recognition"
 
 describe("IntentRecognitionService", () => {
   let service: IntentRecognitionService

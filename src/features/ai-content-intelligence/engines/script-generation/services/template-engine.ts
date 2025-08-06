@@ -3,12 +3,10 @@
  * Движок для работы с шаблонами сценариев
  */
 
-import { NarrativeType, TemplateCategory } from "../../../shared/types/script-generation"
-import { SectionType } from "../types"
-
 import type { ScriptTemplate } from "../../../shared/types/script-generation"
+import { NarrativeType, TemplateCategory } from "../../../shared/types/script-generation"
 import type { TemplateSection, TemplateStructure, TemplateVariable } from "../types"
-
+import { SectionType } from "../types"
 
 // Расширенный тип шаблона для внутреннего использования
 interface ExtendedScriptTemplate extends ScriptTemplate {
@@ -22,7 +20,6 @@ export class TemplateEngine {
   async initialize(): Promise<void> {
     // Загружаем встроенные шаблоны
     this.loadBuiltinTemplates()
-    this.isInitialized = true
   }
 
   /**
@@ -90,6 +87,7 @@ export class TemplateEngine {
         genre: [],
         duration: 0,
         tone: "neutral" as any,
+        style: "standard" as unknown as import("../../../shared/types/script-generation").ScriptStyle,
       },
       templateStructure: structure,
       variables: variables || [],
@@ -127,6 +125,7 @@ export class TemplateEngine {
         genre: [],
         duration: 0,
         tone: "casual" as any,
+        style: "vlog" as unknown as import("../../../shared/types/script-generation").ScriptStyle,
       },
       templateStructure: {
         sections: [
@@ -240,6 +239,7 @@ export class TemplateEngine {
         genre: [],
         duration: 0,
         tone: "serious" as any,
+        style: "documentary" as unknown as import("../../../shared/types/script-generation").ScriptStyle,
       },
       templateStructure: {
         sections: [

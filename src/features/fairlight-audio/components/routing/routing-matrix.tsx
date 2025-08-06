@@ -1,6 +1,5 @@
-import { useState } from "react"
-
 import { Minus, Plus, Radio, Settings, Users, Volume2, VolumeX } from "lucide-react"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
@@ -9,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider"
 import { cn } from "@/lib/utils"
 
-import { AudioBus, ChannelGroup, ChannelSend } from "../../services/bus-router"
+import type { AudioBus, ChannelGroup, ChannelSend } from "../../services/bus-router"
 
 interface RoutingMatrixProps {
   buses: AudioBus[]

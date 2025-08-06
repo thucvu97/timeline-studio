@@ -56,7 +56,7 @@
             "transitions": []
           },
           {
-            "id": "clip-2", 
+            "id": "clip-2",
             "name": "Kate.mp4",
             "mediaFile": {
               "id": "media-2",
@@ -70,7 +70,7 @@
                 "streams": [
                   {
                     "index": 0,
-                    "codec_type": "video", 
+                    "codec_type": "video",
                     "width": 1280,
                     "height": 720,
                     "display_aspect_ratio": "16:9"
@@ -131,7 +131,7 @@
             "name": "DJI_02_20250402_104352.WAV",
             "mediaFile": {
               "id": "media-4",
-              "path": "test-data/DJI_02_20250402_104352.WAV", 
+              "path": "test-data/DJI_02_20250402_104352.WAV",
               "name": "DJI_02_20250402_104352.WAV",
               "type": "audio/wav",
               "size": 12000000,
@@ -173,7 +173,7 @@
         "isLoadingMetadata": false
       },
       {
-        "id": "media-2", 
+        "id": "media-2",
         "path": "test-data/Kate.mp4",
         "name": "Kate.mp4",
         "type": "video/mp4",
@@ -194,7 +194,7 @@
         "id": "media-4",
         "path": "test-data/DJI_02_20250402_104352.WAV",
         "name": "DJI_02_20250402_104352.WAV",
-        "type": "audio/wav", 
+        "type": "audio/wav",
         "size": 12000000,
         "duration": 120.5,
         "isLoadingMetadata": false

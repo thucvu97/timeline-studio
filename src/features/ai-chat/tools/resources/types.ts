@@ -2,10 +2,10 @@
  * Типы для AI инструментов работы с ресурсами
  */
 
-import { VideoEffect } from "@/features/effects/types"
-import { VideoFilter } from "@/features/filters/types/filters"
-import { MediaFile } from "@/features/media/types/media"
-import { ResourcesContextType } from "@/features/resources/services/resources-provider"
+import type { VideoEffect } from "@/features/effects/types"
+import type { VideoFilter } from "@/features/filters/types/filters"
+import type { MediaFile } from "@/features/media/types/media"
+import type { ResourcesContextType } from "@/features/resources/services/resources-provider"
 
 /**
  * Результат выполнения инструмента для ресурсов

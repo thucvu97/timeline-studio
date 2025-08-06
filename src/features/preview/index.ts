@@ -9,18 +9,18 @@ export { PresetGallery } from "./components/preset-gallery"
 export { PreviewPanel } from "./components/preview-panel"
 export { QualityControls } from "./components/quality-controls"
 export { TimelinePreviewIntegration } from "./components/timeline-preview-integration"
-// Hooks
-export { useRealtimePreview } from "./hooks/use-realtime-preview"
 export { useTimelineIntegration } from "./hooks/use-timeline-integration"
+// Hooks
+export { useWebGL2Preview, useWebGL2Preview as useRealtimePreview } from "./hooks/use-webgl2-preview"
 export type {
   EffectChain,
   EffectPreset,
 } from "./services/effect-pipeline-manager"
 export { EffectPipelineManager } from "./services/effect-pipeline-manager"
 export { PreviewCache } from "./services/preview-cache"
-// Services
-export { PreviewRenderer } from "./services/preview-renderer"
 export { TexturePool } from "./services/texture-pool"
+// Services
+export { WebGL2PreviewRenderer, WebGL2PreviewRenderer as PreviewRenderer } from "./services/webgl2-preview-renderer"
 export * from "./shaders/base"
 // Types
 export type {
@@ -39,4 +39,4 @@ export type {
   TransformParams,
 } from "./types"
 // Utilities
-export * from "./utils/webgl-utils"
+// WebGL utilities are now in @/lib/webgl

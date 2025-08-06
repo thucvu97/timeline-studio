@@ -13,7 +13,7 @@ import { basicEffectsLibrary } from "./presets/basic-effects"
 import { colorCorrectionEffectsLibrary } from "./presets/color-correction-effects"
 import { stylizeEffectsLibrary } from "./presets/stylize-effects"
 import { EffectManager } from "./services/effect-manager"
-import { UnifiedEffectsRenderer } from "./services/unified-renderer"
+import { WebGL2UnifiedRenderer } from "./services/webgl2-unified-renderer"
 
 // Импорт типов для утилит
 import type {
@@ -61,11 +61,13 @@ export type {
 // ============================================================================
 
 export { EffectManager } from "./services/effect-manager"
+export { WebGL2EffectProcessor } from "./services/webgl2-effect-processor"
 export {
   type RenderContext,
   type RenderResult,
-  UnifiedEffectsRenderer,
-} from "./services/unified-renderer"
+  WebGL2UnifiedRenderer,
+  WebGL2UnifiedRenderer as UnifiedEffectsRenderer,
+} from "./services/webgl2-unified-renderer"
 
 // ============================================================================
 // ХУКИ
@@ -140,8 +142,15 @@ export function createEffectManager(
 /**
  * Создает новый рендерер эффектов
  */
-export function createEffectRenderer(): UnifiedEffectsRenderer {
-  return new UnifiedEffectsRenderer()
+export function createEffectRenderer(): WebGL2UnifiedRenderer {
+  return new WebGL2UnifiedRenderer()
+}
+
+/**
+ * Создает новый WebGL2 рендерер эффектов
+ */
+export function createWebGL2EffectRenderer(): WebGL2UnifiedRenderer {
+  return new WebGL2UnifiedRenderer()
 }
 
 /**
@@ -323,22 +332,22 @@ export function migrateVideoEffect(oldEffect: any): BaseEffect {
     parameters: migrateParameters(oldEffect.params || {}),
     presets: oldEffect.presets
       ? Object.entries(oldEffect.presets).map(([id, preset]: [string, any]) => ({
-        id,
-        name: preset.name || { en: id, ru: id },
-        parameters: preset.params || {},
-        tags: [],
-      }))
+          id,
+          name: preset.name || { en: id, ru: id },
+          parameters: preset.params || {},
+          tags: [],
+        }))
       : [],
     processors: {
       css: oldEffect.cssFilter
         ? {
-          filter: oldEffect.cssFilter,
-        }
+            filter: oldEffect.cssFilter,
+          }
         : undefined,
       ffmpeg: oldEffect.ffmpegCommand
         ? {
-          filter: oldEffect.ffmpegCommand,
-        }
+            filter: oldEffect.ffmpegCommand,
+          }
         : undefined,
     },
   }

@@ -1,14 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from "react"
 
 import { ResizableHandle as PanelResizeHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 import { usePlayer } from "@/features/video-player/services/player-provider"
-
+import { getAllTemplateConfig } from "../lib/all-template-configs"
+import type { CellConfiguration } from "../lib/template-config"
+import type { AppliedTemplate } from "../services/template-service"
 import { TemplateRenderer } from "./template-renderer"
 import { VideoPanelComponent } from "./video-panel-component"
-import { getAllTemplateConfig } from "../lib/all-template-configs"
-import { CellConfiguration } from "../lib/template-config"
-import { AppliedTemplate } from "../services/template-service"
 
 interface ResizableTemplateProps {
   appliedTemplate: AppliedTemplate
@@ -39,9 +38,9 @@ export function ResizableTemplate({ appliedTemplate, videos, activeVideoId, vide
   const [splitPoints, setSplitPoints] = useState<{ x: number; y: number }[]>(
     template?.splitPoints ||
       templateConfig?.splitPoints || [
-      { x: 66.67, y: 0 },
-      { x: 33.33, y: 100 },
-    ],
+        { x: 66.67, y: 0 },
+        { x: 33.33, y: 100 },
+      ],
   )
 
   // Состояние для отслеживания перетаскивания диагонали

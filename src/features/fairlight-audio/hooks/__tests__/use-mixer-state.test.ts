@@ -1,9 +1,7 @@
 import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it } from "vitest"
-
-import { useMixerState } from "../use-mixer-state"
-
 import type { AudioChannel } from "../../types"
+import { useMixerState } from "../use-mixer-state"
 
 describe("useMixerState", () => {
   let result: ReturnType<typeof renderHook<ReturnType<typeof useMixerState>, void>>

@@ -5,73 +5,73 @@
  * This handles network timeouts and connection issues
  */
 
-const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+const { execSync } = require("child_process")
+const fs = require("fs")
+const path = require("path")
 
-const MAX_RETRIES = 3;
-const RETRY_DELAY = 5000; // 5 seconds
+const MAX_RETRIES = 3
+const RETRY_DELAY = 5000 // 5 seconds
 
 function log(message) {
-  console.log(`[onnxruntime-install] ${message}`);
+  console.log(`[onnxruntime-install] ${message}`)
 }
 
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 async function tryInstall(attempt) {
-  log(`Attempt ${attempt} of ${MAX_RETRIES} to install onnxruntime-node...`);
-  
+  log(`Attempt ${attempt} of ${MAX_RETRIES} to install onnxruntime-node...`)
+
   try {
     // Set longer timeout
-    execSync('npm install onnxruntime-node@1.22.0 --no-save --no-audit --no-fund', {
-      stdio: 'inherit',
+    execSync("npm install onnxruntime-node@1.22.0 --no-save --no-audit --no-fund", {
+      stdio: "inherit",
       env: {
         ...process.env,
-        npm_config_fetch_timeout: '600000',
-        npm_config_fetch_retries: '5',
-        ONNXRUNTIME_DOWNLOAD_TIMEOUT: '600000'
-      }
-    });
-    
-    log('✅ onnxruntime-node installed successfully!');
-    return true;
+        npm_config_fetch_timeout: "600000",
+        npm_config_fetch_retries: "5",
+        ONNXRUNTIME_DOWNLOAD_TIMEOUT: "600000",
+      },
+    })
+
+    log("✅ onnxruntime-node installed successfully!")
+    return true
   } catch (error) {
-    log(`❌ Installation failed: ${error.message}`);
-    
+    log(`❌ Installation failed: ${error.message}`)
+
     if (attempt < MAX_RETRIES) {
-      log(`Waiting ${RETRY_DELAY / 1000} seconds before retry...`);
-      await sleep(RETRY_DELAY);
+      log(`Waiting ${RETRY_DELAY / 1000} seconds before retry...`)
+      await sleep(RETRY_DELAY)
     }
-    
-    return false;
+
+    return false
   }
 }
 
 async function installWithFallback() {
   // Check if already installed
   try {
-    require.resolve('onnxruntime-node');
-    log('onnxruntime-node is already installed');
-    return;
+    require.resolve("onnxruntime-node")
+    log("onnxruntime-node is already installed")
+    return
   } catch (e) {
     // Not installed, continue
   }
-  
+
   // Try to install with retries
   for (let i = 1; i <= MAX_RETRIES; i++) {
     if (await tryInstall(i)) {
-      return;
+      return
     }
   }
-  
+
   // If all attempts fail, create a mock file to allow build to continue
-  log('⚠️  All installation attempts failed. Creating mock to allow build to continue...');
-  
-  const mockDir = path.join(process.cwd(), 'node_modules', 'onnxruntime-node');
-  fs.mkdirSync(mockDir, { recursive: true });
-  
+  log("⚠️  All installation attempts failed. Creating mock to allow build to continue...")
+
+  const mockDir = path.join(process.cwd(), "node_modules", "onnxruntime-node")
+  fs.mkdirSync(mockDir, { recursive: true })
+
   const mockContent = `
 // Mock onnxruntime-node module
 // This is a placeholder to allow the build to continue when the real module fails to install
@@ -87,24 +87,31 @@ module.exports = {
     async dispose() {}
   }
 };
-`;
-  
-  fs.writeFileSync(path.join(mockDir, 'index.js'), mockContent);
-  fs.writeFileSync(path.join(mockDir, 'package.json'), JSON.stringify({
-    name: 'onnxruntime-node',
-    version: '1.22.0-mock',
-    main: 'index.js'
-  }, null, 2));
-  
-  log('✅ Mock onnxruntime-node created. Build can continue, but AI features will be disabled.');
+`
+
+  fs.writeFileSync(path.join(mockDir, "index.js"), mockContent)
+  fs.writeFileSync(
+    path.join(mockDir, "package.json"),
+    JSON.stringify(
+      {
+        name: "onnxruntime-node",
+        version: "1.22.0-mock",
+        main: "index.js",
+      },
+      null,
+      2,
+    ),
+  )
+
+  log("✅ Mock onnxruntime-node created. Build can continue, but AI features will be disabled.")
 }
 
 // Run the installation
 if (require.main === module) {
-  installWithFallback().catch(error => {
-    console.error('Failed to install onnxruntime-node:', error);
-    process.exit(1);
-  });
+  installWithFallback().catch((error) => {
+    console.error("Failed to install onnxruntime-node:", error)
+    process.exit(1)
+  })
 }
 
-module.exports = { installWithFallback };
+module.exports = { installWithFallback }

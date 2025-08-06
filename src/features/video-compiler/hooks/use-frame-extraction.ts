@@ -7,11 +7,11 @@ import { useFramePreview } from "@/features/media/hooks/use-frame-preview"
 import type { Subtitle } from "@/types/video-compiler"
 
 import {
-  ExtractionPurpose,
+  type ExtractionPurpose,
+  frameExtractionService,
   type RecognitionFrame,
   type SubtitleFrame,
   type TimelineFrame,
-  frameExtractionService,
 } from "../services/frame-extraction-service"
 
 export interface UseFrameExtractionOptions {

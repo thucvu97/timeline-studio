@@ -1,8 +1,8 @@
 import { invoke } from "@tauri-apps/api/core"
 import { basename, dirname, join } from "@tauri-apps/api/path"
 
-import { MediaFile } from "@/features/media/types/media"
-import { FileStatus, MusicMetadata, SavedMediaFile, SavedMusicFile } from "@/features/media/types/saved-media"
+import type { MediaFile } from "@/features/media/types/media"
+import type { FileStatus, MusicMetadata, SavedMediaFile, SavedMusicFile } from "@/features/media/types/saved-media"
 
 /**
  * Генерирует уникальный ID для медиафайла

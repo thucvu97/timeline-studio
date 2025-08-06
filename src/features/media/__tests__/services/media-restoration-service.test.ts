@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { MediaFile } from "@/features/media/types/media"
-import { SavedMediaFile, SavedMusicFile } from "@/features/media/types/saved-media"
+import type { MediaFile } from "@/features/media/types/media"
+import type { SavedMediaFile, SavedMusicFile } from "@/features/media/types/saved-media"
 
 import {
   generateRestorationReport,

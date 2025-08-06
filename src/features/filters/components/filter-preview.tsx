@@ -3,10 +3,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { ApplyButton } from "@/features/browser"
-import { VideoFilter } from "@/features/filters/types/filters"
+import type { VideoFilter } from "@/features/filters/types/filters"
 import { useResources } from "@/features/resources"
-import { FilterResource, TimelineResource } from "@/features/resources/types"
+import type { FilterResource, TimelineResource } from "@/features/resources/types"
 import { usePlayer, useVideoSelection } from "@/features/video-player"
+import { convertVideoSrc } from "@/lib/tauri-utils"
 
 import { AddMediaButton } from "../../browser/components/layout/add-media-button"
 import { FavoriteButton } from "../../browser/components/layout/favorite-button"
@@ -218,7 +219,7 @@ export function FilterPreview({ filter, onClick, size, previewWidth, previewHeig
         {/* Видео для демонстрации фильтра */}
         <video
           ref={videoRef}
-          src="/t1.mp4" // Тестовое видео для демонстрации фильтра
+          src={convertVideoSrc(window.location.hostname === "localhost" ? "/t1.mp4" : "./t1.mp4")} // Тестовое видео для демонстрации фильтра
           className="absolute top-1/2 left-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 rounded-xs object-cover"
           muted
           playsInline

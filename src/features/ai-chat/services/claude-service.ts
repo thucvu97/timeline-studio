@@ -2,9 +2,9 @@
  * Специализированный сервис для работы с Claude API
  */
 
+import type { AiMessage } from "../types/ai-message"
+import type { ClaudeStreamingEvent, StreamingOptions, StreamingRequest } from "../types/streaming"
 import { ApiKeyLoader } from "./api-key-loader"
-import { AiMessage } from "../types/ai-message"
-import { ClaudeStreamingEvent, StreamingOptions, StreamingRequest } from "../types/streaming"
 
 // Доступные модели Claude
 export const CLAUDE_MODELS = {

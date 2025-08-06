@@ -1,7 +1,4 @@
 import { nanoid } from "nanoid"
-
-import { getDefaultGroupColor, getDefaultGroupName } from "../types/clip-groups"
-
 import type {
   ClipGroup,
   ClipId,
@@ -13,6 +10,7 @@ import type {
   GroupOptions,
   NestedSequence,
 } from "../types/clip-groups"
+import { getDefaultGroupColor, getDefaultGroupName } from "../types/clip-groups"
 
 export class TimelineGroupManager implements GroupManager {
   groups = new Map<GroupId, ClipGroup>()

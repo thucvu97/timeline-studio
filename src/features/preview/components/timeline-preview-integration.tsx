@@ -3,16 +3,14 @@
  * Integrates real-time preview with Media Studio timeline
  */
 
-import { useEffect, useRef } from "react"
-
 import { Eye, EyeOff, Monitor, Settings, Zap } from "lucide-react"
+import { useEffect, useRef } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-
-import { QualityControls } from "./quality-controls"
 import { useRealtimePreview } from "../hooks/use-realtime-preview"
+import { QualityControls } from "./quality-controls"
 
 interface TimelinePreviewIntegrationProps {
   /**

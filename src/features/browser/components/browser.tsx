@@ -1,9 +1,8 @@
 import { useBrowserAIIntegration } from "@/features/ai-chat/hooks/use-browser-ai-integration"
 import { BrowserStateProvider, useBrowserState } from "@/features/browser/services/browser-state-provider"
-
+import { EffectsProvider } from "../providers/effects-provider"
 import { BrowserContent } from "./browser-content"
 import { BrowserTabs } from "./browser-tabs"
-import { EffectsProvider } from "../providers/effects-provider"
 
 // Внутренний компонент, который использует состояние браузера
 function BrowserWithState() {

@@ -1,6 +1,5 @@
-import { useState } from "react"
-
 import { Clock, Minus, Plus, RotateCcw } from "lucide-react"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
@@ -11,7 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useTimeline } from "@/features/timeline/hooks/use-timeline"
 import { useTracks } from "@/features/timeline/hooks/use-tracks"
 
-import { SubtitleClip } from "../types/subtitles"
+import type { SubtitleClip } from "../types/subtitles"
 
 /**
  * Инструменты синхронизации субтитров

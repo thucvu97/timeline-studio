@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react"
-
 import { Loader2, Music } from "lucide-react"
+import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
@@ -9,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useModal } from "@/features/modals/services"
 
 import { useMidi } from "../../hooks/use-midi"
-import { MidiDevice, MidiMessage } from "../../services/midi/midi-engine"
+import type { MidiDevice, MidiMessage } from "../../services/midi/midi-engine"
 
 export function MidiLearnModal() {
   const { t } = useTranslation()

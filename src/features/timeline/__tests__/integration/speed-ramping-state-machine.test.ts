@@ -3,7 +3,7 @@ import { createActor } from "xstate"
 
 import { timelineMachine } from "../../__mocks__/timeline-machine"
 import { createTimelineProject } from "../../types/factories"
-import { SpeedRampingConfig } from "../../types/speed-ramping"
+import type { SpeedRampingConfig } from "../../types/speed-ramping"
 
 // Mock the timeline machine to use the mock version with speedRampingConfigs
 vi.mock("../../services/timeline-ui-machine", () => ({

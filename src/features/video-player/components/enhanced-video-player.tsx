@@ -13,9 +13,8 @@ import { useProjectSettings } from "@/features/project-settings"
 import { useTimeline } from "@/features/timeline/hooks/use-timeline"
 import { usePrerender, usePrerenderCache } from "@/features/video-compiler/hooks/use-prerender"
 import { convertVideoSrc } from "@/lib/tauri-utils"
-
-import { PlayerControls } from "./player-controls"
 import { usePlayer } from "../services/player-provider"
+import { PlayerControls } from "./player-controls"
 
 interface PrerenderOptions {
   enabled: boolean

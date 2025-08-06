@@ -2,18 +2,15 @@
  * Компонент для просмотра всех углов камер в мультикамерном режиме
  */
 
-import { useCallback, useEffect, useRef, useState } from "react"
-
 import { Camera, Pause, Play } from "lucide-react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-
-import { SyncControls } from "./sync-controls"
-import { useMulticam } from "../hooks/use-multicam"
-
 import type { MulticamAngle } from "../hooks/use-multicam"
+import { useMulticam } from "../hooks/use-multicam"
+import { SyncControls } from "./sync-controls"
 
 interface AngleViewerProps {
   /**

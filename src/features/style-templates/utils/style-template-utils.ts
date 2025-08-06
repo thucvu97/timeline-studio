@@ -1,4 +1,4 @@
-import { StyleTemplate, StyleTemplateFilter, StyleTemplateSortField } from "../types"
+import type { StyleTemplate, StyleTemplateFilter, StyleTemplateSortField } from "../types"
 
 /**
  * Получает сокращение для категории шаблона

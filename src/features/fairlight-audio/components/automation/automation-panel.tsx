@@ -1,13 +1,12 @@
-import { useState } from "react"
-
 import { Circle, Hand, Lock, Play, Plus, Square } from "lucide-react"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 
-import { AutomationLane, AutomationMode } from "../../services/automation-engine"
+import type { AutomationLane, AutomationMode } from "../../services/automation-engine"
 
 interface AutomationPanelProps {
   mode: AutomationMode

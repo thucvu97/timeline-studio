@@ -98,7 +98,7 @@ export class ShaderCompiler {
 
     // Extract uniforms
     const uniformRegex = /uniform\s+(\w+)\s+(\w+)(?:\[(\d+)\])?;/g
-    let match
+    let match: RegExpExecArray | null
     while ((match = uniformRegex.exec(source)) !== null) {
       const [, type, name, arraySize] = match
       uniforms.push({

@@ -4,11 +4,9 @@
 
 import { render, screen } from "@testing-library/react"
 import { describe, expect, it } from "vitest"
-
+import type { PipelineProgress, StepProgress } from "../../../shared/types/pipeline"
 import { ProcessingStatus } from "../../../shared/types/pipeline"
 import { PipelineStatus } from "../pipeline-status"
-
-import type { PipelineProgress, StepProgress } from "../../../shared/types/pipeline"
 
 describe("PipelineStatus", () => {
   const createMockProgress = (overrides?: Partial<PipelineProgress>): PipelineProgress => ({

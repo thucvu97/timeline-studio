@@ -2,14 +2,11 @@
  * Main hook for Timeline drag and drop functionality
  */
 
+import type { DragEndEvent, DragOverEvent, DragStartEvent } from "@dnd-kit/core"
 import { useCallback, useState } from "react"
 
-import { DragEndEvent, DragOverEvent, DragStartEvent } from "@dnd-kit/core"
-
-import { TrackType } from "../types"
-import { useTimeline } from "./use-timeline"
-import { useTimelineActions } from "./use-timeline-actions"
-import { DragData, DragState } from "../types/drag-drop"
+import type { TrackType } from "../types"
+import type { DragData, DragState } from "../types/drag-drop"
 import {
   calculateTimelinePosition,
   canDropOnTrack,
@@ -17,6 +14,8 @@ import {
   getTrackTypeForMediaFile,
   snapToGrid,
 } from "../utils/drag-calculations"
+import { useTimeline } from "./use-timeline"
+import { useTimelineActions } from "./use-timeline-actions"
 
 export interface UseDragDropTimelineReturn {
   dragState: DragState

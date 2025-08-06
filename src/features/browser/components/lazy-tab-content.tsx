@@ -1,4 +1,4 @@
-import React, { Suspense, memo, useMemo } from "react"
+import React, { memo, Suspense, useMemo } from "react"
 
 interface LazyTabContentProps {
   tabValue: string
@@ -60,7 +60,7 @@ const getAdapterComponent = (tabValue: string) => {
  * Компонент для ленивой загрузки контента вкладки
  * Загружается только когда вкладка становится активной
  */
-export const LazyTabContent = memo(({ tabValue, activeTab, className }: LazyTabContentProps) => {
+export const LazyTabContent = memo(({ tabValue, activeTab }: LazyTabContentProps) => {
   // Рендерим контент только для активной вкладки
   const isActive = activeTab === tabValue
 

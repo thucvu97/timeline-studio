@@ -21,6 +21,7 @@ beforeEach(() => {
   setTranslations({
     "dialogs.voiceRecord.mediaDevicesNotSupported": "MediaDevices API недоступен",
     "dialogs.voiceRecord.initError": "Ошибка инициализации микрофона",
+    "dialogs.voiceRecord.recordingNotSupported": "Запись не поддерживается браузером",
   })
 
   // Мокаем navigator.mediaDevices.getUserMedia
@@ -61,6 +62,7 @@ describe("useVoiceRecording", () => {
         isMuted: true,
         setErrorMessage,
         onSaveRecording,
+        audioFormat: "webm",
       }),
     )
 
@@ -86,6 +88,7 @@ describe("useVoiceRecording", () => {
         isMuted: true,
         setErrorMessage,
         onSaveRecording,
+        audioFormat: "webm",
       }),
     )
 
@@ -110,6 +113,7 @@ describe("useVoiceRecording", () => {
         isMuted: true,
         setErrorMessage,
         onSaveRecording,
+        audioFormat: "webm",
       }),
     )
 
@@ -138,6 +142,7 @@ describe("useVoiceRecording", () => {
         isMuted: true,
         setErrorMessage,
         onSaveRecording,
+        audioFormat: "webm",
       }),
     )
 
@@ -166,6 +171,7 @@ describe("useVoiceRecording", () => {
         isMuted: true,
         setErrorMessage,
         onSaveRecording,
+        audioFormat: "webm",
       }),
     )
 
@@ -199,6 +205,7 @@ describe("useVoiceRecording", () => {
           isMuted: true,
           setErrorMessage,
           onSaveRecording,
+          audioFormat: "webm",
         }),
       )
 
@@ -231,6 +238,7 @@ describe("useVoiceRecording", () => {
           isMuted: true,
           setErrorMessage,
           onSaveRecording,
+          audioFormat: "webm",
         }),
       )
 
@@ -272,6 +280,7 @@ describe("useVoiceRecording", () => {
           isMuted: true,
           setErrorMessage,
           onSaveRecording,
+          audioFormat: "webm",
         }),
       )
 
@@ -310,6 +319,7 @@ describe("useVoiceRecording", () => {
           isMuted: true,
           setErrorMessage,
           onSaveRecording,
+          audioFormat: "webm",
         }),
       )
 
@@ -336,6 +346,7 @@ describe("useVoiceRecording", () => {
           isMuted: true,
           setErrorMessage,
           onSaveRecording,
+          audioFormat: "webm",
         }),
       )
 
@@ -396,6 +407,7 @@ describe("useVoiceRecording", () => {
           isMuted: true,
           setErrorMessage,
           onSaveRecording,
+          audioFormat: "webm",
         }),
       )
 
@@ -437,6 +449,7 @@ describe("useVoiceRecording", () => {
           isMuted: true,
           setErrorMessage,
           onSaveRecording,
+          audioFormat: "webm",
         }),
       )
 
@@ -465,6 +478,7 @@ describe("useVoiceRecording", () => {
           isMuted: true,
           setErrorMessage,
           onSaveRecording,
+          audioFormat: "webm",
         }),
       )
 
@@ -494,6 +508,7 @@ describe("useVoiceRecording", () => {
           isMuted: true,
           setErrorMessage,
           onSaveRecording,
+          audioFormat: "webm",
         }),
       )
 
@@ -520,6 +535,7 @@ describe("useVoiceRecording", () => {
           isMuted: true,
           setErrorMessage,
           onSaveRecording,
+          audioFormat: "webm",
         }),
       )
 
@@ -547,6 +563,7 @@ describe("useVoiceRecording", () => {
           isMuted: true,
           setErrorMessage,
           onSaveRecording,
+          audioFormat: "webm",
         }),
       )
 
@@ -578,6 +595,7 @@ describe("useVoiceRecording", () => {
           isMuted: true,
           setErrorMessage,
           onSaveRecording,
+          audioFormat: "webm",
         }),
       )
 

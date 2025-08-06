@@ -6,9 +6,8 @@ import { act, renderHook } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { useTimelinePersons } from "../../hooks/use-timeline-persons"
-import { MockTimelineProvider } from "../test-providers"
-
 import type { TimelineClip } from "../../types/timeline"
+import { MockTimelineProvider } from "../test-providers"
 
 // Mock timeline-machine
 vi.mock("../../services/timeline-machine", () => ({

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { StyleTemplate } from "../../types"
+import type { StyleTemplate } from "../../types"
 import {
   filterTemplates,
   generateTemplateId,

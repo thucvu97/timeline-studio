@@ -1,20 +1,18 @@
 import { describe, expect, it } from "vitest"
-
-import { updateSectorTimeRange } from "../tracks-utils"
-
 import type { MediaFile } from "../../types/media"
 import type { Sector } from "../../types/types"
+import { updateSectorTimeRange } from "../tracks-utils"
 
 describe("tracks-utils", () => {
   const createMockMediaFile = (startTime: number, duration: number, id = "media-1"): MediaFile => ({
     id,
     path: `/path/to/${id}.mp4`,
     name: `${id}.mp4`,
-    type: "video",
+    isVideo: true,
     size: 1024000,
     startTime,
     duration,
-    createdAt: Date.now(),
+    createdAt: Date.now().toLocaleString(),
   })
 
   const createMockSector = (tracks: any[] = []): Sector => ({

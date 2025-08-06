@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
-import { CurveEditor, CurvePoint } from "../../components/curves/curve-editor"
+import { CurveEditor, type CurvePoint } from "../../components/curves/curve-editor"
 
 describe("CurveEditor", () => {
   const defaultPoints: CurvePoint[] = [

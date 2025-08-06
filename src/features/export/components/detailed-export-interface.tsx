@@ -1,6 +1,5 @@
-import { useState } from "react"
-
 import { ChevronDown, ChevronRight, Folder } from "lucide-react"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
@@ -12,15 +11,14 @@ import { Progress } from "@/components/ui/progress"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { TimelineProject } from "@/features/timeline/types/timeline"
+import type { TimelineProject } from "@/features/timeline/types/timeline"
 import { cn } from "@/lib/utils"
 import { OutputFormat } from "@/types/video-compiler"
-
+import { FORMAT_OPTIONS, FRAME_RATE_OPTIONS, RESOLUTION_PRESETS } from "../constants/export-constants"
+import type { ExportProgress, ExportSettings } from "../types/export-types"
+import type { TransitionExportSettings } from "../types/transition-export-types"
 import { ExportPresets } from "./export-presets"
 import { TransitionExportSettingsComponent } from "./transition-export-settings"
-import { FORMAT_OPTIONS, FRAME_RATE_OPTIONS, RESOLUTION_PRESETS } from "../constants/export-constants"
-import { ExportProgress, ExportSettings } from "../types/export-types"
-import { TransitionExportSettings } from "../types/transition-export-types"
 
 interface DetailedExportInterfaceProps {
   settings: TransitionExportSettings & {

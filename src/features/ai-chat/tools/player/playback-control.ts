@@ -2,11 +2,10 @@
  * AI инструмент для управления воспроизведением
  */
 
-import { getPlayerState, hasLoadedMedia, setPlayerState } from "./utils/helpers"
-
-import type { PlaybackControlParams, PlayerToolResult } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
 
+import type { PlaybackControlParams, PlayerToolResult } from "./types"
+import { getPlayerState, hasLoadedMedia, setPlayerState } from "./utils/helpers"
 
 export const controlPlaybackTool: ClaudeTool = {
   name: "control_playback",
@@ -79,7 +78,7 @@ export async function controlPlayback(params: PlaybackControlParams): Promise<Pl
         message = "Воспроизведение остановлено"
         break
 
-      case "seek":
+      case "seek": {
         if (params.position === undefined) {
           return {
             success: false,
@@ -92,8 +91,9 @@ export async function controlPlayback(params: PlaybackControlParams): Promise<Pl
         updates.currentTime = clampedPosition
         message = `Перемотка на ${clampedPosition.toFixed(2)} секунд`
         break
+      }
 
-      case "volume":
+      case "volume": {
         if (params.value === undefined) {
           return {
             success: false,
@@ -107,8 +107,9 @@ export async function controlPlayback(params: PlaybackControlParams): Promise<Pl
         updates.muted = clampedVolume === 0
         message = `Громкость установлена на ${(clampedVolume * 100).toFixed(0)}%`
         break
+      }
 
-      case "speed":
+      case "speed": {
         if (params.value === undefined) {
           return {
             success: false,
@@ -121,6 +122,7 @@ export async function controlPlayback(params: PlaybackControlParams): Promise<Pl
         updates.playbackSpeed = clampedSpeed
         message = `Скорость воспроизведения установлена на ${clampedSpeed}x`
         break
+      }
 
       default:
         return {

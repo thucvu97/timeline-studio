@@ -1,5 +1,5 @@
+import type { ChatContextType } from "../services/chat-provider"
 import { useChat } from "./use-chat"
-import { ChatContextType } from "../services/chat-provider"
 
 /**
  * Хук для доступа только к состоянию чата (без методов)
@@ -8,7 +8,7 @@ import { ChatContextType } from "../services/chat-provider"
 export function useChatState(): Pick<
   ChatContextType,
   "chatMessages" | "selectedAgentId" | "isProcessing" | "error" | "currentSessionId" | "sessions" | "isCreatingNewChat"
-  > {
+> {
   const { chatMessages, selectedAgentId, isProcessing, error, currentSessionId, sessions, isCreatingNewChat } =
     useChat()
 

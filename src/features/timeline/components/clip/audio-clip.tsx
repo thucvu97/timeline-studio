@@ -2,9 +2,8 @@
  * AudioClip - Компонент аудио клипа
  */
 
-import React from "react"
-
 import { Copy, Music, Scissors, Sparkles, Trash2, Volume2 } from "lucide-react"
+import React from "react"
 
 import { Button } from "@/components/ui/button"
 import { useModal } from "@/features/modals/services"
@@ -13,7 +12,7 @@ import { cn } from "@/lib/utils"
 
 import { useClips } from "../../hooks"
 import { timelinePlayerSync } from "../../services/timeline-player-sync"
-import { AppliedEffect, TimelineClip, TimelineTrack } from "../../types"
+import type { AppliedEffect, TimelineClip, TimelineTrack } from "../../types"
 import Waveform from "../track/waveform"
 
 interface AudioClipProps {

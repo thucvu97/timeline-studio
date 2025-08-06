@@ -1,6 +1,5 @@
-import { useState } from "react"
-
 import { Plus, RotateCcw, RotateCw, Volume2, VolumeX, X } from "lucide-react"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
@@ -8,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider"
 import { cn } from "@/lib/utils"
 
-import { AudioBus, ChannelSend } from "../../services/bus-router"
+import type { AudioBus, ChannelSend } from "../../services/bus-router"
 
 interface SendPanelProps {
   channelId: string

@@ -1,4 +1,5 @@
-import React, { useCallback, useState } from "react"
+import type React from "react"
+import { useCallback, useState } from "react"
 
 import { cn } from "@/lib/utils"
 
@@ -18,7 +19,7 @@ interface JLCutDragHandleProps {
 
 export function JLCutDragHandle({
   clip,
-  linkedClip,
+  _linkedClip,
   cutType,
   pixelsPerSecond,
   onOffsetChange,

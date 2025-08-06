@@ -1,6 +1,5 @@
-import { useState } from "react"
-
 import { ChevronDown, FileText, Info, Monitor, Music, Settings, Video } from "lucide-react"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"

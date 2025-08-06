@@ -7,11 +7,11 @@
 
 import { type MediaInput, type SceneAnalysis, UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service"
 import { PersonDatabaseService } from "@/features/person-identification/services/person-database-service"
-import {
-  type DetectedFace,
-  type FaceEmbedding,
-  type PersonAppearance,
-  type PersonProfile,
+import type {
+  DetectedFace,
+  FaceEmbedding,
+  PersonAppearance,
+  PersonProfile,
 } from "@/features/person-identification/types/person"
 
 // Дополнительные типы для Scene Analysis
@@ -546,8 +546,9 @@ export class SceneAnalysisEngine {
             quality: detection.confidence,
             faceId: detection.id,
             timestamp: detection.timestamp,
-            frameNumber: detection.frameNumber,
+            frameNumber: detection.frameNumber ?? 0,
             clipId: detection.clipId,
+            createdAt: new Date().toISOString(),
           }
 
           await this.personDatabase.addEmbedding(appearance.personId, fakeEmbedding)

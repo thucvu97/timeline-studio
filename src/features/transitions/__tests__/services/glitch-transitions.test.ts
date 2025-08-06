@@ -317,7 +317,7 @@ describe("Glitch Transitions", () => {
       mockWebGL2Context.getProgramInfoLog = vi.fn(() => "")
 
       await service.initialize(mockCanvas)
-      
+
       // Сначала сделаем рендеринг, чтобы создались ресурсы
       const mockSourceTexture = {} as WebGLTexture
       const mockTargetTexture = {} as WebGLTexture
@@ -328,9 +328,9 @@ describe("Glitch Transitions", () => {
         targetTexture: mockTargetTexture,
         progress: 0.5,
         shaderType: "digital-glitch",
-        parameters: {}
+        parameters: {},
       })
-      
+
       service.dispose()
 
       expect(mockWebGL2Context.deleteProgram).toHaveBeenCalled()

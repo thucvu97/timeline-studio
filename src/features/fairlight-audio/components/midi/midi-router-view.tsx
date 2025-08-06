@@ -3,9 +3,8 @@
  * Visual interface for creating and managing MIDI routes
  */
 
-import { useCallback, useEffect, useState } from "react"
-
 import { ArrowRight, Filter, GitBranch, Keyboard, Music, Plus, Settings, Shuffle, Zap } from "lucide-react"
+import { useCallback, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"
@@ -62,9 +61,10 @@ function RouteItem({ route, onUpdate, onDelete, devices }: RouteItemProps) {
 
   const getDestinationLabel = (dest: MidiDestination) => {
     switch (dest.type) {
-      case "device":
+      case "device": {
         const device = devices.find((d) => d.id === dest.deviceId)
         return device?.name || dest.deviceId || "Unknown"
+      }
       case "channel":
         return `${t("fairlightAudio.midi.router.destination.channel")} ${dest.targetChannel}`
       case "virtual":

@@ -4,46 +4,11 @@ use ort::session::{builder::GraphOptimizationLevel, Session, SessionOutputs};
 use ort::value::Tensor;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
-use std::sync::{Mutex, Once};
 
-// Инициализация ORT
-static INIT: Once = Once::new();
-static INIT_RESULT: Mutex<Option<bool>> = Mutex::new(None);
+use super::ort_manager::OrtManager;
 
 pub fn init_ort() -> Result<()> {
-  let mut result = INIT_RESULT.lock().unwrap();
-  if let Some(success) = *result {
-    return if success {
-      Ok(())
-    } else {
-      Err(anyhow!("ONNX Runtime initialization failed"))
-    };
-  }
-
-  let init_res = std::panic::catch_unwind(|| {
-    INIT.call_once(|| {
-      // Для динамической загрузки ORT будет искать библиотеку в системе
-      // или использовать переменную окружения ORT_DYLIB_PATH
-      if let Err(e) = ort::init().commit() {
-        // В тестах разрешаем работу без ONNX Runtime
-        if cfg!(test) {
-          eprintln!("Warning: Failed to initialize ONNX Runtime in test mode: {e}");
-        } else {
-          panic!("Failed to initialize ORT: {e}");
-        }
-      }
-    });
-  });
-
-  let success = init_res.is_ok();
-
-  *result = Some(success);
-
-  if success {
-    Ok(())
-  } else {
-    Err(anyhow!("Failed to initialize ONNX Runtime"))
-  }
+  OrtManager::ensure_initialized()
 }
 
 /// Поддерживаемые модели YOLO

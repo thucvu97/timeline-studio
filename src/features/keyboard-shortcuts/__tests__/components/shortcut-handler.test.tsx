@@ -3,7 +3,7 @@ import { useHotkeys } from "react-hotkeys-hook"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { ShortcutHandler } from "../../components/shortcut-handler"
-import { ShortcutDefinition } from "../../services/shortcuts-registry"
+import type { ShortcutDefinition } from "../../services/shortcuts-registry"
 
 // Mock react-hotkeys-hook
 vi.mock("react-hotkeys-hook", () => ({

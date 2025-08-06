@@ -1,5 +1,5 @@
-import { TimelineClip, TimelineProject, TimelineTrack } from "../types"
-import { SnapPoint } from "../types/edit-modes"
+import type { TimelineClip, TimelineProject, TimelineTrack } from "../types"
+import type { SnapPoint } from "../types/edit-modes"
 
 /**
  * Configuration for snap behavior

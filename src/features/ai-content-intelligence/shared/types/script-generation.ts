@@ -31,6 +31,7 @@ export enum NarrativeType {
   NONLINEAR = "nonlinear",
   EPISODIC = "episodic",
   CIRCULAR = "circular",
+  LINEAR = "LINEAR",
 }
 
 export interface Act {
@@ -85,13 +86,24 @@ export interface ScriptScene {
   title: string
   description: string
   location?: string
-  timeOfDay?: TimeOfDay
+  timeOfDay?: TimeOfDay | string
   duration: number
   visualElements: VisualElement[]
   audioElements: AudioElement[]
   actions?: Action[]
   transitions?: ScriptTransition[]
   linkedSceneAnalysis?: SceneAnalysis
+  // Дополнительные поля для работы движка
+  type?: string // Тип сцены
+  timestamp?: number // Временная метка начала сцены
+  characters?: SceneCharacter[] // Персонажи в сцене
+  voiceover?: string // Текст закадрового голоса
+}
+
+export interface SceneCharacter {
+  id: string
+  name: string
+  role?: string
 }
 
 export enum TimeOfDay {
@@ -104,10 +116,11 @@ export enum TimeOfDay {
 }
 
 export interface VisualElement {
-  type: VisualElementType
+  type: VisualElementType | string
   description: string
-  timing: ScriptTiming
-  importance: ScriptImportance
+  timing?: ScriptTiming
+  importance?: ScriptImportance
+  subjects?: string[] // Список субъектов в элементе
 }
 
 export enum VisualElementType {
@@ -119,12 +132,15 @@ export enum VisualElementType {
   POV = "pov",
   CUTAWAY = "cutaway",
   INSERT = "insert",
+  ACTION_SHOT = "action_shot",
+  ACTION = "action",
+  DETAIL_SHOT = "detail_shot",
 }
 
 export interface AudioElement {
-  type: AudioElementType
+  type: AudioElementType | string
   description: string
-  timing: ScriptTiming
+  timing?: ScriptTiming
   volume?: VolumeLevel
 }
 
@@ -221,6 +237,9 @@ export interface ScriptMetadata {
   tone: EmotionalTone
   pacing: Pacing
   style: ScriptStyle
+  adaptedForPersons?: boolean
+  personInstructions?: string
+  detectedPersonsCount?: number
 }
 
 export interface Pacing {

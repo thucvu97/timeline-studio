@@ -1,4 +1,4 @@
-import { MediaTemplate, TEMPLATE_MAP } from "../lib/templates"
+import { type MediaTemplate, TEMPLATE_MAP } from "../lib/templates"
 
 /**
  * Hook для получения доступных шаблонов

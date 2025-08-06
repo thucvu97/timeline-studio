@@ -1,10 +1,10 @@
-import React from "react"
+import type React from "react"
 
 import { useFavorites } from "@/features/app-state"
 import { useStyleTemplatesAdapter as useUnifiedStyleTemplatesAdapter } from "@/features/browser/hooks/use-resources"
 import { useDraggable } from "@/features/drag-drop"
 import { StyleTemplatePreview } from "@/features/style-templates/components/style-template-preview"
-import { StyleTemplate } from "@/features/style-templates/types"
+import type { StyleTemplate } from "@/features/style-templates/types"
 
 import type { ListAdapter, ListItem, PreviewComponentProps } from "../types/list"
 

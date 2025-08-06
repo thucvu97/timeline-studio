@@ -4,9 +4,9 @@
 
 import { nanoid } from "nanoid"
 
-import { MediaFile } from "../types/media"
-import { MediaBin, MediaItemStatus, MediaItemType, MediaPool, MediaPoolItem } from "../types/media-pool"
-import { SavedMediaFile, SavedMusicFile } from "../types/saved-media"
+import type { MediaFile } from "../types/media"
+import type { MediaBin, MediaItemStatus, MediaItemType, MediaPool, MediaPoolItem } from "../types/media-pool"
+import type { SavedMediaFile, SavedMusicFile } from "../types/saved-media"
 
 /**
  * Конвертация MediaFile в MediaPoolItem

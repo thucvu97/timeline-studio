@@ -1,6 +1,5 @@
-import { useState } from "react"
-
 import { Edit2, FolderClosed, FolderOpen, Lock, Palette, Plus, Trash2, Unlock, Users } from "lucide-react"
+import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,9 +8,8 @@ import { cn } from "@/lib/utils"
 
 import { useClipGroups } from "../../hooks/use-clip-groups"
 import { useTimeline } from "../../hooks/use-timeline"
-import { GroupColors } from "../../types/clip-groups"
-
 import type { ClipGroup, GroupColorKey } from "../../types/clip-groups"
+import { GroupColors } from "../../types/clip-groups"
 import type { TimelineClip } from "../../types/timeline"
 
 export function GroupManagerPanel() {

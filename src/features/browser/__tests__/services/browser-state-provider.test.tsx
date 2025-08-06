@@ -1,11 +1,10 @@
-import React from "react"
-
 import { act, renderHook } from "@testing-library/react"
-import { beforeEach, describe, expect, it, MockedFunction, vi } from "vitest"
+import type React from "react"
+import { beforeEach, describe, expect, it, type MockedFunction, vi } from "vitest"
 
 import { useAppSettings } from "@/features/app-state/hooks"
 import { useUserSettings } from "@/features/user-settings/hooks/use-user-settings"
-import { BrowserTab, ViewMode } from "@/shared/types"
+import type { BrowserTab, ViewMode } from "@/shared/types"
 
 import { BrowserStateProvider, useBrowserState, useTabSettings } from "../../services/browser-state-provider"
 

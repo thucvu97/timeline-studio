@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { SpeedKeyframe } from "../../types/speed-ramping"
+import type { SpeedKeyframe } from "../../types/speed-ramping"
 import {
   applySpeedRamping,
   calculateAdjustedDuration,

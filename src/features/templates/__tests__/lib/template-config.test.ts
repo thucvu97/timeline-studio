@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest"
 
 import {
-  CellConfiguration,
+  type CellConfiguration,
   createCellConfig,
   createDividerConfig,
-  DividerConfig,
-  MediaTemplate,
-  MediaTemplateConfig,
+  type DividerConfig,
+  type MediaTemplate,
+  type MediaTemplateConfig,
   PRESET_STYLES,
 } from "../../lib/template-config"
 

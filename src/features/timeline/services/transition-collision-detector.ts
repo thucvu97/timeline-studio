@@ -2,8 +2,8 @@
  * Сервис обнаружения коллизий переходов
  */
 
-import { TimelineClip, TimelineProject, TimelineTrack } from "../types/timeline"
-import { TimelineTransition } from "../types/timeline-transition"
+import type { TimelineClip, TimelineProject, TimelineTrack } from "../types/timeline"
+import type { TimelineTransition } from "../types/timeline-transition"
 
 export interface TransitionCollision {
   transition1: TimelineTransition
@@ -213,7 +213,7 @@ export function suggestCollisionFixes(collision: TransitionCollision): Array<{
   }> = []
 
   switch (collision.type) {
-    case "overlap":
+    case "overlap": {
       // Сократить длительность первого перехода
       const t1End = collision.transition1.position + collision.transition1.duration
       const newDuration1 = collision.transition2.position - collision.transition1.position - 0.1
@@ -231,8 +231,9 @@ export function suggestCollisionFixes(collision: TransitionCollision): Array<{
         action: () => ({ position: newPosition2 }),
       })
       break
+    }
 
-    case "adjacent":
+    case "adjacent": {
       // Увеличить промежуток
       const gap = 0.2
       fixes.push({
@@ -242,6 +243,7 @@ export function suggestCollisionFixes(collision: TransitionCollision): Array<{
         }),
       })
       break
+    }
 
     case "clip-boundary":
       // Для выхода за границы - корректируем позицию или длительность

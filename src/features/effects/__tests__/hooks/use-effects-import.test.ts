@@ -2,7 +2,7 @@ import { act, renderHook } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { useEffectsImport } from "@/features/effects/hooks/use-effects-import"
-import { BaseEffect } from "@/features/effects/types/unified-effects"
+import type { BaseEffect } from "@/features/effects/types/unified-effects"
 
 // Mock Tauri dialog API
 vi.mock("@tauri-apps/plugin-dialog", () => ({

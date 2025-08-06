@@ -1,24 +1,56 @@
 # Scripts Directory
 
-This directory contains various utility scripts for the Timeline Studio project.
+Эта директория содержит вспомогательные скрипты для разработки и сборки Timeline Studio.
 
-## Build and Cleanup Scripts
+## Структура
 
-### `cleanup-test-binaries.sh` / `cleanup-test-binaries.ps1`
-**Purpose**: Clean up test binaries before Tauri builds to prevent CI/CD bundling issues.
+- `ci/` - Скрипты для CI/CD (версионирование, FFmpeg setup, changelog)
+- Корневая папка - Утилиты для локальной разработки и специфических задач
 
-**What it does**:
-- Removes `test_specta` and `test_specta.exe` from all target directories
-- Cleans cache files and dependency files that reference test binaries
-- Regenerates `Cargo.lock` if test binary references are found
-- Disables source files by renaming them (e.g., `test_specta.rs` → `test_specta.rs.disabled`)
+## Активные скрипты
 
-**When to use**:
-- Automatically called in CI/CD environments
-- Can be run manually before builds if needed
-- Helpful when switching between development and release builds
+### Установка зависимостей
 
-**Usage**:
+#### `install-onnxruntime.js`
+**Назначение**: Установка ONNX Runtime для функций распознавания
+**Использование**: Автоматически в CI/CD
+```bash
+node scripts/install-onnxruntime.js
+```
+
+#### `windows-npm-install.ps1`
+**Назначение**: Специальная установка npm пакетов для Windows с обработкой ошибок
+**Использование**: В Windows CI/CD workflows
+```powershell
+.\scripts\windows-npm-install.ps1
+```
+
+#### `install-windows-deps.ps1`
+**Назначение**: Установка системных зависимостей для Windows
+**Использование**: При первой настройке Windows окружения
+```powershell
+.\scripts\install-windows-deps.ps1
+```
+
+### Модели машинного обучения
+
+#### `download-models.sh`
+**Назначение**: Загрузка YOLO и других моделей для распознавания
+**Использование**: После клонирования репозитория
+```bash
+./scripts/download-models.sh
+```
+
+### Очистка и оптимизация
+
+#### `cleanup-test-binaries.sh` / `cleanup-test-binaries.ps1`
+**Назначение**: Удаление тестовых бинарников перед релизной сборкой
+**Что делает**:
+- Удаляет `test_specta` и другие тестовые файлы
+- Очищает кэш и временные файлы
+- Предотвращает попадание dev-зависимостей в релиз
+
+**Использование**:
 ```bash
 # Unix/Linux/macOS
 ./scripts/cleanup-test-binaries.sh
@@ -27,18 +59,84 @@ This directory contains various utility scripts for the Timeline Studio project.
 .\scripts\cleanup-test-binaries.ps1
 ```
 
-### FFmpeg Setup Scripts
-- `setup-ffmpeg-macos.sh` - FFmpeg setup for macOS
-- `setup-ffmpeg-linux.sh` - FFmpeg setup for Linux
-- `setup-ffmpeg-windows.ps1` - FFmpeg setup for Windows
-- `setup-rust-env-windows.ps1` - Rust environment setup for Windows
+### Тестирование и покрытие
 
-### Other Utilities
-- `version-sync.mjs` - Synchronize version across package.json and Cargo.toml
-- `generate-docs.js` - Documentation generation
-- `rust-coverage.sh` - Rust test coverage reporting
-- `upload-coverage.sh` - Coverage upload to services
+#### `upload-coverage.sh`
+**Назначение**: Загрузка отчетов покрытия в Codecov
+**Использование**: В CI/CD после тестов
+```bash
+npm run test:coverage:upload
+```
 
-## Notes
+#### `rust-coverage.sh` / `rust-coverage-macos-v2.sh`
+**Назначение**: Генерация отчетов покрытия для Rust кода
+**Использование**: Локально или в CI/CD
+```bash
+./scripts/rust-coverage-macos-v2.sh
+```
 
-**test_specta Binary**: This is a development-only binary used for TypeScript type generation with Specta. It should never be included in release builds or CI/CD bundles. The cleanup scripts ensure it's properly removed from build artifacts.
+### Документация
+
+#### `generate-docs.js`
+**Назначение**: Генерация API документации
+**Использование**:
+```bash
+npm run docs
+```
+
+### Разработка
+
+#### `test-tauri-api.js`
+**Назначение**: Тестирование Tauri API команд
+**Использование**: Для отладки IPC коммуникации
+```bash
+node scripts/test-tauri-api.js
+```
+
+#### `fix-tauri-imports.cjs`
+**Назначение**: Исправление импортов Tauri API после обновлений
+**Использование**: При проблемах с импортами
+```bash
+node scripts/fix-tauri-imports.cjs
+```
+
+### Платформо-специфичные
+
+#### `setup-ffmpeg-macos.fish`
+**Назначение**: Установка FFmpeg для Fish shell на macOS
+**Использование**: Для разработчиков с Fish shell
+```fish
+source scripts/setup-ffmpeg-macos.fish
+```
+
+#### `check-imports-windows.ps1`
+**Назначение**: Проверка корректности импортов на Windows
+**Использование**: При проблемах с путями импортов
+```powershell
+.\scripts\check-imports-windows.ps1
+```
+
+## CI/CD скрипты
+
+Скрипты для CI/CD находятся в папке `ci/`:
+- Версионирование (version-sync, update-version)
+- FFmpeg setup для всех платформ
+- Синхронизация changelog
+- Настройка Rust окружения
+
+Подробнее см. [ci/README.md](ci/README.md)
+
+## Добавление новых скриптов
+
+При добавлении нового скрипта:
+1. Поместите CI/CD скрипты в папку `ci/`
+2. Локальные утилиты оставьте в корне `scripts/`
+3. Обновите этот README
+4. Добавьте npm скрипт в package.json если нужно
+5. Убедитесь в правах на выполнение (`chmod +x`)
+
+## Устаревшие скрипты
+
+Следующие скрипты могут быть удалены при следующей очистке:
+- `rust-coverage.sh` - заменен на `rust-coverage-macos-v2.sh`
+- Проверить актуальность `check-imports-windows.ps1`

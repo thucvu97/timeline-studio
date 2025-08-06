@@ -35,6 +35,9 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::app_dirs::get_app_directories,
     crate::app_dirs::get_directory_sizes,
     crate::app_dirs::clear_app_cache,
+    // Voice recording commands
+    crate::voice_recording::save_voice_recording,
+    crate::voice_recording::get_supported_audio_formats,
     // Media commands
     crate::media::commands::get_media_files,
     crate::media::commands::get_media_metadata,
@@ -240,6 +243,9 @@ pub fn build_app<R: Runtime>() -> Builder<R> {
     crate::video_compiler::commands::get_pipeline_execution_summary,
     crate::video_compiler::commands::get_pipeline_progress,
     crate::video_compiler::commands::cleanup_completed_pipelines,
+    // Frame extraction commands
+    crate::video_compiler::commands::extract_timeline_frames,
+    crate::video_compiler::commands::extract_subtitle_frames,
     // Service commands
     crate::video_compiler::commands::get_active_jobs,
     crate::video_compiler::commands::get_render_progress,

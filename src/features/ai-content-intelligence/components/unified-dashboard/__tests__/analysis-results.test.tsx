@@ -4,10 +4,8 @@
 
 import { render, screen } from "@testing-library/react"
 import { describe, expect, it } from "vitest"
-
-import { AnalysisResults } from "../analysis-results"
-
 import type { IntelligentContent } from "../../../shared/types/pipeline"
+import { AnalysisResults } from "../analysis-results"
 
 describe("AnalysisResults", () => {
   const createMockIntelligentContent = (overrides?: Partial<IntelligentContent>): IntelligentContent => ({

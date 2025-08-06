@@ -3,8 +3,6 @@
  * Визуализация AI анализа на таймлайне
  */
 
-import { useEffect, useRef, useState } from "react"
-
 import { AnimatePresence, motion } from "framer-motion"
 import {
   Activity,
@@ -18,6 +16,7 @@ import {
   Volume2,
   Zap,
 } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"

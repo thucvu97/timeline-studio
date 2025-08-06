@@ -68,7 +68,7 @@ export function formatRecordingTime(timeInMs: number): string {
  * @returns true если API поддерживается
  */
 export function isMediaDevicesSupported(): boolean {
-  return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder)
+  return !!(navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === "function" && window.MediaRecorder)
 }
 
 /**

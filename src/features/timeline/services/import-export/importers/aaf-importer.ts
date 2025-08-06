@@ -5,10 +5,10 @@
  * Примечание: Это упрощенная реализация AAF XML, не полный бинарный AAF
  */
 
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 
-import { TimelineClip, TimelineProject, TimelineTrack, TrackType } from "../../../types/timeline"
-import { ImportError, ImportOptions, ImportResult, ImportWarning, Importer } from "../types"
+import type { TimelineClip, TimelineProject, TimelineTrack, TrackType } from "../../../types/timeline"
+import type { ImportError, Importer, ImportOptions, ImportResult, ImportWarning } from "../types"
 
 // Функция для генерации UUID
 function uuidv4(): string {
@@ -142,7 +142,7 @@ export class AAFImporter implements Importer {
     // Парсим все Mob элементы - используем [\s\S]*? для работы с новыми строками
     const mobRegex = /<(CompositionMob|MasterMob|SourceMob)[^>]*>([\s\S]*?)<\/\1>/g
 
-    let mobMatch
+    let mobMatch: RegExpExecArray | null
     while ((mobMatch = mobRegex.exec(content)) !== null) {
       const match = mobMatch
       const mobType = match[1]
@@ -191,7 +191,7 @@ export class AAFImporter implements Importer {
 
     // Ищем все TimelineMobSlot элементы - используем [\s\S]*? для многострочного контента
     const trackRegex = /<TimelineMobSlot[^>]*>([\s\S]*?)<\/TimelineMobSlot>/g
-    let trackMatch
+    let trackMatch: RegExpExecArray | null
     while ((trackMatch = trackRegex.exec(content)) !== null) {
       const match = trackMatch
       const trackContent = match[1]
@@ -219,7 +219,7 @@ export class AAFImporter implements Importer {
 
     // Ищем различные типы сегментов - используем [\s\S]*? для многострочного контента
     const segmentRegex = /<(SourceClip|Filler|Transition)[^>]*>([\s\S]*?)<\/\1>/g
-    let segmentMatch
+    let segmentMatch: RegExpExecArray | null
     while ((segmentMatch = segmentRegex.exec(searchContent)) !== null) {
       const match = segmentMatch
       const segmentType = match[1] as AAFSegment["type"]

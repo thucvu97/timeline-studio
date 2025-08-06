@@ -29,7 +29,7 @@ timeline-studio/
 │   └── tauri.conf.json   # Tauri configuration
 │
 ├── public/               # Static files
-├── docs-ru/              # Russian documentation
+├── docs/                 # Documentation
 ├── e2e/                  # End-to-end tests
 └── ...configuration files
 ```
@@ -65,16 +65,59 @@ features/
 ├── browser/           # Media file browser
 ├── effects/           # Visual effects
 ├── export/            # Video export
-└── ...other modules
+├── ai-chat/           # AI assistant
+├── ai-content-intelligence/  # Intelligent content analysis
+├── montage-planner/   # AI montage planner
+├── person-identification/    # Character recognition
+├── fairlight-audio/   # Professional audio mixer
+├── color-grading/     # Color correction
+├── motion-graphics/   # Animation and graphics
+├── multicam/          # Multi-camera shooting
+├── camera-capture/    # Camera capture
+├── voice-recording/   # Voice recording
+├── filters/           # Filter system
+├── transitions/       # Clip transitions
+├── templates/         # Multi-camera templates
+├── style-templates/   # Animated templates
+├── subtitles/         # Subtitle handling
+├── recognition/       # Scene recognition
+├── keyboard-shortcuts/# Keyboard shortcuts
+├── modals/            # Modal windows
+├── media-studio/      # Main interface
+├── project-settings/  # Project settings
+├── user-settings/     # User settings
+└── app-state/         # Global application state
 ```
 
 #### Key Modules:
 
+**Core Editing Modules:**
 1. **`timeline`** - Central component for editing
 2. **`video-player`** - Custom player with frame-accurate control
 3. **`browser`** - File manager for media
-4. **`effects`** - Effects and filters system
-5. **`export`** - UI for video export
+4. **`media-studio`** - Main application interface
+
+**AI Modules:**
+5. **`ai-chat`** - AI assistant (Claude/OpenAI integration)
+6. **`ai-content-intelligence`** - Intelligent content analysis
+7. **`montage-planner`** - Automatic montage planning
+8. **`person-identification`** - Character recognition and tracking
+
+**Professional Tools:**
+9. **`fairlight-audio`** - Complete audio mixer with effects
+10. **`color-grading`** - Professional color correction
+11. **`motion-graphics`** - Animation system with keyframes
+
+**Effects and Transitions:**
+12. **`effects`** - Visual effects (100+ effects)
+13. **`filters`** - Filter system
+14. **`transitions`** - Clip transitions
+
+**Additional Features:**
+15. **`multicam`** - Multi-camera synchronization
+16. **`camera-capture`** - Video capture from camera/screen
+17. **`voice-recording`** - Voiceover recording
+18. **`subtitles`** - Subtitle creation and editing
 
 ### `/src/components/`
 Reusable UI components based on shadcn/ui.
@@ -143,7 +186,27 @@ src-tauri/src/
 ├── recognition/       # ML recognition
 │   ├── mod.rs
 │   ├── yolo.rs        # YOLO integration
-│   └── tracker.rs     # Object tracking
+│   ├── tracker.rs     # Object tracking
+│   ├── face_detection.rs    # Face detection
+│   └── scene_analysis.rs    # Scene analysis
+│
+├── audio/             # Audio processing
+│   ├── mod.rs
+│   ├── fairlight_engine.rs  # Audio engine
+│   ├── effects_chain.rs     # Effects chain
+│   └── midi_handler.rs      # MIDI controllers
+│
+├── color/             # Color correction
+│   ├── mod.rs
+│   ├── grading_engine.rs    # Color grading engine
+│   ├── lut_processor.rs     # LUT processing
+│   └── scopes.rs            # Professional scopes
+│
+├── montage/           # Montage planner
+│   ├── mod.rs
+│   ├── content_analyzer.rs   # Content analysis
+│   ├── plan_generator.rs     # Plan generator
+│   └── rhythm_calculator.rs  # Rhythm calculation
 │
 ├── project/           # Project management
 ├── export/            # Export functionality
@@ -152,10 +215,19 @@ src-tauri/src/
 
 ### Key Rust Modules:
 
+**Core Modules:**
 1. **`media`** - Media file handling, metadata, previews
 2. **`video_compiler`** - FFmpeg integration for rendering
-3. **`recognition`** - YOLO models for object recognition
-4. **`project`** - Project save/load
+3. **`project`** - Project save/load
+4. **`export`** - Export to various formats
+
+**AI and Recognition:**
+5. **`recognition`** - YOLO models for object, face, and scene recognition
+6. **`montage`** - AI montage planner with content analysis
+
+**Professional Tools:**
+7. **`audio`** - Fairlight-like audio engine with effects and MIDI
+8. **`color`** - GPU-accelerated color correction with LUT and scopes
 
 ### Tauri Commands
 Commands for frontend-backend interaction:
@@ -235,7 +307,7 @@ e2e/
 └── playwright.config.ts
 ```
 
-### `/docs-ru/`
+### `/docs/`
 Project documentation (you are here!).
 
 ## 🔧 Development Scripts

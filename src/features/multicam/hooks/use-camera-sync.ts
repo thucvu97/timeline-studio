@@ -12,9 +12,8 @@ import type { TimelineClip } from "@/features/timeline/types/timeline"
 
 import { syncByAudio as syncByAudioService } from "../services/audio-sync-adapter"
 import { syncByTimecode as syncByTimecodeService } from "../services/timecode-sync"
-import { mediaItemsToMediaFiles } from "../utils/media-mapper"
-
 import type { SyncMethod, SyncResult, SyncStatus } from "../types/multicam"
+import { mediaItemsToMediaFiles } from "../utils/media-mapper"
 
 export interface UseCameraSyncProps {
   baseClipId: string

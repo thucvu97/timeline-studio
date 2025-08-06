@@ -2,7 +2,7 @@
  * Утилиты для создания контекста Timeline для AI
  */
 
-import { TimelineClip, TimelineProject, TimelineSection } from "@/features/timeline/types/timeline"
+import type { TimelineClip, TimelineProject, TimelineSection } from "@/features/timeline/types/timeline"
 
 /**
  * Создает системный промпт с контекстом Timeline
@@ -170,10 +170,10 @@ export function createDetailedTimelineContext(
     },
     activeSection: activeSection
       ? {
-        name: activeSection.name,
-        duration: activeSection.duration,
-        trackCount: activeSection.tracks.length,
-      }
+          name: activeSection.name,
+          duration: activeSection.duration,
+          trackCount: activeSection.tracks.length,
+        }
       : null,
     selectedClips:
       selectedClips?.map((clip) => ({

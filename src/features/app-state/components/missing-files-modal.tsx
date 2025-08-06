@@ -1,13 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
-
 import { AlertTriangle, CheckCircle, FileX, Search, Trash2 } from "lucide-react"
+import { useEffect, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { promptUserToFindFile } from "@/features/media/services/media-restoration-service"
-import { SavedMediaFile } from "@/features/media/types/saved-media"
+import type { SavedMediaFile } from "@/features/media/types/saved-media"
 import { useModal } from "@/features/modals/services"
 
 interface FileResolution {
@@ -51,11 +50,11 @@ export function MissingFilesModal() {
         prev.map((r, i) =>
           i === index
             ? {
-              ...r,
-              action: newPath ? "found" : "skip",
-              newPath: newPath || undefined,
-              isProcessing: false,
-            }
+                ...r,
+                action: newPath ? "found" : "skip",
+                newPath: newPath || undefined,
+                isProcessing: false,
+              }
             : r,
         ),
       )

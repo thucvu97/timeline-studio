@@ -2,16 +2,15 @@
  * VideoClip - Компонент видео клипа
  */
 
-import React, { memo, useCallback, useMemo } from "react"
-
 import { Copy, Image, Scissors, Trash2, Video } from "lucide-react"
+import React, { memo, useCallback, useMemo } from "react"
 
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 import { useTimeline } from "../../hooks/use-timeline"
 import { timelinePlayerSync } from "../../services/timeline-player-sync"
-import { TimelineClip, TimelineTrack } from "../../types"
+import type { TimelineClip, TimelineTrack } from "../../types"
 
 interface VideoClipProps {
   clip: TimelineClip

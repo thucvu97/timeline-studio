@@ -3,11 +3,13 @@ import LanguageDetector from "i18next-browser-languagedetector"
 import { initReactI18next } from "react-i18next"
 
 // Импорт констант для языков
-import { DEFAULT_LANGUAGE, LanguageCode, isSupportedLanguage } from "./constants"
+import { DEFAULT_LANGUAGE, getTextDirection, isSupportedLanguage, type LanguageCode } from "./constants"
 // Импорт ресурсов переводов
+import translationAR from "./locales/ar.json"
 import translationDE from "./locales/de.json"
 import translationEN from "./locales/en.json"
 import translationES from "./locales/es.json"
+import translationFA from "./locales/fa.json"
 import translationFR from "./locales/fr.json"
 import translationHI from "./locales/hi.json"
 import translationIT from "./locales/it.json"
@@ -62,6 +64,12 @@ const resources = {
   },
   hi: {
     translation: translationHI,
+  },
+  ar: {
+    translation: translationAR,
+  },
+  fa: {
+    translation: translationFA,
   },
 }
 
@@ -125,6 +133,11 @@ const initI18n = () => {
       try {
         localStorage.setItem("app-language", lng)
         console.log("i18n: Language changed and saved to localStorage:", lng)
+
+        // Обновляем направление текста для RTL языков
+        const direction = getTextDirection(lng)
+        document.documentElement.dir = direction
+        document.documentElement.setAttribute("lang", lng)
       } catch (error) {
         console.error("i18n: Error saving language to localStorage:", error)
       }

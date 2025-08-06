@@ -1,14 +1,11 @@
-import { useCallback, useState } from "react"
-
 import { invoke } from "@tauri-apps/api/core"
 import { open } from "@tauri-apps/plugin-dialog"
+import { useCallback, useState } from "react"
 import { toast } from "sonner"
 
 import { useTimeline } from "@/features/timeline/hooks/use-timeline"
-
-import { parseSubtitleFile } from "../utils/subtitle-parsers"
-
 import type { SubtitleImportResult } from "../types/subtitles"
+import { parseSubtitleFile } from "../utils/subtitle-parsers"
 
 // Генерация уникального ID для субтитров
 const generateSubtitleId = () => `subtitle-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`

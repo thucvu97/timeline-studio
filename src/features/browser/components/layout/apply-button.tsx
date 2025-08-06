@@ -1,9 +1,8 @@
-import { memo, useCallback } from "react"
-
 import { ArrowRight } from "lucide-react"
+import { memo, useCallback } from "react"
 import { useTranslation } from "react-i18next"
 
-import { ResourceType, TimelineResource } from "@/features/resources/types"
+import type { ResourceType, TimelineResource } from "@/features/resources/types"
 import { cn } from "@/lib/utils"
 
 interface ApplyButtonProps {

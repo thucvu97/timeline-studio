@@ -4,10 +4,11 @@
  * Гибридная архитектура: UI локально, история чата через backend
  */
 
-import React, { createContext, useCallback, useContext, useEffect, useState } from "react"
+import type React from "react"
+import { createContext, useCallback, useContext, useEffect, useState } from "react"
 
 import { getBackendSync } from "@/features/app-state/services/backend-sync"
-import { ProjectState } from "@/types/generated/tauri-bindings"
+import type { ProjectState } from "@/types/generated/tauri-bindings"
 
 // Базовые типы для чата
 interface ChatMessage {

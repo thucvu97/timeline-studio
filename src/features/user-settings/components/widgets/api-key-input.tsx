@@ -1,14 +1,12 @@
-import { useState } from "react"
-
 import { ExternalLink, Eye, EyeOff, Loader2, X } from "lucide-react"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-
-import { KeyStatusIndicator } from "./key-status-indicator"
 import { useApiKeys } from "../../hooks/use-api-keys"
+import { KeyStatusIndicator } from "./key-status-indicator"
 
 interface ApiKeyInputProps {
   value: string

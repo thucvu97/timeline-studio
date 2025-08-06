@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 
-import { CacheStatistics, indexedDBCacheService } from "../services/indexeddb-cache-service"
+import { type CacheStatistics, indexedDBCacheService } from "../services/indexeddb-cache-service"
 
 interface UseCacheStatisticsReturn {
   statistics: CacheStatistics | null

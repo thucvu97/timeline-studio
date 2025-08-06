@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { useModal } from "@/features/modals/services"
 
-import { AppliedEffect } from "../types"
+import type { AppliedEffect } from "../types"
 
 interface AudioEffectsEditorProps {
   clip?: any // TimelineClip

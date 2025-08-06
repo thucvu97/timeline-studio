@@ -2,8 +2,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { ApiKeyLoader } from "../../services/api-key-loader"
 import { DEEPSEEK_MODELS, DeepSeekService } from "../../services/deepseek-service"
-import { AiMessage } from "../../types/ai-message"
-import { StreamingOptions } from "../../types/streaming"
+import type { AiMessage } from "../../types/ai-message"
+import type { StreamingOptions } from "../../types/streaming"
 
 // Mock dependencies
 vi.mock("../../services/api-key-loader", () => ({

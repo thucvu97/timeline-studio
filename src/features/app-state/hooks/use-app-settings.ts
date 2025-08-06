@@ -1,6 +1,6 @@
 import { useContext } from "react"
 
-import { AppContext, AppSettingsProviderContext } from "../services/app-provider"
+import { AppContext, type AppSettingsProviderContext } from "../services/app-provider"
 
 /**
  * Хук для доступа к контексту настроек приложения

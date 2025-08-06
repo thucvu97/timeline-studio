@@ -27,10 +27,7 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./src/test/setup.ts"],
     include: ["src/**/*.test.{ts,tsx}"],
-    exclude: [
-      "e2e/**/*", 
-      "node_modules/**/*"
-    ],
+    exclude: ["e2e/**/*", "node_modules/**/*"],
     testTimeout: 30000,
     environmentOptions: {
       jsdom: {
@@ -39,7 +36,7 @@ export default defineConfig({
     },
     reporters: ["default", "junit"],
     outputFile: {
-      junit: "./test-results/junit.xml"
+      junit: "./test-results/junit.xml",
     },
     coverage: {
       provider: "v8",

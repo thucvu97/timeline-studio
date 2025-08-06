@@ -4,16 +4,15 @@
  * Новый провайдер timeline с интеграцией backend state management
  */
 
+import { useMachine } from "@xstate/react"
 import * as React from "react"
 import { createContext, useCallback, useEffect, useMemo } from "react"
 
-import { useMachine } from "@xstate/react"
-
 import { getBackendSync } from "@/features/app-state/services/backend-sync"
 
-import { AppliedEffect, TimelineClip, TimelineProject, TimelineSection, TimelineTrack, TrackType } from "../types"
-import { TimelineUIContext, timelineUIMachine } from "./timeline-ui-machine"
+import type { AppliedEffect, TimelineClip, TimelineProject, TimelineSection, TimelineTrack, TrackType } from "../types"
 import { copyClips } from "../utils/clip-operations"
+import { type TimelineUIContext, timelineUIMachine } from "./timeline-ui-machine"
 
 // import { MediaFile } from "@/features/media/types/media"
 // import { Clip, Project, ProjectCommand, ProjectState } from "@/types/generated/tauri-bindings"
@@ -734,7 +733,7 @@ export function TimelineProvider({ children }: TimelineProviderV2Props) {
     return backendState.project.timeline.tracks.reduce<TimelineClip[]>((acc, track) => {
       if (track.clips && Array.isArray(track.clips)) {
         const timelineClips = track.clips.map((clip) => convertClipToTimelineClip(clip, track.id))
-        return [...acc, ...timelineClips]
+        acc.push(...timelineClips)
       }
       return acc
     }, [])

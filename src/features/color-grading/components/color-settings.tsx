@@ -1,6 +1,5 @@
-import { useState } from "react"
-
 import { BarChart3, ChevronDown, Image, Palette, Sliders, TrendingUp } from "lucide-react"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"

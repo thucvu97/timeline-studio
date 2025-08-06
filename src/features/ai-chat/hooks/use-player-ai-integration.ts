@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from "react"
 
 import { usePlayer } from "../../video-player"
-import { CurrentMedia, PlayerStateAccess } from "../tools/player/types"
+import type { CurrentMedia, PlayerStateAccess } from "../tools/player/types"
 import { setPlayerStateAccess } from "../tools/player/utils/helpers"
 
 /**

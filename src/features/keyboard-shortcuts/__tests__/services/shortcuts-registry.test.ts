@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { ShortcutDefinition, shortcutsRegistry } from "../../services/shortcuts-registry"
+import { type ShortcutDefinition, shortcutsRegistry } from "../../services/shortcuts-registry"
 
 describe("ShortcutsRegistry", () => {
   beforeEach(() => {

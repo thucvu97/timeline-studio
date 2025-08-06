@@ -1,11 +1,10 @@
+import type { CompositeNode, NodeLibraryItem, NodeProcessor } from "../types/node-compositing"
 import * as colorNodes from "./nodes/color-nodes"
 // Import all node processors
 import * as maskNodes from "./nodes/mask-nodes"
 import * as mathNodes from "./nodes/math-nodes"
 import * as timeNodes from "./nodes/time-nodes"
 import * as transformNodes from "./nodes/transform-nodes"
-
-import type { CompositeNode, NodeLibraryItem, NodeProcessor } from "../types/node-compositing"
 
 /**
  * Base node processors

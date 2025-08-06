@@ -5,10 +5,8 @@
 import { render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, expect, it, vi } from "vitest"
-
-import { PreviewGrid } from "../preview-grid"
-
 import type { UnifiedContentAnalysis } from "../../../shared/types"
+import { PreviewGrid } from "../preview-grid"
 
 // Mock lucide-react icons
 vi.mock("lucide-react", async (importOriginal) => {

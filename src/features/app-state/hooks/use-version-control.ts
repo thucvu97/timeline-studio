@@ -5,13 +5,14 @@
 
 import { useCallback, useEffect, useState } from "react"
 
-import { VersionInfo } from "@/features/version-control/types"
+import type { VersionInfo } from "@/features/version-control/types"
 import { useToast } from "@/hooks/use-toast"
-import { CommandResult, ProjectEvent } from "@/types/generated/tauri-bindings"
+import type { CommandResult, ProjectEvent } from "@/types/generated/tauri-bindings"
 
 import { getBackendSync } from "../services/backend-sync"
 
-export interface VersionControlState {
+// This is a different interface for hook state, not the same as backend VersionControlState
+export interface VersionControlHookState {
   currentVersionId: string
   branchName: string
   hasUncommittedChanges: boolean
@@ -34,8 +35,8 @@ export interface VersionControlActions {
   enableAutoSave: (enabled: boolean) => Promise<boolean>
 }
 
-export function useVersionControl(): VersionControlState & VersionControlActions {
-  const [state, setState] = useState<VersionControlState>({
+export function useVersionControl(): VersionControlHookState & VersionControlActions {
+  const [state, setState] = useState<VersionControlHookState>({
     currentVersionId: "initial",
     branchName: "main",
     hasUncommittedChanges: false,
@@ -209,7 +210,15 @@ export function useVersionControl(): VersionControlState & VersionControlActions
       try {
         const result = await backendSync.getVersionHistory(limit)
         if (result.success && result.data) {
-          return result.data?.versions as VersionInfo[]
+          // Check if data has versions property and it's an array
+          if (result.data && typeof result.data === "object" && "versions" in result.data) {
+            return (result.data as any).versions as VersionInfo[]
+          }
+          // If data is directly the array of versions
+          if (Array.isArray(result.data)) {
+            return result.data as unknown as VersionInfo[]
+          }
+          return null
         }
         setState((prev) => ({ ...prev, error: result.error || "Failed to get version history" }))
         return null

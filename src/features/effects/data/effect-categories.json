@@ -15,7 +15,12 @@
         "zh": "色彩校正",
         "ja": "カラー補正",
         "ko": "색상 보정",
-        "tr": "Renk Düzeltme"
+        "tr": "Renk Düzeltme",
+        "ar": "تصحيح الألوان",
+        "fa": "تصحیح رنگ",
+        "hi": "रंग सुधार",
+        "it": "Correzione Colore",
+        "th": "การแก้ไขสี"
       },
       "description": {
         "en": "Basic color correction tools: brightness, contrast, saturation, temperature",
@@ -33,7 +38,17 @@
         "ru": "Цветовая градация",
         "es": "Gradación de Color",
         "fr": "Étalonnage des Couleurs",
-        "de": "Farbabstufung"
+        "de": "Farbabstufung",
+        "pt": "Gradação de Cor",
+        "zh": "色彩分级",
+        "ja": "カラーグレーディング",
+        "ko": "색상 그레이딩",
+        "tr": "Renk Derecelendirme",
+        "ar": "تدرج الألوان",
+        "fa": "درجه‌بندی رنگ",
+        "hi": "रंग ग्रेडिंग",
+        "it": "Gradazione Colore",
+        "th": "การจัดระดับสี"
       },
       "description": {
         "en": "Professional color grading with lift/gamma/gain controls",
@@ -51,7 +66,17 @@
         "ru": "LUT таблицы",
         "es": "LUTs",
         "fr": "LUTs",
-        "de": "LUTs"
+        "de": "LUTs",
+        "pt": "LUTs",
+        "zh": "LUT查找表",
+        "ja": "LUT",
+        "ko": "LUT",
+        "tr": "LUT'lar",
+        "ar": "جداول البحث",
+        "fa": "جداول جستجو",
+        "hi": "LUT",
+        "it": "LUT",
+        "th": "LUTs"
       },
       "description": {
         "en": "Look-Up Tables for instant color transformation",
@@ -69,7 +94,17 @@
         "ru": "Размытие и резкость",
         "es": "Desenfoque y Nitidez",
         "fr": "Flou et Netteté",
-        "de": "Unschärfe und Schärfe"
+        "de": "Unschärfe und Schärfe",
+        "pt": "Desfoque e Nitidez",
+        "zh": "模糊与锐化",
+        "ja": "ブラー＆シャープ",
+        "ko": "흐림 및 선명",
+        "tr": "Bulanıklık ve Keskinlik",
+        "ar": "التمويه والحدة",
+        "fa": "تاری و وضوح",
+        "hi": "धुंधला और तेज",
+        "it": "Sfocatura e Nitidezza",
+        "th": "เบลอและคมชัด"
       },
       "description": {
         "en": "Blur, sharpen, and focus control effects",
@@ -87,7 +122,17 @@
         "ru": "Стилизация",
         "es": "Estilizar",
         "fr": "Styliser",
-        "de": "Stilisieren"
+        "de": "Stilisieren",
+        "pt": "Estilizar",
+        "zh": "风格化",
+        "ja": "スタイライズ",
+        "ko": "스타일화",
+        "tr": "Stilize Et",
+        "ar": "التنميط",
+        "fa": "سبک‌سازی",
+        "hi": "शैलीकरण",
+        "it": "Stilizzazione",
+        "th": "สไตล์"
       },
       "description": {
         "en": "Artistic and stylistic effects: vintage, film looks, artistic filters",
@@ -105,7 +150,17 @@
         "ru": "Искажение",
         "es": "Distorsión",
         "fr": "Distorsion",
-        "de": "Verzerrung"
+        "de": "Verzerrung",
+        "pt": "Distorção",
+        "zh": "扭曲",
+        "ja": "ディストーション",
+        "ko": "왜곡",
+        "tr": "Bükülme",
+        "ar": "التشويه",
+        "fa": "اعوجاج",
+        "hi": "विकृति",
+        "it": "Distorsione",
+        "th": "บิดเบือน"
       },
       "description": {
         "en": "Lens distortion, perspective, warp and other geometric effects",
@@ -123,7 +178,17 @@
         "ru": "Освещение",
         "es": "Iluminación",
         "fr": "Éclairage",
-        "de": "Beleuchtung"
+        "de": "Beleuchtung",
+        "pt": "Iluminação",
+        "zh": "灯光",
+        "ja": "ライティング",
+        "ko": "조명",
+        "tr": "Aydınlatma",
+        "ar": "الإضاءة",
+        "fa": "نورپردازی",
+        "hi": "प्रकाश",
+        "it": "Illuminazione",
+        "th": "แสงสว่าง"
       },
       "description": {
         "en": "Light effects: glow, flare, vignette, light leaks",
@@ -141,7 +206,17 @@
         "ru": "Шум и зерно",
         "es": "Ruido y Grano",
         "fr": "Bruit et Grain",
-        "de": "Rauschen und Körnung"
+        "de": "Rauschen und Körnung",
+        "pt": "Ruído e Grão",
+        "zh": "噪点与颗粒",
+        "ja": "ノイズ＆グレイン",
+        "ko": "노이즈 및 그레인",
+        "tr": "Gürültü ve Tane",
+        "ar": "الضوضاء والحبيبات",
+        "fa": "نویز و دانه",
+        "hi": "शोर और ग्रेन",
+        "it": "Rumore e Grana",
+        "th": "สัญญาณรบกวนและเกรน"
       },
       "description": {
         "en": "Film grain, digital noise, and texture effects",
@@ -159,7 +234,17 @@
         "ru": "Трансформация",
         "es": "Transformación",
         "fr": "Transformation",
-        "de": "Transformation"
+        "de": "Transformation",
+        "pt": "Transformação",
+        "zh": "变换",
+        "ja": "トランスフォーム",
+        "ko": "변환",
+        "tr": "Dönüşüm",
+        "ar": "التحويل",
+        "fa": "تبدیل",
+        "hi": "रूपांतरण",
+        "it": "Trasformazione",
+        "th": "การแปลง"
       },
       "description": {
         "en": "Scale, rotate, position, and 3D transform effects",
@@ -177,7 +262,17 @@
         "ru": "Кеинг",
         "es": "Croma",
         "fr": "Incrustation",
-        "de": "Keying"
+        "de": "Keying",
+        "pt": "Chroma Key",
+        "zh": "抠像",
+        "ja": "キーイング",
+        "ko": "키잉",
+        "tr": "Anahtar Renk",
+        "ar": "المفاتيح اللونية",
+        "fa": "کلیدسازی",
+        "hi": "कीइंग",
+        "it": "Chroma Key",
+        "th": "คีย์สี"
       },
       "description": {
         "en": "Green screen, blue screen, and luma key effects",
@@ -195,7 +290,17 @@
         "ru": "Движение",
         "es": "Movimiento",
         "fr": "Mouvement",
-        "de": "Bewegung"
+        "de": "Bewegung",
+        "pt": "Movimento",
+        "zh": "运动",
+        "ja": "モーション",
+        "ko": "모션",
+        "tr": "Hareket",
+        "ar": "الحركة",
+        "fa": "حرکت",
+        "hi": "गति",
+        "it": "Movimento",
+        "th": "การเคลื่อนไหว"
       },
       "description": {
         "en": "Motion blur, stabilization, and motion effects",
@@ -213,7 +318,17 @@
         "ru": "Временные",
         "es": "Temporales",
         "fr": "Temporels",
-        "de": "Zeitlich"
+        "de": "Zeitlich",
+        "pt": "Temporal",
+        "zh": "时间",
+        "ja": "テンポラル",
+        "ko": "시간",
+        "tr": "Zamansal",
+        "ar": "الزمنية",
+        "fa": "زمانی",
+        "hi": "समय संबंधी",
+        "it": "Temporale",
+        "th": "เวลา"
       },
       "description": {
         "en": "Time-based effects: speed, reverse, echo, strobe",
@@ -231,7 +346,17 @@
         "ru": "Аудио эффекты",
         "es": "Efectos de Audio",
         "fr": "Effets Audio",
-        "de": "Audio-Effekte"
+        "de": "Audio-Effekte",
+        "pt": "Efeitos de Áudio",
+        "zh": "音频特效",
+        "ja": "オーディオエフェクト",
+        "ko": "오디오 효과",
+        "tr": "Ses Efektleri",
+        "ar": "تأثيرات الصوت",
+        "fa": "افکت‌های صوتی",
+        "hi": "ऑडियो प्रभाव",
+        "it": "Effetti Audio",
+        "th": "เอฟเฟกต์เสียง"
       },
       "description": {
         "en": "Audio processing and visualization effects",
@@ -249,7 +374,17 @@
         "ru": "Текст и графика",
         "es": "Texto y Gráficos",
         "fr": "Texte et Graphiques",
-        "de": "Text und Grafiken"
+        "de": "Text und Grafiken",
+        "pt": "Texto e Gráficos",
+        "zh": "文字与图形",
+        "ja": "テキスト＆グラフィックス",
+        "ko": "텍스트 및 그래픽",
+        "tr": "Metin ve Grafikler",
+        "ar": "النص والرسومات",
+        "fa": "متن و گرافیک",
+        "hi": "पाठ और ग्राफिक्स",
+        "it": "Testo e Grafica",
+        "th": "ข้อความและกราฟิก"
       },
       "description": {
         "en": "Text overlays, titles, and graphic elements",
@@ -267,7 +402,17 @@
         "ru": "Переходы",
         "es": "Transiciones",
         "fr": "Transitions",
-        "de": "Übergänge"
+        "de": "Übergänge",
+        "pt": "Transições",
+        "zh": "过渡",
+        "ja": "トランジション",
+        "ko": "전환",
+        "tr": "Geçişler",
+        "ar": "الانتقالات",
+        "fa": "انتقال‌ها",
+        "hi": "संक्रमण",
+        "it": "Transizioni",
+        "th": "การเปลี่ยนผ่าน"
       },
       "description": {
         "en": "Transition effects between clips",
@@ -285,7 +430,17 @@
         "ru": "Сопоставление цветов",
         "es": "Coincidencia de Color",
         "fr": "Correspondance des Couleurs",
-        "de": "Farbabgleich"
+        "de": "Farbabgleich",
+        "pt": "Correspondência de Cor",
+        "zh": "颜色匹配",
+        "ja": "カラーマッチ",
+        "ko": "색상 매칭",
+        "tr": "Renk Eşleştirme",
+        "ar": "مطابقة الألوان",
+        "fa": "تطبیق رنگ",
+        "hi": "रंग मिलान",
+        "it": "Corrispondenza Colore",
+        "th": "การจับคู่สี"
       },
       "description": {
         "en": "Match colors between different clips or to reference",

@@ -1,11 +1,12 @@
-import React from "react"
+import type React from "react"
 
 import { useFavorites } from "@/features/app-state"
 import { useTransitionsAdapter as useUnifiedTransitionsAdapter } from "@/features/browser/hooks/use-resources"
 import { useDraggable } from "@/features/drag-drop"
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 import { TransitionPreview } from "@/features/transitions/components/transition-preview"
-import { Transition } from "@/features/transitions/types/transitions"
+import type { Transition } from "@/features/transitions/types/transitions"
+import { convertVideoSrc } from "@/lib/tauri-utils"
 
 import type { ListAdapter, ListItem, PreviewComponentProps } from "../types/list"
 
@@ -37,9 +38,10 @@ const TransitionPreviewWrapper: React.FC<PreviewComponentProps<Transition>> = ({
   )
 
   // Демонстрационные видео для превью переходов
+  // В development режиме используем прямые пути, в production - через public
   const demoVideos = {
-    source: { path: "/t1.mp4" } as MediaFile,
-    target: { path: "/t2.mp4" } as MediaFile,
+    source: { path: window.location.hostname === "localhost" ? "/t1.mp4" : "./t1.mp4" } as MediaFile,
+    target: { path: window.location.hostname === "localhost" ? "/t2.mp4" : "./t2.mp4" } as MediaFile,
   }
 
   // Для переходов TransitionPreview ожидает другие пропсы
@@ -56,7 +58,13 @@ const TransitionPreviewWrapper: React.FC<PreviewComponentProps<Transition>> = ({
       >
         {/* Transition preview thumbnail */}
         <div className="flex-shrink-0 w-12 h-9 bg-gray-200 rounded overflow-hidden relative">
-          <video src="/t1.mp4" className="w-full h-full object-cover" muted playsInline preload="metadata" />
+          <video
+            src={convertVideoSrc(window.location.hostname === "localhost" ? "/t1.mp4" : "./t1.mp4")}
+            className="w-full h-full object-cover"
+            muted
+            playsInline
+            preload="metadata"
+          />
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse" />
         </div>
 
@@ -116,10 +124,11 @@ export function useTransitionsAdapter(): ListAdapter<TransitionListItem> {
             return (transition.labels?.ru || transition.labels?.en || transition.name || "").toLowerCase()
           case "category":
             return transition.category.toLowerCase()
-          case "complexity":
+          case "complexity": {
             // Определяем порядок сложности: basic < intermediate < advanced
             const complexityOrder: Record<string, number> = { basic: 0, intermediate: 1, advanced: 2 }
             return complexityOrder[transition.complexity || "basic"]
+          }
           case "duration":
             return transition.duration?.default || 1
           case "type":
@@ -152,11 +161,12 @@ export function useTransitionsAdapter(): ListAdapter<TransitionListItem> {
           case "tags":
             // Группируем по первому тегу или "untagged"
             return transition.tags && transition.tags.length > 0 ? transition.tags[0] : "untagged"
-          case "duration":
+          case "duration": {
             const duration = transition.duration?.default || 1
             if (duration <= 1) return "Короткие (≤1с)"
             if (duration <= 3) return "Средние (1-3с)"
             return "Длинные (>3с)"
+          }
           default:
             return ""
         }

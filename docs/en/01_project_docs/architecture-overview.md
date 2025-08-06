@@ -37,6 +37,15 @@ src/features/
 ├── video-player/      # Video player
 ├── media-studio/      # Main interface
 ├── ai-chat/          # AI assistant
+├── ai-content-intelligence/  # Smart content analysis
+├── montage-planner/   # AI montage planner
+├── person-identification/    # Character recognition
+├── fairlight-audio/   # Professional audio mixer
+├── color-grading/     # Color correction
+├── motion-graphics/   # Animation and graphics
+├── multicam/          # Multi-camera editing
+├── camera-capture/    # Camera capture
+├── voice-recording/   # Voice recording
 └── ...               # Other features
 ```
 
@@ -44,8 +53,8 @@ src/features/
 
 - **XState v5** for complex logic (timeline, player, browser)
 - **React Context** for global state
-- **React Query** for server data
-- **Local Storage** for user settings
+- **Tauri Store** for persistent data storage
+- **Local Storage** for temporary user settings
 
 ### UI Architecture
 
@@ -53,6 +62,23 @@ src/features/
 - **Tailwind CSS v4** - utility-first styling
 - **CSS Variables** - theming
 - **Framer Motion** - animations
+
+### Key Modules
+
+#### AI Modules
+- **AI Content Intelligence** - content analysis, scene/object detection (YOLO/ONNX), script generation
+- **Montage Planner** - automatic montage plan generation with AI material analysis
+- **Person Identification** - face detection and identification, DBSCAN clustering
+
+#### Professional Tools
+- **Fairlight Audio** - complete audio mixer with Web Audio API, effects, and MIDI
+- **Color Grading** - professional color correction with LUT, curves, and scopes
+- **Motion Graphics** - keyframe system with expression engine
+
+#### Additional Features
+- **Multicam** - multi-camera synchronization by timecode/audio
+- **Camera Capture** - video capture from camera and screen via WebRTC
+- **Voice Recording** - professional voiceover recording
 
 ## ⚙️ Backend Architecture
 
@@ -78,8 +104,22 @@ src-tauri/src/
 │   ├── core/         # GPU, pipeline, codecs
 │   ├── services/     # Service layer
 │   └── cache/        # LRU cache
-└── recognition/       # AI recognition
-    └── yolo_processor.rs  # YOLO models
+├── recognition/       # AI recognition
+│   ├── yolo_processor.rs    # YOLO models
+│   ├── face_detection.rs    # Face detection
+│   └── scene_analysis.rs    # Scene analysis
+├── audio/             # Audio processing
+│   ├── fairlight_engine.rs  # Audio engine
+│   ├── effects_chain.rs     # Effects chain
+│   └── midi_handler.rs      # MIDI controllers
+├── color/             # Color correction
+│   ├── grading_engine.rs    # Color grading engine
+│   ├── lut_processor.rs     # LUT processing
+│   └── scopes.rs            # Professional scopes
+└── montage/           # Montage planner
+    ├── content_analyzer.rs   # Content analysis
+    ├── plan_generator.rs     # Plan generation
+    └── rhythm_calculator.rs  # Rhythm calculation
 ```
 
 ### Key Components
@@ -89,6 +129,10 @@ src-tauri/src/
 3. **Plugin System** - Extensibility through plugins
 4. **Security Layer** - Secure storage and OAuth
 5. **Media Pipeline** - Media processing pipeline
+6. **AI Recognition** - YOLO/ONNX models for content analysis
+7. **Fairlight Engine** - Professional audio processing
+8. **Color Engine** - GPU-accelerated color correction
+9. **Montage AI** - Intelligent analysis and planning
 
 ## 🔌 Frontend ↔ Backend Communication
 

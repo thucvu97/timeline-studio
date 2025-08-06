@@ -2,9 +2,8 @@
  * Компонент для отображения визуальной связи между linked клипами
  */
 
-import { useMemo } from "react"
-
 import { AnimatePresence, motion } from "motion/react"
+import { useMemo } from "react"
 
 import { cn } from "@/lib/utils"
 

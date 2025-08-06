@@ -4,16 +4,16 @@
  */
 
 import {
-  AudioAnalysis,
-  Fragment,
-  MontagePlan,
-  MusicSyncPoint,
-  PacingProfile,
-  PacingType,
+  type AudioAnalysis,
+  type Fragment,
+  type MontagePlan,
+  type MusicSyncPoint,
+  type PacingProfile,
+  type PacingType,
   PatternType,
-  RhythmAnalysis,
-  RhythmPattern,
-  TempoChange,
+  type RhythmAnalysis,
+  type RhythmPattern,
+  type TempoChange,
   TempoChangeReason,
 } from "../types"
 

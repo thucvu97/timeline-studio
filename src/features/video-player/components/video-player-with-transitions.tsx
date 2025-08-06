@@ -10,12 +10,11 @@ import { usePlayerAIIntegration } from "@/features/ai-chat/hooks/use-player-ai-i
 import { useProjectSettings } from "@/features/project-settings"
 import { useTimeline } from "@/features/timeline/hooks/use-timeline"
 import { convertVideoSrc } from "@/lib/tauri-utils"
-
+import { useTransitionPreview } from "../hooks/use-transition-preview"
+import { usePlayer } from "../services/player-provider"
 import { PlayerAIOverlay } from "./player-ai-overlay"
 import { PlayerControls } from "./player-controls"
 import { TransitionMiniIndicator, TransitionPlayerOverlay } from "./transition-player-overlay"
-import { useTransitionPreview } from "../hooks/use-transition-preview"
-import { usePlayer } from "../services/player-provider"
 
 interface VideoPlayerWithTransitionsProps {
   className?: string
@@ -240,7 +239,6 @@ export function VideoPlayerWithTransitions({
           path: video.path,
           name: video.name || "Video",
           size: video.size || 0,
-          type: video.type || "video/mp4",
         }}
       />
     </div>

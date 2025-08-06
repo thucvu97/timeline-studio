@@ -4,14 +4,14 @@
 
 import { invoke } from "@tauri-apps/api/core"
 
-import type { CacheStats } from "../types/cache"
+import type { VideoCompilerCacheStats } from "../types/cache"
 
 /**
  * Получение статистики кэша
  */
-export async function getCacheStats(): Promise<CacheStats> {
+export async function getCacheStats(): Promise<VideoCompilerCacheStats> {
   try {
-    return await invoke<CacheStats>("get_cache_stats")
+    return await invoke<VideoCompilerCacheStats>("get_cache_stats")
   } catch (error) {
     console.error("Failed to get cache stats:", error)
     throw error

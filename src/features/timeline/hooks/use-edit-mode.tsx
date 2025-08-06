@@ -1,8 +1,8 @@
-import { ReactNode, createContext, useCallback, useContext, useEffect, useState } from "react"
+import { createContext, type ReactNode, useCallback, useContext, useEffect, useState } from "react"
 
 import { shortcutsRegistry } from "@/features/keyboard-shortcuts"
 
-import { EDIT_MODES, EDIT_MODE_CONFIGS, EditMode } from "../types/edit-modes"
+import { EDIT_MODE_CONFIGS, EDIT_MODES, type EditMode } from "../types/edit-modes"
 
 interface UseEditModeReturn {
   editMode: EditMode

@@ -5,10 +5,10 @@
  */
 
 // Функция для генерации UUID
-import { MediaFile } from "@/features/media/types/media"
-import { TimelineClip, TimelineProject, TimelineTrack, TrackType } from "@/features/timeline/types/timeline"
+import type { MediaFile } from "@/features/media/types/media"
+import type { TimelineClip, TimelineProject, TimelineTrack, TrackType } from "@/features/timeline/types/timeline"
 
-import { FCPXMLResource, ImportError, ImportOptions, ImportResult, ImportWarning, Importer } from "../types"
+import type { FCPXMLResource, ImportError, Importer, ImportOptions, ImportResult, ImportWarning } from "../types"
 
 function uuidv4(): string {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {

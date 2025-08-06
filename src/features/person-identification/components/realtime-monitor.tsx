@@ -3,9 +3,8 @@
  * Компонент для мониторинга распознавания лиц в реальном времени
  */
 
-import { useCallback, useEffect, useRef, useState } from "react"
-
 import { Activity, Camera, Cpu, Eye, Pause, Play, Users, Zap } from "lucide-react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -18,10 +17,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
 
 import {
-  AdvancedDetectionConfig,
-  AdvancedFaceDetection,
+  type AdvancedDetectionConfig,
+  type AdvancedFaceDetection,
   AdvancedFaceDetectionService,
-  RealtimeProcessingStatus,
+  type RealtimeProcessingStatus,
 } from "../services/advanced-face-detection-service"
 import { PersonDatabaseService } from "../services/person-database-service"
 

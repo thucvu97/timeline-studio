@@ -3,13 +3,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { calculateTimeRanges } from "@/features/media/utils/video"
 import i18n from "@/i18n"
 import { formatDateByLanguage } from "@/i18n/constants"
-
+import type { MediaFile, MediaTrack } from "../../types/media"
 import { processAudioFiles } from "../audio-tracks"
 import { createTracksFromFiles } from "../tracks"
 import { updateSectorTimeRange } from "../tracks-utils"
 import { processVideoFiles } from "../video-tracks"
-
-import type { MediaFile, MediaTrack } from "../../types/media"
 
 // Mock dependencies
 vi.mock("@/features/media/utils/video", () => ({
@@ -62,16 +60,18 @@ describe("tracks", () => {
     id,
     path: `/path/to/${id}.mp4`,
     name: `${id}.mp4`,
-    type: hasVideo ? "video" : "audio",
+    isVideo: hasVideo,
+    isAudio: !hasVideo,
     size: 1024000,
     startTime,
     duration: 60,
-    createdAt: Date.now(),
+    createdAt: Date.now().toLocaleString(),
     probeData: {
       streams: [
-        ...(hasVideo ? [{ codec_type: "video" as const, codec_name: "h264" }] : []),
-        ...(hasAudio ? [{ codec_type: "audio" as const, codec_name: "aac" }] : []),
+        ...(hasVideo ? [{ codec_type: "video" as const, codec_name: "h264", index: 0 }] : []),
+        ...(hasAudio ? [{ codec_type: "audio" as const, codec_name: "aac", index: 1 }] : []),
       ],
+      format: {},
     },
   })
 
@@ -81,6 +81,14 @@ describe("tracks", () => {
     type: "video",
     isActive: false,
     videos: [],
+    startTime: 0,
+    endTime: 10,
+    combinedDuration: 0,
+    index: 0,
+    volume: 0,
+    isMuted: false,
+    isLocked: false,
+    isVisible: false,
   })
 
   describe("createTracksFromFiles", () => {
@@ -302,7 +310,7 @@ describe("tracks", () => {
     it("должен обрабатывать файлы с пустыми потоками", () => {
       const fileWithEmptyStreams = {
         ...createMockMediaFile(1000, true, false),
-        probeData: { streams: [] },
+        probeData: { streams: [], format: {} },
       }
 
       const result = createTracksFromFiles([fileWithEmptyStreams])
@@ -336,9 +344,10 @@ describe("tracks", () => {
         ...createMockMediaFile(1000, true, false),
         probeData: {
           streams: [
-            { codec_type: "subtitle" as any, codec_name: "srt" },
-            { codec_type: "data" as any, codec_name: "unknown" },
+            { codec_type: "subtitle" as any, codec_name: "srt", index: 0 },
+            { codec_type: "data" as any, codec_name: "unknown", index: 1 },
           ],
+          format: {},
         },
       }
 

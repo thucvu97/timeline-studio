@@ -5,7 +5,7 @@
 
 import { isRegistered, register, unregister } from "@tauri-apps/plugin-global-shortcut"
 
-import { ShortcutDefinition, shortcutsRegistry } from "./shortcuts-registry"
+import { type ShortcutDefinition, shortcutsRegistry } from "./shortcuts-registry"
 
 export class TauriGlobalShortcuts {
   private static instance: TauriGlobalShortcuts

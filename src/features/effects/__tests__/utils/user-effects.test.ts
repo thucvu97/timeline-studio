@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { VideoEffect } from "@/features/effects/types"
+import type { VideoEffect } from "@/features/effects/types"
 
 import {
   deleteUserEffect,

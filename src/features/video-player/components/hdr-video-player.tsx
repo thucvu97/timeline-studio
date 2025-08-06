@@ -22,11 +22,10 @@ import { Switch } from "@/components/ui/switch"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { useProjectSettings } from "@/features/project-settings"
 import { convertVideoSrc } from "@/lib/tauri-utils"
-
+import { getHDRSupportService, type HDRMetadata, type VideoCodecInfo } from "../services/hdr-support"
+import { usePlayer } from "../services/player-provider"
 import { PlayerAIOverlay } from "./player-ai-overlay"
 import { PlayerControls } from "./player-controls"
-import { HDRMetadata, VideoCodecInfo, getHDRSupportService } from "../services/hdr-support"
-import { usePlayer } from "../services/player-provider"
 
 interface HDRPlayerSettings {
   hdrEnabled: boolean

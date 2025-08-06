@@ -1,11 +1,9 @@
 import { useCallback, useEffect, useRef } from "react"
-
-import { AudioEngine } from "../services/audio-engine"
+import type { Effect, EffectType } from "../components/effects/effects-rack"
+import type { AudioEngine } from "../services/audio-engine"
 import { CompressorProcessor } from "../services/effects/compressor-processor"
 import { EqualizerProcessor } from "../services/effects/equalizer-processor"
 import { ReverbProcessor } from "../services/effects/reverb-processor"
-
-import type { Effect, EffectType } from "../components/effects/effects-rack"
 
 interface EffectProcessor {
   processor: EqualizerProcessor | CompressorProcessor | ReverbProcessor
@@ -112,15 +110,17 @@ export function useChannelEffects(engine: AudioEngine | null, channelId: string)
         }
         break
 
-      case "compressor":
+      case "compressor": {
         const compressor = effectData.processor as CompressorProcessor
         compressor.updateParameter(param as any, value)
         break
+      }
 
-      case "reverb":
+      case "reverb": {
         const reverb = effectData.processor as ReverbProcessor
         reverb.updateParameter(param as any, value)
         break
+      }
 
       default:
         // No action needed for unknown types

@@ -2,7 +2,7 @@ import { useCallback, useState } from "react"
 
 import { useTranslation } from "react-i18next"
 
-import { COMMON_FRAMERATES, COMMON_RESOLUTIONS, ResolutionOption } from "../../project-settings/types/project"
+import { COMMON_FRAMERATES, COMMON_RESOLUTIONS, type ResolutionOption } from "../../project-settings/types/project"
 
 interface UseCameraPermissionsResult {
   permissionStatus: "pending" | "granted" | "denied" | "error"

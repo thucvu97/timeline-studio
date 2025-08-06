@@ -3,13 +3,13 @@
  * Анализ кадров, создание описаний, выбор превью
  */
 
-import { ClaudeTool } from "../services/claude-service"
+import type { ClaudeTool } from "../services/claude-service"
 import {
-  FrameAnalysisParams,
+  type FrameAnalysisParams,
   MultimodalAnalysisService,
-  MultimodalAnalysisType,
-  ThumbnailSuggestionParams,
-  VideoAnalysisParams,
+  type MultimodalAnalysisType,
+  type ThumbnailSuggestionParams,
+  type VideoAnalysisParams,
 } from "../services/multimodal-analysis-service"
 
 /**
@@ -641,10 +641,10 @@ async function analyzeVideoAesthetics(params: any): Promise<any> {
   // Генерируем отчет если запрошено
   const report = params.generateReport
     ? {
-      averageScores: calculateAverageAestheticScores(aestheticTimeline),
-      bestMoments: bestFrames.slice(0, 5),
-      improvements: params.suggestImprovements ? generateAestheticSuggestions(aestheticTimeline) : [],
-    }
+        averageScores: calculateAverageAestheticScores(aestheticTimeline),
+        bestMoments: bestFrames.slice(0, 5),
+        improvements: params.suggestImprovements ? generateAestheticSuggestions(aestheticTimeline) : [],
+      }
     : undefined
 
   return {
@@ -740,10 +740,10 @@ async function moderateVideoContent(params: any): Promise<any> {
     checkedCategories: params.checkCategories || ["violence", "adult_content"],
     report: params.generateReport
       ? {
-        totalFramesChecked: analysisResult.frameResults.length,
-        flaggedCount: flaggedFrames.length,
-        recommendations: generateModerationRecommendations(flaggedFrames),
-      }
+          totalFramesChecked: analysisResult.frameResults.length,
+          flaggedCount: flaggedFrames.length,
+          recommendations: generateModerationRecommendations(flaggedFrames),
+        }
       : undefined,
   }
 

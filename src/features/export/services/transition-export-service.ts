@@ -3,20 +3,20 @@
  * Конвертирует Timeline переходы в FFmpeg команды
  */
 
-import { TimelineProject } from "@/features/timeline/types/timeline"
-import { TimelineTransition } from "@/features/timeline/types/timeline-transition"
+import type { TimelineProject } from "@/features/timeline/types/timeline"
+import type { TimelineTransition } from "@/features/timeline/types/timeline-transition"
 
-import { ExportSettings } from "../types/export-types"
+import type { ExportSettings } from "../types/export-types"
 import {
   FFMPEG_TRANSITION_TEMPLATES,
-  FFmpegTransitionCommand,
-  FFmpegTransitionConfig,
+  type FFmpegTransitionCommand,
+  type FFmpegTransitionConfig,
   TRANSITION_FFMPEG_MAPPING,
-  TransitionExportInfo,
-  TransitionExportResult,
-  TransitionExportStatus,
-  TransitionOptimizationSettings,
-  TransitionType,
+  type TransitionExportInfo,
+  type TransitionExportResult,
+  type TransitionExportStatus,
+  type TransitionOptimizationSettings,
+  type TransitionType,
 } from "../types/transition-export-types"
 
 export class TransitionExportService {
@@ -86,7 +86,7 @@ export class TransitionExportService {
           targetClipId: transition.endClipId,
           renderQuality: this.calculateTransitionQuality(transition, resource),
           gpuAccelerated: resource.gpuAccelerated || false,
-          shaderType: resource.shaderType || "basic",
+          shaderType: (resource as any).shaderType || "basic",
           customParameters: transition.parameters || {},
         }
 
@@ -160,7 +160,7 @@ export class TransitionExportService {
       output: this.generateOutputPath(transition.id, exportSettings),
       quality: this.getQualityValue(exportSettings.quality),
       resolution: this.getResolution(exportSettings),
-      useGpu: exportSettings.enableGPU && resource.gpuAccelerated,
+      useGpu: !!(exportSettings.enableGPU && resource.gpuAccelerated),
       gpuDevice: exportSettings.enableGPU ? "auto" : undefined,
     }
 
@@ -462,7 +462,7 @@ export class TransitionExportService {
 
     // Учитываем сложность перехода
     if (resource.gpuAccelerated) quality += 5
-    if (transition.parameters?.blur?.enabled) quality -= 5
+    if (transition.parameters?.blur) quality -= 5
     if (transition.duration < 0.5) quality -= 10
 
     return Math.max(50, Math.min(100, quality))

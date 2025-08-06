@@ -1,11 +1,10 @@
-import { memo, useCallback, useEffect, useRef, useState } from "react"
-
 import { readFile } from "@tauri-apps/plugin-fs"
 import { Music } from "lucide-react"
+import { memo, useCallback, useEffect, useRef, useState } from "react"
 import { LiveAudioVisualizer } from "react-audio-visualize"
 
-import { MediaFile } from "@/features/media/types/media"
-import { TimelineResource } from "@/features/resources/types"
+import type { MediaFile } from "@/features/media/types/media"
+import type { TimelineResource } from "@/features/resources/types"
 import { usePlayer } from "@/features/video-player"
 import { convertToAssetUrl } from "@/lib/tauri-utils"
 
@@ -112,7 +111,7 @@ export const AudioPreview = memo(function AudioPreview({
     try {
       console.log("[AudioPreview] Чтение файла через readFile:", path)
       const fileData = await readFile(path)
-      const blob = new Blob([fileData], { type: "audio/mp3" }) // Можно определить тип по расширению файла
+      const blob = new Blob([fileData as BlobPart], { type: "audio/mp3" }) // Можно определить тип по расширению файла
       const url = URL.createObjectURL(blob)
       console.log("[AudioPreview] Создан объект URL:", url)
       return url

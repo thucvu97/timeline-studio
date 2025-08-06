@@ -2,7 +2,7 @@
  * Test providers for Timeline
  */
 
-import React from "react"
+import type React from "react"
 
 import { vi } from "vitest"
 

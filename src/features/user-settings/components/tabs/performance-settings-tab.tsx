@@ -1,6 +1,5 @@
-import { useState } from "react"
-
 import { Info, Zap } from "lucide-react"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Input } from "@/components/ui/input"

@@ -2,19 +2,16 @@
  * Хук для импорта субтитров в Timeline
  */
 
-import { useCallback, useState } from "react"
-
 import { invoke } from "@tauri-apps/api/core"
 import { open } from "@tauri-apps/plugin-dialog"
 import { readTextFile } from "@tauri-apps/plugin-fs"
+import { useCallback, useState } from "react"
 
 import { useTimeline } from "@/features/timeline/hooks/use-timeline"
 import { useToast } from "@/hooks/use-toast"
 import { generateId } from "@/lib/utils"
-
-import { detectSubtitleFormat, importSubtitles, validateSubtitles } from "../utils/subtitle-importers"
-
 import type { SubtitleClip } from "../types/subtitles"
+import { detectSubtitleFormat, importSubtitles, validateSubtitles } from "../utils/subtitle-importers"
 
 export interface UseSubtitleImportProps {
   trackId?: string

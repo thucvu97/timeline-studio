@@ -1,4 +1,4 @@
-import { CreatePresetsFunction, ShortcutCategory } from "./types"
+import type { CreatePresetsFunction, ShortcutCategory } from "./types"
 
 export const createPremierePreset: CreatePresetsFunction = (t: any): ShortcutCategory[] => [
   {

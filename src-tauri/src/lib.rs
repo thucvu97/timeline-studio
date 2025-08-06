@@ -34,6 +34,9 @@ mod filesystem;
 // Модуль управления директориями приложения
 mod app_dirs;
 
+// Модуль для работы с голосовыми записями
+mod voice_recording;
+
 // Модуль Video Compiler
 pub mod video_compiler;
 use video_compiler::VideoCompilerState;
@@ -334,6 +337,21 @@ pub fn run() {
       app.manage(plugin_manager);
       app.manage(event_bus);
       app.manage(service_container);
+
+      // Получаем окно и добавляем обработчик закрытия
+      if let Some(window) = app.get_webview_window("main") {
+        window.on_window_event(|event| {
+          if let tauri::WindowEvent::CloseRequested { .. } = event {
+            log::info!("Window close requested, performing cleanup...");
+
+            // Даем время завершить активные операции
+            std::thread::sleep(std::time::Duration::from_millis(100));
+
+            log::info!("Application cleanup completed");
+            // Окно закроется автоматически после возврата из обработчика
+          }
+        });
+      }
 
       log::info!("Application setup completed");
       Ok(())

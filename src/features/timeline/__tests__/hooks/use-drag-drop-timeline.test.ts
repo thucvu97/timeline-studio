@@ -2,7 +2,7 @@
  * Расширенные тесты для useDragDropTimeline hook
  */
 
-import { DragEndEvent, DragOverEvent, DragStartEvent } from "@dnd-kit/core"
+import type { DragEndEvent, DragOverEvent, DragStartEvent } from "@dnd-kit/core"
 import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
@@ -10,8 +10,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import "@/test/mocks/dnd-kit"
 
 import { useDragDropTimeline } from "../../hooks/use-drag-drop-timeline"
-import { TrackType } from "../../types"
-import { DragType } from "../../types/drag-drop"
+import type { TrackType } from "../../types"
+import type { DragType } from "../../types/drag-drop"
 
 // Import the actual hook after mocks are set up
 
@@ -232,10 +232,10 @@ describe("useDragDropTimeline", () => {
       },
       over: overData
         ? {
-          id: "drop-zone-1",
-          data: { current: overData },
-          rect: { left: 100, right: 500, top: 50, bottom: 150, width: 400, height: 100 },
-        }
+            id: "drop-zone-1",
+            data: { current: overData },
+            rect: { left: 100, right: 500, top: 50, bottom: 150, width: 400, height: 100 },
+          }
         : null,
       delta: { x: 0, y: 0 },
       activatorEvent: new MouseEvent("mousemove", { clientX: 200 }),
@@ -364,10 +364,10 @@ describe("useDragDropTimeline", () => {
       },
       over: overData
         ? {
-          id: "drop-zone-1",
-          data: { current: overData },
-          rect: { left: 100, right: 500, top: 50, bottom: 150, width: 400, height: 100 },
-        }
+            id: "drop-zone-1",
+            data: { current: overData },
+            rect: { left: 100, right: 500, top: 50, bottom: 150, width: 400, height: 100 },
+          }
         : null,
       delta: { x: 100, y: 0 },
       activatorEvent: new MouseEvent("mouseup"),

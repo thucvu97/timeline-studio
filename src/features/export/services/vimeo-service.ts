@@ -1,7 +1,7 @@
 // Vimeo API service для загрузки видео
 
+import type { SocialExportSettings } from "../types/export-types"
 import { OAuthService } from "./oauth-service"
-import { SocialExportSettings } from "../types/export-types"
 
 export interface VimeoUploadResult {
   success: boolean

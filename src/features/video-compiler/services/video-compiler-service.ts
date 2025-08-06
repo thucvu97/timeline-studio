@@ -5,10 +5,8 @@
 import { invoke } from "@tauri-apps/api/core"
 
 import type { ProjectSchema } from "@/types/video-compiler"
-
-import { RenderStatus } from "../types/render"
-
 import type { RenderProgress } from "../types/render"
+import { RenderStatus } from "../types/render"
 
 /**
  * Запуск рендеринга проекта
@@ -211,4 +209,52 @@ export async function getPrerenderCacheInfo(): Promise<PrerenderCacheInfo> {
  */
 export async function clearPrerenderCache(): Promise<number> {
   return await invoke<number>("clear_prerender_cache")
+}
+
+/**
+ * Проверка возможностей GPU (использует get_gpu_capabilities_full)
+ */
+export async function checkGpuCapabilities() {
+  try {
+    return await invoke("get_gpu_capabilities_full")
+  } catch (error) {
+    console.error("Failed to get GPU capabilities:", error)
+    throw error
+  }
+}
+
+/**
+ * Обновление настроек компилятора (использует update_compiler_settings_advanced)
+ */
+export async function updateCompilerSettings(settings: any) {
+  try {
+    return await invoke("update_compiler_settings_advanced", { settings })
+  } catch (error) {
+    console.error("Failed to update compiler settings:", error)
+    throw error
+  }
+}
+
+/**
+ * Проверка доступности GPU кодировщика
+ */
+export async function checkGpuEncoderAvailability(encoder: string) {
+  try {
+    return await invoke("check_gpu_encoder_availability", { encoder })
+  } catch (error) {
+    console.error("Failed to check GPU encoder availability:", error)
+    throw error
+  }
+}
+
+/**
+ * Очистка кеша метаданных медиа
+ */
+export async function clearMediaMetadataCache() {
+  try {
+    return await invoke("clear_media_metadata_cache")
+  } catch (error) {
+    console.error("Failed to clear media metadata cache:", error)
+    throw error
+  }
 }

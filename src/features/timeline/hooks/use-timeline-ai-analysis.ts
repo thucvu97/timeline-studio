@@ -7,17 +7,15 @@ import { useCallback, useEffect, useState } from "react"
 
 import { SceneAnalysisEngine } from "@/features/ai-content-intelligence/engines/scene-analysis/services/scene-analysis-engine"
 import type { SceneAnalysisResult } from "@/features/ai-content-intelligence/engines/scene-analysis/types"
-import { AIIntelligenceOrchestrator } from "@/features/ai-content-intelligence/shared/services/ai-intelligence-orchestrator"
+import type { AIIntelligenceOrchestrator } from "@/features/ai-content-intelligence/shared/services/ai-intelligence-orchestrator"
 import type {
   ContentInsights,
   KeyMoment,
   UnifiedContentAnalysis,
 } from "@/features/ai-content-intelligence/shared/types/content-analysis"
 import { KeyMomentType } from "@/features/ai-content-intelligence/shared/types/content-analysis"
-
-import { useTimeline } from "./use-timeline"
-
 import type { TimelineClip } from "../types/timeline"
+import { useTimeline } from "./use-timeline"
 
 interface TimelineAnalysisState {
   isAnalyzing: boolean

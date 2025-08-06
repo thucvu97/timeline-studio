@@ -2,10 +2,9 @@ import { AspectRatio } from "@/components/ui/aspect-ratio"
 import { usePlayerAIIntegration } from "@/features/ai-chat/hooks/use-player-ai-integration"
 import { useProjectSettings } from "@/features/project-settings"
 import { convertVideoSrc } from "@/lib/tauri-utils"
-
+import { usePlayer } from "../services/player-provider"
 import { PlayerAIOverlay } from "./player-ai-overlay"
 import { PlayerControls } from "./player-controls"
-import { usePlayer } from "../services/player-provider"
 
 /**
  * Компонент медиа-плеера для воспроизведения видео

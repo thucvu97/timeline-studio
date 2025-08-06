@@ -1,5 +1,3 @@
-import { getNodeProcessor } from "./node-library"
-
 import type {
   CompositeNode,
   NodeExecutionContext,
@@ -7,6 +5,7 @@ import type {
   NodeGraphValidation,
   NodeRenderResult,
 } from "../types/node-compositing"
+import { getNodeProcessor } from "./node-library"
 
 /**
  * Node Graph Processor
@@ -364,7 +363,7 @@ export class NodeGraphProcessor {
     size: number
     memoryUsage: number
     hitRate: number
-    } {
+  } {
     let totalMemory = 0
     let hits = 0
     let total = 0

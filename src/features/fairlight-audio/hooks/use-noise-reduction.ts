@@ -6,9 +6,9 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 
 import {
-  AnalysisResult,
-  NoiseProfile,
-  NoiseReductionConfig,
+  type AnalysisResult,
+  type NoiseProfile,
+  type NoiseReductionConfig,
   NoiseReductionEngine,
 } from "../services/noise-reduction/noise-reduction-engine"
 

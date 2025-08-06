@@ -3,7 +3,7 @@
  * Сервис для работы с ONNX моделями
  */
 
-import { InferenceSession, Tensor, env } from "onnxruntime-web"
+import { env, type InferenceSession, Tensor } from "onnxruntime-web"
 
 import type { YoloDetection } from "@/features/recognition/types/yolo"
 
@@ -24,7 +24,7 @@ export interface ONNXModel {
 }
 
 export interface ModelSession {
-  session: ort.InferenceSession
+  session: InferenceSession
   model: ONNXModel
 }
 

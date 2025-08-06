@@ -3,16 +3,16 @@
  * Handles communication with Rust backend state management
  */
 
-import { UnlistenFn, listen } from "@tauri-apps/api/event"
+import { listen, type UnlistenFn } from "@tauri-apps/api/event"
 
 // Use generated types from Specta
 import {
-  CommandResult,
-  EventEnvelope,
-  ProjectCommand,
-  ProjectEvent,
-  ProjectState,
+  type CommandResult,
   commands,
+  type EventEnvelope,
+  type ProjectCommand,
+  type ProjectEvent,
+  type ProjectState,
 } from "@/types/generated/tauri-bindings"
 
 export type EventHandler = (event: ProjectEvent) => void
@@ -157,7 +157,7 @@ export class BackendSync {
   async getVersionHistory(limit?: number): Promise<CommandResult> {
     const command: ProjectCommand = {
       type: "GetVersionHistory",
-      params: { limit },
+      params: { limit: limit ?? null },
     }
     return this.executeCommand(command)
   }
@@ -179,7 +179,7 @@ export class BackendSync {
   async createBranch(branchName: string, fromVersion?: string): Promise<CommandResult> {
     const command: ProjectCommand = {
       type: "CreateBranch",
-      params: { branch_name: branchName, from_version: fromVersion },
+      params: { branch_name: branchName, from_version: fromVersion ?? null },
     }
     return this.executeCommand(command)
   }

@@ -4,8 +4,11 @@ import {
   DEFAULT_LANGUAGE,
   formatDateByLanguage,
   getLocaleByLanguage,
+  getTextDirection,
+  isRTLLanguage,
   isSupportedLanguage,
   LANGUAGE_LOCALES,
+  RTL_LANGUAGES,
   SUPPORTED_LANGUAGES,
 } from "../constants"
 
@@ -26,6 +29,8 @@ describe("i18n constants", () => {
         "th",
         "it",
         "hi",
+        "ar",
+        "fa",
       ])
     })
   })
@@ -52,6 +57,8 @@ describe("i18n constants", () => {
         th: "th-TH",
         it: "it-IT",
         hi: "hi-IN",
+        ar: "ar-SA",
+        fa: "fa-IR",
       })
     })
   })
@@ -71,6 +78,8 @@ describe("i18n constants", () => {
       expect(getLocaleByLanguage("th")).toBe("th-TH")
       expect(getLocaleByLanguage("it")).toBe("it-IT")
       expect(getLocaleByLanguage("hi")).toBe("hi-IN")
+      expect(getLocaleByLanguage("ar")).toBe("ar-SA")
+      expect(getLocaleByLanguage("fa")).toBe("fa-IR")
     })
 
     it("should return default locale for unsupported language", () => {
@@ -93,6 +102,8 @@ describe("i18n constants", () => {
       expect(isSupportedLanguage("th")).toBe(true)
       expect(isSupportedLanguage("it")).toBe(true)
       expect(isSupportedLanguage("hi")).toBe(true)
+      expect(isSupportedLanguage("ar")).toBe(true)
+      expect(isSupportedLanguage("fa")).toBe(true)
     })
 
     it("should return false for unsupported languages", () => {
@@ -169,6 +180,51 @@ describe("i18n constants", () => {
     it("should use default locale for unsupported language", () => {
       const resultUnsupported = formatDateByLanguage(testDate, "unsupported")
       expect(resultUnsupported).toContain("January")
+    })
+  })
+
+  describe("RTL_LANGUAGES", () => {
+    it("should contain RTL languages", () => {
+      expect(RTL_LANGUAGES).toEqual(["ar", "fa"])
+    })
+  })
+
+  describe("isRTLLanguage", () => {
+    it("should return true for RTL languages", () => {
+      expect(isRTLLanguage("ar")).toBe(true)
+      expect(isRTLLanguage("fa")).toBe(true)
+    })
+
+    it("should return false for LTR languages", () => {
+      expect(isRTLLanguage("en")).toBe(false)
+      expect(isRTLLanguage("ru")).toBe(false)
+      expect(isRTLLanguage("es")).toBe(false)
+      expect(isRTLLanguage("zh")).toBe(false)
+    })
+
+    it("should return false for unsupported languages", () => {
+      expect(isRTLLanguage("unsupported")).toBe(false)
+      expect(isRTLLanguage("")).toBe(false)
+    })
+  })
+
+  describe("getTextDirection", () => {
+    it("should return 'rtl' for RTL languages", () => {
+      expect(getTextDirection("ar")).toBe("rtl")
+      expect(getTextDirection("fa")).toBe("rtl")
+    })
+
+    it("should return 'ltr' for LTR languages", () => {
+      expect(getTextDirection("en")).toBe("ltr")
+      expect(getTextDirection("ru")).toBe("ltr")
+      expect(getTextDirection("es")).toBe("ltr")
+      expect(getTextDirection("zh")).toBe("ltr")
+      expect(getTextDirection("ja")).toBe("ltr")
+    })
+
+    it("should return 'ltr' for unsupported languages", () => {
+      expect(getTextDirection("unsupported")).toBe("ltr")
+      expect(getTextDirection("")).toBe("ltr")
     })
   })
 })

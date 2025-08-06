@@ -3,9 +3,8 @@
  */
 
 import type { TimelineProject } from "@/features/timeline/types/timeline"
-
-import type { TimelineToolResult } from "./types"
 import type { ClaudeTool } from "../../services/claude-service"
+import type { TimelineToolResult } from "./types"
 
 export const exportTimelineDataTool: ClaudeTool = {
   name: "export_timeline_data",
@@ -345,15 +344,15 @@ function convertToFCPXML(data: any): string {
         <sequence format="r1" tcStart="0s">
           <spine>
             ${
-  data.clips
-    ?.map(
-      (clip: any) => `
+              data.clips
+                ?.map(
+                  (clip: any) => `
             <video offset="${clip.startTime}s" duration="${clip.duration}s" name="${clip.name || "Clip"}">
               <adjust-conform type="fit"/>
             </video>`,
-    )
-    .join("") || ""
-}
+                )
+                .join("") || ""
+            }
           </spine>
         </sequence>
       </project>

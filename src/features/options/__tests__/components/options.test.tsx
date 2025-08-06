@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
 
-import { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "@/features/media/types/media"
 import { setTranslations } from "@/test/mocks/libraries/i18n"
 import { renderWithBase, screen } from "@/test/test-utils"
 

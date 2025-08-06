@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { EffectComparison } from "../../components/effect-comparison"
-import { VideoEffect } from "../../types"
+import type { VideoEffect } from "../../types"
 import { generateCSSFilterForEffect, getPlaybackRate } from "../../utils/css-effects"
 
 // Мокаем внешние зависимости

@@ -4,8 +4,6 @@
  * Подготовлен для интеграции с YOLO/ONNX
  */
 
-import { ONNXRuntimeService } from "./onnx-runtime-service"
-
 import type {
   ActivityDetection,
   BoundingBox,
@@ -14,6 +12,7 @@ import type {
   ObjectDetection,
   TextDetection,
 } from "../../../shared/types/content-analysis"
+import { ONNXRuntimeService } from "./onnx-runtime-service"
 
 interface VisionServiceConfig {
   enableObjectDetection: boolean
@@ -229,23 +228,23 @@ export class VisionService {
           },
           landmarks: face.landmarks
             ? {
-              leftEye: {
-                x: face.landmarks[0].x * imageData.width,
-                y: face.landmarks[0].y * imageData.height,
-              },
-              rightEye: {
-                x: face.landmarks[1].x * imageData.width,
-                y: face.landmarks[1].y * imageData.height,
-              },
-              nose: {
-                x: face.landmarks[2].x * imageData.width,
-                y: face.landmarks[2].y * imageData.height,
-              },
-              mouth: {
-                x: ((face.landmarks[3].x + face.landmarks[4].x) / 2) * imageData.width,
-                y: ((face.landmarks[3].y + face.landmarks[4].y) / 2) * imageData.height,
-              },
-            }
+                leftEye: {
+                  x: face.landmarks[0].x * imageData.width,
+                  y: face.landmarks[0].y * imageData.height,
+                },
+                rightEye: {
+                  x: face.landmarks[1].x * imageData.width,
+                  y: face.landmarks[1].y * imageData.height,
+                },
+                nose: {
+                  x: face.landmarks[2].x * imageData.width,
+                  y: face.landmarks[2].y * imageData.height,
+                },
+                mouth: {
+                  x: ((face.landmarks[3].x + face.landmarks[4].x) / 2) * imageData.width,
+                  y: ((face.landmarks[3].y + face.landmarks[4].y) / 2) * imageData.height,
+                },
+              }
             : undefined,
         }))
     } catch (error) {

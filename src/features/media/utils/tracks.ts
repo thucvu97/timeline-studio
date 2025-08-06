@@ -1,13 +1,11 @@
 import { calculateTimeRanges } from "@/features/media/utils/video"
 import i18n from "@/i18n"
 import { formatDateByLanguage } from "@/i18n/constants"
-
+import type { MediaFile, MediaTrack } from "../types/media"
+import type { Sector } from "../types/types"
 import { processAudioFiles } from "./audio-tracks"
 import { updateSectorTimeRange } from "./tracks-utils"
 import { processVideoFiles } from "./video-tracks"
-import { Sector } from "../types/types"
-
-import type { MediaFile, MediaTrack } from "../types/media"
 
 /**
  * Создает треки из медиафайлов

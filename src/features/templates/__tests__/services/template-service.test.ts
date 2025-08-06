@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { MediaTemplate } from "../../lib/templates"
+import type { MediaTemplate } from "../../lib/templates"
 import { getVideoStyleForTemplate } from "../../services/template-service"
 
 describe("Template Service", () => {

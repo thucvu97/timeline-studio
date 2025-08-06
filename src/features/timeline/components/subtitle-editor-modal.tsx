@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import { useModal } from "@/features/modals/services"
 
-import { SubtitleClip } from "../types/timeline"
+import type { SubtitleClip } from "../types/timeline"
 
 export function SubtitleEditorModal() {
   const { modalData, closeModal } = useModal()
@@ -65,16 +65,16 @@ export function SubtitleEditorModal() {
       animationIn:
         animationIn !== "none"
           ? {
-            type: animationIn,
-            duration: animationInDuration,
-          }
+              type: animationIn,
+              duration: animationInDuration,
+            }
           : undefined,
       animationOut:
         animationOut !== "none"
           ? {
-            type: animationOut,
-            duration: animationOutDuration,
-          }
+              type: animationOut,
+              duration: animationOutDuration,
+            }
           : undefined,
       subtitlePosition: {
         alignment: position,

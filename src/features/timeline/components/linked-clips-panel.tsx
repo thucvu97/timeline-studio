@@ -2,9 +2,8 @@
  * Панель управления связанными клипами
  */
 
-import { useState } from "react"
-
 import { AlertTriangle, Eye, EyeOff, Info, Link2, RefreshCw, Search, Target, Unlink } from "lucide-react"
+import { useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"

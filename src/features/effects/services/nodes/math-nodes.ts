@@ -551,13 +551,14 @@ export const randomProcessor: NodeProcessor = {
       case "uniform":
         value = min + random() * (max - min)
         break
-      case "gaussian":
+      case "gaussian": {
         // Box-Muller transform for gaussian
         const u1 = random()
         const u2 = random()
         const gaussian = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2)
         value = min + (gaussian * 0.5 + 0.5) * (max - min)
         break
+      }
       case "integer":
         value = Math.floor(min + random() * (max - min + 1))
         break

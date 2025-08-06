@@ -3,9 +3,8 @@
  * Показывает подробную информацию о персоне, включая все обнаруженные лица
  */
 
-import { useState } from "react"
-
 import { Calendar, Camera, Clock, Image, MapPin, Tag, User } from "lucide-react"
+import { useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
