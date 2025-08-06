@@ -53,7 +53,7 @@ export interface UseTracksReturn {
 }
 
 export function useTracks(): UseTracksReturn {
-  const { project, uiState, addTrack, removeTrack, updateTrack, selectTracks, clearSelection } = useTimeline()
+  const { project, selectedTrackIds, addTrack, removeTrack, updateTrack, selectTracks, clearSelection } = useTimeline()
 
   // ============================================================================
   // COMPUTED VALUES
@@ -76,8 +76,8 @@ export function useTracks(): UseTracksReturn {
   }, [project])
 
   const selectedTracks = useMemo(() => {
-    return tracks.filter((track) => uiState.selectedTrackIds.includes(track.id))
-  }, [tracks, uiState.selectedTrackIds])
+    return tracks.filter((track) => selectedTrackIds?.includes(track.id))
+  }, [tracks, selectedTrackIds])
 
   const visibleTracks = useMemo(() => {
     return tracks.filter((track) => !track.isHidden)
@@ -162,7 +162,7 @@ export function useTracks(): UseTracksReturn {
 
   const selectTrack = (trackId: string, addToSelection = false) => {
     if (addToSelection) {
-      const currentSelection = uiState.selectedTrackIds
+      const currentSelection = selectedTrackIds
       const newSelection = currentSelection.includes(trackId)
         ? currentSelection.filter((id) => id !== trackId)
         : [...currentSelection, trackId]

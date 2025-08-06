@@ -219,7 +219,7 @@ describe("useTracks", () => {
       expect(result.current.tracks).toEqual(mockTracks)
       expect(result.current.globalTracks).toEqual([]) // No global tracks in mock project
       expect(result.current.sectionTracks).toEqual(mockTracks) // All tracks are in sections
-      expect(result.current.selectedTracks).toEqual([mockTracks[0]]) // track-1 is selected
+      expect(result.current.selectedTracks).toEqual([]) // No tracks selected by default
       expect(result.current.visibleTracks).toEqual([mockTracks[0], mockTracks[1]]) // Only non-hidden tracks (track-3 is hidden)
     })
   })

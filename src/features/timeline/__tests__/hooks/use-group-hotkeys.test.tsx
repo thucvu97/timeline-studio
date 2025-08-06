@@ -105,7 +105,7 @@ const mockSend = vi.fn()
 vi.mock("../../hooks/use-timeline", () => ({
   useTimeline: () => ({
     project: mockProject,
-    uiState: mockUiState,
+    selectedClipIds: mockUiState.selectedClipIds,
     send: mockSend,
   }),
 }))

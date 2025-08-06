@@ -55,6 +55,7 @@ export function TimelineContent() {
   const {
     project,
     uiState,
+    selectedTrackIds,
     currentTime,
     createProject,
     addSection,
@@ -316,7 +317,7 @@ export function TimelineContent() {
                             track={track}
                             timeScale={uiState.timeScale}
                             currentTime={currentTime}
-                            isSelected={uiState.selectedTrackIds.includes(track.id)}
+                            isSelected={selectedTrackIds?.includes(track.id) ?? false}
                             onSelect={(trackId) => selectTracks([trackId])}
                             onUpdate={(updates) => updateTrack(track.id, updates)}
                           />

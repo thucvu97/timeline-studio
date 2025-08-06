@@ -1,10 +1,10 @@
 /**
- * Timeline Playback Provider  
+ * Timeline Playback Provider
  * Управление воспроизведением: play, pause, stop, seek, playback rate
  */
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
 import type { ReactNode } from "react"
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
 
 import { useTimelineProject } from "./timeline-project-provider"
 import type { TimelinePlaybackContextType } from "./types"
@@ -82,11 +82,7 @@ export function TimelinePlaybackProvider({ children }: TimelinePlaybackProviderP
     [isPlaying, currentTime, playbackRate, project?.duration, play, pause, stop, seek, setPlaybackRate],
   )
 
-  return (
-    <TimelinePlaybackContext.Provider value={contextValue}>
-      {children}
-    </TimelinePlaybackContext.Provider>
-  )
+  return <TimelinePlaybackContext.Provider value={contextValue}>{children}</TimelinePlaybackContext.Provider>
 }
 
 export function useTimelinePlayback() {

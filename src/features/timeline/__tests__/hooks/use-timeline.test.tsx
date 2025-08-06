@@ -178,7 +178,9 @@ describe("useTimeline", () => {
         await result.current.addSection("New Section", 0, 10)
       })
 
-      expect(warnSpy).toHaveBeenCalledWith("addSection is deprecated - sections are not implemented in the new architecture")
+      expect(warnSpy).toHaveBeenCalledWith(
+        "addSection is deprecated - sections are not implemented in the new architecture",
+      )
       expect(mockExecuteCommand).not.toHaveBeenCalled()
 
       warnSpy.mockRestore()
@@ -192,7 +194,9 @@ describe("useTimeline", () => {
         await result.current.removeSection("section-1")
       })
 
-      expect(warnSpy).toHaveBeenCalledWith("removeSection is deprecated - sections are not implemented in the new architecture")
+      expect(warnSpy).toHaveBeenCalledWith(
+        "removeSection is deprecated - sections are not implemented in the new architecture",
+      )
       expect(mockExecuteCommand).not.toHaveBeenCalled()
 
       warnSpy.mockRestore()
@@ -427,7 +431,9 @@ describe("useTimeline", () => {
         result.current.selectSections(["section-1", "section-2"])
       })
 
-      expect(warnSpy).toHaveBeenCalledWith("selectSections is deprecated - sections are not implemented in the new architecture")
+      expect(warnSpy).toHaveBeenCalledWith(
+        "selectSections is deprecated - sections are not implemented in the new architecture",
+      )
       warnSpy.mockRestore()
     })
 

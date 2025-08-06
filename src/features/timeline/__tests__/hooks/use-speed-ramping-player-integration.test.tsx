@@ -4,9 +4,9 @@
 
 import { act, renderHook } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-
-import { SpeedRampingServiceImpl } from "../../services/speed-ramping-service"
+import { TimelineProviders } from "@/test/test-utils"
 import { useSpeedRampingPlayerIntegration } from "../../hooks/use-speed-ramping-player-integration"
+import { SpeedRampingServiceImpl } from "../../services/speed-ramping-service"
 
 // Мокаем timeline
 const mockSpeedRampingService = new SpeedRampingServiceImpl()
@@ -41,7 +41,11 @@ const mockTimelineState = {
 }
 
 vi.mock("../use-timeline", () => ({
-  useTimeline: () => ({ state: mockTimelineState }),
+  useTimeline: () => ({
+    project: mockTimelineState.context.project,
+    currentTime: mockTimelineState.context.currentTime,
+    speedRampingService: mockTimelineState.context.speedRampingService,
+  }),
 }))
 
 describe("useSpeedRampingPlayerIntegration", () => {
@@ -51,7 +55,9 @@ describe("useSpeedRampingPlayerIntegration", () => {
   })
 
   it("should initialize with default values", () => {
-    const { result } = renderHook(() => useSpeedRampingPlayerIntegration())
+    const { result } = renderHook(() => useSpeedRampingPlayerIntegration(), {
+      wrapper: TimelineProviders,
+    })
 
     expect(result.current.getCurrentPlaybackRate()).toBe(1.0)
     expect(result.current.isSpeedRampingActive("clip-1")).toBe(false)
@@ -73,7 +79,9 @@ describe("useSpeedRampingPlayerIntegration", () => {
       graphOpacity: 0.7,
     })
 
-    const { result } = renderHook(() => useSpeedRampingPlayerIntegration())
+    const { result } = renderHook(() => useSpeedRampingPlayerIntegration(), {
+      wrapper: TimelineProviders,
+    })
 
     act(() => {
       result.current.updatePlaybackRateForTime(5) // Время внутри клипа
@@ -84,7 +92,9 @@ describe("useSpeedRampingPlayerIntegration", () => {
   })
 
   it("should check if speed ramping is active for clip", () => {
-    const { result } = renderHook(() => useSpeedRampingPlayerIntegration())
+    const { result } = renderHook(() => useSpeedRampingPlayerIntegration(), {
+      wrapper: TimelineProviders,
+    })
 
     expect(result.current.isSpeedRampingActive("clip-1")).toBe(false)
 
@@ -103,7 +113,9 @@ describe("useSpeedRampingPlayerIntegration", () => {
   })
 
   it("should handle auto update enabling/disabling", () => {
-    const { result } = renderHook(() => useSpeedRampingPlayerIntegration())
+    const { result } = renderHook(() => useSpeedRampingPlayerIntegration(), {
+      wrapper: TimelineProviders,
+    })
 
     act(() => {
       result.current.setAutoUpdateEnabled(false)
@@ -125,7 +137,9 @@ describe("useSpeedRampingPlayerIntegration", () => {
   })
 
   it("should manually reset playback rate", () => {
-    const { result } = renderHook(() => useSpeedRampingPlayerIntegration())
+    const { result } = renderHook(() => useSpeedRampingPlayerIntegration(), {
+      wrapper: TimelineProviders,
+    })
 
     act(() => {
       result.current.resetPlaybackRate()

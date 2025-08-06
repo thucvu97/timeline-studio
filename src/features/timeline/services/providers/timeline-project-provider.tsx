@@ -3,11 +3,10 @@
  * Управление проектом: создание, загрузка, сохранение, backend интеграция
  */
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
 import type { ReactNode } from "react"
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
 
 import { getBackendSync } from "@/features/app-state/services/backend-sync"
-import type { MediaFile } from "@/features/media/types/media"
 import type { Clip, Project, ProjectCommand, ProjectState } from "@/types/generated/tauri-bindings"
 
 import type { TimelineClip, TimelineProject, TimelineTrack, TrackType } from "../../types"
@@ -132,7 +131,7 @@ export function TimelineProjectProvider({ children }: TimelineProjectProviderPro
   useEffect(() => {
     const unsubscribe = backendSync.onStateChange((state: ProjectState) => {
       setProjectState(state)
-      
+
       if (state.project) {
         const timelineProject = convertProjectToTimelineProject(state.project)
         setProject(timelineProject)
@@ -162,16 +161,13 @@ export function TimelineProjectProvider({ children }: TimelineProjectProviderPro
     [executeCommand],
   )
 
-  const saveProject = useCallback(
-    async () => {
-      await executeCommand({
-        type: "SaveProject",
-        params: { path: null },
-      })
-      setHasUnsavedChanges(false)
-    },
-    [executeCommand],
-  )
+  const saveProject = useCallback(async () => {
+    await executeCommand({
+      type: "SaveProject",
+      params: { path: null },
+    })
+    setHasUnsavedChanges(false)
+  }, [executeCommand])
 
   const loadProject = useCallback(
     async (path: string) => {
@@ -200,23 +196,19 @@ export function TimelineProjectProvider({ children }: TimelineProjectProviderPro
       project,
       isLoading,
       hasUnsavedChanges,
-      
+
       // Actions
       createProject,
       saveProject,
       loadProject,
-      
+
       // Backend
       backend,
     }),
     [project, isLoading, hasUnsavedChanges, createProject, saveProject, loadProject, backend],
   )
 
-  return (
-    <TimelineProjectContext.Provider value={contextValue}>
-      {children}
-    </TimelineProjectContext.Provider>
-  )
+  return <TimelineProjectContext.Provider value={contextValue}>{children}</TimelineProjectContext.Provider>
 }
 
 export function useTimelineProject() {

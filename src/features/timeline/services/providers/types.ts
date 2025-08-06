@@ -22,12 +22,12 @@ export interface TimelineProjectContextType {
   project: TimelineProject | null
   isLoading: boolean
   hasUnsavedChanges: boolean
-  
+
   // Actions
   createProject: (name: string) => Promise<void>
   saveProject: () => Promise<void>
   loadProject: (path: string) => Promise<void>
-  
+
   // Backend integration
   backend: BackendIntegration
 }
@@ -39,8 +39,8 @@ export interface TimelinePlaybackContextType {
   currentTime: number
   playbackRate: number
   duration: number
-  
-  // Actions  
+
+  // Actions
   play: () => Promise<void>
   pause: () => Promise<void>
   stop: () => Promise<void>
@@ -53,7 +53,7 @@ export interface TimelineTracksContextType {
   // State
   tracks: TimelineTrack[]
   activeTrackId: string | null
-  
+
   // Actions
   addTrack: (type: TrackType, name?: string) => Promise<void>
   removeTrack: (trackId: string) => Promise<void>
@@ -66,9 +66,13 @@ export interface TimelineTracksContextType {
 export interface TimelineClipsContextType {
   // State
   clips: TimelineClip[]
-  
+
   // Actions
-  addClip: (trackId: string, mediaFile: import("@/features/media/types/media").MediaFile | string, time: number) => Promise<void>
+  addClip: (
+    trackId: string,
+    mediaFile: import("@/features/media/types/media").MediaFile | string,
+    time: number,
+  ) => Promise<void>
   removeClip: (clipId: string) => Promise<void>
   moveClip: (clipId: string, trackId: string, time: number) => Promise<void>
   trimClip: (clipId: string, startTime: number, endTime: number) => Promise<void>
@@ -82,7 +86,7 @@ export interface TimelineSelectionContextType {
   selectedClipIds: string[]
   selectedTrackIds: string[]
   clipboardClips: TimelineClip[]
-  
+
   // Actions
   selectClips: (clipIds: string[], addToSelection?: boolean) => void
   selectTracks: (trackIds: string[], addToSelection?: boolean) => void
@@ -93,7 +97,7 @@ export interface TimelineSelectionContextType {
   deleteSelected: () => Promise<void>
 }
 
-// Effects Provider Types  
+// Effects Provider Types
 export interface TimelineEffectsContextType {
   // Actions
   applyEffect: (clipId: string, effectId: string, params?: any) => Promise<void>

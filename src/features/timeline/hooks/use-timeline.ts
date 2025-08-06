@@ -158,22 +158,22 @@ export function useTimeline(): TimelineContextType {
     removeTransition: effects.removeTransition,
 
     // Legacy методы для обратной совместимости
-    addSection: async (name: string, start: number, end: number) => {
+    addSection: async (_name: string, _start: number, _end: number) => {
       console.warn("addSection is deprecated - sections are not implemented in the new architecture")
     },
-    removeSection: async (sectionId: string) => {
+    removeSection: async (_sectionId: string) => {
       console.warn("removeSection is deprecated - sections are not implemented in the new architecture")
     },
-    selectSections: (sectionIds: string[]) => {
+    selectSections: (_sectionIds: string[]) => {
       console.warn("selectSections is deprecated - sections are not implemented in the new architecture")
     },
-    setTimeScale: (scale: number) => {
+    setTimeScale: (_scale: number) => {
       console.warn("setTimeScale is deprecated - use UI state management instead")
     },
-    setScrollPosition: (position: { x: number; y: number }) => {
+    setScrollPosition: (_position: { x: number; y: number }) => {
       console.warn("setScrollPosition is deprecated - use UI state management instead")
     },
-    setEditMode: (mode: string) => {
+    setEditMode: (_mode: string) => {
       console.warn("setEditMode is deprecated - use UI state management instead")
     },
     toggleSnap: () => {
@@ -188,7 +188,7 @@ export function useTimeline(): TimelineContextType {
     paste: async (targetId: string, position: number) => {
       await selection.pasteClips(targetId, position)
     },
-    send: (event: any) => {
+    send: (_event: any) => {
       console.warn("send is deprecated - use specific provider methods instead")
     },
   }

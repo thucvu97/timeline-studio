@@ -14,11 +14,11 @@ import type { TimelineClip } from "../../types/timeline"
 
 export function GroupManagerPanel() {
   const { groups, createGroup, renameGroup, setGroupColor, toggleCollapse, lockGroup, ungroupClips } = useClipGroups()
-  const { uiState, project } = useTimeline()
+  const { project, selectedClipIds } = useTimeline()
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null)
   const [editingName, setEditingName] = useState("")
 
-  const selectedClipCount = uiState.selectedClipIds.length
+  const selectedClipCount = selectedClipIds.length
 
   const handleCreateGroup = () => {
     if (!project || selectedClipCount < 2) return
@@ -28,7 +28,7 @@ export function GroupManagerPanel() {
 
     project.globalTracks.forEach((track) => {
       track.clips.forEach((clip) => {
-        if (uiState.selectedClipIds.includes(clip.id)) {
+        if (selectedClipIds.includes(clip.id)) {
           selectedClips.push(clip)
         }
       })
@@ -37,7 +37,7 @@ export function GroupManagerPanel() {
     project.sections.forEach((section) => {
       section.tracks.forEach((track) => {
         track.clips.forEach((clip) => {
-          if (uiState.selectedClipIds.includes(clip.id)) {
+          if (selectedClipIds.includes(clip.id)) {
             selectedClips.push(clip)
           }
         })

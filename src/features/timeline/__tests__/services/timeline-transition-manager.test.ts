@@ -1,9 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import type { Transition } from "@/features/transitions/types/transitions"
-
-import type { TimelineClip, TimelineProject, TimelineTrack } from "../../types/timeline"
-import type { TimelineTransition } from "../../types/timeline-transition"
 import {
   addTransitionBetweenClips,
   addTransitionIn,
@@ -15,6 +12,8 @@ import {
   getTrackTransitions,
   removeTransition,
 } from "../../services/timeline-transition-manager"
+import type { TimelineClip, TimelineProject, TimelineTrack } from "../../types/timeline"
+import type { TimelineTransition } from "../../types/timeline-transition"
 
 // Mock модуля resource-manager
 vi.mock("../../services/resource-manager", () => ({

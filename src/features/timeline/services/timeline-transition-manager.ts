@@ -251,7 +251,7 @@ export function adjustTransitionsForClipChange(
     else if (transition.type === "out" && transition.startClipId === clipId) {
       const positionChanged = newPosition !== oldPosition
       const durationChanged = newDuration !== oldDuration
-      
+
       if (positionChanged && !durationChanged) {
         // Только позиция изменилась (trim начала) - сдвигаем переход
         const shift = newPosition - oldPosition

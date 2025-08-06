@@ -80,7 +80,8 @@ export interface UseTimelineSelectionReturn {
 export function useTimelineSelection(): UseTimelineSelectionReturn {
   const {
     project,
-    uiState,
+    selectedClipIds,
+    selectedTrackIds,
     selectClips,
     selectTracks,
     selectSections,
@@ -100,17 +101,18 @@ export function useTimelineSelection(): UseTimelineSelectionReturn {
   // ============================================================================
 
   const selectedClips = useMemo(() => {
-    return clips.filter((clip) => uiState.selectedClipIds.includes(clip.id))
-  }, [clips, uiState.selectedClipIds])
+    return clips.filter((clip) => selectedClipIds.includes(clip.id))
+  }, [clips, selectedClipIds])
 
   const selectedTracks = useMemo(() => {
-    return tracks.filter((track) => uiState.selectedTrackIds.includes(track.id))
-  }, [tracks, uiState.selectedTrackIds])
+    return tracks.filter((track) => selectedTrackIds.includes(track.id))
+  }, [tracks, selectedTrackIds])
 
   const selectedSections = useMemo(() => {
     if (!project) return []
-    return project.sections.filter((section) => uiState.selectedSectionIds.includes(section.id))
-  }, [project, uiState.selectedSectionIds])
+    // Sections are deprecated in new architecture
+    return []
+  }, [project])
 
   const hasSelection = useMemo(() => {
     return selectedClips.length > 0 || selectedTracks.length > 0 || selectedSections.length > 0
@@ -149,7 +151,7 @@ export function useTimelineSelection(): UseTimelineSelectionReturn {
 
   const selectClip = (clipId: string, addToSelection = false) => {
     if (addToSelection) {
-      const currentIds = uiState.selectedClipIds
+      const currentIds = selectedClipIds
       const newIds = currentIds.includes(clipId) ? currentIds.filter((id) => id !== clipId) : [...currentIds, clipId]
       selectClips(newIds)
     } else {
@@ -159,7 +161,7 @@ export function useTimelineSelection(): UseTimelineSelectionReturn {
 
   const selectTrack = (trackId: string, addToSelection = false) => {
     if (addToSelection) {
-      const currentIds = uiState.selectedTrackIds
+      const currentIds = selectedTrackIds
       const newIds = currentIds.includes(trackId) ? currentIds.filter((id) => id !== trackId) : [...currentIds, trackId]
       selectTracks(newIds)
     } else {
@@ -169,7 +171,7 @@ export function useTimelineSelection(): UseTimelineSelectionReturn {
 
   const selectSection = (sectionId: string, addToSelection = false) => {
     if (addToSelection) {
-      const currentIds = uiState.selectedSectionIds
+      const currentIds = [] // Sections are deprecated
       const newIds = currentIds.includes(sectionId)
         ? currentIds.filter((id) => id !== sectionId)
         : [...currentIds, sectionId]
@@ -195,7 +197,7 @@ export function useTimelineSelection(): UseTimelineSelectionReturn {
 
   const invertSelection = () => {
     const allClipIds = clips.map((clip) => clip.id)
-    const currentSelection = uiState.selectedClipIds
+    const currentSelection = selectedClipIds
     const newSelection = allClipIds.filter((id) => !currentSelection.includes(id))
     selectClips(newSelection)
   }
@@ -314,15 +316,15 @@ export function useTimelineSelection(): UseTimelineSelectionReturn {
   // ============================================================================
 
   const isClipSelected = (clipId: string): boolean => {
-    return uiState.selectedClipIds.includes(clipId)
+    return selectedClipIds.includes(clipId)
   }
 
   const isTrackSelected = (trackId: string): boolean => {
-    return uiState.selectedTrackIds.includes(trackId)
+    return selectedTrackIds.includes(trackId)
   }
 
-  const isSectionSelected = (sectionId: string): boolean => {
-    return uiState.selectedSectionIds.includes(sectionId)
+  const isSectionSelected = (_sectionId: string): boolean => {
+    return false // Sections are deprecated
   }
 
   const getSelectionStats = () => {

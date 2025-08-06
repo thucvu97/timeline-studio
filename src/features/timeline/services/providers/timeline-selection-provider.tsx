@@ -1,13 +1,12 @@
 /**
- * Timeline Selection Provider  
+ * Timeline Selection Provider
  * Управление выделением: клипы, треки, копирование, вставка
  */
 
-import { createContext, useCallback, useContext, useMemo, useState } from "react"
 import type { ReactNode } from "react"
+import { createContext, useCallback, useContext, useMemo, useState } from "react"
 
-import type { TimelineClip } from "../../types"
-import { copyClips, type ClipboardData } from "../../utils/clip-operations"
+import { type ClipboardData, copyClips } from "../../utils/clip-operations"
 import { useTimelineClips } from "./timeline-clips-provider"
 import type { TimelineSelectionContextType } from "./types"
 
@@ -26,7 +25,7 @@ export function TimelineSelectionProvider({ children }: TimelineSelectionProvide
   // Selection operations
   const selectClips = useCallback((clipIds: string[], addToSelection = false) => {
     if (addToSelection) {
-      setSelectedClipIds(prev => [...new Set([...prev, ...clipIds])])
+      setSelectedClipIds((prev) => [...new Set([...prev, ...clipIds])])
     } else {
       setSelectedClipIds(clipIds)
     }
@@ -34,7 +33,7 @@ export function TimelineSelectionProvider({ children }: TimelineSelectionProvide
 
   const selectTracks = useCallback((trackIds: string[], addToSelection = false) => {
     if (addToSelection) {
-      setSelectedTrackIds(prev => [...new Set([...prev, ...trackIds])])
+      setSelectedTrackIds((prev) => [...new Set([...prev, ...trackIds])])
     } else {
       setSelectedTrackIds(trackIds)
     }
@@ -47,12 +46,12 @@ export function TimelineSelectionProvider({ children }: TimelineSelectionProvide
 
   // Clipboard operations
   const copySelectedClips = useCallback(async () => {
-    const selectedClips = clips.filter(clip => selectedClipIds.includes(clip.id))
+    const selectedClips = clips.filter((clip) => selectedClipIds.includes(clip.id))
     if (selectedClips.length === 0) {
       console.warn("No clips selected for copying")
       return
     }
-    
+
     try {
       const clipboardData = copyClips(selectedClips)
       setClipboardData(clipboardData)
@@ -63,21 +62,24 @@ export function TimelineSelectionProvider({ children }: TimelineSelectionProvide
 
   const cutClips = useCallback(async () => {
     await copySelectedClips()
-    
+
     // Delete selected clips
     for (const clipId of selectedClipIds) {
       await removeClip(clipId)
     }
-    
+
     clearSelection()
   }, [copySelectedClips, selectedClipIds, removeClip, clearSelection])
 
-  const pasteClips = useCallback(async (trackId: string, time: number) => {
-    // This would need backend support for batch operations
-    // For now, just clear clipboard
-    console.log("Paste clips not yet implemented:", { trackId, time, data: clipboardData })
-    setClipboardData(null)
-  }, [clipboardData])
+  const pasteClips = useCallback(
+    async (trackId: string, time: number) => {
+      // This would need backend support for batch operations
+      // For now, just clear clipboard
+      console.log("Paste clips not yet implemented:", { trackId, time, data: clipboardData })
+      setClipboardData(null)
+    },
+    [clipboardData],
+  )
 
   const deleteSelected = useCallback(async () => {
     for (const clipId of selectedClipIds) {
@@ -116,11 +118,7 @@ export function TimelineSelectionProvider({ children }: TimelineSelectionProvide
     ],
   )
 
-  return (
-    <TimelineSelectionContext.Provider value={contextValue}>
-      {children}
-    </TimelineSelectionContext.Provider>
-  )
+  return <TimelineSelectionContext.Provider value={contextValue}>{children}</TimelineSelectionContext.Provider>
 }
 
 export function useTimelineSelection() {

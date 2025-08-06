@@ -1,7 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-
-import type { TimelineClip, TimelineProject, TimelineTrack } from "../../types/timeline"
-import type { TimelineTransition } from "../../types/timeline-transition"
 import {
   canAddTransition,
   resolveTransitionCollisions,
@@ -10,6 +7,8 @@ import {
   syncTransitionsOnClipSplit,
   syncTransitionsOnClipTrim,
 } from "../../services/clip-transition-sync"
+import type { TimelineClip, TimelineProject, TimelineTrack } from "../../types/timeline"
+import type { TimelineTransition } from "../../types/timeline-transition"
 
 // Mock модулей
 vi.mock("../../services/resource-manager", () => ({

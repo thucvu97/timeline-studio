@@ -3,10 +3,10 @@
  */
 
 import { beforeEach, describe, expect, it } from "vitest"
+import { SpeedRampingServiceImpl } from "../../services/speed-ramping-service"
 import type { TimelineClip } from "../../types"
 import type { SpeedRampingConfig } from "../../types/speed-ramping"
 import { createSpeedKeyframe } from "../../types/speed-ramping"
-import { SpeedRampingServiceImpl } from "../../services/speed-ramping-service"
 
 describe("SpeedRampingService", () => {
   let service: SpeedRampingServiceImpl

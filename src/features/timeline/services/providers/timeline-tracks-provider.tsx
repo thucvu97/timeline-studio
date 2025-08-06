@@ -3,8 +3,8 @@
  * Управление треками: добавление, удаление, изменение, переупорядочивание
  */
 
-import { createContext, useCallback, useContext, useMemo, useState } from "react"
 import type { ReactNode } from "react"
+import { createContext, useCallback, useContext, useMemo, useState } from "react"
 
 import type { TimelineTrack, TrackType } from "../../types"
 import { useTimelineProject } from "./timeline-project-provider"
@@ -27,9 +27,9 @@ export function TimelineTracksProvider({ children }: TimelineTracksProviderProps
   const addTrack = useCallback(
     async (type: TrackType, name?: string) => {
       const trackName = name || `${type.charAt(0).toUpperCase() + type.slice(1)} Track`
-      
+
       const backendTrackType = type.toUpperCase() as any // Backend expects uppercase
-      
+
       await backend.executeCommand({
         type: "AddTrack",
         params: {
@@ -48,7 +48,7 @@ export function TimelineTracksProvider({ children }: TimelineTracksProviderProps
         type: "DeleteTrack",
         params: { track_id: trackId },
       })
-      
+
       // Clear active track if it's being deleted
       if (activeTrackId === trackId) {
         setActiveTrackId(null)
@@ -89,14 +89,11 @@ export function TimelineTracksProvider({ children }: TimelineTracksProviderProps
     [backend],
   )
 
-  const reorderTracks = useCallback(
-    async (trackIds: string[]) => {
-      // For now, just update active track if provided
-      // Full reordering would require backend support
-      console.log("Track reordering not yet implemented:", trackIds)
-    },
-    [],
-  )
+  const reorderTracks = useCallback(async (trackIds: string[]) => {
+    // For now, just update active track if provided
+    // Full reordering would require backend support
+    console.log("Track reordering not yet implemented:", trackIds)
+  }, [])
 
   const setActiveTrack = useCallback((trackId: string | null) => {
     setActiveTrackId(trackId)
@@ -118,11 +115,7 @@ export function TimelineTracksProvider({ children }: TimelineTracksProviderProps
     [tracks, activeTrackId, addTrack, removeTrack, updateTrack, reorderTracks, setActiveTrack],
   )
 
-  return (
-    <TimelineTracksContext.Provider value={contextValue}>
-      {children}
-    </TimelineTracksContext.Provider>
-  )
+  return <TimelineTracksContext.Provider value={contextValue}>{children}</TimelineTracksContext.Provider>
 }
 
 export function useTimelineTracks() {

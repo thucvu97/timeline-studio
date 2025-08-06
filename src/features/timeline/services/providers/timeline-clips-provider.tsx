@@ -3,8 +3,8 @@
  * Управление клипами: добавление, удаление, перемещение, обрезка, разделение
  */
 
-import { createContext, useCallback, useContext, useMemo } from "react"
 import type { ReactNode } from "react"
+import { createContext, useCallback, useContext, useMemo } from "react"
 
 import type { MediaFile } from "@/features/media/types/media"
 import type { TimelineClip } from "../../types"
@@ -23,17 +23,15 @@ export function TimelineClipsProvider({ children }: TimelineClipsProviderProps) 
   // Get all clips from all tracks
   const clips = useMemo(() => {
     if (!project) return []
-    
-    return project.globalTracks.flatMap(track => 
-      track.clips.map(clip => ({ ...clip, trackId: track.id }))
-    )
+
+    return project.globalTracks.flatMap((track) => track.clips.map((clip) => ({ ...clip, trackId: track.id })))
   }, [project])
 
   // Clip operations
   const addClip = useCallback(
     async (trackId: string, mediaFile: MediaFile | string, time: number) => {
-      const mediaId = typeof mediaFile === 'string' ? mediaFile : mediaFile.id
-      
+      const mediaId = typeof mediaFile === "string" ? mediaFile : mediaFile.id
+
       await backend.executeCommand({
         type: "AddClip",
         params: {
@@ -88,12 +86,12 @@ export function TimelineClipsProvider({ children }: TimelineClipsProviderProps) 
     async (clipId: string, time: number) => {
       // Note: Split functionality may need to be implemented in backend
       // For now, we'll implement it as a trim + add new clip operation
-      const clip = clips.find(c => c.id === clipId)
+      const clip = clips.find((c) => c.id === clipId)
       if (!clip) return
 
       // First part: trim original clip to end at split time
       await trimClip(clipId, clip.mediaStartTime, time)
-      
+
       // Second part: add new clip starting at split time
       await addClip(clip.trackId, clip.mediaId, time)
     },
@@ -145,11 +143,7 @@ export function TimelineClipsProvider({ children }: TimelineClipsProviderProps) 
     [clips, addClip, removeClip, moveClip, trimClip, splitClip, updateClip],
   )
 
-  return (
-    <TimelineClipsContext.Provider value={contextValue}>
-      {children}
-    </TimelineClipsContext.Provider>
-  )
+  return <TimelineClipsContext.Provider value={contextValue}>{children}</TimelineClipsContext.Provider>
 }
 
 export function useTimelineClips() {

@@ -7,9 +7,9 @@
 // Import actual types
 import type { VideoFilter } from "@/features/filters/types/filters"
 import type { StyleTemplate } from "@/features/style-templates/types"
+import { SubtitleClip } from "@/features/subtitles"
 import type { MediaTemplate } from "@/features/templates/lib/templates"
 import type { Transition } from "@/features/transitions/types/transitions"
-
 import {
   AlignX,
   AlignY,
@@ -57,7 +57,6 @@ import {
   type TimelineProject,
   type TimelineTrack,
 } from "../types/timeline"
-import { SubtitleClip } from "@/features/subtitles"
 
 /**
  * Преобразует проект Timeline в схему для Video Compiler
