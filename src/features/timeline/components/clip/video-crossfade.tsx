@@ -3,11 +3,9 @@
  * Компонент для создания crossfade между перекрывающимися видео клипами
  */
 
-import { memo, useCallback, useMemo, useState } from "react"
 import { Blend } from "lucide-react"
+import { memo, useCallback, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Slider } from "@/components/ui/slider"
 import {
   Dialog,
   DialogContent,
@@ -16,19 +14,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { VideoFadeService } from "../../services/video-fade-service"
-import type { VideoFadeOptions } from "../../services/video-fade-service"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Slider } from "@/components/ui/slider"
+import { cn } from "@/lib/utils"
 import { useClips } from "../../hooks/use-clips"
 import { useTimeline } from "../../hooks/use-timeline"
+import type { VideoFadeOptions } from "../../services/video-fade-service"
+import { VideoFadeService } from "../../services/video-fade-service"
 import type { TimelineClip } from "../../types"
-import { cn } from "@/lib/utils"
 
 interface VideoCrossfadeProps {
   clipA: TimelineClip
@@ -36,11 +30,7 @@ interface VideoCrossfadeProps {
   className?: string
 }
 
-export const VideoCrossfade = memo(function VideoCrossfade({
-  clipA,
-  clipB,
-  className,
-}: VideoCrossfadeProps) {
+export const VideoCrossfade = memo(function VideoCrossfade({ clipA, clipB, className }: VideoCrossfadeProps) {
   const { updateClip } = useClips()
   const { project } = useTimeline()
 
@@ -69,7 +59,7 @@ export const VideoCrossfade = memo(function VideoCrossfade({
         clipA,
         clipB,
         duration,
-        fadeType
+        fadeType,
       )
 
       // Обновляем оба клипа
@@ -94,12 +84,7 @@ export const VideoCrossfade = memo(function VideoCrossfade({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className={cn("h-6 px-2", className)}
-          title="Создать crossfade"
-        >
+        <Button variant="ghost" size="sm" className={cn("h-6 px-2", className)} title="Создать crossfade">
           <Blend className="h-3 w-3" />
         </Button>
       </DialogTrigger>
@@ -112,9 +97,7 @@ export const VideoCrossfade = memo(function VideoCrossfade({
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="duration">
-              Длительность crossfade: {duration.toFixed(1)} сек
-            </Label>
+            <Label htmlFor="duration">Длительность crossfade: {duration.toFixed(1)} сек</Label>
             <Slider
               id="duration"
               min={0.1}
@@ -124,9 +107,7 @@ export const VideoCrossfade = memo(function VideoCrossfade({
               onValueChange={([value]) => setDuration(value)}
               className="w-full"
             />
-            <p className="text-sm text-muted-foreground">
-              Максимальное перекрытие: {overlap.duration.toFixed(1)} сек
-            </p>
+            <p className="text-sm text-muted-foreground">Максимальное перекрытие: {overlap.duration.toFixed(1)} сек</p>
           </div>
 
           <div className="space-y-2">
@@ -151,9 +132,7 @@ export const VideoCrossfade = memo(function VideoCrossfade({
             <Button variant="outline" onClick={() => setIsOpen(false)}>
               Отмена
             </Button>
-            <Button onClick={handleApplyCrossfade}>
-              Применить
-            </Button>
+            <Button onClick={handleApplyCrossfade}>Применить</Button>
           </div>
         </div>
       </DialogContent>

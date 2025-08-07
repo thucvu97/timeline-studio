@@ -6,12 +6,10 @@ import { analyzeAvailableResources, analyzeAvailableResourcesTool } from "./anal
 import { analyzeResourceCompatibility, analyzeResourceCompatibilityTool } from "./compatibility-analysis"
 import { exportResourceList, exportResourceListTool } from "./export-resources"
 import {
-  addResourceToPool,
   addResourceToPoolTool,
-  bulkAddResources,
   bulkAddResourcesTool,
-  removeResourceFromPool,
   removeResourceFromPoolTool,
+  executeManageResourcesTool,
 } from "./manage-resources"
 import { suggestComplementaryResources, suggestComplementaryResourcesTool } from "./suggest-resources"
 import type { ResourceToolResult } from "./types"
@@ -26,11 +24,8 @@ export { analyzeAvailableResources, analyzeAvailableResourcesTool } from "./anal
 export { analyzeResourceCompatibility, analyzeResourceCompatibilityTool } from "./compatibility-analysis"
 export { exportResourceList, exportResourceListTool } from "./export-resources"
 export {
-  addResourceToPool,
   addResourceToPoolTool,
-  bulkAddResources,
   bulkAddResourcesTool,
-  removeResourceFromPool,
   removeResourceFromPoolTool,
 } from "./manage-resources"
 export { suggestComplementaryResources, suggestComplementaryResourcesTool } from "./suggest-resources"
@@ -65,13 +60,31 @@ export async function executeResourceTool(toolName: string, params: any): Promis
         return await analyzeAvailableResources(params)
 
       case "add_resource_to_pool":
-        return await addResourceToPool(params)
+        const addResult = await executeManageResourcesTool("add_resource_to_pool", params)
+        return {
+          success: addResult.success,
+          message: addResult.data?.message || addResult.error?.message || "Ошибка добавления ресурса",
+          data: addResult.data?.addedResource,
+          errors: addResult.error ? [addResult.error.message] : undefined,
+        }
 
       case "bulk_add_resources":
-        return await bulkAddResources(params)
+        const bulkResult = await executeManageResourcesTool("bulk_add_resources", params)
+        return {
+          success: bulkResult.success,
+          message: bulkResult.data?.message || bulkResult.error?.message || "Ошибка массового добавления",
+          data: bulkResult.data?.bulkResults,
+          errors: bulkResult.error ? [bulkResult.error.message] : undefined,
+        }
 
       case "remove_resource_from_pool":
-        return await removeResourceFromPool(params)
+        const removeResult = await executeManageResourcesTool("remove_resource_from_pool", params)
+        return {
+          success: removeResult.success,
+          message: removeResult.data?.message || removeResult.error?.message || "Ошибка удаления ресурса",
+          data: removeResult.data?.removedResource,
+          errors: removeResult.error ? [removeResult.error.message] : undefined,
+        }
 
       case "suggest_complementary_resources":
         return await suggestComplementaryResources(params)

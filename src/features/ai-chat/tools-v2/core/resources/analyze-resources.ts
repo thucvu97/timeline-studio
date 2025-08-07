@@ -2,7 +2,7 @@
  * AI инструмент для анализа доступных ресурсов с использованием BaseAITool
  */
 
-import type { ClaudeTool } from "../../../../services/claude-service"
+import { ClaudeTool } from "../../../services/claude-service"
 import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 import type { AnalyzeResourcesParams, ResourceToolResult } from "./types"

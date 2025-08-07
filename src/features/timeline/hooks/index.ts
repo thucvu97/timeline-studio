@@ -6,6 +6,8 @@
 
 export type { UseClipsReturn } from "./use-clips"
 export { useClips } from "./use-clips"
+export type { UseSlipSlideReturn } from "./use-slip-slide"
+export { useSlipSlide } from "./use-slip-slide"
 export { useTimeline } from "./use-timeline"
 export type { UseTimelineActionsReturn } from "./use-timeline-actions"
 export { useTimelineActions } from "./use-timeline-actions"

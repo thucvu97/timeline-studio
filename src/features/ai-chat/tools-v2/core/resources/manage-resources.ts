@@ -2,7 +2,7 @@
  * AI инструменты для управления ресурсами с использованием BaseAITool
  */
 
-import { ClaudeTool } from "../../../../services/claude-service"
+import { ClaudeTool } from "../../../services/claude-service"
 import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 import type { AddResourceParams, BulkAddResourcesParams, RemoveResourceParams, UpdateResourceParams } from "./types"

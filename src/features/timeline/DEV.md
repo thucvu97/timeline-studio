@@ -19,7 +19,7 @@ Timeline feature для видеоредактора с новой архите�
 
 ### ✅ Частично реализовано
 - **Timeline компоненты**: 70% (основные есть, нужна оптимизация)
-- **Редактирование клипов**: 85% (split, trim, speed ramping, J/L cuts, video fade transitions реализованы)
+- **Редактирование клипов**: 92% (split, trim, speed ramping, J/L cuts, video fade transitions, SLIP/SLIDE реализованы)
 - **Интеграция с Resources**: 35% (drag & drop медиа работает, эффекты/фильтры частично)
 - **Многодорожечное аудио**: 78% (Fairlight Audio - профессиональная аудио система)
 
