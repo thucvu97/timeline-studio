@@ -374,21 +374,26 @@ export class WhisperTool extends BaseAITool {
     })
 
     try {
-      const result = await this.whisperService.transcribeClip(
-        input.clipId!,
-        {
-          language: input.language || "auto",
-          model: input.model || "whisper-1",
-          includeWordTimestamps: input.includeWordTimestamps || false,
-          prompt: input.prompt,
-        },
-        input.useLocal || false,
-      )
+      // Извлекаем аудио из видео если нужно
+      const audioPath = await this.whisperService.extractAudioForTranscription(input.clipId!)
+      
+      const result = await this.whisperService.transcribe(audioPath, {
+        language: input.language || "auto",
+        model: (input.model as any) || "whisper-1",
+        timestamp_granularities: input.includeWordTimestamps ? ["word", "segment"] : ["segment"],
+        prompt: input.prompt,
+        provider: input.useLocal ? "faster-whisper" : undefined,
+      })
 
       return {
         operation: "transcribe",
         success: true,
-        transcription: result,
+        transcription: {
+          text: result.text,
+          segments: result.segments || [],
+          language: result.language || input.language || "auto",
+          duration: result.duration || 0,
+        },
         message: "Транскрипция завершена успешно",
         recommendations: [],
       }
@@ -409,7 +414,10 @@ export class WhisperTool extends BaseAITool {
     this.logger?.info("Переводим аудио на английский", { clipId: input.clipId })
 
     try {
-      const result = await this.whisperService.translateToEnglish(input.clipId!, {
+      // Извлекаем аудио из видео если нужно
+      const audioPath = await this.whisperService.extractAudioForTranscription(input.clipId!)
+      
+      const result = await this.whisperService.translateWithOpenAI(audioPath, {
         model: input.model || "whisper-1",
         prompt: input.prompt,
       })
@@ -417,7 +425,12 @@ export class WhisperTool extends BaseAITool {
       return {
         operation: "translate",
         success: true,
-        transcription: result,
+        transcription: {
+          text: result.text,
+          segments: result.segments || [],
+          language: "en", // Перевод всегда на английский
+          duration: 0, // Длительность не возвращается из translation API
+        },
         message: "Перевод завершен успешно",
         recommendations: [],
       }

@@ -13,6 +13,7 @@ export interface WhisperTranscriptionOptions {
   response_format?: "json" | "text" | "srt" | "verbose_json" | "vtt"
   temperature?: number // 0-1 для контроля креативности
   timestamp_granularities?: ("word" | "segment")[]
+  task?: "transcribe" | "translate" // Задача для выполнения
 }
 
 export interface WhisperSegment {
