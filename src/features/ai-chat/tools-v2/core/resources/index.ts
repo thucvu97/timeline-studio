@@ -12,8 +12,6 @@ import {
   bulkAddResourcesTool,
   removeResourceFromPool,
   removeResourceFromPoolTool,
-  updateResourceParameters,
-  updateResourceParametersTool,
 } from "./manage-resources"
 import { suggestComplementaryResources, suggestComplementaryResourcesTool } from "./suggest-resources"
 import type { ResourceToolResult } from "./types"
@@ -34,8 +32,6 @@ export {
   bulkAddResourcesTool,
   removeResourceFromPool,
   removeResourceFromPoolTool,
-  updateResourceParameters,
-  updateResourceParametersTool,
 } from "./manage-resources"
 export { suggestComplementaryResources, suggestComplementaryResourcesTool } from "./suggest-resources"
 // Экспортируем типы
@@ -56,7 +52,6 @@ export const resourceTools = [
   bulkAddResourcesTool,
   removeResourceFromPoolTool,
   suggestComplementaryResourcesTool,
-  updateResourceParametersTool,
   analyzeResourceCompatibilityTool,
   getResourceUsageStatsTool,
   cleanupUnusedResourcesTool,
@@ -80,9 +75,6 @@ export async function executeResourceTool(toolName: string, params: any): Promis
 
       case "suggest_complementary_resources":
         return await suggestComplementaryResources(params)
-
-      case "update_resource_parameters":
-        return await updateResourceParameters(params)
 
       case "analyze_resource_compatibility":
         return await analyzeResourceCompatibility(params)

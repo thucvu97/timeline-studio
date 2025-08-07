@@ -3,20 +3,20 @@
  */
 
 import { timelineAnalyticsTool } from "./analytics-timeline"
-import { analyzeContentForStoryTool } from "./analyze-story"
-import { analyzeTimelineStructureTool } from "./analyze-structure"
-import { applyAutomaticEnhancementsTool } from "./apply-enhancements"
-import { createTimelineProjectTool } from "./create-project"
-import { createSectionsByStrategyTool } from "./create-sections"
-import { createTrackStructureTool } from "./create-tracks"
-import { detectAndSplitScenesTool } from "./detect-scenes"
-import { exportTimelineDataTool } from "./export-data"
+import { storyAnalysisTool } from "./analyze-story"
+import { structureAnalysisTool } from "./analyze-structure"
+import { enhancementApplicationTool } from "./apply-enhancements"
+import { projectCreationTool } from "./create-project"
+import { sectionCreationTool } from "./create-sections"
+import { trackCreationTool } from "./create-tracks"
+import { sceneDetectionTool } from "./detect-scenes"
+import { timelineExportTool } from "./export-data"
 import { clipManagementTool } from "./manage-clips"
 import { timelineOptimizationTool } from "./optimize-timeline"
-import { placeClipsOnTimelineTool } from "./place-clips"
+import { clipPlacementTool } from "./place-clips"
 import { smartTemplatesTools } from "./smart-templates"
-import { suggestTimelineImprovementsTool } from "./suggest-improvements"
-import { synchronizeWithMusicTool } from "./sync-music"
+import { improvementsSuggestionTool } from "./suggest-improvements"
+import { musicSyncTool } from "./sync-music"
 
 export {
   analyzeTimelineUsage,
@@ -24,33 +24,33 @@ export {
 } from "./analytics-timeline"
 export {
   analyzeContentForStory,
-  analyzeContentForStoryTool,
+  storyAnalysisTool,
 } from "./analyze-story"
-export { analyzeTimelineStructureTool } from "./analyze-structure"
+export { analyzeTimelineStructure, structureAnalysisTool } from "./analyze-structure"
 export {
   applyAutomaticEnhancements,
-  applyAutomaticEnhancementsTool,
+  enhancementApplicationTool,
 } from "./apply-enhancements"
-export { createTimelineProjectTool } from "./create-project"
-export { createSectionsByStrategyTool } from "./create-sections"
-export { createTrackStructureTool } from "./create-tracks"
+export { createTimelineProject, projectCreationTool } from "./create-project"
+export { createSectionsByStrategy, sectionCreationTool } from "./create-sections"
+export { createTrackStructure, trackCreationTool } from "./create-tracks"
 export {
   detectAndSplitScenes,
-  detectAndSplitScenesTool,
+  sceneDetectionTool,
 } from "./detect-scenes"
-export { exportTimelineData, exportTimelineDataTool } from "./export-data"
+export { exportTimelineData, timelineExportTool } from "./export-data"
 export { clipManagementTool, manageTimelineClips } from "./manage-clips"
 export {
   optimizeTimelinePerformance,
   timelineOptimizationTool,
 } from "./optimize-timeline"
-export { placeClipsOnTimelineTool } from "./place-clips"
+export { clipPlacementTool, placeClipsOnTimeline } from "./place-clips"
 export { manageSmartTemplates, smartTemplatesTools } from "./smart-templates"
 export {
+  improvementsSuggestionTool,
   suggestTimelineImprovements,
-  suggestTimelineImprovementsTool,
 } from "./suggest-improvements"
-export { synchronizeWithMusic, synchronizeWithMusicTool } from "./sync-music"
+export { musicSyncTool, synchronizeWithMusic } from "./sync-music"
 // Экспортируем типы
 export * from "./types"
 export * from "./utils/analyzers"
@@ -64,17 +64,17 @@ export * from "./utils/generators"
 export * from "./utils/helpers"
 
 export const timelineTools = [
-  analyzeTimelineStructureTool,
-  createTimelineProjectTool,
-  createSectionsByStrategyTool,
-  createTrackStructureTool,
-  placeClipsOnTimelineTool,
-  applyAutomaticEnhancementsTool,
-  analyzeContentForStoryTool,
-  detectAndSplitScenesTool,
-  synchronizeWithMusicTool,
-  suggestTimelineImprovementsTool,
-  exportTimelineDataTool,
+  structureAnalysisTool,
+  projectCreationTool,
+  sectionCreationTool,
+  trackCreationTool,
+  clipPlacementTool,
+  enhancementApplicationTool,
+  storyAnalysisTool,
+  sceneDetectionTool,
+  musicSyncTool,
+  improvementsSuggestionTool,
+  timelineExportTool,
   // Новые инструменты
   timelineOptimizationTool,
   clipManagementTool,
