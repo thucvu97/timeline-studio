@@ -31,7 +31,7 @@ export const TimelinePreview = memo(function TimelinePreview({ className }: Time
       console.log("[Timeline Preview] Cache stats:", {
         entries: cacheStats.entries,
         sizeMB: cacheStats.sizeMB.toFixed(2),
-        hitRate: (cacheStats.hitRate * 100).toFixed(1) + "%",
+        hitRate: `${(cacheStats.hitRate * 100).toFixed(1)}%`,
       })
     }
   }, [cacheStats])
@@ -55,11 +55,24 @@ export const TimelinePreview = memo(function TimelinePreview({ className }: Time
             <>
               <div className="mt-1 pt-1 border-t border-white/20">Cache: {cacheStats.entries} frames</div>
               <div>Size: {cacheStats.sizeMB.toFixed(1)}MB</div>
-              <div>Hit Rate: {cacheStats.hitRate > 0 ? (
-                <span className={cacheStats.hitRate > 0.8 ? "text-green-400" : cacheStats.hitRate > 0.5 ? "text-yellow-400" : "text-red-400"}>
-                  {(cacheStats.hitRate * 100).toFixed(0)}%
-                </span>
-              ) : "0%"}</div>
+              <div>
+                Hit Rate:{" "}
+                {cacheStats.hitRate > 0 ? (
+                  <span
+                    className={
+                      cacheStats.hitRate > 0.8
+                        ? "text-green-400"
+                        : cacheStats.hitRate > 0.5
+                          ? "text-yellow-400"
+                          : "text-red-400"
+                    }
+                  >
+                    {(cacheStats.hitRate * 100).toFixed(0)}%
+                  </span>
+                ) : (
+                  "0%"
+                )}
+              </div>
             </>
           )}
         </div>

@@ -22,8 +22,8 @@ interface TimelineTransitionProps {
 }
 
 export const TimelineTransitionComponent = memo(function TimelineTransitionComponent({
-  leftClipId,
-  rightClipId,
+  // leftClipId,
+  // rightClipId,
   leftClipEnd,
   rightClipStart,
   transition,
@@ -31,7 +31,7 @@ export const TimelineTransitionComponent = memo(function TimelineTransitionCompo
   trackHeight,
   isSelected = false,
   onSelect,
-  onUpdate,
+  // onUpdate,
   onDelete,
 }: TimelineTransitionProps) {
   // Вычисляем позицию и размер перехода

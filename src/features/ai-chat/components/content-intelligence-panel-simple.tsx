@@ -31,9 +31,7 @@ export function ContentIntelligencePanel({ analysis = [], progress }: ContentInt
     return (
       <Card className="w-full">
         <CardContent className="flex flex-col items-center justify-center py-12">
-          <p className="text-center text-muted-foreground">
-            Начните анализ контента для получения AI инсайтов
-          </p>
+          <p className="text-center text-muted-foreground">Начните анализ контента для получения AI инсайтов</p>
         </CardContent>
       </Card>
     )
@@ -47,13 +45,13 @@ export function ContentIntelligencePanel({ analysis = [], progress }: ContentInt
           <CardHeader>
             <CardTitle className="text-lg">Прогресс анализа</CardTitle>
             <CardDescription>
-              {progress.currentPhase} - {progress.status}
+              {progress.currentStage} - {progress.status}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Progress value={(progress.completedSteps / progress.totalSteps) * 100} className="h-2" />
+            <Progress value={progress.progress} className="h-2" />
             <p className="mt-2 text-sm text-muted-foreground">
-              Выполнено {progress.completedSteps} из {progress.totalSteps} шагов
+              Выполнено {progress.completedStages.length} из {progress.totalStages} этапов
             </p>
           </CardContent>
         </Card>
@@ -108,15 +106,14 @@ export function ContentIntelligencePanel({ analysis = [], progress }: ContentInt
                     <span className="text-muted-foreground">FPS:</span> {result.metadata.fps}
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Битрейт:</span>{" "}
-                    {Math.round(result.metadata.bitrate / 1000)}k
+                    <span className="text-muted-foreground">Битрейт:</span> {Math.round(result.metadata.bitrate / 1000)}
+                    k
                   </div>
                   <div>
                     <span className="text-muted-foreground">Кодек:</span> {result.metadata.codec || "N/A"}
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Аудио:</span>{" "}
-                    {result.metadata.hasAudio ? "Да" : "Нет"}
+                    <span className="text-muted-foreground">Аудио:</span> {result.metadata.hasAudio ? "Да" : "Нет"}
                   </div>
                 </div>
               </div>
@@ -154,9 +151,7 @@ export function ContentIntelligencePanel({ analysis = [], progress }: ContentInt
                 </div>
                 {result.quality.issues && result.quality.issues.length > 0 && (
                   <div className="mt-2">
-                    <p className="text-xs text-muted-foreground">
-                      Проблемы: {result.quality.issues.join(", ")}
-                    </p>
+                    <p className="text-xs text-muted-foreground">Проблемы: {result.quality.issues.join(", ")}</p>
                   </div>
                 )}
               </div>
@@ -171,9 +166,7 @@ export function ContentIntelligencePanel({ analysis = [], progress }: ContentInt
                     <Layers className="h-4 w-4" />
                     Анализ сцен
                   </h4>
-                  <p className="text-sm text-muted-foreground">
-                    Обнаружено сцен: {result.scenes.scenes.length}
-                  </p>
+                  <p className="text-sm text-muted-foreground">Обнаружено сцен: {result.scenes.scenes.length}</p>
                   <p className="text-sm text-muted-foreground">
                     Метод: {result.scenes.method} (уверенность: {Math.round(result.scenes.confidence * 100)}%)
                   </p>
@@ -203,9 +196,7 @@ export function ContentIntelligencePanel({ analysis = [], progress }: ContentInt
 
             {/* Processing Info */}
             {result.processingTime && (
-              <div className="text-xs text-muted-foreground mt-2">
-                Время обработки: {result.processingTime}мс
-              </div>
+              <div className="text-xs text-muted-foreground mt-2">Время обработки: {result.processingTime}мс</div>
             )}
           </CardContent>
         </Card>

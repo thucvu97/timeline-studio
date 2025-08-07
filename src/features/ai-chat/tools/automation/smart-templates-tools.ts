@@ -5,7 +5,6 @@
  * и управления визуальными шаблонами и макетами проекта
  */
 
-import { ClaudeTool } from "../../services/claude-service"
 import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 // Типы для операций с шаблонами и макетами
@@ -380,7 +379,7 @@ export async function executeTemplateLayoutTool(
 /**
  * Template & Layout Tools - 10 инструментов для работы с шаблонами
  */
-export const templateLayoutTools: ClaudeTool[] = [
+export const templateLayoutTools: any[] = [
   {
     name: "analyze_layout_templates",
     description: "Анализирует доступные шаблоны макетов и их применимость к текущему проекту",

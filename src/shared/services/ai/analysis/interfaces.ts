@@ -291,3 +291,93 @@ export interface ContentAnalysisResult {
   errors?: string[]
   warnings?: string[]
 }
+
+// Content Classification Types
+export enum ContentType {
+  DOCUMENTARY = "documentary",
+  VLOG = "vlog",
+  TUTORIAL = "tutorial",
+  NEWS = "news",
+  ENTERTAINMENT = "entertainment",
+  COMMERCIAL = "commercial",
+  MUSIC_VIDEO = "music_video",
+  INTERVIEW = "interview",
+  PRESENTATION = "presentation",
+  OTHER = "other",
+}
+
+export enum Genre {
+  ACTION = "action",
+  COMEDY = "comedy",
+  DRAMA = "drama",
+  EDUCATIONAL = "educational",
+  LIFESTYLE = "lifestyle",
+  GAMING = "gaming",
+  TECH = "tech",
+  BEAUTY = "beauty",
+  COOKING = "cooking",
+  TRAVEL = "travel",
+  FITNESS = "fitness",
+  MUSIC = "music",
+  ART = "art",
+  SCIENCE = "science",
+  OTHER = "other",
+}
+
+export enum Emotion {
+  HAPPY = "happy",
+  SAD = "sad",
+  EXCITING = "exciting",
+  CALM = "calm",
+  INTENSE = "intense",
+  INSPIRING = "inspiring",
+  FUNNY = "funny",
+  SERIOUS = "serious",
+  NEUTRAL = "neutral",
+}
+
+export interface Audience {
+  ageGroup: "children" | "teenagers" | "young_adults" | "adults" | "seniors" | "all"
+  interests: string[]
+  language: string
+  region?: string
+}
+
+export interface ClassificationResult {
+  contentType: ContentType
+  genres: Genre[]
+  emotions: Emotion[]
+  audience: Audience
+  confidence: number
+}
+
+export interface ContentClassification extends ClassificationResult {
+  keywords: string[]
+  topics: string[]
+  tone: EmotionalTone
+}
+
+export interface EmotionalTone {
+  primary: Emotion
+  secondary?: Emotion
+  intensity: number // 0-1
+}
+
+export interface SceneAnalysis {
+  id: string
+  startTime: number
+  endTime: number
+  type: string
+  confidence: number
+  description?: string
+}
+
+// Object Detection Types for Object Tracking
+export interface ObjectDetection {
+  id: string
+  label: string
+  confidence: number
+  boundingBox: BoundingBox
+  frameNumber: number
+  timestamp: number
+}

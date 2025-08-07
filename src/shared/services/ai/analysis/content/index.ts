@@ -3,6 +3,9 @@
  * Композитный сервис для полного анализа медиа контента
  */
 
+// Экспорт content classifier
+export * from "./content-classifier"
+
 // Импорт адаптеров
 import { FFmpegAdapter } from "../ffmpeg"
 import type {

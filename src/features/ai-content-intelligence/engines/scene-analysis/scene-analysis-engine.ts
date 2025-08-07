@@ -118,13 +118,11 @@ export class SceneAnalysisEngine {
       try {
         const { getAIContainer } = await import("@/shared/services/ai")
         const aiContainer = getAIContainer()
-        this.sharedAIService = aiContainer.getUnifiedService()
-        this.ffmpegService = aiContainer.getFFmpegService()
+        this.sharedAIService = await aiContainer.resolve("UnifiedAIService")
+        this.ffmpegService = await aiContainer.resolve("FFmpegService")
       } catch (error) {
         console.error("Ошибка инициализации shared AI services:", error)
-        // Fallback к локальным сервисам
-        const { UnifiedAIService } = await import("@/features/ai-chat/services/unified-ai-service")
-        this.sharedAIService = UnifiedAIService.getInstance()
+        throw new Error("Не удалось инициализировать AI сервисы")
       }
     }
   }
@@ -165,7 +163,7 @@ export class SceneAnalysisEngine {
       return scenesWithTransitions
     } catch (error) {
       console.error("Ошибка анализа сцен:", error)
-      throw new Error(`Не удалось проанализировать сцены в файле ${mediaFile.filename}: ${String(error)}`)
+      throw new Error(`Не удалось проанализировать сцены в файле ${mediaFile.name}: ${String(error)}`)
     }
   }
 
@@ -192,7 +190,7 @@ ${JSON.stringify(sceneDetection.scenes.map((s) => ({ id: s.id, description: s.de
 Для каждой сцены определи тип: dialog, action, landscape, closeup, transition
 Верни JSON массив с полями: id, type`
 
-        const response = await this.sharedAIService.sendRequest(
+        const response = await (this.sharedAIService as any).sendRequest(
           "claude-4-sonnet-latest",
           [{ role: "user", content: classificationPrompt }],
           { temperature: 0.3 },
@@ -285,7 +283,7 @@ ${JSON.stringify(sceneDetection.scenes.map((s) => ({ id: s.id, description: s.de
   "complexity": "moderate"
 }`
 
-    const response = await this.sharedAIService.sendRequest(
+    const response = await (this.sharedAIService as any).sendRequest(
       "claude-4-sonnet-latest",
       [{ role: "user", content: analysisPrompt }],
       { temperature: 0.2 },
@@ -359,8 +357,8 @@ ${JSON.stringify(sceneDetection.scenes.map((s) => ({ id: s.id, description: s.de
 ]`
 
     try {
-      const response = await this.aiService.sendRequest(
-        "claude-4-sonnet",
+      const response = await (this.sharedAIService as any).sendRequest(
+        "claude-4-sonnet-latest",
         [{ role: "user", content: transitionsPrompt }],
         { temperature: 0.2 },
       )
@@ -460,9 +458,13 @@ ${JSON.stringify(sceneDetection.scenes.map((s) => ({ id: s.id, description: s.de
 - Качественные характеристики (blur, occlusion, pose)`
 
     try {
-      const response = await this.aiService.sendRequest("claude-4-sonnet", [{ role: "user", content: prompt }], {
-        temperature: 0.2,
-      })
+      const response = await (this.sharedAIService as any).sendRequest(
+        "claude-4-sonnet-latest",
+        [{ role: "user", content: prompt }],
+        {
+          temperature: 0.2,
+        },
+      )
 
       const faces = JSON.parse(response.content)
       return faces.map((face: any) => ({
@@ -746,8 +748,8 @@ ${scenes.map((s) => `${s.id}: тип=${s.type}, описание="${s.descriptio
 ]`
 
     try {
-      const response = await this.aiService.sendRequest(
-        "claude-4-sonnet",
+      const response = await (this.sharedAIService as any).sendRequest(
+        "claude-4-sonnet-latest",
         [{ role: "user", content: groupingPrompt }],
         { temperature: 0.3 },
       )

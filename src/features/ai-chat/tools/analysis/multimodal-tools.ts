@@ -3,7 +3,6 @@
  * Анализ кадров, создание описаний, выбор превью
  */
 
-import { ClaudeTool } from "../../services/claude-service"
 import type { MultimodalAnalysisType } from "../../services/multimodal-analysis-service"
 import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
@@ -183,7 +182,7 @@ export async function executeMultimodalAnalysisTool(
 }
 
 // Экспорт для обратной совместимости
-export const multimodalAnalysisTools: ClaudeTool[] = [
+export const multimodalAnalysisTools: any[] = [
   {
     name: "analyze_frame_with_ai",
     description: "Анализирует отдельный кадр видео с помощью GPT-4 Vision для понимания контента",

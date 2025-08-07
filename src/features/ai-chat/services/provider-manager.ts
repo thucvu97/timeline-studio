@@ -88,7 +88,7 @@ export class ProviderManager {
       // Импорт shared AI services
       const { getAIContainer } = await import("@/shared/services/ai")
       const aiContainer = getAIContainer()
-      this.sharedAIService = aiContainer.getUnifiedService()
+      this.sharedAIService = await aiContainer.resolve("UnifiedAIService")
 
       // Создаем адаптеры для shared провайдеров
       this.providers.set("claude", {

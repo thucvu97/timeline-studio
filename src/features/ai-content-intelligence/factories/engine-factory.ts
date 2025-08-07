@@ -3,7 +3,6 @@
  * Создает и управляет движками с использованием DI
  */
 
-import type { IFFmpegAnalysisService, IUnifiedAIService, IVisionService } from "@/shared/services/ai"
 import { getAIContainer } from "@/shared/services/ai"
 
 import { ContentClassificationEngine } from "../engines/content-classification/content-classification-engine"

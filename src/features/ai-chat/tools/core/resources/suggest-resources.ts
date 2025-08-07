@@ -2,7 +2,6 @@
  * AI инструмент для предложения дополнительных ресурсов с использованием BaseAITool
  */
 
-import { ClaudeTool } from "../../../services/claude-service"
 import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 import type { ResourceToolResult, SuggestResourcesParams } from "./types"
@@ -286,7 +285,7 @@ export async function suggestComplementaryResources(params: SuggestResourcesPara
 }
 
 // Экспорт для обратной совместимости
-export const suggestComplementaryResourcesTool: ClaudeTool = {
+export const suggestComplementaryResourcesTool: any = {
   name: "suggest_complementary_resources",
   description: "Анализирует текущие ресурсы и предлагает дополнительные для улучшения проекта",
   input_schema: {

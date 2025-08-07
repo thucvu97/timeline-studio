@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import type { Actor } from "xstate"
-import { createMockDIContainer, setupMockAIServices } from "@/shared/services/ai/__mocks__"
 import type { aiIntelligenceMachine } from "../../shared/services/ai-intelligence-machine"
 import { AIIntelligenceOrchestrator } from "../../shared/services/ai-intelligence-orchestrator"
 import { AIProvider, ProcessingStatus } from "../../types"
@@ -18,7 +17,7 @@ vi.mock("../../factories/engine-factory", () => ({
   getEngineFactory: vi.fn(() => ({
     createAllEngines: vi.fn(async () => ({
       sceneEngine: {
-        analyzeScenes: vi.fn(async (mediaFile: any, options: any) => [
+        analyzeScenes: vi.fn(async (_mediaFile: any, _options: any) => [
           {
             id: "scene-1",
             start: 0,
@@ -38,7 +37,7 @@ vi.mock("../../factories/engine-factory", () => ({
         ]),
       },
       scriptEngine: {
-        generateScript: vi.fn(async (data: any, params: any) => ({
+        generateScript: vi.fn(async (_data: any, params: any) => ({
           title: "Generated Script",
           scenes: [
             { id: "1", content: "Scene 1" },
@@ -154,13 +153,13 @@ describe("AIIntelligenceOrchestrator", () => {
       mockActor.send = (event: any) => {
         if (event.type === "START_ANALYSIS") {
           setTimeout(() => {
-            mockActor["state"] = {
+            mockActor.state = {
               matches: (state: string) => state === "error",
               context: {
                 errors: [{ message: "Analysis failed" }],
               },
             }
-            mockActor["notifySubscribers"]()
+            mockActor.notifySubscribers()
           }, 10)
         }
       }
@@ -214,7 +213,7 @@ describe("AIIntelligenceOrchestrator", () => {
         multiPlatformAdapter: {
           name: "MultiPlatformAdapter",
           initialize: async () => {},
-          process: async (content: any, config: any) => ({
+          process: async (_content: any, config: any) => ({
             platform: config.platformId,
             adaptedContent: `Adapted for ${config.platformId}`,
           }),
@@ -243,7 +242,7 @@ describe("AIIntelligenceOrchestrator", () => {
         if (event.type === "START_ANALYSIS") {
           setTimeout(() => {
             // Симулируем прогресс
-            mockActor["state"] = {
+            mockActor.state = {
               matches: (_state: string) => false,
               context: {
                 progress: 50,
@@ -251,11 +250,11 @@ describe("AIIntelligenceOrchestrator", () => {
                 steps: [{ name: "analysis", status: ProcessingStatus.RUNNING }],
               },
             }
-            mockActor["notifySubscribers"]()
+            mockActor.notifySubscribers()
 
             // Завершаем процесс
             setTimeout(() => {
-              mockActor["state"] = {
+              mockActor.state = {
                 matches: (state: string) => state === "complete",
                 context: {
                   result: {
@@ -266,7 +265,7 @@ describe("AIIntelligenceOrchestrator", () => {
                   },
                 },
               }
-              mockActor["notifySubscribers"]()
+              mockActor.notifySubscribers()
             }, 10)
           }, 10)
         }
@@ -305,11 +304,11 @@ describe("AIIntelligenceOrchestrator", () => {
       mockActor.send = (event: any) => {
         if (event.type === "CANCEL") {
           setTimeout(() => {
-            mockActor["state"] = {
+            mockActor.state = {
               matches: (state: string) => state === "cancelled",
               context: { errors: [] },
             }
-            mockActor["notifySubscribers"]()
+            mockActor.notifySubscribers()
           }, 10)
         }
       }

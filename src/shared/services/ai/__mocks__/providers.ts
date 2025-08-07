@@ -18,7 +18,7 @@ export class MockAIProvider implements IAIProvider {
     // Already initialized
   }
 
-  async sendRequest(model: string, messages: Message[], options?: any): Promise<{ content: string }> {
+  async sendRequest(_model: string, messages: Message[], _options?: any): Promise<{ content: string }> {
     // Simulate different responses based on content
     const lastMessage = messages[messages.length - 1]
     const content = lastMessage?.content || ""
@@ -60,7 +60,7 @@ export class MockAIProvider implements IAIProvider {
     // Simulate streaming
     const tokens = response.content.split(" ")
     for (const token of tokens) {
-      onToken(token + " ")
+      onToken(`${token} `)
       await new Promise((resolve) => setTimeout(resolve, 10))
     }
   }
@@ -102,7 +102,7 @@ export class MockAIProviderFactory implements IAIProviderFactory {
     return Array.from(this.providers.keys())
   }
 
-  async validateConfig(name: string, config: any): Promise<boolean> {
+  async validateConfig(_name: string, _config: any): Promise<boolean> {
     return true // Always valid in tests
   }
 }
@@ -179,7 +179,7 @@ export function createMockProvider(
   const provider = new MockAIProvider(name)
 
   // Override sendRequest with custom behavior
-  provider.sendRequest = async (model, messages, options) => {
+  provider.sendRequest = async (_model, _messages, _options) => {
     if (behavior.delay) {
       await new Promise((resolve) => setTimeout(resolve, behavior.delay))
     }

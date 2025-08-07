@@ -2,7 +2,6 @@
  * AI инструменты для автоматизации рабочих процессов видеомонтажа с использованием BaseAITool
  */
 
-import { ClaudeTool } from "../../services/claude-service"
 import {
   WorkflowAutomationService,
   type WorkflowParams,
@@ -348,7 +347,7 @@ export async function executeWorkflowAutomationTool(
 /**
  * Workflow Automation Tools
  */
-export const workflowAutomationTools: ClaudeTool[] = [
+export const workflowAutomationTools: any[] = [
   {
     name: "get_available_workflows",
     description: "Получить список всех доступных автоматизированных workflow для видеомонтажа",

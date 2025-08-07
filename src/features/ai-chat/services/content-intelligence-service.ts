@@ -304,7 +304,7 @@ export class ContentIntelligenceService {
 
         results.push(analysis)
       } catch (error) {
-        console.error(`Ошибка анализа файла ${mediaFile.filename}:`, error)
+        console.error(`Ошибка анализа файла ${mediaFile.name}:`, error)
         // Продолжаем с другими файлами
       }
     }
@@ -362,7 +362,7 @@ export class ContentIntelligenceService {
           role: "user",
           content: `Классифицируй видео контент на основе анализа сцен:
           
-Файл: ${mediaFile.filename}
+Файл: ${mediaFile.name}
 Сцены: ${JSON.stringify(scenes.slice(0, 5))} // Первые 5 сцен для контекста
 
 Определи:
@@ -455,7 +455,7 @@ export class ContentIntelligenceService {
           [
             {
               role: "user",
-              content: `Проанализируй качество видео: ${mediaFile.filename}. Количество сцен: ${scenes.length}. Верни JSON с полями technical, narrative, engagement, accessibility, каждый с overallScore.`,
+              content: `Проанализируй качество видео: ${mediaFile.name}. Количество сцен: ${scenes.length}. Верни JSON с полями technical, narrative, engagement, accessibility, каждый с overallScore.`,
             },
           ],
           { temperature: 0.2 },

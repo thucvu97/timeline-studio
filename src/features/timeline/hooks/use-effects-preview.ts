@@ -4,11 +4,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useEffects } from "@/features/effects/hooks/use-effects"
-import {
-  disposeEffectsPlayerIntegration,
-  type EffectsPlayerConfig,
-  getEffectsPlayerIntegration,
-} from "../services/effects-player-integration"
+import { type EffectsPlayerConfig, getEffectsPlayerIntegration } from "../services/effects-player-integration"
 import type { TimelineClip } from "../types"
 
 export interface UseEffectsPreviewOptions extends EffectsPlayerConfig {
@@ -146,7 +142,7 @@ export function useEffectsPreview(options: UseEffectsPreviewOptions = {}): UseEf
   const prefetchFrames = useCallback(
     async (videoElement: HTMLVideoElement, centerTime: number, range = 2) => {
       if (!isInitialized || !enabled) return
-      
+
       try {
         await integrationRef.current.prefetchFrames(videoElement, centerTime, range)
         // Обновляем статистику кеша
@@ -170,7 +166,7 @@ export function useEffectsPreview(options: UseEffectsPreviewOptions = {}): UseEf
       const interval = setInterval(() => {
         setCacheStats(integrationRef.current.getCacheStats())
       }, 1000) // Обновляем каждую секунду
-      
+
       return () => clearInterval(interval)
     }
   }, [isProcessing])

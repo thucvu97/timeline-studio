@@ -26,7 +26,7 @@ AI-powered chat interface for Timeline Studio with unified architecture using sh
 - `unified-ai-service.ts` - **Refactored** wrapper over shared AI services
 - `provider-manager.ts` - **Updated** to use shared AI providers  
 - `model-configuration-manager.ts` - **Updated** with shared model constants
-- `timeline-ai-service.ts` - Timeline-specific coordination (uses shared services)
+- `timeline-ai-service.ts` - **Refactored** - Timeline coordination using shared UnifiedAIService directly
 - `chat-machine.ts` - XState state machine for chat flow
 - `intent-recognition.ts` - User intent analysis and routing
 
@@ -37,7 +37,6 @@ AI-powered chat interface for Timeline Studio with unified architecture using sh
 
 #### Legacy Compatibility
 - `legacy-adapters.ts` - **New** - provides old interfaces over shared services
-- `claude-service-mock.ts` - **New** - temporary mock for timeline-ai-service
 
 ### AI Tools Architecture (48+ Tools)
 

@@ -4,7 +4,7 @@
  */
 
 import { useDraggable } from "@dnd-kit/core"
-import { ChevronDown, ChevronRight, Film, Filter, Layers, Palette, Search, Shuffle, Sparkles } from "lucide-react"
+import { ChevronDown, ChevronRight, Filter, Layers, Palette, Search, Shuffle, Sparkles } from "lucide-react"
 import { memo, useState } from "react"
 
 import { Input } from "@/components/ui/input"

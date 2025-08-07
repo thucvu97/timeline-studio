@@ -2,7 +2,6 @@
  * AI инструмент для управления воспроизведением с использованием BaseAITool
  */
 
-import type { ClaudeTool } from "../../../../services/claude-service"
 import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 import type { PlaybackControlParams, PlayerToolResult } from "./types"
@@ -237,7 +236,7 @@ export async function controlPlayback(params: PlaybackControlParams): Promise<Pl
 }
 
 // Экспорт для обратной совместимости
-export const controlPlaybackTool: ClaudeTool = {
+export const controlPlaybackTool: any = {
   name: "control_playback",
   description: "Управляет воспроизведением медиа в плеере",
   input_schema: {

@@ -4,6 +4,7 @@ import { memo, useCallback, useEffect, useRef, useState } from "react"
 import type { Transition } from "@/features/transitions/types/transitions"
 import { cn } from "@/lib/utils"
 import { useDragDropTimeline } from "../../hooks/use-drag-drop-timeline"
+import { useTimeline } from "../../hooks/use-timeline"
 import { useTimelineEffects } from "../../hooks/use-timeline-effects"
 import type { TimelineClip } from "../../types/timeline"
 

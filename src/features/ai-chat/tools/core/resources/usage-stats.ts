@@ -2,7 +2,6 @@
  * AI инструменты для статистики и управления использованием ресурсов с BaseAITool
  */
 
-import { ClaudeTool } from "../../../services/claude-service"
 import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 import type { CleanupParams, ResourceToolResult, UsageStatsParams } from "./types"
@@ -592,7 +591,7 @@ export async function cleanupUnusedResources(params: CleanupParams): Promise<Res
 }
 
 // Экспорт для обратной совместимости
-export const getResourceUsageStatsTool: ClaudeTool = {
+export const getResourceUsageStatsTool: any = {
   name: "get_resource_usage_stats",
   description: "Получает статистику использования ресурсов в проекте",
   input_schema: {
@@ -620,7 +619,7 @@ export const getResourceUsageStatsTool: ClaudeTool = {
   },
 }
 
-export const cleanupUnusedResourcesTool: ClaudeTool = {
+export const cleanupUnusedResourcesTool: any = {
   name: "cleanup_unused_resources",
   description: "Удаляет неиспользуемые ресурсы из пула для оптимизации",
   input_schema: {

@@ -99,15 +99,15 @@ export function AiChat() {
         setIsLoadingModels(true)
         const unifiedService = UnifiedAIService.getInstance()
         const models = await unifiedService.getAvailableModels()
-        
+
         // Преобразуем модели в формат Agent
-        const agents: Agent[] = models.map(model => ({
+        const agents: Agent[] = models.map((model) => ({
           id: model.id,
           name: model.name,
           useTools: model.supportsTools,
           provider: model.provider,
         }))
-        
+
         setAvailableModels(agents)
       } catch (error) {
         console.error("Failed to load available models:", error)
@@ -122,7 +122,7 @@ export function AiChat() {
         setIsLoadingModels(false)
       }
     }
-    
+
     void loadModels()
   }, [])
 
@@ -304,7 +304,7 @@ export function AiChat() {
             content: fullContent,
             role: "assistant",
             timestamp: new Date(),
-            agent: selectedAgentId,
+            agent: selectedAgentId || undefined,
           }
 
           receiveChatMessage(agentMessage.content)
@@ -325,12 +325,13 @@ export function AiChat() {
 
         // Используем UnifiedAIService для всех провайдеров
         const unifiedService = UnifiedAIService.getInstance()
-        
+
         // Подготавливаем сообщения с системным промптом
-        const messagesWithSystem = provider === "claude" 
-          ? messages // Claude обрабатывает system prompt отдельно
-          : [{ role: "system" as const, content: systemPrompt }, ...messages]
-        
+        const messagesWithSystem =
+          provider === "claude"
+            ? messages // Claude обрабатывает system prompt отдельно
+            : [{ role: "system" as const, content: systemPrompt }, ...messages]
+
         // Отправляем запрос через единый сервис
         await unifiedService.sendStreamingRequest(currentModel, messagesWithSystem, {
           maxTokens: 2000,
@@ -340,7 +341,7 @@ export function AiChat() {
           onComplete: handleStreamComplete,
           onError: handleStreamError,
           // Передаем system prompt для Claude
-          ...(provider === "claude" && { system: systemPrompt })
+          ...(provider === "claude" && { system: systemPrompt }),
         })
       } catch (error) {
         console.error("Error sending message to AI:", error)

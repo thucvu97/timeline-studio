@@ -108,11 +108,11 @@ describe("AIDIContainer", () => {
 
     it("should detect indirect circular dependency", async () => {
       // A -> B -> C -> A
-      container.registerSingleton("ServiceA", (b: any) => ({ name: "A" }), ["ServiceB"])
+      container.registerSingleton("ServiceA", (_b: any) => ({ name: "A" }), ["ServiceB"])
 
-      container.registerSingleton("ServiceB", (c: any) => ({ name: "B" }), ["ServiceC"])
+      container.registerSingleton("ServiceB", (_c: any) => ({ name: "B" }), ["ServiceC"])
 
-      container.registerSingleton("ServiceC", (a: any) => ({ name: "C" }), ["ServiceA"])
+      container.registerSingleton("ServiceC", (_a: any) => ({ name: "C" }), ["ServiceA"])
 
       await expect(container.resolve("ServiceA")).rejects.toThrow("Circular dependency detected")
     })

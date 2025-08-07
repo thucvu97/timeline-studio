@@ -29,24 +29,22 @@ export class EffectsCache {
   async set(key: string, canvas: HTMLCanvasElement | ImageBitmap): Promise<void> {
     try {
       // Создаем ImageBitmap если передан canvas
-      const bitmap = canvas instanceof ImageBitmap 
-        ? canvas 
-        : await createImageBitmap(canvas)
-      
+      const bitmap = canvas instanceof ImageBitmap ? canvas : await createImageBitmap(canvas)
+
       const size = bitmap.width * bitmap.height * 4 // RGBA
-      
+
       // Проверяем, помещается ли в кеш
       while (this.currentSizeBytes + size > this.maxSizeBytes && this.cache.size > 0) {
         this.evictOldest()
       }
-      
+
       const entry: CacheEntry = {
         bitmap,
         timestamp: Date.now(),
         size,
         lastAccessed: Date.now(),
       }
-      
+
       this.cache.set(key, entry)
       this.currentSizeBytes += size
     } catch (error) {
@@ -59,17 +57,17 @@ export class EffectsCache {
    */
   get(key: string): ImageBitmap | null {
     const entry = this.cache.get(key)
-    
+
     if (entry) {
       // Обновляем время доступа и перемещаем в конец (LRU)
       entry.lastAccessed = Date.now()
       this.cache.delete(key)
       this.cache.set(key, entry)
-      
+
       this.hits++
       return entry.bitmap
     }
-    
+
     this.misses++
     return null
   }
@@ -92,7 +90,7 @@ export class EffectsCache {
         params: e.parameters,
         keyframes: e.keyframes,
       }))
-    
+
     // Простой хеш на основе JSON
     const effectsHash = EffectsCache.simpleHash(JSON.stringify(enabledEffects))
     return `${timestamp.toFixed(3)}_${effectsHash}`
@@ -120,7 +118,7 @@ export class EffectsCache {
       const [key, entry] = firstEntry.value
       this.cache.delete(key)
       this.currentSizeBytes -= entry.size
-      
+
       // Освобождаем память
       entry.bitmap.close?.()
     }
@@ -134,7 +132,7 @@ export class EffectsCache {
     for (const entry of this.cache.values()) {
       entry.bitmap.close?.()
     }
-    
+
     this.cache.clear()
     this.currentSizeBytes = 0
     this.hits = 0
@@ -145,9 +143,7 @@ export class EffectsCache {
    * Получить статистику кеша
    */
   getStats() {
-    const hitRate = this.hits + this.misses > 0 
-      ? this.hits / (this.hits + this.misses) 
-      : 0
+    const hitRate = this.hits + this.misses > 0 ? this.hits / (this.hits + this.misses) : 0
 
     return {
       entries: this.cache.size,
@@ -169,7 +165,7 @@ export class EffectsCache {
     range: number,
     fps: number,
     effects: AppliedEffect[],
-    renderFrame: (timestamp: number) => Promise<HTMLCanvasElement | ImageBitmap | null>
+    renderFrame: (timestamp: number) => Promise<HTMLCanvasElement | ImageBitmap | null>,
   ): Promise<void> {
     const frameTime = 1 / fps
     const startTime = Math.max(0, centerTimestamp - range)
@@ -179,7 +175,7 @@ export class EffectsCache {
 
     for (let t = startTime; t <= endTime; t += frameTime) {
       const key = EffectsCache.generateKey(t, effects)
-      
+
       if (!this.has(key)) {
         promises.push(
           renderFrame(t)
@@ -190,7 +186,7 @@ export class EffectsCache {
             })
             .catch((error) => {
               console.warn(`Failed to prefetch frame at ${t}:`, error)
-            })
+            }),
         )
       }
     }

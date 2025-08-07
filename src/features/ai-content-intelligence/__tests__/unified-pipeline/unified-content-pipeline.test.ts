@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { createMockDIContainer } from "@/shared/services/ai/__mocks__"
 import type { MediaFile } from "@/shared/services/ai/analysis/interfaces"
 import { UnifiedContentPipeline } from "../../unified-pipeline/unified-content-pipeline"
 
@@ -16,7 +15,7 @@ vi.mock("../../factories/engine-factory", () => ({
   getEngineFactory: vi.fn(() => ({
     createAllEngines: vi.fn(async () => ({
       sceneEngine: {
-        analyzeScenes: vi.fn(async (mediaFile: any, options: any) => [
+        analyzeScenes: vi.fn(async (_mediaFile: any, _options: any) => [
           {
             id: "scene-1",
             start: 0,
@@ -38,7 +37,7 @@ vi.mock("../../factories/engine-factory", () => ({
         ]),
       },
       classificationEngine: {
-        classifyContent: vi.fn(async (mediaFile: any, scenes: any, options: any) => ({
+        classifyContent: vi.fn(async (_mediaFile: any, _scenes: any, _options: any) => ({
           genre: "documentary",
           style: "educational",
           emotion: "neutral",
@@ -66,7 +65,7 @@ vi.mock("../../factories/engine-factory", () => ({
 
 // Мокируем AI service
 const mockAIService = {
-  sendRequest: vi.fn(async (model: string, messages: any[], options?: any) => ({
+  sendRequest: vi.fn(async (_model: string, _messages: any[], _options?: any) => ({
     content: JSON.stringify({
       title: "Generated Script",
       scenes: [

@@ -4,21 +4,29 @@
 
 AI-чат интерфейс для Timeline Studio с поддержкой нескольких AI провайдеров и 48+ специализированных инструментов, организованных по доменам с расширенной автоматизацией субтитров.
 
-## Архитектура
+## 🏗️ Новая Архитектура (После Рефакторинга)
 
-### AI Провайдеры
-- **Claude** (Anthropic) - Основной AI провайдер
-- **OpenAI** - Модели GPT-4
-- **DeepSeek** - Модели с улучшенным рассуждением
-- **Ollama** - Локальные модели (Llama 2, Mistral, Code Llama)
+### Интеграция с Shared AI Services
+- **Единый AI Контейнер** - Централизованный DI для всех AI сервисов
+- **Общие Провайдеры** - Claude, OpenAI, DeepSeek, Ollama из `/src/shared/services/ai/`
+- **Межмодульная Совместимость** - Интеграция с AI Content Intelligence 
+- **Legacy Адаптеры** - Обратная совместимость для существующего кода
+
+### Основные AI Провайдеры
+- **Claude 4** (Anthropic) - Продвинутое рассуждение и анализ
+- **OpenAI GPT-4** - Общего назначения и кодирование  
+- **DeepSeek** - Анализ и генерация кода
+- **Ollama** - Локальные модели (Llama 3.2, Mistral, Code Llama)
 
 ### Основные компоненты
 
-#### Сервисы
-- `unified-ai-service.ts` - Единый AI роутер с автоматическим fallback
-- `timeline-ai-service.ts` - Координация AI для Timeline
-- `intent-recognition.ts` - Анализ намерений пользователя
+#### Основные Сервисы
+- `unified-ai-service.ts` - **Рефакторен** - Обёртка над shared AI сервисами
+- `provider-manager.ts` - **Обновлён** - Использует shared AI провайдеры  
+- `model-configuration-manager.ts` - **Обновлён** - С shared константами моделей
+- `timeline-ai-service.ts` - **Рефакторен** - Координация через shared UnifiedAIService
 - `chat-machine.ts` - XState машина для управления чатом
+- `intent-recognition.ts` - Анализ намерений пользователя
 
 #### AI Инструменты (Domain-based архитектура)
 

@@ -2,7 +2,6 @@
  * AI инструменты для применения эффектов и фильтров в превью с использованием BaseAITool
  */
 
-import type { ClaudeTool } from "../../../../services/claude-service"
 import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 import type { EffectApplicationParams, PlayerToolResult } from "./types"
@@ -276,7 +275,7 @@ export async function applyPreviewFilters(params: {
 }
 
 // Экспорт для обратной совместимости
-export const applyPreviewEffectsTool: ClaudeTool = {
+export const applyPreviewEffectsTool: any = {
   name: "apply_preview_effects",
   description: "Применяет эффекты к медиа в плеере для превью",
   input_schema: {
@@ -314,7 +313,7 @@ export const applyPreviewEffectsTool: ClaudeTool = {
   },
 }
 
-export const applyPreviewFiltersTool: ClaudeTool = {
+export const applyPreviewFiltersTool: any = {
   name: "apply_preview_filters",
   description: "Применяет фильтры к медиа в плеере для превью",
   input_schema: {

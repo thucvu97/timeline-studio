@@ -1,7 +1,6 @@
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { beforeEach, describe, expect, it } from "vitest"
 import { createMockDIContainer, setupMockAIServices } from "../__mocks__"
 import { getAIContainer } from "../di-container"
-import type { IUnifiedAIService } from "../providers/interfaces"
 
 describe("AI Services Integration", () => {
   describe("Real Container Integration", () => {

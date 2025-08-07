@@ -5,8 +5,8 @@
 
 import { WebGL2UnifiedRenderer } from "@/features/effects/services/webgl2-unified-renderer"
 import type { BaseEffect } from "@/features/effects/types"
-import { EffectsCache } from "./effects-cache"
 import type { AppliedEffect, TimelineClip } from "../types"
+import { EffectsCache } from "./effects-cache"
 
 export interface EffectsPlayerConfig {
   targetCanvas?: HTMLCanvasElement
@@ -23,13 +23,12 @@ export class EffectsPlayerIntegration {
   private currentClip: TimelineClip | null = null
   private baseEffects = new Map<string, BaseEffect>()
   private targetCanvas: HTMLCanvasElement | null = null
-  private offscreenCanvas: OffscreenCanvas | null = null
   private ctx: CanvasRenderingContext2D | null = null
   private animationFrameId: number | null = null
 
   constructor(private config: EffectsPlayerConfig = {}) {
     this.renderer = new WebGL2UnifiedRenderer()
-    
+
     // Инициализируем кеш если включен
     if (config.enableCache !== false) {
       this.cache = new EffectsCache(config.cacheSize || 100)
@@ -86,7 +85,7 @@ export class EffectsPlayerIntegration {
       cancelAnimationFrame(this.animationFrameId)
       this.animationFrameId = null
     }
-    
+
     // Очищаем кеш при смене клипа
     if (clipChanged && this.cache) {
       this.invalidateCache()
@@ -116,7 +115,7 @@ export class EffectsPlayerIntegration {
     if (this.cache) {
       const cacheKey = EffectsCache.generateKey(currentTime, activeEffects)
       const cached = this.cache.get(cacheKey)
-      
+
       if (cached) {
         // Возвращаем закешированный кадр
         this.targetCanvas.width = cached.width
@@ -151,13 +150,13 @@ export class EffectsPlayerIntegration {
         this.targetCanvas.width = result.output.width
         this.targetCanvas.height = result.output.height
         this.ctx.drawImage(result.output, 0, 0)
-        
+
         // Кешируем результат
         if (this.cache) {
           const cacheKey = EffectsCache.generateKey(currentTime, activeEffects)
           await this.cache.set(cacheKey, this.targetCanvas)
         }
-        
+
         return this.targetCanvas
       }
 
@@ -197,7 +196,7 @@ export class EffectsPlayerIntegration {
         hitRate: 0,
       }
     }
-    
+
     const stats = this.cache.getStats()
     return {
       entries: stats.entries,
@@ -213,47 +212,41 @@ export class EffectsPlayerIntegration {
     videoElement: HTMLVideoElement,
     centerTime: number,
     range = 2, // секунды
-    fps = 30
+    fps = 30,
   ): Promise<void> {
     if (!this.cache || !this.currentClip) return
-    
+
     const activeEffects = this.currentClip.effects.filter((e) => e.enabled)
     if (activeEffects.length === 0) return
-    
-    await this.cache.prefetch(
-      centerTime,
-      range,
-      fps,
-      activeEffects,
-      async (timestamp) => {
-        // Создаем временный canvas для рендеринга
-        const tempCanvas = document.createElement("canvas")
-        tempCanvas.width = videoElement.videoWidth
-        tempCanvas.height = videoElement.videoHeight
-        
-        // Перематываем видео на нужный кадр
-        videoElement.currentTime = timestamp
-        await new Promise((resolve) => {
-          videoElement.onseeked = () => resolve(undefined)
-        })
-        
-        const result = await this.renderer.renderEffectStack(activeEffects, this.baseEffects, {
-          source: videoElement,
-          target: tempCanvas,
-          width: videoElement.videoWidth,
-          height: videoElement.videoHeight,
-          currentTime: timestamp,
-          quality: "draft", // Для предзагрузки используем draft
-          gpuTier: this.config.gpuTier || "medium",
-        })
-        
-        if (result.success && result.output instanceof HTMLCanvasElement) {
-          return result.output
-        }
-        
-        return null
+
+    await this.cache.prefetch(centerTime, range, fps, activeEffects, async (timestamp) => {
+      // Создаем временный canvas для рендеринга
+      const tempCanvas = document.createElement("canvas")
+      tempCanvas.width = videoElement.videoWidth
+      tempCanvas.height = videoElement.videoHeight
+
+      // Перематываем видео на нужный кадр
+      videoElement.currentTime = timestamp
+      await new Promise((resolve) => {
+        videoElement.onseeked = () => resolve(undefined)
+      })
+
+      const result = await this.renderer.renderEffectStack(activeEffects, this.baseEffects, {
+        source: videoElement,
+        target: tempCanvas,
+        width: videoElement.videoWidth,
+        height: videoElement.videoHeight,
+        currentTime: timestamp,
+        quality: "draft", // Для предзагрузки используем draft
+        gpuTier: this.config.gpuTier || "medium",
+      })
+
+      if (result.success && result.output instanceof HTMLCanvasElement) {
+        return result.output
       }
-    )
+
+      return null
+    })
   }
 
   /**
@@ -380,7 +373,7 @@ export class EffectsPlayerIntegration {
     if (this.renderer) {
       this.renderer.dispose()
     }
-    
+
     if (this.cache) {
       this.cache.dispose()
       this.cache = null

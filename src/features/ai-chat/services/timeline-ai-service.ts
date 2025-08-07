@@ -8,8 +8,9 @@
 import type { MediaFile } from "@/features/media/types/media"
 import type { ResourcesContextType } from "@/features/resources/services/resources-provider"
 import type { TimelineProject } from "@/features/timeline/types"
+import { getAIContainer } from "@/shared/services/ai"
 import { ApiKeyLoader } from "@/shared/services/ai/core/api-key-loader"
-import { CLAUDE_MODELS, type ClaudeTool } from "@/shared/services/ai/providers/claude"
+import { type ClaudeTool } from "@/shared/services/ai/providers/claude"
 import { contentIntelligenceTools, executeContentIntelligenceTool } from "../tools/analysis/content-intelligence-tools"
 import { executeMultimodalAnalysisTool, multimodalAnalysisTools } from "../tools/analysis/multimodal-tools"
 import {
@@ -41,7 +42,6 @@ import type {
   ContentStoryAnalysis,
   TimelineStudioContext,
 } from "../types/ai-context"
-import { ClaudeService } from "./claude-service-mock"
 
 /**
  * Результат выполнения AI команды Timeline
@@ -67,7 +67,6 @@ export interface TimelineAIResult {
  * Сервис для AI интеграции с Timeline Studio
  */
 export class TimelineAIService {
-  private claudeService: ClaudeService
   private allTools: ClaudeTool[]
 
   constructor(
@@ -76,8 +75,6 @@ export class TimelineAIService {
     private playerState: any, // PlayerStateMachine context
     private timelineState: any, // TimelineStateMachine context
   ) {
-    this.claudeService = ClaudeService.getInstance()
-
     // Объединяем все инструменты
     this.allTools = [
       ...resourceTools,
@@ -217,15 +214,19 @@ export class TimelineAIService {
       // Создаем системный промпт для Claude
       const systemPrompt = this.createSystemPrompt(context)
 
-      // Отправляем запрос к Claude с инструментами
-      const response = await this.claudeService.sendRequestWithTools(
-        CLAUDE_MODELS.CLAUDE_4_SONNET,
+      // Получаем UnifiedAIService из контейнера
+      const container = getAIContainer()
+      const aiService = await container.resolve("UnifiedAIService")
+
+      // Отправляем запрос с инструментами
+      const response = await (aiService as any).sendRequest(
+        "claude-4-sonnet-latest",
         [{ role: "user", content: prompt }],
-        this.allTools,
         {
           system: systemPrompt,
           temperature: 0.7,
           max_tokens: 4000,
+          tools: this.allTools,
         },
       )
 
@@ -261,14 +262,17 @@ export class TimelineAIService {
       const context = this.createContext()
       const systemPrompt = this.createAnalysisSystemPrompt(context)
 
-      const response = await this.claudeService.sendRequestWithTools(
-        CLAUDE_MODELS.CLAUDE_4_SONNET,
+      const container = getAIContainer()
+      const aiService = await container.resolve("UnifiedAIService")
+
+      const response = await (aiService as any).sendRequest(
+        "claude-4-sonnet-latest",
         [{ role: "user", content: query }],
-        [...resourceTools, ...browserTools],
         {
           system: systemPrompt,
           temperature: 0.5,
           max_tokens: 2000,
+          tools: [...resourceTools, ...browserTools],
         },
       )
 
@@ -303,14 +307,17 @@ export class TimelineAIService {
 
       const systemPrompt = this.createSystemPrompt(context)
 
-      const response = await this.claudeService.sendRequestWithTools(
-        CLAUDE_MODELS.CLAUDE_4_SONNET,
+      const container = getAIContainer()
+      const aiService = await container.resolve("UnifiedAIService")
+
+      const response = await (aiService as any).sendRequest(
+        "claude-4-sonnet-latest",
         [{ role: "user", content: fullPrompt }],
-        this.allTools,
         {
           system: systemPrompt,
           temperature: 0.6,
           max_tokens: 3000,
+          tools: this.allTools,
         },
       )
 
@@ -392,12 +399,12 @@ export class TimelineAIService {
    * Обрабатывает ответ Claude и выполняет инструменты
    */
   private async processClaudeResponse(
-    response: { text: string; tool_use?: any },
+    response: { content: string; tool_use?: any },
     context: TimelineStudioContext,
   ): Promise<AIToolResult> {
     const result: AIToolResult = {
       success: true,
-      message: response.text,
+      message: response.content,
       data: {},
     }
 

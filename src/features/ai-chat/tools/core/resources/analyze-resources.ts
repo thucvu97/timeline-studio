@@ -2,7 +2,6 @@
  * AI инструмент для анализа доступных ресурсов с использованием BaseAITool
  */
 
-import { ClaudeTool } from "../../../services/claude-service"
 import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 import type { AnalyzeResourcesParams, ResourceToolResult } from "./types"
@@ -237,7 +236,7 @@ export async function analyzeAvailableResources(params: AnalyzeResourcesParams):
 }
 
 // Экспорт для обратной совместимости
-export const analyzeAvailableResourcesTool: ClaudeTool = {
+export const analyzeAvailableResourcesTool: any = {
   name: "analyze_available_resources",
   description: "Анализирует все доступные ресурсы в Resources Provider и возвращает подробную статистику",
   input_schema: {

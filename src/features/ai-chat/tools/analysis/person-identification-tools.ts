@@ -5,7 +5,6 @@
  * в видеоконтенте. Интегрируется с Claude Tools через AI Chat модуль.
  */
 
-import { ClaudeTool } from "../../services/claude-service"
 import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 // Типы для операций распознавания персон
@@ -164,7 +163,7 @@ export async function executePersonIdentificationTool(
 }
 
 // Экспорт для обратной совместимости
-export const personIdentificationTools: ClaudeTool[] = [
+export const personIdentificationTools: any[] = [
   {
     name: "identify_persons_in_video",
     description: "Автоматически распознает и идентифицирует людей в видео с использованием AI анализа лиц",

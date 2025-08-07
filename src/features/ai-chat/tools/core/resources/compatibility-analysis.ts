@@ -2,7 +2,6 @@
  * AI инструмент для анализа совместимости ресурсов с использованием BaseAITool
  */
 
-import { ClaudeTool } from "../../../services/claude-service"
 import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 import type { CompatibilityParams, ResourceToolResult } from "./types"
@@ -275,7 +274,7 @@ export async function analyzeResourceCompatibility(params: CompatibilityParams):
 }
 
 // Экспорт для обратной совместимости
-export const analyzeResourceCompatibilityTool: ClaudeTool = {
+export const analyzeResourceCompatibilityTool: any = {
   name: "analyze_resource_compatibility",
   description: "Анализирует совместимость ресурсов между собой и с текущим проектом",
   input_schema: {

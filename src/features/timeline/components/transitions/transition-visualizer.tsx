@@ -4,7 +4,7 @@
 
 import { memo, useMemo } from "react"
 import { cn } from "@/lib/utils"
-import type { TimelineClip, TimelineTrack } from "../../types"
+import type { TimelineClip } from "../../types"
 
 interface TransitionVisualizerProps {
   leftClip: TimelineClip

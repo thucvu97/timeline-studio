@@ -2,7 +2,6 @@
  * AI инструменты для операций с файлами в браузере с BaseAITool
  */
 
-import type { ClaudeTool } from "../../../../services/claude-service"
 import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 import type { AnalyzeRelationshipsParams, BrowserToolResult, BulkSelectParams, GetFileGroupsParams } from "./types"
@@ -804,7 +803,7 @@ export async function getFileGroups(params: GetFileGroupsParams): Promise<Browse
 }
 
 // Экспорт для обратной совместимости
-export const fileOperationsTools: ClaudeTool[] = [
+export const fileOperationsTools: any[] = [
   {
     name: "get_file_groups",
     description: "Группирует файлы браузера по различным критериям",

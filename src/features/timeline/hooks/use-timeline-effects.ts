@@ -9,14 +9,13 @@ import {
   removeEffectFromClip,
   removeFilterFromClip,
 } from "@/features/effects/utils/user-effects"
-import type { AppliedEffect } from "../types"
 import { useTimeline } from "./use-timeline"
 
 export function useTimelineEffects() {
   const { project, saveProject } = useTimeline()
 
   const applyEffect = useCallback(
-    async (clipId: string, effectId: string, params?: Record<string, any>) => {
+    async (clipId: string, effectId: string, _params?: Record<string, any>) => {
       if (!project) return
 
       try {
@@ -52,7 +51,7 @@ export function useTimelineEffects() {
   )
 
   const applyFilter = useCallback(
-    async (clipId: string, filterId: string, params?: Record<string, any>) => {
+    async (clipId: string, filterId: string, _params?: Record<string, any>) => {
       if (!project) return
 
       try {

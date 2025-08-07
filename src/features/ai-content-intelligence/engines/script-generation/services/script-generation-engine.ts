@@ -40,8 +40,6 @@ export class ScriptGenerationEngine extends BaseAIEngine {
   name = "Script Generation Engine"
   version = "1.0.0"
   description = "AI-powered script generation based on video content analysis"
-
-  private sharedAIService: any = null
   private templateEngine: TemplateEngine
   private dialogueGenerator: DialogueGenerator
   private config: ScriptGenerationConfig = this.getDefaultConfig()
@@ -50,24 +48,6 @@ export class ScriptGenerationEngine extends BaseAIEngine {
     super()
     this.templateEngine = new TemplateEngine()
     this.dialogueGenerator = new DialogueGenerator()
-  }
-
-  /**
-   * Инициализация shared AI service
-   */
-  private async initializeAIService() {
-    if (!this.sharedAIService) {
-      try {
-        const { getAIContainer } = await import("@/shared/services/ai")
-        const aiContainer = getAIContainer()
-        this.sharedAIService = aiContainer.getUnifiedService()
-      } catch (error) {
-        console.error("Ошибка инициализации shared AI service:", error)
-        // Fallback к локальному сервису
-        const { UnifiedAIService } = await import("@/features/ai-chat/services/unified-ai-service")
-        this.sharedAIService = UnifiedAIService.getInstance()
-      }
-    }
   }
 
   async initialize(): Promise<void> {

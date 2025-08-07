@@ -2,7 +2,6 @@
  * AI инструменты для управления ресурсами с использованием BaseAITool
  */
 
-import { ClaudeTool } from "../../../services/claude-service"
 import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 import type { AddResourceParams, BulkAddResourcesParams, RemoveResourceParams, UpdateResourceParams } from "./types"
@@ -422,7 +421,7 @@ export async function executeManageResourcesTool(
 }
 
 // Экспорт для обратной совместимости
-export const addResourceToPoolTool: ClaudeTool = {
+export const addResourceToPoolTool: any = {
   name: "add_resource_to_pool",
   description: "Добавляет конкретный ресурс в пул ресурсов проекта с указанием причины",
   input_schema: {
@@ -451,7 +450,7 @@ export const addResourceToPoolTool: ClaudeTool = {
   },
 }
 
-export const removeResourceFromPoolTool: ClaudeTool = {
+export const removeResourceFromPoolTool: any = {
   name: "remove_resource_from_pool",
   description: "Удаляет ресурс из пула ресурсов проекта",
   input_schema: {
@@ -475,7 +474,7 @@ export const removeResourceFromPoolTool: ClaudeTool = {
   },
 }
 
-export const bulkAddResourcesTool: ClaudeTool = {
+export const bulkAddResourcesTool: any = {
   name: "bulk_add_resources",
   description: "Массовое добавление нескольких ресурсов в пул ресурсов проекта",
   input_schema: {

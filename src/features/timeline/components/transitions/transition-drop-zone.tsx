@@ -20,8 +20,8 @@ interface TransitionDropZoneProps {
 export const TransitionDropZone = memo(function TransitionDropZone({
   leftClip,
   rightClip,
-  trackId,
-  position,
+  // trackId,
+  // position,
   className,
 }: TransitionDropZoneProps) {
   const dropZoneRef = useRef<HTMLDivElement>(null)
@@ -31,7 +31,7 @@ export const TransitionDropZone = memo(function TransitionDropZone({
 
   // Проверка совместимости клипов для перехода
   const canApplyTransitionBetweenClips = useCallback(
-    (transition: Transition): boolean => {
+    (_transition: Transition): boolean => {
       // Переходы можно применять только между видео/изображениями
       const isLeftCompatible = leftClip.type === "video" || leftClip.type === "image"
       const isRightCompatible = rightClip.type === "video" || rightClip.type === "image"

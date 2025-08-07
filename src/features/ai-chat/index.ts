@@ -16,12 +16,11 @@ export * from "./hooks/use-timeline-ai"
 
 // Сервисы и провайдеры (включая основной useChat)
 export * from "./services/chat-machine"
-export * from "./services/claude-service"
 export * from "./services/unified-ai-service"
 export * from "./services/whisper-service"
 
 // Инструменты
-export * from "./tools/base-ai-tool"
+export type { AIToolResult } from "./tools/base-ai-tool"
 
 // Все типы
 export * from "./types/ai-context"

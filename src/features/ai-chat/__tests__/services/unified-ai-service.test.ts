@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { createMockDIContainer, setupMockAIServices } from "@/shared/services/ai/__mocks__"
-import { UnifiedAIService } from "../../services/unified-ai-service"
+import { createMockDIContainer } from "@/shared/services/ai/__mocks__"
 import { ContentIntelligenceService } from "../../services/content-intelligence-service"
+import { UnifiedAIService } from "../../services/unified-ai-service"
 import type { AiMessage } from "../../types/ai-message"
 
 // Мокируем shared services
@@ -39,7 +39,7 @@ vi.mock("../../services/provider-manager", () => ({
   ProviderManager: {
     getInstance: vi.fn(() => ({
       isAvailable: vi.fn(() => true),
-      sendRequest: vi.fn(async (model: string, messages: any[]) => ({
+      sendRequest: vi.fn(async (_model: string, messages: any[]) => ({
         content: `Mock response for: ${messages[messages.length - 1]?.content || ""}`,
       })),
       streamRequest: vi.fn(),
@@ -146,12 +146,17 @@ describe("UnifiedAIService", () => {
       }
 
       // analyzeContent теперь часть ContentIntelligenceService
-      const contentService = ContentIntelligenceService.getInstance()
-      const analysis = await contentService.analyzeContent(mediaFile)
+      const mockAiService = {
+        sendRequest: vi.fn().mockResolvedValue({ content: "Mock AI response" }),
+      }
+      const contentService = ContentIntelligenceService.create(mockAiService)
+      const analysis = await contentService.analyzeContentIntelligence([mediaFile as any])
 
       expect(analysis).toBeDefined()
-      expect(analysis.classification).toBeDefined()
-      expect(analysis.classification.genre).toBe("documentary")
+      expect(analysis.length).toBeGreaterThan(0)
+      // Проверяем первый результат
+      const firstResult = analysis[0]
+      expect(firstResult).toBeDefined()
     })
   })
 

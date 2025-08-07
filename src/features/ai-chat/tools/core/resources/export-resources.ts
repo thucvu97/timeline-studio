@@ -2,7 +2,6 @@
  * AI инструмент для экспорта списка ресурсов с использованием BaseAITool
  */
 
-import { ClaudeTool } from "../../../../services/claude-service"
 import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 import type { ExportListParams, ResourceToolResult } from "./types"
@@ -374,7 +373,7 @@ export async function exportResourceList(params: ExportListParams): Promise<Reso
 }
 
 // Экспорт для обратной совместимости
-export const exportResourceListTool: ClaudeTool = {
+export const exportResourceListTool: any = {
   name: "export_resource_list",
   description: "Экспортирует список ресурсов в различных форматах для внешнего использования",
   input_schema: {

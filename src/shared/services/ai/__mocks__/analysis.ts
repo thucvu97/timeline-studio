@@ -17,7 +17,7 @@ import type {
 
 // Mock FFmpeg Service
 export class MockFFmpegService implements IFFmpegAnalysisService {
-  async analyzeVideo(file: MediaFile): Promise<VideoAnalysisResult> {
+  async analyzeVideo(_file: MediaFile): Promise<VideoAnalysisResult> {
     return {
       duration: 120,
       fps: 30,
@@ -39,7 +39,7 @@ export class MockFFmpegService implements IFFmpegAnalysisService {
     }
   }
 
-  async analyzeAudio(file: MediaFile): Promise<AudioAnalysisResult> {
+  async analyzeAudio(_file: MediaFile): Promise<AudioAnalysisResult> {
     return {
       duration: 120,
       channels: 2,
@@ -58,15 +58,15 @@ export class MockFFmpegService implements IFFmpegAnalysisService {
     }
   }
 
-  async extractFrames(file: MediaFile, timestamps: number[]): Promise<string[]> {
+  async extractFrames(_file: MediaFile, timestamps: number[]): Promise<string[]> {
     return timestamps.map((t, i) => `/tmp/frame_${i}_${t}.jpg`)
   }
 
-  async extractAudioSegment(file: MediaFile, start: number, end: number): Promise<string> {
+  async extractAudioSegment(_file: MediaFile, start: number, end: number): Promise<string> {
     return `/tmp/audio_${start}_${end}.wav`
   }
 
-  async detectScenes(file: MediaFile, threshold?: number): Promise<SceneDetectionResult[]> {
+  async detectScenes(_file: MediaFile, _threshold?: number): Promise<SceneDetectionResult[]> {
     return [
       { start: 0, end: 30, confidence: 0.95 },
       { start: 30, end: 60, confidence: 0.9 },
@@ -77,7 +77,7 @@ export class MockFFmpegService implements IFFmpegAnalysisService {
 
 // Mock Vision Service
 export class MockVisionService implements IVisionService {
-  async analyzeFrame(imagePath: string): Promise<FrameAnalysisResult> {
+  async analyzeFrame(_imagePath: string): Promise<FrameAnalysisResult> {
     return {
       objects: [
         { label: "person", confidence: 0.95, bbox: { x: 100, y: 100, width: 200, height: 300 } },
@@ -100,7 +100,7 @@ export class MockVisionService implements IVisionService {
     }
   }
 
-  async analyzeVideo(videoPath: string, sampleRate?: number): Promise<FrameAnalysisResult[]> {
+  async analyzeVideo(_videoPath: string, _sampleRate?: number): Promise<FrameAnalysisResult[]> {
     // Return analysis for 3 sample frames
     return [
       await this.analyzeFrame("frame1.jpg"),
@@ -123,7 +123,6 @@ export class MockVisionService implements IVisionService {
 // Mock Content Analysis Service
 export class MockContentAnalysisService implements IContentAnalysisService {
   private ffmpeg = new MockFFmpegService()
-  private vision = new MockVisionService()
 
   async analyzeContent(file: MediaFile): Promise<ContentAnalysisResult> {
     const [video, audio] = await Promise.all([this.ffmpeg.analyzeVideo(file), this.ffmpeg.analyzeAudio(file)])

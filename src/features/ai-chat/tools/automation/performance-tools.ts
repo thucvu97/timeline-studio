@@ -5,7 +5,6 @@
  * оптимизации рендеринга и управления ресурсами системы
  */
 
-import { ClaudeTool } from "../../services/claude-service"
 import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 // Типы для операций рендеринга и производительности
@@ -277,7 +276,7 @@ export async function executeRenderPerformanceTool(
 /**
  * Render & Performance Tools - 8 инструментов для оптимизации
  */
-export const renderPerformanceTools: ClaudeTool[] = [
+export const renderPerformanceTools: any[] = [
   {
     name: "analyze_render_performance",
     description: "Анализирует производительность рендеринга и выявляет узкие места в проекте",

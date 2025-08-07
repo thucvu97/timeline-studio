@@ -2,7 +2,6 @@
  * AI инструменты для управления состоянием браузера с использованием BaseAITool
  */
 
-import type { ClaudeTool } from "../../../../services/claude-service"
 import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 import type { BrowserToolResult, UpdateFiltersParams } from "./types"
@@ -328,7 +327,7 @@ export class BrowserStateTool extends BaseAITool {
   }
 }
 
-export const getBrowserStateTool: ClaudeTool = {
+export const getBrowserStateTool: any = {
   name: "get_browser_state",
   description: "Получает текущее состояние медиа браузера включая активную вкладку, фильтры и выбранные файлы",
   input_schema: {
@@ -343,7 +342,7 @@ export const getBrowserStateTool: ClaudeTool = {
   },
 }
 
-export const updateBrowserFiltersTool: ClaudeTool = {
+export const updateBrowserFiltersTool: any = {
   name: "update_browser_filters",
   description: "Обновляет фильтры браузера для изменения отображаемых файлов",
   input_schema: {

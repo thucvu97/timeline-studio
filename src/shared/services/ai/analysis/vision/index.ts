@@ -3,6 +3,10 @@
  * Адаптер для компьютерного зрения и анализа изображений
  */
 
+// Экспорт object tracking и onnx runtime
+export * from "./object-tracking"
+export * from "./onnx-runtime"
+
 import type {
   ColorAnalysis,
   CompositionAnalysis,

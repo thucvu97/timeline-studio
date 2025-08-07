@@ -5,7 +5,7 @@
 
 import { CLAUDE_MODELS } from "@/shared/services/ai/providers/claude"
 import { DEEPSEEK_MODELS } from "@/shared/services/ai/providers/deepseek"
-import { OPENOPENAI_MODELS } from "@/shared/services/ai/providers/openai"
+import { OPENAI_MODELS } from "@/shared/services/ai/providers/openai"
 
 // Типы AI провайдеров
 export type AIProvider = "claude" | "openai" | "deepseek" | "ollama"
