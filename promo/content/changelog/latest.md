@@ -1,3 +1,28 @@
+# [0.72.0](https://github.com/chatman-media/timeline-studio/compare/v0.71.0...v0.72.0) (2025-08-07)
+
+
+### Bug Fixes
+
+* **ai-chat:** добавлен отсутствующий метод getSensitivityThreshold в SceneDetectionTool ([500a48d](https://github.com/chatman-media/timeline-studio/commit/500a48d24ff49ada1063ee07953ec228c05b71a0))
+* **ai-chat:** исправлен импорт resourceTools в core/index.ts ([8677ba4](https://github.com/chatman-media/timeline-studio/commit/8677ba4955ec294fcfd5a58d30befb16c14c067c))
+* **ai-chat:** исправление ошибок TypeScript в analysis tools ([5fc9e37](https://github.com/chatman-media/timeline-studio/commit/5fc9e37a5711600fd79add107d3ea476ad1fe7cf))
+* **ai-chat:** исправление ошибок импорта в index.ts ([4fd5db2](https://github.com/chatman-media/timeline-studio/commit/4fd5db2dec3006ce47407943b414cd0f958753f9))
+* **ai-chat:** исправлены TypeScript ошибки в multimodal и timeline инструментах ([221449e](https://github.com/chatman-media/timeline-studio/commit/221449e8625aee1e6886ebb72a96c6a46f315d61))
+* **ai-chat:** исправлены все ошибки линтера в tools-v2 ([de42dd0](https://github.com/chatman-media/timeline-studio/commit/de42dd098c38a84bc2cdd0f2f67f564f85086ffd))
+* **ai-chat:** исправлены импорты в resources/index.ts ([8631250](https://github.com/chatman-media/timeline-studio/commit/8631250e4b6a3c0a129a10f0476f93209b6e601b))
+* **ai-chat:** исправлены импорты и экспорты в index файлах ([13f4699](https://github.com/chatman-media/timeline-studio/commit/13f4699c63d883e036c6af8ca4d7fa6c5ea5efce))
+* **timeline:** исправлены ошибки типов в сервисах переходов и тесты ([ffb7d28](https://github.com/chatman-media/timeline-studio/commit/ffb7d2896c8ab24e382a78af3dc83e8e75682155))
+* **whisper:** исправлена интеграция Faster Whisper в WhisperService ([3763c8e](https://github.com/chatman-media/timeline-studio/commit/3763c8e606a8d4eadf602f77b3816d6266e83bcf))
+
+
+### Features
+
+* **ai-chat:** Phase 2A - Domain-Based Architecture для AI инструментов ([e0fea51](https://github.com/chatman-media/timeline-studio/commit/e0fea51db33237a99a8e0d652bebde77d6482db8))
+* **ai-chat:** добавлена Enhanced Subtitle Automation с полной AI интеграцией ([514d26e](https://github.com/chatman-media/timeline-studio/commit/514d26eefa3687c7311849ef81d367f30eb296ed))
+* **ai-chat:** завершена миграция AI Tools на новую domain-based архитектуру ([7ef7cf6](https://github.com/chatman-media/timeline-studio/commit/7ef7cf6565915060a7579a82696f8b8faed57550))
+* **ai-chat:** завершено обновление всех импортов на новую структуру tools-v2 ([b70a0d4](https://github.com/chatman-media/timeline-studio/commit/b70a0d41f3162ec0b98b764d1fca666dede95337))
+* **ai-chat:** обновлены импорты в timeline-ai-service на новую структуру tools-v2 ([4f92f33](https://github.com/chatman-media/timeline-studio/commit/4f92f3374c39302ea38ae2ae9136bccb7861a78f))
+
 # [0.71.0](https://github.com/chatman-media/timeline-studio/compare/v0.70.0...v0.71.0) (2025-08-07)
 
 
