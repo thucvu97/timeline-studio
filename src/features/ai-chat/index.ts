@@ -23,7 +23,7 @@ export * from "./services/whisper-service"
 // Инструменты
 export * from "./tools/base-ai-tool"
 
-// Все типы  
+// Все типы
 export * from "./types/ai-context"
 export * from "./types/ai-message"
 export * from "./types/chat"

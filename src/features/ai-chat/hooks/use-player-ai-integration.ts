@@ -1,6 +1,7 @@
 import { useCallback, useEffect } from "react"
 
 import { usePlayer } from "../../video-player"
+
 // Временно определяем типы локально, пока не реализованы player tools
 interface CurrentMedia {
   id: string

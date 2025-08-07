@@ -113,7 +113,7 @@ export interface TransitionKeyframe {
  * Кривая перехода
  */
 export interface TransitionCurve {
-  type: "linear" | "ease" | "ease-in" | "ease-out" | "ease-in-out" | "custom"
+  type: "linear" | "ease" | "ease-in" | "ease-out" | "ease-in-out" | "custom" | "bounce"
   points: CurvePoint[] // Точки кривой для custom типа
   presets?: {
     // Предустановленные кривые

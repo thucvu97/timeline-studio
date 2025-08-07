@@ -2,11 +2,11 @@
  * Factory functions for creating Timeline objects
  */
 
+import { SubtitleClip } from "@/features/subtitles/types"
 import type {
   MusicClip,
   MusicFile,
   ProjectResources,
-  SubtitleClip,
   SubtitleStyle,
   TimelineClip,
   TimelineProject,
@@ -67,6 +67,7 @@ function createEmptyResources(): ProjectResources {
     subtitleStyles: createDefaultSubtitleStyles(), // Добавляем встроенные стили
     music: [],
     media: [],
+    timelineTransitions: [],
   }
 }
 
@@ -114,6 +115,7 @@ export function createTimelineTrack(name: string, type: TrackType, sectionId?: s
     height: type === "video" ? 120 : type === "audio" ? 80 : 60,
     trackEffects: [],
     trackFilters: [],
+    transitions: [],
   }
 }
 
@@ -162,11 +164,14 @@ export function createSubtitleClip(
   startTime: number,
   duration: number,
   options?: {
+    name?: string
     subtitleStyleId?: string
     position?: SubtitleClip["subtitlePosition"]
     animationIn?: SubtitleClip["animationIn"]
     animationOut?: SubtitleClip["animationOut"]
     formatting?: SubtitleClip["formatting"]
+    opacity?: number
+    enabled?: boolean
   },
 ): SubtitleClip {
   // Создаем базовый клип
@@ -177,17 +182,42 @@ export function createSubtitleClip(
     duration,
   )
 
-  // Расширяем его свойствами субтитра
+  // Расширяем его свойствами субтитра с полной совместимостью TimelineClip
   const subtitleClip: SubtitleClip = {
     ...baseClip,
+    type: "subtitle" as const,
+    name: options?.name || `Subtitle ${Date.now()}`,
+
+    // Специфичные поля субтитров
     text,
     subtitleStyleId: options?.subtitleStyleId,
+    style: options?.formatting, // Mapping для совместимости
+    formatting: options?.formatting,
     subtitlePosition: options?.position,
     animationIn: options?.animationIn,
     animationOut: options?.animationOut,
-    formatting: options?.formatting,
+
+    // Настройки субтитров
     wordWrap: true, // По умолчанию включен перенос слов
     maxWidth: 80, // По умолчанию 80% ширины экрана
+    enabled: options?.enabled ?? true,
+
+    // Переопределяем opacity если задан
+    opacity: options?.opacity ?? baseClip.opacity,
+
+    // Устанавливаем разумные значения для видео-специфичных полей
+    volume: 0, // Субтитры не имеют звука
+    position: options?.position
+      ? {
+          x: 0.5, // Центр по горизонтали
+          y: 0.85, // Внизу экрана
+          width: 0.8, // 80% ширины
+          height: 0.1, // 10% высоты
+          rotation: 0,
+          scaleX: 1,
+          scaleY: 1,
+        }
+      : undefined,
   }
 
   return subtitleClip

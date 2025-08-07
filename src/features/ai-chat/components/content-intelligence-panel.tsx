@@ -17,7 +17,7 @@ import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import type { PipelineProgress } from "../../ai-content-intelligence/unified-pipeline/unified-content-pipeline"
-import type { UnifiedContentAnalysis } from "../services/unified-ai-service"
+import { UnifiedContentAnalysis } from "../services/content-intelligence-service"
 
 interface ContentIntelligencePanelProps {
   analysis?: UnifiedContentAnalysis[]

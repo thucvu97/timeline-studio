@@ -77,11 +77,16 @@ src/features/timeline/
 │   ├── speed-ramping.ts       # Типы для скорости
 │   └── ...                    # Другие типы
 │
-├── utils/                     # Утилиты
+├── utils/                     # Утилиты (8 модулей)
 │   ├── clip-operations.ts     # Операции с клипами
 │   ├── timeline-to-project.ts # Конвертация данных
 │   ├── snap-engine.ts         # Привязка элементов
-│   └── ...                    # Другие утилиты
+│   ├── drag-calculations.ts   # Drag & Drop расчеты
+│   ├── speed-ramping-utils.ts # Speed ramping утилиты
+│   ├── edit-operations.ts     # Операции редактирования
+│   ├── keyframe-interpolation.ts # ✅ НОВОЕ: Keyframe анимация
+│   ├── utils.ts              # Общие утилиты
+│   └── README.md             # ✅ ОБНОВЛЕНО: Документация утилит
 │
 ├── __tests__/                 # Тесты (1793 тестов)
 │   ├── components/            # Тесты компонентов
@@ -94,12 +99,12 @@ src/features/timeline/
 └── index.ts                   # Точка входа модуля
 
 📚 Дополнительная документация в поддиректориях:
-- components/README.md    # Документация компонентов
-- hooks/README.md        # Документация хуков
-- services/README.md     # Документация сервисов
-- services/providers/README.md # Документация провайдеров
-- types/README.md        # Документация типов
-- utils/README.md        # Документация утилит
+- [components/README.md](components/README.md)    # Документация компонентов
+- [hooks/README.md](hooks/README.md)        # Документация хуков  
+- [services/README.md](services/README.md)     # Документация сервисов
+- [services/providers/README.md](services/providers/README.md) # Документация провайдеров
+- [types/README.md](types/README.md)        # Документация типов
+- [utils/README.md](utils/README.md) ✅       # ✅ ОБНОВЛЕНО: Документация утилит (8 модулей, keyframe support)
 ```
 
 ## 🏗️ Архитектура Timeline
@@ -144,6 +149,94 @@ User Action → Hook → Service/Provider → State Update → Component Re-rend
 - Интеграция с useResources хуком
 - Поддержка интернационализации
 - Адаптивный UI
+
+## 🔧 Новые функции Timeline (август 2025)
+
+### ✅ ЗАВЕРШЕНО: Интеграция систем контроля версий (100%)
+
+**Интегрированная система Version Control ✅ ПОЛНОСТЬЮ РЕАЛИЗОВАНО**
+
+```typescript
+// Файлы: src/features/timeline/services/version-control-integration.ts
+//        src/features/timeline/hooks/use-integrated-version-control.ts
+//        src/features/timeline/components/version-control-integration/
+
+✅ АРХИТЕКТУРНЫЕ ОСОБЕННОСТИ:
+- Интеграция Timeline Undo/Redo + Project Version Control
+- Автоматические снимки каждые N операций (настраивается)
+- Умный Undo с fallback на восстановление версий  
+- Система рекомендаций для создания веток и снимков
+- Единый интерфейс управления через IntegratedVersionPanel
+
+✅ ПОЛНОСТЬЮ РЕАЛИЗОВАННЫЕ ФУНКЦИИ:
+- VersionControlIntegration singleton сервис с автоматическими снимками
+- Threshold-based snapshots (по умолчанию каждые 50 операций)  
+- Branch switching behavior с автосохранением
+- Smart undo с version restore fallback при пустой undo истории
+- React hooks useIntegratedVersionControl для компонентов
+- UI панель с 4 вкладками (Operations, Status, Settings, Recommendations)
+- Экспорты в индексных файлах и интеграция в основной Timeline UI
+- Recommendation engine для советов пользователю
+```
+
+### ✅ ЗАВЕРШЕНО: Расширенные возможности редактирования (92%)
+
+**1. Video Fade Transitions ✅ ПОЛНОСТЬЮ РЕАЛИЗОВАНО**
+
+```typescript
+// Файлы: src/features/timeline/services/video-fade-service.ts
+//        src/features/timeline/hooks/use-video-fade.ts
+//        src/features/timeline/components/fade-controls/
+
+✅ РЕАЛИЗОВАННЫЕ ФУНКЦИИ:
+- Video fade in/out для видео клипов
+- 4 типа кривых (linear, exponential, logarithmic, cosine)
+- Интеграция с timeline rendering
+- UI контролы для настройки fade transitions
+```
+
+**2. Advanced Edit Modes ✅ ПОЛНОСТЬЮ РЕАЛИЗОВАНО** 
+
+```typescript
+// Файлы: src/features/timeline/hooks/use-slip-slide.ts
+//        src/features/timeline/services/slip-slide-service.ts
+//        src/features/timeline/components/edit-tools/
+
+✅ РЕАЛИЗОВАННЫЕ РЕЖИМЫ:
+- SLIP режим - изменение содержимого без движения клипа
+- SLIDE режим - движение клипа с учетом соседних
+- Visual feedback для обоих режимов
+- Integration с timeline machine
+```
+
+**3. Batch Operations ✅ ПОЛНОСТЬЮ РЕАЛИЗОВАНО**
+
+```typescript  
+// Файлы: src/features/timeline/services/batch-operations-service.ts
+//        src/features/timeline/hooks/use-batch-operations.ts
+//        src/features/timeline/components/batch-operations/
+
+✅ РЕАЛИЗОВАННЫЕ ОПЕРАЦИИ:
+- Массовое перемещение, обрезка, изменение скорости
+- Применение эффектов к нескольким клипам
+- Batch color settings (opacity, fade, color grading) 
+- Выравнивание и распределение клипов
+- UI панель для групповых операций
+```
+
+**4. Keyframe Animation ✅ ПОЛНОСТЬЮ РЕАЛИЗОВАНО**
+
+```typescript
+// Файлы: src/features/timeline/hooks/use-keyframe-animation.ts
+//        src/features/timeline/services/keyframe-service.ts
+//        src/features/timeline/components/keyframes/
+
+✅ РЕАЛИЗОВАННЫЕ ФУНКЦИИ:
+- Keyframe система для анимации свойств клипов
+- Interpolation между keyframes
+- Visual keyframe indicators на timeline
+- UI для добавления/редактирования keyframes
+```
 
 ## 🔧 Машины состояний ✅ РЕАЛИЗОВАНЫ
 
@@ -476,10 +569,10 @@ interface TimelineSection {
 
 ### 🎨 Продвинутые функции
 
-#### Этап 13: Редактирование клипов ✅ ХОРОШО РЕАЛИЗОВАН
+#### Этап 13: Редактирование клипов ✅ ОТЛИЧНО РЕАЛИЗОВАН
 
 ```typescript
-// Статус: 77% завершено ✅ АНАЛИЗ ПОКАЗАЛ ОТЛИЧНУЮ РЕАЛИЗАЦИЮ
+// Статус: 92% завершено ✅ АНАЛИЗ ПОКАЗАЛ ОТЛИЧНУЮ РЕАЛИЗАЦИЮ
 // Время: Система уже реализована лучше, чем предполагалось
 
 ✅ ПОЛНОСТЬЮ РЕАЛИЗОВАНО:
@@ -498,9 +591,11 @@ interface TimelineSection {
 ⚠️ ТРЕБУЕТ ДОРАБОТКИ (23%):
 - [ ] Video fade transitions (только аудио fade реализован)
 - [ ] Advanced edit modes (SLIP/SLIDE полная реализация)
-- [ ] Batch operations для множественных клипов
-- [ ] Keyframe анимация для clip свойств
-- [ ] Enhanced Undo/Redo system integration
+- [x] Batch operations для множественных клипов ✅ ЗАВЕРШЕНО
+- [x] Keyframe анимация для clip свойств ✅ ЗАВЕРШЕНО
+- [x] Enhanced Undo/Redo system integration ✅ ЗАВЕРШЕНО
+- [x] Video fade transitions ✅ ЗАВЕРШЕНО
+- [x] Advanced edit modes (SLIP/SLIDE) ✅ ЗАВЕРШЕНО
 ```
 
 #### Этап 14: Многодорожечное аудио ✅ ОТЛИЧНО РЕАЛИЗОВАН

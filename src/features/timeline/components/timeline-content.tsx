@@ -224,7 +224,12 @@ export function TimelineContent() {
           <ResizablePanelGroup direction="horizontal" className="flex-1">
             {/* Левая панель - Управление треками */}
             <ResizablePanel defaultSize={25} minSize={20} maxSize={40}>
-              <TrackControlsPanel />
+              <div className="h-full flex flex-col">
+                <TrackControlsPanel />
+                <div className="p-2 border-t">
+                  <IntegratedVersionPanel />
+                </div>
+              </div>
             </ResizablePanel>
 
             <ResizableHandle />

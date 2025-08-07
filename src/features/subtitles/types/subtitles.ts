@@ -194,14 +194,95 @@ export interface SubtitleInlineStyle {
 /**
  * Унифицированный интерфейс для клипа субтитров на таймлайне
  * Объединяет функциональность из subtitles и timeline модулей
+ * Расширяет базовый TimelineClip всеми необходимыми полями
  */
 export interface SubtitleClip {
-  // Основные поля клипа
+  // ============= БАЗОВЫЕ ПОЛЯ TIMELINECLIP =============
   id: string
-  trackId: string
+  name: string
   type: "subtitle"
+
+  // Связь с медиафайлом (для субтитров может быть пустым)
+  mediaId: string
+  mediaFile?: any // MediaFile для совместимости
+
+  // Позиция на треке
+  trackId: string
   startTime: number
   duration: number
+
+  // Обрезка исходного медиа (для субтитров)
+  mediaStartTime: number
+  mediaEndTime: number
+  offset: number
+  mediaDuration?: number
+
+  // J-Cut / L-Cut support (не применимо к субтитрам, но нужно для совместимости)
+  audioOffset?: number
+  linkedClipId?: string
+  isLinked?: boolean
+
+  // Настройки клипа
+  volume: number // 0-1 (не применимо к субтитрам, но нужно для совместимости)
+  speed: number // Скорость воспроизведения
+  playbackRate?: number
+  maintainPitch?: boolean
+  isReversed: boolean
+
+  // Speed ramping (не применимо к субтитрам, но нужно для совместимости)
+  speedRamping?: any
+
+  // Визуальные настройки
+  position?: {
+    x: number
+    y: number
+    width: number
+    height: number
+    rotation: number
+    scaleX: number
+    scaleY: number
+  }
+  opacity: number // 0-1
+
+  // Video fade эффекты (не применимо к субтитрам, но нужно для совместимости)
+  fadeIn?: {
+    duration: number
+    type?: "linear" | "exponential" | "logarithmic" | "cosine" | "ease-in" | "ease-out" | "ease-in-out"
+    keyframes?: any[]
+  }
+
+  fadeOut?: {
+    duration: number
+    type?: "linear" | "exponential" | "logarithmic" | "cosine" | "ease-in" | "ease-out" | "ease-in-out"
+    keyframes?: any[]
+  }
+
+  // Keyframes для анимации opacity
+  opacityKeyframes?: any[]
+
+  // Шаблоны (не применимо к субтитрам, но нужно для совместимости)
+  templateId?: string
+  templateCell?: number
+
+  // Применяемые ресурсы
+  effects: any[]
+  filters: any[]
+  transitions: any[]
+  styleTemplate?: any
+  colorGrading?: any
+
+  // Keyframe анимации
+  keyframes?: any[]
+
+  // Состояние
+  isSelected: boolean
+  isLocked: boolean
+
+  // Метаданные
+  createdAt: Date
+  updatedAt: Date
+
+  // ============= СПЕЦИФИЧНЫЕ ПОЛЯ СУБТИТРОВ =============
 
   // Содержание субтитра
   text: string
@@ -211,35 +292,20 @@ export interface SubtitleClip {
   style?: SubtitleInlineStyle // Inline переопределения стиля
   formatting?: SubtitleInlineStyle // Альтернативное название для совместимости
 
-  // Позиционирование
+  // Позиционирование субтитра
   subtitlePosition?: SubtitlePosition
-  position?: {
-    // Для совместимости с общим ClipPosition
-    x: number
-    y: number
-    width?: number
-    height?: number
-    rotation?: number
-    scaleX?: number
-    scaleY?: number
-  }
 
   // Анимации
   animationIn?: SubtitleAnimation
   animationOut?: SubtitleAnimation
 
-  // Дополнительные настройки
+  // Дополнительные настройки субтитров
   wordWrap?: boolean
   maxWidth?: number // Максимальная ширина в процентах
   enabled?: boolean // Включен ли субтитр
 
-  // Поля для совместимости с timeline
-  name?: string
+  // Дополнительные поля для совместимости
   sourceId?: string
-  mediaStartTime?: number
-  mediaEndTime?: number
-  effects?: any[]
-  transitions?: any[]
   metadata?: Record<string, any>
 }
 

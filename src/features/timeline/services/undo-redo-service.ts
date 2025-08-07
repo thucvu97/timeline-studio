@@ -415,7 +415,7 @@ export class UndoRedoService {
     previousAction.affectedEntities = this.mergeAffectedEntities([
       previousAction.affectedEntities,
       action.affectedEntities,
-    ])[0]!
+    ])
   }
 
   private haveSameAffectedEntities(action1: UndoRedoAction, action2: UndoRedoAction): boolean {
@@ -436,7 +436,7 @@ export class UndoRedoService {
 
   private mergeAffectedEntities(
     entities: (UndoRedoAction["affectedEntities"] | undefined)[],
-  ): UndoRedoAction["affectedEntities"][] {
+  ): UndoRedoAction["affectedEntities"] {
     const result: UndoRedoAction["affectedEntities"] = {
       clips: [],
       tracks: [],
@@ -456,7 +456,7 @@ export class UndoRedoService {
     result.tracks = [...new Set(result.tracks)]
     result.keyframes = [...new Set(result.keyframes)]
 
-    return [result]
+    return result
   }
 
   private getUndoableActionsByType(actionType: ActionType, maxCount: number): UndoRedoAction[] {

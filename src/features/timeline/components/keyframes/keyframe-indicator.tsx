@@ -14,7 +14,7 @@ interface KeyframeIndicatorProps {
   showLabels?: boolean
 }
 
-export function KeyframeIndicator({ clip, timeScale, className, showLabels = false }: KeyframeIndicatorProps) {
+export function KeyframeIndicator({ clip, className, showLabels = false }: KeyframeIndicatorProps) {
   // Группируем keyframes по свойствам
   const keyframeGroups = useMemo(() => {
     if (!clip.keyframes || clip.keyframes.length === 0) return []

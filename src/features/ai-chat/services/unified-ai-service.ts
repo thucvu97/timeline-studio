@@ -100,7 +100,7 @@ export class UnifiedAIService {
 
       this.initialized = true
     } catch (error) {
-      console.error('Ошибка инициализации UnifiedAIService:', error)
+      console.error("Ошибка инициализации UnifiedAIService:", error)
       // Инициализируем fallback значения
       this.initialized = false
     }
@@ -128,7 +128,7 @@ export class UnifiedAIService {
     options: UnifiedRequestOptions = {},
   ): Promise<UnifiedResponse> {
     await this.ensureInitialized()
-    
+
     const startTime = Date.now()
     const cacheKey = this.createCacheKey(model, messages, options)
 

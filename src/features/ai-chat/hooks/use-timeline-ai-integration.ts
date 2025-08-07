@@ -2,6 +2,7 @@ import { useCallback, useEffect } from "react"
 
 import { useTimeline } from "../../timeline/hooks"
 import type { TimelineClip, TimelineSection, TimelineTrack } from "../../timeline/types"
+
 // Временно определяем типы локально
 interface TimelineStateAccess {
   getCurrentProject: () => any

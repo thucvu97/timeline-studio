@@ -287,7 +287,7 @@ export function createTimelineTransition(
     duration: options.duration,
     parameters: options.parameters || {
       intensity: transitionResource.parameters?.intensity || 1.0,
-      easing: transitionResource.parameters?.easing || "ease-in-out",
+      easing: transitionResource.parameters?.easing ?? "ease-in-out",
       ...transitionResource.parameters,
     },
     keyframes: options.keyframes || [],
@@ -298,7 +298,7 @@ export function createTimelineTransition(
     isEnabled: true,
     isSelected: false,
     isLocked: false,
-    renderCache: null,
+    renderCache: undefined,
   }
 
   // Добавляем TimelineTransition в ресурсы

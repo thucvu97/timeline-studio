@@ -376,7 +376,7 @@ export class WhisperTool extends BaseAITool {
     try {
       // Извлекаем аудио из видео если нужно
       const audioPath = await this.whisperService.extractAudioForTranscription(input.clipId!)
-      
+
       const result = await this.whisperService.transcribe(audioPath, {
         language: input.language || "auto",
         model: (input.model as any) || "whisper-1",
@@ -416,7 +416,7 @@ export class WhisperTool extends BaseAITool {
     try {
       // Извлекаем аудио из видео если нужно
       const audioPath = await this.whisperService.extractAudioForTranscription(input.clipId!)
-      
+
       const result = await this.whisperService.translateWithOpenAI(audioPath, {
         model: input.model || "whisper-1",
         prompt: input.prompt,

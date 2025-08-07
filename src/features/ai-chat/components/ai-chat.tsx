@@ -12,7 +12,7 @@ import { useModal } from "@/features/modals"
 import { useApiKeys } from "@/features/user-settings/hooks/use-api-keys"
 import { cn } from "@/lib/utils"
 
-import { useChat } from ".."
+import { useChat } from "../hooks/use-chat"
 import { useResourcesAIIntegration } from "../hooks/use-resources-ai-integration"
 import { useSafeTimeline } from "../hooks/use-safe-timeline"
 import { chatStorageService } from "../services/chat-storage-service"

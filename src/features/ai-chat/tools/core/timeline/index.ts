@@ -85,11 +85,7 @@ export const timelineTools = [
 /**
  * Универсальная функция для выполнения любого timeline инструмента
  */
-export async function executeTimelineTool(
-  operation: string,
-  params: any,
-  options?: any,
-): Promise<any> {
+export async function executeTimelineTool(operation: string, params: any, options?: any): Promise<any> {
   // Находим соответствующий инструмент по операции
   const toolMap: Record<string, any> = {
     analyze_structure: structureAnalysisTool,
@@ -115,10 +111,10 @@ export async function executeTimelineTool(
   }
 
   // Выполняем инструмент с соответствующим методом
-  if (typeof tool.execute === 'function') {
+  if (typeof tool.execute === "function") {
     return tool.execute(params, options)
   }
-  
+
   // Fallback для инструментов с другой структурой
   return tool(params, options)
 }
