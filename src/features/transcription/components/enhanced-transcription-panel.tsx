@@ -40,7 +40,7 @@ import { useTranscription } from "../hooks/use-transcription"
 // Типы
 import type { SubtitleFormat, TranscriptionOptions } from "../types"
 import { LanguageSelector } from "./language-selector"
-import { ModelSelector } from "./model-selector"
+import { ModelSizeSelector } from "./model-size-selector"
 import { TranscriptionEditor } from "./transcription-editor"
 
 interface EnhancedTranscriptionPanelProps {
@@ -361,10 +361,13 @@ export function EnhancedTranscriptionPanel({ onAddToTimeline }: EnhancedTranscri
               {mode === "basic" && (
                 <>
                   <Separator />
-                  <ModelSelector
-                    value={transcriptionOptions.modelSize}
-                    onChange={(value) => setTranscriptionOptions((prev) => ({ ...prev, modelSize: value }))}
-                  />
+                  <div className="space-y-2">
+                    <Label>Размер модели</Label>
+                    <ModelSizeSelector
+                      value={transcriptionOptions.modelSize}
+                      onChange={(value) => setTranscriptionOptions((prev) => ({ ...prev, modelSize: value }))}
+                    />
+                  </div>
                 </>
               )}
             </TabsContent>
@@ -653,17 +656,7 @@ export function EnhancedTranscriptionPanel({ onAddToTimeline }: EnhancedTranscri
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-[300px] w-full">
-              <TranscriptionEditor
-                result={currentResult}
-                onUpdate={(_updatedResult) => {
-                  // Обновление результата после редактирования
-                  if (mode === "basic") {
-                    // Обновить базовый результат
-                  } else {
-                    // Обновить enhanced результат
-                  }
-                }}
-              />
+              <TranscriptionEditor result={currentResult} onAddToTimeline={onAddToTimeline} />
             </ScrollArea>
           </CardContent>
         </Card>

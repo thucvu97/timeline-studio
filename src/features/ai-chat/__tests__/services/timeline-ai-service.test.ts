@@ -450,8 +450,8 @@ describe("TimelineAIService", () => {
         CLAUDE_MODELS.CLAUDE_4_SONNET,
         [{ role: "user", content: "Analyze my media and suggest improvements" }],
         expect.arrayContaining([
-          expect.objectContaining({ name: "resource_tool" }),
-          expect.objectContaining({ name: "browser_tool" }),
+          expect.objectContaining({ name: "analyze_available_resources" }),
+          expect.objectContaining({ name: "analyze_media_browser" }),
         ]),
         expect.objectContaining({
           system: expect.stringContaining("анализа медиа ресурсов в Timeline Studio"),

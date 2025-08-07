@@ -20,15 +20,25 @@ vi.mock("../../services/resource-manager", () => ({
   createTimelineTransition: vi.fn((project: TimelineProject, resource: Transition, config: any) => {
     const timelineTransition: TimelineTransition = {
       id: `transition-${Date.now()}`,
-      resourceId: resource.id,
-      name: resource.name,
+      transitionId: resource.id,
       type: config.type,
       position: config.position,
       duration: config.duration,
-      parameters: config.parameters || {},
-      startClipId: undefined,
-      endClipId: undefined,
-      trackId: undefined,
+      startClipId: config.startClipId,
+      endClipId: config.endClipId,
+      trackId: config.trackId,
+      parameters: config.parameters || {
+        intensity: 1,
+        easing: "easeInOut"
+      },
+      keyframes: [],
+      curve: {
+        type: "ease-in-out",
+        points: []
+      },
+      isEnabled: true,
+      isLocked: false,
+      renderCache: undefined,
     }
     return { project: { ...project }, timelineTransition }
   }),
@@ -41,7 +51,17 @@ vi.mock("../../services/resource-manager", () => ({
     return updatedProject
   }),
   updateTimelineTransitionParameters: vi.fn(
-    (project: TimelineProject, transitionId: string, updates: Partial<TimelineTransition>) => {
+    (project: TimelineProject, transitionId: string, updates: any) => {
+      const updatedProject = { ...project }
+      const transition = updatedProject.resources.timelineTransitions.find((t) => t.id === transitionId)
+      if (transition) {
+        Object.assign(transition.parameters, updates)
+      }
+      return updatedProject
+    },
+  ),
+  updateTimelineTransitionProperties: vi.fn(
+    (project: TimelineProject, transitionId: string, updates: any) => {
       const updatedProject = { ...project }
       const transition = updatedProject.resources.timelineTransitions.find((t) => t.id === transitionId)
       if (transition) {
@@ -55,29 +75,32 @@ vi.mock("../../services/resource-manager", () => ({
 // Тестовые данные
 const createMockTransitionResource = (): Transition => ({
   id: "fade-transition",
-  name: "Fade",
-  category: "transition",
-  description: "Crossfade transition",
-  author: "Test",
-  version: "1.0.0",
-  type: "transition",
+  type: "fade",
+  labels: {
+    ru: "Затухание",
+    en: "Fade"
+  },
+  description: {
+    ru: "Переход с затуханием",
+    en: "Crossfade transition"
+  },
+  category: "basic",
+  complexity: "basic",
+  tags: ["fade"],
   duration: { min: 0.1, max: 10, default: 1 },
   parameters: {
-    direction: "in",
+    direction: "center",
     intensity: 0.5,
-    blur: 0,
-    color: "#000000",
+    easing: "ease-in-out",
   },
-  previewUrl: "/preview.mp4",
-  thumbnailUrl: "/thumb.jpg",
-  tags: ["fade", "basic"],
-  effects: [],
-  shaderCode: "",
+  ffmpegCommand: () => "fade",
+  gpuAccelerated: false,
 })
 
 const createMockClip = (id: string, startTime: number, duration: number): TimelineClip => ({
   id,
   name: `Clip ${id}`,
+  type: "video",
   mediaId: `media-${id}`,
   trackId: "track-1",
   startTime,

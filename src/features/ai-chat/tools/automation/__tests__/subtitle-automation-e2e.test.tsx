@@ -41,42 +41,39 @@ vi.mock("@/features/timeline/hooks/use-timeline", () => ({
   }),
 }))
 
-// Мокаем компонент EnhancedTranscriptionPanel
-const MockEnhancedTranscriptionPanel = ({ onAddToTimeline }: { onAddToTimeline: (segments: any[]) => void }) => {
-  const handleAddMockSubtitles = () => {
-    const mockSegments = [
-      {
-        id: "1",
-        start: 1,
-        end: 4,
-        text: "Первый тестовый субтитр",
-        confidence: 0.9,
-      },
-      {
-        id: "2",
-        start: 5,
-        end: 8,
-        text: "Второй тестовый субтитр",
-        confidence: 0.85,
-      },
-    ]
-    onAddToTimeline(mockSegments)
-  }
-
-  return (
-    <div data-testid="enhanced-transcription-panel">
-      <button onClick={handleAddMockSubtitles} data-testid="generate-subtitles-btn">
-        Сгенерировать субтитры
-      </button>
-      <button onClick={handleAddMockSubtitles} data-testid="add-to-timeline-btn">
-        Добавить в таймлайн
-      </button>
-    </div>
-  )
-}
-
 vi.mock("@/features/transcription/components/enhanced-transcription-panel", () => ({
-  EnhancedTranscriptionPanel: MockEnhancedTranscriptionPanel,
+  EnhancedTranscriptionPanel: ({ onAddToTimeline }: { onAddToTimeline: (segments: any[]) => void }) => {
+    const handleAddMockSubtitles = () => {
+      const mockSegments = [
+        {
+          id: "1",
+          start: 1,
+          end: 4,
+          text: "Первый тестовый субтитр",
+          confidence: 0.9,
+        },
+        {
+          id: "2",
+          start: 5,
+          end: 8,
+          text: "Второй тестовый субтитр",
+          confidence: 0.85,
+        },
+      ]
+      onAddToTimeline(mockSegments)
+    }
+
+    return (
+      <div data-testid="enhanced-transcription-panel">
+        <button onClick={handleAddMockSubtitles} data-testid="generate-subtitles-btn">
+          Сгенерировать субтитры
+        </button>
+        <button onClick={handleAddMockSubtitles} data-testid="add-to-timeline-btn">
+          Добавить в таймлайн
+        </button>
+      </div>
+    )
+  },
 }))
 
 // Импортируем тестируемый компонент
@@ -89,7 +86,8 @@ describe("Subtitle Automation E2E Workflow", () => {
     mockSend = vi.fn()
 
     // Мокаем useTimeline с функцией send
-    vi.mocked(require("@/features/timeline/hooks/use-timeline").useTimeline).mockReturnValue({
+    const { useTimeline } = require("@/features/timeline/hooks/use-timeline")
+    vi.mocked(useTimeline).mockReturnValue({
       project: {
         sections: [
           {
@@ -204,7 +202,8 @@ describe("Subtitle Automation E2E Workflow", () => {
 
     it("должен использовать существующий трек субтитров если он есть", async () => {
       // Мокаем проект с существующим треком субтитров
-      vi.mocked(require("@/features/timeline/hooks/use-timeline").useTimeline).mockReturnValue({
+      const { useTimeline } = require("@/features/timeline/hooks/use-timeline")
+      vi.mocked(useTimeline).mockReturnValue({
         project: {
           sections: [
             {
@@ -291,7 +290,8 @@ describe("Subtitle Automation E2E Workflow", () => {
       rerender(<SubtitleAIToolsModal />)
 
       // Мокаем расширенную панель
-      vi.mocked(MockEnhancedTranscriptionPanel).mockImplementation(MockEnhancedPanelWithMetadata as any)
+      const { EnhancedTranscriptionPanel } = require("@/features/transcription/components/enhanced-transcription-panel")
+      vi.mocked(EnhancedTranscriptionPanel).mockImplementation(MockEnhancedPanelWithMetadata as any)
 
       rerender(<SubtitleAIToolsModal />)
 
@@ -356,7 +356,8 @@ describe("Subtitle Automation E2E Workflow", () => {
         )
       }
 
-      vi.mocked(MockEnhancedTranscriptionPanel).mockImplementation(MockManySubtitlesPanel as any)
+      const { EnhancedTranscriptionPanel } = require("@/features/transcription/components/enhanced-transcription-panel")
+      vi.mocked(EnhancedTranscriptionPanel).mockImplementation(MockManySubtitlesPanel as any)
 
       render(<SubtitleAIToolsModal />)
 
@@ -382,7 +383,8 @@ describe("Subtitle Automation E2E Workflow", () => {
         )
       }
 
-      vi.mocked(MockEnhancedTranscriptionPanel).mockImplementation(MockEmptyPanel as any)
+      const { EnhancedTranscriptionPanel } = require("@/features/transcription/components/enhanced-transcription-panel")
+      vi.mocked(EnhancedTranscriptionPanel).mockImplementation(MockEmptyPanel as any)
 
       render(<SubtitleAIToolsModal />)
 

@@ -5,7 +5,7 @@
 
 import type { TimelineProject } from "../types/timeline"
 import type { TimelineTransition } from "../types/timeline-transition"
-import { updateTimelineTransitionParameters } from "./resource-manager"
+import { updateTimelineTransitionProperties } from "./resource-manager"
 import {
   adjustTransitionsForClipChange,
   checkTransitionCollisions,
@@ -114,7 +114,7 @@ export function syncTransitionsOnClipSplit(
 
   // Переход на вход остаётся с левым клипом
   if (transitions.in) {
-    updatedProject = updateTimelineTransitionParameters(updatedProject, transitions.in.id, {
+    updatedProject = updateTimelineTransitionProperties(updatedProject, transitions.in.id, {
       endClipId: leftClipId,
     })
   }
@@ -122,7 +122,7 @@ export function syncTransitionsOnClipSplit(
   // Переход на выход переходит к правому клипу
   if (transitions.out) {
     const newPosition = splitTime + (transitions.out.position - splitTime)
-    updatedProject = updateTimelineTransitionParameters(updatedProject, transitions.out.id, {
+    updatedProject = updateTimelineTransitionProperties(updatedProject, transitions.out.id, {
       startClipId: rightClipId,
       position: newPosition,
     })
@@ -130,14 +130,14 @@ export function syncTransitionsOnClipSplit(
 
   // Переход "до" остаётся с левым клипом
   if (transitions.betweenBefore) {
-    updatedProject = updateTimelineTransitionParameters(updatedProject, transitions.betweenBefore.id, {
+    updatedProject = updateTimelineTransitionProperties(updatedProject, transitions.betweenBefore.id, {
       endClipId: leftClipId,
     })
   }
 
   // Переход "после" переходит к правому клипу
   if (transitions.betweenAfter) {
-    updatedProject = updateTimelineTransitionParameters(updatedProject, transitions.betweenAfter.id, {
+    updatedProject = updateTimelineTransitionProperties(updatedProject, transitions.betweenAfter.id, {
       startClipId: rightClipId,
     })
   }
@@ -177,7 +177,7 @@ export function resolveTransitionCollisions(
       if (prevEnd > transition.position) {
         // Коллизия! Сдвигаем текущий переход
         const newPosition = prevEnd + 0.1 // Небольшой отступ
-        updatedProject = updateTimelineTransitionParameters(updatedProject, transition.id, { position: newPosition })
+        updatedProject = updateTimelineTransitionProperties(updatedProject, transition.id, { position: newPosition })
       }
     }
   }

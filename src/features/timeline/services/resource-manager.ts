@@ -268,9 +268,12 @@ export function createTimelineTransition(
   project: TimelineProject,
   transitionResource: Transition,
   options: {
+    trackId: string
     position: number
     duration: number
     type: "between" | "in" | "out" | "adjustment"
+    startClipId?: string
+    endClipId?: string
     parameters?: TimelineTransition["parameters"]
     keyframes?: TimelineTransition["keyframes"]
   },
@@ -285,18 +288,22 @@ export function createTimelineTransition(
     type: options.type,
     position: options.position,
     duration: options.duration,
-    parameters: options.parameters || {
-      intensity: transitionResource.parameters?.intensity || 1.0,
-      easing: transitionResource.parameters?.easing ?? "ease-in-out",
-      ...transitionResource.parameters,
-    },
+    startClipId: options.startClipId,
+    endClipId: options.endClipId,
+    trackId: options.trackId,
+    parameters:
+      options.parameters ||
+      ({
+        intensity: transitionResource.parameters?.intensity || 1.0,
+        easing: (transitionResource.parameters?.easing as any) ?? "easeInOut",
+        ...transitionResource.parameters,
+      } as TimelineTransition["parameters"]),
     keyframes: options.keyframes || [],
     curve: {
       type: transitionResource.parameters?.easing || "ease-in-out",
       points: [],
     },
     isEnabled: true,
-    isSelected: false,
     isLocked: false,
     renderCache: undefined,
   }
@@ -443,6 +450,38 @@ export function updateTimelineTransitionParameters(
 }
 
 /**
+ * Обновляет основные свойства TimelineTransition в ресурсах
+ */
+export function updateTimelineTransitionProperties(
+  project: TimelineProject,
+  transitionId: string,
+  properties: Partial<
+    Pick<TimelineTransition, "startClipId" | "endClipId" | "position" | "duration" | "trackId" | "type">
+  >,
+): TimelineProject {
+  if (!project.resources?.timelineTransitions) return project
+
+  const transitionIndex = project.resources.timelineTransitions.findIndex((t) => t.id === transitionId)
+  if (transitionIndex === -1) return project
+
+  const updatedTransition = {
+    ...project.resources.timelineTransitions[transitionIndex],
+    ...properties,
+  }
+
+  const updatedTransitions = [...project.resources.timelineTransitions]
+  updatedTransitions[transitionIndex] = updatedTransition
+
+  return {
+    ...project,
+    resources: {
+      ...project.resources,
+      timelineTransitions: updatedTransitions,
+    },
+  }
+}
+
+/**
  * Добавляет keyframe к TimelineTransition
  */
 export function addKeyframeToTimelineTransition(
@@ -525,8 +564,7 @@ export function cloneTimelineTransition(
   const clonedTransition: TimelineTransition = {
     ...sourceTransition,
     id: `timeline-transition-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
-    isSelected: false,
-    renderCache: null,
+    renderCache: undefined,
     ...overrides,
   }
 

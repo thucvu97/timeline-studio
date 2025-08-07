@@ -9,7 +9,7 @@ import type { TimelineTransition } from "../types/timeline-transition"
 import {
   addTimelineTransitionToResources,
   createTimelineTransition,
-  updateTimelineTransitionParameters,
+  updateTimelineTransitionProperties,
 } from "./resource-manager"
 
 /**
@@ -48,14 +48,30 @@ export function addTransitionBetweenClips(
   const position = leftEnd - transitionDuration / 2
 
   const { project: updatedProject, timelineTransition } = createTimelineTransition(project, transitionResource, {
+    trackId,
     position,
     duration: transitionDuration,
     type: "between",
     parameters: {
       direction: transitionResource.parameters?.direction,
       intensity: transitionResource.parameters?.intensity || 1,
-      blur: transitionResource.parameters?.blur,
-      color: transitionResource.parameters?.color,
+      easing: (transitionResource.parameters?.easing as any) ?? "easeInOut",
+      blur: transitionResource.parameters?.blur
+        ? {
+            amount: transitionResource.parameters.blur.amount || 10,
+            type: transitionResource.parameters.blur.type || "gaussian",
+            quality: "medium",
+          }
+        : undefined,
+      color: transitionResource.parameters?.color
+        ? {
+            tint: transitionResource.parameters.color.tint,
+            saturation: transitionResource.parameters.color.saturation,
+            brightness: transitionResource.parameters.color.brightness,
+            contrast: 0,
+            temperature: 0,
+          }
+        : undefined,
     },
   })
 
@@ -101,10 +117,16 @@ export function addTransitionIn(
   const position = clip.startTime
 
   const { project: updatedProject, timelineTransition } = createTimelineTransition(project, transitionResource, {
+    trackId,
     position,
     duration: transitionDuration,
     type: "in",
-    parameters: transitionResource.parameters || {},
+    parameters: {
+      intensity: transitionResource.parameters?.intensity || 1,
+      easing: (transitionResource.parameters?.easing as any) ?? "easeInOut",
+      direction: transitionResource.parameters?.direction,
+      ...transitionResource.parameters,
+    } as any,
   })
 
   // Обновляем связи
@@ -148,10 +170,16 @@ export function addTransitionOut(
   const position = clip.startTime + clip.duration - transitionDuration
 
   const { project: updatedProject, timelineTransition } = createTimelineTransition(project, transitionResource, {
+    trackId,
     position,
     duration: transitionDuration,
     type: "out",
-    parameters: transitionResource.parameters || {},
+    parameters: {
+      intensity: transitionResource.parameters?.intensity || 1,
+      easing: (transitionResource.parameters?.easing as any) ?? "easeInOut",
+      direction: transitionResource.parameters?.direction,
+      ...transitionResource.parameters,
+    } as any,
   })
 
   // Обновляем связи
@@ -268,7 +296,7 @@ export function adjustTransitionsForClipChange(
     }
 
     if (needsUpdate) {
-      updatedProject = updateTimelineTransitionParameters(updatedProject, transition.id, updates)
+      updatedProject = updateTimelineTransitionProperties(updatedProject, transition.id, updates)
     }
   })
 

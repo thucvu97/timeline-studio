@@ -16,6 +16,14 @@ vi.mock("../../services/resource-manager", () => ({
     const updatedProject = { ...project }
     const transition = updatedProject.resources.timelineTransitions.find((t) => t.id === transitionId)
     if (transition) {
+      Object.assign(transition.parameters, updates)
+    }
+    return updatedProject
+  }),
+  updateTimelineTransitionProperties: vi.fn((project: TimelineProject, transitionId: string, updates: any) => {
+    const updatedProject = { ...project }
+    const transition = updatedProject.resources.timelineTransitions.find((t) => t.id === transitionId)
+    if (transition) {
       Object.assign(transition, updates)
     }
     return updatedProject
@@ -26,7 +34,7 @@ vi.mock("../timeline-transition-manager", () => ({
   adjustTransitionsForClipChange: vi.fn((project, _trackId, clipId, oldPos, newPos, _oldDur, _newDur) => {
     // Простая имитация - возвращаем проект с измененными переходами
     const updatedProject = { ...project }
-    updatedProject.resources.timelineTransitions.forEach((t) => {
+    updatedProject.resources.timelineTransitions.forEach((t: any) => {
       if (t.startClipId === clipId || t.endClipId === clipId) {
         t.position = newPos + (t.position - oldPos) // Сдвигаем пропорционально
       }
@@ -41,7 +49,7 @@ vi.mock("../timeline-transition-manager", () => ({
       .map((id) => project.resources.timelineTransitions.find((t) => t.id === id))
       .filter((t) => t && t.id !== excludeId)
 
-    return transitions.some((t) => {
+    return transitions.some((t: any) => {
       const tEnd = t.position + t.duration
       const posEnd = position + duration
       return (
@@ -95,6 +103,7 @@ function findTrackInProject(project: TimelineProject, trackId: string) {
 const createMockClip = (id: string, startTime: number, duration: number): TimelineClip => ({
   id,
   name: `Clip ${id}`,
+  type: "video",
   mediaId: `media-${id}`,
   trackId: "track-1",
   startTime,
@@ -118,7 +127,7 @@ const createMockClip = (id: string, startTime: number, duration: number): Timeli
 
 const createMockTransition = (
   id: string,
-  type: "in" | "out" | "between",
+  type: "in" | "out" | "between" | "adjustment",
   position: number,
   duration: number,
   startClipId?: string,
@@ -126,15 +135,25 @@ const createMockTransition = (
   trackId?: string,
 ): TimelineTransition => ({
   id,
-  resourceId: "fade-transition",
-  name: `Transition ${id}`,
+  transitionId: "fade-transition",
   type,
   position,
   duration,
-  parameters: {},
+  parameters: {
+    intensity: 1,
+    easing: "easeInOut"
+  },
+  keyframes: [],
+  curve: {
+    type: "ease-in-out",
+    points: []
+  },
   startClipId,
   endClipId,
-  trackId,
+  trackId: trackId || "default-track",
+  isEnabled: true,
+  isLocked: false,
+  renderCache: undefined,
 })
 
 const createMockTrack = (id: string, clips: TimelineClip[] = [], transitions: string[] = []): TimelineTrack => ({
