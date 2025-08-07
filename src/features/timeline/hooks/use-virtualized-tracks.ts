@@ -31,7 +31,7 @@ export function useVirtualizedTracks({
     horizontal,
     // Добавляем измерение для точного позиционирования
     measureElement: (element) => {
-      if (element) {
+      if (element && element instanceof HTMLElement) {
         return horizontal ? element.offsetWidth : element.offsetHeight
       }
       return estimateSize(0)
