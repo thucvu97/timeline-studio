@@ -63,6 +63,17 @@ export class ModelConfigurationManager {
       maxTokens: 200000,
       description: "Премиум модель Claude с максимальными возможностями",
     },
+    // Пример добавления новой модели Claude 4.1
+    [CLAUDE_MODELS.CLAUDE_4_1]: {
+      id: CLAUDE_MODELS.CLAUDE_4_1,
+      name: "Claude 4.1",
+      provider: "claude",
+      isLocal: false,
+      supportsStreaming: true,
+      supportsTools: true,
+      maxTokens: 500000, // Предполагаем увеличенный контекст
+      description: "Последняя модель Claude с расширенными возможностями",
+    },
 
     // OpenAI модели
     [AI_MODELS.GPT_4]: {
@@ -104,6 +115,17 @@ export class ModelConfigurationManager {
       supportsTools: false,
       maxTokens: 128000,
       description: "Новейшая модель OpenAI o3",
+    },
+    // Пример добавления новой модели GPT-5
+    [AI_MODELS.GPT_5]: {
+      id: AI_MODELS.GPT_5,
+      name: "GPT-5",
+      provider: "openai",
+      isLocal: false,
+      supportsStreaming: true,
+      supportsTools: true, // Предполагаем поддержку tools в GPT-5
+      maxTokens: 1000000, // Предполагаем значительно увеличенный контекст
+      description: "Модель следующего поколения от OpenAI с революционными возможностями",
     },
 
     // DeepSeek модели
@@ -168,7 +190,7 @@ export class ModelConfigurationManager {
 
     // Fallback определение по префиксу
     if (model.startsWith("claude")) return "claude"
-    if (model.startsWith("gpt") || model.startsWith("o3")) return "openai"
+    if (model.startsWith("gpt") || model.startsWith("o3") || model.includes("gpt-5")) return "openai"
     if (model.startsWith("deepseek")) return "deepseek"
     return "ollama" // По умолчанию считаем локальной моделью
   }

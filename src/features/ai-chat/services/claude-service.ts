@@ -10,6 +10,8 @@ import { ApiKeyLoader } from "./api-key-loader"
 export const CLAUDE_MODELS = {
   CLAUDE_4_SONNET: "claude-4-sonnet",
   CLAUDE_4_OPUS: "claude-4-opus",
+  // Пример добавления новой модели - требует только эту строку
+  CLAUDE_4_1: "claude-4.1", // ← Новая модель (когда будет выпущена)
 }
 
 // Интерфейс для инструмента Claude
