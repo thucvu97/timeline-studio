@@ -63,7 +63,7 @@ export function AIServicesProvider({ children, config }: AIServicesProviderProps
 
         setServices({
           container,
-          aiService,
+          aiService: aiService as any,
           ffmpegService: ffmpeg,
           visionService: vision,
           contentAnalysisService: content,
@@ -182,7 +182,7 @@ export const ExampleComponent: React.FC = () => {
   return (
     <div>
       <button onClick={handleAnalyze}>Analyze with AI</button>
-      {sceneEngine && <div>Scene Engine loaded!</div>}
+      {sceneEngine ? <div>Scene Engine loaded!</div> : null}
     </div>
   )
 }

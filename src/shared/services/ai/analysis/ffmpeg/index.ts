@@ -64,38 +64,32 @@ export class FFmpegAdapter implements IFFmpegAnalysisService {
   }
 
   async detectScenes(
-    path: string,
-    options: {
-      sensitivity?: number
-      minSceneDuration?: number
-      method?: "threshold" | "histogram"
-    } = {},
-  ): Promise<SceneDetectionResult> {
+    pathOrFile: string | any,
+    optionsOrThreshold?:
+      | { sensitivity?: number; minSceneDuration?: number; method?: "threshold" | "histogram" }
+      | number,
+  ): Promise<SceneDetectionResult[]> {
     if (!this.ffmpegService) {
       throw new Error("FFmpeg service not available")
     }
 
     try {
+      const path = typeof pathOrFile === "string" ? pathOrFile : pathOrFile.path
+      const options =
+        typeof optionsOrThreshold === "number" ? { sensitivity: optionsOrThreshold } : optionsOrThreshold || {}
+
       const result = await this.ffmpegService.detectScenes(path, {
         sensitivity: options.sensitivity || 0.3,
         minSceneDuration: options.minSceneDuration || 2.0,
       })
 
-      return {
-        scenes:
-          result.scenes?.map((scene: any, index: number) => ({
-            id: scene.id || `scene_${index}`,
-            startTime: scene.startTime || scene.start || 0,
-            endTime: scene.endTime || scene.end || 0,
-            duration: (scene.endTime || scene.end || 0) - (scene.startTime || scene.start || 0),
-            confidence: scene.confidence || 0.8,
-            keyFrames: scene.keyFrames || [],
-            description: scene.description,
-          })) || [],
-        totalDuration: result.totalDuration || 0,
-        confidence: result.confidence || 0.8,
-        method: options.method || "threshold",
-      }
+      return (
+        result.scenes?.map((scene: any) => ({
+          start: scene.startTime || scene.start || 0,
+          end: scene.endTime || scene.end || 0,
+          confidence: scene.confidence || 0.8,
+        })) || []
+      )
     } catch (error) {
       throw new Error(`FFmpeg scene detection error: ${error instanceof Error ? error.message : "Unknown error"}`)
     }
@@ -240,6 +234,87 @@ export class FFmpegAdapter implements IFFmpegAnalysisService {
       return false
     } catch (error) {
       throw new Error(`FFmpeg conversion error: ${error instanceof Error ? error.message : "Unknown error"}`)
+    }
+  }
+
+  // Недостающие методы из интерфейса IFFmpegAnalysisService
+
+  async analyzeVideo(file: any): Promise<any> {
+    const metadata = await this.getVideoMetadata(file.path)
+    const scenes = await this.detectScenes(file.path)
+    const quality = await this.analyzeQuality(file.path, { checkVideo: true })
+    const motion = await this.analyzeMotion(file.path)
+
+    return {
+      duration: metadata.duration,
+      fps: metadata.fps,
+      resolution: { width: metadata.width, height: metadata.height },
+      codec: metadata.codec || "unknown",
+      bitrate: metadata.bitrate,
+      scenes: scenes,
+      quality: {
+        overall: quality.overall,
+        sharpness: quality.video?.sharpness || 0,
+        noise: quality.video?.noise || 0,
+        compression: 0, // Not available from current service
+        motionIntensity: motion.motionIntensity,
+      },
+    }
+  }
+
+  async analyzeAudio(file: any): Promise<any> {
+    const metadata = await this.getVideoMetadata(file.path)
+    const silence = await this.detectSilence(file.path)
+    const quality = await this.analyzeQuality(file.path, { checkAudio: true })
+
+    return {
+      duration: metadata.duration,
+      channels: metadata.audioChannels || 2,
+      sampleRate: metadata.audioSampleRate || 48000,
+      bitrate: metadata.bitrate,
+      codec: "unknown", // Not available from metadata
+      volume: {
+        average: quality.audio?.volume || 0,
+        peak: quality.audio?.volume || 0,
+        min: 0,
+      },
+      silentSegments: silence.silentSegments.map((segment) => ({
+        start: segment.startTime,
+        end: segment.endTime,
+      })),
+    }
+  }
+
+  async extractFrames(file: any, timestamps: number[]): Promise<string[]> {
+    if (!this.ffmpegService) {
+      throw new Error("FFmpeg service not available")
+    }
+
+    try {
+      // Используем существующий метод extractKeyframes с адаптацией
+      const keyframes = await this.extractKeyframes(file.path, {
+        count: timestamps.length,
+        outputDir: "/tmp/frames",
+      })
+
+      return keyframes
+    } catch (error) {
+      throw new Error(`Frame extraction error: ${error instanceof Error ? error.message : "Unknown error"}`)
+    }
+  }
+
+  async extractAudioSegment(file: any, start: number, end: number): Promise<string> {
+    if (!this.ffmpegService) {
+      throw new Error("FFmpeg service not available")
+    }
+
+    try {
+      // TODO: Implement audio segment extraction
+      const outputPath = `/tmp/audio_segment_${start}_${end}.wav`
+      console.warn(`Audio segment extraction not implemented: ${file.path} ${start}-${end}`)
+      return outputPath
+    } catch (error) {
+      throw new Error(`Audio segment extraction error: ${error instanceof Error ? error.message : "Unknown error"}`)
     }
   }
 }

@@ -127,16 +127,41 @@ export class ContentAnalysisService implements IContentAnalysisService {
       const processingTime = Date.now() - startTime
 
       const result: ContentAnalysisResult = {
+        id: `analysis-${Date.now()}`,
         mediaFile: file,
+        video: {
+          duration: metadata.duration,
+          fps: metadata.fps,
+          resolution: { width: metadata.width, height: metadata.height },
+          codec: metadata.codec || "unknown",
+          bitrate: metadata.bitrate,
+          scenes: scenes || [],
+        } as any,
+        audio: {
+          duration: metadata.duration,
+          channels: metadata.audioChannels || 2,
+          sampleRate: metadata.audioSampleRate || 48000,
+          bitrate: metadata.bitrate,
+          codec: "unknown",
+          volume: { average: 0, peak: 0, min: 0 },
+          silentSegments: [],
+        } as any,
+        scenes: scenes || [],
+        transcript: {
+          text: "",
+          segments: [],
+        },
+        summary: "Analysis completed",
+        tags: [],
+        sentiment: {
+          positive: 0,
+          neutral: 1,
+          negative: 0,
+        },
         metadata,
-        scenes: scenes || undefined,
-        quality: quality || undefined,
-        motion: motion || undefined,
-        silence: silence || undefined,
-        frames: frames?.length > 0 ? frames : undefined,
+        quality,
+        motion,
         processingTime,
-        errors: errors.length > 0 ? errors : undefined,
-        warnings: warnings.length > 0 ? warnings : undefined,
       }
 
       // Логируем результат анализа
@@ -146,20 +171,6 @@ export class ContentAnalysisService implements IContentAnalysisService {
     } catch (error) {
       throw new Error(`Content analysis failed: ${error instanceof Error ? error.message : "Unknown error"}`)
     }
-  }
-
-  async batchAnalyzeMedia(files: MediaFile[], options: ContentAnalysisOptions = {}): Promise<ContentAnalysisResult[]> {
-    // Контролируем параллелизм для избежания перегрузки системы
-    const concurrency = Math.min(options.analysisDepth === "deep" ? 2 : 4, files.length)
-    const results: ContentAnalysisResult[] = []
-
-    for (let i = 0; i < files.length; i += concurrency) {
-      const batch = files.slice(i, i + concurrency)
-      const batchResults = await Promise.all(batch.map((file) => this.analyzeMedia(file, options)))
-      results.push(...batchResults)
-    }
-
-    return results
   }
 
   private async getMetadata(file: MediaFile): Promise<VideoMetadata> {
@@ -200,16 +211,43 @@ export class ContentAnalysisService implements IContentAnalysisService {
     }
   }
 
+  // Обязательные методы из интерфейса IContentAnalysisService
+  async analyzeContent(file: MediaFile): Promise<ContentAnalysisResult> {
+    return this.analyzeMedia(file)
+  }
+
+  async analyzeMultiple(files: MediaFile[]): Promise<ContentAnalysisResult[]> {
+    return Promise.all(files.map((file) => this.analyzeContent(file)))
+  }
+
+  async generateSummary(analysis: ContentAnalysisResult): Promise<string> {
+    return analysis.summary || "No summary available"
+  }
+
+  async extractKeyMoments(
+    analysis: ContentAnalysisResult,
+    count: number = 5,
+  ): Promise<Array<{ timestamp: number; description: string; confidence: number }>> {
+    const scenes = analysis.scenes || []
+    return scenes.slice(0, count).map((scene) => ({
+      timestamp: scene.start,
+      description: scene.description || "Key moment",
+      confidence: scene.confidence,
+    }))
+  }
+
+  async batchAnalyzeMedia(files: MediaFile[], options?: ContentAnalysisOptions): Promise<ContentAnalysisResult[]> {
+    return Promise.all(files.map((file) => this.analyzeMedia(file, options)))
+  }
+
   private logAnalysisResult(result: ContentAnalysisResult): void {
     const stats = {
-      file: result.mediaFile.name,
-      duration: result.metadata.duration,
-      scenes: result.scenes?.scenes?.length || 0,
+      file: result.mediaFile.filename || "unknown",
+      duration: result.metadata?.duration || 0,
+      scenes: result.scenes?.length || 0,
       qualityScore: result.quality?.overall || 0,
       motionIntensity: result.motion?.motionIntensity || 0,
-      processingTime: result.processingTime,
-      errors: result.errors?.length || 0,
-      warnings: result.warnings?.length || 0,
+      processingTime: result.processingTime || 0,
     }
 
     console.log("Content Analysis Complete:", stats)

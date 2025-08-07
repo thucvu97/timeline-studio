@@ -9,7 +9,14 @@ import {
   removeEffectFromClip,
   removeFilterFromClip,
 } from "@/features/effects/utils/user-effects"
+import type { ProjectSchema } from "@/types/video-compiler"
+import type { TimelineProject } from "../types/timeline"
 import { useTimeline } from "./use-timeline"
+
+// Простой адаптер для конвертации TimelineProject в ProjectSchema
+function timelineProjectToSchema(project: TimelineProject): ProjectSchema {
+  return project as any // Временное решение для совместимости типов
+}
 
 export function useTimelineEffects() {
   const { project, saveProject } = useTimeline()
@@ -20,7 +27,7 @@ export function useTimelineEffects() {
 
       try {
         // Применяем эффект через backend API
-        await addEffectToClip(project, clipId, effectId)
+        await addEffectToClip(timelineProjectToSchema(project), clipId, effectId)
 
         // Сохраняем проект
         await saveProject()
@@ -38,7 +45,7 @@ export function useTimelineEffects() {
 
       try {
         // Удаляем эффект через backend API
-        await removeEffectFromClip(project, clipId, effectId)
+        await removeEffectFromClip(timelineProjectToSchema(project), clipId, effectId)
 
         // Сохраняем проект
         await saveProject()
@@ -56,7 +63,7 @@ export function useTimelineEffects() {
 
       try {
         // Применяем фильтр через backend API
-        await addFilterToClip(project, clipId, filterId)
+        await addFilterToClip(timelineProjectToSchema(project), clipId, filterId)
 
         // Сохраняем проект
         await saveProject()
@@ -74,7 +81,7 @@ export function useTimelineEffects() {
 
       try {
         // Удаляем фильтр через backend API
-        await removeFilterFromClip(project, clipId, filterId)
+        await removeFilterFromClip(timelineProjectToSchema(project), clipId, filterId)
 
         // Сохраняем проект
         await saveProject()

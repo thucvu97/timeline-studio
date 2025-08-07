@@ -212,7 +212,7 @@ export function useDragDropTimeline(): UseDragDropTimelineReturn {
             addSingleMediaToTimeline,
             addMediaToTimeline,
           },
-          dragState,
+          { dropPosition: dragState.dropPosition ? { startTime: dragState.dropPosition.startTime } : undefined },
         )
         if (bridgeHandled) {
           console.log("[DragDrop] Inter-module drag handled by bridge")

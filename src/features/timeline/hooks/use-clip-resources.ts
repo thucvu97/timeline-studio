@@ -104,6 +104,8 @@ export function useClipResources(): UseClipResourcesReturn {
 
   const getClipEffects = useCallback(
     (clipId: string) => {
+      if (!project) return []
+
       // Найти клип в проекте и вернуть его эффекты
       const allClips = project.sections
         .flatMap((section) => section.tracks.flatMap((track) => track.clips))
@@ -117,6 +119,8 @@ export function useClipResources(): UseClipResourcesReturn {
 
   const getClipFilters = useCallback(
     (clipId: string) => {
+      if (!project) return []
+
       const allClips = project.sections
         .flatMap((section) => section.tracks.flatMap((track) => track.clips))
         .concat(project.globalTracks.flatMap((track) => track.clips))
@@ -129,6 +133,8 @@ export function useClipResources(): UseClipResourcesReturn {
 
   const getClipTransitions = useCallback(
     (clipId: string) => {
+      if (!project) return []
+
       const allClips = project.sections
         .flatMap((section) => section.tracks.flatMap((track) => track.clips))
         .concat(project.globalTracks.flatMap((track) => track.clips))
@@ -141,6 +147,8 @@ export function useClipResources(): UseClipResourcesReturn {
 
   const canApplyEffectToClip = useCallback(
     (clipId: string, effect: VideoEffect) => {
+      if (!project) return false
+
       const allClips = project.sections
         .flatMap((section) => section.tracks.flatMap((track) => track.clips))
         .concat(project.globalTracks.flatMap((track) => track.clips))
@@ -161,6 +169,8 @@ export function useClipResources(): UseClipResourcesReturn {
 
   const canApplyFilterToClip = useCallback(
     (clipId: string, _filter: VideoFilter) => {
+      if (!project) return false
+
       const allClips = project.sections
         .flatMap((section) => section.tracks.flatMap((track) => track.clips))
         .concat(project.globalTracks.flatMap((track) => track.clips))
@@ -176,6 +186,8 @@ export function useClipResources(): UseClipResourcesReturn {
 
   const canApplyTransitionToClip = useCallback(
     (clipId: string, _transition: Transition) => {
+      if (!project) return false
+
       const allClips = project.sections
         .flatMap((section) => section.tracks.flatMap((track) => track.clips))
         .concat(project.globalTracks.flatMap((track) => track.clips))

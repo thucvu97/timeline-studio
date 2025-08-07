@@ -24,12 +24,14 @@ export * from "./providers/factory"
 export * from "./providers/interfaces"
 export { OLLAMA_MODELS, OllamaProvider } from "./providers/ollama"
 export { OPENAI_MODELS, OpenAIProvider } from "./providers/openai"
+export type {
+  UnifiedRequestOptions,
+  UnifiedResponse,
+} from "./unified-ai-service"
 // Экспорт для обратной совместимости
 export {
   EnhancedUnifiedAIService,
   EnhancedUnifiedAIService as UnifiedAIService,
-  UnifiedRequestOptions,
-  UnifiedResponse,
 } from "./unified-ai-service"
 
 // Типы конфигурации

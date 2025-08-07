@@ -13,6 +13,7 @@ import type {
   DetectedObject,
   ExtractedText,
   FrameAnalysis,
+  FrameAnalysisResult,
   IVisionService,
 } from "../interfaces"
 
@@ -260,6 +261,125 @@ export class VisionAdapter implements IVisionService {
       saturation: "medium",
       brightness: "medium",
     }
+  }
+
+  // Недостающие методы из интерфейса IVisionService
+
+  async analyzeVideo(videoPath: string, sampleRate: number = 1): Promise<FrameAnalysisResult[]> {
+    if (!this.visionService) {
+      throw new Error("Vision service not available")
+    }
+
+    try {
+      // Извлекаем ключевые кадры из видео с заданной частотой
+      const keyframes = await this.extractVideoFrames(videoPath, sampleRate)
+
+      // Анализируем каждый кадр
+      const results: FrameAnalysisResult[] = []
+
+      for (let i = 0; i < keyframes.length; i++) {
+        const frame = keyframes[i]
+        const timestamp = i / sampleRate
+
+        const [objects, faces, text] = await Promise.all([
+          this.detectObjects(frame),
+          this.detectFaces(frame),
+          this.extractText(frame),
+        ])
+
+        // Преобразуем к формату FrameAnalysisResult
+        results.push({
+          objects: objects.map((obj) => ({
+            label: obj.class,
+            confidence: obj.confidence,
+            bbox: {
+              x: obj.boundingBox.x,
+              y: obj.boundingBox.y,
+              width: obj.boundingBox.width,
+              height: obj.boundingBox.height,
+            },
+          })),
+          faces: await this.detectFaces(frame),
+          text: text.map((t) => ({
+            text: t.text,
+            confidence: t.confidence,
+            bbox: {
+              x: t.boundingBox.x,
+              y: t.boundingBox.y,
+              width: t.boundingBox.width,
+              height: t.boundingBox.height,
+            },
+          })),
+          scene: {
+            type: "unknown",
+            confidence: 0.5,
+            attributes: [],
+          },
+          nsfw: {
+            safe: 0.9,
+            suggestive: 0.08,
+            explicit: 0.02,
+          },
+        })
+      }
+
+      return results
+    } catch (error) {
+      throw new Error(`Video analysis error: ${error instanceof Error ? error.message : "Unknown error"}`)
+    }
+  }
+
+  async detectFaces(imagePath: string): Promise<any[]> {
+    if (!this.visionService) {
+      return []
+    }
+
+    try {
+      const faceDetections = await this.visionService.detectFaces?.(imagePath)
+
+      return (
+        faceDetections?.map((face: any) => ({
+          confidence: face.confidence || 0.8,
+          bbox: {
+            x: face.bbox?.x || face.x || 0,
+            y: face.bbox?.y || face.y || 0,
+            width: face.bbox?.width || face.width || 0,
+            height: face.bbox?.height || face.height || 0,
+          },
+          emotions: face.emotions || {
+            neutral: 0.7,
+            happy: 0.1,
+            sad: 0.1,
+            angry: 0.05,
+            surprised: 0.05,
+          },
+        })) || []
+      )
+    } catch (error) {
+      console.warn(`Face detection failed for ${imagePath}:`, error)
+      return []
+    }
+  }
+
+  async recognizeText(imagePath: string): Promise<string> {
+    if (!this.visionService) {
+      return ""
+    }
+
+    try {
+      const textResults = await this.extractText(imagePath)
+      return textResults.map((result) => result.text).join(" ")
+    } catch (error) {
+      console.warn(`Text recognition failed for ${imagePath}:`, error)
+      return ""
+    }
+  }
+
+  private async extractVideoFrames(videoPath: string, sampleRate: number): Promise<string[]> {
+    // Placeholder для извлечения кадров из видео
+    // В реальной реализации здесь должно быть взаимодействие с FFmpeg
+    console.warn(`Video frame extraction not implemented: ${videoPath} at ${sampleRate} fps`)
+    return []
   }
 }
 

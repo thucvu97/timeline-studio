@@ -171,7 +171,7 @@ export function useTimelineSelection(): UseTimelineSelectionReturn {
 
   const selectSection = (sectionId: string, addToSelection = false) => {
     if (addToSelection) {
-      const currentIds = [] // Sections are deprecated
+      const currentIds: string[] = [] // Sections are deprecated
       const newIds = currentIds.includes(sectionId)
         ? currentIds.filter((id) => id !== sectionId)
         : [...currentIds, sectionId]
@@ -308,7 +308,7 @@ export function useTimelineSelection(): UseTimelineSelectionReturn {
   }
 
   const pasteAtTime = (time: number, trackId?: string) => {
-    void paste(trackId, time)
+    void paste(trackId || "", time)
   }
 
   // ============================================================================

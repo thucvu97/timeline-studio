@@ -17,6 +17,9 @@ export interface DragData {
 export interface DropPosition {
   trackId: string
   startTime: number
+  type?: "transition" | "clip" | "track"
+  leftClipId?: string
+  rightClipId?: string
 }
 
 export interface DragState {
