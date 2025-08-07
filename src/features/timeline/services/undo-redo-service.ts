@@ -3,8 +3,6 @@
  * Provides comprehensive undo/redo functionality with action grouping, selective undo, and more
  */
 
-import type { TimelineClip, TimelineProject, TimelineTrack } from "../types"
-
 export type ActionType =
   | "CREATE_PROJECT"
   | "ADD_CLIP"

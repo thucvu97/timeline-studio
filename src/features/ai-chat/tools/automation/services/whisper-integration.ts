@@ -181,7 +181,7 @@ export class WhisperIntegrationService {
     result: TranscriptionResult,
     options: WhisperIntegrationOptions,
   ): SpeechDetection[] {
-    return result.segments.map((segment, index) => ({
+    return result.segments.map((segment, _index) => ({
       startTime: segment.start,
       endTime: segment.end,
       transcript: segment.text.trim(),
@@ -238,7 +238,7 @@ export class WhisperIntegrationService {
       else if (duration < options.minSegmentDuration && optimized.length > 0) {
         const last = optimized[optimized.length - 1]
         last.endTime = detection.endTime
-        last.transcript += " " + detection.transcript
+        last.transcript += ` ${detection.transcript}`
         // Обновляем уверенность как среднее
         last.confidence = (last.confidence + detection.confidence) / 2
       } else {
@@ -316,7 +316,7 @@ export class WhisperIntegrationService {
   /**
    * Получение информации о прогрессе
    */
-  public onProgress(callback: (progress: { progress: number; status: string; message?: string }) => void) {
+  public onProgress(_callback: (progress: { progress: number; status: string; message?: string }) => void) {
     // Здесь можно подписаться на события прогресса от TranscriptionService
     // Пока заглушка для интерфейса
     return () => {} // unsubscribe function

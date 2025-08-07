@@ -23,7 +23,7 @@ export class SlipSlideService {
    * Выполняет SLIP редактирование клипа
    * SLIP изменяет только offset медиа внутри клипа, не изменяя его позицию на таймлайне
    */
-  static performSlipEdit(clip: TimelineClip, deltaOffset: number, track: TimelineTrack): SlipEditResult {
+  static performSlipEdit(clip: TimelineClip, deltaOffset: number, _track: TimelineTrack): SlipEditResult {
     // Получаем границы для slip
     const bounds = getSlipBounds(clip)
 

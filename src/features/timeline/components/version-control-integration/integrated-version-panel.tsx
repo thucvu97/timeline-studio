@@ -3,20 +3,7 @@
  * Объединяет Undo/Redo и Project Version Control
  */
 
-import {
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  GitBranch,
-  GitCommit,
-  History,
-  Layers,
-  Lightbulb,
-  Redo,
-  Settings,
-  Undo,
-  Zap,
-} from "lucide-react"
+import { AlertTriangle, CheckCircle, GitBranch, GitCommit, History, Redo, Settings, Undo } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"

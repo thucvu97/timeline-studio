@@ -339,7 +339,7 @@ export function UndoRedoPanel({ compact = false, showDropdowns = true, showStats
                   </div>
 
                   <div className="max-h-96 overflow-y-auto space-y-2">
-                    {undoableActions.map((action, index) => {
+                    {undoableActions.map((action, _index) => {
                       const Icon = ACTION_ICONS[action.type]
                       return (
                         <Card key={action.id} className="p-3">

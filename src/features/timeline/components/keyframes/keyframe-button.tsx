@@ -7,7 +7,6 @@ import { useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
-import { useKeyframeAnimation } from "../../hooks/use-keyframe-animation"
 import type { TimelineClip } from "../../types"
 import { KeyframeEditor } from "./keyframe-editor"
 

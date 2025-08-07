@@ -3,7 +3,6 @@ import { toast } from "sonner"
 
 import { useModal } from "@/features/modals/services"
 import { useTimeline } from "@/features/timeline/hooks/use-timeline"
-import { TranscriptionPanel } from "@/features/transcription"
 import { EnhancedTranscriptionPanel } from "@/features/transcription/components/enhanced-transcription-panel"
 
 // Функция генерации уникального ID для субтитров

@@ -162,28 +162,28 @@ export class ProviderManager {
         case "claude":
           content = await aiProvider.sendRequest(model, messages, {
             temperature: options.temperature,
-            max_tokens: options.maxTokens,
+            maxTokens: options.maxTokens,
           })
           break
 
         case "openai":
           content = await aiProvider.sendRequest(model, messages, {
             temperature: options.temperature,
-            max_tokens: options.maxTokens,
+            maxTokens: options.maxTokens,
           })
           break
 
         case "deepseek":
           content = await aiProvider.sendRequest(model, messages, {
             temperature: options.temperature,
-            max_tokens: options.maxTokens,
+            maxTokens: options.maxTokens,
           })
           break
 
         case "ollama":
           content = await aiProvider.sendRequest(model, messages, {
             temperature: options.temperature,
-            num_ctx: options.maxTokens,
+            maxTokens: options.maxTokens,
           })
           break
 

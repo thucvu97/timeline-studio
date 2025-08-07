@@ -81,3 +81,44 @@ export const timelineTools = [
   timelineAnalyticsTool,
   smartTemplatesTools,
 ]
+
+/**
+ * Универсальная функция для выполнения любого timeline инструмента
+ */
+export async function executeTimelineTool(
+  operation: string,
+  params: any,
+  options?: any,
+): Promise<any> {
+  // Находим соответствующий инструмент по операции
+  const toolMap: Record<string, any> = {
+    analyze_structure: structureAnalysisTool,
+    create_project: projectCreationTool,
+    create_sections: sectionCreationTool,
+    create_tracks: trackCreationTool,
+    place_clips: clipPlacementTool,
+    apply_enhancements: enhancementApplicationTool,
+    analyze_story: storyAnalysisTool,
+    detect_scenes: sceneDetectionTool,
+    sync_music: musicSyncTool,
+    suggest_improvements: improvementsSuggestionTool,
+    export_data: timelineExportTool,
+    optimize_timeline: timelineOptimizationTool,
+    manage_clips: clipManagementTool,
+    analytics: timelineAnalyticsTool,
+    smart_templates: smartTemplatesTools,
+  }
+
+  const tool = toolMap[operation]
+  if (!tool) {
+    throw new Error(`Unknown timeline operation: ${operation}`)
+  }
+
+  // Выполняем инструмент с соответствующим методом
+  if (typeof tool.execute === 'function') {
+    return tool.execute(params, options)
+  }
+  
+  // Fallback для инструментов с другой структурой
+  return tool(params, options)
+}

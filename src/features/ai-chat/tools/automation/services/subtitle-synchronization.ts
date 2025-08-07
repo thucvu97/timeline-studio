@@ -269,8 +269,12 @@ export class SubtitleSynchronizationService {
   /**
    * AI-доработки синхронизации
    */
-  private applyAIRefinements(subtitles: SubtitleItem[], context: any, options: SynchronizationOptions): SubtitleItem[] {
-    return subtitles.map((subtitle, index) => {
+  private applyAIRefinements(
+    subtitles: SubtitleItem[],
+    _context: any,
+    options: SynchronizationOptions,
+  ): SubtitleItem[] {
+    return subtitles.map((subtitle, _index) => {
       // Анализ читабельности
       const readingTime = this.calculateReadingTime(subtitle.text, options.averageReadingSpeed!)
       const currentDuration = subtitle.endTime - subtitle.startTime
@@ -445,7 +449,7 @@ export class SubtitleSynchronizationService {
     }
   }
 
-  private generateRecommendations(subtitles: SubtitleItem[], quality: any, context: any): string[] {
+  private generateRecommendations(_subtitles: SubtitleItem[], quality: any, context: any): string[] {
     const recommendations = []
 
     if (quality.overallScore < 70) {
@@ -487,7 +491,7 @@ export class SubtitleSynchronizationService {
   }
 
   // Простые методы оценки качества
-  private assessTimingAccuracy(subtitles: SubtitleItem[], audioAnalysis: any): number {
+  private assessTimingAccuracy(_subtitles: SubtitleItem[], _audioAnalysis: any): number {
     return 85 // Базовая оценка
   }
 
@@ -506,12 +510,12 @@ export class SubtitleSynchronizationService {
     return Math.max(score, 0)
   }
 
-  private assessSpeechAlignment(subtitles: SubtitleItem[], audioAnalysis: any): number {
+  private assessSpeechAlignment(_subtitles: SubtitleItem[], audioAnalysis: any): number {
     if (!audioAnalysis?.speech?.length) return 50
     return 80 // Средняя оценка при наличии речи
   }
 
-  private assessSceneAlignment(subtitles: SubtitleItem[], scenes: any): number {
+  private assessSceneAlignment(_subtitles: SubtitleItem[], scenes: any): number {
     if (!scenes?.length) return 75
     return 85 // Хорошая оценка при наличии сцен
   }

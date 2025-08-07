@@ -182,7 +182,7 @@ export class SubtitleAIIntegrationService {
   /**
    * OCR анализ для извлечения текста с экрана
    */
-  private async performOCRAnalysis(mediaPath: string, language: string): Promise<TextDetection[]> {
+  private async performOCRAnalysis(_mediaPath: string, language: string): Promise<TextDetection[]> {
     console.log("Starting OCR analysis...")
 
     try {
@@ -301,7 +301,7 @@ export class SubtitleAIIntegrationService {
   /**
    * Анализ сцен для контекстной информации
    */
-  private async performSceneAnalysis(mediaPath: string): Promise<SceneAnalysis[]> {
+  private async performSceneAnalysis(_mediaPath: string): Promise<SceneAnalysis[]> {
     console.log("Starting scene analysis...")
 
     try {
@@ -568,7 +568,7 @@ export class SubtitleAIIntegrationService {
   /**
    * Простая детекция музыкальных сегментов
    */
-  private detectMusicSegments(mediaPath: string) {
+  private detectMusicSegments(_mediaPath: string) {
     // Заглушка для детекции музыки
     // В реальной реализации можно использовать анализ спектра или ML модели
     return [

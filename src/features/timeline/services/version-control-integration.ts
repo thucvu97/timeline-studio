@@ -3,7 +3,7 @@
  * Объединяет краткосрочные операции отмены с долгосрочным управлением версиями
  */
 
-import type { VersionControlState, VersionInfo } from "@/features/version-control/types"
+import type { VersionInfo } from "@/features/version-control/types"
 import type { UndoRedoService } from "./undo-redo-service"
 
 export interface VersionControlIntegrationConfig {
@@ -102,7 +102,7 @@ export class VersionControlIntegration {
   /**
    * Обработка переключения ветки
    */
-  async onBranchSwitch(fromBranch: string, toBranch: string): Promise<void> {
+  async onBranchSwitch(_fromBranch: string, toBranch: string): Promise<void> {
     if (!this.state.config.clearHistoryOnBranchSwitch) return
 
     // Предлагаем создать снапшот перед переключением
@@ -125,7 +125,7 @@ export class VersionControlIntegration {
   /**
    * Обработка восстановления версии
    */
-  async onVersionRestore(versionId: string, versionInfo?: VersionInfo): Promise<void> {
+  async onVersionRestore(_versionId: string, _versionInfo?: VersionInfo): Promise<void> {
     if (!this.state.config.clearHistoryOnVersionRestore) return
 
     // Предлагаем создать снапшот перед восстановлением
@@ -148,7 +148,7 @@ export class VersionControlIntegration {
   /**
    * Создание checkpoint'а для группы действий
    */
-  async createGroupCheckpoint(groupId: string, description: string): Promise<boolean> {
+  async createGroupCheckpoint(_groupId: string, description: string): Promise<boolean> {
     if (!this.state.config.createCheckpointsForGroups) return false
 
     return await this.createAutoSnapshot(
@@ -249,7 +249,7 @@ export class VersionControlIntegration {
 
   // Приватные методы
 
-  private shouldCreateAutoSnapshot(actionsSinceSnapshot: number, actionType?: string, isGroupEnd?: boolean): boolean {
+  private shouldCreateAutoSnapshot(actionsSinceSnapshot: number, _actionType?: string, isGroupEnd?: boolean): boolean {
     if (!this.state.config.autoSnapshotEnabled) return false
 
     // По количеству действий
@@ -305,7 +305,7 @@ export class VersionControlIntegration {
     }
   }
 
-  private updateSnapshotState(reason: CheckpointInfo["reason"]): void {
+  private updateSnapshotState(_reason: CheckpointInfo["reason"]): void {
     const stats = this.undoRedoService?.getHistoryStats()
     if (stats) {
       this.state.lastSnapshotActionCount = stats.totalActions

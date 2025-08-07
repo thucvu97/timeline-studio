@@ -5,7 +5,7 @@
  * и управления визуальными шаблонами и макетами проекта
  */
 
-import type { ClaudeTool } from "../../types"
+import { ClaudeTool } from "../../services/claude-service"
 import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 // Типы для операций с шаблонами и макетами

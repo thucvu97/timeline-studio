@@ -2,7 +2,7 @@
  * Провайдер для автоматической регистрации действий Undo/Redo
  */
 
-import { createContext, type ReactNode, useContext, useEffect } from "react"
+import { createContext, type ReactNode, useContext } from "react"
 import { useTimeline } from "../hooks/use-timeline"
 import { UndoRedoHelpers, useUndoRedo } from "../hooks/use-undo-redo"
 import type { TimelineClip, TimelineTrack } from "../types"

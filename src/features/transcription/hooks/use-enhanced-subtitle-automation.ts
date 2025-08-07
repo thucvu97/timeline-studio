@@ -98,7 +98,7 @@ export function useEnhancedSubtitleAutomation() {
    */
   const generateEnhancedSubtitles = useCallback(
     async (
-      mediaPath: string,
+      _mediaPath: string,
       clipId: string,
       options: EnhancedSubtitleOptions = {},
     ): Promise<EnhancedSubtitleResult | null> => {

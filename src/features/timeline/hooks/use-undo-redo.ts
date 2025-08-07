@@ -3,13 +3,8 @@
  */
 
 import { useCallback, useEffect, useRef } from "react"
-import {
-  type ActionType,
-  type UndoRedoAction,
-  type UndoRedoResult,
-  UndoRedoService,
-} from "../services/undo-redo-service"
-import type { TimelineClip, TimelineKeyframe, TimelineTrack } from "../types"
+import { type ActionType, type UndoRedoAction, UndoRedoService } from "../services/undo-redo-service"
+import type { TimelineClip } from "../types"
 import { useTimeline } from "./use-timeline"
 
 export interface UseUndoRedoReturn {

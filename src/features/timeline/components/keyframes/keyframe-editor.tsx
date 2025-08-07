@@ -2,7 +2,7 @@
  * Редактор keyframe анимаций для клипов
  */
 
-import { Copy, Eye, Move, Pause, Play, Plus, RotateCcw, Scale, Settings, Trash2, Zap } from "lucide-react"
+import { Eye, Move, Plus, RotateCcw, Scale, Settings, Trash2, Zap } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -16,7 +16,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useKeyframeAnimation } from "../../hooks/use-keyframe-animation"
 import { useTimeline } from "../../hooks/use-timeline"
 import type { AnimatableProperty, InterpolationType } from "../../services/keyframe-animation-service"
-import type { TimelineClip, TimelineKeyframe } from "../../types"
 
 interface KeyframeEditorProps {
   clipId: string

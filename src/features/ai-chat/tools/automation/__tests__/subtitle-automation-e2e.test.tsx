@@ -53,7 +53,7 @@ const MockEnhancedTranscriptionPanel = ({ onAddToTimeline }: { onAddToTimeline: 
         confidence: 0.9,
       },
       {
-        id: "2", 
+        id: "2",
         start: 5,
         end: 8,
         text: "Второй тестовый субтитр",
@@ -65,16 +65,10 @@ const MockEnhancedTranscriptionPanel = ({ onAddToTimeline }: { onAddToTimeline: 
 
   return (
     <div data-testid="enhanced-transcription-panel">
-      <button
-        onClick={handleAddMockSubtitles}
-        data-testid="generate-subtitles-btn"
-      >
+      <button onClick={handleAddMockSubtitles} data-testid="generate-subtitles-btn">
         Сгенерировать субтитры
       </button>
-      <button
-        onClick={handleAddMockSubtitles}
-        data-testid="add-to-timeline-btn"
-      >
+      <button onClick={handleAddMockSubtitles} data-testid="add-to-timeline-btn">
         Добавить в таймлайн
       </button>
     </div>
@@ -86,14 +80,14 @@ vi.mock("@/features/transcription/components/enhanced-transcription-panel", () =
 }))
 
 // Импортируем тестируемый компонент
-import { SubtitleAIToolsModal } from "../../../subtitles/components/subtitle-ai-tools-modal"
+import { SubtitleAIToolsModal } from "../../../../subtitles/components/subtitle-ai-tools-modal"
 
 describe("Subtitle Automation E2E Workflow", () => {
   let mockSend: ReturnType<typeof vi.fn>
 
   beforeEach(() => {
     mockSend = vi.fn()
-    
+
     // Мокаем useTimeline с функцией send
     vi.mocked(require("@/features/timeline/hooks/use-timeline").useTimeline).mockReturnValue({
       project: {
@@ -134,7 +128,7 @@ describe("Subtitle Automation E2E Workflow", () => {
               type: "subtitle",
               name: "subtitles.trackName",
             }),
-          })
+          }),
         )
 
         // Проверяем что были вызваны send для добавления клипов
@@ -145,21 +139,21 @@ describe("Subtitle Automation E2E Workflow", () => {
               type: "subtitle",
               text: "Первый тестовый субтитр",
               startTime: 1000, // 1 секунда в миллисекундах
-              duration: 3000,  // 3 секунды длительность
+              duration: 3000, // 3 секунды длительность
             }),
-          })
+          }),
         )
 
         expect(mockSend).toHaveBeenCalledWith(
           expect.objectContaining({
             type: "ADD_CLIP",
             clip: expect.objectContaining({
-              type: "subtitle", 
+              type: "subtitle",
               text: "Второй тестовый субтитр",
               startTime: 5000,
               duration: 3000,
             }),
-          })
+          }),
         )
       })
     })
@@ -172,14 +166,14 @@ describe("Subtitle Automation E2E Workflow", () => {
       })
 
       await waitFor(() => {
-        const clipCalls = mockSend.mock.calls.filter(call => call[0].type === "ADD_CLIP")
-        
+        const clipCalls = mockSend.mock.calls.filter((call) => call[0].type === "ADD_CLIP")
+
         expect(clipCalls).toHaveLength(2)
-        
+
         // Первый клип: 1-4 секунды → 1000-4000 мс, длительность 3000 мс
         expect(clipCalls[0][0].clip.startTime).toBe(1000)
         expect(clipCalls[0][0].clip.duration).toBe(3000)
-        
+
         // Второй клип: 5-8 секунд → 5000-8000 мс, длительность 3000 мс
         expect(clipCalls[1][0].clip.startTime).toBe(5000)
         expect(clipCalls[1][0].clip.duration).toBe(3000)
@@ -194,9 +188,9 @@ describe("Subtitle Automation E2E Workflow", () => {
       })
 
       await waitFor(() => {
-        const clipCalls = mockSend.mock.calls.filter(call => call[0].type === "ADD_CLIP")
-        
-        clipCalls.forEach(call => {
+        const clipCalls = mockSend.mock.calls.filter((call) => call[0].type === "ADD_CLIP")
+
+        clipCalls.forEach((call) => {
           expect(call[0].clip.style).toEqual({
             fontSize: 24,
             fontFamily: "Arial",
@@ -235,11 +229,11 @@ describe("Subtitle Automation E2E Workflow", () => {
 
       await waitFor(() => {
         // Не должен создавать новый трек
-        const trackCalls = mockSend.mock.calls.filter(call => call[0].type === "ADD_TRACK")
+        const trackCalls = mockSend.mock.calls.filter((call) => call[0].type === "ADD_TRACK")
         expect(trackCalls).toHaveLength(0)
 
         // Должен добавить клипы в существующий трек
-        const clipCalls = mockSend.mock.calls.filter(call => call[0].type === "ADD_CLIP")
+        const clipCalls = mockSend.mock.calls.filter((call) => call[0].type === "ADD_CLIP")
         expect(clipCalls).toHaveLength(2)
         expect(clipCalls[0][0].trackId).toBe("existing-subtitle-track")
       })
@@ -247,7 +241,7 @@ describe("Subtitle Automation E2E Workflow", () => {
 
     it("должен показывать уведомления об успехе", async () => {
       const { toast } = require("sonner")
-      
+
       render(<SubtitleAIToolsModal />)
 
       await act(async () => {
@@ -259,7 +253,7 @@ describe("Subtitle Automation E2E Workflow", () => {
           "subtitles.ai.success",
           expect.objectContaining({
             description: expect.stringContaining("2"), // 2 субтитра
-          })
+          }),
         )
       })
     })
@@ -274,7 +268,7 @@ describe("Subtitle Automation E2E Workflow", () => {
             {
               id: "enhanced-1",
               start: 2,
-              end: 6, 
+              end: 6,
               text: "Улучшенный субтитр с метаданными",
               confidence: 0.95,
               speaker: "Диктор 1",
@@ -284,19 +278,14 @@ describe("Subtitle Automation E2E Workflow", () => {
         }
 
         return (
-          <button
-            onClick={handleAddEnhancedSubtitles}
-            data-testid="add-enhanced-subtitles"
-          >
+          <button onClick={handleAddEnhancedSubtitles} data-testid="add-enhanced-subtitles">
             Добавить улучшенные субтитры
           </button>
         )
       }
 
       // Перерендериваем с новым компонентом
-      const { rerender } = render(
-        <MockEnhancedPanelWithMetadata onAddToTimeline={() => {}} />
-      )
+      const { rerender } = render(<MockEnhancedPanelWithMetadata onAddToTimeline={() => {}} />)
 
       // Рендерим полный компонент
       rerender(<SubtitleAIToolsModal />)
@@ -307,14 +296,14 @@ describe("Subtitle Automation E2E Workflow", () => {
       rerender(<SubtitleAIToolsModal />)
 
       const enhancedButton = screen.getByTestId("add-enhanced-subtitles")
-      
+
       await act(async () => {
         fireEvent.click(enhancedButton)
       })
 
       await waitFor(() => {
-        const clipCalls = mockSend.mock.calls.filter(call => call[0].type === "ADD_CLIP")
-        
+        const clipCalls = mockSend.mock.calls.filter((call) => call[0].type === "ADD_CLIP")
+
         expect(clipCalls).toHaveLength(1)
         expect(clipCalls[0][0].clip).toEqual(
           expect.objectContaining({
@@ -324,7 +313,7 @@ describe("Subtitle Automation E2E Workflow", () => {
             confidence: 0.95,
             startTime: 2000,
             duration: 4000,
-          })
+          }),
         )
       })
     })
@@ -361,10 +350,7 @@ describe("Subtitle Automation E2E Workflow", () => {
         }
 
         return (
-          <button
-            onClick={handleAddManySubtitles}
-            data-testid="add-many-subtitles"
-          >
+          <button onClick={handleAddManySubtitles} data-testid="add-many-subtitles">
             Добавить много субтитров
           </button>
         )
@@ -378,19 +364,19 @@ describe("Subtitle Automation E2E Workflow", () => {
         fireEvent.click(screen.getByTestId("add-many-subtitles"))
       })
 
-      await waitFor(() => {
-        const clipCalls = mockSend.mock.calls.filter(call => call[0].type === "ADD_CLIP")
-        expect(clipCalls).toHaveLength(50)
-      }, { timeout: 5000 }) // Увеличиваем таймаут для больших операций
+      await waitFor(
+        () => {
+          const clipCalls = mockSend.mock.calls.filter((call) => call[0].type === "ADD_CLIP")
+          expect(clipCalls).toHaveLength(50)
+        },
+        { timeout: 5000 },
+      ) // Увеличиваем таймаут для больших операций
     })
 
     it("должен обрабатывать пустые сегменты", async () => {
       const MockEmptyPanel = ({ onAddToTimeline }: { onAddToTimeline: (segments: any[]) => void }) => {
         return (
-          <button
-            onClick={() => onAddToTimeline([])}
-            data-testid="add-empty-subtitles"
-          >
+          <button onClick={() => onAddToTimeline([])} data-testid="add-empty-subtitles">
             Добавить пустые субтитры
           </button>
         )
@@ -417,17 +403,17 @@ describe("Subtitle Automation E2E Workflow", () => {
       await act(async () => {
         fireEvent.click(screen.getByTestId("add-to-timeline-btn"))
       })
-      
+
       await act(async () => {
         fireEvent.click(screen.getByTestId("add-to-timeline-btn"))
       })
 
       await waitFor(() => {
-        const clipCalls = mockSend.mock.calls.filter(call => call[0].type === "ADD_CLIP")
+        const clipCalls = mockSend.mock.calls.filter((call) => call[0].type === "ADD_CLIP")
         expect(clipCalls).toHaveLength(4) // 2 + 2 клипа
 
         // Все ID должны быть уникальными
-        const ids = clipCalls.map(call => call[0].clip.id)
+        const ids = clipCalls.map((call) => call[0].clip.id)
         const uniqueIds = [...new Set(ids)]
         expect(uniqueIds).toHaveLength(ids.length)
       })

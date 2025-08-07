@@ -3,8 +3,8 @@
  * Использует отдельные сервисы для лучшей архитектуры (< 300 строк)
  */
 
-import { contentIntelligenceTools } from "../tools/content-intelligence-tools"
-import { personIdentificationTools } from "../tools/person-identification-tools"
+import { contentIntelligenceTools } from "../tools/analysis/content-intelligence-tools"
+import { personIdentificationTools } from "../tools/analysis/person-identification-tools"
 import type { AiMessage } from "../types/ai-message"
 import type { StreamingOptions } from "../types/streaming"
 import { AIResponseProcessor, type ProcessingOptions, type UnifiedResponse } from "./ai-response-processor"
@@ -41,14 +41,15 @@ export class UnifiedAIService {
   private static instance: UnifiedAIService
 
   // Компоненты архитектуры
-  private modelManager: ModelConfigurationManager
-  private providerManager: ProviderManager
-  private responseProcessor: AIResponseProcessor
-  private contentIntelligenceService: ContentIntelligenceService
+  private modelManager!: ModelConfigurationManager
+  private providerManager!: ProviderManager
+  private responseProcessor!: AIResponseProcessor
+  private contentIntelligenceService!: ContentIntelligenceService
 
   // Кэширование
   private responseCache = new Map<string, { response: UnifiedResponse; timestamp: number }>()
   private cacheTimeout = 5 * 60 * 1000 // 5 минут
+  private initialized = false
 
   private constructor() {
     this.initializeServices()
@@ -68,31 +69,50 @@ export class UnifiedAIService {
    * Инициализация всех сервисов
    */
   private async initializeServices(): Promise<void> {
-    // Получаем доступные сервисы
-    const { ClaudeService } = await import("./claude-service")
-    const { OpenAiService } = await import("./open-ai-service")
-    const { DeepSeekService } = await import("./deepseek-service")
-    const { OllamaService } = await import("./ollama-service")
+    if (this.initialized) return
 
-    // Создаем адаптер для проверки доступности провайдеров
-    const availabilityChecker = {
-      isClaudeAvailable: () => ClaudeService.getInstance().hasApiKey(),
-      isOpenAIAvailable: (model: string) => OpenAiService.getInstance().hasApiKey(model),
-      isDeepSeekAvailable: () => DeepSeekService.getInstance().hasApiKey(),
-      isOllamaAvailable: () => OllamaService.getInstance().isAvailable(),
-      getOllamaModels: () => OllamaService.getInstance().getInstalledModels(),
+    try {
+      // Получаем доступные сервисы
+      const { ClaudeService } = await import("./claude-service")
+      const { OpenAiService } = await import("./open-ai-service")
+      const { DeepSeekService } = await import("./deepseek-service")
+      const { OllamaService } = await import("./ollama-service")
+
+      // Создаем адаптер для проверки доступности провайдеров
+      const availabilityChecker = {
+        isClaudeAvailable: () => ClaudeService.getInstance().hasApiKey(),
+        isOpenAIAvailable: (model: string) => OpenAiService.getInstance().hasApiKey(model),
+        isDeepSeekAvailable: () => DeepSeekService.getInstance().hasApiKey(),
+        isOllamaAvailable: () => OllamaService.getInstance().isAvailable(),
+        getOllamaModels: () => OllamaService.getInstance().getInstalledModels(),
+      }
+
+      // Инициализируем сервисы
+      this.modelManager = ModelConfigurationManager.create(availabilityChecker)
+      this.providerManager = ProviderManager.getInstance()
+      this.responseProcessor = AIResponseProcessor.getInstance()
+
+      // Создаем адаптер для AI сервиса в ContentIntelligenceService
+      const aiServiceAdapter: AIServiceInterface = {
+        sendRequest: this.sendRequest.bind(this),
+      }
+      this.contentIntelligenceService = ContentIntelligenceService.create(aiServiceAdapter)
+
+      this.initialized = true
+    } catch (error) {
+      console.error('Ошибка инициализации UnifiedAIService:', error)
+      // Инициализируем fallback значения
+      this.initialized = false
     }
+  }
 
-    // Инициализируем сервисы
-    this.modelManager = ModelConfigurationManager.create(availabilityChecker)
-    this.providerManager = ProviderManager.getInstance()
-    this.responseProcessor = AIResponseProcessor.getInstance()
-
-    // Создаем адаптер для AI сервиса в ContentIntelligenceService
-    const aiServiceAdapter: AIServiceInterface = {
-      sendRequest: this.sendRequest.bind(this),
+  /**
+   * Убедиться что сервис инициализирован
+   */
+  private async ensureInitialized(): Promise<void> {
+    if (!this.initialized) {
+      await this.initializeServices()
     }
-    this.contentIntelligenceService = ContentIntelligenceService.create(aiServiceAdapter)
   }
 
   // ===================
@@ -107,6 +127,8 @@ export class UnifiedAIService {
     messages: AiMessage[],
     options: UnifiedRequestOptions = {},
   ): Promise<UnifiedResponse> {
+    await this.ensureInitialized()
+    
     const startTime = Date.now()
     const cacheKey = this.createCacheKey(model, messages, options)
 

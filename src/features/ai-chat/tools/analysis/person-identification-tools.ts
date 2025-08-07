@@ -5,7 +5,7 @@
  * в видеоконтенте. Интегрируется с Claude Tools через AI Chat модуль.
  */
 
-import type { ClaudeTool } from "../../types"
+import { ClaudeTool } from "../../services/claude-service"
 import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 // Типы для операций распознавания персон
@@ -72,7 +72,6 @@ export class PersonIdentificationTool extends BaseAITool {
     options: AIToolExecutionOptions = {},
   ): Promise<AIToolResult<PersonIdentificationResult>> {
     return this.executeWithErrorHandling(
-      input.operation,
       async () => {
         // Валидация входных данных
         const validation = this.validateInput(input, (data) => {

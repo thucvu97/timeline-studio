@@ -3,8 +3,7 @@
  * Provides batch operations for multiple clips in timeline
  */
 
-import type { AppliedEffect, AppliedFilter, TimelineClip, TimelineTrack } from "../types"
-import { SlipSlideService } from "./slip-slide-service"
+import type { AppliedEffect, TimelineClip, TimelineTrack } from "../types"
 import { type VideoFadeOptions, VideoFadeService } from "./video-fade-service"
 
 export interface BatchOperationResult {
@@ -498,7 +497,7 @@ export class BatchOperationsService {
   static createTransitionsBetweenClips(
     clips: TimelineClip[],
     transitionDuration: number,
-    transitionType: string,
+    _transitionType: string,
   ): BatchOperationResult {
     const result: BatchOperationResult = {
       success: true,

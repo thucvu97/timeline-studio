@@ -3,8 +3,8 @@
  * Анализ кадров, создание описаний, выбор превью
  */
 
+import { ClaudeTool } from "../../services/claude-service"
 import type { MultimodalAnalysisType } from "../../services/multimodal-analysis-service"
-import type { ClaudeTool } from "../../types"
 import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 // Типы для операций мультимодального анализа
@@ -71,104 +71,100 @@ export class MultimodalAnalysisTool extends BaseAITool {
     input: MultimodalInput,
     options: AIToolExecutionOptions = {},
   ): Promise<AIToolResult<MultimodalResult>> {
-    return this.executeWithErrorHandling(
-      input.operation,
-      async () => {
-        // Валидация входных данных
-        const validation = this.validateInput(input, (data) => {
-          const errors: string[] = []
+    return this.executeWithErrorHandling(async () => {
+      // Валидация входных данных
+      const validation = this.validateInput(input, (data) => {
+        const errors: string[] = []
 
-          const validOperations = [
-            "analyze_frame",
-            "analyze_video",
-            "suggest_thumbnails",
-            "detect_highlights",
-            "analyze_emotions",
-            "generate_description",
-            "analyze_audio_visual",
-            "moderate_content",
-            "analyze_scene_transitions",
-            "analyze_brand_elements",
-          ]
-          if (!validOperations.includes(data.operation)) {
-            errors.push(`Неподдерживаемая операция: ${data.operation}`)
+        const validOperations = [
+          "analyze_frame",
+          "analyze_video",
+          "suggest_thumbnails",
+          "detect_highlights",
+          "analyze_emotions",
+          "generate_description",
+          "analyze_audio_visual",
+          "moderate_content",
+          "analyze_scene_transitions",
+          "analyze_brand_elements",
+        ]
+        if (!validOperations.includes(data.operation)) {
+          errors.push(`Неподдерживаемая операция: ${data.operation}`)
+        }
+
+        return { isValid: errors.length === 0, errors }
+      })
+
+      if (!validation.isValid) {
+        throw new Error(validation.errors.join(", "))
+      }
+
+      let result: MultimodalResult
+
+      switch (input.operation) {
+        case "analyze_frame":
+          result = {
+            operation: input.operation,
+            success: true,
+            analysis: {
+              objects: ["person", "laptop", "desk"],
+              scenes: ["office environment"],
+              text: "Working at computer",
+              confidence: 0.92,
+            },
+            message: "Анализ кадра завершен",
+            recommendations: ["Кадр содержит четкие объекты для анализа"],
           }
+          break
 
-          return { isValid: errors.length === 0, errors }
-        })
+        case "analyze_video":
+          result = {
+            operation: input.operation,
+            success: true,
+            analysis: {
+              scenes: ["intro", "main content", "outro"],
+              objects: ["person", "text overlay", "background"],
+              emotions: ["neutral", "positive"],
+              keyframes: [0, 30, 60, 90],
+            },
+            message: "Анализ видео завершен",
+            recommendations: ["Видео содержит разнообразные сцены"],
+          }
+          break
 
-        if (!validation.isValid) {
-          throw new Error(validation.errors.join(", "))
-        }
-
-        let result: MultimodalResult
-
-        switch (input.operation) {
-          case "analyze_frame":
-            result = {
-              operation: input.operation,
-              success: true,
-              analysis: {
-                objects: ["person", "laptop", "desk"],
-                scenes: ["office environment"],
-                text: "Working at computer",
-                confidence: 0.92,
+        case "suggest_thumbnails":
+          result = {
+            operation: input.operation,
+            success: true,
+            suggestions: [
+              {
+                timestamp: 15.5,
+                score: 0.95,
+                reason: "Четкое лицо и хорошее освещение",
               },
-              message: "Анализ кадра завершен",
-              recommendations: ["Кадр содержит четкие объекты для анализа"],
-            }
-            break
-
-          case "analyze_video":
-            result = {
-              operation: input.operation,
-              success: true,
-              analysis: {
-                scenes: ["intro", "main content", "outro"],
-                objects: ["person", "text overlay", "background"],
-                emotions: ["neutral", "positive"],
-                keyframes: [0, 30, 60, 90],
+              {
+                timestamp: 45.2,
+                score: 0.88,
+                reason: "Интересная композиция",
               },
-              message: "Анализ видео завершен",
-              recommendations: ["Видео содержит разнообразные сцены"],
-            }
-            break
+            ],
+            message: "Найдено 2 кандидата для превью",
+            recommendations: ["Используйте кадр с наивысшим рейтингом"],
+          }
+          break
 
-          case "suggest_thumbnails":
-            result = {
-              operation: input.operation,
-              success: true,
-              suggestions: [
-                {
-                  timestamp: 15.5,
-                  score: 0.95,
-                  reason: "Четкое лицо и хорошее освещение",
-                },
-                {
-                  timestamp: 45.2,
-                  score: 0.88,
-                  reason: "Интересная композиция",
-                },
-              ],
-              message: "Найдено 2 кандидата для превью",
-              recommendations: ["Используйте кадр с наивысшим рейтингом"],
-            }
-            break
+        default:
+          result = {
+            operation: input.operation,
+            success: false,
+            message: "Функция пока не реализована",
+            recommendations: ["Функция будет добавлена в следующих версиях"],
+          }
+          break
+      }
 
-          default:
-            result = {
-              operation: input.operation,
-              success: false,
-              message: "Функция пока не реализована",
-              recommendations: ["Функция будет добавлена в следующих версиях"],
-            }
-            break
-        }
-
-        return result
-      },
-      options,
-    )
+      return result
+    }, options)
   }
 }
 

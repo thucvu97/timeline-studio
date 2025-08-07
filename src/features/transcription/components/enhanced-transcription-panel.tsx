@@ -11,7 +11,6 @@ import {
   Download,
   Eye,
   FileText,
-  Globe,
   Mic,
   Play,
   RefreshCw,
@@ -21,13 +20,13 @@ import {
   Wand2,
   X,
 } from "lucide-react"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -39,7 +38,7 @@ import { type EnhancedSubtitleOptions, useEnhancedSubtitleAutomation } from "../
 // Импортируем существующие компоненты и хуки
 import { useTranscription } from "../hooks/use-transcription"
 // Типы
-import type { SubtitleFormat, TranscriptionOptions, TranscriptionResult } from "../types"
+import type { SubtitleFormat, TranscriptionOptions } from "../types"
 import { LanguageSelector } from "./language-selector"
 import { ModelSelector } from "./model-selector"
 import { TranscriptionEditor } from "./transcription-editor"
@@ -656,7 +655,7 @@ export function EnhancedTranscriptionPanel({ onAddToTimeline }: EnhancedTranscri
             <ScrollArea className="h-[300px] w-full">
               <TranscriptionEditor
                 result={currentResult}
-                onUpdate={(updatedResult) => {
+                onUpdate={(_updatedResult) => {
                   // Обновление результата после редактирования
                   if (mode === "basic") {
                     // Обновить базовый результат

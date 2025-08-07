@@ -4,7 +4,6 @@
  */
 
 import type {
-  AudioDetections,
   SceneAnalysis,
   SpeechDetection,
   TextDetection,
@@ -707,33 +706,6 @@ export class EnhancedSubtitleAutomation extends BaseAITool {
     }
   }
 
-  private async extractSpeechSubtitles(speechSegments: SpeechDetection[]): Promise<SubtitleItem[]> {
-    return speechSegments.map((segment, index) => ({
-      id: `speech-${index}`,
-      startTime: segment.startTime,
-      endTime: segment.endTime,
-      text: segment.transcript || "",
-      speaker: segment.speaker,
-    }))
-  }
-
-  private async extractOCRSubtitles(textDetections: TextDetection[]): Promise<SubtitleItem[]> {
-    return textDetections.map((detection, index) => ({
-      id: `ocr-${index}`,
-      startTime: index * 5000, // Примерный тайминг
-      endTime: (index + 1) * 5000,
-      text: detection.text,
-    }))
-  }
-
-  private async analyzeSceneContext(scenes: SceneAnalysis[]): Promise<any[]> {
-    return scenes.map((scene) => ({
-      id: scene.id,
-      context: `Контекст для сцены ${scene.id}`,
-      suggestions: [],
-    }))
-  }
-
   private async combineAndOptimize(
     subtitles: SubtitleItem[],
     _sceneContext: any[],
@@ -763,7 +735,7 @@ export class EnhancedSubtitleAutomation extends BaseAITool {
     }
 
     if (input.maxSubtitleLength && formatted.length > input.maxSubtitleLength) {
-      formatted = formatted.substring(0, input.maxSubtitleLength - 3) + "..."
+      formatted = `${formatted.substring(0, input.maxSubtitleLength - 3)}...`
     }
 
     return formatted.trim()
