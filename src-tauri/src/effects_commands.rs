@@ -99,12 +99,10 @@ pub async fn get_user_effects_list() -> Result<Vec<String>, String> {
   let entries = std::fs::read_dir(&effects_dir)
     .map_err(|e| format!("Failed to read effects directory: {}", e))?;
 
-  for entry in entries {
-    if let Ok(entry) = entry {
-      let path = entry.path();
-      if path.is_file() && path.extension().and_then(|s| s.to_str()) == Some("json") {
-        effects.push(path.to_string_lossy().to_string());
-      }
+  for entry in entries.flatten() {
+    let path = entry.path();
+    if path.is_file() && path.extension().and_then(|s| s.to_str()) == Some("json") {
+      effects.push(path.to_string_lossy().to_string());
     }
   }
 
