@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from "react"
 
-import type { BrowserStateAccess } from "@/features/ai-chat/tools/browser/types"
-import { setBrowserStateAccess } from "@/features/ai-chat/tools/browser/utils/helpers"
+import type { BrowserStateAccess } from "@/features/ai-chat/tools-v2/core/browser/types"
+import { setBrowserStateAccess } from "@/features/ai-chat/tools-v2/core/browser/utils/helpers"
 import { useApp } from "@/features/app-state/services/app-provider"
 import { useBrowserState } from "@/features/browser/services/browser-state-provider"
 import type { MediaFile } from "@/features/media/types/media"
