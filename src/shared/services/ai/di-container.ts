@@ -49,6 +49,12 @@ export class AIDIContainer {
     this.registerCoreServices()
   }
 
+  // Публичный конструктор для тестов
+  static createTestInstance(): AIDIContainer {
+    const instance = new AIDIContainer()
+    return instance
+  }
+
   static getInstance(): AIDIContainer {
     if (!AIDIContainer.instance) {
       AIDIContainer.instance = new AIDIContainer()

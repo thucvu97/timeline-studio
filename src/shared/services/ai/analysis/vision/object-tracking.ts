@@ -3,7 +3,7 @@
  * Трекинг объектов между кадрами для анализа движения и поведения
  */
 
-import type { BoundingBox, ObjectDetection } from "../../interfaces"
+import type { BoundingBox, ObjectDetection } from "../interfaces"
 
 // Типы для трекинга объектов
 export interface TrackedObject {

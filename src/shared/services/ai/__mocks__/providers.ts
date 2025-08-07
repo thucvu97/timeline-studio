@@ -3,7 +3,15 @@
  * Используется в тестах для изоляции от внешних сервисов
  */
 
-import type { IAIProvider, IAIProviderFactory, IModelManager, Message } from "../providers/interfaces"
+import type {
+  AiMessage,
+  AiRequestOptions,
+  AiResponse,
+  IAIProvider,
+  IAIProviderFactory,
+  IModelManager,
+  StreamingOptions,
+} from "../providers/interfaces"
 
 // Mock AI Provider
 export class MockAIProvider implements IAIProvider {
@@ -18,7 +26,7 @@ export class MockAIProvider implements IAIProvider {
     // Already initialized
   }
 
-  async sendRequest(_model: string, messages: Message[], _options?: any): Promise<{ content: string }> {
+  async sendRequest(_model: string, messages: AiMessage[], _options?: AiRequestOptions): Promise<AiResponse> {
     // Simulate different responses based on content
     const lastMessage = messages[messages.length - 1]
     const content = lastMessage?.content || ""
@@ -33,6 +41,8 @@ export class MockAIProvider implements IAIProvider {
           scenes: [{ start: 0, end: 10, type: "intro" }],
           quality: { overall: 8 },
         }),
+        model: _model,
+        provider: this.name,
       }
     }
 
@@ -43,30 +53,55 @@ export class MockAIProvider implements IAIProvider {
           style: "educational",
           confidence: 0.95,
         }),
+        model: _model,
+        provider: this.name,
       }
     }
 
-    return { content: `Mock response for: ${content}` }
+    return {
+      content: `Mock response for: ${content}`,
+      model: _model,
+      provider: this.name,
+    }
   }
 
-  async streamRequest(
+  async sendStreamingRequest(
     model: string,
-    messages: Message[],
-    onToken: (token: string) => void,
-    options?: any,
+    messages: AiMessage[],
+    options?: AiRequestOptions & StreamingOptions,
   ): Promise<void> {
     const response = await this.sendRequest(model, messages, options)
 
     // Simulate streaming
-    const tokens = response.content.split(" ")
-    for (const token of tokens) {
-      onToken(`${token} `)
-      await new Promise((resolve) => setTimeout(resolve, 10))
+    if (options?.onContent) {
+      const tokens = response.content.split(" ")
+      for (const token of tokens) {
+        options.onContent(`${token} `)
+        await new Promise((resolve) => setTimeout(resolve, 10))
+      }
     }
   }
 
-  getAvailableModels(): string[] {
+  async getAvailableModels(): Promise<string[]> {
     return this.models
+  }
+
+  async isAvailable(): Promise<boolean> {
+    return true
+  }
+
+  async validateApiKey(): Promise<boolean> {
+    return true
+  }
+
+  estimateTokens(text: string): number {
+    return Math.ceil(text.length / 4)
+  }
+
+  getMaxTokens(model: string): number {
+    if (model.includes("claude")) return 200000
+    if (model.includes("gpt")) return 128000
+    return 4000
   }
 
   supportsStreaming(): boolean {
@@ -191,7 +226,11 @@ export function createMockProvider(
     const content =
       typeof behavior.response === "object" ? JSON.stringify(behavior.response) : behavior.response || "Mock response"
 
-    return { content }
+    return {
+      content,
+      model: _model,
+      provider: name,
+    }
   }
 
   if (behavior.streaming === false) {

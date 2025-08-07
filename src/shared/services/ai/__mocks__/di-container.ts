@@ -13,7 +13,7 @@ import { MockUnifiedAIService } from "./unified-service"
  * Создает мок DI контейнер с предустановленными сервисами
  */
 export function createMockDIContainer(): AIDIContainer {
-  const container = new AIDIContainer()
+  const container = AIDIContainer.createTestInstance()
 
   // Регистрируем базовые мок сервисы
 

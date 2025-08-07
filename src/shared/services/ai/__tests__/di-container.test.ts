@@ -6,7 +6,7 @@ describe("AIDIContainer", () => {
 
   beforeEach(() => {
     // Создаем новый контейнер для каждого теста
-    container = new AIDIContainer()
+    container = AIDIContainer.createTestInstance()
   })
 
   describe("Service Registration", () => {
@@ -15,8 +15,8 @@ describe("AIDIContainer", () => {
 
       container.registerSingleton("TestService", () => mockService)
 
-      const instance1 = await container.resolve("TestService")
-      const instance2 = await container.resolve("TestService")
+      const instance1 = await container.resolve<typeof mockService>("TestService")
+      const instance2 = await container.resolve<typeof mockService>("TestService")
 
       expect(instance1).toBe(instance2) // Должен быть тот же экземпляр
       expect(instance1).toEqual(mockService)
@@ -29,8 +29,8 @@ describe("AIDIContainer", () => {
         id: ++counter,
       }))
 
-      const instance1 = await container.resolve("CounterService")
-      const instance2 = await container.resolve("CounterService")
+      const instance1 = await container.resolve<{ id: number }>("CounterService")
+      const instance2 = await container.resolve<{ id: number }>("CounterService")
 
       expect(instance1).not.toBe(instance2) // Разные экземпляры
       expect(instance1.id).toBe(1)
@@ -120,14 +120,14 @@ describe("AIDIContainer", () => {
 
   describe("Error Handling", () => {
     it("should throw error for unregistered service", async () => {
-      await expect(container.resolve("NonExistent")).rejects.toThrow("Service not registered: NonExistent")
+      await expect(container.resolve("NonExistent")).rejects.toThrow("Service 'NonExistent' not registered")
     })
 
     it("should throw error for missing dependencies", async () => {
       container.registerSingleton("ServiceWithMissingDep", (dep: any) => ({ dep }), ["MissingDependency"])
 
       await expect(container.resolve("ServiceWithMissingDep")).rejects.toThrow(
-        "Service not registered: MissingDependency",
+        "Service 'MissingDependency' not registered",
       )
     })
 
@@ -186,12 +186,12 @@ describe("AIDIContainer", () => {
       expect(gotten.value).toBe(123)
     })
 
-    it("should return undefined for unresolved service", () => {
+    it("should throw error for unresolved service", () => {
       container.registerSingleton("UnresolvedTest", () => ({}))
 
-      const result = container.get("UnresolvedTest")
-
-      expect(result).toBeUndefined()
+      expect(() => container.get("UnresolvedTest")).toThrow(
+        "Service 'UnresolvedTest' not yet resolved. Use resolve() first.",
+      )
     })
   })
 

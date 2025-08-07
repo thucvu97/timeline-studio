@@ -5,12 +5,13 @@
 
 // Базовые типы медиа анализа
 export interface MediaFile {
+  id: string
   path: string
-  name: string
-  size?: number
+  filename: string
+  size: number
+  type: "video" | "audio" | "image"
   duration?: number
   format?: string
-  type?: "video" | "audio" | "image"
 }
 
 export interface VideoMetadata {
@@ -24,13 +25,6 @@ export interface VideoMetadata {
   audioChannels?: number
   audioSampleRate?: number
   codec?: string
-}
-
-export interface SceneDetectionResult {
-  scenes: Scene[]
-  totalDuration: number
-  confidence: number
-  method: "threshold" | "histogram" | "optical_flow" | "ai"
 }
 
 export interface Scene {
@@ -92,82 +86,6 @@ export interface MotionVector {
   y: number
   magnitude: number
   direction: number
-}
-
-// Интерфейс для FFmpeg анализа
-export interface IFFmpegAnalysisService {
-  // Базовый анализ
-  getVideoMetadata(path: string): Promise<VideoMetadata>
-
-  // Детекция сцен
-  detectScenes(
-    path: string,
-    options?: {
-      sensitivity?: number
-      minSceneDuration?: number
-      method?: "threshold" | "histogram"
-    },
-  ): Promise<SceneDetectionResult>
-
-  // Анализ качества
-  analyzeQuality(
-    path: string,
-    options?: {
-      checkVideo?: boolean
-      checkAudio?: boolean
-      deepAnalysis?: boolean
-    },
-  ): Promise<QualityAnalysisResult>
-
-  // Аудио анализ
-  detectSilence(
-    path: string,
-    options?: {
-      threshold?: number
-      minDuration?: number
-    },
-  ): Promise<SilenceDetectionResult>
-
-  // Анализ движения
-  analyzeMotion(
-    path: string,
-    options?: {
-      sensitivity?: number
-      stabilityCheck?: boolean
-    },
-  ): Promise<MotionAnalysisResult>
-
-  // Извлечение кадров
-  extractKeyframes(
-    path: string,
-    options?: {
-      count?: number
-      interval?: number
-      outputDir?: string
-    },
-  ): Promise<string[]>
-
-  // Конвертация
-  convertToFormat(inputPath: string, outputPath: string, format: string): Promise<boolean>
-}
-
-// Интерфейс для компьютерного зрения
-export interface IVisionService {
-  // Анализ изображений
-  analyzeFrame(imagePath: string): Promise<FrameAnalysis>
-  analyzeFrames(imagePaths: string[]): Promise<FrameAnalysis[]>
-
-  // Детекция объектов
-  detectObjects(imagePath: string): Promise<DetectedObject[]>
-
-  // Распознавание текста (OCR)
-  extractText(imagePath: string): Promise<ExtractedText[]>
-
-  // Анализ композиции
-  analyzeComposition(imagePath: string): Promise<CompositionAnalysis>
-
-  // Анализ цвета
-  analyzeColors(imagePath: string): Promise<ColorAnalysis>
 }
 
 export interface FrameAnalysis {
@@ -264,12 +182,6 @@ export interface MediaAnalysisFactory {
   getAvailableServices(): Promise<string[]>
 }
 
-// Интерфейс для полного анализа контента
-export interface IContentAnalysisService {
-  analyzeMedia(file: MediaFile, options?: ContentAnalysisOptions): Promise<ContentAnalysisResult>
-  batchAnalyzeMedia(files: MediaFile[], options?: ContentAnalysisOptions): Promise<ContentAnalysisResult[]>
-}
-
 export interface ContentAnalysisOptions {
   analysisDepth?: "quick" | "normal" | "deep"
   includeSceneDetection?: boolean
@@ -279,17 +191,12 @@ export interface ContentAnalysisOptions {
   outputDir?: string
 }
 
-export interface ContentAnalysisResult {
-  mediaFile: MediaFile
-  metadata: VideoMetadata
-  scenes?: SceneDetectionResult
-  quality?: QualityAnalysisResult
-  motion?: MotionAnalysisResult
-  silence?: SilenceDetectionResult
-  frames?: FrameAnalysis[]
-  processingTime: number
-  errors?: string[]
-  warnings?: string[]
+export interface VideoAnalysisOptions {
+  includeSceneDetection?: boolean
+  includeQualityAnalysis?: boolean
+  includeMotionAnalysis?: boolean
+  analysisDepth?: "quick" | "normal" | "deep"
+  outputDir?: string
 }
 
 // Content Classification Types
@@ -380,4 +287,197 @@ export interface ObjectDetection {
   boundingBox: BoundingBox
   frameNumber: number
   timestamp: number
+}
+
+// Типы для совместимости с существующим кодом
+export interface VideoAnalysisResult {
+  duration: number
+  fps: number
+  resolution: { width: number; height: number }
+  codec: string
+  bitrate: number
+  scenes: Array<{ start: number; end: number; confidence: number }>
+  quality: {
+    overall: number
+    sharpness: number
+    noise: number
+    compression: number
+    motionIntensity: number
+  }
+}
+
+export interface AudioAnalysisResult {
+  duration: number
+  channels: number
+  sampleRate: number
+  bitrate: number
+  codec: string
+  volume: {
+    average: number
+    peak: number
+    min: number
+  }
+  silentSegments: Array<{ start: number; end: number }>
+}
+
+export interface FrameAnalysisResult {
+  objects: Array<{
+    label: string
+    confidence: number
+    bbox: { x: number; y: number; width: number; height: number }
+  }>
+  faces: Array<{
+    confidence: number
+    bbox: { x: number; y: number; width: number; height: number }
+    emotions: Record<string, number>
+  }>
+  text: Array<{
+    text: string
+    confidence: number
+    bbox: { x: number; y: number; width: number; height: number }
+  }>
+  scene: {
+    type: string
+    confidence: number
+    attributes: string[]
+  }
+  nsfw: {
+    safe: number
+    suggestive: number
+    explicit: number
+  }
+}
+
+export interface SceneDetectionResult {
+  start: number
+  end: number
+  confidence: number
+}
+
+export interface ContentAnalysisResult {
+  id: string
+  mediaFile: MediaFile
+  video: VideoAnalysisResult
+  audio: AudioAnalysisResult
+  metadata?: VideoMetadata
+  quality?: QualityAnalysisResult
+  motion?: MotionAnalysisResult
+  scenes: Array<{
+    start: number
+    end: number
+    confidence: number
+    id: string
+    description?: string
+    objects?: string[]
+    keyframes?: string[]
+  }>
+  scenesDetection?: {
+    scenes: Array<{
+      start: number
+      end: number
+      confidence: number
+      id: string
+      description?: string
+      objects?: string[]
+      keyframes?: string[]
+    }>
+    method: "threshold" | "histogram" | "optical_flow" | "ai"
+    confidence: number
+  }
+  transcript: {
+    text: string
+    segments: Array<{
+      start: number
+      end: number
+      text: string
+      confidence: number
+    }>
+  }
+  summary: string
+  tags: string[]
+  sentiment: {
+    positive: number
+    neutral: number
+    negative: number
+  }
+  processingTime?: number
+}
+
+// Дополнительные интерфейсы для FFmpeg сервиса
+export interface IFFmpegAnalysisService {
+  analyzeVideo(file: MediaFile): Promise<VideoAnalysisResult>
+  analyzeAudio(file: MediaFile): Promise<AudioAnalysisResult>
+  extractFrames(file: MediaFile, timestamps: number[]): Promise<string[]>
+  extractAudioSegment(file: MediaFile, start: number, end: number): Promise<string>
+
+  // Методы для обработки файлов и путей (overloaded)
+  getVideoMetadata(path: string): Promise<VideoMetadata>
+
+  // detectScenes с поддержкой разных сигнатур
+  detectScenes(
+    pathOrFile: string | MediaFile,
+    optionsOrThreshold?:
+      | { sensitivity?: number; minSceneDuration?: number; method?: "threshold" | "histogram" }
+      | number,
+  ): Promise<SceneDetectionResult[]>
+
+  analyzeQuality(
+    path: string,
+    options?: {
+      checkVideo?: boolean
+      checkAudio?: boolean
+      deepAnalysis?: boolean
+    },
+  ): Promise<QualityAnalysisResult>
+  detectSilence(
+    path: string,
+    options?: {
+      threshold?: number
+      minDuration?: number
+    },
+  ): Promise<SilenceDetectionResult>
+  analyzeMotion(
+    path: string,
+    options?: {
+      sensitivity?: number
+      stabilityCheck?: boolean
+    },
+  ): Promise<MotionAnalysisResult>
+  extractKeyframes(
+    path: string,
+    options?: {
+      count?: number
+      interval?: number
+      outputDir?: string
+    },
+  ): Promise<string[]>
+  convertToFormat(inputPath: string, outputPath: string, format: string): Promise<boolean>
+}
+
+export interface IVisionService {
+  analyzeFrame(imagePath: string): Promise<FrameAnalysisResult>
+  analyzeVideo(videoPath: string, sampleRate?: number): Promise<FrameAnalysisResult[]>
+  detectFaces(imagePath: string): Promise<any[]>
+  recognizeText(imagePath: string): Promise<string>
+
+  // Для совместимости с новыми интерфейсами
+  analyzeFrames(imagePaths: string[]): Promise<FrameAnalysis[]>
+  detectObjects(imagePath: string): Promise<DetectedObject[]>
+  extractText(imagePath: string): Promise<ExtractedText[]>
+  analyzeComposition(imagePath: string): Promise<CompositionAnalysis>
+  analyzeColors(imagePath: string): Promise<ColorAnalysis>
+}
+
+export interface IContentAnalysisService {
+  analyzeContent(file: MediaFile): Promise<ContentAnalysisResult>
+  analyzeMultiple(files: MediaFile[]): Promise<ContentAnalysisResult[]>
+  generateSummary(analysis: ContentAnalysisResult): Promise<string>
+  extractKeyMoments(
+    analysis: ContentAnalysisResult,
+    count?: number,
+  ): Promise<Array<{ timestamp: number; description: string; confidence: number }>>
+
+  // Для совместимости с новыми интерфейсами
+  analyzeMedia(file: MediaFile, options?: ContentAnalysisOptions): Promise<ContentAnalysisResult>
+  batchAnalyzeMedia(files: MediaFile[], options?: ContentAnalysisOptions): Promise<ContentAnalysisResult[]>
 }

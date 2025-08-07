@@ -12,7 +12,7 @@ export interface MediaTemplate {
 
 export interface TemplateTrack {
   id: string
-  type: 'video' | 'audio' | 'image' | 'subtitle'
+  type: "video" | "audio" | "image" | "subtitle"
   clips: TemplateClip[]
 }
 
@@ -26,4 +26,4 @@ export interface TemplateClip {
 }
 
 // Реэкспорт из основного файла
-export * from './templates'
+export * from "./templates"

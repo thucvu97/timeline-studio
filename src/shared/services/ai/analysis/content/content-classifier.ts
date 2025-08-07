@@ -3,14 +3,8 @@
  * Классификация контента с использованием AI и эвристических методов
  */
 
-import type {
-  Audience,
-  ClassificationResult,
-  ContentClassification,
-  EmotionalTone,
-  SceneAnalysis,
-} from "../../interfaces"
-import { ContentType, Emotion, Genre } from "../../interfaces"
+import type { Audience, ClassificationResult, ContentClassification, EmotionalTone, SceneAnalysis } from "../interfaces"
+import { ContentType, Emotion, Genre } from "../interfaces"
 
 interface ClassifierConfig {
   useAI: boolean
@@ -384,7 +378,7 @@ export class ContentClassifier {
     return (
       lastScene.duration < 5 ||
       lastScene.content?.text?.some(
-        (t) => t.text.toLowerCase().includes("thanks") || t.text.toLowerCase().includes("subscribe"),
+        (t: any) => t.text.toLowerCase().includes("thanks") || t.text.toLowerCase().includes("subscribe"),
       ) ||
       false
     )
@@ -561,7 +555,7 @@ Format your response as JSON with this structure:
             // Извлекаем доминирующие цвета из ключевых кадров
             if (keyFrame.features?.colorHistogram) {
               // Используем гистограмму цветов если доступна
-              keyFrame.features.colorHistogram.forEach((_, index) => {
+              keyFrame.features.colorHistogram.forEach((_: any, index: number) => {
                 allColors.add(`color_${index}`)
               })
             } else {

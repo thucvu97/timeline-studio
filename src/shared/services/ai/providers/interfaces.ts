@@ -176,3 +176,26 @@ export interface OrchestrationFactory {
   createPipelineManager(): any
   createTaskScheduler(): any
 }
+
+// Типы для совместимости с mock классами
+export interface Message {
+  role: "user" | "assistant" | "system"
+  content: string
+}
+
+export interface IAIProviderFactory {
+  createProvider(name: string, config?: any): Promise<IAIProvider>
+  getAvailableProviders(): string[]
+  validateConfig(name: string, config: any): Promise<boolean>
+}
+
+export interface IModelManager {
+  loadModels(): Promise<void>
+  getModel(id: string): any
+  getAllModels(): any[]
+  getModelsByProvider(provider: string): any[]
+  getModelsByCapability(capability: string): any[]
+  registerModel(model: any): Promise<void>
+  updateModel(id: string, updates: Partial<any>): Promise<void>
+  isModelAvailable(id: string): boolean
+}

@@ -10,11 +10,15 @@ import type {
   MediaFile,
 } from "../analysis/interfaces"
 import type {
+  AiMessage,
+  AiRequestOptions,
+  AiResponse,
   IAIProvider,
   IAIProviderFactory,
   IModelManager,
   IUnifiedAIService,
-  Message,
+  ModelConfig,
+  StreamingOptions,
 } from "../providers/interfaces"
 
 export interface MockUnifiedAIServiceConfig {
@@ -32,7 +36,7 @@ export class MockUnifiedAIService implements IUnifiedAIService {
 
   constructor(private config: MockUnifiedAIServiceConfig = {}) {}
 
-  async sendRequest(model: string, messages: Message[], options?: any): Promise<{ content: string }> {
+  async sendRequest(model: string, messages: AiMessage[], options?: AiRequestOptions): Promise<AiResponse> {
     // Определяем провайдера из модели
     const providerName = this.getProviderForModel(model)
     let provider = this.providers.get(providerName)
@@ -49,11 +53,10 @@ export class MockUnifiedAIService implements IUnifiedAIService {
     return provider.sendRequest(model, messages, options)
   }
 
-  async streamRequest(
+  async sendStreamingRequest(
     model: string,
-    messages: Message[],
-    onToken: (token: string) => void,
-    options?: any,
+    messages: AiMessage[],
+    options?: AiRequestOptions & StreamingOptions,
   ): Promise<void> {
     const providerName = this.getProviderForModel(model)
     let provider = this.providers.get(providerName)
@@ -63,11 +66,11 @@ export class MockUnifiedAIService implements IUnifiedAIService {
       this.providers.set(providerName, provider)
     }
 
-    if (!provider || !provider.supportsStreaming()) {
+    if (!provider) {
       throw new Error(`Streaming not supported for model: ${model}`)
     }
 
-    return provider.streamRequest(model, messages, onToken, options)
+    return provider.sendStreamingRequest(model, messages, options)
   }
 
   async analyzeMedia(file: MediaFile): Promise<ContentAnalysisResult> {
@@ -86,9 +89,9 @@ export class MockUnifiedAIService implements IUnifiedAIService {
     return this.config.visionService.analyzeFrame(imagePath)
   }
 
-  getAvailableModels(): string[] {
+  async getAvailableModels(): Promise<ModelConfig[]> {
     if (!this.config.modelManager) return []
-    return this.config.modelManager.getAllModels().map((m) => m.id)
+    return this.config.modelManager.getAllModels()
   }
 
   getModelInfo(modelId: string): any {
@@ -110,6 +113,33 @@ export class MockUnifiedAIService implements IUnifiedAIService {
 
   isInitialized(): boolean {
     return true
+  }
+
+  async getBestModelForTask(_task: string, _options?: any): Promise<ModelConfig | null> {
+    const models = await this.getAvailableModels()
+    if (models.length === 0) return null
+    return models[0] // Просто возвращаем первую доступную модель
+  }
+
+  async getProviderStatuses(): Promise<Record<string, boolean>> {
+    return {
+      mock: true,
+      claude: false,
+      openai: false,
+      local: false,
+    }
+  }
+
+  clearCache(): void {
+    // Mock implementation
+  }
+
+  getCacheStats(): any {
+    return {
+      size: 0,
+      hits: 0,
+      misses: 0,
+    }
   }
 
   // Helper methods
@@ -149,6 +179,8 @@ export function createMockUnifiedService(
         if (lastMessage.includes(pattern)) {
           return {
             content: typeof response === "object" ? JSON.stringify(response) : response,
+            model,
+            provider: "mock",
           }
         }
       }
@@ -159,7 +191,7 @@ export function createMockUnifiedService(
   }
 
   if (behavior.streamingEnabled === false) {
-    service.streamRequest = async () => {
+    service.sendStreamingRequest = async () => {
       throw new Error("Streaming not supported")
     }
   }

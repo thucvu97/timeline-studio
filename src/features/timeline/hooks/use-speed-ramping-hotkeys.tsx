@@ -6,7 +6,7 @@ import { useSpeedRamping } from "./use-speed-ramping"
 import { useTimeline } from "./use-timeline"
 
 export function useSpeedRampingHotkeys() {
-  const { send, uiState } = useTimeline()
+  const { send, selectedClipIds } = useTimeline()
   const { resetToConstantSpeed } = useSpeedRamping()
 
   // Register keyboard shortcuts for speed ramping operations
@@ -15,8 +15,8 @@ export function useSpeedRampingHotkeys() {
       {
         id: "enable-speed-ramping",
         action: () => {
-          const selectedClipIds = uiState?.selectedClipIds || []
-          selectedClipIds.forEach((clipId) => {
+          const clipIds = selectedClipIds || []
+          clipIds.forEach((clipId: string) => {
             send({ type: "ENABLE_SPEED_RAMPING", clipId })
           })
         },
@@ -24,8 +24,8 @@ export function useSpeedRampingHotkeys() {
       {
         id: "reset-speed",
         action: () => {
-          const selectedClipIds = uiState?.selectedClipIds || []
-          selectedClipIds.forEach((clipId) => {
+          const clipIds = selectedClipIds || []
+          clipIds.forEach((clipId: string) => {
             resetToConstantSpeed(clipId, 1.0)
           })
         },
@@ -33,8 +33,8 @@ export function useSpeedRampingHotkeys() {
       {
         id: "speed-half",
         action: () => {
-          const selectedClipIds = uiState?.selectedClipIds || []
-          selectedClipIds.forEach((clipId) => {
+          const clipIds = selectedClipIds || []
+          clipIds.forEach((clipId: string) => {
             resetToConstantSpeed(clipId, 0.5)
           })
         },
@@ -42,8 +42,8 @@ export function useSpeedRampingHotkeys() {
       {
         id: "speed-double",
         action: () => {
-          const selectedClipIds = uiState?.selectedClipIds || []
-          selectedClipIds.forEach((clipId) => {
+          const clipIds = selectedClipIds || []
+          clipIds.forEach((clipId: string) => {
             resetToConstantSpeed(clipId, 2.0)
           })
         },
@@ -51,8 +51,8 @@ export function useSpeedRampingHotkeys() {
       {
         id: "speed-quad",
         action: () => {
-          const selectedClipIds = uiState?.selectedClipIds || []
-          selectedClipIds.forEach((clipId) => {
+          const clipIds = selectedClipIds || []
+          clipIds.forEach((clipId: string) => {
             resetToConstantSpeed(clipId, 4.0)
           })
         },
@@ -60,8 +60,8 @@ export function useSpeedRampingHotkeys() {
       {
         id: "reverse-speed",
         action: () => {
-          const selectedClipIds = uiState?.selectedClipIds || []
-          selectedClipIds.forEach((clipId) => {
+          const clipIds = selectedClipIds || []
+          clipIds.forEach((clipId: string) => {
             // TODO: Implement reverse speed
             console.log("Reverse speed for clip:", clipId)
           })
@@ -80,7 +80,7 @@ export function useSpeedRampingHotkeys() {
         shortcutsRegistry.updateAction(id, undefined)
       })
     }
-  }, [send, uiState?.selectedClipIds, resetToConstantSpeed])
+  }, [send, selectedClipIds, resetToConstantSpeed])
 
   return null
 }
