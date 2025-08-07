@@ -87,7 +87,7 @@ describe("UserSettingsModalTabs", () => {
     vi.mocked(useModal).mockImplementation(() => ({
       openModal: vi.fn(),
       closeModal: vi.fn(),
-      modalType: null,
+      modalType: "none",
       modalData: null,
       isOpen: false,
       submitModal: vi.fn(),

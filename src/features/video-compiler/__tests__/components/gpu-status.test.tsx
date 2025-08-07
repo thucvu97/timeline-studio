@@ -40,6 +40,8 @@ describe("GpuStatus", () => {
       memory_free: 8589934592, // 8GB
       utilization: 45,
       temperature: 65,
+      encoder_type: GpuEncoder.Nvenc,
+      supported_codecs: [],
     },
     gpus: [],
   }
@@ -67,7 +69,7 @@ describe("GpuStatus", () => {
 
   const mockCompilerSettings = {
     hardware_acceleration: true,
-    preferred_encoder: GpuEncoder.Auto,
+    preferred_encoder: GpuEncoder.AMF,
     quality: 85,
     max_concurrent_jobs: 2,
     cache_size_mb: 2048,
@@ -238,7 +240,19 @@ describe("GpuStatusBadge", () => {
       hardware_acceleration_supported: true,
       available_encoders: [GpuEncoder.Nvenc],
       recommended_encoder: GpuEncoder.Nvenc,
-      current_gpu: null,
+      current_gpu: {
+        id: "0",
+        name: "NVIDIA GeForce RTX 3080",
+        vendor: "NVIDIA",
+        driver_version: "535.123.01",
+        memory_total: 10737418240, // 10GB
+        memory_used: 2147483648, // 2GB
+        memory_free: 8589934592, // 8GB
+        utilization: 45,
+        temperature: 65,
+        encoder_type: GpuEncoder.Nvenc,
+        supported_codecs: [],
+      },
       gpus: [],
     },
     currentGpu: null,
@@ -281,9 +295,8 @@ describe("GpuStatusBadge", () => {
       gpuCapabilities: {
         hardware_acceleration_supported: false,
         available_encoders: [],
-        recommended_encoder: null,
-        current_gpu: null,
-        gpus: [],
+        recommended_encoder: undefined,
+        current_gpu: undefined,
       },
     })
 

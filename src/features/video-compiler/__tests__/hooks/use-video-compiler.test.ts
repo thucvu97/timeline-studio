@@ -92,20 +92,33 @@ describe("useVideoCompiler", () => {
   it("should start render successfully", async () => {
     const mockJobId = "job-123"
     mockRenderProject.mockResolvedValueOnce(mockJobId)
-    mockTrackRenderProgress.mockImplementation((_jobId, callback) => {
-      // Simulate progress update
-      setTimeout(() => {
-        callback({
-          jobId: mockJobId,
-          status: "processing" as RenderStatus,
-          percentage: 50,
-          currentFrame: 900,
-          totalFrames: 1800,
-          fps: 30,
-          eta: 30,
-        })
-      }, 100)
-    })
+    mockTrackRenderProgress.mockImplementation(
+      (
+        _jobId: any,
+        callback: (arg0: {
+          jobId: string
+          status: RenderStatus
+          percentage: number
+          currentFrame: number
+          totalFrames: number
+          fps: number
+          eta: number
+        }) => void,
+      ) => {
+        // Simulate progress update
+        setTimeout(() => {
+          callback({
+            jobId: mockJobId,
+            status: "processing" as RenderStatus,
+            percentage: 50,
+            currentFrame: 900,
+            totalFrames: 1800,
+            fps: 30,
+            eta: 30,
+          })
+        }, 100)
+      },
+    )
 
     const { result } = renderHook(() => useVideoCompiler())
 
