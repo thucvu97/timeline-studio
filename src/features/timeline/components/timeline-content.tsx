@@ -54,7 +54,6 @@ export function TimelineContent() {
 
   const {
     project,
-    uiState,
     selectedTrackIds,
     currentTime,
     createProject,
@@ -63,10 +62,13 @@ export function TimelineContent() {
     updateTrack,
     selectTracks,
     seek,
-    error,
-    clearError,
     send,
   } = useTimeline()
+  
+  // Временные значения для обратной совместимости
+  const timeScale = 60 // Пикселей в секунду по умолчанию
+  const error: string | null = null
+  const clearError = () => {}
 
   const { tracks, setTrackHeight } = useTracks()
   const { clips } = useClips()
@@ -245,7 +247,7 @@ export function TimelineContent() {
                     <div className="relative">
                       {/* Markers layer */}
                       <TimelineMarkersLayer
-                        timeScale={uiState.timeScale}
+                        timeScale={timeScale}
                         scrollOffset={scrollOffset}
                         containerWidth={containerWidth}
                         currentTime={currentTime}
@@ -257,14 +259,14 @@ export function TimelineContent() {
                       <TimelineAIOverlay
                         timelineWidth={containerWidth}
                         timelineDuration={project?.duration || 300}
-                        pixelsPerSecond={uiState.timeScale}
+                        pixelsPerSecond={timeScale}
                         className="sticky top-8 z-15"
                       />
 
                       {/* Split indicator */}
                       <SplitIndicator
                         containerRef={scrollContainerRef as React.RefObject<HTMLElement>}
-                        timeScale={uiState.timeScale}
+                        timeScale={timeScale}
                         scrollX={scrollOffset}
                         onSplit={(time, trackId) => {
                           // Find clip at this position
@@ -298,7 +300,7 @@ export function TimelineContent() {
                                 videoPath={clip.mediaFile?.path || null}
                                 duration={clip.duration}
                                 containerWidth={containerWidth}
-                                scale={uiState.timeScale}
+                                scale={timeScale}
                                 scrollOffset={scrollOffset}
                                 height={60}
                                 className="mb-1"
@@ -315,7 +317,7 @@ export function TimelineContent() {
                           <Track
                             key={track.id}
                             track={track}
-                            timeScale={uiState.timeScale}
+                            timeScale={timeScale}
                             currentTime={currentTime}
                             isSelected={selectedTrackIds?.includes(track.id) ?? false}
                             onSelect={(trackId) => selectTracks([trackId])}
