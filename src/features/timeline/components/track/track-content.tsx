@@ -10,7 +10,8 @@ import { memo, useCallback, useMemo } from "react"
 import { cn } from "@/lib/utils"
 import { useClipGroups } from "../../hooks/use-clip-groups"
 import { useDragDropTimeline } from "../../hooks/use-drag-drop-timeline"
-import { useTimeline } from "../../hooks/use-timeline"
+import { useTimelineProject } from "../../hooks/use-timeline-project"
+import { useTimelineSelection } from "../../hooks/use-timeline-selection"
 import { useTrackTransitionCollisions } from "../../hooks/use-transition-collisions"
 import { addTransitionBetweenClips, getTrackTransitions } from "../../services/timeline-transition-manager"
 import type { TimelineTrack } from "../../types"
@@ -30,7 +31,8 @@ interface TrackContentProps {
 
 export const TrackContent = memo(function TrackContent({ track, timeScale, currentTime, onUpdate }: TrackContentProps) {
   const { dragState, isValidDropTarget } = useDragDropTimeline()
-  const { selectClips, project, saveProject } = useTimeline()
+  const { selectClips } = useTimelineSelection()
+  const { project, saveProject } = useTimelineProject()
   const { groups, toggleCollapse } = useClipGroups()
 
   // Обнаружение коллизий переходов на треке
