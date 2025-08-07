@@ -41,6 +41,7 @@ import { Track } from "./track/track"
 import { TrackControlsPanel } from "./track-controls-panel"
 import { TrackInsertionZones } from "./track-insertion-zone"
 import { UndoRedoHotkeys } from "./undo-redo"
+import { IntegratedVersionPanel } from "./version-control-integration"
 
 export function TimelineContent() {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
