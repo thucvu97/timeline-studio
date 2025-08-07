@@ -1,3 +1,19 @@
+# [0.74.0](https://github.com/chatman-media/timeline-studio/compare/v0.73.0...v0.74.0) (2025-08-07)
+
+
+### Bug Fixes
+
+* исправлена ошибка использования удаленных AI сервисов в ai-chat компоненте ([aed395b](https://github.com/chatman-media/timeline-studio/commit/aed395b0caa55e240eaef33173ede8eb5f9c991c))
+* исправлены все TypeScript ошибки в модуле ai-chat ([fd49c1e](https://github.com/chatman-media/timeline-studio/commit/fd49c1e2d82227b56de61fc0da92bfb4c8cd82b7))
+* исправлены импорты констант моделей в model-configuration-manager ([235d74d](https://github.com/chatman-media/timeline-studio/commit/235d74d36c0abcb281c368bacba1c86c75248f9c))
+
+
+### Features
+
+* **ai:** рефакторинг AI модулей и создание документации требований ([77ebe23](https://github.com/chatman-media/timeline-studio/commit/77ebe23730e54427405b32360112e44911dbad9c))
+* **timeline:** интеграция ресурсов - переходы, эффекты, фильтры ([d1d8c4e](https://github.com/chatman-media/timeline-studio/commit/d1d8c4ea573b9faa1ebd82f7b294e3425a1a8e63))
+* **webgl:** интеграция WebGL эффектов с timeline и подключение backend команд ([53f219f](https://github.com/chatman-media/timeline-studio/commit/53f219fb6b87144ccc2f396bbf7c90e22999139d))
+
 # [0.73.0](https://github.com/chatman-media/timeline-studio/compare/v0.72.0...v0.73.0) (2025-08-07)
 
 
