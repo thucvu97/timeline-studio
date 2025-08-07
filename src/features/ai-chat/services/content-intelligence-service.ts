@@ -303,8 +303,9 @@ export class ContentIntelligenceService {
 
         // 4. Script Generation (если запрошено)
         let script: ContentScript | undefined
+        let generatedScript: GeneratedScript | undefined
         if (generateScript) {
-          const generatedScript = await this.generateScript(scenes, classification)
+          generatedScript = await this.generateScript(scenes, classification)
           script = {
             title: generatedScript.title,
             description: generatedScript.structure || "",
@@ -315,8 +316,11 @@ export class ContentIntelligenceService {
         // 5. Platform Adaptation (если указаны платформы)
         let platformVariants: PlatformVariant[] | undefined
         if (targetPlatforms.length > 0) {
-          const generatedScript = generateScript ? await this.generateScript(scenes, classification) : undefined
-          platformVariants = await this.adaptToPlatforms({ scenes, classification, script: generatedScript }, targetPlatforms, languages)
+          platformVariants = await this.adaptToPlatforms(
+            { scenes, classification, script: generatedScript },
+            targetPlatforms,
+            languages,
+          )
         }
 
         // 6. Content Insights

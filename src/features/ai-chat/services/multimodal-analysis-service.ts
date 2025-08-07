@@ -188,30 +188,65 @@ export class MultimodalAnalysisService {
 
       // Vision service анализирует кадр
       const frameAnalysis = await visionService.analyzeFrame(params.frameImagePath)
-      
+
       // Дополнительные анализы для полной информации
       const [composition, colors] = await Promise.all([
         visionService.analyzeComposition?.(params.frameImagePath) || {
           ruleOfThirds: { score: 0.7, points: [] },
           leadingLines: { score: 0.5, lines: [] },
           balance: { score: 0.6, centerOfMass: { x: 0, y: 0 } },
-          symmetry: { score: 0.5 }
+          symmetry: { score: 0.5 },
         },
         visionService.analyzeColors?.(params.frameImagePath) || {
           dominantColors: [],
           palette: [],
           temperature: "neutral" as const,
           saturation: "medium" as const,
-          brightness: "medium" as const
-        }
+          brightness: "medium" as const,
+        },
       ])
+
+      // Конвертируем FrameAnalysisResult в FrameAnalysis для совместимости
+      const adaptedAnalysis: FrameAnalysis = {
+        id: `frame_${Date.now()}`,
+        timestamp: Date.now(),
+        objects:
+          frameAnalysis.objects?.map((obj) => ({
+            class: obj.label,
+            confidence: obj.confidence,
+            boundingBox: {
+              x: obj.bbox.x,
+              y: obj.bbox.y,
+              width: obj.bbox.width,
+              height: obj.bbox.height,
+            },
+          })) || [],
+        text:
+          frameAnalysis.text?.map((t) => ({
+            text: t.text,
+            confidence: t.confidence,
+            boundingBox: {
+              x: t.bbox.x,
+              y: t.bbox.y,
+              width: t.bbox.width,
+              height: t.bbox.height,
+            },
+          })) || [],
+        composition,
+        colors,
+        quality: {
+          sharpness: 75, // Значения по умолчанию
+          brightness: 75,
+          contrast: 75,
+        },
+      }
 
       // Конвертируем результат в legacy формат
       return {
         frameTimestamp: params.contextInfo?.frameTimestamp || 0,
         analysisType: params.analysisType,
-        description: this.generateDescriptionFromAnalysis(frameAnalysis, params),
-        confidence: this.calculateConfidenceFromAnalysis(frameAnalysis),
+        description: this.generateDescriptionFromAnalysis(adaptedAnalysis, params),
+        confidence: this.calculateConfidenceFromAnalysis(adaptedAnalysis),
         detectedObjects: frameAnalysis.objects?.map((obj) => ({
           name: obj.label,
           confidence: obj.confidence,
@@ -229,7 +264,7 @@ export class MultimodalAnalysisService {
           colorHarmony: colors.palette.length > 3 ? 8 : 5,
           overall: (composition.ruleOfThirds.score * 10 + 7.5) / 2,
         },
-        tags: this.extractTagsFromAnalysis(frameAnalysis, params.analysisType),
+        tags: this.extractTagsFromAnalysis(adaptedAnalysis, params.analysisType),
         metadata: {
           processingTime: Date.now() - Date.now(), // Placeholder
           modelUsed: "shared-vision-service",
