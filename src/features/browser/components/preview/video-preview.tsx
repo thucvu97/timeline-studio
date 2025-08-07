@@ -1,8 +1,8 @@
 import { useDraggable } from "@dnd-kit/core"
 import { Film } from "lucide-react"
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
-
 import { useResources } from "@/features"
+import { FileSelectionCheckbox } from "@/features/browser/components/layout/file-selection-checkbox"
 import { useMediaPreview } from "@/features/media/hooks/use-media-preview"
 import type { FfprobeStream } from "@/features/media/types/ffprobe"
 import type { MediaFile } from "@/features/media/types/media"
@@ -448,6 +448,9 @@ export const VideoPreview = memo(
                 </div>
               )}
 
+              {/* Чекбокс выбора файла для плейсхолдера */}
+              <FileSelectionCheckbox file={file} size={size} />
+
               {/* Кнопка избранного для плейсхолдера */}
               <FavoriteButton file={file} size={size} type="media" />
 
@@ -666,6 +669,11 @@ export const VideoPreview = memo(
                     >
                       <Film size={size > 100 ? 16 : 12} />
                     </div>
+                  )}
+
+                  {/* Чекбокс выбора файла */}
+                  {!(isMultipleStreams && typeof stream.index !== "undefined" && stream.index !== 0) && (
+                    <FileSelectionCheckbox file={file} size={size} />
                   )}
 
                   {/* Кнопка избранного */}

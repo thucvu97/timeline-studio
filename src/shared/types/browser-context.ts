@@ -13,6 +13,9 @@ export interface BrowserContext {
   // Общие настройки
   activeTab: BrowserTab
 
+  // Выбранные файлы для каждой вкладки
+  selectedFiles: Record<BrowserTab, Set<string>>
+
   // Настройки для каждой вкладки
   tabSettings: Record<
     BrowserTab,

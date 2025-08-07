@@ -24,6 +24,16 @@ const getInitialTabSettings = (tab: BrowserTab) => ({
  */
 const getInitialContext = (): BrowserContext => ({
   activeTab: "media",
+  selectedFiles: {
+    media: new Set<string>(),
+    music: new Set<string>(),
+    effects: new Set<string>(),
+    filters: new Set<string>(),
+    transitions: new Set<string>(),
+    subtitles: new Set<string>(),
+    templates: new Set<string>(),
+    "style-templates": new Set<string>(),
+  },
   tabSettings: {
     media: getInitialTabSettings("media"),
     music: getInitialTabSettings("music"),
@@ -46,6 +56,7 @@ interface BrowserStateContextValue {
   // Геттеры для текущей вкладки
   activeTab: BrowserTab
   currentTabSettings: BrowserContext["tabSettings"][BrowserTab]
+  selectedFiles: Set<string>
   previewSize: number
 
   // Действия
@@ -58,6 +69,14 @@ interface BrowserStateContextValue {
   setViewMode: (viewMode: ViewMode, tab?: BrowserTab) => void
   setPreviewSize: (sizeIndex: number, tab?: BrowserTab) => void
   resetTabSettings: (tab: BrowserTab) => void
+
+  // Действия для выбора файлов
+  selectFile: (fileId: string, tab?: BrowserTab) => void
+  deselectFile: (fileId: string, tab?: BrowserTab) => void
+  toggleFileSelection: (fileId: string, tab?: BrowserTab) => void
+  selectAllFiles: (fileIds: string[], tab?: BrowserTab) => void
+  deselectAllFiles: (tab?: BrowserTab) => void
+  isFileSelected: (fileId: string, tab?: BrowserTab) => boolean
 }
 
 /**
@@ -81,7 +100,19 @@ export const BrowserStateProvider: React.FC<BrowserStateProviderProps> = ({ chil
     try {
       const savedSettings = localStorage.getItem("browserSettings")
       if (savedSettings) {
-        return JSON.parse(savedSettings)
+        const parsed = JSON.parse(savedSettings)
+        // Преобразуем массивы обратно в Set для selectedFiles
+        if (parsed.selectedFiles) {
+          const selectedFiles: Record<BrowserTab, Set<string>> = {} as any
+          for (const [tab, files] of Object.entries(parsed.selectedFiles)) {
+            selectedFiles[tab as BrowserTab] = new Set(files as string[])
+          }
+          parsed.selectedFiles = selectedFiles
+        } else {
+          // Если нет selectedFiles, инициализируем пустыми Set
+          parsed.selectedFiles = getInitialContext().selectedFiles
+        }
+        return parsed
       }
     } catch (error) {
       console.error("Failed to load browser settings from localStorage:", error)
@@ -117,7 +148,18 @@ export const BrowserStateProvider: React.FC<BrowserStateProviderProps> = ({ chil
 
     saveTimeoutRef.current = setTimeout(() => {
       try {
-        localStorage.setItem("browserSettings", JSON.stringify(state))
+        // Преобразуем Set в массив для сериализации
+        const stateToSave = {
+          ...state,
+          selectedFiles: Object.entries(state.selectedFiles).reduce(
+            (acc, [tab, files]) => {
+              acc[tab] = Array.from(files)
+              return acc
+            },
+            {} as Record<BrowserTab, string[]>,
+          ),
+        }
+        localStorage.setItem("browserSettings", JSON.stringify(stateToSave))
         // Settings saved to localStorage
       } catch (error) {
         console.error("Failed to save browser settings to localStorage:", error)
@@ -146,6 +188,7 @@ export const BrowserStateProvider: React.FC<BrowserStateProviderProps> = ({ chil
   // Геттеры
   const activeTab = state.activeTab
   const currentTabSettings = state.tabSettings[activeTab] || getInitialTabSettings(activeTab)
+  const selectedFiles = state.selectedFiles[activeTab] || new Set<string>()
   const previewSize = PREVIEW_SIZES[currentTabSettings.previewSizeIndex] || PREVIEW_SIZES[DEFAULT_PREVIEW_SIZE_INDEX]
 
   // Действия
@@ -262,10 +305,85 @@ export const BrowserStateProvider: React.FC<BrowserStateProviderProps> = ({ chil
     }))
   }
 
+  // Методы для работы с выбором файлов
+  const selectFile = (fileId: string, tab?: BrowserTab) => {
+    const targetTab = tab || activeTab
+    setState((prev) => ({
+      ...prev,
+      selectedFiles: {
+        ...prev.selectedFiles,
+        [targetTab]: new Set([...prev.selectedFiles[targetTab], fileId]),
+      },
+    }))
+  }
+
+  const deselectFile = (fileId: string, tab?: BrowserTab) => {
+    const targetTab = tab || activeTab
+    setState((prev) => {
+      const newSelectedFiles = new Set(prev.selectedFiles[targetTab])
+      newSelectedFiles.delete(fileId)
+      return {
+        ...prev,
+        selectedFiles: {
+          ...prev.selectedFiles,
+          [targetTab]: newSelectedFiles,
+        },
+      }
+    })
+  }
+
+  const toggleFileSelection = (fileId: string, tab?: BrowserTab) => {
+    const targetTab = tab || activeTab
+    setState((prev) => {
+      const isSelected = prev.selectedFiles[targetTab].has(fileId)
+      const newSelectedFiles = new Set(prev.selectedFiles[targetTab])
+      if (isSelected) {
+        newSelectedFiles.delete(fileId)
+      } else {
+        newSelectedFiles.add(fileId)
+      }
+      return {
+        ...prev,
+        selectedFiles: {
+          ...prev.selectedFiles,
+          [targetTab]: newSelectedFiles,
+        },
+      }
+    })
+  }
+
+  const selectAllFiles = (fileIds: string[], tab?: BrowserTab) => {
+    const targetTab = tab || activeTab
+    setState((prev) => ({
+      ...prev,
+      selectedFiles: {
+        ...prev.selectedFiles,
+        [targetTab]: new Set(fileIds),
+      },
+    }))
+  }
+
+  const deselectAllFiles = (tab?: BrowserTab) => {
+    const targetTab = tab || activeTab
+    setState((prev) => ({
+      ...prev,
+      selectedFiles: {
+        ...prev.selectedFiles,
+        [targetTab]: new Set(),
+      },
+    }))
+  }
+
+  const isFileSelected = (fileId: string, tab?: BrowserTab) => {
+    const targetTab = tab || activeTab
+    return state.selectedFiles[targetTab]?.has(fileId) || false
+  }
+
   const value: BrowserStateContextValue = {
     state,
     activeTab,
     currentTabSettings,
+    selectedFiles,
     previewSize,
     switchTab,
     setSearchQuery,
@@ -276,6 +394,12 @@ export const BrowserStateProvider: React.FC<BrowserStateProviderProps> = ({ chil
     setViewMode,
     setPreviewSize,
     resetTabSettings,
+    selectFile,
+    deselectFile,
+    toggleFileSelection,
+    selectAllFiles,
+    deselectAllFiles,
+    isFileSelected,
   }
 
   return <BrowserStateContext.Provider value={value}>{children}</BrowserStateContext.Provider>

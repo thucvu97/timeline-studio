@@ -37,10 +37,10 @@ export function useBrowserAIIntegration() {
 
   // Функция для получения выбранных файлов
   const getSelectedFiles = useCallback((): MediaFile[] => {
-    // В текущей реализации нет выбора файлов
-    // Возвращаем пустой массив
-    return []
-  }, [])
+    const selectedIds = browserState.selectedFiles
+    const tabFiles = getTabFiles()
+    return tabFiles.filter((file: MediaFile) => selectedIds.has(file.id))
+  }, [browserState.selectedFiles, getTabFiles])
 
   // Функция для получения файлов с фильтрами
   const getFilteredFiles = useCallback((): MediaFile[] => {
@@ -120,13 +120,13 @@ export function useBrowserAIIntegration() {
           browserState.setSort(filters.sortBy, filters.sortOrder)
         }
       },
-      selectFiles: (_fileIds: string[]) => {
-        // В текущей реализации нет функции выбора файлов
-        console.warn("selectFiles not implemented yet")
+      selectFiles: (fileIds: string[]) => {
+        // Выбираем все переданные файлы
+        fileIds.forEach((fileId) => browserState.selectFile(fileId))
       },
-      deselectFiles: (_fileIds: string[]) => {
-        // В текущей реализации нет функции выбора файлов
-        console.warn("deselectFiles not implemented yet")
+      deselectFiles: (fileIds: string[]) => {
+        // Отменяем выбор всех переданных файлов
+        fileIds.forEach((fileId) => browserState.deselectFile(fileId))
       },
       searchFiles: (query: string) => {
         const filtered = getTabFiles().filter((file: MediaFile) =>
@@ -178,9 +178,11 @@ export function useBrowserAIIntegration() {
           totalSize += file.size || 0
         })
 
+        const selectedFilesCount = browserState.selectedFiles.size
+
         return {
           totalFiles: files.length,
-          selectedFiles: 0, // В текущей реализации нет выбора файлов
+          selectedFiles: selectedFilesCount,
           filesByType,
           totalSize,
         }
