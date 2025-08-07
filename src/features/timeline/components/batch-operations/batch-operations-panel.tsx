@@ -2,20 +2,21 @@
  * Панель batch операций для множественных клипов
  */
 
-import { useState } from "react"
-import { 
-  AlignStartVertical, 
-  AlignCenterVertical, 
+import {
+  AlignCenterVertical,
   AlignEndVertical,
-  Zap,
-  Palette,
-  Move,
-  Scissors,
+  AlignStartVertical,
+  Clock,
   Layers,
+  Move,
+  Palette,
+  Scissors,
   Shuffle,
   Trash2,
-  Clock
+  Zap,
 } from "lucide-react"
+import { useState } from "react"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -24,10 +25,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
 import { useBatchOperations } from "../../hooks/use-batch-operations"
-import { useTimelineSelection } from "../../hooks/use-timeline-selection"
 import { useTimeline } from "../../hooks/use-timeline"
+import { useTimelineSelection } from "../../hooks/use-timeline-selection"
 import type { VideoFadeOptions } from "../../services/video-fade-service"
 
 export function BatchOperationsPanel() {
@@ -61,9 +61,7 @@ export function BatchOperationsPanel() {
     return (
       <Card className="w-full">
         <CardContent className="pt-6">
-          <p className="text-center text-muted-foreground">
-            Выберите несколько клипов для групповых операций
-          </p>
+          <p className="text-center text-muted-foreground">Выберите несколько клипов для групповых операций</p>
         </CardContent>
       </Card>
     )
@@ -99,10 +97,12 @@ export function BatchOperationsPanel() {
                   className="flex-1"
                 />
                 <Button
-                  onClick={() => moveSelectedClips({ 
-                    deltaTime: moveOffset,
-                    maintainRelativePositions: true 
-                  })}
+                  onClick={() =>
+                    moveSelectedClips({
+                      deltaTime: moveOffset,
+                      maintainRelativePositions: true,
+                    })
+                  }
                   size="sm"
                 >
                   <Move className="h-4 w-4 mr-1" />
@@ -124,11 +124,13 @@ export function BatchOperationsPanel() {
                 />
                 <span className="w-12 text-sm">{speed}x</span>
                 <Button
-                  onClick={() => changeSelectedClipsSpeed({ 
-                    speed,
-                    maintainPitch: true,
-                    adjustDuration: true
-                  })}
+                  onClick={() =>
+                    changeSelectedClipsSpeed({
+                      speed,
+                      maintainPitch: true,
+                      adjustDuration: true,
+                    })
+                  }
                   size="sm"
                 >
                   <Zap className="h-4 w-4 mr-1" />
@@ -152,10 +154,12 @@ export function BatchOperationsPanel() {
                   className="flex-1"
                 />
                 <Button
-                  onClick={() => trimSelectedClips({ 
-                    trimStart,
-                    maintainDuration: false 
-                  })}
+                  onClick={() =>
+                    trimSelectedClips({
+                      trimStart,
+                      maintainDuration: false,
+                    })
+                  }
                   size="sm"
                 >
                   <Scissors className="h-4 w-4 mr-1" />
@@ -175,10 +179,7 @@ export function BatchOperationsPanel() {
                   step="0.1"
                   className="flex-1"
                 />
-                <Button
-                  onClick={() => trimSelectedClips({ trimEnd })}
-                  size="sm"
-                >
+                <Button onClick={() => trimSelectedClips({ trimEnd })} size="sm">
                   <Scissors className="h-4 w-4 mr-1" />
                   Обрезать
                 </Button>
@@ -200,10 +201,7 @@ export function BatchOperationsPanel() {
                   className="flex-1"
                 />
                 <span className="w-12 text-sm">{Math.round(opacity * 100)}%</span>
-                <Button
-                  onClick={() => applyColorSettingsToSelected({ opacity })}
-                  size="sm"
-                >
+                <Button onClick={() => applyColorSettingsToSelected({ opacity })} size="sm">
                   <Palette className="h-4 w-4 mr-1" />
                   Применить
                 </Button>
@@ -223,7 +221,7 @@ export function BatchOperationsPanel() {
                   <SelectItem value="ease-in-out">Ease In-Out</SelectItem>
                 </SelectContent>
               </Select>
-              
+
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
                   <Label className="text-xs">Fade In (сек)</Label>
@@ -246,12 +244,14 @@ export function BatchOperationsPanel() {
                   />
                 </div>
               </div>
-              
+
               <Button
-                onClick={() => applyColorSettingsToSelected({ 
-                  fadeIn: fadeInDuration > 0 ? { type: fadeType, duration: fadeInDuration } : undefined,
-                  fadeOut: fadeOutDuration > 0 ? { type: fadeType, duration: fadeOutDuration } : undefined
-                })}
+                onClick={() =>
+                  applyColorSettingsToSelected({
+                    fadeIn: fadeInDuration > 0 ? { type: fadeType, duration: fadeInDuration } : undefined,
+                    fadeOut: fadeOutDuration > 0 ? { type: fadeType, duration: fadeOutDuration } : undefined,
+                  })
+                }
                 className="w-full"
                 size="sm"
               >
@@ -260,12 +260,7 @@ export function BatchOperationsPanel() {
             </div>
 
             <div className="pt-4 border-t">
-              <Button
-                onClick={() => removeAllEffectsFromSelected()}
-                variant="destructive"
-                className="w-full"
-                size="sm"
-              >
+              <Button onClick={() => removeAllEffectsFromSelected()} variant="destructive" className="w-full" size="sm">
                 <Trash2 className="h-4 w-4 mr-1" />
                 Удалить все эффекты
               </Button>
@@ -277,27 +272,15 @@ export function BatchOperationsPanel() {
             <div className="space-y-2">
               <Label>Выравнивание клипов</Label>
               <div className="grid grid-cols-3 gap-2">
-                <Button
-                  onClick={() => alignSelectedClips("start")}
-                  variant="outline"
-                  size="sm"
-                >
+                <Button onClick={() => alignSelectedClips("start")} variant="outline" size="sm">
                   <AlignStartVertical className="h-4 w-4 mr-1" />
                   По началу
                 </Button>
-                <Button
-                  onClick={() => alignSelectedClips("center")}
-                  variant="outline"
-                  size="sm"
-                >
+                <Button onClick={() => alignSelectedClips("center")} variant="outline" size="sm">
                   <AlignCenterVertical className="h-4 w-4 mr-1" />
                   По центру
                 </Button>
-                <Button
-                  onClick={() => alignSelectedClips("end")}
-                  variant="outline"
-                  size="sm"
-                >
+                <Button onClick={() => alignSelectedClips("end")} variant="outline" size="sm">
                   <AlignEndVertical className="h-4 w-4 mr-1" />
                   По концу
                 </Button>
@@ -316,10 +299,7 @@ export function BatchOperationsPanel() {
                   placeholder="Интервал (сек)"
                   className="flex-1"
                 />
-                <Button
-                  onClick={() => distributeSelectedClips(distributeSpacing)}
-                  size="sm"
-                >
+                <Button onClick={() => distributeSelectedClips(distributeSpacing)} size="sm">
                   <Shuffle className="h-4 w-4 mr-1" />
                   Распределить
                 </Button>
@@ -355,10 +335,7 @@ export function BatchOperationsPanel() {
               placeholder="Длительность (сек)"
               className="flex-1"
             />
-            <Button
-              onClick={() => createTransitionsBetween(transitionDuration)}
-              size="sm"
-            >
+            <Button onClick={() => createTransitionsBetween(transitionDuration)} size="sm">
               <Layers className="h-4 w-4 mr-1" />
               Создать переходы
             </Button>

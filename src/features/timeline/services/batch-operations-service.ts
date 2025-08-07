@@ -3,9 +3,9 @@
  * Provides batch operations for multiple clips in timeline
  */
 
-import type { TimelineClip, TimelineTrack, AppliedEffect, AppliedFilter } from "../types"
-import { VideoFadeService, type VideoFadeOptions } from "./video-fade-service"
+import type { AppliedEffect, AppliedFilter, TimelineClip, TimelineTrack } from "../types"
 import { SlipSlideService } from "./slip-slide-service"
+import { type VideoFadeOptions, VideoFadeService } from "./video-fade-service"
 
 export interface BatchOperationResult {
   success: boolean
@@ -55,11 +55,7 @@ export class BatchOperationsService {
   /**
    * Перемещает группу клипов
    */
-  static moveClips(
-    clips: TimelineClip[],
-    tracks: TimelineTrack[],
-    options: BatchMoveOptions,
-  ): BatchOperationResult {
+  static moveClips(clips: TimelineClip[], tracks: TimelineTrack[], options: BatchMoveOptions): BatchOperationResult {
     const result: BatchOperationResult = {
       success: true,
       processedClips: [],
@@ -72,7 +68,7 @@ export class BatchOperationsService {
     const sortedClips = [...clips].sort((a, b) => a.startTime - b.startTime)
 
     // Если нужно сохранить относительные позиции, вычисляем базовое время
-    let baseTime = options.maintainRelativePositions ? sortedClips[0]?.startTime || 0 : 0
+    const baseTime = options.maintainRelativePositions ? sortedClips[0]?.startTime || 0 : 0
 
     for (const clip of sortedClips) {
       try {
@@ -94,9 +90,7 @@ export class BatchOperationsService {
         if (track) {
           const hasCollision = track.clips.some(
             (c) =>
-              c.id !== clip.id &&
-              newStartTime < c.startTime + c.duration &&
-              newStartTime + clip.duration > c.startTime,
+              c.id !== clip.id && newStartTime < c.startTime + c.duration && newStartTime + clip.duration > c.startTime,
           )
 
           if (hasCollision) {
@@ -144,7 +138,7 @@ export class BatchOperationsService {
 
     for (const clip of clips) {
       try {
-        let updatedClip = { ...clip }
+        const updatedClip = { ...clip }
 
         // Обрезка начала
         if (options.trimStart !== undefined && options.trimStart > 0) {
@@ -515,7 +509,7 @@ export class BatchOperationsService {
     }
 
     // Группируем клипы по трекам
-    const clipsByTrack = this.groupClipsByTrack(clips)
+    const clipsByTrack = BatchOperationsService.groupClipsByTrack(clips)
 
     for (const [trackId, trackClips] of clipsByTrack) {
       // Сортируем клипы по времени
@@ -529,7 +523,7 @@ export class BatchOperationsService {
         try {
           // Проверяем, достаточно ли близко клипы для перехода
           const gap = clipB.startTime - (clipA.startTime + clipA.duration)
-          
+
           if (gap > transitionDuration) {
             // Клипы слишком далеко друг от друга
             continue

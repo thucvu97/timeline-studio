@@ -4,6 +4,7 @@ import { toast } from "sonner"
 import { useModal } from "@/features/modals/services"
 import { useTimeline } from "@/features/timeline/hooks/use-timeline"
 import { TranscriptionPanel } from "@/features/transcription"
+import { EnhancedTranscriptionPanel } from "@/features/transcription/components/enhanced-transcription-panel"
 
 // Функция генерации уникального ID для субтитров
 const generateSubtitleId = () => `subtitle-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
@@ -41,14 +42,18 @@ export function SubtitleAIToolsModal() {
 
     // Добавляем субтитры на трек
     segments.forEach((segment) => {
+      // Конвертируем время из секунд в миллисекунды для Timeline
+      const startTime = typeof segment.start === "number" ? segment.start * 1000 : segment.startTime
+      const endTime = typeof segment.end === "number" ? segment.end * 1000 : segment.endTime
+
       send({
         type: "ADD_CLIP",
         trackId: subtitleTrack!.id,
         clip: {
           id: generateSubtitleId(),
           type: "subtitle",
-          startTime: segment.start,
-          duration: segment.end - segment.start,
+          startTime,
+          duration: endTime - startTime,
           text: segment.text,
           style: {
             fontSize: 24,
@@ -57,6 +62,9 @@ export function SubtitleAIToolsModal() {
             backgroundColor: "rgba(0, 0, 0, 0.8)",
             position: "bottom",
           },
+          // Дополнительная информация от Enhanced AI
+          speaker: segment.speaker,
+          confidence: segment.confidence,
         },
       })
     })
@@ -69,8 +77,8 @@ export function SubtitleAIToolsModal() {
   }
 
   return (
-    <div className="w-full h-[600px]">
-      <TranscriptionPanel onAddToTimeline={handleAddToTimeline} />
+    <div className="w-full h-[700px]">
+      <EnhancedTranscriptionPanel onAddToTimeline={handleAddToTimeline} />
     </div>
   )
 }

@@ -237,6 +237,9 @@ export interface TimelineClip {
   styleTemplate?: AppliedStyleTemplate // Применяемый стильный шаблон
   colorGrading?: AppliedColorGrading // Цветокоррекция
 
+  // Keyframe анимации
+  keyframes?: TimelineKeyframe[]
+
   // Состояние
   isSelected: boolean
   isLocked: boolean
@@ -483,7 +486,7 @@ export interface TimelineKeyframe {
   time: number
   property: string
   value: any
-  interpolation: "linear" | "ease" | "ease-in" | "ease-out" | "bezier"
+  interpolation: "linear" | "ease" | "ease-in" | "ease-out" | "ease-in-out" | "bezier" | "step"
 }
 
 // ============================================================================

@@ -40,6 +40,7 @@ import {
 import { Track } from "./track/track"
 import { TrackControlsPanel } from "./track-controls-panel"
 import { TrackInsertionZones } from "./track-insertion-zone"
+import { UndoRedoHotkeys } from "./undo-redo"
 
 export function TimelineContent() {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -64,7 +65,7 @@ export function TimelineContent() {
     seek,
     send,
   } = useTimeline()
-  
+
   // Временные значения для обратной совместимости
   const timeScale = 60 // Пикселей в секунду по умолчанию
   const error: string | null = null
@@ -165,6 +166,7 @@ export function TimelineContent() {
   return (
     <EditModeProvider>
       <TimelineHotkeys />
+      <UndoRedoHotkeys />
       <TimelineSpeedRampingIntegration />
       <SpeedRampingIndicator />
       <div className="flex h-full flex-col">

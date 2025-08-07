@@ -8,22 +8,28 @@
 import type { MediaFile } from "@/features/media/types/media"
 import type { ResourcesContextType } from "@/features/resources/services/resources-provider"
 import type { TimelineProject } from "@/features/timeline/types"
-// Импорты из новой структуры tools
-import { batchProcessingTools, executeBatchProcessingTool } from "../tools/automation/batch-processing-tools"
-import { browserTools, executeBrowserTool } from "../tools/core/browser"
 import { contentIntelligenceTools, executeContentIntelligenceTool } from "../tools/analysis/content-intelligence-tools"
-import { effectsFiltersTools, executeEffectsFiltersTool } from "../tools/core/effects-filters-tools"
-import { executeExportManagementTool, exportManagementTools } from "../tools/integration/export-tools"
 import { executeMultimodalAnalysisTool, multimodalAnalysisTools } from "../tools/analysis/multimodal-tools"
-import { executePersonIdentificationTool, personIdentificationTools } from "../tools/analysis/person-identification-tools"
-import { executePlatformOptimizationTool, platformOptimizationTools } from "../tools/integration/platform-integration-tools"
-import { executePlayerTool, playerTools } from "../tools/core/player"
-import { executeResourceTool, resourceTools } from "../tools/core/resources"
-import { executeSubtitleTool, subtitleTools } from "../tools/automation/subtitle-tools"
-import { executeTimelineTool, timelineTools } from "../tools/core/timeline"
+import {
+  executePersonIdentificationTool,
+  personIdentificationTools,
+} from "../tools/analysis/person-identification-tools"
 import { executeVideoAnalysisTool, videoAnalysisTools } from "../tools/analysis/video-analysis-tools"
 import { executeWhisperTool, whisperTools } from "../tools/analysis/whisper-tools"
+// Импорты из новой структуры tools
+import { batchProcessingTools, executeBatchProcessingTool } from "../tools/automation/batch-processing-tools"
+import { executeSubtitleTool, subtitleTools } from "../tools/automation/subtitle-tools"
 import { executeWorkflowAutomationTool, workflowAutomationTools } from "../tools/automation/workflow-tools"
+import { browserTools, executeBrowserTool } from "../tools/core/browser"
+import { effectsFiltersTools, executeEffectsFiltersTool } from "../tools/core/effects-filters-tools"
+import { executePlayerTool, playerTools } from "../tools/core/player"
+import { executeResourceTool, resourceTools } from "../tools/core/resources"
+import { executeTimelineTool, timelineTools } from "../tools/core/timeline"
+import { executeExportManagementTool, exportManagementTools } from "../tools/integration/export-tools"
+import {
+  executePlatformOptimizationTool,
+  platformOptimizationTools,
+} from "../tools/integration/platform-integration-tools"
 import type {
   AIBrowserContext,
   AIPlayerContext,
