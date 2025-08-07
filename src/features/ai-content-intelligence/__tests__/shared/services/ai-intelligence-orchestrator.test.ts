@@ -244,7 +244,7 @@ describe("AIIntelligenceOrchestrator", () => {
           setTimeout(() => {
             // Симулируем прогресс
             mockActor["state"] = {
-              matches: (state: string) => false,
+              matches: (_state: string) => false,
               context: {
                 progress: 50,
                 currentStep: "analyzing",
