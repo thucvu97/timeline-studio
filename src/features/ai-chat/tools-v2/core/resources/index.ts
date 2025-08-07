@@ -8,8 +8,8 @@ import { exportResourceList, exportResourceListTool } from "./export-resources"
 import {
   addResourceToPoolTool,
   bulkAddResourcesTool,
-  removeResourceFromPoolTool,
   executeManageResourcesTool,
+  removeResourceFromPoolTool,
 } from "./manage-resources"
 import { suggestComplementaryResources, suggestComplementaryResourcesTool } from "./suggest-resources"
 import type { ResourceToolResult } from "./types"

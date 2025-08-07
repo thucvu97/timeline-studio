@@ -2,7 +2,7 @@
  * AI инструмент для создания структуры треков на Timeline с использованием BaseAITool
  */
 
-import type { TimelineTrack } from "@/features/timeline/types/timeline"
+import type { TimelineTrack, TrackType } from "@/features/timeline/types/timeline"
 import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 import { generateTrackId } from "./utils/generators"
 import { getCurrentTimelineProject, saveTimelineProject } from "./utils/helpers"
@@ -133,7 +133,7 @@ export class TrackCreationTool extends BaseAITool {
         const newTracks: TimelineTrack[] = tracks.map((trackConfig, index) => ({
           id: generateTrackId(),
           name: trackConfig.name || `Track ${index + 1}`,
-          type: trackConfig.type,
+          type: trackConfig.type as TrackType,
           order: index,
           clips: [],
           isLocked: trackConfig.isLocked === true,
@@ -145,6 +145,7 @@ export class TrackCreationTool extends BaseAITool {
           height: trackConfig.height ?? 100,
           trackEffects: [],
           trackFilters: [],
+          transitions: [],
         }))
 
         const warnings: string[] = []

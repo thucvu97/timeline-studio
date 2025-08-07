@@ -26,6 +26,7 @@ import { useEffects } from "@/features/effects/hooks/use-effects"
 import type { BaseEffect } from "@/features/effects/types"
 
 import { useTimelineEffects } from "../hooks/use-timeline-effects"
+import { useTimeline } from "../hooks/use-timeline"
 import type { AppliedEffect, TimelineClip } from "../types"
 
 interface ClipEffectsPanelProps {
@@ -40,6 +41,7 @@ export function ClipEffectsPanel({ clip, onClose }: ClipEffectsPanelProps) {
   const { t, i18n } = useTranslation()
   const { effects: availableEffects } = useEffects()
   const { applyEffect, removeEffect, updateEffect } = useTimelineEffects()
+  const { send } = useTimeline()
 
   const [showEffectSelector, setShowEffectSelector] = useState(false)
   const [selectedEffectId, setSelectedEffectId] = useState<string | null>(null)

@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils"
 
 import { useClips } from "../../hooks/use-clips"
 import { useTimeline } from "../../hooks/use-timeline"
-import { useTimelineSelection } from "../../hooks/use-timeline-selection"
 import { timelinePlayerSync } from "../../services/timeline-player-sync"
 import type { TimelineClip, TimelineTrack } from "../../types"
 import { VideoFadeControls } from "./video-fade-controls"
@@ -28,7 +27,7 @@ interface VideoClipProps {
 export const VideoClip = memo(
   function VideoClip({ clip, track, pixelsPerSecond, onUpdate, onRemove }: VideoClipProps) {
     const [isHovered, setIsHovered] = React.useState(false)
-    const { selectClips, copySelection } = useTimelineSelection()
+    const { selectClips, copySelection } = useTimeline()
     const { splitClip } = useClips()
 
     // Мемоизируем обработчики для предотвращения создания новых функций при каждом рендере
