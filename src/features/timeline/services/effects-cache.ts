@@ -87,8 +87,8 @@ export class EffectsCache {
       .filter((e) => e.enabled)
       .map((e) => ({
         id: e.effectId,
-        params: e.parameters,
-        keyframes: e.keyframes,
+        params: e.customParams,
+        // keyframes: e.keyframes,
       }))
 
     // Простой хеш на основе JSON
