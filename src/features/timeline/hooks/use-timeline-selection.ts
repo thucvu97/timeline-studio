@@ -135,7 +135,7 @@ export function useTimelineSelection(): UseTimelineSelectionReturn {
 
     const startTime = Math.min(...selectedClips.map((clip) => clip.startTime))
     const endTime = Math.max(...selectedClips.map((clip) => clip.startTime + clip.duration))
-    const trackIds = [...new Set(selectedClips.map((clip) => clip.trackId))]
+    const trackIds = Array.from(new Set(selectedClips.map((clip) => clip.trackId)))
 
     return {
       startTime,
@@ -332,17 +332,17 @@ export function useTimelineSelection(): UseTimelineSelectionReturn {
     const averageVolume =
       selectedClips.length > 0 ? selectedClips.reduce((sum, clip) => sum + clip.volume, 0) / selectedClips.length : 0
 
-    const trackTypes = [
-      ...new Set(
+    const trackTypes = Array.from(
+      new Set(
         selectedClips.map((clip) => {
           const track = findTrack(clip.trackId)
           return track?.type || "unknown"
         }),
       ),
-    ]
+    )
 
-    const mediaTypes = [
-      ...new Set(
+    const mediaTypes = Array.from(
+      new Set(
         selectedClips.map((clip) => {
           const mediaFile = clip.mediaFile
           if (mediaFile?.isVideo) return "video"
@@ -351,7 +351,7 @@ export function useTimelineSelection(): UseTimelineSelectionReturn {
           return "unknown"
         }),
       ),
-    ]
+    )
 
     return {
       totalDuration,

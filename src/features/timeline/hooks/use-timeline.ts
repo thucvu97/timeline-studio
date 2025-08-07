@@ -196,9 +196,5 @@ export function useTimeline(): TimelineContextType {
   }
 }
 
-// Экспорт типов для удобства
-export type { TimelineContextType }
-
 // Legacy export для обратной совместимости
 export { useTimeline as useTimelineV2 }
-export type { TimelineContextType as TimelineContextTypeV2 }

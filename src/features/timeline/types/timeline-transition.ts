@@ -3,7 +3,7 @@
  * Продвинутая система переходов как отдельных объектов на таймлайне
  */
 
-import type { EasingFunction } from "@/features/video-player/services/transitions-preview"
+import type { EasingFunction } from "../../video-player/services/transitions-preview"
 
 /**
  * Переход как отдельный объект на таймлайне

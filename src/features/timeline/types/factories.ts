@@ -2,7 +2,7 @@
  * Factory functions for creating Timeline objects
  */
 
-import { SubtitleClip } from "@/features/subtitles/types"
+import { SubtitleClip } from "../../subtitles/types"
 import type {
   MusicClip,
   MusicFile,
