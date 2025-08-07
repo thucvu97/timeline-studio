@@ -42,36 +42,63 @@ export class AIIntelligenceOrchestrator {
   private eventListeners = new Map<string, Set<(event: PipelineEvent) => void>>()
   private progressListeners = new Set<(progress: PipelineProgress) => void>()
 
-  // Движки (сохраняем для совместимости с v1)
+  // Движки (будут загружены через DI)
   private sceneAnalyzer?: AIEngine
   private scriptGenerator?: AIEngine
   private multiPlatformAdapter?: AIEngine
+  private engineFactory?: any
 
   constructor(actor: Actor<typeof aiIntelligenceMachine>) {
     this.actor = actor
   }
 
   /**
-   * Инициализировать движки (для совместимости с v1)
+   * Инициализировать движки через DI
    */
   public async initialize(engines?: {
     sceneAnalyzer?: AIEngine
     scriptGenerator?: AIEngine
     multiPlatformAdapter?: AIEngine
   }): Promise<void> {
-    if (engines?.sceneAnalyzer) {
-      this.sceneAnalyzer = engines.sceneAnalyzer
-      await this.sceneAnalyzer.initialize()
-    }
+    // Если движки переданы явно, используем их (для обратной совместимости)
+    if (engines) {
+      if (engines.sceneAnalyzer) {
+        this.sceneAnalyzer = engines.sceneAnalyzer
+        await this.sceneAnalyzer.initialize()
+      }
 
-    if (engines?.scriptGenerator) {
-      this.scriptGenerator = engines.scriptGenerator
-      await this.scriptGenerator.initialize()
-    }
+      if (engines.scriptGenerator) {
+        this.scriptGenerator = engines.scriptGenerator
+        await this.scriptGenerator.initialize()
+      }
 
-    if (engines?.multiPlatformAdapter) {
-      this.multiPlatformAdapter = engines.multiPlatformAdapter
-      await this.multiPlatformAdapter.initialize()
+      if (engines.multiPlatformAdapter) {
+        this.multiPlatformAdapter = engines.multiPlatformAdapter
+        await this.multiPlatformAdapter.initialize()
+      }
+    } else {
+      // Загружаем движки через DI фабрику
+      try {
+        const { getEngineFactory } = await import("../../factories/engine-factory")
+        this.engineFactory = getEngineFactory()
+
+        const loadedEngines = await this.engineFactory.createAllEngines()
+
+        // Адаптируем движки к старому интерфейсу
+        this.sceneAnalyzer = {
+          name: "SceneAnalysisEngine",
+          initialize: async () => {},
+          process: async (data: any) => loadedEngines.sceneEngine.analyzeScenes(data.mediaFile, data.options),
+        }
+
+        this.scriptGenerator = {
+          name: "ScriptGenerationEngine",
+          initialize: async () => {},
+          process: async (data: any, config: any) => loadedEngines.scriptEngine.generateScript(data, config),
+        }
+      } catch (error) {
+        console.warn("Не удалось загрузить движки через DI:", error)
+      }
     }
   }
 

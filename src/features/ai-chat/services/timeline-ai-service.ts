@@ -8,6 +8,8 @@
 import type { MediaFile } from "@/features/media/types/media"
 import type { ResourcesContextType } from "@/features/resources/services/resources-provider"
 import type { TimelineProject } from "@/features/timeline/types"
+import { ApiKeyLoader } from "@/shared/services/ai/core/api-key-loader"
+import { CLAUDE_MODELS, type ClaudeTool } from "@/shared/services/ai/providers/claude"
 import { contentIntelligenceTools, executeContentIntelligenceTool } from "../tools/analysis/content-intelligence-tools"
 import { executeMultimodalAnalysisTool, multimodalAnalysisTools } from "../tools/analysis/multimodal-tools"
 import {
@@ -39,8 +41,7 @@ import type {
   ContentStoryAnalysis,
   TimelineStudioContext,
 } from "../types/ai-context"
-import { ApiKeyLoader } from "./api-key-loader"
-import { CLAUDE_MODELS, ClaudeService, type ClaudeTool } from "./claude-service"
+import { ClaudeService } from "./claude-service-mock"
 
 /**
  * Результат выполнения AI команды Timeline

@@ -288,6 +288,108 @@ pub fn add_clip_to_track_by_id(
   Ok(())
 }
 
+/// Добавить эффект к клипу
+pub fn add_effect_to_clip(
+  project: &mut ProjectSchema,
+  clip_id: &str,
+  effect_id: &str,
+) -> Result<()> {
+  // Проверяем, что эффект существует
+  if !project.effects.iter().any(|e| e.id == effect_id) {
+    return Err(VideoCompilerError::InvalidParameter(format!(
+      "Effect not found: {effect_id}"
+    )));
+  }
+
+  // Ищем клип во всех треках
+  for track in &mut project.tracks {
+    for clip in &mut track.clips {
+      if clip.id == clip_id {
+        // Добавляем эффект, если его еще нет
+        if !clip.effects.contains(&effect_id.to_string()) {
+          clip.effects.push(effect_id.to_string());
+        }
+        return Ok(());
+      }
+    }
+  }
+
+  Err(VideoCompilerError::InvalidParameter(format!(
+    "Clip not found: {clip_id}"
+  )))
+}
+
+/// Добавить фильтр к клипу
+pub fn add_filter_to_clip(
+  project: &mut ProjectSchema,
+  clip_id: &str,
+  filter_id: &str,
+) -> Result<()> {
+  // Проверяем, что фильтр существует
+  if !project.filters.iter().any(|f| f.id == filter_id) {
+    return Err(VideoCompilerError::InvalidParameter(format!(
+      "Filter not found: {filter_id}"
+    )));
+  }
+
+  // Ищем клип во всех треках
+  for track in &mut project.tracks {
+    for clip in &mut track.clips {
+      if clip.id == clip_id {
+        // Добавляем фильтр, если его еще нет
+        if !clip.filters.contains(&filter_id.to_string()) {
+          clip.filters.push(filter_id.to_string());
+        }
+        return Ok(());
+      }
+    }
+  }
+
+  Err(VideoCompilerError::InvalidParameter(format!(
+    "Clip not found: {clip_id}"
+  )))
+}
+
+/// Удалить эффект из клипа
+pub fn remove_effect_from_clip(
+  project: &mut ProjectSchema,
+  clip_id: &str,
+  effect_id: &str,
+) -> Result<()> {
+  for track in &mut project.tracks {
+    for clip in &mut track.clips {
+      if clip.id == clip_id {
+        clip.effects.retain(|id| id != effect_id);
+        return Ok(());
+      }
+    }
+  }
+
+  Err(VideoCompilerError::InvalidParameter(format!(
+    "Clip not found: {clip_id}"
+  )))
+}
+
+/// Удалить фильтр из клипа
+pub fn remove_filter_from_clip(
+  project: &mut ProjectSchema,
+  clip_id: &str,
+  filter_id: &str,
+) -> Result<()> {
+  for track in &mut project.tracks {
+    for clip in &mut track.clips {
+      if clip.id == clip_id {
+        clip.filters.retain(|id| id != filter_id);
+        return Ok(());
+      }
+    }
+  }
+
+  Err(VideoCompilerError::InvalidParameter(format!(
+    "Clip not found: {clip_id}"
+  )))
+}
+
 /// Добавить анимацию к субтитрам
 pub fn add_animation_to_subtitle(
   project: &mut ProjectSchema,

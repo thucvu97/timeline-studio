@@ -17,18 +17,9 @@ interface ClipDropZoneDndProps {
   children: React.ReactNode
 }
 
-export const ClipDropZoneDnd = memo(function ClipDropZoneDnd({ 
-  clip, 
-  className, 
-  children 
-}: ClipDropZoneDndProps) {
+export const ClipDropZoneDnd = memo(function ClipDropZoneDnd({ clip, className, children }: ClipDropZoneDndProps) {
   const { dragState } = useDragDropTimeline()
-  const {
-    applyEffectToClip,
-    applyFilterToClip,
-    canApplyEffectToClip,
-    canApplyFilterToClip,
-  } = useClipResources()
+  const { applyEffectToClip, applyFilterToClip, canApplyEffectToClip, canApplyFilterToClip } = useClipResources()
 
   // Настраиваем drop zone
   const { isOver, setNodeRef } = useDroppable({
@@ -53,8 +44,8 @@ export const ClipDropZoneDnd = memo(function ClipDropZoneDnd({
         return false
     }
   }, [
-    dragState.isDragging, 
-    dragState.draggedResource, 
+    dragState.isDragging,
+    dragState.draggedResource,
     dragState.draggedResourceType,
     clip.id,
     canApplyEffectToClip,
@@ -98,9 +89,7 @@ export const ClipDropZoneDnd = memo(function ClipDropZoneDnd({
           <div
             className={cn(
               "px-3 py-1 rounded-full text-sm font-medium",
-              showDropFeedback 
-                ? "bg-primary text-primary-foreground" 
-                : "bg-destructive text-destructive-foreground",
+              showDropFeedback ? "bg-primary text-primary-foreground" : "bg-destructive text-destructive-foreground",
             )}
           >
             {showDropFeedback

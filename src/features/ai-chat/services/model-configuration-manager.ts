@@ -3,9 +3,9 @@
  * Извлечен из UnifiedAIService для улучшения архитектуры
  */
 
-import { CLAUDE_MODELS } from "./claude-service"
-import { DEEPSEEK_MODELS } from "./deepseek-service"
-import { AI_MODELS } from "./open-ai-service"
+import { CLAUDE_MODELS } from "@/shared/services/ai/providers/claude"
+import { DEEPSEEK_MODELS } from "@/shared/services/ai/providers/deepseek"
+import { AI_MODELS } from "@/shared/services/ai/providers/openai"
 
 // Типы AI провайдеров
 export type AIProvider = "claude" | "openai" | "deepseek" | "ollama"

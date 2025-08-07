@@ -3,9 +3,8 @@ import { memo, useCallback, useEffect, useRef, useState } from "react"
 
 import type { Transition } from "@/features/transitions/types/transitions"
 import { cn } from "@/lib/utils"
-
-import { useTimelineEffects } from "../../hooks/use-timeline-effects"
 import { useDragDropTimeline } from "../../hooks/use-drag-drop-timeline"
+import { useTimelineEffects } from "../../hooks/use-timeline-effects"
 import type { TimelineClip } from "../../types/timeline"
 
 interface TransitionDropZoneProps {
@@ -57,6 +56,7 @@ export const TransitionDropZone = memo(function TransitionDropZone({
   // Используем hook для применения переходов
   const { applyTransition } = useTimelineEffects()
   const { dragState } = useDragDropTimeline()
+  const { saveProject } = useTimeline()
 
   // Обработчик применения перехода
   const handleTransitionApply = useCallback(
@@ -64,27 +64,30 @@ export const TransitionDropZone = memo(function TransitionDropZone({
       try {
         // Определяем длительность перехода
         const duration = transition.duration || 1.0
-        
-        // Применяем переход к обоим клипам
+
+        // Применяем переход к обоим клипам через backend
         await applyTransition(leftClip.id, transition.id, {
           type: "out",
           duration,
           position: leftClip.duration - duration / 2,
         })
-        
+
         await applyTransition(rightClip.id, transition.id, {
           type: "in",
           duration,
           position: 0,
         })
-        
+
+        // Сохраняем проект после применения перехода
+        await saveProject()
+
         // Вызываем callback если предоставлен
         onDrop?.(transition)
       } catch (error) {
         console.error("Failed to apply transition:", error)
       }
     },
-    [leftClip, rightClip, applyTransition, onDrop],
+    [leftClip, rightClip, applyTransition, onDrop, saveProject],
   )
 
   // Обработка drop события когда отпускают ресурс
@@ -101,13 +104,10 @@ export const TransitionDropZone = memo(function TransitionDropZone({
   if (Math.abs(gap) > 0.01) {
     return null
   }
-  
+
   // Проверяем есть ли уже переход между клипами
-  const hasExistingTransition = leftClip.transitions?.some(
-    (t) => t.type === "out"
-  ) || rightClip.transitions?.some(
-    (t) => t.type === "in"
-  )
+  const hasExistingTransition =
+    leftClip.transitions?.some((t) => t.type === "out") || rightClip.transitions?.some((t) => t.type === "in")
 
   return (
     <div

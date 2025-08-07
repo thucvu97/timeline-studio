@@ -72,19 +72,23 @@ export class UnifiedAIService {
     if (this.initialized) return
 
     try {
-      // Получаем доступные сервисы
-      const { ClaudeService } = await import("./claude-service")
-      const { OpenAiService } = await import("./open-ai-service")
-      const { DeepSeekService } = await import("./deepseek-service")
-      const { OllamaService } = await import("./ollama-service")
+      // Импорт shared AI services вместо локальных провайдеров
+      const { getAIContainer } = await import("@/shared/services/ai")
+      const aiContainer = getAIContainer()
 
-      // Создаем адаптер для проверки доступности провайдеров
+      // Получаем unified AI service из shared
+      const sharedUnifiedService = aiContainer.getUnifiedService()
+
+      // Создаем адаптер для проверки доступности провайдеров через shared сервисы
       const availabilityChecker = {
-        isClaudeAvailable: () => ClaudeService.getInstance().hasApiKey(),
-        isOpenAIAvailable: (model: string) => OpenAiService.getInstance().hasApiKey(model),
-        isDeepSeekAvailable: () => DeepSeekService.getInstance().hasApiKey(),
-        isOllamaAvailable: () => OllamaService.getInstance().isAvailable(),
-        getOllamaModels: () => OllamaService.getInstance().getInstalledModels(),
+        isClaudeAvailable: () => sharedUnifiedService.isModelAvailable("claude-4-sonnet-latest"),
+        isOpenAIAvailable: (model: string) => sharedUnifiedService.isModelAvailable(model),
+        isDeepSeekAvailable: () => sharedUnifiedService.isModelAvailable("deepseek-chat"),
+        isOllamaAvailable: () => sharedUnifiedService.isModelAvailable("llama3.2:latest"),
+        getOllamaModels: async () => {
+          const models = await sharedUnifiedService.getAvailableModels()
+          return models.filter((m) => m.provider === "ollama").map((m) => m.model)
+        },
       }
 
       // Инициализируем сервисы
@@ -138,49 +142,37 @@ export class UnifiedAIService {
       return { ...cached, responseTime: Date.now() - startTime }
     }
 
-    const modelsToTry = [model, ...(options.fallbackModels || [])]
-    const maxRetries = options.retryAttempts || 1
+    try {
+      // Используем shared AI service для отправки запроса
+      const { getAIContainer } = await import("@/shared/services/ai")
+      const aiContainer = getAIContainer()
+      const sharedUnifiedService = aiContainer.getUnifiedService()
 
-    for (const currentModel of modelsToTry) {
-      const provider = this.modelManager.getProviderByModel(currentModel)
+      // Конвертируем опции в формат shared сервиса
+      const sharedResponse = await sharedUnifiedService.sendRequest(model, messages, {
+        temperature: options.temperature,
+        maxTokens: options.maxTokens,
+        fallbackModels: options.fallbackModels,
+        retryAttempts: options.retryAttempts,
+        timeout: options.timeout,
+      })
 
-      for (let attempt = 0; attempt < maxRetries; attempt++) {
-        try {
-          const providerResponse = await this.providerManager.sendRequest(provider, currentModel, messages, {
-            temperature: options.temperature,
-            maxTokens: options.maxTokens,
-            timeout: options.timeout,
-          })
-
-          const response: UnifiedResponse = {
-            content: providerResponse.content,
-            model: currentModel,
-            provider: providerResponse.provider,
-            usage: providerResponse.usage,
-            responseTime: Date.now() - startTime,
-          }
-
-          // Сохраняем в кэш
-          this.setCachedResponse(cacheKey, response)
-
-          return response
-        } catch (error) {
-          console.warn(`Ошибка запроса к ${currentModel} (попытка ${attempt + 1}):`, error)
-
-          // Если это последняя попытка для последней модели, выбрасываем ошибку
-          if (currentModel === modelsToTry[modelsToTry.length - 1] && attempt === maxRetries - 1) {
-            throw error
-          }
-
-          // Ждем перед повторной попыткой
-          if (attempt < maxRetries - 1) {
-            await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)))
-          }
-        }
+      const response: UnifiedResponse = {
+        content: sharedResponse.content,
+        model: sharedResponse.model,
+        provider: sharedResponse.provider,
+        usage: sharedResponse.usage,
+        responseTime: Date.now() - startTime,
       }
-    }
 
-    throw new Error("Все модели недоступны")
+      // Сохраняем в кэш
+      this.setCachedResponse(cacheKey, response)
+
+      return response
+    } catch (error) {
+      console.warn("Ошибка запроса к shared AI service:", error)
+      throw error
+    }
   }
 
   /**
@@ -191,17 +183,29 @@ export class UnifiedAIService {
     messages: AiMessage[],
     options: UnifiedRequestOptions & StreamingOptions = {},
   ): Promise<void> {
-    const provider = this.modelManager.getProviderByModel(model)
+    try {
+      // Используем shared AI service для потокового запроса
+      const { getAIContainer } = await import("@/shared/services/ai")
+      const aiContainer = getAIContainer()
+      const sharedUnifiedService = aiContainer.getUnifiedService()
 
-    return this.providerManager.sendStreamingRequest(provider, model, messages, {
-      temperature: options.temperature,
-      maxTokens: options.maxTokens,
-      timeout: options.timeout,
-      onContent: options.onContent,
-      onComplete: options.onComplete,
-      onError: options.onError,
-      signal: options.signal,
-    })
+      return await sharedUnifiedService.sendStreamingRequest(model, messages, {
+        temperature: options.temperature,
+        maxTokens: options.maxTokens,
+        timeout: options.timeout,
+        onContent: options.onContent,
+        onComplete: options.onComplete,
+        onError: options.onError,
+        signal: options.signal,
+      })
+    } catch (error) {
+      console.warn("Ошибка потокового запроса к shared AI service:", error)
+      if (options.onError) {
+        options.onError(error instanceof Error ? error : new Error("Unknown streaming error"))
+      } else {
+        throw error
+      }
+    }
   }
 
   /**
@@ -219,14 +223,30 @@ export class UnifiedAIService {
    * Получить доступные модели
    */
   public async getAvailableModels(): Promise<ModelConfig[]> {
-    return this.modelManager.getAvailableModels()
+    try {
+      const { getAIContainer } = await import("@/shared/services/ai")
+      const aiContainer = getAIContainer()
+      const sharedUnifiedService = aiContainer.getUnifiedService()
+      return await sharedUnifiedService.getAvailableModels()
+    } catch (error) {
+      console.warn("Ошибка получения доступных моделей:", error)
+      return this.modelManager.getAvailableModels()
+    }
   }
 
   /**
    * Проверить доступность модели
    */
   public async isModelAvailable(model: string): Promise<boolean> {
-    return this.modelManager.isModelAvailable(model)
+    try {
+      const { getAIContainer } = await import("@/shared/services/ai")
+      const aiContainer = getAIContainer()
+      const sharedUnifiedService = aiContainer.getUnifiedService()
+      return await sharedUnifiedService.isModelAvailable(model)
+    } catch (error) {
+      console.warn("Ошибка проверки доступности модели:", error)
+      return this.modelManager.isModelAvailable(model)
+    }
   }
 
   /**
@@ -241,14 +261,30 @@ export class UnifiedAIService {
       requiresTools?: boolean
     } = {},
   ): Promise<ModelConfig | null> {
-    return this.modelManager.getBestModelForTask(task, options)
+    try {
+      const { getAIContainer } = await import("@/shared/services/ai")
+      const aiContainer = getAIContainer()
+      const sharedUnifiedService = aiContainer.getUnifiedService()
+      return await sharedUnifiedService.getBestModelForTask(task, options)
+    } catch (error) {
+      console.warn("Ошибка получения лучшей модели:", error)
+      return this.modelManager.getBestModelForTask(task, options)
+    }
   }
 
   /**
    * Получить статус всех провайдеров
    */
   public async getProviderStatuses() {
-    return this.providerManager.getAllProviderStatuses()
+    try {
+      const { getAIContainer } = await import("@/shared/services/ai")
+      const aiContainer = getAIContainer()
+      const sharedUnifiedService = aiContainer.getUnifiedService()
+      return await sharedUnifiedService.getProviderStatuses()
+    } catch (error) {
+      console.warn("Ошибка получения статуса провайдеров:", error)
+      return this.providerManager.getAllProviderStatuses()
+    }
   }
 
   // ============================

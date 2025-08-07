@@ -180,10 +180,30 @@ export interface ContentIntelligenceResult {
 
 /**
  * AI инструмент для комплексного интеллектуального анализа контента с унифицированной обработкой ошибок
+ * Использует shared Content Analysis service
  */
 export class ContentIntelligenceTool extends BaseAITool {
+  private contentAnalysisService: any = null
+
   constructor(logger?: AIToolLogger) {
     super("ContentIntelligenceTool", logger)
+  }
+
+  /**
+   * Получить shared Content Analysis service
+   */
+  private async getContentAnalysisService() {
+    if (!this.contentAnalysisService) {
+      try {
+        const { getAIContainer } = await import("@/shared/services/ai")
+        const aiContainer = getAIContainer()
+        this.contentAnalysisService = aiContainer.getContentAnalysisService()
+      } catch (error) {
+        this.logger?.warn("Shared Content Analysis service недоступен", error)
+        // В данном случае нет прямого fallback, так как это высокоуровневый сервис
+      }
+    }
+    return this.contentAnalysisService
   }
 
   /**

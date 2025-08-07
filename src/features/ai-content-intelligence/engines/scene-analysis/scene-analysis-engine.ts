@@ -5,7 +5,6 @@
  * и расширяет их возможностями scene classification и content analysis.
  */
 
-import { type MediaInput, type SceneAnalysis, UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service"
 import { PersonDatabaseService } from "@/features/person-identification/services/person-database-service"
 import type {
   DetectedFace,
@@ -13,6 +12,21 @@ import type {
   PersonAppearance,
   PersonProfile,
 } from "@/features/person-identification/types/person"
+// Используем shared типы вместо ai-chat
+import type { MediaFile as MediaInput } from "@/shared/services/ai/analysis/interfaces"
+
+// Legacy тип для обратной совместимости
+export interface SceneAnalysis {
+  id: string
+  startTime: number
+  endTime: number
+  type: "dialog" | "action" | "landscape" | "closeup" | "transition"
+  confidence: number
+  keyFrames: string[]
+  description: string
+  objects?: any[]
+  persons?: any[]
+}
 
 // Дополнительные типы для Scene Analysis
 export interface SceneDetectionOptions {
@@ -78,9 +92,11 @@ export interface AudioCharacteristics {
 
 /**
  * Scene Analysis Engine - расширяет существующие video analysis tools
+ * Использует shared AI services
  */
 export class SceneAnalysisEngine {
-  private aiService: UnifiedAIService
+  private sharedAIService: any = null
+  private ffmpegService: any = null
   private personDatabase: PersonDatabaseService
   private defaultOptions: SceneDetectionOptions = {
     sensitivity: 0.5,
@@ -91,8 +107,26 @@ export class SceneAnalysisEngine {
   }
 
   constructor() {
-    this.aiService = UnifiedAIService.getInstance()
     this.personDatabase = PersonDatabaseService.getInstance()
+  }
+
+  /**
+   * Инициализация shared сервисов
+   */
+  private async initializeServices() {
+    if (!this.sharedAIService) {
+      try {
+        const { getAIContainer } = await import("@/shared/services/ai")
+        const aiContainer = getAIContainer()
+        this.sharedAIService = aiContainer.getUnifiedService()
+        this.ffmpegService = aiContainer.getFFmpegService()
+      } catch (error) {
+        console.error("Ошибка инициализации shared AI services:", error)
+        // Fallback к локальным сервисам
+        const { UnifiedAIService } = await import("@/features/ai-chat/services/unified-ai-service")
+        this.sharedAIService = UnifiedAIService.getInstance()
+      }
+    }
   }
 
   /**
@@ -103,6 +137,9 @@ export class SceneAnalysisEngine {
     options: Partial<SceneDetectionOptions> = {},
   ): Promise<AdvancedSceneAnalysis[]> {
     const opts = { ...this.defaultOptions, ...options }
+
+    // Инициализируем shared сервисы
+    await this.initializeServices()
 
     try {
       // 1. Базовый анализ через existing video tools
@@ -133,50 +170,79 @@ export class SceneAnalysisEngine {
   }
 
   /**
-   * Базовая детекция сцен с использованием existing video-analysis-tools
+   * Базовая детекция сцен с использованием shared FFmpeg service
    */
   private async performBasicSceneDetection(
     mediaFile: MediaInput,
     options: SceneDetectionOptions,
   ): Promise<SceneAnalysis[]> {
-    const prompt = `Используй инструмент detect_video_scenes для анализа видео:
-
-Файл: ${mediaFile.path}
-Настройки:
-- Чувствительность: ${options.sensitivity}
-- Минимальная длительность сцены: ${options.minSceneDuration} сек
-- Классифицировать типы сцен: ${options.classifyTypes}
-
-Верни результат в формате JSON массива сцен с полями:
-- id: уникальный идентификатор
-- startTime: время начала в секундах  
-- endTime: время окончания в секундах
-- type: тип сцены (dialog, action, landscape, closeup, transition)
-- confidence: уверенность (0-1)
-- keyFrames: массив путей к ключевым кадрам
-- description: текстовое описание сцены
-- objects: обнаруженные объекты (если включена детекция)
-- persons: обнаруженные персоны (если включено отслеживание)`
-
-    const response = await this.aiService.sendRequest("claude-4-sonnet", [{ role: "user", content: prompt }], {
-      temperature: 0.3,
-    })
-
     try {
-      const scenes = JSON.parse(response.content)
-      return scenes.map((scene: any) => ({
-        id: scene.id || `scene_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
-        startTime: scene.startTime || 0,
-        endTime: scene.endTime || 0,
-        type: scene.type || "action",
+      // Используем shared FFmpeg service для детекции сцен
+      const sceneDetection = await this.ffmpegService.detectScenes(mediaFile.path, {
+        sensitivity: options.sensitivity,
+        minSceneDuration: options.minSceneDuration,
+        method: "threshold",
+      })
+
+      // Если нужна классификация типов сцен, используем AI
+      if (options.classifyTypes && sceneDetection.scenes.length > 0) {
+        const classificationPrompt = `Классифицируй типы сцен на основе их описаний:
+${JSON.stringify(sceneDetection.scenes.map((s) => ({ id: s.id, description: s.description || "" })))}
+
+Для каждой сцены определи тип: dialog, action, landscape, closeup, transition
+Верни JSON массив с полями: id, type`
+
+        const response = await this.sharedAIService.sendRequest(
+          "claude-4-sonnet-latest",
+          [{ role: "user", content: classificationPrompt }],
+          { temperature: 0.3 },
+        )
+
+        try {
+          const classifications = JSON.parse(response.content)
+          const classificationMap = new Map(classifications.map((c: any) => [c.id, c.type]))
+
+          return sceneDetection.scenes.map((scene) => ({
+            id: scene.id,
+            startTime: scene.startTime,
+            endTime: scene.endTime,
+            type: classificationMap.get(scene.id) || "action",
+            confidence: scene.confidence || 0.8,
+            keyFrames: scene.keyFrames || [],
+            description: scene.description || "",
+            objects: options.enableObjectDetection ? [] : undefined,
+            persons: options.enablePersonTracking ? [] : undefined,
+          }))
+        } catch {
+          // Fallback без классификации
+          return sceneDetection.scenes.map((scene) => ({
+            id: scene.id,
+            startTime: scene.startTime,
+            endTime: scene.endTime,
+            type: "action" as const,
+            confidence: scene.confidence || 0.8,
+            keyFrames: scene.keyFrames || [],
+            description: scene.description || "",
+            objects: options.enableObjectDetection ? [] : undefined,
+            persons: options.enablePersonTracking ? [] : undefined,
+          }))
+        }
+      }
+
+      // Без классификации типов
+      return sceneDetection.scenes.map((scene) => ({
+        id: scene.id,
+        startTime: scene.startTime,
+        endTime: scene.endTime,
+        type: "action" as const,
         confidence: scene.confidence || 0.8,
         keyFrames: scene.keyFrames || [],
         description: scene.description || "",
-        objects: options.enableObjectDetection ? scene.objects || [] : undefined,
-        persons: options.enablePersonTracking ? scene.persons || [] : undefined,
+        objects: options.enableObjectDetection ? [] : undefined,
+        persons: options.enablePersonTracking ? [] : undefined,
       }))
     } catch (error) {
-      console.warn("Ошибка парсинга результатов детекции сцен:", error)
+      console.warn("Ошибка детекции сцен через shared FFmpeg:", error)
       return []
     }
   }
@@ -219,9 +285,11 @@ export class SceneAnalysisEngine {
   "complexity": "moderate"
 }`
 
-    const response = await this.aiService.sendRequest("claude-4-sonnet", [{ role: "user", content: analysisPrompt }], {
-      temperature: 0.2,
-    })
+    const response = await this.sharedAIService.sendRequest(
+      "claude-4-sonnet-latest",
+      [{ role: "user", content: analysisPrompt }],
+      { temperature: 0.2 },
+    )
 
     try {
       const analysis = JSON.parse(response.content)

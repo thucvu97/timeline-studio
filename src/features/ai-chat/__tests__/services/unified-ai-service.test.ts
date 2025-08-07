@@ -1,0 +1,212 @@
+import { beforeEach, describe, expect, it, vi } from "vitest"
+import { createMockDIContainer, setupMockAIServices } from "@/shared/services/ai/__mocks__"
+import { UnifiedAIService } from "../../services/unified-ai-service"
+import type { AiMessage } from "../../types/ai-message"
+
+// Мокируем shared services
+vi.mock("@/shared/services/ai", async () => {
+  const mocks = await import("@/shared/services/ai/__mocks__")
+  return {
+    getAIContainer: () => mocks.createMockDIContainer(),
+  }
+})
+
+// Мокируем model-configuration-manager
+vi.mock("../../services/model-configuration-manager", () => ({
+  ModelConfigurationManager: {
+    create: vi.fn(() => ({
+      getAllModels: vi.fn(() => [
+        { id: "claude-4-sonnet-latest", name: "Claude 4 Sonnet", provider: "claude" },
+        { id: "gpt-4", name: "GPT-4", provider: "openai" },
+      ]),
+      getModel: vi.fn((id: string) => ({
+        id,
+        name: id,
+        provider: id.includes("claude") ? "claude" : "openai",
+      })),
+      getDefaultModel: vi.fn(() => ({
+        id: "claude-4-sonnet-latest",
+        name: "Claude 4 Sonnet",
+        provider: "claude",
+      })),
+    })),
+  },
+}))
+
+// Мокируем provider-manager
+vi.mock("../../services/provider-manager", () => ({
+  ProviderManager: {
+    getInstance: vi.fn(() => ({
+      isAvailable: vi.fn(() => true),
+      sendRequest: vi.fn(async (model: string, messages: any[]) => ({
+        content: `Mock response for: ${messages[messages.length - 1]?.content || ""}`,
+      })),
+      streamRequest: vi.fn(),
+    })),
+  },
+}))
+
+// Мокируем ai-response-processor
+vi.mock("../../services/ai-response-processor", () => ({
+  AIResponseProcessor: {
+    getInstance: vi.fn(() => ({
+      processResponse: vi.fn((response: any) => ({
+        text: response.content,
+        processedData: null,
+        confidence: 0.95,
+      })),
+    })),
+  },
+}))
+
+// Мокируем content-intelligence-service
+vi.mock("../../services/content-intelligence-service", () => ({
+  ContentIntelligenceService: {
+    getInstance: vi.fn(() => ({
+      analyzeContent: vi.fn(async () => ({
+        classification: { genre: "documentary", style: "educational" },
+        script: null,
+        adaptations: [],
+      })),
+    })),
+  },
+}))
+
+describe("UnifiedAIService", () => {
+  let service: UnifiedAIService
+  let mockContainer: any
+
+  beforeEach(async () => {
+    vi.clearAllMocks()
+
+    // Настраиваем мок контейнер
+    mockContainer = createMockDIContainer()
+    await mockContainer.initialize()
+
+    // Получаем экземпляр сервиса
+    service = UnifiedAIService.getInstance()
+
+    // Ждем инициализации
+    await new Promise((resolve) => setTimeout(resolve, 100))
+  })
+
+  describe("Initialization", () => {
+    it("should create singleton instance", () => {
+      const instance1 = UnifiedAIService.getInstance()
+      const instance2 = UnifiedAIService.getInstance()
+      expect(instance1).toBe(instance2)
+    })
+
+    it("should initialize all required services", async () => {
+      expect(service).toBeDefined()
+      // Проверяем, что сервисы инициализированы
+      const models = await service.getAvailableModels()
+      expect(models).toBeDefined()
+      expect(models.length).toBeGreaterThan(0)
+    })
+  })
+
+  describe("sendRequest", () => {
+    it("should send request to AI provider", async () => {
+      const messages: AiMessage[] = [{ role: "user", content: "Test message" }]
+
+      const response = await service.sendRequest("claude-4-sonnet-latest", messages)
+
+      expect(response).toBeDefined()
+      expect(response.text).toContain("Mock response for: Test message")
+    })
+
+    it("should handle content analysis requests", async () => {
+      const messages: AiMessage[] = [{ role: "user", content: "analyze this video" }]
+
+      const response = await service.sendRequest("claude-4-sonnet-latest", messages)
+
+      expect(response).toBeDefined()
+      expect(response.text).toBeDefined()
+    })
+
+    it("should use fallback models if primary fails", async () => {
+      const messages: AiMessage[] = [{ role: "user", content: "Test with fallback" }]
+
+      const response = await service.sendRequest("claude-4-sonnet-latest", messages, { fallbackModels: ["gpt-4"] })
+
+      expect(response).toBeDefined()
+    })
+  })
+
+  describe("analyzeMedia", () => {
+    it("should analyze media file", async () => {
+      const mediaFile = {
+        id: "test-file",
+        path: "/test/video.mp4",
+        filename: "video.mp4",
+        size: 1000000,
+        type: "video",
+      }
+
+      const analysis = await service.analyzeMedia(mediaFile)
+
+      expect(analysis).toBeDefined()
+      expect(analysis.classification).toBeDefined()
+      expect(analysis.classification.genre).toBe("documentary")
+    })
+  })
+
+  describe("getAvailableModels", () => {
+    it("should return available AI models", async () => {
+      const models = await service.getAvailableModels()
+
+      expect(models).toBeInstanceOf(Array)
+      expect(models.length).toBeGreaterThan(0)
+      expect(models[0]).toHaveProperty("id")
+      expect(models[0]).toHaveProperty("name")
+      expect(models[0]).toHaveProperty("provider")
+    })
+  })
+
+  describe("switchProvider", () => {
+    it("should switch active provider", async () => {
+      await service.switchProvider("openai")
+
+      // Проверяем через отправку сообщения
+      const response = await service.sendRequest("gpt-4", [{ role: "user", content: "Test after switch" }])
+
+      expect(response).toBeDefined()
+    })
+  })
+
+  describe("Cache functionality", () => {
+    it("should cache responses", async () => {
+      const messages: AiMessage[] = [{ role: "user", content: "Cacheable request" }]
+
+      // Первый запрос
+      const response1 = await service.sendRequest("claude-4-sonnet-latest", messages)
+
+      // Второй запрос (должен вернуть из кэша)
+      const response2 = await service.sendRequest("claude-4-sonnet-latest", messages)
+
+      expect(response1.text).toBe(response2.text)
+    })
+
+    it("should clear cache", async () => {
+      const messages: AiMessage[] = [{ role: "user", content: "Test cache clear" }]
+
+      await service.sendRequest("claude-4-sonnet-latest", messages)
+      service.clearCache()
+
+      // После очистки кэша новый запрос должен быть выполнен
+      const response = await service.sendRequest("claude-4-sonnet-latest", messages)
+      expect(response).toBeDefined()
+    })
+  })
+
+  describe("Error handling", () => {
+    it("should handle provider errors gracefully", async () => {
+      const messages: AiMessage[] = [
+        { role: "user", content: "error" }, // Триггерит ошибку в моке
+      ]
+
+      await expect(service.sendRequest("claude-4-sonnet-latest", messages)).rejects.toThrow()
+    })
+  })
+})

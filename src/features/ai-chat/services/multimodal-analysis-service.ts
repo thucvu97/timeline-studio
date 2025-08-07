@@ -5,7 +5,9 @@
 
 import { invoke } from "@tauri-apps/api/core"
 
-import { ApiKeyLoader } from "./api-key-loader"
+import type { FrameAnalysis, IVisionService } from "@/shared/services/ai/analysis/interfaces"
+
+import { ApiKeyLoader } from "@/shared/services/ai/core/api-key-loader"
 
 /**
  * Типы мультимодального анализа
@@ -172,21 +174,67 @@ export class MultimodalAnalysisService {
   }
 
   /**
-   * Анализ одного кадра
+   * Анализ одного кадра с использованием shared Vision service
    */
   public async analyzeFrame(params: FrameAnalysisParams): Promise<FrameAnalysisResult> {
-    const apiKey = await this.apiKeyLoader.getApiKey("openai")
-    if (!apiKey) {
-      throw new Error("OpenAI API ключ не найден. Необходим для GPT-4V анализа.")
-    }
-
-    // Конвертируем изображение в base64
-    const imageBase64 = await this.imageToBase64(params.frameImagePath)
-
-    // Создаем промпт в зависимости от типа анализа
-    const prompt = this.buildAnalysisPrompt(params)
-
     try {
+      // Используем shared Vision service
+      const { getAIContainer } = await import("@/shared/services/ai")
+      const aiContainer = getAIContainer()
+      const visionService = (await aiContainer.resolve("VisionService")) as IVisionService
+
+      // Создаем промпт в зависимости от типа анализа
+      const prompt = this.buildAnalysisPrompt(params)
+
+      // Vision service анализирует кадр
+      const frameAnalysis = await visionService.analyzeFrame(params.frameImagePath)
+
+      // Конвертируем результат в legacy формат
+      return {
+        frameTimestamp: params.contextInfo?.frameTimestamp || 0,
+        analysisType: params.analysisType,
+        description: this.generateDescriptionFromAnalysis(frameAnalysis, params),
+        confidence: this.calculateConfidenceFromAnalysis(frameAnalysis),
+        detectedObjects: frameAnalysis.objects?.map((obj) => ({
+          name: obj.class,
+          confidence: obj.confidence,
+          boundingBox: obj.boundingBox,
+        })),
+        detectedText: frameAnalysis.text?.map((text) => ({
+          text: text.text,
+          confidence: text.confidence,
+          language: text.language,
+          position: { x: text.boundingBox.x, y: text.boundingBox.y },
+        })),
+        aestheticScore: {
+          composition: frameAnalysis.composition.ruleOfThirds.score * 10,
+          lighting: frameAnalysis.quality.brightness * 10,
+          colorHarmony: frameAnalysis.colors.palette.length > 3 ? 8 : 5,
+          overall: (frameAnalysis.composition.ruleOfThirds.score + frameAnalysis.quality.sharpness) * 5,
+        },
+        tags: this.extractTagsFromAnalysis(frameAnalysis, params.analysisType),
+        metadata: {
+          processingTime: Date.now() - Date.now(), // Placeholder
+          modelUsed: "shared-vision-service",
+          detailLevel: params.detailLevel || "medium",
+          language: params.language || "ru",
+        },
+      }
+    } catch (error) {
+      console.warn("Ошибка shared Vision service, используем legacy GPT-4V:", error)
+
+      // Legacy fallback
+      const apiKey = await this.apiKeyLoader.getApiKey("openai")
+      if (!apiKey) {
+        throw new Error("OpenAI API ключ не найден. Необходим для GPT-4V анализа.")
+      }
+
+      // Конвертируем изображение в base64
+      const imageBase64 = await this.imageToBase64(params.frameImagePath)
+
+      // Создаем промпт в зависимости от типа анализа
+      const prompt = this.buildAnalysisPrompt(params)
+
       const response = await this.callGPT4Vision(
         {
           model: "gpt-4o",
@@ -215,8 +263,6 @@ export class MultimodalAnalysisService {
       )
 
       return this.parseFrameAnalysisResponse(response, params)
-    } catch (error) {
-      throw new Error(`Ошибка анализа кадра: ${String(error)}`)
     }
   }
 
@@ -604,6 +650,60 @@ export class MultimodalAnalysisService {
     return cuts.slice(0, 20) // Ограничиваем количество предложений
   }
 
+  /**
+   * Генерация описания из анализа кадра
+   */
+  private generateDescriptionFromAnalysis(analysis: FrameAnalysis, params: FrameAnalysisParams): string {
+    const objects = analysis.objects?.map((o) => o.class).join(", ") || "нет объектов"
+    const composition = analysis.composition?.ruleOfThirds?.score > 0.7 ? "хорошая композиция" : "обычная композиция"
+    const colors = analysis.colors?.temperature || "нейтральные цвета"
+
+    let description = `На кадре: ${objects}. Композиция: ${composition}, цветовая гамма: ${colors}.`
+
+    if (params.customPrompt) {
+      description += ` ${params.customPrompt}`
+    }
+
+    return description
+  }
+
+  /**
+   * Расчет уверенности из анализа
+   */
+  private calculateConfidenceFromAnalysis(analysis: FrameAnalysis): number {
+    const objectConfidence =
+      analysis.objects?.reduce((sum: number, obj) => sum + obj.confidence, 0) / (analysis.objects?.length || 1) || 0
+    const qualityScore = (analysis.quality?.sharpness || 0) * 0.5 + (analysis.quality?.contrast || 0) * 0.5
+    return Math.min(1, (objectConfidence + qualityScore) / 2)
+  }
+
+  /**
+   * Извлечение тегов из анализа
+   */
+  private extractTagsFromAnalysis(analysis: FrameAnalysis, analysisType: MultimodalAnalysisType): string[] {
+    const tags: string[] = []
+
+    // Добавляем теги объектов
+    if (analysis.objects) {
+      tags.push(...analysis.objects.map((o) => o.class))
+    }
+
+    // Добавляем теги композиции
+    if (analysis.composition?.ruleOfThirds?.score > 0.7) {
+      tags.push("good_composition")
+    }
+
+    // Добавляем теги цвета
+    if (analysis.colors?.temperature) {
+      tags.push(analysis.colors.temperature)
+    }
+
+    // Добавляем тег типа анализа
+    tags.push(analysisType)
+
+    return [...new Set(tags)] // Убираем дубликаты
+  }
+
   private calculateTextSimilarity(text1: string, text2: string): number {
     if (!text1 || !text2) return 0
 
@@ -638,7 +738,7 @@ export class MultimodalAnalysisService {
         if (t.language) languages.add(t.language)
       })
     })
-    return Array.from(languages)
+    return [...languages]
   }
 
   private extractEmotionalImpact(result: FrameAnalysisResult): number {

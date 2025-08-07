@@ -192,7 +192,165 @@ export class WebGL2PreviewRenderer extends BaseRenderer {
 
     shaderPool.getProgram("gaussianBlur", gaussianBlur)
 
-    // Добавим другие эффекты по мере необходимости
+    // Шейдер для цветокоррекции
+    const colorCorrection: ShaderSource = {
+      vertex: `#version 300 es
+        in vec2 a_position;
+        in vec2 a_texCoord;
+        out vec2 v_texCoord;
+        
+        void main() {
+          gl_Position = vec4(a_position, 0.0, 1.0);
+          v_texCoord = a_texCoord;
+        }`,
+      fragment: `#version 300 es
+        precision highp float;
+        
+        uniform sampler2D u_texture;
+        uniform float u_brightness;
+        uniform float u_contrast;
+        uniform float u_saturation;
+        uniform float u_hue;
+        uniform vec3 u_colorBalance;
+        
+        in vec2 v_texCoord;
+        out vec4 fragColor;
+        
+        vec3 rgb2hsv(vec3 c) {
+          vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+          vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+          vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+          float d = q.x - min(q.w, q.y);
+          float e = 1.0e-10;
+          return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+        }
+        
+        vec3 hsv2rgb(vec3 c) {
+          vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+          vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+          return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+        }
+        
+        void main() {
+          vec4 color = texture(u_texture, v_texCoord);
+          
+          // Brightness
+          color.rgb += u_brightness;
+          
+          // Contrast
+          color.rgb = ((color.rgb - 0.5) * (1.0 + u_contrast)) + 0.5;
+          
+          // Saturation
+          vec3 hsv = rgb2hsv(color.rgb);
+          hsv.y *= (1.0 + u_saturation);
+          color.rgb = hsv2rgb(hsv);
+          
+          // Hue
+          hsv = rgb2hsv(color.rgb);
+          hsv.x = mod(hsv.x + u_hue, 1.0);
+          color.rgb = hsv2rgb(hsv);
+          
+          // Color balance
+          color.rgb *= u_colorBalance;
+          
+          fragColor = vec4(color.rgb, color.a);
+        }`,
+    }
+
+    shaderPool.getProgram("colorCorrection", colorCorrection)
+
+    // Шейдер для fade/dissolve переходов
+    const fade: ShaderSource = {
+      vertex: `#version 300 es
+        in vec2 a_position;
+        in vec2 a_texCoord;
+        out vec2 v_texCoord;
+        
+        void main() {
+          gl_Position = vec4(a_position, 0.0, 1.0);
+          v_texCoord = a_texCoord;
+        }`,
+      fragment: `#version 300 es
+        precision highp float;
+        
+        uniform sampler2D u_texture;
+        uniform float u_progress;
+        uniform vec4 u_fadeColor;
+        
+        in vec2 v_texCoord;
+        out vec4 fragColor;
+        
+        void main() {
+          vec4 color = texture(u_texture, v_texCoord);
+          fragColor = mix(color, u_fadeColor, u_progress);
+        }`,
+    }
+
+    shaderPool.getProgram("fade", fade)
+
+    // Шейдер для sepia эффекта
+    const sepia: ShaderSource = {
+      vertex: `#version 300 es
+        in vec2 a_position;
+        in vec2 a_texCoord;
+        out vec2 v_texCoord;
+        
+        void main() {
+          gl_Position = vec4(a_position, 0.0, 1.0);
+          v_texCoord = a_texCoord;
+        }`,
+      fragment: `#version 300 es
+        precision highp float;
+        
+        uniform sampler2D u_texture;
+        uniform float u_intensity;
+        
+        in vec2 v_texCoord;
+        out vec4 fragColor;
+        
+        void main() {
+          vec4 color = texture(u_texture, v_texCoord);
+          
+          vec3 sepia = vec3(
+            dot(color.rgb, vec3(0.393, 0.769, 0.189)),
+            dot(color.rgb, vec3(0.349, 0.686, 0.168)),
+            dot(color.rgb, vec3(0.272, 0.534, 0.131))
+          );
+          
+          fragColor = vec4(mix(color.rgb, sepia, u_intensity), color.a);
+        }`,
+    }
+
+    shaderPool.getProgram("sepia", sepia)
+
+    // Шейдер для grayscale эффекта
+    const grayscale: ShaderSource = {
+      vertex: `#version 300 es
+        in vec2 a_position;
+        in vec2 a_texCoord;
+        out vec2 v_texCoord;
+        
+        void main() {
+          gl_Position = vec4(a_position, 0.0, 1.0);
+          v_texCoord = a_texCoord;
+        }`,
+      fragment: `#version 300 es
+        precision highp float;
+        
+        uniform sampler2D u_texture;
+        uniform float u_intensity;
+        
+        in vec2 v_texCoord;
+        out vec4 fragColor;
+        
+        void main() {
+          vec4 color = texture(u_texture, v_texCoord);
+          float gray = dot(color.rgb, vec3(0.299, 0.587, 0.114));
+          fragColor = vec4(mix(color.rgb, vec3(gray), u_intensity), color.a);
+        }`,
+    }
+
+    shaderPool.getProgram("grayscale", grayscale)
   }
 
   /**
@@ -318,13 +476,53 @@ export class WebGL2PreviewRenderer extends BaseRenderer {
     let programName = "copy" // По умолчанию
 
     switch (effect.type) {
+      // Effects
       case "blur":
+      case "gaussian-blur":
         programName = "gaussianBlur"
         break
+      case "glow":
+        programName = "glow"
+        break
+      case "shake":
+        programName = "shake"
+        break
+      case "zoom":
+        programName = "zoom"
+        break
+      case "glitch":
+        programName = "glitch"
+        break
+
+      // Filters
+      case "brightness":
+      case "contrast":
+      case "saturation":
       case "colorCorrection":
         programName = "colorCorrection"
         break
-      // Добавить другие типы эффектов
+      case "sepia":
+        programName = "sepia"
+        break
+      case "grayscale":
+        programName = "grayscale"
+        break
+
+      // Transitions
+      case "fade":
+      case "dissolve":
+        programName = "fade"
+        break
+      case "wipe":
+        programName = "wipe"
+        break
+      case "slide":
+        programName = "slide"
+        break
+
+      // Fallback
+      default:
+        console.warn(`Unknown effect type: ${effect.type}`)
     }
 
     const program = this.useProgram(programName)
@@ -339,16 +537,57 @@ export class WebGL2PreviewRenderer extends BaseRenderer {
     this.setUniform("u_texture", 0)
 
     // Устанавливаем параметры эффекта
-    if (effect.type === "blur" && effect.params) {
-      this.setUniform("u_resolution", [this.viewport.width, this.viewport.height])
-      this.setUniform("u_direction", [1, 0]) // Горизонтальное размытие
-      this.setUniform("u_radius", effect.params.radius || 5)
-    } else if (effect.type === "colorCorrection" && effect.params) {
-      this.setUniform("u_brightness", effect.params.brightness || 0)
-      this.setUniform("u_contrast", effect.params.contrast || 0)
-      this.setUniform("u_saturation", effect.params.saturation || 0)
-      this.setUniform("u_hue", effect.params.hue || 0)
-      this.setUniform("u_colorBalance", effect.params.colorBalance || [1, 1, 1])
+    const params = effect.parameters || {}
+
+    // Общие параметры
+    if ("intensity" in effect) {
+      this.setUniform("u_intensity", effect.intensity)
+    }
+
+    // Специфичные для эффектов параметры
+    switch (effect.type) {
+      case "blur":
+      case "gaussian-blur":
+        this.setUniform("u_resolution", [this.viewport.width, this.viewport.height])
+        this.setUniform("u_direction", [1, 0]) // Горизонтальное размытие
+        this.setUniform("u_radius", params.radius || 5)
+        break
+
+      case "brightness":
+        this.setUniform("u_brightness", params.value || 0)
+        break
+
+      case "contrast":
+        this.setUniform("u_contrast", params.value || 0)
+        break
+
+      case "saturation":
+        this.setUniform("u_saturation", params.value || 0)
+        break
+
+      case "colorCorrection":
+        this.setUniform("u_brightness", params.brightness || 0)
+        this.setUniform("u_contrast", params.contrast || 0)
+        this.setUniform("u_saturation", params.saturation || 0)
+        this.setUniform("u_hue", params.hue || 0)
+        this.setUniform("u_colorBalance", params.colorBalance || [1, 1, 1])
+        break
+
+      case "fade":
+      case "dissolve":
+        this.setUniform("u_progress", params.progress || 0)
+        this.setUniform("u_fadeColor", params.color || [0, 0, 0, 1])
+        break
+
+      case "wipe":
+        this.setUniform("u_progress", params.progress || 0)
+        this.setUniform("u_direction", params.direction || [1, 0])
+        break
+
+      case "slide":
+        this.setUniform("u_progress", params.progress || 0)
+        this.setUniform("u_direction", params.direction || [1, 0])
+        break
     }
 
     // Рисуем квад

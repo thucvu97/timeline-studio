@@ -3,8 +3,8 @@
  * Интеграция WebGL эффектов с video player для real-time preview
  */
 
-import type { BaseEffect } from "@/features/effects/types"
 import { WebGL2UnifiedRenderer } from "@/features/effects/services/webgl2-unified-renderer"
+import type { BaseEffect } from "@/features/effects/types"
 import type { AppliedEffect, TimelineClip } from "../types"
 
 export interface EffectsPlayerConfig {
@@ -52,7 +52,7 @@ export class EffectsPlayerIntegration {
     }
 
     this.ctx = this.targetCanvas.getContext("2d")
-    
+
     // Создаем offscreen canvas для производительности
     if ("OffscreenCanvas" in window) {
       this.offscreenCanvas = new OffscreenCanvas(1920, 1080)
@@ -70,7 +70,7 @@ export class EffectsPlayerIntegration {
    */
   setCurrentClip(clip: TimelineClip | null): void {
     this.currentClip = clip
-    
+
     // Останавливаем анимацию если клип изменился
     if (this.animationFrameId !== null) {
       cancelAnimationFrame(this.animationFrameId)
@@ -81,17 +81,14 @@ export class EffectsPlayerIntegration {
   /**
    * Обработать видео кадр с применением эффектов
    */
-  async processVideoFrame(
-    videoElement: HTMLVideoElement,
-    currentTime: number
-  ): Promise<HTMLCanvasElement | null> {
+  async processVideoFrame(videoElement: HTMLVideoElement, currentTime: number): Promise<HTMLCanvasElement | null> {
     if (!this.isInitialized || !this.currentClip || !this.targetCanvas || !this.ctx) {
       return null
     }
 
     // Получаем активные эффекты клипа
     const activeEffects = this.currentClip.effects.filter((e) => e.enabled)
-    
+
     if (activeEffects.length === 0) {
       // Нет эффектов - просто копируем видео
       this.targetCanvas.width = videoElement.videoWidth
@@ -102,23 +99,20 @@ export class EffectsPlayerIntegration {
 
     try {
       // Рендерим эффекты через WebGL
-      const result = await this.renderer.renderEffectStack(
-        activeEffects,
-        this.baseEffects,
-        {
-          source: videoElement,
-          target: this.targetCanvas,
-          width: videoElement.videoWidth,
-          height: videoElement.videoHeight,
-          currentTime,
-          quality: this.config.quality || "preview",
-          gpuTier: this.config.gpuTier || "medium",
-        }
-      )
+      const result = await this.renderer.renderEffectStack(activeEffects, this.baseEffects, {
+        source: videoElement,
+        target: this.targetCanvas,
+        width: videoElement.videoWidth,
+        height: videoElement.videoHeight,
+        currentTime,
+        quality: this.config.quality || "preview",
+        gpuTier: this.config.gpuTier || "medium",
+      })
 
       if (result.success && result.output instanceof HTMLCanvasElement) {
         return result.output
-      } else if (result.success && result.output instanceof ImageBitmap) {
+      }
+      if (result.success && result.output instanceof ImageBitmap) {
         // Рисуем ImageBitmap на canvas
         this.targetCanvas.width = result.output.width
         this.targetCanvas.height = result.output.height
@@ -141,24 +135,18 @@ export class EffectsPlayerIntegration {
   /**
    * Начать real-time обработку видео
    */
-  startRealtimeProcessing(
-    videoElement: HTMLVideoElement,
-    onFrameProcessed: (canvas: HTMLCanvasElement) => void
-  ): void {
+  startRealtimeProcessing(videoElement: HTMLVideoElement, onFrameProcessed: (canvas: HTMLCanvasElement) => void): void {
     if (!this.isInitialized || this.animationFrameId !== null) return
 
     const processFrame = async () => {
       if (!videoElement.paused && !videoElement.ended) {
-        const processedCanvas = await this.processVideoFrame(
-          videoElement,
-          videoElement.currentTime
-        )
-        
+        const processedCanvas = await this.processVideoFrame(videoElement, videoElement.currentTime)
+
         if (processedCanvas) {
           onFrameProcessed(processedCanvas)
         }
       }
-      
+
       this.animationFrameId = requestAnimationFrame(processFrame)
     }
 
@@ -185,7 +173,7 @@ export class EffectsPlayerIntegration {
   async createEffectPreview(
     effect: BaseEffect,
     sourceImage: HTMLImageElement | HTMLCanvasElement,
-    size = 200
+    size = 200,
   ): Promise<HTMLCanvasElement | null> {
     if (!this.isInitialized) return null
 
@@ -204,18 +192,14 @@ export class EffectsPlayerIntegration {
         keyframes: {},
       }
 
-      const result = await this.renderer.renderEffectStack(
-        [appliedEffect],
-        this.baseEffects,
-        {
-          source: sourceImage,
-          target: previewCanvas,
-          width: size,
-          height: size,
-          currentTime: 0,
-          quality: "draft",
-        }
-      )
+      const result = await this.renderer.renderEffectStack([appliedEffect], this.baseEffects, {
+        source: sourceImage,
+        target: previewCanvas,
+        width: size,
+        height: size,
+        currentTime: 0,
+        quality: "draft",
+      })
 
       if (result.success && result.output instanceof HTMLCanvasElement) {
         return result.output
@@ -268,7 +252,7 @@ export class EffectsPlayerIntegration {
 
   dispose(): void {
     this.stopRealtimeProcessing()
-    
+
     if (this.renderer) {
       this.renderer.dispose()
     }
@@ -291,9 +275,7 @@ export class EffectsPlayerIntegration {
 
 let instance: EffectsPlayerIntegration | null = null
 
-export function getEffectsPlayerIntegration(
-  config?: EffectsPlayerConfig
-): EffectsPlayerIntegration {
+export function getEffectsPlayerIntegration(config?: EffectsPlayerConfig): EffectsPlayerIntegration {
   if (!instance) {
     instance = new EffectsPlayerIntegration(config)
   }

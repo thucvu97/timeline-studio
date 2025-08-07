@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { ApiKeyLoader } from "../../services/api-key-loader"
+import { ApiKeyLoader } from "@/shared/services/ai/core/api-key-loader"
 import {
   type FrameAnalysisParams,
   type FrameAnalysisResult,
@@ -15,7 +15,7 @@ vi.mock("@tauri-apps/api/core", () => ({
   invoke: vi.fn(),
 }))
 
-vi.mock("../../services/api-key-loader", () => ({
+vi.mock("@/shared/services/ai/core/api-key-loader", () => ({
   ApiKeyLoader: {
     getInstance: vi.fn(),
   },

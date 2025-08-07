@@ -49,7 +49,7 @@ export function useDragDropTimeline(): UseDragDropTimelineReturn {
     if (active.data.current?.type?.startsWith("drag-")) {
       const resourceType = active.data.current.type.replace("drag-", "")
       const resource = active.data.current.resource
-      
+
       setDragState({
         isDragging: true,
         draggedItem: null,
@@ -58,7 +58,7 @@ export function useDragDropTimeline(): UseDragDropTimelineReturn {
         draggedResourceType: resourceType,
         draggedResource: resource,
       })
-      
+
       console.log(`[DragDrop] Started dragging ${resourceType}:`, resource.name)
       return
     }
@@ -258,18 +258,13 @@ export function useDragDropTimeline(): UseDragDropTimelineReturn {
               dragState.dropPosition.leftClipId,
               dragState.dropPosition.rightClipId,
             )
-            
+
             // The actual transition application is handled by the TransitionDropZone component
             // through its onDrop callback
           } else if (dropData.type === "clip-drop" && dragState.draggedResourceType) {
             // Handle resource drop on clip
-            console.log(
-              "[DragDrop] Dropping",
-              dragState.draggedResourceType,
-              "on clip:",
-              dropData.clipId,
-            )
-            
+            console.log("[DragDrop] Dropping", dragState.draggedResourceType, "on clip:", dropData.clipId)
+
             // The actual resource application is handled by the ClipDropZone component
             // Resources are applied through TimelineEffectsProvider
           } else if (dropData.trackId && dropData.trackType) {

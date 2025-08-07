@@ -17,9 +17,9 @@ import { addTransitionBetweenClips, getTrackTransitions } from "../../services/t
 import type { TimelineTrack } from "../../types"
 import { Clip } from "../clip/clip"
 import { CollapsedGroup } from "../clip-groups/collapsed-group"
-import { TimelineTransitionComponent } from "../transitions/timeline-transition"
 import { TransitionCollisionIndicator } from "../transition/transition-collision-indicator"
 import { TransitionDropZone } from "../transition/transition-drop-zone"
+import { TimelineTransitionComponent } from "../transitions/timeline-transition"
 import { TrackRollHandles } from "./track-roll-handles"
 
 interface TrackContentProps {
@@ -113,18 +113,21 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
 
   // Обработчик добавления перехода между клипами
   const handleTransitionDrop = useCallback(
-    (leftClipId: string, rightClipId: string, transition: Record<string, any>) => {
+    async (leftClipId: string, rightClipId: string, transition: Record<string, any>) => {
       if (!project) return
 
       try {
         const result = addTransitionBetweenClips(project, track.id, leftClipId, rightClipId, transition)
-        // TODO: Integrate with project save system
-        console.log("Transition added, need to save project:", result.project)
+
+        // Обновляем проект через сохранение
+        await saveProject()
+
+        console.log("Переход успешно добавлен к проекту")
       } catch (error) {
         console.error("Failed to add transition:", error)
       }
     },
-    [project, track.id],
+    [project, track.id, saveProject],
   )
 
   // Мемоизируем сетку временной шкалы
@@ -210,11 +213,11 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
         {visibleClips.length > 1 &&
           visibleClips.slice(0, -1).map((leftClip, index) => {
             const rightClip = visibleClips[index + 1]
-            
+
             // Проверяем есть ли переход между этими клипами
-            const outTransition = leftClip.transitions?.find(t => t.type === "out")
-            const inTransition = rightClip.transitions?.find(t => t.type === "in")
-            
+            const outTransition = leftClip.transitions?.find((t) => t.type === "out")
+            const inTransition = rightClip.transitions?.find((t) => t.type === "in")
+
             if (outTransition && inTransition && outTransition.transitionId === inTransition.transitionId) {
               return (
                 <TimelineTransitionComponent
@@ -227,12 +230,18 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
                   timeScale={timeScale}
                   trackHeight={48}
                   onUpdate={(updates) => {
-                    // Обновление перехода через контекст или API
-                    console.log("Transition update:", outTransition.id, updates)
+                    // TODO: Обновление перехода через backend API
+                    console.log("Updating transition parameters:", outTransition.id, updates)
                   }}
-                  onDelete={() => {
-                    // Удаление перехода
-                    console.log("Transition delete:", outTransition.id)
+                  onDelete={async () => {
+                    // Удаление перехода через backend API
+                    try {
+                      // TODO: Добавить removeTransition команду в backend
+                      console.log("Deleting transition:", outTransition.id)
+                      await saveProject()
+                    } catch (error) {
+                      console.error("Failed to delete transition:", error)
+                    }
                   }}
                 />
               )

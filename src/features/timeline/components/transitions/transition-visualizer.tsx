@@ -22,27 +22,27 @@ export const TransitionVisualizer = memo(function TransitionVisualizer({
   className,
 }: TransitionVisualizerProps) {
   // Находим переходы
-  const outTransition = leftClip.transitions.find(t => t.type === "out")
-  const inTransition = rightClip.transitions.find(t => t.type === "in")
-  
+  const outTransition = leftClip.transitions.find((t) => t.type === "out")
+  const inTransition = rightClip.transitions.find((t) => t.type === "in")
+
   // Если нет переходов, не отображаем
   if (!outTransition && !inTransition) return null
-  
+
   // Вычисляем параметры перехода
   const transitionData = useMemo(() => {
     // Берем данные из любого перехода (они должны быть синхронизированы)
     const transition = outTransition || inTransition
     if (!transition) return null
-    
+
     // Длительность перехода
     const duration = transition.duration || 1.0
-    
+
     // Позиция начала перехода (конец левого клипа - половина длительности)
     const startPosition = (leftClip.startTime + leftClip.duration - duration / 2) * pixelsPerSecond
-    
+
     // Ширина визуализации перехода
     const width = duration * pixelsPerSecond
-    
+
     return {
       id: transition.id,
       name: transition.transitionId,
@@ -52,15 +52,12 @@ export const TransitionVisualizer = memo(function TransitionVisualizer({
       type: transition.transitionId,
     }
   }, [leftClip, rightClip, outTransition, inTransition, pixelsPerSecond])
-  
+
   if (!transitionData) return null
-  
+
   return (
     <div
-      className={cn(
-        "absolute top-0 pointer-events-none",
-        className
-      )}
+      className={cn("absolute top-0 pointer-events-none", className)}
       style={{
         left: `${transitionData.startPosition}px`,
         width: `${transitionData.width}px`,
@@ -69,13 +66,13 @@ export const TransitionVisualizer = memo(function TransitionVisualizer({
     >
       {/* Фоновая область перехода */}
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-500/20 to-transparent" />
-      
+
       {/* Центральная линия */}
       <div className="absolute top-0 bottom-0 left-1/2 w-0.5 bg-purple-400 -translate-x-1/2" />
-      
+
       {/* Визуализация типа перехода */}
       {renderTransitionEffect(transitionData.type, transitionData.width, trackHeight)}
-      
+
       {/* Метка с названием */}
       <div className="absolute top-1 left-1/2 -translate-x-1/2 bg-purple-500 text-white text-xs px-1 py-0.5 rounded whitespace-nowrap">
         {getTransitionDisplayName(transitionData.type)}
@@ -100,14 +97,14 @@ function renderTransitionEffect(type: string, width: number, height: number) {
           <rect x="0" y="0" width={width} height={height} fill="url(#fade-gradient)" opacity="0.2" />
         </svg>
       )
-      
+
     case "dissolve":
       return (
         <div className="absolute inset-0 opacity-20">
           <div className="w-full h-full bg-gradient-to-r from-white via-transparent to-white" />
         </div>
       )
-      
+
     case "wipe":
       return (
         <svg className="absolute inset-0 w-full h-full" viewBox={`0 0 ${width} ${height}`}>
@@ -118,23 +115,15 @@ function renderTransitionEffect(type: string, width: number, height: number) {
             strokeWidth="2"
             opacity="0.3"
           />
-          <line
-            x1={width / 2}
-            y1="0"
-            x2={width / 2}
-            y2={height}
-            stroke="white"
-            strokeWidth="2"
-            opacity="0.5"
-          />
+          <line x1={width / 2} y1="0" x2={width / 2} y2={height} stroke="white" strokeWidth="2" opacity="0.5" />
         </svg>
       )
-      
+
     case "slide":
       return (
         <svg className="absolute inset-0 w-full h-full" viewBox={`0 0 ${width} ${height}`}>
           <path
-            d={`M 0 ${height/2} L ${width/3} ${height/3} L ${width*2/3} ${height*2/3} L ${width} ${height/2}`}
+            d={`M 0 ${height / 2} L ${width / 3} ${height / 3} L ${(width * 2) / 3} ${(height * 2) / 3} L ${width} ${height / 2}`}
             fill="none"
             stroke="white"
             strokeWidth="2"
@@ -142,14 +131,14 @@ function renderTransitionEffect(type: string, width: number, height: number) {
           />
         </svg>
       )
-      
+
     case "zoom":
       return (
         <div className="absolute inset-0 flex items-center justify-center opacity-20">
           <div className="w-1/2 h-1/2 border-2 border-white rounded-lg" />
         </div>
       )
-      
+
     default:
       return null
   }
@@ -169,7 +158,7 @@ function getTransitionDisplayName(type: string): string {
     rotate: "Вращение",
     flip: "Переворот",
   }
-  
+
   return names[type] || type
 }
 
@@ -191,33 +180,29 @@ export const TransitionPreview = memo(function TransitionPreview({
 }: TransitionPreviewProps) {
   return (
     <div className="absolute z-50 bg-black/90 rounded-lg shadow-xl p-4 w-64">
-      <h4 className="text-sm font-medium text-white mb-2">
-        {getTransitionDisplayName(transition.type)}
-      </h4>
-      
+      <h4 className="text-sm font-medium text-white mb-2">{getTransitionDisplayName(transition.type)}</h4>
+
       <div className="space-y-2 text-xs text-gray-300">
         <div className="flex justify-between">
           <span>Длительность:</span>
           <span>{transition.duration.toFixed(1)}s</span>
         </div>
-        
+
         <div className="flex justify-between">
           <span>От клипа:</span>
           <span className="truncate ml-2">{leftClip.name}</span>
         </div>
-        
+
         <div className="flex justify-between">
           <span>К клипу:</span>
           <span className="truncate ml-2">{rightClip.name}</span>
         </div>
       </div>
-      
+
       {/* Мини-превью перехода */}
       <div className="mt-3 h-20 bg-gray-800 rounded relative overflow-hidden">
         <div className="absolute inset-0 flex">
-          <div className="flex-1 bg-blue-600 flex items-center justify-center text-white text-xs">
-            {leftClip.name}
-          </div>
+          <div className="flex-1 bg-blue-600 flex items-center justify-center text-white text-xs">{leftClip.name}</div>
           <div className="w-8 bg-gradient-to-r from-blue-600 via-purple-500 to-green-600" />
           <div className="flex-1 bg-green-600 flex items-center justify-center text-white text-xs">
             {rightClip.name}

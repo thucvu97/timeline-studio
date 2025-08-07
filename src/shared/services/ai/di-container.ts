@@ -18,6 +18,17 @@ import type {
 } from "./providers/interfaces"
 import { EnhancedUnifiedAIService } from "./unified-ai-service"
 
+// Типы для регистрации сервисов
+export type ServiceFactory<T = any> = (...deps: any[]) => T | Promise<T>
+export type ServiceLifecycle = "singleton" | "transient" | "scoped"
+
+interface ServiceRegistration {
+  factory: ServiceFactory
+  dependencies: string[]
+  lifecycle: ServiceLifecycle
+  instance?: any
+}
+
 export class AIDIContainer {
   private static instance: AIDIContainer | null = null
 
@@ -30,7 +41,13 @@ export class AIDIContainer {
 
   private initialized = false
 
-  private constructor() {}
+  // Реестр сервисов для DI
+  private services = new Map<string, ServiceRegistration>()
+  private resolving = new Set<string>() // Для обнаружения циклических зависимостей
+
+  private constructor() {
+    this.registerCoreServices()
+  }
 
   static getInstance(): AIDIContainer {
     if (!AIDIContainer.instance) {
@@ -97,6 +114,163 @@ export class AIDIContainer {
 
   isInitialized(): boolean {
     return this.initialized
+  }
+
+  // ===========================
+  // Enhanced DI functionality
+  // ===========================
+
+  /**
+   * Регистрация сервиса с зависимостями
+   */
+  register<T>(
+    name: string,
+    factory: ServiceFactory<T>,
+    options: {
+      dependencies?: string[]
+      lifecycle?: ServiceLifecycle
+    } = {},
+  ): void {
+    const { dependencies = [], lifecycle = "singleton" } = options
+
+    this.services.set(name, {
+      factory,
+      dependencies,
+      lifecycle,
+      instance: lifecycle === "singleton" ? undefined : null,
+    })
+  }
+
+  /**
+   * Регистрация singleton сервиса (синтаксический сахар)
+   */
+  registerSingleton<T>(name: string, factory: ServiceFactory<T>, dependencies: string[] = []): void {
+    this.register(name, factory, { dependencies, lifecycle: "singleton" })
+  }
+
+  /**
+   * Регистрация transient сервиса (создается каждый раз)
+   */
+  registerTransient<T>(name: string, factory: ServiceFactory<T>, dependencies: string[] = []): void {
+    this.register(name, factory, { dependencies, lifecycle: "transient" })
+  }
+
+  /**
+   * Получить сервис с автоматическим разрешением зависимостей
+   */
+  async resolve<T>(name: string): Promise<T> {
+    // Проверка циклических зависимостей
+    if (this.resolving.has(name)) {
+      throw new Error(`Circular dependency detected: ${Array.from(this.resolving).join(" -> ")} -> ${name}`)
+    }
+
+    const registration = this.services.get(name)
+    if (!registration) {
+      throw new Error(`Service '${name}' not registered`)
+    }
+
+    // Для singleton проверяем кэш
+    if (registration.lifecycle === "singleton" && registration.instance) {
+      return registration.instance
+    }
+
+    this.resolving.add(name)
+
+    try {
+      // Разрешаем зависимости
+      const deps = await Promise.all(registration.dependencies.map((dep) => this.resolve(dep)))
+
+      // Создаем экземпляр
+      const instance = await registration.factory(...deps)
+
+      // Кэшируем для singleton
+      if (registration.lifecycle === "singleton") {
+        registration.instance = instance
+      }
+
+      return instance
+    } finally {
+      this.resolving.delete(name)
+    }
+  }
+
+  /**
+   * Синхронная версия resolve (только для уже созданных singleton)
+   */
+  get<T>(name: string): T {
+    const registration = this.services.get(name)
+    if (!registration) {
+      throw new Error(`Service '${name}' not registered`)
+    }
+
+    if (registration.lifecycle === "singleton" && registration.instance) {
+      return registration.instance
+    }
+
+    throw new Error(`Service '${name}' not yet resolved. Use resolve() first.`)
+  }
+
+  /**
+   * Проверить наличие сервиса
+   */
+  has(name: string): boolean {
+    return this.services.has(name)
+  }
+
+  /**
+   * Регистрация core сервисов
+   */
+  private registerCoreServices(): void {
+    // AI Provider Factory
+    this.registerSingleton("AIProviderFactory", () => createAIProviderFactory())
+
+    // Media Analysis Factory
+    this.registerSingleton("MediaAnalysisFactory", () => createMediaAnalysisFactory())
+
+    // Model Manager
+    this.registerSingleton(
+      "ModelManager",
+      (providerFactory: AIProviderFactory) => new ModelManagerImpl(providerFactory),
+      ["AIProviderFactory"],
+    )
+
+    // Unified AI Service
+    this.registerSingleton(
+      "UnifiedAIService",
+      (providerFactory: AIProviderFactory, modelManager: ModelManager) =>
+        EnhancedUnifiedAIService.getInstance({ providerFactory, modelManager }),
+      ["AIProviderFactory", "ModelManager"],
+    )
+
+    // FFmpeg Service
+    this.registerSingleton(
+      "FFmpegService",
+      async (analysisFactory: MediaAnalysisFactory) => {
+        const factory = await analysisFactory
+        return factory.createFFmpegService()
+      },
+      ["MediaAnalysisFactory"],
+    )
+
+    // Vision Service
+    this.registerSingleton(
+      "VisionService",
+      async (analysisFactory: MediaAnalysisFactory) => {
+        const factory = await analysisFactory
+        return factory.createVisionService()
+      },
+      ["MediaAnalysisFactory"],
+    )
+
+    // Content Analysis Service
+    this.registerSingleton(
+      "ContentAnalysisService",
+      async (analysisFactory: MediaAnalysisFactory) => {
+        const factory = await analysisFactory
+        return factory.createContentAnalysisService()
+      },
+      ["MediaAnalysisFactory"],
+    )
   }
 
   // Получение сервисов

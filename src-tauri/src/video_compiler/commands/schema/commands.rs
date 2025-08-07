@@ -426,3 +426,47 @@ pub async fn validate_schema_structure(
 ) -> Result<SchemaValidationInfo> {
   Ok(business_logic::validate_project_schema(&project))
 }
+
+/// Добавить эффект к клипу
+#[tauri::command]
+pub async fn add_effect_to_clip(
+  clip_id: String,
+  effect_id: String,
+  mut project_schema: crate::video_compiler::schema::ProjectSchema,
+) -> Result<crate::video_compiler::schema::ProjectSchema> {
+  business_logic::add_effect_to_clip(&mut project_schema, &clip_id, &effect_id)?;
+  Ok(project_schema)
+}
+
+/// Добавить фильтр к клипу
+#[tauri::command]
+pub async fn add_filter_to_clip(
+  clip_id: String,
+  filter_id: String,
+  mut project_schema: crate::video_compiler::schema::ProjectSchema,
+) -> Result<crate::video_compiler::schema::ProjectSchema> {
+  business_logic::add_filter_to_clip(&mut project_schema, &clip_id, &filter_id)?;
+  Ok(project_schema)
+}
+
+/// Удалить эффект из клипа
+#[tauri::command]
+pub async fn remove_effect_from_clip(
+  clip_id: String,
+  effect_id: String,
+  mut project_schema: crate::video_compiler::schema::ProjectSchema,
+) -> Result<crate::video_compiler::schema::ProjectSchema> {
+  business_logic::remove_effect_from_clip(&mut project_schema, &clip_id, &effect_id)?;
+  Ok(project_schema)
+}
+
+/// Удалить фильтр из клипа
+#[tauri::command]
+pub async fn remove_filter_from_clip(
+  clip_id: String,
+  filter_id: String,
+  mut project_schema: crate::video_compiler::schema::ProjectSchema,
+) -> Result<crate::video_compiler::schema::ProjectSchema> {
+  business_logic::remove_filter_from_clip(&mut project_schema, &clip_id, &filter_id)?;
+  Ok(project_schema)
+}

@@ -81,6 +81,9 @@ pub mod commands {
   pub mod transcription;
 }
 
+// Модуль команд для эффектов
+pub mod effects_commands;
+
 // Simple commands that don't belong to specific modules yet
 
 #[tauri::command]

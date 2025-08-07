@@ -17,9 +17,16 @@ let FFmpegAnalysisService: any = null
 
 try {
   // Динамический импорт для избежания циклических зависимостей
-  FFmpegAnalysisService = require("@/features/ai-chat/services/ffmpeg-analysis-service").FFmpegAnalysisService
+  const ffmpegModule = require("@/features/ai-chat/services/ffmpeg-analysis-service")
+  FFmpegAnalysisService = ffmpegModule.FFmpegAnalysisService
 } catch (error) {
-  console.warn("FFmpeg service not available:", error)
+  // Fallback на legacy адаптер
+  try {
+    const legacyModule = require("@/features/ai-chat/services/legacy-adapters")
+    FFmpegAnalysisService = legacyModule.FFmpegAnalysisService
+  } catch (legacyError) {
+    console.warn("FFmpeg service not available:", error)
+  }
 }
 
 export class FFmpegAdapter implements IFFmpegAnalysisService {

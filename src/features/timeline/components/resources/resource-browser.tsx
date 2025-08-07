@@ -4,27 +4,16 @@
  */
 
 import { useDraggable } from "@dnd-kit/core"
+import { ChevronDown, ChevronRight, Film, Filter, Layers, Palette, Search, Shuffle, Sparkles } from "lucide-react"
 import { memo, useState } from "react"
-import { 
-  Sparkles, 
-  Filter, 
-  Shuffle, 
-  Search, 
-  ChevronRight,
-  ChevronDown,
-  Film,
-  Palette,
-  Layers
-} from "lucide-react"
 
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { cn } from "@/lib/utils"
-
 import type { VideoEffect } from "@/features/effects/types/effects"
 import type { VideoFilter } from "@/features/filters/types/filters"
 import type { Transition } from "@/features/transitions/types/transitions"
+import { cn } from "@/lib/utils"
 
 // Временные моковые данные - потом заменить на реальные из контекста
 const mockEffects: VideoEffect[] = [
@@ -75,7 +64,7 @@ const ResourceItem = memo(function ResourceItem({ resource, type, icon }: Resour
         "flex items-center gap-2 p-2 rounded cursor-move",
         "hover:bg-accent transition-colors",
         "border border-transparent hover:border-border",
-        isDragging && "opacity-50"
+        isDragging && "opacity-50",
       )}
     >
       <div className="text-muted-foreground">{icon}</div>
@@ -104,16 +93,11 @@ const CategorySection = memo(function CategorySection({ title, items, type, icon
         <span className="font-medium text-sm">{title}</span>
         <span className="ml-auto text-xs text-muted-foreground">{items.length}</span>
       </button>
-      
+
       {isExpanded && (
         <div className="mt-1 ml-6">
           {items.map((item) => (
-            <ResourceItem 
-              key={item.id} 
-              resource={item} 
-              type={type}
-              icon={icon}
-            />
+            <ResourceItem key={item.id} resource={item} type={type} icon={icon} />
           ))}
         </div>
       )}
@@ -127,19 +111,22 @@ export const ResourceBrowser = memo(function ResourceBrowser() {
 
   // Группируем ресурсы по категориям
   const groupByCategory = <T extends { category: string }>(items: T[]) => {
-    return items.reduce((acc, item) => {
-      const category = item.category
-      if (!acc[category]) acc[category] = []
-      acc[category].push(item)
-      return acc
-    }, {} as Record<string, T[]>)
+    return items.reduce(
+      (acc, item) => {
+        const category = item.category
+        if (!acc[category]) acc[category] = []
+        acc[category].push(item)
+        return acc
+      },
+      {} as Record<string, T[]>,
+    )
   }
 
   // Фильтрация по поисковому запросу
   const filterBySearch = <T extends { name: string }>(items: T[]) => {
     if (!searchQuery) return items
     const query = searchQuery.toLowerCase()
-    return items.filter(item => item.name.toLowerCase().includes(query))
+    return items.filter((item) => item.name.toLowerCase().includes(query))
   }
 
   const filteredEffects = filterBySearch(mockEffects)
@@ -193,9 +180,7 @@ export const ResourceBrowser = memo(function ResourceBrowser() {
               />
             ))}
             {filteredEffects.length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-8">
-                No effects found
-              </p>
+              <p className="text-sm text-muted-foreground text-center py-8">No effects found</p>
             )}
           </TabsContent>
 
@@ -210,9 +195,7 @@ export const ResourceBrowser = memo(function ResourceBrowser() {
               />
             ))}
             {filteredFilters.length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-8">
-                No filters found
-              </p>
+              <p className="text-sm text-muted-foreground text-center py-8">No filters found</p>
             )}
           </TabsContent>
 
@@ -227,9 +210,7 @@ export const ResourceBrowser = memo(function ResourceBrowser() {
               />
             ))}
             {filteredTransitions.length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-8">
-                No transitions found
-              </p>
+              <p className="text-sm text-muted-foreground text-center py-8">No transitions found</p>
             )}
           </TabsContent>
         </ScrollArea>
@@ -237,9 +218,7 @@ export const ResourceBrowser = memo(function ResourceBrowser() {
 
       {/* Информация о drag & drop */}
       <div className="p-4 border-t bg-muted/50">
-        <p className="text-xs text-muted-foreground">
-          Drag resources onto clips or between clips to apply them
-        </p>
+        <p className="text-xs text-muted-foreground">Drag resources onto clips or between clips to apply them</p>
       </div>
     </div>
   )

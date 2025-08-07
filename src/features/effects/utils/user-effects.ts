@@ -4,7 +4,7 @@
  */
 
 import { invoke } from "@tauri-apps/api/core"
-
+import type { ProjectSchema } from "@/types/video-compiler"
 import type { BaseEffect, EffectPreset } from "../types/unified-effects"
 
 // Счетчик для генерации уникальных ID пресетов
@@ -250,5 +250,117 @@ export function mergeEffectsCollections(
     effects: mergedEffects,
     createdAt: collection1.createdAt,
     updatedAt: new Date().toISOString(),
+  }
+}
+
+// ============ Команды управления эффектами в проекте ============
+
+/**
+ * Добавить эффект к клипу
+ */
+export async function addEffectToClip(
+  projectSchema: ProjectSchema,
+  clipId: string,
+  effectId: string,
+): Promise<ProjectSchema> {
+  try {
+    return await invoke<ProjectSchema>("add_effect_to_clip", {
+      clipId,
+      effectId,
+      projectSchema,
+    })
+  } catch (error) {
+    console.error("Failed to add effect to clip:", error)
+    throw error
+  }
+}
+
+/**
+ * Добавить фильтр к клипу
+ */
+export async function addFilterToClip(
+  projectSchema: ProjectSchema,
+  clipId: string,
+  filterId: string,
+): Promise<ProjectSchema> {
+  try {
+    return await invoke<ProjectSchema>("add_filter_to_clip", {
+      clipId,
+      filterId,
+      projectSchema,
+    })
+  } catch (error) {
+    console.error("Failed to add filter to clip:", error)
+    throw error
+  }
+}
+
+/**
+ * Удалить эффект из клипа
+ */
+export async function removeEffectFromClip(
+  projectSchema: ProjectSchema,
+  clipId: string,
+  effectId: string,
+): Promise<ProjectSchema> {
+  try {
+    return await invoke<ProjectSchema>("remove_effect_from_clip", {
+      clipId,
+      effectId,
+      projectSchema,
+    })
+  } catch (error) {
+    console.error("Failed to remove effect from clip:", error)
+    throw error
+  }
+}
+
+/**
+ * Удалить фильтр из клипа
+ */
+export async function removeFilterFromClip(
+  projectSchema: ProjectSchema,
+  clipId: string,
+  filterId: string,
+): Promise<ProjectSchema> {
+  try {
+    return await invoke<ProjectSchema>("remove_filter_from_clip", {
+      clipId,
+      filterId,
+      projectSchema,
+    })
+  } catch (error) {
+    console.error("Failed to remove filter from clip:", error)
+    throw error
+  }
+}
+
+/**
+ * Создать новый эффект
+ */
+export async function createEffect(effectType: string, parameters: Record<string, any>): Promise<any> {
+  try {
+    return await invoke("create_effect", {
+      effectType,
+      parameters,
+    })
+  } catch (error) {
+    console.error("Failed to create effect:", error)
+    throw error
+  }
+}
+
+/**
+ * Создать новый фильтр
+ */
+export async function createFilter(filterType: string, parameters: Record<string, any>): Promise<any> {
+  try {
+    return await invoke("create_filter", {
+      filterType,
+      parameters,
+    })
+  } catch (error) {
+    console.error("Failed to create filter:", error)
+    throw error
   }
 }

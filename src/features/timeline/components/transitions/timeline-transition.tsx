@@ -40,7 +40,7 @@ export const TimelineTransitionComponent = memo(function TimelineTransitionCompo
     // и заканчивается через duration/2 после начала правого клипа
     const startTime = leftClipEnd - transition.duration / 2
     const endTime = rightClipStart + transition.duration / 2
-    
+
     return {
       left: startTime * timeScale,
       width: (endTime - startTime) * timeScale,
@@ -61,16 +61,10 @@ export const TimelineTransitionComponent = memo(function TimelineTransitionCompo
                 <stop offset="100%" stopColor="currentColor" stopOpacity="1" />
               </linearGradient>
             </defs>
-            <rect
-              x="0"
-              y="0"
-              width="100%"
-              height="100%"
-              fill={`url(#fade-${transition.id})`}
-            />
+            <rect x="0" y="0" width="100%" height="100%" fill={`url(#fade-${transition.id})`} />
           </svg>
         )
-      
+
       case "wipe":
       case "slide":
         return (
@@ -81,16 +75,10 @@ export const TimelineTransitionComponent = memo(function TimelineTransitionCompo
                 <path d="M0,10 L10,0" stroke="currentColor" strokeWidth="2" opacity="0.5" />
               </pattern>
             </defs>
-            <rect
-              x="0"
-              y="0"
-              width="100%"
-              height="100%"
-              fill={`url(#diag-${transition.id})`}
-            />
+            <rect x="0" y="0" width="100%" height="100%" fill={`url(#diag-${transition.id})`} />
           </svg>
         )
-      
+
       default:
         return (
           <div className="absolute inset-0 flex items-center justify-center">
@@ -106,7 +94,7 @@ export const TimelineTransitionComponent = memo(function TimelineTransitionCompo
         "absolute group cursor-pointer",
         "transition-all duration-200",
         isSelected && "z-20",
-        !isSelected && "z-10"
+        !isSelected && "z-10",
       )}
       style={{
         left: `${left}px`,
@@ -122,10 +110,8 @@ export const TimelineTransitionComponent = memo(function TimelineTransitionCompo
           "absolute inset-0 rounded",
           "bg-gradient-to-r from-primary/20 via-primary/40 to-primary/20",
           "border-2",
-          isSelected
-            ? "border-primary shadow-lg"
-            : "border-primary/50 hover:border-primary",
-          "transition-all duration-200"
+          isSelected ? "border-primary shadow-lg" : "border-primary/50 hover:border-primary",
+          "transition-all duration-200",
         )}
       >
         {renderTransitionVisual()}

@@ -6,8 +6,6 @@ import { renderWithChat } from "@/test/test-utils"
 
 import { useChat } from "../../hooks/use-chat"
 import { ChatContext, ChatProvider } from "../../services/chat-provider"
-import { ClaudeService } from "../../services/claude-service"
-import { OpenAiService } from "../../services/open-ai-service"
 
 import type { ChatListItem } from "../../types/chat"
 
@@ -49,33 +47,18 @@ vi.mock("@/i18n/services/i18n-provider", () => ({
   I18nProvider: ({ children }: { children: React.ReactNode }) => children,
 }))
 
-// Mock AI сервисы
-vi.mock("../../services/claude-service", () => ({
-  ClaudeService: {
-    getInstance: vi.fn().mockReturnValue({
-      setApiKey: vi.fn(),
-      sendRequest: vi.fn().mockResolvedValue("Ответ от Claude"),
+// Mock shared AI сервисы
+vi.mock("@/shared/services/ai", () => ({
+  getAIContainer: vi.fn(() => ({
+    resolve: vi.fn().mockResolvedValue({
+      sendRequest: vi.fn().mockResolvedValue("Ответ от AI"),
     }),
-  },
-}))
-
-vi.mock("../../services/open-ai-service", () => ({
-  OpenAiService: {
-    getInstance: vi.fn().mockReturnValue({
-      setApiKey: vi.fn(),
-      sendRequest: vi.fn().mockResolvedValue("Ответ от OpenAI"),
-    }),
-  },
+  })),
 }))
 
 describe("ChatProvider", () => {
-  let claudeService: any
-  let openAiService: any
-
   beforeEach(() => {
     vi.clearAllMocks()
-    claudeService = ClaudeService.getInstance()
-    openAiService = OpenAiService.getInstance()
   })
 
   afterEach(() => {

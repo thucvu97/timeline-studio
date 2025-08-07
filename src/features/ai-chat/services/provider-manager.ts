@@ -5,11 +5,7 @@
 
 import type { AiMessage } from "../types/ai-message"
 import type { StreamingOptions } from "../types/streaming"
-import { ClaudeService } from "./claude-service"
-import { DeepSeekService } from "./deepseek-service"
 import type { AIProvider } from "./model-configuration-manager"
-import { OllamaService } from "./ollama-service"
-import { OpenAiService } from "./open-ai-service"
 
 // Опции для запроса
 export interface ProviderRequestOptions {
@@ -55,17 +51,22 @@ export interface BaseAIProvider {
 
 /**
  * Менеджер провайдеров AI
+ * Теперь использует shared AI services как основу
  */
 export class ProviderManager {
   private static instance: ProviderManager
   private providers: Map<AIProvider, BaseAIProvider>
   private statusCache: Map<AIProvider, ProviderStatus>
   private cacheTimeout = 60 * 1000 // 1 минута
+  private sharedAIService: any = null
 
   private constructor() {
     this.providers = new Map()
     this.statusCache = new Map()
-    this.initializeProviders()
+    // Асинхронная инициализация провайдеров
+    this.initializeProviders().catch((error) => {
+      console.error("Ошибка инициализации провайдеров:", error)
+    })
   }
 
   /**
@@ -80,48 +81,97 @@ export class ProviderManager {
 
   /**
    * Инициализация провайдеров
+   * Использует shared AI services
    */
-  private initializeProviders(): void {
-    // Claude Provider
-    const claudeService = ClaudeService.getInstance()
-    this.providers.set("claude", {
-      name: "claude",
-      sendRequest: claudeService.sendRequest.bind(claudeService),
-      sendStreamingRequest: claudeService.sendStreamingRequest.bind(claudeService),
-      isAvailable: claudeService.hasApiKey.bind(claudeService),
-      hasApiKey: claudeService.hasApiKey.bind(claudeService),
-    })
+  private async initializeProviders(): Promise<void> {
+    try {
+      // Импорт shared AI services
+      const { getAIContainer } = await import("@/shared/services/ai")
+      const aiContainer = getAIContainer()
+      this.sharedAIService = aiContainer.getUnifiedService()
 
-    // OpenAI Provider
-    const openAiService = OpenAiService.getInstance()
-    this.providers.set("openai", {
-      name: "openai",
-      sendRequest: openAiService.sendRequest.bind(openAiService),
-      sendStreamingRequest: openAiService.sendStreamingRequest.bind(openAiService),
-      isAvailable: (model?: string) => openAiService.hasApiKey(model || "gpt-4"),
-      hasApiKey: openAiService.hasApiKey.bind(openAiService),
-    })
+      // Создаем адаптеры для shared провайдеров
+      this.providers.set("claude", {
+        name: "claude",
+        sendRequest: this.createSharedSendRequest("claude"),
+        sendStreamingRequest: this.createSharedStreamingRequest("claude"),
+        isAvailable: () => this.sharedAIService.isModelAvailable("claude-4-sonnet-latest"),
+        hasApiKey: () => this.sharedAIService.isModelAvailable("claude-4-sonnet-latest"),
+      })
 
-    // DeepSeek Provider
-    const deepSeekService = DeepSeekService.getInstance()
-    this.providers.set("deepseek", {
-      name: "deepseek",
-      sendRequest: deepSeekService.sendRequest.bind(deepSeekService),
-      sendStreamingRequest: deepSeekService.sendStreamingRequest.bind(deepSeekService),
-      isAvailable: deepSeekService.hasApiKey.bind(deepSeekService),
-      hasApiKey: deepSeekService.hasApiKey.bind(deepSeekService),
-    })
+      this.providers.set("openai", {
+        name: "openai",
+        sendRequest: this.createSharedSendRequest("openai"),
+        sendStreamingRequest: this.createSharedStreamingRequest("openai"),
+        isAvailable: (model?: string) => this.sharedAIService.isModelAvailable(model || "gpt-4o"),
+        hasApiKey: (model?: string) => this.sharedAIService.isModelAvailable(model || "gpt-4o"),
+      })
 
-    // Ollama Provider
-    const ollamaService = OllamaService.getInstance()
-    this.providers.set("ollama", {
-      name: "ollama",
-      sendRequest: ollamaService.sendRequest.bind(ollamaService),
-      sendStreamingRequest: ollamaService.sendStreamingRequest.bind(ollamaService),
-      isAvailable: ollamaService.isAvailable.bind(ollamaService),
-      hasApiKey: () => Promise.resolve(true), // Ollama не требует API ключа
-      getInstalledModels: ollamaService.getInstalledModels.bind(ollamaService),
-    })
+      this.providers.set("deepseek", {
+        name: "deepseek",
+        sendRequest: this.createSharedSendRequest("deepseek"),
+        sendStreamingRequest: this.createSharedStreamingRequest("deepseek"),
+        isAvailable: () => this.sharedAIService.isModelAvailable("deepseek-chat"),
+        hasApiKey: () => this.sharedAIService.isModelAvailable("deepseek-chat"),
+      })
+
+      this.providers.set("ollama", {
+        name: "ollama",
+        sendRequest: this.createSharedSendRequest("ollama"),
+        sendStreamingRequest: this.createSharedStreamingRequest("ollama"),
+        isAvailable: () => this.sharedAIService.isModelAvailable("llama3.2:latest"),
+        hasApiKey: () => Promise.resolve(true), // Ollama не требует API ключа
+        getInstalledModels: async () => {
+          const models = await this.sharedAIService.getAvailableModels()
+          return models
+            .filter((m: any) => m.provider === "ollama")
+            .map((m: any) => ({ name: m.model, details: { parameter_size: m.size || "unknown" } }))
+        },
+      })
+    } catch (error) {
+      console.warn("Ошибка инициализации shared AI services, используем fallback:", error)
+      // Fallback к пустому состоянию если shared services недоступны
+    }
+  }
+
+  /**
+   * Создать метод sendRequest для shared провайдера
+   */
+  private createSharedSendRequest(providerName: string) {
+    return async (model: string, messages: AiMessage[], options?: ProviderRequestOptions): Promise<string> => {
+      if (!this.sharedAIService) {
+        throw new Error(`Shared AI service не инициализирован для провайдера ${providerName}`)
+      }
+
+      const response = await this.sharedAIService.sendRequest(model, messages, {
+        temperature: options?.temperature,
+        maxTokens: options?.maxTokens,
+        timeout: options?.timeout,
+      })
+
+      return response.content
+    }
+  }
+
+  /**
+   * Создать метод sendStreamingRequest для shared провайдера
+   */
+  private createSharedStreamingRequest(providerName: string) {
+    return async (model: string, messages: AiMessage[], options?: ProviderStreamingOptions): Promise<void> => {
+      if (!this.sharedAIService) {
+        throw new Error(`Shared AI service не инициализирован для провайдера ${providerName}`)
+      }
+
+      return this.sharedAIService.sendStreamingRequest(model, messages, {
+        temperature: options?.temperature,
+        maxTokens: options?.maxTokens,
+        timeout: options?.timeout,
+        onContent: options?.onContent,
+        onComplete: options?.onComplete,
+        onError: options?.onError,
+        signal: options?.signal,
+      })
+    }
   }
 
   /**

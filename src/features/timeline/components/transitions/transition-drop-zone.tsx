@@ -30,61 +30,64 @@ export const TransitionDropZone = memo(function TransitionDropZone({
   const { applyTransition } = useTimelineEffects()
 
   // Проверка совместимости клипов для перехода
-  const canApplyTransitionBetweenClips = useCallback((transition: Transition): boolean => {
-    // Переходы можно применять только между видео/изображениями
-    const isLeftCompatible = leftClip.type === "video" || leftClip.type === "image"
-    const isRightCompatible = rightClip.type === "video" || rightClip.type === "image"
-    
-    return isLeftCompatible && isRightCompatible
-  }, [leftClip.type, rightClip.type])
+  const canApplyTransitionBetweenClips = useCallback(
+    (transition: Transition): boolean => {
+      // Переходы можно применять только между видео/изображениями
+      const isLeftCompatible = leftClip.type === "video" || leftClip.type === "image"
+      const isRightCompatible = rightClip.type === "video" || rightClip.type === "image"
+
+      return isLeftCompatible && isRightCompatible
+    },
+    [leftClip.type, rightClip.type],
+  )
 
   // Обработчик drop
-  const handleDrop = useCallback((item: DraggableItem, event: DragEvent) => {
-    event.preventDefault()
-    
-    setIsDragOver(false)
-    setCanAcceptDrag(false)
+  const handleDrop = useCallback(
+    (item: DraggableItem, event: DragEvent) => {
+      event.preventDefault()
 
-    if (!canAcceptDrag || item.type !== "transition") return
+      setIsDragOver(false)
+      setCanAcceptDrag(false)
 
-    const transition = item.data as Transition
-    
-    // Определяем длительность перехода (по умолчанию 1 секунда)
-    const duration = transition.duration || 1.0
-    
-    // Применяем переход к обоим клипам
-    // Переход начинается за duration/2 до конца левого клипа
-    // и заканчивается через duration/2 после начала правого клипа
-    void applyTransition(leftClip.id, transition.id, {
-      type: "out",
-      duration,
-      position: leftClip.duration - duration / 2,
-    })
-    
-    void applyTransition(rightClip.id, transition.id, {
-      type: "in",
-      duration,
-      position: 0,
-    })
-  }, [
-    canAcceptDrag,
-    leftClip.id,
-    leftClip.duration,
-    rightClip.id,
-    applyTransition,
-  ])
+      if (!canAcceptDrag || item.type !== "transition") return
+
+      const transition = item.data as Transition
+
+      // Определяем длительность перехода (по умолчанию 1 секунда)
+      const duration = transition.duration || 1.0
+
+      // Применяем переход к обоим клипам
+      // Переход начинается за duration/2 до конца левого клипа
+      // и заканчивается через duration/2 после начала правого клипа
+      void applyTransition(leftClip.id, transition.id, {
+        type: "out",
+        duration,
+        position: leftClip.duration - duration / 2,
+      })
+
+      void applyTransition(rightClip.id, transition.id, {
+        type: "in",
+        duration,
+        position: 0,
+      })
+    },
+    [canAcceptDrag, leftClip.id, leftClip.duration, rightClip.id, applyTransition],
+  )
 
   // Обработчик drag enter
-  const handleDragEnter = useCallback((item: DraggableItem) => {
-    setIsDragOver(true)
-    
-    if (item.type === "transition") {
-      const canAccept = canApplyTransitionBetweenClips(item.data as Transition)
-      setCanAcceptDrag(canAccept)
-    } else {
-      setCanAcceptDrag(false)
-    }
-  }, [canApplyTransitionBetweenClips])
+  const handleDragEnter = useCallback(
+    (item: DraggableItem) => {
+      setIsDragOver(true)
+
+      if (item.type === "transition") {
+        const canAccept = canApplyTransitionBetweenClips(item.data as Transition)
+        setCanAcceptDrag(canAccept)
+      } else {
+        setCanAcceptDrag(false)
+      }
+    },
+    [canApplyTransitionBetweenClips],
+  )
 
   // Обработчик drag leave
   const handleDragLeave = useCallback(() => {
@@ -93,15 +96,18 @@ export const TransitionDropZone = memo(function TransitionDropZone({
   }, [])
 
   // Обработчик drag over
-  const handleDragOver = useCallback((_item: DraggableItem, event: DragEvent) => {
-    event.preventDefault()
-    
-    if (canAcceptDrag) {
-      event.dataTransfer!.dropEffect = "copy"
-    } else {
-      event.dataTransfer!.dropEffect = "none"
-    }
-  }, [canAcceptDrag])
+  const handleDragOver = useCallback(
+    (_item: DraggableItem, event: DragEvent) => {
+      event.preventDefault()
+
+      if (canAcceptDrag) {
+        event.dataTransfer!.dropEffect = "copy"
+      } else {
+        event.dataTransfer!.dropEffect = "none"
+      }
+    },
+    [canAcceptDrag],
+  )
 
   // Регистрируем drop target при монтировании
   useEffect(() => {
@@ -123,19 +129,12 @@ export const TransitionDropZone = memo(function TransitionDropZone({
     return () => {
       dragDropManager.unregisterDropTarget(dropTarget.id)
     }
-  }, [
-    leftClip.id,
-    rightClip.id,
-    handleDragEnter,
-    handleDragOver,
-    handleDragLeave,
-    handleDrop,
-  ])
+  }, [leftClip.id, rightClip.id, handleDragEnter, handleDragOver, handleDragLeave, handleDrop])
 
   // Fallback для обычных HTML drag events
   const handleNativeDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault()
-    
+
     if (event.dataTransfer.types.includes("transition")) {
       setIsDragOver(true)
       event.dataTransfer.dropEffect = "copy"
@@ -147,30 +146,30 @@ export const TransitionDropZone = memo(function TransitionDropZone({
     setCanAcceptDrag(false)
   }, [])
 
-  const handleNativeDrop = useCallback((event: React.DragEvent) => {
-    event.preventDefault()
-    setIsDragOver(false)
-    setCanAcceptDrag(false)
+  const handleNativeDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault()
+      setIsDragOver(false)
+      setCanAcceptDrag(false)
 
-    try {
-      const applicationData = event.dataTransfer.getData("application/json")
-      if (applicationData) {
-        const item = JSON.parse(applicationData) as DraggableItem
-        if (item.type === "transition") {
-          handleDrop(item, event.nativeEvent)
+      try {
+        const applicationData = event.dataTransfer.getData("application/json")
+        if (applicationData) {
+          const item = JSON.parse(applicationData) as DraggableItem
+          if (item.type === "transition") {
+            handleDrop(item, event.nativeEvent)
+          }
         }
+      } catch (error) {
+        console.warn("Could not parse drag data:", error)
       }
-    } catch (error) {
-      console.warn("Could not parse drag data:", error)
-    }
-  }, [handleDrop])
+    },
+    [handleDrop],
+  )
 
   // Проверяем есть ли уже переход между клипами
-  const hasExistingTransition = leftClip.transitions.some(
-    (t) => t.type === "out"
-  ) || rightClip.transitions.some(
-    (t) => t.type === "in"
-  )
+  const hasExistingTransition =
+    leftClip.transitions.some((t) => t.type === "out") || rightClip.transitions.some((t) => t.type === "in")
 
   return (
     <div
@@ -182,7 +181,7 @@ export const TransitionDropZone = memo(function TransitionDropZone({
         isDragOver && canAcceptDrag && "bg-blue-500/30",
         isDragOver && !canAcceptDrag && "bg-red-500/30",
         hasExistingTransition && "bg-purple-500/20",
-        className
+        className,
       )}
       onDragOver={handleNativeDragOver}
       onDragLeave={handleNativeDragLeave}
@@ -190,22 +189,17 @@ export const TransitionDropZone = memo(function TransitionDropZone({
       title={hasExistingTransition ? "Переход применен" : "Перетащите переход сюда"}
     >
       {/* Визуальный индикатор */}
-      <div 
-        className={cn(
-          "w-0.5 h-full",
-          hasExistingTransition ? "bg-purple-400" : "bg-white/30"
-        )}
-      />
-      
+      <div className={cn("w-0.5 h-full", hasExistingTransition ? "bg-purple-400" : "bg-white/30")} />
+
       {/* Индикатор при перетаскивании */}
       {isDragOver && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className={cn(
-            "px-2 py-1 rounded text-xs font-medium whitespace-nowrap",
-            canAcceptDrag 
-              ? "bg-blue-500 text-white"
-              : "bg-red-500 text-white"
-          )}>
+          <div
+            className={cn(
+              "px-2 py-1 rounded text-xs font-medium whitespace-nowrap",
+              canAcceptDrag ? "bg-blue-500 text-white" : "bg-red-500 text-white",
+            )}
+          >
             {canAcceptDrag ? "Добавить переход" : "Несовместимо"}
           </div>
         </div>
@@ -229,16 +223,16 @@ export const AppliedTransition = memo(function AppliedTransition({
   onRemove,
 }: AppliedTransitionProps) {
   // Находим переходы на клипах
-  const outTransition = leftClip.transitions.find(t => t.type === "out")
-  const inTransition = rightClip.transitions.find(t => t.type === "in")
-  
+  const outTransition = leftClip.transitions.find((t) => t.type === "out")
+  const inTransition = rightClip.transitions.find((t) => t.type === "in")
+
   const transitionName = outTransition?.transitionId || inTransition?.transitionId || "Переход"
-  
+
   return (
     <div className="relative w-full h-full group">
       {/* Визуализация перехода */}
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
-      
+
       {/* Информация о переходе */}
       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
         <div className="bg-black/80 rounded px-2 py-1 text-xs text-white">
@@ -246,7 +240,7 @@ export const AppliedTransition = memo(function AppliedTransition({
           <div className="text-white/70">{duration.toFixed(1)}s</div>
         </div>
       </div>
-      
+
       {/* Кнопка удаления */}
       {onRemove && (
         <button

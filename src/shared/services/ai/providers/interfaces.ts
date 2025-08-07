@@ -125,3 +125,54 @@ export interface IUnifiedAIService {
   clearCache(): void
   getCacheStats(): any
 }
+
+// Конфигурация AI сервисов
+export interface AIServiceConfig {
+  providers?: {
+    claude?: {
+      apiKey?: string
+      baseUrl?: string
+      maxRetries?: number
+    }
+    openai?: {
+      apiKey?: string
+      baseUrl?: string
+      organization?: string
+    }
+    deepseek?: {
+      apiKey?: string
+      baseUrl?: string
+    }
+    ollama?: {
+      baseUrl?: string
+    }
+  }
+  cache?: {
+    enabled?: boolean
+    ttl?: number
+    maxSize?: number
+  }
+  retry?: {
+    maxAttempts?: number
+    delay?: number
+    backoff?: "linear" | "exponential"
+  }
+  fallback?: {
+    enabled?: boolean
+    models?: string[]
+  }
+}
+
+// Фабрика для анализа медиа
+export interface MediaAnalysisFactory {
+  createFFmpegService(): any
+  createVisionService(): any
+  createContentAnalysisService(): any
+}
+
+// Фабрика для оркестрации
+export interface OrchestrationFactory {
+  createWorkflowEngine(): any
+  createPipelineManager(): any
+  createTaskScheduler(): any
+}

@@ -1,44 +1,44 @@
 # Preview Module - WebGL2 Preview System
 
-Высокопроизводительная система превью Timeline Studio на основе WebGL2, обеспечивающая реалтайм рендеринг видео с эффектами.
+High-performance WebGL2-based preview system for Timeline Studio, providing real-time video rendering with effects.
 
 **🌐 Languages:** [English](./README_EN.md) | [Русский](./README.md)
 
-## 🚀 Особенности
+## 🚀 Features
 
-- **WebGL2 Rendering**: Ускоренный рендеринг с использованием GPU
-- **Real-time Effects**: Применение эффектов в реальном времени
-- **Smart Caching**: Интеллектуальное кэширование кадров
-- **Quality Scaling**: Автоматическая адаптация качества под GPU
-- **Frame Extraction**: Извлечение кадров из видео
-- **Timeline Integration**: Тесная интеграция с системой таймлайна
+- **WebGL2 Rendering**: GPU-accelerated rendering using modern WebGL2
+- **Real-time Effects**: Apply effects in real-time during playback
+- **Smart Caching**: Intelligent frame caching for smooth playback
+- **Quality Scaling**: Automatic quality adaptation based on GPU capabilities
+- **Frame Extraction**: Extract frames from video sources
+- **Timeline Integration**: Tight integration with timeline system
 
-## 📁 Структура
+## 📁 Structure
 
 ```
 src/features/preview/
 ├── hooks/
-│   ├── use-webgl2-preview.ts     # Основной хук для WebGL2 превью
-│   └── use-preview-cache.ts      # Хук для управления кэшем
+│   ├── use-webgl2-preview.ts     # Main hook for WebGL2 preview
+│   └── use-preview-cache.ts      # Hook for cache management
 ├── services/
-│   ├── webgl2-preview-renderer.ts # WebGL2 рендерер превью
-│   ├── preview-cache.ts          # Система кэширования кадров
-│   └── frame-extractor.ts        # Извлечение кадров из видео
+│   ├── webgl2-preview-renderer.ts # WebGL2 preview renderer
+│   ├── preview-cache.ts          # Frame caching system
+│   └── frame-extractor.ts        # Video frame extraction
 ├── components/
-│   ├── preview-canvas.tsx        # Canvas компонент для превью
-│   ├── preview-controls.tsx      # Элементы управления превью
-│   └── quality-settings.tsx      # Настройки качества
+│   ├── preview-canvas.tsx        # Canvas component for preview
+│   ├── preview-controls.tsx      # Preview control elements
+│   └── quality-settings.tsx      # Quality settings panel
 ├── types/
-│   └── preview.ts               # TypeScript типы
+│   └── preview.ts               # TypeScript types
 └── utils/
-    └── preview-utils.ts         # Утилиты превью
+    └── preview-utils.ts         # Preview utilities
 ```
 
-## 🏗️ Архитектура
+## 🏗️ Architecture
 
 ### WebGL2PreviewRenderer
 
-Основной рендерер, построенный на базе унифицированной WebGL2 библиотеки:
+Main renderer built on top of the unified WebGL2 library:
 
 ```typescript
 import { WebGL2PreviewRenderer } from '@/features/preview/services'
@@ -49,26 +49,26 @@ const renderer = new WebGL2PreviewRenderer({
   antialias: true
 })
 
-// Инициализация
+// Initialize
 await renderer.initialize()
 
-// Установка видео источника
+// Set video source
 renderer.setVideoSource(videoElement)
 
-// Установка сегментов таймлайна
+// Set timeline segments
 renderer.setSegments(timelineSegments)
 
-// Рендеринг кадра
+// Render frame
 renderer.setCurrentTime(5.5)
 renderer.render(deltaTime)
 
-// Захват кадра
+// Capture frame
 const frame = await renderer.captureFrame()
 ```
 
 ### useWebGL2Preview Hook
 
-React хук для интеграции WebGL2 превью в компоненты:
+React hook for integrating WebGL2 preview into components:
 
 ```typescript
 import { useWebGL2Preview } from '@/features/preview/hooks'
@@ -107,24 +107,24 @@ function PreviewComponent() {
 
 ### PreviewCache
 
-Интеллектуальная система кэширования кадров:
+Intelligent frame caching system:
 
 ```typescript
 import { PreviewCache } from '@/features/preview/services'
 
 const cache = new PreviewCache(100) // 100MB limit
 
-// Получение или вычисление кадра
+// Get or compute frame
 const frame = await cache.getOrCompute(
   currentTime,
   activeEffects,
   async () => {
-    // Функция рендеринга кадра
+    // Frame rendering function
     return await renderFrame(currentTime, activeEffects)
   }
 )
 
-// Предзагрузка кадров
+// Prefetch frames
 await cache.prefetch(
   currentTime,
   prefetchRange,
@@ -133,14 +133,14 @@ await cache.prefetch(
   renderFunction
 )
 
-// Статистика кэша
+// Cache statistics
 const stats = cache.getStats()
 console.log(`Cache: ${stats.entries} entries, ${stats.sizeMB}MB`)
 ```
 
-## 🚀 Быстрый старт
+## 🚀 Quick Start
 
-### 1. Базовая настройка
+### 1. Basic Setup
 
 ```typescript
 import { useWebGL2Preview } from '@/features/preview/hooks'
@@ -160,7 +160,7 @@ function VideoPreview() {
     setQuality
   } = useWebGL2Preview()
 
-  // Автоматическая синхронизация с плеером
+  // Automatic sync with player
   useEffect(() => {
     if (player.currentVideo && videoRef.current) {
       videoRef.current.src = player.currentVideo.path
@@ -188,14 +188,14 @@ function VideoPreview() {
 }
 ```
 
-### 2. Настройка качества
+### 2. Quality Settings
 
 ```typescript
-// Автоматическая адаптация под GPU
+// Automatic GPU adaptation
 const { gpuTier, quality, setQuality } = useWebGL2Preview()
 
 useEffect(() => {
-  // Кастомные настройки качества
+  // Custom quality settings
   if (gpuTier === 'high') {
     setQuality({
       resolution: 1.0,
@@ -214,7 +214,7 @@ useEffect(() => {
 }, [gpuTier, setQuality])
 ```
 
-### 3. Интеграция эффектов
+### 3. Effects Integration
 
 ```typescript
 import { useUnifiedEffects } from '@/features/effects/hooks'
@@ -223,7 +223,7 @@ function EffectsPreview() {
   const { activeEffects } = useUnifiedEffects()
   const { previewFrame, isInitialized } = useWebGL2Preview()
 
-  // Эффекты автоматически применяются через timeline integration
+  // Effects are automatically applied through timeline integration
   return (
     <div>
       <canvas ref={canvasRef} />
@@ -239,9 +239,9 @@ function EffectsPreview() {
 }
 ```
 
-## 🎛️ Настройки качества
+## 🎛️ Quality Settings
 
-Система автоматически адаптирует качество на основе производительности GPU:
+The system automatically adapts quality based on GPU performance:
 
 ### GPU Tiers
 
@@ -275,22 +275,22 @@ function EffectsPreview() {
   }
   ```
 
-### Кастомные настройки
+### Custom Settings
 
 ```typescript
 const customQuality = {
-  resolution: 0.8,        // 80% разрешения
-  effects: "essential",   // Только важные эффекты
+  resolution: 0.8,        // 80% resolution
+  effects: "essential",   // Only essential effects
   fps: 25,               // 25 FPS
-  antialiasing: true,    // Включить сглаживание
-  maxTextures: 8,        // Лимит текстур
-  shaderComplexity: "medium" // Сложность шейдеров
+  antialiasing: true,    // Enable antialiasing
+  maxTextures: 8,        // Texture limit
+  shaderComplexity: "medium" // Shader complexity
 }
 
 setQuality(customQuality)
 ```
 
-## 📊 Мониторинг производительности
+## 📊 Performance Monitoring
 
 ### Cache Statistics
 
@@ -298,10 +298,10 @@ setQuality(customQuality)
 const { cacheStats } = useWebGL2Preview()
 
 console.log('Cache Stats:', {
-  entries: cacheStats.entries,        // Количество кэшированных кадров
-  sizeMB: cacheStats.sizeMB,         // Размер кэша в MB
-  hitRate: cacheStats.hitRate,       // Коэффициент попаданий
-  averageRenderTime: cacheStats.avgRenderTime // Среднее время рендеринга
+  entries: cacheStats.entries,        // Number of cached frames
+  sizeMB: cacheStats.sizeMB,         // Cache size in MB
+  hitRate: cacheStats.hitRate,       // Cache hit rate
+  averageRenderTime: cacheStats.avgRenderTime // Average render time
 })
 ```
 
@@ -315,18 +315,18 @@ const monitor = new PerformanceMonitor()
 monitor.on('frameRendered', (stats) => {
   console.log(`Frame rendered in ${stats.renderTime}ms`)
   
-  if (stats.renderTime > 33) { // Больше 33ms = менее 30 FPS
+  if (stats.renderTime > 33) { // More than 33ms = less than 30 FPS
     console.warn('Frame drop detected, consider reducing quality')
   }
 })
 ```
 
-## 🔄 Интеграция с Timeline
+## 🔄 Timeline Integration
 
-Preview модуль тесно интегрирован с системой таймлайна:
+Preview module is tightly integrated with the timeline system:
 
 ```typescript
-// Автоматическая синхронизация с timeline
+// Automatic timeline synchronization
 const timeline = useTimeline()
 const player = usePlayer()
 
@@ -335,16 +335,16 @@ const {
   previewFrame
 } = useWebGL2Preview()
 
-// Превью автоматически обновляется при:
-// - Изменении текущего времени
-// - Добавлении/удалении эффектов
-// - Изменении сегментов таймлайна
-// - Переключении медиа файлов
+// Preview automatically updates when:
+// - Current time changes
+// - Effects are added/removed
+// - Timeline segments change
+// - Media files switch
 ```
 
-## 🎨 Поддерживаемые эффекты
+## 🎨 Supported Effects
 
-Preview система поддерживает все эффекты из unified effects system:
+Preview system supports all effects from the unified effects system:
 
 - **Color Correction**: Brightness, Contrast, Saturation, Hue
 - **Color Grading**: Lift/Gamma/Gain, Color Wheels
@@ -354,24 +354,24 @@ Preview система поддерживает все эффекты из unifi
 - **Temporal**: Stabilization, Speed Ramping
 
 ```typescript
-// Применение эффектов происходит через timeline
+// Effects are applied through timeline
 const effectChain = [
   { type: 'colorCorrection', params: { brightness: 1.2 } },
   { type: 'gaussianBlur', params: { radius: 2.0 } },
   { type: 'vintage', params: { intensity: 0.8 } }
 ]
 
-// Эффекты автоматически применяются в превью
+// Effects are automatically applied in preview
 ```
 
-## 🧪 Тестирование
+## 🧪 Testing
 
-Запуск тестов:
+Run tests:
 ```bash
 bun run test src/features/preview/__tests__/
 ```
 
-Тесты покрывают:
+Tests cover:
 - ✅ WebGL2PreviewRenderer functionality
 - ✅ useWebGL2Preview hook behavior
 - ✅ PreviewCache operations
@@ -381,18 +381,18 @@ bun run test src/features/preview/__tests__/
 
 ## 🔧 Troubleshooting
 
-### Общие проблемы
+### Common Issues
 
-**WebGL2 не поддерживается:**
+**WebGL2 not supported:**
 ```typescript
 if (!isInitialized) {
   return <div>Your browser doesn't support WebGL2</div>
 }
 ```
 
-**Низкая производительность:**
+**Low performance:**
 ```typescript
-// Принудительно снизить качество
+// Force lower quality
 setQuality({
   resolution: 0.5,
   effects: 'none',
@@ -401,9 +401,9 @@ setQuality({
 })
 ```
 
-**Проблемы с видео:**
+**Video issues:**
 ```typescript
-// Проверить поддержку формата
+// Check format support
 const video = videoRef.current
 if (video.readyState < 2) {
   console.warn('Video not ready for processing')
@@ -415,9 +415,9 @@ if (video.readyState < 2) {
 ### useWebGL2Preview Options
 ```typescript
 interface UseWebGL2PreviewOptions {
-  cacheSize?: number        // Размер кэша в MB (default: 100)
-  prefetchRange?: number    // Диапазон предзагрузки в секундах (default: 2)
-  updateInterval?: number   // Интервал обновления в ms (default: 33)
+  cacheSize?: number        // Cache size in MB (default: 100)
+  prefetchRange?: number    // Prefetch range in seconds (default: 2)
+  updateInterval?: number   // Update interval in ms (default: 33)
 }
 ```
 
@@ -441,18 +441,18 @@ interface PreviewFrame {
 }
 ```
 
-## 🔄 Миграция
+## 🔄 Migration
 
-Если вы обновляете с старой preview системы, см. [руководство по миграции WebGL](../../docs/05_development/webgl-migration-guide.md).
+If you're upgrading from the old preview system, see the [WebGL Migration Guide](../../docs/05_development/webgl-migration-guide.md).
 
-## 🤝 Вклад в развитие
+## 🤝 Contributing
 
-При добавлении новых возможностей:
-1. Следуйте архитектуре WebGL2 библиотеки
-2. Обеспечьте совместимость с timeline
-3. Добавляйте тесты для новых функций
-4. Обновляйте документацию
+When adding new features:
+1. Follow WebGL2 library architecture
+2. Ensure timeline compatibility
+3. Add tests for new functionality
+4. Update documentation
 
-## 📄 Лицензия
+## 📄 License
 
-Часть Timeline Studio - см. корневую лицензию проекта.
+Part of Timeline Studio - see root project license.

@@ -5,13 +5,13 @@
 
 import type {
   AudioAnalysisResult,
+  IFFmpegAnalysisService,
   MotionAnalysisResult,
   QualityAnalysisResult,
   SceneDetectionResult,
   VideoAnalysisOptions,
   VideoMetadata,
-} from "../../services/ffmpeg-analysis-service"
-import { FFmpegAnalysisService } from "../../services/ffmpeg-analysis-service"
+} from "@/shared/services/ai/analysis/interfaces"
 import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 // Типы для операций анализа видео
@@ -66,13 +66,31 @@ export interface VideoAnalysisResult {
 
 /**
  * AI инструмент для анализа видео с унифицированной обработкой ошибок
+ * Использует shared FFmpeg service
  */
 export class VideoAnalysisTool extends BaseAITool {
-  private ffmpegService: FFmpegAnalysisService
+  private ffmpegService: IFFmpegAnalysisService | null = null
 
   constructor(logger?: AIToolLogger) {
     super("VideoAnalysisTool", logger)
-    this.ffmpegService = FFmpegAnalysisService.getInstance()
+  }
+
+  /**
+   * Получить shared FFmpeg service
+   */
+  private async getFFmpegService(): Promise<IFFmpegAnalysisService> {
+    if (!this.ffmpegService) {
+      try {
+        const { getAIContainer } = await import("@/shared/services/ai")
+        const aiContainer = getAIContainer()
+        this.ffmpegService = await aiContainer.resolve<IFFmpegAnalysisService>("FFmpegService")
+      } catch (error) {
+        // Fallback к локальному сервису если shared недоступен
+        const { FFmpegAnalysisService } = await import("../../services/ffmpeg-analysis-service")
+        this.ffmpegService = FFmpegAnalysisService.getInstance()
+      }
+    }
+    return this.ffmpegService
   }
 
   /**
@@ -246,7 +264,8 @@ export class VideoAnalysisTool extends BaseAITool {
     this.logger?.info("Получаем метаданные видео", { clipId: input.clipId })
 
     try {
-      const metadata = await this.ffmpegService.getVideoMetadata(input.clipId)
+      const ffmpegService = await this.getFFmpegService()
+      const metadata = await ffmpegService.getVideoMetadata(input.clipId)
 
       return {
         operation: "get_metadata",
@@ -275,7 +294,8 @@ export class VideoAnalysisTool extends BaseAITool {
     })
 
     try {
-      const scenes = await this.ffmpegService.detectScenes(input.clipId, {
+      const ffmpegService = await this.getFFmpegService()
+      const scenes = await ffmpegService.detectScenes(input.clipId, {
         threshold: input.sensitivity || 0.3,
         minSceneLength: 1,
       })

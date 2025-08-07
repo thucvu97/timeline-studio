@@ -1,18 +1,37 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-// Mock ClaudeService
-vi.mock("../../services/claude-service", () => ({
+// Мокируем shared services
+vi.mock("@/shared/services/ai", () => ({
+  getAIContainer: vi.fn(() => ({
+    getUnifiedService: vi.fn(() => ({
+      isModelAvailable: vi.fn(() => true),
+      getAvailableModels: vi.fn(() => [
+        { provider: "claude", model: "claude-4-sonnet-latest" },
+        { provider: "claude", model: "claude-4-opus-latest" },
+      ]),
+      sendRequest: vi.fn(),
+    })),
+    resolve: vi.fn(),
+  })),
+}))
+
+// Mock Claude models
+vi.mock("@/shared/services/ai/providers/claude", () => ({
   CLAUDE_MODELS: {
     CLAUDE_4_SONNET: "claude-4-sonnet-latest",
     CLAUDE_4_OPUS: "claude-4-opus-latest",
   },
+}))
+
+// Mock ClaudeService mock
+vi.mock("../../services/claude-service-mock", () => ({
   ClaudeService: {
     getInstance: vi.fn(),
   },
 }))
 
 // Mock ApiKeyLoader
-vi.mock("../../services/api-key-loader", () => ({
+vi.mock("@/shared/services/ai/core/api-key-loader", () => ({
   ApiKeyLoader: {
     getInstance: vi.fn(),
   },
@@ -122,6 +141,8 @@ vi.mock("../../tools/workflow-automation-tools", () => ({
   executeWorkflowAutomationTool: vi.fn(),
 }))
 
+import { ApiKeyLoader } from "@/shared/services/ai/core/api-key-loader"
+import { CLAUDE_MODELS } from "@/shared/services/ai/providers/claude"
 import type { VideoEffect } from "../../../effects/types"
 import type { VideoFilter } from "../../../filters/types/filters"
 import type { MediaFile } from "../../../media/types/media"
@@ -136,8 +157,7 @@ import type {
   TransitionResource,
 } from "../../../resources/types"
 import type { TimelineProject } from "../../../timeline/types"
-import { ApiKeyLoader } from "../../services/api-key-loader"
-import { CLAUDE_MODELS, ClaudeService } from "../../services/claude-service"
+import { ClaudeService } from "../../services/claude-service-mock"
 import { TimelineAIService } from "../../services/timeline-ai-service"
 
 describe("TimelineAIService", () => {

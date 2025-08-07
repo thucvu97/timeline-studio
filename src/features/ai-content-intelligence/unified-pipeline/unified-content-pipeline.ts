@@ -5,11 +5,11 @@
  * и Multi-Platform Adaptation в единый pipeline.
  */
 
-import {
-  type MediaInput,
-  UnifiedAIService,
-  type UnifiedContentAnalysis,
-} from "@/features/ai-chat/services/unified-ai-service"
+// Используем shared типы
+import type {
+  MediaFile as MediaInput,
+  ContentAnalysisResult as UnifiedContentAnalysis,
+} from "@/shared/services/ai/analysis/interfaces"
 
 import {
   ContentClassificationEngine,
@@ -105,9 +105,10 @@ export interface PipelineResult {
 
 /**
  * Unified Content Pipeline - главный координатор
+ * Использует shared AI services
  */
 export class UnifiedContentPipeline {
-  private aiService: UnifiedAIService
+  private sharedAIService: any = null
   private sceneEngine: SceneAnalysisEngine
   private classificationEngine: ContentClassificationEngine
   private pipelines = new Map<string, PipelineProgress>()
@@ -155,15 +156,43 @@ export class UnifiedContentPipeline {
   }
 
   constructor() {
-    this.aiService = UnifiedAIService.getInstance()
-    this.sceneEngine = new SceneAnalysisEngine()
-    this.classificationEngine = new ContentClassificationEngine()
+    // Движки будут инициализированы лениво через фабрику
+  }
+
+  /**
+   * Инициализация всех сервисов через DI
+   */
+  private async initializeServices() {
+    if (!this.sharedAIService) {
+      try {
+        // Получаем AI service из DI контейнера
+        const { getAIContainer } = await import("@/shared/services/ai")
+        const aiContainer = getAIContainer()
+        this.sharedAIService = await aiContainer.resolve("UnifiedAIService")
+
+        // Получаем движки через фабрику
+        const { getEngineFactory } = await import("../factories/engine-factory")
+        const engineFactory = getEngineFactory()
+
+        const engines = await engineFactory.createAllEngines()
+        this.sceneEngine = engines.sceneEngine as SceneAnalysisEngine
+        this.classificationEngine = engines.classificationEngine as ContentClassificationEngine
+      } catch (error) {
+        console.error("Ошибка инициализации сервисов:", error)
+        // Fallback к прямому созданию
+        this.sceneEngine = new SceneAnalysisEngine()
+        this.classificationEngine = new ContentClassificationEngine()
+      }
+    }
   }
 
   /**
    * Запуск pipeline для анализа контента
    */
   async processContent(mediaFiles: MediaInput[], config: Partial<PipelineConfig> = {}): Promise<string> {
+    // Инициализируем сервисы через DI
+    await this.initializeServices()
+
     const pipelineId = `pipeline_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
     const fullConfig = this.mergeConfig(config)
 
