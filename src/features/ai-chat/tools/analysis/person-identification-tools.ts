@@ -71,84 +71,81 @@ export class PersonIdentificationTool extends BaseAITool {
     input: PersonIdentificationInput,
     options: AIToolExecutionOptions = {},
   ): Promise<AIToolResult<PersonIdentificationResult>> {
-    return this.executeWithErrorHandling(
-      async () => {
-        // Валидация входных данных
-        const validation = this.validateInput(input, (data) => {
-          const errors: string[] = []
+    return this.executeWithErrorHandling(async () => {
+      // Валидация входных данных
+      const validation = this.validateInput(input, (data) => {
+        const errors: string[] = []
 
-          const validOperations = [
-            "identify_persons",
-            "search_persons",
-            "create_profile",
-            "update_profile",
-            "get_statistics",
-            "merge_profiles",
-            "delete_profile",
-            "manage_privacy",
-          ]
-          if (!validOperations.includes(data.operation)) {
-            errors.push(`Неподдерживаемая операция: ${data.operation}`)
+        const validOperations = [
+          "identify_persons",
+          "search_persons",
+          "create_profile",
+          "update_profile",
+          "get_statistics",
+          "merge_profiles",
+          "delete_profile",
+          "manage_privacy",
+        ]
+        if (!validOperations.includes(data.operation)) {
+          errors.push(`Неподдерживаемая операция: ${data.operation}`)
+        }
+
+        return { isValid: errors.length === 0, errors }
+      })
+
+      if (!validation.isValid) {
+        throw new Error(validation.errors.join(", "))
+      }
+
+      let result: PersonIdentificationResult
+
+      switch (input.operation) {
+        case "identify_persons":
+          result = {
+            operation: input.operation,
+            success: true,
+            detectedPersons: [
+              {
+                id: "person_001",
+                name: "Неизвестная персона 1",
+                confidence: 0.85,
+                appearances: [{ timestamp: 15.2, duration: 3.5, boundingBox: { x: 100, y: 50, w: 150, h: 200 } }],
+              },
+            ],
+            message: "Обнаружено персон в видео",
+            recommendations: ["Проверьте неизвестные персоны и добавьте их в базу данных"],
           }
+          break
 
-          return { isValid: errors.length === 0, errors }
-        })
+        case "search_persons":
+          result = {
+            operation: input.operation,
+            success: true,
+            searchResults: [
+              {
+                id: "person_123",
+                name: "Иван Иванов",
+                similarity: 0.92,
+                isVerified: true,
+              },
+            ],
+            message: "Найдено совпадений",
+            recommendations: [],
+          }
+          break
 
-        if (!validation.isValid) {
-          throw new Error(validation.errors.join(", "))
-        }
+        default:
+          result = {
+            operation: input.operation,
+            success: false,
+            message: "Функция пока не реализована",
+            recommendations: ["Функция будет добавлена в следующих версиях"],
+          }
+          break
+      }
 
-        let result: PersonIdentificationResult
-
-        switch (input.operation) {
-          case "identify_persons":
-            result = {
-              operation: input.operation,
-              success: true,
-              detectedPersons: [
-                {
-                  id: "person_001",
-                  name: "Неизвестная персона 1",
-                  confidence: 0.85,
-                  appearances: [{ timestamp: 15.2, duration: 3.5, boundingBox: { x: 100, y: 50, w: 150, h: 200 } }],
-                },
-              ],
-              message: "Обнаружено персон в видео",
-              recommendations: ["Проверьте неизвестные персоны и добавьте их в базу данных"],
-            }
-            break
-
-          case "search_persons":
-            result = {
-              operation: input.operation,
-              success: true,
-              searchResults: [
-                {
-                  id: "person_123",
-                  name: "Иван Иванов",
-                  similarity: 0.92,
-                  isVerified: true,
-                },
-              ],
-              message: "Найдено совпадений",
-              recommendations: [],
-            }
-            break
-
-          default:
-            result = {
-              operation: input.operation,
-              success: false,
-              message: "Функция пока не реализована",
-              recommendations: ["Функция будет добавлена в следующих версиях"],
-            }
-            break
-        }
-
-        return result
-      },
-      options,
-    )
+      return result
+    }, options)
   }
 }
 

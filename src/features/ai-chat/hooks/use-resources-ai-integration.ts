@@ -2,7 +2,11 @@ import { useCallback, useEffect } from "react"
 
 import { useResources } from "@/features/resources/services/resources-provider"
 
-import { setResourcesStateAccess } from "../tools/resource-tools"
+// Временная заглушка для setResourcesStateAccess
+let resourcesStateAccess: any = null
+const setResourcesStateAccess = (access: any) => {
+  resourcesStateAccess = access
+}
 
 export interface AIResourceStats {
   totalMedia: number

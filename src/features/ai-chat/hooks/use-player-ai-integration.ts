@@ -1,8 +1,42 @@
 import { useCallback, useEffect } from "react"
 
 import { usePlayer } from "../../video-player"
-import type { CurrentMedia, PlayerStateAccess } from "../tools/player/types"
-import { setPlayerStateAccess } from "../tools/player/utils/helpers"
+// Временно определяем типы локально, пока не реализованы player tools
+interface CurrentMedia {
+  id: string
+  path: string
+  name: string
+  type: "video" | "audio"
+  duration?: number
+  probeData?: any
+}
+
+interface PlayerStateAccess {
+  getPlayerState: () => any
+  getCurrentMedia: () => CurrentMedia | null
+  getPlaybackStatus: () => any
+  getAppliedEffects: () => any
+  play: () => void
+  pause: () => void
+  seek: (time: number) => void
+  setVolume: (volume: number) => void
+  setPlaybackRate: (rate: number) => void
+  applyEffect: (effect: any) => void
+  removeEffect: (effectId: string) => void
+  applyFilter: (filter: any) => void
+  removeFilter: (filterId: string) => void
+  applyTemplate: (template: any, files: CurrentMedia[]) => void
+  clearTemplate: () => void
+  setMedia: (media: CurrentMedia) => void
+  analyzeMediaQuality: () => any
+  getPlayerStats: () => any
+}
+
+// Временная заглушка для setPlayerStateAccess
+let playerStateAccess: PlayerStateAccess | null = null
+const setPlayerStateAccess = (access: PlayerStateAccess | null) => {
+  playerStateAccess = access
+}
 
 /**
  * Хук для интеграции Player с AI функциональностью

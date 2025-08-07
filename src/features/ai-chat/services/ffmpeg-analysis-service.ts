@@ -14,7 +14,7 @@ import type {
   SilenceDetectionResult,
   VideoAnalysisOptions,
   VideoMetadata,
-} from "@/shared/types/media-analysis"
+} from "../../../shared/types/media-analysis"
 
 // Реэкспортируем типы для обратной совместимости
 export type {
@@ -26,7 +26,7 @@ export type {
   SilenceDetectionResult,
   VideoAnalysisOptions,
   VideoMetadata,
-} from "@/shared/types/media-analysis"
+} from "../../../shared/types/media-analysis"
 
 /**
  * Основной сервис FFmpeg анализа

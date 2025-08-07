@@ -163,7 +163,7 @@ export class VideoAnalysisTool extends BaseAITool {
 
           case "analyze_quality":
             result = await this.analyzeVideoQuality(input)
-            if (result.quality && result.quality.overallScore < 0.5) {
+            if (result.quality && result.quality.overall < 0.5) {
               warnings.push("Низкое качество видео")
               recommendations.push("Рассмотрите возможность улучшения качества")
             }
@@ -171,14 +171,14 @@ export class VideoAnalysisTool extends BaseAITool {
 
           case "analyze_motion":
             result = await this.analyzeVideoMotion(input)
-            if (result.motion && result.motion.averageMotion > 0.8) {
+            if (result.motion && result.motion.motionIntensity > 0.8) {
               warnings.push("Высокая активность движения в видео")
             }
             break
 
           case "analyze_audio":
             result = await this.analyzeVideoAudio(input)
-            if (result.audio && result.audio.hasClipping) {
+            if (result.audio && result.audio.quality.clipping) {
               warnings.push("Обнаружен клиппинг в аудио")
               recommendations.push("Уменьшите уровень громкости")
             }
@@ -276,7 +276,8 @@ export class VideoAnalysisTool extends BaseAITool {
 
     try {
       const scenes = await this.ffmpegService.detectScenes(input.clipId, {
-        sensitivity: input.sensitivity || 0.3,
+        threshold: input.sensitivity || 0.3,
+        minSceneLength: 1,
       })
 
       return {
@@ -303,13 +304,13 @@ export class VideoAnalysisTool extends BaseAITool {
     this.logger?.info("Анализируем качество видео", { clipId: input.clipId })
 
     try {
-      const quality = await this.ffmpegService.analyzeQuality(input.clipId, input.options || {})
+      const quality = await this.ffmpegService.analyzeQuality(input.clipId, {})
 
       const recommendations: string[] = []
-      if (quality.metrics.sharpness < 0.5) {
+      if (quality.sharpness < 0.5) {
         recommendations.push("Применить фильтр повышения резкости")
       }
-      if (quality.metrics.noise > 0.3) {
+      if (quality.noise > 0.3) {
         recommendations.push("Применить шумоподавление")
       }
 
@@ -317,7 +318,7 @@ export class VideoAnalysisTool extends BaseAITool {
         operation: "analyze_quality",
         success: true,
         quality,
-        message: `Качество видео: ${Math.round(quality.overallScore * 100)}%`,
+        message: `Качество видео: ${Math.round(quality.overall * 100)}%`,
         recommendations,
       }
     } catch (error) {
@@ -337,10 +338,10 @@ export class VideoAnalysisTool extends BaseAITool {
     this.logger?.info("Анализируем движение", { clipId: input.clipId })
 
     try {
-      const motion = await this.ffmpegService.analyzeMotion(input.clipId, input.options || {})
+      const motion = await this.ffmpegService.analyzeMotion(input.clipId, {})
 
       const recommendations: string[] = []
-      if (motion.averageMotion > 0.7) {
+      if (motion.motionIntensity > 0.7) {
         recommendations.push("Видео содержит много движения, рассмотрите стабилизацию")
       }
 
@@ -368,16 +369,13 @@ export class VideoAnalysisTool extends BaseAITool {
     this.logger?.info("Анализируем аудио", { clipId: input.clipId })
 
     try {
-      const audio = await this.ffmpegService.analyzeAudio(input.clipId, {
-        includeWaveform: input.includeWaveform || false,
-        includeSpectrum: input.includeSpectrum || false,
-      })
+      const audio = await this.ffmpegService.analyzeAudio(input.clipId, {})
 
       const recommendations: string[] = []
-      if (audio.peakLevel > -3) {
+      if (audio.volume.peak > 0.9) {
         recommendations.push("Уменьшите уровень громкости для предотвращения искажений")
       }
-      if (audio.averageLevel < -40) {
+      if (audio.volume.average < 0.1) {
         recommendations.push("Увеличьте уровень громкости для лучшей слышимости")
       }
 
