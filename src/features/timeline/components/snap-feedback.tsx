@@ -13,12 +13,7 @@ interface SnapFeedbackProps {
   className?: string
 }
 
-export const SnapFeedback = memo(function SnapFeedback({
-  snapPoint,
-  isActive,
-  timeScale,
-  className,
-}: SnapFeedbackProps) {
+export const SnapFeedback = memo(function SnapFeedback({ snapPoint, isActive, className }: SnapFeedbackProps) {
   if (!snapPoint || !isActive) return null
 
   const left = snapPoint.position
@@ -110,7 +105,6 @@ interface SnapGuidelinesProps {
 export const SnapGuidelines = memo(function SnapGuidelines({
   snapPoints,
   isVisible,
-  timeScale,
   activeSnapPoint,
   className,
 }: SnapGuidelinesProps) {

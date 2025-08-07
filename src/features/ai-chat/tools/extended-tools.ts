@@ -87,7 +87,7 @@ export class ExtendedTool extends BaseAITool {
    */
   public async processExtended(
     input: ExtendedToolsInput,
-    options: AIToolExecutionOptions = {}
+    options: AIToolExecutionOptions = {},
   ): Promise<AIToolResult<ExtendedToolsResult>> {
     return this.executeWithErrorHandling(
       input.operation,
@@ -152,11 +152,13 @@ export class ExtendedTool extends BaseAITool {
                     keyElements: ["разрешение", "заключение"],
                   },
                 ],
-                emotionalCurve: input.includeEmotionalFlow ? {
-                  peaks: [15, 45, 75, 105],
-                  valleys: [5, 35, 65, 95],
-                  overallTrend: "ascending"
-                } : undefined,
+                emotionalCurve: input.includeEmotionalFlow
+                  ? {
+                      peaks: [15, 45, 75, 105],
+                      valleys: [5, 35, 65, 95],
+                      overallTrend: "ascending",
+                    }
+                  : undefined,
                 score: 8.2,
                 genre: input.genreContext || "drama",
               },
@@ -470,7 +472,7 @@ export class ExtendedTool extends BaseAITool {
 
         return result
       },
-      options
+      options,
     )
   }
 }
@@ -484,7 +486,7 @@ const extendedTool = new ExtendedTool()
 export async function executeExtendedTool(
   operation: ExtendedToolsInput["operation"],
   params: Omit<ExtendedToolsInput, "operation">,
-  options?: AIToolExecutionOptions
+  options?: AIToolExecutionOptions,
 ): Promise<AIToolResult<ExtendedToolsResult>> {
   return extendedTool.processExtended({ operation, ...params }, options)
 }
@@ -561,7 +563,7 @@ export const extendedTools: ClaudeTool[] = [
           default: "medium",
         },
         rhythmType: {
-          type: "string", 
+          type: "string",
           enum: ["steady", "building", "dynamic", "syncopated"],
           description: "Тип ритма",
           default: "dynamic",

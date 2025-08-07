@@ -1,8 +1,9 @@
 /**
- * AI инструмент для анализа совместимости ресурсов
+ * AI инструмент для анализа совместимости ресурсов с использованием BaseAITool
  */
 
 import type { ClaudeTool } from "../../services/claude-service"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 import type { CompatibilityParams, ResourceToolResult } from "./types"
 import {
@@ -12,44 +13,97 @@ import {
   hasResourcesAccess,
 } from "./utils/helpers"
 
-export const analyzeResourceCompatibilityTool: ClaudeTool = {
-  name: "analyze_resource_compatibility",
-  description: "Анализирует совместимость ресурсов между собой и с текущим проектом",
-  input_schema: {
-    type: "object",
-    properties: {
-      resourceIds: {
-        type: "array",
-        items: { type: "string" },
-        description: "Список идентификаторов ресурсов для проверки совместимости",
-      },
-      checkAgainst: {
-        type: "string",
-        enum: ["project-settings", "other-resources", "timeline-structure", "all"],
-        description: "С чем проверять совместимость",
-      },
-      includeRecommendations: {
-        type: "boolean",
-        description: "Включить рекомендации по устранению проблем совместимости",
-        default: true,
-      },
-    },
-    required: ["resourceIds"],
-  },
+// Типы для анализа совместимости ресурсов
+export interface CompatibilityAnalysisInput {
+  operation: "analyze_resource_compatibility"
+  resourceIds: string[]
+  checkAgainst?: "project-settings" | "other-resources" | "timeline-structure" | "all"
+  includeRecommendations?: boolean
+  reason: string
 }
 
-export async function analyzeResourceCompatibility(params: CompatibilityParams): Promise<ResourceToolResult> {
-  const { resourceIds, checkAgainst = "all", includeRecommendations = true } = params
-
-  if (!hasResourcesAccess()) {
-    return {
-      success: false,
-      message: "Resources state access не настроен",
-      errors: ["Доступ к ресурсам не сконфигурирован"],
+export interface CompatibilityAnalysisResult {
+  operation: string
+  success: boolean
+  analysis: {
+    checkAgainst: string
+    results: Array<{
+      resourceId: string
+      resourceType: string
+      compatible: boolean
+      issues: string[]
+    }>
+    overallCompatibility: "excellent" | "good" | "needs-attention"
+    projectSettings: any
+    summary: {
+      total: number
+      compatible: number
+      incompatible: number
     }
   }
+  suggestions: string[]
+  message: string
+  recommendations: string[]
+  warnings?: string[]
+}
 
-  try {
+/**
+ * AI инструмент для анализа совместимости ресурсов с унифицированной обработкой ошибок
+ */
+export class CompatibilityAnalysisTool extends BaseAITool {
+  constructor(logger?: AIToolLogger) {
+    super("CompatibilityAnalysisTool", logger)
+  }
+
+  /**
+   * Выполняет анализ совместимости ресурсов
+   */
+  public async processCompatibilityAnalysis(
+    input: CompatibilityAnalysisInput,
+    options: AIToolExecutionOptions = {},
+  ): Promise<AIToolResult<CompatibilityAnalysisResult>> {
+    return this.executeWithErrorHandling(
+      input.operation,
+      async () => {
+        // Валидация входных данных
+        const validation = this.validateInput(input, (data) => {
+          const errors: string[] = []
+
+          if (data.operation !== "analyze_resource_compatibility") {
+            errors.push(`Неподдерживаемая операция: ${data.operation}`)
+          }
+
+          if (!data.resourceIds || data.resourceIds.length === 0) {
+            errors.push("Требуется указать resourceIds для анализа совместимости")
+          }
+
+          if (!data.reason) {
+            errors.push("Требуется указать причину анализа совместимости")
+          }
+
+          return errors
+        })
+
+        if (!validation.isValid) {
+          throw new Error(validation.errors.join(", "))
+        }
+
+        // Проверка доступа к ресурсам
+        if (!hasResourcesAccess()) {
+          throw new Error("Доступ к ресурсам не сконфигурирован")
+        }
+
+        const result = await this.analyzeCompatibility(input)
+
+        return result
+      },
+      options,
+    )
+  }
+
+  private async analyzeCompatibility(params: CompatibilityAnalysisInput): Promise<CompatibilityAnalysisResult> {
+    const { resourceIds, checkAgainst = "all", includeRecommendations = true } = params
+
     const resourcesProvider = getResourcesProvider()
     const compatibilityResults: any[] = []
     const recommendations: string[] = []
@@ -153,32 +207,96 @@ export async function analyzeResourceCompatibility(params: CompatibilityParams):
         : "needs-attention"
 
     return {
+      operation: "analyze_resource_compatibility",
       success: true,
-      message: `Анализ совместимости ${resourceIds.length} ресурсов завершен`,
-      data: {
-        analysis: {
-          checkAgainst,
-          results: compatibilityResults,
-          overallCompatibility,
-          projectSettings,
-          summary: {
-            total: compatibilityResults.length,
-            compatible: compatibilityResults.filter((r) => r.compatible).length,
-            incompatible: compatibilityResults.filter((r) => !r.compatible).length,
-          },
+      analysis: {
+        checkAgainst,
+        results: compatibilityResults,
+        overallCompatibility,
+        projectSettings,
+        summary: {
+          total: compatibilityResults.length,
+          compatible: compatibilityResults.filter((r) => r.compatible).length,
+          incompatible: compatibilityResults.filter((r) => !r.compatible).length,
         },
-        suggestions: recommendations,
       },
-      nextActions:
+      suggestions: recommendations,
+      message: `Анализ совместимости ${resourceIds.length} ресурсов завершен`,
+      recommendations:
         recommendations.length > 0
           ? ["Применить рекомендации", "Конвертировать несовместимые ресурсы"]
           : ["Ресурсы готовы к использованию"],
     }
-  } catch (error) {
+  }
+}
+
+// Создаем singleton экземпляр
+const compatibilityAnalysisTool = new CompatibilityAnalysisTool()
+
+/**
+ * Функция-обертка для обратной совместимости
+ */
+export async function executeCompatibilityAnalysisTool(
+  operation: CompatibilityAnalysisInput["operation"],
+  params: Omit<CompatibilityAnalysisInput, "operation">,
+  options?: AIToolExecutionOptions,
+): Promise<AIToolResult<CompatibilityAnalysisResult>> {
+  return compatibilityAnalysisTool.processCompatibilityAnalysis({ operation, ...params }, options)
+}
+
+/**
+ * Функция для обратной совместимости
+ */
+export async function analyzeResourceCompatibility(params: CompatibilityParams): Promise<ResourceToolResult> {
+  const result = await compatibilityAnalysisTool.processCompatibilityAnalysis({
+    operation: "analyze_resource_compatibility",
+    resourceIds: params.resourceIds,
+    checkAgainst: params.checkAgainst,
+    includeRecommendations: params.includeRecommendations,
+    reason: "Анализ совместимости ресурсов",
+  })
+
+  if (result.success) {
     return {
-      success: false,
-      message: `Ошибка анализа совместимости: ${String(error)}`,
-      errors: [String(error)],
+      success: true,
+      message: result.data.message,
+      data: {
+        analysis: result.data.analysis,
+        suggestions: result.data.suggestions,
+      },
+      nextActions: result.data.recommendations,
     }
   }
+  return {
+    success: false,
+    message: result.error?.message || "Ошибка анализа совместимости",
+    errors: [result.error?.message || "Неизвестная ошибка"],
+  }
+}
+
+// Экспорт для обратной совместимости
+export const analyzeResourceCompatibilityTool: ClaudeTool = {
+  name: "analyze_resource_compatibility",
+  description: "Анализирует совместимость ресурсов между собой и с текущим проектом",
+  input_schema: {
+    type: "object",
+    properties: {
+      resourceIds: {
+        type: "array",
+        items: { type: "string" },
+        description: "Список идентификаторов ресурсов для проверки совместимости",
+      },
+      checkAgainst: {
+        type: "string",
+        enum: ["project-settings", "other-resources", "timeline-structure", "all"],
+        description: "С чем проверять совместимость",
+      },
+      includeRecommendations: {
+        type: "boolean",
+        description: "Включить рекомендации по устранению проблем совместимости",
+        default: true,
+      },
+    },
+    required: ["resourceIds"],
+  },
 }

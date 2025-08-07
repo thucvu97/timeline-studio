@@ -31,7 +31,6 @@ export const TimelineTransitionComponent = memo(function TimelineTransitionCompo
   onSelect,
   onDurationChange,
   onPositionChange,
-  onUpdate,
   onDelete,
 }: TimelineTransitionProps) {
   const { uiState } = useTimeline()

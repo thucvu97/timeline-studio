@@ -1,12 +1,242 @@
 /**
- * AI инструмент для управления воспроизведением
+ * AI инструмент для управления воспроизведением с использованием BaseAITool
  */
 
 import type { ClaudeTool } from "../../services/claude-service"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 import type { PlaybackControlParams, PlayerToolResult } from "./types"
 import { getPlayerState, hasLoadedMedia, setPlayerState } from "./utils/helpers"
 
+// Типы для управления воспроизведением
+export interface PlaybackControlInput {
+  operation: "control_playback"
+  action: "play" | "pause" | "stop" | "seek" | "volume" | "speed"
+  value?: number
+  position?: number
+  reason: string
+}
+
+export interface PlaybackControlResult {
+  operation: string
+  success: boolean
+  action: string
+  previousState: any
+  newState: any
+  message: string
+  recommendations: string[]
+  warnings?: string[]
+}
+
+/**
+ * AI инструмент для управления воспроизведением с унифицированной обработкой ошибок
+ */
+export class PlaybackControlTool extends BaseAITool {
+  constructor(logger?: AIToolLogger) {
+    super("PlaybackControlTool", logger)
+  }
+
+  /**
+   * Выполняет операции управления воспроизведением
+   */
+  public async processPlaybackControl(
+    input: PlaybackControlInput,
+    options: AIToolExecutionOptions = {},
+  ): Promise<AIToolResult<PlaybackControlResult>> {
+    return this.executeWithErrorHandling(
+      input.operation,
+      async () => {
+        // Валидация входных данных
+        const validation = this.validateInput(input, (data) => {
+          const errors: string[] = []
+
+          if (data.operation !== "control_playback") {
+            errors.push(`Неподдерживаемая операция: ${data.operation}`)
+          }
+
+          const validActions = ["play", "pause", "stop", "seek", "volume", "speed"]
+          if (!validActions.includes(data.action)) {
+            errors.push(`Неподдерживаемое действие: ${data.action}`)
+          }
+
+          if (data.action === "seek" && data.position === undefined) {
+            errors.push("Требуется указать position для действия seek")
+          }
+
+          if ((data.action === "volume" || data.action === "speed") && data.value === undefined) {
+            errors.push(`Требуется указать value для действия ${data.action}`)
+          }
+
+          if (!data.reason) {
+            errors.push("Требуется указать причину управления воспроизведением")
+          }
+
+          return errors
+        })
+
+        if (!validation.isValid) {
+          throw new Error(validation.errors.join(", "))
+        }
+
+        // Проверка загруженного медиа
+        if (!hasLoadedMedia()) {
+          throw new Error("Нет загруженного медиа для управления воспроизведением")
+        }
+
+        const currentState = getPlayerState()
+        if (!currentState) {
+          throw new Error("Не удалось получить состояние плеера")
+        }
+
+        const result = await this.controlPlaybackInternal(input, currentState)
+
+        return result
+      },
+      options,
+    )
+  }
+
+  private async controlPlaybackInternal(
+    params: PlaybackControlInput,
+    currentState: any,
+  ): Promise<PlaybackControlResult> {
+    let message = ""
+    const updates: any = {}
+    const recommendations: string[] = []
+
+    switch (params.action) {
+      case "play":
+        if (currentState.isPlaying) {
+          message = "Воспроизведение уже активно"
+          recommendations.push("Используйте pause для остановки")
+        } else {
+          updates.isPlaying = true
+          message = "Воспроизведение запущено"
+          recommendations.push("Используйте pause для остановки")
+          recommendations.push("Настройте громкость и скорость при необходимости")
+        }
+        break
+
+      case "pause":
+        if (!currentState.isPlaying) {
+          message = "Воспроизведение уже приостановлено"
+          recommendations.push("Используйте play для запуска")
+        } else {
+          updates.isPlaying = false
+          message = "Воспроизведение приостановлено"
+          recommendations.push("Используйте play для продолжения")
+        }
+        break
+
+      case "stop":
+        updates.isPlaying = false
+        updates.currentTime = 0
+        message = "Воспроизведение остановлено"
+        recommendations.push("Используйте play для начала воспроизведения")
+        break
+
+      case "seek": {
+        const clampedPosition = Math.max(0, Math.min(params.position!, currentState.duration))
+        updates.currentTime = clampedPosition
+        message = `Перемотка на ${clampedPosition.toFixed(2)} секунд`
+        recommendations.push("Проверьте правильность позиции в плеере")
+        if (clampedPosition !== params.position!) {
+          recommendations.push("Позиция была скорректирована в пределах длительности медиа")
+        }
+        break
+      }
+
+      case "volume": {
+        const clampedVolume = Math.max(0, Math.min(params.value!, 1))
+        updates.volume = clampedVolume
+        updates.muted = clampedVolume === 0
+        message = `Громкость установлена на ${(clampedVolume * 100).toFixed(0)}%`
+        if (clampedVolume === 0) {
+          recommendations.push("Звук отключен (muted)")
+        } else if (clampedVolume < 0.3) {
+          recommendations.push("Низкая громкость может затруднить восприятие")
+        }
+        break
+      }
+
+      case "speed": {
+        const clampedSpeed = Math.max(0.1, Math.min(params.value!, 4))
+        updates.playbackSpeed = clampedSpeed
+        message = `Скорость воспроизведения установлена на ${clampedSpeed}x`
+        if (clampedSpeed < 0.5) {
+          recommendations.push("Медленное воспроизведение для детального анализа")
+        } else if (clampedSpeed > 2) {
+          recommendations.push("Быстрое воспроизведение может ухудшить качество")
+        }
+        break
+      }
+
+      default:
+        throw new Error(`Неизвестное действие: ${params.action}`)
+    }
+
+    // Применяем обновления
+    if (Object.keys(updates).length > 0) {
+      setPlayerState(updates)
+    }
+
+    return {
+      operation: "control_playback",
+      success: true,
+      action: params.action,
+      previousState: currentState,
+      newState: { ...currentState, ...updates },
+      message,
+      recommendations,
+    }
+  }
+}
+
+// Создаем singleton экземпляр
+const playbackControlTool = new PlaybackControlTool()
+
+/**
+ * Функция-обертка для обратной совместимости
+ */
+export async function executePlaybackControlTool(
+  operation: PlaybackControlInput["operation"],
+  params: Omit<PlaybackControlInput, "operation">,
+  options?: AIToolExecutionOptions,
+): Promise<AIToolResult<PlaybackControlResult>> {
+  return playbackControlTool.processPlaybackControl({ operation, ...params }, options)
+}
+
+/**
+ * Функция для обратной совместимости
+ */
+export async function controlPlayback(params: PlaybackControlParams): Promise<PlayerToolResult> {
+  const result = await playbackControlTool.processPlaybackControl({
+    operation: "control_playback",
+    action: params.action,
+    value: params.value,
+    position: params.position,
+    reason: "Управление воспроизведением",
+  })
+
+  if (result.success) {
+    return {
+      success: true,
+      message: result.data.message,
+      data: {
+        action: result.data.action,
+        previousState: result.data.previousState,
+        newState: result.data.newState,
+      },
+    }
+  }
+  return {
+    success: false,
+    message: result.error?.message || "Ошибка управления воспроизведением",
+    errors: [result.error?.message || "Неизвестная ошибка"],
+  }
+}
+
+// Экспорт для обратной совместимости
 export const controlPlaybackTool: ClaudeTool = {
   name: "control_playback",
   description: "Управляет воспроизведением медиа в плеере",
@@ -29,128 +259,4 @@ export const controlPlaybackTool: ClaudeTool = {
     },
     required: ["action"],
   },
-}
-
-export async function controlPlayback(params: PlaybackControlParams): Promise<PlayerToolResult> {
-  try {
-    if (!hasLoadedMedia()) {
-      return {
-        success: false,
-        message: "Нет загруженного медиа для управления воспроизведением",
-        warnings: ["Загрузите медиа файл в плеер"],
-      }
-    }
-
-    const currentState = getPlayerState()
-    if (!currentState) {
-      return {
-        success: false,
-        message: "Не удалось получить состояние плеера",
-        errors: ["Player state not available"],
-      }
-    }
-
-    let message = ""
-    const updates: any = {}
-
-    switch (params.action) {
-      case "play":
-        if (currentState.isPlaying) {
-          message = "Воспроизведение уже активно"
-        } else {
-          updates.isPlaying = true
-          message = "Воспроизведение запущено"
-        }
-        break
-
-      case "pause":
-        if (!currentState.isPlaying) {
-          message = "Воспроизведение уже приостановлено"
-        } else {
-          updates.isPlaying = false
-          message = "Воспроизведение приостановлено"
-        }
-        break
-
-      case "stop":
-        updates.isPlaying = false
-        updates.currentTime = 0
-        message = "Воспроизведение остановлено"
-        break
-
-      case "seek": {
-        if (params.position === undefined) {
-          return {
-            success: false,
-            message: "Не указана позиция для перемотки",
-            errors: ["Position parameter is required for seek action"],
-          }
-        }
-
-        const clampedPosition = Math.max(0, Math.min(params.position, currentState.duration))
-        updates.currentTime = clampedPosition
-        message = `Перемотка на ${clampedPosition.toFixed(2)} секунд`
-        break
-      }
-
-      case "volume": {
-        if (params.value === undefined) {
-          return {
-            success: false,
-            message: "Не указано значение громкости",
-            errors: ["Value parameter is required for volume action"],
-          }
-        }
-
-        const clampedVolume = Math.max(0, Math.min(params.value, 1))
-        updates.volume = clampedVolume
-        updates.muted = clampedVolume === 0
-        message = `Громкость установлена на ${(clampedVolume * 100).toFixed(0)}%`
-        break
-      }
-
-      case "speed": {
-        if (params.value === undefined) {
-          return {
-            success: false,
-            message: "Не указано значение скорости",
-            errors: ["Value parameter is required for speed action"],
-          }
-        }
-
-        const clampedSpeed = Math.max(0.1, Math.min(params.value, 4))
-        updates.playbackSpeed = clampedSpeed
-        message = `Скорость воспроизведения установлена на ${clampedSpeed}x`
-        break
-      }
-
-      default:
-        return {
-          success: false,
-          message: `Неизвестное действие: ${params.action}`,
-          errors: [`Unknown action: ${params.action}`],
-        }
-    }
-
-    // Применяем обновления
-    if (Object.keys(updates).length > 0) {
-      setPlayerState(updates)
-    }
-
-    return {
-      success: true,
-      message,
-      data: {
-        action: params.action,
-        previousState: currentState,
-        newState: { ...currentState, ...updates },
-      },
-    }
-  } catch (error) {
-    return {
-      success: false,
-      message: `Ошибка управления воспроизведением: ${String(error)}`,
-      errors: [String(error)],
-    }
-  }
 }

@@ -2,12 +2,12 @@
  * AI инструменты для автоматизации рабочих процессов видеомонтажа с использованием BaseAITool
  */
 
-import type { ClaudeTool } from "../types"
 import {
   WorkflowAutomationService,
   type WorkflowParams,
   type WorkflowType,
 } from "../services/workflow-automation-service"
+import type { ClaudeTool } from "../types"
 import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "./base-ai-tool"
 
 // Типы для операций автоматизации workflow
@@ -70,7 +70,7 @@ export class WorkflowAutomationTool extends BaseAITool {
    */
   public async processWorkflowAutomation(
     input: WorkflowAutomationInput,
-    options: AIToolExecutionOptions = {}
+    options: AIToolExecutionOptions = {},
   ): Promise<AIToolResult<WorkflowAutomationResult>> {
     return this.executeWithErrorHandling(
       input.operation,
@@ -129,7 +129,7 @@ export class WorkflowAutomationTool extends BaseAITool {
                 {
                   id: "business_presentation",
                   name: "Business Presentation",
-                  category: "business", 
+                  category: "business",
                   complexity: "medium",
                   duration: "5-15 min",
                   description: "Создание презентационных роликов",
@@ -172,10 +172,7 @@ export class WorkflowAutomationTool extends BaseAITool {
                 workflowType: input.workflowType,
                 status: "completed",
                 processingTime: "3.2 seconds",
-                outputFiles: [
-                  "/output/processed_video_1.mp4",
-                  "/output/processed_video_2.mp4",
-                ],
+                outputFiles: ["/output/processed_video_1.mp4", "/output/processed_video_2.mp4"],
                 stepsCompleted: 5,
                 totalSteps: 5,
                 ...executionResult,
@@ -219,26 +216,6 @@ export class WorkflowAutomationTool extends BaseAITool {
             result = {
               operation: input.operation,
               success: true,
-              recommendations: [
-                {
-                  type: "workflow_suggestion",
-                  workflow: "quick_social_media",
-                  confidence: 0.89,
-                  reason: "Короткий формат видео подходит для социальных сетей",
-                },
-                {
-                  type: "quality_improvement",
-                  action: "color_correction",
-                  confidence: 0.72,
-                  reason: "Обнаружены проблемы с экспозицией",
-                },
-                {
-                  type: "optimization",
-                  action: "stabilization",
-                  confidence: 0.65,
-                  reason: "Видео содержит небольшую дрожь камеры",
-                },
-              ],
               message: "Анализ завершен, найдено 3 рекомендации",
               recommendations: [
                 "Рассмотрите применение предложенного workflow",
@@ -329,19 +306,11 @@ export class WorkflowAutomationTool extends BaseAITool {
               validationResult: {
                 compatible: true,
                 issues: [],
-                warnings: [
-                  "Некоторые эффекты могут работать медленнее на текущем железе",
-                ],
-                recommendations: [
-                  "Workflow совместим с текущим проектом",
-                  "Рассмотрите обновление драйверов GPU",
-                ],
+                warnings: ["Некоторые эффекты могут работать медленнее на текущем железе"],
+                recommendations: ["Workflow совместим с текущим проектом", "Рассмотрите обновление драйверов GPU"],
               },
               message: "Валидация совместимости завершена",
-              recommendations: [
-                "Workflow готов к использованию",
-                "Примите к сведению предупреждения",
-              ],
+              recommendations: ["Workflow готов к использованию", "Примите к сведению предупреждения"],
             }
             break
 
@@ -357,7 +326,7 @@ export class WorkflowAutomationTool extends BaseAITool {
 
         return result
       },
-      options
+      options,
     )
   }
 }
@@ -371,7 +340,7 @@ const workflowAutomationTool = new WorkflowAutomationTool()
 export async function executeWorkflowAutomationTool(
   operation: WorkflowAutomationInput["operation"],
   params: Omit<WorkflowAutomationInput, "operation">,
-  options?: AIToolExecutionOptions
+  options?: AIToolExecutionOptions,
 ): Promise<AIToolResult<WorkflowAutomationResult>> {
   return workflowAutomationTool.processWorkflowAutomation({ operation, ...params }, options)
 }
