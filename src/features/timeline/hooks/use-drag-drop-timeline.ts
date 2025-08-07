@@ -44,6 +44,25 @@ export function useDragDropTimeline(): UseDragDropTimelineReturn {
   // Handle drag start
   const handleDragStart = useCallback((event: DragStartEvent) => {
     const { active } = event
+
+    // Обработка перетаскивания ресурсов
+    if (active.data.current?.type?.startsWith("drag-")) {
+      const resourceType = active.data.current.type.replace("drag-", "")
+      const resource = active.data.current.resource
+      
+      setDragState({
+        isDragging: true,
+        draggedItem: null,
+        dragOverTrack: null,
+        dropPosition: null,
+        draggedResourceType: resourceType,
+        draggedResource: resource,
+      })
+      
+      console.log(`[DragDrop] Started dragging ${resourceType}:`, resource.name)
+      return
+    }
+
     const dragData = active.data.current as DragData | undefined
 
     if (dragData) {
@@ -99,6 +118,22 @@ export function useDragDropTimeline(): UseDragDropTimelineReturn {
             insertIndex: dropData.insertIndex,
             trackType: expectedTrackType,
             startTime: 0,
+          } as any,
+        }))
+        return
+      }
+
+      // Handle transition drop zones
+      if (dropData.type === "transition-drop") {
+        // For transition drops, we don't need to calculate position
+        setDragState((prev) => ({
+          ...prev,
+          dragOverTrack: dropData.trackId,
+          dropPosition: {
+            type: "transition",
+            leftClipId: dropData.leftClipId,
+            rightClipId: dropData.rightClipId,
+            trackId: dropData.trackId,
           } as any,
         }))
         return
@@ -216,6 +251,27 @@ export function useDragDropTimeline(): UseDragDropTimelineReturn {
             setTimeout(() => {
               addSingleMediaToTimeline(dragData.mediaFile, undefined, 0)
             }, 100)
+          } else if (dropData.type === "transition-drop" && dragState.dropPosition?.type === "transition") {
+            // Handle transition drop
+            console.log(
+              "[DragDrop] Dropping transition between clips:",
+              dragState.dropPosition.leftClipId,
+              dragState.dropPosition.rightClipId,
+            )
+            
+            // The actual transition application is handled by the TransitionDropZone component
+            // through its onDrop callback
+          } else if (dropData.type === "clip-drop" && dragState.draggedResourceType) {
+            // Handle resource drop on clip
+            console.log(
+              "[DragDrop] Dropping",
+              dragState.draggedResourceType,
+              "on clip:",
+              dropData.clipId,
+            )
+            
+            // The actual resource application is handled by the ClipDropZone component
+            // Resources are applied through TimelineEffectsProvider
           } else if (dropData.trackId && dropData.trackType) {
             // Handle existing track drop
             const isValid = canDropOnTrack(dragData.mediaFile, dropData.trackType)

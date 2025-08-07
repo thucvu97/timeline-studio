@@ -29,6 +29,9 @@ export interface DragState {
   // Для snap feedback
   snapPoint?: any | null
   snapActive?: boolean
+  // Для ресурсов (эффекты, фильтры, переходы)
+  draggedResourceType?: string
+  draggedResource?: any
 }
 
 export interface TimelineDropTarget {

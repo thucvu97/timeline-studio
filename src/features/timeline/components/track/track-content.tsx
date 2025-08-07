@@ -17,7 +17,7 @@ import { addTransitionBetweenClips, getTrackTransitions } from "../../services/t
 import type { TimelineTrack } from "../../types"
 import { Clip } from "../clip/clip"
 import { CollapsedGroup } from "../clip-groups/collapsed-group"
-import { TimelineTransitionComponent } from "../transition/timeline-transition"
+import { TimelineTransitionComponent } from "../transitions/timeline-transition"
 import { TransitionCollisionIndicator } from "../transition/transition-collision-indicator"
 import { TransitionDropZone } from "../transition/transition-drop-zone"
 import { TrackRollHandles } from "./track-roll-handles"
@@ -207,22 +207,38 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
         ))}
 
         {/* Переходы */}
-        {trackTransitions.map((transition) => (
-          <TimelineTransitionComponent
-            key={transition.id}
-            transition={transition}
-            pixelsPerSecond={timeScale}
-            trackHeight={48}
-            onUpdate={(updates) => {
-              // Обновление перехода через контекст или API
-              console.log("Transition update:", transition.id, updates)
-            }}
-            onDelete={() => {
-              // Удаление перехода
-              console.log("Transition delete:", transition.id)
-            }}
-          />
-        ))}
+        {visibleClips.length > 1 &&
+          visibleClips.slice(0, -1).map((leftClip, index) => {
+            const rightClip = visibleClips[index + 1]
+            
+            // Проверяем есть ли переход между этими клипами
+            const outTransition = leftClip.transitions?.find(t => t.type === "out")
+            const inTransition = rightClip.transitions?.find(t => t.type === "in")
+            
+            if (outTransition && inTransition && outTransition.transitionId === inTransition.transitionId) {
+              return (
+                <TimelineTransitionComponent
+                  key={`transition-${leftClip.id}-${rightClip.id}`}
+                  leftClipId={leftClip.id}
+                  rightClipId={rightClip.id}
+                  leftClipEnd={leftClip.startTime + leftClip.duration}
+                  rightClipStart={rightClip.startTime}
+                  transition={outTransition}
+                  timeScale={timeScale}
+                  trackHeight={48}
+                  onUpdate={(updates) => {
+                    // Обновление перехода через контекст или API
+                    console.log("Transition update:", outTransition.id, updates)
+                  }}
+                  onDelete={() => {
+                    // Удаление перехода
+                    console.log("Transition delete:", outTransition.id)
+                  }}
+                />
+              )
+            }
+            return null
+          })}
 
         {/* Зоны для сброса переходов между клипами */}
         {visibleClips.length > 1 &&

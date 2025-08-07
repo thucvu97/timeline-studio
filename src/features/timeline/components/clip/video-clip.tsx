@@ -12,7 +12,7 @@ import { useClips } from "../../hooks/use-clips"
 import { useTimeline } from "../../hooks/use-timeline"
 import { timelinePlayerSync } from "../../services/timeline-player-sync"
 import type { TimelineClip, TimelineTrack } from "../../types"
-import { ClipDropZone } from "./clip-drop-zone"
+import { ClipDropZoneDnd } from "./clip-drop-zone-dnd"
 import { ClipResourceIndicators } from "./clip-resource-indicators"
 import { VideoFadeControls } from "./video-fade-controls"
 import { VideoFadeVisualization } from "./video-fade-visualization"
@@ -96,7 +96,7 @@ export const VideoClip = memo(
     )
 
     return (
-      <ClipDropZone
+      <ClipDropZoneDnd
         clip={clip}
         className={cn(
           "h-full w-full rounded border-2 transition-all duration-150",
@@ -194,7 +194,7 @@ export const VideoClip = memo(
             </>
           )}
         </div>
-      </ClipDropZone>
+      </ClipDropZoneDnd>
     )
   },
   (prevProps, nextProps) => {

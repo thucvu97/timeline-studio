@@ -20,10 +20,11 @@ export function TimelineEffectsProvider({ children }: TimelineEffectsProviderPro
 
   // Effects operations
   const applyEffect = useCallback(
-    async (_clipId: string, effectId: string, params = {}) => {
+    async (clipId: string, effectId: string, params = {}) => {
       await backend.executeCommand({
         type: "PlayerApplyEffect",
         params: {
+          clip_id: clipId,
           effect_id: effectId,
           params,
         },
@@ -33,19 +34,24 @@ export function TimelineEffectsProvider({ children }: TimelineEffectsProviderPro
   )
 
   const removeEffect = useCallback(
-    async (_clipId: string, _effectId: string) => {
+    async (clipId: string, effectId: string) => {
       await backend.executeCommand({
-        type: "PlayerClearEffects",
+        type: "PlayerRemoveEffect",
+        params: {
+          clip_id: clipId,
+          effect_id: effectId,
+        },
       })
     },
     [backend],
   )
 
   const applyFilter = useCallback(
-    async (_clipId: string, filterId: string, params = {}) => {
+    async (clipId: string, filterId: string, params = {}) => {
       await backend.executeCommand({
         type: "PlayerApplyFilter",
         params: {
+          clip_id: clipId,
           filter_id: filterId,
           params,
         },
@@ -55,22 +61,45 @@ export function TimelineEffectsProvider({ children }: TimelineEffectsProviderPro
   )
 
   const removeFilter = useCallback(
-    async (_clipId: string, _filterId: string) => {
+    async (clipId: string, filterId: string) => {
       await backend.executeCommand({
-        type: "PlayerClearFilters",
+        type: "PlayerRemoveFilter",
+        params: {
+          clip_id: clipId,
+          filter_id: filterId,
+        },
       })
     },
     [backend],
   )
 
-  const applyTransition = useCallback(async (clipId: string, transitionId: string, params = {}) => {
-    // Transitions are more complex and may require specific positioning
-    console.log("Apply transition not yet implemented:", { clipId, transitionId, params })
-  }, [])
+  const applyTransition = useCallback(
+    async (clipId: string, transitionId: string, params = {}) => {
+      // Переходы применяются между клипами
+      await backend.executeCommand({
+        type: "ApplyTransition",
+        params: {
+          clip_id: clipId,
+          transition_id: transitionId,
+          params,
+        },
+      })
+    },
+    [backend],
+  )
 
-  const removeTransition = useCallback(async (clipId: string, transitionId: string) => {
-    console.log("Remove transition not yet implemented:", { clipId, transitionId })
-  }, [])
+  const removeTransition = useCallback(
+    async (clipId: string, transitionId: string) => {
+      await backend.executeCommand({
+        type: "RemoveTransition",
+        params: {
+          clip_id: clipId,
+          transition_id: transitionId,
+        },
+      })
+    },
+    [backend],
+  )
 
   const contextValue: TimelineEffectsContextType = useMemo(
     () => ({

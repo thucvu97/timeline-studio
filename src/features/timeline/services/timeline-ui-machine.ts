@@ -30,6 +30,8 @@ export interface TimelineUIContext {
   isDragging: boolean
   draggedClipId: string | null
   draggedTrackId: string | null
+  draggedResourceType: "transition" | "effect" | "filter" | null
+  draggedResourceId: string | null
 
   // Буфер обмена
   clipboard: ClipboardData | null
@@ -63,6 +65,9 @@ export type TimelineUIEvent =
   // Операции перетаскивания
   | { type: "START_DRAG_CLIP"; clipId: string }
   | { type: "START_DRAG_TRACK"; trackId: string }
+  | { type: "START_DRAG_TRANSITION"; transitionId: string }
+  | { type: "START_DRAG_EFFECT"; effectId: string }
+  | { type: "START_DRAG_FILTER"; filterId: string }
   | { type: "STOP_DRAG" }
 
   // Буфер обмена
@@ -75,6 +80,11 @@ export type TimelineUIEvent =
   | { type: "TOGGLE_WAVEFORMS" }
   | { type: "TOGGLE_THUMBNAILS" }
   | { type: "TOGGLE_MARKERS" }
+
+  // Resources
+  | { type: "APPLY_TRANSITION"; leftClipId: string; rightClipId: string; transitionId: string }
+  | { type: "REMOVE_TRANSITION"; leftClipId: string; rightClipId: string }
+  | { type: "UPDATE_TRANSITION"; transitionId: string; parameters: Record<string, any> }
 
   // Ошибки
   | { type: "SET_UI_ERROR"; error: string }
@@ -163,12 +173,34 @@ export const timelineUIMachine = setup({
       isDragging: () => true,
       draggedTrackId: ({ event }) => (event.type === "START_DRAG_TRACK" ? event.trackId : null),
       draggedClipId: () => null,
+      draggedResourceType: () => null,
+      draggedResourceId: () => null,
+    }),
+
+    startDragResource: assign({
+      isDragging: () => true,
+      draggedResourceType: ({ event }) => {
+        if (event.type === "START_DRAG_TRANSITION") return "transition"
+        if (event.type === "START_DRAG_EFFECT") return "effect"
+        if (event.type === "START_DRAG_FILTER") return "filter"
+        return null
+      },
+      draggedResourceId: ({ event }) => {
+        if (event.type === "START_DRAG_TRANSITION") return event.transitionId
+        if (event.type === "START_DRAG_EFFECT") return event.effectId
+        if (event.type === "START_DRAG_FILTER") return event.filterId
+        return null
+      },
+      draggedClipId: () => null,
+      draggedTrackId: () => null,
     }),
 
     stopDrag: assign({
       isDragging: () => false,
       draggedClipId: () => null,
       draggedTrackId: () => null,
+      draggedResourceType: () => null,
+      draggedResourceId: () => null,
     }),
 
     // Буфер обмена
@@ -243,6 +275,8 @@ export const timelineUIMachine = setup({
     isDragging: false,
     draggedClipId: null,
     draggedTrackId: null,
+    draggedResourceType: null,
+    draggedResourceId: null,
 
     // Буфер обмена
     clipboard: null,
@@ -301,6 +335,30 @@ export const timelineUIMachine = setup({
         START_DRAG_TRACK: {
           target: "dragging",
           actions: "startDragTrack",
+        },
+        START_DRAG_TRANSITION: {
+          target: "dragging",
+          actions: "startDragResource",
+        },
+        START_DRAG_EFFECT: {
+          target: "dragging",
+          actions: "startDragResource",
+        },
+        START_DRAG_FILTER: {
+          target: "dragging",
+          actions: "startDragResource",
+        },
+
+        // Resources events
+        APPLY_TRANSITION: {
+          // Transition application is handled by TimelineEffectsProvider
+          // This event is just for tracking
+        },
+        REMOVE_TRANSITION: {
+          // Transition removal is handled by TimelineEffectsProvider
+        },
+        UPDATE_TRANSITION: {
+          // Transition update is handled by TimelineEffectsProvider
         },
 
         // Буфер обмена
@@ -381,6 +439,8 @@ export const timelineUISelectors = {
     isDragging: context.isDragging,
     draggedClipId: context.draggedClipId,
     draggedTrackId: context.draggedTrackId,
+    draggedResourceType: context.draggedResourceType,
+    draggedResourceId: context.draggedResourceId,
   }),
 
   getClipboard: (context: TimelineUIContext) => context.clipboard,
