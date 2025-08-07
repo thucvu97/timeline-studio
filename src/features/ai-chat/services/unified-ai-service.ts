@@ -77,7 +77,7 @@ export class UnifiedAIService {
       const aiContainer = getAIContainer()
 
       // Получаем unified AI service из shared
-      const sharedUnifiedService = await aiContainer.resolve("UnifiedAIService")
+      const sharedUnifiedService = await aiContainer.resolve<any>("UnifiedAIService")
 
       // Создаем адаптер для проверки доступности провайдеров через shared сервисы
       const availabilityChecker = {

@@ -56,12 +56,12 @@ export class LegacyFFmpegAnalysisService {
   async analyzeAudio(file: { path: string; filename?: string; [key: string]: any }, _options?: any) {
     const service = await this.getSharedService()
     const mediaFile = {
+      ...file,
       id: file.id || Date.now().toString(),
       path: file.path,
       filename: file.filename || file.path.split("/").pop() || "unknown",
       size: file.size || 0,
       type: "audio" as const,
-      ...file,
     }
     return service.analyzeAudio(mediaFile)
   }
