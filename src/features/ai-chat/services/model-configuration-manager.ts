@@ -5,7 +5,7 @@
 
 import { CLAUDE_MODELS } from "@/shared/services/ai/providers/claude"
 import { DEEPSEEK_MODELS } from "@/shared/services/ai/providers/deepseek"
-import { AI_MODELS } from "@/shared/services/ai/providers/openai"
+import { OPENOPENAI_MODELS } from "@/shared/services/ai/providers/openai"
 
 // Типы AI провайдеров
 export type AIProvider = "claude" | "openai" | "deepseek" | "ollama"
@@ -43,8 +43,8 @@ export class ModelConfigurationManager {
   // Статические модели
   private static readonly STATIC_MODELS: Record<string, ModelConfig> = {
     // Claude модели
-    [CLAUDE_MODELS.CLAUDE_4_SONNET]: {
-      id: CLAUDE_MODELS.CLAUDE_4_SONNET,
+    [CLAUDE_MODELS.CLAUDE_4_SONNET_LATEST]: {
+      id: CLAUDE_MODELS.CLAUDE_4_SONNET_LATEST,
       name: "Claude 4 Sonnet",
       provider: "claude",
       isLocal: false,
@@ -53,8 +53,8 @@ export class ModelConfigurationManager {
       maxTokens: 200000,
       description: "Самая производительная модель Claude",
     },
-    [CLAUDE_MODELS.CLAUDE_4_OPUS]: {
-      id: CLAUDE_MODELS.CLAUDE_4_OPUS,
+    [CLAUDE_MODELS.CLAUDE_4_OPUS_LATEST]: {
+      id: CLAUDE_MODELS.CLAUDE_4_OPUS_LATEST,
       name: "Claude 4 Opus",
       provider: "claude",
       isLocal: false,
@@ -76,8 +76,8 @@ export class ModelConfigurationManager {
     },
 
     // OpenAI модели
-    [AI_MODELS.GPT_4]: {
-      id: AI_MODELS.GPT_4,
+    [OPENAI_MODELS.GPT_4]: {
+      id: OPENAI_MODELS.GPT_4,
       name: "GPT-4",
       provider: "openai",
       isLocal: false,
@@ -86,8 +86,8 @@ export class ModelConfigurationManager {
       maxTokens: 8192,
       description: "Мощная модель OpenAI GPT-4",
     },
-    [AI_MODELS.GPT_4O]: {
-      id: AI_MODELS.GPT_4O,
+    [OPENAI_MODELS.GPT_4O]: {
+      id: OPENAI_MODELS.GPT_4O,
       name: "GPT-4o",
       provider: "openai",
       isLocal: false,
@@ -96,8 +96,8 @@ export class ModelConfigurationManager {
       maxTokens: 128000,
       description: "Мультимодальная модель GPT-4 Omni",
     },
-    [AI_MODELS.GPT_3_5]: {
-      id: AI_MODELS.GPT_3_5,
+    [OPENAI_MODELS.GPT_3_5_TURBO]: {
+      id: OPENAI_MODELS.GPT_3_5_TURBO,
       name: "GPT-3.5 Turbo",
       provider: "openai",
       isLocal: false,
@@ -106,8 +106,8 @@ export class ModelConfigurationManager {
       maxTokens: 16385,
       description: "Быстрая и экономичная модель",
     },
-    [AI_MODELS.O3]: {
-      id: AI_MODELS.O3,
+    [OPENAI_MODELS.O3]: {
+      id: OPENAI_MODELS.O3,
       name: "o3",
       provider: "openai",
       isLocal: false,
@@ -117,8 +117,8 @@ export class ModelConfigurationManager {
       description: "Новейшая модель OpenAI o3",
     },
     // Пример добавления новой модели GPT-5
-    [AI_MODELS.GPT_5]: {
-      id: AI_MODELS.GPT_5,
+    [OPENAI_MODELS.GPT_5]: {
+      id: OPENAI_MODELS.GPT_5,
       name: "GPT-5",
       provider: "openai",
       isLocal: false,
@@ -321,8 +321,8 @@ export class ModelConfigurationManager {
       case "analysis":
         // Для анализа предпочитаем Claude 4 Sonnet
         candidates.sort((a, b) => {
-          if (a.id === CLAUDE_MODELS.CLAUDE_4_SONNET) return -1
-          if (b.id === CLAUDE_MODELS.CLAUDE_4_SONNET) return 1
+          if (a.id === CLAUDE_MODELS.CLAUDE_4_SONNET_LATEST) return -1
+          if (b.id === CLAUDE_MODELS.CLAUDE_4_SONNET_LATEST) return 1
           if (a.provider === "claude") return -1
           if (b.provider === "claude") return 1
           return b.maxTokens - a.maxTokens
@@ -332,8 +332,8 @@ export class ModelConfigurationManager {
       case "generation":
         // Для генерации предпочитаем Claude 4 Opus
         candidates.sort((a, b) => {
-          if (a.id === CLAUDE_MODELS.CLAUDE_4_OPUS) return -1
-          if (b.id === CLAUDE_MODELS.CLAUDE_4_OPUS) return 1
+          if (a.id === CLAUDE_MODELS.CLAUDE_4_OPUS_LATEST) return -1
+          if (b.id === CLAUDE_MODELS.CLAUDE_4_OPUS_LATEST) return 1
           if (a.provider === "claude") return -1
           if (b.provider === "claude") return 1
           return b.maxTokens - a.maxTokens

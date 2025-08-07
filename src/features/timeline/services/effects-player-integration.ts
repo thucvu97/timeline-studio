@@ -5,7 +5,7 @@
 
 import { WebGL2UnifiedRenderer } from "@/features/effects/services/webgl2-unified-renderer"
 import type { BaseEffect } from "@/features/effects/types"
-import { PreviewCache } from "@/features/preview/services/preview-cache"
+import { EffectsCache } from "./effects-cache"
 import type { AppliedEffect, TimelineClip } from "../types"
 
 export interface EffectsPlayerConfig {
@@ -18,7 +18,7 @@ export interface EffectsPlayerConfig {
 
 export class EffectsPlayerIntegration {
   private renderer: WebGL2UnifiedRenderer
-  private cache: PreviewCache | null = null
+  private cache: EffectsCache | null = null
   private isInitialized = false
   private currentClip: TimelineClip | null = null
   private baseEffects = new Map<string, BaseEffect>()
@@ -32,7 +32,7 @@ export class EffectsPlayerIntegration {
     
     // Инициализируем кеш если включен
     if (config.enableCache !== false) {
-      this.cache = new PreviewCache(config.cacheSize || 100)
+      this.cache = new EffectsCache(config.cacheSize || 100)
     }
   }
 
@@ -114,8 +114,8 @@ export class EffectsPlayerIntegration {
 
     // Проверяем кеш если включен
     if (this.cache) {
-      const cacheKey = this.generateCacheKey(currentTime, activeEffects)
-      const cached = await this.getCachedFrame(cacheKey)
+      const cacheKey = EffectsCache.generateKey(currentTime, activeEffects)
+      const cached = this.cache.get(cacheKey)
       
       if (cached) {
         // Возвращаем закешированный кадр
@@ -141,8 +141,8 @@ export class EffectsPlayerIntegration {
       if (result.success && result.output instanceof HTMLCanvasElement) {
         // Кешируем результат если кеш включен
         if (this.cache) {
-          const cacheKey = this.generateCacheKey(currentTime, activeEffects)
-          await this.cacheFrame(cacheKey, result.output)
+          const cacheKey = EffectsCache.generateKey(currentTime, activeEffects)
+          await this.cache.set(cacheKey, result.output)
         }
         return result.output
       }
@@ -154,8 +154,8 @@ export class EffectsPlayerIntegration {
         
         // Кешируем результат
         if (this.cache) {
-          const cacheKey = this.generateCacheKey(currentTime, activeEffects)
-          await this.cacheFrame(cacheKey, this.targetCanvas)
+          const cacheKey = EffectsCache.generateKey(currentTime, activeEffects)
+          await this.cache.set(cacheKey, this.targetCanvas)
         }
         
         return this.targetCanvas
@@ -176,64 +176,6 @@ export class EffectsPlayerIntegration {
   // ============================================================================
   // КЕШИРОВАНИЕ
   // ============================================================================
-
-  /**
-   * Генерирует ключ кеша на основе времени и эффектов
-   */
-  private generateCacheKey(currentTime: number, effects: AppliedEffect[]): string {
-    const enabledEffects = effects
-      .filter((e) => e.enabled)
-      .map((e) => ({
-        id: e.effectId,
-        params: e.parameters,
-        keyframes: e.keyframes,
-      }))
-    
-    // Простой хеш на основе JSON
-    const effectsHash = this.simpleHash(JSON.stringify(enabledEffects))
-    return `${currentTime.toFixed(3)}_${effectsHash}`
-  }
-
-  /**
-   * Простая хеш-функция
-   */
-  private simpleHash(str: string): string {
-    let hash = 0
-    for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i)
-      hash = (hash << 5) - hash + char
-      hash &= hash
-    }
-    return hash.toString(36)
-  }
-
-  /**
-   * Получить закешированный кадр
-   */
-  private async getCachedFrame(key: string): Promise<ImageBitmap | null> {
-    if (!this.cache) return null
-    
-    // PreviewCache работает с ImageBitmap, но нам нужно адаптировать
-    // использование, т.к. у нас другие типы эффектов
-    // TODO: адаптировать PreviewCache для наших типов
-    return null
-  }
-
-  /**
-   * Сохранить кадр в кеш
-   */
-  private async cacheFrame(key: string, canvas: HTMLCanvasElement): Promise<void> {
-    if (!this.cache) return
-    
-    try {
-      // Создаем ImageBitmap для эффективного хранения
-      const bitmap = await createImageBitmap(canvas)
-      // TODO: сохранить в кеш
-      // Нужно расширить PreviewCache API для прямого доступа
-    } catch (error) {
-      console.warn("Не удалось закешировать кадр:", error)
-    }
-  }
 
   /**
    * Очистить кеш при изменении эффектов
@@ -260,8 +202,58 @@ export class EffectsPlayerIntegration {
     return {
       entries: stats.entries,
       sizeMB: stats.sizeMB,
-      hitRate: stats.fillPercentage / 100, // конвертируем в долю
+      hitRate: stats.hitRate,
     }
+  }
+
+  /**
+   * Предзагрузка кадров вокруг текущей позиции
+   */
+  async prefetchFrames(
+    videoElement: HTMLVideoElement,
+    centerTime: number,
+    range = 2, // секунды
+    fps = 30
+  ): Promise<void> {
+    if (!this.cache || !this.currentClip) return
+    
+    const activeEffects = this.currentClip.effects.filter((e) => e.enabled)
+    if (activeEffects.length === 0) return
+    
+    await this.cache.prefetch(
+      centerTime,
+      range,
+      fps,
+      activeEffects,
+      async (timestamp) => {
+        // Создаем временный canvas для рендеринга
+        const tempCanvas = document.createElement("canvas")
+        tempCanvas.width = videoElement.videoWidth
+        tempCanvas.height = videoElement.videoHeight
+        
+        // Перематываем видео на нужный кадр
+        videoElement.currentTime = timestamp
+        await new Promise((resolve) => {
+          videoElement.onseeked = () => resolve(undefined)
+        })
+        
+        const result = await this.renderer.renderEffectStack(activeEffects, this.baseEffects, {
+          source: videoElement,
+          target: tempCanvas,
+          width: videoElement.videoWidth,
+          height: videoElement.videoHeight,
+          currentTime: timestamp,
+          quality: "draft", // Для предзагрузки используем draft
+          gpuTier: this.config.gpuTier || "medium",
+        })
+        
+        if (result.success && result.output instanceof HTMLCanvasElement) {
+          return result.output
+        }
+        
+        return null
+      }
+    )
   }
 
   /**

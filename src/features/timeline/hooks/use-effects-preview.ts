@@ -31,6 +31,15 @@ export interface UseEffectsPreviewReturn {
   processFrame: (videoElement: HTMLVideoElement, time: number) => Promise<void>
   setClip: (clip: TimelineClip | null) => void
 
+  // Кеширование
+  prefetchFrames: (videoElement: HTMLVideoElement, centerTime: number, range?: number) => Promise<void>
+  invalidateCache: () => void
+  cacheStats: {
+    entries: number
+    sizeMB: number
+    hitRate: number
+  }
+
   // Утилиты
   getFFmpegCommands: () => string[]
 }
@@ -43,6 +52,7 @@ export function useEffectsPreview(options: UseEffectsPreviewOptions = {}): UseEf
   const [isInitialized, setIsInitialized] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [processedCanvas, setProcessedCanvas] = useState<HTMLCanvasElement | null>(null)
+  const [cacheStats, setCacheStats] = useState({ entries: 0, sizeMB: 0, hitRate: 0 })
 
   const integrationRef = useRef(getEffectsPlayerIntegration(config))
   const currentClipRef = useRef<TimelineClip | null>(null)
@@ -132,6 +142,39 @@ export function useEffectsPreview(options: UseEffectsPreviewOptions = {}): UseEf
     return integrationRef.current.getFFmpegCommands(currentClipRef.current)
   }, [])
 
+  // Предзагрузка кадров
+  const prefetchFrames = useCallback(
+    async (videoElement: HTMLVideoElement, centerTime: number, range = 2) => {
+      if (!isInitialized || !enabled) return
+      
+      try {
+        await integrationRef.current.prefetchFrames(videoElement, centerTime, range)
+        // Обновляем статистику кеша
+        setCacheStats(integrationRef.current.getCacheStats())
+      } catch (err) {
+        console.warn("Ошибка предзагрузки кадров:", err)
+      }
+    },
+    [isInitialized, enabled],
+  )
+
+  // Очистка кеша
+  const invalidateCache = useCallback(() => {
+    integrationRef.current.invalidateCache()
+    setCacheStats({ entries: 0, sizeMB: 0, hitRate: 0 })
+  }, [])
+
+  // Обновление статистики кеша при обработке
+  useEffect(() => {
+    if (isProcessing) {
+      const interval = setInterval(() => {
+        setCacheStats(integrationRef.current.getCacheStats())
+      }, 1000) // Обновляем каждую секунду
+      
+      return () => clearInterval(interval)
+    }
+  }, [isProcessing])
+
   // Очистка при размонтировании
   useEffect(() => {
     return () => {
@@ -150,6 +193,9 @@ export function useEffectsPreview(options: UseEffectsPreviewOptions = {}): UseEf
     stopProcessing,
     processFrame,
     setClip,
+    prefetchFrames,
+    invalidateCache,
+    cacheStats,
     getFFmpegCommands,
   }
 }

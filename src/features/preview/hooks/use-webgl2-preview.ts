@@ -64,6 +64,11 @@ export function useWebGL2Preview(options: UseWebGL2PreviewOptions = {}) {
     fps: 30,
     antialiasing: true,
   })
+  const [cacheStats, setCacheStats] = useState({
+    entries: 0,
+    sizeMB: 0,
+    hitRate: 0,
+  })
 
   const timeline = useTimeline()
   const player = usePlayer()
@@ -372,7 +377,14 @@ export function useWebGL2Preview(options: UseWebGL2PreviewOptions = {}) {
     gpuTier,
     quality,
     setQuality,
-    cacheStats: cacheRef.current?.getStats(),
+    cacheStats: cacheRef.current?.getStats() || {
+      entries: 0,
+      sizeBytes: 0,
+      sizeMB: 0,
+      maxSizeMB: cacheSize,
+      fillPercentage: 0,
+      hitRate: 0,
+    },
   }
 }
 
