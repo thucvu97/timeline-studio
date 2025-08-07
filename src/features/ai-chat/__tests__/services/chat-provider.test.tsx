@@ -242,11 +242,11 @@ describe("ChatProvider", () => {
 
   describe("Обработка ошибок", () => {
     it.skip("должен обрабатывать ошибки API", async () => {
-      // Настраиваем мок для возврата ошибки
-      const errorService = {
+      // Настраиваем мок для возврата ошибки через UnifiedAIService
+      const UnifiedAIService = await import("../../services/unified-ai-service")
+      vi.spyOn(UnifiedAIService.UnifiedAIService, "getInstance").mockReturnValue({
         sendMessage: vi.fn().mockRejectedValue(new Error("API недоступен")),
-      }
-      vi.mocked(ClaudeService.getInstance).mockReturnValue(errorService as any)
+      } as any)
 
       const { result } = renderHook(() => useChat(), {
         wrapper: ChatProvider,

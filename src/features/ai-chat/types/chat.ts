@@ -8,7 +8,7 @@ export interface ChatSession {
   createdAt: Date
   updatedAt: Date
   messages: ChatMessage[]
-  agent: Agent
+  agent: AgentId
   projectId?: string // Associated project if any
 }
 
@@ -17,7 +17,7 @@ export interface ChatMessage {
   role: "user" | "assistant" | "system"
   content: string
   timestamp: Date
-  agent?: Agent
+  agent?: AgentId
   error?: string
   metadata?: {
     model?: string
@@ -26,7 +26,14 @@ export interface ChatMessage {
   }
 }
 
-export type Agent = "claude-4-opus" | "claude-4-sonnet" | "gpt-4" | "gpt-4o" | "gpt-3.5-turbo" | "o3"
+export type AgentId = "claude-4-opus" | "claude-4-sonnet" | "gpt-4" | "gpt-4o" | "gpt-3.5-turbo" | "o3" | string
+
+export interface Agent {
+  id: string
+  name: string
+  useTools: boolean
+  provider: "claude" | "openai" | "deepseek" | "ollama" | string
+}
 
 export interface ChatListItem {
   id: string

@@ -79,19 +79,23 @@ export function ContentIntelligencePanel({
           </CardHeader>
         </Card>
 
-        {analysis.map((result, _index) => (
-          <Card key={result.id} className="w-full">
+        {analysis.map((result, index) => (
+          <Card key={`analysis-${index}`} className="w-full">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <FileVideo className="h-4 w-4" />
-                {result.mediaFile.filename}
+                {result.mediaFile.name}
               </CardTitle>
               <div className="flex gap-2">
-                <Badge variant="secondary">{result.classification.genre}</Badge>
-                <Badge variant="outline">{result.classification.audience}</Badge>
-                {result.classification.technicalQuality && (
-                  <Badge variant={result.classification.technicalQuality === "excellent" ? "default" : "secondary"}>
-                    {result.classification.technicalQuality}
+                {result.metadata && (
+                  <>
+                    <Badge variant="secondary">{result.metadata.format}</Badge>
+                    <Badge variant="outline">{result.metadata.width}x{result.metadata.height}</Badge>
+                  </>
+                )}
+                {result.quality && (
+                  <Badge variant={result.quality.overall >= 80 ? "default" : "secondary"}>
+                    Quality: {result.quality.overall}%
                   </Badge>
                 )}
               </div>
@@ -108,29 +112,33 @@ export function ContentIntelligencePanel({
 
                 <TabsContent value="overview" className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Классификация */}
+                    {/* Информация о видео */}
                     <div className="space-y-2">
                       <h4 className="text-sm font-medium flex items-center gap-1">
                         <Target className="h-4 w-4" />
-                        Классификация
+                        Информация о контенте
                       </h4>
                       <div className="space-y-1 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Жанр:</span>
-                          <span>{result.classification.genre}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Стиль:</span>
-                          <span>{result.classification.style}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Эмоция:</span>
-                          <span>{result.classification.emotion}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Аудитория:</span>
-                          <span>{result.classification.audience}</span>
-                        </div>
+                        {result.metadata && (
+                          <>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Формат:</span>
+                              <span>{result.metadata.format}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Разрешение:</span>
+                              <span>{result.metadata.width}x{result.metadata.height}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">FPS:</span>
+                              <span>{result.metadata.fps}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Длительность:</span>
+                              <span>{Math.round(result.metadata.duration)}с</span>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
 

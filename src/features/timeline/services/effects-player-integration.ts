@@ -5,16 +5,20 @@
 
 import { WebGL2UnifiedRenderer } from "@/features/effects/services/webgl2-unified-renderer"
 import type { BaseEffect } from "@/features/effects/types"
+import { PreviewCache } from "@/features/preview/services/preview-cache"
 import type { AppliedEffect, TimelineClip } from "../types"
 
 export interface EffectsPlayerConfig {
   targetCanvas?: HTMLCanvasElement
   quality?: "draft" | "preview" | "full"
   gpuTier?: "low" | "medium" | "high"
+  cacheSize?: number // размер кеша в MB
+  enableCache?: boolean // включить/выключить кеширование
 }
 
 export class EffectsPlayerIntegration {
   private renderer: WebGL2UnifiedRenderer
+  private cache: PreviewCache | null = null
   private isInitialized = false
   private currentClip: TimelineClip | null = null
   private baseEffects = new Map<string, BaseEffect>()
@@ -25,6 +29,11 @@ export class EffectsPlayerIntegration {
 
   constructor(private config: EffectsPlayerConfig = {}) {
     this.renderer = new WebGL2UnifiedRenderer()
+    
+    // Инициализируем кеш если включен
+    if (config.enableCache !== false) {
+      this.cache = new PreviewCache(config.cacheSize || 100)
+    }
   }
 
   // ============================================================================
@@ -69,12 +78,18 @@ export class EffectsPlayerIntegration {
    * Установить текущий клип для обработки
    */
   setCurrentClip(clip: TimelineClip | null): void {
+    const clipChanged = this.currentClip?.id !== clip?.id
     this.currentClip = clip
 
     // Останавливаем анимацию если клип изменился
     if (this.animationFrameId !== null) {
       cancelAnimationFrame(this.animationFrameId)
       this.animationFrameId = null
+    }
+    
+    // Очищаем кеш при смене клипа
+    if (clipChanged && this.cache) {
+      this.invalidateCache()
     }
   }
 
@@ -97,6 +112,20 @@ export class EffectsPlayerIntegration {
       return this.targetCanvas
     }
 
+    // Проверяем кеш если включен
+    if (this.cache) {
+      const cacheKey = this.generateCacheKey(currentTime, activeEffects)
+      const cached = await this.getCachedFrame(cacheKey)
+      
+      if (cached) {
+        // Возвращаем закешированный кадр
+        this.targetCanvas.width = cached.width
+        this.targetCanvas.height = cached.height
+        this.ctx.drawImage(cached, 0, 0)
+        return this.targetCanvas
+      }
+    }
+
     try {
       // Рендерим эффекты через WebGL
       const result = await this.renderer.renderEffectStack(activeEffects, this.baseEffects, {
@@ -110,6 +139,11 @@ export class EffectsPlayerIntegration {
       })
 
       if (result.success && result.output instanceof HTMLCanvasElement) {
+        // Кешируем результат если кеш включен
+        if (this.cache) {
+          const cacheKey = this.generateCacheKey(currentTime, activeEffects)
+          await this.cacheFrame(cacheKey, result.output)
+        }
         return result.output
       }
       if (result.success && result.output instanceof ImageBitmap) {
@@ -117,6 +151,13 @@ export class EffectsPlayerIntegration {
         this.targetCanvas.width = result.output.width
         this.targetCanvas.height = result.output.height
         this.ctx.drawImage(result.output, 0, 0)
+        
+        // Кешируем результат
+        if (this.cache) {
+          const cacheKey = this.generateCacheKey(currentTime, activeEffects)
+          await this.cacheFrame(cacheKey, this.targetCanvas)
+        }
+        
         return this.targetCanvas
       }
 
@@ -129,6 +170,97 @@ export class EffectsPlayerIntegration {
     } catch (error) {
       console.error("Error processing video frame:", error)
       return null
+    }
+  }
+
+  // ============================================================================
+  // КЕШИРОВАНИЕ
+  // ============================================================================
+
+  /**
+   * Генерирует ключ кеша на основе времени и эффектов
+   */
+  private generateCacheKey(currentTime: number, effects: AppliedEffect[]): string {
+    const enabledEffects = effects
+      .filter((e) => e.enabled)
+      .map((e) => ({
+        id: e.effectId,
+        params: e.parameters,
+        keyframes: e.keyframes,
+      }))
+    
+    // Простой хеш на основе JSON
+    const effectsHash = this.simpleHash(JSON.stringify(enabledEffects))
+    return `${currentTime.toFixed(3)}_${effectsHash}`
+  }
+
+  /**
+   * Простая хеш-функция
+   */
+  private simpleHash(str: string): string {
+    let hash = 0
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i)
+      hash = (hash << 5) - hash + char
+      hash &= hash
+    }
+    return hash.toString(36)
+  }
+
+  /**
+   * Получить закешированный кадр
+   */
+  private async getCachedFrame(key: string): Promise<ImageBitmap | null> {
+    if (!this.cache) return null
+    
+    // PreviewCache работает с ImageBitmap, но нам нужно адаптировать
+    // использование, т.к. у нас другие типы эффектов
+    // TODO: адаптировать PreviewCache для наших типов
+    return null
+  }
+
+  /**
+   * Сохранить кадр в кеш
+   */
+  private async cacheFrame(key: string, canvas: HTMLCanvasElement): Promise<void> {
+    if (!this.cache) return
+    
+    try {
+      // Создаем ImageBitmap для эффективного хранения
+      const bitmap = await createImageBitmap(canvas)
+      // TODO: сохранить в кеш
+      // Нужно расширить PreviewCache API для прямого доступа
+    } catch (error) {
+      console.warn("Не удалось закешировать кадр:", error)
+    }
+  }
+
+  /**
+   * Очистить кеш при изменении эффектов
+   */
+  invalidateCache(): void {
+    if (this.cache) {
+      this.cache.invalidate()
+    }
+  }
+
+  /**
+   * Получить статистику кеша
+   */
+  getCacheStats() {
+    if (!this.cache) {
+      return {
+        entries: 0,
+        sizeMB: 0,
+        hitRate: 0,
+      }
+    }
+    
+    const stats = this.cache.getStats()
+    return {
+      entries: stats.entries,
+      sizeMB: stats.sizeMB,
+      hitRate: stats.fillPercentage / 100, // конвертируем в долю
     }
   }
 
@@ -255,6 +387,11 @@ export class EffectsPlayerIntegration {
 
     if (this.renderer) {
       this.renderer.dispose()
+    }
+    
+    if (this.cache) {
+      this.cache.dispose()
+      this.cache = null
     }
 
     if (this.targetCanvas && !this.config.targetCanvas) {

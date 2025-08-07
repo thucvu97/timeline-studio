@@ -1,3 +1,3 @@
 export * from "./ai-chat"
 export * from "./chat-list"
-export * from "./content-intelligence-panel"
+export { ContentIntelligencePanel } from "./content-intelligence-panel-simple"

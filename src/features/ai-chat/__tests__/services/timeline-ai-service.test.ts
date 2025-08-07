@@ -18,8 +18,11 @@ vi.mock("@/shared/services/ai", () => ({
 // Mock Claude models
 vi.mock("@/shared/services/ai/providers/claude", () => ({
   CLAUDE_MODELS: {
-    CLAUDE_4_SONNET: "claude-4-sonnet-latest",
-    CLAUDE_4_OPUS: "claude-4-opus-latest",
+    CLAUDE_4_SONNET_LATEST: "claude-4-sonnet-latest",
+    CLAUDE_4_OPUS_LATEST: "claude-4-opus-latest",
+    CLAUDE_3_5_SONNET: "claude-3-5-sonnet-20241022",
+    CLAUDE_3_HAIKU: "claude-3-haiku-20240307",
+    CLAUDE_4_1: "claude-4.1",
   },
 }))
 
@@ -409,7 +412,7 @@ describe("TimelineAIService", () => {
       const result = await service.createTimelineFromPrompt("Create a timeline from my vacation videos")
 
       expect(mockClaudeService.sendRequestWithTools).toHaveBeenCalledWith(
-        CLAUDE_MODELS.CLAUDE_4_SONNET,
+        CLAUDE_MODELS.CLAUDE_4_SONNET_LATEST,
         [{ role: "user", content: "Create a timeline from my vacation videos" }],
         (service as any).allTools,
         expect.objectContaining({
@@ -467,7 +470,7 @@ describe("TimelineAIService", () => {
       const result = await service.analyzeAndSuggestResources("Analyze my media and suggest improvements")
 
       expect(mockClaudeService.sendRequestWithTools).toHaveBeenCalledWith(
-        CLAUDE_MODELS.CLAUDE_4_SONNET,
+        CLAUDE_MODELS.CLAUDE_4_SONNET_LATEST,
         [{ role: "user", content: "Analyze my media and suggest improvements" }],
         expect.arrayContaining([
           expect.objectContaining({ name: "analyze_available_resources" }),
@@ -532,7 +535,7 @@ describe("TimelineAIService", () => {
       const result = await service.executeCommand("Apply blur effect", params)
 
       expect(mockClaudeService.sendRequestWithTools).toHaveBeenCalledWith(
-        CLAUDE_MODELS.CLAUDE_4_SONNET,
+        CLAUDE_MODELS.CLAUDE_4_SONNET_LATEST,
         [
           {
             role: "user",

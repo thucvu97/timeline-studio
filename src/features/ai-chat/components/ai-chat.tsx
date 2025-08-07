@@ -102,21 +102,22 @@ export function AiChat() {
         
         // Преобразуем модели в формат Agent
         const agents: Agent[] = models.map(model => ({
-          id: model.model,
-          name: model.name || model.model,
-          useTools: model.provider === "claude", // Только Claude поддерживает tools
-          provider: model.provider as any,
+          id: model.id,
+          name: model.name,
+          useTools: model.supportsTools,
+          provider: model.provider,
         }))
         
         setAvailableModels(agents)
       } catch (error) {
         console.error("Failed to load available models:", error)
         // Используем минимальный набор моделей в случае ошибки
-        setAvailableModels([
+        const fallbackModels: Agent[] = [
           { id: "claude-4-sonnet-latest", name: "Claude 4 Sonnet", useTools: true, provider: "claude" },
           { id: "gpt-4", name: "GPT-4", useTools: false, provider: "openai" },
           { id: "deepseek-chat", name: "DeepSeek Chat", useTools: false, provider: "deepseek" },
-        ])
+        ]
+        setAvailableModels(fallbackModels)
       } finally {
         setIsLoadingModels(false)
       }
@@ -220,7 +221,7 @@ export function AiChat() {
       abortControllerRef.current = new AbortController()
 
       try {
-        const currentModel = selectedAgentId || CLAUDE_MODELS.CLAUDE_4_SONNET
+        const currentModel = selectedAgentId || "claude-4-sonnet-latest"
         const provider = getProviderByModel(currentModel)
 
         // Подготавливаем все сообщения
@@ -303,7 +304,7 @@ export function AiChat() {
             content: fullContent,
             role: "assistant",
             timestamp: new Date(),
-            agent: selectedAgentId as Agent | undefined,
+            agent: selectedAgentId,
           }
 
           receiveChatMessage(agentMessage.content)

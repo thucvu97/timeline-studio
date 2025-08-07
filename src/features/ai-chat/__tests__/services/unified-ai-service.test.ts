@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { createMockDIContainer, setupMockAIServices } from "@/shared/services/ai/__mocks__"
 import { UnifiedAIService } from "../../services/unified-ai-service"
+import { ContentIntelligenceService } from "../../services/content-intelligence-service"
 import type { AiMessage } from "../../types/ai-message"
 
 // Мокируем shared services
@@ -113,7 +114,7 @@ describe("UnifiedAIService", () => {
       const response = await service.sendRequest("claude-4-sonnet-latest", messages)
 
       expect(response).toBeDefined()
-      expect(response.text).toContain("Mock response for: Test message")
+      expect(response.content).toContain("Mock response for: Test message")
     })
 
     it("should handle content analysis requests", async () => {
@@ -122,7 +123,7 @@ describe("UnifiedAIService", () => {
       const response = await service.sendRequest("claude-4-sonnet-latest", messages)
 
       expect(response).toBeDefined()
-      expect(response.text).toBeDefined()
+      expect(response.content).toBeDefined()
     })
 
     it("should use fallback models if primary fails", async () => {
@@ -144,7 +145,9 @@ describe("UnifiedAIService", () => {
         type: "video",
       }
 
-      const analysis = await service.analyzeMedia(mediaFile)
+      // analyzeContent теперь часть ContentIntelligenceService
+      const contentService = ContentIntelligenceService.getInstance()
+      const analysis = await contentService.analyzeContent(mediaFile)
 
       expect(analysis).toBeDefined()
       expect(analysis.classification).toBeDefined()
@@ -164,14 +167,13 @@ describe("UnifiedAIService", () => {
     })
   })
 
-  describe("switchProvider", () => {
-    it("should switch active provider", async () => {
-      await service.switchProvider("openai")
-
-      // Проверяем через отправку сообщения
-      const response = await service.sendRequest("gpt-4", [{ role: "user", content: "Test after switch" }])
+  describe("provider management", () => {
+    it("should use provider based on model", async () => {
+      // Просто используем модель от другого провайдера
+      const response = await service.sendRequest("gpt-4", [{ role: "user", content: "Test with openai" }])
 
       expect(response).toBeDefined()
+      expect(response.provider).toBe("openai")
     })
   })
 
@@ -185,7 +187,7 @@ describe("UnifiedAIService", () => {
       // Второй запрос (должен вернуть из кэша)
       const response2 = await service.sendRequest("claude-4-sonnet-latest", messages)
 
-      expect(response1.text).toBe(response2.text)
+      expect(response1.content).toBe(response2.content)
     })
 
     it("should clear cache", async () => {
