@@ -20,14 +20,14 @@ export * from "./timeline"
 import { browserTools } from "./browser"
 import { effectsFiltersTools } from "./effects-filters-tools"
 import { playerTools } from "./player"
-import { resourcesTools } from "./resources"
+import { resourceTools } from "./resources"
 import { settingsConfigurationTools } from "./settings-configuration-tools"
 // Сбор всех core инструментов в один массив
 import { timelineTools } from "./timeline"
 
 export const coreTools = [
   ...timelineTools,
-  ...resourcesTools,
+  ...resourceTools,
   ...browserTools,
   ...playerTools,
   ...effectsFiltersTools,
