@@ -78,6 +78,7 @@ export interface TimelineClipsContextType {
   trimClip: (clipId: string, startTime: number, endTime: number) => Promise<void>
   splitClip: (clipId: string, time: number) => Promise<void>
   updateClip: (clipId: string, updates: Partial<TimelineClip>) => Promise<void>
+  batchUpdateClips: (clips: TimelineClip[]) => Promise<void>
 }
 
 // Selection Provider Types

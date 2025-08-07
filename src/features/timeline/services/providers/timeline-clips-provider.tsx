@@ -127,6 +127,18 @@ export function TimelineClipsProvider({ children }: TimelineClipsProviderProps) 
     [backend],
   )
 
+  const batchUpdateClips = useCallback(
+    async (clips: TimelineClip[]) => {
+      // Batch update multiple clips at once
+      // For now, we'll update them sequentially
+      // TODO: Implement batch command in backend for better performance
+      for (const clip of clips) {
+        await updateClip(clip.id, clip)
+      }
+    },
+    [updateClip],
+  )
+
   const contextValue: TimelineClipsContextType = useMemo(
     () => ({
       // State
@@ -139,8 +151,9 @@ export function TimelineClipsProvider({ children }: TimelineClipsProviderProps) 
       trimClip,
       splitClip,
       updateClip,
+      batchUpdateClips,
     }),
-    [clips, addClip, removeClip, moveClip, trimClip, splitClip, updateClip],
+    [clips, addClip, removeClip, moveClip, trimClip, splitClip, updateClip, batchUpdateClips],
   )
 
   return <TimelineClipsContext.Provider value={contextValue}>{children}</TimelineClipsContext.Provider>

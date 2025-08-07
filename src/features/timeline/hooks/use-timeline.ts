@@ -51,6 +51,7 @@ export interface TimelineContextType {
   trimClip: ReturnType<typeof useTimelineClips>["trimClip"]
   splitClip: ReturnType<typeof useTimelineClips>["splitClip"]
   updateClip: ReturnType<typeof useTimelineClips>["updateClip"]
+  batchUpdateClips: ReturnType<typeof useTimelineClips>["batchUpdateClips"]
 
   // Selection управление
   selectedClipIds: ReturnType<typeof useTimelineSelection>["selectedClipIds"]
@@ -136,6 +137,7 @@ export function useTimeline(): TimelineContextType {
     trimClip: clips.trimClip,
     splitClip: clips.splitClip,
     updateClip: clips.updateClip,
+    batchUpdateClips: clips.batchUpdateClips,
 
     // Selection
     selectedClipIds: selection.selectedClipIds,
