@@ -4,12 +4,14 @@ import { useState } from "react"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { AiChat } from "@/features/ai-chat/components/ai-chat"
 import { ResourcesPanel } from "@/features/resources"
+import { useUserSettings } from "@/features/user-settings/hooks/use-user-settings"
 import { cn } from "@/lib/utils"
 
 import { AISuggestionsPanel } from "./ai-suggestions/ai-suggestions-panel"
 import { AudioMixerView } from "./audio-mixer-view"
 import { TimelineContent } from "./timeline-content"
 import { TimelineWorkspaceTabs, type WorkspaceView } from "./timeline-workspace-tabs"
+import { VirtualizedTimelineContent } from "./virtualized-timeline-content"
 
 interface TimelineProps {
   className?: string
@@ -24,6 +26,10 @@ interface TimelineProps {
  */
 export function Timeline({ className, style }: TimelineProps = {}) {
   const [activeView, setActiveView] = useState<WorkspaceView>("timeline")
+  const { settings } = useUserSettings()
+
+  // Выбираем компонент Timeline в зависимости от настроек виртуализации
+  const TimelineComponent = settings.timelineVirtualizationEnabled ? VirtualizedTimelineContent : TimelineContent
 
   return (
     <ResizablePanelGroup
@@ -47,7 +53,7 @@ export function Timeline({ className, style }: TimelineProps = {}) {
 
           {/* Основная часть - Timeline контент или Audio Mixer */}
           <div className="w-full flex-grow overflow-hidden">
-            {activeView === "timeline" ? <TimelineContent /> : <AudioMixerView />}
+            {activeView === "timeline" ? <TimelineComponent /> : <AudioMixerView />}
           </div>
         </div>
       </ResizablePanel>

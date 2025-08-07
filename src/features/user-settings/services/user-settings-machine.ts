@@ -76,6 +76,11 @@ export interface UserSettingsContextType {
   autoSaveEnabled: boolean // Включено ли автосохранение
   autoSaveInterval: number // Интервал автосохранения в секундах (по умолчанию 60)
 
+  // Настройки оптимизации Timeline
+  timelineVirtualizationEnabled: boolean // Включена ли виртуализация Timeline
+  timelineVirtualizationOverscan: number // Количество дополнительных элементов для рендеринга (по умолчанию 5)
+  timelineClipDetailsThreshold: number // Минимальная ширина клипа для показа деталей в пикселях (по умолчанию 50)
+
   isBrowserVisible: boolean // Флаг видимости браузера
   isTimelineVisible: boolean // Флаг видимости временной шкалы
   isOptionsVisible: boolean // Флаг видимости опций
@@ -147,6 +152,11 @@ const initialContext: UserSettingsContextType = {
   // Настройки автосохранения
   autoSaveEnabled: true, // Автосохранение включено по умолчанию
   autoSaveInterval: 60, // Интервал 60 секунд по умолчанию
+
+  // Настройки оптимизации Timeline
+  timelineVirtualizationEnabled: true, // Виртуализация включена по умолчанию для производительности
+  timelineVirtualizationOverscan: 5, // Рендерим 5 дополнительных элементов сверху/снизу
+  timelineClipDetailsThreshold: 50, // Показываем детали клипов шире 50px
 
   isBrowserVisible: true, // Браузер виден по умолчанию
   isTimelineVisible: true, // Временная шкала видна по умолчанию
