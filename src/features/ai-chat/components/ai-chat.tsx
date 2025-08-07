@@ -19,6 +19,7 @@ import { useChat } from "../hooks/use-chat"
 import { useResourcesAIIntegration } from "../hooks/use-resources-ai-integration"
 import { useSafeTimeline } from "../hooks/use-safe-timeline"
 import { chatStorageService } from "../services/chat-storage-service"
+import { UnifiedAIService } from "../services/unified-ai-service"
 import type { Agent, ChatMessage } from "../types/chat"
 import { compressContext, isContextOverLimit } from "../utils/context-manager"
 import { createTimelineContextPrompt } from "../utils/timeline-context"
@@ -369,66 +370,25 @@ export function AiChat() {
           throw error
         }
 
-        // Выбираем сервис по провайдеру
-        switch (provider) {
-          case "claude": {
-            const claudeService = ClaudeService.getInstance()
-            await claudeService.sendStreamingRequest(currentModel, messages, {
-              max_tokens: 2000,
-              system: systemPrompt,
-              signal: abortControllerRef.current.signal,
-              onContent: (content) => setStreamingContent((prev) => prev + content),
-              onComplete: handleStreamComplete,
-              onError: handleStreamError,
-            })
-            break
-          }
-
-          case "openai": {
-            const openAiService = OpenAiService.getInstance()
-            // Для OpenAI добавляем системное сообщение в начало
-            const messagesWithSystem = [{ role: "system" as const, content: systemPrompt }, ...messages]
-            await openAiService.sendStreamingRequest(currentModel, messagesWithSystem, {
-              max_tokens: 2000,
-              signal: abortControllerRef.current.signal,
-              onContent: (content) => setStreamingContent((prev) => prev + content),
-              onComplete: handleStreamComplete,
-              onError: handleStreamError,
-            })
-            break
-          }
-
-          case "deepseek": {
-            const deepSeekService = DeepSeekService.getInstance()
-            // Для DeepSeek добавляем системное сообщение в начало
-            const messagesWithSystem = [{ role: "system" as const, content: systemPrompt }, ...messages]
-            await deepSeekService.sendStreamingRequest(currentModel, messagesWithSystem, {
-              max_tokens: 2000,
-              signal: abortControllerRef.current.signal,
-              onContent: (content) => setStreamingContent((prev) => prev + content),
-              onComplete: handleStreamComplete,
-              onError: handleStreamError,
-            })
-            break
-          }
-
-          case "ollama": {
-            const ollamaService = OllamaService.getInstance()
-            // Для Ollama добавляем системное сообщение в начало
-            const messagesWithSystem = [{ role: "system" as const, content: systemPrompt }, ...messages]
-            await ollamaService.sendStreamingRequest(currentModel, messagesWithSystem, {
-              temperature: 0.7,
-              signal: abortControllerRef.current.signal,
-              onContent: (content) => setStreamingContent((prev) => prev + content),
-              onComplete: handleStreamComplete,
-              onError: handleStreamError,
-            })
-            break
-          }
-
-          default:
-            throw new Error(`Неподдерживаемый провайдер: ${provider}`)
-        }
+        // Используем UnifiedAIService для всех провайдеров
+        const unifiedService = UnifiedAIService.getInstance()
+        
+        // Подготавливаем сообщения с системным промптом
+        const messagesWithSystem = provider === "claude" 
+          ? messages // Claude обрабатывает system prompt отдельно
+          : [{ role: "system" as const, content: systemPrompt }, ...messages]
+        
+        // Отправляем запрос через единый сервис
+        await unifiedService.sendStreamingRequest(currentModel, messagesWithSystem, {
+          maxTokens: 2000,
+          temperature: provider === "ollama" ? 0.7 : undefined,
+          signal: abortControllerRef.current.signal,
+          onContent: (content) => setStreamingContent((prev) => prev + content),
+          onComplete: handleStreamComplete,
+          onError: handleStreamError,
+          // Передаем system prompt для Claude
+          ...(provider === "claude" && { system: systemPrompt })
+        })
       } catch (error) {
         console.error("Error sending message to AI:", error)
         setIsStreaming(false)
