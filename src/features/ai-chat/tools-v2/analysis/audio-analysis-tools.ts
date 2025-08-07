@@ -2,7 +2,7 @@
  * AI инструмент для обработки аудио с использованием BaseAITool
  */
 
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "./base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 // Типы для обработки аудио
 export interface AudioProcessingInput {
@@ -271,8 +271,8 @@ export class AudioProcessingTool extends BaseAITool {
 
     // Выполняем обработку аудио с унифицированной обработкой ошибок
     return this.executeWithErrorHandling(
-      async (context) => {
-        context.logger?.("info", "Начинаем обработку аудио", {
+      async () => {
+        this.logger?.info("Начинаем обработку аудио", {
           operation,
           tracksCount: targetTracks.length,
           reason: input.reason,
@@ -289,14 +289,14 @@ export class AudioProcessingTool extends BaseAITool {
 
         switch (operation) {
           case "analyze_levels":
-            analysisResults = await this.performAudioLevelsAnalysis(input, context)
+            analysisResults = await this.performAudioLevelsAnalysis(input)
             processedTracks = targetTracks.length > 0 ? targetTracks : await this.getAllAudioTracks()
             recommendations.push("Проверьте рекомендации по уровням громкости")
             nextActions.push("Применить нормализацию при необходимости")
             break
 
           case "normalize":
-            await this.performAudioNormalization(input, context)
+            await this.performAudioNormalization(input)
             processedTracks = targetTracks.length > 0 ? targetTracks : await this.getAllAudioTracks()
             appliedOperations = 1
             qualityImprovements = 1
@@ -305,7 +305,7 @@ export class AudioProcessingTool extends BaseAITool {
             break
 
           case "detect_issues":
-            analysisResults = await this.performAudioIssuesDetection(input, context)
+            analysisResults = await this.performAudioIssuesDetection(input)
             processedTracks = targetTracks.length > 0 ? targetTracks : await this.getAllAudioTracks()
             if (analysisResults.detectedIssues && analysisResults.detectedIssues.length > 0) {
               recommendations.push(`Обнаружено ${analysisResults.detectedIssues.length} проблем с аудио`)
@@ -314,7 +314,7 @@ export class AudioProcessingTool extends BaseAITool {
             break
 
           case "apply_effects":
-            await this.performAudioEffectsApplication(input, context)
+            await this.performAudioEffectsApplication(input)
             processedTracks = targetTracks
             appliedOperations = input.effectChain?.length || 0
             qualityImprovements = 1
@@ -323,7 +323,7 @@ export class AudioProcessingTool extends BaseAITool {
             break
 
           case "sync_video":
-            analysisResults = await this.performAudioVideoSync(input, context)
+            analysisResults = await this.performAudioVideoSync(input)
             processedTracks = input.syncPairs?.flatMap((p) => [p.audioTrackId, p.videoTrackId]) || []
             appliedOperations = 1
             recommendations.push("Проверьте качество синхронизации")
@@ -331,21 +331,21 @@ export class AudioProcessingTool extends BaseAITool {
             break
 
           case "generate_waveforms":
-            analysisResults = await this.performWaveformGeneration(input, context)
+            analysisResults = await this.performWaveformGeneration(input)
             processedTracks = targetTracks
             recommendations.push("Используйте визуализацию для точного монтажа")
             nextActions.push("Создать маркеры на основе формы волны")
             break
 
           case "extract_features":
-            analysisResults = await this.performAudioFeaturesExtraction(input, context)
+            analysisResults = await this.performAudioFeaturesExtraction(input)
             processedTracks = targetTracks
             recommendations.push("Используйте извлеченные характеристики для анализа")
             nextActions.push("Сопоставить с музыкальной библиотекой")
             break
 
           case "auto_mix":
-            analysisResults = await this.performAutoMixing(input, context)
+            analysisResults = await this.performAutoMixing(input)
             processedTracks = input.mixingGroups?.flatMap((g) => g.trackIds) || []
             appliedOperations = 1
             qualityImprovements = 1
@@ -354,7 +354,7 @@ export class AudioProcessingTool extends BaseAITool {
             break
 
           case "remove_noise":
-            await this.performNoiseRemoval(input, context)
+            await this.performNoiseRemoval(input)
             processedTracks = targetTracks
             appliedOperations = 1
             qualityImprovements = 1
@@ -363,7 +363,7 @@ export class AudioProcessingTool extends BaseAITool {
             break
 
           case "enhance_speech":
-            await this.performSpeechEnhancement(input, context)
+            await this.performSpeechEnhancement(input)
             processedTracks = targetTracks
             appliedOperations = 1
             qualityImprovements = 1
@@ -372,7 +372,7 @@ export class AudioProcessingTool extends BaseAITool {
             break
 
           case "balance_stereo":
-            await this.performStereoBalancing(input, context)
+            await this.performStereoBalancing(input)
             processedTracks = targetTracks
             appliedOperations = 1
             qualityImprovements = 1
@@ -381,7 +381,7 @@ export class AudioProcessingTool extends BaseAITool {
             break
 
           case "generate_ducking":
-            await this.performDuckingGeneration(input, context)
+            await this.performDuckingGeneration(input)
             processedTracks = [...(input.speechTracks || []), ...(input.backgroundTracks || [])]
             appliedOperations = 1
             qualityImprovements = 1
@@ -418,7 +418,7 @@ export class AudioProcessingTool extends BaseAITool {
           nextActions,
         }
 
-        context.logger?.("info", "Обработка аудио завершена", {
+        this.logger?.info("Обработка аудио завершена", {
           operation,
           processedTracks: processedTracks.length,
           success: true,
@@ -444,8 +444,8 @@ export class AudioProcessingTool extends BaseAITool {
   /**
    * Анализирует уровни аудио
    */
-  private async performAudioLevelsAnalysis(input: AudioProcessingInput, context: any): Promise<AudioAnalysisResult> {
-    context.logger?.("info", "Выполняем анализ уровней аудио")
+  private async performAudioLevelsAnalysis(input: AudioProcessingInput): Promise<AudioAnalysisResult> {
+    this.logger?.info("Выполняем анализ уровней аудио")
 
     // Заглушка для анализа уровней
     return {
@@ -463,8 +463,8 @@ export class AudioProcessingTool extends BaseAITool {
   /**
    * Выполняет нормализацию аудио
    */
-  private async performAudioNormalization(input: AudioProcessingInput, context: any): Promise<void> {
-    context.logger?.("info", "Выполняем нормализацию аудио", {
+  private async performAudioNormalization(input: AudioProcessingInput): Promise<void> {
+    this.logger?.info("Выполняем нормализацию аудио", {
       type: input.normalizationType,
       targetLevel: input.targetLevel,
     })
@@ -476,8 +476,8 @@ export class AudioProcessingTool extends BaseAITool {
   /**
    * Обнаруживает проблемы с аудио
    */
-  private async performAudioIssuesDetection(input: AudioProcessingInput, context: any): Promise<AudioAnalysisResult> {
-    context.logger?.("info", "Обнаруживаем проблемы с аудио", {
+  private async performAudioIssuesDetection(input: AudioProcessingInput): Promise<AudioAnalysisResult> {
+    this.logger?.info("Обнаруживаем проблемы с аудио", {
       types: input.issueTypes,
     })
 
@@ -499,8 +499,8 @@ export class AudioProcessingTool extends BaseAITool {
   /**
    * Применяет аудио эффекты
    */
-  private async performAudioEffectsApplication(input: AudioProcessingInput, context: any): Promise<void> {
-    context.logger?.("info", "Применяем аудио эффекты", {
+  private async performAudioEffectsApplication(input: AudioProcessingInput): Promise<void> {
+    this.logger?.info("Применяем аудио эффекты", {
       effectsCount: input.effectChain?.length,
     })
 
@@ -511,8 +511,8 @@ export class AudioProcessingTool extends BaseAITool {
   /**
    * Синхронизирует аудио с видео
    */
-  private async performAudioVideoSync(input: AudioProcessingInput, context: any): Promise<AudioAnalysisResult> {
-    context.logger?.("info", "Синхронизируем аудио с видео", {
+  private async performAudioVideoSync(input: AudioProcessingInput): Promise<AudioAnalysisResult> {
+    this.logger?.info("Синхронизируем аудио с видео", {
       pairsCount: input.syncPairs?.length,
     })
 
@@ -532,8 +532,8 @@ export class AudioProcessingTool extends BaseAITool {
   /**
    * Генерирует визуализацию waveform
    */
-  private async performWaveformGeneration(input: AudioProcessingInput, context: any): Promise<AudioAnalysisResult> {
-    context.logger?.("info", "Генерируем waveform визуализацию", {
+  private async performWaveformGeneration(input: AudioProcessingInput): Promise<AudioAnalysisResult> {
+    this.logger?.info("Генерируем waveform визуализацию", {
       type: input.waveformType,
       resolution: input.resolution,
     })
@@ -552,11 +552,8 @@ export class AudioProcessingTool extends BaseAITool {
   /**
    * Извлекает аудио характеристики
    */
-  private async performAudioFeaturesExtraction(
-    input: AudioProcessingInput,
-    context: any,
-  ): Promise<AudioAnalysisResult> {
-    context.logger?.("info", "Извлекаем аудио характеристики", {
+  private async performAudioFeaturesExtraction(input: AudioProcessingInput): Promise<AudioAnalysisResult> {
+    this.logger?.info("Извлекаем аудио характеристики", {
       features: input.featureTypes,
     })
 
@@ -575,8 +572,8 @@ export class AudioProcessingTool extends BaseAITool {
   /**
    * Выполняет автоматическое микширование
    */
-  private async performAutoMixing(input: AudioProcessingInput, context: any): Promise<AudioAnalysisResult> {
-    context.logger?.("info", "Выполняем автоматическое микширование", {
+  private async performAutoMixing(input: AudioProcessingInput): Promise<AudioAnalysisResult> {
+    this.logger?.info("Выполняем автоматическое микширование", {
       groupsCount: input.mixingGroups?.length,
       style: input.mixingStyle,
     })
@@ -598,8 +595,8 @@ export class AudioProcessingTool extends BaseAITool {
   /**
    * Удаляет шум из аудио
    */
-  private async performNoiseRemoval(input: AudioProcessingInput, context: any): Promise<void> {
-    context.logger?.("info", "Удаляем шум из аудио", {
+  private async performNoiseRemoval(input: AudioProcessingInput): Promise<void> {
+    this.logger?.info("Удаляем шум из аудио", {
       method: input.reductionMethod,
       aggressiveness: input.aggressiveness,
     })
@@ -611,8 +608,8 @@ export class AudioProcessingTool extends BaseAITool {
   /**
    * Улучшает качество речи
    */
-  private async performSpeechEnhancement(input: AudioProcessingInput, context: any): Promise<void> {
-    context.logger?.("info", "Улучшаем качество речи", {
+  private async performSpeechEnhancement(input: AudioProcessingInput): Promise<void> {
+    this.logger?.info("Улучшаем качество речи", {
       type: input.enhancementType,
       level: input.enhancementLevel,
     })
@@ -624,8 +621,8 @@ export class AudioProcessingTool extends BaseAITool {
   /**
    * Балансирует стерео поле
    */
-  private async performStereoBalancing(input: AudioProcessingInput, context: any): Promise<void> {
-    context.logger?.("info", "Балансируем стерео поле", {
+  private async performStereoBalancing(input: AudioProcessingInput): Promise<void> {
+    this.logger?.info("Балансируем стерео поле", {
       type: input.balanceType,
       settings: input.spatialSettings,
     })
@@ -637,8 +634,8 @@ export class AudioProcessingTool extends BaseAITool {
   /**
    * Генерирует ducking эффект
    */
-  private async performDuckingGeneration(input: AudioProcessingInput, context: any): Promise<void> {
-    context.logger?.("info", "Генерируем ducking эффект", {
+  private async performDuckingGeneration(input: AudioProcessingInput): Promise<void> {
+    this.logger?.info("Генерируем ducking эффект", {
       speechTracks: input.speechTracks?.length,
       backgroundTracks: input.backgroundTracks?.length,
     })

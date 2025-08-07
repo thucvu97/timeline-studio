@@ -3,7 +3,7 @@
  */
 
 import type { TimelineClip, TimelineProject } from "@/features/timeline/types/timeline"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 // Типы для управления клипами
 export interface ClipManagementInput {
@@ -152,8 +152,8 @@ export class ClipManagementTool extends BaseAITool {
 
     // Выполняем операции с клипами с унифицированной обработкой ошибок
     return this.executeWithErrorHandling(
-      async (context) => {
-        context.logger?.("info", "Начинаем операции управления клипами", {
+      async () => {
+        this.logger?.info("Начинаем операции управления клипами", {
           operation,
           scope,
           targetId: input.targetId,
@@ -178,7 +178,7 @@ export class ClipManagementTool extends BaseAITool {
           throw new Error("Не найдено клипов в указанной области для обработки")
         }
 
-        context.logger?.("info", "Анализируем клипы", {
+        this.logger?.info("Анализируем клипы", {
           totalClips: targetClips.length,
           operation,
         })
@@ -202,7 +202,7 @@ export class ClipManagementTool extends BaseAITool {
         // Выполняем конкретную операцию
         switch (operation) {
           case "organize":
-            context.logger?.("info", "Выполняем организацию клипов")
+            this.logger?.info("Выполняем организацию клипов")
             result.organizationResults = await this.organizeClips(
               targetClips,
               input.organizationCriteria || ["type", "duration"],
@@ -211,7 +211,7 @@ export class ClipManagementTool extends BaseAITool {
             break
 
           case "cleanup":
-            context.logger?.("info", "Выполняем очистку клипов")
+            this.logger?.info("Выполняем очистку клипов")
             result.cleanupResults = await this.cleanupClips(targetClips, input.cleanupOptions || {}, currentProject)
 
             if (result.cleanupResults.removedClips.length > 0) {
@@ -220,18 +220,18 @@ export class ClipManagementTool extends BaseAITool {
             break
 
           case "batch-edit":
-            context.logger?.("info", "Выполняем пакетное редактирование")
+            this.logger?.info("Выполняем пакетное редактирование")
             result.batchOperations = await this.prepareBatchOperations(targetClips, input.batchEditOptions || {})
             break
 
           case "smart-sort":
-            context.logger?.("info", "Выполняем умную сортировку")
+            this.logger?.info("Выполняем умную сортировку")
             result.organizationResults = await this.smartSortClips(targetClips, currentProject)
             break
 
           case "analyze":
             // Анализ уже выполнен выше
-            context.logger?.("info", "Анализ клипов завершен")
+            this.logger?.info("Анализ клипов завершен")
             break
         }
 
@@ -249,7 +249,7 @@ export class ClipManagementTool extends BaseAITool {
 
         result.warnings = warnings.length > 0 ? warnings : undefined
 
-        context.logger?.("info", "Операции управления клипами завершены", {
+        this.logger?.info("Операции управления клипами завершены", {
           operation,
           processedClips: result.processedClips,
           warningsCount: warnings.length,

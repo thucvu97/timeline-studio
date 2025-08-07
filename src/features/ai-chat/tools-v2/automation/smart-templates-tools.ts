@@ -5,8 +5,8 @@
  * и управления визуальными шаблонами и макетами проекта
  */
 
-import type { ClaudeTool } from "../types"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "./base-ai-tool"
+import type { ClaudeTool } from "../../types"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 // Типы для операций с шаблонами и макетами
 export interface TemplateLayoutInput {
@@ -106,7 +106,7 @@ export class TemplateLayoutTool extends BaseAITool {
             errors.push("Требуется templateId для применения шаблона")
           }
 
-          return errors
+          return { isValid: errors.length === 0, errors }
         })
 
         if (!validation.isValid) {

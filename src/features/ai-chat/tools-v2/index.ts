@@ -1,52 +1,30 @@
 /**
  * AI Tools v2 - Domain-Based Architecture
- * 
+ *
  * Новая организация AI инструментов по функциональным доменам для Timeline Studio
  */
 
-// Базовый класс для всех AI инструментов
-export * from "./base-ai-tool"
-
-// Core domain - основные инструменты
-export * from "./core"
-
 // Analysis domain - инструменты анализа
 export * from "./analysis"
-
-// Automation domain - инструменты автоматизации  
+// Automation domain - инструменты автоматизации
 export * from "./automation"
+// Базовый класс для всех AI инструментов
+export * from "./base-ai-tool"
+// Core domain - основные инструменты
+export * from "./core"
 
 // Integration domain - инструменты интеграции
 export * from "./integration"
 
+import { ANALYSIS_TOOLS_COUNT, analysisTools } from "./analysis"
+import { AUTOMATION_TOOLS_COUNT, automationTools } from "./automation"
 // Импортируем счетчики инструментов из каждого домена
-import { 
-  coreTools, 
-  CORE_TOOLS_COUNT 
-} from "./core"
+import { CORE_TOOLS_COUNT, coreTools } from "./core"
 
-import { 
-  analysisTools, 
-  ANALYSIS_TOOLS_COUNT 
-} from "./analysis"
-
-import { 
-  automationTools, 
-  AUTOMATION_TOOLS_COUNT 
-} from "./automation"
-
-import { 
-  integrationTools, 
-  INTEGRATION_TOOLS_COUNT 
-} from "./integration"
+import { INTEGRATION_TOOLS_COUNT, integrationTools } from "./integration"
 
 // Объединяем все инструменты
-export const allToolsV2 = [
-  ...coreTools,
-  ...analysisTools,
-  ...automationTools,
-  ...integrationTools,
-]
+export const allToolsV2 = [...coreTools, ...analysisTools, ...automationTools, ...integrationTools]
 
 // Статистика новой архитектуры
 export const AI_TOOLS_V2_STATS = {
@@ -60,13 +38,13 @@ export const AI_TOOLS_V2_STATS = {
 // Функция для получения инструментов по домену
 export function getToolsByDomain(domain: keyof typeof AI_TOOLS_V2_STATS) {
   switch (domain) {
-    case 'core':
+    case "core":
       return coreTools
-    case 'analysis':
+    case "analysis":
       return analysisTools
-    case 'automation':
+    case "automation":
       return automationTools
-    case 'integration':
+    case "integration":
       return integrationTools
     default:
       return allToolsV2
@@ -76,7 +54,7 @@ export function getToolsByDomain(domain: keyof typeof AI_TOOLS_V2_STATS) {
 // Типы для domain-based архитектуры
 export type AIToolDomain = keyof typeof AI_TOOLS_V2_STATS
 export type AIToolsByDomain = {
-  [K in AIToolDomain]: K extends 'total' ? typeof allToolsV2 : ReturnType<typeof getToolsByDomain>
+  [K in AIToolDomain]: K extends "total" ? typeof allToolsV2 : ReturnType<typeof getToolsByDomain>
 }
 
 // Утилиты для работы с новой архитектурой
@@ -84,5 +62,5 @@ export const AIToolsV2Utils = {
   getStats: () => AI_TOOLS_V2_STATS,
   getToolsByDomain,
   getAllTools: () => allToolsV2,
-  getDomains: () => Object.keys(AI_TOOLS_V2_STATS).filter(k => k !== 'total') as AIToolDomain[],
+  getDomains: () => Object.keys(AI_TOOLS_V2_STATS).filter((k) => k !== "total") as AIToolDomain[],
 } as const

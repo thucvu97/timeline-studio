@@ -3,7 +3,7 @@
  */
 
 import type { TimelineProject } from "@/features/timeline/types/timeline"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 // Типы для применения улучшений
 export interface EnhancementsInput {
@@ -89,8 +89,8 @@ export class EnhancementApplicationTool extends BaseAITool {
 
     // Выполняем применение улучшений с унифицированной обработкой ошибок
     return this.executeWithErrorHandling(
-      async (context) => {
-        context.logger?.("info", "Начинаем применение автоматических улучшений", {
+      async () => {
+        this.logger?.info("Начинаем применение автоматических улучшений", {
           enhancementTypes: enhancementTypes.join(", "),
           targetElements,
           enhancementsCount: enhancementTypes.length,
@@ -112,7 +112,7 @@ export class EnhancementApplicationTool extends BaseAITool {
         const allTracks = [...currentProject.globalTracks]
         currentProject.sections.forEach((section) => allTracks.push(...section.tracks))
 
-        context.logger?.("info", "Анализируем структуру проекта для улучшений", {
+        this.logger?.info("Анализируем структуру проекта для улучшений", {
           totalTracks: allTracks.length,
           videoTracks: allTracks.filter((t) => t.type === "video").length,
           audioTracks: allTracks.filter((t) => t.type === "audio").length,
@@ -125,7 +125,7 @@ export class EnhancementApplicationTool extends BaseAITool {
 
         // Применяем улучшения по типам
         for (const enhancementType of enhancementTypes) {
-          context.logger?.("info", `Применяем улучшение: ${enhancementType}`)
+          this.logger?.info(`Применяем улучшение: ${enhancementType}`)
 
           const enhancementResult = await this.applyEnhancementType(
             enhancementType,
@@ -186,7 +186,7 @@ export class EnhancementApplicationTool extends BaseAITool {
           warnings: warnings.length > 0 ? warnings : undefined,
         }
 
-        context.logger?.("info", "Применение улучшений завершено", {
+        this.logger?.info("Применение улучшений завершено", {
           appliedCount: appliedEnhancements.length,
           totalModifications,
           warningsCount: warnings.length,

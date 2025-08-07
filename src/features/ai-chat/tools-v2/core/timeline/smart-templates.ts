@@ -3,7 +3,7 @@
  */
 
 import type { TimelineProject, TimelineSection, TimelineTrack, TrackType } from "@/features/timeline/types/timeline"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 // Типы для умных шаблонов
 export interface SmartTemplatesInput {
@@ -183,8 +183,8 @@ export class SmartTemplatesTools extends BaseAITool {
 
     // Выполняем операции с шаблонами с унифицированной обработкой ошибок
     return this.executeWithErrorHandling(
-      async (context) => {
-        context.logger?.("info", "Начинаем операции с умными шаблонами", {
+      async () => {
+        this.logger?.info("Начинаем операции с умными шаблонами", {
           operation,
           templateType,
           templateId: input.templateId,
@@ -215,7 +215,7 @@ export class SmartTemplatesTools extends BaseAITool {
         // Выполняем конкретную операцию
         switch (operation) {
           case "analyze":
-            context.logger?.("info", "Анализируем проект для создания шаблонов")
+            this.logger?.info("Анализируем проект для создания шаблонов")
             result.templateAnalysis = await this.analyzeProjectForTemplates(
               currentProject,
               input.analysisScope || "current",
@@ -224,13 +224,13 @@ export class SmartTemplatesTools extends BaseAITool {
             break
 
           case "create":
-            context.logger?.("info", "Создаем умный шаблон")
+            this.logger?.info("Создаем умный шаблон")
             result.createdTemplate = await this.createSmartTemplate(currentProject, templateType, input.sourceProject)
             result.processedTemplates = 1
             break
 
           case "apply":
-            context.logger?.("info", "Применяем умный шаблон")
+            this.logger?.info("Применяем умный шаблон")
             if (!input.templateId) throw new Error("Template ID is required for apply operation")
 
             result.appliedTemplate = await this.applySmartTemplate(
@@ -246,7 +246,7 @@ export class SmartTemplatesTools extends BaseAITool {
             break
 
           case "suggest":
-            context.logger?.("info", "Предлагаем подходящие шаблоны")
+            this.logger?.info("Предлагаем подходящие шаблоны")
             const suggestionResults = await this.suggestAppropriateTemplates(currentProject, templateType)
             result.suggestions = suggestionResults.suggestions
             result.availableTemplates = suggestionResults.availableTemplates
@@ -254,7 +254,7 @@ export class SmartTemplatesTools extends BaseAITool {
             break
 
           case "customize":
-            context.logger?.("info", "Настраиваем шаблон")
+            this.logger?.info("Настраиваем шаблон")
             if (!input.templateId) throw new Error("Template ID is required for customize operation")
 
             result.customizationResults = await this.customizeTemplate(
@@ -280,7 +280,7 @@ export class SmartTemplatesTools extends BaseAITool {
 
         result.warnings = warnings.length > 0 ? warnings : undefined
 
-        context.logger?.("info", "Операции с умными шаблонами завершены", {
+        this.logger?.info("Операции с умными шаблонами завершены", {
           operation,
           processedTemplates: result.processedTemplates,
           warningsCount: warnings.length,

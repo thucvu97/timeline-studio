@@ -3,7 +3,7 @@
  */
 
 import type { TimelineProject } from "@/features/timeline/types/timeline"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 // Типы для предложения улучшений
 export interface ImprovementsInput {
@@ -92,8 +92,8 @@ export class ImprovementsSuggestionTool extends BaseAITool {
 
     // Выполняем анализ с унифицированной обработкой ошибок
     return this.executeWithErrorHandling(
-      async (context) => {
-        context.logger?.("info", "Начинаем анализ для предложений улучшений", {
+      async () => {
+        this.logger?.info("Начинаем анализ для предложений улучшений", {
           categoriesCount: analysisCategories.length,
           priority: improvementPriority,
           categories: analysisCategories.join(", "),
@@ -166,7 +166,7 @@ export class ImprovementsSuggestionTool extends BaseAITool {
           warnings: warnings.length > 0 ? warnings : undefined,
         }
 
-        context.logger?.("info", "Анализ улучшений завершен", {
+        this.logger?.info("Анализ улучшений завершен", {
           overallScore: result.overallScore,
           totalImprovements: result.summary.totalImprovements,
           criticalIssues: totalCritical,

@@ -2,8 +2,8 @@
  * AI инструменты для управления ресурсами с использованием BaseAITool
  */
 
-import { ClaudeTool } from "../../services/claude-service"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
+import { ClaudeTool } from "../../../../services/claude-service"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 import type { AddResourceParams, BulkAddResourcesParams, RemoveResourceParams, UpdateResourceParams } from "./types"
 import { getResourcesProvider, hasResourcesAccess, resourceExists } from "./utils/helpers"
@@ -95,7 +95,7 @@ export class ManageResourcesTool extends BaseAITool {
             }
           }
 
-          return errors
+          return { isValid: errors.length === 0, errors }
         })
 
         if (!validation.isValid) {

@@ -3,7 +3,7 @@
  */
 
 import type { TimelineProject } from "@/features/timeline/types/timeline"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 // Типы для детекции сцен
 export interface SceneDetectionInput {
@@ -105,8 +105,8 @@ export class SceneDetectionTool extends BaseAITool {
 
     // Выполняем детекцию сцен с унифицированной обработкой ошибок
     return this.executeWithErrorHandling(
-      async (context) => {
-        context.logger?.("info", "Начинаем детекцию сцен", {
+      async () => {
+        this.logger?.info("Начинаем детекцию сцен", {
           sensitivity,
           autoSplit,
           targetClipsCount: targetClips.length,
@@ -188,7 +188,7 @@ export class SceneDetectionTool extends BaseAITool {
           recommendations,
         }
 
-        context.logger?.("info", "Детекция сцен завершена", {
+        this.logger?.info("Детекция сцен завершена", {
           totalScenesDetected,
           clipsWithScenes: detectedScenes.length,
           splitPerformed: autoSplit,

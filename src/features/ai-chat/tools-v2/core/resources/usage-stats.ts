@@ -2,8 +2,8 @@
  * AI инструменты для статистики и управления использованием ресурсов с BaseAITool
  */
 
-import { ClaudeTool } from "../../services/claude-service"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
+import { ClaudeTool } from "../../../../services/claude-service"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 import type { CleanupParams, ResourceToolResult, UsageStatsParams } from "./types"
 import {
@@ -74,7 +74,7 @@ export class UsageStatsTool extends BaseAITool {
             errors.push("Требуется reason для операции cleanup_unused_resources")
           }
 
-          return errors
+          return { isValid: errors.length === 0, errors }
         })
 
         if (!validation.isValid) {

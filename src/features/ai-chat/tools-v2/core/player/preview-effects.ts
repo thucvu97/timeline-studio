@@ -2,8 +2,8 @@
  * AI инструменты для применения эффектов и фильтров в превью с использованием BaseAITool
  */
 
-import type { ClaudeTool } from "../../services/claude-service"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
+import type { ClaudeTool } from "../../../../services/claude-service"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 import type { EffectApplicationParams, PlayerToolResult } from "./types"
 import { getCurrentMedia, hasLoadedMedia } from "./utils/helpers"
@@ -67,7 +67,7 @@ export class PreviewEffectsTool extends BaseAITool {
             errors.push("Требуется указать причину применения эффектов/фильтров")
           }
 
-          return errors
+          return { isValid: errors.length === 0, errors }
         })
 
         if (!validation.isValid) {

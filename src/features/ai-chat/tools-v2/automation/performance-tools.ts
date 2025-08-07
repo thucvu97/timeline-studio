@@ -5,8 +5,8 @@
  * оптимизации рендеринга и управления ресурсами системы
  */
 
-import type { ClaudeTool } from "../types"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "./base-ai-tool"
+import type { ClaudeTool } from "../../types"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 // Типы для операций рендеринга и производительности
 export interface RenderPerformanceInput {
@@ -111,7 +111,7 @@ export class RenderPerformanceTool extends BaseAITool {
             errors.push(`Неподдерживаемая операция: ${data.operation}`)
           }
 
-          return errors
+          return { isValid: errors.length === 0, errors }
         })
 
         if (!validation.isValid) {

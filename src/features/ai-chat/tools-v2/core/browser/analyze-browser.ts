@@ -2,8 +2,8 @@
  * AI инструмент для анализа медиа браузера с BaseAITool
  */
 
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 import type { ClaudeTool } from "../../types"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 import type { AnalyzeBrowserParams, BrowserToolResult } from "./types"
 import {
@@ -85,7 +85,7 @@ export class BrowserAnalysisTool extends BaseAITool {
             errors.push("Требуется указать tab для анализа")
           }
 
-          return errors
+          return { isValid: errors.length === 0, errors }
         })
 
         if (!validation.isValid) {

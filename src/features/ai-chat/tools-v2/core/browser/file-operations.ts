@@ -2,8 +2,8 @@
  * AI инструменты для операций с файлами в браузере с BaseAITool
  */
 
-import type { ClaudeTool } from "../../services/claude-service"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
+import type { ClaudeTool } from "../../../../services/claude-service"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 import type { AnalyzeRelationshipsParams, BrowserToolResult, BulkSelectParams, GetFileGroupsParams } from "./types"
 import {

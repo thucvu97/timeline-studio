@@ -3,7 +3,7 @@
  */
 
 import type { TimelineProject } from "@/features/timeline/types/timeline"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 // Типы для оптимизации timeline
 export interface TimelineOptimizationInput {
@@ -111,8 +111,8 @@ export class TimelineOptimizationTool extends BaseAITool {
 
     // Выполняем оптимизацию с унифицированной обработкой ошибок
     return this.executeWithErrorHandling(
-      async (context) => {
-        context.logger?.("info", "Начинаем анализ для оптимизации Timeline", {
+      async () => {
+        this.logger?.info("Начинаем анализ для оптимизации Timeline", {
           targets: optimizationTargets.join(", "),
           aggressiveness,
           preserveQuality,
@@ -143,7 +143,7 @@ export class TimelineOptimizationTool extends BaseAITool {
           return effects.concat(clip.effects || [])
         }, [])
 
-        context.logger?.("info", "Анализируем структуру проекта для оптимизации", {
+        this.logger?.info("Анализируем структуру проекта для оптимизации", {
           tracksCount: allTracks.length,
           clipsCount: allClips.length,
           effectsCount: allEffects.length,
@@ -158,7 +158,7 @@ export class TimelineOptimizationTool extends BaseAITool {
         const warnings: string[] = []
 
         for (const track of allTracks) {
-          context.logger?.("info", `Анализируем оптимизации для трека: ${track.name}`)
+          this.logger?.info(`Анализируем оптимизации для трека: ${track.name}`)
 
           const trackOpt = await this.analyzeTrackOptimizations(
             track,
@@ -220,7 +220,7 @@ export class TimelineOptimizationTool extends BaseAITool {
           warnings: warnings.length > 0 ? warnings : undefined,
         }
 
-        context.logger?.("info", "Анализ оптимизации завершен", {
+        this.logger?.info("Анализ оптимизации завершен", {
           totalActions: summary.totalActions,
           performanceGain: summary.estimatedPerformanceGain,
           riskLevel: summary.riskLevel,

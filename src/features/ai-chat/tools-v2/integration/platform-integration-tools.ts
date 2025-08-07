@@ -10,9 +10,9 @@ import {
   type ContentCategory,
   PlatformOptimizationService,
   type SupportedPlatform,
-} from "../services/platform-optimization-service"
-import type { ClaudeTool } from "../types"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "./base-ai-tool"
+} from "../../services/platform-optimization-service"
+import type { ClaudeTool } from "../../types"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 // Типы для операций оптимизации платформ
 export interface PlatformOptimizationInput {
@@ -104,7 +104,7 @@ export class PlatformOptimizationTool extends BaseAITool {
             errors.push("Требуется указать путь к видеофайлу")
           }
 
-          return errors
+          return { isValid: errors.length === 0, errors }
         })
 
         if (!validation.isValid) {

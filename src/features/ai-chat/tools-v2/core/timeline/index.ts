@@ -3,8 +3,6 @@
  */
 
 import { timelineAnalyticsTool } from "./analytics-timeline"
-// Экспортируем все инструменты
-// Собираем все инструменты в массив для удобства
 import { analyzeContentForStoryTool } from "./analyze-story"
 import { analyzeTimelineStructureTool } from "./analyze-structure"
 import { applyAutomaticEnhancementsTool } from "./apply-enhancements"
@@ -20,20 +18,38 @@ import { smartTemplatesTools } from "./smart-templates"
 import { suggestTimelineImprovementsTool } from "./suggest-improvements"
 import { synchronizeWithMusicTool } from "./sync-music"
 
-export { analyzeTimelineUsage, timelineAnalyticsTool } from "./analytics-timeline"
-export { analyzeContentForStory, analyzeContentForStoryTool } from "./analyze-story"
+export {
+  analyzeTimelineUsage,
+  timelineAnalyticsTool,
+} from "./analytics-timeline"
+export {
+  analyzeContentForStory,
+  analyzeContentForStoryTool,
+} from "./analyze-story"
 export { analyzeTimelineStructureTool } from "./analyze-structure"
-export { applyAutomaticEnhancements, applyAutomaticEnhancementsTool } from "./apply-enhancements"
+export {
+  applyAutomaticEnhancements,
+  applyAutomaticEnhancementsTool,
+} from "./apply-enhancements"
 export { createTimelineProjectTool } from "./create-project"
 export { createSectionsByStrategyTool } from "./create-sections"
 export { createTrackStructureTool } from "./create-tracks"
-export { detectAndSplitScenes, detectAndSplitScenesTool } from "./detect-scenes"
+export {
+  detectAndSplitScenes,
+  detectAndSplitScenesTool,
+} from "./detect-scenes"
 export { exportTimelineData, exportTimelineDataTool } from "./export-data"
 export { clipManagementTool, manageTimelineClips } from "./manage-clips"
-export { optimizeTimelinePerformance, timelineOptimizationTool } from "./optimize-timeline"
+export {
+  optimizeTimelinePerformance,
+  timelineOptimizationTool,
+} from "./optimize-timeline"
 export { placeClipsOnTimelineTool } from "./place-clips"
 export { manageSmartTemplates, smartTemplatesTools } from "./smart-templates"
-export { suggestTimelineImprovements, suggestTimelineImprovementsTool } from "./suggest-improvements"
+export {
+  suggestTimelineImprovements,
+  suggestTimelineImprovementsTool,
+} from "./suggest-improvements"
 export { synchronizeWithMusic, synchronizeWithMusicTool } from "./sync-music"
 // Экспортируем типы
 export * from "./types"

@@ -6,9 +6,9 @@ import {
   WorkflowAutomationService,
   type WorkflowParams,
   type WorkflowType,
-} from "../services/workflow-automation-service"
-import type { ClaudeTool } from "../types"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "./base-ai-tool"
+} from "../../services/workflow-automation-service"
+import type { ClaudeTool } from "../../types"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 // Типы для операций автоматизации workflow
 export interface WorkflowAutomationInput {
@@ -102,7 +102,7 @@ export class WorkflowAutomationTool extends BaseAITool {
             errors.push("Требуется массив videoPaths для пакетной обработки")
           }
 
-          return errors
+          return { isValid: errors.length === 0, errors }
         })
 
         if (!validation.isValid) {

@@ -3,7 +3,7 @@
  */
 
 import type { TimelineTrack } from "@/features/timeline/types/timeline"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 import { generateTrackId } from "./utils/generators"
 import { getCurrentTimelineProject, saveTimelineProject } from "./utils/helpers"
 
@@ -116,8 +116,8 @@ export class TrackCreationTool extends BaseAITool {
 
     // Выполняем создание треков с унифицированной обработкой ошибок
     return this.executeWithErrorHandling(
-      async (context) => {
-        context.logger?.("info", "Начинаем создание треков", {
+      async () => {
+        this.logger?.info("Начинаем создание треков", {
           tracksCount: tracks.length,
           targetType,
           targetSectionId,
@@ -204,7 +204,7 @@ export class TrackCreationTool extends BaseAITool {
           warnings: warnings.length > 0 ? warnings : undefined,
         }
 
-        context.logger?.("info", "Треки успешно созданы", {
+        this.logger?.info("Треки успешно созданы", {
           tracksCreated: newTracks.length,
           targetType,
           trackTypes: Object.keys(trackTypes).join(", "),

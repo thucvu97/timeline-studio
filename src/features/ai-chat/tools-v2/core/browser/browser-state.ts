@@ -2,8 +2,8 @@
  * AI инструменты для управления состоянием браузера с использованием BaseAITool
  */
 
-import type { ClaudeTool } from "../../services/claude-service"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
+import type { ClaudeTool } from "../../../../services/claude-service"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 import type { BrowserToolResult, UpdateFiltersParams } from "./types"
 import { getBrowserStateAccess, getBrowserStats, getCurrentTab, hasBrowserAccess } from "./utils/helpers"
@@ -72,7 +72,7 @@ export class BrowserStateTool extends BaseAITool {
             }
           }
 
-          return errors
+          return { isValid: errors.length === 0, errors }
         })
 
         if (!validation.isValid) {

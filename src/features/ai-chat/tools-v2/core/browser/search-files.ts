@@ -2,7 +2,7 @@
  * AI инструменты для поиска файлов в браузере с использованием BaseAITool
  */
 
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 import type { BrowserToolResult, SearchMediaParams } from "./types"
 import { findFilesByPattern, getBrowserFiles, getBrowserStateAccess, hasBrowserAccess } from "./utils/helpers"
 
@@ -94,16 +94,16 @@ export class FileSearchTool extends BaseAITool {
 
     // Выполняем поиск с унифицированной обработкой ошибок
     return this.executeWithErrorHandling(
-      async (context) => {
-        context.logger?.("info", "Начинаем поиск файлов", {
+      async () => {
+        this.logger?.info("Начинаем поиск файлов", {
           query: input.query,
           searchIn: input.searchIn,
           tab: input.tab,
         })
 
-        const result = await this.performSearch(input, context)
+        const result = await this.performSearch(input)
 
-        context.logger?.("info", "Поиск файлов завершен", {
+        this.logger?.info("Поиск файлов завершен", {
           query: input.query,
           totalMatches: result.analysis.totalMatches,
         })

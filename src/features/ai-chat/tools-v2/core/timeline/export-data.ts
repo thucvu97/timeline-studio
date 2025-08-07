@@ -3,7 +3,7 @@
  */
 
 import type { TimelineProject } from "@/features/timeline/types/timeline"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 // Типы для экспорта данных Timeline
 export interface TimelineExportInput {
@@ -106,8 +106,8 @@ export class TimelineExportTool extends BaseAITool {
 
     // Выполняем экспорт с унифицированной обработкой ошибок
     return this.executeWithErrorHandling(
-      async (context) => {
-        context.logger?.("info", "Начинаем экспорт данных Timeline", {
+      async () => {
+        this.logger?.info("Начинаем экспорт данных Timeline", {
           format: exportFormat,
           scope: exportScope,
           includeDataKeys: Object.keys(includeData).filter((key) => includeData[key as keyof typeof includeData]),
@@ -152,7 +152,7 @@ export class TimelineExportTool extends BaseAITool {
           recommendations,
         }
 
-        context.logger?.("info", "Экспорт данных Timeline завершен", {
+        this.logger?.info("Экспорт данных Timeline завершен", {
           format: exportFormat,
           fileSize: result.fileInfo.size,
           elementsCount: exportStats.totalElements,

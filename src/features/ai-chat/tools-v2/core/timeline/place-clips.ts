@@ -3,7 +3,7 @@
  */
 
 import type { TimelineClip } from "@/features/timeline/types/timeline"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 import { generateClipId } from "./utils/generators"
 import { getCurrentTimelineProject, saveTimelineProject } from "./utils/helpers"
 
@@ -116,8 +116,8 @@ export class ClipPlacementTool extends BaseAITool {
 
     // Выполняем размещение клипов с унифицированной обработкой ошибок
     return this.executeWithErrorHandling(
-      async (context) => {
-        context.logger?.("info", "Начинаем размещение клипов", {
+      async () => {
+        this.logger?.info("Начинаем размещение клипов", {
           clipsCount: clips.length,
           strategy,
           trackAssignment,
@@ -205,7 +205,7 @@ export class ClipPlacementTool extends BaseAITool {
           warnings: warnings.length > 0 ? warnings : undefined,
         }
 
-        context.logger?.("info", "Размещение клипов завершено", {
+        this.logger?.info("Размещение клипов завершено", {
           placedCount: placedClips.length,
           skippedCount: skippedClips.length,
           strategy,

@@ -5,7 +5,7 @@
  * процессом экспорта видео на различные платформы
  */
 
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "./base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 // Типы для операций экспорта
 export interface ExportInput {
@@ -203,8 +203,8 @@ export class ExportManagementTool extends BaseAITool {
 
     // Выполняем операцию с унифицированной обработкой ошибок
     return this.executeWithErrorHandling(
-      async (context) => {
-        context.logger?.("info", "Начинаем операцию экспорта", {
+      async () => {
+        this.logger?.info("Начинаем операцию экспорта", {
           operation,
         })
 
@@ -214,59 +214,59 @@ export class ExportManagementTool extends BaseAITool {
 
         switch (operation) {
           case "optimize_settings":
-            result = await this.optimizeExportSettings(input, context)
+            result = await this.optimizeExportSettings(input)
             break
 
           case "analyze_requirements":
-            result = await this.analyzeSocialRequirements(input, context)
+            result = await this.analyzeSocialRequirements(input)
             if (result.requirements && result.requirements.some((r) => r.maxFileSize && r.maxFileSize < 100000000)) {
               warnings.push("Некоторые платформы имеют строгие ограничения по размеру")
             }
             break
 
           case "create_batch_export":
-            result = await this.createBatchExport(input, context)
+            result = await this.createBatchExport(input)
             recommendations.push("Мониторьте прогресс экспорта в очереди задач")
             break
 
           case "configure_adaptive":
-            result = await this.configureAdaptiveExport(input, context)
+            result = await this.configureAdaptiveExport(input)
             break
 
           case "validate_compliance":
-            result = await this.validateCompliance(input, context)
+            result = await this.validateCompliance(input)
             if (result.complianceReport && !result.complianceReport.compliant) {
               warnings.push("Обнаружены проблемы соответствия требованиям")
             }
             break
 
           case "estimate_size":
-            result = await this.estimateFileSize(input, context)
+            result = await this.estimateFileSize(input)
             break
 
           case "preview_quality":
-            result = await this.previewQualitySettings(input, context)
+            result = await this.previewQualitySettings(input)
             recommendations.push("Проверьте качество на целевом устройстве")
             break
 
           case "create_multiplatform":
-            result = await this.createMultiplatformExport(input, context)
+            result = await this.createMultiplatformExport(input)
             break
 
           case "optimize_for_streaming":
-            result = await this.optimizeForStreaming(input, context)
+            result = await this.optimizeForStreaming(input)
             break
 
           case "configure_chapters":
-            result = await this.configureChapterMarkers(input, context)
+            result = await this.configureChapterMarkers(input)
             break
 
           case "add_watermark":
-            result = await this.addWatermarkSettings(input, context)
+            result = await this.addWatermarkSettings(input)
             break
 
           case "archive_project":
-            result = await this.archiveProjectExport(input, context)
+            result = await this.archiveProjectExport(input)
             recommendations.push("Сохраните архив в надежном месте")
             break
 
@@ -277,7 +277,7 @@ export class ExportManagementTool extends BaseAITool {
         result.recommendations = [...result.recommendations, ...recommendations]
         result.warnings = warnings.length > 0 ? warnings : undefined
 
-        context.logger?.("info", "Операция экспорта завершена", {
+        this.logger?.info("Операция экспорта завершена", {
           operation,
           success: result.success,
         })
@@ -300,8 +300,8 @@ export class ExportManagementTool extends BaseAITool {
   /**
    * Оптимизация настроек экспорта
    */
-  private async optimizeExportSettings(input: ExportInput, context: any): Promise<ExportResult> {
-    context.logger?.("info", "Оптимизируем настройки экспорта", {
+  private async optimizeExportSettings(input: ExportInput): Promise<ExportResult> {
+    this.logger?.info("Оптимизируем настройки экспорта", {
       contentType: input.contentType,
       platform: input.targetPlatform,
     })
@@ -345,8 +345,8 @@ export class ExportManagementTool extends BaseAITool {
   /**
    * Анализ требований платформ
    */
-  private async analyzeSocialRequirements(input: ExportInput, context: any): Promise<ExportResult> {
-    context.logger?.("info", "Анализируем требования платформ", {
+  private async analyzeSocialRequirements(input: ExportInput): Promise<ExportResult> {
+    this.logger?.info("Анализируем требования платформ", {
       platformCount: input.platforms?.length,
     })
 
@@ -401,8 +401,8 @@ export class ExportManagementTool extends BaseAITool {
   /**
    * Создание пакетного экспорта
    */
-  private async createBatchExport(input: ExportInput, context: any): Promise<ExportResult> {
-    context.logger?.("info", "Создаем пакетный экспорт", {
+  private async createBatchExport(input: ExportInput): Promise<ExportResult> {
+    this.logger?.info("Создаем пакетный экспорт", {
       queueSize: input.exportQueue?.length,
     })
 
@@ -424,8 +424,8 @@ export class ExportManagementTool extends BaseAITool {
   /**
    * Настройка адаптивного экспорта
    */
-  private async configureAdaptiveExport(input: ExportInput, context: any): Promise<ExportResult> {
-    context.logger?.("info", "Настраиваем адаптивный экспорт", {
+  private async configureAdaptiveExport(input: ExportInput): Promise<ExportResult> {
+    this.logger?.info("Настраиваем адаптивный экспорт", {
       connectionSpeed: input.connectionSpeed,
     })
 
@@ -451,8 +451,8 @@ export class ExportManagementTool extends BaseAITool {
   /**
    * Валидация соответствия требованиям
    */
-  private async validateCompliance(input: ExportInput, context: any): Promise<ExportResult> {
-    context.logger?.("info", "Валидируем соответствие", {
+  private async validateCompliance(input: ExportInput): Promise<ExportResult> {
+    this.logger?.info("Валидируем соответствие", {
       rulesCount: input.complianceRules?.length,
     })
 
@@ -484,8 +484,8 @@ export class ExportManagementTool extends BaseAITool {
   /**
    * Оценка размера файла
    */
-  private async estimateFileSize(input: ExportInput, context: any): Promise<ExportResult> {
-    context.logger?.("info", "Оцениваем размер файла экспорта")
+  private async estimateFileSize(input: ExportInput): Promise<ExportResult> {
+    this.logger?.info("Оцениваем размер файла экспорта")
 
     // Заглушка для оценки
     const duration = input.sourceSpecs?.duration || 60
@@ -510,8 +510,8 @@ export class ExportManagementTool extends BaseAITool {
   /**
    * Предпросмотр качества
    */
-  private async previewQualitySettings(_input: ExportInput, context: any): Promise<ExportResult> {
-    context.logger?.("info", "Создаем предпросмотр качества")
+  private async previewQualitySettings(_input: ExportInput): Promise<ExportResult> {
+    this.logger?.info("Создаем предпросмотр качества")
 
     // Заглушка для предпросмотра
     const previewUrls = ["/preview/quality-low.mp4", "/preview/quality-medium.mp4", "/preview/quality-high.mp4"]
@@ -528,8 +528,8 @@ export class ExportManagementTool extends BaseAITool {
   /**
    * Создание мультиплатформенного экспорта
    */
-  private async createMultiplatformExport(input: ExportInput, context: any): Promise<ExportResult> {
-    context.logger?.("info", "Создаем мультиплатформенный экспорт", {
+  private async createMultiplatformExport(input: ExportInput): Promise<ExportResult> {
+    this.logger?.info("Создаем мультиплатформенный экспорт", {
       platformCount: input.platforms?.length,
     })
 
@@ -563,8 +563,8 @@ export class ExportManagementTool extends BaseAITool {
   /**
    * Оптимизация для стриминга
    */
-  private async optimizeForStreaming(input: ExportInput, context: any): Promise<ExportResult> {
-    context.logger?.("info", "Оптимизируем для стриминга", {
+  private async optimizeForStreaming(input: ExportInput): Promise<ExportResult> {
+    this.logger?.info("Оптимизируем для стриминга", {
       platform: input.streamingPlatform,
       adaptive: input.adaptiveBitrate,
     })
@@ -594,8 +594,8 @@ export class ExportManagementTool extends BaseAITool {
   /**
    * Настройка глав
    */
-  private async configureChapterMarkers(input: ExportInput, context: any): Promise<ExportResult> {
-    context.logger?.("info", "Настраиваем главы", {
+  private async configureChapterMarkers(input: ExportInput): Promise<ExportResult> {
+    this.logger?.info("Настраиваем главы", {
       chapterCount: input.chapters?.length,
     })
 
@@ -611,8 +611,8 @@ export class ExportManagementTool extends BaseAITool {
   /**
    * Добавление водяного знака
    */
-  private async addWatermarkSettings(_input: ExportInput, context: any): Promise<ExportResult> {
-    context.logger?.("info", "Добавляем водяной знак")
+  private async addWatermarkSettings(_input: ExportInput): Promise<ExportResult> {
+    this.logger?.info("Добавляем водяной знак")
 
     return {
       operation: "add_watermark",
@@ -626,8 +626,8 @@ export class ExportManagementTool extends BaseAITool {
   /**
    * Архивирование проекта
    */
-  private async archiveProjectExport(input: ExportInput, context: any): Promise<ExportResult> {
-    context.logger?.("info", "Архивируем проект", {
+  private async archiveProjectExport(input: ExportInput): Promise<ExportResult> {
+    this.logger?.info("Архивируем проект", {
       includeSource: input.includeSourceFiles,
       compression: input.compressionLevel,
     })

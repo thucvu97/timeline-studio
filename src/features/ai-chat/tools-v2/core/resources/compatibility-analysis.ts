@@ -2,8 +2,8 @@
  * AI инструмент для анализа совместимости ресурсов с использованием BaseAITool
  */
 
-import type { ClaudeTool } from "../../services/claude-service"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
+import type { ClaudeTool } from "../../../../services/claude-service"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 import type { CompatibilityParams, ResourceToolResult } from "./types"
 import {
@@ -81,7 +81,7 @@ export class CompatibilityAnalysisTool extends BaseAITool {
             errors.push("Требуется указать причину анализа совместимости")
           }
 
-          return errors
+          return { isValid: errors.length === 0, errors }
         })
 
         if (!validation.isValid) {

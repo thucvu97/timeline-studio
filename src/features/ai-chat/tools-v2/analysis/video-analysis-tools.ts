@@ -10,9 +10,9 @@ import type {
   SceneDetectionResult,
   VideoAnalysisOptions,
   VideoMetadata,
-} from "../services/ffmpeg-analysis-service"
-import { FFmpegAnalysisService } from "../services/ffmpeg-analysis-service"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "./base-ai-tool"
+} from "../../services/ffmpeg-analysis-service"
+import { FFmpegAnalysisService } from "../../services/ffmpeg-analysis-service"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 // Типы для операций анализа видео
 export interface VideoAnalysisInput {
@@ -139,8 +139,8 @@ export class VideoAnalysisTool extends BaseAITool {
 
     // Выполняем операцию с унифицированной обработкой ошибок
     return this.executeWithErrorHandling(
-      async (context) => {
-        context.logger?.("info", "Начинаем анализ видео", {
+      async () => {
+        this.logger?.info("Начинаем анализ видео", {
           operation,
           clipId: input.clipId,
         })
@@ -151,18 +151,18 @@ export class VideoAnalysisTool extends BaseAITool {
 
         switch (operation) {
           case "get_metadata":
-            result = await this.getVideoMetadata(input, context)
+            result = await this.getVideoMetadata(input)
             break
 
           case "detect_scenes":
-            result = await this.detectVideoScenes(input, context)
+            result = await this.detectVideoScenes(input)
             if (result.scenes && result.scenes.scenes.length > 50) {
               recommendations.push("Много сцен обнаружено, возможно стоит увеличить чувствительность")
             }
             break
 
           case "analyze_quality":
-            result = await this.analyzeVideoQuality(input, context)
+            result = await this.analyzeVideoQuality(input)
             if (result.quality && result.quality.overallScore < 0.5) {
               warnings.push("Низкое качество видео")
               recommendations.push("Рассмотрите возможность улучшения качества")
@@ -170,14 +170,14 @@ export class VideoAnalysisTool extends BaseAITool {
             break
 
           case "analyze_motion":
-            result = await this.analyzeVideoMotion(input, context)
+            result = await this.analyzeVideoMotion(input)
             if (result.motion && result.motion.averageMotion > 0.8) {
               warnings.push("Высокая активность движения в видео")
             }
             break
 
           case "analyze_audio":
-            result = await this.analyzeVideoAudio(input, context)
+            result = await this.analyzeVideoAudio(input)
             if (result.audio && result.audio.hasClipping) {
               warnings.push("Обнаружен клиппинг в аудио")
               recommendations.push("Уменьшите уровень громкости")
@@ -185,30 +185,30 @@ export class VideoAnalysisTool extends BaseAITool {
             break
 
           case "detect_black_frames":
-            result = await this.detectBlackFrames(input, context)
+            result = await this.detectBlackFrames(input)
             if (result.blackFrames && result.blackFrames.length > 0) {
               warnings.push(`Обнаружено ${result.blackFrames.length} черных участков`)
             }
             break
 
           case "detect_silence":
-            result = await this.detectSilence(input, context)
+            result = await this.detectSilence(input)
             if (result.silentSegments && result.silentSegments.length > 0) {
               warnings.push(`Обнаружено ${result.silentSegments.length} участков тишины`)
             }
             break
 
           case "generate_thumbnails":
-            result = await this.generateThumbnails(input, context)
+            result = await this.generateThumbnails(input)
             break
 
           case "extract_keyframes":
-            result = await this.extractKeyframes(input, context)
+            result = await this.extractKeyframes(input)
             recommendations.push("Используйте ключевые кадры для предпросмотра")
             break
 
           case "analyze_colors":
-            result = await this.analyzeColors(input, context)
+            result = await this.analyzeColors(input)
             break
 
           default:
@@ -218,7 +218,7 @@ export class VideoAnalysisTool extends BaseAITool {
         result.recommendations = [...result.recommendations, ...recommendations]
         result.warnings = warnings.length > 0 ? warnings : undefined
 
-        context.logger?.("info", "Анализ видео завершен", {
+        this.logger?.info("Анализ видео завершен", {
           operation,
           success: result.success,
         })
@@ -242,8 +242,8 @@ export class VideoAnalysisTool extends BaseAITool {
   /**
    * Получение метаданных видео
    */
-  private async getVideoMetadata(input: VideoAnalysisInput, context: any): Promise<VideoAnalysisResult> {
-    context.logger?.("info", "Получаем метаданные видео", { clipId: input.clipId })
+  private async getVideoMetadata(input: VideoAnalysisInput): Promise<VideoAnalysisResult> {
+    this.logger?.info("Получаем метаданные видео", { clipId: input.clipId })
 
     try {
       const metadata = await this.ffmpegService.getVideoMetadata(input.clipId)
@@ -268,8 +268,8 @@ export class VideoAnalysisTool extends BaseAITool {
   /**
    * Детекция сцен в видео
    */
-  private async detectVideoScenes(input: VideoAnalysisInput, context: any): Promise<VideoAnalysisResult> {
-    context.logger?.("info", "Детектируем сцены", {
+  private async detectVideoScenes(input: VideoAnalysisInput): Promise<VideoAnalysisResult> {
+    this.logger?.info("Детектируем сцены", {
       clipId: input.clipId,
       sensitivity: input.sensitivity,
     })
@@ -299,8 +299,8 @@ export class VideoAnalysisTool extends BaseAITool {
   /**
    * Анализ качества видео
    */
-  private async analyzeVideoQuality(input: VideoAnalysisInput, context: any): Promise<VideoAnalysisResult> {
-    context.logger?.("info", "Анализируем качество видео", { clipId: input.clipId })
+  private async analyzeVideoQuality(input: VideoAnalysisInput): Promise<VideoAnalysisResult> {
+    this.logger?.info("Анализируем качество видео", { clipId: input.clipId })
 
     try {
       const quality = await this.ffmpegService.analyzeQuality(input.clipId, input.options || {})
@@ -333,8 +333,8 @@ export class VideoAnalysisTool extends BaseAITool {
   /**
    * Анализ движения в видео
    */
-  private async analyzeVideoMotion(input: VideoAnalysisInput, context: any): Promise<VideoAnalysisResult> {
-    context.logger?.("info", "Анализируем движение", { clipId: input.clipId })
+  private async analyzeVideoMotion(input: VideoAnalysisInput): Promise<VideoAnalysisResult> {
+    this.logger?.info("Анализируем движение", { clipId: input.clipId })
 
     try {
       const motion = await this.ffmpegService.analyzeMotion(input.clipId, input.options || {})
@@ -364,8 +364,8 @@ export class VideoAnalysisTool extends BaseAITool {
   /**
    * Анализ аудио
    */
-  private async analyzeVideoAudio(input: VideoAnalysisInput, context: any): Promise<VideoAnalysisResult> {
-    context.logger?.("info", "Анализируем аудио", { clipId: input.clipId })
+  private async analyzeVideoAudio(input: VideoAnalysisInput): Promise<VideoAnalysisResult> {
+    this.logger?.info("Анализируем аудио", { clipId: input.clipId })
 
     try {
       const audio = await this.ffmpegService.analyzeAudio(input.clipId, {
@@ -401,8 +401,8 @@ export class VideoAnalysisTool extends BaseAITool {
   /**
    * Детекция черных кадров
    */
-  private async detectBlackFrames(input: VideoAnalysisInput, context: any): Promise<VideoAnalysisResult> {
-    context.logger?.("info", "Детектируем черные кадры", { clipId: input.clipId })
+  private async detectBlackFrames(input: VideoAnalysisInput): Promise<VideoAnalysisResult> {
+    this.logger?.info("Детектируем черные кадры", { clipId: input.clipId })
 
     // Заглушка для детекции черных кадров
     const blackFrames = [
@@ -422,8 +422,8 @@ export class VideoAnalysisTool extends BaseAITool {
   /**
    * Детекция тишины
    */
-  private async detectSilence(input: VideoAnalysisInput, context: any): Promise<VideoAnalysisResult> {
-    context.logger?.("info", "Детектируем тишину", {
+  private async detectSilence(input: VideoAnalysisInput): Promise<VideoAnalysisResult> {
+    this.logger?.info("Детектируем тишину", {
       clipId: input.clipId,
       threshold: input.threshold,
     })
@@ -446,8 +446,8 @@ export class VideoAnalysisTool extends BaseAITool {
   /**
    * Генерация миниатюр
    */
-  private async generateThumbnails(input: VideoAnalysisInput, context: any): Promise<VideoAnalysisResult> {
-    context.logger?.("info", "Генерируем миниатюры", {
+  private async generateThumbnails(input: VideoAnalysisInput): Promise<VideoAnalysisResult> {
+    this.logger?.info("Генерируем миниатюры", {
       clipId: input.clipId,
       count: input.count,
     })
@@ -468,8 +468,8 @@ export class VideoAnalysisTool extends BaseAITool {
   /**
    * Извлечение ключевых кадров
    */
-  private async extractKeyframes(input: VideoAnalysisInput, context: any): Promise<VideoAnalysisResult> {
-    context.logger?.("info", "Извлекаем ключевые кадры", {
+  private async extractKeyframes(input: VideoAnalysisInput): Promise<VideoAnalysisResult> {
+    this.logger?.info("Извлекаем ключевые кадры", {
       clipId: input.clipId,
       algorithm: input.algorithm,
     })
@@ -494,8 +494,8 @@ export class VideoAnalysisTool extends BaseAITool {
   /**
    * Анализ цветов
    */
-  private async analyzeColors(input: VideoAnalysisInput, context: any): Promise<VideoAnalysisResult> {
-    context.logger?.("info", "Анализируем цвета", {
+  private async analyzeColors(input: VideoAnalysisInput): Promise<VideoAnalysisResult> {
+    this.logger?.info("Анализируем цвета", {
       clipId: input.clipId,
       palette: input.palette,
     })

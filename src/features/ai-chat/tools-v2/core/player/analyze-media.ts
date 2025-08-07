@@ -2,8 +2,8 @@
  * AI инструмент для анализа медиа в плеере с BaseAITool
  */
 
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 import type { ClaudeTool } from "../../types"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 import type { MediaAnalysisParams, PlayerToolResult } from "./types"
 import { getCurrentMedia, parseFps } from "./utils/helpers"
@@ -53,7 +53,7 @@ export class MediaAnalysisTool extends BaseAITool {
             errors.push(`Неподдерживаемая операция: ${data.operation}`)
           }
 
-          return errors
+          return { isValid: errors.length === 0, errors }
         })
 
         if (!validation.isValid) {

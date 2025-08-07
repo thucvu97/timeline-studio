@@ -2,8 +2,8 @@
  * AI инструмент для анализа доступных ресурсов с использованием BaseAITool
  */
 
-import type { ClaudeTool } from "../../services/claude-service"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
+import type { ClaudeTool } from "../../../../services/claude-service"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 import type { AnalyzeResourcesParams, ResourceToolResult } from "./types"
 import { getResourcesProvider, getResourcesStats, hasResourcesAccess } from "./utils/helpers"
@@ -74,7 +74,7 @@ export class AnalyzeResourcesTool extends BaseAITool {
             errors.push("Требуется указать причину анализа ресурсов")
           }
 
-          return errors
+          return { isValid: errors.length === 0, errors }
         })
 
         if (!validation.isValid) {

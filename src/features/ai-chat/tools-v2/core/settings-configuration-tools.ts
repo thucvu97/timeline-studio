@@ -5,7 +5,7 @@
  * управления проектами и системными параметрами
  */
 
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "./base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 // Типы для настроек конфигурации
 export interface SettingsInput {
@@ -142,8 +142,8 @@ export class SettingsTool extends BaseAITool {
 
     // Выполняем операцию с унифицированной обработкой ошибок
     return this.executeWithErrorHandling(
-      async (context) => {
-        context.logger?.("info", "Начинаем операцию настроек", {
+      async () => {
+        this.logger?.info("Начинаем операцию настроек", {
           operation,
         })
 
@@ -153,35 +153,35 @@ export class SettingsTool extends BaseAITool {
 
         switch (operation) {
           case "analyze_app_settings":
-            result = await this.analyzeAppSettings(input, context)
+            result = await this.analyzeAppSettings(input)
             break
 
           case "configure_project_settings":
-            result = await this.configureProjectSettings(input, context)
+            result = await this.configureProjectSettings(input)
             break
 
           case "manage_export_presets":
-            result = await this.manageExportPresets(input, context)
+            result = await this.manageExportPresets(input)
             break
 
           case "configure_keyboard_shortcuts":
-            result = await this.configureKeyboardShortcuts(input, context)
+            result = await this.configureKeyboardShortcuts(input)
             break
 
           case "setup_workspace_layouts":
-            result = await this.setupWorkspaceLayouts(input, context)
+            result = await this.setupWorkspaceLayouts(input)
             break
 
           case "manage_plugin_settings":
-            result = await this.managePluginSettings(input, context)
+            result = await this.managePluginSettings(input)
             break
 
           case "configure_system_performance":
-            result = await this.configureSystemPerformance(input, context)
+            result = await this.configureSystemPerformance(input)
             break
 
           case "backup_restore_settings":
-            result = await this.backupRestoreSettings(input, context)
+            result = await this.backupRestoreSettings(input)
             break
 
           default:
@@ -198,7 +198,7 @@ export class SettingsTool extends BaseAITool {
         result.recommendations = recommendations
         result.warnings = warnings.length > 0 ? warnings : undefined
 
-        context.logger?.("info", "Операция настроек завершена", {
+        this.logger?.info("Операция настроек завершена", {
           operation,
           success: result.success,
         })
@@ -221,8 +221,8 @@ export class SettingsTool extends BaseAITool {
   /**
    * Анализ настроек приложения
    */
-  private async analyzeAppSettings(input: SettingsInput, context: any): Promise<SettingsResult> {
-    context.logger?.("info", "Анализируем настройки приложения", {
+  private async analyzeAppSettings(input: SettingsInput): Promise<SettingsResult> {
+    this.logger?.info("Анализируем настройки приложения", {
       scope: input.analysisScope,
     })
 
@@ -274,8 +274,8 @@ export class SettingsTool extends BaseAITool {
   /**
    * Настройка параметров проекта
    */
-  private async configureProjectSettings(input: SettingsInput, context: any): Promise<SettingsResult> {
-    context.logger?.("info", "Настраиваем параметры проекта")
+  private async configureProjectSettings(input: SettingsInput): Promise<SettingsResult> {
+    this.logger?.info("Настраиваем параметры проекта")
 
     const changes = {
       previous: {
@@ -299,8 +299,8 @@ export class SettingsTool extends BaseAITool {
   /**
    * Управление пресетами экспорта
    */
-  private async manageExportPresets(input: SettingsInput, context: any): Promise<SettingsResult> {
-    context.logger?.("info", "Управляем пресетами экспорта")
+  private async manageExportPresets(input: SettingsInput): Promise<SettingsResult> {
+    this.logger?.info("Управляем пресетами экспорта")
 
     return {
       operation: "manage_export_presets",
@@ -317,8 +317,8 @@ export class SettingsTool extends BaseAITool {
   /**
    * Настройка горячих клавиш
    */
-  private async configureKeyboardShortcuts(input: SettingsInput, context: any): Promise<SettingsResult> {
-    context.logger?.("info", "Настраиваем горячие клавиши")
+  private async configureKeyboardShortcuts(input: SettingsInput): Promise<SettingsResult> {
+    this.logger?.info("Настраиваем горячие клавиши")
 
     const conflicts = this.checkShortcutConflicts(input.shortcuts || {})
 
@@ -337,8 +337,8 @@ export class SettingsTool extends BaseAITool {
   /**
    * Настройка рабочих пространств
    */
-  private async setupWorkspaceLayouts(input: SettingsInput, context: any): Promise<SettingsResult> {
-    context.logger?.("info", "Настраиваем рабочие пространства")
+  private async setupWorkspaceLayouts(input: SettingsInput): Promise<SettingsResult> {
+    this.logger?.info("Настраиваем рабочие пространства")
 
     return {
       operation: "setup_workspace_layouts",
@@ -355,8 +355,8 @@ export class SettingsTool extends BaseAITool {
   /**
    * Управление настройками плагинов
    */
-  private async managePluginSettings(input: SettingsInput, context: any): Promise<SettingsResult> {
-    context.logger?.("info", "Управляем настройками плагинов")
+  private async managePluginSettings(input: SettingsInput): Promise<SettingsResult> {
+    this.logger?.info("Управляем настройками плагинов")
 
     return {
       operation: "manage_plugin_settings",
@@ -373,8 +373,8 @@ export class SettingsTool extends BaseAITool {
   /**
    * Настройка производительности системы
    */
-  private async configureSystemPerformance(input: SettingsInput, context: any): Promise<SettingsResult> {
-    context.logger?.("info", "Настраиваем производительность системы")
+  private async configureSystemPerformance(input: SettingsInput): Promise<SettingsResult> {
+    this.logger?.info("Настраиваем производительность системы")
 
     const optimized = this.optimizeForSystem(input.systemSpecs || {})
 
@@ -393,8 +393,8 @@ export class SettingsTool extends BaseAITool {
   /**
    * Резервное копирование и восстановление настроек
    */
-  private async backupRestoreSettings(input: SettingsInput, context: any): Promise<SettingsResult> {
-    context.logger?.("info", "Выполняем резервное копирование/восстановление")
+  private async backupRestoreSettings(input: SettingsInput): Promise<SettingsResult> {
+    this.logger?.info("Выполняем резервное копирование/восстановление")
 
     if (input.backupSettings) {
       return {

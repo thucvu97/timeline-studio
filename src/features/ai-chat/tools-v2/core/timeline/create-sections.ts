@@ -3,7 +3,7 @@
  */
 
 import type { TimelineClip, TimelineSection } from "@/features/timeline/types/timeline"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 import { calculateSectionsCoverage } from "./utils/calculators"
 import {
   createManualSections,
@@ -113,8 +113,8 @@ export class SectionCreationTool extends BaseAITool {
 
     // Выполняем создание секций с унифицированной обработкой ошибок
     return this.executeWithErrorHandling(
-      async (context) => {
-        context.logger?.("info", "Начинаем создание секций", {
+      async () => {
+        this.logger?.info("Начинаем создание секций", {
           strategy,
           targetClipsCount: targetClips.length,
           sectionSettings: Object.keys(sectionSettings),
@@ -197,7 +197,7 @@ export class SectionCreationTool extends BaseAITool {
           warnings: warnings.length > 0 ? warnings : undefined,
         }
 
-        context.logger?.("info", "Секции успешно созданы", {
+        this.logger?.info("Секции успешно созданы", {
           strategy,
           sectionsCount: sections.length,
           totalCoverage,

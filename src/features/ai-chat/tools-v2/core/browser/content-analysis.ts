@@ -2,8 +2,8 @@
  * AI инструменты для анализа контента и предложения источников с BaseAITool
  */
 
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 import type { ClaudeTool } from "../../types"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 import type { AnalyzeMissingContentParams, BrowserToolResult, ExportFileListParams, SuggestImportParams } from "./types"
 import { formatFileSize, getBrowserFiles, getBrowserStats, hasBrowserAccess } from "./utils/helpers"
@@ -103,7 +103,7 @@ export class ContentAnalysisTool extends BaseAITool {
             errors.push("Требуется format для операции export_file_list")
           }
 
-          return errors
+          return { isValid: errors.length === 0, errors }
         })
 
         if (!validation.isValid) {

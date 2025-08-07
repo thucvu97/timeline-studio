@@ -3,8 +3,8 @@
  * Управление моделями, транскрипция и перевод аудио
  */
 
-import { WhisperService } from "../services/whisper-service"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "./base-ai-tool"
+import { WhisperService } from "../../services/whisper-service"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 // Типы для Whisper операций
 export interface WhisperInput {
@@ -171,8 +171,8 @@ export class WhisperTool extends BaseAITool {
 
     // Выполняем операцию с унифицированной обработкой ошибок
     return this.executeWithErrorHandling(
-      async (context) => {
-        context.logger?.("info", "Начинаем операцию Whisper", {
+      async () => {
+        this.logger?.info("Начинаем операцию Whisper", {
           operation,
           clipId: input.clipId,
           model: input.model,
@@ -184,60 +184,60 @@ export class WhisperTool extends BaseAITool {
 
         switch (operation) {
           case "check_availability":
-            result = await this.checkAvailability(context)
+            result = await this.checkAvailability()
             if (!result.availability?.openai && !result.availability?.local) {
               recommendations.push("Настройте API ключ OpenAI или установите локальные модели")
             }
             break
 
           case "get_models":
-            result = await this.getModels(input, context)
+            result = await this.getModels(input)
             if (result.models && result.models.local.length === 0) {
               recommendations.push("Скачайте локальные модели для офлайн работы")
             }
             break
 
           case "download_model":
-            result = await this.downloadModel(input, context)
+            result = await this.downloadModel(input)
             recommendations.push("Проверьте доступное место на диске")
             break
 
           case "transcribe":
-            result = await this.transcribeMedia(input, context)
+            result = await this.transcribeMedia(input)
             if (result.transcription && result.transcription.segments.length > 100) {
               recommendations.push("Рассмотрите разделение на части для длинных видео")
             }
             break
 
           case "translate":
-            result = await this.translateAudio(input, context)
+            result = await this.translateAudio(input)
             recommendations.push("Проверьте качество перевода")
             break
 
           case "batch_transcribe":
-            result = await this.batchTranscribe(input, context)
+            result = await this.batchTranscribe(input)
             warnings.push("Пакетная обработка может занять значительное время")
             break
 
           case "create_subtitles":
-            result = await this.createSubtitles(input, context)
+            result = await this.createSubtitles(input)
             recommendations.push("Проверьте синхронизацию субтитров с видео")
             break
 
           case "detect_language":
-            result = await this.detectLanguage(input, context)
+            result = await this.detectLanguage(input)
             if (result.detectedLanguage && result.detectedLanguage.confidence < 0.8) {
               warnings.push("Низкая уверенность в определении языка")
             }
             break
 
           case "improve_quality":
-            result = await this.improveQuality(input, context)
+            result = await this.improveQuality(input)
             recommendations.push("Используйте контекстные подсказки для лучших результатов")
             break
 
           case "sync_subtitles":
-            result = await this.syncSubtitles(input, context)
+            result = await this.syncSubtitles(input)
             recommendations.push("Проверьте финальную синхронизацию вручную")
             break
 
@@ -252,7 +252,7 @@ export class WhisperTool extends BaseAITool {
             ? warnings
             : undefined
 
-        context.logger?.("info", "Операция Whisper завершена", {
+        this.logger?.info("Операция Whisper завершена", {
           operation,
           success: result.success,
         })
@@ -277,8 +277,8 @@ export class WhisperTool extends BaseAITool {
   /**
    * Проверка доступности Whisper
    */
-  private async checkAvailability(context: any): Promise<WhisperResult> {
-    context.logger?.("info", "Проверяем доступность Whisper")
+  private async checkAvailability(): Promise<WhisperResult> {
+    this.logger?.info("Проверяем доступность Whisper")
 
     try {
       const hasApiKey = await this.whisperService.loadApiKey()
@@ -315,8 +315,8 @@ export class WhisperTool extends BaseAITool {
   /**
    * Получение списка моделей
    */
-  private async getModels(input: WhisperInput, context: any): Promise<WhisperResult> {
-    context.logger?.("info", "Получаем список моделей Whisper")
+  private async getModels(input: WhisperInput): Promise<WhisperResult> {
+    this.logger?.info("Получаем список моделей Whisper")
 
     const result: WhisperResult = {
       operation: "get_models",
@@ -347,8 +347,8 @@ export class WhisperTool extends BaseAITool {
   /**
    * Скачивание модели
    */
-  private async downloadModel(input: WhisperInput, context: any): Promise<WhisperResult> {
-    context.logger?.("info", "Скачиваем модель Whisper", { model: input.modelName })
+  private async downloadModel(input: WhisperInput): Promise<WhisperResult> {
+    this.logger?.info("Скачиваем модель Whisper", { model: input.modelName })
 
     // Заглушка для скачивания
     return {
@@ -367,8 +367,8 @@ export class WhisperTool extends BaseAITool {
   /**
    * Транскрипция медиа
    */
-  private async transcribeMedia(input: WhisperInput, context: any): Promise<WhisperResult> {
-    context.logger?.("info", "Транскрибируем медиа", {
+  private async transcribeMedia(input: WhisperInput): Promise<WhisperResult> {
+    this.logger?.info("Транскрибируем медиа", {
       clipId: input.clipId,
       language: input.language,
     })
@@ -405,8 +405,8 @@ export class WhisperTool extends BaseAITool {
   /**
    * Перевод аудио
    */
-  private async translateAudio(input: WhisperInput, context: any): Promise<WhisperResult> {
-    context.logger?.("info", "Переводим аудио на английский", { clipId: input.clipId })
+  private async translateAudio(input: WhisperInput): Promise<WhisperResult> {
+    this.logger?.info("Переводим аудио на английский", { clipId: input.clipId })
 
     try {
       const result = await this.whisperService.translateToEnglish(input.clipId!, {
@@ -434,8 +434,8 @@ export class WhisperTool extends BaseAITool {
   /**
    * Пакетная транскрипция
    */
-  private async batchTranscribe(input: WhisperInput, context: any): Promise<WhisperResult> {
-    context.logger?.("info", "Запускаем пакетную транскрипцию", {
+  private async batchTranscribe(input: WhisperInput): Promise<WhisperResult> {
+    this.logger?.info("Запускаем пакетную транскрипцию", {
       clipIds: input.clipIds?.length,
     })
 
@@ -451,8 +451,8 @@ export class WhisperTool extends BaseAITool {
   /**
    * Создание субтитров
    */
-  private async createSubtitles(input: WhisperInput, context: any): Promise<WhisperResult> {
-    context.logger?.("info", "Создаем субтитры", { format: input.format })
+  private async createSubtitles(input: WhisperInput): Promise<WhisperResult> {
+    this.logger?.info("Создаем субтитры", { format: input.format })
 
     // Заглушка для создания субтитров
     const format = input.format || "srt"
@@ -474,8 +474,8 @@ export class WhisperTool extends BaseAITool {
   /**
    * Определение языка
    */
-  private async detectLanguage(input: WhisperInput, context: any): Promise<WhisperResult> {
-    context.logger?.("info", "Определяем язык аудио", { clipId: input.clipId })
+  private async detectLanguage(input: WhisperInput): Promise<WhisperResult> {
+    this.logger?.info("Определяем язык аудио", { clipId: input.clipId })
 
     // Заглушка для определения языка
     return {
@@ -497,8 +497,8 @@ export class WhisperTool extends BaseAITool {
   /**
    * Улучшение качества транскрипции
    */
-  private async improveQuality(input: WhisperInput, context: any): Promise<WhisperResult> {
-    context.logger?.("info", "Улучшаем качество транскрипции")
+  private async improveQuality(input: WhisperInput): Promise<WhisperResult> {
+    this.logger?.info("Улучшаем качество транскрипции")
 
     // Заглушка для улучшения качества
     return {
@@ -518,8 +518,8 @@ export class WhisperTool extends BaseAITool {
   /**
    * Синхронизация субтитров
    */
-  private async syncSubtitles(input: WhisperInput, context: any): Promise<WhisperResult> {
-    context.logger?.("info", "Синхронизируем субтитры", { clipId: input.clipId })
+  private async syncSubtitles(input: WhisperInput): Promise<WhisperResult> {
+    this.logger?.info("Синхронизируем субтитры", { clipId: input.clipId })
 
     // Заглушка для синхронизации
     return {

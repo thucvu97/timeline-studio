@@ -2,7 +2,7 @@
  * AI инструмент для пакетной обработки клипов с использованием BaseAITool
  */
 
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "./base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 // Типы для пакетной обработки
 export interface BatchProcessingInput {
@@ -193,8 +193,8 @@ export class BatchProcessingTool extends BaseAITool {
 
     // Выполняем пакетную обработку с унифицированной обработкой ошибок
     return this.executeWithErrorHandling(
-      async (context) => {
-        context.logger?.("info", "Начинаем пакетную операцию", {
+      async () => {
+        this.logger?.info("Начинаем пакетную операцию", {
           operation,
           clipIds: input.clipIds?.length,
           jobId: input.jobId,
@@ -206,44 +206,44 @@ export class BatchProcessingTool extends BaseAITool {
 
         switch (operation) {
           case "start":
-            result = await this.startBatchOperation(input, context)
+            result = await this.startBatchOperation(input)
             recommendations.push("Отслеживайте прогресс выполнения операции")
             recommendations.push("При необходимости операцию можно отменить")
             break
 
           case "get_progress":
-            result = await this.getBatchProgress(input, context)
+            result = await this.getBatchProgress(input)
             if (result.progress?.status === "running") {
               recommendations.push("Операция выполняется, повторите запрос через некоторое время")
             }
             break
 
           case "cancel":
-            result = await this.cancelBatchOperation(input, context)
+            result = await this.cancelBatchOperation(input)
             if (result.success) {
               recommendations.push("Операция отменена, ресурсы освобождены")
             }
             break
 
           case "get_stats":
-            result = await this.getBatchProcessingStats(input, context)
+            result = await this.getBatchProcessingStats(input)
             recommendations.push("Используйте статистику для оптимизации нагрузки")
             break
 
           case "get_history":
-            result = await this.getBatchHistory(input, context)
+            result = await this.getBatchHistory(input)
             if (result.history && result.history.length > 50) {
               recommendations.push("Рассмотрите очистку старой истории операций")
             }
             break
 
           case "analyze_videos":
-            result = await this.batchAnalyzeVideos(input, context)
+            result = await this.batchAnalyzeVideos(input)
             recommendations.push("Проверьте результаты анализа перед дальнейшей обработкой")
             break
 
           case "transcribe_videos":
-            result = await this.batchTranscribeVideos(input, context)
+            result = await this.batchTranscribeVideos(input)
             recommendations.push("Проверьте качество транскрипции")
             if (input.options?.language === "auto") {
               recommendations.push("Рассмотрите указание конкретного языка для лучшего качества")
@@ -251,17 +251,17 @@ export class BatchProcessingTool extends BaseAITool {
             break
 
           case "generate_subtitles":
-            result = await this.batchGenerateSubtitles(input, context)
+            result = await this.batchGenerateSubtitles(input)
             recommendations.push("Проверьте синхронизацию субтитров с видео")
             break
 
           case "detect_languages":
-            result = await this.batchDetectLanguages(input, context)
+            result = await this.batchDetectLanguages(input)
             recommendations.push("Используйте результаты для настройки транскрипции")
             break
 
           case "detect_scenes":
-            result = await this.batchDetectScenes(input, context)
+            result = await this.batchDetectScenes(input)
             recommendations.push("Проверьте точность детекции сцен")
             if (input.options?.threshold && input.options.threshold > 0.7) {
               warnings.push("Высокий порог может пропустить некоторые сцены")
@@ -269,12 +269,12 @@ export class BatchProcessingTool extends BaseAITool {
             break
 
           case "create_report":
-            result = await this.createBatchReport(input, context)
+            result = await this.createBatchReport(input)
             recommendations.push("Сохраните отчет для анализа результатов")
             break
 
           case "clear_history":
-            result = await this.clearBatchHistory(input, context)
+            result = await this.clearBatchHistory(input)
             recommendations.push("История очищена, место освобождено")
             break
 
@@ -294,7 +294,7 @@ export class BatchProcessingTool extends BaseAITool {
             ? warnings
             : undefined
 
-        context.logger?.("info", "Пакетная операция завершена", {
+        this.logger?.info("Пакетная операция завершена", {
           operation,
           success: result.success,
         })
@@ -319,8 +319,8 @@ export class BatchProcessingTool extends BaseAITool {
   /**
    * Запускает пакетную операцию
    */
-  private async startBatchOperation(input: BatchProcessingInput, context: any): Promise<BatchProcessingResult> {
-    context.logger?.("info", "Запускаем пакетную операцию", {
+  private async startBatchOperation(input: BatchProcessingInput): Promise<BatchProcessingResult> {
+    this.logger?.info("Запускаем пакетную операцию", {
       batchOperation: input.batchOperation,
       clipIds: input.clipIds?.length,
     })
@@ -340,8 +340,8 @@ export class BatchProcessingTool extends BaseAITool {
   /**
    * Получает прогресс выполнения операции
    */
-  private async getBatchProgress(input: BatchProcessingInput, context: any): Promise<BatchProcessingResult> {
-    context.logger?.("info", "Получаем прогресс пакетной операции", {
+  private async getBatchProgress(input: BatchProcessingInput): Promise<BatchProcessingResult> {
+    this.logger?.info("Получаем прогресс пакетной операции", {
       jobId: input.jobId,
     })
 
@@ -368,8 +368,8 @@ export class BatchProcessingTool extends BaseAITool {
   /**
    * Отменяет выполняющуюся операцию
    */
-  private async cancelBatchOperation(input: BatchProcessingInput, context: any): Promise<BatchProcessingResult> {
-    context.logger?.("info", "Отменяем пакетную операцию", {
+  private async cancelBatchOperation(input: BatchProcessingInput): Promise<BatchProcessingResult> {
+    this.logger?.info("Отменяем пакетную операцию", {
       jobId: input.jobId,
     })
 
@@ -384,8 +384,8 @@ export class BatchProcessingTool extends BaseAITool {
   /**
    * Получает статистику пакетных операций
    */
-  private async getBatchProcessingStats(_input: BatchProcessingInput, context: any): Promise<BatchProcessingResult> {
-    context.logger?.("info", "Получаем статистику пакетных операций")
+  private async getBatchProcessingStats(_input: BatchProcessingInput): Promise<BatchProcessingResult> {
+    this.logger?.info("Получаем статистику пакетных операций")
 
     const statistics = {
       totalJobs: 25,
@@ -411,8 +411,8 @@ export class BatchProcessingTool extends BaseAITool {
   /**
    * Получает историю операций
    */
-  private async getBatchHistory(input: BatchProcessingInput, context: any): Promise<BatchProcessingResult> {
-    context.logger?.("info", "Получаем историю пакетных операций", {
+  private async getBatchHistory(input: BatchProcessingInput): Promise<BatchProcessingResult> {
+    this.logger?.info("Получаем историю пакетных операций", {
       limit: input.limit,
     })
 
@@ -446,8 +446,8 @@ export class BatchProcessingTool extends BaseAITool {
   /**
    * Выполняет пакетный анализ видео
    */
-  private async batchAnalyzeVideos(input: BatchProcessingInput, context: any): Promise<BatchProcessingResult> {
-    context.logger?.("info", "Запускаем пакетный анализ видео", {
+  private async batchAnalyzeVideos(input: BatchProcessingInput): Promise<BatchProcessingResult> {
+    this.logger?.info("Запускаем пакетный анализ видео", {
       clipIds: input.clipIds?.length,
       analysisTypes: input.options?.analysisTypes,
     })
@@ -466,8 +466,8 @@ export class BatchProcessingTool extends BaseAITool {
   /**
    * Выполняет пакетную транскрипцию
    */
-  private async batchTranscribeVideos(input: BatchProcessingInput, context: any): Promise<BatchProcessingResult> {
-    context.logger?.("info", "Запускаем пакетную транскрипцию", {
+  private async batchTranscribeVideos(input: BatchProcessingInput): Promise<BatchProcessingResult> {
+    this.logger?.info("Запускаем пакетную транскрипцию", {
       clipIds: input.clipIds?.length,
       language: input.options?.language,
     })
@@ -489,8 +489,8 @@ export class BatchProcessingTool extends BaseAITool {
   /**
    * Выполняет пакетную генерацию субтитров
    */
-  private async batchGenerateSubtitles(input: BatchProcessingInput, context: any): Promise<BatchProcessingResult> {
-    context.logger?.("info", "Запускаем пакетную генерацию субтитров", {
+  private async batchGenerateSubtitles(input: BatchProcessingInput): Promise<BatchProcessingResult> {
+    this.logger?.info("Запускаем пакетную генерацию субтитров", {
       clipIds: input.clipIds?.length,
       format: input.options?.subtitleFormat,
     })
@@ -509,8 +509,8 @@ export class BatchProcessingTool extends BaseAITool {
   /**
    * Выполняет пакетное определение языка
    */
-  private async batchDetectLanguages(input: BatchProcessingInput, context: any): Promise<BatchProcessingResult> {
-    context.logger?.("info", "Запускаем пакетное определение языка", {
+  private async batchDetectLanguages(input: BatchProcessingInput): Promise<BatchProcessingResult> {
+    this.logger?.info("Запускаем пакетное определение языка", {
       clipIds: input.clipIds?.length,
       sampleDuration: input.options?.sampleDuration,
     })
@@ -529,8 +529,8 @@ export class BatchProcessingTool extends BaseAITool {
   /**
    * Выполняет пакетную детекцию сцен
    */
-  private async batchDetectScenes(input: BatchProcessingInput, context: any): Promise<BatchProcessingResult> {
-    context.logger?.("info", "Запускаем пакетную детекцию сцен", {
+  private async batchDetectScenes(input: BatchProcessingInput): Promise<BatchProcessingResult> {
+    this.logger?.info("Запускаем пакетную детекцию сцен", {
       clipIds: input.clipIds?.length,
       threshold: input.options?.threshold,
     })
@@ -552,8 +552,8 @@ export class BatchProcessingTool extends BaseAITool {
   /**
    * Создает отчет по операции
    */
-  private async createBatchReport(input: BatchProcessingInput, context: any): Promise<BatchProcessingResult> {
-    context.logger?.("info", "Создаем отчет по пакетной операции", {
+  private async createBatchReport(input: BatchProcessingInput): Promise<BatchProcessingResult> {
+    this.logger?.info("Создаем отчет по пакетной операции", {
       jobId: input.jobId,
       format: input.format,
     })
@@ -594,8 +594,8 @@ export class BatchProcessingTool extends BaseAITool {
   /**
    * Очищает историю операций
    */
-  private async clearBatchHistory(input: BatchProcessingInput, context: any): Promise<BatchProcessingResult> {
-    context.logger?.("info", "Очищаем историю пакетных операций", {
+  private async clearBatchHistory(input: BatchProcessingInput): Promise<BatchProcessingResult> {
+    this.logger?.info("Очищаем историю пакетных операций", {
       olderThan: input.options?.olderThan,
       keepSuccessful: input.options?.keepSuccessful,
     })

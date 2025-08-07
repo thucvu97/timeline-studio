@@ -2,8 +2,8 @@
  * AI инструмент для предложения дополнительных ресурсов с использованием BaseAITool
  */
 
-import type { ClaudeTool } from "../../services/claude-service"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
+import type { ClaudeTool } from "../../../../services/claude-service"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 import type { ResourceToolResult, SuggestResourcesParams } from "./types"
 import {
@@ -99,7 +99,7 @@ export class SuggestResourcesTool extends BaseAITool {
             errors.push("Требуется указать причину предложения ресурсов")
           }
 
-          return errors
+          return { isValid: errors.length === 0, errors }
         })
 
         if (!validation.isValid) {

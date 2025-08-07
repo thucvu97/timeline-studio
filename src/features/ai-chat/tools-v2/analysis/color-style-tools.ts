@@ -2,7 +2,7 @@
  * AI инструмент для работы с цветом и стилизацией с использованием BaseAITool
  */
 
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "./base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 // Типы для работы с цветом и стилизацией
 export interface ColorStyleInput {
@@ -312,8 +312,8 @@ export class ColorStyleTool extends BaseAITool {
 
     // Выполняем обработку цвета и стиля с унифицированной обработкой ошибок
     return this.executeWithErrorHandling(
-      async (context) => {
-        context.logger?.("info", "Начинаем обработку цвета и стиля", {
+      async () => {
+        this.logger?.info("Начинаем обработку цвета и стиля", {
           operation,
           clipsCount: targetClips.length,
           reason: input.reason,
@@ -331,7 +331,7 @@ export class ColorStyleTool extends BaseAITool {
 
         switch (operation) {
           case "analyze_palette":
-            colorAnalysis = await this.performColorPaletteAnalysis(input, context)
+            colorAnalysis = await this.performColorPaletteAnalysis(input)
             processedClips = targetClips.length > 0 ? targetClips : await this.getAllVideoClips()
             recommendations.push("Используйте результаты анализа для улучшения цветовой схемы")
             nextActions.push("Применить цветокоррекцию на основе анализа")
@@ -339,7 +339,7 @@ export class ColorStyleTool extends BaseAITool {
             break
 
           case "apply_grading":
-            styleResults = await this.performCinematicGrading(input, context)
+            styleResults = await this.performCinematicGrading(input)
             processedClips = targetClips
             appliedOperations = 1
             recommendations.push("Проверьте результаты градации на разных устройствах")
@@ -348,7 +348,7 @@ export class ColorStyleTool extends BaseAITool {
             break
 
           case "create_matching":
-            styleResults = await this.performColorMatching(input, context)
+            styleResults = await this.performColorMatching(input)
             processedClips = input.targetClips || []
             appliedOperations = 1
             recommendations.push("Проверьте качество сопоставления цветов")
@@ -357,7 +357,7 @@ export class ColorStyleTool extends BaseAITool {
             break
 
           case "generate_transfer":
-            styleResults = await this.performStyleTransfer(input, context)
+            styleResults = await this.performStyleTransfer(input)
             processedClips = targetClips
             appliedOperations = 1
             recommendations.push("Оцените художественный эффект передачи стиля")
@@ -366,7 +366,7 @@ export class ColorStyleTool extends BaseAITool {
             break
 
           case "create_schemes":
-            styleResults = await this.performColorSchemeCreation(input, context)
+            styleResults = await this.performColorSchemeCreation(input)
             processedClips = targetClips
             appliedOperations = 1
             recommendations.push("Протестируйте схему на различных сценах")
@@ -375,7 +375,7 @@ export class ColorStyleTool extends BaseAITool {
             break
 
           case "optimize_consistency":
-            styleResults = await this.performConsistencyOptimization(input, context)
+            styleResults = await this.performConsistencyOptimization(input)
             processedClips = targetClips.length > 0 ? targetClips : await this.getAllVideoClips()
             appliedOperations = 1
             recommendations.push("Проверьте улучшение визуальной консистентности")
@@ -417,7 +417,7 @@ export class ColorStyleTool extends BaseAITool {
           nextActions,
         }
 
-        context.logger?.("info", "Обработка цвета и стиля завершена", {
+        this.logger?.info("Обработка цвета и стиля завершена", {
           operation,
           processedClips: processedClips.length,
           success: true,
@@ -443,8 +443,8 @@ export class ColorStyleTool extends BaseAITool {
   /**
    * Анализирует цветовую палитру
    */
-  private async performColorPaletteAnalysis(input: ColorStyleInput, context: any): Promise<ColorAnalysisResult> {
-    context.logger?.("info", "Выполняем анализ цветовой палитры", {
+  private async performColorPaletteAnalysis(input: ColorStyleInput): Promise<ColorAnalysisResult> {
+    this.logger?.info("Выполняем анализ цветовой палитры", {
       scope: input.analysisScope,
       types: input.colorAnalysisType,
     })
@@ -473,8 +473,8 @@ export class ColorStyleTool extends BaseAITool {
   /**
    * Применяет кинематографическую градацию
    */
-  private async performCinematicGrading(input: ColorStyleInput, context: any): Promise<StyleResult> {
-    context.logger?.("info", "Применяем кинематографическую градацию", {
+  private async performCinematicGrading(input: ColorStyleInput): Promise<StyleResult> {
+    this.logger?.info("Применяем кинематографическую градацию", {
       style: input.gradingStyle,
       clips: input.targetClips?.length,
     })
@@ -497,8 +497,8 @@ export class ColorStyleTool extends BaseAITool {
   /**
    * Выполняет сопоставление цветов
    */
-  private async performColorMatching(input: ColorStyleInput, context: any): Promise<StyleResult> {
-    context.logger?.("info", "Выполняем сопоставление цветов", {
+  private async performColorMatching(input: ColorStyleInput): Promise<StyleResult> {
+    this.logger?.info("Выполняем сопоставление цветов", {
       method: input.matchingMethod,
       reference: input.referenceClip,
       targets: input.targetClips?.length,
@@ -516,8 +516,8 @@ export class ColorStyleTool extends BaseAITool {
   /**
    * Выполняет передачу стиля
    */
-  private async performStyleTransfer(input: ColorStyleInput, context: any): Promise<StyleResult> {
-    context.logger?.("info", "Выполняем передачу стиля", {
+  private async performStyleTransfer(input: ColorStyleInput): Promise<StyleResult> {
+    this.logger?.info("Выполняем передачу стиля", {
       source: input.styleSource,
       intensity: input.transferIntensity,
     })
@@ -534,8 +534,8 @@ export class ColorStyleTool extends BaseAITool {
   /**
    * Создает динамические цветовые схемы
    */
-  private async performColorSchemeCreation(input: ColorStyleInput, context: any): Promise<StyleResult> {
-    context.logger?.("info", "Создаем динамические цветовые схемы", {
+  private async performColorSchemeCreation(input: ColorStyleInput): Promise<StyleResult> {
+    this.logger?.info("Создаем динамические цветовые схемы", {
       type: input.schemeType,
       triggers: input.adaptationTriggers,
     })
@@ -552,8 +552,8 @@ export class ColorStyleTool extends BaseAITool {
   /**
    * Оптимизирует визуальную консистентность
    */
-  private async performConsistencyOptimization(input: ColorStyleInput, context: any): Promise<StyleResult> {
-    context.logger?.("info", "Оптимизируем визуальную консистентность", {
+  private async performConsistencyOptimization(input: ColorStyleInput): Promise<StyleResult> {
+    this.logger?.info("Оптимизируем визуальную консистентность", {
       aspects: input.consistencyAspects,
       method: input.analysisMethod,
     })

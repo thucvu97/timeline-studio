@@ -3,7 +3,7 @@
  * Функции для генерации, редактирования и управления субтитрами
  */
 
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "./base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 // Типы для операций с субтитрами
 export interface SubtitleInput {
@@ -155,8 +155,8 @@ export class SubtitleTool extends BaseAITool {
 
     // Выполняем операцию с унифицированной обработкой ошибок
     return this.executeWithErrorHandling(
-      async (context) => {
-        context.logger?.("info", "Начинаем операцию с субтитрами", {
+      async () => {
+        this.logger?.info("Начинаем операцию с субтитрами", {
           operation,
           clipId: input.clipId,
           language: input.language,
@@ -167,50 +167,50 @@ export class SubtitleTool extends BaseAITool {
 
         switch (operation) {
           case "generate_subtitles":
-            result = await this.generateSubtitles(input, context)
+            result = await this.generateSubtitles(input)
             recommendations.push("Проверьте сгенерированные субтитры на точность")
             break
 
           case "translate_subtitles":
-            result = await this.translateSubtitles(input, context)
+            result = await this.translateSubtitles(input)
             recommendations.push("Проверьте качество перевода")
             break
 
           case "sync_subtitles":
-            result = await this.syncSubtitles(input, context)
+            result = await this.syncSubtitles(input)
             recommendations.push("Проверьте синхронизацию с видео")
             break
 
           case "format_subtitles":
-            result = await this.formatSubtitles(input, context)
+            result = await this.formatSubtitles(input)
             break
 
           case "edit_subtitle_timing":
-            result = await this.editSubtitleTiming(input, context)
+            result = await this.editSubtitleTiming(input)
             recommendations.push("Проверьте изменения тайминга в плеере")
             break
 
           case "merge_subtitle_files":
-            result = await this.mergeSubtitleFiles(input, context)
+            result = await this.mergeSubtitleFiles(input)
             recommendations.push("Проверьте порядок объединенных субтитров")
             break
 
           case "extract_subtitles":
-            result = await this.extractSubtitles(input, context)
+            result = await this.extractSubtitles(input)
             break
 
           case "improve_subtitle_quality":
-            result = await this.improveSubtitleQuality(input, context)
+            result = await this.improveSubtitleQuality(input)
             recommendations.push("Сравните с оригинальной версией")
             break
 
           case "add_subtitle_styles":
-            result = await this.addSubtitleStyles(input, context)
+            result = await this.addSubtitleStyles(input)
             recommendations.push("Проверьте отображение стилей в плеере")
             break
 
           case "validate_subtitles":
-            result = await this.validateSubtitles(input, context)
+            result = await this.validateSubtitles(input)
             break
 
           default:
@@ -219,7 +219,7 @@ export class SubtitleTool extends BaseAITool {
 
         result.recommendations = [...result.recommendations, ...recommendations]
 
-        context.logger?.("info", "Операция с субтитрами завершена", {
+        this.logger?.info("Операция с субтитрами завершена", {
           operation,
           success: result.success,
           totalSubtitles: result.stats?.totalSubtitles,
@@ -245,8 +245,8 @@ export class SubtitleTool extends BaseAITool {
   /**
    * Генерация субтитров
    */
-  private async generateSubtitles(input: SubtitleInput, context: any): Promise<SubtitleResult> {
-    context.logger?.("info", "Генерируем субтитры", {
+  private async generateSubtitles(input: SubtitleInput): Promise<SubtitleResult> {
+    this.logger?.info("Генерируем субтитры", {
       clipId: input.clipId,
       language: input.language,
     })
@@ -287,8 +287,8 @@ export class SubtitleTool extends BaseAITool {
   /**
    * Перевод субтитров
    */
-  private async translateSubtitles(input: SubtitleInput, context: any): Promise<SubtitleResult> {
-    context.logger?.("info", "Переводим субтитры", {
+  private async translateSubtitles(input: SubtitleInput): Promise<SubtitleResult> {
+    this.logger?.info("Переводим субтитры", {
       fromLanguage: input.language,
       toLanguage: input.targetLanguage,
       count: input.subtitles?.length,
@@ -318,8 +318,8 @@ export class SubtitleTool extends BaseAITool {
   /**
    * Синхронизация субтитров
    */
-  private async syncSubtitles(input: SubtitleInput, context: any): Promise<SubtitleResult> {
-    context.logger?.("info", "Синхронизируем субтитры с видео", {
+  private async syncSubtitles(input: SubtitleInput): Promise<SubtitleResult> {
+    this.logger?.info("Синхронизируем субтитры с видео", {
       clipId: input.clipId,
       subtitleCount: input.subtitles?.length,
     })
@@ -343,8 +343,8 @@ export class SubtitleTool extends BaseAITool {
   /**
    * Форматирование субтитров
    */
-  private async formatSubtitles(input: SubtitleInput, context: any): Promise<SubtitleResult> {
-    context.logger?.("info", "Форматируем субтитры", {
+  private async formatSubtitles(input: SubtitleInput): Promise<SubtitleResult> {
+    this.logger?.info("Форматируем субтитры", {
       fromFormat: input.format,
       toFormat: input.targetFormat,
     })
@@ -364,8 +364,8 @@ export class SubtitleTool extends BaseAITool {
   /**
    * Редактирование тайминга субтитров
    */
-  private async editSubtitleTiming(input: SubtitleInput, context: any): Promise<SubtitleResult> {
-    context.logger?.("info", "Редактируем тайминг субтитров")
+  private async editSubtitleTiming(input: SubtitleInput): Promise<SubtitleResult> {
+    this.logger?.info("Редактируем тайминг субтитров")
 
     // Заглушка для редактирования
     const adjustedSubtitles = input.subtitles?.map((sub) => ({
@@ -386,8 +386,8 @@ export class SubtitleTool extends BaseAITool {
   /**
    * Объединение файлов субтитров
    */
-  private async mergeSubtitleFiles(input: SubtitleInput, context: any): Promise<SubtitleResult> {
-    context.logger?.("info", "Объединяем файлы субтитров", {
+  private async mergeSubtitleFiles(input: SubtitleInput): Promise<SubtitleResult> {
+    this.logger?.info("Объединяем файлы субтитров", {
       fileCount: input.filePaths?.length,
     })
 
@@ -424,8 +424,8 @@ export class SubtitleTool extends BaseAITool {
   /**
    * Извлечение субтитров
    */
-  private async extractSubtitles(input: SubtitleInput, context: any): Promise<SubtitleResult> {
-    context.logger?.("info", "Извлекаем субтитры из видео", {
+  private async extractSubtitles(input: SubtitleInput): Promise<SubtitleResult> {
+    this.logger?.info("Извлекаем субтитры из видео", {
       clipId: input.clipId,
     })
 
@@ -451,8 +451,8 @@ export class SubtitleTool extends BaseAITool {
   /**
    * Улучшение качества субтитров
    */
-  private async improveSubtitleQuality(input: SubtitleInput, context: any): Promise<SubtitleResult> {
-    context.logger?.("info", "Улучшаем качество субтитров")
+  private async improveSubtitleQuality(input: SubtitleInput): Promise<SubtitleResult> {
+    this.logger?.info("Улучшаем качество субтитров")
 
     // Заглушка для улучшения
     const improvedSubtitles = input.subtitles?.map((sub) => ({
@@ -472,8 +472,8 @@ export class SubtitleTool extends BaseAITool {
   /**
    * Добавление стилей субтитров
    */
-  private async addSubtitleStyles(_input: SubtitleInput, context: any): Promise<SubtitleResult> {
-    context.logger?.("info", "Добавляем стили к субтитрам")
+  private async addSubtitleStyles(_input: SubtitleInput): Promise<SubtitleResult> {
+    this.logger?.info("Добавляем стили к субтитрам")
 
     // Заглушка для стилей
     return {
@@ -488,8 +488,8 @@ export class SubtitleTool extends BaseAITool {
   /**
    * Валидация субтитров
    */
-  private async validateSubtitles(input: SubtitleInput, context: any): Promise<SubtitleResult> {
-    context.logger?.("info", "Валидируем субтитры")
+  private async validateSubtitles(input: SubtitleInput): Promise<SubtitleResult> {
+    this.logger?.info("Валидируем субтитры")
 
     // Заглушка для валидации
     const validation = {

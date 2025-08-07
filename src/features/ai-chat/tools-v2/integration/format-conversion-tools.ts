@@ -5,7 +5,7 @@
  * сжатия и технической обработки медиафайлов
  */
 
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "./base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 // Типы для операций обработки медиа
 export interface MediaProcessingInput {
@@ -142,8 +142,8 @@ export class MediaProcessingTool extends BaseAITool {
 
     // Выполняем операцию с унифицированной обработкой ошибок
     return this.executeWithErrorHandling(
-      async (context) => {
-        context.logger?.("info", "Начинаем обработку медиа", {
+      async () => {
+        this.logger?.info("Начинаем обработку медиа", {
           operation,
           fileCount: input.targetFiles?.length || input.sourceFiles?.length || 0,
         })
@@ -154,34 +154,34 @@ export class MediaProcessingTool extends BaseAITool {
 
         switch (operation) {
           case "analyze_quality":
-            result = await this.analyzeMediaQuality(input, context)
+            result = await this.analyzeMediaQuality(input)
             break
 
           case "optimize_compression":
-            result = await this.optimizeMediaCompression(input, context)
+            result = await this.optimizeMediaCompression(input)
             if (input.targetPlatforms?.includes("mobile")) {
               recommendations.push("Рассмотрите использование адаптивного битрейта")
             }
             break
 
           case "convert_formats":
-            result = await this.convertMediaFormats(input, context)
+            result = await this.convertMediaFormats(input)
             break
 
           case "repair_corrupted":
-            result = await this.repairCorruptedMedia(input, context)
+            result = await this.repairCorruptedMedia(input)
             warnings.push("Некоторые данные могут быть невосстановимы")
             break
 
           case "batch_process":
-            result = await this.batchProcessMedia(input, context)
+            result = await this.batchProcessMedia(input)
             if (input.batchFiles && input.batchFiles.length > 100) {
               warnings.push("Большое количество файлов может замедлить обработку")
             }
             break
 
           case "create_derivatives":
-            result = await this.createMediaDerivatives(input, context)
+            result = await this.createMediaDerivatives(input)
             recommendations.push("Проверьте качество производных файлов")
             break
 
@@ -192,7 +192,7 @@ export class MediaProcessingTool extends BaseAITool {
         result.recommendations = [...result.recommendations, ...recommendations]
         result.warnings = warnings.length > 0 ? warnings : undefined
 
-        context.logger?.("info", "Обработка медиа завершена", {
+        this.logger?.info("Обработка медиа завершена", {
           operation,
           success: result.success,
         })
@@ -215,8 +215,8 @@ export class MediaProcessingTool extends BaseAITool {
   /**
    * Анализ качества медиа
    */
-  private async analyzeMediaQuality(input: MediaProcessingInput, context: any): Promise<MediaProcessingResult> {
-    context.logger?.("info", "Анализируем качество медиа", {
+  private async analyzeMediaQuality(input: MediaProcessingInput): Promise<MediaProcessingResult> {
+    this.logger?.info("Анализируем качество медиа", {
       fileCount: input.targetFiles?.length,
       metrics: input.qualityMetrics,
     })
@@ -254,8 +254,8 @@ export class MediaProcessingTool extends BaseAITool {
   /**
    * Оптимизация сжатия медиа
    */
-  private async optimizeMediaCompression(input: MediaProcessingInput, context: any): Promise<MediaProcessingResult> {
-    context.logger?.("info", "Оптимизируем сжатие", {
+  private async optimizeMediaCompression(input: MediaProcessingInput): Promise<MediaProcessingResult> {
+    this.logger?.info("Оптимизируем сжатие", {
       goal: input.optimizationGoal,
       platforms: input.targetPlatforms,
     })
@@ -285,8 +285,8 @@ export class MediaProcessingTool extends BaseAITool {
   /**
    * Конвертация форматов медиа
    */
-  private async convertMediaFormats(input: MediaProcessingInput, context: any): Promise<MediaProcessingResult> {
-    context.logger?.("info", "Конвертируем форматы", {
+  private async convertMediaFormats(input: MediaProcessingInput): Promise<MediaProcessingResult> {
+    this.logger?.info("Конвертируем форматы", {
       sourceCount: input.sourceFiles?.length,
       targetCount: input.conversionTargets?.length,
     })
@@ -318,8 +318,8 @@ export class MediaProcessingTool extends BaseAITool {
   /**
    * Восстановление поврежденных медиа
    */
-  private async repairCorruptedMedia(input: MediaProcessingInput, context: any): Promise<MediaProcessingResult> {
-    context.logger?.("info", "Восстанавливаем поврежденные файлы", {
+  private async repairCorruptedMedia(input: MediaProcessingInput): Promise<MediaProcessingResult> {
+    this.logger?.info("Восстанавливаем поврежденные файлы", {
       fileCount: input.damagedFiles?.length,
       methods: input.repairMethods,
     })
@@ -352,8 +352,8 @@ export class MediaProcessingTool extends BaseAITool {
   /**
    * Пакетная обработка медиа
    */
-  private async batchProcessMedia(input: MediaProcessingInput, context: any): Promise<MediaProcessingResult> {
-    context.logger?.("info", "Выполняем пакетную обработку", {
+  private async batchProcessMedia(input: MediaProcessingInput): Promise<MediaProcessingResult> {
+    this.logger?.info("Выполняем пакетную обработку", {
       fileCount: input.batchFiles?.length,
       taskCount: input.processingTasks?.length,
     })
@@ -382,8 +382,8 @@ export class MediaProcessingTool extends BaseAITool {
   /**
    * Создание производных медиа
    */
-  private async createMediaDerivatives(input: MediaProcessingInput, context: any): Promise<MediaProcessingResult> {
-    context.logger?.("info", "Создаем производные файлы", {
+  private async createMediaDerivatives(input: MediaProcessingInput): Promise<MediaProcessingResult> {
+    this.logger?.info("Создаем производные файлы", {
       sourceCount: input.sourceFiles?.length,
       typeCount: input.derivativeTypes?.length,
     })

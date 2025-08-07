@@ -2,8 +2,8 @@
  * AI инструмент для экспорта списка ресурсов с использованием BaseAITool
  */
 
-import { ClaudeTool } from "../../services/claude-service"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
+import { ClaudeTool } from "../../../../services/claude-service"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 import type { ExportListParams, ResourceToolResult } from "./types"
 import { getResourcesProvider, groupResourcesByType, hasResourcesAccess } from "./utils/helpers"
@@ -67,7 +67,7 @@ export class ExportResourcesTool extends BaseAITool {
             errors.push(`Неподдерживаемый формат: ${data.format}`)
           }
 
-          return errors
+          return { isValid: errors.length === 0, errors }
         })
 
         if (!validation.isValid) {

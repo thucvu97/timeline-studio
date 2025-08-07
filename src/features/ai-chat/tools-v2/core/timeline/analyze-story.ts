@@ -3,7 +3,7 @@
  */
 
 import type { TimelineProject } from "@/features/timeline/types/timeline"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 // Типы для анализа истории
 export interface StoryAnalysisInput {
@@ -115,8 +115,8 @@ export class StoryAnalysisTool extends BaseAITool {
 
     // Выполняем анализ с унифицированной обработкой ошибок
     return this.executeWithErrorHandling(
-      async (context) => {
-        context.logger?.("info", "Начинаем анализ нарративной структуры", {
+      async () => {
+        this.logger?.info("Начинаем анализ нарративной структуры", {
           scope: analysisScope,
           elementsCount: storyElements.length,
           elements: storyElements.join(", "),
@@ -142,7 +142,7 @@ export class StoryAnalysisTool extends BaseAITool {
           return clips.concat(track.clips || [])
         }, [])
 
-        context.logger?.("info", "Анализируем структуру проекта", {
+        this.logger?.info("Анализируем структуру проекта", {
           tracksCount: allTracks.length,
           clipsCount: allClips.length,
           sectionsCount: currentProject.sections?.length || 0,
@@ -161,7 +161,7 @@ export class StoryAnalysisTool extends BaseAITool {
 
         // Анализируем каждый элемент истории
         for (const element of storyElements) {
-          context.logger?.("info", `Анализируем элемент: ${element}`)
+          this.logger?.info(`Анализируем элемент: ${element}`)
 
           switch (element) {
             case "narrative-arc": {
@@ -208,7 +208,7 @@ export class StoryAnalysisTool extends BaseAITool {
           allClips,
         )
 
-        context.logger?.("info", "Анализ нарративной структуры завершен", {
+        this.logger?.info("Анализ нарративной структуры завершен", {
           scope: analysisScope,
           warningsCount: warnings.length,
           recommendationsCount: analysis.overallRecommendations.length,

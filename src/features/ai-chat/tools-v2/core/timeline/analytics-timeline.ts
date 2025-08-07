@@ -3,7 +3,7 @@
  */
 
 import type { TimelineProject } from "@/features/timeline/types/timeline"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 // Типы для аналитики timeline
 export interface TimelineAnalyticsInput {
@@ -187,8 +187,8 @@ export class TimelineAnalyticsTool extends BaseAITool {
 
     // Выполняем аналитику с унифицированной обработкой ошибок
     return this.executeWithErrorHandling(
-      async (context) => {
-        context.logger?.("info", "Начинаем аналитику Timeline", {
+      async () => {
+        this.logger?.info("Начинаем аналитику Timeline", {
           analysisType,
           includeDetails,
           generateInsights,
@@ -209,7 +209,7 @@ export class TimelineAnalyticsTool extends BaseAITool {
         // Определяем временной диапазон
         const timeRange = this.determineTimeRange(input.timeRange)
 
-        context.logger?.("info", "Анализируем данные за период", {
+        this.logger?.info("Анализируем данные за период", {
           startDate: timeRange.startDate,
           endDate: timeRange.endDate,
           daysAnalyzed: timeRange.daysAnalyzed,
@@ -222,22 +222,22 @@ export class TimelineAnalyticsTool extends BaseAITool {
         let workflowMetrics: WorkflowMetrics | undefined
 
         if (analysisType === "usage" || analysisType === "comprehensive") {
-          context.logger?.("info", "Собираем метрики использования")
+          this.logger?.info("Собираем метрики использования")
           usageMetrics = await this.collectUsageMetrics(currentProject, timeRange)
         }
 
         if (analysisType === "performance" || analysisType === "comprehensive") {
-          context.logger?.("info", "Собираем метрики производительности")
+          this.logger?.info("Собираем метрики производительности")
           performanceMetrics = await this.collectPerformanceMetrics(currentProject, timeRange)
         }
 
         if (analysisType === "content" || analysisType === "comprehensive") {
-          context.logger?.("info", "Собираем метрики контента")
+          this.logger?.info("Собираем метрики контента")
           contentMetrics = await this.collectContentMetrics(currentProject, timeRange)
         }
 
         if (analysisType === "workflow" || analysisType === "comprehensive") {
-          context.logger?.("info", "Собираем метрики рабочего процесса")
+          this.logger?.info("Собираем метрики рабочего процесса")
           workflowMetrics = await this.collectWorkflowMetrics(currentProject, timeRange)
         }
 
@@ -283,7 +283,7 @@ export class TimelineAnalyticsTool extends BaseAITool {
           warnings: warnings.length > 0 ? warnings : undefined,
         }
 
-        context.logger?.("info", "Аналитика Timeline завершена", {
+        this.logger?.info("Аналитика Timeline завершена", {
           analysisType,
           insightsCount: insights.length,
           overallScore: summary.overallScore,

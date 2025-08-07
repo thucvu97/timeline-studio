@@ -3,7 +3,7 @@
  */
 
 import type { TimelineProject } from "@/features/timeline/types/timeline"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 // Типы для синхронизации с музыкой
 export interface MusicSyncInput {
@@ -121,8 +121,8 @@ export class MusicSyncTool extends BaseAITool {
 
     // Выполняем синхронизацию с унифицированной обработкой ошибок
     return this.executeWithErrorHandling(
-      async (context) => {
-        context.logger?.("info", "Начинаем синхронизацию с музыкой", {
+      async () => {
+        this.logger?.info("Начинаем синхронизацию с музыкой", {
           musicTrackId,
           syncCuts: syncOptions.syncCuts,
           syncTransitions: syncOptions.syncTransitions,
@@ -159,7 +159,7 @@ export class MusicSyncTool extends BaseAITool {
           throw new Error("Аудио клип не найден на указанном треке")
         }
 
-        context.logger?.("info", "Анализируем музыку для синхронизации", {
+        this.logger?.info("Анализируем музыку для синхронизации", {
           clipId: musicClip.id,
           duration: musicClip.duration,
           beatDetection: syncOptions.beatDetection,
@@ -175,7 +175,7 @@ export class MusicSyncTool extends BaseAITool {
 
         // Синхронизация монтажных склеек
         if (syncOptions.syncCuts) {
-          context.logger?.("info", "Синхронизируем монтажные склейки с битами")
+          this.logger?.info("Синхронизируем монтажные склейки с битами")
 
           const cutSyncResult = await this.syncCutsWithBeats(currentProject, musicAnalysis)
           syncResults.cutsSync = cutSyncResult
@@ -185,7 +185,7 @@ export class MusicSyncTool extends BaseAITool {
 
         // Синхронизация переходов
         if (syncOptions.syncTransitions) {
-          context.logger?.("info", "Синхронизируем переходы с музыкой")
+          this.logger?.info("Синхронизируем переходы с музыкой")
 
           const transitionSyncResult = await this.syncTransitionsWithMusic(currentProject, musicAnalysis)
           syncResults.transitionsSync = transitionSyncResult
@@ -220,7 +220,7 @@ export class MusicSyncTool extends BaseAITool {
           warnings: warnings.length > 0 ? warnings : undefined,
         }
 
-        context.logger?.("info", "Синхронизация с музыкой завершена", {
+        this.logger?.info("Синхронизация с музыкой завершена", {
           totalModifications,
           synchronizedElements: synchronizedElements.length,
           detectedBPM: musicAnalysis.bpm,

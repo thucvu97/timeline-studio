@@ -3,7 +3,7 @@
  */
 
 import type { TimelineClip, TimelineProject, TimelineSection, TimelineTrack } from "@/features/timeline/types/timeline"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 import { getTimelineStateAccess } from "./types"
 import {
   calculateTimelineDensity,
@@ -150,8 +150,8 @@ export class StructureAnalysisTool extends BaseAITool {
 
     // Выполняем анализ с унифицированной обработкой ошибок
     return this.executeWithErrorHandling(
-      async (context) => {
-        context.logger?.("info", "Начинаем анализ структуры Timeline", {
+      async () => {
+        this.logger?.info("Начинаем анализ структуры Timeline", {
           analysisDepth,
           includeClips,
           includeTracks,
@@ -328,7 +328,7 @@ export class StructureAnalysisTool extends BaseAITool {
           result.issues = detectStructureIssues(currentProject)
         }
 
-        context.logger?.("info", "Анализ структуры Timeline завершен", {
+        this.logger?.info("Анализ структуры Timeline завершен", {
           projectName: currentProject.name,
           tracksIncluded: !!result.tracks,
           sectionsIncluded: !!result.sections,

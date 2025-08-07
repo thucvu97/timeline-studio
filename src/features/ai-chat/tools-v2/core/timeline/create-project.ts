@@ -3,7 +3,7 @@
  */
 
 import type { TimelineProject } from "@/features/timeline/types/timeline"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
 
 // Типы для создания проекта
 export interface ProjectCreationInput {
@@ -136,8 +136,8 @@ export class ProjectCreationTool extends BaseAITool {
 
     // Выполняем создание проекта с унифицированной обработкой ошибок
     return this.executeWithErrorHandling(
-      async (context) => {
-        context.logger?.("info", "Начинаем создание нового проекта Timeline", {
+      async () => {
+        this.logger?.info("Начинаем создание нового проекта Timeline", {
           projectName: input.projectSettings.name,
           resolution: `${input.projectSettings.resolution.width}x${input.projectSettings.resolution.height}`,
           fps: input.projectSettings.fps,
@@ -155,7 +155,7 @@ export class ProjectCreationTool extends BaseAITool {
         // Генерируем уникальный ID проекта
         const projectId = this.generateProjectId()
 
-        context.logger?.("info", "Создаем структуру проекта", { projectId })
+        this.logger?.info("Создаем структуру проекта", { projectId })
 
         // Создаем настройки проекта
         const projectSettings: ProjectSettings = {
@@ -227,7 +227,7 @@ export class ProjectCreationTool extends BaseAITool {
 
         // Автоматически создаем базовую структуру треков
         if (autoCreateStructure) {
-          context.logger?.("info", "Создаем базовую структуру треков", { templateType })
+          this.logger?.info("Создаем базовую структуру треков", { templateType })
 
           const tracks = this.createDefaultTrackStructure(templateType)
           project.globalTracks = tracks
@@ -252,7 +252,7 @@ export class ProjectCreationTool extends BaseAITool {
         }
 
         // Сохраняем проект
-        context.logger?.("info", "Сохраняем проект в Timeline", {
+        this.logger?.info("Сохраняем проект в Timeline", {
           projectId,
           tracksCreated: createdElements.length,
         })
@@ -272,7 +272,7 @@ export class ProjectCreationTool extends BaseAITool {
           recommendations,
         }
 
-        context.logger?.("info", "Проект успешно создан", {
+        this.logger?.info("Проект успешно создан", {
           projectId,
           projectName: result.projectName,
           elementsCreated: createdElements.length,

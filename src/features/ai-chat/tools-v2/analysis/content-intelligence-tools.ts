@@ -2,7 +2,7 @@
  * AI инструмент для интеллектуального анализа контента с использованием BaseAITool
  */
 
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "./base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 // Типы для интеллектуального анализа контента
 export interface ContentIntelligenceInput {
@@ -269,8 +269,8 @@ export class ContentIntelligenceTool extends BaseAITool {
 
     // Выполняем анализ контента с унифицированной обработкой ошибок
     return this.executeWithErrorHandling(
-      async (context) => {
-        context.logger?.("info", "Начинаем интеллектуальный анализ контента", {
+      async () => {
+        this.logger?.info("Начинаем интеллектуальный анализ контента", {
           operation,
           filesCount: mediaFiles.length,
           reason: input.reason,
@@ -288,7 +288,7 @@ export class ContentIntelligenceTool extends BaseAITool {
 
         switch (operation) {
           case "analyze_content":
-            analysisResults = await this.performContentAnalysis(input, context)
+            analysisResults = await this.performContentAnalysis(input)
             processedFiles = mediaFiles
             recommendations.push("Используйте результаты анализа для улучшения контента")
             nextActions.push("Применить рекомендации по оптимизации")
@@ -296,7 +296,7 @@ export class ContentIntelligenceTool extends BaseAITool {
             break
 
           case "detect_scenes":
-            analysisResults = await this.performSceneDetection(input, context)
+            analysisResults = await this.performSceneDetection(input)
             processedFiles = mediaFiles
             recommendations.push("Проверьте точность детекции сцен")
             nextActions.push("Создать маркеры для найденных сцен")
@@ -304,7 +304,7 @@ export class ContentIntelligenceTool extends BaseAITool {
             break
 
           case "classify_content":
-            analysisResults = await this.performContentClassification(input, context)
+            analysisResults = await this.performContentClassification(input)
             processedFiles = mediaFiles
             recommendations.push("Используйте классификацию для таргетинга аудитории")
             nextActions.push("Настроить рекомендательные алгоритмы")
@@ -312,7 +312,7 @@ export class ContentIntelligenceTool extends BaseAITool {
             break
 
           case "adapt_platform":
-            analysisResults = await this.performPlatformAdaptation(input, context)
+            analysisResults = await this.performPlatformAdaptation(input)
             processedFiles = ["adapted_content"]
             recommendations.push("Проверьте соответствие требованиям платформы")
             nextActions.push("Тестировать производительность на целевой платформе")
@@ -320,7 +320,7 @@ export class ContentIntelligenceTool extends BaseAITool {
             break
 
           case "generate_multilanguage":
-            multiLanguageVersions = await this.performMultiLanguageGeneration(input, context)
+            multiLanguageVersions = await this.performMultiLanguageGeneration(input)
             processedFiles = input.targetLanguages || []
             recommendations.push("Проверьте культурную адекватность переводов")
             nextActions.push("Тестировать контент на носителях языка")
@@ -328,7 +328,7 @@ export class ContentIntelligenceTool extends BaseAITool {
             break
 
           case "generate_variants":
-            contentVariants = await this.performVariantGeneration(input, context)
+            contentVariants = await this.performVariantGeneration(input)
             processedFiles = [`${input.generateVariants || 3}_variants`]
             recommendations.push("Проведите A/B тестирование вариантов")
             nextActions.push("Анализировать метрики производительности")
@@ -336,7 +336,7 @@ export class ContentIntelligenceTool extends BaseAITool {
             break
 
           case "analyze_audience":
-            analysisResults = await this.performAudienceAnalysis(input, context)
+            analysisResults = await this.performAudienceAnalysis(input)
             processedFiles = mediaFiles
             recommendations.push("Адаптируйте контент под выявленные сегменты")
             nextActions.push("Создать персонализированные версии")
@@ -344,7 +344,7 @@ export class ContentIntelligenceTool extends BaseAITool {
             break
 
           case "optimize_engagement":
-            analysisResults = await this.performEngagementOptimization(input, context)
+            analysisResults = await this.performEngagementOptimization(input)
             processedFiles = mediaFiles
             recommendations.push("Примените предложенные улучшения")
             nextActions.push("Измерить влияние на метрики вовлечения")
@@ -382,7 +382,7 @@ export class ContentIntelligenceTool extends BaseAITool {
           nextActions,
         }
 
-        context.logger?.("info", "Интеллектуальный анализ контента завершен", {
+        this.logger?.info("Интеллектуальный анализ контента завершен", {
           operation,
           processedFiles: processedFiles.length,
           success: true,
@@ -408,8 +408,8 @@ export class ContentIntelligenceTool extends BaseAITool {
   /**
    * Выполняет комплексный анализ контента
    */
-  private async performContentAnalysis(input: ContentIntelligenceInput, context: any): Promise<ContentAnalysisResult> {
-    context.logger?.("info", "Выполняем комплексный анализ контента", {
+  private async performContentAnalysis(input: ContentIntelligenceInput): Promise<ContentAnalysisResult> {
+    this.logger?.info("Выполняем комплексный анализ контента", {
       depth: input.analysisDepth,
       files: input.mediaFiles?.length,
     })
@@ -450,8 +450,8 @@ export class ContentIntelligenceTool extends BaseAITool {
   /**
    * Выполняет детекцию сцен
    */
-  private async performSceneDetection(input: ContentIntelligenceInput, context: any): Promise<ContentAnalysisResult> {
-    context.logger?.("info", "Выполняем детекцию сцен", {
+  private async performSceneDetection(input: ContentIntelligenceInput): Promise<ContentAnalysisResult> {
+    this.logger?.info("Выполняем детекцию сцен", {
       files: input.mediaFiles?.length,
     })
 
@@ -474,11 +474,8 @@ export class ContentIntelligenceTool extends BaseAITool {
   /**
    * Выполняет классификацию контента
    */
-  private async performContentClassification(
-    _input: ContentIntelligenceInput,
-    context: any,
-  ): Promise<ContentAnalysisResult> {
-    context.logger?.("info", "Выполняем классификацию контента")
+  private async performContentClassification(_input: ContentIntelligenceInput): Promise<ContentAnalysisResult> {
+    this.logger?.info("Выполняем классификацию контента")
 
     return {
       analysisType: "classification",
@@ -496,11 +493,8 @@ export class ContentIntelligenceTool extends BaseAITool {
   /**
    * Выполняет адаптацию под платформу
    */
-  private async performPlatformAdaptation(
-    input: ContentIntelligenceInput,
-    context: any,
-  ): Promise<ContentAnalysisResult> {
-    context.logger?.("info", "Выполняем адаптацию под платформу", {
+  private async performPlatformAdaptation(input: ContentIntelligenceInput): Promise<ContentAnalysisResult> {
+    this.logger?.info("Выполняем адаптацию под платформу", {
       platform: input.targetPlatform,
     })
 
@@ -524,8 +518,8 @@ export class ContentIntelligenceTool extends BaseAITool {
   /**
    * Выполняет мультиязычную генерацию
    */
-  private async performMultiLanguageGeneration(input: ContentIntelligenceInput, context: any): Promise<any[]> {
-    context.logger?.("info", "Выполняем мультиязычную генерацию", {
+  private async performMultiLanguageGeneration(input: ContentIntelligenceInput): Promise<any[]> {
+    this.logger?.info("Выполняем мультиязычную генерацию", {
       languages: input.targetLanguages?.length,
     })
 
@@ -545,8 +539,8 @@ export class ContentIntelligenceTool extends BaseAITool {
   /**
    * Выполняет генерацию вариантов
    */
-  private async performVariantGeneration(input: ContentIntelligenceInput, context: any): Promise<ContentVariant[]> {
-    context.logger?.("info", "Выполняем генерацию вариантов", {
+  private async performVariantGeneration(input: ContentIntelligenceInput): Promise<ContentVariant[]> {
+    this.logger?.info("Выполняем генерацию вариантов", {
       count: input.generateVariants,
     })
 
@@ -572,11 +566,8 @@ export class ContentIntelligenceTool extends BaseAITool {
   /**
    * Выполняет анализ аудитории
    */
-  private async performAudienceAnalysis(
-    _input: ContentIntelligenceInput,
-    context: any,
-  ): Promise<ContentAnalysisResult> {
-    context.logger?.("info", "Выполняем анализ аудитории")
+  private async performAudienceAnalysis(_input: ContentIntelligenceInput): Promise<ContentAnalysisResult> {
+    this.logger?.info("Выполняем анализ аудитории")
 
     return {
       analysisType: "audience_analysis",
@@ -603,11 +594,8 @@ export class ContentIntelligenceTool extends BaseAITool {
   /**
    * Выполняет оптимизацию вовлечения
    */
-  private async performEngagementOptimization(
-    _input: ContentIntelligenceInput,
-    context: any,
-  ): Promise<ContentAnalysisResult> {
-    context.logger?.("info", "Выполняем оптимизацию вовлечения")
+  private async performEngagementOptimization(_input: ContentIntelligenceInput): Promise<ContentAnalysisResult> {
+    this.logger?.info("Выполняем оптимизацию вовлечения")
 
     return {
       analysisType: "engagement_optimization",

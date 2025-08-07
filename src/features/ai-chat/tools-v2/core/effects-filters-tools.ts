@@ -5,7 +5,7 @@
  * оптимизации и создания визуальных эффектов
  */
 
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "./base-ai-tool"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 // Типы для операций с эффектами
 export interface EffectsInput {
@@ -184,8 +184,8 @@ export class EffectsFiltersTool extends BaseAITool {
 
     // Выполняем операцию с унифицированной обработкой ошибок
     return this.executeWithErrorHandling(
-      async (context) => {
-        context.logger?.("info", "Начинаем операцию с эффектами", {
+      async () => {
+        this.logger?.info("Начинаем операцию с эффектами", {
           operation,
         })
 
@@ -195,48 +195,48 @@ export class EffectsFiltersTool extends BaseAITool {
 
         switch (operation) {
           case "suggest_effects":
-            result = await this.suggestEffects(input, context)
+            result = await this.suggestEffects(input)
             break
 
           case "optimize_chain":
-            result = await this.optimizeEffectChain(input, context)
+            result = await this.optimizeEffectChain(input)
             if (result.performanceMetrics && result.performanceMetrics.estimatedFps < 24) {
               warnings.push("Низкая производительность с текущей цепочкой эффектов")
             }
             break
 
           case "create_color_grading":
-            result = await this.createColorGrading(input, context)
+            result = await this.createColorGrading(input)
             recommendations.push("Проверьте цветокоррекцию на разных мониторах")
             break
 
           case "apply_lut":
-            result = await this.applyLUT(input, context)
+            result = await this.applyLUT(input)
             break
 
           case "create_transitions":
-            result = await this.createTransitions(input, context)
+            result = await this.createTransitions(input)
             break
 
           case "build_effect_chain":
-            result = await this.buildEffectChain(input, context)
+            result = await this.buildEffectChain(input)
             recommendations.push("Сохраните цепочку как пресет для будущего использования")
             break
 
           case "apply_batch_effects":
-            result = await this.applyBatchEffects(input, context)
+            result = await this.applyBatchEffects(input)
             break
 
           case "analyze_performance":
-            result = await this.analyzePerformance(input, context)
+            result = await this.analyzePerformance(input)
             break
 
           case "create_style_presets":
-            result = await this.createStylePresets(input, context)
+            result = await this.createStylePresets(input)
             break
 
           case "adjust_realtime":
-            result = await this.adjustRealtime(input, context)
+            result = await this.adjustRealtime(input)
             break
 
           default:
@@ -246,7 +246,7 @@ export class EffectsFiltersTool extends BaseAITool {
         result.recommendations = [...result.recommendations, ...recommendations]
         result.warnings = warnings.length > 0 ? warnings : undefined
 
-        context.logger?.("info", "Операция с эффектами завершена", {
+        this.logger?.info("Операция с эффектами завершена", {
           operation,
           success: result.success,
         })
@@ -269,8 +269,8 @@ export class EffectsFiltersTool extends BaseAITool {
   /**
    * Предложение эффектов
    */
-  private async suggestEffects(input: EffectsInput, context: any): Promise<EffectsResult> {
-    context.logger?.("info", "Предлагаем эффекты", {
+  private async suggestEffects(input: EffectsInput): Promise<EffectsResult> {
+    this.logger?.info("Предлагаем эффекты", {
       genre: input.contentAnalysis?.genre,
       mood: input.contentAnalysis?.mood,
     })
@@ -326,8 +326,8 @@ export class EffectsFiltersTool extends BaseAITool {
   /**
    * Оптимизация цепочки эффектов
    */
-  private async optimizeEffectChain(input: EffectsInput, context: any): Promise<EffectsResult> {
-    context.logger?.("info", "Оптимизируем цепочку эффектов", {
+  private async optimizeEffectChain(input: EffectsInput): Promise<EffectsResult> {
+    this.logger?.info("Оптимизируем цепочку эффектов", {
       chainLength: input.currentChain?.length,
       goal: input.optimizationGoal,
     })
@@ -361,8 +361,8 @@ export class EffectsFiltersTool extends BaseAITool {
   /**
    * Создание цветокоррекции
    */
-  private async createColorGrading(input: EffectsInput, context: any): Promise<EffectsResult> {
-    context.logger?.("info", "Создаем цветокоррекцию", {
+  private async createColorGrading(input: EffectsInput): Promise<EffectsResult> {
+    this.logger?.info("Создаем цветокоррекцию", {
       referenceImages: input.referenceImages?.length,
     })
 
@@ -389,8 +389,8 @@ export class EffectsFiltersTool extends BaseAITool {
   /**
    * Применение LUT
    */
-  private async applyLUT(input: EffectsInput, context: any): Promise<EffectsResult> {
-    context.logger?.("info", "Применяем LUT", {
+  private async applyLUT(input: EffectsInput): Promise<EffectsResult> {
+    this.logger?.info("Применяем LUT", {
       lutFile: input.lutFile,
       intensity: input.intensity,
     })
@@ -407,8 +407,8 @@ export class EffectsFiltersTool extends BaseAITool {
   /**
    * Создание переходов
    */
-  private async createTransitions(input: EffectsInput, context: any): Promise<EffectsResult> {
-    context.logger?.("info", "Создаем переходы", {
+  private async createTransitions(input: EffectsInput): Promise<EffectsResult> {
+    this.logger?.info("Создаем переходы", {
       clipCount: input.clipIds?.length,
       type: input.transitionType,
     })
@@ -435,8 +435,8 @@ export class EffectsFiltersTool extends BaseAITool {
   /**
    * Построение цепочки эффектов
    */
-  private async buildEffectChain(input: EffectsInput, context: any): Promise<EffectsResult> {
-    context.logger?.("info", "Строим цепочку эффектов")
+  private async buildEffectChain(input: EffectsInput): Promise<EffectsResult> {
+    this.logger?.info("Строим цепочку эффектов")
 
     // Заглушка для цепочки
     const effectChain: EffectChain = {
@@ -459,8 +459,8 @@ export class EffectsFiltersTool extends BaseAITool {
   /**
    * Пакетное применение эффектов
    */
-  private async applyBatchEffects(input: EffectsInput, context: any): Promise<EffectsResult> {
-    context.logger?.("info", "Применяем эффекты пакетно", {
+  private async applyBatchEffects(input: EffectsInput): Promise<EffectsResult> {
+    this.logger?.info("Применяем эффекты пакетно", {
       clipCount: input.clipIds?.length,
       effectCount: input.effects?.length,
     })
@@ -476,8 +476,8 @@ export class EffectsFiltersTool extends BaseAITool {
   /**
    * Анализ производительности
    */
-  private async analyzePerformance(input: EffectsInput, context: any): Promise<EffectsResult> {
-    context.logger?.("info", "Анализируем производительность эффектов")
+  private async analyzePerformance(input: EffectsInput): Promise<EffectsResult> {
+    this.logger?.info("Анализируем производительность эффектов")
 
     const performanceMetrics = {
       estimatedFps: input.hardwareAcceleration ? 60 : 30,
@@ -502,8 +502,8 @@ export class EffectsFiltersTool extends BaseAITool {
   /**
    * Создание стилевых пресетов
    */
-  private async createStylePresets(input: EffectsInput, context: any): Promise<EffectsResult> {
-    context.logger?.("info", "Создаем стилевые пресеты", {
+  private async createStylePresets(input: EffectsInput): Promise<EffectsResult> {
+    this.logger?.info("Создаем стилевые пресеты", {
       styleReference: input.styleReference,
       platform: input.platform,
     })
@@ -548,8 +548,8 @@ export class EffectsFiltersTool extends BaseAITool {
   /**
    * Настройка в реальном времени
    */
-  private async adjustRealtime(input: EffectsInput, context: any): Promise<EffectsResult> {
-    context.logger?.("info", "Настраиваем эффекты в реальном времени", {
+  private async adjustRealtime(input: EffectsInput): Promise<EffectsResult> {
+    this.logger?.info("Настраиваем эффекты в реальном времени", {
       adjustments: Object.keys(input.adjustments || {}),
       previewMode: input.previewMode,
     })

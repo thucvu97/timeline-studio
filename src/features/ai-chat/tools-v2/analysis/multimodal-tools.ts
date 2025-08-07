@@ -3,9 +3,9 @@
  * Анализ кадров, создание описаний, выбор превью
  */
 
-import { MultimodalAnalysisService, type MultimodalAnalysisType } from "../services/multimodal-analysis-service"
-import type { ClaudeTool } from "../types"
-import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "./base-ai-tool"
+import type { MultimodalAnalysisType } from "../../services/multimodal-analysis-service"
+import type { ClaudeTool } from "../../types"
+import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 // Типы для операций мультимодального анализа
 export interface MultimodalInput {
@@ -62,7 +62,6 @@ export interface MultimodalResult {
 export class MultimodalAnalysisTool extends BaseAITool {
   constructor(logger?: AIToolLogger) {
     super("MultimodalAnalysisTool", logger)
-    this.analysisService = new MultimodalAnalysisService()
   }
 
   /**
@@ -95,7 +94,7 @@ export class MultimodalAnalysisTool extends BaseAITool {
             errors.push(`Неподдерживаемая операция: ${data.operation}`)
           }
 
-          return errors
+          return { isValid: errors.length === 0, errors }
         })
 
         if (!validation.isValid) {
