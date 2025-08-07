@@ -1,3 +1,18 @@
+# [0.71.0](https://github.com/chatman-media/timeline-studio/compare/v0.70.0...v0.71.0) (2025-08-07)
+
+
+### Bug Fixes
+
+* **ai-chat:** исправление критических ошибок линтера в AI tools ([7f50094](https://github.com/chatman-media/timeline-studio/commit/7f500943e3610769069f3166f3d648f671d5f8e6))
+* **ai-chat:** исправление файлов, поврежденных линтером ([5511fd5](https://github.com/chatman-media/timeline-studio/commit/5511fd5da8e6e6b4adf786638492077230354a9d))
+
+
+### Features
+
+* **ai-chat:** рефакторинг 3 крупных AI инструментов на BaseAITool ([7d23063](https://github.com/chatman-media/timeline-studio/commit/7d2306321b0b1d2a99ec2b8b9595070ea496aefd))
+* **ai-chat:** рефакторинг person-identification-tools и platform-optimization-tools на BaseAITool ([b410cbf](https://github.com/chatman-media/timeline-studio/commit/b410cbf3d64e2552cc7a3efe6bfacc8f6dc9de4a))
+* **timeline:** завершение drag & drop системы до 100% ([cb7518f](https://github.com/chatman-media/timeline-studio/commit/cb7518f23b3de6ad65307dfac7db8673913d63f4))
+
 # [0.70.0](https://github.com/chatman-media/timeline-studio/compare/v0.69.0...v0.70.0) (2025-08-06)
 
 
