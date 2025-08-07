@@ -336,6 +336,22 @@ export class SceneDetectionTool extends BaseAITool {
   }
 
   /**
+   * Получает порог чувствительности для детекции
+   */
+  private getSensitivityThreshold(sensitivity: string): number {
+    switch (sensitivity) {
+      case "low":
+        return 0.6 // 60% уверенность
+      case "medium":
+        return 0.75 // 75% уверенность
+      case "high":
+        return 0.85 // 85% уверенность
+      default:
+        return 0.75
+    }
+  }
+
+  /**
    * Получает минимальную длительность сцены
    */
   private getMinSceneDuration(sensitivity: string): number {
