@@ -1,3 +1,11 @@
+# [0.73.0](https://github.com/chatman-media/timeline-studio/compare/v0.72.0...v0.73.0) (2025-08-07)
+
+
+### Features
+
+* **timeline:** реализованы Drop Zones для интеграции ресурсов с клипами ([0e1f591](https://github.com/chatman-media/timeline-studio/commit/0e1f5919d49ed46630b0a9ebe4e5be072a66a25c))
+* добавлена унифицированная система AI сервисов ([548dae5](https://github.com/chatman-media/timeline-studio/commit/548dae5037497f8dbe75191a4592c9e007483840))
+
 # [0.72.0](https://github.com/chatman-media/timeline-studio/compare/v0.71.0...v0.72.0) (2025-08-07)
 
 
