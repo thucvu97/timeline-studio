@@ -1,3 +1,6 @@
 export * from "./audio-clip"
 export * from "./clip"
 export * from "./video-clip"
+export * from "./video-fade-controls"
+export * from "./video-fade-visualization"
+export * from "./video-crossfade"

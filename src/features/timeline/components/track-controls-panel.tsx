@@ -13,7 +13,6 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { cn } from "@/lib/utils"
-import { useTimeline } from "../hooks/use-timeline"
 import { useTracks } from "../hooks/use-tracks"
 import { PersonsPanel } from "./persons-panel"
 
@@ -61,16 +60,7 @@ interface TrackControlsPanelProps {
 }
 
 export function TrackControlsPanel({ className }: TrackControlsPanelProps) {
-  const { tracks } = useTracks()
-  const { updateTrack } = useTimeline()
-
-  const toggleTrackVisibility = (trackId: string, currentHidden: boolean) => {
-    void updateTrack(trackId, { isHidden: !currentHidden })
-  }
-
-  const toggleTrackLock = (trackId: string, currentLock: boolean) => {
-    void updateTrack(trackId, { isLocked: !currentLock })
-  }
+  const { tracks, toggleTrackVisibility, toggleTrackLock } = useTracks()
 
   return (
     <div className={cn("h-full bg-muted/30 border-r", className)}>
@@ -118,7 +108,7 @@ export function TrackControlsPanel({ className }: TrackControlsPanelProps) {
                             variant="ghost"
                             size="sm"
                             className="h-6 w-6 p-0"
-                            onClick={() => toggleTrackVisibility(track.id, track.isHidden)}
+                            onClick={() => toggleTrackVisibility(track.id)}
                             aria-label="toggle visibility"
                             title={track.isHidden ? "Показать трек" : "Скрыть трек"}
                           >
@@ -133,7 +123,7 @@ export function TrackControlsPanel({ className }: TrackControlsPanelProps) {
                             variant="ghost"
                             size="sm"
                             className="h-6 w-6 p-0"
-                            onClick={() => toggleTrackLock(track.id, track.isLocked ?? false)}
+                            onClick={() => toggleTrackLock(track.id)}
                             aria-label="toggle lock"
                             title={track.isLocked ? "Разблокировать трек" : "Заблокировать трек"}
                           >

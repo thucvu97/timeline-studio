@@ -210,6 +210,22 @@ export interface TimelineClip {
   position?: ClipPosition
   opacity: number // 0-1
 
+  // Video fade эффекты
+  fadeIn?: {
+    duration: number // Длительность fade-in в секундах
+    type?: "linear" | "exponential" | "logarithmic" | "cosine" | "ease-in" | "ease-out" | "ease-in-out"
+    keyframes?: VideoFadeKeyframe[] // Кастомные keyframes для сложных fade
+  }
+
+  fadeOut?: {
+    duration: number // Длительность fade-out в секундах
+    type?: "linear" | "exponential" | "logarithmic" | "cosine" | "ease-in" | "ease-out" | "ease-in-out"
+    keyframes?: VideoFadeKeyframe[] // Кастомные keyframes для сложных fade
+  }
+
+  // Keyframes для анимации opacity
+  opacityKeyframes?: VideoFadeKeyframe[]
+
   // Шаблоны многокамерных раскладок
   templateId?: string // ID шаблона для многокамерной раскладки
   templateCell?: number // Индекс ячейки в шаблоне (0-based)
@@ -233,6 +249,12 @@ export interface TimelineClip {
 // ============================================================================
 // SUPPORTING TYPES
 // ============================================================================
+
+export interface VideoFadeKeyframe {
+  time: number // время в секундах относительно начала клипа
+  opacity: number // значение прозрачности (0-1)
+  easing?: "linear" | "exponential" | "logarithmic" | "cosine" | "ease-in" | "ease-out" | "ease-in-out"
+}
 
 export type TrackType =
   | "video"

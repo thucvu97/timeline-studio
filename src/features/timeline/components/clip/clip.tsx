@@ -77,7 +77,9 @@ export const Clip = memo(function Clip({ clip, track, timeScale, onUpdate, onRem
     switch (track.type) {
       case "video":
       case "image":
-        return <VideoClip clip={clip} track={track} onUpdate={onUpdate} onRemove={onRemove} />
+        return (
+          <VideoClip clip={clip} track={track} pixelsPerSecond={timeScale} onUpdate={onUpdate} onRemove={onRemove} />
+        )
 
       case "audio":
       case "music":

@@ -27,8 +27,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { useTimeline } from "../../hooks/use-timeline"
 import { useTimelineMarkers } from "../../hooks/use-timeline-markers"
-import { useTimelinePlayback } from "../../hooks/use-timeline-playback"
 import type { MarkerFilter, MarkerType } from "../../types/markers"
 import { MarkerColors } from "../../types/markers"
 
@@ -43,7 +43,7 @@ const markerTypeOptions: { value: MarkerType; label: string; icon: React.ReactNo
 ]
 
 export function MarkerControls() {
-  const { currentTime, seek } = useTimelinePlayback()
+  const { currentTime, seek } = useTimeline()
   const { markers, addMarker } = useTimelineMarkers()
 
   // State variables

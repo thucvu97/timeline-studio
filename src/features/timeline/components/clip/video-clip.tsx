@@ -8,22 +8,28 @@ import React, { memo, useCallback, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
+import { useClips } from "../../hooks/use-clips"
 import { useTimeline } from "../../hooks/use-timeline"
+import { useTimelineSelection } from "../../hooks/use-timeline-selection"
 import { timelinePlayerSync } from "../../services/timeline-player-sync"
 import type { TimelineClip, TimelineTrack } from "../../types"
+import { VideoFadeControls } from "./video-fade-controls"
+import { VideoFadeVisualization } from "./video-fade-visualization"
 
 interface VideoClipProps {
   clip: TimelineClip
   track: TimelineTrack
+  pixelsPerSecond: number
   onUpdate?: (updates: Partial<TimelineClip>) => void
   onRemove?: () => void
 }
 
 // Мемоизируем компонент для предотвращения ненужных ререндеров
 export const VideoClip = memo(
-  function VideoClip({ clip, track, onUpdate, onRemove }: VideoClipProps) {
+  function VideoClip({ clip, track, pixelsPerSecond, onUpdate, onRemove }: VideoClipProps) {
     const [isHovered, setIsHovered] = React.useState(false)
-    const timeline = useTimeline()
+    const { selectClips, copySelection } = useTimelineSelection()
+    const { splitClip } = useClips()
 
     // Мемоизируем обработчики для предотвращения создания новых функций при каждом рендере
     const handleSelect = useCallback(() => {
@@ -41,16 +47,14 @@ export const VideoClip = memo(
         e.stopPropagation()
 
         // Выделяем клип если он не выделен
-        if (!clip.isSelected && timeline) {
-          timeline.selectClips([clip.id], false)
+        if (!clip.isSelected) {
+          selectClips([clip.id], false)
         }
 
         // Копируем выделенные клипы
-        if (timeline) {
-          timeline.copySelection()
-        }
+        copySelection()
       },
-      [clip.id, clip.isSelected, timeline],
+      [clip.id, clip.isSelected, selectClips, copySelection],
     )
 
     const handleSplit = useCallback(
@@ -59,12 +63,9 @@ export const VideoClip = memo(
 
         // Разделяем клип в середине
         const splitTime = clip.startTime + clip.duration / 2
-
-        if (timeline) {
-          void timeline.splitClip(clip.id, splitTime)
-        }
+        void splitClip(clip.id, splitTime)
       },
-      [clip.id, clip.startTime, clip.duration, timeline],
+      [clip.id, clip.startTime, clip.duration, splitClip],
     )
 
     const handleRemove = useCallback(
@@ -79,6 +80,10 @@ export const VideoClip = memo(
     const clipColor = useMemo(() => (track.type === "video" ? "bg-blue-500" : "bg-purple-500"), [track.type])
 
     const clipColorHover = useMemo(() => (track.type === "video" ? "bg-blue-600" : "bg-purple-600"), [track.type])
+
+    // Вычисляем размеры клипа
+    const clipWidth = useMemo(() => clip.duration * pixelsPerSecond, [clip.duration, pixelsPerSecond])
+    const clipHeight = track.height
 
     // Мемоизируем прогресс бар вычисления
     const progressBarStyle = useMemo(
@@ -117,6 +122,7 @@ export const VideoClip = memo(
           {/* Кнопки управления (показываются при наведении) */}
           {isHovered && !clip.isLocked && (
             <div className="flex items-center gap-0.5">
+              <VideoFadeControls clip={clip} className="w-4 h-4" />
               <Button
                 variant="ghost"
                 size="sm"
@@ -157,6 +163,9 @@ export const VideoClip = memo(
               <span className="text-xs text-white/70">{Math.round(clip.duration)}s</span>
             </div>
           </div>
+
+          {/* Визуализация fade эффектов */}
+          <VideoFadeVisualization clip={clip} width={clipWidth} height={clipHeight} pixelsPerSecond={pixelsPerSecond} />
 
           {/* Индикаторы эффектов */}
           {clip.effects.length > 0 && (
@@ -210,8 +219,14 @@ export const VideoClip = memo(
       prevProps.clip.transitions.length === nextProps.clip.transitions.length &&
       prevProps.clip.mediaStartTime === nextProps.clip.mediaStartTime &&
       prevProps.clip.mediaEndTime === nextProps.clip.mediaEndTime &&
+      prevProps.clip.opacity === nextProps.clip.opacity &&
+      prevProps.clip.fadeIn?.duration === nextProps.clip.fadeIn?.duration &&
+      prevProps.clip.fadeIn?.type === nextProps.clip.fadeIn?.type &&
+      prevProps.clip.fadeOut?.duration === nextProps.clip.fadeOut?.duration &&
+      prevProps.clip.fadeOut?.type === nextProps.clip.fadeOut?.type &&
       prevProps.track.type === nextProps.track.type &&
-      prevProps.track.height === nextProps.track.height
+      prevProps.track.height === nextProps.track.height &&
+      prevProps.pixelsPerSecond === nextProps.pixelsPerSecond
     )
   },
 )

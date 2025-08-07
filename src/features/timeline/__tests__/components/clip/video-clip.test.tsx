@@ -30,28 +30,22 @@ vi.mock("../../../services/timeline-player-sync", () => ({
   },
 }))
 
-// Мокаем useTimeline
-const mockTimelineActor = {
-  send: vi.fn(),
-}
+// Мокаем хуки selection и clips
+const mockSelectClips = vi.fn()
+const mockCopySelection = vi.fn()
+const mockSplitClip = vi.fn()
 
-const mockUiState = {
-  context: {
-    selectedClipIds: [],
-    currentTime: 0,
-  },
-}
+vi.mock("../../../hooks/use-timeline-selection", () => ({
+  useTimelineSelection: () => ({
+    selectClips: mockSelectClips,
+    copySelection: mockCopySelection,
+  }),
+}))
 
-const mockTimeline = {
-  timelineActor: mockTimelineActor,
-  uiState: mockUiState,
-  selectClips: vi.fn(),
-  copySelection: vi.fn(),
-  splitClip: vi.fn(),
-}
-
-vi.mock("../../../hooks/use-timeline", () => ({
-  useTimeline: () => mockTimeline,
+vi.mock("../../../hooks/use-clips", () => ({
+  useClips: () => ({
+    splitClip: mockSplitClip,
+  }),
 }))
 
 import { VideoClip } from "../../../components/clip/video-clip"
@@ -113,10 +107,9 @@ describe("VideoClip", () => {
   beforeEach(() => {
     vi.clearAllMocks()
     // Сбрасываем моки timeline
-    mockTimeline.selectClips.mockClear()
-    mockTimeline.copySelection.mockClear()
-    mockTimeline.splitClip.mockClear()
-    mockTimelineActor.send.mockClear()
+    mockSelectClips.mockClear()
+    mockCopySelection.mockClear()
+    mockSplitClip.mockClear()
   })
 
   describe("Rendering", () => {
@@ -247,8 +240,8 @@ describe("VideoClip", () => {
       fireEvent.click(copyButton)
 
       // Проверяем что были вызваны правильные методы
-      expect(mockTimeline.selectClips).toHaveBeenCalledWith(["clip-1"], false)
-      expect(mockTimeline.copySelection).toHaveBeenCalled()
+      expect(mockSelectClips).toHaveBeenCalledWith(["clip-1"], false)
+      expect(mockCopySelection).toHaveBeenCalled()
     })
 
     it("should handle split button click", () => {
@@ -261,7 +254,7 @@ describe("VideoClip", () => {
       fireEvent.click(splitButton)
 
       // Проверяем что был вызван метод разделения
-      expect(mockTimeline.splitClip).toHaveBeenCalledWith("clip-1", 5) // clip.startTime + clip.duration / 2 = 0 + 10 / 2 = 5
+      expect(mockSplitClip).toHaveBeenCalledWith("clip-1", 5) // clip.startTime + clip.duration / 2 = 0 + 10 / 2 = 5
     })
 
     it("should handle remove button click", () => {

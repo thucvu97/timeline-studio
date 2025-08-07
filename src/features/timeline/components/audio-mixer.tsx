@@ -7,6 +7,7 @@ import { Slider } from "@/components/ui/slider"
 import { cn } from "@/lib/utils"
 
 import { useTimeline } from "../hooks/use-timeline"
+import { useTracks } from "../hooks/use-tracks"
 import type { TimelineTrack, TrackType } from "../types/timeline"
 
 interface AudioMixerProps {
@@ -17,7 +18,8 @@ interface AudioMixerProps {
  * Аудио микшер для управления громкостью и эффектами аудио треков
  */
 export function AudioMixer({ className }: AudioMixerProps) {
-  const { project, updateTrack } = useTimeline()
+  const { project } = useTimeline()
+  const { updateTrack } = useTracks()
 
   // Получаем все аудио треки
   const audioTracks = useMemo(() => {
