@@ -11,10 +11,7 @@ import { useMediaImport } from "@/features/media/hooks/use-media-import"
 import { useModal } from "@/features/modals"
 import { useApiKeys } from "@/features/user-settings/hooks/use-api-keys"
 import { cn } from "@/lib/utils"
-import { CLAUDE_MODELS } from "@/shared/services/ai/providers/claude"
-import { DEEPSEEK_MODELS } from "@/shared/services/ai/providers/deepseek"
-import { OLLAMA_MODELS } from "@/shared/services/ai/providers/ollama"
-import { AI_MODELS } from "@/shared/services/ai/providers/openai"
+// Импорты констант моделей больше не нужны - будем получать через UnifiedAIService
 import { useChat } from "../hooks/use-chat"
 import { useResourcesAIIntegration } from "../hooks/use-resources-ai-integration"
 import { useSafeTimeline } from "../hooks/use-safe-timeline"
@@ -25,87 +22,7 @@ import { compressContext, isContextOverLimit } from "../utils/context-manager"
 import { createTimelineContextPrompt } from "../utils/timeline-context"
 import { ChatList } from "./chat-list"
 
-const AVAILABLE_AGENTS = [
-  // Claude модели
-  {
-    id: CLAUDE_MODELS.CLAUDE_4_SONNET,
-    name: "Claude 4 Sonnet",
-    useTools: true,
-    provider: "claude",
-  },
-  {
-    id: CLAUDE_MODELS.CLAUDE_4_OPUS,
-    name: "Claude 4 Opus",
-    useTools: true,
-    provider: "claude",
-  },
-
-  // OpenAI модели
-  {
-    id: AI_MODELS.GPT_4,
-    name: "GPT-4",
-    useTools: false,
-    provider: "openai",
-  },
-  {
-    id: AI_MODELS.GPT_4O,
-    name: "GPT-4o",
-    useTools: false,
-    provider: "openai",
-  },
-  {
-    id: AI_MODELS.GPT_3_5,
-    name: "GPT-3.5 Turbo",
-    useTools: false,
-    provider: "openai",
-  },
-  {
-    id: AI_MODELS.O3,
-    name: "o3",
-    useTools: false,
-    provider: "openai",
-  },
-
-  // DeepSeek модели
-  {
-    id: DEEPSEEK_MODELS.DEEPSEEK_R1,
-    name: "DeepSeek R1",
-    useTools: false,
-    provider: "deepseek",
-  },
-  {
-    id: DEEPSEEK_MODELS.DEEPSEEK_CHAT,
-    name: "DeepSeek Chat",
-    useTools: false,
-    provider: "deepseek",
-  },
-  {
-    id: DEEPSEEK_MODELS.DEEPSEEK_CODER,
-    name: "DeepSeek Coder",
-    useTools: false,
-    provider: "deepseek",
-  },
-
-  // Ollama модели (базовые)
-  {
-    id: OLLAMA_MODELS.LLAMA2,
-    name: "Llama 2 (Local)",
-    useTools: false,
-    provider: "ollama",
-  },
-  {
-    id: OLLAMA_MODELS.MISTRAL,
-    name: "Mistral (Local)",
-    useTools: false,
-    provider: "ollama",
-  },
-  {
-    id: OLLAMA_MODELS.CODELLAMA,
-    name: "Code Llama (Local)",
-    useTools: false,
-    provider: "ollama",
-  },
-]
+// Модели теперь получаем динамически из UnifiedAIService
 
 // Chat modes
 type ChatMode = "chat" | "agent"
@@ -164,6 +81,8 @@ export function AiChat() {
   const [showHistory, setShowHistory] = useState(false)
   const [streamingContent, setStreamingContent] = useState("")
   const [isStreaming, setIsStreaming] = useState(false)
+  const [availableModels, setAvailableModels] = useState<Agent[]>([])
+  const [isLoadingModels, setIsLoadingModels] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
@@ -171,6 +90,39 @@ export function AiChat() {
   // Load chat history on mount
   useEffect(() => {
     void updateSessions()
+  }, [])
+
+  // Load available models on mount
+  useEffect(() => {
+    const loadModels = async () => {
+      try {
+        setIsLoadingModels(true)
+        const unifiedService = UnifiedAIService.getInstance()
+        const models = await unifiedService.getAvailableModels()
+        
+        // Преобразуем модели в формат Agent
+        const agents: Agent[] = models.map(model => ({
+          id: model.model,
+          name: model.name || model.model,
+          useTools: model.provider === "claude", // Только Claude поддерживает tools
+          provider: model.provider as any,
+        }))
+        
+        setAvailableModels(agents)
+      } catch (error) {
+        console.error("Failed to load available models:", error)
+        // Используем минимальный набор моделей в случае ошибки
+        setAvailableModels([
+          { id: "claude-4-sonnet-latest", name: "Claude 4 Sonnet", useTools: true, provider: "claude" },
+          { id: "gpt-4", name: "GPT-4", useTools: false, provider: "openai" },
+          { id: "deepseek-chat", name: "DeepSeek Chat", useTools: false, provider: "deepseek" },
+        ])
+      } finally {
+        setIsLoadingModels(false)
+      }
+    }
+    
+    void loadModels()
   }, [])
 
   // Прокрутка к последнему сообщению
@@ -678,7 +630,7 @@ export function AiChat() {
                     >
                       <span className="truncate">
                         {selectedAgentId
-                          ? AVAILABLE_AGENTS.find((a) => a.id === selectedAgentId)?.name
+                          ? availableModels.find((a) => a.id === selectedAgentId)?.name
                           : "deepseek/deepseek-r1-zero:free"}
                       </span>
                       <ChevronDown className="ml-2 h-4 w-4 flex-shrink-0" />
@@ -689,16 +641,26 @@ export function AiChat() {
                     className="w-[250px] border-border bg-muted"
                     data-testid="agent-dropdown"
                   >
-                    {AVAILABLE_AGENTS.map((agent) => (
-                      <DropdownMenuItem
-                        key={agent.id}
-                        onClick={() => selectAgent(agent.id)}
-                        className="text-foreground hover:bg-accent hover:text-white"
-                        data-testid={`agent-option-${agent.id}`}
-                      >
-                        {agent.name}
+                    {isLoadingModels ? (
+                      <DropdownMenuItem disabled className="text-muted-foreground">
+                        Loading models...
                       </DropdownMenuItem>
-                    ))}
+                    ) : availableModels.length === 0 ? (
+                      <DropdownMenuItem disabled className="text-muted-foreground">
+                        No models available
+                      </DropdownMenuItem>
+                    ) : (
+                      availableModels.map((agent) => (
+                        <DropdownMenuItem
+                          key={agent.id}
+                          onClick={() => selectAgent(agent.id)}
+                          className="text-foreground hover:bg-accent hover:text-white"
+                          data-testid={`agent-option-${agent.id}`}
+                        >
+                          {agent.name}
+                        </DropdownMenuItem>
+                      ))
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
@@ -842,7 +804,7 @@ export function AiChat() {
                     >
                       <span className="truncate">
                         {selectedAgentId
-                          ? AVAILABLE_AGENTS.find((a) => a.id === selectedAgentId)?.name
+                          ? availableModels.find((a) => a.id === selectedAgentId)?.name
                           : "deepseek/deepseek-r1-zero:free"}
                       </span>
                       <ChevronDown className="ml-2 h-4 w-4 flex-shrink-0" />
@@ -853,16 +815,26 @@ export function AiChat() {
                     className="w-[250px] border-border bg-muted"
                     data-testid="agent-dropdown"
                   >
-                    {AVAILABLE_AGENTS.map((agent) => (
-                      <DropdownMenuItem
-                        key={agent.id}
-                        onClick={() => selectAgent(agent.id)}
-                        className="text-foreground hover:bg-accent hover:text-white"
-                        data-testid={`agent-option-${agent.id}`}
-                      >
-                        {agent.name}
+                    {isLoadingModels ? (
+                      <DropdownMenuItem disabled className="text-muted-foreground">
+                        Loading models...
                       </DropdownMenuItem>
-                    ))}
+                    ) : availableModels.length === 0 ? (
+                      <DropdownMenuItem disabled className="text-muted-foreground">
+                        No models available
+                      </DropdownMenuItem>
+                    ) : (
+                      availableModels.map((agent) => (
+                        <DropdownMenuItem
+                          key={agent.id}
+                          onClick={() => selectAgent(agent.id)}
+                          className="text-foreground hover:bg-accent hover:text-white"
+                          data-testid={`agent-option-${agent.id}`}
+                        >
+                          {agent.name}
+                        </DropdownMenuItem>
+                      ))
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
