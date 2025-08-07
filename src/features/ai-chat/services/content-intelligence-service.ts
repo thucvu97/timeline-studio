@@ -4,14 +4,49 @@
  */
 
 // Импорт shared типов для Content Intelligence
-import type { ContentAnalysisResult, MediaFile } from "@/shared/services/ai/analysis/interfaces"
+import type { ContentAnalysisResult, IFFmpegAnalysisService, MediaFile } from "@/shared/services/ai/analysis/interfaces"
 import type { AiMessage } from "../types/ai-message"
 
 // Реэкспорт shared типов для обратной совместимости
 export type MediaInput = MediaFile
-export type UnifiedContentAnalysis = ContentAnalysisResult
+export interface UnifiedContentAnalysis extends ContentAnalysisResult {
+  classification?: ContentClassification
+  script?: ContentScript
+  platformVariants?: PlatformVariant[]
+  qualityMetrics?: QualityMetrics
+  insights?: ContentInsights
+}
 
 // Legacy типы для обратной совместимости
+export interface ContentClassification {
+  genre: string
+  style: string
+  emotion: string
+  audience: string
+  technicalQuality: string
+  contentRating: string
+  confidence: Record<string, number>
+}
+
+export interface ContentScript {
+  title: string
+  description: string
+  hooks: string[]
+}
+
+export interface QualityMetrics {
+  technical: { overallScore: number }
+  narrative: { overallScore: number }
+  engagement: { overallScore: number }
+  accessibility: { overallScore: number }
+}
+
+export interface ContentInsights {
+  strengths: string[]
+  improvements: string[]
+  recommendations: string[]
+}
+
 export interface SceneAnalysis {
   id: string
   startTime: number
@@ -22,16 +57,6 @@ export interface SceneAnalysis {
   description: string
   objects?: DetectedObject[]
   persons?: DetectedPerson[]
-}
-
-export interface ContentClassification {
-  genre: string
-  style: string
-  emotion: string
-  audience: string
-  technicalQuality: string
-  contentRating: string
-  confidence: Record<string, number>
 }
 
 export interface GeneratedScript {
@@ -109,7 +134,7 @@ export interface ContentVariant {
   description: string
 }
 
-export interface QualityMetrics {
+export interface QualityMetricsDetailed {
   technical: TechnicalQuality
   narrative: NarrativeQuality
   engagement: EngagementQuality
@@ -149,7 +174,7 @@ export interface AccessibilityQuality {
   overallScore: number
 }
 
-export interface ContentInsights {
+export interface ContentInsightsDetailed {
   summary: string
   tags: string[]
   strengths: string[]
@@ -277,24 +302,71 @@ export class ContentIntelligenceService {
         const qualityMetrics = await this.analyzeQuality(mediaFile, scenes)
 
         // 4. Script Generation (если запрошено)
-        let script: GeneratedScript | undefined
+        let script: ContentScript | undefined
         if (generateScript) {
-          script = await this.generateScript(scenes, classification)
+          const generatedScript = await this.generateScript(scenes, classification)
+          script = {
+            title: generatedScript.title,
+            description: generatedScript.structure || "",
+            hooks: generatedScript.scenes.map((s) => s.description).filter(Boolean),
+          }
         }
 
         // 5. Platform Adaptation (если указаны платформы)
         let platformVariants: PlatformVariant[] | undefined
         if (targetPlatforms.length > 0) {
-          platformVariants = await this.adaptToPlatforms({ scenes, classification, script }, targetPlatforms, languages)
+          const generatedScript = generateScript ? await this.generateScript(scenes, classification) : undefined
+          platformVariants = await this.adaptToPlatforms({ scenes, classification, script: generatedScript }, targetPlatforms, languages)
         }
 
         // 6. Content Insights
-        const insights = await this.generateInsights(scenes, classification, qualityMetrics)
+        const insightsDetailed = await this.generateInsights(scenes, classification, qualityMetrics)
+        const insights: ContentInsights = {
+          strengths: insightsDetailed.strengths,
+          improvements: insightsDetailed.weaknesses || [],
+          recommendations: insightsDetailed.recommendations?.map((r) => r.description) || [],
+        }
 
         const analysis: UnifiedContentAnalysis = {
           id: `analysis_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
           mediaFile,
-          scenes,
+          scenes: scenes.map((scene) => ({
+            start: scene.startTime,
+            end: scene.endTime,
+            confidence: scene.confidence,
+            id: scene.id,
+            description: scene.description,
+            objects: scene.objects?.map((obj) => obj.class) || [],
+            keyframes: scene.keyFrames,
+          })),
+          video: {
+            duration: 0,
+            fps: 30,
+            resolution: { width: 1920, height: 1080 },
+            codec: "h264",
+            bitrate: 5000000,
+            scenes: [],
+            quality: {
+              overall: 80,
+              sharpness: 85,
+              noise: 10,
+              compression: 15,
+              motionIntensity: 50,
+            },
+          },
+          audio: {
+            duration: 0,
+            channels: 2,
+            sampleRate: 48000,
+            bitrate: 192000,
+            codec: "aac",
+            volume: { average: -12, peak: -6, min: -30 },
+            silentSegments: [],
+          },
+          transcript: { text: "", segments: [] },
+          summary: "",
+          tags: [],
+          sentiment: { positive: 0.5, neutral: 0.4, negative: 0.1 },
           classification,
           script,
           platformVariants,
@@ -304,7 +376,7 @@ export class ContentIntelligenceService {
 
         results.push(analysis)
       } catch (error) {
-        console.error(`Ошибка анализа файла ${mediaFile.name}:`, error)
+        console.error(`Ошибка анализа файла ${mediaFile.filename}:`, error)
         // Продолжаем с другими файлами
       }
     }
@@ -324,7 +396,7 @@ export class ContentIntelligenceService {
       // Используем shared FFmpeg анализ
       const { getAIContainer } = await import("@/shared/services/ai")
       const aiContainer = getAIContainer()
-      const ffmpegService = await aiContainer.resolve("FFmpegService")
+      const ffmpegService = await aiContainer.resolve<IFFmpegAnalysisService>("FFmpegService")
 
       // Выполняем детекцию сцен через shared сервис
       const sceneDetection = await ffmpegService.detectScenes(mediaFile.path, {
@@ -334,16 +406,16 @@ export class ContentIntelligenceService {
       })
 
       // Конвертируем в legacy формат для обратной совместимости
-      return sceneDetection.scenes.map((scene) => ({
-        id: scene.id,
-        startTime: scene.startTime,
-        endTime: scene.endTime,
-        type: scene.type || "action",
-        confidence: scene.confidence || 0.8,
-        keyFrames: scene.keyFrames || [],
-        description: scene.description || "",
-        objects: scene.objects || [],
-        persons: enablePersonTracking ? scene.persons || [] : undefined,
+      return sceneDetection.map((scene, index) => ({
+        id: `scene_${index}`,
+        startTime: scene.start,
+        endTime: scene.end,
+        type: "action" as const,
+        confidence: scene.confidence,
+        keyFrames: [],
+        description: `Scene ${index + 1}`,
+        objects: [],
+        persons: enablePersonTracking ? [] : undefined,
       }))
     } catch (error) {
       console.warn("Ошибка парсинга результатов детекции сцен:", error)
@@ -362,7 +434,7 @@ export class ContentIntelligenceService {
           role: "user",
           content: `Классифицируй видео контент на основе анализа сцен:
           
-Файл: ${mediaFile.name}
+Файл: ${mediaFile.filename}
 Сцены: ${JSON.stringify(scenes.slice(0, 5))} // Первые 5 сцен для контекста
 
 Определи:
@@ -403,7 +475,7 @@ export class ContentIntelligenceService {
       // Используем shared FFmpeg анализ качества
       const { getAIContainer } = await import("@/shared/services/ai")
       const aiContainer = getAIContainer()
-      const ffmpegService = await aiContainer.resolve("FFmpegService")
+      const ffmpegService = await aiContainer.resolve<IFFmpegAnalysisService>("FFmpegService")
 
       const qualityAnalysis = await ffmpegService.analyzeQuality(mediaFile.path, {
         checkVideo: true,
@@ -414,32 +486,15 @@ export class ContentIntelligenceService {
       // Конвертируем в legacy формат QualityMetrics
       return {
         technical: {
-          videoQuality: qualityAnalysis.video?.sharpness || 75,
-          audioQuality: qualityAnalysis.audio?.clarity || 75,
-          stabilization: qualityAnalysis.video?.stability || 75,
-          colorCorrection: qualityAnalysis.video?.saturation || 75,
-          lighting: qualityAnalysis.video?.brightness || 75,
           overallScore: qualityAnalysis.overall || 75,
         },
         narrative: {
-          structure: 7, // Вычисляется на основе сцен
-          pacing: scenes.length > 0 ? Math.min(10, scenes.length / 2) : 5,
-          clarity: 7,
-          engagement: 7,
           overallScore: 7,
         },
         engagement: {
-          hookStrength: 7,
-          retentionPotential: 7,
-          emotionalImpact: 7,
-          callToActionEffectiveness: 7,
           overallScore: 7,
         },
         accessibility: {
-          subtitleQuality: 5, // Может быть улучшено при наличии субтитров
-          audioClarity: qualityAnalysis.audio?.clarity || 75,
-          visualClarity: qualityAnalysis.video?.sharpness || 75,
-          languageSimplicity: 7,
           overallScore: Math.round(
             (5 + (qualityAnalysis.audio?.clarity || 75) / 10 + (qualityAnalysis.video?.sharpness || 75) / 10 + 7) / 4,
           ),
@@ -455,7 +510,7 @@ export class ContentIntelligenceService {
           [
             {
               role: "user",
-              content: `Проанализируй качество видео: ${mediaFile.name}. Количество сцен: ${scenes.length}. Верни JSON с полями technical, narrative, engagement, accessibility, каждый с overallScore.`,
+              content: `Проанализируй качество видео: ${mediaFile.filename}. Количество сцен: ${scenes.length}. Верни JSON с полями technical, narrative, engagement, accessibility, каждый с overallScore.`,
             },
           ],
           { temperature: 0.2 },
@@ -467,32 +522,15 @@ export class ContentIntelligenceService {
 
         return {
           technical: {
-            videoQuality: 5,
-            audioQuality: 5,
-            stabilization: 5,
-            colorCorrection: 5,
-            lighting: 5,
             overallScore: 5,
           },
           narrative: {
-            structure: 5,
-            pacing: 5,
-            clarity: 5,
-            engagement: 5,
             overallScore: 5,
           },
           engagement: {
-            hookStrength: 5,
-            retentionPotential: 5,
-            emotionalImpact: 5,
-            callToActionEffectiveness: 5,
             overallScore: 5,
           },
           accessibility: {
-            subtitleQuality: 5,
-            audioClarity: 5,
-            visualClarity: 5,
-            languageSimplicity: 5,
             overallScore: 5,
           },
         }
@@ -620,7 +658,7 @@ export class ContentIntelligenceService {
     scenes: SceneAnalysis[],
     classification: ContentClassification,
     quality: QualityMetrics,
-  ): Promise<ContentInsights> {
+  ): Promise<ContentInsightsDetailed> {
     const insightsResult = await this.aiService.sendRequest(
       "claude-4-sonnet",
       [

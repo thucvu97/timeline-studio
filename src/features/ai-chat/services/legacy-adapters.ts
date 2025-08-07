@@ -53,11 +53,19 @@ export class LegacyFFmpegAnalysisService {
     return service.analyzeMotion(path, options)
   }
 
-  async analyzeAudio(path: string, options?: any) {
+  async analyzeAudio(file: { path: string; filename?: string; [key: string]: any }, _options?: any) {
     const service = await this.getSharedService()
-    return service.analyzeAudio(path, options)
+    const mediaFile = {
+      id: file.id || Date.now().toString(),
+      path: file.path,
+      filename: file.filename || file.path.split("/").pop() || "unknown",
+      size: file.size || 0,
+      type: "audio" as const,
+      ...file,
+    }
+    return service.analyzeAudio(mediaFile)
   }
 }
 
 // Экспорт для обратной совместимости
-export const FFmpegAnalysisService = LegacyFFmpegAnalysisService
+export const LegacyFFmpeg = LegacyFFmpegAnalysisService
