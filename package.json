@@ -62,7 +62,10 @@
     "docs": "node scripts/generate-docs.js",
     "promo:dev": "cd promo && bun run dev",
     "promo:build": "cd promo && bun run build",
-    "promo:preview": "cd promo && bun run preview"
+    "promo:preview": "cd promo && bun run preview",
+    "swarm:init": "node .swarm/init.js",
+    "swarm:status": "npx -y ruv-swarm status",
+    "swarm:monitor": "npx -y ruv-swarm monitor"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -121,6 +124,7 @@
     "react-hotkeys-hook": "^5.1.0",
     "react-i18next": "^15.6.1",
     "react-resizable-panels": "^3.0.4",
+    "ruv-swarm": "^1.0.18",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.1",
     "wavesurfer.js": "^7.10.1",
