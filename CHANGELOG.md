@@ -1,3 +1,16 @@
+# [0.75.0](https://github.com/chatman-media/timeline-studio/compare/v0.74.0...v0.75.0) (2025-08-07)
+
+
+### Bug Fixes
+
+* **rust:** исправлено clippy warning manual_flatten в effects_commands ([c44e513](https://github.com/chatman-media/timeline-studio/commit/c44e51327b6c53d61a6d8c2ebb6c1236ff19ef5e))
+
+
+### Features
+
+* **browser:** полная интеграция выбора файлов с AI чатом ([f52cbbf](https://github.com/chatman-media/timeline-studio/commit/f52cbbf4aecaf7441230dcc7ce632a8c53dde512))
+* **timeline:** реализована виртуализация Timeline с @tanstack/react-virtual ([b99e31b](https://github.com/chatman-media/timeline-studio/commit/b99e31bd49c8c52446d573e409f735149457365b))
+
 # [0.74.0](https://github.com/chatman-media/timeline-studio/compare/v0.73.0...v0.74.0) (2025-08-07)
 
 
