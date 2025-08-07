@@ -17,17 +17,13 @@ export * from "./hooks/use-timeline-ai"
 // Сервисы и провайдеры (включая основной useChat)
 export * from "./services/chat-machine"
 export * from "./services/claude-service"
-export * from "./services/openai-service"
 export * from "./services/unified-ai-service"
-export * from "./services/ai-context-provider"
 export * from "./services/whisper-service"
 
-// Инструменты (избегаем конфликтов типов)
+// Инструменты
 export * from "./tools/base-ai-tool"
-export * from "./tools/analysis"
-export * from "./tools/core"
 
-// Все типы
+// Все типы  
 export * from "./types/ai-context"
 export * from "./types/ai-message"
 export * from "./types/chat"
