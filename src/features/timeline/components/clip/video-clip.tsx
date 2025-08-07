@@ -12,6 +12,8 @@ import { useClips } from "../../hooks/use-clips"
 import { useTimeline } from "../../hooks/use-timeline"
 import { timelinePlayerSync } from "../../services/timeline-player-sync"
 import type { TimelineClip, TimelineTrack } from "../../types"
+import { ClipDropZone } from "./clip-drop-zone"
+import { ClipResourceIndicators } from "./clip-resource-indicators"
 import { VideoFadeControls } from "./video-fade-controls"
 import { VideoFadeVisualization } from "./video-fade-visualization"
 
@@ -94,7 +96,8 @@ export const VideoClip = memo(
     )
 
     return (
-      <div
+      <ClipDropZone
+        clip={clip}
         className={cn(
           "h-full w-full rounded border-2 transition-all duration-150",
           "flex flex-col overflow-hidden relative group",
@@ -103,104 +106,95 @@ export const VideoClip = memo(
           clip.isSelected && "ring-2 ring-white ring-offset-1",
           clip.isLocked && "opacity-60",
         )}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        onClick={handleSelect}
       >
-        {/* Заголовок клипа */}
-        <div className="flex items-center justify-between p-1 bg-black/20">
-          <div className="flex items-center gap-1 min-w-0">
-            {track.type === "video" ? (
-              <Video className="w-3 h-3 text-white flex-shrink-0" />
-            ) : (
-              <Image className="w-3 h-3 text-white flex-shrink-0" />
+        <div
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          onClick={handleSelect}
+          className="h-full w-full"
+        >
+          {/* Заголовок клипа */}
+          <div className="flex items-center justify-between p-1 bg-black/20">
+            <div className="flex items-center gap-1 min-w-0">
+              {track.type === "video" ? (
+                <Video className="w-3 h-3 text-white flex-shrink-0" />
+              ) : (
+                <Image className="w-3 h-3 text-white flex-shrink-0" />
+              )}
+              <span className="text-xs text-white truncate font-medium">{clip.name}</span>
+
+              {/* Индикаторы ресурсов */}
+              <ClipResourceIndicators clip={clip} className="ml-1" />
+            </div>
+
+            {/* Кнопки управления (показываются при наведении) */}
+            {isHovered && !clip.isLocked && (
+              <div className="flex items-center gap-0.5">
+                <VideoFadeControls clip={clip} className="w-4 h-4" />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-4 h-4 p-0 hover:bg-white/20"
+                  onClick={handleCopy}
+                  title="Копировать"
+                >
+                  <Copy className="w-2.5 h-2.5 text-white" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-4 h-4 p-0 hover:bg-white/20"
+                  onClick={handleSplit}
+                  title="Разделить"
+                >
+                  <Scissors className="w-2.5 h-2.5 text-white" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-4 h-4 p-0 hover:bg-red-500/50"
+                  onClick={handleRemove}
+                  title="Удалить"
+                >
+                  <Trash2 className="w-2.5 h-2.5 text-white" />
+                </Button>
+              </div>
             )}
-            <span className="text-xs text-white truncate font-medium">{clip.name}</span>
           </div>
 
-          {/* Кнопки управления (показываются при наведении) */}
+          {/* Содержимое клипа */}
+          <div className="flex-1 relative">
+            {/* Превью видео/изображения */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/10 to-transparent">
+              {/* TODO: Здесь будет превью кадра из видео */}
+              <div className="w-full h-full flex items-center justify-center">
+                <span className="text-xs text-white/70">{Math.round(clip.duration)}s</span>
+              </div>
+            </div>
+
+            {/* Визуализация fade эффектов */}
+            <VideoFadeVisualization
+              clip={clip}
+              width={clipWidth}
+              height={clipHeight}
+              pixelsPerSecond={pixelsPerSecond}
+            />
+          </div>
+
+          {/* Полоса прогресса (показывает обрезку) */}
+          <div className="h-1 bg-black/30 relative">
+            <div className="h-full bg-white/50" style={progressBarStyle} />
+          </div>
+
+          {/* Ручки для изменения размера */}
           {isHovered && !clip.isLocked && (
-            <div className="flex items-center gap-0.5">
-              <VideoFadeControls clip={clip} className="w-4 h-4" />
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-4 h-4 p-0 hover:bg-white/20"
-                onClick={handleCopy}
-                title="Копировать"
-              >
-                <Copy className="w-2.5 h-2.5 text-white" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-4 h-4 p-0 hover:bg-white/20"
-                onClick={handleSplit}
-                title="Разделить"
-              >
-                <Scissors className="w-2.5 h-2.5 text-white" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-4 h-4 p-0 hover:bg-red-500/50"
-                onClick={handleRemove}
-                title="Удалить"
-              >
-                <Trash2 className="w-2.5 h-2.5 text-white" />
-              </Button>
-            </div>
+            <>
+              <div className="absolute left-0 top-0 bottom-0 w-1 bg-white/50 cursor-w-resize" />
+              <div className="absolute right-0 top-0 bottom-0 w-1 bg-white/50 cursor-e-resize" />
+            </>
           )}
         </div>
-
-        {/* Содержимое клипа */}
-        <div className="flex-1 relative">
-          {/* Превью видео/изображения */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/10 to-transparent">
-            {/* TODO: Здесь будет превью кадра из видео */}
-            <div className="w-full h-full flex items-center justify-center">
-              <span className="text-xs text-white/70">{Math.round(clip.duration)}s</span>
-            </div>
-          </div>
-
-          {/* Визуализация fade эффектов */}
-          <VideoFadeVisualization clip={clip} width={clipWidth} height={clipHeight} pixelsPerSecond={pixelsPerSecond} />
-
-          {/* Индикаторы эффектов */}
-          {clip.effects.length > 0 && (
-            <div className="absolute top-1 left-1">
-              <div className="w-2 h-2 bg-yellow-400 rounded-full" title="Эффекты применены" />
-            </div>
-          )}
-
-          {/* Индикаторы фильтров */}
-          {clip.filters.length > 0 && (
-            <div className="absolute top-1 left-4">
-              <div className="w-2 h-2 bg-green-400 rounded-full" title="Фильтры применены" />
-            </div>
-          )}
-
-          {/* Индикаторы переходов */}
-          {clip.transitions.length > 0 && (
-            <div className="absolute top-1 left-7">
-              <div className="w-2 h-2 bg-pink-400 rounded-full" title="Переходы применены" />
-            </div>
-          )}
-        </div>
-
-        {/* Полоса прогресса (показывает обрезку) */}
-        <div className="h-1 bg-black/30 relative">
-          <div className="h-full bg-white/50" style={progressBarStyle} />
-        </div>
-
-        {/* Ручки для изменения размера */}
-        {isHovered && !clip.isLocked && (
-          <>
-            <div className="absolute left-0 top-0 bottom-0 w-1 bg-white/50 cursor-w-resize" />
-            <div className="absolute right-0 top-0 bottom-0 w-1 bg-white/50 cursor-e-resize" />
-          </>
-        )}
-      </div>
+      </ClipDropZone>
     )
   },
   (prevProps, nextProps) => {

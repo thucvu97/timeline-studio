@@ -141,12 +141,12 @@ const createMockTransition = (
   duration,
   parameters: {
     intensity: 1,
-    easing: "easeInOut"
+    easing: "easeInOut",
   },
   keyframes: [],
   curve: {
     type: "ease-in-out",
-    points: []
+    points: [],
   },
   startClipId,
   endClipId,

@@ -29,12 +29,12 @@ vi.mock("../../services/resource-manager", () => ({
       trackId: config.trackId,
       parameters: config.parameters || {
         intensity: 1,
-        easing: "easeInOut"
+        easing: "easeInOut",
       },
       keyframes: [],
       curve: {
         type: "ease-in-out",
-        points: []
+        points: [],
       },
       isEnabled: true,
       isLocked: false,
@@ -50,26 +50,22 @@ vi.mock("../../services/resource-manager", () => ({
     updatedProject.resources.timelineTransitions.push(transition)
     return updatedProject
   }),
-  updateTimelineTransitionParameters: vi.fn(
-    (project: TimelineProject, transitionId: string, updates: any) => {
-      const updatedProject = { ...project }
-      const transition = updatedProject.resources.timelineTransitions.find((t) => t.id === transitionId)
-      if (transition) {
-        Object.assign(transition.parameters, updates)
-      }
-      return updatedProject
-    },
-  ),
-  updateTimelineTransitionProperties: vi.fn(
-    (project: TimelineProject, transitionId: string, updates: any) => {
-      const updatedProject = { ...project }
-      const transition = updatedProject.resources.timelineTransitions.find((t) => t.id === transitionId)
-      if (transition) {
-        Object.assign(transition, updates)
-      }
-      return updatedProject
-    },
-  ),
+  updateTimelineTransitionParameters: vi.fn((project: TimelineProject, transitionId: string, updates: any) => {
+    const updatedProject = { ...project }
+    const transition = updatedProject.resources.timelineTransitions.find((t) => t.id === transitionId)
+    if (transition) {
+      Object.assign(transition.parameters, updates)
+    }
+    return updatedProject
+  }),
+  updateTimelineTransitionProperties: vi.fn((project: TimelineProject, transitionId: string, updates: any) => {
+    const updatedProject = { ...project }
+    const transition = updatedProject.resources.timelineTransitions.find((t) => t.id === transitionId)
+    if (transition) {
+      Object.assign(transition, updates)
+    }
+    return updatedProject
+  }),
 }))
 
 // Тестовые данные
@@ -78,11 +74,11 @@ const createMockTransitionResource = (): Transition => ({
   type: "fade",
   labels: {
     ru: "Затухание",
-    en: "Fade"
+    en: "Fade",
   },
   description: {
     ru: "Переход с затуханием",
-    en: "Crossfade transition"
+    en: "Crossfade transition",
   },
   category: "basic",
   complexity: "basic",
