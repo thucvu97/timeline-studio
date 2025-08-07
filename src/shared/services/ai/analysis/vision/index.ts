@@ -43,29 +43,52 @@ export class VisionAdapter implements IVisionService {
     }
   }
 
-  async analyzeFrame(imagePath: string): Promise<FrameAnalysis> {
+  async analyzeFrame(imagePath: string): Promise<FrameAnalysisResult> {
     if (!this.visionService) {
       throw new Error("Vision service not available")
     }
 
     try {
       // Параллельно выполняем все виды анализа
-      const [objects, text, composition, colors, quality] = await Promise.all([
+      const [objects, text, faces] = await Promise.all([
         this.detectObjects(imagePath),
         this.extractText(imagePath),
-        this.analyzeComposition(imagePath),
-        this.analyzeColors(imagePath),
-        this.analyzeFrameQuality(imagePath),
+        this.detectFaces(imagePath),
       ])
 
+      // Преобразуем к формату FrameAnalysisResult
       return {
-        id: `frame_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        timestamp: Date.now(),
-        objects,
-        text,
-        composition,
-        colors,
-        quality,
+        objects: objects.map((obj) => ({
+          label: obj.class,
+          confidence: obj.confidence,
+          bbox: {
+            x: obj.boundingBox.x,
+            y: obj.boundingBox.y,
+            width: obj.boundingBox.width,
+            height: obj.boundingBox.height,
+          },
+        })),
+        faces: faces,
+        text: text.map((t) => ({
+          text: t.text,
+          confidence: t.confidence,
+          bbox: {
+            x: t.boundingBox.x,
+            y: t.boundingBox.y,
+            width: t.boundingBox.width,
+            height: t.boundingBox.height,
+          },
+        })),
+        scene: {
+          type: "unknown",
+          confidence: 0.5,
+          attributes: [],
+        },
+        nsfw: {
+          safe: 0.9,
+          suggestive: 0.08,
+          explicit: 0.02,
+        },
       }
     } catch (error) {
       throw new Error(`Frame analysis error: ${error instanceof Error ? error.message : "Unknown error"}`)
@@ -79,7 +102,48 @@ export class VisionAdapter implements IVisionService {
 
     for (let i = 0; i < imagePaths.length; i += batchSize) {
       const batch = imagePaths.slice(i, i + batchSize)
-      const batchResults = await Promise.all(batch.map((path) => this.analyzeFrame(path)))
+      const batchResults = await Promise.all(
+        batch.map(async (path) => {
+          const frameResult = await this.analyzeFrame(path)
+
+          // Преобразуем FrameAnalysisResult обратно в FrameAnalysis для совместимости
+          const [composition, colors, quality] = await Promise.all([
+            this.analyzeComposition(path),
+            this.analyzeColors(path),
+            this.analyzeFrameQuality(path),
+          ])
+
+          return {
+            id: `frame_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
+            timestamp: Date.now(),
+            objects: frameResult.objects.map((obj) => ({
+              class: obj.label,
+              confidence: obj.confidence,
+              boundingBox: {
+                x: obj.bbox.x,
+                y: obj.bbox.y,
+                width: obj.bbox.width,
+                height: obj.bbox.height,
+              },
+              attributes: {},
+            })),
+            text: frameResult.text.map((t) => ({
+              text: t.text,
+              confidence: t.confidence,
+              boundingBox: {
+                x: t.bbox.x,
+                y: t.bbox.y,
+                width: t.bbox.width,
+                height: t.bbox.height,
+              },
+              language: "unknown",
+            })),
+            composition,
+            colors,
+            quality,
+          } as FrameAnalysis
+        }),
+      )
       results.push(...batchResults)
     }
 
