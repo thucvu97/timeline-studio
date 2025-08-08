@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/chatman-media/timeline-studio/compare/v1.0.1...v1.1.0) (2025-08-08)
+
+
+### Features
+
+* миграция AI сервисов в доменную архитектуру с поддержкой Grok ([ceac10a](https://github.com/chatman-media/timeline-studio/commit/ceac10a8549530790d9cb60eef13780a012fe5fb))
+
 ## [1.0.1](https://github.com/chatman-media/timeline-studio/compare/v1.0.0...v1.0.1) (2025-08-08)
 
 
