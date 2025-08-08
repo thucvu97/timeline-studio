@@ -7,6 +7,15 @@
 
 import { type ActorRefFrom, createActor } from "xstate"
 import type { MediaFile } from "@/features/media/types/media"
+import { 
+  eventBus, 
+  DOMAIN_EVENTS,
+  type ClipAddedEvent,
+  type PlaybackStartedEvent,
+  type PlaybackStoppedEvent,
+  type TimelineCreatedEvent,
+  type EffectAppliedEvent
+} from '@domains/shared/events'
 import { type PlayerMachine, playerMachine } from "../machines/player-machine"
 import { type TimelineMachine, timelineMachine } from "../machines/timeline-machine"
 
@@ -27,8 +36,101 @@ export class VideoEditingOrchestrator {
 
     // Настраиваем синхронизацию между машинами
     this.setupSynchronization()
+    
+    // Настраиваем публикацию событий
+    this.setupEventPublishing()
+    
+    // Настраиваем обработку входящих событий
+    this.setupEventHandlers()
 
     console.log("[Video Editing Orchestrator] Initialized successfully")
+  }
+
+  /**
+   * Настройка публикации событий
+   */
+  private setupEventPublishing() {
+    // Публикуем события изменения состояния воспроизведения
+    let wasPlaying = false
+    this.playerActor.subscribe((state) => {
+      const isPlaying = state.context.isPlaying
+      const currentTime = state.context.currentTime
+      
+      // Публикуем событие начала воспроизведения
+      if (isPlaying && !wasPlaying) {
+        eventBus.publish<PlaybackStartedEvent>(
+          DOMAIN_EVENTS.VIDEO.PLAYBACK_STARTED,
+          'video-editing',
+          {
+            timelineId: 'current', // TODO: получить реальный ID timeline
+            startTime: currentTime,
+            playbackRate: state.context.currentPlaybackRate || 1
+          }
+        )
+      }
+      
+      // Публикуем событие остановки воспроизведения
+      if (!isPlaying && wasPlaying) {
+        eventBus.publish<PlaybackStoppedEvent>(
+          DOMAIN_EVENTS.VIDEO.PLAYBACK_STOPPED,
+          'video-editing',
+          {
+            timelineId: 'current',
+            stopTime: currentTime,
+            duration: state.context.duration
+          }
+        )
+      }
+      
+      wasPlaying = isPlaying
+    })
+  }
+
+  /**
+   * Настройка обработки входящих событий
+   */
+  private setupEventHandlers() {
+    // Слушаем события из AI Services
+    eventBus.subscribe(
+      async (event) => {
+        switch (event.type) {
+          case DOMAIN_EVENTS.AI_SERVICES.MONTAGE_PLAN_APPLIED:
+            // План монтажа применен, обновляем timeline
+            console.log('[Video Orchestrator] Montage plan applied, refreshing timeline')
+            this.timelineActor.send({ type: 'REFRESH' })
+            break
+            
+          case DOMAIN_EVENTS.AI_SERVICES.CHAT_TIMELINE_CREATED:
+            // AI создал новый timeline
+            const { timelineId } = event.payload as any
+            console.log(`[Video Orchestrator] AI created timeline: ${timelineId}`)
+            // TODO: загрузить новый timeline
+            break
+        }
+      },
+      {
+        filter: {
+          source: 'ai-services'
+        }
+      }
+    )
+    
+    // Слушаем события из Media Management
+    eventBus.subscribe(
+      async (event) => {
+        switch (event.type) {
+          case DOMAIN_EVENTS.MEDIA.FILES_IMPORTED:
+            // Новые файлы импортированы, можем предложить добавить их на timeline
+            console.log('[Video Orchestrator] New files imported, ready for timeline')
+            break
+        }
+      },
+      {
+        filter: {
+          source: 'media-management'
+        }
+      }
+    )
   }
 
   /**
@@ -119,6 +221,19 @@ export class VideoEditingOrchestrator {
   applyEffect(effect: { id: string; name: string; params: any }) {
     console.log(`[Video Editing Orchestrator] Applying effect: ${effect.name}`)
     this.playerActor.send({ type: "APPLY_EFFECT", effect })
+    
+    // Публикуем событие применения эффекта
+    eventBus.publish<EffectAppliedEvent>(
+      DOMAIN_EVENTS.VIDEO.EFFECT_APPLIED,
+      'video-editing',
+      {
+        targetId: 'current-video', // TODO: получить реальный ID
+        targetType: 'clip',
+        effectId: effect.id,
+        effectType: effect.name,
+        parameters: effect.params
+      }
+    )
   }
 
   removeEffect(effectId: string) {
