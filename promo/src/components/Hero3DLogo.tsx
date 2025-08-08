@@ -5,6 +5,8 @@ import { useEffect, useRef, useState } from "react"
 export const Hero3DLogo: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [isHovered, setIsHovered] = useState(false)
+  const [cachedRect, setCachedRect] = useState<DOMRect | null>(null)
+  const animationFrame = useRef<number | null>(null)
 
   // Mouse position tracking with springs for smooth animation
   const mouseX = useMotionValue(0)
@@ -15,21 +17,44 @@ export const Hero3DLogo: React.FC = () => {
   const mouseXSpring = useSpring(mouseX, springConfig)
   const mouseYSpring = useSpring(mouseY, springConfig)
 
+  // Cache rect to avoid forced layout
+  useEffect(() => {
+    const updateRect = () => {
+      if (containerRef.current) {
+        setCachedRect(containerRef.current.getBoundingClientRect())
+      }
+    }
+
+    updateRect()
+    window.addEventListener("resize", updateRect)
+    return () => window.removeEventListener("resize", updateRect)
+  }, [])
+
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (!containerRef.current) return
+      if (!containerRef.current || !cachedRect) return
 
-      const rect = containerRef.current.getBoundingClientRect()
-      const x = e.clientX - rect.left
-      const y = e.clientY - rect.top
+      const x = e.clientX - cachedRect.left
+      const y = e.clientY - cachedRect.top
 
-      mouseX.set(x)
-      mouseY.set(y)
+      // Throttle with requestAnimationFrame
+      if (!animationFrame.current) {
+        animationFrame.current = requestAnimationFrame(() => {
+          mouseX.set(x)
+          mouseY.set(y)
+          animationFrame.current = null
+        })
+      }
     }
 
     window.addEventListener("mousemove", handleMouseMove)
-    return () => window.removeEventListener("mousemove", handleMouseMove)
-  }, [mouseX, mouseY])
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove)
+      if (animationFrame.current) {
+        cancelAnimationFrame(animationFrame.current)
+      }
+    }
+  }, [mouseX, mouseY, cachedRect])
 
   return (
     <div
@@ -81,7 +106,7 @@ export const Hero3DLogo: React.FC = () => {
               filter: "blur(30px)",
             }}
             animate={{
-              x: [-320, typeof window !== "undefined" ? window.innerWidth + 320 : 2000],
+              x: [-320, cachedRect ? cachedRect.width + 320 : 2000],
             }}
             transition={{
               duration: 40,
@@ -100,7 +125,7 @@ export const Hero3DLogo: React.FC = () => {
               filter: "blur(40px)",
             }}
             animate={{
-              x: [-384, typeof window !== "undefined" ? window.innerWidth + 384 : 2000],
+              x: [-384, cachedRect ? cachedRect.width + 384 : 2000],
             }}
             transition={{
               duration: 35,
@@ -120,7 +145,7 @@ export const Hero3DLogo: React.FC = () => {
               filter: "blur(25px)",
             }}
             animate={{
-              x: [-288, typeof window !== "undefined" ? window.innerWidth + 288 : 2000],
+              x: [-288, cachedRect ? cachedRect.width + 288 : 2000],
             }}
             transition={{
               duration: 45,
