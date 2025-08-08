@@ -26,10 +26,10 @@ export type {
 // Import types needed from features
 import type {
   UpdateInfo as FeatureUpdateInfo,
-  UpdateProgressWithPercentage as FeatureUpdateProgressWithPercentage,
-  UpdateStatus as FeatureUpdateStatus,
   UpdateMachineContext as FeatureUpdateMachineContext,
   UpdateMachineEvent as FeatureUpdateMachineEvent,
+  UpdateProgressWithPercentage as FeatureUpdateProgressWithPercentage,
+  UpdateStatus as FeatureUpdateStatus,
 } from "@/features/updates/types"
 
 // Re-export with proper types
@@ -117,7 +117,6 @@ export type SystemIntegrationEvent =
   | { type: "UPDATE_ONLINE_STATUS"; isOnline: boolean }
   | { type: "UPDATE_SYSTEM_RESOURCES"; resources: SystemResources }
   | { type: "TOGGLE_FEATURE"; feature: string; enabled: boolean }
-
 
 // System integration service interface
 export interface SystemIntegrationService {

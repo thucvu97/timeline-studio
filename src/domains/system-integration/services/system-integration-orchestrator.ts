@@ -14,7 +14,6 @@ export class SystemIntegrationOrchestrator {
   private updateActor: ActorRefFrom<typeof updateMachine>
   private notifications: SystemNotification[] = []
   private features: Record<string, boolean> = {}
-  private notificationCounter = 0
 
   constructor() {
     console.log("[System Integration Orchestrator] Initializing...")

@@ -58,7 +58,7 @@ export function useUpdates() {
   // Map machine state to UpdateStatus
   const machineState = updateState.value as string
   let status: UpdateStatus = "idle"
-  
+
   // Map XState machine states to UpdateStatus
   if (machineState === "initializing" || machineState === "idle") status = "idle"
   else if (machineState === "checking") status = "checking"

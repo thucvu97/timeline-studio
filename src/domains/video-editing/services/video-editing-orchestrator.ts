@@ -1,369 +1,395 @@
 /**
- * Video Editing Orchestrator Service
+ * Video Editing Domain Orchestrator
  *
- * Координирует взаимодействие между timeline и player машинами
- * для обеспечения целостного опыта редактирования видео
+ * Координирует работу всех машин и сервисов домена видеоредактирования:
+ * - Timeline управление (расширенная версия)
+ * - Player управление
+ * - Backend синхронизация
+ * - Межdomainная коммуникация через EventBus
  */
 
 import {
+  type ClipAddedEvent,
   DOMAIN_EVENTS,
-  type EffectAppliedEvent,
   eventBus,
-  type PlaybackStartedEvent,
-  type PlaybackStoppedEvent,
+  type PlaybackStateChangedEvent,
+  type TimelineUpdatedEvent,
 } from "@domains/shared/events"
 import { type ActorRefFrom, createActor } from "xstate"
-import type { MediaFile } from "@/features/media/types/media"
-import { type PlayerMachine, playerMachine } from "../machines/player-machine"
-import { type TimelineMachine, timelineMachine } from "../machines/timeline-machine"
+import { getBackendSync } from "@/features/app-state/services/backend-sync"
+import type { ProjectCommand, ProjectState } from "@/types/generated/tauri-bindings"
+import { playerMachine } from "../machines/player-machine"
+// Import machines
+import { timelineExtendedMachine } from "../machines/timeline-extended-machine"
+import { timelineMachine } from "../machines/timeline-machine"
 
 export class VideoEditingOrchestrator {
-  private timelineActor: ActorRefFrom<TimelineMachine>
-  private playerActor: ActorRefFrom<PlayerMachine>
+  private static instance: VideoEditingOrchestrator | null = null
 
-  constructor() {
+  // Actors
+  private timelineExtendedActor: ActorRefFrom<typeof timelineExtendedMachine>
+  private playerActor: ActorRefFrom<typeof playerMachine>
+  private timelineUIActor: ActorRefFrom<typeof timelineMachine> // Для UI состояния
+
+  // Backend sync
+  private backendSync = getBackendSync()
+  private backendUnsubscribe: (() => void) | null = null
+
+  private constructor() {
     console.log("[Video Editing Orchestrator] Initializing...")
 
-    // Создаем акторы для машин
-    this.timelineActor = createActor(timelineMachine)
+    // Создаем акторы
+    this.timelineExtendedActor = createActor(timelineExtendedMachine)
     this.playerActor = createActor(playerMachine)
+    this.timelineUIActor = createActor(timelineMachine)
 
     // Запускаем акторы
-    this.timelineActor.start()
+    this.timelineExtendedActor.start()
     this.playerActor.start()
+    this.timelineUIActor.start()
 
-    // Настраиваем синхронизацию между машинами
-    this.setupSynchronization()
-
-    // Настраиваем публикацию событий
-    this.setupEventPublishing()
-
-    // Настраиваем обработку входящих событий
+    // Настраиваем синхронизацию
+    this.setupBackendSync()
     this.setupEventHandlers()
+    this.setupActorSync()
+    this.setupEventPublishing()
+  }
 
-    console.log("[Video Editing Orchestrator] Initialized successfully")
+  static getInstance(): VideoEditingOrchestrator {
+    if (!VideoEditingOrchestrator.instance) {
+      VideoEditingOrchestrator.instance = new VideoEditingOrchestrator()
+    }
+    return VideoEditingOrchestrator.instance
   }
 
   /**
-   * Настройка публикации событий
+   * Настройка синхронизации с backend
    */
-  private setupEventPublishing() {
-    // Публикуем события изменения состояния воспроизведения
-    let wasPlaying = false
-    this.playerActor.subscribe((state) => {
-      const isPlaying = state.context.isPlaying
-      const currentTime = state.context.currentTime
+  private setupBackendSync() {
+    // Подписка на изменения состояния backend
+    this.backendUnsubscribe = this.backendSync.onStateChange((state: ProjectState) => {
+      console.log("[Video Editing Orchestrator] Backend state updated")
 
-      // Публикуем событие начала воспроизведения
-      if (isPlaying && !wasPlaying) {
-        eventBus.publish<PlaybackStartedEvent>(DOMAIN_EVENTS.VIDEO.PLAYBACK_STARTED, "video-editing", {
-          timelineId: "current", // TODO: получить реальный ID timeline
-          startTime: currentTime,
-          playbackRate: state.context.currentPlaybackRate || 1,
+      // Обновляем timeline машину
+      if (state.project) {
+        this.timelineExtendedActor.send({
+          type: "PROJECT_UPDATED",
+          project: state.project,
         })
       }
 
-      // Публикуем событие остановки воспроизведения
-      if (!isPlaying && wasPlaying) {
-        eventBus.publish<PlaybackStoppedEvent>(DOMAIN_EVENTS.VIDEO.PLAYBACK_STOPPED, "video-editing", {
-          timelineId: "current",
-          stopTime: currentTime,
-          duration: state.context.duration,
+      // Обновляем player машину
+      if (state.playback_state) {
+        this.playerActor.send({
+          type: "SYNC_STATE",
+          state: state.playback_state,
+        })
+
+        // Синхронизируем с timeline
+        this.timelineExtendedActor.send({
+          type: "SYNC_PLAYBACK_STATE",
+          isPlaying: state.playback_state.is_playing,
+          currentTime: state.playback_state.current_time,
         })
       }
-
-      wasPlaying = isPlaying
     })
   }
 
   /**
-   * Настройка обработки входящих событий
+   * Настройка обработчиков событий из других доменов
    */
   private setupEventHandlers() {
-    // Слушаем события из AI Services
+    // Слушаем события из media домена
     eventBus.subscribe(
       async (event) => {
-        switch (event.type) {
-          case DOMAIN_EVENTS.AI_SERVICES.MONTAGE_PLAN_APPLIED:
-            // План монтажа применен, обновляем timeline
-            console.log("[Video Orchestrator] Montage plan applied, clearing selection")
-            this.timelineActor.send({ type: "CLEAR_SELECTION" })
-            break
+        console.log(`[Video Editing Orchestrator] Received event: ${event.type}`)
 
-          case DOMAIN_EVENTS.AI_SERVICES.CHAT_TIMELINE_CREATED:
-            // AI создал новый timeline
-            const { timelineId } = event.payload as any
-            console.log(`[Video Orchestrator] AI created timeline: ${timelineId}`)
-            // TODO: загрузить новый timeline
-            break
-        }
-      },
-      {
-        filter: {
-          source: "ai-services",
-        },
-      },
-    )
-
-    // Слушаем события из Media Management
-    eventBus.subscribe(
-      async (event) => {
         switch (event.type) {
           case DOMAIN_EVENTS.MEDIA.FILES_IMPORTED:
-            // Новые файлы импортированы, можем предложить добавить их на timeline
-            console.log("[Video Orchestrator] New files imported, ready for timeline")
+            // Можно автоматически добавить файлы на timeline
+            console.log("Media files imported, ready to add to timeline")
+            break
+
+          case DOMAIN_EVENTS.AI_SERVICES.MONTAGE_PLAN_GENERATED:
+            // Автоматически применить план монтажа
+            console.log("Montage plan generated, ready to apply")
             break
         }
       },
       {
         filter: {
-          source: "media-management",
+          source: ["media-management", "ai-services"],
         },
       },
     )
   }
 
   /**
-   * Настройка синхронизации между timeline и player
+   * Настройка синхронизации между акторами
    */
-  private setupSynchronization() {
-    // Синхронизация времени воспроизведения
-    this.playerActor.subscribe((state) => {
-      const currentTime = state.context.currentTime
-      const isPlaying = state.context.isPlaying
+  private setupActorSync() {
+    // Синхронизация player -> timeline
+    this.playerActor.subscribe((snapshot) => {
+      const { currentTime, isPlaying } = snapshot.context
 
-      // Синхронизируем состояние воспроизведения с timeline
-      this.timelineActor.send({
+      // Обновляем timeline UI
+      this.timelineUIActor.send({
+        type: "SYNC_CURRENT_TIME",
+        currentTime,
+      })
+
+      this.timelineUIActor.send({
         type: "SYNC_PLAYBACK_STATE",
         isPlaying,
         currentTime,
       })
     })
 
-    // Синхронизация операций timeline с player
-    this.timelineActor.subscribe((state) => {
-      // Обрабатываем изменения в timeline
-      if (state.context.currentTime !== this.playerActor.getSnapshot().context.currentTime) {
-        this.playerActor.send({
-          type: "SEEK",
-          time: state.context.currentTime,
+    // Синхронизация timeline UI -> extended timeline
+    this.timelineUIActor.subscribe((snapshot) => {
+      const { selectedClipIds, selectedTrackIds } = snapshot.context
+
+      // Синхронизируем выделение
+      this.timelineExtendedActor.send({
+        type: "SELECT_CLIPS",
+        clipIds: selectedClipIds,
+      })
+
+      this.timelineExtendedActor.send({
+        type: "SELECT_TRACKS",
+        trackIds: selectedTrackIds,
+      })
+    })
+  }
+
+  /**
+   * Настройка публикации событий
+   */
+  private setupEventPublishing() {
+    // Публикуем события из timeline
+    this.timelineExtendedActor.subscribe((snapshot) => {
+      const { project, hasUnsavedChanges } = snapshot.context
+
+      // Публикуем обновление timeline
+      if (project && snapshot.matches("active")) {
+        eventBus.publish<TimelineUpdatedEvent>(DOMAIN_EVENTS.VIDEO.TIMELINE_UPDATED, "video-editing", {
+          projectId: project.id,
+          hasUnsavedChanges,
+          duration: project.duration,
+          trackCount: project.globalTracks.length,
         })
       }
     })
+
+    // Публикуем события воспроизведения
+    this.playerActor.subscribe((snapshot) => {
+      const { isPlaying, currentTime, duration } = snapshot.context
+
+      eventBus.publish<PlaybackStateChangedEvent>(DOMAIN_EVENTS.VIDEO.PLAYBACK_STATE_CHANGED, "video-editing", {
+        isPlaying,
+        currentTime,
+        duration,
+        progress: duration > 0 ? currentTime / duration : 0,
+      })
+    })
   }
 
   /**
-   * Загрузка видео для редактирования
+   * Выполнить команду backend
    */
-  async loadVideo(video: MediaFile) {
-    console.log(`[Video Editing Orchestrator] Loading video: ${video.name}`)
+  async executeCommand(command: ProjectCommand): Promise<void> {
+    console.log(`[Video Editing Orchestrator] Executing command: ${command.type}`)
 
-    // Загружаем видео в player
-    this.playerActor.send({
-      type: "LOAD_VIDEO",
-      video,
+    try {
+      await this.backendSync.executeCommand(command)
+    } catch (error) {
+      console.error("[Video Editing Orchestrator] Command failed:", error)
+      throw error
+    }
+  }
+
+  /**
+   * API для управления проектом
+   */
+  async createProject(name: string, settings?: any) {
+    this.timelineExtendedActor.send({
+      type: "CREATE_PROJECT",
+      name,
+      settings,
     })
+  }
 
-    // Обновляем UI timeline
-    this.timelineActor.send({
-      type: "SYNC_CURRENT_TIME",
-      currentTime: 0,
+  async loadProject(path: string) {
+    this.timelineExtendedActor.send({
+      type: "LOAD_PROJECT",
+      path,
+    })
+  }
+
+  async saveProject() {
+    this.timelineExtendedActor.send({
+      type: "SAVE_PROJECT",
     })
   }
 
   /**
-   * Управление воспроизведением
+   * API для управления воспроизведением
    */
   play() {
     this.playerActor.send({ type: "PLAY" })
+    this.timelineExtendedActor.send({ type: "PLAY" })
   }
 
   pause() {
     this.playerActor.send({ type: "PAUSE" })
+    this.timelineExtendedActor.send({ type: "PAUSE" })
   }
 
-  stop() {
+  stopPlayback() {
     this.playerActor.send({ type: "STOP" })
+    this.timelineExtendedActor.send({ type: "STOP" })
   }
 
   seek(time: number) {
     this.playerActor.send({ type: "SEEK", time })
+    this.timelineExtendedActor.send({ type: "SEEK", time })
   }
 
   /**
-   * Управление скоростью воспроизведения
+   * API для управления треками
    */
-  setPlaybackRate(rate: number) {
-    this.playerActor.send({ type: "SET_PLAYBACK_RATE", rate })
-    this.timelineActor.send({ type: "SET_PLAYBACK_RATE", rate })
-  }
+  async addTrack(type: any, name?: string, sectionId?: string) {
+    const command: ProjectCommand = {
+      type: "AddTrack",
+      params: {
+        name: name || `${type} Track`,
+        track_type: type.toUpperCase() as any,
+        index: null,
+      },
+    }
 
-  /**
-   * Управление громкостью
-   */
-  setVolume(volume: number) {
-    this.playerActor.send({ type: "SET_VOLUME", volume })
-  }
+    await this.executeCommand(command)
 
-  /**
-   * Управление эффектами
-   */
-  applyEffect(effect: { id: string; name: string; params: any }) {
-    console.log(`[Video Editing Orchestrator] Applying effect: ${effect.name}`)
-    this.playerActor.send({ type: "APPLY_EFFECT", effect })
-
-    // Публикуем событие применения эффекта
-    eventBus.publish<EffectAppliedEvent>(DOMAIN_EVENTS.VIDEO.EFFECT_APPLIED, "video-editing", {
-      targetId: "current-video", // TODO: получить реальный ID
-      targetType: "clip",
-      effectId: effect.id,
-      effectType: effect.name,
-      parameters: effect.params,
+    this.timelineExtendedActor.send({
+      type: "ADD_TRACK",
+      trackType: type,
+      name,
+      sectionId,
     })
   }
 
-  removeEffect(effectId: string) {
-    console.log(`[Video Editing Orchestrator] Removing effect: ${effectId}`)
-    this.playerActor.send({ type: "REMOVE_EFFECT", effectId })
-  }
-
   /**
-   * Управление фильтрами
+   * API для управления клипами
    */
-  applyFilter(filter: { id: string; name: string; params: any }) {
-    console.log(`[Video Editing Orchestrator] Applying filter: ${filter.name}`)
-    this.playerActor.send({ type: "APPLY_FILTER", filter })
-  }
+  async addClip(trackId: string, mediaFile: any, time: number) {
+    const command: ProjectCommand = {
+      type: "AddClip",
+      params: {
+        track_id: trackId,
+        media_id: typeof mediaFile === "string" ? mediaFile : mediaFile.id,
+        time: time,
+      },
+    }
 
-  removeFilter(filterId: string) {
-    console.log(`[Video Editing Orchestrator] Removing filter: ${filterId}`)
-    this.playerActor.send({ type: "REMOVE_FILTER", filterId })
-  }
+    await this.executeCommand(command)
 
-  /**
-   * Управление шаблонами
-   */
-  applyTemplate(template: { id: string; name: string; files: MediaFile[] }) {
-    console.log(`[Video Editing Orchestrator] Applying template: ${template.name}`)
-    this.playerActor.send({ type: "APPLY_TEMPLATE", template })
-  }
+    this.timelineExtendedActor.send({
+      type: "ADD_CLIP",
+      trackId,
+      mediaFile,
+      time,
+    })
 
-  removeTemplate() {
-    console.log("[Video Editing Orchestrator] Removing template")
-    this.playerActor.send({ type: "REMOVE_TEMPLATE" })
-  }
-
-  /**
-   * Управление timeline UI
-   */
-  setTimeScale(scale: number) {
-    this.timelineActor.send({ type: "SET_TIME_SCALE", scale })
-  }
-
-  setEditMode(mode: "select" | "cut" | "trim" | "move") {
-    this.timelineActor.send({ type: "SET_EDIT_MODE", mode })
-  }
-
-  setSnapMode(mode: "none" | "grid" | "clips" | "markers") {
-    this.timelineActor.send({ type: "SET_SNAP_MODE", mode })
+    // Публикуем событие
+    const clipId = `clip-${Date.now()}` // Временный ID
+    eventBus.publish<ClipAddedEvent>(DOMAIN_EVENTS.VIDEO.CLIP_ADDED, "video-editing", {
+      timelineId: "current", // TODO: получить реальный ID timeline
+      trackId,
+      clip: {
+        id: clipId,
+        trackId,
+        startTime: time,
+        endTime: time + (mediaFile.duration || 5),
+        duration: mediaFile.duration || 5,
+        mediaId: typeof mediaFile === "string" ? mediaFile : mediaFile.id,
+      },
+    })
   }
 
   /**
-   * Управление выделением
-   */
-  selectClip(clipId: string, multiple = false) {
-    this.timelineActor.send({ type: "SELECT_CLIP", clipId, multiple })
-  }
-
-  selectTrack(trackId: string, multiple = false) {
-    this.timelineActor.send({ type: "SELECT_TRACK", trackId, multiple })
-  }
-
-  selectSection(sectionId: string, multiple = false) {
-    this.timelineActor.send({ type: "SELECT_SECTION", sectionId, multiple })
-  }
-
-  clearSelection() {
-    this.timelineActor.send({ type: "CLEAR_SELECTION" })
-  }
-
-  /**
-   * Управление записью
-   */
-  startRecording() {
-    console.log("[Video Editing Orchestrator] Starting recording")
-    this.playerActor.send({ type: "START_RECORDING" })
-    this.timelineActor.send({ type: "TOGGLE_RECORDING" })
-  }
-
-  stopRecording() {
-    console.log("[Video Editing Orchestrator] Stopping recording")
-    this.playerActor.send({ type: "STOP_RECORDING" })
-    this.timelineActor.send({ type: "TOGGLE_RECORDING" })
-  }
-
-  /**
-   * Получение текущего состояния
+   * Получить состояния машин
    */
   getTimelineState() {
-    return this.timelineActor.getSnapshot()
+    return this.timelineExtendedActor.getSnapshot()
   }
 
   getPlayerState() {
     return this.playerActor.getSnapshot()
   }
 
+  getTimelineUIState() {
+    return this.timelineUIActor.getSnapshot()
+  }
+
   /**
-   * Получение акторов (для прямых команд)
+   * Получить акторы для прямого взаимодействия
    */
-  getTimelineActor() {
-    return this.timelineActor
-  }
-
-  getPlayerActor() {
-    return this.playerActor
+  getActors() {
+    return {
+      timeline: this.timelineExtendedActor,
+      player: this.playerActor,
+      timelineUI: this.timelineUIActor,
+    }
   }
 
   /**
-   * Подписка на изменения состояния
+   * Подписка на изменения
    */
   subscribeToTimeline(callback: (state: any) => void) {
-    return this.timelineActor.subscribe(callback)
+    return this.timelineExtendedActor.subscribe(callback)
   }
 
   subscribeToPlayer(callback: (state: any) => void) {
     return this.playerActor.subscribe(callback)
   }
 
+  subscribeToTimelineUI(callback: (state: any) => void) {
+    return this.timelineUIActor.subscribe(callback)
+  }
+
   /**
-   * Очистка ресурсов
+   * Остановить оркестратор
    */
-  dispose() {
-    console.log("[Video Editing Orchestrator] Disposing...")
-    this.timelineActor.stop()
+  stop() {
+    console.log("[Video Editing Orchestrator] Stopping...")
+
+    // Отписываемся от backend
+    if (this.backendUnsubscribe) {
+      this.backendUnsubscribe()
+    }
+
+    // Останавливаем акторы
+    this.timelineExtendedActor.stop()
     this.playerActor.stop()
+    this.timelineUIActor.stop()
+
+    VideoEditingOrchestrator.instance = null
   }
 }
 
-// Singleton экземпляр
-let orchestratorInstance: VideoEditingOrchestrator | null = null
-
-/**
- * Получить экземпляр Video Editing Orchestrator
- */
-export function getVideoEditingOrchestrator(): VideoEditingOrchestrator {
-  if (!orchestratorInstance) {
-    orchestratorInstance = new VideoEditingOrchestrator()
-  }
-  return orchestratorInstance
+// Хелперы для удобного доступа
+export function getVideoEditingOrchestrator() {
+  return VideoEditingOrchestrator.getInstance()
 }
 
-/**
- * Сбросить экземпляр orchestrator (для тестов)
- */
-export function resetVideoEditingOrchestrator() {
-  if (orchestratorInstance) {
-    orchestratorInstance.dispose()
-    orchestratorInstance = null
-  }
+export function getTimelineActor() {
+  return VideoEditingOrchestrator.getInstance().getActors().timeline
+}
+
+export function getPlayerActor() {
+  return VideoEditingOrchestrator.getInstance().getActors().player
+}
+
+export function getTimelineUIActor() {
+  return VideoEditingOrchestrator.getInstance().getActors().timelineUI
 }

@@ -81,6 +81,31 @@ export interface TrackAddedEvent {
   position: number
 }
 
+export interface TrackRemovedEvent {
+  timelineId: string
+  trackId: string
+}
+
+export interface TimelineUpdatedEvent {
+  projectId: string
+  hasUnsavedChanges: boolean
+  duration: number
+  trackCount: number
+}
+
+export interface ClipRemovedEvent {
+  timelineId: string
+  clipId: string
+  trackId: string
+}
+
+export interface PlaybackStateChangedEvent {
+  isPlaying: boolean
+  currentTime: number
+  duration: number
+  progress: number
+}
+
 // === Playback Events ===
 
 export interface PlaybackStartedEvent {
@@ -182,18 +207,22 @@ export interface FrameCapturedEvent {
 export const VIDEO_EDITING_EVENTS = {
   // Timeline
   TIMELINE_CREATED: "video.timeline.created",
+  TIMELINE_UPDATED: "video.timeline.updated",
   CLIP_ADDED: "video.timeline.clip-added",
+  CLIP_REMOVED: "video.timeline.clip-removed",
   CLIP_MOVED: "video.timeline.clip-moved",
   CLIP_TRIMMED: "video.timeline.clip-trimmed",
   CLIP_DELETED: "video.timeline.clip-deleted",
   SECTION_CREATED: "video.timeline.section-created",
   TRACK_ADDED: "video.timeline.track-added",
+  TRACK_REMOVED: "video.timeline.track-removed",
 
   // Playback
   PLAYBACK_STARTED: "video.playback.started",
   PLAYBACK_STOPPED: "video.playback.stopped",
   PLAYBACK_TIME_CHANGED: "video.playback.time-changed",
   PLAYBACK_RATE_CHANGED: "video.playback.rate-changed",
+  PLAYBACK_STATE_CHANGED: "video.playback.state-changed",
 
   // Effects
   EFFECT_APPLIED: "video.effect.applied",

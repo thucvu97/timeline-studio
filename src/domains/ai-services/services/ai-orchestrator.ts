@@ -144,12 +144,14 @@ export class AIServicesOrchestrator {
       type: "START_ANALYSIS",
       mediaFiles: files,
       config: {
-        providers: [{
-          provider: 'openai' as any, // Will be properly typed when AI provider is configured
-          apiKey: '',
-          model: 'gpt-4-vision-preview'
-        }],
-        defaultProvider: 'openai' as any,
+        providers: [
+          {
+            provider: "openai" as any, // Will be properly typed when AI provider is configured
+            apiKey: "",
+            model: "gpt-4-vision-preview",
+          },
+        ],
+        defaultProvider: "openai" as any,
         features: {
           sceneAnalysis: true,
           scriptGeneration: false,
@@ -169,9 +171,9 @@ export class AIServicesOrchestrator {
           timeout: 300,
         },
         quality: {
-          analysisDepth: 'standard' as any,
-          accuracy: 'balanced' as any,
-          speed: 'normal' as any,
+          analysisDepth: "standard" as any,
+          accuracy: "balanced" as any,
+          speed: "normal" as any,
           resourceUsage: {
             maxCPU: 80,
             maxRAM: 4096,
