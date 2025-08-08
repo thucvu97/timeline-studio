@@ -1,3 +1,22 @@
+# [0.76.0](https://github.com/chatman-media/timeline-studio/compare/v0.75.0...v0.76.0) (2025-08-08)
+
+
+### Bug Fixes
+
+* **ai-chat:** исправления в сервисах контент-анализа ([e1c6e00](https://github.com/chatman-media/timeline-studio/commit/e1c6e00f51e40d0336a182c643aa426d4df794eb))
+* **ai:** реализованы недостающие методы в FFmpeg и Vision адаптерах ([0e5e131](https://github.com/chatman-media/timeline-studio/commit/0e5e131e6186fe243d95675bb6900405ceecfdb2))
+* **types:** исправлены ошибки типов в AI модулях и Timeline ([0d9d784](https://github.com/chatman-media/timeline-studio/commit/0d9d7844fdb26bbb9e758bd7c47e0110acda661a))
+* **types:** исправлены ошибки типов в модулях Timeline ([79ca1fa](https://github.com/chatman-media/timeline-studio/commit/79ca1facba12ca3b52e6730fb32b800ab808e813))
+* **vision-adapter:** исправлен конфликт типов в analyzeFrame ([2a1762f](https://github.com/chatman-media/timeline-studio/commit/2a1762ffedb71e9ac71ae601369e25e5337cf2e9))
+* исправлены критические ошибки типов в AI сервисах и тестах ([121752d](https://github.com/chatman-media/timeline-studio/commit/121752d141aec27ef9fb2df6416a10bcdcdad083))
+* финальные исправления в legacy и unified AI сервисах ([eadc4f5](https://github.com/chatman-media/timeline-studio/commit/eadc4f5cc2af7001709e269d2c8ee3804716b5bd))
+
+
+### Features
+
+* **swarm:** интеграция ruv-swarm MCP сервиса для Timeline Studio ([a2fe70a](https://github.com/chatman-media/timeline-studio/commit/a2fe70a6841a542a4347114e58cbcd5f2bac53d7))
+* **timeline:** добавлены типы для effects-cache и timeline ([cfdb7f6](https://github.com/chatman-media/timeline-studio/commit/cfdb7f6ffa6784e8818178d800e9f05ccdc5c794))
+
 # [0.75.0](https://github.com/chatman-media/timeline-studio/compare/v0.74.0...v0.75.0) (2025-08-07)
 
 
