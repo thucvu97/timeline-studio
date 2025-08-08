@@ -14,11 +14,9 @@ import {
 } from "./content-analysis"
 import {
   analyzeFileRelationships,
-  analyzeFileRelationshipsTool,
   bulkSelectFiles,
-  bulkSelectFilesTool,
   getFileGroups,
-  getFileGroupsTool,
+  fileOperationsTools,
 } from "./file-operations"
 import { searchMediaFiles, searchMediaFilesTool } from "./search-files"
 
@@ -41,12 +39,15 @@ export {
 } from "./content-analysis"
 export {
   analyzeFileRelationships,
-  analyzeFileRelationshipsTool,
   bulkSelectFiles,
-  bulkSelectFilesTool,
   getFileGroups,
-  getFileGroupsTool,
+  fileOperationsTools,
 } from "./file-operations"
+
+// Re-export individual tools from the tools array
+export const getFileGroupsTool = fileOperationsTools[0]
+export const analyzeFileRelationshipsTool = fileOperationsTools[1] 
+export const bulkSelectFilesTool = fileOperationsTools[2]
 export { searchMediaFiles, searchMediaFilesTool } from "./search-files"
 
 // Экспортируем типы

@@ -29,7 +29,7 @@ export function Timeline({ className, style }: TimelineProps = {}) {
   const { settings } = useUserSettings()
 
   // Выбираем компонент Timeline в зависимости от настроек виртуализации
-  const TimelineComponent = settings.timelineVirtualizationEnabled ? VirtualizedTimelineContent : TimelineContent
+  const TimelineComponent = settings?.timelineVirtualizationEnabled ? VirtualizedTimelineContent : TimelineContent
 
   return (
     <ResizablePanelGroup

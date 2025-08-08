@@ -169,7 +169,7 @@ export const searchMediaFilesTool: any = {
 
 export const browserSearchTools: any[] = [searchMediaFilesTool]
 
-async function searchMediaFiles(params: SearchMediaParams): Promise<BrowserToolResult> {
+export async function searchMediaFiles(params: SearchMediaParams): Promise<BrowserToolResult> {
   const { query, searchIn = ["filename"], tab, advanced = {}, maxResults = 100 } = params
 
   if (!hasBrowserAccess()) {

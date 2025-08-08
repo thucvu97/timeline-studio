@@ -49,12 +49,16 @@ export class MediaAnalysisFactoryImpl implements MediaAnalysisFactory {
       // FFmpeg недоступен или произошла ошибка
       try {
         // Альтернативная проверка через которую мы можем проверить наличие FFmpeg
-        const { exec } = require("child_process")
-        return new Promise((resolve) => {
-          exec("ffmpeg -version", (error: any) => {
-            resolve(!error)
+        // child_process доступен только в Node.js окружении (не в браузере)
+        if (typeof window === "undefined" && typeof process !== "undefined" && process.versions?.node) {
+          const { exec } = require("child_process")
+          return new Promise((resolve) => {
+            exec("ffmpeg -version", (error: any) => {
+              resolve(!error)
+            })
           })
-        })
+        }
+        return false
       } catch {
         return false
       }
