@@ -3,8 +3,14 @@ import { useCallback, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
-import type { CompilerSettings, FfmpegCapabilities, GpuCapabilities, GpuInfo, SystemInfo } from "@/types/video-compiler"
-import { GpuEncoder } from "@/types/video-compiler"
+import type {
+  CompilerSettings,
+  FfmpegCapabilities,
+  GpuCapabilities,
+  GpuInfo,
+  SystemInfo,
+} from "@/shared/types/video-compiler"
+import { GpuEncoder } from "@/shared/types/video-compiler"
 
 interface UseGpuCapabilitiesReturn {
   // Состояние

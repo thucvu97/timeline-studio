@@ -28,7 +28,7 @@ import {
   TemplateType,
   TextAlign,
   TrackType,
-} from "@/types/video-compiler"
+} from "@/shared/types/video-compiler"
 
 import type { SubtitleClip, TimelineClip, TimelineProject, TimelineTrack } from "../../types/timeline"
 import { timelineToProjectSchema } from "../../utils/timeline-to-project"

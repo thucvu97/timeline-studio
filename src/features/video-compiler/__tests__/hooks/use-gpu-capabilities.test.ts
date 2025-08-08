@@ -1,7 +1,7 @@
 import { act, renderHook, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { GpuEncoder } from "@/types/video-compiler"
+import { GpuEncoder } from "@/shared/types/video-compiler"
 
 import {
   formatGpuMemory,

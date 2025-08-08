@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
 import { useFramePreview } from "@/features/media/hooks/use-frame-preview"
-import type { Subtitle } from "@/types/video-compiler"
+import type { Subtitle } from "@/shared/types/video-compiler"
 
 import {
   type ExtractionPurpose,

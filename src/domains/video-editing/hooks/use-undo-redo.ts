@@ -2,7 +2,16 @@
  * Domain Hook для работы с расширенной Undo/Redo системой
  */
 
-import type { Clip } from "@domains/shared/events"
+// Локальный тип для Clip
+interface Clip {
+  id: string
+  trackId: string
+  startTime: number
+  endTime: number
+  duration: number
+  mediaId: string
+}
+
 import { useCallback, useEffect, useRef } from "react"
 import { type ActionType, type UndoRedoAction, UndoRedoService } from "../services/undo-redo-service"
 import { getVideoEditingOrchestrator } from "../services/video-editing-orchestrator"
@@ -447,7 +456,7 @@ export const UndoRedoHelpers = {
     redoData: { updatedClips },
     affectedEntities: {
       clips: updatedClips.map((c) => c.id),
-      tracks: [...new Set(updatedClips.map((c) => c.trackId))],
+      tracks: Array.from(new Set(updatedClips.map((c) => c.trackId))),
     },
     priority: "high" as const,
     mergeable: false,

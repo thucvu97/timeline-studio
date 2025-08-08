@@ -6,6 +6,7 @@
  */
 
 import { assign, setup } from "xstate"
+
 // Локальный тип для буфера обмена
 interface ClipboardData {
   clips: any[]

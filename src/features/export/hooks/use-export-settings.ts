@@ -3,7 +3,7 @@ import { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
-import { OutputFormat } from "@/types/video-compiler"
+import { OutputFormat } from "@/shared/types/video-compiler"
 
 import { QUALITY_PRESETS, RESOLUTION_PRESETS } from "../constants/export-constants"
 import type { ExportSettings } from "../types/export-types"

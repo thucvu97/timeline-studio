@@ -3,14 +3,16 @@
  */
 
 import { useCallback, useEffect, useState } from "react"
-import type { MediaFile } from "@/features/media/types/media"
 import type { PlayerContext } from "../machines/player-machine"
-import type { TimelineContext } from "../machines/timeline-machine"
+import type { TimelineExtendedContext } from "../machines/timeline-extended-machine"
 import { getVideoEditingOrchestrator } from "../services/video-editing-orchestrator"
+import type { MediaFile } from "../types"
 
 export function useVideoEditing() {
   const [orchestrator] = useState(() => getVideoEditingOrchestrator())
-  const [timelineState, setTimelineState] = useState<TimelineContext>(() => orchestrator.getTimelineState().context)
+  const [timelineState, setTimelineState] = useState<TimelineExtendedContext>(
+    () => orchestrator.getTimelineState().context,
+  )
   const [playerState, setPlayerState] = useState<PlayerContext>(() => orchestrator.getPlayerState().context)
 
   // Подписка на изменения состояния
@@ -29,14 +31,26 @@ export function useVideoEditing() {
     }
   }, [orchestrator])
 
-  // Управление видео
-  const loadVideo = useCallback(
-    (video: MediaFile) => {
-      return orchestrator.loadVideo(video)
+  // Project управление
+  const createProject = useCallback(
+    (name: string, settings?: any) => {
+      orchestrator.createProject(name, settings)
     },
     [orchestrator],
   )
 
+  const loadProject = useCallback(
+    (path: string) => {
+      orchestrator.loadProject(path)
+    },
+    [orchestrator],
+  )
+
+  const saveProject = useCallback(() => {
+    orchestrator.saveProject()
+  }, [orchestrator])
+
+  // Player управление
   const play = useCallback(() => {
     orchestrator.play()
   }, [orchestrator])
@@ -46,7 +60,7 @@ export function useVideoEditing() {
   }, [orchestrator])
 
   const stop = useCallback(() => {
-    orchestrator.stop()
+    orchestrator.stopPlayback()
   }, [orchestrator])
 
   const seek = useCallback(
@@ -56,170 +70,151 @@ export function useVideoEditing() {
     [orchestrator],
   )
 
-  const setPlaybackRate = useCallback(
-    (rate: number) => {
-      orchestrator.setPlaybackRate(rate)
+  const loadVideo = useCallback(
+    (video: MediaFile) => {
+      const playerActor = orchestrator.getActors().player
+      playerActor.send({ type: "LOAD_VIDEO", video })
     },
     [orchestrator],
   )
 
-  const setVolume = useCallback(
-    (volume: number) => {
-      orchestrator.setVolume(volume)
+  // Track управление
+  const addTrack = useCallback(
+    (type: any, name?: string, sectionId?: string) => {
+      orchestrator.addTrack(type, name, sectionId)
     },
     [orchestrator],
   )
 
-  // Управление эффектами
-  const applyEffect = useCallback(
-    (effect: { id: string; name: string; params: any }) => {
-      orchestrator.applyEffect(effect)
+  // Clip управление
+  const addClip = useCallback(
+    (trackId: string, mediaFile: any, time: number) => {
+      orchestrator.addClip(trackId, mediaFile, time)
     },
     [orchestrator],
   )
 
-  const removeEffect = useCallback(
-    (effectId: string) => {
-      orchestrator.removeEffect(effectId)
-    },
-    [orchestrator],
-  )
-
-  // Управление фильтрами
-  const applyFilter = useCallback(
-    (filter: { id: string; name: string; params: any }) => {
-      orchestrator.applyFilter(filter)
-    },
-    [orchestrator],
-  )
-
-  const removeFilter = useCallback(
-    (filterId: string) => {
-      orchestrator.removeFilter(filterId)
-    },
-    [orchestrator],
-  )
-
-  // Управление шаблонами
-  const applyTemplate = useCallback(
-    (template: { id: string; name: string; files: MediaFile[] }) => {
-      orchestrator.applyTemplate(template)
-    },
-    [orchestrator],
-  )
-
-  const removeTemplate = useCallback(() => {
-    orchestrator.removeTemplate()
-  }, [orchestrator])
-
-  // Управление timeline UI
+  // Timeline UI управление
   const setTimeScale = useCallback(
     (scale: number) => {
-      orchestrator.setTimeScale(scale)
+      const timelineActor = orchestrator.getActors().timeline
+      timelineActor.send({ type: "SET_TIME_SCALE", scale })
     },
     [orchestrator],
   )
 
   const setEditMode = useCallback(
     (mode: "select" | "cut" | "trim" | "move") => {
-      orchestrator.setEditMode(mode)
+      const timelineActor = orchestrator.getActors().timeline
+      timelineActor.send({ type: "SET_EDIT_MODE", mode })
     },
     [orchestrator],
   )
 
   const setSnapMode = useCallback(
     (mode: "none" | "grid" | "clips" | "markers") => {
-      orchestrator.setSnapMode(mode)
+      const timelineActor = orchestrator.getActors().timeline
+      timelineActor.send({ type: "SET_SNAP_MODE", mode })
     },
     [orchestrator],
   )
 
-  // Управление выделением
+  // Selection управление
   const selectClip = useCallback(
-    (clipId: string, multiple = false) => {
-      orchestrator.selectClip(clipId, multiple)
+    (clipId: string) => {
+      const timelineActor = orchestrator.getActors().timeline
+      timelineActor.send({
+        type: "SELECT_CLIPS",
+        clipIds: [clipId],
+        addToSelection: false,
+      })
     },
     [orchestrator],
   )
 
   const selectTrack = useCallback(
-    (trackId: string, multiple = false) => {
-      orchestrator.selectTrack(trackId, multiple)
+    (trackId: string) => {
+      const timelineActor = orchestrator.getActors().timeline
+      timelineActor.send({
+        type: "SELECT_TRACKS",
+        trackIds: [trackId],
+        addToSelection: false,
+      })
     },
     [orchestrator],
   )
 
   const selectSection = useCallback(
-    (sectionId: string, multiple = false) => {
-      orchestrator.selectSection(sectionId, multiple)
+    (sectionId: string) => {
+      const timelineActor = orchestrator.getActors().timeline
+      timelineActor.send({
+        type: "SELECT_SECTIONS",
+        sectionIds: [sectionId],
+        addToSelection: false,
+      })
     },
     [orchestrator],
   )
 
   const clearSelection = useCallback(() => {
-    orchestrator.clearSelection()
+    const timelineActor = orchestrator.getActors().timeline
+    timelineActor.send({ type: "CLEAR_SELECTION" })
   }, [orchestrator])
 
-  // Управление записью
+  // Recording управление
   const startRecording = useCallback(() => {
-    orchestrator.startRecording()
+    const playerActor = orchestrator.getActors().player
+    playerActor.send({ type: "START_RECORDING" })
   }, [orchestrator])
 
   const stopRecording = useCallback(() => {
-    orchestrator.stopRecording()
+    const playerActor = orchestrator.getActors().player
+    playerActor.send({ type: "STOP_RECORDING" })
   }, [orchestrator])
 
   return {
     // Состояние
-    timelineState,
-    playerState,
+    timeline: timelineState,
+    player: playerState,
 
-    // Управление видео
-    loadVideo,
+    // Project операции
+    createProject,
+    loadProject,
+    saveProject,
+
+    // Playback управление
     play,
     pause,
     stop,
     seek,
-    setPlaybackRate,
-    setVolume,
+    loadVideo,
 
-    // Управление эффектами
-    applyEffect,
-    removeEffect,
+    // Timeline операции
+    addTrack,
+    addClip,
 
-    // Управление фильтрами
-    applyFilter,
-    removeFilter,
-
-    // Управление шаблонами
-    applyTemplate,
-    removeTemplate,
-
-    // Управление timeline UI
+    // UI управление
     setTimeScale,
     setEditMode,
     setSnapMode,
 
-    // Управление выделением
+    // Selection
     selectClip,
     selectTrack,
     selectSection,
     clearSelection,
 
-    // Управление записью
+    // Recording
     startRecording,
     stopRecording,
 
-    // Удобные геттеры
+    // Состояние shortcuts
     isPlaying: playerState.isPlaying,
+    hasProject: timelineState.project !== null,
+    hasUnsavedChanges: timelineState.hasUnsavedChanges,
+    hasSelection: timelineState.selectedClipIds.length > 0 || timelineState.selectedTrackIds.length > 0,
     currentTime: playerState.currentTime,
     duration: playerState.duration,
-    volume: playerState.volume,
-    selectedClipIds: timelineState.selectedClipIds,
-    selectedTrackIds: timelineState.selectedTrackIds,
-    selectedSectionIds: timelineState.selectedSectionIds,
-    editMode: timelineState.editMode,
-    snapMode: timelineState.snapMode,
-    timeScale: timelineState.timeScale,
+    isRecording: playerState.isRecording || timelineState.isRecording,
   }
 }

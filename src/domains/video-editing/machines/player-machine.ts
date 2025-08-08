@@ -6,7 +6,7 @@
  */
 
 import { assign, setup } from "xstate"
-import type { MediaFile } from "@/features/media/types/media"
+import type { MediaFile } from "../types"
 
 export interface PlayerContext {
   video: MediaFile | null

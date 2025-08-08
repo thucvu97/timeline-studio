@@ -4,7 +4,7 @@
 
 import { useCallback, useEffect, useState } from "react"
 
-import type { MediaMetadata } from "@/types/media"
+import type { MediaMetadata } from "@/shared/types/media"
 
 import {
   cacheMediaMetadata,

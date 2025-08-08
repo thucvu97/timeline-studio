@@ -3,9 +3,9 @@
  */
 
 import { useCallback, useEffect, useState } from "react"
-import type { MediaFile } from "@/features/media/types/media"
 import type { PlayerContext } from "../machines/player-machine"
 import { getVideoEditingOrchestrator } from "../services/video-editing-orchestrator"
+import type { MediaFile } from "../types"
 
 export function usePlayer() {
   const [orchestrator] = useState(() => getVideoEditingOrchestrator())
@@ -22,10 +22,11 @@ export function usePlayer() {
     }
   }, [orchestrator])
 
-  // Управление видео
+  // Управление воспроизведением
   const loadVideo = useCallback(
     (video: MediaFile) => {
-      return orchestrator.loadVideo(video)
+      const playerActor = orchestrator.getActors().player
+      playerActor.send({ type: "LOAD_VIDEO", video })
     },
     [orchestrator],
   )
@@ -39,7 +40,7 @@ export function usePlayer() {
   }, [orchestrator])
 
   const stop = useCallback(() => {
-    orchestrator.stop()
+    orchestrator.stopPlayback()
   }, [orchestrator])
 
   const seek = useCallback(
@@ -51,26 +52,30 @@ export function usePlayer() {
 
   const setPlaybackRate = useCallback(
     (rate: number) => {
-      orchestrator.setPlaybackRate(rate)
+      const playerActor = orchestrator.getActors().player
+      playerActor.send({ type: "SET_PLAYBACK_RATE", rate })
     },
     [orchestrator],
   )
 
   const setVolume = useCallback(
     (volume: number) => {
-      orchestrator.setVolume(volume)
+      const playerActor = orchestrator.getActors().player
+      playerActor.send({ type: "SET_VOLUME", volume })
     },
     [orchestrator],
   )
 
   // Speed Ramping
   const toggleSpeedRamping = useCallback(() => {
-    orchestrator.getPlayerActor().send({ type: "TOGGLE_SPEED_RAMPING" })
+    const playerActor = orchestrator.getActors().player
+    playerActor.send({ type: "TOGGLE_SPEED_RAMPING" })
   }, [orchestrator])
 
   const setBasePlaybackRate = useCallback(
     (rate: number) => {
-      orchestrator.getPlayerActor().send({
+      const playerActor = orchestrator.getActors().player
+      playerActor.send({
         type: "SET_BASE_PLAYBACK_RATE",
         rate,
       })
@@ -81,7 +86,8 @@ export function usePlayer() {
   // Управление источником видео
   const setVideoSource = useCallback(
     (source: "browser" | "timeline") => {
-      orchestrator.getPlayerActor().send({
+      const playerActor = orchestrator.getActors().player
+      playerActor.send({
         type: "SET_VIDEO_SOURCE",
         source,
       })
@@ -91,7 +97,8 @@ export function usePlayer() {
 
   const setPreviewMedia = useCallback(
     (media: MediaFile | null) => {
-      orchestrator.getPlayerActor().send({
+      const playerActor = orchestrator.getActors().player
+      playerActor.send({
         type: "SET_PREVIEW_MEDIA",
         media,
       })
@@ -99,17 +106,25 @@ export function usePlayer() {
     [orchestrator],
   )
 
-  // Управление эффектами
+  // Управление эффектами - используем player actor напрямую
   const applyEffect = useCallback(
     (effect: { id: string; name: string; params: any }) => {
-      orchestrator.applyEffect(effect)
+      const playerActor = orchestrator.getActors().player
+      playerActor.send({
+        type: "APPLY_EFFECT",
+        effect,
+      })
     },
     [orchestrator],
   )
 
   const removeEffect = useCallback(
     (effectId: string) => {
-      orchestrator.removeEffect(effectId)
+      const playerActor = orchestrator.getActors().player
+      playerActor.send({
+        type: "REMOVE_EFFECT",
+        effectId,
+      })
     },
     [orchestrator],
   )
@@ -117,14 +132,22 @@ export function usePlayer() {
   // Управление фильтрами
   const applyFilter = useCallback(
     (filter: { id: string; name: string; params: any }) => {
-      orchestrator.applyFilter(filter)
+      const playerActor = orchestrator.getActors().player
+      playerActor.send({
+        type: "APPLY_FILTER",
+        filter,
+      })
     },
     [orchestrator],
   )
 
   const removeFilter = useCallback(
     (filterId: string) => {
-      orchestrator.removeFilter(filterId)
+      const playerActor = orchestrator.getActors().player
+      playerActor.send({
+        type: "REMOVE_FILTER",
+        filterId,
+      })
     },
     [orchestrator],
   )
@@ -132,19 +155,25 @@ export function usePlayer() {
   // Управление шаблонами
   const applyTemplate = useCallback(
     (template: { id: string; name: string; files: MediaFile[] }) => {
-      orchestrator.applyTemplate(template)
+      const playerActor = orchestrator.getActors().player
+      playerActor.send({
+        type: "APPLY_TEMPLATE",
+        template,
+      })
     },
     [orchestrator],
   )
 
   const removeTemplate = useCallback(() => {
-    orchestrator.removeTemplate()
+    const playerActor = orchestrator.getActors().player
+    playerActor.send({ type: "REMOVE_TEMPLATE" })
   }, [orchestrator])
 
   // Режим изменения размера
   const setResizableMode = useCallback(
     (enabled: boolean) => {
-      orchestrator.getPlayerActor().send({
+      const playerActor = orchestrator.getActors().player
+      playerActor.send({
         type: "SET_RESIZABLE_MODE",
         enabled,
       })
@@ -152,19 +181,22 @@ export function usePlayer() {
     [orchestrator],
   )
 
-  // Управление записью
+  // Управление записью - используем player actor
   const startRecording = useCallback(() => {
-    orchestrator.startRecording()
+    const playerActor = orchestrator.getActors().player
+    playerActor.send({ type: "START_RECORDING" })
   }, [orchestrator])
 
   const stopRecording = useCallback(() => {
-    orchestrator.stopRecording()
+    const playerActor = orchestrator.getActors().player
+    playerActor.send({ type: "STOP_RECORDING" })
   }, [orchestrator])
 
   // Настройки пререндера
   const setPrerenderEnabled = useCallback(
     (enabled: boolean) => {
-      orchestrator.getPlayerActor().send({
+      const playerActor = orchestrator.getActors().player
+      playerActor.send({
         type: "SET_PRERENDER_ENABLED",
         enabled,
       })
@@ -174,7 +206,8 @@ export function usePlayer() {
 
   const setPrerenderQuality = useCallback(
     (quality: number) => {
-      orchestrator.getPlayerActor().send({
+      const playerActor = orchestrator.getActors().player
+      playerActor.send({
         type: "SET_PRERENDER_QUALITY",
         quality,
       })
@@ -184,7 +217,8 @@ export function usePlayer() {
 
   const setPrerenderSegmentDuration = useCallback(
     (duration: number) => {
-      orchestrator.getPlayerActor().send({
+      const playerActor = orchestrator.getActors().player
+      playerActor.send({
         type: "SET_PRERENDER_SEGMENT_DURATION",
         duration,
       })
@@ -194,7 +228,8 @@ export function usePlayer() {
 
   const setPrerenderApplyEffects = useCallback(
     (apply: boolean) => {
-      orchestrator.getPlayerActor().send({
+      const playerActor = orchestrator.getActors().player
+      playerActor.send({
         type: "SET_PRERENDER_APPLY_EFFECTS",
         apply,
       })
@@ -204,7 +239,8 @@ export function usePlayer() {
 
   const setPrerenderAuto = useCallback(
     (auto: boolean) => {
-      orchestrator.getPlayerActor().send({
+      const playerActor = orchestrator.getActors().player
+      playerActor.send({
         type: "SET_PRERENDER_AUTO",
         auto,
       })

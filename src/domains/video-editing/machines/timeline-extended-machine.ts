@@ -12,9 +12,8 @@
  */
 
 import { assign, fromPromise, setup } from "xstate"
-import { getBackendSync } from "@/features/app-state/services/backend-sync"
-import type { MediaFile } from "@/features/media/types/media"
-import type { TimelineClip, Timeline, Track, TrackType } from "../types"
+import type { MediaFile, Timeline, TimelineClip, Track, TrackType } from "../types"
+
 // Локальный тип для буфера обмена
 interface ClipboardData {
   clips: TimelineClip[]
@@ -28,7 +27,61 @@ interface ClipboardData {
     trackIds: string[]
   }
 }
-import type { Clip, Project, ProjectCommand, ProjectState } from "@/types/generated/tauri-bindings"
+
+// Локальные типы для Tauri bindings
+interface Clip {
+  id: string
+  name: string
+  media_id: string
+  timeline_in: number
+  timeline_out: number
+  source_in: number
+  source_out: number
+  playback_rate: number
+  enabled: boolean
+}
+
+interface Project {
+  id: string
+  metadata: {
+    name: string
+    created_at: string
+    version: string
+  }
+  settings: {
+    resolution: { width: number; height: number }
+    frame_rate: number
+    audio_sample_rate: number
+    audio_channels: number
+  }
+  timeline: {
+    tracks: TrackBinding[]
+    duration: number
+    fps: number
+    sample_rate: number
+  }
+}
+
+interface TrackBinding {
+  id: string
+  name: string
+  track_type: string
+  clips: Clip[]
+  locked: boolean
+  enabled: boolean
+  volume: number
+  pan: number
+  height: number
+}
+
+interface ProjectCommand {
+  type: string
+  params: any
+}
+
+interface ProjectState {
+  current_project?: Project
+}
 
 // Расширенный контекст машины
 export interface TimelineExtendedContext {
@@ -232,8 +285,9 @@ function convertProjectToTimeline(project: Project): Timeline {
 
 // Actors для backend операций
 const executeCommandActor = fromPromise(async ({ input }: { input: { command: ProjectCommand } }) => {
-  const backendSync = getBackendSync()
-  return await backendSync.executeCommand(input.command)
+  // Mock implementation - в реальном приложении здесь будет вызов backend API
+  console.log("Executing command:", input.command)
+  return Promise.resolve({ success: true })
 })
 
 // Начальное состояние

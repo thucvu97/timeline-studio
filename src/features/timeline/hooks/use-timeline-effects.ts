@@ -9,7 +9,7 @@ import {
   removeEffectFromClip,
   removeFilterFromClip,
 } from "@/features/effects/utils/user-effects"
-import type { ProjectSchema } from "@/types/video-compiler"
+import type { ProjectSchema } from "@/shared/types/video-compiler"
 import type { TimelineProject } from "../types/timeline"
 import { useTimeline } from "./use-timeline"
 

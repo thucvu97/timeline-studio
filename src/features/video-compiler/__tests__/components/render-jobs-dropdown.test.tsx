@@ -3,8 +3,8 @@ import { act, fireEvent, render, screen, waitFor, within } from "@testing-librar
 import { vi } from "vitest"
 
 import { RenderJobsDropdown, RenderStatus } from "@/features/video-compiler"
+import { RenderJob } from "@/shared/types/video-compiler"
 import { setTranslations } from "@/test/mocks/libraries/i18n"
-import { RenderJob } from "@/types/video-compiler"
 
 // Mock the Tauri API
 vi.mock("@tauri-apps/api/core", () => ({

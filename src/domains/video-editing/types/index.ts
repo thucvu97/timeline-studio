@@ -4,41 +4,236 @@
  * Центральное место для всех типов Video Editing домена
  */
 
-import { VideoEffect } from "@/features/effects/types"
-import { EffectParameter, Track } from "@/types/video-compiler"
-import { Section, Timeline } from ".."
+// MediaFile - общий тип для медиафайлов
+export interface MediaFile {
+  id: string
+  name: string
+  path: string
+  isVideo: boolean
+  hasAudio?: boolean
+  hasVideo?: boolean
+  width?: number
+  height?: number
+  duration?: number
+  createdAt?: Date
+  isImage?: boolean
+}
 
-// Re-export effect types
-export type {
-  EffectParameter,
-  EffectPreset,
-  VideoEffect,
-} from "@/features/effects/types"
-// Re-export existing timeline types
-export type {
-  AppliedEffect,
-  AppliedFilter,
-  AppliedTransition,
-  TimelineClip,
-  TimelineKeyframe,
-  TimelineMarker,
-  TimelineProject as Timeline,
-  TimelineProjectSettings as TimelineSettings,
-  TimelineSection as Section,
-  TimelineTrack as Track,
-  TrackType,
-} from "@/features/timeline/types/timeline"
+// Timeline Types
+export interface Timeline {
+  id: string
+  name: string
+  duration: number
+  fps: number
+  sampleRate: number
+  sections: Section[]
+  globalTracks: Track[]
+  resources: TimelineResources
+  settings: TimelineSettings
+  createdAt: Date
+  updatedAt: Date
+  version: string
+}
 
-// Re-export transition types
-export type {
-  Transition,
-  TransitionCategory,
-  TransitionComplexity,
-  TransitionTag,
-} from "@/features/transitions/types/transitions"
+export interface TimelineSettings {
+  resolution: { width: number; height: number }
+  fps: number
+  aspectRatio: string
+  sampleRate: number
+  channels: number
+  bitDepth: number
+  timeFormat: "timecode" | "frames" | "seconds"
+  snapToGrid: boolean
+  gridSize: number
+  autoSave: boolean
+  autoSaveInterval: number
+}
 
-// Define missing types locally for now
+export interface Section {
+  id: string
+  name: string
+  startTime: number
+  endTime: number
+  tracks: Track[]
+  isCollapsed: boolean
+  color?: string
+}
+
+export interface Track {
+  id: string
+  name: string
+  type: TrackType
+  order: number
+  clips: TimelineClip[]
+  transitions: TimelineTransition[]
+  isLocked: boolean
+  isMuted: boolean
+  isHidden: boolean
+  isSolo: boolean
+  volume: number
+  pan: number
+  height: number
+  trackEffects: AppliedEffect[]
+  trackFilters: AppliedFilter[]
+}
+
+export type TrackType = "video" | "audio" | "subtitle" | "music" | "voiceover" | "sfx" | "ambient"
+
+export interface TimelineClip {
+  id: string
+  name: string
+  mediaId: string
+  mediaFile?: MediaFile
+  trackId: string
+  startTime: number
+  duration: number
+  mediaStartTime: number
+  mediaEndTime: number
+  offset: number
+  mediaDuration: number
+  volume: number
+  speed: number
+  isReversed: boolean
+  opacity: number
+  effects: AppliedEffect[]
+  filters: AppliedFilter[]
+  transitions: AppliedTransition[]
+  isSelected: boolean
+  isLocked: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface AppliedEffect {
+  id: string
+  effectId: string
+  name: string
+  enabled: boolean
+  parameters: Record<string, any>
+  keyframes: TimelineKeyframe[]
+}
+
+export interface AppliedFilter {
+  id: string
+  filterId: string
+  name: string
+  enabled: boolean
+  parameters: Record<string, any>
+  keyframes: TimelineKeyframe[]
+}
+
+export interface AppliedTransition {
+  id: string
+  transitionId: string
+  name: string
+  type: "in" | "out" | "cross"
+  duration: number
+  parameters: Record<string, any>
+  isEnabled: boolean
+}
+
+export interface TimelineTransition {
+  id: string
+  transitionId: string
+  name: string
+  startTime: number
+  duration: number
+  parameters: Record<string, any>
+  isEnabled: boolean
+}
+
+export interface TimelineKeyframe {
+  id: string
+  time: number
+  value: any
+  interpolation: "linear" | "ease" | "bezier" | "step"
+}
+
+export interface TimelineMarker {
+  id: string
+  name: string
+  time: number
+  color: string
+  description?: string
+}
+
+export interface TimelineResources {
+  effects: EffectType[]
+  filters: FilterType[]
+  transitions: TransitionType[]
+  timelineTransitions: TimelineTransition[]
+  templates: TemplateType[]
+  styleTemplates: StyleTemplateType[]
+  subtitleStyles: SubtitleStyleType[]
+  music: MusicType[]
+  media: MediaFile[]
+}
+
+// Additional resource types
+export interface TemplateType {
+  id: string
+  name: string
+  category: string
+  duration: number
+  tracks: Track[]
+}
+
+export interface StyleTemplateType {
+  id: string
+  name: string
+  category: string
+  effects: EffectType[]
+  transitions: TransitionType[]
+}
+
+export interface SubtitleStyleType {
+  id: string
+  name: string
+  fontFamily: string
+  fontSize: number
+  color: string
+  backgroundColor?: string
+}
+
+export interface MusicType {
+  id: string
+  name: string
+  artist: string
+  duration: number
+  genre: string
+  file: MediaFile
+}
+
+// Effect Types
 export interface EffectType {
+  id: string
+  name: string
+  category: string
+  parameters: EffectParameter[]
+}
+
+export interface VideoEffect {
+  id: string
+  name: string
+  category: string
+  type: "filter" | "generator" | "transition"
+  parameters: EffectParameter[]
+  enabled: boolean
+}
+
+export interface EffectParameter {
+  id: string
+  name: string
+  type: "number" | "string" | "boolean" | "color" | "select"
+  value: any
+  defaultValue: any
+  min?: number
+  max?: number
+  step?: number
+  options?: { label: string; value: any }[]
+}
+
+export interface FilterType {
   id: string
   name: string
   category: string

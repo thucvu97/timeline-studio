@@ -1,4 +1,4 @@
-import type { OutputFormat } from "@/types/video-compiler"
+import type { OutputFormat } from "@/shared/types/video-compiler"
 
 export interface ExportSettings {
   fileName: string

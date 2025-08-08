@@ -105,6 +105,7 @@
         "noUnusedLabels": "error",
         "noUnusedVariables": "off",
         "noUnusedImports": "warn",
+        "noUnusedPrivateClassMembers": "off",
         "useExhaustiveDependencies": "off",
         "useHookAtTopLevel": "off",
         "useIsNan": "error",

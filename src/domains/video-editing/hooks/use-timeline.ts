@@ -3,13 +3,12 @@
  */
 
 import { useCallback, useEffect, useState } from "react"
-import type { ClipboardData } from "@/features/timeline/utils/clip-operations"
-import type { TimelineContext } from "../machines/timeline-machine"
+import type { TimelineExtendedContext } from "../machines/timeline-extended-machine"
 import { getVideoEditingOrchestrator } from "../services/video-editing-orchestrator"
 
 export function useTimeline() {
   const [orchestrator] = useState(() => getVideoEditingOrchestrator())
-  const [state, setState] = useState<TimelineContext>(() => orchestrator.getTimelineState().context)
+  const [state, setState] = useState<TimelineExtendedContext>(() => orchestrator.getTimelineState().context)
 
   // Подписка на изменения состояния
   useEffect(() => {
@@ -22,17 +21,19 @@ export function useTimeline() {
     }
   }, [orchestrator])
 
-  // UI управление
+  // UI управление - используем timeline actor напрямую
   const setTimeScale = useCallback(
     (scale: number) => {
-      orchestrator.setTimeScale(scale)
+      const timelineActor = orchestrator.getActors().timeline
+      timelineActor.send({ type: "SET_TIME_SCALE", scale })
     },
     [orchestrator],
   )
 
   const setScrollPosition = useCallback(
     (x: number, y: number) => {
-      orchestrator.getTimelineActor().send({
+      const timelineActor = orchestrator.getActors().timeline
+      timelineActor.send({
         type: "SET_SCROLL_POSITION",
         x,
         y,
@@ -43,48 +44,95 @@ export function useTimeline() {
 
   const setEditMode = useCallback(
     (mode: "select" | "cut" | "trim" | "move") => {
-      orchestrator.setEditMode(mode)
+      const timelineActor = orchestrator.getActors().timeline
+      timelineActor.send({ type: "SET_EDIT_MODE", mode })
     },
     [orchestrator],
   )
 
   const setSnapMode = useCallback(
     (mode: "none" | "grid" | "clips" | "markers") => {
-      orchestrator.setSnapMode(mode)
+      const timelineActor = orchestrator.getActors().timeline
+      timelineActor.send({ type: "SET_SNAP_MODE", mode })
     },
     [orchestrator],
   )
 
-  // Выделение
+  // Selection управление
   const selectClip = useCallback(
-    (clipId: string, multiple = false) => {
-      orchestrator.selectClip(clipId, multiple)
+    (clipId: string, addToSelection = false) => {
+      const timelineActor = orchestrator.getActors().timeline
+      timelineActor.send({
+        type: "SELECT_CLIPS",
+        clipIds: [clipId],
+        addToSelection,
+      })
     },
     [orchestrator],
   )
 
   const selectTrack = useCallback(
-    (trackId: string, multiple = false) => {
-      orchestrator.selectTrack(trackId, multiple)
+    (trackId: string, addToSelection = false) => {
+      const timelineActor = orchestrator.getActors().timeline
+      timelineActor.send({
+        type: "SELECT_TRACKS",
+        trackIds: [trackId],
+        addToSelection,
+      })
     },
     [orchestrator],
   )
 
-  const selectSection = useCallback(
-    (sectionId: string, multiple = false) => {
-      orchestrator.selectSection(sectionId, multiple)
+  const selectMultipleClips = useCallback(
+    (clipIds: string[], addToSelection = false) => {
+      const timelineActor = orchestrator.getActors().timeline
+      timelineActor.send({
+        type: "SELECT_CLIPS",
+        clipIds,
+        addToSelection,
+      })
     },
     [orchestrator],
   )
 
   const clearSelection = useCallback(() => {
-    orchestrator.clearSelection()
+    const timelineActor = orchestrator.getActors().timeline
+    timelineActor.send({ type: "CLEAR_SELECTION" })
   }, [orchestrator])
 
-  // Drag & Drop
+  // Clipboard операции
+  const copyClips = useCallback(() => {
+    const timelineActor = orchestrator.getActors().timeline
+    timelineActor.send({ type: "COPY_CLIPS" })
+  }, [orchestrator])
+
+  const cutClips = useCallback(() => {
+    const timelineActor = orchestrator.getActors().timeline
+    timelineActor.send({ type: "CUT_CLIPS" })
+  }, [orchestrator])
+
+  const pasteClips = useCallback(
+    (trackId: string, time: number) => {
+      const timelineActor = orchestrator.getActors().timeline
+      timelineActor.send({
+        type: "PASTE_CLIPS",
+        trackId,
+        time,
+      })
+    },
+    [orchestrator],
+  )
+
+  const deleteSelected = useCallback(() => {
+    const timelineActor = orchestrator.getActors().timeline
+    timelineActor.send({ type: "DELETE_SELECTED" })
+  }, [orchestrator])
+
+  // Drag операции
   const startDragClip = useCallback(
     (clipId: string) => {
-      orchestrator.getTimelineActor().send({
+      const timelineActor = orchestrator.getActors().timeline
+      timelineActor.send({
         type: "START_DRAG_CLIP",
         clipId,
       })
@@ -94,7 +142,8 @@ export function useTimeline() {
 
   const startDragTrack = useCallback(
     (trackId: string) => {
-      orchestrator.getTimelineActor().send({
+      const timelineActor = orchestrator.getActors().timeline
+      timelineActor.send({
         type: "START_DRAG_TRACK",
         trackId,
       })
@@ -104,7 +153,8 @@ export function useTimeline() {
 
   const startDragResource = useCallback(
     (resourceType: "transition" | "effect" | "filter", resourceId: string) => {
-      orchestrator.getTimelineActor().send({
+      const timelineActor = orchestrator.getActors().timeline
+      timelineActor.send({
         type: "START_DRAG_RESOURCE",
         resourceType,
         resourceId,
@@ -114,51 +164,64 @@ export function useTimeline() {
   )
 
   const endDrag = useCallback(() => {
-    orchestrator.getTimelineActor().send({ type: "END_DRAG" })
+    const timelineActor = orchestrator.getActors().timeline
+    timelineActor.send({ type: "END_DRAG" })
   }, [orchestrator])
 
-  // Буфер обмена
-  const copyToClipboard = useCallback(
-    (data: ClipboardData) => {
-      orchestrator.getTimelineActor().send({
-        type: "COPY_TO_CLIPBOARD",
-        data,
-      })
-    },
-    [orchestrator],
-  )
-
-  const clearClipboard = useCallback(() => {
-    orchestrator.getTimelineActor().send({ type: "CLEAR_CLIPBOARD" })
+  // Toggle функции
+  const toggleRecording = useCallback(() => {
+    const timelineActor = orchestrator.getActors().timeline
+    timelineActor.send({ type: "TOGGLE_RECORDING" })
   }, [orchestrator])
 
-  // UI флаги
   const toggleWaveforms = useCallback(() => {
-    orchestrator.getTimelineActor().send({ type: "TOGGLE_WAVEFORMS" })
+    const timelineActor = orchestrator.getActors().timeline
+    timelineActor.send({ type: "TOGGLE_WAVEFORMS" })
   }, [orchestrator])
 
   const toggleThumbnails = useCallback(() => {
-    orchestrator.getTimelineActor().send({ type: "TOGGLE_THUMBNAILS" })
+    const timelineActor = orchestrator.getActors().timeline
+    timelineActor.send({ type: "TOGGLE_THUMBNAILS" })
   }, [orchestrator])
 
   const toggleMarkers = useCallback(() => {
-    orchestrator.getTimelineActor().send({ type: "TOGGLE_MARKERS" })
+    const timelineActor = orchestrator.getActors().timeline
+    timelineActor.send({ type: "TOGGLE_MARKERS" })
   }, [orchestrator])
 
-  // Ошибки
-  const setUIError = useCallback(
-    (error: string) => {
-      orchestrator.getTimelineActor().send({
-        type: "SET_UI_ERROR",
-        error,
-      })
+  // Project операции
+  const createProject = useCallback(
+    (name: string, settings?: any) => {
+      orchestrator.createProject(name, settings)
     },
     [orchestrator],
   )
 
-  const clearUIError = useCallback(() => {
-    orchestrator.getTimelineActor().send({ type: "CLEAR_UI_ERROR" })
+  const loadProject = useCallback(
+    (path: string) => {
+      orchestrator.loadProject(path)
+    },
+    [orchestrator],
+  )
+
+  const saveProject = useCallback(() => {
+    orchestrator.saveProject()
   }, [orchestrator])
+
+  // Clip операции через orchestrator
+  const addClip = useCallback(
+    (trackId: string, mediaFile: any, time: number) => {
+      orchestrator.addClip(trackId, mediaFile, time)
+    },
+    [orchestrator],
+  )
+
+  const addTrack = useCallback(
+    (type: any, name?: string, sectionId?: string) => {
+      orchestrator.addTrack(type, name, sectionId)
+    },
+    [orchestrator],
+  )
 
   return {
     // Состояние
@@ -170,34 +233,45 @@ export function useTimeline() {
     setEditMode,
     setSnapMode,
 
-    // Выделение
+    // Selection
     selectClip,
     selectTrack,
-    selectSection,
+    selectMultipleClips,
     clearSelection,
 
-    // Drag & Drop
+    // Clipboard
+    copyClips,
+    cutClips,
+    pasteClips,
+    deleteSelected,
+
+    // Drag операции
     startDragClip,
     startDragTrack,
     startDragResource,
     endDrag,
 
-    // Буфер обмена
-    copyToClipboard,
-    clearClipboard,
-
-    // UI флаги
+    // Toggle функции
+    toggleRecording,
     toggleWaveforms,
     toggleThumbnails,
     toggleMarkers,
 
-    // Ошибки
-    setUIError,
-    clearUIError,
+    // Project операции
+    createProject,
+    loadProject,
+    saveProject,
 
-    // Вспомогательные функции
-    hasSelection:
-      state.selectedClipIds.length > 0 || state.selectedTrackIds.length > 0 || state.selectedSectionIds.length > 0,
+    // Clip/Track операции
+    addClip,
+    addTrack,
+
+    // Вспомогательные свойства
+    hasProject: state.project !== null,
+    hasUnsavedChanges: state.hasUnsavedChanges,
+    hasSelection: state.selectedClipIds.length > 0 || state.selectedTrackIds.length > 0,
     hasClipboard: state.clipboard !== null,
+    isDragging: state.isDragging,
+    isRecording: state.isRecording,
   }
 }
