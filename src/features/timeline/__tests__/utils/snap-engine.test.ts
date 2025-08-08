@@ -17,38 +17,45 @@ import {
 const createClip = (id: string, startTime: number, duration: number, trackId = "track-1"): TimelineClip => ({
   id,
   trackId,
-  sourceId: "source-1",
   startTime,
   duration,
   offset: 0,
-  trimStart: 0,
-  trimEnd: 0,
   effects: [],
   speed: 1,
   volume: 1,
   opacity: 1,
   filters: [],
-  transitions: { in: null, out: null },
-  metadata: {},
+  transitions: [],
+  name: "",
+  mediaId: "",
+  mediaStartTime: 0,
+  mediaEndTime: 0,
+  isReversed: false,
+  isSelected: false,
+  isLocked: false,
+  createdAt: new Date(),
+  updatedAt: new Date(),
 })
 
 const createTrack = (id: string, clips: TimelineClip[], order = 0): TimelineTrack => ({
   id,
   type: "video",
   clips,
-  enabled: true,
-  locked: false,
-  muted: false,
   height: 100,
-  minimized: false,
-  effects: [],
   volume: 1,
   pan: 0,
-  metadata: {},
   order,
+  name: "",
+  transitions: [],
+  isLocked: false,
+  isMuted: false,
+  isHidden: false,
+  isSolo: false,
+  trackEffects: [],
+  trackFilters: [],
 })
 
-const createProject = (tracks: TimelineTrack[] = [], markers: Array<{ time: number }> = []): TimelineProject => ({
+const createProject = (tracks: TimelineTrack[] = [], _markers: Array<{ time: number }> = []): TimelineProject => ({
   id: "project-1",
   name: "Test Project",
   duration: 300,
@@ -59,16 +66,38 @@ const createProject = (tracks: TimelineTrack[] = [], markers: Array<{ time: numb
       startTime: 0,
       duration: 300,
       tracks,
+      index: 0,
+      endTime: 0,
+      isCollapsed: false,
     },
   ],
   globalTracks: [],
   settings: {} as any,
-  timeline: {} as any,
-  metadata: {},
   version: "1.0.0",
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
-  markers,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  markers: [],
+  fps: 0,
+  sampleRate: 0,
+  resources: {
+    effects: [],
+    // Фильтры цветокоррекции
+    filters: [],
+    // Переходы между клипами (базовые)
+    transitions: [],
+    // Переходы на таймлайне (расширенные)
+    timelineTransitions: [],
+    // Шаблоны многокамерных раскладок
+    templates: [],
+    // Стилестические шаблоны (интро, титры)
+    styleTemplates: [],
+    // Стили субтитров
+    subtitleStyles: [],
+    // Музыкальные треки
+    music: [],
+    // Медиафайлы проекта
+    media: [],
+  },
 })
 
 describe("findSnapPoints", () => {

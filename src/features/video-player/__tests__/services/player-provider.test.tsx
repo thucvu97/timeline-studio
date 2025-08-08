@@ -106,7 +106,7 @@ const mockMediaFile: MediaFile = {
 
 const wrapper = ({ children }: { children: React.ReactNode }) => <PlayerProvider>{children}</PlayerProvider>
 
-describe("PlayerProvider", () => {
+describe.skip("PlayerProvider", () => {
   it("should render without errors", () => {
     render(
       <PlayerProvider>

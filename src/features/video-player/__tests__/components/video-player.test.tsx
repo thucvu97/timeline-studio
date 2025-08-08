@@ -353,17 +353,14 @@ describe("VideoPlayer", () => {
 
   describe("Обработка edge cases", () => {
     it("должен обрабатывать видео без id", () => {
-      mockPlayerContext.video = {
+      mockPlayerContext.currentVideo = {
         id: "",
         path: "/path/to/video.mp4",
         name: "Video without ID.mp4",
         size: 1024000,
         isVideo: true,
         duration: 45000,
-        type: "video" as const,
-        format: "mp4",
-        createdAt: new Date(),
-        modifiedAt: new Date(),
+        createdAt: new Date().toISOString(),
       }
 
       render(<VideoPlayer />)
