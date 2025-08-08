@@ -1,3 +1,13 @@
+## [0.77.1](https://github.com/chatman-media/timeline-studio/compare/v0.77.0...v0.77.1) (2025-08-08)
+
+
+### Bug Fixes
+
+* **ai:** правильная интеграция VisionService с AI архитектурой ([8c9924e](https://github.com/chatman-media/timeline-studio/commit/8c9924e1fed189993abaaab589b2d3cd0282e35b))
+* **tests:** исправлен тест отображения времени в PlayerControls ([79ab51e](https://github.com/chatman-media/timeline-studio/commit/79ab51e727c8c6b40b491c36a95dc1d860c7163a))
+* **timeline:** исправлен тест snap-engine для маркеров ([a2b35e9](https://github.com/chatman-media/timeline-studio/commit/a2b35e9ec856322a59bf813c8400d6a2b6c62f58))
+* **video-player:** добавлен метод updateUpcomingMoments в usePlayerAIAnalysis ([3eea9a7](https://github.com/chatman-media/timeline-studio/commit/3eea9a7a89f169b5a03b2b9c011ca85e0f19ef07))
+
 # [0.77.0](https://github.com/chatman-media/timeline-studio/compare/v0.76.2...v0.77.0) (2025-08-08)
 
 
