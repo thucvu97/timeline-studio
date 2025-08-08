@@ -12,12 +12,8 @@ import {
   type VideoMetadata,
 } from "../../services/ffmpeg-analysis-service"
 
-// Mock Tauri API
-vi.mock("@tauri-apps/api/core", () => ({
-  invoke: vi.fn(),
-}))
-
-const { invoke } = vi.mocked(await import("@tauri-apps/api/core"))
+// Import global mock
+import { mockInvoke } from "@/test/mocks/tauri/core"
 
 describe("FFmpegAnalysisService", () => {
   let service: FFmpegAnalysisService
@@ -116,6 +112,7 @@ describe("FFmpegAnalysisService", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    mockInvoke.mockReset()
     // Reset singleton instance
     // @ts-expect-error - accessing private property for testing
     FFmpegAnalysisService.instance = undefined
@@ -132,18 +129,18 @@ describe("FFmpegAnalysisService", () => {
 
   describe("getVideoMetadata", () => {
     it("should return video metadata", async () => {
-      invoke.mockResolvedValue(mockMetadata)
+      mockInvoke.mockResolvedValue(mockMetadata)
 
       const result = await service.getVideoMetadata("test.mp4")
 
-      expect(invoke).toHaveBeenCalledWith("ffmpeg_get_metadata", {
+      expect(mockInvoke).toHaveBeenCalledWith("ffmpeg_get_metadata", {
         filePath: "test.mp4",
       })
       expect(result).toEqual(mockMetadata)
     })
 
     it("should handle errors", async () => {
-      invoke.mockRejectedValue(new Error("FFmpeg error"))
+      mockInvoke.mockRejectedValue(new Error("FFmpeg error"))
 
       await expect(service.getVideoMetadata("test.mp4")).rejects.toThrow(
         "Не удалось получить метаданные: Error: FFmpeg error",
@@ -153,11 +150,11 @@ describe("FFmpegAnalysisService", () => {
 
   describe("detectScenes", () => {
     it("should detect scenes with default options", async () => {
-      invoke.mockResolvedValue(mockSceneDetection)
+      mockInvoke.mockResolvedValue(mockSceneDetection)
 
       const result = await service.detectScenes("test.mp4")
 
-      expect(invoke).toHaveBeenCalledWith("ffmpeg_detect_scenes", {
+      expect(mockInvoke).toHaveBeenCalledWith("ffmpeg_detect_scenes", {
         filePath: "test.mp4",
         threshold: 0.3,
         minSceneLength: 1.0,
@@ -166,7 +163,7 @@ describe("FFmpegAnalysisService", () => {
     })
 
     it("should detect scenes with custom options", async () => {
-      invoke.mockResolvedValue(mockSceneDetection)
+      mockInvoke.mockResolvedValue(mockSceneDetection)
 
       const options: VideoAnalysisOptions["sceneDetection"] = {
         threshold: 0.5,
@@ -175,7 +172,7 @@ describe("FFmpegAnalysisService", () => {
 
       const result = await service.detectScenes("test.mp4", options)
 
-      expect(invoke).toHaveBeenCalledWith("ffmpeg_detect_scenes", {
+      expect(mockInvoke).toHaveBeenCalledWith("ffmpeg_detect_scenes", {
         filePath: "test.mp4",
         threshold: 0.5,
         minSceneLength: 2.0,
@@ -184,7 +181,7 @@ describe("FFmpegAnalysisService", () => {
     })
 
     it("should handle errors", async () => {
-      invoke.mockRejectedValue(new Error("Scene detection failed"))
+      mockInvoke.mockRejectedValue(new Error("Scene detection failed"))
 
       await expect(service.detectScenes("test.mp4")).rejects.toThrow(
         "Не удалось определить сцены: Error: Scene detection failed",
@@ -194,11 +191,11 @@ describe("FFmpegAnalysisService", () => {
 
   describe("analyzeQuality", () => {
     it("should analyze quality with default options", async () => {
-      invoke.mockResolvedValue(mockQualityAnalysis)
+      mockInvoke.mockResolvedValue(mockQualityAnalysis)
 
       const result = await service.analyzeQuality("test.mp4")
 
-      expect(invoke).toHaveBeenCalledWith("ffmpeg_analyze_quality", {
+      expect(mockInvoke).toHaveBeenCalledWith("ffmpeg_analyze_quality", {
         filePath: "test.mp4",
         sampleRate: 1.0,
         enableNoiseDetection: true,
@@ -208,7 +205,7 @@ describe("FFmpegAnalysisService", () => {
     })
 
     it("should analyze quality with custom options", async () => {
-      invoke.mockResolvedValue(mockQualityAnalysis)
+      mockInvoke.mockResolvedValue(mockQualityAnalysis)
 
       const options: VideoAnalysisOptions["qualityAnalysis"] = {
         sampleRate: 2.0,
@@ -218,7 +215,7 @@ describe("FFmpegAnalysisService", () => {
 
       const result = await service.analyzeQuality("test.mp4", options)
 
-      expect(invoke).toHaveBeenCalledWith("ffmpeg_analyze_quality", {
+      expect(mockInvoke).toHaveBeenCalledWith("ffmpeg_analyze_quality", {
         filePath: "test.mp4",
         sampleRate: 2.0,
         enableNoiseDetection: false,
@@ -228,7 +225,7 @@ describe("FFmpegAnalysisService", () => {
     })
 
     it("should handle errors", async () => {
-      invoke.mockRejectedValue(new Error("Quality analysis failed"))
+      mockInvoke.mockRejectedValue(new Error("Quality analysis failed"))
 
       await expect(service.analyzeQuality("test.mp4")).rejects.toThrow(
         "Не удалось проанализировать качество: Error: Quality analysis failed",
@@ -238,11 +235,11 @@ describe("FFmpegAnalysisService", () => {
 
   describe("detectSilence", () => {
     it("should detect silence with default options", async () => {
-      invoke.mockResolvedValue(mockSilenceDetection)
+      mockInvoke.mockResolvedValue(mockSilenceDetection)
 
       const result = await service.detectSilence("test.mp4")
 
-      expect(invoke).toHaveBeenCalledWith("ffmpeg_detect_silence", {
+      expect(mockInvoke).toHaveBeenCalledWith("ffmpeg_detect_silence", {
         filePath: "test.mp4",
         threshold: -30,
         minDuration: 1.0,
@@ -251,7 +248,7 @@ describe("FFmpegAnalysisService", () => {
     })
 
     it("should detect silence with custom options", async () => {
-      invoke.mockResolvedValue(mockSilenceDetection)
+      mockInvoke.mockResolvedValue(mockSilenceDetection)
 
       const options: VideoAnalysisOptions["silenceDetection"] = {
         threshold: -40,
@@ -260,7 +257,7 @@ describe("FFmpegAnalysisService", () => {
 
       const result = await service.detectSilence("test.mp4", options)
 
-      expect(invoke).toHaveBeenCalledWith("ffmpeg_detect_silence", {
+      expect(mockInvoke).toHaveBeenCalledWith("ffmpeg_detect_silence", {
         filePath: "test.mp4",
         threshold: -40,
         minDuration: 0.5,
@@ -269,7 +266,7 @@ describe("FFmpegAnalysisService", () => {
     })
 
     it("should handle errors", async () => {
-      invoke.mockRejectedValue(new Error("Silence detection failed"))
+      mockInvoke.mockRejectedValue(new Error("Silence detection failed"))
 
       await expect(service.detectSilence("test.mp4")).rejects.toThrow(
         "Не удалось определить тишину: Error: Silence detection failed",
@@ -279,11 +276,11 @@ describe("FFmpegAnalysisService", () => {
 
   describe("analyzeMotion", () => {
     it("should analyze motion with default options", async () => {
-      invoke.mockResolvedValue(mockMotionAnalysis)
+      mockInvoke.mockResolvedValue(mockMotionAnalysis)
 
       const result = await service.analyzeMotion("test.mp4")
 
-      expect(invoke).toHaveBeenCalledWith("ffmpeg_analyze_motion", {
+      expect(mockInvoke).toHaveBeenCalledWith("ffmpeg_analyze_motion", {
         filePath: "test.mp4",
         sensitivity: 0.5,
       })
@@ -291,7 +288,7 @@ describe("FFmpegAnalysisService", () => {
     })
 
     it("should analyze motion with custom options", async () => {
-      invoke.mockResolvedValue(mockMotionAnalysis)
+      mockInvoke.mockResolvedValue(mockMotionAnalysis)
 
       const options: VideoAnalysisOptions["motionAnalysis"] = {
         sensitivity: 0.8,
@@ -299,7 +296,7 @@ describe("FFmpegAnalysisService", () => {
 
       const result = await service.analyzeMotion("test.mp4", options)
 
-      expect(invoke).toHaveBeenCalledWith("ffmpeg_analyze_motion", {
+      expect(mockInvoke).toHaveBeenCalledWith("ffmpeg_analyze_motion", {
         filePath: "test.mp4",
         sensitivity: 0.8,
       })
@@ -307,7 +304,7 @@ describe("FFmpegAnalysisService", () => {
     })
 
     it("should handle errors", async () => {
-      invoke.mockRejectedValue(new Error("Motion analysis failed"))
+      mockInvoke.mockRejectedValue(new Error("Motion analysis failed"))
 
       await expect(service.analyzeMotion("test.mp4")).rejects.toThrow(
         "Не удалось проанализировать движение: Error: Motion analysis failed",
@@ -317,11 +314,11 @@ describe("FFmpegAnalysisService", () => {
 
   describe("extractKeyFrames", () => {
     it("should extract key frames with default options", async () => {
-      invoke.mockResolvedValue(mockKeyFrames)
+      mockInvoke.mockResolvedValue(mockKeyFrames)
 
       const result = await service.extractKeyFrames("test.mp4")
 
-      expect(invoke).toHaveBeenCalledWith("ffmpeg_extract_keyframes", {
+      expect(mockInvoke).toHaveBeenCalledWith("ffmpeg_extract_keyframes", {
         filePath: "test.mp4",
         interval: 5.0,
         maxFrames: 10,
@@ -330,7 +327,7 @@ describe("FFmpegAnalysisService", () => {
     })
 
     it("should extract key frames with custom options", async () => {
-      invoke.mockResolvedValue(mockKeyFrames)
+      mockInvoke.mockResolvedValue(mockKeyFrames)
 
       const options: VideoAnalysisOptions["keyFrameExtraction"] = {
         count: 5,
@@ -340,7 +337,7 @@ describe("FFmpegAnalysisService", () => {
 
       const result = await service.extractKeyFrames("test.mp4", options)
 
-      expect(invoke).toHaveBeenCalledWith("ffmpeg_extract_keyframes", {
+      expect(mockInvoke).toHaveBeenCalledWith("ffmpeg_extract_keyframes", {
         filePath: "test.mp4",
         interval: 5.0,
         maxFrames: 5,
@@ -349,7 +346,7 @@ describe("FFmpegAnalysisService", () => {
     })
 
     it("should handle errors", async () => {
-      invoke.mockRejectedValue(new Error("Key frame extraction failed"))
+      mockInvoke.mockRejectedValue(new Error("Key frame extraction failed"))
 
       await expect(service.extractKeyFrames("test.mp4")).rejects.toThrow(
         "Не удалось извлечь ключевые кадры: Error: Key frame extraction failed",
@@ -359,11 +356,11 @@ describe("FFmpegAnalysisService", () => {
 
   describe("analyzeAudio", () => {
     it("should analyze audio with default options", async () => {
-      invoke.mockResolvedValue(mockAudioAnalysis)
+      mockInvoke.mockResolvedValue(mockAudioAnalysis)
 
       const result = await service.analyzeAudio("test.mp4")
 
-      expect(invoke).toHaveBeenCalledWith("ffmpeg_analyze_audio", {
+      expect(mockInvoke).toHaveBeenCalledWith("ffmpeg_analyze_audio", {
         filePath: "test.mp4",
         enableSpectralAnalysis: true,
         enableDynamicsAnalysis: true,
@@ -372,7 +369,7 @@ describe("FFmpegAnalysisService", () => {
     })
 
     it("should analyze audio with custom options", async () => {
-      invoke.mockResolvedValue(mockAudioAnalysis)
+      mockInvoke.mockResolvedValue(mockAudioAnalysis)
 
       const options: VideoAnalysisOptions["audioAnalysis"] = {
         enableSpectralAnalysis: false,
@@ -381,7 +378,7 @@ describe("FFmpegAnalysisService", () => {
 
       const result = await service.analyzeAudio("test.mp4", options)
 
-      expect(invoke).toHaveBeenCalledWith("ffmpeg_analyze_audio", {
+      expect(mockInvoke).toHaveBeenCalledWith("ffmpeg_analyze_audio", {
         filePath: "test.mp4",
         enableSpectralAnalysis: false,
         enableDynamicsAnalysis: false,
@@ -390,7 +387,7 @@ describe("FFmpegAnalysisService", () => {
     })
 
     it("should handle errors", async () => {
-      invoke.mockRejectedValue(new Error("Audio analysis failed"))
+      mockInvoke.mockRejectedValue(new Error("Audio analysis failed"))
 
       await expect(service.analyzeAudio("test.mp4")).rejects.toThrow(
         "Не удалось проанализировать аудио: Error: Audio analysis failed",
@@ -400,7 +397,7 @@ describe("FFmpegAnalysisService", () => {
 
   describe("comprehensiveAnalysis", () => {
     it("should perform comprehensive analysis", async () => {
-      invoke.mockImplementation((command) => {
+      mockInvoke.mockImplementation((command) => {
         switch (command) {
           case "ffmpeg_get_metadata":
             return Promise.resolve(mockMetadata)
@@ -434,11 +431,11 @@ describe("FFmpegAnalysisService", () => {
       })
 
       // Verify all commands were called
-      expect(invoke).toHaveBeenCalledTimes(7)
+      expect(mockInvoke).toHaveBeenCalledTimes(7)
     })
 
     it("should pass custom options to each analysis", async () => {
-      invoke.mockResolvedValue({})
+      mockInvoke.mockResolvedValue({})
 
       const options: VideoAnalysisOptions = {
         sceneDetection: { threshold: 0.5 },
@@ -451,13 +448,13 @@ describe("FFmpegAnalysisService", () => {
 
       await service.comprehensiveAnalysis("test.mp4", options)
 
-      expect(invoke).toHaveBeenCalledWith("ffmpeg_detect_scenes", {
+      expect(mockInvoke).toHaveBeenCalledWith("ffmpeg_detect_scenes", {
         filePath: "test.mp4",
         threshold: 0.5,
         minSceneLength: 1.0,
       })
 
-      expect(invoke).toHaveBeenCalledWith("ffmpeg_analyze_quality", {
+      expect(mockInvoke).toHaveBeenCalledWith("ffmpeg_analyze_quality", {
         filePath: "test.mp4",
         sampleRate: 2.0,
         enableNoiseDetection: true,
@@ -466,7 +463,7 @@ describe("FFmpegAnalysisService", () => {
     })
 
     it("should handle partial failures", async () => {
-      invoke.mockImplementation((command) => {
+      mockInvoke.mockImplementation((command) => {
         if (command === "ffmpeg_get_metadata") {
           return Promise.resolve(mockMetadata)
         }
@@ -479,7 +476,7 @@ describe("FFmpegAnalysisService", () => {
 
   describe("quickAnalysis", () => {
     it("should perform quick analysis", async () => {
-      invoke.mockImplementation((command) => {
+      mockInvoke.mockImplementation((command) => {
         if (command === "ffmpeg_get_metadata") {
           return Promise.resolve(mockMetadata)
         }
@@ -502,16 +499,16 @@ describe("FFmpegAnalysisService", () => {
         estimatedScenes: 10,
       })
 
-      expect(invoke).toHaveBeenCalledWith("ffmpeg_get_metadata", {
+      expect(mockInvoke).toHaveBeenCalledWith("ffmpeg_get_metadata", {
         filePath: "test.mp4",
       })
-      expect(invoke).toHaveBeenCalledWith("ffmpeg_quick_analysis", {
+      expect(mockInvoke).toHaveBeenCalledWith("ffmpeg_quick_analysis", {
         filePath: "test.mp4",
       })
     })
 
     it("should handle errors", async () => {
-      invoke.mockRejectedValue(new Error("Quick analysis failed"))
+      mockInvoke.mockRejectedValue(new Error("Quick analysis failed"))
 
       await expect(service.quickAnalysis("test.mp4")).rejects.toThrow()
     })

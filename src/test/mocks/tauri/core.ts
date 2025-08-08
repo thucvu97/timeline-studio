@@ -7,6 +7,7 @@ export const mockConvertFileSrc = vi.fn((src: string) => src)
 vi.mock("@tauri-apps/api/core", () => ({
   invoke: mockInvoke,
   convertFileSrc: mockConvertFileSrc,
+  mockInvoke, // Экспортируем мок для тестов
 }))
 
 // Mock Tauri OS plugin
