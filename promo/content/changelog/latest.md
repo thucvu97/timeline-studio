@@ -1,3 +1,16 @@
+# [0.81.0](https://github.com/chatman-media/timeline-studio/compare/v0.80.0...v0.81.0) (2025-08-08)
+
+
+### Bug Fixes
+
+* исправлены ошибки типов в DomainEventBus и связанных модулях ([2866b6c](https://github.com/chatman-media/timeline-studio/commit/2866b6cd772ed8e713ec4b0a1f6b92b7c1f0ef67))
+
+
+### Features
+
+* интеграция провайдеров timeline в доменную архитектуру ([4c33ec5](https://github.com/chatman-media/timeline-studio/commit/4c33ec5f78151d77a5d0088c8b2d1b6b52f7c85c))
+* реализован DomainEventBus для межсервисной коммуникации ([2611872](https://github.com/chatman-media/timeline-studio/commit/26118722caf609a4716ab1dd97be767cc92dc240))
+
 # [0.80.0](https://github.com/chatman-media/timeline-studio/compare/v0.79.0...v0.80.0) (2025-08-08)
 
 
