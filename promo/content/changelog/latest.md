@@ -1,3 +1,10 @@
+# [0.77.0](https://github.com/chatman-media/timeline-studio/compare/v0.76.2...v0.77.0) (2025-08-08)
+
+
+### Features
+
+* **ai:** интеграция Smart Montage Planner с централизованной AI архитектурой ([e01888e](https://github.com/chatman-media/timeline-studio/commit/e01888e444aefe419b4a2c186ced0f68e7c463fb))
+
 ## [0.76.2](https://github.com/chatman-media/timeline-studio/compare/v0.76.1...v0.76.2) (2025-08-08)
 
 
