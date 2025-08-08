@@ -81,6 +81,30 @@ export interface UserSettingsContextType {
   timelineVirtualizationOverscan: number // Количество дополнительных элементов для рендеринга (по умолчанию 5)
   timelineClipDetailsThreshold: number // Минимальная ширина клипа для показа деталей в пикселях (по умолчанию 50)
 
+  // AI Analysis настройки
+  aiAnalysisEnabled: boolean // Включен ли AI анализ контента
+  aiAnalysisFrameRate: number // Частота анализа кадров (1-10 fps)
+  aiContentDetectionTypes: string[] // Типы детекции: objects, faces, text, scenes
+  aiAnalysisConfidenceThreshold: number // Минимальный порог уверенности (0-1)
+
+  // Vision Service настройки
+  visionServiceEnabled: boolean // Включен ли Vision сервис
+  visionObjectDetectionThreshold: number // Порог детекции объектов (0-1)
+  visionFaceDetectionThreshold: number // Порог детекции лиц (0-1)
+  visionTextRecognitionThreshold: number // Порог распознавания текста (0-1)
+  visionMaxDetectionsPerFrame: number // Макс. детекций на кадр
+
+  // Smart Montage Planner настройки
+  montagePlannerEnabled: boolean // Включен ли умный планировщик
+  montagePlannerDefaultStyle: string // Стиль по умолчанию
+  montagePlannerAnalysisDepth: string // basic, medium, detailed
+  montagePlannerAutoSuggest: boolean // Автоматические предложения
+
+  // Языковые настройки
+  preferredLanguage: string // Язык интерфейса (en, ru, es, fr, etc.)
+  dateFormat: string // Формат даты
+  timeFormat: string // 12h или 24h
+
   isBrowserVisible: boolean // Флаг видимости браузера
   isTimelineVisible: boolean // Флаг видимости временной шкалы
   isOptionsVisible: boolean // Флаг видимости опций
@@ -157,6 +181,30 @@ const initialContext: UserSettingsContextType = {
   timelineVirtualizationEnabled: true, // Виртуализация включена по умолчанию для производительности
   timelineVirtualizationOverscan: 5, // Рендерим 5 дополнительных элементов сверху/снизу
   timelineClipDetailsThreshold: 50, // Показываем детали клипов шире 50px
+
+  // AI Analysis настройки по умолчанию
+  aiAnalysisEnabled: false, // AI анализ отключен по умолчанию для производительности
+  aiAnalysisFrameRate: 2, // Анализ 2 кадра в секунду
+  aiContentDetectionTypes: ["objects", "faces", "scenes"], // Основные типы детекции
+  aiAnalysisConfidenceThreshold: 0.7, // Порог уверенности 70%
+
+  // Vision Service настройки по умолчанию
+  visionServiceEnabled: false, // Vision сервис отключен по умолчанию
+  visionObjectDetectionThreshold: 0.5, // Порог детекции объектов 50%
+  visionFaceDetectionThreshold: 0.5, // Порог детекции лиц 50%
+  visionTextRecognitionThreshold: 0.7, // Порог распознавания текста 70%
+  visionMaxDetectionsPerFrame: 100, // Максимум 100 детекций на кадр
+
+  // Smart Montage Planner настройки по умолчанию
+  montagePlannerEnabled: true, // Планировщик включен по умолчанию
+  montagePlannerDefaultStyle: "dynamic", // Динамичный стиль по умолчанию
+  montagePlannerAnalysisDepth: "medium", // Средняя глубина анализа
+  montagePlannerAutoSuggest: true, // Автопредложения включены
+
+  // Языковые настройки по умолчанию
+  preferredLanguage: "ru", // Русский язык по умолчанию (согласно CLAUDE.md)
+  dateFormat: "DD.MM.YYYY", // Формат даты
+  timeFormat: "24h", // 24-часовой формат времени
 
   isBrowserVisible: true, // Браузер виден по умолчанию
   isTimelineVisible: true, // Временная шкала видна по умолчанию
@@ -416,6 +464,61 @@ interface UpdateAutoSaveIntervalEvent {
 }
 
 /**
+ * AI Analysis события
+ */
+interface UpdateAIAnalysisEnabledEvent {
+  type: "UPDATE_AI_ANALYSIS_ENABLED"
+  enabled: boolean
+}
+
+interface UpdateAIAnalysisFrameRateEvent {
+  type: "UPDATE_AI_ANALYSIS_FRAME_RATE"
+  frameRate: number
+}
+
+interface UpdateAIContentDetectionTypesEvent {
+  type: "UPDATE_AI_CONTENT_DETECTION_TYPES"
+  types: string[]
+}
+
+interface UpdateAIAnalysisConfidenceThresholdEvent {
+  type: "UPDATE_AI_ANALYSIS_CONFIDENCE_THRESHOLD"
+  threshold: number
+}
+
+/**
+ * Vision Service события
+ */
+interface UpdateVisionServiceEnabledEvent {
+  type: "UPDATE_VISION_SERVICE_ENABLED"
+  enabled: boolean
+}
+
+interface UpdateVisionThresholdEvent {
+  type: "UPDATE_VISION_THRESHOLD"
+  thresholdType: "object" | "face" | "text"
+  value: number
+}
+
+/**
+ * Языковые настройки события
+ */
+interface UpdatePreferredLanguageEvent {
+  type: "UPDATE_PREFERRED_LANGUAGE"
+  language: string
+}
+
+interface UpdateDateFormatEvent {
+  type: "UPDATE_DATE_FORMAT"
+  format: string
+}
+
+interface UpdateTimeFormatEvent {
+  type: "UPDATE_TIME_FORMAT"
+  format: string
+}
+
+/**
  * Объединенный тип всех событий пользовательских настроек
  * Используется для типизации событий машины состояний
  */
@@ -459,6 +562,18 @@ export type UserSettingsEvent =
   // Автосохранение
   | UpdateAutoSaveEnabledEvent
   | UpdateAutoSaveIntervalEvent
+  // AI Analysis
+  | UpdateAIAnalysisEnabledEvent
+  | UpdateAIAnalysisFrameRateEvent
+  | UpdateAIContentDetectionTypesEvent
+  | UpdateAIAnalysisConfidenceThresholdEvent
+  // Vision Service
+  | UpdateVisionServiceEnabledEvent
+  | UpdateVisionThresholdEvent
+  // Языковые настройки
+  | UpdatePreferredLanguageEvent
+  | UpdateDateFormatEvent
+  | UpdateTimeFormatEvent
 
 /**
  * Машина состояний для управления пользовательскими настройками
@@ -644,6 +759,45 @@ export const userSettingsMachine = createMachine(
 
           UPDATE_AUTO_SAVE_INTERVAL: {
             actions: ["updateAutoSaveInterval"],
+          },
+
+          // AI Analysis события
+          UPDATE_AI_ANALYSIS_ENABLED: {
+            actions: ["updateAIAnalysisEnabled"],
+          },
+
+          UPDATE_AI_ANALYSIS_FRAME_RATE: {
+            actions: ["updateAIAnalysisFrameRate"],
+          },
+
+          UPDATE_AI_CONTENT_DETECTION_TYPES: {
+            actions: ["updateAIContentDetectionTypes"],
+          },
+
+          UPDATE_AI_ANALYSIS_CONFIDENCE_THRESHOLD: {
+            actions: ["updateAIAnalysisConfidenceThreshold"],
+          },
+
+          // Vision Service события
+          UPDATE_VISION_SERVICE_ENABLED: {
+            actions: ["updateVisionServiceEnabled"],
+          },
+
+          UPDATE_VISION_THRESHOLD: {
+            actions: ["updateVisionThreshold"],
+          },
+
+          // Языковые настройки события
+          UPDATE_PREFERRED_LANGUAGE: {
+            actions: ["updatePreferredLanguage"],
+          },
+
+          UPDATE_DATE_FORMAT: {
+            actions: ["updateDateFormat"],
+          },
+
+          UPDATE_TIME_FORMAT: {
+            actions: ["updateTimeFormat"],
           },
         },
       },
@@ -1060,6 +1214,73 @@ export const userSettingsMachine = createMachine(
           ...context,
           autoSaveInterval: typedEvent.interval,
         }
+      }),
+
+      // AI Analysis действия
+      updateAIAnalysisEnabled: assign(({ context, event }) => {
+        const typedEvent = event as UpdateAIAnalysisEnabledEvent
+        console.log("Updating AI analysis enabled:", typedEvent.enabled)
+        return { ...context, aiAnalysisEnabled: typedEvent.enabled }
+      }),
+
+      updateAIAnalysisFrameRate: assign(({ context, event }) => {
+        const typedEvent = event as UpdateAIAnalysisFrameRateEvent
+        console.log("Updating AI analysis frame rate:", typedEvent.frameRate)
+        return { ...context, aiAnalysisFrameRate: typedEvent.frameRate }
+      }),
+
+      updateAIContentDetectionTypes: assign(({ context, event }) => {
+        const typedEvent = event as UpdateAIContentDetectionTypesEvent
+        console.log("Updating AI content detection types:", typedEvent.types)
+        return { ...context, aiContentDetectionTypes: typedEvent.types }
+      }),
+
+      updateAIAnalysisConfidenceThreshold: assign(({ context, event }) => {
+        const typedEvent = event as UpdateAIAnalysisConfidenceThresholdEvent
+        console.log("Updating AI analysis confidence threshold:", typedEvent.threshold)
+        return { ...context, aiAnalysisConfidenceThreshold: typedEvent.threshold }
+      }),
+
+      // Vision Service действия
+      updateVisionServiceEnabled: assign(({ context, event }) => {
+        const typedEvent = event as UpdateVisionServiceEnabledEvent
+        console.log("Updating vision service enabled:", typedEvent.enabled)
+        return { ...context, visionServiceEnabled: typedEvent.enabled }
+      }),
+
+      updateVisionThreshold: assign(({ context, event }) => {
+        const typedEvent = event as UpdateVisionThresholdEvent
+        console.log(`Updating vision ${typedEvent.thresholdType} threshold:`, typedEvent.value)
+
+        switch (typedEvent.thresholdType) {
+          case "object":
+            return { ...context, visionObjectDetectionThreshold: typedEvent.value }
+          case "face":
+            return { ...context, visionFaceDetectionThreshold: typedEvent.value }
+          case "text":
+            return { ...context, visionTextRecognitionThreshold: typedEvent.value }
+          default:
+            return context
+        }
+      }),
+
+      // Языковые настройки действия
+      updatePreferredLanguage: assign(({ context, event }) => {
+        const typedEvent = event as UpdatePreferredLanguageEvent
+        console.log("Updating preferred language:", typedEvent.language)
+        return { ...context, preferredLanguage: typedEvent.language }
+      }),
+
+      updateDateFormat: assign(({ context, event }) => {
+        const typedEvent = event as UpdateDateFormatEvent
+        console.log("Updating date format:", typedEvent.format)
+        return { ...context, dateFormat: typedEvent.format }
+      }),
+
+      updateTimeFormat: assign(({ context, event }) => {
+        const typedEvent = event as UpdateTimeFormatEvent
+        console.log("Updating time format:", typedEvent.format)
+        return { ...context, timeFormat: typedEvent.format }
       }),
     },
   },
