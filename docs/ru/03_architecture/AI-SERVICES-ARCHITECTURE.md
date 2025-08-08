@@ -11,6 +11,7 @@ Timeline Studio представляет собой мощную AI-powered пл
 - **⚠️ В разработке**: 72 инструмента (28%)
 - **🌐 Языковая поддержка**: 15 языков
 - **🔗 MCP интеграция**: ruv-swarm сервис (23 функции)
+- **🎬 Smart Montage Planner**: Полностью интегрирован (100%)
 
 ## 🏗️ Архитектурная схема
 
@@ -28,7 +29,17 @@ Timeline Studio представляет собой мощную AI-powered пл
 │  │ • Integration   │  │ • Classification │  │ • Visualization │  │ • Multi-lang│ │
 │  └─────────┬───────┘  └─────────┬────────┘  └─────────┬───────┘  └──────┬──────┘ │
 │            │                    │                     │                 │        │
-├────────────┴────────────────────┴─────────────────────┴─────────────────┴────────┤
+│  ┌─────────────────┐                                                            │
+│  │ montage-planner │                                                            │
+│  │    Module       │                                                            │
+│  │                 │                                                            │
+│  │ • AI Planning   │                                                            │
+│  │ • YOLO Analysis │                                                            │
+│  │ • Genetic Algo  │                                                            │
+│  │ • FFmpeg Qual   │                                                            │
+│  └─────────┬───────┘                                                            │
+│            │                                                                    │
+├────────────┴────────────────────┴─────────────────────┴─────────────────┴────────┴────────┤
 │                            Shared AI Services Layer                              │
 ├─────────────────────────────────────────────────────────────────────────────────┤
 │  ┌─────────────────────────────────────────────────────────────────────────────┐ │
@@ -105,6 +116,69 @@ mcp__ruv-swarm__daa_knowledge_share() // Обмен знаниями
 - ✅ **forecasting**: 1.5MB (загружен)  
 - ⏳ **swarm**: 768KB (не загружен)
 - ⏳ **persistence**: 256KB (не загружен)
+
+## 🎬 Smart Montage Planner
+
+**Smart Montage Planner** - это AI-powered модуль для автоматического создания монтажных планов, интегрирующий передовые технологии машинного обучения и генетические алгоритмы.
+
+### Ключевые компоненты Montage Planner
+
+1. **Автоматический анализ контента**
+   - YOLO интеграция для визуального анализа
+   - FFmpeg для анализа качества видео/аудио
+   - Детекция ключевых моментов и лучших кадров
+
+2. **Генерация монтажных планов**
+   - Генетический алгоритм с адаптивной мутацией
+   - 6 предустановленных стилей монтажа
+   - Адаптация под разные платформы и форматы
+
+3. **Интеграция с Timeline**
+   - Применение планов в один клик
+   - Создание маркеров для структуры плана
+   - Real-time превью с метриками качества
+
+### Архитектура Montage Planner
+
+```typescript
+// Основные типы данных
+interface VideoAnalysis {
+  quality: QualityMetrics      // Разрешение, FPS, битрейт, резкость
+  content: ContentMetrics      // Лица, объекты, тип сцены
+  motion: MotionMetrics        // Движение камеры, направление потока
+}
+
+interface MontagePlan {
+  sequences: Sequence[]        // Последовательность фрагментов
+  style: MontageStyle         // Стиль монтажа
+  pacing: PacingProfile       // Ритм и динамика
+  qualityScore: number        // Оценка качества плана
+}
+
+// Основной хук использования
+const {
+  state,
+  analysis,
+  plans,
+  analyzeProject,
+  generatePlan,
+  applyToTimeline
+} = useMontagePlanner()
+```
+
+### Backend интеграция
+
+Модуль использует Rust/Tauri backend команды:
+- `analyze_video_composition()` - YOLO анализ композиции
+- `detect_key_moments()` - Детекция ключевых моментов
+- `generate_montage_plan()` - Генерация плана с генетическим алгоритмом
+- `analyze_video_quality()` - FFmpeg анализ качества
+
+### Производительность
+- **Анализ**: <5 минут для 1 часа материала
+- **Генерация плана**: <30 секунд
+- **Параллельная обработка**: Оптимизированная backend обработка
+- **Кэширование**: Умное кэширование результатов анализа
 
 ## 💡 Ключевые компоненты
 
@@ -304,6 +378,69 @@ function MyComponent() {
 }
 ```
 
+### Smart Montage Planner + ruv-swarm интеграция
+
+```typescript
+import { useMontagePlanner } from '@/features/montage-planner/hooks'
+
+// Создание сложного монтажного плана с использованием swarm агентов
+async function createAdvancedMontagePlan() {
+  const { analyzeProject, generatePlan } = useMontagePlanner()
+  
+  // 1. Инициализация swarm для распределенного анализа
+  await mcp__ruv-swarm__swarm_init({
+    topology: "hierarchical",
+    maxAgents: 10,
+    strategy: "specialized"
+  })
+  
+  // 2. Создание специализированных агентов
+  const agents = await Promise.all([
+    mcp__ruv-swarm__agent_spawn({
+      type: "analyst",
+      name: "Scene Analyzer",
+      capabilities: ["scene_detection", "composition_analysis"]
+    }),
+    mcp__ruv-swarm__agent_spawn({
+      type: "analyst", 
+      name: "Emotion Detector",
+      capabilities: ["facial_recognition", "emotion_analysis"]
+    }),
+    mcp__ruv-swarm__agent_spawn({
+      type: "optimizer",
+      name: "Rhythm Calculator",
+      capabilities: ["beat_detection", "pacing_optimization"]
+    })
+  ])
+  
+  // 3. Оркестровка анализа через swarm
+  const analysisTask = await mcp__ruv-swarm__task_orchestrate({
+    task: "Comprehensive media analysis for montage planning",
+    strategy: "parallel",
+    priority: "high",
+    maxAgents: 3
+  })
+  
+  // 4. Анализ проекта с Montage Planner
+  const projectAnalysis = await analyzeProject()
+  
+  // 5. Ожидание результатов swarm анализа
+  const swarmResults = await mcp__ruv-swarm__task_results({
+    taskId: analysisTask.taskId
+  })
+  
+  // 6. Генерация плана с учетом swarm анализа
+  const montagePlan = await generatePlan({
+    style: 'cinematic-drama',
+    targetDuration: 300,
+    quality: 'high',
+    additionalAnalysis: swarmResults
+  })
+  
+  return montagePlan
+}
+```
+
 ## 🔄 Миграция существующего кода
 
 ### Старый подход
@@ -343,6 +480,24 @@ container.register(
   async (deps) => new MyAIService(deps.logger),
   { 
     dependencies: ['Logger'],
+    lifecycle: 'singleton'
+  }
+)
+
+// Пример регистрации Montage Planner сервисов
+container.register(
+  'MontagePlannerService',
+  async (deps) => {
+    const { analysisFactory, modelManager } = deps
+    return new MontagePlannerService({
+      analysisFactory,
+      modelManager,
+      yoloService: await analysisFactory.createVisionService(),
+      ffmpegService: await analysisFactory.createFFmpegService()
+    })
+  },
+  {
+    dependencies: ['MediaAnalysisFactory', 'ModelManager'],
     lifecycle: 'singleton'
   }
 )
@@ -443,3 +598,4 @@ try {
 - [Migration Guide](/src/shared/services/ai/MIGRATION-GUIDE.md)
 - [AI Chat Module](/src/features/ai-chat/README.md)
 - [AI Content Intelligence Module](/src/features/ai-content-intelligence/README.md)
+- [Smart Montage Planner Module](/src/features/montage-planner/README.ru.md)

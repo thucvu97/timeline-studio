@@ -3,6 +3,7 @@
  * Адаптер для интеграции с FFmpeg анализом через shared интерфейсы
  */
 
+import { FFmpegAnalysisService } from "@/features/ai-chat/services/ffmpeg-analysis-service"
 import type {
   IFFmpegAnalysisService,
   MotionAnalysisResult,
@@ -11,23 +12,6 @@ import type {
   SilenceDetectionResult,
   VideoMetadata,
 } from "../interfaces"
-
-// Импорт существующего FFmpeg сервиса (временно, до полной миграции)
-let FFmpegAnalysisService: any = null
-
-try {
-  // Динамический импорт для избежания циклических зависимостей
-  const ffmpegModule = require("@/features/ai-chat/services/ffmpeg-analysis-service")
-  FFmpegAnalysisService = ffmpegModule.FFmpegAnalysisService
-} catch (error) {
-  // Fallback на legacy адаптер
-  try {
-    const legacyModule = require("@/features/ai-chat/services/legacy-adapters")
-    FFmpegAnalysisService = legacyModule.FFmpegAnalysisService
-  } catch (legacyError) {
-    console.warn("FFmpeg service not available:", error)
-  }
-}
 
 export class FFmpegAdapter implements IFFmpegAnalysisService {
   private ffmpegService: any

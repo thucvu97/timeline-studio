@@ -313,6 +313,26 @@ bun run test src/features/montage-planner/__tests__/components/
 - **FFmpeg** ✅ - Прямые вызовы для анализа видео/аудио
 - **Timeline** ✅ - Готово для применения планов
 - **AI Multi-Platform** - Готово для интеграции через API
+- **DI Container** ✅ - Интеграция через централизованную AI архитектуру
+- **Unified AI Service** ✅ - Использование единого AI сервиса для анализа
+- **Media Analysis Factory** ✅ - Доступ к YOLO/FFmpeg через фабрику
+
+### AI Интеграция
+
+Модуль теперь полностью интегрирован с централизованной AI архитектурой через `montage-planner-ai-integration.ts`:
+
+```typescript
+import { useMontagePlannerAI } from '@/features/montage-planner/services/montage-planner-ai-integration'
+
+function MyComponent() {
+  const aiService = useMontagePlannerAI()
+  
+  // Использование AI сервисов
+  const videoAnalysis = await aiService.analyzeVideoWithAI(mediaFile)
+  const sceneDetection = await aiService.detectScenesWithYOLO(videoPath)
+  const qualityAnalysis = await aiService.analyzeQualityWithFFmpeg(videoPath)
+}
+```
 
 ## Производительность
 
