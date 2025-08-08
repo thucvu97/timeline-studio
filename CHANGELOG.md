@@ -1,3 +1,10 @@
+# [0.78.0](https://github.com/chatman-media/timeline-studio/compare/v0.77.1...v0.78.0) (2025-08-08)
+
+
+### Features
+
+* **user-settings:** добавлены новые параметры для AI интеграции ([9e131c8](https://github.com/chatman-media/timeline-studio/commit/9e131c8908e24035d9606f031e352e1890cb67b8))
+
 ## [0.77.1](https://github.com/chatman-media/timeline-studio/compare/v0.77.0...v0.77.1) (2025-08-08)
 
 
