@@ -4,7 +4,27 @@
 
 import { screen } from "@testing-library/react"
 import React from "react"
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
+
+// Mock useUserSettings before any imports
+vi.mock("@/features/user-settings/hooks/use-user-settings", () => ({
+  useUserSettings: () => ({
+    openAiApiKey: "test-api-key",
+    claudeApiKey: "test-claude-key",
+    updateSettings: vi.fn(),
+    settings: {
+      timelineVirtualizationEnabled: false,
+      language: "en",
+      theme: "light",
+      quality: "medium",
+      audioLanguage: "en",
+      subtitleLanguage: "en",
+      showSubtitles: false,
+      autoSave: true,
+      autoSaveInterval: 5,
+    },
+  }),
+}))
 
 // Import mocks before components
 import "../../__mocks__/hooks"
@@ -12,9 +32,12 @@ import "@/test/mocks/libraries/lucide-react"
 import "@/test/mocks/libraries/resizable"
 import "@/test/mocks/timeline-components"
 
+import { ChatProvider } from "@/features/ai-chat/services"
+import { ModalProvider } from "@/features/modals"
+import { ProjectSettingsProvider } from "@/features/project-settings"
 import { renderWithTimeline } from "@/test/test-utils"
-
 import { Timeline } from "../../components/timeline"
+import { TimelineProvider } from "../../services/providers"
 
 // Use the pre-configured renderWithTimeline function
 const renderTimeline = (ui: React.ReactElement) => {

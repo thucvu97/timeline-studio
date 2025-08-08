@@ -33,6 +33,17 @@ vi.mock("@/features/user-settings", async (importOriginal) => {
       openAiApiKey: "test-api-key",
       claudeApiKey: "test-claude-key",
       updateSettings: vi.fn(),
+      settings: {
+        timelineVirtualizationEnabled: false,
+        language: "en",
+        theme: "light",
+        quality: "medium",
+        audioLanguage: "en",
+        subtitleLanguage: "en",
+        showSubtitles: false,
+        autoSave: true,
+        autoSaveInterval: 5,
+      },
     }),
     UserSettingsProvider: ({ children }: { children: React.ReactNode }) => children,
   }

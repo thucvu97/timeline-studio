@@ -581,8 +581,8 @@ export class MultimodalAnalysisService {
       const data = await response.json()
       return data.choices[0].message.content
     } catch (error) {
-      if (error instanceof TypeError && error.message.includes('fetch')) {
-        throw new Error('Network error')
+      if (error instanceof TypeError && error.message.includes("fetch")) {
+        throw new Error("Network error")
       }
       throw error
     }

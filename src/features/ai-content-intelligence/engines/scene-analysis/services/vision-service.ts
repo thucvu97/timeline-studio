@@ -55,10 +55,10 @@ export class VisionService {
     try {
       // TODO: Инициализация ONNX Runtime и загрузка моделей YOLO
       console.log("VisionService: Initializing ONNX Runtime...")
-      
+
       // Симуляция загрузки моделей
       await new Promise((resolve) => setTimeout(resolve, 100))
-      
+
       this.initialized = true
       console.log("VisionService: Initialized successfully")
     } catch (error) {
@@ -67,7 +67,7 @@ export class VisionService {
     }
   }
 
-  async analyzeFrame(frameData: ImageData, frameNumber: number): Promise<FrameAnalysis> {
+  async analyzeFrame(_frameData: ImageData, frameNumber: number): Promise<FrameAnalysis> {
     if (!this.initialized) {
       throw new Error("VisionService not initialized")
     }
@@ -117,7 +117,7 @@ export class VisionService {
       const g = Math.round(data[i + 1] / 10) * 10
       const b = Math.round(data[i + 2] / 10) * 10
       const color = `rgb(${r}, ${g}, ${b})`
-      
+
       colors.set(color, (colors.get(color) || 0) + 1)
     }
 

@@ -34,6 +34,41 @@ vi.mock("../../components/player-controls", () => ({
   ),
 }))
 
+// Мокаем хуки Timeline
+vi.mock("@/features/timeline/hooks/use-timeline", () => ({
+  useTimeline: () => ({
+    project: {
+      id: "test-project",
+      name: "Test Project",
+      path: null,
+      duration: 0,
+      tracks: [],
+      sections: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  }),
+}))
+
+vi.mock("@/features/timeline/hooks/use-timeline-effects", () => ({
+  useTimelineEffects: () => ({
+    applyEffect: vi.fn(),
+    removeEffect: vi.fn(),
+    applyFilter: vi.fn(),
+    removeFilter: vi.fn(),
+    getClipEffects: vi.fn(() => []),
+    getClipFilters: vi.fn(() => []),
+    getClipTransitions: vi.fn(() => []),
+  }),
+}))
+
+// Мокаем AI интеграцию
+vi.mock("../../hooks/use-player-ai-integration", () => ({
+  usePlayerAIIntegration: () => ({
+    isReady: true,
+  }),
+}))
+
 // Мокаем хуки
 const mockProjectSettings = {
   settings: {

@@ -216,9 +216,7 @@ describe("MultimodalAnalysisService", () => {
         analysisType: "frame_description",
       }
 
-      await expect(service.analyzeFrame(params)).rejects.toThrow(
-        "Ошибка анализа кадра: OpenAI API error: Unauthorized",
-      )
+      await expect(service.analyzeFrame(params)).rejects.toThrow("Ошибка анализа кадра: OpenAI API error: Unauthorized")
     })
 
     it("should handle invalid JSON response gracefully", async () => {

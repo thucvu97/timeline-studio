@@ -89,7 +89,7 @@ describe("UnifiedAIService", () => {
 
     // Ждем инициализации сервиса более надежно
     await new Promise((resolve) => setTimeout(resolve, 500))
-    
+
     // Проверяем, что основные методы доступны
     if (!service.sendRequest || !service.getAvailableModels) {
       console.warn("Service methods not available yet, waiting more...")

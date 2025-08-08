@@ -4,6 +4,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+import { AIDIContainer, getAIContainerSafe, initializeAIServices } from "@/shared/services/ai/di-container"
 import {
   autoGenerateSubtitlesFromVideo,
   type EnhancedSubtitleInput,
@@ -13,7 +14,6 @@ import {
 import { SubtitleAIIntegrationService } from "../services/subtitle-ai-integration"
 import { SubtitleSynchronizationService } from "../services/subtitle-synchronization"
 import { WhisperIntegrationService } from "../services/whisper-integration"
-import { AIDIContainer, getAIContainerSafe, initializeAIServices } from "@/shared/services/ai/di-container"
 
 // Моки для внешних зависимостей
 vi.mock("../../../../ai-content-intelligence/engines/scene-analysis/services/vision-service", () => ({
@@ -85,7 +85,7 @@ describe("Enhanced Subtitle Automation Integration", () => {
     }
     // Сбрасываем экземпляр контейнера
     AIDIContainer.resetInstance()
-    
+
     vi.clearAllMocks()
   })
 

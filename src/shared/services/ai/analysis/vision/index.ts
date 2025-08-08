@@ -18,7 +18,7 @@ import type {
 } from "../interfaces"
 
 // Импорт существующих сервисов (временно, до полной миграции)
-let VisionAnalysisService: any = null
+const VisionAnalysisService: any = null
 let YOLOService: any = null
 
 try {
