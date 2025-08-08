@@ -2,11 +2,10 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { useLanguage } from "@/features/language"
+import { ModalType } from "@/features/modals"
 import { useModal } from "@/features/modals/services/modal-provider"
-
 import { GeneralSettingsTab } from "../../../components/tabs/general-settings-tab"
 import { useUserSettings } from "../../../hooks/use-user-settings"
-import { ModalType } from "@/features/modals"
 
 vi.mock("../../../hooks/use-user-settings")
 vi.mock("@/features/modals/services/modal-provider")

@@ -14,7 +14,6 @@ import type {
 } from "../../../../ai-content-intelligence/shared/types/content-analysis"
 import { SubtitleSynchronizationService, type SynchronizationOptions } from "./subtitle-synchronization"
 import { WhisperIntegrationService } from "./whisper-integration"
-import { VisionService } from "@/features/ai-content-intelligence/engines/scene-analysis"
 
 /**
  * Адаптер для интеграции Enhanced Subtitle Automation с ai-content-intelligence

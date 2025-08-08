@@ -1,9 +1,8 @@
 import { fireEvent, render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-
-import { MediaToolbar, type MediaToolbarProps } from "../../components/media-toolbar"
 import { ViewMode } from "@/shared/types"
+import { MediaToolbar, type MediaToolbarProps } from "../../components/media-toolbar"
 
 // Mock react-i18next
 vi.mock("react-i18next", () => ({

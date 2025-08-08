@@ -316,6 +316,7 @@ export interface AudioAnalysisResult {
     average: number
     peak: number
     min: number
+    max: number
   }
   silentSegments: Array<{ start: number; end: number }>
 }

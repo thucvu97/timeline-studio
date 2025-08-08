@@ -3,8 +3,12 @@
  * Provides abstraction layer for AI and FFmpeg services
  */
 
-import type { IFFmpegAnalysisService, IVisionService, IContentAnalysisService } from "@/shared/services/ai/analysis/interfaces"
 import { getAIContainer } from "@/shared/services/ai"
+import type {
+  IContentAnalysisService,
+  IFFmpegAnalysisService,
+  IVisionService,
+} from "@/shared/services/ai/analysis/interfaces"
 
 let ffmpegService: IFFmpegAnalysisService | null = null
 let visionService: IVisionService | null = null

@@ -36,7 +36,7 @@ const mockCacheMemoryUsage: CacheMemoryUsage = {
   preview_bytes: 0,
   metadata_bytes: 0,
   render_bytes: 0,
-  total_bytes: 0
+  total_bytes: 0,
 }
 
 describe("metadata-cache-service", () => {

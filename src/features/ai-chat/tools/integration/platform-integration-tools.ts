@@ -69,160 +69,157 @@ export class PlatformOptimizationTool extends BaseAITool {
     input: PlatformOptimizationInput,
     options: AIToolExecutionOptions = {},
   ): Promise<AIToolResult<PlatformOptimizationResult>> {
-    return this.executeWithErrorHandling(
-      async () => {
-        // Валидация входных данных
-        const validation = this.validateInput(input, (data) => {
-          const errors: string[] = []
+    return this.executeWithErrorHandling(async () => {
+      // Валидация входных данных
+      const validation = this.validateInput(input, (data) => {
+        const errors: string[] = []
 
-          const validOperations = [
-            "get_platform_specs",
-            "get_all_platforms",
-            "analyze_content",
-            "optimize_for_platform",
-            "suggest_formats",
-            "validate_specifications",
-            "generate_thumbnails",
-            "create_variants",
-          ]
-          if (!validOperations.includes(data.operation)) {
-            errors.push(`Неподдерживаемая операция: ${data.operation}`)
-          }
-
-          if (
-            ["get_platform_specs", "optimize_for_platform", "validate_specifications"].includes(data.operation) &&
-            !data.platform
-          ) {
-            errors.push("Требуется указать платформу")
-          }
-
-          if (
-            ["analyze_content", "optimize_for_platform", "generate_thumbnails"].includes(data.operation) &&
-            !data.videoPath
-          ) {
-            errors.push("Требуется указать путь к видеофайлу")
-          }
-
-          return { isValid: errors.length === 0, errors }
-        })
-
-        if (!validation.isValid) {
-          throw new Error(validation.errors.join(", "))
+        const validOperations = [
+          "get_platform_specs",
+          "get_all_platforms",
+          "analyze_content",
+          "optimize_for_platform",
+          "suggest_formats",
+          "validate_specifications",
+          "generate_thumbnails",
+          "create_variants",
+        ]
+        if (!validOperations.includes(data.operation)) {
+          errors.push(`Неподдерживаемая операция: ${data.operation}`)
         }
 
-        let result: PlatformOptimizationResult
-
-        switch (input.operation) {
-          case "get_platform_specs":
-            const specs = await this.platformService.getPlatformSpecs(input.platform!)
-            result = {
-              operation: input.operation,
-              success: true,
-              platformSpecs: specs,
-              message: `Получены спецификации для ${input.platform}`,
-              recommendations: ["Используйте эти спецификации для оптимизации видео"],
-            }
-            break
-
-          case "get_all_platforms":
-            const platforms = await this.platformService.getAllPlatforms()
-            result = {
-              operation: input.operation,
-              success: true,
-              platforms: platforms,
-              message: `Найдено ${platforms.length} поддерживаемых платформ`,
-              recommendations: ["Выберите подходящую платформу для оптимизации"],
-            }
-            break
-
-          case "analyze_content":
-            const analysis = await this.platformService.analyzeContent(input.videoPath!, {
-              category: input.contentCategory,
-              targetAudience: input.targetAudience,
-            })
-            result = {
-              operation: input.operation,
-              success: true,
-              analysis: analysis,
-              message: "Анализ контента завершен",
-              recommendations: [
-                "Используйте результаты анализа для выбора оптимальной платформы",
-                "Учтите особенности целевой аудитории",
-              ],
-            }
-            break
-
-          case "optimize_for_platform":
-            const optimized = await this.platformService.optimizeForPlatform(input.videoPath!, input.platform!, {
-              category: input.contentCategory,
-              generateVariants: input.generateVariants,
-              outputPath: input.outputPath,
-            })
-            result = {
-              operation: input.operation,
-              success: true,
-              optimizedVideo: optimized,
-              message: `Видео оптимизировано для ${input.platform}`,
-              recommendations: [
-                "Проверьте качество оптимизированного видео",
-                "Рассмотрите создание дополнительных вариантов",
-              ],
-            }
-            break
-
-          case "suggest_formats":
-            const suggestions = await this.platformService.suggestOptimalFormats(input.videoPath!, {
-              contentCategory: input.contentCategory,
-              targetAudience: input.targetAudience,
-            })
-            result = {
-              operation: input.operation,
-              success: true,
-              suggestions: suggestions,
-              message: `Найдено ${suggestions.length} рекомендованных форматов`,
-              recommendations: ["Выберите формат, наиболее подходящий для вашего контента"],
-            }
-            break
-
-          case "validate_specifications":
-            // Используем анализ видео для валидации
-            const analysisResults = await this.platformService.analyzeVideoForPlatforms(input.videoPath!)
-            const platformAnalysis = analysisResults.platforms.find(p => p.platform === input.platform)
-            const isValid = platformAnalysis?.compatibility.overallScore ? platformAnalysis.compatibility.overallScore > 0.8 : false
-            result = {
-              operation: input.operation,
-              success: true,
-              validation: {
-                isValid,
-                issues: platformAnalysis?.compatibility.issues || [],
-                score: platformAnalysis?.compatibility.overallScore || 0
-              },
-              message: isValid
-                ? "Видео соответствует требованиям платформы"
-                : "Обнаружены несоответствия требованиям",
-              recommendations: platformAnalysis?.compatibility.suggestions || [],
-              warnings: platformAnalysis?.compatibility.issues,
-            }
-            break
-
-          case "generate_thumbnails":
-          case "create_variants":
-            result = {
-              operation: input.operation,
-              success: false,
-              message: "Функция пока не реализована",
-              recommendations: ["Функция будет добавлена в следующих версиях"],
-            }
-            break
-
-          default:
-            throw new Error(`Неподдерживаемая операция: ${input.operation}`)
+        if (
+          ["get_platform_specs", "optimize_for_platform", "validate_specifications"].includes(data.operation) &&
+          !data.platform
+        ) {
+          errors.push("Требуется указать платформу")
         }
 
-        return result
-      },
-      options,
-    )
+        if (
+          ["analyze_content", "optimize_for_platform", "generate_thumbnails"].includes(data.operation) &&
+          !data.videoPath
+        ) {
+          errors.push("Требуется указать путь к видеофайлу")
+        }
+
+        return { isValid: errors.length === 0, errors }
+      })
+
+      if (!validation.isValid) {
+        throw new Error(validation.errors.join(", "))
+      }
+
+      let result: PlatformOptimizationResult
+
+      switch (input.operation) {
+        case "get_platform_specs":
+          const specs = await this.platformService.getPlatformSpecs(input.platform!)
+          result = {
+            operation: input.operation,
+            success: true,
+            platformSpecs: specs,
+            message: `Получены спецификации для ${input.platform}`,
+            recommendations: ["Используйте эти спецификации для оптимизации видео"],
+          }
+          break
+
+        case "get_all_platforms":
+          const platforms = await this.platformService.getAllPlatforms()
+          result = {
+            operation: input.operation,
+            success: true,
+            platforms: platforms,
+            message: `Найдено ${platforms.length} поддерживаемых платформ`,
+            recommendations: ["Выберите подходящую платформу для оптимизации"],
+          }
+          break
+
+        case "analyze_content":
+          const analysis = await this.platformService.analyzeContent(input.videoPath!, {
+            category: input.contentCategory,
+            targetAudience: input.targetAudience,
+          })
+          result = {
+            operation: input.operation,
+            success: true,
+            analysis: analysis,
+            message: "Анализ контента завершен",
+            recommendations: [
+              "Используйте результаты анализа для выбора оптимальной платформы",
+              "Учтите особенности целевой аудитории",
+            ],
+          }
+          break
+
+        case "optimize_for_platform":
+          const optimized = await this.platformService.optimizeForPlatform(input.videoPath!, input.platform!, {
+            category: input.contentCategory,
+            generateVariants: input.generateVariants,
+            outputPath: input.outputPath,
+          })
+          result = {
+            operation: input.operation,
+            success: true,
+            optimizedVideo: optimized,
+            message: `Видео оптимизировано для ${input.platform}`,
+            recommendations: [
+              "Проверьте качество оптимизированного видео",
+              "Рассмотрите создание дополнительных вариантов",
+            ],
+          }
+          break
+
+        case "suggest_formats":
+          const suggestions = await this.platformService.suggestOptimalFormats(input.videoPath!, {
+            contentCategory: input.contentCategory,
+            targetAudience: input.targetAudience,
+          })
+          result = {
+            operation: input.operation,
+            success: true,
+            suggestions: suggestions,
+            message: `Найдено ${suggestions.length} рекомендованных форматов`,
+            recommendations: ["Выберите формат, наиболее подходящий для вашего контента"],
+          }
+          break
+
+        case "validate_specifications":
+          // Используем анализ видео для валидации
+          const analysisResults = await this.platformService.analyzeVideoForPlatforms(input.videoPath!)
+          const platformAnalysis = analysisResults.platforms.find((p) => p.platform === input.platform)
+          const isValid = platformAnalysis?.compatibility.overallScore
+            ? platformAnalysis.compatibility.overallScore > 0.8
+            : false
+          result = {
+            operation: input.operation,
+            success: true,
+            validation: {
+              isValid,
+              issues: platformAnalysis?.compatibility.issues || [],
+              score: platformAnalysis?.compatibility.overallScore || 0,
+            },
+            message: isValid ? "Видео соответствует требованиям платформы" : "Обнаружены несоответствия требованиям",
+            recommendations: platformAnalysis?.compatibility.suggestions || [],
+            warnings: platformAnalysis?.compatibility.issues,
+          }
+          break
+
+        case "generate_thumbnails":
+        case "create_variants":
+          result = {
+            operation: input.operation,
+            success: false,
+            message: "Функция пока не реализована",
+            recommendations: ["Функция будет добавлена в следующих версиях"],
+          }
+          break
+
+        default:
+          throw new Error(`Неподдерживаемая операция: ${input.operation}`)
+      }
+
+      return result
+    }, options)
   }
 }
 

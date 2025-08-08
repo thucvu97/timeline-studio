@@ -2,7 +2,7 @@
  * Simple example test to verify setup
  */
 
-import { describe, it, expect } from "vitest"
+import { describe, expect, it } from "vitest"
 
 describe("AI Content Intelligence - Basic Test", () => {
   it("should pass basic test", () => {

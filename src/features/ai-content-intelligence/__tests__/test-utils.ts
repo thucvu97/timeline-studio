@@ -3,20 +3,20 @@
  */
 
 import { vi } from "vitest"
-import type {
-  AIConfig,
-  AIFeatures,
-  AIProvider,
-  AIProviderConfig,
-  AnalysisDepth,
+import type { AudioAnalysisResult, MediaFile } from "@/shared/services/ai/analysis/interfaces"
+import {
   AccuracyLevel,
+  type AIConfig,
+  type AIFeatures,
+  AIProvider,
+  type AIProviderConfig,
+  AnalysisDepth,
+  type ProcessingConfig,
+  type QualityConfig,
+  type ResourceLimit,
   SpeedPriority,
-  ProcessingConfig,
-  QualityConfig,
-  ResourceLimit,
 } from "../shared/types/ai-config"
-import type { MediaFile } from "@/shared/services/ai/analysis/interfaces"
-import type { SceneAnalysis, VideoAnalysis, AudioAnalysis } from "../shared/types/content-analysis"
+import type { SceneAnalysis, VideoAnalysis } from "../shared/types/content-analysis"
 
 /**
  * Create a complete mock AIConfig with all required properties
@@ -81,12 +81,13 @@ export function createMockAIConfig(overrides?: Partial<AIConfig>): AIConfig {
  */
 export function createMockMediaFile(overrides?: Partial<MediaFile>): MediaFile {
   return {
+    id: "q",
     path: "/test/video.mp4",
     filename: "video.mp4",
-    name: "video",
     size: 10485760, // 10MB
     format: "mp4",
     duration: 120, // 2 minutes
+    type: "video",
     ...overrides,
   }
 }
@@ -144,6 +145,7 @@ export function createMockVideoAnalysis(): VideoAnalysis {
       audioChannels: 2,
       audioSampleRate: 48000,
       codec: "h264",
+      fileSize: 0,
     },
     quality: {
       overall: 0.85,
@@ -152,6 +154,8 @@ export function createMockVideoAnalysis(): VideoAnalysis {
       contrast: 0.85,
       saturation: 0.8,
       noise: 0.15,
+      stability: 0,
+      issues: [],
     },
   }
 }
@@ -159,7 +163,7 @@ export function createMockVideoAnalysis(): VideoAnalysis {
 /**
  * Create mock audio analysis result
  */
-export function createMockAudioAnalysis(): AudioAnalysis {
+export function createMockAudioAnalysis(): AudioAnalysisResult {
   return {
     volume: {
       average: 0.5,
@@ -167,14 +171,12 @@ export function createMockAudioAnalysis(): AudioAnalysis {
       min: 0.1,
       max: 0.8,
     },
-    frequency: {
-      dominant: 440,
-      spectrum: [],
-    },
     silentSegments: [],
-    clippingSegments: [],
-    hasAudio: true,
     duration: 120,
+    channels: 0,
+    sampleRate: 0,
+    bitrate: 0,
+    codec: "",
   }
 }
 

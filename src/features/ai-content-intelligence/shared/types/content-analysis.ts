@@ -1,11 +1,11 @@
 // Content Analysis Types
 
+import type { ContentInsights } from "../../../ai-chat/services/content-intelligence-service"
 import type {
   AudioAnalysisResult as AudioAnalysis,
   QualityAnalysisResult,
   VideoMetadata,
 } from "../../../ai-chat/services/ffmpeg-analysis-service"
-import type { ContentInsights } from "../../../ai-chat/services/content-intelligence-service"
 
 // Временный тип для VideoAnalysis пока не найден точный импорт
 export interface VideoAnalysis {

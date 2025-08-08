@@ -435,8 +435,12 @@ export class StoryAnalysisTool extends BaseAITool {
       return { hasAudioContent: false, audioCoverage: 0, audioGaps: 0, consistencyScore: 0, suggestions }
     }
 
-    const totalProjectDuration = Math.max(...allAudioClips.map((clip: { startTime: any; duration: any }) => clip.startTime + clip.duration), 1)
-    const audioCoverage = allAudioClips.reduce((sum: any, clip: { duration: any }) => sum + clip.duration, 0) / totalProjectDuration
+    const totalProjectDuration = Math.max(
+      ...allAudioClips.map((clip: { startTime: any; duration: any }) => clip.startTime + clip.duration),
+      1,
+    )
+    const audioCoverage =
+      allAudioClips.reduce((sum: any, clip: { duration: any }) => sum + clip.duration, 0) / totalProjectDuration
 
     // Ищем тишину
     const audioGaps = this.findAudioGaps(allAudioClips, totalProjectDuration)
