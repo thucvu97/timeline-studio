@@ -1,11 +1,11 @@
 /**
  * AI Services Domain Events
- * 
+ *
  * События домена AI сервисов
  */
 
-import type { MediaFile } from "@/features/media/types/media"
 import type { MontagePlan } from "@domains/ai-services/types/montage-planner"
+import type { MediaFile } from "@/features/media/types/media"
 
 // === Chat Events ===
 
@@ -14,7 +14,7 @@ export interface ChatMessageSentEvent {
   message: {
     id: string
     content: string
-    role: 'user' | 'assistant'
+    role: "user" | "assistant"
   }
 }
 
@@ -23,7 +23,7 @@ export interface ChatResponseReceivedEvent {
   message: {
     id: string
     content: string
-    role: 'assistant'
+    role: "assistant"
   }
   tokens?: number
   model?: string
@@ -104,20 +104,20 @@ export interface ObjectsDetectedEvent {
 
 export const AI_SERVICES_EVENTS = {
   // Chat
-  CHAT_MESSAGE_SENT: 'ai-services.chat.message-sent',
-  CHAT_RESPONSE_RECEIVED: 'ai-services.chat.response-received',
-  CHAT_TIMELINE_CREATED: 'ai-services.chat.timeline-created',
-  
+  CHAT_MESSAGE_SENT: "ai-services.chat.message-sent",
+  CHAT_RESPONSE_RECEIVED: "ai-services.chat.response-received",
+  CHAT_TIMELINE_CREATED: "ai-services.chat.timeline-created",
+
   // Content Intelligence
-  CONTENT_ANALYSIS_STARTED: 'ai-services.content.analysis-started',
-  CONTENT_ANALYSIS_COMPLETED: 'ai-services.content.analysis-completed',
-  SCRIPT_GENERATED: 'ai-services.content.script-generated',
-  
+  CONTENT_ANALYSIS_STARTED: "ai-services.content.analysis-started",
+  CONTENT_ANALYSIS_COMPLETED: "ai-services.content.analysis-completed",
+  SCRIPT_GENERATED: "ai-services.content.script-generated",
+
   // Montage Planner
-  MONTAGE_PLAN_GENERATED: 'ai-services.montage.plan-generated',
-  MONTAGE_PLAN_APPLIED: 'ai-services.montage.plan-applied',
-  
+  MONTAGE_PLAN_GENERATED: "ai-services.montage.plan-generated",
+  MONTAGE_PLAN_APPLIED: "ai-services.montage.plan-applied",
+
   // Recognition
-  PERSONS_IDENTIFIED: 'ai-services.recognition.persons-identified',
-  OBJECTS_DETECTED: 'ai-services.recognition.objects-detected',
+  PERSONS_IDENTIFIED: "ai-services.recognition.persons-identified",
+  OBJECTS_DETECTED: "ai-services.recognition.objects-detected",
 } as const

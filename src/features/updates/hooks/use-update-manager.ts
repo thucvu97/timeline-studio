@@ -3,11 +3,10 @@
  * Предоставляет интерфейс для работы с XState машиной обновлений
  */
 
-import { useMachine } from "@xstate/react"
-import { useEffect } from "react"
-
 // Используем машину из домена
 import { updateMachine } from "@domains/system-integration/machines/update-machine"
+import { useMachine } from "@xstate/react"
+import { useEffect } from "react"
 import { updateService } from "../services/update-service"
 import type { AutoCheckSettings, UpdateAvailability, UpdateEventPayload, UpdateMachineContext } from "../types"
 

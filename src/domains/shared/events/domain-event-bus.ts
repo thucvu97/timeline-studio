@@ -1,19 +1,19 @@
 /**
  * Domain Event Bus
- * 
+ *
  * Централизованная шина событий для межсервисной коммуникации между доменами
  */
 
-import { nanoid } from 'nanoid'
-import type { 
-  DomainEvent, 
-  DomainName, 
-  EventHandler, 
-  EventFilter, 
-  PublishResult, 
-  SubscriptionOptions, 
-  Unsubscribe 
-} from './domain-event'
+import { nanoid } from "nanoid"
+import type {
+  DomainEvent,
+  DomainName,
+  EventFilter,
+  EventHandler,
+  PublishResult,
+  SubscriptionOptions,
+  Unsubscribe,
+} from "./domain-event"
 
 interface Subscription {
   id: string
@@ -29,7 +29,7 @@ export class DomainEventBus {
   private subscriptions: Map<string, Subscription[]> = new Map()
   private eventHistory: DomainEvent[] = []
   private maxHistorySize = 1000
-  private isLogging = process.env.NODE_ENV === 'development'
+  private isLogging = process.env.NODE_ENV === "development"
 
   private constructor() {
     // Singleton
@@ -48,21 +48,18 @@ export class DomainEventBus {
   /**
    * Подписаться на события
    */
-  subscribe<T = unknown>(
-    handler: EventHandler<T>,
-    options: SubscriptionOptions = {}
-  ): Unsubscribe {
+  subscribe<T = unknown>(handler: EventHandler<T>, options: SubscriptionOptions = {}): Unsubscribe {
     const subscription: Subscription = {
       id: nanoid(),
       handler: handler as EventHandler,
-      options
+      options,
     }
 
     // Получаем паттерны для подписки
     const patterns = this.getSubscriptionPatterns(options.filter)
-    
+
     // Добавляем подписку для каждого паттерна
-    patterns.forEach(pattern => {
+    patterns.forEach((pattern) => {
       const subs = this.subscriptions.get(pattern) || []
       subs.push(subscription)
       // Сортируем по приоритету
@@ -72,9 +69,9 @@ export class DomainEventBus {
 
     // Возвращаем функцию отписки
     return () => {
-      patterns.forEach(pattern => {
+      patterns.forEach((pattern) => {
         const subs = this.subscriptions.get(pattern) || []
-        const filtered = subs.filter(s => s.id !== subscription.id)
+        const filtered = subs.filter((s) => s.id !== subscription.id)
         if (filtered.length > 0) {
           this.subscriptions.set(pattern, filtered)
         } else {
@@ -91,7 +88,7 @@ export class DomainEventBus {
     type: string,
     source: DomainName,
     payload: T,
-    metadata?: Record<string, unknown>
+    metadata?: Record<string, unknown>,
   ): Promise<PublishResult> {
     const event: DomainEvent<T> = {
       id: nanoid(),
@@ -99,15 +96,15 @@ export class DomainEventBus {
       source,
       timestamp: Date.now(),
       payload,
-      metadata
+      metadata,
     }
 
     // Логирование в dev режиме
     if (this.isLogging) {
-      console.log(`[EventBus] Publishing event:`, {
+      console.log("[EventBus] Publishing event:", {
         type: event.type,
         source: event.source,
-        payload: event.payload
+        payload: event.payload,
       })
     }
 
@@ -126,11 +123,7 @@ export class DomainEventBus {
           if (options.timeout) {
             const handlerResult = handler(event)
             if (handlerResult instanceof Promise) {
-              await this.withTimeout(
-                handlerResult,
-                options.timeout,
-                `Handler timeout for event ${event.type}`
-              )
+              await this.withTimeout(handlerResult, options.timeout, `Handler timeout for event ${event.type}`)
             } else {
               // Синхронный обработчик, просто вызываем
               await Promise.resolve(handlerResult)
@@ -149,13 +142,13 @@ export class DomainEventBus {
             console.error(`[EventBus] Handler error for ${event.type}:`, error)
           }
         }
-      })
+      }),
     )
 
     return {
       eventId: event.id,
       handlerCount: handlers.length,
-      errors: errors.length > 0 ? errors : undefined
+      errors: errors.length > 0 ? errors : undefined,
     }
   }
 
@@ -167,7 +160,7 @@ export class DomainEventBus {
       return [...this.eventHistory]
     }
 
-    return this.eventHistory.filter(event => this.matchesFilter(event, filter))
+    return this.eventHistory.filter((event) => this.matchesFilter(event, filter))
   }
 
   /**
@@ -190,12 +183,13 @@ export class DomainEventBus {
    */
   getStats() {
     return {
-      subscriptionCount: Array.from(this.subscriptions.values())
-        .reduce((sum, subs) => sum + subs.length, 0),
+      subscriptionCount: Array.from(this.subscriptions.values()).reduce((sum, subs) => sum + subs.length, 0),
       patternCount: this.subscriptions.size,
       historySize: this.eventHistory.length,
-      subscriptionsByPattern: Array.from(this.subscriptions.entries())
-        .map(([pattern, subs]) => ({ pattern, count: subs.length }))
+      subscriptionsByPattern: Array.from(this.subscriptions.entries()).map(([pattern, subs]) => ({
+        pattern,
+        count: subs.length,
+      })),
     }
   }
 
@@ -203,7 +197,7 @@ export class DomainEventBus {
 
   private getSubscriptionPatterns(filter?: EventFilter): string[] {
     if (!filter?.type) {
-      return ['*'] // Подписка на все события
+      return ["*"] // Подписка на все события
     }
 
     const types = Array.isArray(filter.type) ? filter.type : [filter.type]
@@ -218,19 +212,19 @@ export class DomainEventBus {
     handlers.push(...exactSubs)
 
     // Проверяем wildcard паттерны
-    const parts = event.type.split('.')
+    const parts = event.type.split(".")
     for (let i = parts.length - 1; i >= 0; i--) {
-      const pattern = parts.slice(0, i).join('.') + '.*'
+      const pattern = `${parts.slice(0, i).join(".")}.*`
       const wildcardSubs = this.subscriptions.get(pattern) || []
       handlers.push(...wildcardSubs)
     }
 
     // Проверяем универсальную подписку
-    const universalSubs = this.subscriptions.get('*') || []
+    const universalSubs = this.subscriptions.get("*") || []
     handlers.push(...universalSubs)
 
     // Фильтруем по дополнительным критериям
-    return handlers.filter(sub => {
+    return handlers.filter((sub) => {
       const filter = sub.options.filter
       if (!filter) return true
 
@@ -257,18 +251,14 @@ export class DomainEventBus {
 
   private addToHistory(event: DomainEvent): void {
     this.eventHistory.push(event)
-    
+
     // Ограничиваем размер истории
     if (this.eventHistory.length > this.maxHistorySize) {
       this.eventHistory = this.eventHistory.slice(-this.maxHistorySize)
     }
   }
 
-  private async withTimeout<T>(
-    promise: Promise<T>,
-    timeoutMs: number,
-    errorMessage: string
-  ): Promise<T> {
+  private async withTimeout<T>(promise: Promise<T>, timeoutMs: number, errorMessage: string): Promise<T> {
     const timeoutPromise = new Promise<never>((_, reject) => {
       setTimeout(() => reject(new Error(errorMessage)), timeoutMs)
     })

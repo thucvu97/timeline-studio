@@ -1,8 +1,11 @@
+// Используем типы и машину из домена
+import {
+  type BrowserTab,
+  type LayoutMode,
+  userSettingsMachine,
+} from "@domains/project-management/machines/user-settings-machine"
 import { useMachine } from "@xstate/react"
 import { createContext } from "react"
-
-// Используем типы и машину из домена
-import { type BrowserTab, type LayoutMode, userSettingsMachine } from "@domains/project-management/machines/user-settings-machine"
 
 /**
  * Интерфейс значения контекста пользовательских настроек

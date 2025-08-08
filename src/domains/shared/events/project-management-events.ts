@@ -1,6 +1,6 @@
 /**
  * Project Management Domain Events
- * 
+ *
  * События домена управления проектами
  */
 
@@ -37,7 +37,7 @@ export interface UserSettingsChangedEvent {
   setting: string
   oldValue: any
   newValue: any
-  category: 'general' | 'performance' | 'appearance' | 'shortcuts'
+  category: "general" | "performance" | "appearance" | "shortcuts"
 }
 
 export interface ProjectSettingsChangedEvent {
@@ -60,7 +60,7 @@ export interface ThemeChangedEvent {
 // === API Keys Events ===
 
 export interface ApiKeyUpdatedEvent {
-  provider: 'openai' | 'claude' | 'deepseek' | 'custom'
+  provider: "openai" | "claude" | "deepseek" | "custom"
   isValid: boolean
 }
 
@@ -78,7 +78,7 @@ export interface BackendConnectedEvent {
 }
 
 export interface BackendDisconnectedEvent {
-  reason: 'manual' | 'error' | 'timeout'
+  reason: "manual" | "error" | "timeout"
   error?: string
 }
 
@@ -93,23 +93,23 @@ export interface BackendCommandExecutedEvent {
 
 export const PROJECT_MANAGEMENT_EVENTS = {
   // Project
-  PROJECT_CREATED: 'project.created',
-  PROJECT_OPENED: 'project.opened',
-  PROJECT_SAVED: 'project.saved',
-  PROJECT_CLOSED: 'project.closed',
-  
+  PROJECT_CREATED: "project.created",
+  PROJECT_OPENED: "project.opened",
+  PROJECT_SAVED: "project.saved",
+  PROJECT_CLOSED: "project.closed",
+
   // Settings
-  USER_SETTINGS_CHANGED: 'project.settings.user-changed',
-  PROJECT_SETTINGS_CHANGED: 'project.settings.project-changed',
-  LANGUAGE_CHANGED: 'project.settings.language-changed',
-  THEME_CHANGED: 'project.settings.theme-changed',
-  
+  USER_SETTINGS_CHANGED: "project.settings.user-changed",
+  PROJECT_SETTINGS_CHANGED: "project.settings.project-changed",
+  LANGUAGE_CHANGED: "project.settings.language-changed",
+  THEME_CHANGED: "project.settings.theme-changed",
+
   // API Keys
-  API_KEY_UPDATED: 'project.api-key.updated',
-  API_KEY_VALIDATED: 'project.api-key.validated',
-  
+  API_KEY_UPDATED: "project.api-key.updated",
+  API_KEY_VALIDATED: "project.api-key.validated",
+
   // Backend
-  BACKEND_CONNECTED: 'project.backend.connected',
-  BACKEND_DISCONNECTED: 'project.backend.disconnected',
-  BACKEND_COMMAND_EXECUTED: 'project.backend.command-executed',
+  BACKEND_CONNECTED: "project.backend.connected",
+  BACKEND_DISCONNECTED: "project.backend.disconnected",
+  BACKEND_COMMAND_EXECUTED: "project.backend.command-executed",
 } as const

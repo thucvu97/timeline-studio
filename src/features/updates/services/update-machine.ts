@@ -7,9 +7,9 @@
 
 // Re-export everything from the new domain location
 export type {
+  UpdateMachine,
   UpdateMachineContext,
   UpdateMachineEvent,
-  UpdateMachine,
 } from "@domains/system-integration/machines/update-machine"
 
 export { updateMachine } from "@domains/system-integration/machines/update-machine"

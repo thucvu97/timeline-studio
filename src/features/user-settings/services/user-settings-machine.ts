@@ -7,18 +7,18 @@
 
 // Re-export everything from the new domain location
 export type {
+  BrowserTab,
+  LayoutMode,
   UserSettingsContext,
   UserSettingsContextType,
   UserSettingsEvent,
   UserSettingsMachine,
-  LayoutMode,
-  BrowserTab,
 } from "@domains/project-management/machines/user-settings-machine"
 
-export { 
-  userSettingsMachine,
-  LAYOUTS,
-  DEFAULT_LAYOUT,
+export {
   BROWSER_TABS,
+  DEFAULT_LAYOUT,
   DEFAULT_TAB,
+  LAYOUTS,
+  userSettingsMachine,
 } from "@domains/project-management/machines/user-settings-machine"

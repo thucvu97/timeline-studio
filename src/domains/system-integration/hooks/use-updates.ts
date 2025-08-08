@@ -55,7 +55,19 @@ export function useUpdates() {
 
   // Извлечение данных из состояния
   const context = updateState.context
-  const status = updateState.value as UpdateStatus
+  // Map machine state to UpdateStatus
+  const machineState = updateState.value as string
+  let status: UpdateStatus = "idle"
+  
+  // Map XState machine states to UpdateStatus
+  if (machineState === "initializing" || machineState === "idle") status = "idle"
+  else if (machineState === "checking") status = "checking"
+  else if (machineState === "updateAvailable") status = "available"
+  else if (machineState === "downloading") status = "downloading"
+  else if (machineState === "readyToInstall") status = "downloaded"
+  else if (machineState === "installing") status = "installing"
+  else if (machineState === "installed") status = "installed"
+  else if (machineState === "error") status = "error"
 
   return {
     // Состояние
@@ -81,7 +93,7 @@ export function useUpdates() {
     isChecking: status === "checking",
     isDownloading: status === "downloading",
     isInstalling: status === "installing",
-    isReady: status === "readyToInstall",
+    isReady: status === "downloaded",
     hasError: status === "error",
   }
 }

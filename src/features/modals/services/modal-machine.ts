@@ -7,12 +7,12 @@
 
 // Re-export everything from the new domain location
 export type {
-  ModalType,
-  ModalData,
-  ModalMachine,
   ModalActor,
   ModalContext,
+  ModalData,
   ModalEvent,
+  ModalMachine,
+  ModalType,
 } from "@domains/system-integration/machines/modal-machine"
 
 export { modalMachine } from "@domains/system-integration/machines/modal-machine"

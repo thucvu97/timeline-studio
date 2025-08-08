@@ -1,11 +1,9 @@
 "use client"
 
-import { createContext, type ReactNode, useContext, useEffect, useMemo, useRef, useState } from "react"
-
-import { type Actor, createActor } from "xstate"
-
 // Используем машину из домена
 import { aiIntelligenceMachine } from "@domains/ai-services/machines/ai-intelligence-machine"
+import { createContext, type ReactNode, useContext, useEffect, useMemo, useRef, useState } from "react"
+import { type Actor, createActor } from "xstate"
 
 interface AIIntelligenceContextType {
   actor: Actor<typeof aiIntelligenceMachine> | null

@@ -1,6 +1,6 @@
 /**
  * Media Management Domain Events
- * 
+ *
  * События домена управления медиа
  */
 
@@ -10,7 +10,7 @@ import type { MediaFile } from "@/features/media/types/media"
 
 export interface FilesImportedEvent {
   files: MediaFile[]
-  source: 'drag-drop' | 'file-dialog' | 'camera' | 'voice-recording'
+  source: "drag-drop" | "file-dialog" | "camera" | "voice-recording"
   targetTab?: string
 }
 
@@ -74,7 +74,7 @@ export interface BrowserFilterChangedEvent {
     searchQuery?: string
     fileType?: string
     sortBy?: string
-    sortOrder?: 'asc' | 'desc'
+    sortOrder?: "asc" | "desc"
   }
 }
 
@@ -109,22 +109,22 @@ export interface ImportCompletedEvent {
 
 export const MEDIA_MANAGEMENT_EVENTS = {
   // File Operations
-  FILES_IMPORTED: 'media.files.imported',
-  FILE_DELETED: 'media.file.deleted',
-  FILE_MOVED: 'media.file.moved',
-  FILE_RENAMED: 'media.file.renamed',
-  
+  FILES_IMPORTED: "media.files.imported",
+  FILE_DELETED: "media.file.deleted",
+  FILE_MOVED: "media.file.moved",
+  FILE_RENAMED: "media.file.renamed",
+
   // Metadata
-  METADATA_EXTRACTED: 'media.metadata.extracted',
-  THUMBNAIL_GENERATED: 'media.thumbnail.generated',
-  
+  METADATA_EXTRACTED: "media.metadata.extracted",
+  THUMBNAIL_GENERATED: "media.thumbnail.generated",
+
   // Browser
-  BROWSER_TAB_CHANGED: 'media.browser.tab-changed',
-  FILES_SELECTED: 'media.browser.files-selected',
-  BROWSER_FILTER_CHANGED: 'media.browser.filter-changed',
-  
+  BROWSER_TAB_CHANGED: "media.browser.tab-changed",
+  FILES_SELECTED: "media.browser.files-selected",
+  BROWSER_FILTER_CHANGED: "media.browser.filter-changed",
+
   // Import
-  IMPORT_STARTED: 'media.import.started',
-  IMPORT_PROGRESS: 'media.import.progress',
-  IMPORT_COMPLETED: 'media.import.completed',
+  IMPORT_STARTED: "media.import.started",
+  IMPORT_PROGRESS: "media.import.progress",
+  IMPORT_COMPLETED: "media.import.completed",
 } as const

@@ -1,6 +1,6 @@
 /**
  * System Integration Domain Events
- * 
+ *
  * События домена системной интеграции
  */
 
@@ -14,7 +14,7 @@ export interface ModalOpenedEvent {
 
 export interface ModalClosedEvent {
   modalType: string
-  closedBy: 'user' | 'submit' | 'cancel' | 'escape'
+  closedBy: "user" | "submit" | "cancel" | "escape"
   duration: number
 }
 
@@ -28,7 +28,7 @@ export interface ModalSubmittedEvent {
 
 export interface UpdateCheckStartedEvent {
   currentVersion: string
-  channel: 'stable' | 'beta' | 'alpha'
+  channel: "stable" | "beta" | "alpha"
 }
 
 export interface UpdateAvailableEvent {
@@ -64,7 +64,7 @@ export interface UpdateInstalledEvent {
 export interface ShortcutTriggeredEvent {
   shortcut: string
   action: string
-  source: 'keyboard' | 'menu' | 'toolbar'
+  source: "keyboard" | "menu" | "toolbar"
 }
 
 export interface ShortcutChangedEvent {
@@ -79,11 +79,11 @@ export interface AppStartedEvent {
   version: string
   platform: string
   startupTime: number
-  launchMode: 'normal' | 'debug' | 'safe'
+  launchMode: "normal" | "debug" | "safe"
 }
 
 export interface AppShutdownEvent {
-  reason: 'user' | 'update' | 'crash' | 'system'
+  reason: "user" | "update" | "crash" | "system"
   sessionDuration: number
   unsavedChanges: boolean
 }
@@ -109,7 +109,7 @@ export interface SystemResourcesEvent {
 
 export interface NotificationShownEvent {
   id: string
-  type: 'info' | 'success' | 'warning' | 'error'
+  type: "info" | "success" | "warning" | "error"
   title: string
   message: string
   duration?: number
@@ -124,28 +124,28 @@ export interface NotificationClickedEvent {
 
 export const SYSTEM_INTEGRATION_EVENTS = {
   // Modal
-  MODAL_OPENED: 'system.modal.opened',
-  MODAL_CLOSED: 'system.modal.closed',
-  MODAL_SUBMITTED: 'system.modal.submitted',
-  
+  MODAL_OPENED: "system.modal.opened",
+  MODAL_CLOSED: "system.modal.closed",
+  MODAL_SUBMITTED: "system.modal.submitted",
+
   // Update
-  UPDATE_CHECK_STARTED: 'system.update.check-started',
-  UPDATE_AVAILABLE: 'system.update.available',
-  UPDATE_DOWNLOAD_STARTED: 'system.update.download-started',
-  UPDATE_DOWNLOAD_PROGRESS: 'system.update.download-progress',
-  UPDATE_INSTALLED: 'system.update.installed',
-  
+  UPDATE_CHECK_STARTED: "system.update.check-started",
+  UPDATE_AVAILABLE: "system.update.available",
+  UPDATE_DOWNLOAD_STARTED: "system.update.download-started",
+  UPDATE_DOWNLOAD_PROGRESS: "system.update.download-progress",
+  UPDATE_INSTALLED: "system.update.installed",
+
   // Shortcuts
-  SHORTCUT_TRIGGERED: 'system.shortcut.triggered',
-  SHORTCUT_CHANGED: 'system.shortcut.changed',
-  
+  SHORTCUT_TRIGGERED: "system.shortcut.triggered",
+  SHORTCUT_CHANGED: "system.shortcut.changed",
+
   // System
-  APP_STARTED: 'system.app.started',
-  APP_SHUTDOWN: 'system.app.shutdown',
-  WINDOW_FOCUS_CHANGED: 'system.window.focus-changed',
-  SYSTEM_RESOURCES: 'system.resources.status',
-  
+  APP_STARTED: "system.app.started",
+  APP_SHUTDOWN: "system.app.shutdown",
+  WINDOW_FOCUS_CHANGED: "system.window.focus-changed",
+  SYSTEM_RESOURCES: "system.resources.status",
+
   // Notification
-  NOTIFICATION_SHOWN: 'system.notification.shown',
-  NOTIFICATION_CLICKED: 'system.notification.clicked',
+  NOTIFICATION_SHOWN: "system.notification.shown",
+  NOTIFICATION_CLICKED: "system.notification.clicked",
 } as const

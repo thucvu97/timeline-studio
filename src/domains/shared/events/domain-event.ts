@@ -1,6 +1,6 @@
 /**
  * Domain Event Types
- * 
+ *
  * Базовые типы для событий между доменами
  */
 
@@ -39,14 +39,14 @@ export interface EventMetadata {
 /**
  * Названия доменов
  */
-export type DomainName = 
-  | 'ai-services'
-  | 'browser'
-  | 'media-management'
-  | 'video-editing'
-  | 'project-management'
-  | 'system-integration'
-  | 'shared'
+export type DomainName =
+  | "ai-services"
+  | "browser"
+  | "media-management"
+  | "video-editing"
+  | "project-management"
+  | "system-integration"
+  | "shared"
 
 /**
  * Обработчик событий

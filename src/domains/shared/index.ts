@@ -1,14 +1,14 @@
 /**
  * Shared Domain
- * 
+ *
  * Общие утилиты, типы и сервисы для всех доменов
  */
 
 // Events - межсервисная коммуникация
-export * from './events'
+export * from "./events"
 
 // Hooks
-export * from './hooks/use-domain-events'
+export * from "./hooks/use-domain-events"
 
 // Types (будущее расширение)
 // export * from './types'

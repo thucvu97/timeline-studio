@@ -1,6 +1,6 @@
 /**
  * Video Editing Domain Events
- * 
+ *
  * События домена видео редактирования
  */
 
@@ -111,7 +111,7 @@ export interface PlaybackRateChangedEvent {
 
 export interface EffectAppliedEvent {
   targetId: string // clip or track ID
-  targetType: 'clip' | 'track' | 'timeline'
+  targetType: "clip" | "track" | "timeline"
   effectId: string
   effectType: string
   parameters: Record<string, any>
@@ -119,13 +119,13 @@ export interface EffectAppliedEvent {
 
 export interface EffectRemovedEvent {
   targetId: string
-  targetType: 'clip' | 'track' | 'timeline'
+  targetType: "clip" | "track" | "timeline"
   effectId: string
 }
 
 export interface FilterAppliedEvent {
   targetId: string
-  targetType: 'clip' | 'track' | 'timeline'
+  targetType: "clip" | "track" | "timeline"
   filterId: string
   filterType: string
   intensity: number
@@ -181,31 +181,31 @@ export interface FrameCapturedEvent {
 
 export const VIDEO_EDITING_EVENTS = {
   // Timeline
-  TIMELINE_CREATED: 'video.timeline.created',
-  CLIP_ADDED: 'video.timeline.clip-added',
-  CLIP_MOVED: 'video.timeline.clip-moved',
-  CLIP_TRIMMED: 'video.timeline.clip-trimmed',
-  CLIP_DELETED: 'video.timeline.clip-deleted',
-  SECTION_CREATED: 'video.timeline.section-created',
-  TRACK_ADDED: 'video.timeline.track-added',
-  
+  TIMELINE_CREATED: "video.timeline.created",
+  CLIP_ADDED: "video.timeline.clip-added",
+  CLIP_MOVED: "video.timeline.clip-moved",
+  CLIP_TRIMMED: "video.timeline.clip-trimmed",
+  CLIP_DELETED: "video.timeline.clip-deleted",
+  SECTION_CREATED: "video.timeline.section-created",
+  TRACK_ADDED: "video.timeline.track-added",
+
   // Playback
-  PLAYBACK_STARTED: 'video.playback.started',
-  PLAYBACK_STOPPED: 'video.playback.stopped',
-  PLAYBACK_TIME_CHANGED: 'video.playback.time-changed',
-  PLAYBACK_RATE_CHANGED: 'video.playback.rate-changed',
-  
+  PLAYBACK_STARTED: "video.playback.started",
+  PLAYBACK_STOPPED: "video.playback.stopped",
+  PLAYBACK_TIME_CHANGED: "video.playback.time-changed",
+  PLAYBACK_RATE_CHANGED: "video.playback.rate-changed",
+
   // Effects
-  EFFECT_APPLIED: 'video.effect.applied',
-  EFFECT_REMOVED: 'video.effect.removed',
-  FILTER_APPLIED: 'video.filter.applied',
-  
+  EFFECT_APPLIED: "video.effect.applied",
+  EFFECT_REMOVED: "video.effect.removed",
+  FILTER_APPLIED: "video.filter.applied",
+
   // Export
-  EXPORT_STARTED: 'video.export.started',
-  EXPORT_PROGRESS: 'video.export.progress',
-  EXPORT_COMPLETED: 'video.export.completed',
-  
+  EXPORT_STARTED: "video.export.started",
+  EXPORT_PROGRESS: "video.export.progress",
+  EXPORT_COMPLETED: "video.export.completed",
+
   // Player
-  MEDIA_LOADED: 'video.player.media-loaded',
-  FRAME_CAPTURED: 'video.player.frame-captured',
+  MEDIA_LOADED: "video.player.media-loaded",
+  FRAME_CAPTURED: "video.player.frame-captured",
 } as const

@@ -6,19 +6,38 @@
 
 // Re-export update types
 export type {
-  AutoCheckSettings,
-  UpdateAvailability,
   UpdateCheckResult,
-  UpdateEventPayload,
-  UpdateInfo,
-  UpdateMachineContext,
-  UpdateMachineEvent,
   UpdateProgress,
-  UpdateProgressWithPercentage,
-  UpdateStatus,
 } from "@/features/updates/types"
+
+// Import modal types
+import type { ModalData as MachineModalData, ModalType as MachineModalType } from "../machines/modal-machine"
+
 // Re-export modal types
-export type { ModalData, ModalType } from "../machines/modal-machine"
+export type ModalData = MachineModalData
+export type ModalType = MachineModalType
+
+// Import types from update machine
+export type {
+  UpdateMachine,
+  UpdateMachineActor,
+} from "../machines/update-machine"
+
+// Import types needed from features
+import type {
+  UpdateInfo as FeatureUpdateInfo,
+  UpdateProgressWithPercentage as FeatureUpdateProgressWithPercentage,
+  UpdateStatus as FeatureUpdateStatus,
+  UpdateMachineContext as FeatureUpdateMachineContext,
+  UpdateMachineEvent as FeatureUpdateMachineEvent,
+} from "@/features/updates/types"
+
+// Re-export with proper types
+export type UpdateInfo = FeatureUpdateInfo
+export type UpdateProgressWithPercentage = FeatureUpdateProgressWithPercentage
+export type UpdateStatus = FeatureUpdateStatus
+export type UpdateMachineContext = FeatureUpdateMachineContext
+export type UpdateMachineEvent = FeatureUpdateMachineEvent
 
 // System integration orchestrator context
 export interface SystemIntegrationContext {
@@ -99,14 +118,6 @@ export type SystemIntegrationEvent =
   | { type: "UPDATE_SYSTEM_RESOURCES"; resources: SystemResources }
   | { type: "TOGGLE_FEATURE"; feature: string; enabled: boolean }
 
-// Modal types re-exports (for convenience)
-export type ModalType = import("../machines/modal-machine").ModalType
-export type ModalData = import("../machines/modal-machine").ModalData
-
-// Update types re-exports (for convenience)
-export type UpdateInfo = import("@/features/updates/types").UpdateInfo
-export type UpdateStatus = import("@/features/updates/types").UpdateStatus
-export type UpdateProgressWithPercentage = import("@/features/updates/types").UpdateProgressWithPercentage
 
 // System integration service interface
 export interface SystemIntegrationService {

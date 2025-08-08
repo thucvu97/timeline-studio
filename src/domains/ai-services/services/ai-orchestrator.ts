@@ -1,24 +1,24 @@
 /**
  * AI Services Orchestrator
- * 
+ *
  * Координирует работу AI сервисов и публикует события
  */
 
-import { createActor, type ActorRefFrom } from 'xstate'
-import { 
-  eventBus, 
-  DOMAIN_EVENTS,
+import {
   type ChatMessageSentEvent,
   type ContentAnalysisStartedEvent,
-  type MontagePlanGeneratedEvent 
-} from '@domains/shared/events'
-import { chatMachine, type ChatMachine } from '../machines/chat-machine'
-import { aiIntelligenceMachine, type AIIntelligenceMachine } from '../machines/ai-intelligence-machine'
-import { montagePlannerMachine, type MontagePlannerMachine } from '../machines/montage-planner-machine'
+  DOMAIN_EVENTS,
+  eventBus,
+  type MontagePlanGeneratedEvent,
+} from "@domains/shared/events"
+import { type ActorRefFrom, createActor } from "xstate"
+import { type AIIntelligenceMachine, aiIntelligenceMachine } from "../machines/ai-intelligence-machine"
+import { type ChatMachine, chatMachine } from "../machines/chat-machine"
+import { type MontagePlannerMachine, montagePlannerMachine } from "../machines/montage-planner-machine"
 
 export class AIServicesOrchestrator {
   private static instance: AIServicesOrchestrator | null = null
-  
+
   private chatActor: ActorRefFrom<ChatMachine>
   private intelligenceActor: ActorRefFrom<AIIntelligenceMachine>
   private montagePlannerActor: ActorRefFrom<MontagePlannerMachine>
@@ -36,7 +36,7 @@ export class AIServicesOrchestrator {
 
     // Настраиваем обработчики событий
     this.setupEventHandlers()
-    
+
     // Настраиваем публикацию событий из машин
     this.setupEventPublishing()
   }
@@ -55,8 +55,8 @@ export class AIServicesOrchestrator {
     // Слушаем события из других доменов
     eventBus.subscribe(
       async (event) => {
-        console.log('[AI Orchestrator] Received event:', event.type)
-        
+        console.log("[AI Orchestrator] Received event:", event.type)
+
         switch (event.type) {
           case DOMAIN_EVENTS.MEDIA.FILES_IMPORTED:
             // Запускаем анализ для новых файлов
@@ -65,19 +65,19 @@ export class AIServicesOrchestrator {
               await this.startContentAnalysis(files)
             }
             break
-            
+
           case DOMAIN_EVENTS.VIDEO.TIMELINE_CREATED:
             // Можем предложить AI оптимизацию для нового таймлайна
-            console.log('New timeline created, AI can suggest improvements')
+            console.log("New timeline created, AI can suggest improvements")
             break
         }
       },
       {
         filter: {
           // Слушаем события из media и video доменов
-          source: ['media-management', 'video-editing']
-        }
-      }
+          source: ["media-management", "video-editing"],
+        },
+      },
     )
   }
 
@@ -88,43 +88,36 @@ export class AIServicesOrchestrator {
     // Подписываемся на изменения состояния chat машины
     this.chatActor.subscribe((snapshot) => {
       const { context } = snapshot
-      
+
       // Публикуем событие при отправке сообщения
-      if (snapshot.matches('processing') && context.messages.length > 0) {
-        const lastMessage = context.messages[context.messages.length - 1]
-        if (lastMessage.role === 'user') {
-          eventBus.publish<ChatMessageSentEvent>(
-            DOMAIN_EVENTS.AI_SERVICES.CHAT_MESSAGE_SENT,
-            'ai-services',
-            {
-              sessionId: context.currentSessionId || 'default',
-              message: {
-                id: lastMessage.id,
-                content: lastMessage.content,
-                role: lastMessage.role
-              }
-            }
-          )
+      if (snapshot.matches("processing") && context.chatMessages.length > 0) {
+        const lastMessage = context.chatMessages[context.chatMessages.length - 1]
+        if (lastMessage.role === "user") {
+          eventBus.publish<ChatMessageSentEvent>(DOMAIN_EVENTS.AI_SERVICES.CHAT_MESSAGE_SENT, "ai-services", {
+            sessionId: context.currentSessionId || "default",
+            message: {
+              id: lastMessage.id,
+              content: lastMessage.content,
+              role: lastMessage.role,
+            },
+          })
         }
       }
     })
 
     // Подписываемся на изменения montage planner
     this.montagePlannerActor.subscribe((snapshot) => {
-      if (snapshot.matches('completed') && snapshot.context.plans.length > 0) {
-        const lastPlan = snapshot.context.plans[snapshot.context.plans.length - 1]
-        
-        eventBus.publish<MontagePlanGeneratedEvent>(
-          DOMAIN_EVENTS.AI_SERVICES.MONTAGE_PLAN_GENERATED,
-          'ai-services',
-          {
-            planId: lastPlan.id,
-            plan: lastPlan,
-            mediaFiles: snapshot.context.analysis?.mediaFiles || [],
-            style: lastPlan.style,
-            duration: lastPlan.sequences.reduce((sum, seq) => sum + seq.duration, 0)
-          }
-        )
+      if (snapshot.matches("ready") && snapshot.context.currentPlan) {
+        const plan = snapshot.context.currentPlan
+        const mediaFiles = Array.from(snapshot.context.mediaFiles.values())
+
+        eventBus.publish<MontagePlanGeneratedEvent>(DOMAIN_EVENTS.AI_SERVICES.MONTAGE_PLAN_GENERATED, "ai-services", {
+          planId: plan.id,
+          plan: plan,
+          mediaFiles: mediaFiles,
+          style: plan.style,
+          duration: plan.totalDuration,
+        })
       }
     })
   }
@@ -134,22 +127,59 @@ export class AIServicesOrchestrator {
    */
   async startContentAnalysis(files: any[]) {
     const analysisId = `analysis-${Date.now()}`
-    
+
     // Публикуем событие о начале анализа
     await eventBus.publish<ContentAnalysisStartedEvent>(
       DOMAIN_EVENTS.AI_SERVICES.CONTENT_ANALYSIS_STARTED,
-      'ai-services',
+      "ai-services",
       {
         analysisId,
         mediaFiles: files,
-        analysisTypes: ['scene', 'object', 'emotion', 'transcript']
-      }
+        analysisTypes: ["scene", "object", "emotion", "transcript"],
+      },
     )
 
     // Запускаем анализ через intelligence машину
     this.intelligenceActor.send({
-      type: 'ANALYZE_CONTENT',
-      mediaFiles: files
+      type: "START_ANALYSIS",
+      mediaFiles: files,
+      config: {
+        providers: [{
+          provider: 'openai' as any, // Will be properly typed when AI provider is configured
+          apiKey: '',
+          model: 'gpt-4-vision-preview'
+        }],
+        defaultProvider: 'openai' as any,
+        features: {
+          sceneAnalysis: true,
+          scriptGeneration: false,
+          multiPlatform: false,
+          personIdentification: true,
+          contentClassification: true,
+          qualityEnhancement: false,
+          autoSuggestions: true,
+        },
+        processing: {
+          parallel: true,
+          maxConcurrent: 2,
+          batchSize: 10,
+          cacheResults: true,
+          cacheDuration: 24,
+          retryAttempts: 3,
+          timeout: 300,
+        },
+        quality: {
+          analysisDepth: 'standard' as any,
+          accuracy: 'balanced' as any,
+          speed: 'normal' as any,
+          resourceUsage: {
+            maxCPU: 80,
+            maxRAM: 4096,
+            maxGPU: 90,
+            maxDiskSpace: 1024,
+          },
+        },
+      },
     })
   }
 
@@ -160,7 +190,7 @@ export class AIServicesOrchestrator {
     return {
       chat: this.chatActor,
       intelligence: this.intelligenceActor,
-      montagePlanner: this.montagePlannerActor
+      montagePlanner: this.montagePlannerActor,
     }
   }
 
