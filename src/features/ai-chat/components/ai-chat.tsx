@@ -17,7 +17,7 @@ import { useResourcesAIIntegration } from "../hooks/use-resources-ai-integration
 import { useSafeTimeline } from "../hooks/use-safe-timeline"
 import { chatStorageService } from "../services/chat-storage-service"
 import { UnifiedAIService } from "../services/unified-ai-service"
-import type { Agent, ChatMessage } from "../types/chat"
+import type { Agent, AgentId, ChatMessage } from "../types/chat"
 import { compressContext, isContextOverLimit } from "../utils/context-manager"
 import { createTimelineContextPrompt } from "../utils/timeline-context"
 import { ChatList } from "./chat-list"
@@ -113,9 +113,9 @@ export function AiChat() {
         console.error("Failed to load available models:", error)
         // Используем минимальный набор моделей в случае ошибки
         const fallbackModels: Agent[] = [
-          { id: "claude-4-sonnet-latest", name: "Claude 4 Sonnet", useTools: true, provider: "claude" },
-          { id: "gpt-4", name: "GPT-4", useTools: false, provider: "openai" },
-          { id: "deepseek-chat", name: "DeepSeek Chat", useTools: false, provider: "deepseek" },
+          { id: "claude-4-opus", name: "Claude 4 Sonnet", useTools: true, provider: "claude" },
+          { id: "gpt-5", name: "GPT-5", useTools: false, provider: "openai" },
+          { id: "qwen-2-5", name: "Qwen 2.5", useTools: false, provider: "qwen" },
         ]
         setAvailableModels(fallbackModels)
       } finally {
@@ -304,7 +304,7 @@ export function AiChat() {
             content: fullContent,
             role: "assistant",
             timestamp: new Date(),
-            agent: selectedAgentId || undefined,
+            agent: (selectedAgentId as AgentId) ?? ("qwen-2-5" as AgentId),
           }
 
           receiveChatMessage(agentMessage.content)

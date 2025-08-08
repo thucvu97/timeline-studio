@@ -25,7 +25,9 @@ export type { AIToolResult } from "./tools/base-ai-tool"
 // Все типы
 export * from "./types/ai-context"
 export * from "./types/ai-message"
-export * from "./types/chat"
+// Note: chat types are now in @domains/ai-services/types/chat
+// They are re-exported from ./types/chat for backward compatibility
+export type { AgentId, ChatMessage, ChatSession } from "./types/chat"
 export * from "./types/streaming"
 
 // Утилиты

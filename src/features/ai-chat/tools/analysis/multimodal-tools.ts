@@ -164,7 +164,7 @@ export class MultimodalAnalysisTool extends BaseAITool {
       const suggestions = await service.suggestThumbnails({
         clipId: input.clipId,
         count: input.count || 5,
-        criteria: input.criteria || ["aesthetic", "faces", "emotion"],
+        criteria: input.criteria ?? ["aesthetic", "faces", "emotion"],
         contextPrompt: input.customPrompt,
       })
 

@@ -1,6 +1,6 @@
 // Content Analysis Types
 
-import type { ContentInsights } from "../../../ai-chat/services/content-intelligence-service"
+import { ContentInsights } from "@/domains/ai-services/types"
 import type {
   AudioAnalysisResult as AudioAnalysis,
   QualityAnalysisResult,

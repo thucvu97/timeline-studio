@@ -8,7 +8,7 @@ import { DEEPSEEK_MODELS } from "@/shared/services/ai/providers/deepseek"
 import { OPENAI_MODELS } from "@/shared/services/ai/providers/openai"
 
 // Типы AI провайдеров
-export type AIProvider = "claude" | "openai" | "deepseek" | "ollama"
+export type AIProvider = "claude" | "openai" | "deepseek" | "ollama" | "grok"
 
 // Конфигурация модели
 export interface ModelConfig {

@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build --no-lint",
+    "build:quick": "next build --no-lint",
     "build:analyze": "ANALYZE=true CODECOV_TOKEN=$CODECOV_TOKEN next build --no-lint",
     "start": "next start",
     "lint": "biome check .",

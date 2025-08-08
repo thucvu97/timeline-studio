@@ -475,12 +475,16 @@ describe("ChatProvider", () => {
           title: "Тест 1",
           lastMessageAt: new Date(),
           messageCount: 5,
+          createdAt: new Date(),
+          agent: "gpt-5",
         },
         {
           id: "session-2",
           title: "Тест 2",
           lastMessageAt: new Date(),
           messageCount: 3,
+          createdAt: new Date(),
+          agent: "gpt-5",
         },
       ]
 
@@ -511,12 +515,16 @@ describe("ChatProvider", () => {
           title: "Новый чат 1",
           lastMessageAt: new Date(),
           messageCount: 10,
+          createdAt: new Date(),
+          agent: "gpt-5",
         },
         {
           id: "new-2",
           title: "Новый чат 2",
           lastMessageAt: new Date(),
           messageCount: 20,
+          createdAt: new Date(),
+          agent: "gpt-5",
         },
       ]
 
