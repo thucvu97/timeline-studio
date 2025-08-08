@@ -35,6 +35,9 @@ export interface PlayerAIAnalysisHook {
   getCurrentSceneInfo: () => SceneInfo | null
   getObjectsInFrame: () => ObjectDetection[]
   getUpcomingMoments: (lookaheadSeconds?: number) => KeyMoment[]
+  
+  // Для тестирования
+  updateUpcomingMoments?: (moments: KeyMoment[]) => void
 }
 
 export function usePlayerAIAnalysis(): PlayerAIAnalysisHook {
@@ -176,6 +179,11 @@ export function usePlayerAIAnalysis(): PlayerAIAnalysisHook {
     },
     [currentTime, state.upcomingMoments],
   )
+  
+  // Обновление предстоящих моментов (для тестирования и внешней интеграции)
+  const updateUpcomingMoments = useCallback((moments: KeyMoment[]) => {
+    setState((prev) => ({ ...prev, upcomingMoments: moments }))
+  }, [])
 
   // Автоматическая остановка при остановке воспроизведения
   useEffect(() => {
@@ -202,5 +210,6 @@ export function usePlayerAIAnalysis(): PlayerAIAnalysisHook {
     getCurrentSceneInfo,
     getObjectsInFrame,
     getUpcomingMoments,
+    updateUpcomingMoments,
   }
 }
