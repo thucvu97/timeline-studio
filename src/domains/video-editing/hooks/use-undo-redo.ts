@@ -95,8 +95,8 @@ export function useUndoRedo(): UseUndoRedoReturn {
                 type: "MoveClip",
                 params: {
                   clip_id: actionData.clipId,
-                  target_track_id: actionData.oldTrackId,
-                  new_time: actionData.oldTime,
+                  track_id: actionData.oldTrackId,
+                  time: actionData.oldTime,
                 },
               })
             } else {
@@ -104,8 +104,8 @@ export function useUndoRedo(): UseUndoRedoReturn {
                 type: "MoveClip",
                 params: {
                   clip_id: actionData.clipId,
-                  target_track_id: actionData.newTrackId,
-                  new_time: actionData.newTime,
+                  track_id: actionData.newTrackId,
+                  time: actionData.newTime,
                 },
               })
             }
