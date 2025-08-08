@@ -4,13 +4,14 @@
  * Экспортирует Timeline в CMX 3600 EDL формат
  */
 
-import type { TimelineClip, TimelineProject, TimelineTrack } from "../../../types/timeline"
+import type { Timeline, TimelineClip, Track } from "../../../types"
 import { type EDLEvent, type Exporter, type ExportOptions, formatTimecode, secondsToTimecode } from "../types"
 
 export class EDLExporter implements Exporter {
   private frameRate = 30
+  private eventCounter = 0
 
-  async export(project: TimelineProject, options: ExportOptions): Promise<string> {
+  async export(project: Timeline, options: ExportOptions): Promise<string> {
     this.frameRate = project.fps || 30
     this.eventCounter = 1
 
@@ -68,7 +69,7 @@ export class EDLExporter implements Exporter {
     return "text/plain"
   }
 
-  private createEventsFromTrack(track: TimelineTrack, options: ExportOptions): EDLEvent[] {
+  private createEventsFromTrack(track: Track, options: ExportOptions): EDLEvent[] {
     const events: EDLEvent[] = []
 
     // Определяем тип трека для EDL
@@ -90,7 +91,7 @@ export class EDLExporter implements Exporter {
     return events
   }
 
-  private getEDLTrackType(track: TimelineTrack): "V" | "A" | "AA" | "B" {
+  private getEDLTrackType(track: Track): "V" | "A" | "AA" | "B" {
     switch (track.type) {
       case "video":
         return "V"

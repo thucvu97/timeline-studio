@@ -3,7 +3,7 @@
  */
 
 // Временная заглушка для MediaFile пока модуль недоступен
-import type { TimelineProject } from "../../types/timeline"
+import type { Timeline } from "../../types"
 
 interface MediaFile {
   id: string
@@ -32,7 +32,7 @@ export interface ImportOptions {
 // Результат импорта
 export interface ImportResult {
   success: boolean
-  project?: TimelineProject
+  project?: Timeline
   errors: ImportError[]
   warnings: ImportWarning[]
   mediaFiles: MediaFile[]
@@ -163,7 +163,7 @@ export interface Importer {
 }
 
 export interface Exporter {
-  export(project: TimelineProject, options: ExportOptions): Promise<string>
+  export(project: Timeline, options: ExportOptions): Promise<string>
   getFileExtension(): string
   getMimeType(): string
 }

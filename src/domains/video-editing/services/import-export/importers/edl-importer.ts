@@ -7,7 +7,7 @@
 // Функция для генерации UUID
 import type { MediaFile } from "@/features/media/types/media"
 
-import type { TimelineClip, TimelineProject, TimelineTrack, TrackType } from "../../../types/timeline"
+import type { Timeline, TimelineClip, Track, TrackType } from "../../../types"
 import {
   type EDLEvent,
   type ImportError,
@@ -51,7 +51,7 @@ export class EDLImporter implements Importer {
       }
 
       const events = this.parseEDL(content)
-      const project = this.createTimelineProject(events, options)
+      const project = this.createTimeline(events, options)
 
       // Создаем массив MediaFile из mediaReferences для результата
       const mediaFiles = this.createMediaFilesFromReferences()
@@ -213,8 +213,8 @@ export class EDLImporter implements Importer {
     }
   }
 
-  private createTimelineProject(events: EDLEvent[], _options: ImportOptions): TimelineProject {
-    const project: TimelineProject = {
+  private createTimeline(events: EDLEvent[], _options: ImportOptions): Timeline {
+    const project: Timeline = {
       id: uuidv4(),
       name: "Imported EDL Project",
       duration: 0,
@@ -231,6 +231,7 @@ export class EDLImporter implements Importer {
         subtitleStyles: [],
         music: [],
         media: [],
+        timelineTransitions: [],
       },
       settings: {
         resolution: { width: 1920, height: 1080 },
@@ -255,7 +256,7 @@ export class EDLImporter implements Importer {
     const audioEvents = events.filter((e) => e.trackType === "A" || e.trackType === "AA" || e.trackType === "B")
 
     // Создаем треки
-    const tracks: TimelineTrack[] = []
+    const tracks: Track[] = []
 
     if (videoEvents.length > 0) {
       const videoTrack = this.createTrack("video", 0)
@@ -294,7 +295,7 @@ export class EDLImporter implements Importer {
     return project
   }
 
-  private createTrack(type: TrackType, order: number): TimelineTrack {
+  private createTrack(type: TrackType, order: number): Track {
     return {
       id: uuidv4(),
       name: type === "video" ? "Video Track 1" : "Audio Track 1",
@@ -310,6 +311,7 @@ export class EDLImporter implements Importer {
       pan: 0,
       trackEffects: [],
       trackFilters: [],
+      transitions: [],
     }
   }
 
@@ -403,7 +405,7 @@ export class EDLImporter implements Importer {
     return transitions
   }
 
-  private findLastClip(tracks: TimelineTrack[]): TimelineClip | null {
+  private findLastClip(tracks: Track[]): TimelineClip | null {
     let lastClip: TimelineClip | null = null
     let maxEndTime = 0
 

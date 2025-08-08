@@ -6,7 +6,7 @@
 
 // Функция для генерации UUID
 import type { MediaFile } from "@/features/media/types/media"
-import type { TimelineClip, TimelineProject, TimelineTrack, TrackType } from "@/features/timeline/types/timeline"
+import type { Timeline, TimelineClip, Track, TrackType } from "../../../types"
 
 import type { FCPXMLResource, ImportError, Importer, ImportOptions, ImportResult, ImportWarning } from "../types"
 
@@ -71,7 +71,7 @@ export class FCPXMLImporter implements Importer {
       }
 
       const fcpxmlProject = this.parseFCPXML(content)
-      const project = this.createTimelineProject(fcpxmlProject, options)
+      const project = this.createTimeline(fcpxmlProject, options)
 
       return {
         success: true,
@@ -262,12 +262,12 @@ export class FCPXMLImporter implements Importer {
     return 0
   }
 
-  private createTimelineProject(fcpxmlProject: FCPXMLProject, _options: ImportOptions): TimelineProject {
+  private createTimeline(fcpxmlProject: FCPXMLProject, _options: ImportOptions): Timeline {
     // Вычисляем frame rate из frameDuration
     const frameDuration = fcpxmlProject.format.frameDuration
     this.frameRate = this.parseFrameRate(frameDuration)
 
-    const project: TimelineProject = {
+    const project: Timeline = {
       id: uuidv4(),
       name: fcpxmlProject.name,
       duration: this.parseDurationToSeconds(fcpxmlProject.duration),
@@ -282,6 +282,7 @@ export class FCPXMLImporter implements Importer {
         templates: [],
         styleTemplates: [],
         subtitleStyles: [],
+        timelineTransitions: [],
         music: [],
         media: Array.from(this.mediaReferences.values()) as any[],
       },
@@ -346,9 +347,9 @@ export class FCPXMLImporter implements Importer {
     return `${aspectWidth}:${aspectHeight}`
   }
 
-  private createTracksFromSequence(sequence: FCPXMLSequence): TimelineTrack[] {
-    const tracks: TimelineTrack[] = []
-    const trackMap = new Map<number, TimelineTrack>()
+  private createTracksFromSequence(sequence: FCPXMLSequence): Track[] {
+    const tracks: Track[] = []
+    const trackMap = new Map<number, Track>()
 
     // Группируем клипы по lanes (дорожкам)
     for (const clip of sequence.spine) {
@@ -378,7 +379,7 @@ export class FCPXMLImporter implements Importer {
     return "video" // По умолчанию
   }
 
-  private createTrack(type: TrackType, _lane: number, index: number): TimelineTrack {
+  private createTrack(type: TrackType, _lane: number, index: number): Track {
     return {
       id: uuidv4(),
       name: `${type === "video" ? "Video" : "Audio"} Track ${index + 1}`,
@@ -394,6 +395,7 @@ export class FCPXMLImporter implements Importer {
       pan: 0,
       trackEffects: [],
       trackFilters: [],
+      transitions: [],
     }
   }
 
@@ -431,7 +433,7 @@ export class FCPXMLImporter implements Importer {
     }
   }
 
-  private findLastClip(tracks: TimelineTrack[]): TimelineClip | null {
+  private findLastClip(tracks: Track[]): TimelineClip | null {
     let lastClip: TimelineClip | null = null
     let maxEndTime = 0
 

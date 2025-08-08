@@ -4,7 +4,7 @@
  * Централизованный менеджер для импорта и экспорта Timeline в различные форматы
  */
 
-import type { TimelineProject } from "../../types/timeline"
+import { Timeline } from "../../types"
 import { AAFExporter } from "./exporters/aaf-exporter"
 import { EDLExporter } from "./exporters/edl-exporter"
 import { FCPXMLExporter } from "./exporters/fcpxml-exporter"
@@ -123,7 +123,7 @@ export class ImportExportManager {
   /**
    * Экспортирует проект в строку
    */
-  async export(project: TimelineProject, options: ExportOptions): Promise<string> {
+  async export(project: Timeline, options: ExportOptions): Promise<string> {
     const exporter = this.exporters.get(options.format)
 
     if (!exporter) {
@@ -136,7 +136,7 @@ export class ImportExportManager {
   /**
    * Экспортирует проект в файл
    */
-  async exportToFile(project: TimelineProject, filePath: string, options?: Partial<ExportOptions>): Promise<void> {
+  async exportToFile(project: Timeline, filePath: string, options?: Partial<ExportOptions>): Promise<void> {
     // Определяем формат по расширению файла или используем указанный
     const format = options?.format || (this.detectFormatFromPath(filePath) as ExportFormat)
 

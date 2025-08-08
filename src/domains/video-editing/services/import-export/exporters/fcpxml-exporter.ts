@@ -4,7 +4,7 @@
  * Экспортирует Timeline в Final Cut Pro XML формат
  */
 
-import type { TimelineClip, TimelineProject, TimelineTrack } from "@/features/timeline/types/timeline"
+import type { Timeline, TimelineClip, Track } from "../../../types"
 
 import type { Exporter, ExportOptions } from "../types"
 
@@ -13,7 +13,7 @@ export class FCPXMLExporter implements Exporter {
   private projectWidth = 1920
   private projectHeight = 1080
 
-  async export(project: TimelineProject, options: ExportOptions): Promise<string> {
+  async export(project: Timeline, options: ExportOptions): Promise<string> {
     this.frameRate = project.fps || 30
     this.projectWidth = project.settings.resolution.width
     this.projectHeight = project.settings.resolution.height
@@ -30,7 +30,7 @@ export class FCPXMLExporter implements Exporter {
     return "application/xml"
   }
 
-  private generateFCPXML(project: TimelineProject, options: ExportOptions): string {
+  private generateFCPXML(project: Timeline, options: ExportOptions): string {
     const lines: string[] = []
 
     // XML Declaration
@@ -65,7 +65,7 @@ export class FCPXMLExporter implements Exporter {
     return lines.join("\n")
   }
 
-  private generateResources(project: TimelineProject, _options: ExportOptions, lines: string[]): void {
+  private generateResources(project: Timeline, _options: ExportOptions, lines: string[]): void {
     // Format definition
     const frameDuration = this.calculateFrameDuration(this.frameRate)
 
@@ -95,7 +95,7 @@ export class FCPXMLExporter implements Exporter {
     }
   }
 
-  private collectMediaFiles(project: TimelineProject): ((typeof project.resources.media)[0] | undefined)[] {
+  private collectMediaFiles(project: Timeline): ((typeof project.resources.media)[0] | undefined)[] {
     const mediaFiles = new Set<string>()
     const result: ((typeof project.resources.media)[0] | undefined)[] = []
 
@@ -114,7 +114,7 @@ export class FCPXMLExporter implements Exporter {
     return result
   }
 
-  private generateSequence(project: TimelineProject, options: ExportOptions, lines: string[]): void {
+  private generateSequence(project: Timeline, options: ExportOptions, lines: string[]): void {
     const duration = this.secondsToFCPXMLDuration(project.duration)
 
     lines.push(`        <sequence format="r1" duration="${duration}">`)
@@ -136,7 +136,7 @@ export class FCPXMLExporter implements Exporter {
     lines.push("        </sequence>")
   }
 
-  private generateTrackClips(track: TimelineTrack, options: ExportOptions, lines: string[], indent: number): void {
+  private generateTrackClips(track: Track, options: ExportOptions, lines: string[], indent: number): void {
     const indentStr = "  ".repeat(indent)
     const sortedClips = [...track.clips].sort((a, b) => a.startTime - b.startTime)
 
@@ -152,7 +152,7 @@ export class FCPXMLExporter implements Exporter {
 
   private generateClip(
     clip: TimelineClip,
-    track: TimelineTrack,
+    track: Track,
     options: ExportOptions,
     lines: string[],
     indent: number,
@@ -270,7 +270,7 @@ export class FCPXMLExporter implements Exporter {
     return "r2"
   }
 
-  private getTrackLane(track: TimelineTrack): number {
+  private getTrackLane(track: Track): number {
     // FCPXML использует lane для разделения треков
     // 0 - основная дорожка (primary storyline)
     // Положительные - верхние дорожки

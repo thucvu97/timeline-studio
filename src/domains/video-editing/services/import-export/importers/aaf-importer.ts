@@ -7,7 +7,7 @@
 
 import type { MediaFile } from "@/features/media/types/media"
 
-import type { TimelineClip, TimelineProject, TimelineTrack, TrackType } from "../../../types/timeline"
+import type { Timeline, TimelineClip, Track, TrackType } from "../../../types"
 import type { ImportError, Importer, ImportOptions, ImportResult, ImportWarning } from "../types"
 
 // Функция для генерации UUID
@@ -88,7 +88,7 @@ export class AAFImporter implements Importer {
       }
 
       const aafData = this.parseAAF(content)
-      const project = this.createTimelineProject(aafData, options)
+      const project = this.createTimeline(aafData, options)
 
       return {
         success: true,
@@ -302,14 +302,14 @@ export class AAFImporter implements Importer {
     this.mediaFiles.set(mob.mobID, mediaFile)
   }
 
-  private createTimelineProject(aafData: any, _options: ImportOptions): TimelineProject {
+  private createTimeline(aafData: any, _options: ImportOptions): Timeline {
     const composition = aafData.compositions[0] // Берем первую композицию
 
     if (!composition) {
       throw new Error("No composition found in AAF file")
     }
 
-    const project: TimelineProject = {
+    const project: Timeline = {
       id: uuidv4(),
       name: composition.name,
       duration: 0,
@@ -358,12 +358,12 @@ export class AAFImporter implements Importer {
     return project
   }
 
-  private createTracksFromComposition(composition: AAFComposition): TimelineTrack[] {
-    const tracks: TimelineTrack[] = []
+  private createTracksFromComposition(composition: AAFComposition): Track[] {
+    const tracks: Track[] = []
 
     for (const aafTrack of composition.tracks) {
       const trackType = this.determineTrackType(aafTrack)
-      const track: TimelineTrack = {
+      const track: Track = {
         id: uuidv4(),
         name: aafTrack.trackName || `Track ${aafTrack.trackID}`,
         type: trackType,
@@ -457,7 +457,7 @@ export class AAFImporter implements Importer {
     }
   }
 
-  private findLastClip(tracks: TimelineTrack[]): TimelineClip | null {
+  private findLastClip(tracks: Track[]): TimelineClip | null {
     let lastClip: TimelineClip | null = null
     let maxEndTime = 0
 

@@ -106,6 +106,7 @@ export type PlayerEvent =
   | { type: "SET_PRERENDER_SEGMENT_DURATION"; duration: number }
   | { type: "SET_PRERENDER_APPLY_EFFECTS"; apply: boolean }
   | { type: "SET_PRERENDER_AUTO"; auto: boolean }
+  | { type: "SYNC_STATE"; state: any }
 
 export const playerMachine = setup({
   types: {

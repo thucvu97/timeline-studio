@@ -5,16 +5,19 @@
  * Примечание: Это упрощенная реализация AAF XML, не полный бинарный AAF
  */
 
-import type { TimelineClip, TimelineProject, TimelineTrack } from "../../../types/timeline"
+import type { Timeline, TimelineClip, Track } from "../../../types"
 import type { Exporter, ExportOptions } from "../types"
 
 export class AAFExporter implements Exporter {
   private frameRate = 30
+  // private projectWidth: number | undefined
+  // private projectHeight: number | undefined
+  private mobIDCounter = 0
 
-  async export(project: TimelineProject, options: ExportOptions): Promise<string> {
+  async export(project: Timeline, options: ExportOptions): Promise<string> {
     this.frameRate = project.fps || 30
-    this.projectWidth = project.settings.resolution.width
-    this.projectHeight = project.settings.resolution.height
+    // this.projectWidth = project.settings.resolution.width
+    // this.projectHeight = project.settings.resolution.height
     this.mobIDCounter = 1
 
     const xml = this.generateAAFXML(project, options)
@@ -29,7 +32,7 @@ export class AAFExporter implements Exporter {
     return "application/xml"
   }
 
-  private generateAAFXML(project: TimelineProject, options: ExportOptions): string {
+  private generateAAFXML(project: Timeline, options: ExportOptions): string {
     const lines: string[] = []
 
     // XML Declaration
@@ -66,7 +69,7 @@ export class AAFExporter implements Exporter {
     return lines.join("\n")
   }
 
-  private generateCompositionMob(project: TimelineProject, options: ExportOptions, lines: string[]): void {
+  private generateCompositionMob(project: Timeline, options: ExportOptions, lines: string[]): void {
     const compositionMobID = this.generateMobID()
 
     lines.push("    <CompositionMob>")
@@ -96,7 +99,7 @@ export class AAFExporter implements Exporter {
     lines.push("")
   }
 
-  private generateTimelineMobSlot(track: TimelineTrack, slotID: number, options: ExportOptions, lines: string[]): void {
+  private generateTimelineMobSlot(track: Track, slotID: number, options: ExportOptions, lines: string[]): void {
     lines.push("        <TimelineMobSlot>")
     lines.push(`          <SlotID>${slotID}</SlotID>`)
     lines.push(`          <TrackID>${slotID}</TrackID>`)
@@ -185,7 +188,7 @@ export class AAFExporter implements Exporter {
     lines.push(`${indentStr}</Filler>`)
   }
 
-  private generateSourceMobs(project: TimelineProject, _options: ExportOptions, lines: string[]): void {
+  private generateSourceMobs(project: Timeline, _options: ExportOptions, lines: string[]): void {
     const processedMedia = new Set<string>()
 
     // Собираем все уникальные медиафайлы
@@ -229,7 +232,7 @@ export class AAFExporter implements Exporter {
     lines.push("")
   }
 
-  private calculateTrackLength(track: TimelineTrack): number {
+  private calculateTrackLength(track: Track): number {
     if (track.clips.length === 0) return 0
 
     const lastClip = track.clips.reduce((latest, clip) => {
