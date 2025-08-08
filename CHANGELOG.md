@@ -1,3 +1,12 @@
+## [1.0.1](https://github.com/chatman-media/timeline-studio/compare/v1.0.0...v1.0.1) (2025-08-08)
+
+
+### Bug Fixes
+
+* исправлены все ошибки типов в доменных хуках ([4ac3f1c](https://github.com/chatman-media/timeline-studio/commit/4ac3f1c9219301fad1d59eccf74d36d898ac41e2))
+* исправлены параметры команды MoveClip ([e656abb](https://github.com/chatman-media/timeline-studio/commit/e656abb0223e898a0c8f5b59e6031527be16e1c3))
+* исправлены типы в timeline machines ([985eee6](https://github.com/chatman-media/timeline-studio/commit/985eee664c155f93671b807f321c5a772affdfe8))
+
 # [1.0.0](https://github.com/chatman-media/timeline-studio/compare/v0.81.0...v1.0.0) (2025-08-08)
 
 
