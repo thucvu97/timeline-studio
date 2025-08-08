@@ -3,13 +3,10 @@
  * Bridges the montage planner with DI Container and shared AI services
  */
 
+import { VideoAnalysisParams } from "@/features/ai-chat/services/multimodal-analysis-service"
 import type { MediaFile } from "@/features/media/types/media"
 import { getAIContainer } from "@/shared/services/ai"
-import type {
-  IUnifiedAIService,
-  MediaAnalysisFactory,
-  ModelManager,
-} from "@/shared/services/ai/providers/interfaces"
+import type { IUnifiedAIService, MediaAnalysisFactory } from "@/shared/services/ai/providers/interfaces"
 import type {
   AudioAnalysis,
   Fragment,
@@ -18,7 +15,6 @@ import type {
   VideoAnalysis,
   VideoCompositionAnalysis,
 } from "../types"
-import { VideoAnalysisParams } from "@/features/ai-chat/services/multimodal-analysis-service"
 
 export interface MontagePlannerAIService {
   // Video analysis using shared AI services
@@ -54,7 +50,6 @@ export class MontagePlannerAIIntegration implements MontagePlannerAIService {
       // Resolve AI services from DI container
       this.aiService = await container.resolve<IUnifiedAIService>("UnifiedAIService")
       this.analysisFactory = await container.resolve<MediaAnalysisFactory>("MediaAnalysisFactory")
-      this.modelManager = await container.resolve<ModelManager>("ModelManager")
 
       this.initialized = true
     } catch (error) {
@@ -127,17 +122,17 @@ export class MontagePlannerAIIntegration implements MontagePlannerAIService {
 
     try {
       const visionService = await this.analysisFactory.createVisionService()
-      const detections = await visionService.detectObjects(videoPath)
+      const detections = (await visionService.detectObjects(videoPath)) as any[]
 
       // Convert YOLO detections to VideoCompositionAnalysis
       return {
         quality_score: 85,
         motion_level: 50,
-        faces_detected: detections.filter((d) => d.label === "person").length,
-        objects_detected: detections.map((d) => ({
+        faces_detected: detections.filter((d: any) => d.label === "person" || d.class === "person").length,
+        objects_detected: detections.map((d: any) => ({
           class_id: 0, // Would need proper mapping
           confidence: d.confidence,
-          bbox: d.box,
+          bbox: d.bbox || d.boundingBox || [0, 0, 0, 0],
         })),
         frame_analysis: {
           sharpness: 80,
