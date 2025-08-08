@@ -1,3 +1,11 @@
+## [0.76.1](https://github.com/chatman-media/timeline-studio/compare/v0.76.0...v0.76.1) (2025-08-08)
+
+
+### Bug Fixes
+
+* **ai-content-intelligence:** исправлены все ошибки типов и обновлена документация ([ec190e5](https://github.com/chatman-media/timeline-studio/commit/ec190e544f3a2b86fc8a11014325614e34a40a30))
+* **ai:** финальные исправления типов и импортов в AI модулях ([5a37472](https://github.com/chatman-media/timeline-studio/commit/5a37472cb5936e99dd5191b48a366fbfd46f4e5c))
+
 # [0.76.0](https://github.com/chatman-media/timeline-studio/compare/v0.75.0...v0.76.0) (2025-08-08)
 
 
