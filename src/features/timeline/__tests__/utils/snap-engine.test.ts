@@ -55,7 +55,7 @@ const createTrack = (id: string, clips: TimelineClip[], order = 0): TimelineTrac
   trackFilters: [],
 })
 
-const createProject = (tracks: TimelineTrack[] = [], _markers: Array<{ time: number }> = []): TimelineProject => ({
+const createProject = (tracks: TimelineTrack[] = [], markers: Array<{ time: number }> = []): TimelineProject => ({
   id: "project-1",
   name: "Test Project",
   duration: 300,
@@ -76,7 +76,14 @@ const createProject = (tracks: TimelineTrack[] = [], _markers: Array<{ time: num
   version: "1.0.0",
   createdAt: new Date(),
   updatedAt: new Date(),
-  markers: [],
+  markers: markers.map((m, index) => ({
+    id: `marker-${index}`,
+    projectId: "project-1",
+    time: m.time,
+    color: "#FF0000",
+    label: `Marker ${index + 1}`,
+    type: "timeline" as const,
+  })),
   fps: 0,
   sampleRate: 0,
   resources: {

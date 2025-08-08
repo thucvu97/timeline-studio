@@ -11,9 +11,6 @@ const renderWithProviders = (ui: React.ReactElement) => {
   return render(<TimelineProvider>{ui}</TimelineProvider>)
 }
 
-// Импортируем централизованный мок иконок
-import "@/test/mocks/libraries/lucide-react"
-
 // Мокаем компоненты UI
 vi.mock("@/components/ui/button", () => ({
   Button: ({ children, onClick, variant, size, className, ...props }: any) => (

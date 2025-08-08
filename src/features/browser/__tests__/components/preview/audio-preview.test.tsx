@@ -49,24 +49,6 @@ vi.mock("../../../components/layout/favorite-button", () => ({
   ),
 }))
 
-vi.mock("lucide-react", () => ({
-  Music: (props: any) => (
-    <div data-testid="music-icon" data-size={props.size} {...props}>
-      Music Icon
-    </div>
-  ),
-  Star: (props: any) => (
-    <div data-testid="star-icon" {...props}>
-      Star Icon
-    </div>
-  ),
-  Plus: (props: any) => (
-    <div data-testid="plus-icon" {...props}>
-      Plus Icon
-    </div>
-  ),
-}))
-
 vi.mock("react-audio-visualize", () => ({
   LiveAudioVisualizer: ({ width, height, barWidth, gap, barColor, backgroundColor }: any) => (
     <div
