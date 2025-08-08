@@ -26,6 +26,7 @@
       "@features/*": ["./src/features/*"],
       "@domains/*": ["./src/domains/*"],
       "@domains/ai-services/*": ["./src/domains/ai-services/*"],
+      "@domains/browser/*": ["./src/domains/browser/*"],
       "@domains/media-management/*": ["./src/domains/media-management/*"],
       "@domains/video-editing/*": ["./src/domains/video-editing/*"],
       "@domains/project-management/*": ["./src/domains/project-management/*"],
