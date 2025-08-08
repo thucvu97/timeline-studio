@@ -141,7 +141,7 @@ describe("AI Services Integration", () => {
         ["LogService"],
       )
 
-      const timestampedLogger = await container.resolve("TimestampedLogService")
+      const timestampedLogger = await container.resolve<any>("TimestampedLogService")
       const result = timestampedLogger.log("Test message")
 
       expect(result).toMatch(/\[\d{4}-\d{2}-\d{2}T.*\] Test message/)
@@ -172,7 +172,7 @@ describe("AI Services Integration", () => {
         ["VideoAnalyzer", "AudioAnalyzer"],
       )
 
-      const mediaAnalyzer = await container.resolve("MediaAnalyzer")
+      const mediaAnalyzer = await container.resolve<any>("MediaAnalyzer")
       const result = mediaAnalyzer.analyzeMedia()
 
       expect(result.video.quality).toBe(85)
@@ -212,7 +212,7 @@ describe("AI Services Integration", () => {
         ["FailingProvider", "FallbackProvider"],
       )
 
-      const service = await container.resolve("ResilientService")
+      const service = await container.resolve<any>("ResilientService")
       const response = await service.request()
 
       expect(response.content).toBe("Fallback response")
@@ -241,7 +241,7 @@ describe("AI Services Integration", () => {
       )
 
       const startTime = performance.now()
-      const composite = await container.resolve("CompositeService")
+      const composite = await container.resolve<any>("CompositeService")
       const endTime = performance.now()
 
       expect(composite.dependencies).toHaveLength(10)

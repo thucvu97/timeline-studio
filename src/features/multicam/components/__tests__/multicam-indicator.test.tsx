@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
+import "@testing-library/jest-dom"
 import { MulticamIndicator } from "../multicam-indicator"
 
 // Мокируем иконки lucide-react
@@ -95,14 +96,18 @@ describe("MulticamIndicator", () => {
     render(<MulticamIndicator currentAngle={0} totalAngles={2} angleName={longName} />)
 
     expect(screen.getByText(longName)).toBeInTheDocument()
-    expect(screen.getByText(longName)).toHaveClass("text-sm", "text-muted-foreground")
+    const longNameElement = screen.getByText(longName)
+    expect(longNameElement).toHaveClass("text-sm")
+    expect(longNameElement).toHaveClass("text-muted-foreground")
   })
 
   it("использует flex layout для выравнивания", () => {
     render(<MulticamIndicator currentAngle={0} totalAngles={2} />)
 
     const container = screen.getByText("1").closest(".flex")
-    expect(container).toHaveClass("flex", "items-center", "gap-2")
+    expect(container).toHaveClass("flex")
+    expect(container).toHaveClass("items-center")
+    expect(container).toHaveClass("gap-2")
   })
 
   it("правильно выделяет текущий номер камеры жирным шрифтом", () => {

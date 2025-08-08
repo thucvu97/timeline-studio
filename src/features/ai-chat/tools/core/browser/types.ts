@@ -2,7 +2,7 @@
  * Типы для AI инструментов работы с медиа браузером
  */
 
-import type { BrowserTab } from "../../../../shared/types/browser"
+import type { BrowserTab } from "../../../../../shared/types/browser"
 
 /**
  * Результат выполнения инструмента для браузера
@@ -18,6 +18,26 @@ export interface BrowserToolResult {
     warnings?: string[]
     state?: any
     sources?: any[]
+    missingContent?: {
+      categories: string[]
+      suggestions: any[]
+      priority: string[]
+      analysis: any
+    }
+    importSources?: {
+      websites: any[]
+      stockSites: any[]
+      aiTools: any[]
+      recommendations: string[]
+    }
+    exportData?: {
+      format: string
+      content: any
+      metadata: any
+    }
+    relationships?: any[]
+    message?: string
+    recommendations?: string[]
   }
   errors?: string[]
   nextActions?: string[]
@@ -32,16 +52,16 @@ export interface AnalyzeBrowserParams {
     searchQuery?: string
     fileTypes?: Array<"video" | "audio" | "image">
     dateRange?: {
-      start: string
-      end: string
+      start?: string
+      end?: string
     }
     sizeRange?: {
-      min: number
-      max: number
+      min?: number
+      max?: number
     }
     durationRange?: {
-      min: number
-      max: number
+      min?: number
+      max?: number
     }
     tags?: string[]
     location?: string
@@ -50,6 +70,90 @@ export interface AnalyzeBrowserParams {
   groupBy?: "type" | "date" | "size" | "location" | "tags"
   sortBy?: "name" | "date" | "size" | "duration" | "type"
   sortOrder?: "asc" | "desc"
+}
+
+/**
+ * Параметры для анализа недостающего контента
+ */
+export interface AnalyzeMissingContentParams {
+  analysisScope: "project" | "resources" | "timeline" | "all"
+  includeRecent?: boolean
+  checkExternal?: boolean
+}
+
+/**
+ * Параметры для предложения источников импорта
+ */
+export interface SuggestImportParams {
+  contentType: string
+  style?: string
+  mood?: string
+  projectType?: string
+  includeAI?: boolean
+  includeFree?: boolean
+  includePremium?: boolean
+}
+
+/**
+ * Параметры для экспорта списка файлов
+ */
+export interface ExportFileListParams {
+  format: "json" | "csv" | "text" | "xml"
+  includeMetadata?: boolean
+  filterCriteria?: {
+    selectedOnly?: boolean
+    tab?: string
+    fileTypes?: string[]
+    sizeRange?: {
+      min?: number
+      max?: number
+    }
+    dateRange?: {
+      start?: string
+      end?: string
+    }
+  }
+}
+
+/**
+ * Параметры для получения групп файлов
+ */
+export interface GetFileGroupsParams {
+  groupBy: "type" | "date" | "size" | "location" | "tags"
+  tab: "media" | "effects" | "filters" | "transitions" | "templates" | "music"
+  includeEmpty?: boolean
+}
+
+/**
+ * Параметры для анализа связей файлов
+ */
+export interface AnalyzeRelationshipsParams {
+  tab: "media" | "effects" | "filters" | "transitions" | "templates" | "music"
+  analysisDepth?: "basic" | "detailed"
+  includeUsage?: boolean
+}
+
+/**
+ * Параметры для массового выбора файлов
+ */
+export interface BulkSelectParams {
+  method: "all" | "pattern" | "random" | "filtered" | "smart"
+  filters?: {
+    fileTypes?: string[]
+    dateRange?: {
+      start?: string
+      end?: string
+    }
+    sizeRange?: {
+      min?: number
+      max?: number
+    }
+    searchPattern?: string
+    tags?: string[]
+    location?: string
+  }
+  count?: number
+  pattern?: string
 }
 
 /**
@@ -68,14 +172,7 @@ export interface SearchMediaParams {
   maxResults?: number
 }
 
-/**
- * Параметры для получения групп файлов
- */
-export interface GetFileGroupsParams {
-  groupBy: "type" | "date" | "size" | "location" | "series" | "project"
-  tab?: "media" | "effects" | "filters" | "transitions" | "templates" | "music"
-  includeEmpty?: boolean
-}
+// Удален дублированный интерфейс GetFileGroupsParams
 
 // Псевдонимы типов для совместимости с browser-tools.ts
 export type FileGroupsParams = GetFileGroupsParams

@@ -60,6 +60,7 @@ export class MockFFmpegService implements IFFmpegAnalysisService {
         average: -12,
         peak: -6,
         min: -30,
+        max: -3,
       },
       silentSegments: [
         { start: 10, end: 12 },
@@ -442,6 +443,7 @@ export function createMockAudioAnalysis(overrides: Partial<AudioAnalysisResult> 
       average: -15,
       peak: -9,
       min: -35,
+      max: -5,
     },
     silentSegments: [],
     ...overrides,

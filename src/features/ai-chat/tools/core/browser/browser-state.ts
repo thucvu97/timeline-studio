@@ -50,56 +50,52 @@ export class BrowserStateTool extends BaseAITool {
     input: BrowserStateInput,
     options: AIToolExecutionOptions = {},
   ): Promise<AIToolResult<BrowserStateResult>> {
-    return this.executeWithErrorHandling(
-      input.operation,
-      async () => {
-        // Валидация входных данных
-        const validation = this.validateInput(input, (data) => {
-          const errors: string[] = []
+    return this.executeWithErrorHandling(async () => {
+      // Валидация входных данных
+      const validation = this.validateInput(input, (data) => {
+        const errors: string[] = []
 
-          const validOperations = ["get_browser_state", "update_browser_filters"]
-          if (!validOperations.includes(data.operation)) {
-            errors.push(`Неподдерживаемая операция: ${data.operation}`)
+        const validOperations = ["get_browser_state", "update_browser_filters"]
+        if (!validOperations.includes(data.operation)) {
+          errors.push(`Неподдерживаемая операция: ${data.operation}`)
+        }
+
+        if (data.operation === "update_browser_filters") {
+          if (!data.operationType) {
+            errors.push("Требуется operationType для обновления фильтров")
           }
-
-          if (data.operation === "update_browser_filters") {
-            if (!data.operationType) {
-              errors.push("Требуется operationType для обновления фильтров")
-            }
-            if (!data.reason) {
-              errors.push("Требуется причина обновления фильтров")
-            }
+          if (!data.reason) {
+            errors.push("Требуется причина обновления фильтров")
           }
-
-          return { isValid: errors.length === 0, errors }
-        })
-
-        if (!validation.isValid) {
-          throw new Error(validation.errors.join(", "))
         }
 
-        // Проверка доступа к браузеру
-        if (!hasBrowserAccess()) {
-          throw new Error("Доступ к браузеру не сконфигурирован")
-        }
+        return { isValid: errors.length === 0, errors }
+      })
 
-        let result: BrowserStateResult
+      if (!validation.isValid) {
+        throw new Error(validation.errors.join(", "))
+      }
 
-        switch (input.operation) {
-          case "get_browser_state":
-            result = await this.getBrowserStateInternal(input)
-            break
-          case "update_browser_filters":
-            result = await this.updateBrowserFiltersInternal(input)
-            break
-          default:
-            throw new Error(`Неподдерживаемая операция: ${input.operation}`)
-        }
+      // Проверка доступа к браузеру
+      if (!hasBrowserAccess()) {
+        throw new Error("Доступ к браузеру не сконфигурирован")
+      }
 
-        return result
-      },
-      options,
-    )
+      let result: BrowserStateResult
+
+      switch (input.operation) {
+        case "get_browser_state":
+          result = await this.getBrowserStateInternal(input)
+          break
+        case "update_browser_filters":
+          result = await this.updateBrowserFiltersInternal(input)
+          break
+        default:
+          throw new Error(`Неподдерживаемая операция: ${input.operation}`)
+      }
+
+      return result
+    }, options)
   }
 
   private async getBrowserStateInternal(params: BrowserStateInput): Promise<BrowserStateResult> {

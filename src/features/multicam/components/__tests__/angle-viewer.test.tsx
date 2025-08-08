@@ -1,6 +1,7 @@
 import { screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
+import "@testing-library/jest-dom"
 import { renderWithTimeline } from "@/test/test-utils"
 import type { MulticamAngle } from "../../hooks/use-multicam"
 import { AngleViewer } from "../angle-viewer"
@@ -129,7 +130,8 @@ describe("AngleViewer", () => {
     // Проверяем, что есть элементы с нужными классами
     const borders = screen.getByText("Camera 1").closest(".border-primary")
     expect(borders).toBeInTheDocument()
-    expect(borders).toHaveClass("ring-2", "ring-primary")
+    expect(borders).toHaveClass("ring-2")
+    expect(borders).toHaveClass("ring-primary")
 
     const mutedBorder = screen.getByText("Camera 2").closest(".border-muted")
     expect(mutedBorder).toBeInTheDocument()

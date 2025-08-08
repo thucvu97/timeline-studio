@@ -103,15 +103,16 @@ export class ContentClassifier {
   public async detectContentType(features: ClassificationFeatures): Promise<{ type: ContentType; confidence: number }> {
     // Эвристические правила для определения типа контента
     const scores: Record<ContentType, number> = {
-      [ContentType.NARRATIVE]: 0,
       [ContentType.DOCUMENTARY]: 0,
-      [ContentType.TUTORIAL]: 0,
       [ContentType.VLOG]: 0,
-      [ContentType.MUSIC_VIDEO]: 0,
-      [ContentType.COMMERCIAL]: 0,
+      [ContentType.TUTORIAL]: 0,
       [ContentType.NEWS]: 0,
-      [ContentType.SPORTS]: 0,
-      [ContentType.GAMING]: 0,
+      [ContentType.ENTERTAINMENT]: 0,
+      [ContentType.COMMERCIAL]: 0,
+      [ContentType.MUSIC_VIDEO]: 0,
+      [ContentType.INTERVIEW]: 0,
+      [ContentType.PRESENTATION]: 0,
+      [ContentType.OTHER]: 0,
     }
 
     // Анализируем признаки
@@ -140,7 +141,7 @@ export class ContentClassifier {
 
     // Находим максимальный score
     let maxScore = 0
-    let detectedType = ContentType.NARRATIVE
+    let detectedType = ContentType.ENTERTAINMENT
 
     for (const [type, score] of Object.entries(scores)) {
       if (score > maxScore) {
@@ -163,7 +164,7 @@ export class ContentClassifier {
 
     // Логика определения жанров на основе типа контента
     switch (contentType) {
-      case ContentType.NARRATIVE:
+      case ContentType.ENTERTAINMENT:
       case ContentType.MUSIC_VIDEO:
         if (features.editingPace === "fast" && features.motionIntensity > 0.7) {
           genres.push(Genre.ACTION)
@@ -174,7 +175,7 @@ export class ContentClassifier {
         break
 
       case ContentType.DOCUMENTARY:
-        genres.push(Genre.DOCUMENTARY)
+        genres.push(Genre.EDUCATIONAL) // Documentary относится к Educational
         if (features.totalDuration > 1800) {
           // > 30 минут
           genres.push(Genre.EDUCATIONAL)
@@ -197,12 +198,12 @@ export class ContentClassifier {
 
       default:
         // Для других типов контента добавляем базовый жанр
-        genres.push(Genre.GENERAL)
+        genres.push(Genre.OTHER)
         break
     }
 
     // Убираем дубликаты
-    return [...new Set(genres)]
+    return Array.from(new Set(genres))
   }
 
   /**
@@ -214,13 +215,13 @@ export class ContentClassifier {
     let intensity = 0.5
 
     if (features.audioEnergy > 0.8 && features.editingPace === "fast") {
-      primaryEmotion = Emotion.EXCITED
+      primaryEmotion = Emotion.EXCITING
       intensity = 0.8
     } else if (features.audioEnergy < 0.3 && features.speechPercentage < 20) {
       primaryEmotion = Emotion.CALM
       intensity = 0.7
     } else if (features.motionIntensity > 0.7) {
-      primaryEmotion = Emotion.TENSE
+      primaryEmotion = Emotion.INTENSE
       intensity = 0.6
     }
 
@@ -230,7 +231,7 @@ export class ContentClassifier {
       if (features.audioEnergy > 0.6) {
         secondaryEmotion = Emotion.HAPPY
       } else {
-        secondaryEmotion = Emotion.ROMANTIC
+        secondaryEmotion = Emotion.INSPIRING // Используем Inspiring вместо Romantic
       }
     }
 
@@ -256,7 +257,7 @@ export class ContentClassifier {
 
     // Корректируем на основе типа контента
     switch (contentType) {
-      case ContentType.GAMING:
+      case ContentType.ENTERTAINMENT: // Gaming теперь относится к Entertainment
         minAge = 13
         maxAge = 35
         interests.push("gaming", "technology", "entertainment")
@@ -300,16 +301,25 @@ export class ContentClassifier {
     }
 
     return {
-      ageRange: { min: minAge, max: maxAge },
-      interests: [...new Set(interests)],
-      demographics: {
-        primary: "general",
-        secondary: ["urban", "educated"],
-      },
+      ageGroup: this.mapAgeRangeToGroup(minAge, maxAge),
+      interests: Array.from(new Set(interests)),
+      language: "ru", // По умолчанию русский
     }
   }
 
   // Приватные методы
+
+  private mapAgeRangeToGroup(
+    minAge: number,
+    maxAge: number,
+  ): "children" | "teenagers" | "young_adults" | "adults" | "seniors" | "all" {
+    if (maxAge < 13) return "children"
+    if (minAge >= 13 && maxAge <= 19) return "teenagers"
+    if (minAge >= 18 && maxAge <= 35) return "young_adults"
+    if (minAge >= 25 && maxAge <= 65) return "adults"
+    if (minAge > 60) return "seniors"
+    return "all"
+  }
 
   private extractFeatures(
     scenes: SceneAnalysis[],
@@ -354,8 +364,7 @@ export class ContentClassifier {
   private calculateVisualComplexity(scenes: SceneAnalysis[]): number {
     // Упрощенный расчет визуальной сложности
     const uniqueSceneTypes = new Set(scenes.map((s) => s.type)).size
-    const averageObjectsPerScene =
-      scenes.reduce((sum, scene) => sum + (scene.content?.objects?.length || 0), 0) / Math.max(scenes.length, 1)
+    const averageObjectsPerScene = 0 // TODO: Нужно добавить анализ объектов в сценах
 
     return Math.min(1, (uniqueSceneTypes / 5 + averageObjectsPerScene / 10) / 2)
   }
@@ -364,10 +373,12 @@ export class ContentClassifier {
     if (scenes.length < 2) return false
 
     const firstScene = scenes[0]
+    const sceneDuration = firstScene.endTime - firstScene.startTime
     return (
       (firstScene.type as string) === "establishing" ||
-      firstScene.duration < 5 ||
-      (firstScene.content?.text?.length || 0) > 0
+      sceneDuration < 5 ||
+      firstScene.description?.includes("intro") ||
+      false
     )
   }
 
@@ -375,11 +386,11 @@ export class ContentClassifier {
     if (scenes.length < 2) return false
 
     const lastScene = scenes[scenes.length - 1]
+    const sceneDuration = lastScene.endTime - lastScene.startTime
     return (
-      lastScene.duration < 5 ||
-      lastScene.content?.text?.some(
-        (t: any) => t.text.toLowerCase().includes("thanks") || t.text.toLowerCase().includes("subscribe"),
-      ) ||
+      sceneDuration < 5 ||
+      lastScene.description?.toLowerCase().includes("thanks") ||
+      lastScene.description?.toLowerCase().includes("subscribe") ||
       false
     )
   }
@@ -404,14 +415,15 @@ export class ContentClassifier {
   private async classifyWithHeuristics(features: ClassificationFeatures): Promise<ClassificationResult> {
     const contentTypeResult = await this.detectContentType(features)
     const genres = await this.detectGenres(contentTypeResult.type, features)
-    const emotionalTone = this.detectEmotionalTone(features, [])
+    const emotionalTone = await this.detectEmotionalTone(features, [])
     const audience = await this.detectAudience(contentTypeResult.type, genres, features)
 
     return {
-      category: contentTypeResult.type,
-      subcategory: genres[0],
+      contentType: contentTypeResult.type,
+      genres,
+      emotions: emotionalTone.secondary ? [emotionalTone.primary, emotionalTone.secondary] : [emotionalTone.primary],
+      audience,
       confidence: contentTypeResult.confidence,
-      reasoning: "Classified using heuristic analysis",
     }
   }
 
@@ -473,50 +485,78 @@ Format your response as JSON with this structure:
   }
 
   private buildClassification(result: ClassificationResult): ContentClassification {
+    const emotionalTone = this.getEmotionalToneFromResult(result)
     return {
-      primary: result,
-      secondary: this.generateSecondaryClassifications(result),
-      confidence: result.confidence,
-      tags: this.generateTags(result),
-      warnings: this.generateWarnings(result),
+      ...result,
+      keywords: this.generateKeywords(result),
+      topics: this.generateTopics(result),
+      tone: emotionalTone,
     }
   }
 
-  private generateTags(result: ClassificationResult): string[] {
-    const tags: string[] = [result.category]
-
-    if (result.subcategory) {
-      tags.push(result.subcategory)
+  private getEmotionalToneFromResult(result: ClassificationResult): EmotionalTone {
+    return {
+      primary: result.emotions[0] || Emotion.NEUTRAL,
+      secondary: result.emotions[1],
+      intensity: 0.7,
     }
+  }
 
-    // Добавляем дополнительные теги на основе категории
-    switch (result.category as ContentType) {
+  private generateKeywords(result: ClassificationResult): string[] {
+    const keywords: string[] = [result.contentType]
+
+    // Добавляем жанры
+    keywords.push(...result.genres)
+
+    // Добавляем дополнительные ключевые слова на основе типа контента
+    switch (result.contentType) {
       case ContentType.TUTORIAL:
-        tags.push("educational", "how-to", "learning")
+        keywords.push("educational", "how-to", "learning")
         break
       case ContentType.VLOG:
-        tags.push("personal", "lifestyle", "daily")
+        keywords.push("personal", "lifestyle", "daily")
         break
       case ContentType.MUSIC_VIDEO:
-        tags.push("music", "entertainment", "artistic")
+        keywords.push("music", "entertainment", "artistic")
         break
       default:
         // Для других типов добавляем общие теги
-        tags.push("content", "media")
+        keywords.push("content", "media")
         break
     }
 
-    return [...new Set(tags)]
+    return Array.from(new Set(keywords))
   }
 
-  private generateWarnings(result: ClassificationResult): string[] {
-    const warnings: string[] = []
+  private generateTopics(result: ClassificationResult): string[] {
+    const topics: string[] = []
 
-    if (result.confidence < this.config.confidenceThreshold) {
-      warnings.push(`Low classification confidence: ${(result.confidence * 100).toFixed(0)}%`)
+    // Генерируем темы на основе жанров
+    result.genres.forEach((genre) => {
+      switch (genre) {
+        case Genre.EDUCATIONAL:
+          topics.push("education", "learning")
+          break
+        case Genre.TECH:
+          topics.push("technology", "innovation")
+          break
+        case Genre.FITNESS:
+          topics.push("health", "wellness")
+          break
+        case Genre.TRAVEL:
+          topics.push("travel", "tourism")
+          break
+        default:
+          break
+      }
+    })
+
+    // Добавляем интересы аудитории как темы
+    if (result.audience.interests) {
+      topics.push(...result.audience.interests)
     }
 
-    return warnings
+    return Array.from(new Set(topics))
   }
 
   private generateCacheKey(scenes: SceneAnalysis[], metadata: any): string {
@@ -546,34 +586,10 @@ Format your response as JSON with this structure:
     try {
       if (scenes.length === 0) return 0.5
 
-      const allColors = new Set<string>()
-      let sceneCount = 0
-
-      for (const scene of scenes) {
-        if (scene.keyFrames && scene.keyFrames.length > 0) {
-          for (const keyFrame of scene.keyFrames) {
-            // Извлекаем доминирующие цвета из ключевых кадров
-            if (keyFrame.features?.colorHistogram) {
-              // Используем гистограмму цветов если доступна
-              keyFrame.features.colorHistogram.forEach((_: any, index: number) => {
-                allColors.add(`color_${index}`)
-              })
-            } else {
-              // Fallback: используем композицию для оценки цветового разнообразия
-              if (keyFrame.composition) {
-                const colorScore = keyFrame.composition.colorHarmony
-                if (colorScore > 0.7) allColors.add("harmonious")
-                if (colorScore < 0.3) allColors.add("contrasting")
-              }
-            }
-          }
-          sceneCount++
-        }
-      }
-
-      // Нормализуем количество уникальных цветов на количество сцен
-      const varietyScore = sceneCount > 0 ? Math.min(1, allColors.size / (sceneCount * 3)) : 0.5
-      return varietyScore
+      // Простая оценка на основе количества сцен
+      // Чем больше сцен, тем выше вероятность цветового разнообразия
+      const sceneDiversity = Math.min(1, scenes.length / 20)
+      return sceneDiversity * 0.8 + 0.2 // Базовый уровень 0.2
     } catch (error) {
       console.error("Failed to calculate color variety:", error)
       return 0.5
@@ -651,102 +667,5 @@ Format your response as JSON with this structure:
   /**
    * Генерирует вторичные классификации
    */
-  private generateSecondaryClassifications(primary: ClassificationResult): ClassificationResult[] {
-    const secondary: ClassificationResult[] = []
-
-    try {
-      // Генерируем альтернативные классификации на основе основной
-      switch (primary.category as ContentType) {
-        case ContentType.DOCUMENTARY:
-          // Документальные фильмы могут быть также образовательными
-          secondary.push({
-            category: ContentType.TUTORIAL,
-            confidence: Math.max(0.3, primary.confidence - 0.2),
-            reasoning: "Documentary content often has educational value",
-          })
-          break
-
-        case ContentType.TUTORIAL:
-          // Туториалы могут быть документальными
-          if (primary.confidence > 0.8) {
-            secondary.push({
-              category: ContentType.DOCUMENTARY,
-              confidence: primary.confidence - 0.3,
-              reasoning: "High-quality tutorial with documentary characteristics",
-            })
-          }
-          break
-
-        case ContentType.VLOG:
-          // Влоги могут содержать коммерческий контент
-          secondary.push({
-            category: ContentType.COMMERCIAL,
-            confidence: 0.4,
-            reasoning: "Vlogs often contain promotional content",
-          })
-          break
-
-        case ContentType.MUSIC_VIDEO:
-          // Музыкальные видео могут быть коммерческими
-          secondary.push({
-            category: ContentType.COMMERCIAL,
-            confidence: 0.6,
-            reasoning: "Music videos are often promotional content",
-          })
-          break
-
-        case ContentType.NARRATIVE:
-          // Повествовательный контент может иметь различные поджанры
-          if (primary.subcategory) {
-            // На основе поджанра добавляем альтернативы
-            switch (primary.subcategory as Genre) {
-              case Genre.ACTION:
-                secondary.push({
-                  category: ContentType.SPORTS,
-                  confidence: 0.5,
-                  reasoning: "Action content may contain sports elements",
-                })
-                break
-              case Genre.EDUCATIONAL:
-                secondary.push({
-                  category: ContentType.TUTORIAL,
-                  confidence: 0.7,
-                  reasoning: "Educational narrative content",
-                })
-                break
-              default:
-                // Для других жанров не добавляем дополнительные категории
-                break
-            }
-          }
-          break
-
-        case ContentType.COMMERCIAL:
-          // Коммерческий контент может быть музыкальным или образовательным
-          secondary.push({
-            category: ContentType.MUSIC_VIDEO,
-            confidence: 0.3,
-            reasoning: "Commercial content often uses music",
-          })
-          break
-
-        default:
-          // Для остальных типов добавляем общие альтернативы
-          if (primary.confidence < 0.7) {
-            secondary.push({
-              category: ContentType.NARRATIVE,
-              confidence: 0.5,
-              reasoning: "Generic narrative content as fallback",
-            })
-          }
-          break
-      }
-
-      // Фильтруем вторичные классификации по минимальной уверенности
-      return secondary.filter((s) => s.confidence >= 0.3)
-    } catch (error) {
-      console.error("Failed to generate secondary classifications:", error)
-      return []
-    }
-  }
+  // Удаляем метод generateSecondaryClassifications, так как он больше не используется
 }

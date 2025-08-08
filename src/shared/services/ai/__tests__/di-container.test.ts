@@ -73,7 +73,7 @@ describe("AIDIContainer", () => {
         ["Database", "Cache"],
       )
 
-      const userService = await container.resolve("UserService")
+      const userService = await container.resolve<any>("UserService")
 
       expect(userService.name).toBe("UserService")
       expect(userService.database.name).toBe("TestDB")
@@ -88,7 +88,7 @@ describe("AIDIContainer", () => {
 
       container.registerSingleton("ServiceA", (b: any) => ({ name: "A", dependency: b }), ["ServiceB"])
 
-      const serviceA = await container.resolve("ServiceA")
+      const serviceA = await container.resolve<any>("ServiceA")
 
       expect(serviceA.name).toBe("A")
       expect(serviceA.dependency.name).toBe("B")
@@ -177,10 +177,10 @@ describe("AIDIContainer", () => {
       container.registerSingleton("GetTest", () => ({ value: 123 }))
 
       // Сначала resolve
-      const resolved = await container.resolve("GetTest")
+      const resolved = await container.resolve<any>("GetTest")
 
       // Затем get должен вернуть тот же экземпляр
-      const gotten = container.get("GetTest")
+      const gotten = container.get<any>("GetTest")
 
       expect(gotten).toBe(resolved)
       expect(gotten.value).toBe(123)
@@ -215,7 +215,7 @@ describe("AIDIContainer", () => {
         ["ApiKeyLoader", "ModelConfig"],
       )
 
-      const provider = await container.resolve("ClaudeProvider")
+      const provider = await container.resolve<any>("ClaudeProvider")
 
       expect(provider.name).toBe("claude")
       expect(provider.apiKey).toBe("test-key")
@@ -255,7 +255,7 @@ describe("AIDIContainer", () => {
         create: (type: string) => ({ type, id: Math.random() }),
       }))
 
-      const factory = await container.resolve("ServiceFactory")
+      const factory = await container.resolve<any>("ServiceFactory")
 
       const service1 = factory.create("TypeA")
       const service2 = factory.create("TypeB")
@@ -280,7 +280,7 @@ describe("AIDIContainer", () => {
         ["BaseService"],
       )
 
-      const decorated = await container.resolve("DecoratedService")
+      const decorated = await container.resolve<any>("DecoratedService")
 
       expect(decorated.getData()).toBe("decorated: base data")
     })

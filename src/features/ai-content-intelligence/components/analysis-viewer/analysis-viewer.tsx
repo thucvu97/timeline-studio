@@ -173,7 +173,9 @@ const OverviewTab: FC<{ analysis: UnifiedContentAnalysis }> = ({ analysis }) => 
     {/* Summary */}
     <div>
       <h3 className="text-sm font-medium mb-3">Краткое описание</h3>
-      <p className="text-sm text-muted-foreground leading-relaxed">{analysis.insights.summary}</p>
+      <p className="text-sm text-muted-foreground leading-relaxed">
+        {(analysis.insights as any).summary || "Краткое описание недоступно"}
+      </p>
     </div>
   </div>
 )

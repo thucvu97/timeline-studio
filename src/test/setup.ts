@@ -9,6 +9,7 @@ import "@/test/mocks/backend-sync"
 import "@/test/mocks/tauri"
 import "@/test/mocks/browser"
 import "@/test/mocks/libraries"
+import "@/test/mocks/libraries/lucide-react"
 import "@/test/mocks/libraries/react-hotkeys-hook"
 
 // Mock scrollIntoView globally for all tests (needed for Radix UI components)
@@ -48,6 +49,26 @@ vi.mock("@/features/user-settings", async (importOriginal) => {
     UserSettingsProvider: ({ children }: { children: React.ReactNode }) => children,
   }
 })
+
+// Mock PlayerProvider and usePlayer
+vi.mock("@/features/video-player/services/player-provider", () => ({
+  PlayerProvider: ({ children }: { children: React.ReactNode }) => children,
+  usePlayer: () => ({
+    playerSetSource: vi.fn().mockResolvedValue(undefined),
+    playerSetMedia: vi.fn().mockResolvedValue(undefined),
+    currentTime: 0,
+    duration: 0,
+    isPlaying: false,
+    volume: 1,
+    playbackRate: 1,
+    play: vi.fn().mockResolvedValue(undefined),
+    pause: vi.fn(),
+    seek: vi.fn(),
+    setVolume: vi.fn(),
+    setPlaybackRate: vi.fn(),
+    setPreviewMedia: vi.fn(),
+  }),
+}))
 
 // Mock useApiKeys hook
 vi.mock("@/features/user-settings/hooks/use-api-keys")

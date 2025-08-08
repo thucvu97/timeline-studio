@@ -178,10 +178,10 @@ describe("usePlayerAIAnalysis", () => {
     // Устанавливаем текущее время на 5 секунд
     mockPlayerContext.currentTime = 5
 
-    // Принудительно обновляем состояние с моментами
+    // Принудительно обновляем состояние с моментами через внутренний метод
     act(() => {
-      // Прямое обновление состояния для тестирования фильтрации
-      result.current.state.upcomingMoments = mockMoments
+      // Используем приватный доступ для тестирования
+      ;(result.current as any).updateUpcomingMoments?.(mockMoments)
     })
 
     // Проверяем фильтрацию

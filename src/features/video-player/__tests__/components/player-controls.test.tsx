@@ -263,8 +263,8 @@ describe("PlayerControls", () => {
       const fileWithTime = {
         ...mockFile,
         startTime: "00:01:05:15",
-        // Число, а не строка
-        duration: 120,
+        // Строка для отображения
+        duration: "120",
       }
       renderWithProviders(<PlayerControls currentTime={65.5} file={fileWithTime} />)
 

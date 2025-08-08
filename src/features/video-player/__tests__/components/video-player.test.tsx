@@ -360,6 +360,10 @@ describe("VideoPlayer", () => {
         size: 1024000,
         isVideo: true,
         duration: 45000,
+        type: "video" as const,
+        format: "mp4",
+        createdAt: new Date(),
+        modifiedAt: new Date(),
       }
 
       render(<VideoPlayer />)

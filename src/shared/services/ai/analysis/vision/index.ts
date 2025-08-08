@@ -22,10 +22,11 @@ const VisionAnalysisService: any = null
 let YOLOService: any = null
 
 try {
-  // Динамический импорт YOLO сервиса
-  YOLOService = require("@/features/recognition/services/yolo-service").YOLOService
+  // Динамический импорт Vision сервиса
+  const visionModule = require("@/features/ai-content-intelligence/engines/scene-analysis/services/vision-service")
+  YOLOService = visionModule.VisionService
 } catch (error) {
-  console.warn("YOLO service not available:", error)
+  console.warn("Vision service not available:", error)
 }
 
 // VisionAnalysisService пока не существует, используем заглушку

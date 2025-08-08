@@ -154,7 +154,7 @@ describe("SubtitleAIToolsModal", () => {
   it("should render the modal with description", () => {
     render(<SubtitleAIToolsModal />)
 
-    expect(screen.getByText("Автоматическое создание субтитров с помощью AI")).toBeTruthy()
+    expect(screen.getByText("Автоматическое создание субтитров с использованием AI")).toBeTruthy()
   })
 
   it.skip("should display available media files", async () => {

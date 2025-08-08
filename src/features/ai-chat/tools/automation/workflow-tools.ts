@@ -42,7 +42,6 @@ export interface WorkflowAutomationResult {
   availableWorkflows?: any[]
   executionResult?: any
   createdWorkflow?: any
-  recommendations?: any[]
   batchResults?: any[]
   optimizations?: any
   templateLibrary?: any
@@ -71,262 +70,258 @@ export class WorkflowAutomationTool extends BaseAITool {
     input: WorkflowAutomationInput,
     options: AIToolExecutionOptions = {},
   ): Promise<AIToolResult<WorkflowAutomationResult>> {
-    return this.executeWithErrorHandling(
-      input.operation,
-      async () => {
-        // Валидация входных данных
-        const validation = this.validateInput(input, (data) => {
-          const errors: string[] = []
+    return this.executeWithErrorHandling(async () => {
+      // Валидация входных данных
+      const validation = this.validateInput(input, (data) => {
+        const errors: string[] = []
 
-          const validOperations = [
-            "get_available_workflows",
-            "execute_workflow",
-            "create_custom_workflow",
-            "analyze_video_for_recommendations",
-            "batch_process_videos",
-            "optimize_workflow_performance",
-            "manage_workflow_templates",
-            "validate_workflow_compatibility",
-          ]
-          if (!validOperations.includes(data.operation)) {
-            errors.push(`Неподдерживаемая операция: ${data.operation}`)
-          }
-
-          // Специфические валидации
-          if (data.operation === "execute_workflow" && !data.workflowType) {
-            errors.push("Требуется workflowType для выполнения workflow")
-          }
-
-          if (data.operation === "batch_process_videos" && (!data.videoPaths || data.videoPaths.length === 0)) {
-            errors.push("Требуется массив videoPaths для пакетной обработки")
-          }
-
-          return { isValid: errors.length === 0, errors }
-        })
-
-        if (!validation.isValid) {
-          throw new Error(validation.errors.join(", "))
+        const validOperations = [
+          "get_available_workflows",
+          "execute_workflow",
+          "create_custom_workflow",
+          "analyze_video_for_recommendations",
+          "batch_process_videos",
+          "optimize_workflow_performance",
+          "manage_workflow_templates",
+          "validate_workflow_compatibility",
+        ]
+        if (!validOperations.includes(data.operation)) {
+          errors.push(`Неподдерживаемая операция: ${data.operation}`)
         }
 
-        let result: WorkflowAutomationResult
+        // Специфические валидации
+        if (data.operation === "execute_workflow" && !data.workflowType) {
+          errors.push("Требуется workflowType для выполнения workflow")
+        }
 
-        switch (input.operation) {
-          case "get_available_workflows":
-            result = {
-              operation: input.operation,
-              success: true,
-              availableWorkflows: [
-                {
-                  id: "quick_social_media",
-                  name: "Quick Social Media",
-                  category: "social_media",
-                  complexity: "simple",
-                  duration: "2-5 min",
-                  description: "Быстрое создание контента для социальных сетей",
-                  steps: ["trim", "add_captions", "apply_template", "export_formats"],
-                },
-                {
-                  id: "business_presentation",
-                  name: "Business Presentation",
-                  category: "business",
-                  complexity: "medium",
-                  duration: "5-15 min",
-                  description: "Создание презентационных роликов",
-                  steps: ["intro", "content_analysis", "transitions", "branding", "outro"],
-                },
-                {
-                  id: "wedding_highlight",
-                  name: "Wedding Highlight Reel",
-                  category: "personal",
-                  complexity: "complex",
-                  duration: "15-30 min",
-                  description: "Создание свадебного ролика с музыкой и переходами",
-                  steps: ["scene_detection", "best_moments", "music_sync", "color_correction", "export"],
-                },
-              ],
-              message: `Найдено ${3} доступных workflow`,
-              recommendations: [
-                "Выберите workflow, соответствующий сложности проекта",
-                "Учтите категорию контента при выборе",
-                "Проверьте совместимость с входными файлами",
-              ],
-            }
-            break
+        if (data.operation === "batch_process_videos" && (!data.videoPaths || data.videoPaths.length === 0)) {
+          errors.push("Требуется массив videoPaths для пакетной обработки")
+        }
 
-          case "execute_workflow":
-            const workflowParams: WorkflowParams = {
-              workflowType: input.workflowType!,
-              inputVideos: input.inputVideos || [],
-              outputSettings: input.outputSettings || {},
-              customization: input.customization || {},
-            }
+        return { isValid: errors.length === 0, errors }
+      })
 
-            const executionResult = await this.workflowService.executeWorkflow(workflowParams)
+      if (!validation.isValid) {
+        throw new Error(validation.errors.join(", "))
+      }
 
-            result = {
-              operation: input.operation,
-              success: true,
-              executionResult: {
-                workflowId: `exec_${Date.now()}`,
-                workflowType: input.workflowType,
-                status: "completed",
-                processingTime: "3.2 seconds",
-                outputFiles: ["/output/processed_video_1.mp4", "/output/processed_video_2.mp4"],
-                stepsCompleted: 5,
-                totalSteps: 5,
-                ...executionResult,
+      let result: WorkflowAutomationResult
+
+      switch (input.operation) {
+        case "get_available_workflows":
+          result = {
+            operation: input.operation,
+            success: true,
+            availableWorkflows: [
+              {
+                id: "quick_social_media",
+                name: "Quick Social Media",
+                category: "social_media",
+                complexity: "simple",
+                duration: "2-5 min",
+                description: "Быстрое создание контента для социальных сетей",
+                steps: ["trim", "add_captions", "apply_template", "export_formats"],
               },
-              message: `Workflow ${input.workflowType} успешно выполнен`,
-              recommendations: [
-                "Проверьте качество обработанных файлов",
-                "Экспортируйте в нужные форматы",
-                "Сохраните настройки для повторного использования",
-              ],
-            }
-            break
-
-          case "create_custom_workflow":
-            result = {
-              operation: input.operation,
-              success: true,
-              createdWorkflow: {
-                id: `custom_${Date.now()}`,
-                name: input.workflowName || "Custom Workflow",
-                category: input.category || "custom",
+              {
+                id: "business_presentation",
+                name: "Business Presentation",
+                category: "business",
                 complexity: "medium",
-                steps: input.steps || [
-                  { name: "import", duration: 10 },
-                  { name: "process", duration: 60 },
-                  { name: "export", duration: 30 },
-                ],
-                totalDuration: 100,
-                created: new Date().toISOString(),
+                duration: "5-15 min",
+                description: "Создание презентационных роликов",
+                steps: ["intro", "content_analysis", "transitions", "branding", "outro"],
               },
-              message: "Пользовательский workflow создан",
-              recommendations: [
-                "Протестируйте workflow на образце данных",
-                "Сохраните как шаблон для повторного использования",
-                "Настройте параметры для оптимизации производительности",
-              ],
-            }
-            break
-
-          case "analyze_video_for_recommendations":
-            result = {
-              operation: input.operation,
-              success: true,
-              message: "Анализ завершен, найдено 3 рекомендации",
-              recommendations: [
-                "Рассмотрите применение предложенного workflow",
-                "Примените рекомендации по улучшению качества",
-                "Используйте инструменты стабилизации при необходимости",
-              ],
-            }
-            break
-
-          case "batch_process_videos":
-            result = {
-              operation: input.operation,
-              success: true,
-              batchResults: input.videoPaths!.map((path, index) => ({
-                inputPath: path,
-                outputPath: `/output/batch_${index + 1}.mp4`,
-                status: "completed",
-                processingTime: `${2 + Math.random() * 3}s`,
-                fileSize: `${Math.floor(50 + Math.random() * 100)}MB`,
-              })),
-              message: `Обработано ${input.videoPaths!.length} видео в пакетном режиме`,
-              recommendations: [
-                "Проверьте все обработанные файлы",
-                "Организуйте выходные файлы по папкам",
-                "Создайте отчет об обработке",
-              ],
-            }
-            break
-
-          case "optimize_workflow_performance":
-            result = {
-              operation: input.operation,
-              success: true,
-              optimizations: {
-                currentPerformance: {
-                  averageProcessingTime: "5.2s",
-                  memoryUsage: "68%",
-                  cpuUsage: "45%",
-                },
-                optimizedSettings: {
-                  parallelProcessing: true,
-                  gpuAcceleration: true,
-                  cacheOptimization: true,
-                  batchSize: 4,
-                },
-                expectedImprovement: {
-                  processingTime: "-40%",
-                  memoryUsage: "-25%",
-                  throughput: "+60%",
-                },
+              {
+                id: "wedding_highlight",
+                name: "Wedding Highlight Reel",
+                category: "personal",
+                complexity: "complex",
+                duration: "15-30 min",
+                description: "Создание свадебного ролика с музыкой и переходами",
+                steps: ["scene_detection", "best_moments", "music_sync", "color_correction", "export"],
               },
-              message: "Производительность workflow оптимизирована",
-              recommendations: [
-                "Примените оптимизированные настройки",
-                "Мониторьте производительность после изменений",
-                "Настройте размер пакета под ваше железо",
+            ],
+            message: `Найдено ${3} доступных workflow`,
+            recommendations: [
+              "Выберите workflow, соответствующий сложности проекта",
+              "Учтите категорию контента при выборе",
+              "Проверьте совместимость с входными файлами",
+            ],
+          }
+          break
+
+        case "execute_workflow":
+          const workflowParams: WorkflowParams = {
+            workflowType: input.workflowType!,
+            inputVideos: input.inputVideos || [],
+            outputDirectory: input.outputSettings?.outputDirectory || "/output",
+            preferences: input.customization || {},
+          }
+
+          const executionResult = await this.workflowService.executeWorkflow(workflowParams)
+
+          result = {
+            operation: input.operation,
+            success: true,
+            executionResult: {
+              ...executionResult,
+              workflowId: executionResult.workflowId || `exec_${Date.now()}`,
+              workflowType: input.workflowType,
+              status: "completed",
+              processingTime: "3.2 seconds",
+              outputFiles: ["/output/processed_video_1.mp4", "/output/processed_video_2.mp4"],
+              stepsCompleted: 5,
+              totalSteps: 5,
+            },
+            message: `Workflow ${input.workflowType} успешно выполнен`,
+            recommendations: [
+              "Проверьте качество обработанных файлов",
+              "Экспортируйте в нужные форматы",
+              "Сохраните настройки для повторного использования",
+            ],
+          }
+          break
+
+        case "create_custom_workflow":
+          result = {
+            operation: input.operation,
+            success: true,
+            createdWorkflow: {
+              id: `custom_${Date.now()}`,
+              name: input.workflowName || "Custom Workflow",
+              category: input.category || "custom",
+              complexity: "medium",
+              steps: input.steps || [
+                { name: "import", duration: 10 },
+                { name: "process", duration: 60 },
+                { name: "export", duration: 30 },
               ],
-            }
-            break
+              totalDuration: 100,
+              created: new Date().toISOString(),
+            },
+            message: "Пользовательский workflow создан",
+            recommendations: [
+              "Протестируйте workflow на образце данных",
+              "Сохраните как шаблон для повторного использования",
+              "Настройте параметры для оптимизации производительности",
+            ],
+          }
+          break
 
-          case "manage_workflow_templates":
-            result = {
-              operation: input.operation,
-              success: true,
-              templateLibrary: {
-                totalTemplates: 15,
-                userTemplates: 8,
-                systemTemplates: 7,
-                categories: ["social_media", "business", "personal", "educational"],
-                recentlyUsed: [
-                  { id: "quick_social_media", lastUsed: "2024-12-19" },
-                  { id: "business_presentation", lastUsed: "2024-12-18" },
-                ],
+        case "analyze_video_for_recommendations":
+          result = {
+            operation: input.operation,
+            success: true,
+            message: "Анализ завершен, найдено 3 рекомендации",
+            recommendations: [
+              "Рассмотрите применение предложенного workflow",
+              "Примените рекомендации по улучшению качества",
+              "Используйте инструменты стабилизации при необходимости",
+            ],
+          }
+          break
+
+        case "batch_process_videos":
+          result = {
+            operation: input.operation,
+            success: true,
+            batchResults: input.videoPaths!.map((path, index) => ({
+              inputPath: path,
+              outputPath: `/output/batch_${index + 1}.mp4`,
+              status: "completed",
+              processingTime: `${2 + Math.random() * 3}s`,
+              fileSize: `${Math.floor(50 + Math.random() * 100)}MB`,
+            })),
+            message: `Обработано ${input.videoPaths!.length} видео в пакетном режиме`,
+            recommendations: [
+              "Проверьте все обработанные файлы",
+              "Организуйте выходные файлы по папкам",
+              "Создайте отчет об обработке",
+            ],
+          }
+          break
+
+        case "optimize_workflow_performance":
+          result = {
+            operation: input.operation,
+            success: true,
+            optimizations: {
+              currentPerformance: {
+                averageProcessingTime: "5.2s",
+                memoryUsage: "68%",
+                cpuUsage: "45%",
               },
-              message: "Библиотека шаблонов workflow обновлена",
-              recommendations: [
-                "Удалите неиспользуемые шаблоны",
-                "Создайте резервную копию пользовательских шаблонов",
-                "Организуйте шаблоны по категориям",
+              optimizedSettings: {
+                parallelProcessing: true,
+                gpuAcceleration: true,
+                cacheOptimization: true,
+                batchSize: 4,
+              },
+              expectedImprovement: {
+                processingTime: "-40%",
+                memoryUsage: "-25%",
+                throughput: "+60%",
+              },
+            },
+            message: "Производительность workflow оптимизирована",
+            recommendations: [
+              "Примените оптимизированные настройки",
+              "Мониторьте производительность после изменений",
+              "Настройте размер пакета под ваше железо",
+            ],
+          }
+          break
+
+        case "manage_workflow_templates":
+          result = {
+            operation: input.operation,
+            success: true,
+            templateLibrary: {
+              totalTemplates: 15,
+              userTemplates: 8,
+              systemTemplates: 7,
+              categories: ["social_media", "business", "personal", "educational"],
+              recentlyUsed: [
+                { id: "quick_social_media", lastUsed: "2024-12-19" },
+                { id: "business_presentation", lastUsed: "2024-12-18" },
               ],
-            }
-            break
+            },
+            message: "Библиотека шаблонов workflow обновлена",
+            recommendations: [
+              "Удалите неиспользуемые шаблоны",
+              "Создайте резервную копию пользовательских шаблонов",
+              "Организуйте шаблоны по категориям",
+            ],
+          }
+          break
 
-          case "validate_workflow_compatibility":
-            result = {
-              operation: input.operation,
-              success: true,
-              validationResult: {
-                compatible: true,
-                issues: [],
-                warnings: ["Некоторые эффекты могут работать медленнее на текущем железе"],
-                recommendations: ["Workflow совместим с текущим проектом", "Рассмотрите обновление драйверов GPU"],
-              },
-              message: "Валидация совместимости завершена",
-              recommendations: ["Workflow готов к использованию", "Примите к сведению предупреждения"],
-            }
-            break
+        case "validate_workflow_compatibility":
+          result = {
+            operation: input.operation,
+            success: true,
+            validationResult: {
+              compatible: true,
+              issues: [],
+              warnings: ["Некоторые эффекты могут работать медленнее на текущем железе"],
+              recommendations: ["Workflow совместим с текущим проектом", "Рассмотрите обновление драйверов GPU"],
+            },
+            message: "Валидация совместимости завершена",
+            recommendations: ["Workflow готов к использованию", "Примите к сведению предупреждения"],
+          }
+          break
 
-          default:
-            result = {
-              operation: input.operation,
-              success: false,
-              message: "Функция пока не реализована",
-              recommendations: ["Функция будет добавлена в следующих версиях"],
-            }
-            break
-        }
+        default:
+          result = {
+            operation: input.operation,
+            success: false,
+            message: "Функция пока не реализована",
+            recommendations: ["Функция будет добавлена в следующих версиях"],
+          }
+          break
+      }
 
-        return result
-      },
-      options,
-    )
+      return result
+    }, options)
   }
 }
 

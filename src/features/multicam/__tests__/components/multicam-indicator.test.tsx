@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react"
 import { describe, expect, it } from "vitest"
+import "@testing-library/jest-dom"
 
 import "@/test/mocks/libraries/lucide-react"
 import { MulticamIndicator } from "../../components/multicam-indicator"
@@ -54,7 +55,9 @@ describe("MulticamIndicator", () => {
       render(<MulticamIndicator currentAngle={0} totalAngles={2} angleName="Front Camera" />)
 
       expect(screen.getByText("Front Camera")).toBeInTheDocument()
-      expect(screen.getByText("Front Camera")).toHaveClass("text-sm", "text-muted-foreground")
+      const frontCameraText = screen.getByText("Front Camera")
+      expect(frontCameraText).toHaveClass("text-sm")
+      expect(frontCameraText).toHaveClass("text-muted-foreground")
     })
 
     it("не должен отображать имя камеры когда оно не передано", () => {
@@ -69,9 +72,12 @@ describe("MulticamIndicator", () => {
       render(<MulticamIndicator currentAngle={0} totalAngles={2} className="custom-class-1 custom-class-2" />)
 
       const container = screen.getByText("1").closest(".flex")
-      expect(container).toHaveClass("custom-class-1", "custom-class-2")
+      expect(container).toHaveClass("custom-class-1")
+      expect(container).toHaveClass("custom-class-2")
       // Также должны сохраняться базовые классы
-      expect(container).toHaveClass("flex", "items-center", "gap-2")
+      expect(container).toHaveClass("flex")
+      expect(container).toHaveClass("items-center")
+      expect(container).toHaveClass("gap-2")
     })
   })
 
@@ -114,7 +120,9 @@ describe("MulticamIndicator", () => {
       // Иконка камеры
       const icon = container?.querySelector("svg")
       expect(icon).toBeInTheDocument()
-      expect(icon).toHaveClass("w-4", "h-4", "text-muted-foreground")
+      expect(icon).toHaveClass("w-4")
+      expect(icon).toHaveClass("h-4")
+      expect(icon).toHaveClass("text-muted-foreground")
 
       // Badge с номерами
       const badge = screen.getByText("2").closest(".gap-1")

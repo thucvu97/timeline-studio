@@ -119,6 +119,7 @@ export const Play = createMockIcon("Play")
 export const PlayCircle = createMockIcon("PlayCircle")
 export const Plus = createMockIcon("Plus")
 export const Power = createMockIcon("Power")
+export const Redo = createMockIcon("Redo")
 export const Redo2 = createMockIcon("Redo2")
 export const RefreshCw = createMockIcon("RefreshCw")
 export const RotateCcw = createMockIcon("RotateCcw")
@@ -275,6 +276,7 @@ vi.mock("lucide-react", () => ({
   PlayCircle,
   Plus,
   Power,
+  Redo,
   Redo2,
   RefreshCw,
   RotateCcw,
@@ -307,6 +309,7 @@ vi.mock("lucide-react", () => ({
   TrendingUp,
   TvMinimalPlay,
   Type,
+  Undo,
   Undo2,
   UnfoldHorizontal,
   Unlock,

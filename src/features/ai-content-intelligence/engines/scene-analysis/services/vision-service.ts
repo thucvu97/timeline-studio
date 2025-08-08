@@ -18,6 +18,7 @@ export interface FrameAnalysis {
   faces: any[]
   text: any[]
   activities: any[]
+  composition?: any
   timestamp?: number
 }
 
@@ -77,6 +78,7 @@ export class VisionService {
       faces: [],
       text: [],
       activities: [],
+      composition: null,
       timestamp: frameNumber,
     }
 

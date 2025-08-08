@@ -3,7 +3,6 @@
  */
 
 import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
-import type { ClaudeTool } from "../../types"
 
 import type { MediaAnalysisParams, PlayerToolResult } from "./types"
 import { getCurrentMedia, parseFps } from "./utils/helpers"
@@ -42,49 +41,45 @@ export class MediaAnalysisTool extends BaseAITool {
     input: MediaAnalysisInput,
     options: AIToolExecutionOptions = {},
   ): Promise<AIToolResult<MediaAnalysisResult>> {
-    return this.executeWithErrorHandling(
-      input.operation,
-      async () => {
-        // Валидация входных данных
-        const validation = this.validateInput(input, (data) => {
-          const errors: string[] = []
+    return this.executeWithErrorHandling(async () => {
+      // Валидация входных данных
+      const validation = this.validateInput(input, (data) => {
+        const errors: string[] = []
 
-          if (data.operation !== "analyze_current_media") {
-            errors.push(`Неподдерживаемая операция: ${data.operation}`)
-          }
-
-          return { isValid: errors.length === 0, errors }
-        })
-
-        if (!validation.isValid) {
-          throw new Error(validation.errors.join(", "))
+        if (data.operation !== "analyze_current_media") {
+          errors.push(`Неподдерживаемая операция: ${data.operation}`)
         }
 
-        const analysisResult = await this.analyzeCurrentMedia({
-          includeMetadata: input.includeMetadata ?? true,
-          includeQualityMetrics: input.includeQualityMetrics ?? false,
-          includeFormatInfo: input.includeFormatInfo ?? true,
-          includeAudioInfo: input.includeAudioInfo ?? true,
-          includeVideoInfo: input.includeVideoInfo ?? true,
-        })
+        return { isValid: errors.length === 0, errors }
+      })
 
-        if (!analysisResult.success) {
-          throw new Error(analysisResult.message)
-        }
+      if (!validation.isValid) {
+        throw new Error(validation.errors.join(", "))
+      }
 
-        const result: MediaAnalysisResult = {
-          operation: input.operation,
-          success: true,
-          analysis: analysisResult.data?.analysis,
-          message: analysisResult.message,
-          recommendations: this.generateRecommendations(analysisResult.data?.analysis),
-          warnings: analysisResult.warnings,
-        }
+      const analysisResult = await this.analyzeCurrentMedia({
+        includeMetadata: input.includeMetadata ?? true,
+        includeQualityMetrics: input.includeQualityMetrics ?? false,
+        includeFormatInfo: input.includeFormatInfo ?? true,
+        includeAudioInfo: input.includeAudioInfo ?? true,
+        includeVideoInfo: input.includeVideoInfo ?? true,
+      })
 
-        return result
-      },
-      options,
-    )
+      if (!analysisResult.success) {
+        throw new Error(analysisResult.message)
+      }
+
+      const result: MediaAnalysisResult = {
+        operation: input.operation,
+        success: true,
+        analysis: analysisResult.data?.analysis,
+        message: analysisResult.message,
+        recommendations: this.generateRecommendations(analysisResult.data?.analysis),
+        warnings: analysisResult.warnings,
+      }
+
+      return result
+    }, options)
   }
 
   private async analyzeCurrentMedia(params: MediaAnalysisParams): Promise<PlayerToolResult> {
@@ -290,7 +285,7 @@ export async function analyzeCurrentMedia(params: MediaAnalysisParams): Promise<
 }
 
 // Экспорт для обратной совместимости
-export const analyzeCurrentMediaTool: ClaudeTool = {
+export const analyzeCurrentMediaTool: any = {
   name: "analyze_current_media",
   description: "Анализирует текущее медиа в плеере и его характеристики",
   input_schema: {

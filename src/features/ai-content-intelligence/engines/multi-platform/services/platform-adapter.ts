@@ -263,7 +263,7 @@ export class PlatformAdapter {
     // Генерируем хэштеги
     if (strategy.generateHashtags) {
       const hashtagPrompt = `Generate ${strategy.hashtagCount} relevant hashtags for a ${platform.name} video.
-      Topics: ${analysis.insights.marketingAngles.join(", ")}
+      Topics: ${((analysis.insights as any).marketingAngles || []).join(", ") || "General content"}
       Genre: ${analysis.genres.join(", ")}
       Target audience: ${analysis.targetAudience ? "General" : "General"}
       

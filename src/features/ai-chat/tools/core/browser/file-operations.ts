@@ -85,116 +85,112 @@ export class FileOperationsTool extends BaseAITool {
     input: FileOperationsInput,
     options: AIToolExecutionOptions = {},
   ): Promise<AIToolResult<FileOperationsResult>> {
-    return this.executeWithErrorHandling(
-      input.operation,
-      async () => {
-        // Валидация входных данных
-        const validation = this.validateInput(input, (data) => {
-          const errors: string[] = []
+    return this.executeWithErrorHandling(async () => {
+      // Валидация входных данных
+      const validation = this.validateInput(input, (data) => {
+        const errors: string[] = []
 
-          const validOperations = ["get_file_groups", "analyze_file_relationships", "bulk_select_files"]
-          if (!validOperations.includes(data.operation)) {
-            errors.push(`Неподдерживаемая операция: ${data.operation}`)
-          }
-
-          // Специфичные валидации
-          if (data.operation === "get_file_groups" && !data.groupBy) {
-            errors.push("Требуется groupBy для операции get_file_groups")
-          }
-
-          if (data.operation === "analyze_file_relationships" && !data.analysisType) {
-            errors.push("Требуется analysisType для операции analyze_file_relationships")
-          }
-
-          if (data.operation === "bulk_select_files") {
-            if (!data.selectionCriteria || !data.action || !data.reason) {
-              errors.push("Требуется selectionCriteria, action и reason для операции bulk_select_files")
-            }
-          }
-
-          return { isValid: errors.length === 0, errors }
-        })
-
-        if (!validation.isValid) {
-          throw new Error(validation.errors.join(", "))
+        const validOperations = ["get_file_groups", "analyze_file_relationships", "bulk_select_files"]
+        if (!validOperations.includes(data.operation)) {
+          errors.push(`Неподдерживаемая операция: ${data.operation}`)
         }
 
-        // Проверка доступа к браузеру
-        if (!hasBrowserAccess()) {
-          throw new Error("Доступ к браузеру не сконфигурирован")
+        // Специфичные валидации
+        if (data.operation === "get_file_groups" && !data.groupBy) {
+          errors.push("Требуется groupBy для операции get_file_groups")
         }
 
-        let result: FileOperationsResult
-
-        switch (input.operation) {
-          case "get_file_groups":
-            const groupsResult = await this.getFileGroups({
-              groupBy: input.groupBy!,
-              tab: input.tab,
-              includeEmpty: input.includeEmpty || false,
-            })
-            if (!groupsResult.success) {
-              throw new Error(groupsResult.message)
-            }
-            result = {
-              operation: input.operation,
-              success: true,
-              groups: groupsResult.data?.groups,
-              analysis: groupsResult.data?.analysis,
-              message: groupsResult.message,
-              recommendations: groupsResult.data?.suggestions || [],
-            }
-            break
-
-          case "analyze_file_relationships":
-            const relationshipsResult = await this.analyzeFileRelationships({
-              analysisType: input.analysisType!,
-              fileIds: input.fileIds,
-              includeMetadata: input.includeMetadata ?? true,
-            })
-            if (!relationshipsResult.success) {
-              throw new Error(relationshipsResult.message)
-            }
-            result = {
-              operation: input.operation,
-              success: true,
-              analysis: relationshipsResult.data?.analysis,
-              message: relationshipsResult.message,
-              recommendations: relationshipsResult.data?.suggestions || [],
-            }
-            break
-
-          case "bulk_select_files":
-            const selectResult = await this.bulkSelectFiles({
-              selectionCriteria: input.selectionCriteria!,
-              action: input.action!,
-              reason: input.reason!,
-            })
-            if (!selectResult.success) {
-              throw new Error(selectResult.message)
-            }
-            result = {
-              operation: input.operation,
-              success: true,
-              message: selectResult.message,
-              recommendations: selectResult.data?.suggestions || [],
-            }
-            break
-
-          default:
-            result = {
-              operation: input.operation,
-              success: false,
-              message: "Функция пока не реализована",
-              recommendations: ["Функция будет добавлена в следующих версиях"],
-            }
-            break
+        if (data.operation === "analyze_file_relationships" && !data.analysisType) {
+          errors.push("Требуется analysisType для операции analyze_file_relationships")
         }
 
-        return result
-      },
-      options,
-    )
+        if (data.operation === "bulk_select_files") {
+          if (!data.selectionCriteria || !data.action || !data.reason) {
+            errors.push("Требуется selectionCriteria, action и reason для операции bulk_select_files")
+          }
+        }
+
+        return { isValid: errors.length === 0, errors }
+      })
+
+      if (!validation.isValid) {
+        throw new Error(validation.errors.join(", "))
+      }
+
+      // Проверка доступа к браузеру
+      if (!hasBrowserAccess()) {
+        throw new Error("Доступ к браузеру не сконфигурирован")
+      }
+
+      let result: FileOperationsResult
+
+      switch (input.operation) {
+        case "get_file_groups":
+          const groupsResult = await this.getFileGroups({
+            groupBy: input.groupBy!,
+            tab: input.tab!,
+            includeEmpty: input.includeEmpty || false,
+          })
+          if (!groupsResult.success) {
+            throw new Error(groupsResult.message)
+          }
+          result = {
+            operation: input.operation,
+            success: true,
+            groups: groupsResult.data?.groups,
+            analysis: groupsResult.data?.analysis,
+            message: groupsResult.message,
+            recommendations: groupsResult.data?.suggestions || [],
+          }
+          break
+
+        case "analyze_file_relationships":
+          const relationshipsResult = await this.analyzeFileRelationships({
+            tab: input.tab!,
+            analysisDepth: input.analysisType === "detailed" ? "detailed" : "basic",
+            includeUsage: input.includeMetadata ?? true,
+          })
+          if (!relationshipsResult.success) {
+            throw new Error(relationshipsResult.message)
+          }
+          result = {
+            operation: input.operation,
+            success: true,
+            analysis: relationshipsResult.data?.analysis,
+            message: relationshipsResult.message,
+            recommendations: relationshipsResult.data?.suggestions || [],
+          }
+          break
+
+        case "bulk_select_files":
+          const selectResult = await this.bulkSelectFiles({
+            selectionCriteria: input.selectionCriteria!,
+            action: input.action!,
+            reason: input.reason!,
+          })
+          if (!selectResult.success) {
+            throw new Error(selectResult.message)
+          }
+          result = {
+            operation: input.operation,
+            success: true,
+            message: selectResult.message,
+            recommendations: selectResult.data?.suggestions || [],
+          }
+          break
+
+        default:
+          result = {
+            operation: input.operation,
+            success: false,
+            message: "Функция пока не реализована",
+            recommendations: ["Функция будет добавлена в следующих версиях"],
+          }
+          break
+      }
+
+      return result
+    }, options)
   }
 
   private async getFileGroups(params: GetFileGroupsParams): Promise<BrowserToolResult> {

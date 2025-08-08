@@ -3,7 +3,6 @@
  */
 
 import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../../base-ai-tool"
-import type { ClaudeTool } from "../../types"
 
 import type { AnalyzeBrowserParams, BrowserToolResult } from "./types"
 import {
@@ -70,60 +69,64 @@ export class BrowserAnalysisTool extends BaseAITool {
     input: BrowserAnalysisInput,
     options: AIToolExecutionOptions = {},
   ): Promise<AIToolResult<BrowserAnalysisResult>> {
-    return this.executeWithErrorHandling(
-      input.operation,
-      async () => {
-        // Валидация входных данных
-        const validation = this.validateInput(input, (data) => {
-          const errors: string[] = []
+    return this.executeWithErrorHandling(async () => {
+      // Валидация входных данных
+      const validation = this.validateInput(input, (data) => {
+        const errors: string[] = []
 
-          if (data.operation !== "analyze_media_browser") {
-            errors.push(`Неподдерживаемая операция: ${data.operation}`)
-          }
-
-          if (!data.tab) {
-            errors.push("Требуется указать tab для анализа")
-          }
-
-          return { isValid: errors.length === 0, errors }
-        })
-
-        if (!validation.isValid) {
-          throw new Error(validation.errors.join(", "))
+        if (data.operation !== "analyze_media_browser") {
+          errors.push(`Неподдерживаемая операция: ${data.operation}`)
         }
 
-        // Проверка доступа к браузеру
-        if (!hasBrowserAccess()) {
-          throw new Error("Доступ к браузеру не сконфигурирован")
+        if (!data.tab) {
+          errors.push("Требуется указать tab для анализа")
         }
 
-        const analysisResult = await this.analyzeMediaBrowser({
-          tab: input.tab!,
-          filters: input.filters || {},
-          includeMetadata: input.includeMetadata ?? true,
-          groupBy: input.groupBy,
-          sortBy: input.sortBy || "name",
-          sortOrder: input.sortOrder || "asc",
-        })
+        return { isValid: errors.length === 0, errors }
+      })
 
-        if (!analysisResult.success) {
-          throw new Error(analysisResult.message)
-        }
+      if (!validation.isValid) {
+        throw new Error(validation.errors.join(", "))
+      }
 
-        const result: BrowserAnalysisResult = {
-          operation: input.operation,
-          success: true,
-          files: analysisResult.data?.files,
-          groups: analysisResult.data?.groups,
-          analysis: analysisResult.data?.analysis,
-          message: analysisResult.message,
-          recommendations: analysisResult.data?.suggestions || [],
-        }
+      // Проверка доступа к браузеру
+      if (!hasBrowserAccess()) {
+        throw new Error("Доступ к браузеру не сконфигурирован")
+      }
 
-        return result
-      },
-      options,
-    )
+      const filters: any = input.filters || {}
+      if (filters.dateRange && (!filters.dateRange.start || !filters.dateRange.end)) {
+        delete filters.dateRange
+      }
+      if (filters.sizeRange && (!filters.sizeRange.min || !filters.sizeRange.max)) {
+        delete filters.sizeRange
+      }
+
+      const analysisResult = await this.analyzeMediaBrowser({
+        tab: input.tab!,
+        filters,
+        includeMetadata: input.includeMetadata ?? true,
+        groupBy: input.groupBy,
+        sortBy: input.sortBy || "name",
+        sortOrder: input.sortOrder || "asc",
+      })
+
+      if (!analysisResult.success) {
+        throw new Error(analysisResult.message)
+      }
+
+      const result: BrowserAnalysisResult = {
+        operation: input.operation,
+        success: true,
+        files: analysisResult.data?.files,
+        groups: analysisResult.data?.groups,
+        analysis: analysisResult.data?.analysis,
+        message: analysisResult.message,
+        recommendations: analysisResult.data?.suggestions || [],
+      }
+
+      return result
+    }, options)
   }
 
   private async analyzeMediaBrowser(params: AnalyzeBrowserParams): Promise<BrowserToolResult> {
@@ -292,10 +295,10 @@ export async function analyzeMediaBrowser(params: AnalyzeBrowserParams): Promise
     sortOrder: params.sortOrder,
   })
 
-  if (result.success) {
+  if (result.success && result.data) {
     return {
       success: true,
-      message: result.data.message,
+      message: result.data.message || "Анализ завершен",
       data: {
         files: result.data.files,
         groups: result.data.groups,
@@ -307,13 +310,13 @@ export async function analyzeMediaBrowser(params: AnalyzeBrowserParams): Promise
   }
   return {
     success: false,
-    message: result.error?.message || "Ошибка анализа браузера",
-    errors: [result.error?.message || "Неизвестная ошибка"],
+    message: result.errors?.[0] || "Ошибка анализа браузера",
+    errors: result.errors || ["Неизвестная ошибка"],
   }
 }
 
 // Экспорт для обратной совместимости
-export const analyzeMediaBrowserTool: ClaudeTool = {
+export const analyzeMediaBrowserTool = {
   name: "analyze_media_browser",
   description: "Анализирует все доступные медиафайлы в браузере по указанным критериям",
   input_schema: {

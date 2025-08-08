@@ -163,10 +163,10 @@ describe("useVideoElement", () => {
 
       act(() => {
         firstVideoElement = result.current.getOrCreateVideoElement(mockVideo, videoRefs, 0.5, mockSetVideoSource)
-      })
-
-      // Clear mock calls to check subsequent calls
-      vi.mocked(document.body.appendChild).mockClear()
+      })(
+        // Clear mock calls to check subsequent calls
+        document.body.appendChild as any,
+      ).mockClear()
 
       act(() => {
         secondVideoElement = result.current.getOrCreateVideoElement(mockVideo, videoRefs, 0.5, mockSetVideoSource)
@@ -183,13 +183,15 @@ describe("useVideoElement", () => {
       // Create first element
       act(() => {
         result.current.getOrCreateVideoElement(mockVideo, videoRefs, 0.5, mockSetVideoSource)
-      })
-
-      // Mock that element is no longer in DOM
-      vi.mocked(document.body.contains).mockReturnValue(false)
-
-      // Clear previous appendChild calls
-      vi.mocked(document.body.appendChild).mockClear()
+      })(
+        // Mock that element is no longer in DOM
+        document.body.contains as any,
+      )
+        .mockReturnValue(false)(
+          // Clear previous appendChild calls
+          document.body.appendChild as any,
+        )
+        .mockClear()
 
       // Create second element
       act(() => {
@@ -403,10 +405,10 @@ describe("useVideoElement", () => {
       videoElement1.pause = vi.fn()
 
       // Setup videoRefs
-      videoRefs["video-1"] = videoElement1
-
-      // Mock that element is not in DOM
-      vi.mocked(document.body.contains).mockReturnValue(false)
+      videoRefs["video-1"] = videoElement1(
+        // Mock that element is not in DOM
+        document.body.contains as any,
+      ).mockReturnValue(false)
 
       act(() => {
         result.current.cleanupUnusedVideoElements([], videoRefs)

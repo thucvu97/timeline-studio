@@ -110,9 +110,8 @@ export class AIDIContainer {
     const availableProviders = await this.providerFactory!.getAvailableProviders()
     console.log("Available AI providers:", availableProviders)
 
-    // Проверяем доступность анализ сервисов
-    const analysisServices = await this.analysisFactory!.getAvailableServices()
-    console.log("Available analysis services:", analysisServices)
+    // Анализ сервисы доступны после создания фабрики
+    console.log("Analysis factory initialized")
 
     // Инициализируем модели
     await this.modelManager!.getAvailableModels()
@@ -321,8 +320,9 @@ export class AIDIContainer {
     return this.getProviderFactory().createDeepSeekProvider()
   }
 
-  getOllamaProvider(baseUrl?: string): IAIProvider {
-    return this.getProviderFactory().createOllamaProvider(baseUrl)
+  getOllamaProvider(_baseUrl?: string): IAIProvider {
+    // Пока используем без baseUrl, так как интерфейс не поддерживает параметры
+    return this.getProviderFactory().createOllamaProvider()
   }
 
   // Утилиты
@@ -359,13 +359,7 @@ export class AIDIContainer {
       this.unifiedService.clearCache()
     }
 
-    if (this.analysisFactory) {
-      this.analysisFactory.dispose?.()
-    }
-
-    if (this.providerFactory) {
-      this.providerFactory.dispose?.()
-    }
+    // Фабрики не требуют явного dispose
 
     this.providerFactory = null
     this.analysisFactory = null
@@ -385,28 +379,12 @@ export class AIDIContainer {
   private getDefaultConfig(): AIServiceConfig {
     return {
       providers: {
-        claude: {
-          defaultModel: "claude-3-5-sonnet-20241022",
-        },
-        openai: {
-          defaultModel: "gpt-4o",
-        },
-        deepseek: {
-          defaultModel: "deepseek-chat",
-        },
+        claude: {},
+        openai: {},
+        deepseek: {},
         ollama: {
           baseUrl: "http://localhost:11434",
-          defaultModel: "llama3.2",
         },
-      },
-      analysis: {
-        maxConcurrency: 4,
-        cacheDirectory: "/tmp/ai-analysis-cache",
-      },
-      orchestration: {
-        enableWorkflows: true,
-        enableStateMachines: true,
-        maxPipelineSteps: 10,
       },
     }
   }

@@ -91,7 +91,7 @@ describe("usePrerender", () => {
     mockUseTimeline.mockReturnValue({ project: mockProject })
 
     const { toast } = await import("sonner")
-    mockToast = vi.mocked(toast)
+    mockToast = toast as any
   })
 
   it("should initialize with default state", () => {
@@ -104,7 +104,7 @@ describe("usePrerender", () => {
   })
 
   it("should prerender segment successfully", async () => {
-    vi.mocked(videoCompilerService.prerenderSegment).mockResolvedValueOnce(mockPrerenderResult)
+    ;(videoCompilerService.prerenderSegment as any).mockResolvedValueOnce(mockPrerenderResult)
 
     const { result } = renderHook(() => usePrerender())
 
@@ -120,8 +120,9 @@ describe("usePrerender", () => {
   })
 
   it("should handle prerender error", async () => {
-    const errorMessage = "Failed to prerender"
-    vi.mocked(videoCompilerService.prerenderSegment).mockRejectedValueOnce(new Error(errorMessage))
+    const errorMessage = "Failed to prerender"(videoCompilerService.prerenderSegment as any).mockRejectedValueOnce(
+      new Error(errorMessage),
+    )
 
     const { result } = renderHook(() => usePrerender())
 
@@ -137,7 +138,7 @@ describe("usePrerender", () => {
   })
 
   it("should use default options when not provided", async () => {
-    vi.mocked(videoCompilerService.prerenderSegment).mockResolvedValueOnce(mockPrerenderResult)
+    ;(videoCompilerService.prerenderSegment as any).mockResolvedValueOnce(mockPrerenderResult)
 
     const { result } = renderHook(() => usePrerender())
 
@@ -158,8 +159,7 @@ describe("usePrerender", () => {
     let resolvePrerender: any
     const prerenderPromise = new Promise((resolve) => {
       resolvePrerender = resolve
-    })
-    vi.mocked(videoCompilerService.prerenderSegment).mockReturnValueOnce(prerenderPromise as any)
+    })(videoCompilerService.prerenderSegment as any).mockReturnValueOnce(prerenderPromise as any)
 
     const { result } = renderHook(() => usePrerender())
 
@@ -192,7 +192,7 @@ describe("usePrerender", () => {
   })
 
   it("should handle concurrent prerender requests", async () => {
-    vi.mocked(videoCompilerService.prerenderSegment).mockResolvedValue(mockPrerenderResult)
+    ;(videoCompilerService.prerenderSegment as any).mockResolvedValue(mockPrerenderResult)
 
     const { result } = renderHook(() => usePrerender())
 
@@ -206,7 +206,7 @@ describe("usePrerender", () => {
   })
 
   it("should show toast notifications", async () => {
-    vi.mocked(videoCompilerService.prerenderSegment).mockResolvedValueOnce(mockPrerenderResult)
+    ;(videoCompilerService.prerenderSegment as any).mockResolvedValueOnce(mockPrerenderResult)
 
     const { result } = renderHook(() => usePrerender())
 
@@ -218,7 +218,7 @@ describe("usePrerender", () => {
   })
 
   it("should handle different segment configurations", async () => {
-    vi.mocked(videoCompilerService.prerenderSegment).mockResolvedValue(mockPrerenderResult)
+    ;(videoCompilerService.prerenderSegment as any).mockResolvedValue(mockPrerenderResult)
 
     const { result } = renderHook(() => usePrerender())
 
@@ -238,7 +238,7 @@ describe("usePrerender", () => {
 
   it("should reset error on new prerender", async () => {
     // First, trigger an error
-    vi.mocked(videoCompilerService.prerenderSegment).mockRejectedValueOnce(new Error("Error"))
+    ;(videoCompilerService.prerenderSegment as any).mockRejectedValueOnce(new Error("Error"))
 
     const { result } = renderHook(() => usePrerender())
 
@@ -246,10 +246,12 @@ describe("usePrerender", () => {
       await result.current.prerender(0, 10.5)
     })
 
-    expect(result.current.error).toBeDefined()
-
-    // Then, successful prerender
-    vi.mocked(videoCompilerService.prerenderSegment).mockResolvedValueOnce(mockPrerenderResult)
+    expect(result.current.error)
+      .toBeDefined()(
+        // Then, successful prerender
+        videoCompilerService.prerenderSegment as any,
+      )
+      .mockResolvedValueOnce(mockPrerenderResult)
 
     await act(async () => {
       await result.current.prerender(0, 10.5)
@@ -321,7 +323,7 @@ describe("usePrerenderCache", () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(videoCompilerService.getPrerenderCacheInfo).mockResolvedValue(mockCacheInfo)
+    ;(videoCompilerService.getPrerenderCacheInfo as any).mockResolvedValue(mockCacheInfo)
   })
 
   it("should load cache info on mount", async () => {
@@ -367,8 +369,8 @@ describe("usePrerenderCache", () => {
   })
 
   it("should clear cache", async () => {
-    const deletedSize = 3 * 1024 * 1024
-    vi.mocked(videoCompilerService.clearPrerenderCache).mockResolvedValueOnce(deletedSize)
+    const deletedSize =
+      3 * 1024 * 1024(videoCompilerService.clearPrerenderCache as any).mockResolvedValueOnce(deletedSize)
 
     const { result } = renderHook(() => usePrerenderCache())
 
@@ -408,8 +410,7 @@ describe("usePrerenderCache", () => {
       ],
       totalSize: 4 * 1024 * 1024,
       fileCount: 1,
-    }
-    vi.mocked(videoCompilerService.getPrerenderCacheInfo).mockResolvedValueOnce(updatedCacheInfo)
+    }(videoCompilerService.getPrerenderCacheInfo as any).mockResolvedValueOnce(updatedCacheInfo)
 
     await act(async () => {
       await result.current.addToCache(10, 15, true, {

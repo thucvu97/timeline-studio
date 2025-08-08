@@ -145,15 +145,13 @@ export class SubtitleAIIntegrationService {
           })),
         },
         insights: {
-          summary: "Автоматически сгенерированный анализ для создания субтитров",
-          keyPoints: [
+          strengths: [
             "Обнаружен текст на экране для OCR",
             "Проведен анализ речевых сегментов",
             "Выполнена сегментация сцен",
           ],
-          suggestions: [],
-          warnings: [],
-          opportunities: [],
+          improvements: [],
+          recommendations: [],
         },
       }
 

@@ -17,12 +17,12 @@ export * from "./settings-configuration-tools"
 // Timeline инструменты
 export * from "./timeline"
 
+// Сбор всех core инструментов в один массив
 import { browserTools } from "./browser"
 import { effectsFiltersTools } from "./effects-filters-tools"
 import { playerTools } from "./player"
 import { resourceTools } from "./resources"
 import { settingsConfigurationTools } from "./settings-configuration-tools"
-// Сбор всех core инструментов в один массив
 import { timelineTools } from "./timeline"
 
 export const coreTools = [

@@ -1,6 +1,9 @@
 import { act, fireEvent, render, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
+// Import lucide-react mock before any component imports
+import "@/test/mocks/libraries/lucide-react"
+
 import type { MediaFile } from "@/features/media/types/media"
 
 import { AudioPreview } from "../../../components/preview/audio-preview"

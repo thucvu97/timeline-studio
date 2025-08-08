@@ -143,7 +143,11 @@ describe("Enhanced Subtitle Automation Integration", () => {
         targetAudience: { ageRange: { min: 16, max: 65 }, interests: [], demographics: { primary: "general" } },
         technicalSpecs: {} as any,
         qualityMetrics: {} as any,
-        insights: { summary: "", keyPoints: [], suggestions: [], warnings: [], opportunities: [] },
+        insights: {
+          strengths: [],
+          improvements: [],
+          recommendations: [],
+        },
       }
 
       // Мокаем метод анализа

@@ -74,8 +74,9 @@ export async function mediaAnalysisExample() {
 
   // Пример файла для анализа
   const mediaFile: MediaFile = {
+    id: "video-example-1",
     path: "/path/to/video.mp4",
-    name: "video.mp4",
+    filename: "video.mp4",
     type: "video",
     size: 1024 * 1024 * 100, // 100MB
     duration: 120, // 2 минуты
@@ -185,9 +186,9 @@ export async function batchAnalysisExample() {
   const contentAnalyzer = analysisFactory.createContentAnalysisService()
 
   const mediaFiles: MediaFile[] = [
-    { path: "/videos/clip1.mp4", name: "clip1.mp4", type: "video" },
-    { path: "/videos/clip2.mp4", name: "clip2.mp4", type: "video" },
-    { path: "/videos/clip3.mp4", name: "clip3.mp4", type: "video" },
+    { id: "clip1", path: "/videos/clip1.mp4", filename: "clip1.mp4", type: "video", size: 50 * 1024 * 1024 },
+    { id: "clip2", path: "/videos/clip2.mp4", filename: "clip2.mp4", type: "video", size: 60 * 1024 * 1024 },
+    { id: "clip3", path: "/videos/clip3.mp4", filename: "clip3.mp4", type: "video", size: 55 * 1024 * 1024 },
   ]
 
   console.log(`Starting batch analysis of ${mediaFiles.length} files...`)
@@ -201,9 +202,9 @@ export async function batchAnalysisExample() {
   // Анализируем результаты
   const summary = {
     totalFiles: results.length,
-    averageQuality: results.reduce((sum, r) => sum + (r.quality?.overall || 0), 0) / results.length,
-    totalScenes: results.reduce((sum, r) => sum + (r.scenes?.scenes?.length || 0), 0),
-    totalProcessingTime: results.reduce((sum, r) => sum + r.processingTime, 0),
+    averageQuality: results.reduce((sum: number, r: any) => sum + (r.quality?.overall || 0), 0) / results.length,
+    totalScenes: results.reduce((sum: number, r: any) => sum + (r.scenes?.scenes?.length || 0), 0),
+    totalProcessingTime: results.reduce((sum: number, r: any) => sum + r.processingTime, 0),
   }
 
   console.log("Batch analysis summary:", summary)

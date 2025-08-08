@@ -364,7 +364,7 @@ export class ContentIntelligenceService {
             sampleRate: 48000,
             bitrate: 192000,
             codec: "aac",
-            volume: { average: -12, peak: -6, min: -30 },
+            volume: { average: -12, peak: -6, min: -30, max: -6 },
             silentSegments: [],
           },
           transcript: { text: "", segments: [] },

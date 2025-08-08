@@ -11,11 +11,11 @@ Object.defineProperty(document, "fullscreenElement", {
 
 // Мокаем методы для работы с полноэкранным режимом
 document.exitFullscreen = vi.fn().mockImplementation(() => Promise.resolve())
-Element.prototype.requestFullscreen = vi.fn().mockImplementation(function () {
+Element.prototype.requestFullscreen = vi.fn().mockImplementation(() => {
   // Устанавливаем текущий элемент как fullscreenElement
   Object.defineProperty(document, "fullscreenElement", {
     writable: true,
-    value: this,
+    value: null,
   })
   // Вызываем событие fullscreenchange
   const event = new Event("fullscreenchange")

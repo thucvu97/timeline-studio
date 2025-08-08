@@ -6,6 +6,7 @@
 import type {
   AudioAnalysisResult,
   IFFmpegAnalysisService,
+  MediaFile,
   MotionAnalysisResult,
   QualityAnalysisResult,
   SceneDetectionResult,
@@ -328,10 +329,10 @@ export class VideoAnalysisTool extends BaseAITool {
       const quality = await ffmpegService.analyzeQuality(input.clipId, {})
 
       const recommendations: string[] = []
-      if (quality.sharpness < 0.5) {
+      if (quality.video && quality.video.sharpness < 0.5) {
         recommendations.push("Применить фильтр повышения резкости")
       }
-      if (quality.noise > 0.3) {
+      if (quality.video && quality.video.noise > 0.3) {
         recommendations.push("Применить шумоподавление")
       }
 
@@ -392,7 +393,14 @@ export class VideoAnalysisTool extends BaseAITool {
 
     try {
       const ffmpegService = await this.getFFmpegService()
-      const audio = await ffmpegService.analyzeAudio(input.clipId, {})
+      const mediaFile: MediaFile = {
+        id: input.clipId,
+        path: input.clipId,
+        filename: input.clipId.split("/").pop() || input.clipId,
+        size: 0,
+        type: "video",
+      }
+      const audio = await ffmpegService.analyzeAudio(mediaFile)
 
       const recommendations: string[] = []
       if (audio.volume.peak > 0.9) {

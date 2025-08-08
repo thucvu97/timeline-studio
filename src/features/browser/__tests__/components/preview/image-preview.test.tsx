@@ -3,6 +3,8 @@ import { describe, expect, it, vi } from "vitest"
 
 import { ImagePreview } from "../../../components/preview/image-preview"
 
+// PlayerProvider is already mocked globally in setup.ts
+
 // Setup common mocks
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
@@ -55,12 +57,7 @@ vi.mock("@/lib/utils", () => ({
   cn: (...classes: any[]) => classes.filter(Boolean).join(" "),
 }))
 
-vi.mock("@/features/video-player/services/player-provider", () => ({
-  usePlayer: () => ({
-    playerSetSource: vi.fn(),
-    playerSetMedia: vi.fn(),
-  }),
-}))
+// usePlayer is mocked globally in @/features/video-player
 
 // Mock components
 vi.mock("@/features/browser/components/layout/add-media-button", () => ({

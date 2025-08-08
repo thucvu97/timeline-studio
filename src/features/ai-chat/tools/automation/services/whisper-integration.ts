@@ -258,7 +258,7 @@ export class WhisperIntegrationService {
     const partDuration = duration / numParts
 
     const parts: SpeechDetection[] = []
-    const words = detection.transcript.split(" ")
+    const words = (detection.transcript || "").split(" ")
     const wordsPerPart = Math.ceil(words.length / numParts)
 
     for (let i = 0; i < numParts; i++) {

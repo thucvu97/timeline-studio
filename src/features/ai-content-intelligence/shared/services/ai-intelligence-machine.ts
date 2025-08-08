@@ -164,19 +164,11 @@ const analyzeContentActor = fromPromise(
           changeScore: s.confidence || 0.5,
         })),
       },
-      insights: aiAnalysis.insights || {
-        summary: "Analysis completed",
-        tags: [],
-        highlights: [],
-        suggestions: [],
-        warnings: [],
-        opportunities: [],
-        strengths: [],
-        weaknesses: [],
-        recommendations: [],
-        marketingAngles: [],
-        targetDemographics: [],
-      },
+      insights: {
+        strengths: aiAnalysis.insights?.strengths || [],
+        improvements: aiAnalysis.insights?.improvements || [],
+        recommendations: aiAnalysis.insights?.recommendations || [],
+      } as ContentInsights,
     }
 
     return unifiedAnalysis

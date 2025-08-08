@@ -42,57 +42,53 @@ export class PlaybackControlTool extends BaseAITool {
     input: PlaybackControlInput,
     options: AIToolExecutionOptions = {},
   ): Promise<AIToolResult<PlaybackControlResult>> {
-    return this.executeWithErrorHandling(
-      input.operation,
-      async () => {
-        // Валидация входных данных
-        const validation = this.validateInput(input, (data) => {
-          const errors: string[] = []
+    return this.executeWithErrorHandling(async () => {
+      // Валидация входных данных
+      const validation = this.validateInput(input, (data) => {
+        const errors: string[] = []
 
-          if (data.operation !== "control_playback") {
-            errors.push(`Неподдерживаемая операция: ${data.operation}`)
-          }
-
-          const validActions = ["play", "pause", "stop", "seek", "volume", "speed"]
-          if (!validActions.includes(data.action)) {
-            errors.push(`Неподдерживаемое действие: ${data.action}`)
-          }
-
-          if (data.action === "seek" && data.position === undefined) {
-            errors.push("Требуется указать position для действия seek")
-          }
-
-          if ((data.action === "volume" || data.action === "speed") && data.value === undefined) {
-            errors.push(`Требуется указать value для действия ${data.action}`)
-          }
-
-          if (!data.reason) {
-            errors.push("Требуется указать причину управления воспроизведением")
-          }
-
-          return { isValid: errors.length === 0, errors }
-        })
-
-        if (!validation.isValid) {
-          throw new Error(validation.errors.join(", "))
+        if (data.operation !== "control_playback") {
+          errors.push(`Неподдерживаемая операция: ${data.operation}`)
         }
 
-        // Проверка загруженного медиа
-        if (!hasLoadedMedia()) {
-          throw new Error("Нет загруженного медиа для управления воспроизведением")
+        const validActions = ["play", "pause", "stop", "seek", "volume", "speed"]
+        if (!validActions.includes(data.action)) {
+          errors.push(`Неподдерживаемое действие: ${data.action}`)
         }
 
-        const currentState = getPlayerState()
-        if (!currentState) {
-          throw new Error("Не удалось получить состояние плеера")
+        if (data.action === "seek" && data.position === undefined) {
+          errors.push("Требуется указать position для действия seek")
         }
 
-        const result = await this.controlPlaybackInternal(input, currentState)
+        if ((data.action === "volume" || data.action === "speed") && data.value === undefined) {
+          errors.push(`Требуется указать value для действия ${data.action}`)
+        }
 
-        return result
-      },
-      options,
-    )
+        if (!data.reason) {
+          errors.push("Требуется указать причину управления воспроизведением")
+        }
+
+        return { isValid: errors.length === 0, errors }
+      })
+
+      if (!validation.isValid) {
+        throw new Error(validation.errors.join(", "))
+      }
+
+      // Проверка загруженного медиа
+      if (!hasLoadedMedia()) {
+        throw new Error("Нет загруженного медиа для управления воспроизведением")
+      }
+
+      const currentState = getPlayerState()
+      if (!currentState) {
+        throw new Error("Не удалось получить состояние плеера")
+      }
+
+      const result = await this.controlPlaybackInternal(input, currentState)
+
+      return result
+    }, options)
   }
 
   private async controlPlaybackInternal(

@@ -42,64 +42,60 @@ export class PreviewEffectsTool extends BaseAITool {
     input: PreviewEffectsInput,
     options: AIToolExecutionOptions = {},
   ): Promise<AIToolResult<PreviewEffectsResult>> {
-    return this.executeWithErrorHandling(
-      input.operation,
-      async () => {
-        // Валидация входных данных
-        const validation = this.validateInput(input, (data) => {
-          const errors: string[] = []
+    return this.executeWithErrorHandling(async () => {
+      // Валидация входных данных
+      const validation = this.validateInput(input, (data) => {
+        const errors: string[] = []
 
-          const validOperations = ["apply_preview_effects", "apply_preview_filters"]
-          if (!validOperations.includes(data.operation)) {
-            errors.push(`Неподдерживаемая операция: ${data.operation}`)
-          }
-
-          if (data.operation === "apply_preview_effects" && (!data.effects || data.effects.length === 0)) {
-            errors.push("Требуется указать effects для применения эффектов")
-          }
-
-          if (data.operation === "apply_preview_filters" && (!data.filters || data.filters.length === 0)) {
-            errors.push("Требуется указать filters для применения фильтров")
-          }
-
-          if (!data.reason) {
-            errors.push("Требуется указать причину применения эффектов/фильтров")
-          }
-
-          return { isValid: errors.length === 0, errors }
-        })
-
-        if (!validation.isValid) {
-          throw new Error(validation.errors.join(", "))
+        const validOperations = ["apply_preview_effects", "apply_preview_filters"]
+        if (!validOperations.includes(data.operation)) {
+          errors.push(`Неподдерживаемая операция: ${data.operation}`)
         }
 
-        // Проверка загруженного медиа
-        if (!hasLoadedMedia()) {
-          throw new Error("Нет загруженного медиа для применения эффектов/фильтров")
+        if (data.operation === "apply_preview_effects" && (!data.effects || data.effects.length === 0)) {
+          errors.push("Требуется указать effects для применения эффектов")
         }
 
-        const currentMedia = getCurrentMedia()
-        if (!currentMedia) {
-          throw new Error("Не удалось получить текущее медиа")
+        if (data.operation === "apply_preview_filters" && (!data.filters || data.filters.length === 0)) {
+          errors.push("Требуется указать filters для применения фильтров")
         }
 
-        let result: PreviewEffectsResult
-
-        switch (input.operation) {
-          case "apply_preview_effects":
-            result = await this.applyEffectsInternal(input, currentMedia)
-            break
-          case "apply_preview_filters":
-            result = await this.applyFiltersInternal(input, currentMedia)
-            break
-          default:
-            throw new Error(`Неподдерживаемая операция: ${input.operation}`)
+        if (!data.reason) {
+          errors.push("Требуется указать причину применения эффектов/фильтров")
         }
 
-        return result
-      },
-      options,
-    )
+        return { isValid: errors.length === 0, errors }
+      })
+
+      if (!validation.isValid) {
+        throw new Error(validation.errors.join(", "))
+      }
+
+      // Проверка загруженного медиа
+      if (!hasLoadedMedia()) {
+        throw new Error("Нет загруженного медиа для применения эффектов/фильтров")
+      }
+
+      const currentMedia = getCurrentMedia()
+      if (!currentMedia) {
+        throw new Error("Не удалось получить текущее медиа")
+      }
+
+      let result: PreviewEffectsResult
+
+      switch (input.operation) {
+        case "apply_preview_effects":
+          result = await this.applyEffectsInternal(input, currentMedia)
+          break
+        case "apply_preview_filters":
+          result = await this.applyFiltersInternal(input, currentMedia)
+          break
+        default:
+          throw new Error(`Неподдерживаемая операция: ${input.operation}`)
+      }
+
+      return result
+    }, options)
   }
 
   private async applyEffectsInternal(params: PreviewEffectsInput, currentMedia: any): Promise<PreviewEffectsResult> {
