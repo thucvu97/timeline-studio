@@ -1,3 +1,17 @@
+# [0.80.0](https://github.com/chatman-media/timeline-studio/compare/v0.79.0...v0.80.0) (2025-08-08)
+
+
+### Bug Fixes
+
+* исправлен упавший тест FFmpegAnalysisService ([f8da681](https://github.com/chatman-media/timeline-studio/commit/f8da681221bf5925b7fba0ae3fda302dad1cdca1))
+
+
+### Features
+
+* завершена Domain-Driven Architecture миграция (Phase 6) ([9f134fd](https://github.com/chatman-media/timeline-studio/commit/9f134fdfed413d724011725ae807cf729dea905c))
+* завершена миграция Domain-Driven Architecture (Phase 5) ([a68be77](https://github.com/chatman-media/timeline-studio/commit/a68be77fb6a3c68eee873b878e931b61115e7975))
+* миграция на Domain-Driven Architecture - Phase 1-3 завершены ([c66a62d](https://github.com/chatman-media/timeline-studio/commit/c66a62de02b7ecd9b1c34c3f5fbb87dc18e6a45e))
+
 # [0.79.0](https://github.com/chatman-media/timeline-studio/compare/v0.78.0...v0.79.0) (2025-08-08)
 
 
