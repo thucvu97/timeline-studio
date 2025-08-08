@@ -1,163 +1,281 @@
 # Video Editing Domain
 
-Домен видеоредактирования, управляющий timeline, воспроизведением и операциями редактирования.
+Основная бизнес-логика для редактирования видео в Timeline Studio.
 
-## Архитектура
+## Обзор
 
-### Машины состояний
+Video Editing домен содержит всю логику, связанную с редактированием видео: работа с таймлайном, эффекты, переходы, управление медиафайлами и экспорт проектов.
 
-1. **timeline-extended-machine.ts** - Полноценная машина timeline с поддержкой:
-   - Управления проектом (создание, загрузка, сохранение)
-   - Операций с клипами (добавление, удаление, перемещение, обрезка)
-   - Управления треками
-   - Воспроизведения
-   - Выделения и буфера обмена
-   - Эффектов и переходов
-   - Backend синхронизации
+## Структура
 
-2. **timeline-machine.ts** - Машина для UI состояния timeline:
-   - Масштабирование и прокрутка
-   - Режимы редактирования
-   - Drag & Drop
-   - UI флаги (показ волновых форм, миниатюр и т.д.)
-
-3. **player-machine.ts** - Машина управления воспроизведением:
-   - Play/Pause/Stop
-   - Seek и скорость воспроизведения
-   - Синхронизация с backend
-
-### Оркестратор
-
-**VideoEditingOrchestrator** координирует:
-- Все три машины состояний
-- Backend синхронизацию через BackendSync
-- Межdomainную коммуникацию через EventBus
-- Публикацию событий для других доменов
-
-### Провайдеры
-
-Модульная система провайдеров для React компонентов:
-
-```tsx
-// Главный провайдер
-<TimelineProvider>
-  {/* Включает все под-провайдеры */}
-</TimelineProvider>
+```
+video-editing/
+├── providers/         # React провайдеры для таймлайна
+├── services/          # Сервисы импорта/экспорта
+│   └── import-export/ # AAF, FCPXML импортеры/экспортеры
+├── types/            # Основные типы домена
+│   ├── timeline.ts   # Типы таймлайна
+│   ├── media.ts      # Типы медиафайлов
+│   ├── effects.ts    # Эффекты и переходы
+│   ├── player.ts     # Типы плеера
+│   └── context.ts    # Контексты
+├── utils/            # Утилиты и адаптеры
+└── index.ts          # Главный экспорт
 ```
 
-#### Доступные провайдеры и хуки:
+## Основные типы
 
-1. **TimelineProjectProvider** / `useTimelineProject()`
-   - Управление проектом
-   - Создание, загрузка, сохранение
+### Timeline Types
 
-2. **TimelinePlaybackProvider** / `useTimelinePlayback()`
-   - Управление воспроизведением
-   - Play, pause, seek, скорость
+```typescript
+interface TimelineState {
+  tracks: Track[]
+  duration: number
+  currentTime: number
+  playbackRate: number
+  isPlaying: boolean
+  selectedItems: string[]
+  zoom: number
+  scrollLeft: number
+}
 
-3. **TimelineTracksProvider** / `useTimelineTracks()`
-   - Операции с треками
-   - Добавление, удаление, переупорядочивание
+interface Track {
+  id: string
+  name: string
+  type: 'video' | 'audio' | 'text' | 'effects'
+  clips: Clip[]
+  isLocked: boolean
+  isMuted: boolean
+  height: number
+}
 
-4. **TimelineClipsProvider** / `useTimelineClips()`
-   - Операции с клипами
-   - Добавление, перемещение, обрезка, разделение
-
-5. **TimelineSelectionProvider** / `useTimelineSelection()`
-   - Управление выделением
-   - Копирование, вставка, удаление
-
-6. **TimelineEffectsProvider** / `useTimelineEffects()`
-   - Применение эффектов и переходов
-
-## Использование
-
-### В компонентах
-
-```tsx
-import { 
-  useTimelineProject,
-  useTimelinePlayback,
-  useTimelineClips 
-} from '@domains/video-editing/providers/timeline-providers'
-
-function MyComponent() {
-  const { project, createProject } = useTimelineProject()
-  const { play, pause, currentTime } = useTimelinePlayback()
-  const { addClip, removeClip } = useTimelineClips()
-  
-  // Использование...
+interface Clip {
+  id: string
+  trackId: string
+  mediaId: string
+  startTime: number // позиция на таймлайне
+  duration: number
+  inPoint: number // точка входа в исходном файле
+  outPoint: number // точка выхода
+  effects: Effect[]
+  transitions: Transition[]
 }
 ```
 
-### Прямое взаимодействие с оркестратором
+### Media Types
 
-```tsx
-import { getVideoEditingOrchestrator } from '@domains/video-editing/services/video-editing-orchestrator'
+```typescript
+enum MediaType {
+  Video = "video",
+  VideoWithAudio = "video_with_audio", 
+  StillImage = "still_image",
+  SequenceClip = "sequence_clip",
+  TitleClip = "title_clip",
+  GeneratorClip = "generator_clip"
+}
 
-const orchestrator = getVideoEditingOrchestrator()
-
-// Создание проекта
-await orchestrator.createProject('My Project')
-
-// Добавление трека
-await orchestrator.addTrack('video', 'Video Track 1')
-
-// Добавление клипа
-await orchestrator.addClip(trackId, mediaFile, 0)
+interface MediaFile {
+  id: string
+  name: string
+  path: string
+  type: MediaType
+  duration?: number
+  
+  // Видео свойства
+  resolution?: { width: number; height: number }
+  fps?: number
+  codec?: MediaCodec
+  colorSpace?: MediaColorSpace
+  
+  // Аудио свойства
+  audioChannels?: number
+  audioSampleRate?: number
+  
+  // Профессиональные метаданные
+  timecode?: { start: string; drop_frame: boolean }
+  cameraMetadata?: CameraMetadata
+  lut?: string
+}
 ```
 
-### Подписка на события
+### Effects & Transitions
 
-```tsx
-import { eventBus, DOMAIN_EVENTS } from '@domains/shared/events'
+```typescript
+interface VideoEffect {
+  id: string
+  type: string
+  name: string
+  enabled: boolean
+  parameters: Record<string, any>
+  keyframes?: Keyframe[]
+  category: EffectCategory
+}
 
-// Слушаем события timeline
-eventBus.subscribe((event) => {
-  if (event.type === DOMAIN_EVENTS.VIDEO.TIMELINE_UPDATED) {
-    console.log('Timeline updated:', event.payload)
-  }
-}, {
-  filter: { source: 'video-editing' }
+interface TransitionParameters {
+  id: string
+  type: TransitionType
+  duration: number
+  easing?: EasingFunction
+  direction?: TransitionDirection
+  customParameters?: Record<string, any>
+}
+
+enum TransitionType {
+  Cut = "cut",
+  Dissolve = "dissolve",
+  Wipe = "wipe",
+  Slide = "slide",
+  Push = "push",
+  Zoom = "zoom",
+  Glitch = "glitch"
+}
+```
+
+## Сервисы
+
+### Import/Export Services
+
+Поддержка профессиональных форматов обмена:
+
+```typescript
+// AAF Export (Avid)
+import { AAFExporter } from '@/domains/video-editing/services/import-export'
+
+const exporter = new AAFExporter()
+const aafData = await exporter.export(timeline, {
+  includeMediaFiles: true,
+  embedAudio: false
+})
+
+// FCPXML Import (Final Cut Pro)
+import { FCPXMLImporter } from '@/domains/video-editing/services/import-export'
+
+const importer = new FCPXMLImporter()
+const timeline = await importer.import(fcpxmlContent, {
+  preserveEffects: true,
+  convertColorSpace: true
 })
 ```
 
-## События домена
+### Timeline Context Provider
 
-Домен публикует следующие события:
+React контекст для управления состоянием таймлайна:
 
-- `TIMELINE_CREATED` - Создан новый timeline
-- `TIMELINE_UPDATED` - Timeline обновлен
-- `CLIP_ADDED` - Добавлен клип
-- `CLIP_REMOVED` - Удален клип  
-- `TRACK_ADDED` - Добавлен трек
-- `TRACK_REMOVED` - Удален трек
-- `PLAYBACK_STATE_CHANGED` - Изменилось состояние воспроизведения
+```typescript
+import { TimelineProvider, useTimeline } from '@/domains/video-editing'
 
-## Миграция со старой архитектуры
+function App() {
+  return (
+    <TimelineProvider>
+      <TimelineEditor />
+    </TimelineProvider>
+  )
+}
 
-### Старый код:
-```tsx
-import { useTimelineContext } from '@/features/timeline/hooks/use-timeline'
-
-const { state, send } = useTimelineContext()
-const clips = state.context.project?.clips || []
-send({ type: 'ADD_CLIP', clip })
+function TimelineEditor() {
+  const { 
+    timeline,
+    currentTime,
+    setCurrentTime,
+    addClip,
+    removeClip,
+    updateClip
+  } = useTimeline()
+  
+  // Работа с таймлайном
+}
 ```
 
-### Новый код:
-```tsx
-import { useTimelineClips } from '@domains/video-editing/providers/timeline-providers'
+## Утилиты
 
-const { clips, addClip } = useTimelineClips()
-await addClip(trackId, mediaFile, time)
+### Media File Adapter
+
+Адаптер для конвертации между разными форматами MediaFile:
+
+```typescript
+import { MediaFileAdapter } from '@/domains/video-editing/utils'
+
+// Конвертация из feature MediaFile в domain MediaFile
+const domainFile = MediaFileAdapter.fromFeature(featureFile)
+
+// Конвертация обратно
+const featureFile = MediaFileAdapter.toFeature(domainFile)
 ```
 
-## Преимущества новой архитектуры
+## Интеграция с другими доменами
 
-1. **Модульность** - Каждый провайдер отвечает за свою область
-2. **Производительность** - Компоненты обновляются только при изменении нужных данных
-3. **Backend синхронизация** - Автоматическая синхронизация с Rust backend
-4. **Межdomainная коммуникация** - События для взаимодействия с другими доменами
-5. **Типобезопасность** - Полная типизация с TypeScript
-6. **Расширяемость** - Легко добавлять новые функции и провайдеры
+### С AI Services
+
+```typescript
+import { createMediaAnalysisFactory } from '@/domains/ai-services'
+
+// Анализ медиафайла перед добавлением на таймлайн
+const factory = createMediaAnalysisFactory()
+const analysis = await factory.createFFmpegService()
+  .analyzeVideo(mediaFile.path)
+
+// Использование результатов анализа
+if (analysis.quality.overall < 50) {
+  console.warn('Low quality video')
+}
+```
+
+### С Project Management
+
+```typescript
+import { ProjectSettings } from '@/domains/project-management'
+
+// Применение настроек проекта к таймлайну
+const projectSettings = getProjectSettings()
+timeline.aspectRatio = projectSettings.aspectRatio
+timeline.framerate = projectSettings.framerate
+```
+
+## Best Practices
+
+1. **Иммутабельность**: Всегда создавайте новые объекты при изменении состояния
+2. **Нормализация**: Храните медиафайлы отдельно от клипов (по ID)
+3. **Валидация**: Проверяйте совместимость форматов при импорте
+4. **Производительность**: Используйте виртуализацию для больших таймлайнов
+
+## Примеры
+
+### Добавление клипа на таймлайн
+
+```typescript
+const newClip: Clip = {
+  id: generateId(),
+  trackId: 'video-track-1',
+  mediaId: mediaFile.id,
+  startTime: 10.0, // 10 секунд от начала
+  duration: mediaFile.duration || 5.0,
+  inPoint: 0,
+  outPoint: mediaFile.duration || 5.0,
+  effects: [],
+  transitions: []
+}
+
+timeline.tracks[0].clips.push(newClip)
+```
+
+### Применение эффекта
+
+```typescript
+const blurEffect: VideoEffect = {
+  id: generateId(),
+  type: 'blur',
+  name: 'Gaussian Blur',
+  enabled: true,
+  parameters: {
+    radius: 10,
+    quality: 'high'
+  },
+  category: EffectCategory.Blur
+}
+
+clip.effects.push(blurEffect)
+```
+
+## Лицензия
+
+Часть Timeline Studio. См. корневую лицензию проекта.

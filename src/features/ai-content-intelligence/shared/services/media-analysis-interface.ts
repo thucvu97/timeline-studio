@@ -4,7 +4,7 @@
  */
 
 import { getAIContainer } from "@/domains/ai-core"
-import { IFFmpegAnalysisService, IVisionService, IContentAnalysisService } from "@/domains/ai-services"
+import { IContentAnalysisService, IFFmpegAnalysisService, IVisionService } from "@/domains/ai-services"
 
 let ffmpegService: IFFmpegAnalysisService | null = null
 let visionService: IVisionService | null = null

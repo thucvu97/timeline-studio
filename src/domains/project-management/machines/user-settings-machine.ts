@@ -6,9 +6,8 @@
  */
 
 import { assign, createMachine } from "xstate"
-
-import { DEFAULT_CONTENT_SIZES, type PreviewSize, type PreviewSizeKey } from "@/features/media/utils/preview-sizes"
 import { BrowserContext, BrowserTab, DEFAULT_TAB } from "@/domains/browser/types"
+import { DEFAULT_CONTENT_SIZES, type PreviewSize, type PreviewSizeKey } from "@/features/media/utils/preview-sizes"
 
 /**
  * Допустимые значения для макета интерфейса

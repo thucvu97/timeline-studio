@@ -5,9 +5,9 @@
  * Каждый провайдер отвечает за свою область ответственности.
  */
 
+import type { MediaFile } from "@domains/ai-services/types/montage-planner"
 import { useSelector } from "@xstate/react"
 import { createContext, type ReactNode, useContext } from "react"
-import type { MediaFile } from "@/features/media/types/media"
 // Используем типы из доменов вместо features
 import type { TimelineClip as DomainTimelineClip, Timeline, Track } from "../types"
 
