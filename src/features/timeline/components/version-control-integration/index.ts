@@ -1,0 +1,1 @@
+export { IntegratedVersionPanel } from "./integrated-version-panel"

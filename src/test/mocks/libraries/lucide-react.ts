@@ -72,6 +72,7 @@ export const FolderClosed = createMockIcon("FolderClosed")
 export const FolderOpen = createMockIcon("FolderOpen")
 export const Gauge = createMockIcon("Gauge")
 export const GitBranch = createMockIcon("GitBranch")
+export const GitCommit = createMockIcon("GitCommit")
 export const Grid = createMockIcon("Grid")
 export const Grid2x2 = createMockIcon("Grid2x2")
 export const Grid2X2 = createMockIcon("Grid2X2")
@@ -226,6 +227,7 @@ vi.mock("lucide-react", () => ({
   FolderOpen,
   Gauge,
   GitBranch,
+  GitCommit,
   Grid,
   Grid2x2,
   Grid2X2,

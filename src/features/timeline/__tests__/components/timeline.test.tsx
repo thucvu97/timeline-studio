@@ -12,25 +12,13 @@ import "@/test/mocks/libraries/lucide-react"
 import "@/test/mocks/libraries/resizable"
 import "@/test/mocks/timeline-components"
 
-import { ChatProvider } from "@/features/ai-chat/services/chat-provider"
-import { ModalProvider } from "@/features/modals"
-import { ProjectSettingsProvider } from "@/features/project-settings"
-import { renderWithProviders } from "@/test/test-utils"
+import { renderWithTimeline } from "@/test/test-utils"
 
 import { Timeline } from "../../components/timeline"
-import { TimelineProvider } from "../../services/timeline-provider"
 
-// Custom render function for Timeline that includes all required providers
+// Use the pre-configured renderWithTimeline function
 const renderTimeline = (ui: React.ReactElement) => {
-  return renderWithProviders(
-    <ModalProvider>
-      <ProjectSettingsProvider>
-        <ChatProvider>
-          <TimelineProvider>{ui}</TimelineProvider>
-        </ChatProvider>
-      </ProjectSettingsProvider>
-    </ModalProvider>,
-  )
+  return renderWithTimeline(ui)
 }
 
 describe("Timeline Component", () => {

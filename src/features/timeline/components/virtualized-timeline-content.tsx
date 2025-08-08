@@ -37,7 +37,7 @@ import { VirtualizedTrack } from "./track/virtualized-track"
 import { TrackControlsPanel } from "./track-controls-panel"
 import { TrackInsertionZones } from "./track-insertion-zone"
 import { UndoRedoHotkeys } from "./undo-redo"
-import { IntegratedVersionPanel } from "./version-control-integration"
+import { IntegratedVersionPanel } from "./version-control-integration/integrated-version-panel"
 
 export function VirtualizedTimelineContent() {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
