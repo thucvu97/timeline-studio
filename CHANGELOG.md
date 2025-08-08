@@ -1,3 +1,19 @@
+# [1.0.0](https://github.com/chatman-media/timeline-studio/compare/v0.81.0...v1.0.0) (2025-08-08)
+
+
+### Features
+
+* миграция timeline компонентов в доменную архитектуру ([61c67c1](https://github.com/chatman-media/timeline-studio/commit/61c67c1517dcab28e5063554a9c958fe4161cfbc))
+
+
+### BREAKING CHANGES
+
+* Компоненты timeline теперь используют доменную архитектуру
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+
 # [0.81.0](https://github.com/chatman-media/timeline-studio/compare/v0.80.0...v0.81.0) (2025-08-08)
 
 
