@@ -8,7 +8,14 @@
 import { useSelector } from "@xstate/react"
 import { createContext, type ReactNode, useContext } from "react"
 import type { MediaFile } from "@/features/media/types/media"
-import type { TimelineClip, TimelineProject, TimelineTrack } from "@/features/timeline/types"
+// Используем типы из доменов вместо features
+import type { TimelineClip as DomainTimelineClip, Timeline, Track } from "../types"
+
+// Временный alias для совместимости
+type TimelineProject = Timeline
+type TimelineTrack = Track
+type TimelineClip = DomainTimelineClip
+
 import { getVideoEditingOrchestrator } from "../services/video-editing-orchestrator"
 
 // ===========================

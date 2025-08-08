@@ -3,8 +3,7 @@
  * Создает и управляет движками с использованием DI
  */
 
-import { getAIContainer } from "@/shared/services/ai"
-
+import { getAIContainer } from "@/domains/ai-core/container/di-container"
 import { ContentClassificationEngine } from "../engines/content-classification/content-classification-engine"
 import { SceneAnalysisEngine } from "../engines/scene-analysis/scene-analysis-engine"
 import { DialogueGenerator } from "../engines/script-generation/services/dialogue-generator"

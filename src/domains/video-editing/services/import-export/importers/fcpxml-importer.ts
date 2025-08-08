@@ -5,8 +5,9 @@
  */
 
 // Функция для генерации UUID
-import type { MediaFile } from "@/features/media/types/media"
+import { MediaFile } from "@/features/media/types/media"
 import type { Timeline, TimelineClip, Track, TrackType } from "../../../types"
+import { featureToDomainMediaFile } from "../../../utils/media-file-adapter"
 
 import type { FCPXMLResource, ImportError, Importer, ImportOptions, ImportResult, ImportWarning } from "../types"
 
@@ -411,7 +412,7 @@ export class FCPXMLImporter implements Importer {
       id: uuidv4(),
       name: fcpClip.name,
       mediaId: mediaFile?.id || "",
-      mediaFile: mediaFile || undefined,
+      mediaFile: mediaFile ? featureToDomainMediaFile(mediaFile) : undefined,
       trackId,
       startTime,
       duration,

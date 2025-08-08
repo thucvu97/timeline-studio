@@ -4,34 +4,13 @@
  * Перенесено из src/features/montage-planner/types/
  */
 
-// External types (temporary, будут заменены на domain contracts)
-// MediaFile будет заменен на domain contract
-export interface MediaFile {
-  id: string
-  path: string
-  name: string
-  type: "video" | "audio" | "image"
-  duration?: number
-  size?: number
-  format?: string
-}
+import type { TransitionParameters, VideoEffect } from "@/domains/video-editing/types/effects"
+// Import types from video-editing domain
+import type { MediaFile } from "@/domains/video-editing/types/media"
 
-// VideoEffect будет заменен на domain contract
-export interface VideoEffect {
-  id: string
-  name: string
-  type: string
-  parameters?: Record<string, any>
-}
-
-// Transition будет заменен на domain contract
-export interface Transition {
-  id: string
-  name: string
-  type: string
-  duration: number
-  parameters?: Record<string, any>
-}
+// Re-export for convenience
+export type Transition = TransitionParameters
+export type { MediaFile, VideoEffect }
 
 // Person identification
 export interface Person {

@@ -6,6 +6,7 @@
  */
 
 import type { Timeline, TimelineClip, Track } from "../../../types"
+import { MediaFileUtils } from "../../../types/media"
 import type { Exporter, ExportOptions } from "../types"
 
 export class AAFExporter implements Exporter {
@@ -145,7 +146,9 @@ export class AAFExporter implements Exporter {
 
     lines.push(`${indentStr}<SourceClip>`)
     lines.push(`${indentStr}  <Name>${this.escapeXml(clip.name)}</Name>`)
-    lines.push(`${indentStr}  <DataDefinition>${clip.mediaFile?.isVideo ? "Picture" : "Sound"}</DataDefinition>`)
+    lines.push(
+      `${indentStr}  <DataDefinition>${clip.mediaFile && MediaFileUtils.isVideo(clip.mediaFile) ? "Picture" : "Sound"}</DataDefinition>`,
+    )
     lines.push(`${indentStr}  <Length>${Math.round(clip.duration * this.frameRate)}</Length>`)
     lines.push(`${indentStr}  <SourceID>${sourceID}</SourceID>`)
     lines.push(`${indentStr}  <SourceTrackID>1</SourceTrackID>`)

@@ -7,7 +7,7 @@
 import { updateMachine } from "@domains/system-integration/machines/update-machine"
 import { useMachine } from "@xstate/react"
 import { useEffect } from "react"
-import { updateService } from "../services/update-service"
+import { updateService } from ".."
 import type { AutoCheckSettings, UpdateAvailability, UpdateEventPayload, UpdateMachineContext } from "../types"
 
 export interface UseUpdateManagerReturn {

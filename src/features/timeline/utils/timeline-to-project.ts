@@ -48,7 +48,7 @@ import {
   TextAlign,
   TrackType,
   toRustEnumCase,
-} from "../../../shared/types/video-compiler"
+} from "../../../domains/video-editing/types"
 import {
   type AppliedTransition,
   isSubtitleClip,

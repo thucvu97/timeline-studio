@@ -4,7 +4,7 @@
  */
 
 // Импорт shared типов для Content Intelligence
-import type { ContentAnalysisResult, IFFmpegAnalysisService, MediaFile } from "@/shared/services/ai/analysis/interfaces"
+import type { ContentAnalysisResult, IFFmpegAnalysisService, MediaFile } from "@/domains/ai-services/types/interfaces"
 import type { AiMessage } from "../types/ai-message"
 
 // Реэкспорт shared типов для обратной совместимости
@@ -398,7 +398,7 @@ export class ContentIntelligenceService {
   ): Promise<SceneAnalysis[]> {
     try {
       // Используем shared FFmpeg анализ
-      const { getAIContainer } = await import("@/shared/services/ai")
+      const { getAIContainer } = await import("@/domains/ai-core")
       const aiContainer = getAIContainer()
       const ffmpegService = await aiContainer.resolve<IFFmpegAnalysisService>("FFmpegService")
 
@@ -477,7 +477,7 @@ export class ContentIntelligenceService {
   private async analyzeQuality(mediaFile: MediaInput, scenes: SceneAnalysis[]): Promise<QualityMetrics> {
     try {
       // Используем shared FFmpeg анализ качества
-      const { getAIContainer } = await import("@/shared/services/ai")
+      const { getAIContainer } = await import("@/domains/ai-core")
       const aiContainer = getAIContainer()
       const ffmpegService = await aiContainer.resolve<IFFmpegAnalysisService>("FFmpegService")
 

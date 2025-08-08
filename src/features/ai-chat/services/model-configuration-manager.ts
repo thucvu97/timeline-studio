@@ -3,9 +3,7 @@
  * Извлечен из UnifiedAIService для улучшения архитектуры
  */
 
-import { CLAUDE_MODELS } from "@/shared/services/ai/providers/claude"
-import { DEEPSEEK_MODELS } from "@/shared/services/ai/providers/deepseek"
-import { OPENAI_MODELS } from "@/shared/services/ai/providers/openai"
+import { CLAUDE_MODELS, DEEPSEEK_MODELS, OPENAI_MODELS } from "@/domains/ai-core"
 
 // Типы AI провайдеров
 export type AIProvider = "claude" | "openai" | "deepseek" | "ollama" | "grok"

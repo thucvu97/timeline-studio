@@ -73,7 +73,7 @@ export class UnifiedAIService {
 
     try {
       // Импорт shared AI services вместо локальных провайдеров
-      const { getAIContainer } = await import("@/shared/services/ai")
+      const { getAIContainer } = await import("@/domains/ai-core")
       const aiContainer = getAIContainer()
 
       // Получаем unified AI service из shared
@@ -144,7 +144,7 @@ export class UnifiedAIService {
 
     try {
       // Используем shared AI service для отправки запроса
-      const { getAIContainer } = await import("@/shared/services/ai")
+      const { getAIContainer } = await import("@/domains/ai-core")
       const aiContainer = getAIContainer()
       const sharedUnifiedService = await aiContainer.resolve<any>("UnifiedAIService")
 
@@ -185,7 +185,7 @@ export class UnifiedAIService {
   ): Promise<void> {
     try {
       // Используем shared AI service для потокового запроса
-      const { getAIContainer } = await import("@/shared/services/ai")
+      const { getAIContainer } = await import("@/domains/ai-core")
       const aiContainer = getAIContainer()
       const sharedUnifiedService = await aiContainer.resolve<any>("UnifiedAIService")
 
@@ -224,7 +224,7 @@ export class UnifiedAIService {
    */
   public async getAvailableModels(): Promise<ModelConfig[]> {
     try {
-      const { getAIContainer } = await import("@/shared/services/ai")
+      const { getAIContainer } = await import("@/domains/ai-core")
       const aiContainer = getAIContainer()
       const sharedUnifiedService = await aiContainer.resolve<any>("UnifiedAIService")
       return await sharedUnifiedService.getAvailableModels()
@@ -239,7 +239,7 @@ export class UnifiedAIService {
    */
   public async isModelAvailable(model: string): Promise<boolean> {
     try {
-      const { getAIContainer } = await import("@/shared/services/ai")
+      const { getAIContainer } = await import("@/domains/ai-core")
       const aiContainer = getAIContainer()
       const sharedUnifiedService = await aiContainer.resolve<any>("UnifiedAIService")
       return await sharedUnifiedService.isModelAvailable(model)
@@ -262,7 +262,7 @@ export class UnifiedAIService {
     } = {},
   ): Promise<ModelConfig | null> {
     try {
-      const { getAIContainer } = await import("@/shared/services/ai")
+      const { getAIContainer } = await import("@/domains/ai-core")
       const aiContainer = getAIContainer()
       const sharedUnifiedService = await aiContainer.resolve<any>("UnifiedAIService")
       return await sharedUnifiedService.getBestModelForTask(task, options)
@@ -277,7 +277,7 @@ export class UnifiedAIService {
    */
   public async getProviderStatuses() {
     try {
-      const { getAIContainer } = await import("@/shared/services/ai")
+      const { getAIContainer } = await import("@/domains/ai-core")
       const aiContainer = getAIContainer()
       const sharedUnifiedService = await aiContainer.resolve<any>("UnifiedAIService")
       return await sharedUnifiedService.getProviderStatuses()

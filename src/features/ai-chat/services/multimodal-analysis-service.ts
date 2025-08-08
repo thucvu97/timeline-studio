@@ -5,9 +5,8 @@
 
 import { invoke } from "@tauri-apps/api/core"
 
-import type { FrameAnalysis, IVisionService } from "@/shared/services/ai/analysis/interfaces"
-
-import { ApiKeyLoader } from "@/shared/services/ai/core/api-key-loader"
+import { ApiKeyLoader } from "@/domains/ai-core"
+import type { FrameAnalysis, IVisionService } from "@/domains/ai-services/types/interfaces"
 
 /**
  * Типы мультимодального анализа
@@ -179,7 +178,7 @@ export class MultimodalAnalysisService {
   public async analyzeFrame(params: FrameAnalysisParams): Promise<FrameAnalysisResult> {
     try {
       // Используем shared Vision service
-      const { getAIContainer } = await import("@/shared/services/ai")
+      const { getAIContainer } = await import("@/domains/ai-core")
       const aiContainer = getAIContainer()
       const visionService = (await aiContainer.resolve("VisionService")) as IVisionService
 

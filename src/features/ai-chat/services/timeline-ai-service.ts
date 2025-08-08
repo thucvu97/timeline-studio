@@ -5,12 +5,11 @@
  * ресурсами, браузером, плеером и таймлайном
  */
 
+import { ApiKeyLoader, getAIContainer } from "@/domains/ai-core"
+import { type ClaudeTool } from "@/domains/ai-core/providers/claude"
 import type { MediaFile } from "@/features/media/types/media"
 import type { ResourcesContextType } from "@/features/resources/services/resources-provider"
 import type { TimelineProject } from "@/features/timeline/types"
-import { getAIContainer } from "@/shared/services/ai"
-import { ApiKeyLoader } from "@/shared/services/ai/core/api-key-loader"
-import { type ClaudeTool } from "@/shared/services/ai/providers/claude"
 import { contentIntelligenceTools, executeContentIntelligenceTool } from "../tools/analysis/content-intelligence-tools"
 import { executeMultimodalAnalysisTool, multimodalAnalysisTools } from "../tools/analysis/multimodal-tools"
 import {

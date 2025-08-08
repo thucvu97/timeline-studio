@@ -8,6 +8,7 @@
 import type { MediaFile } from "@/features/media/types/media"
 
 import type { Timeline, TimelineClip, Track, TrackType } from "../../../types"
+import { featureToDomainMediaFile } from "../../../utils/media-file-adapter"
 import type { ImportError, Importer, ImportOptions, ImportResult, ImportWarning } from "../types"
 
 // Функция для генерации UUID
@@ -326,7 +327,7 @@ export class AAFImporter implements Importer {
         styleTemplates: [],
         subtitleStyles: [],
         music: [],
-        media: Array.from(this.mediaFiles.values()),
+        media: Array.from(this.mediaFiles.values()).map(featureToDomainMediaFile),
       },
       settings: {
         resolution: { width: 1920, height: 1080 },
@@ -435,7 +436,7 @@ export class AAFImporter implements Importer {
       id: uuidv4(),
       name: segment.name || `Clip from ${segment.sourceID}`,
       mediaId: mediaFile?.id || segment.sourceID,
-      mediaFile: mediaFile || undefined,
+      mediaFile: mediaFile ? featureToDomainMediaFile(mediaFile) : undefined,
       trackId,
       startTime,
       duration,

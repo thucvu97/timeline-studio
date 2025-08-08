@@ -1,6 +1,6 @@
+import type { MediaMetadata } from "@domains/shared/types"
 import { invoke } from "@tauri-apps/api/core"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import type { MediaMetadata } from "../../../../shared/types/media"
 import type { CacheMemoryUsage } from "../../types/cache"
 import {
   cacheMediaMetadata,

@@ -5,6 +5,7 @@
  */
 
 import type { Timeline, TimelineClip, Track } from "../../../types"
+import { MediaFileUtils } from "../../../types/media"
 
 import type { Exporter, ExportOptions } from "../types"
 
@@ -81,8 +82,8 @@ export class FCPXMLExporter implements Exporter {
       if (!mediaFile) continue
 
       const assetId = `r${index + 2}` // r1 занят форматом
-      const hasVideo = mediaFile.isVideo ? "1" : "0"
-      const hasAudio = mediaFile.isAudio ? "1" : "0"
+      const hasVideo = MediaFileUtils.hasVideo(mediaFile) ? "1" : "0"
+      const hasAudio = MediaFileUtils.hasAudio(mediaFile) ? "1" : "0"
 
       const duration = this.secondsToFCPXMLDuration(mediaFile.duration || 0)
 

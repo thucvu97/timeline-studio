@@ -436,7 +436,11 @@ export class ContentIntelligenceTool extends BaseAITool {
       // Выполняем анализ сцен
       const analysis = await sceneEngine.process(
         {
-          mediaFile: { path: videoPath, name: "temp", size: 0 },
+          mediaFile: {
+            path: videoPath,
+            name: "temp",
+            duration: 0,
+          },
         },
         {
           enableSceneDetection: true,
@@ -541,7 +545,7 @@ export class ContentIntelligenceTool extends BaseAITool {
       // Выполняем детекцию сцен через scene analysis engine
       const scenes = await sceneEngine.process(
         {
-          mediaFile: { path: videoPath, name: "temp", size: 0 },
+          mediaFile: { path: videoPath, name: "temp" },
         },
         {
           enableSceneDetection: true,
@@ -628,7 +632,7 @@ export class ContentIntelligenceTool extends BaseAITool {
       // Быстрый анализ для классификации
       const analysis = await sceneEngine.process(
         {
-          mediaFile: { path: videoPath, name: "temp", size: 0 },
+          mediaFile: { path: videoPath, name: "temp" },
         },
         {
           enableSceneDetection: true,
@@ -1332,7 +1336,7 @@ export class ContentIntelligenceTool extends BaseAITool {
       // Анализируем видео
       const analysis = await sceneEngine.process(
         {
-          mediaFile: { path: videoPath, name: "temp", size: 0 },
+          mediaFile: { path: videoPath, name: "temp" },
         },
         {
           enableSceneDetection: true,

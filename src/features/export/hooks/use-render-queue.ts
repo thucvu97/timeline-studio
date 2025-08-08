@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react"
 
 import { loadProject } from "@/features/app-state/services/project-file-service"
 import { calculateAspectRatio } from "@/features/project-settings/utils/aspect-ratio-utils"
-import { OutputFormat, type ProjectSchema, type RenderJob, RenderStatus } from "@/shared/types/video-compiler"
+import { RenderJob, RenderStatus, ProjectSchema, OutputFormat } from "@/domains/video-editing"
 
 function calculateProjectDuration(projectFile: any): number {
   try {

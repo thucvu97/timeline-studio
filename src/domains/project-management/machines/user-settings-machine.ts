@@ -8,12 +8,7 @@
 import { assign, createMachine } from "xstate"
 
 import { DEFAULT_CONTENT_SIZES, type PreviewSize, type PreviewSizeKey } from "@/features/media/utils/preview-sizes"
-import { type BrowserTab, DEFAULT_TAB } from "@/shared/types"
-import type { BrowserContext } from "@/shared/types/browser-context"
-
-// Реэкспортируем для обратной совместимости
-export type { BrowserTab } from "@/shared/types"
-export { BROWSER_TABS, DEFAULT_TAB } from "@/shared/types"
+import { BrowserContext, BrowserTab, DEFAULT_TAB } from "@/domains/browser/types"
 
 /**
  * Допустимые значения для макета интерфейса

@@ -13,12 +13,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { TimelineProject } from "@/features/timeline/types/timeline"
 import { cn } from "@/lib/utils"
-import { OutputFormat } from "@/shared/types/video-compiler"
 import { FORMAT_OPTIONS, FRAME_RATE_OPTIONS, RESOLUTION_PRESETS } from "../constants/export-constants"
 import type { ExportProgress, ExportSettings } from "../types/export-types"
 import type { TransitionExportSettings } from "../types/transition-export-types"
 import { ExportPresets } from "./export-presets"
 import { TransitionExportSettingsComponent } from "./transition-export-settings"
+import { OutputFormat } from "@/domains/video-editing/types"
 
 interface DetailedExportInterfaceProps {
   settings: TransitionExportSettings & {
