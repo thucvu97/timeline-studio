@@ -896,5 +896,5 @@ export const fileOperationsTools: any[] = [
 
 // Экспорты для tool-обертки
 export const getFileGroupsTool = fileOperationsTools[0]
-export const analyzeFileRelationshipsTool = fileOperationsTools[1] 
+export const analyzeFileRelationshipsTool = fileOperationsTools[1]
 export const bulkSelectFilesTool = fileOperationsTools[2]

@@ -61,15 +61,15 @@ export function IntegratedVersionPanel({ className, compact = false }: Integrate
 
   // Обновляем рекомендации
   useEffect(() => {
+    // Первоначальная загрузка
+    setRecommendations(getRecommendations())
+
     const interval = setInterval(() => {
       setRecommendations(getRecommendations())
     }, 10000) // Каждые 10 секунд
 
-    // Первоначальная загрузка
-    setRecommendations(getRecommendations())
-
     return () => clearInterval(interval)
-  }, [getRecommendations])
+  }, []) // Убираем зависимость от getRecommendations
 
   const handleSnapshotThresholdChange = (value: number) => {
     setAutoSnapshotThreshold(value)

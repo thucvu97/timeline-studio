@@ -140,7 +140,7 @@ export function AiChat() {
       const newHeight = Math.min(Math.max(40, inputRef.current.scrollHeight), 120) // Минимум 40px, максимум 120px
       inputRef.current.style.height = `${newHeight}px`
     }
-  }, [inputRef])
+  }, [])
 
   // Прокрутка при добавлении новых сообщений
   useEffect(() => {

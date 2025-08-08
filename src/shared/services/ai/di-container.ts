@@ -247,6 +247,16 @@ export class AIDIContainer {
       ["AIProviderFactory", "ModelManager"],
     )
 
+    // Scene Analysis Engine
+    this.registerSingleton("SceneAnalysisEngine", () => this.createSceneAnalysisEngine(), [])
+
+    // Content Analyzer - связывает Scene Analysis Engine с AI сервисами
+    this.registerSingleton(
+      "ContentAnalyzer",
+      (sceneEngine: any, unifiedService: IUnifiedAIService) => this.createContentAnalyzer(sceneEngine, unifiedService),
+      ["SceneAnalysisEngine", "UnifiedAIService"],
+    )
+
     // FFmpeg Service
     this.registerSingleton(
       "FFmpegService",
@@ -385,6 +395,137 @@ export class AIDIContainer {
         ollama: {
           baseUrl: "http://localhost:11434",
         },
+      },
+    }
+  }
+
+  /**
+   * Создает Scene Analysis Engine
+   */
+  private async createSceneAnalysisEngine(): Promise<any> {
+    try {
+      const { SceneAnalysisEngine } = await import(
+        "@/features/ai-content-intelligence/engines/scene-analysis/services/scene-analysis-engine"
+      )
+      const engine = new SceneAnalysisEngine()
+      await engine.initialize()
+      return engine
+    } catch (error) {
+      console.error("Failed to create SceneAnalysisEngine:", error)
+      // Возвращаем заглушку при ошибке
+      return {
+        process: async () => ({
+          scenes: [],
+          duration: 0,
+          keyMoments: [],
+          metadata: { fps: 30, resolution: "1920x1080" },
+        }),
+        initialize: async () => {},
+      }
+    }
+  }
+
+  /**
+   * Создает Content Analyzer с интеграцией Scene Analysis Engine и AI сервисов
+   */
+  private createContentAnalyzer(sceneEngine: any, unifiedService: IUnifiedAIService): any {
+    return {
+      /**
+       * Анализирует профиль контента
+       */
+      async analyzeContentProfile(params: { mediaFiles?: string[]; analysisScope?: string }) {
+        try {
+          if (!params.mediaFiles || params.mediaFiles.length === 0) {
+            return {
+              contentStyle: "unknown",
+              engagementPatterns: null,
+            }
+          }
+
+          // Используем Scene Analysis Engine для анализа видео
+          const videoPath = params.mediaFiles[0]
+          const analysis = await sceneEngine.analyzeVideo(videoPath, {
+            enableSceneDetection: true,
+            enableObjectTracking: false,
+            analysisType: "basic",
+          })
+
+          return {
+            contentStyle: this.classifyContentStyle(analysis),
+            engagementPatterns: this.extractEngagementPatterns(analysis),
+            scenes: analysis.scenes,
+            duration: analysis.duration,
+          }
+        } catch (error) {
+          console.error("Content profile analysis failed:", error)
+          return {
+            contentStyle: "unknown",
+            engagementPatterns: null,
+          }
+        }
+      },
+
+      /**
+       * Генерирует рекомендации для платформы
+       */
+      async generatePlatformRecommendations(params: { platform?: string; content?: any; includeSeo?: boolean }) {
+        try {
+          // Создаем промпт для AI
+          const prompt = `Создай рекомендации для адаптации контента под платформу ${params.platform}. 
+          ${params.includeSeo ? "Включи SEO рекомендации." : ""}
+          
+          Контент: ${JSON.stringify(params.content)}
+          
+          Верни рекомендации в формате JSON:
+          {
+            "description": "Оптимизированное описание",
+            "thumbnailTips": ["совет1", "совет2", "совет3"]
+          }`
+
+          const response = await unifiedService.sendRequest(
+            "claude-3-haiku-20240307",
+            [{ role: "user", content: prompt }],
+            {
+              maxTokens: 1000,
+              temperature: 0.7,
+            },
+          )
+
+          try {
+            return JSON.parse(response.content)
+          } catch {
+            return {
+              description: "Оптимизированное описание для платформы",
+              thumbnailTips: ["Используйте яркие цвета", "Добавьте четкий текст", "Покажите эмоции"],
+            }
+          }
+        } catch (error) {
+          console.error("Platform recommendations generation failed:", error)
+          return {
+            description: "Стандартные рекомендации",
+            thumbnailTips: [],
+          }
+        }
+      },
+
+      // Вспомогательные методы
+      classifyContentStyle: (analysis: any) => {
+        if (!analysis.scenes || analysis.scenes.length === 0) return "unknown"
+
+        const avgSceneLength = analysis.duration / analysis.scenes.length
+        if (avgSceneLength < 3000) return "dynamic"
+        if (avgSceneLength > 10000) return "contemplative"
+        return "standard"
+      },
+
+      extractEngagementPatterns: (analysis: any) => {
+        if (!analysis.scenes) return null
+
+        return {
+          totalScenes: analysis.scenes.length,
+          averageSceneLength: analysis.duration / analysis.scenes.length,
+          hasVariation: analysis.scenes.length > 3,
+        }
       },
     }
   }

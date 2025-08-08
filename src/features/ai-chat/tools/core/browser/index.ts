@@ -12,12 +12,7 @@ import {
   suggestImportSources,
   suggestImportSourcesTool,
 } from "./content-analysis"
-import {
-  analyzeFileRelationships,
-  bulkSelectFiles,
-  getFileGroups,
-  fileOperationsTools,
-} from "./file-operations"
+import { analyzeFileRelationships, bulkSelectFiles, fileOperationsTools, getFileGroups } from "./file-operations"
 import { searchMediaFiles, searchMediaFilesTool } from "./search-files"
 
 import type { BrowserToolResult } from "./types"
@@ -40,13 +35,13 @@ export {
 export {
   analyzeFileRelationships,
   bulkSelectFiles,
-  getFileGroups,
   fileOperationsTools,
+  getFileGroups,
 } from "./file-operations"
 
 // Re-export individual tools from the tools array
 export const getFileGroupsTool = fileOperationsTools[0]
-export const analyzeFileRelationshipsTool = fileOperationsTools[1] 
+export const analyzeFileRelationshipsTool = fileOperationsTools[1]
 export const bulkSelectFilesTool = fileOperationsTools[2]
 export { searchMediaFiles, searchMediaFilesTool } from "./search-files"
 

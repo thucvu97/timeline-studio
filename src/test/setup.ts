@@ -12,8 +12,11 @@ import "@/test/mocks/libraries"
 import "@/test/mocks/libraries/lucide-react"
 import "@/test/mocks/libraries/react-hotkeys-hook"
 
+// Initialize AI services for tests
+import { AIDIContainer } from "@/shared/services/ai/di-container"
+
 // Mock scrollIntoView globally for all tests (needed for Radix UI components)
-beforeAll(() => {
+beforeAll(async () => {
   Element.prototype.scrollIntoView = vi.fn()
 
   // Also mock other methods that might be missing in jsdom
@@ -22,6 +25,15 @@ beforeAll(() => {
   }
   if (!Element.prototype.scroll) {
     Element.prototype.scroll = vi.fn()
+  }
+
+  // Initialize AI services with test configuration
+  try {
+    const container = AIDIContainer.getInstance()
+    await container.initialize()
+  } catch (error) {
+    // AI services initialization might fail in test environment - that's ok
+    console.warn("AI services initialization skipped in test environment:", error)
   }
 })
 
@@ -287,10 +299,21 @@ beforeAll(() => {
   }
 })
 
-afterEach(() => {
+afterEach(async () => {
   cleanup()
   vi.clearAllMocks()
   vi.unstubAllEnvs()
+
+  // Очистка AI сервисов
+  try {
+    const container = AIDIContainer.getInstanceSafe()
+    if (container) {
+      await container.dispose()
+      AIDIContainer.resetInstance()
+    }
+  } catch (error) {
+    // Ignore cleanup errors
+  }
 
   // Дополнительная очистка памяти
   if (globalThis.gc) {

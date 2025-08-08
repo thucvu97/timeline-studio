@@ -3,7 +3,7 @@
  * Provides convenient access to version control functionality
  */
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 
 import type { VersionInfo } from "@/features/version-control/types"
 import { useToast } from "@/hooks/use-toast"
@@ -48,7 +48,7 @@ export function useVersionControl(): VersionControlHookState & VersionControlAct
   })
 
   const { toast } = useToast()
-  const backendSync = getBackendSync()
+  const [backendSync] = useState(() => getBackendSync())
 
   // Update state from project state
   const updateFromProjectState = useCallback(async () => {
@@ -311,19 +311,33 @@ export function useVersionControl(): VersionControlHookState & VersionControlAct
     [backendSync, handleCommandResult],
   )
 
-  return {
-    // State
-    ...state,
+  return useMemo(
+    () => ({
+      // State
+      ...state,
 
-    // Actions
-    createSnapshot,
-    restoreVersion,
-    getVersionHistory,
-    compareVersions,
-    createBranch,
-    mergeBranch,
-    switchBranch,
-    setAutoSaveInterval,
-    enableAutoSave,
-  }
+      // Actions
+      createSnapshot,
+      restoreVersion,
+      getVersionHistory,
+      compareVersions,
+      createBranch,
+      mergeBranch,
+      switchBranch,
+      setAutoSaveInterval,
+      enableAutoSave,
+    }),
+    [
+      state,
+      createSnapshot,
+      restoreVersion,
+      getVersionHistory,
+      compareVersions,
+      createBranch,
+      mergeBranch,
+      switchBranch,
+      setAutoSaveInterval,
+      enableAutoSave,
+    ],
+  )
 }

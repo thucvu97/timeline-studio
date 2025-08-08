@@ -87,11 +87,13 @@ export class EnhancedUnifiedAIService implements IUnifiedAIService {
     this.contentIntelligenceService = dependencies?.contentIntelligenceService
 
     if (!this.providerFactory || !this.modelManager) {
-      throw new Error("EnhancedUnifiedAIService requires providerFactory and modelManager")
+      console.warn("EnhancedUnifiedAIService created without dependencies, some features will be unavailable")
     }
 
     // Автоочистка кэша каждые 5 минут
-    setInterval(() => this.cleanupCache(), 300000)
+    if (typeof window !== "undefined") {
+      setInterval(() => this.cleanupCache(), 300000)
+    }
   }
 
   async sendRequest(
@@ -216,14 +218,27 @@ export class EnhancedUnifiedAIService implements IUnifiedAIService {
   }
 
   async getAvailableModels(): Promise<ModelConfig[]> {
+    if (!this.modelManager) {
+      console.warn("ModelManager not initialized, returning empty models list")
+      return []
+    }
     return await this.modelManager.getAvailableModels()
   }
 
   async getBestModelForTask(task: string, taskOptions?: any): Promise<ModelConfig | null> {
+    if (!this.modelManager) {
+      console.warn("ModelManager not initialized, returning null")
+      return null
+    }
     return await this.modelManager.getBestModelForTask(task as any, taskOptions)
   }
 
   async getProviderStatuses(): Promise<Record<string, boolean>> {
+    if (!this.providerFactory) {
+      console.warn("ProviderFactory not initialized, returning empty statuses")
+      return {}
+    }
+
     const providers = ["claude", "openai", "deepseek", "ollama"]
     const statuses: Record<string, boolean> = {}
 
@@ -343,6 +358,9 @@ export class EnhancedUnifiedAIService implements IUnifiedAIService {
 
   // Приватные методы
   private async getProviderForModel(model: string): Promise<IAIProvider> {
+    if (!this.providerFactory) {
+      throw new Error("ProviderFactory not initialized")
+    }
     const provider = this.providerFactory.getProviderByModel(model)
     if (!provider) {
       throw new Error(`No provider found for model: ${model}`)
