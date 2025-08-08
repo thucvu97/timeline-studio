@@ -1,3 +1,20 @@
+# [0.79.0](https://github.com/chatman-media/timeline-studio/compare/v0.78.0...v0.79.0) (2025-08-08)
+
+
+### Bug Fixes
+
+* **ai-chat:** исправлены экспорты и импорты в browser tools ([2a6b40d](https://github.com/chatman-media/timeline-studio/commit/2a6b40db326de5dca4bf27a780c4835d5a9974cc))
+
+
+### Features
+
+* завершение AI экосистемы - реализованы все 257 инструментов (100%) ([f0c9c20](https://github.com/chatman-media/timeline-studio/commit/f0c9c20532ebefecd79aad6113e4d2ad5cb42bef))
+
+
+### Performance Improvements
+
+* исправлена принудительная компоновка в Hero3D и добавлена мобильная оптимизация ([eef4f27](https://github.com/chatman-media/timeline-studio/commit/eef4f273ff1cde679bb8b21a9951c2620e2a55a0))
+
 # [0.78.0](https://github.com/chatman-media/timeline-studio/compare/v0.77.1...v0.78.0) (2025-08-08)
 
 
