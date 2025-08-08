@@ -287,34 +287,38 @@ export class MultimodalAnalysisService {
       // Создаем промпт в зависимости от типа анализа
       const prompt = this.buildAnalysisPrompt(params)
 
-      const response = await this.callGPT4Vision(
-        {
-          model: "gpt-4o",
-          messages: [
-            {
-              role: "user",
-              content: [
-                {
-                  type: "text",
-                  text: prompt,
-                },
-                {
-                  type: "image_url",
-                  image_url: {
-                    url: `data:image/jpeg;base64,${imageBase64}`,
-                    detail: params.detailLevel || "medium",
+      try {
+        const response = await this.callGPT4Vision(
+          {
+            model: "gpt-4o",
+            messages: [
+              {
+                role: "user",
+                content: [
+                  {
+                    type: "text",
+                    text: prompt,
                   },
-                },
-              ],
-            },
-          ],
-          max_tokens: 1000,
-          temperature: 0.1,
-        },
-        apiKey,
-      )
+                  {
+                    type: "image_url",
+                    image_url: {
+                      url: `data:image/jpeg;base64,${imageBase64}`,
+                      detail: params.detailLevel || "medium",
+                    },
+                  },
+                ],
+              },
+            ],
+            max_tokens: 1000,
+            temperature: 0.1,
+          },
+          apiKey,
+        )
 
-      return this.parseFrameAnalysisResponse(response, params)
+        return this.parseFrameAnalysisResponse(response, params)
+      } catch (error) {
+        throw new Error(`Ошибка анализа кадра: ${error instanceof Error ? error.message : String(error)}`)
+      }
     }
   }
 
@@ -552,22 +556,36 @@ export class MultimodalAnalysisService {
   }
 
   private async callGPT4Vision(payload: any, apiKey: string): Promise<any> {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify(payload),
-    })
+    try {
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify(payload),
+      })
 
-    if (!response.ok) {
-      const error = await response.text()
-      throw new Error(`OpenAI API error: ${response.status} ${error}`)
+      if (!response.ok) {
+        const errorText = await response.text()
+        let errorMessage = `${response.status} ${response.statusText}`
+        try {
+          const errorJson = JSON.parse(errorText)
+          errorMessage = errorJson.error?.message || errorText
+        } catch {
+          errorMessage = errorText || errorMessage
+        }
+        throw new Error(`OpenAI API error: ${errorMessage}`)
+      }
+
+      const data = await response.json()
+      return data.choices[0].message.content
+    } catch (error) {
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new Error('Network error')
+      }
+      throw error
     }
-
-    const data = await response.json()
-    return data.choices[0].message.content
   }
 
   private parseFrameAnalysisResponse(response: string, params: FrameAnalysisParams): FrameAnalysisResult {

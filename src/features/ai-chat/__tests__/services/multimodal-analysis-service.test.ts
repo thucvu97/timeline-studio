@@ -217,7 +217,7 @@ describe("MultimodalAnalysisService", () => {
       }
 
       await expect(service.analyzeFrame(params)).rejects.toThrow(
-        "Ошибка анализа кадра: Error: OpenAI API error: 401 Unauthorized",
+        "Ошибка анализа кадра: OpenAI API error: Unauthorized",
       )
     })
 
@@ -695,7 +695,7 @@ describe("MultimodalAnalysisService", () => {
         analysisType: "frame_description",
       }
 
-      await expect(service.analyzeFrame(params)).rejects.toThrow("Ошибка анализа кадра: Error: Network error")
+      await expect(service.analyzeFrame(params)).rejects.toThrow("Ошибка анализа кадра: Network error")
     })
 
     it("should calculate average confidence correctly", async () => {

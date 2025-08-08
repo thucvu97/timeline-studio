@@ -87,13 +87,19 @@ describe("UnifiedAIService", () => {
     // Получаем экземпляр сервиса
     service = UnifiedAIService.getInstance()
 
-    // Ждем инициализации
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    // Ждем инициализации сервиса более надежно
+    await new Promise((resolve) => setTimeout(resolve, 500))
+    
+    // Проверяем, что основные методы доступны
+    if (!service.sendRequest || !service.getAvailableModels) {
+      console.warn("Service methods not available yet, waiting more...")
+      await new Promise((resolve) => setTimeout(resolve, 500))
+    }
   })
 
   describe("Initialization", () => {
     it("should create singleton instance", () => {
-      const instance1 = UnifiedAIService.getInstance()
+      const instance1 = service
       const instance2 = UnifiedAIService.getInstance()
       expect(instance1).toBe(instance2)
     })

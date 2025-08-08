@@ -22,13 +22,13 @@ let VisionAnalysisService: any = null
 let YOLOService: any = null
 
 try {
-  // Динамический импорт для избежания циклических зависимостей
-  VisionAnalysisService =
-    require("@/features/ai-content-intelligence/services/vision-analysis-service").VisionAnalysisService
+  // Динамический импорт YOLO сервиса
   YOLOService = require("@/features/recognition/services/yolo-service").YOLOService
 } catch (error) {
-  console.warn("Vision services not available:", error)
+  console.warn("YOLO service not available:", error)
 }
+
+// VisionAnalysisService пока не существует, используем заглушку
 
 export class VisionAdapter implements IVisionService {
   private visionService: any

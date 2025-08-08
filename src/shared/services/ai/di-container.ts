@@ -426,6 +426,10 @@ export class AIDIContainer {
   static getInstanceSafe(): AIDIContainer | null {
     return AIDIContainer.instance
   }
+
+  static resetInstance(): void {
+    AIDIContainer.instance = null
+  }
 }
 
 // Глобальные функции для удобства
