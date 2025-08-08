@@ -1,3 +1,13 @@
+## [0.76.2](https://github.com/chatman-media/timeline-studio/compare/v0.76.1...v0.76.2) (2025-08-08)
+
+
+### Bug Fixes
+
+* **ai-chat:** исправлены ошибки в тестах и импортах AI модулей ([b9508d6](https://github.com/chatman-media/timeline-studio/commit/b9508d6726a192f25ce53113882dadc48fa3e424))
+* **tests:** исправлены интеграционные тесты AI сервисов ([cbb962d](https://github.com/chatman-media/timeline-studio/commit/cbb962d49daeae1006e4e91be1f11b78797726c7))
+* **tests:** исправлены тесты subtitle-automation-e2e ([befa6cf](https://github.com/chatman-media/timeline-studio/commit/befa6cf1e04a0c8e6323af055496d2ab35f69e76))
+* исправить ошибки TypeScript в AI сервисах и мультикам модулях ([188e442](https://github.com/chatman-media/timeline-studio/commit/188e44208d459640e12af248cbd18ac2e422da7b))
+
 ## [0.76.1](https://github.com/chatman-media/timeline-studio/compare/v0.76.0...v0.76.1) (2025-08-08)
 
 
