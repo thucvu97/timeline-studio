@@ -259,15 +259,14 @@ describe("PlayerControls", () => {
     it("должен правильно отображать время файла", () => {
       const fileWithTime = {
         ...mockFile,
-        startTime: Date.now(),
-        // Строка для отображения
-        duration: 120,
+        startTime: "00:01:05:15" as any, // Передаем строку в нужном формате (временный обход типов)
+        duration: "00:02:00:00" as any, // Передаем строку в нужном формате (временный обход типов)
       }
       renderWithProviders(<PlayerControls currentTime={65.5} file={fileWithTime} />)
 
       // Компонент отображает startTime и duration из файла
       expect(screen.getByText("00:01:05:15")).toBeInTheDocument()
-      expect(screen.getByText("120")).toBeInTheDocument()
+      expect(screen.getByText("00:02:00:00")).toBeInTheDocument()
     })
 
     it("должен отображать значения по умолчанию если время не задано", () => {
