@@ -220,11 +220,11 @@ export async function controlPlayback(params: PlaybackControlParams): Promise<Pl
   if (result.success) {
     return {
       success: true,
-      message: result.data.message,
+      message: result.data?.message ?? "",
       data: {
-        action: result.data.action,
-        previousState: result.data.previousState,
-        newState: result.data.newState,
+        action: result.data?.action,
+        previousState: result.data?.previousState,
+        newState: result.data?.newState,
       },
     }
   }

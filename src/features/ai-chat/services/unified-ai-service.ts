@@ -87,7 +87,7 @@ export class UnifiedAIService {
         isOllamaAvailable: () => sharedUnifiedService.isModelAvailable("llama3.2:latest"),
         getOllamaModels: async () => {
           const models = await sharedUnifiedService.getAvailableModels()
-          return models.filter((m) => m.provider === "ollama").map((m) => m.model)
+          return models.filter((m: any) => m.provider === "ollama").map((m: any) => m.model)
         },
       }
 
@@ -146,7 +146,7 @@ export class UnifiedAIService {
       // Используем shared AI service для отправки запроса
       const { getAIContainer } = await import("@/shared/services/ai")
       const aiContainer = getAIContainer()
-      const sharedUnifiedService = await aiContainer.resolve("UnifiedAIService")
+      const sharedUnifiedService = await aiContainer.resolve<any>("UnifiedAIService")
 
       // Конвертируем опции в формат shared сервиса
       const sharedResponse = await sharedUnifiedService.sendRequest(model, messages, {
@@ -187,7 +187,7 @@ export class UnifiedAIService {
       // Используем shared AI service для потокового запроса
       const { getAIContainer } = await import("@/shared/services/ai")
       const aiContainer = getAIContainer()
-      const sharedUnifiedService = await aiContainer.resolve("UnifiedAIService")
+      const sharedUnifiedService = await aiContainer.resolve<any>("UnifiedAIService")
 
       return await sharedUnifiedService.sendStreamingRequest(model, messages, {
         temperature: options.temperature,
@@ -226,7 +226,7 @@ export class UnifiedAIService {
     try {
       const { getAIContainer } = await import("@/shared/services/ai")
       const aiContainer = getAIContainer()
-      const sharedUnifiedService = await aiContainer.resolve("UnifiedAIService")
+      const sharedUnifiedService = await aiContainer.resolve<any>("UnifiedAIService")
       return await sharedUnifiedService.getAvailableModels()
     } catch (error) {
       console.warn("Ошибка получения доступных моделей:", error)
@@ -241,7 +241,7 @@ export class UnifiedAIService {
     try {
       const { getAIContainer } = await import("@/shared/services/ai")
       const aiContainer = getAIContainer()
-      const sharedUnifiedService = await aiContainer.resolve("UnifiedAIService")
+      const sharedUnifiedService = await aiContainer.resolve<any>("UnifiedAIService")
       return await sharedUnifiedService.isModelAvailable(model)
     } catch (error) {
       console.warn("Ошибка проверки доступности модели:", error)
@@ -264,7 +264,7 @@ export class UnifiedAIService {
     try {
       const { getAIContainer } = await import("@/shared/services/ai")
       const aiContainer = getAIContainer()
-      const sharedUnifiedService = await aiContainer.resolve("UnifiedAIService")
+      const sharedUnifiedService = await aiContainer.resolve<any>("UnifiedAIService")
       return await sharedUnifiedService.getBestModelForTask(task, options)
     } catch (error) {
       console.warn("Ошибка получения лучшей модели:", error)
@@ -279,7 +279,7 @@ export class UnifiedAIService {
     try {
       const { getAIContainer } = await import("@/shared/services/ai")
       const aiContainer = getAIContainer()
-      const sharedUnifiedService = await aiContainer.resolve("UnifiedAIService")
+      const sharedUnifiedService = await aiContainer.resolve<any>("UnifiedAIService")
       return await sharedUnifiedService.getProviderStatuses()
     } catch (error) {
       console.warn("Ошибка получения статуса провайдеров:", error)

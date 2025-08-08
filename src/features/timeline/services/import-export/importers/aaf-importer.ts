@@ -321,6 +321,7 @@ export class AAFImporter implements Importer {
         effects: [],
         filters: [],
         transitions: [],
+        timelineTransitions: [],
         templates: [],
         styleTemplates: [],
         subtitleStyles: [],
@@ -377,6 +378,7 @@ export class AAFImporter implements Importer {
         height: 60,
         trackEffects: [],
         trackFilters: [],
+        transitions: [],
       }
 
       // Создаем клипы из сегментов

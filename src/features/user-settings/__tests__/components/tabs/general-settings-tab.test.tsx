@@ -6,6 +6,7 @@ import { useModal } from "@/features/modals/services/modal-provider"
 
 import { GeneralSettingsTab } from "../../../components/tabs/general-settings-tab"
 import { useUserSettings } from "../../../hooks/use-user-settings"
+import { ModalType } from "@/features/modals"
 
 vi.mock("../../../hooks/use-user-settings")
 vi.mock("@/features/modals/services/modal-provider")
@@ -97,7 +98,7 @@ describe("GeneralSettingsTab", () => {
     vi.mocked(useModal).mockImplementation(() => ({
       openModal: mockOpenModal,
       closeModal: vi.fn(),
-      modalType: null,
+      modalType: "none" as ModalType,
       modalData: null,
       isOpen: false,
       submitModal: vi.fn(),

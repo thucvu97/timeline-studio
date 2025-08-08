@@ -197,7 +197,7 @@ export class ContentIntelligenceTool extends BaseAITool {
       try {
         const { getAIContainer } = await import("@/shared/services/ai")
         const aiContainer = getAIContainer()
-        this.contentAnalysisService = aiContainer.getContentAnalysisService()
+        this.contentAnalysisService = await aiContainer.resolve("ContentAnalysisService")
       } catch (error) {
         this.logger?.warn("Shared Content Analysis service недоступен", error)
         // В данном случае нет прямого fallback, так как это высокоуровневый сервис

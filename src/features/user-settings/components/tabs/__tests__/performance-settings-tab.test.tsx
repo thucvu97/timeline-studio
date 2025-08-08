@@ -47,7 +47,7 @@ const defaultMockValues = {
   maxConcurrentJobs: 2,
   renderQuality: "high",
   backgroundRenderingEnabled: true,
-  renderDelay: 5,
+  renderDelay: 13,
 
   // Methods
   ...mockHandlers,
@@ -258,7 +258,7 @@ describe("PerformanceSettingsTab", () => {
     renderWithModal(<PerformanceSettingsTab />)
 
     expect(screen.getByText("dialogs.userSettings.performance.renderDelay")).toBeInTheDocument()
-    expect(screen.getByDisplayValue("5")).toBeInTheDocument()
+    expect(screen.getByDisplayValue("13")).toBeInTheDocument()
   })
 
   it("hides render delay settings when background rendering is disabled", () => {
@@ -289,7 +289,7 @@ describe("PerformanceSettingsTab", () => {
   it("handles render delay change", () => {
     renderWithModal(<PerformanceSettingsTab />)
 
-    const delayInput = screen.getByDisplayValue("5")
+    const delayInput = screen.getByDisplayValue("13")
 
     // Simulate changing the value directly
     fireEvent.change(delayInput, { target: { value: "10" } })

@@ -298,8 +298,8 @@ describe("GPU utility functions", () => {
       const capabilities = {
         hardware_acceleration_supported: false,
         available_encoders: [],
-        recommended_encoder: null,
-        current_gpu: null,
+        recommended_encoder: undefined,
+        current_gpu: undefined,
         gpus: [],
       }
       const recommendations = getGpuRecommendations(capabilities, mockT)

@@ -64,7 +64,7 @@ describe("PreviewTimeline", () => {
 
       const timeline = screen.getByTestId("preview-timeline")
       expect(timeline).toBeInTheDocument()
-      expect(timeline).toHaveClass("absolute", "top-0", "bottom-0", "z-10", "w-[1px]", "bg-red-500")
+      expect(timeline).toHaveClass("absolute top-0 bottom-0 z-10 w-[1px]", "bg-red-500")
     })
 
     it("должен позиционировать индикатор в правильном месте", () => {

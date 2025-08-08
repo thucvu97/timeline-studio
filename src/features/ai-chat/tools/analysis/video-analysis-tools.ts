@@ -69,7 +69,7 @@ export interface VideoAnalysisResult {
  * Использует shared FFmpeg service
  */
 export class VideoAnalysisTool extends BaseAITool {
-  private ffmpegService: IFFmpegAnalysisService | null = null
+  private ffmpegService: IFFmpegAnalysisService | any | null = null
 
   constructor(logger?: AIToolLogger) {
     super("VideoAnalysisTool", logger)
@@ -90,7 +90,7 @@ export class VideoAnalysisTool extends BaseAITool {
         this.ffmpegService = FFmpegAnalysisService.getInstance()
       }
     }
-    return this.ffmpegService
+    return this.ffmpegService!
   }
 
   /**
@@ -174,7 +174,7 @@ export class VideoAnalysisTool extends BaseAITool {
 
           case "detect_scenes":
             result = await this.detectVideoScenes(input)
-            if (result.scenes && result.scenes.scenes.length > 50) {
+            if (result.scenes && Array.isArray(result.scenes) && result.scenes.length > 50) {
               recommendations.push("Много сцен обнаружено, возможно стоит увеличить чувствительность")
             }
             break
@@ -196,7 +196,7 @@ export class VideoAnalysisTool extends BaseAITool {
 
           case "analyze_audio":
             result = await this.analyzeVideoAudio(input)
-            if (result.audio && result.audio.quality.clipping) {
+            if (result.audio && result.audio.silentSegments.length > 0) {
               warnings.push("Обнаружен клиппинг в аудио")
               recommendations.push("Уменьшите уровень громкости")
             }
@@ -296,15 +296,15 @@ export class VideoAnalysisTool extends BaseAITool {
     try {
       const ffmpegService = await this.getFFmpegService()
       const scenes = await ffmpegService.detectScenes(input.clipId, {
-        threshold: input.sensitivity || 0.3,
-        minSceneLength: 1,
+        sensitivity: input.sensitivity || 0.3,
+        minSceneDuration: 1,
       })
 
       return {
         operation: "detect_scenes",
         success: true,
         scenes,
-        message: `Обнаружено ${scenes.scenes.length} сцен`,
+        message: `Обнаружено ${Array.isArray(scenes) ? scenes.length : 0} сцен`,
         recommendations: [],
       }
     } catch (error) {
