@@ -435,8 +435,8 @@ export class StoryAnalysisTool extends BaseAITool {
       return { hasAudioContent: false, audioCoverage: 0, audioGaps: 0, consistencyScore: 0, suggestions }
     }
 
-    const totalProjectDuration = Math.max(...allAudioClips.map((clip) => clip.startTime + clip.duration), 1)
-    const audioCoverage = allAudioClips.reduce((sum, clip) => sum + clip.duration, 0) / totalProjectDuration
+    const totalProjectDuration = Math.max(...allAudioClips.map((clip: { startTime: any; duration: any }) => clip.startTime + clip.duration), 1)
+    const audioCoverage = allAudioClips.reduce((sum: any, clip: { duration: any }) => sum + clip.duration, 0) / totalProjectDuration
 
     // Ищем тишину
     const audioGaps = this.findAudioGaps(allAudioClips, totalProjectDuration)
@@ -502,7 +502,7 @@ export class StoryAnalysisTool extends BaseAITool {
       recommendations.push("Быстрый темп требует четкой эмоциональной структуры для удержания внимания")
     }
 
-    if (analysis.visualContinuity?.abruptTransitions > 5 && analysis.pacing?.rhythm === "fast") {
+    if ((analysis.visualContinuity?.abruptTransitions ?? 0) > 5 && analysis.pacing?.rhythm === "fast") {
       recommendations.push("Сочетание быстрого темпа и резких переходов может затруднить восприятие")
     }
 

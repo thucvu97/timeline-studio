@@ -470,7 +470,7 @@ function convertPipelineConfigToAIConfig(pipelineConfig: PipelineConfig): AIConf
     if (languages.length > 0) {
       aiConfig.languages = {
         source: "auto", // Автоопределение
-        targets: [...new Set(languages)], // Уникальные языки
+        targets: Array.from(new Set(languages)), // Уникальные языки
         autoDetect: true,
         preserveOriginal: true,
       }

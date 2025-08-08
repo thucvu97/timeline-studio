@@ -70,7 +70,6 @@ export class PlatformOptimizationTool extends BaseAITool {
     options: AIToolExecutionOptions = {},
   ): Promise<AIToolResult<PlatformOptimizationResult>> {
     return this.executeWithErrorHandling(
-      input.operation,
       async () => {
         // Валидация входных данных
         const validation = this.validateInput(input, (data) => {
@@ -186,18 +185,23 @@ export class PlatformOptimizationTool extends BaseAITool {
             break
 
           case "validate_specifications":
-            const validation = await this.platformService.validateSpecifications(input.videoPath!, input.platform!)
+            // Используем анализ видео для валидации
+            const analysisResults = await this.platformService.analyzeVideoForPlatforms(input.videoPath!)
+            const platformAnalysis = analysisResults.platforms.find(p => p.platform === input.platform)
+            const isValid = platformAnalysis?.compatibility.overallScore ? platformAnalysis.compatibility.overallScore > 0.8 : false
             result = {
               operation: input.operation,
               success: true,
-              validation: validation,
-              message: validation.isValid
+              validation: {
+                isValid,
+                issues: platformAnalysis?.compatibility.issues || [],
+                score: platformAnalysis?.compatibility.overallScore || 0
+              },
+              message: isValid
                 ? "Видео соответствует требованиям платформы"
                 : "Обнаружены несоответствия требованиям",
-              recommendations: validation.isValid
-                ? ["Видео готово к публикации"]
-                : ["Необходимо исправить выявленные проблемы"],
-              warnings: validation.issues,
+              recommendations: platformAnalysis?.compatibility.suggestions || [],
+              warnings: platformAnalysis?.compatibility.issues,
             }
             break
 

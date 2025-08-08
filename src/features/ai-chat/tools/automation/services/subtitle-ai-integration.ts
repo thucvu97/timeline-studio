@@ -4,7 +4,7 @@
  */
 
 // Импортируем сервисы AI Content Intelligence
-import type { VisionService } from "../../../../ai-content-intelligence/engines/scene-analysis/services/vision-service"
+import type { IVisionService } from "@/shared/services/ai/analysis/interfaces"
 import type {
   AudioDetections,
   SceneAnalysis,
@@ -14,13 +14,14 @@ import type {
 } from "../../../../ai-content-intelligence/shared/types/content-analysis"
 import { SubtitleSynchronizationService, type SynchronizationOptions } from "./subtitle-synchronization"
 import { WhisperIntegrationService } from "./whisper-integration"
+import { VisionService } from "@/features/ai-content-intelligence/engines/scene-analysis"
 
 /**
  * Адаптер для интеграции Enhanced Subtitle Automation с ai-content-intelligence
  */
 export class SubtitleAIIntegrationService {
   private static instance: SubtitleAIIntegrationService
-  private visionService: VisionService | null = null
+  private visionService: IVisionService | null = null
   private whisperService: WhisperIntegrationService | null = null
   private synchronizationService: SubtitleSynchronizationService | null = null
   private isInitialized = false
@@ -45,20 +46,11 @@ export class SubtitleAIIntegrationService {
 
     try {
       // Динамический импорт для избежания circular dependency
-      const { VisionService } = await import(
-        "../../../../ai-content-intelligence/engines/scene-analysis/services/vision-service"
-      )
+      const { getAIContainer } = await import("@/shared/services/ai")
+      const aiContainer = getAIContainer()
+      const visionService = await aiContainer.resolve<IVisionService>("VisionService")
 
-      this.visionService = VisionService.getInstance({
-        enableObjectDetection: true,
-        enableFaceDetection: true,
-        enableTextRecognition: true,
-        enableActivityDetection: false,
-        textConfidenceThreshold: 0.7,
-        maxDetectionsPerFrame: 50,
-      })
-
-      await this.visionService.initialize()
+      this.visionService = visionService
 
       // Инициализируем Whisper сервис
       this.whisperService = WhisperIntegrationService.getInstance()

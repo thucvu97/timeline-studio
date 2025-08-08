@@ -133,7 +133,7 @@ const OverviewTab: FC<{ analysis: UnifiedContentAnalysis }> = ({ analysis }) => 
       <h3 className="text-sm font-medium mb-3">Классификация контента</h3>
       <div className="flex flex-wrap gap-2">
         <Badge variant="default">{analysis.contentType.replace(/_/g, " ")}</Badge>
-        {analysis.genres.map((genre) => (
+        {analysis.genres.map((genre: string) => (
           <Badge key={genre} variant="secondary">
             {genre}
           </Badge>
@@ -292,7 +292,7 @@ const InsightsTab: FC<{ insights: UnifiedContentAnalysis["insights"] }> = ({ ins
           Рекомендации
         </h3>
         <div className="space-y-2">
-          {insights.suggestions.map((suggestion, index) => (
+          {insights.suggestions.map((suggestion: any, index: number) => (
             <div key={index} className="bg-muted/50 rounded-lg p-3">
               <div className="flex items-center justify-between mb-1">
                 <Badge variant="outline" className="text-xs">
@@ -320,7 +320,7 @@ const InsightsTab: FC<{ insights: UnifiedContentAnalysis["insights"] }> = ({ ins
           Предупреждения
         </h3>
         <div className="space-y-2">
-          {insights.warnings.map((warning, index) => (
+          {insights.warnings.map((warning: any, index: number) => (
             <div key={index} className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3">
               <div className="flex items-center justify-between mb-1">
                 <Badge variant="outline" className="text-xs">

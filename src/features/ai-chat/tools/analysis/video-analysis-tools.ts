@@ -46,7 +46,7 @@ export interface VideoAnalysisResult {
   operation: string
   success: boolean
   metadata?: VideoMetadata
-  scenes?: SceneDetectionResult
+  scenes?: SceneDetectionResult[]
   quality?: QualityAnalysisResult
   motion?: MotionAnalysisResult
   audio?: AudioAnalysisResult
@@ -324,7 +324,8 @@ export class VideoAnalysisTool extends BaseAITool {
     this.logger?.info("Анализируем качество видео", { clipId: input.clipId })
 
     try {
-      const quality = await this.ffmpegService.analyzeQuality(input.clipId, {})
+      const ffmpegService = await this.getFFmpegService()
+      const quality = await ffmpegService.analyzeQuality(input.clipId, {})
 
       const recommendations: string[] = []
       if (quality.sharpness < 0.5) {
@@ -358,7 +359,8 @@ export class VideoAnalysisTool extends BaseAITool {
     this.logger?.info("Анализируем движение", { clipId: input.clipId })
 
     try {
-      const motion = await this.ffmpegService.analyzeMotion(input.clipId, {})
+      const ffmpegService = await this.getFFmpegService()
+      const motion = await ffmpegService.analyzeMotion(input.clipId, {})
 
       const recommendations: string[] = []
       if (motion.motionIntensity > 0.7) {
@@ -389,7 +391,8 @@ export class VideoAnalysisTool extends BaseAITool {
     this.logger?.info("Анализируем аудио", { clipId: input.clipId })
 
     try {
-      const audio = await this.ffmpegService.analyzeAudio(input.clipId, {})
+      const ffmpegService = await this.getFFmpegService()
+      const audio = await ffmpegService.analyzeAudio(input.clipId, {})
 
       const recommendations: string[] = []
       if (audio.volume.peak > 0.9) {

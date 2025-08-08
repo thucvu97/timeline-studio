@@ -185,7 +185,7 @@ export class SceneAnalysisEngine {
       // Если нужна классификация типов сцен, используем AI
       if (options.classifyTypes && sceneDetection.scenes.length > 0) {
         const classificationPrompt = `Классифицируй типы сцен на основе их описаний:
-${JSON.stringify(sceneDetection.scenes.map((s) => ({ id: s.id, description: s.description || "" })))}
+${JSON.stringify(sceneDetection.scenes.map((s: any) => ({ id: s.id, description: s.description || "" })))}
 
 Для каждой сцены определи тип: dialog, action, landscape, closeup, transition
 Верни JSON массив с полями: id, type`

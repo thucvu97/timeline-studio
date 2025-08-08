@@ -454,7 +454,7 @@ export class PlatformAdapter {
     analysis.genres.forEach((genre) => tags.add(genre))
 
     // Добавляем темы
-    analysis.insights.marketingAngles.forEach((topic) => tags.add(topic))
+    analysis.insights.marketingAngles.forEach((topic: string) => tags.add(topic))
 
     // Добавляем обнаруженные объекты
     analysis.detections.objects?.forEach((obj) => tags.add(obj.label))

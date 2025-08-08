@@ -35,6 +35,7 @@ const createMockAnalysis = (): UnifiedContentAnalysis => ({
   mediaFile: {
     path: "/test/video.mp4",
     filename: "video.mp4",
+    name: "video.mp4",
     size: 1024 * 1024 * 100, // 100MB
     format: "mp4",
     duration: 180, // 3 minutes

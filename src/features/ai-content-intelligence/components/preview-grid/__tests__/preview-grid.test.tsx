@@ -37,6 +37,7 @@ const createMockAnalysis = (): UnifiedContentAnalysis => ({
   mediaFile: {
     path: "/test/video.mp4",
     filename: "video.mp4",
+    name: "video.mp4",
     size: 1024 * 1024 * 100,
     format: "mp4",
     duration: 180,
@@ -50,6 +51,7 @@ const createMockAnalysis = (): UnifiedContentAnalysis => ({
       type: "dialogue" as any,
       keyFrames: [
         {
+          time: 30,
           timestamp: 30,
           thumbnailPath: "/thumbnails/scene-1-frame-1.jpg",
           composition: {
@@ -96,6 +98,7 @@ const createMockAnalysis = (): UnifiedContentAnalysis => ({
       type: "action" as any,
       keyFrames: [
         {
+          time: 90,
           timestamp: 90,
           thumbnailPath: "/thumbnails/scene-2-frame-1.jpg",
           composition: {

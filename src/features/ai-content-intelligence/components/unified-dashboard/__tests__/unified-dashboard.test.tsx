@@ -12,8 +12,8 @@ import {
   createMockMediaFile,
   createMockProgress,
 } from "../../../hooks/__tests__/test-utils"
-import { useAIIntelligence } from "../../../hooks/use-ai-intelligence"
-import { useContentPipeline } from "../../../hooks/use-content-pipeline"
+import { useAIIntelligence, type UseAIIntelligenceReturn } from "../../../hooks/use-ai-intelligence"
+import { useContentPipeline, type UseContentPipelineReturn } from "../../../hooks/use-content-pipeline"
 import { UnifiedDashboard } from "../unified-dashboard"
 
 // Mock the hooks
@@ -67,27 +67,38 @@ const mockPauseContentPipeline = vi.fn()
 const mockResumeContentPipeline = vi.fn()
 const mockStopPipeline = vi.fn()
 
-const defaultAIIntelligenceMock = {
+const defaultAIIntelligenceMock: UseAIIntelligenceReturn = {
+  isInitialized: true,
   isProcessing: false,
   progress: null,
   error: null,
   result: null,
   analyzeContent: mockAnalyzeContent,
+  generateScript: vi.fn(),
+  adaptForPlatforms: vi.fn(),
   processProject: mockProcessProject,
   pausePipeline: mockPausePipeline,
   resumePipeline: mockResumePipeline,
   cancelPipeline: mockCancelPipeline,
   reset: mockResetAI,
+  getOrchestrator: vi.fn(),
 }
 
-const defaultContentPipelineMock = {
+const defaultContentPipelineMock: UseContentPipelineReturn = {
   isRunning: false,
   isPaused: false,
+  progress: null,
+  currentStep: null,
   results: [],
+  errors: [],
   startPipeline: mockStartPipeline,
   pausePipeline: mockPauseContentPipeline,
   resumePipeline: mockResumeContentPipeline,
   stopPipeline: mockStopPipeline,
+  processBatch: vi.fn(),
+  clearResults: vi.fn(),
+  exportResults: vi.fn(),
+  getStepDuration: vi.fn(),
 }
 
 describe("UnifiedDashboard", () => {

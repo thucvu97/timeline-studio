@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import type { Actor } from "xstate"
-import type { aiIntelligenceMachine } from "../../shared/services/ai-intelligence-machine"
-import { AIIntelligenceOrchestrator } from "../../shared/services/ai-intelligence-orchestrator"
-import { AIProvider, ProcessingStatus } from "../../types"
+import type { aiIntelligenceMachine } from "../../../shared/services/ai-intelligence-machine"
+import { AIIntelligenceOrchestrator } from "../../../shared/services/ai-intelligence-orchestrator"
+import { AIProvider, ProcessingStatus } from "../../../shared/types"
 
 // Мокируем shared services
 vi.mock("@/shared/services/ai", async () => {
@@ -13,7 +13,7 @@ vi.mock("@/shared/services/ai", async () => {
 })
 
 // Мокируем engine factory
-vi.mock("../../factories/engine-factory", () => ({
+vi.mock("../../../factories/engine-factory", () => ({
   getEngineFactory: vi.fn(() => ({
     createAllEngines: vi.fn(async () => ({
       sceneEngine: {
@@ -51,12 +51,16 @@ vi.mock("../../factories/engine-factory", () => ({
 }))
 
 // Мок для Actor
-class MockActor implements Partial<Actor<typeof aiIntelligenceMachine>> {
-  private state: any = { matches: () => false, context: { steps: [], errors: [] } }
+class MockActor implements Partial<Actor<any>> {
+  public state: any = { matches: () => false, context: { steps: [], errors: [] } }
   private subscribers: Array<(snapshot: any) => void> = []
 
-  subscribe(observer: (snapshot: any) => void) {
-    this.subscribers.push(observer)
+  subscribe(observer: any): any {
+    if (typeof observer === 'function') {
+      this.subscribers.push(observer)
+      return { unsubscribe: () => {} }
+    }
+    // Handle Observer object
     return { unsubscribe: () => {} }
   }
 
@@ -83,11 +87,12 @@ class MockActor implements Partial<Actor<typeof aiIntelligenceMachine>> {
     return this.state
   }
 
-  stop() {
-    // Cleanup
+  stop(): any {
+    // Return this to satisfy type requirement
+    return this
   }
 
-  private notifySubscribers() {
+  public notifySubscribers() {
     this.subscribers.forEach((sub) => sub(this.state))
   }
 }
@@ -115,7 +120,7 @@ describe("AIIntelligenceOrchestrator", () => {
       await newOrchestrator.initialize()
 
       // Проверяем, что движки загружены
-      expect(vi.mocked(await import("../../factories/engine-factory")).getEngineFactory).toHaveBeenCalled()
+      expect(vi.mocked(await import("../../../factories/engine-factory")).getEngineFactory).toHaveBeenCalled()
     })
 
     it("should work without explicit engines", async () => {
@@ -289,8 +294,8 @@ describe("AIIntelligenceOrchestrator", () => {
 
       // Создаем контрол
       const control = orchestrator.createPipelineControl()
-      control.onProgress((progress) => progressUpdates.push(progress))
-      control.onEvent((event) => eventUpdates.push(event))
+      control.onProgress((progress: any) => progressUpdates.push(progress))
+      control.onEvent((event: any) => eventUpdates.push(event))
 
       const result = await orchestrator.processProject(mediaFiles, config)
 

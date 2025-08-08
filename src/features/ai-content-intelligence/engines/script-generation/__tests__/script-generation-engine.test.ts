@@ -5,7 +5,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service"
 import type { Person } from "@/features/montage-planner/types"
-import type { UnifiedContentAnalysis } from "../../../shared/types/content-analysis"
+import type { Genre, QualityMetrics, SceneType, UnifiedContentAnalysis } from "../../../shared/types/content-analysis"
 import { NarrativeType, PaceType } from "../../../shared/types/script-generation"
 import { DialogueGenerator } from "../services/dialogue-generator"
 import { ScriptGenerationEngine } from "../services/script-generation-engine"
@@ -30,6 +30,8 @@ describe("ScriptGenerationEngine", () => {
       duration: 120,
       format: "video/mp4",
       path: "/path/to/video.mp4",
+      name: "",
+      size: 0
     },
     scenes: [
       {
@@ -37,9 +39,12 @@ describe("ScriptGenerationEngine", () => {
         startTime: 0,
         endTime: 30,
         duration: 30,
-        type: "action",
+        type: "action" as SceneType,
         content: {
-          description: "Opening action scene",
+          objects: [],
+          faces: [],
+          text: [],
+          activities: [],
           identifiedPersons: [
             {
               id: "person-1",
@@ -50,23 +55,32 @@ describe("ScriptGenerationEngine", () => {
             } as Person,
           ],
         },
+        keyFrames: [],
+        quality: { overall: 70 } as QualityMetrics,
+        transitions: []
       },
       {
         id: "scene-2",
         startTime: 30,
         endTime: 60,
         duration: 30,
-        type: "dialogue",
+        type: "dialogue" as SceneType,
         content: {
-          description: "Dialog between characters",
+          objects: [],
+          faces: [],
+          text: [],
+          activities: [],
         },
+        keyFrames: [],
+        quality: { overall: 70 } as QualityMetrics,
+        transitions: []
       },
       {
         id: "scene-3",
         startTime: 60,
         endTime: 120,
         duration: 60,
-        type: "montage",
+        type: "montage" as SceneType,
         content: {
           description: "Closing montage",
         },
@@ -103,7 +117,7 @@ describe("ScriptGenerationEngine", () => {
   }
 
   const mockParams: ScriptGenerationParams = {
-    genre: ["action", "drama"],
+    genre: ["action", "drama"] as Genre[],
     style: {
       visual: "cinematic" as any,
       narrative: "linear" as any,
@@ -219,7 +233,7 @@ describe("ScriptGenerationEngine", () => {
       expect(result.dialogue).toBeDefined()
       // Проверяем, что есть аудио элементы типа dialogue в сценах
       const hasDialogue = result.scenes.some((scene) => scene.audioElements.some((ae) => ae.type === "dialogue"))
-      expect(hasDialogue || result.dialogue.length > 0).toBe(true)
+      expect(hasDialogue || (result.dialogue?.length ?? 0) > 0).toBe(true)
     })
 
     it("should generate voiceover when includeVoiceover is true", async () => {

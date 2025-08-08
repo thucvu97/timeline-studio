@@ -82,7 +82,7 @@ export class WhisperIntegrationService {
         modelSize: options.modelSize || "base",
         wordTimestamps: options.wordTimestamps ?? true,
         vadFilter: options.vadFilter ?? true,
-        provider: options.provider || "faster-whisper",
+        provider: (options.provider === "whisper" ? "local" : options.provider) || "faster-whisper",
         device: options.device || "auto",
         computeType: options.computeType || "auto",
       }

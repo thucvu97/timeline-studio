@@ -370,7 +370,7 @@ describe("Cache Service", () => {
       mockInvoke.mockResolvedValueOnce(updatedStats)
 
       stats = await getCacheStats()
-      expect(stats.preview_cache.count).toBe(0)
+      expect(stats.preview_cache.entries).toBe(0)
       expect(stats.total_size_mb).toBe(150.0)
     })
 

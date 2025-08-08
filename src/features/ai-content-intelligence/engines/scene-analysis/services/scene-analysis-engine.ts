@@ -914,7 +914,7 @@ Video Info:
 - Scene types: ${scenes.map((s) => s.type).join(", ")}
 
 Quality Metrics:
-- Overall quality: ${analysis.quality?.overall}/100
+- Overall quality: ${analysis.qualityMetrics?.overall}/100
 - Motion intensity: ${analysis.motion?.motionIntensity || "N/A"}
 
 Please provide:

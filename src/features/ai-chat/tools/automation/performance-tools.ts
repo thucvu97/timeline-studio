@@ -90,7 +90,6 @@ export class RenderPerformanceTool extends BaseAITool {
     options: AIToolExecutionOptions = {},
   ): Promise<AIToolResult<RenderPerformanceResult>> {
     return this.executeWithErrorHandling(
-      input.operation,
       async () => {
         // Валидация входных данных
         const validation = this.validateInput(input, (data) => {

@@ -407,6 +407,7 @@ describe("usePrerenderCache", () => {
         },
       ],
       totalSize: 4 * 1024 * 1024,
+      fileCount: 1,
     }
     vi.mocked(videoCompilerService.getPrerenderCacheInfo).mockResolvedValueOnce(updatedCacheInfo)
 

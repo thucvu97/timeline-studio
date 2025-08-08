@@ -6,6 +6,7 @@ import { Emotion, Genre } from "../../types/content-analysis"
 import { NarrativeType } from "../../types/script-generation"
 import { aiIntelligenceMachine } from "../ai-intelligence-machine"
 import * as mediaAnalysisInterface from "../media-analysis-interface"
+import { createMockAIConfig } from "../../../__tests__/test-utils"
 
 // Mock media-analysis-interface
 vi.mock("../media-analysis-interface", () => ({
@@ -35,23 +36,17 @@ const mockMediaFile = {
   size: 1000000,
 }
 
-const mockConfig = {
-  engine: "unified" as const,
+const mockConfig = createMockAIConfig({
   features: {
-    sceneDetection: true,
-    contentClassification: true,
-    keyMomentExtraction: true,
-    audioAnalysis: true,
-    emotionalAnalysis: true,
+    sceneAnalysis: true,
     scriptGeneration: false,
     multiPlatform: false,
+    personIdentification: false,
+    contentClassification: true,
+    qualityEnhancement: false,
+    autoSuggestions: true,
   },
-  quality: {
-    resolution: "high" as const,
-    processingSpeed: "balanced" as const,
-  },
-  platforms: [],
-}
+})
 
 const mockFFmpegAnalysisResult = {
   metadata: {

@@ -9,8 +9,8 @@ import {
   type ContentClassification,
   type MediaInput,
   type SceneAnalysis,
-  UnifiedAIService,
-} from "@/features/ai-chat/services/unified-ai-service"
+} from "@/features/ai-chat/services/content-intelligence-service"
+import { UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service"
 
 // Расширенная классификация контента
 export interface ExtendedContentClassification extends ContentClassification {

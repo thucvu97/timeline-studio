@@ -7,7 +7,7 @@ import userEvent from "@testing-library/user-event"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { createMockAnalysis, createMockGeneratedScript } from "../../../hooks/__tests__/test-utils"
-import { useAIIntelligence } from "../../../hooks/use-ai-intelligence"
+import { useAIIntelligence, type UseAIIntelligenceReturn } from "../../../hooks/use-ai-intelligence"
 import { GenerationWizard } from "../generation-wizard"
 
 // Mock the hooks
@@ -18,12 +18,21 @@ vi.mock("../../../hooks/use-ai-intelligence", () => ({
 // Default mock implementations
 const mockGenerateScript = vi.fn()
 
-const defaultAIIntelligenceMock = {
+const defaultAIIntelligenceMock: UseAIIntelligenceReturn = {
+  isInitialized: true,
   isProcessing: false,
   progress: null,
   error: null,
   result: null,
+  analyzeContent: vi.fn(),
   generateScript: mockGenerateScript,
+  adaptForPlatforms: vi.fn(),
+  processProject: vi.fn(),
+  pausePipeline: vi.fn(),
+  resumePipeline: vi.fn(),
+  cancelPipeline: vi.fn(),
+  reset: vi.fn(),
+  getOrchestrator: vi.fn(),
 }
 
 describe("GenerationWizard", () => {

@@ -161,10 +161,44 @@ describe("UnifiedContentPipeline", () => {
       ]
 
       const pipelineId = await pipeline.processContent(mediaFiles, {
-        sceneAnalysis: { enabled: true },
-        contentClassification: { enabled: false },
-        scriptGeneration: { enabled: false },
-        platformAdaptation: { enabled: false },
+        sceneAnalysis: { 
+          enabled: true,
+          sensitivity: 0.3,
+          minSceneDuration: 1,
+          classifyTypes: true,
+          enableObjectDetection: true,
+          enablePersonTracking: false
+        },
+        contentClassification: { 
+          enabled: false,
+          includeSubcategories: false,
+          analyzeMood: false,
+          includeTargeting: false,
+          analyzePlatforms: false,
+          includeMarketing: false,
+          analyzeAccessibility: false
+        },
+        scriptGeneration: { 
+          enabled: false,
+          style: "documentary" as const,
+          includeShotList: false,
+          narrativeStructure: "chronological" as const,
+          tone: "professional" as const
+        },
+        platformAdaptation: { 
+          enabled: false,
+          targetPlatforms: [],
+          languages: [],
+          includeSeO: false,
+          generateVariants: 0
+        },
+        general: {
+          analysisDepth: "normal" as const,
+          parallel: true,
+          maxConcurrent: 2,
+          cacheResults: true,
+          timeout: 60000
+        }
       })
 
       // Ждем завершения
@@ -186,10 +220,44 @@ describe("UnifiedContentPipeline", () => {
       ]
 
       const pipelineId = await pipeline.processContent(mediaFiles, {
-        sceneAnalysis: { enabled: true },
-        contentClassification: { enabled: true },
-        scriptGeneration: { enabled: false },
-        platformAdaptation: { enabled: false },
+        sceneAnalysis: { 
+          enabled: true,
+          sensitivity: 0.3,
+          minSceneDuration: 1,
+          classifyTypes: true,
+          enableObjectDetection: true,
+          enablePersonTracking: false
+        },
+        contentClassification: { 
+          enabled: true,
+          includeSubcategories: true,
+          analyzeMood: true,
+          includeTargeting: true,
+          analyzePlatforms: true,
+          includeMarketing: true,
+          analyzeAccessibility: true
+        },
+        scriptGeneration: { 
+          enabled: false,
+          style: "documentary" as const,
+          includeShotList: false,
+          narrativeStructure: "chronological" as const,
+          tone: "professional" as const
+        },
+        platformAdaptation: { 
+          enabled: false,
+          targetPlatforms: [],
+          languages: [],
+          includeSeO: false,
+          generateVariants: 0
+        },
+        general: {
+          analysisDepth: "normal" as const,
+          parallel: true,
+          maxConcurrent: 2,
+          cacheResults: true,
+          timeout: 60000
+        }
       })
 
       // Ждем завершения
@@ -211,14 +279,44 @@ describe("UnifiedContentPipeline", () => {
       ]
 
       const pipelineId = await pipeline.processContent(mediaFiles, {
-        sceneAnalysis: { enabled: true },
-        contentClassification: { enabled: true },
+        sceneAnalysis: { 
+          enabled: true,
+          sensitivity: 0.3,
+          minSceneDuration: 1,
+          classifyTypes: true,
+          enableObjectDetection: true,
+          enablePersonTracking: false
+        },
+        contentClassification: { 
+          enabled: true,
+          includeSubcategories: true,
+          analyzeMood: true,
+          includeTargeting: true,
+          analyzePlatforms: true,
+          includeMarketing: true,
+          analyzeAccessibility: true
+        },
         scriptGeneration: {
           enabled: true,
-          style: "documentary",
-          tone: "professional",
+          style: "documentary" as const,
+          includeShotList: true,
+          narrativeStructure: "chronological" as const,
+          tone: "professional" as const
         },
-        platformAdaptation: { enabled: false },
+        platformAdaptation: { 
+          enabled: false,
+          targetPlatforms: [],
+          languages: [],
+          includeSeO: false,
+          generateVariants: 0
+        },
+        general: {
+          analysisDepth: "normal" as const,
+          parallel: true,
+          maxConcurrent: 2,
+          cacheResults: true,
+          timeout: 60000
+        }
       })
 
       // Ждем завершения
@@ -271,7 +369,44 @@ describe("UnifiedContentPipeline", () => {
       ]
 
       const pipelineId = await pipeline.processContent(mediaFiles, {
-        scriptGeneration: { enabled: true },
+        sceneAnalysis: { 
+          enabled: false,
+          sensitivity: 0.3,
+          minSceneDuration: 1,
+          classifyTypes: false,
+          enableObjectDetection: false,
+          enablePersonTracking: false
+        },
+        contentClassification: { 
+          enabled: false,
+          includeSubcategories: false,
+          analyzeMood: false,
+          includeTargeting: false,
+          analyzePlatforms: false,
+          includeMarketing: false,
+          analyzeAccessibility: false
+        },
+        scriptGeneration: { 
+          enabled: true,
+          style: "documentary" as const,
+          includeShotList: false,
+          narrativeStructure: "chronological" as const,
+          tone: "professional" as const
+        },
+        platformAdaptation: { 
+          enabled: false,
+          targetPlatforms: [],
+          languages: [],
+          includeSeO: false,
+          generateVariants: 0
+        },
+        general: {
+          analysisDepth: "normal" as const,
+          parallel: true,
+          maxConcurrent: 2,
+          cacheResults: true,
+          timeout: 60000
+        }
       })
 
       // Ждем обработку ошибки
@@ -317,8 +452,44 @@ describe("UnifiedContentPipeline", () => {
       ]
 
       const pipelineId = await pipeline.processContent(mediaFiles, {
-        sceneAnalysis: { enabled: false },
-        contentClassification: { enabled: false },
+        sceneAnalysis: { 
+          enabled: false,
+          sensitivity: 0.3,
+          minSceneDuration: 1,
+          classifyTypes: false,
+          enableObjectDetection: false,
+          enablePersonTracking: false
+        },
+        contentClassification: { 
+          enabled: false,
+          includeSubcategories: false,
+          analyzeMood: false,
+          includeTargeting: false,
+          analyzePlatforms: false,
+          includeMarketing: false,
+          analyzeAccessibility: false
+        },
+        scriptGeneration: { 
+          enabled: false,
+          style: "documentary" as const,
+          includeShotList: false,
+          narrativeStructure: "chronological" as const,
+          tone: "professional" as const
+        },
+        platformAdaptation: { 
+          enabled: false,
+          targetPlatforms: [],
+          languages: [],
+          includeSeO: false,
+          generateVariants: 0
+        },
+        general: {
+          analysisDepth: "normal" as const,
+          parallel: true,
+          maxConcurrent: 2,
+          cacheResults: true,
+          timeout: 60000
+        }
       })
 
       // Ждем завершения
@@ -375,7 +546,44 @@ describe("UnifiedContentPipeline", () => {
             },
           ],
           {
-            general: { timeout: 10000 }, // Длительный таймаут
+            sceneAnalysis: { 
+              enabled: true,
+              sensitivity: 0.3,
+              minSceneDuration: 1,
+              classifyTypes: false,
+              enableObjectDetection: false,
+              enablePersonTracking: false
+            },
+            contentClassification: { 
+              enabled: false,
+              includeSubcategories: false,
+              analyzeMood: false,
+              includeTargeting: false,
+              analyzePlatforms: false,
+              includeMarketing: false,
+              analyzeAccessibility: false
+            },
+            scriptGeneration: { 
+              enabled: false,
+              style: "documentary" as const,
+              includeShotList: false,
+              narrativeStructure: "chronological" as const,
+              tone: "professional" as const
+            },
+            platformAdaptation: { 
+              enabled: false,
+              targetPlatforms: [],
+              languages: [],
+              includeSeO: false,
+              generateVariants: 0
+            },
+            general: { 
+              analysisDepth: "normal" as const,
+              parallel: false,
+              maxConcurrent: 1,
+              cacheResults: true,
+              timeout: 10000
+            }
           },
         )
       }
@@ -396,10 +604,44 @@ describe("UnifiedContentPipeline", () => {
       const startTime = Date.now()
 
       const pipelineId = await pipeline.processContent(mediaFiles, {
+        sceneAnalysis: { 
+          enabled: true,
+          sensitivity: 0.3,
+          minSceneDuration: 1,
+          classifyTypes: false,
+          enableObjectDetection: false,
+          enablePersonTracking: false
+        },
+        contentClassification: { 
+          enabled: false,
+          includeSubcategories: false,
+          analyzeMood: false,
+          includeTargeting: false,
+          analyzePlatforms: false,
+          includeMarketing: false,
+          analyzeAccessibility: false
+        },
+        scriptGeneration: { 
+          enabled: false,
+          style: "documentary" as const,
+          includeShotList: false,
+          narrativeStructure: "chronological" as const,
+          tone: "professional" as const
+        },
+        platformAdaptation: { 
+          enabled: false,
+          targetPlatforms: [],
+          languages: [],
+          includeSeO: false,
+          generateVariants: 0
+        },
         general: {
+          analysisDepth: "normal" as const,
           parallel: true,
           maxConcurrent: 3,
-        },
+          cacheResults: true,
+          timeout: 60000
+        }
       })
 
       // Ждем завершения
@@ -422,9 +664,44 @@ describe("UnifiedContentPipeline", () => {
       ]
 
       const pipelineId = await pipeline.processContent(mediaFiles, {
-        general: {
-          parallel: false,
+        sceneAnalysis: { 
+          enabled: true,
+          sensitivity: 0.3,
+          minSceneDuration: 1,
+          classifyTypes: false,
+          enableObjectDetection: false,
+          enablePersonTracking: false
         },
+        contentClassification: { 
+          enabled: false,
+          includeSubcategories: false,
+          analyzeMood: false,
+          includeTargeting: false,
+          analyzePlatforms: false,
+          includeMarketing: false,
+          analyzeAccessibility: false
+        },
+        scriptGeneration: { 
+          enabled: false,
+          style: "documentary" as const,
+          includeShotList: false,
+          narrativeStructure: "chronological" as const,
+          tone: "professional" as const
+        },
+        platformAdaptation: { 
+          enabled: false,
+          targetPlatforms: [],
+          languages: [],
+          includeSeO: false,
+          generateVariants: 0
+        },
+        general: {
+          analysisDepth: "normal" as const,
+          parallel: false,
+          maxConcurrent: 1,
+          cacheResults: true,
+          timeout: 60000
+        }
       })
 
       // Ждем завершения

@@ -407,7 +407,7 @@ ${classification ? `Жанр: ${classification.genre}, Стиль: ${classificat
 - shotList: список кадров (если включено)
 - metadata: метаданные`
 
-    const response = await this.aiService.sendRequest("claude-4-sonnet", [{ role: "user", content: prompt }], {
+    const response = await this.sharedAIService.sendRequest("claude-4-sonnet", [{ role: "user", content: prompt }], {
       temperature: 0.4,
     })
 
@@ -449,7 +449,7 @@ ${classification ? `Классификация: ${JSON.stringify(classification)
 Формат ответа JSON с адаптацией.`
 
       try {
-        const response = await this.aiService.sendRequest(
+        const response = await this.sharedAIService.sendRequest(
           "claude-4-sonnet",
           [{ role: "user", content: adaptationPrompt }],
           { temperature: 0.3 },

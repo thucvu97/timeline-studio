@@ -559,6 +559,7 @@ export function createMockMediaFile(name = "video.mp4") {
   return {
     path: `/path/to/${name}`,
     filename: name,
+    name: name,
     size: 1024 * 1024 * 100, // 100MB
     format: name.split(".").pop() || "mp4",
     duration: 120, // 2 minutes
