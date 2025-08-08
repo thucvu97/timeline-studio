@@ -6,7 +6,19 @@
  */
 
 import { assign, setup } from "xstate"
-import type { ClipboardData } from "@/features/timeline/utils/clip-operations"
+// Локальный тип для буфера обмена
+interface ClipboardData {
+  clips: any[]
+  tracks: any[]
+  metadata: {
+    copiedAt: Date
+    originalTimeRange: {
+      startTime: number
+      endTime: number
+    }
+    trackIds: string[]
+  }
+}
 
 // UI состояние timeline
 export interface TimelineContext {

@@ -14,14 +14,26 @@
 import { assign, fromPromise, setup } from "xstate"
 import { getBackendSync } from "@/features/app-state/services/backend-sync"
 import type { MediaFile } from "@/features/media/types/media"
-import type { TimelineClip, TimelineProject, TimelineTrack, TrackType } from "@/features/timeline/types"
-import type { ClipboardData } from "@/features/timeline/utils/clip-operations"
+import type { TimelineClip, Timeline, Track, TrackType } from "../types"
+// Локальный тип для буфера обмена
+interface ClipboardData {
+  clips: TimelineClip[]
+  tracks: Track[]
+  metadata: {
+    copiedAt: Date
+    originalTimeRange: {
+      startTime: number
+      endTime: number
+    }
+    trackIds: string[]
+  }
+}
 import type { Clip, Project, ProjectCommand, ProjectState } from "@/types/generated/tauri-bindings"
 
 // Расширенный контекст машины
 export interface TimelineExtendedContext {
   // Project state
-  project: TimelineProject | null
+  project: Timeline | null
   projectState: ProjectState | null
   isLoading: boolean
   hasUnsavedChanges: boolean
@@ -83,7 +95,7 @@ export type TimelineExtendedEvent =
   // Track events
   | { type: "ADD_TRACK"; trackType: TrackType; name?: string; sectionId?: string }
   | { type: "REMOVE_TRACK"; trackId: string }
-  | { type: "UPDATE_TRACK"; trackId: string; updates: Partial<TimelineTrack> }
+  | { type: "UPDATE_TRACK"; trackId: string; updates: Partial<Track> }
   | { type: "REORDER_TRACKS"; sectionId: string; trackIds: string[] }
   | { type: "SET_ACTIVE_TRACK"; trackId: string | null }
 
@@ -161,8 +173,8 @@ function convertClipToTimelineClip(clip: Clip, trackId: string): TimelineClip {
   }
 }
 
-function convertProjectToTimelineProject(project: Project): TimelineProject {
-  const tracks: TimelineTrack[] = project.timeline.tracks.map((track, index) => ({
+function convertProjectToTimeline(project: Project): Timeline {
+  const tracks: Track[] = project.timeline.tracks.map((track, index) => ({
     id: track.id,
     name: track.name,
     type: track.track_type.toLowerCase() as TrackType,
@@ -285,7 +297,7 @@ export const timelineExtendedMachine = setup({
     setProject: assign({
       project: ({ event }) => {
         if (event.type === "PROJECT_UPDATED" && event.project) {
-          return convertProjectToTimelineProject(event.project)
+          return convertProjectToTimeline(event.project)
         }
         return null
       },
@@ -502,18 +514,21 @@ export const timelineExtendedMachine = setup({
       entry: "setLoading",
       invoke: {
         src: "executeCommand",
-        input: ({ event }) => ({
-          command: {
-            type: "CreateProject",
-            params: {
-              name: event.name,
-              settings: event.settings || {
-                fps: 30,
-                resolution: "1920x1080",
+        input: ({ event }) => {
+          if (event.type !== "CREATE_PROJECT") throw new Error("Invalid event type")
+          return {
+            command: {
+              type: "CreateProject",
+              params: {
+                name: event.name,
+                settings: event.settings || {
+                  fps: 30,
+                  resolution: "1920x1080",
+                },
               },
             },
-          },
-        }),
+          }
+        },
         onDone: {
           target: "active",
           actions: ["clearLoading", "markUnsaved"],
@@ -529,12 +544,15 @@ export const timelineExtendedMachine = setup({
       entry: "setLoading",
       invoke: {
         src: "executeCommand",
-        input: ({ event }) => ({
-          command: {
-            type: "OpenProject",
-            params: { path: event.path },
-          },
-        }),
+        input: ({ event }) => {
+          if (event.type !== "LOAD_PROJECT") throw new Error("Invalid event type")
+          return {
+            command: {
+              type: "OpenProject",
+              params: { path: event.path },
+            },
+          }
+        },
         onDone: {
           target: "active",
           actions: ["clearLoading", "markSaved"],
@@ -743,4 +761,3 @@ export const timelineExtendedMachine = setup({
 })
 
 export type TimelineExtendedMachine = typeof timelineExtendedMachine
-export type TimelineExtendedActor = ReturnType<typeof timelineExtendedMachine.createActor>
