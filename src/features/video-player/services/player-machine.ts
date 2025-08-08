@@ -1,3 +1,6 @@
+/**
+ * @deprecated Используйте player-machine из @/domains/video-editing
+ */
 import { assign, setup } from "xstate"
 
 import type { MediaFile } from "@/features/media/types/media"

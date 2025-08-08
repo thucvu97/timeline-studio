@@ -2,6 +2,8 @@
  * Timeline UI State Machine
  *
  * Управляет только UI состоянием timeline, данные проекта берутся из backend
+ *
+ * @deprecated Используйте timeline-machine из @/domains/video-editing
  */
 
 import { assign, setup } from "xstate"
