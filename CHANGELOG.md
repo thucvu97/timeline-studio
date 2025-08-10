@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/chatman-media/timeline-studio/compare/v1.1.1...v1.2.0) (2025-08-10)
+
+
+### Features
+
+* интеграция AI chat с бэкендом через UnifiedAIService ([b0822a5](https://github.com/chatman-media/timeline-studio/commit/b0822a5051bcad25cc63e14af9885ae21be521a9))
+
 ## [1.1.1](https://github.com/chatman-media/timeline-studio/compare/v1.1.0...v1.1.1) (2025-08-10)
 
 
