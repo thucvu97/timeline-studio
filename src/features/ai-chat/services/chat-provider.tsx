@@ -6,7 +6,7 @@
 
 import type React from "react"
 import { createContext, useCallback, useContext, useEffect, useState } from "react"
-
+import { UnifiedAIService } from "@/domains/ai-core/services"
 import { getBackendSync } from "@/features/app-state/services/backend-sync"
 import type { ProjectState } from "@/types/generated/tauri-bindings"
 
@@ -82,6 +82,7 @@ interface ChatProviderProps {
 export function ChatProvider({ children }: ChatProviderProps) {
   const [backendSync] = useState(() => getBackendSync())
   const [backendState, setBackendState] = useState<ProjectState | null>(null)
+  const [aiService] = useState(() => UnifiedAIService.getInstance())
 
   // Backend состояние
   const [sessions, setSessions] = useState<ChatSession[]>([])
@@ -99,6 +100,53 @@ export function ChatProvider({ children }: ChatProviderProps) {
   const [isProcessing, setIsProcessing] = useState(false)
   const [isCreatingNewChat, setIsCreatingNewChat] = useState(false)
 
+  // Флаг для отслеживания был ли вызван updateSessions
+  const [wasUpdated, setWasUpdated] = useState(false)
+
+  // Ключ для localStorage
+  const CHAT_STORAGE_KEY = "timeline-studio-chat-sessions"
+
+  // Загрузка сессий из localStorage при инициализации
+  useEffect(() => {
+    try {
+      const storedSessions = localStorage.getItem(CHAT_STORAGE_KEY)
+      if (storedSessions) {
+        const parsedSessions = JSON.parse(storedSessions)
+        // Конвертируем строки дат обратно в объекты Date
+        const sessions: ChatSession[] = parsedSessions.map((s: any) => ({
+          ...s,
+          createdAt: new Date(s.createdAt),
+          updatedAt: new Date(s.updatedAt),
+          messages: s.messages.map((m: any) => ({
+            ...m,
+            timestamp: new Date(m.timestamp),
+          })),
+        }))
+        setSessions(sessions)
+
+        // Восстанавливаем последнюю активную сессию
+        if (sessions.length > 0) {
+          setCurrentSession(sessions[0])
+        }
+
+        setWasUpdated(true)
+      }
+    } catch (error) {
+      console.error("Failed to load chat sessions from localStorage:", error)
+    }
+  }, [])
+
+  // Сохранение сессий в localStorage при изменении
+  useEffect(() => {
+    if (sessions.length > 0 || wasUpdated) {
+      try {
+        localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(sessions))
+      } catch (error) {
+        console.error("Failed to save chat sessions to localStorage:", error)
+      }
+    }
+  }, [sessions, wasUpdated])
+
   // Подписка на backend состояние
   useEffect(() => {
     const unsubscribe = backendSync.onStateChange((state: ProjectState) => {
@@ -106,7 +154,7 @@ export function ChatProvider({ children }: ChatProviderProps) {
       setError(null)
 
       // Извлекаем сессии чата из состояния проекта
-      // TODO: Пока backend не поддерживает чат, используем локальное хранилище
+      // TODO: Когда backend будет поддерживать чат, использовать его вместо localStorage
       // if (state.project?.metadata?.chatSessions) {
       //   setSessions(state.project.metadata.chatSessions)
       // }
@@ -114,9 +162,6 @@ export function ChatProvider({ children }: ChatProviderProps) {
 
     return unsubscribe
   }, [backendSync])
-
-  // Флаг для отслеживания был ли вызван updateSessions
-  const [wasUpdated, setWasUpdated] = useState(false)
 
   // Инициализация дефолтной сессии только если не было вызвано updateSessions
   useEffect(() => {
@@ -190,7 +235,20 @@ export function ChatProvider({ children }: ChatProviderProps) {
 
   const deleteSession = useCallback(
     async (sessionId: string) => {
-      setSessions((prev) => prev.filter((s) => s.id !== sessionId))
+      setSessions((prev) => {
+        const newSessions = prev.filter((s) => s.id !== sessionId)
+
+        // Если удаляем последнюю сессию, очищаем localStorage
+        if (newSessions.length === 0) {
+          try {
+            localStorage.removeItem(CHAT_STORAGE_KEY)
+          } catch (error) {
+            console.error("Failed to clear chat sessions from localStorage:", error)
+          }
+        }
+
+        return newSessions
+      })
 
       if (currentSession?.id === sessionId) {
         setCurrentSession(null)
@@ -204,7 +262,7 @@ export function ChatProvider({ children }: ChatProviderProps) {
       //   params: { sessionId }
       // })
     },
-    [currentSession],
+    [currentSession, CHAT_STORAGE_KEY],
   )
 
   const switchToSession = useCallback(async (sessionId: string) => {
@@ -259,22 +317,100 @@ export function ChatProvider({ children }: ChatProviderProps) {
         return updatedSession
       })
 
-      // Симулируем ответ AI (пока нет интеграции с backend)
+      // Используем реальный AI сервис
       setIsStreaming(true)
+      setIsProcessing(true)
 
-      setTimeout(() => {
-        const aiMessage: ChatMessage = {
+      try {
+        // Подготовка контекста для AI
+        const systemPrompt =
+          "Ты - ассистент для видеоредактора Timeline Studio. Помогай пользователям с монтажом видео, обработкой медиафайлов и использованием функций приложения."
+
+        // Формируем историю сообщений для контекста
+        const messages = currentSession?.messages.slice(-10) || [] // Последние 10 сообщений для контекста
+
+        // Формируем сообщения для AI
+        const aiMessages = [
+          {
+            role: "system" as const,
+            content: systemPrompt,
+          },
+          ...messages.map((msg) => ({
+            role: msg.role,
+            content: msg.content,
+          })),
+          {
+            role: "user" as const,
+            content: content,
+          },
+        ]
+
+        let aiResponse = ""
+
+        // Стриминг ответа
+        await aiService.sendStreamingRequest(selectedAgentId || "claude-4-sonnet-latest", aiMessages, {
+          onToken: (chunk: string) => {
+            aiResponse += chunk
+
+            // Обновляем временное сообщение во время стриминга
+            setCurrentSession((prev) => {
+              if (!prev) return prev
+
+              const tempMessageId = `msg_temp_${prev.id}`
+              const existingTempMessage = prev.messages.find((m) => m.id === tempMessageId)
+
+              let updatedMessages: any
+              if (existingTempMessage) {
+                // Обновляем существующее временное сообщение
+                updatedMessages = prev.messages.map((m) => (m.id === tempMessageId ? { ...m, content: aiResponse } : m))
+              } else {
+                // Создаем новое временное сообщение
+                updatedMessages = [
+                  ...prev.messages,
+                  {
+                    id: tempMessageId,
+                    content: aiResponse,
+                    role: "assistant" as const,
+                    timestamp: new Date(),
+                  },
+                ]
+              }
+
+              const updatedSession = {
+                ...prev,
+                messages: updatedMessages,
+                updatedAt: new Date(),
+              }
+
+              setSessions((prevSessions) => prevSessions.map((s) => (s.id === prev.id ? updatedSession : s)))
+
+              return updatedSession
+            })
+          },
+          maxTokens: 4096,
+        })
+
+        // Финализируем сообщение после завершения стриминга
+        const finalMessage: ChatMessage = {
           id: `msg_${Date.now() + 1}`,
-          content: `Это ответ на ваше сообщение: "${content}"`,
+          content: aiResponse,
           role: "assistant",
           timestamp: new Date(),
+          metadata: {
+            model: selectedAgentId,
+            tokenCount: aiResponse.length / 4, // Примерная оценка
+          },
         }
 
         setCurrentSession((prev) => {
           if (!prev) return prev
+
+          // Удаляем временное сообщение и добавляем финальное
+          const messagesWithoutTemp = prev.messages.filter((m) => !m.id.includes("temp"))
+
           const updatedSession = {
             ...prev,
-            messages: [...prev.messages, aiMessage],
+            messages: [...messagesWithoutTemp, finalMessage],
             updatedAt: new Date(),
           }
 
@@ -282,11 +418,42 @@ export function ChatProvider({ children }: ChatProviderProps) {
 
           return updatedSession
         })
+      } catch (error) {
+        console.error("AI response error:", error)
+        setError(error instanceof Error ? error.message : "Ошибка при получении ответа от AI")
 
+        // Добавляем сообщение об ошибке
+        const errorMessage: ChatMessage = {
+          id: `msg_error_${Date.now()}`,
+          content: "Извините, произошла ошибка при обработке вашего запроса. Пожалуйста, попробуйте еще раз.",
+          role: "assistant",
+          timestamp: new Date(),
+          metadata: {
+            error: true,
+            errorDetails: error instanceof Error ? error.message : String(error),
+          },
+        }
+
+        setCurrentSession((prev) => {
+          if (!prev) return prev
+
+          // Удаляем временное сообщение если оно есть
+          const messagesWithoutTemp = prev.messages.filter((m) => !m.id.includes("temp"))
+
+          const updatedSession = {
+            ...prev,
+            messages: [...messagesWithoutTemp, errorMessage],
+            updatedAt: new Date(),
+          }
+
+          setSessions((prevSessions) => prevSessions.map((s) => (s.id === prev.id ? updatedSession : s)))
+
+          return updatedSession
+        })
+      } finally {
         setIsStreaming(false)
-      }, 1000)
-
-      console.warn("Chat AI integration not yet implemented in backend")
+        setIsProcessing(false)
+      }
 
       // В будущем это будет:
       // await executeCommand({

@@ -8,14 +8,6 @@
 import { ApiKeyLoader, getAIContainer } from "@/domains/ai-core"
 import { type ClaudeTool } from "@/domains/ai-core/providers/claude"
 import {
-  AIBrowserContext,
-  AIPlayerContext,
-  AIResourcesContext,
-  AITimelineContext,
-  ContentStoryAnalysis,
-  TimelineStudioContext,
-} from "@/features/ai-chat"
-import {
   AIToolResult,
   batchProcessingTools,
   browserTools,
@@ -48,6 +40,14 @@ import {
   whisperTools,
   workflowAutomationTools,
 } from "@/features/ai-chat/tools"
+import {
+  AIBrowserContext,
+  AIPlayerContext,
+  AIResourcesContext,
+  AITimelineContext,
+  ContentStoryAnalysis,
+  TimelineStudioContext,
+} from "@/features/ai-chat/types/ai-context"
 import type { MediaFile } from "@/features/media/types/media"
 import { ResourcesContextType } from "@/features/resources"
 import { TimelineProject } from "@/features/timeline"
