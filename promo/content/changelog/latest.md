@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/chatman-media/timeline-studio/compare/v1.2.0...v1.3.0) (2025-08-10)
+
+
+### Features
+
+* интеграция AI chat с backend через Rust state management ([688d5bb](https://github.com/chatman-media/timeline-studio/commit/688d5bb57a7d108aba32c42be0814f3f0330b312))
+
 # [1.2.0](https://github.com/chatman-media/timeline-studio/compare/v1.1.1...v1.2.0) (2025-08-10)
 
 
