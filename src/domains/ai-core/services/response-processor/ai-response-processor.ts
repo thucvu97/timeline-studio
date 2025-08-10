@@ -3,7 +3,7 @@
  * Извлечен из UnifiedAIService для улучшения архитектуры
  */
 
-import type { AIProvider } from "./model-configuration-manager"
+import type { AIProvider } from "../model-manager"
 
 // Результат запроса
 export interface UnifiedResponse {

@@ -7,26 +7,25 @@ import { invoke } from "@tauri-apps/api/core"
 
 import type {
   AudioAnalysisResult,
-  KeyFrameExtractionResult,
   MotionAnalysisResult,
   QualityAnalysisResult,
   SceneDetectionResult,
   SilenceDetectionResult,
   VideoAnalysisOptions,
   VideoMetadata,
-} from "../../../shared/types/media-analysis"
+} from "@/domains/ai-services/types/interfaces"
+import { KeyFrameExtractionResult } from "@/domains/shared/types"
 
 // Реэкспортируем типы для обратной совместимости
 export type {
   AudioAnalysisResult,
-  KeyFrameExtractionResult,
   MotionAnalysisResult,
   QualityAnalysisResult,
   SceneDetectionResult,
   SilenceDetectionResult,
   VideoAnalysisOptions,
   VideoMetadata,
-} from "../../../shared/types/media-analysis"
+} from "@/domains/ai-services/types/interfaces"
 
 /**
  * Основной сервис FFmpeg анализа

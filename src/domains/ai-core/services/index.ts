@@ -70,7 +70,7 @@ export function registerAICoreServices(container: AIDIContainer): void {
 
 // Экспорт сервисов
 export { ApiKeyLoader } from "./api-key-loader"
-export { ModelManagerImpl } from "./model-manager"
+export { type AIProvider, ModelManagerImpl } from "./model-manager"
 export {
   EnhancedUnifiedAIService,
   EnhancedUnifiedAIService as UnifiedAIService,

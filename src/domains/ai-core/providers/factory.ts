@@ -3,7 +3,7 @@
  * Фабрика для создания AI провайдеров с dependency injection
  */
 
-import type { AIProviderFactory, IAIProvider, ModelConfig } from "../types"
+import type { AIProviderFactory, IAIProvider, ModelConfiguration } from "../types"
 import { ClaudeProvider } from "./claude/claude-provider"
 import { DeepSeekProvider } from "./deepseek/deepseek-provider"
 import { GrokProvider } from "./grok/grok-provider"
@@ -12,7 +12,7 @@ import { OpenAIProvider } from "./openai/openai-provider"
 
 export class AIProviderFactoryImpl implements AIProviderFactory {
   private providers = new Map<string, IAIProvider>()
-  private modelCache: ModelConfig[] | null = null
+  private modelCache: ModelConfiguration[] | null = null
 
   createClaudeProvider(): IAIProvider {
     const key = "claude"
@@ -142,12 +142,12 @@ export class AIProviderFactoryImpl implements AIProviderFactory {
   }
 
   // Дополнительные методы
-  async getAllModels(): Promise<ModelConfig[]> {
+  async getAllModels(): Promise<ModelConfiguration[]> {
     if (this.modelCache) {
       return this.modelCache
     }
 
-    const allModels: ModelConfig[] = []
+    const allModels: ModelConfiguration[] = []
     const providers = [
       { name: "claude", instance: this.createClaudeProvider() },
       { name: "openai", instance: this.createOpenAIProvider() },
@@ -163,7 +163,7 @@ export class AIProviderFactoryImpl implements AIProviderFactory {
 
         const models = await instance.getAvailableModels()
         for (const model of models) {
-          const config: ModelConfig = {
+          const config: ModelConfiguration = {
             provider: name,
             model: model,
             displayName: this.getDisplayName(model),

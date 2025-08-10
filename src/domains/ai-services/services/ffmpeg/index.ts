@@ -3,7 +3,6 @@
  * Адаптер для интеграции с FFmpeg анализом через shared интерфейсы
  */
 
-import { FFmpegAnalysisService } from "@/features/ai-chat/services/ffmpeg-analysis-service"
 import type {
   IFFmpegAnalysisService,
   MotionAnalysisResult,
@@ -12,6 +11,7 @@ import type {
   SilenceDetectionResult,
   VideoMetadata,
 } from "../../types/interfaces"
+import { FFmpegAnalysisService } from "../media-analysis"
 
 export class FFmpegAdapter implements IFFmpegAnalysisService {
   private ffmpegService: any

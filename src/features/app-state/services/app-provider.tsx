@@ -4,10 +4,10 @@
  * Главный провайдер с новой архитектурой backend state management
  */
 
-// Используем машину из домена
-import { appMachine } from "@domains/project-management/machines/app-machine"
 import { useMachine } from "@xstate/react"
 import React, { type ReactNode, useEffect } from "react"
+// Используем машину из домена
+import { appMachine } from "@/domains/project-management/machines/app-machine"
 
 export interface AppProviderV2Context {
   // Backend connection state

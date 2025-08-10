@@ -6,6 +6,10 @@ import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { UnifiedAIService } from "@/domains/ai-core/services"
+import type { AiResponse } from "@/domains/ai-core/types/providers"
+import type { Agent, AgentId, ChatMessage } from "@/domains/ai-services/types/chat"
+import { useTimeline } from "@/domains/video-editing/hooks"
 import { shortcutsRegistry } from "@/features/keyboard-shortcuts"
 import { useMediaImport } from "@/features/media/hooks/use-media-import"
 import { useModal } from "@/features/modals"
@@ -14,10 +18,7 @@ import { cn } from "@/lib/utils"
 // Импорты констант моделей больше не нужны - будем получать через UnifiedAIService
 import { useChat } from "../hooks/use-chat"
 import { useResourcesAIIntegration } from "../hooks/use-resources-ai-integration"
-import { useSafeTimeline } from "../hooks/use-safe-timeline"
 import { chatStorageService } from "../services/chat-storage-service"
-import { UnifiedAIService } from "../services/unified-ai-service"
-import type { Agent, AgentId, ChatMessage } from "../types/chat"
 import { compressContext, isContextOverLimit } from "../utils/context-manager"
 import { createTimelineContextPrompt } from "../utils/timeline-context"
 import { ChatList } from "./chat-list"
@@ -71,7 +72,7 @@ export function AiChat() {
   const { importFile } = useMediaImport()
 
   // Получаем контекст Timeline (если доступен)
-  const timelineContext = useSafeTimeline()
+  const timelineContext = useTimeline()
 
   // Интеграция с ResourcesProvider для AI инструментов
   const { isIntegrated, resourceStats } = useResourcesAIIntegration()
@@ -102,9 +103,9 @@ export function AiChat() {
 
         // Преобразуем модели в формат Agent
         const agents: Agent[] = models.map((model) => ({
-          id: model.id,
-          name: model.name,
-          useTools: model.supportsTools,
+          id: model.model,
+          name: model.displayName || model.model,
+          useTools: model.supportTools || false,
           provider: model.provider,
         }))
 
@@ -237,10 +238,29 @@ export function AiChat() {
         ]
 
         // Создаем системный промпт с контекстом Timeline
+        // Временный обходной путь - преобразуем Timeline в TimelineProject-подобный объект
+        const projectLikeObj = timelineContext?.project
+          ? {
+              ...timelineContext.project,
+              description: "",
+              settings: {
+                ...timelineContext.project.settings,
+                resolution: timelineContext.project.settings?.resolution || { width: 1920, height: 1080 },
+                fps: timelineContext.project.settings?.fps || timelineContext.project.fps || 30,
+                aspectRatio: timelineContext.project.settings?.aspectRatio || "16:9",
+              },
+              sections: timelineContext.project.sections.map((section, index) => ({
+                ...section,
+                index,
+                duration: section.endTime - section.startTime,
+              })),
+            }
+          : null
+
         let systemPrompt = createTimelineContextPrompt(
-          timelineContext?.project || null,
-          timelineContext?.project?.sections?.[0] || null, // Активная секция (пока берем первую)
-          (timelineContext?.uiState?.selectedClipIds
+          projectLikeObj as any,
+          (projectLikeObj?.sections?.[0] as any) || null,
+          (timelineContext?.selectedClipIds
             ?.map((id: string) => {
               // Находим выбранные клипы в проекте
               for (const section of timelineContext.project?.sections || []) {
@@ -295,13 +315,13 @@ export function AiChat() {
         setStreamingContent("")
 
         // Общий обработчик для завершения потокового ответа
-        const handleStreamComplete = async (fullContent: string) => {
+        const handleStreamComplete = async (response: AiResponse) => {
           setIsStreaming(false)
           setStreamingContent("")
 
           const agentMessage: ChatMessage = {
             id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-            content: fullContent,
+            content: response.content,
             role: "assistant",
             timestamp: new Date(),
             agent: (selectedAgentId as AgentId) ?? ("qwen-2-5" as AgentId),

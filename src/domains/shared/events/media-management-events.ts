@@ -4,7 +4,7 @@
  * События домена управления медиа
  */
 
-import type { MediaFile } from "@domains/ai-services/types/montage-planner"
+import type { MediaFile } from "@/domains/ai-services/types/montage-planner"
 
 // === File Operations Events ===
 

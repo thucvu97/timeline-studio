@@ -4,8 +4,8 @@
  */
 
 // Импорт shared типов для Content Intelligence
+import { AiMessage } from "@/domains/ai-core"
 import type { ContentAnalysisResult, IFFmpegAnalysisService, MediaFile } from "@/domains/ai-services/types/interfaces"
-import type { AiMessage } from "../types/ai-message"
 
 // Реэкспорт shared типов для обратной совместимости
 export type MediaInput = MediaFile

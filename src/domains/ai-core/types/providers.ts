@@ -64,7 +64,7 @@ export interface IAIProvider {
 }
 
 // Конфигурация модели
-export interface ModelConfig {
+export interface ModelConfiguration {
   provider: string
   model: string
   displayName?: string

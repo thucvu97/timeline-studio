@@ -47,5 +47,10 @@ export {
   type UnifiedRequestOptions,
   type UnifiedResponse,
 } from "./services"
+// Intent Recognition
+export * from "./services/intent-recognition"
+
+// Response Processor
+export * from "./services/response-processor"
 // Types
 export * from "./types"

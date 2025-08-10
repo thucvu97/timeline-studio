@@ -3,7 +3,7 @@
  * Pipeline, workflow и оркестрация различных AI сервисов
  */
 
-import type { ModelConfig } from "@/domains/ai-core/types"
+import type { ModelConfiguration } from "@/domains/ai-core/types"
 import type { ContentAnalysisResult, MediaFile } from "./interfaces"
 
 // Базовые типы для оркестрации
@@ -42,13 +42,13 @@ export interface WorkflowDefinition {
   id: string
   name: string
   description: string
-  steps: WorkflowStep[]
+  steps: PipelineWorkflowStep[]
   inputSchema?: any
   outputSchema?: any
   version: string
 }
 
-export interface WorkflowStep {
+export interface PipelineWorkflowStep {
   id: string
   name: string
   type: "analysis" | "ai_request" | "transformation" | "validation" | "custom"
@@ -137,7 +137,7 @@ export interface IAIOrchestrator {
 
 export interface AnalysisOptions {
   analysisTypes?: AnalysisType[]
-  aiModels?: ModelConfig[]
+  aiModels?: ModelConfiguration[]
   concurrency?: number
   cacheResults?: boolean
   outputDir?: string

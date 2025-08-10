@@ -3,7 +3,7 @@
  * Управление моделями, транскрипция и перевод аудио
  */
 
-import { WhisperService } from "../../services/whisper-service"
+import { WhisperService } from "../../../../domains/ai-services/services/whisper-service"
 import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
 
 // Типы для Whisper операций

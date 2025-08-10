@@ -10,7 +10,7 @@ import type {
   AiResponse,
   IAIProvider,
   IUnifiedAIService,
-  ModelConfig,
+  ModelConfiguration,
   ModelManager,
   StreamingOptions,
 } from "../types"
@@ -217,7 +217,7 @@ export class EnhancedUnifiedAIService implements IUnifiedAIService {
     throw lastError || new Error("All streaming providers failed")
   }
 
-  async getAvailableModels(): Promise<ModelConfig[]> {
+  async getAvailableModels(): Promise<ModelConfiguration[]> {
     if (!this.modelManager) {
       console.warn("ModelManager not initialized, returning empty models list")
       return []
@@ -225,7 +225,7 @@ export class EnhancedUnifiedAIService implements IUnifiedAIService {
     return await this.modelManager.getAvailableModels()
   }
 
-  async getBestModelForTask(task: string, taskOptions?: any): Promise<ModelConfig | null> {
+  async getBestModelForTask(task: string, taskOptions?: any): Promise<ModelConfiguration | null> {
     if (!this.modelManager) {
       console.warn("ModelManager not initialized, returning null")
       return null
@@ -312,7 +312,7 @@ export class EnhancedUnifiedAIService implements IUnifiedAIService {
     }
   }
 
-  async getModelInfo(model: string): Promise<ModelConfig | null> {
+  async getModelInfo(model: string): Promise<ModelConfiguration | null> {
     const models = await this.getAvailableModels()
     return models.find((m) => m.model === model) || null
   }

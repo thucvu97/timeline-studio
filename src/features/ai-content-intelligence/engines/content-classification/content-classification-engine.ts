@@ -9,7 +9,7 @@ import {
   type ContentClassification,
   type MediaInput,
   type SceneAnalysis,
-} from "@/features/ai-chat/services/content-intelligence-service"
+} from "@/domains/ai-services/services/content-intelligence-service"
 import { UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service"
 
 // Расширенная классификация контента

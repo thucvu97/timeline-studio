@@ -21,7 +21,6 @@ export type {
 
 // Re-export user settings types
 export type {
-  BrowserTab,
   LayoutMode,
   UserSettingsContextType,
   UserSettingsEvent,

@@ -1,7 +1,7 @@
 /**
  * Timeline UI Machine - Legacy re-export
  *
- * @deprecated Используйте импорт из @domains/video-editing
+ * @deprecated Используйте импорт из @/domains/video-editing
  * Этот файл оставлен для обратной совместимости
  */
 
@@ -10,6 +10,9 @@ export type {
   TimelineEvent,
   TimelineMachine,
   TimelineUIContext,
-} from "@domains/video-editing/machines/timeline-machine"
+} from "@/domains/video-editing/machines/timeline-machine"
 // Для обратной совместимости экспортируем под старым именем
-export { timelineMachine as timelineUiMachine, timelineMachine } from "@domains/video-editing/machines/timeline-machine"
+export {
+  timelineMachine as timelineUiMachine,
+  timelineMachine,
+} from "@/domains/video-editing/machines/timeline-machine"

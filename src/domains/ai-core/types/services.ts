@@ -4,11 +4,11 @@
  * Типы для основных AI сервисов
  */
 
-import type { AiMessage, AiRequestOptions, AiResponse, ModelConfig, StreamingOptions } from "./providers"
+import type { AiMessage, AiRequestOptions, AiResponse, ModelConfiguration, StreamingOptions } from "./providers"
 
 // Менеджер моделей
 export interface ModelManager {
-  getAvailableModels(): Promise<ModelConfig[]>
+  getAvailableModels(): Promise<ModelConfiguration[]>
   getProviderByModel(model: string): string
   isModelAvailable(model: string): Promise<boolean>
 
@@ -20,7 +20,7 @@ export interface ModelManager {
       requiresStreaming?: boolean
       requiresTools?: boolean
     },
-  ): Promise<ModelConfig | null>
+  ): Promise<ModelConfiguration | null>
 }
 
 // Унифицированный AI сервис
@@ -34,8 +34,8 @@ export interface IUnifiedAIService {
   ): Promise<void>
 
   // Модели
-  getAvailableModels(): Promise<ModelConfig[]>
-  getBestModelForTask(task: string, options?: any): Promise<ModelConfig | null>
+  getAvailableModels(): Promise<ModelConfiguration[]>
+  getBestModelForTask(task: string, options?: any): Promise<ModelConfiguration | null>
 
   // Провайдеры
   getProviderStatuses(): Promise<Record<string, boolean>>

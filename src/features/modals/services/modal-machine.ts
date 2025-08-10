@@ -1,7 +1,7 @@
 /**
  * Modal Machine - Legacy re-export
  *
- * @deprecated Используйте импорт из @domains/system-integration
+ * @deprecated Используйте импорт из @/domains/system-integration
  * Этот файл оставлен для обратной совместимости
  */
 
@@ -13,6 +13,6 @@ export type {
   ModalEvent,
   ModalMachine,
   ModalType,
-} from "@domains/system-integration/machines/modal-machine"
+} from "@/domains/system-integration/machines/modal-machine"
 
-export { modalMachine } from "@domains/system-integration/machines/modal-machine"
+export { modalMachine } from "@/domains/system-integration/machines/modal-machine"

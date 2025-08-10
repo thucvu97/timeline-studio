@@ -9,5 +9,5 @@ export type {
   ActionType,
   UndoRedoAction,
   UndoRedoResult,
-} from "@domains/video-editing/services/undo-redo-service"
-export { UndoRedoService } from "@domains/video-editing/services/undo-redo-service"
+} from "@/domains/video-editing/services/undo-redo-service"
+export { UndoRedoService } from "@/domains/video-editing/services/undo-redo-service"

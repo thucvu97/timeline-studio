@@ -10,4 +10,4 @@ export {
   useKeyframeUndoRedo,
   useTrackUndoRedo,
   useUndoRedoContext,
-} from "@domains/video-editing/providers/undo-redo-provider"
+} from "@/domains/video-editing/providers/undo-redo-provider"

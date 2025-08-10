@@ -4,8 +4,8 @@
  * Провайдер для автоматической регистрации действий Undo/Redo в домене
  */
 
-import type { Clip, Track } from "@domains/shared/events"
 import { createContext, type ReactNode, useContext } from "react"
+import type { Clip, Track } from "@/domains/shared/events"
 import { UndoRedoHelpers, useUndoRedo } from "../hooks/use-undo-redo"
 
 interface UndoRedoContextType {

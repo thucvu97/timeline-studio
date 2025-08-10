@@ -8,14 +8,14 @@
  * - Межdomainная коммуникация через EventBus
  */
 
+import { type ActorRefFrom, createActor } from "xstate"
 import {
   type ClipAddedEvent,
   DOMAIN_EVENTS,
   eventBus,
   type PlaybackStateChangedEvent,
   type TimelineUpdatedEvent,
-} from "@domains/shared/events"
-import { type ActorRefFrom, createActor } from "xstate"
+} from "@/domains/shared/events"
 import { getBackendSync } from "@/features/app-state/services/backend-sync"
 import type { ProjectCommand, ProjectState } from "@/types/generated/tauri-bindings"
 import { playerMachine } from "../machines/player-machine"

@@ -4,7 +4,7 @@
  * События домена AI сервисов
  */
 
-import type { MediaFile, MontagePlan } from "@domains/ai-services/types/montage-planner"
+import type { MediaFile, MontagePlan } from "@/domains/ai-services/types/montage-planner"
 
 // === Chat Events ===
 

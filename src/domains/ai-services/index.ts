@@ -13,6 +13,16 @@ export {
 export { ContentAnalysisService } from "./services/content"
 // Services
 export { ContentClassifier } from "./services/content-classifier"
+// Media Analysis Services
+export * from "./services/media-analysis"
+
+// Platform Optimization Services
+export * from "./services/platform-optimization"
+// Vision Services
+export * from "./services/vision"
+
+// Workflow Automation
+export * from "./services/workflow-automation"
 export type {
   Audience,
   ClassificationResult,

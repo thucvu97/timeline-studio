@@ -4,14 +4,14 @@
  * Координирует работу AI сервисов и публикует события
  */
 
+import { type ActorRefFrom, createActor } from "xstate"
 import {
   type ChatMessageSentEvent,
   type ContentAnalysisStartedEvent,
   DOMAIN_EVENTS,
   eventBus,
   type MontagePlanGeneratedEvent,
-} from "@domains/shared/events"
-import { type ActorRefFrom, createActor } from "xstate"
+} from "@/domains/shared/events"
 import { type AIIntelligenceMachine, aiIntelligenceMachine } from "../machines/ai-intelligence-machine"
 import { type ChatMachine, chatMachine } from "../machines/chat-machine"
 import { type MontagePlannerMachine, montagePlannerMachine } from "../machines/montage-planner-machine"

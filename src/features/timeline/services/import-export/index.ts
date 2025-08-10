@@ -4,4 +4,4 @@
  * Этот файл обеспечивает обратную совместимость
  */
 
-export * from "@domains/video-editing/services/import-export"
+export * from "@/domains/video-editing/services/import-export"

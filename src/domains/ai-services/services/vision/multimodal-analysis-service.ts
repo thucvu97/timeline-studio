@@ -182,9 +182,6 @@ export class MultimodalAnalysisService {
       const aiContainer = getAIContainer()
       const visionService = (await aiContainer.resolve("VisionService")) as IVisionService
 
-      // Создаем промпт в зависимости от типа анализа
-      const prompt = this.buildAnalysisPrompt(params)
-
       // Vision service анализирует кадр
       const frameAnalysis = await visionService.analyzeFrame(params.frameImagePath)
 

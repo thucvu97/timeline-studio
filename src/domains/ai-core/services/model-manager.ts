@@ -3,21 +3,112 @@
  * Управление моделями и их конфигурациями
  */
 
-import type { AIProviderFactory, ModelConfig, ModelManager } from "../types"
+import { CLAUDE_MODELS, DEEPSEEK_MODELS, OPENAI_MODELS } from "../providers"
+import type { AIProviderFactory, ModelConfiguration, ModelManager } from "../types"
+
+// Типы AI провайдеров
+export type AIProvider = "claude" | "openai" | "deepseek" | "ollama" | "grok"
+
+// Интерфейс для проверки доступности провайдеров
+export interface ProviderAvailabilityChecker {
+  isClaudeAvailable(): Promise<boolean>
+  isOpenAIAvailable(model: string): Promise<boolean>
+  isDeepSeekAvailable(): Promise<boolean>
+  isOllamaAvailable(): Promise<boolean>
+  getOllamaModels(): Promise<Array<{ name: string; details: { parameter_size: string } }>>
+}
 
 export class ModelManagerImpl implements ModelManager {
-  private availableModels: ModelConfig[] = []
-  private modelCache: Map<string, ModelConfig> = new Map()
+  private availableModels: ModelConfiguration[] = []
+  private modelCache: Map<string, ModelConfiguration> = new Map()
   private lastUpdate: number = 0
   private readonly CACHE_TTL = 300000 // 5 минут
 
+  // Статические модели с расширенной информацией
+  private static readonly STATIC_MODELS: Record<string, Partial<ModelConfiguration>> = {
+    // Claude модели
+    [CLAUDE_MODELS.CLAUDE_4_SONNET_LATEST]: {
+      displayName: "Claude 4 Sonnet",
+      maxTokens: 200000,
+      supportTools: true,
+      supportStreaming: true,
+      supportVision: true,
+    },
+    [CLAUDE_MODELS.CLAUDE_4_OPUS_LATEST]: {
+      displayName: "Claude 4 Opus",
+      maxTokens: 200000,
+      supportTools: true,
+      supportStreaming: true,
+      supportVision: true,
+    },
+    [CLAUDE_MODELS.CLAUDE_4_1]: {
+      displayName: "Claude 4.1",
+      maxTokens: 500000,
+      supportTools: true,
+      supportStreaming: true,
+      supportVision: true,
+    },
+    // OpenAI модели
+    [OPENAI_MODELS.GPT_4]: {
+      displayName: "GPT-4",
+      maxTokens: 8192,
+      supportTools: false,
+      supportStreaming: true,
+    },
+    [OPENAI_MODELS.GPT_4O]: {
+      displayName: "GPT-4o",
+      maxTokens: 128000,
+      supportTools: false,
+      supportStreaming: true,
+      supportVision: true,
+    },
+    [OPENAI_MODELS.GPT_3_5_TURBO]: {
+      displayName: "GPT-3.5 Turbo",
+      maxTokens: 16385,
+      supportTools: false,
+      supportStreaming: true,
+    },
+    [OPENAI_MODELS.O3]: {
+      displayName: "o3",
+      maxTokens: 128000,
+      supportTools: false,
+      supportStreaming: true,
+    },
+    [OPENAI_MODELS.GPT_5]: {
+      displayName: "GPT-5",
+      maxTokens: 1000000,
+      supportTools: true,
+      supportStreaming: true,
+      supportVision: true,
+    },
+    // DeepSeek модели
+    [DEEPSEEK_MODELS.DEEPSEEK_R1]: {
+      displayName: "DeepSeek R1",
+      maxTokens: 65536,
+      supportTools: false,
+      supportStreaming: true,
+    },
+    [DEEPSEEK_MODELS.DEEPSEEK_CHAT]: {
+      displayName: "DeepSeek Chat",
+      maxTokens: 32768,
+      supportTools: false,
+      supportStreaming: true,
+    },
+    [DEEPSEEK_MODELS.DEEPSEEK_CODER]: {
+      displayName: "DeepSeek Coder",
+      maxTokens: 32768,
+      supportTools: false,
+      supportStreaming: true,
+    },
+  }
+
   constructor(private providerFactory: AIProviderFactory) {}
 
-  async getAvailableModels(): Promise<ModelConfig[]> {
+  async getAvailableModels(forceRefresh = false): Promise<ModelConfiguration[]> {
     const now = Date.now()
 
     // Проверяем кэш
-    if (this.availableModels.length > 0 && now - this.lastUpdate < this.CACHE_TTL) {
+    if (!forceRefresh && this.availableModels.length > 0 && now - this.lastUpdate < this.CACHE_TTL) {
       return this.availableModels
     }
 
@@ -27,7 +118,7 @@ export class ModelManagerImpl implements ModelManager {
   }
 
   private async refreshModels(): Promise<void> {
-    const models: ModelConfig[] = []
+    const models: ModelConfiguration[] = []
 
     // Claude модели
     try {
@@ -35,14 +126,15 @@ export class ModelManagerImpl implements ModelManager {
       if (await claudeProvider.isAvailable()) {
         const claudeModels = await claudeProvider.getAvailableModels()
         for (const model of claudeModels) {
+          const staticConfig = ModelManagerImpl.STATIC_MODELS[model] || {}
           models.push({
             provider: "claude",
             model: model,
-            displayName: this.getDisplayName("claude", model),
-            maxTokens: claudeProvider.getMaxTokens?.(model) || 200000,
-            supportTools: true,
-            supportStreaming: true,
-            supportVision: true,
+            displayName: staticConfig.displayName || this.getDisplayName("claude", model),
+            maxTokens: staticConfig.maxTokens || claudeProvider.getMaxTokens?.(model) || 200000,
+            supportTools: staticConfig.supportTools ?? true,
+            supportStreaming: staticConfig.supportStreaming ?? true,
+            supportVision: staticConfig.supportVision ?? true,
             apiKeyRequired: true,
           })
         }
@@ -57,14 +149,15 @@ export class ModelManagerImpl implements ModelManager {
       if (await openaiProvider.isAvailable()) {
         const openaiModels = await openaiProvider.getAvailableModels()
         for (const model of openaiModels) {
+          const staticConfig = ModelManagerImpl.STATIC_MODELS[model] || {}
           models.push({
             provider: "openai",
             model: model,
-            displayName: this.getDisplayName("openai", model),
-            maxTokens: openaiProvider.getMaxTokens?.(model) || 128000,
-            supportTools: this.supportsTools("openai", model),
-            supportStreaming: true,
-            supportVision: this.supportsVision("openai", model),
+            displayName: staticConfig.displayName || this.getDisplayName("openai", model),
+            maxTokens: staticConfig.maxTokens || openaiProvider.getMaxTokens?.(model) || 128000,
+            supportTools: staticConfig.supportTools ?? this.supportsTools("openai", model),
+            supportStreaming: staticConfig.supportStreaming ?? true,
+            supportVision: staticConfig.supportVision ?? this.supportsVision("openai", model),
             apiKeyRequired: true,
           })
         }
@@ -79,14 +172,15 @@ export class ModelManagerImpl implements ModelManager {
       if (await deepseekProvider.isAvailable()) {
         const deepseekModels = await deepseekProvider.getAvailableModels()
         for (const model of deepseekModels) {
+          const staticConfig = ModelManagerImpl.STATIC_MODELS[model] || {}
           models.push({
             provider: "deepseek",
             model: model,
-            displayName: this.getDisplayName("deepseek", model),
-            maxTokens: deepseekProvider.getMaxTokens?.(model) || 32768,
-            supportTools: false,
-            supportStreaming: true,
-            supportVision: false,
+            displayName: staticConfig.displayName || this.getDisplayName("deepseek", model),
+            maxTokens: staticConfig.maxTokens || deepseekProvider.getMaxTokens?.(model) || 32768,
+            supportTools: staticConfig.supportTools ?? false,
+            supportStreaming: staticConfig.supportStreaming ?? true,
+            supportVision: staticConfig.supportVision ?? false,
             apiKeyRequired: true,
           })
         }
@@ -174,14 +268,22 @@ export class ModelManagerImpl implements ModelManager {
       return modelConfig.provider
     }
 
+    // Проверяем статические модели
+    if (ModelManagerImpl.STATIC_MODELS[model]) {
+      // Определяем провайдера по константам
+      if (Object.values(CLAUDE_MODELS).includes(model as any)) return "claude"
+      if (Object.values(OPENAI_MODELS).includes(model as any)) return "openai"
+      if (Object.values(DEEPSEEK_MODELS).includes(model as any)) return "deepseek"
+    }
+
     // Fallback: определяем провайдер по имени модели
-    if (model.includes("claude")) return "claude"
-    if (model.includes("gpt") || model.includes("o1")) return "openai"
-    if (model.includes("deepseek")) return "deepseek"
+    if (model.startsWith("claude")) return "claude"
+    if (model.startsWith("gpt") || model.startsWith("o3") || model.includes("gpt-5")) return "openai"
+    if (model.startsWith("deepseek")) return "deepseek"
     if (model.includes("grok")) return "grok"
     if (model.includes("llama") || model.includes("mistral") || model.includes("qwen")) return "ollama"
 
-    throw new Error(`Unknown provider for model: ${model}`)
+    return "ollama" // По умолчанию считаем локальной моделью
   }
 
   async isModelAvailable(model: string): Promise<boolean> {
@@ -197,7 +299,7 @@ export class ModelManagerImpl implements ModelManager {
       requiresStreaming?: boolean
       requiresTools?: boolean
     } = {},
-  ): Promise<ModelConfig | null> {
+  ): Promise<ModelConfiguration | null> {
     const availableModels = await this.getAvailableModels()
 
     // Фильтруем модели по требованиям
@@ -221,7 +323,7 @@ export class ModelManagerImpl implements ModelManager {
     return candidates[0] || null
   }
 
-  private rankModelsForTask(models: ModelConfig[], task: string): ModelConfig[] {
+  private rankModelsForTask(models: ModelConfiguration[], task: string): ModelConfiguration[] {
     const taskPreferences: Record<string, { providers: string[]; models: string[] }> = {
       analysis: {
         providers: ["claude", "gpt-4o", "gpt-4-turbo", "grok"],
@@ -332,17 +434,76 @@ export class ModelManagerImpl implements ModelManager {
   }
 
   // Дополнительные утилиты
-  getModelConfig(model: string): ModelConfig | null {
+  getModelConfig(model: string): ModelConfiguration | null {
     return this.modelCache.get(model) || null
   }
 
-  getModelsByProvider(provider: string): ModelConfig[] {
-    return this.availableModels.filter((model) => model.provider === provider)
+  async getModelsByProvider(provider: string, forceRefresh = false): Promise<ModelConfiguration[]> {
+    const allModels = await this.getAvailableModels(forceRefresh)
+    return allModels.filter((model) => model.provider === provider)
   }
 
   clearCache(): void {
     this.availableModels = []
     this.modelCache.clear()
     this.lastUpdate = 0
+  }
+
+  /**
+   * Получить статистику кэша
+   */
+  getCacheStats(): {
+    isCached: boolean
+    modelsCount: number
+    cacheExpiry: number
+    timeToExpiry: number
+  } {
+    const now = Date.now()
+    return {
+      isCached: this.availableModels.length > 0 && now < this.lastUpdate + this.CACHE_TTL,
+      modelsCount: this.availableModels.length,
+      cacheExpiry: this.lastUpdate + this.CACHE_TTL,
+      timeToExpiry: Math.max(0, this.lastUpdate + this.CACHE_TTL - now),
+    }
+  }
+
+  /**
+   * Валидировать модель
+   */
+  validateModel(model: string): {
+    isValid: boolean
+    provider: string
+    config: ModelConfiguration | null
+    errors: string[]
+  } {
+    const errors: string[] = []
+    let provider: string
+
+    try {
+      provider = this.getProviderByModel(model)
+    } catch (error) {
+      provider = "unknown"
+      errors.push(`Неизвестный провайдер для модели ${model}`)
+    }
+
+    const config = this.getModelConfig(model)
+
+    if (!config && provider !== "ollama") {
+      errors.push(`Конфигурация не найдена для модели ${model}`)
+    }
+
+    return {
+      isValid: errors.length === 0,
+      provider,
+      config,
+      errors,
+    }
+  }
+
+  /**
+   * Получить все статические модели
+   */
+  getStaticModels(): Record<string, Partial<ModelConfiguration>> {
+    return { ...ModelManagerImpl.STATIC_MODELS }
   }
 }

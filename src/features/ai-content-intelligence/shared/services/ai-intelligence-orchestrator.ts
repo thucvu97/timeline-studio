@@ -4,6 +4,7 @@
  */
 
 import type { Actor } from "xstate"
+import { AIIntelligenceContext, aiIntelligenceMachine } from "@/domains/ai-services/machines/ai-intelligence-machine"
 import type {
   AdaptedContent,
   AIConfig,
@@ -17,7 +18,6 @@ import type {
   UnifiedContentAnalysis,
 } from "../types"
 import { AccuracyLevel, AIProvider, AnalysisDepth, ProcessingStatus, SpeedPriority } from "../types"
-import type { AIIntelligenceContext, aiIntelligenceMachine } from "./ai-intelligence-machine"
 
 // Интерфейс для движков (сохраняем для совместимости)
 interface AIEngine {

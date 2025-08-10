@@ -7,41 +7,51 @@
 
 import { ApiKeyLoader, getAIContainer } from "@/domains/ai-core"
 import { type ClaudeTool } from "@/domains/ai-core/providers/claude"
-import type { MediaFile } from "@/features/media/types/media"
-import type { ResourcesContextType } from "@/features/resources/services/resources-provider"
-import type { TimelineProject } from "@/features/timeline/types"
-import { contentIntelligenceTools, executeContentIntelligenceTool } from "../tools/analysis/content-intelligence-tools"
-import { executeMultimodalAnalysisTool, multimodalAnalysisTools } from "../tools/analysis/multimodal-tools"
 import {
-  executePersonIdentificationTool,
-  personIdentificationTools,
-} from "../tools/analysis/person-identification-tools"
-import { executeVideoAnalysisTool, videoAnalysisTools } from "../tools/analysis/video-analysis-tools"
-import { executeWhisperTool, whisperTools } from "../tools/analysis/whisper-tools"
-// Импорты из новой структуры tools
-import { batchProcessingTools, executeBatchProcessingTool } from "../tools/automation/batch-processing-tools"
-import { executeSubtitleTool, subtitleTools } from "../tools/automation/subtitle-tools"
-import { executeWorkflowAutomationTool, workflowAutomationTools } from "../tools/automation/workflow-tools"
-import { browserTools, executeBrowserTool } from "../tools/core/browser"
-import { effectsFiltersTools, executeEffectsFiltersTool } from "../tools/core/effects-filters-tools"
-import { executePlayerTool, playerTools } from "../tools/core/player"
-import { executeResourceTool, resourceTools } from "../tools/core/resources"
-import { executeTimelineTool, timelineTools } from "../tools/core/timeline"
-import { executeExportManagementTool, exportManagementTools } from "../tools/integration/export-tools"
-import {
-  executePlatformOptimizationTool,
-  platformOptimizationTools,
-} from "../tools/integration/platform-integration-tools"
-import type {
   AIBrowserContext,
   AIPlayerContext,
   AIResourcesContext,
   AITimelineContext,
-  AIToolResult,
   ContentStoryAnalysis,
   TimelineStudioContext,
-} from "../types/ai-context"
-
+} from "@/features/ai-chat"
+import {
+  AIToolResult,
+  batchProcessingTools,
+  browserTools,
+  contentIntelligenceTools,
+  effectsFiltersTools,
+  executeBatchProcessingTool,
+  executeBrowserTool,
+  executeContentIntelligenceTool,
+  executeEffectsFiltersTool,
+  executeExportManagementTool,
+  executeMultimodalAnalysisTool,
+  executePersonIdentificationTool,
+  executePlatformOptimizationTool,
+  executePlayerTool,
+  executeResourceTool,
+  executeSubtitleTool,
+  executeTimelineTool,
+  executeVideoAnalysisTool,
+  executeWhisperTool,
+  executeWorkflowAutomationTool,
+  exportManagementTools,
+  multimodalAnalysisTools,
+  personIdentificationTools,
+  platformOptimizationTools,
+  playerTools,
+  resourceTools,
+  subtitleTools,
+  timelineTools,
+  videoAnalysisTools,
+  whisperTools,
+  workflowAutomationTools,
+} from "@/features/ai-chat/tools"
+import type { MediaFile } from "@/features/media/types/media"
+import { ResourcesContextType } from "@/features/resources"
+import { TimelineProject } from "@/features/timeline"
+// Импорты из новой структуры tools
 /**
  * Результат выполнения AI команды Timeline
  */

@@ -1,9 +1,9 @@
 /**
  * @deprecated
- * This file has been moved to @domains/ai-services/machines/chat-machine.ts
+ * This file has been moved to @/domains/ai-services/machines/chat-machine.ts
  *
  * Import from the new location:
- * import { chatMachine } from '@domains/ai-services/machines/chat-machine'
+ * import { chatMachine } from '@/domains/ai-services/machines/chat-machine'
  */
 
 // Legacy re-export for backward compatibility

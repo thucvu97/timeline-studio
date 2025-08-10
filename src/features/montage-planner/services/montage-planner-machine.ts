@@ -1,9 +1,9 @@
 /**
  * @deprecated
- * This file has been moved to @domains/ai-services/machines/montage-planner-machine.ts
+ * This file has been moved to @/domains/ai-services/machines/montage-planner-machine.ts
  *
  * Import from the new location:
- * import { montagePlannerMachine } from '@domains/ai-services/machines/montage-planner-machine'
+ * import { montagePlannerMachine } from '@/domains/ai-services/machines/montage-planner-machine'
  */
 
 // Legacy re-export for backward compatibility
