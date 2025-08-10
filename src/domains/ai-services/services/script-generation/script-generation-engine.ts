@@ -3,40 +3,39 @@
  * Движок для генерации сценариев на основе анализа контента
  */
 
-// Будем использовать shared AI service
-// Интеграция с персонажами из montage-planner
 import type { Person } from "@/features/montage-planner/types"
-import type { UnifiedContentAnalysis } from "../../../shared/types/content-analysis"
-import { Emotion } from "../../../shared/types/content-analysis"
+import { BaseAIEngine, type EngineCapabilities } from "./base-engine"
+import { DialogueGenerator } from "./dialogue-generator"
+import { TemplateEngine } from "./template-engine"
 import {
-  type Act,
-  AudioElementType as AudioElementTypeEnum,
-  type GeneratedScript,
-  type NarrativeStructure,
+  Act,
+  AudioElementType,
+  Character,
+  CharacterRole,
+  Emotion,
+  GeneratedScript,
+  ImprovementType,
+  NarrativeStructure,
   NarrativeType,
   PaceType,
-  type PaceVariation,
-  type Pacing,
-  type ScriptGenerationParams,
-  type ScriptScene,
-  type TurningPoint,
-  TurningPointType,
-  VisualElementType as VisualElementTypeEnum,
-} from "../../../shared/types/script-generation"
-import { BaseAIEngine, type EngineCapabilities } from "../../types"
-import type {
-  ImprovementType,
+  PaceVariation,
+  Pacing,
+  ScriptAlternative,
   ScriptGenerationConfig,
   ScriptGenerationContext,
+  ScriptGenerationParams,
   ScriptGenerationResult,
   ScriptImprovement,
   ScriptQuality,
-} from "../types"
-import { DialogueGenerator } from "./dialogue-generator"
-import { TemplateEngine } from "./template-engine"
+  ScriptScene,
+  TurningPoint,
+  TurningPointType,
+  UnifiedContentAnalysis,
+  VisualElementType,
+} from "./types"
 
-// Интеграция с анализом персонажей
 export class ScriptGenerationEngine extends BaseAIEngine {
+  private static instance: ScriptGenerationEngine | null = null
   name = "Script Generation Engine"
   version = "1.0.0"
   description = "AI-powered script generation based on video content analysis"
@@ -44,10 +43,17 @@ export class ScriptGenerationEngine extends BaseAIEngine {
   private dialogueGenerator: DialogueGenerator
   private config: ScriptGenerationConfig = this.getDefaultConfig()
 
-  constructor() {
+  private constructor() {
     super()
-    this.templateEngine = new TemplateEngine()
-    this.dialogueGenerator = new DialogueGenerator()
+    this.templateEngine = TemplateEngine.getInstance()
+    this.dialogueGenerator = DialogueGenerator.getInstance()
+  }
+
+  static getInstance(): ScriptGenerationEngine {
+    if (!ScriptGenerationEngine.instance) {
+      ScriptGenerationEngine.instance = new ScriptGenerationEngine()
+    }
+    return ScriptGenerationEngine.instance
   }
 
   async initialize(): Promise<void> {
@@ -134,9 +140,8 @@ export class ScriptGenerationEngine extends BaseAIEngine {
     }
   }
 
-  configure(config: Partial<ScriptGenerationConfig>): Promise<void> {
+  async configure(config: Partial<ScriptGenerationConfig>): Promise<void> {
     this.config = { ...this.config, ...config }
-    return Promise.resolve()
   }
 
   // Приватные методы
@@ -158,6 +163,7 @@ export class ScriptGenerationEngine extends BaseAIEngine {
       userPrompt: providedContext?.userPrompt,
       references: providedContext?.references || [],
       constraints: providedContext?.constraints,
+      detectedPersons,
     }
   }
 
@@ -172,11 +178,9 @@ export class ScriptGenerationEngine extends BaseAIEngine {
 
     // Иначе определяем на основе анализа
     const prompt = this.buildNarrativeAnalysisPrompt(context)
-    // TODO: Implement AI service integration
-    const response = await Promise.resolve(`{
-      "narrativeType": "three_act",
-      "reasoning": "Standard three-act structure suitable for most content"
-    }`)
+    const response = await this.aiService
+      .sendRequest("claude-4-sonnet-latest", [{ role: "user", content: prompt }], { temperature: 0.3 })
+      .then((r) => r.content)
 
     const narrativeType = this.parseNarrativeType(response) || NarrativeType.THREE_ACT
     return this.createNarrativeStructure(narrativeType, context)
@@ -300,16 +304,13 @@ export class ScriptGenerationEngine extends BaseAIEngine {
         // Получаем персонажей для текущей сцены
         const scenePersons = this.getPersonsForScene(scene, context)
 
-        const { CharacterRole } = await import("../../../shared/types/script-generation")
-        const characters = await Promise.all(
-          scenePersons.map(async (person, index) => ({
-            id: `char-${index}`,
-            name: person.name,
-            role: CharacterRole.SUPPORTING,
-            description: `Confidence: ${Math.round(person.confidence * 100)}%`,
-            appearances: [],
-          })),
-        )
+        const characters: Character[] = scenePersons.map((person, index) => ({
+          id: `char-${index}`,
+          name: person.name,
+          role: CharacterRole.SUPPORTING,
+          description: `Confidence: ${Math.round(person.confidence * 100)}%`,
+          appearances: [],
+        }))
 
         const dialogues = await this.dialogueGenerator.generate({
           characters,
@@ -330,7 +331,7 @@ export class ScriptGenerationEngine extends BaseAIEngine {
         // Добавляем диалоги в аудио элементы сцены
         scene.audioElements.push(
           ...dialogues.map((d) => ({
-            type: AudioElementTypeEnum.DIALOGUE,
+            type: "DIALOGUE" as AudioElementType,
             description: `${d.character}: ${d.text}`,
             timing: d.timing,
           })),
@@ -355,7 +356,7 @@ export class ScriptGenerationEngine extends BaseAIEngine {
           .then((r) => r.content)
 
         scene.audioElements.push({
-          type: AudioElementTypeEnum.VOICEOVER,
+          type: "VOICEOVER" as AudioElementType,
           description: response,
           timing: {
             start: 0,
@@ -398,7 +399,6 @@ export class ScriptGenerationEngine extends BaseAIEngine {
         tone: params.tone || { primary: Emotion.CALM, intensity: 0.5 },
         pacing: this.calculatePacing(scenes),
         style: params.style,
-        // Добавляем информацию о персонажах (расширенные данные для альфа-версии)
       },
     }
   }
@@ -599,7 +599,7 @@ Return only the voiceover text.`
   private shouldHaveDialogue(scene: ScriptScene): boolean {
     return (
       scene.visualElements.some(
-        (ve) => ve.type === VisualElementTypeEnum.CLOSE_UP || ve.type === VisualElementTypeEnum.MEDIUM_SHOT,
+        (ve) => ve.type === VisualElementType.CLOSE_UP || ve.type === VisualElementType.MEDIUM_SHOT,
       ) && scene.duration > 3
     )
   }
@@ -607,7 +607,7 @@ Return only the voiceover text.`
   private shouldHaveVoiceover(scene: ScriptScene, params: ScriptGenerationParams): boolean {
     return (
       params.includeVoiceover === true &&
-      !scene.audioElements.some((ae) => ae.type === AudioElementTypeEnum.DIALOGUE) &&
+      !scene.audioElements.some((ae) => ae.type === "DIALOGUE") &&
       scene.duration > 2
     )
   }
@@ -819,8 +819,8 @@ Return only the voiceover text.`
    */
   private determineSceneMood(scene: ScriptScene): string {
     // Анализируем визуальные элементы
-    const hasCloseUp = scene.visualElements.some((ve) => ve.type === VisualElementTypeEnum.CLOSE_UP)
-    const hasAction = scene.visualElements.some((ve) => ve.type === VisualElementTypeEnum.ACTION_SHOT)
+    const hasCloseUp = scene.visualElements.some((ve) => ve.type === VisualElementType.CLOSE_UP)
+    const hasAction = scene.visualElements.some((ve) => ve.type === VisualElementType.ACTION_SHOT)
 
     if (hasAction) return "tense"
     if (hasCloseUp) return "intimate"
@@ -857,7 +857,7 @@ Return only the voiceover text.`
 
     for (const scene of scenes) {
       const sceneDialogues = scene.audioElements
-        .filter((ae) => ae.type === AudioElementTypeEnum.DIALOGUE)
+        .filter((ae) => ae.type === "DIALOGUE")
         .map((ae) => {
           const [character, ...textParts] = ae.description.split(":")
           return {
@@ -880,7 +880,7 @@ Return only the voiceover text.`
   private extractVoiceoverFromScenes(scenes: ScriptScene[]): any[] {
     return scenes.flatMap((scene) =>
       scene.audioElements
-        .filter((ae) => ae.type === AudioElementTypeEnum.VOICEOVER)
+        .filter((ae) => ae.type === "VOICEOVER")
         .map((ae) => ({
           sceneId: scene.id,
           text: ae.description,
@@ -928,7 +928,7 @@ Return only the voiceover text.`
         scene.duration *= 1.5
         // Добавляем больше крупных планов
         scene.visualElements.push({
-          type: VisualElementTypeEnum.CLOSE_UP,
+          type: VisualElementType.CLOSE_UP,
           description: "Focus on main character",
           subjects: scenePersons.map((p) => p.name),
         })
@@ -962,9 +962,9 @@ Return only the voiceover text.`
     script: GeneratedScript,
     context: ScriptGenerationContext,
     params: ScriptGenerationParams,
-  ): Promise<import("../types").ScriptAlternative[]> {
+  ): Promise<ScriptAlternative[]> {
     try {
-      const alternatives: import("../types").ScriptAlternative[] = []
+      const alternatives: ScriptAlternative[] = []
 
       // 1. Альтернатива с другим эмоциональным тоном
       if (script.scenes.length > 0) {
@@ -999,7 +999,7 @@ Return only the voiceover text.`
 
       // 4. Версия с фокусом на персонаже (если есть персонажи)
       if (context.characters && context.characters.length > 1) {
-        const secondaryChar = context.characters.find((c) => c.role !== "protagonist")
+        const secondaryChar = context.characters.find((c) => c.role !== CharacterRole.PROTAGONIST)
         if (secondaryChar) {
           alternatives.push({
             id: `alt-character-${Date.now()}`,

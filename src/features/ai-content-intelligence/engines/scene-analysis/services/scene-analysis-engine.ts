@@ -3,11 +3,11 @@
  * Расширяет FFmpegAnalysisService для продвинутого анализа сцен
  */
 
-import { FFmpegAnalysisService } from "@/features/ai-chat/services/ffmpeg-analysis-service"
-import { UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service"
+import { UnifiedAIService } from "@/domains/ai-core"
+import { FFmpegAnalysisService } from "@/domains/ai-services"
+import { SceneAnalysis } from "@/domains/ai-services/services/content-intelligence-service"
 import type { Person } from "@/features/montage-planner/types"
 import type { DetectedFace, PersonProfile } from "@/features/person-identification/types/person"
-
 import {
   ContentType,
   Emotion,
@@ -15,7 +15,6 @@ import {
   type KeyMoment,
   KeyMomentType,
   type QualityMetrics,
-  type SceneAnalysis,
   SceneType,
 } from "../../../shared/types/content-analysis"
 import { BaseAIEngine, type EngineCapabilities } from "../../types"
@@ -255,8 +254,8 @@ export class SceneAnalysisEngine extends BaseAIEngine {
 
   private async analyzeScenes(
     ffmpegAnalysis: any,
-    mediaFile: MediaFile,
-    config: SceneAnalysisConfig,
+    _mediaFile: MediaFile,
+    _config: SceneAnalysisConfig,
   ): Promise<SceneAnalysis[]> {
     const scenes: SceneAnalysis[] = []
 
@@ -265,12 +264,16 @@ export class SceneAnalysisEngine extends BaseAIEngine {
         id: `scene-${scenes.length + 1}`,
         startTime: ffmpegScene.startTime,
         endTime: ffmpegScene.endTime,
-        duration: ffmpegScene.endTime - ffmpegScene.startTime,
-        type: await this.detectSceneType(ffmpegScene, ffmpegAnalysis),
+        // duration: ffmpegScene.endTime - ffmpegScene.startTime,
+        type: (await this.detectSceneType(ffmpegScene, ffmpegAnalysis)) as
+          | "dialog"
+          | "action"
+          | "landscape"
+          | "closeup"
+          | "transition",
         keyFrames: await this.extractSceneKeyFrames(ffmpegScene, ffmpegAnalysis.keyFrames),
-        quality: this.extractSceneQuality(ffmpegScene, ffmpegAnalysis.quality),
-        content: await this.analyzeSceneContent(ffmpegScene, mediaFile, config),
-        transitions: [], // Заполняется после анализа всех сцен
+        confidence: 0,
+        description: "",
       }
 
       scenes.push(scene)

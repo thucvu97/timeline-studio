@@ -5,8 +5,6 @@
  * и расширяет их возможностями scene classification и content analysis.
  */
 
-// Используем shared типы вместо ai-chat
-import type { MediaFile as MediaInput, SceneAnalysis } from "@domains/ai-services"
 import { PersonDatabaseService } from "@/features/person-identification/services/person-database-service"
 import type {
   DetectedFace,
@@ -14,6 +12,9 @@ import type {
   PersonAppearance,
   PersonProfile,
 } from "@/features/person-identification/types/person"
+// Используем локальные типы
+import type { MediaFile as MediaInput } from "../../types/media"
+import { SceneAnalysis } from "../content-intelligence-service"
 
 // Дополнительные типы для Scene Analysis
 export interface SceneDetectionOptions {
@@ -82,6 +83,7 @@ export interface AudioCharacteristics {
  * Использует shared AI services
  */
 export class SceneAnalysisEngine {
+  private static instance: SceneAnalysisEngine | null = null
   private sharedAIService: any = null
   private ffmpegService: any = null
   private personDatabase: PersonDatabaseService
@@ -93,8 +95,18 @@ export class SceneAnalysisEngine {
     enablePersonTracking: false,
   }
 
-  constructor() {
+  private constructor() {
     this.personDatabase = PersonDatabaseService.getInstance()
+  }
+
+  /**
+   * Получить единственный экземпляр
+   */
+  static getInstance(): SceneAnalysisEngine {
+    if (!SceneAnalysisEngine.instance) {
+      SceneAnalysisEngine.instance = new SceneAnalysisEngine()
+    }
+    return SceneAnalysisEngine.instance
   }
 
   /**
@@ -103,10 +115,14 @@ export class SceneAnalysisEngine {
   private async initializeServices() {
     if (!this.sharedAIService) {
       try {
-        const { getAIContainer } = await import("@domains/ai-core")
-        const aiContainer = getAIContainer()
-        this.sharedAIService = await aiContainer.resolve("UnifiedAIService")
-        this.ffmpegService = await aiContainer.resolve("FFmpegService")
+        // Используем UnifiedAIService из ai-core домена
+        const { UnifiedAIService } = await import("@/domains/ai-core/services")
+        this.sharedAIService = UnifiedAIService.getInstance()
+
+        // TODO: FFmpeg service нужно будет мигрировать в домены
+        this.ffmpegService = {
+          detectScenes: async () => ({ scenes: [] }),
+        }
       } catch (error) {
         console.error("Ошибка инициализации shared AI services:", error)
         throw new Error("Не удалось инициализировать AI сервисы")
@@ -150,7 +166,7 @@ export class SceneAnalysisEngine {
       return scenesWithTransitions
     } catch (error) {
       console.error("Ошибка анализа сцен:", error)
-      throw new Error(`Не удалось проанализировать сцены в файле ${mediaFile.filename}: ${String(error)}`)
+      throw new Error(`Не удалось проанализировать сцены в файле ${mediaFile.name}: ${String(error)}`)
     }
   }
 
@@ -788,7 +804,7 @@ ${scenes.map((s) => `${s.id}: тип=${s.type}, описание="${s.descriptio
       scene.endTime,
       scene.type,
       scene.confidence,
-      `"${scene.description?.replace(/"/g, '""') ?? ""}"`,
+      `"${scene.description.replace(/"/g, '""')}"`,
       scene.qualityScore,
       scene.complexity,
       scene.audioCharacteristics.hasVoice,

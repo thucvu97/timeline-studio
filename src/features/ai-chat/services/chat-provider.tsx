@@ -154,14 +154,38 @@ export function ChatProvider({ children }: ChatProviderProps) {
       setError(null)
 
       // Извлекаем сессии чата из состояния проекта
-      // TODO: Когда backend будет поддерживать чат, использовать его вместо localStorage
-      // if (state.project?.metadata?.chatSessions) {
-      //   setSessions(state.project.metadata.chatSessions)
-      // }
+      if ((state as any).chat_sessions) {
+        const backendSessions = (state as any).chat_sessions as any[]
+        const convertedSessions: ChatSession[] = backendSessions.map((s) => ({
+          id: s.id,
+          name: s.name,
+          messages: s.messages.map((m: any) => ({
+            id: m.id,
+            content: m.content,
+            role: m.role,
+            timestamp: new Date(m.timestamp),
+            metadata: m.metadata,
+          })),
+          createdAt: new Date(s.created_at),
+          updatedAt: new Date(s.updated_at),
+        }))
+
+        setSessions(convertedSessions)
+
+        // Если текущей сессии нет в списке, выбираем первую
+        if (
+          convertedSessions.length > 0 &&
+          (!currentSession || !convertedSessions.find((s) => s.id === currentSession.id))
+        ) {
+          setCurrentSession(convertedSessions[0])
+        }
+
+        setWasUpdated(true)
+      }
     })
 
     return unsubscribe
-  }, [backendSync])
+  }, [backendSync, currentSession])
 
   // Инициализация дефолтной сессии только если не было вызвано updateSessions
   useEffect(() => {
@@ -208,30 +232,64 @@ export function ChatProvider({ children }: ChatProviderProps) {
   )
 
   // Действия для сессий
-  const createSession = useCallback(async (name?: string): Promise<ChatSession> => {
-    const sessionName = name || `Чат ${new Date().toLocaleString()}`
+  const createSession = useCallback(
+    async (name?: string): Promise<ChatSession> => {
+      const sessionName = name || `Чат ${new Date().toLocaleString()}`
 
-    // Пока backend не поддерживает чат, создаем локально
-    const newSession: ChatSession = {
-      id: `session_${Date.now()}`,
-      name: sessionName,
-      messages: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
+      try {
+        // Используем backend команду
+        const result = await executeCommand({
+          type: "Chat",
+          params: {
+            type: "CreateChatSession",
+            params: { name: sessionName },
+          },
+        } as any)
 
-    setSessions((prev) => [...prev, newSession])
-    setCurrentSession(newSession)
+        if (
+          result &&
+          (result as any).success &&
+          (result as any).data &&
+          typeof (result as any).data === "object" &&
+          "session_id" in (result as any).data
+        ) {
+          const sessionId = (result as any).data.session_id
 
-    console.warn("Chat sessions not yet integrated with backend")
-    return newSession
+          // Создаем локальную версию сессии
+          const newSession: ChatSession = {
+            id: sessionId,
+            name: sessionName,
+            messages: [],
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          }
 
-    // В будущем это будет:
-    // return await executeCommand({
-    //   type: 'CreateChatSession',
-    //   params: { name: sessionName }
-    // })
-  }, [])
+          setSessions((prev) => [...prev, newSession])
+          setCurrentSession(newSession)
+
+          return newSession
+        }
+        throw new Error((result as any).error || "Failed to create chat session")
+      } catch (error) {
+        console.error("Failed to create chat session via backend:", error)
+
+        // Fallback на локальное создание
+        const newSession: ChatSession = {
+          id: `session_${Date.now()}`,
+          name: sessionName,
+          messages: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }
+
+        setSessions((prev) => [...prev, newSession])
+        setCurrentSession(newSession)
+
+        return newSession
+      }
+    },
+    [executeCommand],
+  )
 
   const deleteSession = useCallback(
     async (sessionId: string) => {
@@ -302,7 +360,28 @@ export function ChatProvider({ children }: ChatProviderProps) {
         timestamp: new Date(),
       }
 
-      // Добавляем сообщение пользователя
+      // Отправляем сообщение через backend
+      try {
+        const result = await executeCommand({
+          type: "Chat",
+          params: {
+            type: "SendChatMessage",
+            params: {
+              session_id: currentSession.id,
+              content,
+              role: "user" as const,
+            },
+          },
+        } as any)
+
+        if (!result || !(result as any).success) {
+          throw new Error((result as any)?.error || "Failed to send message")
+        }
+      } catch (error) {
+        console.error("Failed to send message via backend:", error)
+      }
+
+      // Добавляем сообщение пользователя локально для немедленного отображения
       setCurrentSession((prev) => {
         if (!prev) return prev
         const updatedSession = {
@@ -349,7 +428,7 @@ export function ChatProvider({ children }: ChatProviderProps) {
 
         // Стриминг ответа
         await aiService.sendStreamingRequest(selectedAgentId || "claude-4-sonnet-latest", aiMessages, {
-          onToken: (chunk: string) => {
+          onContent: (chunk: string) => {
             aiResponse += chunk
 
             // Обновляем временное сообщение во время стриминга
@@ -400,6 +479,25 @@ export function ChatProvider({ children }: ChatProviderProps) {
             model: selectedAgentId,
             tokenCount: aiResponse.length / 4, // Примерная оценка
           },
+        }
+
+        // Отправляем ответ AI в backend
+        if (currentSession) {
+          try {
+            await executeCommand({
+              type: "Chat",
+              params: {
+                type: "SendChatMessage",
+                params: {
+                  session_id: currentSession.id,
+                  content: aiResponse,
+                  role: "assistant" as const,
+                },
+              },
+            } as any)
+          } catch (error) {
+            console.error("Failed to send AI response to backend:", error)
+          }
         }
 
         setCurrentSession((prev) => {

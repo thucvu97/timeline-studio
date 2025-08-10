@@ -3,16 +3,16 @@
  * Конфигурации для всех поддерживаемых платформ
  */
 
-import { ContentType } from "../../shared/types/content-analysis"
-import type { Platform } from "../../shared/types/platform-adaptation"
 import {
+  ContentType,
   CTAType,
   DayOfWeek,
   PenaltyType,
+  Platform,
   PlatformId,
   PlatformImportance,
   SignalType,
-} from "../../shared/types/platform-adaptation"
+} from "@/features/ai-content-intelligence"
 
 type PlatformIdString =
   | "youtube"

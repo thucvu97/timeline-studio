@@ -14,40 +14,8 @@ import {
   ProcessingStep,
   ScriptGenerationParams,
   UnifiedContentAnalysis,
-} from "../../../features/ai-content-intelligence/shared/types"
-
-// Re-export all AI intelligence types from original location
-export type {
-  AIConfig,
-  IntelligentContent,
-  PipelineProgress,
-  ProcessingError,
-  ProcessingStep,
-} from "../../../features/ai-content-intelligence/shared/types"
-
-export { ProcessingStatus } from "../../../features/ai-content-intelligence/shared/types"
-
-export type { UnifiedContentAnalysis } from "../../../features/ai-content-intelligence/shared/types/content-analysis"
-
-export {
-  ContentType,
-  Emotion,
-} from "../../../features/ai-content-intelligence/shared/types/content-analysis"
-
-export type {
-  AdaptedContent,
-  PlatformId,
-} from "../../../features/ai-content-intelligence/shared/types/platform-adaptation"
-
-export type {
-  GeneratedScript,
-  ScriptGenerationParams,
-} from "../../../features/ai-content-intelligence/shared/types/script-generation"
-
-export {
-  NarrativeType,
-  PaceType,
-} from "../../../features/ai-content-intelligence/shared/types/script-generation"
+} from "@/features/ai-content-intelligence"
+import { ContentClassification } from "./content-analysis"
 
 // Machine-specific types
 export interface AIIntelligenceContext {
@@ -104,14 +72,6 @@ export interface ProcessedMoment {
   description: string
   thumbnail?: string
   tags: string[]
-}
-
-export interface ContentClassification {
-  primary: any
-  secondary: any[]
-  confidence: number
-  tags: string[]
-  warnings?: string[]
 }
 
 // ContentInsights interface (missing from original)

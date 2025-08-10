@@ -3,8 +3,8 @@
  * Основной движок для адаптации контента под различные платформы
  */
 
-import { UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service"
-import type { AdaptedContent, Platform, PlatformId } from "../../../shared/types/platform-adaptation"
+import { UnifiedAIService } from "@/domains/ai-core"
+import { AdaptedContent, Platform, PlatformId } from "@/features/ai-content-intelligence"
 import { getOptimalAspectRatio, getOptimalResolution, getPlatformConfig } from "../platform-configs"
 import type {
   AdaptationResult,

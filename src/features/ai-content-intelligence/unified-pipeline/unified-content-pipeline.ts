@@ -6,13 +6,14 @@
  */
 
 // Используем shared типы
-import type { MediaFile as MediaInput, ContentAnalysisResult as UnifiedContentAnalysis } from "@/domains/ai-services"
+import type { MediaFile as MediaInput } from "@/domains/ai-services"
 
 import {
   ContentClassificationEngine,
   type ExtendedContentClassification,
 } from "../engines/content-classification/content-classification-engine"
 import { type AdvancedSceneAnalysis, SceneAnalysisEngine } from "../engines/scene-analysis/scene-analysis-engine"
+import { UnifiedContentAnalysis } from "../shared/types/content-analysis"
 
 // Pipeline конфигурация
 export interface PipelineConfig {
@@ -312,15 +313,16 @@ export class UnifiedContentPipeline {
     if (config.contentClassification.enabled && stages.includes("content_classification")) {
       try {
         this.updatePipelineStage(pipelineId, "content_classification")
-
-        contentClassification = await this.classificationEngine?.classifyContent(mediaFile, sceneAnalysis, {
-          includeSubcategories: config.contentClassification.includeSubcategories,
-          analyzeMood: config.contentClassification.analyzeMood,
-          includeTargeting: config.contentClassification.includeTargeting,
-          analyzePlatforms: config.contentClassification.analyzePlatforms,
-          includeMarketing: config.contentClassification.includeMarketing,
-          analyzeAccessibility: config.contentClassification.analyzeAccessibility,
-        })
+        if (sceneAnalysis) {
+          contentClassification = await this.classificationEngine?.classifyContent(mediaFile, sceneAnalysis, {
+            includeSubcategories: config.contentClassification.includeSubcategories,
+            analyzeMood: config.contentClassification.analyzeMood,
+            includeTargeting: config.contentClassification.includeTargeting,
+            analyzePlatforms: config.contentClassification.analyzePlatforms,
+            includeMarketing: config.contentClassification.includeMarketing,
+            analyzeAccessibility: config.contentClassification.analyzeAccessibility,
+          })
+        }
       } catch (error) {
         warnings.push(`Ошибка классификации контента: ${String(error)}`)
       }

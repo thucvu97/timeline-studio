@@ -1,3 +1,4 @@
+use super::chat::ChatEvent;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use specta::Type;
@@ -169,6 +170,9 @@ pub enum ProjectEvent {
     enabled: bool,
     interval_seconds: u32,
   },
+
+  // Chat events
+  Chat(ChatEvent),
 }
 
 /// Event metadata

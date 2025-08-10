@@ -3,17 +3,17 @@
  * Адаптер для преобразования контента под конкретную платформу
  */
 
-import { UnifiedAIService } from "../../../../ai-chat/services/unified-ai-service"
-import type { UnifiedContentAnalysis } from "../../../shared/types/content-analysis"
-import type {
+import { UnifiedAIService } from "@/domains/ai-core"
+import {
   AdaptedContent,
   AudioSpecs,
+  CaptionPosition,
   Platform,
   PlatformResolution,
+  UnifiedContentAnalysis,
   VideoSpecs,
-} from "../../../shared/types/platform-adaptation"
-import { CaptionPosition } from "../../../shared/types/platform-adaptation"
-import type {
+} from "@/features/ai-content-intelligence"
+import {
   AdaptationStrategy,
   AudioAdaptationStrategy,
   GraphicsAdaptationStrategy,

@@ -2,9 +2,14 @@
  * Типы для Multi-Platform Engine
  */
 
-import type { UnifiedContentAnalysis } from "../../shared/types/content-analysis"
-import type { AdaptedContent, AspectRatio, Platform, PlatformId } from "../../shared/types/platform-adaptation"
-import type { GeneratedScript } from "../../shared/types/script-generation"
+import {
+  AdaptedContent,
+  AspectRatio,
+  GeneratedScript,
+  Platform,
+  PlatformId,
+  UnifiedContentAnalysis,
+} from "@/features/ai-content-intelligence"
 
 export interface MultiPlatformConfig {
   // Настройки адаптации

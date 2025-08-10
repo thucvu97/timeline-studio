@@ -1,3 +1,4 @@
+use super::chat::{ChatCommand, ChatEvent, ChatSession};
 use super::project_state::{Clip, MediaType, ProjectSettings, TrackType};
 use super::{EventBus, PersistenceService, ProjectEvent, ProjectState};
 use chrono;
@@ -166,6 +167,9 @@ pub enum ProjectCommand {
   EnableAutoSave {
     enabled: bool,
   },
+
+  // Chat commands
+  Chat(ChatCommand),
 }
 
 /// Result of a command execution
@@ -299,6 +303,9 @@ impl CommandHandler {
       ProjectCommand::SwitchBranch { branch_name } => self.switch_branch(branch_name).await,
       ProjectCommand::SetAutoSaveInterval { seconds } => self.set_auto_save_interval(seconds).await,
       ProjectCommand::EnableAutoSave { enabled } => self.enable_auto_save(enabled).await,
+
+      // Chat commands
+      ProjectCommand::Chat(chat_cmd) => self.handle_chat_command(chat_cmd).await,
 
       _ => CommandResult::error("Command not implemented yet".to_string()),
     }
@@ -1180,5 +1187,149 @@ impl CommandHandler {
     CommandResult::success(Some(serde_json::json!({
       "auto_save_enabled": enabled
     })))
+  }
+
+  // Chat command handlers
+  async fn handle_chat_command(&self, command: ChatCommand) -> CommandResult {
+    match command {
+      ChatCommand::CreateChatSession { name } => {
+        let session = ChatSession::new(name);
+        let session_id = session.id.clone();
+
+        let mut state = self.state.write().await;
+        state.chat_sessions.push(session.clone());
+        state.version += 1;
+
+        // Publish event
+        self
+          .event_bus
+          .publish(
+            ProjectEvent::Chat(ChatEvent::ChatSessionCreated { session }),
+            "command_handler".to_string(),
+            state.version,
+          )
+          .await
+          .ok();
+
+        CommandResult::success(Some(serde_json::json!({
+          "session_id": session_id
+        })))
+      }
+
+      ChatCommand::DeleteChatSession { session_id } => {
+        let mut state = self.state.write().await;
+
+        let initial_len = state.chat_sessions.len();
+        state.chat_sessions.retain(|s| s.id != session_id);
+
+        if state.chat_sessions.len() < initial_len {
+          state.version += 1;
+
+          self
+            .event_bus
+            .publish(
+              ProjectEvent::Chat(ChatEvent::ChatSessionDeleted {
+                session_id: session_id.clone(),
+              }),
+              "command_handler".to_string(),
+              state.version,
+            )
+            .await
+            .ok();
+
+          CommandResult::success(None)
+        } else {
+          CommandResult::error("Chat session not found".to_string())
+        }
+      }
+
+      ChatCommand::SendChatMessage {
+        session_id,
+        content,
+        role,
+      } => {
+        let mut state = self.state.write().await;
+
+        if let Some(session) = state.chat_sessions.iter_mut().find(|s| s.id == session_id) {
+          let message = session.add_message(content, role);
+          state.version += 1;
+
+          self
+            .event_bus
+            .publish(
+              ProjectEvent::Chat(ChatEvent::ChatMessageAdded {
+                session_id: session_id.clone(),
+                message: message.clone(),
+              }),
+              "command_handler".to_string(),
+              state.version,
+            )
+            .await
+            .ok();
+
+          CommandResult::success(Some(serde_json::json!({
+            "message_id": message.id
+          })))
+        } else {
+          CommandResult::error("Chat session not found".to_string())
+        }
+      }
+
+      ChatCommand::ClearChatSession { session_id } => {
+        let mut state = self.state.write().await;
+
+        if let Some(session) = state.chat_sessions.iter_mut().find(|s| s.id == session_id) {
+          session.clear_messages();
+          state.version += 1;
+
+          self
+            .event_bus
+            .publish(
+              ProjectEvent::Chat(ChatEvent::ChatSessionCleared {
+                session_id: session_id.clone(),
+              }),
+              "command_handler".to_string(),
+              state.version,
+            )
+            .await
+            .ok();
+
+          CommandResult::success(None)
+        } else {
+          CommandResult::error("Chat session not found".to_string())
+        }
+      }
+
+      ChatCommand::UpdateChatSession {
+        session_id,
+        name,
+        metadata,
+      } => {
+        let mut state = self.state.write().await;
+
+        if let Some(session) = state.chat_sessions.iter_mut().find(|s| s.id == session_id) {
+          session.update(name.clone(), metadata.clone());
+          state.version += 1;
+
+          self
+            .event_bus
+            .publish(
+              ProjectEvent::Chat(ChatEvent::ChatSessionUpdated {
+                session_id: session_id.clone(),
+                name,
+                metadata,
+              }),
+              "command_handler".to_string(),
+              state.version,
+            )
+            .await
+            .ok();
+
+          CommandResult::success(None)
+        } else {
+          CommandResult::error("Chat session not found".to_string())
+        }
+      }
+    }
   }
 }

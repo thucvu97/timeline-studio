@@ -4,7 +4,7 @@
  */
 
 // Импортируем сервисы AI Content Intelligence
-import type { IVisionService } from "@/shared/services/ai/analysis/interfaces"
+import { IVisionService } from "@/domains/ai-services/types/interfaces"
 import type {
   AudioDetections,
   SceneAnalysis,
@@ -45,7 +45,7 @@ export class SubtitleAIIntegrationService {
 
     try {
       // Динамический импорт для избежания circular dependency
-      const { getAIContainer } = await import("@/shared/services/ai")
+      const { getAIContainer } = await import("@/domains/ai-services")
       const aiContainer = getAIContainer()
       const visionService = await aiContainer.resolve<IVisionService>("VisionService")
 

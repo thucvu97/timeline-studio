@@ -5,12 +5,13 @@
  * используя AI анализ и машинное обучение.
  */
 
+import { UnifiedAIService } from "@/domains/ai-core/services"
+import { AdvancedSceneAnalysis } from "@/domains/ai-services"
 import {
   type ContentClassification,
   type MediaInput,
   type SceneAnalysis,
 } from "@/domains/ai-services/services/content-intelligence-service"
-import { UnifiedAIService } from "@/features/ai-chat/services/unified-ai-service"
 
 // Расширенная классификация контента
 export interface ExtendedContentClassification extends ContentClassification {
@@ -122,7 +123,7 @@ export class ContentClassificationEngine {
    */
   async classifyContent(
     mediaFile: MediaInput,
-    scenes?: SceneAnalysis[],
+    scenes?: AdvancedSceneAnalysis[],
     options: {
       includeSubcategories?: boolean
       analyzeMood?: boolean
