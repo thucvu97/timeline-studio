@@ -2,9 +2,8 @@ import { act, cleanup, fireEvent, screen } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from "vitest"
 
 import { renderWithBase } from "@/test/test-utils"
-
+import { CacheStatisticsModal } from "../../components/cache-statistics-modal"
 import { useCacheStats } from "../../hooks/use-cache-stats"
-import { CacheStatisticsModal } from "../cache-statistics-modal"
 
 // Мокаем хук useCacheStats
 vi.mock("../../hooks/use-cache-stats", () => ({

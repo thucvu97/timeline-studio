@@ -3,17 +3,17 @@
  * Предоставляет возможности анализа качества, сцен, движения и автоматического улучшения
  */
 
-import type {
-  AudioAnalysisResult,
+import {
   IFFmpegAnalysisService,
-  MediaFile,
   MotionAnalysisResult,
   QualityAnalysisResult,
   SceneDetectionResult,
   VideoAnalysisOptions,
   VideoMetadata,
-} from "@/shared/services/ai/analysis/interfaces"
+} from "@/domains/ai-services"
+import { MediaFile } from "@/features/media"
 import { type AIToolExecutionOptions, type AIToolLogger, type AIToolResult, BaseAITool } from "../base-ai-tool"
+import { AudioAnalysisResult } from "./audio-analysis-tools"
 
 // Типы для операций анализа видео
 export interface VideoAnalysisInput {
@@ -82,7 +82,7 @@ export class VideoAnalysisTool extends BaseAITool {
   private async getFFmpegService(): Promise<IFFmpegAnalysisService> {
     if (!this.ffmpegService) {
       try {
-        const { getAIContainer } = await import("@/shared/services/ai")
+        const { getAIContainer } = await import("@/domains/ai-core")
         const aiContainer = getAIContainer()
         this.ffmpegService = await aiContainer.resolve<IFFmpegAnalysisService>("FFmpegService")
       } catch (error) {

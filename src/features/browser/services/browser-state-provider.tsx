@@ -1,9 +1,7 @@
 import type React from "react"
 import { createContext, useContext, useEffect, useRef, useState } from "react"
-
+import type { BrowserContext, BrowserTab, ViewMode } from "@/domains/browser"
 import { DEFAULT_PREVIEW_SIZE_INDEX, PREVIEW_SIZES } from "@/features/media/utils/preview-sizes"
-import type { BrowserTab } from "@/shared/types/browser"
-import type { BrowserContext, ViewMode } from "@/shared/types/browser-context"
 
 /**
  * Начальные настройки для каждой вкладки
@@ -153,7 +151,17 @@ export const BrowserStateProvider: React.FC<BrowserStateProviderProps> = ({ chil
           ...state,
           selectedFiles: Object.entries(state.selectedFiles).reduce(
             (acc, [tab, files]) => {
-              acc[tab] = Array.from(files)
+              acc[
+                tab as
+                  | "media"
+                  | "music"
+                  | "subtitles"
+                  | "transitions"
+                  | "effects"
+                  | "filters"
+                  | "templates"
+                  | "style-templates"
+              ] = Array.from(files)
               return acc
             },
             {} as Record<BrowserTab, string[]>,

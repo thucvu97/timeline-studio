@@ -5,7 +5,6 @@
  */
 
 import { describe, expect, it } from "vitest"
-
 import {
   AlignX,
   AlignY,
@@ -27,10 +26,9 @@ import {
   SubtitleFontWeight,
   TemplateType,
   TextAlign,
-  TrackType,
-} from "@/shared/types/video-compiler"
+} from "@/domains/video-editing/types"
 
-import type { SubtitleClip, TimelineClip, TimelineProject, TimelineTrack } from "../../types/timeline"
+import type { TimelineClip, TimelineProject, TimelineTrack } from "../../types/timeline"
 import { timelineToProjectSchema } from "../../utils/timeline-to-project"
 
 describe("timelineToProjectSchema", () => {
@@ -46,6 +44,14 @@ describe("timelineToProjectSchema", () => {
       fps: 30,
       resolution: { width: 1920, height: 1080 },
       sampleRate: 48000,
+      aspectRatio: "",
+      channels: 0,
+      bitDepth: 0,
+      timeFormat: "timecode",
+      snapToGrid: false,
+      gridSize: 0,
+      autoSave: false,
+      autoSaveInterval: 0,
     },
     resources: {
       effects: [],
@@ -54,7 +60,14 @@ describe("timelineToProjectSchema", () => {
       templates: [],
       styleTemplates: [],
       subtitleStyles: [],
+      timelineTransitions: [],
+      music: [],
+      media: [],
     },
+    duration: 0,
+    fps: 0,
+    sampleRate: 0,
+    version: "",
     ...overrides,
   })
 
@@ -68,6 +81,13 @@ describe("timelineToProjectSchema", () => {
     isLocked: false,
     volume: 1.0,
     ...overrides,
+    transitions: [],
+    isHidden: false,
+    isSolo: false,
+    pan: 0,
+    height: 0,
+    trackEffects: [],
+    trackFilters: [],
   })
 
   const createMockClip = (overrides = {}): TimelineClip => ({
@@ -82,10 +102,25 @@ describe("timelineToProjectSchema", () => {
       isVideo: true,
       isAudio: false,
       isImage: false,
+      id: "",
     },
     volume: 1.0,
     speed: 1.0,
     ...overrides,
+    mediaId: "",
+    trackId: "",
+    mediaStartTime: 0,
+    mediaEndTime: 0,
+    offset: 0,
+    isReversed: false,
+    opacity: 0,
+    effects: [],
+    filters: [],
+    transitions: [],
+    isSelected: false,
+    isLocked: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
   })
 
   it("преобразует базовый проект без треков", () => {
@@ -171,11 +206,11 @@ describe("timelineToProjectSchema", () => {
 
   it("преобразует различные типы треков", () => {
     const testCases = [
-      { type: "video", expected: TrackType.Video },
-      { type: "audio", expected: TrackType.Audio },
-      { type: "subtitle", expected: TrackType.Subtitle },
-      { type: "text", expected: TrackType.Subtitle },
-      { type: "unknown", expected: TrackType.Video },
+      { type: "video", expected: "video" },
+      { type: "audio", expected: "audio" },
+      { type: "subtitle", expected: "subtitle" },
+      { type: "text", expected: "subtitle" },
+      { type: "unknown", expected: "video" },
     ]
 
     testCases.forEach(({ type, expected }) => {

@@ -12,9 +12,6 @@ import "@/test/mocks/libraries"
 import "@/test/mocks/libraries/lucide-react"
 import "@/test/mocks/libraries/react-hotkeys-hook"
 
-// Initialize AI services for tests
-// import { AIDIContainer } from "@/shared/services/ai/di-container"
-
 // Mock scrollIntoView globally for all tests (needed for Radix UI components)
 beforeAll(async () => {
   Element.prototype.scrollIntoView = vi.fn()

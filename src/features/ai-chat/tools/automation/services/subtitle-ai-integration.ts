@@ -45,7 +45,7 @@ export class SubtitleAIIntegrationService {
 
     try {
       // Динамический импорт для избежания circular dependency
-      const { getAIContainer } = await import("@/domains/ai-services")
+      const { getAIContainer } = await import("@/domains/ai-core")
       const aiContainer = getAIContainer()
       const visionService = await aiContainer.resolve<IVisionService>("VisionService")
 

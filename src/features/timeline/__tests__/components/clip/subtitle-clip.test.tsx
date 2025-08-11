@@ -124,7 +124,7 @@ describe("SubtitleClip", () => {
       const { container } = render(<SubtitleClip clip={clip} trackHeight={60} isSelected={true} />)
 
       const clipElement = container.firstChild as HTMLElement
-      expect(clipElement).toHaveClass("ring-2", "ring-primary")
+      expect(clipElement).toHaveClass("ring-2 ring-primary")
     })
 
     it("должен показывать dragging состояние", () => {

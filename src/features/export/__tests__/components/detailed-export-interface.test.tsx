@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import { OutputFormat } from "@/shared/types/video-compiler"
+import { OutputFormat } from "@/domains/video-editing/types"
 
 import { DetailedExportInterface } from "../../components/detailed-export-interface"
 

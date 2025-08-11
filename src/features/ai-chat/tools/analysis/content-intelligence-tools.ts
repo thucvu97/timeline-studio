@@ -1340,13 +1340,9 @@ export class ContentIntelligenceTool extends BaseAITool {
       const { SceneAnalysisEngine } = await import(
         "@/features/ai-content-intelligence/engines/scene-analysis/services/scene-analysis-engine"
       )
-      // const { getAIContainer } = await import("@/domains/ai-core") // Неиспользуется
 
       const sceneEngine = new SceneAnalysisEngine()
       await sceneEngine.initialize()
-
-      // const aiContainer = getAIContainer()
-      // const contentAnalyzer = await aiContainer.resolve<any>("ContentAnalyzer") // Неиспользуется
 
       const videoPath = input.mediaFiles?.[0]
       if (!videoPath) {
