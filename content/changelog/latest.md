@@ -1,3 +1,338 @@
+## [1.3.9](https://github.com/chatman-media/timeline-studio/compare/v1.3.8...v1.3.9) (2025-08-12)
+
+
+### Bug Fixes
+
+* **promo:** up google ads ([843307d](https://github.com/chatman-media/timeline-studio/commit/843307db056f694cd3693598f9f0b85c4fc0750a))
+
+## [1.3.8](https://github.com/chatman-media/timeline-studio/compare/v1.3.7...v1.3.8) (2025-08-12)
+
+
+### Bug Fixes
+
+* **promo:** added Google tag ([e4068e6](https://github.com/chatman-media/timeline-studio/commit/e4068e69e9f33b568e55d59a8a9593989d7babc9))
+
+## [1.3.7](https://github.com/chatman-media/timeline-studio/compare/v1.3.6...v1.3.7) (2025-08-12)
+
+
+### Bug Fixes
+
+* **promo:** fix ([f539050](https://github.com/chatman-media/timeline-studio/commit/f539050c839b1e0773b623c90b5f2af9014d7420))
+* **promo:** rm css ([ad40da9](https://github.com/chatman-media/timeline-studio/commit/ad40da9640f70fe31a758721d961394a43d1b438))
+
+## [1.3.6](https://github.com/chatman-media/timeline-studio/compare/v1.3.5...v1.3.6) (2025-08-12)
+
+
+### Bug Fixes
+
+* **promo:** back main srcipt ([1c19cb1](https://github.com/chatman-media/timeline-studio/commit/1c19cb160d0d8fd6d9149583a49c2bd558630644))
+
+## [1.3.5](https://github.com/chatman-media/timeline-studio/compare/v1.3.4...v1.3.5) (2025-08-12)
+
+
+### Bug Fixes
+
+* **promo:** Теперь в index.html подключаются только production-бандлы с type="module" и defer. Скрипт src/main.tsx для разработки удалён. ([e8c153a](https://github.com/chatman-media/timeline-studio/commit/e8c153a8392507d30b0b23cd246ed5bcb09b88d6))
+
+## [1.3.4](https://github.com/chatman-media/timeline-studio/compare/v1.3.3...v1.3.4) (2025-08-12)
+
+
+### Bug Fixes
+
+* **promo:** added preload and seo fixes ([ddc8ceb](https://github.com/chatman-media/timeline-studio/commit/ddc8cebdb4f364fae4ff067c65c70f44620be793))
+
+## [1.3.3](https://github.com/chatman-media/timeline-studio/compare/v1.3.2...v1.3.3) (2025-08-12)
+
+
+### Bug Fixes
+
+* **promo:** added aria-label to button ([bd8a491](https://github.com/chatman-media/timeline-studio/commit/bd8a491d3b3914db3a163ee4e0627fb7ed236c95))
+
+## [1.3.2](https://github.com/chatman-media/timeline-studio/compare/v1.3.1...v1.3.2) (2025-08-11)
+
+
+### Bug Fixes
+
+* **promo:** fixed self ([ce98e3c](https://github.com/chatman-media/timeline-studio/commit/ce98e3c3a2e5bc9a448fbb7d0792802f1a32bda9))
+
+## [1.3.1](https://github.com/chatman-media/timeline-studio/compare/v1.3.0...v1.3.1) (2025-08-11)
+
+
+### Bug Fixes
+
+* **core:** rm old files ([ff15924](https://github.com/chatman-media/timeline-studio/commit/ff1592484cb9f7a6a2c714bacb9e9dbc75d315a3))
+
+# [1.3.0](https://github.com/chatman-media/timeline-studio/compare/v1.2.0...v1.3.0) (2025-08-10)
+
+
+### Features
+
+* интеграция AI chat с backend через Rust state management ([688d5bb](https://github.com/chatman-media/timeline-studio/commit/688d5bb57a7d108aba32c42be0814f3f0330b312))
+
+# [1.2.0](https://github.com/chatman-media/timeline-studio/compare/v1.1.1...v1.2.0) (2025-08-10)
+
+
+### Features
+
+* интеграция AI chat с бэкендом через UnifiedAIService ([b0822a5](https://github.com/chatman-media/timeline-studio/commit/b0822a5051bcad25cc63e14af9885ae21be521a9))
+
+## [1.1.1](https://github.com/chatman-media/timeline-studio/compare/v1.1.0...v1.1.1) (2025-08-10)
+
+
+### Bug Fixes
+
+* **core:** rm files ([a903c67](https://github.com/chatman-media/timeline-studio/commit/a903c67ec2271a6201efa440f9bf17e7ddaa547f))
+* исправлены ошибки импортов и типов в content-intelligence-tools.ts ([3a9bfd3](https://github.com/chatman-media/timeline-studio/commit/3a9bfd378b798ea5f9148d8cda4f4cda445ac22a))
+* исправлены ошибки типов в content-intelligence-tools.ts ([7a08911](https://github.com/chatman-media/timeline-studio/commit/7a0891106ace620374cd9c7157084dc9335e960d))
+
+# [1.1.0](https://github.com/chatman-media/timeline-studio/compare/v1.0.1...v1.1.0) (2025-08-08)
+
+
+### Features
+
+* миграция AI сервисов в доменную архитектуру с поддержкой Grok ([ceac10a](https://github.com/chatman-media/timeline-studio/commit/ceac10a8549530790d9cb60eef13780a012fe5fb))
+
+## [1.0.1](https://github.com/chatman-media/timeline-studio/compare/v1.0.0...v1.0.1) (2025-08-08)
+
+
+### Bug Fixes
+
+* исправлены все ошибки типов в доменных хуках ([4ac3f1c](https://github.com/chatman-media/timeline-studio/commit/4ac3f1c9219301fad1d59eccf74d36d898ac41e2))
+* исправлены параметры команды MoveClip ([e656abb](https://github.com/chatman-media/timeline-studio/commit/e656abb0223e898a0c8f5b59e6031527be16e1c3))
+* исправлены типы в timeline machines ([985eee6](https://github.com/chatman-media/timeline-studio/commit/985eee664c155f93671b807f321c5a772affdfe8))
+
+# [1.0.0](https://github.com/chatman-media/timeline-studio/compare/v0.81.0...v1.0.0) (2025-08-08)
+
+
+### Features
+
+* миграция timeline компонентов в доменную архитектуру ([61c67c1](https://github.com/chatman-media/timeline-studio/commit/61c67c1517dcab28e5063554a9c958fe4161cfbc))
+
+
+### BREAKING CHANGES
+
+* Компоненты timeline теперь используют доменную архитектуру
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+
+# [0.81.0](https://github.com/chatman-media/timeline-studio/compare/v0.80.0...v0.81.0) (2025-08-08)
+
+
+### Bug Fixes
+
+* исправлены ошибки типов в DomainEventBus и связанных модулях ([2866b6c](https://github.com/chatman-media/timeline-studio/commit/2866b6cd772ed8e713ec4b0a1f6b92b7c1f0ef67))
+
+
+### Features
+
+* интеграция провайдеров timeline в доменную архитектуру ([4c33ec5](https://github.com/chatman-media/timeline-studio/commit/4c33ec5f78151d77a5d0088c8b2d1b6b52f7c85c))
+* реализован DomainEventBus для межсервисной коммуникации ([2611872](https://github.com/chatman-media/timeline-studio/commit/26118722caf609a4716ab1dd97be767cc92dc240))
+
+# [0.80.0](https://github.com/chatman-media/timeline-studio/compare/v0.79.0...v0.80.0) (2025-08-08)
+
+
+### Bug Fixes
+
+* исправлен упавший тест FFmpegAnalysisService ([f8da681](https://github.com/chatman-media/timeline-studio/commit/f8da681221bf5925b7fba0ae3fda302dad1cdca1))
+
+
+### Features
+
+* завершена Domain-Driven Architecture миграция (Phase 6) ([9f134fd](https://github.com/chatman-media/timeline-studio/commit/9f134fdfed413d724011725ae807cf729dea905c))
+* завершена миграция Domain-Driven Architecture (Phase 5) ([a68be77](https://github.com/chatman-media/timeline-studio/commit/a68be77fb6a3c68eee873b878e931b61115e7975))
+* миграция на Domain-Driven Architecture - Phase 1-3 завершены ([c66a62d](https://github.com/chatman-media/timeline-studio/commit/c66a62de02b7ecd9b1c34c3f5fbb87dc18e6a45e))
+
+# [0.79.0](https://github.com/chatman-media/timeline-studio/compare/v0.78.0...v0.79.0) (2025-08-08)
+
+
+### Bug Fixes
+
+* **ai-chat:** исправлены экспорты и импорты в browser tools ([2a6b40d](https://github.com/chatman-media/timeline-studio/commit/2a6b40db326de5dca4bf27a780c4835d5a9974cc))
+
+
+### Features
+
+* завершение AI экосистемы - реализованы все 257 инструментов (100%) ([f0c9c20](https://github.com/chatman-media/timeline-studio/commit/f0c9c20532ebefecd79aad6113e4d2ad5cb42bef))
+
+
+### Performance Improvements
+
+* исправлена принудительная компоновка в Hero3D и добавлена мобильная оптимизация ([eef4f27](https://github.com/chatman-media/timeline-studio/commit/eef4f273ff1cde679bb8b21a9951c2620e2a55a0))
+
+# [0.78.0](https://github.com/chatman-media/timeline-studio/compare/v0.77.1...v0.78.0) (2025-08-08)
+
+
+### Features
+
+* **user-settings:** добавлены новые параметры для AI интеграции ([9e131c8](https://github.com/chatman-media/timeline-studio/commit/9e131c8908e24035d9606f031e352e1890cb67b8))
+
+## [0.77.1](https://github.com/chatman-media/timeline-studio/compare/v0.77.0...v0.77.1) (2025-08-08)
+
+
+### Bug Fixes
+
+* **ai:** правильная интеграция VisionService с AI архитектурой ([8c9924e](https://github.com/chatman-media/timeline-studio/commit/8c9924e1fed189993abaaab589b2d3cd0282e35b))
+* **tests:** исправлен тест отображения времени в PlayerControls ([79ab51e](https://github.com/chatman-media/timeline-studio/commit/79ab51e727c8c6b40b491c36a95dc1d860c7163a))
+* **timeline:** исправлен тест snap-engine для маркеров ([a2b35e9](https://github.com/chatman-media/timeline-studio/commit/a2b35e9ec856322a59bf813c8400d6a2b6c62f58))
+* **video-player:** добавлен метод updateUpcomingMoments в usePlayerAIAnalysis ([3eea9a7](https://github.com/chatman-media/timeline-studio/commit/3eea9a7a89f169b5a03b2b9c011ca85e0f19ef07))
+
+# [0.77.0](https://github.com/chatman-media/timeline-studio/compare/v0.76.2...v0.77.0) (2025-08-08)
+
+
+### Features
+
+* **ai:** интеграция Smart Montage Planner с централизованной AI архитектурой ([e01888e](https://github.com/chatman-media/timeline-studio/commit/e01888e444aefe419b4a2c186ced0f68e7c463fb))
+
+## [0.76.2](https://github.com/chatman-media/timeline-studio/compare/v0.76.1...v0.76.2) (2025-08-08)
+
+
+### Bug Fixes
+
+* **ai-chat:** исправлены ошибки в тестах и импортах AI модулей ([b9508d6](https://github.com/chatman-media/timeline-studio/commit/b9508d6726a192f25ce53113882dadc48fa3e424))
+* **tests:** исправлены интеграционные тесты AI сервисов ([cbb962d](https://github.com/chatman-media/timeline-studio/commit/cbb962d49daeae1006e4e91be1f11b78797726c7))
+* **tests:** исправлены тесты subtitle-automation-e2e ([befa6cf](https://github.com/chatman-media/timeline-studio/commit/befa6cf1e04a0c8e6323af055496d2ab35f69e76))
+* исправить ошибки TypeScript в AI сервисах и мультикам модулях ([188e442](https://github.com/chatman-media/timeline-studio/commit/188e44208d459640e12af248cbd18ac2e422da7b))
+
+## [0.76.1](https://github.com/chatman-media/timeline-studio/compare/v0.76.0...v0.76.1) (2025-08-08)
+
+
+### Bug Fixes
+
+* **ai-content-intelligence:** исправлены все ошибки типов и обновлена документация ([ec190e5](https://github.com/chatman-media/timeline-studio/commit/ec190e544f3a2b86fc8a11014325614e34a40a30))
+* **ai:** финальные исправления типов и импортов в AI модулях ([5a37472](https://github.com/chatman-media/timeline-studio/commit/5a37472cb5936e99dd5191b48a366fbfd46f4e5c))
+
+# [0.76.0](https://github.com/chatman-media/timeline-studio/compare/v0.75.0...v0.76.0) (2025-08-08)
+
+
+### Bug Fixes
+
+* **ai-chat:** исправления в сервисах контент-анализа ([e1c6e00](https://github.com/chatman-media/timeline-studio/commit/e1c6e00f51e40d0336a182c643aa426d4df794eb))
+* **ai:** реализованы недостающие методы в FFmpeg и Vision адаптерах ([0e5e131](https://github.com/chatman-media/timeline-studio/commit/0e5e131e6186fe243d95675bb6900405ceecfdb2))
+* **types:** исправлены ошибки типов в AI модулях и Timeline ([0d9d784](https://github.com/chatman-media/timeline-studio/commit/0d9d7844fdb26bbb9e758bd7c47e0110acda661a))
+* **types:** исправлены ошибки типов в модулях Timeline ([79ca1fa](https://github.com/chatman-media/timeline-studio/commit/79ca1facba12ca3b52e6730fb32b800ab808e813))
+* **vision-adapter:** исправлен конфликт типов в analyzeFrame ([2a1762f](https://github.com/chatman-media/timeline-studio/commit/2a1762ffedb71e9ac71ae601369e25e5337cf2e9))
+* исправлены критические ошибки типов в AI сервисах и тестах ([121752d](https://github.com/chatman-media/timeline-studio/commit/121752d141aec27ef9fb2df6416a10bcdcdad083))
+* финальные исправления в legacy и unified AI сервисах ([eadc4f5](https://github.com/chatman-media/timeline-studio/commit/eadc4f5cc2af7001709e269d2c8ee3804716b5bd))
+
+
+### Features
+
+* **swarm:** интеграция ruv-swarm MCP сервиса для Timeline Studio ([a2fe70a](https://github.com/chatman-media/timeline-studio/commit/a2fe70a6841a542a4347114e58cbcd5f2bac53d7))
+* **timeline:** добавлены типы для effects-cache и timeline ([cfdb7f6](https://github.com/chatman-media/timeline-studio/commit/cfdb7f6ffa6784e8818178d800e9f05ccdc5c794))
+
+# [0.75.0](https://github.com/chatman-media/timeline-studio/compare/v0.74.0...v0.75.0) (2025-08-07)
+
+
+### Bug Fixes
+
+* **rust:** исправлено clippy warning manual_flatten в effects_commands ([c44e513](https://github.com/chatman-media/timeline-studio/commit/c44e51327b6c53d61a6d8c2ebb6c1236ff19ef5e))
+
+
+### Features
+
+* **browser:** полная интеграция выбора файлов с AI чатом ([f52cbbf](https://github.com/chatman-media/timeline-studio/commit/f52cbbf4aecaf7441230dcc7ce632a8c53dde512))
+* **timeline:** реализована виртуализация Timeline с @tanstack/react-virtual ([b99e31b](https://github.com/chatman-media/timeline-studio/commit/b99e31bd49c8c52446d573e409f735149457365b))
+
+# [0.74.0](https://github.com/chatman-media/timeline-studio/compare/v0.73.0...v0.74.0) (2025-08-07)
+
+
+### Bug Fixes
+
+* исправлена ошибка использования удаленных AI сервисов в ai-chat компоненте ([aed395b](https://github.com/chatman-media/timeline-studio/commit/aed395b0caa55e240eaef33173ede8eb5f9c991c))
+* исправлены все TypeScript ошибки в модуле ai-chat ([fd49c1e](https://github.com/chatman-media/timeline-studio/commit/fd49c1e2d82227b56de61fc0da92bfb4c8cd82b7))
+* исправлены импорты констант моделей в model-configuration-manager ([235d74d](https://github.com/chatman-media/timeline-studio/commit/235d74d36c0abcb281c368bacba1c86c75248f9c))
+
+
+### Features
+
+* **ai:** рефакторинг AI модулей и создание документации требований ([77ebe23](https://github.com/chatman-media/timeline-studio/commit/77ebe23730e54427405b32360112e44911dbad9c))
+* **timeline:** интеграция ресурсов - переходы, эффекты, фильтры ([d1d8c4e](https://github.com/chatman-media/timeline-studio/commit/d1d8c4ea573b9faa1ebd82f7b294e3425a1a8e63))
+* **webgl:** интеграция WebGL эффектов с timeline и подключение backend команд ([53f219f](https://github.com/chatman-media/timeline-studio/commit/53f219fb6b87144ccc2f396bbf7c90e22999139d))
+
+# [0.73.0](https://github.com/chatman-media/timeline-studio/compare/v0.72.0...v0.73.0) (2025-08-07)
+
+
+### Features
+
+* **timeline:** реализованы Drop Zones для интеграции ресурсов с клипами ([0e1f591](https://github.com/chatman-media/timeline-studio/commit/0e1f5919d49ed46630b0a9ebe4e5be072a66a25c))
+* добавлена унифицированная система AI сервисов ([548dae5](https://github.com/chatman-media/timeline-studio/commit/548dae5037497f8dbe75191a4592c9e007483840))
+
+# [0.72.0](https://github.com/chatman-media/timeline-studio/compare/v0.71.0...v0.72.0) (2025-08-07)
+
+
+### Bug Fixes
+
+* **ai-chat:** добавлен отсутствующий метод getSensitivityThreshold в SceneDetectionTool ([500a48d](https://github.com/chatman-media/timeline-studio/commit/500a48d24ff49ada1063ee07953ec228c05b71a0))
+* **ai-chat:** исправлен импорт resourceTools в core/index.ts ([8677ba4](https://github.com/chatman-media/timeline-studio/commit/8677ba4955ec294fcfd5a58d30befb16c14c067c))
+* **ai-chat:** исправление ошибок TypeScript в analysis tools ([5fc9e37](https://github.com/chatman-media/timeline-studio/commit/5fc9e37a5711600fd79add107d3ea476ad1fe7cf))
+* **ai-chat:** исправление ошибок импорта в index.ts ([4fd5db2](https://github.com/chatman-media/timeline-studio/commit/4fd5db2dec3006ce47407943b414cd0f958753f9))
+* **ai-chat:** исправлены TypeScript ошибки в multimodal и timeline инструментах ([221449e](https://github.com/chatman-media/timeline-studio/commit/221449e8625aee1e6886ebb72a96c6a46f315d61))
+* **ai-chat:** исправлены все ошибки линтера в tools-v2 ([de42dd0](https://github.com/chatman-media/timeline-studio/commit/de42dd098c38a84bc2cdd0f2f67f564f85086ffd))
+* **ai-chat:** исправлены импорты в resources/index.ts ([8631250](https://github.com/chatman-media/timeline-studio/commit/8631250e4b6a3c0a129a10f0476f93209b6e601b))
+* **ai-chat:** исправлены импорты и экспорты в index файлах ([13f4699](https://github.com/chatman-media/timeline-studio/commit/13f4699c63d883e036c6af8ca4d7fa6c5ea5efce))
+* **timeline:** исправлены ошибки типов в сервисах переходов и тесты ([ffb7d28](https://github.com/chatman-media/timeline-studio/commit/ffb7d2896c8ab24e382a78af3dc83e8e75682155))
+* **whisper:** исправлена интеграция Faster Whisper в WhisperService ([3763c8e](https://github.com/chatman-media/timeline-studio/commit/3763c8e606a8d4eadf602f77b3816d6266e83bcf))
+
+
+### Features
+
+* **ai-chat:** Phase 2A - Domain-Based Architecture для AI инструментов ([e0fea51](https://github.com/chatman-media/timeline-studio/commit/e0fea51db33237a99a8e0d652bebde77d6482db8))
+* **ai-chat:** добавлена Enhanced Subtitle Automation с полной AI интеграцией ([514d26e](https://github.com/chatman-media/timeline-studio/commit/514d26eefa3687c7311849ef81d367f30eb296ed))
+* **ai-chat:** завершена миграция AI Tools на новую domain-based архитектуру ([7ef7cf6](https://github.com/chatman-media/timeline-studio/commit/7ef7cf6565915060a7579a82696f8b8faed57550))
+* **ai-chat:** завершено обновление всех импортов на новую структуру tools-v2 ([b70a0d4](https://github.com/chatman-media/timeline-studio/commit/b70a0d41f3162ec0b98b764d1fca666dede95337))
+* **ai-chat:** обновлены импорты в timeline-ai-service на новую структуру tools-v2 ([4f92f33](https://github.com/chatman-media/timeline-studio/commit/4f92f3374c39302ea38ae2ae9136bccb7861a78f))
+
+# [0.71.0](https://github.com/chatman-media/timeline-studio/compare/v0.70.0...v0.71.0) (2025-08-07)
+
+
+### Bug Fixes
+
+* **ai-chat:** исправление критических ошибок линтера в AI tools ([7f50094](https://github.com/chatman-media/timeline-studio/commit/7f500943e3610769069f3166f3d648f671d5f8e6))
+* **ai-chat:** исправление файлов, поврежденных линтером ([5511fd5](https://github.com/chatman-media/timeline-studio/commit/5511fd5da8e6e6b4adf786638492077230354a9d))
+
+
+### Features
+
+* **ai-chat:** рефакторинг 3 крупных AI инструментов на BaseAITool ([7d23063](https://github.com/chatman-media/timeline-studio/commit/7d2306321b0b1d2a99ec2b8b9595070ea496aefd))
+* **ai-chat:** рефакторинг person-identification-tools и platform-optimization-tools на BaseAITool ([b410cbf](https://github.com/chatman-media/timeline-studio/commit/b410cbf3d64e2552cc7a3efe6bfacc8f6dc9de4a))
+* **timeline:** завершение drag & drop системы до 100% ([cb7518f](https://github.com/chatman-media/timeline-studio/commit/cb7518f23b3de6ad65307dfac7db8673913d63f4))
+
+# [0.70.0](https://github.com/chatman-media/timeline-studio/compare/v0.69.0...v0.70.0) (2025-08-06)
+
+
+### Bug Fixes
+
+* **timeline:** исправлены тесты для новой модульной архитектуры ([3eb16a9](https://github.com/chatman-media/timeline-studio/commit/3eb16a9dec371559038f9ee4228984e1dba45958))
+
+
+### Features
+
+* **ai-chat:** рефакторинг AI инструментов с BaseAITool архитектурой ([a5478cb](https://github.com/chatman-media/timeline-studio/commit/a5478cb3803030b55dfa925b2d72817c5347a94b))
+
+# [0.69.0](https://github.com/chatman-media/timeline-studio/compare/v0.68.1...v0.69.0) (2025-08-06)
+
+
+### Bug Fixes
+
+* **multicam:** исправлены типы и ошибки в тестах мультикамеры ([250c123](https://github.com/chatman-media/timeline-studio/commit/250c123b2df54dee128f9de9a0239537136591ed))
+* **tests:** исправлены падающие тесты в timeline и subtitles ([9a6cd52](https://github.com/chatman-media/timeline-studio/commit/9a6cd5292b6eef21f1212c750b1cd1b8ffab486a))
+
+
+### Features
+
+* добавлены новые тесты и компоненты транскрипции ([3223ca8](https://github.com/chatman-media/timeline-studio/commit/3223ca8b225e36c7086329ca9fc47090f8efb313))
+
+## [0.68.1](https://github.com/chatman-media/timeline-studio/compare/v0.68.0...v0.68.1) (2025-08-06)
+
+
+### Bug Fixes
+
+* **tests:** исправление необработанных ошибок в тестах ([2e23f97](https://github.com/chatman-media/timeline-studio/commit/2e23f97af1ba2fe703b843f1075d02c2e3801786))
+* **tests:** исправление тестов ShaderPool для работы с Singleton ([2bb6f40](https://github.com/chatman-media/timeline-studio/commit/2bb6f40c403d854c7e800785cab3101377532555))
+* **tests:** упрощение зависающих тестов use-dynamic-transitions ([9703bc9](https://github.com/chatman-media/timeline-studio/commit/9703bc9640e249452fdbbf6ce1562201979bf4a5))
+
 # [0.68.0](https://github.com/chatman-media/timeline-studio/compare/v0.67.4...v0.68.0) (2025-08-05)
 
 
