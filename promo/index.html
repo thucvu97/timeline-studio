@@ -183,13 +183,12 @@
     </div>
   </div>
   <!-- Main JS bundle with defer -->
-  <script type="module" src="/assets/index-8b_MllQq.js" defer></script>
-  <!-- Vendor and router JS with defer -->
-  <script src="/assets/react-CEZjBCbl.js" defer></script>
-  <script src="/assets/router-BDXgoB13.js" defer></script>
-  <script src="/assets/vendor-6FzILPv8.js" defer></script>
-  <!-- Оригинальный entrypoint (оставлен для fallback/debug, можно удалить если не нужен) -->
-  <!-- <script type="module" src="/src/main.tsx"></script> -->
+  <!-- Main JS bundle and vendor scripts (Vite requires type=module) -->
+  <!-- Production JS bundles -->
+  <script type="module" src="/assets/index-Bc55-X_Q.js" defer></script>
+  <script type="module" src="/assets/react-CEZjBCbl.js" defer></script>
+  <script type="module" src="/assets/router-BDXgoB13.js" defer></script>
+  <script type="module" src="/assets/vendor-6FzILPv8.js" defer></script>
 
   <!-- Оптимизация загрузки шрифтов -->
   <script>
