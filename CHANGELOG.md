@@ -1,3 +1,10 @@
+## [1.3.5](https://github.com/chatman-media/timeline-studio/compare/v1.3.4...v1.3.5) (2025-08-12)
+
+
+### Bug Fixes
+
+* **promo:** Теперь в index.html подключаются только production-бандлы с type="module" и defer. Скрипт src/main.tsx для разработки удалён. ([e8c153a](https://github.com/chatman-media/timeline-studio/commit/e8c153a8392507d30b0b23cd246ed5bcb09b88d6))
+
 ## [1.3.4](https://github.com/chatman-media/timeline-studio/compare/v1.3.3...v1.3.4) (2025-08-12)
 
 
