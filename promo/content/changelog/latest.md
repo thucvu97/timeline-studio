@@ -1,3 +1,10 @@
+## [1.3.4](https://github.com/chatman-media/timeline-studio/compare/v1.3.3...v1.3.4) (2025-08-12)
+
+
+### Bug Fixes
+
+* **promo:** added preload and seo fixes ([ddc8ceb](https://github.com/chatman-media/timeline-studio/commit/ddc8cebdb4f364fae4ff067c65c70f44620be793))
+
 ## [1.3.3](https://github.com/chatman-media/timeline-studio/compare/v1.3.2...v1.3.3) (2025-08-12)
 
 
