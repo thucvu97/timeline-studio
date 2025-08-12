@@ -13,7 +13,8 @@
 
   <!-- Security Headers (for reference, set these via server config) -->
   <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://github.com https://api.github.com https://raw.githubusercontent.com /src/main.tsx; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://timelinestudio.pro; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.github.com; object-src 'none'; frame-ancestors 'self'; base-uri 'self';">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://github.com https://api.github.com https://raw.githubusercontent.com /src/main.tsx; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https://timelinestudio.pro; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://api.github.com; object-src 'none'; frame-ancestors 'self'; base-uri 'self';">
   <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
@@ -31,6 +32,12 @@
   <link rel="dns-prefetch" href="https://raw.githubusercontent.com">
 
   <!-- Preload critical resources -->
+  <!-- Preload critical CSS and JS -->
+  <link rel="preload" href="/assets/style-Do3YBVXi.css" as="style">
+  <link rel="preload" href="/assets/index-8b_MllQq.js" as="script">
+  <link rel="preload" href="/assets/react-CEZjBCbl.js" as="script">
+  <link rel="preload" href="/assets/router-BDXgoB13.js" as="script">
+  <link rel="preload" href="/assets/vendor-6FzILPv8.js" as="script">
   <link rel="preload" href="/fav.svg" as="image" type="image/svg+xml">
 
   <title>Timeline Studio - AI-Powered Video Editor</title>
@@ -46,6 +53,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Bebas+Neue&display=swap"
       rel="stylesheet">
   </noscript>
+
+  <!-- Critical CSS -->
+  <link rel="stylesheet" href="/assets/style-Do3YBVXi.css" />
 
   <!-- Critical CSS inline -->
   <style>
@@ -172,7 +182,14 @@
       <div class="loading-spinner"></div>
     </div>
   </div>
-  <script type="module" src="/src/main.tsx"></script>
+  <!-- Main JS bundle with defer -->
+  <script type="module" src="/assets/index-8b_MllQq.js" defer></script>
+  <!-- Vendor and router JS with defer -->
+  <script src="/assets/react-CEZjBCbl.js" defer></script>
+  <script src="/assets/router-BDXgoB13.js" defer></script>
+  <script src="/assets/vendor-6FzILPv8.js" defer></script>
+  <!-- Оригинальный entrypoint (оставлен для fallback/debug, можно удалить если не нужен) -->
+  <!-- <script type="module" src="/src/main.tsx"></script> -->
 
   <!-- Оптимизация загрузки шрифтов -->
   <script>
