@@ -1,7 +1,6 @@
 import { invoke } from "@tauri-apps/api/core"
-
+import { Subtitle } from "@/domains/video-editing/types/video-compiler"
 import { indexedDBCacheService } from "@/features/media/services/indexeddb-cache-service"
-import type { Subtitle } from "@/types/video-compiler"
 
 /**
  * Цель извлечения кадров
@@ -188,7 +187,7 @@ export class FrameExtractionService {
    * Создать canvas для отрисовки кадра
    */
   async drawFrameToCanvas(frameData: Uint8Array, canvas: HTMLCanvasElement): Promise<void> {
-    const blob = new Blob([frameData], { type: "image/jpeg" })
+    const blob = new Blob([frameData.buffer], { type: "image/jpeg" })
     const img = new Image()
     const url = URL.createObjectURL(blob)
 

@@ -262,7 +262,7 @@ export function SyncControls({ baseClipId, className, onSyncComplete }: SyncCont
         onClose={() => setAudioSyncOpen(false)}
         onSync={async () => {
           const results = await multicam.autoSyncByAudio()
-          void handleAudioSyncComplete()
+          await handleAudioSyncComplete()
           return results || []
         }}
         angleCount={multicam.angles.length}

@@ -1,6 +1,7 @@
 // Script Generation Types
 
-import type { EmotionalTone, Genre, SceneAnalysis } from "./content-analysis"
+import { SceneAnalysis } from "@/domains/ai-services"
+import type { EmotionalTone, Genre } from "./content-analysis"
 
 // Script Types
 export interface GeneratedScript {

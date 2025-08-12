@@ -1,31 +1,7 @@
 // Content Analysis Types
 
-import type {
-  AudioAnalysisResult as AudioAnalysis,
-  QualityAnalysisResult,
-  VideoMetadata,
-} from "../../../ai-chat/services/ffmpeg-analysis-service"
-import type { ContentInsights } from "../../../ai-chat/services/unified-ai-service"
-
-// Временный тип для VideoAnalysis пока не найден точный импорт
-export interface VideoAnalysis {
-  metadata?: VideoMetadata
-  quality?: QualityAnalysisResult
-  // Дополнительные поля будут добавлены позже
-}
-
-// Scene Analysis Types
-export interface SceneAnalysis {
-  id: string
-  startTime: number
-  endTime: number
-  duration: number
-  type: SceneType
-  keyFrames: KeyFrame[]
-  quality: QualityMetrics
-  content: ContentElements
-  transitions: SceneTransition[]
-}
+import { SceneAnalysis } from "@/domains/ai-services"
+import { AudioAnalysis, ContentInsights, VideoAnalysis } from "@/domains/ai-services/types"
 
 // Alias for SceneAnalysis to match usage in other files
 export interface SceneInfo {

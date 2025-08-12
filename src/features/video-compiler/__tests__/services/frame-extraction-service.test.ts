@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-
-import type { Subtitle } from "@/types/video-compiler"
+import { Subtitle } from "@/domains/video-editing"
 import type { RecognitionFrame, TimelineFrame } from "../../services/frame-extraction-service"
 import { ExtractionPurpose, frameExtractionService } from "../../services/frame-extraction-service"
 
@@ -76,10 +75,10 @@ describe("frameExtractionService", () => {
   beforeEach(async () => {
     vi.clearAllMocks()
     const { invoke } = await import("@tauri-apps/api/core")
-    mockInvoke = vi.mocked(invoke)
+    mockInvoke = invoke as any
 
     const { indexedDBCacheService } = await import("@/features/media/services/indexeddb-cache-service")
-    mockIndexedDBCacheService = vi.mocked(indexedDBCacheService)
+    mockIndexedDBCacheService = indexedDBCacheService as any
   })
 
   describe("extractTimelineFrames", () => {

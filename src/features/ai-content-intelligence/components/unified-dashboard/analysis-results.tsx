@@ -96,10 +96,12 @@ function AnalysisTabContent({ result }: { result: IntelligentContent }) {
       {analysis.insights && (
         <div className="bg-muted rounded-lg p-4">
           <h3 className="font-medium mb-3">AI Insights</h3>
-          <p className="text-sm text-muted-foreground mb-2">{analysis.insights.summary}</p>
-          {analysis.insights.suggestions.length > 0 && (
+          <p className="text-sm text-muted-foreground mb-2">
+            {(analysis.insights as any).summary || "Краткое описание недоступно"}
+          </p>
+          {((analysis.insights as any).suggestions || []).length > 0 && (
             <div className="space-y-1">
-              {analysis.insights.suggestions.slice(0, 3).map((suggestion, index) => (
+              {((analysis.insights as any).suggestions || []).slice(0, 3).map((suggestion: any, index: number) => (
                 <div key={index} className="flex items-start space-x-2 text-sm">
                   <span>💡</span>
                   <span>{suggestion.description}</span>

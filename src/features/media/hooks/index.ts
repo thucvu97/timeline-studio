@@ -1,5 +1,6 @@
 // Экспорт всех хуков media
 export * from "./use-cache-statistics"
+export * from "./use-file-selection"
 export * from "./use-frame-preview"
 export * from "./use-media-import"
 export * from "./use-media-preview"

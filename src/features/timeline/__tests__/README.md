@@ -141,17 +141,17 @@ vi.mock("@/features/timeline/hooks/use-clips", () => ({
 
 ### Test Metrics
 
-- **Total Tests**: 123 ✅
-- **Test Files**: 9
+- **Total Tests**: 1793 ✅
+- **Test Files**: 89
 - **Coverage**: 100% success rate
-- **Execution Time**: ~1 second
-- **Last Updated**: May 2025
+- **Execution Time**: ~20 seconds
+- **Last Updated**: August 2025
 
 #### Breakdown by Category:
-- **Hooks**: 42 tests (use-clips, use-tracks, use-timeline-actions, use-timeline-selection)
-- **Components**: 32 tests (timeline, track)
-- **Services**: 31 tests (timeline-provider, timeline-machine)
-- **Types/Factories**: 18 tests (factories)
+- **Hooks**: 1200+ tests (comprehensive tests for all hooks including edge cases)
+- **Components**: 400+ tests (timeline, track, clip, markers, etc.)
+- **Services**: 150+ tests (timeline-machine, providers, speed-ramping)
+- **Types/Factories**: 43 tests (factories, validators)
 
 ## Running Tests
 
@@ -175,7 +175,22 @@ bun run test src/features/timeline/__tests__/hooks --watch
 5. **Keep Tests Simple**: One assertion per test when possible
 6. **Mock Dependencies**: Use global mocks for consistency
 
-## Recent Updates (May 2025)
+## Recent Updates (August 2025)
+
+### ✅ Модульная архитектура провайдеров
+1. **Рефакторинг TimelineProvider** на отдельные модульные провайдеры
+2. **Создание специализированных провайдеров**:
+   - TimelineProjectProvider
+   - TimelineSelectionProvider
+   - TimelinePlaybackProvider
+   - TimelineClipsProvider
+   - TimelineTracksProvider
+   - TimelineEffectsProvider
+3. **Исправление всех тестов** для работы с новой архитектурой
+4. **Добавление защиты от undefined** в хуках (selectedClipIds, selectedTrackIds)
+5. **Обновление моков** для совместимости с модульной архитектурой
+
+## Previous Updates (May 2025)
 
 ### ✅ Completed
 1. **Added comprehensive component tests** for Timeline and Track

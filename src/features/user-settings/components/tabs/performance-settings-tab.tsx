@@ -43,6 +43,11 @@ export function PerformanceSettingsTab() {
     backgroundRenderingEnabled = true,
     renderDelay = 5,
 
+    // Настройки оптимизации Timeline
+    timelineVirtualizationEnabled = true,
+    timelineVirtualizationOverscan = 5,
+    timelineClipDetailsThreshold = 50,
+
     // Методы обновления
     handleGpuAccelerationChange,
     handlePreferredGpuEncoderChange,
@@ -56,6 +61,9 @@ export function PerformanceSettingsTab() {
     handleRenderQualityChange,
     handleBackgroundRenderingChange,
     handleRenderDelayChange,
+    handleTimelineVirtualizationEnabledChange,
+    handleTimelineVirtualizationOverscanChange,
+    handleTimelineClipDetailsThresholdChange,
   } = useUserSettings()
 
   // Локальное состояние для управления видимостью пароля
@@ -177,6 +185,99 @@ export function PerformanceSettingsTab() {
             </SelectContent>
           </Select>
         </div>
+      </div>
+
+      <Separator />
+
+      {/* Оптимизация Timeline */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <Label className="text-base font-semibold">
+            {t("dialogs.userSettings.performance.timelineOptimization")}
+          </Label>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <Info className="h-4 w-4 text-muted-foreground" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{t("dialogs.userSettings.performance.timelineOptimizationDesc")}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+
+        {/* Виртуализация Timeline */}
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <Label className="text-sm">{t("dialogs.userSettings.performance.enableVirtualization")}</Label>
+            <p className="text-xs text-muted-foreground">
+              {t("dialogs.userSettings.performance.enableVirtualizationDesc")}
+            </p>
+          </div>
+          <Switch checked={timelineVirtualizationEnabled} onCheckedChange={handleTimelineVirtualizationEnabledChange} />
+        </div>
+
+        {timelineVirtualizationEnabled && (
+          <div className="ml-4 space-y-4">
+            {/* Overscan настройка */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label className="text-sm">{t("dialogs.userSettings.performance.overscanBuffer")}</Label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="h-4 w-4 text-muted-foreground" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{t("dialogs.userSettings.performance.overscanBufferTooltip")}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  value={timelineVirtualizationOverscan}
+                  onChange={(e) => handleTimelineVirtualizationOverscanChange(Number(e.target.value))}
+                  className="w-20"
+                  min="1"
+                  max="20"
+                />
+                <span className="text-sm text-muted-foreground">{t("dialogs.userSettings.performance.elements")}</span>
+              </div>
+            </div>
+
+            {/* Порог показа деталей клипов */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label className="text-sm">{t("dialogs.userSettings.performance.clipDetailsThreshold")}</Label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="h-4 w-4 text-muted-foreground" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{t("dialogs.userSettings.performance.clipDetailsThresholdTooltip")}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  value={timelineClipDetailsThreshold}
+                  onChange={(e) => handleTimelineClipDetailsThresholdChange(Number(e.target.value))}
+                  className="w-20"
+                  min="20"
+                  max="200"
+                  step="10"
+                />
+                <span className="text-sm text-muted-foreground">{t("dialogs.userSettings.performance.pixels")}</span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <Separator />

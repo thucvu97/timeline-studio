@@ -5,19 +5,21 @@
 import { useDroppable } from "@dnd-kit/core"
 import { memo, useCallback, useMemo } from "react"
 
-import { useDropZone } from "@/features/drag-drop"
+// Удалена зависимость от @/features/drag-drop для устранения конфликта архитектур
+// Оставляем только @dnd-kit/core систему
 import { cn } from "@/lib/utils"
 import { useClipGroups } from "../../hooks/use-clip-groups"
 import { useDragDropTimeline } from "../../hooks/use-drag-drop-timeline"
 import { useTimeline } from "../../hooks/use-timeline"
+import { useTimelineSelection } from "../../hooks/use-timeline-selection"
 import { useTrackTransitionCollisions } from "../../hooks/use-transition-collisions"
 import { addTransitionBetweenClips, getTrackTransitions } from "../../services/timeline-transition-manager"
 import type { TimelineTrack } from "../../types"
 import { Clip } from "../clip/clip"
 import { CollapsedGroup } from "../clip-groups/collapsed-group"
-import { TimelineTransitionComponent } from "../transition/timeline-transition"
 import { TransitionCollisionIndicator } from "../transition/transition-collision-indicator"
 import { TransitionDropZone } from "../transition/transition-drop-zone"
+import { TimelineTransitionComponent } from "../transitions/timeline-transition"
 import { TrackRollHandles } from "./track-roll-handles"
 
 interface TrackContentProps {
@@ -29,7 +31,8 @@ interface TrackContentProps {
 
 export const TrackContent = memo(function TrackContent({ track, timeScale, currentTime, onUpdate }: TrackContentProps) {
   const { dragState, isValidDropTarget } = useDragDropTimeline()
-  const { addClip, selectClips, project, updateProject } = useTimeline()
+  const { selectClips } = useTimelineSelection()
+  const { project, saveProject } = useTimeline()
   const { groups, toggleCollapse } = useClipGroups()
 
   // Обнаружение коллизий переходов на треке
@@ -44,23 +47,8 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
     },
   })
 
-  // Register as drop zone for global DragDropManager
-  const acceptedTypes: Array<"media" | "music"> =
-    track.type === "video" ? ["media"] : track.type === "audio" ? ["media", "music"] : []
-
-  const { ref: dropZoneRef } = useDropZone(`track-${track.id}`, acceptedTypes, (item, event) => {
-    // Calculate drop position based on mouse position
-    const rect = dropZoneRef.current?.getBoundingClientRect()
-    if (!rect) return
-
-    const x = event.clientX - rect.left
-    const dropTime = x / timeScale
-
-    // Add clip to timeline
-    if (item.type === "media" || item.type === "music") {
-      void addClip(track.id, item.data, dropTime)
-    }
-  })
+  // Удалён дублирующий useDropZone для устранения конфликта архитектур
+  // Теперь используем только @dnd-kit систему через handleDragEnd в useDragDropTimeline
 
   // Check if this track is a valid drop target
   const isValidTarget = isValidDropTarget(track.id, track.type)
@@ -108,7 +96,7 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
 
   // Мемоизируем обработчики для предотвращения создания новых функций
   const handleClipUpdate = useCallback(
-    (clipId: string, updates: any) => {
+    (clipId: string, updates: Record<string, any>) => {
       const updatedClips = track.clips.map((clip) => (clip.id === clipId ? { ...clip, ...updates } : clip))
       onUpdate?.({ clips: updatedClips })
     },
@@ -125,17 +113,21 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
 
   // Обработчик добавления перехода между клипами
   const handleTransitionDrop = useCallback(
-    (leftClipId: string, rightClipId: string, transition: any) => {
+    async (leftClipId: string, rightClipId: string, transition: Record<string, any>) => {
       if (!project) return
 
       try {
         const result = addTransitionBetweenClips(project, track.id, leftClipId, rightClipId, transition)
-        updateProject?.(result.project)
+
+        // Обновляем проект через сохранение
+        await saveProject()
+
+        console.log("Переход успешно добавлен к проекту")
       } catch (error) {
         console.error("Failed to add transition:", error)
       }
     },
-    [project, track.id, updateProject],
+    [project, track.id, saveProject],
   )
 
   // Мемоизируем сетку временной шкалы
@@ -153,12 +145,7 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
 
   return (
     <div
-      ref={(el) => {
-        setNodeRef(el)
-        if (dropZoneRef.current !== el) {
-          dropZoneRef.current = el
-        }
-      }}
+      ref={setNodeRef}
       data-track-id={track.id}
       data-testid={`track-container-${track.id}`}
       className={cn(
@@ -223,21 +210,44 @@ export const TrackContent = memo(function TrackContent({ track, timeScale, curre
         ))}
 
         {/* Переходы */}
-        {trackTransitions.map((transition) => (
-          <TimelineTransitionComponent
-            key={transition.id}
-            transition={transition}
-            timeScale={timeScale}
-            onUpdate={(updates) => {
-              // Обновление перехода через контекст или API
-              console.log("Transition update:", transition.id, updates)
-            }}
-            onDelete={() => {
-              // Удаление перехода
-              console.log("Transition delete:", transition.id)
-            }}
-          />
-        ))}
+        {visibleClips.length > 1 &&
+          visibleClips.slice(0, -1).map((leftClip, index) => {
+            const rightClip = visibleClips[index + 1]
+
+            // Проверяем есть ли переход между этими клипами
+            const outTransition = leftClip.transitions?.find((t) => t.type === "out")
+            const inTransition = rightClip.transitions?.find((t) => t.type === "in")
+
+            if (outTransition && inTransition && outTransition.transitionId === inTransition.transitionId) {
+              return (
+                <TimelineTransitionComponent
+                  key={`transition-${leftClip.id}-${rightClip.id}`}
+                  leftClipId={leftClip.id}
+                  rightClipId={rightClip.id}
+                  leftClipEnd={leftClip.startTime + leftClip.duration}
+                  rightClipStart={rightClip.startTime}
+                  transition={outTransition}
+                  timeScale={timeScale}
+                  trackHeight={48}
+                  onUpdate={(updates) => {
+                    // TODO: Обновление перехода через backend API
+                    console.log("Updating transition parameters:", outTransition.id, updates)
+                  }}
+                  onDelete={async () => {
+                    // Удаление перехода через backend API
+                    try {
+                      // TODO: Добавить removeTransition команду в backend
+                      console.log("Deleting transition:", outTransition.id)
+                      await saveProject()
+                    } catch (error) {
+                      console.error("Failed to delete transition:", error)
+                    }
+                  }}
+                />
+              )
+            }
+            return null
+          })}
 
         {/* Зоны для сброса переходов между клипами */}
         {visibleClips.length > 1 &&

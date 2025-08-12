@@ -23,12 +23,12 @@ interface GroupContextMenuProps {
 }
 
 export function GroupContextMenu({ children }: GroupContextMenuProps) {
-  const { uiState, project } = useTimeline()
+  const { project, selectedClipIds } = useTimeline()
   const { createGroup, ungroupClips, getGroupByClip, toggleCollapse, lockGroup, setGroupColor, createNestedSequence } =
     useClipGroups()
 
-  const selectedClipCount = uiState.selectedClipIds.length
-  const firstSelectedClipId = uiState.selectedClipIds[0]
+  const selectedClipCount = selectedClipIds.length
+  const firstSelectedClipId = selectedClipIds[0]
   const group = firstSelectedClipId ? getGroupByClip(firstSelectedClipId) : null
 
   const handleCreateGroup = () => {
@@ -39,7 +39,7 @@ export function GroupContextMenu({ children }: GroupContextMenuProps) {
 
     project.globalTracks.forEach((track) => {
       track.clips.forEach((clip) => {
-        if (uiState.selectedClipIds.includes(clip.id)) {
+        if (selectedClipIds.includes(clip.id)) {
           selectedClips.push(clip)
         }
       })
@@ -48,7 +48,7 @@ export function GroupContextMenu({ children }: GroupContextMenuProps) {
     project.sections.forEach((section) => {
       section.tracks.forEach((track) => {
         track.clips.forEach((clip) => {
-          if (uiState.selectedClipIds.includes(clip.id)) {
+          if (selectedClipIds.includes(clip.id)) {
             selectedClips.push(clip)
           }
         })
@@ -92,7 +92,7 @@ export function GroupContextMenu({ children }: GroupContextMenuProps) {
 
     project.globalTracks.forEach((track) => {
       track.clips.forEach((clip) => {
-        if (uiState.selectedClipIds.includes(clip.id)) {
+        if (selectedClipIds.includes(clip.id)) {
           selectedClips.push(clip)
         }
       })
@@ -101,7 +101,7 @@ export function GroupContextMenu({ children }: GroupContextMenuProps) {
     project.sections.forEach((section) => {
       section.tracks.forEach((track) => {
         track.clips.forEach((clip) => {
-          if (uiState.selectedClipIds.includes(clip.id)) {
+          if (selectedClipIds.includes(clip.id)) {
             selectedClips.push(clip)
           }
         })

@@ -13,6 +13,16 @@ const MockTimelineContent = React.forwardRef<HTMLDivElement, React.HTMLAttribute
   },
 )
 
+const MockVirtualizedTimelineContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  function MockVirtualizedTimelineContent(props, ref) {
+    return React.createElement("div", {
+      ...props,
+      ref,
+      "data-testid": "virtualized-timeline-content",
+    })
+  },
+)
+
 const MockAudioMixerView = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   function MockAudioMixerView(props, ref) {
     return React.createElement("div", {
@@ -56,6 +66,7 @@ const MockAiChat = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDiv
 )
 
 MockTimelineContent.displayName = "MockTimelineContent"
+MockVirtualizedTimelineContent.displayName = "MockVirtualizedTimelineContent"
 MockAudioMixerView.displayName = "MockAudioMixerView"
 MockTimelineWorkspaceTabs.displayName = "MockTimelineWorkspaceTabs"
 MockResourcesPanel.displayName = "MockResourcesPanel"
@@ -70,6 +81,10 @@ MockResourcesProvider.displayName = "MockResourcesProvider"
 // Mock the imports
 vi.mock("@/features/timeline/components/timeline-content", () => ({
   TimelineContent: MockTimelineContent,
+}))
+
+vi.mock("@/features/timeline/components/virtualized-timeline-content", () => ({
+  VirtualizedTimelineContent: MockVirtualizedTimelineContent,
 }))
 
 vi.mock("@/features/timeline/components/audio-mixer-view", () => ({
@@ -92,6 +107,7 @@ vi.mock("@/features/ai-chat/components/ai-chat", () => ({
 
 export {
   MockTimelineContent as TimelineContent,
+  MockVirtualizedTimelineContent as VirtualizedTimelineContent,
   MockAudioMixerView as AudioMixerView,
   MockTimelineWorkspaceTabs as TimelineWorkspaceTabs,
   MockResourcesPanel as ResourcesPanel,

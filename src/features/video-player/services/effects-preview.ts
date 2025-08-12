@@ -491,6 +491,11 @@ export class EffectsPreviewService {
 
       // Создаем texture из видео
       const texture = gl.createTexture()
+      if (!texture) {
+        throw new Error("Failed to create texture")
+      }
+      this.textures.push(texture)
+
       gl.bindTexture(gl.TEXTURE_2D, texture)
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video)
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
@@ -504,6 +509,9 @@ export class EffectsPreviewService {
       const positions = new Float32Array([-1, -1, 0, 0, 1, -1, 1, 0, -1, 1, 0, 1, -1, 1, 0, 1, 1, -1, 1, 0, 1, 1, 1, 1])
 
       const positionBuffer = gl.createBuffer()
+      if (!positionBuffer) {
+        throw new Error("Failed to create position buffer")
+      }
       gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
       gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW)
 
@@ -601,13 +609,13 @@ export class EffectsPreviewService {
     effectChain: EffectChain,
     outputCanvas: HTMLCanvasElement,
   ): Promise<boolean> {
-    if (!this.gl || effectChain.effects.length === 0) return false
+    if (!this.gl) return false
 
     try {
       // Создаем промежуточные framebuffers для цепочки
       const enabledEffects = effectChain.effects.filter((e) => e.enabled)
 
-      if (enabledEffects.length === 0) {
+      if (effectChain.effects.length === 0 || enabledEffects.length === 0) {
         // Просто копируем исходное видео
         const ctx = outputCanvas.getContext("2d")
         if (ctx) {
@@ -620,6 +628,14 @@ export class EffectsPreviewService {
       const tempCanvas = document.createElement("canvas")
       tempCanvas.width = video.videoWidth || 1920
       tempCanvas.height = video.videoHeight || 1080
+
+      // Создаем фреймбуфер для промежуточных результатов
+      if (this.gl && enabledEffects.length > 1) {
+        const fb = this.gl.createFramebuffer()
+        if (fb) {
+          this.framebuffers.push(fb)
+        }
+      }
 
       let inputElement: HTMLVideoElement | HTMLCanvasElement = video
 

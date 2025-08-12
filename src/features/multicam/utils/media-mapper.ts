@@ -19,21 +19,16 @@ export function mediaItemToMediaFile(item: MediaItem): MediaFile {
     isAudio: item.media_type === "Audio",
     isImage: item.media_type === "Image",
     duration: item.duration ?? undefined,
-    width: item.width ?? undefined,
-    height: item.height ?? undefined,
-    fps: item.fps ?? undefined,
+    width: undefined, // MediaItem не содержит width
+    height: undefined, // MediaItem не содержит height
+    fps: undefined, // MediaItem не содержит fps
     bitRate: undefined,
     codec: undefined,
-    probeData: item.probe_data
-      ? {
-          streams: item.probe_data.streams || [],
-          format: item.probe_data.format || {},
-        }
-      : undefined,
-    thumbnailPath: item.thumbnail_path ?? undefined,
-    createdAt: new Date(item.created_at),
-    importedAt: new Date(item.imported_at),
-    lastModified: new Date(item.last_modified),
+    probeData: undefined, // MediaItem не содержит probe_data
+    thumbnailPath: item.thumbnail ?? undefined,
+    createdAt: new Date().toISOString(), // MediaItem не содержит created_at
+    importedAt: new Date().toISOString(), // MediaItem не содержит imported_at
+    lastModified: new Date().toISOString(), // MediaItem не содержит last_modified
     metadata: item.metadata || {},
   }
 }

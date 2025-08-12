@@ -1,8 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-
+import type { SubtitleClip as SubtitleClipType } from "@/features/subtitles/types"
 import { SubtitleClip } from "../../../components/clip/subtitle-clip"
-import type { SubtitleClip as SubtitleClipType } from "../../../types/timeline"
 
 // Мокаем хуки timeline
 const mockSelectClip = vi.fn()
@@ -24,7 +23,7 @@ vi.mock("../../../hooks/use-timeline-selection", () => ({
 }))
 
 // Мокаем useSubtitleStyles
-vi.mock("../../../hooks/use-subtitle-styles", () => ({
+vi.mock("@/features/subtitles", () => ({
   useSubtitleStyles: () => ({
     getComputedStyle: vi.fn(() => ({})),
     getStyleById: vi.fn((id: string) => {
@@ -125,7 +124,7 @@ describe("SubtitleClip", () => {
       const { container } = render(<SubtitleClip clip={clip} trackHeight={60} isSelected={true} />)
 
       const clipElement = container.firstChild as HTMLElement
-      expect(clipElement).toHaveClass("ring-2", "ring-primary")
+      expect(clipElement).toHaveClass("ring-2 ring-primary")
     })
 
     it("должен показывать dragging состояние", () => {

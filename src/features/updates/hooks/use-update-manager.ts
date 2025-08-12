@@ -5,9 +5,10 @@
 
 import { useMachine } from "@xstate/react"
 import { useEffect } from "react"
-
-import { type UpdateMachineContext, updateMachine } from "../services/update-machine"
-import { type UpdateEventPayload, updateService } from "../services/update-service"
+// Используем машину из домена
+import { updateMachine } from "@/domains/system-integration/machines/update-machine"
+import { updateService } from ".."
+import type { AutoCheckSettings, UpdateAvailability, UpdateEventPayload, UpdateMachineContext } from "../types"
 
 export interface UseUpdateManagerReturn {
   // Состояние
@@ -30,10 +31,7 @@ export interface UseUpdateManagerReturn {
   availableUpdate?: UpdateMachineContext["availableUpdate"]
   error?: string
   progress?: UpdateMachineContext["progress"]
-  autoCheckSettings: {
-    enabled: boolean
-    intervalMinutes: number
-  }
+  autoCheckSettings: AutoCheckSettings
 
   // Действия
   checkForUpdates: () => void
@@ -65,15 +63,15 @@ export function useUpdateManager(): UseUpdateManagerReturn {
           percentage: payload.progress.content_length
             ? Math.round((payload.progress.downloaded / payload.progress.content_length) * 100)
             : 0,
+          chunk_length: payload.progress.chunk_length,
+          content_length: payload.progress.content_length,
         }
-
-        // Здесь можно отправить событие в машину для обновления прогресса
-        // send({ type: 'UPDATE_PROGRESS', progress })
+        send({ type: "UPDATE_PROGRESS", progress })
       }
     })
 
     return unsubscribe
-  }, [])
+  }, [send])
 
   // Настройка автопроверки при изменении настроек
   useEffect(() => {
@@ -174,7 +172,7 @@ export function useUpdateManager(): UseUpdateManagerReturn {
  * Hook для простой проверки доступности обновлений
  * Упрощенная версия для компонентов, которым нужна только информация о доступности
  */
-export function useUpdateAvailability() {
+export function useUpdateAvailability(): UpdateAvailability {
   const { isUpdateAvailable, availableUpdate, checkForUpdates, currentVersion } = useUpdateManager()
 
   return {

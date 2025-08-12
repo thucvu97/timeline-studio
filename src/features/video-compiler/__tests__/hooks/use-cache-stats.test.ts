@@ -26,11 +26,21 @@ describe("useCacheStats", () => {
       preview_bytes: 512 * 1024 * 1024, // 512MB
       metadata_bytes: 64 * 1024 * 1024, // 64MB
       render_bytes: 448 * 1024 * 1024, // 448MB
-      total_bytes: 1024 * 1024 * 1024, // 1GB
+      total_bytes: 1024 * 1024 * 1024,
+      totalSize: 0,
+      fileCount: 0,
+      oldestEntry: "",
+      newestEntry: "",
     },
     cache_size_mb: 1024,
     hit_ratio: 0.8, // (120+60)/(120+30+60+15) = 180/225
-    preview_hit_ratio: 0.8, // 120/(120+30) = 120/150
+    preview_hit_ratio: 0.8,
+    total_size_mb: 0,
+    preview_cache: {
+      entries: 0,
+      size_mb: 0,
+    },
+    cache_efficiency: 0,
   }
 
   beforeEach(async () => {
@@ -171,10 +181,20 @@ describe("useCacheStats", () => {
         metadata_bytes: 0,
         render_bytes: 0,
         total_bytes: 0,
+        totalSize: 0,
+        fileCount: 0,
+        oldestEntry: "",
+        newestEntry: "",
       },
       cache_size_mb: 0,
       hit_ratio: 0,
       preview_hit_ratio: 0,
+      total_size_mb: 0,
+      preview_cache: {
+        entries: 0,
+        size_mb: 0,
+      },
+      cache_efficiency: 0,
     }
 
     mockInvoke.mockResolvedValueOnce(emptyStats) // refreshStats
@@ -243,10 +263,20 @@ describe("useCacheStats", () => {
         metadata_bytes: 50 * 1024 * 1024,
         render_bytes: 0,
         total_bytes: 150 * 1024 * 1024,
+        totalSize: 0,
+        fileCount: 0,
+        oldestEntry: "",
+        newestEntry: "",
       },
       cache_size_mb: 150,
       hit_ratio: 0,
       preview_hit_ratio: 0,
+      total_size_mb: 0,
+      preview_cache: {
+        entries: 0,
+        size_mb: 0,
+      },
+      cache_efficiency: 0,
     }
 
     mockInvoke.mockResolvedValueOnce(statsWithNoHits)
@@ -273,10 +303,20 @@ describe("useCacheStats", () => {
         metadata_bytes: 0,
         render_bytes: 0,
         total_bytes: 0,
+        totalSize: 0,
+        fileCount: 0,
+        oldestEntry: "",
+        newestEntry: "",
       },
       cache_size_mb: 0,
       hit_ratio: 0,
       preview_hit_ratio: 0,
+      total_size_mb: 0,
+      preview_cache: {
+        entries: 0,
+        size_mb: 0,
+      },
+      cache_efficiency: 0,
     }
 
     mockInvoke.mockResolvedValueOnce(emptyStats)

@@ -1,8 +1,6 @@
 import { act, renderHook, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-
-import { GpuEncoder } from "@/types/video-compiler"
-
+import { GpuEncoder } from "@/domains/video-editing/types"
 import {
   formatGpuMemory,
   formatGpuUtilization,
@@ -298,8 +296,8 @@ describe("GPU utility functions", () => {
       const capabilities = {
         hardware_acceleration_supported: false,
         available_encoders: [],
-        recommended_encoder: null,
-        current_gpu: null,
+        recommended_encoder: undefined,
+        current_gpu: undefined,
         gpus: [],
       }
       const recommendations = getGpuRecommendations(capabilities, mockT)

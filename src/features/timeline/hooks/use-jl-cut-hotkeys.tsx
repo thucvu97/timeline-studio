@@ -6,7 +6,7 @@ import { useJLCuts } from "./use-jl-cuts"
 import { useTimeline } from "./use-timeline"
 
 export function useJLCutHotkeys() {
-  const { uiState, project } = useTimeline()
+  const { project, selectedClipIds = [] } = useTimeline()
   const { createJCut, createLCut, resetCut, linkClips, unlinkClips, getLinkedPair } = useJLCuts()
 
   // Register keyboard shortcuts for JL cut operations
@@ -15,8 +15,8 @@ export function useJLCutHotkeys() {
       {
         id: "j-cut",
         action: () => {
-          if (uiState.selectedClipIds.length === 1) {
-            const clipId = uiState.selectedClipIds[0]
+          if (selectedClipIds.length === 1) {
+            const clipId = selectedClipIds[0]
             const pair = getLinkedPair(clipId)
             if (pair) {
               createJCut(clipId, 0.5) // Default 0.5 second offset
@@ -27,8 +27,8 @@ export function useJLCutHotkeys() {
       {
         id: "l-cut",
         action: () => {
-          if (uiState.selectedClipIds.length === 1) {
-            const clipId = uiState.selectedClipIds[0]
+          if (selectedClipIds.length === 1) {
+            const clipId = selectedClipIds[0]
             const pair = getLinkedPair(clipId)
             if (pair) {
               createLCut(clipId, 0.5) // Default 0.5 second offset
@@ -39,8 +39,8 @@ export function useJLCutHotkeys() {
       {
         id: "j-cut-large",
         action: () => {
-          if (uiState.selectedClipIds.length === 1) {
-            const clipId = uiState.selectedClipIds[0]
+          if (selectedClipIds.length === 1) {
+            const clipId = selectedClipIds[0]
             const pair = getLinkedPair(clipId)
             if (pair) {
               createJCut(clipId, 1.5) // Larger 1.5 second offset
@@ -51,8 +51,8 @@ export function useJLCutHotkeys() {
       {
         id: "l-cut-large",
         action: () => {
-          if (uiState.selectedClipIds.length === 1) {
-            const clipId = uiState.selectedClipIds[0]
+          if (selectedClipIds.length === 1) {
+            const clipId = selectedClipIds[0]
             const pair = getLinkedPair(clipId)
             if (pair) {
               createLCut(clipId, 1.5) // Larger 1.5 second offset
@@ -63,8 +63,8 @@ export function useJLCutHotkeys() {
       {
         id: "reset-cut",
         action: () => {
-          if (uiState.selectedClipIds.length === 1) {
-            const clipId = uiState.selectedClipIds[0]
+          if (selectedClipIds.length === 1) {
+            const clipId = selectedClipIds[0]
             resetCut(clipId)
           }
         },
@@ -72,8 +72,8 @@ export function useJLCutHotkeys() {
       {
         id: "link-clips",
         action: () => {
-          if (uiState.selectedClipIds.length === 2 && project) {
-            const [clip1Id, clip2Id] = uiState.selectedClipIds
+          if (selectedClipIds.length === 2 && project) {
+            const [clip1Id, clip2Id] = selectedClipIds
 
             // Find clips
             const allClips = [...project.globalTracks, ...project.sections.flatMap((s) => s.tracks)].flatMap(
@@ -109,8 +109,8 @@ export function useJLCutHotkeys() {
       {
         id: "unlink-clips",
         action: () => {
-          if (uiState.selectedClipIds.length >= 1) {
-            const clipId = uiState.selectedClipIds[0]
+          if (selectedClipIds.length >= 1) {
+            const clipId = selectedClipIds[0]
             unlinkClips(clipId)
           }
         },
@@ -128,5 +128,5 @@ export function useJLCutHotkeys() {
         shortcutsRegistry.updateAction(id, undefined)
       })
     }
-  }, [uiState.selectedClipIds, project, getLinkedPair, createJCut, createLCut, resetCut, linkClips, unlinkClips])
+  }, [selectedClipIds, project, getLinkedPair, createJCut, createLCut, resetCut, linkClips, unlinkClips])
 }

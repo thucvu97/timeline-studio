@@ -267,7 +267,7 @@ describe("ApiKeyInput", () => {
     render(<ApiKeyInput {...defaultProps} />)
 
     const input = screen.getByPlaceholderText("Enter API key")
-    expect(input).toHaveClass("h-9", "pr-16", "font-mono", "text-sm")
+    expect(input).toHaveClass("h-9 pr-16 font-mono text-sm")
   })
 
   it("should not attempt test when already testing", async () => {

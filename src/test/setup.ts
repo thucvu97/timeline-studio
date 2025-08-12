@@ -9,10 +9,11 @@ import "@/test/mocks/backend-sync"
 import "@/test/mocks/tauri"
 import "@/test/mocks/browser"
 import "@/test/mocks/libraries"
+import "@/test/mocks/libraries/lucide-react"
 import "@/test/mocks/libraries/react-hotkeys-hook"
 
 // Mock scrollIntoView globally for all tests (needed for Radix UI components)
-beforeAll(() => {
+beforeAll(async () => {
   Element.prototype.scrollIntoView = vi.fn()
 
   // Also mock other methods that might be missing in jsdom
@@ -22,6 +23,15 @@ beforeAll(() => {
   if (!Element.prototype.scroll) {
     Element.prototype.scroll = vi.fn()
   }
+
+  // Initialize AI services with test configuration
+  // try {
+  //   const container = AIDIContainer.getInstance()
+  //   await container.initialize()
+  // } catch (error) {
+  //   // AI services initialization might fail in test environment - that's ok
+  //   console.warn("AI services initialization skipped in test environment:", error)
+  // }
 })
 
 // Mock common providers that are used in tests
@@ -33,10 +43,41 @@ vi.mock("@/features/user-settings", async (importOriginal) => {
       openAiApiKey: "test-api-key",
       claudeApiKey: "test-claude-key",
       updateSettings: vi.fn(),
+      settings: {
+        timelineVirtualizationEnabled: false,
+        language: "en",
+        theme: "light",
+        quality: "medium",
+        audioLanguage: "en",
+        subtitleLanguage: "en",
+        showSubtitles: false,
+        autoSave: true,
+        autoSaveInterval: 5,
+      },
     }),
     UserSettingsProvider: ({ children }: { children: React.ReactNode }) => children,
   }
 })
+
+// Mock PlayerProvider and usePlayer
+vi.mock("@/features/video-player/services/player-provider", () => ({
+  PlayerProvider: ({ children }: { children: React.ReactNode }) => children,
+  usePlayer: () => ({
+    playerSetSource: vi.fn().mockResolvedValue(undefined),
+    playerSetMedia: vi.fn().mockResolvedValue(undefined),
+    currentTime: 0,
+    duration: 0,
+    isPlaying: false,
+    volume: 1,
+    playbackRate: 1,
+    play: vi.fn().mockResolvedValue(undefined),
+    pause: vi.fn(),
+    seek: vi.fn(),
+    setVolume: vi.fn(),
+    setPlaybackRate: vi.fn(),
+    setPreviewMedia: vi.fn(),
+  }),
+}))
 
 // Mock useApiKeys hook
 vi.mock("@/features/user-settings/hooks/use-api-keys")
@@ -238,12 +279,38 @@ beforeAll(() => {
       clearTimeout(id)
     }) as any
   }
+
+  // Mock requestAnimationFrame and cancelAnimationFrame
+  if (typeof global.requestAnimationFrame === "undefined") {
+    let animationFrameId = 0
+    global.requestAnimationFrame = vi.fn((callback: FrameRequestCallback) => {
+      animationFrameId++
+      const id = animationFrameId
+      setTimeout(() => callback(Date.now()), 16)
+      return id
+    }) as any
+  }
+
+  if (typeof global.cancelAnimationFrame === "undefined") {
+    global.cancelAnimationFrame = vi.fn() as any
+  }
 })
 
-afterEach(() => {
+afterEach(async () => {
   cleanup()
   vi.clearAllMocks()
   vi.unstubAllEnvs()
+
+  // Очистка AI сервисов
+  // try {
+  //   const container = AIDIContainer.getInstanceSafe()
+  //   if (container) {
+  //     await container.dispose()
+  //     AIDIContainer.resetInstance()
+  //   }
+  // } catch (error) {
+  //   // Ignore cleanup errors
+  // }
 
   // Дополнительная очистка памяти
   if (globalThis.gc) {

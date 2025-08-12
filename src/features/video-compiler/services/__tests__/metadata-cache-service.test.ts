@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import type { MediaMetadata } from "../../../../types/media"
+import type { MediaMetadata } from "@/domains/shared/types"
 import type { CacheMemoryUsage } from "../../types/cache"
 import {
   cacheMediaMetadata,
@@ -33,6 +33,10 @@ const mockCacheMemoryUsage: CacheMemoryUsage = {
   fileCount: 50,
   oldestEntry: new Date("2024-01-01").toISOString(),
   newestEntry: new Date("2024-01-10").toISOString(),
+  preview_bytes: 0,
+  metadata_bytes: 0,
+  render_bytes: 0,
+  total_bytes: 0,
 }
 
 describe("metadata-cache-service", () => {

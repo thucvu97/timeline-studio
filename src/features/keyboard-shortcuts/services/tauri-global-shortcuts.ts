@@ -148,10 +148,10 @@ export class TauriGlobalShortcuts {
     converted = converted.replace(/⇧/g, "Shift")
     converted = converted.replace(/⌃/g, "Ctrl")
 
-    // Заменяем текстовые модификаторы
-    converted = converted.replace(/cmd\+/g, "CommandOrControl+")
-    converted = converted.replace(/command\+/g, "CommandOrControl+")
-    converted = converted.replace(/meta\+/g, "CommandOrControl+")
+    // Заменяем текстовые модификаторы (case-insensitive)
+    converted = converted.replace(/cmd\+/gi, "CommandOrControl+")
+    converted = converted.replace(/command\+/gi, "CommandOrControl+")
+    converted = converted.replace(/meta\+/gi, "CommandOrControl+")
     converted = converted.replace(/alt\+/g, "Alt+")
     converted = converted.replace(/option\+/g, "Alt+")
     converted = converted.replace(/opt\+/g, "Alt+")

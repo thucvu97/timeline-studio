@@ -3,8 +3,8 @@
  * Сервис для детекции и анализа музыкальных сегментов в аудио/видео контенте
  */
 
-import { FFmpegAnalysisService } from "@/features/ai-chat/services/ffmpeg-analysis-service"
-import type { AudioAnalysisResult } from "@/shared/types/media-analysis"
+import { FFmpegAnalysisService } from "@/domains/ai-services"
+import { AudioAnalysisResult } from "@/domains/shared/types"
 
 // Типы для музыкальной детекции
 export interface MusicSegment {

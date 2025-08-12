@@ -69,7 +69,7 @@ export interface UseClipsReturn {
 export function useClips(): UseClipsReturn {
   const {
     project,
-    uiState,
+    selectedClipIds,
     addClip,
     removeClip,
     updateClip,
@@ -99,8 +99,8 @@ export function useClips(): UseClipsReturn {
   }, [project])
 
   const selectedClips = useMemo(() => {
-    return clips.filter((clip) => uiState.selectedClipIds.includes(clip.id))
-  }, [clips, uiState.selectedClipIds])
+    return clips.filter((clip) => selectedClipIds?.includes(clip.id))
+  }, [clips, selectedClipIds])
 
   const clipsByTrack = useMemo(() => {
     return clips.reduce<Record<string, TimelineClip[]>>((acc, clip) => {
@@ -195,7 +195,7 @@ export function useClips(): UseClipsReturn {
 
   const selectClip = (clipId: string, addToSelection = false) => {
     if (addToSelection) {
-      const currentSelection = uiState.selectedClipIds
+      const currentSelection = selectedClipIds || []
       const newSelection = currentSelection.includes(clipId)
         ? currentSelection.filter((id) => id !== clipId)
         : [...currentSelection, clipId]
@@ -295,7 +295,7 @@ export function useClips(): UseClipsReturn {
   }
 
   const isClipSelected = (clipId: string): boolean => {
-    return uiState.selectedClipIds.includes(clipId)
+    return selectedClipIds?.includes(clipId) ?? false
   }
 
   // ============================================================================

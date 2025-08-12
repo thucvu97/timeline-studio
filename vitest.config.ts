@@ -58,6 +58,7 @@ export default defineConfig({
         "src/features/color-grading/components/scopes/vectorscope-scope.tsx", // Низкоуровневый компонент анализа данных
         "src/features/color-grading/components/scopes/waveform-scope.tsx", // Низкоуровневый компонент анализа данных
         "src/features/color-grading/components/scopes/scope-viewer.tsx", // Координатор отображения скопов
+        "**/testing/**", // Исключаем тестовые утилиты и моки из покрытия
       ],
       include: ["src/**/*.{ts,tsx}"],
       reportsDirectory: "./coverage",

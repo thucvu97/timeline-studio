@@ -75,6 +75,15 @@ mod models_config;
 // Модуль обновлений приложения
 pub mod updates;
 
+// Модуль команд
+pub mod commands {
+  pub mod audio_analysis;
+  pub mod transcription;
+}
+
+// Модуль команд для эффектов
+pub mod effects_commands;
+
 // Simple commands that don't belong to specific modules yet
 
 #[tauri::command]

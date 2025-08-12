@@ -6,9 +6,11 @@
 import type { MediaFile } from "@/features/media/types/media"
 import type { AnalysisOptions, AudioAnalysis, Fragment, MomentScore, VideoAnalysis } from "../types"
 import { CameraMovement, EmotionalTone, FlowDirection, LightingCondition, SceneType } from "../types"
+import { getMontagePlannerAI } from "./montage-planner-ai-integration"
 
 export class ContentAnalyzer {
   private static instance: ContentAnalyzer
+  private aiService = getMontagePlannerAI()
 
   private constructor() {}
 
@@ -24,10 +26,19 @@ export class ContentAnalyzer {
    */
   async analyzeVideo(
     _videoId: string,
-    _file: MediaFile,
-    _options: AnalysisOptions["videoAnalysis"],
+    file: MediaFile,
+    options: AnalysisOptions["videoAnalysis"],
   ): Promise<VideoAnalysis> {
-    // Simulated analysis - in real implementation, this would call Tauri commands
+    try {
+      // Try to use AI service first
+      if (options?.enableObjectDetection || options?.enableSceneDetection) {
+        return await this.aiService.analyzeVideoWithAI(file)
+      }
+    } catch (error) {
+      console.warn("[ContentAnalyzer] AI analysis failed, using fallback:", error)
+    }
+
+    // Fallback to simulated analysis
     const width = 1920 // file.width || 1920 - MediaFile doesn't have width property
     const height = 1080 // file.height || 1080 - MediaFile doesn't have height property
     const frameRate = 30 // file.frameRate || 30 - MediaFile doesn't have frameRate property
@@ -72,6 +83,16 @@ export class ContentAnalyzer {
       return this.getEmptyAudioAnalysis()
     }
 
+    try {
+      // Try to use AI service first
+      if (options?.enableSpeechDetection || options?.enableMusicAnalysis) {
+        return await this.aiService.analyzeAudioWithAI(file)
+      }
+    } catch (error) {
+      console.warn("[ContentAnalyzer] AI audio analysis failed, using fallback:", error)
+    }
+
+    // Fallback to simulated analysis
     return {
       quality: {
         sampleRate: 48000, // file.audioSampleRate || 48000 - MediaFile doesn't have audioSampleRate property

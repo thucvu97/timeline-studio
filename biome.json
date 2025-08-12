@@ -105,6 +105,7 @@
         "noUnusedLabels": "error",
         "noUnusedVariables": "off",
         "noUnusedImports": "warn",
+        "noUnusedPrivateClassMembers": "off",
         "useExhaustiveDependencies": "off",
         "useHookAtTopLevel": "off",
         "useIsNan": "error",
@@ -250,6 +251,12 @@
     },
     {
       "includes": ["scripts/**/*.js", "scripts/**/*.cjs", "scripts/**/*.mjs"],
+      "linter": {
+        "enabled": false
+      }
+    },
+    {
+      "includes": ["src-tauri/tauri.conf.json"],
       "linter": {
         "enabled": false
       }

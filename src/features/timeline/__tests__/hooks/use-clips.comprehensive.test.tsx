@@ -121,9 +121,9 @@ const mockProject: TimelineProject = {
 
 const mockUseTimeline = {
   project: mockProject,
+  selectedClipIds: [],
+  selectedTrackIds: [],
   uiState: {
-    selectedClipIds: [],
-    selectedTrackIds: [],
     currentTime: 0,
     timelineZoom: 1,
     timelineScroll: 0,
@@ -260,10 +260,7 @@ describe("useClips - Comprehensive Tests", () => {
     it("should add clip to selection", () => {
       vi.mocked(useTimeline).mockReturnValue({
         ...mockUseTimeline,
-        uiState: {
-          ...mockUseTimeline.uiState,
-          selectedClipIds: ["clip-2"],
-        },
+        selectedClipIds: ["clip-2"],
       } as any)
 
       const { result } = renderHook(() => useClips(), {
@@ -280,10 +277,7 @@ describe("useClips - Comprehensive Tests", () => {
     it("should remove clip from selection when already selected", () => {
       vi.mocked(useTimeline).mockReturnValue({
         ...mockUseTimeline,
-        uiState: {
-          ...mockUseTimeline.uiState,
-          selectedClipIds: ["clip-1", "clip-2"],
-        },
+        selectedClipIds: ["clip-1", "clip-2"],
       } as any)
 
       const { result } = renderHook(() => useClips(), {
@@ -500,10 +494,7 @@ describe("useClips - Comprehensive Tests", () => {
     it("should check if clip is selected", () => {
       vi.mocked(useTimeline).mockReturnValue({
         ...mockUseTimeline,
-        uiState: {
-          ...mockUseTimeline.uiState,
-          selectedClipIds: ["clip-1"],
-        },
+        selectedClipIds: ["clip-1"],
       } as any)
 
       const { result } = renderHook(() => useClips(), {
@@ -556,10 +547,7 @@ describe("useClips - Comprehensive Tests", () => {
     it("should count selected clips in statistics", () => {
       vi.mocked(useTimeline).mockReturnValue({
         ...mockUseTimeline,
-        uiState: {
-          ...mockUseTimeline.uiState,
-          selectedClipIds: ["clip-1"],
-        },
+        selectedClipIds: ["clip-1"],
       } as any)
 
       const { result } = renderHook(() => useClips(), {
@@ -585,10 +573,7 @@ describe("useClips - Comprehensive Tests", () => {
     it("should compute selected clips", () => {
       vi.mocked(useTimeline).mockReturnValue({
         ...mockUseTimeline,
-        uiState: {
-          ...mockUseTimeline.uiState,
-          selectedClipIds: ["clip-1"],
-        },
+        selectedClipIds: ["clip-1"],
       } as any)
 
       const { result } = renderHook(() => useClips(), {

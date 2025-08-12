@@ -1,12 +1,10 @@
 /**
- * Content Intelligence Panel - UI для новых AI возможностей
- *
- * Панель для отображения результатов Content Intelligence анализа
- * прямо в AI Chat интерфейсе.
+ * Content Intelligence Panel - UI для AI анализа контента
+ * Интегрирован с новой доменной архитектурой
  */
 
-import { Airplay, Bot, FileVideo, Layers, Settings, Sparkles, Target } from "lucide-react"
-import { useState } from "react"
+import { AlertCircle, Brain, Camera, FileVideo, Loader2, Settings } from "lucide-react"
+import { useCallback, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Badge } from "@/components/ui/badge"
@@ -15,407 +13,505 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ContentClassifier } from "@/domains/ai-services/services/content-classifier"
+import type { ContentClassification, SceneAnalysis } from "@/domains/ai-services/types/content-analysis"
+import type {
+  ContentAnalysisResult,
+  MotionAnalysisResult,
+  QualityAnalysisResult,
+  VideoMetadata,
+} from "@/domains/ai-services/types/interfaces"
+// Импортируем сервисы из доменов
+import { cn } from "@/lib/utils"
 
-import type { PipelineProgress } from "../../ai-content-intelligence/unified-pipeline/unified-content-pipeline"
-import type { UnifiedContentAnalysis } from "../services/unified-ai-service"
+// Локальный тип для результата детекции сцен (соответствует Rust структуре)
+interface SceneDetectionData {
+  scenes: Array<{
+    start_time: number
+    end_time: number
+    confidence: number
+  }>
+  total_scenes: number
+  average_scene_length: number
+}
+
+import { FFmpegAnalysisService } from "@/domains/ai-services/services/media-analysis"
 
 interface ContentIntelligencePanelProps {
-  analysis?: UnifiedContentAnalysis[]
-  progress?: PipelineProgress
-  onStartAnalysis?: (config: any) => void
-  onExportResults?: (format: "json" | "csv" | "xml") => void
+  videoPath?: string
+  className?: string
+  onAnalysisComplete?: (results: ContentAnalysisResult) => void
+  autoStart?: boolean
+}
+
+interface AnalysisState {
+  isAnalyzing: boolean
+  progress: number
+  currentStep: string
+  results: {
+    metadata?: VideoMetadata
+    scenes?: SceneDetectionData
+    classification?: ContentClassification
+    quality?: QualityAnalysisResult
+    motion?: MotionAnalysisResult
+    platformOptimization?: any
+  }
+  error?: string
 }
 
 /**
  * Content Intelligence Panel компонент
  */
 export function ContentIntelligencePanel({
-  analysis,
-  progress,
-  onStartAnalysis,
-  onExportResults,
+  videoPath,
+  className,
+  onAnalysisComplete,
+  autoStart = false,
 }: ContentIntelligencePanelProps) {
   const { t } = useTranslation()
-  const [selectedTab, setSelectedTab] = useState("overview")
+  const [state, setState] = useState<AnalysisState>({
+    isAnalyzing: false,
+    progress: 0,
+    currentStep: "",
+    results: {},
+  })
 
-  // Если есть прогресс pipeline
-  if (progress && progress.status === "running") {
+  // Инициализируем сервисы
+  const ffmpegService = FFmpegAnalysisService.getInstance()
+  const contentClassifier = ContentClassifier.getInstance()
+
+  const analyzeContent = useCallback(async () => {
+    if (!videoPath) {
+      setState((prev) => ({
+        ...prev,
+        error: t("ai.analysis.noVideoSelected"),
+      }))
+      return
+    }
+
+    setState((prev) => ({
+      ...prev,
+      isAnalyzing: true,
+      progress: 0,
+      currentStep: t("ai.analysis.starting"),
+      error: undefined,
+    }))
+
+    try {
+      // Шаг 1: Базовый анализ FFmpeg
+      setState((prev) => ({
+        ...prev,
+        progress: 20,
+        currentStep: t("ai.analysis.analyzingVideo"),
+      }))
+
+      const metadata = await ffmpegService.getVideoMetadata(videoPath)
+      const quality = await ffmpegService.analyzeQuality(videoPath)
+
+      setState((prev) => ({
+        ...prev,
+        progress: 40,
+        currentStep: t("ai.analysis.detectingScenes"),
+        results: { ...prev.results, metadata, quality },
+      }))
+
+      // Шаг 2: Детекция сцен
+      const scenes = (await ffmpegService.detectScenes(videoPath)) as unknown as SceneDetectionData
+
+      setState((prev) => ({
+        ...prev,
+        progress: 60,
+        currentStep: t("ai.analysis.analyzingMotion"),
+        results: { ...prev.results, scenes },
+      }))
+
+      // Шаг 3: Анализ движения
+      const motion = await ffmpegService.analyzeMotion(videoPath)
+
+      setState((prev) => ({
+        ...prev,
+        progress: 80,
+        currentStep: t("ai.analysis.classifyingContent"),
+        results: { ...prev.results, motion },
+      }))
+
+      // Шаг 4: Классификация контента (если есть API ключи)
+      let classification: ContentClassification | undefined
+      try {
+        // Преобразуем сцены из SceneDetectionResult в SceneAnalysis для классификатора
+        const sceneAnalyses: SceneAnalysis[] = scenes.scenes.map((scene, index) => ({
+          id: `scene-${index}`,
+          startTime: scene.start_time,
+          endTime: scene.end_time,
+          duration: scene.end_time - scene.start_time,
+          type: "general" as any, // ContentClassifier определит тип
+          confidence: scene.confidence,
+          keyFrames: [],
+          quality: quality?.video || {
+            overall: 0,
+            sharpness: 0,
+            brightness: 0,
+            contrast: 0,
+            saturation: 0,
+            stability: 0,
+            noise: 0,
+          },
+          content: {
+            objects: [],
+            faces: [],
+            text: [],
+            activities: [],
+          },
+          transitions: [],
+        }))
+
+        classification = await contentClassifier.classify(sceneAnalyses, metadata)
+        setState((prev) => ({
+          ...prev,
+          results: { ...prev.results, classification },
+        }))
+      } catch (error) {
+        console.warn("Classification skipped:", error)
+      }
+
+      // Финальные результаты
+      const finalResults = {
+        videoId: videoPath,
+        metadata,
+        scenes,
+        classification,
+        quality,
+        motion,
+        timestamp: new Date().toISOString(),
+      } as any as ContentAnalysisResult
+
+      setState((prev) => ({
+        ...prev,
+        isAnalyzing: false,
+        progress: 100,
+        currentStep: t("ai.analysis.complete"),
+      }))
+
+      onAnalysisComplete?.(finalResults)
+    } catch (error) {
+      console.error("Content analysis error:", error)
+      setState((prev) => ({
+        ...prev,
+        isAnalyzing: false,
+        error: error instanceof Error ? error.message : t("ai.analysis.error"),
+      }))
+    }
+  }, [videoPath, t, ffmpegService, contentClassifier, onAnalysisComplete])
+
+  useEffect(() => {
+    if (autoStart && videoPath) {
+      analyzeContent()
+    }
+  }, [autoStart, videoPath, analyzeContent])
+
+  if (!videoPath && !state.results.metadata) {
     return (
-      <Card className="w-full max-w-2xl mx-auto">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-teal" />
-            Content Intelligence Analysis
-          </CardTitle>
-          <CardDescription>Анализируем ваш контент с помощью AI...</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex justify-between text-sm">
-              <span>Текущий этап: {progress.currentStage}</span>
-              <span>{Math.round(progress.progress)}%</span>
-            </div>
-            <Progress value={progress.progress} className="w-full" />
-            <div className="text-xs text-muted-foreground">
-              Завершено этапов: {progress.completedStages.length} из {progress.totalStages}
-            </div>
-          </div>
+      <Card className={cn("w-full", className)}>
+        <CardContent className="flex flex-col items-center justify-center py-12">
+          <FileVideo className="h-12 w-12 text-muted-foreground mb-3" />
+          <p className="text-center text-muted-foreground">{t("ai.contentIntelligence.selectVideo")}</p>
         </CardContent>
       </Card>
     )
   }
 
-  // Если анализ завершен
-  if (analysis && analysis.length > 0) {
-    return (
-      <div className="w-full space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-teal" />
-              Content Intelligence Results
-            </CardTitle>
-            <CardDescription>Результаты AI анализа {analysis.length} файл(ов)</CardDescription>
-          </CardHeader>
-        </Card>
-
-        {analysis.map((result, _index) => (
-          <Card key={result.id} className="w-full">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
-                <FileVideo className="h-4 w-4" />
-                {result.mediaFile.filename}
-              </CardTitle>
-              <div className="flex gap-2">
-                <Badge variant="secondary">{result.classification.genre}</Badge>
-                <Badge variant="outline">{result.classification.audience}</Badge>
-                {result.classification.technicalQuality && (
-                  <Badge variant={result.classification.technicalQuality === "excellent" ? "default" : "secondary"}>
-                    {result.classification.technicalQuality}
-                  </Badge>
-                )}
-              </div>
-            </CardHeader>
-
-            <CardContent>
-              <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-                <TabsList className="grid w-full grid-cols-4">
-                  <TabsTrigger value="overview">Обзор</TabsTrigger>
-                  <TabsTrigger value="scenes">Сцены</TabsTrigger>
-                  <TabsTrigger value="platforms">Платформы</TabsTrigger>
-                  <TabsTrigger value="insights">Рекомендации</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="overview" className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Классификация */}
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-medium flex items-center gap-1">
-                        <Target className="h-4 w-4" />
-                        Классификация
-                      </h4>
-                      <div className="space-y-1 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Жанр:</span>
-                          <span>{result.classification.genre}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Стиль:</span>
-                          <span>{result.classification.style}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Эмоция:</span>
-                          <span>{result.classification.emotion}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Аудитория:</span>
-                          <span>{result.classification.audience}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Качество */}
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-medium flex items-center gap-1">
-                        <Settings className="h-4 w-4" />
-                        Метрики качества
-                      </h4>
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Техническое:</span>
-                          <div className="flex items-center gap-2">
-                            <Progress value={result.qualityMetrics.technical.overallScore * 10} className="w-16 h-2" />
-                            <span className="text-xs">{result.qualityMetrics.technical.overallScore}/10</span>
-                          </div>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Повествование:</span>
-                          <div className="flex items-center gap-2">
-                            <Progress value={result.qualityMetrics.narrative.overallScore * 10} className="w-16 h-2" />
-                            <span className="text-xs">{result.qualityMetrics.narrative.overallScore}/10</span>
-                          </div>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Вовлеченность:</span>
-                          <div className="flex items-center gap-2">
-                            <Progress value={result.qualityMetrics.engagement.overallScore * 10} className="w-16 h-2" />
-                            <span className="text-xs">{result.qualityMetrics.engagement.overallScore}/10</span>
-                          </div>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">Доступность:</span>
-                          <div className="flex items-center gap-2">
-                            <Progress
-                              value={result.qualityMetrics.accessibility.overallScore * 10}
-                              className="w-16 h-2"
-                            />
-                            <span className="text-xs">{result.qualityMetrics.accessibility.overallScore}/10</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="scenes" className="space-y-4">
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-medium flex items-center gap-1">
-                      <Layers className="h-4 w-4" />
-                      Анализ сцен ({result.scenes.length})
-                    </h4>
-
-                    {result.scenes.length > 0 ? (
-                      <div className="space-y-3 max-h-64 overflow-y-auto">
-                        {result.scenes.slice(0, 5).map((scene, _sceneIndex) => (
-                          <div key={scene.id} className="p-3 rounded-lg border bg-muted/50">
-                            <div className="flex justify-between items-start mb-2">
-                              <Badge variant="outline" className="text-xs">
-                                {scene.type}
-                              </Badge>
-                              <span className="text-xs text-muted-foreground">
-                                {scene.startTime}s - {scene.endTime}s
-                              </span>
-                            </div>
-                            <p className="text-sm">{scene.description}</p>
-                            <div className="mt-2 flex justify-between items-center">
-                              <span className="text-xs text-muted-foreground">
-                                Уверенность: {Math.round(scene.confidence * 100)}%
-                              </span>
-                              {scene.keyFrames && scene.keyFrames.length > 0 && (
-                                <span className="text-xs text-muted-foreground">
-                                  {scene.keyFrames.length} ключевых кадров
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                        {result.scenes.length > 5 && (
-                          <div className="text-center text-sm text-muted-foreground">
-                            И еще {result.scenes.length - 5} сцен...
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="text-sm text-muted-foreground text-center py-4">Сцены не найдены</div>
-                    )}
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="platforms" className="space-y-4">
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-medium flex items-center gap-1">
-                      <Airplay className="h-4 w-4" />
-                      Адаптация под платформы
-                    </h4>
-
-                    {result.platformVariants && result.platformVariants.length > 0 ? (
-                      <div className="space-y-3">
-                        {result.platformVariants.map((variant, variantIndex) => (
-                          <div
-                            key={`${variant.platform}-${variantIndex}`}
-                            className="p-3 rounded-lg border bg-muted/50"
-                          >
-                            <div className="flex justify-between items-start mb-2">
-                              <Badge className="capitalize">{variant.platform}</Badge>
-                              {variant.seoData && (
-                                <span className="text-xs text-muted-foreground">SEO оптимизирован</span>
-                              )}
-                            </div>
-
-                            {variant.adaptations && variant.adaptations.length > 0 && (
-                              <div className="space-y-1">
-                                {variant.adaptations.slice(0, 3).map((adaptation: any, adaptIndex: number) => (
-                                  <div key={adaptIndex} className="text-xs">
-                                    <span className="font-medium">{adaptation.type}:</span>
-                                    <span className="text-muted-foreground ml-1">{adaptation.reason}</span>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-sm text-muted-foreground text-center py-4">
-                        Адаптации под платформы не созданы
-                      </div>
-                    )}
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="insights" className="space-y-4">
-                  <div className="space-y-4">
-                    {/* Сильные стороны */}
-                    {result.insights.strengths.length > 0 && (
-                      <div className="space-y-2">
-                        <h4 className="text-sm font-medium text-green-400">✓ Сильные стороны</h4>
-                        <ul className="space-y-1">
-                          {result.insights.strengths.map((strength, index) => (
-                            <li key={index} className="text-sm text-muted-foreground">
-                              • {strength}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {/* Слабые стороны */}
-                    {result.insights.weaknesses.length > 0 && (
-                      <div className="space-y-2">
-                        <h4 className="text-sm font-medium text-orange-400">⚠ Области для улучшения</h4>
-                        <ul className="space-y-1">
-                          {result.insights.weaknesses.map((weakness, index) => (
-                            <li key={index} className="text-sm text-muted-foreground">
-                              • {weakness}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    <Separator />
-
-                    {/* Рекомендации */}
-                    {result.insights.recommendations.length > 0 && (
-                      <div className="space-y-2">
-                        <h4 className="text-sm font-medium text-blue-400">💡 Рекомендации</h4>
-                        <div className="space-y-3">
-                          {result.insights.recommendations.slice(0, 3).map((rec, index) => (
-                            <div key={index} className="p-3 rounded-lg border bg-muted/50">
-                              <div className="flex justify-between items-start mb-1">
-                                <span className="text-sm font-medium">{rec.title}</span>
-                                <Badge
-                                  variant={
-                                    rec.priority === "high"
-                                      ? "destructive"
-                                      : rec.priority === "medium"
-                                        ? "default"
-                                        : "secondary"
-                                  }
-                                  className="text-xs"
-                                >
-                                  {rec.priority}
-                                </Badge>
-                              </div>
-                              <p className="text-xs text-muted-foreground">{rec.description}</p>
-                              {rec.estimatedImpact && (
-                                <div className="mt-2 text-xs">
-                                  <span className="font-medium">Ожидаемый эффект:</span>
-                                  <span className="ml-1 text-muted-foreground">{rec.estimatedImpact}</span>
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Маркетинговые углы */}
-                    {result.insights.marketingAngles.length > 0 && (
-                      <div className="space-y-2">
-                        <h4 className="text-sm font-medium text-purple-400">🎯 Маркетинговые углы</h4>
-                        <div className="flex flex-wrap gap-1">
-                          {result.insights.marketingAngles.map((angle, index) => (
-                            <Badge key={index} variant="outline" className="text-xs">
-                              {angle}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </TabsContent>
-              </Tabs>
-
-              {/* Действия */}
-              <div className="mt-4 pt-4 border-t flex gap-2">
-                <Button size="sm" variant="outline" onClick={() => onExportResults?.("json")} className="text-xs">
-                  Экспорт JSON
-                </Button>
-                <Button size="sm" variant="outline" onClick={() => onExportResults?.("csv")} className="text-xs">
-                  Экспорт CSV
-                </Button>
-                {result.script && (
-                  <Button size="sm" variant="outline" className="text-xs">
-                    Посмотреть сценарий
-                  </Button>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    )
-  }
-
-  // Стартовый экран
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-teal" />
-          Content Intelligence
-        </CardTitle>
-        <CardDescription>
-          Комплексный AI анализ видео контента с генерацией сценариев и адаптацией под платформы
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div className="space-y-1">
-              <div className="font-medium">Scene Analysis</div>
-              <div className="text-muted-foreground">Детекция сцен, классификация типов</div>
+    <div className={cn("w-full space-y-4", className)}>
+      {/* Main Card */}
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileVideo className="h-5 w-5" />
+            {t("ai.contentIntelligence.title")}
+          </CardTitle>
+          <CardDescription>{t("ai.contentIntelligence.description")}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {state.error && (
+            <div className="mb-4 p-3 bg-destructive/10 text-destructive rounded-lg flex items-center gap-2">
+              <AlertCircle className="h-4 w-4" />
+              <span className="text-sm">{state.error}</span>
             </div>
-            <div className="space-y-1">
-              <div className="font-medium">Script Generation</div>
-              <div className="text-muted-foreground">Автоматическая генерация сценариев</div>
-            </div>
-            <div className="space-y-1">
-              <div className="font-medium">Content Classification</div>
-              <div className="text-muted-foreground">Анализ жанра, аудитории, настроения</div>
-            </div>
-            <div className="space-y-1">
-              <div className="font-medium">Platform Adaptation</div>
-              <div className="text-muted-foreground">Оптимизация под YouTube, TikTok, Instagram</div>
-            </div>
-          </div>
+          )}
 
-          <Separator />
+          {state.isAnalyzing ? (
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span className="text-sm">{state.currentStep}</span>
+              </div>
+              <Progress value={state.progress} />
+            </div>
+          ) : (
+            <Button onClick={analyzeContent} className="w-full">
+              {t("ai.contentIntelligence.analyze")}
+            </Button>
+          )}
+        </CardContent>
+      </Card>
 
-          <div className="text-xs text-muted-foreground">
-            Используйте команды вроде: &quot;Проанализируй это видео&quot;, &quot;Создай сценарий для TikTok&quot;,
-            &quot;Адаптируй под все платформы&quot;
-          </div>
+      {/* Results Tabs */}
+      {Object.keys(state.results).length > 0 && (
+        <Tabs defaultValue="overview" className="w-full">
+          <TabsList className="grid grid-cols-4 w-full">
+            <TabsTrigger value="overview">{t("ai.analysis.overview")}</TabsTrigger>
+            <TabsTrigger value="scenes">{t("ai.analysis.scenes")}</TabsTrigger>
+            <TabsTrigger value="quality">{t("ai.analysis.quality")}</TabsTrigger>
+            <TabsTrigger value="classification">{t("ai.analysis.classification")}</TabsTrigger>
+          </TabsList>
 
-          <Button className="w-full" onClick={() => onStartAnalysis?.({})} variant="outline">
-            <Bot className="h-4 w-4 mr-2" />
-            Начать анализ
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+          {/* Overview Tab */}
+          <TabsContent value="overview">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">{t("ai.analysis.videoOverview")}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {state.results.metadata && (
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium flex items-center gap-1">
+                      <FileVideo className="h-4 w-4" />
+                      {t("ai.analysis.videoInformation")}
+                    </h4>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div>
+                        <span className="text-muted-foreground">{t("ai.analysis.format")}:</span>{" "}
+                        {state.results.metadata.format}
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">{t("ai.analysis.resolution")}:</span>{" "}
+                        {state.results.metadata.width}x{state.results.metadata.height}
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">{t("ai.analysis.duration")}:</span>{" "}
+                        {state.results.metadata.duration.toFixed(2)}s
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">FPS:</span> {state.results.metadata.fps}
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">{t("ai.analysis.bitrate")}:</span>{" "}
+                        {Math.round(state.results.metadata.bitrate / 1000)}k
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">{t("ai.analysis.audio")}:</span>{" "}
+                        {state.results.metadata.hasAudio ? t("common.yes") : t("common.no")}
+                      </div>
+                    </div>
+                    <div className="flex gap-2 mt-3">
+                      <Badge variant="secondary">{state.results.metadata.format}</Badge>
+                      {state.results.quality && (
+                        <Badge variant={state.results.quality.overall >= 80 ? "default" : "secondary"}>
+                          {t("ai.analysis.quality")}: {state.results.quality.overall}%
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Scenes Tab */}
+          <TabsContent value="scenes">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Camera className="h-4 w-4" />
+                  {t("ai.analysis.sceneAnalysis")}
+                </CardTitle>
+                {state.results.scenes && (
+                  <CardDescription>
+                    {t("ai.analysis.scenesDetected", { count: state.results.scenes.total_scenes })}
+                  </CardDescription>
+                )}
+              </CardHeader>
+              <CardContent>
+                {state.results.scenes ? (
+                  <div className="space-y-3">
+                    {state.results.scenes.scenes.slice(0, 10).map((scene, index) => (
+                      <div key={`scene-${index}`} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm font-medium">#{index + 1}</span>
+                          <div>
+                            <p className="text-sm">
+                              {t("ai.analysis.duration")}: {(scene.end_time - scene.start_time).toFixed(2)}s
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {scene.start_time.toFixed(2)}s - {scene.end_time.toFixed(2)}s
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Progress value={scene.confidence * 100} className="w-20" />
+                          <span className="text-xs">{(scene.confidence * 100).toFixed(0)}%</span>
+                        </div>
+                      </div>
+                    ))}
+                    {state.results.scenes.scenes.length > 10 && (
+                      <p className="text-sm text-muted-foreground text-center">
+                        {t("ai.analysis.andMore", { count: state.results.scenes.scenes.length - 10 })}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center py-4">{t("ai.analysis.noScenesDetected")}</p>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Quality Tab */}
+          <TabsContent value="quality">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Settings className="h-4 w-4" />
+                  {t("ai.analysis.qualityMetrics")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {state.results.quality ? (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">{t("ai.analysis.overallQuality")}:</span>
+                        <div className="flex items-center gap-2">
+                          <Progress value={state.results.quality.overall} className="w-20 h-2" />
+                          <span className="text-xs font-medium">{state.results.quality.overall}%</span>
+                        </div>
+                      </div>
+                      {state.results.quality.video && (
+                        <>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">{t("ai.analysis.sharpness")}:</span>
+                            <span className="text-xs">{Math.round(state.results.quality.video.sharpness * 100)}%</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">{t("ai.analysis.brightness")}:</span>
+                            <span className="text-xs">{Math.round(state.results.quality.video.brightness * 100)}%</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">{t("ai.analysis.stability")}:</span>
+                            <span className="text-xs">{Math.round(state.results.quality.video.stability * 100)}%</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">{t("ai.analysis.noise")}:</span>
+                            <span className="text-xs">{Math.round(state.results.quality.video.noise * 100)}%</span>
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Motion Analysis */}
+                    {state.results.motion && (
+                      <>
+                        <Separator />
+                        <div className="space-y-2">
+                          <h4 className="text-sm font-medium">{t("ai.analysis.motionAnalysis")}</h4>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">{t("ai.analysis.motionIntensity")}:</span>
+                            <span className="text-sm">{Math.round(state.results.motion.motionIntensity * 100)}%</span>
+                          </div>
+                          {state.results.motion.cameraMovement && (
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm text-muted-foreground">{t("ai.analysis.cameraMovement")}:</span>
+                              <span className="text-sm">{state.results.motion.cameraMovement.type}</span>
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center py-4">{t("ai.analysis.noQualityData")}</p>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Classification Tab */}
+          <TabsContent value="classification">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Brain className="h-4 w-4" />
+                  {t("ai.analysis.contentClassification")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {state.results.classification ? (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm font-medium">{t("ai.analysis.category")}</p>
+                        <p className="text-sm text-muted-foreground">{state.results.classification.primary.category}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">{t("ai.analysis.confidence")}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {(state.results.classification.confidence * 100).toFixed(0)}%
+                        </p>
+                      </div>
+                      {state.results.classification.primary.subcategory && (
+                        <div>
+                          <p className="text-sm font-medium">{t("ai.analysis.subcategory")}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {state.results.classification.primary.subcategory}
+                          </p>
+                        </div>
+                      )}
+                      {state.results.classification.primary.reasoning && (
+                        <div className="col-span-2">
+                          <p className="text-sm font-medium">{t("ai.analysis.reasoning")}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {state.results.classification.primary.reasoning}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {state.results.classification.tags && state.results.classification.tags.length > 0 && (
+                      <div>
+                        <p className="text-sm font-medium mb-2">{t("ai.analysis.tags")}</p>
+                        <div className="flex flex-wrap gap-2">
+                          {state.results.classification.tags.map((tag) => (
+                            <span key={tag} className="px-2 py-1 text-xs bg-primary/10 text-primary rounded-md">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {state.results.classification.secondary && state.results.classification.secondary.length > 0 && (
+                      <div>
+                        <p className="text-sm font-medium mb-2">{t("ai.analysis.alternativeClassifications")}</p>
+                        <div className="space-y-1">
+                          {state.results.classification.secondary.map((sec, idx) => (
+                            <div key={idx} className="text-sm text-muted-foreground">
+                              {sec.category} ({(sec.confidence * 100).toFixed(0)}%)
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    {t("ai.analysis.noClassificationData")}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      )}
+    </div>
   )
 }
-
-export default ContentIntelligencePanel

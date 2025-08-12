@@ -262,3 +262,7 @@ bun run lint src/features/voice-recording
 # Сборка типов
 bun run type-check
 ```
+
+**Версия:** 0.68.1
+**Последнее обновление:** 7 августа 2025
+**Разработано с ❤️ командой Timeline Studio**

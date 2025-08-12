@@ -6,8 +6,8 @@
 
 "use client"
 
-import { type ReactNode, useEffect } from "react"
-
+import { type ReactNode } from "react"
+import { TimelineProvider } from "@/domains/video-editing/providers/timeline-providers"
 import { ChatProvider } from "@/features/ai-chat/services/chat-provider"
 import { AIIntelligenceProvider } from "@/features/ai-content-intelligence"
 import { AppProvider } from "@/features/app-state/services/app-provider"
@@ -18,11 +18,9 @@ import { TauriMockProvider } from "@/features/media-studio/services/tauri-mock-p
 import { ModalProvider } from "@/features/modals/services/modal-provider"
 import { ProjectSettingsProvider } from "@/features/project-settings/services/project-settings-provider"
 import { ResourcesProvider } from "@/features/resources/services/resources-provider"
-import { TimelineProvider } from "@/features/timeline/services/timeline-provider"
 import { UserSettingsProvider } from "@/features/user-settings"
 import { PlayerProvider } from "@/features/video-player/services/player-provider"
 import { I18nProvider } from "@/i18n/services/i18n-provider"
-import { setupXStateInspector } from "@/lib/xstate-inspector"
 
 interface ProvidersV2Props {
   children: ReactNode
@@ -63,11 +61,6 @@ const AppProviderComposite = composeProviders(
 )
 
 export function ProvidersV2({ children }: ProvidersV2Props) {
-  // Инициализируем XState Inspector в development режиме
-  useEffect(() => {
-    setupXStateInspector()
-  }, [])
-
   return <AppProviderComposite>{children}</AppProviderComposite>
 }
 

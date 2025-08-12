@@ -1,6 +1,5 @@
 import { memo, useCallback, useMemo, useRef } from "react"
 
-import { useTimeline } from "@/features/timeline/hooks/use-timeline"
 import type { TimelineTransition } from "@/features/timeline/types/timeline-transition"
 import type { Transition } from "@/features/transitions/types/transitions"
 import { cn } from "@/lib/utils"
@@ -15,7 +14,8 @@ interface TimelineTransitionProps {
   onSelect?: (id: string) => void
   onDurationChange?: (id: string, duration: number) => void
   onPositionChange?: (id: string, position: number) => void
-  onDelete?: (id: string) => void
+  onUpdate?: (updates: Record<string, any>) => void
+  onDelete?: () => void
 }
 
 /**
@@ -32,13 +32,11 @@ export const TimelineTransitionComponent = memo(function TimelineTransitionCompo
   onPositionChange,
   onDelete,
 }: TimelineTransitionProps) {
-  const { uiState } = useTimeline()
-  const timelineScale = uiState?.scale || 1
   const containerRef = useRef<HTMLDivElement>(null)
 
   // Вычисляем размеры и позицию
-  const width = transition.duration * pixelsPerSecond * timelineScale
-  const left = transition.position * pixelsPerSecond * timelineScale
+  const width = transition.duration * pixelsPerSecond
+  const left = transition.position * pixelsPerSecond
 
   // Стили в зависимости от типа перехода
   const transitionStyles = useMemo(() => {
@@ -67,7 +65,7 @@ export const TimelineTransitionComponent = memo(function TimelineTransitionCompo
   const handleDelete = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation()
-      onDelete?.(transition.id)
+      onDelete?.()
     },
     [transition.id, onDelete],
   )
@@ -109,7 +107,6 @@ export const TimelineTransitionComponent = memo(function TimelineTransitionCompo
       className={cn(
         "absolute transition-container group cursor-pointer",
         "hover:z-10",
-        transition.isSelected && "ring-2 ring-primary z-20",
         transition.isLocked && "pointer-events-none opacity-50",
       )}
       style={{
@@ -171,10 +168,9 @@ export const TimelineTransitionComponent = memo(function TimelineTransitionCompo
       </div>
 
       {/* Параметры при наведении */}
-      {transition.isSelected && (
+      {transition.parameters.blur && (
         <div className="absolute bottom-1 left-1 right-1 text-xs text-white/80 space-y-0.5">
-          {transition.parameters.blur?.enabled && <div>Blur: {transition.parameters.blur.amount}%</div>}
-          {transition.parameters.color?.enabled && <div>Color: {transition.parameters.color.tint}</div>}
+          <div>Blur: {transition.parameters.blur.amount}%</div>
         </div>
       )}
 
@@ -185,7 +181,7 @@ export const TimelineTransitionComponent = memo(function TimelineTransitionCompo
           duration={transition.duration}
           position={transition.position}
           pixelsPerSecond={pixelsPerSecond}
-          timelineScale={timelineScale}
+          timelineScale={1}
           minDuration={transitionResource?.duration.min || 0.1}
           maxDuration={transitionResource?.duration.max || 5.0}
           onDurationChange={onDurationChange}

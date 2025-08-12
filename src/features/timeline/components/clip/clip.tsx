@@ -2,7 +2,7 @@
  * Clip - Основной компонент клипа на Timeline
  */
 
-import { memo, useCallback, useMemo, useState } from "react"
+import { memo, useCallback, useEffect, useMemo, useState } from "react"
 
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
@@ -10,6 +10,7 @@ import { useClipEditing } from "../../hooks/use-clip-editing"
 import { useClipGroups } from "../../hooks/use-clip-groups"
 import { useEditModeContext } from "../../hooks/use-edit-mode"
 import { useJLCuts } from "../../hooks/use-jl-cuts"
+import { useSlipSlide } from "../../hooks/use-slip-slide"
 import { useSpeedRamping } from "../../hooks/use-speed-ramping"
 import { useTimelinePersons } from "../../hooks/use-timeline-persons"
 import { isSubtitleClip, type TimelineClip, type TimelineTrack } from "../../types"
@@ -47,6 +48,17 @@ export const Clip = memo(function Clip({ clip, track, timeScale, onUpdate, onRem
   const { getLinkedClip } = useJLCuts()
   const { getConfig } = useSpeedRamping()
   const { getPersonsForClip, getAppearancesForClip, showPersonDetail } = useTimelinePersons()
+  const {
+    startSlip,
+    updateSlip,
+    commitSlip,
+    cancelSlip,
+    startSlide,
+    updateSlide,
+    commitSlide,
+    cancelSlide,
+    preview: slipSlidePreview,
+  } = useSlipSlide()
 
   const { isEditing, preview, handleTrimStart, handleTrimMove, handleTrimEnd } = useClipEditing(clip.id)
 
@@ -77,7 +89,9 @@ export const Clip = memo(function Clip({ clip, track, timeScale, onUpdate, onRem
     switch (track.type) {
       case "video":
       case "image":
-        return <VideoClip clip={clip} track={track} onUpdate={onUpdate} onRemove={onRemove} />
+        return (
+          <VideoClip clip={clip} track={track} pixelsPerSecond={timeScale} onUpdate={onUpdate} onRemove={onRemove} />
+        )
 
       case "audio":
       case "music":
@@ -109,12 +123,55 @@ export const Clip = memo(function Clip({ clip, track, timeScale, onUpdate, onRem
   // Handle slip/slide start
   const handleSlipSlideStart = useCallback(
     (mouseX: number) => {
-      if (editMode === EDIT_MODES.SLIP || editMode === EDIT_MODES.SLIDE) {
-        handleTrimStart(editMode === EDIT_MODES.SLIP ? "start" : "end", mouseX)
+      if (editMode === EDIT_MODES.SLIP) {
+        startSlip(clip.id, mouseX)
+      } else if (editMode === EDIT_MODES.SLIDE) {
+        startSlide(clip.id, mouseX)
       }
     },
-    [editMode, handleTrimStart],
+    [editMode, clip.id, startSlip, startSlide],
   )
+
+  // Обработка глобальных событий мыши для SLIP/SLIDE
+  useEffect(() => {
+    if (!slipSlidePreview || slipSlidePreview.clipId !== clip.id) return
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (slipSlidePreview.mode === "slip") {
+        updateSlip(e.clientX)
+      } else {
+        updateSlide(e.clientX)
+      }
+    }
+
+    const handleMouseUp = () => {
+      if (slipSlidePreview.mode === "slip") {
+        commitSlip()
+      } else {
+        commitSlide()
+      }
+    }
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (slipSlidePreview.mode === "slip") {
+          cancelSlip()
+        } else {
+          cancelSlide()
+        }
+      }
+    }
+
+    window.addEventListener("mousemove", handleMouseMove)
+    window.addEventListener("mouseup", handleMouseUp)
+    window.addEventListener("keydown", handleKeyDown)
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove)
+      window.removeEventListener("mouseup", handleMouseUp)
+      window.removeEventListener("keydown", handleKeyDown)
+    }
+  }, [slipSlidePreview, clip.id, updateSlip, updateSlide, commitSlip, commitSlide, cancelSlip, cancelSlide])
 
   return (
     <>

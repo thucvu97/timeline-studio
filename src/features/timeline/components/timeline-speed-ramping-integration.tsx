@@ -8,7 +8,7 @@ import { useSpeedRampingPlayerIntegration } from "../hooks/use-speed-ramping-pla
 import { useTimeline } from "../hooks/use-timeline"
 
 export function TimelineSpeedRampingIntegration() {
-  const timeline = useTimeline()
+  const { isPlaying, currentTime } = useTimeline()
   const { updatePlaybackRateForTime, setAutoUpdateEnabled, resetPlaybackRate } = useSpeedRampingPlayerIntegration()
 
   // Автоматически включаем интеграцию при монтировании
@@ -22,17 +22,17 @@ export function TimelineSpeedRampingIntegration() {
 
   // Обновляем скорость при изменении времени воспроизведения
   useEffect(() => {
-    if (timeline.isPlaying) {
-      updatePlaybackRateForTime(timeline.currentTime)
+    if (isPlaying) {
+      updatePlaybackRateForTime(currentTime)
     }
-  }, [timeline.currentTime, timeline.isPlaying, updatePlaybackRateForTime])
+  }, [currentTime, isPlaying, updatePlaybackRateForTime])
 
   // Сбрасываем скорость при паузе
   useEffect(() => {
-    if (!timeline.isPlaying) {
+    if (!isPlaying) {
       resetPlaybackRate()
     }
-  }, [timeline.isPlaying, resetPlaybackRate])
+  }, [isPlaying, resetPlaybackRate])
 
   // Этот компонент не рендерит UI, только обрабатывает логику
   return null
@@ -43,12 +43,12 @@ export function TimelineSpeedRampingIntegration() {
  */
 export function SpeedRampingIndicator() {
   const { getCurrentPlaybackRate, isSpeedRampingActive } = useSpeedRampingPlayerIntegration()
-  const timeline = useTimeline()
+  const { project } = useTimeline()
 
   const currentRate = getCurrentPlaybackRate()
-  const hasActiveSpeedRamping = timeline.project
-    ? timeline.project.globalTracks?.some((track) => track.clips?.some((clip) => isSpeedRampingActive(clip.id))) ||
-      timeline.project.sections?.some((section) =>
+  const hasActiveSpeedRamping = project
+    ? project.globalTracks?.some((track) => track.clips?.some((clip) => isSpeedRampingActive(clip.id))) ||
+      project.sections?.some((section) =>
         section.tracks?.some((track) => track.clips?.some((clip) => isSpeedRampingActive(clip.id))),
       )
     : false
@@ -71,15 +71,15 @@ export function SpeedRampingIndicator() {
  * Компонент для отображения Speed Ramping статуса в Timeline
  */
 export function TimelineSpeedRampingStatus() {
-  const timeline = useTimeline()
+  const { project } = useTimeline()
   const { isSpeedRampingActive } = useSpeedRampingPlayerIntegration()
 
-  const activeSpeedRampingClips = timeline.project
+  const activeSpeedRampingClips = project
     ? [
-        ...(timeline.project.globalTracks?.flatMap(
+        ...(project.globalTracks?.flatMap(
           (track) => track.clips?.filter((clip) => isSpeedRampingActive(clip.id)).map((clip) => clip.id) || [],
         ) || []),
-        ...(timeline.project.sections?.flatMap(
+        ...(project.sections?.flatMap(
           (section) =>
             section.tracks?.flatMap(
               (track) => track.clips?.filter((clip) => isSpeedRampingActive(clip.id)).map((clip) => clip.id) || [],

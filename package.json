@@ -1,12 +1,13 @@
 {
   "name": "timeline-studio",
-  "version": "0.68.0",
+  "version": "1.3.9",
   "license": "SEE LICENSE IN LICENSE",
   "author": "Alexander Kireyev <ak.chatman.media@gmail.com>",
   "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build --no-lint",
+    "build:quick": "next build --no-lint",
     "build:analyze": "ANALYZE=true CODECOV_TOKEN=$CODECOV_TOKEN next build --no-lint",
     "start": "next start",
     "lint": "biome check .",
@@ -62,7 +63,10 @@
     "docs": "node scripts/generate-docs.js",
     "promo:dev": "cd promo && bun run dev",
     "promo:build": "cd promo && bun run build",
-    "promo:preview": "cd promo && bun run preview"
+    "promo:preview": "cd promo && bun run preview",
+    "swarm:init": "node .swarm/init.js",
+    "swarm:status": "npx -y ruv-swarm status",
+    "swarm:monitor": "npx -y ruv-swarm monitor"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -121,6 +125,7 @@
     "react-hotkeys-hook": "^5.1.0",
     "react-i18next": "^15.6.1",
     "react-resizable-panels": "^3.0.4",
+    "ruv-swarm": "^1.0.18",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.1",
     "wavesurfer.js": "^7.10.1",
@@ -146,7 +151,7 @@
     "@types/d3": "^7.4.3",
     "@types/d3-scale": "^4.0.9",
     "@types/jest": "30.0.0",
-    "@types/node": "24.2.0",
+    "@types/node": "^24.2.0",
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
     "@vitejs/plugin-react": "^4.7.0",

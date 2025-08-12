@@ -2,8 +2,8 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { useLanguage } from "@/features/language"
+import { ModalType } from "@/features/modals"
 import { useModal } from "@/features/modals/services/modal-provider"
-
 import { GeneralSettingsTab } from "../../../components/tabs/general-settings-tab"
 import { useUserSettings } from "../../../hooks/use-user-settings"
 
@@ -97,7 +97,7 @@ describe("GeneralSettingsTab", () => {
     vi.mocked(useModal).mockImplementation(() => ({
       openModal: mockOpenModal,
       closeModal: vi.fn(),
-      modalType: null,
+      modalType: "none" as ModalType,
       modalData: null,
       isOpen: false,
       submitModal: vi.fn(),

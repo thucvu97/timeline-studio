@@ -9,6 +9,7 @@ export * from "./components/subtitle-preview"
 export * from "./components/subtitle-sync-tools"
 export * from "./components/subtitle-toolbar"
 export * from "./components/subtitle-tools"
+export { useSubtitleStyleManager, useSubtitleStyles } from "./hooks/use-subtitle-style-manager"
 // Хуки - экспортируем только функции, не типы
 export {
   useSubtitleById,

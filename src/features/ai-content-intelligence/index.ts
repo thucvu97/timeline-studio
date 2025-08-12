@@ -24,16 +24,7 @@ export {
   AIIntelligenceProvider,
   useAIIntelligence as useAIIntelligenceContext,
 } from "./services/ai-intelligence-provider"
-export type {
-  AIIntelligenceContext,
-  AIIntelligenceEvent,
-} from "./shared/services/ai-intelligence-machine"
-export { aiIntelligenceMachine } from "./shared/services/ai-intelligence-machine"
 // ===== Orchestrator & State Machine =====
 export { AIIntelligenceOrchestrator } from "./shared/services/ai-intelligence-orchestrator"
-// ===== Types =====
 // Export all types from shared/types
 export * from "./shared/types"
-
-// NOTE: Engines are NOT exported here to avoid circular dependencies
-// If you need to use engines, import them directly from their respective paths

@@ -97,8 +97,9 @@ export const PreviewGrid: FC<PreviewGridProps> = ({
       })
     })
 
-    // Add highlights from insights
-    analysis.insights.highlights.forEach((highlight: string, index: number) => {
+    // Add highlights from insights (if available)
+    const highlights = (analysis.insights as any).highlights || []
+    highlights.forEach((highlight: string, index: number) => {
       items.push({
         id: `highlight-${index}`,
         type: "highlight",

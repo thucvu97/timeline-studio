@@ -80,7 +80,8 @@ export interface UseTimelineSelectionReturn {
 export function useTimelineSelection(): UseTimelineSelectionReturn {
   const {
     project,
-    uiState,
+    selectedClipIds,
+    selectedTrackIds,
     selectClips,
     selectTracks,
     selectSections,
@@ -100,17 +101,18 @@ export function useTimelineSelection(): UseTimelineSelectionReturn {
   // ============================================================================
 
   const selectedClips = useMemo(() => {
-    return clips.filter((clip) => uiState.selectedClipIds.includes(clip.id))
-  }, [clips, uiState.selectedClipIds])
+    return clips.filter((clip) => selectedClipIds.includes(clip.id))
+  }, [clips, selectedClipIds])
 
   const selectedTracks = useMemo(() => {
-    return tracks.filter((track) => uiState.selectedTrackIds.includes(track.id))
-  }, [tracks, uiState.selectedTrackIds])
+    return tracks.filter((track) => selectedTrackIds.includes(track.id))
+  }, [tracks, selectedTrackIds])
 
   const selectedSections = useMemo(() => {
     if (!project) return []
-    return project.sections.filter((section) => uiState.selectedSectionIds.includes(section.id))
-  }, [project, uiState.selectedSectionIds])
+    // Sections are deprecated in new architecture
+    return []
+  }, [project])
 
   const hasSelection = useMemo(() => {
     return selectedClips.length > 0 || selectedTracks.length > 0 || selectedSections.length > 0
@@ -133,7 +135,7 @@ export function useTimelineSelection(): UseTimelineSelectionReturn {
 
     const startTime = Math.min(...selectedClips.map((clip) => clip.startTime))
     const endTime = Math.max(...selectedClips.map((clip) => clip.startTime + clip.duration))
-    const trackIds = [...new Set(selectedClips.map((clip) => clip.trackId))]
+    const trackIds = Array.from(new Set(selectedClips.map((clip) => clip.trackId)))
 
     return {
       startTime,
@@ -149,7 +151,7 @@ export function useTimelineSelection(): UseTimelineSelectionReturn {
 
   const selectClip = (clipId: string, addToSelection = false) => {
     if (addToSelection) {
-      const currentIds = uiState.selectedClipIds
+      const currentIds = selectedClipIds
       const newIds = currentIds.includes(clipId) ? currentIds.filter((id) => id !== clipId) : [...currentIds, clipId]
       selectClips(newIds)
     } else {
@@ -159,7 +161,7 @@ export function useTimelineSelection(): UseTimelineSelectionReturn {
 
   const selectTrack = (trackId: string, addToSelection = false) => {
     if (addToSelection) {
-      const currentIds = uiState.selectedTrackIds
+      const currentIds = selectedTrackIds
       const newIds = currentIds.includes(trackId) ? currentIds.filter((id) => id !== trackId) : [...currentIds, trackId]
       selectTracks(newIds)
     } else {
@@ -169,7 +171,7 @@ export function useTimelineSelection(): UseTimelineSelectionReturn {
 
   const selectSection = (sectionId: string, addToSelection = false) => {
     if (addToSelection) {
-      const currentIds = uiState.selectedSectionIds
+      const currentIds: string[] = [] // Sections are deprecated
       const newIds = currentIds.includes(sectionId)
         ? currentIds.filter((id) => id !== sectionId)
         : [...currentIds, sectionId]
@@ -195,7 +197,7 @@ export function useTimelineSelection(): UseTimelineSelectionReturn {
 
   const invertSelection = () => {
     const allClipIds = clips.map((clip) => clip.id)
-    const currentSelection = uiState.selectedClipIds
+    const currentSelection = selectedClipIds
     const newSelection = allClipIds.filter((id) => !currentSelection.includes(id))
     selectClips(newSelection)
   }
@@ -306,7 +308,7 @@ export function useTimelineSelection(): UseTimelineSelectionReturn {
   }
 
   const pasteAtTime = (time: number, trackId?: string) => {
-    void paste(trackId, time)
+    void paste(trackId || "", time)
   }
 
   // ============================================================================
@@ -314,15 +316,15 @@ export function useTimelineSelection(): UseTimelineSelectionReturn {
   // ============================================================================
 
   const isClipSelected = (clipId: string): boolean => {
-    return uiState.selectedClipIds.includes(clipId)
+    return selectedClipIds.includes(clipId)
   }
 
   const isTrackSelected = (trackId: string): boolean => {
-    return uiState.selectedTrackIds.includes(trackId)
+    return selectedTrackIds.includes(trackId)
   }
 
-  const isSectionSelected = (sectionId: string): boolean => {
-    return uiState.selectedSectionIds.includes(sectionId)
+  const isSectionSelected = (_sectionId: string): boolean => {
+    return false // Sections are deprecated
   }
 
   const getSelectionStats = () => {
@@ -330,17 +332,17 @@ export function useTimelineSelection(): UseTimelineSelectionReturn {
     const averageVolume =
       selectedClips.length > 0 ? selectedClips.reduce((sum, clip) => sum + clip.volume, 0) / selectedClips.length : 0
 
-    const trackTypes = [
-      ...new Set(
+    const trackTypes = Array.from(
+      new Set(
         selectedClips.map((clip) => {
           const track = findTrack(clip.trackId)
           return track?.type || "unknown"
         }),
       ),
-    ]
+    )
 
-    const mediaTypes = [
-      ...new Set(
+    const mediaTypes = Array.from(
+      new Set(
         selectedClips.map((clip) => {
           const mediaFile = clip.mediaFile
           if (mediaFile?.isVideo) return "video"
@@ -349,7 +351,7 @@ export function useTimelineSelection(): UseTimelineSelectionReturn {
           return "unknown"
         }),
       ),
-    ]
+    )
 
     return {
       totalDuration,

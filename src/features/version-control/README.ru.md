@@ -61,7 +61,7 @@ src/features/version-control/
 ### Типы команд для execute_command
 
 ```typescript
-type ProjectCommand = 
+type ProjectCommand =
   | { type: "CreateSnapshot", params: { message?: string } }
   | { type: "RestoreVersion", params: { version_id: string } }
   | { type: "GetVersionHistory", params: { limit?: number } }
@@ -90,7 +90,7 @@ function ProjectHeader() {
     autoSaveIntervalSeconds,
     isLoading,
     error,
-    
+
     // Действия
     createSnapshot,
     restoreVersion,
@@ -102,14 +102,14 @@ function ProjectHeader() {
     setAutoSaveInterval,
     enableAutoSave
   } = useVersionControl();
-  
+
   const handleSave = async () => {
     const success = await createSnapshot("Сохранение изменений макета");
     if (success) {
       console.log("Версия сохранена");
     }
   };
-  
+
   return (
     <div className="flex items-center gap-4">
       <Badge>{branchName}</Badge>
@@ -154,7 +154,7 @@ import { VersionHistoryPanel } from '@/features/version-control';
 
 function HistoryView() {
   return (
-    <VersionHistoryPanel 
+    <VersionHistoryPanel
       onRestore={(versionId) => console.log('Восстановление', versionId)}
       onCompare={(v1, v2) => console.log('Сравнение', v1, v2)}
     />
@@ -330,7 +330,7 @@ bun run test src/features/version-control/__tests__/components/version-history-p
 ```typescript
 function SaveButton() {
   const { createSnapshot, isLoading } = useVersionControl();
-  
+
   const handleSave = async () => {
     const message = prompt("Описание изменений:");
     if (message !== null) {
@@ -340,7 +340,7 @@ function SaveButton() {
       }
     }
   };
-  
+
   return (
     <Button onClick={handleSave} disabled={isLoading}>
       <GitCommit className="w-4 h-4 mr-2" />
@@ -356,7 +356,7 @@ function SaveButton() {
 function BranchSelector() {
   const { branchName, switchBranch } = useVersionControl();
   const [branches, setBranches] = useState<string[]>(['main', 'develop']);
-  
+
   const handleBranchChange = async (newBranch: string) => {
     if (newBranch !== branchName) {
       const success = await switchBranch(newBranch);
@@ -365,7 +365,7 @@ function BranchSelector() {
       }
     }
   };
-  
+
   return (
     <Select value={branchName} onValueChange={handleBranchChange}>
       <SelectTrigger>
@@ -394,7 +394,7 @@ function AutoSaveSettings() {
     enableAutoSave,
     setAutoSaveInterval
   } = useVersionControl();
-  
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -404,7 +404,7 @@ function AutoSaveSettings() {
           onCheckedChange={enableAutoSave}
         />
       </div>
-      
+
       {autoSaveEnabled && (
         <div className="flex items-center gap-2">
           <Label>Интервал (сек):</Label>
@@ -429,18 +429,18 @@ function AutoSaveSettings() {
 function VersionHistory() {
   const { getVersionHistory, restoreVersion } = useVersionControl();
   const [versions, setVersions] = useState<VersionInfo[]>([]);
-  
+
   useEffect(() => {
     loadHistory();
   }, []);
-  
+
   const loadHistory = async () => {
     const history = await getVersionHistory(50);
     if (history) {
       setVersions(history);
     }
   };
-  
+
   const handleRestore = async (versionId: string) => {
     const confirm = window.confirm("Восстановить эту версию?");
     if (confirm) {
@@ -450,7 +450,7 @@ function VersionHistory() {
       }
     }
   };
-  
+
   return (
     <div className="space-y-2">
       {versions.map(version => (
@@ -547,3 +547,7 @@ const FINAL_TOUCHES = {
 ## 🎯 Заключение
 
 Модуль Version Control предоставляет надежную систему управления версиями для Timeline Studio, позволяя пользователям безопасно экспериментировать, отслеживать изменения и восстанавливать предыдущие состояния проекта. Интеграция с Rust backend обеспечивает высокую производительность и надежность операций.
+
+**Версия:** 0.68.1
+**Последнее обновление:** 7 августа 2025
+**Разработано с ❤️ командой Timeline Studio**

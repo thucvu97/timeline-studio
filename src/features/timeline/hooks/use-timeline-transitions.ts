@@ -47,9 +47,12 @@ export function useTimelineTransitions(project: TimelineProject) {
     (
       transitionResource: Transition,
       options: {
+        trackId: string
         position: number
         duration: number
         type: "between" | "in" | "out" | "adjustment"
+        startClipId?: string
+        endClipId?: string
         parameters?: TimelineTransition["parameters"]
         keyframes?: TimelineTransition["keyframes"]
       },
@@ -169,7 +172,7 @@ export function useTimelineTransitions(project: TimelineProject) {
    */
   const getAdvancedTransitions = useCallback(() => {
     return timelineTransitions.filter((t) => {
-      return t.parameters?.blur?.enabled || t.parameters?.color?.enabled || t.keyframes.length > 0
+      return t.parameters?.blur || t.parameters?.color || t.keyframes.length > 0
     })
   }, [timelineTransitions])
 
@@ -203,8 +206,8 @@ export function useTimelineTransitions(project: TimelineProject) {
       stats.byType[t.type] = (stats.byType[t.type] || 0) + 1
 
       // Подсчет эффектов
-      if (t.parameters?.blur?.enabled) stats.withBlur++
-      if (t.parameters?.color?.enabled) stats.withColor++
+      if (t.parameters?.blur) stats.withBlur++
+      if (t.parameters?.color) stats.withColor++
       if (t.keyframes.length > 0) stats.withKeyframes++
 
       // GPU ускорение

@@ -6,6 +6,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { useTimeline } from "@/features/timeline/hooks/use-timeline"
+import { useTimelineEffects } from "@/features/timeline/hooks/use-timeline-effects"
 import { usePlayer } from "@/features/video-player"
 
 import { PreviewCache } from "../services/preview-cache"
@@ -63,42 +64,112 @@ export function useWebGL2Preview(options: UseWebGL2PreviewOptions = {}) {
     fps: 30,
     antialiasing: true,
   })
+  const [cacheStats, setCacheStats] = useState({
+    entries: 0,
+    sizeMB: 0,
+    hitRate: 0,
+  })
 
   const timeline = useTimeline()
   const player = usePlayer()
+  const { getClipEffects, getClipFilters, getClipTransitions } = useTimelineEffects()
 
   const currentTime = player.currentTime
   const selectedClipId = timeline.selectedClipIds?.[0]
   const mediaFile = player.currentVideo
   const isPlaying = player.isPlaying
 
-  const getEffectsAtTime: ((time: number) => Effect[]) | undefined = undefined // TODO: Implement when timeline effects API is available
-  const getEffectsForClip: ((clipId: string) => Effect[]) | undefined = undefined // TODO: Implement when timeline effects API is available
-
   // Get enabled effects at current time
   const activeEffects = useMemo(() => {
-    // Get effects from timeline at current time
-    const timelineEffects: Effect[] = [] // TODO: Use getEffectsAtTime when implemented
+    if (!timeline.project) return []
 
-    // Get effects from selected clip if any
-    let clipEffects: Effect[] = []
-    if (selectedClipId && getEffectsForClip) {
-      clipEffects = getEffectsForClip(selectedClipId)
+    const effects: Effect[] = []
+
+    // Получаем все клипы на текущем времени
+    for (const section of timeline.project.sections) {
+      for (const track of section.tracks) {
+        for (const clip of track.clips) {
+          // Проверяем, попадает ли текущее время в клип
+          if (currentTime >= clip.startTime && currentTime < clip.startTime + clip.duration) {
+            // Добавляем эффекты клипа
+            const clipEffects = getClipEffects(clip.id)
+            effects.push(
+              ...clipEffects.map((e) => ({
+                id: e.id,
+                type: e.type as any,
+                enabled: e.enabled,
+                parameters: e.parameters || {},
+                intensity: e.intensity || 1.0,
+              })),
+            )
+
+            // Добавляем фильтры клипа
+            const clipFilters = getClipFilters(clip.id)
+            effects.push(
+              ...clipFilters.map((f) => ({
+                id: f.id,
+                type: f.type as any,
+                enabled: f.enabled,
+                parameters: f.parameters || {},
+                intensity: f.intensity || 1.0,
+              })),
+            )
+
+            // Проверяем переходы
+            const transitions = getClipTransitions(clip.id)
+            for (const transition of transitions) {
+              // Определяем, активен ли переход в текущий момент
+              const transitionTime = currentTime - clip.startTime
+              if (transition.type === "in" && transitionTime < transition.duration) {
+                effects.push({
+                  id: transition.id,
+                  type: transition.transitionId as any,
+                  enabled: transition.isEnabled,
+                  parameters: {
+                    ...transition.parameters,
+                    progress: transitionTime / transition.duration,
+                  },
+                  intensity: 1.0,
+                })
+              } else if (transition.type === "out" && transitionTime > clip.duration - transition.duration) {
+                const progress = (transitionTime - (clip.duration - transition.duration)) / transition.duration
+                effects.push({
+                  id: transition.id,
+                  type: transition.transitionId as any,
+                  enabled: transition.isEnabled,
+                  parameters: {
+                    ...transition.parameters,
+                    progress,
+                  },
+                  intensity: 1.0,
+                })
+              }
+            }
+          }
+        }
+      }
     }
 
-    // Combine and convert to preview system format
-    const allEffects = [...timelineEffects, ...clipEffects]
+    // Добавляем глобальные эффекты треков
+    for (const track of timeline.project.globalTracks) {
+      for (const clip of track.clips) {
+        if (currentTime >= clip.startTime && currentTime < clip.startTime + clip.duration) {
+          const clipEffects = getClipEffects(clip.id)
+          effects.push(
+            ...clipEffects.map((e) => ({
+              id: e.id,
+              type: e.type as any,
+              enabled: e.enabled,
+              parameters: e.parameters || {},
+              intensity: e.intensity || 1.0,
+            })),
+          )
+        }
+      }
+    }
 
-    return allEffects
-      .filter((effect) => effect.enabled)
-      .map((effect) => ({
-        id: effect.id,
-        type: effect.type,
-        enabled: effect.enabled,
-        parameters: effect.parameters || {},
-        intensity: effect.intensity || 1.0,
-      }))
-  }, [currentTime, selectedClipId, getEffectsAtTime, getEffectsForClip])
+    return effects.filter((effect) => effect.enabled)
+  }, [currentTime, timeline.project, getClipEffects, getClipFilters, getClipTransitions])
 
   // Initialize WebGL2 renderer
   useEffect(() => {
@@ -306,7 +377,14 @@ export function useWebGL2Preview(options: UseWebGL2PreviewOptions = {}) {
     gpuTier,
     quality,
     setQuality,
-    cacheStats: cacheRef.current?.getStats(),
+    cacheStats: cacheRef.current?.getStats() || {
+      entries: 0,
+      sizeBytes: 0,
+      sizeMB: 0,
+      maxSizeMB: cacheSize,
+      fillPercentage: 0,
+      hitRate: 0,
+    },
   }
 }
 

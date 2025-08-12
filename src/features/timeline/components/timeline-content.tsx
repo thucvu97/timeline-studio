@@ -40,6 +40,8 @@ import {
 import { Track } from "./track/track"
 import { TrackControlsPanel } from "./track-controls-panel"
 import { TrackInsertionZones } from "./track-insertion-zone"
+import { UndoRedoHotkeys } from "./undo-redo"
+import { IntegratedVersionPanel } from "./version-control-integration"
 
 export function TimelineContent() {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -54,7 +56,7 @@ export function TimelineContent() {
 
   const {
     project,
-    uiState,
+    selectedTrackIds,
     currentTime,
     createProject,
     addSection,
@@ -62,10 +64,13 @@ export function TimelineContent() {
     updateTrack,
     selectTracks,
     seek,
-    error,
-    clearError,
     send,
   } = useTimeline()
+
+  // Временные значения для обратной совместимости
+  const timeScale = 60 // Пикселей в секунду по умолчанию
+  const error: string | null = null
+  const clearError = () => {}
 
   const { tracks, setTrackHeight } = useTracks()
   const { clips } = useClips()
@@ -162,6 +167,7 @@ export function TimelineContent() {
   return (
     <EditModeProvider>
       <TimelineHotkeys />
+      <UndoRedoHotkeys />
       <TimelineSpeedRampingIntegration />
       <SpeedRampingIndicator />
       <div className="flex h-full flex-col">
@@ -218,7 +224,12 @@ export function TimelineContent() {
           <ResizablePanelGroup direction="horizontal" className="flex-1">
             {/* Левая панель - Управление треками */}
             <ResizablePanel defaultSize={25} minSize={20} maxSize={40}>
-              <TrackControlsPanel />
+              <div className="h-full flex flex-col">
+                <TrackControlsPanel />
+                <div className="p-2 border-t">
+                  <IntegratedVersionPanel />
+                </div>
+              </div>
             </ResizablePanel>
 
             <ResizableHandle />
@@ -244,7 +255,7 @@ export function TimelineContent() {
                     <div className="relative">
                       {/* Markers layer */}
                       <TimelineMarkersLayer
-                        timeScale={uiState.timeScale}
+                        timeScale={timeScale}
                         scrollOffset={scrollOffset}
                         containerWidth={containerWidth}
                         currentTime={currentTime}
@@ -256,14 +267,14 @@ export function TimelineContent() {
                       <TimelineAIOverlay
                         timelineWidth={containerWidth}
                         timelineDuration={project?.duration || 300}
-                        pixelsPerSecond={uiState.timeScale}
+                        pixelsPerSecond={timeScale}
                         className="sticky top-8 z-15"
                       />
 
                       {/* Split indicator */}
                       <SplitIndicator
                         containerRef={scrollContainerRef as React.RefObject<HTMLElement>}
-                        timeScale={uiState.timeScale}
+                        timeScale={timeScale}
                         scrollX={scrollOffset}
                         onSplit={(time, trackId) => {
                           // Find clip at this position
@@ -297,7 +308,7 @@ export function TimelineContent() {
                                 videoPath={clip.mediaFile?.path || null}
                                 duration={clip.duration}
                                 containerWidth={containerWidth}
-                                scale={uiState.timeScale}
+                                scale={timeScale}
                                 scrollOffset={scrollOffset}
                                 height={60}
                                 className="mb-1"
@@ -314,9 +325,9 @@ export function TimelineContent() {
                           <Track
                             key={track.id}
                             track={track}
-                            timeScale={uiState.timeScale}
+                            timeScale={timeScale}
                             currentTime={currentTime}
-                            isSelected={uiState.selectedTrackIds.includes(track.id)}
+                            isSelected={selectedTrackIds?.includes(track.id) ?? false}
                             onSelect={(trackId) => selectTracks([trackId])}
                             onUpdate={(updates) => updateTrack(track.id, updates)}
                           />

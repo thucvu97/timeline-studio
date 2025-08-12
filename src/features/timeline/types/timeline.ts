@@ -13,7 +13,8 @@ import type { VideoEffect } from "../../effects/types"
 import type { VideoFilter } from "../../filters/types/filters"
 import type { MediaFile } from "../../media/types/media"
 import type { StyleTemplate } from "../../style-templates/types/style-template"
-import type { MediaTemplate } from "../../templates/lib/templates"
+import type { SubtitleClip } from "../../subtitles/types"
+import type { MediaTemplate } from "../../templates/lib/templates.d"
 import type { Transition } from "../../transitions/types/transitions"
 import type { SpeedRampingConfig } from "./speed-ramping"
 import type { TimelineTransition } from "./timeline-transition"
@@ -172,6 +173,7 @@ export interface TimelineTrack {
 export interface TimelineClip {
   id: string
   name: string
+  type?: "video" | "audio" | "image" | "subtitle" | "title" // Тип клипа
 
   // Связь с медиафайлом
   mediaId: string
@@ -207,6 +209,22 @@ export interface TimelineClip {
   position?: ClipPosition
   opacity: number // 0-1
 
+  // Video fade эффекты
+  fadeIn?: {
+    duration: number // Длительность fade-in в секундах
+    type?: "linear" | "exponential" | "logarithmic" | "cosine" | "ease-in" | "ease-out" | "ease-in-out"
+    keyframes?: VideoFadeKeyframe[] // Кастомные keyframes для сложных fade
+  }
+
+  fadeOut?: {
+    duration: number // Длительность fade-out в секундах
+    type?: "linear" | "exponential" | "logarithmic" | "cosine" | "ease-in" | "ease-out" | "ease-in-out"
+    keyframes?: VideoFadeKeyframe[] // Кастомные keyframes для сложных fade
+  }
+
+  // Keyframes для анимации opacity
+  opacityKeyframes?: VideoFadeKeyframe[]
+
   // Шаблоны многокамерных раскладок
   templateId?: string // ID шаблона для многокамерной раскладки
   templateCell?: number // Индекс ячейки в шаблоне (0-based)
@@ -217,6 +235,9 @@ export interface TimelineClip {
   transitions: AppliedTransition[]
   styleTemplate?: AppliedStyleTemplate // Применяемый стильный шаблон
   colorGrading?: AppliedColorGrading // Цветокоррекция
+
+  // Keyframe анимации
+  keyframes?: TimelineKeyframe[]
 
   // Состояние
   isSelected: boolean
@@ -230,6 +251,12 @@ export interface TimelineClip {
 // ============================================================================
 // SUPPORTING TYPES
 // ============================================================================
+
+export interface VideoFadeKeyframe {
+  time: number // время в секундах относительно начала клипа
+  opacity: number // значение прозрачности (0-1)
+  easing?: "linear" | "exponential" | "logarithmic" | "cosine" | "ease-in" | "ease-out" | "ease-in-out"
+}
 
 export type TrackType =
   | "video"
@@ -458,73 +485,17 @@ export interface TimelineKeyframe {
   time: number
   property: string
   value: any
-  interpolation: "linear" | "ease" | "ease-in" | "ease-out" | "bezier"
+  interpolation: "linear" | "ease" | "ease-in" | "ease-out" | "ease-in-out" | "bezier" | "step"
 }
 
 // ============================================================================
 // SUBTITLE TYPES
-// ============================================================================
-
-/**
- * Расширенный интерфейс для субтитровых клипов
- */
-export interface SubtitleClip extends TimelineClip {
-  // Текст субтитра
-  text: string
-
-  // Стиль субтитра (ссылка на стиль из ресурсов)
-  subtitleStyleId?: string
-
-  // Переопределение позиции для конкретного субтитра
-  subtitlePosition?: {
-    alignment:
-      | "top-left"
-      | "top-center"
-      | "top-right"
-      | "middle-left"
-      | "middle-center"
-      | "middle-right"
-      | "bottom-left"
-      | "bottom-center"
-      | "bottom-right"
-    marginX: number // Отступ по горизонтали в пикселях
-    marginY: number // Отступ по вертикали в пикселях
-  }
-
-  // Анимации входа и выхода
-  animationIn?: {
-    type: "fade" | "slide" | "typewriter" | "scale" | "wave"
-    duration: number // В секундах
-    easing?: "linear" | "ease" | "ease-in" | "ease-out" | "ease-in-out"
-  }
-
-  animationOut?: {
-    type: "fade" | "slide" | "scale"
-    duration: number // В секундах
-    easing?: "linear" | "ease" | "ease-in" | "ease-out" | "ease-in-out"
-  }
-
-  // Дополнительные настройки для субтитров
-  wordWrap?: boolean // Перенос слов
-  maxWidth?: number // Максимальная ширина в процентах от экрана
-
-  // Форматирование текста (переопределяет стиль)
-  formatting?: {
-    bold?: boolean
-    italic?: boolean
-    underline?: boolean
-    fontSize?: number // Переопределение размера шрифта
-    color?: string // Переопределение цвета
-  }
-}
-
 /**
  * Тип для проверки, является ли клип субтитром
  */
 export function isSubtitleClip(clip: TimelineClip): clip is SubtitleClip {
-  const track = clip.trackId // В реальном коде нужно получить трек по ID
-  // Проверяем по типу трека или наличию текста
-  return "text" in clip
+  // Проверяем по типу клипа
+  return clip.type === "subtitle" && "text" in clip
 }
 
 /**

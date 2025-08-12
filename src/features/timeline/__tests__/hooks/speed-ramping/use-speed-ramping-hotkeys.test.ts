@@ -29,9 +29,7 @@ vi.mock("../../../hooks/use-speed-ramping", () => ({
 const mockSend = vi.fn()
 const mockUseTimeline = {
   send: mockSend,
-  uiState: {
-    selectedClipIds: ["test-clip-1", "test-clip-2"],
-  },
+  selectedClipIds: ["test-clip-1", "test-clip-2"],
 }
 
 vi.mock("../../../hooks/use-timeline", () => ({
@@ -154,7 +152,7 @@ describe("useSpeedRampingHotkeys", () => {
 
   it("не выполняет действия если нет выбранных клипов", () => {
     // Временно очищаем выбранные клипы
-    mockUseTimeline.uiState.selectedClipIds = []
+    mockUseTimeline.selectedClipIds = []
 
     renderHook(() => useSpeedRampingHotkeys())
 
@@ -172,7 +170,7 @@ describe("useSpeedRampingHotkeys", () => {
     expect(mockSend).not.toHaveBeenCalled()
 
     // Восстанавливаем состояние
-    mockUseTimeline.uiState.selectedClipIds = ["test-clip-1", "test-clip-2"]
+    mockUseTimeline.selectedClipIds = ["test-clip-1", "test-clip-2"]
   })
 
   it("настраивает правильные опции для горячих клавиш", () => {

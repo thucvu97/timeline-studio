@@ -2,7 +2,24 @@ import { useCallback, useEffect } from "react"
 
 import { useTimeline } from "../../timeline/hooks"
 import type { TimelineClip, TimelineSection, TimelineTrack } from "../../timeline/types"
-import { setTimelineStateAccess, type TimelineStateAccess } from "../tools/timeline/types"
+
+// Временно определяем типы локально
+interface TimelineStateAccess {
+  getCurrentProject: () => any
+  createProject: (project: any) => Promise<void>
+  updateProject: (updates: any) => Promise<void>
+  createSection: (section: any) => Promise<any>
+  createTrack: (track: any) => Promise<any>
+  addClip: (clip: any) => Promise<any>
+  getProjectStats: () => any
+  sendTimelineCommand: (command: string, params?: any) => Promise<void>
+}
+
+// Временная заглушка для setTimelineStateAccess
+let timelineStateAccess: TimelineStateAccess | null = null
+const setTimelineStateAccess = (access: TimelineStateAccess | null) => {
+  timelineStateAccess = access
+}
 
 /**
  * Хук для интеграции Timeline с AI функциональностью

@@ -7,9 +7,9 @@
 // Import actual types
 import type { VideoFilter } from "@/features/filters/types/filters"
 import type { StyleTemplate } from "@/features/style-templates/types"
+import { SubtitleClip } from "@/features/subtitles"
 import type { MediaTemplate } from "@/features/templates/lib/templates"
 import type { Transition } from "@/features/transitions/types/transitions"
-
 import {
   AlignX,
   AlignY,
@@ -48,12 +48,11 @@ import {
   TextAlign,
   TrackType,
   toRustEnumCase,
-} from "../../../types/video-compiler"
+} from "../../../domains/video-editing/types"
 import {
   type AppliedTransition,
   isSubtitleClip,
   type ProjectResources,
-  type SubtitleClip,
   type TimelineClip,
   type TimelineProject,
   type TimelineTrack,
@@ -1130,7 +1129,7 @@ function createDefaultSubtitleStyle(formatting?: SubtitleClip["formatting"]): Ba
   return {
     font_family: "Arial",
     font_size: formatting?.fontSize || 24.0,
-    font_weight: formatting?.bold ? SubtitleFontWeight.Bold : SubtitleFontWeight.Normal,
+    font_weight: formatting?.fontWeight ? convertFontWeight(formatting.fontWeight) : SubtitleFontWeight.Normal,
     color: formatting?.color || "#FFFFFF",
     stroke_color: "#000000",
     stroke_width: 2.0,

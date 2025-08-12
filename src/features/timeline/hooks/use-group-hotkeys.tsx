@@ -7,7 +7,7 @@ import { useTimeline } from "./use-timeline"
 
 export function useGroupHotkeys() {
   const { createGroup, ungroupClips, getGroupByClip } = useClipGroups()
-  const { uiState, project } = useTimeline()
+  const { project, selectedClipIds } = useTimeline()
 
   // Helper function to get selected clips
   const getSelectedClips = (): TimelineClip[] => {
@@ -18,7 +18,7 @@ export function useGroupHotkeys() {
     // Check global tracks
     project.globalTracks.forEach((track) => {
       track.clips.forEach((clip) => {
-        if (uiState.selectedClipIds.includes(clip.id)) {
+        if (selectedClipIds.includes(clip.id)) {
           selectedClips.push(clip)
         }
       })
@@ -28,7 +28,7 @@ export function useGroupHotkeys() {
     project.sections.forEach((section) => {
       section.tracks.forEach((track) => {
         track.clips.forEach((clip) => {
-          if (uiState.selectedClipIds.includes(clip.id)) {
+          if (selectedClipIds.includes(clip.id)) {
             selectedClips.push(clip)
           }
         })
@@ -76,5 +76,5 @@ export function useGroupHotkeys() {
         shortcutsRegistry.updateAction(id, undefined)
       })
     }
-  }, [project, uiState.selectedClipIds, createGroup, ungroupClips, getGroupByClip])
+  }, [project, selectedClipIds, createGroup, ungroupClips, getGroupByClip])
 }

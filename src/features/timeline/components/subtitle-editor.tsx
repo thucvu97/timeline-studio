@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 
-import type { SubtitleClip } from "../types/timeline"
+import type { SubtitleClip } from "@/features/subtitles/types"
 
 interface SubtitleEditorProps {
   open: boolean

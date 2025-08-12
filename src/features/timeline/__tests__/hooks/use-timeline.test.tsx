@@ -101,7 +101,7 @@ describe("useTimeline", () => {
     // Проверяем что хук выбрасывает ошибку при использовании вне провайдера
     expect(() => {
       renderHook(() => useTimeline())
-    }).toThrow("useTimeline must be used within a TimelineProvider")
+    }).toThrow("useTimelineProject must be used within a TimelineProjectProvider")
   })
 
   it("должен возвращать контекст при использовании внутри провайдера", () => {
@@ -178,7 +178,9 @@ describe("useTimeline", () => {
         await result.current.addSection("New Section", 0, 10)
       })
 
-      expect(warnSpy).toHaveBeenCalledWith("Sections are not supported in the new architecture")
+      expect(warnSpy).toHaveBeenCalledWith(
+        "addSection is deprecated - sections are not implemented in the new architecture",
+      )
       expect(mockExecuteCommand).not.toHaveBeenCalled()
 
       warnSpy.mockRestore()
@@ -192,7 +194,9 @@ describe("useTimeline", () => {
         await result.current.removeSection("section-1")
       })
 
-      expect(warnSpy).toHaveBeenCalledWith("Sections are not supported in the new architecture")
+      expect(warnSpy).toHaveBeenCalledWith(
+        "removeSection is deprecated - sections are not implemented in the new architecture",
+      )
       expect(mockExecuteCommand).not.toHaveBeenCalled()
 
       warnSpy.mockRestore()
@@ -244,8 +248,7 @@ describe("useTimeline", () => {
         params: {
           track_id: "track-1",
           updates: {
-            enabled: null,
-            locked: null,
+            name: "Updated Track",
           },
         },
       })
@@ -306,8 +309,7 @@ describe("useTimeline", () => {
         params: {
           clip_id: "clip-1",
           updates: {
-            playback_rate: 1,
-            enabled: null,
+            volume: 0.5,
           },
         },
       })
@@ -351,55 +353,50 @@ describe("useTimeline", () => {
   describe("UI операции", () => {
     it("должен устанавливать масштаб временной шкалы", () => {
       const { result } = renderHook(() => useTimeline(), { wrapper })
+      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {})
 
       act(() => {
         result.current.setTimeScale(2)
       })
 
-      expect(mockUISend).toHaveBeenCalledWith({
-        type: "SET_TIME_SCALE",
-        scale: 2,
-      })
+      expect(warnSpy).toHaveBeenCalledWith("setTimeScale is deprecated - use UI state management instead")
+      warnSpy.mockRestore()
     })
 
     it("должен устанавливать позицию прокрутки", () => {
       const { result } = renderHook(() => useTimeline(), { wrapper })
+      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {})
 
       act(() => {
-        result.current.setScrollPosition(100, 50)
+        result.current.setScrollPosition({ x: 100, y: 50 })
       })
 
-      expect(mockUISend).toHaveBeenCalledWith({
-        type: "SET_SCROLL_POSITION",
-        x: 100,
-        y: 50,
-      })
+      expect(warnSpy).toHaveBeenCalledWith("setScrollPosition is deprecated - use UI state management instead")
+      warnSpy.mockRestore()
     })
 
     it("должен устанавливать режим редактирования", () => {
       const { result } = renderHook(() => useTimeline(), { wrapper })
+      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {})
 
       act(() => {
         result.current.setEditMode("cut")
       })
 
-      expect(mockUISend).toHaveBeenCalledWith({
-        type: "SET_EDIT_MODE",
-        mode: "cut",
-      })
+      expect(warnSpy).toHaveBeenCalledWith("setEditMode is deprecated - use UI state management instead")
+      warnSpy.mockRestore()
     })
 
     it("должен переключать режим привязки", () => {
       const { result } = renderHook(() => useTimeline(), { wrapper })
+      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {})
 
       act(() => {
-        result.current.toggleSnap("grid")
+        result.current.toggleSnap()
       })
 
-      expect(mockUISend).toHaveBeenCalledWith({
-        type: "TOGGLE_SNAP",
-        snapMode: "grid",
-      })
+      expect(warnSpy).toHaveBeenCalledWith("toggleSnap is deprecated - use UI state management instead")
+      warnSpy.mockRestore()
     })
   })
 
@@ -411,11 +408,8 @@ describe("useTimeline", () => {
         result.current.selectClips(["clip-1", "clip-2"])
       })
 
-      expect(mockUISend).toHaveBeenCalledWith({
-        type: "SELECT_CLIPS",
-        clipIds: ["clip-1", "clip-2"],
-        addToSelection: undefined,
-      })
+      // Проверяем что клипы добавлены в выделение
+      expect(result.current.selectedClipIds).toEqual(["clip-1", "clip-2"])
     })
 
     it("должен выделять треки", () => {
@@ -425,37 +419,41 @@ describe("useTimeline", () => {
         result.current.selectTracks(["track-1", "track-2"])
       })
 
-      expect(mockUISend).toHaveBeenCalledWith({
-        type: "SELECT_TRACKS",
-        trackIds: ["track-1", "track-2"],
-        addToSelection: undefined,
-      })
+      // Проверяем что треки добавлены в выделение
+      expect(result.current.selectedTrackIds).toEqual(["track-1", "track-2"])
     })
 
     it("должен выделять секции", () => {
       const { result } = renderHook(() => useTimeline(), { wrapper })
+      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {})
 
       act(() => {
         result.current.selectSections(["section-1", "section-2"])
       })
 
-      expect(mockUISend).toHaveBeenCalledWith({
-        type: "SELECT_SECTIONS",
-        sectionIds: ["section-1", "section-2"],
-        addToSelection: undefined,
-      })
+      expect(warnSpy).toHaveBeenCalledWith(
+        "selectSections is deprecated - sections are not implemented in the new architecture",
+      )
+      warnSpy.mockRestore()
     })
 
     it("должен сбрасывать выделение", () => {
       const { result } = renderHook(() => useTimeline(), { wrapper })
 
+      // Сначала выделяем что-то
+      act(() => {
+        result.current.selectClips(["clip-1"])
+        result.current.selectTracks(["track-1"])
+      })
+
+      // Затем очищаем выделение
       act(() => {
         result.current.clearSelection()
       })
 
-      expect(mockUISend).toHaveBeenCalledWith({
-        type: "CLEAR_SELECTION",
-      })
+      // Проверяем что выделение очищено
+      expect(result.current.selectedClipIds).toEqual([])
+      expect(result.current.selectedTrackIds).toEqual([])
     })
   })
 
@@ -469,7 +467,6 @@ describe("useTimeline", () => {
 
       expect(mockExecuteCommand).toHaveBeenCalledWith({
         type: "Play",
-        params: {},
       })
     })
 
@@ -482,7 +479,6 @@ describe("useTimeline", () => {
 
       expect(mockExecuteCommand).toHaveBeenCalledWith({
         type: "Pause",
-        params: {},
       })
     })
 
@@ -554,15 +550,16 @@ describe("useTimeline", () => {
     it("должен иметь методы работы с эффектами", () => {
       const { result } = renderHook(() => useTimeline(), { wrapper })
 
-      // Проверяем что методы существуют
-      expect(result.current.addEffectToClip).toBeDefined()
-      expect(typeof result.current.addEffectToClip).toBe("function")
-      expect(result.current.removeEffectFromClip).toBeDefined()
-      expect(typeof result.current.removeEffectFromClip).toBe("function")
-      expect(result.current.updateClipEffect).toBeDefined()
-      expect(typeof result.current.updateClipEffect).toBe("function")
-      expect(result.current.reorderClipEffects).toBeDefined()
-      expect(typeof result.current.reorderClipEffects).toBe("function")
+      // Проверяем что методы работы с эффектами существуют
+      expect(result.current.applyEffect).toBeDefined()
+      expect(typeof result.current.applyEffect).toBe("function")
+      expect(result.current.removeEffect).toBeDefined()
+      expect(typeof result.current.removeEffect).toBe("function")
+      expect(result.current.applyFilter).toBeDefined()
+      expect(typeof result.current.applyFilter).toBe("function")
+      expect(typeof result.current.removeFilter).toBe("function")
+      expect(result.current.applyTransition).toBeDefined()
+      expect(typeof result.current.applyTransition).toBe("function")
     })
 
     it("должен отправлять события через send", () => {

@@ -23,19 +23,27 @@ describe("Cache Service", () => {
   describe("getCacheStats", () => {
     it("should return cache statistics successfully", async () => {
       const mockStats = {
-        preview_cache: {
-          count: 150,
-          size_mb: 45.2,
-          hit_rate: 0.87,
+        total_entries: 239,
+        preview_hits: 130,
+        preview_misses: 20,
+        metadata_hits: 80,
+        metadata_misses: 9,
+        memory_usage: {
+          preview_bytes: 45200000,
+          metadata_bytes: 10000000,
+          render_bytes: 65300000,
+          total_bytes: 120500000,
+          totalSize: 120500000,
+          fileCount: 239,
+          oldestEntry: "2024-01-01T00:00:00Z",
+          newestEntry: "2024-01-02T00:00:00Z",
         },
-        frame_cache: {
-          count: 89,
-          size_mb: 120.5,
-          hit_rate: 0.92,
-        },
+        cache_size_mb: 120.5,
         total_size_mb: 165.7,
-        memory_usage_mb: 89.3,
-        disk_usage_mb: 76.4,
+        preview_cache: {
+          entries: 150,
+          size_mb: 45.2,
+        },
         cache_efficiency: 0.89,
       }
 
@@ -299,19 +307,27 @@ describe("Cache Service", () => {
   describe("Edge Cases", () => {
     it("should handle empty cache statistics", async () => {
       const emptyStats = {
-        preview_cache: {
-          count: 0,
-          size_mb: 0.0,
-          hit_rate: 0.0,
+        total_entries: 0,
+        preview_hits: 0,
+        preview_misses: 0,
+        metadata_hits: 0,
+        metadata_misses: 0,
+        memory_usage: {
+          preview_bytes: 0,
+          metadata_bytes: 0,
+          render_bytes: 0,
+          total_bytes: 0,
+          totalSize: 0,
+          fileCount: 0,
+          oldestEntry: "",
+          newestEntry: "",
         },
-        frame_cache: {
-          count: 0,
-          size_mb: 0.0,
-          hit_rate: 0.0,
-        },
+        cache_size_mb: 0.0,
         total_size_mb: 0.0,
-        memory_usage_mb: 0.0,
-        disk_usage_mb: 0.0,
+        preview_cache: {
+          entries: 0,
+          size_mb: 0.0,
+        },
         cache_efficiency: 0.0,
       }
 
@@ -344,11 +360,27 @@ describe("Cache Service", () => {
     it("should handle full cache lifecycle operations", async () => {
       // Get initial stats
       const initialStats = {
-        preview_cache: { count: 100, size_mb: 50.0, hit_rate: 0.8 },
-        frame_cache: { count: 200, size_mb: 150.0, hit_rate: 0.9 },
+        total_entries: 300,
+        preview_hits: 80,
+        preview_misses: 20,
+        metadata_hits: 180,
+        metadata_misses: 20,
+        memory_usage: {
+          preview_bytes: 50000000,
+          metadata_bytes: 20000000,
+          render_bytes: 130000000,
+          total_bytes: 200000000,
+          totalSize: 200000000,
+          fileCount: 300,
+          oldestEntry: "2024-01-01T00:00:00Z",
+          newestEntry: "2024-01-02T00:00:00Z",
+        },
+        cache_size_mb: 200.0,
         total_size_mb: 200.0,
-        memory_usage_mb: 100.0,
-        disk_usage_mb: 100.0,
+        preview_cache: {
+          entries: 100,
+          size_mb: 50.0,
+        },
         cache_efficiency: 0.85,
       }
       mockInvoke.mockResolvedValueOnce(initialStats)
@@ -365,23 +397,51 @@ describe("Cache Service", () => {
       await clearPreviewCache()
 
       // Get updated stats
-      const updatedStats = { ...initialStats, preview_cache: { count: 0, size_mb: 0.0, hit_rate: 0.0 } }
-      updatedStats.total_size_mb = 150.0
+      const updatedStats = {
+        ...initialStats,
+        total_entries: 200,
+        preview_cache: { entries: 0, size_mb: 0.0 },
+        memory_usage: {
+          ...initialStats.memory_usage,
+          preview_bytes: 0,
+          total_bytes: 150000000,
+          totalSize: 150000000,
+          fileCount: 200,
+        },
+        cache_size_mb: 150.0,
+        total_size_mb: 150.0,
+      }
       mockInvoke.mockResolvedValueOnce(updatedStats)
 
       stats = await getCacheStats()
-      expect(stats.preview_cache.count).toBe(0)
+      expect(stats.preview_cache.entries).toBe(0)
       expect(stats.total_size_mb).toBe(150.0)
     })
 
     it("should handle cache overflow scenario", async () => {
       // Simulate cache getting full
       const fullCacheStats = {
-        preview_cache: { count: 10000, size_mb: 800.0, hit_rate: 0.95 },
-        frame_cache: { count: 5000, size_mb: 700.0, hit_rate: 0.88 },
+        total_entries: 15000,
+        preview_hits: 9500,
+        preview_misses: 500,
+        metadata_hits: 4400,
+        metadata_misses: 600,
+        memory_usage: {
+          preview_bytes: 800000000,
+          metadata_bytes: 200000000,
+          render_bytes: 500000000,
+          total_bytes: 1500000000,
+          totalSize: 1500000000,
+          fileCount: 15000,
+          oldestEntry: "2024-01-01T00:00:00Z",
+          newestEntry: "2024-01-02T00:00:00Z",
+        },
+        cache_size_mb: 1500.0,
         total_size_mb: 1500.0,
-        memory_usage_mb: 1024.0,
-        disk_usage_mb: 476.0,
+        preview_cache: {
+          entries: 10000,
+          size_mb: 800.0,
+        },
         cache_efficiency: 0.68, // Lower efficiency due to overflow
       }
 

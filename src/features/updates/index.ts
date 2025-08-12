@@ -15,20 +15,18 @@ export {
 export type { UseUpdateManagerReturn } from "./hooks/use-update-manager"
 // Хуки
 export { useUpdateAvailability, useUpdateManager } from "./hooks/use-update-manager"
-export type {
-  UpdateMachine,
-  UpdateMachineActor,
-  UpdateMachineContext,
-  UpdateMachineEvent,
-} from "./services/update-machine"
-export { updateMachine } from "./services/update-machine"
+// Сервисы
+export { UpdateService, updateService } from "./services/update-service"
 // Типы
 export type {
+  AutoCheckSettings,
+  UpdateAvailability,
   UpdateCheckResult,
   UpdateEventPayload,
   UpdateInfo,
+  UpdateMachineContext,
+  UpdateMachineEvent,
   UpdateProgress,
+  UpdateProgressWithPercentage,
   UpdateStatus,
-} from "./services/update-service"
-// Сервисы
-export { UpdateService, updateService } from "./services/update-service"
+} from "./types"

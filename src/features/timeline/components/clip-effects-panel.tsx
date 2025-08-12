@@ -24,8 +24,8 @@ import { EffectManagerPanel } from "@/features/effects/components/effect-manager
 import { EffectParameterControls } from "@/features/effects/components/effect-parameter-controls"
 import { useEffects } from "@/features/effects/hooks/use-effects"
 import type { BaseEffect } from "@/features/effects/types"
-
 import { useTimeline } from "../hooks/use-timeline"
+import { useTimelineEffects } from "../hooks/use-timeline-effects"
 import type { AppliedEffect, TimelineClip } from "../types"
 
 interface ClipEffectsPanelProps {
@@ -39,6 +39,7 @@ interface ClipEffectsPanelProps {
 export function ClipEffectsPanel({ clip, onClose }: ClipEffectsPanelProps) {
   const { t, i18n } = useTranslation()
   const { effects: availableEffects } = useEffects()
+  const { applyEffect, removeEffect, updateEffect } = useTimelineEffects()
   const { send } = useTimeline()
 
   const [showEffectSelector, setShowEffectSelector] = useState(false)
@@ -128,14 +129,9 @@ export function ClipEffectsPanel({ clip, onClose }: ClipEffectsPanelProps) {
     (appliedEffectId: string, params: Record<string, any>) => {
       if (!clip) return
 
-      send({
-        type: "UPDATE_CLIP_EFFECT",
-        clipId: clip.id,
-        effectId: appliedEffectId,
-        updates: { customParams: params },
-      })
+      void updateEffect(clip.id, appliedEffectId, { customParams: params })
     },
-    [clip, send],
+    [clip, updateEffect],
   )
 
   // Обработчик изменения порядка эффектов
@@ -143,14 +139,10 @@ export function ClipEffectsPanel({ clip, onClose }: ClipEffectsPanelProps) {
     (fromIndex: number, toIndex: number) => {
       if (!clip) return
 
-      send({
-        type: "REORDER_CLIP_EFFECTS",
-        clipId: clip.id,
-        fromIndex,
-        toIndex,
-      })
+      // TODO: Add reorderEffects to useTimelineEffects hook
+      console.warn("Reordering effects not yet implemented", { fromIndex, toIndex })
     },
-    [clip, send],
+    [clip],
   )
 
   // Разворачивание/сворачивание эффекта

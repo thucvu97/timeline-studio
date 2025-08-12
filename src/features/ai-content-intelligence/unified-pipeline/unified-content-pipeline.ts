@@ -5,17 +5,15 @@
  * и Multi-Platform Adaptation в единый pipeline.
  */
 
-import {
-  type MediaInput,
-  UnifiedAIService,
-  type UnifiedContentAnalysis,
-} from "@/features/ai-chat/services/unified-ai-service"
+// Используем shared типы
+import type { MediaFile as MediaInput } from "@/domains/ai-services"
 
 import {
   ContentClassificationEngine,
   type ExtendedContentClassification,
 } from "../engines/content-classification/content-classification-engine"
 import { type AdvancedSceneAnalysis, SceneAnalysisEngine } from "../engines/scene-analysis/scene-analysis-engine"
+import { UnifiedContentAnalysis } from "../shared/types/content-analysis"
 
 // Pipeline конфигурация
 export interface PipelineConfig {
@@ -105,11 +103,12 @@ export interface PipelineResult {
 
 /**
  * Unified Content Pipeline - главный координатор
+ * Использует shared AI services
  */
 export class UnifiedContentPipeline {
-  private aiService: UnifiedAIService
-  private sceneEngine: SceneAnalysisEngine
-  private classificationEngine: ContentClassificationEngine
+  private sharedAIService: any = null
+  private sceneEngine: SceneAnalysisEngine | null = null
+  private classificationEngine: ContentClassificationEngine | null = null
   private pipelines = new Map<string, PipelineProgress>()
   private eventListeners: ((event: PipelineEvent) => void)[] = []
 
@@ -154,16 +153,40 @@ export class UnifiedContentPipeline {
     },
   }
 
-  constructor() {
-    this.aiService = UnifiedAIService.getInstance()
-    this.sceneEngine = new SceneAnalysisEngine()
-    this.classificationEngine = new ContentClassificationEngine()
+  /**
+   * Инициализация всех сервисов через DI
+   */
+  private async initializeServices() {
+    if (!this.sharedAIService) {
+      try {
+        // Получаем AI service из DI контейнера
+        const { getAIContainer } = await import("@/domains/ai-core")
+        const aiContainer = getAIContainer()
+        this.sharedAIService = await aiContainer.resolve("UnifiedAIService")
+
+        // Получаем движки через фабрику
+        const { getEngineFactory } = await import("../factories/engine-factory")
+        const engineFactory = getEngineFactory()
+
+        const engines = await engineFactory.createAllEngines()
+        this.sceneEngine = engines.sceneEngine as SceneAnalysisEngine
+        this.classificationEngine = engines.classificationEngine as unknown as ContentClassificationEngine
+      } catch (error) {
+        console.error("Ошибка инициализации сервисов:", error)
+        // Fallback к прямому созданию
+        this.sceneEngine = new SceneAnalysisEngine()
+        this.classificationEngine = new ContentClassificationEngine()
+      }
+    }
   }
 
   /**
    * Запуск pipeline для анализа контента
    */
   async processContent(mediaFiles: MediaInput[], config: Partial<PipelineConfig> = {}): Promise<string> {
+    // Инициализируем сервисы через DI
+    await this.initializeServices()
+
     const pipelineId = `pipeline_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
     const fullConfig = this.mergeConfig(config)
 
@@ -270,7 +293,7 @@ export class UnifiedContentPipeline {
       try {
         this.updatePipelineStage(pipelineId, "scene_analysis")
 
-        sceneAnalysis = await this.sceneEngine.analyzeScenes(mediaFile, {
+        sceneAnalysis = await this.sceneEngine?.analyzeScenes(mediaFile, {
           sensitivity: config.sceneAnalysis.sensitivity,
           minSceneDuration: config.sceneAnalysis.minSceneDuration,
           classifyTypes: config.sceneAnalysis.classifyTypes,
@@ -278,7 +301,7 @@ export class UnifiedContentPipeline {
           enablePersonTracking: config.sceneAnalysis.enablePersonTracking,
         })
 
-        if (sceneAnalysis.length === 0) {
+        if (sceneAnalysis?.length === 0) {
           warnings.push("Не удалось детектировать сцены в видео")
         }
       } catch (error) {
@@ -290,15 +313,16 @@ export class UnifiedContentPipeline {
     if (config.contentClassification.enabled && stages.includes("content_classification")) {
       try {
         this.updatePipelineStage(pipelineId, "content_classification")
-
-        contentClassification = await this.classificationEngine.classifyContent(mediaFile, sceneAnalysis, {
-          includeSubcategories: config.contentClassification.includeSubcategories,
-          analyzeMood: config.contentClassification.analyzeMood,
-          includeTargeting: config.contentClassification.includeTargeting,
-          analyzePlatforms: config.contentClassification.analyzePlatforms,
-          includeMarketing: config.contentClassification.includeMarketing,
-          analyzeAccessibility: config.contentClassification.analyzeAccessibility,
-        })
+        if (sceneAnalysis) {
+          contentClassification = await this.classificationEngine?.classifyContent(mediaFile, sceneAnalysis, {
+            includeSubcategories: config.contentClassification.includeSubcategories,
+            analyzeMood: config.contentClassification.analyzeMood,
+            includeTargeting: config.contentClassification.includeTargeting,
+            analyzePlatforms: config.contentClassification.analyzePlatforms,
+            includeMarketing: config.contentClassification.includeMarketing,
+            analyzeAccessibility: config.contentClassification.analyzeAccessibility,
+          })
+        }
       } catch (error) {
         warnings.push(`Ошибка классификации контента: ${String(error)}`)
       }
@@ -382,7 +406,7 @@ ${classification ? `Жанр: ${classification.genre}, Стиль: ${classificat
 - shotList: список кадров (если включено)
 - metadata: метаданные`
 
-    const response = await this.aiService.sendRequest("claude-4-sonnet", [{ role: "user", content: prompt }], {
+    const response = await this.sharedAIService.sendRequest("claude-4-sonnet", [{ role: "user", content: prompt }], {
       temperature: 0.4,
     })
 
@@ -424,7 +448,7 @@ ${classification ? `Классификация: ${JSON.stringify(classification)
 Формат ответа JSON с адаптацией.`
 
       try {
-        const response = await this.aiService.sendRequest(
+        const response = await this.sharedAIService.sendRequest(
           "claude-4-sonnet",
           [{ role: "user", content: adaptationPrompt }],
           { temperature: 0.3 },
@@ -587,6 +611,16 @@ ${classification ? `Классификация: ${JSON.stringify(classification)
         })),
         marketingAngles: [],
         targetDemographics: [],
+      },
+      // video: undefined,
+      // audio: undefined,
+      // transcript: undefined,
+      summary: "",
+      tags: [],
+      sentiment: {
+        positive: 5,
+        neutral: 5,
+        negative: 5,
       },
     }))
 

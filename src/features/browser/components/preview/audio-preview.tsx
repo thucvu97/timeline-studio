@@ -3,6 +3,7 @@ import { Music } from "lucide-react"
 import { memo, useCallback, useEffect, useRef, useState } from "react"
 import { LiveAudioVisualizer } from "react-audio-visualize"
 
+import { FileSelectionCheckbox } from "@/features/browser/components/layout/file-selection-checkbox"
 import type { MediaFile } from "@/features/media/types/media"
 import type { TimelineResource } from "@/features/resources/types"
 import { usePlayer } from "@/features/video-player"
@@ -234,6 +235,9 @@ export const AudioPreview = memo(function AudioPreview({
           {file.name}
         </div>
       )}
+
+      {/* Чекбокс выбора файла */}
+      <FileSelectionCheckbox file={file} size={size} />
 
       {/* Кнопка избранного */}
       <FavoriteButton file={file} size={size} type="media" />

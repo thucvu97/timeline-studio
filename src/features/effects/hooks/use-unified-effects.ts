@@ -10,7 +10,7 @@ import { usePlayer } from "@/features/video-player"
 
 import { basicEffectsLibrary } from "../presets/basic-effects"
 import { EffectManager } from "../services/effect-manager"
-import { type RenderContext, type RenderResult, UnifiedEffectsRenderer } from "../services/webgl2-unified-renderer"
+import { type RenderContext, type RenderResult, WebGL2UnifiedRenderer } from "../services/webgl2-unified-renderer"
 
 import type {
   AppliedEffect,
@@ -63,7 +63,7 @@ export function useUnifiedEffects(
 
   // Менеджеры
   const effectManager = useRef(new EffectManager())
-  const renderer = useRef(new UnifiedEffectsRenderer())
+  const renderer = useRef(new WebGL2UnifiedRenderer())
 
   // Timeline состояние
   const { currentTime } = useTimeline()

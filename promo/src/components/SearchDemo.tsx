@@ -20,15 +20,23 @@ export const SearchDemo: React.FC<SearchDemoProps> = ({ className = "" }) => {
           <div className="h-full w-full rounded-2xl bg-[#12192C]" />
         </div>
 
-        {/* Screenshot */}
+        {/* Screenshot - скрыт на мобильных */}
         <div className="relative">
           <img
             src="/screen5.png"
             alt="Timeline Studio AI Interface"
             width="4112"
             height="2572"
-            className="w-full h-auto rounded-2xl"
+            className="w-full h-auto rounded-2xl hidden md:block"
           />
+
+          {/* Заглушка для мобильных */}
+          <div className="md:hidden w-full aspect-video bg-gradient-to-br from-purple-900/20 to-pink-900/20 rounded-2xl flex items-center justify-center">
+            <div className="text-center text-white/60">
+              <div className="text-4xl mb-2">🎬</div>
+              <p className="text-sm">Timeline Studio Interface</p>
+            </div>
+          </div>
 
           {/* Animated overlay badges */}
           <motion.div

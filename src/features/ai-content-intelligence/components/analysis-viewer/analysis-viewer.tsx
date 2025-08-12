@@ -133,7 +133,7 @@ const OverviewTab: FC<{ analysis: UnifiedContentAnalysis }> = ({ analysis }) => 
       <h3 className="text-sm font-medium mb-3">Классификация контента</h3>
       <div className="flex flex-wrap gap-2">
         <Badge variant="default">{analysis.contentType.replace(/_/g, " ")}</Badge>
-        {analysis.genres.map((genre) => (
+        {analysis.genres.map((genre: string) => (
           <Badge key={genre} variant="secondary">
             {genre}
           </Badge>
@@ -173,7 +173,9 @@ const OverviewTab: FC<{ analysis: UnifiedContentAnalysis }> = ({ analysis }) => 
     {/* Summary */}
     <div>
       <h3 className="text-sm font-medium mb-3">Краткое описание</h3>
-      <p className="text-sm text-muted-foreground leading-relaxed">{analysis.insights.summary}</p>
+      <p className="text-sm text-muted-foreground leading-relaxed">
+        {(analysis.insights as any).summary || "Краткое описание недоступно"}
+      </p>
     </div>
   </div>
 )
@@ -204,12 +206,12 @@ const ScenesTab: FC<ScenesTabProps> = ({ scenes, onSceneSelect }) => (
                 </div>
                 <div className="grid grid-cols-2 gap-4 mt-3">
                   <div>
-                    <p className="text-xs text-muted-foreground">Качество</p>
+                    {/* <p className="text-xs text-muted-foreground">Качество</p>
                     <Progress value={scene.quality.overall} className="h-2 mt-1" />
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">Объектов</p>
-                    <p className="text-sm font-medium">{scene.content.objects.length}</p>
+                    <p className="text-sm font-medium">{scene.content.objects.length}</p> */}
                   </div>
                 </div>
               </div>
@@ -292,7 +294,7 @@ const InsightsTab: FC<{ insights: UnifiedContentAnalysis["insights"] }> = ({ ins
           Рекомендации
         </h3>
         <div className="space-y-2">
-          {insights.suggestions.map((suggestion, index) => (
+          {insights.suggestions.map((suggestion: any, index: number) => (
             <div key={index} className="bg-muted/50 rounded-lg p-3">
               <div className="flex items-center justify-between mb-1">
                 <Badge variant="outline" className="text-xs">
@@ -320,7 +322,7 @@ const InsightsTab: FC<{ insights: UnifiedContentAnalysis["insights"] }> = ({ ins
           Предупреждения
         </h3>
         <div className="space-y-2">
-          {insights.warnings.map((warning, index) => (
+          {insights.warnings.map((warning: any, index: number) => (
             <div key={index} className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3">
               <div className="flex items-center justify-between mb-1">
                 <Badge variant="outline" className="text-xs">

@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import { useModal } from "@/features/modals/services"
 
-import type { SubtitleClip } from "../types/timeline"
+import type { SubtitleClip } from "@/features/subtitles/types"
 
 export function SubtitleEditorModal() {
   const { modalData, closeModal } = useModal()

@@ -72,6 +72,7 @@ export const FolderClosed = createMockIcon("FolderClosed")
 export const FolderOpen = createMockIcon("FolderOpen")
 export const Gauge = createMockIcon("Gauge")
 export const GitBranch = createMockIcon("GitBranch")
+export const GitCommit = createMockIcon("GitCommit")
 export const Grid = createMockIcon("Grid")
 export const Grid2x2 = createMockIcon("Grid2x2")
 export const Grid2X2 = createMockIcon("Grid2X2")
@@ -79,6 +80,7 @@ export const Grid3X3 = createMockIcon("Grid3X3")
 export const GripVertical = createMockIcon("GripVertical")
 export const GripVerticalIcon = createMockIcon("GripVerticalIcon")
 export const HardDrive = createMockIcon("HardDrive")
+export const Hash = createMockIcon("Hash")
 export const History = createMockIcon("History")
 export const Image = createMockIcon("Image")
 export const ImagePlay = createMockIcon("ImagePlay")
@@ -117,6 +119,7 @@ export const Play = createMockIcon("Play")
 export const PlayCircle = createMockIcon("PlayCircle")
 export const Plus = createMockIcon("Plus")
 export const Power = createMockIcon("Power")
+export const Redo = createMockIcon("Redo")
 export const Redo2 = createMockIcon("Redo2")
 export const RefreshCw = createMockIcon("RefreshCw")
 export const RotateCcw = createMockIcon("RotateCcw")
@@ -147,6 +150,7 @@ export const TrendingDown = createMockIcon("TrendingDown")
 export const TrendingUp = createMockIcon("TrendingUp")
 export const TvMinimalPlay = createMockIcon("TvMinimalPlay")
 export const Type = createMockIcon("Type")
+export const Undo = createMockIcon("Undo")
 export const Undo2 = createMockIcon("Undo2")
 export const UnfoldHorizontal = createMockIcon("UnfoldHorizontal")
 export const Unlock = createMockIcon("Unlock")
@@ -225,6 +229,7 @@ vi.mock("lucide-react", () => ({
   FolderOpen,
   Gauge,
   GitBranch,
+  GitCommit,
   Grid,
   Grid2x2,
   Grid2X2,
@@ -232,6 +237,7 @@ vi.mock("lucide-react", () => ({
   GripVertical,
   GripVerticalIcon,
   HardDrive,
+  Hash,
   History,
   Image,
   ImagePlay,
@@ -270,6 +276,7 @@ vi.mock("lucide-react", () => ({
   PlayCircle,
   Plus,
   Power,
+  Redo,
   Redo2,
   RefreshCw,
   RotateCcw,
@@ -302,6 +309,7 @@ vi.mock("lucide-react", () => ({
   TrendingUp,
   TvMinimalPlay,
   Type,
+  Undo,
   Undo2,
   UnfoldHorizontal,
   Unlock,

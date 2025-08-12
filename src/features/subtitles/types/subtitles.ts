@@ -102,46 +102,211 @@ export interface Subtitle {
 }
 
 /**
- * Интерфейс для клипа субтитров на таймлайне
+ * Типы анимаций субтитров (синхронизировано с Backend)
+ */
+export type SubtitleAnimationType =
+  | "fade"
+  | "slide"
+  | "scale"
+  | "typewriter"
+  | "wave"
+  | "bounce"
+  | "shake"
+  | "blink"
+  | "dissolve"
+
+/**
+ * Функции сглаживания анимации
+ */
+export type SubtitleEasing = "linear" | "ease" | "ease-in" | "ease-out" | "ease-in-out" | "elastic" | "bounce"
+
+/**
+ * Направление анимации
+ */
+export type SubtitleDirection = "top" | "bottom" | "left" | "right" | "center"
+
+/**
+ * Выравнивание субтитров
+ */
+export type SubtitleAlignment =
+  | "top-left"
+  | "top-center"
+  | "top-right"
+  | "middle-left"
+  | "middle-center"
+  | "middle-right"
+  | "bottom-left"
+  | "bottom-center"
+  | "bottom-right"
+
+/**
+ * Интерфейс анимации субтитра
+ */
+export interface SubtitleAnimation {
+  type: SubtitleAnimationType
+  duration: number // В секундах
+  delay?: number // Задержка перед началом
+  easing?: SubtitleEasing
+  direction?: SubtitleDirection // Для slide анимаций
+}
+
+/**
+ * Интерфейс позиционирования субтитра
+ */
+export interface SubtitlePosition {
+  alignment: SubtitleAlignment
+  marginX?: number // Отступ по горизонтали в пикселях
+  marginY?: number // Отступ по вертикали в пикселях
+}
+
+/**
+ * Интерфейс стиля субтитра (inline переопределения)
+ */
+export interface SubtitleInlineStyle {
+  fontFamily?: string
+  fontSize?: number
+  fontWeight?: string | number
+  fontStyle?: string
+  color?: string
+  backgroundColor?: string
+  textShadow?: string
+  textAlign?: string
+  lineHeight?: number
+  letterSpacing?: number
+  textTransform?: string
+  animation?: string
+  background?: string
+  WebkitBackgroundClip?: string
+  WebkitTextFillColor?: string
+  padding?: string
+  borderRadius?: string
+  // Дополнительные стили из Backend
+  strokeColor?: string
+  strokeWidth?: number
+  shadowColor?: string
+  shadowX?: number
+  shadowY?: number
+  shadowBlur?: number
+  backgroundOpacity?: number
+  maxWidth?: number // В процентах
+}
+
+/**
+ * Унифицированный интерфейс для клипа субтитров на таймлайне
+ * Объединяет функциональность из subtitles и timeline модулей
+ * Расширяет базовый TimelineClip всеми необходимыми полями
  */
 export interface SubtitleClip {
+  // ============= БАЗОВЫЕ ПОЛЯ TIMELINECLIP =============
   id: string
-  trackId: string
+  name: string
   type: "subtitle"
+
+  // Связь с медиафайлом (для субтитров может быть пустым)
+  mediaId: string
+  mediaFile?: any // MediaFile для совместимости
+
+  // Позиция на треке
+  trackId: string
   startTime: number
   duration: number
-  text: string
-  style?: {
-    fontFamily?: string
-    fontSize?: number
-    fontWeight?: string | number
-    fontStyle?: string
-    color?: string
-    backgroundColor?: string
-    textShadow?: string
-    textAlign?: string
-    lineHeight?: number
-    letterSpacing?: number
-    textTransform?: string
-    animation?: string
-    background?: string
-    WebkitBackgroundClip?: string
-    WebkitTextFillColor?: string
-    padding?: string
-    borderRadius?: string
-  }
+
+  // Обрезка исходного медиа (для субтитров)
+  mediaStartTime: number
+  mediaEndTime: number
+  offset: number
+  mediaDuration?: number
+
+  // J-Cut / L-Cut support (не применимо к субтитрам, но нужно для совместимости)
+  audioOffset?: number
+  linkedClipId?: string
+  isLinked?: boolean
+
+  // Настройки клипа
+  volume: number // 0-1 (не применимо к субтитрам, но нужно для совместимости)
+  speed: number // Скорость воспроизведения
+  playbackRate?: number
+  maintainPitch?: boolean
+  isReversed: boolean
+
+  // Speed ramping (не применимо к субтитрам, но нужно для совместимости)
+  speedRamping?: any
+
+  // Визуальные настройки
   position?: {
     x: number
     y: number
-    width?: number
-    height?: number
-    rotation?: number
-    scaleX?: number
-    scaleY?: number
+    width: number
+    height: number
+    rotation: number
+    scaleX: number
+    scaleY: number
   }
-  subtitlePosition?: {
-    alignment: string
+  opacity: number // 0-1
+
+  // Video fade эффекты (не применимо к субтитрам, но нужно для совместимости)
+  fadeIn?: {
+    duration: number
+    type?: "linear" | "exponential" | "logarithmic" | "cosine" | "ease-in" | "ease-out" | "ease-in-out"
+    keyframes?: any[]
   }
+
+  fadeOut?: {
+    duration: number
+    type?: "linear" | "exponential" | "logarithmic" | "cosine" | "ease-in" | "ease-out" | "ease-in-out"
+    keyframes?: any[]
+  }
+
+  // Keyframes для анимации opacity
+  opacityKeyframes?: any[]
+
+  // Шаблоны (не применимо к субтитрам, но нужно для совместимости)
+  templateId?: string
+  templateCell?: number
+
+  // Применяемые ресурсы
+  effects: any[]
+  filters: any[]
+  transitions: any[]
+  styleTemplate?: any
+  colorGrading?: any
+
+  // Keyframe анимации
+  keyframes?: any[]
+
+  // Состояние
+  isSelected: boolean
+  isLocked: boolean
+
+  // Метаданные
+  createdAt: Date
+  updatedAt: Date
+
+  // ============= СПЕЦИФИЧНЫЕ ПОЛЯ СУБТИТРОВ =============
+
+  // Содержание субтитра
+  text: string
+
+  // Стиль субтитра
+  subtitleStyleId?: string // Ссылка на стиль из ресурсов
+  style?: SubtitleInlineStyle // Inline переопределения стиля
+  formatting?: SubtitleInlineStyle // Альтернативное название для совместимости
+
+  // Позиционирование субтитра
+  subtitlePosition?: SubtitlePosition
+
+  // Анимации
+  animationIn?: SubtitleAnimation
+  animationOut?: SubtitleAnimation
+
+  // Дополнительные настройки субтитров
+  wordWrap?: boolean
+  maxWidth?: number // Максимальная ширина в процентах
+  enabled?: boolean // Включен ли субтитр
+
+  // Дополнительные поля для совместимости
+  sourceId?: string
+  metadata?: Record<string, any>
 }
 
 /**
