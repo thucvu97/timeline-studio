@@ -1,3 +1,10 @@
+## [1.3.9](https://github.com/chatman-media/timeline-studio/compare/v1.3.8...v1.3.9) (2025-08-12)
+
+
+### Bug Fixes
+
+* **promo:** up google ads ([843307d](https://github.com/chatman-media/timeline-studio/commit/843307db056f694cd3693598f9f0b85c4fc0750a))
+
 ## [1.3.8](https://github.com/chatman-media/timeline-studio/compare/v1.3.7...v1.3.8) (2025-08-12)
 
 
